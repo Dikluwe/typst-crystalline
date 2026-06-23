@@ -21,16 +21,16 @@ use crate::entities::span::Span;
 use crate::entities::value::Value;
 
 // ── Submódulos por cluster (Passo 96.5, ADR-0037) ───────────────────────────
-mod foundations;
-mod calc;
-mod text;
 mod assert;
-mod panic;
-mod structural;
+mod calc;
 mod figure_image;
-mod shapes;
-mod transforms;
+mod foundations;
 mod layout;
+mod panic;
+mod shapes;
+mod structural;
+mod text;
+mod transforms;
 // P262 — Gradient stdlib (Linear only per ADR-0087).
 mod gradients;
 // P311b.3 — 12 funções math style (bb/cal/frak/etc.).
@@ -46,32 +46,46 @@ mod primitives_constructors;
 
 // Re-exports públicos — preservam o path `crate::rules::stdlib::native_X` usado
 // por `make_stdlib` em `eval/mod.rs`.
-pub use crate::rules::stdlib::foundations::{
-    native_cmyk, native_counter_at, native_counter_display, native_counter_final, native_counter_step, native_float, native_here, native_hsl, native_hsv, native_int, native_len, native_linear_rgb, native_locate, native_luma, native_metadata, native_oklab, native_oklch, native_query, native_range, native_rgb,
-    native_state, native_state_at, native_state_display, native_state_final, native_state_update, native_state_update_with, native_str, native_type,
-};
-pub use crate::rules::stdlib::calc::make_calc_module;
-pub use crate::rules::stdlib::text::{native_lorem, native_lower, native_overline, native_regex, native_replace, native_smallcaps, native_smartquote, native_strike, native_underline, native_upper};
 pub use crate::rules::stdlib::assert::native_assert;
-pub use crate::rules::stdlib::panic::native_panic;
+pub use crate::rules::stdlib::calc::make_calc_module;
 pub use crate::rules::stdlib::eval::native_eval;
-pub use crate::rules::stdlib::structural::{
-    make_math_module, native_accent, native_asset, native_bibliography, native_cancel, native_cite, native_divider, native_document, native_emph, native_footnote, native_grid_cell, native_grid_footer, native_grid_header, native_heading, native_op, native_quote, native_raw, native_strong, native_table, native_table_cell, native_table_footer, native_table_header, native_terms, native_underover,
-};
 pub use crate::rules::stdlib::figure_image::{native_figure, native_image};
+pub use crate::rules::stdlib::foundations::{
+    native_cmyk, native_counter_at, native_counter_display, native_counter_final,
+    native_counter_step, native_float, native_here, native_hsl, native_hsv, native_int,
+    native_len, native_linear_rgb, native_locate, native_luma, native_metadata,
+    native_oklab, native_oklch, native_query, native_range, native_rgb, native_state,
+    native_state_at, native_state_display, native_state_final, native_state_update,
+    native_state_update_with, native_str, native_type,
+};
+pub use crate::rules::stdlib::panic::native_panic;
+pub use crate::rules::stdlib::structural::{
+    make_math_module, native_accent, native_asset, native_bibliography, native_cancel,
+    native_cite, native_divider, native_document, native_emph, native_footnote,
+    native_grid_cell, native_grid_footer, native_grid_header, native_heading, native_op,
+    native_quote, native_raw, native_strong, native_table, native_table_cell,
+    native_table_footer, native_table_header, native_terms, native_underover,
+};
+pub use crate::rules::stdlib::text::{
+    native_lorem, native_lower, native_overline, native_regex, native_replace,
+    native_smallcaps, native_smartquote, native_strike, native_underline, native_upper,
+};
 // P387 (ADR-0111) — data import.
+pub use crate::rules::stdlib::layout::{
+    native_align, native_block, native_box, native_colbreak, native_columns, native_grid,
+    native_h, native_hide, native_measure, native_pad, native_pagebreak, native_place,
+    native_repeat, native_stack, native_stroke, native_v,
+};
 pub use crate::rules::stdlib::loading::{
-    native_cbor, native_csv, native_json, native_read, native_toml, native_xml, native_yaml,
+    native_cbor, native_csv, native_json, native_read, native_toml, native_xml,
+    native_yaml,
 };
 pub use crate::rules::stdlib::shapes::{
-    native_circle, native_curve, native_ellipse, native_line, native_polygon, native_rect,
-    native_square,
+    native_circle, native_curve, native_ellipse, native_line, native_polygon,
+    native_rect, native_square,
 };
-pub use crate::rules::stdlib::transforms::{native_move, native_rotate, native_scale, native_skew};
-pub use crate::rules::stdlib::layout::{
-    native_align, native_block, native_box, native_colbreak, native_columns, native_grid, native_h,
-    native_hide, native_measure, native_pad, native_pagebreak, native_place,
-    native_repeat, native_stack, native_stroke, native_v,
+pub use crate::rules::stdlib::transforms::{
+    native_move, native_rotate, native_scale, native_skew,
 };
 // P262 — Gradient stdlib (Linear only per ADR-0087).
 // P264 — Gradient stdlib Radial added per ADR-0088.
@@ -88,9 +102,8 @@ pub use crate::rules::stdlib::primitives_constructors::{
 };
 // P311b.3 — 12 funções math style (paridade categoria 12/12 = 100%).
 pub use crate::rules::stdlib::math_style::{
-    native_bb, native_bold, native_cal, native_frak, native_math_italic,
-    native_mono, native_sans, native_scr, native_script, native_serif,
-    native_sscript, native_upright,
+    native_bb, native_bold, native_cal, native_frak, native_math_italic, native_mono,
+    native_sans, native_scr, native_script, native_serif, native_sscript, native_upright,
 };
 
 // ── Helpers partilhados ─────────────────────────────────────────────────────
@@ -105,7 +118,9 @@ pub(super) fn err(msg: impl Into<String>) -> SourceResult<Value> {
 /// O Typst original é rigoroso: argumentos nomeados desconhecidos são
 /// erros semânticos, não silenciosos. Ignorá-los criaria uma linguagem
 /// permissiva que esconde typos do utilizador.
-pub(super) fn expect_no_named(named: &IndexMap<EcoString, Value, FxBuildHasher>) -> SourceResult<()> {
+pub(super) fn expect_no_named(
+    named: &IndexMap<EcoString, Value, FxBuildHasher>,
+) -> SourceResult<()> {
     if let Some((key, _)) = named.iter().next() {
         return Err(vec![SourceDiagnostic::error(
             Span::detached(),
@@ -117,37 +132,70 @@ pub(super) fn expect_no_named(named: &IndexMap<EcoString, Value, FxBuildHasher>)
 
 #[cfg(test)]
 mod tests {
-    use super::*;
-    use super::shapes::parse_color;
     use super::calc::{
-        calc_abs, calc_ceil, calc_clamp, calc_floor, calc_max, calc_min, calc_pow,
-        calc_round, calc_sqrt,
-        // P283 — trig/hyperbolic/log/exp.
-        calc_sin, calc_cos, calc_tan, calc_asin, calc_acos, calc_atan, calc_atan2,
-        calc_sinh, calc_cosh, calc_tanh, calc_asinh, calc_acosh, calc_atanh,
-        calc_exp, calc_ln, calc_log,
-        // P306 — aritmética inteira, combinatória, norma, raiz.
-        calc_trunc, calc_fract, calc_even, calc_odd,
-        calc_rem, calc_rem_euclid, calc_div_euclid, calc_quo,
-        calc_gcd, calc_lcm, calc_fact, calc_perm, calc_binom,
-        calc_norm, calc_root,
+        calc_abs,
+        calc_acos,
+        calc_acosh,
+        calc_asin,
+        calc_asinh,
+        calc_atan,
+        calc_atan2,
+        calc_atanh,
+        calc_binom,
+        calc_ceil,
+        calc_clamp,
+        calc_cos,
+        calc_cosh,
+        calc_div_euclid,
         // P308 — função erro de Gauss (paridade calc 41/41).
         calc_erf,
+        calc_even,
+        calc_exp,
+        calc_fact,
+        calc_floor,
+        calc_fract,
+        calc_gcd,
+        calc_lcm,
+        calc_ln,
+        calc_log,
+        calc_max,
+        calc_min,
+        calc_norm,
+        calc_odd,
+        calc_perm,
+        calc_pow,
+        calc_quo,
+        calc_rem,
+        calc_rem_euclid,
+        calc_root,
+        calc_round,
+        // P283 — trig/hyperbolic/log/exp.
+        calc_sin,
+        calc_sinh,
+        calc_sqrt,
+        calc_tan,
+        calc_tanh,
+        // P306 — aritmética inteira, combinatória, norma, raiz.
+        calc_trunc,
         make_calc_module as p283_make_calc_module,
     };
+    use super::shapes::parse_color;
+    use super::*;
+    use crate::contracts::world::World;
     use crate::entities::args::Args;
     use crate::entities::content::Content;
-    use crate::entities::layout_types::{Color, Length};
-    use crate::rules::eval::EvalContext;
-    use crate::contracts::world::World;
+    use crate::entities::engine::Engine;
     use crate::entities::file_id::FileId;
     use crate::entities::font_book::FontBook;
-    use crate::entities::source::Source;
-    use crate::entities::world_types::{Bytes, Datetime, FileError, FileResult, Font, Library, Route};
-    use crate::entities::engine::Engine;
+    use crate::entities::layout_types::{Color, Length};
     use crate::entities::show::{RuleId, ShowRule};
     use crate::entities::sink::Sink;
+    use crate::entities::source::Source;
     use crate::entities::style_chain::StyleChain;
+    use crate::entities::world_types::{
+        Bytes, Datetime, FileError, FileResult, Font, Library, Route,
+    };
+    use crate::rules::eval::EvalContext;
     use crate::rules::scopes::Scopes;
     use comemo::{Track, TrackedMut};
     use std::num::NonZeroU16;
@@ -169,19 +217,38 @@ mod tests {
     #[derive(Default)]
     struct NullWorld {
         library: Library,
-        book:    FontBook,
-        files:   std::collections::HashMap<String, std::sync::Arc<Vec<u8>>>,
+        book: FontBook,
+        files: std::collections::HashMap<String, std::sync::Arc<Vec<u8>>>,
     }
     impl World for NullWorld {
-        fn library(&self) -> &Library { &self.library }
-        fn book(&self) -> &FontBook { &self.book }
-        fn main(&self) -> FileId { FileId::from_raw(NonZeroU16::new(1).unwrap()) }
-        fn source(&self, _: FileId) -> FileResult<Source> { Err(FileError::NotFound) }
-        fn file(&self, _: FileId) -> FileResult<Bytes> { Err(FileError::NotFound) }
-        fn font(&self, _: usize) -> Option<Font> { None }
-        fn today(&self, _: Option<i64>) -> Option<Datetime> { None }
-        fn read_bytes(&self, _current_file: FileId, path: &str) -> Result<std::sync::Arc<Vec<u8>>, String> {
-            self.files.get(path)
+        fn library(&self) -> &Library {
+            &self.library
+        }
+        fn book(&self) -> &FontBook {
+            &self.book
+        }
+        fn main(&self) -> FileId {
+            FileId::from_raw(NonZeroU16::new(1).unwrap())
+        }
+        fn source(&self, _: FileId) -> FileResult<Source> {
+            Err(FileError::NotFound)
+        }
+        fn file(&self, _: FileId) -> FileResult<Bytes> {
+            Err(FileError::NotFound)
+        }
+        fn font(&self, _: usize) -> Option<Font> {
+            None
+        }
+        fn today(&self, _: Option<i64>) -> Option<Datetime> {
+            None
+        }
+        fn read_bytes(
+            &self,
+            _current_file: FileId,
+            path: &str,
+        ) -> Result<std::sync::Arc<Vec<u8>>, String> {
+            self.files
+                .get(path)
                 .map(std::sync::Arc::clone)
                 .ok_or_else(|| format!("ficheiro não encontrado: {}", path))
         }
@@ -193,7 +260,7 @@ mod tests {
     macro_rules! null_ctx {
         ($ctx:ident) => {
             let mut $ctx = EvalContext::new();
-        }
+        };
     }
 
     /// Helper que cria um Engine mínimo para tests de `native_eval`.
@@ -228,37 +295,82 @@ mod tests {
 
     /// Helper: `FileId` dummy para tests que não fazem I/O.
     fn test_file_id() -> crate::entities::file_id::FileId {
-        crate::entities::file_id::FileId::from_raw(
-            std::num::NonZeroU16::new(1).unwrap()
-        )
+        crate::entities::file_id::FileId::from_raw(std::num::NonZeroU16::new(1).unwrap())
     }
 
     #[test]
     fn native_type_directo() {
         null_ctx!(ctx);
-        assert_eq!(native_type(&mut ctx, &p(vec![Value::Int(1)]), &null_world(), test_file_id()).unwrap(),     Value::Str("int".into()));
-        assert_eq!(native_type(&mut ctx, &p(vec![Value::Bool(true)]), &null_world(), test_file_id()).unwrap(), Value::Str("bool".into()));
-        assert_eq!(native_type(&mut ctx, &p(vec![Value::None]), &null_world(), test_file_id()).unwrap(),       Value::Str("none".into()));
+        assert_eq!(
+            native_type(&mut ctx, &p(vec![Value::Int(1)]), &null_world(), test_file_id())
+                .unwrap(),
+            Value::Str("int".into())
+        );
+        assert_eq!(
+            native_type(
+                &mut ctx,
+                &p(vec![Value::Bool(true)]),
+                &null_world(),
+                test_file_id()
+            )
+            .unwrap(),
+            Value::Str("bool".into())
+        );
+        assert_eq!(
+            native_type(&mut ctx, &p(vec![Value::None]), &null_world(), test_file_id())
+                .unwrap(),
+            Value::Str("none".into())
+        );
         assert!(native_type(&mut ctx, &p(vec![]), &null_world(), test_file_id()).is_err());
-        assert!(native_type(&mut ctx, &p(vec![Value::Int(1), Value::Int(2)]), &null_world(), test_file_id()).is_err());
+        assert!(native_type(
+            &mut ctx,
+            &p(vec![Value::Int(1), Value::Int(2)]),
+            &null_world(),
+            test_file_id()
+        )
+        .is_err());
     }
 
     #[test]
     fn native_type_named_arg_retorna_err() {
         null_ctx!(ctx);
         let args = pn(vec![Value::Int(1)], "extra", Value::Bool(true));
-        assert!(native_type(&mut ctx, &args, &null_world(), test_file_id()).is_err(), "named arg inesperado deve retornar Err");
+        assert!(
+            native_type(&mut ctx, &args, &null_world(), test_file_id()).is_err(),
+            "named arg inesperado deve retornar Err"
+        );
     }
 
     #[test]
     fn native_len_directo() {
         null_ctx!(ctx);
-        assert_eq!(native_len(&mut ctx, &p(vec![Value::Str("abc".into())]), &null_world(), test_file_id()).unwrap(), Value::Int(3));
         assert_eq!(
-            native_len(&mut ctx, &p(vec![Value::Array(vec![Value::Int(1), Value::Int(2)])]), &null_world(), test_file_id()).unwrap(),
+            native_len(
+                &mut ctx,
+                &p(vec![Value::Str("abc".into())]),
+                &null_world(),
+                test_file_id()
+            )
+            .unwrap(),
+            Value::Int(3)
+        );
+        assert_eq!(
+            native_len(
+                &mut ctx,
+                &p(vec![Value::Array(vec![Value::Int(1), Value::Int(2)])]),
+                &null_world(),
+                test_file_id()
+            )
+            .unwrap(),
             Value::Int(2)
         );
-        assert!(native_len(&mut ctx, &p(vec![Value::Int(1)]), &null_world(), test_file_id()).is_err());
+        assert!(native_len(
+            &mut ctx,
+            &p(vec![Value::Int(1)]),
+            &null_world(),
+            test_file_id()
+        )
+        .is_err());
         assert!(native_len(&mut ctx, &p(vec![]), &null_world(), test_file_id()).is_err());
     }
 
@@ -268,7 +380,13 @@ mod tests {
     fn stdlib_rgb_tres_args() {
         null_ctx!(ctx);
         use crate::entities::layout_types::Color;
-        let r = native_rgb(&mut ctx, &p(vec![Value::Int(255), Value::Int(0), Value::Int(128)]), &null_world(), test_file_id()).unwrap();
+        let r = native_rgb(
+            &mut ctx,
+            &p(vec![Value::Int(255), Value::Int(0), Value::Int(128)]),
+            &null_world(),
+            test_file_id(),
+        )
+        .unwrap();
         assert_eq!(r, Value::Color(Color::rgb(255, 0, 128)));
     }
 
@@ -276,14 +394,26 @@ mod tests {
     fn stdlib_rgb_quatro_args() {
         null_ctx!(ctx);
         use crate::entities::layout_types::Color;
-        let r = native_rgb(&mut ctx, &p(vec![Value::Int(255), Value::Int(0), Value::Int(0), Value::Int(200)]), &null_world(), test_file_id()).unwrap();
+        let r = native_rgb(
+            &mut ctx,
+            &p(vec![Value::Int(255), Value::Int(0), Value::Int(0), Value::Int(200)]),
+            &null_world(),
+            test_file_id(),
+        )
+        .unwrap();
         assert_eq!(r, Value::Color(Color::rgba(255, 0, 0, 200)));
     }
 
     #[test]
     fn stdlib_rgb_out_of_range() {
         null_ctx!(ctx);
-        assert!(native_rgb(&mut ctx, &p(vec![Value::Int(300), Value::Int(0), Value::Int(0)]), &null_world(), test_file_id()).is_err());
+        assert!(native_rgb(
+            &mut ctx,
+            &p(vec![Value::Int(300), Value::Int(0), Value::Int(0)]),
+            &null_world(),
+            test_file_id()
+        )
+        .is_err());
     }
 
     #[test]
@@ -293,14 +423,22 @@ mod tests {
         // observable preservada via `to_srgb()` que expande Luma
         // para sRGB cinza bit-equivalente.
         null_ctx!(ctx);
-        let r = native_luma(&mut ctx, &p(vec![Value::Int(128)]), &null_world(), test_file_id()).unwrap();
+        let r = native_luma(
+            &mut ctx,
+            &p(vec![Value::Int(128)]),
+            &null_world(),
+            test_file_id(),
+        )
+        .unwrap();
         if let Value::Color(c) = r {
             let (r_, g_, b_, a_) = c.to_srgb();
             assert_eq!(r_, 128);
             assert_eq!(g_, 128);
             assert_eq!(b_, 128);
             assert_eq!(a_, 255);
-        } else { panic!("esperado Value::Color"); }
+        } else {
+            panic!("esperado Value::Color");
+        }
     }
 
     // ── P257 (ADR-0083 PROPOSTO) — stdlib funcs novas para espaços
@@ -309,105 +447,161 @@ mod tests {
     #[test]
     fn p257_native_oklab_3_args() {
         null_ctx!(ctx);
-        let r = native_oklab(&mut ctx, &p(vec![
-            Value::Float(0.5), Value::Float(0.0), Value::Float(0.0),
-        ]), &null_world(), test_file_id()).unwrap();
+        let r = native_oklab(
+            &mut ctx,
+            &p(vec![Value::Float(0.5), Value::Float(0.0), Value::Float(0.0)]),
+            &null_world(),
+            test_file_id(),
+        )
+        .unwrap();
         if let Value::Color(c) = r {
             // L=0.5 → cinza médio aproximado.
             let (r_, g_, b_, _) = c.to_srgb();
-            assert!(r_ > 80 && r_ < 180,
-                "oklab(0.5, 0, 0) → cinza médio; obtido r={}", r_);
+            assert!(
+                r_ > 80 && r_ < 180,
+                "oklab(0.5, 0, 0) → cinza médio; obtido r={}",
+                r_
+            );
             // a=b=0 → sem chroma → r ≈ g ≈ b.
             assert!((r_ as i32 - g_ as i32).abs() <= 3);
             assert!((g_ as i32 - b_ as i32).abs() <= 3);
-        } else { panic!("esperado Value::Color"); }
+        } else {
+            panic!("esperado Value::Color");
+        }
     }
 
     #[test]
     fn p257_native_oklab_4_args_com_alpha() {
         null_ctx!(ctx);
-        let r = native_oklab(&mut ctx, &p(vec![
-            Value::Float(1.0), Value::Float(0.0), Value::Float(0.0), Value::Float(0.5),
-        ]), &null_world(), test_file_id()).unwrap();
+        let r = native_oklab(
+            &mut ctx,
+            &p(vec![
+                Value::Float(1.0),
+                Value::Float(0.0),
+                Value::Float(0.0),
+                Value::Float(0.5),
+            ]),
+            &null_world(),
+            test_file_id(),
+        )
+        .unwrap();
         if let Value::Color(c) = r {
             let (_, _, _, a_) = c.to_srgb();
             // alpha=0.5 → 127 ou 128 conforme arredondamento.
             assert!(a_ == 127 || a_ == 128, "alpha=0.5 → 127/128; obtido {}", a_);
-        } else { panic!("esperado Value::Color"); }
+        } else {
+            panic!("esperado Value::Color");
+        }
     }
 
     #[test]
     fn p257_native_oklch_3_args() {
         null_ctx!(ctx);
-        let r = native_oklch(&mut ctx, &p(vec![
-            Value::Float(0.5), Value::Float(0.0), Value::Float(0.0),
-        ]), &null_world(), test_file_id()).unwrap();
+        let r = native_oklch(
+            &mut ctx,
+            &p(vec![Value::Float(0.5), Value::Float(0.0), Value::Float(0.0)]),
+            &null_world(),
+            test_file_id(),
+        )
+        .unwrap();
         assert!(matches!(r, Value::Color(_)));
     }
 
     #[test]
     fn p257_native_linear_rgb_3_args() {
         null_ctx!(ctx);
-        let r = native_linear_rgb(&mut ctx, &p(vec![
-            Value::Float(1.0), Value::Float(0.0), Value::Float(0.0),
-        ]), &null_world(), test_file_id()).unwrap();
+        let r = native_linear_rgb(
+            &mut ctx,
+            &p(vec![Value::Float(1.0), Value::Float(0.0), Value::Float(0.0)]),
+            &null_world(),
+            test_file_id(),
+        )
+        .unwrap();
         if let Value::Color(c) = r {
             let (r_, g_, b_, _) = c.to_srgb();
             assert_eq!(r_, 255);
             assert_eq!(g_, 0);
             assert_eq!(b_, 0);
-        } else { panic!("esperado Value::Color"); }
+        } else {
+            panic!("esperado Value::Color");
+        }
     }
 
     #[test]
     fn p257_native_cmyk_branco() {
         null_ctx!(ctx);
-        let r = native_cmyk(&mut ctx, &p(vec![
-            Value::Float(0.0), Value::Float(0.0), Value::Float(0.0), Value::Float(0.0),
-        ]), &null_world(), test_file_id()).unwrap();
+        let r = native_cmyk(
+            &mut ctx,
+            &p(vec![
+                Value::Float(0.0),
+                Value::Float(0.0),
+                Value::Float(0.0),
+                Value::Float(0.0),
+            ]),
+            &null_world(),
+            test_file_id(),
+        )
+        .unwrap();
         if let Value::Color(c) = r {
             let (r_, g_, b_, _) = c.to_srgb();
             assert_eq!(r_, 255);
             assert_eq!(g_, 255);
             assert_eq!(b_, 255);
-        } else { panic!("esperado Value::Color"); }
+        } else {
+            panic!("esperado Value::Color");
+        }
     }
 
     #[test]
     fn p257_native_cmyk_4_args_obrigatorios() {
         null_ctx!(ctx);
-        let r = native_cmyk(&mut ctx, &p(vec![
-            Value::Float(0.0), Value::Float(0.0), Value::Float(0.0),
-        ]), &null_world(), test_file_id());
+        let r = native_cmyk(
+            &mut ctx,
+            &p(vec![Value::Float(0.0), Value::Float(0.0), Value::Float(0.0)]),
+            &null_world(),
+            test_file_id(),
+        );
         assert!(r.is_err(), "cmyk requer 4 args; 3 args deve falhar");
     }
 
     #[test]
     fn p257_native_hsl_vermelho_puro() {
         null_ctx!(ctx);
-        let r = native_hsl(&mut ctx, &p(vec![
-            Value::Float(0.0), Value::Float(1.0), Value::Float(0.5),
-        ]), &null_world(), test_file_id()).unwrap();
+        let r = native_hsl(
+            &mut ctx,
+            &p(vec![Value::Float(0.0), Value::Float(1.0), Value::Float(0.5)]),
+            &null_world(),
+            test_file_id(),
+        )
+        .unwrap();
         if let Value::Color(c) = r {
             let (r_, g_, b_, _) = c.to_srgb();
             assert_eq!(r_, 255);
             assert_eq!(g_, 0);
             assert_eq!(b_, 0);
-        } else { panic!("esperado Value::Color"); }
+        } else {
+            panic!("esperado Value::Color");
+        }
     }
 
     #[test]
     fn p257_native_hsv_branco_s0_v1() {
         null_ctx!(ctx);
-        let r = native_hsv(&mut ctx, &p(vec![
-            Value::Float(0.0), Value::Float(0.0), Value::Float(1.0),
-        ]), &null_world(), test_file_id()).unwrap();
+        let r = native_hsv(
+            &mut ctx,
+            &p(vec![Value::Float(0.0), Value::Float(0.0), Value::Float(1.0)]),
+            &null_world(),
+            test_file_id(),
+        )
+        .unwrap();
         if let Value::Color(c) = r {
             let (r_, g_, b_, _) = c.to_srgb();
             assert_eq!(r_, 255);
             assert_eq!(g_, 255);
             assert_eq!(b_, 255);
-        } else { panic!("esperado Value::Color"); }
+        } else {
+            panic!("esperado Value::Color");
+        }
     }
 
     // ── P175 (M9 sub-passo 5) — query(kind_str) ─────────────────────────
@@ -419,8 +613,10 @@ mod tests {
         let r = native_query(
             &mut ctx,
             &p(vec![Value::Str("heading".into())]),
-            &null_world(), test_file_id(),
-        ).unwrap();
+            &null_world(),
+            test_file_id(),
+        )
+        .unwrap();
         assert_eq!(r, Value::Array(vec![]));
     }
 
@@ -430,14 +626,23 @@ mod tests {
         null_ctx!(ctx);
         use crate::entities::element_kind::ElementKind;
         use crate::entities::location::Location;
-        ctx.introspector.kind_index.entry(ElementKind::Heading).or_default()
-            .extend(vec![Location::from_raw(1), Location::from_raw(2), Location::from_raw(3)]);
+        ctx.introspector
+            .kind_index
+            .entry(ElementKind::Heading)
+            .or_default()
+            .extend(vec![
+                Location::from_raw(1),
+                Location::from_raw(2),
+                Location::from_raw(3),
+            ]);
 
         let r = native_query(
             &mut ctx,
             &p(vec![Value::Str("heading".into())]),
-            &null_world(), test_file_id(),
-        ).unwrap();
+            &null_world(),
+            test_file_id(),
+        )
+        .unwrap();
         let expected = Value::Array(vec![
             Value::Location(Location::from_raw(1)),
             Value::Location(Location::from_raw(2)),
@@ -452,7 +657,8 @@ mod tests {
         let r = native_query(
             &mut ctx,
             &p(vec![Value::Str("nao_existe".into())]),
-            &null_world(), test_file_id(),
+            &null_world(),
+            test_file_id(),
         );
         assert!(r.is_err(), "kind inválido deve retornar Err");
     }
@@ -463,7 +669,8 @@ mod tests {
         let r = native_query(
             &mut ctx,
             &p(vec![Value::Int(42)]),
-            &null_world(), test_file_id(),
+            &null_world(),
+            test_file_id(),
         );
         assert!(r.is_err(), "arg não-string deve retornar Err");
     }
@@ -479,17 +686,24 @@ mod tests {
         let r = native_query(
             &mut ctx,
             &p(vec![Value::Str("outline".into())]),
-            &null_world(), test_file_id(),
-        ).unwrap();
+            &null_world(),
+            test_file_id(),
+        )
+        .unwrap();
         assert_eq!(r, Value::Array(vec![]));
         // Populado.
-        ctx.introspector.kind_index.entry(ElementKind::Outline)
-            .or_default().push(Location::from_raw(10));
+        ctx.introspector
+            .kind_index
+            .entry(ElementKind::Outline)
+            .or_default()
+            .push(Location::from_raw(10));
         let r = native_query(
             &mut ctx,
             &p(vec![Value::Str("outline".into())]),
-            &null_world(), test_file_id(),
-        ).unwrap();
+            &null_world(),
+            test_file_id(),
+        )
+        .unwrap();
         assert_eq!(r, Value::Array(vec![Value::Location(Location::from_raw(10))]));
     }
 
@@ -508,11 +722,7 @@ mod tests {
         // Pre-population: EvalContext::new() default current_location = None.
         // here() retorna erro contextual coerente (não panic).
         null_ctx!(ctx);
-        let r = native_here(
-            &mut ctx,
-            &p(vec![]),
-            &null_world(), test_file_id(),
-        );
+        let r = native_here(&mut ctx, &p(vec![]), &null_world(), test_file_id());
         assert!(r.is_err(), "here() sem current_location deve falhar");
         // Erro contém menção a "here()" ou similar — não validar texto exacto.
     }
@@ -521,14 +731,8 @@ mod tests {
     fn p208b_here_com_current_location_retorna_value_location() {
         // Setter conveniente: with_current_location.
         use crate::entities::location::Location;
-        let mut ctx = EvalContext::new().with_current_location(
-            Location::from_raw(42),
-        );
-        let r = native_here(
-            &mut ctx,
-            &p(vec![]),
-            &null_world(), test_file_id(),
-        ).unwrap();
+        let mut ctx = EvalContext::new().with_current_location(Location::from_raw(42));
+        let r = native_here(&mut ctx, &p(vec![]), &null_world(), test_file_id()).unwrap();
         assert_eq!(r, Value::Location(Location::from_raw(42)));
         assert_eq!(r.type_name(), "location");
     }
@@ -537,13 +741,12 @@ mod tests {
     fn p208b_here_com_args_retorna_err() {
         // here() não aceita argumentos (paridade vanilla: sem args).
         use crate::entities::location::Location;
-        let mut ctx = EvalContext::new().with_current_location(
-            Location::from_raw(1),
-        );
+        let mut ctx = EvalContext::new().with_current_location(Location::from_raw(1));
         let r = native_here(
             &mut ctx,
             &p(vec![Value::Int(99)]),
-            &null_world(), test_file_id(),
+            &null_world(),
+            test_file_id(),
         );
         assert!(r.is_err(), "here(99) deve falhar — sem args");
     }
@@ -557,11 +760,7 @@ mod tests {
         assert!(ctx.current_location.is_none());
 
         ctx.current_location = Some(Location::from_raw(7));
-        let r = native_here(
-            &mut ctx,
-            &p(vec![]),
-            &null_world(), test_file_id(),
-        ).unwrap();
+        let r = native_here(&mut ctx, &p(vec![]), &null_world(), test_file_id()).unwrap();
         assert_eq!(r, Value::Location(Location::from_raw(7)));
     }
 
@@ -574,11 +773,13 @@ mod tests {
         use crate::entities::element_kind::ElementKind;
         use crate::entities::location::Location;
         null_ctx!(ctx);
-        ctx.introspector.kind_index
+        ctx.introspector
+            .kind_index
             .entry(ElementKind::Heading)
             .or_default()
             .push(Location::from_raw(10));
-        ctx.introspector.kind_index
+        ctx.introspector
+            .kind_index
             .entry(ElementKind::Heading)
             .or_default()
             .push(Location::from_raw(20));
@@ -586,8 +787,10 @@ mod tests {
         let r = native_locate(
             &mut ctx,
             &p(vec![Value::Str("heading".into())]),
-            &null_world(), test_file_id(),
-        ).unwrap();
+            &null_world(),
+            test_file_id(),
+        )
+        .unwrap();
         assert_eq!(r, Value::Location(Location::from_raw(10)));
         assert_eq!(r.type_name(), "location");
     }
@@ -600,8 +803,10 @@ mod tests {
         let r = native_locate(
             &mut ctx,
             &p(vec![Value::Str("figure".into())]),
-            &null_world(), test_file_id(),
-        ).unwrap();
+            &null_world(),
+            test_file_id(),
+        )
+        .unwrap();
         assert_eq!(r, Value::None);
     }
 
@@ -612,7 +817,8 @@ mod tests {
         let r = native_locate(
             &mut ctx,
             &p(vec![Value::Str("inexistente".into())]),
-            &null_world(), test_file_id(),
+            &null_world(),
+            test_file_id(),
         );
         assert!(r.is_err(), "kind inválido deve falhar");
     }
@@ -628,7 +834,8 @@ mod tests {
         let r = native_locate(
             &mut ctx,
             &p(vec![Value::Int(42)]),
-            &null_world(), test_file_id(),
+            &null_world(),
+            test_file_id(),
         );
         assert!(r.is_err(), "arg não-string/location deve falhar");
     }
@@ -643,15 +850,16 @@ mod tests {
         use crate::entities::label::Label;
         use crate::entities::location::Location;
         null_ctx!(ctx);
-        ctx.introspector.labels.add(
-            Label("intro".to_string()),
-            Location::from_raw(7),
-        );
+        ctx.introspector
+            .labels
+            .add(Label("intro".to_string()), Location::from_raw(7));
         let r = native_locate(
             &mut ctx,
             &p(vec![Value::Str("<intro>".into())]),
-            &null_world(), test_file_id(),
-        ).unwrap();
+            &null_world(),
+            test_file_id(),
+        )
+        .unwrap();
         assert_eq!(r, Value::Location(Location::from_raw(7)));
     }
 
@@ -663,8 +871,10 @@ mod tests {
         let r = native_locate(
             &mut ctx,
             &p(vec![Value::Str("<ausente>".into())]),
-            &null_world(), test_file_id(),
-        ).unwrap();
+            &null_world(),
+            test_file_id(),
+        )
+        .unwrap();
         assert_eq!(r, Value::None);
     }
 
@@ -677,12 +887,11 @@ mod tests {
         let r = native_query(
             &mut ctx,
             &p(vec![Value::Location(Location::from_raw(42))]),
-            &null_world(), test_file_id(),
-        ).unwrap();
-        assert_eq!(
-            r,
-            Value::Array(vec![Value::Location(Location::from_raw(42))]),
-        );
+            &null_world(),
+            test_file_id(),
+        )
+        .unwrap();
+        assert_eq!(r, Value::Array(vec![Value::Location(Location::from_raw(42))]),);
     }
 
     #[test]
@@ -694,8 +903,10 @@ mod tests {
         let r = native_locate(
             &mut ctx,
             &p(vec![Value::Location(Location::from_raw(99))]),
-            &null_world(), test_file_id(),
-        ).unwrap();
+            &null_world(),
+            test_file_id(),
+        )
+        .unwrap();
         assert_eq!(r, Value::Location(Location::from_raw(99)));
     }
 
@@ -708,18 +919,13 @@ mod tests {
         use crate::entities::location::Location;
         use crate::entities::selector::Selector;
         null_ctx!(ctx);
-        ctx.introspector.labels.add(
-            Label("a".to_string()),
-            Location::from_raw(1),
-        );
-        let r = ctx.introspector.query(
-            &Selector::Label(Label("a".to_string())),
-        );
+        ctx.introspector
+            .labels
+            .add(Label("a".to_string()), Location::from_raw(1));
+        let r = ctx.introspector.query(&Selector::Label(Label("a".to_string())));
         assert_eq!(r, vec![Location::from_raw(1)]);
         // Label inexistente → vazio.
-        let r2 = ctx.introspector.query(
-            &Selector::Label(Label("b".to_string())),
-        );
+        let r2 = ctx.introspector.query(&Selector::Label(Label("b".to_string())));
         assert!(r2.is_empty());
     }
 
@@ -759,18 +965,19 @@ mod tests {
         use crate::entities::selector::Selector;
         use ecow::EcoVec;
         null_ctx!(ctx);
-        ctx.introspector.kind_index
+        ctx.introspector
+            .kind_index
             .entry(ElementKind::Heading)
             .or_default()
             .push(Location::from_raw(7));
-        ctx.introspector.kind_index
+        ctx.introspector
+            .kind_index
             .entry(ElementKind::Figure)
             .or_default()
             .push(Location::from_raw(10));
-        ctx.introspector.labels.add(
-            Label("a".to_string()),
-            Location::from_raw(7),
-        );
+        ctx.introspector
+            .labels
+            .add(Label("a".to_string()), Location::from_raw(7));
 
         let r = ctx.introspector.query(&Selector::And(EcoVec::from(vec![
             Selector::Kind(ElementKind::Heading),
@@ -798,15 +1005,18 @@ mod tests {
         use crate::entities::selector::Selector;
         use ecow::EcoVec;
         null_ctx!(ctx);
-        ctx.introspector.kind_index
+        ctx.introspector
+            .kind_index
             .entry(ElementKind::Heading)
             .or_default()
             .push(Location::from_raw(1));
-        ctx.introspector.kind_index
+        ctx.introspector
+            .kind_index
             .entry(ElementKind::Heading)
             .or_default()
             .push(Location::from_raw(2));
-        ctx.introspector.kind_index
+        ctx.introspector
+            .kind_index
             .entry(ElementKind::Figure)
             .or_default()
             .push(Location::from_raw(3));
@@ -817,11 +1027,7 @@ mod tests {
         ])));
         assert_eq!(
             r,
-            vec![
-                Location::from_raw(1),
-                Location::from_raw(2),
-                Location::from_raw(3),
-            ],
+            vec![Location::from_raw(1), Location::from_raw(2), Location::from_raw(3),],
         );
 
         // Dedup: Or com mesma kind 2× não duplica.
@@ -829,10 +1035,7 @@ mod tests {
             Selector::Kind(ElementKind::Heading),
             Selector::Kind(ElementKind::Heading),
         ])));
-        assert_eq!(
-            r_dedup,
-            vec![Location::from_raw(1), Location::from_raw(2)],
-        );
+        assert_eq!(r_dedup, vec![Location::from_raw(1), Location::from_raw(2)],);
     }
 
     // ── P210B (M9c Bloco V) — counter_step Q1=β subset ──────────────
@@ -847,8 +1050,10 @@ mod tests {
         let r = native_counter_step(
             &mut ctx,
             &p(vec![Value::Str("foo".into())]),
-            &null_world(), test_file_id(),
-        ).unwrap();
+            &null_world(),
+            test_file_id(),
+        )
+        .unwrap();
         match r {
             Value::Content(Content::CounterUpdate(e)) => {
                 assert_eq!(e.key, "foo");
@@ -865,7 +1070,8 @@ mod tests {
         let r = native_counter_step(
             &mut ctx,
             &p(vec![Value::Int(42)]),
-            &null_world(), test_file_id(),
+            &null_world(),
+            test_file_id(),
         );
         assert!(r.is_err(), "arg não-string deve falhar");
     }
@@ -873,11 +1079,7 @@ mod tests {
     #[test]
     fn p210b_counter_step_sem_args_retorna_err() {
         null_ctx!(ctx);
-        let r = native_counter_step(
-            &mut ctx,
-            &p(vec![]),
-            &null_world(), test_file_id(),
-        );
+        let r = native_counter_step(&mut ctx, &p(vec![]), &null_world(), test_file_id());
         assert!(r.is_err(), "sem args deve falhar");
     }
 
@@ -890,13 +1092,17 @@ mod tests {
         let r1 = native_counter_step(
             &mut ctx,
             &p(vec![Value::Str("h".into())]),
-            &null_world(), test_file_id(),
-        ).unwrap();
+            &null_world(),
+            test_file_id(),
+        )
+        .unwrap();
         let r2 = native_counter_step(
             &mut ctx,
             &p(vec![Value::Str("h".into())]),
-            &null_world(), test_file_id(),
-        ).unwrap();
+            &null_world(),
+            test_file_id(),
+        )
+        .unwrap();
         // PartialEq sobre Content::CounterUpdate (per content.rs:1203).
         match (r1, r2) {
             (Value::Content(c1), Value::Content(c2)) => {
@@ -906,8 +1112,7 @@ mod tests {
                 ));
                 // Via match interno + comparison.
                 let same = match (&c1, &c2) {
-                    (Content::CounterUpdate(e1),
-                     Content::CounterUpdate(e2)) => {
+                    (Content::CounterUpdate(e1), Content::CounterUpdate(e2)) => {
                         e1.key == e2.key && e1.action == e2.action
                     }
                     _ => false,
@@ -928,9 +1133,7 @@ mod tests {
         use crate::entities::regex::Regex;
         use crate::entities::selector::Selector;
         null_ctx!(ctx);
-        let r = ctx.introspector.query(&Selector::Regex(
-            Regex::new("\\d+").unwrap(),
-        ));
+        let r = ctx.introspector.query(&Selector::Regex(Regex::new("\\d+").unwrap()));
         assert_eq!(r, Vec::<Location>::new());
     }
 
@@ -946,7 +1149,8 @@ mod tests {
         use crate::entities::selector::Selector;
         use ecow::EcoVec;
         null_ctx!(ctx);
-        ctx.introspector.kind_index
+        ctx.introspector
+            .kind_index
             .entry(ElementKind::Heading)
             .or_default()
             .push(Location::from_raw(1));
@@ -971,18 +1175,19 @@ mod tests {
         use crate::entities::selector::Selector;
         use ecow::EcoVec;
         null_ctx!(ctx);
-        ctx.introspector.kind_index
+        ctx.introspector
+            .kind_index
             .entry(ElementKind::Heading)
             .or_default()
             .push(Location::from_raw(7));
-        ctx.introspector.kind_index
+        ctx.introspector
+            .kind_index
             .entry(ElementKind::Figure)
             .or_default()
             .push(Location::from_raw(10));
-        ctx.introspector.labels.add(
-            Label("a".to_string()),
-            Location::from_raw(7),
-        );
+        ctx.introspector
+            .labels
+            .add(Label("a".to_string()), Location::from_raw(7));
 
         let inner_or = Selector::Or(EcoVec::from(vec![
             Selector::Kind(ElementKind::Heading),
@@ -1004,9 +1209,15 @@ mod tests {
         let r = native_regex(
             &mut ctx,
             &p(vec![Value::Str("\\d+".into())]),
-            &null_world(), test_file_id(),
-        ).unwrap();
-        assert!(matches!(r, Value::Regex(_)), "regex(\"\\d+\") deve devolver Value::Regex: {:?}", r);
+            &null_world(),
+            test_file_id(),
+        )
+        .unwrap();
+        assert!(
+            matches!(r, Value::Regex(_)),
+            "regex(\"\\d+\") deve devolver Value::Regex: {:?}",
+            r
+        );
     }
 
     #[test]
@@ -1015,7 +1226,8 @@ mod tests {
         let r = native_regex(
             &mut ctx,
             &p(vec![Value::Str("[".into())]),
-            &null_world(), test_file_id(),
+            &null_world(),
+            test_file_id(),
         );
         assert!(r.is_err(), "regex(\"[\") deve falhar");
     }
@@ -1026,7 +1238,8 @@ mod tests {
         let r = native_regex(
             &mut ctx,
             &p(vec![Value::Int(42)]),
-            &null_world(), test_file_id(),
+            &null_world(),
+            test_file_id(),
         );
         assert!(r.is_err(), "regex(42) deve falhar");
     }
@@ -1037,7 +1250,8 @@ mod tests {
         let r = native_regex(
             &mut ctx,
             &pn(vec![Value::Str("\\d+".into())], "foo", Value::Int(1)),
-            &null_world(), test_file_id(),
+            &null_world(),
+            test_file_id(),
         );
         assert!(r.is_err(), "regex com arg nomeado deve falhar");
     }
@@ -1050,8 +1264,10 @@ mod tests {
         let r = native_counter_final(
             &mut ctx,
             &p(vec![Value::Str("heading".into())]),
-            &null_world(), test_file_id(),
-        ).unwrap();
+            &null_world(),
+            test_file_id(),
+        )
+        .unwrap();
         assert_eq!(r, Value::Str("".into()));
     }
 
@@ -1066,8 +1282,10 @@ mod tests {
         let r = native_counter_final(
             &mut ctx,
             &p(vec![Value::Str("heading".into())]),
-            &null_world(), test_file_id(),
-        ).unwrap();
+            &null_world(),
+            test_file_id(),
+        )
+        .unwrap();
         // P170: hierarchical "1.2.1" → "2" após [1,2,1] (último top-level).
         // Ajustar conforme paridade real — confirma que retorna string
         // não vazia formatada.
@@ -1085,8 +1303,10 @@ mod tests {
         let r = native_counter_final(
             &mut ctx,
             &p(vec![Value::Str("inexistente".into())]),
-            &null_world(), test_file_id(),
-        ).unwrap();
+            &null_world(),
+            test_file_id(),
+        )
+        .unwrap();
         assert_eq!(r, Value::Str("".into()));
     }
 
@@ -1096,7 +1316,8 @@ mod tests {
         let r = native_counter_final(
             &mut ctx,
             &p(vec![Value::Int(42)]),
-            &null_world(), test_file_id(),
+            &null_world(),
+            test_file_id(),
         );
         assert!(r.is_err(), "arg não-string deve retornar Err");
     }
@@ -1109,8 +1330,10 @@ mod tests {
         let r = native_counter_at(
             &mut ctx,
             &p(vec![Value::Str("heading".into()), Value::Str("intro".into())]),
-            &null_world(), test_file_id(),
-        ).unwrap();
+            &null_world(),
+            test_file_id(),
+        )
+        .unwrap();
         assert_eq!(r, Value::Str("".into()));
     }
 
@@ -1120,13 +1343,17 @@ mod tests {
         // Popular counter mas label não registada.
         use crate::entities::location::Location;
         ctx.introspector.counters.apply_hierarchical_at(
-            "heading".to_string(), 1, Location::from_raw(10),
+            "heading".to_string(),
+            1,
+            Location::from_raw(10),
         );
         let r = native_counter_at(
             &mut ctx,
             &p(vec![Value::Str("heading".into()), Value::Str("nonexistent".into())]),
-            &null_world(), test_file_id(),
-        ).unwrap();
+            &null_world(),
+            test_file_id(),
+        )
+        .unwrap();
         assert_eq!(r, Value::Str("".into()));
     }
 
@@ -1137,15 +1364,21 @@ mod tests {
         use crate::entities::location::Location;
         // Popular: heading na loc 10 com counter [1], label "intro" → loc 10.
         ctx.introspector.counters.apply_hierarchical_at(
-            "heading".to_string(), 1, Location::from_raw(10),
+            "heading".to_string(),
+            1,
+            Location::from_raw(10),
         );
-        ctx.introspector.labels.add(Label("intro".to_string()), Location::from_raw(10));
+        ctx.introspector
+            .labels
+            .add(Label("intro".to_string()), Location::from_raw(10));
 
         let r = native_counter_at(
             &mut ctx,
             &p(vec![Value::Str("heading".into()), Value::Str("intro".into())]),
-            &null_world(), test_file_id(),
-        ).unwrap();
+            &null_world(),
+            test_file_id(),
+        )
+        .unwrap();
         assert_eq!(r, Value::Str("1".into()));
     }
 
@@ -1156,21 +1389,24 @@ mod tests {
         let r = native_counter_at(
             &mut ctx,
             &p(vec![Value::Int(1), Value::Str("intro".into())]),
-            &null_world(), test_file_id(),
+            &null_world(),
+            test_file_id(),
         );
         assert!(r.is_err());
         // Segundo arg não-string.
         let r = native_counter_at(
             &mut ctx,
             &p(vec![Value::Str("heading".into()), Value::Int(1)]),
-            &null_world(), test_file_id(),
+            &null_world(),
+            test_file_id(),
         );
         assert!(r.is_err());
         // Número errado de args.
         let r = native_counter_at(
             &mut ctx,
             &p(vec![Value::Str("heading".into())]),
-            &null_world(), test_file_id(),
+            &null_world(),
+            test_file_id(),
         );
         assert!(r.is_err());
     }
@@ -1180,73 +1416,184 @@ mod tests {
     #[test]
     fn native_str_de_int() {
         null_ctx!(ctx);
-        assert_eq!(native_str(&mut ctx, &p(vec![Value::Int(42)]), &null_world(), test_file_id()).unwrap(), Value::Str("42".into()));
+        assert_eq!(
+            native_str(&mut ctx, &p(vec![Value::Int(42)]), &null_world(), test_file_id())
+                .unwrap(),
+            Value::Str("42".into())
+        );
     }
 
     #[test]
     #[allow(clippy::approx_constant)] // 3.14 é valor literal de teste, não aproximação de PI
     fn native_str_de_float() {
         null_ctx!(ctx);
-        assert_eq!(native_str(&mut ctx, &p(vec![Value::Float(3.14)]), &null_world(), test_file_id()).unwrap(), Value::Str("3.14".into()));
+        assert_eq!(
+            native_str(
+                &mut ctx,
+                &p(vec![Value::Float(3.14)]),
+                &null_world(),
+                test_file_id()
+            )
+            .unwrap(),
+            Value::Str("3.14".into())
+        );
     }
 
     #[test]
     fn native_str_de_bool() {
         null_ctx!(ctx);
-        assert_eq!(native_str(&mut ctx, &p(vec![Value::Bool(true)]), &null_world(), test_file_id()).unwrap(),  Value::Str("true".into()));
-        assert_eq!(native_str(&mut ctx, &p(vec![Value::Bool(false)]), &null_world(), test_file_id()).unwrap(), Value::Str("false".into()));
+        assert_eq!(
+            native_str(
+                &mut ctx,
+                &p(vec![Value::Bool(true)]),
+                &null_world(),
+                test_file_id()
+            )
+            .unwrap(),
+            Value::Str("true".into())
+        );
+        assert_eq!(
+            native_str(
+                &mut ctx,
+                &p(vec![Value::Bool(false)]),
+                &null_world(),
+                test_file_id()
+            )
+            .unwrap(),
+            Value::Str("false".into())
+        );
     }
 
     #[test]
     fn native_str_identity() {
         null_ctx!(ctx);
-        assert_eq!(native_str(&mut ctx, &p(vec![Value::Str("hello".into())]), &null_world(), test_file_id()).unwrap(), Value::Str("hello".into()));
+        assert_eq!(
+            native_str(
+                &mut ctx,
+                &p(vec![Value::Str("hello".into())]),
+                &null_world(),
+                test_file_id()
+            )
+            .unwrap(),
+            Value::Str("hello".into())
+        );
     }
 
     #[test]
     fn native_str_de_none() {
         null_ctx!(ctx);
-        assert_eq!(native_str(&mut ctx, &p(vec![Value::None]), &null_world(), test_file_id()).unwrap(), Value::Str("none".into()));
+        assert_eq!(
+            native_str(&mut ctx, &p(vec![Value::None]), &null_world(), test_file_id())
+                .unwrap(),
+            Value::Str("none".into())
+        );
     }
 
     #[test]
     fn native_int_de_int() {
         null_ctx!(ctx);
-        assert_eq!(native_int(&mut ctx, &p(vec![Value::Int(42)]), &null_world(), test_file_id()).unwrap(), Value::Int(42));
+        assert_eq!(
+            native_int(&mut ctx, &p(vec![Value::Int(42)]), &null_world(), test_file_id())
+                .unwrap(),
+            Value::Int(42)
+        );
     }
 
     #[test]
     fn native_int_de_str() {
         null_ctx!(ctx);
-        assert_eq!(native_int(&mut ctx, &p(vec![Value::Str("42".into())]), &null_world(), test_file_id()).unwrap(), Value::Int(42));
-        assert!(native_int(&mut ctx, &p(vec![Value::Str("abc".into())]), &null_world(), test_file_id()).is_err());
+        assert_eq!(
+            native_int(
+                &mut ctx,
+                &p(vec![Value::Str("42".into())]),
+                &null_world(),
+                test_file_id()
+            )
+            .unwrap(),
+            Value::Int(42)
+        );
+        assert!(native_int(
+            &mut ctx,
+            &p(vec![Value::Str("abc".into())]),
+            &null_world(),
+            test_file_id()
+        )
+        .is_err());
     }
 
     #[test]
     fn native_int_de_bool() {
         null_ctx!(ctx);
-        assert_eq!(native_int(&mut ctx, &p(vec![Value::Bool(true)]), &null_world(), test_file_id()).unwrap(),  Value::Int(1));
-        assert_eq!(native_int(&mut ctx, &p(vec![Value::Bool(false)]), &null_world(), test_file_id()).unwrap(), Value::Int(0));
+        assert_eq!(
+            native_int(
+                &mut ctx,
+                &p(vec![Value::Bool(true)]),
+                &null_world(),
+                test_file_id()
+            )
+            .unwrap(),
+            Value::Int(1)
+        );
+        assert_eq!(
+            native_int(
+                &mut ctx,
+                &p(vec![Value::Bool(false)]),
+                &null_world(),
+                test_file_id()
+            )
+            .unwrap(),
+            Value::Int(0)
+        );
     }
 
     #[test]
     fn native_int_float_retorna_err() {
         null_ctx!(ctx);
-        assert!(native_int(&mut ctx, &p(vec![Value::Float(3.7)]), &null_world(), test_file_id()).is_err());
+        assert!(native_int(
+            &mut ctx,
+            &p(vec![Value::Float(3.7)]),
+            &null_world(),
+            test_file_id()
+        )
+        .is_err());
     }
 
     #[test]
     fn native_float_de_int() {
         null_ctx!(ctx);
-        assert_eq!(native_float(&mut ctx, &p(vec![Value::Int(3)]), &null_world(), test_file_id()).unwrap(), Value::Float(3.0));
+        assert_eq!(
+            native_float(
+                &mut ctx,
+                &p(vec![Value::Int(3)]),
+                &null_world(),
+                test_file_id()
+            )
+            .unwrap(),
+            Value::Float(3.0)
+        );
     }
 
     #[test]
     #[allow(clippy::approx_constant)] // 3.14 é valor literal de teste, não aproximação de PI
     fn native_float_de_str() {
         null_ctx!(ctx);
-        assert_eq!(native_float(&mut ctx, &p(vec![Value::Str("3.14".into())]), &null_world(), test_file_id()).unwrap(), Value::Float(3.14));
-        assert!(native_float(&mut ctx, &p(vec![Value::Str("abc".into())]), &null_world(), test_file_id()).is_err());
+        assert_eq!(
+            native_float(
+                &mut ctx,
+                &p(vec![Value::Str("3.14".into())]),
+                &null_world(),
+                test_file_id()
+            )
+            .unwrap(),
+            Value::Float(3.14)
+        );
+        assert!(native_float(
+            &mut ctx,
+            &p(vec![Value::Str("abc".into())]),
+            &null_world(),
+            test_file_id()
+        )
+        .is_err());
     }
 
     // ── Passo 27 — calc ──────────────────────────────────────────────────────
@@ -1254,65 +1601,191 @@ mod tests {
     #[test]
     fn calc_abs_int() {
         null_ctx!(ctx);
-        assert_eq!(calc_abs(&mut ctx, &p(vec![Value::Int(-5)]), &null_world(), test_file_id()).unwrap(), Value::Int(5));
-        assert_eq!(calc_abs(&mut ctx, &p(vec![Value::Int(5)]), &null_world(), test_file_id()).unwrap(),  Value::Int(5));
-        assert_eq!(calc_abs(&mut ctx, &p(vec![Value::Int(0)]), &null_world(), test_file_id()).unwrap(),  Value::Int(0));
+        assert_eq!(
+            calc_abs(&mut ctx, &p(vec![Value::Int(-5)]), &null_world(), test_file_id())
+                .unwrap(),
+            Value::Int(5)
+        );
+        assert_eq!(
+            calc_abs(&mut ctx, &p(vec![Value::Int(5)]), &null_world(), test_file_id())
+                .unwrap(),
+            Value::Int(5)
+        );
+        assert_eq!(
+            calc_abs(&mut ctx, &p(vec![Value::Int(0)]), &null_world(), test_file_id())
+                .unwrap(),
+            Value::Int(0)
+        );
     }
 
     #[test]
     #[allow(clippy::approx_constant)] // 3.14 é valor literal de teste, não aproximação de PI
     fn calc_abs_float() {
         null_ctx!(ctx);
-        assert_eq!(calc_abs(&mut ctx, &p(vec![Value::Float(-3.14)]), &null_world(), test_file_id()).unwrap(), Value::Float(3.14));
+        assert_eq!(
+            calc_abs(
+                &mut ctx,
+                &p(vec![Value::Float(-3.14)]),
+                &null_world(),
+                test_file_id()
+            )
+            .unwrap(),
+            Value::Float(3.14)
+        );
     }
 
     #[test]
     fn calc_pow_int() {
         null_ctx!(ctx);
-        assert_eq!(calc_pow(&mut ctx, &p(vec![Value::Int(2), Value::Int(10)]), &null_world(), test_file_id()).unwrap(), Value::Int(1024));
-        assert_eq!(calc_pow(&mut ctx, &p(vec![Value::Int(2), Value::Int(0)]), &null_world(), test_file_id()).unwrap(),  Value::Int(1));
+        assert_eq!(
+            calc_pow(
+                &mut ctx,
+                &p(vec![Value::Int(2), Value::Int(10)]),
+                &null_world(),
+                test_file_id()
+            )
+            .unwrap(),
+            Value::Int(1024)
+        );
+        assert_eq!(
+            calc_pow(
+                &mut ctx,
+                &p(vec![Value::Int(2), Value::Int(0)]),
+                &null_world(),
+                test_file_id()
+            )
+            .unwrap(),
+            Value::Int(1)
+        );
     }
 
     #[test]
     fn calc_pow_float() {
         null_ctx!(ctx);
-        let r = calc_pow(&mut ctx, &p(vec![Value::Float(2.0), Value::Float(0.5)]), &null_world(), test_file_id()).unwrap();
-        assert!(matches!(r, Value::Float(f) if (f - std::f64::consts::SQRT_2).abs() < 1e-10));
+        let r = calc_pow(
+            &mut ctx,
+            &p(vec![Value::Float(2.0), Value::Float(0.5)]),
+            &null_world(),
+            test_file_id(),
+        )
+        .unwrap();
+        assert!(
+            matches!(r, Value::Float(f) if (f - std::f64::consts::SQRT_2).abs() < 1e-10)
+        );
     }
 
     #[test]
     fn calc_pow_negativo_retorna_err() {
         null_ctx!(ctx);
-        assert!(calc_pow(&mut ctx, &p(vec![Value::Int(2), Value::Int(-1)]), &null_world(), test_file_id()).is_err());
+        assert!(calc_pow(
+            &mut ctx,
+            &p(vec![Value::Int(2), Value::Int(-1)]),
+            &null_world(),
+            test_file_id()
+        )
+        .is_err());
     }
 
     #[test]
     fn calc_sqrt_positivo() {
         null_ctx!(ctx);
-        assert_eq!(calc_sqrt(&mut ctx, &p(vec![Value::Float(4.0)]), &null_world(), test_file_id()).unwrap(), Value::Float(2.0));
-        assert_eq!(calc_sqrt(&mut ctx, &p(vec![Value::Int(4)]), &null_world(), test_file_id()).unwrap(),     Value::Float(2.0));
+        assert_eq!(
+            calc_sqrt(
+                &mut ctx,
+                &p(vec![Value::Float(4.0)]),
+                &null_world(),
+                test_file_id()
+            )
+            .unwrap(),
+            Value::Float(2.0)
+        );
+        assert_eq!(
+            calc_sqrt(&mut ctx, &p(vec![Value::Int(4)]), &null_world(), test_file_id())
+                .unwrap(),
+            Value::Float(2.0)
+        );
     }
 
     #[test]
     fn calc_sqrt_negativo_retorna_err() {
         null_ctx!(ctx);
-        assert!(calc_sqrt(&mut ctx, &p(vec![Value::Float(-1.0)]), &null_world(), test_file_id()).is_err());
+        assert!(calc_sqrt(
+            &mut ctx,
+            &p(vec![Value::Float(-1.0)]),
+            &null_world(),
+            test_file_id()
+        )
+        .is_err());
     }
 
     #[test]
     fn calc_floor_ceil_round() {
         null_ctx!(ctx);
-        assert_eq!(calc_floor(&mut ctx, &p(vec![Value::Float(3.7)]), &null_world(), test_file_id()).unwrap(), Value::Int(3));
-        assert_eq!(calc_ceil(&mut ctx, &p(vec![Value::Float(3.2)]), &null_world(), test_file_id()).unwrap(),  Value::Int(4));
-        assert_eq!(calc_round(&mut ctx, &p(vec![Value::Float(3.5)]), &null_world(), test_file_id()).unwrap(), Value::Int(4));
-        assert_eq!(calc_round(&mut ctx, &p(vec![Value::Float(3.4)]), &null_world(), test_file_id()).unwrap(), Value::Int(3));
+        assert_eq!(
+            calc_floor(
+                &mut ctx,
+                &p(vec![Value::Float(3.7)]),
+                &null_world(),
+                test_file_id()
+            )
+            .unwrap(),
+            Value::Int(3)
+        );
+        assert_eq!(
+            calc_ceil(
+                &mut ctx,
+                &p(vec![Value::Float(3.2)]),
+                &null_world(),
+                test_file_id()
+            )
+            .unwrap(),
+            Value::Int(4)
+        );
+        assert_eq!(
+            calc_round(
+                &mut ctx,
+                &p(vec![Value::Float(3.5)]),
+                &null_world(),
+                test_file_id()
+            )
+            .unwrap(),
+            Value::Int(4)
+        );
+        assert_eq!(
+            calc_round(
+                &mut ctx,
+                &p(vec![Value::Float(3.4)]),
+                &null_world(),
+                test_file_id()
+            )
+            .unwrap(),
+            Value::Int(3)
+        );
     }
 
     #[test]
     fn calc_min_max_int() {
         null_ctx!(ctx);
-        assert_eq!(calc_min(&mut ctx, &p(vec![Value::Int(3), Value::Int(1), Value::Int(2)]), &null_world(), test_file_id()).unwrap(), Value::Int(1));
-        assert_eq!(calc_max(&mut ctx, &p(vec![Value::Int(3), Value::Int(1), Value::Int(2)]), &null_world(), test_file_id()).unwrap(), Value::Int(3));
+        assert_eq!(
+            calc_min(
+                &mut ctx,
+                &p(vec![Value::Int(3), Value::Int(1), Value::Int(2)]),
+                &null_world(),
+                test_file_id()
+            )
+            .unwrap(),
+            Value::Int(1)
+        );
+        assert_eq!(
+            calc_max(
+                &mut ctx,
+                &p(vec![Value::Int(3), Value::Int(1), Value::Int(2)]),
+                &null_world(),
+                test_file_id()
+            )
+            .unwrap(),
+            Value::Int(3)
+        );
     }
 
     #[test]
@@ -1325,15 +1798,48 @@ mod tests {
     #[test]
     fn calc_clamp_int() {
         null_ctx!(ctx);
-        assert_eq!(calc_clamp(&mut ctx, &p(vec![Value::Int(5),  Value::Int(0), Value::Int(10)]), &null_world(), test_file_id()).unwrap(), Value::Int(5));
-        assert_eq!(calc_clamp(&mut ctx, &p(vec![Value::Int(-5), Value::Int(0), Value::Int(10)]), &null_world(), test_file_id()).unwrap(), Value::Int(0));
-        assert_eq!(calc_clamp(&mut ctx, &p(vec![Value::Int(15), Value::Int(0), Value::Int(10)]), &null_world(), test_file_id()).unwrap(), Value::Int(10));
+        assert_eq!(
+            calc_clamp(
+                &mut ctx,
+                &p(vec![Value::Int(5), Value::Int(0), Value::Int(10)]),
+                &null_world(),
+                test_file_id()
+            )
+            .unwrap(),
+            Value::Int(5)
+        );
+        assert_eq!(
+            calc_clamp(
+                &mut ctx,
+                &p(vec![Value::Int(-5), Value::Int(0), Value::Int(10)]),
+                &null_world(),
+                test_file_id()
+            )
+            .unwrap(),
+            Value::Int(0)
+        );
+        assert_eq!(
+            calc_clamp(
+                &mut ctx,
+                &p(vec![Value::Int(15), Value::Int(0), Value::Int(10)]),
+                &null_world(),
+                test_file_id()
+            )
+            .unwrap(),
+            Value::Int(10)
+        );
     }
 
     #[test]
     fn calc_clamp_min_maior_max_retorna_err() {
         null_ctx!(ctx);
-        assert!(calc_clamp(&mut ctx, &p(vec![Value::Float(5.0), Value::Float(10.0), Value::Float(0.0)]), &null_world(), test_file_id()).is_err());
+        assert!(calc_clamp(
+            &mut ctx,
+            &p(vec![Value::Float(5.0), Value::Float(10.0), Value::Float(0.0)]),
+            &null_world(),
+            test_file_id()
+        )
+        .is_err());
     }
 
     // ── Passo 283 — calc trig / hiperbólicas / log / exp ─────────────────────
@@ -1342,10 +1848,9 @@ mod tests {
     // para o ruído de `f64::sin/cos/...`).
     fn approx_float(v: Value, expected: f64) {
         match v {
-            Value::Float(f) => assert!(
-                (f - expected).abs() < 1e-10,
-                "esperado {expected}, obtido {f}",
-            ),
+            Value::Float(f) => {
+                assert!((f - expected).abs() < 1e-10, "esperado {expected}, obtido {f}",)
+            }
             other => panic!("esperado Value::Float, obtido {other:?}"),
         }
     }
@@ -1355,67 +1860,227 @@ mod tests {
     #[test]
     fn calc_sin_zero_e_pi() {
         null_ctx!(ctx);
-        approx_float(calc_sin(&mut ctx, &p(vec![Value::Float(0.0)]), &null_world(), test_file_id()).unwrap(), 0.0);
-        approx_float(calc_sin(&mut ctx, &p(vec![Value::Int(0)]),    &null_world(), test_file_id()).unwrap(), 0.0);
-        approx_float(calc_sin(&mut ctx, &p(vec![Value::Float(std::f64::consts::PI)]), &null_world(), test_file_id()).unwrap(), 0.0);
+        approx_float(
+            calc_sin(
+                &mut ctx,
+                &p(vec![Value::Float(0.0)]),
+                &null_world(),
+                test_file_id(),
+            )
+            .unwrap(),
+            0.0,
+        );
+        approx_float(
+            calc_sin(&mut ctx, &p(vec![Value::Int(0)]), &null_world(), test_file_id())
+                .unwrap(),
+            0.0,
+        );
+        approx_float(
+            calc_sin(
+                &mut ctx,
+                &p(vec![Value::Float(std::f64::consts::PI)]),
+                &null_world(),
+                test_file_id(),
+            )
+            .unwrap(),
+            0.0,
+        );
     }
 
     #[test]
     fn calc_sin_arity_errada_retorna_err() {
         null_ctx!(ctx);
         assert!(calc_sin(&mut ctx, &p(vec![]), &null_world(), test_file_id()).is_err());
-        assert!(calc_sin(&mut ctx, &p(vec![Value::Float(1.0), Value::Float(2.0)]), &null_world(), test_file_id()).is_err());
+        assert!(calc_sin(
+            &mut ctx,
+            &p(vec![Value::Float(1.0), Value::Float(2.0)]),
+            &null_world(),
+            test_file_id()
+        )
+        .is_err());
     }
 
     #[test]
     fn calc_cos_zero_e_pi() {
         null_ctx!(ctx);
-        approx_float(calc_cos(&mut ctx, &p(vec![Value::Float(0.0)]), &null_world(), test_file_id()).unwrap(), 1.0);
-        approx_float(calc_cos(&mut ctx, &p(vec![Value::Float(std::f64::consts::PI)]), &null_world(), test_file_id()).unwrap(), -1.0);
+        approx_float(
+            calc_cos(
+                &mut ctx,
+                &p(vec![Value::Float(0.0)]),
+                &null_world(),
+                test_file_id(),
+            )
+            .unwrap(),
+            1.0,
+        );
+        approx_float(
+            calc_cos(
+                &mut ctx,
+                &p(vec![Value::Float(std::f64::consts::PI)]),
+                &null_world(),
+                test_file_id(),
+            )
+            .unwrap(),
+            -1.0,
+        );
     }
 
     #[test]
     fn calc_tan_zero_e_pi_quarto() {
         null_ctx!(ctx);
-        approx_float(calc_tan(&mut ctx, &p(vec![Value::Float(0.0)]), &null_world(), test_file_id()).unwrap(), 0.0);
-        approx_float(calc_tan(&mut ctx, &p(vec![Value::Float(std::f64::consts::FRAC_PI_4)]), &null_world(), test_file_id()).unwrap(), 1.0);
+        approx_float(
+            calc_tan(
+                &mut ctx,
+                &p(vec![Value::Float(0.0)]),
+                &null_world(),
+                test_file_id(),
+            )
+            .unwrap(),
+            0.0,
+        );
+        approx_float(
+            calc_tan(
+                &mut ctx,
+                &p(vec![Value::Float(std::f64::consts::FRAC_PI_4)]),
+                &null_world(),
+                test_file_id(),
+            )
+            .unwrap(),
+            1.0,
+        );
     }
 
     #[test]
     fn calc_asin_dominio_valido() {
         null_ctx!(ctx);
-        approx_float(calc_asin(&mut ctx, &p(vec![Value::Float(0.0)]), &null_world(), test_file_id()).unwrap(), 0.0);
-        approx_float(calc_asin(&mut ctx, &p(vec![Value::Float(1.0)]), &null_world(), test_file_id()).unwrap(), std::f64::consts::FRAC_PI_2);
-        approx_float(calc_asin(&mut ctx, &p(vec![Value::Float(-1.0)]), &null_world(), test_file_id()).unwrap(), -std::f64::consts::FRAC_PI_2);
+        approx_float(
+            calc_asin(
+                &mut ctx,
+                &p(vec![Value::Float(0.0)]),
+                &null_world(),
+                test_file_id(),
+            )
+            .unwrap(),
+            0.0,
+        );
+        approx_float(
+            calc_asin(
+                &mut ctx,
+                &p(vec![Value::Float(1.0)]),
+                &null_world(),
+                test_file_id(),
+            )
+            .unwrap(),
+            std::f64::consts::FRAC_PI_2,
+        );
+        approx_float(
+            calc_asin(
+                &mut ctx,
+                &p(vec![Value::Float(-1.0)]),
+                &null_world(),
+                test_file_id(),
+            )
+            .unwrap(),
+            -std::f64::consts::FRAC_PI_2,
+        );
     }
 
     #[test]
     fn calc_asin_fora_dominio_retorna_err() {
         null_ctx!(ctx);
-        assert!(calc_asin(&mut ctx, &p(vec![Value::Float(1.5)]),  &null_world(), test_file_id()).is_err());
-        assert!(calc_asin(&mut ctx, &p(vec![Value::Float(-1.5)]), &null_world(), test_file_id()).is_err());
+        assert!(calc_asin(
+            &mut ctx,
+            &p(vec![Value::Float(1.5)]),
+            &null_world(),
+            test_file_id()
+        )
+        .is_err());
+        assert!(calc_asin(
+            &mut ctx,
+            &p(vec![Value::Float(-1.5)]),
+            &null_world(),
+            test_file_id()
+        )
+        .is_err());
     }
 
     #[test]
     fn calc_acos_dominio_valido() {
         null_ctx!(ctx);
-        approx_float(calc_acos(&mut ctx, &p(vec![Value::Float(1.0)]), &null_world(), test_file_id()).unwrap(), 0.0);
-        approx_float(calc_acos(&mut ctx, &p(vec![Value::Float(0.0)]), &null_world(), test_file_id()).unwrap(), std::f64::consts::FRAC_PI_2);
-        approx_float(calc_acos(&mut ctx, &p(vec![Value::Float(-1.0)]), &null_world(), test_file_id()).unwrap(), std::f64::consts::PI);
+        approx_float(
+            calc_acos(
+                &mut ctx,
+                &p(vec![Value::Float(1.0)]),
+                &null_world(),
+                test_file_id(),
+            )
+            .unwrap(),
+            0.0,
+        );
+        approx_float(
+            calc_acos(
+                &mut ctx,
+                &p(vec![Value::Float(0.0)]),
+                &null_world(),
+                test_file_id(),
+            )
+            .unwrap(),
+            std::f64::consts::FRAC_PI_2,
+        );
+        approx_float(
+            calc_acos(
+                &mut ctx,
+                &p(vec![Value::Float(-1.0)]),
+                &null_world(),
+                test_file_id(),
+            )
+            .unwrap(),
+            std::f64::consts::PI,
+        );
     }
 
     #[test]
     fn calc_acos_fora_dominio_retorna_err() {
         null_ctx!(ctx);
-        assert!(calc_acos(&mut ctx, &p(vec![Value::Float(2.0)]),  &null_world(), test_file_id()).is_err());
-        assert!(calc_acos(&mut ctx, &p(vec![Value::Float(-2.0)]), &null_world(), test_file_id()).is_err());
+        assert!(calc_acos(
+            &mut ctx,
+            &p(vec![Value::Float(2.0)]),
+            &null_world(),
+            test_file_id()
+        )
+        .is_err());
+        assert!(calc_acos(
+            &mut ctx,
+            &p(vec![Value::Float(-2.0)]),
+            &null_world(),
+            test_file_id()
+        )
+        .is_err());
     }
 
     #[test]
     fn calc_atan_basico() {
         null_ctx!(ctx);
-        approx_float(calc_atan(&mut ctx, &p(vec![Value::Float(0.0)]), &null_world(), test_file_id()).unwrap(), 0.0);
-        approx_float(calc_atan(&mut ctx, &p(vec![Value::Float(1.0)]), &null_world(), test_file_id()).unwrap(), std::f64::consts::FRAC_PI_4);
+        approx_float(
+            calc_atan(
+                &mut ctx,
+                &p(vec![Value::Float(0.0)]),
+                &null_world(),
+                test_file_id(),
+            )
+            .unwrap(),
+            0.0,
+        );
+        approx_float(
+            calc_atan(
+                &mut ctx,
+                &p(vec![Value::Float(1.0)]),
+                &null_world(),
+                test_file_id(),
+            )
+            .unwrap(),
+            std::f64::consts::FRAC_PI_4,
+        );
     }
 
     #[test]
@@ -1423,12 +2088,24 @@ mod tests {
         null_ctx!(ctx);
         // calc.atan2(x=1, y=1) → π/4 (paridade vanilla).
         approx_float(
-            calc_atan2(&mut ctx, &p(vec![Value::Float(1.0), Value::Float(1.0)]), &null_world(), test_file_id()).unwrap(),
+            calc_atan2(
+                &mut ctx,
+                &p(vec![Value::Float(1.0), Value::Float(1.0)]),
+                &null_world(),
+                test_file_id(),
+            )
+            .unwrap(),
             std::f64::consts::FRAC_PI_4,
         );
         // calc.atan2(x=0, y=1) → π/2 (eixo +y).
         approx_float(
-            calc_atan2(&mut ctx, &p(vec![Value::Float(0.0), Value::Float(1.0)]), &null_world(), test_file_id()).unwrap(),
+            calc_atan2(
+                &mut ctx,
+                &p(vec![Value::Float(0.0), Value::Float(1.0)]),
+                &null_world(),
+                test_file_id(),
+            )
+            .unwrap(),
             std::f64::consts::FRAC_PI_2,
         );
     }
@@ -1436,7 +2113,13 @@ mod tests {
     #[test]
     fn calc_atan2_arity_errada_retorna_err() {
         null_ctx!(ctx);
-        assert!(calc_atan2(&mut ctx, &p(vec![Value::Float(1.0)]), &null_world(), test_file_id()).is_err());
+        assert!(calc_atan2(
+            &mut ctx,
+            &p(vec![Value::Float(1.0)]),
+            &null_world(),
+            test_file_id()
+        )
+        .is_err());
         assert!(calc_atan2(&mut ctx, &p(vec![]), &null_world(), test_file_id()).is_err());
     }
 
@@ -1445,20 +2128,63 @@ mod tests {
     #[test]
     fn calc_sinh_cosh_tanh_zero() {
         null_ctx!(ctx);
-        approx_float(calc_sinh(&mut ctx, &p(vec![Value::Float(0.0)]), &null_world(), test_file_id()).unwrap(), 0.0);
-        approx_float(calc_cosh(&mut ctx, &p(vec![Value::Float(0.0)]), &null_world(), test_file_id()).unwrap(), 1.0);
-        approx_float(calc_tanh(&mut ctx, &p(vec![Value::Float(0.0)]), &null_world(), test_file_id()).unwrap(), 0.0);
+        approx_float(
+            calc_sinh(
+                &mut ctx,
+                &p(vec![Value::Float(0.0)]),
+                &null_world(),
+                test_file_id(),
+            )
+            .unwrap(),
+            0.0,
+        );
+        approx_float(
+            calc_cosh(
+                &mut ctx,
+                &p(vec![Value::Float(0.0)]),
+                &null_world(),
+                test_file_id(),
+            )
+            .unwrap(),
+            1.0,
+        );
+        approx_float(
+            calc_tanh(
+                &mut ctx,
+                &p(vec![Value::Float(0.0)]),
+                &null_world(),
+                test_file_id(),
+            )
+            .unwrap(),
+            0.0,
+        );
     }
 
     #[test]
     fn calc_sinh_cosh_identidade_pitagorica() {
         null_ctx!(ctx);
         // cosh²(x) - sinh²(x) = 1 (identidade hiperbólica fundamental).
-        let s = match calc_sinh(&mut ctx, &p(vec![Value::Float(1.5)]), &null_world(), test_file_id()).unwrap() {
-            Value::Float(f) => f, _ => panic!(),
+        let s = match calc_sinh(
+            &mut ctx,
+            &p(vec![Value::Float(1.5)]),
+            &null_world(),
+            test_file_id(),
+        )
+        .unwrap()
+        {
+            Value::Float(f) => f,
+            _ => panic!(),
         };
-        let c = match calc_cosh(&mut ctx, &p(vec![Value::Float(1.5)]), &null_world(), test_file_id()).unwrap() {
-            Value::Float(f) => f, _ => panic!(),
+        let c = match calc_cosh(
+            &mut ctx,
+            &p(vec![Value::Float(1.5)]),
+            &null_world(),
+            test_file_id(),
+        )
+        .unwrap()
+        {
+            Value::Float(f) => f,
+            _ => panic!(),
         };
         assert!((c * c - s * s - 1.0).abs() < 1e-10, "cosh²-sinh² = {}", c * c - s * s);
     }
@@ -1466,37 +2192,97 @@ mod tests {
     #[test]
     fn calc_asinh_inverso_de_sinh() {
         null_ctx!(ctx);
-        approx_float(calc_asinh(&mut ctx, &p(vec![Value::Float(0.0)]), &null_world(), test_file_id()).unwrap(), 0.0);
+        approx_float(
+            calc_asinh(
+                &mut ctx,
+                &p(vec![Value::Float(0.0)]),
+                &null_world(),
+                test_file_id(),
+            )
+            .unwrap(),
+            0.0,
+        );
         // sinh(asinh(2)) = 2.
-        let v = calc_asinh(&mut ctx, &p(vec![Value::Float(2.0)]), &null_world(), test_file_id()).unwrap();
-        let back = calc_sinh(&mut ctx, &p(vec![v]), &null_world(), test_file_id()).unwrap();
+        let v = calc_asinh(
+            &mut ctx,
+            &p(vec![Value::Float(2.0)]),
+            &null_world(),
+            test_file_id(),
+        )
+        .unwrap();
+        let back =
+            calc_sinh(&mut ctx, &p(vec![v]), &null_world(), test_file_id()).unwrap();
         approx_float(back, 2.0);
     }
 
     #[test]
     fn calc_acosh_dominio_valido() {
         null_ctx!(ctx);
-        approx_float(calc_acosh(&mut ctx, &p(vec![Value::Float(1.0)]), &null_world(), test_file_id()).unwrap(), 0.0);
+        approx_float(
+            calc_acosh(
+                &mut ctx,
+                &p(vec![Value::Float(1.0)]),
+                &null_world(),
+                test_file_id(),
+            )
+            .unwrap(),
+            0.0,
+        );
         // cosh(acosh(2.5)) = 2.5.
-        let v = calc_acosh(&mut ctx, &p(vec![Value::Float(2.5)]), &null_world(), test_file_id()).unwrap();
-        let back = calc_cosh(&mut ctx, &p(vec![v]), &null_world(), test_file_id()).unwrap();
+        let v = calc_acosh(
+            &mut ctx,
+            &p(vec![Value::Float(2.5)]),
+            &null_world(),
+            test_file_id(),
+        )
+        .unwrap();
+        let back =
+            calc_cosh(&mut ctx, &p(vec![v]), &null_world(), test_file_id()).unwrap();
         approx_float(back, 2.5);
     }
 
     #[test]
     fn calc_acosh_fora_dominio_retorna_err() {
         null_ctx!(ctx);
-        assert!(calc_acosh(&mut ctx, &p(vec![Value::Float(0.5)]),  &null_world(), test_file_id()).is_err());
-        assert!(calc_acosh(&mut ctx, &p(vec![Value::Float(-1.0)]), &null_world(), test_file_id()).is_err());
+        assert!(calc_acosh(
+            &mut ctx,
+            &p(vec![Value::Float(0.5)]),
+            &null_world(),
+            test_file_id()
+        )
+        .is_err());
+        assert!(calc_acosh(
+            &mut ctx,
+            &p(vec![Value::Float(-1.0)]),
+            &null_world(),
+            test_file_id()
+        )
+        .is_err());
     }
 
     #[test]
     fn calc_atanh_dominio_valido() {
         null_ctx!(ctx);
-        approx_float(calc_atanh(&mut ctx, &p(vec![Value::Float(0.0)]), &null_world(), test_file_id()).unwrap(), 0.0);
+        approx_float(
+            calc_atanh(
+                &mut ctx,
+                &p(vec![Value::Float(0.0)]),
+                &null_world(),
+                test_file_id(),
+            )
+            .unwrap(),
+            0.0,
+        );
         // tanh(atanh(0.5)) = 0.5.
-        let v = calc_atanh(&mut ctx, &p(vec![Value::Float(0.5)]), &null_world(), test_file_id()).unwrap();
-        let back = calc_tanh(&mut ctx, &p(vec![v]), &null_world(), test_file_id()).unwrap();
+        let v = calc_atanh(
+            &mut ctx,
+            &p(vec![Value::Float(0.5)]),
+            &null_world(),
+            test_file_id(),
+        )
+        .unwrap();
+        let back =
+            calc_tanh(&mut ctx, &p(vec![v]), &null_world(), test_file_id()).unwrap();
         approx_float(back, 0.5);
     }
 
@@ -1504,9 +2290,27 @@ mod tests {
     fn calc_atanh_fora_dominio_retorna_err() {
         null_ctx!(ctx);
         // Fronteiras (-1 e 1) são exclusivas — Err em ambos.
-        assert!(calc_atanh(&mut ctx, &p(vec![Value::Float(1.0)]),  &null_world(), test_file_id()).is_err());
-        assert!(calc_atanh(&mut ctx, &p(vec![Value::Float(-1.0)]), &null_world(), test_file_id()).is_err());
-        assert!(calc_atanh(&mut ctx, &p(vec![Value::Float(1.5)]),  &null_world(), test_file_id()).is_err());
+        assert!(calc_atanh(
+            &mut ctx,
+            &p(vec![Value::Float(1.0)]),
+            &null_world(),
+            test_file_id()
+        )
+        .is_err());
+        assert!(calc_atanh(
+            &mut ctx,
+            &p(vec![Value::Float(-1.0)]),
+            &null_world(),
+            test_file_id()
+        )
+        .is_err());
+        assert!(calc_atanh(
+            &mut ctx,
+            &p(vec![Value::Float(1.5)]),
+            &null_world(),
+            test_file_id()
+        )
+        .is_err());
     }
 
     // ── Exponencial / logaritmos ─────────────────────────────────────────────
@@ -1514,56 +2318,172 @@ mod tests {
     #[test]
     fn calc_exp_zero_e_um() {
         null_ctx!(ctx);
-        approx_float(calc_exp(&mut ctx, &p(vec![Value::Float(0.0)]), &null_world(), test_file_id()).unwrap(), 1.0);
-        approx_float(calc_exp(&mut ctx, &p(vec![Value::Int(1)]),     &null_world(), test_file_id()).unwrap(), std::f64::consts::E);
+        approx_float(
+            calc_exp(
+                &mut ctx,
+                &p(vec![Value::Float(0.0)]),
+                &null_world(),
+                test_file_id(),
+            )
+            .unwrap(),
+            1.0,
+        );
+        approx_float(
+            calc_exp(&mut ctx, &p(vec![Value::Int(1)]), &null_world(), test_file_id())
+                .unwrap(),
+            std::f64::consts::E,
+        );
     }
 
     #[test]
     fn calc_exp_overflow_retorna_err() {
         null_ctx!(ctx);
         // exp(1e10) → Inf → guard_float devolve Err.
-        assert!(calc_exp(&mut ctx, &p(vec![Value::Float(1e10)]), &null_world(), test_file_id()).is_err());
+        assert!(calc_exp(
+            &mut ctx,
+            &p(vec![Value::Float(1e10)]),
+            &null_world(),
+            test_file_id()
+        )
+        .is_err());
     }
 
     #[test]
     fn calc_ln_e_e_dominio() {
         null_ctx!(ctx);
-        approx_float(calc_ln(&mut ctx, &p(vec![Value::Float(1.0)]),                   &null_world(), test_file_id()).unwrap(), 0.0);
-        approx_float(calc_ln(&mut ctx, &p(vec![Value::Float(std::f64::consts::E)]),   &null_world(), test_file_id()).unwrap(), 1.0);
+        approx_float(
+            calc_ln(&mut ctx, &p(vec![Value::Float(1.0)]), &null_world(), test_file_id())
+                .unwrap(),
+            0.0,
+        );
+        approx_float(
+            calc_ln(
+                &mut ctx,
+                &p(vec![Value::Float(std::f64::consts::E)]),
+                &null_world(),
+                test_file_id(),
+            )
+            .unwrap(),
+            1.0,
+        );
     }
 
     #[test]
     fn calc_ln_nao_positivo_retorna_err() {
         null_ctx!(ctx);
-        assert!(calc_ln(&mut ctx, &p(vec![Value::Float(0.0)]),  &null_world(), test_file_id()).is_err());
-        assert!(calc_ln(&mut ctx, &p(vec![Value::Float(-1.0)]), &null_world(), test_file_id()).is_err());
+        assert!(calc_ln(
+            &mut ctx,
+            &p(vec![Value::Float(0.0)]),
+            &null_world(),
+            test_file_id()
+        )
+        .is_err());
+        assert!(calc_ln(
+            &mut ctx,
+            &p(vec![Value::Float(-1.0)]),
+            &null_world(),
+            test_file_id()
+        )
+        .is_err());
     }
 
     #[test]
     fn calc_log_base_default_dez() {
         null_ctx!(ctx);
-        approx_float(calc_log(&mut ctx, &p(vec![Value::Float(100.0)]),  &null_world(), test_file_id()).unwrap(), 2.0);
-        approx_float(calc_log(&mut ctx, &p(vec![Value::Float(1000.0)]), &null_world(), test_file_id()).unwrap(), 3.0);
+        approx_float(
+            calc_log(
+                &mut ctx,
+                &p(vec![Value::Float(100.0)]),
+                &null_world(),
+                test_file_id(),
+            )
+            .unwrap(),
+            2.0,
+        );
+        approx_float(
+            calc_log(
+                &mut ctx,
+                &p(vec![Value::Float(1000.0)]),
+                &null_world(),
+                test_file_id(),
+            )
+            .unwrap(),
+            3.0,
+        );
     }
 
     #[test]
     fn calc_log_base_explicita() {
         null_ctx!(ctx);
-        approx_float(calc_log(&mut ctx, &p(vec![Value::Float(8.0),  Value::Float(2.0)]), &null_world(), test_file_id()).unwrap(), 3.0);
-        approx_float(calc_log(&mut ctx, &p(vec![Value::Float(27.0), Value::Float(3.0)]), &null_world(), test_file_id()).unwrap(), 3.0);
+        approx_float(
+            calc_log(
+                &mut ctx,
+                &p(vec![Value::Float(8.0), Value::Float(2.0)]),
+                &null_world(),
+                test_file_id(),
+            )
+            .unwrap(),
+            3.0,
+        );
+        approx_float(
+            calc_log(
+                &mut ctx,
+                &p(vec![Value::Float(27.0), Value::Float(3.0)]),
+                &null_world(),
+                test_file_id(),
+            )
+            .unwrap(),
+            3.0,
+        );
     }
 
     #[test]
     fn calc_log_dominio_e_base_invalidos_retorna_err() {
         null_ctx!(ctx);
         // valor ≤ 0.
-        assert!(calc_log(&mut ctx, &p(vec![Value::Float(0.0)]),                   &null_world(), test_file_id()).is_err());
-        assert!(calc_log(&mut ctx, &p(vec![Value::Float(-1.0)]),                  &null_world(), test_file_id()).is_err());
+        assert!(calc_log(
+            &mut ctx,
+            &p(vec![Value::Float(0.0)]),
+            &null_world(),
+            test_file_id()
+        )
+        .is_err());
+        assert!(calc_log(
+            &mut ctx,
+            &p(vec![Value::Float(-1.0)]),
+            &null_world(),
+            test_file_id()
+        )
+        .is_err());
         // base inválida (≤0, 1, Inf, NaN).
-        assert!(calc_log(&mut ctx, &p(vec![Value::Float(10.0), Value::Float(1.0)]),         &null_world(), test_file_id()).is_err());
-        assert!(calc_log(&mut ctx, &p(vec![Value::Float(10.0), Value::Float(0.0)]),         &null_world(), test_file_id()).is_err());
-        assert!(calc_log(&mut ctx, &p(vec![Value::Float(10.0), Value::Float(-2.0)]),        &null_world(), test_file_id()).is_err());
-        assert!(calc_log(&mut ctx, &p(vec![Value::Float(10.0), Value::Float(f64::INFINITY)]), &null_world(), test_file_id()).is_err());
+        assert!(calc_log(
+            &mut ctx,
+            &p(vec![Value::Float(10.0), Value::Float(1.0)]),
+            &null_world(),
+            test_file_id()
+        )
+        .is_err());
+        assert!(calc_log(
+            &mut ctx,
+            &p(vec![Value::Float(10.0), Value::Float(0.0)]),
+            &null_world(),
+            test_file_id()
+        )
+        .is_err());
+        assert!(calc_log(
+            &mut ctx,
+            &p(vec![Value::Float(10.0), Value::Float(-2.0)]),
+            &null_world(),
+            test_file_id()
+        )
+        .is_err());
+        assert!(calc_log(
+            &mut ctx,
+            &p(vec![Value::Float(10.0), Value::Float(f64::INFINITY)]),
+            &null_world(),
+            test_file_id()
+        )
+        .is_err());
     }
 
     // ── P306 — aritmética inteira, combinatória, norma, raiz ────────────────
@@ -1571,166 +2491,698 @@ mod tests {
     #[test]
     fn calc_trunc_int_e_float() {
         null_ctx!(ctx);
-        assert_eq!(calc_trunc(&mut ctx, &p(vec![Value::Int(5)]), &null_world(), test_file_id()).unwrap(), Value::Int(5));
-        assert_eq!(calc_trunc(&mut ctx, &p(vec![Value::Float(3.7)]), &null_world(), test_file_id()).unwrap(), Value::Int(3));
-        assert_eq!(calc_trunc(&mut ctx, &p(vec![Value::Float(-3.7)]), &null_world(), test_file_id()).unwrap(), Value::Int(-3));
-        assert!(calc_trunc(&mut ctx, &p(vec![Value::Str("x".into())]), &null_world(), test_file_id()).is_err());
+        assert_eq!(
+            calc_trunc(&mut ctx, &p(vec![Value::Int(5)]), &null_world(), test_file_id())
+                .unwrap(),
+            Value::Int(5)
+        );
+        assert_eq!(
+            calc_trunc(
+                &mut ctx,
+                &p(vec![Value::Float(3.7)]),
+                &null_world(),
+                test_file_id()
+            )
+            .unwrap(),
+            Value::Int(3)
+        );
+        assert_eq!(
+            calc_trunc(
+                &mut ctx,
+                &p(vec![Value::Float(-3.7)]),
+                &null_world(),
+                test_file_id()
+            )
+            .unwrap(),
+            Value::Int(-3)
+        );
+        assert!(calc_trunc(
+            &mut ctx,
+            &p(vec![Value::Str("x".into())]),
+            &null_world(),
+            test_file_id()
+        )
+        .is_err());
         assert!(calc_trunc(&mut ctx, &p(vec![]), &null_world(), test_file_id()).is_err());
     }
 
     #[test]
     fn calc_fract_int_e_float() {
         null_ctx!(ctx);
-        assert_eq!(calc_fract(&mut ctx, &p(vec![Value::Int(5)]), &null_world(), test_file_id()).unwrap(), Value::Float(0.0));
-        approx_float(calc_fract(&mut ctx, &p(vec![Value::Float(3.7)]), &null_world(), test_file_id()).unwrap(), 0.7);
-        approx_float(calc_fract(&mut ctx, &p(vec![Value::Float(-3.7)]), &null_world(), test_file_id()).unwrap(), -0.7);
-        assert!(calc_fract(&mut ctx, &p(vec![Value::Bool(true)]), &null_world(), test_file_id()).is_err());
+        assert_eq!(
+            calc_fract(&mut ctx, &p(vec![Value::Int(5)]), &null_world(), test_file_id())
+                .unwrap(),
+            Value::Float(0.0)
+        );
+        approx_float(
+            calc_fract(
+                &mut ctx,
+                &p(vec![Value::Float(3.7)]),
+                &null_world(),
+                test_file_id(),
+            )
+            .unwrap(),
+            0.7,
+        );
+        approx_float(
+            calc_fract(
+                &mut ctx,
+                &p(vec![Value::Float(-3.7)]),
+                &null_world(),
+                test_file_id(),
+            )
+            .unwrap(),
+            -0.7,
+        );
+        assert!(calc_fract(
+            &mut ctx,
+            &p(vec![Value::Bool(true)]),
+            &null_world(),
+            test_file_id()
+        )
+        .is_err());
     }
 
     #[test]
     fn calc_even_odd_int_apenas() {
         null_ctx!(ctx);
-        assert_eq!(calc_even(&mut ctx, &p(vec![Value::Int(4)]), &null_world(), test_file_id()).unwrap(), Value::Bool(true));
-        assert_eq!(calc_even(&mut ctx, &p(vec![Value::Int(-3)]), &null_world(), test_file_id()).unwrap(), Value::Bool(false));
-        assert_eq!(calc_even(&mut ctx, &p(vec![Value::Int(0)]), &null_world(), test_file_id()).unwrap(), Value::Bool(true));
-        assert!(calc_even(&mut ctx, &p(vec![Value::Float(2.0)]), &null_world(), test_file_id()).is_err());
+        assert_eq!(
+            calc_even(&mut ctx, &p(vec![Value::Int(4)]), &null_world(), test_file_id())
+                .unwrap(),
+            Value::Bool(true)
+        );
+        assert_eq!(
+            calc_even(&mut ctx, &p(vec![Value::Int(-3)]), &null_world(), test_file_id())
+                .unwrap(),
+            Value::Bool(false)
+        );
+        assert_eq!(
+            calc_even(&mut ctx, &p(vec![Value::Int(0)]), &null_world(), test_file_id())
+                .unwrap(),
+            Value::Bool(true)
+        );
+        assert!(calc_even(
+            &mut ctx,
+            &p(vec![Value::Float(2.0)]),
+            &null_world(),
+            test_file_id()
+        )
+        .is_err());
 
-        assert_eq!(calc_odd(&mut ctx, &p(vec![Value::Int(3)]), &null_world(), test_file_id()).unwrap(), Value::Bool(true));
-        assert_eq!(calc_odd(&mut ctx, &p(vec![Value::Int(0)]), &null_world(), test_file_id()).unwrap(), Value::Bool(false));
-        assert_eq!(calc_odd(&mut ctx, &p(vec![Value::Int(-3)]), &null_world(), test_file_id()).unwrap(), Value::Bool(true));
-        assert!(calc_odd(&mut ctx, &p(vec![Value::Float(2.0)]), &null_world(), test_file_id()).is_err());
+        assert_eq!(
+            calc_odd(&mut ctx, &p(vec![Value::Int(3)]), &null_world(), test_file_id())
+                .unwrap(),
+            Value::Bool(true)
+        );
+        assert_eq!(
+            calc_odd(&mut ctx, &p(vec![Value::Int(0)]), &null_world(), test_file_id())
+                .unwrap(),
+            Value::Bool(false)
+        );
+        assert_eq!(
+            calc_odd(&mut ctx, &p(vec![Value::Int(-3)]), &null_world(), test_file_id())
+                .unwrap(),
+            Value::Bool(true)
+        );
+        assert!(calc_odd(
+            &mut ctx,
+            &p(vec![Value::Float(2.0)]),
+            &null_world(),
+            test_file_id()
+        )
+        .is_err());
     }
 
     #[test]
     fn calc_rem_truncado() {
         null_ctx!(ctx);
-        assert_eq!(calc_rem(&mut ctx, &p(vec![Value::Int(7), Value::Int(3)]), &null_world(), test_file_id()).unwrap(), Value::Int(1));
-        assert_eq!(calc_rem(&mut ctx, &p(vec![Value::Int(-7), Value::Int(3)]), &null_world(), test_file_id()).unwrap(), Value::Int(-1));
-        approx_float(calc_rem(&mut ctx, &p(vec![Value::Float(7.5), Value::Float(2.0)]), &null_world(), test_file_id()).unwrap(), 1.5);
-        assert!(calc_rem(&mut ctx, &p(vec![Value::Int(1), Value::Int(0)]), &null_world(), test_file_id()).is_err());
-        assert!(calc_rem(&mut ctx, &p(vec![Value::Int(5)]), &null_world(), test_file_id()).is_err());
+        assert_eq!(
+            calc_rem(
+                &mut ctx,
+                &p(vec![Value::Int(7), Value::Int(3)]),
+                &null_world(),
+                test_file_id()
+            )
+            .unwrap(),
+            Value::Int(1)
+        );
+        assert_eq!(
+            calc_rem(
+                &mut ctx,
+                &p(vec![Value::Int(-7), Value::Int(3)]),
+                &null_world(),
+                test_file_id()
+            )
+            .unwrap(),
+            Value::Int(-1)
+        );
+        approx_float(
+            calc_rem(
+                &mut ctx,
+                &p(vec![Value::Float(7.5), Value::Float(2.0)]),
+                &null_world(),
+                test_file_id(),
+            )
+            .unwrap(),
+            1.5,
+        );
+        assert!(calc_rem(
+            &mut ctx,
+            &p(vec![Value::Int(1), Value::Int(0)]),
+            &null_world(),
+            test_file_id()
+        )
+        .is_err());
+        assert!(calc_rem(
+            &mut ctx,
+            &p(vec![Value::Int(5)]),
+            &null_world(),
+            test_file_id()
+        )
+        .is_err());
     }
 
     #[test]
     fn calc_rem_euclid_sempre_positivo() {
         null_ctx!(ctx);
-        assert_eq!(calc_rem_euclid(&mut ctx, &p(vec![Value::Int(-7), Value::Int(3)]), &null_world(), test_file_id()).unwrap(), Value::Int(2));
-        assert_eq!(calc_rem_euclid(&mut ctx, &p(vec![Value::Int(7), Value::Int(3)]), &null_world(), test_file_id()).unwrap(), Value::Int(1));
-        approx_float(calc_rem_euclid(&mut ctx, &p(vec![Value::Float(-7.5), Value::Float(2.0)]), &null_world(), test_file_id()).unwrap(), 0.5);
-        assert!(calc_rem_euclid(&mut ctx, &p(vec![Value::Int(1), Value::Int(0)]), &null_world(), test_file_id()).is_err());
+        assert_eq!(
+            calc_rem_euclid(
+                &mut ctx,
+                &p(vec![Value::Int(-7), Value::Int(3)]),
+                &null_world(),
+                test_file_id()
+            )
+            .unwrap(),
+            Value::Int(2)
+        );
+        assert_eq!(
+            calc_rem_euclid(
+                &mut ctx,
+                &p(vec![Value::Int(7), Value::Int(3)]),
+                &null_world(),
+                test_file_id()
+            )
+            .unwrap(),
+            Value::Int(1)
+        );
+        approx_float(
+            calc_rem_euclid(
+                &mut ctx,
+                &p(vec![Value::Float(-7.5), Value::Float(2.0)]),
+                &null_world(),
+                test_file_id(),
+            )
+            .unwrap(),
+            0.5,
+        );
+        assert!(calc_rem_euclid(
+            &mut ctx,
+            &p(vec![Value::Int(1), Value::Int(0)]),
+            &null_world(),
+            test_file_id()
+        )
+        .is_err());
     }
 
     #[test]
     fn calc_div_euclid_arredonda_para_menos_inf() {
         null_ctx!(ctx);
-        assert_eq!(calc_div_euclid(&mut ctx, &p(vec![Value::Int(-7), Value::Int(3)]), &null_world(), test_file_id()).unwrap(), Value::Int(-3));
-        assert_eq!(calc_div_euclid(&mut ctx, &p(vec![Value::Int(7), Value::Int(3)]), &null_world(), test_file_id()).unwrap(), Value::Int(2));
-        assert!(calc_div_euclid(&mut ctx, &p(vec![Value::Int(1), Value::Int(0)]), &null_world(), test_file_id()).is_err());
+        assert_eq!(
+            calc_div_euclid(
+                &mut ctx,
+                &p(vec![Value::Int(-7), Value::Int(3)]),
+                &null_world(),
+                test_file_id()
+            )
+            .unwrap(),
+            Value::Int(-3)
+        );
+        assert_eq!(
+            calc_div_euclid(
+                &mut ctx,
+                &p(vec![Value::Int(7), Value::Int(3)]),
+                &null_world(),
+                test_file_id()
+            )
+            .unwrap(),
+            Value::Int(2)
+        );
+        assert!(calc_div_euclid(
+            &mut ctx,
+            &p(vec![Value::Int(1), Value::Int(0)]),
+            &null_world(),
+            test_file_id()
+        )
+        .is_err());
     }
 
     #[test]
     fn calc_quo_truncado() {
         null_ctx!(ctx);
-        assert_eq!(calc_quo(&mut ctx, &p(vec![Value::Int(7), Value::Int(2)]), &null_world(), test_file_id()).unwrap(), Value::Int(3));
-        assert_eq!(calc_quo(&mut ctx, &p(vec![Value::Int(-7), Value::Int(2)]), &null_world(), test_file_id()).unwrap(), Value::Int(-3));
-        assert_eq!(calc_quo(&mut ctx, &p(vec![Value::Float(7.5), Value::Float(2.0)]), &null_world(), test_file_id()).unwrap(), Value::Int(3));
-        assert!(calc_quo(&mut ctx, &p(vec![Value::Int(1), Value::Int(0)]), &null_world(), test_file_id()).is_err());
+        assert_eq!(
+            calc_quo(
+                &mut ctx,
+                &p(vec![Value::Int(7), Value::Int(2)]),
+                &null_world(),
+                test_file_id()
+            )
+            .unwrap(),
+            Value::Int(3)
+        );
+        assert_eq!(
+            calc_quo(
+                &mut ctx,
+                &p(vec![Value::Int(-7), Value::Int(2)]),
+                &null_world(),
+                test_file_id()
+            )
+            .unwrap(),
+            Value::Int(-3)
+        );
+        assert_eq!(
+            calc_quo(
+                &mut ctx,
+                &p(vec![Value::Float(7.5), Value::Float(2.0)]),
+                &null_world(),
+                test_file_id()
+            )
+            .unwrap(),
+            Value::Int(3)
+        );
+        assert!(calc_quo(
+            &mut ctx,
+            &p(vec![Value::Int(1), Value::Int(0)]),
+            &null_world(),
+            test_file_id()
+        )
+        .is_err());
     }
 
     #[test]
     fn calc_gcd_lcm_basico() {
         null_ctx!(ctx);
-        assert_eq!(calc_gcd(&mut ctx, &p(vec![Value::Int(12), Value::Int(18)]), &null_world(), test_file_id()).unwrap(), Value::Int(6));
-        assert_eq!(calc_gcd(&mut ctx, &p(vec![Value::Int(0), Value::Int(5)]), &null_world(), test_file_id()).unwrap(), Value::Int(5));
-        assert_eq!(calc_gcd(&mut ctx, &p(vec![Value::Int(0), Value::Int(0)]), &null_world(), test_file_id()).unwrap(), Value::Int(0));
-        assert_eq!(calc_gcd(&mut ctx, &p(vec![Value::Int(-12), Value::Int(18)]), &null_world(), test_file_id()).unwrap(), Value::Int(6));
+        assert_eq!(
+            calc_gcd(
+                &mut ctx,
+                &p(vec![Value::Int(12), Value::Int(18)]),
+                &null_world(),
+                test_file_id()
+            )
+            .unwrap(),
+            Value::Int(6)
+        );
+        assert_eq!(
+            calc_gcd(
+                &mut ctx,
+                &p(vec![Value::Int(0), Value::Int(5)]),
+                &null_world(),
+                test_file_id()
+            )
+            .unwrap(),
+            Value::Int(5)
+        );
+        assert_eq!(
+            calc_gcd(
+                &mut ctx,
+                &p(vec![Value::Int(0), Value::Int(0)]),
+                &null_world(),
+                test_file_id()
+            )
+            .unwrap(),
+            Value::Int(0)
+        );
+        assert_eq!(
+            calc_gcd(
+                &mut ctx,
+                &p(vec![Value::Int(-12), Value::Int(18)]),
+                &null_world(),
+                test_file_id()
+            )
+            .unwrap(),
+            Value::Int(6)
+        );
 
-        assert_eq!(calc_lcm(&mut ctx, &p(vec![Value::Int(4), Value::Int(6)]), &null_world(), test_file_id()).unwrap(), Value::Int(12));
-        assert_eq!(calc_lcm(&mut ctx, &p(vec![Value::Int(0), Value::Int(5)]), &null_world(), test_file_id()).unwrap(), Value::Int(0));
-        assert!(calc_lcm(&mut ctx, &p(vec![Value::Int(i64::MAX), Value::Int(2)]), &null_world(), test_file_id()).is_err());
+        assert_eq!(
+            calc_lcm(
+                &mut ctx,
+                &p(vec![Value::Int(4), Value::Int(6)]),
+                &null_world(),
+                test_file_id()
+            )
+            .unwrap(),
+            Value::Int(12)
+        );
+        assert_eq!(
+            calc_lcm(
+                &mut ctx,
+                &p(vec![Value::Int(0), Value::Int(5)]),
+                &null_world(),
+                test_file_id()
+            )
+            .unwrap(),
+            Value::Int(0)
+        );
+        assert!(calc_lcm(
+            &mut ctx,
+            &p(vec![Value::Int(i64::MAX), Value::Int(2)]),
+            &null_world(),
+            test_file_id()
+        )
+        .is_err());
     }
 
     #[test]
     fn calc_fact_basico_e_overflow() {
         null_ctx!(ctx);
-        assert_eq!(calc_fact(&mut ctx, &p(vec![Value::Int(0)]), &null_world(), test_file_id()).unwrap(), Value::Int(1));
-        assert_eq!(calc_fact(&mut ctx, &p(vec![Value::Int(1)]), &null_world(), test_file_id()).unwrap(), Value::Int(1));
-        assert_eq!(calc_fact(&mut ctx, &p(vec![Value::Int(5)]), &null_world(), test_file_id()).unwrap(), Value::Int(120));
-        assert_eq!(calc_fact(&mut ctx, &p(vec![Value::Int(20)]), &null_world(), test_file_id()).unwrap(), Value::Int(2_432_902_008_176_640_000));
-        assert!(calc_fact(&mut ctx, &p(vec![Value::Int(-1)]), &null_world(), test_file_id()).is_err());
-        assert!(calc_fact(&mut ctx, &p(vec![Value::Int(21)]), &null_world(), test_file_id()).is_err());
-        assert!(calc_fact(&mut ctx, &p(vec![Value::Float(5.0)]), &null_world(), test_file_id()).is_err());
+        assert_eq!(
+            calc_fact(&mut ctx, &p(vec![Value::Int(0)]), &null_world(), test_file_id())
+                .unwrap(),
+            Value::Int(1)
+        );
+        assert_eq!(
+            calc_fact(&mut ctx, &p(vec![Value::Int(1)]), &null_world(), test_file_id())
+                .unwrap(),
+            Value::Int(1)
+        );
+        assert_eq!(
+            calc_fact(&mut ctx, &p(vec![Value::Int(5)]), &null_world(), test_file_id())
+                .unwrap(),
+            Value::Int(120)
+        );
+        assert_eq!(
+            calc_fact(&mut ctx, &p(vec![Value::Int(20)]), &null_world(), test_file_id())
+                .unwrap(),
+            Value::Int(2_432_902_008_176_640_000)
+        );
+        assert!(calc_fact(
+            &mut ctx,
+            &p(vec![Value::Int(-1)]),
+            &null_world(),
+            test_file_id()
+        )
+        .is_err());
+        assert!(calc_fact(
+            &mut ctx,
+            &p(vec![Value::Int(21)]),
+            &null_world(),
+            test_file_id()
+        )
+        .is_err());
+        assert!(calc_fact(
+            &mut ctx,
+            &p(vec![Value::Float(5.0)]),
+            &null_world(),
+            test_file_id()
+        )
+        .is_err());
     }
 
     #[test]
     fn calc_perm_arranjos() {
         null_ctx!(ctx);
-        assert_eq!(calc_perm(&mut ctx, &p(vec![Value::Int(5), Value::Int(2)]), &null_world(), test_file_id()).unwrap(), Value::Int(20));
-        assert_eq!(calc_perm(&mut ctx, &p(vec![Value::Int(5), Value::Int(0)]), &null_world(), test_file_id()).unwrap(), Value::Int(1));
-        assert_eq!(calc_perm(&mut ctx, &p(vec![Value::Int(5), Value::Int(5)]), &null_world(), test_file_id()).unwrap(), Value::Int(120));
-        assert_eq!(calc_perm(&mut ctx, &p(vec![Value::Int(5), Value::Int(8)]), &null_world(), test_file_id()).unwrap(), Value::Int(0));
-        assert!(calc_perm(&mut ctx, &p(vec![Value::Int(-1), Value::Int(2)]), &null_world(), test_file_id()).is_err());
+        assert_eq!(
+            calc_perm(
+                &mut ctx,
+                &p(vec![Value::Int(5), Value::Int(2)]),
+                &null_world(),
+                test_file_id()
+            )
+            .unwrap(),
+            Value::Int(20)
+        );
+        assert_eq!(
+            calc_perm(
+                &mut ctx,
+                &p(vec![Value::Int(5), Value::Int(0)]),
+                &null_world(),
+                test_file_id()
+            )
+            .unwrap(),
+            Value::Int(1)
+        );
+        assert_eq!(
+            calc_perm(
+                &mut ctx,
+                &p(vec![Value::Int(5), Value::Int(5)]),
+                &null_world(),
+                test_file_id()
+            )
+            .unwrap(),
+            Value::Int(120)
+        );
+        assert_eq!(
+            calc_perm(
+                &mut ctx,
+                &p(vec![Value::Int(5), Value::Int(8)]),
+                &null_world(),
+                test_file_id()
+            )
+            .unwrap(),
+            Value::Int(0)
+        );
+        assert!(calc_perm(
+            &mut ctx,
+            &p(vec![Value::Int(-1), Value::Int(2)]),
+            &null_world(),
+            test_file_id()
+        )
+        .is_err());
     }
 
     #[test]
     fn calc_binom_combinacoes() {
         null_ctx!(ctx);
-        assert_eq!(calc_binom(&mut ctx, &p(vec![Value::Int(5), Value::Int(2)]), &null_world(), test_file_id()).unwrap(), Value::Int(10));
-        assert_eq!(calc_binom(&mut ctx, &p(vec![Value::Int(5), Value::Int(0)]), &null_world(), test_file_id()).unwrap(), Value::Int(1));
-        assert_eq!(calc_binom(&mut ctx, &p(vec![Value::Int(5), Value::Int(5)]), &null_world(), test_file_id()).unwrap(), Value::Int(1));
-        assert_eq!(calc_binom(&mut ctx, &p(vec![Value::Int(5), Value::Int(8)]), &null_world(), test_file_id()).unwrap(), Value::Int(0));
+        assert_eq!(
+            calc_binom(
+                &mut ctx,
+                &p(vec![Value::Int(5), Value::Int(2)]),
+                &null_world(),
+                test_file_id()
+            )
+            .unwrap(),
+            Value::Int(10)
+        );
+        assert_eq!(
+            calc_binom(
+                &mut ctx,
+                &p(vec![Value::Int(5), Value::Int(0)]),
+                &null_world(),
+                test_file_id()
+            )
+            .unwrap(),
+            Value::Int(1)
+        );
+        assert_eq!(
+            calc_binom(
+                &mut ctx,
+                &p(vec![Value::Int(5), Value::Int(5)]),
+                &null_world(),
+                test_file_id()
+            )
+            .unwrap(),
+            Value::Int(1)
+        );
+        assert_eq!(
+            calc_binom(
+                &mut ctx,
+                &p(vec![Value::Int(5), Value::Int(8)]),
+                &null_world(),
+                test_file_id()
+            )
+            .unwrap(),
+            Value::Int(0)
+        );
         // C(20, 10) = 184756 — caso clássico, fica longe do limite i64.
-        assert_eq!(calc_binom(&mut ctx, &p(vec![Value::Int(20), Value::Int(10)]), &null_world(), test_file_id()).unwrap(), Value::Int(184_756));
+        assert_eq!(
+            calc_binom(
+                &mut ctx,
+                &p(vec![Value::Int(20), Value::Int(10)]),
+                &null_world(),
+                test_file_id()
+            )
+            .unwrap(),
+            Value::Int(184_756)
+        );
         // Simetria: C(30, 28) deve usar k_eff = 2 internamente.
-        assert_eq!(calc_binom(&mut ctx, &p(vec![Value::Int(30), Value::Int(28)]), &null_world(), test_file_id()).unwrap(), Value::Int(435));
-        assert!(calc_binom(&mut ctx, &p(vec![Value::Int(-1), Value::Int(2)]), &null_world(), test_file_id()).is_err());
+        assert_eq!(
+            calc_binom(
+                &mut ctx,
+                &p(vec![Value::Int(30), Value::Int(28)]),
+                &null_world(),
+                test_file_id()
+            )
+            .unwrap(),
+            Value::Int(435)
+        );
+        assert!(calc_binom(
+            &mut ctx,
+            &p(vec![Value::Int(-1), Value::Int(2)]),
+            &null_world(),
+            test_file_id()
+        )
+        .is_err());
         // Overflow real (n grande): C(67, 33) sai do alcance i64.
-        assert!(calc_binom(&mut ctx, &p(vec![Value::Int(67), Value::Int(33)]), &null_world(), test_file_id()).is_err());
+        assert!(calc_binom(
+            &mut ctx,
+            &p(vec![Value::Int(67), Value::Int(33)]),
+            &null_world(),
+            test_file_id()
+        )
+        .is_err());
     }
 
     #[test]
     fn calc_norm_p2_default_pitagoras() {
         null_ctx!(ctx);
         // Sem args: norma de vector vazio = 0.0.
-        assert_eq!(calc_norm(&mut ctx, &p(vec![]), &null_world(), test_file_id()).unwrap(), Value::Float(0.0));
+        assert_eq!(
+            calc_norm(&mut ctx, &p(vec![]), &null_world(), test_file_id()).unwrap(),
+            Value::Float(0.0)
+        );
         // Pitágoras: norma 2 de (3, 4) = 5.
-        approx_float(calc_norm(&mut ctx, &p(vec![Value::Int(3), Value::Int(4)]), &null_world(), test_file_id()).unwrap(), 5.0);
+        approx_float(
+            calc_norm(
+                &mut ctx,
+                &p(vec![Value::Int(3), Value::Int(4)]),
+                &null_world(),
+                test_file_id(),
+            )
+            .unwrap(),
+            5.0,
+        );
         // abs interno: norma 2 de (-3, 4) = 5.
-        approx_float(calc_norm(&mut ctx, &p(vec![Value::Float(-3.0), Value::Float(4.0)]), &null_world(), test_file_id()).unwrap(), 5.0);
+        approx_float(
+            calc_norm(
+                &mut ctx,
+                &p(vec![Value::Float(-3.0), Value::Float(4.0)]),
+                &null_world(),
+                test_file_id(),
+            )
+            .unwrap(),
+            5.0,
+        );
     }
 
     #[test]
     fn calc_norm_p_named() {
         null_ctx!(ctx);
         // Taxicab (p=1) de (1, 1, 1) = 3.
-        approx_float(calc_norm(&mut ctx, &pn(vec![Value::Int(1), Value::Int(1), Value::Int(1)], "p", Value::Float(1.0)), &null_world(), test_file_id()).unwrap(), 3.0);
+        approx_float(
+            calc_norm(
+                &mut ctx,
+                &pn(
+                    vec![Value::Int(1), Value::Int(1), Value::Int(1)],
+                    "p",
+                    Value::Float(1.0),
+                ),
+                &null_world(),
+                test_file_id(),
+            )
+            .unwrap(),
+            3.0,
+        );
         // Chebyshev-aproximação (p grande) de (3, 4) ≈ 4.
-        let v = calc_norm(&mut ctx, &pn(vec![Value::Int(3), Value::Int(4)], "p", Value::Float(100.0)), &null_world(), test_file_id()).unwrap();
-        match v { Value::Float(f) => assert!((f - 4.0).abs() < 1e-2, "esperado ≈4, obtido {f}"), _ => panic!() }
+        let v = calc_norm(
+            &mut ctx,
+            &pn(vec![Value::Int(3), Value::Int(4)], "p", Value::Float(100.0)),
+            &null_world(),
+            test_file_id(),
+        )
+        .unwrap();
+        match v {
+            Value::Float(f) => assert!((f - 4.0).abs() < 1e-2, "esperado ≈4, obtido {f}"),
+            _ => panic!(),
+        }
     }
 
     #[test]
     fn calc_norm_rejeita_named_desconhecido() {
         null_ctx!(ctx);
-        assert!(calc_norm(&mut ctx, &pn(vec![Value::Int(3)], "q", Value::Float(2.0)), &null_world(), test_file_id()).is_err());
+        assert!(calc_norm(
+            &mut ctx,
+            &pn(vec![Value::Int(3)], "q", Value::Float(2.0)),
+            &null_world(),
+            test_file_id()
+        )
+        .is_err());
     }
 
     #[test]
     fn calc_root_raiz_quadrada_e_cubica() {
         null_ctx!(ctx);
-        approx_float(calc_root(&mut ctx, &p(vec![Value::Int(2), Value::Int(9)]), &null_world(), test_file_id()).unwrap(), 3.0);
-        approx_float(calc_root(&mut ctx, &p(vec![Value::Int(3), Value::Int(8)]), &null_world(), test_file_id()).unwrap(), 2.0);
-        approx_float(calc_root(&mut ctx, &p(vec![Value::Int(3), Value::Int(-8)]), &null_world(), test_file_id()).unwrap(), -2.0);
-        approx_float(calc_root(&mut ctx, &p(vec![Value::Int(2), Value::Float(0.0)]), &null_world(), test_file_id()).unwrap(), 0.0);
+        approx_float(
+            calc_root(
+                &mut ctx,
+                &p(vec![Value::Int(2), Value::Int(9)]),
+                &null_world(),
+                test_file_id(),
+            )
+            .unwrap(),
+            3.0,
+        );
+        approx_float(
+            calc_root(
+                &mut ctx,
+                &p(vec![Value::Int(3), Value::Int(8)]),
+                &null_world(),
+                test_file_id(),
+            )
+            .unwrap(),
+            2.0,
+        );
+        approx_float(
+            calc_root(
+                &mut ctx,
+                &p(vec![Value::Int(3), Value::Int(-8)]),
+                &null_world(),
+                test_file_id(),
+            )
+            .unwrap(),
+            -2.0,
+        );
+        approx_float(
+            calc_root(
+                &mut ctx,
+                &p(vec![Value::Int(2), Value::Float(0.0)]),
+                &null_world(),
+                test_file_id(),
+            )
+            .unwrap(),
+            0.0,
+        );
     }
 
     #[test]
     fn calc_root_erros() {
         null_ctx!(ctx);
-        assert!(calc_root(&mut ctx, &p(vec![Value::Int(2), Value::Int(-1)]), &null_world(), test_file_id()).is_err());
-        assert!(calc_root(&mut ctx, &p(vec![Value::Int(0), Value::Int(5)]), &null_world(), test_file_id()).is_err());
-        assert!(calc_root(&mut ctx, &p(vec![Value::Float(2.0), Value::Int(9)]), &null_world(), test_file_id()).is_err());
-        assert!(calc_root(&mut ctx, &p(vec![Value::Int(2)]), &null_world(), test_file_id()).is_err());
+        assert!(calc_root(
+            &mut ctx,
+            &p(vec![Value::Int(2), Value::Int(-1)]),
+            &null_world(),
+            test_file_id()
+        )
+        .is_err());
+        assert!(calc_root(
+            &mut ctx,
+            &p(vec![Value::Int(0), Value::Int(5)]),
+            &null_world(),
+            test_file_id()
+        )
+        .is_err());
+        assert!(calc_root(
+            &mut ctx,
+            &p(vec![Value::Float(2.0), Value::Int(9)]),
+            &null_world(),
+            test_file_id()
+        )
+        .is_err());
+        assert!(calc_root(
+            &mut ctx,
+            &p(vec![Value::Int(2)]),
+            &null_world(),
+            test_file_id()
+        )
+        .is_err());
     }
 
     // ── Passo 308 — função erro de Gauss (calc.erf) ──────────────────────────
@@ -1755,17 +3207,32 @@ mod tests {
         null_ctx!(ctx);
         // erf(0) = 0 — identidade exacta (sign·0·exp(0) = 0).
         assert_eq!(
-            calc_erf(&mut ctx, &p(vec![Value::Float(0.0)]), &null_world(), test_file_id()).unwrap(),
+            calc_erf(
+                &mut ctx,
+                &p(vec![Value::Float(0.0)]),
+                &null_world(),
+                test_file_id()
+            )
+            .unwrap(),
             Value::Float(0.0),
         );
         // Int coerce: erf(Int 0) idêntico a erf(Float 0.0).
         assert_eq!(
-            calc_erf(&mut ctx, &p(vec![Value::Int(0)]), &null_world(), test_file_id()).unwrap(),
+            calc_erf(&mut ctx, &p(vec![Value::Int(0)]), &null_world(), test_file_id())
+                .unwrap(),
             Value::Float(0.0),
         );
         // Int 1 coerce: deve coincidir com Float 1.0 dentro da tolerância.
-        let a = calc_erf(&mut ctx, &p(vec![Value::Int(1)]), &null_world(), test_file_id()).unwrap();
-        let b = calc_erf(&mut ctx, &p(vec![Value::Float(1.0)]), &null_world(), test_file_id()).unwrap();
+        let a =
+            calc_erf(&mut ctx, &p(vec![Value::Int(1)]), &null_world(), test_file_id())
+                .unwrap();
+        let b = calc_erf(
+            &mut ctx,
+            &p(vec![Value::Float(1.0)]),
+            &null_world(),
+            test_file_id(),
+        )
+        .unwrap();
         match (a, b) {
             (Value::Float(fa), Value::Float(fb)) => assert!(
                 (fa - fb).abs() < 1e-15,
@@ -1780,15 +3247,33 @@ mod tests {
         null_ctx!(ctx);
         // Valores tabulares clássicos (Abramowitz & Stegun Tabela 7.1).
         approx_float_erf(
-            calc_erf(&mut ctx, &p(vec![Value::Float(0.5)]), &null_world(), test_file_id()).unwrap(),
+            calc_erf(
+                &mut ctx,
+                &p(vec![Value::Float(0.5)]),
+                &null_world(),
+                test_file_id(),
+            )
+            .unwrap(),
             0.520_499_877_813_046_5,
         );
         approx_float_erf(
-            calc_erf(&mut ctx, &p(vec![Value::Float(1.0)]), &null_world(), test_file_id()).unwrap(),
+            calc_erf(
+                &mut ctx,
+                &p(vec![Value::Float(1.0)]),
+                &null_world(),
+                test_file_id(),
+            )
+            .unwrap(),
             0.842_700_792_949_715_0,
         );
         approx_float_erf(
-            calc_erf(&mut ctx, &p(vec![Value::Float(2.0)]), &null_world(), test_file_id()).unwrap(),
+            calc_erf(
+                &mut ctx,
+                &p(vec![Value::Float(2.0)]),
+                &null_world(),
+                test_file_id(),
+            )
+            .unwrap(),
             0.995_322_265_018_952_7,
         );
     }
@@ -1797,8 +3282,20 @@ mod tests {
     fn calc_erf_simetria_impar() {
         null_ctx!(ctx);
         for x in [0.1_f64, 0.5, 1.0, 1.7, 3.3] {
-            let pos = calc_erf(&mut ctx, &p(vec![Value::Float(x)]), &null_world(), test_file_id()).unwrap();
-            let neg = calc_erf(&mut ctx, &p(vec![Value::Float(-x)]), &null_world(), test_file_id()).unwrap();
+            let pos = calc_erf(
+                &mut ctx,
+                &p(vec![Value::Float(x)]),
+                &null_world(),
+                test_file_id(),
+            )
+            .unwrap();
+            let neg = calc_erf(
+                &mut ctx,
+                &p(vec![Value::Float(-x)]),
+                &null_world(),
+                test_file_id(),
+            )
+            .unwrap();
             match (pos, neg) {
                 (Value::Float(p_), Value::Float(n_)) => assert!(
                     (p_ + n_).abs() < 2e-7,
@@ -1814,11 +3311,23 @@ mod tests {
         null_ctx!(ctx);
         // |x| grande mas finito: erf(±5) ≈ ±1 dentro da tolerância A&S.
         approx_float_erf(
-            calc_erf(&mut ctx, &p(vec![Value::Float(5.0)]), &null_world(), test_file_id()).unwrap(),
+            calc_erf(
+                &mut ctx,
+                &p(vec![Value::Float(5.0)]),
+                &null_world(),
+                test_file_id(),
+            )
+            .unwrap(),
             1.0,
         );
         approx_float_erf(
-            calc_erf(&mut ctx, &p(vec![Value::Float(-5.0)]), &null_world(), test_file_id()).unwrap(),
+            calc_erf(
+                &mut ctx,
+                &p(vec![Value::Float(-5.0)]),
+                &null_world(),
+                test_file_id(),
+            )
+            .unwrap(),
             -1.0,
         );
     }
@@ -1829,11 +3338,23 @@ mod tests {
         // Short-circuit no infinito: retorna ±1.0 exacto sem passar pela
         // fórmula (que produziria 0·∞ = NaN).
         assert_eq!(
-            calc_erf(&mut ctx, &p(vec![Value::Float(f64::INFINITY)]), &null_world(), test_file_id()).unwrap(),
+            calc_erf(
+                &mut ctx,
+                &p(vec![Value::Float(f64::INFINITY)]),
+                &null_world(),
+                test_file_id()
+            )
+            .unwrap(),
             Value::Float(1.0),
         );
         assert_eq!(
-            calc_erf(&mut ctx, &p(vec![Value::Float(f64::NEG_INFINITY)]), &null_world(), test_file_id()).unwrap(),
+            calc_erf(
+                &mut ctx,
+                &p(vec![Value::Float(f64::NEG_INFINITY)]),
+                &null_world(),
+                test_file_id()
+            )
+            .unwrap(),
             Value::Float(-1.0),
         );
     }
@@ -1843,9 +3364,13 @@ mod tests {
         null_ctx!(ctx);
         // Divergência consciente vs vanilla `libm::erf(NaN) = NaN`:
         // cristalino mapeia para Err (paridade convenção `guard_float`).
-        assert!(
-            calc_erf(&mut ctx, &p(vec![Value::Float(f64::NAN)]), &null_world(), test_file_id()).is_err(),
-        );
+        assert!(calc_erf(
+            &mut ctx,
+            &p(vec![Value::Float(f64::NAN)]),
+            &null_world(),
+            test_file_id()
+        )
+        .is_err(),);
     }
 
     #[test]
@@ -1854,11 +3379,29 @@ mod tests {
         // Arity 0 → Err.
         assert!(calc_erf(&mut ctx, &p(vec![]), &null_world(), test_file_id()).is_err());
         // Arity 2 → Err.
-        assert!(calc_erf(&mut ctx, &p(vec![Value::Float(1.0), Value::Float(2.0)]), &null_world(), test_file_id()).is_err());
+        assert!(calc_erf(
+            &mut ctx,
+            &p(vec![Value::Float(1.0), Value::Float(2.0)]),
+            &null_world(),
+            test_file_id()
+        )
+        .is_err());
         // Tipo inválido (Str) → Err.
-        assert!(calc_erf(&mut ctx, &p(vec![Value::Str("x".into())]), &null_world(), test_file_id()).is_err());
+        assert!(calc_erf(
+            &mut ctx,
+            &p(vec![Value::Str("x".into())]),
+            &null_world(),
+            test_file_id()
+        )
+        .is_err());
         // Tipo inválido (Bool) → Err.
-        assert!(calc_erf(&mut ctx, &p(vec![Value::Bool(true)]), &null_world(), test_file_id()).is_err());
+        assert!(calc_erf(
+            &mut ctx,
+            &p(vec![Value::Bool(true)]),
+            &null_world(),
+            test_file_id()
+        )
+        .is_err());
     }
 
     #[test]
@@ -1882,7 +3425,12 @@ mod tests {
             "calc.erf não está registado como Func no módulo (P308)",
         );
         // Marco P308: módulo tem 41 funções + 4 constantes = 45 entradas.
-        assert_eq!(dict.len(), 45, "esperava 41 funções + 4 constantes = 45, obtido {}", dict.len());
+        assert_eq!(
+            dict.len(),
+            45,
+            "esperava 41 funções + 4 constantes = 45, obtido {}",
+            dict.len()
+        );
     }
 
     #[test]
@@ -1893,11 +3441,26 @@ mod tests {
             other => panic!("esperado Dict, obtido {other:?}"),
         };
         for key in [
-            "trunc", "fract", "even", "odd", "rem", "rem-euclid", "div-euclid",
-            "quo", "gcd", "lcm", "fact", "perm", "binom", "norm", "root",
+            "trunc",
+            "fract",
+            "even",
+            "odd",
+            "rem",
+            "rem-euclid",
+            "div-euclid",
+            "quo",
+            "gcd",
+            "lcm",
+            "fact",
+            "perm",
+            "binom",
+            "norm",
+            "root",
         ] {
-            assert!(matches!(dict.get(key), Some(Value::Func(_))),
-                "calc.{key} não está registado como Func");
+            assert!(
+                matches!(dict.get(key), Some(Value::Func(_))),
+                "calc.{key} não está registado como Func"
+            );
         }
     }
 
@@ -1910,9 +3473,9 @@ mod tests {
             Value::Dict(d) => d,
             other => panic!("esperado Dict, obtido {other:?}"),
         };
-        assert_eq!(dict.get("pi").cloned(),  Some(Value::Float(std::f64::consts::PI)));
+        assert_eq!(dict.get("pi").cloned(), Some(Value::Float(std::f64::consts::PI)));
         assert_eq!(dict.get("tau").cloned(), Some(Value::Float(std::f64::consts::TAU)));
-        assert_eq!(dict.get("e").cloned(),   Some(Value::Float(std::f64::consts::E)));
+        assert_eq!(dict.get("e").cloned(), Some(Value::Float(std::f64::consts::E)));
         assert_eq!(dict.get("inf").cloned(), Some(Value::Float(f64::INFINITY)));
     }
 
@@ -1938,13 +3501,43 @@ mod tests {
     #[test]
     fn native_range_directo() {
         null_ctx!(ctx);
-        assert_eq!(native_range(&mut ctx, &p(vec![Value::Int(3)]), &null_world(), test_file_id()).unwrap(),
-                   Value::Array(vec![Value::Int(0), Value::Int(1), Value::Int(2)]));
-        assert_eq!(native_range(&mut ctx, &p(vec![Value::Int(2), Value::Int(5)]), &null_world(), test_file_id()).unwrap(),
-                   Value::Array(vec![Value::Int(2), Value::Int(3), Value::Int(4)]));
-        assert_eq!(native_range(&mut ctx, &p(vec![Value::Int(3), Value::Int(3)]), &null_world(), test_file_id()).unwrap(),
-                   Value::Array(vec![]));
-        assert!(native_range(&mut ctx, &p(vec![Value::Int(-1)]), &null_world(), test_file_id()).is_err());
+        assert_eq!(
+            native_range(
+                &mut ctx,
+                &p(vec![Value::Int(3)]),
+                &null_world(),
+                test_file_id()
+            )
+            .unwrap(),
+            Value::Array(vec![Value::Int(0), Value::Int(1), Value::Int(2)])
+        );
+        assert_eq!(
+            native_range(
+                &mut ctx,
+                &p(vec![Value::Int(2), Value::Int(5)]),
+                &null_world(),
+                test_file_id()
+            )
+            .unwrap(),
+            Value::Array(vec![Value::Int(2), Value::Int(3), Value::Int(4)])
+        );
+        assert_eq!(
+            native_range(
+                &mut ctx,
+                &p(vec![Value::Int(3), Value::Int(3)]),
+                &null_world(),
+                test_file_id()
+            )
+            .unwrap(),
+            Value::Array(vec![])
+        );
+        assert!(native_range(
+            &mut ctx,
+            &p(vec![Value::Int(-1)]),
+            &null_world(),
+            test_file_id()
+        )
+        .is_err());
     }
 
     // ── Passo 64 — native_figure (DEBT-16) ──────────────────────────────────
@@ -1960,9 +3553,13 @@ mod tests {
             "caption",
             Value::Content(caption_content),
         );
-        let result = native_figure(&mut ctx, &args, &null_world(), test_file_id()).unwrap();
-        assert!(matches!(&result, Value::Content(Content::Figure(e)) if e.caption.is_some()),
-            "figure com caption deve ter Some(caption): {:?}", result);
+        let result =
+            native_figure(&mut ctx, &args, &null_world(), test_file_id()).unwrap();
+        assert!(
+            matches!(&result, Value::Content(Content::Figure(e)) if e.caption.is_some()),
+            "figure com caption deve ter Some(caption): {:?}",
+            result
+        );
     }
 
     #[test]
@@ -1971,9 +3568,13 @@ mod tests {
         use crate::entities::content::Content;
         let body_content = Content::text("Diagrama");
         let args = p(vec![Value::Content(body_content)]);
-        let result = native_figure(&mut ctx, &args, &null_world(), test_file_id()).unwrap();
-        assert!(matches!(&result, Value::Content(Content::Figure(e)) if e.caption.is_none()),
-            "figure sem caption deve ter None: {:?}", result);
+        let result =
+            native_figure(&mut ctx, &args, &null_world(), test_file_id()).unwrap();
+        assert!(
+            matches!(&result, Value::Content(Content::Figure(e)) if e.caption.is_none()),
+            "figure sem caption deve ter None: {:?}",
+            result
+        );
     }
 
     #[test]
@@ -1983,16 +3584,22 @@ mod tests {
         // caption: none → ausência de legenda
         let body_content = Content::text("Corpo");
         let args = pn(vec![Value::Content(body_content)], "caption", Value::None);
-        let result = native_figure(&mut ctx, &args, &null_world(), test_file_id()).unwrap();
-        assert!(matches!(&result, Value::Content(Content::Figure(e)) if e.caption.is_none()),
-            "figure com caption: none deve ter caption None");
+        let result =
+            native_figure(&mut ctx, &args, &null_world(), test_file_id()).unwrap();
+        assert!(
+            matches!(&result, Value::Content(Content::Figure(e)) if e.caption.is_none()),
+            "figure com caption: none deve ter caption None"
+        );
     }
 
     #[test]
     fn native_figure_sem_body_retorna_err() {
         null_ctx!(ctx);
         let args = p(vec![]);
-        assert!(native_figure(&mut ctx, &args, &null_world(), test_file_id()).is_err(), "figure sem body deve retornar Err");
+        assert!(
+            native_figure(&mut ctx, &args, &null_world(), test_file_id()).is_err(),
+            "figure sem body deve retornar Err"
+        );
     }
 
     // ── Passo 158A — auto-detecção de kind em native_figure ─────────────
@@ -2009,7 +3616,11 @@ mod tests {
         let args = p(vec![Value::Content(img)]);
         let r = native_figure(&mut ctx, &args, &null_world(), test_file_id()).unwrap();
         if let Value::Content(Content::Figure(e)) = r {
-            assert_eq!(e.kind.as_deref(), Some("image"), "auto-detect Image → kind=Some(\"image\")");
+            assert_eq!(
+                e.kind.as_deref(),
+                Some("image"),
+                "auto-detect Image → kind=Some(\"image\")"
+            );
         } else {
             panic!("esperado Content::Figure");
         }
@@ -2025,7 +3636,11 @@ mod tests {
         let args = p(vec![Value::Content(tab)]);
         let r = native_figure(&mut ctx, &args, &null_world(), test_file_id()).unwrap();
         if let Value::Content(Content::Figure(e)) = r {
-            assert_eq!(e.kind.as_deref(), Some("table"), "auto-detect Table → kind=Some(\"table\")");
+            assert_eq!(
+                e.kind.as_deref(),
+                Some("table"),
+                "auto-detect Table → kind=Some(\"table\")"
+            );
         } else {
             panic!("esperado Content::Figure");
         }
@@ -2040,7 +3655,11 @@ mod tests {
         let args = p(vec![Value::Content(raw)]);
         let r = native_figure(&mut ctx, &args, &null_world(), test_file_id()).unwrap();
         if let Value::Content(Content::Figure(e)) = r {
-            assert_eq!(e.kind.as_deref(), Some("raw"), "auto-detect Raw → kind=Some(\"raw\")");
+            assert_eq!(
+                e.kind.as_deref(),
+                Some("raw"),
+                "auto-detect Raw → kind=Some(\"raw\")"
+            );
         } else {
             panic!("esperado Content::Figure");
         }
@@ -2055,11 +3674,15 @@ mod tests {
         use crate::entities::ptr_eq_arc::PtrEqArc;
         use std::sync::Arc;
         let img = Content::image("a.png", PtrEqArc(Arc::new(Vec::new())), None, None);
-        let args = pn(vec![Value::Content(img)], "kind", Value::Str("custom-kind".into()));
+        let args =
+            pn(vec![Value::Content(img)], "kind", Value::Str("custom-kind".into()));
         let r = native_figure(&mut ctx, &args, &null_world(), test_file_id()).unwrap();
         if let Value::Content(Content::Figure(e)) = r {
-            assert_eq!(e.kind.as_deref(), Some("custom-kind"),
-                "kind explícito vence auto-detecção (precedência absoluta)");
+            assert_eq!(
+                e.kind.as_deref(),
+                Some("custom-kind"),
+                "kind explícito vence auto-detecção (precedência absoluta)"
+            );
         } else {
             panic!("esperado Content::Figure");
         }
@@ -2112,15 +3735,15 @@ mod tests {
         use std::sync::Arc;
         let img = Content::image("a.png", PtrEqArc(Arc::new(Vec::new())), None, None);
         // Sequence começa com Text (não detectável) e contém Image.
-        let seq = Content::Sequence(Arc::from(vec![
-            Content::text("legenda"),
-            img,
-        ]));
+        let seq = Content::Sequence(Arc::from(vec![Content::text("legenda"), img]));
         let args = p(vec![Value::Content(seq)]);
         let r = native_figure(&mut ctx, &args, &null_world(), test_file_id()).unwrap();
         if let Value::Content(Content::Figure(e)) = r {
-            assert_eq!(e.kind.as_deref(), Some("image"),
-                "Sequence com Image dentro auto-detecta Some(\"image\") via recursão");
+            assert_eq!(
+                e.kind.as_deref(),
+                Some("image"),
+                "Sequence com Image dentro auto-detecta Some(\"image\") via recursão"
+            );
         } else {
             panic!("esperado Content::Figure");
         }
@@ -2148,7 +3771,10 @@ mod tests {
     fn native_assert_true_nao_gera_erro() {
         null_ctx!(ctx);
         let args = p(vec![Value::Bool(true)]);
-        assert!(native_assert(&mut ctx, &args, &null_world(), test_file_id()).is_ok(), "assert(true) deve ter sucesso");
+        assert!(
+            native_assert(&mut ctx, &args, &null_world(), test_file_id()).is_ok(),
+            "assert(true) deve ter sucesso"
+        );
     }
 
     #[test]
@@ -2160,7 +3786,8 @@ mod tests {
         let err = result.unwrap_err();
         assert!(
             err[0].message.contains("falhou") || err[0].message.contains("Asser"),
-            "mensagem de erro padrão deve mencionar a asserção: {:?}", err[0].message
+            "mensagem de erro padrão deve mencionar a asserção: {:?}",
+            err[0].message
         );
     }
 
@@ -2168,7 +3795,11 @@ mod tests {
     fn native_assert_false_gera_erro_com_mensagem_personalizada() {
         null_ctx!(ctx);
         // Mensagem sem acentos para evitar problemas de codificação em CI.
-        let args = pn(vec![Value::Bool(false)], "message", Value::Str("Matematica falhou".into()));
+        let args = pn(
+            vec![Value::Bool(false)],
+            "message",
+            Value::Str("Matematica falhou".into()),
+        );
         let result = native_assert(&mut ctx, &args, &null_world(), test_file_id());
         assert!(result.is_err());
         assert!(result.unwrap_err()[0].message.contains("Matematica falhou"));
@@ -2183,7 +3814,8 @@ mod tests {
         let err = result.unwrap_err();
         assert!(
             err[0].message.contains("inesperado") && err[0].message.contains("bla"),
-            "named arg desconhecido deve gerar erro: {:?}", err[0].message
+            "named arg desconhecido deve gerar erro: {:?}",
+            err[0].message
         );
     }
 
@@ -2192,7 +3824,12 @@ mod tests {
     #[test]
     fn native_panic_aborta_com_mensagem() {
         null_ctx!(ctx);
-        let result = native_panic(&mut ctx, &p(vec![Value::Str("fail".into())]), &null_world(), test_file_id());
+        let result = native_panic(
+            &mut ctx,
+            &p(vec![Value::Str("fail".into())]),
+            &null_world(),
+            test_file_id(),
+        );
         assert!(result.is_err());
         let err = result.unwrap_err();
         assert_eq!(err[0].message, "fail");
@@ -2201,7 +3838,12 @@ mod tests {
     #[test]
     fn native_panic_aceita_mensagem_vazia() {
         null_ctx!(ctx);
-        let result = native_panic(&mut ctx, &p(vec![Value::Str("".into())]), &null_world(), test_file_id());
+        let result = native_panic(
+            &mut ctx,
+            &p(vec![Value::Str("".into())]),
+            &null_world(),
+            test_file_id(),
+        );
         assert!(result.is_err());
         let err = result.unwrap_err();
         assert_eq!(err[0].message, "");
@@ -2210,7 +3852,12 @@ mod tests {
     #[test]
     fn native_panic_rejeita_tipo_errado() {
         null_ctx!(ctx);
-        let result = native_panic(&mut ctx, &p(vec![Value::Int(42)]), &null_world(), test_file_id());
+        let result = native_panic(
+            &mut ctx,
+            &p(vec![Value::Int(42)]),
+            &null_world(),
+            test_file_id(),
+        );
         assert!(result.is_err());
     }
 
@@ -2226,8 +3873,12 @@ mod tests {
     #[test]
     fn native_image_retorna_content_image() {
         let mut world = NullWorld::default();
-        world.files.insert("foto.png".to_string(), std::sync::Arc::new(vec![1, 2, 3]));
-        let _dummy_id = crate::entities::file_id::FileId::from_raw(std::num::NonZeroU16::new(1).unwrap());
+        world
+            .files
+            .insert("foto.png".to_string(), std::sync::Arc::new(vec![1, 2, 3]));
+        let _dummy_id = crate::entities::file_id::FileId::from_raw(
+            std::num::NonZeroU16::new(1).unwrap(),
+        );
         let mut ctx = EvalContext::new();
         let args = p(vec![Value::Str("foto.png".into())]);
         let result = native_image(&mut ctx, &args, &world, test_file_id()).unwrap();
@@ -2244,7 +3895,8 @@ mod tests {
     #[test]
     fn native_image_rejeita_named_arg_invalido() {
         null_ctx!(ctx);
-        let args = pn(vec![Value::Str("foto.png".into())], "cor", Value::Str("red".into()));
+        let args =
+            pn(vec![Value::Str("foto.png".into())], "cor", Value::Str("red".into()));
         assert!(native_image(&mut ctx, &args, &null_world(), test_file_id()).is_err());
     }
 
@@ -2255,13 +3907,18 @@ mod tests {
         // #rect() sem fill nem stroke → stroke preta de 1pt.
         // Confirma que a stdlib é o único local onde este fallback existe.
         null_ctx!(ctx);
-        use crate::entities::paint::Paint;
         use crate::entities::layout_types::Color;
-        let result = native_rect(&mut ctx, &p(vec![]), &null_world(), test_file_id()).unwrap();
+        use crate::entities::paint::Paint;
+        let result =
+            native_rect(&mut ctx, &p(vec![]), &null_world(), test_file_id()).unwrap();
         if let Value::Content(Content::Shape(e)) = result {
             assert!(e.fill.is_none(), "rect sem fill deve ter fill: None");
             let s = e.stroke.clone().expect("rect sem cores deve ter stroke de fallback");
-            assert_eq!(s.paint, Paint::Solid(Color::rgb(0, 0, 0)), "stroke de fallback deve ser preta");
+            assert_eq!(
+                s.paint,
+                Paint::Solid(Color::rgb(0, 0, 0)),
+                "stroke de fallback deve ser preta"
+            );
             assert_eq!(s.thickness, 1.0, "espessura de fallback deve ser 1pt");
         } else {
             panic!("Esperado Content::Shape");
@@ -2276,7 +3933,10 @@ mod tests {
         let result = native_rect(&mut ctx, &args, &null_world(), test_file_id()).unwrap();
         if let Value::Content(Content::Shape(e)) = result {
             assert!(e.fill.is_some(), "fill red deve estar presente");
-            assert!(e.stroke.is_none(), "sem stroke explícito e com fill → stroke deve ser None");
+            assert!(
+                e.stroke.is_none(),
+                "sem stroke explícito e com fill → stroke deve ser None"
+            );
         } else {
             panic!("Esperado Content::Shape");
         }
@@ -2287,7 +3947,9 @@ mod tests {
         use crate::entities::geometry::ShapeKind;
         null_ctx!(ctx);
         let w = Value::Length(Length::pt(28.346));
-        let result = native_square(&mut ctx, &p(vec![w.clone()]), &null_world(), test_file_id()).unwrap();
+        let result =
+            native_square(&mut ctx, &p(vec![w.clone()]), &null_world(), test_file_id())
+                .unwrap();
         if let Value::Content(Content::Shape(e)) = result {
             assert!(matches!(e.kind, ShapeKind::Rect));
             assert_eq!(e.width.as_deref(), Some(&w));
@@ -2305,7 +3967,8 @@ mod tests {
         let h = Value::Length(Length::pt(56.692));
         let mut args = Args::positional(vec![w.clone()]);
         args.named.insert("height".into(), h.clone());
-        let result = native_square(&mut ctx, &args, &null_world(), test_file_id()).unwrap();
+        let result =
+            native_square(&mut ctx, &args, &null_world(), test_file_id()).unwrap();
         if let Value::Content(Content::Shape(e)) = result {
             assert!(matches!(e.kind, ShapeKind::Rect));
             assert_eq!(e.width.as_deref(), Some(&w));
@@ -2334,12 +3997,25 @@ mod tests {
         use crate::entities::geometry::ShapeKind;
         use crate::entities::paint::Paint;
         null_ctx!(ctx);
-        let result = native_square(&mut ctx, &p(vec![Value::Length(Length::pt(10.0))]), &null_world(), test_file_id()).unwrap();
+        let result = native_square(
+            &mut ctx,
+            &p(vec![Value::Length(Length::pt(10.0))]),
+            &null_world(),
+            test_file_id(),
+        )
+        .unwrap();
         if let Value::Content(Content::Shape(e)) = result {
             assert!(matches!(e.kind, ShapeKind::Rect));
             assert!(e.fill.is_none(), "square sem fill deve ter fill: None");
-            let s = e.stroke.clone().expect("square sem cores deve ter stroke de fallback");
-            assert_eq!(s.paint, Paint::Solid(Color::rgb(0, 0, 0)), "stroke de fallback deve ser preta");
+            let s = e
+                .stroke
+                .clone()
+                .expect("square sem cores deve ter stroke de fallback");
+            assert_eq!(
+                s.paint,
+                Paint::Solid(Color::rgb(0, 0, 0)),
+                "stroke de fallback deve ser preta"
+            );
             assert_eq!(s.thickness, 1.0, "espessura de fallback deve ser 1pt");
         } else {
             panic!("Esperado Content::Shape");
@@ -2355,7 +4031,9 @@ mod tests {
         args.named.insert("dy".into(), Value::Float(50.0));
         let result = native_line(&mut ctx, &args, &null_world(), test_file_id()).unwrap();
         if let Value::Content(Content::Shape(e)) = result {
-            assert!(matches!(e.kind, ShapeKind::Line { dx, dy } if dx == 100.0 && dy == 50.0));
+            assert!(
+                matches!(e.kind, ShapeKind::Line { dx, dy } if dx == 100.0 && dy == 50.0)
+            );
             assert!(e.fill.is_none(), "linha não tem fill");
             assert!(e.stroke.is_some(), "linha tem stroke por omissão");
         } else {
@@ -2371,23 +4049,36 @@ mod tests {
         assert!(result.is_err(), "polygon() sem pontos deve retornar Err");
         let msg = result.unwrap_err();
         let msg_str = format!("{:?}", msg);
-        assert!(msg_str.contains("pelo menos um ponto"),
-            "Mensagem de erro deve mencionar 'pelo menos um ponto', obteve: {}", msg_str);
+        assert!(
+            msg_str.contains("pelo menos um ponto"),
+            "Mensagem de erro deve mencionar 'pelo menos um ponto', obteve: {}",
+            msg_str
+        );
     }
 
     #[test]
     fn polygon_com_um_ponto_gera_moveto_e_closepath() {
         use crate::entities::geometry::{PathItem, ShapeKind};
         null_ctx!(ctx);
-        let args = Args::positional(vec![
-            Value::Array(vec![Value::Float(10.0), Value::Float(20.0)]),
-        ]);
-        let result = native_polygon(&mut ctx, &args, &null_world(), test_file_id()).unwrap();
+        let args = Args::positional(vec![Value::Array(vec![
+            Value::Float(10.0),
+            Value::Float(20.0),
+        ])]);
+        let result =
+            native_polygon(&mut ctx, &args, &null_world(), test_file_id()).unwrap();
         if let Value::Content(Content::Shape(e)) = result {
-            let crate::entities::geometry::ShapeKind::Path(items) = &e.kind else { panic!("esperado ShapeKind::Path"); };
+            let crate::entities::geometry::ShapeKind::Path(items) = &e.kind else {
+                panic!("esperado ShapeKind::Path");
+            };
             assert_eq!(items.len(), 2, "Um ponto deve gerar MoveTo + ClosePath");
-            assert!(matches!(items[0], PathItem::MoveTo(_)), "Primeiro item deve ser MoveTo");
-            assert!(matches!(items[1], PathItem::ClosePath), "Último item deve ser ClosePath");
+            assert!(
+                matches!(items[0], PathItem::MoveTo(_)),
+                "Primeiro item deve ser MoveTo"
+            );
+            assert!(
+                matches!(items[1], PathItem::ClosePath),
+                "Último item deve ser ClosePath"
+            );
         } else {
             panic!("Esperado Content::Shape com ShapeKind::Path");
         }
@@ -2398,13 +4089,16 @@ mod tests {
         use crate::entities::geometry::{PathItem, ShapeKind};
         null_ctx!(ctx);
         let args = Args::positional(vec![
-            Value::Array(vec![Value::Float(0.0),  Value::Float(0.0)]),
+            Value::Array(vec![Value::Float(0.0), Value::Float(0.0)]),
             Value::Array(vec![Value::Float(50.0), Value::Float(0.0)]),
             Value::Array(vec![Value::Float(25.0), Value::Float(50.0)]),
         ]);
-        let result = native_polygon(&mut ctx, &args, &null_world(), test_file_id()).unwrap();
+        let result =
+            native_polygon(&mut ctx, &args, &null_world(), test_file_id()).unwrap();
         if let Value::Content(Content::Shape(e)) = result {
-            let crate::entities::geometry::ShapeKind::Path(items) = &e.kind else { panic!("esperado ShapeKind::Path"); };
+            let crate::entities::geometry::ShapeKind::Path(items) = &e.kind else {
+                panic!("esperado ShapeKind::Path");
+            };
             assert_eq!(items.len(), 4); // MoveTo + 2×LineTo + ClosePath
             assert!(matches!(items[0], PathItem::MoveTo(_)));
             assert!(matches!(items[1], PathItem::LineTo(_)));
@@ -2434,9 +4128,12 @@ mod tests {
             ]),
             Value::Array(vec![Value::Str("close".into())]),
         ]);
-        let result = native_curve(&mut ctx, &args, &null_world(), test_file_id()).unwrap();
+        let result =
+            native_curve(&mut ctx, &args, &null_world(), test_file_id()).unwrap();
         if let Value::Content(Content::Shape(e)) = result {
-            let crate::entities::geometry::ShapeKind::Path(items) = &e.kind else { panic!("esperado ShapeKind::Path"); };
+            let crate::entities::geometry::ShapeKind::Path(items) = &e.kind else {
+                panic!("esperado ShapeKind::Path");
+            };
             assert_eq!(items.len(), 3);
             assert!(matches!(items[0], PathItem::MoveTo(_)));
             assert!(matches!(items[1], PathItem::LineTo(_)));
@@ -2461,19 +4158,24 @@ mod tests {
             ]),
             Value::Array(vec![
                 Value::Str("cubic".into()),
-                Value::Array(vec![Value::Float(25.0), Value::Float(0.0)]),    // c1
-                Value::Array(vec![Value::Float(75.0), Value::Float(50.0)]),   // c2
-                Value::Array(vec![Value::Float(100.0), Value::Float(50.0)]),  // end
+                Value::Array(vec![Value::Float(25.0), Value::Float(0.0)]), // c1
+                Value::Array(vec![Value::Float(75.0), Value::Float(50.0)]), // c2
+                Value::Array(vec![Value::Float(100.0), Value::Float(50.0)]), // end
             ]),
         ]);
-        let result = native_curve(&mut ctx, &args, &null_world(), test_file_id()).unwrap();
+        let result =
+            native_curve(&mut ctx, &args, &null_world(), test_file_id()).unwrap();
         if let Value::Content(Content::Shape(e)) = result {
-            let crate::entities::geometry::ShapeKind::Path(items) = &e.kind else { panic!("esperado ShapeKind::Path"); };
+            let crate::entities::geometry::ShapeKind::Path(items) = &e.kind else {
+                panic!("esperado ShapeKind::Path");
+            };
             assert_eq!(items.len(), 2);
             assert!(matches!(items[0], PathItem::MoveTo(_)));
             // **Activação pos-P293 — CubicTo construído via stdlib**
-            assert!(matches!(items[1], PathItem::CubicTo(_, _, _)),
-                "P293 H6: CubicTo deve ser construível via curve('cubic', c1, c2, end)");
+            assert!(
+                matches!(items[1], PathItem::CubicTo(_, _, _)),
+                "P293 H6: CubicTo deve ser construível via curve('cubic', c1, c2, end)"
+            );
         } else {
             panic!("Esperado Content::Shape com ShapeKind::Path");
         }
@@ -2485,17 +4187,18 @@ mod tests {
         // certa no PathItem::CubicTo construído.
         use crate::entities::geometry::{PathItem, ShapeKind};
         null_ctx!(ctx);
-        let args = Args::positional(vec![
-            Value::Array(vec![
-                Value::Str("cubic".into()),
-                Value::Array(vec![Value::Float(10.0), Value::Float(20.0)]),
-                Value::Array(vec![Value::Float(30.0), Value::Float(40.0)]),
-                Value::Array(vec![Value::Float(50.0), Value::Float(60.0)]),
-            ]),
-        ]);
-        let result = native_curve(&mut ctx, &args, &null_world(), test_file_id()).unwrap();
+        let args = Args::positional(vec![Value::Array(vec![
+            Value::Str("cubic".into()),
+            Value::Array(vec![Value::Float(10.0), Value::Float(20.0)]),
+            Value::Array(vec![Value::Float(30.0), Value::Float(40.0)]),
+            Value::Array(vec![Value::Float(50.0), Value::Float(60.0)]),
+        ])]);
+        let result =
+            native_curve(&mut ctx, &args, &null_world(), test_file_id()).unwrap();
         if let Value::Content(Content::Shape(e)) = result {
-            let crate::entities::geometry::ShapeKind::Path(items) = &e.kind else { panic!("esperado ShapeKind::Path"); };
+            let crate::entities::geometry::ShapeKind::Path(items) = &e.kind else {
+                panic!("esperado ShapeKind::Path");
+            };
             assert_eq!(items.len(), 1);
             if let PathItem::CubicTo(c1, c2, end) = items[0] {
                 assert_eq!((c1.x.val(), c1.y.val()), (10.0, 20.0));
@@ -2527,18 +4230,23 @@ mod tests {
             ]),
             Value::Array(vec![
                 Value::Str("quadratic".into()),
-                Value::Array(vec![Value::Float(10.0), Value::Float(20.0)]),  // control
-                Value::Array(vec![Value::Float(30.0), Value::Float(40.0)]),  // end
+                Value::Array(vec![Value::Float(10.0), Value::Float(20.0)]), // control
+                Value::Array(vec![Value::Float(30.0), Value::Float(40.0)]), // end
             ]),
         ]);
-        let result = native_curve(&mut ctx, &args, &null_world(), test_file_id()).unwrap();
+        let result =
+            native_curve(&mut ctx, &args, &null_world(), test_file_id()).unwrap();
         // Esperado: 2 PathItems — MoveTo + CubicTo (conversão q→c).
         if let Value::Content(Content::Shape(e)) = &result {
-            let crate::entities::geometry::ShapeKind::Path(items) = &e.kind else { panic!("esperado ShapeKind::Path"); };
+            let crate::entities::geometry::ShapeKind::Path(items) = &e.kind else {
+                panic!("esperado ShapeKind::Path");
+            };
             assert_eq!(items.len(), 2, "esperava 2 items (MoveTo + CubicTo)");
             assert!(matches!(items[0], crate::entities::geometry::PathItem::MoveTo(_)));
-            assert!(matches!(items[1], crate::entities::geometry::PathItem::CubicTo(_, _, _)),
-                "quadratic deve materializar como CubicTo via conversão q→c");
+            assert!(
+                matches!(items[1], crate::entities::geometry::PathItem::CubicTo(_, _, _)),
+                "quadratic deve materializar como CubicTo via conversão q→c"
+            );
         } else {
             panic!("esperava Content::Shape com ShapeKind::Path");
         }
@@ -2563,15 +4271,18 @@ mod tests {
                 Value::Array(vec![Value::Float(30.0), Value::Float(40.0)]),
             ]),
         ]);
-        let result = native_curve(&mut ctx, &args, &null_world(), test_file_id()).unwrap();
+        let result =
+            native_curve(&mut ctx, &args, &null_world(), test_file_id()).unwrap();
         if let Value::Content(Content::Shape(e)) = &result {
-            let crate::entities::geometry::ShapeKind::Path(items) = &e.kind else { panic!("esperado ShapeKind::Path"); };
+            let crate::entities::geometry::ShapeKind::Path(items) = &e.kind else {
+                panic!("esperado ShapeKind::Path");
+            };
             if let PathItem::CubicTo(c1, c2, end) = items[1] {
                 let eps = 1e-9;
-                assert!((c1.x.0 - 20.0/3.0).abs() < eps, "C1.x: {}", c1.x.0);
-                assert!((c1.y.0 - 40.0/3.0).abs() < eps, "C1.y: {}", c1.y.0);
-                assert!((c2.x.0 - 50.0/3.0).abs() < eps, "C2.x: {}", c2.x.0);
-                assert!((c2.y.0 - 80.0/3.0).abs() < eps, "C2.y: {}", c2.y.0);
+                assert!((c1.x.0 - 20.0 / 3.0).abs() < eps, "C1.x: {}", c1.x.0);
+                assert!((c1.y.0 - 40.0 / 3.0).abs() < eps, "C1.y: {}", c1.y.0);
+                assert!((c2.x.0 - 50.0 / 3.0).abs() < eps, "C2.x: {}", c2.x.0);
+                assert!((c2.y.0 - 80.0 / 3.0).abs() < eps, "C2.y: {}", c2.y.0);
                 assert!((end.x.0 - 30.0).abs() < eps);
                 assert!((end.y.0 - 40.0).abs() < eps);
             } else {
@@ -2586,16 +4297,17 @@ mod tests {
         // last_point fallback (0,0); curva é válida.
         use crate::entities::geometry::{PathItem, ShapeKind};
         null_ctx!(ctx);
-        let args = Args::positional(vec![
-            Value::Array(vec![
-                Value::Str("quadratic".into()),
-                Value::Array(vec![Value::Float(6.0), Value::Float(0.0)]),
-                Value::Array(vec![Value::Float(12.0), Value::Float(0.0)]),
-            ]),
-        ]);
-        let result = native_curve(&mut ctx, &args, &null_world(), test_file_id()).unwrap();
+        let args = Args::positional(vec![Value::Array(vec![
+            Value::Str("quadratic".into()),
+            Value::Array(vec![Value::Float(6.0), Value::Float(0.0)]),
+            Value::Array(vec![Value::Float(12.0), Value::Float(0.0)]),
+        ])]);
+        let result =
+            native_curve(&mut ctx, &args, &null_world(), test_file_id()).unwrap();
         if let Value::Content(Content::Shape(e)) = &result {
-            let crate::entities::geometry::ShapeKind::Path(items) = &e.kind else { panic!("esperado ShapeKind::Path"); };
+            let crate::entities::geometry::ShapeKind::Path(items) = &e.kind else {
+                panic!("esperado ShapeKind::Path");
+            };
             assert_eq!(items.len(), 1);
             if let PathItem::CubicTo(c1, _, _) = items[0] {
                 // P0 = (0,0), Q = (6,0) → C1 = (0+12)/3 = 4
@@ -2609,14 +4321,13 @@ mod tests {
     #[test]
     fn p294_curve_quadratic_aridade_errada_retorna_err() {
         null_ctx!(ctx);
-        let args = Args::positional(vec![
-            Value::Array(vec![
-                Value::Str("quadratic".into()),
-                Value::Array(vec![Value::Float(1.0), Value::Float(2.0)]),
-                // falta end
-            ]),
-        ]);
-        let err = native_curve(&mut ctx, &args, &null_world(), test_file_id()).unwrap_err();
+        let args = Args::positional(vec![Value::Array(vec![
+            Value::Str("quadratic".into()),
+            Value::Array(vec![Value::Float(1.0), Value::Float(2.0)]),
+            // falta end
+        ])]);
+        let err =
+            native_curve(&mut ctx, &args, &null_world(), test_file_id()).unwrap_err();
         assert!(format!("{:?}", err).contains("quadratic"));
     }
 
@@ -2634,7 +4345,7 @@ mod tests {
             Value::Array(vec![
                 Value::Str("quadratic".into()),
                 Value::Array(vec![Value::Float(3.0), Value::Float(0.0)]),
-                Value::Array(vec![Value::Float(6.0), Value::Float(0.0)]),  // end = (6,0)
+                Value::Array(vec![Value::Float(6.0), Value::Float(0.0)]), // end = (6,0)
             ]),
             Value::Array(vec![
                 Value::Str("quadratic".into()),
@@ -2642,15 +4353,21 @@ mod tests {
                 Value::Array(vec![Value::Float(12.0), Value::Float(0.0)]),
             ]),
         ]);
-        let result = native_curve(&mut ctx, &args, &null_world(), test_file_id()).unwrap();
+        let result =
+            native_curve(&mut ctx, &args, &null_world(), test_file_id()).unwrap();
         if let Value::Content(Content::Shape(e)) = &result {
-            let crate::entities::geometry::ShapeKind::Path(items) = &e.kind else { panic!("esperado ShapeKind::Path"); };
+            let crate::entities::geometry::ShapeKind::Path(items) = &e.kind else {
+                panic!("esperado ShapeKind::Path");
+            };
             assert_eq!(items.len(), 3);
             // Segunda quadratic: P0=(6,0), Q=(9,0) → C1 = (6 + 18)/3 = 8
             if let PathItem::CubicTo(c1, _, _) = items[2] {
                 let eps = 1e-9;
-                assert!((c1.x.0 - 8.0).abs() < eps,
-                    "last_point tracking falhou: c1.x={} (esperava 8.0)", c1.x.0);
+                assert!(
+                    (c1.x.0 - 8.0).abs() < eps,
+                    "last_point tracking falhou: c1.x={} (esperava 8.0)",
+                    c1.x.0
+                );
             }
         }
     }
@@ -2677,9 +4394,12 @@ mod tests {
             ]),
             Value::Array(vec![Value::Str("close".into())]),
         ]);
-        let result = native_curve(&mut ctx, &args, &null_world(), test_file_id()).unwrap();
+        let result =
+            native_curve(&mut ctx, &args, &null_world(), test_file_id()).unwrap();
         if let Value::Content(Content::Shape(e)) = &result {
-            let crate::entities::geometry::ShapeKind::Path(items) = &e.kind else { panic!("esperado ShapeKind::Path"); };
+            let crate::entities::geometry::ShapeKind::Path(items) = &e.kind else {
+                panic!("esperado ShapeKind::Path");
+            };
             assert_eq!(items.len(), 4);
             assert!(matches!(items[0], PathItem::MoveTo(_)));
             assert!(matches!(items[1], PathItem::CubicTo(_, _, _)));
@@ -2691,10 +4411,9 @@ mod tests {
     #[test]
     fn p293_curve_kind_desconhecido_retorna_err() {
         null_ctx!(ctx);
-        let args = Args::positional(vec![
-            Value::Array(vec![Value::Str("bogus".into())]),
-        ]);
-        let err = native_curve(&mut ctx, &args, &null_world(), test_file_id()).unwrap_err();
+        let args = Args::positional(vec![Value::Array(vec![Value::Str("bogus".into())])]);
+        let err =
+            native_curve(&mut ctx, &args, &null_world(), test_file_id()).unwrap_err();
         assert!(format!("{:?}", err).contains("desconhecido"));
     }
 
@@ -2702,7 +4421,8 @@ mod tests {
     fn p293_curve_vazia_retorna_err() {
         null_ctx!(ctx);
         let args = Args::positional(vec![]);
-        let err = native_curve(&mut ctx, &args, &null_world(), test_file_id()).unwrap_err();
+        let err =
+            native_curve(&mut ctx, &args, &null_world(), test_file_id()).unwrap_err();
         assert!(format!("{:?}", err).contains("pelo menos um segmento"));
     }
 
@@ -2720,12 +4440,13 @@ mod tests {
             ]),
             Value::Array(vec![
                 Value::Str("cubic".into()),
-                Value::Array(vec![Value::Float(0.0), Value::Float(100.0)]),    // c1 alto
-                Value::Array(vec![Value::Float(100.0), Value::Float(100.0)]),  // c2 alto
-                Value::Array(vec![Value::Float(100.0), Value::Float(0.0)]),    // end
+                Value::Array(vec![Value::Float(0.0), Value::Float(100.0)]), // c1 alto
+                Value::Array(vec![Value::Float(100.0), Value::Float(100.0)]), // c2 alto
+                Value::Array(vec![Value::Float(100.0), Value::Float(0.0)]), // end
             ]),
         ]);
-        let result = native_curve(&mut ctx, &args, &null_world(), test_file_id()).unwrap();
+        let result =
+            native_curve(&mut ctx, &args, &null_world(), test_file_id()).unwrap();
         if let Value::Content(Content::Shape(e)) = result {
             // e.height da curva deve ser < 100 (extremo analítico, não 100 control point)
             // P277 calcula extremo da Bézier que é menor que max control point.
@@ -2758,8 +4479,10 @@ mod tests {
             ]),
         ]);
         args.named.insert("fill".into(), Value::Color(Color::rgb(255, 0, 0)));
-        args.named.insert("stroke".into(), Value::Color(Color::rgb(0, 0, 255)));
-        let result = native_curve(&mut ctx, &args, &null_world(), test_file_id()).unwrap();
+        args.named
+            .insert("stroke".into(), Value::Color(Color::rgb(0, 0, 255)));
+        let result =
+            native_curve(&mut ctx, &args, &null_world(), test_file_id()).unwrap();
         if let Value::Content(Content::Shape(e)) = result {
             assert!(e.fill.is_some(), "fill deve ser parseado");
             assert!(e.stroke.is_some(), "stroke deve ser parseado");
@@ -2768,11 +4491,14 @@ mod tests {
 
     #[test]
     fn parse_color_nomes_conhecidos() {
-        assert_eq!(parse_color(&Value::Str("red".into())),   Some(Color::rgb(255, 0, 0)));
+        assert_eq!(parse_color(&Value::Str("red".into())), Some(Color::rgb(255, 0, 0)));
         assert_eq!(parse_color(&Value::Str("green".into())), Some(Color::rgb(0, 128, 0)));
-        assert_eq!(parse_color(&Value::Str("blue".into())),  Some(Color::rgb(0, 0, 255)));
+        assert_eq!(parse_color(&Value::Str("blue".into())), Some(Color::rgb(0, 0, 255)));
         assert_eq!(parse_color(&Value::Str("black".into())), Some(Color::rgb(0, 0, 0)));
-        assert_eq!(parse_color(&Value::Str("white".into())), Some(Color::rgb(255, 255, 255)));
+        assert_eq!(
+            parse_color(&Value::Str("white".into())),
+            Some(Color::rgb(255, 255, 255))
+        );
         assert_eq!(parse_color(&Value::Str("purple".into())), None);
         assert_eq!(parse_color(&Value::Int(42)), None);
     }
@@ -2789,9 +4515,9 @@ mod tests {
         let result = native_pad(&mut ctx, &args, &null_world(), test_file_id()).unwrap();
         if let Value::Content(Content::Pad(e)) = result {
             assert_eq!(e.body.plain_text(), "body");
-            assert_eq!(e.sides.left,   None);
-            assert_eq!(e.sides.right,  None);
-            assert_eq!(e.sides.top,    None);
+            assert_eq!(e.sides.left, None);
+            assert_eq!(e.sides.right, None);
+            assert_eq!(e.sides.top, None);
             assert_eq!(e.sides.bottom, None);
         } else {
             panic!("esperado Content::Pad");
@@ -2803,15 +4529,15 @@ mod tests {
         null_ctx!(ctx);
         use crate::entities::layout_types::Length;
         let mut args = p(vec![Value::Content(Content::text("x"))]);
-        args.named.insert("left".into(),   Value::Length(Length::pt(1.0)));
-        args.named.insert("right".into(),  Value::Length(Length::pt(2.0)));
-        args.named.insert("top".into(),    Value::Length(Length::pt(3.0)));
+        args.named.insert("left".into(), Value::Length(Length::pt(1.0)));
+        args.named.insert("right".into(), Value::Length(Length::pt(2.0)));
+        args.named.insert("top".into(), Value::Length(Length::pt(3.0)));
         args.named.insert("bottom".into(), Value::Length(Length::pt(4.0)));
         let result = native_pad(&mut ctx, &args, &null_world(), test_file_id()).unwrap();
         if let Value::Content(Content::Pad(e)) = result {
-            assert_eq!(e.sides.left,   Some(Length::pt(1.0)));
-            assert_eq!(e.sides.right,  Some(Length::pt(2.0)));
-            assert_eq!(e.sides.top,    Some(Length::pt(3.0)));
+            assert_eq!(e.sides.left, Some(Length::pt(1.0)));
+            assert_eq!(e.sides.right, Some(Length::pt(2.0)));
+            assert_eq!(e.sides.top, Some(Length::pt(3.0)));
             assert_eq!(e.sides.bottom, Some(Length::pt(4.0)));
         } else {
             panic!("esperado Content::Pad");
@@ -2828,9 +4554,9 @@ mod tests {
         args.named.insert("y".into(), Value::Length(Length::pt(7.0)));
         let result = native_pad(&mut ctx, &args, &null_world(), test_file_id()).unwrap();
         if let Value::Content(Content::Pad(e)) = result {
-            assert_eq!(e.sides.left,   Some(Length::pt(5.0)));
-            assert_eq!(e.sides.right,  Some(Length::pt(5.0)));
-            assert_eq!(e.sides.top,    Some(Length::pt(7.0)));
+            assert_eq!(e.sides.left, Some(Length::pt(5.0)));
+            assert_eq!(e.sides.right, Some(Length::pt(5.0)));
+            assert_eq!(e.sides.top, Some(Length::pt(7.0)));
             assert_eq!(e.sides.bottom, Some(Length::pt(7.0)));
         } else {
             panic!("esperado Content::Pad");
@@ -2846,9 +4572,9 @@ mod tests {
         args.named.insert("rest".into(), Value::Length(Length::pt(8.0)));
         let result = native_pad(&mut ctx, &args, &null_world(), test_file_id()).unwrap();
         if let Value::Content(Content::Pad(e)) = result {
-            assert_eq!(e.sides.left,   Some(Length::pt(8.0)));
-            assert_eq!(e.sides.right,  Some(Length::pt(8.0)));
-            assert_eq!(e.sides.top,    Some(Length::pt(8.0)));
+            assert_eq!(e.sides.left, Some(Length::pt(8.0)));
+            assert_eq!(e.sides.right, Some(Length::pt(8.0)));
+            assert_eq!(e.sides.top, Some(Length::pt(8.0)));
             assert_eq!(e.sides.bottom, Some(Length::pt(8.0)));
         } else {
             panic!("esperado Content::Pad");
@@ -2862,16 +4588,16 @@ mod tests {
         use crate::entities::layout_types::Length;
         let mut args = p(vec![Value::Content(Content::text("x"))]);
         args.named.insert("left".into(), Value::Length(Length::pt(1.0)));
-        args.named.insert("x".into(),    Value::Length(Length::pt(2.0)));
+        args.named.insert("x".into(), Value::Length(Length::pt(2.0)));
         args.named.insert("rest".into(), Value::Length(Length::pt(3.0)));
         let result = native_pad(&mut ctx, &args, &null_world(), test_file_id()).unwrap();
         if let Value::Content(Content::Pad(e)) = result {
             // left vence (específico)
-            assert_eq!(e.sides.left,   Some(Length::pt(1.0)));
+            assert_eq!(e.sides.left, Some(Length::pt(1.0)));
             // right cai para x (eixo)
-            assert_eq!(e.sides.right,  Some(Length::pt(2.0)));
+            assert_eq!(e.sides.right, Some(Length::pt(2.0)));
             // top cai para rest (não há y nem específico)
-            assert_eq!(e.sides.top,    Some(Length::pt(3.0)));
+            assert_eq!(e.sides.top, Some(Length::pt(3.0)));
             assert_eq!(e.sides.bottom, Some(Length::pt(3.0)));
         } else {
             panic!("esperado Content::Pad");
@@ -2924,9 +4650,9 @@ mod tests {
         args.named.insert("top".into(), Value::Length(Length::pt(7.0)));
         let r = native_pad(&mut ctx, &args, &null_world(), test_file_id()).unwrap();
         if let Value::Content(Content::Pad(e)) = r {
-            assert_eq!(e.sides.top,    Some(Length::pt(7.0)));
-            assert_eq!(e.sides.left,   None);
-            assert_eq!(e.sides.right,  None);
+            assert_eq!(e.sides.top, Some(Length::pt(7.0)));
+            assert_eq!(e.sides.left, None);
+            assert_eq!(e.sides.right, None);
             assert_eq!(e.sides.bottom, None);
         } else {
             panic!("esperado Content::Pad");
@@ -2943,10 +4669,12 @@ mod tests {
         args.named.insert("left".into(), Value::Length(Length::ZERO));
         let r = native_pad(&mut ctx, &args, &null_world(), test_file_id()).unwrap();
         if let Value::Content(Content::Pad(e)) = r {
-            assert_eq!(e.sides.left,  Some(Length::ZERO),
-                "left explicitamente declarado a zero é Some(ZERO), não None");
-            assert_eq!(e.sides.right, None,
-                "right não declarado é None, não Some(ZERO)");
+            assert_eq!(
+                e.sides.left,
+                Some(Length::ZERO),
+                "left explicitamente declarado a zero é Some(ZERO), não None"
+            );
+            assert_eq!(e.sides.right, None, "right não declarado é None, não Some(ZERO)");
         } else {
             panic!("esperado Content::Pad");
         }
@@ -2961,9 +4689,9 @@ mod tests {
         args.named.insert("x".into(), Value::Length(Length::pt(4.0)));
         let r = native_pad(&mut ctx, &args, &null_world(), test_file_id()).unwrap();
         if let Value::Content(Content::Pad(e)) = r {
-            assert_eq!(e.sides.left,   Some(Length::pt(4.0)));
-            assert_eq!(e.sides.right,  Some(Length::pt(4.0)));
-            assert_eq!(e.sides.top,    None);
+            assert_eq!(e.sides.left, Some(Length::pt(4.0)));
+            assert_eq!(e.sides.right, Some(Length::pt(4.0)));
+            assert_eq!(e.sides.top, None);
             assert_eq!(e.sides.bottom, None);
         } else {
             panic!("esperado Content::Pad");
@@ -2977,18 +4705,27 @@ mod tests {
         null_ctx!(ctx);
         use crate::entities::layout_types::Length;
         let mut args = p(vec![Value::Content(Content::text("x"))]);
-        args.named.insert("top".into(),  Value::Length(Length::pt(10.0)));
-        args.named.insert("y".into(),    Value::Length(Length::pt(20.0)));
+        args.named.insert("top".into(), Value::Length(Length::pt(10.0)));
+        args.named.insert("y".into(), Value::Length(Length::pt(20.0)));
         args.named.insert("rest".into(), Value::Length(Length::pt(30.0)));
         let r = native_pad(&mut ctx, &args, &null_world(), test_file_id()).unwrap();
         if let Value::Content(Content::Pad(e)) = r {
-            assert_eq!(e.sides.top,    Some(Length::pt(10.0)),
-                "top específico vence y e rest");
-            assert_eq!(e.sides.bottom, Some(Length::pt(20.0)),
-                "bottom cai para y (sem específico)");
-            assert_eq!(e.sides.left,   Some(Length::pt(30.0)),
-                "left cai para rest (sem específico nem x)");
-            assert_eq!(e.sides.right,  Some(Length::pt(30.0)));
+            assert_eq!(
+                e.sides.top,
+                Some(Length::pt(10.0)),
+                "top específico vence y e rest"
+            );
+            assert_eq!(
+                e.sides.bottom,
+                Some(Length::pt(20.0)),
+                "bottom cai para y (sem específico)"
+            );
+            assert_eq!(
+                e.sides.left,
+                Some(Length::pt(30.0)),
+                "left cai para rest (sem específico nem x)"
+            );
+            assert_eq!(e.sides.right, Some(Length::pt(30.0)));
         } else {
             panic!("esperado Content::Pad");
         }
@@ -3025,7 +4762,8 @@ mod tests {
     #[test]
     fn native_hide_rejeita_named_arg() {
         null_ctx!(ctx);
-        let args = pn(vec![Value::Content(Content::text("x"))], "weak", Value::Bool(true));
+        let args =
+            pn(vec![Value::Content(Content::text("x"))], "weak", Value::Bool(true));
         let result = native_hide(&mut ctx, &args, &null_world(), test_file_id());
         assert!(result.is_err(), "hide() não aceita named args (P156C)");
     }
@@ -3058,14 +4796,22 @@ mod tests {
         null_ctx!(ctx);
         use crate::entities::layout_types::Length;
         // Int interpretado em pt.
-        let r = native_h(&mut ctx, &p(vec![Value::Int(5)]), &null_world(), test_file_id()).unwrap();
+        let r =
+            native_h(&mut ctx, &p(vec![Value::Int(5)]), &null_world(), test_file_id())
+                .unwrap();
         if let Value::Content(Content::HSpace(e)) = r {
             assert_eq!(e.amount, Length::pt(5.0));
         } else {
             panic!("esperado Content::HSpace");
         }
         // Float interpretado em pt.
-        let r = native_h(&mut ctx, &p(vec![Value::Float(2.5)]), &null_world(), test_file_id()).unwrap();
+        let r = native_h(
+            &mut ctx,
+            &p(vec![Value::Float(2.5)]),
+            &null_world(),
+            test_file_id(),
+        )
+        .unwrap();
         if let Value::Content(Content::HSpace(e)) = r {
             assert_eq!(e.amount, Length::pt(2.5));
         } else {
@@ -3091,7 +4837,13 @@ mod tests {
     fn native_h_aceita_amount_zero() {
         null_ctx!(ctx);
         use crate::entities::layout_types::Length;
-        let r = native_h(&mut ctx, &p(vec![Value::Length(Length::ZERO)]), &null_world(), test_file_id()).unwrap();
+        let r = native_h(
+            &mut ctx,
+            &p(vec![Value::Length(Length::ZERO)]),
+            &null_world(),
+            test_file_id(),
+        )
+        .unwrap();
         if let Value::Content(Content::HSpace(e)) = r {
             assert_eq!(e.amount, Length::ZERO);
         } else {
@@ -3103,7 +4855,12 @@ mod tests {
     fn native_h_rejeita_amount_negativo() {
         null_ctx!(ctx);
         use crate::entities::layout_types::Length;
-        let r = native_h(&mut ctx, &p(vec![Value::Length(Length::pt(-1.0))]), &null_world(), test_file_id());
+        let r = native_h(
+            &mut ctx,
+            &p(vec![Value::Length(Length::pt(-1.0))]),
+            &null_world(),
+            test_file_id(),
+        );
         assert!(r.is_err(), "amount negativo deve retornar Err em P156D");
     }
 
@@ -3155,7 +4912,12 @@ mod tests {
     fn native_v_rejeita_amount_negativo() {
         null_ctx!(ctx);
         use crate::entities::layout_types::Length;
-        let r = native_v(&mut ctx, &p(vec![Value::Length(Length::pt(-2.0))]), &null_world(), test_file_id());
+        let r = native_v(
+            &mut ctx,
+            &p(vec![Value::Length(Length::pt(-2.0))]),
+            &null_world(),
+            test_file_id(),
+        );
         assert!(r.is_err(), "amount negativo deve retornar Err em P156D");
     }
 
@@ -3171,7 +4933,8 @@ mod tests {
     #[test]
     fn native_pagebreak_defaults() {
         null_ctx!(ctx);
-        let r = native_pagebreak(&mut ctx, &p(vec![]), &null_world(), test_file_id()).unwrap();
+        let r = native_pagebreak(&mut ctx, &p(vec![]), &null_world(), test_file_id())
+            .unwrap();
         if let Value::Content(Content::Pagebreak(e)) = r {
             assert!(!e.weak);
             assert_eq!(e.to, None);
@@ -3267,7 +5030,12 @@ mod tests {
     #[test]
     fn native_pagebreak_rejeita_argumento_posicional() {
         null_ctx!(ctx);
-        let r = native_pagebreak(&mut ctx, &p(vec![Value::Bool(true)]), &null_world(), test_file_id());
+        let r = native_pagebreak(
+            &mut ctx,
+            &p(vec![Value::Bool(true)]),
+            &null_world(),
+            test_file_id(),
+        );
         assert!(r.is_err(), "pagebreak() não aceita argumentos posicionais");
     }
 
@@ -3288,7 +5056,13 @@ mod tests {
         null_ctx!(ctx);
         use crate::entities::layout_types::TransformMatrix;
         let body = Content::text("body");
-        let r = native_skew(&mut ctx, &p(vec![Value::Content(body)]), &null_world(), test_file_id()).unwrap();
+        let r = native_skew(
+            &mut ctx,
+            &p(vec![Value::Content(body)]),
+            &null_world(),
+            test_file_id(),
+        )
+        .unwrap();
         if let Value::Content(Content::Transform(e)) = r {
             assert_eq!(e.matrix, TransformMatrix::identity());
         } else {
@@ -3307,7 +5081,11 @@ mod tests {
             // c = tan(30°) ≈ 0.5774; a = 1; b = 0; d = 1.
             assert!((e.matrix.a - 1.0).abs() < 1e-9);
             assert!((e.matrix.b - 0.0).abs() < 1e-9);
-            assert!((e.matrix.c - 0.5774).abs() < 0.001, "c esperado tan(30°), obteve {}", e.matrix.c);
+            assert!(
+                (e.matrix.c - 0.5774).abs() < 0.001,
+                "c esperado tan(30°), obteve {}",
+                e.matrix.c
+            );
             assert!((e.matrix.d - 1.0).abs() < 1e-9);
         } else {
             panic!("esperado Content::Transform");
@@ -3323,7 +5101,11 @@ mod tests {
         let r = native_skew(&mut ctx, &args, &null_world(), test_file_id()).unwrap();
         if let Value::Content(Content::Transform(e)) = r {
             // b = tan(30°) ≈ 0.5774; c = 0.
-            assert!((e.matrix.b - 0.5774).abs() < 0.001, "b esperado tan(30°), obteve {}", e.matrix.b);
+            assert!(
+                (e.matrix.b - 0.5774).abs() < 0.001,
+                "b esperado tan(30°), obteve {}",
+                e.matrix.b
+            );
             assert!((e.matrix.c - 0.0).abs() < 1e-9);
         } else {
             panic!("esperado Content::Transform");
@@ -3340,7 +5122,11 @@ mod tests {
         let r = native_skew(&mut ctx, &args, &null_world(), test_file_id()).unwrap();
         if let Value::Content(Content::Transform(e)) = r {
             assert!((e.matrix.c - 15.0_f64.to_radians().tan()).abs() < 1e-9);
-            assert!((e.matrix.b - 1.0).abs() < 1e-9, "tan(45°) ≈ 1.0; obteve {}", e.matrix.b);
+            assert!(
+                (e.matrix.b - 1.0).abs() < 1e-9,
+                "tan(45°) ≈ 1.0; obteve {}",
+                e.matrix.b
+            );
         } else {
             panic!("esperado Content::Transform");
         }
@@ -3379,7 +5165,8 @@ mod tests {
         let mut args = p(vec![Value::Content(Content::text("x"))]);
         // 89.999° → ax_rad ≈ π/2 - 1.7e-5; abaixo do threshold (π/2 - 1e-3).
         // Mas usemos exactamente 90°: tan diverge.
-        args.named.insert("ax".into(), Value::Float(std::f64::consts::FRAC_PI_2));
+        args.named
+            .insert("ax".into(), Value::Float(std::f64::consts::FRAC_PI_2));
         let r = native_skew(&mut ctx, &args, &null_world(), test_file_id());
         assert!(r.is_err(), "skew(ax: π/2) deve retornar Err (tan diverge)");
     }
@@ -3457,10 +5244,16 @@ mod tests {
     fn native_block_defaults_sem_args_named() {
         null_ctx!(ctx);
         use crate::entities::layout_types::Length;
-        let r = native_block(&mut ctx, &p(vec![Value::Content(Content::text("body"))]), &null_world(), test_file_id()).unwrap();
+        let r = native_block(
+            &mut ctx,
+            &p(vec![Value::Content(Content::text("body"))]),
+            &null_world(),
+            test_file_id(),
+        )
+        .unwrap();
         if let Value::Content(Content::Block(e)) = r {
             assert_eq!(e.body.plain_text(), "body");
-            assert_eq!(e.width,  None);
+            assert_eq!(e.width, None);
             assert_eq!(e.height, None);
             assert_eq!(e.inset.left, Length::ZERO);
             assert!(e.breakable, "default breakable é true");
@@ -3474,7 +5267,8 @@ mod tests {
         // Vanilla aceita block() sem body; cristalino igualmente
         // (Content::Empty como fallback).
         null_ctx!(ctx);
-        let r = native_block(&mut ctx, &p(vec![]), &null_world(), test_file_id()).unwrap();
+        let r =
+            native_block(&mut ctx, &p(vec![]), &null_world(), test_file_id()).unwrap();
         if let Value::Content(Content::Block(e)) = r {
             assert!(e.body.is_empty());
         } else {
@@ -3518,9 +5312,9 @@ mod tests {
         args.named.insert("inset".into(), Value::Length(Length::pt(8.0)));
         let r = native_block(&mut ctx, &args, &null_world(), test_file_id()).unwrap();
         if let Value::Content(Content::Block(e)) = r {
-            assert_eq!(e.inset.left,   Length::pt(8.0));
-            assert_eq!(e.inset.right,  Length::pt(8.0));
-            assert_eq!(e.inset.top,    Length::pt(8.0));
+            assert_eq!(e.inset.left, Length::pt(8.0));
+            assert_eq!(e.inset.right, Length::pt(8.0));
+            assert_eq!(e.inset.top, Length::pt(8.0));
             assert_eq!(e.inset.bottom, Length::pt(8.0));
         } else {
             panic!("esperado Content::Block");
@@ -3545,13 +5339,13 @@ mod tests {
         null_ctx!(ctx);
         use crate::entities::layout_types::Length;
         let mut args = p(vec![Value::Content(Content::text("x"))]);
-        args.named.insert("width".into(),  Value::Length(Length::pt(200.0)));
+        args.named.insert("width".into(), Value::Length(Length::pt(200.0)));
         args.named.insert("height".into(), Value::Length(Length::pt(80.0)));
-        args.named.insert("inset".into(),  Value::Length(Length::pt(4.0)));
+        args.named.insert("inset".into(), Value::Length(Length::pt(4.0)));
         args.named.insert("breakable".into(), Value::Bool(false));
         let r = native_block(&mut ctx, &args, &null_world(), test_file_id()).unwrap();
         if let Value::Content(Content::Block(e)) = r {
-            assert_eq!(e.width,  Some(Length::pt(200.0)));
+            assert_eq!(e.width, Some(Length::pt(200.0)));
             assert_eq!(e.height, Some(Length::pt(80.0)));
             assert_eq!(e.inset.top, Length::pt(4.0));
             assert!(!e.breakable);
@@ -3568,7 +5362,10 @@ mod tests {
         let mut args = p(vec![Value::Content(Content::text("x"))]);
         args.named.insert("fill".into(), Value::Str("red".into()));
         let r = native_block(&mut ctx, &args, &null_world(), test_file_id());
-        assert!(r.is_err(), "fill com tipo errado (Str em vez de Color) deve retornar Err");
+        assert!(
+            r.is_err(),
+            "fill com tipo errado (Str em vez de Color) deve retornar Err"
+        );
     }
 
     // ── Passo 247 (M9d / M7+5; ADR-0079 Categoria A.4) ──────────────────
@@ -3607,7 +5404,13 @@ mod tests {
     #[test]
     fn p247_native_block_fill_default_none() {
         null_ctx!(ctx);
-        let r = native_block(&mut ctx, &p(vec![Value::Content(Content::text("x"))]), &null_world(), test_file_id()).unwrap();
+        let r = native_block(
+            &mut ctx,
+            &p(vec![Value::Content(Content::text("x"))]),
+            &null_world(),
+            test_file_id(),
+        )
+        .unwrap();
         if let Value::Content(Content::Block(e)) = r {
             assert_eq!(e.fill, None);
             assert!(e.stroke.is_none());
@@ -3645,7 +5448,8 @@ mod tests {
         use crate::entities::layout_types::Color;
         use crate::entities::paint::Paint;
         let mut args = p(vec![Value::Content(Content::text("x"))]);
-        args.named.insert("stroke".into(), Value::Color(Color::rgb(0, 0, 255)));
+        args.named
+            .insert("stroke".into(), Value::Color(Color::rgb(0, 0, 255)));
         let r = native_box(&mut ctx, &args, &null_world(), test_file_id()).unwrap();
         if let Value::Content(Content::Boxed(e)) = r {
             let s = e.stroke.clone().expect("stroke deveria ser Some");
@@ -3659,7 +5463,13 @@ mod tests {
     #[test]
     fn p247_native_box_fill_default_none() {
         null_ctx!(ctx);
-        let r = native_box(&mut ctx, &p(vec![Value::Content(Content::text("x"))]), &null_world(), test_file_id()).unwrap();
+        let r = native_box(
+            &mut ctx,
+            &p(vec![Value::Content(Content::text("x"))]),
+            &null_world(),
+            test_file_id(),
+        )
+        .unwrap();
         if let Value::Content(Content::Boxed(e)) = r {
             assert_eq!(e.fill, None);
             assert!(e.stroke.is_none());
@@ -3673,17 +5483,18 @@ mod tests {
         null_ctx!(ctx);
         use crate::entities::layout_types::{Color, Length};
         let mut args = p(vec![Value::Content(Content::text("x"))]);
-        args.named.insert("fill".into(),   Value::Color(Color::rgb(50, 100, 150)));
+        args.named
+            .insert("fill".into(), Value::Color(Color::rgb(50, 100, 150)));
         args.named.insert("stroke".into(), Value::Length(Length::pt(1.5)));
         args.named.insert("radius".into(), Value::Length(Length::pt(3.0)));
-        args.named.insert("clip".into(),   Value::Bool(true));
+        args.named.insert("clip".into(), Value::Bool(true));
         args.named.insert("outset".into(), Value::Length(Length::pt(2.0)));
         let r = native_block(&mut ctx, &args, &null_world(), test_file_id()).unwrap();
         if let Value::Content(Content::Block(e)) = r {
-            assert_eq!(e.fill,   Some(Color::rgb(50, 100, 150)));
+            assert_eq!(e.fill, Some(Color::rgb(50, 100, 150)));
             assert_eq!(e.stroke.clone().unwrap().thickness, 1.5);
             assert_eq!(e.radius.top_left, Length::pt(3.0));
-            assert_eq!(e.clip,   true);
+            assert_eq!(e.clip, true);
             assert_eq!(e.outset.left, Length::pt(2.0));
         } else {
             panic!("esperado Content::Block");
@@ -3712,8 +5523,10 @@ mod tests {
         args.named.insert("breakable".into(), Value::Bool(false));
         let r = native_block(&mut ctx, &args, &null_world(), test_file_id()).unwrap();
         if let Value::Content(Content::Block(e)) = r {
-            assert_eq!(e.breakable, false,
-                "P248 — native_block(breakable: false) propaga literal para variant");
+            assert_eq!(
+                e.breakable, false,
+                "P248 — native_block(breakable: false) propaga literal para variant"
+            );
         } else {
             panic!("esperado Content::Block");
         }
@@ -3722,7 +5535,13 @@ mod tests {
     #[test]
     fn p248_native_block_breakable_default_true_p156g() {
         null_ctx!(ctx);
-        let r = native_block(&mut ctx, &p(vec![Value::Content(Content::text("x"))]), &null_world(), test_file_id()).unwrap();
+        let r = native_block(
+            &mut ctx,
+            &p(vec![Value::Content(Content::text("x"))]),
+            &null_world(),
+            test_file_id(),
+        )
+        .unwrap();
         if let Value::Content(Content::Block(e)) = r {
             assert_eq!(e.breakable, true, "P248 — default preservado P156G");
         } else {
@@ -3736,11 +5555,11 @@ mod tests {
         use crate::entities::layout_types::Length;
         let mut args = p(vec![Value::Content(Content::text("x"))]);
         args.named.insert("height".into(), Value::Length(Length::pt(50.0)));
-        args.named.insert("clip".into(),   Value::Bool(true));
+        args.named.insert("clip".into(), Value::Bool(true));
         let r = native_box(&mut ctx, &args, &null_world(), test_file_id()).unwrap();
         if let Value::Content(Content::Boxed(e)) = r {
             assert_eq!(e.height, Some(Length::pt(50.0)));
-            assert_eq!(e.clip,   true);
+            assert_eq!(e.clip, true);
         } else {
             panic!("esperado Content::Boxed");
         }
@@ -3749,10 +5568,16 @@ mod tests {
     #[test]
     fn p248_native_box_height_default_none_p156h() {
         null_ctx!(ctx);
-        let r = native_box(&mut ctx, &p(vec![Value::Content(Content::text("x"))]), &null_world(), test_file_id()).unwrap();
+        let r = native_box(
+            &mut ctx,
+            &p(vec![Value::Content(Content::text("x"))]),
+            &null_world(),
+            test_file_id(),
+        )
+        .unwrap();
         if let Value::Content(Content::Boxed(e)) = r {
             assert_eq!(e.height, None);
-            assert_eq!(e.clip,   false, "P248 — defaults preservados P156H");
+            assert_eq!(e.clip, false, "P248 — defaults preservados P156H");
         } else {
             panic!("esperado Content::Boxed");
         }
@@ -3769,15 +5594,15 @@ mod tests {
         use crate::entities::layout_types::Length;
         let mut args = p(vec![Value::Content(Content::text("x"))]);
         args.named.insert("spacing".into(), Value::Length(Length::pt(12.0)));
-        args.named.insert("above".into(),   Value::Length(Length::pt(20.0)));
-        args.named.insert("below".into(),   Value::Length(Length::pt(8.0)));
-        args.named.insert("sticky".into(),  Value::Bool(true));
+        args.named.insert("above".into(), Value::Length(Length::pt(20.0)));
+        args.named.insert("below".into(), Value::Length(Length::pt(8.0)));
+        args.named.insert("sticky".into(), Value::Bool(true));
         let r = native_block(&mut ctx, &args, &null_world(), test_file_id()).unwrap();
         if let Value::Content(Content::Block(e)) = r {
             assert_eq!(e.spacing, Some(Length::pt(12.0)));
-            assert_eq!(e.above,   Some(Length::pt(20.0)));
-            assert_eq!(e.below,   Some(Length::pt(8.0)));
-            assert_eq!(e.sticky,  true);
+            assert_eq!(e.above, Some(Length::pt(20.0)));
+            assert_eq!(e.below, Some(Length::pt(8.0)));
+            assert_eq!(e.sticky, true);
         } else {
             panic!("esperado Content::Block");
         }
@@ -3786,12 +5611,18 @@ mod tests {
     #[test]
     fn p250_native_block_defaults_4_fields() {
         null_ctx!(ctx);
-        let r = native_block(&mut ctx, &p(vec![Value::Content(Content::text("x"))]), &null_world(), test_file_id()).unwrap();
+        let r = native_block(
+            &mut ctx,
+            &p(vec![Value::Content(Content::text("x"))]),
+            &null_world(),
+            test_file_id(),
+        )
+        .unwrap();
         if let Value::Content(Content::Block(e)) = r {
             assert_eq!(e.spacing, None);
-            assert_eq!(e.above,   None);
-            assert_eq!(e.below,   None);
-            assert_eq!(e.sticky,  false, "P250 defaults preservam pre-P250");
+            assert_eq!(e.above, None);
+            assert_eq!(e.below, None);
+            assert_eq!(e.sticky, false, "P250 defaults preservam pre-P250");
         } else {
             panic!("esperado Content::Block");
         }
@@ -3840,8 +5671,10 @@ mod tests {
         if let Value::Content(Content::Block(e)) = r {
             let s = e.stroke.clone().expect("stroke deveria ser Some");
             assert_eq!(s.thickness, 2.5);
-            assert_eq!(s.overhang, true,
-                "P252 — Length atalho default overhang=true (paridade vanilla)");
+            assert_eq!(
+                s.overhang, true,
+                "P252 — Length atalho default overhang=true (paridade vanilla)"
+            );
         } else {
             panic!("esperado Content::Block com stroke");
         }
@@ -3853,14 +5686,17 @@ mod tests {
         use crate::entities::layout_types::Color;
         use crate::entities::paint::Paint;
         let mut args = p(vec![Value::Content(Content::text("x"))]);
-        args.named.insert("stroke".into(), Value::Color(Color::rgb(255, 0, 0)));
+        args.named
+            .insert("stroke".into(), Value::Color(Color::rgb(255, 0, 0)));
         let r = native_block(&mut ctx, &args, &null_world(), test_file_id()).unwrap();
         if let Value::Content(Content::Block(e)) = r {
             let s = e.stroke.clone().expect("stroke deveria ser Some");
             assert_eq!(s.paint, Paint::Solid(Color::rgb(255, 0, 0)));
             assert_eq!(s.thickness, 1.0);
-            assert_eq!(s.overhang, true,
-                "P252 — Color atalho default overhang=true (paridade vanilla)");
+            assert_eq!(
+                s.overhang, true,
+                "P252 — Color atalho default overhang=true (paridade vanilla)"
+            );
         } else {
             panic!("esperado Content::Block com stroke");
         }
@@ -3888,11 +5724,16 @@ mod tests {
     fn p252_native_stroke_overhang_default_true_paridade_vanilla() {
         null_ctx!(ctx);
         // stroke() sem args → Stroke { BLACK, 1.0pt, overhang: true }.
-        let r = native_stroke(&mut ctx, &p(vec![]), &null_world(), test_file_id()).unwrap();
+        let r =
+            native_stroke(&mut ctx, &p(vec![]), &null_world(), test_file_id()).unwrap();
         if let Value::Stroke(s) = r {
-            assert_eq!(s.overhang, true,
-                "P252 — native_stroke default vanilla overhang=true");
-        } else { panic!("esperado Value::Stroke"); }
+            assert_eq!(
+                s.overhang, true,
+                "P252 — native_stroke default vanilla overhang=true"
+            );
+        } else {
+            panic!("esperado Value::Stroke");
+        }
     }
 
     #[test]
@@ -3934,12 +5775,22 @@ mod tests {
         let mut args = p(vec![Value::Content(Content::text("x"))]);
         args.named.insert("rest".into(), Value::Length(Length::pt(5.0)));
         let r = native_pad(&mut ctx, &args, &null_world(), test_file_id()).unwrap();
-        assert!(matches!(r, Value::Content(Content::Pad(e))),
-            "regressão: native_pad deveria produzir Content::Pad");
+        assert!(
+            matches!(r, Value::Content(Content::Pad(e))),
+            "regressão: native_pad deveria produzir Content::Pad"
+        );
         // Hide regression
-        let r = native_hide(&mut ctx, &p(vec![Value::Content(Content::text("y"))]), &null_world(), test_file_id()).unwrap();
-        assert!(matches!(r, Value::Content(Content::Hide(_))),
-            "regressão: native_hide deveria produzir Content::Hide");
+        let r = native_hide(
+            &mut ctx,
+            &p(vec![Value::Content(Content::text("y"))]),
+            &null_world(),
+            test_file_id(),
+        )
+        .unwrap();
+        assert!(
+            matches!(r, Value::Content(Content::Hide(_))),
+            "regressão: native_hide deveria produzir Content::Hide"
+        );
     }
 
     // ── Passo 156H (ADR-0061 Fase 2 sub-passo 2) — box ────────────────────
@@ -3948,10 +5799,16 @@ mod tests {
     fn native_box_defaults_sem_args_named() {
         null_ctx!(ctx);
         use crate::entities::layout_types::Length;
-        let r = native_box(&mut ctx, &p(vec![Value::Content(Content::text("body"))]), &null_world(), test_file_id()).unwrap();
+        let r = native_box(
+            &mut ctx,
+            &p(vec![Value::Content(Content::text("body"))]),
+            &null_world(),
+            test_file_id(),
+        )
+        .unwrap();
         if let Value::Content(Content::Boxed(e)) = r {
             assert_eq!(e.body.plain_text(), "body");
-            assert_eq!(e.width,  None);
+            assert_eq!(e.width, None);
             assert_eq!(e.height, None);
             assert_eq!(e.inset.left, Length::ZERO);
             assert_eq!(e.baseline, Length::ZERO);
@@ -4007,9 +5864,9 @@ mod tests {
         args.named.insert("inset".into(), Value::Length(Length::pt(4.0)));
         let r = native_box(&mut ctx, &args, &null_world(), test_file_id()).unwrap();
         if let Value::Content(Content::Boxed(e)) = r {
-            assert_eq!(e.inset.left,   Length::pt(4.0));
-            assert_eq!(e.inset.right,  Length::pt(4.0));
-            assert_eq!(e.inset.top,    Length::pt(4.0));
+            assert_eq!(e.inset.left, Length::pt(4.0));
+            assert_eq!(e.inset.right, Length::pt(4.0));
+            assert_eq!(e.inset.top, Length::pt(4.0));
             assert_eq!(e.inset.bottom, Length::pt(4.0));
         } else {
             panic!("esperado Content::Boxed");
@@ -4051,13 +5908,13 @@ mod tests {
         null_ctx!(ctx);
         use crate::entities::layout_types::Length;
         let mut args = p(vec![Value::Content(Content::text("x"))]);
-        args.named.insert("width".into(),    Value::Length(Length::pt(100.0)));
-        args.named.insert("height".into(),   Value::Length(Length::pt(30.0)));
-        args.named.insert("inset".into(),    Value::Length(Length::pt(2.0)));
+        args.named.insert("width".into(), Value::Length(Length::pt(100.0)));
+        args.named.insert("height".into(), Value::Length(Length::pt(30.0)));
+        args.named.insert("inset".into(), Value::Length(Length::pt(2.0)));
         args.named.insert("baseline".into(), Value::Length(Length::pt(1.0)));
         let r = native_box(&mut ctx, &args, &null_world(), test_file_id()).unwrap();
         if let Value::Content(Content::Boxed(e)) = r {
-            assert_eq!(e.width,  Some(Length::pt(100.0)));
+            assert_eq!(e.width, Some(Length::pt(100.0)));
             assert_eq!(e.height, Some(Length::pt(30.0)));
             assert_eq!(e.inset.top, Length::pt(2.0));
             assert_eq!(e.baseline, Length::pt(1.0));
@@ -4111,10 +5968,11 @@ mod tests {
     fn native_stack_defaults_sem_args() {
         null_ctx!(ctx);
         use crate::entities::dir::Dir;
-        let r = native_stack(&mut ctx, &p(vec![]), &null_world(), test_file_id()).unwrap();
+        let r =
+            native_stack(&mut ctx, &p(vec![]), &null_world(), test_file_id()).unwrap();
         if let Value::Content(Content::Stack(e)) = r {
             assert!(e.children.is_empty());
-            assert_eq!(e.dir, Dir::TTB);  // default
+            assert_eq!(e.dir, Dir::TTB); // default
             assert_eq!(e.spacing, None);
         } else {
             panic!("esperado Content::Stack");
@@ -4139,8 +5997,9 @@ mod tests {
     fn native_stack_aceita_todas_4_direcoes() {
         null_ctx!(ctx);
         use crate::entities::dir::Dir;
-        for (s, d) in [("ltr", Dir::LTR), ("rtl", Dir::RTL),
-                       ("ttb", Dir::TTB), ("btt", Dir::BTT)] {
+        for (s, d) in
+            [("ltr", Dir::LTR), ("rtl", Dir::RTL), ("ttb", Dir::TTB), ("btt", Dir::BTT)]
+        {
             let mut args = p(vec![]);
             args.named.insert("dir".into(), Value::Str(s.into()));
             let r = native_stack(&mut ctx, &args, &null_world(), test_file_id()).unwrap();
@@ -4229,7 +6088,12 @@ mod tests {
     #[test]
     fn native_stack_rejeita_child_nao_content() {
         null_ctx!(ctx);
-        let r = native_stack(&mut ctx, &p(vec![Value::Int(42)]), &null_world(), test_file_id());
+        let r = native_stack(
+            &mut ctx,
+            &p(vec![Value::Int(42)]),
+            &null_world(),
+            test_file_id(),
+        );
         assert!(r.is_err(), "child Int deve retornar Err");
     }
 
@@ -4264,18 +6128,30 @@ mod tests {
         let mut args = p(vec![Value::Content(Content::text("x"))]);
         args.named.insert("inset".into(), Value::Length(Length::pt(3.0)));
         let r = native_block(&mut ctx, &args, &null_world(), test_file_id()).unwrap();
-        assert!(matches!(r, Value::Content(Content::Block(e))),
-            "regressão: native_block deveria produzir Content::Block");
+        assert!(
+            matches!(r, Value::Content(Content::Block(e))),
+            "regressão: native_block deveria produzir Content::Block"
+        );
         // Pad regression
         let mut args = p(vec![Value::Content(Content::text("x"))]);
         args.named.insert("rest".into(), Value::Length(Length::pt(5.0)));
         let r = native_pad(&mut ctx, &args, &null_world(), test_file_id()).unwrap();
-        assert!(matches!(r, Value::Content(Content::Pad(e))),
-            "regressão: native_pad deveria produzir Content::Pad");
+        assert!(
+            matches!(r, Value::Content(Content::Pad(e))),
+            "regressão: native_pad deveria produzir Content::Pad"
+        );
         // Hide regression
-        let r = native_hide(&mut ctx, &p(vec![Value::Content(Content::text("y"))]), &null_world(), test_file_id()).unwrap();
-        assert!(matches!(r, Value::Content(Content::Hide(_))),
-            "regressão: native_hide deveria produzir Content::Hide");
+        let r = native_hide(
+            &mut ctx,
+            &p(vec![Value::Content(Content::text("y"))]),
+            &null_world(),
+            test_file_id(),
+        )
+        .unwrap();
+        assert!(
+            matches!(r, Value::Content(Content::Hide(_))),
+            "regressão: native_hide deveria produzir Content::Hide"
+        );
     }
 
     // P156I regression: Block + Boxed + Pad + Hide continuam a funcionar
@@ -4301,7 +6177,13 @@ mod tests {
         let r = native_pad(&mut ctx, &args, &null_world(), test_file_id()).unwrap();
         assert!(matches!(r, Value::Content(Content::Pad(e))));
         // Hide
-        let r = native_hide(&mut ctx, &p(vec![Value::Content(Content::text("y"))]), &null_world(), test_file_id()).unwrap();
+        let r = native_hide(
+            &mut ctx,
+            &p(vec![Value::Content(Content::text("y"))]),
+            &null_world(),
+            test_file_id(),
+        )
+        .unwrap();
         assert!(matches!(r, Value::Content(Content::Hide(_))));
     }
 
@@ -4310,7 +6192,13 @@ mod tests {
     #[test]
     fn native_repeat_defaults_gap_none_justify_true() {
         null_ctx!(ctx);
-        let r = native_repeat(&mut ctx, &p(vec![Value::Content(Content::text("."))]), &null_world(), test_file_id()).unwrap();
+        let r = native_repeat(
+            &mut ctx,
+            &p(vec![Value::Content(Content::text("."))]),
+            &null_world(),
+            test_file_id(),
+        )
+        .unwrap();
         if let Value::Content(Content::Repeat(e)) = r {
             assert_eq!(e.body.plain_text(), ".");
             assert_eq!(e.gap, None);
@@ -4323,7 +6211,13 @@ mod tests {
     #[test]
     fn native_repeat_aceita_str_como_body() {
         null_ctx!(ctx);
-        let r = native_repeat(&mut ctx, &p(vec![Value::Str(".".into())]), &null_world(), test_file_id()).unwrap();
+        let r = native_repeat(
+            &mut ctx,
+            &p(vec![Value::Str(".".into())]),
+            &null_world(),
+            test_file_id(),
+        )
+        .unwrap();
         if let Value::Content(Content::Repeat(e)) = r {
             assert_eq!(e.body.plain_text(), ".");
         } else {
@@ -4385,7 +6279,12 @@ mod tests {
     #[test]
     fn native_repeat_rejeita_body_int() {
         null_ctx!(ctx);
-        let r = native_repeat(&mut ctx, &p(vec![Value::Int(42)]), &null_world(), test_file_id());
+        let r = native_repeat(
+            &mut ctx,
+            &p(vec![Value::Int(42)]),
+            &null_world(),
+            test_file_id(),
+        );
         assert!(r.is_err(), "repeat() com body Int deve retornar Err");
     }
 
@@ -4452,7 +6351,13 @@ mod tests {
         let r = native_pad(&mut ctx, &args, &null_world(), test_file_id()).unwrap();
         assert!(matches!(r, Value::Content(Content::Pad(e))));
         // Hide
-        let r = native_hide(&mut ctx, &p(vec![Value::Content(Content::text("y"))]), &null_world(), test_file_id()).unwrap();
+        let r = native_hide(
+            &mut ctx,
+            &p(vec![Value::Content(Content::text("y"))]),
+            &null_world(),
+            test_file_id(),
+        )
+        .unwrap();
         assert!(matches!(r, Value::Content(Content::Hide(_))));
     }
 
@@ -4461,10 +6366,13 @@ mod tests {
     #[test]
     fn p218_native_columns_count_valido_sem_gutter() {
         null_ctx!(ctx);
-        let r = native_columns(&mut ctx, &p(vec![
-            Value::Int(2),
-            Value::Content(Content::text("hello")),
-        ]), &null_world(), test_file_id()).unwrap();
+        let r = native_columns(
+            &mut ctx,
+            &p(vec![Value::Int(2), Value::Content(Content::text("hello"))]),
+            &null_world(),
+            test_file_id(),
+        )
+        .unwrap();
         if let Value::Content(Content::Columns(e)) = r {
             assert_eq!(e.count, 2);
             assert_eq!(e.gutter, None);
@@ -4477,47 +6385,55 @@ mod tests {
     #[test]
     fn p218_native_columns_count_zero_rejeita() {
         null_ctx!(ctx);
-        let r = native_columns(&mut ctx, &p(vec![
-            Value::Int(0),
-            Value::Content(Content::text(".")),
-        ]), &null_world(), test_file_id());
+        let r = native_columns(
+            &mut ctx,
+            &p(vec![Value::Int(0), Value::Content(Content::text("."))]),
+            &null_world(),
+            test_file_id(),
+        );
         assert!(r.is_err(), "count = 0 deve falhar");
     }
 
     #[test]
     fn p218_native_columns_count_negativo_rejeita() {
         null_ctx!(ctx);
-        let r = native_columns(&mut ctx, &p(vec![
-            Value::Int(-1),
-            Value::Content(Content::text(".")),
-        ]), &null_world(), test_file_id());
+        let r = native_columns(
+            &mut ctx,
+            &p(vec![Value::Int(-1), Value::Content(Content::text("."))]),
+            &null_world(),
+            test_file_id(),
+        );
         assert!(r.is_err(), "count = -1 deve falhar");
     }
 
     #[test]
     fn p218_native_columns_count_nao_int_rejeita() {
         null_ctx!(ctx);
-        let r = native_columns(&mut ctx, &p(vec![
-            Value::Str("foo".into()),
-            Value::Content(Content::text(".")),
-        ]), &null_world(), test_file_id());
+        let r = native_columns(
+            &mut ctx,
+            &p(vec![Value::Str("foo".into()), Value::Content(Content::text("."))]),
+            &null_world(),
+            test_file_id(),
+        );
         assert!(r.is_err(), "count Str deve falhar");
     }
 
     #[test]
     fn p218_native_columns_count_ausente_rejeita() {
         null_ctx!(ctx);
-        let r = native_columns(&mut ctx, &p(vec![]),
-            &null_world(), test_file_id());
+        let r = native_columns(&mut ctx, &p(vec![]), &null_world(), test_file_id());
         assert!(r.is_err(), "sem args deve falhar");
     }
 
     #[test]
     fn p218_native_columns_body_ausente_rejeita() {
         null_ctx!(ctx);
-        let r = native_columns(&mut ctx, &p(vec![
-            Value::Int(2),
-        ]), &null_world(), test_file_id());
+        let r = native_columns(
+            &mut ctx,
+            &p(vec![Value::Int(2)]),
+            &null_world(),
+            test_file_id(),
+        );
         assert!(r.is_err(), "só count sem body deve falhar");
     }
 
@@ -4525,10 +6441,13 @@ mod tests {
     fn p218_native_columns_body_str_aceita() {
         // Body Value::Str → convertido para Content::text.
         null_ctx!(ctx);
-        let r = native_columns(&mut ctx, &p(vec![
-            Value::Int(3),
-            Value::Str("texto".into()),
-        ]), &null_world(), test_file_id()).unwrap();
+        let r = native_columns(
+            &mut ctx,
+            &p(vec![Value::Int(3), Value::Str("texto".into())]),
+            &null_world(),
+            test_file_id(),
+        )
+        .unwrap();
         if let Value::Content(Content::Columns(e)) = r {
             assert_eq!(e.body.plain_text(), "texto");
         } else {
@@ -4540,10 +6459,7 @@ mod tests {
     fn p218_native_columns_gutter_length_aceita() {
         null_ctx!(ctx);
         use crate::entities::layout_types::Length;
-        let mut args = p(vec![
-            Value::Int(2),
-            Value::Content(Content::text(".")),
-        ]);
+        let mut args = p(vec![Value::Int(2), Value::Content(Content::text("."))]);
         args.named.insert("gutter".into(), Value::Length(Length::pt(10.0)));
         let r = native_columns(&mut ctx, &args, &null_world(), test_file_id()).unwrap();
         if let Value::Content(Content::Columns(e)) = r {
@@ -4557,10 +6473,7 @@ mod tests {
     fn p218_native_columns_gutter_negativo_rejeita() {
         null_ctx!(ctx);
         use crate::entities::layout_types::Length;
-        let mut args = p(vec![
-            Value::Int(2),
-            Value::Content(Content::text(".")),
-        ]);
+        let mut args = p(vec![Value::Int(2), Value::Content(Content::text("."))]);
         args.named.insert("gutter".into(), Value::Length(Length::pt(-1.0)));
         let r = native_columns(&mut ctx, &args, &null_world(), test_file_id());
         assert!(r.is_err(), "gutter negativo deve falhar");
@@ -4569,10 +6482,7 @@ mod tests {
     #[test]
     fn p218_native_columns_named_arg_desconhecido_rejeita() {
         null_ctx!(ctx);
-        let mut args = p(vec![
-            Value::Int(2),
-            Value::Content(Content::text(".")),
-        ]);
+        let mut args = p(vec![Value::Int(2), Value::Content(Content::text("."))]);
         args.named.insert("foo".into(), Value::Int(42));
         let r = native_columns(&mut ctx, &args, &null_world(), test_file_id());
         assert!(r.is_err(), "named arg desconhecido deve falhar");
@@ -4581,11 +6491,16 @@ mod tests {
     #[test]
     fn p218_native_columns_extra_positional_rejeita() {
         null_ctx!(ctx);
-        let r = native_columns(&mut ctx, &p(vec![
-            Value::Int(2),
-            Value::Content(Content::text("a")),
-            Value::Content(Content::text("b")),  // extra
-        ]), &null_world(), test_file_id());
+        let r = native_columns(
+            &mut ctx,
+            &p(vec![
+                Value::Int(2),
+                Value::Content(Content::text("a")),
+                Value::Content(Content::text("b")), // extra
+            ]),
+            &null_world(),
+            test_file_id(),
+        );
         assert!(r.is_err(), ">2 posicionais deve falhar");
     }
 
@@ -4594,8 +6509,8 @@ mod tests {
     #[test]
     fn p220_native_colbreak_sem_args_aceita() {
         null_ctx!(ctx);
-        let r = native_colbreak(&mut ctx, &p(vec![]),
-            &null_world(), test_file_id()).unwrap();
+        let r =
+            native_colbreak(&mut ctx, &p(vec![]), &null_world(), test_file_id()).unwrap();
         if let Value::Content(Content::Colbreak(e)) = r {
             assert_eq!(e.weak, false, "default weak == false");
         } else {
@@ -4608,8 +6523,7 @@ mod tests {
         null_ctx!(ctx);
         let mut args = p(vec![]);
         args.named.insert("weak".into(), Value::Bool(true));
-        let r = native_colbreak(&mut ctx, &args,
-            &null_world(), test_file_id()).unwrap();
+        let r = native_colbreak(&mut ctx, &args, &null_world(), test_file_id()).unwrap();
         if let Value::Content(Content::Colbreak(e)) = r {
             assert_eq!(e.weak, true);
         } else {
@@ -4620,8 +6534,12 @@ mod tests {
     #[test]
     fn p220_native_colbreak_posicional_rejeita() {
         null_ctx!(ctx);
-        let r = native_colbreak(&mut ctx, &p(vec![Value::Str("oops".into())]),
-            &null_world(), test_file_id());
+        let r = native_colbreak(
+            &mut ctx,
+            &p(vec![Value::Str("oops".into())]),
+            &null_world(),
+            test_file_id(),
+        );
         assert!(r.is_err(), "posicional deve falhar");
     }
 
@@ -4630,8 +6548,7 @@ mod tests {
         null_ctx!(ctx);
         let mut args = p(vec![]);
         args.named.insert("weak".into(), Value::Str("true".into()));
-        let r = native_colbreak(&mut ctx, &args,
-            &null_world(), test_file_id());
+        let r = native_colbreak(&mut ctx, &args, &null_world(), test_file_id());
         assert!(r.is_err(), "weak não-Bool deve falhar");
     }
 
@@ -4640,8 +6557,7 @@ mod tests {
         null_ctx!(ctx);
         let mut args = p(vec![]);
         args.named.insert("foo".into(), Value::Bool(true));
-        let r = native_colbreak(&mut ctx, &args,
-            &null_world(), test_file_id());
+        let r = native_colbreak(&mut ctx, &args, &null_world(), test_file_id());
         assert!(r.is_err(), "named desconhecido deve falhar");
     }
 
@@ -4652,8 +6568,7 @@ mod tests {
         null_ctx!(ctx);
         let mut args = p(vec![]);
         args.named.insert("to".into(), Value::Str("even".into()));
-        let r = native_colbreak(&mut ctx, &args,
-            &null_world(), test_file_id());
+        let r = native_colbreak(&mut ctx, &args, &null_world(), test_file_id());
         assert!(r.is_err(), "to: deve falhar (named desconhecido)");
     }
 
@@ -4662,9 +6577,13 @@ mod tests {
     #[test]
     fn p222_native_measure_body_content_aceita() {
         null_ctx!(ctx);
-        let r = native_measure(&mut ctx, &p(vec![
-            Value::Content(Content::text("texto")),
-        ]), &null_world(), test_file_id()).unwrap();
+        let r = native_measure(
+            &mut ctx,
+            &p(vec![Value::Content(Content::text("texto"))]),
+            &null_world(),
+            test_file_id(),
+        )
+        .unwrap();
         if let Value::Dict(d) = r {
             assert!(d.contains_key("width"));
             assert!(d.contains_key("height"));
@@ -4677,9 +6596,13 @@ mod tests {
     fn p222_native_measure_body_str_aceita() {
         // Str shortcut → Content::text wrapping.
         null_ctx!(ctx);
-        let r = native_measure(&mut ctx, &p(vec![
-            Value::Str("texto".into()),
-        ]), &null_world(), test_file_id()).unwrap();
+        let r = native_measure(
+            &mut ctx,
+            &p(vec![Value::Str("texto".into())]),
+            &null_world(),
+            test_file_id(),
+        )
+        .unwrap();
         if let Value::Dict(d) = r {
             assert!(d.contains_key("width") && d.contains_key("height"));
         } else {
@@ -4690,26 +6613,34 @@ mod tests {
     #[test]
     fn p222_native_measure_body_ausente_rejeita() {
         null_ctx!(ctx);
-        let r = native_measure(&mut ctx, &p(vec![]),
-            &null_world(), test_file_id());
+        let r = native_measure(&mut ctx, &p(vec![]), &null_world(), test_file_id());
         assert!(r.is_err(), "body ausente deve falhar");
     }
 
     #[test]
     fn p222_native_measure_body_tipo_errado_rejeita() {
         null_ctx!(ctx);
-        let r = native_measure(&mut ctx, &p(vec![Value::Int(42)]),
-            &null_world(), test_file_id());
+        let r = native_measure(
+            &mut ctx,
+            &p(vec![Value::Int(42)]),
+            &null_world(),
+            test_file_id(),
+        );
         assert!(r.is_err(), "body Int deve falhar");
     }
 
     #[test]
     fn p222_native_measure_extra_positional_rejeita() {
         null_ctx!(ctx);
-        let r = native_measure(&mut ctx, &p(vec![
-            Value::Content(Content::text("a")),
-            Value::Content(Content::text("b")),
-        ]), &null_world(), test_file_id());
+        let r = native_measure(
+            &mut ctx,
+            &p(vec![
+                Value::Content(Content::text("a")),
+                Value::Content(Content::text("b")),
+            ]),
+            &null_world(),
+            test_file_id(),
+        );
         assert!(r.is_err(), ">1 posicional deve falhar");
     }
 
@@ -4720,22 +6651,29 @@ mod tests {
         use crate::entities::layout_types::Length;
         let mut args = p(vec![Value::Content(Content::text("a"))]);
         args.named.insert("width".into(), Value::Length(Length::pt(50.0)));
-        let r = native_measure(&mut ctx, &args,
-            &null_world(), test_file_id());
+        let r = native_measure(&mut ctx, &args, &null_world(), test_file_id());
         assert!(r.is_err(), "named arg width deve falhar (scope-out graded)");
     }
 
     #[test]
     fn p222_native_measure_retorna_dict_com_width_height() {
         null_ctx!(ctx);
-        let r = native_measure(&mut ctx, &p(vec![
-            Value::Content(Content::text("x")),
-        ]), &null_world(), test_file_id()).unwrap();
+        let r = native_measure(
+            &mut ctx,
+            &p(vec![Value::Content(Content::text("x"))]),
+            &null_world(),
+            test_file_id(),
+        )
+        .unwrap();
         if let Value::Dict(d) = r {
-            assert!(matches!(d.get("width"),  Some(Value::Length(_))),
-                "key 'width' deve ser Value::Length");
-            assert!(matches!(d.get("height"), Some(Value::Length(_))),
-                "key 'height' deve ser Value::Length");
+            assert!(
+                matches!(d.get("width"), Some(Value::Length(_))),
+                "key 'width' deve ser Value::Length"
+            );
+            assert!(
+                matches!(d.get("height"), Some(Value::Length(_))),
+                "key 'height' deve ser Value::Length"
+            );
         } else {
             panic!("esperado Value::Dict");
         }
@@ -4747,18 +6685,33 @@ mod tests {
         // (retorna width/height resolvidos). Texto simples retorna (0, 0)
         // per limitação documentada do helper.
         null_ctx!(ctx);
-        use crate::entities::layout_types::Length;
         use crate::entities::geometry::ShapeKind;
-        let rect = Content::shape(ShapeKind::Rect, Some(Box::new(Value::Length(Length::pt(40.0)))), Some(Box::new(Value::Length(Length::pt(20.0)))), None, None);
-        let r = native_measure(&mut ctx, &p(vec![Value::Content(rect)]),
-            &null_world(), test_file_id()).unwrap();
+        use crate::entities::layout_types::Length;
+        let rect = Content::shape(
+            ShapeKind::Rect,
+            Some(Box::new(Value::Length(Length::pt(40.0)))),
+            Some(Box::new(Value::Length(Length::pt(20.0)))),
+            None,
+            None,
+        );
+        let r = native_measure(
+            &mut ctx,
+            &p(vec![Value::Content(rect)]),
+            &null_world(),
+            test_file_id(),
+        )
+        .unwrap();
         if let Value::Dict(d) = r {
             if let Some(Value::Length(w)) = d.get("width") {
                 assert!(w.abs.0 > 0.0, "rect width > 0 esperado");
-            } else { panic!("width não-Length"); }
+            } else {
+                panic!("width não-Length");
+            }
             if let Some(Value::Length(h)) = d.get("height") {
                 assert!(h.abs.0 > 0.0, "rect height > 0 esperado");
-            } else { panic!("height não-Length"); }
+            } else {
+                panic!("height não-Length");
+            }
         } else {
             panic!("esperado Value::Dict");
         }
@@ -4768,16 +6721,24 @@ mod tests {
     fn p222_native_measure_dimensoes_zero_para_empty() {
         // Content::Empty → helper retorna (0, 0).
         null_ctx!(ctx);
-        let r = native_measure(&mut ctx, &p(vec![
-            Value::Content(Content::Empty),
-        ]), &null_world(), test_file_id()).unwrap();
+        let r = native_measure(
+            &mut ctx,
+            &p(vec![Value::Content(Content::Empty)]),
+            &null_world(),
+            test_file_id(),
+        )
+        .unwrap();
         if let Value::Dict(d) = r {
             if let Some(Value::Length(w)) = d.get("width") {
                 assert_eq!(w.abs.0, 0.0);
-            } else { panic!("width não-Length"); }
+            } else {
+                panic!("width não-Length");
+            }
             if let Some(Value::Length(h)) = d.get("height") {
                 assert_eq!(h.abs.0, 0.0);
-            } else { panic!("height não-Length"); }
+            } else {
+                panic!("height não-Length");
+            }
         } else {
             panic!("esperado Value::Dict");
         }
@@ -4789,24 +6750,47 @@ mod tests {
         // de children. Sequence de 2 Shape rect verticalmente → height
         // soma; width max.
         null_ctx!(ctx);
-        use std::sync::Arc;
-        use crate::entities::layout_types::Length;
         use crate::entities::geometry::ShapeKind;
-        let r1 = Content::shape(ShapeKind::Rect, Some(Box::new(Value::Length(Length::pt(30.0)))), Some(Box::new(Value::Length(Length::pt(10.0)))), None, None);
-        let r2 = Content::shape(ShapeKind::Rect, Some(Box::new(Value::Length(Length::pt(50.0)))), Some(Box::new(Value::Length(Length::pt(15.0)))), None, None);
+        use crate::entities::layout_types::Length;
+        use std::sync::Arc;
+        let r1 = Content::shape(
+            ShapeKind::Rect,
+            Some(Box::new(Value::Length(Length::pt(30.0)))),
+            Some(Box::new(Value::Length(Length::pt(10.0)))),
+            None,
+            None,
+        );
+        let r2 = Content::shape(
+            ShapeKind::Rect,
+            Some(Box::new(Value::Length(Length::pt(50.0)))),
+            Some(Box::new(Value::Length(Length::pt(15.0)))),
+            None,
+            None,
+        );
         let seq = Content::Sequence(Arc::from(vec![r1, r2]));
-        let r = native_measure(&mut ctx, &p(vec![Value::Content(seq)]),
-            &null_world(), test_file_id()).unwrap();
+        let r = native_measure(
+            &mut ctx,
+            &p(vec![Value::Content(seq)]),
+            &null_world(),
+            test_file_id(),
+        )
+        .unwrap();
         if let Value::Dict(d) = r {
             // max_w = 50, total_h = 25.
             if let Some(Value::Length(w)) = d.get("width") {
-                assert!(w.abs.0 >= 50.0,
-                    "Sequence max width >= 50, recebeu {}", w.abs.0);
-            } else { panic!("width não-Length"); }
+                assert!(w.abs.0 >= 50.0, "Sequence max width >= 50, recebeu {}", w.abs.0);
+            } else {
+                panic!("width não-Length");
+            }
             if let Some(Value::Length(h)) = d.get("height") {
-                assert!(h.abs.0 >= 25.0,
-                    "Sequence total height >= 25, recebeu {}", h.abs.0);
-            } else { panic!("height não-Length"); }
+                assert!(
+                    h.abs.0 >= 25.0,
+                    "Sequence total height >= 25, recebeu {}",
+                    h.abs.0
+                );
+            } else {
+                panic!("height não-Length");
+            }
         } else {
             panic!("esperado Value::Dict");
         }
@@ -4818,19 +6802,31 @@ mod tests {
         // verifica que Dict permite indexação por key paridade vanilla
         // `measure(body).width` observable.
         null_ctx!(ctx);
-        use crate::entities::layout_types::Length;
         use crate::entities::geometry::ShapeKind;
-        let rect = Content::shape(ShapeKind::Rect, Some(Box::new(Value::Length(Length::pt(20.0)))), Some(Box::new(Value::Length(Length::pt(40.0)))), None, None);
-        let r = native_measure(&mut ctx, &p(vec![Value::Content(rect)]),
-            &null_world(), test_file_id()).unwrap();
+        use crate::entities::layout_types::Length;
+        let rect = Content::shape(
+            ShapeKind::Rect,
+            Some(Box::new(Value::Length(Length::pt(20.0)))),
+            Some(Box::new(Value::Length(Length::pt(40.0)))),
+            None,
+            None,
+        );
+        let r = native_measure(
+            &mut ctx,
+            &p(vec![Value::Content(rect)]),
+            &null_world(),
+            test_file_id(),
+        )
+        .unwrap();
         // Paridade vanilla: `dims.width` retorna Length.
         if let Value::Dict(d) = &r {
             let w = d.get("width").cloned().expect("key 'width' presente");
             let h = d.get("height").cloned().expect("key 'height' presente");
-            assert!(matches!(w, Value::Length(_)),
-                "width deve indexar como Length (paridade observable vanilla)");
-            assert!(matches!(h, Value::Length(_)),
-                "height deve indexar como Length");
+            assert!(
+                matches!(w, Value::Length(_)),
+                "width deve indexar como Length (paridade observable vanilla)"
+            );
+            assert!(matches!(h, Value::Length(_)), "height deve indexar como Length");
             // Dict tem exactamente 2 keys.
             assert_eq!(d.len(), 2, "Dict deve ter exactamente 2 keys (width + height)");
         } else {
@@ -4846,8 +6842,7 @@ mod tests {
         null_ctx!(ctx);
         let mut args = p(vec![Value::Content(Content::text("a"))]);
         args.named.insert("float".into(), Value::Bool(true));
-        let r = native_place(&mut ctx, &args,
-            &null_world(), test_file_id()).unwrap();
+        let r = native_place(&mut ctx, &args, &null_world(), test_file_id()).unwrap();
         if let Value::Content(Content::Place(e)) = r {
             assert_eq!(e.float, true);
         } else {
@@ -4859,9 +6854,13 @@ mod tests {
     fn p223_native_place_float_default_false() {
         // place(body) sem float → float == false.
         null_ctx!(ctx);
-        let r = native_place(&mut ctx, &p(vec![
-            Value::Content(Content::text("a")),
-        ]), &null_world(), test_file_id()).unwrap();
+        let r = native_place(
+            &mut ctx,
+            &p(vec![Value::Content(Content::text("a"))]),
+            &null_world(),
+            test_file_id(),
+        )
+        .unwrap();
         if let Value::Content(Content::Place(e)) = r {
             assert_eq!(e.float, false, "default float == false");
         } else {
@@ -4874,8 +6873,7 @@ mod tests {
         null_ctx!(ctx);
         let mut args = p(vec![Value::Content(Content::text("a"))]);
         args.named.insert("float".into(), Value::Str("yes".into()));
-        let r = native_place(&mut ctx, &args,
-            &null_world(), test_file_id());
+        let r = native_place(&mut ctx, &args, &null_world(), test_file_id());
         assert!(r.is_err(), "float não-Bool deve falhar");
     }
 
@@ -4885,10 +6883,9 @@ mod tests {
         null_ctx!(ctx);
         use crate::entities::layout_types::Length;
         let mut args = p(vec![Value::Content(Content::text("a"))]);
-        args.named.insert("float".into(),     Value::Bool(true));
+        args.named.insert("float".into(), Value::Bool(true));
         args.named.insert("clearance".into(), Value::Length(Length::pt(5.0)));
-        let r = native_place(&mut ctx, &args,
-            &null_world(), test_file_id()).unwrap();
+        let r = native_place(&mut ctx, &args, &null_world(), test_file_id()).unwrap();
         if let Value::Content(Content::Place(e)) = r {
             assert_eq!(e.clearance, Some(Length::pt(5.0)));
         } else {
@@ -4902,8 +6899,7 @@ mod tests {
         use crate::entities::layout_types::Length;
         let mut args = p(vec![Value::Content(Content::text("a"))]);
         args.named.insert("clearance".into(), Value::Length(Length::pt(-5.0)));
-        let r = native_place(&mut ctx, &args,
-            &null_world(), test_file_id());
+        let r = native_place(&mut ctx, &args, &null_world(), test_file_id());
         assert!(r.is_err(), "clearance negativo deve falhar");
     }
 
@@ -4913,10 +6909,11 @@ mod tests {
         null_ctx!(ctx);
         let mut args = p(vec![Value::Content(Content::text("a"))]);
         args.named.insert("scope".into(), Value::Str("parent".into()));
-        let r = native_place(&mut ctx, &args,
-            &null_world(), test_file_id());
-        assert!(r.is_err(),
-            "scope 'parent' sem float deve falhar (paridade vanilla; DEBT-37 fechada)");
+        let r = native_place(&mut ctx, &args, &null_world(), test_file_id());
+        assert!(
+            r.is_err(),
+            "scope 'parent' sem float deve falhar (paridade vanilla; DEBT-37 fechada)"
+        );
     }
 
     #[test]
@@ -4926,8 +6923,7 @@ mod tests {
         let mut args = p(vec![Value::Content(Content::text("a"))]);
         args.named.insert("scope".into(), Value::Str("parent".into()));
         args.named.insert("float".into(), Value::Bool(true));
-        let r = native_place(&mut ctx, &args,
-            &null_world(), test_file_id()).unwrap();
+        let r = native_place(&mut ctx, &args, &null_world(), test_file_id()).unwrap();
         use crate::entities::layout_types::PlaceScope;
         if let Value::Content(Content::Place(e)) = r {
             assert!(matches!(e.scope, PlaceScope::Parent));
@@ -4944,8 +6940,7 @@ mod tests {
         let mut args = p(vec![Value::Content(Content::text("a"))]);
         args.named.insert("scope".into(), Value::Str("column".into()));
         // sem float
-        let r = native_place(&mut ctx, &args,
-            &null_world(), test_file_id());
+        let r = native_place(&mut ctx, &args, &null_world(), test_file_id());
         assert!(r.is_ok(), "scope 'column' sem float OK (não tem restrição vanilla)");
     }
 
@@ -4957,11 +6952,12 @@ mod tests {
         use crate::entities::layout_types::Length;
         let mut args = p(vec![Value::Content(Content::text("a"))]);
         args.named.insert("gutter".into(), Value::Length(Length::pt(5.0)));
-        let r = native_grid(&mut ctx, &args,
-            &null_world(), test_file_id()).unwrap();
+        let r = native_grid(&mut ctx, &args, &null_world(), test_file_id()).unwrap();
         if let Value::Content(Content::Grid(e)) = r {
             assert_eq!(e.gutter, Some(Length::pt(5.0)));
-        } else { panic!("esperado Content::Grid"); }
+        } else {
+            panic!("esperado Content::Grid");
+        }
     }
 
     #[test]
@@ -4970,8 +6966,7 @@ mod tests {
         use crate::entities::layout_types::Length;
         let mut args = p(vec![Value::Content(Content::text("a"))]);
         args.named.insert("gutter".into(), Value::Length(Length::pt(-5.0)));
-        let r = native_grid(&mut ctx, &args,
-            &null_world(), test_file_id());
+        let r = native_grid(&mut ctx, &args, &null_world(), test_file_id());
         assert!(r.is_err(), "gutter negativo deve falhar");
     }
 
@@ -4981,26 +6976,30 @@ mod tests {
         use crate::entities::layout_types::Length;
         let mut args = p(vec![Value::Content(Content::text("a"))]);
         args.named.insert("inset".into(), Value::Length(Length::pt(3.0)));
-        let r = native_grid(&mut ctx, &args,
-            &null_world(), test_file_id()).unwrap();
+        let r = native_grid(&mut ctx, &args, &null_world(), test_file_id()).unwrap();
         if let Value::Content(Content::Grid(e)) = r {
             assert_eq!(e.inset.left, Length::pt(3.0));
             assert_eq!(e.inset.right, Length::pt(3.0));
-        } else { panic!("esperado Content::Grid"); }
+        } else {
+            panic!("esperado Content::Grid");
+        }
     }
 
     #[test]
     fn p224_native_grid_header_footer_content_aceita() {
         null_ctx!(ctx);
         let mut args = p(vec![Value::Content(Content::text("body"))]);
-        args.named.insert("header".into(), Value::Content(Content::text("HDR")));
-        args.named.insert("footer".into(), Value::Content(Content::text("FTR")));
-        let r = native_grid(&mut ctx, &args,
-            &null_world(), test_file_id()).unwrap();
+        args.named
+            .insert("header".into(), Value::Content(Content::text("HDR")));
+        args.named
+            .insert("footer".into(), Value::Content(Content::text("FTR")));
+        let r = native_grid(&mut ctx, &args, &null_world(), test_file_id()).unwrap();
         if let Value::Content(Content::Grid(e)) = r {
             assert!(e.header.is_some(), "header presente");
             assert!(e.footer.is_some(), "footer presente");
-        } else { panic!("esperado Content::Grid"); }
+        } else {
+            panic!("esperado Content::Grid");
+        }
     }
 
     #[test]
@@ -5009,16 +7008,14 @@ mod tests {
         null_ctx!(ctx);
         let mut args = p(vec![Value::Content(Content::text("a"))]);
         args.named.insert("stroke".into(), Value::Str("black".into()));
-        let r = native_grid(&mut ctx, &args,
-            &null_world(), test_file_id());
+        let r = native_grid(&mut ctx, &args, &null_world(), test_file_id());
         assert!(r.is_err(), "stroke scope-out deve falhar");
     }
 
     #[test]
     fn p224_native_grid_cell_body_obrigatorio() {
         null_ctx!(ctx);
-        let r = native_grid_cell(&mut ctx, &p(vec![]),
-            &null_world(), test_file_id());
+        let r = native_grid_cell(&mut ctx, &p(vec![]), &null_world(), test_file_id());
         assert!(r.is_err(), "body obrigatório");
     }
 
@@ -5026,18 +7023,19 @@ mod tests {
     fn p224_native_grid_cell_x_y_colspan_rowspan_aceita() {
         null_ctx!(ctx);
         let mut args = p(vec![Value::Content(Content::text("cell"))]);
-        args.named.insert("x".into(),       Value::Int(1));
-        args.named.insert("y".into(),       Value::Int(0));
+        args.named.insert("x".into(), Value::Int(1));
+        args.named.insert("y".into(), Value::Int(0));
         args.named.insert("colspan".into(), Value::Int(2));
         args.named.insert("rowspan".into(), Value::Int(3));
-        let r = native_grid_cell(&mut ctx, &args,
-            &null_world(), test_file_id()).unwrap();
+        let r = native_grid_cell(&mut ctx, &args, &null_world(), test_file_id()).unwrap();
         if let Value::Content(Content::GridCell(e)) = r {
-            assert_eq!(e.x,       Some(1));
-            assert_eq!(e.y,       Some(0));
+            assert_eq!(e.x, Some(1));
+            assert_eq!(e.y, Some(0));
             assert_eq!(e.colspan, Some(2));
             assert_eq!(e.rowspan, Some(3));
-        } else { panic!("esperado GridCell"); }
+        } else {
+            panic!("esperado GridCell");
+        }
     }
 
     #[test]
@@ -5046,20 +7044,26 @@ mod tests {
         null_ctx!(ctx);
         let mut args = p(vec![Value::Content(Content::text("a"))]);
         args.named.insert("colspan".into(), Value::Int(0));
-        let r = native_grid_cell(&mut ctx, &args,
-            &null_world(), test_file_id());
+        let r = native_grid_cell(&mut ctx, &args, &null_world(), test_file_id());
         assert!(r.is_err(), "colspan 0 deve falhar (paridade NonZeroUsize)");
     }
 
     #[test]
     fn p224_native_grid_header_aceita_body() {
         null_ctx!(ctx);
-        let r = native_grid_header(&mut ctx, &p(vec![Value::Content(Content::text("hdr"))]),
-            &null_world(), test_file_id()).unwrap();
+        let r = native_grid_header(
+            &mut ctx,
+            &p(vec![Value::Content(Content::text("hdr"))]),
+            &null_world(),
+            test_file_id(),
+        )
+        .unwrap();
         if let Value::Content(Content::GridHeader(e)) = r {
             assert_eq!(e.body.plain_text(), "hdr");
             assert_eq!(e.repeat, true, "default repeat == true (paridade vanilla)");
-        } else { panic!("esperado GridHeader"); }
+        } else {
+            panic!("esperado GridHeader");
+        }
     }
 
     #[test]
@@ -5067,12 +7071,14 @@ mod tests {
         null_ctx!(ctx);
         let mut args = p(vec![Value::Content(Content::text("ftr"))]);
         args.named.insert("repeat".into(), Value::Bool(false));
-        let r = native_grid_footer(&mut ctx, &args,
-            &null_world(), test_file_id()).unwrap();
+        let r =
+            native_grid_footer(&mut ctx, &args, &null_world(), test_file_id()).unwrap();
         if let Value::Content(Content::GridFooter(e)) = r {
             assert_eq!(e.body.plain_text(), "ftr");
             assert_eq!(e.repeat, false);
-        } else { panic!("esperado GridFooter"); }
+        } else {
+            panic!("esperado GridFooter");
+        }
     }
 
     // ── P227 (Fase 5 Layout Categoria A.1) — Value::Stroke + native_stroke + stroke shorthand ──
@@ -5082,7 +7088,11 @@ mod tests {
         use crate::entities::geometry::Stroke;
         use crate::entities::layout_types::Color;
         use crate::entities::paint::Paint;
-        let s = Stroke { paint: Paint::Solid(Color::rgb(255, 0, 0)), thickness: 2.5, overhang: false };
+        let s = Stroke {
+            paint: Paint::Solid(Color::rgb(255, 0, 0)),
+            thickness: 2.5,
+            overhang: false,
+        };
         let v = Value::Stroke(s.clone());
         assert_eq!(v.type_name(), "stroke");
         let v2 = Value::Stroke(s);
@@ -5093,11 +7103,13 @@ mod tests {
     fn p227_native_stroke_defaults_aceita() {
         // stroke() sem args → Stroke { BLACK, 1.0pt }.
         null_ctx!(ctx);
-        let r = native_stroke(&mut ctx, &p(vec![]),
-            &null_world(), test_file_id()).unwrap();
+        let r =
+            native_stroke(&mut ctx, &p(vec![]), &null_world(), test_file_id()).unwrap();
         if let Value::Stroke(s) = r {
             assert_eq!(s.thickness, 1.0);
-        } else { panic!("esperado Value::Stroke"); }
+        } else {
+            panic!("esperado Value::Stroke");
+        }
     }
 
     #[test]
@@ -5106,11 +7118,12 @@ mod tests {
         use crate::entities::layout_types::Length;
         let mut args = p(vec![]);
         args.named.insert("thickness".into(), Value::Length(Length::pt(2.0)));
-        let r = native_stroke(&mut ctx, &args,
-            &null_world(), test_file_id()).unwrap();
+        let r = native_stroke(&mut ctx, &args, &null_world(), test_file_id()).unwrap();
         if let Value::Stroke(s) = r {
             assert_eq!(s.thickness, 2.0);
-        } else { panic!("esperado Value::Stroke"); }
+        } else {
+            panic!("esperado Value::Stroke");
+        }
     }
 
     #[test]
@@ -5119,8 +7132,7 @@ mod tests {
         use crate::entities::layout_types::Length;
         let mut args = p(vec![]);
         args.named.insert("thickness".into(), Value::Length(Length::pt(-1.0)));
-        let r = native_stroke(&mut ctx, &args,
-            &null_world(), test_file_id());
+        let r = native_stroke(&mut ctx, &args, &null_world(), test_file_id());
         assert!(r.is_err(), "thickness negativo deve falhar");
     }
 
@@ -5130,8 +7142,7 @@ mod tests {
         use crate::entities::layout_types::Length;
         let mut args = p(vec![]);
         args.named.insert("thickness".into(), Value::Length(Length::pt(0.0)));
-        let r = native_stroke(&mut ctx, &args,
-            &null_world(), test_file_id());
+        let r = native_stroke(&mut ctx, &args, &null_world(), test_file_id());
         assert!(r.is_err(), "thickness 0 deve falhar (paridade vanilla)");
     }
 
@@ -5140,16 +7151,19 @@ mod tests {
         null_ctx!(ctx);
         let mut args = p(vec![]);
         args.named.insert("foo".into(), Value::Bool(true));
-        let r = native_stroke(&mut ctx, &args,
-            &null_world(), test_file_id());
+        let r = native_stroke(&mut ctx, &args, &null_world(), test_file_id());
         assert!(r.is_err(), "named desconhecido deve falhar");
     }
 
     #[test]
     fn p227_native_stroke_posicional_rejeita() {
         null_ctx!(ctx);
-        let r = native_stroke(&mut ctx, &p(vec![Value::Bool(true)]),
-            &null_world(), test_file_id());
+        let r = native_stroke(
+            &mut ctx,
+            &p(vec![Value::Bool(true)]),
+            &null_world(),
+            test_file_id(),
+        );
         assert!(r.is_err(), "posicional deve falhar");
     }
 
@@ -5160,12 +7174,13 @@ mod tests {
         use crate::entities::layout_types::Length;
         let mut args = p(vec![Value::Content(Content::text("a"))]);
         args.named.insert("stroke".into(), Value::Length(Length::pt(2.0)));
-        let r = native_grid(&mut ctx, &args,
-            &null_world(), test_file_id()).unwrap();
+        let r = native_grid(&mut ctx, &args, &null_world(), test_file_id()).unwrap();
         if let Value::Content(Content::Grid(e)) = r {
             assert!(e.stroke.is_some());
             assert_eq!(e.stroke.clone().unwrap().thickness, 2.0);
-        } else { panic!("esperado Content::Grid"); }
+        } else {
+            panic!("esperado Content::Grid");
+        }
     }
 
     #[test]
@@ -5174,13 +7189,15 @@ mod tests {
         null_ctx!(ctx);
         use crate::entities::layout_types::Color;
         let mut args = p(vec![Value::Content(Content::text("a"))]);
-        args.named.insert("stroke".into(), Value::Color(Color::rgb(255, 0, 0)));
-        let r = native_grid(&mut ctx, &args,
-            &null_world(), test_file_id()).unwrap();
+        args.named
+            .insert("stroke".into(), Value::Color(Color::rgb(255, 0, 0)));
+        let r = native_grid(&mut ctx, &args, &null_world(), test_file_id()).unwrap();
         if let Value::Content(Content::Grid(e)) = r {
             let s = e.stroke.clone().expect("stroke presente");
             assert_eq!(s.thickness, 1.0);
-        } else { panic!("esperado Content::Grid"); }
+        } else {
+            panic!("esperado Content::Grid");
+        }
     }
 
     #[test]
@@ -5190,14 +7207,19 @@ mod tests {
         use crate::entities::geometry::Stroke;
         use crate::entities::layout_types::Color;
         use crate::entities::paint::Paint;
-        let s = Stroke { paint: Paint::Solid(Color::rgb(0, 255, 0)), thickness: 3.0, overhang: false };
+        let s = Stroke {
+            paint: Paint::Solid(Color::rgb(0, 255, 0)),
+            thickness: 3.0,
+            overhang: false,
+        };
         let mut args = p(vec![Value::Content(Content::text("a"))]);
         args.named.insert("stroke".into(), Value::Stroke(s.clone()));
-        let r = native_grid(&mut ctx, &args,
-            &null_world(), test_file_id()).unwrap();
+        let r = native_grid(&mut ctx, &args, &null_world(), test_file_id()).unwrap();
         if let Value::Content(Content::Grid(e)) = r {
             assert_eq!(e.stroke, Some(s));
-        } else { panic!("esperado Content::Grid"); }
+        } else {
+            panic!("esperado Content::Grid");
+        }
     }
 
     #[test]
@@ -5207,11 +7229,12 @@ mod tests {
         use crate::entities::layout_types::Length;
         let mut args = p(vec![Value::Content(Content::text("a"))]);
         args.named.insert("stroke".into(), Value::Length(Length::pt(1.0)));
-        let r = native_table(&mut ctx, &args,
-            &null_world(), test_file_id()).unwrap();
+        let r = native_table(&mut ctx, &args, &null_world(), test_file_id()).unwrap();
         if let Value::Content(Content::Table(e)) = r {
             assert!(e.stroke.is_some());
-        } else { panic!("esperado Content::Table"); }
+        } else {
+            panic!("esperado Content::Table");
+        }
     }
 
     // ── P228 (Fase 5 Layout Categoria A.2) — fill Grid + Table ──
@@ -5221,23 +7244,31 @@ mod tests {
         null_ctx!(ctx);
         use crate::entities::layout_types::Color;
         let mut args = p(vec![Value::Content(Content::text("a"))]);
-        args.named.insert("fill".into(), Value::Color(Color::rgb(255, 200, 0)));
-        let r = native_grid(&mut ctx, &args,
-            &null_world(), test_file_id()).unwrap();
+        args.named
+            .insert("fill".into(), Value::Color(Color::rgb(255, 200, 0)));
+        let r = native_grid(&mut ctx, &args, &null_world(), test_file_id()).unwrap();
         if let Value::Content(Content::Grid(e)) = r {
             assert!(e.fill.is_some());
-        } else { panic!("esperado Content::Grid"); }
+        } else {
+            panic!("esperado Content::Grid");
+        }
     }
 
     #[test]
     fn p228_native_grid_fill_default_none() {
         null_ctx!(ctx);
-        let r = native_grid(&mut ctx, &p(vec![
-            Value::Content(Content::text("a")),
-        ]), &null_world(), test_file_id()).unwrap();
+        let r = native_grid(
+            &mut ctx,
+            &p(vec![Value::Content(Content::text("a"))]),
+            &null_world(),
+            test_file_id(),
+        )
+        .unwrap();
         if let Value::Content(Content::Grid(e)) = r {
             assert!(e.fill.is_none(), "default fill == None");
-        } else { panic!("esperado Content::Grid"); }
+        } else {
+            panic!("esperado Content::Grid");
+        }
     }
 
     #[test]
@@ -5247,8 +7278,7 @@ mod tests {
         use crate::entities::layout_types::Length;
         let mut args = p(vec![Value::Content(Content::text("a"))]);
         args.named.insert("fill".into(), Value::Length(Length::pt(1.0)));
-        let r = native_grid(&mut ctx, &args,
-            &null_world(), test_file_id());
+        let r = native_grid(&mut ctx, &args, &null_world(), test_file_id());
         assert!(r.is_err(), "fill Length deve falhar (semantic: fill é Color)");
     }
 
@@ -5257,27 +7287,30 @@ mod tests {
         null_ctx!(ctx);
         use crate::entities::layout_types::Color;
         let mut args = p(vec![Value::Content(Content::text("a"))]);
-        args.named.insert("fill".into(), Value::Color(Color::rgb(100, 100, 100)));
-        let r = native_table(&mut ctx, &args,
-            &null_world(), test_file_id()).unwrap();
+        args.named
+            .insert("fill".into(), Value::Color(Color::rgb(100, 100, 100)));
+        let r = native_table(&mut ctx, &args, &null_world(), test_file_id()).unwrap();
         if let Value::Content(Content::Table(e)) = r {
             assert!(e.fill.is_some());
-        } else { panic!("esperado Content::Table"); }
+        } else {
+            panic!("esperado Content::Table");
+        }
     }
 
     #[test]
     fn p228_native_grid_fill_e_stroke_simultaneos_aceita() {
         // Ambos fill + stroke aceitos no mesmo grid() call.
         null_ctx!(ctx);
-        use crate::entities::layout_types::{Length, Color};
+        use crate::entities::layout_types::{Color, Length};
         let mut args = p(vec![Value::Content(Content::text("a"))]);
-        args.named.insert("fill".into(),   Value::Color(Color::rgb(0, 255, 0)));
+        args.named.insert("fill".into(), Value::Color(Color::rgb(0, 255, 0)));
         args.named.insert("stroke".into(), Value::Length(Length::pt(1.0)));
-        let r = native_grid(&mut ctx, &args,
-            &null_world(), test_file_id()).unwrap();
+        let r = native_grid(&mut ctx, &args, &null_world(), test_file_id()).unwrap();
         if let Value::Content(Content::Grid(e)) = r {
             assert!(e.fill.is_some() && e.stroke.is_some());
-        } else { panic!("esperado Content::Grid"); }
+        } else {
+            panic!("esperado Content::Grid");
+        }
     }
 
     // ── P230 (Fase 5 Layout Categoria A.3) — stroke/fill per-cell GridCell + TableCell ──
@@ -5288,12 +7321,13 @@ mod tests {
         use crate::entities::layout_types::Length;
         let mut args = p(vec![Value::Content(Content::text("c"))]);
         args.named.insert("stroke".into(), Value::Length(Length::pt(2.0)));
-        let r = native_grid_cell(&mut ctx, &args,
-            &null_world(), test_file_id()).unwrap();
+        let r = native_grid_cell(&mut ctx, &args, &null_world(), test_file_id()).unwrap();
         if let Value::Content(Content::GridCell(e)) = r {
             assert!(e.stroke.is_some());
             assert_eq!(e.stroke.clone().unwrap().thickness, 2.0);
-        } else { panic!("esperado GridCell"); }
+        } else {
+            panic!("esperado GridCell");
+        }
     }
 
     #[test]
@@ -5301,13 +7335,15 @@ mod tests {
         null_ctx!(ctx);
         use crate::entities::layout_types::Color;
         let mut args = p(vec![Value::Content(Content::text("c"))]);
-        args.named.insert("stroke".into(), Value::Color(Color::rgb(255, 0, 0)));
-        let r = native_grid_cell(&mut ctx, &args,
-            &null_world(), test_file_id()).unwrap();
+        args.named
+            .insert("stroke".into(), Value::Color(Color::rgb(255, 0, 0)));
+        let r = native_grid_cell(&mut ctx, &args, &null_world(), test_file_id()).unwrap();
         if let Value::Content(Content::GridCell(e)) = r {
             assert!(e.stroke.is_some());
             assert_eq!(e.stroke.clone().unwrap().thickness, 1.0);
-        } else { panic!("esperado GridCell"); }
+        } else {
+            panic!("esperado GridCell");
+        }
     }
 
     #[test]
@@ -5316,11 +7352,12 @@ mod tests {
         use crate::entities::layout_types::Color;
         let mut args = p(vec![Value::Content(Content::text("c"))]);
         args.named.insert("fill".into(), Value::Color(Color::rgb(0, 255, 0)));
-        let r = native_grid_cell(&mut ctx, &args,
-            &null_world(), test_file_id()).unwrap();
+        let r = native_grid_cell(&mut ctx, &args, &null_world(), test_file_id()).unwrap();
         if let Value::Content(Content::GridCell(e)) = r {
             assert!(e.fill.is_some());
-        } else { panic!("esperado GridCell"); }
+        } else {
+            panic!("esperado GridCell");
+        }
     }
 
     #[test]
@@ -5329,8 +7366,7 @@ mod tests {
         use crate::entities::layout_types::Length;
         let mut args = p(vec![Value::Content(Content::text("c"))]);
         args.named.insert("fill".into(), Value::Length(Length::pt(1.0)));
-        let r = native_grid_cell(&mut ctx, &args,
-            &null_world(), test_file_id());
+        let r = native_grid_cell(&mut ctx, &args, &null_world(), test_file_id());
         assert!(r.is_err(), "fill Length deve falhar (semantic: fill é Color)");
     }
 
@@ -5338,30 +7374,34 @@ mod tests {
     fn p230_native_table_cell_paridade_gridcell() {
         // table_cell aceita stroke + fill (paridade native_grid_cell).
         null_ctx!(ctx);
-        use crate::entities::layout_types::{Length, Color};
+        use crate::entities::layout_types::{Color, Length};
         let mut args = p(vec![Value::Content(Content::text("c"))]);
         args.named.insert("stroke".into(), Value::Length(Length::pt(1.0)));
-        args.named.insert("fill".into(),   Value::Color(Color::rgb(0, 0, 255)));
-        let r = native_table_cell(&mut ctx, &args,
-            &null_world(), test_file_id()).unwrap();
+        args.named.insert("fill".into(), Value::Color(Color::rgb(0, 0, 255)));
+        let r =
+            native_table_cell(&mut ctx, &args, &null_world(), test_file_id()).unwrap();
         if let Value::Content(Content::TableCell(e)) = r {
             assert!(e.stroke.is_some() && e.fill.is_some());
-        } else { panic!("esperado TableCell"); }
+        } else {
+            panic!("esperado TableCell");
+        }
     }
 
     #[test]
     fn p230_native_grid_cell_stroke_e_fill_simultaneos() {
         // Ambos aceitos no mesmo grid_cell call.
         null_ctx!(ctx);
-        use crate::entities::layout_types::{Length, Color};
+        use crate::entities::layout_types::{Color, Length};
         let mut args = p(vec![Value::Content(Content::text("c"))]);
         args.named.insert("stroke".into(), Value::Length(Length::pt(2.0)));
-        args.named.insert("fill".into(),   Value::Color(Color::rgb(100, 100, 100)));
-        let r = native_grid_cell(&mut ctx, &args,
-            &null_world(), test_file_id()).unwrap();
+        args.named
+            .insert("fill".into(), Value::Color(Color::rgb(100, 100, 100)));
+        let r = native_grid_cell(&mut ctx, &args, &null_world(), test_file_id()).unwrap();
         if let Value::Content(Content::GridCell(e)) = r {
             assert!(e.stroke.is_some() && e.fill.is_some());
-        } else { panic!("esperado GridCell"); }
+        } else {
+            panic!("esperado GridCell");
+        }
     }
 
     // ── P231 (Fase 5 Layout Categoria A.4) — Block/Boxed outset/radius/clip ──
@@ -5372,11 +7412,12 @@ mod tests {
         use crate::entities::layout_types::Length;
         let mut args = p(vec![Value::Content(Content::text("body"))]);
         args.named.insert("outset".into(), Value::Length(Length::pt(5.0)));
-        let r = native_block(&mut ctx, &args,
-            &null_world(), test_file_id()).unwrap();
+        let r = native_block(&mut ctx, &args, &null_world(), test_file_id()).unwrap();
         if let Value::Content(Content::Block(e)) = r {
             assert_eq!(e.outset.left, Length::pt(5.0));
-        } else { panic!("esperado Block"); }
+        } else {
+            panic!("esperado Block");
+        }
     }
 
     #[test]
@@ -5385,8 +7426,7 @@ mod tests {
         use crate::entities::layout_types::Length;
         let mut args = p(vec![Value::Content(Content::text("body"))]);
         args.named.insert("outset".into(), Value::Length(Length::pt(-3.0)));
-        let r = native_block(&mut ctx, &args,
-            &null_world(), test_file_id());
+        let r = native_block(&mut ctx, &args, &null_world(), test_file_id());
         assert!(r.is_err(), "outset negativo deve falhar");
     }
 
@@ -5396,16 +7436,17 @@ mod tests {
         use crate::entities::layout_types::Length;
         let mut args = p(vec![Value::Content(Content::text("body"))]);
         args.named.insert("radius".into(), Value::Length(Length::pt(3.0)));
-        let r = native_block(&mut ctx, &args,
-            &null_world(), test_file_id()).unwrap();
+        let r = native_block(&mut ctx, &args, &null_world(), test_file_id()).unwrap();
         if let Value::Content(Content::Block(e)) = r {
             // P242 adapta: e.radius `Option<Length>` → `Corners<Length>`.
             // Length uniforme via stdlib → `Corners::uniform`.
-            assert_eq!(e.radius.top_left,     Length::pt(3.0));
-            assert_eq!(e.radius.top_right,    Length::pt(3.0));
+            assert_eq!(e.radius.top_left, Length::pt(3.0));
+            assert_eq!(e.radius.top_right, Length::pt(3.0));
             assert_eq!(e.radius.bottom_right, Length::pt(3.0));
-            assert_eq!(e.radius.bottom_left,  Length::pt(3.0));
-        } else { panic!("esperado Block"); }
+            assert_eq!(e.radius.bottom_left, Length::pt(3.0));
+        } else {
+            panic!("esperado Block");
+        }
     }
 
     #[test]
@@ -5414,8 +7455,7 @@ mod tests {
         use crate::entities::layout_types::Length;
         let mut args = p(vec![Value::Content(Content::text("body"))]);
         args.named.insert("radius".into(), Value::Length(Length::pt(-1.0)));
-        let r = native_block(&mut ctx, &args,
-            &null_world(), test_file_id());
+        let r = native_block(&mut ctx, &args, &null_world(), test_file_id());
         assert!(r.is_err(), "radius negativo deve falhar");
     }
 
@@ -5424,11 +7464,12 @@ mod tests {
         null_ctx!(ctx);
         let mut args = p(vec![Value::Content(Content::text("body"))]);
         args.named.insert("clip".into(), Value::Bool(true));
-        let r = native_block(&mut ctx, &args,
-            &null_world(), test_file_id()).unwrap();
+        let r = native_block(&mut ctx, &args, &null_world(), test_file_id()).unwrap();
         if let Value::Content(Content::Block(e)) = r {
             assert_eq!(e.clip, true);
-        } else { panic!("esperado Block"); }
+        } else {
+            panic!("esperado Block");
+        }
     }
 
     #[test]
@@ -5436,8 +7477,7 @@ mod tests {
         null_ctx!(ctx);
         let mut args = p(vec![Value::Content(Content::text("body"))]);
         args.named.insert("clip".into(), Value::Str("yes".into()));
-        let r = native_block(&mut ctx, &args,
-            &null_world(), test_file_id());
+        let r = native_block(&mut ctx, &args, &null_world(), test_file_id());
         assert!(r.is_err(), "clip Str deve falhar (espera Bool)");
     }
 
@@ -5449,15 +7489,16 @@ mod tests {
         let mut args = p(vec![Value::Content(Content::text("body"))]);
         args.named.insert("outset".into(), Value::Length(Length::pt(2.0)));
         args.named.insert("radius".into(), Value::Length(Length::pt(1.0)));
-        args.named.insert("clip".into(),   Value::Bool(true));
-        let r = native_box(&mut ctx, &args,
-            &null_world(), test_file_id()).unwrap();
+        args.named.insert("clip".into(), Value::Bool(true));
+        let r = native_box(&mut ctx, &args, &null_world(), test_file_id()).unwrap();
         if let Value::Content(Content::Boxed(e)) = r {
             assert_eq!(e.outset.top, Length::pt(2.0));
             // P242 adapta: e.radius `Corners<Length>` via uniform.
             assert_eq!(e.radius.top_left, Length::pt(1.0));
             assert_eq!(e.clip, true);
-        } else { panic!("esperado Boxed"); }
+        } else {
+            panic!("esperado Boxed");
+        }
     }
 
     #[test]
@@ -5466,37 +7507,47 @@ mod tests {
         null_ctx!(ctx);
         use crate::entities::layout_types::Length;
         let mut args = p(vec![Value::Content(Content::text("body"))]);
-        args.named.insert("outset".into(),    Value::Length(Length::pt(1.0)));
-        args.named.insert("radius".into(),    Value::Length(Length::pt(2.0)));
-        args.named.insert("clip".into(),      Value::Bool(true));
+        args.named.insert("outset".into(), Value::Length(Length::pt(1.0)));
+        args.named.insert("radius".into(), Value::Length(Length::pt(2.0)));
+        args.named.insert("clip".into(), Value::Bool(true));
         args.named.insert("breakable".into(), Value::Bool(false));
-        let r = native_block(&mut ctx, &args,
-            &null_world(), test_file_id()).unwrap();
+        let r = native_block(&mut ctx, &args, &null_world(), test_file_id()).unwrap();
         if let Value::Content(Content::Block(e)) = r {
             assert_eq!(e.outset.left, Length::pt(1.0));
             // P242 adapta: e.radius `Corners<Length>` via uniform.
             assert_eq!(e.radius.top_left, Length::pt(2.0));
             assert_eq!(e.clip, true);
             assert_eq!(e.breakable, false);
-        } else { panic!("esperado Block"); }
+        } else {
+            panic!("esperado Block");
+        }
     }
 
     #[test]
     fn p231_native_block_outset_radius_clip_defaults() {
         // Sem args → outset=Sides::uniform(zero); radius=None; clip=false.
         null_ctx!(ctx);
-        let r = native_block(&mut ctx, &p(vec![
-            Value::Content(Content::text("body")),
-        ]), &null_world(), test_file_id()).unwrap();
+        let r = native_block(
+            &mut ctx,
+            &p(vec![Value::Content(Content::text("body"))]),
+            &null_world(),
+            test_file_id(),
+        )
+        .unwrap();
         if let Value::Content(Content::Block(e)) = r {
             assert_eq!(e.outset.left, crate::entities::layout_types::Length::ZERO);
             // P242 adapta: e.radius default `Corners::uniform(Length::ZERO)`.
-            assert_eq!(e.radius.top_left,     crate::entities::layout_types::Length::ZERO);
-            assert_eq!(e.radius.top_right,    crate::entities::layout_types::Length::ZERO);
-            assert_eq!(e.radius.bottom_right, crate::entities::layout_types::Length::ZERO);
-            assert_eq!(e.radius.bottom_left,  crate::entities::layout_types::Length::ZERO);
+            assert_eq!(e.radius.top_left, crate::entities::layout_types::Length::ZERO);
+            assert_eq!(e.radius.top_right, crate::entities::layout_types::Length::ZERO);
+            assert_eq!(
+                e.radius.bottom_right,
+                crate::entities::layout_types::Length::ZERO
+            );
+            assert_eq!(e.radius.bottom_left, crate::entities::layout_types::Length::ZERO);
             assert_eq!(e.clip, false);
-        } else { panic!("esperado Block"); }
+        } else {
+            panic!("esperado Block");
+        }
     }
 
     // ── Passo 157A (ADR-0060 Fase 2 sub-passo 1) — table ─────────────────
@@ -5507,10 +7558,11 @@ mod tests {
         // (paridade com Grid em P83).
         null_ctx!(ctx);
         use crate::entities::layout_types::TrackSizing;
-        let r = native_table(&mut ctx, &p(vec![]), &null_world(), test_file_id()).unwrap();
+        let r =
+            native_table(&mut ctx, &p(vec![]), &null_world(), test_file_id()).unwrap();
         if let Value::Content(Content::Table(e)) = r {
             assert_eq!(e.columns, vec![TrackSizing::Auto]);
-            assert_eq!(e.rows,    vec![TrackSizing::Auto]);
+            assert_eq!(e.rows, vec![TrackSizing::Auto]);
             assert!(e.children.is_empty());
         } else {
             panic!("esperado Content::Table");
@@ -5526,7 +7578,10 @@ mod tests {
         args.named.insert("columns".into(), Value::Int(3));
         let r = native_table(&mut ctx, &args, &null_world(), test_file_id()).unwrap();
         if let Value::Content(Content::Table(e)) = r {
-            assert_eq!(e.columns, vec![TrackSizing::Auto, TrackSizing::Auto, TrackSizing::Auto]);
+            assert_eq!(
+                e.columns,
+                vec![TrackSizing::Auto, TrackSizing::Auto, TrackSizing::Auto]
+            );
         } else {
             panic!("esperado Content::Table");
         }
@@ -5548,8 +7603,12 @@ mod tests {
         let r = native_table(&mut ctx, &args, &null_world(), test_file_id()).unwrap();
         if let Value::Content(Content::Table(e)) = r {
             assert_eq!(e.columns.len(), 2);
-            assert!(matches!(e.columns[0], TrackSizing::Fixed(v) if (v - 10.0).abs() < 1e-6));
-            assert!(matches!(e.columns[1], TrackSizing::Fixed(v) if (v - 20.0).abs() < 1e-6));
+            assert!(
+                matches!(e.columns[0], TrackSizing::Fixed(v) if (v - 10.0).abs() < 1e-6)
+            );
+            assert!(
+                matches!(e.columns[1], TrackSizing::Fixed(v) if (v - 20.0).abs() < 1e-6)
+            );
         } else {
             panic!("esperado Content::Table");
         }
@@ -5579,7 +7638,13 @@ mod tests {
     #[test]
     fn native_table_aceita_str_como_child() {
         null_ctx!(ctx);
-        let r = native_table(&mut ctx, &p(vec![Value::Str("hello".into())]), &null_world(), test_file_id()).unwrap();
+        let r = native_table(
+            &mut ctx,
+            &p(vec![Value::Str("hello".into())]),
+            &null_world(),
+            test_file_id(),
+        )
+        .unwrap();
         if let Value::Content(Content::Table(e)) = r {
             assert_eq!(e.children.len(), 1);
             assert_eq!(e.children[0].plain_text(), "hello");
@@ -5601,7 +7666,12 @@ mod tests {
     #[test]
     fn native_table_rejeita_child_int() {
         null_ctx!(ctx);
-        let r = native_table(&mut ctx, &p(vec![Value::Int(42)]), &null_world(), test_file_id());
+        let r = native_table(
+            &mut ctx,
+            &p(vec![Value::Int(42)]),
+            &null_world(),
+            test_file_id(),
+        );
         assert!(r.is_err(), "child Int em table() deve retornar Err");
     }
 
@@ -5628,8 +7698,9 @@ mod tests {
         // Variants diferentes — não são iguais por PartialEq.
         assert_ne!(g, t);
         // Mas ambos têm 2 cells/children e 2 columns.
-        if let (Value::Content(Content::Grid(ge)),
-                Value::Content(Content::Table(te))) = (g, t) {
+        if let (Value::Content(Content::Grid(ge)), Value::Content(Content::Table(te))) =
+            (g, t)
+        {
             assert_eq!(ge.cells.len(), te.children.len());
             assert_eq!(ge.columns.len(), te.columns.len());
         } else {
@@ -5643,7 +7714,13 @@ mod tests {
     fn native_table_cell_defaults_todos_none() {
         // P157B: defaults — body required; outros fields None.
         null_ctx!(ctx);
-        let r = native_table_cell(&mut ctx, &p(vec![Value::Content(Content::text("body"))]), &null_world(), test_file_id()).unwrap();
+        let r = native_table_cell(
+            &mut ctx,
+            &p(vec![Value::Content(Content::text("body"))]),
+            &null_world(),
+            test_file_id(),
+        )
+        .unwrap();
         if let Value::Content(Content::TableCell(e)) = r {
             assert_eq!(e.body.plain_text(), "body");
             assert_eq!(e.x, None);
@@ -5662,7 +7739,8 @@ mod tests {
         let mut args = p(vec![Value::Content(Content::text("body"))]);
         args.named.insert("x".into(), Value::Int(2));
         args.named.insert("y".into(), Value::Int(3));
-        let r = native_table_cell(&mut ctx, &args, &null_world(), test_file_id()).unwrap();
+        let r =
+            native_table_cell(&mut ctx, &args, &null_world(), test_file_id()).unwrap();
         if let Value::Content(Content::TableCell(e)) = r {
             assert_eq!(e.x, Some(2));
             assert_eq!(e.y, Some(3));
@@ -5677,9 +7755,13 @@ mod tests {
         null_ctx!(ctx);
         let mut args = p(vec![Value::Content(Content::text("body"))]);
         args.named.insert("x".into(), Value::Auto);
-        let r = native_table_cell(&mut ctx, &args, &null_world(), test_file_id()).unwrap();
+        let r =
+            native_table_cell(&mut ctx, &args, &null_world(), test_file_id()).unwrap();
         if let Value::Content(Content::TableCell(e)) = r {
-            assert_eq!(e.x, None, "Value::Auto deve traduzir para None per ADR-0064 Caso A");
+            assert_eq!(
+                e.x, None,
+                "Value::Auto deve traduzir para None per ADR-0064 Caso A"
+            );
         } else {
             panic!("esperado Content::TableCell");
         }
@@ -5692,7 +7774,8 @@ mod tests {
         let mut args = p(vec![Value::Content(Content::text("body"))]);
         args.named.insert("colspan".into(), Value::Int(2));
         args.named.insert("rowspan".into(), Value::Int(3));
-        let r = native_table_cell(&mut ctx, &args, &null_world(), test_file_id()).unwrap();
+        let r =
+            native_table_cell(&mut ctx, &args, &null_world(), test_file_id()).unwrap();
         if let Value::Content(Content::TableCell(e)) = r {
             assert_eq!(e.colspan, Some(2));
             assert_eq!(e.rowspan, Some(3));
@@ -5757,7 +7840,8 @@ mod tests {
         use crate::entities::layout_types::Align2D;
         null_ctx!(ctx);
         let mut args = p(vec![Value::Content(Content::text("a"))]);
-        args.named.insert("align".into(), Value::Align(Align2D::from_string("center")));
+        args.named
+            .insert("align".into(), Value::Align(Align2D::from_string("center")));
         let r = native_grid_cell(&mut ctx, &args, &null_world(), test_file_id());
         match r {
             Ok(Value::Content(Content::GridCell(e))) => assert!(e.align.is_some()),
@@ -5785,8 +7869,12 @@ mod tests {
         args.named.insert("breakable".into(), Value::Bool(false));
         let r = native_grid_cell(&mut ctx, &args, &null_world(), test_file_id());
         match r {
-            Ok(Value::Content(Content::GridCell(e))) => assert_eq!(e.breakable, Some(false)),
-            other => panic!("esperado GridCell breakable Some(false), recebeu {:?}", other),
+            Ok(Value::Content(Content::GridCell(e))) => {
+                assert_eq!(e.breakable, Some(false))
+            }
+            other => {
+                panic!("esperado GridCell breakable Some(false), recebeu {:?}", other)
+            }
         }
     }
 
@@ -5804,7 +7892,8 @@ mod tests {
         use crate::entities::layout_types::Align2D;
         null_ctx!(ctx);
         let mut args = p(vec![Value::Content(Content::text("a"))]);
-        args.named.insert("align".into(), Value::Align(Align2D::from_string("right")));
+        args.named
+            .insert("align".into(), Value::Align(Align2D::from_string("right")));
         let r = native_table_cell(&mut ctx, &args, &null_world(), test_file_id());
         match r {
             Ok(Value::Content(Content::TableCell(e))) => assert!(e.align.is_some()),
@@ -5834,8 +7923,10 @@ mod tests {
         let r = native_state_final(
             &mut ctx,
             &p(vec![Value::Str("counter_x".into())]),
-            &null_world(), test_file_id(),
-        ).unwrap();
+            &null_world(),
+            test_file_id(),
+        )
+        .unwrap();
         // Iter 0 fixpoint: introspector vazio → None.
         assert_eq!(r, Value::None);
     }
@@ -5853,8 +7944,10 @@ mod tests {
         let r = native_state_final(
             &mut ctx,
             &p(vec![Value::Str("k".into())]),
-            &null_world(), test_file_id(),
-        ).unwrap();
+            &null_world(),
+            test_file_id(),
+        )
+        .unwrap();
         // Sem updates → final = init.
         assert_eq!(r, Value::Int(42));
     }
@@ -5881,8 +7974,10 @@ mod tests {
         let r = native_state_final(
             &mut ctx,
             &p(vec![Value::Str("k".into())]),
-            &null_world(), test_file_id(),
-        ).unwrap();
+            &null_world(),
+            test_file_id(),
+        )
+        .unwrap();
         // Último update vence — paridade vanilla state.final().
         assert_eq!(r, Value::Int(99));
     }
@@ -5900,8 +7995,10 @@ mod tests {
         let r = native_state_final(
             &mut ctx,
             &p(vec![Value::Str("inexistente".into())]),
-            &null_world(), test_file_id(),
-        ).unwrap();
+            &null_world(),
+            test_file_id(),
+        )
+        .unwrap();
         assert_eq!(r, Value::None);
     }
 
@@ -5911,7 +8008,8 @@ mod tests {
         let r = native_state_final(
             &mut ctx,
             &p(vec![Value::Int(42)]),
-            &null_world(), test_file_id(),
+            &null_world(),
+            test_file_id(),
         );
         assert!(r.is_err(), "arg não-string deve retornar Err");
     }
@@ -5919,11 +8017,7 @@ mod tests {
     #[test]
     fn p236_state_final_zero_args_retorna_err() {
         null_ctx!(ctx);
-        let r = native_state_final(
-            &mut ctx,
-            &p(vec![]),
-            &null_world(), test_file_id(),
-        );
+        let r = native_state_final(&mut ctx, &p(vec![]), &null_world(), test_file_id());
         assert!(r.is_err(), "zero args deve retornar Err");
     }
 
@@ -5937,8 +8031,10 @@ mod tests {
         let r = native_state_at(
             &mut ctx,
             &p(vec![Value::Str("k".into()), Value::Str("intro".into())]),
-            &null_world(), test_file_id(),
-        ).unwrap();
+            &null_world(),
+            test_file_id(),
+        )
+        .unwrap();
         // Paridade counter_at empty default: state_at retorna Value::None.
         assert_eq!(r, Value::None);
     }
@@ -5949,15 +8045,21 @@ mod tests {
         use crate::entities::location::Location;
         null_ctx!(ctx);
         // Popular label + outro state (não a key consultada).
-        ctx.introspector.labels.add(Label("intro".to_string()), Location::from_raw(5));
+        ctx.introspector
+            .labels
+            .add(Label("intro".to_string()), Location::from_raw(5));
         ctx.introspector.state.init(
-            "outra".to_string(), Value::Int(7), Location::from_raw(5),
+            "outra".to_string(),
+            Value::Int(7),
+            Location::from_raw(5),
         );
         let r = native_state_at(
             &mut ctx,
             &p(vec![Value::Str("inexistente".into()), Value::Str("intro".into())]),
-            &null_world(), test_file_id(),
-        ).unwrap();
+            &null_world(),
+            test_file_id(),
+        )
+        .unwrap();
         assert_eq!(r, Value::None);
     }
 
@@ -5967,15 +8069,21 @@ mod tests {
         use crate::entities::location::Location;
         null_ctx!(ctx);
         // Popular label "intro" → Location 5; state init em location 1.
-        ctx.introspector.labels.add(Label("intro".to_string()), Location::from_raw(5));
+        ctx.introspector
+            .labels
+            .add(Label("intro".to_string()), Location::from_raw(5));
         ctx.introspector.state.init(
-            "k".to_string(), Value::Int(42), Location::from_raw(1),
+            "k".to_string(),
+            Value::Int(42),
+            Location::from_raw(1),
         );
         let r = native_state_at(
             &mut ctx,
             &p(vec![Value::Str("k".into()), Value::Str("intro".into())]),
-            &null_world(), test_file_id(),
-        ).unwrap();
+            &null_world(),
+            test_file_id(),
+        )
+        .unwrap();
         // Sem updates entre init e label → init wins.
         assert_eq!(r, Value::Int(42));
     }
@@ -5985,22 +8093,32 @@ mod tests {
         use crate::entities::label::Label;
         use crate::entities::location::Location;
         null_ctx!(ctx);
-        ctx.introspector.labels.add(Label("at_5".to_string()), Location::from_raw(5));
+        ctx.introspector
+            .labels
+            .add(Label("at_5".to_string()), Location::from_raw(5));
         ctx.introspector.state.init(
-            "k".to_string(), Value::Int(1), Location::from_raw(1),
+            "k".to_string(),
+            Value::Int(1),
+            Location::from_raw(1),
         );
         // 2 updates antes da location consultada (raw < 5).
         ctx.introspector.state.update(
-            "k".to_string(), Value::Int(2), Location::from_raw(2),
+            "k".to_string(),
+            Value::Int(2),
+            Location::from_raw(2),
         );
         ctx.introspector.state.update(
-            "k".to_string(), Value::Int(3), Location::from_raw(3),
+            "k".to_string(),
+            Value::Int(3),
+            Location::from_raw(3),
         );
         let r = native_state_at(
             &mut ctx,
             &p(vec![Value::Str("k".into()), Value::Str("at_5".into())]),
-            &null_world(), test_file_id(),
-        ).unwrap();
+            &null_world(),
+            test_file_id(),
+        )
+        .unwrap();
         // Valor em location=5 reflecte último update <= 5: Int(3).
         assert_eq!(r, Value::Int(3));
     }
@@ -6010,19 +8128,27 @@ mod tests {
         use crate::entities::label::Label;
         use crate::entities::location::Location;
         null_ctx!(ctx);
-        ctx.introspector.labels.add(Label("at_2".to_string()), Location::from_raw(2));
+        ctx.introspector
+            .labels
+            .add(Label("at_2".to_string()), Location::from_raw(2));
         ctx.introspector.state.init(
-            "k".to_string(), Value::Int(10), Location::from_raw(1),
+            "k".to_string(),
+            Value::Int(10),
+            Location::from_raw(1),
         );
         // Update em location 5 (depois da location consultada raw=2).
         ctx.introspector.state.update(
-            "k".to_string(), Value::Int(99), Location::from_raw(5),
+            "k".to_string(),
+            Value::Int(99),
+            Location::from_raw(5),
         );
         let r = native_state_at(
             &mut ctx,
             &p(vec![Value::Str("k".into()), Value::Str("at_2".into())]),
-            &null_world(), test_file_id(),
-        ).unwrap();
+            &null_world(),
+            test_file_id(),
+        )
+        .unwrap();
         // Em location=2: só init (raw 1) visível; update raw 5 invisível.
         assert_eq!(r, Value::Int(10));
     }
@@ -6034,14 +8160,16 @@ mod tests {
         let r = native_state_at(
             &mut ctx,
             &p(vec![Value::Int(42), Value::Str("intro".into())]),
-            &null_world(), test_file_id(),
+            &null_world(),
+            test_file_id(),
         );
         assert!(r.is_err(), "key não-string deve retornar Err");
         // Label Int (não Str).
         let r2 = native_state_at(
             &mut ctx,
             &p(vec![Value::Str("k".into()), Value::Int(7)]),
-            &null_world(), test_file_id(),
+            &null_world(),
+            test_file_id(),
         );
         assert!(r2.is_err(), "label não-string deve retornar Err");
     }
@@ -6050,22 +8178,22 @@ mod tests {
     fn p237_state_at_arity_errada_rejeita() {
         null_ctx!(ctx);
         // 0 args.
-        let r0 = native_state_at(
-            &mut ctx, &p(vec![]),
-            &null_world(), test_file_id(),
-        );
+        let r0 = native_state_at(&mut ctx, &p(vec![]), &null_world(), test_file_id());
         assert!(r0.is_err(), "0 args deve retornar Err");
         // 1 arg.
         let r1 = native_state_at(
-            &mut ctx, &p(vec![Value::Str("k".into())]),
-            &null_world(), test_file_id(),
+            &mut ctx,
+            &p(vec![Value::Str("k".into())]),
+            &null_world(),
+            test_file_id(),
         );
         assert!(r1.is_err(), "1 arg deve retornar Err");
         // 3 args.
         let r3 = native_state_at(
             &mut ctx,
             &p(vec![Value::Str("k".into()), Value::Str("l".into()), Value::Int(1)]),
-            &null_world(), test_file_id(),
+            &null_world(),
+            test_file_id(),
         );
         assert!(r3.is_err(), "3 args deve retornar Err");
     }
@@ -6080,14 +8208,15 @@ mod tests {
         use crate::entities::layout_types::Length;
         let mut args = p(vec![Value::Content(Content::text("body"))]);
         args.named.insert("radius".into(), Value::Length(Length::pt(5.0)));
-        let r = native_block(&mut ctx, &args,
-            &null_world(), test_file_id()).unwrap();
+        let r = native_block(&mut ctx, &args, &null_world(), test_file_id()).unwrap();
         if let Value::Content(Content::Block(e)) = r {
-            assert_eq!(e.radius.top_left,     Length::pt(5.0));
-            assert_eq!(e.radius.top_right,    Length::pt(5.0));
+            assert_eq!(e.radius.top_left, Length::pt(5.0));
+            assert_eq!(e.radius.top_right, Length::pt(5.0));
             assert_eq!(e.radius.bottom_right, Length::pt(5.0));
-            assert_eq!(e.radius.bottom_left,  Length::pt(5.0));
-        } else { panic!("esperado Block"); }
+            assert_eq!(e.radius.bottom_left, Length::pt(5.0));
+        } else {
+            panic!("esperado Block");
+        }
     }
 
     #[test]
@@ -6098,20 +8227,21 @@ mod tests {
         use indexmap::IndexMap;
         use rustc_hash::FxBuildHasher;
         let mut d: IndexMap<EcoString, Value, FxBuildHasher> = IndexMap::default();
-        d.insert("top-left".into(),     Value::Length(Length::pt(1.0)));
-        d.insert("top-right".into(),    Value::Length(Length::pt(2.0)));
+        d.insert("top-left".into(), Value::Length(Length::pt(1.0)));
+        d.insert("top-right".into(), Value::Length(Length::pt(2.0)));
         d.insert("bottom-right".into(), Value::Length(Length::pt(3.0)));
-        d.insert("bottom-left".into(),  Value::Length(Length::pt(4.0)));
+        d.insert("bottom-left".into(), Value::Length(Length::pt(4.0)));
         let mut args = p(vec![Value::Content(Content::text("body"))]);
         args.named.insert("radius".into(), Value::Dict(d));
-        let r = native_block(&mut ctx, &args,
-            &null_world(), test_file_id()).unwrap();
+        let r = native_block(&mut ctx, &args, &null_world(), test_file_id()).unwrap();
         if let Value::Content(Content::Block(e)) = r {
-            assert_eq!(e.radius.top_left,     Length::pt(1.0));
-            assert_eq!(e.radius.top_right,    Length::pt(2.0));
+            assert_eq!(e.radius.top_left, Length::pt(1.0));
+            assert_eq!(e.radius.top_right, Length::pt(2.0));
             assert_eq!(e.radius.bottom_right, Length::pt(3.0));
-            assert_eq!(e.radius.bottom_left,  Length::pt(4.0));
-        } else { panic!("esperado Block"); }
+            assert_eq!(e.radius.bottom_left, Length::pt(4.0));
+        } else {
+            panic!("esperado Block");
+        }
     }
 
     #[test]
@@ -6124,15 +8254,14 @@ mod tests {
         use rustc_hash::FxBuildHasher;
         let mut d: IndexMap<EcoString, Value, FxBuildHasher> = IndexMap::default();
         // top específico → ambos top-left/top-right.
-        d.insert("top".into(),    Value::Length(Length::pt(10.0)));
+        d.insert("top".into(), Value::Length(Length::pt(10.0)));
         // left específico → top-left/bottom-left mas top vence em top-left.
-        d.insert("left".into(),   Value::Length(Length::pt(20.0)));
+        d.insert("left".into(), Value::Length(Length::pt(20.0)));
         // rest fallback para o que sobra (bottom-right).
-        d.insert("rest".into(),   Value::Length(Length::pt(99.0)));
+        d.insert("rest".into(), Value::Length(Length::pt(99.0)));
         let mut args = p(vec![Value::Content(Content::text("body"))]);
         args.named.insert("radius".into(), Value::Dict(d));
-        let r = native_block(&mut ctx, &args,
-            &null_world(), test_file_id()).unwrap();
+        let r = native_block(&mut ctx, &args, &null_world(), test_file_id()).unwrap();
         if let Value::Content(Content::Block(e)) = r {
             // top-left: top OR left (precedência top vence: top:10pt).
             assert_eq!(e.radius.top_left, Length::pt(10.0));
@@ -6142,7 +8271,9 @@ mod tests {
             assert_eq!(e.radius.bottom_left, Length::pt(20.0));
             // bottom-right: rest fallback.
             assert_eq!(e.radius.bottom_right, Length::pt(99.0));
-        } else { panic!("esperado Block"); }
+        } else {
+            panic!("esperado Block");
+        }
     }
 
     #[test]
@@ -6151,8 +8282,7 @@ mod tests {
         use crate::entities::layout_types::Length;
         let mut args = p(vec![Value::Content(Content::text("body"))]);
         args.named.insert("radius".into(), Value::Length(Length::pt(-1.0)));
-        let r = native_block(&mut ctx, &args,
-            &null_world(), test_file_id());
+        let r = native_block(&mut ctx, &args, &null_world(), test_file_id());
         assert!(r.is_err(), "radius negativo deve falhar (preservado P231→P242)");
     }
 
@@ -6167,8 +8297,7 @@ mod tests {
         d.insert("northwest".into(), Value::Length(Length::pt(1.0)));
         let mut args = p(vec![Value::Content(Content::text("body"))]);
         args.named.insert("radius".into(), Value::Dict(d));
-        let r = native_block(&mut ctx, &args,
-            &null_world(), test_file_id());
+        let r = native_block(&mut ctx, &args, &null_world(), test_file_id());
         assert!(r.is_err(), "chave canto inválida deve falhar");
     }
 
@@ -6181,18 +8310,19 @@ mod tests {
         use indexmap::IndexMap;
         use rustc_hash::FxBuildHasher;
         let mut d: IndexMap<EcoString, Value, FxBuildHasher> = IndexMap::default();
-        d.insert("top-left".into(),  Value::Length(Length::pt(7.0)));
-        d.insert("rest".into(),       Value::Length(Length::pt(0.0)));
+        d.insert("top-left".into(), Value::Length(Length::pt(7.0)));
+        d.insert("rest".into(), Value::Length(Length::pt(0.0)));
         let mut args = p(vec![Value::Content(Content::text("body"))]);
         args.named.insert("radius".into(), Value::Dict(d));
-        let r = native_box(&mut ctx, &args,
-            &null_world(), test_file_id()).unwrap();
+        let r = native_box(&mut ctx, &args, &null_world(), test_file_id()).unwrap();
         if let Value::Content(Content::Boxed(e)) = r {
-            assert_eq!(e.radius.top_left,     Length::pt(7.0));
-            assert_eq!(e.radius.top_right,    Length::pt(0.0));
+            assert_eq!(e.radius.top_left, Length::pt(7.0));
+            assert_eq!(e.radius.top_right, Length::pt(0.0));
             assert_eq!(e.radius.bottom_right, Length::pt(0.0));
-            assert_eq!(e.radius.bottom_left,  Length::pt(0.0));
-        } else { panic!("esperado Boxed"); }
+            assert_eq!(e.radius.bottom_left, Length::pt(0.0));
+        } else {
+            panic!("esperado Boxed");
+        }
     }
 
     // ── Passo 240 (M9d/M7+1; ADR-0081 PROPOSTO P239 Opção γ) — state_display
@@ -6205,8 +8335,10 @@ mod tests {
         let r = native_state_display(
             &mut ctx,
             &p(vec![Value::Str("k".into())]),
-            &null_world(), test_file_id(),
-        ).unwrap();
+            &null_world(),
+            test_file_id(),
+        )
+        .unwrap();
         if let Value::Content(Content::StateDisplay(e)) = r {
             assert_eq!(e.key, "k");
             assert!(e.callback.is_none(), "1-arg → callback=None");
@@ -6225,8 +8357,10 @@ mod tests {
         let r = native_state_display(
             &mut ctx,
             &p(vec![Value::Str("k".into()), Value::Func(identity_fn)]),
-            &null_world(), test_file_id(),
-        ).unwrap();
+            &null_world(),
+            test_file_id(),
+        )
+        .unwrap();
         if let Value::Content(Content::StateDisplay(e)) = r {
             assert_eq!(e.key, "k");
             assert!(e.callback.is_some(), "2-arg → callback=Some");
@@ -6242,14 +8376,16 @@ mod tests {
         let r1 = native_state_display(
             &mut ctx,
             &p(vec![Value::Int(1)]),
-            &null_world(), test_file_id(),
+            &null_world(),
+            test_file_id(),
         );
         assert!(r1.is_err(), "key não-string deve retornar Err");
         // 2-arg segundo arg não-Func.
         let r2 = native_state_display(
             &mut ctx,
             &p(vec![Value::Str("k".into()), Value::Int(2)]),
-            &null_world(), test_file_id(),
+            &null_world(),
+            test_file_id(),
         );
         assert!(r2.is_err(), "callback não-Func deve retornar Err");
     }
@@ -6258,16 +8394,15 @@ mod tests {
     fn p240_native_state_display_arity_errada_rejeita() {
         null_ctx!(ctx);
         // 0 args.
-        let r0 = native_state_display(
-            &mut ctx, &p(vec![]),
-            &null_world(), test_file_id(),
-        );
+        let r0 =
+            native_state_display(&mut ctx, &p(vec![]), &null_world(), test_file_id());
         assert!(r0.is_err(), "0 args deve retornar Err");
         // 3 args.
         let r3 = native_state_display(
             &mut ctx,
             &p(vec![Value::Str("k".into()), Value::Int(1), Value::Int(2)]),
-            &null_world(), test_file_id(),
+            &null_world(),
+            test_file_id(),
         );
         assert!(r3.is_err(), "3 args deve retornar Err");
     }
@@ -6282,8 +8417,10 @@ mod tests {
         let r = native_counter_display(
             &mut ctx,
             &p(vec![Value::Str("heading".into())]),
-            &null_world(), test_file_id(),
-        ).unwrap();
+            &null_world(),
+            test_file_id(),
+        )
+        .unwrap();
         if let Value::Content(Content::CounterDisplayCallback(e)) = r {
             assert_eq!(e.key, "heading");
             assert!(e.callback.is_none(), "1-arg → callback=None");
@@ -6302,8 +8439,10 @@ mod tests {
         let r = native_counter_display(
             &mut ctx,
             &p(vec![Value::Str("figure".into()), Value::Func(identity_fn)]),
-            &null_world(), test_file_id(),
-        ).unwrap();
+            &null_world(),
+            test_file_id(),
+        )
+        .unwrap();
         if let Value::Content(Content::CounterDisplayCallback(e)) = r {
             assert_eq!(e.key, "figure");
             assert!(e.callback.is_some(), "2-arg → callback=Some");
@@ -6319,14 +8458,16 @@ mod tests {
         let r1 = native_counter_display(
             &mut ctx,
             &p(vec![Value::Int(1)]),
-            &null_world(), test_file_id(),
+            &null_world(),
+            test_file_id(),
         );
         assert!(r1.is_err(), "key não-string deve retornar Err");
         // 2-arg segundo arg não-Func.
         let r2 = native_counter_display(
             &mut ctx,
             &p(vec![Value::Str("k".into()), Value::Int(2)]),
-            &null_world(), test_file_id(),
+            &null_world(),
+            test_file_id(),
         );
         assert!(r2.is_err(), "callback não-Func deve retornar Err");
     }
@@ -6335,16 +8476,15 @@ mod tests {
     fn p241_native_counter_display_arity_errada_rejeita() {
         null_ctx!(ctx);
         // 0 args.
-        let r0 = native_counter_display(
-            &mut ctx, &p(vec![]),
-            &null_world(), test_file_id(),
-        );
+        let r0 =
+            native_counter_display(&mut ctx, &p(vec![]), &null_world(), test_file_id());
         assert!(r0.is_err(), "0 args deve retornar Err");
         // 3 args.
         let r3 = native_counter_display(
             &mut ctx,
             &p(vec![Value::Str("k".into()), Value::Int(1), Value::Int(2)]),
-            &null_world(), test_file_id(),
+            &null_world(),
+            test_file_id(),
         );
         assert!(r3.is_err(), "3 args deve retornar Err");
     }
@@ -6357,7 +8497,13 @@ mod tests {
     fn native_table_header_default_repeat_true() {
         // P157C ADR-0064 Caso D: default vanilla repeat=true.
         null_ctx!(ctx);
-        let r = native_table_header(&mut ctx, &p(vec![Value::Content(Content::text("body"))]), &null_world(), test_file_id()).unwrap();
+        let r = native_table_header(
+            &mut ctx,
+            &p(vec![Value::Content(Content::text("body"))]),
+            &null_world(),
+            test_file_id(),
+        )
+        .unwrap();
         if let Value::Content(Content::TableHeader(e)) = r {
             assert_eq!(e.body.plain_text(), "body");
             assert!(e.repeat, "default vanilla repeat=true (Caso D)");
@@ -6370,7 +8516,13 @@ mod tests {
     fn native_table_footer_default_repeat_true() {
         // Par simétrico — paridade absoluta com header.
         null_ctx!(ctx);
-        let r = native_table_footer(&mut ctx, &p(vec![Value::Content(Content::text("body"))]), &null_world(), test_file_id()).unwrap();
+        let r = native_table_footer(
+            &mut ctx,
+            &p(vec![Value::Content(Content::text("body"))]),
+            &null_world(),
+            test_file_id(),
+        )
+        .unwrap();
         if let Value::Content(Content::TableFooter(e)) = r {
             assert_eq!(e.body.plain_text(), "body");
             assert!(e.repeat);
@@ -6384,7 +8536,8 @@ mod tests {
         null_ctx!(ctx);
         let mut args = p(vec![Value::Content(Content::text("body"))]);
         args.named.insert("repeat".into(), Value::Bool(false));
-        let r = native_table_header(&mut ctx, &args, &null_world(), test_file_id()).unwrap();
+        let r =
+            native_table_header(&mut ctx, &args, &null_world(), test_file_id()).unwrap();
         if let Value::Content(Content::TableHeader(e)) = r {
             assert!(!e.repeat);
         } else {
@@ -6397,7 +8550,8 @@ mod tests {
         null_ctx!(ctx);
         let mut args = p(vec![Value::Content(Content::text("body"))]);
         args.named.insert("repeat".into(), Value::Bool(false));
-        let r = native_table_footer(&mut ctx, &args, &null_world(), test_file_id()).unwrap();
+        let r =
+            native_table_footer(&mut ctx, &args, &null_world(), test_file_id()).unwrap();
         if let Value::Content(Content::TableFooter(e)) = r {
             assert!(!e.repeat);
         } else {
@@ -6461,10 +8615,10 @@ mod tests {
         use indexmap::IndexMap;
         use rustc_hash::FxBuildHasher;
         let mut d: IndexMap<EcoString, Value, FxBuildHasher> = IndexMap::default();
-        d.insert("key".into(),    Value::Str(key.into()));
+        d.insert("key".into(), Value::Str(key.into()));
         d.insert("author".into(), Value::Str(author.into()));
-        d.insert("title".into(),  Value::Str(title.into()));
-        d.insert("year".into(),   Value::Int(year));
+        d.insert("title".into(), Value::Str(title.into()));
+        d.insert("year".into(), Value::Int(year));
         Value::Dict(d)
     }
 
@@ -6472,7 +8626,8 @@ mod tests {
     fn native_bibliography_default_vazia() {
         // P159A: bibliography() sem args produz Bibliography vazia.
         null_ctx!(ctx);
-        let r = native_bibliography(&mut ctx, &p(vec![]), &null_world(), test_file_id()).unwrap();
+        let r = native_bibliography(&mut ctx, &p(vec![]), &null_world(), test_file_id())
+            .unwrap();
         if let Value::Content(Content::Bibliography(e)) = r {
             assert!(e.entries.is_empty());
             assert!(e.title.is_none());
@@ -6484,11 +8639,15 @@ mod tests {
     #[test]
     fn native_bibliography_com_entries_posicional() {
         null_ctx!(ctx);
-        let entries_arr = Value::Array(vec![
-            make_bib_dict("smith2024", "Smith, J.", "On Crystal Math", 2024),
-        ]);
+        let entries_arr = Value::Array(vec![make_bib_dict(
+            "smith2024",
+            "Smith, J.",
+            "On Crystal Math",
+            2024,
+        )]);
         let args = p(vec![entries_arr]);
-        let r = native_bibliography(&mut ctx, &args, &null_world(), test_file_id()).unwrap();
+        let r =
+            native_bibliography(&mut ctx, &args, &null_world(), test_file_id()).unwrap();
         if let Value::Content(Content::Bibliography(e)) = r {
             assert_eq!(e.entries.len(), 1);
             assert_eq!(e.entries[0].key, "smith2024");
@@ -6504,9 +8663,13 @@ mod tests {
         null_ctx!(ctx);
         let mut args = p(vec![Value::Array(vec![])]);
         args.named.insert("title".into(), Value::Str("Referências".into()));
-        let r = native_bibliography(&mut ctx, &args, &null_world(), test_file_id()).unwrap();
+        let r =
+            native_bibliography(&mut ctx, &args, &null_world(), test_file_id()).unwrap();
         if let Value::Content(Content::Bibliography(e)) = r {
-            assert_eq!(e.title.as_ref().map(|t| t.plain_text()).as_deref(), Some("Referências"));
+            assert_eq!(
+                e.title.as_ref().map(|t| t.plain_text()).as_deref(),
+                Some("Referências")
+            );
         } else {
             panic!("esperado Content::Bibliography");
         }
@@ -6519,9 +8682,9 @@ mod tests {
         use indexmap::IndexMap;
         use rustc_hash::FxBuildHasher;
         let mut d: IndexMap<EcoString, Value, FxBuildHasher> = IndexMap::default();
-        d.insert("key".into(),    Value::Str("k".into()));
+        d.insert("key".into(), Value::Str("k".into()));
         d.insert("author".into(), Value::Str("A".into()));
-        d.insert("title".into(),  Value::Str("T".into()));
+        d.insert("title".into(), Value::Str("T".into()));
         // year ausente intencionalmente.
         let args = p(vec![Value::Array(vec![Value::Dict(d)])]);
         let r = native_bibliography(&mut ctx, &args, &null_world(), test_file_id());
@@ -6531,9 +8694,7 @@ mod tests {
     #[test]
     fn native_bibliography_year_negativo_rejeitado() {
         null_ctx!(ctx);
-        let args = p(vec![Value::Array(vec![
-            make_bib_dict("k", "A", "T", -5),
-        ])]);
+        let args = p(vec![Value::Array(vec![make_bib_dict("k", "A", "T", -5)])]);
         let r = native_bibliography(&mut ctx, &args, &null_world(), test_file_id());
         assert!(r.is_err(), "year negativo deve retornar Err");
     }
@@ -6542,15 +8703,31 @@ mod tests {
     fn native_bibliography_named_arg_desconhecido_rejeitado() {
         null_ctx!(ctx);
         let mut args = p(vec![Value::Array(vec![])]);
-        args.named.insert("style".into(), Value::Str("apa".into()));
+        args.named.insert("full".into(), Value::Bool(true));
         let r = native_bibliography(&mut ctx, &args, &null_world(), test_file_id());
-        assert!(r.is_err(), "style (scope-out per ADR-0054 graded) deve retornar Err");
+        assert!(r.is_err(), "full (scope-out per ADR-0054 graded) deve retornar Err");
+    }
+
+    #[test]
+    fn native_bibliography_style_ieee_aceite() {
+        null_ctx!(ctx);
+        let mut args = p(vec![Value::Array(vec![])]);
+        args.named.insert("style".into(), Value::Str("ieee".into()));
+        let r =
+            native_bibliography(&mut ctx, &args, &null_world(), test_file_id()).unwrap();
+        assert!(matches!(r, Value::Content(Content::Bibliography(_))));
     }
 
     #[test]
     fn native_cite_so_key_posicional() {
         null_ctx!(ctx);
-        let r = native_cite(&mut ctx, &p(vec![Value::Str("smith2024".into())]), &null_world(), test_file_id()).unwrap();
+        let r = native_cite(
+            &mut ctx,
+            &p(vec![Value::Str("smith2024".into())]),
+            &null_world(),
+            test_file_id(),
+        )
+        .unwrap();
         if let Value::Content(Content::Cite(e)) = r {
             assert_eq!(e.key, "smith2024");
             assert!(e.supplement.is_none());
@@ -6567,7 +8744,10 @@ mod tests {
         args.named.insert("supplement".into(), Value::Str("p. 42".into()));
         let r = native_cite(&mut ctx, &args, &null_world(), test_file_id()).unwrap();
         if let Value::Content(Content::Cite(e)) = r {
-            assert_eq!(e.supplement.as_ref().map(|s| s.plain_text()).as_deref(), Some("p. 42"));
+            assert_eq!(
+                e.supplement.as_ref().map(|s| s.plain_text()).as_deref(),
+                Some("p. 42")
+            );
         } else {
             panic!("esperado Content::Cite");
         }
@@ -6583,7 +8763,12 @@ mod tests {
     #[test]
     fn native_cite_key_vazia_rejeitada() {
         null_ctx!(ctx);
-        let r = native_cite(&mut ctx, &p(vec![Value::Str("".into())]), &null_world(), test_file_id());
+        let r = native_cite(
+            &mut ctx,
+            &p(vec![Value::Str("".into())]),
+            &null_world(),
+            test_file_id(),
+        );
         assert!(r.is_err(), "cite() key vazia deve retornar Err");
     }
 
@@ -6661,7 +8846,10 @@ mod tests {
         args.named.insert("form".into(), Value::Auto);
         let r = native_cite(&mut ctx, &args, &null_world(), test_file_id()).unwrap();
         if let Value::Content(Content::Cite(e)) = r {
-            assert!(e.form.is_none(), "form=auto deve produzir None (resolvido a Normal default em layout)");
+            assert!(
+                e.form.is_none(),
+                "form=auto deve produzir None (resolvido a Normal default em layout)"
+            );
         } else {
             panic!("esperado Content::Cite");
         }
@@ -6675,26 +8863,38 @@ mod tests {
         let r = native_cite(&mut ctx, &args, &null_world(), test_file_id());
         assert!(r.is_err(), "form inválido deve retornar Err");
         let msg = r.unwrap_err()[0].message.clone();
-        assert!(msg.contains("normal") && msg.contains("prose") && msg.contains("author") && msg.contains("year"),
-            "mensagem deve listar forms válidas: {}", msg);
+        assert!(
+            msg.contains("normal")
+                && msg.contains("prose")
+                && msg.contains("author")
+                && msg.contains("year"),
+            "mensagem deve listar forms válidas: {}",
+            msg
+        );
     }
 
     // ── Passo 159D — BibEntry fields opcionais ──────────────────────────────
 
     fn make_bib_dict_full(
-        key: &str, author: &str, title: &str, year: i64,
-        volume: &str, pages: &str, journal: &str, publisher: &str,
+        key: &str,
+        author: &str,
+        title: &str,
+        year: i64,
+        volume: &str,
+        pages: &str,
+        journal: &str,
+        publisher: &str,
     ) -> Value {
         use indexmap::IndexMap;
         use rustc_hash::FxBuildHasher;
         let mut d: IndexMap<EcoString, Value, FxBuildHasher> = IndexMap::default();
-        d.insert("key".into(),       Value::Str(key.into()));
-        d.insert("author".into(),    Value::Str(author.into()));
-        d.insert("title".into(),     Value::Str(title.into()));
-        d.insert("year".into(),      Value::Int(year));
-        d.insert("volume".into(),    Value::Str(volume.into()));
-        d.insert("pages".into(),     Value::Str(pages.into()));
-        d.insert("journal".into(),   Value::Str(journal.into()));
+        d.insert("key".into(), Value::Str(key.into()));
+        d.insert("author".into(), Value::Str(author.into()));
+        d.insert("title".into(), Value::Str(title.into()));
+        d.insert("year".into(), Value::Int(year));
+        d.insert("volume".into(), Value::Str(volume.into()));
+        d.insert("pages".into(), Value::Str(pages.into()));
+        d.insert("journal".into(), Value::Str(journal.into()));
         d.insert("publisher".into(), Value::Str(publisher.into()));
         Value::Dict(d)
     }
@@ -6702,17 +8902,24 @@ mod tests {
     #[test]
     fn native_bibliography_parse_fields_opcionais_presentes() {
         null_ctx!(ctx);
-        let entries_arr = Value::Array(vec![
-            make_bib_dict_full("smith2024", "Smith, J.", "On Crystal Math", 2024,
-                "12", "1-10", "Nature Communications", "ACM"),
-        ]);
+        let entries_arr = Value::Array(vec![make_bib_dict_full(
+            "smith2024",
+            "Smith, J.",
+            "On Crystal Math",
+            2024,
+            "12",
+            "1-10",
+            "Nature Communications",
+            "ACM",
+        )]);
         let args = p(vec![entries_arr]);
-        let r = native_bibliography(&mut ctx, &args, &null_world(), test_file_id()).unwrap();
+        let r =
+            native_bibliography(&mut ctx, &args, &null_world(), test_file_id()).unwrap();
         if let Value::Content(Content::Bibliography(e)) = r {
             let e = &e.entries[0];
-            assert_eq!(e.volume.as_deref(),    Some("12"));
-            assert_eq!(e.pages.as_deref(),     Some("1-10"));
-            assert_eq!(e.journal.as_deref(),   Some("Nature Communications"));
+            assert_eq!(e.volume.as_deref(), Some("12"));
+            assert_eq!(e.pages.as_deref(), Some("1-10"));
+            assert_eq!(e.journal.as_deref(), Some("Nature Communications"));
             assert_eq!(e.publisher.as_deref(), Some("ACM"));
         } else {
             panic!("esperado Content::Bibliography");
@@ -6724,10 +8931,14 @@ mod tests {
         // Regression: dict só com 4 obrigatórios produz entry com fields
         // opcionais None (output P159A inalterado).
         null_ctx!(ctx);
-        let args = p(vec![Value::Array(vec![
-            make_bib_dict("smith2024", "Smith, J.", "On Crystal Math", 2024),
-        ])]);
-        let r = native_bibliography(&mut ctx, &args, &null_world(), test_file_id()).unwrap();
+        let args = p(vec![Value::Array(vec![make_bib_dict(
+            "smith2024",
+            "Smith, J.",
+            "On Crystal Math",
+            2024,
+        )])]);
+        let r =
+            native_bibliography(&mut ctx, &args, &null_world(), test_file_id()).unwrap();
         if let Value::Content(Content::Bibliography(e)) = r {
             let e = &e.entries[0];
             assert!(e.volume.is_none());
@@ -6745,49 +8956,59 @@ mod tests {
         use indexmap::IndexMap;
         use rustc_hash::FxBuildHasher;
         let mut d: IndexMap<EcoString, Value, FxBuildHasher> = IndexMap::default();
-        d.insert("key".into(),    Value::Str("k".into()));
+        d.insert("key".into(), Value::Str("k".into()));
         d.insert("author".into(), Value::Str("A".into()));
-        d.insert("title".into(),  Value::Str("T".into()));
-        d.insert("year".into(),   Value::Int(2024));
+        d.insert("title".into(), Value::Str("T".into()));
+        d.insert("year".into(), Value::Int(2024));
         // volume com tipo errado (Int em vez de Str).
         d.insert("volume".into(), Value::Int(42));
         let args = p(vec![Value::Array(vec![Value::Dict(d)])]);
         let r = native_bibliography(&mut ctx, &args, &null_world(), test_file_id());
         assert!(r.is_err(), "volume com tipo Int deve retornar Err");
         let msg = r.unwrap_err()[0].message.clone();
-        assert!(msg.contains("volume"),
-            "mensagem deve mencionar field 'volume': {}", msg);
+        assert!(
+            msg.contains("volume"),
+            "mensagem deve mencionar field 'volume': {}",
+            msg
+        );
     }
 
     // ── Passo 159E — par natural url/doi ────────────────────────────────────
 
     fn make_bib_dict_with_url_doi(
-        key: &str, author: &str, title: &str, year: i64,
-        url: &str, doi: &str,
+        key: &str,
+        author: &str,
+        title: &str,
+        year: i64,
+        url: &str,
+        doi: &str,
     ) -> Value {
         use indexmap::IndexMap;
         use rustc_hash::FxBuildHasher;
         let mut d: IndexMap<EcoString, Value, FxBuildHasher> = IndexMap::default();
-        d.insert("key".into(),    Value::Str(key.into()));
+        d.insert("key".into(), Value::Str(key.into()));
         d.insert("author".into(), Value::Str(author.into()));
-        d.insert("title".into(),  Value::Str(title.into()));
-        d.insert("year".into(),   Value::Int(year));
-        d.insert("url".into(),    Value::Str(url.into()));
-        d.insert("doi".into(),    Value::Str(doi.into()));
+        d.insert("title".into(), Value::Str(title.into()));
+        d.insert("year".into(), Value::Int(year));
+        d.insert("url".into(), Value::Str(url.into()));
+        d.insert("doi".into(), Value::Str(doi.into()));
         Value::Dict(d)
     }
 
     #[test]
     fn native_bibliography_parse_url_doi_presentes() {
         null_ctx!(ctx);
-        let entries_arr = Value::Array(vec![
-            make_bib_dict_with_url_doi(
-                "smith2024", "Smith, J.", "On Crystal Math", 2024,
-                "https://example.com/paper", "10.1234/abc",
-            ),
-        ]);
+        let entries_arr = Value::Array(vec![make_bib_dict_with_url_doi(
+            "smith2024",
+            "Smith, J.",
+            "On Crystal Math",
+            2024,
+            "https://example.com/paper",
+            "10.1234/abc",
+        )]);
         let args = p(vec![entries_arr]);
-        let r = native_bibliography(&mut ctx, &args, &null_world(), test_file_id()).unwrap();
+        let r =
+            native_bibliography(&mut ctx, &args, &null_world(), test_file_id()).unwrap();
         if let Value::Content(Content::Bibliography(e)) = r {
             let e = &e.entries[0];
             assert_eq!(e.url.as_deref(), Some("https://example.com/paper"));
@@ -6802,10 +9023,14 @@ mod tests {
         // Regression: dict só com 4 obrigatórios + 4 P159D opcionais
         // produz entry com url/doi None (output P159D inalterado).
         null_ctx!(ctx);
-        let args = p(vec![Value::Array(vec![
-            make_bib_dict("smith2024", "Smith, J.", "On Crystal Math", 2024),
-        ])]);
-        let r = native_bibliography(&mut ctx, &args, &null_world(), test_file_id()).unwrap();
+        let args = p(vec![Value::Array(vec![make_bib_dict(
+            "smith2024",
+            "Smith, J.",
+            "On Crystal Math",
+            2024,
+        )])]);
+        let r =
+            native_bibliography(&mut ctx, &args, &null_world(), test_file_id()).unwrap();
         if let Value::Content(Content::Bibliography(e)) = r {
             let e = &e.entries[0];
             assert!(e.url.is_none());
@@ -6821,39 +9046,45 @@ mod tests {
         use indexmap::IndexMap;
         use rustc_hash::FxBuildHasher;
         let mut d: IndexMap<EcoString, Value, FxBuildHasher> = IndexMap::default();
-        d.insert("key".into(),    Value::Str("k".into()));
+        d.insert("key".into(), Value::Str("k".into()));
         d.insert("author".into(), Value::Str("A".into()));
-        d.insert("title".into(),  Value::Str("T".into()));
-        d.insert("year".into(),   Value::Int(2024));
+        d.insert("title".into(), Value::Str("T".into()));
+        d.insert("year".into(), Value::Int(2024));
         // doi com tipo errado (Int em vez de Str).
         d.insert("doi".into(), Value::Int(42));
         let args = p(vec![Value::Array(vec![Value::Dict(d)])]);
         let r = native_bibliography(&mut ctx, &args, &null_world(), test_file_id());
         assert!(r.is_err(), "doi com tipo Int deve retornar Err");
         let msg = r.unwrap_err()[0].message.clone();
-        assert!(msg.contains("doi"),
-            "mensagem deve mencionar field 'doi': {}", msg);
+        assert!(msg.contains("doi"), "mensagem deve mencionar field 'doi': {}", msg);
     }
 
     // ── Passo 159G — 6 fields restantes comuns hayagriva ────────────────────
 
     fn make_bib_dict_full_p159g(
-        key: &str, author: &str, title: &str, year: i64,
-        editor: &str, series: &str, note: &str,
-        isbn: &str, location: &str, organization: &str,
+        key: &str,
+        author: &str,
+        title: &str,
+        year: i64,
+        editor: &str,
+        series: &str,
+        note: &str,
+        isbn: &str,
+        location: &str,
+        organization: &str,
     ) -> Value {
         use indexmap::IndexMap;
         use rustc_hash::FxBuildHasher;
         let mut d: IndexMap<EcoString, Value, FxBuildHasher> = IndexMap::default();
-        d.insert("key".into(),          Value::Str(key.into()));
-        d.insert("author".into(),       Value::Str(author.into()));
-        d.insert("title".into(),        Value::Str(title.into()));
-        d.insert("year".into(),         Value::Int(year));
-        d.insert("editor".into(),       Value::Str(editor.into()));
-        d.insert("series".into(),       Value::Str(series.into()));
-        d.insert("note".into(),         Value::Str(note.into()));
-        d.insert("isbn".into(),         Value::Str(isbn.into()));
-        d.insert("location".into(),     Value::Str(location.into()));
+        d.insert("key".into(), Value::Str(key.into()));
+        d.insert("author".into(), Value::Str(author.into()));
+        d.insert("title".into(), Value::Str(title.into()));
+        d.insert("year".into(), Value::Int(year));
+        d.insert("editor".into(), Value::Str(editor.into()));
+        d.insert("series".into(), Value::Str(series.into()));
+        d.insert("note".into(), Value::Str(note.into()));
+        d.insert("isbn".into(), Value::Str(isbn.into()));
+        d.insert("location".into(), Value::Str(location.into()));
         d.insert("organization".into(), Value::Str(organization.into()));
         Value::Dict(d)
     }
@@ -6861,22 +9092,28 @@ mod tests {
     #[test]
     fn native_bibliography_parse_p159g_fields_presentes() {
         null_ctx!(ctx);
-        let entries_arr = Value::Array(vec![
-            make_bib_dict_full_p159g(
-                "smith2024", "Smith, J.", "On Crystal Math", 2024,
-                "Doe, A.", "Crystal Studies", "See also Smith 2023",
-                "978-0-1234-5678-9", "New York", "ACM",
-            ),
-        ]);
+        let entries_arr = Value::Array(vec![make_bib_dict_full_p159g(
+            "smith2024",
+            "Smith, J.",
+            "On Crystal Math",
+            2024,
+            "Doe, A.",
+            "Crystal Studies",
+            "See also Smith 2023",
+            "978-0-1234-5678-9",
+            "New York",
+            "ACM",
+        )]);
         let args = p(vec![entries_arr]);
-        let r = native_bibliography(&mut ctx, &args, &null_world(), test_file_id()).unwrap();
+        let r =
+            native_bibliography(&mut ctx, &args, &null_world(), test_file_id()).unwrap();
         if let Value::Content(Content::Bibliography(e)) = r {
             let e = &e.entries[0];
-            assert_eq!(e.editor.as_deref(),       Some("Doe, A."));
-            assert_eq!(e.series.as_deref(),       Some("Crystal Studies"));
-            assert_eq!(e.note.as_deref(),         Some("See also Smith 2023"));
-            assert_eq!(e.isbn.as_deref(),         Some("978-0-1234-5678-9"));
-            assert_eq!(e.location.as_deref(),     Some("New York"));
+            assert_eq!(e.editor.as_deref(), Some("Doe, A."));
+            assert_eq!(e.series.as_deref(), Some("Crystal Studies"));
+            assert_eq!(e.note.as_deref(), Some("See also Smith 2023"));
+            assert_eq!(e.isbn.as_deref(), Some("978-0-1234-5678-9"));
+            assert_eq!(e.location.as_deref(), Some("New York"));
             assert_eq!(e.organization.as_deref(), Some("ACM"));
         } else {
             panic!("esperado Content::Bibliography");
@@ -6890,18 +9127,19 @@ mod tests {
         use indexmap::IndexMap;
         use rustc_hash::FxBuildHasher;
         let mut d: IndexMap<EcoString, Value, FxBuildHasher> = IndexMap::default();
-        d.insert("key".into(),    Value::Str("k".into()));
+        d.insert("key".into(), Value::Str("k".into()));
         d.insert("author".into(), Value::Str("A".into()));
-        d.insert("title".into(),  Value::Str("T".into()));
-        d.insert("year".into(),   Value::Int(2024));
+        d.insert("title".into(), Value::Str("T".into()));
+        d.insert("year".into(), Value::Int(2024));
         d.insert("editor".into(), Value::Str("Ed1".into()));
-        d.insert("isbn".into(),   Value::Str("978-0-1".into()));
+        d.insert("isbn".into(), Value::Str("978-0-1".into()));
         let args = p(vec![Value::Array(vec![Value::Dict(d)])]);
-        let r = native_bibliography(&mut ctx, &args, &null_world(), test_file_id()).unwrap();
+        let r =
+            native_bibliography(&mut ctx, &args, &null_world(), test_file_id()).unwrap();
         if let Value::Content(Content::Bibliography(e)) = r {
             let e = &e.entries[0];
             assert_eq!(e.editor.as_deref(), Some("Ed1"));
-            assert_eq!(e.isbn.as_deref(),   Some("978-0-1"));
+            assert_eq!(e.isbn.as_deref(), Some("978-0-1"));
             // Outros P159G permanecem None.
             assert!(e.series.is_none());
             assert!(e.note.is_none());
@@ -6917,10 +9155,14 @@ mod tests {
         // Regression: dict só com 4 obrigatórios + 4 P159D + 2 P159E
         // produz entry com 6 P159G fields None.
         null_ctx!(ctx);
-        let args = p(vec![Value::Array(vec![
-            make_bib_dict("smith2024", "Smith, J.", "On Crystal Math", 2024),
-        ])]);
-        let r = native_bibliography(&mut ctx, &args, &null_world(), test_file_id()).unwrap();
+        let args = p(vec![Value::Array(vec![make_bib_dict(
+            "smith2024",
+            "Smith, J.",
+            "On Crystal Math",
+            2024,
+        )])]);
+        let r =
+            native_bibliography(&mut ctx, &args, &null_world(), test_file_id()).unwrap();
         if let Value::Content(Content::Bibliography(e)) = r {
             let e = &e.entries[0];
             assert!(e.editor.is_none());
@@ -6940,18 +9182,17 @@ mod tests {
         use indexmap::IndexMap;
         use rustc_hash::FxBuildHasher;
         let mut d: IndexMap<EcoString, Value, FxBuildHasher> = IndexMap::default();
-        d.insert("key".into(),    Value::Str("k".into()));
+        d.insert("key".into(), Value::Str("k".into()));
         d.insert("author".into(), Value::Str("A".into()));
-        d.insert("title".into(),  Value::Str("T".into()));
-        d.insert("year".into(),   Value::Int(2024));
+        d.insert("title".into(), Value::Str("T".into()));
+        d.insert("year".into(), Value::Int(2024));
         // isbn com tipo errado (Int em vez de Str).
         d.insert("isbn".into(), Value::Int(978));
         let args = p(vec![Value::Array(vec![Value::Dict(d)])]);
         let r = native_bibliography(&mut ctx, &args, &null_world(), test_file_id());
         assert!(r.is_err(), "isbn com tipo Int deve retornar Err");
         let msg = r.unwrap_err()[0].message.clone();
-        assert!(msg.contains("isbn"),
-            "mensagem deve mencionar field 'isbn': {}", msg);
+        assert!(msg.contains("isbn"), "mensagem deve mencionar field 'isbn': {}", msg);
     }
 
     // ── P262 (ADR-0087 Gradient Linear-only) ─────────────────────────
@@ -6965,7 +9206,8 @@ mod tests {
             Value::Color(Color::rgb(255, 0, 0)),
             Value::Color(Color::rgb(0, 0, 255)),
         ]);
-        let r = native_gradient_linear(&mut ctx, &args, &null_world(), test_file_id()).unwrap();
+        let r = native_gradient_linear(&mut ctx, &args, &null_world(), test_file_id())
+            .unwrap();
         if let Value::Gradient(Gradient::Linear(l)) = r {
             assert_eq!(l.stops.len(), 2);
             assert_eq!(l.angle.to_rad(), 0.0);
@@ -6982,10 +9224,17 @@ mod tests {
         use crate::entities::layout_types::{Color, Ratio};
         null_ctx!(ctx);
         let args = p(vec![
-            Value::Array(vec![Value::Color(Color::rgb(255, 0, 0)), Value::Ratio(Ratio(0.0))]),
-            Value::Array(vec![Value::Color(Color::rgb(0, 0, 255)), Value::Ratio(Ratio(1.0))]),
+            Value::Array(vec![
+                Value::Color(Color::rgb(255, 0, 0)),
+                Value::Ratio(Ratio(0.0)),
+            ]),
+            Value::Array(vec![
+                Value::Color(Color::rgb(0, 0, 255)),
+                Value::Ratio(Ratio(1.0)),
+            ]),
         ]);
-        let r = native_gradient_linear(&mut ctx, &args, &null_world(), test_file_id()).unwrap();
+        let r = native_gradient_linear(&mut ctx, &args, &null_world(), test_file_id())
+            .unwrap();
         if let Value::Gradient(Gradient::Linear(l)) = r {
             assert_eq!(l.stops[0].offset, Some(Ratio(0.0)));
             assert_eq!(l.stops[1].offset, Some(Ratio(1.0)));
@@ -7007,7 +9256,8 @@ mod tests {
             "angle",
             Value::Angle(Angle::rad(std::f64::consts::FRAC_PI_2)),
         );
-        let r = native_gradient_linear(&mut ctx, &args, &null_world(), test_file_id()).unwrap();
+        let r = native_gradient_linear(&mut ctx, &args, &null_world(), test_file_id())
+            .unwrap();
         if let Value::Gradient(Gradient::Linear(l)) = r {
             assert!((l.angle.to_rad() - std::f64::consts::FRAC_PI_2).abs() < 1e-9);
         } else {
@@ -7027,9 +9277,10 @@ mod tests {
     fn p262_gradient_linear_offset_out_of_range_erro() {
         use crate::entities::layout_types::{Color, Ratio};
         null_ctx!(ctx);
-        let args = p(vec![
-            Value::Array(vec![Value::Color(Color::rgb(0, 0, 0)), Value::Ratio(Ratio(1.5))]),
-        ]);
+        let args = p(vec![Value::Array(vec![
+            Value::Color(Color::rgb(0, 0, 0)),
+            Value::Ratio(Ratio(1.5)),
+        ])]);
         let r = native_gradient_linear(&mut ctx, &args, &null_world(), test_file_id());
         assert!(r.is_err(), "offset 1.5 fora de [0,1] deve retornar Err");
     }
@@ -7038,11 +9289,7 @@ mod tests {
     fn p262_gradient_linear_named_invalido_erro() {
         use crate::entities::layout_types::Color;
         null_ctx!(ctx);
-        let args = pn(
-            vec![Value::Color(Color::rgb(0, 0, 0))],
-            "unknown",
-            Value::Int(1),
-        );
+        let args = pn(vec![Value::Color(Color::rgb(0, 0, 0))], "unknown", Value::Int(1));
         let r = native_gradient_linear(&mut ctx, &args, &null_world(), test_file_id());
         assert!(r.is_err(), "named arg desconhecido deve retornar Err");
     }
@@ -7055,7 +9302,8 @@ mod tests {
             Value::Color(Color::rgb(0, 0, 0)),
             Value::Color(Color::rgb(255, 255, 255)),
         ]);
-        let r = native_gradient_linear(&mut ctx, &args, &null_world(), test_file_id()).unwrap();
+        let r = native_gradient_linear(&mut ctx, &args, &null_world(), test_file_id())
+            .unwrap();
         assert_eq!(r.type_name(), "gradient");
     }
 
@@ -7070,7 +9318,8 @@ mod tests {
             Value::Color(Color::rgb(255, 0, 0)),
             Value::Color(Color::rgb(0, 0, 255)),
         ]);
-        let r = native_gradient_radial(&mut ctx, &args, &null_world(), test_file_id()).unwrap();
+        let r = native_gradient_radial(&mut ctx, &args, &null_world(), test_file_id())
+            .unwrap();
         if let Value::Gradient(Gradient::Radial(rad)) = r {
             assert_eq!(rad.stops.len(), 2);
             // Defaults: center (50%, 50%); radius 50%.
@@ -7093,13 +9342,11 @@ mod tests {
         ]);
         args.named.insert(
             "center".into(),
-            Value::Array(vec![
-                Value::Ratio(Ratio(0.25)),
-                Value::Ratio(Ratio(0.75)),
-            ]),
+            Value::Array(vec![Value::Ratio(Ratio(0.25)), Value::Ratio(Ratio(0.75))]),
         );
         args.named.insert("radius".into(), Value::Ratio(Ratio(0.4)));
-        let r = native_gradient_radial(&mut ctx, &args, &null_world(), test_file_id()).unwrap();
+        let r = native_gradient_radial(&mut ctx, &args, &null_world(), test_file_id())
+            .unwrap();
         if let Value::Gradient(Gradient::Radial(rad)) = r {
             assert_eq!(rad.center.x, Ratio(0.25));
             assert_eq!(rad.center.y, Ratio(0.75));
@@ -7135,7 +9382,8 @@ mod tests {
             Value::Color(Color::rgb(0, 0, 0)),
             Value::Color(Color::rgb(255, 255, 255)),
         ]);
-        let r = native_gradient_radial(&mut ctx, &args, &null_world(), test_file_id()).unwrap();
+        let r = native_gradient_radial(&mut ctx, &args, &null_world(), test_file_id())
+            .unwrap();
         assert_eq!(r.type_name(), "gradient");
     }
 
@@ -7152,12 +9400,10 @@ mod tests {
         ]);
         args.named.insert(
             "focal_center".into(),
-            Value::Array(vec![
-                Value::Ratio(Ratio(0.3)),
-                Value::Ratio(Ratio(0.4)),
-            ]),
+            Value::Array(vec![Value::Ratio(Ratio(0.3)), Value::Ratio(Ratio(0.4))]),
         );
-        let r = native_gradient_radial(&mut ctx, &args, &null_world(), test_file_id()).unwrap();
+        let r = native_gradient_radial(&mut ctx, &args, &null_world(), test_file_id())
+            .unwrap();
         if let Value::Gradient(Gradient::Radial(rad)) = r {
             assert_eq!(rad.focal_center.x, Ratio(0.3));
             assert_eq!(rad.focal_center.y, Ratio(0.4));
@@ -7177,7 +9423,8 @@ mod tests {
             Value::Color(Color::rgb(0, 0, 255)),
         ]);
         args.named.insert("focal_radius".into(), Value::Ratio(Ratio(0.1)));
-        let r = native_gradient_radial(&mut ctx, &args, &null_world(), test_file_id()).unwrap();
+        let r = native_gradient_radial(&mut ctx, &args, &null_world(), test_file_id())
+            .unwrap();
         if let Value::Gradient(Gradient::Radial(rad)) = r {
             assert_eq!(rad.focal_radius, Ratio(0.1));
             assert_eq!(rad.focal_center, rad.center, "default focal_center=center");
@@ -7197,13 +9444,11 @@ mod tests {
         ]);
         args.named.insert(
             "focal_center".into(),
-            Value::Array(vec![
-                Value::Ratio(Ratio(0.25)),
-                Value::Ratio(Ratio(0.35)),
-            ]),
+            Value::Array(vec![Value::Ratio(Ratio(0.25)), Value::Ratio(Ratio(0.35))]),
         );
         args.named.insert("focal_radius".into(), Value::Ratio(Ratio(0.08)));
-        let r = native_gradient_radial(&mut ctx, &args, &null_world(), test_file_id()).unwrap();
+        let r = native_gradient_radial(&mut ctx, &args, &null_world(), test_file_id())
+            .unwrap();
         if let Value::Gradient(Gradient::Radial(rad)) = r {
             assert_eq!(rad.focal_center.x, Ratio(0.25));
             assert_eq!(rad.focal_center.y, Ratio(0.35));
@@ -7223,7 +9468,8 @@ mod tests {
             Value::Color(Color::rgb(255, 0, 0)),
             Value::Color(Color::rgb(0, 0, 255)),
         ]);
-        let r = native_gradient_radial(&mut ctx, &args, &null_world(), test_file_id()).unwrap();
+        let r = native_gradient_radial(&mut ctx, &args, &null_world(), test_file_id())
+            .unwrap();
         if let Value::Gradient(Gradient::Radial(rad)) = r {
             assert_eq!(rad.focal_center, rad.center);
             assert_eq!(rad.focal_radius, Ratio(0.0));
@@ -7242,7 +9488,7 @@ mod tests {
             Value::Color(Color::rgb(255, 255, 255)),
         ]);
         args.named.insert("radius".into(), Value::Ratio(Ratio(0.3)));
-        args.named.insert("focal_radius".into(), Value::Ratio(Ratio(0.4)));  // > radius
+        args.named.insert("focal_radius".into(), Value::Ratio(Ratio(0.4))); // > radius
         let r = native_gradient_radial(&mut ctx, &args, &null_world(), test_file_id());
         assert!(r.is_err(), "focal_radius 0.4 > radius 0.3 deve retornar Err");
     }
@@ -7260,10 +9506,17 @@ mod tests {
             Value::Color(Color::rgb(255, 0, 0)),
             Value::Color(Color::rgb(0, 0, 255)),
         ]);
-        let r = native_gradient_linear(&mut ctx, &args, &null_world(), test_file_id()).unwrap();
+        let r = native_gradient_linear(&mut ctx, &args, &null_world(), test_file_id())
+            .unwrap();
         if let Value::Gradient(Gradient::Linear(l)) = r {
-            assert_eq!(l.space, ColorSpace::Oklab, "default sem named arg deve ser Oklab");
-        } else { panic!("expected Linear"); }
+            assert_eq!(
+                l.space,
+                ColorSpace::Oklab,
+                "default sem named arg deve ser Oklab"
+            );
+        } else {
+            panic!("expected Linear");
+        }
     }
 
     #[test]
@@ -7277,10 +9530,13 @@ mod tests {
             Value::Color(Color::rgb(0, 0, 255)),
         ]);
         args.named.insert("space".into(), Value::Str(EcoString::from("hsl")));
-        let r = native_gradient_linear(&mut ctx, &args, &null_world(), test_file_id()).unwrap();
+        let r = native_gradient_linear(&mut ctx, &args, &null_world(), test_file_id())
+            .unwrap();
         if let Value::Gradient(Gradient::Linear(l)) = r {
             assert_eq!(l.space, ColorSpace::Hsl);
-        } else { panic!("expected Linear"); }
+        } else {
+            panic!("expected Linear");
+        }
     }
 
     #[test]
@@ -7294,10 +9550,13 @@ mod tests {
             Value::Color(Color::rgb(0, 0, 255)),
         ]);
         args.named.insert("space".into(), Value::Str(EcoString::from("luma")));
-        let r = native_gradient_linear(&mut ctx, &args, &null_world(), test_file_id()).unwrap();
+        let r = native_gradient_linear(&mut ctx, &args, &null_world(), test_file_id())
+            .unwrap();
         if let Value::Gradient(Gradient::Linear(l)) = r {
             assert_eq!(l.space, ColorSpace::Luma);
-        } else { panic!("expected Linear"); }
+        } else {
+            panic!("expected Linear");
+        }
     }
 
     #[test]
@@ -7305,10 +9564,9 @@ mod tests {
         use crate::entities::layout_types::Color;
         use ecow::EcoString;
         null_ctx!(ctx);
-        let mut args = p(vec![
-            Value::Color(Color::rgb(0, 0, 0)),
-        ]);
-        args.named.insert("space".into(), Value::Str(EcoString::from("xyz_unknown")));
+        let mut args = p(vec![Value::Color(Color::rgb(0, 0, 0))]);
+        args.named
+            .insert("space".into(), Value::Str(EcoString::from("xyz_unknown")));
         let r = native_gradient_linear(&mut ctx, &args, &null_world(), test_file_id());
         assert!(r.is_err(), "space inválido deve retornar Err");
     }
@@ -7324,10 +9582,13 @@ mod tests {
             Value::Color(Color::rgb(255, 0, 0)),
             Value::Color(Color::rgb(0, 0, 255)),
         ]);
-        let r = native_gradient_radial(&mut ctx, &args, &null_world(), test_file_id()).unwrap();
+        let r = native_gradient_radial(&mut ctx, &args, &null_world(), test_file_id())
+            .unwrap();
         if let Value::Gradient(Gradient::Radial(rad)) = r {
             assert_eq!(rad.space, ColorSpace::Oklab);
-        } else { panic!("expected Radial"); }
+        } else {
+            panic!("expected Radial");
+        }
     }
 
     #[test]
@@ -7340,11 +9601,15 @@ mod tests {
             Value::Color(Color::rgb(255, 0, 0)),
             Value::Color(Color::rgb(0, 0, 255)),
         ]);
-        args.named.insert("space".into(), Value::Str(EcoString::from("oklch")));
-        let r = native_gradient_radial(&mut ctx, &args, &null_world(), test_file_id()).unwrap();
+        args.named
+            .insert("space".into(), Value::Str(EcoString::from("oklch")));
+        let r = native_gradient_radial(&mut ctx, &args, &null_world(), test_file_id())
+            .unwrap();
         if let Value::Gradient(Gradient::Radial(rad)) = r {
             assert_eq!(rad.space, ColorSpace::Oklch);
-        } else { panic!("expected Radial"); }
+        } else {
+            panic!("expected Radial");
+        }
     }
 
     #[test]
@@ -7358,10 +9623,13 @@ mod tests {
             Value::Color(Color::rgb(0, 0, 255)),
         ]);
         args.named.insert("space".into(), Value::Str(EcoString::from("cmyk")));
-        let r = native_gradient_radial(&mut ctx, &args, &null_world(), test_file_id()).unwrap();
+        let r = native_gradient_radial(&mut ctx, &args, &null_world(), test_file_id())
+            .unwrap();
         if let Value::Gradient(Gradient::Radial(rad)) = r {
             assert_eq!(rad.space, ColorSpace::Cmyk);
-        } else { panic!("expected Radial"); }
+        } else {
+            panic!("expected Radial");
+        }
     }
 
     #[test]
@@ -7370,7 +9638,8 @@ mod tests {
         use ecow::EcoString;
         null_ctx!(ctx);
         let mut args = p(vec![Value::Color(Color::rgb(0, 0, 0))]);
-        args.named.insert("space".into(), Value::Str(EcoString::from("invalid_space")));
+        args.named
+            .insert("space".into(), Value::Str(EcoString::from("invalid_space")));
         let r = native_gradient_radial(&mut ctx, &args, &null_world(), test_file_id());
         assert!(r.is_err(), "space inválido deve retornar Err");
     }
@@ -7386,10 +9655,13 @@ mod tests {
             Value::Color(Color::rgb(255, 0, 0)),
             Value::Color(Color::rgb(0, 0, 255)),
         ]);
-        let r = native_gradient_conic(&mut ctx, &args, &null_world(), test_file_id()).unwrap();
+        let r = native_gradient_conic(&mut ctx, &args, &null_world(), test_file_id())
+            .unwrap();
         if let Value::Gradient(Gradient::Conic(c)) = r {
             assert_eq!(c.space, ColorSpace::Oklab);
-        } else { panic!("expected Conic"); }
+        } else {
+            panic!("expected Conic");
+        }
     }
 
     #[test]
@@ -7403,10 +9675,13 @@ mod tests {
             Value::Color(Color::rgb(0, 0, 255)),
         ]);
         args.named.insert("space".into(), Value::Str(EcoString::from("hsv")));
-        let r = native_gradient_conic(&mut ctx, &args, &null_world(), test_file_id()).unwrap();
+        let r = native_gradient_conic(&mut ctx, &args, &null_world(), test_file_id())
+            .unwrap();
         if let Value::Gradient(Gradient::Conic(c)) = r {
             assert_eq!(c.space, ColorSpace::Hsv);
-        } else { panic!("expected Conic"); }
+        } else {
+            panic!("expected Conic");
+        }
     }
 
     #[test]
@@ -7420,10 +9695,13 @@ mod tests {
             Value::Color(Color::rgb(0, 0, 255)),
         ]);
         args.named.insert("space".into(), Value::Str(EcoString::from("srgb")));
-        let r = native_gradient_conic(&mut ctx, &args, &null_world(), test_file_id()).unwrap();
+        let r = native_gradient_conic(&mut ctx, &args, &null_world(), test_file_id())
+            .unwrap();
         if let Value::Gradient(Gradient::Conic(c)) = r {
             assert_eq!(c.space, ColorSpace::Srgb);
-        } else { panic!("expected Conic"); }
+        } else {
+            panic!("expected Conic");
+        }
     }
 
     #[test]
@@ -7446,11 +9724,15 @@ mod tests {
         use ecow::EcoString;
         null_ctx!(ctx);
         let mut args = p(vec![Value::Color(Color::rgb(255, 0, 0))]);
-        args.named.insert("relative".into(), Value::Str(EcoString::from("self")));
-        let r = native_gradient_linear(&mut ctx, &args, &null_world(), test_file_id()).unwrap();
+        args.named
+            .insert("relative".into(), Value::Str(EcoString::from("self")));
+        let r = native_gradient_linear(&mut ctx, &args, &null_world(), test_file_id())
+            .unwrap();
         if let Value::Gradient(Gradient::Linear(l)) = r {
             assert_eq!(l.relative, Some(RelativeTo::Self_));
-        } else { panic!("expected Linear"); }
+        } else {
+            panic!("expected Linear");
+        }
     }
 
     #[test]
@@ -7460,11 +9742,15 @@ mod tests {
         use ecow::EcoString;
         null_ctx!(ctx);
         let mut args = p(vec![Value::Color(Color::rgb(0, 255, 0))]);
-        args.named.insert("relative".into(), Value::Str(EcoString::from("parent")));
-        let r = native_gradient_linear(&mut ctx, &args, &null_world(), test_file_id()).unwrap();
+        args.named
+            .insert("relative".into(), Value::Str(EcoString::from("parent")));
+        let r = native_gradient_linear(&mut ctx, &args, &null_world(), test_file_id())
+            .unwrap();
         if let Value::Gradient(Gradient::Linear(l)) = r {
             assert_eq!(l.relative, Some(RelativeTo::Parent));
-        } else { panic!("expected Linear"); }
+        } else {
+            panic!("expected Linear");
+        }
     }
 
     #[test]
@@ -7474,11 +9760,15 @@ mod tests {
         use ecow::EcoString;
         null_ctx!(ctx);
         let mut args = p(vec![Value::Color(Color::rgb(0, 0, 255))]);
-        args.named.insert("relative".into(), Value::Str(EcoString::from("auto")));
-        let r = native_gradient_linear(&mut ctx, &args, &null_world(), test_file_id()).unwrap();
+        args.named
+            .insert("relative".into(), Value::Str(EcoString::from("auto")));
+        let r = native_gradient_linear(&mut ctx, &args, &null_world(), test_file_id())
+            .unwrap();
         if let Value::Gradient(Gradient::Linear(l)) = r {
             assert_eq!(l.relative, None, "auto explícito = None (Auto sentinel)");
-        } else { panic!("expected Linear"); }
+        } else {
+            panic!("expected Linear");
+        }
     }
 
     #[test]
@@ -7488,10 +9778,13 @@ mod tests {
         use crate::entities::layout_types::Color;
         null_ctx!(ctx);
         let args = p(vec![Value::Color(Color::rgb(255, 255, 0))]);
-        let r = native_gradient_linear(&mut ctx, &args, &null_world(), test_file_id()).unwrap();
+        let r = native_gradient_linear(&mut ctx, &args, &null_world(), test_file_id())
+            .unwrap();
         if let Value::Gradient(Gradient::Linear(l)) = r {
             assert_eq!(l.relative, None);
-        } else { panic!("expected Linear"); }
+        } else {
+            panic!("expected Linear");
+        }
     }
 
     #[test]
@@ -7501,11 +9794,15 @@ mod tests {
         use ecow::EcoString;
         null_ctx!(ctx);
         let mut args = p(vec![Value::Color(Color::rgb(255, 0, 255))]);
-        args.named.insert("relative".into(), Value::Str(EcoString::from("parent")));
-        let r = native_gradient_radial(&mut ctx, &args, &null_world(), test_file_id()).unwrap();
+        args.named
+            .insert("relative".into(), Value::Str(EcoString::from("parent")));
+        let r = native_gradient_radial(&mut ctx, &args, &null_world(), test_file_id())
+            .unwrap();
         if let Value::Gradient(Gradient::Radial(rad)) = r {
             assert_eq!(rad.relative, Some(RelativeTo::Parent));
-        } else { panic!("expected Radial"); }
+        } else {
+            panic!("expected Radial");
+        }
     }
 
     #[test]
@@ -7515,11 +9812,15 @@ mod tests {
         use ecow::EcoString;
         null_ctx!(ctx);
         let mut args = p(vec![Value::Color(Color::rgb(0, 255, 255))]);
-        args.named.insert("relative".into(), Value::Str(EcoString::from("self")));
-        let r = native_gradient_conic(&mut ctx, &args, &null_world(), test_file_id()).unwrap();
+        args.named
+            .insert("relative".into(), Value::Str(EcoString::from("self")));
+        let r = native_gradient_conic(&mut ctx, &args, &null_world(), test_file_id())
+            .unwrap();
         if let Value::Gradient(Gradient::Conic(c)) = r {
             assert_eq!(c.relative, Some(RelativeTo::Self_));
-        } else { panic!("expected Conic"); }
+        } else {
+            panic!("expected Conic");
+        }
     }
 
     #[test]
@@ -7528,7 +9829,8 @@ mod tests {
         use ecow::EcoString;
         null_ctx!(ctx);
         let mut args = p(vec![Value::Color(Color::rgb(0, 0, 0))]);
-        args.named.insert("relative".into(), Value::Str(EcoString::from("inválido")));
+        args.named
+            .insert("relative".into(), Value::Str(EcoString::from("inválido")));
         let r = native_gradient_linear(&mut ctx, &args, &null_world(), test_file_id());
         assert!(r.is_err(), "relative inválido deve retornar Err");
     }
@@ -7544,7 +9846,8 @@ mod tests {
             Value::Color(Color::rgb(255, 0, 0)),
             Value::Color(Color::rgb(0, 0, 255)),
         ]);
-        let r = native_gradient_conic(&mut ctx, &args, &null_world(), test_file_id()).unwrap();
+        let r = native_gradient_conic(&mut ctx, &args, &null_world(), test_file_id())
+            .unwrap();
         if let Value::Gradient(Gradient::Conic(c)) = r {
             assert_eq!(c.stops.len(), 2);
             assert_eq!(c.center.x, Ratio(0.5));
@@ -7566,13 +9869,11 @@ mod tests {
         ]);
         args.named.insert(
             "center".into(),
-            Value::Array(vec![
-                Value::Ratio(Ratio(0.3)),
-                Value::Ratio(Ratio(0.7)),
-            ]),
+            Value::Array(vec![Value::Ratio(Ratio(0.3)), Value::Ratio(Ratio(0.7))]),
         );
         args.named.insert("angle".into(), Value::Angle(Angle::deg(45.0)));
-        let r = native_gradient_conic(&mut ctx, &args, &null_world(), test_file_id()).unwrap();
+        let r = native_gradient_conic(&mut ctx, &args, &null_world(), test_file_id())
+            .unwrap();
         if let Value::Gradient(Gradient::Conic(c)) = r {
             assert_eq!(c.center.x, Ratio(0.3));
             assert_eq!(c.center.y, Ratio(0.7));
@@ -7608,7 +9909,8 @@ mod tests {
             Value::Color(Color::rgb(0, 0, 0)),
             Value::Color(Color::rgb(255, 255, 255)),
         ]);
-        let r = native_gradient_conic(&mut ctx, &args, &null_world(), test_file_id()).unwrap();
+        let r = native_gradient_conic(&mut ctx, &args, &null_world(), test_file_id())
+            .unwrap();
         assert_eq!(r.type_name(), "gradient");
     }
 
@@ -7621,8 +9923,10 @@ mod tests {
         let r = native_underline(&mut ctx, &args, &null_world(), test_file_id()).unwrap();
         if let Value::Content(Content::Underline(e)) = r {
             assert_eq!(e.body.plain_text(), "hello");
-            assert!(e.stroke.is_none() && e.offset.is_none() && e.extent.is_none(),
-                    "sem named: cosméticos preservados em None");
+            assert!(
+                e.stroke.is_none() && e.offset.is_none() && e.extent.is_none(),
+                "sem named: cosméticos preservados em None"
+            );
         } else {
             panic!("esperado Value::Content(Content::Underline {{ .. }})");
         }
@@ -7644,7 +9948,9 @@ mod tests {
         let args = p(vec![Value::Str("important".into())]);
         let r = native_underline(&mut ctx, &args, &null_world(), test_file_id()).unwrap();
         match r {
-            Value::Content(Content::Underline(e)) => assert_eq!(e.body.plain_text(), "important"),
+            Value::Content(Content::Underline(e)) => {
+                assert_eq!(e.body.plain_text(), "important")
+            }
             other => panic!("esperado Underline, obtido {other:?}"),
         }
     }
@@ -7654,7 +9960,8 @@ mod tests {
         use crate::entities::layout_types::{Color, Length};
         null_ctx!(ctx);
         let mut args = p(vec![Value::Content(Content::text("y"))]);
-        args.named.insert("stroke".into(), Value::Color(Color::rgb(255, 0, 0)));
+        args.named
+            .insert("stroke".into(), Value::Color(Color::rgb(255, 0, 0)));
         args.named.insert("offset".into(), Value::Length(Length::pt(2.5)));
         args.named.insert("extent".into(), Value::Length(Length::pt(-1.0)));
         let r = native_underline(&mut ctx, &args, &null_world(), test_file_id()).unwrap();
@@ -7672,7 +9979,7 @@ mod tests {
         null_ctx!(ctx);
         let args = p(vec![]);
         assert!(native_underline(&mut ctx, &args, &null_world(), test_file_id()).is_err());
-        assert!(native_strike  (&mut ctx, &args, &null_world(), test_file_id()).is_err());
+        assert!(native_strike(&mut ctx, &args, &null_world(), test_file_id()).is_err());
         assert!(native_overline(&mut ctx, &args, &null_world(), test_file_id()).is_err());
     }
 
@@ -7683,13 +9990,17 @@ mod tests {
         null_ctx!(ctx);
         let mut args = p(vec![Value::Content(Content::text("x"))]);
         args.named.insert("evade".into(), Value::Bool(true));
-        let err = native_underline(&mut ctx, &args, &null_world(), test_file_id()).unwrap_err();
+        let err =
+            native_underline(&mut ctx, &args, &null_world(), test_file_id()).unwrap_err();
         let msg = format!("{:?}", err);
-        assert!(msg.contains("evade") && msg.contains("ADR-0054"),
-                "mensagem deve referir 'evade' e ADR-0054 graded: {msg}");
+        assert!(
+            msg.contains("evade") && msg.contains("ADR-0054"),
+            "mensagem deve referir 'evade' e ADR-0054 graded: {msg}"
+        );
         let mut args2 = p(vec![Value::Content(Content::text("x"))]);
         args2.named.insert("background".into(), Value::Bool(true));
-        let err2 = native_overline(&mut ctx, &args2, &null_world(), test_file_id()).unwrap_err();
+        let err2 =
+            native_overline(&mut ctx, &args2, &null_world(), test_file_id()).unwrap_err();
         assert!(format!("{:?}", err2).contains("background"));
     }
 
@@ -7699,9 +10010,13 @@ mod tests {
     fn p287_native_smartquote_sem_args_emite_variant_double_true() {
         use super::native_smartquote;
         null_ctx!(ctx);
-        let r = native_smartquote(&mut ctx, &p(vec![]), &null_world(), test_file_id()).unwrap();
-        assert_eq!(r, Value::Content(Content::smartquote(true)),
-            "smartquote() sem args → SmartQuote {{ double: true }} (vanilla default)");
+        let r = native_smartquote(&mut ctx, &p(vec![]), &null_world(), test_file_id())
+            .unwrap();
+        assert_eq!(
+            r,
+            Value::Content(Content::smartquote(true)),
+            "smartquote() sem args → SmartQuote {{ double: true }} (vanilla default)"
+        );
     }
 
     #[test]
@@ -7710,7 +10025,8 @@ mod tests {
         null_ctx!(ctx);
         let mut args = p(vec![]);
         args.named.insert("double".into(), Value::Bool(false));
-        let r = native_smartquote(&mut ctx, &args, &null_world(), test_file_id()).unwrap();
+        let r =
+            native_smartquote(&mut ctx, &args, &null_world(), test_file_id()).unwrap();
         assert_eq!(r, Value::Content(Content::smartquote(false)));
     }
 
@@ -7723,13 +10039,15 @@ mod tests {
         // enabled=false + double=true → Text("\"").
         let mut args = p(vec![]);
         args.named.insert("enabled".into(), Value::Bool(false));
-        let r = native_smartquote(&mut ctx, &args, &null_world(), test_file_id()).unwrap();
+        let r =
+            native_smartquote(&mut ctx, &args, &null_world(), test_file_id()).unwrap();
         assert_eq!(r, Value::Content(Content::text("\"")));
         // enabled=false + double=false → Text("'").
         let mut args2 = p(vec![]);
         args2.named.insert("enabled".into(), Value::Bool(false));
-        args2.named.insert("double".into(),  Value::Bool(false));
-        let r2 = native_smartquote(&mut ctx, &args2, &null_world(), test_file_id()).unwrap();
+        args2.named.insert("double".into(), Value::Bool(false));
+        let r2 =
+            native_smartquote(&mut ctx, &args2, &null_world(), test_file_id()).unwrap();
         assert_eq!(r2, Value::Content(Content::text("'")));
     }
 
@@ -7740,10 +10058,13 @@ mod tests {
         null_ctx!(ctx);
         let mut args = p(vec![]);
         args.named.insert("alternative".into(), Value::Bool(true));
-        let err = native_smartquote(&mut ctx, &args, &null_world(), test_file_id()).unwrap_err();
+        let err = native_smartquote(&mut ctx, &args, &null_world(), test_file_id())
+            .unwrap_err();
         let msg = format!("{:?}", err);
-        assert!(msg.contains("alternative") && msg.contains("ADR-0054"),
-            "erro deve referir 'alternative' e ADR-0054: {msg}");
+        assert!(
+            msg.contains("alternative") && msg.contains("ADR-0054"),
+            "erro deve referir 'alternative' e ADR-0054: {msg}"
+        );
     }
 
     #[test]
@@ -7753,7 +10074,8 @@ mod tests {
         null_ctx!(ctx);
         let mut args = p(vec![]);
         args.named.insert("quotes".into(), Value::Str("()".into()));
-        let err = native_smartquote(&mut ctx, &args, &null_world(), test_file_id()).unwrap_err();
+        let err = native_smartquote(&mut ctx, &args, &null_world(), test_file_id())
+            .unwrap_err();
         assert!(format!("{:?}", err).contains("quotes"));
     }
 
@@ -7761,7 +10083,12 @@ mod tests {
     fn p287_native_smartquote_arg_posicional_retorna_err() {
         use super::native_smartquote;
         null_ctx!(ctx);
-        let r = native_smartquote(&mut ctx, &p(vec![Value::Bool(true)]), &null_world(), test_file_id());
+        let r = native_smartquote(
+            &mut ctx,
+            &p(vec![Value::Bool(true)]),
+            &null_world(),
+            test_file_id(),
+        );
         assert!(r.is_err(), "args posicionais rejeitados (vanilla usa só named)");
     }
 
@@ -7842,14 +10169,26 @@ mod tests {
     #[test]
     fn lorem_0_retorna_string_vazia() {
         null_ctx!(ctx);
-        let r = native_lorem(&mut ctx, &p(vec![Value::Int(0)]), &null_world(), test_file_id()).unwrap();
+        let r = native_lorem(
+            &mut ctx,
+            &p(vec![Value::Int(0)]),
+            &null_world(),
+            test_file_id(),
+        )
+        .unwrap();
         assert_eq!(r, Value::Str("".into()));
     }
 
     #[test]
     fn lorem_1_retorna_uma_palavra_sem_espaco() {
         null_ctx!(ctx);
-        let r = native_lorem(&mut ctx, &p(vec![Value::Int(1)]), &null_world(), test_file_id()).unwrap();
+        let r = native_lorem(
+            &mut ctx,
+            &p(vec![Value::Int(1)]),
+            &null_world(),
+            test_file_id(),
+        )
+        .unwrap();
         if let Value::Str(s) = r {
             assert_eq!(s.split_whitespace().count(), 1);
             assert!(!s.ends_with(' '));
@@ -7861,7 +10200,13 @@ mod tests {
     #[test]
     fn lorem_5_retorna_5_palavras() {
         null_ctx!(ctx);
-        let r = native_lorem(&mut ctx, &p(vec![Value::Int(5)]), &null_world(), test_file_id()).unwrap();
+        let r = native_lorem(
+            &mut ctx,
+            &p(vec![Value::Int(5)]),
+            &null_world(),
+            test_file_id(),
+        )
+        .unwrap();
         if let Value::Str(s) = r {
             assert_eq!(s.split_whitespace().count(), 5);
         } else {
@@ -7872,7 +10217,13 @@ mod tests {
     #[test]
     fn lorem_100_retorna_100_palavras() {
         null_ctx!(ctx);
-        let r = native_lorem(&mut ctx, &p(vec![Value::Int(100)]), &null_world(), test_file_id()).unwrap();
+        let r = native_lorem(
+            &mut ctx,
+            &p(vec![Value::Int(100)]),
+            &null_world(),
+            test_file_id(),
+        )
+        .unwrap();
         if let Value::Str(s) = r {
             assert_eq!(s.split_whitespace().count(), 100);
         } else {
@@ -7883,7 +10234,12 @@ mod tests {
     #[test]
     fn lorem_negativo_retorna_erro() {
         null_ctx!(ctx);
-        let r = native_lorem(&mut ctx, &p(vec![Value::Int(-1)]), &null_world(), test_file_id());
+        let r = native_lorem(
+            &mut ctx,
+            &p(vec![Value::Int(-1)]),
+            &null_world(),
+            test_file_id(),
+        );
         assert!(r.is_err(), "lorem(-1) deve retornar erro");
     }
 
@@ -7898,7 +10254,12 @@ mod tests {
     #[test]
     fn lorem_rejeita_tipo_errado() {
         null_ctx!(ctx);
-        let r = native_lorem(&mut ctx, &p(vec![Value::Str("x".into())]), &null_world(), test_file_id());
+        let r = native_lorem(
+            &mut ctx,
+            &p(vec![Value::Str("x".into())]),
+            &null_world(),
+            test_file_id(),
+        );
         assert!(r.is_err(), "lorem(string) deve retornar erro");
     }
 
@@ -7913,7 +10274,8 @@ mod tests {
         use super::native_footnote;
         null_ctx!(ctx);
         let body = Value::Content(Content::text("nota"));
-        let r = native_footnote(&mut ctx, &p(vec![body]), &null_world(), test_file_id()).unwrap();
+        let r = native_footnote(&mut ctx, &p(vec![body]), &null_world(), test_file_id())
+            .unwrap();
         if let Value::Content(Content::Footnote(e)) = r {
             assert_eq!(e.body.plain_text(), "nota");
         } else {
@@ -7925,7 +10287,13 @@ mod tests {
     fn p295_native_footnote_body_string_converte_para_text() {
         use super::native_footnote;
         null_ctx!(ctx);
-        let r = native_footnote(&mut ctx, &p(vec![Value::Str("texto".into())]), &null_world(), test_file_id()).unwrap();
+        let r = native_footnote(
+            &mut ctx,
+            &p(vec![Value::Str("texto".into())]),
+            &null_world(),
+            test_file_id(),
+        )
+        .unwrap();
         if let Value::Content(Content::Footnote(e)) = r {
             assert_eq!(e.body.plain_text(), "texto");
         } else {
@@ -7962,7 +10330,8 @@ mod tests {
             Content::text("hello "),
             Content::text("world"),
         ]));
-        let r = native_footnote(&mut ctx, &p(vec![body]), &null_world(), test_file_id()).unwrap();
+        let r = native_footnote(&mut ctx, &p(vec![body]), &null_world(), test_file_id())
+            .unwrap();
         if let Value::Content(Content::Footnote(e)) = r {
             assert_eq!(e.body.plain_text(), "hello world");
         }
@@ -7981,8 +10350,10 @@ mod tests {
     fn p295_footnote_is_empty_sempre_false() {
         // Marker [N] é sempre observable; footnote nunca vazia.
         let f_empty_body = Content::footnote(Content::Empty);
-        assert!(!f_empty_body.is_empty(),
-            "footnote nunca é is_empty mesmo com body vazio (marker sempre observable)");
+        assert!(
+            !f_empty_body.is_empty(),
+            "footnote nunca é is_empty mesmo com body vazio (marker sempre observable)"
+        );
     }
 
     // ── Passo 296 — accent + cancel math (HIV + (a) minimal) ──────────
@@ -7994,10 +10365,16 @@ mod tests {
     fn p296_native_accent_base_e_accent_posicionais() {
         use super::native_accent;
         null_ctx!(ctx);
-        let r = native_accent(&mut ctx, &p(vec![
-            Value::Content(Content::MathIdent("a".into())),
-            Value::Content(Content::MathText("^".into())),
-        ]), &null_world(), test_file_id()).unwrap();
+        let r = native_accent(
+            &mut ctx,
+            &p(vec![
+                Value::Content(Content::MathIdent("a".into())),
+                Value::Content(Content::MathText("^".into())),
+            ]),
+            &null_world(),
+            test_file_id(),
+        )
+        .unwrap();
         if let Value::Content(Content::MathAccent(e)) = r {
             assert_eq!(e.base.plain_text(), "a");
             assert_eq!(e.accent.plain_text(), "^");
@@ -8010,10 +10387,13 @@ mod tests {
     fn p296_native_accent_strings_convertidas_para_text() {
         use super::native_accent;
         null_ctx!(ctx);
-        let r = native_accent(&mut ctx, &p(vec![
-            Value::Str("x".into()),
-            Value::Str("~".into()),
-        ]), &null_world(), test_file_id()).unwrap();
+        let r = native_accent(
+            &mut ctx,
+            &p(vec![Value::Str("x".into()), Value::Str("~".into())]),
+            &null_world(),
+            test_file_id(),
+        )
+        .unwrap();
         if let Value::Content(Content::MathAccent(e)) = r {
             assert_eq!(e.base.plain_text(), "x");
             assert_eq!(e.accent.plain_text(), "~");
@@ -8033,7 +10413,12 @@ mod tests {
     fn p296_native_accent_sem_accent_retorna_err() {
         use super::native_accent;
         null_ctx!(ctx);
-        let r = native_accent(&mut ctx, &p(vec![Value::Str("a".into())]), &null_world(), test_file_id());
+        let r = native_accent(
+            &mut ctx,
+            &p(vec![Value::Str("a".into())]),
+            &null_world(),
+            test_file_id(),
+        );
         assert!(r.is_err());
         assert!(format!("{:?}", r).contains("accent"));
     }
@@ -8052,9 +10437,13 @@ mod tests {
     fn p296_native_cancel_body_posicional() {
         use super::native_cancel;
         null_ctx!(ctx);
-        let r = native_cancel(&mut ctx, &p(vec![
-            Value::Content(Content::MathIdent("x".into())),
-        ]), &null_world(), test_file_id()).unwrap();
+        let r = native_cancel(
+            &mut ctx,
+            &p(vec![Value::Content(Content::MathIdent("x".into()))]),
+            &null_world(),
+            test_file_id(),
+        )
+        .unwrap();
         if let Value::Content(Content::MathCancel(e)) = r {
             assert_eq!(e.body.plain_text(), "x");
         } else {
@@ -8066,7 +10455,13 @@ mod tests {
     fn p296_native_cancel_body_string_convertido() {
         use super::native_cancel;
         null_ctx!(ctx);
-        let r = native_cancel(&mut ctx, &p(vec![Value::Str("y".into())]), &null_world(), test_file_id()).unwrap();
+        let r = native_cancel(
+            &mut ctx,
+            &p(vec![Value::Str("y".into())]),
+            &null_world(),
+            test_file_id(),
+        )
+        .unwrap();
         if let Value::Content(Content::MathCancel(e)) = r {
             assert_eq!(e.body.plain_text(), "y");
         }
@@ -8088,12 +10483,18 @@ mod tests {
         let mut args = p(vec![Value::Str("x".into())]);
         args.named.insert("inverted".into(), Value::Bool(true));
         let r = native_cancel(&mut ctx, &args, &null_world(), test_file_id());
-        assert!(r.is_err(), "inverted/cross/length/angle/stroke cosméticos scope-out P296");
+        assert!(
+            r.is_err(),
+            "inverted/cross/length/angle/stroke cosméticos scope-out P296"
+        );
     }
 
     #[test]
     fn p296_math_accent_partial_eq_e_is_empty() {
-        let a = Content::math_accent(Content::MathIdent("a".into()), Content::MathText("^".into()));
+        let a = Content::math_accent(
+            Content::MathIdent("a".into()),
+            Content::MathText("^".into()),
+        );
         let b = a.clone();
         assert_eq!(a, b);
         // is_empty fallback é false (math structural sempre observable).
@@ -8119,13 +10520,17 @@ mod tests {
     fn p297_native_underover_so_base_posicional() {
         use super::native_underover;
         null_ctx!(ctx);
-        let r = native_underover(&mut ctx, &p(vec![
-            Value::Content(Content::MathIdent("x".into())),
-        ]), &null_world(), test_file_id()).unwrap();
+        let r = native_underover(
+            &mut ctx,
+            &p(vec![Value::Content(Content::MathIdent("x".into()))]),
+            &null_world(),
+            test_file_id(),
+        )
+        .unwrap();
         if let Value::Content(Content::MathUnderover(e)) = r {
             assert_eq!(e.base.plain_text(), "x");
             assert!(e.under.is_none(), "under None se não fornecido");
-            assert!(e.over.is_none(),  "over None se não fornecido");
+            assert!(e.over.is_none(), "over None se não fornecido");
         } else {
             panic!("esperava Content::MathUnderover");
         }
@@ -8165,7 +10570,7 @@ mod tests {
         null_ctx!(ctx);
         let mut args = p(vec![Value::Str("b".into())]);
         args.named.insert("under".into(), Value::Str("u".into()));
-        args.named.insert("over".into(),  Value::Str("o".into()));
+        args.named.insert("over".into(), Value::Str("o".into()));
         let r = native_underover(&mut ctx, &args, &null_world(), test_file_id()).unwrap();
         if let Value::Content(Content::MathUnderover(e)) = r {
             assert_eq!(e.base.plain_text(), "b");
@@ -8196,13 +10601,18 @@ mod tests {
     #[test]
     fn p297_math_underover_plain_text_ordem_visual() {
         // Ordem visual: over + base + under.
-        let u = Content::math_underover(Content::text("BASE"), Some(Content::text("U")), Some(Content::text("O")));
+        let u = Content::math_underover(
+            Content::text("BASE"),
+            Some(Content::text("U")),
+            Some(Content::text("O")),
+        );
         assert_eq!(u.plain_text(), "OBASEU");
     }
 
     #[test]
     fn p297_math_underover_partial_eq_structural() {
-        let a = Content::math_underover(Content::text("x"), Some(Content::text("u")), None);
+        let a =
+            Content::math_underover(Content::text("x"), Some(Content::text("u")), None);
         let b = a.clone();
         assert_eq!(a, b);
         let c = Content::math_underover(Content::text("x"), None, None); // diferente em under
@@ -8226,9 +10636,13 @@ mod tests {
     fn p298_native_op_text_posicional_default_limits_false() {
         use super::native_op;
         null_ctx!(ctx);
-        let r = native_op(&mut ctx, &p(vec![
-            Value::Str("lim".into()),
-        ]), &null_world(), test_file_id()).unwrap();
+        let r = native_op(
+            &mut ctx,
+            &p(vec![Value::Str("lim".into())]),
+            &null_world(),
+            test_file_id(),
+        )
+        .unwrap();
         if let Value::Content(Content::MathOp(e)) = r {
             assert_eq!(e.text.plain_text(), "lim");
             assert!(!e.limits, "limits default false");
@@ -8253,9 +10667,13 @@ mod tests {
     fn p298_native_op_text_content_preservado() {
         use super::native_op;
         null_ctx!(ctx);
-        let r = native_op(&mut ctx, &p(vec![
-            Value::Content(Content::MathIdent("Σ".into())),
-        ]), &null_world(), test_file_id()).unwrap();
+        let r = native_op(
+            &mut ctx,
+            &p(vec![Value::Content(Content::MathIdent("Σ".into()))]),
+            &null_world(),
+            test_file_id(),
+        )
+        .unwrap();
         if let Value::Content(Content::MathOp(e)) = r {
             // Content posicional preservado estructuralmente.
             assert_eq!(e.text.plain_text(), "Σ");
@@ -8359,8 +10777,11 @@ mod tests {
         // liminf vanilla → text "lim inf" (multi-word).
         let v = lookup_math("liminf").expect("math.liminf deve existir");
         if let Value::Content(Content::MathOp(e)) = v {
-            assert_eq!(e.text.plain_text(), "lim inf",
-                "multi-word: name 'liminf' mapeia para text 'lim inf'");
+            assert_eq!(
+                e.text.plain_text(),
+                "lim inf",
+                "multi-word: name 'liminf' mapeia para text 'lim inf'"
+            );
             assert!(e.limits);
         }
     }
@@ -8378,8 +10799,11 @@ mod tests {
     fn p299_math_module_total_42_operadores() {
         use super::make_math_module;
         if let Value::Dict(d) = make_math_module() {
-            assert_eq!(d.len(), 42,
-                "P299: 31 scripts + 11 limits = 42 operadores vanilla");
+            assert_eq!(
+                d.len(),
+                42,
+                "P299: 31 scripts + 11 limits = 42 operadores vanilla"
+            );
         } else {
             panic!("make_math_module deve retornar Value::Dict");
         }
@@ -8432,9 +10856,9 @@ mod tests {
     // resolvida em P311b.4.
 
     use super::math_style::{
-        native_bb, native_bold, native_cal, native_frak, native_math_italic,
-        native_mono, native_sans, native_scr, native_script, native_serif,
-        native_sscript, native_upright,
+        native_bb, native_bold, native_cal, native_frak, native_math_italic, native_mono,
+        native_sans, native_scr, native_script, native_serif, native_sscript,
+        native_upright,
     };
     use crate::entities::math_style::MathStyleKind;
 
@@ -8466,73 +10890,109 @@ mod tests {
 
     #[test]
     fn p311b_bb_wraps_double_struck() {
-        let v = call_math_style(native_bb, vec![Value::Content(Content::MathIdent("x".into()))]);
+        let v = call_math_style(
+            native_bb,
+            vec![Value::Content(Content::MathIdent("x".into()))],
+        );
         assert_styled(v, Some(MathStyleKind::DoubleStruck), None, None, None);
     }
 
     #[test]
     fn p311b_bold_is_orthogonal_flag() {
-        let v = call_math_style(native_bold, vec![Value::Content(Content::MathIdent("x".into()))]);
+        let v = call_math_style(
+            native_bold,
+            vec![Value::Content(Content::MathIdent("x".into()))],
+        );
         assert_styled(v, None, Some(true), None, None);
     }
 
     #[test]
     fn p311b_cal_wraps_chancery() {
-        let v = call_math_style(native_cal, vec![Value::Content(Content::MathIdent("L".into()))]);
+        let v = call_math_style(
+            native_cal,
+            vec![Value::Content(Content::MathIdent("L".into()))],
+        );
         assert_styled(v, Some(MathStyleKind::Chancery), None, None, None);
     }
 
     #[test]
     fn p311b_frak_wraps_fraktur() {
-        let v = call_math_style(native_frak, vec![Value::Content(Content::MathIdent("g".into()))]);
+        let v = call_math_style(
+            native_frak,
+            vec![Value::Content(Content::MathIdent("g".into()))],
+        );
         assert_styled(v, Some(MathStyleKind::Fraktur), None, None, None);
     }
 
     #[test]
     fn p311b_italic_is_orthogonal_flag() {
-        let v = call_math_style(native_math_italic, vec![Value::Content(Content::MathIdent("x".into()))]);
+        let v = call_math_style(
+            native_math_italic,
+            vec![Value::Content(Content::MathIdent("x".into()))],
+        );
         assert_styled(v, None, None, Some(true), None);
     }
 
     #[test]
     fn p311b_mono_wraps_monospace() {
-        let v = call_math_style(native_mono, vec![Value::Content(Content::MathIdent("x".into()))]);
+        let v = call_math_style(
+            native_mono,
+            vec![Value::Content(Content::MathIdent("x".into()))],
+        );
         assert_styled(v, Some(MathStyleKind::Monospace), None, None, None);
     }
 
     #[test]
     fn p311b_sans_wraps_sans_serif() {
-        let v = call_math_style(native_sans, vec![Value::Content(Content::MathIdent("x".into()))]);
+        let v = call_math_style(
+            native_sans,
+            vec![Value::Content(Content::MathIdent("x".into()))],
+        );
         assert_styled(v, Some(MathStyleKind::SansSerif), None, None, None);
     }
 
     #[test]
     fn p311b_scr_wraps_roundhand() {
-        let v = call_math_style(native_scr, vec![Value::Content(Content::MathIdent("L".into()))]);
+        let v = call_math_style(
+            native_scr,
+            vec![Value::Content(Content::MathIdent("L".into()))],
+        );
         assert_styled(v, Some(MathStyleKind::Roundhand), None, None, None);
     }
 
     #[test]
     fn p311b_script_with_cramped() {
-        let v = call_math_style(native_script, vec![Value::Content(Content::MathIdent("x".into()))]);
+        let v = call_math_style(
+            native_script,
+            vec![Value::Content(Content::MathIdent("x".into()))],
+        );
         assert_styled(v, Some(MathStyleKind::Script), None, None, Some(true));
     }
 
     #[test]
     fn p311b_serif_forces_plain() {
-        let v = call_math_style(native_serif, vec![Value::Content(Content::MathIdent("x".into()))]);
+        let v = call_math_style(
+            native_serif,
+            vec![Value::Content(Content::MathIdent("x".into()))],
+        );
         assert_styled(v, Some(MathStyleKind::Plain), None, None, None);
     }
 
     #[test]
     fn p311b_sscript_with_cramped() {
-        let v = call_math_style(native_sscript, vec![Value::Content(Content::MathIdent("x".into()))]);
+        let v = call_math_style(
+            native_sscript,
+            vec![Value::Content(Content::MathIdent("x".into()))],
+        );
         assert_styled(v, Some(MathStyleKind::SScript), None, None, Some(true));
     }
 
     #[test]
     fn p311b_upright_suppresses_italic() {
-        let v = call_math_style(native_upright, vec![Value::Content(Content::MathIdent("x".into()))]);
+        let v = call_math_style(
+            native_upright,
+            vec![Value::Content(Content::MathIdent("x".into()))],
+        );
         assert_styled(v, None, None, Some(false), None);
     }
 
@@ -8540,12 +11000,10 @@ mod tests {
     fn p311b_accepts_string_body() {
         let v = call_math_style(native_bb, vec![Value::Str("abc".into())]).unwrap();
         match v {
-            Value::Content(Content::MathStyled(m)) => {
-                match &m.body {
-                    Content::Text(s) => assert_eq!(s.as_str(), "abc"),
-                    other => panic!("esperado Text, obteve {other:?}"),
-                }
-            }
+            Value::Content(Content::MathStyled(m)) => match &m.body {
+                Content::Text(s) => assert_eq!(s.as_str(), "abc"),
+                other => panic!("esperado Text, obteve {other:?}"),
+            },
             other => panic!("esperado MathStyled, obteve {other:?}"),
         }
     }
@@ -8563,10 +11021,13 @@ mod tests {
 
     #[test]
     fn p311b_two_args_errors() {
-        let r = call_math_style(native_bb, vec![
-            Value::Content(Content::MathIdent("x".into())),
-            Value::Content(Content::MathIdent("y".into())),
-        ]);
+        let r = call_math_style(
+            native_bb,
+            vec![
+                Value::Content(Content::MathIdent("x".into())),
+                Value::Content(Content::MathIdent("y".into())),
+            ],
+        );
         assert!(r.is_err(), "esperava erro por arity > 1");
     }
 
@@ -8583,7 +11044,14 @@ mod tests {
         with_engine(|engine, world| {
             let mut ctx = EvalContext::new();
             let mut scopes = Scopes::new(None);
-            native_eval(&mut ctx, &p(vec![Value::Str(source.into())]), world, test_file_id(), &mut scopes, engine)
+            native_eval(
+                &mut ctx,
+                &p(vec![Value::Str(source.into())]),
+                world,
+                test_file_id(),
+                &mut scopes,
+                engine,
+            )
         })
     }
 
@@ -8593,7 +11061,14 @@ mod tests {
             let mut ctx = EvalContext::new();
             let mut scopes = Scopes::new(None);
             scopes.define(name, value);
-            native_eval(&mut ctx, &p(vec![Value::Str(source.into())]), world, test_file_id(), &mut scopes, engine)
+            native_eval(
+                &mut ctx,
+                &p(vec![Value::Str(source.into())]),
+                world,
+                test_file_id(),
+                &mut scopes,
+                engine,
+            )
         })
     }
 
@@ -8639,7 +11114,14 @@ mod tests {
     #[test]
     fn p394_eval_tipo_errado_erro() {
         let r = with_engine(|engine, world| {
-            native_eval(&mut EvalContext::new(), &p(vec![Value::Int(42)]), world, test_file_id(), &mut Scopes::new(None), engine)
+            native_eval(
+                &mut EvalContext::new(),
+                &p(vec![Value::Int(42)]),
+                world,
+                test_file_id(),
+                &mut Scopes::new(None),
+                engine,
+            )
         });
         assert!(r.is_err(), "eval com argumento não-string deve falhar");
     }
@@ -8647,7 +11129,14 @@ mod tests {
     #[test]
     fn p394_eval_arity_errado_erro() {
         let r = with_engine(|engine, world| {
-            native_eval(&mut EvalContext::new(), &p(vec![]), world, test_file_id(), &mut Scopes::new(None), engine)
+            native_eval(
+                &mut EvalContext::new(),
+                &p(vec![]),
+                world,
+                test_file_id(),
+                &mut Scopes::new(None),
+                engine,
+            )
         });
         assert!(r.is_err(), "eval sem argumentos deve falhar");
     }
@@ -8657,7 +11146,14 @@ mod tests {
         let mut args = p(vec![Value::Str("1".into())]);
         args.named.insert("mode".into(), Value::Str("code".into()));
         let r = with_engine(|engine, world| {
-            native_eval(&mut EvalContext::new(), &args, world, test_file_id(), &mut Scopes::new(None), engine)
+            native_eval(
+                &mut EvalContext::new(),
+                &args,
+                world,
+                test_file_id(),
+                &mut Scopes::new(None),
+                engine,
+            )
         });
         assert!(r.is_err(), "named arg inesperado deve falhar");
     }

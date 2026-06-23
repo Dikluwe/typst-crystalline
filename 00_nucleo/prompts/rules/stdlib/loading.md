@@ -81,6 +81,20 @@ A heurística UTF-8 é suficiente para paridade linguagem (ADR-0107); encoding d
 **Histórico**: em P387, `Value::Bytes` estava ausente (ADR-0017); `read` binário e byte-strings cbor eram graded e registados como DEBT-62. P398 fecha DEBT-62.
 - **yaml usa `saphyr`** (parser mantido; mapa `Yaml → Value` manual), após `serde_yaml`/`serde_yml` se confirmarem não-mantidas (ADR-0111). A paridade de saída é independente da crate, provada pelos testes de bytes literais (§7).
 
+---
+
+## P418 (XL) — loading bibliográfico
+
+**Extensão**: o módulo `loading` é reutilizado por `bibliography()` para ler bytes do ficheiro `.bib`/`.yaml`/`.json`. O decode propriamente dito (BibTeX/BibLaTeX/CSL-JSON) é delegado ao `hayagriva` crate (ADR-0111), não a um novo decode L1.
+
+**Fronteira**: `native_bibliography` recebe o path, chama `ctx.world.read_bytes(...)` (L3) e entrega os bytes ao hayagriva. Não adiciona `decode_bib` L1.
+
+## Histórico de revisões
+
+| Data | Motivo | Arquivos |
+|------|--------|----------|
+| 2026-06-23 | P418 (XL): documentar reutilização do loading para bibliografia. | `loading.md`, `loading.rs`, `bibliography.md`, `bibliography.rs` |
+
 ## 5. Estratificação de erro (critério de aceitação 4)
 
 Mensagens distintas por estrato — o utilizador distingue I/O de malformado:

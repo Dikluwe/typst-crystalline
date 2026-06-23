@@ -43,3 +43,4 @@ ciborium             = "0.2"   # CBOR puro-Rust sem C
 roxmltree            = "0.20"  # XML read-only
 csv                  = "1"
 rust_decimal         = "1"   # ADR-0112 (P399) — Decimal precisão fixa em L1
+hayagriva            = "0.10"  # P418 — parsing bibliográfico + CSL engine

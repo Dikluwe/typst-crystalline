@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/entities/elements/bibliography.md
-//! @prompt-hash 069ea5aa
+//! @prompt-hash e2188ff0
 //! @layer L1
 //! @updated 2026-06-11
 //!
@@ -8,6 +8,8 @@
 //! **Locatável** (P181C) — absorve `extract_payload`. Contentor: recurse no title.
 
 use std::sync::Arc;
+
+use ecow::EcoString;
 
 use crate::entities::bib_entry::BibEntry;
 use crate::entities::content::Content;
@@ -20,7 +22,11 @@ use crate::entities::source_result::SourceResult;
 #[derive(Debug, Clone, PartialEq, Hash)]
 pub struct BibliographyElem {
     pub entries: Vec<BibEntry>,
-    pub title:   Option<Content>,
+    pub title: Option<Content>,
+    /// **P418** — CSL style: nome built-in (ex: `"ieee"`, `"apa"`) ou path `.csl`.
+    pub style: Option<EcoString>,
+    /// **P418** — CSL locale override (ex: `"en-US"`, `"pt-PT"`). `None` usa locale do style.
+    pub locale: Option<EcoString>,
 }
 
 impl Element for BibliographyElem {
@@ -50,7 +56,9 @@ impl Element for BibliographyElem {
     {
         Ok(Content::Bibliography(Arc::new(BibliographyElem {
             entries: self.entries.clone(),
-            title:   self.title.as_ref().map(|t| t.map_content(transform)).transpose()?,
+            title: self.title.as_ref().map(|t| t.map_content(transform)).transpose()?,
+            style: self.style.clone(),
+            locale: self.locale.clone(),
         })))
     }
 
@@ -60,7 +68,9 @@ impl Element for BibliographyElem {
     {
         Content::Bibliography(Arc::new(BibliographyElem {
             entries: self.entries.clone(),
-            title:   self.title.as_ref().map(|t| t.map_text(transform)),
+            title: self.title.as_ref().map(|t| t.map_text(transform)),
+            style: self.style.clone(),
+            locale: self.locale.clone(),
         }))
     }
 
@@ -76,15 +86,20 @@ impl Element for BibliographyElem {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use std::hash::{Hash, Hasher};
     use std::collections::hash_map::DefaultHasher;
+    use std::hash::{Hash, Hasher};
 
     fn entry() -> BibEntry {
         BibEntry::new("smith2024", "Smith", "Title", 2024)
     }
 
     fn ex() -> BibliographyElem {
-        BibliographyElem { entries: vec![entry()], title: None }
+        BibliographyElem {
+            entries: vec![entry()],
+            title: None,
+            style: None,
+            locale: None,
+        }
     }
 
     #[test]
@@ -95,13 +110,30 @@ mod tests {
     #[test]
     fn is_empty_so_sem_entries_e_sem_title() {
         assert!(!ex().is_empty());
-        assert!(BibliographyElem { entries: vec![], title: None }.is_empty());
-        assert!(!BibliographyElem { entries: vec![], title: Some(Content::text("Refs")) }.is_empty());
+        assert!(BibliographyElem {
+            entries: vec![],
+            title: None,
+            style: None,
+            locale: None
+        }
+        .is_empty());
+        assert!(!BibliographyElem {
+            entries: vec![],
+            title: Some(Content::text("Refs")),
+            style: None,
+            locale: None
+        }
+        .is_empty());
     }
 
     #[test]
     fn map_content_recurse_title_preserva_entries() {
-        let b = BibliographyElem { entries: vec![entry()], title: Some(Content::text("a")) };
+        let b = BibliographyElem {
+            entries: vec![entry()],
+            title: Some(Content::text("a")),
+            style: None,
+            locale: None,
+        };
         let mut f = |c: &Content| -> SourceResult<Option<Content>> {
             match c {
                 Content::Text(s) if s.as_str() == "a" => Ok(Some(Content::text("Z"))),
@@ -111,7 +143,9 @@ mod tests {
         match b.map_content(&mut f).unwrap() {
             Content::Bibliography(e) => {
                 assert_eq!(e.entries.len(), 1);
-                assert!(matches!(e.title.as_ref().unwrap(), Content::Text(s) if s.as_str() == "Z"));
+                assert!(
+                    matches!(e.title.as_ref().unwrap(), Content::Text(s) if s.as_str() == "Z")
+                );
             }
             _ => panic!("esperado Bibliography"),
         }
@@ -120,7 +154,10 @@ mod tests {
     #[test]
     fn locatavel_kind_e_payload() {
         assert_eq!(ex().element_kind(), Some(ElementKind::Bibliography));
-        assert_eq!(ex().to_payload(), Some(ElementPayload::Bibliography { entries: vec![entry()] }));
+        assert_eq!(
+            ex().to_payload(),
+            Some(ElementPayload::Bibliography { entries: vec![entry()] })
+        );
     }
 
     fn h(e: &BibliographyElem) -> u64 {
@@ -131,6 +168,39 @@ mod tests {
 
     #[test]
     fn payload_diferente_produz_hash_diferente() {
-        assert_ne!(h(&ex()), h(&BibliographyElem { entries: vec![], title: None }));
+        assert_ne!(
+            h(&ex()),
+            h(&BibliographyElem {
+                entries: vec![],
+                title: None,
+                style: None,
+                locale: None
+            })
+        );
+    }
+
+    #[test]
+    fn style_e_locale_participam_de_eq_e_hash() {
+        let a = BibliographyElem {
+            entries: vec![],
+            title: None,
+            style: Some("ieee".into()),
+            locale: None,
+        };
+        let b = BibliographyElem {
+            entries: vec![],
+            title: None,
+            style: Some("apa".into()),
+            locale: None,
+        };
+        let c = BibliographyElem {
+            entries: vec![],
+            title: None,
+            style: Some("ieee".into()),
+            locale: Some("en-US".into()),
+        };
+        assert_ne!(a, b);
+        assert_ne!(a, c);
+        assert_ne!(h(&a), h(&b));
     }
 }

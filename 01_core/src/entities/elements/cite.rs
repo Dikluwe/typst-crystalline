@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/entities/elements/cite.md
-//! @prompt-hash 621f3aea
+//! @prompt-hash 3faac042
 //! @layer L1
 //! @updated 2026-06-11
 //!
@@ -20,9 +20,9 @@ use crate::entities::source_result::SourceResult;
 /// Citação `@key` com `supplement` e `form` opcionais.
 #[derive(Debug, Clone, PartialEq, Hash)]
 pub struct CiteElem {
-    pub key:        String,
+    pub key: String,
     pub supplement: Option<Content>,
-    pub form:       Option<CitationForm>,
+    pub form: Option<CitationForm>,
 }
 
 impl Element for CiteElem {
@@ -39,11 +39,13 @@ impl Element for CiteElem {
         F: FnMut(&Content) -> SourceResult<Option<Content>>,
     {
         Ok(Content::Cite(Arc::new(CiteElem {
-            key:        self.key.clone(),
-            supplement: self.supplement.as_ref()
+            key: self.key.clone(),
+            supplement: self
+                .supplement
+                .as_ref()
                 .map(|s| s.map_content(transform))
                 .transpose()?,
-            form:       self.form,
+            form: self.form,
         })))
     }
 
@@ -52,9 +54,9 @@ impl Element for CiteElem {
         F: FnMut(&str) -> String,
     {
         Content::Cite(Arc::new(CiteElem {
-            key:        self.key.clone(),
+            key: self.key.clone(),
             supplement: self.supplement.as_ref().map(|s| s.map_text(transform)),
-            form:       self.form,
+            form: self.form,
         }))
     }
 
@@ -70,11 +72,15 @@ impl Element for CiteElem {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use std::hash::{Hash, Hasher};
     use std::collections::hash_map::DefaultHasher;
+    use std::hash::{Hash, Hasher};
 
     fn ex() -> CiteElem {
-        CiteElem { key: "smith2024".to_string(), supplement: None, form: None }
+        CiteElem {
+            key: "smith2024".to_string(),
+            supplement: None,
+            form: None,
+        }
     }
 
     #[test]
@@ -84,7 +90,11 @@ mod tests {
 
     #[test]
     fn plain_text_com_supplement() {
-        let c = CiteElem { key: "k".to_string(), supplement: Some(Content::text(" p.5")), form: None };
+        let c = CiteElem {
+            key: "k".to_string(),
+            supplement: Some(Content::text(" p.5")),
+            form: None,
+        };
         assert_eq!(c.plain_text(), "[k] p.5");
     }
 
@@ -96,12 +106,19 @@ mod tests {
     #[test]
     fn locatavel_kind_e_payload() {
         assert_eq!(ex().element_kind(), Some(ElementKind::Citation));
-        assert_eq!(ex().to_payload(), Some(ElementPayload::Citation { key: "smith2024".to_string() }));
+        assert_eq!(
+            ex().to_payload(),
+            Some(ElementPayload::Citation { key: "smith2024".to_string() })
+        );
     }
 
     #[test]
     fn map_content_recurse_supplement_preserva_key() {
-        let c = CiteElem { key: "k".to_string(), supplement: Some(Content::text("a")), form: Some(CitationForm::Prose) };
+        let c = CiteElem {
+            key: "k".to_string(),
+            supplement: Some(Content::text("a")),
+            form: Some(CitationForm::Prose),
+        };
         let mut f = |x: &Content| -> SourceResult<Option<Content>> {
             match x {
                 Content::Text(s) if s.as_str() == "a" => Ok(Some(Content::text("Z"))),
@@ -112,7 +129,9 @@ mod tests {
             Content::Cite(e) => {
                 assert_eq!(e.key, "k");
                 assert_eq!(e.form, Some(CitationForm::Prose));
-                assert!(matches!(e.supplement.as_ref().unwrap(), Content::Text(s) if s.as_str() == "Z"));
+                assert!(
+                    matches!(e.supplement.as_ref().unwrap(), Content::Text(s) if s.as_str() == "Z")
+                );
             }
             _ => panic!("esperado Cite"),
         }
@@ -126,7 +145,11 @@ mod tests {
 
     #[test]
     fn payload_diferente_produz_hash_diferente() {
-        let outro = CiteElem { key: "other".to_string(), supplement: None, form: None };
+        let outro = CiteElem {
+            key: "other".to_string(),
+            supplement: None,
+            form: None,
+        };
         assert_ne!(h(&ex()), h(&outro));
     }
 }

@@ -54,3 +54,21 @@ Construtor ergonómico: `Content::cite(key, supplement, form)`.
 
 `#[derive(PartialEq)]` compara `key`/`supplement`/`form` (paridade
 `content.rs:1963`).
+
+---
+
+## P418 (XL) — Renderização CSL real
+
+**Decisão arquitetural (ADR-0107 / ADR-0108 / ADR-0109):**
+- `CiteElem` mantém `key`/`supplement`/`form`; a formatação real via hayagriva CSL vive em `rules/layout/cite.rs` (forma B).
+- `Introspector::bib_entry_for_key` / `bib_number_for_key` continuam como lookup; P418 pode enriquecer com dados hayagriva se necessário.
+- Forward references funcionam porque o `Introspector` é populado durante o walk (`from_tags`) antes do layout.
+
+**Scope-out P418:**
+- `form` avançado beyond `Normal`/`Prose`/`Author`/`Year`; supplement com formatação CSL nativa (render simples `, supp`).
+
+## Histórico de revisões
+
+| Data | Motivo | Arquivos |
+|------|--------|----------|
+| 2026-06-23 | P418 (XL): adicionar seção de renderização CSL real e scope-out. | `cite.md`, `cite.rs`, `bibliography.md`, `bibliography.rs`, `loading.md` |

@@ -43,3 +43,22 @@ pub struct BibliographyElem {
 ## `eq`
 
 `#[derive(PartialEq)]` compara `entries`/`title` (paridade `content.rs:1967`).
+
+---
+
+## P418 (XL) — Renderização CSL real
+
+**Decisão arquitetural (ADR-0107 / ADR-0108 / ADR-0109):**
+- Usar `hayagriva` crate (Opção α) para parsing de `.bib`/`.yaml`/`.json` e CSL engine.
+- Paridade é linguística (`.bib` + `@key` → citações/bibliografia renderizadas), não mecânica.
+- Lógica de render vive em `rules/layout/bibliography.rs` (forma B, free function).
+
+**Scope-out P418:**
+- CSL style via URL; múltiplos arquivos de bibliografia no mesmo doc; `title` customizado; CSL locales.
+- `BibliographyElem` continua carregando `Vec<BibEntry>` interno; a conversão para hayagriva acontece no layout/eval.
+
+## Histórico de revisões
+
+| Data | Motivo | Arquivos |
+|------|--------|----------|
+| 2026-06-23 | P418 (XL): adicionar seção de renderização CSL real e scope-out. | `bibliography.md`, `bibliography.rs`, `cite.md`, `cite.rs`, `loading.md`, `loading.rs` |

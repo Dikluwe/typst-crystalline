@@ -17,24 +17,26 @@ use std::sync::Arc;
 use ecow::EcoString;
 
 use crate::entities::counter_update::CounterUpdate as CounterAction;
-use crate::entities::geometry::{ShapeKind, Stroke};
-use crate::entities::paint::Paint;
-use crate::entities::label::Label;
 use crate::entities::dir::Dir;
-use crate::entities::layout_types::{Align2D, Color, Length, PlaceScope, Pt, TextStyle, TrackSizing, TransformMatrix};
-use crate::entities::world_types::Datetime;
+use crate::entities::geometry::{ShapeKind, Stroke};
+use crate::entities::label::Label;
+use crate::entities::layout_types::{
+    Align2D, Color, Length, PlaceScope, Pt, TextStyle, TrackSizing, TransformMatrix,
+};
 use crate::entities::math_style::MathStyleKind;
+use crate::entities::paint::Paint;
 use crate::entities::parity::Parity;
 use crate::entities::ptr_eq_arc::PtrEqArc;
 use crate::entities::sides::Sides;
+use crate::entities::world_types::Datetime;
 // Modelo D (ADR-0105, lote piloto P316): variantes delegadas a módulos.
-use crate::entities::elements::Element;
-use crate::entities::elements::DynElement;
 use crate::entities::elements::divider::DividerElem;
-use crate::entities::elements::heading::HeadingElem;
-use crate::entities::elements::strong::StrongElem;
 use crate::entities::elements::emph::EmphElem;
+use crate::entities::elements::heading::HeadingElem;
 use crate::entities::elements::math_styled::MathStyledElem;
+use crate::entities::elements::strong::StrongElem;
+use crate::entities::elements::DynElement;
+use crate::entities::elements::Element;
 // Lote 2 P317 — família math element-shaped (11 variantes).
 use crate::entities::elements::math_accent::MathAccentElem;
 use crate::entities::elements::math_align_point::MathAlignPointElem;
@@ -77,32 +79,32 @@ use crate::entities::elements::state_display::StateDisplayElem;
 use crate::entities::elements::state_update::StateUpdateElem;
 // Lote 7 P322 — por largura (5 variantes).
 use crate::entities::elements::align::AlignElem;
+use crate::entities::elements::bibliography::BibliographyElem;
+use crate::entities::elements::block::BlockElem;
+use crate::entities::elements::boxed::BoxedElem;
+use crate::entities::elements::cite::CiteElem;
+use crate::entities::elements::columns::ColumnsElem;
+use crate::entities::elements::equation::EquationElem;
+use crate::entities::elements::figure::FigureElem;
+use crate::entities::elements::footnote::FootnoteElem;
+use crate::entities::elements::grid::GridElem;
+use crate::entities::elements::grid_cell::GridCellElem;
 use crate::entities::elements::hide::HideElem;
 use crate::entities::elements::image::ImageElem;
+use crate::entities::elements::labelled::LabelledElem;
+use crate::entities::elements::outline::OutlineElem;
+use crate::entities::elements::pad::PadElem;
+use crate::entities::elements::place::PlaceElem;
+use crate::entities::elements::quote::QuoteElem;
+use crate::entities::elements::r#ref::RefElem;
 use crate::entities::elements::raw::RawElem;
 use crate::entities::elements::repeat::RepeatElem;
-use crate::entities::elements::r#ref::RefElem;
-use crate::entities::elements::outline::OutlineElem;
-use crate::entities::elements::columns::ColumnsElem;
-use crate::entities::elements::quote::QuoteElem;
+use crate::entities::elements::shape::ShapeElem;
 use crate::entities::elements::smartquote::SmartQuoteElem;
 use crate::entities::elements::stack::StackElem;
-use crate::entities::elements::cite::CiteElem;
-use crate::entities::elements::transform::TransformElem;
-use crate::entities::elements::place::PlaceElem;
-use crate::entities::elements::pad::PadElem;
-use crate::entities::elements::bibliography::BibliographyElem;
-use crate::entities::elements::equation::EquationElem;
-use crate::entities::elements::footnote::FootnoteElem;
-use crate::entities::elements::shape::ShapeElem;
-use crate::entities::elements::table_cell::TableCellElem;
 use crate::entities::elements::table::TableElem;
-use crate::entities::elements::grid_cell::GridCellElem;
-use crate::entities::elements::grid::GridElem;
-use crate::entities::elements::figure::FigureElem;
-use crate::entities::elements::labelled::LabelledElem;
-use crate::entities::elements::boxed::BoxedElem;
-use crate::entities::elements::block::BlockElem;
+use crate::entities::elements::table_cell::TableCellElem;
+use crate::entities::elements::transform::TransformElem;
 
 /// Conteúdo declarativo produzido por `eval()`.
 ///
@@ -342,7 +344,6 @@ pub enum Content {
 
     // Lote F-2 S5 (P335): SetHeadingNumbering/SetEquationNumbering removidos
     // — numeração migrada para a chain léxica (assada nos elementos).
-
     /// Valor actual de um contador no ponto de inserção.
     /// Produzida por `counter(heading).get()` / `counter(heading).display()`.
     /// O Layouter resolve o valor no momento do layout (single-pass).
@@ -371,7 +372,6 @@ pub enum Content {
     Figure(Arc<FigureElem>),
 
     // Lote F-2 S5 (P335): SetFigureNumbering removido — assado em FigureElem.numbering.
-
     /// Imagem carregada do disco (Passo 71, DEBT-24).
     ///
     /// `data: PtrEqArc<Vec<u8>>` — clones partilham a mesma alocação (O(1) clone)
@@ -467,7 +467,7 @@ pub enum Content {
     /// de aplicar a nova configuração. Se a página actual estiver vazia, aplica
     /// directamente sem quebra.
     SetPage {
-        width:  Option<f64>,
+        width: Option<f64>,
         height: Option<f64>,
         margin: Option<f64>,
     },
@@ -1137,10 +1137,10 @@ impl Content {
     /// Construtor de `MathAttach` (base + pre/pos-scripts opcionais).
     pub fn math_attach(
         base: Content,
-        tl:   Option<Content>,
-        bl:   Option<Content>,
-        sub:  Option<Content>,
-        sup:  Option<Content>,
+        tl: Option<Content>,
+        bl: Option<Content>,
+        sub: Option<Content>,
+        sup: Option<Content>,
     ) -> Self {
         Self::MathAttach(Arc::new(MathAttachElem { base, tl, bl, sub, sup }))
     }
@@ -1173,7 +1173,11 @@ impl Content {
         Self::MathCancel(Arc::new(MathCancelElem { body }))
     }
     /// Construtor de `MathUnderover`.
-    pub fn math_underover(base: Content, under: Option<Content>, over: Option<Content>) -> Self {
+    pub fn math_underover(
+        base: Content,
+        under: Option<Content>,
+        over: Option<Content>,
+    ) -> Self {
         Self::MathUnderover(Arc::new(MathUnderoverElem { base, under, over }))
     }
     /// Construtor de `MathOp` (`limits` é discriminador de layout).
@@ -1189,9 +1193,12 @@ impl Content {
         Self::Align(Arc::new(AlignElem { alignment, body }))
     }
     /// `image(path, data, width, height)` — Modelo D (Lote 7 P322).
-    pub fn image(path: impl Into<String>, data: PtrEqArc<Vec<u8>>,
-                 width: Option<Box<crate::entities::value::Value>>,
-                 height: Option<Box<crate::entities::value::Value>>) -> Self {
+    pub fn image(
+        path: impl Into<String>,
+        data: PtrEqArc<Vec<u8>>,
+        width: Option<Box<crate::entities::value::Value>>,
+        height: Option<Box<crate::entities::value::Value>>,
+    ) -> Self {
         Self::Image(Arc::new(ImageElem { path: path.into(), data, width, height }))
     }
     // ── Construtores ergonómicos família lista/termos (Modelo D, Lote 3 P318) ──
@@ -1212,13 +1219,28 @@ impl Content {
     }
 
     // ── Construtores ergonómicos decorações de texto (Modelo D, Lote 4 P319) ──
-    pub fn overline(body: Content, stroke: Option<Color>, offset: Option<Length>, extent: Option<Length>) -> Self {
+    pub fn overline(
+        body: Content,
+        stroke: Option<Color>,
+        offset: Option<Length>,
+        extent: Option<Length>,
+    ) -> Self {
         Self::Overline(Arc::new(OverlineElem { body, stroke, offset, extent }))
     }
-    pub fn strike(body: Content, stroke: Option<Color>, offset: Option<Length>, extent: Option<Length>) -> Self {
+    pub fn strike(
+        body: Content,
+        stroke: Option<Color>,
+        offset: Option<Length>,
+        extent: Option<Length>,
+    ) -> Self {
         Self::Strike(Arc::new(StrikeElem { body, stroke, offset, extent }))
     }
-    pub fn underline(body: Content, stroke: Option<Color>, offset: Option<Length>, extent: Option<Length>) -> Self {
+    pub fn underline(
+        body: Content,
+        stroke: Option<Color>,
+        offset: Option<Length>,
+        extent: Option<Length>,
+    ) -> Self {
         Self::Underline(Arc::new(UnderlineElem { body, stroke, offset, extent }))
     }
 
@@ -1261,10 +1283,10 @@ impl Content {
 
     /// **Lote 11 P326** — `Content::Shape` (geometria).
     pub fn shape(
-        kind:   ShapeKind,
-        width:  Option<Box<crate::entities::value::Value>>,
+        kind: ShapeKind,
+        width: Option<Box<crate::entities::value::Value>>,
         height: Option<Box<crate::entities::value::Value>>,
-        fill:   Option<crate::entities::paint::Paint>,
+        fill: Option<crate::entities::paint::Paint>,
         stroke: Option<Stroke>,
     ) -> Self {
         Self::Shape(Arc::new(ShapeElem { kind, width, height, fill, stroke }))
@@ -1323,9 +1345,9 @@ impl Content {
     /// gera — usada pelos fixtures. `None` → figura simples. Em produção
     /// `native_figure` passa `None` (a fatia-1 carrega o gate).
     pub fn figure(
-        body:      Content,
-        caption:   Option<Content>,
-        kind:      Option<String>,
+        body: Content,
+        caption: Option<Content>,
+        kind: Option<String>,
         numbering: Option<String>,
     ) -> Self {
         let fig = Self::Figure(Arc::new(FigureElem { body, caption, kind }));
@@ -1354,29 +1376,50 @@ impl Content {
     pub fn state(key: impl Into<String>, init: crate::entities::value::Value) -> Self {
         Self::State(Arc::new(StateElem { key: key.into(), init: Box::new(init) }))
     }
-    pub fn state_update(key: impl Into<String>, update: crate::entities::state_update::StateUpdate) -> Self {
+    pub fn state_update(
+        key: impl Into<String>,
+        update: crate::entities::state_update::StateUpdate,
+    ) -> Self {
         Self::StateUpdate(Arc::new(StateUpdateElem { key: key.into(), update }))
     }
-    pub fn state_display(key: impl Into<String>, callback: Option<crate::entities::func::Func>) -> Self {
+    pub fn state_display(
+        key: impl Into<String>,
+        callback: Option<crate::entities::func::Func>,
+    ) -> Self {
         Self::StateDisplay(Arc::new(StateDisplayElem { key: key.into(), callback }))
     }
-    pub fn counter_display_callback(key: impl Into<String>, callback: Option<crate::entities::func::Func>) -> Self {
-        Self::CounterDisplayCallback(Arc::new(CounterDisplayCallbackElem { key: key.into(), callback }))
+    pub fn counter_display_callback(
+        key: impl Into<String>,
+        callback: Option<crate::entities::func::Func>,
+    ) -> Self {
+        Self::CounterDisplayCallback(Arc::new(CounterDisplayCallbackElem {
+            key: key.into(),
+            callback,
+        }))
     }
 
     /// `block(body, width, height, inset, breakable)` — Passo 156G
     /// (ADR-0061 Fase 2 sub-passo 1). Construtor com defaults sensatos
     /// (None/zero/true) para uso programático.
     pub fn block(
-        body:      Content,
-        width:     Option<Length>,
-        height:    Option<Length>,
-        inset:     Sides<Length>,
+        body: Content,
+        width: Option<Length>,
+        height: Option<Length>,
+        inset: Sides<Length>,
         breakable: bool,
     ) -> Self {
         Self::Block(Arc::new(BlockElem {
-            body, width, height, inset, breakable,
-            outset: Sides::new(Length::pt(0.0), Length::pt(0.0), Length::pt(0.0), Length::pt(0.0)),
+            body,
+            width,
+            height,
+            inset,
+            breakable,
+            outset: Sides::new(
+                Length::pt(0.0),
+                Length::pt(0.0),
+                Length::pt(0.0),
+                Length::pt(0.0),
+            ),
             // P242 — radius `Corners<Length>` substitui `Option<Length>` P231.
             radius: crate::entities::corners::Corners::uniform(Length::ZERO),
             clip: false,
@@ -1385,9 +1428,9 @@ impl Content {
             stroke: None,
             // P250 — spacing/above/below/sticky defaults (None×3 + false).
             spacing: None,
-            above:   None,
-            below:   None,
-            sticky:  false,
+            above: None,
+            below: None,
+            sticky: false,
         }))
     }
 
@@ -1395,15 +1438,24 @@ impl Content {
     /// (ADR-0061 Fase 2 sub-passo 2). Naming `boxed` evita conflito com
     /// `std::boxed::Box`; stdlib expõe `#box(...)` (paridade vanilla).
     pub fn boxed(
-        body:     Content,
-        width:    Option<Length>,
-        height:   Option<Length>,
-        inset:    Sides<Length>,
+        body: Content,
+        width: Option<Length>,
+        height: Option<Length>,
+        inset: Sides<Length>,
         baseline: Length,
     ) -> Self {
         Self::Boxed(Arc::new(BoxedElem {
-            body, width, height, inset, baseline,
-            outset: Sides::new(Length::pt(0.0), Length::pt(0.0), Length::pt(0.0), Length::pt(0.0)),
+            body,
+            width,
+            height,
+            inset,
+            baseline,
+            outset: Sides::new(
+                Length::pt(0.0),
+                Length::pt(0.0),
+                Length::pt(0.0),
+                Length::pt(0.0),
+            ),
             // P242 — radius `Corners<Length>` substitui `Option<Length>` P231.
             radius: crate::entities::corners::Corners::uniform(Length::ZERO),
             clip: false,
@@ -1416,11 +1468,7 @@ impl Content {
     /// `stack(dir, spacing, ..children)` — Passo 156I (ADR-0061 Fase 2
     /// sub-passo 3). Atinge target 72% Layout. Aceita Vec<Content> que
     /// converte para `Arc<[Content]>` (clone O(1) per ADR-0026 revisão).
-    pub fn stack(
-        children: Vec<Content>,
-        dir:      Dir,
-        spacing:  Option<Length>,
-    ) -> Self {
+    pub fn stack(children: Vec<Content>, dir: Dir, spacing: Option<Length>) -> Self {
         Self::Stack(Arc::new(StackElem { children: children.into(), dir, spacing }))
     }
 
@@ -1438,36 +1486,36 @@ impl Content {
     #[allow(clippy::too_many_arguments)]
     pub fn place(
         alignment: Align2D,
-        dx:        f64,
-        dy:        f64,
-        scope:     PlaceScope,
-        float:     bool,
+        dx: f64,
+        dy: f64,
+        scope: PlaceScope,
+        float: bool,
         clearance: Option<Length>,
-        body:      Content,
+        body: Content,
     ) -> Self {
-        Self::Place(Arc::new(PlaceElem { alignment, dx, dy, scope, float, clearance, body }))
+        Self::Place(Arc::new(PlaceElem {
+            alignment,
+            dx,
+            dy,
+            scope,
+            float,
+            clearance,
+            body,
+        }))
     }
 
     /// `repeat(body, gap, justify)` — Passo 156J (ADR-0061 Fase 3
     /// sub-passo 1). **Primeira Fase 3**. Default `justify == true`
     /// (paridade vanilla); algoritmo dinâmico de quantidade-para-encher
     /// diferido per ADR-0054 graded.
-    pub fn repeat(
-        body:    Content,
-        gap:     Option<Length>,
-        justify: bool,
-    ) -> Self {
+    pub fn repeat(body: Content, gap: Option<Length>, justify: bool) -> Self {
         Self::Repeat(Arc::new(RepeatElem { body, gap, justify }))
     }
 
     /// **P217** — Construtor `Content::Columns` (multi-column container).
     /// Stdlib `native_columns` em P218 com validação `count >= 1`.
     /// Consumer multi-region real em P219.
-    pub fn columns(
-        body:   Content,
-        count:  usize,
-        gutter: Option<Length>,
-    ) -> Self {
+    pub fn columns(body: Content, count: usize, gutter: Option<Length>) -> Self {
         Self::Columns(Arc::new(ColumnsElem { count, gutter, body }))
     }
 
@@ -1484,27 +1532,22 @@ impl Content {
 
     /// **Lote 8 P323** — `Content::Quote` (citação).
     pub fn quote(
-        body:        Content,
+        body: Content,
         attribution: Option<Content>,
-        block:       bool,
-        quotes:      bool,
+        block: bool,
+        quotes: bool,
     ) -> Self {
         Self::Quote(Arc::new(QuoteElem { body, attribution, block, quotes }))
     }
 
     /// **Passo 397** — `Content::Document` (metadata pura).
     pub fn document(
-        title:    Option<Content>,
-        author:   Vec<EcoString>,
-        date:     Option<Datetime>,
+        title: Option<Content>,
+        author: Vec<EcoString>,
+        date: Option<Datetime>,
         keywords: Vec<EcoString>,
     ) -> Self {
-        Self::Document {
-            title: title.map(Box::new),
-            author,
-            date,
-            keywords,
-        }
+        Self::Document { title: title.map(Box::new), author, date, keywords }
     }
 
     /// **Passo 397** — `Content::Asset` (placeholder de resource).
@@ -1517,11 +1560,17 @@ impl Content {
     /// Subset minimal: cells distribuídas como `Content::Grid`;
     /// TableCell estruturado + Header/Footer diferidos para P157B/C.
     pub fn table(
-        columns:  Vec<TrackSizing>,
-        rows:     Vec<TrackSizing>,
+        columns: Vec<TrackSizing>,
+        rows: Vec<TrackSizing>,
         children: Vec<Content>,
     ) -> Self {
-        Self::Table(Arc::new(TableElem { columns, rows, children, stroke: None, fill: None }))
+        Self::Table(Arc::new(TableElem {
+            columns,
+            rows,
+            children,
+            stroke: None,
+            fill: None,
+        }))
     }
 
     /// `table_cell(body, x, y, colspan, rowspan)` — Passo 157B
@@ -1529,16 +1578,23 @@ impl Content {
     /// `colspan`/`rowspan` Caso C. Placement algorítmico diferido
     /// em DEBT-34e — fields armazenados mas ignorados em layout.
     pub fn table_cell(
-        body:    Content,
-        x:       Option<usize>,
-        y:       Option<usize>,
+        body: Content,
+        x: Option<usize>,
+        y: Option<usize>,
         colspan: Option<usize>,
         rowspan: Option<usize>,
     ) -> Self {
         Self::TableCell(Arc::new(TableCellElem {
-            body, x, y, colspan, rowspan,
-            stroke: None, fill: None,
-            align: None, inset: None, breakable: None,
+            body,
+            x,
+            y,
+            colspan,
+            rowspan,
+            stroke: None,
+            fill: None,
+            align: None,
+            inset: None,
+            breakable: None,
         }))
     }
 
@@ -1562,9 +1618,24 @@ impl Content {
     /// cristalino literal `Vec<BibEntry>`; sem hayagriva.
     pub fn bibliography(
         entries: Vec<crate::entities::bib_entry::BibEntry>,
-        title:   Option<Content>,
+        title: Option<Content>,
     ) -> Self {
-        Self::Bibliography(Arc::new(BibliographyElem { entries, title }))
+        Self::Bibliography(Arc::new(BibliographyElem {
+            entries,
+            title,
+            style: None,
+            locale: None,
+        }))
+    }
+
+    /// **P418** — `bibliography(entries, title, style, locale)` com CSL.
+    pub fn bibliography_with_style(
+        entries: Vec<crate::entities::bib_entry::BibEntry>,
+        title: Option<Content>,
+        style: Option<EcoString>,
+        locale: Option<EcoString>,
+    ) -> Self {
+        Self::Bibliography(Arc::new(BibliographyElem { entries, title, style, locale }))
     }
 
     /// `cite(key, supplement, form)` — Passo 159A (par acoplado com
@@ -1575,18 +1646,14 @@ impl Content {
         supplement: Option<Content>,
         form: Option<crate::entities::citation_form::CitationForm>,
     ) -> Self {
-        Self::Cite(Arc::new(CiteElem {
-            key: key.into(),
-            supplement,
-            form,
-        }))
+        Self::Cite(Arc::new(CiteElem { key: key.into(), supplement, form }))
     }
 
     pub fn sequence(parts: Vec<Content>) -> Self {
         match parts.len() {
             0 => Self::Empty,
             1 => parts.into_iter().next().unwrap(),
-            _ => Self::Sequence(parts.into()),  // Vec<Content> → Arc<[Content]>
+            _ => Self::Sequence(parts.into()), // Vec<Content> → Arc<[Content]>
         }
     }
 
@@ -1631,33 +1698,33 @@ impl Content {
             // se ambos os lados forem vazios.
             Self::Divider(d) => d.is_empty(),
             // Modelo D (Lote 3 P318): Terms/TermItem delegam ao elemento.
-            Self::Terms(e)    => e.is_empty(),
+            Self::Terms(e) => e.is_empty(),
             Self::TermItem(e) => e.is_empty(),
             // Passo 155: Quote vazio se body for vazio.
             Self::Quote(e) => e.is_empty(),
             // P397: Document/Asset são metadata/resources; não produzem
             // conteúdo observável no layout.
             Self::Document { .. } => true,
-            Self::Asset { .. }    => true,
+            Self::Asset { .. } => true,
             // P284: decoração vazia se o body for vazio (cosméticos não
             // criam observable se não há conteúdo).
             // Modelo D (Lote 4 P319): decorações delegam ao elemento.
             Self::Underline(e) => e.is_empty(),
-            Self::Strike(e)    => e.is_empty(),
-            Self::Overline(e)  => e.is_empty(),
+            Self::Strike(e) => e.is_empty(),
+            Self::Overline(e) => e.is_empty(),
             // P408: smallcaps é vazio sse o body for vazio (stub transparente).
             Self::SmallCaps { body } => body.is_empty(),
             // P287 — SmartQuote: nunca vazio (sempre emite 1 glyph).
             Self::SmartQuote(e) => e.is_empty(),
             // Passo 156C (ADR-0061 Fase 1): Pad/Hide vazios se o body for.
             Self::Pad(e) => e.is_empty(),
-            Self::Hide(e)           => e.is_empty(),
+            Self::Hide(e) => e.is_empty(),
             // Modelo D (Lote 5 P320): espaços/breaks delegam ao elemento
             // (HSpace/VSpace = amount.is_zero(); Pagebreak/Colbreak = false).
-            Self::HSpace(e)    => e.is_empty(),
-            Self::VSpace(e)    => e.is_empty(),
+            Self::HSpace(e) => e.is_empty(),
+            Self::VSpace(e) => e.is_empty(),
             Self::Pagebreak(e) => e.is_empty(),
-            Self::Colbreak(e)  => e.is_empty(),
+            Self::Colbreak(e) => e.is_empty(),
             // Passo 156G: Block é vazio se o body for (atributos de
             // dimensão/inset não fazem o container deixar de ser vazio
             // semanticamente — análogo a Pad em P156C).
@@ -1683,7 +1750,7 @@ impl Content {
             Self::Styled(body, _) => body.is_empty(),
             // F-5b fatia 1 (P371): strong/emph vazios se o body for (como Styled).
             Self::Strong(e) => e.is_empty(),
-            Self::Emph(e)   => e.is_empty(),
+            Self::Emph(e) => e.is_empty(),
             _ => false,
         }
     }
@@ -1691,32 +1758,32 @@ impl Content {
     /// Extrai texto plano recursivamente — para verificação em testes.
     pub fn plain_text(&self) -> String {
         match self {
-            Self::Empty                 => String::new(),
-            Self::Text(s)            => s.to_string(),
-            Self::Space              => " ".to_string(),
-            Self::Sequence(v)        => v.iter().map(|c| c.plain_text()).collect(),
+            Self::Empty => String::new(),
+            Self::Text(s) => s.to_string(),
+            Self::Space => " ".to_string(),
+            Self::Sequence(v) => v.iter().map(|c| c.plain_text()).collect(),
             // Passo 101: Content::Strong/Emph removidos — cobertos por
             // Content::Styled(body, _) => body.plain_text() no fim do match.
             // Modelo D (Lote 6 P321): família state/counter delega ao elemento (vazio).
-            Self::Metadata(e)               => e.plain_text(),
-            Self::State(e)                  => e.plain_text(),
-            Self::StateUpdate(e)            => e.plain_text(),
-            Self::StateDisplay(e)           => e.plain_text(),
+            Self::Metadata(e) => e.plain_text(),
+            Self::State(e) => e.plain_text(),
+            Self::StateUpdate(e) => e.plain_text(),
+            Self::StateDisplay(e) => e.plain_text(),
             Self::CounterDisplayCallback(e) => e.plain_text(),
             Self::Heading(h) => h.plain_text(),
             // F-5b fatia 1 (P371): strong/emph transparentes ao plain_text (só body).
             Self::Strong(e) => e.plain_text(),
-            Self::Emph(e)   => e.plain_text(),
-            Self::Raw(e)             => e.plain_text(),
+            Self::Emph(e) => e.plain_text(),
+            Self::Raw(e) => e.plain_text(),
             // Modelo D (Lote 3 P318): família lista/termos delega ao elemento.
             Self::ListItem(e) => e.plain_text(),
             Self::EnumItem(e) => e.plain_text(),
-            Self::Link(e)     => e.plain_text(),
+            Self::Link(e) => e.plain_text(),
             // Modelo D (Lote 4 P319): decorações delegam ao elemento
             // (transparente — só body; cosméticos não afetam plain_text).
             Self::Underline(e) => e.plain_text(),
-            Self::Strike(e)    => e.plain_text(),
-            Self::Overline(e)  => e.plain_text(),
+            Self::Strike(e) => e.plain_text(),
+            Self::Overline(e) => e.plain_text(),
             // P408: smallcaps é transparente para plain_text (stub).
             Self::SmallCaps { body } => body.plain_text(),
             // P287 — SmartQuote: paridade vanilla `PlainText for
@@ -1726,28 +1793,28 @@ impl Content {
             Self::SmartQuote(e) => e.plain_text(),
             Self::Equation(e) => e.plain_text(),
             Self::MathSequence(nodes) => nodes.iter().map(|n| n.plain_text()).collect(),
-            Self::MathIdent(s)        => s.to_string(),
-            Self::MathText(s)         => s.to_string(),
+            Self::MathIdent(s) => s.to_string(),
+            Self::MathText(s) => s.to_string(),
             // Modelo D (Lote 2 P317): família math delega ao elemento.
-            Self::MathFrac(e)       => e.plain_text(),
-            Self::MathAttach(e)     => e.plain_text(),
-            Self::MathRoot(e)       => e.plain_text(),
-            Self::MathDelimited(e)  => e.plain_text(),
+            Self::MathFrac(e) => e.plain_text(),
+            Self::MathAttach(e) => e.plain_text(),
+            Self::MathRoot(e) => e.plain_text(),
+            Self::MathDelimited(e) => e.plain_text(),
             Self::MathAlignPoint(e) => e.plain_text(),
-            Self::Linebreak(e)   => e.plain_text(),
-            Self::MathMatrix(e)     => e.plain_text(),
-            Self::MathCases(e)      => e.plain_text(),
-            Self::MathAccent(e)     => e.plain_text(),
-            Self::MathCancel(e)     => e.plain_text(),
-            Self::MathUnderover(e)  => e.plain_text(),
-            Self::MathOp(e)         => e.plain_text(),
+            Self::Linebreak(e) => e.plain_text(),
+            Self::MathMatrix(e) => e.plain_text(),
+            Self::MathCases(e) => e.plain_text(),
+            Self::MathAccent(e) => e.plain_text(),
+            Self::MathCancel(e) => e.plain_text(),
+            Self::MathUnderover(e) => e.plain_text(),
+            Self::MathOp(e) => e.plain_text(),
             // P311b.2 — MathStyled é transparente para plain_text (wraps body).
             Self::MathStyled(m) => m.plain_text(),
             Self::Labelled(e) => e.plain_text(),
-            Self::Ref(e)                  => e.plain_text(),
-            Self::CounterDisplay(e)          => e.plain_text(),
-            Self::CounterUpdate(e)           => e.plain_text(),
-            Self::Outline(e)                 => e.plain_text(),
+            Self::Ref(e) => e.plain_text(),
+            Self::CounterDisplay(e) => e.plain_text(),
+            Self::CounterUpdate(e) => e.plain_text(),
+            Self::Outline(e) => e.plain_text(),
             Self::Figure(e) => e.plain_text(),
             Self::Image(e) => e.plain_text(),
             Self::Shape(e) => e.plain_text(),
@@ -1790,7 +1857,7 @@ impl Content {
             // Passo 154B: Divider é structural sem texto; Terms concatena
             // pares por linha; TermItem produz "term: description".
             Self::Divider(d) => d.plain_text(),
-            Self::Terms(e)    => e.plain_text(),
+            Self::Terms(e) => e.plain_text(),
             Self::TermItem(e) => e.plain_text(),
             // Passo 155: Quote em texto plain usa ASCII fallback (sem
             // smart-quotes — interaction com lang só vive no layouter).
@@ -1798,12 +1865,12 @@ impl Content {
             // Passo 156C: Pad é transparente para texto plano (recurse no
             // body sem alterar texto). Hide produz string vazia (não rende).
             Self::Pad(e) => e.plain_text(),
-            Self::Hide(e)           => e.plain_text(),
+            Self::Hide(e) => e.plain_text(),
             // Modelo D (Lote 5 P320): espaços/breaks delegam ao elemento (vazio).
-            Self::HSpace(e)    => e.plain_text(),
-            Self::VSpace(e)    => e.plain_text(),
+            Self::HSpace(e) => e.plain_text(),
+            Self::VSpace(e) => e.plain_text(),
             Self::Pagebreak(e) => e.plain_text(),
-            Self::Colbreak(e)  => e.plain_text(),
+            Self::Colbreak(e) => e.plain_text(),
             // Passo 156G: Block é transparente para texto plano (recurse
             // no body; análogo a Pad em P156C).
             Self::Block(e) => e.plain_text(),
@@ -1821,8 +1888,10 @@ impl Content {
             Self::Quote(e) => e.plain_text(),
             // P397: Document devolve texto plano do título; Asset não tem
             // representação textual.
-            Self::Document { title, .. } => title.as_ref().map_or(String::new(), |t| t.plain_text()),
-            Self::Asset { .. }           => String::new(),
+            Self::Document { title, .. } => {
+                title.as_ref().map_or(String::new(), |t| t.plain_text())
+            }
+            Self::Asset { .. } => String::new(),
             // Lote F-1 (P334): a fronteira dinâmica delega ao elemento.
             Self::Dynamic(e) => e.dyn_plain_text(),
         }
@@ -1832,48 +1901,48 @@ impl Content {
 impl PartialEq for Content {
     fn eq(&self, other: &Self) -> bool {
         match (self, other) {
-            (Self::Empty,                Self::Empty)                => true,
-            (Self::Text(a),              Self::Text(b))              => a == b,
-            (Self::Space,                Self::Space)                => true,
-            (Self::Sequence(a),          Self::Sequence(b))          => a.as_ref() == b.as_ref(),
+            (Self::Empty, Self::Empty) => true,
+            (Self::Text(a), Self::Text(b)) => a == b,
+            (Self::Space, Self::Space) => true,
+            (Self::Sequence(a), Self::Sequence(b)) => a.as_ref() == b.as_ref(),
             // Passo 101: Content::Strong/Emph removidos — Content::Styled cobre.
             (Self::Heading(a), Self::Heading(b)) => a == b,
             // F-5b fatia 1 (P371): strong/emph variantes próprias — `==` por tipo
             // (distinto de `Styled[Bold]` → `strong ≠ #set text`, fidelidade 0107).
             (Self::Strong(a), Self::Strong(b)) => a == b,
-            (Self::Emph(a),   Self::Emph(b))   => a == b,
+            (Self::Emph(a), Self::Emph(b)) => a == b,
             // Modelo D (Lote 7 P322): Raw delega ao `Arc<…Elem>`.
             (Self::Raw(a), Self::Raw(b)) => a == b,
-            (Self::ListItem(a),          Self::ListItem(b))          => a == b,
-            (Self::EnumItem(a), Self::EnumItem(b))                   => a == b,
-            (Self::Link(a),     Self::Link(b))                       => a == b,
+            (Self::ListItem(a), Self::ListItem(b)) => a == b,
+            (Self::EnumItem(a), Self::EnumItem(b)) => a == b,
+            (Self::Link(a), Self::Link(b)) => a == b,
             // Modelo D (Lote 10 P325): Equation delega ao `Arc<…Elem>`.
             (Self::Equation(a), Self::Equation(b)) => a == b,
-            (Self::MathSequence(a), Self::MathSequence(b))           => a.as_ref() == b.as_ref(),
-            (Self::MathIdent(a),    Self::MathIdent(b))              => a == b,
-            (Self::MathText(a),     Self::MathText(b))               => a == b,
+            (Self::MathSequence(a), Self::MathSequence(b)) => a.as_ref() == b.as_ref(),
+            (Self::MathIdent(a), Self::MathIdent(b)) => a == b,
+            (Self::MathText(a), Self::MathText(b)) => a == b,
             // Modelo D (Lote 2 P317): família math delega ao `Arc<…Elem>`
             // (PartialEq estrutural derivado em cada `…Elem`).
-            (Self::MathFrac(a),       Self::MathFrac(b))       => a == b,
-            (Self::MathAttach(a),     Self::MathAttach(b))     => a == b,
-            (Self::MathRoot(a),       Self::MathRoot(b))       => a == b,
-            (Self::MathDelimited(a),  Self::MathDelimited(b))  => a == b,
+            (Self::MathFrac(a), Self::MathFrac(b)) => a == b,
+            (Self::MathAttach(a), Self::MathAttach(b)) => a == b,
+            (Self::MathRoot(a), Self::MathRoot(b)) => a == b,
+            (Self::MathDelimited(a), Self::MathDelimited(b)) => a == b,
             (Self::MathAlignPoint(a), Self::MathAlignPoint(b)) => a == b,
-            (Self::Linebreak(a),   Self::Linebreak(b))               => a == b,
-            (Self::MathMatrix(a),     Self::MathMatrix(b))     => a == b,
-            (Self::MathCases(a),      Self::MathCases(b))      => a == b,
-            (Self::MathAccent(a),     Self::MathAccent(b))     => a == b,
-            (Self::MathCancel(a),     Self::MathCancel(b))     => a == b,
-            (Self::MathUnderover(a),  Self::MathUnderover(b))  => a == b,
-            (Self::MathOp(a),         Self::MathOp(b))         => a == b,
+            (Self::Linebreak(a), Self::Linebreak(b)) => a == b,
+            (Self::MathMatrix(a), Self::MathMatrix(b)) => a == b,
+            (Self::MathCases(a), Self::MathCases(b)) => a == b,
+            (Self::MathAccent(a), Self::MathAccent(b)) => a == b,
+            (Self::MathCancel(a), Self::MathCancel(b)) => a == b,
+            (Self::MathUnderover(a), Self::MathUnderover(b)) => a == b,
+            (Self::MathOp(a), Self::MathOp(b)) => a == b,
             // MathStyled PartialEq estrutural (Modelo D P316: delega ao Arc<Elem>).
             (Self::MathStyled(a), Self::MathStyled(b)) => a == b,
             // Modelo D (Lote 14 P329): Labelled delega ao `Arc<…Elem>`.
             (Self::Labelled(a), Self::Labelled(b)) => a == b,
-            (Self::Ref(a), Self::Ref(b))     => a == b,
+            (Self::Ref(a), Self::Ref(b)) => a == b,
             // Modelo D (Lote 6 P321): delegam ao `Arc<…Elem>`.
             (Self::CounterDisplay(a), Self::CounterDisplay(b)) => a == b,
-            (Self::CounterUpdate(a),  Self::CounterUpdate(b))  => a == b,
+            (Self::CounterUpdate(a), Self::CounterUpdate(b)) => a == b,
             (Self::Outline(a), Self::Outline(b)) => a == b,
             // Modelo D (Lote 13 P328): Figure delega ao `Arc<…Elem>`.
             (Self::Figure(a), Self::Figure(b)) => a == b,
@@ -1909,9 +1978,10 @@ impl PartialEq for Content {
             // P295 — Footnote PartialEq: body == body.
             // Modelo D (Lote 11 P326): Footnote delega ao `Arc<…Elem>`.
             (Self::Footnote(a), Self::Footnote(b)) => a == b,
-            (Self::SetPage { width: wa, height: ha, margin: ma },
-             Self::SetPage { width: wb, height: hb, margin: mb }) =>
-                wa == wb && ha == hb && ma == mb,
+            (
+                Self::SetPage { width: wa, height: ha, margin: ma },
+                Self::SetPage { width: wb, height: hb, margin: mb },
+            ) => wa == wb && ha == hb && ma == mb,
             // Modelo D (Lote 7 P322): Align delega ao `Arc<…Elem>`.
             (Self::Align(a), Self::Align(b)) => a == b,
             // Modelo D (Lote 9 P324): Place delega ao `Arc<…Elem>`.
@@ -1919,7 +1989,7 @@ impl PartialEq for Content {
             (Self::Styled(ba, sa), Self::Styled(bb, sb)) => ba == bb && sa == sb,
             // Passo 154B — terms + divider.
             (Self::Divider(a), Self::Divider(b)) => a == b,
-            (Self::Terms(a),    Self::Terms(b))    => a == b,
+            (Self::Terms(a), Self::Terms(b)) => a == b,
             (Self::TermItem(a), Self::TermItem(b)) => a == b,
             // Modelo D (Lote 8 P323): Quote delega ao `Arc<…Elem>`.
             (Self::Quote(a), Self::Quote(b)) => a == b,
@@ -1928,11 +1998,13 @@ impl PartialEq for Content {
                 Self::Document { title: a, author: b, date: c, keywords: d },
                 Self::Document { title: e, author: f, date: g, keywords: h },
             ) => a == e && b == f && c == g && d == h,
-            (Self::Asset { path: a, kind: b }, Self::Asset { path: c, kind: d }) => a == c && b == d,
+            (Self::Asset { path: a, kind: b }, Self::Asset { path: c, kind: d }) => {
+                a == c && b == d
+            }
             // Modelo D (Lote 4 P319): decorações delegam ao `Arc<…Elem>`.
             (Self::Underline(a), Self::Underline(b)) => a == b,
-            (Self::Strike(a),    Self::Strike(b))    => a == b,
-            (Self::Overline(a),  Self::Overline(b))  => a == b,
+            (Self::Strike(a), Self::Strike(b)) => a == b,
+            (Self::Overline(a), Self::Overline(b)) => a == b,
             // P408: smallcaps compara pelo body.
             (Self::SmallCaps { body: a }, Self::SmallCaps { body: b }) => a == b,
             // Modelo D (Lote 9 P324): SmartQuote delega ao `Arc<…Elem>`.
@@ -1942,10 +2014,10 @@ impl PartialEq for Content {
             (Self::Pad(a), Self::Pad(b)) => a == b,
             (Self::Hide(a), Self::Hide(b)) => a == b,
             // Modelo D (Lote 5 P320): espaços/breaks delegam ao `Arc<…Elem>`.
-            (Self::HSpace(a),    Self::HSpace(b))    => a == b,
-            (Self::VSpace(a),    Self::VSpace(b))    => a == b,
+            (Self::HSpace(a), Self::HSpace(b)) => a == b,
+            (Self::VSpace(a), Self::VSpace(b)) => a == b,
             (Self::Pagebreak(a), Self::Pagebreak(b)) => a == b,
-            (Self::Colbreak(a),  Self::Colbreak(b))  => a == b,
+            (Self::Colbreak(a), Self::Colbreak(b)) => a == b,
             // Passo 156G + P231 + P247 + P250 — Block +9 cosméticos
             // (outset/radius/clip/fill/stroke/spacing/above/below/sticky).
             // Modelo D (Lote 15 P330): Block delega ao `Arc<…Elem>`.
@@ -1960,7 +2032,7 @@ impl PartialEq for Content {
             // Modelo D (Lote 8 P323): Columns delega ao `Arc<…Elem>`.
             (Self::Columns(a), Self::Columns(b)) => a == b,
             // Modelo D (Lote 6 P321): StateDisplay/CounterDisplayCallback delegam.
-            (Self::StateDisplay(a),          Self::StateDisplay(b))          => a == b,
+            (Self::StateDisplay(a), Self::StateDisplay(b)) => a == b,
             (Self::CounterDisplayCallback(a), Self::CounterDisplayCallback(b)) => a == b,
             // Quirk pré-existente preservado (Lote 6 P321): Metadata/State/
             // StateUpdate NÃO têm arm — caem em `_ => false` (sempre desiguais).
@@ -1996,10 +2068,12 @@ impl Content {
             (Content::Heading(h), f) => h.get_field(f),
             // F-5b fatia 1 (P371): strong/emph delegam (ex.: `it.body`).
             (Content::Strong(e), f) => e.get_field(f),
-            (Content::Emph(e),   f) => e.get_field(f),
-            (Content::Figure(e),  "body")  => Some(Value::Content(e.body.clone())),
+            (Content::Emph(e), f) => e.get_field(f),
+            (Content::Figure(e), "body") => Some(Value::Content(e.body.clone())),
             // P408: smallcaps expõe `body` para show rules (`it.body`).
-            (Content::SmallCaps { body }, "body") => Some(Value::Content(body.as_ref().clone())),
+            (Content::SmallCaps { body }, "body") => {
+                Some(Value::Content(body.as_ref().clone()))
+            }
             // Lote F-1 (P334): leitura de campos da fronteira dinâmica (S7) —
             // o que o closure de `#show` usará (F-2+).
             (Content::Dynamic(e), f) => e.dyn_get_field(f),
@@ -2014,9 +2088,15 @@ impl Content {
     ///
     /// O `match` lista explicitamente todos os containers e terminais — sem `_ =>`.
     /// Containers com `Box<Content>` ou `Vec<Content>` recursam; terminais clonam directamente.
-    pub fn map_content<F>(&self, transform: &mut F) -> crate::entities::source_result::SourceResult<Self>
+    pub fn map_content<F>(
+        &self,
+        transform: &mut F,
+    ) -> crate::entities::source_result::SourceResult<Self>
     where
-        F: FnMut(&Content) -> crate::entities::source_result::SourceResult<Option<Content>>,
+        F: FnMut(
+            &Content,
+        )
+            -> crate::entities::source_result::SourceResult<Option<Content>>,
     {
         // Passo 1: processar os filhos (bottom-up) para obter o nó com filhos transformados.
         let processed = match self {
@@ -2199,7 +2279,7 @@ impl Content {
         // Passo 2: aplicar a transformação ao nó já processado.
         match transform(&processed)? {
             Some(new_content) => Ok(new_content),
-            None              => Ok(processed),
+            None => Ok(processed),
         }
     }
 
@@ -2223,11 +2303,11 @@ impl Content {
     /// `it.body == [a]` casa por morfologia **como consequência** (Achado 2,
     /// P342), não como alvo.
     pub fn morph_canon(&self) -> Content {
-        let mut transform = |node: &Content|
-            -> crate::entities::source_result::SourceResult<Option<Content>> {
+        let mut transform = |node: &Content| -> crate::entities::source_result::SourceResult<
+            Option<Content>,
+        > {
             Ok(match node {
-                Content::Text(s) =>
-                    Some(Content::Text(s.clone())),
+                Content::Text(s) => Some(Content::Text(s.clone())),
                 // F-5a de-bake (P364): heading/equation numbering deixaram de
                 // viver em campo assado — viajam como `custom` num
                 // `Content::Styled` semanticamente vazio, já tratado
@@ -2235,8 +2315,9 @@ impl Content {
                 // dedicados (que zeravam `numbering_active`) tornaram-se
                 // redundantes e foram removidos: o mecanismo é único (o custom
                 // é render, não morfologia — P345 N1).
-                Content::Styled(body, styles) if styles.is_semantically_empty() =>
-                    Some((**body).clone()),
+                Content::Styled(body, styles) if styles.is_semantically_empty() => {
+                    Some((**body).clone())
+                }
                 _ => None,
             })
         };
@@ -2503,9 +2584,14 @@ mod tests {
         // e davam `==` (divergência).
         use crate::entities::style::{Style, Styles};
         let strong = Content::strong(Content::text("x"));
-        let set_text_bold =
-            Content::Styled(Box::new(Content::text("x")), Styles::from_iter([Style::Bold(true)]));
-        assert_ne!(strong, set_text_bold, "strong ≠ #set text(bold) — distinção de tipo (0107)");
+        let set_text_bold = Content::Styled(
+            Box::new(Content::text("x")),
+            Styles::from_iter([Style::Bold(true)]),
+        );
+        assert_ne!(
+            strong, set_text_bold,
+            "strong ≠ #set text(bold) — distinção de tipo (0107)"
+        );
         assert!(matches!(strong, Content::Strong(_)), "strong é variante própria");
         // emph idem, e strong ≠ emph (tipos distintos).
         assert_ne!(
@@ -2514,14 +2600,23 @@ mod tests {
             "strong ≠ emph (tipos distintos, como StrongElem ≠ EmphElem no vanilla)"
         );
         // Auto-igualdade preservada (o α depende disto).
-        assert_eq!(Content::strong(Content::text("x")), Content::strong(Content::text("x")));
+        assert_eq!(
+            Content::strong(Content::text("x")),
+            Content::strong(Content::text("x"))
+        );
     }
 
     #[test]
     fn heading_level_clamped() {
-        assert!(matches!(Content::heading(0, Content::Empty), Content::Heading(h) if h.level == 1));
-        assert!(matches!(Content::heading(9, Content::Empty), Content::Heading(h) if h.level == 6));
-        assert!(matches!(Content::heading(3, Content::Empty), Content::Heading(h) if h.level == 3));
+        assert!(
+            matches!(Content::heading(0, Content::Empty), Content::Heading(h) if h.level == 1)
+        );
+        assert!(
+            matches!(Content::heading(9, Content::Empty), Content::Heading(h) if h.level == 6)
+        );
+        assert!(
+            matches!(Content::heading(3, Content::Empty), Content::Heading(h) if h.level == 3)
+        );
     }
 
     #[test]
@@ -2541,12 +2636,17 @@ mod tests {
 
     #[test]
     fn raw_plain_text() {
-        assert_eq!(Content::raw("fn main() {}", None, false).plain_text(), "fn main() {}");
+        assert_eq!(
+            Content::raw("fn main() {}", None, false).plain_text(),
+            "fn main() {}"
+        );
     }
 
     #[test]
     fn list_item_tem_bullet_em_plain_text() {
-        assert!(Content::list_item(Content::text("Apple")).plain_text().contains("Apple"));
+        assert!(Content::list_item(Content::text("Apple"))
+            .plain_text()
+            .contains("Apple"));
     }
 
     #[test]
@@ -2600,10 +2700,7 @@ mod tests {
 
     #[test]
     fn content_math_root_quadrada() {
-        let root = Content::math_root(
-            None,
-            Content::MathIdent("x".into()),
-        );
+        let root = Content::math_root(None, Content::MathIdent("x".into()));
         assert_eq!(root.plain_text(), "sqrt(x)");
     }
 
@@ -2618,11 +2715,14 @@ mod tests {
 
     #[test]
     fn content_math_sequence_plain_text() {
-        let seq = Content::MathSequence(Arc::from(vec![
-            Content::MathIdent("x".into()),
-            Content::MathText("+".into()),
-            Content::MathIdent("y".into()),
-        ].into_boxed_slice()));
+        let seq = Content::MathSequence(Arc::from(
+            vec![
+                Content::MathIdent("x".into()),
+                Content::MathText("+".into()),
+                Content::MathIdent("y".into()),
+            ]
+            .into_boxed_slice(),
+        ));
         assert_eq!(seq.plain_text(), "x+y");
     }
 
@@ -2691,11 +2791,14 @@ mod tests {
     #[test]
     fn map_text_closure_com_estado_entre_nos() {
         // Validar que o estado da closure (FnMut) persiste entre nós distintos.
-        let content = Content::Sequence(vec![
-            Content::text("a"),
-            Content::strong(Content::text("a")),
-            Content::text("a"),
-        ].into());
+        let content = Content::Sequence(
+            vec![
+                Content::text("a"),
+                Content::strong(Content::text("a")),
+                Content::text("a"),
+            ]
+            .into(),
+        );
         let mut count = 0usize;
         content.map_text(&mut |s| {
             count += 1;
@@ -2714,13 +2817,15 @@ mod tests {
             Content::text("Depois"),
         ]));
 
-        let result = content.map_content(&mut |node| {
-            if matches!(node, Content::Heading(_)) {
-                Ok(Some(Content::text("SUBSTITUIDO")))
-            } else {
-                Ok(None)
-            }
-        }).unwrap();
+        let result = content
+            .map_content(&mut |node| {
+                if matches!(node, Content::Heading(_)) {
+                    Ok(Some(Content::text("SUBSTITUIDO")))
+                } else {
+                    Ok(None)
+                }
+            })
+            .unwrap();
 
         assert_eq!(result.plain_text(), "AntesSUBSTITUIDODepois");
     }
@@ -2732,18 +2837,21 @@ mod tests {
         // (`Strong`) vê o filho já transformado.
         let content = Content::strong(Content::text("original"));
 
-        let result = content.map_content(&mut |node| {
-            match node {
+        let result = content
+            .map_content(&mut |node| match node {
                 Content::Text(s) => Ok(Some(Content::text(s.to_uppercase()))),
                 Content::Strong(e) => {
                     let text = e.body.plain_text();
-                    assert_eq!(text, "ORIGINAL",
-                        "Strong deve receber filho já transformado: {:?}", text);
+                    assert_eq!(
+                        text, "ORIGINAL",
+                        "Strong deve receber filho já transformado: {:?}",
+                        text
+                    );
                     Ok(None)
-                },
+                }
                 _ => Ok(None),
-            }
-        }).unwrap();
+            })
+            .unwrap();
 
         assert_eq!(result.plain_text(), "ORIGINAL");
     }
@@ -2753,14 +2861,16 @@ mod tests {
         let content = Content::heading(1, Content::text("X"));
         let mut call_count = 0usize;
 
-        content.map_content(&mut |node| {
-            if matches!(node, Content::Heading(_)) {
-                call_count += 1;
-                Ok(Some(Content::text("substituido")))
-            } else {
-                Ok(None)
-            }
-        }).unwrap();
+        content
+            .map_content(&mut |node| {
+                if matches!(node, Content::Heading(_)) {
+                    call_count += 1;
+                    Ok(Some(Content::text("substituido")))
+                } else {
+                    Ok(None)
+                }
+            })
+            .unwrap();
 
         assert_eq!(call_count, 1, "Heading deve ser processado exactamente uma vez");
     }
@@ -2827,9 +2937,10 @@ mod tests {
 
     #[test]
     fn terms_constructor_devolve_variant_correcto() {
-        let t = Content::terms(vec![
-            Content::term_item(Content::text("a"), Content::text("b")),
-        ]);
+        let t = Content::terms(vec![Content::term_item(
+            Content::text("a"),
+            Content::text("b"),
+        )]);
         assert!(matches!(t, Content::Terms(_)));
         assert!(!t.is_empty());
         // Terms vazio é considerado empty.
@@ -2853,18 +2964,22 @@ mod tests {
 
     #[test]
     fn terms_map_text_recurse() {
-        let t = Content::terms(vec![
-            Content::term_item(Content::text("apple"), Content::text("fruit")),
-        ]);
+        let t = Content::terms(vec![Content::term_item(
+            Content::text("apple"),
+            Content::text("fruit"),
+        )]);
         let upper = t.map_text(&mut |s| s.to_uppercase());
         assert_eq!(upper.plain_text(), "APPLE: FRUIT");
     }
 
     #[test]
     fn terms_partial_eq() {
-        let mk = || Content::terms(vec![
-            Content::term_item(Content::text("k"), Content::text("v")),
-        ]);
+        let mk = || {
+            Content::terms(vec![Content::term_item(
+                Content::text("k"),
+                Content::text("v"),
+            )])
+        };
         assert_eq!(mk(), mk());
         assert_ne!(mk(), Content::divider());
         assert_eq!(Content::divider(), Content::divider());
@@ -2887,7 +3002,12 @@ mod tests {
 
     #[test]
     fn quote_plain_text_com_attribution() {
-        let q = Content::quote(Content::text("Errare humanum est"), Some(Content::text("Seneca")), true, true);
+        let q = Content::quote(
+            Content::text("Errare humanum est"),
+            Some(Content::text("Seneca")),
+            true,
+            true,
+        );
         assert_eq!(q.plain_text(), "\"Errare humanum est\" — Seneca");
     }
 
@@ -2907,7 +3027,12 @@ mod tests {
 
     #[test]
     fn quote_map_text_recurse_em_body_e_attribution() {
-        let q = Content::quote(Content::text("hello"), Some(Content::text("seneca")), true, true);
+        let q = Content::quote(
+            Content::text("hello"),
+            Some(Content::text("seneca")),
+            true,
+            true,
+        );
         let upper = q.map_text(&mut |s| s.to_uppercase());
         assert_eq!(upper.plain_text(), "\"HELLO\" — SENECA");
     }
@@ -2916,7 +3041,8 @@ mod tests {
     fn quote_partial_eq() {
         let mk = || Content::quote(Content::text("x"), None, false, true);
         assert_eq!(mk(), mk());
-        let other = Content::quote(Content::text("x"), None, true /* diferente */, true);
+        let other =
+            Content::quote(Content::text("x"), None, true /* diferente */, true);
         assert_ne!(mk(), other);
     }
 
@@ -2950,7 +3076,7 @@ mod tests {
     #[test]
     fn decoration_is_empty_proxy_para_body() {
         let u_empty = Content::underline(Content::Empty, None, None, None);
-        let u_full  = Content::underline(Content::text("a"), None, None, None);
+        let u_full = Content::underline(Content::text("a"), None, None, None);
         assert!(u_empty.is_empty());
         assert!(!u_full.is_empty());
     }
@@ -2959,15 +3085,22 @@ mod tests {
     fn decoration_partial_eq_distingue_cosmeticos() {
         let base = || Content::underline(Content::text("x"), None, None, None);
         assert_eq!(base(), base());
-        let with_offset = Content::underline(Content::text("x"), None, Some(Length::pt(2.0)), None);
+        let with_offset =
+            Content::underline(Content::text("x"), None, Some(Length::pt(2.0)), None);
         assert_ne!(base(), with_offset, "offset diferente quebra igualdade");
-        let with_stroke = Content::underline(Content::text("x"), Some(Color::rgb(255, 0, 0)), None, None);
+        let with_stroke = Content::underline(
+            Content::text("x"),
+            Some(Color::rgb(255, 0, 0)),
+            None,
+            None,
+        );
         assert_ne!(base(), with_stroke);
     }
 
     #[test]
     fn decoration_map_text_recurse_no_body() {
-        let u = Content::underline(Content::text("hello"), None, Some(Length::pt(3.0)), None);
+        let u =
+            Content::underline(Content::text("hello"), None, Some(Length::pt(3.0)), None);
         let upper = u.map_text(&mut |s| s.to_uppercase());
         assert_eq!(upper.plain_text(), "HELLO");
         // Cosméticos preservados após map_text.
@@ -2995,7 +3128,7 @@ mod tests {
         // Paridade `PlainText for Packed<SmartQuoteElem>` — emite ASCII
         // fallback (Layouter resolve lang-aware via consumer; plain_text
         // é vista sem contexto).
-        assert_eq!(Content::smartquote(true).plain_text(),  "\"");
+        assert_eq!(Content::smartquote(true).plain_text(), "\"");
         assert_eq!(Content::smartquote(false).plain_text(), "'");
     }
 
@@ -3019,15 +3152,15 @@ mod tests {
 
     #[test]
     fn pad_constructor_envolve_body() {
-        use crate::entities::sides::Sides;
         use crate::entities::layout_types::Length;
+        use crate::entities::sides::Sides;
         // P156L: cada side é Option<Length>; Some(...) ↔ lado declarado.
         let p = Content::pad(Content::text("x"), Sides::uniform(Some(Length::pt(10.0))));
         if let Content::Pad(e) = &p {
             assert_eq!(e.body.plain_text(), "x");
-            assert_eq!(e.sides.left,   Some(Length::pt(10.0)));
-            assert_eq!(e.sides.right,  Some(Length::pt(10.0)));
-            assert_eq!(e.sides.top,    Some(Length::pt(10.0)));
+            assert_eq!(e.sides.left, Some(Length::pt(10.0)));
+            assert_eq!(e.sides.right, Some(Length::pt(10.0)));
+            assert_eq!(e.sides.top, Some(Length::pt(10.0)));
             assert_eq!(e.sides.bottom, Some(Length::pt(10.0)));
         } else {
             panic!("esperado Content::Pad");
@@ -3046,15 +3179,16 @@ mod tests {
 
     #[test]
     fn pad_e_hide_is_empty_proxy_para_body() {
-        use crate::entities::sides::Sides;
         use crate::entities::layout_types::Length;
+        use crate::entities::sides::Sides;
         // Pad/Hide com body Empty são considerados vazios.
-        let pad_empty  = Content::pad(Content::Empty, Sides::uniform(Some(Length::pt(5.0))));
+        let pad_empty =
+            Content::pad(Content::Empty, Sides::uniform(Some(Length::pt(5.0))));
         let hide_empty = Content::hide(Content::Empty);
         assert!(pad_empty.is_empty());
         assert!(hide_empty.is_empty());
         // Com body com texto, não vazios.
-        let pad_text  = Content::pad(Content::text("a"), Sides::uniform(None));
+        let pad_text = Content::pad(Content::text("a"), Sides::uniform(None));
         let hide_text = Content::hide(Content::text("a"));
         assert!(!pad_text.is_empty());
         assert!(!hide_text.is_empty());
@@ -3062,9 +3196,10 @@ mod tests {
 
     #[test]
     fn pad_plain_text_recurse_no_body() {
-        use crate::entities::sides::Sides;
         use crate::entities::layout_types::Length;
-        let p = Content::pad(Content::text("hello"), Sides::uniform(Some(Length::pt(2.0))));
+        use crate::entities::sides::Sides;
+        let p =
+            Content::pad(Content::text("hello"), Sides::uniform(Some(Length::pt(2.0))));
         assert_eq!(p.plain_text(), "hello");
     }
 
@@ -3077,28 +3212,30 @@ mod tests {
 
     #[test]
     fn pad_partial_eq() {
-        use crate::entities::sides::Sides;
         use crate::entities::layout_types::Length;
-        let mk = || Content::pad(Content::text("x"), Sides::uniform(Some(Length::pt(3.0))));
+        use crate::entities::sides::Sides;
+        let mk =
+            || Content::pad(Content::text("x"), Sides::uniform(Some(Length::pt(3.0))));
         assert_eq!(mk(), mk());
         // Padding diferente → diferente (bottom 5pt em vez de 3pt).
         let other = Content::pad(
             Content::text("x"),
-            Sides::new(Some(Length::pt(3.0)), Some(Length::pt(3.0)),
-                       Some(Length::pt(3.0)), Some(Length::pt(5.0))),
+            Sides::new(
+                Some(Length::pt(3.0)),
+                Some(Length::pt(3.0)),
+                Some(Length::pt(3.0)),
+                Some(Length::pt(5.0)),
+            ),
         );
         assert_ne!(mk(), other);
         // P156L: distinção semântica nova — Some(zero) ≠ None.
-        let some_zero = Content::pad(
-            Content::text("x"),
-            Sides::uniform(Some(Length::ZERO)),
+        let some_zero =
+            Content::pad(Content::text("x"), Sides::uniform(Some(Length::ZERO)));
+        let none = Content::pad(Content::text("x"), Sides::uniform(None));
+        assert_ne!(
+            some_zero, none,
+            "P156L: Some(zero) e None são semanticamente distintos"
         );
-        let none = Content::pad(
-            Content::text("x"),
-            Sides::uniform(None),
-        );
-        assert_ne!(some_zero, none,
-            "P156L: Some(zero) e None são semanticamente distintos");
     }
 
     #[test]
@@ -3112,11 +3249,12 @@ mod tests {
 
     #[test]
     fn pad_e_hide_map_text_recurse_no_body() {
-        use crate::entities::sides::Sides;
         use crate::entities::layout_types::Length;
-        let pad  = Content::pad(Content::text("hello"), Sides::uniform(Some(Length::pt(1.0))));
+        use crate::entities::sides::Sides;
+        let pad =
+            Content::pad(Content::text("hello"), Sides::uniform(Some(Length::pt(1.0))));
         let hide = Content::hide(Content::text("hello"));
-        let pad_upper  = pad.map_text(&mut |s| s.to_uppercase());
+        let pad_upper = pad.map_text(&mut |s| s.to_uppercase());
         let hide_upper = hide.map_text(&mut |s| s.to_uppercase());
         // Pad expõe via plain_text (recurse); Hide oculta plain_text mas
         // o body interno foi transformado — verificamos isso desembrulhando.
@@ -3184,8 +3322,8 @@ mod tests {
         use crate::entities::layout_types::Length;
         let a = Content::h_space(Length::pt(3.0), false);
         let b = Content::h_space(Length::pt(3.0), false);
-        let c = Content::h_space(Length::pt(3.0), true);   // weak diferente
-        let d = Content::h_space(Length::pt(4.0), false);  // amount diferente
+        let c = Content::h_space(Length::pt(3.0), true); // weak diferente
+        let d = Content::h_space(Length::pt(4.0), false); // amount diferente
         assert_eq!(a, b);
         assert_ne!(a, c);
         assert_ne!(a, d);
@@ -3242,8 +3380,10 @@ mod tests {
     fn pagebreak_is_empty_returns_false() {
         // Pagebreak é event observável mesmo "vazio" — análogo a Divider.
         let p = Content::pagebreak(false, None);
-        assert!(!p.is_empty(),
-            "Content::Pagebreak nunca é considerado vazio (event com efeito)");
+        assert!(
+            !p.is_empty(),
+            "Content::Pagebreak nunca é considerado vazio (event com efeito)"
+        );
     }
 
     #[test]
@@ -3257,9 +3397,9 @@ mod tests {
         use crate::entities::parity::Parity;
         let a = Content::pagebreak(false, None);
         let b = Content::pagebreak(false, None);
-        let c = Content::pagebreak(true,  None);                   // weak diferente
-        let d = Content::pagebreak(false, Some(Parity::Even));     // to diferente
-        let e = Content::pagebreak(false, Some(Parity::Odd));      // to diferente
+        let c = Content::pagebreak(true, None); // weak diferente
+        let d = Content::pagebreak(false, Some(Parity::Even)); // to diferente
+        let e = Content::pagebreak(false, Some(Parity::Odd)); // to diferente
         assert_eq!(a, b);
         assert_ne!(a, c);
         assert_ne!(a, d);
@@ -3283,13 +3423,14 @@ mod tests {
         use crate::entities::sides::Sides;
         let b = Content::block(
             Content::text("body"),
-            None, None,
+            None,
+            None,
             Sides::uniform(Length::ZERO),
             true,
         );
         if let Content::Block(e) = &b {
             assert_eq!(e.body.plain_text(), "body");
-            assert_eq!(e.width,  None);
+            assert_eq!(e.width, None);
             assert_eq!(e.height, None);
             assert_eq!(e.inset.left, Length::ZERO);
             assert!(e.breakable);
@@ -3310,7 +3451,7 @@ mod tests {
             false,
         );
         if let Content::Block(e) = &b {
-            assert_eq!(e.width,  Some(Length::pt(100.0)));
+            assert_eq!(e.width, Some(Length::pt(100.0)));
             assert_eq!(e.height, Some(Length::pt(50.0)));
             assert_eq!(e.inset.left, Length::pt(8.0));
             assert!(!e.breakable);
@@ -3335,7 +3476,8 @@ mod tests {
         // Com texto, não vazio.
         let b_text = Content::block(
             Content::text("a"),
-            None, None,
+            None,
+            None,
             Sides::uniform(Length::ZERO),
             true,
         );
@@ -3362,7 +3504,8 @@ mod tests {
         use crate::entities::sides::Sides;
         let b = Content::block(
             Content::text("hello"),
-            None, None,
+            None,
+            None,
             Sides::uniform(Length::pt(2.0)),
             true,
         );
@@ -3373,13 +3516,15 @@ mod tests {
     fn block_partial_eq() {
         use crate::entities::layout_types::Length;
         use crate::entities::sides::Sides;
-        let mk = || Content::block(
-            Content::text("x"),
-            Some(Length::pt(50.0)),
-            None,
-            Sides::uniform(Length::pt(3.0)),
-            true,
-        );
+        let mk = || {
+            Content::block(
+                Content::text("x"),
+                Some(Length::pt(50.0)),
+                None,
+                Sides::uniform(Length::pt(3.0)),
+                true,
+            )
+        };
         assert_eq!(mk(), mk());
         // Width diferente → diferente.
         let other_width = Content::block(
@@ -3407,7 +3552,8 @@ mod tests {
         use crate::entities::sides::Sides;
         let b = Content::block(
             Content::text("hello"),
-            None, None,
+            None,
+            None,
             Sides::uniform(Length::pt(1.0)),
             true,
         );
@@ -3429,15 +3575,16 @@ mod tests {
         use crate::entities::sides::Sides;
         let b = Content::boxed(
             Content::text("body"),
-            None, None,
+            None,
+            None,
             Sides::uniform(Length::ZERO),
             Length::ZERO,
         );
         if let Content::Boxed(e) = &b {
             assert_eq!(e.body.plain_text(), "body");
-            assert_eq!(e.width,  None);
+            assert_eq!(e.width, None);
             assert_eq!(e.height, None);
-            assert_eq!(e.inset.left,  Length::ZERO);
+            assert_eq!(e.inset.left, Length::ZERO);
             assert_eq!(e.baseline, Length::ZERO);
         } else {
             panic!("esperado Content::Boxed");
@@ -3453,10 +3600,10 @@ mod tests {
             Some(Length::pt(60.0)),
             Some(Length::pt(20.0)),
             Sides::uniform(Length::pt(2.0)),
-            Length::pt(-3.0),  // baseline negativo aceito
+            Length::pt(-3.0), // baseline negativo aceito
         );
         if let Content::Boxed(e) = &b {
-            assert_eq!(e.width,  Some(Length::pt(60.0)));
+            assert_eq!(e.width, Some(Length::pt(60.0)));
             assert_eq!(e.height, Some(Length::pt(20.0)));
             assert_eq!(e.inset.right, Length::pt(2.0));
             assert_eq!(e.baseline, Length::pt(-3.0));
@@ -3479,7 +3626,8 @@ mod tests {
         assert!(empty.is_empty());
         let nonempty = Content::boxed(
             Content::text("a"),
-            None, None,
+            None,
+            None,
             Sides::uniform(Length::ZERO),
             Length::ZERO,
         );
@@ -3492,7 +3640,8 @@ mod tests {
         use crate::entities::sides::Sides;
         let b = Content::boxed(
             Content::text("hello"),
-            None, None,
+            None,
+            None,
             Sides::uniform(Length::pt(1.0)),
             Length::ZERO,
         );
@@ -3503,13 +3652,15 @@ mod tests {
     fn boxed_partial_eq() {
         use crate::entities::layout_types::Length;
         use crate::entities::sides::Sides;
-        let mk = || Content::boxed(
-            Content::text("x"),
-            Some(Length::pt(40.0)),
-            None,
-            Sides::uniform(Length::pt(1.0)),
-            Length::pt(2.0),
-        );
+        let mk = || {
+            Content::boxed(
+                Content::text("x"),
+                Some(Length::pt(40.0)),
+                None,
+                Sides::uniform(Length::pt(1.0)),
+                Length::pt(2.0),
+            )
+        };
         assert_eq!(mk(), mk());
         // baseline diferente → diferente.
         let other_baseline = Content::boxed(
@@ -3528,7 +3679,8 @@ mod tests {
         use crate::entities::sides::Sides;
         let b = Content::boxed(
             Content::text("hello"),
-            None, None,
+            None,
+            None,
             Sides::uniform(Length::pt(1.0)),
             Length::pt(2.0),
         );
@@ -3583,19 +3735,15 @@ mod tests {
     fn stack_is_empty_se_todos_children_vazios() {
         use crate::entities::dir::Dir;
         // Children todos Empty → stack é vazio.
-        let s_empty = Content::stack(
-            vec![Content::Empty, Content::Empty],
-            Dir::TTB, None,
-        );
+        let s_empty =
+            Content::stack(vec![Content::Empty, Content::Empty], Dir::TTB, None);
         assert!(s_empty.is_empty());
         // Stack sem children → também vazio.
         let s_zero = Content::stack(vec![], Dir::TTB, None);
         assert!(s_zero.is_empty());
         // Algum child com texto → não vazio.
-        let s_nonempty = Content::stack(
-            vec![Content::Empty, Content::text("a")],
-            Dir::TTB, None,
-        );
+        let s_nonempty =
+            Content::stack(vec![Content::Empty, Content::text("a")], Dir::TTB, None);
         assert!(!s_nonempty.is_empty());
     }
 
@@ -3603,11 +3751,9 @@ mod tests {
     fn stack_plain_text_concatena_children() {
         use crate::entities::dir::Dir;
         let s = Content::stack(
-            vec![
-                Content::text("Hello "),
-                Content::text("world"),
-            ],
-            Dir::TTB, None,
+            vec![Content::text("Hello "), Content::text("world")],
+            Dir::TTB,
+            None,
         );
         // Plain text concatena (consistente com Sequence).
         assert_eq!(s.plain_text(), "Hello world");
@@ -3617,11 +3763,13 @@ mod tests {
     fn stack_partial_eq() {
         use crate::entities::dir::Dir;
         use crate::entities::layout_types::Length;
-        let mk = || Content::stack(
-            vec![Content::text("a"), Content::text("b")],
-            Dir::TTB,
-            Some(Length::pt(3.0)),
-        );
+        let mk = || {
+            Content::stack(
+                vec![Content::text("a"), Content::text("b")],
+                Dir::TTB,
+                Some(Length::pt(3.0)),
+            )
+        };
         assert_eq!(mk(), mk());
         // Dir diferente → diferente.
         let other_dir = Content::stack(
@@ -3631,11 +3779,8 @@ mod tests {
         );
         assert_ne!(mk(), other_dir);
         // Spacing diferente → diferente.
-        let other_spacing = Content::stack(
-            vec![Content::text("a"), Content::text("b")],
-            Dir::TTB,
-            None,
-        );
+        let other_spacing =
+            Content::stack(vec![Content::text("a"), Content::text("b")], Dir::TTB, None);
         assert_ne!(mk(), other_spacing);
         // Children diferentes → diferente.
         let other_children = Content::stack(
@@ -3651,7 +3796,8 @@ mod tests {
         use crate::entities::dir::Dir;
         let s = Content::stack(
             vec![Content::text("hello"), Content::text("world")],
-            Dir::TTB, None,
+            Dir::TTB,
+            None,
         );
         let upper = s.map_text(&mut |t| t.to_uppercase());
         assert_eq!(upper.plain_text(), "HELLOWORLD");
@@ -3710,43 +3856,24 @@ mod tests {
     #[test]
     fn repeat_partial_eq_cobre_todos_os_fields() {
         use crate::entities::layout_types::Length;
-        let mk = || Content::repeat(
-            Content::text("."),
-            Some(Length::pt(3.0)),
-            true,
-        );
+        let mk = || Content::repeat(Content::text("."), Some(Length::pt(3.0)), true);
         assert_eq!(mk(), mk());
         // Body diferente → diferente.
-        let other_body = Content::repeat(
-            Content::text("o"),
-            Some(Length::pt(3.0)),
-            true,
-        );
+        let other_body = Content::repeat(Content::text("o"), Some(Length::pt(3.0)), true);
         assert_ne!(mk(), other_body);
         // Gap diferente → diferente.
-        let other_gap = Content::repeat(
-            Content::text("."),
-            None,
-            true,
-        );
+        let other_gap = Content::repeat(Content::text("."), None, true);
         assert_ne!(mk(), other_gap);
         // Justify diferente → diferente.
-        let other_justify = Content::repeat(
-            Content::text("."),
-            Some(Length::pt(3.0)),
-            false,
-        );
+        let other_justify =
+            Content::repeat(Content::text("."), Some(Length::pt(3.0)), false);
         assert_ne!(mk(), other_justify);
     }
 
     #[test]
     fn repeat_map_text_recurse_no_body() {
         use crate::entities::layout_types::Length;
-        let r = Content::repeat(
-            Content::text("hello"),
-            Some(Length::pt(2.0)),
-            false,
-        );
+        let r = Content::repeat(Content::text("hello"), Some(Length::pt(2.0)), false);
         let upper = r.map_text(&mut |t| t.to_uppercase());
         assert_eq!(upper.plain_text(), "HELLO");
         // Atributos preservados.
@@ -3808,32 +3935,17 @@ mod tests {
     #[test]
     fn p217_columns_partial_eq_3_fields() {
         use crate::entities::layout_types::Length;
-        let mk = || Content::columns(
-            Content::text("."),
-            2,
-            Some(Length::pt(8.0)),
-        );
+        let mk = || Content::columns(Content::text("."), 2, Some(Length::pt(8.0)));
         assert_eq!(mk(), mk());
         // Count diferente → diferente.
-        let other_count = Content::columns(
-            Content::text("."),
-            3,
-            Some(Length::pt(8.0)),
-        );
+        let other_count = Content::columns(Content::text("."), 3, Some(Length::pt(8.0)));
         assert_ne!(mk(), other_count);
         // Gutter diferente → diferente.
-        let other_gutter = Content::columns(
-            Content::text("."),
-            2,
-            Some(Length::pt(12.0)),
-        );
+        let other_gutter =
+            Content::columns(Content::text("."), 2, Some(Length::pt(12.0)));
         assert_ne!(mk(), other_gutter);
         // Body diferente → diferente.
-        let other_body = Content::columns(
-            Content::text("o"),
-            2,
-            Some(Length::pt(8.0)),
-        );
+        let other_body = Content::columns(Content::text("o"), 2, Some(Length::pt(8.0)));
         assert_ne!(mk(), other_body);
     }
 
@@ -3859,8 +3971,10 @@ mod tests {
     fn p220_colbreak_is_empty_sempre_false() {
         // Colbreak é event observável (downgrade graded a pagebreak)
         // mesmo "vazio" — paridade Pagebreak/Divider.
-        assert!(!Content::colbreak(false).is_empty(),
-            "Content::Colbreak nunca é considerado vazio (event com efeito)");
+        assert!(
+            !Content::colbreak(false).is_empty(),
+            "Content::Colbreak nunca é considerado vazio (event com efeito)"
+        );
         assert!(!Content::colbreak(true).is_empty());
     }
 
@@ -3875,7 +3989,7 @@ mod tests {
     fn p220_colbreak_partial_eq_1_field() {
         // Eq compara `weak` (1 field — paridade Pagebreak sem to).
         assert_eq!(Content::colbreak(false), Content::colbreak(false));
-        assert_eq!(Content::colbreak(true),  Content::colbreak(true));
+        assert_eq!(Content::colbreak(true), Content::colbreak(true));
         assert_ne!(Content::colbreak(false), Content::colbreak(true));
     }
 
@@ -3892,8 +4006,18 @@ mod tests {
     #[test]
     fn p223_place_variant_aceita_float_clearance() {
         // P223 refino: variant aceita 2 fields novos float + clearance.
-        use crate::entities::layout_types::{Align2D, HAlign, VAlign, Length, PlaceScope};
-        let p = Content::place(Align2D { h: Some(HAlign::Left), v: Some(VAlign::Top) }, 0.0, 0.0, PlaceScope::Column, true, Some(Length::pt(10.0)), Content::text("body"));
+        use crate::entities::layout_types::{
+            Align2D, HAlign, Length, PlaceScope, VAlign,
+        };
+        let p = Content::place(
+            Align2D { h: Some(HAlign::Left), v: Some(VAlign::Top) },
+            0.0,
+            0.0,
+            PlaceScope::Column,
+            true,
+            Some(Length::pt(10.0)),
+            Content::text("body"),
+        );
         if let Content::Place(e) = &p {
             assert_eq!(e.float, true);
             assert_eq!(e.clearance, Some(Length::pt(10.0)));
@@ -3905,8 +4029,16 @@ mod tests {
     #[test]
     fn p223_place_default_float_false_clearance_none() {
         // Defaults stdlib: float=false, clearance=None.
-        use crate::entities::layout_types::{Align2D, HAlign, VAlign, PlaceScope};
-        let p = Content::place(Align2D { h: Some(HAlign::Left), v: Some(VAlign::Top) }, 0.0, 0.0, PlaceScope::Column, false, None, Content::text("body"));
+        use crate::entities::layout_types::{Align2D, HAlign, PlaceScope, VAlign};
+        let p = Content::place(
+            Align2D { h: Some(HAlign::Left), v: Some(VAlign::Top) },
+            0.0,
+            0.0,
+            PlaceScope::Column,
+            false,
+            None,
+            Content::text("body"),
+        );
         if let Content::Place(e) = &p {
             assert_eq!(e.float, false, "default float == false");
             assert!(e.clearance.is_none(), "default clearance == None");
@@ -3918,8 +4050,20 @@ mod tests {
     #[test]
     fn p223_place_partial_eq_inclui_float_clearance() {
         // Eq compara 7 fields agora (P223 +2 fields).
-        use crate::entities::layout_types::{Align2D, HAlign, VAlign, Length, PlaceScope};
-        let mk = |float: bool, clearance: Option<Length>| Content::place(Align2D { h: Some(HAlign::Left), v: Some(VAlign::Top) }, 0.0, 0.0, PlaceScope::Column, float, clearance, Content::text("."));
+        use crate::entities::layout_types::{
+            Align2D, HAlign, Length, PlaceScope, VAlign,
+        };
+        let mk = |float: bool, clearance: Option<Length>| {
+            Content::place(
+                Align2D { h: Some(HAlign::Left), v: Some(VAlign::Top) },
+                0.0,
+                0.0,
+                PlaceScope::Column,
+                float,
+                clearance,
+                Content::text("."),
+            )
+        };
         assert_eq!(mk(false, None), mk(false, None));
         // Float diferente → diferente.
         assert_ne!(mk(false, None), mk(true, None));
@@ -3930,12 +4074,26 @@ mod tests {
     #[test]
     fn p223_place_map_content_preserva_atributos() {
         // map_content recurse no body preservando float + clearance.
-        use crate::entities::layout_types::{Align2D, HAlign, VAlign, Length, PlaceScope};
-        let p = Content::place(Align2D { h: Some(HAlign::Left), v: Some(VAlign::Top) }, 0.0, 0.0, PlaceScope::Parent, true, Some(Length::pt(8.0)), Content::text("X"));
+        use crate::entities::layout_types::{
+            Align2D, HAlign, Length, PlaceScope, VAlign,
+        };
+        let p = Content::place(
+            Align2D { h: Some(HAlign::Left), v: Some(VAlign::Top) },
+            0.0,
+            0.0,
+            PlaceScope::Parent,
+            true,
+            Some(Length::pt(8.0)),
+            Content::text("X"),
+        );
         let mapped = p.map_content(&mut |x| Ok(Some(x.clone()))).unwrap();
         if let Content::Place(e) = &mapped {
             assert_eq!(e.float, true, "map_content preserva float");
-            assert_eq!(e.clearance, Some(Length::pt(8.0)), "map_content preserva clearance");
+            assert_eq!(
+                e.clearance,
+                Some(Length::pt(8.0)),
+                "map_content preserva clearance"
+            );
         } else {
             panic!("esperado Content::Place após map_content");
         }
@@ -3946,17 +4104,24 @@ mod tests {
     #[test]
     fn p224_grid_variant_aceita_5_fields_aditivos() {
         // Grid variant aceita gutter/align/inset/header/footer.
-        use crate::entities::layout_types::{Align2D, HAlign, VAlign, Length, TrackSizing};
+        use crate::entities::layout_types::{
+            Align2D, HAlign, Length, TrackSizing, VAlign,
+        };
         use crate::entities::sides::Sides;
-        let g = Content::Grid(std::sync::Arc::new(crate::entities::elements::grid::GridElem {
-            columns: vec![TrackSizing::Auto],
-            rows:    vec![],
-            cells:   vec![Content::text("A")],
-            gutter:  Some(Length::pt(5.0)),
-            align:   Some(Align2D { h: Some(HAlign::Left), v: Some(VAlign::Top) }),
-            inset:   Sides::uniform(Length::pt(2.0)), header: Some(Content::text("H")), footer: Some(Content::text("F")),
-            stroke:  None,
-            fill:    None}));
+        let g = Content::Grid(std::sync::Arc::new(
+            crate::entities::elements::grid::GridElem {
+                columns: vec![TrackSizing::Auto],
+                rows: vec![],
+                cells: vec![Content::text("A")],
+                gutter: Some(Length::pt(5.0)),
+                align: Some(Align2D { h: Some(HAlign::Left), v: Some(VAlign::Top) }),
+                inset: Sides::uniform(Length::pt(2.0)),
+                header: Some(Content::text("H")),
+                footer: Some(Content::text("F")),
+                stroke: None,
+                fill: None,
+            },
+        ));
         if let Content::Grid(e) = &g {
             assert_eq!(e.gutter, Some(Length::pt(5.0)));
             assert!(e.header.is_some());
@@ -3970,15 +4135,22 @@ mod tests {
     fn p224_grid_partial_eq_inclui_5_fields_novos() {
         use crate::entities::layout_types::{Length, TrackSizing};
         use crate::entities::sides::Sides;
-        let mk = |gutter: Option<Length>| Content::Grid(std::sync::Arc::new(crate::entities::elements::grid::GridElem {
-            columns: vec![TrackSizing::Auto],
-            rows:    vec![],
-            cells:   vec![],
-            gutter,
-            align:   None,
-            inset:   Sides::uniform(Length::pt(0.0)), header: None, footer: None,
-            stroke:  None,
-            fill:    None}));
+        let mk = |gutter: Option<Length>| {
+            Content::Grid(std::sync::Arc::new(
+                crate::entities::elements::grid::GridElem {
+                    columns: vec![TrackSizing::Auto],
+                    rows: vec![],
+                    cells: vec![],
+                    gutter,
+                    align: None,
+                    inset: Sides::uniform(Length::pt(0.0)),
+                    header: None,
+                    footer: None,
+                    stroke: None,
+                    fill: None,
+                },
+            ))
+        };
         assert_eq!(mk(None), mk(None));
         assert_ne!(mk(None), mk(Some(Length::pt(5.0))));
     }
@@ -3989,7 +4161,9 @@ mod tests {
         if let Content::GridHeader(e) = &h {
             assert_eq!(e.body.plain_text(), "hdr");
             assert_eq!(e.repeat, true);
-        } else { panic!("esperado GridHeader"); }
+        } else {
+            panic!("esperado GridHeader");
+        }
     }
 
     #[test]
@@ -3998,7 +4172,9 @@ mod tests {
         if let Content::GridFooter(e) = &f {
             assert_eq!(e.body.plain_text(), "ftr");
             assert_eq!(e.repeat, false);
-        } else { panic!("esperado GridFooter"); }
+        } else {
+            panic!("esperado GridFooter");
+        }
     }
 
     #[test]
@@ -4009,54 +4185,78 @@ mod tests {
 
     #[test]
     fn p224_gridcell_variant_aceita_5_fields() {
-        let c = Content::GridCell(std::sync::Arc::new(crate::entities::elements::grid_cell::GridCellElem { body: Content::text("cell"),
-            x:       Some(1),
-            y:       Some(2),
-            colspan: Some(3),
-            rowspan: Some(4),
-            stroke:  None,
-            fill:    None,
-            align:   None, inset: None, breakable: None}));
+        let c = Content::GridCell(std::sync::Arc::new(
+            crate::entities::elements::grid_cell::GridCellElem {
+                body: Content::text("cell"),
+                x: Some(1),
+                y: Some(2),
+                colspan: Some(3),
+                rowspan: Some(4),
+                stroke: None,
+                fill: None,
+                align: None,
+                inset: None,
+                breakable: None,
+            },
+        ));
         if let Content::GridCell(e) = &c {
             assert_eq!(e.x, Some(1));
             assert_eq!(e.y, Some(2));
             assert_eq!(e.colspan, Some(3));
             assert_eq!(e.rowspan, Some(4));
-        } else { panic!("esperado GridCell"); }
+        } else {
+            panic!("esperado GridCell");
+        }
     }
 
     #[test]
     fn p224_gridcell_partial_eq_5_fields() {
         // Eq compara 5 fields (paridade P157B TableCell literal).
-        let mk = |x: Option<usize>| Content::GridCell(std::sync::Arc::new(crate::entities::elements::grid_cell::GridCellElem { body: Content::text("."),
-            x,
-            y:       None,
-            colspan: None,
-            rowspan: None,
-            stroke:  None,
-            fill:    None,
-            align:   None, inset: None, breakable: None}));
+        let mk = |x: Option<usize>| {
+            Content::GridCell(std::sync::Arc::new(
+                crate::entities::elements::grid_cell::GridCellElem {
+                    body: Content::text("."),
+                    x,
+                    y: None,
+                    colspan: None,
+                    rowspan: None,
+                    stroke: None,
+                    fill: None,
+                    align: None,
+                    inset: None,
+                    breakable: None,
+                },
+            ))
+        };
         assert_eq!(mk(None), mk(None));
         assert_ne!(mk(None), mk(Some(1)));
     }
 
     #[test]
     fn p224_gridcell_map_content_preserva_fields() {
-        let c = Content::GridCell(std::sync::Arc::new(crate::entities::elements::grid_cell::GridCellElem { body: Content::text("x"),
-            x:       Some(0),
-            y:       Some(1),
-            colspan: Some(2),
-            rowspan: None,
-            stroke:  None,
-            fill:    None,
-            align:   None, inset: None, breakable: None}));
+        let c = Content::GridCell(std::sync::Arc::new(
+            crate::entities::elements::grid_cell::GridCellElem {
+                body: Content::text("x"),
+                x: Some(0),
+                y: Some(1),
+                colspan: Some(2),
+                rowspan: None,
+                stroke: None,
+                fill: None,
+                align: None,
+                inset: None,
+                breakable: None,
+            },
+        ));
         let mapped = c.map_content(&mut |x| Ok(Some(x.clone()))).unwrap();
         if let Content::GridCell(e) = &mapped {
             assert_eq!(e.x, Some(0));
             assert_eq!(e.y, Some(1));
             assert_eq!(e.colspan, Some(2));
             assert!(e.rowspan.is_none());
-        } else { panic!("esperado GridCell após map_content"); }
+        } else {
+            panic!("esperado GridCell após map_content");
+        }
     }
 
     // ── Passo 227 (ADR-0079 PROPOSTO Fase 5 Layout Categoria A.1) — stroke ──
@@ -4064,18 +4264,27 @@ mod tests {
     #[test]
     fn p227_grid_variant_aceita_stroke() {
         // Grid variant aceita stroke (+1 field P227; total 9 fields).
-        use crate::entities::layout_types::{Length, TrackSizing, Color};
-        use crate::entities::sides::Sides;
         use crate::entities::geometry::Stroke;
-        let g = Content::Grid(std::sync::Arc::new(crate::entities::elements::grid::GridElem {
-            columns: vec![TrackSizing::Auto],
-            rows:    vec![],
-            cells:   vec![Content::text("A")],
-            gutter:  None,
-            align:   None,
-            inset:   Sides::uniform(Length::pt(0.0)), header: None, footer: None,
-            stroke:  Some(Stroke { paint: Paint::Solid(Color::rgb(255, 0, 0)), thickness: 2.0, overhang: false }),
-            fill:    None}));
+        use crate::entities::layout_types::{Color, Length, TrackSizing};
+        use crate::entities::sides::Sides;
+        let g = Content::Grid(std::sync::Arc::new(
+            crate::entities::elements::grid::GridElem {
+                columns: vec![TrackSizing::Auto],
+                rows: vec![],
+                cells: vec![Content::text("A")],
+                gutter: None,
+                align: None,
+                inset: Sides::uniform(Length::pt(0.0)),
+                header: None,
+                footer: None,
+                stroke: Some(Stroke {
+                    paint: Paint::Solid(Color::rgb(255, 0, 0)),
+                    thickness: 2.0,
+                    overhang: false,
+                }),
+                fill: None,
+            },
+        ));
         if let Content::Grid(e) = &g {
             assert!(e.stroke.is_some());
             let s = e.stroke.as_ref().unwrap();
@@ -4088,14 +4297,21 @@ mod tests {
     #[test]
     fn p227_table_variant_aceita_stroke() {
         // Paridade Grid para Table (refino paralelo).
-        use crate::entities::layout_types::{TrackSizing, Color};
         use crate::entities::geometry::Stroke;
-        let t = Content::Table(std::sync::Arc::new(crate::entities::elements::table::TableElem {
-            columns:  vec![TrackSizing::Auto],
-            rows:     vec![],
-            children: vec![Content::text("X")],
-            stroke:   Some(Stroke { paint: Paint::Solid(Color::rgb(0, 0, 255)), thickness: 1.5, overhang: false }),
-            fill:     None}));
+        use crate::entities::layout_types::{Color, TrackSizing};
+        let t = Content::Table(std::sync::Arc::new(
+            crate::entities::elements::table::TableElem {
+                columns: vec![TrackSizing::Auto],
+                rows: vec![],
+                children: vec![Content::text("X")],
+                stroke: Some(Stroke {
+                    paint: Paint::Solid(Color::rgb(0, 0, 255)),
+                    thickness: 1.5,
+                    overhang: false,
+                }),
+                fill: None,
+            },
+        ));
         if let Content::Table(e) = &t {
             assert!(e.stroke.is_some());
         } else {
@@ -4106,20 +4322,31 @@ mod tests {
     #[test]
     fn p227_grid_partial_eq_inclui_stroke() {
         // Eq compara 9 fields agora (P227 +1 stroke).
-        use crate::entities::layout_types::{Length, TrackSizing, Color};
-        use crate::entities::sides::Sides;
         use crate::entities::geometry::Stroke;
-        let mk = |stroke: Option<Stroke>| Content::Grid(std::sync::Arc::new(crate::entities::elements::grid::GridElem {
-            columns: vec![TrackSizing::Auto],
-            rows:    vec![],
-            cells:   vec![],
-            gutter:  None,
-            align:   None,
-            inset:   Sides::uniform(Length::pt(0.0)), header: None, footer: None,
-            stroke,
-            fill:    None}));
+        use crate::entities::layout_types::{Color, Length, TrackSizing};
+        use crate::entities::sides::Sides;
+        let mk = |stroke: Option<Stroke>| {
+            Content::Grid(std::sync::Arc::new(
+                crate::entities::elements::grid::GridElem {
+                    columns: vec![TrackSizing::Auto],
+                    rows: vec![],
+                    cells: vec![],
+                    gutter: None,
+                    align: None,
+                    inset: Sides::uniform(Length::pt(0.0)),
+                    header: None,
+                    footer: None,
+                    stroke,
+                    fill: None,
+                },
+            ))
+        };
         assert_eq!(mk(None), mk(None));
-        let s = Stroke { paint: Paint::Solid(Color::rgb(0, 0, 0)), thickness: 1.0, overhang: false };
+        let s = Stroke {
+            paint: Paint::Solid(Color::rgb(0, 0, 0)),
+            thickness: 1.0,
+            overhang: false,
+        };
         assert_ne!(mk(None), mk(Some(s)));
     }
 
@@ -4128,17 +4355,22 @@ mod tests {
     #[test]
     fn p228_grid_variant_aceita_fill() {
         // Grid variant aceita fill (+1 field P228; total 10 fields).
-        use crate::entities::layout_types::{Length, TrackSizing, Color};
+        use crate::entities::layout_types::{Color, Length, TrackSizing};
         use crate::entities::sides::Sides;
-        let g = Content::Grid(std::sync::Arc::new(crate::entities::elements::grid::GridElem {
-            columns: vec![TrackSizing::Auto],
-            rows:    vec![],
-            cells:   vec![Content::text("A")],
-            gutter:  None,
-            align:   None,
-            inset:   Sides::uniform(Length::pt(0.0)), header: None, footer: None,
-            stroke:  None,
-            fill:    Some(Color::rgb(255, 255, 0))}));
+        let g = Content::Grid(std::sync::Arc::new(
+            crate::entities::elements::grid::GridElem {
+                columns: vec![TrackSizing::Auto],
+                rows: vec![],
+                cells: vec![Content::text("A")],
+                gutter: None,
+                align: None,
+                inset: Sides::uniform(Length::pt(0.0)),
+                header: None,
+                footer: None,
+                stroke: None,
+                fill: Some(Color::rgb(255, 255, 0)),
+            },
+        ));
         if let Content::Grid(e) = &g {
             assert!(e.fill.is_some());
         } else {
@@ -4148,13 +4380,16 @@ mod tests {
 
     #[test]
     fn p228_table_variant_aceita_fill() {
-        use crate::entities::layout_types::{TrackSizing, Color};
-        let t = Content::Table(std::sync::Arc::new(crate::entities::elements::table::TableElem {
-            columns:  vec![TrackSizing::Auto],
-            rows:     vec![],
-            children: vec![Content::text("X")],
-            stroke:   None,
-            fill:     Some(Color::rgb(0, 255, 0))}));
+        use crate::entities::layout_types::{Color, TrackSizing};
+        let t = Content::Table(std::sync::Arc::new(
+            crate::entities::elements::table::TableElem {
+                columns: vec![TrackSizing::Auto],
+                rows: vec![],
+                children: vec![Content::text("X")],
+                stroke: None,
+                fill: Some(Color::rgb(0, 255, 0)),
+            },
+        ));
         if let Content::Table(e) = &t {
             assert!(e.fill.is_some());
         } else {
@@ -4164,35 +4399,47 @@ mod tests {
 
     #[test]
     fn p228_grid_partial_eq_inclui_fill() {
-        use crate::entities::layout_types::{Length, TrackSizing, Color};
+        use crate::entities::layout_types::{Color, Length, TrackSizing};
         use crate::entities::sides::Sides;
-        let mk = |fill: Option<Color>| Content::Grid(std::sync::Arc::new(crate::entities::elements::grid::GridElem {
-            columns: vec![TrackSizing::Auto],
-            rows:    vec![],
-            cells:   vec![],
-            gutter:  None,
-            align:   None,
-            inset:   Sides::uniform(Length::pt(0.0)), header: None, footer: None,
-            stroke:  None,
-            fill}));
+        let mk = |fill: Option<Color>| {
+            Content::Grid(std::sync::Arc::new(
+                crate::entities::elements::grid::GridElem {
+                    columns: vec![TrackSizing::Auto],
+                    rows: vec![],
+                    cells: vec![],
+                    gutter: None,
+                    align: None,
+                    inset: Sides::uniform(Length::pt(0.0)),
+                    header: None,
+                    footer: None,
+                    stroke: None,
+                    fill,
+                },
+            ))
+        };
         assert_eq!(mk(None), mk(None));
         assert_ne!(mk(None), mk(Some(Color::rgb(255, 0, 0))));
     }
 
     #[test]
     fn p228_grid_map_content_preserva_fill() {
-        use crate::entities::layout_types::{Length, TrackSizing, Color};
+        use crate::entities::layout_types::{Color, Length, TrackSizing};
         use crate::entities::sides::Sides;
         let fill_orig = Color::rgb(50, 50, 50);
-        let g = Content::Grid(std::sync::Arc::new(crate::entities::elements::grid::GridElem {
-            columns: vec![TrackSizing::Auto],
-            rows:    vec![],
-            cells:   vec![Content::text("a")],
-            gutter:  None,
-            align:   None,
-            inset:   Sides::uniform(Length::pt(0.0)), header: None, footer: None,
-            stroke:  None,
-            fill:    Some(fill_orig)}));
+        let g = Content::Grid(std::sync::Arc::new(
+            crate::entities::elements::grid::GridElem {
+                columns: vec![TrackSizing::Auto],
+                rows: vec![],
+                cells: vec![Content::text("a")],
+                gutter: None,
+                align: None,
+                inset: Sides::uniform(Length::pt(0.0)),
+                header: None,
+                footer: None,
+                stroke: None,
+                fill: Some(fill_orig),
+            },
+        ));
         let mapped = g.map_content(&mut |x| Ok(Some(x.clone()))).unwrap();
         if let Content::Grid(e) = &mapped {
             assert_eq!(e.fill, Some(fill_orig));
@@ -4204,22 +4451,28 @@ mod tests {
     #[test]
     fn p227_grid_map_content_preserva_stroke() {
         // map_content preserva stroke (Option<Stroke> Clone).
-        use crate::entities::layout_types::{Length, TrackSizing, Color};
-        use crate::entities::sides::Sides;
         use crate::entities::geometry::Stroke;
-        let stroke_orig = Stroke { paint: Paint::Solid(Color::rgb(100, 100, 100)), thickness: 3.0, overhang: false };
-        let g = Content::Grid(std::sync::Arc::new(crate::entities::elements::grid::GridElem {
-            columns: vec![TrackSizing::Auto],
-            rows:    vec![],
-            cells:   vec![Content::text("a")],
-            gutter:  None,
-            align:   None,
-            inset:   Sides::uniform(Length::pt(0.0)),
-            header:  None,
-            footer:  None,
-            stroke:  Some(stroke_orig.clone()),
-            fill:    None,
-        }));
+        use crate::entities::layout_types::{Color, Length, TrackSizing};
+        use crate::entities::sides::Sides;
+        let stroke_orig = Stroke {
+            paint: Paint::Solid(Color::rgb(100, 100, 100)),
+            thickness: 3.0,
+            overhang: false,
+        };
+        let g = Content::Grid(std::sync::Arc::new(
+            crate::entities::elements::grid::GridElem {
+                columns: vec![TrackSizing::Auto],
+                rows: vec![],
+                cells: vec![Content::text("a")],
+                gutter: None,
+                align: None,
+                inset: Sides::uniform(Length::pt(0.0)),
+                header: None,
+                footer: None,
+                stroke: Some(stroke_orig.clone()),
+                fill: None,
+            },
+        ));
         let mapped = g.map_content(&mut |x| Ok(Some(x.clone()))).unwrap();
         if let Content::Grid(e) = &mapped {
             assert_eq!(e.stroke, Some(stroke_orig));
@@ -4232,16 +4485,26 @@ mod tests {
 
     #[test]
     fn p230_gridcell_variant_aceita_stroke_fill() {
-        use crate::entities::layout_types::Color;
         use crate::entities::geometry::Stroke;
-        let c = Content::GridCell(std::sync::Arc::new(crate::entities::elements::grid_cell::GridCellElem { body: Content::text("cell"),
-            x:       None,
-            y:       None,
-            colspan: None,
-            rowspan: None,
-            stroke:  Some(Stroke { paint: Paint::Solid(Color::rgb(0, 0, 0)), thickness: 1.0, overhang: false }),
-            fill:    Some(Color::rgb(255, 255, 0)),
-            align:   None, inset: None, breakable: None}));
+        use crate::entities::layout_types::Color;
+        let c = Content::GridCell(std::sync::Arc::new(
+            crate::entities::elements::grid_cell::GridCellElem {
+                body: Content::text("cell"),
+                x: None,
+                y: None,
+                colspan: None,
+                rowspan: None,
+                stroke: Some(Stroke {
+                    paint: Paint::Solid(Color::rgb(0, 0, 0)),
+                    thickness: 1.0,
+                    overhang: false,
+                }),
+                fill: Some(Color::rgb(255, 255, 0)),
+                align: None,
+                inset: None,
+                breakable: None,
+            },
+        ));
         if let Content::GridCell(e) = &c {
             assert!(e.stroke.is_some() && e.fill.is_some());
         } else {
@@ -4252,14 +4515,20 @@ mod tests {
     #[test]
     fn p230_tablecell_variant_aceita_stroke_fill() {
         use crate::entities::layout_types::Color;
-        let c = Content::TableCell(std::sync::Arc::new(crate::entities::elements::table_cell::TableCellElem { body: Content::text("cell"),
-            x:       None,
-            y:       None,
-            colspan: None,
-            rowspan: None,
-            stroke:  None,
-            fill:    Some(Color::rgb(0, 255, 0)),
-            align:   None, inset: None, breakable: None}));
+        let c = Content::TableCell(std::sync::Arc::new(
+            crate::entities::elements::table_cell::TableCellElem {
+                body: Content::text("cell"),
+                x: None,
+                y: None,
+                colspan: None,
+                rowspan: None,
+                stroke: None,
+                fill: Some(Color::rgb(0, 255, 0)),
+                align: None,
+                inset: None,
+                breakable: None,
+            },
+        ));
         if let Content::TableCell(e) = &c {
             assert!(e.fill.is_some());
         } else {
@@ -4270,32 +4539,50 @@ mod tests {
     #[test]
     fn p230_gridcell_partial_eq_inclui_stroke_fill() {
         use crate::entities::layout_types::Color;
-        let mk = |fill: Option<Color>| Content::GridCell(std::sync::Arc::new(crate::entities::elements::grid_cell::GridCellElem { body: Content::text("."),
-            x:       None,
-            y:       None,
-            colspan: None,
-            rowspan: None,
-            stroke:  None,
-            fill,
-            align:   None, inset: None, breakable: None}));
+        let mk = |fill: Option<Color>| {
+            Content::GridCell(std::sync::Arc::new(
+                crate::entities::elements::grid_cell::GridCellElem {
+                    body: Content::text("."),
+                    x: None,
+                    y: None,
+                    colspan: None,
+                    rowspan: None,
+                    stroke: None,
+                    fill,
+                    align: None,
+                    inset: None,
+                    breakable: None,
+                },
+            ))
+        };
         assert_eq!(mk(None), mk(None));
         assert_ne!(mk(None), mk(Some(Color::rgb(255, 0, 0))));
     }
 
     #[test]
     fn p230_gridcell_map_content_preserva_stroke_fill() {
-        use crate::entities::layout_types::Color;
         use crate::entities::geometry::Stroke;
-        let stroke_orig = Stroke { paint: Paint::Solid(Color::rgb(50, 50, 50)), thickness: 2.0, overhang: false };
+        use crate::entities::layout_types::Color;
+        let stroke_orig = Stroke {
+            paint: Paint::Solid(Color::rgb(50, 50, 50)),
+            thickness: 2.0,
+            overhang: false,
+        };
         let fill_orig = Color::rgb(200, 200, 200);
-        let c = Content::GridCell(std::sync::Arc::new(crate::entities::elements::grid_cell::GridCellElem { body: Content::text("c"),
-            x:       None,
-            y:       None,
-            colspan: None,
-            rowspan: None,
-            stroke:  Some(stroke_orig.clone()),
-            fill:    Some(fill_orig),
-            align:   None, inset: None, breakable: None}));
+        let c = Content::GridCell(std::sync::Arc::new(
+            crate::entities::elements::grid_cell::GridCellElem {
+                body: Content::text("c"),
+                x: None,
+                y: None,
+                colspan: None,
+                rowspan: None,
+                stroke: Some(stroke_orig.clone()),
+                fill: Some(fill_orig),
+                align: None,
+                inset: None,
+                breakable: None,
+            },
+        ));
         let mapped = c.map_content(&mut |x| Ok(Some(x.clone()))).unwrap();
         if let Content::GridCell(e) = &mapped {
             assert_eq!(e.stroke, Some(stroke_orig));
@@ -4311,45 +4598,74 @@ mod tests {
     fn p235_gridcell_variant_aceita_align_inset_breakable() {
         use crate::entities::layout_types::Align2D;
         use crate::entities::sides::Sides;
-        let c = Content::GridCell(std::sync::Arc::new(crate::entities::elements::grid_cell::GridCellElem { body: Content::text("p235"),
-            x:       None, y: None,
-            colspan: None, rowspan: None,
-            stroke:  None, fill: None,
-            align:     Some(Align2D::from_string("center")),
-            inset:     Some(Sides::uniform(Length::pt(7.0))),
-            breakable: Some(false)}));
+        let c = Content::GridCell(std::sync::Arc::new(
+            crate::entities::elements::grid_cell::GridCellElem {
+                body: Content::text("p235"),
+                x: None,
+                y: None,
+                colspan: None,
+                rowspan: None,
+                stroke: None,
+                fill: None,
+                align: Some(Align2D::from_string("center")),
+                inset: Some(Sides::uniform(Length::pt(7.0))),
+                breakable: Some(false),
+            },
+        ));
         if let Content::GridCell(e) = &c {
             assert!(e.align.is_some());
             assert!(e.inset.is_some());
             assert_eq!(e.breakable, Some(false));
-        } else { panic!("esperado GridCell"); }
+        } else {
+            panic!("esperado GridCell");
+        }
     }
 
     #[test]
     fn p235_tablecell_variant_aceita_align_inset_breakable() {
         use crate::entities::layout_types::Align2D;
         use crate::entities::sides::Sides;
-        let c = Content::TableCell(std::sync::Arc::new(crate::entities::elements::table_cell::TableCellElem { body: Content::text("p235t"),
-            x:       None, y: None,
-            colspan: None, rowspan: None,
-            stroke:  None, fill: None,
-            align:     Some(Align2D::from_string("right")),
-            inset:     Some(Sides::uniform(Length::pt(3.0))),
-            breakable: Some(true)}));
+        let c = Content::TableCell(std::sync::Arc::new(
+            crate::entities::elements::table_cell::TableCellElem {
+                body: Content::text("p235t"),
+                x: None,
+                y: None,
+                colspan: None,
+                rowspan: None,
+                stroke: None,
+                fill: None,
+                align: Some(Align2D::from_string("right")),
+                inset: Some(Sides::uniform(Length::pt(3.0))),
+                breakable: Some(true),
+            },
+        ));
         if let Content::TableCell(e) = &c {
             assert!(e.align.is_some());
             assert!(e.inset.is_some());
             assert_eq!(e.breakable, Some(true));
-        } else { panic!("esperado TableCell"); }
+        } else {
+            panic!("esperado TableCell");
+        }
     }
 
     #[test]
     fn p235_gridcell_partial_eq_inclui_3_fields() {
-        let mk = |breakable: Option<bool>| Content::GridCell(std::sync::Arc::new(crate::entities::elements::grid_cell::GridCellElem { body: Content::text("."),
-            x:       None, y: None,
-            colspan: None, rowspan: None,
-            stroke:  None, fill: None,
-            align:   None, inset: None, breakable}));
+        let mk = |breakable: Option<bool>| {
+            Content::GridCell(std::sync::Arc::new(
+                crate::entities::elements::grid_cell::GridCellElem {
+                    body: Content::text("."),
+                    x: None,
+                    y: None,
+                    colspan: None,
+                    rowspan: None,
+                    stroke: None,
+                    fill: None,
+                    align: None,
+                    inset: None,
+                    breakable,
+                },
+            ))
+        };
         assert_eq!(mk(None), mk(None));
         assert_ne!(mk(None), mk(Some(false)));
         assert_ne!(mk(Some(true)), mk(Some(false)));
@@ -4359,19 +4675,28 @@ mod tests {
     fn p235_gridcell_map_content_preserva_3_fields() {
         use crate::entities::layout_types::Align2D;
         use crate::entities::sides::Sides;
-        let c = Content::GridCell(std::sync::Arc::new(crate::entities::elements::grid_cell::GridCellElem { body: Content::text("x"),
-            x:       None, y: None,
-            colspan: None, rowspan: None,
-            stroke:  None, fill: None,
-            align:     Some(Align2D::from_string("top")),
-            inset:     Some(Sides::uniform(Length::pt(2.0))),
-            breakable: Some(true)}));
+        let c = Content::GridCell(std::sync::Arc::new(
+            crate::entities::elements::grid_cell::GridCellElem {
+                body: Content::text("x"),
+                x: None,
+                y: None,
+                colspan: None,
+                rowspan: None,
+                stroke: None,
+                fill: None,
+                align: Some(Align2D::from_string("top")),
+                inset: Some(Sides::uniform(Length::pt(2.0))),
+                breakable: Some(true),
+            },
+        ));
         let mapped = c.map_content(&mut |x| Ok(Some(x.clone()))).unwrap();
         if let Content::GridCell(e) = &mapped {
             assert!(e.align.is_some());
             assert!(e.inset.is_some());
             assert_eq!(e.breakable, Some(true));
-        } else { panic!("esperado GridCell após map_content"); }
+        } else {
+            panic!("esperado GridCell após map_content");
+        }
     }
 
     // ── Passo 231 (Fase 5 Layout Categoria A.4) — Block/Boxed outset/radius/clip ──
@@ -4379,22 +4704,26 @@ mod tests {
     #[test]
     fn p231_block_variant_aceita_outset_radius_clip() {
         // P242 adapta: radius `Option<Length>` → `Corners<Length>`.
-        use crate::entities::sides::Sides;
         use crate::entities::corners::Corners;
-        let b = Content::Block(std::sync::Arc::new(crate::entities::elements::block::BlockElem { body: Content::text("body"),
-            width:     None,
-            height:    None,
-            inset:     Sides::uniform(Length::pt(0.0)),
-            breakable: true,
-            outset:    Sides::uniform(Length::pt(5.0)),
-            radius:    Corners::uniform(Length::pt(3.0)),
-            clip:      true,
-            fill:      None,
-            stroke:    None,
-            spacing:   None,
-            above:     None,
-            below:     None,
-            sticky:    false}));
+        use crate::entities::sides::Sides;
+        let b = Content::Block(std::sync::Arc::new(
+            crate::entities::elements::block::BlockElem {
+                body: Content::text("body"),
+                width: None,
+                height: None,
+                inset: Sides::uniform(Length::pt(0.0)),
+                breakable: true,
+                outset: Sides::uniform(Length::pt(5.0)),
+                radius: Corners::uniform(Length::pt(3.0)),
+                clip: true,
+                fill: None,
+                stroke: None,
+                spacing: None,
+                above: None,
+                below: None,
+                sticky: false,
+            },
+        ));
         if let Content::Block(e) = &b {
             assert_eq!(e.radius.top_left, Length::pt(3.0));
             assert_eq!(e.radius.top_right, Length::pt(3.0));
@@ -4410,18 +4739,22 @@ mod tests {
     #[test]
     fn p231_boxed_variant_aceita_outset_radius_clip() {
         // P242 adapta: radius `Option<Length>` → `Corners<Length>`.
-        use crate::entities::sides::Sides;
         use crate::entities::corners::Corners;
-        let b = Content::Boxed(std::sync::Arc::new(crate::entities::elements::boxed::BoxedElem { body: Content::text("body"),
-            width:    None,
-            height:   None,
-            inset:    Sides::uniform(Length::pt(0.0)),
-            baseline: Length::pt(0.0),
-            outset:   Sides::uniform(Length::pt(2.0)),
-            radius:   Corners::uniform(Length::pt(4.0)),
-            clip:     false,
-            fill:     None,
-            stroke:   None}));
+        use crate::entities::sides::Sides;
+        let b = Content::Boxed(std::sync::Arc::new(
+            crate::entities::elements::boxed::BoxedElem {
+                body: Content::text("body"),
+                width: None,
+                height: None,
+                inset: Sides::uniform(Length::pt(0.0)),
+                baseline: Length::pt(0.0),
+                outset: Sides::uniform(Length::pt(2.0)),
+                radius: Corners::uniform(Length::pt(4.0)),
+                clip: false,
+                fill: None,
+                stroke: None,
+            },
+        ));
         if let Content::Boxed(e) = &b {
             assert_eq!(e.radius.top_left, Length::pt(4.0));
             assert_eq!(e.clip, false);
@@ -4434,22 +4767,28 @@ mod tests {
     #[test]
     fn p231_block_partial_eq_inclui_3_fields() {
         // P242 adapta: radius `Option<Length>` → `Corners<Length>`.
-        use crate::entities::sides::Sides;
         use crate::entities::corners::Corners;
-        let mk = |clip: bool| Content::Block(std::sync::Arc::new(crate::entities::elements::block::BlockElem { body: Content::text("."),
-            width:     None,
-            height:    None,
-            inset:     Sides::uniform(Length::pt(0.0)),
-            breakable: true,
-            outset:    Sides::uniform(Length::pt(0.0)),
-            radius:    Corners::uniform(Length::ZERO),
-            clip,
-            fill:      None,
-            stroke:    None,
-            spacing:   None,
-            above:     None,
-            below:     None,
-            sticky:    false}));
+        use crate::entities::sides::Sides;
+        let mk = |clip: bool| {
+            Content::Block(std::sync::Arc::new(
+                crate::entities::elements::block::BlockElem {
+                    body: Content::text("."),
+                    width: None,
+                    height: None,
+                    inset: Sides::uniform(Length::pt(0.0)),
+                    breakable: true,
+                    outset: Sides::uniform(Length::pt(0.0)),
+                    radius: Corners::uniform(Length::ZERO),
+                    clip,
+                    fill: None,
+                    stroke: None,
+                    spacing: None,
+                    above: None,
+                    below: None,
+                    sticky: false,
+                },
+            ))
+        };
         assert_eq!(mk(false), mk(false));
         assert_ne!(mk(false), mk(true));
     }
@@ -4457,24 +4796,28 @@ mod tests {
     #[test]
     fn p231_block_map_content_preserva_3_fields() {
         // P242 adapta: radius `Option<Length>` → `Corners<Length>`.
-        use crate::entities::sides::Sides;
         use crate::entities::corners::Corners;
+        use crate::entities::sides::Sides;
         let outset_orig = Sides::uniform(Length::pt(7.0));
         let radius_orig = Corners::uniform(Length::pt(2.0));
-        let b = Content::Block(std::sync::Arc::new(crate::entities::elements::block::BlockElem { body: Content::text("b"),
-            width:     None,
-            height:    None,
-            inset:     Sides::uniform(Length::pt(0.0)),
-            breakable: true,
-            outset:    outset_orig,
-            radius:    radius_orig,
-            clip:      true,
-            fill:      None,
-            stroke:    None,
-            spacing:   None,
-            above:     None,
-            below:     None,
-            sticky:    false}));
+        let b = Content::Block(std::sync::Arc::new(
+            crate::entities::elements::block::BlockElem {
+                body: Content::text("b"),
+                width: None,
+                height: None,
+                inset: Sides::uniform(Length::pt(0.0)),
+                breakable: true,
+                outset: outset_orig,
+                radius: radius_orig,
+                clip: true,
+                fill: None,
+                stroke: None,
+                spacing: None,
+                above: None,
+                below: None,
+                sticky: false,
+            },
+        ));
         let mapped = b.map_content(&mut |x| Ok(Some(x.clone()))).unwrap();
         if let Content::Block(e) = &mapped {
             assert_eq!(e.outset, outset_orig);
@@ -4492,24 +4835,32 @@ mod tests {
 
     #[test]
     fn p247_block_variant_aceita_fill_stroke() {
-        use crate::entities::sides::Sides;
         use crate::entities::corners::Corners;
-        use crate::entities::layout_types::Color;
         use crate::entities::geometry::Stroke;
-        let b = Content::Block(std::sync::Arc::new(crate::entities::elements::block::BlockElem { body: Content::text("p247"),
-            width:     None,
-            height:    None,
-            inset:     Sides::uniform(Length::pt(0.0)),
-            breakable: true,
-            outset:    Sides::uniform(Length::pt(0.0)),
-            radius:    Corners::uniform(Length::ZERO),
-            clip:      false,
-            fill:      Some(Color::rgb(200, 0, 0)),
-            stroke:    Some(Stroke { paint: Paint::Solid(Color::rgb(0, 0, 0)), thickness: 2.0, overhang: false }),
-            spacing:   None,
-            above:     None,
-            below:     None,
-            sticky:    false}));
+        use crate::entities::layout_types::Color;
+        use crate::entities::sides::Sides;
+        let b = Content::Block(std::sync::Arc::new(
+            crate::entities::elements::block::BlockElem {
+                body: Content::text("p247"),
+                width: None,
+                height: None,
+                inset: Sides::uniform(Length::pt(0.0)),
+                breakable: true,
+                outset: Sides::uniform(Length::pt(0.0)),
+                radius: Corners::uniform(Length::ZERO),
+                clip: false,
+                fill: Some(Color::rgb(200, 0, 0)),
+                stroke: Some(Stroke {
+                    paint: Paint::Solid(Color::rgb(0, 0, 0)),
+                    thickness: 2.0,
+                    overhang: false,
+                }),
+                spacing: None,
+                above: None,
+                below: None,
+                sticky: false,
+            },
+        ));
         if let Content::Block(e) = &b {
             assert_eq!(e.fill, Some(Color::rgb(200, 0, 0)));
             assert_eq!(e.stroke.as_ref().unwrap().thickness, 2.0);
@@ -4520,20 +4871,28 @@ mod tests {
 
     #[test]
     fn p247_boxed_variant_aceita_fill_stroke() {
-        use crate::entities::sides::Sides;
         use crate::entities::corners::Corners;
-        use crate::entities::layout_types::Color;
         use crate::entities::geometry::Stroke;
-        let b = Content::Boxed(std::sync::Arc::new(crate::entities::elements::boxed::BoxedElem { body: Content::text("p247"),
-            width:    None,
-            height:   None,
-            inset:    Sides::uniform(Length::pt(0.0)),
-            baseline: Length::pt(0.0),
-            outset:   Sides::uniform(Length::pt(0.0)),
-            radius:   Corners::uniform(Length::ZERO),
-            clip:     false,
-            fill:     Some(Color::rgb(0, 200, 0)),
-            stroke:   Some(Stroke { paint: Paint::Solid(Color::rgb(0, 0, 0)), thickness: 1.5, overhang: false })}));
+        use crate::entities::layout_types::Color;
+        use crate::entities::sides::Sides;
+        let b = Content::Boxed(std::sync::Arc::new(
+            crate::entities::elements::boxed::BoxedElem {
+                body: Content::text("p247"),
+                width: None,
+                height: None,
+                inset: Sides::uniform(Length::pt(0.0)),
+                baseline: Length::pt(0.0),
+                outset: Sides::uniform(Length::pt(0.0)),
+                radius: Corners::uniform(Length::ZERO),
+                clip: false,
+                fill: Some(Color::rgb(0, 200, 0)),
+                stroke: Some(Stroke {
+                    paint: Paint::Solid(Color::rgb(0, 0, 0)),
+                    thickness: 1.5,
+                    overhang: false,
+                }),
+            },
+        ));
         if let Content::Boxed(e) = &b {
             assert_eq!(e.fill, Some(Color::rgb(0, 200, 0)));
             assert_eq!(e.stroke.as_ref().unwrap().thickness, 1.5);
@@ -4544,23 +4903,29 @@ mod tests {
 
     #[test]
     fn p247_block_partial_eq_inclui_fill_stroke() {
-        use crate::entities::sides::Sides;
         use crate::entities::corners::Corners;
         use crate::entities::layout_types::Color;
-        let mk = |fill: Option<Color>| Content::Block(std::sync::Arc::new(crate::entities::elements::block::BlockElem { body: Content::text("p247eq"),
-            width:     None,
-            height:    None,
-            inset:     Sides::uniform(Length::pt(0.0)),
-            breakable: true,
-            outset:    Sides::uniform(Length::pt(0.0)),
-            radius:    Corners::uniform(Length::ZERO),
-            clip:      false,
-            fill,
-            stroke:    None,
-            spacing:   None,
-            above:     None,
-            below:     None,
-            sticky:    false}));
+        use crate::entities::sides::Sides;
+        let mk = |fill: Option<Color>| {
+            Content::Block(std::sync::Arc::new(
+                crate::entities::elements::block::BlockElem {
+                    body: Content::text("p247eq"),
+                    width: None,
+                    height: None,
+                    inset: Sides::uniform(Length::pt(0.0)),
+                    breakable: true,
+                    outset: Sides::uniform(Length::pt(0.0)),
+                    radius: Corners::uniform(Length::ZERO),
+                    clip: false,
+                    fill,
+                    stroke: None,
+                    spacing: None,
+                    above: None,
+                    below: None,
+                    sticky: false,
+                },
+            ))
+        };
         assert_eq!(mk(None), mk(None));
         assert_ne!(mk(None), mk(Some(Color::rgb(255, 0, 0))));
         assert_eq!(mk(Some(Color::rgb(1, 2, 3))), mk(Some(Color::rgb(1, 2, 3))));
@@ -4568,26 +4933,34 @@ mod tests {
 
     #[test]
     fn p247_block_map_content_preserva_fill_stroke() {
-        use crate::entities::sides::Sides;
         use crate::entities::corners::Corners;
-        use crate::entities::layout_types::Color;
         use crate::entities::geometry::Stroke;
-        let fill_orig   = Some(Color::rgb(50, 100, 150));
-        let stroke_orig = Some(Stroke { paint: Paint::Solid(Color::rgb(0, 0, 0)), thickness: 3.0, overhang: false });
-        let b = Content::Block(std::sync::Arc::new(crate::entities::elements::block::BlockElem { body: Content::text("p247map"),
-            width:     None,
-            height:    None,
-            inset:     Sides::uniform(Length::pt(0.0)),
-            breakable: true,
-            outset:    Sides::uniform(Length::pt(0.0)),
-            radius:    Corners::uniform(Length::ZERO),
-            clip:      false,
-            fill:      fill_orig,
-            stroke:    stroke_orig.clone(),
-            spacing:   None,
-            above:     None,
-            below:     None,
-            sticky:    false}));
+        use crate::entities::layout_types::Color;
+        use crate::entities::sides::Sides;
+        let fill_orig = Some(Color::rgb(50, 100, 150));
+        let stroke_orig = Some(Stroke {
+            paint: Paint::Solid(Color::rgb(0, 0, 0)),
+            thickness: 3.0,
+            overhang: false,
+        });
+        let b = Content::Block(std::sync::Arc::new(
+            crate::entities::elements::block::BlockElem {
+                body: Content::text("p247map"),
+                width: None,
+                height: None,
+                inset: Sides::uniform(Length::pt(0.0)),
+                breakable: true,
+                outset: Sides::uniform(Length::pt(0.0)),
+                radius: Corners::uniform(Length::ZERO),
+                clip: false,
+                fill: fill_orig,
+                stroke: stroke_orig.clone(),
+                spacing: None,
+                above: None,
+                below: None,
+                sticky: false,
+            },
+        ));
         let mapped = b.map_content(&mut |x| Ok(Some(x.clone()))).unwrap();
         if let Content::Block(e) = &mapped {
             assert_eq!(e.fill, fill_orig);
@@ -4602,7 +4975,8 @@ mod tests {
         use crate::entities::sides::Sides;
         let b = Content::block(
             Content::text("p247def"),
-            None, None,
+            None,
+            None,
             Sides::uniform(Length::pt(0.0)),
             true,
         );
@@ -4619,7 +4993,8 @@ mod tests {
         use crate::entities::sides::Sides;
         let b = Content::boxed(
             Content::text("p247def"),
-            None, None,
+            None,
+            None,
             Sides::uniform(Length::pt(0.0)),
             Length::pt(0.0),
         );
@@ -4666,11 +5041,8 @@ mod tests {
     fn table_is_empty_proxy_via_children() {
         use crate::entities::layout_types::TrackSizing;
         // Children vazios → table vazio (mesmo com tracks declaradas).
-        let t_empty = Content::table(
-            vec![TrackSizing::Auto],
-            vec![TrackSizing::Auto],
-            vec![],
-        );
+        let t_empty =
+            Content::table(vec![TrackSizing::Auto], vec![TrackSizing::Auto], vec![]);
         assert!(t_empty.is_empty());
         // Children com texto → não vazio.
         let t_full = Content::table(
@@ -4696,11 +5068,13 @@ mod tests {
     #[test]
     fn table_partial_eq() {
         use crate::entities::layout_types::TrackSizing;
-        let mk = || Content::table(
-            vec![TrackSizing::Auto],
-            vec![TrackSizing::Auto],
-            vec![Content::text("a")],
-        );
+        let mk = || {
+            Content::table(
+                vec![TrackSizing::Auto],
+                vec![TrackSizing::Auto],
+                vec![Content::text("a")],
+            )
+        };
         assert_eq!(mk(), mk());
         // Children diferentes → diferente.
         let other_children = Content::table(
@@ -4750,11 +5124,7 @@ mod tests {
     #[test]
     fn table_cell_constructor_com_x_y() {
         // P157B: ADR-0064 Caso A — Some(n) ↔ posição explícita.
-        let c = Content::table_cell(
-            Content::text("x"),
-            Some(2), Some(3),
-            None, None,
-        );
+        let c = Content::table_cell(Content::text("x"), Some(2), Some(3), None, None);
         if let Content::TableCell(e) = &c {
             assert_eq!(e.x, Some(2));
             assert_eq!(e.y, Some(3));
@@ -4766,11 +5136,7 @@ mod tests {
     #[test]
     fn table_cell_constructor_com_colspan_rowspan() {
         // P157B: ADR-0064 Caso C — Some(n) ↔ span explícito.
-        let c = Content::table_cell(
-            Content::text("x"),
-            None, None,
-            Some(2), Some(3),
-        );
+        let c = Content::table_cell(Content::text("x"), None, None, Some(2), Some(3));
         if let Content::TableCell(e) = &c {
             assert_eq!(e.colspan, Some(2));
             assert_eq!(e.rowspan, Some(3));
@@ -4794,36 +5160,35 @@ mod tests {
         // Plain text recurse sem multiplicar por colspan/rowspan
         // (paridade não visível em texto plano; spans são runtime
         // diferidos em DEBT-34e).
-        let c = Content::table_cell(
-            Content::text("xy"),
-            None, None,
-            Some(3), Some(2),
-        );
+        let c = Content::table_cell(Content::text("xy"), None, None, Some(3), Some(2));
         assert_eq!(c.plain_text(), "xy");
     }
 
     #[test]
     fn table_cell_partial_eq_cobre_todos_os_5_fields() {
-        let mk = || Content::table_cell(
-            Content::text("a"),
-            Some(1), Some(2),
-            Some(3), Some(4),
-        );
+        let mk = || {
+            Content::table_cell(Content::text("a"), Some(1), Some(2), Some(3), Some(4))
+        };
         assert_eq!(mk(), mk());
         // x diferente → diferente.
-        let other_x = Content::table_cell(Content::text("a"), Some(99), Some(2), Some(3), Some(4));
+        let other_x =
+            Content::table_cell(Content::text("a"), Some(99), Some(2), Some(3), Some(4));
         assert_ne!(mk(), other_x);
         // y diferente → diferente.
-        let other_y = Content::table_cell(Content::text("a"), Some(1), Some(99), Some(3), Some(4));
+        let other_y =
+            Content::table_cell(Content::text("a"), Some(1), Some(99), Some(3), Some(4));
         assert_ne!(mk(), other_y);
         // colspan diferente → diferente.
-        let other_cs = Content::table_cell(Content::text("a"), Some(1), Some(2), Some(99), Some(4));
+        let other_cs =
+            Content::table_cell(Content::text("a"), Some(1), Some(2), Some(99), Some(4));
         assert_ne!(mk(), other_cs);
         // rowspan diferente → diferente.
-        let other_rs = Content::table_cell(Content::text("a"), Some(1), Some(2), Some(3), Some(99));
+        let other_rs =
+            Content::table_cell(Content::text("a"), Some(1), Some(2), Some(3), Some(99));
         assert_ne!(mk(), other_rs);
         // body diferente → diferente.
-        let other_body = Content::table_cell(Content::text("b"), Some(1), Some(2), Some(3), Some(4));
+        let other_body =
+            Content::table_cell(Content::text("b"), Some(1), Some(2), Some(3), Some(4));
         assert_ne!(mk(), other_body);
     }
 
@@ -4831,8 +5196,10 @@ mod tests {
     fn table_cell_map_text_recurse_no_body_preserva_fields() {
         let c = Content::table_cell(
             Content::text("hello"),
-            Some(2), Some(3),
-            Some(4), Some(5),
+            Some(2),
+            Some(3),
+            Some(4),
+            Some(5),
         );
         let upper = c.map_text(&mut |s| s.to_uppercase());
         assert_eq!(upper.plain_text(), "HELLO");
@@ -4898,7 +5265,7 @@ mod tests {
     #[test]
     fn table_header_is_empty_proxy_via_body() {
         let h_empty = Content::table_header(Content::Empty, true);
-        let h_full  = Content::table_header(Content::text("a"), true);
+        let h_full = Content::table_header(Content::text("a"), true);
         assert!(h_empty.is_empty());
         assert!(!h_full.is_empty());
     }
@@ -4906,7 +5273,7 @@ mod tests {
     #[test]
     fn table_footer_is_empty_proxy_via_body() {
         let f_empty = Content::table_footer(Content::Empty, true);
-        let f_full  = Content::table_footer(Content::text("a"), true);
+        let f_full = Content::table_footer(Content::text("a"), true);
         assert!(f_empty.is_empty());
         assert!(!f_full.is_empty());
     }
@@ -5002,7 +5369,10 @@ mod tests {
         if let Content::Bibliography(e) = &b {
             assert_eq!(e.entries.len(), 1);
             assert_eq!(e.entries[0].key, "k1");
-            assert_eq!(e.title.as_ref().map(|t| t.plain_text()).as_deref(), Some("Referências"));
+            assert_eq!(
+                e.title.as_ref().map(|t| t.plain_text()).as_deref(),
+                Some("Referências")
+            );
         } else {
             panic!("esperado Content::Bibliography");
         }
@@ -5018,9 +5388,8 @@ mod tests {
         let b_title = Content::bibliography(vec![], Some(Content::text("R")));
         assert!(!b_title.is_empty());
         // Só com entries → não empty.
-        let b_entries = Content::bibliography(
-            vec![BibEntry::new("k", "A", "T", 2024)], None,
-        );
+        let b_entries =
+            Content::bibliography(vec![BibEntry::new("k", "A", "T", 2024)], None);
         assert!(!b_entries.is_empty());
     }
 
@@ -5042,14 +5411,16 @@ mod tests {
     #[test]
     fn bibliography_partial_eq_cobre_2_fields() {
         use crate::entities::bib_entry::BibEntry;
-        let mk = || Content::bibliography(
-            vec![BibEntry::new("k", "A", "T", 2024)],
-            Some(Content::text("R")),
-        );
+        let mk = || {
+            Content::bibliography(
+                vec![BibEntry::new("k", "A", "T", 2024)],
+                Some(Content::text("R")),
+            )
+        };
         assert_eq!(mk(), mk());
         // entries diferentes → diferente.
         let other_entries = Content::bibliography(
-            vec![BibEntry::new("k", "A", "T", 2025)],  // year diferente
+            vec![BibEntry::new("k", "A", "T", 2025)], // year diferente
             Some(Content::text("R")),
         );
         assert_ne!(mk(), other_entries);
@@ -5059,6 +5430,41 @@ mod tests {
             Some(Content::text("Bibliografia")),
         );
         assert_ne!(mk(), other_title);
+    }
+
+    #[test]
+    fn bibliography_with_style_preserva_style_e_locale() {
+        use crate::entities::bib_entry::BibEntry;
+        let b = Content::bibliography_with_style(
+            vec![BibEntry::new("k", "A", "T", 2024)],
+            Some(Content::text("R")),
+            Some("ieee".into()),
+            Some("en-US".into()),
+        );
+        if let Content::Bibliography(e) = &b {
+            assert_eq!(e.style.as_deref(), Some("ieee"));
+            assert_eq!(e.locale.as_deref(), Some("en-US"));
+        } else {
+            panic!("esperado Bibliography");
+        }
+    }
+
+    #[test]
+    fn bibliography_with_style_distingue_por_style() {
+        use crate::entities::bib_entry::BibEntry;
+        let a = Content::bibliography_with_style(
+            vec![BibEntry::new("k", "A", "T", 2024)],
+            None,
+            Some("ieee".into()),
+            None,
+        );
+        let b = Content::bibliography_with_style(
+            vec![BibEntry::new("k", "A", "T", 2024)],
+            None,
+            Some("apa".into()),
+            None,
+        );
+        assert_ne!(a, b);
     }
 
     #[test]
@@ -5078,7 +5484,10 @@ mod tests {
         let c = Content::cite("smith2024", Some(Content::text("p. 42")), None);
         if let Content::Cite(e) = &c {
             assert_eq!(e.key, "smith2024");
-            assert_eq!(e.supplement.as_ref().map(|s| s.plain_text()).as_deref(), Some("p. 42"));
+            assert_eq!(
+                e.supplement.as_ref().map(|s| s.plain_text()).as_deref(),
+                Some("p. 42")
+            );
             assert!(e.form.is_none());
         } else {
             panic!("esperado Content::Cite");
@@ -5163,7 +5572,11 @@ mod tests {
         // Com callback → comparação Arc::ptr_eq via Func::PartialEq.
         use crate::entities::func::Func;
         let f1 = Func::native("identity", |_, args, _, _| {
-            Ok(args.items.first().cloned().unwrap_or(crate::entities::value::Value::None))
+            Ok(args
+                .items
+                .first()
+                .cloned()
+                .unwrap_or(crate::entities::value::Value::None))
         });
         let a = Content::state_display("k".to_string(), Some(f1.clone()));
         let b = Content::state_display("k".to_string(), Some(f1.clone()));
@@ -5171,7 +5584,11 @@ mod tests {
         assert_eq!(a, b);
         // Func distinta (Arc diferente) → not equal mesmo com mesmo behaviour.
         let f2 = Func::native("identity", |_, args, _, _| {
-            Ok(args.items.first().cloned().unwrap_or(crate::entities::value::Value::None))
+            Ok(args
+                .items
+                .first()
+                .cloned()
+                .unwrap_or(crate::entities::value::Value::None))
         });
         let c = Content::state_display("k".to_string(), Some(f2));
         assert_ne!(a, c);
@@ -5202,13 +5619,21 @@ mod tests {
         // Com callback → comparação Arc::ptr_eq via Func::PartialEq.
         use crate::entities::func::Func;
         let f1 = Func::native("identity", |_, args, _, _| {
-            Ok(args.items.first().cloned().unwrap_or(crate::entities::value::Value::None))
+            Ok(args
+                .items
+                .first()
+                .cloned()
+                .unwrap_or(crate::entities::value::Value::None))
         });
         let a = Content::counter_display_callback("k".to_string(), Some(f1.clone()));
         let b = Content::counter_display_callback("k".to_string(), Some(f1.clone()));
         assert_eq!(a, b);
         let f2 = Func::native("identity", |_, args, _, _| {
-            Ok(args.items.first().cloned().unwrap_or(crate::entities::value::Value::None))
+            Ok(args
+                .items
+                .first()
+                .cloned()
+                .unwrap_or(crate::entities::value::Value::None))
         });
         let c = Content::counter_display_callback("k".to_string(), Some(f2));
         assert_ne!(a, c);

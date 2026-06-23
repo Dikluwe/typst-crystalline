@@ -9,15 +9,15 @@
 //! Funções nativas estruturais (strong, emph, raw, heading).
 //! Extraído de `stdlib.rs` no Passo 96.5 conforme ADR-0037.
 
-use ecow::EcoString;
 use crate::entities::file_id::FileId;
+use ecow::EcoString;
 
 use super::expect_no_named;
 
 use crate::entities::args::Args;
 use crate::entities::content::Content;
-use crate::entities::span::Span;
 use crate::entities::source_result::{SourceDiagnostic, SourceResult};
+use crate::entities::span::Span;
 use crate::entities::value::Value;
 use crate::entities::world_types::Datetime;
 use crate::rules::eval::EvalContext;
@@ -26,15 +26,25 @@ use crate::rules::eval::EvalContext;
 
 /// `strong(body)` — emite `Content::Styled([Bold(true)], body)`
 /// (Passo 101) ou serve como selector em show rules.
-pub fn native_strong(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contracts::world::World, _current_file: FileId) -> SourceResult<Value> {
+pub fn native_strong(
+    _ctx: &mut EvalContext,
+    args: &Args,
+    _world: &dyn crate::contracts::world::World,
+    _current_file: FileId,
+) -> SourceResult<Value> {
     expect_no_named(&args.named)?;
     let body = match args.items.first() {
         Some(Value::Content(c)) => c.clone(),
-        Some(Value::Str(s))     => Content::text(s.as_str()),
-        Some(other) => return Err(vec![SourceDiagnostic::error(
-            Span::detached(),
-            format!("strong() espera content ou string, recebeu {}", other.type_name()),
-        )]),
+        Some(Value::Str(s)) => Content::text(s.as_str()),
+        Some(other) => {
+            return Err(vec![SourceDiagnostic::error(
+                Span::detached(),
+                format!(
+                    "strong() espera content ou string, recebeu {}",
+                    other.type_name()
+                ),
+            )])
+        }
         None => Content::Empty,
     };
     Ok(Value::Content(Content::strong(body)))
@@ -42,15 +52,22 @@ pub fn native_strong(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::co
 
 /// `emph(body)` — emite `Content::Styled([Italic(true)], body)`
 /// (Passo 101) ou serve como selector em show rules.
-pub fn native_emph(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contracts::world::World, _current_file: FileId) -> SourceResult<Value> {
+pub fn native_emph(
+    _ctx: &mut EvalContext,
+    args: &Args,
+    _world: &dyn crate::contracts::world::World,
+    _current_file: FileId,
+) -> SourceResult<Value> {
     expect_no_named(&args.named)?;
     let body = match args.items.first() {
         Some(Value::Content(c)) => c.clone(),
-        Some(Value::Str(s))     => Content::text(s.as_str()),
-        Some(other) => return Err(vec![SourceDiagnostic::error(
-            Span::detached(),
-            format!("emph() espera content ou string, recebeu {}", other.type_name()),
-        )]),
+        Some(Value::Str(s)) => Content::text(s.as_str()),
+        Some(other) => {
+            return Err(vec![SourceDiagnostic::error(
+                Span::detached(),
+                format!("emph() espera content ou string, recebeu {}", other.type_name()),
+            )])
+        }
         None => Content::Empty,
     };
     Ok(Value::Content(Content::emph(body)))
@@ -58,14 +75,21 @@ pub fn native_emph(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::cont
 
 /// `raw(text)` — cria `Content::Raw` ou serve como selector em show rules.
 /// Aceita apenas string — não faz sentido semântico aceitar Content aqui.
-pub fn native_raw(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contracts::world::World, _current_file: FileId) -> SourceResult<Value> {
+pub fn native_raw(
+    _ctx: &mut EvalContext,
+    args: &Args,
+    _world: &dyn crate::contracts::world::World,
+    _current_file: FileId,
+) -> SourceResult<Value> {
     expect_no_named(&args.named)?;
     let text: EcoString = match args.items.first() {
         Some(Value::Str(s)) => s.clone(),
-        Some(other) => return Err(vec![SourceDiagnostic::error(
-            Span::detached(),
-            format!("raw() espera string, recebeu {}", other.type_name()),
-        )]),
+        Some(other) => {
+            return Err(vec![SourceDiagnostic::error(
+                Span::detached(),
+                format!("raw() espera string, recebeu {}", other.type_name()),
+            )])
+        }
         None => EcoString::default(),
     };
     Ok(Value::Content(Content::raw(text, None, false)))
@@ -78,7 +102,12 @@ pub fn native_raw(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contr
 ///
 /// A criação real de headings usa a sintaxe de markup `= Título`.
 /// Chamar `heading()` directamente retorna Err (DEBT-21).
-pub fn native_heading(_ctx: &mut EvalContext, _args: &Args, _world: &dyn crate::contracts::world::World, _current_file: FileId) -> SourceResult<Value> {
+pub fn native_heading(
+    _ctx: &mut EvalContext,
+    _args: &Args,
+    _world: &dyn crate::contracts::world::World,
+    _current_file: FileId,
+) -> SourceResult<Value> {
     Err(vec![SourceDiagnostic::error(
         Span::detached(),
         "heading() como função directa não suportada; use a sintaxe de markup `= Título`"
@@ -90,7 +119,12 @@ pub fn native_heading(_ctx: &mut EvalContext, _args: &Args, _world: &dyn crate::
 
 /// `divider()` — emite `Content::Divider` (separador horizontal).
 /// Não aceita argumentos.
-pub fn native_divider(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contracts::world::World, _current_file: FileId) -> SourceResult<Value> {
+pub fn native_divider(
+    _ctx: &mut EvalContext,
+    args: &Args,
+    _world: &dyn crate::contracts::world::World,
+    _current_file: FileId,
+) -> SourceResult<Value> {
     super::expect_no_named(&args.named)?;
     if !args.items.is_empty() {
         return Err(vec![SourceDiagnostic::error(
@@ -105,7 +139,12 @@ pub fn native_divider(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::c
 /// (chave nomeada, valor descrição). A ordem dos argumentos nomeados é
 /// preservada (IndexMap). Aceita `Value::Content` ou `Value::Str` como
 /// descrição. Posicionais não suportados (forma chave: descrição).
-pub fn native_terms(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contracts::world::World, _current_file: FileId) -> SourceResult<Value> {
+pub fn native_terms(
+    _ctx: &mut EvalContext,
+    args: &Args,
+    _world: &dyn crate::contracts::world::World,
+    _current_file: FileId,
+) -> SourceResult<Value> {
     if !args.items.is_empty() {
         return Err(vec![SourceDiagnostic::error(
             Span::detached(),
@@ -117,12 +156,17 @@ pub fn native_terms(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::con
         let term = Content::text(key.as_str());
         let description = match value {
             Value::Content(c) => c.clone(),
-            Value::Str(s)     => Content::text(s.as_str()),
-            other => return Err(vec![SourceDiagnostic::error(
-                Span::detached(),
-                format!("terms(): descrição de '{}' deve ser content ou string, recebeu {}",
-                    key, other.type_name()),
-            )]),
+            Value::Str(s) => Content::text(s.as_str()),
+            other => {
+                return Err(vec![SourceDiagnostic::error(
+                    Span::detached(),
+                    format!(
+                    "terms(): descrição de '{}' deve ser content ou string, recebeu {}",
+                    key,
+                    other.type_name()
+                ),
+                )])
+            }
         };
         items.push(Content::term_item(term, description));
     }
@@ -134,55 +178,84 @@ pub fn native_terms(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::con
 /// `quote(body, attribution: ?, block: false, quotes: true)` — emite
 /// `Content::Quote`. Body posicional obrigatório (content ou string);
 /// outros argumentos via named.
-pub fn native_quote(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contracts::world::World, _current_file: FileId) -> SourceResult<Value> {
+pub fn native_quote(
+    _ctx: &mut EvalContext,
+    args: &Args,
+    _world: &dyn crate::contracts::world::World,
+    _current_file: FileId,
+) -> SourceResult<Value> {
     let body = match args.items.first() {
         Some(Value::Content(c)) => c.clone(),
-        Some(Value::Str(s))     => Content::text(s.as_str()),
-        Some(other) => return Err(vec![SourceDiagnostic::error(
-            Span::detached(),
-            format!("quote() espera content ou string, recebeu {}", other.type_name()),
-        )]),
-        None => return Err(vec![SourceDiagnostic::error(
-            Span::detached(),
-            "quote() exige body como argumento posicional".to_string(),
-        )]),
+        Some(Value::Str(s)) => Content::text(s.as_str()),
+        Some(other) => {
+            return Err(vec![SourceDiagnostic::error(
+                Span::detached(),
+                format!(
+                    "quote() espera content ou string, recebeu {}",
+                    other.type_name()
+                ),
+            )])
+        }
+        None => {
+            return Err(vec![SourceDiagnostic::error(
+                Span::detached(),
+                "quote() exige body como argumento posicional".to_string(),
+            )])
+        }
     };
 
     let mut attribution: Option<Content> = None;
-    let mut block:       bool = false;
-    let mut quotes:      bool = true;
+    let mut block: bool = false;
+    let mut quotes: bool = true;
 
     for (key, value) in args.named.iter() {
         match key.as_str() {
             "attribution" => {
                 attribution = match value {
                     Value::Content(c) => Some(c.clone()),
-                    Value::Str(s)     => Some(Content::text(s.as_str())),
-                    Value::None       => None,
-                    other => return Err(vec![SourceDiagnostic::error(
-                        Span::detached(),
-                        format!("quote(attribution:) espera content/string/none, recebeu {}", other.type_name()),
-                    )]),
+                    Value::Str(s) => Some(Content::text(s.as_str())),
+                    Value::None => None,
+                    other => {
+                        return Err(vec![SourceDiagnostic::error(
+                            Span::detached(),
+                            format!(
+                            "quote(attribution:) espera content/string/none, recebeu {}",
+                            other.type_name()
+                        ),
+                        )])
+                    }
                 };
             }
             "block" => match value {
                 Value::Bool(b) => block = *b,
-                other => return Err(vec![SourceDiagnostic::error(
-                    Span::detached(),
-                    format!("quote(block:) espera bool, recebeu {}", other.type_name()),
-                )]),
+                other => {
+                    return Err(vec![SourceDiagnostic::error(
+                        Span::detached(),
+                        format!(
+                            "quote(block:) espera bool, recebeu {}",
+                            other.type_name()
+                        ),
+                    )])
+                }
             },
             "quotes" => match value {
                 Value::Bool(b) => quotes = *b,
-                other => return Err(vec![SourceDiagnostic::error(
-                    Span::detached(),
-                    format!("quote(quotes:) espera bool, recebeu {}", other.type_name()),
-                )]),
+                other => {
+                    return Err(vec![SourceDiagnostic::error(
+                        Span::detached(),
+                        format!(
+                            "quote(quotes:) espera bool, recebeu {}",
+                            other.type_name()
+                        ),
+                    )])
+                }
             },
-            other => return Err(vec![SourceDiagnostic::error(
-                Span::detached(),
-                format!("quote(): argumento nomeado inesperado '{}'", other),
-            )]),
+            other => {
+                return Err(vec![SourceDiagnostic::error(
+                    Span::detached(),
+                    format!("quote(): argumento nomeado inesperado '{}'", other),
+                )])
+            }
         }
     }
 
@@ -214,9 +287,14 @@ pub fn native_quote(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::con
 ///
 /// Helper `extract_tracks` reusado de `stdlib/layout.rs` (N=2;
 /// `pub(super)` per P157A — sibling-module access).
-pub fn native_table(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contracts::world::World, _current_file: FileId) -> SourceResult<Value> {
-    use crate::rules::stdlib::layout::{extract_tracks, extract_stroke};
+pub fn native_table(
+    _ctx: &mut EvalContext,
+    args: &Args,
+    _world: &dyn crate::contracts::world::World,
+    _current_file: FileId,
+) -> SourceResult<Value> {
     use crate::entities::layout_types::TrackSizing;
+    use crate::rules::stdlib::layout::{extract_stroke, extract_tracks};
 
     for key in args.named.keys() {
         // P227 + P228 — accept stroke + fill (paridade native_grid).
@@ -228,7 +306,7 @@ pub fn native_table(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::con
         }
     }
     let mut columns = extract_tracks(args.named.get("columns"));
-    let mut rows    = extract_tracks(args.named.get("rows"));
+    let mut rows = extract_tracks(args.named.get("rows"));
     // Defaults — `columns`/`rows` omitido cai em `[Auto]` (paridade
     // com Grid em P83).
     if columns.is_empty() {
@@ -242,11 +320,16 @@ pub fn native_table(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::con
     for v in args.items.iter() {
         match v {
             Value::Content(c) => children.push(c.clone()),
-            Value::Str(s)     => children.push(Content::text(s.as_str())),
-            other => return Err(vec![SourceDiagnostic::error(
-                Span::detached(),
-                format!("table(): children devem ser content ou string, recebeu {}", other.type_name()),
-            )]),
+            Value::Str(s) => children.push(Content::text(s.as_str())),
+            other => {
+                return Err(vec![SourceDiagnostic::error(
+                    Span::detached(),
+                    format!(
+                        "table(): children devem ser content ou string, recebeu {}",
+                        other.type_name()
+                    ),
+                )])
+            }
         }
     }
     // P227 — extract stroke (paridade Grid via extract_stroke shorthand).
@@ -257,14 +340,22 @@ pub fn native_table(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::con
     // P228 — extract fill (Opção α: apenas Value::Color).
     let fill = match args.named.get("fill") {
         Some(Value::Color(c)) => Some(*c),
-        Some(other) => return Err(vec![SourceDiagnostic::error(
-            Span::detached(),
-            format!("table(fill): espera Color, recebeu {}", other.type_name()),
-        )]),
+        Some(other) => {
+            return Err(vec![SourceDiagnostic::error(
+                Span::detached(),
+                format!("table(fill): espera Color, recebeu {}", other.type_name()),
+            )])
+        }
         None => None,
     };
     Ok(Value::Content(Content::Table(std::sync::Arc::new(
-        crate::entities::elements::table::TableElem { columns, rows, children, stroke, fill },
+        crate::entities::elements::table::TableElem {
+            columns,
+            rows,
+            children,
+            stroke,
+            fill,
+        },
     ))))
 }
 
@@ -300,7 +391,12 @@ fn extract_usize_or_none_min(
         }
         other => Err(vec![SourceDiagnostic::error(
             Span::detached(),
-            format!("{}({}:) espera int ou auto, recebeu {}", fn_name, field, other.type_name()),
+            format!(
+                "{}({}:) espera int ou auto, recebeu {}",
+                fn_name,
+                field,
+                other.type_name()
+            ),
         )]),
     }
 }
@@ -316,10 +412,17 @@ fn extract_align_value(
 ) -> SourceResult<crate::entities::layout_types::Align2D> {
     match val {
         Value::Align(a) => Ok(*a),
-        Value::Str(s)   => Ok(crate::entities::layout_types::Align2D::from_string(s.as_str())),
+        Value::Str(s) => {
+            Ok(crate::entities::layout_types::Align2D::from_string(s.as_str()))
+        }
         other => Err(vec![SourceDiagnostic::error(
             Span::detached(),
-            format!("{}({}:) espera alignment ou string, recebeu {}", fn_name, field, other.type_name()),
+            format!(
+                "{}({}:) espera alignment ou string, recebeu {}",
+                fn_name,
+                field,
+                other.type_name()
+            ),
         )]),
     }
 }
@@ -374,7 +477,12 @@ fn extract_inset_value(
 /// armazenados mas **ignorados em layout** — algoritmo de placement
 /// diferido em **DEBT-34e**. Layouter renderiza `body` no contexto
 /// actual.
-pub fn native_table_cell(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contracts::world::World, _current_file: FileId) -> SourceResult<Value> {
+pub fn native_table_cell(
+    _ctx: &mut EvalContext,
+    args: &Args,
+    _world: &dyn crate::contracts::world::World,
+    _current_file: FileId,
+) -> SourceResult<Value> {
     let body = match args.items.first() {
         Some(Value::Content(c)) => c.clone(),
         Some(Value::Str(s))     => Content::text(s.as_str()),
@@ -388,16 +496,18 @@ pub fn native_table_cell(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate
         )]),
     };
 
-    let mut x:       Option<usize> = None;
-    let mut y:       Option<usize> = None;
+    let mut x: Option<usize> = None;
+    let mut y: Option<usize> = None;
     let mut colspan: Option<usize> = None;
     let mut rowspan: Option<usize> = None;
 
     let mut stroke: Option<crate::entities::geometry::Stroke> = None;
-    let mut fill:   Option<crate::entities::layout_types::Color> = None;
+    let mut fill: Option<crate::entities::layout_types::Color> = None;
     // P235 — 3 named args algorítmicos paralelo GridCell.
-    let mut align:     Option<crate::entities::layout_types::Align2D> = None;
-    let mut inset:     Option<crate::entities::sides::Sides<crate::entities::layout_types::Length>> = None;
+    let mut align: Option<crate::entities::layout_types::Align2D> = None;
+    let mut inset: Option<
+        crate::entities::sides::Sides<crate::entities::layout_types::Length>,
+    > = None;
     let mut breakable: Option<bool> = None;
     for (key, value) in args.named.iter() {
         match key.as_str() {
@@ -436,9 +546,15 @@ pub fn native_table_cell(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate
     Ok(Value::Content(Content::TableCell(std::sync::Arc::new(
         crate::entities::elements::table_cell::TableCellElem {
             body,
-            x, y, colspan, rowspan,
-            stroke, fill,
-            align, inset, breakable,
+            x,
+            y,
+            colspan,
+            rowspan,
+            stroke,
+            fill,
+            align,
+            inset,
+            breakable,
         },
     ))))
 }
@@ -470,7 +586,7 @@ fn extract_bool_with_default(
 ) -> SourceResult<bool> {
     match args.named.get(field) {
         Some(Value::Bool(b)) => Ok(*b),
-        Some(Value::None)    => Ok(default),
+        Some(Value::None) => Ok(default),
         Some(other) => Err(vec![SourceDiagnostic::error(
             Span::detached(),
             format!("{}({}:) espera bool, recebeu {}", fn_name, field, other.type_name()),
@@ -504,7 +620,12 @@ fn extract_bool_with_default(
 /// **Limitação per ADR-0054 graded**: `repeat` armazenado mas
 /// **ignorado em layout** — algoritmo de repetição em page breaks
 /// diferido em **DEBT-56** (refactor multi-region).
-pub fn native_table_header(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contracts::world::World, _current_file: FileId) -> SourceResult<Value> {
+pub fn native_table_header(
+    _ctx: &mut EvalContext,
+    args: &Args,
+    _world: &dyn crate::contracts::world::World,
+    _current_file: FileId,
+) -> SourceResult<Value> {
     let body = match args.items.first() {
         Some(Value::Content(c)) => c.clone(),
         Some(Value::Str(s))     => Content::text(s.as_str()),
@@ -537,7 +658,12 @@ pub fn native_table_header(_ctx: &mut EvalContext, args: &Args, _world: &dyn cra
 /// Par simétrico com `native_table_header` (P157C). Mesma decisão
 /// arquitectural Caso D + DEBT-56 + naming flat. Implementação
 /// idêntica linha-a-linha excepto naming `header → footer`.
-pub fn native_table_footer(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contracts::world::World, _current_file: FileId) -> SourceResult<Value> {
+pub fn native_table_footer(
+    _ctx: &mut EvalContext,
+    args: &Args,
+    _world: &dyn crate::contracts::world::World,
+    _current_file: FileId,
+) -> SourceResult<Value> {
     let body = match args.items.first() {
         Some(Value::Content(c)) => c.clone(),
         Some(Value::Str(s))     => Content::text(s.as_str()),
@@ -579,7 +705,12 @@ pub fn native_table_footer(_ctx: &mut EvalContext, args: &Args, _world: &dyn cra
 /// Atributos vanilla scope-out per ADR-0054 graded: `align`/`fill`/
 /// `stroke`/`inset`/`breakable` per-cell — refinos futuros candidatos
 /// NÃO-reservados.
-pub fn native_grid_cell(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contracts::world::World, _current_file: FileId) -> SourceResult<Value> {
+pub fn native_grid_cell(
+    _ctx: &mut EvalContext,
+    args: &Args,
+    _world: &dyn crate::contracts::world::World,
+    _current_file: FileId,
+) -> SourceResult<Value> {
     let body = match args.items.first() {
         Some(Value::Content(c)) => c.clone(),
         Some(Value::Str(s))     => Content::text(s.as_str()),
@@ -593,15 +724,17 @@ pub fn native_grid_cell(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate:
         )]),
     };
 
-    let mut x:       Option<usize> = None;
-    let mut y:       Option<usize> = None;
+    let mut x: Option<usize> = None;
+    let mut y: Option<usize> = None;
     let mut colspan: Option<usize> = None;
     let mut rowspan: Option<usize> = None;
-    let mut stroke:  Option<crate::entities::geometry::Stroke> = None;
-    let mut fill:    Option<crate::entities::layout_types::Color> = None;
+    let mut stroke: Option<crate::entities::geometry::Stroke> = None;
+    let mut fill: Option<crate::entities::layout_types::Color> = None;
     // P235 — 3 named args algorítmicos.
-    let mut align:     Option<crate::entities::layout_types::Align2D> = None;
-    let mut inset:     Option<crate::entities::sides::Sides<crate::entities::layout_types::Length>> = None;
+    let mut align: Option<crate::entities::layout_types::Align2D> = None;
+    let mut inset: Option<
+        crate::entities::sides::Sides<crate::entities::layout_types::Length>,
+    > = None;
     let mut breakable: Option<bool> = None;
 
     for (key, value) in args.named.iter() {
@@ -642,9 +775,15 @@ pub fn native_grid_cell(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate:
     Ok(Value::Content(Content::GridCell(std::sync::Arc::new(
         crate::entities::elements::grid_cell::GridCellElem {
             body,
-            x, y, colspan, rowspan,
-            stroke, fill,
-            align, inset, breakable,
+            x,
+            y,
+            colspan,
+            rowspan,
+            stroke,
+            fill,
+            align,
+            inset,
+            breakable,
         },
     ))))
 }
@@ -659,7 +798,12 @@ pub fn native_grid_cell(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate:
 /// Semantic real de repetição em page breaks adiada per ADR-0054 graded
 /// (paridade P157C; pattern N=5 cumulativo "Field armazenado semantic
 /// adiada" P156D/E/G/P223/P224).
-pub fn native_grid_header(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contracts::world::World, _current_file: FileId) -> SourceResult<Value> {
+pub fn native_grid_header(
+    _ctx: &mut EvalContext,
+    args: &Args,
+    _world: &dyn crate::contracts::world::World,
+    _current_file: FileId,
+) -> SourceResult<Value> {
     let body = match args.items.first() {
         Some(Value::Content(c)) => c.clone(),
         Some(Value::Str(s))     => Content::text(s.as_str()),
@@ -691,7 +835,12 @@ pub fn native_grid_header(_ctx: &mut EvalContext, args: &Args, _world: &dyn crat
 ///
 /// **P224.B** — par simétrico com `native_grid_header`. Implementação
 /// idêntica linha-a-linha excepto naming `header → footer`.
-pub fn native_grid_footer(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contracts::world::World, _current_file: FileId) -> SourceResult<Value> {
+pub fn native_grid_footer(
+    _ctx: &mut EvalContext,
+    args: &Args,
+    _world: &dyn crate::contracts::world::World,
+    _current_file: FileId,
+) -> SourceResult<Value> {
     let body = match args.items.first() {
         Some(Value::Content(c)) => c.clone(),
         Some(Value::Str(s))     => Content::text(s.as_str()),
@@ -743,77 +892,139 @@ pub fn native_grid_footer(_ctx: &mut EvalContext, args: &Args, _world: &dyn crat
 /// - 12 opcionais (volume/pages/journal/publisher/url/doi/
 ///   editor/series/note/isbn/location/organization) — se
 ///   presentes, devem ser `Value::Str`; ausência aceite.
-fn extract_bib_entries(val: Option<&Value>) -> SourceResult<Vec<crate::entities::bib_entry::BibEntry>> {
+fn extract_bib_entries(
+    val: Option<&Value>,
+) -> SourceResult<Vec<crate::entities::bib_entry::BibEntry>> {
     use crate::entities::bib_entry::BibEntry;
     let arr = match val {
         Some(Value::Array(a)) => a,
-        Some(other) => return Err(vec![SourceDiagnostic::error(
-            Span::detached(),
-            format!("bibliography(entries:) espera array de dict, recebeu {}", other.type_name()),
-        )]),
-        None => return Ok(Vec::new()),  // entries vazio aceitável
+        Some(other) => {
+            return Err(vec![SourceDiagnostic::error(
+                Span::detached(),
+                format!(
+                    "bibliography(entries:) espera array de dict, recebeu {}",
+                    other.type_name()
+                ),
+            )])
+        }
+        None => return Ok(Vec::new()), // entries vazio aceitável
     };
 
     let mut entries = Vec::with_capacity(arr.len());
     for (idx, val) in arr.iter().enumerate() {
         let dict = match val {
             Value::Dict(d) => d,
-            other => return Err(vec![SourceDiagnostic::error(
-                Span::detached(),
-                format!("bibliography(entries: [{}]) espera dict, recebeu {}", idx, other.type_name()),
-            )]),
+            other => {
+                return Err(vec![SourceDiagnostic::error(
+                    Span::detached(),
+                    format!(
+                        "bibliography(entries: [{}]) espera dict, recebeu {}",
+                        idx,
+                        other.type_name()
+                    ),
+                )])
+            }
         };
 
         let key = match dict.get("key") {
             Some(Value::Str(s)) => s.to_string(),
-            Some(other) => return Err(vec![SourceDiagnostic::error(
-                Span::detached(),
-                format!("bibliography(entries: [{}].key) espera string, recebeu {}", idx, other.type_name()),
-            )]),
-            None => return Err(vec![SourceDiagnostic::error(
-                Span::detached(),
-                format!("bibliography(entries: [{}]) sem field obrigatório 'key'", idx),
-            )]),
+            Some(other) => {
+                return Err(vec![SourceDiagnostic::error(
+                    Span::detached(),
+                    format!(
+                        "bibliography(entries: [{}].key) espera string, recebeu {}",
+                        idx,
+                        other.type_name()
+                    ),
+                )])
+            }
+            None => {
+                return Err(vec![SourceDiagnostic::error(
+                    Span::detached(),
+                    format!(
+                        "bibliography(entries: [{}]) sem field obrigatório 'key'",
+                        idx
+                    ),
+                )])
+            }
         };
 
         let author = match dict.get("author") {
             Some(Value::Str(s)) => s.to_string(),
-            Some(other) => return Err(vec![SourceDiagnostic::error(
-                Span::detached(),
-                format!("bibliography(entries: [{}].author) espera string, recebeu {}", idx, other.type_name()),
-            )]),
-            None => return Err(vec![SourceDiagnostic::error(
-                Span::detached(),
-                format!("bibliography(entries: [{}]) sem field obrigatório 'author'", idx),
-            )]),
+            Some(other) => {
+                return Err(vec![SourceDiagnostic::error(
+                    Span::detached(),
+                    format!(
+                        "bibliography(entries: [{}].author) espera string, recebeu {}",
+                        idx,
+                        other.type_name()
+                    ),
+                )])
+            }
+            None => {
+                return Err(vec![SourceDiagnostic::error(
+                    Span::detached(),
+                    format!(
+                        "bibliography(entries: [{}]) sem field obrigatório 'author'",
+                        idx
+                    ),
+                )])
+            }
         };
 
         let title = match dict.get("title") {
             Some(Value::Str(s)) => s.to_string(),
-            Some(other) => return Err(vec![SourceDiagnostic::error(
-                Span::detached(),
-                format!("bibliography(entries: [{}].title) espera string, recebeu {}", idx, other.type_name()),
-            )]),
-            None => return Err(vec![SourceDiagnostic::error(
-                Span::detached(),
-                format!("bibliography(entries: [{}]) sem field obrigatório 'title'", idx),
-            )]),
+            Some(other) => {
+                return Err(vec![SourceDiagnostic::error(
+                    Span::detached(),
+                    format!(
+                        "bibliography(entries: [{}].title) espera string, recebeu {}",
+                        idx,
+                        other.type_name()
+                    ),
+                )])
+            }
+            None => {
+                return Err(vec![SourceDiagnostic::error(
+                    Span::detached(),
+                    format!(
+                        "bibliography(entries: [{}]) sem field obrigatório 'title'",
+                        idx
+                    ),
+                )])
+            }
         };
 
         let year = match dict.get("year") {
             Some(Value::Int(n)) if *n >= 0 => *n as u32,
-            Some(Value::Int(n)) => return Err(vec![SourceDiagnostic::error(
-                Span::detached(),
-                format!("bibliography(entries: [{}].year) espera int >= 0, recebeu {}", idx, n),
-            )]),
-            Some(other) => return Err(vec![SourceDiagnostic::error(
-                Span::detached(),
-                format!("bibliography(entries: [{}].year) espera int, recebeu {}", idx, other.type_name()),
-            )]),
-            None => return Err(vec![SourceDiagnostic::error(
-                Span::detached(),
-                format!("bibliography(entries: [{}]) sem field obrigatório 'year'", idx),
-            )]),
+            Some(Value::Int(n)) => {
+                return Err(vec![SourceDiagnostic::error(
+                    Span::detached(),
+                    format!(
+                        "bibliography(entries: [{}].year) espera int >= 0, recebeu {}",
+                        idx, n
+                    ),
+                )])
+            }
+            Some(other) => {
+                return Err(vec![SourceDiagnostic::error(
+                    Span::detached(),
+                    format!(
+                        "bibliography(entries: [{}].year) espera int, recebeu {}",
+                        idx,
+                        other.type_name()
+                    ),
+                )])
+            }
+            None => {
+                return Err(vec![SourceDiagnostic::error(
+                    Span::detached(),
+                    format!(
+                        "bibliography(entries: [{}]) sem field obrigatório 'year'",
+                        idx
+                    ),
+                )])
+            }
         };
 
         // Passo 159D — fields opcionais. Helper inline para
@@ -823,47 +1034,52 @@ fn extract_bib_entries(val: Option<&Value>) -> SourceResult<Vec<crate::entities:
                 Some(Value::Str(s)) => Ok(Some(s.to_string())),
                 Some(other) => Err(vec![SourceDiagnostic::error(
                     Span::detached(),
-                    format!("bibliography(entries: [{}].{}) espera string, recebeu {}", idx, field, other.type_name()),
+                    format!(
+                        "bibliography(entries: [{}].{}) espera string, recebeu {}",
+                        idx,
+                        field,
+                        other.type_name()
+                    ),
                 )]),
                 None => Ok(None),
             }
         };
-        let volume    = optional_str("volume")?;
-        let pages     = optional_str("pages")?;
-        let journal   = optional_str("journal")?;
+        let volume = optional_str("volume")?;
+        let pages = optional_str("pages")?;
+        let journal = optional_str("journal")?;
         let publisher = optional_str("publisher")?;
         // Passo 159E — par natural url/doi (reuso optional_str
         // inline helper; cumulativo N=2 P159D + N=2 P159E = N=4).
-        let url       = optional_str("url")?;
-        let doi       = optional_str("doi")?;
+        let url = optional_str("url")?;
+        let doi = optional_str("doi")?;
         // Passo 159G — 6 fields restantes comuns hayagriva
         // (cumulativo N=4 + N=2 + N=6 = N=12 usos do helper).
-        let editor       = optional_str("editor")?;
-        let series       = optional_str("series")?;
-        let note         = optional_str("note")?;
-        let isbn         = optional_str("isbn")?;
-        let location     = optional_str("location")?;
+        let editor = optional_str("editor")?;
+        let series = optional_str("series")?;
+        let note = optional_str("note")?;
+        let isbn = optional_str("isbn")?;
+        let location = optional_str("location")?;
         let organization = optional_str("organization")?;
 
         let mut entry = BibEntry::new(key, author, title, year);
-        entry.volume       = volume;
-        entry.pages        = pages;
-        entry.journal      = journal;
-        entry.publisher    = publisher;
-        entry.url          = url;
-        entry.doi          = doi;
-        entry.editor       = editor;
-        entry.series       = series;
-        entry.note         = note;
-        entry.isbn         = isbn;
-        entry.location     = location;
+        entry.volume = volume;
+        entry.pages = pages;
+        entry.journal = journal;
+        entry.publisher = publisher;
+        entry.url = url;
+        entry.doi = doi;
+        entry.editor = editor;
+        entry.series = series;
+        entry.note = note;
+        entry.isbn = isbn;
+        entry.location = location;
         entry.organization = organization;
         entries.push(entry);
     }
     Ok(entries)
 }
 
-/// `bibliography(entries: array, title: ?)` → `Content::Bibliography`.
+/// `bibliography(entries: array, title: ?, style: ?, locale: ?)` → `Content::Bibliography`.
 ///
 /// **Primeiro sub-passo Bibliography + Cite Model Fase 2** (par
 /// acoplado com `cite`). Subset minimal per ADR-0054 graded
@@ -878,19 +1094,24 @@ fn extract_bib_entries(val: Option<&Value>) -> SourceResult<Vec<crate::entities:
 /// - `title: Content`/`Str` (named); ADR-0064 Caso A
 ///   (`Smart<Option<Content>>` vanilla → `Option<Box<Content>>`
 ///   cristalino); None ↔ ausente.
+/// - `style: Str` (named); nome CSL built-in (ex: `"ieee"`, `"apa"`).
+/// - `locale: Str` (named); locale override (ex: `"en-US"`, `"pt-PT"`).
 ///
 /// **Atributos vanilla scope-out** per ADR-0054 graded:
-/// `sources` (parsing externo), `full`, `style` (CSL), `lang`,
-/// `region`. Refinos futuros NÃO reservados per política P158.
+/// `sources` (parsing externo), `full`, `lang`, `region`.
+/// Refinos futuros NÃO reservados per política P158.
 ///
-/// **Limitação per ADR-0054 graded**: input cristalino é
-/// **literal** `Vec<BibEntry>` — sem hayagriva, sem CSL parsing.
-/// Layouter renderiza placeholder `"[{key}] {author}. {title}
-/// ({year})."` per linha.
-pub fn native_bibliography(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contracts::world::World, _current_file: FileId) -> SourceResult<Value> {
+/// **P418** — input cristalino continua literal; quando `style` é
+/// fornecido, o layout pode usar hayagriva/citationberg para CSL.
+pub fn native_bibliography(
+    _ctx: &mut EvalContext,
+    args: &Args,
+    _world: &dyn crate::contracts::world::World,
+    _current_file: FileId,
+) -> SourceResult<Value> {
     // Validar named args.
     for key in args.named.keys() {
-        if !["entries", "title"].contains(&key.as_str()) {
+        if !["entries", "title", "style", "locale"].contains(&key.as_str()) {
             return Err(vec![SourceDiagnostic::error(
                 Span::detached(),
                 format!("bibliography(): argumento nomeado inesperado '{}' (atributos avançados scope-out per ADR-0054 graded — refino futuro NÃO reservado)", key),
@@ -909,12 +1130,24 @@ pub fn native_bibliography(_ctx: &mut EvalContext, args: &Args, _world: &dyn cra
     // title: named opcional.
     let title = args.named.get("title").and_then(|v| match v {
         Value::Content(c) => Some(c.clone()),
-        Value::Str(s)     => Some(Content::text(s.as_str())),
-        Value::None       => None,
-        other             => Some(Content::text(other.type_name())),
+        Value::Str(s) => Some(Content::text(s.as_str())),
+        Value::None => None,
+        other => Some(Content::text(other.type_name())),
     });
 
-    Ok(Value::Content(Content::bibliography(entries, title)))
+    let style = args.named.get("style").and_then(|v| match v {
+        Value::Str(s) => Some(s.clone()),
+        Value::None => None,
+        _ => None,
+    });
+
+    let locale = args.named.get("locale").and_then(|v| match v {
+        Value::Str(s) => Some(s.clone()),
+        Value::None => None,
+        _ => None,
+    });
+
+    Ok(Value::Content(Content::bibliography_with_style(entries, title, style, locale)))
 }
 
 /// `cite(key, supplement: ?, form: ?)` → `Content::Cite`.
@@ -940,22 +1173,33 @@ pub fn native_bibliography(_ctx: &mut EvalContext, args: &Args, _world: &dyn cra
 /// `cite("inexistente")` produz placeholder `[inexistente]`
 /// sem erro; forms `Prose`/`Author`/`Year` caem no fallback
 /// `[key]` se key não encontrada.
-pub fn native_cite(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contracts::world::World, _current_file: FileId) -> SourceResult<Value> {
+pub fn native_cite(
+    _ctx: &mut EvalContext,
+    args: &Args,
+    _world: &dyn crate::contracts::world::World,
+    _current_file: FileId,
+) -> SourceResult<Value> {
     // key posicional obrigatório.
     let key = match args.items.first() {
         Some(Value::Str(s)) if !s.is_empty() => s.to_string(),
-        Some(Value::Str(_)) => return Err(vec![SourceDiagnostic::error(
-            Span::detached(),
-            "cite() key não pode ser vazia".to_string(),
-        )]),
-        Some(other) => return Err(vec![SourceDiagnostic::error(
-            Span::detached(),
-            format!("cite() espera key como string, recebeu {}", other.type_name()),
-        )]),
-        None => return Err(vec![SourceDiagnostic::error(
-            Span::detached(),
-            "cite() exige key como argumento posicional".to_string(),
-        )]),
+        Some(Value::Str(_)) => {
+            return Err(vec![SourceDiagnostic::error(
+                Span::detached(),
+                "cite() key não pode ser vazia".to_string(),
+            )])
+        }
+        Some(other) => {
+            return Err(vec![SourceDiagnostic::error(
+                Span::detached(),
+                format!("cite() espera key como string, recebeu {}", other.type_name()),
+            )])
+        }
+        None => {
+            return Err(vec![SourceDiagnostic::error(
+                Span::detached(),
+                "cite() exige key como argumento posicional".to_string(),
+            )])
+        }
     };
 
     // Validar named args.
@@ -970,9 +1214,9 @@ pub fn native_cite(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::cont
 
     let supplement = args.named.get("supplement").and_then(|v| match v {
         Value::Content(c) => Some(c.clone()),
-        Value::Str(s)     => Some(Content::text(s.as_str())),
-        Value::None       => None,
-        other             => Some(Content::text(other.type_name())),
+        Value::Str(s) => Some(Content::text(s.as_str())),
+        Value::None => None,
+        other => Some(Content::text(other.type_name())),
     });
 
     let form = extract_citation_form(args.named.get("form"))?;
@@ -985,18 +1229,23 @@ pub fn native_cite(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::cont
 /// `auto`/`none`/ausente → None (resolvido a Normal default em
 /// layout). String inválida rejeitada com mensagem listando forms
 /// válidas.
-fn extract_citation_form(val: Option<&Value>) -> SourceResult<Option<crate::entities::citation_form::CitationForm>> {
+fn extract_citation_form(
+    val: Option<&Value>,
+) -> SourceResult<Option<crate::entities::citation_form::CitationForm>> {
     use crate::entities::citation_form::CitationForm;
     match val {
         None | Some(Value::Auto) | Some(Value::None) => Ok(None),
         Some(Value::Str(s)) => match s.as_str() {
             "normal" => Ok(Some(CitationForm::Normal)),
-            "prose"  => Ok(Some(CitationForm::Prose)),
+            "prose" => Ok(Some(CitationForm::Prose)),
             "author" => Ok(Some(CitationForm::Author)),
-            "year"   => Ok(Some(CitationForm::Year)),
-            other    => Err(vec![SourceDiagnostic::error(
+            "year" => Ok(Some(CitationForm::Year)),
+            other => Err(vec![SourceDiagnostic::error(
                 Span::detached(),
-                format!("cite(): form '{}' inválido (válidos: normal, prose, author, year)", other),
+                format!(
+                    "cite(): form '{}' inválido (válidos: normal, prose, author, year)",
+                    other
+                ),
             )]),
         },
         Some(other) => Err(vec![SourceDiagnostic::error(
@@ -1021,18 +1270,30 @@ fn extract_citation_form(val: Option<&Value>) -> SourceResult<Option<crate::enti
 
 /// `footnote(body)` — emite `Content::Footnote { body }`. Body
 /// posicional obrigatório (content ou string).
-pub fn native_footnote(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contracts::world::World, _current_file: FileId) -> SourceResult<Value> {
+pub fn native_footnote(
+    _ctx: &mut EvalContext,
+    args: &Args,
+    _world: &dyn crate::contracts::world::World,
+    _current_file: FileId,
+) -> SourceResult<Value> {
     let body = match args.items.first() {
         Some(Value::Content(c)) => c.clone(),
-        Some(Value::Str(s))     => Content::text(s.as_str()),
-        Some(other) => return Err(vec![SourceDiagnostic::error(
-            Span::detached(),
-            format!("footnote() espera content ou string, recebeu {}", other.type_name()),
-        )]),
-        None => return Err(vec![SourceDiagnostic::error(
-            Span::detached(),
-            "footnote() exige body como argumento posicional".to_string(),
-        )]),
+        Some(Value::Str(s)) => Content::text(s.as_str()),
+        Some(other) => {
+            return Err(vec![SourceDiagnostic::error(
+                Span::detached(),
+                format!(
+                    "footnote() espera content ou string, recebeu {}",
+                    other.type_name()
+                ),
+            )])
+        }
+        None => {
+            return Err(vec![SourceDiagnostic::error(
+                Span::detached(),
+                "footnote() exige body como argumento posicional".to_string(),
+            )])
+        }
     };
 
     // Validar ausência de named args (P295 Fase 1: sem cosméticos).
@@ -1055,30 +1316,49 @@ pub fn native_footnote(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::
 
 /// `accent(base, accent)` — emite `Content::MathAccent { base, accent }`.
 /// Ambos posicionais obrigatórios (content ou string).
-pub fn native_accent(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contracts::world::World, _current_file: FileId) -> SourceResult<Value> {
+pub fn native_accent(
+    _ctx: &mut EvalContext,
+    args: &Args,
+    _world: &dyn crate::contracts::world::World,
+    _current_file: FileId,
+) -> SourceResult<Value> {
     let base = match args.items.first() {
         Some(Value::Content(c)) => c.clone(),
-        Some(Value::Str(s))     => Content::text(s.as_str()),
-        Some(other) => return Err(vec![SourceDiagnostic::error(
-            Span::detached(),
-            format!("accent() base espera content ou string, recebeu {}", other.type_name()),
-        )]),
-        None => return Err(vec![SourceDiagnostic::error(
-            Span::detached(),
-            "accent() exige base como 1.º argumento posicional".to_string(),
-        )]),
+        Some(Value::Str(s)) => Content::text(s.as_str()),
+        Some(other) => {
+            return Err(vec![SourceDiagnostic::error(
+                Span::detached(),
+                format!(
+                    "accent() base espera content ou string, recebeu {}",
+                    other.type_name()
+                ),
+            )])
+        }
+        None => {
+            return Err(vec![SourceDiagnostic::error(
+                Span::detached(),
+                "accent() exige base como 1.º argumento posicional".to_string(),
+            )])
+        }
     };
     let accent = match args.items.get(1) {
         Some(Value::Content(c)) => c.clone(),
-        Some(Value::Str(s))     => Content::text(s.as_str()),
-        Some(other) => return Err(vec![SourceDiagnostic::error(
-            Span::detached(),
-            format!("accent() accent espera content ou string, recebeu {}", other.type_name()),
-        )]),
-        None => return Err(vec![SourceDiagnostic::error(
-            Span::detached(),
-            "accent() exige accent como 2.º argumento posicional".to_string(),
-        )]),
+        Some(Value::Str(s)) => Content::text(s.as_str()),
+        Some(other) => {
+            return Err(vec![SourceDiagnostic::error(
+                Span::detached(),
+                format!(
+                    "accent() accent espera content ou string, recebeu {}",
+                    other.type_name()
+                ),
+            )])
+        }
+        None => {
+            return Err(vec![SourceDiagnostic::error(
+                Span::detached(),
+                "accent() exige accent como 2.º argumento posicional".to_string(),
+            )])
+        }
     };
 
     // Validar ausência de named args (P296 scope-out cosméticos).
@@ -1094,18 +1374,30 @@ pub fn native_accent(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::co
 
 /// `cancel(body)` — emite `Content::MathCancel { body }`.
 /// Body posicional obrigatório (content ou string).
-pub fn native_cancel(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contracts::world::World, _current_file: FileId) -> SourceResult<Value> {
+pub fn native_cancel(
+    _ctx: &mut EvalContext,
+    args: &Args,
+    _world: &dyn crate::contracts::world::World,
+    _current_file: FileId,
+) -> SourceResult<Value> {
     let body = match args.items.first() {
         Some(Value::Content(c)) => c.clone(),
-        Some(Value::Str(s))     => Content::text(s.as_str()),
-        Some(other) => return Err(vec![SourceDiagnostic::error(
-            Span::detached(),
-            format!("cancel() espera content ou string, recebeu {}", other.type_name()),
-        )]),
-        None => return Err(vec![SourceDiagnostic::error(
-            Span::detached(),
-            "cancel() exige body como argumento posicional".to_string(),
-        )]),
+        Some(Value::Str(s)) => Content::text(s.as_str()),
+        Some(other) => {
+            return Err(vec![SourceDiagnostic::error(
+                Span::detached(),
+                format!(
+                    "cancel() espera content ou string, recebeu {}",
+                    other.type_name()
+                ),
+            )])
+        }
+        None => {
+            return Err(vec![SourceDiagnostic::error(
+                Span::detached(),
+                "cancel() exige body como argumento posicional".to_string(),
+            )])
+        }
     };
 
     // Validar ausência de named args (P296 scope-out cosméticos).
@@ -1134,18 +1426,30 @@ pub fn native_cancel(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::co
 /// `underover(base, under: ?, over: ?)` — emite
 /// `Content::MathUnderover`. Base posicional; under/over named
 /// opcionais.
-pub fn native_underover(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contracts::world::World, _current_file: FileId) -> SourceResult<Value> {
+pub fn native_underover(
+    _ctx: &mut EvalContext,
+    args: &Args,
+    _world: &dyn crate::contracts::world::World,
+    _current_file: FileId,
+) -> SourceResult<Value> {
     let base = match args.items.first() {
         Some(Value::Content(c)) => c.clone(),
-        Some(Value::Str(s))     => Content::text(s.as_str()),
-        Some(other) => return Err(vec![SourceDiagnostic::error(
-            Span::detached(),
-            format!("underover() base espera content ou string, recebeu {}", other.type_name()),
-        )]),
-        None => return Err(vec![SourceDiagnostic::error(
-            Span::detached(),
-            "underover() exige base como argumento posicional".to_string(),
-        )]),
+        Some(Value::Str(s)) => Content::text(s.as_str()),
+        Some(other) => {
+            return Err(vec![SourceDiagnostic::error(
+                Span::detached(),
+                format!(
+                    "underover() base espera content ou string, recebeu {}",
+                    other.type_name()
+                ),
+            )])
+        }
+        None => {
+            return Err(vec![SourceDiagnostic::error(
+                Span::detached(),
+                "underover() exige base como argumento posicional".to_string(),
+            )])
+        }
     };
 
     // Validar named args só "under"/"over" permitidos.
@@ -1160,15 +1464,15 @@ pub fn native_underover(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate:
 
     let under = args.named.get("under").and_then(|v| match v {
         Value::Content(c) => Some(c.clone()),
-        Value::Str(s)     => Some(Content::text(s.as_str())),
-        Value::None       => None,
-        other             => Some(Content::text(other.type_name())),
+        Value::Str(s) => Some(Content::text(s.as_str())),
+        Value::None => None,
+        other => Some(Content::text(other.type_name())),
     });
     let over = args.named.get("over").and_then(|v| match v {
         Value::Content(c) => Some(c.clone()),
-        Value::Str(s)     => Some(Content::text(s.as_str())),
-        Value::None       => None,
-        other             => Some(Content::text(other.type_name())),
+        Value::Str(s) => Some(Content::text(s.as_str())),
+        Value::None => None,
+        other => Some(Content::text(other.type_name())),
     });
 
     Ok(Value::Content(Content::math_underover(base, under, over)))
@@ -1188,18 +1492,30 @@ pub fn native_underover(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate:
 
 /// `op(text, limits: false)` — emite `Content::MathOp { text, limits }`.
 /// Text posicional obrigatório; `limits` named opcional (default `false`).
-pub fn native_op(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contracts::world::World, _current_file: FileId) -> SourceResult<Value> {
+pub fn native_op(
+    _ctx: &mut EvalContext,
+    args: &Args,
+    _world: &dyn crate::contracts::world::World,
+    _current_file: FileId,
+) -> SourceResult<Value> {
     let text = match args.items.first() {
         Some(Value::Content(c)) => c.clone(),
-        Some(Value::Str(s))     => Content::text(s.as_str()),
-        Some(other) => return Err(vec![SourceDiagnostic::error(
-            Span::detached(),
-            format!("op() text espera content ou string, recebeu {}", other.type_name()),
-        )]),
-        None => return Err(vec![SourceDiagnostic::error(
-            Span::detached(),
-            "op() exige text como argumento posicional".to_string(),
-        )]),
+        Some(Value::Str(s)) => Content::text(s.as_str()),
+        Some(other) => {
+            return Err(vec![SourceDiagnostic::error(
+                Span::detached(),
+                format!(
+                    "op() text espera content ou string, recebeu {}",
+                    other.type_name()
+                ),
+            )])
+        }
+        None => {
+            return Err(vec![SourceDiagnostic::error(
+                Span::detached(),
+                "op() exige text como argumento posicional".to_string(),
+            )])
+        }
     };
 
     // Validar named args só "limits" permitido.
@@ -1214,11 +1530,13 @@ pub fn native_op(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contra
 
     let limits = match args.named.get("limits") {
         Some(Value::Bool(b)) => *b,
-        Some(Value::None)    => false,
-        Some(other) => return Err(vec![SourceDiagnostic::error(
-            Span::detached(),
-            format!("op(limits:) espera bool, recebeu {}", other.type_name()),
-        )]),
+        Some(Value::None) => false,
+        Some(other) => {
+            return Err(vec![SourceDiagnostic::error(
+                Span::detached(),
+                format!("op(limits:) espera bool, recebeu {}", other.type_name()),
+            )])
+        }
         None => false,
     };
 
@@ -1248,21 +1566,16 @@ fn op_value(text: &str, limits: bool) -> Value {
 /// Constrói o módulo `math` como `Value::Dict` com 41 operadores
 /// vanilla pré-definidos (paralelo `make_calc_module()` P283).
 pub fn make_math_module() -> Value {
+    use ecow::EcoString;
     use indexmap::IndexMap;
     use rustc_hash::FxBuildHasher;
-    use ecow::EcoString;
     let mut dict: IndexMap<EcoString, Value, FxBuildHasher> = IndexMap::default();
 
     // Scripts-style operators (29) — limits: false.
     for name in [
-        "arccos", "arcsin", "arctan", "arg",
-        "cos", "cosh", "cot", "coth",
-        "csc", "csch", "ctg", "deg",
-        "dim", "exp", "hom", "id",
-        "im", "ker", "lg", "ln",
-        "log", "mod", "sec", "sech",
-        "sin", "sinc", "sinh", "tan",
-        "tanh", "tg", "tr",
+        "arccos", "arcsin", "arctan", "arg", "cos", "cosh", "cot", "coth", "csc", "csch",
+        "ctg", "deg", "dim", "exp", "hom", "id", "im", "ker", "lg", "ln", "log", "mod",
+        "sec", "sech", "sin", "sinc", "sinh", "tan", "tanh", "tg", "tr",
     ] {
         dict.insert(name.into(), op_value(name, false));
     }
@@ -1289,8 +1602,6 @@ pub fn make_math_module() -> Value {
 }
 
 // ── `figure()` — migrada de eval.rs (Passo 64, DEBT-16) ─────────────────────
-
-
 
 // ── Passo 397: `document(...)` e `asset(...)` ────────────────────────────────
 
@@ -1392,14 +1703,22 @@ fn extract_string_list(value: &Value, field: &str) -> SourceResult<Vec<EcoString
                 Value::Str(s) => Ok(s.clone()),
                 other => Err(vec![SourceDiagnostic::error(
                     Span::detached(),
-                    format!("{} deve ser string ou array de strings; recebeu {}", field, other.type_name()),
+                    format!(
+                        "{} deve ser string ou array de strings; recebeu {}",
+                        field,
+                        other.type_name()
+                    ),
                 )]),
             })
             .collect::<Result<Vec<_>, _>>()
             .map_err(|e| e),
         other => Err(vec![SourceDiagnostic::error(
             Span::detached(),
-            format!("{} deve ser string ou array de strings; recebeu {}", field, other.type_name()),
+            format!(
+                "{} deve ser string ou array de strings; recebeu {}",
+                field,
+                other.type_name()
+            ),
         )]),
     }
 }
@@ -1410,7 +1729,9 @@ fn infer_asset_kind(path: &EcoString) -> Option<EcoString> {
         "png" | "jpg" | "jpeg" | "gif" | "svg" | "webp" => EcoString::from("image"),
         "ttf" | "otf" | "woff" | "woff2" => EcoString::from("font"),
         "wasm" => EcoString::from("wasm"),
-        "txt" | "csv" | "json" | "yaml" | "yml" | "toml" | "xml" => EcoString::from("data"),
+        "txt" | "csv" | "json" | "yaml" | "yml" | "toml" | "xml" => {
+            EcoString::from("data")
+        }
         _ => return None,
     })
 }
@@ -1423,7 +1744,9 @@ mod tests {
     use crate::entities::font_book::FontBook;
     use crate::entities::source::Source;
     use crate::entities::value::Value;
-    use crate::entities::world_types::{Bytes, Datetime, FileError, FileResult, Font, Library};
+    use crate::entities::world_types::{
+        Bytes, Datetime, FileError, FileResult, Font, Library,
+    };
     use crate::rules::eval::EvalContext;
     use std::num::NonZeroU16;
 
@@ -1433,13 +1756,27 @@ mod tests {
         book: FontBook,
     }
     impl crate::contracts::world::World for NullWorld {
-        fn library(&self) -> &Library { &self.library }
-        fn book(&self) -> &FontBook { &self.book }
-        fn main(&self) -> FileId { FileId::from_raw(NonZeroU16::new(1).unwrap()) }
-        fn source(&self, _: FileId) -> FileResult<Source> { Err(FileError::NotFound) }
-        fn file(&self, _: FileId) -> FileResult<Bytes> { Err(FileError::NotFound) }
-        fn font(&self, _: usize) -> Option<Font> { None }
-        fn today(&self, _: Option<i64>) -> Option<Datetime> { None }
+        fn library(&self) -> &Library {
+            &self.library
+        }
+        fn book(&self) -> &FontBook {
+            &self.book
+        }
+        fn main(&self) -> FileId {
+            FileId::from_raw(NonZeroU16::new(1).unwrap())
+        }
+        fn source(&self, _: FileId) -> FileResult<Source> {
+            Err(FileError::NotFound)
+        }
+        fn file(&self, _: FileId) -> FileResult<Bytes> {
+            Err(FileError::NotFound)
+        }
+        fn font(&self, _: usize) -> Option<Font> {
+            None
+        }
+        fn today(&self, _: Option<i64>) -> Option<Datetime> {
+            None
+        }
     }
 
     fn test_file_id() -> FileId {
@@ -1447,11 +1784,21 @@ mod tests {
     }
 
     fn call_document(args: Args) -> SourceResult<Value> {
-        native_document(&mut EvalContext::new(), &args, &NullWorld::default(), test_file_id())
+        native_document(
+            &mut EvalContext::new(),
+            &args,
+            &NullWorld::default(),
+            test_file_id(),
+        )
     }
 
     fn call_asset(args: Args) -> SourceResult<Value> {
-        native_asset(&mut EvalContext::new(), &args, &NullWorld::default(), test_file_id())
+        native_asset(
+            &mut EvalContext::new(),
+            &args,
+            &NullWorld::default(),
+            test_file_id(),
+        )
     }
 
     fn named_args(pairs: &[(&str, Value)]) -> Args {
@@ -1465,9 +1812,11 @@ mod tests {
     #[test]
     fn native_document_title_content() {
         let mut args = Args::positional(vec![]);
-        args.named.insert("title".into(), Value::Content(Content::text("Título")));
+        args.named
+            .insert("title".into(), Value::Content(Content::text("Título")));
         let v = call_document(args).unwrap();
-        let Value::Content(Content::Document { title, author, date, keywords }) = v else {
+        let Value::Content(Content::Document { title, author, date, keywords }) = v
+        else {
             panic!("esperado Content::Document, recebeu {:?}", v);
         };
         assert_eq!(title.as_ref().map(|b| b.plain_text()), Some("Título".to_string()));
@@ -1480,7 +1829,9 @@ mod tests {
     fn native_document_author_str() {
         let args = named_args(&[("author", Value::Str("Ana".into()))]);
         let v = call_document(args).unwrap();
-        let Value::Content(Content::Document { author, .. }) = v else { panic!("esperado Document") };
+        let Value::Content(Content::Document { author, .. }) = v else {
+            panic!("esperado Document")
+        };
         assert_eq!(author, vec![EcoString::from("Ana")]);
     }
 
@@ -1491,7 +1842,9 @@ mod tests {
             Value::Array(vec![Value::Str("Ana".into()), Value::Str("Bob".into())]),
         )]);
         let v = call_document(args).unwrap();
-        let Value::Content(Content::Document { author, .. }) = v else { panic!("esperado Document") };
+        let Value::Content(Content::Document { author, .. }) = v else {
+            panic!("esperado Document")
+        };
         assert_eq!(author, vec![EcoString::from("Ana"), EcoString::from("Bob")]);
     }
 
@@ -1499,7 +1852,9 @@ mod tests {
     fn native_document_keywords_str() {
         let args = named_args(&[("keywords", Value::Str("typst".into()))]);
         let v = call_document(args).unwrap();
-        let Value::Content(Content::Document { keywords, .. }) = v else { panic!("esperado Document") };
+        let Value::Content(Content::Document { keywords, .. }) = v else {
+            panic!("esperado Document")
+        };
         assert_eq!(keywords, vec![EcoString::from("typst")]);
     }
 
@@ -1510,7 +1865,9 @@ mod tests {
             Value::Array(vec![Value::Str("a".into()), Value::Str("b".into())]),
         )]);
         let v = call_document(args).unwrap();
-        let Value::Content(Content::Document { keywords, .. }) = v else { panic!("esperado Document") };
+        let Value::Content(Content::Document { keywords, .. }) = v else {
+            panic!("esperado Document")
+        };
         assert_eq!(keywords, vec![EcoString::from("a"), EcoString::from("b")]);
     }
 
@@ -1519,7 +1876,9 @@ mod tests {
         let dt = Datetime::new_date(2026, 6, 22).unwrap();
         let args = named_args(&[("date", Value::Datetime(dt))]);
         let v = call_document(args).unwrap();
-        let Value::Content(Content::Document { date, .. }) = v else { panic!("esperado Document") };
+        let Value::Content(Content::Document { date, .. }) = v else {
+            panic!("esperado Document")
+        };
         assert_eq!(date, Some(dt));
     }
 
@@ -1527,7 +1886,10 @@ mod tests {
     fn native_document_no_args() {
         let args = Args::positional(vec![]);
         let v = call_document(args).unwrap();
-        let Value::Content(Content::Document { title, author, date, keywords }) = v else { panic!("esperado Document") };
+        let Value::Content(Content::Document { title, author, date, keywords }) = v
+        else {
+            panic!("esperado Document")
+        };
         assert!(title.is_none());
         assert!(author.is_empty());
         assert!(date.is_none());
@@ -1550,7 +1912,9 @@ mod tests {
     fn native_asset_path_positional() {
         let args = Args::positional(vec![Value::Str("logo.png".into())]);
         let v = call_asset(args).unwrap();
-        let Value::Content(Content::Asset { path, kind }) = v else { panic!("esperado Asset") };
+        let Value::Content(Content::Asset { path, kind }) = v else {
+            panic!("esperado Asset")
+        };
         assert_eq!(path, EcoString::from("logo.png"));
         assert_eq!(kind, Some(EcoString::from("image")));
     }
@@ -1559,7 +1923,9 @@ mod tests {
     fn native_asset_path_named() {
         let args = named_args(&[("path", Value::Str("font.ttf".into()))]);
         let v = call_asset(args).unwrap();
-        let Value::Content(Content::Asset { path, kind }) = v else { panic!("esperado Asset") };
+        let Value::Content(Content::Asset { path, kind }) = v else {
+            panic!("esperado Asset")
+        };
         assert_eq!(path, EcoString::from("font.ttf"));
         assert_eq!(kind, Some(EcoString::from("font")));
     }
@@ -1569,7 +1935,9 @@ mod tests {
         let mut args = Args::positional(vec![Value::Str("x".into())]);
         args.named.insert("kind".into(), Value::Str("custom".into()));
         let v = call_asset(args).unwrap();
-        let Value::Content(Content::Asset { kind, .. }) = v else { panic!("esperado Asset") };
+        let Value::Content(Content::Asset { kind, .. }) = v else {
+            panic!("esperado Asset")
+        };
         assert_eq!(kind, Some(EcoString::from("custom")));
     }
 
@@ -1577,7 +1945,9 @@ mod tests {
     fn native_asset_kind_unknown_extension() {
         let args = Args::positional(vec![Value::Str("file.xyz".into())]);
         let v = call_asset(args).unwrap();
-        let Value::Content(Content::Asset { kind, .. }) = v else { panic!("esperado Asset") };
+        let Value::Content(Content::Asset { kind, .. }) = v else {
+            panic!("esperado Asset")
+        };
         assert_eq!(kind, None);
     }
 

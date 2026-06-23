@@ -30,3 +30,4 @@ ciborium             = { workspace = true }
 roxmltree            = { workspace = true }
 csv                  = { workspace = true }
 rust_decimal         = { workspace = true }  # ADR-0112 (P399) — Decimal precisão fixa em L1
+hayagriva            = { workspace = true }  # P418 — parsing bibliográfico + CSL engine
