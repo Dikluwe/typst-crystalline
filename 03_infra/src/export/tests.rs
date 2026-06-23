@@ -14,6 +14,7 @@
 
 use super::*;
 use typst_core::entities::content::Content;
+use typst_core::entities::layout_types::Color;
 use typst_core::rules::layout::layout;
 
     #[test]
@@ -6949,4 +6950,159 @@ use typst_core::rules::layout::layout;
             "documento sem footnote: nenhum marker [1]");
         assert!(!String::from_utf8_lossy(&pdf_b).contains("[1]"),
             "documento sem footnote: nenhum marker [1]");
+    }
+
+
+    // ── P427 — PDF Writer Shapes: E2E de emissão de formas geométricas ──
+    //
+    // Nota: a emissão em si foi materializada incrementalmente em passos
+    // anteriores (Rect/RoundedRect/Ellipse/Line/Path no stream.rs, P242/P273/P281).
+    // P427 trata-se de refino (S) — adiciona cobertura E2E observável no PDF.
+
+    #[test]
+    fn p427_pdf_rect_fill_emite_operador_re_e_fill() {
+        use typst_core::entities::geometry::ShapeKind;
+        use typst_core::entities::layout_types::{Abs, Length};
+        use typst_core::entities::paint::Paint;
+        use typst_core::entities::value::Value;
+
+        let doc = layout(&Content::shape(
+            ShapeKind::Rect,
+            Some(Box::new(Value::Length(Length { abs: Abs(50.0), em: 0.0 }))),
+            Some(Box::new(Value::Length(Length { abs: Abs(30.0), em: 0.0 }))),
+            Some(Paint::solid(Color::rgb(255, 0, 0))),
+            None,
+        ));
+        let pdf = export_pdf(&doc);
+        let s = String::from_utf8_lossy(&pdf);
+        assert!(s.contains("1.000 0.000 0.000 rg"), "fill vermelho em rg");
+        assert!(s.contains("re"), "operador re (rectangle) presente");
+        assert!(s.contains("f\n") || s.contains("f "), "operador f (fill) presente");
+    }
+
+    #[test]
+    fn p427_pdf_rect_stroke_emite_rg_e_s() {
+        use typst_core::entities::geometry::{ShapeKind, Stroke};
+        use typst_core::entities::layout_types::{Abs, Length};
+        use typst_core::entities::paint::Paint;
+        use typst_core::entities::value::Value;
+
+        let doc = layout(&Content::shape(
+            ShapeKind::Rect,
+            Some(Box::new(Value::Length(Length { abs: Abs(50.0), em: 0.0 }))),
+            Some(Box::new(Value::Length(Length { abs: Abs(30.0), em: 0.0 }))),
+            None,
+            Some(Stroke {
+                paint: Paint::solid(Color::rgb(0, 0, 255)),
+                thickness: 2.0,
+                overhang: false,
+            }),
+        ));
+        let pdf = export_pdf(&doc);
+        let s = String::from_utf8_lossy(&pdf);
+        assert!(s.contains("0.000 0.000 1.000 RG"), "stroke azul em RG");
+        assert!(s.contains("re"), "operador re (rectangle) presente");
+        assert!(s.contains("S\n") || s.contains("S "), "operador S (stroke) presente");
+    }
+
+    #[test]
+    fn p427_pdf_rect_fill_stroke_emite_b() {
+        use typst_core::entities::geometry::{ShapeKind, Stroke};
+        use typst_core::entities::layout_types::{Abs, Length};
+        use typst_core::entities::paint::Paint;
+        use typst_core::entities::value::Value;
+
+        let doc = layout(&Content::shape(
+            ShapeKind::Rect,
+            Some(Box::new(Value::Length(Length { abs: Abs(40.0), em: 0.0 }))),
+            Some(Box::new(Value::Length(Length { abs: Abs(25.0), em: 0.0 }))),
+            Some(Paint::solid(Color::rgb(0, 255, 0))),
+            Some(Stroke {
+                paint: Paint::solid(Color::rgb(0, 0, 0)),
+                thickness: 1.0,
+                overhang: false,
+            }),
+        ));
+        let pdf = export_pdf(&doc);
+        let s = String::from_utf8_lossy(&pdf);
+        assert!(s.contains("re"), "operador re presente");
+        assert!(s.contains("B\n") || s.contains("B "), "operador B (fill+stroke) presente");
+    }
+
+    #[test]
+    fn p427_pdf_ellipse_emite_bezier_e_fill() {
+        use typst_core::entities::geometry::ShapeKind;
+        use typst_core::entities::layout_types::{Abs, Length};
+        use typst_core::entities::paint::Paint;
+        use typst_core::entities::value::Value;
+
+        let doc = layout(&Content::shape(
+            ShapeKind::Ellipse,
+            Some(Box::new(Value::Length(Length { abs: Abs(60.0), em: 0.0 }))),
+            Some(Box::new(Value::Length(Length { abs: Abs(40.0), em: 0.0 }))),
+            Some(Paint::solid(Color::rgb(255, 255, 0))),
+            None,
+        ));
+        let pdf = export_pdf(&doc);
+        let s = String::from_utf8_lossy(&pdf);
+        assert!(s.contains("m\n") || s.contains("m "), "moveTo inicial presente");
+        assert!(s.contains(" c\n") || s.contains(" c "), "curvas cúbicas presentes");
+        assert!(s.contains("f\n") || s.contains("f "), "operador f (fill) presente");
+    }
+
+    #[test]
+    fn p427_pdf_line_emite_m_l_s() {
+        use typst_core::entities::geometry::ShapeKind;
+        use typst_core::entities::geometry::Stroke;
+        use typst_core::entities::paint::Paint;
+
+        let doc = layout(&Content::shape(
+            ShapeKind::Line { dx: 50.0, dy: 0.0 },
+            None,
+            None,
+            None,
+            Some(Stroke {
+                paint: Paint::solid(Color::rgb(0, 0, 0)),
+                thickness: 1.0,
+                overhang: false,
+            }),
+        ));
+        let pdf = export_pdf(&doc);
+        let s = String::from_utf8_lossy(&pdf);
+        assert!(s.contains("m\n") || s.contains("m "), "moveTo presente");
+        assert!(s.contains("l\n") || s.contains("l "), "lineTo presente");
+        assert!(s.contains("S\n") || s.contains("S "), "operador S (stroke) presente");
+    }
+
+    #[test]
+    fn p427_pdf_polygon_path_emite_m_l_h_b() {
+        use typst_core::entities::geometry::{PathItem, ShapeKind, Stroke};
+        use typst_core::entities::layout_types::{Abs, Length, Point, Pt};
+        use typst_core::entities::paint::Paint;
+        use typst_core::entities::value::Value;
+
+        let path = vec![
+            PathItem::MoveTo(Point { x: Pt(0.0), y: Pt(0.0) }),
+            PathItem::LineTo(Point { x: Pt(40.0), y: Pt(0.0) }),
+            PathItem::LineTo(Point { x: Pt(20.0), y: Pt(35.0) }),
+            PathItem::ClosePath,
+        ];
+
+        let doc = layout(&Content::shape(
+            ShapeKind::Path(path),
+            Some(Box::new(Value::Length(Length { abs: Abs(50.0), em: 0.0 }))),
+            Some(Box::new(Value::Length(Length { abs: Abs(40.0), em: 0.0 }))),
+            Some(Paint::solid(Color::rgb(128, 0, 128))),
+            Some(Stroke {
+                paint: Paint::solid(Color::rgb(0, 0, 0)),
+                thickness: 1.0,
+                overhang: false,
+            }),
+        ));
+        let pdf = export_pdf(&doc);
+        let s = String::from_utf8_lossy(&pdf);
+        assert!(s.contains("m\n") || s.contains("m "), "moveTo presente");
+        assert!(s.contains("l\n") || s.contains("l "), "lineTo presente");
+        assert!(s.contains("h\n") || s.contains("h "), "closePath presente");
+        assert!(s.contains("B\n") || s.contains("B "), "operador B (fill+stroke) presente");
     }
