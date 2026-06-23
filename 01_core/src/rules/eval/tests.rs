@@ -1418,6 +1418,87 @@ mod tests {
         assert!(eval_for_test(&world, &src).is_err());
     }
 
+    // ── P412 — Field Access Duration ─────────────────────────────────────────
+
+    #[test]
+    fn duration_field_seconds_zero() {
+        let world = MockWorld::new("#let x = duration(\"0s\").seconds");
+        let src = World::source(&world, World::main(&world)).unwrap();
+        let m = eval_for_test(&world, &src).unwrap();
+        assert_eq!(m.scope().get("x"), Some(&Value::Float(0.0)));
+    }
+
+    #[test]
+    fn duration_field_seconds_simple() {
+        let world = MockWorld::new("#let x = duration(\"5s\").seconds");
+        let src = World::source(&world, World::main(&world)).unwrap();
+        let m = eval_for_test(&world, &src).unwrap();
+        assert_eq!(m.scope().get("x"), Some(&Value::Float(5.0)));
+    }
+
+    #[test]
+    fn duration_field_seconds_compound() {
+        let world = MockWorld::new("#let x = duration(\"1h30m\").seconds");
+        let src = World::source(&world, World::main(&world)).unwrap();
+        let m = eval_for_test(&world, &src).unwrap();
+        assert_eq!(m.scope().get("x"), Some(&Value::Float(5400.0)));
+    }
+
+    #[test]
+    fn duration_field_seconds_fraction() {
+        let world = MockWorld::new("#let x = duration(\"1.5s\").seconds");
+        let src = World::source(&world, World::main(&world)).unwrap();
+        let m = eval_for_test(&world, &src).unwrap();
+        assert_eq!(m.scope().get("x"), Some(&Value::Float(1.5)));
+    }
+
+    #[test]
+    fn duration_field_minutes() {
+        let world = MockWorld::new("#let x = duration(\"90m\").minutes");
+        let src = World::source(&world, World::main(&world)).unwrap();
+        let m = eval_for_test(&world, &src).unwrap();
+        assert_eq!(m.scope().get("x"), Some(&Value::Float(90.0)));
+    }
+
+    #[test]
+    fn duration_field_minutes_compound() {
+        let world = MockWorld::new("#let x = duration(\"1h30m\").minutes");
+        let src = World::source(&world, World::main(&world)).unwrap();
+        let m = eval_for_test(&world, &src).unwrap();
+        assert_eq!(m.scope().get("x"), Some(&Value::Float(90.0)));
+    }
+
+    #[test]
+    fn duration_field_hours() {
+        let world = MockWorld::new("#let x = duration(\"1h30m\").hours");
+        let src = World::source(&world, World::main(&world)).unwrap();
+        let m = eval_for_test(&world, &src).unwrap();
+        assert_eq!(m.scope().get("x"), Some(&Value::Float(1.5)));
+    }
+
+    #[test]
+    fn duration_field_days() {
+        let world = MockWorld::new("#let x = duration(\"36h\").days");
+        let src = World::source(&world, World::main(&world)).unwrap();
+        let m = eval_for_test(&world, &src).unwrap();
+        assert_eq!(m.scope().get("x"), Some(&Value::Float(1.5)));
+    }
+
+    #[test]
+    fn duration_field_days_zero() {
+        let world = MockWorld::new("#let x = duration(\"0s\").days");
+        let src = World::source(&world, World::main(&world)).unwrap();
+        let m = eval_for_test(&world, &src).unwrap();
+        assert_eq!(m.scope().get("x"), Some(&Value::Float(0.0)));
+    }
+
+    #[test]
+    fn duration_field_unknown() {
+        let world = MockWorld::new("#let x = duration(\"1h\").foo");
+        let src = World::source(&world, World::main(&world)).unwrap();
+        assert!(eval_for_test(&world, &src).is_err());
+    }
+
     // ── Testes de paridade: eval_unary_op ────────────────────────────────────
 
     #[test]

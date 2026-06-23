@@ -1,12 +1,12 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/rules/eval.md
 //! @prompt-hash 7a92cc2d
-//! @prompt 00_nucleo/prompts/rules/eval/version-field-access.md
-//! @prompt-hash 7dde40ef
+//! @prompt 00_nucleo/prompts/rules/eval/field-access.md
+//! @prompt-hash 6316e1ef
 //! @layer L1
 //! @updated 2026-06-22
 //!
-//! Bindings: `#let`, `#show` counter, e field access (Passo 411 — Version). Extraído de `eval.rs` no Passo 96.1
+//! Bindings: `#let`, `#show` counter, e field access (P411 — Version; P412 — Duration). Extraído de `eval.rs` no Passo 96.1
 //! conforme ADR-0037 (coesão por domínio). Assinaturas simplificadas no
 //! Passo 109 (ADR-0044) via `Engine<'_>`.
 
@@ -153,6 +153,23 @@ pub(super) fn eval_field_access(
                 _ => Err(vec![SourceDiagnostic::error(
                     access.span(),
                     format!("campo desconhecido em version: '{}'", field),
+                )]),
+            }
+        }
+        // P412 — Field access em Value::Duration: seconds/minutes/hours/days (retorno Float).
+        Value::Duration(d) => {
+            const NANOS_PER_SECOND: f64 = 1_000_000_000.0;
+            const NANOS_PER_MINUTE: f64 = 60_000_000_000.0;
+            const NANOS_PER_HOUR: f64 = 3_600_000_000_000.0;
+            const NANOS_PER_DAY: f64 = 86_400_000_000_000.0;
+            match field.as_str() {
+                "seconds" => Ok(Value::Float(d.nanos as f64 / NANOS_PER_SECOND)),
+                "minutes" => Ok(Value::Float(d.nanos as f64 / NANOS_PER_MINUTE)),
+                "hours"   => Ok(Value::Float(d.nanos as f64 / NANOS_PER_HOUR)),
+                "days"    => Ok(Value::Float(d.nanos as f64 / NANOS_PER_DAY)),
+                _ => Err(vec![SourceDiagnostic::error(
+                    access.span(),
+                    format!("campo desconhecido em duration: '{}'", field),
                 )]),
             }
         }
