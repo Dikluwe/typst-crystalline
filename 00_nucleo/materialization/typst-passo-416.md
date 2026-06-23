@@ -1,5 +1,7 @@
 # P416 — Nota de Rodapé Real: `Footnote` body renderizado no rodapé (M)
 
+> **Reclassificação retroativa:** a sonda confirmou que footnote body no rodapé já existia (P304/P305, 11 tests). Esta spec passa a documento de verificação retroativa, não de materialização. Nenhum código novo foi produzido por este passo além do que a verificação exigiu.
+
 **Título**: Footnote nota rodapé real — de marker-only para body renderizado no rodapé  
 **Tipo**: Materialização (M) — consumer Layouter + infraestrutura de rodapé  
 **Bloqueadores**: Nenhum externo; pré-condições internas verificáveis  

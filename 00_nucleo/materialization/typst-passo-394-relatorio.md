@@ -16,7 +16,7 @@ código Typst no contexto actual.
 - `01_core/src/rules/eval/closures.rs` — `apply_func` passa a receber `&mut Scopes` e
   despacha a variante `NativeWithEngine`, propagando scopes/engine para `native_eval`.
 - `01_core/src/rules/eval/rules.rs`, `rules/eval/closures.rs`, `rules/introspect/from_tags.rs` —
-  callers de `apply_func` actualizados (closures, state/counter callbacks usam scope vazio).
+  callers de `apply_func` actualizados. Medição actual: 6 callers directos; 3 passam scope real do eval (`rules.rs` ×2, `closures.rs` ×1) e 3 passam scope vazio (`from_tags.rs` ×3 — callbacks de state/counter display).
 - `01_core/src/entities/source.rs` — `Source::detached_with_parser` para parse de blocos de
   código não-markup.
 - `01_core/src/rules/stdlib/eval.rs` — `native_eval`:
@@ -48,6 +48,13 @@ o valor resultante. Cristalino adopta **modo código por default** (`parse_code`
 porque é o substrato mínimo que satisfaz os casos de teste declarados (`1 + 2`, `x * 2`,
 `[*bold*]`, `123`). O vanilla default é `mode: "markup"`; essa diferença é declarada
 explicitamente como **scope-out** e reflectida no inventário.
+
+A assinatura de `apply_func` passou a incluir `scopes: &mut Scopes<'_>`
+(`01_core/src/rules/eval/closures.rs:61`). A intrusão propagou-se a **6 callers directos**:
+- 3 callers em `rules/introspect/from_tags.rs` (callbacks de state/counter display) passam um
+  scope vazio (`Scopes::new(None)`), porque esses callbacks não têm acesso ao scope de eval.
+- 3 callers em `rules/eval/rules.rs` (show rules) e `rules/eval/closures.rs` (call expressions)
+  passam o scope real em curso.
 
 A variante `FuncRepr::NativeWithEngine` foi escolhida em vez de alargar o ABI de todas as
 nativas, minimizando a intrusão: apenas o despacho em `apply_func` e os callers directos

@@ -196,6 +196,25 @@ elisão de lifetimes não preservada pela proc-macro. Solução:
 não distingue "ausente" de "string vazia intencional".
 Descoberto: Passo 107 (extensão de `Sink::warn_note` com hint).
 
+## Regra de divisão de constructor entre passos
+
+Quando um constructor (ou qualquer funcionalidade) é deliberadamente dividido entre
+vários passos, o **Prompt L0 do passo inicial deve declarar explicitamente que está
+incompleto** e nomear o passo que completa cada subconjunto. Não deixar o L0 num estado
+intermediário sem registo — isso gera deriva documental (ex.: `duration()` string em P403
+vs named args em P405). O registo pode ser uma nota no cabeçalho do L0 ou uma cláusula de
+"scope-out futuro" com referência ao passo.
+
+## Regra de leitura do L0 vigente antes de propor arquitetura
+
+Antes de propor uma opção arquitetural numa spec (especialmente subdivisão/consolidação
+ de módulos), **ler o Prompt L0 vigente dos módulos afetados** e confirmar o hash. Se o L0
+já decidir a questão (ex.: `stream.md` determina não subdividir shape primitives), a spec
+**não propõe o contrário como opção preferida**. Qualquer conflito deve ser tratado como
+atualização de L0 (com hash novo) ou scope-out, nunca como opção β recomendada contra o
+L0 vigente. Este gate evita deriva como a observada em P427 (opção `shape_emit.rs` vs
+`stream.md` hash `9acca994`).
+
 ### 3. `TrackedMut::reborrow_mut` em descida de lifetime
 
 `TrackedMut<'outer, T>` não encolhe automaticamente para lifetime

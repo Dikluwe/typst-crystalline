@@ -100,7 +100,7 @@ Features visíveis ao utilizador no Typst (markup, funções stdlib, `#set`/`#sh
 | `#set figure(...)` | model/figure.rs | `parcial` | Passo 75 | numbering pattern; kind hardcoded |
 | `#show heading: ...` | foundations/styles.rs | `implementado` | Passo 103 (ADR-0041) | NodeKind selector |
 | `#show strong/emph: ...` | idem | `implementado` | Passo 70, 101 | DEBT-19/20 encerradas |
-| `#show regex(...): ...` | idem | `implementado` | Passo 393 | `.where(field:)` continua ausente (precisa `Selector::Where`) |
+| `#show regex(...): ...` | idem | `parcial` | Passo 393 | Aplica transformação ao nó de texto inteiro quando casa; split do trecho casado é scope-out. `.where(field:)` continua ausente (precisa `Selector::Where`) |
 | `#show <selector>.where(...): ...` | idem | `ausente` | — | `Selector::Where` ainda não existe |
 | `#import`, `#include` | foundations/module.rs | `implementado⁺` | Passos 71, 75 | filesystem real (L3); subset de features |
 

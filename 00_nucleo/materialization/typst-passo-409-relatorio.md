@@ -87,3 +87,11 @@ O Passo 409 não requereu alterações de código: a aritmética e comparações
 3. Documentar o estado num relatório.
 
 Nenhum prompt L0 novo foi criado, nenhum hash de prompt precisou ser propagado, e nenhuma mudança no `Content`, `Value`, `Duration` ou stdlib foi necessária.
+
+## Nota metodológica
+
+Esta spec foi originalmente redigida como materialização antes da sonda A.0. A sonda revelou
+que o trabalho já tinha sido feito no Passo 405. A correção de deriva converteu a spec em
+documento de verificação retroativa e acrescentou este relatório. Este caso é um dos cinco
+(P388, P409, P413, P416, P421) que motivam o gate "sonda A.0 antes da spec" formalizado na
+ADR metodológica deste plano de correção.

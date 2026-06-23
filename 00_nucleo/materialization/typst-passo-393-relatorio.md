@@ -47,13 +47,15 @@ expô-lo a eval e show-rules.
 
 ## Paridade
 
-| Caso | Resultado esperado | Estado |
-|------|--------------------|--------|
-| `#show regex("\\d+"): it => strong(it)` sobre "abc123def" | texto com dígitos fica strong | ✓ |
-| Mesma regra sobre "abcdef" | sem alteração | ✓ |
-| Regex inválida (`"["`) | erro de eval | ✓ |
-| `#show regex("\\d+"): set text(bold: true)` | erro (show-set sobre regex) | ✓ |
-| Múltiplas regex — última declaração vence | última transformação aplica-se | ✓ |
+| Entrada | Regra | Vanilla esperado | Cristalino real | Estado |
+|---------|-------|------------------|-----------------|--------|
+| "abc123def" | `#show regex("\\d+"): it => strong(it)` | `"abc" + strong("123") + "def"` | `strong("abc123def")` (nó inteiro) | parcial |
+| "abcdef" | `#show regex("\\d+"): it => strong(it)` | sem alteração | sem alteração | ✓ |
+| `"["` | `#show regex("["): it => strong(it)` | erro de regex | erro de eval | ✓ |
+| "123" | `#show regex("\\d+"): set text(bold: true)` | erro (show-set sobre regex) | erro (show-set sobre regex) | ✓ |
+| "abc123def" | duas regex, última `emph` | última transformação aplica-se | última transformação aplica-se | ✓ |
+
+> **Nota sobre a primeira linha:** o cristalino aplica a transformação ao **nó de texto inteiro** quando o seu conteúdo casa com a regex. O vanilla divide o nó e aplica a transformação apenas ao trecho casado. Esta divergência é um **scope-out aceite** deste passo (ver §Decisão de engenharia); o item foi reclassificado para `parcial` no inventário de cobertura.
 
 ## Critérios de aceitação — estado
 

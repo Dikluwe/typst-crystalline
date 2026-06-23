@@ -67,3 +67,11 @@ crystalline-lint .
 ## Ficheiros alterados
 
 - `00_nucleo/materialization/typst-passo-416-relatorio.md` (novo; único artefacto deste passo)
+
+## Nota metodológica
+
+A spec P416 foi originalmente redigida como materialização antes da sonda A.0. A sonda revelou
+que o trabalho já tinha sido feito nos Passos P304/P305. A correção de deriva converteu a spec em
+documento de verificação retroativa e acrescentou este relatório. Este caso é um dos cinco
+(P388, P409, P413, P416, P421) que motivam o gate "sonda A.0 antes da spec" formalizado na
+ADR metodológica deste plano de correção.

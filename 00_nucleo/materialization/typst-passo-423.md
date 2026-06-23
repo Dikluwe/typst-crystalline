@@ -82,7 +82,11 @@ A lógica de matching de `And`/`Or` vive na **camada de eval/show**, não no str
 | **γ** — Parser `\|`/`&` + methods | Ambos: operadores infixos e methods | M | Médio | Completo; mas duplica infraestrutura |
 
 **Decisão recomendada**: **Opção β** — methods `.or()`/`.and()` apenas.  
-**Razão ADR-0108**: medir o custo. O parser de `|` e `&` como operadores de selector requer mudanças no lexer (novos tokens) e no parser (precedência, associatividade). Isso é M. Os methods `.or()`/`.and()` reutilizam a infraestrutura de method calls existente (P417 já fez `.where()`). É S. A paridade semântica é idêntica; apenas a sintaxe diverge levemente (mecânica livre per ADR-0107).
+**Razão ADR-0108**: medição do substrato confirma que o caminho infixo é M, não S:
+- `SyntaxKind` não tem tokens `|`/`&` (`rg 'Pipe|Ampersand' 01_core/src/entities/syntax_kind.rs` → 0 hits).
+- O lexer de code (`01_core/src/rules/lexer/code.rs:83-90`) trata `&` e `|` como caracteres inválidos, dando erro com hint para usar `and`/`or`.
+- Adicionar `|`/`&` exigiria: (1) novos `SyntaxKind`; (2) braços no lexer; (3) inclusão no `BINARY_OP` set (`syntax_set.rs:139`); (4) novos variantes/ramos em `BinOp`/`from_kind` (`operators.rs:61`); (5) eval de `Binary` para construir `Selector::Or`/`And` quando operandos são `Value::Selector`. Potencial conflito com math mode (`|` e `&` já usados em math como `MathText`/`MathAlignPoint`), mas math usa lexer separado (`lexer/math.rs`).
+- Os methods `.or()`/`.and()` reutilizam a infraestrutura de method calls existente (P417 já fez `.where()`). É S. A paridade semântica é idêntica; apenas a sintaxe diverge levemente (mecânica livre per ADR-0107).
 
 **Se o parser já suportar `|`/`&`** (sonda A.0 itens 5-6): usar opção γ (ambos) sem custo adicional.
 

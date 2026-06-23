@@ -71,16 +71,21 @@ Tiling(Arc<Tiling>),  // Arc para cheap clone (paridade Pattern: Arc<[T]> em ADR
 | `eval/repr.rs` | +1 arm | `Repr::Tiling(...)` ou string "tiling(...)" |
 | `eval/cast.rs` | +1 arm | `Tiling → Tiling` (identity); `Color → TilingBody::Color` |
 | `eval/ops.rs` | +1 arm | `==` por struct equality (paridade PartialEq) |
-| `layout/types.rs` | +1 arm em `Fill` | `Fill::Tiling(Tiling)` — usado em Shape/Box/Block fill |
+| `entities/paint.rs` | +1 variant | `Paint::Tiling(Tiling)` — usado em `ShapeElem::fill`; fallback `Color` em outros fills |
 | `stdlib/visualize.rs` | +1 func futura | `native_tiling` (P396, não este passo) |
-| `export.rs` | +1 arm | Tiling → pattern fill PDF (scope-out ADR-0054 graded — emite `Color` fallback) |
+| `export.rs` | +1 arm | `Paint::Tiling` → `Color` fallback (scope-out ADR-0054 graded) |
+
+> **Nota retroativa (medição ADR-0108):** a sonda do substrato confirmou que **não existe
+> `enum Fill` isolado** no cristalino. `Fill` é `Style::Fill(Color)`
+> (`01_core/src/entities/style.rs:43`) ou `Option<Paint>` nos consumers (`ShapeElem::fill`).
+> Por isso a integração de `Tiling` foi feita via `Paint::Tiling`, não via `Fill::Tiling`.
 
 **Decisão**: todos os match afetados são **adição de braço**, não refactor. O padrão é paralelo a `Value::Color` (P102) — tipo visual primitivo com pipeline de render.
 
 ### 2.4 — Paridade linguagem (ADR-0107)
 
 No vanilla, `tiling` é um valor de preenchimento (fill). No cristalino:
-- `Tiling` é **morfologicamente equivalente** a `Color` como fill — ambos são `Fill` em layout.
+- `Tiling` integra via `Paint::Tiling` (o wrapper `Paint` já serve de "fill" em `ShapeElem`). Outros elementos (`Block`, `Box`, `Text`) continuam com `Option<Color>` ou `Option<Paint>` conforme o caso; não existe um enum `Fill` isolado.
 - A paridade não exige que `Tiling` seja construído pelo usuário neste passo (isso é P396).
 - A paridade exige que o **tipo exista no pipeline** — eval conhece, layout aceita, repr mostra.
 
@@ -99,7 +104,7 @@ Novo em `00_nucleo/prompts/entities/tiling.md`:
 - **Size**: `Option<Size2D>` — `None` = auto (bounds do body).
 - **Spacing**: `Option<Size2D>` — `None` = zero.
 - **Scope-out**: `Gradient` em `TilingBody` é placeholder — consumer inicial só Image/Color.
-- **Fill integration**: `Tiling` integra em `Fill` enum em `layout/types.rs` (paridade `Color`/`Gradient`).
+- **Fill integration**: `Tiling` integra em `Paint::Tiling` em `entities/paint.rs`. Não existe enum `Fill` isolado no cristalino; `ShapeElem::fill` já usa `Option<Paint>`.
 - **Teste**: construção `Tiling::new(Color::Rgb(...))` → `Value::Tiling` → repr → cast.
 
 ### A.2 — Prompt L0 `value.md` (extensão)
@@ -139,12 +144,12 @@ Parar. Apresentar `tiling.md` + extensão `value.md` ao dono. **Só prosseguir p
 
 ### B.3 — Fill integration
 
-1. `layout/types.rs`: adicionar `Fill::Tiling(Tiling)` ao enum `Fill` (ou equivalente).
-2. Atualizar consumers de `Fill` (Shape, Box, Block, etc.) com braço `Tiling` — **fallback a Color** se TilingBody::Color, **scope-out graded** para Image/Gradient complexo.
+1. `entities/paint.rs`: adicionar `Paint::Tiling(Tiling)` ao enum `Paint` (substrato real do cristalino; não existe enum `Fill` isolado).
+2. Atualizar consumers de `Paint` (em especial `emit_stroke_paint` em `export/stream.rs`) com braço `Tiling` — **fallback a Color** via `Tiling::to_color()` (paridade ADR-0054 graded).
 
 ### B.4 — Export stub
 
-1. `export.rs`: adicionar braço `Fill::Tiling` → emite `Color` fallback (paridade ADR-0054 graded — pattern fill PDF é scope-out futuro).
+1. `export/stream.rs`: adicionar braço `Paint::Tiling` em `emit_stroke_paint` → emite `Color` fallback (paridade ADR-0054 graded — pattern fill PDF é scope-out futuro).
 
 ### B.5 — Testes
 
@@ -162,9 +167,9 @@ Parar. Apresentar `tiling.md` + extensão `value.md` ao dono. **Só prosseguir p
    - `value_tiling_cast_from_color` — Color → TilingBody::Color.
    - `value_tiling_partial_eq` — equality com outro Tiling.
 
-3. **Unit `layout/types.rs`** (2-3 tests):
-   - `fill_tiling_variant` — Fill::Tiling exists.
-   - `fill_tiling_fallback_color` — consumer fallback quando TilingBody::Color.
+3. **Unit `entities/paint.rs`** (2-3 tests):
+   - `paint_tiling_variant` — `Paint::Tiling` exists.
+   - `paint_tiling_to_color_fallback` — `Paint::Tiling(...).to_color()` retorna cor representativa.
 
 4. **Integration/E2E** (2-3 tests):
    - `tiling_como_fill_em_box` — `#box(fill: tiling(red))` paridade morfológica (não render — apenas parse+eval aceita).
@@ -193,7 +198,7 @@ Parar. Apresentar `tiling.md` + extensão `value.md` ao dono. **Só prosseguir p
 
 1. `Value::Tiling(Arc<Tiling>)` compila e participa de `match` exhaustivo em eval/layout/export.
 2. `Tiling` struct tem `TilingBody` (Image/Gradient/Color) + `TilingRelative` + size/spacing.
-3. `Fill::Tiling` existe em layout types; consumers Shape/Box/Block têm braço (fallback Color).
+3. `Paint::Tiling` existe em `entities/paint.rs`; consumers de `Paint` (em especial `emit_stroke_paint`) têm braço fallback `Color`.
 4. Export emite Color fallback para Tiling (scope-out graded documentado).
 5. Testes verdes (≥12 unit + 2-3 integration); lint zero; hashes propagados.
 6. Inventário 148: `Value::Tiling` transita `ausente` → `implementado` (tipo); `tiling()` permanece `ausente` (consumer P396).
@@ -204,7 +209,7 @@ Parar. Apresentar `tiling.md` + extensão `value.md` ao dono. **Só prosseguir p
 ## 7. O que pode sair errado
 
 - **`ImageSource` não é Arc internamente.** Mitigação: verificar P72-74; se não for, wrap em Arc no TilingBody::Image.
-- **`Fill` enum não existe isolado — é `Option<Color>` ainda.** Mitigação: se layout types usa `Option<Color>` em vez de `Fill` enum, criar `Fill` enum agora (refactor pequeno, paridade P102 Color + P395 Tiling). ADR-0017 aplica — novo tipo de fill exige enum.
+- **`Fill` enum não existe isolado — o cristalino usa `Option<Color>`/`Option<Paint>` conforme o elemento.** Medição ADR-0108: `rg 'enum Fill' 01_core/src/entities/` devolve 0 hits; `Fill` ocorre como `Style::Fill(Color)` (`style.rs:43`). Mitigação confirmada: integrar `Tiling` via `Paint::Tiling` em vez de criar enum `Fill` separado; evita refactor cross-module desnecessário.
 - **Export não tem ponto de injeção para Fill.** Mitigação: adicionar braço no helper de fill do export (paralelo a Color).
 - **Tentação de já fazer `native_tiling` junto.** Mitigação: um passo de cada vez; este é tipo, P396 é consumer.
 

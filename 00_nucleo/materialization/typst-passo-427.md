@@ -59,6 +59,8 @@ O contrato é **semântico/sintático/morfológico**:
 
 **Recomendado β**: reusa padrão P424 (`emit_link_annotations` free function em `builder.rs`); shapes ficam em módulo separado para crescer (path, curve, etc.).
 
+> **Nota retroativa (correcção de deriva):** a opção β da spec (criar `shape_emit.rs` como módulo separado) estava em conflito com o L0 vigente de `stream.md` (hash `9acca994`), que determina não subdividir. Na execução, a opção β foi descartada por esse motivo e a emissão de shapes manteve-se em `stream.rs`. A spec não devia ter proposto a subdivisão como opção preferida sem validar o L0 vigente.
+
 ---
 
 ## 6. Algoritmo por ShapeKind

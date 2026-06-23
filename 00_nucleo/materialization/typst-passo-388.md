@@ -31,6 +31,15 @@ Medir o estado actual do runtime de introspecção/query no HEAD. Perguntas fact
 
 A resposta classifica o que é single-pass vs 2-pass e **fixa o escopo da Fase 1**. Registar a sonda no relatório (não é narrativa — é o gatilho de escopo).
 
+> **Nota retroativa (correcção de deriva):** a sonda de viabilidade foi executada a posteriori.
+> O runtime de introspecção confirma:
+> - `query_by_kind` (`01_core/src/entities/introspector.rs:46`) devolve `Vec<Location>` em ordem de aparição no walk.
+> - `query` (`01_core/src/entities/introspector.rs:132`) suporta `Selector::And`/`Or` (intersecção/ união preservando ordem).
+> - `position_of` (`01_core/src/entities/introspector.rs:72`) tem implementação real via `SealedPositions`.
+> - `layout_with_introspector` (`01_core/src/rules/layout/mod.rs:1484`) existe como entry point com introspeitor.
+> Portanto a Fase 1 proposta (autor-data + bibliografia alfabética) é compatível com o substrato; o faseamento
+> não precisou de ajuste. A deriva foi processual (spec antes da sonda), não factual.
+
 > Regra: o que a sonda disser que **não** existe vira **graded** na Fase 1, com DEBT, não bloqueia o passo. O que existir, materializa-se.
 
 ---

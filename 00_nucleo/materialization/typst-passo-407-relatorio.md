@@ -70,5 +70,6 @@ crystalline-lint .
 
 ## Inventário / DEBT
 
-- DEBT-52 já estava formalmente encerrado no Passo 142. O **gap 8** (font dict) transitou de "candidato futuro" para **implementado**.
+- DEBT-52 já estava formalmente encerrado no Passo 142. O **gap 8** (font dict) transitou de "candidato futuro" para **implementado na forma dict legada**.
+- A paridade named fields do vanilla (`font: (family: "Name", variant: "Regular", weight: "Bold", style: "Italic")`) ficou **fora do escopo deste fecho**; foi materializada posteriormente no Passo 414.
 - Saldo de DEBTs abertos: **10** (inalterado).

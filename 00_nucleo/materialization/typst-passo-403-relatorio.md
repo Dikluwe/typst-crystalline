@@ -32,7 +32,9 @@ Ativaram-se os três tipos L1 modelados em P399–P401 com constructors stdlib p
 
 ## Decisão de engenharia
 
-Os três constructors são morfologicamente idênticos (`Str → T fallible`). Reutilizam os tipos L1 e variants de `Value` existentes; não expandem o enum. O parser de duração é hand-rolled minimal (regex não necessária) e aceita o subconjunto canónico `NdNhNmNs`; refinos de formato (espaços, sinal negativo, unidades compostas) ficam scope-out para passos futuros.
+Os três constructors são morfologicamente idênticos (`Str → T fallible`). Reutilizam os tipos L1 e variants de `Value` existentes; não expandem o enum. O parser de duração é hand-rolled minimal (regex não necessária) e aceita o subconjunto canónico `NdNhNmNs`; refins de formato (espaços, sinal negativo, unidades compostas) ficam scope-out para passos futuros.
+
+> **Nota retroativa:** este passo entregou apenas a forma string de `duration()`. A forma named args (`duration(seconds:, hours:, minutes:, days:)`) foi adicionada em P405. Entre P403 e P405 o L0 `primitives-constructors.md` descreveu apenas a forma string; um leitor do L0 nesse intervalo tinha uma descrição incompleta do constructor. Regra para o futuro: quando um constructor é dividido entre passos, o L0 do passo inicial declara explicitamente que está incompleto e nomeia o passo que completa.
 
 ## Paridade
 

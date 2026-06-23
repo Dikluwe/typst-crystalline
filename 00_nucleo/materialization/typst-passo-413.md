@@ -1,5 +1,7 @@
 # Passo 413 — Aritmética `Decimal`: `+`, `-`, `*`, `/` e comparações (S/M)
 
+> **Reclassificação retroativa:** a sonda A.0 confirmou que o trabalho descrito já existia (P404). Esta spec passa a documento de verificação retroativa, não de materialização. Nenhum código novo foi produzido por este passo além do que a verificação exigiu.
+
 **Tipo**: Materialização (L1 eval + stdlib; zero tipo novo; zero I/O).  
 **Data**: 2026-06-22.  
 **Padrão**: diagnóstico-primeiro; medir-antes-de-decidir (ADR-0108).  

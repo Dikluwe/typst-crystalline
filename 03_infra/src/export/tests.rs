@@ -76,6 +76,86 @@ use typst_core::rules::layout::layout;
     }
 
     #[test]
+    fn p424_link_com_group_interno_bbox_aproximada() {
+        // Teste determinístico que fixa o comportamento actual do cálculo de bbox
+        // de FrameItem::Link quando o item contém um FrameItem::Group interno.
+        // A bbox usa as dimensões declaradas do Link (que no layout real vêm de
+        // link_bbox usando inner_width/inner_height do Group sem aplicar a
+        // transform do Group). Montamos o frame manualmente para evitar
+        // dependência de detalhes do layout de box/clip.
+        use typst_core::entities::layout_types::{
+            FrameItem, Page, PagedDocument, Point, Pt, Size, TextStyle, TransformMatrix,
+        };
+
+        let page_h = 841.89;
+        let page = Page {
+            width:  595.28,
+            height: page_h,
+            items:  vec![FrameItem::Link {
+                url: "https://example.com".into(),
+                items: vec![FrameItem::Group {
+                    pos:          Point { x: Pt(0.0), y: Pt(0.0) },
+                    matrix:       TransformMatrix::identity(),
+                    clip_mask:    None,
+                    inner_width:  80.0,
+                    inner_height: 15.0,
+                    items:        vec![FrameItem::Text {
+                        pos:   Point { x: Pt(0.0), y: Pt(0.0) },
+                        text:  "x".into(),
+                        style: TextStyle::regular(Pt(12.0)),
+                    }],
+                }],
+                pos:  Point { x: Pt(10.0), y: Pt(20.0) },
+                size: Size { width: Pt(80.0), height: Pt(15.0) },
+            }],
+        };
+        let doc = PagedDocument::new(vec![page]);
+        let pdf = export_pdf(&doc);
+        let s = String::from_utf8_lossy(&pdf);
+
+        // Procurar o /Rect da annotation de Link.
+        let rect_start = s.find("/Subtype /Link").expect("deve haver annotation Link");
+        let rect_snippet = &s[rect_start..rect_start + 200];
+        assert!(
+            rect_snippet.contains("/Rect ["),
+            "annotation Link deve ter /Rect"
+        );
+
+        // Extrair as 4 coordenadas do /Rect sem depender de regex externo.
+        let idx = rect_snippet.find("/Rect [").unwrap() + "/Rect [".len();
+        let nums: Vec<&str> = rect_snippet[idx..]
+            .split_whitespace()
+            .take(4)
+            .map(|t| t.trim_end_matches(']'))
+            .collect();
+        assert_eq!(nums.len(), 4, "/Rect deve ter 4 coordenadas");
+        let x0: f64 = nums[0].parse().unwrap();
+        let y0: f64 = nums[1].parse().unwrap();
+        let x1: f64 = nums[2].parse().unwrap();
+        let y1: f64 = nums[3].parse().unwrap();
+
+        // A annotation deve refletir pos + size do Link, convertido para Y-up.
+        let width = x1 - x0;
+        let height = y1 - y0;
+        assert!(
+            (width - 80.0).abs() < 0.5,
+            "largura da bbox deve ser 80 pt (size.width do Link), got {width}"
+        );
+        assert!(
+            (height - 15.0).abs() < 0.5,
+            "altura da bbox deve ser 15 pt (size.height do Link), got {height}"
+        );
+        assert!(
+            (x0 - 10.0).abs() < 0.5,
+            "x0 deve ser 10 pt (pos.x do Link), got {x0}"
+        );
+        assert!(
+            (y0 - (page_h - 20.0 - 15.0)).abs() < 0.5,
+            "y0 deve ser page_h - pos.y - size.height, got {y0}"
+        );
+    }
+
+    #[test]
     fn pdf_documento_vazio_valido() {
         let doc = typst_core::entities::layout_types::PagedDocument::new(vec![]);
         let pdf = export_pdf(&doc);

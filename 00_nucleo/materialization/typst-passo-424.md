@@ -76,7 +76,7 @@ Atualizados os matches que reconstróem `FrameItem::Link` para preservar/transla
 
 - `01_core/src/rules/layout/link.rs`: `p424_layout_link_tem_bbox_positiva`.
 - `01_core/src/rules/eval/tests.rs`: `p422_link_body_texto_preserva_url` e `p422_link_body_implicito_url` agora validam `pos`/`size`.
-- `03_infra/src/export/tests.rs`: `pdf_link_emite_annotation_uri`, `pdf_link_escape_parenteses_na_uri`.
+- `03_infra/src/export/tests.rs`: `pdf_link_emite_annotation_uri`, `pdf_link_escape_parenteses_na_uri`, `p424_link_com_group_interno_bbox_aproximada`.
 
 ---
 
@@ -108,7 +108,7 @@ crystalline-lint .
 - [x] Nenhum vtable/`dyn` introduzido.
 - [x] `match` exaustivo preservado.
 - [x] Lógica atomizada em free functions (forma B).
-- [x] 8 tests novos verdes (5 core + 1 core + 2 infra).
+- [x] 9 tests novos verdes (5 core + 1 core + 3 infra).
 
 ---
 
@@ -131,7 +131,7 @@ crystalline-lint .
 - `rules/layout/link.rs`: cálculo de bbox acumulada via `FontMetrics`.
 - `rules/layout/helpers.rs`, `slicing.rs`, `cursor.rs`, `math/layout/mod.rs`: preservação/translação de `pos`/`size`.
 - `export/builder.rs`: emissão de annotations URI e referência `/Annots` nas páginas.
-- `export/tests.rs`: 2 tests E2E de PDF annotations.
+- `export/tests.rs`: 3 tests E2E de PDF annotations (incluindo bbox aproximada com Group interno).
 - `integration_tests.rs`: match exaustivo corrigido.
 
 **Validação**:
