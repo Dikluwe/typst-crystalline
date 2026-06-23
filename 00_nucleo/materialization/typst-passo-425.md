@@ -23,7 +23,7 @@ Executada antes de qualquer código. Resultados:
 
 ## FASE A.1 — L0 (hash obrigatório)
 
-Criado `00_nucleo/prompts/meta/p425-varredura-mecanica.md` com:
+Criado `00_nucleo/diagnosticos/p425-varredura-mecanica.md` com:
 
 - Definição dos agentes A1–A7, critérios de aceitação e escopo máximo.
 - Distinção mecânico vs linguagem (ADR-0107).
@@ -155,7 +155,7 @@ cargo test -p typst-core --lib
 - A6: 23 warnings mecânicos identificados ✅
 - A7: `typst-infra` não compilava por `FrameItem::Link` ausente ✅
 
-**L0**: `00_nucleo/prompts/meta/p425-varredura-mecanica.md` criado com definição de agentes, protocolo e scope-out.
+**L0**: `00_nucleo/diagnosticos/p425-varredura-mecanica.md` criado com definição de agentes, protocolo e scope-out.
 
 **Implementação**:
 - `a0b802d5c` — A6: ~23 warnings mecânicos corrigidos em `typst-core`.

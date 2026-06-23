@@ -44,7 +44,7 @@ Métricas medidas em `2026-06-23` no commit `a2b3b3536` (branch `Tekt`).
 
 ## FASE A.1 — L0
 
-Criado `00_nucleo/prompts/meta/p426-analise-estado.md` com o protocolo de sonda, templates de inventário e critério de fecho.
+Criado `00_nucleo/diagnosticos/p426-analise-estado.md` com o protocolo de sonda, templates de inventário e critério de fecho.
 
 ---
 
@@ -180,7 +180,7 @@ crystalline-lint .
 
 **Sonda A.0**: todas as 12 medições executadas e registadas na tabela acima.
 
-**L0**: `00_nucleo/prompts/meta/p426-analise-estado.md` criado.
+**L0**: `00_nucleo/diagnosticos/p426-analise-estado.md` criado.
 
 **Análise**:
 - O ciclo P329–P424 produziu **188 commits** e deixou o `typst-core` com **100.192 LOC** e **3.156 tests verdes**.
