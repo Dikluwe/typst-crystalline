@@ -1259,6 +1259,55 @@ pub fn native_cite(
     Ok(Value::Content(Content::cite(key, supplement, form)))
 }
 
+/// `link(url, body)` — hiperligação (P422).
+///
+/// - 1º arg posicional: URL (`Str`).
+/// - 2º arg posicional opcional: body (`Content`). Se omitido, o body é o
+///   próprio URL como texto.
+/// - Named args não suportados.
+pub fn native_link(
+    _ctx: &mut EvalContext,
+    args: &Args,
+    _world: &dyn crate::contracts::world::World,
+    _current_file: FileId,
+) -> SourceResult<Value> {
+    super::expect_no_named(&args.named)?;
+    let url = match args.items.first() {
+        Some(Value::Str(s)) if !s.is_empty() => s.clone(),
+        Some(Value::Str(_)) => {
+            return Err(vec![SourceDiagnostic::error(
+                Span::detached(),
+                "link() URL não pode ser vazia".to_string(),
+            )])
+        }
+        Some(other) => {
+            return Err(vec![SourceDiagnostic::error(
+                Span::detached(),
+                format!("link() espera URL como string, recebeu {}", other.type_name()),
+            )])
+        }
+        None => {
+            return Err(vec![SourceDiagnostic::error(
+                Span::detached(),
+                "link() exige URL como argumento posicional".to_string(),
+            )])
+        }
+    };
+
+    let body = match args.items.get(1) {
+        Some(Value::Content(c)) => c.clone(),
+        Some(other) => {
+            return Err(vec![SourceDiagnostic::error(
+                Span::detached(),
+                format!("link() espera body como content, recebeu {}", other.type_name()),
+            )])
+        }
+        None => Content::text(url.as_str()),
+    };
+
+    Ok(Value::Content(Content::link(url, body)))
+}
+
 /// Helper privado P159C — parsing `Value::Str` para
 /// `Option<CitationForm>`. Strict matching (case-sensitive);
 /// `auto`/`none`/ausente → None (resolvido a Normal default em

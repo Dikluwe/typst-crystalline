@@ -78,6 +78,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
                 FrameItem::Image { .. } => {}   // imagens não ocorrem em math inline
                 FrameItem::Shape { .. } => {}   // formas não ocorrem em math inline
                 FrameItem::Group { .. } => {}   // grupos não ocorrem em math inline
+                FrameItem::Link { .. }  => {}   // links não ocorrem em math inline
                 FrameItem::Glyph { pos, glyph_id, x_advance, size } => {
                     let abs_pos = Point {
                         x: offset_x + pos.x,

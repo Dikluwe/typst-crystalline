@@ -36,7 +36,26 @@ Construtor ergonómico: `Content::link(url: impl Into<EcoString>, body: Content)
 
 `#[derive(PartialEq)]` compara `url + body` (paridade `content.rs:1820`).
 
+## P422 (S) — Render visual de hiperlinks
+
+**Decisão arquitetural (ADR-0107 / ADR-0109):**
+- `LinkElem` permanece struct puro (`url`, `body`). Nenhuma lógica de layout é
+  adicionada aqui.
+- O layout real vive em `rules/layout/link.rs` como free function `layout_link`
+  (forma B).
+- O output de layout usa um novo variant `FrameItem::Link { url, items }` em
+  `entities/layout_types.rs`, preservando o URL como metadado.
+
+**Scope-out P422:**
+- Cor azul / sublinhado no texto — depende de infraestrutura de decoração de
+  texto (FrameItem::Decoration) não disponível.
+- Consumer PDF que emite annotation URI — scope-out; o `FrameItem::Link` é
+  infraestrutura preparatória.
+- Links internos (`#link("<label>")`) / inter-página — scope-out.
+- Hover tooltip — renderizador-dependente, scope-out.
+
 ## Critério
 
 `plain_text` transparente ao body; `map_content`/`map_text` recursam no body
-preservando `url`; igualdade estrutural.
+preservando `url`; igualdade estrutural. Layout emite `FrameItem::Link` com body
+renderizado e URL preservado.

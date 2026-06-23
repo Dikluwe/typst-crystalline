@@ -78,6 +78,7 @@ impl MathBox {
                 FrameItem::Image { .. } => {}   // imagens não ocorrem em contexto math
                 FrameItem::Shape { .. } => {}   // formas não ocorrem em contexto math
                 FrameItem::Group { .. } => {}   // grupos não ocorrem em contexto math
+                FrameItem::Link { .. } => {}    // links não ocorrem em contexto math
             }
             item
         }).collect()
@@ -133,6 +134,7 @@ pub(super) fn offset_item(item: FrameItem, dx: Pt, dy: Pt) -> FrameItem {
                 inner_height,
                 items,
             },
+        FrameItem::Link { url, items } => FrameItem::Link { url, items },
     }
 }
 
@@ -673,6 +675,7 @@ impl<'a, M: FontMetrics> MathLayouter<'a, M> {
                     FrameItem::Image { .. } => {}   // imagens não ocorrem em contexto math
                     FrameItem::Shape { .. } => {}   // formas não ocorrem em contexto math
                     FrameItem::Group { .. } => {}   // grupos não ocorrem em contexto math
+                    FrameItem::Link { .. } => {}    // links não ocorrem em contexto math
                 }
                 items.push(item);
             }

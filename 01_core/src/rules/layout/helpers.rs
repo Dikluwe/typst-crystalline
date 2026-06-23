@@ -24,6 +24,7 @@ pub(super) fn item_pos(item: &FrameItem) -> (f64, f64) {
         FrameItem::Image { pos, .. } => (pos.x.0, pos.y.0),
         FrameItem::Shape { pos, .. } => (pos.x.0, pos.y.0),
         FrameItem::Group { pos, .. } => (pos.x.0, pos.y.0),
+        FrameItem::Link { .. }       => (0.0, 0.0),
     }
 }
 
@@ -51,6 +52,13 @@ pub(super) fn translate_frame_item(item: FrameItem, new_x: Pt, new_y: Pt) -> Fra
             FrameItem::Shape { pos: Point { x: new_x, y: new_y }, kind, width, height, fill, stroke, parent_bbox_at_emit },
         FrameItem::Group { matrix, clip_mask, inner_width, inner_height, items, .. } =>
             FrameItem::Group { pos: Point { x: new_x, y: new_y }, matrix, clip_mask, inner_width, inner_height, items },
+        FrameItem::Link { url, items } => {
+            let items = items.into_iter().map(|child| {
+                let (ix, iy) = item_pos(&child);
+                translate_frame_item(child, Pt(new_x.0 + ix), Pt(new_y.0 + iy))
+            }).collect();
+            FrameItem::Link { url, items }
+        }
     }
 }
 

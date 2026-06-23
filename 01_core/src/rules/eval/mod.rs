@@ -662,7 +662,7 @@ fn make_stdlib() -> Scope {
         native_ellipse, native_emph, native_figure, native_float, native_footnote, native_grid, native_h, native_heading,
         native_hide, native_image, native_int, native_len, native_line,
         native_counter_at, native_counter_display, native_counter_final, native_counter_step, native_curve, native_eval, native_here, native_locate, native_lower, native_lorem, native_luma, native_measure, native_metadata, native_move, native_pad, native_pagebreak, native_place, native_polygon, native_query, native_regex, native_state, native_state_at, native_state_display, native_state_final, native_state_update, native_state_update_with,
-        native_asset, native_cmyk, native_colbreak, native_columns, native_document, native_hsl, native_hsv, native_linear_rgb, native_oklab, native_oklch, native_op, native_panic, native_quote, native_range, native_rect, native_repeat, native_replace, native_raw, native_repr, native_rgb, native_rotate,
+        native_asset, native_cmyk, native_colbreak, native_columns, native_document, native_hsl, native_hsv, native_linear_rgb, native_link, native_oklab, native_oklch, native_op, native_panic, native_quote, native_range, native_rect, native_repeat, native_replace, native_raw, native_repr, native_rgb, native_rotate,
         native_square, native_tiling,
         native_scale, native_skew, native_smallcaps, native_smartquote, native_stack, native_str, native_strike, native_stroke, native_strong, native_table, native_table_cell, native_table_footer, native_table_header, native_grid_cell, native_grid_footer, native_grid_header, native_terms, native_type, native_underline, native_underover, native_overline, native_upper, native_v,
         // P311b.3 — math style funcs.
@@ -918,6 +918,7 @@ fn make_stdlib() -> Scope {
     // form, hayagriva) NÃO reservados per política P158.
     scope.define("bibliography", Value::Func(Func::native("bibliography", native_bibliography)));
     scope.define("cite",         Value::Func(Func::native("cite",         native_cite)));
+    scope.define("link",         Value::Func(Func::native("link",         native_link)));
     scope.define("calc",    make_calc_module());
     // P262 — `gradient.linear(...)` via module dict (ADR-0087).
     scope.define("gradient", make_gradient_module());

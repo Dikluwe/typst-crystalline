@@ -5498,4 +5498,49 @@ mod tests {
         world.add_file("refs.bib", b"".to_vec());
         assert_eq!(p421_eval_plain_text(&world), "bibliography(\"refs.bib\")");
     }
+
+    // ── P422 — E2E link render visual ─────────────────────────────────────────
+
+    fn p422_find_first_link(doc: &crate::entities::layout_types::PagedDocument) -> Option<&crate::entities::layout_types::FrameItem> {
+        for page in &doc.pages {
+            for item in &page.items {
+                if let crate::entities::layout_types::FrameItem::Link { .. } = item {
+                    return Some(item);
+                }
+            }
+        }
+        None
+    }
+
+    #[test]
+    fn p422_link_body_texto_preserva_url() {
+        let world = MockWorld::new("#link(\"https://example.com\")[Clique]");
+        let module = eval_for_test(&world, &world.source).unwrap();
+        let content = module.content().unwrap();
+        let doc = layout(content);
+        let link = p422_find_first_link(&doc).expect("deve haver FrameItem::Link");
+        if let crate::entities::layout_types::FrameItem::Link { url, items } = link {
+            assert_eq!(url.as_str(), "https://example.com");
+            assert!(!items.is_empty(), "body deve renderizar items");
+            let plain = doc.plain_text();
+            assert!(plain.contains("Clique"), "texto do body deve aparecer: {plain}");
+        } else {
+            panic!("esperado FrameItem::Link");
+        }
+    }
+
+    #[test]
+    fn p422_link_body_implicito_url() {
+        let world = MockWorld::new("#link(\"https://example.com\")");
+        let module = eval_for_test(&world, &world.source).unwrap();
+        let content = module.content().unwrap();
+        let doc = layout(content);
+        let link = p422_find_first_link(&doc).expect("deve haver FrameItem::Link");
+        if let crate::entities::layout_types::FrameItem::Link { url, items } = link {
+            assert_eq!(url.as_str(), "https://example.com");
+            assert!(!items.is_empty(), "body implícito (URL) deve renderizar items");
+        } else {
+            panic!("esperado FrameItem::Link");
+        }
+    }
 }

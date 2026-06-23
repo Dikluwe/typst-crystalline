@@ -17,6 +17,7 @@ use super::metrics::FontMetrics;
 // P245 (M9d / M7+4) — DeferredFloat buffer entry usado por
 // flush_pending_floats + emit_deferred_float.
 use super::DeferredFloat;
+use super::helpers::{item_pos, translate_frame_item};
 
 impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
     /// Largura de uma palavra em Pt, incluindo tracking entre glyphs
@@ -285,6 +286,13 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
                         pos: Point { x: pos.x + Pt(target_x), y: pos.y + Pt(target_y) },
                         data, width, height, intrinsic_width, intrinsic_height,
                     },
+                FrameItem::Link { url, items } => FrameItem::Link {
+                    url,
+                    items: items.into_iter().map(|child| {
+                        let (ix, iy) = item_pos(&child);
+                        translate_frame_item(child, Pt(target_x + ix), Pt(target_y + iy))
+                    }).collect(),
+                },
             };
             self.regions.current.current_items.push(translated);
         }
@@ -333,6 +341,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
                 FrameItem::Image { pos, .. } => pos.y.0,
                 FrameItem::Shape { pos, .. } => pos.y.0,
                 FrameItem::Group { pos, .. } => pos.y.0,
+                FrameItem::Link { .. }       => 0.0,
             })
             .fold(margin, f64::max);
         let available_h = (area_bot - top_safe).max(0.0);
@@ -419,6 +428,13 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
                             pos: Point { x: pos.x + Pt(target_x), y: pos.y + Pt(target_y) },
                             data, width, height, intrinsic_width, intrinsic_height,
                         },
+                    FrameItem::Link { url, items } => FrameItem::Link {
+                        url,
+                        items: items.into_iter().map(|child| {
+                            let (ix, iy) = item_pos(&child);
+                            translate_frame_item(child, Pt(target_x + ix), Pt(target_y + iy))
+                        }).collect(),
+                    },
                 };
                 self.regions.current.current_items.push(translated);
             }
@@ -480,6 +496,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
                     FrameItem::Image { pos, .. } => pos.y.0,
                     FrameItem::Shape { pos, .. } => pos.y.0,
                     FrameItem::Group { pos, .. } => pos.y.0,
+                    FrameItem::Link { .. }       => 0.0,
                 };
                 tail_h = tail_h.max(y);
             }

@@ -263,6 +263,13 @@ pub enum FrameItem {
         inner_height: f64,
         items:        Vec<FrameItem>,
     },
+    /// **P422** — Hiperligação. O body é renderizado normalmente; o URL é
+    /// preservado como metadado para o consumer downstream (exportador PDF).
+    /// Cor/sublinhado são scope-out (aguardam `FrameItem::Decoration`).
+    Link {
+        url:   EcoString,
+        items: Vec<FrameItem>,
+    },
 }
 
 // ── Alinhamento (Passo 82) ─────────────────────────────────────────────────
@@ -390,17 +397,22 @@ pub struct Page {
     pub items:  Vec<FrameItem>,
 }
 
+fn plain_text_items<'a>(items: &'a [FrameItem], out: &mut Vec<&'a str>) {
+    for item in items {
+        match item {
+            FrameItem::Text { text, .. } => out.push(text.as_str()),
+            FrameItem::Link { items, .. } => plain_text_items(items, out),
+            _ => {}
+        }
+    }
+}
+
 impl Page {
     /// Extrai texto plano — para verificação em testes.
     pub fn plain_text(&self) -> String {
-        self.items
-            .iter()
-            .filter_map(|i| match i {
-                FrameItem::Text { text, .. } => Some(text.as_str()),
-                _ => None,
-            })
-            .collect::<Vec<_>>()
-            .join(" ")
+        let mut parts = Vec::new();
+        plain_text_items(&self.items, &mut parts);
+        parts.join(" ")
     }
 }
 
@@ -425,18 +437,9 @@ impl Frame {
 
     /// Extrai texto plano — para verificação em testes.
     pub fn plain_text(&self) -> String {
-        self.items
-            .iter()
-            .filter_map(|i| match i {
-                FrameItem::Text { text, .. } => Some(text.as_str()),
-                FrameItem::Line { .. }       => None,
-                FrameItem::Glyph { .. }      => None,
-                FrameItem::Image { .. }      => None,
-                FrameItem::Shape { .. }      => None,
-                FrameItem::Group { .. }      => None,
-            })
-            .collect::<Vec<_>>()
-            .join(" ")
+        let mut parts = Vec::new();
+        plain_text_items(&self.items, &mut parts);
+        parts.join(" ")
     }
 }
 
