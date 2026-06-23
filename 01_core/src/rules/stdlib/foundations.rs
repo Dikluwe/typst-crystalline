@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/rules/stdlib/foundations.md
-//! @prompt-hash bb7771d5
+//! @prompt-hash bf5a0818
 //! @layer L1
 //! @updated 2026-04-23
 //!
@@ -17,6 +17,7 @@ use crate::entities::layout_types::Length;
 use crate::entities::source_result::{SourceDiagnostic, SourceResult};
 use crate::entities::span::Span;
 use crate::entities::value::Value;
+use crate::rules::eval::repr::repr_value;
 use crate::rules::eval::EvalContext;
 
 /// `type(v)` → nome do tipo como string Typst.
@@ -25,6 +26,15 @@ pub fn native_type(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::cont
     match args.items.as_slice() {
         [v] => Ok(Value::Str(v.type_name().into())),
         _   => err(format!("type() requer 1 argumento, recebeu {}", args.items.len())),
+    }
+}
+
+/// `repr(v)` → representação textual reconhecível do valor (P421).
+pub fn native_repr(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contracts::world::World, _current_file: FileId) -> SourceResult<Value> {
+    expect_no_named(&args.named)?;
+    match args.items.as_slice() {
+        [v] => Ok(Value::Str(repr_value(v).into())),
+        _   => err(format!("repr() requer 1 argumento, recebeu {}", args.items.len())),
     }
 }
 

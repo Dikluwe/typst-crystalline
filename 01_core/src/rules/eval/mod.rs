@@ -55,6 +55,7 @@ pub(crate) mod rules;
 mod markup;
 mod modules;
 pub(crate) mod bibliography;
+pub(crate) mod repr;
 
 /// Contexto de execução partilhado durante eval().
 ///
@@ -661,7 +662,7 @@ fn make_stdlib() -> Scope {
         native_ellipse, native_emph, native_figure, native_float, native_footnote, native_grid, native_h, native_heading,
         native_hide, native_image, native_int, native_len, native_line,
         native_counter_at, native_counter_display, native_counter_final, native_counter_step, native_curve, native_eval, native_here, native_locate, native_lower, native_lorem, native_luma, native_measure, native_metadata, native_move, native_pad, native_pagebreak, native_place, native_polygon, native_query, native_regex, native_state, native_state_at, native_state_display, native_state_final, native_state_update, native_state_update_with,
-        native_asset, native_cmyk, native_colbreak, native_columns, native_document, native_hsl, native_hsv, native_linear_rgb, native_oklab, native_oklch, native_op, native_panic, native_quote, native_range, native_rect, native_repeat, native_replace, native_raw, native_rgb, native_rotate,
+        native_asset, native_cmyk, native_colbreak, native_columns, native_document, native_hsl, native_hsv, native_linear_rgb, native_oklab, native_oklch, native_op, native_panic, native_quote, native_range, native_rect, native_repeat, native_replace, native_raw, native_repr, native_rgb, native_rotate,
         native_square, native_tiling,
         native_scale, native_skew, native_smallcaps, native_smartquote, native_stack, native_str, native_strike, native_stroke, native_strong, native_table, native_table_cell, native_table_footer, native_table_header, native_grid_cell, native_grid_footer, native_grid_header, native_terms, native_type, native_underline, native_underover, native_overline, native_upper, native_v,
         // P311b.3 — math style funcs.
@@ -675,6 +676,7 @@ fn make_stdlib() -> Scope {
     };
     let mut scope = Scope::new();
     scope.define("type",    Value::Func(Func::native("type",    native_type)));
+    scope.define("repr",    Value::Func(Func::native("repr",    native_repr)));
     scope.define("len",     Value::Func(Func::native("len",     native_len)));
     scope.define("range",   Value::Func(Func::native("range",   native_range)));
     scope.define("rgb",        Value::Func(Func::native("rgb",        native_rgb)));

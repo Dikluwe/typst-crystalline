@@ -1,5 +1,5 @@
 # Prompt L0 — `stdlib/foundations` — utilitários gerais, cores, state/counter display
-Hash do Código: aa9e1531
+Hash do Código: bb7771d5
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/rules/stdlib/foundations.rs`
@@ -79,6 +79,33 @@ counter_display([Int(1)]) → Err;  counter_display([Str("k"),Int(1)]) → Err; 
 ```
 
 ---
+
+## P421 (M) — `repr()` completo
+
+**Nota de classificação**: a sonda A.0 revelou que `native_repr` não existia no
+substrato; o passo foi reclassificado de S para M por exigir criação da
+infraestrutura `repr()` do zero.
+
+### Decisões arquiteturais
+
+- **Paridade linguagem (ADR-0107)**: `repr(v)` produz string reconhecível, não
+  necessariamente round-trip. Aspas, escaping e ordem de fields são mecânica
+  livre.
+- **Atomização forma B (ADR-0109)**: a lógica vive em free functions na camada
+  de eval/foundations (`repr_value`, `repr_content`, `repr_selector`); nenhum
+  método é adicionado a `Value`, `Content` ou `Selector`.
+- **Exaustividade**: `match` sobre todos os variants de `Value`, `Content` e
+  `Selector`; variants complexos (`Func`, `Module`, `Dyn`, tipos internos de
+  layout) usam representação scope-out (`"function"`, `"module"`, nome do tipo).
+- **Infraestrutura**: `native_repr` expõe a função Typst `repr(v)`.
+
+### Scope-out P421
+
+- Round-trip perfeito (`eval(repr(x)) == x`).
+- Representação completa de closures (`Func`), exports de módulo (`Module`) e
+  valores dinâmicos opacos (`Dyn`).
+- Tipos internos de layout (`FrameItem`, `Region`, etc.).
+- Campos com valores default podem ser omitidos.
 
 ## Critérios de Verificação (utilitários + cores)
 

@@ -5454,4 +5454,48 @@ mod tests {
         let err = result.unwrap_err();
         assert!(err[0].message.contains("failed to parse CSL style"), "{}", err[0].message);
     }
+
+    // ── P421 — E2E repr() ───────────────────────────────────────────────────
+
+    fn p421_eval_plain_text(world: &MockWorld) -> String {
+        let module = eval_for_test(world, &world.source).unwrap();
+        module.content().unwrap().plain_text()
+    }
+
+    #[test]
+    fn p421_repr_int() {
+        let world = MockWorld::new("#repr(1)");
+        assert_eq!(p421_eval_plain_text(&world), "1");
+    }
+
+    #[test]
+    fn p421_repr_float() {
+        let world = MockWorld::new("#repr(1.0)");
+        assert_eq!(p421_eval_plain_text(&world), "1.0");
+    }
+
+    #[test]
+    fn p421_repr_str() {
+        let world = MockWorld::new("#repr(\"hello\")");
+        assert_eq!(p421_eval_plain_text(&world), "\"hello\"");
+    }
+
+    #[test]
+    fn p421_repr_sequence() {
+        let world = MockWorld::new("#repr([hello world])");
+        assert_eq!(p421_eval_plain_text(&world), "\"hello world\"");
+    }
+
+    #[test]
+    fn p421_repr_cite() {
+        let world = MockWorld::new("#repr(cite(\"key\"))");
+        assert_eq!(p421_eval_plain_text(&world), "cite(<key>)");
+    }
+
+    #[test]
+    fn p421_repr_bibliography() {
+        let mut world = MockWorld::new("#repr(bibliography(\"refs.bib\"))");
+        world.add_file("refs.bib", b"".to_vec());
+        assert_eq!(p421_eval_plain_text(&world), "bibliography(\"refs.bib\")");
+    }
 }
