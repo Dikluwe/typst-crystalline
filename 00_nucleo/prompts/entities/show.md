@@ -1,5 +1,5 @@
 # Prompt L0 — Entidade `ShowRule` (Passo 68-70; atualizado P352)
-Hash do Código: 8c9b7205
+Hash do Código: cad60b93
 
 ## Propósito
 
@@ -31,6 +31,15 @@ Selector de uma show rule. Variantes:
   nó casa `base` **e** o campo `field` existe **e** o seu valor é semanticamente
   igual a `value` (via igualdade de `Value`, ADR-0107). Sem vtable — lógica em
   free function na camada de render (`rules/show/where_match.rs`).
+- **P423** `And(Vec<Selector>)` / `Or(Vec<Selector>)` — combinadores de
+  selectors em show rules. Ex.: `heading.or(figure)`, `heading.and(figure)`.
+  Semântica: `And` casa se **todos** os sub-selectors casarem; `Or` casa se
+  **pelo menos um** sub-selector casar. Ambos são recursivos e de curto-circuito
+  esquerda-para-direita. O contraditório (`heading.and(figure)`) retorna
+  `false` sem erro. N-ário para paridade com `Selector::And(EcoVec)`/
+  `Selector::Or(EcoVec)` de query; methods encadeáveis (`a.or(b).or(c)`).
+  Sem vtable — lógica na free function `selector_matches` em
+  `rules/eval/rules.rs` (forma B, ADR-0109).
 
 ### `RuleId`
 
@@ -88,6 +97,11 @@ Triplo `(id, selector, transform)` armazenado no `EvalContext` durante a avalia�
   dinâmicos (`DynKind`) são scope-out. O matching delega a free function que
   consulta `Content::get_field(field)` e compara com `value` via igualdade
   semântica de `Value`.
+- **P423** `Selector::And`/`Or` aceitam sub-selectors de qualquer tipo suportado
+  (`NodeKind`, `DynKind`, `Where`, recursivamente `And`/`Or`). O matching é
+  recursivo e curto-circuito. `And` vazio retorna `false`; `Or` vazio retorna
+  `false`. Os combinadores viajam pela travessia de nós (`is_node_rule`) sse
+  todos os sub-selectors forem node-like.
 - `Transformation::Style` **não** consome o passe de show e **não** é válida para
   `Selector::Text` (show-set é sobre elementos, não sobre texto literal). Show-set
   **não** muta o estilo global na declaração — captura-o e transporta-o confinado.
@@ -129,11 +143,23 @@ acumulação; é paridade de erro.
 onde 2+ `func` same-kind **precisem** acumular com ordem exata, os casos viram testes de
 paridade contra o vanilla e A2/A3 entram nessa hora — não antes (ADR-0107/0108).
 
+## Tests obrigatórios
+
+- Construção estrutural de `Selector::And`/`Or`.
+- Eval de `heading.or(figure)` produz `Value::Selector(Or([Kind(Heading), Kind(Figure)]))`.
+- Eval de `heading.and(figure)` produz `Value::Selector(And([Kind(Heading), Kind(Figure)]))`.
+- `selector_matches` para `Or` positivo (heading casa, figure casa).
+- `selector_matches` para `And` positivo (`heading.where(level: 1).and(heading)` casa em heading nível 1).
+- `selector_matches` para `And` negativo/contraditório (`heading.and(figure)` não casa em nenhum nó).
+- E2E: `#show heading.or(figure): set text(red)` aplica a heading e figure, não a paragraph.
+- E2E: `#show heading.and(figure): set text(red)` não aplica a nada.
+
 ## Histórico de Revisões
 
 | Data | Motivo | Arquivos afetados |
 |------|--------|-------------------|
 | 2026-06-23 | P417 (M): +variant `Selector::Where { base, field, value }` para filtragem de show rules por campo de elemento. Integração com `Value::Selector`, parsing de `heading.where(level: 1)`, e matching via `Content::get_field`. | `show.rs`, `show.md`, `value.rs`, `selector.rs`, `selector.md`, `eval/closures.rs`, `eval/rules.rs`, `introspector.rs`, `stdlib/foundations.rs` |
+| 2026-06-23 | P423 (S-M): +variants `Selector::And(Vec<Selector>)`/`Or(Vec<Selector>)` e methods `.or()`/`.and()` em `Value::Selector`. Matching recursivo com curto-circuito em show rules; query já suporta And/Or (P209C). | `show.rs`, `show.md`, `eval/closures.rs`, `eval/rules.rs` |
 
 ## Layer
 

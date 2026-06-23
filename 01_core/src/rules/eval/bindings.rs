@@ -10,7 +10,7 @@
 //! conforme ADR-0037 (coesão por domínio). Assinaturas simplificadas no
 //! Passo 109 (ADR-0044) via `Engine<'_>`.
 
-use ecow::EcoString;
+use ecow::{EcoString, EcoVec};
 
 use crate::entities::ast::code::{LetBinding, LetBindingKind};
 use crate::entities::ast::expr::{Arg, Expr};
@@ -219,6 +219,77 @@ pub(super) fn eval_element_where<'a>(
         field,
         value: Box::new(value),
     }))
+}
+
+/// **P423 (S-M)** — Tenta avaliar `<selector>.or(other)` ou
+/// `<selector>.and(other)`.
+///
+/// Retorna `Ok(Some(Selector::Or(...)))` ou `Ok(Some(Selector::And(...)))`
+/// se o target avaliar para `Value::Selector` e houver exactamente um
+/// argumento posicional que também avalie para `Value::Selector`.
+/// Retorna `Ok(None)` se o target não for um selector (deixa o caller
+/// continuar com field access normal).
+/// Converte `Value::Func` nativo de elemento (heading, figure) ou
+/// `Value::Selector` num `Selector` de query. Retorna `None` se o valor não
+/// for convertível.
+fn value_to_query_selector(value: &Value) -> Option<Selector> {
+    match value {
+        Value::Selector(s) => Some(s.clone()),
+        Value::Func(f) => {
+            use crate::rules::stdlib::{
+                native_figure, native_heading,
+            };
+            use std::ptr::fn_addr_eq;
+            f.native_fn_addr().and_then(|addr| {
+                if fn_addr_eq(addr, native_heading as fn(_, _, _, _) -> _) {
+                    Some(Selector::Kind(ElementKind::Heading))
+                } else if fn_addr_eq(addr, native_figure as fn(_, _, _, _) -> _) {
+                    Some(Selector::Kind(ElementKind::Figure))
+                } else {
+                    None
+                }
+            })
+        }
+        _ => None,
+    }
+}
+
+pub(super) fn eval_selector_or_and<'a>(
+    target_expr: Expr<'_>,
+    method: &str,
+    args_node: crate::entities::ast::expr::Args<'a>,
+    scopes: &mut Scopes<'_>,
+    ctx: &mut EvalContext,
+    engine: &mut Engine<'_>,
+) -> SourceResult<Option<Selector>> {
+    let target = eval_expr(target_expr, scopes, ctx, engine)?;
+    let Some(base) = value_to_query_selector(&target) else {
+        return Ok(None);
+    };
+
+    let args = super::closures::eval_args(args_node, scopes, ctx, engine)?;
+    let other = args.items.into_iter().next().ok_or_else(|| {
+        vec![SourceDiagnostic::error(
+            args_node.span(),
+            format!("selector.{}() requer um argumento posicional", method),
+        )]
+    })?;
+    let Some(other_sel) = value_to_query_selector(&other) else {
+        return Err(vec![SourceDiagnostic::error(
+            args_node.span(),
+            format!(
+                "selector.{}() espera um selector, recebeu {}",
+                method,
+                other.type_name()
+            ),
+        )]);
+    };
+
+    match method {
+        "or" => Ok(Some(Selector::Or(EcoVec::from(vec![base, other_sel])))),
+        "and" => Ok(Some(Selector::And(EcoVec::from(vec![base, other_sel])))),
+        _ => Ok(None),
+    }
 }
 
 // ── Dispatcher arms: FieldAccess (Passo 96.2, ADR-0037 Regra 4) ───────────

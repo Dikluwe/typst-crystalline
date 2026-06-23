@@ -86,6 +86,21 @@ fn query_selector_to_show_selector(
                 "selector where com base não-Kind não suportado em show rule".to_string(),
             )]),
         },
+        // **P423 (S-M)** — combinadores And/Or convertidos recursivamente.
+        QuerySelector::And(sels) => {
+            let mut converted = Vec::with_capacity(sels.len());
+            for s in sels.iter() {
+                converted.push(query_selector_to_show_selector(s.clone(), span)?);
+            }
+            Ok(Selector::And(converted))
+        }
+        QuerySelector::Or(sels) => {
+            let mut converted = Vec::with_capacity(sels.len());
+            for s in sels.iter() {
+                converted.push(query_selector_to_show_selector(s.clone(), span)?);
+            }
+            Ok(Selector::Or(converted))
+        }
         _ => Err(vec![SourceDiagnostic::error(
             span,
             "selector não suportado em show rule".to_string(),
@@ -154,6 +169,10 @@ fn selector_matches(work: &Content, selector: &Selector) -> bool {
                     .map(|actual| values_eq_semantic(&actual, value.as_ref()))
                     .unwrap_or(false)
         }
+        // **P423 (S-M)** — combinadores And/Or com curto-circuito.
+        // And/Or vazios retornam `false` (Opção A fixada em P209C/P423).
+        Selector::And(sels) => !sels.is_empty() && sels.iter().all(|s| selector_matches(work, s)),
+        Selector::Or(sels) => !sels.is_empty() && sels.iter().any(|s| selector_matches(work, s)),
     }
 }
 
@@ -165,6 +184,21 @@ fn values_eq_semantic(actual: &Value, expected: &Value) -> bool {
         (Value::Int(a), Value::Float(b)) => (*a as f64) == *b,
         (Value::Float(a), Value::Int(b)) => *a == (*b as f64),
         (a, b) => a == b,
+    }
+}
+
+/// **P417/P423** — Verifica se um selector de show rule deve viajar pela
+/// travessia de nós (`map_content`). Recursivo para `Where` com base
+/// `NodeKind`/`DynKind`; P423 estende a `And`/`Or` (todos os sub-selectors
+/// devem ser node-like).
+fn is_node_rule(selector: &Selector) -> bool {
+    match selector {
+        Selector::NodeKind(_) | Selector::DynKind(_) => true,
+        Selector::Where { base, .. } => is_node_rule(base.as_ref()),
+        // **P423 (S-M)** — combinadores viajam pela travessia de nós sse
+        // todos os sub-selectors forem node-like.
+        Selector::And(sels) | Selector::Or(sels) => sels.iter().all(|s| is_node_rule(s)),
+        Selector::Text(_) | Selector::Regex(_) => false,
     }
 }
 
@@ -197,17 +231,6 @@ pub(crate) fn apply_show_rules(
     // Separar regras por tipo para travessias distintas. Lote F-3 inc-2: as
     // regras de **kind dinâmico** (`#show callout:`) viajam pela MESMA travessia
     // que as NodeKind — mesmo `apply_all`, mesma ordem, mesmo guard por `RuleId`.
-    /// **P417 (M)** — Verifica se um selector de show rule deve viajar pela
-    /// travessia de nós (`map_content`). Recursivo para `Where` com base
-    /// `NodeKind`/`DynKind`.
-    fn is_node_rule(selector: &Selector) -> bool {
-        match selector {
-            Selector::NodeKind(_) | Selector::DynKind(_) => true,
-            Selector::Where { base, .. } => is_node_rule(base.as_ref()),
-            Selector::Text(_) | Selector::Regex(_) => false,
-        }
-    }
-
     let has_node_rules = rules.iter().any(|r| is_node_rule(&r.selector));
 
     if has_node_rules {
@@ -1340,5 +1363,106 @@ mod tests {
     fn p417_extract_field_heading_inexistente() {
         let content = Content::heading(1, Content::text("X"));
         assert_eq!(content.get_field("inexistente"), None);
+    }
+
+    // ── P423 (S-M) — combinadores And/Or em show rules ──────────────────────
+
+    fn or_selector(a: Selector, b: Selector) -> Selector {
+        Selector::Or(vec![a, b])
+    }
+
+    fn and_selector(a: Selector, b: Selector) -> Selector {
+        Selector::And(vec![a, b])
+    }
+
+    #[test]
+    fn p423_matches_or_positivo_heading() {
+        let content = Content::heading(1, Content::text("T"));
+        let sel = or_selector(
+            Selector::NodeKind(NodeKind::Heading),
+            Selector::NodeKind(NodeKind::Figure),
+        );
+        assert!(selector_matches(&content, &sel));
+    }
+
+    #[test]
+    fn p423_matches_or_positivo_figure() {
+        let content = Content::figure(Content::text("F"), None, Some("image".to_string()), None);
+        let sel = or_selector(
+            Selector::NodeKind(NodeKind::Heading),
+            Selector::NodeKind(NodeKind::Figure),
+        );
+        assert!(selector_matches(&content, &sel));
+    }
+
+    #[test]
+    fn p423_matches_or_negativo_paragraph() {
+        let content = Content::text("par");
+        let sel = or_selector(
+            Selector::NodeKind(NodeKind::Heading),
+            Selector::NodeKind(NodeKind::Figure),
+        );
+        assert!(!selector_matches(&content, &sel));
+    }
+
+    #[test]
+    fn p423_matches_and_positivo_where_plus_kind() {
+        let content = Content::heading(1, Content::text("T"));
+        let sel = and_selector(
+            Selector::Where {
+                base: Box::new(Selector::NodeKind(NodeKind::Heading)),
+                field: "level".into(),
+                value: Box::new(Value::Int(1)),
+            },
+            Selector::NodeKind(NodeKind::Heading),
+        );
+        assert!(selector_matches(&content, &sel));
+    }
+
+    #[test]
+    fn p423_matches_and_negativo_contraditorio() {
+        let content = Content::heading(1, Content::text("T"));
+        let sel = and_selector(
+            Selector::NodeKind(NodeKind::Heading),
+            Selector::NodeKind(NodeKind::Figure),
+        );
+        assert!(!selector_matches(&content, &sel));
+    }
+
+    #[test]
+    fn p423_matches_and_vazio_false() {
+        let content = Content::heading(1, Content::text("T"));
+        let sel = Selector::And(vec![]);
+        assert!(!selector_matches(&content, &sel));
+    }
+
+    #[test]
+    fn p423_matches_or_vazio_false() {
+        let content = Content::heading(1, Content::text("T"));
+        let sel = Selector::Or(vec![]);
+        assert!(!selector_matches(&content, &sel));
+    }
+
+    #[test]
+    fn p423_is_node_rule_and_or_com_node_kinds() {
+        let sel = Selector::And(vec![
+            Selector::NodeKind(NodeKind::Heading),
+            Selector::NodeKind(NodeKind::Figure),
+        ]);
+        assert!(is_node_rule(&sel));
+        let sel = Selector::Or(vec![
+            Selector::NodeKind(NodeKind::Heading),
+            Selector::NodeKind(NodeKind::Figure),
+        ]);
+        assert!(is_node_rule(&sel));
+    }
+
+    #[test]
+    fn p423_is_node_rule_and_nao_node_rejeita() {
+        let sel = Selector::And(vec![
+            Selector::NodeKind(NodeKind::Heading),
+            Selector::Text("x".to_string()),
+        ]);
+        assert!(!is_node_rule(&sel));
     }
 }

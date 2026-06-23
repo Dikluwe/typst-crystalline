@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/entities/show.md
-//! @prompt-hash f1ac3860
+//! @prompt-hash 07f7e3b0
 //! @layer L1
 //! @updated 2026-04-19
 
@@ -53,6 +53,12 @@ pub enum Selector {
     /// `value` valor esperado (`Box<Value>` para quebrar recursão
     /// `Selector` ↔ `Value`). Sem vtable/closure (ADR-0109 forma B).
     Where { base: Box<Selector>, field: EcoString, value: Box<Value> },
+    /// **P423 (S-M)** — Composição N-ária: todos os sub-selectors devem
+    /// casar (conjunção). Vazio retorna `false`.
+    And(Vec<Selector>),
+    /// **P423 (S-M)** — Composição N-ária: pelo menos um sub-selector deve
+    /// casar (disjunção). Vazio retorna `false`.
+    Or(Vec<Selector>),
 }
 
 /// A transformação que uma show rule aplica. Materializa o **S5** do spike-2

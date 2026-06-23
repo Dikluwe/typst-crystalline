@@ -252,6 +252,25 @@ pub(super) fn eval_func_call(
         }
     }
 
+    // **P423 (S-M)** — Intercepção de `selector.or(other)` e
+    // `selector.and(other)` antes de avaliar o callee genérico. O target e o
+    // argumento devem avaliar para `Value::Selector`.
+    if let Expr::FieldAccess(access) = call.callee() {
+        let method = access.field().as_str();
+        if method == "or" || method == "and" {
+            if let Some(selector) = bindings::eval_selector_or_and(
+                access.target(),
+                method,
+                call.args(),
+                scopes,
+                ctx,
+                engine,
+            )? {
+                return Ok(Value::Selector(selector));
+            }
+        }
+    }
+
     // Intercepção de `outline()` — produz Content::Outline (Passo 61).
     if let Expr::Ident(ident) = call.callee() {
         if ident.as_str() == "outline" {

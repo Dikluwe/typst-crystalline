@@ -4374,6 +4374,114 @@ mod tests {
         }
     }
 
+    // ── P423 (S-M) — combinadores And/Or em show rules ──────────────────────
+
+    #[test]
+    fn p423_selector_or_retorna_selector() {
+        let world = MockWorld::new("#let s = heading.or(figure)");
+        let src = world.source(world.main()).unwrap();
+        let module = eval_for_test(&world, &src).unwrap();
+        let s = module.scope().get("s").expect("s deve estar definido");
+        assert!(
+            matches!(s, Value::Selector(_)),
+            "heading.or(figure) deve retornar Value::Selector, recebeu {:?}",
+            s.type_name()
+        );
+    }
+
+    #[test]
+    fn p423_selector_and_retorna_selector() {
+        let world = MockWorld::new("#let s = heading.and(figure)");
+        let src = world.source(world.main()).unwrap();
+        let module = eval_for_test(&world, &src).unwrap();
+        let s = module.scope().get("s").expect("s deve estar definido");
+        assert!(
+            matches!(s, Value::Selector(_)),
+            "heading.and(figure) deve retornar Value::Selector, recebeu {:?}",
+            s.type_name()
+        );
+    }
+
+    #[test]
+    fn p423_show_rule_or_aplica_a_heading() {
+        let world = MockWorld::new(
+            "#show heading.or(figure): it => [OR: ] + it.body\n\n= T"
+        );
+        let src = world.source(world.main()).unwrap();
+        let module = eval_for_test(&world, &src).unwrap();
+        let text = module.content().unwrap().plain_text();
+        assert!(
+            text.contains("OR: T"),
+            "show rule or deve aplicar-se a heading: {:?}",
+            text
+        );
+    }
+
+    #[test]
+    fn p423_show_rule_or_aplica_a_figure() {
+        let world = MockWorld::new(
+            "#show heading.or(figure): it => [OR: ] + it.body\n\n#figure([F])"
+        );
+        let src = world.source(world.main()).unwrap();
+        let module = eval_for_test(&world, &src).unwrap();
+        let text = module.content().unwrap().plain_text();
+        assert!(
+            text.contains("OR: F"),
+            "show rule or deve aplicar-se a figure: {:?}",
+            text
+        );
+    }
+
+    #[test]
+    fn p423_show_rule_or_nao_aplica_a_paragraph() {
+        let world = MockWorld::new(
+            "#show heading.or(figure): it => [OR: ] + it.body\n\ntexto normal"
+        );
+        let src = world.source(world.main()).unwrap();
+        let module = eval_for_test(&world, &src).unwrap();
+        let text = module.content().unwrap().plain_text();
+        assert!(
+            !text.contains("OR: texto normal"),
+            "show rule or não deve aplicar-se a paragraph: {:?}",
+            text
+        );
+    }
+
+    #[test]
+    fn p423_show_rule_and_contraditorio_nao_aplica() {
+        let world = MockWorld::new(
+            "#show heading.and(figure): it => [AND: ] + it.body\n\n= T"
+        );
+        let src = world.source(world.main()).unwrap();
+        let module = eval_for_test(&world, &src).unwrap();
+        let text = module.content().unwrap().plain_text();
+        assert!(
+            !text.contains("AND: T"),
+            "show rule and contraditório não deve aplicar-se a heading: {:?}",
+            text
+        );
+    }
+
+    #[test]
+    fn p423_show_rule_and_positivo_where_com_kind() {
+        let world = MockWorld::new(
+            "#show heading.where(level: 1).and(heading): it => [AND: ] + it.body\n\n= T\n\n== D"
+        );
+        let src = world.source(world.main()).unwrap();
+        let module = eval_for_test(&world, &src).unwrap();
+        let text = module.content().unwrap().plain_text();
+        assert!(
+            text.contains("AND: T"),
+            "show rule and where+kind deve aplicar-se a heading level 1: {:?}",
+            text
+        );
+        assert!(
+            !text.contains("AND: D"),
+            "show rule and where+kind não deve aplicar-se a heading level 2: {:?}",
+            text
+        );
+    }
+
     // ── P393 — show rules regex (`#show regex(pattern): …`) ─────────────────
 
     #[test]
