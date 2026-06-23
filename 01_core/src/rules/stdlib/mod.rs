@@ -8719,6 +8719,83 @@ mod tests {
     }
 
     #[test]
+    fn native_bibliography_path_bib_carrega_entries() {
+        null_ctx!(ctx);
+        let mut world = null_world();
+        world.files.insert(
+            "refs.bib".into(),
+            std::sync::Arc::new(
+                b"@article{smith2024, author = {Smith, J.}, title = {On Crystal Math}, year = {2024}}"
+                    .to_vec(),
+            ),
+        );
+        let args = p(vec![Value::Str("refs.bib".into())]);
+        let r = native_bibliography(&mut ctx, &args, &world, test_file_id()).unwrap();
+        if let Value::Content(Content::Bibliography(e)) = r {
+            assert_eq!(e.entries.len(), 1);
+            assert_eq!(e.entries[0].key, "smith2024");
+            assert_eq!(e.path.as_deref(), Some("refs.bib"));
+        } else {
+            panic!("esperado Content::Bibliography");
+        }
+    }
+
+    #[test]
+    fn native_bibliography_path_yaml_carrega_entries() {
+        null_ctx!(ctx);
+        let mut world = null_world();
+        world.files.insert(
+            "refs.yaml".into(),
+            std::sync::Arc::new(
+                b"smith2024:\n  type: article\n  author: Smith, J.\n  title: On Crystal Math\n  year: 2024"
+                    .to_vec(),
+            ),
+        );
+        let args = p(vec![Value::Str("refs.yaml".into())]);
+        let r = native_bibliography(&mut ctx, &args, &world, test_file_id()).unwrap();
+        if let Value::Content(Content::Bibliography(e)) = r {
+            assert_eq!(e.entries.len(), 1);
+            assert_eq!(e.entries[0].key, "smith2024");
+        } else {
+            panic!("esperado Content::Bibliography");
+        }
+    }
+
+    #[test]
+    fn native_bibliography_path_nao_encontrado_erro() {
+        null_ctx!(ctx);
+        let args = p(vec![Value::Str("inexistente.bib".into())]);
+        let r = native_bibliography(&mut ctx, &args, &null_world(), test_file_id());
+        assert!(r.is_err(), "path inexistente deve retornar erro");
+        let msg = r.unwrap_err()[0].message.clone();
+        assert!(msg.contains("não encontrado") || msg.contains("not found"), "{msg}");
+    }
+
+    #[test]
+    fn native_bibliography_path_e_style_preservam() {
+        null_ctx!(ctx);
+        let mut world = null_world();
+        world.files.insert(
+            "refs.bib".into(),
+            std::sync::Arc::new(
+                b"@article{smith2024, author = {Smith, J.}, title = {T}, year = {2024}}"
+                    .to_vec(),
+            ),
+        );
+        let mut args = p(vec![Value::Str("refs.bib".into())]);
+        args.named.insert("style".into(), Value::Str("ieee".into()));
+        args.named.insert("locale".into(), Value::Str("en-US".into()));
+        let r = native_bibliography(&mut ctx, &args, &world, test_file_id()).unwrap();
+        if let Value::Content(Content::Bibliography(e)) = r {
+            assert_eq!(e.path.as_deref(), Some("refs.bib"));
+            assert_eq!(e.style.as_deref(), Some("ieee"));
+            assert_eq!(e.locale.as_deref(), Some("en-US"));
+        } else {
+            panic!("esperado Content::Bibliography");
+        }
+    }
+
+    #[test]
     fn native_cite_so_key_posicional() {
         null_ctx!(ctx);
         let r = native_cite(

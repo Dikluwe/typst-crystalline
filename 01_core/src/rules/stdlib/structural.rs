@@ -9,6 +9,8 @@
 //! Funções nativas estruturais (strong, emph, raw, heading).
 //! Extraído de `stdlib.rs` no Passo 96.5 conforme ADR-0037.
 
+use std::sync::Arc;
+
 use crate::entities::file_id::FileId;
 use ecow::EcoString;
 
@@ -16,6 +18,7 @@ use super::expect_no_named;
 
 use crate::entities::args::Args;
 use crate::entities::content::Content;
+use crate::entities::elements::bibliography::BibliographyElem;
 use crate::entities::source_result::{SourceDiagnostic, SourceResult};
 use crate::entities::span::Span;
 use crate::entities::value::Value;
@@ -1103,11 +1106,14 @@ fn extract_bib_entries(
 ///
 /// **P418** — input cristalino continua literal; quando `style` é
 /// fornecido, o layout pode usar hayagriva/citationberg para CSL.
+///
+/// **P419** — input via path (`#bibliography("refs.bib")`) carrega
+/// `.bib`/`.yaml`/`.json` de disco via `World::read_bytes` + hayagriva.
 pub fn native_bibliography(
     _ctx: &mut EvalContext,
     args: &Args,
-    _world: &dyn crate::contracts::world::World,
-    _current_file: FileId,
+    world: &dyn crate::contracts::world::World,
+    current_file: FileId,
 ) -> SourceResult<Value> {
     // Validar named args.
     for key in args.named.keys() {
@@ -1119,12 +1125,22 @@ pub fn native_bibliography(
         }
     }
 
-    // entries: pode ser posicional (primeiro item) ou named.
-    let entries = if let Some(named) = args.named.get("entries") {
-        extract_bib_entries(Some(named))?
+    // P419: primeiro arg posicional pode ser path (Str) ou entries (Array/Dict).
+    let (entries, path) = if let Some(named) = args.named.get("entries") {
+        (extract_bib_entries(Some(named))?, None)
+    } else if let Some(first) = args.items.first() {
+        match first {
+            Value::Str(s) => {
+                let path = s.as_str();
+                let loaded = crate::rules::eval::bibliography::load_bib_entries_from_path(
+                    world, current_file, path,
+                )?;
+                (loaded, Some(s.clone()))
+            }
+            _ => (extract_bib_entries(Some(first))?, None),
+        }
     } else {
-        // Tenta posicional.
-        extract_bib_entries(args.items.first())?
+        (Vec::new(), None)
     };
 
     // title: named opcional.
@@ -1147,7 +1163,15 @@ pub fn native_bibliography(
         _ => None,
     });
 
-    Ok(Value::Content(Content::bibliography_with_style(entries, title, style, locale)))
+    Ok(Value::Content(Content::Bibliography(Arc::new(
+        crate::entities::elements::bibliography::BibliographyElem {
+            entries,
+            path,
+            title,
+            style,
+            locale,
+        },
+    ))))
 }
 
 /// `cite(key, supplement: ?, form: ?)` → `Content::Cite`.

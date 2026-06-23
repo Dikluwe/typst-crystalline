@@ -1622,6 +1622,7 @@ impl Content {
     ) -> Self {
         Self::Bibliography(Arc::new(BibliographyElem {
             entries,
+            path: None,
             title,
             style: None,
             locale: None,
@@ -1635,7 +1636,29 @@ impl Content {
         style: Option<EcoString>,
         locale: Option<EcoString>,
     ) -> Self {
-        Self::Bibliography(Arc::new(BibliographyElem { entries, title, style, locale }))
+        Self::Bibliography(Arc::new(BibliographyElem {
+            entries,
+            path: None,
+            title,
+            style,
+            locale,
+        }))
+    }
+
+    /// **P419** — `bibliography(path, title, style, locale)` carregado de disco.
+    pub fn bibliography_from_path(
+        path: impl Into<EcoString>,
+        title: Option<Content>,
+        style: Option<EcoString>,
+        locale: Option<EcoString>,
+    ) -> Self {
+        Self::Bibliography(Arc::new(BibliographyElem {
+            entries: Vec::new(),
+            path: Some(path.into()),
+            title,
+            style,
+            locale,
+        }))
     }
 
     /// `cite(key, supplement, form)` — Passo 159A (par acoplado com
@@ -5465,6 +5488,24 @@ mod tests {
             None,
         );
         assert_ne!(a, b);
+    }
+
+    #[test]
+    fn bibliography_from_path_preserva_path_e_style() {
+        let b = Content::bibliography_from_path(
+            "refs.bib",
+            Some(Content::text("R")),
+            Some("ieee".into()),
+            Some("en-US".into()),
+        );
+        if let Content::Bibliography(e) = &b {
+            assert_eq!(e.path.as_deref(), Some("refs.bib"));
+            assert!(e.entries.is_empty());
+            assert_eq!(e.style.as_deref(), Some("ieee"));
+            assert_eq!(e.locale.as_deref(), Some("en-US"));
+        } else {
+            panic!("esperado Bibliography");
+        }
     }
 
     #[test]

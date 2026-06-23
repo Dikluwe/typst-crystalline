@@ -1,5 +1,5 @@
 # Prompt L0 — rules/eval
-Hash do Código: bbdca83d
+Hash do Código: 3a971209
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/rules/eval.rs`

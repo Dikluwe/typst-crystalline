@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/entities/elements/bibliography.md
-//! @prompt-hash 3425eb7c
+//! @prompt-hash 8449d35e
 //! @layer L1
 //! @updated 2026-06-11
 //!
@@ -22,6 +22,9 @@ use crate::entities::source_result::SourceResult;
 #[derive(Debug, Clone, PartialEq, Hash)]
 pub struct BibliographyElem {
     pub entries: Vec<BibEntry>,
+    /// **P419** — Path do ficheiro `.bib`/`.yaml`/`.json`. Quando `Some`, as
+    /// `entries` são carregadas em eval time a partir deste path.
+    pub path: Option<EcoString>,
     pub title: Option<Content>,
     /// **P418** — CSL style: nome built-in (ex: `"ieee"`, `"apa"`) ou path `.csl`.
     pub style: Option<EcoString>,
@@ -56,6 +59,7 @@ impl Element for BibliographyElem {
     {
         Ok(Content::Bibliography(Arc::new(BibliographyElem {
             entries: self.entries.clone(),
+            path: self.path.clone(),
             title: self.title.as_ref().map(|t| t.map_content(transform)).transpose()?,
             style: self.style.clone(),
             locale: self.locale.clone(),
@@ -68,6 +72,7 @@ impl Element for BibliographyElem {
     {
         Content::Bibliography(Arc::new(BibliographyElem {
             entries: self.entries.clone(),
+            path: self.path.clone(),
             title: self.title.as_ref().map(|t| t.map_text(transform)),
             style: self.style.clone(),
             locale: self.locale.clone(),
@@ -96,6 +101,7 @@ mod tests {
     fn ex() -> BibliographyElem {
         BibliographyElem {
             entries: vec![entry()],
+            path: None,
             title: None,
             style: None,
             locale: None,
@@ -112,6 +118,7 @@ mod tests {
         assert!(!ex().is_empty());
         assert!(BibliographyElem {
             entries: vec![],
+            path: None,
             title: None,
             style: None,
             locale: None
@@ -119,6 +126,7 @@ mod tests {
         .is_empty());
         assert!(!BibliographyElem {
             entries: vec![],
+            path: None,
             title: Some(Content::text("Refs")),
             style: None,
             locale: None
@@ -130,6 +138,7 @@ mod tests {
     fn map_content_recurse_title_preserva_entries() {
         let b = BibliographyElem {
             entries: vec![entry()],
+            path: None,
             title: Some(Content::text("a")),
             style: None,
             locale: None,
@@ -172,6 +181,7 @@ mod tests {
             h(&ex()),
             h(&BibliographyElem {
                 entries: vec![],
+                path: None,
                 title: None,
                 style: None,
                 locale: None
@@ -183,18 +193,21 @@ mod tests {
     fn style_e_locale_participam_de_eq_e_hash() {
         let a = BibliographyElem {
             entries: vec![],
+            path: None,
             title: None,
             style: Some("ieee".into()),
             locale: None,
         };
         let b = BibliographyElem {
             entries: vec![],
+            path: None,
             title: None,
             style: Some("apa".into()),
             locale: None,
         };
         let c = BibliographyElem {
             entries: vec![],
+            path: None,
             title: None,
             style: Some("ieee".into()),
             locale: Some("en-US".into()),

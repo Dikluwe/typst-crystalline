@@ -54,6 +54,7 @@ mod bindings;
 pub(crate) mod rules;
 mod markup;
 mod modules;
+pub(crate) mod bibliography;
 
 /// Contexto de execução partilhado durante eval().
 ///
