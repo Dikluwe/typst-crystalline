@@ -54,6 +54,29 @@ O código original do compilador está em `lab/typst-original/` (quarentena). A 
 | L4 | `04_wiring/` | Composição. Conhece L1, L2, L3. Zero lógica de negócio. |
 | lab | `lab/` | Quarentena. Nunca importado por L1–L4. |
 
+---
+
+## Organização das pastas de `00_nucleo`
+
+`00_nucleo/` contém **documentação de processo** e **prompts arquiteturais**. A separação é rígida:
+
+| Pasta | Propósito | Exemplo |
+|-------|-----------|---------|
+| `adr/` | Decisões arquiteturais formais (ADRs). | `adr/ADR-0109.md` |
+| `context/` | Materialização sequencial — **não ler sem path explícito**. | `context/passo-146.md` |
+| `diagnosticos/` | Análises, inventários, varreduras, métricas e documentos de estado. | `diagnosticos/typst-cobertura-vanilla-vs-cristalino.md` |
+| `debt-anexos/` | Anexos técnicos de débito arquitetural. | `debt-anexos/DEBT-001.md` |
+| `materialization/` | Rascunhos de materialização — **não ler sem path explícito**. | `materialization/passo-423.md` |
+| `prompts/` | **Prompts L0 vinculados a código L1–L4**. Especificações arquiteturais puras e perenes que legitimam código. | `prompts/rules/layout.md` |
+
+**Regra de organização:**
+
+- `prompts/` é reservado a especificações L0 que têm correspondência direta com código produzido nas camadas L1–L4.
+- `prompts/` **não** recebe documentos de processo, relatórios de varredura, análises de estado, métricas de saúde nem diagnósticos. Esses documentos ficam em `diagnosticos/`.
+- Se um documento descreve *o que deve ser implementado* e legitima código, ele é **prompt L0** e vai para `prompts/`.
+- Se um documento descreve *o que foi feito*, *como está o repositório*, *métricas* ou *estado atual*, ele é **diagnóstico** e vai para `diagnosticos/`.
+- Documentos de análise de estado (ex: `p426-analise-estado.md`) e varreduras mecânicas (ex: `p425-varredura-mecanica.md`) são diagnósticos, não prompts.
+
 ### Restrições absolutas do L1
 
 **Nunca:**

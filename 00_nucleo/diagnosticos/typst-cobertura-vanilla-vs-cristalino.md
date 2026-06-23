@@ -26,6 +26,11 @@
 > - Layout/Model: `document`, `asset`, `tiling`, `state`/`counter` display, `place` float, `Block`/`Boxed`/`Grid`/`Table` refinos.
 > - ADR-0113 canônica: stub transparente preferido a fallback software.
 
+> **Atualização organizacional (2026-06-23)** — reorganização das pastas de `00_nucleo/`:
+> - `p425-varredura-mecanica.md` e `p426-analise-estado.md` movidos de `00_nucleo/prompts/meta/` para `00_nucleo/diagnosticos/`.
+> - Regra canônica vigente: `00_nucleo/prompts/` destina-se exclusivamente a **prompts L0 vinculados a código L1–L4**; documentos de processo, varredura, análise de estado e inventários permanecem em `00_nucleo/diagnosticos/`.
+> - Nenhuma feature de utilizador nova; cobertura percentual permanece inalterada.
+
 ---
 
 ## Reformulação da pergunta
