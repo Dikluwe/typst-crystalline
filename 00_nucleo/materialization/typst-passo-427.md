@@ -135,52 +135,9 @@ B / b / f / S
 
 ---
 
-## 9. Relatório de Execução — P427
+## 9. Relatório de Execução
 
-**Data**: 2026-06-23
-**Executor**: assistente IA (Kimi Code CLI)
-**Branch**: `Tekt`
-
-**Sonda A.0 (ADR-0108)**:
-- `FrameItem::Shape` existe em `entities/layout_types.rs` ✅
-- `ShapeKind` tem `Rect`, `RoundedRect`, `Ellipse`, `Line`, `Path` ✅
-- PDF writer (`infra/export/stream.rs`) já consome `FrameItem::Shape` ✅
-- 5 `ShapeKind` já emitidos (Rect, RoundedRect, Ellipse, Line, Path) → reclassificação para **S (refino)** ✅
-- Paint (fill/stroke) já aplicado via `rg`/`RG` + operadores `B`/`b`/`f`/`S` ✅
-- Transform de shape aplicada via `FrameItem::Group` (P84.6) ✅
-
-**Decisão arquitetural**:
-- O materialization propunha Opção β (módulo `shape_emit.rs` separado), mas o L0 vigente `00_nucleo/prompts/infra/export/stream.md` explicitamente coloca shape primitives em `stream.rs` e adia subdivisão para “P-stream-decomp dedicado se justificado”.
-- Seguindo a Regra de Ouro do `CLAUDE.md`, **não se criou `shape_emit.rs`** sem atualizar o L0 correspondente. A funcionalidade permanece no `stream.rs` conforme prompt-hash `9acca994`.
-
-**Implementação**:
-- `03_infra/src/export/tests.rs`: adicionados 6 tests E2E de PDF para shapes:
-  - `p427_pdf_rect_fill_emite_operador_re_e_fill`
-  - `p427_pdf_rect_stroke_emite_rg_e_s`
-  - `p427_pdf_rect_fill_stroke_emite_b`
-  - `p427_pdf_ellipse_emite_bezier_e_fill`
-  - `p427_pdf_line_emite_m_l_s`
-  - `p427_pdf_polygon_path_emite_m_l_h_b`
-- Nenhuma alteração em código de produção (L1–L4) — a emissão já estava materializada.
-
-**Validação**:
-```bash
-cargo check -p typst-infra  # → ok (28 warnings preexistentes)
-cargo test -p typst-infra -- p427 --nocapture  # → 6 passed
-crystalline-lint .  # → 0 errors/drift; apenas V7 prompts órfãos preexistentes
-```
-
-**Scope-out / bloqueadores**:
-- Extração de shape emit para `infra/export/shape_emit.rs` — requer revisão/adição ao L0 `infra/export/stream.md`.
-- `ShapeKind::RoundedRect` como shape consumer direto — coberto indiretamente via clip_mask em `FrameItem::Group` (P242).
-- Gradient/pattern fill em shapes — scope-out (gradientes são emitidos via `emit_stroke_paint`, mas fill de shape com gradiente não foi testado).
-- Stroke dash/cap/join ricos — scope-out.
-
-**Notas epistêmicas**:
-- **ADR-0107**: paridade é com a linguagem (presença de retângulo/elipse/linha/polígono no PDF), não com a mecânica de path/bezier. A mecânica de aproximação por Bézier para elipse é aceitável.
-- **ADR-0108**: sonda confirmou que >3 `ShapeKind` já eram emitidos antes de qualquer alteração.
-- **ADR-0109**: não aplicável neste passo (nenhuma refatoração de código realizada); manutenção da forma B existente preservada.
-- **Honestidade**: P427 estava parcialmente “já feito” no código; o valor agregado foi a cobertura de testes E2E e a documentação da reclassificação.
+Ver `typst-passo-427-relatorio.md`.
 
 ---
 
