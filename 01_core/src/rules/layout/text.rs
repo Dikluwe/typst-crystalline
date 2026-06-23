@@ -67,7 +67,8 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
                 match v {
                     // Forma P292/P373: string literal, variants vazio.
                     Value::Str(s) => Some(FontFamily::new(s.clone())),
-                    // Forma P407: dict com name (Str|Regex) + variants (Array[Str]).
+                    // Forma P407/P414: dict com name (Str|Regex) + variants
+                    // (Array[Str]) e campos named optionais variant/weight/style.
                     Value::Dict(dict) => {
                         let name = dict.get("name")?;
                         let pattern = match name {
@@ -84,9 +85,18 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
                                 .collect(),
                             _ => return None,
                         };
+                        let variant = dict.get("variant")
+                            .and_then(|v| if let Value::Str(s) = v { Some(s.clone()) } else { None });
+                        let weight = dict.get("weight")
+                            .and_then(|v| if let Value::Str(s) = v { Some(s.clone()) } else { None });
+                        let style = dict.get("style")
+                            .and_then(|v| if let Value::Str(s) = v { Some(s.clone()) } else { None });
                         Some(FontFamily {
                             name: pattern,
                             variants,
+                            variant,
+                            weight,
+                            style,
                             covers: None,
                         })
                     }

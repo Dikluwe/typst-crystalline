@@ -72,6 +72,13 @@ pub struct FontFamily {
     /// Uso concreto (variant-aware selection) é scope-out
     /// (ADR-0054bis condicional); o campo é transportado intacto.
     pub variants: Vec<EcoString>,
+    /// Variant name para seleção variant-aware (transportado,
+    /// scope-out ADR-0054bis).
+    pub variant: Option<EcoString>,
+    /// Peso tipográfico (transportado, scope-out ADR-0054bis).
+    pub weight: Option<EcoString>,
+    /// Estilo tipográfico (transportado, scope-out ADR-0054bis).
+    pub style: Option<EcoString>,
     /// Coverage filter. Sempre `None` neste passo (`Covers`
     /// inabitado).
     pub covers: Option<Covers>,
@@ -89,6 +96,9 @@ impl FontFamily {
         Self {
             name: FontNamePattern::Literal(name.to_lowercase().into()),
             variants,
+            variant: None,
+            weight: None,
+            style: None,
             covers: None,
         }
     }
@@ -98,6 +108,27 @@ impl FontFamily {
         Self {
             name: FontNamePattern::Regex(regex),
             variants,
+            variant: None,
+            weight: None,
+            style: None,
+            covers: None,
+        }
+    }
+
+    /// Constrói família a partir de campos nomeados (dict form vanilla).
+    pub fn new_named(
+        name: FontNamePattern,
+        variants: Vec<EcoString>,
+        variant: Option<EcoString>,
+        weight: Option<EcoString>,
+        style: Option<EcoString>,
+    ) -> Self {
+        Self {
+            name,
+            variants,
+            variant,
+            weight,
+            style,
             covers: None,
         }
     }

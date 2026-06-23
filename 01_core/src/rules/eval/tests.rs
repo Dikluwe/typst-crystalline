@@ -2825,6 +2825,132 @@ mod tests {
         assert!(result.is_err(), "dict value int deve erro");
     }
 
+    // ── Passo 414 — `text.font` dict named fields ────────────────────────────
+
+    #[test]
+    fn eval_set_text_font_dict_named_family_str_passo_414() {
+        use crate::entities::value::Value;
+        use ecow::EcoString;
+        let c = eval_doc("#set text(font: (family: \"Arial\"))\nX");
+        let font_val = find_custom_in_styled(&c, "text.font").expect("text.font deve existir");
+        let arr = font_val.cast_array().expect("text.font deve ser array");
+        assert_eq!(arr.len(), 1);
+        let dict = arr[0].cast_dict().expect("item deve ser dict");
+        assert_eq!(dict.get("name"), Some(&Value::Str(EcoString::from("Arial"))));
+        assert_eq!(dict.get("variant"), None);
+        assert_eq!(dict.get("weight"), None);
+        assert_eq!(dict.get("style"), None);
+    }
+
+    #[test]
+    fn eval_set_text_font_dict_named_family_regex_passo_414() {
+        use crate::entities::value::Value;
+        let c = eval_doc("#set text(font: (family: regex(\"Ar.*\")))\nX");
+        let font_val = find_custom_in_styled(&c, "text.font").expect("text.font deve existir");
+        let arr = font_val.cast_array().expect("text.font deve ser array");
+        let dict = arr[0].cast_dict().expect("item deve ser dict");
+        assert!(matches!(dict.get("name"), Some(Value::Regex(_))), "name deve ser regex");
+    }
+
+    #[test]
+    fn eval_set_text_font_dict_named_variant_passo_414() {
+        use crate::entities::value::Value;
+        use ecow::EcoString;
+        let c = eval_doc("#set text(font: (family: \"Arial\", variant: \"bold\"))\nX");
+        let font_val = find_custom_in_styled(&c, "text.font").expect("text.font deve existir");
+        let arr = font_val.cast_array().expect("text.font deve ser array");
+        let dict = arr[0].cast_dict().expect("item deve ser dict");
+        assert_eq!(dict.get("variant"), Some(&Value::Str(EcoString::from("bold"))));
+    }
+
+    #[test]
+    fn eval_set_text_font_dict_named_weight_int_passo_414() {
+        use crate::entities::value::Value;
+        use ecow::EcoString;
+        let c = eval_doc("#set text(font: (family: \"Arial\", weight: 700))\nX");
+        let font_val = find_custom_in_styled(&c, "text.font").expect("text.font deve existir");
+        let arr = font_val.cast_array().expect("text.font deve ser array");
+        let dict = arr[0].cast_dict().expect("item deve ser dict");
+        assert_eq!(dict.get("weight"), Some(&Value::Str(EcoString::from("700"))));
+    }
+
+    #[test]
+    fn eval_set_text_font_dict_named_weight_str_passo_414() {
+        use crate::entities::value::Value;
+        use ecow::EcoString;
+        let c = eval_doc("#set text(font: (family: \"Arial\", weight: \"bold\"))\nX");
+        let font_val = find_custom_in_styled(&c, "text.font").expect("text.font deve existir");
+        let arr = font_val.cast_array().expect("text.font deve ser array");
+        let dict = arr[0].cast_dict().expect("item deve ser dict");
+        assert_eq!(dict.get("weight"), Some(&Value::Str(EcoString::from("bold"))));
+    }
+
+    #[test]
+    fn eval_set_text_font_dict_named_style_passo_414() {
+        use crate::entities::value::Value;
+        use ecow::EcoString;
+        let c = eval_doc("#set text(font: (family: \"Arial\", style: \"italic\"))\nX");
+        let font_val = find_custom_in_styled(&c, "text.font").expect("text.font deve existir");
+        let arr = font_val.cast_array().expect("text.font deve ser array");
+        let dict = arr[0].cast_dict().expect("item deve ser dict");
+        assert_eq!(dict.get("style"), Some(&Value::Str(EcoString::from("italic"))));
+    }
+
+    #[test]
+    fn eval_set_text_font_dict_named_full_passo_414() {
+        use crate::entities::value::Value;
+        use ecow::EcoString;
+        let c = eval_doc("#set text(font: (family: \"Arial\", variant: \"bold\", weight: 700, style: \"italic\", fallback: false))\nX");
+        let font_val = find_custom_in_styled(&c, "text.font").expect("text.font deve existir");
+        let arr = font_val.cast_array().expect("text.font deve ser array");
+        let dict = arr[0].cast_dict().expect("item deve ser dict");
+        assert_eq!(dict.get("name"), Some(&Value::Str(EcoString::from("Arial"))));
+        assert_eq!(dict.get("variant"), Some(&Value::Str(EcoString::from("bold"))));
+        assert_eq!(dict.get("weight"), Some(&Value::Str(EcoString::from("700"))));
+        assert_eq!(dict.get("style"), Some(&Value::Str(EcoString::from("italic"))));
+    }
+
+    #[test]
+    fn eval_set_text_font_dict_named_unknown_field_passo_414() {
+        let world = MockWorld::new("#set text(font: (family: \"Arial\", stretch: \"expanded\"))\nX");
+        let src = World::source(&world, World::main(&world)).unwrap();
+        let result = eval_for_test(&world, &src);
+        assert!(result.is_err(), "campo desconhecido deve erro");
+    }
+
+    #[test]
+    fn eval_set_text_font_dict_named_missing_family_passo_414() {
+        let world = MockWorld::new("#set text(font: (variant: \"bold\"))\nX");
+        let src = World::source(&world, World::main(&world)).unwrap();
+        let result = eval_for_test(&world, &src);
+        assert!(result.is_err(), "family ausente deve erro");
+    }
+
+    #[test]
+    fn eval_set_text_font_dict_named_invalid_family_type_passo_414() {
+        let world = MockWorld::new("#set text(font: (family: 123))\nX");
+        let src = World::source(&world, World::main(&world)).unwrap();
+        let result = eval_for_test(&world, &src);
+        assert!(result.is_err(), "family int deve erro");
+    }
+
+    #[test]
+    fn eval_set_text_font_dict_named_invalid_weight_type_passo_414() {
+        let world = MockWorld::new("#set text(font: (family: \"Arial\", weight: true))\nX");
+        let src = World::source(&world, World::main(&world)).unwrap();
+        let result = eval_for_test(&world, &src);
+        assert!(result.is_err(), "weight bool deve erro");
+    }
+
+    #[test]
+    fn eval_set_text_font_dict_named_fallback_bool_passo_414() {
+        use crate::entities::value::Value;
+        let c = eval_doc("#set text(font: (family: \"Arial\", fallback: false))\nX");
+        let font_val = find_custom_in_styled(&c, "text.font").expect("text.font deve existir");
+        let arr = font_val.cast_array().expect("text.font deve ser array");
+        assert_eq!(arr.len(), 1, "fallback:false mantém lista única");
+    }
+
     // ── Testes de Passo 34 — equações matemáticas ────────────────────────────
 
     #[test]
