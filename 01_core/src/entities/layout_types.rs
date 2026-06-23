@@ -265,10 +265,13 @@ pub enum FrameItem {
     },
     /// **P422** — Hiperligação. O body é renderizado normalmente; o URL é
     /// preservado como metadado para o consumer downstream (exportador PDF).
+    /// **P424** — adicionados `pos` e `size` para permitir annotation URI no PDF.
     /// Cor/sublinhado são scope-out (aguardam `FrameItem::Decoration`).
     Link {
         url:   EcoString,
         items: Vec<FrameItem>,
+        pos:   Point,
+        size:  Size,
     },
 }
 

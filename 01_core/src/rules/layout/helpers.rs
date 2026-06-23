@@ -51,12 +51,17 @@ pub(super) fn translate_frame_item(item: FrameItem, new_x: Pt, new_y: Pt) -> Fra
             FrameItem::Shape { pos: Point { x: new_x, y: new_y }, kind, width, height, fill, stroke, parent_bbox_at_emit },
         FrameItem::Group { matrix, clip_mask, inner_width, inner_height, items, .. } =>
             FrameItem::Group { pos: Point { x: new_x, y: new_y }, matrix, clip_mask, inner_width, inner_height, items },
-        FrameItem::Link { url, items } => {
+        FrameItem::Link { url, items, pos, size } => {
             let items = items.into_iter().map(|child| {
                 let (ix, iy) = item_pos(&child);
                 translate_frame_item(child, Pt(new_x.0 + ix), Pt(new_y.0 + iy))
             }).collect();
-            FrameItem::Link { url, items }
+            FrameItem::Link {
+                url,
+                items,
+                pos: Point { x: Pt(new_x.0 + pos.x.0), y: Pt(new_y.0 + pos.y.0) },
+                size,
+            }
         }
     }
 }

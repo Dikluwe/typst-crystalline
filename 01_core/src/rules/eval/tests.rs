@@ -5627,9 +5627,11 @@ mod tests {
         let content = module.content().unwrap();
         let doc = layout(content);
         let link = p422_find_first_link(&doc).expect("deve haver FrameItem::Link");
-        if let crate::entities::layout_types::FrameItem::Link { url, items } = link {
+        if let crate::entities::layout_types::FrameItem::Link { url, items, pos, size } = link {
             assert_eq!(url.as_str(), "https://example.com");
             assert!(!items.is_empty(), "body deve renderizar items");
+            assert!(size.width.0 > 0.0 && size.height.0 > 0.0, "link deve ter bbox positiva");
+            assert!(pos.x.0 >= 0.0 && pos.y.0 >= 0.0, "link deve ter posição não-negativa");
             let plain = doc.plain_text();
             assert!(plain.contains("Clique"), "texto do body deve aparecer: {plain}");
         } else {
@@ -5644,9 +5646,11 @@ mod tests {
         let content = module.content().unwrap();
         let doc = layout(content);
         let link = p422_find_first_link(&doc).expect("deve haver FrameItem::Link");
-        if let crate::entities::layout_types::FrameItem::Link { url, items } = link {
+        if let crate::entities::layout_types::FrameItem::Link { url, items, pos, size } = link {
             assert_eq!(url.as_str(), "https://example.com");
             assert!(!items.is_empty(), "body implícito (URL) deve renderizar items");
+            assert!(size.width.0 > 0.0 && size.height.0 > 0.0, "link implícito deve ter bbox positiva");
+            assert!(pos.x.0 >= 0.0 && pos.y.0 >= 0.0, "link implícito deve ter posição não-negativa");
         } else {
             panic!("esperado FrameItem::Link");
         }

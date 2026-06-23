@@ -1,5 +1,5 @@
 # Prompt L0 — `infra/export/builder` — PdfBuilder
-Hash do Código: f9822816
+Hash do Código: 9d76cf4b
 
 **Camada**: L3
 **Ficheiro alvo**: `03_infra/src/export/builder.rs`
@@ -50,14 +50,36 @@ Ordem canónica para todos os caminhos:
 5. Font objects (3 para Helvetica, 5 para CIDFont, 5*N para multifont)
 6. Image XObjects (1 ou 2 cada — RGB + opcional SMask)
 7. Gradient objects (3 cada — Function + Shading + Pattern) + sub-Function IDs
+8. Link annotations (`/Type /Annot /Subtype /Link`) — alocados dinamicamente
+   após todos os recursos, referenciados pelo `/Annots` de cada página.
 
-Alocação dependente: gradients vêm após imagens; sub-Functions vêm após gradients.
+Alocação dependente: gradients vêm após imagens; sub-Functions vêm após gradients;
+annotations vêm após gradients.
 
 ## Critérios de verificação
 
 - `PdfBuilder::new().build(doc, None)` produz PDF Helvetica para doc qualquer.
 - `PdfBuilder::new().build(doc, Some(data))` produz PDF CIDFont se `data` parser TTF/OTF; senão fallback Helvetica.
 - Tests `pdf_header_correcto`, `pdf_termina_com_eof`, `pdf_tem_estrutura_valida` em `tests.rs` validam invariantes estruturais.
+
+## Link annotations (P424)
+
+Para cada `FrameItem::Link` encontrado nas páginas do documento:
+1. Coletar `url`, `pos` e `size` (coordenadas globais de página).
+2. Converter coordenadas de Y-down (layout) para Y-up (PDF):
+   `pdf_y = page_height - pos.y - size.height`.
+3. Emitir um objeto dictionary:
+   ```
+   << /Type /Annot /Subtype /Link
+      /Rect [x pdf_y (x+width) (pdf_y+height)]
+      /Border [0 0 0]
+      /A << /Type /Action /S /URI /URI (escaped_url) >> >>
+   ```
+4. Referenciar todos os annotations da página no `/Annots` do respetivo
+   dicionário `/Page`.
+
+Escopo: apenas URI externo; links internos (`#link("<label>")`) e
+`QuadPoints` multi-linha são scope-out.
 
 ## Determinismo
 

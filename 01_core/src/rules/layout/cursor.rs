@@ -286,12 +286,14 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
                         pos: Point { x: pos.x + Pt(target_x), y: pos.y + Pt(target_y) },
                         data, width, height, intrinsic_width, intrinsic_height,
                     },
-                FrameItem::Link { url, items } => FrameItem::Link {
+                FrameItem::Link { url, items, pos, size } => FrameItem::Link {
                     url,
                     items: items.into_iter().map(|child| {
                         let (ix, iy) = item_pos(&child);
                         translate_frame_item(child, Pt(target_x + ix), Pt(target_y + iy))
                     }).collect(),
+                    pos: Point { x: pos.x + Pt(target_x), y: pos.y + Pt(target_y) },
+                    size,
                 },
             };
             self.regions.current.current_items.push(translated);
@@ -428,12 +430,14 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
                             pos: Point { x: pos.x + Pt(target_x), y: pos.y + Pt(target_y) },
                             data, width, height, intrinsic_width, intrinsic_height,
                         },
-                    FrameItem::Link { url, items } => FrameItem::Link {
+                    FrameItem::Link { url, items, pos, size } => FrameItem::Link {
                         url,
                         items: items.into_iter().map(|child| {
                             let (ix, iy) = item_pos(&child);
                             translate_frame_item(child, Pt(target_x + ix), Pt(target_y + iy))
                         }).collect(),
+                        pos: Point { x: pos.x + Pt(target_x), y: pos.y + Pt(target_y) },
+                        size,
                     },
                 };
                 self.regions.current.current_items.push(translated);

@@ -54,6 +54,27 @@ use typst_core::rules::layout::layout;
     }
 
     #[test]
+    fn pdf_link_emite_annotation_uri() {
+        let doc = layout(&Content::link("https://example.com", Content::text("Clique")));
+        let pdf = export_pdf(&doc);
+        let s = String::from_utf8_lossy(&pdf);
+        assert!(s.contains("/Subtype /Link"), "deve haver annotation de Link");
+        assert!(s.contains("/S /URI"), "annotation deve ser do tipo URI");
+        assert!(s.contains("https://example.com"), "URI deve aparecer na annotation");
+        assert!(s.contains("/Annots ["), "página deve referenciar annotations");
+    }
+
+    #[test]
+    fn pdf_link_escape_parenteses_na_uri() {
+        let url = "https://example.com/(a)";
+        let doc = layout(&Content::link(url, Content::text("x")));
+        let pdf = export_pdf(&doc);
+        let s = String::from_utf8_lossy(&pdf);
+        assert!(s.contains("\\(") && s.contains("\\)"),
+            "parênteses na URI devem ser escapados no PDF");
+    }
+
+    #[test]
     fn pdf_documento_vazio_valido() {
         let doc = typst_core::entities::layout_types::PagedDocument::new(vec![]);
         let pdf = export_pdf(&doc);

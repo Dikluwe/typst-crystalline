@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/export/builder.md
-//! @prompt-hash 12d113a7
+//! @prompt-hash 4d25f90c
 //! @layer L3
 //! @updated 2026-05-19
 //!
@@ -19,7 +19,8 @@ use std::sync::Arc;
 
 use ttf_parser::Face;
 use typst_core::entities::font_list::FontList;
-use typst_core::entities::layout_types::PagedDocument;
+use typst_core::entities::layout_types::{FrameItem, PagedDocument, Point, Size};
+use ecow::EcoString;
 
 use super::{
     adaptive_n_for_stops, apply_parent_transform, build_jpeg_xobject,
@@ -135,6 +136,7 @@ impl PdfBuilder {
             .map(|p| (p.width, p.height)).collect();
         self.emit_gradient_objects(grad_objs, &page_dimensions, &mut next_sub_id);
 
+        self.emit_link_annotations(doc);
         self.serialize()
     }
 
@@ -261,6 +263,7 @@ impl PdfBuilder {
             .map(|p| (p.width, p.height)).collect();
         self.emit_gradient_objects(grad_objs, &page_dimensions, &mut next_sub_id);
 
+        self.emit_link_annotations(doc);
         self.serialize()
     }
 
@@ -419,6 +422,7 @@ impl PdfBuilder {
             .map(|p| (p.width, p.height)).collect();
         self.emit_gradient_objects(grad_objs, &page_dimensions, &mut next_sub_id);
 
+        self.emit_link_annotations(doc);
         self.serialize()
     }
 
@@ -636,6 +640,68 @@ impl PdfBuilder {
         }
     }
 
+    /// **P424** — Emite annotations `/Subtype /Link` com `/A /URI` para cada
+    /// `FrameItem::Link` do documento.  As annotations são adicionadas como
+    /// objetos após todos os recursos e referenciadas pelo `/Annots` de cada
+    /// página.  Coordenadas convertidas de Y-down (layout) para Y-up (PDF).
+    fn emit_link_annotations(&mut self, doc: &PagedDocument) {
+        const FIRST_PAGE_ID: usize = 3;
+
+        let mut next_id = self.objects.iter().map(|(id, _)| *id).max().unwrap_or(0) + 1;
+
+        // Coletar links por página (coordenadas globais de página).
+        let mut per_page: Vec<Vec<(EcoString, Point, Size)>> = Vec::with_capacity(doc.pages.len());
+        for page in &doc.pages {
+            let mut links = Vec::new();
+            collect_links(&page.items, &mut links);
+            per_page.push(links);
+        }
+
+        let mut page_annotation_ids: Vec<Vec<usize>> = vec![Vec::new(); doc.pages.len()];
+        for (page_idx, links) in per_page.iter().enumerate() {
+            let page_h = doc.pages[page_idx].height;
+            for (url, pos, size) in links {
+                let annot_id = next_id;
+                next_id += 1;
+
+                let x0 = pos.x.val();
+                let y0 = page_h - pos.y.val() - size.height.val();
+                let x1 = x0 + size.width.val();
+                let y1 = y0 + size.height.val();
+                let escaped_url = escape_pdf_uri(url.as_str());
+
+                self.add(annot_id, format!(
+                    "<< /Type /Annot /Subtype /Link \
+                       /Rect [{x0:.2} {y0:.2} {x1:.2} {y1:.2}] \
+                       /Border [0 0 0] \
+                       /A << /Type /Action /S /URI /URI ({escaped_url}) >> >>"
+                ));
+                page_annotation_ids[page_idx].push(annot_id);
+            }
+        }
+
+        // Reescrever os dicionários das páginas que possuem annotations.
+        for (page_idx, ids) in page_annotation_ids.iter().enumerate() {
+            if ids.is_empty() {
+                continue;
+            }
+            let page_id = FIRST_PAGE_ID + page_idx;
+            let refs = ids.iter()
+                .map(|id| format!("{id} 0 R"))
+                .collect::<Vec<_>>()
+                .join(" ");
+            if let Some((_, content)) = self.objects.iter_mut().find(|(id, _)| *id == page_id) {
+                let s = String::from_utf8_lossy(content);
+                if let Some(idx) = s.rfind(">>") {
+                    let mut new = s[..idx].to_string();
+                    new.push_str(&format!(" /Annots [{refs}]"));
+                    new.push_str(&s[idx..]);
+                    *content = new.into_bytes();
+                }
+            }
+        }
+    }
+
     fn serialize(self) -> Vec<u8> {
         // Header — %PDF-1.7 + comentário binário (4 bytes > 127)
         let mut out: Vec<u8> = b"%PDF-1.7\n%\xe2\xe3\xcf\xd3\n".to_vec();
@@ -666,6 +732,38 @@ impl PdfBuilder {
         ).as_bytes());
 
         out
+    }
+}
+
+/// Escapa caracteres problemáticos para uma string PDF dentro de `(...)`.
+/// Mantém a URI o mais intacta possível; escapa apenas `(`, `)`, `\` e
+/// caracteres de controlo (0x00–0x1f, 0x7f) por compatibilidade com leitores.
+fn escape_pdf_uri(uri: &str) -> String {
+    let mut out = String::with_capacity(uri.len());
+    for b in uri.bytes() {
+        match b {
+            b'(' => out.push_str("\\("),
+            b')' => out.push_str("\\)"),
+            b'\\' => out.push_str("\\\\"),
+            0x00..=0x1f | 0x7f => out.push_str(&format!("\\{:03o}", b)),
+            _ => out.push(b as char),
+        }
+    }
+    out
+}
+
+/// Recolhe `FrameItem::Link` de uma lista de items, incluindo links aninhados
+/// dentro de `Group`.
+fn collect_links(items: &[FrameItem], out: &mut Vec<(EcoString, Point, Size)>) {
+    for item in items {
+        match item {
+            FrameItem::Link { url, items, pos, size } => {
+                out.push((url.clone(), *pos, *size));
+                collect_links(items, out);
+            }
+            FrameItem::Group { items, .. } => collect_links(items, out),
+            _ => {}
+        }
     }
 }
 

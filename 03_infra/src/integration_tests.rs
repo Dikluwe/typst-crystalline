@@ -1621,6 +1621,7 @@ mod integration {
             FrameItem::Image { pos, .. } => *pos,
             FrameItem::Shape { pos, .. } => *pos,
             FrameItem::Group { pos, .. } => *pos,
+            FrameItem::Link { pos, .. } => *pos,
         }
     }
 
