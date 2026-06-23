@@ -24,6 +24,8 @@ use crate::entities::{
 };
 use crate::rules::introspect::locatable::is_locatable;
 use ecow::EcoString;
+use hayagriva::citationberg::IndependentStyle;
+use std::sync::Arc;
 
 // FontMetrics / FixedMetrics extraídos para metrics.rs (Passo 96.7, ADR-0037).
 mod metrics;
@@ -75,7 +77,7 @@ mod v_space;
 mod text;
 
 // Atomização Fatia 2 (ADR-0109, P381): refs/citações + avulsos.
-mod bib_csl;
+pub mod bib_csl;
 mod bibliography;
 mod cite;
 mod divider;
@@ -1598,17 +1600,29 @@ pub fn layout_with_introspector(
     let intr_dyn: &dyn crate::entities::introspector::Introspector = &introspector;
     let intr_tracked = intr_dyn.track();
 
-    // P418 — Pré-renderização CSL: descobre style/locale do primeiro
+    // P418/P420 — Pré-renderização CSL: descobre style/locale do primeiro
     // BibliographyElem e constrói cache para citações/bibliografia.
     // Só activa CSL quando style é explicitamente fornecido; caso contrário
     // preserva o fallback local `format_bib_entry` (compatibilidade P159A-G).
-    let (bib_style, bib_locale) = find_first_bibliography_style(content);
-    let bib_render_cache = bib_style.and_then(|s| {
-        crate::rules::layout::bib_csl::build_cache(
-            introspector.bib_store.entries(),
-            Some(s.as_str()),
-            bib_locale.as_deref(),
-        )
+    // P420: style custom `.csl` já foi resolvido em eval time e está em
+    // `BibliographyElem.resolved_style`; built-ins continuam resolvidos aqui.
+    let bib_style = find_first_bibliography_style(content);
+    let bib_render_cache = bib_style.and_then(|style| {
+        if let Some(resolved) = style.resolved_style {
+            crate::rules::layout::bib_csl::build_cache_with_style(
+                introspector.bib_store.entries(),
+                &resolved,
+                style.locale.as_deref(),
+            )
+        } else if let Some(name) = style.style.as_deref() {
+            crate::rules::layout::bib_csl::build_cache(
+                introspector.bib_store.entries(),
+                Some(name),
+                style.locale.as_deref(),
+            )
+        } else {
+            None
+        }
     });
 
     if !has_outline {
@@ -1677,15 +1691,27 @@ pub fn layout_with_introspector(
 
 // ── Helpers P418 ───────────────────────────────────────────────────────────
 
+/// Dados do primeiro `Content::Bibliography` encontrado no documento.
+///
+/// P420: inclui `resolved_style` preenchido em eval time para `.csl` custom.
+struct FirstBibliographyStyle {
+    resolved_style: Option<Arc<IndependentStyle>>,
+    style: Option<EcoString>,
+    locale: Option<EcoString>,
+}
+
 /// Procura o primeiro `Content::Bibliography` no documento (DFS simples) e
-/// devolve `(style, locale)`. Usado para pré-renderizar CSL antes do layout
-/// principal, permitindo que `cite` antes do `bibliography` use o mesmo style.
-fn find_first_bibliography_style(
-    content: &Content,
-) -> (Option<EcoString>, Option<EcoString>) {
-    fn walk(c: &Content) -> Option<(Option<EcoString>, Option<EcoString>)> {
+/// devolve os dados necessários à pré-renderização CSL. Usado para construir o
+/// cache antes do layout principal, permitindo que `cite` antes do
+/// `bibliography` use o mesmo style.
+fn find_first_bibliography_style(content: &Content) -> Option<FirstBibliographyStyle> {
+    fn walk(c: &Content) -> Option<FirstBibliographyStyle> {
         match c {
-            Content::Bibliography(e) => Some((e.style.clone(), e.locale.clone())),
+            Content::Bibliography(e) => Some(FirstBibliographyStyle {
+                resolved_style: e.resolved_style.clone(),
+                style: e.style.clone(),
+                locale: e.locale.clone(),
+            }),
             Content::Sequence(seq) => seq.iter().find_map(walk),
             Content::Styled(body, _) => walk(body),
             Content::Block(e) => walk(&e.body),
@@ -1714,7 +1740,7 @@ fn find_first_bibliography_style(
             _ => None,
         }
     }
-    walk(content).unwrap_or((None, None))
+    walk(content)
 }
 
 // ── Testes ─────────────────────────────────────────────────────────────────

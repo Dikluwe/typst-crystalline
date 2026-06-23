@@ -1,5 +1,5 @@
 # Prompt L0 — `entities/elements/bibliography` — `BibliographyElem`
-Hash do Código: 0d972c0d
+Hash do Código: 8449d35e
 
 **Camada**: L1 · **Alvo**: `01_core/src/entities/elements/bibliography.rs`
 **Origem**: modelo D (ADR-0105), **Lote 10 P325** (por largura). Trait: ver
@@ -82,9 +82,28 @@ tem `impl Hash` manual).
   reusa o mesmo mecanismo via `World::read_bytes`).
 - URLs/network, watch/reload, encoding detection, macros BibTeX complexos.
 
+## P420 (M) — CSL customizado via path
+
+**Decisão arquitetural (ADR-0107 / ADR-0108 / ADR-0109):**
+- `BibliographyElem` **inalterado** — continua a armazenar `style: Option<EcoString>`. A
+  distinção entre built-in e ficheiro `.csl` é feita em *eval time*, não no struct
+  (atomização forma B).
+- A resolução de style vive em `rules/eval/bibliography.rs` como free functions
+  (`resolve_style`, `load_csl_from_path`, `resolve_csl_path`).
+- Algoritmo: tenta `hayagriva::archive::ArchivedStyle::by_name` primeiro; se falhar,
+  trata a string como path relativo/absoluto, lê via `World::read_bytes` e parseia com
+  `hayagriva::citationberg::IndependentStyle::from_xml`.
+- Erros legíveis: built-in desconhecido, file not found, encoding inválido, XML
+  malformado.
+
+**Scope-out P420:**
+- CSL via URL (`http://...`), diretórios de sistema (`~/.csl/`), múltiplos styles
+  simultâneos, hot-reload, validação completa RelaxNG, cache persistente cross-run.
+
 ## Histórico de revisões
 
 | Data | Motivo | Arquivos |
 |------|--------|----------|
 | 2026-06-23 | P418 (XL): adicionar seção de renderização CSL real e scope-out. | `bibliography.md`, `bibliography.rs`, `cite.md`, `cite.rs`, `loading.md`, `loading.rs` |
 | 2026-06-23 | P419 (M): adicionar `path`, loading de disco e scope-out. | `bibliography.md`, `bibliography.rs`, `content.rs`, `rules/eval/bibliography.rs`, `rules/stdlib/structural.rs` |
+| 2026-06-23 | P420 (M): CSL customizado via path; `BibliographyElem` inalterado; resolução em eval. | `bibliography.md`, `rules/eval/bibliography.rs`, `rules/layout/bib_csl.rs`, `rules/stdlib/structural.rs` |

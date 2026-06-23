@@ -5344,4 +5344,114 @@ mod tests {
         let delim = find_mathdelimited_in(&content);
         assert!(delim.is_some(), "MathDelimited preservado P302 fix");
     }
+
+    // ── P420 — E2E bibliography com CSL custom via path ───────────────────────
+
+    use crate::rules::layout::layout;
+
+    fn p420_bib_csl() -> &'static str {
+        r#"<?xml version="1.0" encoding="UTF-8"?>
+<style xmlns="http://purl.org/net/xbiblio/csl" version="1.0" class="in-text" default-locale="en-US">
+  <info>
+    <title>Custom E2E</title>
+    <id>http://example.org/custom</id>
+  </info>
+  <citation>
+    <layout><text variable="title"/></layout>
+  </citation>
+  <bibliography>
+    <layout><text variable="title"/></layout>
+  </bibliography>
+</style>"#
+    }
+
+    #[test]
+    fn p420_bibliography_custom_csl_path_rende_titulo() {
+        let mut world = MockWorld::new(r#"#bibliography("refs.bib", style: "custom.csl")"#);
+        world.add_file(
+            "refs.bib",
+            br#"
+@article{smith2024,
+  author = {Smith, John},
+  title = {On Crystal Math},
+  year = {2024},
+  journal = {Journal of Examples}
+}
+"#
+            .to_vec(),
+        );
+        world.add_file("custom.csl", p420_bib_csl().as_bytes().to_vec());
+
+        let module = eval_for_test(&world, &world.source).unwrap();
+        let content = module.content().unwrap();
+        let doc = layout(content);
+        let txt = doc.plain_text();
+        assert!(txt.contains("On Crystal Math"), "custom CSL deve render title: {txt}");
+    }
+
+    #[test]
+    fn p420_bibliography_built_in_ieee_continua_funcional() {
+        let mut world = MockWorld::new(r#"#bibliography("refs.bib", style: "ieee")"#);
+        world.add_file(
+            "refs.bib",
+            br#"
+@article{smith2024,
+  author = {Smith, John},
+  title = {On Crystal Math},
+  year = {2024},
+  journal = {Journal of Examples}
+}
+"#
+            .to_vec(),
+        );
+
+        let module = eval_for_test(&world, &world.source).unwrap();
+        let content = module.content().unwrap();
+        let doc = layout(content);
+        let txt = doc.plain_text();
+        assert!(txt.contains("[1]"), "ieee continua funcional: {txt}");
+    }
+
+    #[test]
+    fn p420_bibliography_style_invalido_produz_erro() {
+        let mut world = MockWorld::new(r#"#bibliography("refs.bib", style: "nope.csl")"#);
+        world.add_file(
+            "refs.bib",
+            br#"
+@article{smith2024,
+  author = {Smith, John},
+  title = {On Crystal Math},
+  year = {2024}
+}
+"#
+            .to_vec(),
+        );
+
+        let result = eval_for_test(&world, &world.source);
+        assert!(result.is_err(), "style invalido como path inexistente deve produzir erro");
+        let err = result.unwrap_err();
+        assert!(err[0].message.contains("failed to read CSL style file"), "{}", err[0].message);
+    }
+
+    #[test]
+    fn p420_bibliography_csl_xml_malformado_produz_erro() {
+        let mut world = MockWorld::new(r#"#bibliography("refs.bib", style: "bad.csl")"#);
+        world.add_file(
+            "refs.bib",
+            br#"
+@article{smith2024,
+  author = {Smith, John},
+  title = {On Crystal Math},
+  year = {2024}
+}
+"#
+            .to_vec(),
+        );
+        world.add_file("bad.csl", b"<style>".to_vec());
+
+        let result = eval_for_test(&world, &world.source);
+        assert!(result.is_err(), "XML malformado deve produzir erro");
+        let err = result.unwrap_err();
+        assert!(err[0].message.contains("failed to parse CSL style"), "{}", err[0].message);
+    }
 }

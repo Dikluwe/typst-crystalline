@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/rules/layout/bib_csl.md
-//! @prompt-hash ef38ba91
+//! @prompt-hash b0e2b87e
 //! @layer L1
 //! @updated 2026-06-23
 //!
@@ -13,11 +13,13 @@
 //! - Converter `ElemChildren` hayagriva para `Content` cristalino (Strong/Emph/
 //!   Link/Linebreak).
 //!
-//! Scope-out P418: ficheiros `.csl` customizados via path, múltiplas
-//! bibliografias, locales via ficheiro externo, e formatação vertical
-//! (superscript/subscript) sem Content variant correspondente.
+//! **P420** — ficheiros `.csl` customizados via path (resolvidos em eval e
+//! aplicados aqui através de `IndependentStyle`).
+//! Scope-out: múltiplas bibliografias, locales via ficheiro externo,
+//! formatação vertical (superscript/subscript) sem Content variant correspondente.
 
 use std::collections::HashMap;
+use std::sync::Arc;
 
 use hayagriva::archive::ArchivedStyle;
 use hayagriva::citationberg::{Display, IndependentStyle, Locale};
@@ -57,7 +59,19 @@ pub fn build_cache(
     locale: Option<&str>,
 ) -> Option<BibRenderCache> {
     let style_name = style.unwrap_or(DEFAULT_STYLE);
-    let independent = resolve_style(style_name)?;
+    let independent = resolve_style_name(style_name)?;
+    build_cache_with_style(entries, &independent, locale)
+}
+
+/// Constrói o cache a partir de um `IndependentStyle` já resolvido (P420).
+///
+/// Usado pelo layout quando `BibliographyElem.resolved_style` foi preenchido
+/// em eval time (built-in ou custom `.csl`).
+pub fn build_cache_with_style(
+    entries: &[BibEntry],
+    independent: &IndependentStyle,
+    locale: Option<&str>,
+) -> Option<BibRenderCache> {
     let locales = build_locales(locale);
 
     let hay_entries: Vec<Entry> =
@@ -81,12 +95,12 @@ pub fn build_cache(
             item.purpose = purpose;
             driver.citation(CitationRequest::from_items(
                 vec![item],
-                &independent,
+                independent,
                 &locales,
             ));
         }
         let rendered = driver.finish(hayagriva::BibliographyRequest::new(
-            &independent,
+            independent,
             None,
             &locales,
         ));
@@ -108,24 +122,34 @@ pub fn build_cache(
     for entry in &hay_entries {
         driver.citation(CitationRequest::from_items(
             vec![CitationItem::with_entry(entry)],
-            &independent,
+            independent,
             &locales,
         ));
     }
     let rendered =
-        driver.finish(hayagriva::BibliographyRequest::new(&independent, None, &locales));
+        driver.finish(hayagriva::BibliographyRequest::new(independent, None, &locales));
     let bibliography = rendered.bibliography.as_ref().map(render_bibliography);
 
     Some(BibRenderCache { citations, bibliography })
 }
 
-/// Resolve um style pelo nome. Aceita built-ins do hayagriva archive.
-fn resolve_style(name: &str) -> Option<IndependentStyle> {
+/// Resolve um style built-in pelo nome. Aceita styles do hayagriva archive.
+pub fn resolve_style_name(name: &str) -> Option<IndependentStyle> {
     let archived = ArchivedStyle::by_name(name)?;
     match archived.get() {
         hayagriva::citationberg::Style::Independent(s) => Some(s),
         _ => None,
     }
+}
+
+/// Parseia conteúdo XML CSL em memória (P420).
+///
+/// A leitura do disco é responsabilidade do caller (eval/bibliography.rs via
+/// `World::read_bytes`); este helper expõe apenas o parsing para os consumers
+/// de layout e para tests unitários sem I/O.
+pub fn parse_csl_style(content: &str) -> Result<IndependentStyle, String> {
+    IndependentStyle::from_xml(content)
+        .map_err(|e| format!("failed to parse CSL style: {:?}", e))
 }
 
 /// Constrói o slice de locales a passar ao hayagriva.
@@ -555,5 +579,56 @@ mod tests {
             .with_journal("J of Examples");
         let h = bib_entry_to_hayagriva(&entry).unwrap();
         assert!(!h.parents().is_empty());
+    }
+
+    // ── P420 — CSL customizado via path ───────────────────────────────────────
+
+    fn p420_custom_csl() -> &'static str {
+        r#"<?xml version="1.0" encoding="UTF-8"?>
+<style xmlns="http://purl.org/net/xbiblio/csl" version="1.0" class="in-text" default-locale="en-US">
+  <info>
+    <title>Custom</title>
+    <id>http://example.org/custom</id>
+  </info>
+  <citation>
+    <layout><text variable="title"/></layout>
+  </citation>
+  <bibliography>
+    <layout><text variable="title"/></layout>
+  </bibliography>
+</style>"#
+    }
+
+    #[test]
+    fn p420_resolve_style_name_ieee_ok() {
+        let style = resolve_style_name("ieee");
+        assert!(style.is_some(), "ieee deve resolver");
+    }
+
+    #[test]
+    fn p420_resolve_style_name_inexistente_none() {
+        assert!(resolve_style_name("not-a-real-style").is_none());
+    }
+
+    #[test]
+    fn p420_parse_csl_style_valido() {
+        let style = parse_csl_style(p420_custom_csl());
+        assert!(style.is_ok(), "{:?}", style);
+        assert_eq!(style.unwrap().info.title.value, "Custom");
+    }
+
+    #[test]
+    fn p420_parse_csl_style_xml_malformado() {
+        let err = parse_csl_style("<style>").unwrap_err();
+        assert!(err.contains("failed to parse CSL style"), "{err}");
+    }
+
+    #[test]
+    fn p420_build_cache_with_style_custom_aplica_titulo() {
+        let style = parse_csl_style(p420_custom_csl()).unwrap();
+        let entries = vec![BibEntry::new("k1", "Author, A.", "The Title", 2024)];
+        let cache = build_cache_with_style(&entries, &style, None).unwrap();
+        let bib = cache.bibliography.unwrap().plain_text();
+        assert!(bib.contains("The Title"), "bib: {bib}");
     }
 }

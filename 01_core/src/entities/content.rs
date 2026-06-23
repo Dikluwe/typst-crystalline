@@ -1626,6 +1626,7 @@ impl Content {
             title,
             style: None,
             locale: None,
+            resolved_style: None,
         }))
     }
 
@@ -1642,6 +1643,7 @@ impl Content {
             title,
             style,
             locale,
+            resolved_style: None,
         }))
     }
 
@@ -1658,6 +1660,7 @@ impl Content {
             title,
             style,
             locale,
+            resolved_style: None,
         }))
     }
 

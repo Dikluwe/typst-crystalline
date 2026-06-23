@@ -1163,6 +1163,16 @@ pub fn native_bibliography(
         _ => None,
     });
 
+    // P420 — resolve style (built-in ou custom .csl) em eval time.
+    let resolved_style = match &style {
+        Some(s) => Some(Arc::new(crate::rules::eval::bibliography::resolve_style(
+            world,
+            current_file,
+            s.as_str(),
+        )?)),
+        None => None,
+    };
+
     Ok(Value::Content(Content::Bibliography(Arc::new(
         crate::entities::elements::bibliography::BibliographyElem {
             entries,
@@ -1170,6 +1180,7 @@ pub fn native_bibliography(
             title,
             style,
             locale,
+            resolved_style,
         },
     ))))
 }

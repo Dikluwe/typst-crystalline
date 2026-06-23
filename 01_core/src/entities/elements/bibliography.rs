@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/entities/elements/bibliography.md
-//! @prompt-hash 8449d35e
+//! @prompt-hash 9d66574e
 //! @layer L1
 //! @updated 2026-06-11
 //!
@@ -10,6 +10,7 @@
 use std::sync::Arc;
 
 use ecow::EcoString;
+use hayagriva::citationberg::IndependentStyle;
 
 use crate::entities::bib_entry::BibEntry;
 use crate::entities::content::Content;
@@ -30,6 +31,9 @@ pub struct BibliographyElem {
     pub style: Option<EcoString>,
     /// **P418** — CSL locale override (ex: `"en-US"`, `"pt-PT"`). `None` usa locale do style.
     pub locale: Option<EcoString>,
+    /// **P420** — Style CSL já resolvido (built-in ou custom `.csl`). Cache
+    /// mecânico preenchido em eval time; `None` quando não especificado.
+    pub resolved_style: Option<Arc<IndependentStyle>>,
 }
 
 impl Element for BibliographyElem {
@@ -63,6 +67,7 @@ impl Element for BibliographyElem {
             title: self.title.as_ref().map(|t| t.map_content(transform)).transpose()?,
             style: self.style.clone(),
             locale: self.locale.clone(),
+            resolved_style: self.resolved_style.clone(),
         })))
     }
 
@@ -76,6 +81,7 @@ impl Element for BibliographyElem {
             title: self.title.as_ref().map(|t| t.map_text(transform)),
             style: self.style.clone(),
             locale: self.locale.clone(),
+            resolved_style: self.resolved_style.clone(),
         }))
     }
 
@@ -105,6 +111,7 @@ mod tests {
             title: None,
             style: None,
             locale: None,
+            resolved_style: None,
         }
     }
 
@@ -121,7 +128,8 @@ mod tests {
             path: None,
             title: None,
             style: None,
-            locale: None
+            locale: None,
+            resolved_style: None,
         }
         .is_empty());
         assert!(!BibliographyElem {
@@ -129,7 +137,8 @@ mod tests {
             path: None,
             title: Some(Content::text("Refs")),
             style: None,
-            locale: None
+            locale: None,
+            resolved_style: None,
         }
         .is_empty());
     }
@@ -142,6 +151,7 @@ mod tests {
             title: Some(Content::text("a")),
             style: None,
             locale: None,
+            resolved_style: None,
         };
         let mut f = |c: &Content| -> SourceResult<Option<Content>> {
             match c {
@@ -184,7 +194,8 @@ mod tests {
                 path: None,
                 title: None,
                 style: None,
-                locale: None
+                locale: None,
+                resolved_style: None,
             })
         );
     }
@@ -197,6 +208,7 @@ mod tests {
             title: None,
             style: Some("ieee".into()),
             locale: None,
+            resolved_style: None,
         };
         let b = BibliographyElem {
             entries: vec![],
@@ -204,6 +216,7 @@ mod tests {
             title: None,
             style: Some("apa".into()),
             locale: None,
+            resolved_style: None,
         };
         let c = BibliographyElem {
             entries: vec![],
@@ -211,6 +224,7 @@ mod tests {
             title: None,
             style: Some("ieee".into()),
             locale: Some("en-US".into()),
+            resolved_style: None,
         };
         assert_ne!(a, b);
         assert_ne!(a, c);

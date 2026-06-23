@@ -11,10 +11,14 @@
 //!
 //! Scope-out P419: `.json` nativo — `hayagriva::io` não expõe `from_json_str`
 //! nesta versão; pode ser adicionado quando a API o permitir.
+//!
+//! **P420** — Resolução de CSL style: built-in via hayagriva archive ou custom
+//! via path local `.csl` XML. Reexporta helpers de `rules/layout/bib_csl.rs`.
 
 use std::path::Path;
 
 use ecow::EcoString;
+use hayagriva::citationberg::IndependentStyle;
 
 use crate::contracts::world::World;
 use crate::entities::bib_entry::BibEntry;
@@ -83,6 +87,57 @@ pub fn parse_bibliography(content: &str, path: &str) -> SourceResult<Vec<BibEntr
         .cloned()
         .filter_map(hay_entry_to_bib_entry)
         .collect::<Vec<_>>())
+}
+
+/// Resolve uma string `style` para um `IndependentStyle` (P420).
+///
+/// 1. Tenta built-in via `hayagriva::archive`.
+/// 2. Se falhar, trata como path local: lê via `World::read_bytes`, decode UTF-8
+///    e parseia como CSL XML.
+///
+/// Erros são devolvidos como `SourceDiagnostic` com mensagens legíveis.
+pub fn resolve_style(
+    world: &dyn World,
+    current_file: FileId,
+    style_str: &str,
+) -> SourceResult<IndependentStyle> {
+    if let Some(style) = crate::rules::layout::bib_csl::resolve_style_name(style_str) {
+        return Ok(style);
+    }
+
+    load_csl_style_from_path(world, current_file, style_str)
+}
+
+/// Carrega um ficheiro `.csl` via `World::read_bytes` e parseia-o como CSL style.
+fn load_csl_style_from_path(
+    world: &dyn World,
+    current_file: FileId,
+    path: &str,
+) -> SourceResult<IndependentStyle> {
+    let bytes = world
+        .read_bytes(current_file, path)
+        .map_err(|e| {
+            vec![SourceDiagnostic::error(
+                Span::detached(),
+                format!("failed to read CSL style file '{}': {}", path, e),
+            )]
+        })?;
+
+    let content = std::str::from_utf8(&bytes)
+        .map_err(|e| {
+            vec![SourceDiagnostic::error(
+                Span::detached(),
+                format!("CSL style file is not valid UTF-8 '{}': {}", path, e),
+            )]
+        })?;
+
+    crate::rules::layout::bib_csl::parse_csl_style(content)
+        .map_err(|e| {
+            vec![SourceDiagnostic::error(
+                Span::detached(),
+                format!("failed to parse CSL style '{}': {}", path, e),
+            )]
+        })
 }
 
 /// Converte um `hayagriva::Entry` para o subset `BibEntry` cristalino.
@@ -245,5 +300,105 @@ smith2024:
     fn parse_bibliography_yaml_vazio() {
         let entries = parse_bibliography("", "refs.yaml").unwrap();
         assert!(entries.is_empty());
+    }
+
+    // ── P420 — resolução de CSL style ─────────────────────────────────────────
+
+    use crate::contracts::world::World;
+    use crate::entities::file_id::FileId;
+    use crate::entities::font_book::FontBook;
+    use crate::entities::source::Source;
+    use crate::entities::world_types::{Bytes, Datetime, FileError, FileResult, Font, Library};
+    use std::collections::HashMap;
+    use std::num::NonZeroU16;
+    use std::sync::Arc;
+
+    struct MockWorldFs {
+        library: Library,
+        book: FontBook,
+        main_id: FileId,
+        files: HashMap<String, Arc<Vec<u8>>>,
+    }
+
+    impl MockWorldFs {
+        fn new() -> Self {
+            Self {
+                library: Library::new(),
+                book: FontBook::new(),
+                main_id: FileId::from_raw(NonZeroU16::new(1).unwrap()),
+                files: HashMap::new(),
+            }
+        }
+
+        fn add_file(&mut self, path: &str, data: Vec<u8>) {
+            self.files.insert(path.to_string(), Arc::new(data));
+        }
+    }
+
+    impl World for MockWorldFs {
+        fn library(&self) -> &Library { &self.library }
+        fn book(&self) -> &FontBook { &self.book }
+        fn main(&self) -> FileId { self.main_id }
+        fn source(&self, _: FileId) -> FileResult<Source> { Err(FileError::NotFound) }
+        fn file(&self, _: FileId) -> FileResult<Bytes> { Err(FileError::NotFound) }
+        fn font(&self, _: usize) -> Option<Font> { None }
+        fn today(&self, _: Option<i64>) -> Option<Datetime> { None }
+
+        fn read_bytes(&self, _current_file: FileId, path: &str) -> Result<Arc<Vec<u8>>, String> {
+            self.files
+                .get(path)
+                .cloned()
+                .ok_or_else(|| format!("failed to read CSL style file '{}': not found", path))
+        }
+    }
+
+    fn p420_valid_csl() -> &'static [u8] {
+        br#"<?xml version="1.0" encoding="UTF-8"?>
+<style xmlns="http://purl.org/net/xbiblio/csl" version="1.0" class="in-text" default-locale="en-US">
+  <info>
+    <title>Custom Eval</title>
+    <id>http://example.org/custom-eval</id>
+  </info>
+  <citation><layout><text variable="title"/></layout></citation>
+  <bibliography><layout><text variable="title"/></layout></bibliography>
+</style>"#
+    }
+
+    #[test]
+    fn p420_resolve_style_built_in_ieee() {
+        let world = MockWorldFs::new();
+        let style = resolve_style(&world, world.main(), "ieee").unwrap();
+        assert!(style.info.title.value.contains("IEEE"), "{}", style.info.title.value);
+    }
+
+    #[test]
+    fn p420_resolve_style_custom_path() {
+        let mut world = MockWorldFs::new();
+        world.add_file("custom.csl", p420_valid_csl().to_vec());
+        let style = resolve_style(&world, world.main(), "custom.csl").unwrap();
+        assert_eq!(style.info.title.value, "Custom Eval");
+    }
+
+    #[test]
+    fn p420_resolve_style_custom_path_nao_encontrado() {
+        let world = MockWorldFs::new();
+        let err = resolve_style(&world, world.main(), "nao-existe.csl").unwrap_err();
+        assert!(err[0].message.contains("failed to read CSL style file"), "{}", err[0].message);
+    }
+
+    #[test]
+    fn p420_resolve_style_xml_malformado() {
+        let mut world = MockWorldFs::new();
+        world.add_file("bad.csl", b"<style>".to_vec());
+        let err = resolve_style(&world, world.main(), "bad.csl").unwrap_err();
+        assert!(err[0].message.contains("failed to parse CSL style"), "{}", err[0].message);
+    }
+
+    #[test]
+    fn p420_resolve_style_encoding_invalido() {
+        let mut world = MockWorldFs::new();
+        world.add_file("bad-encoding.csl", vec![0xFF, 0xFE]);
+        let err = resolve_style(&world, world.main(), "bad-encoding.csl").unwrap_err();
+        assert!(err[0].message.contains("not valid UTF-8"), "{}", err[0].message);
     }
 }
