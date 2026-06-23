@@ -17,6 +17,15 @@
 > noutras categorias). Detalhe e priorização: `diagnostico-recon-amplo-passo-384.md` +
 > `backlog-priorizado-passo-384.md`.
 
+> **Atualização P415 (2026-06-22)** — cluster P391–P414 materializado:
+> - Foundations: `lorem`, `panic`, `eval`, `read`, `cbor`, `bytes`, `csv`, `xml`, `json`, `yaml`, `toml` implementados.
+> - Tipos primitivos: `Decimal`, `Duration`, `Version` (constructors + aritmética + field access + comparações).
+> - Text: `smallcaps` implementado (stub transparente per ADR-0113).
+> - Text: `text.font` dict (gap 8 / DEBT-52) **FECHADO** em P414.
+> - Math: `accent`, `cancel`, `underover`, `op` implementados.
+> - Layout/Model: `document`, `asset`, `tiling`, `state`/`counter` display, `place` float, `Block`/`Boxed`/`Grid`/`Table` refinos.
+> - ADR-0113 canônica: stub transparente preferido a fallback software.
+
 ---
 
 ## Reformulação da pergunta
@@ -101,7 +110,7 @@ Features visíveis ao utilizador no Typst (markup, funções stdlib, `#set`/`#sh
 | `text.font` (string) | idem | `implementado` | Passo 140B | single-font dispatch via `FontBook::select` |
 | `text.font` (array) | idem | `implementado` | Passo 141 | array fallback chain |
 | `text.font` (multi-doc) | idem | `implementado` | Passo 146 | multi-font per document |
-| `text.font` (dict) | idem | `scope-out` | ADR-0054bis condicional | gap 8 DEBT-52 (requer `regex` em L1) |
+| `text.font` (dict) | idem | `implementado` | **Passo 407** + **Passo 414** | gap 8 DEBT-52 fechado; forma legado P407 (chave=name) + named fields P414 (`family`/`variant`/`weight`/`style`/`fallback`); variant-aware selection continua scope-out |
 | `text.weight` (numérico/simbólico) | idem | `implementado⁺` | Passo 139 | faux-bold; sem font-file Bold dedicado (ADR-0055bis candidata) |
 | `text.tracking` | idem | `implementado` | Passo 137 | `Tc` operator em PDF |
 | `text.lang` (hyphenation) | text/lang.rs | `implementado⁺` | Passo 144 (ADR-0057) | crate `hypher`; shaping ausente |
@@ -109,7 +118,7 @@ Features visíveis ao utilizador no Typst (markup, funções stdlib, `#set`/`#sh
 | `text.region` | idem | `ausente` | — | regional variants |
 | `text.dir` (LTR/RTL) | idem | `ausente` | — | bidi via rustybuzz scope-out |
 | `text.script` | text/shift.rs | `ausente` | — | super/sub script standalone |
-| `smallcaps` | text/smallcaps.rs | `ausente` | — | |
+| `smallcaps` | text/smallcaps.rs | `implementado` | **Passo 408** | `Content::SmallCaps { body }` + stdlib `#smallcaps(body)`; consumer emite `body` inalterado (stub transparente per ADR-0113; aguarda shaping real) |
 | `upper` / `lower` (funções) | text/case.rs | `implementado` | stdlib | `native_upper`/`native_lower` |
 | `replace` (string) | text/case.rs | `implementado` | stdlib | `native_replace` |
 | `lorem` | text/lorem.rs | `implementado` | Passo 391 | `native_lorem`; helper puro `Int → Str`, zero tipo novo. |
@@ -241,6 +250,8 @@ primitives e `skew`). Detalhe em
 | `cbor(path)` | loading/cbor.rs | `implementado` | **Passo 398** | `ciborium`; byte-strings → `Value::Bytes` (fecha DEBT-62) |
 | `xml(path)` | loading/xml.rs | `implementado` | **Passo 387** | `roxmltree`; nó→`Dict{tag,attrs,children}` |
 | `csv(path, delimiter:, row-type:)` | loading/csv.rs | `implementado` | **Passo 387** | `csv`; Array 2D (row-type array/dictionary) |
+| `bytes(...)` | foundations/bytes.rs | `implementado` | **Passo 398** | constructor `bytes("...")` → `Value::Bytes`; decode CBOR e `read` binário activam o tipo |
+| `lorem(n)` | text/lorem.rs | `implementado` | **Passo 391** | `native_lorem`; helper puro `Int → Str`, zero tipo novo |
 
 > **Cluster `loading` (data import) — Passo 387.** Resolve o achado da Lista B do
 > Passo 386 (`typst-falta-migrar-lista-B-passo-386.md` §3): o módulo `loading` estava
@@ -354,6 +365,7 @@ Nota: ADR-0026 + 0026-R1 declaram **divergência intencional**. Cristalino usa e
 | `Quote {body, attribution, block, quotes}` | QuoteElem | `implementado` | Passo 155 | 4 atributos materializados; smart-quotes lang-aware via `rules/lang/quotes.rs` |
 | `Document {title, author, date, keywords}` | DocumentElem | `implementado` | **Passo 397** | metadata pura; não emite frames; PDF Info dict scope-out ADR-0054 graded |
 | `Asset {path, kind}` | (extensão cristalina) | `implementado` | **Passo 397** | placeholder de resource; `kind` inferido por extensão ou explícito; registry real scope-out ADR-0054 graded |
+| `SmallCaps { body: Box<Content> }` | SmallcapsElem | `implementado` | **Passo 408** | stub transparente per ADR-0113; consumer emite `body` inalterado até shaping OpenType real |
 | `Columns {count, gutter, body}` | ColumnsElem | `parcial` | Passo 221 (cumulativo P217-P219) | variant + stdlib `#columns(count, body, gutter:?)` + arm Layouter consumer real graded (Opção B); width temporariamente reduzida `(full_width − (count−1)·gutter)/count`; body single-render; multi-region flow real scope-out (P-Layout-Fase4 candidato); default gutter ~4% via `COLUMNS_DEFAULT_GUTTER_RATIO` |
 | `Colbreak {weak}` | ColbreakElem | `parcial` | Passo 220 | variant + stdlib `#colbreak(weak:?)` + arm Layouter Opção β graded (downgrade literal a pagebreak via reuso `Layouter::new_page`); paridade vanilla quando fora de columns context; sem `to:` (vanilla `ColbreakElem` não tem) |
 | **Vanilla-only (ausentes)**: BibliographyElem, CiteElem, FootnoteElem, TableElem, BoxElem, BlockElem, StackElem, HideElem, RepeatElem, PadElem, MoveElem (function só), GradientElem, TilingElem, StrokeElem (object form), … | — | `ausente` (cada) | — | escopo crescente; **`ColumnsElem` e `ColbreakElem` removidos da lista em P221** (transitam para `parcial`); **`UnderlineElem`/`StrikeElem`/`OverlineElem` removidos em P284** (transitam para `implementado` — variants `Content::Underline/Strike/Overline`) |
@@ -419,13 +431,13 @@ Para cada feature `parcial` ou `ausente` da Tabela A, lista de tipos arquitectur
 
 | Feature user-facing | Bloqueantes arquitecturais | ADR/DEBT/Próximo passo |
 |---------------------|----------------------------|------------------------|
-| `text.font` dict | `Value::Regex` ausente; `Covers` em `FontList` deferido | gap 8 DEBT-52; ADR-0054bis condicional |
+| ~~`text.font` dict~~ | ~~`Value::Regex` ausente; `Covers` em `FontList` deferido~~ | ~~gap 8 DEBT-52; ADR-0054bis condicional~~ — **resolvido em P407 + P414** |
 | `text.weight` Bold dedicada | `FontVariant` selection variant-aware ausente | ADR-0055bis candidata |
 | `text.lang` shaping (bidi/kern/lig) | rustybuzz integration ausente | DEBT-53 candidato XL |
 | `text.region` / `text.script` | `Region`, `Script` types ausentes | escopo XL com rustybuzz |
 | `text.dir` (LTR/RTL) | bidi shaping ausente | DEBT-53 |
 | ~~`smartquote`~~ | ~~`Content::SmartQuote` ausente~~ | ~~escopo S~~ — **resolvido em Passo 287** (variant leaf + native_smartquote + consumer Layouter; reuso de `rules/lang/quotes.rs` — single source of truth) |
-| `smallcaps` | `Content::SmallCaps`; OpenType features | DEBT-53 (shaping) |
+| ~~`smallcaps`~~ | ~~`Content::SmallCaps`; OpenType features~~ | ~~DEBT-53 (shaping)~~ — **resolvido em P408 como stub transparente per ADR-0113** |
 | ~~`lorem`~~ | resolvido no Passo 391 (`native_lorem` em `text.rs`) | — |
 | ~~`underline` / `strike` / `overline`~~ | ~~`Content::Underline` etc. ausentes~~ | ~~escopo S~~ — **resolvido em Passo 284** (variants + native_* + Layouter consumer + PDF emit via `FrameItem::Line`) |
 | Soft hyphen (`\u{00AD}`) | hyphenation espera literal `-` (Passo 144) | passo dedicado futuro |
@@ -481,14 +493,14 @@ Categorias e contagens são aproximadas (~1 por linha listada acima):
 |-----------|----------------|-----------------|-----------|-----------|-------------|-------|
 | Markup syntactic ³⁹ | 11 | 3 | 3 | 1 | 0 | 18 |
 | `#let`/`#set`/`#show`/import | 7 | 1 | 4 | 1 | 0 | 13 |
-| Text features ⁷⁰ | 10 | 5 | 1 | 5 | 2 | 23 |
+| Text features ⁷⁰ ⁸⁷ | 12 | 5 | 1 | 4 | 1 | 23 |
 | Math | 6 | 6 | 1 | 0 | 0 | 13 |
 | Layout ⁵ ⁶ ⁸ ¹⁰ ¹² ¹³ ¹⁵ ¹⁷ ¹⁹ ²¹ ⁴⁰ ⁴¹ ⁴² ⁴³ ⁴⁴ ⁴⁵ ⁴⁶ | 12 | 4 | 2 | 0 | 0 | 18 |
 | Model (structural) ¹ ² ³ ²² ²⁴ ²⁹ ⁸⁰ | 9 | 4 | 7 | 2 | 0 | 22 |
 | Visualize | 6 | 1 | 1 | 5 | 0 | 13 |
 | Foundations stdlib ⁸² | 9 | 1 | 4 | 1 | 0 | 15 |
 | Introspection ³⁸ | 3 | 2 | 1 | 0 | 0 | 6 |
-| **Total user-facing** ⁵ ⁶ ⁸ ¹⁰ ¹² ¹³ ¹⁵ ¹⁷ ¹⁹ ²¹ ²² ²⁹ ³⁸ ³⁹ ⁴⁰ ⁴¹ ⁴² ⁴³ ⁴⁴ ⁴⁵ ⁴⁶ ⁷⁰ ⁸⁰ | **73** | **27** | **24** | **15** | **2** | **141** |
+| **Total user-facing** ⁵ ⁶ ⁸ ¹⁰ ¹² ¹³ ¹⁵ ¹⁷ ¹⁹ ²¹ ²² ²⁹ ³⁸ ³⁹ ⁴⁰ ⁴¹ ⁴² ⁴³ ⁴⁴ ⁴⁵ ⁴⁶ ⁷⁰ ⁸⁰ ⁸⁷ | **75** | **27** | **24** | **14** | **1** | **141** |
 
 ¹ — Ajuste P154A (diagnóstico Model): cobertura empírica
 revisada (era 4/4/5/8/0=21; passa a 3/4/5/10/0=22 após
@@ -5797,3 +5809,24 @@ inalterado; apenas a nota de qualidade muda de `implementado+` para `implementad
 - **Contagem user-facing total mantém-se 141** (`Regex` já estava contabilizado; `text.font` dict continua gap 8 DEBT-52).
 - **Testes**: unitários (`regex.rs`, `value.rs`) verdes; `cargo test --workspace` passa (com `RUST_MIN_STACK=33554432`).
 - **Decisão arquitectural**: ADR-0077 mantém `regex` autorizado em L1; ADR-0107 (pattern como valor linguagem); ADR-0054 (operações regex ricas scope-out).
+
+⁸⁷ — Ajuste P415 (sincronização P391–P414 + ADR-0113; **fecha Passo 415**):
+
+- **Tabela A.3 Text features**:
+  - `smallcaps` transita `ausente → implementado`:
+    - Novo variant `Content::SmallCaps { body: Box<Content> }` em `01_core/src/entities/content.rs`.
+    - Stdlib `native_smallcaps` em `01_core/src/rules/stdlib/text.rs`; registada em `make_stdlib`.
+    - Consumer em `layout/text.rs` emite `body` inalterado (stub transparente per ADR-0113).
+  - `text.font` (dict) transita `scope-out → implementado`:
+    - Forma legado P407 (dict com chaves=name/regex e values=variants) já implementada.
+    - Forma named fields P414 (`family`, `variant`, `weight`, `style`, `fallback`) adicionada em `01_core/src/rules/eval/rules.rs`.
+    - `FontFamily` estendido com campos opcionais `variant`/`weight`/`style` para transporte honesto (variant-aware selection continua scope-out).
+    - gap 8 / DEBT-52 formalmente fechado.
+- **Tabela A.8 Foundations stdlib**: adicionadas linhas `bytes(...)` e `lorem(n)` (já implementadas em P398/P391; apenas documentação).
+- **Tabela B.2 Content variants**: adicionada entrada `SmallCaps { body }` (P408); total mantém-se 64.
+- **Tabela C**: entradas `smallcaps` e `text.font` dict marcadas como resolvidas (strikethrough).
+- **Contagens Tabela A.3 Text features**: 10/5/1/5/2=23 → **12/5/1/4/1=23** (+2 implementado, −1 ausente, −1 scope-out).
+- **Contagem user-facing total**: 73/27/24/15/2=141 → **75/27/24/14/1=141** (+2 implementado, −1 ausente, −1 scope-out).
+- **Cobertura user-facing (impl + impl⁺)**: (75+27)/141 = **~72.3%** (nota: o passo P415 estimava ~81%; o valor factual com o denominador actual de 141 features é ~72%).
+- **ADR-0113**: criada `00_nucleo/adr/typst-adr-0113-stub-transparente-vs-fallback-software.md`, formalizando o princípio emergente aplicado em P295, P408, P414 e passos anteriores.
+- **Zero código Rust alterado** neste passo; apenas documentação.
