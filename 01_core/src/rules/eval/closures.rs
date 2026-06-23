@@ -13,7 +13,9 @@ use indexmap::IndexMap;
 use rustc_hash::FxBuildHasher;
 
 use crate::entities::args::Args;
-use crate::entities::ast::expr::{Arg, Closure as ClosureNode, Expr, FuncCall as FuncCallNode, Param, Pattern};
+use crate::entities::ast::expr::{
+    Arg, Closure as ClosureNode, Expr, FuncCall as FuncCallNode, Param, Pattern,
+};
 use crate::entities::ast::AstNode;
 use crate::entities::content::Content;
 use crate::entities::engine::Engine;
@@ -49,7 +51,7 @@ pub(super) fn eval_args(
                     eval_expr(name_expr.expr(), scopes, ctx, engine)?,
                 );
             }
-            Arg::Spread(_) => {}  // fronteira deliberada
+            Arg::Spread(_) => {} // fronteira deliberada
         }
     }
     Ok(Args { items, named })
@@ -70,7 +72,7 @@ pub(crate) fn apply_func(
         // ponto de despacho dos nativos (sem caminho paralelo). Erro do catálogo
         // existente se o ctor falhar (não panic).
         FuncRepr::Element(ef) => Ok(Value::Content((ef.ctor)(&args.items)?)),
-        FuncRepr::Native(native)   => {
+        FuncRepr::Native(native) => {
             let world = engine.world;
             let current_file = engine.current_file;
             // F-5a de-bake (P365, `f_fronteira_e1.md` §3a.9): o dispatch não lê mais
@@ -183,7 +185,8 @@ pub(super) fn eval_closure_expr(
     let name = closure_expr.name().map(|n| n.as_str().to_string());
 
     // Extrair parâmetros — Param::Pos(Pattern::Normal(Ident)) e Param::Named
-    let params: SourceResult<Vec<ClosureParam>> = closure_expr.params()
+    let params: SourceResult<Vec<ClosureParam>> = closure_expr
+        .params()
         .children()
         .filter_map(|param| match param {
             Param::Pos(Pattern::Normal(Expr::Ident(ident))) => {
@@ -191,10 +194,12 @@ pub(super) fn eval_closure_expr(
             }
             Param::Named(named) => {
                 let name = named.name().as_str().to_string();
-                Some(eval_expr(named.expr(), scopes, ctx, engine)
-                    .map(|v| ClosureParam { name, default: Some(v) }))
+                Some(
+                    eval_expr(named.expr(), scopes, ctx, engine)
+                        .map(|v| ClosureParam { name, default: Some(v) }),
+                )
             }
-            _ => None,  // Spread, Placeholder, Destructuring — adiado
+            _ => None, // Spread, Placeholder, Destructuring — adiado
         })
         .collect();
     let params = params?;
@@ -218,7 +223,32 @@ pub(super) fn eval_func_call(
     if let Expr::FieldAccess(access) = call.callee() {
         if let Some(counter_key) = bindings::extract_counter_key(access.target()) {
             let method_name = access.field().as_str().to_string();
-            return bindings::eval_counter_method(&counter_key, &method_name, call.args(), scopes, ctx, engine);
+            return bindings::eval_counter_method(
+                &counter_key,
+                &method_name,
+                call.args(),
+                scopes,
+                ctx,
+                engine,
+            );
+        }
+    }
+
+    // **P417 (M)** — Intercepção de `heading.where(field: value)` (method call
+    // syntax) antes de avaliar o callee genérico. O target deve avaliar para
+    // uma `Value::Func` nativa de elemento (heading, figure, strong, emph, raw).
+    // O resultado é `Value::Selector(Selector::Where { base: Kind(...), ... })`.
+    if let Expr::FieldAccess(access) = call.callee() {
+        if access.field().as_str() == "where" {
+            if let Some(selector) = bindings::eval_element_where(
+                access.target(),
+                call.args(),
+                scopes,
+                ctx,
+                engine,
+            )? {
+                return Ok(Value::Selector(selector));
+            }
         }
     }
 
@@ -241,7 +271,7 @@ pub(super) fn eval_func_call(
             } else {
                 Ok(result)
             }
-        },
+        }
         other => Err(vec![SourceDiagnostic::error(
             call.callee().span(),
             format!("não é possível chamar {}", other.type_name()),

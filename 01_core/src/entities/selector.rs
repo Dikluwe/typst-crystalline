@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/entities/selector.md
-//! @prompt-hash 0cba412a
+//! @prompt-hash 0941c463
 //! @layer L1
 //! @updated 2026-05-12
 //!
@@ -13,16 +13,17 @@
 //! adicionou compósitos `And(EcoVec<Self>)` + `Or(EcoVec<Self>)`;
 //! P209D fecha com `Regex(Regex)` per ADR-0077 PROPOSTO.
 
-use ecow::EcoVec;
+use ecow::{EcoString, EcoVec};
 
 use crate::entities::element_kind::ElementKind;
 use crate::entities::label::Label;
 use crate::entities::location::Location;
 use crate::entities::regex::Regex;
+use crate::entities::value::Value;
 
 /// Predicado para `Introspector::query`. Variants P175 +
 /// P209B + P209C + P209D.
-#[derive(Debug, Clone, PartialEq, Eq, Hash)]
+#[derive(Debug, Clone, PartialEq, Hash)]
 pub enum Selector {
     /// Selector de kind — matches todos os elementos de um tipo.
     Kind(ElementKind),
@@ -46,6 +47,13 @@ pub enum Selector {
     /// semântica funcional fica deferred per P209A A3 (consumer
     /// real emerge quando query-by-text for acessível, P212+).
     Regex(Regex),
+    /// **P417 (M)** — Selector por campo de elemento.
+    /// `base` tipicamente `Kind(Heading)`; `field` nome do campo;
+    /// `value` valor esperado (`Box<Value>` para quebrar recursão
+    /// `Selector` ↔ `Value`). Sem vtable/closure (ADR-0109 forma B).
+    /// Query arm é stub `vec![]` documentado (single-pass indexa
+    /// `ElementPayload`, não Content fields).
+    Where { base: Box<Selector>, field: EcoString, value: Box<Value> },
 }
 
 #[cfg(test)]
@@ -125,9 +133,7 @@ mod tests {
         ]);
         let a = Selector::And(inner.clone());
         let b = Selector::And(inner.clone());
-        let c = Selector::And(EcoVec::from(vec![
-            Selector::Kind(ElementKind::Figure),
-        ]));
+        let c = Selector::And(EcoVec::from(vec![Selector::Kind(ElementKind::Figure)]));
         assert_eq!(a, b);
         assert_ne!(a, c);
         // Hash determinístico recursivo.
@@ -156,7 +162,7 @@ mod tests {
     fn p209c_selector_and_or_vazio_estrutural() {
         // Vazio é representável e Hash determinístico.
         let empty_and: Selector = Selector::And(EcoVec::new());
-        let empty_or:  Selector = Selector::Or(EcoVec::new());
+        let empty_or: Selector = Selector::Or(EcoVec::new());
         assert_eq!(empty_and, Selector::And(EcoVec::new()));
         assert_eq!(empty_or, Selector::Or(EcoVec::new()));
         assert_ne!(empty_and, empty_or);
@@ -205,5 +211,68 @@ mod tests {
         ]));
         let or_copy = or.clone();
         assert_eq!(or, or_copy);
+    }
+
+    // ── P417 (M) — variant Where ───────────────────────────────────────
+
+    #[test]
+    fn p417_selector_where_estrutural() {
+        let a = Selector::Where {
+            base: Box::new(Selector::Kind(ElementKind::Heading)),
+            field: "level".into(),
+            value: Box::new(Value::Int(1)),
+        };
+        let b = Selector::Where {
+            base: Box::new(Selector::Kind(ElementKind::Heading)),
+            field: "level".into(),
+            value: Box::new(Value::Int(1)),
+        };
+        let c = Selector::Where {
+            base: Box::new(Selector::Kind(ElementKind::Heading)),
+            field: "level".into(),
+            value: Box::new(Value::Int(2)),
+        };
+        assert_eq!(a, b);
+        assert_ne!(a, c);
+    }
+
+    #[test]
+    fn p417_selector_where_distinto_de_kind() {
+        let kind = Selector::Kind(ElementKind::Heading);
+        let wh = Selector::Where {
+            base: Box::new(kind.clone()),
+            field: "level".into(),
+            value: Box::new(Value::Int(1)),
+        };
+        assert_ne!(kind, wh);
+    }
+
+    #[test]
+    fn p417_selector_where_hash_deterministico() {
+        let s = Selector::Where {
+            base: Box::new(Selector::Kind(ElementKind::Heading)),
+            field: "level".into(),
+            value: Box::new(Value::Int(1)),
+        };
+        let mut h1 = DefaultHasher::new();
+        let mut h2 = DefaultHasher::new();
+        s.hash(&mut h1);
+        s.hash(&mut h2);
+        assert_eq!(h1.finish(), h2.finish());
+    }
+
+    #[test]
+    fn p417_selector_where_nested_em_and() {
+        let inner = Selector::Where {
+            base: Box::new(Selector::Kind(ElementKind::Heading)),
+            field: "level".into(),
+            value: Box::new(Value::Int(1)),
+        };
+        let and = Selector::And(EcoVec::from(vec![
+            inner.clone(),
+            Selector::Label(Label("x".into())),
+        ]));
+        let and_copy = and.clone();
+        assert_eq!(and, and_copy);
     }
 }

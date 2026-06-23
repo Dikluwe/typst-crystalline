@@ -854,6 +854,10 @@ fn parse_selector_arg(
             // P209B: Value::Location dispatch.
             Ok(Selector::Location(*loc))
         }
+        [Value::Selector(sel)] => {
+            // P417: Selector como valor de primeira classe.
+            Ok(sel.clone())
+        }
         [other] => msg(format!(
             "{}() requer string ou location, recebeu {}. \
              Tipos suportados: \"kind\", \"<label>\", \

@@ -19,13 +19,15 @@ use indexmap::IndexMap;
 use rustc_hash::FxBuildHasher;
 
 use crate::entities::args::Args;
-use crate::entities::ast::AstNode;
 use crate::entities::ast::code::{SetRule, ShowRule as ShowRuleNode};
 use crate::entities::ast::expr::{Arg, ArrayItem, Dict, DictItem, Expr};
+use crate::entities::ast::AstNode;
 use crate::entities::content::Content;
+use crate::entities::element_kind::ElementKind;
 use crate::entities::engine::Engine;
 use crate::entities::font_book::FontWeight;
 use crate::entities::lang::Lang;
+use crate::entities::selector::Selector as QuerySelector;
 use crate::entities::show::{NodeKind, Selector, ShowRule, Transformation};
 use crate::entities::source_result::{SourceDiagnostic, SourceResult};
 use crate::entities::span::Span;
@@ -36,6 +38,60 @@ use crate::entities::world_types::check_show_depth as route_check_show_depth;
 use crate::rules::scopes::Scopes;
 
 use super::{closures, eval_expr, EvalContext};
+
+/// **P417 (M)** — Converte um `entities::selector::Selector` (query)
+/// para um `entities::show::Selector` (show rule). Apenas `Kind` e
+/// `Where` sobre `Kind` de elementos nativos suportados são convertidos;
+/// outros selectors são scope-out com erro claro.
+fn query_selector_to_show_selector(
+    sel: QuerySelector,
+    span: Span,
+) -> SourceResult<Selector> {
+    fn kind_to_node(kind: ElementKind) -> Option<NodeKind> {
+        match kind {
+            ElementKind::Heading => Some(NodeKind::Heading),
+            ElementKind::Figure => Some(NodeKind::Figure),
+            _ => None,
+        }
+    }
+
+    match sel {
+        QuerySelector::Kind(kind) => match kind_to_node(kind) {
+            Some(node) => Ok(Selector::NodeKind(node)),
+            None => Err(vec![SourceDiagnostic::error(
+                span,
+                format!(
+                    "selector de kind '{}' não é suportado em show rule",
+                    kind.as_str()
+                ),
+            )]),
+        },
+        QuerySelector::Where { base, field, value } => match *base {
+            QuerySelector::Kind(kind) => match kind_to_node(kind) {
+                Some(node) => Ok(Selector::Where {
+                    base: Box::new(Selector::NodeKind(node)),
+                    field,
+                    value,
+                }),
+                None => Err(vec![SourceDiagnostic::error(
+                    span,
+                    format!(
+                        "selector where sobre kind '{}' não suportado em show rule",
+                        kind.as_str()
+                    ),
+                )]),
+            },
+            _ => Err(vec![SourceDiagnostic::error(
+                span,
+                "selector where com base não-Kind não suportado em show rule".to_string(),
+            )]),
+        },
+        _ => Err(vec![SourceDiagnostic::error(
+            span,
+            "selector não suportado em show rule".to_string(),
+        )]),
+    }
+}
 
 /// Helper partilhado para construir warning de propriedade não suportada
 /// em `#set` (Passo 107, encerra DEBT-49). Formato consistente para o
@@ -52,7 +108,7 @@ fn unsupported_property_warn(
     let msg = format!("{target}: propriedade '{field}' ainda não suportada");
     let hint = match adr_ref {
         Some(adr) => format!("ver ADR-{adr} para propriedades cobertas por set {target}"),
-        None      => format!("propriedades de set {target} ainda não são capturadas"),
+        None => format!("propriedades de set {target} ainda não são capturadas"),
     };
     (msg, hint)
 }
@@ -78,18 +134,37 @@ fn selector_matches(work: &Content, selector: &Selector) -> bool {
     match selector {
         Selector::NodeKind(kind) => matches!(
             (work, kind),
-            (Content::Heading(_),  NodeKind::Heading)
-            | (Content::Figure(_),   NodeKind::Figure)
-            | (Content::Raw { .. },      NodeKind::Raw)
-            | (Content::Equation { .. }, NodeKind::Equation)
-            | (Content::ListItem(_),     NodeKind::ListItem)
-            | (Content::Strong(_),       NodeKind::Strong)
-            | (Content::Emph(_),         NodeKind::Emph)
+            (Content::Heading(_), NodeKind::Heading)
+                | (Content::Figure(_), NodeKind::Figure)
+                | (Content::Raw { .. }, NodeKind::Raw)
+                | (Content::Equation { .. }, NodeKind::Equation)
+                | (Content::ListItem(_), NodeKind::ListItem)
+                | (Content::Strong(_), NodeKind::Strong)
+                | (Content::Emph(_), NodeKind::Emph)
         ),
-        Selector::DynKind(name) =>
-            matches!(work, Content::Dynamic(e) if e.dyn_kind() == name),
+        Selector::DynKind(name) => {
+            matches!(work, Content::Dynamic(e) if e.dyn_kind() == name)
+        }
         Selector::Text(_) => false,
         Selector::Regex(_) => false,
+        Selector::Where { base, field, value } => {
+            selector_matches(work, base)
+                && work
+                    .get_field(field.as_str())
+                    .map(|actual| values_eq_semantic(&actual, value.as_ref()))
+                    .unwrap_or(false)
+        }
+    }
+}
+
+/// **P417 (M)** — Igualdade semântica de `Value` para matching de `Where`.
+/// Replica ADR-0025 (coerção Int↔Float em comparações) e ADR-0107
+/// (paridade comportamental, não mecânica).
+fn values_eq_semantic(actual: &Value, expected: &Value) -> bool {
+    match (actual, expected) {
+        (Value::Int(a), Value::Float(b)) => (*a as f64) == *b,
+        (Value::Float(a), Value::Int(b)) => *a == (*b as f64),
+        (a, b) => a == b,
     }
 }
 
@@ -122,15 +197,24 @@ pub(crate) fn apply_show_rules(
     // Separar regras por tipo para travessias distintas. Lote F-3 inc-2: as
     // regras de **kind dinâmico** (`#show callout:`) viajam pela MESMA travessia
     // que as NodeKind — mesmo `apply_all`, mesma ordem, mesmo guard por `RuleId`.
-    let has_node_rules = rules.iter().any(|r|
-        matches!(r.selector, Selector::NodeKind(_) | Selector::DynKind(_)));
+    /// **P417 (M)** — Verifica se um selector de show rule deve viajar pela
+    /// travessia de nós (`map_content`). Recursivo para `Where` com base
+    /// `NodeKind`/`DynKind`.
+    fn is_node_rule(selector: &Selector) -> bool {
+        match selector {
+            Selector::NodeKind(_) | Selector::DynKind(_) => true,
+            Selector::Where { base, .. } => is_node_rule(base.as_ref()),
+            Selector::Text(_) | Selector::Regex(_) => false,
+        }
+    }
+
+    let has_node_rules = rules.iter().any(|r| is_node_rule(&r.selector));
 
     if has_node_rules {
-        // Única travessia para todas as NodeKind + DynKind rules.
-        let node_rules: Vec<ShowRule> = rules.iter()
-            .filter(|r| matches!(r.selector, Selector::NodeKind(_) | Selector::DynKind(_)))
-            .cloned()
-            .collect();
+        // Única travessia para todas as NodeKind + DynKind rules, incluindo
+        // Where com base node-like (P417).
+        let node_rules: Vec<ShowRule> =
+            rules.iter().filter(|r| is_node_rule(&r.selector)).cloned().collect();
 
         let mut apply_all = |node: &Content| -> SourceResult<Option<Content>> {
             // P348 (modelo α, ADR-0107): a element rule cujo output **re-casa** é
@@ -183,33 +267,47 @@ pub(crate) fn apply_show_rules(
 
                     match &rule.transform {
                         Transformation::Func(func) => {
-                            let args = Args::positional(vec![Value::Content(work.clone())]);
+                            let args =
+                                Args::positional(vec![Value::Content(work.clone())]);
                             engine.active_guards.push(rule.id);
-                            let call_result = closures::apply_func(func.clone(), args, &mut scopes, ctx, engine);
+                            let call_result = closures::apply_func(
+                                func.clone(),
+                                args,
+                                &mut scopes,
+                                ctx,
+                                engine,
+                            );
                             engine.active_guards.pop();
                             produced = Some(match call_result? {
                                 Value::Content(c) => c,
-                                Value::Str(s)     => Content::text(s.as_str()),
-                                other => return Err(vec![SourceDiagnostic::error(
-                                    Span::detached(),
-                                    format!(
-                                        "show rule deve retornar Content ou String, \
+                                Value::Str(s) => Content::text(s.as_str()),
+                                other => {
+                                    return Err(vec![SourceDiagnostic::error(
+                                        Span::detached(),
+                                        format!(
+                                            "show rule deve retornar Content ou String, \
                                          recebeu {}",
-                                        other.type_name()
-                                    ),
-                                )]),
+                                            other.type_name()
+                                        ),
+                                    )])
+                                }
                             });
                             break;
-                        },
-                        Transformation::Content(c) => { produced = Some(c.clone()); break; },
+                        }
+                        Transformation::Content(c) => {
+                            produced = Some(c.clone());
+                            break;
+                        }
                         // `Str` só é válida sobre `Selector::Text` (tratada no loop
                         // de texto). Sobre NodeKind/DynKind é erro — paridade com o
                         // comportamento anterior ("recebeu str").
-                        Transformation::Str(_) => return Err(vec![SourceDiagnostic::error(
+                        Transformation::Str(_) => {
+                            return Err(vec![SourceDiagnostic::error(
                             Span::detached(),
                             "show rule com selector de tipo requer função ou Content, \
                              recebeu str".to_string(),
-                        )]),
+                        )])
+                        }
                         // Saltado acima; inalcançável.
                         Transformation::Style(_) => continue,
                     }
@@ -240,7 +338,8 @@ pub(crate) fn apply_show_rules(
                         work = out;
                         break; // ponto-fixo morfológico
                     }
-                    if applied >= crate::entities::world_types::Route::MAX_SHOW_RULE_DEPTH {
+                    if applied >= crate::entities::world_types::Route::MAX_SHOW_RULE_DEPTH
+                    {
                         // Teto backstop (mecânica). Mensagem base + 2 hints
                         // BYTE-IDÊNTICOS ao vanilla (`engine.rs:350`, ADR-0033: a
                         // mensagem é comportamento observável).
@@ -310,7 +409,11 @@ pub(crate) fn apply_show_rules(
                 }
             }
 
-            if applied > 0 || wrapped { Ok(Some(work)) } else { Ok(None) }
+            if applied > 0 || wrapped {
+                Ok(Some(work))
+            } else {
+                Ok(None)
+            }
         };
 
         content = content.map_content(&mut apply_all)?;
@@ -319,14 +422,17 @@ pub(crate) fn apply_show_rules(
     // Regex rules (P393) — aplicadas a nós de texto que casam.
     // Última-declarada vence (consistente com NodeKind). Transformações
     // Func/Content/Str são suportadas; Style foi rejeitado em parse.
-    let regex_rules: Vec<ShowRule> = rules.iter()
+    let regex_rules: Vec<ShowRule> = rules
+        .iter()
         .filter(|r| matches!(r.selector, Selector::Regex(_)))
         .cloned()
         .collect();
 
     if !regex_rules.is_empty() {
         let mut apply_regex = |node: &Content| -> SourceResult<Option<Content>> {
-            let Content::Text(text) = node else { return Ok(None); };
+            let Content::Text(text) = node else {
+                return Ok(None);
+            };
             for rule in regex_rules.iter().rev() {
                 if engine.active_guards.contains(&rule.id) {
                     continue;
@@ -339,24 +445,32 @@ pub(crate) fn apply_show_rules(
                     Transformation::Func(func) => {
                         let args = Args::positional(vec![Value::Content(node.clone())]);
                         engine.active_guards.push(rule.id);
-                        let call_result = closures::apply_func(func.clone(), args, &mut scopes, ctx, engine);
+                        let call_result = closures::apply_func(
+                            func.clone(),
+                            args,
+                            &mut scopes,
+                            ctx,
+                            engine,
+                        );
                         engine.active_guards.pop();
                         match call_result? {
                             Value::Content(c) => c,
-                            Value::Str(s)     => Content::text(s.as_str()),
-                            other => return Err(vec![SourceDiagnostic::error(
-                                Span::detached(),
-                                format!(
+                            Value::Str(s) => Content::text(s.as_str()),
+                            other => {
+                                return Err(vec![SourceDiagnostic::error(
+                                    Span::detached(),
+                                    format!(
                                     "show rule regex deve retornar Content ou String, \
                                      recebeu {}",
                                     other.type_name()
                                 ),
-                            )]),
+                                )])
+                            }
                         }
-                    },
+                    }
                     Transformation::Content(c) => c.clone(),
-                    Transformation::Str(s)     => Content::text(s.as_str()),
-                    Transformation::Style(_)   => continue,
+                    Transformation::Str(s) => Content::text(s.as_str()),
+                    Transformation::Style(_) => continue,
                 };
                 return Ok(Some(produced));
             }
@@ -370,7 +484,8 @@ pub(crate) fn apply_show_rules(
         if let Selector::Text(pattern) = &rule.selector {
             if let Transformation::Str(s) = &rule.transform {
                 let replacement = s.to_string();
-                let mut do_replace = |text: &str| text.replace(pattern.as_str(), &replacement);
+                let mut do_replace =
+                    |text: &str| text.replace(pattern.as_str(), &replacement);
                 content = content.map_text(&mut do_replace);
             }
         }
@@ -423,7 +538,8 @@ pub(super) fn eval_set_rule(
                 if named.name().as_str() == "numbering" {
                     // Defensivo: só String activa a numeração.
                     // Closures, none, ou outros tipos → ignorar.
-                    let val = eval_expr(named.expr(), scopes, ctx, engine).unwrap_or(Value::None);
+                    let val = eval_expr(named.expr(), scopes, ctx, engine)
+                        .unwrap_or(Value::None);
                     return matches!(val, Value::Str(_));
                 }
             }
@@ -433,7 +549,8 @@ pub(super) fn eval_set_rule(
         // empurra para a chain léxica (`engine.styles` é escopado por
         // `local_styles`). O heading assa este valor na criação
         // (`eval/markup.rs`). Fecha o canal global → escopo de container (DEBT 99.E).
-        *engine.styles = engine.styles.push_custom("heading.numbering", Value::Bool(active));
+        *engine.styles =
+            engine.styles.push_custom("heading.numbering", Value::Bool(active));
         return Ok(Value::None);
     }
 
@@ -468,23 +585,24 @@ pub(super) fn eval_set_rule(
         fn extract_pt(val: &Value) -> Option<f64> {
             match val {
                 Value::Length(l) => Some(l.abs.to_pt()),
-                Value::Float(f)  => Some(*f),
-                Value::Int(i)    => Some(*i as f64),
-                _                => None,
+                Value::Float(f) => Some(*f),
+                Value::Int(i) => Some(*i as f64),
+                _ => None,
             }
         }
-        let mut width  = None;
+        let mut width = None;
         let mut height = None;
         let mut margin = None;
         for arg in set.args().items() {
             if let Arg::Named(named) = arg {
                 let key = named.name().as_str();
-                let val = eval_expr(named.expr(), scopes, ctx, engine).unwrap_or(Value::None);
+                let val =
+                    eval_expr(named.expr(), scopes, ctx, engine).unwrap_or(Value::None);
                 match key {
-                    "width"  => width  = extract_pt(&val),
+                    "width" => width = extract_pt(&val),
                     "height" => height = extract_pt(&val),
                     "margin" => margin = extract_pt(&val),
-                    _        => {}
+                    _ => {}
                 }
             }
         }
@@ -500,15 +618,18 @@ pub(super) fn eval_set_rule(
         for arg in set.args().items() {
             if let Arg::Named(named) = arg {
                 if named.name().as_str() == "numbering" {
-                    let val = eval_expr(named.expr(), scopes, ctx, engine).unwrap_or(Value::None);
+                    let val = eval_expr(named.expr(), scopes, ctx, engine)
+                        .unwrap_or(Value::None);
                     match val {
                         Value::Str(s) => {
-                            *engine.styles = engine.styles
+                            *engine.styles = engine
+                                .styles
                                 .push_custom("figure.numbering", Value::Str(s));
                         }
                         Value::None => {
                             // Limpa a numeração no escopo (Value::None = ausente).
-                            *engine.styles = engine.styles
+                            *engine.styles = engine
+                                .styles
                                 .push_custom("figure.numbering", Value::None);
                         }
                         // Outros tipos: herdar (não empurra).
@@ -536,13 +657,13 @@ pub(super) fn eval_set_rule(
                 match key.as_str() {
                     "leading" => {
                         if let Value::Length(l) = val {
-                            *engine.styles = engine.styles.push_custom("par.leading", Value::Length(l));
+                            *engine.styles = engine
+                                .styles
+                                .push_custom("par.leading", Value::Length(l));
                         }
                     }
                     _ => {
-                        let (msg, hint) = unsupported_property_warn(
-                            "par", &key, None,
-                        );
+                        let (msg, hint) = unsupported_property_warn("par", &key, None);
                         engine.sink.warn_note(
                             named.name().to_untyped().span(),
                             &msg,
@@ -570,8 +691,8 @@ pub(super) fn eval_set_rule(
         for arg in set.args().items() {
             if let Arg::Named(named) = arg {
                 let key = format!("{}.{}", target, named.name().as_str());
-                let val = eval_expr(named.expr(), scopes, ctx, engine)
-                    .unwrap_or(Value::None);
+                let val =
+                    eval_expr(named.expr(), scopes, ctx, engine).unwrap_or(Value::None);
                 *engine.styles = engine.styles.push_custom(key, val);
             }
         }
@@ -598,22 +719,26 @@ pub(super) fn eval_set_rule(
             match key.as_str() {
                 "bold" => {
                     if let Value::Bool(b) = val {
-                        *engine.styles = engine.styles.push_custom("text.bold", Value::Bool(b));
+                        *engine.styles =
+                            engine.styles.push_custom("text.bold", Value::Bool(b));
                     }
                 }
                 "italic" => {
                     if let Value::Bool(b) = val {
-                        *engine.styles = engine.styles.push_custom("text.italic", Value::Bool(b));
+                        *engine.styles =
+                            engine.styles.push_custom("text.italic", Value::Bool(b));
                     }
                 }
                 "size" => {
                     if let Value::Length(l) = val {
-                        *engine.styles = engine.styles.push_custom("text.size", Value::Length(l));
+                        *engine.styles =
+                            engine.styles.push_custom("text.size", Value::Length(l));
                     }
                 }
                 "fill" => {
                     if let Value::Color(c) = val {
-                        *engine.styles = engine.styles.push_custom("text.fill", Value::Color(c));
+                        *engine.styles =
+                            engine.styles.push_custom("text.fill", Value::Color(c));
                     }
                 }
                 "weight" => {
@@ -622,16 +747,21 @@ pub(super) fn eval_set_rule(
                     // (padrão histórico).
                     let w: Option<u16> = match &val {
                         Value::Int(n) => u16::try_from(*n).ok(),
-                        Value::Str(s) => FontWeight::from_name(s.as_str()).map(|fw| fw.to_number()),
+                        Value::Str(s) => {
+                            FontWeight::from_name(s.as_str()).map(|fw| fw.to_number())
+                        }
                         _ => None,
                     };
                     if let Some(w) = w {
-                        *engine.styles = engine.styles.push_custom("text.weight", Value::Int(w as i64));
+                        *engine.styles = engine
+                            .styles
+                            .push_custom("text.weight", Value::Int(w as i64));
                     }
                 }
                 "tracking" => {
                     if let Value::Length(l) = val {
-                        *engine.styles = engine.styles.push_custom("text.tracking", Value::Length(l));
+                        *engine.styles =
+                            engine.styles.push_custom("text.tracking", Value::Length(l));
                     }
                 }
                 "lang" => {
@@ -640,8 +770,10 @@ pub(super) fn eval_set_rule(
                     if let Value::Str(s) = val {
                         match Lang::from_str(&s) {
                             Ok(lang) => {
-                                *engine.styles = engine.styles
-                                    .push_custom("text.lang", Value::Str(lang.as_str().into()));
+                                *engine.styles = engine.styles.push_custom(
+                                    "text.lang",
+                                    Value::Str(lang.as_str().into()),
+                                );
                             }
                             Err(msg) => {
                                 return Err(vec![SourceDiagnostic::error(
@@ -670,11 +802,14 @@ pub(super) fn eval_set_rule(
                             for item in arr_node.items() {
                                 if let ArrayItem::Pos(expr) = item {
                                     if let Expr::Str(node) = expr {
-                                        items.push(Value::Str(EcoString::from(node.get())));
+                                        items.push(Value::Str(EcoString::from(
+                                            node.get(),
+                                        )));
                                     } else {
                                         return Err(vec![SourceDiagnostic::error(
                                             span,
-                                            "font array must contain only strings".to_string(),
+                                            "font array must contain only strings"
+                                                .to_string(),
                                         )]);
                                     }
                                 }
@@ -690,7 +825,8 @@ pub(super) fn eval_set_rule(
                         Expr::Dict(dict_node) => {
                             // P414: detectar dict named fields (tem chave `family`)
                             // vs formato legado P407 (chaves são nomes de fonte).
-                            const NAMED_FIELDS: &[&str] = &["family", "variant", "weight", "style", "fallback"];
+                            const NAMED_FIELDS: &[&str] =
+                                &["family", "variant", "weight", "style", "fallback"];
                             let is_named_fields = dict_node.items().any(|item| {
                                 matches!(
                                     item,
@@ -712,16 +848,19 @@ pub(super) fn eval_set_rule(
                         _ => {
                             return Err(vec![SourceDiagnostic::error(
                                 span,
-                                "font expects a string, array of strings, or dict".to_string(),
+                                "font expects a string, array of strings, or dict"
+                                    .to_string(),
                             )]);
                         }
                     };
-                    *engine.styles = engine.styles.push_custom("text.font", Value::Array(arr));
+                    *engine.styles =
+                        engine.styles.push_custom("text.font", Value::Array(arr));
                 }
                 _ => {
                     // Passo 107 (encerra DEBT-49): propriedades não suportadas
                     // de `#set text(...)` emitem warning via Sink.
-                    let (msg, hint) = unsupported_property_warn("text", &key, Some("0040"));
+                    let (msg, hint) =
+                        unsupported_property_warn("text", &key, Some("0040"));
                     engine.sink.warn_note(named.name().to_untyped().span(), &msg, &hint);
                 }
             }
@@ -760,22 +899,30 @@ pub(super) fn eval_show_rule(
     // Avaliar o selector — pode ser uma string ou uma função da stdlib.
     // `selector()` retorna `Option<Expr>` — None significa selector omitido (não suportado).
     let selector = match show_rule.selector() {
-        None => return Err(vec![SourceDiagnostic::error(
-            show_rule.to_untyped().span(),
-            "show rule requer um selector".to_string(),
-        )]),
+        None => {
+            return Err(vec![SourceDiagnostic::error(
+                show_rule.to_untyped().span(),
+                "show rule requer um selector".to_string(),
+            )])
+        }
         Some(sel_expr) => {
             let selector_val = eval_expr(sel_expr, scopes, ctx, engine)?;
             match selector_val {
                 Value::Str(s) => Selector::Text(s.to_string()),
                 // P393: regex(pattern) → selector regex sobre texto.
                 Value::Regex(re) => Selector::Regex(re),
+                // **P417 (M)** — Selector como valor de primeira classe
+                // (`heading.where(level: 1)`). Converte do selector de query
+                // para o selector de show rule.
+                Value::Selector(sel) => {
+                    query_selector_to_show_selector(sel, sel_expr.span())?
+                }
                 // Lote F-3 inc-2: elemento de utilizador (fronteira E1) — o
                 // selector `callout` resolve para uma `FuncRepr::Element`, que
                 // não tem fn-ptr nativo. Casa por **kind dinâmico** (nome).
                 Value::Func(ref f) if f.element_name().is_some() => {
                     Selector::DynKind(f.element_name().unwrap().to_string())
-                },
+                }
                 Value::Func(ref f) => {
                     // Passo 84.3 (encerra DEBT-21): resolver NodeKind
                     // por identidade do function pointer da nativa
@@ -786,11 +933,11 @@ pub(super) fn eval_show_rule(
                     //
                     // Closures retornam `None` em `native_fn_addr()` —
                     // function pointers de closures não são estáveis.
-                    use std::ptr::fn_addr_eq;
                     use crate::rules::stdlib::{
-                        native_heading, native_figure, native_strong,
-                        native_emph, native_raw,
+                        native_emph, native_figure, native_heading, native_raw,
+                        native_strong,
                     };
+                    use std::ptr::fn_addr_eq;
                     match f.native_fn_addr() {
                         Some(addr) if fn_addr_eq(addr, native_heading as fn(_, _, _, _) -> _) =>
                             Selector::NodeKind(NodeKind::Heading),
@@ -817,11 +964,16 @@ pub(super) fn eval_show_rule(
                                 .to_string(),
                         )]),
                     }
-                },
-                other => return Err(vec![SourceDiagnostic::error(
-                    sel_expr.span(),
-                    format!("selector inválido para show rule: {}", other.type_name()),
-                )]),
+                }
+                other => {
+                    return Err(vec![SourceDiagnostic::error(
+                        sel_expr.span(),
+                        format!(
+                            "selector inválido para show rule: {}",
+                            other.type_name()
+                        ),
+                    )])
+                }
             }
         }
     };
@@ -839,7 +991,8 @@ pub(super) fn eval_show_rule(
                 return Err(vec![SourceDiagnostic::error(
                     set.to_untyped().span(),
                     "show-set (`#show …: set …`) não é válido para um selector de \
-                     texto — use uma função ou Content".to_string(),
+                     texto — use uma função ou Content"
+                        .to_string(),
                 )]);
             }
             Transformation::Style(capture_set_styles(set, scopes, ctx, engine)?)
@@ -847,17 +1000,19 @@ pub(super) fn eval_show_rule(
         expr => {
             let value = eval_expr(expr, scopes, ctx, engine)?;
             match value {
-                Value::Func(f)    => Transformation::Func(f),
+                Value::Func(f) => Transformation::Func(f),
                 Value::Content(c) => Transformation::Content(c),
-                Value::Str(s)     => Transformation::Str(s),
-                other => return Err(vec![SourceDiagnostic::error(
-                    expr.span(),
-                    format!(
-                        "transformação de show rule inválida: esperado função, \
+                Value::Str(s) => Transformation::Str(s),
+                other => {
+                    return Err(vec![SourceDiagnostic::error(
+                        expr.span(),
+                        format!(
+                            "transformação de show rule inválida: esperado função, \
                          Content, string ou set rule, recebeu {}",
-                        other.type_name()
-                    ),
-                )]),
+                            other.type_name()
+                        ),
+                    )])
+                }
             }
         }
     };
@@ -918,20 +1073,18 @@ fn parse_font_dict_named_fields<'a>(
                 }
                 family = Some(value);
             }
-            "variant" => {
-                match value {
-                    Value::Str(s) => variant = Some(s),
-                    other => {
-                        return Err(vec![SourceDiagnostic::error(
-                            span,
-                            format!(
-                                "font dict field 'variant' expects string, recebeu {}",
-                                other.type_name()
-                            ),
-                        )]);
-                    }
+            "variant" => match value {
+                Value::Str(s) => variant = Some(s),
+                other => {
+                    return Err(vec![SourceDiagnostic::error(
+                        span,
+                        format!(
+                            "font dict field 'variant' expects string, recebeu {}",
+                            other.type_name()
+                        ),
+                    )]);
                 }
-            }
+            },
             "weight" => {
                 let s = match value {
                     Value::Int(n) => EcoString::from(n.to_string()),
@@ -948,34 +1101,30 @@ fn parse_font_dict_named_fields<'a>(
                 };
                 weight = Some(s);
             }
-            "style" => {
-                match value {
-                    Value::Str(s) => style = Some(s),
-                    other => {
-                        return Err(vec![SourceDiagnostic::error(
-                            span,
-                            format!(
-                                "font dict field 'style' expects string, recebeu {}",
-                                other.type_name()
-                            ),
-                        )]);
-                    }
+            "style" => match value {
+                Value::Str(s) => style = Some(s),
+                other => {
+                    return Err(vec![SourceDiagnostic::error(
+                        span,
+                        format!(
+                            "font dict field 'style' expects string, recebeu {}",
+                            other.type_name()
+                        ),
+                    )]);
                 }
-            }
-            "fallback" => {
-                match value {
-                    Value::Bool(b) => fallback = b,
-                    other => {
-                        return Err(vec![SourceDiagnostic::error(
-                            span,
-                            format!(
-                                "font dict field 'fallback' expects boolean, recebeu {}",
-                                other.type_name()
-                            ),
-                        )]);
-                    }
+            },
+            "fallback" => match value {
+                Value::Bool(b) => fallback = b,
+                other => {
+                    return Err(vec![SourceDiagnostic::error(
+                        span,
+                        format!(
+                            "font dict field 'fallback' expects boolean, recebeu {}",
+                            other.type_name()
+                        ),
+                    )]);
                 }
-            }
+            },
             other => {
                 return Err(vec![SourceDiagnostic::error(
                     span,
@@ -1071,8 +1220,7 @@ fn parse_font_dict_legacy<'a>(
                 )]);
             }
         };
-        let mut entry: IndexMap<EcoString, Value, FxBuildHasher> =
-            IndexMap::default();
+        let mut entry: IndexMap<EcoString, Value, FxBuildHasher> = IndexMap::default();
         entry.insert(EcoString::from("name"), name_val);
         entry.insert(EcoString::from("variants"), Value::Array(variants_val));
         items.push(Value::Dict(entry));
@@ -1106,7 +1254,91 @@ fn variants_from_value(value: Value, span: Span) -> SourceResult<Vec<Value>> {
         }
         other => Err(vec![SourceDiagnostic::error(
             span,
-            format!("font dict value must be string or array of strings, recebeu {}", other.type_name()),
+            format!(
+                "font dict value must be string or array of strings, recebeu {}",
+                other.type_name()
+            ),
         )]),
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::entities::content::Content;
+    use crate::entities::show::Selector;
+    use crate::entities::value::Value;
+    use ecow::EcoString;
+
+    fn where_selector(field: &str, value: Value) -> Selector {
+        Selector::Where {
+            base: Box::new(Selector::NodeKind(NodeKind::Heading)),
+            field: EcoString::from(field),
+            value: Box::new(value),
+        }
+    }
+
+    #[test]
+    fn p417_matches_where_positivo() {
+        let content = Content::heading(1, Content::text("Intro"));
+        let sel = where_selector("level", Value::Int(1));
+        assert!(selector_matches(&content, &sel));
+    }
+
+    #[test]
+    fn p417_matches_where_valor_errado() {
+        let content = Content::heading(1, Content::text("Intro"));
+        let sel = where_selector("level", Value::Int(2));
+        assert!(!selector_matches(&content, &sel));
+    }
+
+    #[test]
+    fn p417_matches_where_campo_inexistente() {
+        let content = Content::heading(1, Content::text("Intro"));
+        let sel = where_selector("inexistente", Value::Int(1));
+        assert!(!selector_matches(&content, &sel));
+    }
+
+    #[test]
+    fn p417_matches_where_base_nao_casa() {
+        let content =
+            Content::figure(Content::text("Fig"), None, Some("image".to_string()), None);
+        let sel = where_selector("level", Value::Int(1));
+        assert!(!selector_matches(&content, &sel));
+    }
+
+    #[test]
+    fn p417_matches_where_int_float_coerce() {
+        let content = Content::heading(1, Content::text("Intro"));
+        let sel = where_selector("level", Value::Float(1.0));
+        assert!(selector_matches(&content, &sel));
+    }
+
+    #[test]
+    fn p417_matches_where_body_content() {
+        let content = Content::heading(1, Content::text("Intro"));
+        let sel = where_selector("body", Value::Content(Content::text("Intro")));
+        assert!(selector_matches(&content, &sel));
+    }
+
+    #[test]
+    fn p417_extract_field_heading_level() {
+        let content = Content::heading(2, Content::text("X"));
+        assert_eq!(content.get_field("level"), Some(Value::Int(2)));
+    }
+
+    #[test]
+    fn p417_extract_field_heading_body() {
+        let content = Content::heading(1, Content::text("Intro"));
+        assert_eq!(
+            content.get_field("body"),
+            Some(Value::Content(Content::text("Intro")))
+        );
+    }
+
+    #[test]
+    fn p417_extract_field_heading_inexistente() {
+        let content = Content::heading(1, Content::text("X"));
+        assert_eq!(content.get_field("inexistente"), None);
     }
 }

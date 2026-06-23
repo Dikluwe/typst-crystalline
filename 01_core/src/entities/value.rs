@@ -14,6 +14,7 @@ use crate::entities::bytes::Bytes;
 use crate::entities::decimal::Decimal;
 use crate::entities::duration::Duration;
 use crate::entities::regex::Regex;
+use crate::entities::selector::Selector;
 use crate::entities::version::Version;
 
 /// Valor em tempo de avaliação do Typst.
@@ -115,6 +116,11 @@ pub enum Value {
     /// `Vec<EcoString>`; constructor stdlib e comparações são scope-out futuro.
     Version(Arc<Version>),
 
+    /// **P417 (M)** — Selector (predicado para query/show rules).
+    /// Tipo L1 puro; representa `heading.where(level: 1)` como valor
+    /// de primeira classe.
+    Selector(Selector),
+
     // ── Variantes futuras — NÃO implementar sem ADR e tipo migrado ───────
     // Variantes futuras (~9 restantes após P262):
     // Relative(Relative),       // comprimento relativo
@@ -177,6 +183,7 @@ impl Value {
             Self::Decimal(_)   => "decimal",
             Self::Duration(_)  => "duration",
             Self::Version(_)   => "version",
+            Self::Selector(_)  => "selector",
         }
     }
 
@@ -304,6 +311,9 @@ impl From<crate::entities::module::Module> for Value {
 }
 impl From<crate::entities::world_types::Datetime> for Value {
     fn from(d: crate::entities::world_types::Datetime) -> Self { Self::Datetime(d) }
+}
+impl From<crate::entities::selector::Selector> for Value {
+    fn from(s: crate::entities::selector::Selector) -> Self { Self::Selector(s) }
 }
 impl From<crate::entities::func::Func> for Value {
     fn from(f: crate::entities::func::Func) -> Self { Self::Func(f) }

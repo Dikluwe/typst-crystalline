@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/entities/show.md
-//! @prompt-hash b05a5f7a
+//! @prompt-hash f1ac3860
 //! @layer L1
 //! @updated 2026-04-19
 
@@ -10,6 +10,7 @@ use crate::entities::content::Content;
 use crate::entities::func::Func;
 use crate::entities::regex::Regex;
 use crate::entities::style::Styles;
+use crate::entities::value::Value;
 
 /// Identificador único de uma show rule por sessão de avaliação.
 pub type RuleId = u64;
@@ -47,6 +48,11 @@ pub enum Selector {
     /// **P393** — Selector regex sobre texto. Ex: `#show regex("\\d+"): it => ...`.
     /// Casa nós de texto cujo conteúdo textual matcha o padrão.
     Regex(Regex),
+    /// **P417 (M)** — Selector por campo de elemento.
+    /// `base` deve ser `NodeKind` (nativo) em P417; `field` nome do campo;
+    /// `value` valor esperado (`Box<Value>` para quebrar recursão
+    /// `Selector` ↔ `Value`). Sem vtable/closure (ADR-0109 forma B).
+    Where { base: Box<Selector>, field: EcoString, value: Box<Value> },
 }
 
 /// A transformação que uma show rule aplica. Materializa o **S5** do spike-2
@@ -73,7 +79,7 @@ pub enum Transformation {
 /// Uma regra de transformação declarada com `#show selector: transform`.
 #[derive(Debug, Clone)]
 pub struct ShowRule {
-    pub id:        RuleId,
-    pub selector:  Selector,
+    pub id: RuleId,
+    pub selector: Selector,
     pub transform: Transformation,
 }

@@ -10,12 +10,17 @@
 //! conforme ADR-0037 (coesão por domínio). Assinaturas simplificadas no
 //! Passo 109 (ADR-0044) via `Engine<'_>`.
 
+use ecow::EcoString;
+
 use crate::entities::ast::code::{LetBinding, LetBindingKind};
 use crate::entities::ast::expr::{Arg, Expr};
+use crate::entities::ast::AstNode;
 use crate::entities::content::Content;
 use crate::entities::counter_update::CounterUpdate as CounterAction;
+use crate::entities::element_kind::ElementKind;
 use crate::entities::engine::Engine;
-use crate::entities::source_result::SourceResult;
+use crate::entities::selector::Selector;
+use crate::entities::source_result::{SourceDiagnostic, SourceResult};
 use crate::entities::value::Value;
 use crate::rules::scopes::Scopes;
 
@@ -69,33 +74,40 @@ pub(super) fn extract_counter_key(expr: Expr<'_>) -> Option<String> {
         Expr::Ident(id) => id.as_str().to_string(),
         _ => return None,
     };
-    if callee_name != "counter" { return None; }
+    if callee_name != "counter" {
+        return None;
+    }
 
     // Extrair o primeiro argumento posicional como chave string
     let first_arg = call.args().items().next()?;
     match first_arg {
         Arg::Pos(Expr::Ident(id)) => Some(id.as_str().to_string()),
-        Arg::Pos(Expr::Str(s))    => Some(s.get().to_string()),
+        Arg::Pos(Expr::Str(s)) => Some(s.get().to_string()),
         _ => None,
     }
 }
 
 /// Avalia um método de contador: step(), update(), get(), display().
 pub(super) fn eval_counter_method<'a>(
-    key:    &str,
+    key: &str,
     method: &str,
-    args:   crate::entities::ast::expr::Args<'a>,
+    args: crate::entities::ast::expr::Args<'a>,
     scopes: &mut Scopes<'_>,
-    ctx:    &mut EvalContext,
+    ctx: &mut EvalContext,
     engine: &mut Engine<'_>,
 ) -> SourceResult<Value> {
     match method {
-        "step" => Ok(Value::Content(Content::counter_update(key.to_string(), CounterAction::Step))),
+        "step" => Ok(Value::Content(Content::counter_update(
+            key.to_string(),
+            CounterAction::Step,
+        ))),
 
         "update" => {
             // Extrair o valor numérico do primeiro argumento.
             // Defensivo: se o argumento não for Int, usar 0 silenciosamente.
-            let val = args.items().next()
+            let val = args
+                .items()
+                .next()
                 .and_then(|arg| match arg {
                     Arg::Pos(expr) => {
                         if let Ok(Value::Int(n)) = eval_expr(expr, scopes, ctx, engine) {
@@ -107,12 +119,106 @@ pub(super) fn eval_counter_method<'a>(
                     _ => None,
                 })
                 .unwrap_or(0);
-            Ok(Value::Content(Content::counter_update(key.to_string(), CounterAction::Update(val))))
+            Ok(Value::Content(Content::counter_update(
+                key.to_string(),
+                CounterAction::Update(val),
+            )))
         }
 
         // get(), display() e outros — fallback até motor de introspecção completo
         _ => Ok(Value::Content(Content::counter_display(key.to_string()))),
     }
+}
+
+/// **P417 (M)** — Tenta avaliar `<elemento>.where(field: value)`.
+///
+/// Retorna `Ok(Some(Selector::Where { ... }))` se o target for uma função
+/// nativa de elemento suportada (heading, figure, strong, emph, raw) e houver
+/// exatamente um named argumento. Retorna `Ok(None)` se o target não for um
+/// elemento nativo (deixa o caller continuar com field access normal).
+/// Retorna `Err` se for elemento mas os argumentos forem inválidos.
+pub(super) fn eval_element_where<'a>(
+    target_expr: Expr<'_>,
+    args_node: crate::entities::ast::expr::Args<'a>,
+    scopes: &mut Scopes<'_>,
+    ctx: &mut EvalContext,
+    engine: &mut Engine<'_>,
+) -> SourceResult<Option<Selector>> {
+    use crate::rules::stdlib::{
+        native_emph, native_figure, native_heading, native_raw, native_strong,
+    };
+    use std::ptr::fn_addr_eq;
+
+    let target = eval_expr(target_expr, scopes, ctx, engine)?;
+    let Value::Func(ref f) = target else {
+        return Ok(None);
+    };
+
+    let kind = match f.native_fn_addr() {
+        Some(addr) if fn_addr_eq(addr, native_heading as fn(_, _, _, _) -> _) => {
+            ElementKind::Heading
+        }
+        Some(addr) if fn_addr_eq(addr, native_figure as fn(_, _, _, _) -> _) => {
+            ElementKind::Figure
+        }
+        Some(addr) if fn_addr_eq(addr, native_strong as fn(_, _, _, _) -> _) => {
+            return Err(vec![SourceDiagnostic::error(
+                target_expr.span(),
+                "selector where não suportado para strong".to_string(),
+            )])
+        }
+        Some(addr) if fn_addr_eq(addr, native_emph as fn(_, _, _, _) -> _) => {
+            return Err(vec![SourceDiagnostic::error(
+                target_expr.span(),
+                "selector where não suportado para emph".to_string(),
+            )])
+        }
+        Some(addr) if fn_addr_eq(addr, native_raw as fn(_, _, _, _) -> _) => {
+            return Err(vec![SourceDiagnostic::error(
+                target_expr.span(),
+                "selector where não suportado para raw".to_string(),
+            )])
+        }
+        _ => return Ok(None),
+    };
+
+    let mut field: Option<EcoString> = None;
+    let mut value: Option<Value> = None;
+    for arg in args_node.items() {
+        match arg {
+            Arg::Pos(_) => {
+                return Err(vec![SourceDiagnostic::error(
+                    args_node.span(),
+                    "heading.where() requer argumentos nomeados (ex.: level: 1)"
+                        .to_string(),
+                )]);
+            }
+            Arg::Named(named) => {
+                if field.is_some() {
+                    return Err(vec![SourceDiagnostic::error(
+                        named.name().to_untyped().span(),
+                        "heading.where() suporta apenas um campo em P417".to_string(),
+                    )]);
+                }
+                field = Some(named.name().as_str().into());
+                value = Some(eval_expr(named.expr(), scopes, ctx, engine)?);
+            }
+            Arg::Spread(_) => {}
+        }
+    }
+
+    let (Some(field), Some(value)) = (field, value) else {
+        return Err(vec![SourceDiagnostic::error(
+            args_node.span(),
+            "heading.where() requer um argumento nomeado".to_string(),
+        )]);
+    };
+
+    Ok(Some(Selector::Where {
+        base: Box::new(Selector::Kind(kind)),
+        field,
+        value: Box::new(value),
+    }))
 }
 
 // ── Dispatcher arms: FieldAccess (Passo 96.2, ADR-0037 Regra 4) ───────────
@@ -127,35 +233,38 @@ pub(super) fn eval_field_access(
     use crate::entities::source_result::SourceDiagnostic;
 
     let target = eval_expr(access.target(), scopes, ctx, engine)?;
-    let field  = access.field().as_str().to_string();
+    let field = access.field().as_str().to_string();
     match target {
-        Value::Dict(d) => d.get(field.as_str())
-            .cloned()
-            .ok_or_else(|| vec![SourceDiagnostic::error(
+        Value::Dict(d) => d.get(field.as_str()).cloned().ok_or_else(|| {
+            vec![SourceDiagnostic::error(
                 access.span(),
                 format!("campo '{field}' não existe"),
-            )]),
+            )]
+        }),
         // Field access em elementos estruturados — usado por show rules (Passo 68).
         // Ex: `it.body` onde `it` é Content::Heading retorna Value::Content(body).
-        Value::Content(c) => c.get_field(field.as_str())
-            .ok_or_else(|| vec![SourceDiagnostic::error(
+        Value::Content(c) => c.get_field(field.as_str()).ok_or_else(|| {
+            vec![SourceDiagnostic::error(
                 access.span(),
                 format!("campo '{field}' não existe neste elemento de conteúdo"),
-            )]),
+            )]
+        }),
         // P411 — Field access em Value::Version (semver): major/minor/patch/pre/build.
-        Value::Version(v) => {
-            match field.as_str() {
-                "major" => Ok(Value::Int(v.major as i64)),
-                "minor" => Ok(Value::Int(v.minor as i64)),
-                "patch" => Ok(Value::Int(v.patch as i64)),
-                "pre" => Ok(Value::Array(v.pre.iter().map(|s| Value::Str(s.clone())).collect())),
-                "build" => Ok(Value::Array(v.build.iter().map(|s| Value::Str(s.clone())).collect())),
-                _ => Err(vec![SourceDiagnostic::error(
-                    access.span(),
-                    format!("campo desconhecido em version: '{}'", field),
-                )]),
+        Value::Version(v) => match field.as_str() {
+            "major" => Ok(Value::Int(v.major as i64)),
+            "minor" => Ok(Value::Int(v.minor as i64)),
+            "patch" => Ok(Value::Int(v.patch as i64)),
+            "pre" => {
+                Ok(Value::Array(v.pre.iter().map(|s| Value::Str(s.clone())).collect()))
             }
-        }
+            "build" => {
+                Ok(Value::Array(v.build.iter().map(|s| Value::Str(s.clone())).collect()))
+            }
+            _ => Err(vec![SourceDiagnostic::error(
+                access.span(),
+                format!("campo desconhecido em version: '{}'", field),
+            )]),
+        },
         // P412 — Field access em Value::Duration: seconds/minutes/hours/days (retorno Float).
         Value::Duration(d) => {
             const NANOS_PER_SECOND: f64 = 1_000_000_000.0;
@@ -165,8 +274,8 @@ pub(super) fn eval_field_access(
             match field.as_str() {
                 "seconds" => Ok(Value::Float(d.nanos as f64 / NANOS_PER_SECOND)),
                 "minutes" => Ok(Value::Float(d.nanos as f64 / NANOS_PER_MINUTE)),
-                "hours"   => Ok(Value::Float(d.nanos as f64 / NANOS_PER_HOUR)),
-                "days"    => Ok(Value::Float(d.nanos as f64 / NANOS_PER_DAY)),
+                "hours" => Ok(Value::Float(d.nanos as f64 / NANOS_PER_HOUR)),
+                "days" => Ok(Value::Float(d.nanos as f64 / NANOS_PER_DAY)),
                 _ => Err(vec![SourceDiagnostic::error(
                     access.span(),
                     format!("campo desconhecido em duration: '{}'", field),

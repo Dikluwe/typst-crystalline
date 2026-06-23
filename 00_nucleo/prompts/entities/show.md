@@ -25,6 +25,12 @@ Selector de uma show rule. Variantes:
   (fronteira E1) pelo **nome de kind** (`dyn_kind()`). Lote F-3 inc-2: o
   selector `#show callout:` resolve para uma `FuncRepr::Element` sem fn-ptr
   nativo e casa por nome. Viaja pela **mesma** travessia que `NodeKind`.
+- **P417** `Where { base: Box<Selector>, field: EcoString, value: Value }` —
+  filtra por campo de elemento. Ex.: `heading.where(level: 1)`. O `base` deve
+  ser `NodeKind` (nativo) em P417; outros bases são scope-out. Matching: o
+  nó casa `base` **e** o campo `field` existe **e** o seu valor é semanticamente
+  igual a `value` (via igualdade de `Value`, ADR-0107). Sem vtable — lógica em
+  free function na camada de render (`rules/show/where_match.rs`).
 
 ### `RuleId`
 
@@ -78,6 +84,10 @@ Triplo `(id, selector, transform)` armazenado no `EvalContext` durante a avalia�
   `Selector::DynKind` identifica o elemento dinâmico pelo nome de kind interned.
 - `Selector::Text` suporta apenas `Transformation::Str`; `Func`/`Content`/`Style`
   sobre `Text` falham explicitamente (DEBT-19 ENCERRADO).
+- **P417** `Selector::Where` baseia-se em `NodeKind` (nativo) em P417; elementos
+  dinâmicos (`DynKind`) são scope-out. O matching delega a free function que
+  consulta `Content::get_field(field)` e compara com `value` via igualdade
+  semântica de `Value`.
 - `Transformation::Style` **não** consome o passe de show e **não** é válida para
   `Selector::Text` (show-set é sobre elementos, não sobre texto literal). Show-set
   **não** muta o estilo global na declaração — captura-o e transporta-o confinado.
@@ -118,6 +128,12 @@ acumulação; é paridade de erro.
 **Gatilho de reabertura** (medido como zero hoje): se surgir um padrão real (pacote/doc)
 onde 2+ `func` same-kind **precisem** acumular com ordem exata, os casos viram testes de
 paridade contra o vanilla e A2/A3 entram nessa hora — não antes (ADR-0107/0108).
+
+## Histórico de Revisões
+
+| Data | Motivo | Arquivos afetados |
+|------|--------|-------------------|
+| 2026-06-23 | P417 (M): +variant `Selector::Where { base, field, value }` para filtragem de show rules por campo de elemento. Integração com `Value::Selector`, parsing de `heading.where(level: 1)`, e matching via `Content::get_field`. | `show.rs`, `show.md`, `value.rs`, `selector.rs`, `selector.md`, `eval/closures.rs`, `eval/rules.rs`, `introspector.rs`, `stdlib/foundations.rs` |
 
 ## Layer
 

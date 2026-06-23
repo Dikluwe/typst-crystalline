@@ -38,6 +38,8 @@ use ecow::EcoVec;
 use crate::entities::element_kind::ElementKind;
 use crate::entities::label::Label;
 use crate::entities::location::Location;
+use crate::entities::value::Value;
+use ecow::EcoString;
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub enum Selector {
@@ -60,6 +62,14 @@ pub enum Selector {
     /// Vec<Location> (ordem de primeira-aparição preservada).
     /// Vazio: empty Vec.
     Or(EcoVec<Selector>),
+    /// **P417 (M)** — Selector por campo de elemento.
+    /// `base` tipicamente `Kind(Heading)`; `field` é o nome do campo
+    /// (ex.: `"level"`); `value` é o valor esperado (`Value::Int(1)`).
+    /// Sem vtable/closure — estrutura estática (ADR-0109 forma B).
+    /// Query arm é stub `vec![]` documentado: cristalino single-pass
+    /// indexa `ElementPayload`, não Content fields; consumer real
+    /// emerge em P417+ se houver demanda.
+    Where { base: Box<Selector>, field: EcoString, value: Value },
 }
 ```
 
@@ -75,11 +85,18 @@ pub enum Selector {
 - **P209C** `Selector::And(v1) == Selector::And(v2)` sse `v1 == v2`
   (igualdade ordem-sensível dos sub-selectors via `EcoVec` Eq).
 - **P209C** `Selector::Or(v1) == Selector::Or(v2)` idem.
+- **P417** `Selector::Where { base, field, value } ==
+  Selector::Where { base', field', value' }` sse `base == base'`,
+  `field == field'` e `value == value'` (igualdade semântica de
+  `Value`, ADR-0107; `Value::Int(1) == Value::Float(1.0)` por
+  ADR-0025).
 - Hash determinístico (delega para Hash dos field types;
   recursivo para `And`/`Or` via discriminant + EcoVec elementos).
+  `Where` hasheia `base`, `field` e `value`.
 - Variants distintos são sempre `!=` independentemente do
   conteúdo (e.g., `Kind(Heading)` ≠ `Label(Label("Heading"))`;
-  `And(v)` ≠ `Or(v)` mesmo com mesmo conteúdo).
+  `And(v)` ≠ `Or(v)` mesmo com mesmo conteúdo;
+  `Where` ≠ `Kind` mesmo que base seja `Kind(Heading)`).
 
 ### Query semantics (consumidas em `Introspector::query`)
 
@@ -117,6 +134,12 @@ pub enum Selector {
   dedupliquada na ordem de primeira-aparição.
 - **P209C**: nested — `And([Or([...]), Kind(...)])` recursivo
   funciona (query reuso self-referencial).
+- **P417**: `Where { base: Kind(Heading), field: "level",
+  value: Int(1) }` é igual a outro idêntico; diferente se
+  `field`, `value` ou `base` mudarem.
+- **P417**: `Where` distinto de `Kind(Heading)` mesmo com
+  campo/valor coincidentes.
+- **P417**: Hash determinístico de `Where`.
 
 ---
 
@@ -148,3 +171,4 @@ Vanilla tem 10+ variants em `Selector`. Cristalino P175 implementa só `Kind` �
 | 2026-04-29 | P175 sub-passo .B: tipo Selector minimal para query | `selector.rs`, `selector.md` |
 | 2026-05-12 | P209B (M9c — Bloco VI Selector extensions per Q3=α humano): +variants `Label(Label)` + `Location(Location)`. Hash derive preserved (campos Hash trivialmente). Query arms triviais: `Label` delega a `query_by_label`; `Location` retorna singleton `vec![loc]`. Stdlib `native_query`/`native_locate` ganham type dispatch (`Value::Str("<name>")` → Label; `Value::Location(loc)` → Location). | `selector.rs`, `selector.md`, `introspector.rs`, `foundations.rs` |
 | 2026-05-12 | P209C (M9c — Bloco VI Selector extensions per C4 P207A): +variants compósitos `And(EcoVec<Selector>)` + `Or(EcoVec<Selector>)`. Hash derive recursivo via discriminant + EcoVec elementos. Query arms: `And` faz intersecção via filter+contains; `Or` faz união dedupliquada via HashSet check preservando ordem. **Opção A** fixada para `And/Or` vazios: ambos retornam `vec![]` (consistência + cristalino single-pass sem universo computável). Stdlib API: **Opção (c) Rust API only** — sem dispatch via `Value` em `native_query`/`native_locate`. | `selector.rs`, `selector.md`, `introspector.rs` |
+| 2026-06-23 | P417 (M): +variant `Where { base, field, value }`. Estrutura estática sem vtable; query arm stub `vec![]` documentado (single-pass não indexa Content fields). Semântica de igualdade via `Value` (ADR-0107). | `selector.rs`, `selector.md`, `value.rs`, `introspector.rs`, `show.rs`, `show.md`, `eval/` |

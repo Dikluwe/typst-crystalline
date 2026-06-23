@@ -509,6 +509,12 @@ impl Introspector for TagIntrospector {
             // sub-passo dedicado quando Content text durante query
             // for acessível (P212+).
             Selector::Regex(_re) => Vec::new(),
+            // **P417 (M)**: query por campo é scope-out neste passo.
+            // O Introspector indexa `ElementPayload` (ex.: depth de heading),
+            // não Content fields genéricos. Show rules consomem `Where`
+            // em tempo de realização; query fica para passo dedicado
+            // se houver consumer real.
+            Selector::Where { .. } => Vec::new(),
         }
     }
 
