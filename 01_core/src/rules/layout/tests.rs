@@ -18,6 +18,7 @@ use super::*;
 use crate::entities::paint::Paint;
 use crate::entities::{
     content::Content,
+    geometry::ShapeKind,
     layout_types::{FrameItem, Point},
 };
 use crate::rules::introspect::introspect;
@@ -343,6 +344,50 @@ fn layout_texto_simples_tem_items() {
 fn layout_documento_vazio_zero_paginas() {
     let doc = layout(&Content::Empty);
     assert_eq!(doc.pages.len(), 0, "documento vazio → sem páginas");
+}
+
+#[test]
+fn layout_divider_emite_shape_line() {
+    let doc = layout(&Content::divider());
+    assert!(
+        doc.pages
+            .iter()
+            .flat_map(|p| p.items.iter())
+            .any(|i| matches!(i, FrameItem::Shape { kind: ShapeKind::Line { .. }, .. })),
+        "Divider deve emitir pelo menos um FrameItem::Shape(Line)"
+    );
+}
+
+#[test]
+fn layout_link_preserva_url_e_texto() {
+    let doc = layout(&Content::link("https://example.com", Content::text("click")));
+    let has_link = doc
+        .pages
+        .iter()
+        .flat_map(|p| p.items.iter())
+        .any(|i| matches!(i, FrameItem::Link { url, .. } if url.as_str() == "https://example.com"));
+    assert!(has_link, "Link deve emitir FrameItem::Link com URL");
+    assert!(doc.plain_text().contains("click"));
+}
+
+#[test]
+fn layout_transform_preserva_shape() {
+    use crate::entities::geometry::ShapeKind;
+    use crate::entities::layout_types::TransformMatrix;
+    fn has_shape(items: &[FrameItem]) -> bool {
+        items.iter().any(|item| match item {
+            FrameItem::Shape { kind: ShapeKind::Line { .. }, .. } => true,
+            FrameItem::Group { items, .. } => has_shape(items),
+            _ => false,
+        })
+    }
+    let matrix = TransformMatrix::identity();
+    let shape = Content::shape(ShapeKind::Line { dx: 20.0, dy: 0.0 }, None, None, None, None);
+    let doc = layout(&Content::transform(matrix, shape));
+    assert!(
+        doc.pages.iter().any(|p| has_shape(&p.items)),
+        "transformação identity deve preservar shape interno"
+    );
 }
 
 /// Teste de Ouro: todos os items dentro dos limites da página.

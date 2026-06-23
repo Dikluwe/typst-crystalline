@@ -272,6 +272,63 @@ mod tests {
     }
 
     #[test]
+    fn repr_value_complex_types() {
+        use crate::entities::{
+            bytes::Bytes,
+            decimal::Decimal,
+            duration::Duration,
+            gradient::Gradient,
+            layout_types::{Angle, Color, Length, Ratio},
+            location::Location,
+            regex::Regex,
+            version::Version,
+        };
+
+        let r = repr_value(&Value::Length(Length::pt(12.0)));
+        assert!(r.contains("12") || r.contains("Length"), "Length repr: {r}");
+        let r = repr_value(&Value::Ratio(Ratio::from_percent(50.0)));
+        assert!(r.contains("0.5") || r.contains("Ratio"), "Ratio repr: {r}");
+        let r = repr_value(&Value::Angle(Angle::deg(90.0)));
+        assert!(r.contains("90") || r.contains("Angle"), "Angle repr: {r}");
+        let r = repr_value(&Value::Color(Color::rgb(255, 0, 0)));
+        assert!(r.contains("Srgb") || r.contains("1.0"), "Color repr: {r}");
+        assert_eq!(repr_value(&Value::Fraction(0.5)), "0.5");
+        assert_eq!(repr_value(&Value::Location(Location::from_raw(42))), "location");
+        let r = repr_value(&Value::Gradient(Gradient::Linear(std::sync::Arc::new(
+            crate::entities::gradient::Linear {
+                angle: Angle::deg(0.0),
+                stops: std::sync::Arc::from([]),
+                space: crate::entities::layout_types::ColorSpace::Oklab,
+                relative: None,
+            }
+        ))));
+        assert!(
+            r.starts_with("Linear") || r.contains("gradient"),
+            "Gradient repr: {r}"
+        );
+        let r = repr_value(&Value::Regex(Regex::new("\\d+").unwrap()));
+        assert!(r.contains("regex"), "Regex repr: {r}");
+        assert_eq!(repr_value(&Value::Tiling(std::sync::Arc::new(
+            crate::entities::tiling::Tiling::new(
+                crate::entities::tiling::TilingBody::Color(Color::rgb(0, 0, 0))
+            )
+        ))), "tiling");
+        assert_eq!(
+            repr_value(&Value::Bytes(Bytes::from(vec![0u8, 1, 2]))),
+            "bytes"
+        );
+        assert_eq!(repr_value(&Value::Decimal(Decimal::from_i64(123))), "123");
+        assert_eq!(
+            repr_value(&Value::Duration(Duration::from_nanos(1_000_000_000))),
+            "1s"
+        );
+        assert_eq!(
+            repr_value(&Value::Version(std::sync::Arc::new(Version::new(1, 2, 3)))),
+            "1.2.3"
+        );
+    }
+
+    #[test]
     fn repr_content_text_and_sequence() {
         let seq = Content::Sequence(Arc::from(vec![Content::text("hello"), Content::Space]));
         assert_eq!(repr_content(&seq), "[\"hello\"space]");
