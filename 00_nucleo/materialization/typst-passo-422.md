@@ -234,3 +234,65 @@ crystalline-lint .
 - **Atomização (ADR-0109)**: `LinkElem` é struct puro; `layout_link` é free function; `FrameItem::Link` é novo variant no enum de layout.
 - **Honestidade epistêmica**: Se o PDF writer não existir, o `FrameItem::Link` é infraestrutura "preparatória" — não é "quase funciona", é "a base está lá para o consumer futuro". Documentar claramente no scope-out.
 - **Próximo passo P423**: consumer PDF (annotation URI) se PDF writer existir; ou `text.lang` rustybuzz (XL, scope-out); ou outro gap do Inventário.
+
+
+---
+
+## RELATÓRIO DE EXECUÇÃO — P422
+
+**Commit**: `47aef761ed965eadbfb96c544fef2c4cce2af175`  
+**Classificação**: S (continua S; stub de layout substituído por infraestrutura real de hyperlink)  
+**Data de fecho**: 2026-06-23
+
+### O que foi implementado
+
+1. **`FrameItem::Link { url, items }`** adicionado a `entities/layout_types.rs`.
+2. **Todos os `match` exaustivos** sobre `FrameItem` (13 locais) atualizados para o novo variant.
+3. **`rules/layout/link.rs`** agora layouta o body do link e envolve os `FrameItem`s resultantes num `FrameItem::Link`.
+4. **`native_link(url, body?)`** implementado em `rules/stdlib/structural.rs`, re-exportado e registado na stdlib em `rules/eval/mod.rs`. Body omitido usa o próprio URL como texto.
+5. **`Page::plain_text` / `Frame::plain_text`** tornados recursivos para atravessar `FrameItem::Link`.
+6. **L0 atualizado** em `00_nucleo/prompts/entities/elements/link.md` e novo `00_nucleo/prompts/rules/layout/link.md`; hashes sincronizados via `crystalline-lint --fix-hashes`.
+
+### Testes
+
+```bash
+cargo test -p typst-core --lib -- link
+# test result: ok. 14 passed; 0 failed; 0 ignored
+
+cargo test -p typst-core --lib -- --skip p350c_flag_on_nao_convergente_classifica
+# test result: ok. 3135 passed; 0 failed; 0 ignored; 1 filtered out
+```
+
+O único teste filtrado (`p350c_flag_on_nao_convergente_classifica`) tem stack overflow preexistente, fora do escopo de P422.
+
+### Lint
+
+```bash
+crystalline-lint --fix-hashes
+# Fixed 2 files:
+#   ./01_core/src/entities/elements/link.rs       → ed0422b4
+#   ./01_core/src/rules/layout/link.rs            → 6adfa0ae
+# Re-running analysis... ✅ 0 drift warnings remaining
+```
+
+### Scope-out mantido
+
+- Cor azul / sublinhado do texto — não implementado (mecânica livre).
+- Consumer PDF de annotation URI — `FrameItem::Link` é infraestrutura preparatória; o writer downstream ainda não consome o variant.
+- Links internos (`#label`) / para página — scope-out.
+
+### Critérios de fecho
+
+- [x] `Content::Link` layoutado como `FrameItem::Link`
+- [x] URL preservado no metadado do `FrameItem::Link`
+- [x] Body renderizado corretamente dentro do `FrameItem::Link`
+- [x] Todos os `match` sobre `FrameItem` mantidos exaustivos
+- [x] Lógica atomizada em free function (`rules/layout/link.rs`)
+- [x] Zero novos vtables/`dyn`
+- [x] L0 hashado e propagado
+- [x] Suite verde (exceto stack overflow conhecido pré-existente)
+- [x] Commit realizado
+
+### Próximo passo sugerido
+
+P423: implementar consumer PDF que converta `FrameItem::Link` em annotation URI; ou, se prioridade for outra, continuar pelo Inventário de gaps.
