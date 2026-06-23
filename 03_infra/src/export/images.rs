@@ -200,7 +200,8 @@ pub(super) fn scan_all_images(
                 FrameItem::Image { data: _, intrinsic_width: _, intrinsic_height: _, .. } => {
                     process_image_item(item, ptr_to_idx, refs, xobjects, next_id, counter);
                 }
-                FrameItem::Group { items: child_items, .. } => {
+                FrameItem::Group { items: child_items, .. }
+                | FrameItem::Link { items: child_items, .. } => {
                     walk(child_items, ptr_to_idx, refs, xobjects, next_id, counter);
                 }
                 _ => {}

@@ -420,6 +420,14 @@ pub(super) fn build_page_stream(page: &Page, ctx: &PageContext) -> Vec<u8> {
                 }
                 ops.push_str("Q\n");
             }
+            // **P425-A7**: FrameItem::Link transportado como Group sem annotation
+            // URI por enquanto. Emissão de /Annot requer decisão arquitetural sobre
+            // bbox/posição do Link.
+            FrameItem::Link { items, .. } => {
+                for child in items {
+                    draw_item_local(&mut ops, child, None, ctx);
+                }
+            }
         }
     }
 
@@ -685,6 +693,12 @@ pub(super) fn draw_item_local(
                 "q {}{:.3} w {:.1} {:.1} m {:.1} {:.1} l S Q\n",
                 rg, thickness, start.x.0, start.y.0, end.x.0, end.y.0
             ));
+        }
+        // **P425-A7**: transporte recursivo de Link no espaço local do Group.
+        FrameItem::Link { items, .. } => {
+            for child in items {
+                draw_item_local(ops, child, parent_bbox_override, ctx);
+            }
         }
     }
 }

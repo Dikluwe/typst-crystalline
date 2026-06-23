@@ -214,6 +214,11 @@ pub(super) fn scan_all_gradients(
                     walk(items, Some(group_bbox),
                          ptr_to_idx, refs, grad_objs, next_id, counter);
                 }
+                // **P425-A7**: gradients dentro de Link também devem ser registados.
+                FrameItem::Link { items, .. } => {
+                    walk(items, parent_bbox_override,
+                         ptr_to_idx, refs, grad_objs, next_id, counter);
+                }
                 _ => {}
             }
         }

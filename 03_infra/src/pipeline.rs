@@ -126,7 +126,8 @@ fn collect_fonts_in_items(items: &[FrameItem], seen: &mut Vec<FontList>) {
                     }
                 }
             }
-            FrameItem::Group { items, .. } => {
+            FrameItem::Group { items, .. }
+            | FrameItem::Link { items, .. } => {
                 collect_fonts_in_items(items, seen);
             }
             FrameItem::Line  { .. }
@@ -179,7 +180,8 @@ fn first_font_in_items(items: &[FrameItem]) -> Option<FontList> {
                     return Some(fl.clone());
                 }
             }
-            FrameItem::Group { items, .. } => {
+            FrameItem::Group { items, .. }
+            | FrameItem::Link { items, .. } => {
                 if let Some(fl) = first_font_in_items(items) {
                     return Some(fl);
                 }

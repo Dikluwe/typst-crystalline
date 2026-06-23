@@ -51,7 +51,8 @@ pub(super) fn collect_codepoints(doc: &PagedDocument) -> Vec<char> {
                         seen.insert(c);
                     }
                 }
-                FrameItem::Group { items: child, .. } => walk(child, seen),
+                FrameItem::Group { items: child, .. }
+                | FrameItem::Link { items: child, .. } => walk(child, seen),
                 _ => {} // Image, Line, Glyph não contribuem com codepoints de texto.
             }
         }
@@ -76,7 +77,8 @@ pub(super) fn collect_glyph_ids(doc: &PagedDocument) -> BTreeSet<u16> {
                 FrameItem::Glyph { glyph_id, .. } => {
                     ids.insert(*glyph_id);
                 }
-                FrameItem::Group { items: child, .. } => walk(child, ids),
+                FrameItem::Group { items: child, .. }
+                | FrameItem::Link { items: child, .. } => walk(child, ids),
                 _ => {}
             }
         }
