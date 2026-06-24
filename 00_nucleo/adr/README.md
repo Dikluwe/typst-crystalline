@@ -11,8 +11,9 @@ estruturais.
 - ~~**ADR-0062**~~ **CONSUMIDA** em passo `ADR-0062-create`
   (2026-04-27) — ficheiro
   `typst-adr-0062-hayagriva-bibliography-parsing.md` criado com
-  status `PROPOSTO`. Promoção a `IMPLEMENTADO` ocorre em passo
-  futuro de materialização hayagriva real (P159G ou equivalente).
+  status `PROPOSTO`. Promovida a `IMPLEMENTADO` no Passo 418
+  (integração hayagriva/citationberg em `rules/layout/bib_csl.rs`)
+  e reconciliada no Passo 439.
 - **ADR-0063** — reservada para outra crate específica se
   surgir (e.g. column flow algorithm pode usar este número se
   ADR dedicada for criada quando DEBT-56 for materializado).
@@ -193,7 +194,7 @@ que corresponde a mudança específica no código.
 | 0059 | `Args` como tipo separado, não-variant de `Value` | `EM VIGOR` |
 | 0060 | Model (structural) roadmap — Fase 1 + 2 + 3 | `IMPLEMENTADO` (Fase 1 fechada em P155; Fase 2/3 prosseguem em **P157+** após renumeração registada em P156B) |
 | 0061 | Layout Fase X — page model + multi-column + footnote area roadmap | `IMPLEMENTADO` (P156B PROPOSTO → P221 IMPLEMENTADO 2026-05-12; Fase 1+2+3 cumpridas; refinos `measure`/`place` Fase 4 candidata NÃO-reservada) |
-| 0062 | Autorização crate `hayagriva` para bibliography + cite (CSL parsing) | `PROPOSTO` (passo `ADR-0062-create`; promoção a IMPLEMENTADO em passo futuro materialização hayagriva real) |
+| 0062 | Autorização crate `hayagriva` para bibliography + cite (CSL parsing) | `IMPLEMENTADO` (Passo 418 — integração real em `rules/layout/bib_csl.rs`; reconciliado no Passo 439) |
 | 0064 | Tradução `Smart<T>` vanilla → `Option<T>`/default | `EM VIGOR` (P156K; formaliza padrão N=6 da série P156C-J) |
 | 0065 | Inventariar primeiro — sub-passo `.1` para decisão arquitectural não-trivial | `EM VIGOR` (P156K; estende ADR-0034; padrão N=5 da série P156C-J) |
 | 0066 | Introspection runtime — promoção da reserva conceptual (referida historicamente como "ADR-0017 Introspection runtime adiada") a ficheiro PROPOSTO | `PROPOSTO` (passo `P160A`; resolve confusão de numeração — reserva conceptual usava 0017 mas slot 0017 já IMPLEMENTADO para outro tópico; promoção a IMPLEMENTADO em passo futuro materialização Introspection runtime real — P160B subset minimal) |
@@ -290,8 +291,8 @@ documentado no projecto cristalino).
 
 ### Distribuição de status
 
-- `PROPOSTO`: **11** ADRs (decisões em aberto: 0005, 0006,
-  0008–0015, 0062, **0066**, ~~0079 P253~~, ~~0082 P254~~)
+- `PROPOSTO`: **10** ADRs (decisões em aberto: 0005, 0006,
+  0008–0015, **0066**, ~~0079 P253~~, ~~0082 P254~~)
   + **+1 ADR-0083 PROPOSTO P257.B → IMPLEMENTADO P257.D**
   (Color paridade vanilla com subset materializado;
   PROPOSTO+IMPLEMENTADO no mesmo passo via Cenário B1 pattern)
@@ -310,7 +311,7 @@ documentado no projecto cristalino).
   +1 ADR-0083 IMPLEMENTADO** (Color paridade vanilla 8 espaços
   materializados + 4 scope-outs documentados per ADR-0029
   §"Simplificações aceites apenas com ADR explícita").
-  **PROPOSTO 11 preservado** (ADR-0083 entra e sai no mesmo
+  **PROPOSTO 10 preservado** (ADR-0083 entra e sai no mesmo
   passo via promoção P257.D).
 - `IDEIA`: 2 ADRs (0002, 0003).
 - `EM VIGOR`: **34** ADRs pós-P272 (regras/políticas activas;
@@ -320,10 +321,10 @@ documentado no projecto cristalino).
   ~~**0090 P268.1**~~ **REVOGADO P272**,
   **+0093 P271** meta-metodologia evolução ADRs,
   **+0094 P271** meta-operacional specs).
-- `IMPLEMENTADO`: **31** ADRs pós-P270.3 (decisões materializadas;
+- `IMPLEMENTADO`: **32** ADRs pós-P270.3 (decisões materializadas;
   0001, 0004, 0016, 0017, 0019, 0021–0027, 0026-R1, 0031,
-  0052, 0053, 0055, 0057, **0060**, **0061** P221, **0078**
-  P221, **0079** P253, **0083** P257, **0086** P261 Paint
+  0052, 0053, 0055, 0057, **0060**, **0061** P221, **0062** P418,
+  **0078** P221, **0079** P253, **0083** P257, **0086** P261 Paint
   wrapper Solid only, **0087** P262 Gradient Linear-only,
   **0088** P264 Gradient Radial-only, **0089** P267 Gradient
   Conic-only, **0091 P270** Gradient ColorSpace runtime

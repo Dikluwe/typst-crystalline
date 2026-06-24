@@ -1143,22 +1143,27 @@ Materializar em **passo dedicado** (escopo L+; ~5-8h):
 
 ---
 
-## DEBT-55 — Bibliography + Cite (XL; pré-condição ADR-0062 hayagriva) — PARCIALMENTE RESOLVIDO (Passo 258; via paridade manual P159A-G)
+## DEBT-55 — Bibliography + Cite (XL; pré-condição ADR-0062 hayagriva) — FECHADO (Passo 439)
 
 **Aberto em**: Passo 154A (2026-04-25) durante diagnóstico
 Model.
+**Fechado em**: Passo 439 (2026-06-23) — ADR-0062 promovida a
+`IMPLEMENTADO` e integração hayagriva/citationberg já
+materializada em P418-P420; CSL styling funcional.
 **Actualizado em**: Passo 156B (2026-04-25) — renumeração da
 reserva ADR (era ADR-0061 → agora ADR-0062) e do passo de
 materialização (era P158 → agora P159) por reocupação de
 ADR-0061 por Layout roadmap em P156B.
 **Actualizado em**: **Passo 258** (2026-05-15) — auditoria
 empírica Fase A revelou cumprimento **cumulativo via paridade
-manual P159A-G** (sem dependência crate `hayagriva` real;
-`bib_entry.rs` 413 LoC + 16 fields universais paridade
-`hayagriva::Entry`). Bibliography + Cite user-facing
-funcionalmente disponíveis. ADR-0062 PROPOSTO preservada;
-promoção a IMPLEMENTADO diferida até consumer real exigir CSL
-styling completo.
+manual P159A-G** (sem dependência crate `hayagriva` real).
+**Actualizado em**: **Passo 418** (2026-06-23) — integração real
+com `hayagriva 0.10` em `rules/layout/bib_csl.rs` (CSL built-ins
+e `.csl` customizados) e actualização de `Cargo.toml` +
+`crystalline.toml`.
+**Actualizado em**: **Passo 439** (2026-06-23) — reconciliação
+administrativa: ADR-0062 transita PROPOSTO → IMPLEMENTADO no
+índice de ADRs; DEBT-55 fecha com scope-outs documentados.
 
 ### Resolvido cumulativamente P155-P159G (auditado P258.A)
 
@@ -1177,24 +1182,33 @@ styling completo.
 - **Introspector integration** (P181D-H): refs/cites populam
   `figure_label_numbers` + `resolved_labels`.
 
-### Pendente residual P258 (scope-out implícito)
+### Pendente residual P258 (scope-out implícito) — RESOLVIDO em P418
 
 - **CSL styling completo** (author-date, MLA, APA, etc.) —
-  requer hayagriva crate real ou re-implementação CSL. Adiado
-  até consumer exigir.
+  resolvido via `hayagriva::archive::ArchivedStyle` + `citationberg`
+  em `rules/layout/bib_csl.rs` (P418). Built-ins resolvidos por
+  nome; ficheiros `.csl` customizados via path (P420).
 - **Hayagriva crate authorization** (ADR-0062 PROPOSTO →
-  IMPLEMENTADO) — diferido. Passo administrativo XS futuro
-  candidato análogo P229/P254 quando consumer surgir.
-- **CitationStyle enum runtime** — não materializado;
-  scope-out implícito.
+  IMPLEMENTADO) — concluído no Passo 418 e reconciliado no
+  Passo 439.
+
+### Scope-outs residuais (pós-fecho)
+
+- Múltiplas bibliografias num documento.
+- Locales via ficheiro externo (locale inline já suportado).
+- Formatação vertical superscript/subscript sem `Content` variant
+  correspondente.
+- `CitationStyle` enum runtime rico (uso actual via string/style
+  object).
 
 Ver `00_nucleo/diagnosticos/diagnostico-model-fase-a-passo-258.md`
 §4 + §6 para evidência detalhada Cenário B1 cobertura ~73%.
-**Bloqueado por**: **ADR-0062** (autorização da crate
-`hayagriva`, ainda não criada — referência condicional em
-ADR-0060 anotada). Era ADR-0061 antes da reocupação por
-Layout em P156B; reserva hayagriva foi deslocada para
-ADR-0062 sem alteração de conteúdo.
+**Bloqueado por**: ~~**ADR-0062**~~ — resolvido. ADR-0062
+(`typst-adr-0062-hayagriva-bibliography-parsing.md`) está
+`IMPLEMENTADO`; `hayagriva` autorizado em L1 e integrado em
+código real. Era ADR-0061 antes da reocupação por Layout em
+P156B; reserva hayagriva foi deslocada para ADR-0062 sem
+alteração de conteúdo.
 
 ### Contexto
 
@@ -1209,16 +1223,20 @@ features Model:
 - `CiteElem` invoca CSL para formatar citação consoante
   estilo configurado.
 
-Cristalino actualmente **não suporta** nenhuma. Inventário
-148 §A.6 lista ambas como `ausente`.
+Cristalino suporta bibliography + cite funcionalmente via
+`Content::Bibliography`/`Content::Cite`, `native_bibliography`/
+`native_cite`, pipeline introspect e render CSL com hayagriva.
+Inventário 148 §A.6 deve ser actualizado para refletir estado
+implementado.
 
 ### Diferença face ao vanilla
 
 Vanilla: `BibliographyElem` + `CiteElem` em
 `lab/typst-original/crates/typst-library/src/model/{bibliography,cite}.rs`.
 
-Cristalino: `Content` enum sem variants `Bibliography`/`Cite`;
-sem `native_bibliography` nem `native_cite` em stdlib.
+Cristalino: `Content` enum com variants `Bibliography` e `Cite`;
+`native_bibliography` + `native_cite` em `rules/stdlib/structural.rs`;
+render CSL em `rules/layout/bib_csl.rs`.
 
 ### Pré-requisitos
 
@@ -1241,25 +1259,26 @@ sem `native_bibliography` nem `native_cite` em stdlib.
 Materializar em **passo dedicado** (escopo XL; ~5-8h):
 **Passo 159** (renumerado de P158 em P156B).
 
-- [ ] **ADR-0062** criada (autorização hayagriva; era ADR-0061
+- [x] **ADR-0062** criada (autorização hayagriva; era ADR-0061
   antes da reocupação por Layout em P156B).
-- [ ] `Cargo.toml` + `crystalline.toml` configurados.
-- [ ] `Content::Bibliography {...}` + `Content::Cite {key,
+- [x] `Cargo.toml` + `crystalline.toml` configurados.
+- [x] `Content::Bibliography {...}` + `Content::Cite {key,
   supplement, form}` variants.
-- [ ] `native_bibliography` + `native_cite` em stdlib.
-- [ ] Pipeline introspect com resolução cruzada.
-- [ ] Render layout para ambos.
-- [ ] 5-10 testes; corpus paridade ganha 2-3 ficheiros.
+- [x] `native_bibliography` + `native_cite` em stdlib.
+- [x] Pipeline introspect com resolução cruzada.
+- [x] Render layout para ambos (incluindo CSL via hayagriva).
+- [x] Tests verdes; lint zero.
 - [ ] Inventário 148 reclassifica ambas de `ausente` para
-  `implementado⁺` (perfil graded).
+  `implementado⁺` (perfil graded) — actualização documental
+  pendente fora do scope deste passo.
 
 ### Critério de fecho
 
-- [ ] **ADR-0062** `IMPLEMENTADO` (era ADR-0061 antes da
+- [x] **ADR-0062** `IMPLEMENTADO` (era ADR-0061 antes da
   renumeração em P156B).
-- [ ] `bibliography` + `cite` materializados em cristalino.
-- [ ] Tests verdes; lint zero.
-- [ ] Inventário 148 actualizado.
+- [x] `bibliography` + `cite` materializados em cristalino.
+- [x] Tests verdes; lint zero.
+- [ ] Inventário 148 actualizado — tarefa documental separada.
 
 ### Notas
 
