@@ -3,7 +3,7 @@
 **Status**: `PROPOSTO` (inventário factual; actualização ad-hoc nos passos que materializam features)
 **Data**: 2026-04-24
 **Vanilla snapshot**: `lab/typst-original/` em commit `ba61529986e0a5a916cbf937c3c65117cd450683` (2026-04-24).
-**Cristalino snapshot**: Passo 146; 57 ADRs; DEBT-1 + DEBT-52 fechados.
+**Cristalino snapshot**: Passo 447; 61 ADRs; DEBT-1, DEBT-42, DEBT-43, DEBT-52, DEBT-55, DEBT-57 fechados.
 
 > **Refresh P384 (2026-06-19) — recon amplo, read-only.** O corpo deste inventário foi mantido
 > ad-hoc **até ao P299**; o agregado vigente (Tabela A/B) é: **user-facing ~69%** (Markup 78%,
@@ -30,6 +30,13 @@
 > - `p425-varredura-mecanica.md` e `p426-analise-estado.md` movidos de `00_nucleo/prompts/meta/` para `00_nucleo/diagnosticos/`.
 > - Regra canônica vigente: `00_nucleo/prompts/` destina-se exclusivamente a **prompts L0 vinculados a código L1–L4**; documentos de processo, varredura, análise de estado e inventários permanecem em `00_nucleo/diagnosticos/`.
 > - Nenhuma feature de utilizador nova; cobertura percentual permanece inalterada.
+
+> **Atualização P447 (2026-06-24)** — cluster P438–P446 consolidado:
+> - **Texto / Estilo**: `underline`, `overline`, `strike` ganharam selectors de show rule (P444); `smallcaps` deixou de ser stub transparente e passou a render real por scaling (P446); `smartquote` markup passou a ser context-aware e localizado para aspas simples (P445).
+> - **Lexer / Tokens**: `SyntaxKind::SmartQuote` materializado em markup (P445).
+> - **Infra / Tooling**: benchmark scanner (P441, ADR-0115); decisão `get_unchecked` registada como excepção permanente (P443, ADR-0116).
+> - **Débitos técnicos fechados**: DEBT-42 (`get_unchecked`), DEBT-55 (hayagriva/bibliografia CSL), DEBT-57 (specs L0 stdlib), DEBT-43 (linter type-level).
+> - **Snapshot actualizado**: cristalino P447; 61 ADRs (ADR-0108, ADR-0109, ADR-0115, ADR-0116 adicionados); 4 DEBTs fechados desde P437.
 
 ---
 
@@ -83,7 +90,7 @@ Features visíveis ao utilizador no Typst (markup, funções stdlib, `#set`/`#sh
 | `$ display math $` | math/equation.rs | `implementado⁺` | idem | `block: true` em `Content::Equation` |
 | `` `inline raw` ``, ```` ```block``` ```` | text/raw.rs | `implementado` | Passo 23 | `Content::Raw` com `lang` opcional |
 | `<label>`, `@ref` | foundations/label.rs, model/reference.rs | `implementado⁺` | Passo 63 | `Content::Labelled`, `Content::Ref`; forward-refs limitadas (DEBT-10 fechada) |
-| Smart quotes (`"foo"` → "foo") | text/smartquote.rs | `implementado` | Passo 155 + **P287** | smart-quotes lang-aware (6 idiomas + default ASCII) via `rules/lang/quotes.rs`; markup `"..."` produz aspas localizadas via alternância open/close em `eval_markup` (P155). **P287**: função stdlib `#smartquote(double, enabled)` materializada via `Content::SmartQuote { double }` leaf + consumer Layouter com state per-document (`smartquote_*_open`); reusa `localize_quotes`. Markup bit-exact preservado (estado independente — diagnóstico P287 §A.3.2 divergência ADR-0054 graded) |
+| Smart quotes (`"foo"` → "foo") | text/smartquote.rs | `implementado` | Passo 155 + **P287** + **P445** | smart-quotes lang-aware (6 idiomas + default ASCII) via `rules/lang/quotes.rs`; markup `"..."` produz aspas localizadas via alternância open/close em `eval_markup` (P155). **P287**: função stdlib `#smartquote(double, enabled)` materializada via `Content::SmartQuote { double }` leaf + consumer Layouter com state per-document (`smartquote_*_open`); reusa `localize_quotes`. **P445**: markup `"..."` e `'...'` emitem `SyntaxKind::SmartQuote`; `eval_markup` resolve open/close/apostrophe com contexto adjacente; aspas simples localizadas (`localize_single_quotes`) para `en` + default curly. Scope-out: locale-specific quotes além do default/inglês para simples |
 | Soft hyphen Unicode (`\u{00AD}`) | text/linebreak.rs | `ausente` | — | hyphenation usa apenas literal `-` (Passo 144) |
 
 ### A.2 — `#let`, `#set`, `#show`
@@ -123,11 +130,11 @@ Features visíveis ao utilizador no Typst (markup, funções stdlib, `#set`/`#sh
 | `text.region` | idem | `ausente` | — | regional variants |
 | `text.dir` (LTR/RTL) | idem | `ausente` | — | bidi via rustybuzz scope-out |
 | `text.script` | text/shift.rs | `ausente` | — | super/sub script standalone |
-| `smallcaps` | text/smallcaps.rs | `implementado` | **Passo 408** | `Content::SmallCaps { body }` + stdlib `#smallcaps(body)`; consumer emite `body` inalterado (stub transparente per ADR-0113; aguarda shaping real) |
+| `smallcaps` | text/smallcaps.rs | `implementado` | **Passo 408** + **P446** | `Content::SmallCaps { body }` + stdlib `#smallcaps(body)` + show rule `NodeKind::Smallcaps`. **P408**: variant e stdlib materializados. **P446**: consumer real por fallback de scaling (0.8×) — minúsculas convertidas para maiúsculas e renderizadas a 80% do tamanho; maiúsculas/não-letras mantêm tamanho. Scope-out: shaping OpenType `smcp`/`c2sc` nativo da fonte |
 | `upper` / `lower` (funções) | text/case.rs | `implementado` | stdlib | `native_upper`/`native_lower` |
 | `replace` (string) | text/case.rs | `implementado` | stdlib | `native_replace` |
 | `lorem` | text/lorem.rs | `implementado` | Passo 391 | `native_lorem`; helper puro `Int → Str`, zero tipo novo. |
-| `underline` / `strike` / `overline` | text/deco.rs | `implementado` | Passo 284 + P285 + **P286** | Variants `Content::{Underline,Strike,Overline}`; `body` + `stroke?`/`offset?`/`extent?`. **P285**: `stroke` funcional (emit `RG` + herança `style.fill`). **P286**: wrap-aware — body multi-line → N `FrameItem::Line` (cluster COMPLETO; restrição graded P284 §5.3 RESOLVIDA). `evade`/`background`/objecto Stroke rico continuam scope-out per ADR-0054 graded |
+| `underline` / `strike` / `overline` | text/deco.rs | `implementado` | Passo 284 + P285 + **P286** + **P444** | Variants `Content::{Underline,Strike,Overline}`; `body` + `stroke?`/`offset?`/`extent?`. **P285**: `stroke` funcional (emit `RG` + herança `style.fill`). **P286**: wrap-aware — body multi-line → N `FrameItem::Line` (cluster COMPLETO; restrição graded P284 §5.3 RESOLVIDA). **P444**: selectors de show rule `NodeKind::{Underline,Strike,Overline}`; `#show underline: ...`, `#show strike: ...`, `#show overline: ...` funcionam. `evade`/`background`/objecto Stroke rico continuam scope-out per ADR-0054 graded |
 | `linebreak` (function) | text/linebreak.rs | `parcial` | math context | só em math |
 
 ### A.4 — Math
@@ -441,8 +448,8 @@ Para cada feature `parcial` ou `ausente` da Tabela A, lista de tipos arquitectur
 | `text.lang` shaping (bidi/kern/lig) | rustybuzz integration ausente | DEBT-53 candidato XL |
 | `text.region` / `text.script` | `Region`, `Script` types ausentes | escopo XL com rustybuzz |
 | `text.dir` (LTR/RTL) | bidi shaping ausente | DEBT-53 |
-| ~~`smartquote`~~ | ~~`Content::SmartQuote` ausente~~ | ~~escopo S~~ — **resolvido em Passo 287** (variant leaf + native_smartquote + consumer Layouter; reuso de `rules/lang/quotes.rs` — single source of truth) |
-| ~~`smallcaps`~~ | ~~`Content::SmallCaps`; OpenType features~~ | ~~DEBT-53 (shaping)~~ — **resolvido em P408 como stub transparente per ADR-0113** |
+| ~~`smartquote`~~ | ~~`Content::SmartQuote` ausente~~ | ~~escopo S~~ — **resolvido em Passo 287** (variant leaf + native_smartquote + consumer Layouter; reuso de `rules/lang/quotes.rs`). **P445**: markup `"..."`/`'...'` emite `SyntaxKind::SmartQuote` e `eval_markup` resolve open/close/apostrophe com contexto adjacente; aspas simples localizadas (`localize_single_quotes`) |
+| ~~`smallcaps`~~ | ~~`Content::SmallCaps`; OpenType features~~ | ~~DEBT-53 (shaping)~~ — **resolvido em P408 como stub transparente per ADR-0113**; **P446 activa consumer real por fallback de scaling (0.8×)** |
 | ~~`lorem`~~ | resolvido no Passo 391 (`native_lorem` em `text.rs`) | — |
 | ~~`underline` / `strike` / `overline`~~ | ~~`Content::Underline` etc. ausentes~~ | ~~escopo S~~ — **resolvido em Passo 284** (variants + native_* + Layouter consumer + PDF emit via `FrameItem::Line`) |
 | Soft hyphen (`\u{00AD}`) | hyphenation espera literal `-` (Passo 144) | passo dedicado futuro |
@@ -689,6 +696,13 @@ BibEntry; segundo sub-passo família 159 fora Bloco A;
 `optional_str` cumulativo N=12** largamente promovível;
 BibEntry com 16 fields cobertura ~70-75% hayagriva universais).
 **Itens scope-out**: 2 (font dict via ADR-0054bis; lang shaping via DEBT-53).
+
+**P447 (2026-06-24)**: sem alteração nas contagens agregadas (nenhuma feature
+user-facing nova foi adicionada ao inventário). O passo consolidou qualitativamente:
+`smallcaps` deixou de ser stub e passou a render real por scaling (P446);
+`smartquote` markup tornou-se context-aware e localizou aspas simples (P445);
+`underline`/`strike`/`overline` ganharam selectors de show rule (P444);
+fecharam-se DEBT-42, DEBT-43, DEBT-55, DEBT-57; entraram ADR-0108/0109/0115/0116.
 
 ### Tabela B — Arquitectural (contagens)
 
