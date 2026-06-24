@@ -9,6 +9,7 @@
 //! Extraído de `layout/mod.rs` no Passo 96.7 conforme ADR-0037.
 
 use crate::entities::{
+    geometry::ShapeKind,
     image_sizer::ImageSizer,
     layout_types::{FrameItem, Page, Point, Pt},
 };
@@ -50,6 +51,32 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
         self.regions.current.cursor_y + Pt(offset_pt)
     }
 
+    /// **P449** — emite um `FrameItem::Text` precedido, se necessário, por um
+    /// rectângulo de preenchimento do highlight. O shape cobre a altura da
+    /// linha (`ascender → ascender + line_height`) e a largura do run.
+    fn push_text(&mut self, text: ecow::EcoString, width: Pt) {
+        if let Some(fill) = self.style.highlight {
+            let (ascender, line_height) = self.metrics.vertical_metrics(self.font_size_pt);
+            self.regions.current.current_line.push(FrameItem::Shape {
+                pos: Point {
+                    x: self.regions.current.cursor_x,
+                    y: self.baseline_y() - ascender,
+                },
+                kind: ShapeKind::Rect,
+                width: width.0,
+                height: line_height.0,
+                fill: Some(fill),
+                stroke: None,
+                parent_bbox_at_emit: None,
+            });
+        }
+        self.regions.current.current_line.push(FrameItem::Text {
+            pos: Point { x: self.regions.current.cursor_x, y: self.baseline_y() },
+            text,
+            style: self.style.clone(),
+        });
+    }
+
     pub(super) fn layout_word(&mut self, word: &str) {
         let w = self.word_width(word);
         let right_margin = self.regions.current.width - self.page_config.margin;
@@ -71,11 +98,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
                         let prefix_with_hyphen = format!("{}-", prefix);
                         let pw = self.word_width(&prefix_with_hyphen);
                         if pw.0 <= available {
-                            self.regions.current.current_line.push(FrameItem::Text {
-                                pos:   Point { x: self.regions.current.cursor_x, y: self.baseline_y() },
-                                text:  prefix_with_hyphen.into(),
-                                style: self.style.clone(),
-                            });
+                            self.push_text(prefix_with_hyphen.into(), pw);
                             self.regions.current.cursor_x += pw;
                             self.flush_line();
                             let rest: String = word.chars().skip(point).collect();
@@ -87,11 +110,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
             }
             self.flush_line();
         }
-        self.regions.current.current_line.push(FrameItem::Text {
-            pos:   Point { x: self.regions.current.cursor_x, y: self.baseline_y() },
-            text:  word.into(),
-            style: self.style.clone(),
-        });
+        self.push_text(word.into(), w);
         self.regions.current.cursor_x += w + self.space_width();
     }
 
@@ -106,11 +125,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
         {
             self.flush_line();
         }
-        self.regions.current.current_line.push(FrameItem::Text {
-            pos:   Point { x: self.regions.current.cursor_x, y: self.baseline_y() },
-            text:  chunk.into(),
-            style: self.style.clone(),
-        });
+        self.push_text(chunk.into(), w);
         self.regions.current.cursor_x += w;
     }
 

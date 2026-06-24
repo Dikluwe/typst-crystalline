@@ -67,7 +67,7 @@ pub use crate::rules::stdlib::structural::{
     native_table_footer, native_table_header, native_terms, native_underover,
 };
 pub use crate::rules::stdlib::text::{
-    native_lorem, native_lower, native_overline, native_regex, native_replace,
+    native_highlight, native_lorem, native_lower, native_overline, native_regex, native_replace,
     native_smallcaps, native_smartquote, native_strike, native_subscript, native_superscript,
     native_underline, native_upper,
 };

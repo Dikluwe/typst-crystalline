@@ -619,6 +619,77 @@ fn p448_superscript_desloca_baseline_para_cima() {
     assert!(size_sup.0 < 11.0, "sobrescrito deve reduzir o corpo tipográfico");
 }
 
+// ── Passo 449 — highlight (fundo colorido por detrás do texto) ─────────
+
+#[test]
+fn p449_highlight_default_emite_shape_amarelo_antes_do_texto() {
+    use crate::entities::geometry::ShapeKind;
+    use crate::entities::layout_types::Color;
+
+    let yellow = Color::rgba(255, 242, 54, 255);
+    let doc = layout(&Content::highlight(Content::text("x"), Some(yellow)));
+    let items: Vec<_> = doc.pages[0].items.iter().collect();
+    let mut found = false;
+    for window in items.windows(2) {
+        if let (
+            FrameItem::Shape {
+                kind: ShapeKind::Rect,
+                fill: Some(fill),
+                ..
+            },
+            FrameItem::Text { text, .. },
+        ) = (&window[0], &window[1])
+        {
+            if *fill == yellow && text.as_str() == "x" {
+                found = true;
+                break;
+            }
+        }
+    }
+    assert!(found, "esperado rect amarelo seguido de texto 'x'");
+}
+
+#[test]
+fn p449_highlight_fill_custom_emite_shape_correspondente() {
+    use crate::entities::geometry::ShapeKind;
+    use crate::entities::layout_types::Color;
+
+    let doc = layout(&Content::highlight(Content::text("x"), Some(Color::rgb(255, 0, 0))));
+    let found = doc.pages[0].items.iter().any(|i| matches!(
+        i,
+        FrameItem::Shape {
+            kind: ShapeKind::Rect,
+            fill: Some(c),
+            ..
+        } if *c == Color::rgb(255, 0, 0)
+    ));
+    assert!(found, "esperado rect vermelho de highlight");
+}
+
+#[test]
+fn p449_highlight_fill_none_nao_emite_shape() {
+    use crate::entities::geometry::ShapeKind;
+
+    let doc = layout(&Content::highlight(Content::text("x"), None));
+    let has_shape = doc.pages[0].items.iter().any(|i| matches!(
+        i,
+        FrameItem::Shape { kind: ShapeKind::Rect, .. }
+    ));
+    assert!(!has_shape, "fill: none não deve emitir shape de highlight");
+}
+
+#[test]
+fn p449_texto_plano_nao_emite_shape_de_highlight() {
+    use crate::entities::geometry::ShapeKind;
+
+    let doc = layout(&Content::text("x"));
+    let has_shape = doc.pages[0].items.iter().any(|i| matches!(
+        i,
+        FrameItem::Shape { kind: ShapeKind::Rect, .. }
+    ));
+    assert!(!has_shape, "texto sem highlight não deve ter rect de fundo");
+}
+
 #[test]
 fn pt_tipagem_nao_permite_add_f64() {
     let a = Pt(10.0);

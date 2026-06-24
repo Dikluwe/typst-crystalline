@@ -1,5 +1,5 @@
 # Prompt L0 — StyleChain
-Hash do Código: 2260092f
+Hash do Código: fc17a37b
 
 ## Módulo
 `01_core/src/entities/style_chain.rs`
@@ -29,6 +29,7 @@ pub struct StyleDelta {
     pub font:     Option<FontList>,// Passo 132B (ADR-0053) — tipo agregador; covers deferido
     pub subscript:   Option<bool>, // Passo 448 — subscrito
     pub superscript: Option<bool>, // Passo 448 — sobrescrito
+    pub highlight:   Option<Option<Color>>, // Passo 449 — fundo colorido
 }
 
 pub struct StyleChain(Option<Arc<StyleNode>>);
@@ -85,17 +86,17 @@ têm consumers reais materializados em passos subsequentes:
 | `lang: Option<Lang>` | Hyphenation hypher + smart-quotes localize | P144 + P155 | implementado⁺ |
 | `weight: Option<u16>` | Faux-bold `faux_bold_stroke_pt` + PDF `2 Tr` | P139 | implementado⁺ |
 
-### Estado actual 12 fields StyleDelta (P448)
+### Estado actual 13 fields StyleDelta (P449)
 
-- 12 fields (10 pré-P448 + `subscript`/`superscript`).
-- 12 resolvers em `impl StyleChain` (bold/italic/size/fill/
-  heading_level/weight/tracking/leading/lang/font/subscript/superscript).
+- 13 fields (10 pré-P448 + `subscript`/`superscript`/`highlight`).
+- 13 resolvers em `impl StyleChain` (bold/italic/size/fill/
+  heading_level/weight/tracking/leading/lang/font/subscript/superscript/highlight).
 - `impl From<&StyleChain> for TextStyle` materializado (inclui
-  `subscript`/`superscript` e `baseline_offset`).
+  `subscript`/`superscript`/`highlight` e `baseline_offset`).
 
 ### Cobertura Text agregada empírica P266
 
-- 12/12 entradas StyleChain (A.1-A.12) fechadas (implementado
+- 13/13 entradas StyleChain (A.1-A.13) fechadas (implementado
   ou implementado⁺).
 - Cobertura StyleChain subset = **100%** estrutural.
 - StyleChain subsistema A: 4/12 promoções implementado⁺

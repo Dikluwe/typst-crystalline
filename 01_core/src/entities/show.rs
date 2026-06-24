@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/entities/show.md
-//! @prompt-hash 07f7e3b0
+//! @prompt-hash 9386e46d
 //! @layer L1
 //! @updated 2026-04-19
 
@@ -41,6 +41,8 @@ pub enum NodeKind {
     Subscript,
     /// **Passo 448 (P448)**: sobrescrito.
     Superscript,
+    /// **Passo 449 (P449)**: fundo colorido (`highlight`).
+    Highlight,
 }
 
 /// Selector de uma show rule.

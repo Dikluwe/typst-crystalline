@@ -140,6 +140,8 @@ pub struct TextStyle {
     pub subscript:     bool,
     /// **Passo 448 (P448)**: sobrescrito (`#super[...]`).
     pub superscript:   bool,
+    /// **Passo 449 (P449)**: cor de fundo do highlight (`#highlight[...]`).
+    pub highlight:     Option<Color>,
     /// **Passo 448 (P448)**: deslocamento vertical da baseline (resolvido em
     /// `layout/text.rs` e aplicado em `cursor.rs`).
     pub baseline_offset: crate::entities::layout_types::Length,

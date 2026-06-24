@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/rules/stdlib/text.md
-//! @prompt-hash 2eb8f0be
+//! @prompt-hash 9d7e2fd3
 //! @layer L1
 //! @updated 2026-06-22
 //!
@@ -308,6 +308,61 @@ pub fn native_superscript(_ctx: &mut EvalContext, args: &Args, _world: &dyn crat
         )]),
     };
     Ok(Value::Content(Content::superscript(body)))
+}
+
+// ── Passo 449 — `highlight(body, fill: color)` ──────────────────────────────
+//
+// Paridade vanilla `text/highlight.rs::HighlightElem`: fundo colorido por
+// detrás do texto. Modelo minimal: `Content::Styled` com `Style::Highlight`.
+
+/// Cor amarela padrão do Typst para highlight (`#ff236`).
+fn default_highlight_color() -> Color {
+    Color::rgba(255, 242, 54, 255)
+}
+
+/// `highlight(body, fill: color = yellow)` → content embrulhado em
+/// `Content::Styled([Highlight(Some(color))])`.
+pub fn native_highlight(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contracts::world::World, _current_file: FileId) -> SourceResult<Value> {
+    let body = match args.items.as_slice() {
+        [Value::Content(c)] => c.clone(),
+        [Value::Str(s)]     => Content::text(s.as_str()),
+        [other] => return Err(vec![SourceDiagnostic::error(
+            Span::detached(),
+            format!("highlight() espera content ou string, recebeu {}", other.type_name()),
+        )]),
+        [] => return Err(vec![SourceDiagnostic::error(
+            Span::detached(),
+            "highlight() exige body como argumento posicional".to_string(),
+        )]),
+        _ => return Err(vec![SourceDiagnostic::error(
+            Span::detached(),
+            format!("highlight() recebeu {} argumentos posicionais (espera 1)", args.items.len()),
+        )]),
+    };
+
+    let mut fill: Option<Color> = Some(default_highlight_color());
+    for (key, value) in args.named.iter() {
+        match key.as_str() {
+            "fill" => {
+                fill = match value {
+                    Value::None => None,
+                    v => match parse_color(v) {
+                        Some(c) => Some(c),
+                        None => return Err(vec![SourceDiagnostic::error(
+                            Span::detached(),
+                            format!("highlight(fill:) espera color ou none, recebeu {}", v.type_name()),
+                        )]),
+                    },
+                };
+            }
+            other => return Err(vec![SourceDiagnostic::error(
+                Span::detached(),
+                format!("highlight() argumento nomeado inesperado '{}'", other),
+            )]),
+        }
+    }
+
+    Ok(Value::Content(Content::highlight(body, fill)))
 }
 
 // ── Passo 287 — função `#smartquote(double, enabled, alternative)` ──────────

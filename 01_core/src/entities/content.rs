@@ -1267,6 +1267,12 @@ impl Content {
         Self::Styled(Box::new(body), Styles::from_iter([Style::superscript(true)]))
     }
 
+    /// **Passo 449** — `highlight(body, fill)`.
+    pub fn highlight(body: Content, fill: Option<crate::entities::layout_types::Color>) -> Self {
+        use crate::entities::style::{Style, Styles};
+        Self::Styled(Box::new(body), Styles::from_iter([Style::highlight(fill)]))
+    }
+
     /// `pad(body, sides)` — Passo 156C (ADR-0061 Fase 1) /
     /// Passo 156L (refino sides individualizadas per ADR-0064 Caso C).
     pub fn pad(body: Content, sides: Sides<Option<Length>>) -> Self {

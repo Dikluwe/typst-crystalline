@@ -130,6 +130,7 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
         font:          layouter.style.font.clone().or(ns_font),
         subscript:     layouter.style.subscript,
         superscript:   layouter.style.superscript,
+        highlight:     layouter.style.highlight,
         baseline_offset: layouter.style.baseline_offset,
     };
 

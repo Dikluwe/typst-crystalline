@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/entities/style_chain.md
-//! @prompt-hash 7bf865c4
+//! @prompt-hash de464849
 //! @layer L1
 //! @updated 2026-04-23
 //!
@@ -76,8 +76,12 @@ pub struct StyleDelta {
     pub subscript: Option<bool>,
     /// **Passo 448 (P448)**: sobrescrito (`#super[...]`).
     pub superscript: Option<bool>,
+    /// **Passo 449 (P449)**: cor de fundo do highlight (`#highlight[...]`).
+    /// `None` no `Option` externo = não definido; `Some(None)` = desactivado;
+    /// `Some(Some(Color))` = cor activa.
+    pub highlight: Option<Option<crate::entities::layout_types::Color>>,
     /// **Canal aberto das `Set*` (Lote F-2, P335)** — propriedades não-texto
-    /// dinâmicas resolvidas por chave (`PropKey → Value`), ao lado das 12
+    /// dinâmicas resolvidas por chave (`PropKey → Value`), ao lado das 13
     /// nativas fechadas. Eixo do **DEBT 99.E**: as `Set*` (numbering de
     /// heading/equation/figure, dims de page) entram aqui em vez de canais
     /// dispersos (Introspector/`page_config`/baking), ganhando **escopo léxico**
@@ -97,6 +101,7 @@ impl StyleDelta {
             weight: None, tracking: None, leading: None,
             lang: None, font: None,
             subscript: None, superscript: None,
+            highlight: None,
             custom: Vec::new(),
         }
     }
@@ -119,6 +124,7 @@ impl StyleDelta {
             && self.font.is_none()
             && self.subscript.is_none()
             && self.superscript.is_none()
+            && self.highlight.is_none()
             && self.custom.is_empty()
     }
 
@@ -183,6 +189,9 @@ impl StyleDelta {
         }
         if self.superscript != other.superscript {
             styles.push(Style::Superscript(self.superscript.unwrap_or(false)));
+        }
+        if self.highlight != other.highlight {
+            styles.push(Style::highlight(self.highlight.unwrap_or(None)));
         }
         for (k, v) in &self.custom {
             let changed = other
@@ -486,6 +495,16 @@ impl StyleChain {
         false
     }
 
+    /// Resolve highlight (`#highlight[...]`).
+    pub fn highlight(&self) -> Option<crate::entities::layout_types::Color> {
+        let mut node = self.0.as_deref();
+        while let Some(n) = node {
+            if let Some(v) = n.delta.highlight { return v; }
+            node = n.parent.as_deref();
+        }
+        None
+    }
+
 }
 
 /// **F-5b fatia 2 (P373)** — lê o valor do canal `custom` para `key` no delta
@@ -516,6 +535,7 @@ impl From<&StyleChain> for TextStyle {
             font:          chain.font(),
             subscript:     chain.subscript(),
             superscript:   chain.superscript(),
+            highlight:     chain.highlight(),
             baseline_offset: crate::entities::layout_types::Length::ZERO,
         }
     }

@@ -5207,6 +5207,59 @@ mod tests {
         }
     }
 
+    // ── Passo 449 — Highlight ───────────────────────────────────────────
+
+    #[test]
+    fn eval_highlight_default_emite_styled_amarelo() {
+        let world = MockWorld::new("#highlight[x]");
+        let src = world.source(world.main()).unwrap();
+        let module = eval_for_test(&world, &src).unwrap();
+        let content = module.content().expect("deve haver content");
+        match content {
+            Content::Styled(body, styles) => {
+                assert_eq!(body.plain_text(), "x");
+                assert_eq!(
+                    styles.delta().highlight,
+                    Some(Some(crate::entities::layout_types::Color::rgba(255, 242, 54, 255)))
+                );
+            }
+            other => panic!("esperado Content::Styled, obtive {:?}", other),
+        }
+    }
+
+    #[test]
+    fn eval_highlight_fill_custom_emite_cor() {
+        let world = MockWorld::new("#highlight(fill: rgb(255, 0, 0))[x]");
+        let src = world.source(world.main()).unwrap();
+        let module = eval_for_test(&world, &src).unwrap();
+        let content = module.content().expect("deve haver content");
+        match content {
+            Content::Styled(body, styles) => {
+                assert_eq!(body.plain_text(), "x");
+                assert_eq!(
+                    styles.delta().highlight,
+                    Some(Some(crate::entities::layout_types::Color::rgb(255, 0, 0)))
+                );
+            }
+            other => panic!("esperado Content::Styled, obtive {:?}", other),
+        }
+    }
+
+    #[test]
+    fn eval_highlight_fill_none_desactiva() {
+        let world = MockWorld::new("#highlight(fill: none)[x]");
+        let src = world.source(world.main()).unwrap();
+        let module = eval_for_test(&world, &src).unwrap();
+        let content = module.content().expect("deve haver content");
+        match content {
+            Content::Styled(body, styles) => {
+                assert_eq!(body.plain_text(), "x");
+                assert_eq!(styles.delta().highlight, Some(None));
+            }
+            other => panic!("esperado Content::Styled, obtive {:?}", other),
+        }
+    }
+
     // ── Passo 301 — Auto-lookup math mode ──────────────────────────────
     //
     // P301 (HP + (a) eval-time + (γ) híbrido): identifiers vanilla

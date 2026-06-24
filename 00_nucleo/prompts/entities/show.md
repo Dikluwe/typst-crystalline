@@ -1,5 +1,5 @@
 # Prompt L0 — Entidade `ShowRule` (Passo 68-70; atualizado P352)
-Hash do Código: cad60b93
+Hash do Código: 5ebf67e1
 
 ## Propósito
 
@@ -12,8 +12,9 @@ momento da sua criação (eager) e aplica uma transformação declarativa.
 ### `NodeKind`
 
 Tipo de nó de conteúdo para selecção por tipo.
-Conjunto completo (Passo 69): `Heading`, `Figure`, `Strong`, `Emph`, `Raw`,
-`Equation`, `ListItem`.
+Conjunto completo: `Heading`, `Figure`, `Strong`, `Emph`, `Raw`,
+`Equation`, `ListItem`, `Underline`, `Strike`, `Overline`, `Smallcaps`,
+`Subscript`, `Superscript`, `Highlight`.
 Outros tipos (`EnumItem`, `Link`, etc.) adicionados em passos futuros.
 
 ### `Selector`

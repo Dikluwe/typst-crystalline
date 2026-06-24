@@ -147,6 +147,7 @@ fn is_styled_origin(
     italic_from_emph: bool,
     subscript: bool,
     superscript: bool,
+    highlight: bool,
 ) -> bool {
     match work {
         Content::Styled(_, styles) => {
@@ -163,6 +164,9 @@ fn is_styled_origin(
             }
             if superscript {
                 ok |= d.superscript == Some(true);
+            }
+            if highlight {
+                ok |= d.highlight.is_some();
             }
             ok
         }
@@ -192,16 +196,19 @@ fn selector_matches(work: &Content, selector: &Selector) -> bool {
                 | (Content::SmallCaps { .. }, NodeKind::Smallcaps)
         ) || matches!(
             (work, kind),
-            (_, NodeKind::Strong) if is_styled_origin(work, true, false, false, false)
+            (_, NodeKind::Strong) if is_styled_origin(work, true, false, false, false, false)
         ) || matches!(
             (work, kind),
-            (_, NodeKind::Emph) if is_styled_origin(work, false, true, false, false)
+            (_, NodeKind::Emph) if is_styled_origin(work, false, true, false, false, false)
         ) || matches!(
             (work, kind),
-            (_, NodeKind::Subscript) if is_styled_origin(work, false, false, true, false)
+            (_, NodeKind::Subscript) if is_styled_origin(work, false, false, true, false, false)
         ) || matches!(
             (work, kind),
-            (_, NodeKind::Superscript) if is_styled_origin(work, false, false, false, true)
+            (_, NodeKind::Superscript) if is_styled_origin(work, false, false, false, true, false)
+        ) || matches!(
+            (work, kind),
+            (_, NodeKind::Highlight) if is_styled_origin(work, false, false, false, false, true)
         ),
         Selector::DynKind(name) => {
             matches!(work, Content::Dynamic(e) if e.dyn_kind() == name)
@@ -1573,5 +1580,28 @@ mod tests {
     fn p446_selector_smallcaps_nao_casa_texto_plano() {
         let content = Content::text("x");
         assert!(!selector_matches(&content, &Selector::NodeKind(NodeKind::Smallcaps)));
+    }
+
+    // ── Passo 449 (P449) — selector para highlight ────────────────────────
+
+    #[test]
+    fn p449_selector_highlight_casa_styled_highlight() {
+        let content = Content::highlight(Content::text("x"), None);
+        assert!(selector_matches(&content, &Selector::NodeKind(NodeKind::Highlight)));
+        assert!(!selector_matches(&content, &Selector::NodeKind(NodeKind::Strong)));
+    }
+
+    #[test]
+    fn p449_selector_highlight_nao_casa_texto_plano() {
+        let content = Content::text("x");
+        assert!(!selector_matches(&content, &Selector::NodeKind(NodeKind::Highlight)));
+    }
+
+    #[test]
+    fn p449_selector_highlight_fill_none_ainda_casa() {
+        // `fill: none` é um highlight "desactivado"; continua a casar o selector
+        // de tipo, exactamente como um `set` vazio não remove a origem sintática.
+        let content = Content::highlight(Content::text("x"), None);
+        assert!(selector_matches(&content, &Selector::NodeKind(NodeKind::Highlight)));
     }
 }

@@ -1,5 +1,5 @@
 # Prompt L0 — Style e Styles
-Hash do Código: ffd50c66
+Hash do Código: 7869364b
 
 ## Módulo
 `01_core/src/entities/style.rs`
@@ -100,6 +100,11 @@ Variantes obrigatórias (Passo 99.A + **P288**):
   de texto para `#sub[...]` / `#super[...]`. Modeladas como `Style` (não
   variants próprios de `Content`) para reaproveitar a cadeia de estilos;
   o Layouter aplica `size *= 0.6` e `baseline_offset` em `layout/text.rs`.
+- **`Highlight(Option<Color>)`** — Passo 449. Propriedade de texto para
+  `#highlight[...]`. `Some(color)` activa o fundo colorido; `None`
+  desactiva explicitamente (herança cortada por `fill: none`). O Layouter
+  emite um `FrameItem::Shape` rectangular por detrás de cada run de texto
+  que resolva com `TextStyle.highlight = Some(color)`.
 
 **Marco arquitectural P292**: pós-P292, **série cirúrgica P288-P292
 termina naturalmente** — não há mais campos `StyleDelta` sem variant

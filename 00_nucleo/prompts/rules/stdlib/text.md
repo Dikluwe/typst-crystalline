@@ -1,5 +1,5 @@
 # Prompt L0 — `stdlib/text` — smartquote, decoração textual, lorem e smallcaps
-Hash do Código: d436c34d
+Hash do Código: 0a3f4916
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/rules/stdlib/text.rs`
@@ -153,4 +153,36 @@ native_superscript([Str("x")])   → Ok(Content::Styled(text("x"), [Superscript(
 native_superscript()             → Err
 layout(sequence([a, sub(b), c])) → "abc", "b" 0.6× e abaixo da baseline
 layout(sequence([a, super(b), c])) → "abc", "b" 0.6× e acima da baseline
+```
+
+## `highlight(body, fill?)` — Passo 449
+
+Elemento de texto vanilla `HighlightElem`. No cristalino modela-se via
+`Content::Styled` + `Style::Highlight(Option<Color>)`, reaproveitando a
+cadeia de estilos existente.
+
+**Argumentos**: 1 posicional `Content | Str`. Named opcional `fill: Color | none`
+(default amarelo Typst `rgb("#ff236")` / `rgba(255, 242, 54, 255)`).
+
+**Implementação**:
+- `Content::highlight(body, fill)` emite `Content::Styled(body, [Style::Highlight(fill)])`.
+- `native_highlight` valida `fill`; quando omitido usa o amarelo padrão; quando
+  `none` emite `Style::Highlight(None)` (desactiva herança).
+- Show rule: `NodeKind::Highlight` casa `Content::Styled` com `highlight` definido.
+- Layouter consumer em `layout/text.rs` + `cursor.rs`:
+  - Ao posicionar um run de texto com `TextStyle.highlight = Some(color)`, emite
+    primeiro um `FrameItem::Shape` rectangular (`ShapeKind::Rect`) com o
+    preenchimento, cobrindo a altura da linha, e depois o `FrameItem::Text`.
+  - `fill: none` resulta em `TextStyle.highlight = None` e não emite shape.
+- Export PDF: reusa `FrameItem::Shape` com `fill` (zero alterações no export).
+
+**Scope-out (ADR-0054 graded)**: `extent`, `top-edge`, `bottom-edge`; gradient
+fill; math mode.
+
+```
+native_highlight([Content(c)])              → Ok(Content::Styled(c, [Highlight(Some(yellow))]))
+native_highlight([Content(c)], fill: red)   → Ok(Content::Styled(c, [Highlight(Some(red))]))
+native_highlight([Content(c)], fill: none)  → Ok(Content::Styled(c, [Highlight(None)]))
+native_highlight()                          → Err
+layout(sequence([a, highlight(b), c]))      → "abc", "b" com rect amarelo por detrás
 ```
