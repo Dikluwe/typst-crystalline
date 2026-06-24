@@ -1,5 +1,5 @@
 # Prompt L0 — `stdlib/text` — smartquote, decoração textual, lorem e smallcaps
-Hash do Código: e234b3fb
+Hash do Código: d436c34d
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/rules/stdlib/text.rs`
@@ -119,4 +119,38 @@ native_smallcaps([Str("x")])   → Ok(Content::SmallCaps { body:text("x") })
 native_smallcaps()             → Err
 native_smallcaps([Content(c)], foo:Int(1)) → Err
 layout(smallcaps([Hello]))     → "HELLO" com minúsculas a 0.8×
+```
+
+## `sub(body)` / `super(body)` — Passo 448
+
+Elementos de texto vanilla `SubElem` / `SuperElem`. No cristalino modelam-se
+via `Content::Styled` + `Style::Subscript` / `Style::Superscript`, reaproveitando
+a cadeia de estilos existente.
+
+**Argumentos**: 1 posicional `Content | Str`. Zero named args.
+
+**Implementação**:
+- `Content::sub(body)` emite `Content::Styled(body, [Style::Subscript(true)])`.
+- `Content::superscript(body)` emite `Content::Styled(body, [Style::Superscript(true)])`
+  (o construtor chama-se `superscript` porque `super` é keyword de Rust).
+- Show rule: `NodeKind::Subscript` / `NodeKind::Superscript` casam
+  `Content::Styled` com o respectivo flag activo.
+- Layouter consumer em `layout/text.rs`:
+  - `sub`: reduz o tamanho para `0.6×` e desloca a baseline para `-0.2em`.
+  - `super`: reduz o tamanho para `0.6×` e desloca a baseline para `+0.3em`.
+- `TextStyle.baseline_offset` (Length) transporta o offset; `cursor.rs` aplica-o
+  ao posicionamento Y de cada `FrameItem::Text`.
+
+**Scope-out (ADR-0054 graded)**: `offset` e `size` configuráveis mantêm-se
+fora de escopo; usam-se os valores vanilla padrão.
+
+```
+native_subscript([Content(c)])   → Ok(Content::Styled(c, [Subscript(true)]))
+native_subscript([Str("x")])     → Ok(Content::Styled(text("x"), [Subscript(true)]))
+native_subscript()               → Err
+native_superscript([Content(c)]) → Ok(Content::Styled(c, [Superscript(true)]))
+native_superscript([Str("x")])   → Ok(Content::Styled(text("x"), [Superscript(true)]))
+native_superscript()             → Err
+layout(sequence([a, sub(b), c])) → "abc", "b" 0.6× e abaixo da baseline
+layout(sequence([a, super(b), c])) → "abc", "b" 0.6× e acima da baseline
 ```

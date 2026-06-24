@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/entities/style.md
-//! @prompt-hash 74b5d8b0
+//! @prompt-hash e0403c41
 //! @layer L1
 //! @updated 2026-06-17
 //!
@@ -130,6 +130,10 @@ pub enum Style {
     /// ADR-0098 vigente (paradigma `TextStyle` capture preservado;
     /// hash `export.rs 66cb8ac3` preservado pelo 9º passo consecutivo).
     Font(FontList),
+    /// **Passo 448 (P448)**: subscrito (`#sub[text]`).
+    Subscript(bool),
+    /// **Passo 448 (P448)**: sobrescrito (`#super[text]`).
+    Superscript(bool),
 }
 
 impl Style {
@@ -157,6 +161,8 @@ impl Style {
             Style::Leading(l)      => delta.leading = Some(*l),
             // `FontList: !Copy` (Vec<FontFamily>) — clone material (P292).
             Style::Font(f)         => delta.font = Some(f.clone()),
+            Style::Subscript(v)    => delta.subscript = Some(*v),
+            Style::Superscript(v)  => delta.superscript = Some(*v),
         }
     }
 
@@ -190,6 +196,16 @@ impl Style {
             value: true,
             from_emph: true,
         }
+    }
+
+    /// Subscrito (`#sub[...]`).
+    pub fn subscript(value: bool) -> Self {
+        Self::Subscript(value)
+    }
+
+    /// Sobrescrito (`#super[...]`).
+    pub fn superscript(value: bool) -> Self {
+        Self::Superscript(value)
     }
 }
 
@@ -339,11 +355,11 @@ mod tests {
     }
 
     #[test]
-    fn f4_s3_trava_backing_unico_varre_10_campos() {
+    fn f4_s3_trava_backing_unico_varre_12_campos() {
         // **Lote F-4 S3 (P338) — TRAVA contra o renascimento da dualidade de
         // backing.** Duas asserções pinam o backing único de ponta a ponta:
         //
-        // (a) a fachada `Styles` **É** o backing: `from_iter` das 10 variantes
+        // (a) a fachada `Styles` **É** o backing: `from_iter` das 12 variantes
         //     dobra TODAS num único `StyleDelta` (não numa lista de variantes).
         // (b) `push_styles` é **definicionalmente** `push(styles.delta())` — não
         //     uma 2ª conversão. Compara, accessor a accessor, a chain via
@@ -369,9 +385,11 @@ mod tests {
             Style::Tracking(Length::pt(0.5)),
             Style::Leading(Length::em(0.65)),
             Style::Font(font.clone()),
+            Style::subscript(true),    // P448
+            Style::superscript(false), // P448
         ]);
 
-        // (a) backing único: a fachada dobrou os 10 campos no delta.
+        // (a) backing único: a fachada dobrou os 12 campos no delta.
         let d = s.delta();
         assert_eq!(d.bold, Some(true));
         assert_eq!(d.italic, Some(true));
@@ -383,6 +401,8 @@ mod tests {
         assert_eq!(d.tracking, Some(Length::pt(0.5)));
         assert_eq!(d.leading, Some(Length::em(0.65)));
         assert_eq!(d.font, Some(font.clone()));
+        assert_eq!(d.subscript, Some(true));
+        assert_eq!(d.superscript, Some(false));
 
         // (b) push_styles ≡ push(delta) — sem 2ª conversão. Idêntico em todos
         // os accessors da chain.
@@ -398,6 +418,8 @@ mod tests {
         assert_eq!(via_styles.tracking(), via_delta.tracking());
         assert_eq!(via_styles.leading(), via_delta.leading());
         assert_eq!(via_styles.font(), via_delta.font());
+        assert_eq!(via_styles.subscript(), via_delta.subscript());
+        assert_eq!(via_styles.superscript(), via_delta.superscript());
         // e o valor real propagou (não só "iguais por ambos vazios"):
         assert!(via_styles.bold() && via_styles.italic());
         assert_eq!(via_styles.size(), 18.0);
@@ -405,11 +427,12 @@ mod tests {
     }
 
     #[test]
-    fn style_variantes_cobrem_catalog_99a_e_p288_a_p292() {
+    fn style_variantes_cobrem_catalog_99a_e_p288_a_p292_e_p448() {
         // Passo 99.A inaugurou 5 variantes. P288 adicionou `Lang(Lang)` → 6.
         // P289 adicionou `Weight(u16)` → 7. P290 adicionou `Tracking(Length)`
         // → 8. P291 adicionou `Leading(Length)` → 9. P292 adiciona
-        // `Font(FontList)` → 10 (**fecha série cumulativa P288-P292**).
+        // `Font(FontList)` → 10. P448 adiciona `Subscript(bool)` e
+        // `Superscript(bool)` → 12.
         // Este teste falha se alguém tentar remover uma.
         use crate::entities::font_list::FontList;
         use crate::entities::lang::Lang;
@@ -425,7 +448,9 @@ mod tests {
             Style::Tracking(Length::pt(0.5)),  // P290
             Style::Leading(Length::em(0.65)),   // P291
             Style::Font(FontList::single(EcoString::from("Inter"))),  // P292
+            Style::subscript(true),       // P448
+            Style::superscript(true),     // P448
         ];
-        assert_eq!(variants.len(), 10);
+        assert_eq!(variants.len(), 12);
     }
 }

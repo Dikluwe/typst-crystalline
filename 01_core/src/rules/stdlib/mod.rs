@@ -68,7 +68,8 @@ pub use crate::rules::stdlib::structural::{
 };
 pub use crate::rules::stdlib::text::{
     native_lorem, native_lower, native_overline, native_regex, native_replace,
-    native_smallcaps, native_smartquote, native_strike, native_underline, native_upper,
+    native_smallcaps, native_smartquote, native_strike, native_subscript, native_superscript,
+    native_underline, native_upper,
 };
 // P387 (ADR-0111) — data import.
 pub use crate::rules::stdlib::layout::{

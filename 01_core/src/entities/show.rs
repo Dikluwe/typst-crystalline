@@ -18,7 +18,7 @@ pub type RuleId = u64;
 /// Tipo de nó de conteúdo para selectorção por tipo (Passo 69 — DEBT-19 encerrado).
 ///
 /// Conjunto completo: Heading, Figure, Strong, Emph, Raw, Equation, ListItem,
-/// Underline, Strike, Overline, Smallcaps.
+/// Underline, Strike, Overline, Smallcaps, Subscript, Superscript.
 /// Outros tipos (EnumItem, Link, etc.) adicionados em passos futuros.
 #[derive(Debug, Clone, PartialEq)]
 pub enum NodeKind {
@@ -37,6 +37,10 @@ pub enum NodeKind {
     Overline,
     /// **Passo 446 (P408)**: smallcaps.
     Smallcaps,
+    /// **Passo 448 (P448)**: subscrito.
+    Subscript,
+    /// **Passo 448 (P448)**: sobrescrito.
+    Superscript,
 }
 
 /// Selector de uma show rule.

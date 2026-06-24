@@ -1254,6 +1254,19 @@ impl Content {
         Self::SmallCaps { body: Box::new(body) }
     }
 
+    /// **Passo 448** — `sub(body)`.
+    pub fn sub(body: Content) -> Self {
+        use crate::entities::style::{Style, Styles};
+        Self::Styled(Box::new(body), Styles::from_iter([Style::subscript(true)]))
+    }
+
+    /// **Passo 448** — `super(body)` (`super` é keyword em Rust, logo o
+    /// construtor chama-se `superscript`).
+    pub fn superscript(body: Content) -> Self {
+        use crate::entities::style::{Style, Styles};
+        Self::Styled(Box::new(body), Styles::from_iter([Style::superscript(true)]))
+    }
+
     /// `pad(body, sides)` — Passo 156C (ADR-0061 Fase 1) /
     /// Passo 156L (refino sides individualizadas per ADR-0064 Caso C).
     pub fn pad(body: Content, sides: Sides<Option<Length>>) -> Self {

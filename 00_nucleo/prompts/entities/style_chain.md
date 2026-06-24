@@ -1,5 +1,5 @@
 # Prompt L0 — StyleChain
-Hash do Código: 138c1236
+Hash do Código: 2260092f
 
 ## Módulo
 `01_core/src/entities/style_chain.rs`
@@ -27,6 +27,8 @@ pub struct StyleDelta {
     pub leading:  Option<Length>,  // Passo 128 — capturado em text; migra p/ par
     pub lang:     Option<Lang>,    // Passo 131B (ADR-0052) — tipo semântico validado
     pub font:     Option<FontList>,// Passo 132B (ADR-0053) — tipo agregador; covers deferido
+    pub subscript:   Option<bool>, // Passo 448 — subscrito
+    pub superscript: Option<bool>, // Passo 448 — sobrescrito
 }
 
 pub struct StyleChain(Option<Arc<StyleNode>>);
@@ -83,13 +85,13 @@ têm consumers reais materializados em passos subsequentes:
 | `lang: Option<Lang>` | Hyphenation hypher + smart-quotes localize | P144 + P155 | implementado⁺ |
 | `weight: Option<u16>` | Faux-bold `faux_bold_stroke_pt` + PDF `2 Tr` | P139 | implementado⁺ |
 
-### Estado actual 10 fields StyleDelta (confirmado P266.A)
+### Estado actual 12 fields StyleDelta (P448)
 
-- 10 fields (não 12 originalmente esperados).
-- 10 resolvers em `impl StyleChain` (bold/italic/size/fill/
-  heading_level/weight/tracking/leading/lang/font).
-- `impl From<&StyleChain> for TextStyle` materializado (linha
-  272+).
+- 12 fields (10 pré-P448 + `subscript`/`superscript`).
+- 12 resolvers em `impl StyleChain` (bold/italic/size/fill/
+  heading_level/weight/tracking/leading/lang/font/subscript/superscript).
+- `impl From<&StyleChain> for TextStyle` materializado (inclui
+  `subscript`/`superscript` e `baseline_offset`).
 
 ### Cobertura Text agregada empírica P266
 

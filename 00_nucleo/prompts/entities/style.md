@@ -1,5 +1,5 @@
 # Prompt L0 — Style e Styles
-Hash do Código: 8817bc3c
+Hash do Código: ffd50c66
 
 ## Módulo
 `01_core/src/entities/style.rs`
@@ -96,11 +96,15 @@ Variantes obrigatórias (Passo 99.A + **P288**):
   consecutivo**.
   Diagnóstico `diagnostico-style-font-passo-292.md` (6 secções A.0-A.5
   + A.5' N=2 anti-reflexão).
+- **`Subscript(bool)`** / **`Superscript(bool)`** — Passo 448. Propriedades
+  de texto para `#sub[...]` / `#super[...]`. Modeladas como `Style` (não
+  variants próprios de `Content`) para reaproveitar a cadeia de estilos;
+  o Layouter aplica `size *= 0.6` e `baseline_offset` em `layout/text.rs`.
 
 **Marco arquitectural P292**: pós-P292, **série cirúrgica P288-P292
 termina naturalmente** — não há mais campos `StyleDelta` sem variant
-`Style` correspondente (assimetria 5/5 fechada). Próximo passo será
-ortogonal por construção (não há reaplicação cumulativa possível).
+`Style` correspondente (assimetria 5/5 fechada). O Passo 448 mantém-se
+ortogonal (dois novos pares `Style`/`StyleDelta`).
 
 Derive pós-P292: `Debug, Clone, PartialEq`. **`Copy` removido por
 `FontList: !Copy`** (`Style::Font(FontList)`). Inventário A.2.0

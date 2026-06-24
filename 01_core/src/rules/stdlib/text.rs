@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/rules/stdlib/text.md
-//! @prompt-hash 30b3461b
+//! @prompt-hash 2eb8f0be
 //! @layer L1
 //! @updated 2026-06-22
 //!
@@ -258,6 +258,56 @@ pub fn native_smallcaps(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate:
     };
 
     Ok(Value::Content(Content::smallcaps(body)))
+}
+
+// ── Passo 448 — `sub(body)` / `super(body)` ─────────────────────────────────
+//
+// Paridade vanilla `text/sub.rs::SubElem` e `text/superscript.rs::SuperElem`:
+// elementos de texto que deslocam a baseline e reduzem o corpo. Modelo
+// minimal: `Content::Styled` com `Style::Subscript`/`Style::Superscript`.
+
+/// `sub(body)` → content embrulhado em `Content::Styled([Subscript(true)])`.
+pub fn native_subscript(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contracts::world::World, _current_file: FileId) -> SourceResult<Value> {
+    expect_no_named(&args.named)?;
+    let body = match args.items.as_slice() {
+        [Value::Content(c)] => c.clone(),
+        [Value::Str(s)]     => Content::text(s.as_str()),
+        [other] => return Err(vec![SourceDiagnostic::error(
+            Span::detached(),
+            format!("sub() espera content ou string, recebeu {}", other.type_name()),
+        )]),
+        [] => return Err(vec![SourceDiagnostic::error(
+            Span::detached(),
+            "sub() exige body como argumento posicional".to_string(),
+        )]),
+        _ => return Err(vec![SourceDiagnostic::error(
+            Span::detached(),
+            format!("sub() recebeu {} argumentos posicionais (espera 1)", args.items.len()),
+        )]),
+    };
+    Ok(Value::Content(Content::sub(body)))
+}
+
+/// `super(body)` → content embrulhado em `Content::Styled([Superscript(true)])`.
+pub fn native_superscript(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contracts::world::World, _current_file: FileId) -> SourceResult<Value> {
+    expect_no_named(&args.named)?;
+    let body = match args.items.as_slice() {
+        [Value::Content(c)] => c.clone(),
+        [Value::Str(s)]     => Content::text(s.as_str()),
+        [other] => return Err(vec![SourceDiagnostic::error(
+            Span::detached(),
+            format!("super() espera content ou string, recebeu {}", other.type_name()),
+        )]),
+        [] => return Err(vec![SourceDiagnostic::error(
+            Span::detached(),
+            "super() exige body como argumento posicional".to_string(),
+        )]),
+        _ => return Err(vec![SourceDiagnostic::error(
+            Span::detached(),
+            format!("super() recebeu {} argumentos posicionais (espera 1)", args.items.len()),
+        )]),
+    };
+    Ok(Value::Content(Content::superscript(body)))
 }
 
 // ── Passo 287 — função `#smartquote(double, enabled, alternative)` ──────────

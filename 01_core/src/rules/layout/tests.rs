@@ -567,6 +567,58 @@ fn p408_smallcaps_nao_vaza_estilo() {
     }
 }
 
+// ── Passo 448 — subscript / superscript (baseline + scaling) ───────────
+
+#[test]
+fn p448_subscript_desloca_baseline_para_baixo() {
+    let doc = layout(&Content::sequence(vec![
+        Content::text("a"),
+        Content::sub(Content::text("b")),
+        Content::text("c"),
+    ]));
+    let items: Vec<_> = doc
+        .pages
+        .iter()
+        .flat_map(|p| p.items.iter())
+        .filter_map(|i| {
+            if let FrameItem::Text { text, pos, style } = i {
+                Some((text.to_string(), pos.y, style.size))
+            } else {
+                None
+            }
+        })
+        .collect();
+    let y_normal = items.iter().find(|(t, _, _)| t == "a").map(|(_, y, _)| *y).unwrap();
+    let (y_sub, size_sub) = items.iter().find(|(t, _, _)| t == "b").map(|(_, y, s)| (*y, *s)).unwrap();
+    assert!(y_sub < y_normal, "subscrito deve descer abaixo da baseline normal");
+    assert!(size_sub.0 < 11.0, "subscrito deve reduzir o corpo tipográfico");
+}
+
+#[test]
+fn p448_superscript_desloca_baseline_para_cima() {
+    let doc = layout(&Content::sequence(vec![
+        Content::text("a"),
+        Content::superscript(Content::text("b")),
+        Content::text("c"),
+    ]));
+    let items: Vec<_> = doc
+        .pages
+        .iter()
+        .flat_map(|p| p.items.iter())
+        .filter_map(|i| {
+            if let FrameItem::Text { text, pos, style } = i {
+                Some((text.to_string(), pos.y, style.size))
+            } else {
+                None
+            }
+        })
+        .collect();
+    let y_normal = items.iter().find(|(t, _, _)| t == "a").map(|(_, y, _)| *y).unwrap();
+    let (y_sup, size_sup) = items.iter().find(|(t, _, _)| t == "b").map(|(_, y, s)| (*y, *s)).unwrap();
+    assert!(y_sup > y_normal, "sobrescrito deve subir acima da baseline normal");
+    assert!(size_sup.0 < 11.0, "sobrescrito deve reduzir o corpo tipográfico");
+}
+
 #[test]
 fn pt_tipagem_nao_permite_add_f64() {
     let a = Pt(10.0);

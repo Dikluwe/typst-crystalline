@@ -10,7 +10,7 @@
 //! estilo tipado, e dispõe cada palavra via `layout_word`. **Não re-entra
 //! `layout_content`** (não orquestra). Caminho quente — content-preserving.
 
-use crate::entities::layout_types::{Pt, TextStyle};
+use crate::entities::layout_types::{Length, Pt, TextStyle};
 use crate::entities::value::Value;
 
 use super::{FontMetrics, ImageSizer, Layouter};
@@ -107,7 +107,7 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
         }
         _ => None,
     };
-    let effective = TextStyle {
+    let mut effective = TextStyle {
         bold:   ns_bold   || layouter.style.bold,
         italic: ns_italic || layouter.style.italic,
         size:   if layouter.style.size > layouter.font_size_pt {
@@ -128,7 +128,22 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
         leading:       layouter.style.leading.clone().or(ns_leading),
         lang:          layouter.style.lang.clone().or(ns_lang),
         font:          layouter.style.font.clone().or(ns_font),
+        subscript:     layouter.style.subscript,
+        superscript:   layouter.style.superscript,
+        baseline_offset: layouter.style.baseline_offset,
     };
+
+    // **P448**: subscrito/sobrescrito reduzem o corpo e deslocam a baseline.
+    const SUBSCRIPT_SCALE: f64 = 0.6;
+    const SUPERSCRIPT_SCALE: f64 = 0.6;
+    if effective.subscript {
+        effective.size = Pt(effective.size.0 * SUBSCRIPT_SCALE);
+        effective.baseline_offset = Length::em(-0.2);
+    } else if effective.superscript {
+        effective.size = Pt(effective.size.0 * SUPERSCRIPT_SCALE);
+        effective.baseline_offset = Length::em(0.3);
+    }
+
     let prev_style = layouter.style.clone();
     layouter.style = effective;
     if layouter.smallcaps {

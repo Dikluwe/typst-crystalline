@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/entities/style_chain.md
-//! @prompt-hash 622cbc62
+//! @prompt-hash 7bf865c4
 //! @layer L1
 //! @updated 2026-04-23
 //!
@@ -72,8 +72,12 @@ pub struct StyleDelta {
     /// (covers sem suporte até `regex` ser autorizado em L1).
     /// Inerte em layout (consumer futuro: shaping, lookup).
     pub font: Option<FontList>,
+    /// **Passo 448 (P448)**: subscrito (`#sub[...]`).
+    pub subscript: Option<bool>,
+    /// **Passo 448 (P448)**: sobrescrito (`#super[...]`).
+    pub superscript: Option<bool>,
     /// **Canal aberto das `Set*` (Lote F-2, P335)** — propriedades não-texto
-    /// dinâmicas resolvidas por chave (`PropKey → Value`), ao lado das 10
+    /// dinâmicas resolvidas por chave (`PropKey → Value`), ao lado das 12
     /// nativas fechadas. Eixo do **DEBT 99.E**: as `Set*` (numbering de
     /// heading/equation/figure, dims de page) entram aqui em vez de canais
     /// dispersos (Introspector/`page_config`/baking), ganhando **escopo léxico**
@@ -92,6 +96,7 @@ impl StyleDelta {
             fill: None, heading_level: None,
             weight: None, tracking: None, leading: None,
             lang: None, font: None,
+            subscript: None, superscript: None,
             custom: Vec::new(),
         }
     }
@@ -112,6 +117,8 @@ impl StyleDelta {
             && self.leading.is_none()
             && self.lang.is_none()
             && self.font.is_none()
+            && self.subscript.is_none()
+            && self.superscript.is_none()
             && self.custom.is_empty()
     }
 
@@ -170,6 +177,12 @@ impl StyleDelta {
             if let Some(f) = self.font.clone() {
                 styles.push(Style::Font(f));
             }
+        }
+        if self.subscript != other.subscript {
+            styles.push(Style::Subscript(self.subscript.unwrap_or(false)));
+        }
+        if self.superscript != other.superscript {
+            styles.push(Style::Superscript(self.superscript.unwrap_or(false)));
         }
         for (k, v) in &self.custom {
             let changed = other
@@ -453,6 +466,26 @@ impl StyleChain {
         None
     }
 
+    /// Resolve subscrito (`#sub[...]`).
+    pub fn subscript(&self) -> bool {
+        let mut node = self.0.as_deref();
+        while let Some(n) = node {
+            if let Some(v) = n.delta.subscript { return v; }
+            node = n.parent.as_deref();
+        }
+        false
+    }
+
+    /// Resolve sobrescrito (`#super[...]`).
+    pub fn superscript(&self) -> bool {
+        let mut node = self.0.as_deref();
+        while let Some(n) = node {
+            if let Some(v) = n.delta.superscript { return v; }
+            node = n.parent.as_deref();
+        }
+        false
+    }
+
 }
 
 /// **F-5b fatia 2 (P373)** — lê o valor do canal `custom` para `key` no delta
@@ -481,6 +514,9 @@ impl From<&StyleChain> for TextStyle {
             leading:       chain.leading(),
             lang:          chain.lang(),
             font:          chain.font(),
+            subscript:     chain.subscript(),
+            superscript:   chain.superscript(),
+            baseline_offset: crate::entities::layout_types::Length::ZERO,
         }
     }
 }

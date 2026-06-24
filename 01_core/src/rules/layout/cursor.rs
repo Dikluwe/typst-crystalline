@@ -42,6 +42,14 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
         self.metrics.advance(" ", self.style.size)
     }
 
+    /// **P448** — baseline ajustada pelo offset vertical do estilo (subscrito/
+    /// sobrescrito). O `cursor_y` mantém-se como baseline principal da linha;
+    /// o offset é aplicado só ao posicionamento do glyph.
+    fn baseline_y(&self) -> Pt {
+        let offset_pt = self.style.baseline_offset.resolve_pt(self.style.size.val());
+        self.regions.current.cursor_y + Pt(offset_pt)
+    }
+
     pub(super) fn layout_word(&mut self, word: &str) {
         let w = self.word_width(word);
         let right_margin = self.regions.current.width - self.page_config.margin;
@@ -64,7 +72,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
                         let pw = self.word_width(&prefix_with_hyphen);
                         if pw.0 <= available {
                             self.regions.current.current_line.push(FrameItem::Text {
-                                pos:   Point { x: self.regions.current.cursor_x, y: self.regions.current.cursor_y },
+                                pos:   Point { x: self.regions.current.cursor_x, y: self.baseline_y() },
                                 text:  prefix_with_hyphen.into(),
                                 style: self.style.clone(),
                             });
@@ -80,7 +88,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
             self.flush_line();
         }
         self.regions.current.current_line.push(FrameItem::Text {
-            pos:   Point { x: self.regions.current.cursor_x, y: self.regions.current.cursor_y },
+            pos:   Point { x: self.regions.current.cursor_x, y: self.baseline_y() },
             text:  word.into(),
             style: self.style.clone(),
         });
@@ -99,7 +107,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
             self.flush_line();
         }
         self.regions.current.current_line.push(FrameItem::Text {
-            pos:   Point { x: self.regions.current.cursor_x, y: self.regions.current.cursor_y },
+            pos:   Point { x: self.regions.current.cursor_x, y: self.baseline_y() },
             text:  chunk.into(),
             style: self.style.clone(),
         });

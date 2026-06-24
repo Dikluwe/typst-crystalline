@@ -141,13 +141,30 @@ fn unsupported_target_warn(target: &str) -> (String, String) {
 /// **Partilhado** (P352) pelo loop α (transformação func/content) e pela passagem
 /// de show-set: ambos usam exatamente o mesmo critério de match. `Selector::Text`
 /// nunca casa aqui (tratado por `map_text`).
-fn is_styled_origin(work: &Content, bold_from_strong: bool, italic_from_emph: bool) -> bool {
+fn is_styled_origin(
+    work: &Content,
+    bold_from_strong: bool,
+    italic_from_emph: bool,
+    subscript: bool,
+    superscript: bool,
+) -> bool {
     match work {
         Content::Styled(_, styles) => {
             let d = styles.delta();
-            (!bold_from_strong || d.bold == Some(true) && d.bold_from_strong == Some(true))
-                && (!italic_from_emph || d.italic == Some(true) && d.italic_from_emph == Some(true))
-                && (bold_from_strong || italic_from_emph)
+            let mut ok = false;
+            if bold_from_strong {
+                ok |= d.bold == Some(true) && d.bold_from_strong == Some(true);
+            }
+            if italic_from_emph {
+                ok |= d.italic == Some(true) && d.italic_from_emph == Some(true);
+            }
+            if subscript {
+                ok |= d.subscript == Some(true);
+            }
+            if superscript {
+                ok |= d.superscript == Some(true);
+            }
+            ok
         }
         _ => false,
     }
@@ -175,10 +192,16 @@ fn selector_matches(work: &Content, selector: &Selector) -> bool {
                 | (Content::SmallCaps { .. }, NodeKind::Smallcaps)
         ) || matches!(
             (work, kind),
-            (_, NodeKind::Strong) if is_styled_origin(work, true, false)
+            (_, NodeKind::Strong) if is_styled_origin(work, true, false, false, false)
         ) || matches!(
             (work, kind),
-            (_, NodeKind::Emph) if is_styled_origin(work, false, true)
+            (_, NodeKind::Emph) if is_styled_origin(work, false, true, false, false)
+        ) || matches!(
+            (work, kind),
+            (_, NodeKind::Subscript) if is_styled_origin(work, false, false, true, false)
+        ) || matches!(
+            (work, kind),
+            (_, NodeKind::Superscript) if is_styled_origin(work, false, false, false, true)
         ),
         Selector::DynKind(name) => {
             matches!(work, Content::Dynamic(e) if e.dyn_kind() == name)
@@ -984,7 +1007,7 @@ pub(super) fn eval_show_rule(
                     use crate::rules::stdlib::{
                         native_emph, native_figure, native_heading, native_overline,
                         native_raw, native_smallcaps, native_strike, native_strong,
-                        native_underline,
+                        native_subscript, native_superscript, native_underline,
                     };
                     use std::ptr::fn_addr_eq;
                     match f.native_fn_addr() {
@@ -1006,12 +1029,16 @@ pub(super) fn eval_show_rule(
                             Selector::NodeKind(NodeKind::Overline),
                         Some(addr) if fn_addr_eq(addr, native_smallcaps as fn(_, _, _, _) -> _) =>
                             Selector::NodeKind(NodeKind::Smallcaps),
+                        Some(addr) if fn_addr_eq(addr, native_subscript as fn(_, _, _, _) -> _) =>
+                            Selector::NodeKind(NodeKind::Subscript),
+                        Some(addr) if fn_addr_eq(addr, native_superscript as fn(_, _, _, _) -> _) =>
+                            Selector::NodeKind(NodeKind::Superscript),
                         Some(_) => return Err(vec![SourceDiagnostic::error(
                             sel_expr.span(),
                             format!(
                                 "função '{}' não é um tipo de nó suportado como selector. \
                                  Tipos suportados: heading, figure, strong, emph, raw, \
-                                 underline, strike, overline, smallcaps.",
+                                 underline, strike, overline, smallcaps, sub, super.",
                                 f.name().unwrap_or("<anónima>")
                             ),
                         )]),

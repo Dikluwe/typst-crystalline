@@ -5173,6 +5173,40 @@ mod tests {
         );
     }
 
+    // ── Passo 448 — Subscript / Superscript ──────────────────────────────
+
+    #[test]
+    fn eval_sub_emite_styled() {
+        let world = MockWorld::new("#sub[x]");
+        let src = world.source(world.main()).unwrap();
+        let module = eval_for_test(&world, &src).unwrap();
+        let content = module.content().expect("deve haver content");
+        match content {
+            Content::Styled(body, styles) => {
+                assert_eq!(body.plain_text(), "x");
+                assert_eq!(styles.delta().subscript, Some(true));
+                assert!(styles.delta().superscript.is_none());
+            }
+            other => panic!("esperado Content::Styled, obtive {:?}", other),
+        }
+    }
+
+    #[test]
+    fn eval_super_emite_styled() {
+        let world = MockWorld::new("#super[x]");
+        let src = world.source(world.main()).unwrap();
+        let module = eval_for_test(&world, &src).unwrap();
+        let content = module.content().expect("deve haver content");
+        match content {
+            Content::Styled(body, styles) => {
+                assert_eq!(body.plain_text(), "x");
+                assert_eq!(styles.delta().superscript, Some(true));
+                assert!(styles.delta().subscript.is_none());
+            }
+            other => panic!("esperado Content::Styled, obtive {:?}", other),
+        }
+    }
+
     // ── Passo 301 — Auto-lookup math mode ──────────────────────────────
     //
     // P301 (HP + (a) eval-time + (γ) híbrido): identifiers vanilla

@@ -136,6 +136,13 @@ pub struct TextStyle {
     pub leading:       Option<crate::entities::layout_types::Length>,
     pub lang:          Option<crate::entities::lang::Lang>,
     pub font:          Option<crate::entities::font_list::FontList>,
+    /// **Passo 448 (P448)**: subscrito (`#sub[...]`).
+    pub subscript:     bool,
+    /// **Passo 448 (P448)**: sobrescrito (`#super[...]`).
+    pub superscript:   bool,
+    /// **Passo 448 (P448)**: deslocamento vertical da baseline (resolvido em
+    /// `layout/text.rs` e aplicado em `cursor.rs`).
+    pub baseline_offset: crate::entities::layout_types::Length,
 }
 
 impl TextStyle {
@@ -623,6 +630,10 @@ impl Length {
     pub fn resolve_pt(&self, font_size_pt: f64) -> f64 {
         self.abs.to_pt() + self.em * font_size_pt
     }
+}
+
+impl Default for Length {
+    fn default() -> Self { Self::ZERO }
 }
 
 impl std::ops::Add for Length {
