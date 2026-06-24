@@ -1,9 +1,9 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/rules/stdlib/_comum.md
-//! @prompt-hash 30848226
-//! @prompt 00_nucleo/prompts/rules/stdlib/shapes.md
+//! @prompt-hash ad56b563
+//! @prompt 00_nucleo/prompts/rules/stdlib/gradients.md
 //! @layer L1
-//! @updated 2026-05-15
+//! @updated 2026-06-24
 //!
 //! Stdlib `gradient.linear` — P262 (ADR-0087 Gradient Linear-only).
 //!

@@ -1,11 +1,10 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/rules/stdlib/_comum.md
-//! @prompt-hash 01f8461b
-//! @prompt 00_nucleo/prompts/rules/stdlib/shapes.md
+//! @prompt-hash 30848226
 //! @prompt 00_nucleo/prompts/rules/stdlib/square.md
-//! @prompt-hash 01f8461b
+//! @prompt 00_nucleo/prompts/rules/stdlib/shapes.md
 //! @layer L1
-//! @updated 2026-04-23
+//! @updated 2026-06-24
 //!
 //! Funções nativas de formas geométricas (rect, square, ellipse, circle, line, polygon).
 //! Extraído de `stdlib.rs` no Passo 96.5 conforme ADR-0037.

@@ -6,10 +6,10 @@ Hash do Código: b7a9f5a5
 para agentes). Este ficheiro guarda **só** o que é partilhado por várias
 funções; os prompts finos por função citam-no. Índice da partição:
 `rules/stdlib.md` (agora índice).
-**Apontam para aqui** (linhagem `@prompt`): `stdlib/mod.rs` (registo),
-`stdlib/gradients.rs` — os ficheiros cuja spec detalhada **não** estava em
-`stdlib.md` (dependiam apenas da convenção partilhada; spec dedicada é
-candidata futura, não inventada aqui).
+**Apontam para aqui** (linhagem `@prompt`): `stdlib/mod.rs` (registo) —
+os ficheiros cuja spec detalhada **não** estava em `stdlib.md` (dependiam
+apenas da convenção partilhada; spec dedicada é candidata futura, não
+inventada aqui).
 
 > Nota: `stdlib/structural.rs` tem agora o seu próprio prompt em
 > `00_nucleo/prompts/rules/stdlib/structural.md` (P430).
@@ -24,6 +24,8 @@ candidata futura, não inventada aqui).
 > `00_nucleo/prompts/rules/stdlib/shapes.md` (P435).
 > Nota: `stdlib/transforms.rs` tem agora o seu próprio prompt em
 > `00_nucleo/prompts/rules/stdlib/transforms.md` (P436).
+> Nota: `stdlib/gradients.rs` tem agora o seu próprio prompt em
+> `00_nucleo/prompts/rules/stdlib/gradients.md` (P437).
 
 ---
 

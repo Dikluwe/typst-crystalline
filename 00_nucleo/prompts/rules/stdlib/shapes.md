@@ -1,5 +1,5 @@
 # Prompt L0 — `stdlib/shapes` — módulo `shapes`
-Hash do Código: 998b0972
+Hash do Código: ef3d2aa0
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/rules/stdlib/shapes.rs`
