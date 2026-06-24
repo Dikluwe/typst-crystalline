@@ -339,14 +339,20 @@ pub(crate) fn eval_markup(
     engine: &mut Engine<'_>,
 ) -> SourceResult<Value> {
     let mut parts: Vec<Content> = Vec::new();
-    // Passo 155: estado de alternância para SmartQuote em markup.
-    // Cristalino usa o lexer vanilla (1 char = 1 token); o eval emite
-    // a aspa localizada open/close conforme alternância par/ímpar dentro
-    // da sequência markup. Aspas duplas e simples têm contadores
-    // independentes. Aspas simples ainda usam ASCII (aspas secundárias
-    // scope-out per spec P155).
-    let mut double_open = true; // true = próximo `"` é open
-    let mut single_open = true;
+    // Passo 445: smart quotes context-aware em markup.
+    // O lexer marca `"` e `'` como `SyntaxKind::SmartQuote`; o eval decide
+    // open/close/apostrophe com base nos caracteres adjacentes e no `text.lang`.
+    // Aspas duplas e simples são resolvidas independentemente.
+    let src = node.clone().into_text();
+    let src_str = src.as_str();
+    let mut byte_offset = 0_usize;
+
+    fn is_opening_context(c: Option<char>) -> bool {
+        c.is_none() || c.unwrap().is_whitespace() || matches!(c.unwrap(), '(' | '[' | '{' | '<')
+    }
+    fn is_word_char(c: Option<char>) -> bool {
+        c.is_some_and(|c| c.is_alphanumeric())
+    }
 
     // β1 fatia 1 (P339, §3a.8) + F-item3 (P368, §3a.11): snapshot do **delta
     // completo** à entrada deste corpo, para detectar um `#set` local (numbering,
@@ -374,26 +380,40 @@ pub(crate) fn eval_markup(
                 // Intercepção eager para Selector::Text (Passo 68).
                 parts.push(rules::intercept_content(text_node, ctx, engine)?);
             }
-            // Passo 155 — SmartQuote: emite glyph localizado consoante
-            // open/close (alternância) e `text.lang` activo.
+            // Passo 445 — SmartQuote: emite glyph localizado consoante
+            // open/close (contexto adjacente) e `text.lang` activo.
             SyntaxKind::SmartQuote => {
                 let raw = child.text();
                 let is_double = raw.as_str() == "\"";
                 let lang = engine.styles.lang();
-                let (open, close) = match &lang {
-                    Some(l) => crate::rules::lang::quotes::localize_quotes(l),
-                    None    => crate::rules::lang::quotes::DEFAULT_QUOTES,
-                };
+
+                let off = byte_offset;
+                let prev = src_str[..off].chars().last();
+                let next = src_str[off + child.len()..].chars().next();
+
                 let glyph: &str = if is_double {
-                    let g = if double_open { open } else { close };
-                    double_open = !double_open;
-                    g
+                    let (open, close) = match &lang {
+                        Some(l) => crate::rules::lang::quotes::localize_quotes(l),
+                        None    => crate::rules::lang::quotes::DEFAULT_QUOTES,
+                    };
+                    if is_opening_context(prev) {
+                        open
+                    } else {
+                        close
+                    }
                 } else {
-                    // Aspas simples — scope-out smart-apostrophes neste passo.
-                    // Apenas alternância de estado (manter consistente
-                    // com o lado duplo); glyph emitido é sempre ASCII `'`.
-                    single_open = !single_open;
-                    "'"
+                    let (open, close) = match &lang {
+                        Some(l) => crate::rules::lang::quotes::localize_single_quotes(l),
+                        None    => crate::rules::lang::quotes::DEFAULT_SINGLE_QUOTES,
+                    };
+                    // Contracções / possessivos: `don't`, `Alice's` → apostrophe (U+2019).
+                    if is_word_char(prev) && is_word_char(next) {
+                        close
+                    } else if is_opening_context(prev) {
+                        open
+                    } else {
+                        close
+                    }
                 };
                 let quote_node = Content::Text(glyph.into());
                 parts.push(rules::intercept_content(quote_node, ctx, engine)?);
@@ -433,6 +453,8 @@ pub(crate) fn eval_markup(
                 }
             }
         }
+
+        byte_offset += child.len();
 
         // P373/P431: fronteira de `#set` — o delta completo mudou vs o estado
         // corrente. Regista `(parts.len(), Styles do delta introduzido)` e actualiza

@@ -1,5 +1,5 @@
 # Prompt L0 — `rules/lexer/mod` — Motor de Tokenização (Lexer)
-Hash do Código: 52c0f705
+Hash do Código: 91498f0f
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/rules/lexer/mod.rs`
@@ -145,4 +145,27 @@ Lexer::new("abc\nde", Markup).column(5) = 1  // 'e' é o 2º char da linha 2
 // in_word — * e _ apenas fora de palavra
 Lexer::new("a*b", Markup) → Text, não Star  // em palavra
 Lexer::new("* item", Markup) → Star         // fora de palavra
+
+// Smart quotes (Passo 445)
+Lexer::new("\"hello\"", Markup) → SmartQuote, Text, SmartQuote
+Lexer::new("'hello'", Markup) → SmartQuote, Text, SmartQuote
+Lexer::new("\"hello\"", Code)  → Str (não SmartQuote)  // code mode inalterado
+Lexer::new("$x'$", Math)       → MathPrimes (não SmartQuote)  // math mode inalterado
 ```
+
+## Smart Quotes (Passo 445)
+
+Em modo `Markup`, os caracteres `"` e `'` são emitidos como `SyntaxKind::SmartQuote`.
+A conversão para aspas tipográficas (curly) é feita no `eval_markup` com base no contexto:
+
+- `"` precedido de whitespace ou início de texto → abertura (`U+201C` em `en`).
+- `"` noutro contexto → fecho (`U+201D` em `en`).
+- `'` precedido de whitespace/início e não seguido por letra imediatamente? → abertura (`U+2018`).
+- `'` entre caracteres alfanuméricos (`don't`, `Alice's`) → apóstrofo/fecho (`U+2019`).
+- `'` noutro contexto → fecho (`U+2019`).
+
+A localização das aspas depende do `text.lang` activo; línguas sem tabela específica usam
+aspas curly inglesas por defeito para simples e ASCII para duplas.
+
+Em `Code`, `"` continua a delimitar literais de string. Em `Math`, `'` continua a representar
+primes (`MathPrimes`).

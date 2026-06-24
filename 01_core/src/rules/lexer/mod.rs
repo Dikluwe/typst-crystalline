@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/rules/lexer/mod.md
-//! @prompt-hash 91498f0f
+//! @prompt-hash 67b128f6
 //! @layer L1
 //! @updated 2026-03-23
 
@@ -459,5 +459,36 @@ mod tests {
         let (prefix, balanced) = link_prefix("https://example.com rest");
         assert!(!prefix.is_empty());
         assert!(balanced);
+    }
+
+    // ── Passo 445 — smart quotes: lexer emite SmartQuote para " e ' em Markup.
+
+    #[test]
+    fn lex_markup_smart_quote_double() {
+        let kinds = lex_all("\"hello\"", SyntaxMode::Markup);
+        assert_eq!(kinds[0], SyntaxKind::SmartQuote);
+        assert_eq!(kinds[1], SyntaxKind::Text);
+        assert_eq!(kinds[2], SyntaxKind::SmartQuote);
+        assert_eq!(*kinds.last().unwrap(), SyntaxKind::End);
+    }
+
+    #[test]
+    fn lex_markup_smart_quote_single() {
+        let kinds = lex_all("'hello'", SyntaxMode::Markup);
+        assert_eq!(kinds[0], SyntaxKind::SmartQuote);
+        assert_eq!(kinds[1], SyntaxKind::Text);
+        assert_eq!(kinds[2], SyntaxKind::SmartQuote);
+        assert_eq!(*kinds.last().unwrap(), SyntaxKind::End);
+    }
+
+    #[test]
+    fn lex_code_quote_continua_string_literal() {
+        let kinds = lex_all("\"hello\"", SyntaxMode::Code);
+        // Em Code, " inicia um literal string, não SmartQuote.
+        assert!(
+            kinds.iter().any(|k| matches!(k, SyntaxKind::Str)),
+            "code mode deve tokenizar \" como string, não SmartQuote"
+        );
+        assert!(!kinds.contains(&SyntaxKind::SmartQuote));
     }
 }

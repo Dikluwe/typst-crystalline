@@ -5113,6 +5113,66 @@ mod tests {
         }
     }
 
+    // ── Passo 445 — Smart quotes context-aware ─────────────────────────
+
+    #[test]
+    fn eval_markup_smart_quotes_duplas_curly_com_lang_en() {
+        // Espaço após o #set para que o `"` inicial de `"Hello,"` veja
+        // whitespace como contexto de abertura (o `"en"` dentro do #set é
+        // string literal em code mode, não SmartQuote).
+        let text = eval_plain_text(r#"#set text(lang: "en") "Hello,""#);
+        assert!(
+            text.contains('\u{201C}'),
+            "aspa dupla de abertura (U+201C) deve estar presente: {:?}",
+            text
+        );
+        assert!(
+            text.contains('\u{201D}'),
+            "aspa dupla de fecho (U+201D) deve estar presente: {:?}",
+            text
+        );
+        assert!(
+            !text.contains('"'),
+            "não deve permanecer aspa ASCII recta: {:?}",
+            text
+        );
+    }
+
+    #[test]
+    fn eval_markup_smart_quotes_simples_curly_com_lang_en() {
+        let text = eval_plain_text(r#"#set text(lang: "en") 'Hello'"#);
+        assert!(
+            text.contains('\u{2018}'),
+            "aspa simples de abertura (U+2018) deve estar presente: {:?}",
+            text
+        );
+        assert!(
+            text.contains('\u{2019}'),
+            "aspa simples de fecho (U+2019) deve estar presente: {:?}",
+            text
+        );
+        assert!(
+            !text.contains('\''),
+            "não deve permanecer apóstrofo ASCII recto: {:?}",
+            text
+        );
+    }
+
+    #[test]
+    fn eval_markup_apostrophe_possessivo_emite_u2019() {
+        let text = eval_plain_text(r#"#set text(lang: "en")Alice's cat"#);
+        assert!(
+            text.contains('\u{2019}'),
+            "apóstrofo possessivo deve ser U+2019: {:?}",
+            text
+        );
+        assert!(
+            !text.contains('\u{2018}'),
+            "não deve haver aspa simples de abertura U+2018 em 'Alice's': {:?}",
+            text
+        );
+    }
+
     // ── Passo 301 — Auto-lookup math mode ──────────────────────────────
     //
     // P301 (HP + (a) eval-time + (γ) híbrido): identifiers vanilla

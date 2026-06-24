@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/rules/lexer/mod.md
-//! @prompt-hash 91498f0f
+//! @prompt-hash 67b128f6
 //! @layer L1
 //! @updated 2026-04-23
 //!

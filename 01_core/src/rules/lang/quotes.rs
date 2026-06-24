@@ -34,6 +34,18 @@ const LANG_QUOTES: &[(&str, (&str, &str))] = &[
 /// Aspas default (ASCII) para línguas não cobertas pela tabela.
 pub const DEFAULT_QUOTES: (&str, &str) = ("\"", "\"");
 
+/// Aspas simples default (curly inglesas) para línguas não cobertas.
+pub const DEFAULT_SINGLE_QUOTES: (&str, &str) = ("\u{2018}", "\u{2019}");
+
+/// Tabela inicial de aspas simples por idioma (Passo 445).
+///
+/// Cobertura inicial: inglês + default curly. Outras línguas caem em
+/// `DEFAULT_SINGLE_QUOTES`.
+const LANG_SINGLE_QUOTES: &[(&str, (&str, &str))] = &[
+    // (lang_code, (open, close))
+    ("en", ("\u{2018}", "\u{2019}")), // ‘ ’
+];
+
 /// Devolve par `(open, close)` de aspas primárias para o `Lang` dado.
 ///
 /// Lookup por exact match no código ISO. Línguas não cobertas devolvem
@@ -46,6 +58,20 @@ pub fn localize_quotes(lang: &Lang) -> (&'static str, &'static str) {
         }
     }
     DEFAULT_QUOTES
+}
+
+/// Devolve par `(open, close)` de aspas simples para o `Lang` dado.
+///
+/// Lookup por exact match no código ISO. Línguas não cobertas devolvem
+/// `DEFAULT_SINGLE_QUOTES` (curly inglesas).
+pub fn localize_single_quotes(lang: &Lang) -> (&'static str, &'static str) {
+    let code = lang.as_str();
+    for (key, pair) in LANG_SINGLE_QUOTES.iter() {
+        if *key == code {
+            return *pair;
+        }
+    }
+    DEFAULT_SINGLE_QUOTES
 }
 
 #[cfg(test)]
@@ -102,5 +128,20 @@ mod tests {
         // `por` (Portuguese) é o 3-letter code; vão a default.
         let lang = Lang::from_str("por").unwrap();
         assert_eq!(localize_quotes(&lang), DEFAULT_QUOTES);
+    }
+
+    // ── Passo 445 — aspas simples (single quotes) ─────────────────────────
+
+    #[test]
+    fn localize_single_quotes_en_devolve_curly() {
+        let lang = Lang::from_str("en").unwrap();
+        assert_eq!(localize_single_quotes(&lang), ("\u{2018}", "\u{2019}"));
+    }
+
+    #[test]
+    fn localize_single_quotes_default_curly_inglesas() {
+        let lang = Lang::from_str("pt").unwrap();
+        assert_eq!(localize_single_quotes(&lang), DEFAULT_SINGLE_QUOTES);
+        assert_eq!(DEFAULT_SINGLE_QUOTES, ("\u{2018}", "\u{2019}"));
     }
 }
