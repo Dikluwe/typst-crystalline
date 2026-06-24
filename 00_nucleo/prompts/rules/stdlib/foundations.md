@@ -1,120 +1,638 @@
-# Prompt L0 — `stdlib/foundations` — utilitários gerais, cores, state/counter display
-Hash do Código: bb7771d5
+# Prompt L0 — `stdlib/foundations` — utilitários, cores, conversões e introspeção
+Hash do Código: 69bc00dc
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/rules/stdlib/foundations.rs`
-**Origem**: fatiado de `rules/stdlib.md` em **P314** (ADR-0104). Convenção e
-helpers partilhados: ver `stdlib/_comum.md`.
-**Nota de deriva (F4)**: `foundations.rs` implementa mais funções do que
-`stdlib.md` especificava (ex.: `oklab`/`oklch`/`cmyk`/`hsl`/`hsv`, `state*`,
-`counter*`, `query`, `here`, `locate`). Este prompt preserva **só** o que estava
-no prompt velho; as funções não-specadas ficam registadas como **candidatas a
-spec dedicada** (não inventadas aqui).
+**Origem**: Passo 96.5 (extraído de `stdlib.rs` conforme ADR-0037), com
+reforços pontuais P13–P25, P99–P102, P171–P179, P208–P210, P236–P241 e
+P421 (`repr`).
+**ADRs**: ADR-0037 (coesão por domínio), ADR-0054 (perfil graded),
+ADR-0081 (state/counter display two-pass), ADR-0083 (color spaces),
+ADR-0107 (paridade linguagem).
+**Convenções partilhadas**: ver `00_nucleo/prompts/rules/stdlib/_comum.md`.
 
 ---
 
-## Utilitários gerais
+## 1. Visão geral
 
-| Função | Assinatura Typst | Implementação |
-|--------|-----------------|---------------|
-| `native_type` | `type(v)` | nome do tipo como `Value::Str` |
-| `native_len` | `len(v)` | `Str` (chars), `Array` (items), `Dict` (entries) |
-| `native_range` | `range(n)` ou `range(start, end)` | `Array` de `Int` |
-| `native_str` | `str(v)` | conversão (`None`→`"none"`, `Bool`→`"true"/"false"`) |
-| `native_int` | `int(v)` | `Int`, `Bool`, `Str(decimal)` → `Int`; `Float` → **Err** (ADR Typst) |
-| `native_float` | `float(v)` | `Float`, `Int`, `Str` → `Float` |
+`foundations.rs` implementa funções nativas fundamentais do Typst que não
+pertencem a domínios específicos (layout, formas, transforms, calc, etc.).
+Inclui:
 
-**Nota** `native_int(Float)` retorna `Err` (semântica vanilla). Para converter
-float a inteiro: `int(calc.round(x))`.
+- **Utilitários gerais**: `type`, `repr`, `len`.
+- **Conversões de tipo**: `range`, `str`, `int`, `float`.
+- **Construtores de cor**: `rgb`, `luma`, `oklab`, `oklch`, `linear_rgb`,
+  `cmyk`, `hsl`, `hsv`.
+- **Metadados**: `metadata`.
+- **Estado runtime**: `state`, `state_update`, `state_update_with`,
+  `state_display`, `state_final`, `state_at`.
+- **Contadores**: `counter_display`, `counter_at`, `counter_final`,
+  `counter_step`.
+- **Query / localização**: `query`, `locate`, `here`.
 
-## Cores
+A assinatura padrão das funções nativas é:
 
-| Função | Args | Retorno |
-|--------|------|---------|
-| `native_rgb` | `(r,g,b)` ou `(r,g,b,a)` — Int 0–255 | `Value::Color` |
-| `native_luma` | `(l)` — Int 0–255 | `Value::Color(Color::rgb(l,l,l))` |
-
-Fora de 0–255 → `Err`.
-
-## `state_display(key, [callback])` — Passo 240 (M9d/M7+1; ADR-0081 PROPOSTO P239 Opção γ)
-
-Render-mediated state display real walk-time. Constroi
-`Content::StateDisplay { key, callback }` que walk emite como
-`Tag::Start(loc, ElementInfo::new(ElementPayload::StateDisplay { key, callback }))`
-via `extract_payload`. Pós-fixpoint, `apply_state_displays` (em
-`rules/introspect/from_tags.rs`) chama `apply_func(callback, [state.value_at(key,
-loc)], ctx, engine)` e armazena Content em `intr.state_displays[(key, loc)]`.
-Layout arm consome via `Introspector::state_display_value(key, loc)` — Layouter
-permanece puro. Assinatura `native_state_display(_ctx, args, _world,
-_current_file, _figure_numbering)`.
-
-**Formas**: 1-arg `state_display(key: Str)` (callback ausente; value directo) ·
-2-arg `state_display(key: Str, callback: Func)` (callback aplicada). Two-pass
-real via convergência fixpoint. Paridade vanilla `state.display(fn)`.
-
-```
-state_display([Str("k")]) → Ok(Content::StateDisplay { key:"k", callback:None })
-state_display([Str("k"),Func(fn)]) → Ok(Content::StateDisplay { key:"k", callback:Some(fn) })
-state_display([Int(1)]) → Err;  state_display([Str("k"),Int(1)]) → Err;  state_display([]) → Err;  state_display([Str("k"),Func(f),Int(1)]) → Err
+```rust
+fn native_X(
+    ctx: &mut EvalContext,
+    args: &Args,
+    world: &dyn World,
+    current_file: FileId,
+) -> SourceResult<Value>
 ```
 
-## `counter_display(key, [callback])` — Passo 241 (M9d/M7+2; paralelo absoluto P240)
+A maioria das funções deste módulo não aceita argumentos nomeados e chama
+`expect_no_named(&args.named)?` no início.
 
-Constroi `Content::CounterDisplayCallback { key, callback }`; walk emite
-`Tag::Start(loc, ElementInfo::new(ElementPayload::CounterDisplay { key, callback }))`.
-Pós-fixpoint, `apply_counter_displays` converte `intr.counters.value_at(key,
-loc)` para `Value::Array(Vec<Int>)` e chama `apply_func`. Resultado em
-`intr.counter_displays[(key, loc)]`; layout via
-`Introspector::counter_display_value`. **Distinto de `Content::CounterDisplay
-{ kind }` legacy single-pass**.
+---
 
-**Formas**: 1-arg (snapshot default "1.2.3" via join "."; inexistente →
-`Content::Empty`) · 2-arg (callback recebe `Value::Array(Vec<Int>)`). Paridade
-`counter("heading").display(fn)`.
+## 2. Utilitários gerais
 
+### `native_type` — `type(v)`
+
+**Assinatura**: `type(v: any) -> str`
+
+**Argumentos**:
+- `v`: um valor posicional obrigatório.
+
+**Semântica**: Devolve o nome do tipo do valor como string Typst
+(`"int"`, `"float"`, `"str"`, `"bool"`, `"none"`, etc.).
+
+**Paridade vanilla**: Equivalente a `#type(1)` → `"int"`.
+
+**Testes canônicos**:
 ```
-counter_display([Str("heading")]) → Ok(Content::CounterDisplayCallback { key:"heading", callback:None })
-counter_display([Str("figure"),Func(fn)]) → Ok(Content::CounterDisplayCallback { key:"figure", callback:Some(fn) })
-counter_display([Int(1)]) → Err;  counter_display([Str("k"),Int(1)]) → Err;  counter_display([]) → Err;  counter_display([Str("k"),Func(f),Int(1)]) → Err
+type(1)      -> "int"
+type("abc")  -> "str"
+type(none)   -> "none"
+type(true)   -> "bool"
+type()       -> Err "type() requer 1 argumento"
+type(1, 2)   -> Err "type() requer 1 argumento"
 ```
 
 ---
 
-## P421 (M) — `repr()` completo
+### `native_repr` — `repr(v)`
 
-**Nota de classificação**: a sonda A.0 revelou que `native_repr` não existia no
-substrato; o passo foi reclassificado de S para M por exigir criação da
-infraestrutura `repr()` do zero.
+**Assinatura**: `repr(v: any) -> str`
 
-### Decisões arquiteturais
+**Argumentos**:
+- `v`: um valor posicional obrigatório.
 
-- **Paridade linguagem (ADR-0107)**: `repr(v)` produz string reconhecível, não
-  necessariamente round-trip. Aspas, escaping e ordem de fields são mecânica
-  livre.
-- **Atomização forma B (ADR-0109)**: a lógica vive em free functions na camada
-  de eval/foundations (`repr_value`, `repr_content`, `repr_selector`); nenhum
-  método é adicionado a `Value`, `Content` ou `Selector`.
-- **Exaustividade**: `match` sobre todos os variants de `Value`, `Content` e
-  `Selector`; variants complexos (`Func`, `Module`, `Dyn`, tipos internos de
-  layout) usam representação scope-out (`"function"`, `"module"`, nome do tipo).
-- **Infraestrutura**: `native_repr` expõe a função Typst `repr(v)`.
+**Semântica**: Devolve uma representação textual reconhecível do valor
+(sem round-trip garantido). Implementado em `rules/eval/repr.rs`.
 
-### Scope-out P421
-
+**Scope-outs**:
 - Round-trip perfeito (`eval(repr(x)) == x`).
-- Representação completa de closures (`Func`), exports de módulo (`Module`) e
-  valores dinâmicos opacos (`Dyn`).
-- Tipos internos de layout (`FrameItem`, `Region`, etc.).
-- Campos com valores default podem ser omitidos.
+- Representação completa de closures, módulos e valores dinâmicos opacos.
 
-## Critérios de Verificação (utilitários + cores)
+**Testes canônicos**:
+```
+repr(1)        -> "1"
+repr(3.0)      -> "3.0"
+repr("abc")    -> "\"abc\""
+repr(none)     -> "none"
+repr(auto)     -> "auto"
+repr()         -> Err "repr() requer 1 argumento"
+```
 
+---
+
+### `native_len` — `len(v)`
+
+**Assinatura**: `len(v: str | array | dict) -> int`
+
+**Argumentos**:
+- `v`: um valor posicional obrigatório.
+
+**Semântica**:
+- `Str` → número de caracteres Unicode (`chars().count()`).
+- `Array` → número de elementos.
+- `Dict` → número de entradas.
+
+**Paridade vanilla**: Equivalente a `#len("abc")` → `3`.
+
+**Testes canônicos**:
 ```
-native_type([Int(1)]) → Ok(Str("int"));  native_type([Bool(true)]) → Ok(Str("bool"));  native_type([None]) → Ok(Str("none"));  native_type([]) → Err;  native_type([Int,Int]) → Err
-native_len([Str("abc")]) → Ok(Int(3));  native_len([Array([Int(1),Int(2)])]) → Ok(Int(2));  native_len([Int(1)]) → Err
-native_rgb([Int(255),Int(0),Int(128)]) → Ok(Color::rgb(255,0,128));  native_rgb([Int(300),Int(0),Int(0)]) → Err;  native_rgb([Int(255),Int(0),Int(0),Int(200)]) → Ok(Color::rgba(255,0,0,200))
-native_luma([Int(128)]) → Ok(Color::rgb(128,128,128));  native_luma([Int(256)]) → Err
-native_str([Int(42)]) → Ok(Str("42"));  native_str([Float(3.14)]) → Ok(Str("3.14"));  native_str([Bool(true)]) → Ok(Str("true"));  native_str([None]) → Ok(Str("none"));  native_str([Str("hi")]) → Ok(Str("hi"))
-native_int([Int(42)]) → Ok(Int(42));  native_int([Bool(true)]) → Ok(Int(1));  native_int([Str("42")]) → Ok(Int(42));  native_int([Str("abc")]) → Err;  native_int([Float(3.7)]) → Err;  native_int([]) → Err
-native_range([Int(3)]) → Ok(Array([0,1,2]));  native_range([Int(2),Int(5)]) → Ok(Array([2,3,4]));  native_range([Int(3),Int(3)]) → Ok(Array([]));  native_range([Int(-1)]) → Err
+len("abc")           -> 3
+len("é")             -> 1
+len((1, 2, 3))       -> 3
+len((:))             -> 0
+len(1)               -> Err "len() não suporta int"
+len()                -> Err "len() requer 1 argumento"
 ```
+
+---
+
+## 3. Conversões de tipo
+
+### `native_range` — `range(n)` / `range(start, end)`
+
+**Assinatura**: `range(n: int) -> array` / `range(start: int, end: int) -> array`
+
+**Argumentos**:
+- 1 arg: `n` — limite superior exclusivo; gera `[0, 1, ..., n-1]`.
+- 2 args: `start`, `end` — gera `[start, start+1, ..., end-1]`.
+
+**Semântica**: Devolve um `Value::Array` de `Value::Int`. `start > end` →
+array vazio. `n < 0` → erro.
+
+**Testes canônicos**:
+```
+range(3)        -> (0, 1, 2)
+range(0)        -> ()
+range(2, 5)     -> (2, 3, 4)
+range(3, 3)     -> ()
+range(5, 2)     -> ()
+range(-1)       -> Err "range() requer argumento não-negativo"
+range(1.5)      -> Err "range() requer 1 ou 2 Int"
+```
+
+---
+
+### `native_str` — `str(v)`
+
+**Assinatura**: `str(v: any) -> str`
+
+**Argumentos**:
+- `v`: um valor posicional obrigatório.
+
+**Semântica**: Converte o valor para string. Suporta:
+- `None` → `"none"`
+- `Bool` → `"true"` / `"false"`
+- `Int` → decimal
+- `Float` → compacto com ponto decimal (`format_float`)
+- `Str` → pass-through
+- `Auto` → `"auto"`
+- `Length` → `"12pt"`, `"1.5em"`, `"6pt + 1em"`
+- `Ratio` → `"50%"`
+- `Angle` → `"45deg"`
+- `Color` → erro (não suportado)
+
+**Scope-out**: Conversão de tipos complexos (`Func`, `Module`, `Gradient`,
+`Content`, etc.).
+
+**Testes canônicos**:
+```
+str(42)           -> "42"
+str(3.0)          -> "3.0"
+str(true)         -> "true"
+str(none)         -> "none"
+str("hi")         -> "hi"
+str(auto)         -> "auto"
+str(12pt + 1em)   -> "12pt + 1em"
+str(50%)          -> "50%"
+str(45deg)        -> "45deg"
+str(red)          -> Err "str() não suporta color"
+```
+
+---
+
+### `native_int` — `int(v)`
+
+**Assinatura**: `int(v: int | bool | str) -> int`
+
+**Argumentos**:
+- `v`: um valor posicional obrigatório.
+
+**Semântica**: Converte para inteiro. Aceita:
+- `Int` → identidade.
+- `Bool` → `1` / `0`.
+- `Str` → parse decimal (`parse::<i64>()`).
+- `Float` → **erro** (semântica vanilla).
+
+**Testes canônicos**:
+```
+int(42)           -> 42
+int(true)         -> 1
+int("-7")         -> -7
+int("abc")        -> Err "int() não consegue parsear"
+int(3.7)          -> Err "int() não converte float"
+int()             -> Err "int() requer 1 argumento"
+```
+
+---
+
+### `native_float` — `float(v)`
+
+**Assinatura**: `float(v: float | int | str) -> float`
+
+**Argumentos**:
+- `v`: um valor posicional obrigatório.
+
+**Semântica**: Converte para float. Aceita `Float`, `Int` (coerção) e `Str`
+(parse `f64`).
+
+**Testes canônicos**:
+```
+float(3.14)       -> 3.14
+float(7)          -> 7.0
+float("2.5")      -> 2.5
+float("abc")      -> Err "float() não consegue parsear"
+float()           -> Err "float() requer 1 argumento"
+```
+
+---
+
+## 4. Construtores de cor
+
+### `native_rgb` — `rgb(r, g, b)` / `rgb(r, g, b, a)`
+
+**Assinatura**: `rgb(r: int, g: int, b: int, a: int?) -> color`
+
+**Argumentos**: componentes inteiros 0–255. Alpha opcional.
+
+**Semântica**: Constrói `Value::Color(Color::rgb(...))` ou
+`Color::rgba(...)`.
+
+**Testes canônicos**:
+```
+rgb(255, 0, 128)          -> Color::rgb(255,0,128)
+rgb(255, 0, 0, 200)       -> Color::rgba(255,0,0,200)
+rgb(300, 0, 0)            -> Err "componente fora de 0–255"
+rgb(0, 0)                 -> Err "rgb() requer 3 ou 4 Int"
+```
+
+---
+
+### `native_luma` — `luma(l)`
+
+**Assinatura**: `luma(l: int) -> color`
+
+**Argumentos**: `l` em `[0, 255]`.
+
+**Semântica**: Constrói `Value::Color(Color::luma(l / 255.0))`.
+
+**Testes canônicos**:
+```
+luma(128)         -> Color::Luma { l: 0.5, a: 1.0 }
+luma(0)           -> preto
+luma(255)         -> branco
+luma(256)         -> Err "componente fora de 0–255"
+```
+
+---
+
+### `native_oklab` — `oklab(l, a, b)` / `oklab(l, a, b, alpha)`
+
+**Assinatura**: `oklab(l: float|int, a: float|int, b: float|int, alpha: float|int?) -> color`
+
+**Semântica**: Constrói `Color::Oklab`. Componentes convertidos para `f32`.
+
+**Testes canônicos**:
+```
+oklab(0.5, 0.2, -0.1)          -> Color::Oklab
+oklab(0.5, 0.2, -0.1, 0.8)     -> Color::Oklab com alpha 0.8
+oklab(1, 0, 0)                 -> Color::Oklab (Int promovido)
+oklab(0.5, 0.2)                -> Err "oklab() requer 3 ou 4"
+```
+
+---
+
+### `native_oklch` — `oklch(l, c, h)` / `oklch(l, c, h, alpha)`
+
+**Assinatura**: `oklch(l: float|int, c: float|int, h: float|int, alpha: float|int?) -> color`
+
+**Semântica**: Constrói `Color::Oklch`. `h` em graus.
+
+**Testes canônicos**:
+```
+oklch(0.5, 0.2, 180)           -> Color::Oklch
+oklch(0.5, 0.2, 180, 0.9)      -> Color::Oklch com alpha 0.9
+oklch(0.5, 0.2)                -> Err "oklch() requer 3 ou 4"
+```
+
+---
+
+### `native_linear_rgb` — `linear_rgb(r, g, b)` / `linear_rgb(r, g, b, a)`
+
+**Assinatura**: `linear_rgb(r: float|int, g: float|int, b: float|int, a: float|int?) -> color`
+
+**Semântica**: Constrói `Color::LinearRgb`. Componentes em `[0.0, 1.0]`.
+
+**Testes canônicos**:
+```
+linear_rgb(1.0, 0.0, 0.5)          -> Color::LinearRgb
+linear_rgb(1, 0, 0, 0.5)           -> Color::LinearRgb com alpha 0.5
+linear_rgb(1.0, 0.0)               -> Err "linear_rgb() requer 3 ou 4"
+```
+
+---
+
+### `native_cmyk` — `cmyk(c, m, y, k)`
+
+**Assinatura**: `cmyk(c: float|int, m: float|int, y: float|int, k: float|int) -> color`
+
+**Semântica**: Constrói `Color::Cmyk`. Componentes em `[0.0, 1.0]`.
+
+**Scope-out**: PDF nativo `/DeviceCMYK` — o exporter converte para sRGB via
+`to_srgb()` (ADR-0083).
+
+**Testes canônicos**:
+```
+cmyk(0.0, 1.0, 0.0, 0.0)       -> Color::Cmyk (magenta)
+cmyk(0, 0, 0, 1)               -> preto
+cmyk(0.0, 1.0, 0.0)            -> Err "cmyk() requer 4"
+```
+
+---
+
+### `native_hsl` — `hsl(h, s, l)` / `hsl(h, s, l, alpha)`
+
+**Assinatura**: `hsl(h: float|int, s: float|int, l: float|int, alpha: float|int?) -> color`
+
+**Semântica**: Constrói `Color::Hsl`. `h` em graus; `s`, `l` em `[0.0, 1.0]`.
+
+**Testes canônicos**:
+```
+hsl(0, 1.0, 0.5)               -> vermelho
+hsl(120, 1.0, 0.5, 0.8)        -> verde com alpha 0.8
+hsl(0, 1.0)                    -> Err "hsl() requer 3 ou 4"
+```
+
+---
+
+### `native_hsv` — `hsv(h, s, v)` / `hsv(h, s, v, alpha)`
+
+**Assinatura**: `hsv(h: float|int, s: float|int, v: float|int, alpha: float|int?) -> color`
+
+**Semântica**: Constrói `Color::Hsv`. `h` em graus; `s`, `v` em `[0.0, 1.0]`.
+
+**Testes canônicos**:
+```
+hsv(0, 1.0, 1.0)               -> vermelho
+hsv(240, 1.0, 1.0, 0.9)        -> azul com alpha 0.9
+hsv(0, 1.0)                    -> Err "hsv() requer 3 ou 4"
+```
+
+---
+
+## 5. Metadados
+
+### `native_metadata` — `metadata(value)`
+
+**Assinatura**: `metadata(value: any) -> content`
+
+**Argumentos**:
+- `value`: valor posicional obrigatório.
+
+**Semântica**: Produz `Content::metadata(Box<Value>)`, um content zero-size
+em layout que pode ser consultado via `Introspector::query_metadata`.
+
+**Paridade vanilla**: Equivalente a `#metadata(value)`.
+
+**Testes canônicos**:
+```
+metadata("x") -> Content::Metadata
+metadata()    -> Err "metadata() requer 1 argumento"
+```
+
+---
+
+## 6. Estado runtime
+
+### `native_state` — `state(key, init)`
+
+**Assinatura**: `state(key: str, init: any) -> content`
+
+**Argumentos**:
+- `key`: string identificadora.
+- `init`: valor inicial.
+
+**Semântica**: Produz `Content::State { key, init }`. Invisível em layout;
+regista estado mutável runtime.
+
+**Testes canônicos**:
+```
+state("total", 0) -> Content::State
+state(1, 0)       -> Err "state() requer string como primeiro argumento"
+state("total")    -> Err "state() requer 2 argumentos"
+```
+
+---
+
+### `native_state_update` — `state_update(key, value)`
+
+**Assinatura**: `state_update(key: str, value: any) -> content`
+
+**Semântica**: Produz `Content::StateUpdate` com `StateUpdate::Set(value)`.
+Substitui o valor actual do estado.
+
+**Testes canônicos**:
+```
+state_update("total", 10) -> Content::StateUpdate
+state_update(1, 10)       -> Err "string como primeiro argumento"
+```
+
+---
+
+### `native_state_update_with` — `state_update_with(key, fn)`
+
+**Assinatura**: `state_update_with(key: str, fn: function) -> content`
+
+**Semântica**: Produz `Content::StateUpdate` com `StateUpdate::Func(fn)`.
+Após fixpoint, a callback é aplicada ao valor corrente do estado para
+produzir o novo valor.
+
+**Testes canônicos**:
+```
+state_update_with("total", x => x + 1) -> Content::StateUpdate
+state_update_with("total", 1)          -> Err "função como segundo argumento"
+```
+
+---
+
+### `native_state_display` — `state_display(key)` / `state_display(key, callback)`
+
+**Assinatura**: `state_display(key: str, callback: function?) -> content`
+
+**Semântica**: Produz `Content::StateDisplay`. Durante o layout walk emite
+uma tag; pós-fixpoint, o valor do estado na localização é resolvido e, se
+houver callback, aplicado. O resultado é armazenado no introspector para
+consumo pelo layout.
+
+**Testes canônicos**:
+```
+state_display("total")           -> Content::StateDisplay sem callback
+state_display("total", v => v)   -> Content::StateDisplay com callback
+state_display(1)                 -> Err "string como primeiro argumento"
+```
+
+---
+
+### `native_state_final` — `state_final(key)`
+
+**Assinatura**: `state_final(key: str) -> any`
+
+**Semântica**: Consulta `ctx.introspector.state_final_value(key)`. Devolve o
+valor final do estado após todas as updates (incluindo callbacks
+pós-fixpoint). Se inexistente → `none`.
+
+**Testes canônicos**:
+```
+state_final("total") -> valor final ou none
+state_final(1)       -> Err "string como argumento"
+```
+
+---
+
+### `native_state_at` — `state_at(key, label)`
+
+**Assinatura**: `state_at(key: str, label: str) -> any`
+
+**Semântica**: Resolve a `Location` associada a `label` e consulta o valor do
+estado nessa localização. Se label ou estado inexistente → `none`.
+
+**Testes canônicos**:
+```
+state_at("total", "intro") -> valor do estado em "intro" ou none
+state_at("total", 1)       -> Err "string como segundo argumento"
+```
+
+---
+
+## 7. Contadores
+
+### `native_counter_display` — `counter_display(key)` / `counter_display(key, callback)`
+
+**Assinatura**: `counter_display(key: str, callback: function?) -> content`
+
+**Semântica**: Produz `Content::CounterDisplayCallback`. Sem callback, o
+formato default é `"1.2.3"` (join por `.`). Com callback, recebe
+`Value::Array(Vec<Int>)` com o estado do counter.
+
+**Testes canônicos**:
+```
+counter_display("heading")            -> Content::CounterDisplayCallback
+counter_display("figure", arr => ...) -> com callback
+counter_display(1)                    -> Err "string como primeiro argumento"
+```
+
+---
+
+### `native_counter_at` — `counter_at(key, label)`
+
+**Assinatura**: `counter_at(key: str, label: str) -> str`
+
+**Semântica**: Devolve o valor do counter `key` na `Location` do `label`,
+formatado hierarquicamente. Se label/counter inexistente → `""`.
+
+**Testes canônicos**:
+```
+counter_at("heading", "intro") -> "1.2.3" ou ""
+counter_at("heading", 1)       -> Err "string como segundo argumento"
+```
+
+---
+
+### `native_counter_final` — `counter_final(key)`
+
+**Assinatura**: `counter_final(key: str) -> str`
+
+**Semântica**: Devolve o valor final do counter `key` no introspector da
+iteração de fixpoint anterior. Iteração 0 → `""`.
+
+**Testes canônicos**:
+```
+counter_final("heading") -> "1.2.3" ou ""
+counter_final(1)         -> Err "string como argumento"
+```
+
+---
+
+### `native_counter_step` — `counter_step(key)`
+
+**Assinatura**: `counter_step(key: str) -> content`
+
+**Semântica**: Produz `Content::CounterUpdate { key, action: Step }`. Quando
+inserido no documento, o Layouter incrementa o counter `key`.
+
+**Testes canônicos**:
+```
+counter_step("heading") -> Content::CounterUpdate
+counter_step(1)         -> Err "string como argumento"
+```
+
+---
+
+## 8. Query e localização
+
+### `native_query` — `query(selector)`
+
+**Assinatura**: `query(selector: str | location | selector) -> array<location>`
+
+**Argumentos**:
+- `selector`:
+  - `"<name>"` → label.
+  - `"kind"` → kind de elemento (`heading`, `figure`, `citation`, `metadata`,
+    `state`, `state_update`, `outline`).
+  - `Value::Location` → localização específica.
+  - `Value::Selector` → selector de primeira classe (P417).
+
+**Semântica**: Consulta o `Introspector` e devolve um `Value::Array` de
+`Value::Location` com todos os matches, em ordem de aparecimento. Iteração 0
+→ array vazio.
+
+**Scope-outs**: Combinadores `and`/`or` de selectors via string; regex
+(P209D).
+
+**Testes canônicos**:
+```
+query("heading")      -> array de Locations
+counter_step("heading") -> Content::CounterUpdate
+query("<intro>")      -> array com Location do label "intro"
+query(here())         -> array com Location atual
+query(unknown_kind)   -> Err "kind não reconhecido"
+```
+
+---
+
+### `native_locate` — `locate(selector)`
+
+**Assinatura**: `locate(selector: str | location | selector) -> location | none`
+
+**Semântica**: Idêntico a `query` mas devolve apenas o **primeiro** match.
+Se não houver matches → `none`.
+
+**Testes canônicos**:
+```
+locate("heading")     -> Location ou none
+locate("<intro>")     -> Location ou none
+locate("unknown")     -> none (se kind válido sem matches) ou Err (kind inválido)
+```
+
+---
+
+### `native_here` — `here()`
+
+**Assinatura**: `here() -> location`
+
+**Semântica**: Devolve `ctx.current_location` quando populado. Usado dentro
+de contextos locatable (show-rules, etc.).
+
+**Scope-out**: Captura automática de `current_location` durante o eval walk
+ainda é deferred; caller sintético deve preencher `ctx.current_location`.
+
+**Testes canônicos**:
+```
+here() (com current_location populado) -> Value::Location
+here() (fora de contexto)              -> Err "here() chamado fora de contexto locatable"
+here(1)                                -> Err "here() não aceita argumentos"
+```
+
+---
+
+## 9. Notas de fecho
+
+Todas as funções nativas de `foundations.rs` estão agora especificadas em L0.
+O fecho deste subset **encerra DEBT-57 por completo** — todos os ficheiros
+stdlib de L1 (`structural.rs`, `layout.rs`, `calc.rs`, `assert.rs`,
+`shapes.rs`, `transforms.rs`, `gradients.rs`, `foundations.rs`) possuem prompt
+L0 dedicado.
+
+Scope-outs transversais que permanecem fora deste subset:
+- Render PDF nativo para CMYK (`/DeviceCMYK`) e gradientes (`/Sh`).
+- Métodos avançados de `str`, `array` e `dict` não materializados como
+  funções nativas globais.
+- Introspeção avançada de módulos (`module` como valor de primeira classe
+  completo).

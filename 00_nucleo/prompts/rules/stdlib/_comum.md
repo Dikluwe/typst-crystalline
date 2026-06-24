@@ -26,6 +26,10 @@ inventada aqui).
 > `00_nucleo/prompts/rules/stdlib/transforms.md` (P436).
 > Nota: `stdlib/gradients.rs` tem agora o seu próprio prompt em
 > `00_nucleo/prompts/rules/stdlib/gradients.md` (P437).
+> Nota: `stdlib/foundations.rs` tem agora o seu próprio prompt expandido em
+> `00_nucleo/prompts/rules/stdlib/foundations.md` (P438). Com este fecho,
+> **DEBT-57 está encerrado** — todos os ficheiros stdlib de L1 têm spec L0
+> dedicada.
 
 ---
 

@@ -1,8 +1,8 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/rules/stdlib/foundations.md
-//! @prompt-hash bf5a0818
+//! @prompt-hash be0c9371
 //! @layer L1
-//! @updated 2026-04-23
+//! @updated 2026-06-24
 //!
 //! Funções nativas fundamentais (type, len, rgb, luma, range, str, int, float).
 //! Extraído de `stdlib.rs` no Passo 96.5 conforme ADR-0037.

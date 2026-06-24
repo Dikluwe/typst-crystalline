@@ -504,9 +504,9 @@ elegibilidade); ADR-0104/0105; os 3 L0 anexados em
 
 ---
 
-## DEBT-57 — Specs L0 ausentes para ~70 funções stdlib — EM ABERTO (Passo 316)
+## DEBT-57 — Specs L0 ausentes para ~70 funções stdlib — FECHADO (Passo 438)
 
-**Estado**: aberto · **Magnitude**: M (fatiável por ficheiro) · **Origem**:
+**Estado**: fechado · **Magnitude**: M (fatiável por ficheiro) · **Origem**:
 deriva F4 retroativa exposta pela partição do prompt `rules/stdlib.md` no P314.
 
 A partição do P314 (ADR-0104) revelou que o prompt grosso `rules/stdlib.md`
@@ -553,18 +553,24 @@ preserving). Ficheiros sem prompt L0 dedicado:
   **✅ Subset fechado em P430** — prompt L0 dedicado criado em
   `00_nucleo/prompts/rules/stdlib/structural.md`; header de
   `01_core/src/rules/stdlib/structural.rs` actualizado; hashes sincronizados.
-- `rules/stdlib/foundations.rs` — funções além das specadas em `foundations.md`:
-  `oklab`/`oklch`/`linear_rgb`/`cmyk`/`hsl`/`hsv`, `metadata`, `state`/
-  `state_update`/`state_update_with`/`state_final`/`state_at`, `counter_at`/
-  `counter_final`/`counter_step`, `query`/`here`/`locate`.
+- `rules/stdlib/foundations.rs` — ~30 funções fundamentais (`type`/`repr`/
+  `len`/`range`/`str`/`int`/`float`, construtores de cor `rgb`/`luma`/
+  `oklab`/`oklch`/`linear_rgb`/`cmyk`/`hsl`/`hsv`, `metadata`, estado
+  `state`/`state_update`/`state_update_with`/`state_display`/`state_final`/
+  `state_at`, contadores `counter_display`/`counter_at`/`counter_final`/
+  `counter_step`, query/localização `query`/`here`/`locate`).
+  **✅ Subset fechado em P438** — prompt L0 dedicado expandido/reescrito em
+  `00_nucleo/prompts/rules/stdlib/foundations.md`; header de
+  `01_core/src/rules/stdlib/foundations.rs` actualizado; hashes sincronizados.
 
 **Critério de fecho**: cada ficheiro da lista com um prompt L0 dedicado (mesma
 receita de fatiamento do P314). **P430 fechou o subset `structural.rs`**;
 **P432 fechou o subset `layout.rs`**; **P433 fechou o subset `calc.rs`**;
 **P434 fechou o subset `assert.rs`**; **P435 fechou o subset `shapes.rs`**;
 **P436 fechou o subset `transforms.rs`**; **P437 fechou o subset
-`gradients.rs`** (documental, scope-out de render PDF); os restantes ficheiros
-permanecem em aberto.
+`gradients.rs`** (documental, scope-out de render PDF); **P438 fechou o subset
+`foundations.rs` e, com ele, DEBT-57 por completo**. Todos os ficheiros stdlib
+de L1 possuem agora spec L0 dedicada.
 
 ---
 
