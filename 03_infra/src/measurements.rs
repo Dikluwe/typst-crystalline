@@ -45,7 +45,7 @@ static LAST_MAX_AGE: AtomicUsize = AtomicUsize::new(0);
 
 /// Ordem fixa dos 20 métodos do trait `Introspector`. Índice nesta
 /// constante = índice em `CALL_COUNTERS`.
-pub const INTROSPECTOR_METHODS: [&str; 24] = [
+pub const INTROSPECTOR_METHODS: [&str; 25] = [
     "query_by_kind",
     "query_by_label",
     "query_first",
@@ -54,6 +54,8 @@ pub const INTROSPECTOR_METHODS: [&str; 24] = [
     "figure_number_for_label",
     "query_metadata",
     "formatted_counter",
+    // P451
+    "counter_values_at",
     "state_value",
     "state_final_value",
     "query",
@@ -75,7 +77,7 @@ pub const INTROSPECTOR_METHODS: [&str; 24] = [
     "page_supplement",
 ];
 
-static CALL_COUNTERS: [AtomicUsize; 24] = [
+static CALL_COUNTERS: [AtomicUsize; 25] = [
     AtomicUsize::new(0), AtomicUsize::new(0), AtomicUsize::new(0),
     AtomicUsize::new(0), AtomicUsize::new(0), AtomicUsize::new(0),
     AtomicUsize::new(0), AtomicUsize::new(0), AtomicUsize::new(0),
@@ -84,6 +86,7 @@ static CALL_COUNTERS: [AtomicUsize; 24] = [
     AtomicUsize::new(0), AtomicUsize::new(0), AtomicUsize::new(0),
     AtomicUsize::new(0), AtomicUsize::new(0), AtomicUsize::new(0),
     AtomicUsize::new(0), AtomicUsize::new(0), AtomicUsize::new(0),
+    AtomicUsize::new(0),
 ];
 
 // ── API pública ────────────────────────────────────────────────────
@@ -219,6 +222,11 @@ impl<I: Introspector + Send + Sync> Introspector for CountingIntrospector<I> {
         self.inner.formatted_counter(key)
     }
 
+    fn counter_values_at(&self, key: &str, location: Location) -> Option<&[usize]> {
+        record_call(24);
+        self.inner.counter_values_at(key, location)
+    }
+
     fn state_value(&self, key: &str, location: Location) -> Option<&Value> {
         record_call(8);
         self.inner.state_value(key, location)
@@ -348,12 +356,12 @@ mod tests {
     fn p204g_introspector_call_counts_existe() {
         // Sentinel: confirma que `introspector_call_counts()` está
         // disponível e devolve `CallCounts`. Falha de compilação se
-        // função/tipo forem removidos. Length 24 = 20 originais
+        // função/tipo forem removidos. Length 25 = 20 originais
         // (P204G) + `query_labelled` (P207B) + `label_count` (P207C)
-        // + 4 page-aware (P207D) − 2 (`is_numbering_active`/`_at`
-        // removidos no F-4 E0, P338 — API legada morta).
+        // + 4 page-aware (P207D) + `counter_values_at` (P451)
+        // − 2 (`is_numbering_active`/`_at` removidos no F-4 E0, P338 — API legada morta).
         let counts: CallCounts = introspector_call_counts();
-        assert_eq!(counts.per_method.len(), 24);
+        assert_eq!(counts.per_method.len(), 25);
     }
 
     // ── C6 Test 1 (smoke): tracking activo após uso ──────────────────

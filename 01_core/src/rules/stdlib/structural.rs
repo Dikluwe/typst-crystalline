@@ -2,7 +2,7 @@
 //! @prompt 00_nucleo/prompts/rules/model/document.md
 //! @prompt 00_nucleo/prompts/rules/model/asset.md
 //! @prompt 00_nucleo/prompts/rules/stdlib/structural.md
-//! @prompt-hash f1d1e2e8
+//! @prompt-hash 0af64df3
 //! @layer L1
 //! @updated 2026-06-22
 //!
@@ -96,24 +96,84 @@ pub fn native_raw(
     Ok(Value::Content(Content::raw(text, None, false)))
 }
 
-// ── `heading()` — sentinel para show rules (Passo 68, DEBT-21) ──────────────
+// ── `heading()` — função nativa + selector para show rules (P451) ───────────
 
-/// Sentinel de `heading` como função — existe em scope para que show rules
-/// do tipo `#show heading: it => ...` possam resolver o selector.
+/// `heading(level, body, numbering:?)` — cria um cabeçalho directamente.
+/// Também serve como selector em show rules (`#show heading: it => ...`).
 ///
-/// A criação real de headings usa a sintaxe de markup `= Título`.
-/// Chamar `heading()` directamente retorna Err (DEBT-21).
+/// Argumentos:
+/// - `level`: inteiro posicional 1..=6 (obrigatório).
+/// - `body`: `Content` ou `Str` posicional (obrigatório).
+/// - `numbering`: string named opcional; se presente, activa numeração com o
+///   pattern indicado (ex.: `"1."`, `"I."`, `"(a)"`).
+///
+/// P451: antes era sentinel que retornava Err (DEBT-21); agora a função
+/// directa é suportada para casos de uso programático.
 pub fn native_heading(
     _ctx: &mut EvalContext,
-    _args: &Args,
+    args: &Args,
     _world: &dyn crate::contracts::world::World,
     _current_file: FileId,
 ) -> SourceResult<Value> {
-    Err(vec![SourceDiagnostic::error(
-        Span::detached(),
-        "heading() como função directa não suportada; use a sintaxe de markup `= Título`"
-            .to_string(),
-    )])
+    let level = match args.items.first() {
+        Some(Value::Int(n)) => {
+            let level = *n as u8;
+            if level == 0 || level > 6 {
+                return Err(vec![SourceDiagnostic::error(
+                    Span::detached(),
+                    format!("heading(): level deve estar entre 1 e 6, recebeu {}", n),
+                )]);
+            }
+            level
+        }
+        Some(other) => {
+            return Err(vec![SourceDiagnostic::error(
+                Span::detached(),
+                format!("heading(): level espera int, recebeu {}", other.type_name()),
+            )])
+        }
+        None => {
+            return Err(vec![SourceDiagnostic::error(
+                Span::detached(),
+                "heading() exige level como primeiro argumento posicional".to_string(),
+            )])
+        }
+    };
+
+    let body = match args.items.get(1) {
+        Some(Value::Content(c)) => c.clone(),
+        Some(Value::Str(s)) => Content::text(s.as_str()),
+        Some(other) => {
+            return Err(vec![SourceDiagnostic::error(
+                Span::detached(),
+                format!("heading(): body espera content ou string, recebeu {}", other.type_name()),
+            )])
+        }
+        None => {
+            return Err(vec![SourceDiagnostic::error(
+                Span::detached(),
+                "heading() exige body como segundo argumento posicional".to_string(),
+            )])
+        }
+    };
+
+    let numbering = match args.named.get("numbering") {
+        Some(Value::Str(s)) => Some(s.clone()),
+        Some(Value::None) | None => None,
+        Some(other) => {
+            return Err(vec![SourceDiagnostic::error(
+                Span::detached(),
+                format!("heading(numbering:): espera string, recebeu {}", other.type_name()),
+            )])
+        }
+    };
+
+    let content = if let Some(pattern) = numbering {
+        Content::heading_numbered_with_pattern(level, body, Some(pattern))
+    } else {
+        Content::heading(level, body)
+    };
+    Ok(Value::Content(content))
 }
 
 // ── Passo 154B (ADR-0060 Fase 1) — terms + divider ──────────────────────────
@@ -2040,5 +2100,66 @@ mod tests {
     fn native_asset_rejects_missing_path() {
         let args = Args::positional(vec![Value::Int(1)]);
         assert!(call_asset(args).is_err());
+    }
+
+    fn call_heading(args: Args) -> SourceResult<Value> {
+        native_heading(
+            &mut EvalContext::new(),
+            &args,
+            &NullWorld::default(),
+            test_file_id(),
+        )
+    }
+
+    #[test]
+    fn native_heading_sem_numbering_emite_heading_simples() {
+        let args = Args::positional(vec![
+            Value::Int(1),
+            Value::Content(Content::text("Título")),
+        ]);
+        let v = call_heading(args).unwrap();
+        let Value::Content(Content::Heading(h)) = v else {
+            panic!("esperado Content::Heading, recebeu {:?}", v);
+        };
+        assert_eq!(h.level, 1);
+        assert_eq!(h.body.plain_text(), "Título");
+    }
+
+    #[test]
+    fn native_heading_com_numbering_emite_styled() {
+        let mut args = Args::positional(vec![
+            Value::Int(2),
+            Value::Str("Sub".into()),
+        ]);
+        args.named.insert("numbering".into(), Value::Str("1.1".into()));
+        let v = call_heading(args).unwrap();
+        let Value::Content(Content::Styled(inner, styles)) = v else {
+            panic!("esperado Content::Styled, recebeu {:?}", v);
+        };
+        assert!(matches!(inner.as_ref(), Content::Heading(h) if h.level == 2));
+        let custom = &styles.delta().custom;
+        assert!(
+            custom.iter().any(|(k, v)| k == "heading.numbering" && matches!(v, Value::Bool(true))),
+            "gate heading.numbering deve estar activo"
+        );
+        assert!(
+            custom.iter().any(|(k, v)| k == "heading.numbering.pattern" && matches!(v, Value::Str(s) if s == "1.1")),
+            "pattern deve ser transportado na chain"
+        );
+    }
+
+    #[test]
+    fn native_heading_rejeita_level_fora_do_range() {
+        let args = Args::positional(vec![
+            Value::Int(0),
+            Value::Content(Content::text("X")),
+        ]);
+        assert!(call_heading(args).is_err());
+    }
+
+    #[test]
+    fn native_heading_rejeita_body_invalido() {
+        let args = Args::positional(vec![Value::Int(1), Value::Int(42)]);
+        assert!(call_heading(args).is_err());
     }
 }

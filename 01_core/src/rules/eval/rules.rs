@@ -609,24 +609,35 @@ pub(super) fn eval_set_rule(
     if target == "heading" {
         // #set heading(numbering: "1.1") — activa numeração automática.
         // Outros argumentos de heading ignorados por agora (DEBT-10).
-        let active = set.args().items().any(|arg| {
+        let mut active = false;
+        let mut pattern: Option<ecow::EcoString> = None;
+        for arg in set.args().items() {
             if let Arg::Named(named) = arg {
                 if named.name().as_str() == "numbering" {
                     // Defensivo: só String activa a numeração.
                     // Closures, none, ou outros tipos → ignorar.
                     let val = eval_expr(named.expr(), scopes, ctx, engine)
                         .unwrap_or(Value::None);
-                    return matches!(val, Value::Str(_));
+                    if let Value::Str(s) = val {
+                        active = true;
+                        pattern = Some(s.clone());
+                    }
                 }
             }
-            false
-        });
+        }
         // Lote F-2 S1 (P335): em vez de um marcador global `SetHeadingNumbering`,
         // empurra para a chain léxica (`engine.styles` é escopado por
         // `local_styles`). O heading assa este valor na criação
         // (`eval/markup.rs`). Fecha o canal global → escopo de container (DEBT 99.E).
-        *engine.styles =
-            engine.styles.push_custom("heading.numbering", Value::Bool(active));
+        // P451: transporta também o pattern string para formatação configurável.
+        *engine.styles = engine
+            .styles
+            .push_custom("heading.numbering", Value::Bool(active));
+        if let Some(pattern) = pattern {
+            *engine.styles = engine
+                .styles
+                .push_custom("heading.numbering.pattern", Value::Str(pattern));
+        }
         return Ok(Value::None);
     }
 

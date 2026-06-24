@@ -1316,6 +1316,49 @@ fn layout_set_heading_numbering_activa_contador() {
     assert!(text.contains("1.1"), "H2 deve ter prefixo '1.1'");
 }
 
+// ── P451 — Layout E2E com patterns de numeração configuráveis ───────────────
+
+#[test]
+fn p451_layout_heading_pattern_1_ponto() {
+    let content = Content::heading_numbered_with_pattern(
+        1,
+        Content::text("Intro"),
+        Some("1.".into()),
+    );
+    let text = layout(&content).plain_text();
+    assert!(text.contains("1. Intro"), "esperado '1. Intro' em: {text}");
+}
+
+#[test]
+fn p451_layout_heading_pattern_1_ponto_1() {
+    let content = Content::Sequence(
+        vec![
+            Content::heading_numbered_with_pattern(1, Content::text("Cap"), Some("1.".into())),
+            Content::heading_numbered_with_pattern(2, Content::text("Sec"), Some("1.1".into())),
+        ]
+        .into(),
+    );
+    let text = layout(&content).plain_text();
+    assert!(text.contains("1. Cap"), "esperado '1. Cap' em: {text}");
+    assert!(text.contains("1.1 Sec"), "esperado '1.1 Sec' em: {text}");
+}
+
+#[test]
+fn p451_layout_heading_pattern_romano_reseta_inferior() {
+    let content = Content::Sequence(
+        vec![
+            Content::heading_numbered_with_pattern(1, Content::text("A"), Some("I.".into())),
+            Content::heading_numbered_with_pattern(2, Content::text("B"), Some("I.I".into())),
+            Content::heading_numbered_with_pattern(1, Content::text("C"), Some("I.".into())),
+        ]
+        .into(),
+    );
+    let text = layout(&content).plain_text();
+    assert!(text.contains("I. A"), "esperado 'I. A' em: {text}");
+    assert!(text.contains("I.I B"), "esperado prefixo romano hierárquico 'I.I B' em: {text}");
+    assert!(text.contains("II. C"), "esperado 'II. C' em: {text}");
+}
+
 // ── Lote F-2 S1 (P335) — o gate de numeração migrou do Introspector para o
 // campo assado `HeadingElem::numbering_active`. Este teto (era P182D) passa a
 // assertar a NOVA realidade: o flag `numbering_active:heading` do Introspector

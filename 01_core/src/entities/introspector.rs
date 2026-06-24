@@ -136,6 +136,12 @@ pub trait Introspector: Send + Sync {
     /// vazia para `loc <= location`.
     fn formatted_counter_at(&self, key: &str, location: Location) -> Option<String>;
 
+    /// **P451** — valores brutos do counter hierárquico na `Location`
+    /// indicada. Permite ao layout aplicar patterns de formatação
+    /// configuráveis (romanos, letras, etc.). `None` se key inexistente
+    /// ou history vazia para `loc <= location`.
+    fn counter_values_at(&self, key: &str, location: Location) -> Option<&[usize]>;
+
     /// **P181F** — entry bibliográfica por chave. Replica
     /// `state.bib_entries.iter().find(|e| e.key == *key)` actual em
     /// `layout/mod.rs:584` (P181G migrará caller). Linear scan sobre
@@ -524,6 +530,15 @@ impl Introspector for TagIntrospector {
             None
         } else {
             Some(counter.iter().map(|n| n.to_string()).collect::<Vec<_>>().join("."))
+        }
+    }
+
+    fn counter_values_at(&self, key: &str, location: Location) -> Option<&[usize]> {
+        let counter = self.counters.value_at(key, location)?;
+        if counter.is_empty() {
+            None
+        } else {
+            Some(counter)
         }
     }
 

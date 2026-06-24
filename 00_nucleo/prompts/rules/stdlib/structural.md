@@ -1,5 +1,5 @@
 # Prompt L0 — `stdlib/structural` — módulo `structural`
-Hash do Código: 241512b1
+Hash do Código: 40aeddb0
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/rules/stdlib/structural.rs`
@@ -99,21 +99,28 @@ raw([content]) -> Err "raw() espera string"
 
 ---
 
-### `native_heading(...)`
+### `native_heading(level, body, numbering:?)`
 
-**Assinatura**: `heading(...) -> SourceResult<Value>`
+**Assinatura**: `heading(level: Int, body: Content | Str, numbering: Str?) -> Content`
 
-**Argumentos**: Rejeita quaisquer argumentos.
+**Argumentos**:
+- `level`: inteiro posicional 1..=6 (obrigatório).
+- `body`: `Content` ou `Str` posicional (obrigatório).
+- `numbering`: string named opcional. Se presente, activa numeração com o pattern indicado.
 
-**Semântica**: Sentinel de `heading` para permitir que show rules `#show heading: it => ...` resolvam o selector. A criação real de headings usa a sintaxe de markup `= Título`. Chamar `heading()` directamente retorna erro (DEBT-21).
+**Semântica**: Cria um `Content::Heading(level, body)`. Se `numbering` for `Some(pattern)`, embrulha o heading num `Content::Styled` que transporta `heading.numbering=true` e `heading.numbering.pattern=pattern`, a forma canônica de heading numerado. Também serve como selector em show rules (`#show heading: it => ...`).
 
-**Paridade vanilla**: Divergência intencional documentada em ADR-0033 — `heading()` como função directa não é suportada.
+**Paridade vanilla**: Equivalente a `heading(level, body, numbering: pattern)` em Typst. A forma sem `numbering` cria heading não-numerado.
 
-**Limitações / scope-outs**: Todo o layout/renderização de headings é responsabilidade do pipeline de markup/layout; ver prompt dedicado `entities/elements/heading.md`.
+**Limitações / scope-outs**: Layout/renderização de headings é responsabilidade do pipeline de markup/layout; ver prompts dedicados `entities/elements/heading.md` e `rules/layout/heading.md`.
 
 **Testes canónicos**:
 ```
-heading() -> Err "heading() como função directa não suportada; use a sintaxe de markup `= Título`"
+heading(1, [Título]) -> Content::Heading { level: 1, body: "Título" }
+heading(2, "Sub", numbering: "1.1") -> Content::Styled(Heading { level: 2, body: "Sub" }, heading.numbering=true, heading.numbering.pattern="1.1")
+heading(0, [X]) -> Err "level deve estar entre 1 e 6"
+heading(1, 123) -> Err "body espera content ou string"
+heading(1, [X], numbering: 1) -> Err "numbering espera string"
 ```
 
 ---

@@ -1103,12 +1103,24 @@ impl Content {
     /// fatia-1). Consumidor (layout/introspect) lê o gate da chain. Usado pelos
     /// fixtures para construir um heading numerado sem passar pelo eval.
     pub fn heading_numbered(level: u8, body: Content) -> Self {
+        Self::heading_numbered_with_pattern(level, body, None)
+    }
+    /// Heading numerado **na forma de transporte** com pattern configurável
+    /// (P451). O pattern é transportado na chain como
+    /// `custom("heading.numbering.pattern")`; o gate `heading.numbering` continua
+    /// a ser o booleano de activação.
+    pub fn heading_numbered_with_pattern(
+        level: u8,
+        body: Content,
+        pattern: Option<ecow::EcoString>,
+    ) -> Self {
         use crate::entities::style::Styles;
         use crate::entities::value::Value;
-        Self::Styled(
-            Box::new(Self::heading(level, body)),
-            Styles::new().push_custom("heading.numbering", Value::Bool(true)),
-        )
+        let mut styles = Styles::new().push_custom("heading.numbering", Value::Bool(true));
+        if let Some(pattern) = pattern {
+            styles = styles.push_custom("heading.numbering.pattern", Value::Str(pattern));
+        }
+        Self::Styled(Box::new(Self::heading(level, body)), styles)
     }
     /// Construtor do separador estrutural (Modelo D, P316).
     pub fn divider() -> Self {

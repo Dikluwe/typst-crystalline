@@ -36,6 +36,8 @@ pub mod corners;
 pub mod counter_state_legacy;
 pub mod counter_update;
 pub mod counter_registry;
+// P451 — formatação de counters hierárquicos com patterns.
+pub mod counter_format;
 pub mod layouter_runtime_state;
 pub mod content_hash;
 pub mod element_info;
