@@ -1,0 +1,72 @@
+Estrutura de módulos (escopo: completo, uses: todas) — 22 módulos, 0 ciclos:
+
+Ciclos:
+  (nenhum ciclo entre módulos)
+
+Dependências módulo → módulo:
+  typst_infra::export → typst_infra::export::builder
+  typst_infra::export → typst_infra::export::fonts
+  typst_infra::export → typst_infra::export::gradients
+  typst_infra::export → typst_infra::export::gradients::adaptive
+  typst_infra::export → typst_infra::export::gradients::cmyk
+  typst_infra::export → typst_infra::export::gradients::conic
+  typst_infra::export → typst_infra::export::gradients::function_dict
+  typst_infra::export → typst_infra::export::gradients::linear
+  typst_infra::export → typst_infra::export::gradients::radial
+  typst_infra::export → typst_infra::export::gradients::relative
+  typst_infra::export → typst_infra::export::images
+  typst_infra::export → typst_infra::export::stream
+  typst_infra::export → typst_infra::font_metrics
+  typst_infra::export::builder → typst_infra::export::fonts
+  typst_infra::export::builder → typst_infra::export::gradients
+  typst_infra::export::builder → typst_infra::export::gradients::adaptive
+  typst_infra::export::builder → typst_infra::export::gradients::cmyk
+  typst_infra::export::builder → typst_infra::export::gradients::conic
+  typst_infra::export::builder → typst_infra::export::gradients::function_dict
+  typst_infra::export::builder → typst_infra::export::gradients::linear
+  typst_infra::export::builder → typst_infra::export::gradients::radial
+  typst_infra::export::builder → typst_infra::export::gradients::relative
+  typst_infra::export::builder → typst_infra::export::images
+  typst_infra::export::builder → typst_infra::export::stream
+  typst_infra::export::builder → typst_infra::font_metrics
+  typst_infra::export::gradients → typst_infra::export::gradients::adaptive
+  typst_infra::export::gradients → typst_infra::export::gradients::cmyk
+  typst_infra::export::gradients → typst_infra::export::gradients::conic
+  typst_infra::export::gradients → typst_infra::export::gradients::function_dict
+  typst_infra::export::gradients → typst_infra::export::gradients::linear
+  typst_infra::export::gradients → typst_infra::export::gradients::radial
+  typst_infra::export::gradients → typst_infra::export::gradients::relative
+  typst_infra::export::gradients::conic → typst_infra::export::gradients::cmyk
+  typst_infra::export::stream → typst_infra::export::fonts
+  typst_infra::export::stream → typst_infra::export::gradients
+  typst_infra::export::stream → typst_infra::export::images
+  typst_infra::layout → typst_infra::font_metrics
+  typst_infra::layout → typst_infra::image_sizer
+  typst_infra::pipeline → typst_infra::export
+  typst_infra::query_helpers → typst_infra::pipeline
+  typst_infra::world → typst_infra::fonts
+
+Ordem da DSM (topológica + blocos):
+   typst_infra
+   typst_infra::layout
+   typst_infra::image_sizer
+   typst_infra::measurements
+   typst_infra::query_helpers
+   typst_infra::pipeline
+   typst_infra::export
+   typst_infra::export::builder
+   typst_infra::export::stream
+   typst_infra::export::fonts
+   typst_infra::export::gradients
+   typst_infra::export::gradients::adaptive
+   typst_infra::export::gradients::conic
+   typst_infra::export::gradients::cmyk
+   typst_infra::export::gradients::function_dict
+   typst_infra::export::gradients::linear
+   typst_infra::export::gradients::radial
+   typst_infra::export::gradients::relative
+   typst_infra::export::images
+   typst_infra::font_metrics
+   typst_infra::world
+   typst_infra::fonts
+

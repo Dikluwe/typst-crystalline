@@ -1,69 +1,94 @@
-# P447 — DSM Audit (alternativa `cargo modules`)
+# P447 — DSM Audit (ferramenta nativa `lente`)
 
 > **Data:** 2026-06-24  
 > **Executor:** assistente IA (Kimi Code CLI)  
-> **Ferramenta:** `cargo modules` (subcomandos `dependencies` e `export-json`)  
-> **Nota:** a ferramenta própria `tekt dsm` não se encontra disponível no ambiente de execução; o DSM foi gerado com a alternativa standard `cargo modules`, que produz grafos de dependências internas por crate em formato DOT e JSON.
+> **Ferramenta:** `lente --estrutura` (a lente própria do projeto; `tekt-cargo-dsm` é o nome da lente referenciada em `lab/parity/tools/decompor_so_vanilla.py`)  
+> **Nota:** a primeira versão deste audit usou `cargo modules` como fallback porque o executável `lente` não foi localizado de imediato. Após confirmar que a ferramenta nativa é `lente`, o DSM foi regenerado com ela.
 
 ---
 
 ## 1. Ficheiros gerados
 
-| Crate | DOT | JSON |
-|-------|-----|------|
-| `typst-core` | `00_nucleo/dsm/dsm-p447-typst-core.dot` | `00_nucleo/dsm/dsm-p447-typst-core.json` |
-| `typst-shell` | `00_nucleo/dsm/dsm-p447-typst-shell.dot` | `00_nucleo/dsm/dsm-p447-typst-shell.json` |
-| `typst-infra` | `00_nucleo/dsm/dsm-p447-typst-infra.dot` | `00_nucleo/dsm/dsm-p447-typst-infra.json` |
-| `typst-wiring` | `00_nucleo/dsm/dsm-p447-typst-wiring.dot` | `00_nucleo/dsm/dsm-p447-typst-wiring.json` |
+| Crate | Texto | HTML |
+|-------|-------|------|
+| `typst-core` | `00_nucleo/dsm/lente/typst-core.txt` | `00_nucleo/dsm/lente/typst-core.html` |
+| `typst-shell` | `00_nucleo/dsm/lente/typst-shell.txt` | `00_nucleo/dsm/lente/typst-shell.html` |
+| `typst-infra` | `00_nucleo/dsm/lente/typst-infra.txt` | `00_nucleo/dsm/lente/typst-infra.html` |
+| `typst-wiring` | `00_nucleo/dsm/lente/typst-wiring.txt` | `00_nucleo/dsm/lente/typst-wiring.html` |
+
+Os ficheiros DOT/JSON da primeira tentativa (`cargo modules`) permanecem em `00_nucleo/dsm/` para proveniência.
 
 ---
 
-## 2. Métricas de instabilidade (módulos alterados em P445-P446)
+## 2. Sumário estrutural por crate
 
-Métrica agregada a partir do grafo item-level do `cargo modules` (arestas `uses`/`owns` entre itens de ficheiros diferentes dentro de `01_core/src/`).
+| Crate | Módulos | Ciclos | Observação |
+|-------|---------|--------|------------|
+| `typst-core` | 277 | 4 | Todos os ciclos pré-existem; nenhum envolve os módulos alterados em P445/P446. |
+| `typst-infra` | 22 | 0 | Acoplamento concentrado em `export` e `gradients`. |
+| `typst-shell` | 3 | 0 | Superfície CLI sem ciclos. |
+| `typst-wiring` | 3 | 0 | Root de composição; depende apenas de `typst_shell::cli`. |
+
+Ciclos detectados em `typst-core`:
+
+1. **Mega-ciclo no domínio `entities`** (~96 módulos: `content`, `elements::*`, `value`, `style_chain`, `eval`, `scopes`, ...).
+2. `entities::ast::{code, expr, markup, math}`
+3. `rules::parse::{code, markup, math, patterns, rules}`
+4. `rules::stdlib::{calc, foundations, layout, math_style, primitives_constructors, structural, text, stdlib}`
+
+---
+
+## 3. Métricas de instabilidade (módulos alterados em P445-P446)
+
+Calculadas a partir do grafo módulo → módulo do `lente` (arestas `uses`).  
+`I = fan-out / (fan-out + fan-in)`.
 
 | Módulo | Fan-out | Fan-in | Instabilidade `I` | Observação |
 |--------|---------|--------|-------------------|------------|
-| `entities::content` | 84 | 127 | 0.40 | Hub estável do sistema. |
-| `entities::show` | 5 | 4 | 0.56 | Adição de `NodeKind::Smallcaps` não altera significativamente o perfil. |
-| `rules::eval::rules` | 20 | 2 | **0.91** | Já era um módulo de alto fan-out (orquestra selectors/show rules). P444/P445 adicionaram mais mapeamentos de function-pointer, mas nenhuma dependência cíclica nova. |
-| `rules::lang::quotes` | 1 | 1 | 0.50 | Adição de `localize_single_quotes` (P445) mantém o módulo como folha estável. |
-| `rules::layout::cursor` | 5 | 1 | 0.83 | P446 adicionou `layout_chunk`; o módulo continua a ser consumido essencialmente só por `layout::mod` (fan-in=1). |
-| `rules::layout::mod` | 67 | 48 | 0.58 | Hub de layout; adição do flag `smallcaps` e do arm `SmallCaps` não aumentou o acoplamento de forma crítica. |
-| `rules::layout::text` | 5 | 1 | 0.83 | P446 introduz a chamada a `layout_chunk` (de `cursor`) e a lógica de smallcaps; continua dependente exclusivamente de `layout::mod`. |
-| `rules::stdlib::text` | 13 | 1 | **0.93** | Módulo de registo de funções nativas de texto; naturalmente alto fan-out porque importa muitas entidades. |
+| `entities::content` | 88 | 127 | 0.41 | Hub estável do sistema; faz parte do mega-ciclo de entidades. |
+| `entities::show` | 5 | 3 | 0.62 | Registo de `NodeKind::Smallcaps` mantém o perfil moderado. |
+| `rules::eval::rules` | 20 | 1 | 0.95 | Alto fan-out; folha de entrada única (`eval::markup`). |
+| `rules::lang::quotes` | 1 | 0 | 1.00 | Folha pura; introduzido em P445. |
+| `rules::layout` | 19 | 45 | 0.30 | Hub de layout estável; consome submódulos. |
+| `rules::layout::cursor` | 5 | 0 | 1.00 | Folha pura; novo método `layout_chunk` (P446). |
+| `rules::layout::text` | 5 | 0 | 1.00 | Folha pura; lógica de smallcaps (P446). |
+| `rules::stdlib::text` | 13 | 1 | 0.93 | Registo de funções nativas de texto; perfil já esperado. |
 
 **Conclusão de thresholds:**
-- `rules::eval::rules` (`I = 0.91`) e `rules::stdlib::text` (`I = 0.93`) excedem o threshold `I > 0.9` (vermelho). Este perfil **pré-existia** às mudanças de P445/P446; os passos apenas acrescentaram entradas em mapeamentos já existentes. Não emergiram dependências cíclicas nem acoplamentos transversais novos entre domínios distintos.
-- `rules::layout::text` e `rules::layout::cursor` (`I ≈ 0.83`) estão no amarelo. São módulos helper do layout; o acoplamento é unidirecional `mod → text → cursor`, sem ciclo.
+- `rules::eval::rules` (`I = 0.95`) e `rules::stdlib::text` (`I = 0.93`) excedem o threshold `I > 0.9` (vermelho). Este perfil **pré-existia** às mudanças de P445/P446; os passos apenas acrescentaram entradas em mapeamentos já existentes.
+- `rules::layout::cursor`, `rules::layout::text` e `rules::lang::quotes` têm `I = 1.0` por serem folhas puras (nenhum outro módulo as consome directamente ao nível `uses` do `lente`). Isso é esperado para helpers/registos.
+- **Não surgiu nenhum ciclo novo** nem acoplamento transversal novo entre domínios distintos em consequência de P445/P446.
 
 ---
 
-## 3. Drift de dependências observado
+## 4. Drift de dependências observado (vista `lente`)
 
-As mudanças de P445/P446 introduziram as seguintes utilizações (não novos módulos, mas novos call-sites dentro de dependências já existentes):
+Arestas `uses` envolvendo os módulos modificados:
 
-1. `rules::layout::mod` → `rules::layout::text`  
-   - P446: o arm `Content::SmallCaps` delega a renderização fragmentada ao layout de `Text` com o flag `smallcaps`.
-2. `rules::layout::text` → `rules::layout::cursor`  
-   - P446: novo método `layout_chunk` chamado para emitir runs de tamanhos diferentes dentro da mesma palavra.
-3. `rules::eval::rules` → `entities::show`  
-   - P444/P446: novos `NodeKind::{Underline,Strike,Overline,Smallcaps}`; `eval::rules` já dependia de `entities::show`.
-4. `rules::eval::rules` → `rules::lang::quotes`  
-   - P445: `localize_single_quotes` é usado no `eval_markup`; `eval::rules` não usa directamente, mas o pipeline de eval mantém a dependência via `lang/quotes.rs`.
+1. `rules::layout::text` → `rules::layout`  
+   - P446: smallcaps delega em `layout_chunk` do `Layouter` (`rules::layout`).
+2. `rules::layout::cursor` → `rules::layout`  
+   - P446: `layout_chunk` pertence ao cursor e usa helpers/métricas do layout.
+3. `rules::eval::markup` → `rules::eval::rules`  
+   - P445: smart quotes passam pelo pipeline de eval/rules.
+4. `rules::eval::rules` → `entities::show`  
+   - P444/P446: novos `NodeKind::{Underline,Strike,Overline,Smallcaps}`.
+5. `entities::show` → `entities::content` / `func` / `regex` / `style` / `value`  
+   - Registo dos show rules continua sem dependências cíclicas.
 
-**Nenhuma dependência circular foi detectada** entre os módulos alterados. O grafo continua acíclico na direcção eval → entities/layout → infra.
-
----
-
-## 4. Recomendações (não bloqueantes)
-
-- Manter `rules::eval::rules` e `rules::stdlib::text` sob observação; se o fan-out continuar a crescer, considerar subdividir `eval::rules` em sub-módulos por tipo de selector (`show`, `regex`, `where`, etc.).
-- `rules::layout::cursor` e `rules::layout::text` podem ser fundidos num único módulo de “text shaping” se o fan-in não aumentar, reduzindo a profundidade da cadeia `mod → text → cursor`.
+**Nenhuma dependência circular foi introduzida** pelos passos P445/P446.
 
 ---
 
-## 5. Scope-out deste audit
+## 5. Recomendações (não bloqueantes)
 
-- Não foi gerado output visual (PNG/SVG); os ficheiros DOT podem ser renderizados com `dot -Tsvg dsm-p447-typst-core.dot` se necessário.
+- `rules::eval::rules`: se continuar a crescer, considerar dividir em sub-módulos por tipo de selector (`show`, `regex`, `where`).
+- `rules::layout::cursor` e `rules::layout::text`: como são folhas consumidas por `rules::layout`, avaliar se faz sentido fundi-los num único módulo de “text shaping” ou manter a separação cursor/texto.
+- Mega-ciclo de `entities`: é arquitetural e conhecido; não deve ser atacado no âmbito destes passos.
+
+---
+
+## 6. Scope-out deste audit
+
+- O `lente` gera também vistas HTML interativas (`lente/*.html`) para navegação visual.
 - Não foram calculadas métricas de complexidade ciclomática nem de churn; o DSM é puramente estrutural.

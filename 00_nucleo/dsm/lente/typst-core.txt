@@ -1,0 +1,1606 @@
+Estrutura de módulos (escopo: completo, uses: todas) — 277 módulos, 4 ciclos:
+
+Ciclos:
+  - { typst_core::entities::args, typst_core::entities::content, typst_core::entities::content_hash, typst_core::entities::element_payload, typst_core::entities::element_registry, typst_core::entities::elements, typst_core::entities::elements::align, typst_core::entities::elements::bibliography, typst_core::entities::elements::block, typst_core::entities::elements::boxed, typst_core::entities::elements::cite, typst_core::entities::elements::colbreak, typst_core::entities::elements::columns, typst_core::entities::elements::counter_display, typst_core::entities::elements::counter_display_callback, typst_core::entities::elements::counter_update, typst_core::entities::elements::divider, typst_core::entities::elements::dynamic, typst_core::entities::elements::emph, typst_core::entities::elements::enum_item, typst_core::entities::elements::equation, typst_core::entities::elements::figure, typst_core::entities::elements::footnote, typst_core::entities::elements::grid, typst_core::entities::elements::grid_cell, typst_core::entities::elements::grid_footer, typst_core::entities::elements::grid_header, typst_core::entities::elements::h_space, typst_core::entities::elements::heading, typst_core::entities::elements::hide, typst_core::entities::elements::image, typst_core::entities::elements::labelled, typst_core::entities::elements::linebreak, typst_core::entities::elements::link, typst_core::entities::elements::list_item, typst_core::entities::elements::math_accent, typst_core::entities::elements::math_align_point, typst_core::entities::elements::math_attach, typst_core::entities::elements::math_cancel, typst_core::entities::elements::math_cases, typst_core::entities::elements::math_delimited, typst_core::entities::elements::math_frac, typst_core::entities::elements::math_matrix, typst_core::entities::elements::math_op, typst_core::entities::elements::math_root, typst_core::entities::elements::math_styled, typst_core::entities::elements::math_underover, typst_core::entities::elements::metadata, typst_core::entities::elements::outline, typst_core::entities::elements::overline, typst_core::entities::elements::pad, typst_core::entities::elements::pagebreak, typst_core::entities::elements::place, typst_core::entities::elements::quote, typst_core::entities::elements::r#ref, typst_core::entities::elements::raw, typst_core::entities::elements::repeat, typst_core::entities::elements::shape, typst_core::entities::elements::smartquote, typst_core::entities::elements::stack, typst_core::entities::elements::state, typst_core::entities::elements::state_display, typst_core::entities::elements::state_update, typst_core::entities::elements::strike, typst_core::entities::elements::strong, typst_core::entities::elements::table, typst_core::entities::elements::table_cell, typst_core::entities::elements::table_footer, typst_core::entities::elements::table_header, typst_core::entities::elements::term_item, typst_core::entities::elements::terms, typst_core::entities::elements::transform, typst_core::entities::elements::underline, typst_core::entities::elements::v_space, typst_core::entities::engine, typst_core::entities::func, typst_core::entities::geometry, typst_core::entities::gradient, typst_core::entities::introspector, typst_core::entities::layout_types, typst_core::entities::metadata_store, typst_core::entities::module, typst_core::entities::page_store, typst_core::entities::paint, typst_core::entities::position, typst_core::entities::scope, typst_core::entities::sealed_positions, typst_core::entities::selector, typst_core::entities::show, typst_core::entities::state_registry, typst_core::entities::state_update, typst_core::entities::style, typst_core::entities::style_chain, typst_core::entities::tiling, typst_core::entities::value, typst_core::rules::eval, typst_core::rules::scopes }
+  - { typst_core::entities::ast::code, typst_core::entities::ast::expr, typst_core::entities::ast::markup, typst_core::entities::ast::math }
+  - { typst_core::rules::parse::code, typst_core::rules::parse::markup, typst_core::rules::parse::math, typst_core::rules::parse::patterns, typst_core::rules::parse::rules }
+  - { typst_core::rules::stdlib, typst_core::rules::stdlib::calc, typst_core::rules::stdlib::foundations, typst_core::rules::stdlib::layout, typst_core::rules::stdlib::math_style, typst_core::rules::stdlib::primitives_constructors, typst_core::rules::stdlib::structural, typst_core::rules::stdlib::text }
+
+Dependências módulo → módulo:
+  typst_core::contracts::world → typst_core::entities::file_id
+  typst_core::contracts::world → typst_core::entities::font_book
+  typst_core::contracts::world → typst_core::entities::source
+  typst_core::contracts::world → typst_core::entities::world_types
+  typst_core::entities::args → typst_core::entities::value
+  typst_core::entities::ast → typst_core::entities::span
+  typst_core::entities::ast → typst_core::entities::syntax_node
+  typst_core::entities::ast::code → typst_core::entities::ast::expr
+  typst_core::entities::ast::code → typst_core::entities::package_spec
+  typst_core::entities::ast::code → typst_core::entities::syntax_kind
+  typst_core::entities::ast::code → typst_core::entities::syntax_node
+  typst_core::entities::ast::code → typst_core::rules::lexer
+  typst_core::entities::ast::expr → typst_core::entities::ast
+  typst_core::entities::ast::expr → typst_core::entities::ast::code
+  typst_core::entities::ast::expr → typst_core::entities::ast::markup
+  typst_core::entities::ast::expr → typst_core::entities::ast::math
+  typst_core::entities::ast::expr → typst_core::entities::syntax_kind
+  typst_core::entities::ast::expr → typst_core::entities::syntax_node
+  typst_core::entities::ast::markup → typst_core::entities::ast::expr
+  typst_core::entities::ast::markup → typst_core::entities::syntax_kind
+  typst_core::entities::ast::markup → typst_core::entities::syntax_node
+  typst_core::entities::ast::markup → typst_core::rules::lexer
+  typst_core::entities::ast::markup → typst_core::rules::lexer::scanner
+  typst_core::entities::ast::math → typst_core::entities::ast::expr
+  typst_core::entities::ast::math → typst_core::entities::syntax_kind
+  typst_core::entities::ast::math → typst_core::entities::syntax_node
+  typst_core::entities::bib_store → typst_core::entities::bib_entry
+  typst_core::entities::content → typst_core::entities::bib_entry
+  typst_core::entities::content → typst_core::entities::citation_form
+  typst_core::entities::content → typst_core::entities::color
+  typst_core::entities::content → typst_core::entities::counter_update
+  typst_core::entities::content → typst_core::entities::dir
+  typst_core::entities::content → typst_core::entities::elements
+  typst_core::entities::content → typst_core::entities::elements::align
+  typst_core::entities::content → typst_core::entities::elements::bibliography
+  typst_core::entities::content → typst_core::entities::elements::block
+  typst_core::entities::content → typst_core::entities::elements::boxed
+  typst_core::entities::content → typst_core::entities::elements::cite
+  typst_core::entities::content → typst_core::entities::elements::colbreak
+  typst_core::entities::content → typst_core::entities::elements::columns
+  typst_core::entities::content → typst_core::entities::elements::counter_display
+  typst_core::entities::content → typst_core::entities::elements::counter_display_callback
+  typst_core::entities::content → typst_core::entities::elements::counter_update
+  typst_core::entities::content → typst_core::entities::elements::divider
+  typst_core::entities::content → typst_core::entities::elements::dynamic
+  typst_core::entities::content → typst_core::entities::elements::emph
+  typst_core::entities::content → typst_core::entities::elements::enum_item
+  typst_core::entities::content → typst_core::entities::elements::equation
+  typst_core::entities::content → typst_core::entities::elements::figure
+  typst_core::entities::content → typst_core::entities::elements::footnote
+  typst_core::entities::content → typst_core::entities::elements::grid
+  typst_core::entities::content → typst_core::entities::elements::grid_cell
+  typst_core::entities::content → typst_core::entities::elements::grid_footer
+  typst_core::entities::content → typst_core::entities::elements::grid_header
+  typst_core::entities::content → typst_core::entities::elements::h_space
+  typst_core::entities::content → typst_core::entities::elements::heading
+  typst_core::entities::content → typst_core::entities::elements::hide
+  typst_core::entities::content → typst_core::entities::elements::image
+  typst_core::entities::content → typst_core::entities::elements::labelled
+  typst_core::entities::content → typst_core::entities::elements::linebreak
+  typst_core::entities::content → typst_core::entities::elements::link
+  typst_core::entities::content → typst_core::entities::elements::list_item
+  typst_core::entities::content → typst_core::entities::elements::math_accent
+  typst_core::entities::content → typst_core::entities::elements::math_align_point
+  typst_core::entities::content → typst_core::entities::elements::math_attach
+  typst_core::entities::content → typst_core::entities::elements::math_cancel
+  typst_core::entities::content → typst_core::entities::elements::math_cases
+  typst_core::entities::content → typst_core::entities::elements::math_delimited
+  typst_core::entities::content → typst_core::entities::elements::math_frac
+  typst_core::entities::content → typst_core::entities::elements::math_matrix
+  typst_core::entities::content → typst_core::entities::elements::math_op
+  typst_core::entities::content → typst_core::entities::elements::math_root
+  typst_core::entities::content → typst_core::entities::elements::math_styled
+  typst_core::entities::content → typst_core::entities::elements::math_underover
+  typst_core::entities::content → typst_core::entities::elements::metadata
+  typst_core::entities::content → typst_core::entities::elements::outline
+  typst_core::entities::content → typst_core::entities::elements::overline
+  typst_core::entities::content → typst_core::entities::elements::pad
+  typst_core::entities::content → typst_core::entities::elements::pagebreak
+  typst_core::entities::content → typst_core::entities::elements::place
+  typst_core::entities::content → typst_core::entities::elements::quote
+  typst_core::entities::content → typst_core::entities::elements::r#ref
+  typst_core::entities::content → typst_core::entities::elements::raw
+  typst_core::entities::content → typst_core::entities::elements::repeat
+  typst_core::entities::content → typst_core::entities::elements::shape
+  typst_core::entities::content → typst_core::entities::elements::smartquote
+  typst_core::entities::content → typst_core::entities::elements::stack
+  typst_core::entities::content → typst_core::entities::elements::state
+  typst_core::entities::content → typst_core::entities::elements::state_display
+  typst_core::entities::content → typst_core::entities::elements::state_update
+  typst_core::entities::content → typst_core::entities::elements::strike
+  typst_core::entities::content → typst_core::entities::elements::strong
+  typst_core::entities::content → typst_core::entities::elements::table
+  typst_core::entities::content → typst_core::entities::elements::table_cell
+  typst_core::entities::content → typst_core::entities::elements::table_footer
+  typst_core::entities::content → typst_core::entities::elements::table_header
+  typst_core::entities::content → typst_core::entities::elements::term_item
+  typst_core::entities::content → typst_core::entities::elements::terms
+  typst_core::entities::content → typst_core::entities::elements::transform
+  typst_core::entities::content → typst_core::entities::elements::underline
+  typst_core::entities::content → typst_core::entities::elements::v_space
+  typst_core::entities::content → typst_core::entities::func
+  typst_core::entities::content → typst_core::entities::geometry
+  typst_core::entities::content → typst_core::entities::label
+  typst_core::entities::content → typst_core::entities::layout_types
+  typst_core::entities::content → typst_core::entities::math_style
+  typst_core::entities::content → typst_core::entities::paint
+  typst_core::entities::content → typst_core::entities::parity
+  typst_core::entities::content → typst_core::entities::ptr_eq_arc
+  typst_core::entities::content → typst_core::entities::sides
+  typst_core::entities::content → typst_core::entities::source_result
+  typst_core::entities::content → typst_core::entities::state_update
+  typst_core::entities::content → typst_core::entities::style
+  typst_core::entities::content → typst_core::entities::value
+  typst_core::entities::content → typst_core::entities::world_types
+  typst_core::entities::content_hash → typst_core::entities::content
+  typst_core::entities::counter_registry → typst_core::entities::counter_update
+  typst_core::entities::counter_registry → typst_core::entities::location
+  typst_core::entities::counter_state_legacy → typst_core::entities::counter_update
+  typst_core::entities::element_info → typst_core::entities::element_payload
+  typst_core::entities::element_info → typst_core::entities::label
+  typst_core::entities::element_payload → typst_core::entities::bib_entry
+  typst_core::entities::element_payload → typst_core::entities::content
+  typst_core::entities::element_payload → typst_core::entities::counter_update
+  typst_core::entities::element_payload → typst_core::entities::func
+  typst_core::entities::element_payload → typst_core::entities::label
+  typst_core::entities::element_payload → typst_core::entities::state_update
+  typst_core::entities::element_payload → typst_core::entities::value
+  typst_core::entities::element_registry → typst_core::entities::content
+  typst_core::entities::element_registry → typst_core::entities::source_result
+  typst_core::entities::element_registry → typst_core::entities::span
+  typst_core::entities::element_registry → typst_core::entities::value
+  typst_core::entities::elements → typst_core::entities::content
+  typst_core::entities::elements → typst_core::entities::element_kind
+  typst_core::entities::elements → typst_core::entities::element_payload
+  typst_core::entities::elements → typst_core::entities::elements::dynamic
+  typst_core::entities::elements → typst_core::entities::source_result
+  typst_core::entities::elements → typst_core::entities::value
+  typst_core::entities::elements::align → typst_core::entities::content
+  typst_core::entities::elements::align → typst_core::entities::elements
+  typst_core::entities::elements::align → typst_core::entities::layout_types
+  typst_core::entities::elements::align → typst_core::entities::source_result
+  typst_core::entities::elements::bibliography → typst_core::entities::bib_entry
+  typst_core::entities::elements::bibliography → typst_core::entities::content
+  typst_core::entities::elements::bibliography → typst_core::entities::element_kind
+  typst_core::entities::elements::bibliography → typst_core::entities::element_payload
+  typst_core::entities::elements::bibliography → typst_core::entities::elements
+  typst_core::entities::elements::bibliography → typst_core::entities::source_result
+  typst_core::entities::elements::block → typst_core::entities::color
+  typst_core::entities::elements::block → typst_core::entities::content
+  typst_core::entities::elements::block → typst_core::entities::corners
+  typst_core::entities::elements::block → typst_core::entities::elements
+  typst_core::entities::elements::block → typst_core::entities::geometry
+  typst_core::entities::elements::block → typst_core::entities::layout_types
+  typst_core::entities::elements::block → typst_core::entities::sides
+  typst_core::entities::elements::block → typst_core::entities::source_result
+  typst_core::entities::elements::boxed → typst_core::entities::color
+  typst_core::entities::elements::boxed → typst_core::entities::content
+  typst_core::entities::elements::boxed → typst_core::entities::corners
+  typst_core::entities::elements::boxed → typst_core::entities::elements
+  typst_core::entities::elements::boxed → typst_core::entities::geometry
+  typst_core::entities::elements::boxed → typst_core::entities::layout_types
+  typst_core::entities::elements::boxed → typst_core::entities::sides
+  typst_core::entities::elements::boxed → typst_core::entities::source_result
+  typst_core::entities::elements::cite → typst_core::entities::citation_form
+  typst_core::entities::elements::cite → typst_core::entities::content
+  typst_core::entities::elements::cite → typst_core::entities::element_kind
+  typst_core::entities::elements::cite → typst_core::entities::element_payload
+  typst_core::entities::elements::cite → typst_core::entities::elements
+  typst_core::entities::elements::cite → typst_core::entities::source_result
+  typst_core::entities::elements::colbreak → typst_core::entities::content
+  typst_core::entities::elements::colbreak → typst_core::entities::elements
+  typst_core::entities::elements::colbreak → typst_core::entities::source_result
+  typst_core::entities::elements::columns → typst_core::entities::content
+  typst_core::entities::elements::columns → typst_core::entities::elements
+  typst_core::entities::elements::columns → typst_core::entities::layout_types
+  typst_core::entities::elements::columns → typst_core::entities::source_result
+  typst_core::entities::elements::counter_display → typst_core::entities::content
+  typst_core::entities::elements::counter_display → typst_core::entities::elements
+  typst_core::entities::elements::counter_display → typst_core::entities::source_result
+  typst_core::entities::elements::counter_display_callback → typst_core::entities::content
+  typst_core::entities::elements::counter_display_callback → typst_core::entities::element_kind
+  typst_core::entities::elements::counter_display_callback → typst_core::entities::element_payload
+  typst_core::entities::elements::counter_display_callback → typst_core::entities::elements
+  typst_core::entities::elements::counter_display_callback → typst_core::entities::func
+  typst_core::entities::elements::counter_display_callback → typst_core::entities::source_result
+  typst_core::entities::elements::counter_update → typst_core::entities::content
+  typst_core::entities::elements::counter_update → typst_core::entities::counter_update
+  typst_core::entities::elements::counter_update → typst_core::entities::element_kind
+  typst_core::entities::elements::counter_update → typst_core::entities::element_payload
+  typst_core::entities::elements::counter_update → typst_core::entities::elements
+  typst_core::entities::elements::counter_update → typst_core::entities::source_result
+  typst_core::entities::elements::divider → typst_core::entities::content
+  typst_core::entities::elements::divider → typst_core::entities::elements
+  typst_core::entities::elements::divider → typst_core::entities::source_result
+  typst_core::entities::elements::dynamic → typst_core::entities::content
+  typst_core::entities::elements::dynamic → typst_core::entities::element_kind
+  typst_core::entities::elements::dynamic → typst_core::entities::element_payload
+  typst_core::entities::elements::dynamic → typst_core::entities::elements
+  typst_core::entities::elements::dynamic → typst_core::entities::source_result
+  typst_core::entities::elements::dynamic → typst_core::entities::value
+  typst_core::entities::elements::emph → typst_core::entities::content
+  typst_core::entities::elements::emph → typst_core::entities::elements
+  typst_core::entities::elements::emph → typst_core::entities::source_result
+  typst_core::entities::elements::emph → typst_core::entities::value
+  typst_core::entities::elements::enum_item → typst_core::entities::content
+  typst_core::entities::elements::enum_item → typst_core::entities::elements
+  typst_core::entities::elements::enum_item → typst_core::entities::source_result
+  typst_core::entities::elements::equation → typst_core::entities::content
+  typst_core::entities::elements::equation → typst_core::entities::counter_update
+  typst_core::entities::elements::equation → typst_core::entities::element_kind
+  typst_core::entities::elements::equation → typst_core::entities::element_payload
+  typst_core::entities::elements::equation → typst_core::entities::elements
+  typst_core::entities::elements::equation → typst_core::entities::source_result
+  typst_core::entities::elements::figure → typst_core::entities::content
+  typst_core::entities::elements::figure → typst_core::entities::counter_update
+  typst_core::entities::elements::figure → typst_core::entities::element_kind
+  typst_core::entities::elements::figure → typst_core::entities::element_payload
+  typst_core::entities::elements::figure → typst_core::entities::elements
+  typst_core::entities::elements::figure → typst_core::entities::source_result
+  typst_core::entities::elements::footnote → typst_core::entities::content
+  typst_core::entities::elements::footnote → typst_core::entities::elements
+  typst_core::entities::elements::footnote → typst_core::entities::source_result
+  typst_core::entities::elements::grid → typst_core::entities::color
+  typst_core::entities::elements::grid → typst_core::entities::content
+  typst_core::entities::elements::grid → typst_core::entities::elements
+  typst_core::entities::elements::grid → typst_core::entities::geometry
+  typst_core::entities::elements::grid → typst_core::entities::layout_types
+  typst_core::entities::elements::grid → typst_core::entities::sides
+  typst_core::entities::elements::grid → typst_core::entities::source_result
+  typst_core::entities::elements::grid_cell → typst_core::entities::color
+  typst_core::entities::elements::grid_cell → typst_core::entities::content
+  typst_core::entities::elements::grid_cell → typst_core::entities::elements
+  typst_core::entities::elements::grid_cell → typst_core::entities::geometry
+  typst_core::entities::elements::grid_cell → typst_core::entities::layout_types
+  typst_core::entities::elements::grid_cell → typst_core::entities::sides
+  typst_core::entities::elements::grid_cell → typst_core::entities::source_result
+  typst_core::entities::elements::grid_footer → typst_core::entities::content
+  typst_core::entities::elements::grid_footer → typst_core::entities::elements
+  typst_core::entities::elements::grid_footer → typst_core::entities::source_result
+  typst_core::entities::elements::grid_header → typst_core::entities::content
+  typst_core::entities::elements::grid_header → typst_core::entities::elements
+  typst_core::entities::elements::grid_header → typst_core::entities::source_result
+  typst_core::entities::elements::h_space → typst_core::entities::content
+  typst_core::entities::elements::h_space → typst_core::entities::elements
+  typst_core::entities::elements::h_space → typst_core::entities::layout_types
+  typst_core::entities::elements::h_space → typst_core::entities::source_result
+  typst_core::entities::elements::heading → typst_core::entities::content
+  typst_core::entities::elements::heading → typst_core::entities::content_hash
+  typst_core::entities::elements::heading → typst_core::entities::counter_update
+  typst_core::entities::elements::heading → typst_core::entities::element_kind
+  typst_core::entities::elements::heading → typst_core::entities::element_payload
+  typst_core::entities::elements::heading → typst_core::entities::elements
+  typst_core::entities::elements::heading → typst_core::entities::source_result
+  typst_core::entities::elements::heading → typst_core::entities::value
+  typst_core::entities::elements::hide → typst_core::entities::content
+  typst_core::entities::elements::hide → typst_core::entities::elements
+  typst_core::entities::elements::hide → typst_core::entities::source_result
+  typst_core::entities::elements::image → typst_core::entities::content
+  typst_core::entities::elements::image → typst_core::entities::elements
+  typst_core::entities::elements::image → typst_core::entities::ptr_eq_arc
+  typst_core::entities::elements::image → typst_core::entities::source_result
+  typst_core::entities::elements::image → typst_core::entities::value
+  typst_core::entities::elements::labelled → typst_core::entities::content
+  typst_core::entities::elements::labelled → typst_core::entities::elements
+  typst_core::entities::elements::labelled → typst_core::entities::label
+  typst_core::entities::elements::labelled → typst_core::entities::source_result
+  typst_core::entities::elements::linebreak → typst_core::entities::content
+  typst_core::entities::elements::linebreak → typst_core::entities::elements
+  typst_core::entities::elements::linebreak → typst_core::entities::source_result
+  typst_core::entities::elements::link → typst_core::entities::content
+  typst_core::entities::elements::link → typst_core::entities::elements
+  typst_core::entities::elements::link → typst_core::entities::source_result
+  typst_core::entities::elements::list_item → typst_core::entities::content
+  typst_core::entities::elements::list_item → typst_core::entities::elements
+  typst_core::entities::elements::list_item → typst_core::entities::source_result
+  typst_core::entities::elements::math_accent → typst_core::entities::content
+  typst_core::entities::elements::math_accent → typst_core::entities::elements
+  typst_core::entities::elements::math_accent → typst_core::entities::source_result
+  typst_core::entities::elements::math_align_point → typst_core::entities::content
+  typst_core::entities::elements::math_align_point → typst_core::entities::elements
+  typst_core::entities::elements::math_align_point → typst_core::entities::source_result
+  typst_core::entities::elements::math_attach → typst_core::entities::content
+  typst_core::entities::elements::math_attach → typst_core::entities::elements
+  typst_core::entities::elements::math_attach → typst_core::entities::source_result
+  typst_core::entities::elements::math_cancel → typst_core::entities::content
+  typst_core::entities::elements::math_cancel → typst_core::entities::elements
+  typst_core::entities::elements::math_cancel → typst_core::entities::source_result
+  typst_core::entities::elements::math_cases → typst_core::entities::content
+  typst_core::entities::elements::math_cases → typst_core::entities::elements
+  typst_core::entities::elements::math_cases → typst_core::entities::source_result
+  typst_core::entities::elements::math_delimited → typst_core::entities::content
+  typst_core::entities::elements::math_delimited → typst_core::entities::elements
+  typst_core::entities::elements::math_delimited → typst_core::entities::source_result
+  typst_core::entities::elements::math_frac → typst_core::entities::content
+  typst_core::entities::elements::math_frac → typst_core::entities::elements
+  typst_core::entities::elements::math_frac → typst_core::entities::source_result
+  typst_core::entities::elements::math_matrix → typst_core::entities::content
+  typst_core::entities::elements::math_matrix → typst_core::entities::elements
+  typst_core::entities::elements::math_matrix → typst_core::entities::source_result
+  typst_core::entities::elements::math_op → typst_core::entities::content
+  typst_core::entities::elements::math_op → typst_core::entities::elements
+  typst_core::entities::elements::math_op → typst_core::entities::source_result
+  typst_core::entities::elements::math_root → typst_core::entities::content
+  typst_core::entities::elements::math_root → typst_core::entities::elements
+  typst_core::entities::elements::math_root → typst_core::entities::source_result
+  typst_core::entities::elements::math_styled → typst_core::entities::content
+  typst_core::entities::elements::math_styled → typst_core::entities::elements
+  typst_core::entities::elements::math_styled → typst_core::entities::math_style
+  typst_core::entities::elements::math_styled → typst_core::entities::source_result
+  typst_core::entities::elements::math_underover → typst_core::entities::content
+  typst_core::entities::elements::math_underover → typst_core::entities::elements
+  typst_core::entities::elements::math_underover → typst_core::entities::source_result
+  typst_core::entities::elements::metadata → typst_core::entities::content
+  typst_core::entities::elements::metadata → typst_core::entities::element_kind
+  typst_core::entities::elements::metadata → typst_core::entities::element_payload
+  typst_core::entities::elements::metadata → typst_core::entities::elements
+  typst_core::entities::elements::metadata → typst_core::entities::source_result
+  typst_core::entities::elements::metadata → typst_core::entities::value
+  typst_core::entities::elements::outline → typst_core::entities::content
+  typst_core::entities::elements::outline → typst_core::entities::element_kind
+  typst_core::entities::elements::outline → typst_core::entities::element_payload
+  typst_core::entities::elements::outline → typst_core::entities::elements
+  typst_core::entities::elements::outline → typst_core::entities::source_result
+  typst_core::entities::elements::overline → typst_core::entities::color
+  typst_core::entities::elements::overline → typst_core::entities::content
+  typst_core::entities::elements::overline → typst_core::entities::elements
+  typst_core::entities::elements::overline → typst_core::entities::layout_types
+  typst_core::entities::elements::overline → typst_core::entities::source_result
+  typst_core::entities::elements::pad → typst_core::entities::content
+  typst_core::entities::elements::pad → typst_core::entities::elements
+  typst_core::entities::elements::pad → typst_core::entities::layout_types
+  typst_core::entities::elements::pad → typst_core::entities::sides
+  typst_core::entities::elements::pad → typst_core::entities::source_result
+  typst_core::entities::elements::pagebreak → typst_core::entities::content
+  typst_core::entities::elements::pagebreak → typst_core::entities::elements
+  typst_core::entities::elements::pagebreak → typst_core::entities::parity
+  typst_core::entities::elements::pagebreak → typst_core::entities::source_result
+  typst_core::entities::elements::place → typst_core::entities::content
+  typst_core::entities::elements::place → typst_core::entities::elements
+  typst_core::entities::elements::place → typst_core::entities::layout_types
+  typst_core::entities::elements::place → typst_core::entities::source_result
+  typst_core::entities::elements::quote → typst_core::entities::content
+  typst_core::entities::elements::quote → typst_core::entities::elements
+  typst_core::entities::elements::quote → typst_core::entities::source_result
+  typst_core::entities::elements::r#ref → typst_core::entities::content
+  typst_core::entities::elements::r#ref → typst_core::entities::elements
+  typst_core::entities::elements::r#ref → typst_core::entities::label
+  typst_core::entities::elements::r#ref → typst_core::entities::source_result
+  typst_core::entities::elements::raw → typst_core::entities::content
+  typst_core::entities::elements::raw → typst_core::entities::elements
+  typst_core::entities::elements::raw → typst_core::entities::source_result
+  typst_core::entities::elements::repeat → typst_core::entities::content
+  typst_core::entities::elements::repeat → typst_core::entities::elements
+  typst_core::entities::elements::repeat → typst_core::entities::layout_types
+  typst_core::entities::elements::repeat → typst_core::entities::source_result
+  typst_core::entities::elements::shape → typst_core::entities::content
+  typst_core::entities::elements::shape → typst_core::entities::elements
+  typst_core::entities::elements::shape → typst_core::entities::geometry
+  typst_core::entities::elements::shape → typst_core::entities::paint
+  typst_core::entities::elements::shape → typst_core::entities::source_result
+  typst_core::entities::elements::shape → typst_core::entities::value
+  typst_core::entities::elements::smartquote → typst_core::entities::content
+  typst_core::entities::elements::smartquote → typst_core::entities::elements
+  typst_core::entities::elements::smartquote → typst_core::entities::source_result
+  typst_core::entities::elements::stack → typst_core::entities::content
+  typst_core::entities::elements::stack → typst_core::entities::dir
+  typst_core::entities::elements::stack → typst_core::entities::elements
+  typst_core::entities::elements::stack → typst_core::entities::layout_types
+  typst_core::entities::elements::stack → typst_core::entities::source_result
+  typst_core::entities::elements::state → typst_core::entities::content
+  typst_core::entities::elements::state → typst_core::entities::element_kind
+  typst_core::entities::elements::state → typst_core::entities::element_payload
+  typst_core::entities::elements::state → typst_core::entities::elements
+  typst_core::entities::elements::state → typst_core::entities::source_result
+  typst_core::entities::elements::state → typst_core::entities::value
+  typst_core::entities::elements::state_display → typst_core::entities::content
+  typst_core::entities::elements::state_display → typst_core::entities::element_kind
+  typst_core::entities::elements::state_display → typst_core::entities::element_payload
+  typst_core::entities::elements::state_display → typst_core::entities::elements
+  typst_core::entities::elements::state_display → typst_core::entities::func
+  typst_core::entities::elements::state_display → typst_core::entities::source_result
+  typst_core::entities::elements::state_update → typst_core::entities::content
+  typst_core::entities::elements::state_update → typst_core::entities::element_kind
+  typst_core::entities::elements::state_update → typst_core::entities::element_payload
+  typst_core::entities::elements::state_update → typst_core::entities::elements
+  typst_core::entities::elements::state_update → typst_core::entities::source_result
+  typst_core::entities::elements::state_update → typst_core::entities::state_update
+  typst_core::entities::elements::strike → typst_core::entities::color
+  typst_core::entities::elements::strike → typst_core::entities::content
+  typst_core::entities::elements::strike → typst_core::entities::elements
+  typst_core::entities::elements::strike → typst_core::entities::layout_types
+  typst_core::entities::elements::strike → typst_core::entities::source_result
+  typst_core::entities::elements::strong → typst_core::entities::content
+  typst_core::entities::elements::strong → typst_core::entities::elements
+  typst_core::entities::elements::strong → typst_core::entities::source_result
+  typst_core::entities::elements::strong → typst_core::entities::value
+  typst_core::entities::elements::table → typst_core::entities::color
+  typst_core::entities::elements::table → typst_core::entities::content
+  typst_core::entities::elements::table → typst_core::entities::elements
+  typst_core::entities::elements::table → typst_core::entities::geometry
+  typst_core::entities::elements::table → typst_core::entities::layout_types
+  typst_core::entities::elements::table → typst_core::entities::source_result
+  typst_core::entities::elements::table_cell → typst_core::entities::color
+  typst_core::entities::elements::table_cell → typst_core::entities::content
+  typst_core::entities::elements::table_cell → typst_core::entities::elements
+  typst_core::entities::elements::table_cell → typst_core::entities::geometry
+  typst_core::entities::elements::table_cell → typst_core::entities::layout_types
+  typst_core::entities::elements::table_cell → typst_core::entities::sides
+  typst_core::entities::elements::table_cell → typst_core::entities::source_result
+  typst_core::entities::elements::table_footer → typst_core::entities::content
+  typst_core::entities::elements::table_footer → typst_core::entities::elements
+  typst_core::entities::elements::table_footer → typst_core::entities::source_result
+  typst_core::entities::elements::table_header → typst_core::entities::content
+  typst_core::entities::elements::table_header → typst_core::entities::elements
+  typst_core::entities::elements::table_header → typst_core::entities::source_result
+  typst_core::entities::elements::term_item → typst_core::entities::content
+  typst_core::entities::elements::term_item → typst_core::entities::elements
+  typst_core::entities::elements::term_item → typst_core::entities::source_result
+  typst_core::entities::elements::terms → typst_core::entities::content
+  typst_core::entities::elements::terms → typst_core::entities::elements
+  typst_core::entities::elements::terms → typst_core::entities::source_result
+  typst_core::entities::elements::transform → typst_core::entities::content
+  typst_core::entities::elements::transform → typst_core::entities::elements
+  typst_core::entities::elements::transform → typst_core::entities::layout_types
+  typst_core::entities::elements::transform → typst_core::entities::source_result
+  typst_core::entities::elements::underline → typst_core::entities::color
+  typst_core::entities::elements::underline → typst_core::entities::content
+  typst_core::entities::elements::underline → typst_core::entities::elements
+  typst_core::entities::elements::underline → typst_core::entities::layout_types
+  typst_core::entities::elements::underline → typst_core::entities::source_result
+  typst_core::entities::elements::v_space → typst_core::entities::content
+  typst_core::entities::elements::v_space → typst_core::entities::elements
+  typst_core::entities::elements::v_space → typst_core::entities::layout_types
+  typst_core::entities::elements::v_space → typst_core::entities::source_result
+  typst_core::entities::engine → typst_core::contracts::world
+  typst_core::entities::engine → typst_core::entities::file_id
+  typst_core::entities::engine → typst_core::entities::show
+  typst_core::entities::engine → typst_core::entities::sink
+  typst_core::entities::engine → typst_core::entities::style_chain
+  typst_core::entities::engine → typst_core::entities::world_types
+  typst_core::entities::file_id → alloc::fmt
+  typst_core::entities::font_book → typst_core::entities::font_list
+  typst_core::entities::font_list → typst_core::entities::regex
+  typst_core::entities::func → typst_core::contracts::world
+  typst_core::entities::func → typst_core::entities::args
+  typst_core::entities::func → typst_core::entities::content
+  typst_core::entities::func → typst_core::entities::engine
+  typst_core::entities::func → typst_core::entities::file_id
+  typst_core::entities::func → typst_core::entities::scope
+  typst_core::entities::func → typst_core::entities::source_result
+  typst_core::entities::func → typst_core::entities::syntax_node
+  typst_core::entities::func → typst_core::entities::value
+  typst_core::entities::func → typst_core::rules::eval
+  typst_core::entities::func → typst_core::rules::scopes
+  typst_core::entities::geometry → typst_core::entities::corners
+  typst_core::entities::geometry → typst_core::entities::layout_types
+  typst_core::entities::geometry → typst_core::entities::paint
+  typst_core::entities::gradient → typst_core::entities::axes
+  typst_core::entities::gradient → typst_core::entities::color
+  typst_core::entities::gradient → typst_core::entities::layout_types
+  typst_core::entities::introspector → typst_core::entities::bib_entry
+  typst_core::entities::introspector → typst_core::entities::bib_store
+  typst_core::entities::introspector → typst_core::entities::content
+  typst_core::entities::introspector → typst_core::entities::counter_registry
+  typst_core::entities::introspector → typst_core::entities::element_kind
+  typst_core::entities::introspector → typst_core::entities::label
+  typst_core::entities::introspector → typst_core::entities::label_registry
+  typst_core::entities::introspector → typst_core::entities::location
+  typst_core::entities::introspector → typst_core::entities::metadata_store
+  typst_core::entities::introspector → typst_core::entities::page_store
+  typst_core::entities::introspector → typst_core::entities::position
+  typst_core::entities::introspector → typst_core::entities::resolved_label_store
+  typst_core::entities::introspector → typst_core::entities::sealed_positions
+  typst_core::entities::introspector → typst_core::entities::selector
+  typst_core::entities::introspector → typst_core::entities::state_registry
+  typst_core::entities::introspector → typst_core::entities::value
+  typst_core::entities::label_registry → typst_core::entities::label
+  typst_core::entities::label_registry → typst_core::entities::location
+  typst_core::entities::layout_types → typst_core::entities::color
+  typst_core::entities::layout_types → typst_core::entities::font_list
+  typst_core::entities::layout_types → typst_core::entities::geometry
+  typst_core::entities::layout_types → typst_core::entities::label
+  typst_core::entities::layout_types → typst_core::entities::lang
+  typst_core::entities::layout_types → typst_core::entities::sealed_positions
+  typst_core::entities::layout_types → typst_core::entities::style_chain
+  typst_core::entities::layouter_runtime_state → typst_core::entities::label
+  typst_core::entities::layouter_runtime_state → typst_core::entities::location
+  typst_core::entities::layouter_runtime_state → typst_core::entities::position
+  typst_core::entities::locator → typst_core::entities::location
+  typst_core::entities::math_class → unicode_math_class
+  typst_core::entities::math_constants → typst_core::entities::layout_types
+  typst_core::entities::metadata_store → typst_core::entities::value
+  typst_core::entities::module → typst_core::entities::content
+  typst_core::entities::module → typst_core::entities::scope
+  typst_core::entities::operators → typst_core::entities::syntax_kind
+  typst_core::entities::package_spec → alloc::fmt
+  typst_core::entities::package_spec → typst_core::rules::lexer
+  typst_core::entities::package_spec → typst_core::rules::lexer::scanner
+  typst_core::entities::page_store → typst_core::entities::content
+  typst_core::entities::paint → typst_core::entities::color
+  typst_core::entities::paint → typst_core::entities::gradient
+  typst_core::entities::paint → typst_core::entities::tiling
+  typst_core::entities::position → typst_core::entities::layout_types
+  typst_core::entities::regex → alloc::fmt
+  typst_core::entities::region → typst_core::entities::layout_types
+  typst_core::entities::resolved_label_store → typst_core::entities::label
+  typst_core::entities::scope → typst_core::entities::value
+  typst_core::entities::sealed_positions → typst_core::entities::location
+  typst_core::entities::sealed_positions → typst_core::entities::position
+  typst_core::entities::selector → typst_core::entities::element_kind
+  typst_core::entities::selector → typst_core::entities::label
+  typst_core::entities::selector → typst_core::entities::location
+  typst_core::entities::selector → typst_core::entities::regex
+  typst_core::entities::selector → typst_core::entities::value
+  typst_core::entities::show → typst_core::entities::content
+  typst_core::entities::show → typst_core::entities::func
+  typst_core::entities::show → typst_core::entities::regex
+  typst_core::entities::show → typst_core::entities::style
+  typst_core::entities::show → typst_core::entities::value
+  typst_core::entities::sink → typst_core::entities::source_result
+  typst_core::entities::sink → typst_core::entities::span
+  typst_core::entities::source → typst_core::entities::file_id
+  typst_core::entities::source → typst_core::entities::span
+  typst_core::entities::source → typst_core::entities::syntax_node
+  typst_core::entities::source → typst_core::rules::parse
+  typst_core::entities::source_result → typst_core::entities::span
+  typst_core::entities::span → alloc::fmt
+  typst_core::entities::span → typst_core::entities::file_id
+  typst_core::entities::state_registry → typst_core::entities::location
+  typst_core::entities::state_registry → typst_core::entities::value
+  typst_core::entities::state_update → typst_core::entities::func
+  typst_core::entities::state_update → typst_core::entities::value
+  typst_core::entities::style → typst_core::entities::color
+  typst_core::entities::style → typst_core::entities::font_list
+  typst_core::entities::style → typst_core::entities::lang
+  typst_core::entities::style → typst_core::entities::layout_types
+  typst_core::entities::style → typst_core::entities::style_chain
+  typst_core::entities::style → typst_core::entities::value
+  typst_core::entities::style_chain → typst_core::entities::color
+  typst_core::entities::style_chain → typst_core::entities::font_list
+  typst_core::entities::style_chain → typst_core::entities::lang
+  typst_core::entities::style_chain → typst_core::entities::layout_types
+  typst_core::entities::style_chain → typst_core::entities::style
+  typst_core::entities::style_chain → typst_core::entities::value
+  typst_core::entities::syntax_node → alloc::fmt
+  typst_core::entities::syntax_node → typst_core::entities::file_id
+  typst_core::entities::syntax_node → typst_core::entities::span
+  typst_core::entities::syntax_node → typst_core::entities::syntax_kind
+  typst_core::entities::syntax_node → typst_core::entities::syntax_text
+  typst_core::entities::syntax_set → typst_core::entities::syntax_kind
+  typst_core::entities::syntax_text → alloc::fmt
+  typst_core::entities::tag → typst_core::entities::element_info
+  typst_core::entities::tag → typst_core::entities::location
+  typst_core::entities::tiling → typst_core::entities::color
+  typst_core::entities::tiling → typst_core::entities::elements::image
+  typst_core::entities::tiling → typst_core::entities::gradient
+  typst_core::entities::tiling → typst_core::entities::layout_types
+  typst_core::entities::value → typst_core::entities::bytes
+  typst_core::entities::value → typst_core::entities::color
+  typst_core::entities::value → typst_core::entities::content
+  typst_core::entities::value → typst_core::entities::decimal
+  typst_core::entities::value → typst_core::entities::duration
+  typst_core::entities::value → typst_core::entities::func
+  typst_core::entities::value → typst_core::entities::geometry
+  typst_core::entities::value → typst_core::entities::gradient
+  typst_core::entities::value → typst_core::entities::layout_types
+  typst_core::entities::value → typst_core::entities::location
+  typst_core::entities::value → typst_core::entities::module
+  typst_core::entities::value → typst_core::entities::regex
+  typst_core::entities::value → typst_core::entities::selector
+  typst_core::entities::value → typst_core::entities::tiling
+  typst_core::entities::value → typst_core::entities::version
+  typst_core::entities::value → typst_core::entities::world_types
+  typst_core::entities::world_types → typst_core::entities::file_id
+  typst_core::entities::world_types → typst_core::entities::sink
+  typst_core::entities::world_types → typst_core::entities::source_result
+  typst_core::entities::world_types → typst_core::entities::span
+  typst_core::rules::eval → typst_core::contracts::world
+  typst_core::rules::eval → typst_core::entities::ast
+  typst_core::rules::eval → typst_core::entities::ast::expr
+  typst_core::rules::eval → typst_core::entities::ast::markup
+  typst_core::rules::eval → typst_core::entities::content
+  typst_core::rules::eval → typst_core::entities::element_registry
+  typst_core::rules::eval → typst_core::entities::elements::bibliography
+  typst_core::rules::eval → typst_core::entities::engine
+  typst_core::rules::eval → typst_core::entities::func
+  typst_core::rules::eval → typst_core::entities::introspector
+  typst_core::rules::eval → typst_core::entities::label
+  typst_core::rules::eval → typst_core::entities::location
+  typst_core::rules::eval → typst_core::entities::module
+  typst_core::rules::eval → typst_core::entities::scope
+  typst_core::rules::eval → typst_core::entities::show
+  typst_core::rules::eval → typst_core::entities::sink
+  typst_core::rules::eval → typst_core::entities::source
+  typst_core::rules::eval → typst_core::entities::source_result
+  typst_core::rules::eval → typst_core::entities::span
+  typst_core::rules::eval → typst_core::entities::style_chain
+  typst_core::rules::eval → typst_core::entities::syntax_kind
+  typst_core::rules::eval → typst_core::entities::syntax_node
+  typst_core::rules::eval → typst_core::entities::value
+  typst_core::rules::eval → typst_core::entities::world_types
+  typst_core::rules::eval → typst_core::rules::scopes
+  typst_core::rules::eval::bibliography → typst_core::contracts::world
+  typst_core::rules::eval::bibliography → typst_core::entities::bib_entry
+  typst_core::rules::eval::bibliography → typst_core::entities::file_id
+  typst_core::rules::eval::bibliography → typst_core::entities::source_result
+  typst_core::rules::eval::bibliography → typst_core::entities::span
+  typst_core::rules::eval::bindings → typst_core::entities::ast
+  typst_core::rules::eval::bindings → typst_core::entities::ast::code
+  typst_core::rules::eval::bindings → typst_core::entities::ast::expr
+  typst_core::rules::eval::bindings → typst_core::entities::content
+  typst_core::rules::eval::bindings → typst_core::entities::counter_update
+  typst_core::rules::eval::bindings → typst_core::entities::element_kind
+  typst_core::rules::eval::bindings → typst_core::entities::engine
+  typst_core::rules::eval::bindings → typst_core::entities::selector
+  typst_core::rules::eval::bindings → typst_core::entities::source_result
+  typst_core::rules::eval::bindings → typst_core::entities::value
+  typst_core::rules::eval::bindings → typst_core::rules::eval
+  typst_core::rules::eval::bindings → typst_core::rules::scopes
+  typst_core::rules::eval::closures → typst_core::entities::args
+  typst_core::rules::eval::closures → typst_core::entities::ast
+  typst_core::rules::eval::closures → typst_core::entities::ast::expr
+  typst_core::rules::eval::closures → typst_core::entities::content
+  typst_core::rules::eval::closures → typst_core::entities::engine
+  typst_core::rules::eval::closures → typst_core::entities::func
+  typst_core::rules::eval::closures → typst_core::entities::source_result
+  typst_core::rules::eval::closures → typst_core::entities::value
+  typst_core::rules::eval::closures → typst_core::entities::world_types
+  typst_core::rules::eval::closures → typst_core::rules::eval
+  typst_core::rules::eval::closures → typst_core::rules::scopes
+  typst_core::rules::eval::control_flow → typst_core::entities::ast
+  typst_core::rules::eval::control_flow → typst_core::entities::ast::code
+  typst_core::rules::eval::control_flow → typst_core::entities::engine
+  typst_core::rules::eval::control_flow → typst_core::entities::source_result
+  typst_core::rules::eval::control_flow → typst_core::entities::value
+  typst_core::rules::eval::control_flow → typst_core::rules::eval
+  typst_core::rules::eval::control_flow → typst_core::rules::scopes
+  typst_core::rules::eval::markup → typst_core::entities::ast
+  typst_core::rules::eval::markup → typst_core::entities::ast::markup
+  typst_core::rules::eval::markup → typst_core::entities::content
+  typst_core::rules::eval::markup → typst_core::entities::engine
+  typst_core::rules::eval::markup → typst_core::entities::layout_types
+  typst_core::rules::eval::markup → typst_core::entities::source_result
+  typst_core::rules::eval::markup → typst_core::entities::style_chain
+  typst_core::rules::eval::markup → typst_core::entities::syntax_node
+  typst_core::rules::eval::markup → typst_core::entities::value
+  typst_core::rules::eval::markup → typst_core::rules::eval
+  typst_core::rules::eval::markup → typst_core::rules::eval::rules
+  typst_core::rules::eval::markup → typst_core::rules::scopes
+  typst_core::rules::eval::math → typst_core::entities::ast
+  typst_core::rules::eval::math → typst_core::entities::ast::expr
+  typst_core::rules::eval::math → typst_core::entities::ast::math
+  typst_core::rules::eval::math → typst_core::entities::content
+  typst_core::rules::eval::math → typst_core::entities::source_result
+  typst_core::rules::eval::math → typst_core::entities::value
+  typst_core::rules::eval::math → typst_core::rules::eval
+  typst_core::rules::eval::math → typst_core::rules::scopes
+  typst_core::rules::eval::modules → typst_core::entities::ast
+  typst_core::rules::eval::modules → typst_core::entities::ast::code
+  typst_core::rules::eval::modules → typst_core::entities::engine
+  typst_core::rules::eval::modules → typst_core::entities::source_result
+  typst_core::rules::eval::modules → typst_core::entities::span
+  typst_core::rules::eval::modules → typst_core::entities::value
+  typst_core::rules::eval::modules → typst_core::entities::world_types
+  typst_core::rules::eval::modules → typst_core::rules::eval
+  typst_core::rules::eval::modules → typst_core::rules::scopes
+  typst_core::rules::eval::operators → typst_core::entities::ast::expr
+  typst_core::rules::eval::operators → typst_core::entities::content
+  typst_core::rules::eval::operators → typst_core::entities::decimal
+  typst_core::rules::eval::operators → typst_core::entities::duration
+  typst_core::rules::eval::operators → typst_core::entities::value
+  typst_core::rules::eval::repr → typst_core::entities::content
+  typst_core::rules::eval::repr → typst_core::entities::selector
+  typst_core::rules::eval::repr → typst_core::entities::value
+  typst_core::rules::eval::rules → typst_core::entities::args
+  typst_core::rules::eval::rules → typst_core::entities::ast
+  typst_core::rules::eval::rules → typst_core::entities::ast::code
+  typst_core::rules::eval::rules → typst_core::entities::ast::expr
+  typst_core::rules::eval::rules → typst_core::entities::content
+  typst_core::rules::eval::rules → typst_core::entities::element_kind
+  typst_core::rules::eval::rules → typst_core::entities::engine
+  typst_core::rules::eval::rules → typst_core::entities::font_book
+  typst_core::rules::eval::rules → typst_core::entities::lang
+  typst_core::rules::eval::rules → typst_core::entities::selector
+  typst_core::rules::eval::rules → typst_core::entities::show
+  typst_core::rules::eval::rules → typst_core::entities::source_result
+  typst_core::rules::eval::rules → typst_core::entities::span
+  typst_core::rules::eval::rules → typst_core::entities::style
+  typst_core::rules::eval::rules → typst_core::entities::style_chain
+  typst_core::rules::eval::rules → typst_core::entities::value
+  typst_core::rules::eval::rules → typst_core::entities::world_types
+  typst_core::rules::eval::rules → typst_core::rules::eval
+  typst_core::rules::eval::rules → typst_core::rules::eval::closures
+  typst_core::rules::eval::rules → typst_core::rules::scopes
+  typst_core::rules::introspect → typst_core::entities::content
+  typst_core::rules::introspect → typst_core::entities::content_hash
+  typst_core::rules::introspect → typst_core::entities::counter_update
+  typst_core::rules::introspect → typst_core::entities::element_info
+  typst_core::rules::introspect → typst_core::entities::element_kind
+  typst_core::rules::introspect → typst_core::entities::element_payload
+  typst_core::rules::introspect → typst_core::entities::introspector
+  typst_core::rules::introspect → typst_core::entities::label
+  typst_core::rules::introspect → typst_core::entities::lang
+  typst_core::rules::introspect → typst_core::entities::location
+  typst_core::rules::introspect → typst_core::entities::locator
+  typst_core::rules::introspect → typst_core::entities::state_update
+  typst_core::rules::introspect → typst_core::entities::style_chain
+  typst_core::rules::introspect → typst_core::entities::tag
+  typst_core::rules::introspect → typst_core::entities::value
+  typst_core::rules::introspect → typst_core::rules::introspect::extract_payload
+  typst_core::rules::introspect::convergence → typst_core::entities::tag
+  typst_core::rules::introspect::extract_payload → typst_core::entities::content
+  typst_core::rules::introspect::extract_payload → typst_core::entities::element_payload
+  typst_core::rules::introspect::extract_payload → typst_core::entities::elements
+  typst_core::rules::introspect::fixpoint → typst_core::entities::content
+  typst_core::rules::introspect::fixpoint → typst_core::entities::engine
+  typst_core::rules::introspect::fixpoint → typst_core::entities::introspector
+  typst_core::rules::introspect::fixpoint → typst_core::entities::locator
+  typst_core::rules::introspect::fixpoint → typst_core::entities::source_result
+  typst_core::rules::introspect::fixpoint → typst_core::entities::tag
+  typst_core::rules::introspect::fixpoint → typst_core::rules::eval
+  typst_core::rules::introspect::fixpoint → typst_core::rules::introspect::convergence
+  typst_core::rules::introspect::fixpoint → typst_core::rules::introspect::from_tags
+  typst_core::rules::introspect::from_tags → typst_core::entities::args
+  typst_core::rules::introspect::from_tags → typst_core::entities::element_payload
+  typst_core::rules::introspect::from_tags → typst_core::entities::engine
+  typst_core::rules::introspect::from_tags → typst_core::entities::introspector
+  typst_core::rules::introspect::from_tags → typst_core::entities::state_update
+  typst_core::rules::introspect::from_tags → typst_core::entities::tag
+  typst_core::rules::introspect::from_tags → typst_core::rules::eval
+  typst_core::rules::introspect::from_tags → typst_core::rules::eval::closures
+  typst_core::rules::introspect::from_tags → typst_core::rules::scopes
+  typst_core::rules::introspect::heading → typst_core::entities::content
+  typst_core::rules::introspect::heading → typst_core::entities::introspector
+  typst_core::rules::introspect::heading → typst_core::entities::label
+  typst_core::rules::introspect::heading → typst_core::entities::location
+  typst_core::rules::introspect::labelled → typst_core::entities::content
+  typst_core::rules::introspect::labelled → typst_core::entities::introspector
+  typst_core::rules::introspect::labelled → typst_core::entities::lang
+  typst_core::rules::introspect::labelled → typst_core::entities::location
+  typst_core::rules::introspect::locatable → typst_core::entities::content
+  typst_core::rules::lang::figure_supplement → typst_core::entities::lang
+  typst_core::rules::lang::quotes → typst_core::entities::lang
+  typst_core::rules::layout → typst_core::entities::bib_entry
+  typst_core::rules::layout → typst_core::entities::color
+  typst_core::rules::layout → typst_core::entities::content
+  typst_core::rules::layout → typst_core::entities::dir
+  typst_core::rules::layout → typst_core::entities::elements::equation
+  typst_core::rules::layout → typst_core::entities::geometry
+  typst_core::rules::layout → typst_core::entities::image_sizer
+  typst_core::rules::layout → typst_core::entities::introspector
+  typst_core::rules::layout → typst_core::entities::layout_types
+  typst_core::rules::layout → typst_core::entities::layouter_runtime_state
+  typst_core::rules::layout → typst_core::entities::location
+  typst_core::rules::layout → typst_core::entities::locator
+  typst_core::rules::layout → typst_core::entities::region
+  typst_core::rules::layout → typst_core::entities::sides
+  typst_core::rules::layout → typst_core::entities::style_chain
+  typst_core::rules::layout → typst_core::rules::introspect::locatable
+  typst_core::rules::layout → typst_core::rules::layout::bib_csl
+  typst_core::rules::layout → typst_core::rules::layout::helpers
+  typst_core::rules::layout → typst_core::rules::layout::metrics
+  typst_core::rules::layout::bib_csl → typst_core::entities::bib_entry
+  typst_core::rules::layout::bib_csl → typst_core::entities::citation_form
+  typst_core::rules::layout::bib_csl → typst_core::entities::content
+  typst_core::rules::layout::bibliography → typst_core::entities::content
+  typst_core::rules::layout::bibliography → typst_core::entities::elements::bibliography
+  typst_core::rules::layout::bibliography → typst_core::entities::image_sizer
+  typst_core::rules::layout::bibliography → typst_core::rules::layout
+  typst_core::rules::layout::bibliography → typst_core::rules::layout::metrics
+  typst_core::rules::layout::block → typst_core::entities::elements::block
+  typst_core::rules::layout::block → typst_core::entities::image_sizer
+  typst_core::rules::layout::block → typst_core::entities::layout_types
+  typst_core::rules::layout::block → typst_core::rules::layout
+  typst_core::rules::layout::block → typst_core::rules::layout::metrics
+  typst_core::rules::layout::boxed → typst_core::entities::elements::boxed
+  typst_core::rules::layout::boxed → typst_core::entities::image_sizer
+  typst_core::rules::layout::boxed → typst_core::entities::layout_types
+  typst_core::rules::layout::boxed → typst_core::rules::layout
+  typst_core::rules::layout::boxed → typst_core::rules::layout::metrics
+  typst_core::rules::layout::cite → typst_core::entities::citation_form
+  typst_core::rules::layout::cite → typst_core::entities::content
+  typst_core::rules::layout::cite → typst_core::entities::elements::cite
+  typst_core::rules::layout::cite → typst_core::entities::image_sizer
+  typst_core::rules::layout::cite → typst_core::entities::introspector
+  typst_core::rules::layout::cite → typst_core::rules::layout
+  typst_core::rules::layout::cite → typst_core::rules::layout::metrics
+  typst_core::rules::layout::colbreak → typst_core::entities::elements::colbreak
+  typst_core::rules::layout::colbreak → typst_core::entities::image_sizer
+  typst_core::rules::layout::colbreak → typst_core::rules::layout
+  typst_core::rules::layout::colbreak → typst_core::rules::layout::metrics
+  typst_core::rules::layout::columns → typst_core::entities::elements::columns
+  typst_core::rules::layout::columns → typst_core::entities::image_sizer
+  typst_core::rules::layout::columns → typst_core::rules::layout
+  typst_core::rules::layout::columns → typst_core::rules::layout::metrics
+  typst_core::rules::layout::cursor → typst_core::entities::image_sizer
+  typst_core::rules::layout::cursor → typst_core::entities::layout_types
+  typst_core::rules::layout::cursor → typst_core::rules::layout
+  typst_core::rules::layout::cursor → typst_core::rules::layout::helpers
+  typst_core::rules::layout::cursor → typst_core::rules::layout::metrics
+  typst_core::rules::layout::decorations → typst_core::entities::content
+  typst_core::rules::layout::decorations → typst_core::entities::image_sizer
+  typst_core::rules::layout::decorations → typst_core::entities::layout_types
+  typst_core::rules::layout::decorations → typst_core::rules::layout
+  typst_core::rules::layout::decorations → typst_core::rules::layout::metrics
+  typst_core::rules::layout::divider → typst_core::entities::color
+  typst_core::rules::layout::divider → typst_core::entities::elements::divider
+  typst_core::rules::layout::divider → typst_core::entities::geometry
+  typst_core::rules::layout::divider → typst_core::entities::image_sizer
+  typst_core::rules::layout::divider → typst_core::entities::layout_types
+  typst_core::rules::layout::divider → typst_core::entities::paint
+  typst_core::rules::layout::divider → typst_core::rules::layout
+  typst_core::rules::layout::divider → typst_core::rules::layout::metrics
+  typst_core::rules::layout::dynamic → typst_core::entities::content
+  typst_core::rules::layout::dynamic → typst_core::entities::elements::dynamic
+  typst_core::rules::layout::dynamic → typst_core::entities::image_sizer
+  typst_core::rules::layout::dynamic → typst_core::entities::value
+  typst_core::rules::layout::dynamic → typst_core::rules::layout
+  typst_core::rules::layout::dynamic → typst_core::rules::layout::metrics
+  typst_core::rules::layout::enum_item → typst_core::entities::elements::enum_item
+  typst_core::rules::layout::enum_item → typst_core::entities::image_sizer
+  typst_core::rules::layout::enum_item → typst_core::entities::layout_types
+  typst_core::rules::layout::enum_item → typst_core::rules::layout
+  typst_core::rules::layout::enum_item → typst_core::rules::layout::metrics
+  typst_core::rules::layout::equation → typst_core::entities::content
+  typst_core::rules::layout::equation → typst_core::entities::elements::equation
+  typst_core::rules::layout::equation → typst_core::entities::image_sizer
+  typst_core::rules::layout::equation → typst_core::entities::layout_types
+  typst_core::rules::layout::equation → typst_core::rules::layout::metrics
+  typst_core::rules::layout::equation → typst_core::rules::math
+  typst_core::rules::layout::figure → typst_core::entities::content
+  typst_core::rules::layout::figure → typst_core::entities::elements::figure
+  typst_core::rules::layout::figure → typst_core::entities::image_sizer
+  typst_core::rules::layout::figure → typst_core::entities::introspector
+  typst_core::rules::layout::figure → typst_core::rules::layout
+  typst_core::rules::layout::figure → typst_core::rules::layout::metrics
+  typst_core::rules::layout::footnote → typst_core::entities::content
+  typst_core::rules::layout::footnote → typst_core::entities::elements::footnote
+  typst_core::rules::layout::footnote → typst_core::entities::image_sizer
+  typst_core::rules::layout::footnote → typst_core::rules::layout
+  typst_core::rules::layout::footnote → typst_core::rules::layout::metrics
+  typst_core::rules::layout::grid → typst_core::entities::color
+  typst_core::rules::layout::grid → typst_core::entities::content
+  typst_core::rules::layout::grid → typst_core::entities::elements::grid
+  typst_core::rules::layout::grid → typst_core::entities::geometry
+  typst_core::rules::layout::grid → typst_core::entities::image_sizer
+  typst_core::rules::layout::grid → typst_core::entities::layout_types
+  typst_core::rules::layout::grid → typst_core::entities::sides
+  typst_core::rules::layout::grid → typst_core::rules::layout
+  typst_core::rules::layout::grid → typst_core::rules::layout::grid_placement
+  typst_core::rules::layout::grid → typst_core::rules::layout::helpers
+  typst_core::rules::layout::grid → typst_core::rules::layout::metrics
+  typst_core::rules::layout::grid_cell → typst_core::entities::elements::grid_cell
+  typst_core::rules::layout::grid_cell → typst_core::entities::image_sizer
+  typst_core::rules::layout::grid_cell → typst_core::rules::layout
+  typst_core::rules::layout::grid_cell → typst_core::rules::layout::metrics
+  typst_core::rules::layout::grid_footer → typst_core::entities::elements::grid_footer
+  typst_core::rules::layout::grid_footer → typst_core::entities::image_sizer
+  typst_core::rules::layout::grid_footer → typst_core::rules::layout
+  typst_core::rules::layout::grid_footer → typst_core::rules::layout::metrics
+  typst_core::rules::layout::grid_header → typst_core::entities::elements::grid_header
+  typst_core::rules::layout::grid_header → typst_core::entities::image_sizer
+  typst_core::rules::layout::grid_header → typst_core::rules::layout
+  typst_core::rules::layout::grid_header → typst_core::rules::layout::metrics
+  typst_core::rules::layout::grid_placement → typst_core::entities::content
+  typst_core::rules::layout::grid_placement → typst_core::entities::source_result
+  typst_core::rules::layout::grid_placement → typst_core::entities::span
+  typst_core::rules::layout::h_space → typst_core::entities::elements::h_space
+  typst_core::rules::layout::h_space → typst_core::entities::image_sizer
+  typst_core::rules::layout::h_space → typst_core::entities::layout_types
+  typst_core::rules::layout::h_space → typst_core::rules::layout
+  typst_core::rules::layout::h_space → typst_core::rules::layout::metrics
+  typst_core::rules::layout::heading → typst_core::entities::content
+  typst_core::rules::layout::heading → typst_core::entities::elements::heading
+  typst_core::rules::layout::heading → typst_core::entities::image_sizer
+  typst_core::rules::layout::heading → typst_core::entities::introspector
+  typst_core::rules::layout::heading → typst_core::entities::layout_types
+  typst_core::rules::layout::heading → typst_core::rules::layout
+  typst_core::rules::layout::heading → typst_core::rules::layout::helpers
+  typst_core::rules::layout::heading → typst_core::rules::layout::metrics
+  typst_core::rules::layout::helpers → typst_core::entities::content
+  typst_core::rules::layout::helpers → typst_core::entities::geometry
+  typst_core::rules::layout::helpers → typst_core::entities::layout_types
+  typst_core::rules::layout::helpers → typst_core::entities::value
+  typst_core::rules::layout::hide → typst_core::entities::elements::hide
+  typst_core::rules::layout::hide → typst_core::entities::image_sizer
+  typst_core::rules::layout::hide → typst_core::rules::layout
+  typst_core::rules::layout::hide → typst_core::rules::layout::metrics
+  typst_core::rules::layout::hyphenation → typst_core::entities::lang
+  typst_core::rules::layout::image → typst_core::entities::elements::image
+  typst_core::rules::layout::image → typst_core::entities::image_sizer
+  typst_core::rules::layout::image → typst_core::entities::layout_types
+  typst_core::rules::layout::image → typst_core::entities::value
+  typst_core::rules::layout::image → typst_core::rules::layout
+  typst_core::rules::layout::image → typst_core::rules::layout::metrics
+  typst_core::rules::layout::link → typst_core::entities::elements::link
+  typst_core::rules::layout::link → typst_core::entities::image_sizer
+  typst_core::rules::layout::link → typst_core::entities::layout_types
+  typst_core::rules::layout::link → typst_core::rules::layout
+  typst_core::rules::layout::link → typst_core::rules::layout::metrics
+  typst_core::rules::layout::list_item → typst_core::entities::elements::list_item
+  typst_core::rules::layout::list_item → typst_core::entities::image_sizer
+  typst_core::rules::layout::list_item → typst_core::entities::layout_types
+  typst_core::rules::layout::list_item → typst_core::rules::layout
+  typst_core::rules::layout::list_item → typst_core::rules::layout::metrics
+  typst_core::rules::layout::metrics → typst_core::entities::glyph_variants
+  typst_core::rules::layout::metrics → typst_core::entities::layout_types
+  typst_core::rules::layout::metrics → typst_core::entities::math_constants
+  typst_core::rules::layout::outline → typst_core::entities::content
+  typst_core::rules::layout::outline → typst_core::entities::image_sizer
+  typst_core::rules::layout::outline → typst_core::entities::introspector
+  typst_core::rules::layout::outline → typst_core::rules::layout
+  typst_core::rules::layout::outline → typst_core::rules::layout::metrics
+  typst_core::rules::layout::pad → typst_core::entities::elements::pad
+  typst_core::rules::layout::pad → typst_core::entities::image_sizer
+  typst_core::rules::layout::pad → typst_core::entities::layout_types
+  typst_core::rules::layout::pad → typst_core::rules::layout
+  typst_core::rules::layout::pad → typst_core::rules::layout::metrics
+  typst_core::rules::layout::pagebreak → typst_core::entities::elements::pagebreak
+  typst_core::rules::layout::pagebreak → typst_core::entities::image_sizer
+  typst_core::rules::layout::pagebreak → typst_core::rules::layout
+  typst_core::rules::layout::pagebreak → typst_core::rules::layout::metrics
+  typst_core::rules::layout::place → typst_core::entities::elements::place
+  typst_core::rules::layout::place → typst_core::entities::image_sizer
+  typst_core::rules::layout::place → typst_core::entities::layout_types
+  typst_core::rules::layout::place → typst_core::rules::layout
+  typst_core::rules::layout::place → typst_core::rules::layout::helpers
+  typst_core::rules::layout::place → typst_core::rules::layout::metrics
+  typst_core::rules::layout::placement → typst_core::entities::content
+  typst_core::rules::layout::placement → typst_core::entities::image_sizer
+  typst_core::rules::layout::placement → typst_core::entities::layout_types
+  typst_core::rules::layout::placement → typst_core::rules::layout::helpers
+  typst_core::rules::layout::placement → typst_core::rules::layout::metrics
+  typst_core::rules::layout::quote → typst_core::entities::content
+  typst_core::rules::layout::quote → typst_core::entities::elements::quote
+  typst_core::rules::layout::quote → typst_core::entities::image_sizer
+  typst_core::rules::layout::quote → typst_core::entities::layout_types
+  typst_core::rules::layout::quote → typst_core::rules::layout
+  typst_core::rules::layout::quote → typst_core::rules::layout::metrics
+  typst_core::rules::layout::raw → typst_core::entities::elements::raw
+  typst_core::rules::layout::raw → typst_core::entities::image_sizer
+  typst_core::rules::layout::raw → typst_core::entities::layout_types
+  typst_core::rules::layout::raw → typst_core::rules::layout
+  typst_core::rules::layout::raw → typst_core::rules::layout::metrics
+  typst_core::rules::layout::references → typst_core::entities::content
+  typst_core::rules::layout::references → typst_core::entities::image_sizer
+  typst_core::rules::layout::references → typst_core::entities::label
+  typst_core::rules::layout::references → typst_core::rules::layout
+  typst_core::rules::layout::references → typst_core::rules::layout::metrics
+  typst_core::rules::layout::repeat → typst_core::entities::elements::repeat
+  typst_core::rules::layout::repeat → typst_core::entities::image_sizer
+  typst_core::rules::layout::repeat → typst_core::rules::layout
+  typst_core::rules::layout::repeat → typst_core::rules::layout::metrics
+  typst_core::rules::layout::sequence → typst_core::entities::content
+  typst_core::rules::layout::sequence → typst_core::entities::image_sizer
+  typst_core::rules::layout::sequence → typst_core::rules::layout
+  typst_core::rules::layout::sequence → typst_core::rules::layout::metrics
+  typst_core::rules::layout::set_page → typst_core::entities::image_sizer
+  typst_core::rules::layout::set_page → typst_core::entities::layout_types
+  typst_core::rules::layout::set_page → typst_core::rules::layout
+  typst_core::rules::layout::set_page → typst_core::rules::layout::metrics
+  typst_core::rules::layout::shape → typst_core::entities::elements::shape
+  typst_core::rules::layout::shape → typst_core::entities::geometry
+  typst_core::rules::layout::shape → typst_core::entities::image_sizer
+  typst_core::rules::layout::shape → typst_core::entities::layout_types
+  typst_core::rules::layout::shape → typst_core::rules::layout
+  typst_core::rules::layout::shape → typst_core::rules::layout::helpers
+  typst_core::rules::layout::shape → typst_core::rules::layout::metrics
+  typst_core::rules::layout::slicing → typst_core::entities::layout_types
+  typst_core::rules::layout::smartquote → typst_core::entities::elements::smartquote
+  typst_core::rules::layout::smartquote → typst_core::entities::image_sizer
+  typst_core::rules::layout::smartquote → typst_core::rules::layout
+  typst_core::rules::layout::smartquote → typst_core::rules::layout::metrics
+  typst_core::rules::layout::stack → typst_core::entities::content
+  typst_core::rules::layout::stack → typst_core::entities::elements::stack
+  typst_core::rules::layout::stack → typst_core::entities::image_sizer
+  typst_core::rules::layout::stack → typst_core::entities::layout_types
+  typst_core::rules::layout::stack → typst_core::rules::layout
+  typst_core::rules::layout::stack → typst_core::rules::layout::metrics
+  typst_core::rules::layout::table → typst_core::entities::elements::table
+  typst_core::rules::layout::table → typst_core::entities::image_sizer
+  typst_core::rules::layout::table → typst_core::rules::layout
+  typst_core::rules::layout::table → typst_core::rules::layout::metrics
+  typst_core::rules::layout::table_cell → typst_core::entities::elements::table_cell
+  typst_core::rules::layout::table_cell → typst_core::entities::image_sizer
+  typst_core::rules::layout::table_cell → typst_core::rules::layout
+  typst_core::rules::layout::table_cell → typst_core::rules::layout::metrics
+  typst_core::rules::layout::table_footer → typst_core::entities::elements::table_footer
+  typst_core::rules::layout::table_footer → typst_core::entities::image_sizer
+  typst_core::rules::layout::table_footer → typst_core::rules::layout
+  typst_core::rules::layout::table_footer → typst_core::rules::layout::metrics
+  typst_core::rules::layout::table_header → typst_core::entities::elements::table_header
+  typst_core::rules::layout::table_header → typst_core::entities::image_sizer
+  typst_core::rules::layout::table_header → typst_core::rules::layout
+  typst_core::rules::layout::table_header → typst_core::rules::layout::metrics
+  typst_core::rules::layout::term_item → typst_core::entities::content
+  typst_core::rules::layout::term_item → typst_core::entities::elements::term_item
+  typst_core::rules::layout::term_item → typst_core::entities::image_sizer
+  typst_core::rules::layout::term_item → typst_core::entities::layout_types
+  typst_core::rules::layout::term_item → typst_core::entities::style
+  typst_core::rules::layout::term_item → typst_core::rules::layout
+  typst_core::rules::layout::term_item → typst_core::rules::layout::metrics
+  typst_core::rules::layout::terms → typst_core::entities::elements::terms
+  typst_core::rules::layout::terms → typst_core::entities::image_sizer
+  typst_core::rules::layout::terms → typst_core::rules::layout
+  typst_core::rules::layout::terms → typst_core::rules::layout::metrics
+  typst_core::rules::layout::text → typst_core::entities::image_sizer
+  typst_core::rules::layout::text → typst_core::entities::layout_types
+  typst_core::rules::layout::text → typst_core::entities::value
+  typst_core::rules::layout::text → typst_core::rules::layout
+  typst_core::rules::layout::text → typst_core::rules::layout::metrics
+  typst_core::rules::layout::transform → typst_core::entities::elements::transform
+  typst_core::rules::layout::transform → typst_core::entities::image_sizer
+  typst_core::rules::layout::transform → typst_core::entities::layout_types
+  typst_core::rules::layout::transform → typst_core::rules::layout
+  typst_core::rules::layout::transform → typst_core::rules::layout::helpers
+  typst_core::rules::layout::transform → typst_core::rules::layout::metrics
+  typst_core::rules::layout::v_space → typst_core::entities::elements::v_space
+  typst_core::rules::layout::v_space → typst_core::entities::image_sizer
+  typst_core::rules::layout::v_space → typst_core::entities::layout_types
+  typst_core::rules::layout::v_space → typst_core::rules::layout
+  typst_core::rules::layout::v_space → typst_core::rules::layout::metrics
+  typst_core::rules::lexer → typst_core::entities::syntax_kind
+  typst_core::rules::lexer → typst_core::entities::syntax_mode
+  typst_core::rules::lexer → typst_core::entities::syntax_node
+  typst_core::rules::lexer → typst_core::entities::syntax_text
+  typst_core::rules::lexer → typst_core::rules::lexer::scanner
+  typst_core::rules::lexer::code → typst_core::entities::syntax_kind
+  typst_core::rules::lexer::code → typst_core::rules::lexer
+  typst_core::rules::lexer::markup → typst_core::entities::syntax_kind
+  typst_core::rules::lexer::markup → typst_core::entities::syntax_node
+  typst_core::rules::lexer::markup → typst_core::rules::lexer
+  typst_core::rules::lexer::markup → typst_core::rules::lexer::scanner
+  typst_core::rules::lexer::math → typst_core::entities::math_class
+  typst_core::rules::lexer::math → typst_core::entities::syntax_kind
+  typst_core::rules::lexer::math → typst_core::entities::syntax_node
+  typst_core::rules::lexer::math → typst_core::rules::lexer
+  typst_core::rules::lexer::scanner → alloc::fmt
+  typst_core::rules::math::layout → typst_core::entities::content
+  typst_core::rules::math::layout → typst_core::entities::glyph_variants
+  typst_core::rules::math::layout → typst_core::entities::layout_types
+  typst_core::rules::math::layout → typst_core::entities::math_constants
+  typst_core::rules::math::layout → typst_core::entities::math_style
+  typst_core::rules::math::layout → typst_core::rules::layout::metrics
+  typst_core::rules::math::layout → typst_core::rules::math::symbols
+  typst_core::rules::math::layout::assembly → typst_core::entities::glyph_variants
+  typst_core::rules::math::layout::assembly → typst_core::entities::layout_types
+  typst_core::rules::math::layout::assembly → typst_core::rules::layout::metrics
+  typst_core::rules::math::layout::assembly → typst_core::rules::math::layout
+  typst_core::rules::math::layout::attach → typst_core::entities::content
+  typst_core::rules::math::layout::attach → typst_core::entities::glyph_variants
+  typst_core::rules::math::layout::attach → typst_core::entities::layout_types
+  typst_core::rules::math::layout::attach → typst_core::rules::layout::metrics
+  typst_core::rules::math::layout::attach → typst_core::rules::math::layout
+  typst_core::rules::math::layout::attach → typst_core::rules::math::symbols
+  typst_core::rules::math::layout::cases → typst_core::entities::content
+  typst_core::rules::math::layout::cases → typst_core::entities::layout_types
+  typst_core::rules::math::layout::cases → typst_core::rules::layout::metrics
+  typst_core::rules::math::layout::cases → typst_core::rules::math::layout
+  typst_core::rules::math::layout::delimited → typst_core::entities::content
+  typst_core::rules::math::layout::delimited → typst_core::entities::layout_types
+  typst_core::rules::math::layout::delimited → typst_core::rules::layout::metrics
+  typst_core::rules::math::layout::delimited → typst_core::rules::math::layout
+  typst_core::rules::math::layout::frac → typst_core::entities::content
+  typst_core::rules::math::layout::frac → typst_core::entities::layout_types
+  typst_core::rules::math::layout::frac → typst_core::rules::layout::metrics
+  typst_core::rules::math::layout::frac → typst_core::rules::math::layout
+  typst_core::rules::math::layout::matrix → typst_core::entities::content
+  typst_core::rules::math::layout::matrix → typst_core::entities::layout_types
+  typst_core::rules::math::layout::matrix → typst_core::rules::layout::metrics
+  typst_core::rules::math::layout::matrix → typst_core::rules::math::layout
+  typst_core::rules::math::layout::root → typst_core::entities::content
+  typst_core::rules::math::layout::root → typst_core::entities::layout_types
+  typst_core::rules::math::layout::root → typst_core::rules::layout::metrics
+  typst_core::rules::math::layout::root → typst_core::rules::math::layout
+  typst_core::rules::math::layout::stretchy → typst_core::entities::layout_types
+  typst_core::rules::math::layout::stretchy → typst_core::rules::layout::metrics
+  typst_core::rules::math::layout::stretchy → typst_core::rules::math::layout
+  typst_core::rules::parse → typst_core::entities::syntax_kind
+  typst_core::rules::parse → typst_core::entities::syntax_mode
+  typst_core::rules::parse → typst_core::entities::syntax_node
+  typst_core::rules::parse → typst_core::rules::parse::code
+  typst_core::rules::parse → typst_core::rules::parse::markup
+  typst_core::rules::parse → typst_core::rules::parse::math
+  typst_core::rules::parse → typst_core::rules::parse::parser
+  typst_core::rules::parse::code → typst_core::entities::operators
+  typst_core::rules::parse::code → typst_core::entities::syntax_kind
+  typst_core::rules::parse::code → typst_core::entities::syntax_mode
+  typst_core::rules::parse::code → typst_core::entities::syntax_node
+  typst_core::rules::parse::code → typst_core::entities::syntax_set
+  typst_core::rules::parse::code → typst_core::rules::parse::markup
+  typst_core::rules::parse::code → typst_core::rules::parse::parser
+  typst_core::rules::parse::code → typst_core::rules::parse::patterns
+  typst_core::rules::parse::code → typst_core::rules::parse::rules
+  typst_core::rules::parse::markup → typst_core::entities::syntax_kind
+  typst_core::rules::parse::markup → typst_core::entities::syntax_mode
+  typst_core::rules::parse::markup → typst_core::entities::syntax_node
+  typst_core::rules::parse::markup → typst_core::entities::syntax_set
+  typst_core::rules::parse::markup → typst_core::rules::parse::code
+  typst_core::rules::parse::markup → typst_core::rules::parse::math
+  typst_core::rules::parse::markup → typst_core::rules::parse::parser
+  typst_core::rules::parse::math → typst_core::entities::math_class
+  typst_core::rules::parse::math → typst_core::entities::operators
+  typst_core::rules::parse::math → typst_core::entities::syntax_kind
+  typst_core::rules::parse::math → typst_core::entities::syntax_set
+  typst_core::rules::parse::math → typst_core::rules::parse::code
+  typst_core::rules::parse::math → typst_core::rules::parse::parser
+  typst_core::rules::parse::parser → typst_core::entities::syntax_kind
+  typst_core::rules::parse::parser → typst_core::entities::syntax_mode
+  typst_core::rules::parse::parser → typst_core::entities::syntax_node
+  typst_core::rules::parse::parser → typst_core::entities::syntax_set
+  typst_core::rules::parse::parser → typst_core::rules::lexer
+  typst_core::rules::parse::parser → typst_core::utils
+  typst_core::rules::parse::patterns → core::mem
+  typst_core::rules::parse::patterns → typst_core::entities::syntax_kind
+  typst_core::rules::parse::patterns → typst_core::entities::syntax_node
+  typst_core::rules::parse::patterns → typst_core::entities::syntax_set
+  typst_core::rules::parse::patterns → typst_core::rules::parse::code
+  typst_core::rules::parse::patterns → typst_core::rules::parse::parser
+  typst_core::rules::parse::rules → typst_core::entities::syntax_kind
+  typst_core::rules::parse::rules → typst_core::entities::syntax_set
+  typst_core::rules::parse::rules → typst_core::rules::parse::code
+  typst_core::rules::parse::rules → typst_core::rules::parse::parser
+  typst_core::rules::parse::rules → typst_core::rules::parse::patterns
+  typst_core::rules::scopes → typst_core::entities::scope
+  typst_core::rules::scopes → typst_core::entities::value
+  typst_core::rules::scopes → typst_core::entities::world_types
+  typst_core::rules::stdlib → typst_core::entities::source_result
+  typst_core::rules::stdlib → typst_core::entities::span
+  typst_core::rules::stdlib → typst_core::entities::value
+  typst_core::rules::stdlib → typst_core::rules::stdlib::assert
+  typst_core::rules::stdlib → typst_core::rules::stdlib::calc
+  typst_core::rules::stdlib → typst_core::rules::stdlib::eval
+  typst_core::rules::stdlib → typst_core::rules::stdlib::figure_image
+  typst_core::rules::stdlib → typst_core::rules::stdlib::foundations
+  typst_core::rules::stdlib → typst_core::rules::stdlib::gradients
+  typst_core::rules::stdlib → typst_core::rules::stdlib::layout
+  typst_core::rules::stdlib → typst_core::rules::stdlib::loading
+  typst_core::rules::stdlib → typst_core::rules::stdlib::math_style
+  typst_core::rules::stdlib → typst_core::rules::stdlib::panic
+  typst_core::rules::stdlib → typst_core::rules::stdlib::primitives_constructors
+  typst_core::rules::stdlib → typst_core::rules::stdlib::shapes
+  typst_core::rules::stdlib → typst_core::rules::stdlib::structural
+  typst_core::rules::stdlib → typst_core::rules::stdlib::text
+  typst_core::rules::stdlib → typst_core::rules::stdlib::transforms
+  typst_core::rules::stdlib → typst_core::rules::stdlib::visualize
+  typst_core::rules::stdlib::assert → typst_core::contracts::world
+  typst_core::rules::stdlib::assert → typst_core::entities::args
+  typst_core::rules::stdlib::assert → typst_core::entities::file_id
+  typst_core::rules::stdlib::assert → typst_core::entities::source_result
+  typst_core::rules::stdlib::assert → typst_core::entities::span
+  typst_core::rules::stdlib::assert → typst_core::entities::value
+  typst_core::rules::stdlib::assert → typst_core::rules::eval
+  typst_core::rules::stdlib::calc → typst_core::contracts::world
+  typst_core::rules::stdlib::calc → typst_core::entities::args
+  typst_core::rules::stdlib::calc → typst_core::entities::file_id
+  typst_core::rules::stdlib::calc → typst_core::entities::func
+  typst_core::rules::stdlib::calc → typst_core::entities::source_result
+  typst_core::rules::stdlib::calc → typst_core::entities::span
+  typst_core::rules::stdlib::calc → typst_core::entities::value
+  typst_core::rules::stdlib::calc → typst_core::rules::eval
+  typst_core::rules::stdlib::calc → typst_core::rules::stdlib
+  typst_core::rules::stdlib::eval → typst_core::contracts::world
+  typst_core::rules::stdlib::eval → typst_core::entities::args
+  typst_core::rules::stdlib::eval → typst_core::entities::ast
+  typst_core::rules::stdlib::eval → typst_core::entities::ast::expr
+  typst_core::rules::stdlib::eval → typst_core::entities::engine
+  typst_core::rules::stdlib::eval → typst_core::entities::file_id
+  typst_core::rules::stdlib::eval → typst_core::entities::source
+  typst_core::rules::stdlib::eval → typst_core::entities::source_result
+  typst_core::rules::stdlib::eval → typst_core::entities::span
+  typst_core::rules::stdlib::eval → typst_core::entities::value
+  typst_core::rules::stdlib::eval → typst_core::rules::eval
+  typst_core::rules::stdlib::eval → typst_core::rules::parse
+  typst_core::rules::stdlib::eval → typst_core::rules::scopes
+  typst_core::rules::stdlib::figure_image → typst_core::contracts::world
+  typst_core::rules::stdlib::figure_image → typst_core::entities::args
+  typst_core::rules::stdlib::figure_image → typst_core::entities::content
+  typst_core::rules::stdlib::figure_image → typst_core::entities::file_id
+  typst_core::rules::stdlib::figure_image → typst_core::entities::ptr_eq_arc
+  typst_core::rules::stdlib::figure_image → typst_core::entities::source_result
+  typst_core::rules::stdlib::figure_image → typst_core::entities::span
+  typst_core::rules::stdlib::figure_image → typst_core::entities::value
+  typst_core::rules::stdlib::figure_image → typst_core::rules::eval
+  typst_core::rules::stdlib::foundations → typst_core::contracts::world
+  typst_core::rules::stdlib::foundations → typst_core::entities::args
+  typst_core::rules::stdlib::foundations → typst_core::entities::file_id
+  typst_core::rules::stdlib::foundations → typst_core::entities::layout_types
+  typst_core::rules::stdlib::foundations → typst_core::entities::selector
+  typst_core::rules::stdlib::foundations → typst_core::entities::source_result
+  typst_core::rules::stdlib::foundations → typst_core::entities::span
+  typst_core::rules::stdlib::foundations → typst_core::entities::value
+  typst_core::rules::stdlib::foundations → typst_core::rules::eval
+  typst_core::rules::stdlib::foundations → typst_core::rules::eval::repr
+  typst_core::rules::stdlib::foundations → typst_core::rules::stdlib
+  typst_core::rules::stdlib::gradients → typst_core::contracts::world
+  typst_core::rules::stdlib::gradients → typst_core::entities::args
+  typst_core::rules::stdlib::gradients → typst_core::entities::axes
+  typst_core::rules::stdlib::gradients → typst_core::entities::color
+  typst_core::rules::stdlib::gradients → typst_core::entities::file_id
+  typst_core::rules::stdlib::gradients → typst_core::entities::func
+  typst_core::rules::stdlib::gradients → typst_core::entities::gradient
+  typst_core::rules::stdlib::gradients → typst_core::entities::layout_types
+  typst_core::rules::stdlib::gradients → typst_core::entities::source_result
+  typst_core::rules::stdlib::gradients → typst_core::entities::span
+  typst_core::rules::stdlib::gradients → typst_core::entities::value
+  typst_core::rules::stdlib::gradients → typst_core::rules::eval
+  typst_core::rules::stdlib::layout → typst_core::contracts::world
+  typst_core::rules::stdlib::layout → typst_core::entities::args
+  typst_core::rules::stdlib::layout → typst_core::entities::content
+  typst_core::rules::stdlib::layout → typst_core::entities::corners
+  typst_core::rules::stdlib::layout → typst_core::entities::dir
+  typst_core::rules::stdlib::layout → typst_core::entities::file_id
+  typst_core::rules::stdlib::layout → typst_core::entities::geometry
+  typst_core::rules::stdlib::layout → typst_core::entities::layout_types
+  typst_core::rules::stdlib::layout → typst_core::entities::parity
+  typst_core::rules::stdlib::layout → typst_core::entities::sides
+  typst_core::rules::stdlib::layout → typst_core::entities::source_result
+  typst_core::rules::stdlib::layout → typst_core::entities::span
+  typst_core::rules::stdlib::layout → typst_core::entities::value
+  typst_core::rules::stdlib::layout → typst_core::rules::eval
+  typst_core::rules::stdlib::layout → typst_core::rules::stdlib
+  typst_core::rules::stdlib::loading → typst_core::contracts::world
+  typst_core::rules::stdlib::loading → typst_core::entities::args
+  typst_core::rules::stdlib::loading → typst_core::entities::bytes
+  typst_core::rules::stdlib::loading → typst_core::entities::file_id
+  typst_core::rules::stdlib::loading → typst_core::entities::source_result
+  typst_core::rules::stdlib::loading → typst_core::entities::span
+  typst_core::rules::stdlib::loading → typst_core::entities::value
+  typst_core::rules::stdlib::loading → typst_core::rules::eval
+  typst_core::rules::stdlib::math_style → typst_core::contracts::world
+  typst_core::rules::stdlib::math_style → typst_core::entities::args
+  typst_core::rules::stdlib::math_style → typst_core::entities::content
+  typst_core::rules::stdlib::math_style → typst_core::entities::file_id
+  typst_core::rules::stdlib::math_style → typst_core::entities::math_style
+  typst_core::rules::stdlib::math_style → typst_core::entities::source_result
+  typst_core::rules::stdlib::math_style → typst_core::entities::span
+  typst_core::rules::stdlib::math_style → typst_core::entities::value
+  typst_core::rules::stdlib::math_style → typst_core::rules::eval
+  typst_core::rules::stdlib::math_style → typst_core::rules::stdlib
+  typst_core::rules::stdlib::panic → typst_core::contracts::world
+  typst_core::rules::stdlib::panic → typst_core::entities::args
+  typst_core::rules::stdlib::panic → typst_core::entities::file_id
+  typst_core::rules::stdlib::panic → typst_core::entities::source_result
+  typst_core::rules::stdlib::panic → typst_core::entities::span
+  typst_core::rules::stdlib::panic → typst_core::entities::value
+  typst_core::rules::stdlib::panic → typst_core::rules::eval
+  typst_core::rules::stdlib::primitives_constructors → typst_core::contracts::world
+  typst_core::rules::stdlib::primitives_constructors → typst_core::entities::args
+  typst_core::rules::stdlib::primitives_constructors → typst_core::entities::decimal
+  typst_core::rules::stdlib::primitives_constructors → typst_core::entities::duration
+  typst_core::rules::stdlib::primitives_constructors → typst_core::entities::file_id
+  typst_core::rules::stdlib::primitives_constructors → typst_core::entities::source_result
+  typst_core::rules::stdlib::primitives_constructors → typst_core::entities::span
+  typst_core::rules::stdlib::primitives_constructors → typst_core::entities::value
+  typst_core::rules::stdlib::primitives_constructors → typst_core::entities::version
+  typst_core::rules::stdlib::primitives_constructors → typst_core::rules::eval
+  typst_core::rules::stdlib::primitives_constructors → typst_core::rules::stdlib
+  typst_core::rules::stdlib::shapes → typst_core::contracts::world
+  typst_core::rules::stdlib::shapes → typst_core::entities::args
+  typst_core::rules::stdlib::shapes → typst_core::entities::color
+  typst_core::rules::stdlib::shapes → typst_core::entities::content
+  typst_core::rules::stdlib::shapes → typst_core::entities::file_id
+  typst_core::rules::stdlib::shapes → typst_core::entities::geometry
+  typst_core::rules::stdlib::shapes → typst_core::entities::layout_types
+  typst_core::rules::stdlib::shapes → typst_core::entities::paint
+  typst_core::rules::stdlib::shapes → typst_core::entities::source_result
+  typst_core::rules::stdlib::shapes → typst_core::entities::span
+  typst_core::rules::stdlib::shapes → typst_core::entities::value
+  typst_core::rules::stdlib::shapes → typst_core::rules::eval
+  typst_core::rules::stdlib::structural → typst_core::contracts::world
+  typst_core::rules::stdlib::structural → typst_core::entities::args
+  typst_core::rules::stdlib::structural → typst_core::entities::bib_entry
+  typst_core::rules::stdlib::structural → typst_core::entities::citation_form
+  typst_core::rules::stdlib::structural → typst_core::entities::content
+  typst_core::rules::stdlib::structural → typst_core::entities::file_id
+  typst_core::rules::stdlib::structural → typst_core::entities::layout_types
+  typst_core::rules::stdlib::structural → typst_core::entities::sides
+  typst_core::rules::stdlib::structural → typst_core::entities::source_result
+  typst_core::rules::stdlib::structural → typst_core::entities::span
+  typst_core::rules::stdlib::structural → typst_core::entities::value
+  typst_core::rules::stdlib::structural → typst_core::rules::eval
+  typst_core::rules::stdlib::structural → typst_core::rules::stdlib
+  typst_core::rules::stdlib::text → typst_core::contracts::world
+  typst_core::rules::stdlib::text → typst_core::entities::args
+  typst_core::rules::stdlib::text → typst_core::entities::color
+  typst_core::rules::stdlib::text → typst_core::entities::content
+  typst_core::rules::stdlib::text → typst_core::entities::file_id
+  typst_core::rules::stdlib::text → typst_core::entities::layout_types
+  typst_core::rules::stdlib::text → typst_core::entities::regex
+  typst_core::rules::stdlib::text → typst_core::entities::source_result
+  typst_core::rules::stdlib::text → typst_core::entities::span
+  typst_core::rules::stdlib::text → typst_core::entities::value
+  typst_core::rules::stdlib::text → typst_core::rules::eval
+  typst_core::rules::stdlib::text → typst_core::rules::stdlib
+  typst_core::rules::stdlib::text → typst_core::rules::stdlib::shapes
+  typst_core::rules::stdlib::transforms → typst_core::contracts::world
+  typst_core::rules::stdlib::transforms → typst_core::entities::args
+  typst_core::rules::stdlib::transforms → typst_core::entities::content
+  typst_core::rules::stdlib::transforms → typst_core::entities::file_id
+  typst_core::rules::stdlib::transforms → typst_core::entities::layout_types
+  typst_core::rules::stdlib::transforms → typst_core::entities::source_result
+  typst_core::rules::stdlib::transforms → typst_core::entities::span
+  typst_core::rules::stdlib::transforms → typst_core::entities::value
+  typst_core::rules::stdlib::transforms → typst_core::rules::eval
+  typst_core::rules::stdlib::visualize → typst_core::contracts::world
+  typst_core::rules::stdlib::visualize → typst_core::entities::args
+  typst_core::rules::stdlib::visualize → typst_core::entities::content
+  typst_core::rules::stdlib::visualize → typst_core::entities::file_id
+  typst_core::rules::stdlib::visualize → typst_core::entities::layout_types
+  typst_core::rules::stdlib::visualize → typst_core::entities::ptr_eq_arc
+  typst_core::rules::stdlib::visualize → typst_core::entities::source_result
+  typst_core::rules::stdlib::visualize → typst_core::entities::span
+  typst_core::rules::stdlib::visualize → typst_core::entities::tiling
+  typst_core::rules::stdlib::visualize → typst_core::entities::value
+  typst_core::rules::stdlib::visualize → typst_core::rules::eval
+
+Ordem da DSM (topológica + blocos):
+   typst_core
+   typst_core::contracts
+   typst_core::entities
+   typst_core::entities::counter_state_legacy
+   typst_core::rules
+   typst_core::rules::eval::bibliography
+   typst_core::rules::eval::bindings
+   typst_core::rules::eval::control_flow
+   typst_core::rules::eval::markup
+   typst_core::rules::eval::math
+   typst_core::rules::eval::modules
+   typst_core::rules::eval::operators
+   typst_core::rules::eval::rules
+   typst_core::rules::introspect
+   typst_core::rules::introspect::extract_payload
+   typst_core::rules::introspect::fixpoint
+   typst_core::rules::introspect::convergence
+   typst_core::rules::introspect::from_tags
+   typst_core::entities::tag
+   typst_core::entities::element_info
+   typst_core::rules::eval::closures
+   typst_core::rules::introspect::heading
+   typst_core::rules::introspect::labelled
+   typst_core::rules::lang
+   typst_core::rules::lang::figure_supplement
+   typst_core::rules::lang::quotes
+   typst_core::rules::layout::bibliography
+   typst_core::rules::layout::block
+   typst_core::rules::layout::boxed
+   typst_core::rules::layout::cite
+   typst_core::rules::layout::colbreak
+   typst_core::rules::layout::columns
+   typst_core::rules::layout::counters
+   typst_core::rules::layout::cursor
+   typst_core::rules::layout::decorations
+   typst_core::rules::layout::divider
+   typst_core::rules::layout::dynamic
+   typst_core::rules::layout::enum_item
+   typst_core::rules::layout::equation
+   typst_core::rules::layout::figure
+   typst_core::rules::layout::footnote
+   typst_core::rules::layout::grid
+   typst_core::rules::layout::grid_cell
+   typst_core::rules::layout::grid_footer
+   typst_core::rules::layout::grid_header
+   typst_core::rules::layout::grid_placement
+   typst_core::rules::layout::h_space
+   typst_core::rules::layout::heading
+   typst_core::rules::layout::hide
+   typst_core::rules::layout::hyphenation
+   typst_core::rules::layout::image
+   typst_core::rules::layout::link
+   typst_core::rules::layout::list_item
+   typst_core::rules::layout::outline
+   typst_core::rules::layout::pad
+   typst_core::rules::layout::pagebreak
+   typst_core::rules::layout::place
+   typst_core::rules::layout::placement
+   typst_core::rules::layout::quote
+   typst_core::rules::layout::raw
+   typst_core::rules::layout::references
+   typst_core::rules::layout::repeat
+   typst_core::rules::layout::sequence
+   typst_core::rules::layout::set_page
+   typst_core::rules::layout::shape
+   typst_core::rules::layout::slicing
+   typst_core::rules::layout::smartquote
+   typst_core::rules::layout::stack
+   typst_core::rules::layout::table
+   typst_core::rules::layout::table_cell
+   typst_core::rules::layout::table_footer
+   typst_core::rules::layout::table_header
+   typst_core::rules::layout::term_item
+   typst_core::rules::layout::terms
+   typst_core::rules::layout::text
+   typst_core::rules::layout::transform
+   typst_core::rules::layout::v_space
+   typst_core::rules::layout
+   typst_core::entities::image_sizer
+   typst_core::entities::layouter_runtime_state
+   typst_core::entities::locator
+   typst_core::entities::region
+   typst_core::rules::introspect::locatable
+   typst_core::rules::layout::bib_csl
+   typst_core::rules::layout::helpers
+   typst_core::rules::lexer::code
+   typst_core::rules::lexer::markup
+   typst_core::rules::lexer::math
+   typst_core::rules::lexer::scanner::sealed
+   typst_core::rules::math
+   typst_core::rules::math::layout::assembly
+   typst_core::rules::math::layout::attach
+   typst_core::rules::math::layout::cases
+   typst_core::rules::math::layout::delimited
+   typst_core::rules::math::layout::frac
+   typst_core::rules::math::layout::matrix
+   typst_core::rules::math::layout::root
+   typst_core::rules::math::layout::stretchy
+   typst_core::rules::math::layout
+   typst_core::rules::layout::metrics
+   typst_core::entities::glyph_variants
+   typst_core::entities::math_constants
+   typst_core::rules::math::symbols
+  ◆ typst_core::rules::stdlib
+  ◆ typst_core::rules::stdlib::calc
+  ◆ typst_core::rules::stdlib::foundations
+  ◆ typst_core::rules::stdlib::layout
+  ◆ typst_core::rules::stdlib::math_style
+  ◆ typst_core::rules::stdlib::primitives_constructors
+  ◆ typst_core::rules::stdlib::structural
+  ◆ typst_core::rules::stdlib::text
+   typst_core::rules::eval::repr
+   typst_core::rules::stdlib::assert
+   typst_core::rules::stdlib::eval
+   typst_core::rules::stdlib::figure_image
+   typst_core::rules::stdlib::gradients
+   typst_core::rules::stdlib::loading
+   typst_core::rules::stdlib::panic
+   typst_core::rules::stdlib::shapes
+   typst_core::rules::stdlib::transforms
+   typst_core::rules::stdlib::visualize
+  ◆ typst_core::entities::args
+  ◆ typst_core::entities::content
+  ◆ typst_core::entities::content_hash
+  ◆ typst_core::entities::element_payload
+  ◆ typst_core::entities::element_registry
+  ◆ typst_core::entities::elements
+  ◆ typst_core::entities::elements::align
+  ◆ typst_core::entities::elements::bibliography
+  ◆ typst_core::entities::elements::block
+  ◆ typst_core::entities::elements::boxed
+  ◆ typst_core::entities::elements::cite
+  ◆ typst_core::entities::elements::colbreak
+  ◆ typst_core::entities::elements::columns
+  ◆ typst_core::entities::elements::counter_display
+  ◆ typst_core::entities::elements::counter_display_callback
+  ◆ typst_core::entities::elements::counter_update
+  ◆ typst_core::entities::elements::divider
+  ◆ typst_core::entities::elements::dynamic
+  ◆ typst_core::entities::elements::emph
+  ◆ typst_core::entities::elements::enum_item
+  ◆ typst_core::entities::elements::equation
+  ◆ typst_core::entities::elements::figure
+  ◆ typst_core::entities::elements::footnote
+  ◆ typst_core::entities::elements::grid
+  ◆ typst_core::entities::elements::grid_cell
+  ◆ typst_core::entities::elements::grid_footer
+  ◆ typst_core::entities::elements::grid_header
+  ◆ typst_core::entities::elements::h_space
+  ◆ typst_core::entities::elements::heading
+  ◆ typst_core::entities::elements::hide
+  ◆ typst_core::entities::elements::image
+  ◆ typst_core::entities::elements::labelled
+  ◆ typst_core::entities::elements::linebreak
+  ◆ typst_core::entities::elements::link
+  ◆ typst_core::entities::elements::list_item
+  ◆ typst_core::entities::elements::math_accent
+  ◆ typst_core::entities::elements::math_align_point
+  ◆ typst_core::entities::elements::math_attach
+  ◆ typst_core::entities::elements::math_cancel
+  ◆ typst_core::entities::elements::math_cases
+  ◆ typst_core::entities::elements::math_delimited
+  ◆ typst_core::entities::elements::math_frac
+  ◆ typst_core::entities::elements::math_matrix
+  ◆ typst_core::entities::elements::math_op
+  ◆ typst_core::entities::elements::math_root
+  ◆ typst_core::entities::elements::math_styled
+  ◆ typst_core::entities::elements::math_underover
+  ◆ typst_core::entities::elements::metadata
+  ◆ typst_core::entities::elements::outline
+  ◆ typst_core::entities::elements::overline
+  ◆ typst_core::entities::elements::pad
+  ◆ typst_core::entities::elements::pagebreak
+  ◆ typst_core::entities::elements::place
+  ◆ typst_core::entities::elements::quote
+  ◆ typst_core::entities::elements::r#ref
+  ◆ typst_core::entities::elements::raw
+  ◆ typst_core::entities::elements::repeat
+  ◆ typst_core::entities::elements::shape
+  ◆ typst_core::entities::elements::smartquote
+  ◆ typst_core::entities::elements::stack
+  ◆ typst_core::entities::elements::state
+  ◆ typst_core::entities::elements::state_display
+  ◆ typst_core::entities::elements::state_update
+  ◆ typst_core::entities::elements::strike
+  ◆ typst_core::entities::elements::strong
+  ◆ typst_core::entities::elements::table
+  ◆ typst_core::entities::elements::table_cell
+  ◆ typst_core::entities::elements::table_footer
+  ◆ typst_core::entities::elements::table_header
+  ◆ typst_core::entities::elements::term_item
+  ◆ typst_core::entities::elements::terms
+  ◆ typst_core::entities::elements::transform
+  ◆ typst_core::entities::elements::underline
+  ◆ typst_core::entities::elements::v_space
+  ◆ typst_core::entities::engine
+  ◆ typst_core::entities::func
+  ◆ typst_core::entities::geometry
+  ◆ typst_core::entities::gradient
+  ◆ typst_core::entities::introspector
+  ◆ typst_core::entities::layout_types
+  ◆ typst_core::entities::metadata_store
+  ◆ typst_core::entities::module
+  ◆ typst_core::entities::page_store
+  ◆ typst_core::entities::paint
+  ◆ typst_core::entities::position
+  ◆ typst_core::entities::scope
+  ◆ typst_core::entities::sealed_positions
+  ◆ typst_core::entities::selector
+  ◆ typst_core::entities::show
+  ◆ typst_core::entities::state_registry
+  ◆ typst_core::entities::state_update
+  ◆ typst_core::entities::style
+  ◆ typst_core::entities::style_chain
+  ◆ typst_core::entities::tiling
+  ◆ typst_core::entities::value
+  ◆ typst_core::rules::eval
+  ◆ typst_core::rules::scopes
+   typst_core::contracts::world
+  ◆ typst_core::entities::ast::code
+  ◆ typst_core::entities::ast::expr
+  ◆ typst_core::entities::ast::markup
+  ◆ typst_core::entities::ast::math
+   typst_core::entities::ast
+   typst_core::entities::axes
+   typst_core::entities::bib_store
+   typst_core::entities::bib_entry
+   typst_core::entities::bytes
+   typst_core::entities::citation_form
+   typst_core::entities::color
+   typst_core::entities::corners
+   typst_core::entities::counter_registry
+   typst_core::entities::counter_update
+   typst_core::entities::decimal
+   typst_core::entities::dir
+   typst_core::entities::duration
+   typst_core::entities::element_kind
+   typst_core::entities::font_book
+   typst_core::entities::font_list
+   typst_core::entities::label_registry
+   typst_core::entities::lang
+   typst_core::entities::location
+   typst_core::entities::math_style
+   typst_core::entities::package_spec
+   typst_core::entities::parity
+   typst_core::entities::ptr_eq_arc
+   typst_core::entities::regex
+   typst_core::entities::resolved_label_store
+   typst_core::entities::label
+   typst_core::entities::sides
+   typst_core::entities::source
+   typst_core::entities::version
+   typst_core::entities::world_types
+   typst_core::entities::sink
+   typst_core::entities::source_result
+   typst_core::rules::parse
+  ◆ typst_core::rules::parse::code
+  ◆ typst_core::rules::parse::markup
+  ◆ typst_core::rules::parse::math
+  ◆ typst_core::rules::parse::patterns
+  ◆ typst_core::rules::parse::rules
+   core::mem
+   typst_core::entities::math_class
+   typst_core::entities::operators
+   typst_core::rules::parse::parser
+   typst_core::entities::syntax_set
+   typst_core::rules::lexer
+   typst_core::entities::syntax_mode
+   typst_core::entities::syntax_node
+   typst_core::entities::span
+   typst_core::entities::file_id
+   typst_core::entities::syntax_kind
+   typst_core::entities::syntax_text
+   typst_core::rules::lexer::scanner
+   alloc::fmt
+   typst_core::utils
+   unicode_math_class
+

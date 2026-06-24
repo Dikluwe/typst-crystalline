@@ -1,0 +1,12 @@
+Estrutura de módulos (escopo: completo, uses: todas) — 3 módulos, 0 ciclos:
+
+Ciclos:
+  (nenhum ciclo entre módulos)
+
+Dependências módulo → módulo:
+
+Ordem da DSM (topológica + blocos):
+   typst_shell
+   typst_shell::cli
+   typst_shell::diagnostic
+

@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<title>lente — DSM de estrutura</title>
+<style>
+  * { box-sizing: border-box; }
+  body { font: 13px/1.4 ui-sans-serif, system-ui, sans-serif; margin: 0; background: #f4f4f0; color: #222; }
+  header { padding: 10px 14px; border-bottom: 1px solid #ddd; background: #fff; display: flex; align-items: baseline; gap: 14px; flex-wrap: wrap; }
+  header h1 { margin: 0; font-size: 15px; font-weight: 600; }
+  header h1 code { font-size: 14px; color: #06c; }
+  header .sub { color: #888; font-size: 12px; }
+  header .meta { color: #444; font-size: 12px; margin-left: auto; font-variant-numeric: tabular-nums; }
+  header .meta strong { color: #222; }
+  main { padding: 12px; }
+  .limite { margin: 0 0 12px; padding: 8px 12px; background: #eef4ff; border: 1px solid #cdddf5; border-radius: 4px; font-size: 12px; color: #345; max-width: 920px; }
+  .limite strong { color: #234; }
+  .controles { margin-bottom: 8px; font-size: 12px; color: #555; display: flex; gap: 12px; align-items: center; flex-wrap: wrap; }
+  .controles button { font-size: 12px; padding: 2px 8px; cursor: pointer; }
+  .matriz-wrap { background: #fff; border: 1px solid #ddd; border-radius: 4px; padding: 10px; display: inline-block; overflow: auto; max-width: calc(100vw - 28px); }
+  svg.matriz { display: block; user-select: none; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; }
+  svg.matriz text.lbl { cursor: pointer; }
+  svg.matriz text.grp { font-weight: 700; fill: #06c; }
+  .legenda { margin-top: 10px; font-size: 12px; color: #555; display: flex; flex-wrap: wrap; gap: 14px; align-items: center; }
+  .legenda .swatch { display: inline-block; width: 12px; height: 12px; vertical-align: middle; margin-right: 4px; border: 1px solid #999; }
+  .rampa { display: inline-flex; align-items: center; gap: 2px; }
+  .rampa i { width: 11px; height: 12px; display: inline-block; border: 1px solid #ccc; }
+  #tip { position: fixed; pointer-events: none; background: #222; color: #fff; padding: 5px 8px; border-radius: 3px; font-size: 11px; font-family: ui-monospace, monospace; line-height: 1.35; display: none; z-index: 10; max-width: 360px; }
+  #tip b { color: #ffd; }
+
+  .palco { display: flex; gap: 12px; align-items: flex-start; flex-wrap: wrap; }
+  #painel { display: none; width: 300px; max-height: calc(100vh - 120px); overflow: auto; background: #fff; border: 1px solid #ddd; border-radius: 4px; padding: 10px 12px; font-size: 12px; }
+  #painel .pcab { font-size: 13px; margin-bottom: 4px; }
+  #painel .pcab b { font-family: ui-monospace, monospace; }
+  #painel .gtag { color: #06c; font-weight: 400; font-size: 11px; }
+  #painel .psem { color: #678; font-size: 11px; line-height: 1.35; margin-bottom: 8px; }
+  #painel .psec { margin-top: 8px; font-weight: 600; }
+  #painel .psec .dot { display: inline-block; width: 10px; height: 10px; border-radius: 2px; margin-right: 5px; vertical-align: middle; }
+  #painel ul { margin: 4px 0 0; padding-left: 18px; font-weight: 400; font-family: ui-monospace, monospace; font-size: 11px; }
+  #painel li.vazio { list-style: none; margin-left: -14px; color: #aaa; }
+  #painel .fechar { float: right; cursor: pointer; color: #999; }
+</style>
+</head>
+<body>
+<header>
+  <h1>lente — DSM de <code id="pacote"></code></h1>
+  <div class="sub">o que depende do quê, estaticamente — gerado por <code>lente --estrutura --html</code></div>
+  <span class="meta" id="meta"></span>
+</header>
+
+<main>
+  <p class="limite" id="limite"></p>
+
+  <div class="controles">
+    <button id="todos-dobra">dobrar tudo</button>
+    <button id="todos-desdobra">desdobrar tudo</button>
+    <span id="nivel"></span>
+    <span style="color:#999">— rótulo <b style="color:#06c">azul</b> dobra/desdobra · clique a <b>diagonal</b> de um módulo para ver seu raio</span>
+  </div>
+
+  <div class="palco">
+    <div class="matriz-wrap"><svg id="grade" class="matriz"></svg></div>
+    <div id="painel"></div>
+  </div>
+
+  <div class="legenda">
+    <span class="rampa">acoplamento (peso):
+      <i style="background:#dfe7f3"></i><i style="background:#9db8de"></i><i style="background:#5b82c2"></i><i style="background:#274d8e"></i><i style="background:#13294f"></i>
+      fraco → forte</span>
+    <span><span class="swatch" style="background:#fce0c5"></span>diagonal (i==j)</span>
+    <span><span class="swatch" style="background:transparent;border:2px solid #c63"></span>bloco de ciclo (SCC ≥ 2)</span>
+    <span><span class="swatch" style="background:#c0392b"></span>montante (quem depende)</span>
+    <span><span class="swatch" style="background:#1a8a4a"></span>jusante (do que depende)</span>
+  </div>
+</main>
+
+<div id="tip"></div>
+
+<script>
+// =========================================================================
+// lente — vista DSM de estrutura (prompt 0071). A TELA É UMA VISTA: o JS só
+// desenha `ordem`/`dependencias`/`peso`/`blocos` e dobra/desdobra rótulos por
+// prefixo. Zero algoritmo de estrutura — ordem topológica, ciclos e peso vêm
+// prontos do L1 (lente_estrutura). O dado vai EMBUTIDO abaixo (sem rede/CDN).
+// =========================================================================
+const DADOS = {"blocos":[],"ciclos":[],"dependencias":[{"de":"typst_infra::export","para":"typst_infra::export::builder","peso":1},{"de":"typst_infra::export","para":"typst_infra::export::fonts","peso":7},{"de":"typst_infra::export","para":"typst_infra::export::gradients","peso":9},{"de":"typst_infra::export","para":"typst_infra::export::gradients::adaptive","peso":2},{"de":"typst_infra::export","para":"typst_infra::export::gradients::cmyk","peso":3},{"de":"typst_infra::export","para":"typst_infra::export::gradients::conic","peso":6},{"de":"typst_infra::export","para":"typst_infra::export::gradients::function_dict","peso":2},{"de":"typst_infra::export","para":"typst_infra::export::gradients::linear","peso":2},{"de":"typst_infra::export","para":"typst_infra::export::gradients::radial","peso":2},{"de":"typst_infra::export","para":"typst_infra::export::gradients::relative","peso":2},{"de":"typst_infra::export","para":"typst_infra::export::images","peso":13},{"de":"typst_infra::export","para":"typst_infra::export::stream","peso":10},{"de":"typst_infra::export","para":"typst_infra::font_metrics","peso":1},{"de":"typst_infra::export::builder","para":"typst_infra::export::fonts","peso":6},{"de":"typst_infra::export::builder","para":"typst_infra::export::gradients","peso":6},{"de":"typst_infra::export::builder","para":"typst_infra::export::gradients::adaptive","peso":1},{"de":"typst_infra::export::builder","para":"typst_infra::export::gradients::cmyk","peso":2},{"de":"typst_infra::export::builder","para":"typst_infra::export::gradients::conic","peso":5},{"de":"typst_infra::export::builder","para":"typst_infra::export::gradients::function_dict","peso":2},{"de":"typst_infra::export::builder","para":"typst_infra::export::gradients::linear","peso":2},{"de":"typst_infra::export::builder","para":"typst_infra::export::gradients::radial","peso":2},{"de":"typst_infra::export::builder","para":"typst_infra::export::gradients::relative","peso":2},{"de":"typst_infra::export::builder","para":"typst_infra::export::images","peso":9},{"de":"typst_infra::export::builder","para":"typst_infra::export::stream","peso":3},{"de":"typst_infra::export::builder","para":"typst_infra::font_metrics","peso":1},{"de":"typst_infra::export::gradients","para":"typst_infra::export::gradients::adaptive","peso":2},{"de":"typst_infra::export::gradients","para":"typst_infra::export::gradients::cmyk","peso":3},{"de":"typst_infra::export::gradients","para":"typst_infra::export::gradients::conic","peso":6},{"de":"typst_infra::export::gradients","para":"typst_infra::export::gradients::function_dict","peso":2},{"de":"typst_infra::export::gradients","para":"typst_infra::export::gradients::linear","peso":2},{"de":"typst_infra::export::gradients","para":"typst_infra::export::gradients::radial","peso":2},{"de":"typst_infra::export::gradients","para":"typst_infra::export::gradients::relative","peso":2},{"de":"typst_infra::export::gradients::conic","para":"typst_infra::export::gradients::cmyk","peso":1},{"de":"typst_infra::export::stream","para":"typst_infra::export::fonts","peso":2},{"de":"typst_infra::export::stream","para":"typst_infra::export::gradients","peso":14},{"de":"typst_infra::export::stream","para":"typst_infra::export::images","peso":5},{"de":"typst_infra::layout","para":"typst_infra::font_metrics","peso":1},{"de":"typst_infra::layout","para":"typst_infra::image_sizer","peso":1},{"de":"typst_infra::pipeline","para":"typst_infra::export","peso":3},{"de":"typst_infra::query_helpers","para":"typst_infra::pipeline","peso":1},{"de":"typst_infra::world","para":"typst_infra::fonts","peso":3}],"escopo":"seu-codigo","escopo_dica":" (sysroot/stdlib ocultos — use --completo para o escopo completo)","limite":"<strong>O que esta tela mostra:</strong> a forma <strong>estática e estrutural</strong> — quem depende de quem (arestas <code>Uses</code>), a ordem topológica e os ciclos. <strong>Não</strong> mostra impacto comportamental nem afirma que algo vai quebrar: mostra a forma; quem decide é você.","modo_uses":"todas","modulos":["typst_infra","typst_infra::export","typst_infra::export::builder","typst_infra::export::fonts","typst_infra::export::gradients","typst_infra::export::gradients::adaptive","typst_infra::export::gradients::cmyk","typst_infra::export::gradients::conic","typst_infra::export::gradients::function_dict","typst_infra::export::gradients::linear","typst_infra::export::gradients::radial","typst_infra::export::gradients::relative","typst_infra::export::images","typst_infra::export::stream","typst_infra::font_metrics","typst_infra::fonts","typst_infra::image_sizer","typst_infra::layout","typst_infra::measurements","typst_infra::pipeline","typst_infra::query_helpers","typst_infra::world"],"ordem":["typst_infra","typst_infra::layout","typst_infra::image_sizer","typst_infra::measurements","typst_infra::query_helpers","typst_infra::pipeline","typst_infra::export","typst_infra::export::builder","typst_infra::export::stream","typst_infra::export::fonts","typst_infra::export::gradients","typst_infra::export::gradients::adaptive","typst_infra::export::gradients::conic","typst_infra::export::gradients::cmyk","typst_infra::export::gradients::function_dict","typst_infra::export::gradients::linear","typst_infra::export::gradients::radial","typst_infra::export::gradients::relative","typst_infra::export::images","typst_infra::font_metrics","typst_infra::world","typst_infra::fonts"],"pacote":"typst-infra","raio_semantica":"Raio estrutural (alcançabilidade por item, projetada a módulos): montante = quem depende deste (sente a mudança); jusante = do que este depende. Estar no raio é estar na forma — não significa que vai quebrar.","raios":[{"j":[],"m":[]},{"j":[19,2],"m":[]},{"j":[],"m":[1]},{"j":[],"m":[]},{"j":[5],"m":[]},{"j":[6],"m":[4]},{"j":[7,9,10,11,13,12,14,15,16,17,18,8,19],"m":[5]},{"j":[9,10,11,13,12,14,15,16,17,18,8,19],"m":[6]},{"j":[9,10,18],"m":[6,7]},{"j":[],"m":[6,7,8]},{"j":[11,13,12,14,15,16,17],"m":[6,7,8]},{"j":[],"m":[6,7,10]},{"j":[13],"m":[6,7,10]},{"j":[],"m":[6,7,10,12]},{"j":[],"m":[6,7,10]},{"j":[],"m":[6,7,10]},{"j":[],"m":[6,7,10]},{"j":[],"m":[6,7,10]},{"j":[],"m":[6,7,8]},{"j":[],"m":[6,7,1]},{"j":[21],"m":[]},{"j":[],"m":[20]}]};
+
+const SVG_NS = "http://www.w3.org/2000/svg";
+function $(s) { return document.querySelector(s); }
+function el(tag, attrs, text) {
+  const n = document.createElementNS(SVG_NS, tag);
+  for (const k in attrs) n.setAttribute(k, attrs[k]);
+  if (text != null) n.textContent = text;
+  return n;
+}
+
+// Prefixo de dobra: os 2 primeiros segmentos (crate::sub). Módulos com < 3
+// segmentos são seu próprio grupo (não há o que dobrar).
+function grupoDe(path) {
+  const p = path.split("::");
+  return p.length >= 3 ? p.slice(0, 2).join("::") : path;
+}
+function abreviar(path) {
+  const p = path.split("::");
+  return p.length <= 2 ? path : p.slice(-2).join("::");
+}
+
+// Grupos que têm > 1 membro são "dobráveis". Estado de dobra por grupo.
+const ordem = DADOS.ordem;
+const dobravel = new Set();
+{
+  const cont = {};
+  ordem.forEach((p) => { const g = grupoDe(p); cont[g] = (cont[g] || 0) + 1; });
+  for (const g in cont) if (cont[g] > 1) dobravel.add(g);
+}
+const dobrado = new Set(); // grupos atualmente dobrados
+
+// Peso por par de path (de→para) e máximo, para a rampa de cor.
+const pesoPar = new Map();
+let pesoMax = 1;
+for (const d of DADOS.dependencias) {
+  pesoPar.set(d.de + " " + d.para, d.peso);
+  if (d.peso > pesoMax) pesoMax = d.peso;
+}
+
+// Prompt 0073 — raio por módulo. Os raios vêm como ÍNDICES na `ordem`
+// (DADOS.raios[i] = {m:[montante], j:[jusante]}); o JS só PINTA e LISTA o que o
+// L1 já calculou (exato — alcançabilidade por item projetada a módulos). Dobrar
+// um grupo = UNIÃO dos raios dos membros (apresentação, não cálculo).
+const ordIdx = new Map();
+ordem.forEach((p, i) => ordIdx.set(p, i));
+const RAIOS = DADOS.raios || [];
+let selecao = null;            // chave da unidade selecionada (clique na diagonal)
+const COR_MON = "#c0392b";     // montante: quem depende deste (sente a mudança)
+const COR_JUS = "#1a8a4a";     // jusante: do que este depende
+
+// Rampa azul: 0..1 → claro..escuro. log para não achatar a cauda.
+const RAMPA = ["#dfe7f3", "#9db8de", "#5b82c2", "#274d8e", "#13294f"];
+function corPeso(peso) {
+  if (peso <= 0) return null;
+  const t = Math.log(peso) / Math.log(pesoMax + 1e-9 + 1);
+  const i = Math.min(RAMPA.length - 1, Math.max(0, Math.floor(t * RAMPA.length)));
+  return RAMPA[i];
+}
+
+// Unidades visíveis: caminhando `ordem`, cada módulo vira sua própria unidade,
+// OU contribui à unidade do seu grupo se o grupo está dobrado. A unidade-grupo
+// fica na posição do 1º membro (preserva a ordem topológica aproximada).
+function unidades() {
+  const us = [];
+  const posGrupo = new Map();
+  for (const path of ordem) {
+    const g = grupoDe(path);
+    if (dobrado.has(g)) {
+      if (!posGrupo.has(g)) {
+        posGrupo.set(g, us.length);
+        us.push({ chave: g, rotulo: g + "::*", grupo: true, membros: [] });
+      }
+      us[posGrupo.get(g)].membros.push(path);
+    } else {
+      us.push({ chave: path, rotulo: abreviar(path), grupo: false, membros: [path] });
+    }
+  }
+  return us;
+}
+
+function render() {
+  const us = unidades();
+  const n = us.length;
+  // path → índice de unidade.
+  const idxDe = new Map();
+  us.forEach((u, i) => u.membros.forEach((m) => idxDe.set(m, i)));
+
+  // Acumula peso por célula (i,j) somando as deps cujos extremos caem nas
+  // unidades i e j. Dobrar soma os pesos dos membros (densidade de presença,
+  // não cálculo de estrutura).
+  const cel = new Map(); // "i j" → peso somado
+  for (const d of DADOS.dependencias) {
+    const i = idxDe.get(d.de), j = idxDe.get(d.para);
+    if (i == null || j == null) continue;
+    const k = i + " " + j;
+    cel.set(k, (cel.get(k) || 0) + d.peso);
+  }
+
+  const cell = Math.max(5, Math.min(30, Math.floor(560 / Math.max(1, n))));
+  const mEsq = 230, mTop = 230;
+  const W = mEsq + n * cell + 20, H = mTop + n * cell + 20;
+  const svg = $("#grade");
+  svg.setAttribute("width", W); svg.setAttribute("height", H); svg.innerHTML = "";
+
+  svg.appendChild(el("rect", { x: mEsq, y: mTop, width: n * cell, height: n * cell, fill: "#fafaf6", stroke: "#bbb", "stroke-width": 0.5 }));
+  for (let i = 0; i < n; i++) {
+    const d = el("rect", { x: mEsq + i * cell, y: mTop + i * cell, width: cell, height: cell, fill: "#fce0c5" });
+    d.style.cursor = "pointer";
+    d.onclick = () => selecionar(us[i].chave); // prompt 0073: diagonal → raio
+    svg.appendChild(d);
+  }
+
+  if (cell >= 9) for (let i = 0; i <= n; i++) {
+    svg.appendChild(el("line", { x1: mEsq + i * cell, x2: mEsq + i * cell, y1: mTop, y2: mTop + n * cell, stroke: "#eee", "stroke-width": 0.5 }));
+    svg.appendChild(el("line", { x1: mEsq, x2: mEsq + n * cell, y1: mTop + i * cell, y2: mTop + i * cell, stroke: "#eee", "stroke-width": 0.5 }));
+  }
+
+  // Células: cor por peso somado.
+  for (const [k, peso] of cel) {
+    const [i, j] = k.split(" ").map(Number);
+    const c = corPeso(peso);
+    if (!c) continue;
+    svg.appendChild(el("rect", { x: mEsq + j * cell, y: mTop + i * cell, width: cell, height: cell, fill: c }));
+  }
+
+  // Blocos de ciclo: moldura no intervalo de unidades que os membros ocupam.
+  for (const bloco of DADOS.blocos) {
+    const ids = bloco.map((p) => idxDe.get(p)).filter((x) => x != null);
+    if (!ids.length) continue;
+    const ini = Math.min(...ids), fim = Math.max(...ids) + 1, k = fim - ini;
+    svg.appendChild(el("rect", { x: mEsq + ini * cell, y: mTop + ini * cell, width: k * cell, height: k * cell, fill: "rgba(204,102,51,0.07)", stroke: "#c63", "stroke-width": 2 }));
+  }
+
+  // Rótulos (esquerda + topo rotacionado). Grupos em azul e clicáveis.
+  const fs = Math.max(7, Math.min(12, cell - 1));
+  us.forEach((u, i) => {
+    const classe = "lbl" + (u.grupo ? " grp" : "");
+    const tEsq = el("text", { x: mEsq - 5, y: mTop + i * cell + cell / 2 + fs / 3, "text-anchor": "end", "font-size": fs, class: classe }, u.rotulo);
+    const cx = mEsq + i * cell + cell / 2, cy = mTop - 5;
+    const tTop = el("text", { x: cx, y: cy, "text-anchor": "start", "font-size": fs, class: classe, transform: `rotate(-45 ${cx} ${cy})` }, u.rotulo);
+    if (dobravel.has(u.chave) || u.grupo) {
+      for (const t of [tEsq, tTop]) { t.style.cursor = "pointer"; t.onclick = () => alternar(u); }
+    }
+    svg.appendChild(tEsq); svg.appendChild(tTop);
+  });
+
+  // Hover: (i,j) → tooltip com paths e peso.
+  svg.onmousemove = (ev) => {
+    const r = svg.getBoundingClientRect();
+    const x = ev.clientX - r.left - mEsq, y = ev.clientY - r.top - mTop;
+    const tip = $("#tip");
+    if (x < 0 || y < 0 || x >= n * cell || y >= n * cell) { tip.style.display = "none"; return; }
+    const j = Math.floor(x / cell), i = Math.floor(y / cell);
+    const peso = cel.get(i + " " + j) || 0;
+    let html;
+    if (peso > 0) html = `<b>${us[i].rotulo}</b> → <b>${us[j].rotulo}</b><br>peso ${peso} (arestas de item)`;
+    else if (i === j) html = `<b>${us[i].rotulo}</b><br>(diagonal)`;
+    else html = `<span style="color:#aaa">${us[i].rotulo} → ${us[j].rotulo}<br>sem dependência</span>`;
+    tip.innerHTML = html; tip.style.display = "block";
+    tip.style.left = (ev.clientX + 12) + "px"; tip.style.top = (ev.clientY + 14) + "px";
+  };
+  svg.onmouseleave = () => { $("#tip").style.display = "none"; };
+
+  // Prompt 0073: overlay do raio do módulo/grupo selecionado.
+  if (selecao != null) {
+    const su = us.findIndex((u) => u.chave === selecao);
+    if (su < 0) { selecao = null; $("#painel").style.display = "none"; }
+    else {
+      // União dos raios dos membros (índices na ordem) → unidades atuais.
+      const jusO = new Set(), monO = new Set();
+      for (const m of us[su].membros) {
+        const oi = ordIdx.get(m);
+        const r = oi != null ? RAIOS[oi] : null;
+        if (!r) continue;
+        for (const t of r.j) jusO.add(t);
+        for (const t of r.m) monO.add(t);
+      }
+      const unidDe = (oi) => idxDe.get(ordem[oi]);
+      const jusU = new Set(), monU = new Set();
+      jusO.forEach((oi) => { const u = unidDe(oi); if (u != null && u !== su) jusU.add(u); });
+      monO.forEach((oi) => { const u = unidDe(oi); if (u != null && u !== su) monU.add(u); });
+      const marca = (i, j, cor) => svg.appendChild(el("rect",
+        { x: mEsq + j * cell, y: mTop + i * cell, width: cell, height: cell, fill: cor, opacity: 0.5 }));
+      // jusante: linha do selecionado → coluna do alvo + diagonal do alvo.
+      jusU.forEach((v) => { marca(su, v, COR_JUS); marca(v, v, COR_JUS); });
+      // montante: coluna do selecionado ← linha do alvo + diagonal do alvo.
+      monU.forEach((v) => { marca(v, su, COR_MON); marca(v, v, COR_MON); });
+      // selecionado: moldura preta.
+      svg.appendChild(el("rect", { x: mEsq + su * cell, y: mTop + su * cell, width: cell, height: cell, fill: "none", stroke: "#111", "stroke-width": 2 }));
+      painelRaio(us, su, monU, jusU);
+    }
+  } else {
+    $("#painel").style.display = "none";
+  }
+
+  $("#nivel").textContent = `${n} unidades visíveis (${ordem.length} módulos, ${dobrado.size} grupos dobrados)`;
+}
+
+function selecionar(chave) {
+  selecao = (selecao === chave) ? null : chave; // re-clique limpa
+  render();
+}
+
+function painelRaio(us, su, monU, jusU) {
+  const lista = (set) => {
+    const itens = [...set].map((u) => us[u].rotulo).sort();
+    return itens.length ? itens.map((r) => `<li>${r}</li>`).join("") : "<li class='vazio'>—</li>";
+  };
+  const p = $("#painel");
+  p.innerHTML =
+    `<span class="fechar" onclick="selecionar(null)">✕</span>` +
+    `<div class="pcab"><b>${us[su].rotulo}</b>${us[su].grupo ? " <span class='gtag'>(grupo — união dos membros)</span>" : ""}</div>` +
+    `<div class="psem">${DADOS.raio_semantica || ""}</div>` +
+    `<div class="psec"><span class="dot" style="background:${COR_MON}"></span>montante — quem depende deste (${monU.size})<ul>${lista(monU)}</ul></div>` +
+    `<div class="psec"><span class="dot" style="background:${COR_JUS}"></span>jusante — do que este depende (${jusU.size})<ul>${lista(jusU)}</ul></div>`;
+  p.style.display = "block";
+}
+
+document.addEventListener("keydown", (e) => {
+  if (e.key === "Escape" && selecao != null) { selecao = null; render(); }
+});
+
+function alternar(u) {
+  const g = u.grupo ? u.chave : grupoDe(u.chave);
+  if (!dobravel.has(g)) return;
+  if (dobrado.has(g)) dobrado.delete(g); else dobrado.add(g);
+  render();
+}
+
+function cabecalho() {
+  $("#pacote").textContent = DADOS.pacote;
+  $("#meta").innerHTML =
+    `<strong>${DADOS.modulos.length}</strong> módulos · ` +
+    `<strong>${DADOS.dependencias.length}</strong> deps · ` +
+    `<strong>${DADOS.ciclos.length}</strong> ciclos · ` +
+    `escopo=<code>${DADOS.escopo}</code>${DADOS.escopo_dica || ""} · uses=<code>${DADOS.modo_uses}</code>`;
+  $("#limite").innerHTML = DADOS.limite;
+}
+
+$("#todos-dobra").onclick = () => { dobravel.forEach((g) => dobrado.add(g)); render(); };
+$("#todos-desdobra").onclick = () => { dobrado.clear(); render(); };
+
+cabecalho();
+render();
+</script>
+</body>
+</html>
