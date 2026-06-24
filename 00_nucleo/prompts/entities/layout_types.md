@@ -1,5 +1,5 @@
 # Prompt L0 — layout_types
-Hash do Código: 62398a83
+Hash do Código: 1c175c20
 
 ## Módulo
 `01_core/src/entities/layout_types.rs`
@@ -25,8 +25,14 @@ Newtype f64 para pontos tipográficos. `Pt + Pt` OK; `Pt + f64` NÃO implementad
 Coordenada 2D e tamanho 2D em `Pt`.
 
 ### `FrameItem`
-Variantes: `Text { pos, text, style }`, `Line { start, end, thickness, color }`,
-`Glyph { pos, glyph_id, x_advance, size }`, `Image { pos, data, width, height, intrinsic_width, intrinsic_height }`.
+Variantes:
+- `Text { pos, text, style }`
+- `Line { start, end, thickness, color }`
+- `Glyph { pos, glyph_id, x_advance, size }`
+- `Image { pos, data, width, height, intrinsic_width, intrinsic_height }`
+- `Shape { pos, kind, width, height, fill, stroke, parent_bbox_at_emit }` (Passo 76)
+- `Group { pos, matrix, clip_mask, inner_width, inner_height, items }` (Passo 78)
+- `Link { url, items, pos, size }` (P422/P424)
 
 **`Line.color: Option<Color>`** (Passo 285) — `Some(c)` emite `r g b RG`
 antes do stroke (`S`) no PDF; `None` preserva default preto bit-exact
@@ -43,7 +49,14 @@ explícito > herança do texto corrente > default preto).
 - `intrinsic_width`, `intrinsic_height`: dimensões reais em píxeis — obrigatórias
   para o dicionário XObject PDF (/Width, /Height intrínsecos ≠ tamanho de layout).
 
-`plain_text()` ignora `Image`, `Line`, `Glyph` — retorna apenas texto.
+`Link` (P422/P424): hiperligação. O `body` é renderizado normalmente e os
+itens resultantes ficam em `items`. O URL é preservado como metadado para
+o exportador PDF, que emite uma annotation `/Subtype /Link` com `/A /URI`.
+`pos` e `size` definem a bounding box da área clicável. Cor/sublinhado
+são scope-out (aguardam `FrameItem::Decoration`).
+
+`plain_text()` ignora `Image`, `Line`, `Glyph`, `Shape`, `Group` e desce
+recursivamente em `Link` — retorna apenas texto.
 
 ### `Frame`
 Canvas de uma página. `plain_text()` para verificação em testes.
