@@ -20,7 +20,7 @@ use ecow::EcoString;
 use crate::entities::font_list::FontList;
 use crate::entities::lang::Lang;
 use crate::entities::layout_types::{Pt, TextStyle};
-use crate::entities::style::Styles;
+use crate::entities::style::{Style, Styles};
 use crate::entities::value::Value;
 
 /// Um delta de estilo — apenas as propriedades que este nó define explicitamente.
@@ -35,7 +35,13 @@ use crate::entities::value::Value;
 #[derive(Debug, Clone, PartialEq)]
 pub struct StyleDelta {
     pub bold:   Option<bool>,
+    /// Origem do negrito: `Some(true)` para `*bold*` / `Content::Strong`;
+    /// `Some(false)` para `#set text(bold)` (DEBT-50).
+    pub bold_from_strong: Option<bool>,
     pub italic: Option<bool>,
+    /// Origem do itálico: `Some(true)` para `_italic_` / `Content::Emph`;
+    /// `Some(false)` para `#set text(italic)`.
+    pub italic_from_emph: Option<bool>,
     pub size:   Option<f64>,   // em pontos tipográficos
     /// Cor de preenchimento do texto (Passo 99, ADR-0038, forward-compat).
     pub fill:   Option<crate::entities::layout_types::Color>,
@@ -80,7 +86,9 @@ pub struct StyleDelta {
 impl StyleDelta {
     pub const fn empty() -> Self {
         Self {
-            bold: None, italic: None, size: None,
+            bold: None, bold_from_strong: None,
+            italic: None, italic_from_emph: None,
+            size: None,
             fill: None, heading_level: None,
             weight: None, tracking: None, leading: None,
             lang: None, font: None,
@@ -93,7 +101,9 @@ impl StyleDelta {
     /// é fachada sobre `StyleDelta` (colapso da dualidade).
     pub fn is_empty(&self) -> bool {
         self.bold.is_none()
+            && self.bold_from_strong.is_none()
             && self.italic.is_none()
+            && self.italic_from_emph.is_none()
             && self.size.is_none()
             && self.fill.is_none()
             && self.heading_level.is_none()
@@ -103,6 +113,76 @@ impl StyleDelta {
             && self.lang.is_none()
             && self.font.is_none()
             && self.custom.is_empty()
+    }
+
+    /// Constroi uma `Styles` com apenas os campos que diferem de `other`.
+    /// Usado em `eval_markup` (P431) para embrulhar a cauda de um `#set` no
+    /// delta exacto que esse `#set` introduziu, preservando a origem
+    /// (`from_strong`/`from_emph`) quando aplicável.
+    pub fn diff_styles(&self, other: &StyleDelta) -> Styles {
+        let mut styles = Styles::new();
+        if self.bold != other.bold || self.bold_from_strong != other.bold_from_strong {
+            styles.push(Style::Bold {
+                value: self.bold.unwrap_or(false),
+                from_strong: self.bold_from_strong.unwrap_or(false),
+            });
+        }
+        if self.italic != other.italic || self.italic_from_emph != other.italic_from_emph {
+            styles.push(Style::Italic {
+                value: self.italic.unwrap_or(false),
+                from_emph: self.italic_from_emph.unwrap_or(false),
+            });
+        }
+        if self.size != other.size {
+            styles.push(Style::Size(Pt(self.size.unwrap_or(0.0))));
+        }
+        if self.fill != other.fill {
+            if let Some(c) = self.fill {
+                styles.push(Style::Fill(c));
+            }
+        }
+        if self.heading_level != other.heading_level {
+            if let Some(l) = self.heading_level {
+                styles.push(Style::HeadingLevel(l));
+            }
+        }
+        if self.weight != other.weight {
+            if let Some(w) = self.weight {
+                styles.push(Style::Weight(w));
+            }
+        }
+        if self.tracking != other.tracking {
+            if let Some(l) = self.tracking.clone() {
+                styles.push(Style::Tracking(l));
+            }
+        }
+        if self.leading != other.leading {
+            if let Some(l) = self.leading.clone() {
+                styles.push(Style::Leading(l));
+            }
+        }
+        if self.lang != other.lang {
+            if let Some(l) = self.lang.clone() {
+                styles.push(Style::Lang(l));
+            }
+        }
+        if self.font != other.font {
+            if let Some(f) = self.font.clone() {
+                styles.push(Style::Font(f));
+            }
+        }
+        for (k, v) in &self.custom {
+            let changed = other
+                .custom
+                .iter()
+                .find(|(ok, _)| ok == k)
+                .map(|(_, ov)| ov != v)
+                .unwrap_or(true);
+            if changed {
+                styles = styles.push_custom(k.clone(), v.clone());
+            }
+        }
+        styles
     }
 }
 
@@ -192,9 +272,11 @@ impl StyleChain {
         let mut node = self.0.as_deref();
         while let Some(n) = node {
             let d = &n.delta;
-            if out.bold.is_none()          { out.bold = d.bold; }
-            if out.italic.is_none()        { out.italic = d.italic; }
-            if out.size.is_none()          { out.size = d.size; }
+            if out.bold.is_none()                { out.bold = d.bold; }
+            if out.bold_from_strong.is_none()    { out.bold_from_strong = d.bold_from_strong; }
+            if out.italic.is_none()              { out.italic = d.italic; }
+            if out.italic_from_emph.is_none()    { out.italic_from_emph = d.italic_from_emph; }
+            if out.size.is_none()                { out.size = d.size; }
             if out.fill.is_none()          { out.fill = d.fill; }
             if out.heading_level.is_none() { out.heading_level = d.heading_level; }
             if out.weight.is_none()        { out.weight = d.weight; }
@@ -552,8 +634,8 @@ mod tests {
     fn push_styles_projecta_bold_italic_size() {
         let base = StyleChain::default_chain();
         let styles = Styles::from_iter([
-            Style::Bold(true),
-            Style::Italic(true),
+            Style::bold(true),
+            Style::italic(true),
             Style::Size(Pt(18.0)),
         ]);
         let child = base.push_styles(&styles);
@@ -566,7 +648,7 @@ mod tests {
     fn push_styles_herda_propriedade_nao_definida() {
         let base = StyleChain::default_chain();
         // Só define bold — italic e size devem cair no default.
-        let styles = Styles::from_iter([Style::Bold(true)]);
+        let styles = Styles::from_iter([Style::bold(true)]);
         let child = base.push_styles(&styles);
         assert!(child.bold());
         assert!(!child.italic());
@@ -576,8 +658,8 @@ mod tests {
     #[test]
     fn push_styles_topo_ganha_sobre_base() {
         let base = StyleChain::default_chain()
-            .push_styles(&Styles::from_iter([Style::Bold(true)]));
-        let child = base.push_styles(&Styles::from_iter([Style::Bold(false)]));
+            .push_styles(&Styles::from_iter([Style::bold(true)]));
+        let child = base.push_styles(&Styles::from_iter([Style::bold(false)]));
         assert!(!child.bold(), "o delta mais próximo do texto ganha");
     }
 
@@ -626,7 +708,7 @@ mod tests {
     fn integracao_content_styled_resolve_via_style_chain() {
         let body   = Content::text("hello");
         let styles = Styles::from_iter([
-            Style::Bold(true),
+            Style::bold(true),
             Style::Size(Pt(18.0)),
         ]);
         let styled = Content::Styled(Box::new(body), styles);
@@ -654,11 +736,11 @@ mod tests {
         let inner_body = Content::text("hi");
         let inner = Content::Styled(
             Box::new(inner_body),
-            Styles::from_iter([Style::Italic(true)]),
+            Styles::from_iter([Style::italic(true)]),
         );
         let outer = Content::Styled(
             Box::new(inner),
-            Styles::from_iter([Style::Bold(true), Style::Italic(false)]),
+            Styles::from_iter([Style::bold(true), Style::italic(false)]),
         );
 
         // Simular o caminho que o eval tomaria: outer primeiro (mais

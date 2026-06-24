@@ -348,23 +348,21 @@ pub(crate) fn eval_markup(
     let mut double_open = true; // true = próximo `"` é open
     let mut single_open = true;
 
-    // β1 fatia 1 (P339, §3a.8) + F-item3 (P368, §3a.11): snapshot do **canal custom
-    // inteiro** à entrada deste corpo, para detectar um `#set` local (numbering OU
-    // prop de elemento de usuário) e embrulhar o resto do escopo léxico num
-    // `Content::Styled` (transporte aditivo `StyledElem`-scoped). Generaliza o
-    // antigo snapshot só-de-NUM_KEYS: o custom é transparente à morfologia
-    // (`is_semantically_empty` ignora-o, P366), logo carregar qualquer custom é
-    // morph-safe. Só o #set muta `engine.styles` neste loop (strong/emph/heading
-    // usam `local_styles`).
+    // β1 fatia 1 (P339, §3a.8) + F-item3 (P368, §3a.11): snapshot do **delta
+    // completo** à entrada deste corpo, para detectar um `#set` local (numbering,
+    // prop de elemento de usuário, ou estilo tipado como `text.bold`) e embrulhar
+    // o resto do escopo léxico num `Content::Styled` (transporte aditivo
+    // `StyledElem`-scoped). Generaliza o antigo snapshot só-de-custom.
     // P373 (§3a.14): correção do transporte — **wraps aninhados por escopo léxico**
     // (espelho do `styled_with_map` por-`#set` do vanilla, recursivo). Rastreia cada
-    // **fronteira de `#set`** (mudança do `custom` vs o estado corrente) com o delta
+    // **fronteira de `#set`** (mudança do delta vs o estado corrente) com o delta
     // QUE ESTE `#set` introduziu; no fim, fold de dentro para fora produz o
     // aninhamento. Conserta o bug single-wrap-final-collapse (P372): `#set`
     // sequenciais da mesma chave deixam de colapsar para o valor final.
-    let snap_customs: Vec<(ecow::EcoString, crate::entities::value::Value)> =
-        engine.styles.collapse().custom;
-    let mut running_customs = snap_customs.clone();
+    // P431 (DEBT-50): o delta agora inclui origem (`from_strong`/`from_emph`),
+    // propagada pelo `StyleDelta` e embrulhada via `diff_styles`.
+    let snap_delta = engine.styles.collapse();
+    let mut running_delta = snap_delta.clone();
     let mut boundaries: Vec<(usize, crate::entities::style::Styles)> = Vec::new();
 
     for child in node.children() {
@@ -436,25 +434,16 @@ pub(crate) fn eval_markup(
             }
         }
 
-        // P373: fronteira de `#set` — o `custom` mudou vs o estado corrente. Regista
-        // `(parts.len(), Styles do delta introduzido)` e atualiza o corrente. (Só o
-        // `#set` muta `engine.styles` neste loop; o `#set` não produz `part`, logo
-        // `parts.len()` é o início da cauda que este `#set` escopa.)
-        let cur = engine.styles.collapse().custom;
-        if cur != running_customs {
-            let mut styles = crate::entities::style::Styles::new();
-            for (k, v) in &cur {
-                let changed = running_customs
-                    .iter()
-                    .find(|(sk, _)| sk == k)
-                    .map(|(_, sv)| sv != v)
-                    .unwrap_or(true);
-                if changed {
-                    styles = styles.push_custom(k.clone(), v.clone());
-                }
-            }
+        // P373/P431: fronteira de `#set` — o delta completo mudou vs o estado
+        // corrente. Regista `(parts.len(), Styles do delta introduzido)` e actualiza
+        // o corrente. (Só o `#set` muta `engine.styles` neste loop; o `#set` não
+        // produz `part`, logo `parts.len()` é o início da cauda que este `#set`
+        // escopa.)
+        let cur = engine.styles.collapse();
+        if cur != running_delta {
+            let styles = cur.diff_styles(&running_delta);
             boundaries.push((parts.len(), styles));
-            running_customs = cur;
+            running_delta = cur;
         }
     }
 

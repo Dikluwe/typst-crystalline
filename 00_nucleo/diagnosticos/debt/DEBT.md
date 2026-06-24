@@ -1630,85 +1630,80 @@ posterior, **após DEBT-54 fechar**.
 
 ---
 
-## DEBT-50 — Show selector Strong/Emph não distingue origem (dívida latente) — EM ABERTO (Passo 103)
-
-Aberto pelo Passo 103 (ADR-0041). Dívida **latente** — não activa
-no estado actual do cristalino.
-
-### Contexto
-
-Depois do Passo 101 (`Content::Strong`/`Content::Emph` removidos,
-consolidados em `Content::Styled(body, [Style::Bold/Italic(true)])`),
-o show rule selector para `NodeKind::Strong` e `NodeKind::Emph` casa
-qualquer `Content::Styled` com `Style::Bold(true)` ou
-`Style::Italic(true)`:
-
-```rust
-// rules/eval/rules.rs:80
-let is_bold_styled = matches!(node, Content::Styled(_, ss)
-    if ss.iter().any(|s| matches!(s, Style::Bold(true))));
-```
-
-**Hoje**, este selector é preciso porque:
-
-- `*bold*` → `Content::strong(body)` → `Content::Styled([Bold(true)], body)`.
-- `#set text(bold: true); texto` → `StyleDelta` empilhado em `*styles`
-  → `Content::Text(texto, TextStyle { bold: true, .. })` — **bake-in**,
-  sem `Content::Styled` wrapping.
-
-Portanto, `#show strong: it => [HIT]` só dispara para `*bold*`, não
-para `#set text(bold: true)`. Paridade com vanilla preservada.
-
-### Quando a dívida se manifesta
-
-Se/quando `#set text(bold: true)` for refactorizado para produzir
-`Content::Styled([Bold(true)], following_content)` em vez de
-bake-in (ver discussão ADR-0040 e nota no ADR-0041), o selector
-`NodeKind::Strong` começará a apanhar também `#set text`:
-
-```typst
-#show strong: it => [HIT]
-#set text(bold: true)
-texto
-```
-
-Neste cenário:
-
-- **Vanilla**: "texto" em bold, sem "HIT".
-- **Cristalino pós-migração**: "HIT" aparece porque selector casa
-  qualquer `Content::Styled` com Bold.
-
-Divergência de paridade (ADR-0033) aceitável no Passo 103, mas
-inaceitável quando a migração for feita.
-
-### Teste que documenta
-
-`layout/tests.rs::tests_show_rule_integration::debt_50_show_strong_nao_apanha_set_text_bold_porque_bake_in`
-— assert que HIT **não** aparece. Se o passo futuro migrar bake-in
-para wrapping, este teste falha. A falha é o sinal para activar
-este DEBT.
-
-### Critério de conclusão
-
-- [ ] Mecanismo escolhido para distinguir origem:
-   1. **Flag no enum `Style`**: `Style::Bold { value: bool, from_strong: bool }`.
-   2. **Marcador no `Content::Styled`**: `Content::Styled(body, styles, origin: Option<ElementKind>)`.
-   3. **Selector rigoroso**: casa apenas `Styles` com exactamente
-      `[Style::Bold(true)]` (sem outros estilos).
-- [ ] Mecanismo implementado.
-- [ ] Teste `debt_50_...` actualizado para assert paridade vanilla
-      (HIT não aparece mesmo com wrapping).
-- [ ] Paridade funcional com vanilla confirmada.
-
-### Dependências
-
-- **Não é accionável hoje** — a dívida é latente.
-- Torna-se accionável quando `#set text(bold/italic: true)` deixar
-  de usar bake-in.
+**DEBT-50 — Show selector Strong/Emph não distingue origem** foi
+fechado no **Passo 431**. Ver entrada em
+[Secção 2 — DEBT-50 (ENCERRADO)](#debt-50--show-selector-strongemph-não-distingue-origem--encerrado-passo-431).
 
 ---
 
 ## Secção 2 — DEBTs encerrados
+
+## DEBT-50 — Show selector Strong/Emph não distingue origem — ENCERRADO (Passo 431) ✓
+
+**Aberto em**: Passo 103 (ADR-0041).  
+**Fechado em**: 2026-06-23 (Passo 431).  
+**Etiqueta de fecho**: **IMPLEMENTADO**.
+
+### Decisão
+
+Opção α do P431: flag de origem no enum `Style`:
+
+- `Style::Bold { value: bool, from_strong: bool }`
+- `Style::Italic { value: bool, from_emph: bool }`
+
+O `StyleDelta` (backing de `Styles` e `StyleChain`) preserva a origem
+nos campos `bold_from_strong` / `italic_from_emph`, permitindo ao
+selector `NodeKind::Strong`/`Emph` distinguir:
+
+- `*bold*` / `_italic_` → `from_strong: true` / `from_emph: true` → casa.
+- `#set text(bold: true)` / `#set text(italic: true)` → `from_strong: false` /
+  `from_emph: false` → **não** casa.
+
+### Mudanças principais
+
+- `01_core/src/entities/style.rs`: `Style::Bold`/`Italic` passam a struct
+  variants com flags de origem; adicionados helpers `Style::bold`,
+  `Style::italic`, `Style::strong`, `Style::emph`.
+- `01_core/src/entities/style_chain.rs`: `StyleDelta` ganha
+  `bold_from_strong` e `italic_from_emph`; `fold_into` propaga as flags.
+- `01_core/src/rules/eval/rules.rs`:
+  - `#set text(bold: true)` emite `Style::bold(true)`
+    (`from_strong: false`);
+  - `#set text(italic: true)` emite `Style::italic(true)`
+    (`from_emph: false`);
+  - `selector_matches` para `NodeKind::Strong`/`Emph` verifica a origem
+    no delta do `Content::Styled` (mantém o match das variantes
+    `Content::Strong`/`Emph` para compatibilidade).
+- `01_core/src/rules/layout/mod.rs`: braços `Content::Strong`/`Emph`
+  empurram `Style::strong()` / `Style::emph()`.
+- `01_core/src/rules/layout/tests.rs`: teste renomeado para
+  `debt_50_show_strong_nao_apanha_set_text_bold` e actualizado para o
+  cenário pós-bake-in (wrapping).
+- `01_core/src/rules/eval/tests.rs`: helpers de show-set ajustados para
+  lerem o campo tipado `bold` em vez do canal `custom` `"text.bold"`.
+
+### Critério de conclusão
+
+- [x] Flag no enum `Style`: `Style::Bold { value: bool, from_strong: bool }`
+      e `Style::Italic { value: bool, from_emph: bool }`.
+- [x] Origem propagada no `StyleDelta` (`bold_from_strong` / `italic_from_emph`).
+- [x] Selector `NodeKind::Strong` casa apenas `from_strong: true`;
+      `NodeKind::Emph` casa apenas `from_emph: true`.
+- [x] Teste `debt_50_show_strong_nao_apanha_set_text_bold` actualizado
+      e passando.
+- [x] `cargo test --workspace` verde.
+- [x] `crystalline-lint` sem novas violações.
+
+### Evidência
+
+- `layout/tests.rs::tests_show_rule_integration::debt_50_show_strong_nao_apanha_set_text_bold`
+  — `HIT` não aparece quando `#set text(bold: true)` está activo.
+- `cargo test --workspace` verde; `crystalline-lint` mantém apenas os
+  warnings pré-existentes (`adr-stub-vs-fallback.md`, `show-regex.md`).
+
+---
+
+## DEBT-35b — Invalidação de cache de available_width após SetPage — ENCERRADO (Passo 276) ✓
 
 ## DEBT-35b — Invalidação de cache de available_width após SetPage — ENCERRADO (Passo 276) ✓
 

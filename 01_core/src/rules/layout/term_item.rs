@@ -26,7 +26,7 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
     // O termo aparece em negrito — convenção de listas de definições.
     let prev_chain = layouter.chain.clone();
     let prev_style = layouter.style.clone();
-    layouter.chain = layouter.chain.push_styles(&Styles::from_iter([Style::Bold(true)]));
+    layouter.chain = layouter.chain.push_styles(&Styles::from_iter([Style::bold(true)]));
     layouter.style = TextStyle::from(&layouter.chain);
     layouter.layout_content(&e.term);
     layouter.chain = prev_chain;

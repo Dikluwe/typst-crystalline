@@ -33,10 +33,18 @@ use crate::entities::style_chain::StyleDelta;
 /// inofensiva.
 #[derive(Debug, Clone, PartialEq)]
 pub enum Style {
-    /// Activa ou desactiva negrito.
-    Bold(bool),
-    /// Activa ou desactiva itálico.
-    Italic(bool),
+    /// Activa ou desactiva negrito. `from_strong` distingue `*bold*` sintático
+    /// (`true`) de `#set text(bold)` (`false`) — DEBT-50 / ADR-0107.
+    Bold {
+        value: bool,
+        from_strong: bool,
+    },
+    /// Activa ou desactiva itálico. `from_emph` distingue `_italic_` sintático
+    /// (`true`) de `#set text(italic)` (`false`).
+    Italic {
+        value: bool,
+        from_emph: bool,
+    },
     /// Tamanho de fonte em pontos tipográficos.
     Size(Pt),
     /// Cor de preenchimento do texto. Forward-compat (Passo 99).
@@ -132,8 +140,14 @@ impl Style {
     /// obriga a tratá-la aqui.
     fn fold_into(&self, delta: &mut StyleDelta) {
         match self {
-            Style::Bold(b)         => delta.bold = Some(*b),
-            Style::Italic(i)       => delta.italic = Some(*i),
+            Style::Bold { value, from_strong } => {
+                delta.bold = Some(*value);
+                delta.bold_from_strong = Some(*from_strong);
+            }
+            Style::Italic { value, from_emph } => {
+                delta.italic = Some(*value);
+                delta.italic_from_emph = Some(*from_emph);
+            }
             Style::Size(pt)        => delta.size = Some(pt.val()),
             Style::Fill(c)         => delta.fill = Some(*c),
             Style::HeadingLevel(l) => delta.heading_level = Some(*l),
@@ -143,6 +157,38 @@ impl Style {
             Style::Leading(l)      => delta.leading = Some(*l),
             // `FontList: !Copy` (Vec<FontFamily>) — clone material (P292).
             Style::Font(f)         => delta.font = Some(f.clone()),
+        }
+    }
+
+    /// Bold genérico (`#set text(bold)`), sem origem sintática.
+    pub fn bold(value: bool) -> Self {
+        Self::Bold {
+            value,
+            from_strong: false,
+        }
+    }
+
+    /// Italic genérico (`#set text(italic)`), sem origem sintática.
+    pub fn italic(value: bool) -> Self {
+        Self::Italic {
+            value,
+            from_emph: false,
+        }
+    }
+
+    /// Bold proveniente de `*bold*` / `Content::Strong`.
+    pub fn strong() -> Self {
+        Self::Bold {
+            value: true,
+            from_strong: true,
+        }
+    }
+
+    /// Italic proveniente de `_italic_` / `Content::Emph`.
+    pub fn emph() -> Self {
+        Self::Italic {
+            value: true,
+            from_emph: true,
         }
     }
 }
@@ -257,8 +303,8 @@ mod tests {
     fn styles_push_dobra_no_delta() {
         // F-4: `push` dobra a variante no campo correspondente do delta.
         let mut s = Styles::new();
-        s.push(Style::Bold(true));
-        s.push(Style::Italic(false));
+        s.push(Style::bold(true));
+        s.push(Style::italic(false));
         assert!(!s.is_empty());
         assert_eq!(s.delta().bold, Some(true));
         assert_eq!(s.delta().italic, Some(false));
@@ -268,7 +314,7 @@ mod tests {
     fn styles_from_iter_dobra_no_delta() {
         // F-4: `from_iter` dobra cada variante no backing único.
         let s = Styles::from_iter([
-            Style::Bold(true),
+            Style::bold(true),
             Style::Size(Pt(18.0)),
         ]);
         assert_eq!(s.delta().bold, Some(true));
@@ -279,15 +325,15 @@ mod tests {
     fn styles_from_iter_last_write_wins_por_campo() {
         // F-4: dobra é last-write-wins por campo (semântica idêntica à projeção
         // antiga via LIFO da chain).
-        let s = Styles::from_iter([Style::Bold(true), Style::Bold(false)]);
+        let s = Styles::from_iter([Style::bold(true), Style::bold(false)]);
         assert_eq!(s.delta().bold, Some(false), "última escrita do campo vence");
     }
 
     #[test]
     fn styles_eq() {
-        let a = Styles::from_iter([Style::Bold(true)]);
-        let b = Styles::from_iter([Style::Bold(true)]);
-        let c = Styles::from_iter([Style::Bold(false)]);
+        let a = Styles::from_iter([Style::bold(true)]);
+        let b = Styles::from_iter([Style::bold(true)]);
+        let c = Styles::from_iter([Style::bold(false)]);
         assert_eq!(a, b);
         assert_ne!(a, c);
     }
@@ -313,8 +359,8 @@ mod tests {
         let red = Color::rgb(255, 0, 0);
         let font = FontList::single(EcoString::from("Inter"));
         let s = Styles::from_iter([
-            Style::Bold(true),
-            Style::Italic(true),
+            Style::bold(true),
+            Style::italic(true),
             Style::Size(Pt(18.0)),
             Style::Fill(red),
             Style::HeadingLevel(3),
@@ -369,8 +415,8 @@ mod tests {
         use crate::entities::lang::Lang;
         use ecow::EcoString;
         let variants = [
-            Style::Bold(true),
-            Style::Italic(false),
+            Style::bold(true),
+            Style::italic(false),
             Style::Size(Pt(12.0)),
             Style::Fill(Color::rgb(0, 0, 0)),
             Style::HeadingLevel(1),

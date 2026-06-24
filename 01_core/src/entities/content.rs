@@ -137,7 +137,7 @@ pub enum Content {
     // ── Rich text (Passo 22, consolidado no Passo 101) ───────────────────
     // `Content::Strong` e `Content::Emph` removidos no Passo 101
     // (ADR-0038/0039): `*bold*` e `_italic_` passam a emitir
-    // `Content::Styled(body, Styles::from_iter([Style::Bold(true) | Italic(true)]))`.
+    // `Content::Styled(body, Styles::from_iter([Style::bold(true) | Italic(true)]))`.
     // Os construtores `Content::strong(body)` e `Content::emph(body)` foram
     // redefinidos para preservar a API pública.
     /// Cabeçalho com nível 1–6 (`= Heading`).
@@ -2611,7 +2611,7 @@ mod tests {
         let strong = Content::strong(Content::text("x"));
         let set_text_bold = Content::Styled(
             Box::new(Content::text("x")),
-            Styles::from_iter([Style::Bold(true)]),
+            Styles::from_iter([Style::bold(true)]),
         );
         assert_ne!(
             strong, set_text_bold,
@@ -2907,7 +2907,7 @@ mod tests {
     #[test]
     fn styled_plain_text_transparente() {
         let inner = Content::text("hello");
-        let styles = Styles::from_iter([Style::Bold(true), Style::Size(Pt(18.0))]);
+        let styles = Styles::from_iter([Style::bold(true), Style::Size(Pt(18.0))]);
         let styled = Content::Styled(Box::new(inner), styles);
         assert_eq!(styled.plain_text(), "hello");
     }
@@ -2916,15 +2916,15 @@ mod tests {
     fn styled_partial_eq() {
         let s1 = Content::Styled(
             Box::new(Content::text("x")),
-            Styles::from_iter([Style::Bold(true)]),
+            Styles::from_iter([Style::bold(true)]),
         );
         let s2 = Content::Styled(
             Box::new(Content::text("x")),
-            Styles::from_iter([Style::Bold(true)]),
+            Styles::from_iter([Style::bold(true)]),
         );
         let s3 = Content::Styled(
             Box::new(Content::text("x")),
-            Styles::from_iter([Style::Bold(false)]),
+            Styles::from_iter([Style::bold(false)]),
         );
         assert_eq!(s1, s2);
         assert_ne!(s1, s3);
@@ -2933,7 +2933,7 @@ mod tests {
     #[test]
     fn styled_preserva_estilos_em_map_text() {
         let inner = Content::text("abc");
-        let styles = Styles::from_iter([Style::Italic(true)]);
+        let styles = Styles::from_iter([Style::italic(true)]);
         let styled = Content::Styled(Box::new(inner), styles.clone());
         let transformed = styled.map_text(&mut |s: &str| s.to_uppercase());
         match transformed {

@@ -858,7 +858,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
                 let prev_chain = self.chain.clone();
                 let prev_style = self.style.clone();
                 self.chain =
-                    self.chain.push_styles(&Styles::from_iter([Style::Bold(true)]));
+                    self.chain.push_styles(&Styles::from_iter([Style::strong()]));
                 self.style = TextStyle::from(&self.chain);
                 self.layout_content(&e.body);
                 self.chain = prev_chain;
@@ -869,7 +869,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
                 let prev_chain = self.chain.clone();
                 let prev_style = self.style.clone();
                 self.chain =
-                    self.chain.push_styles(&Styles::from_iter([Style::Italic(true)]));
+                    self.chain.push_styles(&Styles::from_iter([Style::emph()]));
                 self.style = TextStyle::from(&self.chain);
                 self.layout_content(&e.body);
                 self.chain = prev_chain;

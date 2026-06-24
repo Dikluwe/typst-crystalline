@@ -31,7 +31,7 @@ use crate::entities::selector::Selector as QuerySelector;
 use crate::entities::show::{NodeKind, Selector, ShowRule, Transformation};
 use crate::entities::source_result::{SourceDiagnostic, SourceResult};
 use crate::entities::span::Span;
-use crate::entities::style::Styles;
+use crate::entities::style::{Style, Styles};
 use crate::entities::style_chain::StyleChain;
 use crate::entities::value::Value;
 use crate::entities::world_types::check_show_depth as route_check_show_depth;
@@ -141,11 +141,24 @@ fn unsupported_target_warn(target: &str) -> (String, String) {
 /// **Partilhado** (P352) pelo loop α (transformação func/content) e pela passagem
 /// de show-set: ambos usam exatamente o mesmo critério de match. `Selector::Text`
 /// nunca casa aqui (tratado por `map_text`).
+fn is_styled_origin(work: &Content, bold_from_strong: bool, italic_from_emph: bool) -> bool {
+    match work {
+        Content::Styled(_, styles) => {
+            let d = styles.delta();
+            (!bold_from_strong || d.bold == Some(true) && d.bold_from_strong == Some(true))
+                && (!italic_from_emph || d.italic == Some(true) && d.italic_from_emph == Some(true))
+                && (bold_from_strong || italic_from_emph)
+        }
+        _ => false,
+    }
+}
+
 fn selector_matches(work: &Content, selector: &Selector) -> bool {
     // F-5b fatia 1 (P371): `show strong/emph` casam as **variantes próprias**
-    // `Content::Strong`/`Emph` (S1, por tipo) — o colapso P101 (que casava
-    // `Content::Styled` com bold/italic) foi superado. `#set text(bold)`
-    // (`Styled[Bold]`) **não** casa `show strong` (fidelidade 0107).
+    // `Content::Strong`/`Emph` (S1, por tipo). P431 (DEBT-50) acrescenta a
+    // distinção de origem no `Style` para o cenário pós-bake-in (wrapping):
+    // um `Content::Styled` com `Bold { from_strong: true }` casa `show strong`,
+    // mas `Bold { from_strong: false }` (de `#set text(bold)`) não casa.
     match selector {
         Selector::NodeKind(kind) => matches!(
             (work, kind),
@@ -156,6 +169,12 @@ fn selector_matches(work: &Content, selector: &Selector) -> bool {
                 | (Content::ListItem(_), NodeKind::ListItem)
                 | (Content::Strong(_), NodeKind::Strong)
                 | (Content::Emph(_), NodeKind::Emph)
+        ) || matches!(
+            (work, kind),
+            (_, NodeKind::Strong) if is_styled_origin(work, true, false)
+        ) || matches!(
+            (work, kind),
+            (_, NodeKind::Emph) if is_styled_origin(work, false, true)
         ),
         Selector::DynKind(name) => {
             matches!(work, Content::Dynamic(e) if e.dyn_kind() == name)
@@ -742,14 +761,16 @@ pub(super) fn eval_set_rule(
             match key.as_str() {
                 "bold" => {
                     if let Value::Bool(b) = val {
-                        *engine.styles =
-                            engine.styles.push_custom("text.bold", Value::Bool(b));
+                        *engine.styles = engine
+                            .styles
+                            .push_styles(&Styles::from_iter([Style::bold(b)]));
                     }
                 }
                 "italic" => {
                     if let Value::Bool(b) = val {
-                        *engine.styles =
-                            engine.styles.push_custom("text.italic", Value::Bool(b));
+                        *engine.styles = engine
+                            .styles
+                            .push_styles(&Styles::from_iter([Style::italic(b)]));
                     }
                 }
                 "size" => {

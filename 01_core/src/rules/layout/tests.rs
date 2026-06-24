@@ -2079,7 +2079,7 @@ mod tests_styled_integration {
         let hello = Content::text("hello");
         let styled = Content::Styled(
             Box::new(hello),
-            Styles::from_iter([Style::Bold(true), Style::Size(Pt(18.0))]),
+            Styles::from_iter([Style::bold(true), Style::Size(Pt(18.0))]),
         );
 
         let doc = layout(&styled);
@@ -2100,11 +2100,11 @@ mod tests_styled_integration {
     fn styled_aninhado_inner_ganha_sobre_outer() {
         let inner = Content::Styled(
             Box::new(Content::text("hi")),
-            Styles::from_iter([Style::Italic(true)]),
+            Styles::from_iter([Style::italic(true)]),
         );
         let outer = Content::Styled(
             Box::new(inner),
-            Styles::from_iter([Style::Bold(true), Style::Italic(false)]),
+            Styles::from_iter([Style::bold(true), Style::italic(false)]),
         );
 
         let doc = layout(&outer);
@@ -2129,7 +2129,7 @@ mod tests_styled_integration {
         use std::sync::Arc;
         let styled = Content::Styled(
             Box::new(Content::text("STYLED")),
-            Styles::from_iter([Style::Bold(true)]),
+            Styles::from_iter([Style::bold(true)]),
         );
         let plain = Content::text("plain");
         let seq = Content::Sequence(Arc::from(vec![styled, Content::Space, plain]));
@@ -2747,25 +2747,18 @@ mod tests_show_rule_integration {
         );
     }
 
-    /// **Documenta dívida latente (DEBT-50)**: `#show strong` apanha `Content::Styled`
-    /// com `Style::Bold(true)`. Hoje, `#set text(bold: true)` **não** produz
-    /// `Content::Styled` (bake-in em `Content::Text`), portanto a dívida está
-    /// **adormecida** — o selector Strong NÃO apanha texto afectado por #set text.
-    /// Este teste garante esse comportamento actual; se um passo futuro migrar
-    /// `#set text` para wrapping, este teste falha e o DEBT-50 torna-se accionável.
+    /// **DEBT-50 fechado (P431)**: `#show strong` só dispara para conteúdo com
+    /// `Style::Bold { from_strong: true }` (sintaxe `*bold*`). `#set text(bold: true)`
+    /// produz `Content::Styled(.., [Style::bold(true)])`, onde `from_strong: false`,
+    /// pelo que o selector Strong NÃO deve disparar.
     #[test]
-    fn debt_50_show_strong_nao_apanha_set_text_bold_porque_bake_in() {
+    fn debt_50_show_strong_nao_apanha_set_text_bold() {
         let doc = layout_typst("#show strong: it => [HIT]\n#set text(bold: true)\ntexto");
         let text = plain_text(&doc);
-        // `#set text(bold: true)` produz `Content::Text("texto", { bold: true })`,
-        // NÃO `Content::Styled(.., [Bold(true)])`. O selector strong só casa
-        // `Content::Styled`, portanto NÃO dispara.
-        // Esperado: "texto" sem "HIT".
         assert!(
             !text.contains("HIT"),
-            "DEBT-50: enquanto `#set text` usar bake-in, selector Strong NÃO deve \
-             disparar por `#set text(bold: true)`. Se este teste falhar, o Passo \
-             que migrou `#set text` para wrapping deve activar DEBT-50: {:?}",
+            "DEBT-50: selector Strong NÃO deve disparar por `#set text(bold: true)` \
+             (origem diferente de `*bold*`): {:?}",
             text
         );
         assert!(text.contains("texto"), "'texto' deve aparecer no output: {:?}", text);

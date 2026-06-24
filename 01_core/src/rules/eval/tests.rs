@@ -4670,13 +4670,11 @@ mod tests {
 
     // ── P352 — show-set (`#show k: set …`, Transformation::Style, S5) ─────────
 
-    /// **F-5b fatia 2 (P373)**: o bold/weight do `#set text` (e do show-set, que o
-    /// captura) vive no canal `custom` `"text.bold"`/`"text.weight"` da `Styles` —
-    /// não em campos tipados. Estes helpers leem o custom.
+    /// P431 (DEBT-50): `#set text(bold: true)` passa a viajar no campo tipado
+    /// `bold` da `Styles`, com `from_strong: false`. Estes helpers leem esse
+    /// campo; `text.weight` continua no canal `custom`.
     fn styles_has_text_bold(s: &crate::entities::style::Styles) -> bool {
-        s.delta().custom.iter().any(|(k, v)| {
-            k == "text.bold" && matches!(v, crate::entities::value::Value::Bool(true))
-        })
+        s.delta().bold == Some(true) && s.delta().bold_from_strong == Some(false)
     }
     fn styles_has_text_weight(s: &crate::entities::style::Styles, w: i64) -> bool {
         s.delta().custom.iter().any(|(k, v)| {
@@ -4711,18 +4709,17 @@ mod tests {
 
     /// `true` se existe um `Content::Text` que contém `needle` **sob** um escopo
     /// com `#set text(bold: true)` activo (deteta vazamento global do set).
-    /// **F-5b fatia 2 (P373)**: o bold do `#set text` não vive mais no node — viaja
-    /// no canal `custom` `"text.bold"` de um `Content::Styled`. O helper thread o
-    /// estado bold ao descer cada wrap.
+    /// P431 (DEBT-50): o bold do `#set text` viaja no campo tipado `bold`
+    /// (`from_strong: false`) de um `Content::Styled`. O helper thread o estado
+    /// bold ao descer cada wrap.
     fn texto_bold_contendo(c: &Content, needle: &str) -> bool {
         fn go(c: &Content, needle: &str, bold: bool) -> bool {
             match c {
                 Content::Text(s) => bold && s.as_str().contains(needle),
                 Content::Styled(b, styles) => {
-                    let here = styles.delta().custom.iter().any(|(k, v)| {
-                        k == "text.bold"
-                            && matches!(v, crate::entities::value::Value::Bool(true))
-                    });
+                    let d = styles.delta();
+                    let here =
+                        d.bold == Some(true) && d.bold_from_strong == Some(false);
                     go(b, needle, bold || here)
                 }
                 Content::Sequence(items) => items.iter().any(|i| go(i, needle, bold)),
