@@ -515,9 +515,12 @@ abaixo passaram a apontar para `stdlib/_comum.md` (a convenção partilhada) por
 **não terem spec L0 dedicada** — não foi inventada spec no P314 (content-
 preserving). Ficheiros sem prompt L0 dedicado:
 
-- `rules/stdlib/layout.rs` — 17 funções (`align`/`place`/`grid`/`page`/`pad`/
+- `rules/stdlib/layout.rs` — 16 funções (`align`/`place`/`grid`/`pad`/
   `hide`/`h`/`v`/`block`/`stack`/`box`/`repeat`/`columns`/`colbreak`/`measure`/
-  `stroke`/`pagebreak`).
+  `stroke`/`pagebreak`). `native_page` foi removido no P335 (caminho canónico
+  `#set page(...)`); **✅ subset fechado em P432** — prompt L0 dedicado em
+  `00_nucleo/prompts/rules/stdlib/layout.md`; header de
+  `01_core/src/rules/stdlib/layout.rs` actualizado; hashes sincronizados.
 - `rules/stdlib/structural.rs` — 21 funções (`strong`/`emph`/`raw`/`heading`/
   `divider`/`terms`/`quote`/`table`+cell/header/footer/`grid_cell`/header/footer/
   `bibliography`/`cite`/`footnote`/`accent`/`cancel`/`underover`/`op`).
@@ -534,8 +537,9 @@ preserving). Ficheiros sem prompt L0 dedicado:
   `counter_final`/`counter_step`, `query`/`here`/`locate`.
 
 **Critério de fecho**: cada ficheiro da lista com um prompt L0 dedicado (mesma
-receita de fatiamento do P314). **P430 fechou o subset `structural.rs`**; os
-restantes ficheiros permanecem em aberto.
+receita de fatiamento do P314). **P430 fechou o subset `structural.rs`**;
+**P432 fechou o subset `layout.rs`**; os restantes ficheiros permanecem em
+aberto.
 
 ---
 
