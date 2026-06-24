@@ -61,37 +61,79 @@ V12 = { level = "warning" }
 V13 = { level = "error" }
 V14 = { level = "error" }
 
-[l1_allowed_external]
-# comemo: memoização incremental — decisão intencional, ver ADR-0001
-# ecow: autorizado em L3 para conversão na fronteira; não entra em L1 (ADR-0004 Opção C)
-# unicode_ident: UAX #31 (identificadores) — ADR-0010
-# unicode_math_class: TR25 (classificação math) — ADR-0011
-# unicode_script: UAX #24 (detecção de script) — ADR-0012
-# unicode_segmentation: UAX #29 (grapheme clusters) — ADR-0013
-rust = [
-    "thiserror",
-    "comemo",
-    "unicode_ident",
-    "unicode_math_class",
-    "unicode_script",
-    "unicode_segmentation",
-    "rustc_hash",    # ADR-0018 — revoga ADR-0007
-    "time",          # ADR-0021 — aritmética de datas; time::now() não entra em L1
-    "indexmap",      # ADR-0023 — ordem de inserção em Scope; sem substituto no std
-    "ecow",          # ADR-0024 — EcoString em Value::Str; clone O(1) no hot path de eval()
-    "hypher",        # ADR-0057 — hyphenation patterns embebidos; no_std, zero deps, sem unsafe
-    "regex",         # ADR-0077 — `Selector::Regex` em L1 (M9c P209D); wrapper L1 isola dep
-    # grupo loading (data import) — ADR-0111 (P387); decode puro, paridade do Value de saída
-    "serde",         # ADR-0111 — base de serde_json; sem derive em contrato L1
-    "serde_json",    # ADR-0111 — decode_json
-    "saphyr",        # ADR-0111 — decode_yaml (YAML mantido; mapa Yaml→Value manual)
-    "toml",          # ADR-0111 — decode_toml
-    "ciborium",      # ADR-0111 — decode_cbor (puro-Rust sem C)
-    "roxmltree",     # ADR-0111 — decode_xml (read-only)
-    "csv",           # ADR-0111 — decode_csv
-    "rust_decimal",  # ADR-0112 (P399) — Decimal precisão fixa em L1; puro-Rust, Copy, zero alloc
-    "hayagriva",     # ADR-0062 (P418) — parsing bibliográfico + CSL engine
-]
+# Externos autorizados em L1 — whitelist type-level (DEBT-43, P440).
+# Cada secção é uma crate; `types` lista os itens (tipos, funções, traits,
+# módulos) explicitamente autorizados. Itens não listados de crates listadas
+# disparam V14.
+
+[l1_allowed_external.thiserror]
+types = ["Error"]  # derive em tipos de erro de domínio L1
+
+[l1_allowed_external.comemo]
+types = ["track", "Track", "Tracked", "TrackedMut", "Validate", "analyze"]  # ADR-0001 / ADR-0074
+
+[l1_allowed_external.unicode_ident]
+types = ["is_xid_continue", "is_xid_start"]  # ADR-0010
+
+[l1_allowed_external.unicode_math_class]
+types = ["class", "MathClass"]  # ADR-0011
+
+[l1_allowed_external.unicode_script]
+types = ["Script", "UnicodeScript"]  # ADR-0012
+
+[l1_allowed_external.unicode_segmentation]
+types = ["UnicodeSegmentation"]  # ADR-0013
+
+[l1_allowed_external.rustc_hash]
+types = ["FxBuildHasher", "FxHasher", "FxHashMap", "FxHashSet"]  # ADR-0018
+
+[l1_allowed_external.time]
+types = ["Date", "Month", "Time", "OffsetDateTime", "from_calendar_date", "try_from", "from_hms", "now_utc"]  # ADR-0021
+
+[l1_allowed_external.indexmap]
+types = ["IndexMap", "default"]  # ADR-0023
+
+[l1_allowed_external.ecow]
+types = ["EcoString", "EcoVec"]  # ADR-0024 / ADR-0035 — EcoMap/EcoArc NÃO autorizados
+
+[l1_allowed_external.hypher]
+types = ["Lang", "hyphenate", "from_iso"]  # ADR-0057
+
+[l1_allowed_external.regex]
+types = ["Regex", "new"]  # ADR-0077
+
+# grupo loading (data import) — ADR-0111 (P387); decode puro, paridade do Value de saída
+[l1_allowed_external.serde_json]
+types = ["Value", "from_slice"]  # ADR-0111 — decode_json
+
+[l1_allowed_external.saphyr]
+types = ["Yaml", "Scalar", "LoadableYamlNode"]  # ADR-0111 — decode_yaml
+
+[l1_allowed_external.toml]
+types = ["Value", "from_str"]  # ADR-0111 — decode_toml
+
+[l1_allowed_external.ciborium]
+types = ["value", "Value", "from_reader", "into_writer"]  # ADR-0111 — decode_cbor
+
+[l1_allowed_external.roxmltree]
+types = ["Document", "Node", "parse"]  # ADR-0111 — decode_xml
+
+[l1_allowed_external.csv]
+types = ["ReaderBuilder", "new"]  # ADR-0111 — decode_csv
+
+[l1_allowed_external.rust_decimal]
+types = ["Decimal", "prelude"]  # ADR-0112 (P399)
+
+[l1_allowed_external.hayagriva]
+types = [
+    "BibliographyDriver", "CitationItem", "CitationRequest", "CitePurpose",
+    "ElemChild", "ElemChildren", "Entry", "Formatted", "Formatting",
+    "Library", "RenderedBibliography", "BibliographyRequest", "new",
+    "archive", "ArchivedStyle", "locales",
+    "citationberg", "Display", "IndependentStyle", "Locale", "Style", "FontStyle", "FontVariant", "FontWeight", "TextDecoration",
+    "io", "from_biblatex_str", "from_yaml_str",
+    "types", "Person",
+]  # ADR-0062 (P418)
 
 [orphan_exceptions]
 # Prompt comum partilhado por vários ficheiros stdlib; não tem um "dono" único

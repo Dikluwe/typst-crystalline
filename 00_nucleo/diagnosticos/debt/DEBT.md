@@ -929,7 +929,15 @@ Uma de duas:
 
 ---
 
-## DEBT-43 — Linter: whitelist crate-level em vez de type-level — EM ABERTO (Passo 89)
+## DEBT-43 — Linter: whitelist crate-level em vez de type-level — ✅ FECHADO (Passo 440)
+
+> **Fechado.** O `crystalline.toml` foi migrado para whitelist type-level
+> (formato `[l1_allowed_external.crate] types = [...]`). O binário
+> `crystalline-lint` foi actualizado para interpretar o novo formato,
+> rejeitando itens não listados de crates autorizadas. Teste de violação
+> negativa em `04_wiring/tests/crystalline_lint.rs` confirma que
+> `ecow::EcoMap` é reportado como V14 enquanto `ecow::EcoString` continua
+> a passar. `cargo test --workspace` e `crystalline-lint .` verdes.
 
 O `crystalline.toml` usa whitelist crate-level para externos
 autorizados em L1 (secção `[l1_allowed_external]`). Isto significa
@@ -1000,12 +1008,11 @@ de infraestrutura, não de domínio.
 
 ### Critério de conclusão
 
-- [ ] `crystalline.toml` aceita whitelist type-level para externos.
-- [ ] Pelo menos uma crate (sugestão: `ecow`) migrada para o novo
-      formato.
-- [ ] Tipo não autorizado dessa crate é reportado como violação em
-      teste do `crystalline-lint`.
-- [ ] Documentação actualizada no README do `crystalline-lint`.
+- ✅ `crystalline.toml` aceita whitelist type-level para externos.
+- ✅ Todas as crates autorizadas em L1 migradas para o novo formato.
+- ✅ Tipo não autorizado (`ecow::EcoMap`) reportado como violação V14 em
+      teste de integração (`04_wiring/tests/crystalline_lint.rs`).
+- ✅ `cargo test --workspace` verde; `crystalline-lint .` com zero erros.
 
 ---
 
