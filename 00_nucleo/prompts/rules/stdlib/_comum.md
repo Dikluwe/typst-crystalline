@@ -16,6 +16,9 @@ partilhada; spec dedicada é candidata futura, não inventada aqui).
 > `00_nucleo/prompts/rules/stdlib/structural.md` (P430).
 > Nota: `stdlib/layout.rs` tem agora o seu próprio prompt em
 > `00_nucleo/prompts/rules/stdlib/layout.md` (P432).
+> Nota: `stdlib/calc.rs` tem o seu prompt dedicado em
+> `00_nucleo/prompts/rules/stdlib/calc.md` (actualizado no P433 para o subset
+> trig/hiperbólicas/log/exp/constantes).
 
 ---
 

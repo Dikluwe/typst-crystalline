@@ -521,6 +521,13 @@ preserving). Ficheiros sem prompt L0 dedicado:
   `#set page(...)`); **✅ subset fechado em P432** — prompt L0 dedicado em
   `00_nucleo/prompts/rules/stdlib/layout.md`; header de
   `01_core/src/rules/stdlib/layout.rs` actualizado; hashes sincronizados.
+- `rules/stdlib/calc.rs` — 21 entradas do subset trig/hiperbólicas/log/exp/
+  constantes (`sin`/`cos`/`tan`/`asin`/`acos`/`atan`/`atan2`/`sinh`/`cosh`/
+  `tanh`/`asinh`/`acosh`/`atanh`/`exp`/`ln`/`log`/`pi`/`tau`/`e`/`inf`, mais
+  a variante com base explícita). **✅ Subset fechado em P433** — prompt L0
+  dedicado actualizado em `00_nucleo/prompts/rules/stdlib/calc.md`; header de
+  `01_core/src/rules/stdlib/calc.rs` já apontava para `calc.md`; hashes
+  sincronizados.
 - `rules/stdlib/structural.rs` — 21 funções (`strong`/`emph`/`raw`/`heading`/
   `divider`/`terms`/`quote`/`table`+cell/header/footer/`grid_cell`/header/footer/
   `bibliography`/`cite`/`footnote`/`accent`/`cancel`/`underover`/`op`).
@@ -538,8 +545,8 @@ preserving). Ficheiros sem prompt L0 dedicado:
 
 **Critério de fecho**: cada ficheiro da lista com um prompt L0 dedicado (mesma
 receita de fatiamento do P314). **P430 fechou o subset `structural.rs`**;
-**P432 fechou o subset `layout.rs`**; os restantes ficheiros permanecem em
-aberto.
+**P432 fechou o subset `layout.rs`**; **P433 fechou o subset `calc.rs`**;
+os restantes ficheiros permanecem em aberto.
 
 ---
 
