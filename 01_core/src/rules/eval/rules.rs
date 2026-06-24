@@ -169,6 +169,9 @@ fn selector_matches(work: &Content, selector: &Selector) -> bool {
                 | (Content::ListItem(_), NodeKind::ListItem)
                 | (Content::Strong(_), NodeKind::Strong)
                 | (Content::Emph(_), NodeKind::Emph)
+                | (Content::Underline(_), NodeKind::Underline)
+                | (Content::Strike(_), NodeKind::Strike)
+                | (Content::Overline(_), NodeKind::Overline)
         ) || matches!(
             (work, kind),
             (_, NodeKind::Strong) if is_styled_origin(work, true, false)
@@ -978,8 +981,8 @@ pub(super) fn eval_show_rule(
                     // Closures retornam `None` em `native_fn_addr()` —
                     // function pointers de closures não são estáveis.
                     use crate::rules::stdlib::{
-                        native_emph, native_figure, native_heading, native_raw,
-                        native_strong,
+                        native_emph, native_figure, native_heading, native_overline,
+                        native_raw, native_strike, native_strong, native_underline,
                     };
                     use std::ptr::fn_addr_eq;
                     match f.native_fn_addr() {
@@ -993,11 +996,18 @@ pub(super) fn eval_show_rule(
                             Selector::NodeKind(NodeKind::Emph),
                         Some(addr) if fn_addr_eq(addr, native_raw as fn(_, _, _, _) -> _) =>
                             Selector::NodeKind(NodeKind::Raw),
+                        Some(addr) if fn_addr_eq(addr, native_underline as fn(_, _, _, _) -> _) =>
+                            Selector::NodeKind(NodeKind::Underline),
+                        Some(addr) if fn_addr_eq(addr, native_strike as fn(_, _, _, _) -> _) =>
+                            Selector::NodeKind(NodeKind::Strike),
+                        Some(addr) if fn_addr_eq(addr, native_overline as fn(_, _, _, _) -> _) =>
+                            Selector::NodeKind(NodeKind::Overline),
                         Some(_) => return Err(vec![SourceDiagnostic::error(
                             sel_expr.span(),
                             format!(
                                 "função '{}' não é um tipo de nó suportado como selector. \
-                                 Tipos suportados: heading, figure, strong, emph, raw.",
+                                 Tipos suportados: heading, figure, strong, emph, raw, \
+                                 underline, strike, overline.",
                                 f.name().unwrap_or("<anónima>")
                             ),
                         )]),
@@ -1485,5 +1495,37 @@ mod tests {
             Selector::Text("x".to_string()),
         ]);
         assert!(!is_node_rule(&sel));
+    }
+
+    // ── Passo 444 (P284) — selectors para text decoration ───────────────────
+
+    #[test]
+    fn p444_selector_underline_casa_content_underline() {
+        let content = Content::underline(Content::text("x"), None, None, None);
+        assert!(selector_matches(&content, &Selector::NodeKind(NodeKind::Underline)));
+        assert!(!selector_matches(&content, &Selector::NodeKind(NodeKind::Strike)));
+        assert!(!selector_matches(&content, &Selector::NodeKind(NodeKind::Overline)));
+    }
+
+    #[test]
+    fn p444_selector_strike_casa_content_strike() {
+        let content = Content::strike(Content::text("x"), None, None, None);
+        assert!(selector_matches(&content, &Selector::NodeKind(NodeKind::Strike)));
+        assert!(!selector_matches(&content, &Selector::NodeKind(NodeKind::Underline)));
+    }
+
+    #[test]
+    fn p444_selector_overline_casa_content_overline() {
+        let content = Content::overline(Content::text("x"), None, None, None);
+        assert!(selector_matches(&content, &Selector::NodeKind(NodeKind::Overline)));
+        assert!(!selector_matches(&content, &Selector::NodeKind(NodeKind::Underline)));
+    }
+
+    #[test]
+    fn p444_selector_decoration_nao_casa_texto_plano() {
+        let content = Content::text("x");
+        assert!(!selector_matches(&content, &Selector::NodeKind(NodeKind::Underline)));
+        assert!(!selector_matches(&content, &Selector::NodeKind(NodeKind::Strike)));
+        assert!(!selector_matches(&content, &Selector::NodeKind(NodeKind::Overline)));
     }
 }
