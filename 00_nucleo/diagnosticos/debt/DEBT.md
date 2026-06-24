@@ -532,6 +532,11 @@ preserving). Ficheiros sem prompt L0 dedicado:
   P434** — prompt L0 dedicado criado em
   `00_nucleo/prompts/rules/stdlib/assert.md`; header de
   `01_core/src/rules/stdlib/assert.rs` actualizado; hashes sincronizados.
+- `rules/stdlib/shapes.rs` — 6 funções (`rect`/`ellipse`/`circle`/`line`/
+  `polygon`/`curve`). **✅ Subset fechado em P435** — prompt L0 dedicado
+  criado em `00_nucleo/prompts/rules/stdlib/shapes.md`; header de
+  `01_core/src/rules/stdlib/shapes.rs` actualizado; `square.md` continua
+  referenciado como prompt auxiliar; hashes sincronizados.
 - `rules/stdlib/structural.rs` — 21 funções (`strong`/`emph`/`raw`/`heading`/
   `divider`/`terms`/`quote`/`table`+cell/header/footer/`grid_cell`/header/footer/
   `bibliography`/`cite`/`footnote`/`accent`/`cancel`/`underover`/`op`).
@@ -550,8 +555,8 @@ preserving). Ficheiros sem prompt L0 dedicado:
 **Critério de fecho**: cada ficheiro da lista com um prompt L0 dedicado (mesma
 receita de fatiamento do P314). **P430 fechou o subset `structural.rs`**;
 **P432 fechou o subset `layout.rs`**; **P433 fechou o subset `calc.rs`**;
-**P434 fechou o subset `assert.rs`**; os restantes ficheiros permanecem em
-aberto.
+**P434 fechou o subset `assert.rs`**; **P435 fechou o subset `shapes.rs`**;
+os restantes ficheiros permanecem em aberto.
 
 ---
 
