@@ -537,16 +537,17 @@ preserving). Ficheiros sem prompt L0 dedicado:
   criado em `00_nucleo/prompts/rules/stdlib/shapes.md`; header de
   `01_core/src/rules/stdlib/shapes.rs` actualizado; `square.md` continua
   referenciado como prompt auxiliar; hashes sincronizados.
+- `rules/stdlib/transforms.rs` — 4 funções (`move`/`rotate`/`scale`/`skew`).
+  **✅ Subset fechado em P436** — prompt L0 dedicado criado em
+  `00_nucleo/prompts/rules/stdlib/transforms.md`; header de
+  `01_core/src/rules/stdlib/transforms.rs` actualizado; hashes sincronizados.
 - `rules/stdlib/structural.rs` — 21 funções (`strong`/`emph`/`raw`/`heading`/
   `divider`/`terms`/`quote`/`table`+cell/header/footer/`grid_cell`/header/footer/
   `bibliography`/`cite`/`footnote`/`accent`/`cancel`/`underover`/`op`).
   **✅ Subset fechado em P430** — prompt L0 dedicado criado em
   `00_nucleo/prompts/rules/stdlib/structural.md`; header de
   `01_core/src/rules/stdlib/structural.rs` actualizado; hashes sincronizados.
-- `rules/stdlib/shapes.rs` — 6 (`rect`/`ellipse`/`circle`/`line`/`polygon`/`curve`).
-- `rules/stdlib/transforms.rs` — 4 (`move`/`rotate`/`scale`/`skew`).
 - `rules/stdlib/gradients.rs` — 3 (`gradient_linear`/`radial`/`conic`).
-- `rules/stdlib/assert.rs` — `assert`.
 - `rules/stdlib/foundations.rs` — funções além das specadas em `foundations.md`:
   `oklab`/`oklch`/`linear_rgb`/`cmyk`/`hsl`/`hsv`, `metadata`, `state`/
   `state_update`/`state_update_with`/`state_final`/`state_at`, `counter_at`/
@@ -556,7 +557,8 @@ preserving). Ficheiros sem prompt L0 dedicado:
 receita de fatiamento do P314). **P430 fechou o subset `structural.rs`**;
 **P432 fechou o subset `layout.rs`**; **P433 fechou o subset `calc.rs`**;
 **P434 fechou o subset `assert.rs`**; **P435 fechou o subset `shapes.rs`**;
-os restantes ficheiros permanecem em aberto.
+**P436 fechou o subset `transforms.rs`**; os restantes ficheiros permanecem
+em aberto.
 
 ---
 

@@ -94,6 +94,8 @@ rust = [
 ]
 
 [orphan_exceptions]
+# Prompt comum partilhado por vários ficheiros stdlib; não tem um "dono" único
+"00_nucleo/prompts/rules/stdlib/_comum.md" = "prompt comum partilhado por múltiplos ficheiros stdlib; não tem dono único"
 # ADRs não materializam código directamente
 "00_nucleo/adr/adr-0001-estrategia-migracao.md" = "ADR — não materializa código"
 # Template editorial — não materializa código directamente
