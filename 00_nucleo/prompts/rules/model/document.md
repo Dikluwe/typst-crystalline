@@ -1,5 +1,5 @@
 # Prompt L0 — `model/document` — metadata wrapper `document(...)`
-Hash do Código: 360993d6
+Hash do Código: 880da8fd
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/rules/stdlib/structural.rs` + `01_core/src/entities/content.rs`

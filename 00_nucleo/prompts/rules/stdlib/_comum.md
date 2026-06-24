@@ -1,5 +1,5 @@
 # Prompt L0 — `rules/stdlib` — comum (convenção e helpers partilhados)
-Hash do Código: d0b19d3c
+Hash do Código: e2a9dcc4
 
 **Camada**: L1
 **Origem**: fatiado de `rules/stdlib.md` em **P314** (ADR-0104, atomicidade
@@ -8,9 +8,12 @@ funções; os prompts finos por função citam-no. Índice da partição:
 `rules/stdlib.md` (agora índice).
 **Apontam para aqui** (linhagem `@prompt`): `stdlib/mod.rs` (registo),
 `stdlib/assert.rs`, `stdlib/layout.rs`, `stdlib/shapes.rs`,
-`stdlib/transforms.rs`, `stdlib/gradients.rs`, `stdlib/structural.rs` — os
-ficheiros cuja spec detalhada **não** estava em `stdlib.md` (dependiam apenas
-da convenção partilhada; spec dedicada é candidata futura, não inventada aqui).
+`stdlib/transforms.rs`, `stdlib/gradients.rs` — os ficheiros cuja spec
+detalhada **não** estava em `stdlib.md` (dependiam apenas da convenção
+partilhada; spec dedicada é candidata futura, não inventada aqui).
+
+> Nota: `stdlib/structural.rs` tem agora o seu próprio prompt em
+> `00_nucleo/prompts/rules/stdlib/structural.md` (P430).
 
 ---
 

@@ -521,6 +521,9 @@ preserving). Ficheiros sem prompt L0 dedicado:
 - `rules/stdlib/structural.rs` — 21 funções (`strong`/`emph`/`raw`/`heading`/
   `divider`/`terms`/`quote`/`table`+cell/header/footer/`grid_cell`/header/footer/
   `bibliography`/`cite`/`footnote`/`accent`/`cancel`/`underover`/`op`).
+  **✅ Subset fechado em P430** — prompt L0 dedicado criado em
+  `00_nucleo/prompts/rules/stdlib/structural.md`; header de
+  `01_core/src/rules/stdlib/structural.rs` actualizado; hashes sincronizados.
 - `rules/stdlib/shapes.rs` — 6 (`rect`/`ellipse`/`circle`/`line`/`polygon`/`curve`).
 - `rules/stdlib/transforms.rs` — 4 (`move`/`rotate`/`scale`/`skew`).
 - `rules/stdlib/gradients.rs` — 3 (`gradient_linear`/`radial`/`conic`).
@@ -531,7 +534,8 @@ preserving). Ficheiros sem prompt L0 dedicado:
   `counter_final`/`counter_step`, `query`/`here`/`locate`.
 
 **Critério de fecho**: cada ficheiro da lista com um prompt L0 dedicado (mesma
-receita de fatiamento do P314). Sem corrigir agora — só o registro.
+receita de fatiamento do P314). **P430 fechou o subset `structural.rs`**; os
+restantes ficheiros permanecem em aberto.
 
 ---
 

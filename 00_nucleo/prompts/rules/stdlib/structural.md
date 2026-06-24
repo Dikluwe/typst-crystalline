@@ -1,0 +1,607 @@
+# Prompt L0 — `stdlib/structural` — módulo `structural`
+Hash do Código: 241512b1
+
+**Camada**: L1
+**Ficheiro alvo**: `01_core/src/rules/stdlib/structural.rs`
+**Origem**: Passo 96.5 (extraído de `stdlib.rs` conforme ADR-0037), com marcos P69, P101, P154B, P155, P157A/B/C, P159A/C, P224, P295, P296, P296.1, P296.2, P397, P418/P419/P420/P429.
+**ADRs**: ADR-0033 (divergência intencional), ADR-0037 (coesão por domínio), ADR-0054 (perfil graded / scope-outs), ADR-0060 (model structural roadmap), ADR-0061 (layout roadmap), ADR-0064 (smart option default), ADR-0107/ADR-0108/ADR-0109 (bibliografia CSL e asset).
+**Convenções partilhadas**: ver `00_nucleo/prompts/rules/stdlib/_comum.md`.
+
+---
+
+## Módulo `structural` — funções nativas estruturais
+
+Este módulo implementa as funções globais de conteúdo estrutural e semântico de Typst: estilo inline (strong/emph), verbatim (raw), separadores, termos, citações em bloco, tabela/grid, bibliografia/citação, hiperligações, notas de rodapé, elementos matemáticos accent/cancel/underover/op, e os wrappers de metadata `document`/`asset`.
+
+Todas as funções partilham a assinatura padrão de `native_*`:
+
+```rust
+fn native_X(
+    ctx: &mut EvalContext,
+    args: &Args,
+    world: &dyn World,
+    current_file: FileId,
+) -> SourceResult<Value>
+```
+
+A maioria ignora `ctx`/`world`/`current_file`; apenas `native_bibliography` usa `world`/`current_file` para carregar ficheiros `.bib`/`.yaml`/`.json` e `ctx` para registar o estilo CSL resolvido.
+
+---
+
+### `native_strong(body)`
+
+**Assinatura**: `strong(body: Content | Str) -> Content`
+
+**Argumentos**:
+- 1º posicional `body`: `Content` ou `Str`. Se omitido, produz `Content::Empty`.
+- Não aceita argumentos nomeados.
+
+**Semântica**: Emite `Content::Strong { body }` via `Content::strong(body)`. Serve como selector em show rules `#show strong: ...`.
+
+**Paridade vanilla**: Equivalente a `#strong[body]` / `strong(body)`.
+
+**Limitações / scope-outs**: Nenhuma conhecida nesta camada.
+
+**Testes canónicos**:
+```
+strong([text]) -> Content::Strong { body: "text" }
+strong("text") -> Content::Strong { body: "text" }
+strong(123) -> Err "strong() espera content ou string"
+strong([a], named:{x:1}) -> Err "argumento nomeado inesperado"
+```
+
+---
+
+### `native_emph(body)`
+
+**Assinatura**: `emph(body: Content | Str) -> Content`
+
+**Argumentos**:
+- 1º posicional `body`: `Content` ou `Str`. Se omitido, produz `Content::Empty`.
+- Não aceita argumentos nomeados.
+
+**Semântica**: Emite `Content::Emph { body }` via `Content::emph(body)`. Selector em show rules.
+
+**Paridade vanilla**: Equivalente a `#emph[body]` / `emph(body)`.
+
+**Limitações / scope-outs**: Nenhuma conhecida nesta camada.
+
+**Testes canónicos**:
+```
+emph([text]) -> Content::Emph { body: "text" }
+emph("text") -> Content::Emph { body: "text" }
+emph(123) -> Err "emph() espera content ou string"
+```
+
+---
+
+### `native_raw(text)`
+
+**Assinatura**: `raw(text: Str) -> Content`
+
+**Argumentos**:
+- 1º posicional `text`: `Str`. Se omitido, string vazia.
+- Não aceita argumentos nomeados.
+
+**Semântica**: Cria `Content::Raw { text, syntax: None, block: false }` via `Content::raw(text, None, false)`. Aceita apenas string porque não faz sentido semântico aceitar `Content` aqui.
+
+**Paridade vanilla**: Equivalente a `` `text` `` inline (modo não-block, sem syntax highlighting).
+
+**Limitações / scope-outs**:
+- Modo `block: true`, especificação de linguagem `lang`, e destaque de syntax scope-out per ADR-0054 graded.
+
+**Testes canónicos**:
+```
+raw("let x = 1") -> Content::Raw { text: "let x = 1", syntax: None, block: false }
+raw() -> Content::Raw { text: "", ... }
+raw([content]) -> Err "raw() espera string"
+```
+
+---
+
+### `native_heading(...)`
+
+**Assinatura**: `heading(...) -> SourceResult<Value>`
+
+**Argumentos**: Rejeita quaisquer argumentos.
+
+**Semântica**: Sentinel de `heading` para permitir que show rules `#show heading: it => ...` resolvam o selector. A criação real de headings usa a sintaxe de markup `= Título`. Chamar `heading()` directamente retorna erro (DEBT-21).
+
+**Paridade vanilla**: Divergência intencional documentada em ADR-0033 — `heading()` como função directa não é suportada.
+
+**Limitações / scope-outs**: Todo o layout/renderização de headings é responsabilidade do pipeline de markup/layout; ver prompt dedicado `entities/elements/heading.md`.
+
+**Testes canónicos**:
+```
+heading() -> Err "heading() como função directa não suportada; use a sintaxe de markup `= Título`"
+```
+
+---
+
+### `native_divider()`
+
+**Assinatura**: `divider() -> Content`
+
+**Argumentos**: Nenhum. Rejeita argumentos posicionais e nomeados.
+
+**Semântica**: Emite `Content::Divider` via `Content::divider()`.
+
+**Paridade vanilla**: Equivalente a `#line()` / `line()` (separador horizontal).
+
+**Limitações / scope-outs**: Nenhuma conhecida nesta camada.
+
+**Testes canónicos**:
+```
+divider() -> Content::Divider
+divider(1) -> Err "divider() não aceita argumentos posicionais"
+```
+
+---
+
+### `native_terms(...)`
+
+**Assinatura**: `terms(term1: description1, term2: description2, ...) -> Content`
+
+**Argumentos**:
+- Não aceita argumentos posicionais.
+- Argumentos nomeados `term: description`, onde `term` é a chave (string) e `description` é `Content` ou `Str`.
+- A ordem dos argumentos nomeados é preservada (`IndexMap`).
+
+**Semântica**: Converte cada par `(key, value)` num `Content::TermItem { term, description }` e emite `Content::Terms { items }`.
+
+**Paridade vanilla**: Forma chave:valor em vez da sintaxe de markup `/ term: description`. Divergência intencional de superfície (ADR-0033).
+
+**Limitações / scope-outs**:
+- Forma posicional e separador customizado scope-out per ADR-0054 graded.
+
+**Testes canónicos**:
+```
+terms(foo: "bar", baz: [qux]) -> Content::Terms with two TermItem
+terms("bar") -> Err "terms() espera argumentos nomeados"
+terms(foo: 123) -> Err "descrição de 'foo' deve ser content ou string"
+```
+
+---
+
+### `native_quote(body, attribution:?, block:?, quotes:?)`
+
+**Assinatura**: `quote(body: Content | Str, attribution: Content | Str | None, block: Bool, quotes: Bool) -> Content`
+
+**Argumentos**:
+- 1º posicional `body`: `Content` ou `Str` (obrigatório).
+- `attribution`: `Content`/`Str`/`none` (named; default `None`).
+- `block`: `Bool` (named; default `false`).
+- `quotes`: `Bool` (named; default `true`).
+
+**Semântica**: Emite `Content::Quote { body, attribution, block, quotes }`.
+
+**Paridade vanilla**: Equivalente a `#quote(...)` com os mesmos argumentos.
+
+**Limitações / scope-outs**: Nenhuma conhecida nesta camada.
+
+**Testes canónicos**:
+```
+quote([To be]) -> Content::Quote { body: "To be", attribution: None, block: false, quotes: true }
+quote([To be], attribution: "Shakespeare", block: true, quotes: false) -> Content::Quote { ... }
+quote() -> Err "quote() exige body"
+quote([x], foo: 1) -> Err "argumento nomeado inesperado 'foo'"
+```
+
+---
+
+### `native_table(...)`
+
+**Assinatura**: `table(..children: Content | Str, columns:?, rows:?, stroke:?, fill:?) -> Content`
+
+**Argumentos**:
+- `..children`: variádicos posicionais `Content` ou `Str`.
+- `columns`: `Array<TrackSizing>` (named; default `[Auto]`).
+- `rows`: `Array<TrackSizing>` (named; default `[Auto]`).
+- `stroke`: `Stroke` (named; paridade P227).
+- `fill`: `Color` (named; paridade P228).
+
+**Semântica**: Cria `Content::Table(Arc<TableElem { columns, rows, children, stroke, fill }>)`. Children são distribuídos por colunas via `idx % num_cols` reutilizando o algoritmo de grid.
+
+**Paridade vanilla**: Subset minimal per ADR-0054 graded (P157A).
+
+**Limitações / scope-outs** (ADR-0054 graded):
+- `gutter` / `column_gutter` / `row_gutter`.
+- `inset` / `align` / `fill` (adicionalmente scope-out em P157A, mas `fill` e `stroke` foram depois incluídos em P227/P228).
+- `TableCell` estruturado (P157B), `TableHeader`/`TableFooter` (P157C), `TableHLine`/`TableVLine`.
+
+**Testes canónicos**:
+```
+table[A][B] -> TableElem { columns: [Auto], rows: [Auto], children: ["A", "B"], stroke: None, fill: None }
+table(columns: (auto, auto), [A], [B], [C]) -> columns [Auto, Auto], children [A,B,C]
+table(foo: 1) -> Err "argumento nomeado inesperado 'foo'"
+```
+
+---
+
+### `native_table_cell(body, x:?, y:?, colspan:?, rowspan:?, stroke:?, fill:?, align:?, inset:?, breakable:?)`
+
+**Assinatura**: `table_cell(body: Content | Str, x: Int | Auto | None, y: Int | Auto | None, colspan: Int | Auto | None, rowspan: Int | Auto | None, ...) -> Content`
+
+**Argumentos**:
+- 1º posicional `body`: `Content` ou `Str` (obrigatório).
+- `x`/`y`: `Int` ≥ 0, `auto` ou `none` (default `None`, i.e., auto-placement; ADR-0064 Caso A).
+- `colspan`/`rowspan`: `Int` ≥ 1, `auto` ou `none` (default `None`, i.e., 1; ADR-0064 Caso C).
+- `stroke`: `Stroke` (named; P230).
+- `fill`: `Color` (named; P230).
+- `align`: `Alignment` ou `Str` parseável (named; P235).
+- `inset`: `Length` uniforme, `Float`/`Int` convertido para pt (named; P235).
+- `breakable`: `Bool` (named; P235).
+
+**Semântica**: Cria `Content::TableCell(Arc<TableCellElem { body, x, y, colspan, rowspan, stroke, fill, align, inset, breakable }>)`.
+
+**Paridade vanilla**: Naming flat `table_cell` em vez de `table.cell` (divergência intencional ADR-0033 porque `Value::Func` não suporta subnames).
+
+**Limitações / scope-outs**:
+- `x`/`y`/`colspan`/`rowspan` são armazenados mas **ignorados em layout** — algoritmo de placement diferido em DEBT-34e (per ADR-0054 graded).
+- Atributos de célula vanilla `kind` / `is_repeated` scope-out.
+
+**Testes canónicos**:
+```
+table_cell([A]) -> TableCellElem { body: "A", x: None, y: None, colspan: None, rowspan: None, ... }
+table_cell([A], x: 1, y: 2, colspan: 2, rowspan: 3) -> x Some(1), y Some(2), colspan Some(2), rowspan Some(3)
+table_cell([A], colspan: 0) -> Err "table_cell(colspan:): valor 0 < 1"
+```
+
+---
+
+### `native_table_header(body, repeat:?)` / `native_table_footer(body, repeat:?)`
+
+**Assinatura**: `table_header(body: Content | Str, repeat: Bool) -> Content` / `table_footer(body: Content | Str, repeat: Bool) -> Content`
+
+**Argumentos**:
+- 1º posicional `body`: `Content` ou `Str` (obrigatório).
+- `repeat`: `Bool` (named; ADR-0064 Caso D; default `true`).
+
+**Semântica**: Emite `Content::TableHeader { body, repeat }` / `Content::TableFooter { body, repeat }`.
+
+**Paridade vanilla**: Naming flat `table_header`/`table_footer` em vez de `table.header`/`table.footer` (ADR-0033).
+
+**Limitações / scope-outs**:
+- `repeat` armazenado mas **ignorado em layout** — repetição em page breaks diferida em DEBT-56 (refactor multi-region).
+- `level: NonZeroU32` e `repeat-rows: Smart<usize>` scope-out.
+- Children estruturados `Vec<TableItem>` divergem — cristalino usa `body` simples.
+
+**Testes canónicos**:
+```
+table_header([H]) -> TableHeader { body: "H", repeat: true }
+table_footer([F], repeat: false) -> TableFooter { body: "F", repeat: false }
+table_header(123) -> Err "table_header() espera content ou string"
+```
+
+---
+
+### `native_grid_cell(body, x:?, y:?, colspan:?, rowspan:?, stroke:?, fill:?, align:?, inset:?, breakable:?)`
+
+**Assinatura**: idem `table_cell`.
+
+**Argumentos**: Idem `table_cell`, mas para `GridCell`.
+
+**Semântica**: Cria `Content::GridCell(Arc<GridCellElem { body, x, y, colspan, rowspan, stroke, fill, align, inset, breakable }>)`.
+
+**Paridade vanilla**: Naming flat `grid_cell` em vez de `grid.cell` (ADR-0033).
+
+**Limitações / scope-outs**:
+- Diferente de `table_cell`, `x`/`y`/`colspan`/`rowspan` são **resolvidos pelo Grid layouter** (DEBT-34e fechada em P224.C).
+- `align`/`fill`/`stroke`/`inset`/`breakable` per-cell armazenados; override em layout reutiliza `.or()` contra valores de grid-level.
+
+**Testes canónicos**:
+```
+grid_cell([A], x: 1, colspan: 2) -> GridCellElem { x: Some(1), colspan: Some(2), ... }
+grid_cell(123) -> Err "grid_cell() espera content ou string"
+```
+
+---
+
+### `native_grid_header(body, repeat:?)` / `native_grid_footer(body, repeat:?)`
+
+**Assinatura**: `grid_header(body: Content | Str, repeat: Bool) -> Content` / `grid_footer(body: Content | Str, repeat: Bool) -> Content`
+
+**Argumentos**: Idem `table_header`/`table_footer`.
+
+**Semântica**: Emite `Content::GridHeader { body, repeat }` / `Content::GridFooter { body, repeat }`.
+
+**Paridade vanilla**: Naming flat (ADR-0033).
+
+**Limitações / scope-outs**:
+- `repeat` armazenado mas **ignorado em layout** (paridade P157C; DEBT-56).
+
+**Testes canónicos**:
+```
+grid_header([H]) -> GridHeader { body: "H", repeat: true }
+grid_footer([F], repeat: false) -> GridFooter { body: "F", repeat: false }
+```
+
+---
+
+### `native_bibliography(...)`
+
+**Assinatura**: `bibliography(entries: Array<Dict> | Str, title:?, style:?, locale:?) -> Content`
+
+**Argumentos**:
+- `entries`: `Array<Dict>` posicional ou named; ou `Str` como path para ficheiro `.bib`/`.yaml`/`.json` (P419).
+- `title`: `Content`/`Str` (named; ADR-0064 Caso A; default `None`).
+- `style`: `Str` (named; nome CSL built-in como `"ieee"`, `"apa"`).
+- `locale`: `Str` (named; locale override como `"en-US"`, `"pt-PT"`).
+
+**Semântica**: Constrói `Content::Bibliography(Arc<BibliographyElem { entries, path, title, style, locale }>)`. Cada Dict de entrada valida 4 campos obrigatórios (`key`, `author`, `title`, `year` com `year >= 0`) e 12 campos opcionais string (`volume`, `pages`, `journal`, `publisher`, `url`, `doi`, `editor`, `series`, `note`, `isbn`, `location`, `organization`). Se `style` for fornecido, resolve-o em eval time (built-in ou path `.csl` via `World::read_bytes`) e regista-o no `EvalContext` para transporte até ao `BibStore` (P420/P429).
+
+**Paridade vanilla**: Subset linguístico per ADR-0054 graded. Input literal e por path suportados.
+
+**Limitações / scope-outs**:
+- Renderização CSL real em `rules/layout/bib_csl.rs` — ver scope-out dedicado abaixo.
+- `sources` (parsing externo genérico), `full`, `lang`, `region` scope-out.
+
+**Testes canónicos**:
+```
+bibliography(((key: "k", author: "A", title: "T", year: 2024),)) -> BibliographyElem with one BibEntry
+bibliography("refs.bib") -> BibliographyElem { path: Some("refs.bib"), entries: loaded }
+bibliography(((key: "k", author: "A", title: "T", year: -1),)) -> Err "year espera int >= 0"
+```
+
+---
+
+### `native_cite(key, supplement:?, form:?)`
+
+**Assinatura**: `cite(key: Str, supplement: Content | Str | None, form: Str | Auto | None) -> Content`
+
+**Argumentos**:
+- 1º posicional `key`: `Str` não vazia.
+- `supplement`: `Content`/`Str`/`none` (named; default `None`).
+- `form`: `"normal"`, `"prose"`, `"author"`, `"year"`, `auto` ou `none` (named; default `None`, resolvido a `Normal` em layout).
+
+**Semântica**: Emite `Content::Cite { key, supplement, form }`.
+
+**Paridade vanilla**: Subset básico de citações.
+
+**Limitações / scope-outs**:
+- Não valida `key ∈ Bibliography.keys` — introspection runtime adiada per ADR-0017.
+- `style` (CSL override) scope-out.
+- Renderização CSL real em `rules/layout/cite.rs`.
+
+**Testes canónicos**:
+```
+cite("k") -> CiteElem { key: "k", supplement: None, form: None }
+cite("k", supplement: "p. 3", form: "prose") -> CiteElem { supplement: Some("p. 3"), form: Some(Prose) }
+cite("") -> Err "cite() key não pode ser vazia"
+cite("k", form: "bad") -> Err "form 'bad' inválido"
+```
+
+---
+
+### `native_link(url, body?)`
+
+**Assinatura**: `link(url: Str, body: Content) -> Content`
+
+**Argumentos**:
+- 1º posicional `url`: `Str` não vazia.
+- 2º posicional `body`: `Content` (opcional; se omitido, body = URL como texto).
+- Não aceita argumentos nomeados.
+
+**Semântica**: Emite `Content::Link { url, body }`.
+
+**Paridade vanilla**: Equivalente a `#link("url")[body]`.
+
+**Limitações / scope-outs**: Layout real de hiperligações (`FrameItem::Link`, bbox, links internos, sublinhado azul) — ver `00_nucleo/prompts/rules/layout/link.md`.
+
+**Testes canónicos**:
+```
+link("https://x.com") -> LinkElem { url: "https://x.com", body: "https://x.com" }
+link("https://x.com", [clique]) -> LinkElem { body: "clique" }
+link("") -> Err "URL não pode ser vazia"
+link("u", 123) -> Err "body deve ser content"
+```
+
+---
+
+### `native_footnote(body)`
+
+**Assinatura**: `footnote(body: Content | Str) -> Content`
+
+**Argumentos**:
+- 1º posicional `body`: `Content` ou `Str` (obrigatório).
+- Não aceita argumentos nomeados.
+
+**Semântica**: Emite `Content::Footnote { body }`.
+
+**Paridade vanilla**: Fase 1 P295 marker-only.
+
+**Limitações / scope-outs** (ADR-0054 graded):
+- `numbering` scope-out.
+- `FootnoteBody::Reference(Label)` (multi-ref) scope-out.
+- Body armazenado mas renderização no rodapé diferida.
+
+**Testes canónicos**:
+```
+footnote([nota]) -> FootnoteElem { body: "nota" }
+footnote(123) -> Err "footnote() espera content ou string"
+footnote([x], numbering: "1.") -> Err "argumento nomeado não suportado"
+```
+
+---
+
+### `native_accent(base, accent)`
+
+**Assinatura**: `accent(base: Content | Str, accent: Content | Str) -> Content`
+
+**Argumentos**:
+- 1º posicional `base`: `Content` ou `Str`.
+- 2º posicional `accent`: `Content` ou `Str`.
+- Não aceita argumentos nomeados.
+
+**Semântica**: Emite `Content::MathAccent { base, accent }`.
+
+**Paridade vanilla**: Equivalente a `accent(base, accent)` em math mode.
+
+**Limitações / scope-outs** (P296, ADR-0054 graded):
+- Cosméticos `size`, `dotless`, `inverted` scope-out.
+- Shaping real de acentos matemáticos (OpenType math) — ver scope-out dedicado abaixo.
+
+**Testes canónicos**:
+```
+accent("x", ".") -> MathAccent { base: "x", accent: "." }
+accent("x") -> Err "accent() exige accent"
+```
+
+---
+
+### `native_cancel(body)`
+
+**Assinatura**: `cancel(body: Content | Str) -> Content`
+
+**Argumentos**:
+- 1º posicional `body`: `Content` ou `Str`.
+- Não aceita argumentos nomeados.
+
+**Semântica**: Emite `Content::MathCancel { body }`.
+
+**Paridade vanilla**: Equivalente a `cancel(body)` em math mode.
+
+**Limitações / scope-outs** (P296, ADR-0054 graded):
+- `length`, `inverted`, `cross`, `angle`, `stroke` scope-out.
+- Renderização real do cancelamento (traço diagonal) — ver scope-out dedicado abaixo.
+
+**Testes canónicos**:
+```
+cancel("x") -> MathCancel { body: "x" }
+cancel() -> Err "cancel() exige body"
+```
+
+---
+
+### `native_underover(base, under:?, over:?)`
+
+**Assinatura**: `underover(base: Content | Str, under: Content | Str | None, over: Content | Str | None) -> Content`
+
+**Argumentos**:
+- 1º posicional `base`: `Content` ou `Str`.
+- `under`: `Content`/`Str`/`none` (named; default `None`).
+- `over`: `Content`/`Str`/`none` (named; default `None`).
+
+**Semântica**: Emite `Content::MathUnderover { base, under, over }`. Agregação cristalina de vários elementos vanilla (`underline`, `overline`, `underbrace`, `overbrace`, etc.) num único variant.
+
+**Paridade vanilla**: Divergência intencional ADR-0033 / ADR-0054 graded — Typst vanilla fragmenta em 12+ elementos.
+
+**Limitações / scope-outs**:
+- Renderização real de under/over (posicionamento, braces extensíveis) — ver scope-out dedicado abaixo.
+
+**Testes canónicos**:
+```
+underover("x", under: "i") -> MathUnderover { base: "x", under: Some("i"), over: None }
+underover("x", over: "j") -> MathUnderover { ..., over: Some("j") }
+underover(123) -> Err "base espera content ou string"
+```
+
+---
+
+### `native_op(text, limits:?)`
+
+**Assinatura**: `op(text: Content | Str, limits: Bool) -> Content`
+
+**Argumentos**:
+- 1º posicional `text`: `Content` ou `Str`.
+- `limits`: `Bool` (named; default `false`).
+
+**Semântica**: Emite `Content::MathOp { text, limits }`. `limits: true` afecta o layout de `MathAttach` (heurística de limit-style).
+
+**Paridade vanilla**: Equivalente a `op("lim", limits: true)`.
+
+**Limitações / scope-outs**:
+- Shaping real de operadores matemáticos (tamanho, posicionamento de limits) — ver scope-out dedicado abaixo.
+
+**Testes canónicos**:
+```
+op("lim", limits: true) -> MathOp { text: "lim", limits: true }
+op("sin") -> MathOp { text: "sin", limits: false }
+op(123) -> Err "op() text espera content ou string"
+```
+
+---
+
+### `native_document(...)`
+
+**Assinatura**: `document(title:?, author:?, date:?, keywords:?) -> Content`
+
+Ver prompt dedicado `00_nucleo/prompts/rules/model/document.md`. Resumo:
+- `title`: `Content` (named; default `None`).
+- `author`: `Str` ou `Array<Str>` (named; default `[]`).
+- `date`: `Datetime` (named; default `None`).
+- `keywords`: `Str` ou `Array<Str>` (named; default `[]`).
+- Rejeita argumentos nomeados desconhecidos.
+- Produz `Content::Document { title, author, date, keywords }` (metadata pura, no layout output).
+
+---
+
+### `native_asset(...)`
+
+**Assinatura**: `asset(path: Str, kind:?) -> Content`
+
+Ver prompt dedicado `00_nucleo/prompts/rules/model/asset.md`. Resumo:
+- `path`: `Str` (posicional ou named `path`; obrigatório).
+- `kind`: `Str` (named; se omitido, infere da extensão: `png/jpg/...` → `"image"`, `ttf/otf/...` → `"font"`, `json/yaml/csv/xml/...` → `"data"`, outro → `None`).
+- Produz `Content::Asset { path, kind }` (placeholder, sem layout output).
+
+---
+
+## Scope-outs transversais (P430)
+
+| Área | Scope-out | Notas |
+|------|-----------|-------|
+| **CSL styling** (`bibliography` / `cite`) | Renderização real de estilos CSL (IEEE, APA, etc.), locales, ficheiros `.csl` customizados, múltiplas bibliografias, `title` customizado. | Lógica vive em `rules/eval/bibliography.rs` e `rules/layout/bib_csl.rs`; o struct armazena `style`/`locale`. |
+| **OpenType shaping real** (`accent` / `cancel` / `underover` / `op`) | Posicionamento de acentos, traços de cancelamento, braces extensíveis, tamanho de operadores, limit placement. | Variants `MathAccent`/`MathCancel`/`MathUnderover`/`MathOp` existem em L1; layout matemático renderiza-os. |
+| **Multi-region grid/table** | Repetição de `table_header`/`table_footer`/`grid_header`/`grid_footer` em page breaks; colocação algorítmica real em tabelas (DEBT-34e para table; grid já resolvido em P224.C). | Campos `repeat` e `x/y/colspan/rowspan` de `TableCell` são armazenados mas ainda não consumidos pelo layouter. |
+
+---
+
+## Critérios de Verificação
+
+```
+// strong / emph / raw
+strong([A]) -> Content::Strong { body: "A" };  strong("A") -> idem;  strong(1) -> Err
+emph([A]) -> Content::Emph { body: "A" };  emph("A") -> idem;  emph(1) -> Err
+raw("x") -> Content::Raw { text: "x", syntax: None, block: false };  raw([x]) -> Err
+
+// heading / divider
+heading() -> Err "heading() como função directa não suportada"
+divider() -> Content::Divider;  divider(1) -> Err
+
+// terms / quote
+terms(a: "b") -> Content::Terms with one TermItem;  terms("b") -> Err
+quote([A]) -> Content::Quote { body: "A", block: false, quotes: true };  quote() -> Err
+
+// table / table_cell / table_header / table_footer
+table([A],[B]) -> TableElem { columns: [Auto], rows: [Auto], children: ["A","B"] }
+table_cell([A], x: 1, colspan: 2) -> TableCellElem { x: Some(1), colspan: Some(2) }
+table_cell([A], colspan: 0) -> Err
+table_header([H]) -> TableHeader { body: "H", repeat: true }
+table_footer([F], repeat: false) -> TableFooter { body: "F", repeat: false }
+
+// grid / grid_cell / grid_header / grid_footer
+grid_cell([A], x: 1, colspan: 2) -> GridCellElem { x: Some(1), colspan: Some(2) }
+grid_header([H]) -> GridHeader { body: "H", repeat: true }
+grid_footer([F], repeat: false) -> GridFooter { body: "F", repeat: false }
+
+// bibliography / cite
+bibliography(((key:"k", author:"A", title:"T", year:2024),)) -> BibliographyElem with one entry
+bibliography(((key:"k", author:"A", title:"T", year:-1),)) -> Err
+cite("k") -> CiteElem { key: "k" };  cite("") -> Err;  cite("k", form: "bad") -> Err
+
+// link / footnote
+link("u") -> LinkElem { url: "u", body: "u" };  link("u", [b]) -> LinkElem { body: "b" }
+footnote([n]) -> FootnoteElem { body: "n" }
+
+// math: accent / cancel / underover / op
+accent("x", ".") -> MathAccent { base: "x", accent: "." }
+cancel("x") -> MathCancel { body: "x" }
+underover("x", under: "i") -> MathUnderover { base: "x", under: Some("i") }
+op("lim", limits: true) -> MathOp { text: "lim", limits: true }
+
+// document / asset
+document(title: [T]) -> Content::Document { title: Some("T"), author: [], date: None, keywords: [] }
+asset("logo.png") -> Content::Asset { path: "logo.png", kind: Some("image") }
+asset("x.bin", kind: "custom") -> Asset { kind: Some("custom") }
+```
