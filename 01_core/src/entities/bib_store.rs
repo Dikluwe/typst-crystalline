@@ -2,26 +2,36 @@
 //! @prompt 00_nucleo/prompts/entities/bib_store.md
 //! @prompt-hash 4051b23d
 //! @layer L1
-//! @updated 2026-05-01
+//! @updated 2026-06-23
 //!
 //! `BibStore` — sub-store de `TagIntrospector` para entries
 //! bibliográficas + numeração 1-based. P181B (M9 sub-passo bib).
 //!
-//! Replica shape de `CounterStateLegacy.bib_entries`/`bib_numbers`
-//! (P181A cláusula 1). `add_bibliography` faz `extend` (cláusula 2);
-//! `assign_number` usa `or_insert` (cláusula 3). Read-only após
-//! construção; mutação só via `pub(crate) fn` durante `from_tags`
-//! (P181E pendente).
+//! **P429 (DEBT-63)** — `resolved_style` deixou de viver em
+//! `BibliographyElem` (cache de estado computado dentro de um struct de
+//! domínio). O style CSL resolvido em eval time é agora transportado numa
+//! tabela lateral `bib_styles` indexada por `BibStyleKey` (hash
+//! determinístico do `BibliographyElem` puro). O layout reproduz a mesma
+//! chave a partir do primeiro `Content::Bibliography` e consulta a tabela.
 
 use std::collections::HashMap;
+use std::sync::Arc;
+
+use hayagriva::citationberg::IndependentStyle;
 
 use crate::entities::bib_entry::BibEntry;
 
-/// Acumulador de entries bibliográficas + mapa key→número 1-based.
+/// Chave determinística para o style resolvido de uma `Bibliography`.
+pub type BibStyleKey = u64;
+
+/// Acumulador de entries bibliográficas + mapa key→número 1-based +
+/// tabela lateral de styles resolvidos (P429).
 ///
-/// `from_tags` (P181E pendente) popula via `add_bibliography` +
+/// `from_tags` (P181E) popula via `add_bibliography` +
 /// `assign_number` ao processar `Tag::Start(_, info)` onde
-/// `info.payload == ElementPayload::Bibliography { entries }`.
+/// `info.payload == ElementPayload::Bibliography { entries }`. Os styles
+/// resolvidos são injectados pelo pipeline (`03_infra`) a partir do
+/// `Module` produzido pelo eval.
 ///
 /// Ordem de `entries` preservada por `Vec` interno; multi-Bibliography
 /// concatena (cláusula 2 P181A). `numbers` preserva primeiro número
@@ -30,6 +40,10 @@ use crate::entities::bib_entry::BibEntry;
 pub struct BibStore {
     entries: Vec<BibEntry>,
     numbers: HashMap<String, u32>,
+    /// **P429** — styles CSL resolvidos em eval time, indexados pela chave
+    /// do `BibliographyElem` correspondente. Tabela lateral: não polui a
+    /// identidade do elemento.
+    bib_styles: HashMap<BibStyleKey, Arc<IndependentStyle>>,
 }
 
 impl BibStore {
@@ -90,12 +104,23 @@ impl BibStore {
     pub(crate) fn assign_number(&mut self, key: String, number: u32) {
         self.numbers.entry(key).or_insert(number);
     }
+
+    /// **P429** — regista um style resolvido para a chave indicada.
+    pub fn add_style(&mut self, key: BibStyleKey, style: Arc<IndependentStyle>) {
+        self.bib_styles.insert(key, style);
+    }
+
+    /// **P429** — devolve o style resolvido associado à chave, se existir.
+    pub fn style_for_key(&self, key: BibStyleKey) -> Option<&Arc<IndependentStyle>> {
+        self.bib_styles.get(&key)
+    }
 }
 
 #[cfg(test)]
 mod tests {
     use super::*;
     use crate::entities::bib_entry::BibEntry;
+    use crate::rules::layout::bib_csl::resolve_style_name;
 
     fn make_entry(key: &str) -> BibEntry {
         BibEntry {
@@ -126,6 +151,7 @@ mod tests {
         assert!(store.is_empty());
         assert_eq!(store.entry_for_key("any"), None);
         assert_eq!(store.number_for_key("any"), None);
+        assert_eq!(store.style_for_key(0), None);
     }
 
     #[test]
@@ -174,5 +200,15 @@ mod tests {
         store.add_bibliography(vec![make_entry("terceiro")]);
         let keys: Vec<&str> = store.entries().iter().map(|e| e.key.as_str()).collect();
         assert_eq!(keys, vec!["primeiro", "segundo", "terceiro"]);
+    }
+
+    #[test]
+    fn add_style_e_lookup_por_chave() {
+        let mut store = BibStore::empty();
+        let style = Arc::new(resolve_style_name("ieee").expect("ieee existe"));
+        store.add_style(123, style.clone());
+        assert!(store.style_for_key(123).is_some());
+        assert_eq!(store.style_for_key(123).unwrap().info.title.value, style.info.title.value);
+        assert!(store.style_for_key(999).is_none());
     }
 }

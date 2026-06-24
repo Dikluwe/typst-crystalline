@@ -2,16 +2,22 @@
 //! @prompt 00_nucleo/prompts/entities/elements/bibliography.md
 //! @prompt-hash 9d66574e
 //! @layer L1
-//! @updated 2026-06-11
+//! @updated 2026-06-23
 //!
 //! `BibliographyElem` — Lote 10 P325 (por largura). `bibliography(entries, title)`.
 //! **Locatável** (P181C) — absorve `extract_payload`. Contentor: recurse no title.
+//!
+//! **P429 (DEBT-63)** — `BibliographyElem` tornou-se um struct puro: sem
+//! `resolved_style`. A identidade do elemento é dada só pelos dados de
+//! entrada (`entries`, `path`, `title`, `style`, `locale`), pelo que deriva
+//! `PartialEq`, `Eq` e `Hash`. O style CSL resolvido em eval time viaja numa
+//! tabela lateral em `BibStore`, indexada por `BibliographyElem::style_key()`.
 
+use std::collections::hash_map::DefaultHasher;
 use std::hash::{Hash, Hasher};
 use std::sync::Arc;
 
 use ecow::EcoString;
-use hayagriva::citationberg::IndependentStyle;
 
 use crate::entities::bib_entry::BibEntry;
 use crate::entities::content::Content;
@@ -21,7 +27,11 @@ use crate::entities::elements::Element;
 use crate::entities::source_result::SourceResult;
 
 /// Lista de referências (`entries`) com `title` opcional.
-#[derive(Debug, Clone)]
+///
+/// **P429**: struct puro — `PartialEq`/`Hash` derivados; `Eq` manual
+/// porque `Content` não implementa `Eq`. O style resolvido não é
+/// armazenado aqui; transporta-se via `BibStore`.
+#[derive(Debug, Clone, PartialEq, Hash)]
 pub struct BibliographyElem {
     pub entries: Vec<BibEntry>,
     /// **P419** — Path do ficheiro `.bib`/`.yaml`/`.json`. Quando `Some`, as
@@ -32,39 +42,20 @@ pub struct BibliographyElem {
     pub style: Option<EcoString>,
     /// **P418** — CSL locale override (ex: `"en-US"`, `"pt-PT"`). `None` usa locale do style.
     pub locale: Option<EcoString>,
-    /// **P420** — Style CSL já resolvido (built-in ou custom `.csl`). Cache
-    /// mecânico preenchido em eval time; `None` quando não especificado.
-    ///
-    /// **INVARIANTE**: `resolved_style` é função pura de (`path`, `style`, `locale`);
-    /// nunca é preenchido por outro caminho. Por isso é EXCLUÍDO de `PartialEq` e
-    /// `Hash` — a identidade do elemento fica definida só pelas entradas.
-    /// Ver relatório P420 (divergência declarada) e DEBT-63.
-    pub resolved_style: Option<Arc<IndependentStyle>>,
 }
 
-impl PartialEq for BibliographyElem {
-    fn eq(&self, other: &Self) -> bool {
-        self.entries == other.entries
-            && self.path == other.path
-            && self.title == other.title
-            && self.style == other.style
-            && self.locale == other.locale
-        // `resolved_style` é cache derivado; não participa na identidade.
+impl BibliographyElem {
+    /// **P429** — chave determinística para lookup do style resolvido no
+    /// `BibStore`. Baseia-se no hash derivado de todos os campos de entrada,
+    /// pelo que elementos iguais produzem a mesma chave.
+    pub fn style_key(&self) -> u64 {
+        let mut s = DefaultHasher::new();
+        self.hash(&mut s);
+        s.finish()
     }
 }
 
 impl Eq for BibliographyElem {}
-
-impl Hash for BibliographyElem {
-    fn hash<H: Hasher>(&self, state: &mut H) {
-        self.entries.hash(state);
-        self.path.hash(state);
-        self.title.hash(state);
-        self.style.hash(state);
-        self.locale.hash(state);
-        // `resolved_style` omitido propositadamente.
-    }
-}
 
 impl Element for BibliographyElem {
     fn plain_text(&self) -> String {
@@ -97,7 +88,6 @@ impl Element for BibliographyElem {
             title: self.title.as_ref().map(|t| t.map_content(transform)).transpose()?,
             style: self.style.clone(),
             locale: self.locale.clone(),
-            resolved_style: self.resolved_style.clone(),
         })))
     }
 
@@ -111,7 +101,6 @@ impl Element for BibliographyElem {
             title: self.title.as_ref().map(|t| t.map_text(transform)),
             style: self.style.clone(),
             locale: self.locale.clone(),
-            resolved_style: self.resolved_style.clone(),
         }))
     }
 
@@ -127,8 +116,6 @@ impl Element for BibliographyElem {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use std::collections::hash_map::DefaultHasher;
-    use std::hash::{Hash, Hasher};
 
     fn entry() -> BibEntry {
         BibEntry::new("smith2024", "Smith", "Title", 2024)
@@ -141,7 +128,6 @@ mod tests {
             title: None,
             style: None,
             locale: None,
-            resolved_style: None,
         }
     }
 
@@ -153,24 +139,26 @@ mod tests {
     #[test]
     fn is_empty_so_sem_entries_e_sem_title() {
         assert!(!ex().is_empty());
-        assert!(BibliographyElem {
-            entries: vec![],
-            path: None,
-            title: None,
-            style: None,
-            locale: None,
-            resolved_style: None,
-        }
-        .is_empty());
-        assert!(!BibliographyElem {
-            entries: vec![],
-            path: None,
-            title: Some(Content::text("Refs")),
-            style: None,
-            locale: None,
-            resolved_style: None,
-        }
-        .is_empty());
+        assert!(
+            BibliographyElem {
+                entries: vec![],
+                path: None,
+                title: None,
+                style: None,
+                locale: None,
+            }
+            .is_empty()
+        );
+        assert!(
+            !BibliographyElem {
+                entries: vec![],
+                path: None,
+                title: Some(Content::text("Refs")),
+                style: None,
+                locale: None,
+            }
+            .is_empty()
+        );
     }
 
     #[test]
@@ -181,7 +169,6 @@ mod tests {
             title: Some(Content::text("a")),
             style: None,
             locale: None,
-            resolved_style: None,
         };
         let mut f = |c: &Content| -> SourceResult<Option<Content>> {
             match c {
@@ -210,6 +197,8 @@ mod tests {
     }
 
     fn h(e: &BibliographyElem) -> u64 {
+        use std::collections::hash_map::DefaultHasher;
+        use std::hash::{Hash, Hasher};
         let mut s = DefaultHasher::new();
         e.hash(&mut s);
         s.finish()
@@ -225,7 +214,6 @@ mod tests {
                 title: None,
                 style: None,
                 locale: None,
-                resolved_style: None,
             })
         );
     }
@@ -238,7 +226,6 @@ mod tests {
             title: None,
             style: Some("ieee".into()),
             locale: None,
-            resolved_style: None,
         };
         let b = BibliographyElem {
             entries: vec![],
@@ -246,7 +233,6 @@ mod tests {
             title: None,
             style: Some("apa".into()),
             locale: None,
-            resolved_style: None,
         };
         let c = BibliographyElem {
             entries: vec![],
@@ -254,7 +240,6 @@ mod tests {
             title: None,
             style: Some("ieee".into()),
             locale: Some("en-US".into()),
-            resolved_style: None,
         };
         assert_ne!(a, b);
         assert_ne!(a, c);
@@ -262,28 +247,23 @@ mod tests {
     }
 
     #[test]
-    fn resolved_style_e_cache_nao_participa_de_eq_e_hash() {
-        // Invariante P420 / DEBT-63: `resolved_style` é cache derivado e não
-        // entra na identidade do `BibliographyElem`.
-        let style =
-            crate::rules::layout::bib_csl::resolve_style_name("ieee").expect("ieee existe");
+    fn style_key_e_deterministica_e_igual_para_elementos_iguais() {
         let a = BibliographyElem {
             entries: vec![entry()],
             path: None,
-            title: None,
+            title: Some(Content::text("Refs")),
             style: Some("ieee".into()),
-            locale: None,
-            resolved_style: None,
+            locale: Some("en-US".into()),
         };
         let b = BibliographyElem {
             entries: vec![entry()],
             path: None,
-            title: None,
+            title: Some(Content::text("Refs")),
             style: Some("ieee".into()),
-            locale: None,
-            resolved_style: Some(Arc::new(style)),
+            locale: Some("en-US".into()),
         };
         assert_eq!(a, b);
-        assert_eq!(h(&a), h(&b));
+        assert_eq!(a.style_key(), b.style_key());
+        assert_ne!(a.style_key(), ex().style_key());
     }
 }

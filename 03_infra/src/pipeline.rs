@@ -23,9 +23,10 @@ use typst_core::entities::source::Source;
 use typst_core::entities::source_result::{SourceDiagnostic, SourceResult};
 use typst_core::entities::world_types::{Route, Routines, Sink, Traced};
 use typst_core::rules::eval::eval_with_full_error;
-// P190I (M6 fechado): introspect import removido — layout() corre
-// introspect_with_introspector internamente.
-use typst_core::rules::layout::layout;
+// P429 (DEBT-63): pipeline passa a orquestrar introspect + injecção de
+// styles resolvidos no BibStore antes de chamar layout.
+use typst_core::rules::introspect::introspect_with_introspector;
+use typst_core::rules::layout::layout_with_introspector;
 
 use crate::export::{export_pdf, export_pdf_multifont, export_pdf_with_font};
 
@@ -113,9 +114,14 @@ pub fn compile_to_pdf_bytes_full_error(
         Some(c) => c,
         None => return (Ok(Vec::new()), warnings),
     };
-    // P190I (M6 fechado): layout() corre introspect_with_introspector
-    // internamente — sem state parameter.
-    let doc = layout(content);
+    // P190I (M6 fechado): popula TagIntrospector a partir do content.
+    // P429 (DEBT-63): injecta no BibStore os styles CSL resolvidos em
+    // eval time, indexados pela chave do BibliographyElem correspondente.
+    let mut intr = introspect_with_introspector(content);
+    for (key, style) in module.bibliography_styles() {
+        intr.bib_store.add_style(*key, style.clone());
+    }
+    let doc = layout_with_introspector(content, intr);
     // Passo 146 (ADR-0055 decisão 5): dispatch multi-font.
     // 0 fonts resolvidos → fallback Helvetica.
     // 1 font resolvido → preserva caminho single-font do 140B/141.

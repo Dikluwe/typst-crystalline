@@ -1507,13 +1507,14 @@ pub fn layout_with_introspector(
     let intr_dyn: &dyn crate::entities::introspector::Introspector = &introspector;
     let intr_tracked = intr_dyn.track();
 
-    // P418/P420 — Pré-renderização CSL: descobre style/locale do primeiro
+    // P418/P420/P429 — Pré-renderização CSL: descobre style/locale do primeiro
     // BibliographyElem e constrói cache para citações/bibliografia.
     // Só activa CSL quando style é explicitamente fornecido; caso contrário
     // preserva o fallback local `format_bib_entry` (compatibilidade P159A-G).
-    // P420: style custom `.csl` já foi resolvido em eval time e está em
-    // `BibliographyElem.resolved_style`; built-ins continuam resolvidos aqui.
-    let bib_style = find_first_bibliography_style(content);
+    // P429: style custom `.csl` já foi resolvido em eval time e injectado no
+    // `BibStore` do TagIntrospector pelo pipeline; built-ins continuam
+    // resolvidos aqui por nome quando não houver entrada na tabela lateral.
+    let bib_style = find_first_bibliography_style(content, &introspector);
     let bib_render_cache = bib_style.and_then(|style| {
         if let Some(resolved) = style.resolved_style {
             crate::rules::layout::bib_csl::build_cache_with_style(
@@ -1600,7 +1601,8 @@ pub fn layout_with_introspector(
 
 /// Dados do primeiro `Content::Bibliography` encontrado no documento.
 ///
-/// P420: inclui `resolved_style` preenchido em eval time para `.csl` custom.
+/// P429: `resolved_style` vem do `BibStore` do `TagIntrospector` (tabela
+/// lateral indexada pela chave do `BibliographyElem`), não do próprio elemento.
 struct FirstBibliographyStyle {
     resolved_style: Option<Arc<IndependentStyle>>,
     style: Option<EcoString>,
@@ -1611,43 +1613,58 @@ struct FirstBibliographyStyle {
 /// devolve os dados necessários à pré-renderização CSL. Usado para construir o
 /// cache antes do layout principal, permitindo que `cite` antes do
 /// `bibliography` use o mesmo style.
-fn find_first_bibliography_style(content: &Content) -> Option<FirstBibliographyStyle> {
-    fn walk(c: &Content) -> Option<FirstBibliographyStyle> {
+///
+/// P429: o style resolvido é consultado no `BibStore` via
+/// `BibliographyElem::style_key()`.
+fn find_first_bibliography_style(
+    content: &Content,
+    introspector: &crate::entities::introspector::TagIntrospector,
+) -> Option<FirstBibliographyStyle> {
+    fn walk(
+        c: &Content,
+        introspector: &crate::entities::introspector::TagIntrospector,
+    ) -> Option<FirstBibliographyStyle> {
         match c {
             Content::Bibliography(e) => Some(FirstBibliographyStyle {
-                resolved_style: e.resolved_style.clone(),
+                resolved_style: introspector
+                    .bib_store
+                    .style_for_key(e.style_key())
+                    .cloned(),
                 style: e.style.clone(),
                 locale: e.locale.clone(),
             }),
-            Content::Sequence(seq) => seq.iter().find_map(walk),
-            Content::Styled(body, _) => walk(body),
-            Content::Block(e) => walk(&e.body),
-            Content::Boxed(e) => walk(&e.body),
-            Content::Pad(e) => walk(&e.body),
-            Content::Align(e) => walk(&e.body),
-            Content::Hide(e) => walk(&e.body),
+            Content::Sequence(seq) => seq.iter().find_map(|c| walk(c, introspector)),
+            Content::Styled(body, _) => walk(body, introspector),
+            Content::Block(e) => walk(&e.body, introspector),
+            Content::Boxed(e) => walk(&e.body, introspector),
+            Content::Pad(e) => walk(&e.body, introspector),
+            Content::Align(e) => walk(&e.body, introspector),
+            Content::Hide(e) => walk(&e.body, introspector),
             Content::Figure(e) => {
-                walk(&e.body).or_else(|| e.caption.as_ref().and_then(walk))
+                walk(&e.body, introspector)
+                    .or_else(|| e.caption.as_ref().and_then(|c| walk(c, introspector)))
             }
-            Content::Table(e) => e.children.iter().find_map(walk),
-            Content::Grid(e) => e.cells.iter().find_map(walk),
-            Content::Stack(e) => e.children.iter().find_map(walk),
-            Content::ListItem(e) => walk(&e.body),
-            Content::EnumItem(e) => walk(&e.body),
-            Content::TermItem(e) => walk(&e.term).or_else(|| walk(&e.description)),
-            Content::Footnote(e) => walk(&e.body),
-            Content::Overline(e) => walk(&e.body),
-            Content::Strike(e) => walk(&e.body),
-            Content::Underline(e) => walk(&e.body),
-            Content::Strong(e) => walk(&e.body),
-            Content::Emph(e) => walk(&e.body),
-            Content::Link(e) => walk(&e.body),
-            Content::SmallCaps { body } => walk(body),
-            Content::Heading(e) => walk(&e.body),
+            Content::Table(e) => e.children.iter().find_map(|c| walk(c, introspector)),
+            Content::Grid(e) => e.cells.iter().find_map(|c| walk(c, introspector)),
+            Content::Stack(e) => e.children.iter().find_map(|c| walk(c, introspector)),
+            Content::ListItem(e) => walk(&e.body, introspector),
+            Content::EnumItem(e) => walk(&e.body, introspector),
+            Content::TermItem(e) => {
+                walk(&e.term, introspector).or_else(|| walk(&e.description, introspector))
+            }
+            Content::Footnote(e) => walk(&e.body, introspector),
+            Content::Overline(e) => walk(&e.body, introspector),
+            Content::Strike(e) => walk(&e.body, introspector),
+            Content::Underline(e) => walk(&e.body, introspector),
+            Content::Strong(e) => walk(&e.body, introspector),
+            Content::Emph(e) => walk(&e.body, introspector),
+            Content::Link(e) => walk(&e.body, introspector),
+            Content::SmallCaps { body } => walk(body, introspector),
+            Content::Heading(e) => walk(&e.body, introspector),
             _ => None,
         }
     }
-    walk(content)
+    walk(content, introspector)
 }
 
 // ── Testes ─────────────────────────────────────────────────────────────────

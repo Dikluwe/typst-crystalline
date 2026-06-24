@@ -14,16 +14,19 @@
 //! cross-cutting (`CodeBlock`, `ContentBlock`) também, por não
 //! pertencerem a nenhum cluster em particular.
 
+use std::collections::HashMap;
 use std::sync::Arc;
 
 use comemo::{Tracked, TrackedMut};
 use ecow::EcoString;
+use hayagriva::citationberg::IndependentStyle;
 
 use crate::contracts::world::World;
 use crate::entities::engine::Engine;
 use crate::entities::show::{RuleId, ShowRule};
 use crate::entities::ast::AstNode;
 use crate::entities::content::Content;
+use crate::entities::elements::bibliography::BibliographyElem;
 #[cfg(test)]
 use crate::entities::counter_update::CounterUpdate as CounterAction;
 use crate::entities::label::Label;
@@ -144,6 +147,13 @@ pub struct EvalContext {
     /// interno + parsing CLI = débito P350c). Default `false` (= comportamento
     /// byte-idêntico ao vanilla).
     pub full_error: bool,
+
+    /// **P429 (DEBT-63)** — styles CSL resolvidos em eval time, indexados pela
+    /// chave determinística do `BibliographyElem` correspondente. Transporta-se
+    /// para o `Module` no fim do eval e depois para o `BibStore` do
+    /// `TagIntrospector` no pipeline (L3), evitando que o elemento guarde cache
+    /// de estado computado.
+    pub bibliography_styles: HashMap<u64, Arc<IndependentStyle>>,
 }
 
 impl EvalContext {
@@ -155,7 +165,18 @@ impl EvalContext {
             introspector: crate::entities::introspector::TagIntrospector::empty(),
             current_location: None,
             full_error: false,
+            bibliography_styles: HashMap::new(),
         }
+    }
+
+    /// **P429 (DEBT-63)** — regista o style CSL resolvido para o
+    /// `BibliographyElem` indicado, usando a sua chave determinística.
+    pub fn register_bibliography_style(
+        &mut self,
+        elem: &BibliographyElem,
+        style: Arc<IndependentStyle>,
+    ) {
+        self.bibliography_styles.insert(elem.style_key(), style);
     }
 
     /// **P208B (M9c)** — Setter conveniente para `current_location`.
@@ -305,6 +326,9 @@ pub fn eval_with_full_error(
         module_scope,
     );
     module.set_content(content);
+    // P429 (DEBT-63): transportar styles resolvidos do eval para o Module,
+    // de onde o pipeline os injectará no BibStore do TagIntrospector.
+    module.set_bibliography_styles(ctx.bibliography_styles);
     Ok(module)
 }
 

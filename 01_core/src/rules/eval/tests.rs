@@ -5455,7 +5455,18 @@ mod tests {
 
     // ── P420 — E2E bibliography com CSL custom via path ───────────────────────
 
-    use crate::rules::layout::layout;
+    use crate::rules::introspect::introspect_with_introspector;
+    use crate::rules::layout::{layout, layout_with_introspector};
+
+    /// P429: replica o pipeline de produção (eval → introspect → injectar
+    /// styles resolvidos no BibStore → layout).
+    fn p420_layout_module(content: &Content, module: &Module) -> crate::entities::layout_types::PagedDocument {
+        let mut intr = introspect_with_introspector(content);
+        for (key, style) in module.bibliography_styles() {
+            intr.bib_store.add_style(*key, style.clone());
+        }
+        layout_with_introspector(content, intr)
+    }
 
     fn p420_bib_csl() -> &'static str {
         r#"<?xml version="1.0" encoding="UTF-8"?>
@@ -5492,7 +5503,7 @@ mod tests {
 
         let module = eval_for_test(&world, &world.source).unwrap();
         let content = module.content().unwrap();
-        let doc = layout(content);
+        let doc = p420_layout_module(content, &module);
         let txt = doc.plain_text();
         assert!(txt.contains("On Crystal Math"), "custom CSL deve render title: {txt}");
     }
@@ -5515,7 +5526,7 @@ mod tests {
 
         let module = eval_for_test(&world, &world.source).unwrap();
         let content = module.content().unwrap();
-        let doc = layout(content);
+        let doc = p420_layout_module(content, &module);
         let txt = doc.plain_text();
         assert!(txt.contains("[1]"), "ieee continua funcional: {txt}");
     }

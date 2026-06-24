@@ -2,9 +2,21 @@
 //! @prompt 00_nucleo/prompts/entities/module.md
 //! @prompt-hash 913115d9
 //! @layer L1
-//! @updated 2026-03-28
+//! @updated 2026-06-23
+//!
+//! Resultado da avaliação de um ficheiro Typst.
+//!
+//! Usa `Arc<ModuleInner>` para que `clone()` seja O(1) — módulos são
+//! passados entre ramos de eval() e copiar um IndexMap inteiro seria O(n).
+//!
+//! **P429 (DEBT-63)** — adicionado `bib_styles`: tabela lateral de styles
+//! CSL resolvidos em eval time, indexados pela chave determinística do
+//! `BibliographyElem`. Transporte eval → pipeline → `BibStore`.
 
+use std::collections::HashMap;
 use std::sync::Arc;
+
+use hayagriva::citationberg::IndependentStyle;
 
 use crate::entities::content::Content;
 use crate::entities::scope::Scope;
@@ -17,9 +29,12 @@ pub struct Module(Arc<ModuleInner>);
 
 #[derive(Debug)]
 struct ModuleInner {
-    name:    String,
-    scope:   Scope,
-    content: Option<Content>,
+    name:       String,
+    scope:      Scope,
+    content:    Option<Content>,
+    /// **P429** — styles CSL resolvidos em eval time. Tabela lateral
+    /// indexada por `BibliographyElem::style_key()`.
+    bib_styles: HashMap<u64, Arc<IndependentStyle>>,
 }
 
 impl std::fmt::Debug for Module {
@@ -42,6 +57,7 @@ impl Module {
             name: name.into(),
             scope,
             content: None,
+            bib_styles: HashMap::new(),
         }))
     }
 
@@ -65,6 +81,19 @@ impl Module {
     pub fn set_content(&mut self, content: Option<Content>) {
         if let Some(inner) = Arc::get_mut(&mut self.0) {
             inner.content = content;
+        }
+    }
+
+    /// **P429** — styles CSL resolvidos em eval time.
+    pub fn bibliography_styles(&self) -> &HashMap<u64, Arc<IndependentStyle>> {
+        &self.0.bib_styles
+    }
+
+    /// **P429** — define os styles resolvidos. Chamado em `eval()` antes de
+    /// devolver o módulo. Requer Arc com referência única.
+    pub fn set_bibliography_styles(&mut self, styles: HashMap<u64, Arc<IndependentStyle>>) {
+        if let Some(inner) = Arc::get_mut(&mut self.0) {
+            inner.bib_styles = styles;
         }
     }
 }
@@ -104,5 +133,11 @@ mod tests {
     fn scope_vazio_valido() {
         let m = Module::new("empty", Scope::new());
         assert!(m.scope().is_empty());
+    }
+
+    #[test]
+    fn bibliography_styles_default_vazio() {
+        let m = Module::new("empty", Scope::new());
+        assert!(m.bibliography_styles().is_empty());
     }
 }

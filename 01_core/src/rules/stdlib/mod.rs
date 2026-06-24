@@ -8716,6 +8716,10 @@ mod tests {
         let r =
             native_bibliography(&mut ctx, &args, &null_world(), test_file_id()).unwrap();
         assert!(matches!(r, Value::Content(Content::Bibliography(_))));
+        // P429: style resolvido é registado no EvalContext, não no elemento.
+        assert_eq!(ctx.bibliography_styles.len(), 1);
+        let style = ctx.bibliography_styles.values().next().unwrap();
+        assert!(style.info.title.value.contains("IEEE"));
     }
 
     #[test]
@@ -8790,6 +8794,12 @@ mod tests {
             assert_eq!(e.path.as_deref(), Some("refs.bib"));
             assert_eq!(e.style.as_deref(), Some("ieee"));
             assert_eq!(e.locale.as_deref(), Some("en-US"));
+            // P429: style resolvido viaja no EvalContext (e depois no Module/BibStore),
+            // indexado pela chave determinística do elemento.
+            let key = e.style_key();
+            assert!(ctx.bibliography_styles.contains_key(&key));
+            let style = ctx.bibliography_styles.get(&key).unwrap();
+            assert!(style.info.title.value.contains("IEEE"));
         } else {
             panic!("esperado Content::Bibliography");
         }

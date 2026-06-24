@@ -32,6 +32,8 @@ pub mod heading;
 pub mod labelled;
 pub mod locatable;
 
+use std::sync::Arc;
+
 use crate::entities::{
     content::Content,
     content_hash::hash_content,
@@ -358,11 +360,16 @@ fn materialize_time(content: &Content, intr: &TagIntrospector, location: Locatio
         Content::TableFooter(e) => Content::table_footer(materialize_time(&e.body, intr, location), e.repeat),
         // Passo 159A — par acoplado Bibliography + Cite. Recurse em
         // title (Bibliography) ou supplement (Cite); preserva
-        // entries/key.
-        Content::Bibliography(e) => Content::bibliography(
-            e.entries.clone(),
-            e.title.as_ref().map(|t| materialize_time(t, intr, location)),
-        ),
+        // entries/key/style/locale/path (P429).
+        Content::Bibliography(e) => Content::Bibliography(Arc::new(
+            crate::entities::elements::bibliography::BibliographyElem {
+                entries: e.entries.clone(),
+                path: e.path.clone(),
+                title: e.title.as_ref().map(|t| materialize_time(t, intr, location)),
+                style: e.style.clone(),
+                locale: e.locale.clone(),
+            },
+        )),
         Content::Cite(e) => Content::cite(
             e.key.clone(),
             e.supplement.as_ref().map(|s| materialize_time(s, intr, location)),

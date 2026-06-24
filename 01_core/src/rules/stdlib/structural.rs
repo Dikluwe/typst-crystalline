@@ -1107,8 +1107,12 @@ fn extract_bib_entries(
 ///
 /// **P419** — input via path (`#bibliography("refs.bib")`) carrega
 /// `.bib`/`.yaml`/`.json` de disco via `World::read_bytes` + hayagriva.
+///
+/// **P429 (DEBT-63)** — o style resolvido não fica no `BibliographyElem`;
+/// é registado no `EvalContext` e transportado pelo `Module` até ao
+/// `BibStore` do `TagIntrospector` no pipeline.
 pub fn native_bibliography(
-    _ctx: &mut EvalContext,
+    ctx: &mut EvalContext,
     args: &Args,
     world: &dyn crate::contracts::world::World,
     current_file: FileId,
@@ -1161,26 +1165,25 @@ pub fn native_bibliography(
         _ => None,
     });
 
-    // P420 — resolve style (built-in ou custom .csl) em eval time.
-    let resolved_style = match &style {
-        Some(s) => Some(Arc::new(crate::rules::eval::bibliography::resolve_style(
+    // P420/P429 — resolve style (built-in ou custom .csl) em eval time e
+    // regista-o no EvalContext para transporte via Module → BibStore.
+    let elem = crate::entities::elements::bibliography::BibliographyElem {
+        entries,
+        path,
+        title,
+        style,
+        locale,
+    };
+    if let Some(s) = &elem.style {
+        let resolved = Arc::new(crate::rules::eval::bibliography::resolve_style(
             world,
             current_file,
             s.as_str(),
-        )?)),
-        None => None,
-    };
+        )?);
+        ctx.register_bibliography_style(&elem, resolved);
+    }
 
-    Ok(Value::Content(Content::Bibliography(Arc::new(
-        crate::entities::elements::bibliography::BibliographyElem {
-            entries,
-            path,
-            title,
-            style,
-            locale,
-            resolved_style,
-        },
-    ))))
+    Ok(Value::Content(Content::Bibliography(Arc::new(elem))))
 }
 
 /// `cite(key, supplement: ?, form: ?)` → `Content::Cite`.

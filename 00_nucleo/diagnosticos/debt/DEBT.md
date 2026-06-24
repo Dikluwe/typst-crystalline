@@ -252,7 +252,32 @@ O graded de `read` e `cbor` foi levantado.
 
 ---
 
-## DEBT-63 — Cache de style (`resolved_style`) dentro de `BibliographyElem` — EM ABERTO (Passo 420)
+## DEBT-63 — Cache de style (`resolved_style`) dentro de `BibliographyElem` — ✅ FECHADO (Passo 429)
+
+> **Fechado.** O campo `resolved_style` foi removido de `BibliographyElem`;
+> o struct voltou a ser puro (`entries`, `path`, `title`, `style`, `locale`)
+> com `PartialEq`/`Eq`/`Hash` derivados sem exclusões artificiais. O style CSL
+> resolvido em eval time viaja numa tabela lateral:
+>
+> 1. `native_bibliography` resolve o style e regista-o em
+>    `EvalContext::bibliography_styles`, indexado por
+>    `BibliographyElem::style_key()` (hash determinístico do elemento puro).
+> 2. No fim do eval, os pares `(key, Arc<IndependentStyle>)` são transferidos
+>    para `Module::bib_styles`.
+> 3. O pipeline (`03_infra/src/pipeline.rs`) injecta esses styles no
+>    `BibStore` do `TagIntrospector` antes de chamar
+>    `layout_with_introspector`.
+> 4. O layout reproduz a chave a partir do primeiro `Content::Bibliography`
+>    e lê o style resolvido de `introspector.bib_store.style_for_key(...)`.
+>
+> Ficheiros alterados: `entities/bib_store.rs`,
+> `entities/elements/bibliography.rs`, `entities/module.rs`,
+> `rules/eval/mod.rs`, `rules/stdlib/structural.rs`,
+> `rules/introspect.rs` (preservação de campos em `materialize_time`),
+> `rules/layout/mod.rs`, `03_infra/src/pipeline.rs`. Testes e relatório em
+> `typst-passo-429-relatorio.md`.
+>
+> **Pipeline COMPLETO verde** (`cargo test --workspace`).
 
 **Origem**: P420 adicionou `resolved_style: Option<Arc<IndependentStyle>>` a
 `BibliographyElem` porque o transporte do style resolvido pelo pipeline
@@ -260,17 +285,13 @@ O graded de `read` e `cbor` foi levantado.
 cross-module. Um struct de dados de domínio passou a guardar estado computado
 (cache do style CSL resolvido).
 
-**Risco**: `resolved_style` está **excluído** de `PartialEq` e `Hash`
-(`01_core/src/entities/elements/bibliography.rs`). A exclusão é sólida só
-enquanto o campo for função pura de (`path`/`style`/`locale`). Se um passo
-futuro preencher o campo por outro caminho, dois `BibliographyElem` iguais
-nas entradas mas com styles resolvidos diferentes serão tratados como iguais,
-escondendo a divergência na deduplicação/memoização do `Introspector`.
+**Risco**: a exclusão de `resolved_style` de `PartialEq`/`Hash` era sólida
+apenas enquanto o campo fosse função pura de (`path`/`style`/`locale`). Com a
+remoção do campo, o risco desapareceu — o elemento é puro e a tabela lateral
+é a única fonte do style resolvido no layout.
 
-**Critério de fecho**: mover o style resolvido para fora do struct de domínio
-(`Introspector`/`BibStore` ou parâmetro de layout), repondo `BibliographyElem`
-puro; OU provar e fixar em teste a invariante "`resolved_style` é função pura
-das entradas" para que a exclusão permaneça sólida.
+**Critério de fecho**: mover o style resolvido para fora do struct de domínio,
+repondo `BibliographyElem` puro. Cumprido no P429.
 
 **Magnitude**: S-M (refactor do ponto de layout / transporte pelo introspect).
 
