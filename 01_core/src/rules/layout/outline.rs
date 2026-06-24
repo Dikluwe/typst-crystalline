@@ -32,12 +32,12 @@ pub(super) fn layout_outline<M: FontMetrics, S: ImageSizer>(layouter: &mut Layou
     // colapsa em Introspector path puro.
     //
     // Clonar o vector antes do loop para evitar borrow duplo de `layouter`.
-    let entries: Vec<(_, _, _)> = layouter.introspector.headings_for_toc().to_vec();
+    let entries: Vec<(_, _, _, _)> = layouter.introspector.headings_for_toc().to_vec();
 
     // Título da TOC — fora do modo read-only (não contém efeitos colaterais).
     layouter.layout_content(&Content::heading(1, Content::text("Índice")));
 
-    for (label, body_content, level) in entries {
+    for (label, number, body_content, level) in entries {
         let indent = "  ".repeat(level.saturating_sub(1));
 
         // Ler página ANTES de activar is_readonly — evita borrow duplo.
@@ -49,13 +49,21 @@ pub(super) fn layout_outline<M: FontMetrics, S: ImageSizer>(layouter: &mut Layou
             .map(|p| format!("  {}", p))
             .unwrap_or_default();
 
-        // O Ref usa a label automática. Se a numeração estava activa,
-        // resolved_labels contém "Secção X"; se não estava, contém "".
+        // P428 (DEBT-60b): o número do outline vem do campo `number`, não de
+        // `resolved_labels` (que incluiria o supplement "Secção"). Para
+        // headings sem numeração, `number` é `None` e a linha começa
+        // directamente com o body.
+        let prefix = number.unwrap_or_default();
+        let prefix_with_space = if prefix.is_empty() {
+            String::new()
+        } else {
+            format!("{} ", prefix)
+        };
+
         let line = Content::Sequence(
             vec![
                 Content::text(indent),
-                Content::reference(label),
-                Content::text(" "),
+                Content::text(prefix_with_space),
                 body_content, // Content clonado — preserva formatação original
                 Content::text(page_num),
                 Content::linebreak(),

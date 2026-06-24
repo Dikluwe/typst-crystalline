@@ -22,7 +22,7 @@ use typst_core::entities::module::Module;
 use typst_core::entities::source::Source;
 use typst_core::entities::source_result::{SourceDiagnostic, SourceResult};
 use typst_core::entities::world_types::{Route, Routines, Sink, Traced};
-use typst_core::rules::eval::eval;
+use typst_core::rules::eval::eval_with_full_error;
 // P190I (M6 fechado): introspect import removido — layout() corre
 // introspect_with_introspector internamente.
 use typst_core::rules::layout::layout;
@@ -39,6 +39,19 @@ pub fn eval_to_module_with_sink(
     world: &dyn World,
     source: &Source,
 ) -> (SourceResult<Module>, Vec<SourceDiagnostic>) {
+    eval_to_module_with_sink_full_error(world, source, false)
+}
+
+/// Internal variant that wires the `full_error` flag down to L1.
+///
+/// The public API stays on [`eval_to_module_with_sink`] (default `false`) so
+/// callers are not exposed to the flag. This helper exists only to support
+/// the internal path from `RunIntent.full_error` (DEBT-59 / P428).
+fn eval_to_module_with_sink_full_error(
+    world: &dyn World,
+    source: &Source,
+    full_error: bool,
+) -> (SourceResult<Module>, Vec<SourceDiagnostic>) {
     let routines = Routines::new();
     let traced   = Traced::default();
     let mut sink = Sink::new();
@@ -46,7 +59,7 @@ pub fn eval_to_module_with_sink(
     // Lote F-3 inc-2: registry de elementos de utilizador. Vazio até pacotes
     // registarem elementos (não há elemento de utilizador em produção ainda).
     let registry = typst_core::entities::element_registry::ElementRegistry::new();
-    let result = eval(
+    let result = eval_with_full_error(
         &routines,
         world,
         traced.track(),
@@ -54,6 +67,7 @@ pub fn eval_to_module_with_sink(
         route.track(),
         source,
         &registry,
+        full_error,
     );
     let warnings = sink.into_diagnostics();
     (result, warnings)
@@ -75,7 +89,22 @@ pub fn compile_to_pdf_bytes(
     world: &dyn World,
     source: &Source,
 ) -> (Result<Vec<u8>, Vec<SourceDiagnostic>>, Vec<SourceDiagnostic>) {
-    let (eval_result, warnings) = eval_to_module_with_sink(world, source);
+    compile_to_pdf_bytes_full_error(world, source, false)
+}
+
+/// Internal variant that wires the `full_error` flag down to L1.
+///
+/// The stable public API stays on [`compile_to_pdf_bytes`] (default `false`).
+/// This function exists only to support the internal path from
+/// `RunIntent.full_error` (DEBT-59 / P428). It is `pub` only because L4 lives
+/// in a different crate; treat it as an implementation detail.
+#[doc(hidden)]
+pub fn compile_to_pdf_bytes_full_error(
+    world: &dyn World,
+    source: &Source,
+    full_error: bool,
+) -> (Result<Vec<u8>, Vec<SourceDiagnostic>>, Vec<SourceDiagnostic>) {
+    let (eval_result, warnings) = eval_to_module_with_sink_full_error(world, source, full_error);
     let module = match eval_result {
         Ok(m) => m,
         Err(errors) => return (Err(errors), warnings),

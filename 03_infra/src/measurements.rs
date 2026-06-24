@@ -286,7 +286,7 @@ impl<I: Introspector + Send + Sync> Introspector for CountingIntrospector<I> {
         self.inner.resolved_label_for(label)
     }
 
-    fn headings_for_toc(&self) -> &[(Label, Content, usize)] {
+    fn headings_for_toc(&self) -> &[(Label, Option<String>, Content, usize)] {
         record_call(17);
         self.inner.headings_for_toc()
     }

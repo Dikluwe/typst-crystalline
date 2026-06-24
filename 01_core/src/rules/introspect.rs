@@ -605,9 +605,10 @@ fn populate_intr_from_tag_start(
                 }
             }
         }
-        ElementPayload::HeadingForToc { label, body, level } => {
+        ElementPayload::HeadingForToc { label, number, body, level } => {
             intr.headings_for_toc.push((
                 label.clone(),
+                number.clone(),
                 body.clone(),
                 *level,
             ));
@@ -813,13 +814,17 @@ pub(crate) fn walk(
             // diferentes (sem conflito per P196A §11.5). Fecha
             // E2-residuo + lacuna #3.
             if let Some(loc) = emitted_loc {
-                if let Some((label, body_for_toc, lvl)) = heading::compute_heading_for_toc(
+                if let Some((label, number, body_for_toc, lvl)) = heading::compute_heading_for_toc(
+                    &*intr,
+                    loc,
                     current_auto_label,
                     frozen_body,
                     *level as usize,
+                    numbering_active,
                 ) {
                     let info = ElementInfo::new(ElementPayload::HeadingForToc {
                         label,
+                        number,
                         body: body_for_toc,
                         level: lvl,
                     });
@@ -1275,11 +1280,11 @@ mod tests {
         let intr = introspect_with_introspector(&content);
         assert_eq!(intr.headings_for_toc().len(), 3);
 
-        let (_, title_0, level_0) = &intr.headings_for_toc()[0];
+        let (_, _, title_0, level_0) = &intr.headings_for_toc()[0];
         assert_eq!(title_0.plain_text(), "Introdução");
         assert_eq!(*level_0, 1);
 
-        let (_, _, level_1) = &intr.headings_for_toc()[1];
+        let (_, _, _, level_1) = &intr.headings_for_toc()[1];
         assert_eq!(*level_1, 2);
     }
 
@@ -1306,7 +1311,7 @@ mod tests {
         let content = Content::heading(1, Content::text("Título"));
         let intr = introspect_with_introspector(&content);
         assert_eq!(intr.headings_for_toc().len(), 1);
-        let (label, _, _) = &intr.headings_for_toc()[0];
+        let (label, _, _, _) = &intr.headings_for_toc()[0];
         assert_eq!(
             intr.resolved_labels.get(label),
             Some(""),
@@ -1467,7 +1472,7 @@ mod tests {
         let intr = introspect_with_introspector(&content);
         assert_eq!(intr.headings_for_toc().len(), 1);
 
-        let (_, frozen_body, _) = &intr.headings_for_toc()[0];
+        let (_, _, frozen_body, _) = &intr.headings_for_toc()[0];
         let text = frozen_body.plain_text();
         // O body congelado deve conter "7" (valor no momento da introspecção),
         // não "0" (valor no início do documento quando a TOC é renderizada).
@@ -2604,7 +2609,7 @@ mod tests {
         // Levels preservados em ordem.
         let levels: Vec<usize> = intr.headings_for_toc()
             .iter()
-            .map(|(_, _, lvl)| *lvl)
+            .map(|(_, _, _, lvl)| *lvl)
             .collect();
         assert_eq!(levels, vec![1, 2, 1]);
     }
@@ -3111,7 +3116,7 @@ mod tests {
         // Auto-label sintetizada usa state.auto_label_counter (1).
         let entry = &intr.headings_for_toc()[0];
         assert_eq!(entry.0, Label("auto-toc-1".to_string()));
-        assert_eq!(entry.2, 1, "level esperado");
+        assert_eq!(entry.3, 1, "level esperado");
     }
 
     #[test]
@@ -3139,7 +3144,7 @@ mod tests {
         // Paridade exacta — labels e levels.
         for (legacy_entry, intr_entry) in intr.headings_for_toc().iter().zip(intr.headings_for_toc()) {
             assert_eq!(legacy_entry.0, intr_entry.0, "labels devem ser idênticos");
-            assert_eq!(legacy_entry.2, intr_entry.2, "levels devem ser idênticos");
+            assert_eq!(legacy_entry.3, intr_entry.3, "levels devem ser idênticos");
         }
     }
 
@@ -3196,8 +3201,8 @@ mod tests {
             "P200B: E2-residuo fechada estruturalmente via Tag::HeadingForToc"
         );
         // Levels preservados em ordem.
-        let levels_legacy: Vec<_> = intr.headings_for_toc().iter().map(|(_, _, l)| *l).collect();
-        let levels_intr: Vec<_> = intr.headings_for_toc().iter().map(|(_, _, l)| *l).collect();
+        let levels_legacy: Vec<_> = intr.headings_for_toc().iter().map(|(_, _, _, l)| *l).collect();
+        let levels_intr: Vec<_> = intr.headings_for_toc().iter().map(|(_, _, _, l)| *l).collect();
         assert_eq!(levels_legacy, vec![1, 2, 1]);
         assert_eq!(levels_intr, levels_legacy);
     }
@@ -3219,10 +3224,10 @@ mod tests {
         let entry = &intr.headings_for_toc()[0];
         assert_eq!(entry.0, Label("auto-toc-1".to_string()),
             "label sintetizada usa walk-internal auto_label_counter");
-        assert_eq!(entry.2, 2,
+        assert_eq!(entry.3, 2,
             "level preservado per cast usize do level: u8");
         // body materializado preserva text content.
-        match &entry.1 {
+        match &entry.2 {
             Content::Text(s) => assert_eq!(s.as_str(), "título"),
             other => panic!("body esperado Text, obtido {other:?}"),
         }

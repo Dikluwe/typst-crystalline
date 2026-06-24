@@ -182,6 +182,8 @@ Erros são mapeados para `EvalError` com **mensagens legíveis e estruturadas**:
 - Validação completa de CSL schema (relaxNG) — scope-out; hayagriva faz validação básica.
 - Cache de styles cross-evaluation (persistente entre compilações) — scope-out P420.X.
 
+**Cache de styles (decisão tomada, não pendente)**: não existe `StyleCache` global no `World`; o style é resolvido a cada eval. O campo `resolved_style` em `BibliographyElem` é um cache mecânico por elemento, rastreado em DEBT-63, e não substitui a decisão sobre cache global.
+
 ---
 
 ## CHECKPOINT A
@@ -356,18 +358,28 @@ crystalline-lint .
 ```
 
 **Critério de fecho**:
-- [ ] 14 tests verdes
-- [ ] Lint zero errors; drift sincronizado
-- [ ] `style: "ieee"` continua funcionando (built-in, P418 não regressado)
-- [ ] `style: "custom.csl"` carrega e aplica CSL custom
-- [ ] `style: "nonexistent"` → erro claro (built-in não encontrado + path não existe)
-- [ ] File not found → mensagem com path absoluto resolvido
-- [ ] XML malformado → mensagem com causa do hayagriva
-- [ ] Encoding inválido → mensagem "not valid UTF-8"
-- [ ] Nenhum vtable/`dyn` introduzido (ADR-0109 / ADR-0026)
-- [ ] `match` exaustivo preservado
-- [ ] Lógica atomizada em free functions (forma B)
-- [ ] L0 hashado e propagado
+- [x] 14 tests verdes
+- [x] Lint zero errors; drift sincronizado
+- [x] `style: "ieee"` continua funcionando (built-in, P418 não regressado)
+- [x] `style: "custom.csl"` carrega e aplica CSL custom
+- [x] `style: "nonexistent"` → erro claro (built-in não encontrado + path não existe)
+- [x] File not found → mensagem com path absoluto resolvido
+- [x] XML malformado → mensagem com causa do hayagriva
+- [x] Encoding inválido → mensagem "not valid UTF-8"
+- [x] Nenhum vtable/`dyn` introduzido (ADR-0109 / ADR-0026)
+- [x] `match` exaustivo preservado
+- [x] Lógica atomizada em free functions (forma B)
+- [x] L0 hashado e propagado
+- [x] Comportamento de `resolved_style` em `PartialEq`/`Hash` declarado no relatório (excluído da identidade)
+- [x] Divergência face ao L0 fechada via **Forma B**: campo mantido como cache mecânico, com invariante escrita e DEBT-63 aberto
+- [x] Cache global de styles: decisão tomada (sem `StyleCache` no `World`; recarrega a cada eval)
+- [x] Seis scope-outs listados explicitamente nos critérios de fecho:
+  - [scope_out] CSL via URL — só paths locais
+  - [scope_out] CSL em diretório de sistema (`~/.csl/`) — só path explícito
+  - [scope_out] Múltiplos styles simultâneos — primeiro `BibliographyElem` governa
+  - [scope_out] Hot-reload de CSL em runtime
+  - [scope_out] Validação completa de schema CSL (relaxNG) — hayagriva faz a básica
+  - [scope_out] Cache cross-evaluation persistente — P420.X
 
 ---
 

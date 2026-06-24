@@ -7,6 +7,7 @@
 //! `BibliographyElem` — Lote 10 P325 (por largura). `bibliography(entries, title)`.
 //! **Locatável** (P181C) — absorve `extract_payload`. Contentor: recurse no title.
 
+use std::hash::{Hash, Hasher};
 use std::sync::Arc;
 
 use ecow::EcoString;
@@ -20,7 +21,7 @@ use crate::entities::elements::Element;
 use crate::entities::source_result::SourceResult;
 
 /// Lista de referências (`entries`) com `title` opcional.
-#[derive(Debug, Clone, PartialEq, Hash)]
+#[derive(Debug, Clone)]
 pub struct BibliographyElem {
     pub entries: Vec<BibEntry>,
     /// **P419** — Path do ficheiro `.bib`/`.yaml`/`.json`. Quando `Some`, as
@@ -33,7 +34,36 @@ pub struct BibliographyElem {
     pub locale: Option<EcoString>,
     /// **P420** — Style CSL já resolvido (built-in ou custom `.csl`). Cache
     /// mecânico preenchido em eval time; `None` quando não especificado.
+    ///
+    /// **INVARIANTE**: `resolved_style` é função pura de (`path`, `style`, `locale`);
+    /// nunca é preenchido por outro caminho. Por isso é EXCLUÍDO de `PartialEq` e
+    /// `Hash` — a identidade do elemento fica definida só pelas entradas.
+    /// Ver relatório P420 (divergência declarada) e DEBT-63.
     pub resolved_style: Option<Arc<IndependentStyle>>,
+}
+
+impl PartialEq for BibliographyElem {
+    fn eq(&self, other: &Self) -> bool {
+        self.entries == other.entries
+            && self.path == other.path
+            && self.title == other.title
+            && self.style == other.style
+            && self.locale == other.locale
+        // `resolved_style` é cache derivado; não participa na identidade.
+    }
+}
+
+impl Eq for BibliographyElem {}
+
+impl Hash for BibliographyElem {
+    fn hash<H: Hasher>(&self, state: &mut H) {
+        self.entries.hash(state);
+        self.path.hash(state);
+        self.title.hash(state);
+        self.style.hash(state);
+        self.locale.hash(state);
+        // `resolved_style` omitido propositadamente.
+    }
 }
 
 impl Element for BibliographyElem {
@@ -229,5 +259,31 @@ mod tests {
         assert_ne!(a, b);
         assert_ne!(a, c);
         assert_ne!(h(&a), h(&b));
+    }
+
+    #[test]
+    fn resolved_style_e_cache_nao_participa_de_eq_e_hash() {
+        // Invariante P420 / DEBT-63: `resolved_style` é cache derivado e não
+        // entra na identidade do `BibliographyElem`.
+        let style =
+            crate::rules::layout::bib_csl::resolve_style_name("ieee").expect("ieee existe");
+        let a = BibliographyElem {
+            entries: vec![entry()],
+            path: None,
+            title: None,
+            style: Some("ieee".into()),
+            locale: None,
+            resolved_style: None,
+        };
+        let b = BibliographyElem {
+            entries: vec![entry()],
+            path: None,
+            title: None,
+            style: Some("ieee".into()),
+            locale: None,
+            resolved_style: Some(Arc::new(style)),
+        };
+        assert_eq!(a, b);
+        assert_eq!(h(&a), h(&b));
     }
 }

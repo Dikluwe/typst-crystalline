@@ -252,6 +252,30 @@ O graded de `read` e `cbor` foi levantado.
 
 ---
 
+## DEBT-63 — Cache de style (`resolved_style`) dentro de `BibliographyElem` — EM ABERTO (Passo 420)
+
+**Origem**: P420 adicionou `resolved_style: Option<Arc<IndependentStyle>>` a
+`BibliographyElem` porque o transporte do style resolvido pelo pipeline
+`eval → ElementPayload → BibStore → Introspector → layout` exigiria refactor
+cross-module. Um struct de dados de domínio passou a guardar estado computado
+(cache do style CSL resolvido).
+
+**Risco**: `resolved_style` está **excluído** de `PartialEq` e `Hash`
+(`01_core/src/entities/elements/bibliography.rs`). A exclusão é sólida só
+enquanto o campo for função pura de (`path`/`style`/`locale`). Se um passo
+futuro preencher o campo por outro caminho, dois `BibliographyElem` iguais
+nas entradas mas com styles resolvidos diferentes serão tratados como iguais,
+escondendo a divergência na deduplicação/memoização do `Introspector`.
+
+**Critério de fecho**: mover o style resolvido para fora do struct de domínio
+(`Introspector`/`BibStore` ou parâmetro de layout), repondo `BibliographyElem`
+puro; OU provar e fixar em teste a invariante "`resolved_style` é função pura
+das entradas" para que a exclusão permaneça sólida.
+
+**Magnitude**: S-M (refactor do ponto de layout / transporte pelo introspect).
+
+---
+
 ## DEBT-61 — F-5b (de-bake do `TextStyle`) — ✅ FECHADO (P371 fatia 1 + P373 fatia 2)
 
 > **Fechado.** O bloqueio (achado 3) foi resolvido em **duas fatias**: o **P371** (§3a.12) deu a
@@ -287,7 +311,10 @@ strong/emph/styled + `morph_canon`/α vanilla-faithful), não como de-bake. O it
 **3/4** (os 3 numbering com fonte única, P364/P365). A extensibilidade (item 3, `#set` de
 user-props) **não depende** deste de-bake.
 
-## DEBT-60 — Contador de heading diverge do vanilla + supplement "Secção" no outline — EM ABERTO (P353)
+## DEBT-60 — Contador de heading diverge do vanilla + supplement "Secção" no outline — ✅ FECHADO (P428)
+
+> **Fechado.** O supplement "Secção" no outline foi removido (DEBT-60b). O contador de heading
+> permanece como **divergência consciente aceite** (DEBT-60a), não como bug a fechar.
 
 **Medido (P353 Fase A, probe read-only contra vanilla 0.14.2 como oráculo).** Para
 `= A` / `#[ #set heading(numbering: "1.") == B ]` / `== C` / `#outline()`:
@@ -297,61 +324,66 @@ user-props) **não depende** deste de-bake.
 | vanilla 0.14.2 (corpo **e** outline) | (sem nº) | **`0.1.`** | (sem nº) |
 | crystalline (corpo **e** outline) | (sem nº) | **`1.1`** | (sem nº) |
 
-**Dois desvios de paridade, ambos ORTOGONAIS ao de-bake do F-5** (não corrigíveis por de-bake —
-ver relatório P353, Adendo):
-1. **Contador**: o nº de B diverge (`1.1` vs `0.1`). O confinamento está correto (A/C sem número
-   no crystalline **e** no vanilla; as réguas layout↔introspect **concordam**) — a divergência é
-   no **stepping do contador de nível-1** (no vanilla, o heading `A` não-numerado **não** conta
-   para o nível-1; no crystalline, conta). Mora no contador, não no gate `heading.numbering`; o nº
-   vem de `introspector.formatted_counter_at("heading", loc)` (`rules/layout/mod.rs:716-718`), não
-   da chain.
-2. **Outline supplement**: o crystalline emite "Secção" no item de outline do heading; o vanilla
-   não emite supplement para heading no outline.
+**Dois desvios de paridade, ambos ORTOGONAIS ao de-bake do F-5** (ver relatório P353, Adendo).
 
-**Por que não foi corrigido aqui:** o P353 (F-5 de-bake) decidiu **rumo (b)** — o de-bake é
-limpeza, não correção (as réguas não divergem sob confinamento), e o de-bake **não tocaria** o
-contador (`1.1` continuaria). Logo este desvio é débito **separado**, candidato a diagnóstico/lote
-próprio. **M** (manter; medir a fonte do stepping e do supplement antes de corrigir).
+### DEBT-60a — Contador de heading diverge do vanilla — ACEITE (P359)
 
-**Atualização P359 (medido + decisão do dono):**
-- **(a) Contador — ACEITE como divergência consciente medida (não corrigir).** A causa é o **P335
-  (Lote F-2 S5): o contador de heading é INCONDICIONAL por decisão deliberada** (+ gate no
-  *display*, não no *step*); ~20 testes de introspect/layout encodam isso (ex.
-  `introspector_consistencia_heading`). Gatear o step em `numbering_active` reverte o P335 e flipa
-  os ~20 — re-escopo, não conserto. **Medição de demanda (P359):** varredura de `docs/` → **6 usos
-  de `set heading(numbering:)`, TODOS document-wide; ZERO confinados** → numbering confinado **não
-  é idiomático**; a divergência (`1.1`≠`0.1`) só aparece no caso misto/confinado (construído). A
-  arquitetura P335 é **observavelmente igual** ao vanilla em todos os casos comuns. Reverter pagaria
-  caro por demanda nula (anti-ADR-0107). **Decisão do dono (P359): aceitar.** Gatilho de reabertura:
-  se numbering confinado/misto virar padrão real medido. **(a) permanece como divergência registrada,
-  não como bug a fechar.**
-- **(b) Supplement "Secção" — EM CORREÇÃO (lote isolado P359).** Medido independente de (a) (probe
-  só em `outline.rs` → 0 flips do contador). O número do TOC vem embutido no `resolved_text`
-  "Secção {n}" (partilhado com refs de corpo); fix = fiar a Location/número na entrada do TOC
-  (`headings_for_toc`/`HeadingForToc`) → outline mostra o número sem "Secção" + teste do número no
-  outline (lacuna: nenhum teste o assertia, escondendo o supplement). Contido ao caminho do TOC.
+O nº de B diverge (`1.1` vs `0.1`). O confinamento está correto (A/C sem número no crystalline **e**
+no vanilla; as réguas layout↔introspect concordam) — a divergência é no **stepping do contador de
+nível-1** (no vanilla, o heading `A` não-numerado não conta para o nível-1; no crystalline, conta).
+A causa é o **P335 (Lote F-2 S5): o contador de heading é INCONDICIONAL por decisão deliberada**
+(+ gate no *display*, não no *step*); ~20 testes de introspect/layout encodam isso. Gatear o step em
+`numbering_active` reverte o P335 e flipa os ~20 — re-escopo, não conserto. Medição de demanda (P359):
+numbering confinado não é idiomático; a divergência só aparece no caso misto/confinado construído.
+**Decisão do dono (P359 → P428): aceitar.** Gatilho de reabertura: se numbering confinado/misto
+virar padrão real medido.
 
-## DEBT-59 — Flag de erro completo: exposição CLI + fio `RunIntent`→L1 — EM ABERTO (P350c)
+### DEBT-60b — Supplement "Secção" no outline — FECHADO (P428)
 
-A **capacidade interna** da flag de "erro completo" está **feita** (P350c): quando
+**Resolução (P428):** o número do TOC deixou de vir do `resolved_text` partilhado com as refs de
+corpo (que inclui o supplement "Secção") e passou a ser guardado separadamente na entry do TOC:
+
+- `ElementPayload::HeadingForToc` ganhou campo `number: Option<String>`.
+- `TagIntrospector::headings_for_toc` passou a tuple `(Label, Option<String>, Content, usize)`.
+- `compute_heading_for_toc` (`01_core/src/rules/introspect/heading.rs`) computa o número puro a
+  partir de `formatted_counter_at("heading", loc)` (ex. `"1."`, `"1.1."`), sem supplement.
+- `layout_outline` (`01_core/src/rules/layout/outline.rs`) renderiza o prefixo numérico a partir do
+  campo `number` e o corpo do título a partir do body congelado.
+
+**Critério satisfeito:** `#outline()` para heading numerado mostra o número puro (ex. "1.1")
+sem o prefixo "Secção"; o teste `layout_outline_mostra_numero_sem_supplement_seccao` fecha a
+lacuna P359. Paridade vanilla literal no item de outline.
+
+**Magnitude final:** XS-S (refino de texto em outline).
+
+Ver: `00_nucleo/materialization/typst-passo-428.md`, relatório `typst-passo-428-relatorio.md`.
+
+## DEBT-59 — Flag de erro completo: exposição CLI + fio `RunIntent`→L1 — ✅ FECHADO (P428)
+
+> **Fechado.** A flag `--full-error` foi adicionada à CLI e fiada até L1 pelo caminho
+> interno de L3, sem alterar a assinatura pública `compile_to_pdf_bytes`.
+
+A **capacidade interna** da flag de "erro completo" estava feita desde P350c: quando
 `EvalContext.full_error` está ligada, o erro de recursão de `#show` ganha um 3º hint
 classificando **cíclico**/**não-convergente** (mensagem base byte-idêntica ao vanilla sem a
-flag). Testável já via `eval_with_full_error(…, true)`. A **casa da origem** existe em
-`RunIntent.full_error` (`02_shell/src/cli.rs`, ao lado de `colored`, default `false`).
+flag). O que faltava era a origem CLI e o fio até L1.
 
-**Falta (o débito), por decisão de escopo (P350; forma C-com-origem intermédio, P350b):**
-1. **Parsing CLI** — o `Arg --full-error` em `Args` (`cli.rs`) e o seu mapeamento para
-   `RunIntent.full_error` (hoje `parse()` fixa `false`).
-2. **Fio `RunIntent`→L1** — ligar `RunIntent.full_error` (consumido em `04_wiring/main.rs`,
-   hoje ignorado via `..`) até `eval_with_full_error` pelo caminho **interno** de L3
-   (`03_infra/pipeline.rs`), **sem** mudar a assinatura **pública** de `compile_to_pdf_bytes`
-   (decisão, não débito — não expor por uma flag off-by-default).
+**Resolução (P428):**
+1. `02_shell/src/cli.rs` — adicionado `Arg::new("full-error").long("full-error").action(ArgAction::SetTrue)`
+   a `Args`; `parse()` mapeia `args.full_error` para `RunIntent.full_error`.
+2. `04_wiring/src/main.rs` — `RunIntent.full_error` deixou de ser ignorado pelo `..` e é
+   passado para L3.
+3. `03_infra/src/pipeline.rs` — caminho interno `compile_to_pdf_bytes_full_error` (wrapper
+   não-público sobre `eval_to_module_with_sink_full_error`) invoca
+   `eval_with_full_error(..., full_error)`. A API pública `compile_to_pdf_bytes` mantém
+   default `false`, preservando paridade vanilla off-by-default.
 
-**Critério de conclusão:** `typst --full-error doc.typ` produz, num erro de recursão de
-`#show`, o 3º hint classificado; sem a flag, a mensagem é byte-idêntica ao vanilla.
+**Critério satisfeito:** `typst --full-error doc.typ` produz o 3º hint classificado num
+erro de recursão de `#show`; sem a flag, a mensagem continua byte-idêntica ao vanilla.
 
-Ver: `00_nucleo/prompts/entities/f_fronteira_e1.md §3a.7-bis`, `prompts/shell/cli.md`
-(`RunIntent.full_error`), relatórios P350/P350b/P350c.
+**Magnitude final:** S (1 campo + 1 arg + 1 fio).
+
+Ver: `00_nucleo/materialization/typst-passo-428.md`, relatório `typst-passo-428-relatorio.md`.
 
 ## DEBT-58 — Primitivos de AST fora do modelo D — **TRIADO (Passo 329)**
 
@@ -2099,7 +2131,7 @@ abaixo.
   para **parcialmente consumido** — hyphenation activo;
   shaping features (rustybuzz) continuam ausentes (DEBT-53
   candidato XL futuro). Contagem de DEBTs abertos: **inalterada
-  (10)**.
+  (8)**.
 
 ### Actualização Passo 407 — `text.font` dict com regex keys (gap 8)
 
@@ -2115,7 +2147,23 @@ abaixo.
   **Não reabre** DEBT-52: consistente com o encerramento no
   Passo 142 e com ADR-0054 (gap 8 opcional). Variants-aware
   selection continua scope-out (ADR-0054bis condicional). Contagem
-  de DEBTs abertos: **inalterada (10)**.
+  de DEBTs abertos: **inalterada por este passo**. Nota: o saldo
+  real na data de P407 é **8** (não 10). A auditoria P275
+  reconciliara o saldo para 8; entre P275 e P407 fecharam
+  DEBT-35b (P276) e DEBT-33 (P277) (-2), abriram
+  DEBT-59 (P350c) e DEBT-60 (P353) (+2), e DEBT-62 abriu e
+  fechou (P387 → P398) sem alterar o saldo líquido. A referência
+  a "10" herda a contagem anterior à auditoria P275 e não deve
+  ser propagada.
+
+> **Nota retroativa (correcção de deriva P407/P414):** o fecho de
+> P407 cobriu apenas a **forma dict legada** cristalina
+> (`font: ("Name": ("Regular", "Bold"))`). A forma **named fields**
+> do vanilla (`font: (family: "Name", variant: "Regular", ...)`)
+> ficou fora do escopo deste fecho e foi materializada apenas em
+> P414. A redacção original do relatório P407 deixava implícito que
+> o gap 8 estava totalmente fechado; esta nota clarifica o escopo
+> real.
 
 ---
 

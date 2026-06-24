@@ -214,6 +214,10 @@ pub enum ElementPayload {
     /// Campos:
     /// - `label`: auto-label sintetizada `"auto-toc-N"` (paralela
     ///   à utilizada em `resolved_labels` P195D para reference).
+    /// - `number`: número puro do heading (ex. `"1."`, `"1.1."`)
+    ///   quando a numeração está activa; `None` quando não numerado.
+    ///   O outline usa este campo para emitir o prefixo numérico
+    ///   sem o supplement "Secção" (DEBT-60b / P428).
     /// - `body`: Content materializado (com counters resolvidos
     ///   via `materialize_time`). Outline render usa este body
     ///   para preservar formatação original do título.
@@ -224,9 +228,10 @@ pub enum ElementPayload {
     /// como write paralelo M5 — Layouter assignments
     /// `mod.rs:1490, 1521` dependem; cleanup orgânico em M6.
     HeadingForToc {
-        label: Label,
-        body:  crate::entities::content::Content,
-        level: usize,
+        label:  Label,
+        number: Option<String>,
+        body:   crate::entities::content::Content,
+        level:  usize,
     },
 }
 

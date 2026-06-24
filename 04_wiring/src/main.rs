@@ -47,15 +47,15 @@ use typst_core::contracts::world::World;
 use typst_core::entities::source::Source;
 use typst_core::entities::source_result::SourceDiagnostic;
 use typst_infra::fonts::discover_fonts;
-use typst_infra::pipeline::compile_to_pdf_bytes;
+use typst_infra::pipeline::compile_to_pdf_bytes_full_error;
 use typst_infra::world::SystemWorld;
 use typst_shell::cli::{self, RunIntent};
 use typst_shell::diagnostic::format_diagnostic;
 
 fn main() -> ExitCode {
-    // P350c: `full_error` (origem em RunIntent) ainda não é fiado a L3 — o `..`
-    // ignora-o de propósito (débito: o fio RunIntent→L3-interno + o parsing CLI).
-    let RunIntent { input, output, root, font_paths, colored, .. } = cli::parse();
+    // P428 (DEBT-59): `full_error` é fiado de RunIntent até L1 pelo caminho
+    // interno de L3. O campo mantém default `false` quando a flag não é usada.
+    let RunIntent { input, output, root, font_paths, colored, full_error } = cli::parse();
 
     let main_path = match input.file_name() {
         Some(name) => PathBuf::from(name),
@@ -85,7 +85,7 @@ fn main() -> ExitCode {
 
     let source_path = input.display().to_string();
 
-    let (result, warnings) = compile_to_pdf_bytes(&world, &source);
+    let (result, warnings) = compile_to_pdf_bytes_full_error(&world, &source, full_error);
     drain_to_stderr(&warnings, &source, &source_path, colored);
 
     let exit_code = match result {

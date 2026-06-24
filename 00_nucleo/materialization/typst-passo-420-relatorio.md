@@ -127,5 +127,9 @@ crystalline-lint .
 - **Medir antes de decidir (ADR-0108)**: A sonda confirmou `IndependentStyle::from_xml`, evitando implementar parser CSL XML próprio (~5k LOC).
 - **Paridade linguagem (ADR-0107)**: O contrato `style: "custom.csl"` → CSL custom aplicado é satisfeito. A ordem de resolução e o cache mecânico são livres.
 - **Atomização (ADR-0109)**: `BibliographyElem` é struct de dados; a lógica de resolução vive em `rules/eval/bibliography.rs`; o layout não muda (P418).
-- **Honestidade epistêmica**: A solução armazena o style resolvido no struct como cache mecânico, uma pequena divergência da redação original do L0 ("struct inalterado"), mas necessária porque `layout_with_introspector` não recebe `World`. Essa decisão está documentada no L0.
+- **Divergência declarada (correcção de deriva P420)**: `BibliographyElem` mantém `resolved_style: Option<Arc<IndependentStyle>>` como cache mecânico. A Forma A (remover o campo e rotear o style resolvido pelo `Introspector`) é viável em princípio — o `Introspector` está disponível em `layout_with_introspector` — mas exigiria refactor do `ElementPayload::Bibliography` e do `BibStore` para transportar o style resolvido do eval até ao layout. Optou-se pela **Forma B** como correção mínima:
+  - `resolved_style` é **EXCLUÍDO** de `PartialEq` e `Hash`;
+  - a identidade de `BibliographyElem` fica definida apenas pelas entradas (`path`, `style`, `locale`, `title`);
+  - **invariante**: `resolved_style` é função pura de (`path`/`style`/`locale`), preenchido só em eval time a partir desses inputs;
+  - o custo de manter o campo consistente está rastreado em **DEBT-63**.
 - **Próximo passo P421**: `repr()` completo (S) ou `link` render visual (S) ou `text.lang` rustybuzz (XL, scope-out).

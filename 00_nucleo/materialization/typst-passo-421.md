@@ -1,8 +1,13 @@
 # P421 — `repr()` Completo: representação de todos os variants (S)
 
+> **Reclassificação retroativa (S→M):** a sonda A.0 revelou que `native_repr`
+> não existia como infraestrutura completa; o passo foi reclassificado de S
+> para M. O cabeçalho e a linha de bloqueadores abaixo descrevem o estado
+> assumido antes da sonda. Ver ADR-0114 (gate sonda-antes-da-spec).
+
 **Título**: repr() completo — match exaustivo de representação para todos os variants de Value, Content, Selector  
 **Tipo**: Materialização (S) — consumer foundations + eval  
-**Bloqueadores**: Nenhum externo; `native_repr` existe como infraestrutura  
+**Bloqueadores**: Nenhum externo; `native_repr` parcial/ausente — confirmado pela sonda A.0; ver ADR-0114  
 **Referências**: ADR-0107 (paridade linguagem), ADR-0108 (medir antes de decidir), ADR-0109 (atomização forma B), P403 (Decimal), P405 (Duration), P406 (Version), P417 (Selector::Where), P418 (Bibliography/Cite)
 
 ---

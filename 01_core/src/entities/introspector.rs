@@ -182,12 +182,12 @@ pub trait Introspector: Send + Sync {
 
     /// **P200B** (M5 universal completo) — entries de outline (TOC)
     /// emitidas pelo walk arm Heading pós-recursão. Cada entry é
-    /// `(auto-label, frozen body materializado, level)`. Sub-store
-    /// `intr.headings_for_toc` populated via `from_tags` arm
+    /// `(auto-label, número puro, frozen body materializado, level)`.
+    /// Sub-store `intr.headings_for_toc` populated via `from_tags` arm
     /// `ElementPayload::HeadingForToc`. Fecha **E2-residuo**
     /// (lacuna #3) e completa E2 estruturalmente. Consumer
     /// `layout/outline.rs:24` migrado para substitution-with-fallback.
-    fn headings_for_toc(&self) -> &[(Label, crate::entities::content::Content, usize)];
+    fn headings_for_toc(&self) -> &[(Label, Option<String>, crate::entities::content::Content, usize)];
 
     /// **P207B (M9c)** — todos os labels registados com a respectiva
     /// `Location`, ordenados alfabéticamente por `Label` (estabilidade
@@ -284,7 +284,7 @@ pub struct TagIntrospector {
     pub resolved_labels: ResolvedLabelStore,
     /// **P200B** (M5 universal completo) — sub-store dedicado para
     /// entries de outline (TOC). Tuple por entry: `(auto-label,
-    /// frozen body materializado, level)`. População via
+    /// número puro, frozen body materializado, level)`. População via
     /// `from_tags` arm `ElementPayload::HeadingForToc` emitido
     /// pelo walk arm Heading pós-recursão (3ª Tag depois de
     /// Heading + Labelled auto-toc P196B). Fecha **E2-residuo**
@@ -295,7 +295,7 @@ pub struct TagIntrospector {
     /// legacy preservada como write paralelo M5 (Layouter
     /// assignments `mod.rs:1490, 1521` dependem); cleanup
     /// orgânico em M6.
-    pub headings_for_toc: Vec<(Label, crate::entities::content::Content, usize)>,
+    pub headings_for_toc: Vec<(Label, Option<String>, crate::entities::content::Content, usize)>,
     /// **P205C (F3)** — sub-store sealed `Location → Position`
     /// injectado pós-layout via `inject_positions` per ADR-0074.
     /// `Default::default()` é vazio (pre-layout); `position_of`
@@ -552,7 +552,7 @@ impl Introspector for TagIntrospector {
         self.resolved_labels.get(label)
     }
 
-    fn headings_for_toc(&self) -> &[(Label, crate::entities::content::Content, usize)] {
+    fn headings_for_toc(&self) -> &[(Label, Option<String>, crate::entities::content::Content, usize)] {
         &self.headings_for_toc
     }
 

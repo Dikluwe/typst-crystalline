@@ -14,6 +14,23 @@ use crate::entities::introspector::Introspector;
 use crate::entities::label::Label;
 use crate::entities::location::Location;
 
+/// Formata o valor hierárquico de um counter como string terminada em ponto.
+///
+/// Usado para o número do outline (DEBT-60b / P428): emite `"1."`, `"1.1."`,
+/// etc., sem supplement. Retorna `None` se a numeração estiver inactiva ou o
+/// counter não tiver valor no momento da `location`.
+fn format_heading_number<I: Introspector>(
+    intr:             &I,
+    location:         Location,
+    numbering_active: bool,
+) -> Option<String> {
+    if !numbering_active {
+        return None;
+    }
+    intr.formatted_counter_at("heading", location)
+        .map(|n| format!("{}.", n))
+}
+
 /// Computa `(auto_label, resolved_text)` para a auto-toc de um `Heading`
 /// (ADR-0069/P196B). Função pura sobre `(intr, location, auto_label_n,
 /// numbering_active)` — sem mutação. Sempre retorna `(Label, String)`
@@ -41,14 +58,20 @@ pub(super) fn compute_heading_auto_toc<I: Introspector>(
 }
 
 /// Projecta a entry de outline para um `Heading` (ADR-0069/P200B). Função pura
-/// sobre `(auto_label_n, frozen_body, level)` — sem mutação. `frozen_body` já
-/// materializado pelo walk arm Heading. Sempre retorna `Some(...)` (paridade
+/// sobre `(intr, location, auto_label_n, frozen_body, level, numbering_active)`
+/// — sem mutação. `frozen_body` já materializado pelo walk arm Heading. O
+/// `number` é computado a partir do counter do Introspector, separando-o do
+/// body e do supplement (DEBT-60b / P428). Sempre retorna `Some(...)` (paridade
 /// com o push incondicional legacy).
-pub(super) fn compute_heading_for_toc(
-    auto_label_n: usize,
-    frozen_body:  Content,
-    level:        usize,
-) -> Option<(Label, Content, usize)> {
+pub(super) fn compute_heading_for_toc<I: Introspector>(
+    intr:             &I,
+    location:         Location,
+    auto_label_n:     usize,
+    frozen_body:      Content,
+    level:            usize,
+    numbering_active: bool,
+) -> Option<(Label, Option<String>, Content, usize)> {
     let auto_label = Label(format!("auto-toc-{}", auto_label_n));
-    Some((auto_label, frozen_body, level))
+    let number = format_heading_number(intr, location, numbering_active);
+    Some((auto_label, number, frozen_body, level))
 }

@@ -93,6 +93,10 @@ struct Args {
     /// When to use coloured diagnostics.
     #[arg(long = "color", value_enum, default_value_t = ColorWhen::Auto)]
     color: ColorWhen,
+
+    /// Show an extended third hint for show-rule recursion errors.
+    #[arg(long = "full-error", action = clap::ArgAction::SetTrue)]
+    full_error: bool,
 }
 
 /// Intenção de execução — output puro de L2 para L4 (ADR-0049).
@@ -132,9 +136,9 @@ pub fn parse() -> RunIntent {
         root,
         font_paths: args.font_paths,
         colored,
-        // P350c: débito — sem `Arg --full-error` ainda; a casa da origem existe,
-        // default `false` (= comportamento byte-idêntico ao vanilla).
-        full_error: false,
+        // P350c → P428 (DEBT-59): a flag CLI é parseada e fiada a L4/L1.
+        // Default `false` preserva comportamento byte-idêntico ao vanilla.
+        full_error: args.full_error,
     }
 }
 
