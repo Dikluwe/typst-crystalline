@@ -338,6 +338,8 @@ pub struct Layouter<'a, M: FontMetrics, S: ImageSizer = NullImageSizer> {
     /// **P418** — cache pré-renderizado CSL para citações/bibliografia.
     /// Populado em `layout_with_introspector` antes do layout principal.
     pub(super) bib_render_cache: Option<crate::rules::layout::bib_csl::BibRenderCache>,
+    /// **P446** — smallcaps activo no corpo de um `#smallcaps[...]`.
+    pub(super) smallcaps: bool,
 }
 
 /// **P286** — Segmento de linha visual capturado por `flush_line`
@@ -494,6 +496,8 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
             // P287 — estado smartquote per-document (true = próximo é open).
             smartquote_double_open: true,
             smartquote_single_open: true,
+            // P446 — smallcaps activo no corpo de um `#smallcaps[...]`.
+            smallcaps: false,
             // P418 — cache pré-renderizado de citações/bibliografia CSL.
             bib_render_cache: None,
         }
@@ -876,10 +880,17 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
                 self.style = prev_style;
             }
 
-            // P408: smallcaps — consumer stub transparente. O shaping real de
-            // small caps (OpenType `smcp`/`c2sc`) é DEBT-53 scope-out XL;
-            // neste passo o output é byte-idêntico ao body.
-            Content::SmallCaps { body } => self.layout_content(body),
+            // P446: smallcaps — fallback por scaling (0.8×) de maiúsculas.
+            // Letras minúsculas são convertidas para maiúsculas e renderizadas
+            // a 80% do tamanho actual; maiúsculas e não-letras mantêm o
+            // tamanho. O flag `self.smallcaps` sinaliza ao layout de `Text`
+            // para fazer a segmentação por runs.
+            Content::SmallCaps { body } => {
+                let prev = self.smallcaps;
+                self.smallcaps = true;
+                self.layout_content(body);
+                self.smallcaps = prev;
+            }
 
             // ── Passo 154B (ADR-0060 Fase 1) — terms + divider ──────────────
             // Atomizado (ADR-0109, P381) → layout/divider.rs.

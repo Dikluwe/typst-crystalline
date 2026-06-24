@@ -1,5 +1,5 @@
 # Prompt L0 — `stdlib/text` — smartquote, decoração textual, lorem e smallcaps
-Hash do Código: 44dffb26
+Hash do Código: e234b3fb
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/rules/stdlib/text.rs`
@@ -85,12 +85,13 @@ native_lorem(Str("x")) → Err
 native_lorem(Int(5), foo:Int(1)) → Err
 ```
 
-## `smallcaps(body)` — Passo 408
+## `smallcaps(body)` — Passo 408 + Passo 446
 
 Elemento de texto vanilla `SmallcapsElem` que transforma o body em small
-capitals. No cristalino o **consumer é stub transparente**: o shaping OpenType
-(`smcp` / `c2sc`) está scope-out (DEBT-53, XL futuro). A feature existe no
-pipeline (parse, eval, Content variant) sem fallback software incorreto.
+capitals. No cristalino o variant `Content::SmallCaps { body }` existe desde
+o Passo 408; o **Passo 446 materializa o consumer real** com fallback por
+scaling (paridade visual vanilla quando a fonte não disponibiliza small caps
+OpenType `smcp`/`c2sc`).
 
 **Argumentos**: 1 posicional `Content | Str`. Zero named args.
 
@@ -98,15 +99,24 @@ pipeline (parse, eval, Content variant) sem fallback software incorreto.
 - `Content::SmallCaps { body: Box<Content> }`.
 - `plain_text` delega a `body`; `map_content` recursa em `body`; `is_empty`
   delega a `body`; `PartialEq` por `body`.
-- Layouter: `Content::SmallCaps { body } => self.layout_content(body)`.
+- Show rule: `NodeKind::Smallcaps` casa `Content::SmallCaps { .. }`.
+- Layouter flag `smallcaps: bool`:
+  - Arm `Content::SmallCaps { body }` activa o flag e faz `layout_content(body)`.
+  - No arm `Content::Text`, quando o flag está activo, cada palavra é
+    segmentada em runs de minúsculas vs outros caracteres:
+    - minúsculas → maiúsculas (`to_uppercase`) renderizadas a `0.8×` do
+      tamanho actual;
+    - maiúsculas e não-letras mantêm o tamanho actual.
+  - O flag é herdado por conteúdo aninhado (`strong`, `emph`, `Styled`, etc.).
 
-**Scope-out (ADR-0054 graded)**: small caps real requer shaping; não implementar
-fallback software (uppercase + scale) porque não é paridade vanilla.
+**Scope-out (ADR-0054 graded)**: shaping OpenType `smcp`/`c2sc` nativo da
+fonte continua scope-out; o fallback por scaling é funcionalmente equivalente
+para a maioria das fontes.
 
 ```
 native_smallcaps([Content(c)]) → Ok(Content::SmallCaps { body:c })
 native_smallcaps([Str("x")])   → Ok(Content::SmallCaps { body:text("x") })
 native_smallcaps()             → Err
 native_smallcaps([Content(c)], foo:Int(1)) → Err
-layout(smallcaps([Hello]))     → identical a layout([Hello]) (stub)
+layout(smallcaps([Hello]))     → "HELLO" com minúsculas a 0.8×
 ```

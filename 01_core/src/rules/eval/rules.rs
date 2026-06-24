@@ -172,6 +172,7 @@ fn selector_matches(work: &Content, selector: &Selector) -> bool {
                 | (Content::Underline(_), NodeKind::Underline)
                 | (Content::Strike(_), NodeKind::Strike)
                 | (Content::Overline(_), NodeKind::Overline)
+                | (Content::SmallCaps { .. }, NodeKind::Smallcaps)
         ) || matches!(
             (work, kind),
             (_, NodeKind::Strong) if is_styled_origin(work, true, false)
@@ -982,7 +983,8 @@ pub(super) fn eval_show_rule(
                     // function pointers de closures não são estáveis.
                     use crate::rules::stdlib::{
                         native_emph, native_figure, native_heading, native_overline,
-                        native_raw, native_strike, native_strong, native_underline,
+                        native_raw, native_smallcaps, native_strike, native_strong,
+                        native_underline,
                     };
                     use std::ptr::fn_addr_eq;
                     match f.native_fn_addr() {
@@ -1002,12 +1004,14 @@ pub(super) fn eval_show_rule(
                             Selector::NodeKind(NodeKind::Strike),
                         Some(addr) if fn_addr_eq(addr, native_overline as fn(_, _, _, _) -> _) =>
                             Selector::NodeKind(NodeKind::Overline),
+                        Some(addr) if fn_addr_eq(addr, native_smallcaps as fn(_, _, _, _) -> _) =>
+                            Selector::NodeKind(NodeKind::Smallcaps),
                         Some(_) => return Err(vec![SourceDiagnostic::error(
                             sel_expr.span(),
                             format!(
                                 "função '{}' não é um tipo de nó suportado como selector. \
                                  Tipos suportados: heading, figure, strong, emph, raw, \
-                                 underline, strike, overline.",
+                                 underline, strike, overline, smallcaps.",
                                 f.name().unwrap_or("<anónima>")
                             ),
                         )]),
@@ -1527,5 +1531,20 @@ mod tests {
         assert!(!selector_matches(&content, &Selector::NodeKind(NodeKind::Underline)));
         assert!(!selector_matches(&content, &Selector::NodeKind(NodeKind::Strike)));
         assert!(!selector_matches(&content, &Selector::NodeKind(NodeKind::Overline)));
+    }
+
+    // ── Passo 446 (P408) — selector para smallcaps ──────────────────────────
+
+    #[test]
+    fn p446_selector_smallcaps_casa_content_smallcaps() {
+        let content = Content::smallcaps(Content::text("x"));
+        assert!(selector_matches(&content, &Selector::NodeKind(NodeKind::Smallcaps)));
+        assert!(!selector_matches(&content, &Selector::NodeKind(NodeKind::Strong)));
+    }
+
+    #[test]
+    fn p446_selector_smallcaps_nao_casa_texto_plano() {
+        let content = Content::text("x");
+        assert!(!selector_matches(&content, &Selector::NodeKind(NodeKind::Smallcaps)));
     }
 }

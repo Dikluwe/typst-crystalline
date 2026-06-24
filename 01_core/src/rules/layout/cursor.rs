@@ -87,6 +87,25 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
         self.regions.current.cursor_x += w + self.space_width();
     }
 
+    /// P446 — emite um fragmento de texto sem adicionar o espaço de separação
+    /// de palavras. Usado por smallcaps para compor uma palavra a partir de
+    /// runs de tamanhos diferentes (minúsculas → maiúsculas a 0.8×).
+    pub(super) fn layout_chunk(&mut self, chunk: &str) {
+        let w = self.word_width(chunk);
+        let right_margin = self.regions.current.width - self.page_config.margin;
+        if self.regions.current.cursor_x.0 + w.0 > right_margin
+            && self.regions.current.cursor_x.0 > self.page_config.margin
+        {
+            self.flush_line();
+        }
+        self.regions.current.current_line.push(FrameItem::Text {
+            pos:   Point { x: self.regions.current.cursor_x, y: self.regions.current.cursor_y },
+            text:  chunk.into(),
+            style: self.style.clone(),
+        });
+        self.regions.current.cursor_x += w;
+    }
+
     pub(super) fn flush_line(&mut self) {
         // Avançar cursor_y apenas se havia items pendentes na linha actual
         // (Passo 83). Caso contrário, flush_line é um no-op semanticamente

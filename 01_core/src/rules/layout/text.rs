@@ -131,8 +131,35 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
     };
     let prev_style = layouter.style.clone();
     layouter.style = effective;
-    for word in text.split_whitespace() {
-        layouter.layout_word(word);
+    if layouter.smallcaps {
+        const SCALE: f64 = 0.8;
+        for word in text.split_whitespace() {
+            let chars: Vec<char> = word.chars().collect();
+            let mut i = 0;
+            while i < chars.len() {
+                let is_lower = chars[i].is_lowercase();
+                let mut j = i;
+                while j < chars.len() && chars[j].is_lowercase() == is_lower {
+                    j += 1;
+                }
+                let run: String = chars[i..j].iter().collect();
+                if is_lower {
+                    let upper = run.to_uppercase();
+                    let base_size = layouter.style.size;
+                    layouter.style.size = Pt(base_size.0 * SCALE);
+                    layouter.layout_chunk(&upper);
+                    layouter.style.size = base_size;
+                } else {
+                    layouter.layout_chunk(&run);
+                }
+                i = j;
+            }
+            layouter.regions.current.cursor_x += layouter.space_width();
+        }
+    } else {
+        for word in text.split_whitespace() {
+            layouter.layout_word(word);
+        }
     }
     layouter.style = prev_style;
 }

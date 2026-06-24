@@ -500,44 +500,52 @@ fn estilo_restaurado_apos_strong() {
     }
 }
 
-// ── Passo 408 — smallcaps (consumer stub transparente) ─────────────────
+// ── Passo 446 — smallcaps (render real por scaling) ────────────────────
 
 #[test]
-fn p408_smallcaps_stub_preserva_texto_do_body() {
-    // Consumer é stub transparente: o output de layout deve ser
-    // byte-idêntico ao body (sem small caps real — DEBT-53).
+fn p446_smallcaps_converte_minusculas_para_maiusculas() {
     let doc = layout(&Content::smallcaps(Content::text("SmallCaps")));
-    let texts: Vec<String> = doc
+    let items: Vec<_> = doc
         .pages
         .iter()
         .flat_map(|p| p.items.iter())
         .filter_map(|i| {
-            if let FrameItem::Text { text, .. } = i {
-                Some(text.to_string())
+            if let FrameItem::Text { text, style, .. } = i {
+                Some((text.to_string(), style.size))
             } else {
                 None
             }
         })
         .collect();
-    assert_eq!(texts.concat(), "SmallCaps");
+    let rendered: String = items.iter().map(|(t, _)| t.as_str()).collect();
+    assert_eq!(rendered, "SMALLCAPS");
+
+    let scaled_count = items.iter().filter(|(_, size)| size.0 < 11.0).count();
+    let normal_count = items.iter().filter(|(_, size)| size.0 >= 11.0).count();
+    assert!(scaled_count > 0, "deve haver runs de smallcaps menores");
+    assert!(normal_count > 0, "maiúsculas mantêm tamanho normal");
 }
 
 #[test]
-fn p408_smallcaps_via_stdlib_preserva_texto() {
+fn p446_smallcaps_via_stdlib_converte_texto() {
     let doc = layout_test("#smallcaps(\"Hello\")");
-    let texts: Vec<String> = doc
+    let items: Vec<_> = doc
         .pages
         .iter()
         .flat_map(|p| p.items.iter())
         .filter_map(|i| {
-            if let FrameItem::Text { text, .. } = i {
-                Some(text.to_string())
+            if let FrameItem::Text { text, style, .. } = i {
+                Some((text.to_string(), style.size))
             } else {
                 None
             }
         })
         .collect();
-    assert_eq!(texts.concat(), "Hello");
+    let rendered: String = items.iter().map(|(t, _)| t.as_str()).collect();
+    assert_eq!(rendered, "HELLO");
+
+    let scaled_count = items.iter().filter(|(_, size)| size.0 < 11.0).count();
+    assert!(scaled_count > 0, "minúsculas devem ser renderizadas a 0.8×");
 }
 
 #[test]
