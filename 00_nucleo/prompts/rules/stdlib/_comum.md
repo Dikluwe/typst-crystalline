@@ -7,10 +7,9 @@ para agentes). Este ficheiro guarda **só** o que é partilhado por várias
 funções; os prompts finos por função citam-no. Índice da partição:
 `rules/stdlib.md` (agora índice).
 **Apontam para aqui** (linhagem `@prompt`): `stdlib/mod.rs` (registo),
-`stdlib/assert.rs`, `stdlib/shapes.rs`,
-`stdlib/transforms.rs`, `stdlib/gradients.rs` — os ficheiros cuja spec
-detalhada **não** estava em `stdlib.md` (dependiam apenas da convenção
-partilhada; spec dedicada é candidata futura, não inventada aqui).
+`stdlib/shapes.rs`, `stdlib/transforms.rs`, `stdlib/gradients.rs` — os
+ficheiros cuja spec detalhada **não** estava em `stdlib.md` (dependiam apenas
+da convenção partilhada; spec dedicada é candidata futura, não inventada aqui).
 
 > Nota: `stdlib/structural.rs` tem agora o seu próprio prompt em
 > `00_nucleo/prompts/rules/stdlib/structural.md` (P430).
@@ -19,6 +18,8 @@ partilhada; spec dedicada é candidata futura, não inventada aqui).
 > Nota: `stdlib/calc.rs` tem o seu prompt dedicado em
 > `00_nucleo/prompts/rules/stdlib/calc.md` (actualizado no P433 para o subset
 > trig/hiperbólicas/log/exp/constantes).
+> Nota: `stdlib/assert.rs` tem agora o seu próprio prompt em
+> `00_nucleo/prompts/rules/stdlib/assert.md` (P434).
 
 ---
 
