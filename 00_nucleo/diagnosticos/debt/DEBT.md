@@ -874,15 +874,17 @@ um algoritmo de placement diferente. Resolução: passo futuro.
 
 ---
 
-## DEBT-42 — `get_unchecked` no scanner — EM ABERTO (Passo 84.8a, desbloqueado por ADR-0115)
+## DEBT-42 — `get_unchecked` no scanner — ✅ FECHADO (Passo 443, excepção permanente ADR-0116)
 
-> **Desbloqueado (Passo 441).** A infra de benchmarking reprodutível foi
-> criada (ADR-0115 ACEITE): crate `typst-benches` em `benches/` com
-> `criterion`, corpus B1–B5 e harness `scanner_bench.rs`. O bloqueio
-> "infra inexistente" foi levantado; DEBT-42 aguarda a execução do
-> benchmark experimental no P442 e a decisão com números no P443.
+> **Fechado.** O benchmark experimental do P442 substituiu `get_unchecked`
+> por slicing seguro na branch `p442-get-unchecked-removal` e mediu
+> regressões de **+8% a +58%** (média ponderada por bytes ≈ +35%) face ao
+> baseline do P441/P443. Quatro dos cinco inputs excederam o limiar de
+> 20% da ADR-0032. Foi escrita a **ADR-0116** (`EM VIGOR`) a autorizar
+> permanentemente as 5 ocorrências de `unsafe` em `scanner.rs` com o
+> número concreto de regressão. A branch experimental não foi mergeada.
 
-`01_core/src/rules/lexer/scanner.rs` tem 7 ocorrências de
+`01_core/src/rules/lexer/scanner.rs` tem 5 ocorrências de
 `unsafe { self.string.get_unchecked(start..end) }`. Herdado de
 `unscanny` via ADR-0014.
 
