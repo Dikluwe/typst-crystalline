@@ -14,10 +14,11 @@ L4  = "04_wiring"
 
 # Excluídos — ignorados intencionalmente, não disparam V8
 [excluded]
-build = "target"
-vcs   = ".git"
-cargo = ".cargo"
-lab   = "lab"   # quarentena — código original, não enforça regras cristalinas
+build   = "target"
+vcs     = ".git"
+cargo   = ".cargo"
+lab     = "lab"     # quarentena — código original, não enforça regras cristalinas
+benches = "benches" # infra de benchmark — fora da topologia de camadas (ADR-0115)
 
 [excluded_files]
 license  = "LICENSE"

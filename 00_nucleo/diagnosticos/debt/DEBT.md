@@ -874,7 +874,13 @@ um algoritmo de placement diferente. Resolução: passo futuro.
 
 ---
 
-## DEBT-42 — `get_unchecked` no scanner — EM ABERTO (Passo 84.8a, bloqueado)
+## DEBT-42 — `get_unchecked` no scanner — EM ABERTO (Passo 84.8a, desbloqueado por ADR-0115)
+
+> **Desbloqueado (Passo 441).** A infra de benchmarking reprodutível foi
+> criada (ADR-0115 ACEITE): crate `typst-benches` em `benches/` com
+> `criterion`, corpus B1–B5 e harness `scanner_bench.rs`. O bloqueio
+> "infra inexistente" foi levantado; DEBT-42 aguarda a execução do
+> benchmark experimental no P442 e a decisão com números no P443.
 
 `01_core/src/rules/lexer/scanner.rs` tem 7 ocorrências de
 `unsafe { self.string.get_unchecked(start..end) }`. Herdado de
@@ -887,9 +893,13 @@ reprodutível demonstrar regressão inaceitável ao eliminar o
 
 ### Bloqueio
 
-Este DEBT depende de **infra de benchmarking reprodutível no
+~~Este DEBT depende de **infra de benchmarking reprodutível no
 projecto**, que ainda não existe. Sem a infra, não é possível
-aplicar o critério da ADR-0032 de forma honesta.
+aplicar o critério da ADR-0032 de forma honesta.~~
+
+**Levantado no Passo 441.** A infra de benchmark foi criada (ver
+ADR-0115). O bloqueio restante é apenas a execução da medição e a
+decisão sobre os números (P442/P443).
 
 ### Plano de resolução
 

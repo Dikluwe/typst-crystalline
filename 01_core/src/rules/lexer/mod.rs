@@ -27,7 +27,7 @@ mod code;
 // todos os métodos do lexer são pequenas transições de estado sobre
 // esses 4 campos. Métodos accessor/setter não agregam invariante.
 // ADR-0037 Regra 3 autoriza `pub(super)` nestes casos.
-pub(super) struct Lexer<'s> {
+pub struct Lexer<'s> {
     /// The scanner: contains the underlying string and location as a "cursor".
     pub(super) s: Scanner<'s>,
     /// The mode the lexer is in. This determines which kinds of tokens it

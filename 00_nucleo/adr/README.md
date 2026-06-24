@@ -210,8 +210,9 @@ que corresponde a mudança específica no código.
 | 0090 | Gradient Conic PDF strategy: Type 4 Gouraud (cristalino) divergência industry mesh-based variants | `REVOGADO` (passo `P272`; status `EM VIGOR` P268.1 a P272; **revogado P272** — convergência industry-aligned mesh-based Type 6 Coons; helpers `emit_conic_gouraud_stream` + `compute_adaptive_n_conic` + `oklab_delta_e` removidos; 20 tests P268+P268.2 removed; substituída por **ADR-0092 expandida cumulativamente P272** (estratégia única Coons 8/8 spaces); subpadrão "ADR REVOGADO + substituta" N=2 prévio (ADR-0007/ADR-0018 + ADR-0028/ADR-0029) → **N=3 cumulativo** com P272 ADR-0090/ADR-0092; primeira aplicação prática **ADR-0093 §Pattern 1 §"Quando NÃO aplicar"** pós-formalização P271 — sub-padrão "Aplicação meta-ADR (ADR-0093)" **N=1 inaugural**; trabalho prévio P268.1 preservado historicamente — pesquisa empírica industry + correcção pré-commit + decisão de fundo Type 4 originais permanecem como registo arquitectural) |
 | 0093 | Meta-metodologia de evolução de ADRs (scope-out revogado parcialmente + Anotação cumulativa) | `EM VIGOR` (passo `P271` administrativo XS; criação EM VIGOR directa paridade P260 ADR-0084/0085 + P268.1 ADR-0090; formaliza 2 sub-padrões empíricos N≥6 cumulativos: (1) "ADR scope-out revogado parcialmente" N=6 — P267 Conic + P269 focal_* + P270 ColorSpace + P270.2 DeviceCMYK + P270.3 Type 6 + P270.4 Conic CMYK final; (2) "Anotação cumulativa em vez de ADR nova" N=10 consolidação clara — P258.B/P259.B/P263/P265/P268/P268.2/P270/P270.1/P270.2/P270.4; decisão complementar "Anotação cumulativa cross-ADR" sub-caso N=5 incorporado em Pattern 2; subpadrão "Passo administrativo XS criar/promover ADR" N=5 → **N=6 cumulativo** (P156K/P160A/P229/P254/P268.1/**P271**); subpadrão "Meta-formalização sub-padrões empíricos N≥4" N=2 → **N=3 cumulativo** (P260 + P268.1 + **P271**); diagnóstico inline ADR §"Histórico empírico" (paridade auto-aplicação ADR-0065 inline)) |
 | 0094 | Meta-operacional de specs (Cap LOC hard/soft + Reutilização helpers + Industry research proactiva) | `EM VIGOR` (passo `P271` administrativo XS; criação EM VIGOR directa paridade P260 ADR-0084/0085 + P268.1 ADR-0090; formaliza 3 sub-padrões empíricos N≥4 cumulativos: (1) "Cap LOC hard vs soft explícito" N=4 — P270.1/P270.2/P270.3/P270.4 inaugural pós-lição P270 estouro silencioso; (2) "Reutilização literal helpers cross-passos" N=10 consolidação clara — P265 a P270.4 cumulativo; (3) "Fase A com industry research proactiva" N=4 — P270/P270.2/P270.3/P270.4 inaugural pós-lição P268.1 re-trabalho; subpadrão "Passo administrativo XS criar/promover ADR" N=6 cumulativo conjunto com ADR-0093; subpadrão "Meta-formalização sub-padrões empíricos N≥4" N=3 cumulativo conjunto com ADR-0093; companheira ADR-0093 — par cobre 5 sub-padrões totais (2 evolução ADRs + 3 operacional specs)) |
+| 0115 | Infraestrutura de benchmark para o scanner/lexer | `EM VIGOR` (Passo 441 — infra `criterion` em `benches/`; desbloqueia medição de DEBT-42) |
 
-**Total**: 65 ADRs (64 números únicos; ADR-0026 tem variante -R1
+**Total**: 66 ADRs (65 números únicos; ADR-0026 tem variante -R1
 por revisão; **+ADR-0082 PROPOSTO P249** + **+ADR-0084 + ADR-0085
 EM VIGOR P260** + **+ADR-0086 IMPLEMENTADO P261** + **+ADR-0087
 IMPLEMENTADO P262** + **+ADR-0088 IMPLEMENTADO P264** + **+ADR-0089
@@ -4191,3 +4192,8 @@ P84.8g.
   Stack/Pad/Group/Grid cell scope-out. **Decisão humana fica em
   aberto literal** pós-P273.6 — cluster Gradient refino estrutural
   encerrado definitivamente; abre saída para outro cluster.
+
+**Total pós-P441: +1 ADR EM VIGOR** — **ADR-0115** "Infraestrutura
+  de benchmark para o scanner/lexer" (Passo 441; cria crate
+  `typst-benches` em `benches/` com `criterion`; corpus B1–B5;
+  desbloqueia DEBT-42 para medição de `get_unchecked` no P442/P443).

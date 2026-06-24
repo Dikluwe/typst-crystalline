@@ -1,0 +1,17 @@
+[package]
+name = "typst-benches"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+authors.workspace = true
+repository.workspace = true
+publish = false
+
+[dependencies]
+typst-core = { path = "../01_core" }
+criterion = { workspace = true, features = ["html_reports"] }
+
+[[bench]]
+name = "scanner_bench"
+path = "scanner_bench.rs"
+harness = false
