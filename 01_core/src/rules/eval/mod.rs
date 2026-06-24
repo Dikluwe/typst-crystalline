@@ -57,6 +57,7 @@ pub(crate) mod rules;
 mod markup;
 mod modules;
 pub(crate) mod bibliography;
+pub mod bibtex;
 pub(crate) mod repr;
 
 /// Contexto de execução partilhado durante eval().

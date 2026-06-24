@@ -1,5 +1,5 @@
 # Prompt L0 — infra/system-world
-Hash do Código: 14c5e00e
+Hash do Código: 0b06ada7
 
 **Camada**: L3
 **Ficheiro alvo**: `03_infra/src/world.rs`
@@ -22,6 +22,8 @@ pub struct SystemWorld { ... }
 
 impl SystemWorld {
     pub fn new(root: PathBuf, main: PathBuf) -> Result<Self, SystemWorldError>
+    /// **P450** — carrega e parseia um ficheiro `.bib` relativo a current_file.
+    pub fn load_bibliography(&self, current_file: FileId, path: &str) -> Result<Vec<BibEntry>, String>
 }
 
 impl World for SystemWorld {

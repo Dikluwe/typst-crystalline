@@ -24,7 +24,7 @@ fn native_X(
 ) -> SourceResult<Value>
 ```
 
-A maioria ignora `ctx`/`world`/`current_file`; apenas `native_bibliography` usa `world`/`current_file` para carregar ficheiros `.bib`/`.yaml`/`.json` e `ctx` para registar o estilo CSL resolvido.
+A maioria ignora `ctx`/`world`/`current_file`; apenas `native_bibliography` usa `world`/`current_file` para carregar ficheiros `.bib`/`.yaml`/`.yml` e `ctx` para registar o estilo CSL resolvido.
 
 ---
 
@@ -323,12 +323,20 @@ grid_footer([F], repeat: false) -> GridFooter { body: "F", repeat: false }
 **Assinatura**: `bibliography(entries: Array<Dict> | Str, title:?, style:?, locale:?) -> Content`
 
 **Argumentos**:
-- `entries`: `Array<Dict>` posicional ou named; ou `Str` como path para ficheiro `.bib`/`.yaml`/`.json` (P419).
+- `entries`: `Array<Dict>` posicional ou named; ou `Str` como path para ficheiro `.bib`/`.yaml`/`.yml` (P419/P450).
 - `title`: `Content`/`Str` (named; ADR-0064 Caso A; default `None`).
 - `style`: `Str` (named; nome CSL built-in como `"ieee"`, `"apa"`).
 - `locale`: `Str` (named; locale override como `"en-US"`, `"pt-PT"`).
 
-**Semântica**: Constrói `Content::Bibliography(Arc<BibliographyElem { entries, path, title, style, locale }>)`. Cada Dict de entrada valida 4 campos obrigatórios (`key`, `author`, `title`, `year` com `year >= 0`) e 12 campos opcionais string (`volume`, `pages`, `journal`, `publisher`, `url`, `doi`, `editor`, `series`, `note`, `isbn`, `location`, `organization`). Se `style` for fornecido, resolve-o em eval time (built-in ou path `.csl` via `World::read_bytes`) e regista-o no `EvalContext` para transporte até ao `BibStore` (P420/P429).
+**Semântica**: Constrói `Content::Bibliography(Arc<BibliographyElem { entries, path, title, style, locale }>)`. Cada Dict de entrada valida 4 campos obrigatórios (`key`, `author`, `title`, `year` com `year >= 0`) e 12 campos opcionais string (`volume`, `pages`, `journal`, `publisher`, `url`, `doi`, `editor`, `series`, `note`, `isbn`, `location`, `organization`).
+
+Carregamento por path (P419/P450):
+- `.bib` → parser BibTeX minimal custom (`rules/eval/bibtex.rs`); suporta os tipos
+  `article`, `book`, `inproceedings`, `misc`, `phdthesis`, `techreport`.
+- `.yaml`/`.yml` → parser `hayagriva::io` existente.
+- `.json` scope-out.
+
+Se `style` for fornecido, resolve-o em eval time (built-in ou path `.csl` via `World::read_bytes`) e regista-o no `EvalContext` para transporte até ao `BibStore` (P420/P429).
 
 **Paridade vanilla**: Subset linguístico per ADR-0054 graded. Input literal e por path suportados.
 

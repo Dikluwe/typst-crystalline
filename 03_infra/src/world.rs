@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/system-world.md
-//! @prompt-hash 662ca2dc
+//! @prompt-hash 4052c562
 //! @layer L3
 //! @updated 2026-04-20
 
@@ -10,6 +10,7 @@ use std::path::{Path, PathBuf};
 use std::sync::{Arc, Mutex, OnceLock};
 
 use typst_core::contracts::world::World;
+use typst_core::entities::bib_entry::BibEntry;
 use typst_core::entities::file_id::FileId;
 use typst_core::entities::font_book::FontBook;
 use typst_core::entities::source::Source;
@@ -178,6 +179,16 @@ impl SystemWorld {
             .get(&id)
             .and_then(|s| s.path.parent().map(|p| p.to_path_buf()))
             .unwrap_or_else(|| self.root.clone())
+    }
+
+    /// **P450** — Carrega um ficheiro `.bib` do disco e parseia-o com o
+    /// parser BibTeX minimal do núcleo.
+    pub fn load_bibliography(&self, current_file: FileId, path: &str) -> Result<Vec<BibEntry>, String> {
+        let bytes = self.read_bytes(current_file, path)?;
+        let text = std::str::from_utf8(&bytes)
+            .map_err(|e| format!("bibliography file is not valid UTF-8 '{}': {}", path, e))?;
+        typst_core::rules::eval::bibtex::parse_bibtex(text)
+            .map_err(|e| format!("failed to parse BibTeX '{}': {}", path, e))
     }
 }
 
@@ -421,6 +432,44 @@ mod tests {
         assert!(world.font(0).is_none());
         // Índice fora dos limites → None
         assert!(world.font(1).is_none());
+    }
+
+    // ── Passo 450 — carregamento de .bib do disco ─────────────────────────
+
+    #[test]
+    fn system_world_load_bibliography_carrega_bib() {
+        let dir = tempfile_write(
+            "main.typ",
+            "#bibliography(\"refs.bib\")",
+        );
+        std::fs::write(
+            dir.path().join("refs.bib"),
+            br#"@article{smith2024, author = {Smith, John}, title = {On Crystal Math}, year = {2024}, journal = {Journal of Examples}}"#,
+        ).unwrap();
+
+        let world = SystemWorld::new(dir.path(), "main.typ").unwrap();
+        let entries = world.load_bibliography(world.main(), "refs.bib").unwrap();
+        assert_eq!(entries.len(), 1);
+        assert_eq!(entries[0].key, "smith2024");
+        assert_eq!(entries[0].author, "Smith, John");
+        assert_eq!(entries[0].title, "On Crystal Math");
+        assert_eq!(entries[0].year, 2024);
+    }
+
+    #[test]
+    fn system_world_load_bibliography_path_relativo_ao_source() {
+        let dir = tempdir();
+        std::fs::create_dir(dir.path().join("sub")).unwrap();
+        std::fs::write(dir.path().join("main.typ"), "#bibliography(\"sub/refs.bib\")").unwrap();
+        std::fs::write(
+            dir.path().join("sub").join("refs.bib"),
+            br#"@book{doe2023, author = {Doe, Jane}, title = {A Book}, year = {2023}}"#,
+        ).unwrap();
+
+        let world = SystemWorld::new(dir.path(), "main.typ").unwrap();
+        let entries = world.load_bibliography(world.main(), "sub/refs.bib").unwrap();
+        assert_eq!(entries.len(), 1);
+        assert_eq!(entries[0].key, "doe2023");
     }
 
     // ── Utilitários de teste ──────────────────────────────────────────────

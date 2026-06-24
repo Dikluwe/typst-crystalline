@@ -5718,6 +5718,48 @@ mod tests {
         assert!(err[0].message.contains("failed to parse CSL style"), "{}", err[0].message);
     }
 
+    // ── P450 — E2E bibliography via path (parser custom .bib) ────────────────
+
+    #[test]
+    fn p450_bibliography_path_bib_popula_entries() {
+        let mut world = MockWorld::new(r#"#bibliography("refs.bib")"#);
+        world.add_file(
+            "refs.bib",
+            br#"
+@article{smith2024,
+  author = {Smith, John and Doe, Jane},
+  title = {On Crystal Math},
+  year = {2024},
+  journal = {Journal of Examples},
+  volume = {12},
+  pages = {1--10},
+  doi = {10.1000/x},
+  url = {https://example.org}
+}
+"#
+            .to_vec(),
+        );
+
+        let module = eval_for_test(&world, &world.source).unwrap();
+        let content = module.content().unwrap();
+        match content {
+            Content::Bibliography(elem) => {
+                assert_eq!(elem.entries.len(), 1);
+                let e = &elem.entries[0];
+                assert_eq!(e.key, "smith2024");
+                assert_eq!(e.author, "Smith, John and Doe, Jane");
+                assert_eq!(e.title, "On Crystal Math");
+                assert_eq!(e.year, 2024);
+                assert_eq!(e.journal.as_deref(), Some("Journal of Examples"));
+                assert_eq!(e.volume.as_deref(), Some("12"));
+                assert_eq!(e.pages.as_deref(), Some("1--10"));
+                assert_eq!(e.doi.as_deref(), Some("10.1000/x"));
+                assert_eq!(e.url.as_deref(), Some("https://example.org"));
+            }
+            other => panic!("esperado Content::Bibliography, obtive {:?}", other),
+        }
+    }
+
     // ── P421 — E2E repr() ───────────────────────────────────────────────────
 
     fn p421_eval_plain_text(world: &MockWorld) -> String {

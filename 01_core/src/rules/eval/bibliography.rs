@@ -60,11 +60,14 @@ pub fn parse_bibliography(content: &str, path: &str) -> SourceResult<Vec<BibEntr
         .to_lowercase();
 
     let library: hayagriva::Library = match ext.as_str() {
-        "bib" => hayagriva::io::from_biblatex_str(content)
-            .map_err(|e| vec![SourceDiagnostic::error(
-                Span::detached(),
-                format!("failed to parse BibLaTeX '{}': {:?}", path, e),
-            )])?,
+        "bib" => {
+            // **P450** — parser BibTeX custom minimal.
+            return crate::rules::eval::bibtex::parse_bibtex(content)
+                .map_err(|e| vec![SourceDiagnostic::error(
+                    Span::detached(),
+                    format!("failed to parse BibTeX '{}': {}", path, e),
+                )]);
+        }
         "yaml" | "yml" => hayagriva::io::from_yaml_str(content)
             .map_err(|e| vec![SourceDiagnostic::error(
                 Span::detached(),
