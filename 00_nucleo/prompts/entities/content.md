@@ -306,9 +306,10 @@ Semântica:
 
 Containers (recursão bottom-up): `Sequence`, `Strong`, `Emph`, `Heading`,
 `ListItem`, `EnumItem`, `Link`, `Labelled`, `Figure`, `Equation`, `MathSequence`,
-`MathFrac`, `MathAttach`, `MathRoot`, `MathDelimited`, `MathMatrix`, `MathCases`.
+`MathFrac`, `MathAttach`, `MathRoot`, `MathDelimited`, `MathMatrix`, `MathCases`,
+`Outline`.
 
-Terminais (clone directo): `Text`, `Space`, `Empty`, `Linebreak`, `Outline`,
+Terminais (clone directo): `Text`, `Space`, `Empty`, `Linebreak`,
 `Raw`, `Ref`, `SetHeadingNumbering`, `CounterUpdate`, `CounterDisplay`,
 `MathAlignPoint`, `MathIdent`, `MathText`.
 

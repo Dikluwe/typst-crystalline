@@ -2,7 +2,7 @@
 //! @prompt 00_nucleo/prompts/rules/model/document.md
 //! @prompt 00_nucleo/prompts/rules/model/asset.md
 //! @prompt 00_nucleo/prompts/rules/stdlib/structural.md
-//! @prompt-hash 0af64df3
+//! @prompt-hash 38e57188
 //! @layer L1
 //! @updated 2026-06-22
 //!
@@ -174,6 +174,97 @@ pub fn native_heading(
         Content::heading(level, body)
     };
     Ok(Value::Content(content))
+}
+
+/// `outline(title: content?, depth: int?, indent: bool?)` — emite
+/// `Content::Outline(OutlineElem { title, depth, indent })`.
+///
+/// P457: parâmetros settable do vanilla. Defaults: title=None (renderiza
+/// "Índice" no layout), depth=3, indent=true.
+pub fn native_outline(
+    _ctx: &mut EvalContext,
+    args: &Args,
+    _world: &dyn crate::contracts::world::World,
+    _current_file: FileId,
+) -> SourceResult<Value> {
+    // Título: named `title` tem prioridade; fallback para primeiro argumento
+    // posicional (vanilla aceita `outline([Título])`).
+    let title_named = args.named.get("title").and_then(|v| match v {
+        Value::Content(c) => Some(Ok(Some(c.clone()))),
+        Value::Str(s) => Some(Ok(Some(Content::text(s.as_str())))),
+        Value::None => None,
+        other => Some(Err(vec![SourceDiagnostic::error(
+            Span::detached(),
+            format!(
+                "outline(title:): espera content ou string, recebeu {}",
+                other.type_name()
+            ),
+        )])),
+    });
+
+    let title_positional = if args.items.is_empty() {
+        None
+    } else {
+        match args.items.first() {
+            Some(Value::Content(c)) => Some(Ok(Some(c.clone()))),
+            Some(Value::Str(s)) => Some(Ok(Some(Content::text(s.as_str())))),
+            Some(other) => Some(Err(vec![SourceDiagnostic::error(
+                Span::detached(),
+                format!(
+                    "outline(): título espera content ou string, recebeu {}",
+                    other.type_name()
+                ),
+            )])),
+            None => None,
+        }
+    };
+
+    let title = match (title_named, title_positional) {
+        (Some(Ok(Some(_))), Some(Ok(Some(_)))) => {
+            return Err(vec![SourceDiagnostic::error(
+                Span::detached(),
+                "outline(): não pode usar título posicional e named `title` simultaneamente".to_string(),
+            )])
+        }
+        (Some(Ok(t)), _) => t,
+        (Some(Err(e)), _) => return Err(e),
+        (None, Some(Ok(t))) => t,
+        (None, Some(Err(e))) => return Err(e),
+        (None, None) => None,
+    };
+
+    let depth = match args.named.get("depth") {
+        Some(Value::Int(n)) => {
+            let d = *n as usize;
+            if d == 0 {
+                return Err(vec![SourceDiagnostic::error(
+                    Span::detached(),
+                    "outline(depth:): depth deve ser >= 1".to_string(),
+                )]);
+            }
+            d
+        }
+        Some(Value::None) | None => 3,
+        Some(other) => {
+            return Err(vec![SourceDiagnostic::error(
+                Span::detached(),
+                format!("outline(depth:): espera int, recebeu {}", other.type_name()),
+            )])
+        }
+    };
+
+    let indent = match args.named.get("indent") {
+        Some(Value::Bool(b)) => *b,
+        Some(Value::None) | None => true,
+        Some(other) => {
+            return Err(vec![SourceDiagnostic::error(
+                Span::detached(),
+                format!("outline(indent:): espera bool, recebeu {}", other.type_name()),
+            )])
+        }
+    };
+
+    Ok(Value::Content(Content::outline_with(title, depth, indent)))
 }
 
 // ── Passo 154B (ADR-0060 Fase 1) — terms + divider ──────────────────────────

@@ -695,7 +695,7 @@ fn make_stdlib() -> Scope {
     use crate::rules::stdlib::{
         make_calc_module, make_gradient_module, make_math_module, native_accent, native_align, native_assert, native_bibliography, native_block, native_box, native_cancel, native_circle, native_cite, native_divider,
         native_ellipse, native_emph, native_figure, native_float, native_footnote, native_grid, native_h, native_heading,
-        native_hide, native_image, native_int, native_len, native_line,
+        native_hide, native_image, native_int, native_len, native_line, native_outline,
         native_counter_at, native_counter_display, native_counter_final, native_counter_step, native_curve, native_eval, native_here, native_locate, native_lower, native_lorem, native_luma, native_measure, native_metadata, native_move, native_pad, native_pagebreak, native_place, native_polygon, native_query, native_regex, native_state, native_state_at, native_state_display, native_state_final, native_state_update, native_state_update_with,
         native_asset, native_cmyk, native_colbreak, native_columns, native_document, native_hsl, native_hsv, native_linear_rgb, native_link, native_oklab, native_oklch, native_op, native_panic, native_quote, native_range, native_rect, native_repeat, native_replace, native_raw, native_repr, native_rgb, native_rotate,
         native_square, native_tiling,
@@ -733,6 +733,7 @@ fn make_stdlib() -> Scope {
     scope.define("duration", Value::Func(Func::native("duration", native_duration)));
     scope.define("version",  Value::Func(Func::native("version",  native_version)));
     scope.define("heading",   Value::Func(Func::native("heading",   native_heading)));
+    scope.define("outline",   Value::Func(Func::native("outline",   native_outline)));
     scope.define("strong",    Value::Func(Func::native("strong",    native_strong)));
     scope.define("emph",      Value::Func(Func::native("emph",      native_emph)));
     scope.define("raw",       Value::Func(Func::native("raw",       native_raw)));

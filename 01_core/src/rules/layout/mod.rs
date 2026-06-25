@@ -769,10 +769,8 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
             // Atomizado (ADR-0109, P378) → layout/figure.rs.
             Content::Figure(e) => figure::layout(self, e),
 
-            // Passo 61 — TOC: delegado a outline.rs (Tarefa 5).
-            Content::Outline(_) => {
-                outline::layout_outline(self);
-            }
+            // Passo 61/P457 — TOC: delegado a outline.rs.
+            Content::Outline(e) => outline::layout_outline(self, e),
 
             // Atomizado (ADR-0109, P377) → layout/shape.rs.
             Content::Shape(e) => shape::layout(self, e),

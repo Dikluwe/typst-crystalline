@@ -125,6 +125,34 @@ heading(1, [X], numbering: 1) -> Err "numbering espera string"
 
 ---
 
+### `native_outline(title?, depth:?, indent:?)`
+
+**Assinatura**: `outline(title: Content | Str?, depth: Int?, indent: Bool?) -> Content`
+
+**Argumentos**:
+- `title`: primeiro argumento posicional ou named `title`; `Content` ou `Str`. Se omitido, `None` (layout renderiza `"Índice"`).
+- `depth`: inteiro named opcional (default `3`). Deve ser `>= 1`.
+- `indent`: boolean named opcional (default `true`).
+
+**Semântica**: Cria `Content::Outline(Arc::OutlineElem { title, depth, indent })`. O layout substitui este nó pela lista de headings do documento, respeitando `depth` e `indent` e usando `title` customizado quando presente. Também é locatável (`ElementKind::Outline`) para `query("outline")`.
+
+**Paridade vanilla**: Equivalente a `#outline(...)` do Typst 0.14.2 com os três parâmetros settable cobertos (`title`, `depth`, `indent`).
+
+**Limitações / scope-outs**: Outros campos do vanilla (`fill`, `entry`, etc.) são scope-out por ora.
+
+**Testes canónicos**:
+```
+outline() -> Content::Outline { title: None, depth: 3, indent: true }
+outline([Sumário]) -> Content::Outline { title: Some("Sumário"), depth: 3, indent: true }
+outline(title: [Sumário], depth: 1, indent: false) -> Content::Outline { title: Some("Sumário"), depth: 1, indent: false }
+outline(depth: 0) -> Err "depth deve ser >= 1"
+outline(title: 1) -> Err "title espera content ou string"
+outline(depth: "x") -> Err "depth espera int"
+outline([A], title: [B]) -> Err "não pode usar título posicional e named simultaneamente"
+```
+
+---
+
 ### `native_divider()`
 
 **Assinatura**: `divider() -> Content`
@@ -580,8 +608,10 @@ strong([A]) -> Content::Strong { body: "A" };  strong("A") -> idem;  strong(1) -
 emph([A]) -> Content::Emph { body: "A" };  emph("A") -> idem;  emph(1) -> Err
 raw("x") -> Content::Raw { text: "x", syntax: None, block: false };  raw([x]) -> Err
 
-// heading / divider
+// heading / outline / divider
 heading() -> Err "heading() como função directa não suportada"
+outline() -> Content::Outline { title: None, depth: 3, indent: true }
+outline([Sumário], depth: 1) -> Content::Outline { title: Some("Sumário"), depth: 1, indent: true }
 divider() -> Content::Divider;  divider(1) -> Err
 
 // terms / quote

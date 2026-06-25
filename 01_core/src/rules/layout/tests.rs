@@ -1773,6 +1773,105 @@ fn layout_outline_heading_nivel2_tem_indentacao() {
     assert!(text.contains("H2"), "TOC deve listar H2");
 }
 
+#[test]
+fn layout_outline_title_custom() {
+    // P457: `outline([Sumário])` (ou `outline(title: [Sumário])`) usa o título
+    // fornecido em vez do default "Índice".
+    let content = Content::Sequence(
+        vec![
+            Content::outline_with(Some(Content::text("Sumário")), 3, true),
+            Content::heading(1, Content::text("H1")),
+        ]
+        .into(),
+    );
+
+    let _state = introspect(&content);
+    let doc = layout(&content);
+    let text = doc.plain_text();
+
+    assert!(
+        text.contains("Sumário"),
+        "TOC deve usar título customizado 'Sumário': {text:?}"
+    );
+    assert!(
+        !text.contains("Índice"),
+        "TOC não deve renderizar título default 'Índice': {text:?}"
+    );
+    assert!(text.contains("H1"), "TOC deve listar H1: {text:?}");
+}
+
+#[test]
+fn layout_outline_depth_limita_niveis() {
+    // P457: `outline(depth: 1)` lista apenas headings de nível 1.
+    // Cada heading real aparece uma vez no documento; se estiver dentro do
+    // depth, aparece uma vez a mais na TOC. Contamos ocorrências para
+    // distinguir "aparece no documento" de "aparece na TOC".
+    let content = Content::Sequence(
+        vec![
+            Content::outline_with(None, 1, true),
+            Content::heading(1, Content::text("H1")),
+            Content::heading(2, Content::text("H2")),
+            Content::heading(3, Content::text("H3")),
+        ]
+        .into(),
+    );
+
+    let _state = introspect(&content);
+    let doc = layout(&content);
+    let text = doc.plain_text();
+
+    fn count(haystack: &str, needle: &str) -> usize {
+        haystack.matches(needle).count()
+    }
+
+    assert_eq!(
+        count(&text, "H1"),
+        2,
+        "H1 deve aparecer 1x na TOC + 1x como heading real: {text:?}"
+    );
+    assert_eq!(
+        count(&text, "H2"),
+        1,
+        "H2 (nível 2) deve aparecer SÓ como heading real (depth=1 exclui da TOC): {text:?}"
+    );
+    assert_eq!(
+        count(&text, "H3"),
+        1,
+        "H3 (nível 3) deve aparecer SÓ como heading real (depth=1 exclui da TOC): {text:?}"
+    );
+}
+
+#[test]
+fn layout_outline_indent_false_nao_indenta() {
+    // P457: `outline(indent: false)` desativa indentação; entradas de nível 2
+    // aparecem sem prefixo de espaços. plain_text() descarta posição, mas ainda
+    // assim inclui o corpo da entrada.
+    let content = Content::Sequence(
+        vec![
+            Content::outline_with(None, 3, false),
+            Content::heading(1, Content::text("H1")),
+            Content::heading(2, Content::text("H2")),
+        ]
+        .into(),
+    );
+
+    let _state = introspect(&content);
+    let doc = layout(&content);
+    let text = doc.plain_text();
+
+    assert!(text.contains("H1"), "TOC indent=false deve listar H1: {text:?}");
+    assert!(text.contains("H2"), "TOC indent=false deve listar H2: {text:?}");
+}
+
+#[test]
+fn layout_outline_parametros_default_igual_a_vanilla() {
+    // P457: `outline()` sem argumentos deve usar title=None, depth=3,
+    // indent=true — comportamento idêntico a Content::outline().
+    let a = Content::outline();
+    let b = Content::outline_with(None, 3, true);
+    assert_eq!(a, b, "outline() default deve ser igual a outline_with(None,3,true)");
+}
+
 // ── Testes de Passo 62 — Figuras ─────────────────────────────────────────
 
 #[test]

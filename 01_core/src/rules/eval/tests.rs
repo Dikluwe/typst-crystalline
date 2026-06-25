@@ -5880,4 +5880,49 @@ mod tests {
             panic!("esperado FrameItem::Link");
         }
     }
+
+    // ── Passo 457 — outline() parametrizável via stdlib ─────────────────────
+
+    #[test]
+    fn p457_outline_source_parametros_named() {
+        // `outline()` deixou de ser interceptador especial; agora é função
+        // nativa da stdlib que aceita title/depth/indent.
+        let world = MockWorld::new(r#"#outline(title: [Sumário], depth: 1, indent: false)
+= H1
+== H2"#);
+        let module = eval_for_test(&world, &world.source).unwrap();
+        let content = module.content().unwrap();
+        let doc = layout(content);
+        let text = doc.plain_text();
+
+        fn count(haystack: &str, needle: &str) -> usize {
+            haystack.matches(needle).count()
+        }
+
+        assert!(text.contains("Sumário"), "outline(title:) deve renderizar título customizado: {text:?}");
+        assert_eq!(
+            count(&text, "H1"),
+            2,
+            "H1 deve aparecer 1x na TOC + 1x como heading real: {text:?}"
+        );
+        assert_eq!(
+            count(&text, "H2"),
+            1,
+            "H2 (nível 2) deve aparecer SÓ como heading real (depth=1 exclui da TOC): {text:?}"
+        );
+    }
+
+    #[test]
+    fn p457_outline_source_positional_title() {
+        // Vanilla aceita título como primeiro argumento posicional.
+        let world = MockWorld::new(r#"#outline([Conteúdo])
+= H1"#);
+        let module = eval_for_test(&world, &world.source).unwrap();
+        let content = module.content().unwrap();
+        let doc = layout(content);
+        let text = doc.plain_text();
+
+        assert!(text.contains("Conteúdo"), "outline([title]) deve aceitar título posicional: {text:?}");
+        assert!(text.contains("H1"), "TOC deve listar H1: {text:?}");
+    }
 }

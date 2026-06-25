@@ -271,13 +271,6 @@ pub(super) fn eval_func_call(
         }
     }
 
-    // Intercepção de `outline()` — produz Content::Outline (Passo 61).
-    if let Expr::Ident(ident) = call.callee() {
-        if ident.as_str() == "outline" {
-            return Ok(Value::Content(Content::outline()));
-        }
-    }
-
     let callee = eval_expr(call.callee(), scopes, ctx, engine)?;
     let args = eval_args(call.args(), scopes, ctx, engine)?;
 

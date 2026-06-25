@@ -1,10 +1,14 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/rules/layout_outline.md
-//! @prompt-hash 2d2e3feb
+//! @prompt-hash b8b9a54b
 //! @layer L1
 //! @updated 2026-04-13
+//!
+//! P457: Gera a Tabela de Conteúdos visual respeitando os parâmetros do
+//! `OutlineElem` (title, depth, indent).
 
 use crate::entities::content::Content;
+use crate::entities::elements::outline::OutlineElem;
 use crate::entities::introspector::Introspector;
 
 use super::{FontMetrics, ImageSizer, Layouter};
@@ -20,7 +24,10 @@ use super::{FontMetrics, ImageSizer, Layouter};
 /// Números de página (DEBT-12): lidos de `label_pages` se disponíveis.
 /// Na Passagem 2 (draft) estará vazio — TOC sem números.
 /// Na Passagem 3 (final) terá os dados reais — TOC com páginas correctas.
-pub(super) fn layout_outline<M: FontMetrics, S: ImageSizer>(layouter: &mut Layouter<M, S>) {
+pub(super) fn layout_outline<M: FontMetrics, S: ImageSizer>(
+    layouter: &mut Layouter<M, S>,
+    e:        &OutlineElem,
+) {
     // P200B (M5 universal completo) — caminho Introspector activo via
     // Tag::HeadingForToc pós-recursão (3ª Tag emitida pelo walk arm
     // Heading); sub-store `intr.headings_for_toc` populated via
@@ -34,18 +41,34 @@ pub(super) fn layout_outline<M: FontMetrics, S: ImageSizer>(layouter: &mut Layou
     // Clonar o vector antes do loop para evitar borrow duplo de `layouter`.
     let entries: Vec<(_, _, _, _)> = layouter.introspector.headings_for_toc().to_vec();
 
-    // Título da TOC — fora do modo read-only (não contém efeitos colaterais).
-    layouter.layout_content(&Content::heading(1, Content::text("Índice")));
+    // Título da TOC — default "Índice" se nenhum título fornecido.
+    let title_content = e
+        .title
+        .clone()
+        .unwrap_or_else(|| Content::text("Índice"));
+    layouter.layout_content(&Content::heading(1, title_content));
 
     for (label, number, body_content, level) in entries {
-        let indent = "  ".repeat(level.saturating_sub(1));
+        // P457: respeitar profundidade configurada.
+        if level > e.depth {
+            continue;
+        }
+
+        let indent = if e.indent {
+            "  ".repeat(level.saturating_sub(1))
+        } else {
+            String::new()
+        };
 
         // Ler página ANTES de activar is_readonly — evita borrow duplo.
         // Na iteração 0, known_page_numbers está vazio → string vazia.
         // Nas iterações seguintes, known_page_numbers tem os dados → "  N".
         // P190C (M6 categoria Page tracking): known_page_numbers movido
         // para LayouterRuntimeState.
-        let page_num = layouter.runtime.known_page_numbers.get(&label)
+        let page_num = layouter
+            .runtime
+            .known_page_numbers
+            .get(&label)
             .map(|p| format!("  {}", p))
             .unwrap_or_default();
 

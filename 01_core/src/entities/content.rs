@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/entities/content.md
-//! @prompt-hash 7c208532
+//! @prompt-hash c6b5939f
 //! @layer L1
 //! @updated 2026-06-22
 //!
@@ -1560,8 +1560,13 @@ impl Content {
     }
 
     /// **Lote 8 P323** — `Content::Outline` (índice). Unit struct.
+    /// P457: adiciona parâmetros `title`, `depth`, `indent` com defaults vanilla.
     pub fn outline() -> Self {
-        Self::Outline(Arc::new(OutlineElem))
+        Self::outline_with(None, 3, true)
+    }
+
+    pub fn outline_with(title: Option<Content>, depth: usize, indent: bool) -> Self {
+        Self::Outline(Arc::new(OutlineElem::new(title, depth, indent)))
     }
 
     /// **Lote 8 P323** — `Content::Quote` (citação).
