@@ -1747,6 +1747,94 @@ fn layout_figure_sem_caption_sem_prefixo() {
 }
 
 #[test]
+fn layout_figure_pattern_romano() {
+    let content = Content::figure(
+        Content::text("Gráfico"),
+        Some(Content::text("Resultados")),
+        Some("image".to_string()),
+        Some("I.".to_string()),
+    );
+
+    let doc = layout(&content);
+    let text = doc.plain_text();
+
+    assert!(text.contains("Figura I.: "), "pattern romano deve formatar número: {text}");
+    assert!(text.contains("Resultados"), "legenda deve aparecer");
+}
+
+#[test]
+fn layout_figure_pattern_letras_minusculas() {
+    let content = Content::figure(
+        Content::text("Gráfico"),
+        Some(Content::text("Resultados")),
+        Some("image".to_string()),
+        Some("(a)".to_string()),
+    );
+
+    let doc = layout(&content);
+    let text = doc.plain_text();
+
+    assert!(text.contains("Figura (a): "), "pattern (a) deve formatar número: {text}");
+}
+
+#[test]
+fn layout_figure_pattern_letras_maiusculas() {
+    let content = Content::figure(
+        Content::text("Gráfico"),
+        Some(Content::text("Resultados")),
+        Some("image".to_string()),
+        Some("A.".to_string()),
+    );
+
+    let doc = layout(&content);
+    let text = doc.plain_text();
+
+    assert!(text.contains("Figura A.: "), "pattern A. deve formatar número: {text}");
+}
+
+#[test]
+fn layout_figure_pattern_invalido_fallback_arabico() {
+    let content = Content::figure(
+        Content::text("Gráfico"),
+        Some(Content::text("Resultados")),
+        Some("image".to_string()),
+        Some("x".to_string()),
+    );
+
+    let doc = layout(&content);
+    let text = doc.plain_text();
+
+    assert!(text.contains("Figura 1: "), "pattern inválido fallback para arábico: {text}");
+}
+
+#[test]
+fn layout_figure_sequencial_romano() {
+    let content = Content::Sequence(
+        vec![
+            Content::figure(
+                Content::text("A"),
+                Some(Content::text("c1")),
+                Some("image".to_string()),
+                Some("I.".to_string()),
+            ),
+            Content::figure(
+                Content::text("B"),
+                Some(Content::text("c2")),
+                Some("image".to_string()),
+                Some("I.".to_string()),
+            ),
+        ]
+        .into(),
+    );
+
+    let doc = layout(&content);
+    let text = doc.plain_text();
+
+    assert!(text.contains("Figura I.: "), "primeira figura romana: {text}");
+    assert!(text.contains("Figura II.: "), "segunda figura romana: {text}");
+}
+
+#[test]
 fn layout_ref_para_figura_resolve_corretamente() {
     use crate::entities::label::Label;
 

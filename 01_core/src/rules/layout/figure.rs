@@ -1,12 +1,14 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/rules/layout_figure.md
-//! @prompt-hash 9e5ba4d3
+//! @prompt-hash 7fb90d66
 //! @layer L1
 //! @updated 2026-04-20
 
 use crate::entities::content::Content;
+use crate::entities::counter_format::format_counter;
 use crate::entities::elements::figure::FigureElem;
 use crate::entities::introspector::Introspector;
+use crate::entities::value::Value;
 
 use super::{FontMetrics, ImageSizer, Layouter};
 
@@ -20,14 +22,17 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
     let (body, caption, kind) = (&e.body, &e.caption, &e.kind);
     // F-5a de-bake (P365, §3a.9): o gate (padrão presente/ausente) vive
     // **só na chain** (`custom("figure.numbering")`, transportado por
-    // `Content::Styled`); lido de `layouter.chain`. O **número**
-    // (`figure_progress` + `figure_number_at_index`) fica intacto.
-    let numbering_on = matches!(
-        layouter.chain.custom("figure.numbering"),
-        Some(crate::entities::value::Value::Str(_)),
-    );
+    // `Content::Styled`); lido de `layouter.chain`. O pattern define o
+    // formato do número (subset "1.", "I.", "(a)", "A." via `format_counter`).
+    let numbering_pattern = layouter
+        .chain
+        .custom("figure.numbering")
+        .and_then(|v| match v {
+            Value::Str(s) => Some(s.as_str()),
+            _ => None,
+        });
     // Calcular o prefixo de numeração antes de chamar layout_figure.
-    let caption_prefix: Option<String> = if numbering_on {
+    let caption_prefix: Option<String> = if numbering_pattern.is_some() {
         let kind_key = kind.as_deref().unwrap_or("image");
         let progress = layouter.figure_progress.entry(kind_key.to_string()).or_insert(0);
         let idx = *progress;
@@ -36,10 +41,14 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
         // `state.figure_numbers` ELIMINADO. Caminho Introspector activo
         // via `figure_number_at_index` (P184C/D); rede de segurança final
         // `unwrap_or(idx + 1)` preservada (heurística para edge cases).
-        let figure_number = layouter.introspector
+        let figure_number = layouter
+            .introspector
             .figure_number_at_index(kind_key, idx)
             .unwrap_or(idx + 1);
-        Some(format!("Figura {}: ", figure_number))
+        let formatted = numbering_pattern
+            .and_then(|pat| format_counter(&[figure_number], pat))
+            .unwrap_or_else(|| figure_number.to_string());
+        Some(format!("Figura {}: ", formatted))
     } else {
         None
     };
