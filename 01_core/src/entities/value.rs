@@ -192,6 +192,22 @@ impl Value {
         matches!(self, Self::None)
     }
 
+    /// Retorna true se o valor é "truthy" (semântica Typst minimal).
+    ///
+    /// Falsy: `none`, `false`, `0`/`0.0`, string vazia, array vazia.
+    /// Todos os outros são truthy.
+    pub fn truthy(&self) -> bool {
+        match self {
+            Self::None => false,
+            Self::Bool(b) => *b,
+            Self::Int(i) => *i != 0,
+            Self::Float(f) => *f != 0.0,
+            Self::Str(s) => !s.is_empty(),
+            Self::Array(a) => !a.is_empty(),
+            _ => true,
+        }
+    }
+
     /// Converte para bool, se for Bool.
     pub fn cast_bool(&self) -> Option<bool> {
         match self { Self::Bool(b) => Some(*b), _ => None }

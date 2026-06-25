@@ -661,9 +661,59 @@ stdlib de L1 (`structural.rs`, `layout.rs`, `calc.rs`, `assert.rs`,
 `shapes.rs`, `transforms.rs`, `gradients.rs`, `foundations.rs`) possuem prompt
 L0 dedicado.
 
+## 10. Métodos de coleção (P466)
+
+Implementados em `rules/stdlib/collections.rs` e despachados em
+`rules/eval/closures.rs::eval_func_call` para a sintaxe de método de
+instância (ex.: `(1, 2, 3).first()`).
+
+### `array`
+
+| Método | Assinatura | Semântica |
+|--------|-----------|-----------|
+| `first()` | `array.first() -> any` | Primeiro elemento ou `none`. |
+| `last()` | `array.last() -> any` | Último elemento ou `none`. |
+| `rev()` | `array.rev() -> array` | Array invertido. |
+| `sum()` | `array.sum() -> int \| float` | Soma numérica; mistura de int/float produz float. |
+| `sorted()` | `array.sorted(key: function?) -> array` | Ordena; `key` opcional recebe elemento e devolve chave. |
+| `filter()` | `array.filter(pred: function) -> array` | Filtra por predicado. |
+| `map()` | `array.map(func: function) -> array` | Mapeia por função. |
+| `find()` | `array.find(pred: function) -> any` | Primeiro elemento que satisfaz ou `none`. |
+| `any()` | `array.any(pred: function) -> bool` | Algum satisfaz? |
+| `all()` | `array.all(pred: function) -> bool` | Todos satisfazem? |
+| `zip()` | `array.zip(other: array) -> array` | Pares `(a_i, b_i)`. |
+| `enumerate()` | `array.enumerate() -> array` | Pares `(index, value)`. |
+
+### `dict`
+
+| Método | Assinatura | Semântica |
+|--------|-----------|-----------|
+| `pairs()` | `dict.pairs() -> array` | Array de pares `(key, value)`. |
+| `remove()` | `dict.remove(key: str) -> any` | Valor removido ou `none`. **Nota**: no cristalino o dict original não é mutado porque o dispatch recebe o valor por valor. |
+| `update()` | `dict.update(other: dict) -> dict` | Mescla com outro dict. |
+
+### `str`
+
+| Método | Assinatura | Semântica |
+|--------|-----------|-----------|
+| `contains()` | `str.contains(substr: str) -> bool` | Contém substring? |
+| `starts-with()` | `str.starts-with(prefix: str) -> bool` | Começa com prefixo? |
+| `ends-with()` | `str.ends-with(suffix: str) -> bool` | Termina com sufixo? |
+| `find()` | `str.find(substr: str) -> int \| none` | Índice da primeira ocorrência. |
+| `replace()` | `str.replace(old: str, new: str) -> str` | Substitui substring literal. |
+| `trim()` | `str.trim() -> str` | Remove whitespace dos extremos. |
+| `split()` | `str.split(sep: str) -> array` | Divide por separador. |
+| `repeat()` | `str.repeat(n: int) -> str` | Repete `n` vezes. |
+
+---
+
+## 11. Notas de fecho
+
+Todas as funções nativas de `foundations.rs` e os métodos de coleção de
+`collections.rs` (P466) estão agora especificados em L0.
+
 Scope-outs transversais que permanecem fora deste subset:
 - Render PDF nativo para CMYK (`/DeviceCMYK`) e gradientes (`/Sh`).
-- Métodos avançados de `str`, `array` e `dict` não materializados como
-  funções nativas globais.
+- Métodos avançados de `str`, `array` e `dict` fora do subset crítico P466.
 - Introspeção avançada de módulos (`module` como valor de primeira classe
   completo).

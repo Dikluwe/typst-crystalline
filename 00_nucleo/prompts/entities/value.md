@@ -4,7 +4,7 @@ Hash do Código: 8b74a405
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/entities/value.rs`
 **Criado em**: 2026-03-22 (Passo 13)
-**Atualizado em**: 2026-06-25 (P465 — `repr()` implementado para todos os variants existentes)
+**Atualizado em**: 2026-06-25 (P465 — `repr()` completo; P466 — métodos de coleção `array`/`dict`/`str` + `Value::truthy()` + eval de dict literal)
 **ADRs relevantes**: ADR-0017 (adiamento eval), ADR-0023 (indexmap em L1), ADR-0024 (EcoString em Value::Str), ADR-0025 (Int == Float), ADR-0028/ADR-0029 (tipos tipográficos), ADR-0117 Cláusula 4 (`repr()` função pura)
 
 ---
@@ -122,6 +122,7 @@ impl Value {
                                               // "length", "ratio", "angle", "color",
                                               // "tiling"
     pub fn is_none(&self) -> bool
+    pub fn truthy(&self) -> bool             // P466: semântica Typst minimal
     pub fn cast_bool(&self)  -> Option<bool>
     pub fn cast_int(&self)   -> Option<i64>
     pub fn cast_float(&self) -> Option<f64>  // aceita Int (coerção implícita)
@@ -129,6 +130,11 @@ impl Value {
     pub fn cast_array(&self) -> Option<&[Value]>
     pub fn cast_dict(&self)  -> Option<&IndexMap<EcoString, Value, FxBuildHasher>>
 }
+
+// P466 — métodos de coleção são despachados por `try_dispatch_collection_method`
+// em `rules/stdlib/collections.rs`, invocado desde `eval_func_call` para sintaxe
+// de método de instância (ex.: `(1, 2, 3).first()`, `"ab".repeat(3)`).
+// O eval de dict literal `(a: 1, b: 2)` foi materializado no mesmo passo.
 
 // Conversões From para ergonomia em eval() e testes
 impl From<bool>       for Value

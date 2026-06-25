@@ -17,6 +17,8 @@
 use std::collections::HashMap;
 use std::sync::Arc;
 
+use indexmap::IndexMap;
+
 use comemo::{Tracked, TrackedMut};
 use ecow::EcoString;
 use hayagriva::citationberg::IndependentStyle;
@@ -635,6 +637,36 @@ pub(crate) fn eval_expr(
                 }
             }
             Ok(Value::Array(items))
+        }
+
+        // **P466** — dict literal `(a: 1, b: 2)` e `("a": 1)`.
+        // Dicts com chaves keyed não-string (ex.: regex) são deixados como
+        // `Value::None` para que callers especializados (ex.: `#set text(font:)`)
+        // possam inspeccionar o AST directamente.
+        Expr::Dict(dict) => {
+            let mut map = indexmap::IndexMap::default();
+            for item in dict.items() {
+                match item {
+                    crate::entities::ast::expr::DictItem::Named(named) => {
+                        let key = named.name().as_str();
+                        let value = eval_expr(named.expr(), scopes, ctx, engine)?;
+                        map.insert(key.into(), value);
+                    }
+                    crate::entities::ast::expr::DictItem::Keyed(keyed) => {
+                        let key_expr = keyed.key();
+                        let key = match key_expr {
+                            crate::entities::ast::expr::Expr::Str(node) => {
+                                EcoString::from(node.get())
+                            }
+                            _ => return Ok(Value::None),
+                        };
+                        let value = eval_expr(keyed.expr(), scopes, ctx, engine)?;
+                        map.insert(key, value);
+                    }
+                    crate::entities::ast::expr::DictItem::Spread(_) => {}
+                }
+            }
+            Ok(Value::Dict(map))
         }
 
         // `(expr)` — parêntese de agrupamento. Expressão única dentro de

@@ -16,6 +16,9 @@
 //! (~2080 linhas) reflecte a cobertura ampla da suite.
 
 use super::*;
+use ecow::EcoString;
+use indexmap::IndexMap;
+use rustc_hash::FxBuildHasher;
 
 pub(crate) fn eval_for_test<W: World>(
     world: &W,
@@ -6015,5 +6018,199 @@ mod tests {
 
         assert!(text.contains("Conteúdo"), "outline([title]) deve aceitar título posicional: {text:?}");
         assert!(text.contains("H1"), "TOC deve listar H1: {text:?}");
+    }
+
+    // ── P466 — métodos de instância de array, dict e str ────────────────────
+
+    fn eval_let(world: &MockWorld, name: &str) -> Option<Value> {
+        let module = eval_for_test(world, &world.source).ok()?;
+        module.scope().get(name).cloned()
+    }
+
+    #[test]
+    fn p466_array_first() {
+        let world = MockWorld::new("#let x = (1, 2, 3).first()");
+        assert_eq!(eval_let(&world, "x"), Some(Value::Int(1)));
+    }
+
+    #[test]
+    fn p466_array_last() {
+        let world = MockWorld::new("#let x = (1, 2, 3).last()");
+        assert_eq!(eval_let(&world, "x"), Some(Value::Int(3)));
+    }
+
+    #[test]
+    fn p466_array_rev() {
+        let world = MockWorld::new("#let x = (1, 2, 3).rev()");
+        assert_eq!(
+            eval_let(&world, "x"),
+            Some(Value::Array(vec![Value::Int(3), Value::Int(2), Value::Int(1)]))
+        );
+    }
+
+    #[test]
+    fn p466_array_sum() {
+        let world = MockWorld::new("#let x = (1, 2, 3).sum()");
+        assert_eq!(eval_let(&world, "x"), Some(Value::Int(6)));
+    }
+
+    #[test]
+    fn p466_array_sorted() {
+        let world = MockWorld::new("#let x = (3, 1, 2).sorted()");
+        assert_eq!(
+            eval_let(&world, "x"),
+            Some(Value::Array(vec![Value::Int(1), Value::Int(2), Value::Int(3)]))
+        );
+    }
+
+    #[test]
+    fn p466_array_filter() {
+        let world = MockWorld::new("#let x = (1, 2, 3).filter(x => x > 1)");
+        assert_eq!(
+            eval_let(&world, "x"),
+            Some(Value::Array(vec![Value::Int(2), Value::Int(3)]))
+        );
+    }
+
+    #[test]
+    fn p466_array_map() {
+        let world = MockWorld::new("#let x = (1, 2, 3).map(x => x * 2)");
+        assert_eq!(
+            eval_let(&world, "x"),
+            Some(Value::Array(vec![Value::Int(2), Value::Int(4), Value::Int(6)]))
+        );
+    }
+
+    #[test]
+    fn p466_array_find() {
+        let world = MockWorld::new("#let x = (1, 2, 3).find(x => x > 1)");
+        assert_eq!(eval_let(&world, "x"), Some(Value::Int(2)));
+    }
+
+    #[test]
+    fn p466_array_any() {
+        let world = MockWorld::new("#let x = (1, 2, 3).any(x => x > 2)");
+        assert_eq!(eval_let(&world, "x"), Some(Value::Bool(true)));
+    }
+
+    #[test]
+    fn p466_array_all() {
+        let world = MockWorld::new("#let x = (1, 2, 3).all(x => x > 0)");
+        assert_eq!(eval_let(&world, "x"), Some(Value::Bool(true)));
+    }
+
+    #[test]
+    fn p466_array_zip() {
+        let world = MockWorld::new("#let x = (1, 2).zip((\"a\", \"b\"))");
+        assert_eq!(
+            eval_let(&world, "x"),
+            Some(Value::Array(vec![
+                Value::Array(vec![Value::Int(1), Value::Str("a".into())]),
+                Value::Array(vec![Value::Int(2), Value::Str("b".into())]),
+            ]))
+        );
+    }
+
+    #[test]
+    fn p466_array_enumerate() {
+        let world = MockWorld::new("#let x = (\"a\", \"b\").enumerate()");
+        assert_eq!(
+            eval_let(&world, "x"),
+            Some(Value::Array(vec![
+                Value::Array(vec![Value::Int(0), Value::Str("a".into())]),
+                Value::Array(vec![Value::Int(1), Value::Str("b".into())]),
+            ]))
+        );
+    }
+
+    #[test]
+    fn p466_dict_pairs() {
+        let world = MockWorld::new("#let x = (a: 1, b: 2).pairs()");
+        let module = eval_for_test(&world, &world.source);
+        if let Err(e) = &module {
+            eprintln!("P466 dict_pairs eval error: {:?}", e);
+        }
+        let result = eval_let(&world, "x");
+        let pairs = result.unwrap().cast_array().unwrap().to_vec();
+        assert_eq!(pairs.len(), 2);
+        assert!(pairs.contains(&Value::Array(vec![Value::Str("a".into()), Value::Int(1)])));
+        assert!(pairs.contains(&Value::Array(vec![Value::Str("b".into()), Value::Int(2)])));
+    }
+
+    #[test]
+    fn p466_dict_remove() {
+        // P466: `dict.remove(key)` retorna o valor removido. No cristalino,
+        // o dispatch de método recebe o dict por valor; a variável original
+        // não é mutada (divergência documentada vs vanilla).
+        let world = MockWorld::new("#let d = (a: 1, b: 2)\n#let x = d.remove(\"a\")\n#let y = d");
+        assert_eq!(eval_let(&world, "x"), Some(Value::Int(1)));
+        let mut expected: IndexMap<EcoString, Value, FxBuildHasher> = IndexMap::default();
+        expected.insert("a".into(), Value::Int(1));
+        expected.insert("b".into(), Value::Int(2));
+        assert_eq!(eval_let(&world, "y"), Some(Value::Dict(expected)));
+    }
+
+    #[test]
+    fn p466_dict_update() {
+        let world = MockWorld::new("#let x = (a: 1).update((b: 2))");
+        let mut expected: IndexMap<EcoString, Value, FxBuildHasher> = IndexMap::default();
+        expected.insert("a".into(), Value::Int(1));
+        expected.insert("b".into(), Value::Int(2));
+        assert_eq!(eval_let(&world, "x"), Some(Value::Dict(expected)));
+    }
+
+    #[test]
+    fn p466_str_contains() {
+        let world = MockWorld::new("#let x = \"hello\".contains(\"ell\")");
+        assert_eq!(eval_let(&world, "x"), Some(Value::Bool(true)));
+    }
+
+    #[test]
+    fn p466_str_starts_with() {
+        let world = MockWorld::new("#let x = \"hello\".starts-with(\"he\")");
+        assert_eq!(eval_let(&world, "x"), Some(Value::Bool(true)));
+    }
+
+    #[test]
+    fn p466_str_ends_with() {
+        let world = MockWorld::new("#let x = \"hello\".ends-with(\"lo\")");
+        assert_eq!(eval_let(&world, "x"), Some(Value::Bool(true)));
+    }
+
+    #[test]
+    fn p466_str_find() {
+        let world = MockWorld::new("#let x = \"hello\".find(\"ll\")");
+        assert_eq!(eval_let(&world, "x"), Some(Value::Int(2)));
+    }
+
+    #[test]
+    fn p466_str_replace() {
+        let world = MockWorld::new("#let x = \"hello\".replace(\"l\", \"x\")");
+        assert_eq!(eval_let(&world, "x"), Some(Value::Str("hexxo".into())));
+    }
+
+    #[test]
+    fn p466_str_trim() {
+        let world = MockWorld::new("#let x = \"  hello  \".trim()");
+        assert_eq!(eval_let(&world, "x"), Some(Value::Str("hello".into())));
+    }
+
+    #[test]
+    fn p466_str_split() {
+        let world = MockWorld::new("#let x = \"a,b,c\".split(\",\")");
+        assert_eq!(
+            eval_let(&world, "x"),
+            Some(Value::Array(vec![
+                Value::Str("a".into()),
+                Value::Str("b".into()),
+                Value::Str("c".into()),
+            ]))
+        );
+    }
+
+    #[test]
+    fn p466_str_repeat() {
+        let world = MockWorld::new("#let x = \"ab\".repeat(3)");
+        assert_eq!(eval_let(&world, "x"), Some(Value::Str("ababab".into())));
     }
 }

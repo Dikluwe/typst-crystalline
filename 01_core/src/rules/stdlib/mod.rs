@@ -45,6 +45,8 @@ mod eval;
 mod visualize;
 // P403 — constructors stdlib para tipos primitivos L1: decimal, duration, version.
 mod primitives_constructors;
+// P466 — métodos de instância para array, dict e str.
+mod collections;
 
 // Re-exports públicos — preservam o path `crate::rules::stdlib::native_X` usado
 // por `make_stdlib` em `eval/mod.rs`.
@@ -106,6 +108,8 @@ pub use crate::rules::stdlib::visualize::native_tiling;
 pub use crate::rules::stdlib::primitives_constructors::{
     native_decimal, native_duration, native_version,
 };
+// P466 — dispatcher de métodos de array/dict/str.
+pub(crate) use crate::rules::stdlib::collections::try_dispatch_collection_method;
 // P311b.3 — 12 funções math style (paridade categoria 12/12 = 100%).
 pub use crate::rules::stdlib::math_style::{
     native_bb, native_bold, native_cal, native_frak, native_math_italic, native_mono,

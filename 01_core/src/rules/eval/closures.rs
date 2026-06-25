@@ -27,6 +27,7 @@ use comemo::TrackedMut;
 
 use crate::entities::world_types::{check_call_depth as route_check_call_depth, Route};
 use crate::rules::scopes::Scopes;
+use crate::rules::stdlib::try_dispatch_collection_method;
 
 use super::{eval_expr, EvalContext};
 
@@ -268,6 +269,18 @@ pub(super) fn eval_func_call(
             )? {
                 return Ok(Value::Selector(selector));
             }
+        }
+    }
+
+    // **P466** — Métodos de instância para `array`, `dict` e `str`.
+    if let Expr::FieldAccess(access) = call.callee() {
+        let target = eval_expr(access.target(), scopes, ctx, engine)?;
+        let method = access.field().as_str();
+        let args = eval_args(call.args(), scopes, ctx, engine)?;
+        if let Some(result) =
+            try_dispatch_collection_method(target, method, args, scopes, ctx, engine)
+        {
+            return result;
         }
     }
 
