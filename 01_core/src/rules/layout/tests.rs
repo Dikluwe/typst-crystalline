@@ -29,11 +29,12 @@ use crate::rules::introspect::introspect;
 /// embrulha a cauda. Levanta o transporte transparente para fora; alvo simples
 /// passa direto. (Espelho do helper homónimo em `introspect.rs`.)
 fn labelled_prod(target: Content, label: crate::entities::label::Label) -> Content {
+    let name = label.0;
     match target {
         Content::Styled(inner, styles) => {
-            Content::Styled(Box::new(Content::labelled(*inner, label)), styles)
+            Content::Styled(Box::new(Content::label_auto(name, *inner)), styles)
         }
-        other => Content::labelled(other, label),
+        other => Content::label_auto(name, other),
     }
 }
 
@@ -1482,9 +1483,9 @@ fn layout_ref_para_tras_resolve_secao() {
 
     let content = Content::Sequence(
         vec![
-            Content::labelled(
+            Content::label_auto(
+                "intro".to_string(),
                 Content::heading(1, Content::text("Introdução")),
-                Label("intro".to_string()),
             ),
             Content::text("Como vimos em"),
             Content::reference("intro".to_string()),
@@ -1510,9 +1511,9 @@ fn layout_ref_para_frente_resolve_com_duas_passagens() {
         vec![
             // Ref aparece antes da Label — forward reference
             Content::reference("conclusao".to_string()),
-            Content::labelled(
+            Content::label_auto(
+                "conclusao".to_string(),
                 Content::heading(1, Content::text("Conclusão")),
-                Label("conclusao".to_string()),
             ),
         ]
         .into(),
@@ -1538,9 +1539,9 @@ fn layout_resolved_labels_nao_interfere_entre_documentos() {
     use crate::entities::label::Label;
     use crate::rules::introspect::introspect_with_introspector;
 
-    let content_a = Content::labelled(
+    let content_a = Content::label_auto(
+        "sec".to_string(),
         Content::heading(1, Content::text("A")),
-        Label("sec".to_string()),
     );
     let _ = layout(&content_a);
 
@@ -1568,9 +1569,9 @@ fn pipeline_duas_passagens_resolve_forward_ref() {
             Content::text("Ver a"),
             Content::reference("conclusao".to_string()),
             Content::text("."),
-            Content::labelled(
+            Content::label_auto(
+                "conclusao".to_string(),
                 Content::heading(1, Content::text("Conclusão")),
-                Label("conclusao".to_string()),
             ),
         ]
         .into(),
@@ -2038,9 +2039,9 @@ fn layout_regista_pagina_de_label() {
     use crate::entities::label::Label;
 
     let content = Content::Sequence(
-        vec![Content::labelled(
+        vec![Content::label_auto(
+            "sec1".to_string(),
             Content::heading(1, Content::text("Introdução")),
-            Label("sec1".to_string()),
         )]
         .into(),
     );
@@ -2058,7 +2059,7 @@ fn layout_regista_pagina_de_label() {
 fn layout_pagina_de_label_e_um_indexed() {
     use crate::entities::label::Label;
 
-    let content = Content::labelled(Content::text("No topo"), Label("top".to_string()));
+    let content = Content::label("top".to_string(), Content::text("No topo"));
 
     let state = introspect(&content);
     let doc = layout(&content);
@@ -2176,9 +2177,9 @@ fn layout_com_labels_produz_extracted_label_pages() {
     use crate::entities::label::Label;
 
     let content = Content::Sequence(
-        vec![Content::labelled(
+        vec![Content::label_auto(
+            "sec1".to_string(),
             Content::heading(1, Content::text("Secção")),
-            Label("sec1".to_string()),
         )]
         .into(),
     );
@@ -11340,9 +11341,9 @@ mod p189b_walk_puro_m5 {
         // E4 (P190G adapted): Labelled walk arm popula
         // intr.resolved_labels via Tag::Labelled pós-recursão (P195D).
         // Field legacy `state.resolved_labels` eliminado.
-        let content = Content::Sequence(Arc::from(vec![Content::labelled(
+        let content = Content::Sequence(Arc::from(vec![Content::label_auto(
+            "intro".to_string(),
             Content::heading(1, Content::text("X")),
-            crate::entities::label::Label("intro".to_string()),
         )]));
         let intr = introspect_with_introspector(&content);
         assert!(
@@ -11401,9 +11402,9 @@ mod p194b_c4_resolved_label {
         // label. Walk legacy popula state.resolved_labels via arm
         // Labelled (E4 P189B excepção).
         Content::Sequence(Arc::from(vec![
-            Content::labelled(
+            Content::label_auto(
+                label_name.to_string(),
                 Content::heading(1, Content::text("Intro")),
-                lbl(label_name),
             ),
             Content::reference(label_name),
         ]))
@@ -11513,9 +11514,9 @@ mod p195d_walk_labelled {
 
     #[test]
     fn labelled_walk_emite_tag_e_popula_introspector() {
-        let content = Content::Sequence(Arc::from(vec![Content::labelled(
+        let content = Content::Sequence(Arc::from(vec![Content::label_auto(
+            "intro".to_string(),
             Content::heading(1, Content::text("Intro")),
-            lbl("intro"),
         )]));
 
         let intr = introspect_with_introspector(&content);
@@ -11537,7 +11538,7 @@ mod p195d_walk_labelled {
     #[test]
     fn labelled_paridade_observable_legacy_vs_introspector() {
         let content = Content::Sequence(Arc::from(vec![
-            Content::labelled(Content::heading(1, Content::text("Intro")), lbl("intro")),
+            Content::label_auto("intro".to_string(), Content::heading(1, Content::text("Intro"))),
             Content::reference("intro"),
         ]));
 
@@ -11581,9 +11582,9 @@ mod p195d_walk_labelled {
     fn labelled_target_nao_resolvivel_nao_popula_introspector() {
         // Target = Text (sem numeração); compute_labelled retorna
         // (None, None); Tag não emitida; sub-store não populated.
-        let content = Content::Sequence(Arc::from(vec![Content::labelled(
+        let content = Content::Sequence(Arc::from(vec![Content::label_auto(
+            "foo".to_string(),
             Content::text("not numbered"),
-            lbl("foo"),
         )]));
 
         let intr = introspect_with_introspector(&content);
@@ -13944,9 +13945,9 @@ mod p462_ref_numeric {
         // Labelled (P329) continua a usar texto resolvido legacy, não número.
         let content = Content::Sequence(
             vec![
-                Content::labelled(
+                Content::label_auto(
+                    "sec".to_string(),
                     Content::heading_numbered(1, Content::text("Secção")),
-                    Label("sec".to_string()),
                 ),
                 Content::reference("sec"),
             ]

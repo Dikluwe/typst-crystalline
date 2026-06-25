@@ -754,13 +754,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
             // Marcadores estruturais de equações — ignorados fora de contexto matemático.
             Content::MathAlignPoint(_) | Content::Linebreak(_) => {}
 
-            // Passo 60 — Labelled e Ref delegados a references.rs (Passo 61).
-            // Passo 63 — label passada para registo de página.
-            Content::Labelled(e) => {
-                references::layout_labelled(self, &e.target, &e.label);
-            }
-
-            // P460 — Label: destino nomeado. Layout transparente do body
+            // P460/P464 — Label: destino nomeado. Layout transparente do body
             // com registo de página + posição para /Dests no PDF.
             Content::Label(e) => {
                 references::layout_label(self, &e.body, Label(e.name.to_string()));

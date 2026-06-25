@@ -15,10 +15,16 @@ use crate::entities::source_result::SourceResult;
 use ecow::EcoString;
 
 /// Associa um nome de destino a um `body` (wrapper transparente de identidade).
+///
+/// **P464**: campo `auto` distingue labels gerados automaticamente (`<label>` em
+/// headings/figures/equations) de labels criados explicitamente via `#label(...)`.
+/// Ambos partilham o mesmo tipo semântico; a origem é metadado, não diferenciação
+/// estrutural.
 #[derive(Debug, Clone, PartialEq, Hash)]
 pub struct LabelElem {
     pub name: EcoString,
     pub body: Content,
+    pub auto: bool,
 }
 
 impl Element for LabelElem {
@@ -37,6 +43,7 @@ impl Element for LabelElem {
         Ok(Content::Label(Arc::new(LabelElem {
             body: self.body.map_content(transform)?,
             name: self.name.clone(),
+            auto: self.auto,
         })))
     }
 
@@ -47,6 +54,7 @@ impl Element for LabelElem {
         Content::Label(Arc::new(LabelElem {
             body: self.body.map_text(transform),
             name: self.name.clone(),
+            auto: self.auto,
         }))
     }
 }
@@ -58,7 +66,7 @@ mod tests {
     use std::hash::{Hash, Hasher};
 
     fn ex() -> LabelElem {
-        LabelElem { body: Content::text("x"), name: "sec1".into() }
+        LabelElem { body: Content::text("x"), name: "sec1".into(), auto: false }
     }
 
     #[test]
@@ -69,7 +77,7 @@ mod tests {
     #[test]
     fn is_empty_delega_ao_body() {
         assert!(!ex().is_empty());
-        assert!(LabelElem { body: Content::Empty, name: "l".into() }.is_empty());
+        assert!(LabelElem { body: Content::Empty, name: "l".into(), auto: false }.is_empty());
     }
 
     #[test]
@@ -97,6 +105,17 @@ mod tests {
 
     #[test]
     fn nome_diferente_produz_hash_diferente() {
-        assert_ne!(h(&ex()), h(&LabelElem { body: Content::text("x"), name: "outro".into() }));
+        assert_ne!(
+            h(&ex()),
+            h(&LabelElem { body: Content::text("x"), name: "outro".into(), auto: false })
+        );
+    }
+
+    #[test]
+    fn auto_true_e_auto_false_sao_ambos_content_label() {
+        let user = Content::label("user", Content::text("x"));
+        let auto = Content::label_auto("auto", Content::text("x"));
+        assert!(matches!(user, Content::Label(_)), "user label deve ser Content::Label");
+        assert!(matches!(auto, Content::Label(_)), "auto label deve ser Content::Label");
     }
 }

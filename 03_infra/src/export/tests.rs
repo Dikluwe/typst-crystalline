@@ -7221,6 +7221,30 @@ use typst_core::rules::layout::layout;
         );
     }
 
+    #[test]
+    fn pdf_label_auto_e_user_geram_dests() {
+        // P464: figure auto-labelled (ex-sintaxe `<fig>`) + user label
+        // (`#label(...)`) devem ambos produzir entradas em /Dests.
+        let fig = Content::figure(
+            Content::text("Corpo"),
+            Some(Content::text("Legenda")),
+            Some("image".to_string()),
+            Some("1".to_string()),
+        );
+        let content = Content::Sequence(
+            vec![
+                Content::label_auto("auto-fig".to_string(), fig),
+                Content::label("user-sec".to_string(), Content::text("Secção")),
+            ]
+            .into(),
+        );
+        let doc = layout(&content);
+        let pdf = export_pdf(&doc);
+        let s = String::from_utf8_lossy(&pdf);
+        assert!(s.contains("/Dests"), "deve haver dicionário /Dests");
+        assert!(s.contains("/auto-fig"), "label auto-gerada deve aparecer em /Dests");
+        assert!(s.contains("/user-sec"), "label user-created deve aparecer em /Dests");
+    }
 
     // ── P463 — /GoTo annotations para ref interno ───────────────────────────
     #[test]

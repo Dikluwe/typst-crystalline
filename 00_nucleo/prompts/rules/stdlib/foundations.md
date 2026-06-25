@@ -4,8 +4,8 @@ Hash do Código: 69bc00dc
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/rules/stdlib/foundations.rs`
 **Origem**: Passo 96.5 (extraído de `stdlib.rs` conforme ADR-0037), com
-reforços pontuais P13–P25, P99–P102, P171–P179, P208–P210, P236–P241 e
-P421 (`repr`).
+reforços pontuais P13–P25, P99–P102, P171–P179, P208–P210, P236–P241,
+P421 (`repr`) e P465 (`repr()` completo).
 **ADRs**: ADR-0037 (coesão por domínio), ADR-0054 (perfil graded),
 ADR-0081 (state/counter display two-pass), ADR-0083 (color spaces),
 ADR-0107 (paridade linguagem).
@@ -82,18 +82,49 @@ type(1, 2)   -> Err "type() requer 1 argumento"
 **Semântica**: Devolve uma representação textual reconhecível do valor
 (sem round-trip garantido). Implementado em `rules/eval/repr.rs`.
 
+**Tabela de tipos e formatos (P465)**:
+
+| Tipo | Saída exemplo |
+|------|---------------|
+| `none` | `"none"` |
+| `auto` | `"auto"` |
+| `bool` | `"true"` / `"false"` |
+| `int` | `"1"` |
+| `float` | `"1.0"`, `"1.5"` |
+| `str` | `"\"hello\""` |
+| `array` | `"(1, 2)"` |
+| `dict` | `"(a: 1)"` |
+| `content` | `"heading(level: 1)[\"Title\"]"` |
+| `function` | `"#repr"` ou `"#function(...)"` |
+| `module` | `"module(mylib)"` |
+| `datetime` | `"datetime(2026-06-25)"` ou `"datetime(2026-06-25T14:30:00)"` |
+| `duration` | `"duration(1s)"` |
+| `version` | `"version(0, 11, 0)"` |
+| `bytes` | `"bytes(10)"` |
+| `regex` | `"regex(\"a+\")"` |
+| `gradient` | `"gradient(...)"` (placeholder) |
+| `tiling` | `"tiling(...)"` (placeholder) |
+| `location` | `"location(...)"` (placeholder) |
+
 **Scope-outs**:
 - Round-trip perfeito (`eval(repr(x)) == x`).
 - Representação completa de closures, módulos e valores dinâmicos opacos.
+- `Symbol` e `Type` como valores de primeira classe (ainda não existem em L1).
+- `Color` avançado (CMYK/Oklab) — usa `Debug` existente; refinamento é Trilha 4.
 
 **Testes canônicos**:
 ```
-repr(1)        -> "1"
-repr(3.0)      -> "3.0"
-repr("abc")    -> "\"abc\""
-repr(none)     -> "none"
-repr(auto)     -> "auto"
-repr()         -> Err "repr() requer 1 argumento"
+repr(1)             -> "1"
+repr(1.5)           -> "1.5"
+repr(3.0)           -> "3.0"
+repr("abc")         -> "\"abc\""
+repr(none)          -> "none"
+repr(auto)          -> "auto"
+repr(version(0,11,0)) -> "version(0, 11, 0)"
+repr(bytes(10))     -> "bytes(10)"
+repr(regex("a+"))   -> "regex(\"a+\")"
+repr((1, "a", none)) -> "(1, \"a\", none)"
+repr()              -> Err "repr() requer 1 argumento"
 ```
 
 ---

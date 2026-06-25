@@ -11,30 +11,20 @@ use crate::entities::{
 
 use super::{link::link_bbox, FontMetrics, ImageSizer, Layouter};
 
-/// Braço `Labelled` — layout transparente do target com registo de página
-/// e posição (P460).
-pub(super) fn layout_labelled<M: FontMetrics, S: ImageSizer>(
-    layouter: &mut Layouter<M, S>,
-    target: &Content,
-    label: &Label,
-) {
-    let pos = Point {
-        x: layouter.regions.current.cursor_x,
-        y: layouter.regions.current.cursor_y,
-    };
-    layouter.layout_content(target);
-    let page = layouter.current_page_number();
-    layouter.runtime.label_pages.insert(label.clone(), page);
-    layouter.runtime.label_positions.insert(label.clone(), pos);
-}
-
-/// Braço `Label` (P460) — wrapper transparente do body com registo de destino.
+/// Layout transparente do body com registo de página e posição (P460/P464).
 pub(super) fn layout_label<M: FontMetrics, S: ImageSizer>(
     layouter: &mut Layouter<M, S>,
     body: &Content,
     label: Label,
 ) {
-    layout_labelled(layouter, body, &label);
+    let pos = Point {
+        x: layouter.regions.current.cursor_x,
+        y: layouter.regions.current.cursor_y,
+    };
+    layouter.layout_content(body);
+    let page = layouter.current_page_number();
+    layouter.runtime.label_pages.insert(label.clone(), page);
+    layouter.runtime.label_positions.insert(label, pos);
 }
 
 /// Braço `Ref` (P462/P463) — resolve o número do elemento associado ao label

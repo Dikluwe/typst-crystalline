@@ -124,7 +124,6 @@ pub fn is_locatable(content: &Content) -> bool {
         | Content::Linebreak(_)
         | Content::MathMatrix(_)
         | Content::MathCases(_)
-        | Content::Labelled(_)
         | Content::Label(_)
         | Content::Ref(_)
         | Content::CounterDisplay(_)
@@ -250,7 +249,7 @@ mod tests {
         // mechanism em walk). Esta é uma propriedade da função pura
         // is_locatable: olha apenas para o nó actual, não para
         // children.
-        let c = Content::labelled(Content::heading(1, Content::Empty), crate::entities::label::Label("x".to_string()));
+        let c = Content::label_auto("x".to_string(), Content::heading(1, Content::Empty));
         assert!(!is_locatable(&c));
     }
 
@@ -273,7 +272,7 @@ mod tests {
             Content::Text(EcoString::from("t")),
             Content::Space,
             Content::Sequence(std::sync::Arc::from(vec![Content::Empty])),
-            Content::labelled(Content::Empty, crate::entities::label::Label("x".to_string())),
+            Content::label_auto("x".to_string(), Content::Empty),
             Content::reference("y"),
             Content::outline(),
             Content::linebreak(),

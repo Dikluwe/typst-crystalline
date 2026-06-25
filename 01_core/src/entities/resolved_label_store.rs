@@ -21,7 +21,7 @@ use crate::entities::label::Label;
 ///
 /// Populated por `from_tags` (P195 pendente) ao processar
 /// `Tag::Start` para `Content::Heading` (auto-toc) e
-/// `Content::Labelled` (explicit). Consumer C4 (`layout/references.rs`)
+/// `Content::Label` com `auto: true`. Consumer C4 (`layout/references.rs`)
 /// migra em P194 para consultar via trait
 /// `Introspector::resolved_label_for(&Label)`.
 ///

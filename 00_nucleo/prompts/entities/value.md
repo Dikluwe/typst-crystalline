@@ -4,8 +4,8 @@ Hash do Código: 8b74a405
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/entities/value.rs`
 **Criado em**: 2026-03-22 (Passo 13)
-**Atualizado em**: 2026-04-12 (restauro — expansão para refletir Passos 15–25)
-**ADRs relevantes**: ADR-0017 (adiamento eval), ADR-0023 (indexmap em L1), ADR-0024 (EcoString em Value::Str), ADR-0025 (Int == Float), ADR-0028/ADR-0029 (tipos tipográficos)
+**Atualizado em**: 2026-06-25 (P465 — `repr()` implementado para todos os variants existentes)
+**ADRs relevantes**: ADR-0017 (adiamento eval), ADR-0023 (indexmap em L1), ADR-0024 (EcoString em Value::Str), ADR-0025 (Int == Float), ADR-0028/ADR-0029 (tipos tipográficos), ADR-0117 Cláusula 4 (`repr()` função pura)
 
 ---
 
@@ -70,6 +70,15 @@ igualdade Rust (para testes e estruturas de dados) vs igualdade Typst (em eval).
 ---
 
 ## Interface pública
+
+### `repr()` (P465)
+
+Todos os variants existentes de `Value` têm representação via `repr_value`
+(`rules/eval/repr.rs`). A saída é **reconhecível**, não garante round-trip.
+Variants opacos (`Location`, `Gradient`, `Tiling`) usam placeholder
+(`location(...)`, `gradient(...)`, `tiling(...)`). `Symbol` e `Type` ainda
+não são variants de `Value` em L1; quando migrados terão `repr()`
+mapeados.
 
 ```rust
 #[derive(Debug, Clone, PartialEq)]

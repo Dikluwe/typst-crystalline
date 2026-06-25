@@ -305,13 +305,52 @@ Semântica:
 - O `match` lista explicitamente containers (recursão) e terminais (clone). Sem `_ =>`.
 
 Containers (recursão bottom-up): `Sequence`, `Strong`, `Emph`, `Heading`,
-`ListItem`, `EnumItem`, `Link`, `Labelled`, `Figure`, `Equation`, `MathSequence`,
+`ListItem`, `EnumItem`, `Link`, `Label`, `Figure`, `Equation`, `MathSequence`,
 `MathFrac`, `MathAttach`, `MathRoot`, `MathDelimited`, `MathMatrix`, `MathCases`,
 `Outline`.
 
 Terminais (clone directo): `Text`, `Space`, `Empty`, `Linebreak`,
 `Raw`, `Ref`, `SetHeadingNumbering`, `CounterUpdate`, `CounterDisplay`,
 `MathAlignPoint`, `MathIdent`, `MathText`.
+
+## Variante `Content::Label` — P460 + P464
+
+```rust
+Label(Arc<LabelElem>)
+```
+
+Wrapper transparente de identidade. Representa um destino nomeado para
+referências cruzadas.
+
+```rust
+pub struct LabelElem {
+    pub name: EcoString,
+    pub body: Content,
+    pub auto: bool,
+}
+```
+
+- `name` — identificador do destino (e.g. `"sec1"`, `"fig1"`).
+- `body` — conteúdo associado; renderizado normalmente.
+- `auto` — origem do label:
+  - `false`: criado explicitamente via `#label("nome", body)`;
+  - `true`: gerado automaticamente via sintaxe `<label>` em
+    headings/figures/equations.
+
+**Comportamentos**:
+- `plain_text` / `is_empty` — delegam ao `body`.
+- `map_content` / `map_text` — recursam no `body`, preservando `name` e `auto`.
+- Layout — transparente; regista página + posição em
+  `extracted_label_pages` / `extracted_label_positions` para `/Dests` no PDF.
+- Introspecção:
+  - `auto: false`: propaga a label para o body; popula
+    `label_to_counter_key` quando o body é numerado.
+  - `auto: true`: emite `ElementPayload::Labelled` pós-recursão com
+    `resolved_text` / `figure_number` (caminho legacy P329).
+
+**Construtores**:
+- `Content::label(name, body)` — `auto: false`.
+- `Content::label_auto(name, body)` — `auto: true`.
 
 ## Variante `Content::Image` (Passo 71 — DEBT-24)
 
@@ -2446,8 +2485,8 @@ Lista amostral (ordem aproximada de introdução):
 - **Math** (P36-P40 + M3-M9): `Equation`, `MathSequence`,
   `MathIdent`, `MathText`, `MathFrac`, `MathAttach`, `MathRoot`,
   `MathDelimited`, `MathMatrix`, `MathCases`.
-- **Introspector + Numbering** (P164-P204; P182C; P199B):
-  `Labelled`, `Ref`, `SetHeadingNumbering`,
+- **Introspector + Numbering** (P164-P204; P182C; P199B; P464):
+  `Label`, `Ref`, `SetHeadingNumbering`,
   `SetEquationNumbering`, `SetFigureNumbering`,
   `CounterDisplay`, `CounterUpdate`.
 - **Figure** (P158): `Figure { body, caption, kind, numbering }`.

@@ -29,7 +29,6 @@ use crate::entities::content::Content;
 use crate::entities::elements::bibliography::BibliographyElem;
 #[cfg(test)]
 use crate::entities::counter_update::CounterUpdate as CounterAction;
-use crate::entities::label::Label;
 use crate::entities::ast::expr::{ArrayItem, Expr};
 #[cfg(test)]
 use crate::entities::ast::expr::{BinOp, UnOp};
@@ -434,7 +433,7 @@ pub(crate) fn eval_markup(
                         trailing.push(parts.pop().unwrap());
                     }
                     if let Some(last) = parts.pop() {
-                        parts.push(Content::labelled(last, Label(name)));
+                        parts.push(Content::label_auto(name, last));
                         trailing.reverse();
                         parts.extend(trailing);
                     }

@@ -12,6 +12,7 @@
 //! (eval, layout) a re-assemblar o enum via re-exports. ~1070 linhas
 //! aceitas como custo de coesão por domínio.
 
+use std::fmt;
 use std::sync::Arc;
 
 use ecow::EcoString;
@@ -19,7 +20,6 @@ use ecow::EcoString;
 use crate::entities::counter_update::CounterUpdate as CounterAction;
 use crate::entities::dir::Dir;
 use crate::entities::geometry::{ShapeKind, Stroke};
-use crate::entities::label::Label;
 #[allow(unused_imports)]
 use crate::entities::layout_types::{
     Align2D, Color, Length, PlaceScope, Pt, TrackSizing, TransformMatrix,
@@ -94,7 +94,6 @@ use crate::entities::elements::grid::GridElem;
 use crate::entities::elements::grid_cell::GridCellElem;
 use crate::entities::elements::hide::HideElem;
 use crate::entities::elements::image::ImageElem;
-use crate::entities::elements::labelled::LabelledElem;
 use crate::entities::elements::outline::OutlineElem;
 use crate::entities::elements::pad::PadElem;
 use crate::entities::elements::place::PlaceElem;
@@ -121,7 +120,7 @@ use crate::entities::elements::transform::TransformElem;
 ///
 /// `PartialEq` implementado manualmente — `Arc<[Content]>` compara por ponteiro
 /// com `derive`, não por conteúdo (ADR-0026 revisão).
-#[derive(Debug, Clone)]
+#[derive(Clone)]
 pub enum Content {
     /// Conteúdo vazio.
     Empty,
@@ -329,21 +328,15 @@ pub enum Content {
     /// `entities::elements::math_styled::MathStyledElem`.
     MathStyled(Arc<MathStyledElem>),
 
-    /// Destino nomeado para referências cruzadas (P460).
+    /// Destino nomeado para referências cruzadas (P460 / P464).
     /// A `Label` é metainformação posicional — não tem presença visual.
-    /// Produzida por `#label("sec1", body)`; o body é renderizado normalmente
-    /// e o nome é registado como destino no PDF (`/Dests`).
-    /// **Modelo D (P460)**: `entities::elements::label::LabelElem`
+    /// Produzida por `#label("sec1", body)` (user-created, `auto: false`) ou por
+    /// sintaxe `<label>` em headings/figures/equations (auto-generated, `auto: true`).
+    /// O body é renderizado normalmente e o nome é registado como destino no PDF
+    /// (`/Dests`).
+    /// **Modelo D (P464)**: `entities::elements::label::LabelElem`
     /// (wrapper de label; recurse body; não-locatável no trait).
     Label(Arc<LabelElem>),
-
-    /// Nó com etiqueta semântica (Passo 56).
-    /// A `Label` é metainformação pura — não tem presença visual.
-    /// Produzida por `= Título <label>` ou `#figure(...) <label>`.
-    /// **Modelo D (Lote 14 P329)**: `entities::elements::labelled::LabelledElem`
-    /// (wrapper de label; recurse target; payload emitido pelo walk arm em
-    /// pós-recursão, P195B — não-locatável no trait).
-    Labelled(Arc<LabelledElem>),
 
     /// Referência cruzada (Passo 56).
     /// Enquanto não existe motor de introspecção, renderiza literalmente `@nome`.
@@ -988,7 +981,7 @@ pub enum Content {
     ///
     /// Content invisível em layout (zero-size, sem caixa); o `value`
     /// fica disponível via `Introspector::query_metadata` para querying
-    /// pelo utilizador. Usado em conjunto com `Content::Labelled` para
+    /// pelo utilizador. Usado em conjunto com `Content::Label` para
     /// associar metadata a uma label específica.
     ///
     /// Walk arm em `introspect.rs` é terminal — não desce em filhos
@@ -1067,6 +1060,121 @@ pub enum Content {
     /// P332, ADR-0029/0030). O enum continua **fechado** (ADR-0026): o dinâmico
     /// é o *conteúdo* da variante, não o enum.
     Dynamic(Arc<dyn DynElement>),
+}
+
+impl fmt::Debug for Content {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        thread_local! {
+            static DEPTH: std::cell::Cell<usize> = const { std::cell::Cell::new(0) };
+        }
+        const MAX_DEPTH: usize = 8;
+
+        let depth = DEPTH.get();
+        if depth >= MAX_DEPTH {
+            return write!(f, "...");
+        }
+        DEPTH.set(depth + 1);
+        let result = fmt_content(self, f);
+        DEPTH.set(depth);
+        result
+    }
+}
+
+fn fmt_content(c: &Content, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+    match c {
+        Content::Empty => write!(f, "empty"),
+        Content::Text(t) => write!(f, "text({:?})", t),
+        Content::Space => write!(f, "space"),
+        Content::Sequence(seq) => {
+            f.debug_tuple("sequence").field(&seq.as_ref()).finish()
+        }
+        Content::Heading(h) => write!(f, "heading({:?})", h),
+        Content::Strong(s) => write!(f, "strong({:?})", s),
+        Content::Emph(e) => write!(f, "emph({:?})", e),
+        Content::Raw(r) => write!(f, "raw({:?})", r),
+        Content::ListItem(li) => write!(f, "list.item({:?})", li),
+        Content::EnumItem(ei) => write!(f, "enum.item({:?})", ei),
+        Content::Link(l) => write!(f, "link({:?})", l),
+        Content::Equation(e) => write!(f, "equation({:?})", e),
+        Content::MathSequence(seq) => {
+            f.debug_tuple("math.sequence").field(&seq.as_ref()).finish()
+        }
+        Content::MathIdent(s) => write!(f, "math.ident({:?})", s),
+        Content::MathText(s) => write!(f, "math.text({:?})", s),
+        Content::MathFrac(fr) => write!(f, "math.frac({:?})", fr),
+        Content::MathAttach(a) => write!(f, "math.attach({:?})", a),
+        Content::MathRoot(r) => write!(f, "math.root({:?})", r),
+        Content::MathDelimited(d) => write!(f, "math.delimited({:?})", d),
+        Content::MathAlignPoint(_) => write!(f, "math.align.point"),
+        Content::Linebreak(_) => write!(f, "linebreak"),
+        Content::MathMatrix(_) => write!(f, "math.matrix"),
+        Content::MathCases(_) => write!(f, "math.cases"),
+        Content::MathAccent(a) => write!(f, "math.accent({:?})", a),
+        Content::MathCancel(c) => write!(f, "math.cancel({:?})", c),
+        Content::MathUnderover(u) => write!(f, "math.underover({:?})", u),
+        Content::MathOp(o) => write!(f, "math.op({:?})", o),
+        Content::MathStyled(s) => write!(f, "math.styled({:?})", s),
+        Content::Label(l) => write!(f, "label({:?})", l),
+        Content::Ref(r) => write!(f, "ref({:?})", r),
+        Content::CounterDisplay(_) => write!(f, "counter.display"),
+        Content::CounterUpdate(_) => write!(f, "counter.update"),
+        Content::Outline(o) => write!(f, "outline({:?})", o),
+        Content::Figure(fig) => write!(f, "figure({:?})", fig),
+        Content::Image(i) => write!(f, "image({:?})", i),
+        Content::Shape(_) => write!(f, "shape"),
+        Content::Transform(t) => write!(f, "transform({:?})", t),
+        Content::Grid(_) => write!(f, "grid"),
+        Content::GridHeader(_) => write!(f, "grid.header"),
+        Content::GridFooter(_) => write!(f, "grid.footer"),
+        Content::GridCell(_) => write!(f, "grid.cell"),
+        Content::SetPage { .. } => write!(f, "set.page"),
+        Content::Align(a) => write!(f, "align({:?})", a),
+        Content::Place(p) => write!(f, "place({:?})", p),
+        Content::Styled(child, styles) => {
+            write!(f, "styled({:?}, {:?})", child, styles)
+        }
+        Content::Divider(_) => write!(f, "divider"),
+        Content::Terms(_) => write!(f, "terms"),
+        Content::TermItem(ti) => write!(f, "term.item({:?})", ti),
+        Content::Quote(q) => write!(f, "quote({:?})", q),
+        Content::SmartQuote(_) => write!(f, "smart.quote"),
+        Content::Underline(u) => write!(f, "underline({:?})", u),
+        Content::Strike(s) => write!(f, "strike({:?})", s),
+        Content::Overline(o) => write!(f, "overline({:?})", o),
+        Content::SmallCaps { body } => write!(f, "small.caps({:?})", body),
+        Content::Pad(p) => write!(f, "pad({:?})", p),
+        Content::Hide(h) => write!(f, "hide({:?})", h),
+        Content::HSpace(_) => write!(f, "hspace"),
+        Content::VSpace(_) => write!(f, "vspace"),
+        Content::Pagebreak(_) => write!(f, "pagebreak"),
+        Content::Colbreak(_) => write!(f, "colbreak"),
+        Content::Stack(_) => write!(f, "stack"),
+        Content::Boxed(b) => write!(f, "box({:?})", b),
+        Content::Block(b) => write!(f, "block({:?})", b),
+        Content::TableCell(_) => write!(f, "table.cell"),
+        Content::Bibliography(b) => write!(f, "bibliography({:?})", b),
+        Content::Cite(c) => write!(f, "cite({:?})", c),
+        Content::Footnote(foot) => write!(f, "footnote({:?})", foot),
+        Content::TableHeader(_) => write!(f, "table.header"),
+        Content::TableFooter(_) => write!(f, "table.footer"),
+        Content::Table(_) => write!(f, "table"),
+        Content::Repeat(_) => write!(f, "repeat"),
+        Content::Columns(_) => write!(f, "columns"),
+        Content::Metadata(_) => write!(f, "metadata"),
+        Content::State(_) => write!(f, "state"),
+        Content::StateUpdate(_) => write!(f, "state.update"),
+        Content::StateDisplay(_) => write!(f, "state.display"),
+        Content::CounterDisplayCallback(_) => write!(f, "counter.display.callback"),
+        Content::Dynamic(_) => write!(f, "dynamic"),
+        Content::Document { title, .. } => {
+            if let Some(t) = title {
+                write!(f, "document({:?})", t)
+            } else {
+                write!(f, "document")
+            }
+        }
+        Content::Asset { path, .. } => write!(f, "asset({:?})", path),
+    }
 }
 
 impl Content {
@@ -1374,14 +1482,16 @@ impl Content {
     }
 
     // ── Construtores ergonómicos família state/counter (Modelo D, Lote 6 P321) ──
-    /// **Lote 14 P329** — `Content::Labelled` (wrapper de label).
-    pub fn labelled(target: Content, label: Label) -> Self {
-        Self::Labelled(Arc::new(LabelledElem { target, label }))
+    /// **P460/P464** — `Content::Label` criado explicitamente pelo utilizador
+    /// (`auto: false`).
+    pub fn label(name: impl Into<EcoString>, body: Content) -> Self {
+        Self::Label(Arc::new(LabelElem { name: name.into(), body, auto: false }))
     }
 
-    /// **P460** — `Content::Label` (destino nomeado para referências cruzadas).
-    pub fn label(name: impl Into<EcoString>, body: Content) -> Self {
-        Self::Label(Arc::new(LabelElem { name: name.into(), body }))
+    /// **P464** — `Content::Label` gerado automaticamente pela sintaxe `<label>`
+    /// (`auto: true`).
+    pub fn label_auto(name: impl Into<EcoString>, body: Content) -> Self {
+        Self::Label(Arc::new(LabelElem { name: name.into(), body, auto: true }))
     }
 
     /// **Lote 13 P328** — `Content::Figure` (figura locatável M1).
@@ -1765,7 +1875,6 @@ impl Content {
         match self {
             Self::Empty => true,
             Self::Sequence(v) => v.is_empty(),
-            Self::Labelled(e) => e.is_empty(),
             Self::Label(e) => e.is_empty(),
             // Figura: não está vazia se tiver body OU caption com conteúdo.
             Self::Figure(e) => e.is_empty(),
@@ -1914,7 +2023,6 @@ impl Content {
             Self::MathOp(e) => e.plain_text(),
             // P311b.2 — MathStyled é transparente para plain_text (wraps body).
             Self::MathStyled(m) => m.plain_text(),
-            Self::Labelled(e) => e.plain_text(),
             Self::Label(e) => e.plain_text(),
             Self::Ref(e) => e.plain_text(),
             Self::CounterDisplay(e) => e.plain_text(),
@@ -2042,9 +2150,7 @@ impl PartialEq for Content {
             (Self::MathOp(a), Self::MathOp(b)) => a == b,
             // MathStyled PartialEq estrutural (Modelo D P316: delega ao Arc<Elem>).
             (Self::MathStyled(a), Self::MathStyled(b)) => a == b,
-            // Modelo D (Lote 14 P329): Labelled delega ao `Arc<…Elem>`.
-            (Self::Labelled(a), Self::Labelled(b)) => a == b,
-            // P460: Label delega ao `Arc<LabelElem>`.
+            // P464: Label delega ao `Arc<LabelElem>` (único tipo de label).
             (Self::Label(a), Self::Label(b)) => a == b,
             (Self::Ref(a), Self::Ref(b)) => a == b,
             // Modelo D (Lote 6 P321): delegam ao `Arc<…Elem>`.
@@ -2223,7 +2329,6 @@ impl Content {
             Content::ListItem(e) => e.map_content(transform)?,
             Content::EnumItem(e) => e.map_content(transform)?,
             Content::Link(e)     => e.map_content(transform)?,
-            Content::Labelled(e) => e.map_content(transform)?,
             Content::Label(e)    => e.map_content(transform)?,
             // Modelo D (Lote 13 P328): Figure container delega ao elemento.
             Content::Figure(e) => e.map_content(transform)?,
@@ -2461,7 +2566,6 @@ impl Content {
             Content::Emph(e)   => e.map_text(transform),
             // Passo 101: Content::Strong/Emph removidos — cobertos pelo
             // arm Content::Styled abaixo (map_text recursivo).
-            Content::Labelled(e) => e.map_text(transform),
             Content::Label(e)    => e.map_text(transform),
             // Modelo D (Lote 13 P328): Figure container delega ao elemento.
             Content::Figure(e) => e.map_text(transform),

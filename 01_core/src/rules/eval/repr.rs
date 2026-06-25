@@ -34,9 +34,19 @@ pub fn repr_value(v: &Value) -> String {
                 .collect();
             format!("({})", items.join(", "))
         }
-        Value::Module(m) => format!("module {}", m.name()),
-        Value::Datetime(d) => format!("datetime({:?})", d),
-        Value::Func(_) => "function".to_string(),
+        Value::Module(m) => format!("module({})", m.name()),
+        Value::Datetime(d) => repr_datetime(d),
+        Value::Func(f) => {
+            if let Some(name) = f.name() {
+                if name.is_empty() {
+                    "#function(...)".to_string()
+                } else {
+                    format!("#{name}")
+                }
+            } else {
+                "#function(...)".to_string()
+            }
+        }
         Value::Auto => "auto".to_string(),
         Value::Length(l) => format!("{:?}", l),
         Value::Ratio(r) => format!("{:?}", r),
@@ -45,14 +55,16 @@ pub fn repr_value(v: &Value) -> String {
         Value::Stroke(s) => format!("{:?}", s),
         Value::Fraction(f) => repr_float(*f),
         Value::Align(a) => format!("{:?}", a),
-        Value::Location(_) => "location".to_string(),
-        Value::Gradient(g) => format!("{:?}", g),
+        Value::Location(_) => "location(...)".to_string(),
+        Value::Gradient(_) => "gradient(...)".to_string(),
         Value::Regex(r) => format!("regex(\"{}\")", r.pattern()),
-        Value::Tiling(_) => "tiling".to_string(),
-        Value::Bytes(_) => "bytes".to_string(),
+        Value::Tiling(_) => "tiling(...)".to_string(),
+        Value::Bytes(b) => format!("bytes({})", b.len()),
         Value::Decimal(d) => d.to_string(),
-        Value::Duration(d) => d.to_string(),
-        Value::Version(ver) => ver.to_string(),
+        Value::Duration(d) => format!("duration({})", d.to_string()),
+        Value::Version(ver) => {
+            format!("version({}, {}, {})", ver.major, ver.minor, ver.patch)
+        }
         Value::Selector(s) => repr_selector(s),
     }
 }
@@ -134,7 +146,7 @@ pub fn repr_content(c: &Content) -> String {
         }
         Content::MathOp(o) => format!("op({})", repr_content(&o.text)),
         Content::MathStyled(s) => repr_content(&s.body),
-        Content::Labelled(l) => format!("label(\"{}\")", l.label.0),
+        Content::Label(l) if l.auto => format!("label(\"{}\")", l.name),
         Content::Label(l) => format!("label(\"{}\", {})", l.name, repr_content(&l.body)),
         Content::Ref(r) => format!("ref(<{}>)", r.name),
         Content::CounterDisplay(_) => "counter.display".to_string(),
@@ -236,6 +248,17 @@ fn repr_float(f: f64) -> String {
     }
 }
 
+/// Data/hora no formato reconhecível pelo Typst.
+fn repr_datetime(d: &crate::entities::world_types::Datetime) -> String {
+    let date = format!("{:04}-{:02}-{:02}", d.year(), d.month(), d.day());
+    match (d.hour(), d.minute(), d.second()) {
+        (Some(h), Some(m), Some(s)) => {
+            format!("datetime({}T{:02}:{:02}:{:02})", date, h, m, s)
+        }
+        _ => format!("datetime({})", date),
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -292,41 +315,146 @@ mod tests {
         let r = repr_value(&Value::Angle(Angle::deg(90.0)));
         assert!(r.contains("90") || r.contains("Angle"), "Angle repr: {r}");
         let r = repr_value(&Value::Color(Color::rgb(255, 0, 0)));
-        assert!(r.contains("Srgb") || r.contains("1.0"), "Color repr: {r}");
+        assert!(r.contains("Srgb") || r.contains("rgb"), "Color repr: {r}");
         assert_eq!(repr_value(&Value::Fraction(0.5)), "0.5");
-        assert_eq!(repr_value(&Value::Location(Location::from_raw(42))), "location");
-        let r = repr_value(&Value::Gradient(Gradient::Linear(std::sync::Arc::new(
+        assert_eq!(
+            repr_value(&Value::Location(Location::from_raw(42))),
+            "location(...)"
+        );
+        assert_eq!(repr_value(&Value::Gradient(Gradient::Linear(std::sync::Arc::new(
             crate::entities::gradient::Linear {
                 angle: Angle::deg(0.0),
                 stops: std::sync::Arc::from([]),
                 space: crate::entities::layout_types::ColorSpace::Oklab,
                 relative: None,
             }
-        ))));
-        assert!(
-            r.starts_with("Linear") || r.contains("gradient"),
-            "Gradient repr: {r}"
+        )))), "gradient(...)");
+        assert_eq!(
+            repr_value(&Value::Regex(Regex::new("\\d+").unwrap())),
+            "regex(\"\\d+\")"
         );
-        let r = repr_value(&Value::Regex(Regex::new("\\d+").unwrap()));
-        assert!(r.contains("regex"), "Regex repr: {r}");
         assert_eq!(repr_value(&Value::Tiling(std::sync::Arc::new(
             crate::entities::tiling::Tiling::new(
                 crate::entities::tiling::TilingBody::Color(Color::rgb(0, 0, 0))
             )
-        ))), "tiling");
+        ))), "tiling(...)");
         assert_eq!(
             repr_value(&Value::Bytes(Bytes::from(vec![0u8, 1, 2]))),
-            "bytes"
+            "bytes(3)"
         );
         assert_eq!(repr_value(&Value::Decimal(Decimal::from_i64(123))), "123");
         assert_eq!(
             repr_value(&Value::Duration(Duration::from_nanos(1_000_000_000))),
-            "1s"
+            "duration(1s)"
         );
         assert_eq!(
             repr_value(&Value::Version(std::sync::Arc::new(Version::new(1, 2, 3)))),
-            "1.2.3"
+            "version(1, 2, 3)"
         );
+    }
+
+    #[test]
+    fn repr_value_float_with_decimal() {
+        assert_eq!(repr_value(&Value::Float(1.5)), "1.5");
+    }
+
+    #[test]
+    fn repr_value_module() {
+        use crate::entities::{module::Module, scope::Scope};
+        let m = Module::new("mylib", Scope::new());
+        assert_eq!(repr_value(&Value::Module(m)), "module(mylib)");
+    }
+
+    #[test]
+    fn repr_value_func_named() {
+        let f = crate::entities::func::Func::native("repr", |_ctx, _args, _world, _cf| {
+            Ok(Value::None)
+        });
+        assert_eq!(repr_value(&Value::Func(f)), "#repr");
+    }
+
+    #[test]
+    fn repr_value_func_unnamed() {
+        let f = crate::entities::func::Func::native("", |_ctx, _args, _world, _cf| {
+            Ok(Value::None)
+        });
+        assert_eq!(repr_value(&Value::Func(f)), "#function(...)");
+    }
+
+    #[test]
+    fn repr_value_version() {
+        use crate::entities::version::Version;
+        let v = Value::Version(std::sync::Arc::new(Version::new(0, 11, 0)));
+        assert_eq!(repr_value(&v), "version(0, 11, 0)");
+    }
+
+    #[test]
+    fn repr_value_bytes() {
+        use crate::entities::bytes::Bytes;
+        let b = Value::Bytes(Bytes::from(vec![0u8; 10]));
+        assert_eq!(repr_value(&b), "bytes(10)");
+    }
+
+    #[test]
+    fn repr_value_datetime_date_only() {
+        use crate::entities::world_types::Datetime;
+        let dt = Value::Datetime(Datetime::new_date(2026, 6, 25).unwrap());
+        assert_eq!(repr_value(&dt), "datetime(2026-06-25)");
+    }
+
+    #[test]
+    fn repr_value_datetime_with_time() {
+        use crate::entities::world_types::Datetime;
+        let dt =
+            Value::Datetime(Datetime::new_datetime(2026, 6, 25, 14, 30, 0).unwrap());
+        assert_eq!(repr_value(&dt), "datetime(2026-06-25T14:30:00)");
+    }
+
+    #[test]
+    fn repr_value_duration() {
+        use crate::entities::duration::Duration;
+        let d = Value::Duration(Duration::from_seconds(3661));
+        assert_eq!(repr_value(&d), "duration(1h1m1s)");
+    }
+
+    #[test]
+    fn repr_value_regex() {
+        use crate::entities::regex::Regex;
+        let r = Value::Regex(Regex::new("a+").unwrap());
+        assert_eq!(repr_value(&r), "regex(\"a+\")");
+    }
+
+    #[test]
+    fn repr_value_content_heading() {
+        let h = Content::Heading(Arc::new(HeadingElem::new(1, Content::text("Title"))));
+        assert_eq!(
+            repr_value(&Value::Content(h)),
+            "heading(level: 1)[\"Title\"]"
+        );
+    }
+
+    #[test]
+    fn repr_value_content_label() {
+        use crate::entities::elements::label::LabelElem;
+        let l = Content::Label(Arc::new(LabelElem {
+            name: "sec1".into(),
+            body: Content::text("Section"),
+            auto: false,
+        }));
+        assert_eq!(
+            repr_content(&l),
+            "label(\"sec1\", \"Section\")"
+        );
+    }
+
+    #[test]
+    fn repr_value_mixed_array() {
+        let arr = Value::Array(vec![
+            Value::Int(1),
+            Value::Str("a".into()),
+            Value::None,
+        ]);
+        assert_eq!(repr_value(&arr), "(1, \"a\", none)");
     }
 
     #[test]

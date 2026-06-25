@@ -96,8 +96,8 @@ pub mod grid;
 // Lote 13 P328 — o último element-shaped.
 pub mod figure;
 // Lote 14 P329 — reclassificados da triagem DEBT-58 (wrappers densos).
+// P464: `labelled` consolidado em `label` (campo `auto`).
 pub mod label;
-pub mod labelled;
 pub mod boxed;
 // Lote 15 P330 — o último lote.
 pub mod block;

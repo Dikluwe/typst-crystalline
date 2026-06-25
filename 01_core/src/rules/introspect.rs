@@ -186,10 +186,15 @@ fn materialize_time(content: &Content, intr: &TagIntrospector, location: Locatio
         Content::ListItem(e) => Content::list_item(materialize_time(&e.body, intr, location)),
         Content::EnumItem(e) => Content::enum_item(e.number, materialize_time(&e.body, intr, location)),
         Content::Link(e) => Content::link(e.url.clone(), materialize_time(&e.body, intr, location)),
-        // Modelo D (Lote 14 P329): Labelled — recurse no target via construtor.
-        Content::Labelled(e) => Content::labelled(materialize_time(&e.target, intr, location), e.label.clone()),
-        // P460: Label — recurse no body via construtor.
-        Content::Label(e) => Content::label(e.name.clone(), materialize_time(&e.body, intr, location)),
+        // P464: Label — recurse no body via construtor, preservando origem.
+        Content::Label(e) => {
+            let body = materialize_time(&e.body, intr, location);
+            if e.auto {
+                Content::label_auto(e.name.clone(), body)
+            } else {
+                Content::label(e.name.clone(), body)
+            }
+        }
         // Modelo D (Lote 13 P328): Figure — recurse body+caption via construtor.
         // F-5a de-bake (P365): a figura não tem mais campo `numbering` — o gate
         // vive na chain (no `Content::Styled` que envolve a figura, preservado pelo
@@ -921,92 +926,48 @@ pub(crate) fn walk(
         }
 
         Content::Label(e) => {
-            // P460: Label é wrapper transparente no walk. Propaga a label
-            // para o body (análogo a Labelled), permitindo que Ref resolva
-            // labels em headings/figures/equations. Não emite Tag próprio
-            // quando o body não é locatable — o destino PDF ainda é gerado
-            // pelo layout independentemente.
-            walk(&e.body, locator, tags, intr, auto_label_counter, lang, chain, Some(&Label(e.name.to_string())));
-        }
+            let label = Label(e.name.to_string());
+            if e.auto {
+                // P464: Label auto-gerado (ex-sintaxe `<label>`). Mantém
+                // comportamento legado de `Content::Labelled`: emite Tag
+                // pós-recursão com texto resolvido / número de figura.
+                let target = &e.body;
+                let tags_len_before = tags.len();
+                walk(target, locator, tags, intr, auto_label_counter, lang, chain, Some(&label));
+                // Label auto-gerado usa caminho legacy; elimina qualquer
+                // mapeamento numérico eventualmente criado pelo walk recursivo.
+                intr.label_to_counter_key.remove(&label);
 
-        Content::Labelled(e) => {
-            let (target, label) = (&e.target, &e.label);
-            // P195D — Walk arm Labelled emite Tag pós-recursão
-            // (pattern ADR-0069 post-recursion-tag-emission).
-            // Lógica legacy (E2/E3 P189B excepção) **preservada**
-            // como write paralelo durante janela compat M5;
-            // funcionalmente fecha em M6 quando legacy for removido.
-            //
-            // Walk no target primeiro — garante que o contador já avançou.
-            // P162 .E: passa `Some(label)` para que o tag emitido pelo
-            // walk recursivo (ex. Heading) inclua a label do wrapper.
-            let tags_len_before = tags.len();
-            walk(target, locator, tags, intr, auto_label_counter, lang, chain, Some(label));
-            // P462: Labelled usa caminho legacy; elimina qualquer mapeamento
-            // numérico eventualmente criado pelo walk recursivo.
-            intr.label_to_counter_key.remove(label);
+                let target_loc = tags[tags_len_before..]
+                    .iter()
+                    .find_map(|t| if let Tag::Start(l, _) = t { Some(*l) } else { None });
 
-            // P191C (ADR-0071 ACEITE): Location do target obtida via
-            // snapshot+find_map (pattern P195D variante não-locatable).
-            // Necessária ANTES de chamar compute_labelled — helper
-            // agora recebe `intr + location + target + lang`.
-            let target_loc = tags[tags_len_before..]
-                .iter()
-                .find_map(|t| if let Tag::Start(l, _) = t { Some(*l) } else { None });
+                let (resolved_text, figure_number) = match target_loc {
+                    Some(loc) => labelled::compute_labelled(&*intr, loc, target, lang),
+                    None => (None, None),
+                };
 
-            // Computar resolved_text + figure_number via helper
-            // privado (per P195A §11.6; ADR-0069). Sem mutação aqui.
-            // P191C: helper migrado para Introspector path
-            // location-aware. Caso target não-locatable
-            // (target_loc=None): retorna (None, None) coerente com
-            // legacy "label sem target locatable não resolve".
-            let (resolved_text, figure_number) = match target_loc {
-                Some(loc) => labelled::compute_labelled(
-                    &*intr,
-                    loc,
-                    target,
-                    lang,
-                ),
-                None => (None, None),
-            };
+                let _ = figure_number;
 
-            // P190H (M6 categoria Figures eliminada): mutação
-            // `state.figure_label_numbers.insert` ELIMINADA — caminho
-            // Introspector activo via Tag::Labelled pós-recursão
-            // (populate_intr_from_tag_start arm Labelled popula
-            // `intr.figure_label_numbers` quando figure_number é
-            // Some). Consumer C2 (Layouter Ref-arm references.rs:51)
-            // migrado para Introspector path puro.
-            //
-            // P190G: mutação `state.resolved_labels.insert` ELIMINADA
-            // — caminho Introspector activo via Tag::Labelled
-            // pós-recursão (intr.resolved_labels). Layouter consumer
-            // `references.rs:64` migrado para Introspector path puro.
-            let _ = figure_number;
-
-            // P195D: emit Tag pós-recursão (ADR-0069). Reusa Location
-            // do target — preserva sincronização-por-construção
-            // ADR-0068 (walk Locator e Layouter Locator não avançam
-            // para Labelled em nenhum dos lados).
-            //
-            // P191B (ADR-0071): popula intr directamente via
-            // populate_intr_from_tag_start no momento da emissão.
-            if resolved_text.is_some() || figure_number.is_some() {
-                if let Some(loc) = target_loc {
-                    let info = ElementInfo::new(ElementPayload::Labelled {
-                        label: label.clone(),
-                        resolved_text,
-                        figure_number,
-                    });
-                    populate_intr_from_tag_start(intr, &info, loc);
-                    tags.push(Tag::Start(loc, info));
-                    tags.push(Tag::End(loc, 0));
+                if resolved_text.is_some() || figure_number.is_some() {
+                    if let Some(loc) = target_loc {
+                        let info = ElementInfo::new(ElementPayload::Labelled {
+                            label,
+                            resolved_text,
+                            figure_number,
+                        });
+                        populate_intr_from_tag_start(intr, &info, loc);
+                        tags.push(Tag::Start(loc, info));
+                        tags.push(Tag::End(loc, 0));
+                    }
                 }
-                // else: target não-locatable → no Tag::Start em tags;
-                // sem Location para reuso. Sub-store via Tag não é
-                // populated (mas mutação legacy acima preservou
-                // resolved_labels). Caso edge raro — labels
-                // tipicamente envolvem locatables.
+            } else {
+                // P460/P464: Label criado pelo utilizador. Propaga a label
+                // para o body, permitindo que Ref resolva labels em
+                // headings/figures/equations. Não emite Tag próprio quando
+                // o body não é locatable — o destino PDF ainda é gerado pelo
+                // layout independentemente.
+                walk(&e.body, locator, tags, intr, auto_label_counter, lang, chain, Some(&label));
             }
         }
 
@@ -1271,10 +1232,11 @@ mod tests {
     /// dispara. Levanta o transporte transparente para fora; alvo simples passa
     /// direto.
     fn labelled_prod(target: Content, label: Label) -> Content {
+        let name = label.0;
         match target {
             Content::Styled(inner, styles) =>
-                Content::Styled(Box::new(Content::labelled(*inner, label)), styles),
-            other => Content::labelled(other, label),
+                Content::Styled(Box::new(Content::label_auto(name, *inner)), styles),
+            other => Content::label_auto(name, other),
         }
     }
 
@@ -1284,7 +1246,7 @@ mod tests {
         let content = Content::Sequence(
             vec![
                 Content::reference("conclusao"),
-                Content::labelled(Content::heading(1, Content::text("Conclusão")), Label("conclusao".to_string())),
+                Content::label_auto("conclusao".to_string(), Content::heading(1, Content::text("Conclusão"))),
             ]
             .into(),
         );
@@ -1313,7 +1275,7 @@ mod tests {
 
     #[test]
     fn introspect_dois_conteudos_independentes() {
-        let content_a = Content::labelled(Content::heading(1, Content::text("A")), Label("a".to_string()));
+        let content_a = Content::label_auto("a".to_string(), Content::heading(1, Content::text("A")));
         let content_b = Content::reference("a");
 
         let intr_a = introspect_with_introspector(&content_a);
@@ -1441,7 +1403,7 @@ mod tests {
         // Labelled antes de Ref — deve também popular o mapa
         let content = Content::Sequence(
             vec![
-                Content::labelled(Content::heading(1, Content::text("Secção")), Label("sec".to_string())),
+                Content::label_auto("sec".to_string(), Content::heading(1, Content::text("Secção"))),
                 Content::reference("sec"),
             ]
             .into(),
@@ -1831,7 +1793,7 @@ mod tests {
     #[test]
     fn walk_label_de_wrapper_chega_ao_payload() {
         // Content::Labelled { target: Heading } → tag Heading recebe Some(label).
-        let content = Content::labelled(Content::heading(1, Content::text("Introdução")), Label("intro".to_string()));
+        let content = Content::label_auto("intro".to_string(), Content::heading(1, Content::text("Introdução")));
         let tags = introspect_with_tags(&content);
         // Esperado: Start(Heading) com label="intro", End(Heading).
         match &tags[0] {
@@ -2182,7 +2144,7 @@ mod tests {
     fn introspector_query_by_label() {
         // P165 .G.4: walk com Heading labelled → query_by_label retorna location;
         // mesma location aparece em query_by_kind(Heading).
-        let content = Content::labelled(Content::heading(1, Content::text("Introdução")), Label("intro".to_string()));
+        let content = Content::label_auto("intro".to_string(), Content::heading(1, Content::text("Introdução")));
         let intr = introspect_with_introspector(&content);
 
         let by_label = intr.query_by_label(&Label("intro".to_string()));
@@ -2537,7 +2499,7 @@ mod tests {
         use crate::entities::content::Content;
         use crate::entities::label::Label;
 
-        let titulo = Content::labelled(Content::heading(1, Content::Empty), Label("bib-title".to_string()));
+        let titulo = Content::label_auto("bib-title".to_string(), Content::heading(1, Content::Empty));
 
         let content = Content::bibliography(vec![BibEntry::new("a", "A", "T", 2024)], Some(titulo));
         let mut locator = Locator::new();
@@ -3106,7 +3068,7 @@ mod tests {
                 // walk arm Equation não avança counter. Test usa
                 // CounterUpdate directo para bypass.
                 Content::counter_update("equation".to_string(), CounterAction::Step),
-                Content::labelled(Content::equation(Content::Empty, true), Label("eq1".to_string())),
+                Content::label_auto("eq1".to_string(), Content::equation(Content::Empty, true)),
             ]
             .into(),
         );
@@ -3156,9 +3118,9 @@ mod tests {
         let content = Content::Sequence(
             vec![
                 Content::Styled(
-                    Box::new(Content::labelled(
+                    Box::new(Content::label_auto(
+                        "eq1".to_string(),
                         Content::equation(Content::Empty, true),
-                        Label("eq1".to_string()),
                     )),
                     crate::entities::style::Styles::new()
                         .push_custom("equation.numbering", Value::Str("(1)".into())),
@@ -3384,7 +3346,7 @@ mod tests {
         let content = Content::Sequence(
             vec![
                 Content::heading(1, Content::text("intro")),
-                Content::labelled(Content::heading(1, Content::text("body")), Label("sec".to_string())),
+                Content::label_auto("sec".to_string(), Content::heading(1, Content::text("body"))),
             ]
             .into(),
         );
@@ -3430,6 +3392,38 @@ mod tests {
             intr.resolved_labels.get(&Label("auto-toc-2".to_string())),
             Some("2."),
             "compute_heading_auto_toc via Introspector path: 2ª heading → '2.'",
+        );
+    }
+
+    #[test]
+    fn p464_label_auto_e_user_partilham_resolucao() {
+        // P464: `Content::Label` único cobre ambas as origens. Label
+        // user-created popula `label_to_counter_key`; label auto-gerado
+        // popula `resolved_labels` (caminho legacy ex-Labelled).
+        //
+        // `labelled_prod` levanta o `Styled` do numbering para fora,
+        // garantindo que o alvo do label auto é o Heading puro
+        // (requerido por `compute_labelled`).
+        let user_label = Content::label(
+            "user-sec".to_string(),
+            Content::heading_numbered(1, Content::text("User")),
+        );
+        let auto_label = labelled_prod(
+            Content::heading_numbered(1, Content::text("Auto")),
+            Label("auto-sec".to_string()),
+        );
+        let content = Content::Sequence(vec![user_label, auto_label].into());
+        let intr = introspect_with_introspector(&content);
+
+        assert_eq!(
+            intr.counter_key_for_label(&Label("user-sec".to_string())),
+            Some("heading"),
+            "user label deve ter counter_key 'heading'",
+        );
+        assert_eq!(
+            intr.resolved_labels.get(&Label("auto-sec".to_string())),
+            Some("Secção 2"),
+            "auto label deve ter texto resolvido via caminho legacy",
         );
     }
 }

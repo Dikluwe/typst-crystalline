@@ -462,7 +462,7 @@ mod tests {
                     };
                     go(b, a, out)
                 }
-                Content::Labelled(e) => go(&e.target, active, out),
+                Content::Label(e) => go(&e.body, active, out),
                 _ => {}
             }
         }
@@ -527,7 +527,7 @@ mod tests {
                     };
                     go(b, a, out)
                 }
-                Content::Labelled(e) => go(&e.target, active, out),
+                Content::Label(e) => go(&e.body, active, out),
                 _ => {}
             }
         }
@@ -3903,20 +3903,20 @@ mod tests {
         let src = World::source(&world, World::main(&world)).unwrap();
         let module = eval_for_test(&world, &src).unwrap();
         let content = module.content().expect("deve ter content");
-        // O markup pode envolver o Labelled numa Sequence com espaços residuais.
-        // Procurar o nó Labelled directamente ou dentro da Sequence.
+        // O markup pode envolver o Label numa Sequence com espaços residuais.
+        // Procurar o nó Label directamente ou dentro da Sequence.
         let labelled = match &content {
-            Content::Labelled { .. } => &content,
+            Content::Label { .. } => &content,
             Content::Sequence(items) => items
                 .iter()
-                .find(|c| matches!(c, Content::Labelled { .. }))
-                .expect("nenhum Labelled encontrado na Sequence"),
-            _ => panic!("esperado Labelled ou Sequence, obtido: {:?}", content),
+                .find(|c| matches!(c, Content::Label { .. }))
+                .expect("nenhum Label encontrado na Sequence"),
+            _ => panic!("esperado Label ou Sequence, obtido: {:?}", content),
         };
         assert!(
-            matches!(labelled, Content::Labelled(e)
-                if matches!(&e.target, Content::Heading(_)) && e.label.0 == "meu_label"),
-            "esperado Labelled(Heading), obtido: {:?}",
+            matches!(labelled, Content::Label(e)
+                if e.auto && matches!(&e.body, Content::Heading(_)) && e.name.as_str() == "meu_label"),
+            "esperado Label(Heading) auto, obtido: {:?}",
             labelled
         );
     }
