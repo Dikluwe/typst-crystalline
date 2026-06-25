@@ -63,9 +63,13 @@ Canvas de uma página. `plain_text()` para verificação em testes.
 
 ### `PagedDocument`
 Resultado de `layout()`. `plain_text()` concatena páginas com `"\n"`.
-Campo `extracted_label_pages: HashMap<Label, usize>` expõe o mapa de páginas
-gerado por `layout_labelled` durante a passagem. Inicializado vazio em `new()`.
-Populado por `Layouter::finish()` — sem alterar a assinatura de `layout()`.
+Campos de labels (P460):
+- `extracted_label_pages: HashMap<Label, usize>` — mapa label → página (1-based),
+  gerado por `layout_labelled` durante a passagem.
+- `extracted_label_positions: HashMap<Label, Point>` — mapa label → posição (x, y)
+  no momento da inserção, usado pelo exportador PDF para `/Dests`.
+Ambos inicializados vazios em `new()` e populados por `Layouter::finish()` — sem
+alterar a assinatura de `layout()`.
 
 ## Critérios de verificação
 - `Pt(10.0) + Pt(5.0) == Pt(15.0)`

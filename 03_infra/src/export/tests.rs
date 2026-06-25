@@ -7186,3 +7186,37 @@ use typst_core::rules::layout::layout;
         assert!(s.contains("h\n") || s.contains("h "), "closePath presente");
         assert!(s.contains("B\n") || s.contains("B "), "operador B (fill+stroke) presente");
     }
+// ── P460 — /Dests no PDF ───────────────────────────────────────────────
+    #[test]
+    fn pdf_label_emite_named_dests() {
+        let doc = layout(&Content::label("sec1", Content::text("Introdução")));
+        let pdf = export_pdf(&doc);
+        let s = String::from_utf8_lossy(&pdf);
+        assert!(s.contains("/Names"), "catalog deve ter /Names");
+        assert!(s.contains("/Dests"), "deve haver dicionário /Dests");
+        assert!(s.contains("/sec1"), "deve haver destino /sec1");
+        assert!(s.contains("/XYZ"), "destino deve usar /XYZ");
+    }
+
+    #[test]
+    fn pdf_label_posicao_y_up_no_dests() {
+        use typst_core::entities::label::Label;
+        let body = Content::text("X");
+        let doc = layout(&Content::label("fig1", body));
+        let pos = doc.extracted_label_positions.get(&Label("fig1".to_string())).copied()
+            .expect("layout deve registar posição");
+        let pdf = export_pdf(&doc);
+        let s = String::from_utf8_lossy(&pdf);
+        // Procurar array /XYZ no destino /fig1: [page_ref /XYZ x y null]
+        let expected_y = doc.pages[0].height - pos.y.val();
+        let needle = format!("/fig1 [3 0 R /XYZ");
+        let idx = s.find(&needle).expect("deve encontrar destino /fig1");
+        let rest = &s[idx..];
+        let close = rest.find(']').expect("array deve fechar");
+        let array = &rest[..close + 1];
+        assert!(
+            array.contains(&format!("{:.2}", expected_y)),
+            "coordenada Y do /Dests deve estar em y-up (PDF): {} em {}",
+            expected_y, array
+        );
+    }

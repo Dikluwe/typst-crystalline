@@ -54,7 +54,7 @@ Ordem canónica para todos os caminhos:
    após todos os recursos, referenciados pelo `/Annots` de cada página.
 
 Alocação dependente: gradients vêm após imagens; sub-Functions vêm após gradients;
-annotations vêm após gradients.
+annotations vêm após gradients; named destinations vêm após annotations.
 
 ## Critérios de verificação
 
@@ -80,6 +80,19 @@ Para cada `FrameItem::Link` encontrado nas páginas do documento:
 
 Escopo: apenas URI externo; links internos (`#link("<label>")`) e
 `QuadPoints` multi-linha são scope-out.
+
+## Named destinations (P460)
+
+Para cada label registado em `PagedDocument.extracted_label_pages` e
+`extracted_label_positions`:
+1. Alocar IDs para `/Names` e `/Dests` após annotations.
+2. Construir dicionário `/Dests` com entradas `/name [page_ref /XYZ x y null]`.
+3. Coordenadas Y convertidas de Y-down (layout) para Y-up (PDF):
+   `pdf_y = page_height - pos.y`.
+4. Editar o `/Catalog` (objeto 1) para incluir `/Names {names_id} 0 R`.
+
+Nomes vazios ou com caracteres fora do conjunto de nomes PDF são escapados
+para notação hexadecimal `<hex>`.
 
 ## Determinismo
 

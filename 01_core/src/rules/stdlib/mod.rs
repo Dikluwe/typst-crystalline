@@ -25,6 +25,7 @@ mod assert;
 mod calc;
 mod figure_image;
 mod foundations;
+mod label;
 mod layout;
 mod panic;
 mod shapes;
@@ -58,11 +59,12 @@ pub use crate::rules::stdlib::foundations::{
     native_state, native_state_at, native_state_display, native_state_final,
     native_state_update, native_state_update_with, native_str, native_type,
 };
+pub use crate::rules::stdlib::label::native_label;
 pub use crate::rules::stdlib::panic::native_panic;
 pub use crate::rules::stdlib::structural::{
     make_math_module, native_accent, native_asset, native_bibliography, native_cancel,
     native_cite, native_divider, native_document, native_emph, native_footnote,
-    native_grid_cell, native_grid_footer, native_grid_header, native_heading, native_label,
+    native_grid_cell, native_grid_footer, native_grid_header, native_heading,
     native_link, native_op, native_outline, native_quote, native_raw, native_strong,
     native_table, native_table_cell, native_table_footer, native_table_header, native_terms,
     native_underover,

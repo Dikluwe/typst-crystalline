@@ -1474,54 +1474,6 @@ pub fn native_link(
     Ok(Value::Content(Content::link(url, body)))
 }
 
-/// `label(name, body)` — P460. Emite `Content::Label { name, body }`.
-///
-/// - 1º arg posicional: nome do destino (`Str`).
-/// - 2º arg posicional: body (`Content`). Se omitido, body é `Content::Empty`.
-/// - Named args não suportados.
-pub fn native_label(
-    _ctx: &mut EvalContext,
-    args: &Args,
-    _world: &dyn crate::contracts::world::World,
-    _current_file: FileId,
-) -> SourceResult<Value> {
-    super::expect_no_named(&args.named)?;
-    let name = match args.items.first() {
-        Some(Value::Str(s)) if !s.is_empty() => s.clone(),
-        Some(Value::Str(_)) => {
-            return Err(vec![SourceDiagnostic::error(
-                Span::detached(),
-                "label() nome não pode ser vazio".to_string(),
-            )])
-        }
-        Some(other) => {
-            return Err(vec![SourceDiagnostic::error(
-                Span::detached(),
-                format!("label() espera nome como string, recebeu {}", other.type_name()),
-            )])
-        }
-        None => {
-            return Err(vec![SourceDiagnostic::error(
-                Span::detached(),
-                "label() exige nome como argumento posicional".to_string(),
-            )])
-        }
-    };
-
-    let body = match args.items.get(1) {
-        Some(Value::Content(c)) => c.clone(),
-        Some(other) => {
-            return Err(vec![SourceDiagnostic::error(
-                Span::detached(),
-                format!("label() espera body como content, recebeu {}", other.type_name()),
-            )])
-        }
-        None => Content::Empty,
-    };
-
-    Ok(Value::Content(Content::label(name, body)))
-}
-
 /// Helper privado P159C — parsing `Value::Str` para
 /// `Option<CitationForm>`. Strict matching (case-sensitive);
 /// `auto`/`none`/ausente → None (resolvido a Normal default em
@@ -2314,40 +2266,5 @@ mod tests {
     fn native_heading_rejeita_body_invalido() {
         let args = Args::positional(vec![Value::Int(1), Value::Int(42)]);
         assert!(call_heading(args).is_err());
-    }
-
-    fn call_label(args: Args) -> SourceResult<Value> {
-        native_label(
-            &mut EvalContext::new(),
-            &args,
-            &NullWorld::default(),
-            test_file_id(),
-        )
-    }
-
-    // ── P460 — `label(name, body)` ─────────────────────────────────────────
-    #[test]
-    fn native_label_emite_content_label() {
-        let args = Args::positional(vec![
-            Value::Str("sec1".into()),
-            Value::Content(Content::text("Corpo")),
-        ]);
-        let v = call_label(args).unwrap();
-        let Value::Content(Content::Label(e)) = v else {
-            panic!("esperado Content::Label, recebeu {:?}", v);
-        };
-        assert_eq!(e.name.as_str(), "sec1");
-        assert_eq!(e.body.plain_text(), "Corpo");
-    }
-
-    #[test]
-    fn native_label_body_vazio_e_valido() {
-        let args = Args::positional(vec![Value::Str("empty".into())]);
-        let v = call_label(args).unwrap();
-        let Value::Content(Content::Label(e)) = v else {
-            panic!("esperado Content::Label, recebeu {:?}", v);
-        };
-        assert_eq!(e.name.as_str(), "empty");
-        assert!(e.body.is_empty());
     }
 }
