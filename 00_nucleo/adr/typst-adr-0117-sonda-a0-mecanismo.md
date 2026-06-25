@@ -1,7 +1,7 @@
 # ADR-0117 — Sonda A.0: mecanismo operacional de verificação antes da spec
 
-**Estado:** `EM VIGOR` (Passo 453 — mecanismo proposto e adoptado como extensão operacional da ADR-0114).  
-**Decisão do dono (registada):** toda spec de materialização deve ser precedida de uma sonda A.0 que produza evidência empírica; a sonda pode ser um script, uma varredura mecânica ou um conjunto de greps, desde que produza output imutável com file:line e decisão derivada.  
+**Estado:** `EM VIGOR` (Passo 453 — mecanismo proposto e adoptado como extensão operacional da ADR-0114; **Cláusula 4 adicionada no Passo 455**).  
+**Decisão do dono (registada):** toda spec de materialização deve ser precedida de uma sonda A.0 que produza evidência empírica; a sonda pode ser um script, uma varredura mecânica ou um conjunto de greps, desde que produza output imutável com file:line e decisão derivada. A sonda deve cobrir quatro dimensões (cláusulas 1–4).  
 **ADRs relacionadas:** ADR-0114 (sonda antes da spec), ADR-0065 (inventariar antes de decidir), ADR-0084 (Fase A antes de decisão), ADR-0085 (diagnósticos imutáveis).
 
 ---
@@ -64,3 +64,46 @@ Esta ADR foi motivada pela auditoria pós-P450–P452, que revelou:
 - P450: Parser BibTeX em L1 em vez de L3 — reconciliação de camada documentada.
 
 Ambos os casos seriam detectáveis por uma sonda A.0 com grep mecânico antes da redação da spec.
+
+## Cláusula 4 — Verificação de decisões de fronteira e ADR vigentes
+
+> **Antes de propor estrutura, campos ou parâmetros para um elemento existente,
+> verificar as ADRs e fronteiras que decidiram a forma actual desse elemento.**
+
+### Procedimento
+
+1. Identificar o elemento em questão (ex: `FigureElem`, `HeadingElem`, `native_figure`).
+2. Procurar no `00_nucleo/adr/` e `00_nucleo/fronteiras/` por ADRs/fronteiras que mencionem esse elemento.
+3. Verificar se a forma proposta na spec contradiz alguma decisão registada.
+4. Se contradiz, a spec deve ser adaptada ou deve declarar explicitamente a intenção de **reverter** a decisão anterior, com justificativa.
+5. Se não contradiz, anexar referência à ADR/fronteira que valida a forma proposta.
+
+### Evidência anexada (exemplo P454)
+
+| Elemento | Decisão vigente | Fonte | Spec P454 propunha | Divergência |
+|----------|-----------------|-------|-------------------|-------------|
+| `FigureElem.numbering` | Padrão na chain (`custom("figure.numbering")`) | P365 §3a.9 | Campo `numbering` em `FigureElem` | ✅ Contradição |
+| `HeadingElem.numbering` | Padrão na chain (`heading.numbering.pattern`) | P451 relatório | "HeadingElem tem `numbering` como campo" | ❌ Afirmação falsa |
+| `native_figure` | Sem parâmetro `numbering`; padrão vem de `#set` | P365 | Adicionar parâmetro `numbering` | ✅ Contradição |
+
+### Mecanismo de verificação sugerido
+
+Adicionar ao script de sonda (cláusula 1):
+
+```bash
+# Verificar fronteiras que mencionam o elemento
+grep -r "FigureElem|HeadingElem|native_figure" 00_nucleo/fronteiras/ 00_nucleo/adr/
+
+# Verificar se a spec propõe campo/parâmetro que a fronteira proíbe
+grep -r "FigureElem.*numbering|native_figure.*numbering" 00_nucleo/fronteiras/
+```
+
+Se output não-vazio, a spec deve justificar porque a decisão vigente está a ser
+revertida ou ignorada.
+
+### Impacto
+
+Esta cláusula fecha a lacuna que permitiu ao P454 propor reverter o P365 sem
+verificação. É complementar às cláusulas 1–3 (verificação de ficheiros/infra
+existente) e à cláusula proposta no gate do linter (verificação de ficheiros
+novos vs existentes).
