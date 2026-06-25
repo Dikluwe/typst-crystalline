@@ -272,16 +272,26 @@ pub enum FrameItem {
         inner_height: f64,
         items:        Vec<FrameItem>,
     },
-    /// **P422** — Hiperligação. O body é renderizado normalmente; o URL é
+    /// **P422** — Hiperligação. O body é renderizado normalmente; o destino é
     /// preservado como metadado para o consumer downstream (exportador PDF).
     /// **P424** — adicionados `pos` e `size` para permitir annotation URI no PDF.
-    /// Cor/sublinhado são scope-out (aguardam `FrameItem::Decoration`).
+    /// **P463** — `url` generalizado para `LinkTarget` (URL externo ou destino
+    /// interno `/GoTo`). Cor/sublinhado continuam scope-out.
     Link {
-        url:   EcoString,
-        items: Vec<FrameItem>,
-        pos:   Point,
-        size:  Size,
+        target: LinkTarget,
+        items:  Vec<FrameItem>,
+        pos:    Point,
+        size:   Size,
     },
+}
+
+/// **P463** — Destino de um `FrameItem::Link`.
+#[derive(Debug, Clone, PartialEq)]
+pub enum LinkTarget {
+    /// Hiperligação externa — emite `/A << /S /URI /URI (...) >>`.
+    Url(EcoString),
+    /// Destino interno nomeado — emite `/A << /S /GoTo /D /name >>`.
+    Destination(Label),
 }
 
 // ── Alinhamento (Passo 82) ─────────────────────────────────────────────────

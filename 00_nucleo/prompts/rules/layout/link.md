@@ -12,7 +12,8 @@ Hash do Código: fd6e07c2
 - `rules/layout/link.rs` — free function `layout_link(layouter, &LinkElem)` que
   renderiza o body, calcula a bounding-box acumulada e envolve os itens
   resultantes em `FrameItem::Link`.
-- `entities/layout_types.rs` — `FrameItem::Link { url, items, pos, size }`.
+- `entities/layout_types.rs` — `FrameItem::Link { target, items, pos, size }`
+  com `LinkTarget::Url(EcoString) | LinkTarget::Destination(Label)`.
 
 ## Algoritmo
 
@@ -27,10 +28,10 @@ Hash do Código: fd6e07c2
    - `Line`: bounding box entre `start` e `end`.
    - `Group`: aproximar por `pos` + `inner_width`/`inner_height`.
    - `Link` aninhado: reutilizar `pos`/`size` já calculados.
-4. Emitir um único `FrameItem::Link { url, items, pos, size }` no frame atual.
+4. Emitir um único `FrameItem::Link { target, items, pos, size }` no frame atual.
+   Para `Content::Link`, `target = LinkTarget::Url(url)`.
 
 ## Scope-out
 
 - Cor azul / sublinhado — aguarda `FrameItem::Decoration`.
-- Links internos (`<label>`) e inter-página.
 - `QuadPoints` para áreas clicáveis multi-linha.

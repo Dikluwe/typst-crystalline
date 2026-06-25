@@ -109,8 +109,8 @@ pub(super) fn rebase_item_y(item: FrameItem, delta: f64) -> FrameItem {
                 pos: Point { x: pos.x, y: Pt(pos.y.0 + delta) },
                 matrix, clip_mask, inner_width, inner_height, items,
             },
-        FrameItem::Link { url, items, pos, size } => FrameItem::Link {
-            url,
+        FrameItem::Link { target, items, pos, size } => FrameItem::Link {
+            target,
             items: items.into_iter().map(|child| rebase_item_y(child, delta)).collect(),
             pos: Point { x: pos.x, y: Pt(pos.y.0 + delta) },
             size,

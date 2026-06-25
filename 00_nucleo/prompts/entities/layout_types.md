@@ -32,7 +32,8 @@ Variantes:
 - `Image { pos, data, width, height, intrinsic_width, intrinsic_height }`
 - `Shape { pos, kind, width, height, fill, stroke, parent_bbox_at_emit }` (Passo 76)
 - `Group { pos, matrix, clip_mask, inner_width, inner_height, items }` (Passo 78)
-- `Link { url, items, pos, size }` (P422/P424)
+- `Link { target, items, pos, size }` (P422/P424/P463)
+- `LinkTarget::Url(EcoString) | LinkTarget::Destination(Label)` (P463)
 
 **`Line.color: Option<Color>`** (Passo 285) — `Some(c)` emite `r g b RG`
 antes do stroke (`S`) no PDF; `None` preserva default preto bit-exact
@@ -49,9 +50,12 @@ explícito > herança do texto corrente > default preto).
 - `intrinsic_width`, `intrinsic_height`: dimensões reais em píxeis — obrigatórias
   para o dicionário XObject PDF (/Width, /Height intrínsecos ≠ tamanho de layout).
 
-`Link` (P422/P424): hiperligação. O `body` é renderizado normalmente e os
-itens resultantes ficam em `items`. O URL é preservado como metadado para
-o exportador PDF, que emite uma annotation `/Subtype /Link` com `/A /URI`.
+`Link` (P422/P424/P463): hiperligação. O `body` é renderizado normalmente e os
+itens resultantes ficam em `items`. O destino é preservado como metadado
+(`LinkTarget`) para o exportador PDF:
+- `LinkTarget::Url` → annotation `/Subtype /Link` com `/A << /S /URI >>`;
+- `LinkTarget::Destination(Label)` → annotation `/Subtype /Link` com
+  `/A << /S /GoTo /D /name >>` (navegação interna para `/Dests`).
 `pos` e `size` definem a bounding box da área clicável. Cor/sublinhado
 são scope-out (aguardam `FrameItem::Decoration`).
 

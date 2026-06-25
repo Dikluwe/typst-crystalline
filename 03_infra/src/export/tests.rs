@@ -14,7 +14,7 @@
 
 use super::*;
 use typst_core::entities::content::Content;
-use typst_core::entities::layout_types::Color;
+use typst_core::entities::layout_types::{Color, LinkTarget};
 use typst_core::rules::layout::layout;
 
     #[test]
@@ -92,7 +92,7 @@ use typst_core::rules::layout::layout;
             width:  595.28,
             height: page_h,
             items:  vec![FrameItem::Link {
-                url: "https://example.com".into(),
+                target: LinkTarget::Url("https://example.com".into()),
                 items: vec![FrameItem::Group {
                     pos:          Point { x: Pt(0.0), y: Pt(0.0) },
                     matrix:       TransformMatrix::identity(),
@@ -7219,4 +7219,42 @@ use typst_core::rules::layout::layout;
             "coordenada Y do /Dests deve estar em y-up (PDF): {} em {}",
             expected_y, array
         );
+    }
+
+
+    // ── P463 — /GoTo annotations para ref interno ───────────────────────────
+    #[test]
+    fn pdf_ref_emite_goto_annotation() {
+        let body = Content::heading_numbered(1, Content::text("Introdução"));
+        let content = Content::Sequence(
+            vec![
+                Content::label("sec1", body),
+                Content::reference("sec1"),
+            ]
+            .into(),
+        );
+        let pdf = export_pdf(&layout(&content));
+        let s = String::from_utf8_lossy(&pdf);
+        assert!(s.contains("/Subtype /Link"), "deve haver annotation de Link");
+        assert!(s.contains("/S /GoTo"), "annotation deve ser acção /GoTo");
+        assert!(s.contains("/D /sec1"), "destino deve ser /sec1");
+    }
+
+    #[test]
+    fn pdf_ref_unknown_label_emite_goto_without_valid_dest() {
+        let content = Content::reference("missing");
+        let pdf = export_pdf(&layout(&content));
+        let s = String::from_utf8_lossy(&pdf);
+        assert!(s.contains("/S /GoTo"), "ref desconhecido ainda emite /GoTo");
+        assert!(s.contains("/D /missing"), "destino deve ser /missing");
+    }
+
+    #[test]
+    fn pdf_external_link_still_emits_uri() {
+        let content = Content::link("https://example.com", Content::text("click"));
+        let pdf = export_pdf(&layout(&content));
+        let s = String::from_utf8_lossy(&pdf);
+        assert!(s.contains("/S /URI"), "link externo deve continuar /URI");
+        assert!(s.contains("https://example.com"), "URI deve aparecer");
+        assert!(!s.contains("/S /GoTo"), "link externo não deve ter /GoTo");
     }

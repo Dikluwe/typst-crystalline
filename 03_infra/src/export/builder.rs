@@ -19,7 +19,7 @@ use std::sync::Arc;
 
 use ttf_parser::Face;
 use typst_core::entities::font_list::FontList;
-use typst_core::entities::layout_types::{FrameItem, PagedDocument, Point, Size};
+use typst_core::entities::layout_types::{FrameItem, LinkTarget, PagedDocument, Point, Size};
 use ecow::EcoString;
 
 use super::{
@@ -643,17 +643,18 @@ impl PdfBuilder {
         }
     }
 
-    /// **P424** — Emite annotations `/Subtype /Link` com `/A /URI` para cada
-    /// `FrameItem::Link` do documento.  As annotations são adicionadas como
+    /// **P424/P463** — Emite annotations `/Subtype /Link` para cada
+    /// `FrameItem::Link` do documento: `/A /URI` para URLs externos e
+    /// `/A /GoTo` para destinos internos. As annotations são adicionadas como
     /// objetos após todos os recursos e referenciadas pelo `/Annots` de cada
-    /// página.  Coordenadas convertidas de Y-down (layout) para Y-up (PDF).
+    /// página. Coordenadas convertidas de Y-down (layout) para Y-up (PDF).
     fn emit_link_annotations(&mut self, doc: &PagedDocument) {
         const FIRST_PAGE_ID: usize = 3;
 
         let mut next_id = self.objects.iter().map(|(id, _)| *id).max().unwrap_or(0) + 1;
 
         // Coletar links por página (coordenadas globais de página).
-        let mut per_page: Vec<Vec<(EcoString, Point, Size)>> = Vec::with_capacity(doc.pages.len());
+        let mut per_page: Vec<Vec<(LinkTarget, Point, Size)>> = Vec::with_capacity(doc.pages.len());
         for page in &doc.pages {
             let mut links = Vec::new();
             collect_links(&page.items, &mut links);
@@ -663,7 +664,7 @@ impl PdfBuilder {
         let mut page_annotation_ids: Vec<Vec<usize>> = vec![Vec::new(); doc.pages.len()];
         for (page_idx, links) in per_page.iter().enumerate() {
             let page_h = doc.pages[page_idx].height;
-            for (url, pos, size) in links {
+            for (target, pos, size) in links {
                 let annot_id = next_id;
                 next_id += 1;
 
@@ -671,13 +672,23 @@ impl PdfBuilder {
                 let y0 = page_h - pos.y.val() - size.height.val();
                 let x1 = x0 + size.width.val();
                 let y1 = y0 + size.height.val();
-                let escaped_url = escape_pdf_uri(url.as_str());
+
+                let action = match target {
+                    LinkTarget::Url(url) => {
+                        let escaped_url = escape_pdf_uri(url.as_str());
+                        format!("<< /Type /Action /S /URI /URI ({escaped_url}) >>")
+                    }
+                    LinkTarget::Destination(label) => {
+                        let name = escape_pdf_dest_name(&label.0);
+                        format!("<< /Type /Action /S /GoTo /D {name} >>")
+                    }
+                };
 
                 self.add(annot_id, format!(
                     "<< /Type /Annot /Subtype /Link \
                        /Rect [{x0:.2} {y0:.2} {x1:.2} {y1:.2}] \
                        /Border [0 0 0] \
-                       /A << /Type /Action /S /URI /URI ({escaped_url}) >> >>"
+                       /A {action} >>"
                 ));
                 page_annotation_ids[page_idx].push(annot_id);
             }
@@ -837,11 +848,11 @@ fn escape_pdf_dest_name(name: &str) -> String {
 
 /// Recolhe `FrameItem::Link` de uma lista de items, incluindo links aninhados
 /// dentro de `Group`.
-fn collect_links(items: &[FrameItem], out: &mut Vec<(EcoString, Point, Size)>) {
+fn collect_links(items: &[FrameItem], out: &mut Vec<(LinkTarget, Point, Size)>) {
     for item in items {
         match item {
-            FrameItem::Link { url, items, pos, size } => {
-                out.push((url.clone(), *pos, *size));
+            FrameItem::Link { target, items, pos, size } => {
+                out.push((target.clone(), *pos, *size));
                 collect_links(items, out);
             }
             FrameItem::Group { items, .. } => collect_links(items, out),

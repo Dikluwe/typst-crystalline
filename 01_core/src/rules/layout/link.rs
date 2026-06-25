@@ -38,7 +38,7 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
     let (pos, size) = link_bbox(&link_items, &layouter.metrics);
 
     layouter.regions.current.current_line.push(FrameItem::Link {
-        url: e.url.clone(),
+        target: crate::entities::layout_types::LinkTarget::Url(e.url.clone()),
         items: link_items,
         pos,
         size,
@@ -48,7 +48,7 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
 /// Calcula a bounding-box acumulada dos `items` para preencher `pos`/`size`
 /// do `FrameItem::Link`.  Para texto mede o avanço via `FontMetrics`;
 /// para grupos/links aninhados usa os campos já existentes.
-fn link_bbox<M: FontMetrics>(items: &[FrameItem], metrics: &M) -> (Point, Size) {
+pub(super) fn link_bbox<M: FontMetrics>(items: &[FrameItem], metrics: &M) -> (Point, Size) {
     let mut min_x = f64::INFINITY;
     let mut min_y = f64::INFINITY;
     let mut max_x = f64::NEG_INFINITY;
@@ -117,8 +117,9 @@ mod tests {
 
     #[test]
     fn p422_frame_item_link_construcao() {
+        use crate::entities::layout_types::LinkTarget;
         let item = FrameItem::Link {
-            url: "https://x".into(),
+            target: LinkTarget::Url("https://x".into()),
             items: vec![FrameItem::Text {
                 pos: crate::entities::layout_types::Point { x: Pt(0.0), y: Pt(0.0) },
                 text: "x".into(),
@@ -127,7 +128,7 @@ mod tests {
             pos: Point::ZERO,
             size: Size { width: Pt(0.0), height: Pt(0.0) },
         };
-        if let FrameItem::Link { url, .. } = item {
+        if let FrameItem::Link { target: LinkTarget::Url(url), .. } = item {
             assert_eq!(url.as_str(), "https://x");
         } else {
             panic!("esperado Link");

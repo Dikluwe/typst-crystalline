@@ -62,24 +62,32 @@ annotations vêm após gradients; named destinations vêm após annotations.
 - `PdfBuilder::new().build(doc, Some(data))` produz PDF CIDFont se `data` parser TTF/OTF; senão fallback Helvetica.
 - Tests `pdf_header_correcto`, `pdf_termina_com_eof`, `pdf_tem_estrutura_valida` em `tests.rs` validam invariantes estruturais.
 
-## Link annotations (P424)
+## Link annotations (P424/P463)
 
 Para cada `FrameItem::Link` encontrado nas páginas do documento:
-1. Coletar `url`, `pos` e `size` (coordenadas globais de página).
+1. Coletar `target`, `pos` e `size` (coordenadas globais de página).
 2. Converter coordenadas de Y-down (layout) para Y-up (PDF):
    `pdf_y = page_height - pos.y - size.height`.
-3. Emitir um objeto dictionary:
-   ```
-   << /Type /Annot /Subtype /Link
-      /Rect [x pdf_y (x+width) (pdf_y+height)]
-      /Border [0 0 0]
-      /A << /Type /Action /S /URI /URI (escaped_url) >> >>
-   ```
+3. Emitir um objeto dictionary conforme o `LinkTarget`:
+   - URL externo (`LinkTarget::Url`):
+     ```
+     << /Type /Annot /Subtype /Link
+        /Rect [x pdf_y (x+width) (pdf_y+height)]
+        /Border [0 0 0]
+        /A << /Type /Action /S /URI /URI (escaped_url) >> >>
+     ```
+   - Destino interno (`LinkTarget::Destination(Label)`):
+     ```
+     << /Type /Annot /Subtype /Link
+        /Rect [x pdf_y (x+width) (pdf_y+height)]
+        /Border [0 0 0]
+        /A << /Type /Action /S /GoTo /D /name >> >>
+     ```
+     O nome `/name` referencia a entrada em `/Names /Dests` (P460).
 4. Referenciar todos os annotations da página no `/Annots` do respetivo
    dicionário `/Page`.
 
-Escopo: apenas URI externo; links internos (`#link("<label>")`) e
-`QuadPoints` multi-linha são scope-out.
+Escopo: `QuadPoints` multi-linha e escaping avançado de nomes são scope-out.
 
 ## Named destinations (P460)
 

@@ -361,11 +361,12 @@ fn layout_divider_emite_shape_line() {
 #[test]
 fn layout_link_preserva_url_e_texto() {
     let doc = layout(&Content::link("https://example.com", Content::text("click")));
+    use crate::entities::layout_types::LinkTarget;
     let has_link = doc
         .pages
         .iter()
         .flat_map(|p| p.items.iter())
-        .any(|i| matches!(i, FrameItem::Link { url, .. } if url.as_str() == "https://example.com"));
+        .any(|i| matches!(i, FrameItem::Link { target: LinkTarget::Url(url), .. } if url.as_str() == "https://example.com"));
     assert!(has_link, "Link deve emitir FrameItem::Link com URL");
     assert!(doc.plain_text().contains("click"));
 }
@@ -13956,6 +13957,50 @@ mod p462_ref_numeric {
         assert!(
             !text.contains("1") || text.contains("Secção"),
             "Labelled deve manter texto resolvido legacy: {text}"
+        );
+    }
+
+    // ── P463 — ref como link clicável ───────────────────────────────────────
+
+    fn find_first_link(doc: &crate::entities::layout_types::PagedDocument) -> Option<&FrameItem> {
+        for page in &doc.pages {
+            for item in &page.items {
+                if let FrameItem::Link { .. } = item {
+                    return Some(item);
+                }
+            }
+        }
+        None
+    }
+
+    #[test]
+    fn ref_renders_as_frame_item_link_with_destination() {
+        use crate::entities::layout_types::LinkTarget;
+        let body = Content::heading_numbered(1, Content::text("Intro"));
+        let content = Content::Sequence(
+            vec![
+                Content::label("intro", body),
+                Content::reference("intro"),
+            ]
+            .into(),
+        );
+        let intr = introspect_with_introspector(&content);
+        let doc = layout_with_introspector(&content, intr);
+        let link = find_first_link(&doc).expect("ref deve produzir FrameItem::Link");
+        assert!(
+            matches!(link, FrameItem::Link { target: LinkTarget::Destination(l), .. } if l.0 == "intro"),
+            "ref deve ter LinkTarget::Destination(intro): {:?}", link
+        );
+    }
+
+    #[test]
+    fn external_link_still_uses_url_target() {
+        use crate::entities::layout_types::LinkTarget;
+        let doc = layout(&Content::link("https://example.com", Content::text("click")));
+        let link = find_first_link(&doc).expect("link deve produzir FrameItem::Link");
+        assert!(
+            matches!(link, FrameItem::Link { target: LinkTarget::Url(u), .. } if u.as_str() == "https://example.com"),
+            "link externo deve continuar LinkTarget::Url: {:?}", link
         );
     }
 }

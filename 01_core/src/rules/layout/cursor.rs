@@ -328,8 +328,8 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
                         pos: Point { x: pos.x + Pt(target_x), y: pos.y + Pt(target_y) },
                         data, width, height, intrinsic_width, intrinsic_height,
                     },
-                FrameItem::Link { url, items, pos, size } => FrameItem::Link {
-                    url,
+                FrameItem::Link { target, items, pos, size } => FrameItem::Link {
+                    target,
                     items: items.into_iter().map(|child| {
                         let (ix, iy) = item_pos(&child);
                         translate_frame_item(child, Pt(target_x + ix), Pt(target_y + iy))
@@ -472,8 +472,8 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
                             pos: Point { x: pos.x + Pt(target_x), y: pos.y + Pt(target_y) },
                             data, width, height, intrinsic_width, intrinsic_height,
                         },
-                    FrameItem::Link { url, items, pos, size } => FrameItem::Link {
-                        url,
+                    FrameItem::Link { target, items, pos, size } => FrameItem::Link {
+                        target,
                         items: items.into_iter().map(|child| {
                             let (ix, iy) = item_pos(&child);
                             translate_frame_item(child, Pt(target_x + ix), Pt(target_y + iy))

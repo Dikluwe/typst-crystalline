@@ -134,9 +134,9 @@ pub(super) fn offset_item(item: FrameItem, dx: Pt, dy: Pt) -> FrameItem {
                 inner_height,
                 items,
             },
-        FrameItem::Link { url, items, pos, size } => {
+        FrameItem::Link { target, items, pos, size } => {
             FrameItem::Link {
-                url,
+                target,
                 items,
                 pos: Point { x: Pt(pos.x.val() + dx.val()), y: Pt(pos.y.val() + dy.val()) },
                 size,

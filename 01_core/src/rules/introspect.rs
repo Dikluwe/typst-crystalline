@@ -34,8 +34,6 @@ pub mod locatable;
 
 use std::sync::Arc;
 
-use ecow::EcoString;
-
 use crate::entities::{
     content::Content,
     content_hash::hash_content,

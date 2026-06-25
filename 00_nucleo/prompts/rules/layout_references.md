@@ -10,7 +10,8 @@ o `Introspector` fornecido ao Layouter. O caminho numérico P462 consulta
 `Introspector::counter_key_for_label` + `query_by_label` e formata o número do
 counter correspondente. O caminho legacy (`Content::Labelled`) continua a usar
 `resolved_labels` / `figure_label_numbers` injectados pela introspecção
-(Passagem 1).
+(Passagem 1). P463 envolve todo `Ref` num `FrameItem::Link` com destino
+interno (`LinkTarget::Destination`), tornando a referência clicável no PDF.
 
 ## Regras de negócio
 - `Labelled { target, label }` → layout transparente do target, depois registo
@@ -33,6 +34,8 @@ counter correspondente. O caminho legacy (`Content::Labelled`) continua a usar
 - `Ref` a table numerada → `"Table 1"`.
 - Supplement explícito sobrepõe default.
 - Label inexistente → `"?"`, sem panic.
+- `Ref` produz `FrameItem::Link { target: LinkTarget::Destination(label), .. }`.
+- `Content::Link` continua a produzir `LinkTarget::Url` (sem regressão).
 - Label registada → `counter.label_pages` contém a chave após layout.
 - Layout de label num elemento que força quebra de página → página registada
   é a do elemento, não a anterior.
