@@ -476,12 +476,25 @@ de L1 possuem agora spec L0 dedicada.
 
 ---
 
-## DEBT-2 — Closures eager vs lazy capture — EM ABERTO
+## DEBT-2 — Closures eager vs lazy capture — **ENCERRADO (Passo 458)** ✓
 
-**Bloqueador:** Infraestrutura `comemo`/`TrackedWorld` inexistente.  
-**Nota (P453):** O estado anterior "PARCIALMENTE RESOLVIDO" era incorrecto. A captura eager foi convertida num snapshot `Arc<Scope>` no Passo 31, mas a divergência semântica face ao vanilla (lazy capture via `comemo`) permanece. O fecho real depende de reactive evaluation, que não está disponível no curto prazo.
+**Estado**: ENCERRADO em 2026-06-25 (Passo 458).
 
-### O que foi feito no Passo 31
+### Verificação da premissa (P458)
+
+A premissa de que o Typst vanilla usa lazy capture de closures (ou seja, que
+`#let x=1; #let f()=x; #let x=2; f()` devolveria `2`) **nunca foi medida neste
+projecto**. O Passo 458 executou o teste de paridade empírico:
+
+| Ambiente | Código testado | Resultado | Semântica observada |
+|----------|----------------|-----------|---------------------|
+| Typst vanilla (`lab/typst-original/target/debug/typst`) | `#let x=1; #let f()=x; #let x=2; #repr(f())` | `1` | Eager (snapshot) |
+| Cristalino (`target/debug/typst`) | `#let x=1; #let f()=x; #let x=2; #repr(f())` | `1` | Eager (snapshot) |
+
+**Conclusão**: o vanilla **também é eager** para esta construção. A suposta
+divergência semântica não existe. O cristalino bate com o vanilla.
+
+### O que foi feito no Passo 31 (mantido)
 
 - `ClosureRepr::captured` mudou de `IndexMap<String, Value>` (clone eager O(N)) para `Arc<Scope>`
 - Captura no momento da definição: snapshot O(N) uma única vez, depois partilhado em O(1)
@@ -489,18 +502,16 @@ de L1 possuem agora spec L0 dedicada.
 - `eval_let` trata `LetBindingKind::Closure`: sintaxe `#let fib(n) = ...` agora funciona
 - `Expr::Closure` arm lê `closure_expr.name()` — nome propagado correctamente para recursão
 
-### Divergência residual
+### Lição arquitectural
 
-- Semântica de captura: ainda eager (snapshot). `#let x=1; #let f()=x; #let x=2; f()` retorna `1`
-  (snapshot), não `2` (lazy). O original via `comemo` retornaria `2`.
-  **Confirmado no Passo 31**: o snapshot é uma cópia independente do scope, não uma referência
-  partilhada. Divergência semântica documentada com o original.
-- A integração com `comemo` para tracking semântico real aguarda `TrackedWorld` real.
-
-### Pendente
-
-- Integração com `comemo` para tracking semântico real
-- Testes de paridade com o original para cenários avançados de shadowing
+> **Nunca construir infraestrutura grande sobre uma suposição não medida.**
+>
+> O DEBT-2 assumia que fechar a divergência exigiria `comemo`/`TrackedWorld`
+> (infraestrutura XL). A medição de P458 mostrou que a premissa era falsa: o
+> vanilla é eager, o cristalino já bate, e não havia débito a corrigir. A
+> infraestrutura de introspecção (oráculo de duas passagens) continua a ser
+> necessária para outras funcionalidades (TOC, `ref`, bibliography, counters),
+> mas **não** para closures.
 
 ---
 
