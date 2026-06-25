@@ -28,6 +28,7 @@ mod foundations;
 mod label;
 mod layout;
 mod panic;
+mod r#ref;
 mod shapes;
 mod structural;
 mod text;
@@ -61,6 +62,7 @@ pub use crate::rules::stdlib::foundations::{
 };
 pub use crate::rules::stdlib::label::native_label;
 pub use crate::rules::stdlib::panic::native_panic;
+pub use crate::rules::stdlib::r#ref::native_ref;
 pub use crate::rules::stdlib::structural::{
     make_math_module, native_accent, native_asset, native_bibliography, native_cancel,
     native_cite, native_divider, native_document, native_emph, native_footnote,

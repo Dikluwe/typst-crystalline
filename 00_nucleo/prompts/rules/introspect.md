@@ -1121,3 +1121,31 @@ muda se/como conta — só de onde lê o gate).
 **de-bake** (remover o campo assado, religar os 3 gates à chain) é o **Estágio 2** — fatiável como
 lote próprio (P364) se a Fase A medir que não cabe com a infra. **content-preserving**: a rede de
 caracterização (+11) é o oráculo.
+
+## P462 — `label_to_counter_key` para referências numéricas
+
+Quando um elemento numerado (Heading, Figure, Equation, Table) é etiquetado via
+`Content::Label`, o walk popula `TagIntrospector.label_to_counter_key` com o
+mapeamento `Label → chave do counter`:
+
+- Heading → `"heading"`
+- Figure → `"figure:{kind}"` (default kind `"image"`)
+- Equation (block + numbering ativo) → `"equation"`
+- Table (caption + numbering ativo) → `"table"`
+
+A população acontece em `populate_intr_from_tag_start`, **apenas quando o counter
+é de facto avançado** (evita resolver numericamente elementos não numerados).
+
+### Propagação de `label_from_parent` através de `Content::Styled`
+
+O arm `Content::Styled` do walk propaga `label_from_parent` para o body, de
+modo que um padrão como `Content::Label("f1", Content::figure(..., Some("1")))`
+— onde o transporte do numbering produz `Styled(Figure, custom(...))` — ainda
+associa a label à figura subjacente.
+
+### Isolamento de `Content::Labelled`
+
+`Content::Labelled` (P329) continua a usar o caminho legacy (`resolved_labels`,
+`figure_label_numbers`). Para evitar ambiguidade, o arm `Content::Labelled` do
+walk remove qualquer entrada eventualmente preenchida em `label_to_counter_key`
+para a label do wrapper.

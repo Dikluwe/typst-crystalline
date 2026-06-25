@@ -136,7 +136,7 @@ pub fn repr_content(c: &Content) -> String {
         Content::MathStyled(s) => repr_content(&s.body),
         Content::Labelled(l) => format!("label(\"{}\")", l.label.0),
         Content::Label(l) => format!("label(\"{}\", {})", l.name, repr_content(&l.body)),
-        Content::Ref(r) => format!("ref(<{}>)", r.target.0),
+        Content::Ref(r) => format!("ref(<{}>)", r.name),
         Content::CounterDisplay(_) => "counter.display".to_string(),
         Content::CounterUpdate(_) => "counter.update".to_string(),
         Content::Outline(_) => "outline".to_string(),

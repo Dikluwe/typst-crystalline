@@ -1,30 +1,33 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/entities/elements/ref.md
-//! @prompt-hash 20e8e1f0
 //! @layer L1
-//! @updated 2026-06-11
+//! @updated 2026-06-25
 //!
-//! `RefElem` — Lote 8 P323 (por largura). `@label` — referência a uma label.
-//! Leaf não-locatável; `map_*` terminais.
+//! `RefElem` — P462. Referência cruzada `@label` / `ref("label")`.
+//! Leaf não-locatável; `map_*` terminais. O número é resolvido no layout
+//! via `Introspector` (oráculo de counters); aqui guarda-se apenas o nome
+//! do label e o supplement opcional.
 
 use std::sync::Arc;
 
 use crate::entities::content::Content;
 use crate::entities::elements::Element;
-use crate::entities::label::Label;
 use crate::entities::source_result::SourceResult;
+use ecow::EcoString;
 
-/// Referência a uma `Label` (`@target`). Resolvida na introspecção.
-// Construtor `Content::reference` (não `r#ref`: a keyword `ref` exigiria raw
-// identifier em cada call-site — fricção desnecessária).
-#[derive(Debug, Clone, PartialEq, Eq, Hash)]
+/// Referência a um label nomeado.
+///
+/// Construtores ergonómicos em `Content::reference` / `Content::reference_with_supplement`
+/// (a keyword `ref` exigiria raw identifier em cada call-site — fricção desnecessária).
+#[derive(Debug, Clone, PartialEq, Hash)]
 pub struct RefElem {
-    pub target: Label,
+    pub name: EcoString,
+    pub supplement: Option<Content>,
 }
 
 impl Element for RefElem {
     fn plain_text(&self) -> String {
-        format!("@{}", self.target.0)
+        format!("@{}", self.name)
     }
 
     fn map_content<F>(&self, _transform: &mut F) -> SourceResult<Content>
@@ -45,11 +48,11 @@ impl Element for RefElem {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use std::hash::{Hash, Hasher};
     use std::collections::hash_map::DefaultHasher;
+    use std::hash::{Hash, Hasher};
 
     fn ex() -> RefElem {
-        RefElem { target: Label("intro".to_string()) }
+        RefElem { name: "intro".into(), supplement: None }
     }
 
     #[test]
@@ -69,9 +72,18 @@ mod tests {
     }
 
     #[test]
-    fn eq_compara_target() {
+    fn eq_compara_name() {
         assert_eq!(ex(), ex());
-        assert_ne!(ex(), RefElem { target: Label("outro".to_string()) });
+        assert_ne!(ex(), RefElem { name: "outro".into(), supplement: None });
+    }
+
+    #[test]
+    fn supplement_afeta_eq() {
+        let with_sup = RefElem {
+            name: "intro".into(),
+            supplement: Some(Content::text("Section ")),
+        };
+        assert_ne!(ex(), with_sup);
     }
 
     fn h(e: &RefElem) -> u64 {
@@ -82,6 +94,6 @@ mod tests {
 
     #[test]
     fn payload_diferente_produz_hash_diferente() {
-        assert_ne!(h(&ex()), h(&RefElem { target: Label("outro".to_string()) }));
+        assert_ne!(h(&ex()), h(&RefElem { name: "outro".into(), supplement: None }));
     }
 }

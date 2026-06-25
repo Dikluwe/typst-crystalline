@@ -767,7 +767,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
             }
 
             Content::Ref(e) => {
-                references::layout_ref(self, &e.target);
+                references::layout_ref(self, e);
             }
 
             // Passo 62/75 — Figure: delegado a figure.rs com kind/numbering (DEBT-14/15).

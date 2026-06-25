@@ -1486,7 +1486,7 @@ fn layout_ref_para_tras_resolve_secao() {
                 Label("intro".to_string()),
             ),
             Content::text("Como vimos em"),
-            Content::reference(Label("intro".to_string())),
+            Content::reference("intro".to_string()),
         ]
         .into(),
     );
@@ -1508,7 +1508,7 @@ fn layout_ref_para_frente_resolve_com_duas_passagens() {
     let content = Content::Sequence(
         vec![
             // Ref aparece antes da Label — forward reference
-            Content::reference(Label("conclusao".to_string())),
+            Content::reference("conclusao".to_string()),
             Content::labelled(
                 Content::heading(1, Content::text("Conclusão")),
                 Label("conclusao".to_string()),
@@ -1544,10 +1544,10 @@ fn layout_resolved_labels_nao_interfere_entre_documentos() {
     let _ = layout(&content_a);
 
     // Segundo layout independente — não deve ter "sec" resolvida
-    let content_b = Content::reference(Label("sec".to_string()));
+    let content_b = Content::reference("sec".to_string());
     let doc_b = layout(&content_b);
     assert!(
-        doc_b.plain_text().contains("@sec"),
+        doc_b.plain_text().contains("?"),
         "Estado do layout anterior não deve vazar para o seguinte"
     );
 }
@@ -1565,7 +1565,7 @@ fn pipeline_duas_passagens_resolve_forward_ref() {
     let content = Content::Sequence(
         vec![
             Content::text("Ver a"),
-            Content::reference(Label("conclusao".to_string())),
+            Content::reference("conclusao".to_string()),
             Content::text("."),
             Content::labelled(
                 Content::heading(1, Content::text("Conclusão")),
@@ -2013,7 +2013,7 @@ fn layout_ref_para_figura_resolve_corretamente() {
                 Label("fig1".to_string()),
             ),
             Content::text(" — ver "),
-            Content::reference(Label("fig1".to_string())),
+            Content::reference("fig1".to_string()),
         ]
         .into(),
     );
@@ -9968,7 +9968,7 @@ mod p168_figure_ref_migration {
             vec![
                 labelled_prod(figure, Label(label_str.to_string())),
                 Content::text("ver "),
-                Content::reference(Label(label_str.to_string())),
+                Content::reference(label_str.to_string()),
             ]
             .into(),
         )
@@ -11404,7 +11404,7 @@ mod p194b_c4_resolved_label {
                 Content::heading(1, Content::text("Intro")),
                 lbl(label_name),
             ),
-            Content::reference(lbl(label_name)),
+            Content::reference(label_name),
         ]))
     }
 
@@ -11415,7 +11415,7 @@ mod p194b_c4_resolved_label {
         // confirma que populate manual de intr.resolved_labels é
         // suficiente para Layouter renderizar correctamente.
         let content =
-            Content::Sequence(Arc::from(vec![Content::reference(lbl("intro"))]));
+            Content::Sequence(Arc::from(vec![Content::reference("intro")]));
 
         // P190I: state eliminado
         let mut intr = TagIntrospector::empty();
@@ -11467,7 +11467,7 @@ mod p194b_c4_resolved_label {
         let mut intr_b = TagIntrospector::empty();
         intr_b.resolved_labels.insert(lbl("intro"), "Secção 1".to_string());
         let txt_b = layout_with_introspector(
-            &Content::Sequence(Arc::from(vec![Content::reference(lbl("intro"))])),
+            &Content::Sequence(Arc::from(vec![Content::reference("intro")])),
             intr_b,
         )
         .plain_text();
@@ -11482,7 +11482,7 @@ mod p194b_c4_resolved_label {
         // Label não existe em nenhum dos paths; fallback final do
         // match retorna `@nome` literal.
         let content =
-            Content::Sequence(Arc::from(vec![Content::reference(lbl("missing"))]));
+            Content::Sequence(Arc::from(vec![Content::reference("missing")]));
 
         // P190I: state eliminado
         let intr = TagIntrospector::empty();
@@ -11490,8 +11490,8 @@ mod p194b_c4_resolved_label {
         let txt = layout_with_introspector(&content, intr).plain_text();
 
         assert!(
-            txt.contains("@missing"),
-            "fallback final '@missing' esperado: {:?}",
+            txt.contains("?"),
+            "fallback final '?' esperado: {:?}",
             txt
         );
     }
@@ -11537,7 +11537,7 @@ mod p195d_walk_labelled {
     fn labelled_paridade_observable_legacy_vs_introspector() {
         let content = Content::Sequence(Arc::from(vec![
             Content::labelled(Content::heading(1, Content::text("Intro")), lbl("intro")),
-            Content::reference(lbl("intro")),
+            Content::reference("intro"),
         ]));
 
         let intr = introspect_with_introspector(&content);
@@ -13815,5 +13815,147 @@ mod f_caracterizacao_estilo {
         );
         let pos = doc.extracted_label_positions.get(&label).unwrap();
         assert!(pos.x.val() > 0.0 || pos.y.val() > 0.0, "posição deve ser positiva");
+    }
+}
+
+// ── P462 — `ref<x>` / `@x`: resolução numérica via Content::Label ─────────────
+mod p462_ref_numeric {
+    use super::*;
+    use crate::entities::introspector::TagIntrospector;
+    use crate::entities::label::Label;
+    use crate::entities::layout_types::TrackSizing;
+    use crate::entities::style::Styles;
+    use crate::entities::value::Value;
+    use crate::rules::introspect::introspect_with_introspector;
+
+    fn doc_text_with_intr(content: &Content, intr: TagIntrospector) -> String {
+        layout_with_introspector(content, intr).plain_text()
+    }
+
+    #[test]
+    fn ref_resolves_heading_number() {
+        let body = Content::heading_numbered(1, Content::text("Intro"));
+        let content = Content::Sequence(
+            vec![
+                Content::label("intro", body),
+                Content::reference("intro"),
+            ]
+            .into(),
+        );
+        let intr = introspect_with_introspector(&content);
+        let text = doc_text_with_intr(&content, intr);
+        assert!(text.contains("1"), "heading ref deve resolver para '1': {text}");
+        assert!(!text.contains("@intro"), "não deve manter @intro: {text}");
+    }
+
+    #[test]
+    fn ref_resolves_figure_number() {
+        let fig = Content::figure(
+            Content::text("[img]"),
+            Some(Content::text("legenda")),
+            None,
+            Some("1".to_string()),
+        );
+        let content = Content::Sequence(
+            vec![
+                Content::label("f1", fig),
+                Content::reference("f1"),
+            ]
+            .into(),
+        );
+        let intr = introspect_with_introspector(&content);
+        let text = doc_text_with_intr(&content, intr);
+        assert!(text.contains("Fig. 1"), "figure ref deve renderizar 'Fig. 1': {text}");
+    }
+
+    #[test]
+    fn ref_resolves_equation_number() {
+        let eq = Content::equation_numbered(Content::text("x"), true);
+        let content = Content::Sequence(
+            vec![
+                Content::label("eq1", eq),
+                Content::reference("eq1"),
+            ]
+            .into(),
+        );
+        let intr = introspect_with_introspector(&content);
+        let text = doc_text_with_intr(&content, intr);
+        assert!(text.contains("(1)"), "equation ref deve renderizar '(1)': {text}");
+    }
+
+    #[test]
+    fn ref_resolves_table_number() {
+        let table = Content::table_with_caption(
+            vec![TrackSizing::Auto],
+            vec![TrackSizing::Auto],
+            vec![Content::text("cell")],
+            Some(Content::text("legenda")),
+        );
+        let numbered = Content::Styled(
+            Box::new(table),
+            Styles::new().push_custom("table.numbering", Value::Str("1.".into())),
+        );
+        let content = Content::Sequence(
+            vec![
+                Content::label("tbl1", numbered),
+                Content::reference("tbl1"),
+            ]
+            .into(),
+        );
+        let intr = introspect_with_introspector(&content);
+        let text = doc_text_with_intr(&content, intr);
+        assert!(text.contains("Table 1"), "table ref deve renderizar 'Table 1': {text}");
+    }
+
+    #[test]
+    fn ref_supplement_explicit_overrides_default() {
+        let fig = Content::figure(
+            Content::text("[img]"),
+            Some(Content::text("legenda")),
+            None,
+            Some("1".to_string()),
+        );
+        let content = Content::Sequence(
+            vec![
+                Content::label("f1", fig),
+                Content::reference_with_supplement("f1", Some(Content::text("Figura "))),
+            ]
+            .into(),
+        );
+        let intr = introspect_with_introspector(&content);
+        let text = doc_text_with_intr(&content, intr);
+        assert!(
+            text.contains("Figura 1"),
+            "supplement explicito deve sobrescrever default: {text}"
+        );
+    }
+
+    #[test]
+    fn ref_unknown_label_renders_question_mark() {
+        let content = Content::reference("nao_existe");
+        let intr = TagIntrospector::empty();
+        let text = doc_text_with_intr(&content, intr);
+        assert!(text.contains("?"), "label inexistente deve renderizar '?': {text}");
+    }
+
+    #[test]
+    fn labelled_path_not_resolved_numerically() {
+        // Labelled (P329) continua a usar texto resolvido legacy, não número.
+        let content = Content::Sequence(
+            vec![
+                Content::labelled(
+                    Content::heading_numbered(1, Content::text("Secção")),
+                    Label("sec".to_string()),
+                ),
+                Content::reference("sec"),
+            ]
+            .into(),
+        );
+        let intr = introspect_with_introspector(&content);
+        let text = doc_text_with_intr(&content, intr);
+        assert!(
+            !text.contains("1") || text.contains("Secção"),
+            "Labelled deve manter texto resolvido legacy: {text}"
+        );
     }
 }

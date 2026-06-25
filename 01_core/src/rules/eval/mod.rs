@@ -617,7 +617,7 @@ pub(crate) fn eval_expr(
         // Passo 56 — referência cruzada: @nome → Content::Ref placeholder.
         Expr::Ref(ref_node) => {
             let name = ref_node.target().to_string();
-            Ok(Value::Content(Content::reference(Label(name))))
+            Ok(Value::Content(Content::reference(name)))
         }
 
         // Passo 56 — label em contexto de código (raro); a associação retroactiva
@@ -700,6 +700,7 @@ fn make_stdlib() -> Scope {
         native_asset, native_cmyk, native_colbreak, native_columns, native_document, native_hsl, native_hsv, native_label, native_linear_rgb, native_link, native_oklab, native_oklch, native_op, native_panic, native_quote, native_range, native_rect, native_repeat, native_replace, native_raw, native_repr, native_rgb, native_rotate,
         native_square, native_tiling,
         native_highlight, native_scale, native_skew, native_smallcaps, native_smartquote, native_stack, native_str, native_strike, native_stroke, native_strong, native_subscript, native_superscript, native_table, native_table_cell, native_table_footer, native_table_header, native_grid_cell, native_grid_footer, native_grid_header, native_terms, native_type, native_underline, native_underover, native_overline, native_upper, native_v,
+        native_ref,
         // P311b.3 — math style funcs.
         native_bb, native_bold, native_cal, native_frak, native_math_italic,
         native_mono, native_sans, native_scr, native_script, native_serif,
@@ -961,6 +962,7 @@ fn make_stdlib() -> Scope {
     scope.define("cite",         Value::Func(Func::native("cite",         native_cite)));
     scope.define("link",         Value::Func(Func::native("link",         native_link)));
     scope.define("label",        Value::Func(Func::native("label",        native_label)));
+    scope.define("ref",          Value::Func(Func::native("ref",          native_ref)));
     scope.define("calc",    make_calc_module());
     // P262 — `gradient.linear(...)` via module dict (ADR-0087).
     scope.define("gradient", make_gradient_module());

@@ -142,6 +142,11 @@ pub trait Introspector: Send + Sync {
     /// ou history vazia para `loc <= location`.
     fn counter_values_at(&self, key: &str, location: Location) -> Option<&[usize]>;
 
+    /// **P462** — chave do counter associada a uma `Label` (ex: "heading",
+    /// "figure:image", "equation", "table"). `None` se a label não existe
+    /// ou não está associada a um elemento numerado.
+    fn counter_key_for_label(&self, label: &Label) -> Option<&str>;
+
     /// **P181F** — entry bibliográfica por chave. Replica
     /// `state.bib_entries.iter().find(|e| e.key == *key)` actual em
     /// `layout/mod.rs:584` (P181G migrará caller). Linear scan sobre
@@ -267,6 +272,10 @@ pub struct TagIntrospector {
     // Equivalente paralelo a `CounterStateLegacy.figure_label_numbers`
     // — usado por `references.rs::layout_ref` em M5.
     pub figure_label_numbers: HashMap<Label, usize>,
+    /// **P462** — mapa `Label → chave do counter` (ex: "heading",
+    /// "figure:image", "equation", "table"). Populado durante o walk
+    /// quando um elemento numerado é etiquetado via `Content::Label`.
+    pub label_to_counter_key: HashMap<Label, EcoString>,
     /// **P169 (M9 sub-passo 1)** — values embebidos via `metadata(value)`
     /// vanilla. Acumulado por `from_tags` em ordem de aparecimento.
     pub metadata: MetadataStore,
@@ -540,6 +549,10 @@ impl Introspector for TagIntrospector {
         } else {
             Some(counter)
         }
+    }
+
+    fn counter_key_for_label(&self, label: &Label) -> Option<&str> {
+        self.label_to_counter_key.get(label).map(|s| s.as_str())
     }
 
     fn bib_entry_for_key(&self, key: &str) -> Option<&BibEntry> {

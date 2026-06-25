@@ -34,6 +34,8 @@ pub mod locatable;
 
 use std::sync::Arc;
 
+use ecow::EcoString;
+
 use crate::entities::{
     content::Content,
     content_hash::hash_content,
@@ -449,6 +451,9 @@ fn populate_intr_from_tag_start(
                 *depth as usize,
                 loc,
             );
+            if let Some(label) = &info.label {
+                intr.label_to_counter_key.insert(label.clone(), "heading".into());
+            }
         }
         ElementPayload::Figure { kind, counter_update, is_counted, .. } => {
             intr.kind_index
@@ -466,8 +471,9 @@ fn populate_intr_from_tag_start(
             // semântica.
             if *is_counted {
                 let kind_key = kind.as_deref().unwrap_or("image");
+                let counter_key = format!("figure:{}", kind_key);
                 intr.counters.apply_at(
-                    format!("figure:{}", kind_key),
+                    counter_key.clone(),
                     counter_update.clone(),
                     loc,
                 );
@@ -481,6 +487,7 @@ fn populate_intr_from_tag_start(
                     intr.figure_label_numbers
                         .entry(label.clone())
                         .or_insert(next_num);
+                    intr.label_to_counter_key.insert(label.clone(), counter_key.into());
                 }
             }
         }
@@ -573,6 +580,9 @@ fn populate_intr_from_tag_start(
                     counter_update.clone(),
                     loc,
                 );
+                if let Some(label) = &info.label {
+                    intr.label_to_counter_key.insert(label.clone(), "equation".into());
+                }
             }
         }
         ElementPayload::Labelled { label, resolved_text, figure_number } => {
@@ -584,6 +594,9 @@ fn populate_intr_from_tag_start(
                 intr.figure_label_numbers
                     .insert(label.clone(), *n);
             }
+            // P462: Labelled usa caminho legacy; evita conflito com
+            // Content::Label numérico.
+            intr.label_to_counter_key.remove(label);
         }
         ElementPayload::Table { counter_update, is_counted } => {
             intr.kind_index
@@ -597,6 +610,9 @@ fn populate_intr_from_tag_start(
                     counter_update.clone(),
                     loc,
                 );
+                if let Some(label) = &info.label {
+                    intr.label_to_counter_key.insert(label.clone(), "table".into());
+                }
             }
         }
         ElementPayload::CounterUpdate { key, action } => {
@@ -928,6 +944,9 @@ pub(crate) fn walk(
             // walk recursivo (ex. Heading) inclua a label do wrapper.
             let tags_len_before = tags.len();
             walk(target, locator, tags, intr, auto_label_counter, lang, chain, Some(label));
+            // P462: Labelled usa caminho legacy; elimina qualquer mapeamento
+            // numérico eventualmente criado pelo walk recursivo.
+            intr.label_to_counter_key.remove(label);
 
             // P191C (ADR-0071 ACEITE): Location do target obtida via
             // snapshot+find_map (pattern P195D variante não-locatable).
@@ -1207,7 +1226,7 @@ pub(crate) fn walk(
         // recursão do `body`).
         Content::Styled(body, styles) => {
             let pushed = chain.push_styles(styles);
-            walk(body, locator, tags, intr, auto_label_counter, lang, &pushed, None);
+            walk(body, locator, tags, intr, auto_label_counter, lang, &pushed, label_from_parent);
         }
 
         Content::Outline(_) => {
@@ -1266,7 +1285,7 @@ mod tests {
         // Ref antes do Labelled — forward reference
         let content = Content::Sequence(
             vec![
-                Content::reference(Label("conclusao".to_string())),
+                Content::reference("conclusao"),
                 Content::labelled(Content::heading(1, Content::text("Conclusão")), Label("conclusao".to_string())),
             ]
             .into(),
@@ -1297,7 +1316,7 @@ mod tests {
     #[test]
     fn introspect_dois_conteudos_independentes() {
         let content_a = Content::labelled(Content::heading(1, Content::text("A")), Label("a".to_string()));
-        let content_b = Content::reference(Label("a".to_string()));
+        let content_b = Content::reference("a");
 
         let intr_a = introspect_with_introspector(&content_a);
         let intr_b = introspect_with_introspector(&content_b);
@@ -1425,7 +1444,7 @@ mod tests {
         let content = Content::Sequence(
             vec![
                 Content::labelled(Content::heading(1, Content::text("Secção")), Label("sec".to_string())),
-                Content::reference(Label("sec".to_string())),
+                Content::reference("sec"),
             ]
             .into(),
         );

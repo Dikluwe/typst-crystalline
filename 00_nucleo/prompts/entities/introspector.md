@@ -140,6 +140,13 @@ pub trait Introspector {
     /// P185C).
     fn flat_counter_at(&self, key: &str, location: Location) -> Option<usize>;
 
+    /// **P462** — chave do counter associada a uma `Label` (ex:
+    /// `"heading"`, `"figure:image"`, `"equation"`, `"table"`). `None`
+    /// se a label não existe ou não está associada a um elemento
+    /// numerado via `Content::Label`. Delega a
+    /// `label_to_counter_key.get(label)`.
+    fn counter_key_for_label(&self, label: &Label) -> Option<&str>;
+
     /// **P193B** (M5 sequência §9 P189 passo 1) — texto resolvido
     /// para a `Label` indicada. `Some(&str)` se label registada no
     /// `ResolvedLabelStore`; `None` caso contrário. Delega a
@@ -222,6 +229,11 @@ pub struct TagIntrospector {
     /// Populado por `from_tags` quando `ElementPayload::Figure.is_counted == true`
     /// E há label associada. Suporta `references.rs::layout_ref` figure-arm.
     pub figure_label_numbers:  HashMap<Label, usize>,
+    /// **P462** — mapeamento `Label → chave de counter` (ex: `"heading"`,
+    /// `"figure:image"`, `"equation"`, `"table"`). Populado durante o walk
+    /// quando um elemento numerado é etiquetado via `Content::Label`.
+    /// `Content::Labelled` (P329) usa caminho legacy e NÃO popula este mapa.
+    pub label_to_counter_key:  HashMap<Label, EcoString>,
     /// **P169 (M9 sub-passo 1)** — values embebidos via `metadata()`.
     pub metadata:              MetadataStore,
     /// **P171 (M9 sub-passo 3)** — runtime mutable state.
@@ -346,3 +358,4 @@ Fan-in baixo: M3 não tem consumers externos ainda.
 | 2026-05-12 | P207B (M9c — primeiro item Bloco I do roadmap ADR-0076): trait estendido com `query_labelled() -> Vec<(Label, Location)>`; impl em `TagIntrospector` delega para `LabelRegistry::iter()` (introduzido em P207B) com clone+copy O(n). Vanilla retorna `EcoVec<Content>`; cristalino preserva handle-based design (ADR-0073/0074). Trait passa de 20 para 21 métodos. | `introspector.rs`, `introspector.md`, `label_registry.rs`, `label_registry.md` |
 | 2026-05-12 | P207C (M9c — Bloco III sub-store refactor + Bloco II item 7): trait estendido com `label_count(&Label) -> usize`; impl em `TagIntrospector` delega para `LabelRegistry::count` (novo P207C). Resolve item 7 da auditoria P207A (distinguir 0/1/N locations por label). Refactor `LabelRegistry` para multi-label semântica (P207C) é pré-condição. Trait passa de 21 para 22 métodos. | `introspector.rs`, `introspector.md`, `label_registry.rs`, `label_registry.md` |
 | 2026-05-12 | P207D (M9c — Bloco II page-aware + Bloco VIII infraestrutura parcial per ADR-0076): trait estendido com 4 métodos page-aware: `pages` (total via `PageStore::total_pages`), `page` (via `SealedPositions`), `page_numbering` (via `PageStore::numbering_for_page` — `Option<&EcoString>` per ADR-0024), `page_supplement` (via `PageStore::supplement_for_page`). Novo field `pub page_store: PageStore` em `TagIntrospector` + novo método `inject_pages` paralelo a `inject_positions` (P205C). Opção 2 fixada em C2 (sub-store dedicado paralelo a `SealedPositions`). Pre-injecção: todos retornam `None`. Trait passa de 22 para 26 métodos. | `introspector.rs`, `introspector.md`, `page_store.rs`, `page_store.md` |
+| 2026-06-25 | P462: `TagIntrospector` ganha `label_to_counter_key: HashMap<Label, EcoString>`; trait estende `counter_key_for_label(&Label) -> Option<&str>`. População no walk de `introspect.rs` para elementos numerados etiquetados via `Content::Label`. Suporte ao layout de `ref` com resolução numérica. | `introspector.rs`, `introspector.md`, `introspect.rs`, `references.rs`, `ref.rs`, `content.rs` |

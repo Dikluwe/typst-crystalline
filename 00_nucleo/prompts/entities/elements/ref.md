@@ -2,38 +2,43 @@
 Hash do Código: 8a6135c7
 
 **Camada**: L1 · **Alvo**: `01_core/src/entities/elements/ref.rs`
-**Origem**: modelo D (ADR-0105), **Lote 8 P323** (por largura). Trait: ver
-`entities/elements/_comum.md`. **Não-locatável** (confirmado P323:
-`locatable.rs` lista `Content::Ref` no bloco não-locatável; sem arm em
-`extract_payload`). Leaf — `map_*` terminais.
+**Origem**: modelo D (ADR-0105), **P462**. Trait: ver
+`entities/elements/_comum.md`. **Não-locatável** (leaf).
 
 ---
 
 ## Struct
 
 ```rust
-#[derive(Debug, Clone, PartialEq, Eq, Hash)]
+#[derive(Debug, Clone, PartialEq, Hash)]
 pub struct RefElem {
-    pub target: Label,
+    pub name: EcoString,
+    pub supplement: Option<Content>,
 }
 ```
 
-`Content::Ref { target }` → `Content::Ref(Arc<RefElem>)`.
-Construtor ergonómico: **`Content::reference(target: Label)`** — não `r#ref`
-(o raw identifier é fricção em cada call-site; comentário de 1 linha no módulo
-sobre a colisão com a keyword `ref`). **Deriva `Hash`/`Eq`** (`Label(String)`
-deriva `Hash`/`Eq`).
+`Content::Ref { name, supplement }` → `Content::Ref(Arc<RefElem>)`.
+Construtores ergonómicos em `Content`:
+- `Content::reference(name: impl Into<EcoString>)` — supplement `None`.
+- `Content::reference_with_supplement(name, supplement: Option<Content>)`.
+
+A keyword `ref` exigiria raw identifier em cada call-site — fricção
+ desnecessária; o módulo e os construtores usam `reference`.
 
 ## `impl Element for RefElem`
 
-| método | comportamento (idêntico ao braço atual) |
+| método | comportamento |
 |---|---|
-| `plain_text` | `format!("@{}", self.target.0)` (`content.rs:1724`) |
+| `plain_text` | `format!("@{}", self.name)` |
 | `is_empty` | default `false` |
 | `map_content`/`map_text` | **terminais** (leaf) |
 | `get_field`/`element_kind`/`to_payload` | default |
 
-## `eq`
+## Notas P462
 
-`#[derive(PartialEq)]` compara `target` (paridade `content.rs:1888`:
-`(Ref{target:ta}, Ref{target:tb}) => ta == tb`).
+- `RefElem` não guarda o número resolvido — guarda apenas o nome do label.
+- A resolução do número acontece no layout via `Introspector` (oráculo de
+  counters).
+- `supplement` opcional: se `None`, o layout usa o supplement default do tipo
+  referenciado (`"Fig. "` para figure, `"Table "` para table, nenhum para
+  heading/equation). Se `Some`, o conteúdo é prefixado ao número formatado.

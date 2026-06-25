@@ -274,7 +274,7 @@ mod tests {
             Content::Space,
             Content::Sequence(std::sync::Arc::from(vec![Content::Empty])),
             Content::labelled(Content::Empty, crate::entities::label::Label("x".to_string())),
-            Content::reference(crate::entities::label::Label("y".to_string())),
+            Content::reference("y"),
             Content::outline(),
             Content::linebreak(),
             Content::divider(),

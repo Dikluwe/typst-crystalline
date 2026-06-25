@@ -1,90 +1,117 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/rules/layout_references.md
-//! @prompt-hash 0226beef
 //! @layer L1
-//! @updated 2026-04-20
+//! @updated 2026-06-25
 
 use crate::entities::{
-    content::Content,
-    label::Label,
-    layout_types::Point,
+    content::Content, counter_format::format_counter, elements::r#ref::RefElem,
+    label::Label, layout_types::Point,
 };
 
 use super::{FontMetrics, ImageSizer, Layouter};
 
 /// Braço `Labelled` — layout transparente do target com registo de página
 /// e posição (P460).
-///
-/// O layout do target ocorre primeiro porque o target pode forçar uma quebra
-/// de página. O registo da página acontece **depois** — o elemento já aterrou
-/// na sua página final (Passo 63, DEBT-12). A posição capturada antes do
-/// layout é o ponto de inserção do label no fluxo; é suficiente para /Dests.
 pub(super) fn layout_labelled<M: FontMetrics, S: ImageSizer>(
     layouter: &mut Layouter<M, S>,
-    target:   &Content,
-    label:    &Label,
+    target: &Content,
+    label: &Label,
 ) {
-    // Capturar posição ANTES do layout: marca o ponto de inserção do label.
-    // Após `layout_content` o cursor pode ter avançado para outra linha/página.
     let pos = Point {
         x: layouter.regions.current.cursor_x,
         y: layouter.regions.current.cursor_y,
     };
-
-    // Layout primeiro — o target pode forçar uma quebra de página.
     layouter.layout_content(target);
-
-    // Registar a página DEPOIS do layout: o elemento já aterrou na sua página
-    // final. Registar antes resultaria no número da página anterior quando
-    // o target força uma quebra.
     let page = layouter.current_page_number();
-    // P190C (M6 categoria Page tracking): label_pages movido para
-    // LayouterRuntimeState (Layouter-runtime — não derivado de Content).
     layouter.runtime.label_pages.insert(label.clone(), page);
-    // P460: guardar posição para /Dests.
     layouter.runtime.label_positions.insert(label.clone(), pos);
 }
 
 /// Braço `Label` (P460) — wrapper transparente do body com registo de destino.
 pub(super) fn layout_label<M: FontMetrics, S: ImageSizer>(
     layouter: &mut Layouter<M, S>,
-    body:     &Content,
-    label:    Label,
+    body: &Content,
+    label: Label,
 ) {
     layout_labelled(layouter, body, &label);
 }
 
-/// Braço `Ref` — consulta contadores de figura e `resolved_labels` populados pela introspecção.
-/// Forward e backward refs resolvem. Fallback `@nome` se a label não existir.
+/// Braço `Ref` (P462) — resolve o número do elemento associado ao label.
 ///
-/// **P168 (M5 sub-passo 2)**: figure-ref consulta `Introspector::figure_number_for_label`
-/// PRIMEIRO; se vazio (introspector não populado pelo caller), fallback a
-/// `state.figure_label_numbers` legacy. Migração gradual — quando todos os
-/// callers migrarem para `layout_with_introspector`, fallback torna-se
-/// dead code (M6 elimina). Caso section-ref permanece em legacy
-/// (lacuna #4-#7 documentadas em `m1-lacunas-captura.md`).
-pub(super) fn layout_ref<M: FontMetrics, S: ImageSizer>(layouter: &mut Layouter<M, S>, target: &Label) {
+/// Ordem de resolução:
+/// 1. `Content::Label` numérico (heading/figure/equation/table) via
+///    `Introspector::counter_key_for_label` + `counter_values_at`.
+/// 2. Figure `Content::Labelled` via `figure_number_for_label` (fallback legacy).
+/// 3. Texto resolvido `Content::Labelled` via `resolved_label_for` (fallback legacy).
+/// 4. Label não encontrada → renderiza "?".
+pub(super) fn layout_ref<M: FontMetrics, S: ImageSizer>(
+    layouter: &mut Layouter<M, S>,
+    elem: &RefElem,
+) {
     use crate::entities::introspector::Introspector;
 
-    // P190H (M6 categoria Figures): fallback legacy
-    // `counter.figure_label_numbers` ELIMINADO — field eliminado de
-    // CounterStateLegacy. Caminho Introspector activo desde P168
-    // (populate_intr arms Figure + Labelled populate
-    // `intr.figure_label_numbers`). Substitution-with-fallback
-    // colapsa em Introspector path puro.
-    if let Some(fig_num) = layouter.introspector.figure_number_for_label(target) {
-        layouter.layout_content(&Content::text(format!("Figura {}", fig_num)));
+    let target_label = Label(elem.name.to_string());
+
+    // 1. Caminho P462: label associada a um elemento numerado via Content::Label.
+    if let Some(key) = layouter.introspector.counter_key_for_label(&target_label) {
+        if let Some(loc) = layouter.introspector.query_by_label(&target_label) {
+            let formatted = if key == "heading" {
+                layouter
+                    .introspector
+                    .formatted_counter_at(key, loc)
+                    .unwrap_or_default()
+            } else if key == "equation" {
+                layouter
+                    .introspector
+                    .flat_counter_at(key, loc)
+                    .map(|n| format_counter(&[n], "(1)").unwrap_or_else(|| n.to_string()))
+                    .unwrap_or_default()
+            } else {
+                // figure:* e table — número simples.
+                layouter
+                    .introspector
+                    .flat_counter_at(key, loc)
+                    .map(|n| n.to_string())
+                    .unwrap_or_default()
+            };
+
+            let supplement =
+                elem.supplement.clone().or_else(|| default_supplement_for_key(key));
+            let text = match supplement {
+                Some(sup) => format!("{}{}", sup.plain_text(), formatted),
+                None => formatted,
+            };
+            layouter.layout_content(&Content::text(text));
+            return;
+        }
+    }
+
+    // 2. Fallback legacy: figure Labelled.
+    if let Some(fig_num) = layouter.introspector.figure_number_for_label(&target_label) {
+        let prefix = elem
+            .supplement
+            .clone()
+            .map(|s| s.plain_text())
+            .unwrap_or_else(|| "Fig. ".to_string());
+        layouter.layout_content(&Content::text(format!("{}{}", prefix, fig_num)));
         return;
     }
-    // P190G (M6 categoria Labels & TOC): fallback legacy
-    // `counter.resolved_labels` ELIMINADO — field eliminado de
-    // CounterStateLegacy. Caminho Introspector activo desde
-    // P195D (Tag::Labelled pós-recursão; populate_intr arm Labelled
-    // popula intr.resolved_labels). P194B substitution-with-fallback
-    // colapsa em Introspector path puro.
-    let display_text = match layouter.introspector.resolved_label_for(target) {
-        Some(text) => text.to_string(),
-        None       => format!("@{}", target.0),
-    };
-    layouter.layout_content(&Content::text(display_text));
+
+    // 3. Fallback legacy: texto resolvido (ex: "Secção 1" para Labelled heading).
+    if let Some(text) = layouter.introspector.resolved_label_for(&target_label) {
+        layouter.layout_content(&Content::text(text.to_string()));
+        return;
+    }
+
+    // 4. Label não encontrada.
+    layouter.layout_content(&Content::text("?"));
+}
+
+/// Supplement default por chave de counter (P462).
+fn default_supplement_for_key(key: &str) -> Option<Content> {
+    match key {
+        k if k.starts_with("figure:") => Some(Content::text("Fig. ")),
+        "table" => Some(Content::text("Table ")),
+        _ => None,
+    }
 }

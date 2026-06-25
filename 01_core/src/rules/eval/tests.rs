@@ -3929,7 +3929,7 @@ mod tests {
         let module = eval_for_test(&world, &src).unwrap();
         let content = module.content().expect("deve ter content");
         assert!(
-            matches!(&content, Content::Ref(e) if e.target.0 == "meu_label"),
+            matches!(&content, Content::Ref(e) if e.name == "meu_label"),
             "esperado Ref(meu_label), obtido: {:?}",
             content
         );

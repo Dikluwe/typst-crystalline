@@ -1567,10 +1567,18 @@ impl Content {
         Self::Columns(Arc::new(ColumnsElem { count, gutter, body }))
     }
 
-    /// **Lote 8 P323** — `Content::Ref` (referência cruzada `@label`).
+    /// **P462** — `Content::Ref` (referência cruzada `@label` / `ref("label")`).
     /// Nome `reference` (não `r#ref`: evita raw identifier nos call-sites).
-    pub fn reference(target: Label) -> Self {
-        Self::Ref(Arc::new(RefElem { target }))
+    pub fn reference(name: impl Into<EcoString>) -> Self {
+        Self::reference_with_supplement(name, None)
+    }
+
+    /// **P462** — `Content::Ref` com supplement explícito (ex: `ref("fig1", supplement: "Fig. ")`).
+    pub fn reference_with_supplement(
+        name: impl Into<EcoString>,
+        supplement: Option<Content>,
+    ) -> Self {
+        Self::Ref(Arc::new(RefElem { name: name.into(), supplement }))
     }
 
     /// **Lote 8 P323** — `Content::Outline` (índice). Unit struct.
