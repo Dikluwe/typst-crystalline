@@ -22,7 +22,7 @@ O vanilla expõe `#show regex(pattern): it => body` — aplica uma show-rule a n
 - **Variant `Value::Regex`**: adiciona à enum `Value` (tipo já existe em L1; ADR-0017 satisfeito).
 - **Variant `Selector::Regex`**: adiciona à enum `entities::show::Selector` (o `Regex` já existe).
 - **Sem layout/render**: o wiring é em eval/show-rules, antes do layout.
-- **Scope-out**: `.where(field:)` (predicado por campo) — precisa `Selector::Where`, que ainda não existe.
+- **Scope-out**: split interno do nó de texto casado; `.where(field:)` é materializado em P417/P467 (não neste passo).
 
 ## 3. Construtor `regex(pattern)`
 
