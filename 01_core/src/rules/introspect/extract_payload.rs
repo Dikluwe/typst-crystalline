@@ -59,6 +59,11 @@ pub fn extract_payload(content: &Content) -> Option<ElementPayload> {
         // Modelo D (Lote 10 P325): Equation locatável delega ao elemento.
         Content::Equation(e) => e.to_payload(),
 
+        // P461 — Table promovido a locatable. Counter flat `"table"`
+        // populado pelo walk top + populate_intr arm quando
+        // numbering+caption activos.
+        Content::Table(e) => e.to_payload(),
+
         // P198C — CounterUpdate promovido a locatable (cenário
         // β-promote ADR-0069). Arm emite payload com (key, action)
         // pré-recursão. `from_tags` arm CounterUpdate aplica a

@@ -14,6 +14,7 @@ pub mod references;
 use crate::entities::{
     content::Content,
     geometry::ShapeKind,
+    label::Label,
     image_sizer::{ImageSizer, NullImageSizer},
     layout_types::{
         Align2D, FrameItem, HAlign, Page, PageConfig, PagedDocument, Pt,
@@ -193,9 +194,6 @@ pub struct Layouter<'a, M: FontMetrics, S: ImageSizer = NullImageSizer> {
     /// Índice de progresso por kind para figuras (Passo 75, DEBT-14).
     /// kind → número de figuras já dispostas. Reiniciado por invocação de layout().
     figure_progress: std::collections::HashMap<String, usize>,
-    /// **P459** — counter monotónico para numeração automática de tables.
-    /// Incrementado em cada `Content::Table` com caption + numbering activo.
-    pub(super) table_counter: usize,
     /// **P295 (Footnote Fase 1)** — counter monotónico incrementado em
     /// cada `Content::Footnote` consumido. Marker `[N]` emitido como
     /// superscript inline. Walker counter simples (sem
@@ -468,7 +466,6 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
             // P204C: field passa a ser Tracked, recebido por parameter.
             introspector,
             figure_progress: std::collections::HashMap::new(),
-            table_counter: 0,
             footnote_counter: 0,
             is_height_unconstrained: false,
             // P246 — cell_available_h + cell_origin_w migrados a
@@ -761,6 +758,12 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
             // Passo 63 — label passada para registo de página.
             Content::Labelled(e) => {
                 references::layout_labelled(self, &e.target, &e.label);
+            }
+
+            // P460 — Label: destino nomeado. Layout transparente do body
+            // com registo de página + posição para /Dests no PDF.
+            Content::Label(e) => {
+                references::layout_label(self, &e.body, Label(e.name.to_string()));
             }
 
             Content::Ref(e) => {
@@ -1113,6 +1116,8 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
         // P190C (M6 categoria Page tracking): label_pages movido para
         // LayouterRuntimeState.
         doc.extracted_label_pages = self.runtime.label_pages;
+        // P460 — expor posições dos labels para /Dests no export PDF.
+        doc.extracted_label_positions = self.runtime.label_positions;
         // P205B (F3): sealing point — extrai runtime.positions para
         // sub-store sealed `SealedPositions` per ADR-0074. Tracked
         // via comemo; consumer migration em P205C.
@@ -1658,7 +1663,11 @@ fn find_first_bibliography_style(
                 walk(&e.body, introspector)
                     .or_else(|| e.caption.as_ref().and_then(|c| walk(c, introspector)))
             }
-            Content::Table(e) => e.children.iter().find_map(|c| walk(c, introspector)),
+            Content::Table(e) => e
+                .caption
+                .as_ref()
+                .and_then(|c| walk(c, introspector))
+                .or_else(|| e.children.iter().find_map(|c| walk(c, introspector))),
             Content::Grid(e) => e.cells.iter().find_map(|c| walk(c, introspector)),
             Content::Stack(e) => e.children.iter().find_map(|c| walk(c, introspector)),
             Content::ListItem(e) => walk(&e.body, introspector),

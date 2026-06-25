@@ -4,20 +4,33 @@
 //! @layer L1
 //! @updated 2026-04-20
 
-use crate::entities::{content::Content, label::Label};
+use crate::entities::{
+    content::Content,
+    label::Label,
+    layout_types::Point,
+};
 
 use super::{FontMetrics, ImageSizer, Layouter};
 
-/// Braço `Labelled` — layout transparente do target com registo de página.
+/// Braço `Labelled` — layout transparente do target com registo de página
+/// e posição (P460).
 ///
 /// O layout do target ocorre primeiro porque o target pode forçar uma quebra
 /// de página. O registo da página acontece **depois** — o elemento já aterrou
-/// na sua página final (Passo 63, DEBT-12).
+/// na sua página final (Passo 63, DEBT-12). A posição capturada antes do
+/// layout é o ponto de inserção do label no fluxo; é suficiente para /Dests.
 pub(super) fn layout_labelled<M: FontMetrics, S: ImageSizer>(
     layouter: &mut Layouter<M, S>,
     target:   &Content,
     label:    &Label,
 ) {
+    // Capturar posição ANTES do layout: marca o ponto de inserção do label.
+    // Após `layout_content` o cursor pode ter avançado para outra linha/página.
+    let pos = Point {
+        x: layouter.regions.current.cursor_x,
+        y: layouter.regions.current.cursor_y,
+    };
+
     // Layout primeiro — o target pode forçar uma quebra de página.
     layouter.layout_content(target);
 
@@ -28,6 +41,17 @@ pub(super) fn layout_labelled<M: FontMetrics, S: ImageSizer>(
     // P190C (M6 categoria Page tracking): label_pages movido para
     // LayouterRuntimeState (Layouter-runtime — não derivado de Content).
     layouter.runtime.label_pages.insert(label.clone(), page);
+    // P460: guardar posição para /Dests.
+    layouter.runtime.label_positions.insert(label.clone(), pos);
+}
+
+/// Braço `Label` (P460) — wrapper transparente do body com registo de destino.
+pub(super) fn layout_label<M: FontMetrics, S: ImageSizer>(
+    layouter: &mut Layouter<M, S>,
+    body:     &Content,
+    label:    Label,
+) {
+    layout_labelled(layouter, body, &label);
 }
 
 /// Braço `Ref` — consulta contadores de figura e `resolved_labels` populados pela introspecção.

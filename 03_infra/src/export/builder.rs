@@ -137,6 +137,7 @@ impl PdfBuilder {
         self.emit_gradient_objects(grad_objs, &page_dimensions, &mut next_sub_id);
 
         self.emit_link_annotations(doc);
+        self.emit_named_destinations(doc);
         self.serialize()
     }
 
@@ -264,6 +265,7 @@ impl PdfBuilder {
         self.emit_gradient_objects(grad_objs, &page_dimensions, &mut next_sub_id);
 
         self.emit_link_annotations(doc);
+        self.emit_named_destinations(doc);
         self.serialize()
     }
 
@@ -423,6 +425,7 @@ impl PdfBuilder {
         self.emit_gradient_objects(grad_objs, &page_dimensions, &mut next_sub_id);
 
         self.emit_link_annotations(doc);
+        self.emit_named_destinations(doc);
         self.serialize()
     }
 
@@ -702,6 +705,68 @@ impl PdfBuilder {
         }
     }
 
+    /// **P460** — Emite o dicionário `/Names /Dests` no catalog (objecto 1)
+    /// para cada label registado no `PagedDocument`.
+    ///
+    /// Cada destino usa `/XYZ x y null` com coordenadas PDF (y-up). O catalog
+    /// original `<< /Type /Catalog /Pages 2 0 R >>` é editado in-place.
+    fn emit_named_destinations(&mut self, doc: &PagedDocument) {
+        const FIRST_PAGE_ID: usize = 3;
+
+        if doc.extracted_label_pages.is_empty() {
+            return;
+        }
+
+        // Juntar labels comuns a label_pages e label_positions.
+        let mut entries: Vec<(EcoString, usize, Point)> = Vec::new();
+        for (label, &page) in &doc.extracted_label_pages {
+            let pos = doc.extracted_label_positions.get(label).copied().unwrap_or(Point::ZERO);
+            entries.push((label.0.clone().into(), page, pos));
+        }
+        if entries.is_empty() {
+            return;
+        }
+
+        let mut next_id = self.objects.iter().map(|(id, _)| *id).max().unwrap_or(0) + 1;
+        let names_id = next_id;
+        next_id += 1;
+        let dests_id = next_id;
+
+        // Construir o dicionário /Dests: /name [page_ref /XYZ x y null]
+        let mut dests_dict = String::from("<< ");
+        for (name, page, pos) in entries {
+            let page_idx = page.saturating_sub(1);
+            let page_ref = if page_idx < doc.pages.len() {
+                format!("{} 0 R", FIRST_PAGE_ID + page_idx)
+            } else {
+                // Fallback: última página válida.
+                format!("{} 0 R", FIRST_PAGE_ID + doc.pages.len().saturating_sub(1))
+            };
+            let page_h = doc.pages.get(page_idx).map(|p| p.height).unwrap_or(842.0);
+            let pdf_y = page_h - pos.y.val();
+            let escaped_name = escape_pdf_dest_name(&name);
+            dests_dict.push_str(&format!(
+                "{} [{} /XYZ {:.2} {:.2} null] ",
+                escaped_name, page_ref, pos.x.val(), pdf_y
+            ));
+        }
+        dests_dict.push_str(">>");
+
+        self.add(dests_id, dests_dict);
+        self.add(names_id, format!("<< /Dests {dests_id} 0 R >>"));
+
+        // Editar objecto 1 (catalog) para incluir /Names.
+        if let Some((_, content)) = self.objects.iter_mut().find(|(id, _)| *id == 1) {
+            let s = String::from_utf8_lossy(content);
+            if let Some(idx) = s.rfind(">>") {
+                let mut new = s[..idx].to_string();
+                new.push_str(&format!(" /Names {names_id} 0 R"));
+                new.push_str(&s[idx..]);
+                *content = new.into_bytes();
+            }
+        }
+    }
+
     fn serialize(self) -> Vec<u8> {
         // Header — %PDF-1.7 + comentário binário (4 bytes > 127)
         let mut out: Vec<u8> = b"%PDF-1.7\n%\xe2\xe3\xcf\xd3\n".to_vec();
@@ -750,6 +815,24 @@ fn escape_pdf_uri(uri: &str) -> String {
         }
     }
     out
+}
+
+/// Escapa o nome de um destino PDF. Se contiver caracteres fora do conjunto
+/// de nomes PDF, usa notação hexadecimal `<...>`; caso contrário usa `/name`.
+fn escape_pdf_dest_name(name: &str) -> String {
+    let needs_hex = name.is_empty()
+        || name.bytes().any(|b| {
+            !matches!(b,
+                b'A'..=b'Z' | b'a'..=b'z' | b'0'..=b'9' |
+                b'_' | b'-' | b'.' | b':' | b'/' | b'@' | b'*' | b'+'
+            )
+        });
+    if needs_hex {
+        let hex: String = name.bytes().map(|b| format!("{:02X}", b)).collect();
+        format!("<{}>", hex)
+    } else {
+        format!("/{}", name)
+    }
 }
 
 /// Recolhe `FrameItem::Link` de uma lista de items, incluindo links aninhados

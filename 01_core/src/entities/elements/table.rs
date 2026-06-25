@@ -11,6 +11,9 @@
 use std::sync::Arc;
 
 use crate::entities::content::Content;
+use crate::entities::counter_update::CounterUpdate;
+use crate::entities::element_kind::ElementKind;
+use crate::entities::element_payload::ElementPayload;
 use crate::entities::elements::Element;
 use crate::entities::geometry::Stroke;
 use crate::entities::layout_types::{Color, TrackSizing};
@@ -80,6 +83,20 @@ impl Element for TableElem {
             fill:     self.fill,
             caption:  self.caption.as_ref().map(|c| c.map_text(transform)),
         }))
+    }
+
+    fn element_kind(&self) -> Option<ElementKind> {
+        Some(ElementKind::Table)
+    }
+
+    fn to_payload(&self) -> Option<ElementPayload> {
+        // P461: `is_counted` placeholder = caption.is_some(); o gate
+        // `table.numbering` é ANDado pela chain no walk top (espelho
+        // Figure P365). O elemento não baka o padrão.
+        Some(ElementPayload::Table {
+            counter_update: CounterUpdate::Step,
+            is_counted:     self.caption.is_some(),
+        })
     }
 }
 

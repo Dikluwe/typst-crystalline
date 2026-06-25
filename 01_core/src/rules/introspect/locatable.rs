@@ -92,6 +92,12 @@ pub fn is_locatable(content: &Content) -> bool {
         // durante walk; cleanup orgânico em M6.
         Content::CounterUpdate(_) => true,
 
+        // ── Locatable em P461 — Table. Counter flat `"table"` populado
+        // quando caption + `table.numbering` presentes na chain;
+        // `extract_payload` emite `ElementPayload::Table`. Desbloqueia
+        // label/ref para tables em Trilha 2.
+        Content::Table(_) => true,
+
         // ── Lote F-1 (P334): a fronteira dinâmica é locatável SE o
         // elemento de utilizador declarar um `element_kind`. Mantém o
         // invariante `is_locatable ↔ extract_payload.is_some()` (o arm de
@@ -119,6 +125,7 @@ pub fn is_locatable(content: &Content) -> bool {
         | Content::MathMatrix(_)
         | Content::MathCases(_)
         | Content::Labelled(_)
+        | Content::Label(_)
         | Content::Ref(_)
         | Content::CounterDisplay(_)
         | Content::Image(_)
@@ -158,7 +165,6 @@ pub fn is_locatable(content: &Content) -> bool {
         | Content::TableCell(_)
         | Content::TableHeader { .. }
         | Content::TableFooter { .. }
-        | Content::Table(_)
         // P224 — Grid refino + variants novos não-locatable (paridade
         // Table*; events estructurais sem identidade observable).
         | Content::GridHeader { .. }
@@ -256,10 +262,12 @@ mod tests {
         // para verificar a invariante (a invariante é estrutural sobre
         // o match em ambas as funções).
         vec![
-            // Locatable (3)
+            // Locatable (4)
             Content::heading(1, Content::Empty),
             Content::figure(Content::Empty, None, None, None),
             Content::cite("k", None, None),
+            // P461: Table passa a locatable.
+            Content::table(Vec::new(), Vec::new(), Vec::new()),
             // Não-locatable: amostra representativa
             Content::Empty,
             Content::Text(EcoString::from("t")),

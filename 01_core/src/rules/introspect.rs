@@ -188,6 +188,8 @@ fn materialize_time(content: &Content, intr: &TagIntrospector, location: Locatio
         Content::Link(e) => Content::link(e.url.clone(), materialize_time(&e.body, intr, location)),
         // Modelo D (Lote 14 P329): Labelled — recurse no target via construtor.
         Content::Labelled(e) => Content::labelled(materialize_time(&e.target, intr, location), e.label.clone()),
+        // P460: Label — recurse no body via construtor.
+        Content::Label(e) => Content::label(e.name.clone(), materialize_time(&e.body, intr, location)),
         // Modelo D (Lote 13 P328): Figure — recurse body+caption via construtor.
         // F-5a de-bake (P365): a figura não tem mais campo `numbering` — o gate
         // vive na chain (no `Content::Styled` que envolve a figura, preservado pelo
@@ -341,9 +343,10 @@ fn materialize_time(content: &Content, intr: &TagIntrospector, location: Locatio
                 ..(**e).clone()
             },
         )),
-        // Modelo D (Lote 12 P327): Table — recurse em children via struct-update.
+        // Modelo D (Lote 12 P327): Table — recurse em caption + children.
         Content::Table(e) => Content::Table(std::sync::Arc::new(
             crate::entities::elements::table::TableElem {
+                caption: e.caption.as_ref().map(|c| materialize_time(c, intr, location)),
                 children: e.children.iter().map(|c| materialize_time(c, intr, location)).collect(),
                 ..(**e).clone()
             },
@@ -582,6 +585,20 @@ fn populate_intr_from_tag_start(
                     .insert(label.clone(), *n);
             }
         }
+        ElementPayload::Table { counter_update, is_counted } => {
+            intr.kind_index
+                .entry(ElementKind::Table)
+                .or_default()
+                .push(loc);
+            // P461: counter "table" avança só quando caption + numbering.
+            if *is_counted {
+                intr.counters.apply_at(
+                    "table".to_string(),
+                    counter_update.clone(),
+                    loc,
+                );
+            }
+        }
         ElementPayload::CounterUpdate { key, action } => {
             intr.kind_index
                 .entry(ElementKind::CounterUpdate)
@@ -682,6 +699,12 @@ pub(crate) fn walk(
         // do padrão lido da chain aqui (`Some(Str)` = numerado). Fonte única.
         if let ElementPayload::Figure { is_counted, .. } = &mut payload {
             *is_counted &= matches!(chain.custom("figure.numbering"), Some(Value::Str(_)));
+        }
+        // P461: a table não baka o padrão. `is_counted` placeholder
+        // (`caption.is_some()`, de `to_payload`) **ANDado** com o gate
+        // `table.numbering` lido da chain. Fonte única.
+        if let ElementPayload::Table { is_counted, .. } = &mut payload {
+            *is_counted &= matches!(chain.custom("table.numbering"), Some(Value::Str(_)));
         }
         let info = ElementInfo {
             payload,
@@ -881,6 +904,15 @@ pub(crate) fn walk(
             if let Some(cap) = caption {
                 walk(cap, locator, tags, intr, auto_label_counter, lang, chain, None);
             }
+        }
+
+        Content::Label(e) => {
+            // P460: Label é wrapper transparente no walk. Propaga a label
+            // para o body (análogo a Labelled), permitindo que Ref resolva
+            // labels em headings/figures/equations. Não emite Tag próprio
+            // quando o body não é locatable — o destino PDF ainda é gerado
+            // pelo layout independentemente.
+            walk(&e.body, locator, tags, intr, auto_label_counter, lang, chain, Some(&Label(e.name.to_string())));
         }
 
         Content::Labelled(e) => {
@@ -1090,8 +1122,12 @@ pub(crate) fn walk(
         // P224.C — GridCell (recurse no body; paridade P157B TableCell).
         Content::GridCell(e) => walk(&e.body, locator, tags, intr, auto_label_counter, lang, chain, None),
 
-        // Passo 157A — Table (paridade Grid).
+        // P461 — Table locatable. Tag emitido no walk top; aqui recursa
+        // em caption (se houver) + children, espelhando Figure.
         Content::Table(e) => {
+            if let Some(cap) = &e.caption {
+                walk(cap, locator, tags, intr, auto_label_counter, lang, chain, None);
+            }
             for c in &e.children { walk(c, locator, tags, intr, auto_label_counter, lang, chain, None); }
         }
 
@@ -2971,6 +3007,47 @@ mod tests {
             intr.flat_counter_at("equation", last_loc),
             Some(3),
             "Introspector: paridade pós-P198C — flat_counter_at == 3"
+        );
+    }
+
+    #[test]
+    fn p461_table_counter_popula_via_introspector() {
+        // P461: Table locatable + counter "table" populado quando
+        // caption + table.numbering presentes.
+        use crate::entities::introspector::Introspector;
+        use crate::entities::layout_types::TrackSizing;
+        use crate::entities::style::Styles;
+        use crate::entities::value::Value;
+
+        let mk = |n: usize| Content::table_with_caption(
+            vec![TrackSizing::Auto],
+            vec![TrackSizing::Auto],
+            vec![Content::text(format!("cell{n}"))],
+            Some(Content::text(format!("cap{n}"))),
+        );
+        let content = Content::Sequence(vec![
+            Content::Styled(
+                Box::new(mk(1)),
+                Styles::new().push_custom("table.numbering", Value::Str("1.".into())),
+            ),
+            Content::Styled(
+                Box::new(mk(2)),
+                Styles::new().push_custom("table.numbering", Value::Str("1.".into())),
+            ),
+        ].into());
+        let intr = introspect_with_introspector(&content);
+
+        let locs = intr.query_by_kind(ElementKind::Table);
+        assert_eq!(locs.len(), 2, "duas tables locatable");
+        assert_eq!(
+            intr.flat_counter_at("table", locs[0]),
+            Some(1),
+            "primeira table numerada 1"
+        );
+        assert_eq!(
+            intr.flat_counter_at("table", locs[1]),
+            Some(2),
+            "segunda table numerada 2"
         );
     }
 

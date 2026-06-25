@@ -468,6 +468,10 @@ pub struct PagedDocument {
     /// Populado por `Layouter::finish()` após cada passagem de layout.
     /// Vazio por defeito — só tem dados após `layout()` com labels no documento.
     pub extracted_label_pages: HashMap<Label, usize>,
+    /// **P460** — mapa de labels para posição (x, y) onde aterraram.
+    /// Populado por `Layouter::finish()` após cada passagem de layout.
+    /// Vazio por defeito — só tem dados após `layout()` com labels no documento.
+    pub extracted_label_positions: HashMap<Label, Point>,
     /// **P205B (F3)** — sub-store sealed `Location → Position`
     /// extraído de `LayouterRuntimeState.positions` ao fim da
     /// iteração. Tracked via `#[comemo::track]` per ADR-0074
@@ -480,8 +484,9 @@ impl PagedDocument {
     pub fn new(pages: Vec<Page>) -> Self {
         Self {
             pages,
-            extracted_label_pages: HashMap::new(),
-            extracted_positions:   crate::entities::sealed_positions::SealedPositions::empty(),
+            extracted_label_pages:     HashMap::new(),
+            extracted_label_positions: HashMap::new(),
+            extracted_positions:       crate::entities::sealed_positions::SealedPositions::empty(),
         }
     }
 

@@ -13630,6 +13630,40 @@ mod f_caracterizacao_estilo {
         assert!(t.contains("cell"), "corpo da table deve renderizar: '{t}'");
     }
 
+    // ── P461 — Counter "table" via Introspector (regressão re-layout) ─────
+    #[test]
+    fn p461_table_counter_persiste_relayout() {
+        use crate::entities::style::Styles;
+        use crate::entities::value::Value;
+        use crate::entities::layout_types::TrackSizing;
+        let mk = |n: usize| Content::table_with_caption(
+            vec![TrackSizing::Auto],
+            vec![TrackSizing::Auto],
+            vec![Content::text(format!("cell{n}"))],
+            Some(Content::text(format!("legenda{n}"))),
+        );
+        let seq = Content::Sequence(vec![
+            Content::Styled(
+                Box::new(mk(1)),
+                Styles::new().push_custom("table.numbering", Value::Str("1.".into())),
+            ),
+            Content::Styled(
+                Box::new(mk(2)),
+                Styles::new().push_custom("table.numbering", Value::Str("1.".into())),
+            ),
+        ].into());
+        // Dois layouts independentes da mesma sequência; o oráculo é
+        // reconstruído a partir do Content, logo a sequência 1, 2 repete-se
+        // idempotentemente. Com campo local numa passagem multi-layout
+        // o counter duplicaria.
+        let t1 = doc_text(&seq);
+        let t2 = doc_text(&seq);
+        assert!(t1.contains("Table 1.: legenda1"), "1º layout T1: '{t1}'");
+        assert!(t1.contains("Table 2.: legenda2"), "1º layout T2: '{t1}'");
+        assert!(t2.contains("Table 1.: legenda1"), "2º layout T1: '{t2}'");
+        assert!(t2.contains("Table 2.: legenda2"), "2º layout T2: '{t2}'");
+    }
+
     // ── SetEquationNumbering → caracterizar estado atual ──────────────────
     // 1a (inventário): SetEquationNumbering NÃO tem produtor em eval (só
     // testes); o efeito real depende do Introspector. Caracteriza o que
@@ -13746,5 +13780,40 @@ mod f_caracterizacao_estilo {
         // (columns) — o heading numerado renderiza numerado mesmo encapsulado.
         assert!(t.contains("Dentro"), "corpo do heading presente: '{t}'");
         assert!(t.contains("1."), "heading dentro de columns deve numerar: '{t}'");
+    }
+
+    // ── P460 — Label: destinos nomeados ────────────────────────────────────
+    use crate::entities::label::Label;
+
+    #[test]
+    fn layout_label_renderiza_body_sem_alteracao_visual() {
+        let body = Content::text("Marcado");
+        let content = Content::label("sec1", body.clone());
+        let doc = layout(&content);
+        let text = doc.plain_text();
+        assert_eq!(text, "Marcado", "Label não deve alterar texto renderizado");
+        // Verificar que o body aparece como Text na página.
+        let has_text = doc.pages.iter().any(|p| {
+            p.items.iter().any(|i| matches!(i, FrameItem::Text { text: t, .. } if t == "Marcado"))
+        });
+        assert!(has_text, "FrameItem::Text do body deve estar presente");
+    }
+
+    #[test]
+    fn layout_label_registra_pagina_e_posicao() {
+        let content = Content::label("fig1", Content::text("Corpo"));
+        let doc = layout(&content);
+        let label = Label("fig1".to_string());
+        assert_eq!(
+            doc.extracted_label_pages.get(&label),
+            Some(&1),
+            "label deve estar registado na página 1"
+        );
+        assert!(
+            doc.extracted_label_positions.contains_key(&label),
+            "label deve ter posição registada"
+        );
+        let pos = doc.extracted_label_positions.get(&label).unwrap();
+        assert!(pos.x.val() > 0.0 || pos.y.val() > 0.0, "posição deve ser positiva");
     }
 }

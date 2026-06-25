@@ -13,6 +13,7 @@
 use crate::entities::content::Content;
 use crate::entities::counter_format::format_counter;
 use crate::entities::elements::table::TableElem;
+use crate::entities::introspector::Introspector;
 use crate::entities::value::Value;
 
 use super::{FontMetrics, ImageSizer, Layouter};
@@ -33,9 +34,15 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
         });
     let caption_prefix: Option<String> = if e.caption.is_some() {
         if let Some(pattern) = numbering_pattern {
-            layouter.table_counter += 1;
-            let formatted = format_counter(&[layouter.table_counter], pattern)
-                .unwrap_or_else(|| layouter.table_counter.to_string());
+            // P461 — número via Introspector (`"table"` counter), não campo
+            // local do Layouter. `current_location` foi actualizado no topo
+            // de `layout_content` porque Table é locatable.
+            let table_number = layouter
+                .current_location
+                .and_then(|loc| layouter.introspector.flat_counter_at("table", loc))
+                .unwrap_or(1);
+            let formatted = format_counter(&[table_number], pattern)
+                .unwrap_or_else(|| table_number.to_string());
             Some(format!("Table {}: ", formatted))
         } else {
             None

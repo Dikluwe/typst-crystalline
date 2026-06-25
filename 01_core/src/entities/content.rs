@@ -35,6 +35,7 @@ use crate::entities::world_types::Datetime;
 use crate::entities::elements::divider::DividerElem;
 use crate::entities::elements::emph::EmphElem;
 use crate::entities::elements::heading::HeadingElem;
+use crate::entities::elements::label::LabelElem;
 use crate::entities::elements::math_styled::MathStyledElem;
 use crate::entities::elements::strong::StrongElem;
 use crate::entities::elements::DynElement;
@@ -327,6 +328,14 @@ pub enum Content {
     /// **Modelo D (ADR-0105, P316)**: lógica delegada a
     /// `entities::elements::math_styled::MathStyledElem`.
     MathStyled(Arc<MathStyledElem>),
+
+    /// Destino nomeado para referências cruzadas (P460).
+    /// A `Label` é metainformação posicional — não tem presença visual.
+    /// Produzida por `#label("sec1", body)`; o body é renderizado normalmente
+    /// e o nome é registado como destino no PDF (`/Dests`).
+    /// **Modelo D (P460)**: `entities::elements::label::LabelElem`
+    /// (wrapper de label; recurse body; não-locatável no trait).
+    Label(Arc<LabelElem>),
 
     /// Nó com etiqueta semântica (Passo 56).
     /// A `Label` é metainformação pura — não tem presença visual.
@@ -1370,6 +1379,11 @@ impl Content {
         Self::Labelled(Arc::new(LabelledElem { target, label }))
     }
 
+    /// **P460** — `Content::Label` (destino nomeado para referências cruzadas).
+    pub fn label(name: impl Into<EcoString>, body: Content) -> Self {
+        Self::Label(Arc::new(LabelElem { name: name.into(), body }))
+    }
+
     /// **Lote 13 P328** — `Content::Figure` (figura locatável M1).
     ///
     /// **F-5a de-bake (P365, `f_fronteira_e1.md` §3a.9):** o campo assado
@@ -1744,6 +1758,7 @@ impl Content {
             Self::Empty => true,
             Self::Sequence(v) => v.is_empty(),
             Self::Labelled(e) => e.is_empty(),
+            Self::Label(e) => e.is_empty(),
             // Figura: não está vazia se tiver body OU caption com conteúdo.
             Self::Figure(e) => e.is_empty(),
             Self::Grid(e) => e.is_empty(),
@@ -1892,6 +1907,7 @@ impl Content {
             // P311b.2 — MathStyled é transparente para plain_text (wraps body).
             Self::MathStyled(m) => m.plain_text(),
             Self::Labelled(e) => e.plain_text(),
+            Self::Label(e) => e.plain_text(),
             Self::Ref(e) => e.plain_text(),
             Self::CounterDisplay(e) => e.plain_text(),
             Self::CounterUpdate(e) => e.plain_text(),
@@ -2020,6 +2036,8 @@ impl PartialEq for Content {
             (Self::MathStyled(a), Self::MathStyled(b)) => a == b,
             // Modelo D (Lote 14 P329): Labelled delega ao `Arc<…Elem>`.
             (Self::Labelled(a), Self::Labelled(b)) => a == b,
+            // P460: Label delega ao `Arc<LabelElem>`.
+            (Self::Label(a), Self::Label(b)) => a == b,
             (Self::Ref(a), Self::Ref(b)) => a == b,
             // Modelo D (Lote 6 P321): delegam ao `Arc<…Elem>`.
             (Self::CounterDisplay(a), Self::CounterDisplay(b)) => a == b,
@@ -2198,6 +2216,7 @@ impl Content {
             Content::EnumItem(e) => e.map_content(transform)?,
             Content::Link(e)     => e.map_content(transform)?,
             Content::Labelled(e) => e.map_content(transform)?,
+            Content::Label(e)    => e.map_content(transform)?,
             // Modelo D (Lote 13 P328): Figure container delega ao elemento.
             Content::Figure(e) => e.map_content(transform)?,
             // Content::Equation tem body: Box<Content> → container.
@@ -2435,6 +2454,7 @@ impl Content {
             // Passo 101: Content::Strong/Emph removidos — cobertos pelo
             // arm Content::Styled abaixo (map_text recursivo).
             Content::Labelled(e) => e.map_text(transform),
+            Content::Label(e)    => e.map_text(transform),
             // Modelo D (Lote 13 P328): Figure container delega ao elemento.
             Content::Figure(e) => e.map_text(transform),
             // Modelo D (Lote 3 P318): família lista/termos delega ao elemento

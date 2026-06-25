@@ -202,6 +202,18 @@ pub enum ElementPayload {
         action: CounterUpdate,
     },
 
+    /// **P461** — payload de `Content::Table`. Forma paralela a
+    /// `Figure` (P454/P459): `counter_update` registado para Step;
+    /// `is_counted` é a conjunção da presença de caption com o gate
+    /// `table.numbering` lido da chain no momento da emissão.
+    /// `populate_intr` arm Table aplica counter `"table"` quando
+    /// `is_counted`, permitindo ao layout consumir via
+    /// `flat_counter_at("table", current_location)`.
+    Table {
+        counter_update: CounterUpdate,
+        is_counted:     bool,
+    },
+
     /// **P200B** (M5 universal completo) — Tag derivada de Heading
     /// para popular sub-store `intr.headings_for_toc`. Emitida
     /// pelo walk arm Heading pós-recursão (3ª Tag depois de

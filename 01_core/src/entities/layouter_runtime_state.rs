@@ -25,6 +25,7 @@
 use std::collections::HashMap;
 
 use crate::entities::label::Label;
+use crate::entities::layout_types::Point;
 use crate::entities::location::Location;
 use crate::entities::position::Position;
 
@@ -41,6 +42,12 @@ pub struct LayouterRuntimeState {
     /// Lido por `mod.rs:layout()` no fim para preencher
     /// `PagedDocument.extracted_label_pages`.
     pub label_pages: HashMap<Label, usize>,
+
+    /// **P460** — mapeia label para posição (x, y) no momento do layout.
+    /// Populated por `references.rs` durante layout (write).
+    /// Lido por `mod.rs:layout()` no fim para preencher
+    /// `PagedDocument.extracted_label_positions`.
+    pub label_positions: HashMap<Label, Point>,
 
     /// Page numbers conhecidos da iteração anterior do fixpoint
     /// (referência para `outline.rs` resolver "  N" em entries TOC).
