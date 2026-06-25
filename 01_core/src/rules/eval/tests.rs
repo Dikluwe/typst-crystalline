@@ -503,6 +503,95 @@ mod tests {
         );
     }
 
+    // ── P459 — `#set table(numbering:)` via chain léxica ─────────────────────
+    fn collect_table_numbering(c: &Content, out: &mut Vec<Option<String>>) {
+        fn go(c: &Content, active: Option<String>, out: &mut Vec<Option<String>>) {
+            match c {
+                Content::Table(_) => out.push(active),
+                Content::Sequence(items) => {
+                    items.iter().for_each(|i| go(i, active.clone(), out))
+                }
+                Content::Styled(b, s) => {
+                    let a = match s
+                        .delta()
+                        .custom
+                        .iter()
+                        .rev()
+                        .find(|(k, _)| k == "table.numbering")
+                    {
+                        Some((_, crate::entities::value::Value::Str(p))) => {
+                            Some(p.to_string())
+                        }
+                        Some((_, _)) => None,
+                        None => active,
+                    };
+                    go(b, a, out)
+                }
+                Content::Labelled(e) => go(&e.target, active, out),
+                _ => {}
+            }
+        }
+        go(c, None, out)
+    }
+
+    #[test]
+    fn p459_set_table_numbering_assa_via_chain() {
+        let world = MockWorld::new("#set table(numbering: \"1.\")\n#table([A], caption: [Cap])");
+        let source = World::source(&world, World::main(&world)).unwrap();
+        let module = eval_for_test(&world, &source).unwrap();
+        let content = module.content().expect("módulo deve ter content");
+        let mut nums = vec![];
+        collect_table_numbering(content, &mut nums);
+        assert_eq!(nums, vec![Some("1.".to_string())], "table assada com numbering '1.'");
+    }
+
+    #[test]
+    fn p459_set_table_escopo_lexical_nao_vaza() {
+        let world = MockWorld::new(
+            "#[#set table(numbering: \"1.\")\n#table([In], caption: [C])]\n#table([Out], caption: [C])",
+        );
+        let source = World::source(&world, World::main(&world)).unwrap();
+        let module = eval_for_test(&world, &source).unwrap();
+        let content = module.content().expect("módulo deve ter content");
+        let mut nums = vec![];
+        collect_table_numbering(content, &mut nums);
+        assert_eq!(
+            nums,
+            vec![Some("1.".to_string()), None],
+            "Dentro numerada; Fora NÃO (escopo léxico): {nums:?}"
+        );
+    }
+
+    #[test]
+    fn p459_table_source_sequencia_numerada() {
+        use crate::rules::layout::layout;
+        let src = "#set table(numbering: \"1.\")\n#table([A], caption: [T1])\n#table([B], caption: [T2])";
+        let text = layout(&eval_doc(src)).plain_text();
+        assert!(
+            text.contains("Table 1.: T1"),
+            "primeira table deve numerar 1.; obtido: {text:?}"
+        );
+        assert!(
+            text.contains("Table 2.: T2"),
+            "segunda table deve numerar 2.; obtido: {text:?}"
+        );
+    }
+
+    #[test]
+    fn p459_table_source_pattern_romano() {
+        use crate::rules::layout::layout;
+        let src = "#set table(numbering: \"[I]\")\n#table([A], caption: [T1])\n#table([B], caption: [T2])";
+        let text = layout(&eval_doc(src)).plain_text();
+        assert!(
+            text.contains("Table [I]: T1"),
+            "pattern romano deve formatar 1 como I; obtido: {text:?}"
+        );
+        assert!(
+            text.contains("Table [II]: T2"),
+            "pattern romano deve formatar 2 como II; obtido: {text:?}"
+        );
+    }
+
     // ── Lote F-3 inc-2 S1 — elemento de utilizador na linguagem (#name(args)) ──
     fn registry_com_callout() -> crate::entities::element_registry::ElementRegistry {
         use crate::entities::elements::test_callout::{BadgeElem, CalloutElem};

@@ -1609,6 +1609,25 @@ impl Content {
             children,
             stroke: None,
             fill: None,
+            caption: None,
+        }))
+    }
+
+    /// `table_with_caption(columns, rows, children, caption)` — P459.
+    /// Variante programática com caption opcional para numeração automática.
+    pub fn table_with_caption(
+        columns: Vec<TrackSizing>,
+        rows: Vec<TrackSizing>,
+        children: Vec<Content>,
+        caption: Option<Content>,
+    ) -> Self {
+        Self::Table(Arc::new(TableElem {
+            columns,
+            rows,
+            children,
+            stroke: None,
+            fill: None,
+            caption,
         }))
     }
 
@@ -4372,6 +4391,7 @@ mod tests {
                     overhang: false,
                 }),
                 fill: None,
+                caption: None,
             },
         ));
         if let Content::Table(e) = &t {
@@ -4450,6 +4470,7 @@ mod tests {
                 children: vec![Content::text("X")],
                 stroke: None,
                 fill: Some(Color::rgb(0, 255, 0)),
+                caption: None,
             },
         ));
         if let Content::Table(e) = &t {

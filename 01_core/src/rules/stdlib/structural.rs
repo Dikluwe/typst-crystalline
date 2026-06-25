@@ -450,7 +450,8 @@ pub fn native_table(
 
     for key in args.named.keys() {
         // P227 + P228 — accept stroke + fill (paridade native_grid).
-        if !["columns", "rows", "stroke", "fill"].contains(&key.as_str()) {
+        // P459 — accept caption para numeração automática.
+        if !["columns", "rows", "stroke", "fill", "caption"].contains(&key.as_str()) {
             return Err(vec![SourceDiagnostic::error(
                 Span::detached(),
                 format!("argumento nomeado inesperado em table(): '{}' (atributos avançados scope-out per ADR-0054 graded — refino futuro)", key),
@@ -500,6 +501,18 @@ pub fn native_table(
         }
         None => None,
     };
+    // P459 — caption opcional (Content ou Str); None se omitido.
+    let caption = match args.named.get("caption") {
+        Some(Value::Content(c)) => Some(c.clone()),
+        Some(Value::Str(s)) => Some(Content::text(s.as_str())),
+        Some(Value::None) | None => None,
+        Some(other) => {
+            return Err(vec![SourceDiagnostic::error(
+                Span::detached(),
+                format!("table(caption): espera content ou string, recebeu {}", other.type_name()),
+            )])
+        }
+    };
     Ok(Value::Content(Content::Table(std::sync::Arc::new(
         crate::entities::elements::table::TableElem {
             columns,
@@ -507,6 +520,7 @@ pub fn native_table(
             children,
             stroke,
             fill,
+            caption,
         },
     ))))
 }

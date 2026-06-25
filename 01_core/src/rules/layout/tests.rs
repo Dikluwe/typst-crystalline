@@ -4368,6 +4368,7 @@ mod tests_show_rule_integration {
                     overhang: false,
                 }),
                 fill: None,
+                caption: None,
             },
         ));
         let doc = layout(&t);
@@ -4594,6 +4595,7 @@ mod tests_show_rule_integration {
                 children: vec![Content::text("X"), Content::text("Y")],
                 stroke: None,
                 fill: Some(Color::rgb(200, 200, 200)),
+                caption: None,
             },
         ));
         let doc = layout(&t);
@@ -5934,6 +5936,7 @@ mod tests_show_rule_integration {
                 children: vec![cell],
                 stroke: None,
                 fill: None,
+                caption: None,
             },
         ));
         let doc = layout(&t);
@@ -5999,6 +6002,7 @@ mod tests_show_rule_integration {
                 children: vec![cell],
                 stroke: None,
                 fill: None,
+                caption: None,
             },
         ));
         let doc = layout(&t);
@@ -6066,6 +6070,7 @@ mod tests_show_rule_integration {
                 children: vec![cell],
                 stroke: None,
                 fill: None,
+                caption: None,
             },
         ));
         let doc = layout(&t);
@@ -6137,6 +6142,7 @@ mod tests_show_rule_integration {
                 children: vec![cell],
                 stroke: None,
                 fill: None,
+                caption: None,
             },
         ));
         let doc = layout(&t);
@@ -6341,6 +6347,7 @@ mod tests_show_rule_integration {
                 children: vec![cell],
                 stroke: None,
                 fill: None,
+                caption: None,
             },
         ));
         let doc = layout(&t);
@@ -7155,6 +7162,7 @@ mod tests_show_rule_integration {
                 children: vec![cell],
                 stroke: None,
                 fill: None,
+                caption: None,
             },
         ));
         let doc = layout(&t);
@@ -7227,6 +7235,7 @@ mod tests_show_rule_integration {
                 children: vec![cell],
                 stroke: None,
                 fill: None,
+                caption: None,
             },
         ));
         let doc = layout(&t);
@@ -7272,6 +7281,7 @@ mod tests_show_rule_integration {
                 children: vec![cell],
                 stroke: None,
                 fill: None,
+                caption: None,
             },
         ));
         let doc = layout(&t);
@@ -7353,6 +7363,7 @@ mod tests_show_rule_integration {
                 children: vec![cell],
                 stroke: None,
                 fill: None,
+                caption: None,
             },
         ));
         // Pagebreak manual força flush.
@@ -7416,6 +7427,7 @@ mod tests_show_rule_integration {
                 children: vec![cell],
                 stroke: None,
                 fill: None,
+                caption: None,
             },
         ));
         let seq = Content::Sequence(std::sync::Arc::from(vec![
@@ -7503,6 +7515,7 @@ mod tests_show_rule_integration {
                 children: vec![mk_cell("r1"), mk_cell("r2")],
                 stroke: None,
                 fill: None,
+                caption: None,
             },
         ));
         let doc = layout(&t);
@@ -13574,6 +13587,47 @@ mod f_caracterizacao_estilo {
         );
         let t = doc_text(&c);
         assert!(!t.contains("Figura 1"), "sem caption → sem prefixo numérico: '{t}'");
+    }
+
+    // ── P459 — Table numbering (caption acima) ────────────────────────────
+    #[test]
+    fn p459_table_caption_numbering_prefixo_acima() {
+        use crate::entities::style::Styles;
+        use crate::entities::value::Value;
+        use crate::entities::layout_types::TrackSizing;
+        let table = Content::table_with_caption(
+            vec![TrackSizing::Auto],
+            vec![TrackSizing::Auto],
+            vec![Content::text("cell")],
+            Some(Content::text("legenda")),
+        );
+        let c = Content::Styled(
+            Box::new(table),
+            Styles::new().push_custom("table.numbering", Value::Str("1.".into())),
+        );
+        let t = doc_text(&c);
+        assert!(t.contains("Table 1.: legenda"), "table numerada deve prefixar caption acima: '{t}'");
+        assert!(t.contains("cell"), "corpo da table deve renderizar: '{t}'");
+    }
+
+    #[test]
+    fn p459_table_sem_caption_sem_prefixo() {
+        use crate::entities::style::Styles;
+        use crate::entities::value::Value;
+        use crate::entities::layout_types::TrackSizing;
+        let table = Content::table_with_caption(
+            vec![TrackSizing::Auto],
+            vec![TrackSizing::Auto],
+            vec![Content::text("cell")],
+            None,
+        );
+        let c = Content::Styled(
+            Box::new(table),
+            Styles::new().push_custom("table.numbering", Value::Str("1.".into())),
+        );
+        let t = doc_text(&c);
+        assert!(!t.contains("Table 1"), "sem caption → sem prefixo numérico: '{t}'");
+        assert!(t.contains("cell"), "corpo da table deve renderizar: '{t}'");
     }
 
     // ── SetEquationNumbering → caracterizar estado atual ──────────────────

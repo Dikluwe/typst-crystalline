@@ -5,7 +5,7 @@
 //! @prompt 00_nucleo/prompts/rules/style/font-dict.md
 //! @prompt-hash a6b22960
 //! @layer L1
-//! @updated 2026-06-22
+//! @updated 2026-06-25
 //!
 //! Show rules e set rules — aplicação e intercepção. Extraído de `eval.rs`
 //! no Passo 96.1 conforme ADR-0037 (coesão por domínio).
@@ -732,6 +732,35 @@ pub(super) fn eval_set_rule(
                                 .push_custom("figure.numbering", Value::None);
                         }
                         // Outros tipos: herdar (não empurra).
+                        _ => {}
+                    }
+                }
+            }
+        }
+        return Ok(Value::None);
+    }
+
+    if target == "table" {
+        // P459 — `#set table(numbering: "1.")` activa numeração automática de
+        // tables. O padrão vive na chain léxica (`custom("table.numbering")`),
+        // análogo a figure/equation (F-2 S3). O layout lê o gate e prefixa o
+        // caption quando ambos (caption + numbering) estão presentes.
+        for arg in set.args().items() {
+            if let Arg::Named(named) = arg {
+                if named.name().as_str() == "numbering" {
+                    let val = eval_expr(named.expr(), scopes, ctx, engine)
+                        .unwrap_or(Value::None);
+                    match val {
+                        Value::Str(s) => {
+                            *engine.styles = engine
+                                .styles
+                                .push_custom("table.numbering", Value::Str(s));
+                        }
+                        Value::None => {
+                            *engine.styles = engine
+                                .styles
+                                .push_custom("table.numbering", Value::None);
+                        }
                         _ => {}
                     }
                 }

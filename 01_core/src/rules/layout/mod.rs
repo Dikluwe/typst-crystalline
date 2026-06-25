@@ -193,6 +193,9 @@ pub struct Layouter<'a, M: FontMetrics, S: ImageSizer = NullImageSizer> {
     /// Índice de progresso por kind para figuras (Passo 75, DEBT-14).
     /// kind → número de figuras já dispostas. Reiniciado por invocação de layout().
     figure_progress: std::collections::HashMap<String, usize>,
+    /// **P459** — counter monotónico para numeração automática de tables.
+    /// Incrementado em cada `Content::Table` com caption + numbering activo.
+    pub(super) table_counter: usize,
     /// **P295 (Footnote Fase 1)** — counter monotónico incrementado em
     /// cada `Content::Footnote` consumido. Marker `[N]` emitido como
     /// superscript inline. Walker counter simples (sem
@@ -465,6 +468,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
             // P204C: field passa a ser Tracked, recebido por parameter.
             introspector,
             figure_progress: std::collections::HashMap::new(),
+            table_counter: 0,
             footnote_counter: 0,
             is_height_unconstrained: false,
             // P246 — cell_available_h + cell_origin_w migrados a
