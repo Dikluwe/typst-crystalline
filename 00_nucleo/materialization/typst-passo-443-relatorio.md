@@ -102,7 +102,7 @@ Resultado: **5 ocorrências** mantidas, agora cobertas por ADR-0116.
 ## 5. Notas e próximos passos
 
 - O P443 não alterou código funcional em `Tekt`; a branch experimental `p442-get-unchecked-removal` contém o refactor com slicing seguro e pode ser consultada ou eliminada futuramente.
-- Com DEBT-42 fechado, o inventário de débitos técnicos está mais próximo de limpo. Os passos seguintes podem focar-se em novas features ou refinamentos de paridade, sem débito de `unsafe` em `scanner.rs` pendente.
+- Com DEBT-42 fechado, o inventário de débitos técnicos fica com 1 débito activo (DEBT-2) e 1 item dissolvido (DEBT-58). Os passos seguintes podem focar-se em novas features ou refinamentos de paridade, sem débito de `unsafe` em `scanner.rs` pendente.
 - Se, no futuro, o custo relativo do bounds-checking deixar de ser relevante (por exemplo, por refactor que reduza o número de extrações de substring por token), a ADR-0116 pode ser revogada e a branch experimental reavaliada.
 
 ---

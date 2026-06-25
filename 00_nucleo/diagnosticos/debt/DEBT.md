@@ -406,104 +406,6 @@ erro de recursão de `#show`; sem a flag, a mensagem continua byte-idêntica ao 
 
 Ver: `00_nucleo/materialization/typst-passo-428.md`, relatório `typst-passo-428-relatorio.md`.
 
-## DEBT-58 — Primitivos de AST fora do modelo D — **TRIADO (Passo 329)**
-
-**Estado**: a parte "primitivos" **encerra** (vira desenho declarado); `Styled`
-**transfere** para o F/99.E; `Block`/`Boxed`/`Labelled` **saem** do débito para
-o roteiro de lotes (L14/L15). · **Magnitude**: M (por variante) · **Origem**:
-ressalva do checkpoint do Lote 2 (P317) + critério de elegibilidade do modelo de
-lote D (ADR-0105).
-
-### Triagem do P329 — as decisões do dono
-
-**Critério do dono** (cabeçalho da triagem): a fidelidade ao typst vanilla é
-**de comportamento** (saída renderizada + semântica da linguagem), **não de
-estrutura Rust**. A estrutura interna decide-se por **atomicidade, performance e
-manutenção por IA**. Decisões do vanilla que impõem *forma* ao código não
-vinculam.
-
-**Verificação mecânica (P329)**: `grep -nE "Self::(Sequence|Empty|Block|Space|
-MathSequence)\b" 01_core/src/entities/content.rs | grep -v "=>"` → a álgebra do
-`Content` (`sequence()` em `content.rs:1560`) constrói **`Sequence`/`Empty`**
-(normalização de casos degenerados: 0→`Empty`, 1→passthrough, n→`Sequence`).
-**`Block` aparece só no seu construtor ergonómico `block(...)`** (campos de
-utilizador, como todo elemento denso) → **NÃO é álgebra → lote tardio
-confirmado** (L15). Binário resolvido sem surpresa.
-
-**Decisões:**
-
-1. **Primitivos definitivos (4)** — `Sequence`, `MathSequence`, `Empty`,
-   `Space`: álgebra/cola do próprio `Content`, sem campos de utilizador;
-   permanecem no hub **por desenho declarado** (arm próprio **deixa de ser
-   dívida**). Migração não compra atomicidade e custa o topo da largura
-   (`Sequence` 216, `Empty` 156).
-2. **Primitivos provisórios (3)** — `Text`, `MathText`, `MathIdent`: permanecem
-   no hub **com revisita marcada no diagnóstico do F**. Os campos que o vanilla
-   lhes dá são estilo (StyleChain) — território do F; decidir agora desenharia
-   o F por acidente (mesmo argumento das `Set*`).
-3. **Lote tardio (3)** — `Labelled`(57) · `Boxed`(69) · `Block`(121):
-   element-shaped densos; o modelo provado os come (precedente L12 + Arc-wrap
-   C2). Soma ~247 > faixa → **dois lotes**: **L14 = `Labelled`+`Boxed`** (~126),
-   **L15 = `Block`** (~121).
-4. **Transferido ao F (1)** — `Styled(Box<Content>, Styles)`: carrega `Styles`,
-   a superfície que o F/99.E redesenha; sai da triagem, entra no diagnóstico do
-   F junto das 4 `Set*` (ver **DEBT 99.E**).
-
-Conta: 7 primitivos + 3 lote tardio + 1 ao F = 11 ✓ (62 + 4 `Set*` + 11 = 77 ✓).
-
-**Critério de fecho original** (cada variante com destino decidido e gravado):
-**cumprido** — primitivos declarados (item 1+2, na L0 do `content`); `Styled`→F;
-`Block`/`Boxed`/`Labelled`→lotes. Nenhuma "deferida sem dono".
-
----
-
-### _Histórico (pré-triagem, P317)_
-
-**Âncora durável para o conjunto que o modelo D não absorve por default.**
-
-**Conjunto** (com triagem por variante como parte do fecho):
-
-- **Confirmados primitivos, deferidos no P317** (L0 já redigidos, anexados em
-  `00_nucleo/debt-anexos/primitivos-ast/`): `MathSequence` (contentor, largura
-  de uso 21), `MathText` (folha, 50), `MathIdent` (folha, 108).
-- **Confirmados primitivos, ainda não migrados**: `Sequence` (largura 208),
-  `Empty` (116), `Block` (101) — os maiores da tabela de largura P317.
-- **A triar** (incluir só se a triagem confirmar primitivo, não element-shaped):
-  os wrappers estruturais `Styled`, `Boxed`, `Labelled`. A triagem de cada um é
-  **parte do fecho**.
-- **A triar — `Space`** (largura 13, adicionado no P319 C2): é **cola de texto**
-  — parente de `Empty` (116, já no conjunto), **não** de `Divider` (comando unit
-  já migrado). A triagem decide; o registo impede que um lote futuro a arraste
-  por engano. (Observação correlata: `Text` largura 40 é folha `(EcoString,
-  TextStyle)` — candidato natural à mesma triagem; registado no mapa de
-  variantes do modelo, sem decisão.)
-
-**Três saídas possíveis** (sem ordem de preferência):
-
-- **(a) Migrar para D com medição de performance ANTES.** Risco registado:
-  `Arc` em folha quente — `MathIdent` é construída por identificador no hot path
-  de eval/layout; ADR-0029/0030 fazem da performance de RAM domínio de L1. A
-  medição (benchmark `eval()`/`map_*`) é pré-requisito desta saída.
-- **(b) Manter inline por design**, gravado em **nota na ADR-0105** — deixa de
-  ser pendência e vira forma (folhas/contentores ficam fora do D por desenho).
-- **(c) Forma terceira** a desenhar (ex.: payload inline pequeno sem `Arc`).
-
-**Critério de fecho**: cada variante do conjunto com destino decidido e gravado
-(ADR ou migração executada); **nenhuma "deferida" sem dono**.
-
-**Gatilho de decisão**: o fim dos lotes element-shaped (quando a tabela de
-largura do P317 esgotar os elegíveis), ou antes se algum passo precisar tocar
-um primitivo.
-
-**Referências**: relatório P317
-([`materialization/typst-passo-317-relatorio.md`](materialization/typst-passo-317-relatorio.md)
-— tabela de largura, ressalva do checkpoint); modelo de lote
-([`modelo-lote-migracao-d.md`](modelo-lote-migracao-d.md) — critério de
-elegibilidade); ADR-0104/0105; os 3 L0 anexados em
-`debt-anexos/primitivos-ast/`.
-
----
-
 ## DEBT-57 — Specs L0 ausentes para ~70 funções stdlib — FECHADO (Passo 438)
 
 **Estado**: fechado · **Magnitude**: M (fatiável por ficheiro) · **Origem**:
@@ -574,9 +476,12 @@ de L1 possuem agora spec L0 dedicada.
 
 ---
 
-## DEBT-2 — Closures eager vs lazy capture — PARCIALMENTE RESOLVIDO
+## DEBT-2 — Closures eager vs lazy capture — EM ABERTO
 
-### Resolvido no Passo 31
+**Bloqueador:** Infraestrutura `comemo`/`TrackedWorld` inexistente.  
+**Nota (P453):** O estado anterior "PARCIALMENTE RESOLVIDO" era incorrecto. A captura eager foi convertida num snapshot `Arc<Scope>` no Passo 31, mas a divergência semântica face ao vanilla (lazy capture via `comemo`) permanece. O fecho real depende de reactive evaluation, que não está disponível no curto prazo.
+
+### O que foi feito no Passo 31
 
 - `ClosureRepr::captured` mudou de `IndexMap<String, Value>` (clone eager O(N)) para `Arc<Scope>`
 - Captura no momento da definição: snapshot O(N) uma única vez, depois partilhado em O(1)
@@ -589,9 +494,8 @@ de L1 possuem agora spec L0 dedicada.
 - Semântica de captura: ainda eager (snapshot). `#let x=1; #let f()=x; #let x=2; f()` retorna `1`
   (snapshot), não `2` (lazy). O original via `comemo` retornaria `2`.
   **Confirmado no Passo 31**: o snapshot é uma cópia independente do scope, não uma referência
-  partilhada. Divergência semântica documentada com o original. Não bloqueante.
+  partilhada. Divergência semântica documentada com o original.
 - A integração com `comemo` para tracking semântico real aguarda `TrackedWorld` real.
-- Registado como sub-DEBT se cenários avançados de shadowing forem encontrados nos testes de paridade.
 
 ### Pendente
 
@@ -1776,7 +1680,26 @@ selector `NodeKind::Strong`/`Emph` distinguir:
 
 ---
 
-## DEBT-35b — Invalidação de cache de available_width após SetPage — ENCERRADO (Passo 276) ✓
+## DEBT-58 — Primitivos de AST fora do modelo D — DISSOLVIDO (Passo 329; consolidado P453) ✓
+
+**Aberto em**: Passo 317 (ressalva do checkpoint do Lote 2).  
+**Triado em**: Passo 329.  
+**Dissolvido em**: 2026-06-24 (Passo 453).  
+**Etiqueta de fecho**: **DISSOLVIDO**.
+
+**Justificação**: A triagem do Passo 329 decidiu o destino de cada primitivo do
+conjunto. Os definitivos (`Sequence`, `MathSequence`, `Empty`, `Space`) e
+provisórios (`Text`, `MathText`, `MathIdent`) permanecem no hub `Content` por
+desenho declarado. Os element-shaped (`Labelled`, `Boxed`, `Block`) foram
+encaminhados para lotes tardios (L14/L15). `Styled` transferiu-se para o
+rastreador F/99.E. Como todas as decisões foram tomadas e registadas, o item
+deixou de representar dívida técnica activa; foi reclassificado de TRIADO para
+DISSOLVIDO em P453.
+
+**Referências**: relatório P317, triagem P329, ADR-0104/0105, L0 anexados em
+`debt-anexos/primitivos-ast/`.
+
+---
 
 ## DEBT-35b — Invalidação de cache de available_width após SetPage — ENCERRADO (Passo 276) ✓
 

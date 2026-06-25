@@ -3,7 +3,7 @@
 **Status**: `PROPOSTO` (inventário factual; actualização ad-hoc nos passos que materializam features)
 **Data**: 2026-04-24
 **Vanilla snapshot**: `lab/typst-original/` em commit `ba61529986e0a5a916cbf937c3c65117cd450683` (2026-04-24).
-**Cristalino snapshot**: Passo 447; 61 ADRs; DEBT-1, DEBT-42, DEBT-43, DEBT-52, DEBT-55, DEBT-57 fechados.
+**Cristalino snapshot**: Passo 447/P453; 68 ADRs; DEBT-1, DEBT-42, DEBT-43, DEBT-52, DEBT-55, DEBT-57 fechados; DEBT-58 dissolvido; DEBT-2 em aberto.
 
 > **Refresh P384 (2026-06-19) — recon amplo, read-only.** O corpo deste inventário foi mantido
 > ad-hoc **até ao P299**; o agregado vigente (Tabela A/B) é: **user-facing ~69%** (Markup 78%,
@@ -35,8 +35,8 @@
 > - **Texto / Estilo**: `underline`, `overline`, `strike` ganharam selectors de show rule (P444); `smallcaps` deixou de ser stub transparente e passou a render real por scaling (P446); `smartquote` markup passou a ser context-aware e localizado para aspas simples (P445).
 > - **Lexer / Tokens**: `SyntaxKind::SmartQuote` materializado em markup (P445).
 > - **Infra / Tooling**: benchmark scanner (P441, ADR-0115); decisão `get_unchecked` registada como excepção permanente (P443, ADR-0116).
-> - **Débitos técnicos fechados**: DEBT-42 (`get_unchecked`), DEBT-55 (hayagriva/bibliografia CSL), DEBT-57 (specs L0 stdlib), DEBT-43 (linter type-level).
-> - **Snapshot actualizado**: cristalino P447; 61 ADRs (ADR-0108, ADR-0109, ADR-0115, ADR-0116 adicionados); 4 DEBTs fechados desde P437.
+> - **Débitos técnicos fechados**: DEBT-42 (`get_unchecked`), DEBT-43 (linter type-level), DEBT-50 (show selector Strong/Emph), DEBT-55 (hayagriva/bibliografia CSL), DEBT-57 (specs L0 stdlib), DEBT-59 (flag de erro completo), DEBT-60 (contador de heading/supplement outline), DEBT-63 (cache de style em BibliographyElem).
+> - **Snapshot actualizado**: cristalino P447/P453; 68 ADRs (ADR-0108, ADR-0109, ADR-0115, ADR-0116 adicionados em P447; ADR-0117 adicionado em P453; total confirmado contra `00_nucleo/adr/`); 8 DEBTs fechados e 1 dissolvido (DEBT-58) desde P437.
 
 ---
 
@@ -702,7 +702,22 @@ user-facing nova foi adicionada ao inventário). O passo consolidou qualitativam
 `smallcaps` deixou de ser stub e passou a render real por scaling (P446);
 `smartquote` markup tornou-se context-aware e localizou aspas simples (P445);
 `underline`/`strike`/`overline` ganharam selectors de show rule (P444);
-fecharam-se DEBT-42, DEBT-43, DEBT-55, DEBT-57; entraram ADR-0108/0109/0115/0116.
+fecharam-se DEBT-42, DEBT-43, DEBT-50, DEBT-55, DEBT-57, DEBT-59, DEBT-60, DEBT-63; entrou ADR-0108/0109/0115/0116.
+
+### Débitos técnicos — estado actual
+
+| DEBT | Estado | Passo / Bloqueador |
+|------|--------|-------------------|
+| DEBT-2 | **EM ABERTO** | Bloqueado por `comemo`/`TrackedWorld` |
+| DEBT-42 | FECHADO | P443 (excepção permanente ADR-0116) |
+| DEBT-43 | FECHADO | P440 |
+| DEBT-50 | FECHADO | P431 |
+| DEBT-55 | FECHADO | P439 |
+| DEBT-57 | FECHADO | P438 |
+| DEBT-58 | DISSOLVIDO | P329; consolidado P453 |
+| DEBT-59 | FECHADO | P428 |
+| DEBT-60 | FECHADO | P428 |
+| DEBT-63 | FECHADO | P429 |
 
 ### Tabela B — Arquitectural (contagens)
 

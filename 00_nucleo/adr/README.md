@@ -212,8 +212,9 @@ que corresponde a mudança específica no código.
 | 0094 | Meta-operacional de specs (Cap LOC hard/soft + Reutilização helpers + Industry research proactiva) | `EM VIGOR` (passo `P271` administrativo XS; criação EM VIGOR directa paridade P260 ADR-0084/0085 + P268.1 ADR-0090; formaliza 3 sub-padrões empíricos N≥4 cumulativos: (1) "Cap LOC hard vs soft explícito" N=4 — P270.1/P270.2/P270.3/P270.4 inaugural pós-lição P270 estouro silencioso; (2) "Reutilização literal helpers cross-passos" N=10 consolidação clara — P265 a P270.4 cumulativo; (3) "Fase A com industry research proactiva" N=4 — P270/P270.2/P270.3/P270.4 inaugural pós-lição P268.1 re-trabalho; subpadrão "Passo administrativo XS criar/promover ADR" N=6 cumulativo conjunto com ADR-0093; subpadrão "Meta-formalização sub-padrões empíricos N≥4" N=3 cumulativo conjunto com ADR-0093; companheira ADR-0093 — par cobre 5 sub-padrões totais (2 evolução ADRs + 3 operacional specs)) |
 | 0115 | Infraestrutura de benchmark para o scanner/lexer | `EM VIGOR` (Passo 441 — infra `criterion` em `benches/`; desbloqueia medição de DEBT-42) |
 | 0116 | Excepção permanente: `get_unchecked` no scanner | `EM VIGOR` (Passo 443 — benchmark mostra regressão +8% a +58%; autoriza manter 5 ocorrências de `unsafe` em `scanner.rs`) |
+| 0117 | Sonda A.0: mecanismo operacional de verificação antes da spec | `EM VIGOR` (Passo 453 — estende ADR-0114 com processo verificável; grep/script/diagnóstico empírico obrigatório antes de spec de materialização) |
 
-**Total**: 67 ADRs (66 números únicos; ADR-0026 tem variante -R1
+**Total**: 68 ADRs (67 números únicos; ADR-0026 tem variante -R1
 por revisão; **+ADR-0082 PROPOSTO P249** + **+ADR-0084 + ADR-0085
 EM VIGOR P260** + **+ADR-0086 IMPLEMENTADO P261** + **+ADR-0087
 IMPLEMENTADO P262** + **+ADR-0088 IMPLEMENTADO P264** + **+ADR-0089
