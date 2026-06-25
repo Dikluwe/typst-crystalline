@@ -1,14 +1,16 @@
 //! Crystalline Lineage
-//! @prompt 00_nucleo/prompts/rules/layout.md
-//! @prompt-hash 12536b5c
+//! @prompt 00_nucleo/prompts/rules/layout/equation.md
+//! @prompt-hash c43d6d75
 //! @layer L1
 //! @updated 2026-04-23
 //!
 //! Braço `Content::Equation` do `layout_content`. Extraído de `layout/mod.rs`
-//! no Passo 96.7 conforme ADR-0037.
+//! no Passo 96.7 conforme ADR-0037. P456: numeração de bloco formatada pelo
+//! pattern da chain e posicionada à direita da página.
 
 use crate::entities::{
     content::Content,
+    counter_format::format_counter,
     elements::equation::EquationElem,
     image_sizer::ImageSizer,
     layout_types::{FrameItem, Point, Pt},
@@ -19,26 +21,34 @@ use super::metrics::FontMetrics;
 
 impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
     /// Layout de `Content::Equation { body, block }`.
-    pub(super) fn layout_equation(&mut self, body: &Content, block: bool, numbering_active: bool) {
+    /// `numbering_pattern`: pattern de numeração vindo da chain (`None` se
+    /// a equação não deve ser numerada).
+    pub(super) fn layout_equation(
+        &mut self,
+        body: &Content,
+        block: bool,
+        numbering_pattern: Option<&str>,
+    ) {
         // Auto-numeração: equações de bloco numeradas avançam o contador antes de
         // desenhar (Passo 59). O número (N) é acrescentado depois da equação.
         // Lote F-2 S2 (P335): o "ativo" é **assado** no `EquationElem` (escopo
         // léxico via chain, fecha o canal global StateRegistry). O **valor** do
         // contador continua via Introspector (`flat_counter_at`), gateado pelo
         // mesmo `numbering_active` assado (via payload, em `from_tags`).
-        let is_numbered = block && numbering_active;
+        // P456: o pattern vem da chain como `Value::Str`; ausência = não numerada.
+        let is_numbered = block && numbering_pattern.is_some();
         // P190F (M6 categoria Counters core): Layouter mutação
         // `self.counter.step_flat` removida — counter equation
         // populated via Introspector path (CounterRegistry +
         // gate em `from_tags` arm Equation P186E activado por
         // SetEquationNumbering P199B). Layouter só lê.
-        let _ = is_numbered;
 
         let math_layouter = math::layout::MathLayouter::new(&self.metrics, block);
-        let math_items    = math_layouter.layout_equation(body, &self.style);
+        let math_items = math_layouter.layout_equation(body, &self.style);
 
-        if block
-            && self.regions.current.cursor_x.0 > self.page_config.margin { self.flush_line(); }
+        if block && self.regions.current.cursor_x.0 > self.page_config.margin {
+            self.flush_line();
+        }
 
         // Integrar items matemáticos no frame actual.
         // pos.x e pos.y são relativos à origem da equação —
@@ -62,40 +72,60 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
                         y: offset_y + pos.y,
                     };
                     let advance = self.metrics.advance(&text, style.size);
-                    self.regions.current.current_line.push(FrameItem::Text { pos: abs_pos, text, style });
+                    self.regions.current.current_line.push(FrameItem::Text {
+                        pos: abs_pos,
+                        text,
+                        style,
+                    });
                     self.regions.current.cursor_x += advance;
                 }
                 FrameItem::Line { start, end, thickness, color } => {
-                    let abs_start = Point { x: offset_x + start.x, y: offset_y + start.y };
-                    let abs_end   = Point { x: offset_x + end.x,   y: offset_y + end.y };
+                    let abs_start = Point {
+                        x: offset_x + start.x,
+                        y: offset_y + start.y,
+                    };
+                    let abs_end = Point {
+                        x: offset_x + end.x,
+                        y: offset_y + end.y,
+                    };
                     self.regions.current.current_line.push(FrameItem::Line {
-                        start: abs_start, end: abs_end, thickness,
+                        start: abs_start,
+                        end: abs_end,
+                        thickness,
                         // P285: equação preserva cor da Line original (math
                         // frac/sqrt usam None → preto bit-exact).
                         color,
                     });
                 }
-                FrameItem::Image { .. } => {}   // imagens não ocorrem em math inline
-                FrameItem::Shape { .. } => {}   // formas não ocorrem em math inline
-                FrameItem::Group { .. } => {}   // grupos não ocorrem em math inline
-                FrameItem::Link { .. }  => {}   // links não ocorrem em math inline
+                FrameItem::Image { .. } => {} // imagens não ocorrem em math inline
+                FrameItem::Shape { .. } => {} // formas não ocorrem em math inline
+                FrameItem::Group { .. } => {} // grupos não ocorrem em math inline
+                FrameItem::Link { .. } => {}  // links não ocorrem em math inline
                 FrameItem::Glyph { pos, glyph_id, x_advance, size } => {
                     let abs_pos = Point {
                         x: offset_x + pos.x,
                         y: offset_y + pos.y,
                     };
                     self.regions.current.current_line.push(FrameItem::Glyph {
-                        pos: abs_pos, glyph_id, x_advance, size,
+                        pos: abs_pos,
+                        glyph_id,
+                        x_advance,
+                        size,
                     });
                     self.regions.current.cursor_x += x_advance;
                 }
             }
         }
 
-        if block { self.flush_line(); }
+        // Guardar a baseline da linha antes do flush; usada para posicionar o
+        // número à direita verticalmente alinhado com a equação.
+        let equation_baseline_y = self.regions.current.cursor_y;
 
-        // Acrescentar número da equação inline após o flush (Passo 59).
-        // DEBT: alinhamento à direita real requer largura de página — por agora inline.
+        if block {
+            self.flush_line();
+        }
+
+        // Acrescentar número da equação à direita da página (P456).
         if is_numbered {
             // P190F (M6 categoria Counters core): fallback legacy
             // `self.counter.get_flat("equation")` removido. Caminho
@@ -103,12 +133,27 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
             // (P186E) activado por SetEquationNumbering (P199B);
             // CounterRegistry chave "equation" populated.
             use crate::entities::introspector::Introspector;
-            let n = self.current_location
-                .and_then(|loc| self.introspector
-                    .flat_counter_at("equation", loc))
+            let n = self
+                .current_location
+                .and_then(|loc| self.introspector.flat_counter_at("equation", loc))
                 .unwrap_or(0);
-            self.layout_content(&Content::text(format!("({})", n)));
-            self.flush_line();
+            let pattern = numbering_pattern.unwrap_or("(1)");
+            let formatted = format_counter(&[n], pattern)
+                .unwrap_or_else(|| n.to_string());
+
+            let number_text: ecow::EcoString = formatted.into();
+            let number_width = self.metrics.advance(&number_text, self.style.size);
+            let right_x =
+                Pt(self.regions.current.width - self.page_config.margin) - number_width;
+
+            self.regions.current.current_items.push(FrameItem::Text {
+                pos: Point {
+                    x: right_x,
+                    y: equation_baseline_y,
+                },
+                text: number_text,
+                style: self.style.clone(),
+            });
         }
     }
 
@@ -117,12 +162,17 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
     /// `layout_equation`. Content-preserving — era inline no `layout_content`.
     pub(super) fn layout_equation_arm(&mut self, e: &EquationElem) {
         // F-5a de-bake (P364, §3a.9): o gate vive **só na chain**; lido
-        // de `self.chain`. `layout_equation` mantém `block && numbering`.
-        let numbering_active = matches!(
-            self.chain.custom("equation.numbering"),
-            Some(crate::entities::value::Value::Bool(true)),
-        );
-        self.layout_equation(&e.body, e.block, numbering_active);
+        // de `self.chain`. P456: pattern é `Value::Str` (análogo a
+        // figure.numbering em P454).
+        let numbering_pattern: Option<String> = self
+            .chain
+            .custom("equation.numbering")
+            .and_then(|v| match v {
+                crate::entities::value::Value::Str(s) => Some(s.to_string()),
+                _ => None,
+            });
+        let pat = numbering_pattern.as_deref();
+        self.layout_equation(&e.body, e.block, pat);
     }
 
     /// Fallback de nós matemáticos que aparecem **fora** de um `Content::Equation`

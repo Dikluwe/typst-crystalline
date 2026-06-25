@@ -1617,6 +1617,70 @@ fn layout_equation_bloco_numerada() {
     );
 }
 
+#[test]
+fn layout_equation_pattern_romano() {
+    // P456: pattern customizável via chain, formatado por format_counter.
+    use crate::entities::style::Styles;
+    use crate::entities::value::Value;
+
+    let content = Content::Sequence(
+        vec![Content::Styled(
+            Box::new(Content::equation(Content::MathIdent("E".into()), true)),
+            Styles::new().push_custom("equation.numbering", Value::Str("[I]".into())),
+        )]
+        .into(),
+    );
+
+    let doc = layout(&content);
+    let text = doc.plain_text();
+    assert!(
+        text.contains("[I]"),
+        "Equação numerada com pattern [I] deve mostrar '[I]', obtido: {:?}",
+        text
+    );
+}
+
+#[test]
+fn layout_equation_sequencial_numerada() {
+    // P456: duas equações block numeradas seguidas devem numerar (1), (2).
+    let content = Content::Sequence(
+        vec![
+            Content::equation_numbered(Content::MathIdent("A".into()), true),
+            Content::equation_numbered(Content::MathIdent("B".into()), true),
+        ]
+        .into(),
+    );
+
+    let doc = layout(&content);
+    let text = doc.plain_text();
+    assert!(text.contains("(1)"), "1ª equação deve ser (1): {:?}", text);
+    assert!(text.contains("(2)"), "2ª equação deve ser (2): {:?}", text);
+}
+
+#[test]
+fn layout_equation_inline_nao_numerada() {
+    // P456: equações inline não são numeradas mesmo com gate activo.
+    use crate::entities::style::Styles;
+    use crate::entities::value::Value;
+
+    let content = Content::Sequence(
+        vec![Content::Styled(
+            Box::new(Content::equation(Content::MathIdent("x".into()), false)),
+            Styles::new().push_custom("equation.numbering", Value::Str("(1)".into())),
+        )]
+        .into(),
+    );
+
+    let doc = layout(&content);
+    let text = doc.plain_text();
+    assert!(text.contains("x"), "equação inline deve aparecer: {:?}", text);
+    assert!(
+        !text.contains("(1)"),
+        "equação inline não deve ter número: {:?}",
+        text
+    );
+}
+
 // ── Testes de Passo 61 — TOC (Outline) ───────────────────────────────────
 
 #[test]

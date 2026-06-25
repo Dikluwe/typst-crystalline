@@ -369,20 +369,32 @@ mod tests {
     }
 
     // ── Lote F-2 S2 / B1 (P335) — `#set math.equation(numbering:)` via chain ──
-    fn find_equation_numbered(c: &Content) -> Option<bool> {
-        // F-5a de-bake (P364): gate threadado do `Styled` custom. O probe segue
-        // só o gate da chain; o `block && numbering` efetivo é do consumidor.
-        fn go(c: &Content, active: bool) -> Option<bool> {
+    // P456: o gate passou de Bool para Str (pattern de numeração), análogo a
+    // figure.numbering. O probe retorna o pattern quando presente.
+    fn find_equation_numbered(c: &Content) -> Option<Option<String>> {
+        fn go(c: &Content, active: Option<String>) -> Option<Option<String>> {
             match c {
                 Content::Equation(_) => Some(active),
-                Content::Sequence(items) => items.iter().find_map(|i| go(i, active)),
+                Content::Sequence(items) => items.iter().find_map(|i| go(i, active.clone())),
                 Content::Styled(b, s) => {
-                    go(b, styled_custom_bool(s, "equation.numbering").unwrap_or(active))
+                    let next = s
+                        .delta()
+                        .custom
+                        .iter()
+                        .rev()
+                        .find(|(k, _)| k == "equation.numbering")
+                        .map(|(_, v)| match v {
+                            Value::Str(s) => Some(s.to_string()),
+                            Value::None => None,
+                            _ => active.clone(),
+                        })
+                        .unwrap_or(active);
+                    go(b, next)
                 }
                 _ => None,
             }
         }
-        go(c, false)
+        go(c, None)
     }
 
     #[test]
@@ -395,8 +407,8 @@ mod tests {
         let content = module.content().expect("módulo deve ter content");
         assert_eq!(
             find_equation_numbered(content),
-            Some(true),
-            "#set math.equation(numbering:) deve assar numbering_active=true na equação de bloco"
+            Some(Some("(1)".to_string())),
+            "#set math.equation(numbering:) deve assar pattern na equação de bloco"
         );
     }
 
@@ -406,7 +418,20 @@ mod tests {
         let source = World::source(&world, World::main(&world)).unwrap();
         let module = eval_for_test(&world, &source).unwrap();
         let content = module.content().expect("módulo deve ter content");
-        assert_eq!(find_equation_numbered(content), Some(false));
+        assert_eq!(find_equation_numbered(content), Some(None));
+    }
+
+    #[test]
+    fn f2s2_b1_set_equation_numbering_pattern_romano_transportado() {
+        let world = MockWorld::new("#set math.equation(numbering: \"[I]\")\n$ x $");
+        let source = World::source(&world, World::main(&world)).unwrap();
+        let module = eval_for_test(&world, &source).unwrap();
+        let content = module.content().expect("módulo deve ter content");
+        assert_eq!(
+            find_equation_numbered(content),
+            Some(Some("[I]".to_string())),
+            "pattern romano deve ser transportado na chain"
+        );
     }
 
     // ── Lote F-2 S3 (P335) — `#set figure(numbering:)` via chain léxica ──────
@@ -681,7 +706,7 @@ mod tests {
         use crate::rules::layout::layout;
         let casos = [
             ("#set heading(numbering: \"1.1\")\n\n= A\n\n= B", "1. A 2. B"),
-            ("#set math.equation(numbering: \"1\")\n\n$ x = 1 $", "x = 1 (1)"),
+            ("#set math.equation(numbering: \"(1)\")\n\n$ x = 1 $", "x = 1 (1)"),
             ("#set figure(numbering: \"1\")\n\n= A", "A"),
         ];
         for (src, esperado) in casos {
@@ -709,8 +734,8 @@ mod tests {
         let c = eval_doc("#set math.equation(numbering: \"1\")\n\n$ x = 1 $");
         assert_eq!(
             find_custom_in_styled(&c, "equation.numbering"),
-            Some(Value::Bool(true)),
-            "o escopo do #set math.equation deve ser embrulhado num Content::Styled[equation.numbering=true]"
+            Some(Value::Str("1".into())),
+            "o escopo do #set math.equation deve ser embrulhado num Content::Styled[equation.numbering=\"1\"]"
         );
     }
 
@@ -746,7 +771,10 @@ mod tests {
         let c = eval_doc("#set math.equation(numbering: \"1\")\n\n$ x $");
         let chain = find_custom_in_styled(&c, "equation.numbering");
         let assado = find_equation_numbered(&c);
-        assert_eq!(chain, assado.map(Value::Bool));
+        assert_eq!(
+            chain,
+            assado.map(|opt| opt.map_or(Value::None, |s| Value::Str(s.into())))
+        );
     }
 
     // ── Transparência do wrapper (L0 §3a.8): o Content::Styled[custom] é

@@ -646,22 +646,34 @@ pub(super) fn eval_set_rule(
     // (nó interno → ""). Era a lacuna do P331 (sem produtor eval). Empurra para
     // a chain léxica; a equação assa o valor (`eval/mod.rs`). Paridade vanilla:
     // `lab/.../math/equation.rs` — numeração de equação de bloco.
+    // P456: guarda o pattern string (não Bool) para formatar via format_counter,
+    // análogo a figure.numbering (P454) e heading.numbering.pattern (P451).
     if let Expr::FieldAccess(fa) = set.target() {
         if fa.target().to_untyped().text_str() == "math"
             && fa.field().to_untyped().text_str() == "equation"
         {
-            let active = set.args().items().any(|arg| {
+            let numbering = set.args().items().find_map(|arg| {
                 if let Arg::Named(named) = arg {
                     if named.name().as_str() == "numbering" {
-                        let val = eval_expr(named.expr(), scopes, ctx, engine)
-                            .unwrap_or(Value::None);
-                        return matches!(val, Value::Str(_));
+                        return eval_expr(named.expr(), scopes, ctx, engine).ok();
                     }
                 }
-                false
+                None
             });
-            *engine.styles =
-                engine.styles.push_custom("equation.numbering", Value::Bool(active));
+            match numbering {
+                Some(Value::Str(s)) => {
+                    *engine.styles = engine
+                        .styles
+                        .push_custom("equation.numbering", Value::Str(s));
+                }
+                Some(Value::None) => {
+                    // Limpa a numeração no escopo (None = ausente).
+                    *engine.styles = engine
+                        .styles
+                        .push_custom("equation.numbering", Value::None);
+                }
+                _ => {}
+            }
             return Ok(Value::None);
         }
     }

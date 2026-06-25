@@ -675,7 +675,7 @@ pub(crate) fn walk(
         // segue no payload; o gate efetivo é `block && numbering` no consumidor.)
         if let ElementPayload::Equation { numbering_active, .. } = &mut payload {
             *numbering_active =
-                matches!(chain.custom("equation.numbering"), Some(Value::Bool(true)));
+                matches!(chain.custom("equation.numbering"), Some(Value::Str(_)));
         }
         // F-5a de-bake (P365): a figura não baka mais o padrão. `is_counted` é o
         // placeholder (`caption.is_some()`, de `to_payload`) **ANDado** com o gate
@@ -3067,7 +3067,7 @@ mod tests {
                         Label("eq1".to_string()),
                     )),
                     crate::entities::style::Styles::new()
-                        .push_custom("equation.numbering", Value::Bool(true)),
+                        .push_custom("equation.numbering", Value::Str("(1)".into())),
                 ),
             ]
             .into(),

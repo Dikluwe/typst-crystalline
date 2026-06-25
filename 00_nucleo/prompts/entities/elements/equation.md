@@ -1,4 +1,4 @@
-# Prompt L0 — `entities/elements/equation` — `EquationElem`
+:warning: **Prompt L0 — `entities/elements/equation` — `EquationElem`**
 Hash do Código: cace93ea
 
 **Camada**: L1 · **Alvo**: `01_core/src/entities/elements/equation.rs`
@@ -11,6 +11,12 @@ Hash do Código: cace93ea
 > counter_update: Step }`. O consumo por `ElementPayload` (`from_tags` arm
 > Equation, gate `block && numbering_active:equation`) é **inalterado**
 > (matcheia o payload, não o `Content`).
+>
+> **P456 (Numeração de equações):** o padrão de numeração vive **só na chain**
+> (`custom("equation.numbering") = Value::Str(pattern)`), transportado por
+> `Content::Styled` — análogo a `figure.numbering` (P365/P454). `EquationElem`
+> **não** tem campo `numbering`; o gate efetivo é `block && pattern.is_some()`
+> no consumidor (`introspect.rs` + `layout/equation.rs`).
 
 ---
 
@@ -27,6 +33,10 @@ pub struct EquationElem {
 `Content::Equation { body, block }` → `Content::Equation(Arc<EquationElem>)`.
 Construtor ergonómico: `Content::equation(body, block)`. **Deriva `Hash`**
 (`Content` tem `impl Hash` manual; `bool: Hash`).
+
+Forma de transporte numerada (P364/P456):
+`Content::equation_numbered(body, block)` produz `Content::Styled` com
+`custom("equation.numbering", Value::Str("(1)"))`.
 
 ## `impl Element for EquationElem`
 

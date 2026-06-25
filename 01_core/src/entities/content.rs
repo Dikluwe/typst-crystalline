@@ -1298,14 +1298,15 @@ impl Content {
     /// Equação numerada **na forma de transporte** (F-5a de-bake, P364,
     /// `f_fronteira_e1.md` §3a.9). Campo assado removido; a numeração vive **só
     /// na chain** — produz o `Content::Styled` com `custom("equation.numbering")
-    /// =true`, a forma que `#set math.equation(numbering:)` gera em produção. O
+    /// ="(1)"`, a forma que `#set math.equation(numbering:)` gera em produção. O
     /// gate efetivo continua `block && numbering` no consumidor.
+    /// P456: pattern default "(1)" (format_counter) em vez de Bool.
     pub fn equation_numbered(body: Content, block: bool) -> Self {
         use crate::entities::style::Styles;
         use crate::entities::value::Value;
         Self::Styled(
             Box::new(Self::equation(body, block)),
-            Styles::new().push_custom("equation.numbering", Value::Bool(true)),
+            Styles::new().push_custom("equation.numbering", Value::Str("(1)".into())),
         )
     }
 
