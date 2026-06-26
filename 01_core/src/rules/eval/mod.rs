@@ -744,6 +744,8 @@ fn make_stdlib() -> Scope {
         native_cbor, native_csv, native_json, native_read, native_toml, native_xml, native_yaml,
         // P403 — constructors stdlib para tipos primitivos L1.
         native_decimal, native_duration, native_version,
+        // P470 — list/enum com marcadores configuráveis.
+        native_list, native_enum,
     };
     let mut scope = Scope::new();
     scope.define("type",    Value::Func(Func::native("type",    native_type)));
@@ -998,6 +1000,9 @@ fn make_stdlib() -> Scope {
     scope.define("link",         Value::Func(Func::native("link",         native_link)));
     scope.define("label",        Value::Func(Func::native("label",        native_label)));
     scope.define("ref",          Value::Func(Func::native("ref",          native_ref)));
+    // P470 — list/enum com marcadores configuráveis.
+    scope.define("list", Value::Func(Func::native("list", native_list)));
+    scope.define("enum", Value::Func(Func::native("enum", native_enum)));
     scope.define("calc",    make_calc_module());
     // P262 — `gradient.linear(...)` via module dict (ADR-0087).
     scope.define("gradient", make_gradient_module());

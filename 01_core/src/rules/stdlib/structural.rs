@@ -2,9 +2,9 @@
 //! @prompt 00_nucleo/prompts/rules/model/document.md
 //! @prompt 00_nucleo/prompts/rules/model/asset.md
 //! @prompt 00_nucleo/prompts/rules/stdlib/structural.md
-//! @prompt-hash aeacd89f
+//! @prompt-hash 00000000
 //! @layer L1
-//! @updated 2026-06-22
+//! @updated 2026-06-26
 //!
 //! Funções nativas estruturais (strong, emph, raw, heading).
 //! Extraído de `stdlib.rs` no Passo 96.5 conforme ADR-0037.
@@ -2019,6 +2019,122 @@ fn infer_asset_kind(path: &EcoString) -> Option<EcoString> {
     })
 }
 
+// ── P470 — native_list / native_enum ────────────────────────────────────────
+
+/// `list(..items, marker:?)` — cria itens de lista não ordenada com marcador
+/// configurável (P470). Cada item posicional torna-se um `Content::ListItem`.
+pub fn native_list(
+    _ctx: &mut EvalContext,
+    args: &Args,
+    _world: &dyn crate::contracts::world::World,
+    _current_file: FileId,
+) -> SourceResult<Value> {
+    use crate::entities::list_marker::ListMarker;
+
+    for key in args.named.keys() {
+        if key.as_str() != "marker" {
+            return Err(vec![SourceDiagnostic::error(
+                Span::detached(),
+                format!("argumento nomeado inesperado '{}'", key),
+            )]);
+        }
+    }
+    let marker: Option<ListMarker> = match args.named.get("marker") {
+        None => None,
+        Some(Value::Str(s)) => Some(ListMarker::Custom(s.clone())),
+        Some(other) => {
+            return Err(vec![SourceDiagnostic::error(
+                Span::detached(),
+                format!("list(marker:) espera string, recebeu {}", other.type_name()),
+            )]);
+        }
+    };
+    if args.items.is_empty() {
+        return Ok(Value::Content(Content::Empty));
+    }
+    let mut items = Vec::with_capacity(args.items.len());
+    for v in args.items.iter() {
+        let body = match v {
+            Value::Content(c) => c.clone(),
+            Value::Str(s)     => Content::text(s.as_str()),
+            other => {
+                return Err(vec![SourceDiagnostic::error(
+                    Span::detached(),
+                    format!("list(): item deve ser content ou string, recebeu {}", other.type_name()),
+                )]);
+            }
+        };
+        let item = match &marker {
+            None    => Content::list_item(body),
+            Some(m) => Content::list_item_with_marker(body, m.clone()),
+        };
+        items.push(item);
+    }
+    Ok(Value::Content(if items.len() == 1 {
+        items.remove(0)
+    } else {
+        Content::Sequence(items.into())
+    }))
+}
+
+/// `enum(..items, numbering:?)` — cria itens de lista ordenada com esquema de
+/// numeração configurável (P470). Cada item posicional torna-se um
+/// `Content::EnumItem` com número 1-based.
+pub fn native_enum(
+    _ctx: &mut EvalContext,
+    args: &Args,
+    _world: &dyn crate::contracts::world::World,
+    _current_file: FileId,
+) -> SourceResult<Value> {
+    use crate::entities::enum_numbering::EnumNumbering;
+
+    for key in args.named.keys() {
+        if key.as_str() != "numbering" {
+            return Err(vec![SourceDiagnostic::error(
+                Span::detached(),
+                format!("argumento nomeado inesperado '{}'", key),
+            )]);
+        }
+    }
+    let numbering: Option<EnumNumbering> = match args.named.get("numbering") {
+        None => None,
+        Some(Value::Str(s)) => Some(EnumNumbering::from_pattern(s.as_str())),
+        Some(other) => {
+            return Err(vec![SourceDiagnostic::error(
+                Span::detached(),
+                format!("enum(numbering:) espera string, recebeu {}", other.type_name()),
+            )]);
+        }
+    };
+    if args.items.is_empty() {
+        return Ok(Value::Content(Content::Empty));
+    }
+    let mut items = Vec::with_capacity(args.items.len());
+    for (idx, v) in args.items.iter().enumerate() {
+        let body = match v {
+            Value::Content(c) => c.clone(),
+            Value::Str(s)     => Content::text(s.as_str()),
+            other => {
+                return Err(vec![SourceDiagnostic::error(
+                    Span::detached(),
+                    format!("enum(): item deve ser content ou string, recebeu {}", other.type_name()),
+                )]);
+            }
+        };
+        let number = Some((idx as u32) + 1);
+        let item = match &numbering {
+            None    => Content::enum_item(number, body),
+            Some(n) => Content::enum_item_with_numbering(number, body, n.clone()),
+        };
+        items.push(item);
+    }
+    Ok(Value::Content(if items.len() == 1 {
+        items.remove(0)
+    } else {
+        Content::Sequence(items.into())
+    }))
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -2299,5 +2415,144 @@ mod tests {
     fn native_heading_rejeita_body_invalido() {
         let args = Args::positional(vec![Value::Int(1), Value::Int(42)]);
         assert!(call_heading(args).is_err());
+    }
+
+    // ── Testes native_list / native_enum (P470) ──────────────────────────────
+
+    fn call_list(args: Args) -> SourceResult<Value> {
+        native_list(&mut EvalContext::new(), &args, &NullWorld::default(), test_file_id())
+    }
+
+    fn call_enum(args: Args) -> SourceResult<Value> {
+        native_enum(&mut EvalContext::new(), &args, &NullWorld::default(), test_file_id())
+    }
+
+    #[test]
+    fn list_sem_itens_devolve_empty() {
+        let result = call_list(Args::positional(vec![])).unwrap();
+        assert_eq!(result, Value::Content(Content::Empty));
+    }
+
+    #[test]
+    fn list_dois_itens_sem_marker() {
+        use crate::entities::elements::list_item::ListItemElem;
+        use crate::entities::list_marker::ListMarker;
+        let args = Args::positional(vec![
+            Value::Content(Content::text("a")),
+            Value::Content(Content::text("b")),
+        ]);
+        let result = call_list(args).unwrap();
+        if let Value::Content(Content::Sequence(seq)) = result {
+            assert_eq!(seq.len(), 2);
+            for item in seq.iter() {
+                if let Content::ListItem(li) = item {
+                    assert_eq!(li.marker, None);
+                } else {
+                    panic!("esperado ListItem");
+                }
+            }
+        } else {
+            panic!("esperado Sequence");
+        }
+    }
+
+    #[test]
+    fn list_com_marker_custom() {
+        use crate::entities::list_marker::ListMarker;
+        let mut named = indexmap::IndexMap::default();
+        named.insert("marker".into(), Value::Str("→".into()));
+        let args = Args { items: vec![Value::Content(Content::text("x"))], named };
+        let result = call_list(args).unwrap();
+        if let Value::Content(Content::ListItem(li)) = result {
+            assert_eq!(li.marker, Some(ListMarker::Custom("→".into())));
+        } else {
+            panic!("esperado ListItem com marker");
+        }
+    }
+
+    #[test]
+    fn list_marker_invalido_retorna_erro() {
+        let mut named = indexmap::IndexMap::default();
+        named.insert("marker".into(), Value::Int(1));
+        let args = Args { items: vec![Value::Content(Content::text("x"))], named };
+        assert!(call_list(args).is_err());
+    }
+
+    #[test]
+    fn list_named_desconhecido_retorna_erro() {
+        let mut named = indexmap::IndexMap::default();
+        named.insert("foo".into(), Value::Int(1));
+        let args = Args { items: vec![], named };
+        assert!(call_list(args).is_err());
+    }
+
+    #[test]
+    fn enum_sem_itens_devolve_empty() {
+        let result = call_enum(Args::positional(vec![])).unwrap();
+        assert_eq!(result, Value::Content(Content::Empty));
+    }
+
+    #[test]
+    fn enum_dois_itens_sem_numbering() {
+        let args = Args::positional(vec![
+            Value::Content(Content::text("a")),
+            Value::Content(Content::text("b")),
+        ]);
+        let result = call_enum(args).unwrap();
+        if let Value::Content(Content::Sequence(seq)) = result {
+            assert_eq!(seq.len(), 2);
+            let first = &seq[0];
+            if let Content::EnumItem(ei) = first {
+                assert_eq!(ei.number, Some(1));
+                assert_eq!(ei.numbering, None);
+            } else {
+                panic!("esperado EnumItem");
+            }
+            let second = &seq[1];
+            if let Content::EnumItem(ei) = second {
+                assert_eq!(ei.number, Some(2));
+            } else {
+                panic!("esperado EnumItem");
+            }
+        } else {
+            panic!("esperado Sequence");
+        }
+    }
+
+    #[test]
+    fn enum_com_lower_alpha() {
+        use crate::entities::enum_numbering::EnumNumbering;
+        let mut named = indexmap::IndexMap::default();
+        named.insert("numbering".into(), Value::Str("a)".into()));
+        let args = Args {
+            items: vec![Value::Content(Content::text("x")), Value::Content(Content::text("y"))],
+            named,
+        };
+        let result = call_enum(args).unwrap();
+        if let Value::Content(Content::Sequence(seq)) = result {
+            if let Content::EnumItem(ei) = &seq[0] {
+                assert_eq!(ei.numbering, Some(EnumNumbering::LowerAlpha));
+            } else {
+                panic!("esperado EnumItem");
+            }
+        } else {
+            panic!("esperado Sequence");
+        }
+    }
+
+    #[test]
+    fn enum_numbering_invalido_retorna_erro() {
+        let mut named = indexmap::IndexMap::default();
+        named.insert("numbering".into(), Value::Int(1));
+        let args = Args { items: vec![Value::Content(Content::text("x"))], named };
+        assert!(call_enum(args).is_err());
+    }
+
+    #[test]
+    fn enum_named_desconhecido_retorna_erro() {
+        let mut named = indexmap::IndexMap::default();
+        named.insert("foo".into(), Value::Int(1));
+        let args = Args { items: vec![], named };
+        assert!(call_enum(args).is_err());
     }
 }

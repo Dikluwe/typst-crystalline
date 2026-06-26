@@ -2,27 +2,29 @@
 //! @prompt 00_nucleo/prompts/rules/atomizacao_elementos.md
 //! @prompt-hash 3331d6ba
 //! @layer L1
-//! @updated 2026-06-19
+//! @updated 2026-06-26
 //!
 //! Atomização (ADR-0109, P380): o layout de `ListItem` movido do monólito
-//! `layout_content` para o arquivo da feature (forma B). Content-preserving.
+//! `layout_content` para o arquivo da feature (forma B). Campo `marker`
+//! suportado em P470.
 
 use crate::entities::elements::list_item::ListItemElem;
 use crate::entities::layout_types::{FrameItem, Point, Pt};
 
 use super::{FontMetrics, ImageSizer, Layouter};
 
-/// Layout de um item de lista não ordenada (`- ...`): emite o marcador `•` na
-/// margem, indenta o cursor e renderiza o body.
+/// Layout de um item de lista não ordenada (`- ...`): emite o marcador na
+/// margem (default `•` ou customizado via P470), indenta o cursor e renderiza o body.
 pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
     layouter: &mut Layouter<M, S>,
     e:        &ListItemElem,
 ) {
     if layouter.regions.current.cursor_x.0 > layouter.page_config.margin { layouter.flush_line(); }
-    let margin_pt = Pt(layouter.page_config.margin);
+    let margin_pt  = Pt(layouter.page_config.margin);
+    let marker_str = e.marker.as_ref().map(|m| m.render()).unwrap_or("•");
     layouter.regions.current.current_line.push(FrameItem::Text {
         pos:   Point { x: margin_pt, y: layouter.regions.current.cursor_y },
-        text:  "•".into(),  // U+2022 — suportado com CIDFont (DEBT-5 pago)
+        text:  marker_str.into(),
         style: layouter.style.clone(),
     });
     layouter.regions.current.cursor_x = margin_pt + layouter.font_size_pt * 1.5;

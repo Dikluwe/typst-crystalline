@@ -10858,8 +10858,8 @@ mod p184e_figure_per_kind {
         // P184E .E: documento com 2 figures kind="image" + 2 figures
         // kind="table" intercaladas. Cada kind tem numeração própria
         // (key isolation no `CounterRegistry` per chave `figure:{kind}`).
-        // Layouter format hardcoded "Figura N:" (mod.rs:440) independente
-        // do kind — distinção observa-se via captions únicas.
+        // P470 (i18n): kind="image" → "Figura N:", kind="table" → "Tabela N:"
+        // (figure_supplement_for_lang; lang=None → PT default).
         let content = Content::Sequence(Arc::from(vec![
             figure(Some("image"), "im_a"),
             figure(Some("table"), "tb_a"),
@@ -10877,18 +10877,18 @@ mod p184e_figure_per_kind {
         assert_eq!(intr.figure_number_at_index("table", 2), None);
 
         let txt = layout_with_introspector(&content, intr).plain_text();
-        // Captions únicos confirmam ordem; "Figura 1:" aparece duas vezes
-        // (uma para image[0], outra para table[0]).
         assert!(txt.contains("im_a"));
         assert!(txt.contains("im_b"));
         assert!(txt.contains("tb_a"));
         assert!(txt.contains("tb_b"));
-        // "Figura 2:" também aparece duas vezes — para image[1] e table[1].
+        // P470 i18n: image → "Figura"; table → "Tabela".
+        assert!(txt.contains("Figura 1:"), "image[0]: '{txt}'");
+        assert!(txt.contains("Figura 2:"), "image[1]: '{txt}'");
+        assert!(txt.contains("Tabela 1:"), "table[0]: '{txt}'");
+        assert!(txt.contains("Tabela 2:"), "table[1]: '{txt}'");
+        // "Figura 2:" agora aparece só uma vez (image[1] apenas).
         let figura_2_count = txt.matches("Figura 2:").count();
-        assert!(
-            figura_2_count >= 2,
-            "esperado 2+ ocorrências de 'Figura 2:' (image[1] + table[1]); obtido: {figura_2_count} em '{txt}'"
-        );
+        assert_eq!(figura_2_count, 1, "apenas image[1] usa 'Figura'; table usa 'Tabela': '{txt}'");
     }
 
     #[test]

@@ -597,6 +597,65 @@ Ver prompt dedicado `00_nucleo/prompts/rules/model/asset.md`. Resumo:
 
 ---
 
+### `native_list(..items, marker:?)` — P470
+
+**Assinatura**: `list(..items: Content | Str, marker: Str?) -> Content`
+
+**Argumentos**:
+- `..items`: variádicos posicionais `Content` ou `Str`.
+- `marker`: `Str` named opcional. Se omitido, marcador default (`"•"`) via
+  `ListMarker::Default`; se presente, `ListMarker::Custom(marker)`.
+
+**Semântica**: Para cada item posicional, cria um `Content::ListItem(Arc<ListItemElem { body: item, marker }>)`. Devolve `Content::Sequence` de todos os itens (ou item único se só um). Sem itens → `Content::Empty`.
+
+**Paridade vanilla**: Equivalente a `#list(marker: "→", [a], [b])` do Typst vanilla. Divergência: cristalino não suporta marcadores por nível neste passo.
+
+**Scope-out explícito (P470)**:
+- Marcadores por nível (`marker: ([•], [–], [·])`) — futuro.
+- `marker: Content` (marcador como bloco arbitrário) — futuro.
+
+**Testes canónicos**:
+```
+list([a], [b]) -> Sequence[ListItem{body:"a", marker:None}, ListItem{body:"b", marker:None}]
+list([a], marker: "→") -> Sequence[ListItem{body:"a", marker:Some(Custom("→"))}, ...]
+list(marker: "→") -> Empty  (sem itens)
+list([a], marker: 1) -> Err "list(marker:) espera string"
+list([a], foo: 1) -> Err "argumento nomeado inesperado 'foo'"
+```
+
+---
+
+### `native_enum(..items, numbering:?)` — P470
+
+**Assinatura**: `enum(..items: Content | Str, numbering: Str?) -> Content`
+
+**Argumentos**:
+- `..items`: variádicos posicionais `Content` ou `Str`.
+- `numbering`: `Str` named opcional. Se omitido, `EnumNumbering::Decimal` (default `"N."`);
+  se presente, `EnumNumbering::from_pattern(s)`.
+
+**Semântica**: Para cada item posicional com índice `i` (1-based), cria
+`Content::EnumItem(Arc<EnumItemElem { number: Some(i), body: item, numbering }>)`.
+Devolve `Content::Sequence` de todos os itens. Sem itens → `Content::Empty`.
+
+**Paridade vanilla**: Equivalente a `#enum(numbering: "a)", [primeiro], [segundo])`. Subset P470: apenas `"1."`, `"a)"`, `"A)"`, `"i)"`.
+
+**Scope-out explícito (P470)**:
+- Patterns completos com prefixo/sufixo arbitrário.
+- `start:` (offset inicial).
+- `full:` (numeração hierárquica).
+
+**Testes canónicos**:
+```
+enum([a], [b]) -> Sequence[EnumItem{number:Some(1), body:"a", numbering:None}, EnumItem{number:Some(2), body:"b", numbering:None}]
+enum([a], [b], numbering: "a)") -> items com numbering: Some(LowerAlpha)
+enum([a], numbering: "?!") -> item com numbering: Some(Custom("?!")) (pattern desconhecido armazenado)
+enum([a], numbering: 1) -> Err "enum(numbering:) espera string"
+enum([a], foo: 1) -> Err "argumento nomeado inesperado 'foo'"
+```
+
+---
+
 ## Scope-outs transversais (P430)
 
 | Área | Scope-out | Notas |
@@ -656,4 +715,12 @@ op("lim", limits: true) -> MathOp { text: "lim", limits: true }
 document(title: [T]) -> Content::Document { title: Some("T"), author: [], date: None, keywords: [] }
 asset("logo.png") -> Content::Asset { path: "logo.png", kind: Some("image") }
 asset("x.bin", kind: "custom") -> Asset { kind: Some("custom") }
+
+// list / enum (P470)
+list([a], [b]) -> Sequence[ListItem{marker:None}, ListItem{marker:None}]
+list([a], marker: "→") -> ListItem com marker: Some(Custom("→"))
+list([a], marker: 1) -> Err "list(marker:) espera string"
+enum([a], [b]) -> Sequence[EnumItem{number:Some(1)}, EnumItem{number:Some(2)}]
+enum([a], [b], numbering: "a)") -> items com numbering: Some(LowerAlpha)
+enum([a], numbering: 1) -> Err "enum(numbering:) espera string"
 ```

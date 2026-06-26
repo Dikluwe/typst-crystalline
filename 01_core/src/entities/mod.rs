@@ -97,3 +97,6 @@ pub mod ptr_eq_arc;
 pub mod rel;
 pub mod value;
 pub mod world_types;
+// P470 — Tipos de marcador de list/enum.
+pub mod list_marker;
+pub mod enum_numbering;

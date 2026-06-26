@@ -1334,10 +1334,25 @@ impl Content {
     }
     // ── Construtores ergonómicos família lista/termos (Modelo D, Lote 3 P318) ──
     pub fn list_item(body: Content) -> Self {
-        Self::ListItem(Arc::new(ListItemElem { body }))
+        Self::ListItem(Arc::new(ListItemElem { body, marker: None }))
+    }
+    /// P470 — construtor com marcador customizado.
+    pub fn list_item_with_marker(
+        body:   Content,
+        marker: crate::entities::list_marker::ListMarker,
+    ) -> Self {
+        Self::ListItem(Arc::new(ListItemElem { body, marker: Some(marker) }))
     }
     pub fn enum_item(number: Option<u32>, body: Content) -> Self {
-        Self::EnumItem(Arc::new(EnumItemElem { number, body }))
+        Self::EnumItem(Arc::new(EnumItemElem { number, body, numbering: None }))
+    }
+    /// P470 — construtor com esquema de numeração.
+    pub fn enum_item_with_numbering(
+        number:    Option<u32>,
+        body:      Content,
+        numbering: crate::entities::enum_numbering::EnumNumbering,
+    ) -> Self {
+        Self::EnumItem(Arc::new(EnumItemElem { number, body, numbering: Some(numbering) }))
     }
     pub fn link(url: impl Into<EcoString>, body: Content) -> Self {
         Self::Link(Arc::new(LinkElem { url: url.into(), body }))

@@ -183,8 +183,20 @@ fn materialize_time(content: &Content, intr: &TagIntrospector, location: Locatio
         // Modelo D (P316): Heading delegado; reconstrói via ctor.
         Content::Heading(h) => Content::heading(h.level, materialize_time(&h.body, intr, location)),
         // Modelo D (Lote 3 P318): destructure de Arc<Elem> + reconstrução via construtor.
-        Content::ListItem(e) => Content::list_item(materialize_time(&e.body, intr, location)),
-        Content::EnumItem(e) => Content::enum_item(e.number, materialize_time(&e.body, intr, location)),
+        Content::ListItem(e) => {
+            let body = materialize_time(&e.body, intr, location);
+            match &e.marker {
+                None    => Content::list_item(body),
+                Some(m) => Content::list_item_with_marker(body, m.clone()),
+            }
+        }
+        Content::EnumItem(e) => {
+            let body = materialize_time(&e.body, intr, location);
+            match &e.numbering {
+                None    => Content::enum_item(e.number, body),
+                Some(n) => Content::enum_item_with_numbering(e.number, body, n.clone()),
+            }
+        }
         Content::Link(e) => Content::link(e.url.clone(), materialize_time(&e.body, intr, location)),
         // P464: Label — recurse no body via construtor, preservando origem.
         Content::Label(e) => {

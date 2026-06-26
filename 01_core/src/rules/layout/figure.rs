@@ -1,14 +1,15 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/rules/layout_figure.md
-//! @prompt-hash 7fb90d66
+//! @prompt-hash 00000000
 //! @layer L1
-//! @updated 2026-04-20
+//! @updated 2026-06-26
 
 use crate::entities::content::Content;
 use crate::entities::counter_format::format_counter;
 use crate::entities::elements::figure::FigureElem;
 use crate::entities::introspector::Introspector;
 use crate::entities::value::Value;
+use crate::rules::lang::figure_supplement::figure_supplement_for_lang;
 
 use super::{FontMetrics, ImageSizer, Layouter};
 
@@ -48,7 +49,8 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
         let formatted = numbering_pattern
             .and_then(|pat| format_counter(&[figure_number], pat))
             .unwrap_or_else(|| figure_number.to_string());
-        Some(format!("Figura {}: ", formatted))
+        let supplement = figure_supplement_for_lang(kind_key, layouter.chain.lang().as_ref());
+        Some(format!("{} {}: ", supplement, formatted))
     } else {
         None
     };

@@ -67,9 +67,9 @@ pub use crate::rules::stdlib::panic::native_panic;
 pub use crate::rules::stdlib::r#ref::native_ref;
 pub use crate::rules::stdlib::structural::{
     make_math_module, native_accent, native_asset, native_bibliography, native_cancel,
-    native_cite, native_divider, native_document, native_emph, native_footnote,
+    native_cite, native_divider, native_document, native_emph, native_enum, native_footnote,
     native_grid_cell, native_grid_footer, native_grid_header, native_heading,
-    native_link, native_op, native_outline, native_quote, native_raw, native_strong,
+    native_link, native_list, native_op, native_outline, native_quote, native_raw, native_strong,
     native_table, native_table_cell, native_table_footer, native_table_header, native_terms,
     native_underover,
 };
