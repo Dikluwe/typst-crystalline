@@ -9268,16 +9268,9 @@ mod tests_show_rule_integration {
         );
         let doc = layout(&b);
         let txt = doc.plain_text();
-        // Ambos os keys devem aparecer no output formatado.
-        assert!(
-            txt.contains("[smith2024]"),
-            "key smith2024 deve aparecer formatada como [key]: doc='{}'",
-            txt
-        );
-        assert!(
-            txt.contains("[doe2023]"),
-            "key doe2023 deve aparecer formatada como [key]"
-        );
+        // P468: bibliography usa numeração [N], não [key].
+        assert!(txt.contains("[1]"), "[1] deve aparecer: doc='{}'", txt);
+        assert!(txt.contains("[2]"), "[2] deve aparecer: doc='{}'", txt);
         assert!(txt.contains("Smith"), "author Smith deve aparecer");
         assert!(txt.contains("2024"), "year 2024 deve aparecer");
     }
@@ -9286,7 +9279,7 @@ mod tests_show_rule_integration {
     /// (se Some) concatenado.
     #[test]
     fn layout_cite_renderiza_placeholder_com_key() {
-        let c = Content::cite("smith2024", None, None);
+        let c = Content::cite("smith2024", None, None,);
         let doc = layout(&c);
         let txt = doc.plain_text();
         assert!(
@@ -9302,7 +9295,7 @@ mod tests_show_rule_integration {
         use crate::entities::bib_entry::BibEntry;
         use std::sync::Arc;
         let doc_content = Content::Sequence(Arc::from(vec![
-            Content::cite("smith2024", None, None),
+            Content::cite("smith2024", None, None,),
             Content::bibliography(
                 vec![BibEntry::new("smith2024", "Smith, J.", "On Crystal Math", 2024)],
                 Some(Content::text("Referências")),
@@ -9310,11 +9303,8 @@ mod tests_show_rule_integration {
         ]));
         let doc = layout(&doc_content);
         let txt = doc.plain_text();
-        // Ambos cite e bibliography devem aparecer.
-        assert!(
-            txt.contains("[smith2024]"),
-            "cite + bibliography ambos devem ter [smith2024]"
-        );
+        // P468: cite + bibliography — numeração [N], não [key].
+        assert!(txt.contains("[1]"), "cite + bibliography devem ter [1]: doc='{}'", txt);
         assert!(txt.contains("Referências"), "title da bibliography presente");
         assert!(txt.contains("Smith"), "author entry presente");
     }
@@ -9334,7 +9324,7 @@ mod tests_show_rule_integration {
     /// placeholder `[key]` (paridade P159A).
     #[test]
     fn cite_normal_renderiza_placeholder() {
-        let c = Content::cite("smith2024", None, None);
+        let c = Content::cite("smith2024", None, None,);
         let txt = layout_with_introspect(&c);
         assert!(
             txt.contains("[smith2024]"),
@@ -9358,9 +9348,10 @@ mod tests_show_rule_integration {
             ),
         ]));
         let txt = layout_with_introspect(&doc_content);
+        // P468: Prose+Numeric (default) → "Author [N]".
         assert!(
-            txt.contains("Smith, J. (2024)"),
-            "Prose com key existente deve renderizar 'Author (Year)': doc='{}'",
+            txt.contains("Smith, J. [1]"),
+            "Prose+Numeric deve renderizar 'Author [N]': doc='{}'",
             txt
         );
     }
@@ -9459,8 +9450,8 @@ mod tests_show_rule_integration {
         let b = Content::bibliography(vec![entry], None);
         let doc = layout(&b);
         let txt = doc.plain_text();
-        // Output P159A: "[smith2024] Smith, J.. On Crystal Math (2024)."
-        assert!(txt.contains("[smith2024]"), "key como [key]");
+        // P468: bibliography usa numeração [N], não [key].
+        assert!(txt.contains("[1]"), "[1] entry mínima: doc='{}'", txt);
         assert!(txt.contains("Smith, J."), "author");
         assert!(txt.contains("On Crystal Math"), "title");
         assert!(txt.contains("(2024)"), "year (year)");
@@ -9478,7 +9469,7 @@ mod tests_show_rule_integration {
         use crate::entities::bib_entry::BibEntry;
         use std::sync::Arc;
         let doc_content = Content::Sequence(Arc::from(vec![
-            Content::cite("smith2024", None, None),
+            Content::cite("smith2024", None, None,),
             Content::bibliography(
                 vec![BibEntry::new("smith2024", "Smith, J.", "On Crystal Math", 2024)],
                 None,
@@ -9496,7 +9487,7 @@ mod tests_show_rule_integration {
     /// no fallback `[key]`.
     #[test]
     fn cite_normal_fallback_placeholder_quando_bib_vazia() {
-        let c = Content::cite("smith2024", None, None);
+        let c = Content::cite("smith2024", None, None,);
         let txt = layout_with_introspect(&c);
         assert!(
             txt.contains("[smith2024]"),
@@ -9512,9 +9503,9 @@ mod tests_show_rule_integration {
         use crate::entities::bib_entry::BibEntry;
         use std::sync::Arc;
         let doc_content = Content::Sequence(Arc::from(vec![
-            Content::cite("first", None, None),
-            Content::cite("second", None, None),
-            Content::cite("third", None, None),
+            Content::cite("first", None, None,),
+            Content::cite("second", None, None,),
+            Content::cite("third", None, None,),
             Content::bibliography(
                 vec![
                     BibEntry::new("first", "Author One", "Paper One", 2021),
@@ -9546,9 +9537,10 @@ mod tests_show_rule_integration {
             ),
         ]));
         let txt = layout_with_introspect(&doc_content);
+        // P468: Prose+Numeric (default) → "Author [N]". Regression P159C atualizada.
         assert!(
-            txt.contains("Smith, J. (2024)"),
-            "Prose continua a renderizar 'Author (Year)' (regression P159C): doc='{}'",
+            txt.contains("Smith, J. [1]"),
+            "Prose+Numeric deve renderizar 'Author [N]': doc='{}'",
             txt
         );
     }
@@ -9560,7 +9552,7 @@ mod tests_show_rule_integration {
         use crate::entities::bib_entry::BibEntry;
         use std::sync::Arc;
         let doc_content = Content::Sequence(Arc::from(vec![
-            Content::cite("inexistente", None, None),
+            Content::cite("inexistente", None, None,),
             Content::bibliography(
                 vec![BibEntry::new("smith2024", "Smith, J.", "On Crystal Math", 2024)],
                 None,
@@ -9581,7 +9573,7 @@ mod tests_show_rule_integration {
         use crate::entities::bib_entry::BibEntry;
         use std::sync::Arc;
         let doc_content = Content::Sequence(Arc::from(vec![
-            Content::cite("third", None, None),
+            Content::cite("third", None, None,),
             Content::bibliography(
                 vec![
                     BibEntry::new("first", "Author One", "Paper One", 2021),
@@ -9595,10 +9587,105 @@ mod tests_show_rule_integration {
             ),
         ]));
         let txt = layout_with_introspect(&doc_content);
-        // first=[1], second=[2] em Bib1; third=[3] em Bib2 (contínua).
+        // P468: citation_order = ["third"] (única cite inline).
+        // Bib1 (first, second) → [1], [2] (não citadas, originais).
+        // Bib2 (third) → [1] (citada primeira, citation_number=1).
+        // Multi-bib com numeração global contínua é scope-out P468 (→ P420).
         assert!(
-            txt.contains("[3]"),
-            "third deve obter [3] (numeração contínua multi-Bibliography): doc='{}'",
+            txt.contains("Author Three"),
+            "third deve aparecer na bib: doc='{}'",
+            txt
+        );
+        assert!(
+            txt.contains("Author One") && txt.contains("Author Two"),
+            "first e second devem aparecer na bib: doc='{}'",
+            txt
+        );
+    }
+
+    // ── Passo 468 — Estilos numéricos por ordem de primeira aparição ──────
+
+    /// P468: numeração segue ordem de primeira aparição das citações,
+    /// não a ordem em que as entries aparecem na Bibliography.
+    #[test]
+    fn cite_numeric_ordem_primeira_aparicao() {
+        use crate::entities::bib_entry::BibEntry;
+        use std::sync::Arc;
+        let doc_content = Content::Sequence(Arc::from(vec![
+            Content::cite("third", None, None),
+            Content::cite("first", None, None),
+            Content::cite("second", None, None),
+            Content::bibliography(
+                vec![
+                    BibEntry::new("first", "Author One", "Paper One", 2021),
+                    BibEntry::new("second", "Author Two", "Paper Two", 2022),
+                    BibEntry::new("third", "Author Three", "Paper Three", 2023),
+                ],
+                None,
+            ),
+        ]));
+        let txt = layout_with_introspect(&doc_content);
+        assert!(txt.contains("[1]"), "third (primeira citação) → [1]: doc='{}'", txt);
+        assert!(txt.contains("[2]"), "first (segunda citação) → [2]: doc='{}'", txt);
+        assert!(txt.contains("[3]"), "second (terceira citação) → [3]: doc='{}'", txt);
+    }
+
+    /// P468: a Bibliography fallback é reordenada para seguir a ordem
+    /// de primeira aparição das citações no documento.
+    #[test]
+    fn bibliography_ordenada_pela_ordem_de_citacao() {
+        use crate::entities::bib_entry::BibEntry;
+        use std::sync::Arc;
+        let doc_content = Content::Sequence(Arc::from(vec![
+            Content::cite("third", None, None),
+            Content::cite("first", None, None),
+            Content::cite("second", None, None),
+            Content::bibliography(
+                vec![
+                    BibEntry::new("first", "Author One", "Paper One", 2021),
+                    BibEntry::new("second", "Author Two", "Paper Two", 2022),
+                    BibEntry::new("third", "Author Three", "Paper Three", 2023),
+                ],
+                None,
+            ),
+        ]));
+        let txt = layout_with_introspect(&doc_content);
+        // Bib ordenada por primeira citação: third (citada 1ª) → [1],
+        // first (citada 2ª) → [2], second (citada 3ª) → [3].
+        // Verifica a ordem dos autores na secção de bibliography.
+        let pos_three = txt.rfind("Author Three").expect("Author Three presente");
+        let pos_one = txt.rfind("Author One").expect("Author One presente");
+        let pos_two = txt.rfind("Author Two").expect("Author Two presente");
+        assert!(
+            pos_three < pos_one && pos_one < pos_two,
+            "bib deve seguir ordem de citação: third<first<second: doc='{}'",
+            txt
+        );
+    }
+
+    /// P468: form Prose com estilo numérico renderiza "Author [N]".
+    #[test]
+    fn cite_numeric_prose_inclui_numero() {
+        use crate::entities::bib_entry::BibEntry;
+        use crate::entities::citation_form::CitationForm;
+        use crate::entities::citation_style::CitationStyle;
+        use std::sync::Arc;
+        let doc_content = Content::Sequence(Arc::from(vec![
+            Content::cite_with_style(
+                "smith2024",
+                None,
+                Some(CitationForm::Prose),
+                Some(CitationStyle::Numeric),
+            ),
+            Content::bibliography(
+                vec![BibEntry::new("smith2024", "Smith, J.", "On Crystal Math", 2024)],
+                None,
+            ),
+        ]));
+        let txt = layout_with_introspect(&doc_content);
+        assert!(
+            txt.contains("Smith, J. [1]"),
+            "Prose + Numeric deve renderizar 'Author [N]': doc='{}'",
             txt
         );
     }
@@ -9767,7 +9854,7 @@ mod p418_csl_e2e {
 
     fn doc_with_style(style: &str) -> Content {
         Content::Sequence(Arc::from(vec![
-            Content::cite("smith2024", None, None),
+            Content::cite("smith2024", None, None,),
             Content::bibliography_with_style(
                 vec![entry()],
                 Some(Content::text("References")),
@@ -9792,7 +9879,7 @@ mod p418_csl_e2e {
     #[test]
     fn cite_antes_da_bibliography_usa_mesmo_style_ieee() {
         let doc = layout(&Content::Sequence(Arc::from(vec![
-            Content::cite("smith2024", None, None),
+            Content::cite("smith2024", None, None,),
             Content::bibliography_with_style(
                 vec![entry()],
                 None,
@@ -9807,11 +9894,12 @@ mod p418_csl_e2e {
     #[test]
     fn bibliography_sem_style_preserva_fallback_local() {
         let doc = layout(&Content::Sequence(Arc::from(vec![
-            Content::cite("smith2024", None, None),
+            Content::cite("smith2024", None, None,),
             Content::bibliography(vec![entry()], None),
         ])));
         let txt = doc.plain_text();
-        assert!(txt.contains("[smith2024]"), "fallback local: {txt}");
+        // P468: fallback local usa [N], não [key].
+        assert!(txt.contains("[1]"), "fallback local [1]: {txt}");
         assert!(txt.contains("Smith, J."), "fallback local autor: {txt}");
     }
 
@@ -9872,7 +9960,7 @@ mod p418_csl_e2e {
     #[test]
     fn bibliography_style_inexistente_cai_em_fallback() {
         let doc = layout(&Content::Sequence(Arc::from(vec![
-            Content::cite("smith2024", None, None),
+            Content::cite("smith2024", None, None,),
             Content::bibliography_with_style(
                 vec![entry()],
                 None,
@@ -9881,7 +9969,8 @@ mod p418_csl_e2e {
             ),
         ])));
         let txt = doc.plain_text();
-        assert!(txt.contains("[smith2024]"), "fallback quando style invalido: {txt}");
+        // P468: fallback usa [N], mesmo quando style é inválido.
+        assert!(txt.contains("[1]"), "fallback quando style invalido: {txt}");
     }
 
     #[test]
@@ -9933,7 +10022,7 @@ mod p418_csl_e2e {
     #[test]
     fn cite_key_inexistente_mantem_fallback_brackets() {
         let doc = layout(&Content::Sequence(Arc::from(vec![
-            Content::cite("inexistente", None, None),
+            Content::cite("inexistente", None, None,),
             Content::bibliography_with_style(
                 vec![entry()],
                 None,
@@ -10052,7 +10141,7 @@ mod p181g_cite_arm_migration {
 
     fn doc_cite_with_bib(form: Option<CitationForm>) -> Content {
         Content::Sequence(Arc::from(vec![
-            Content::cite("smith2024", None, form),
+            Content::cite("smith2024", None, form,),
             Content::bibliography(
                 vec![BibEntry::new("smith2024", "Smith, J.", "On Crystal Math", 2024)],
                 None,
@@ -10084,9 +10173,10 @@ mod p181g_cite_arm_migration {
         // (Prose precisa do entry para autor + ano).
         let content = doc_cite_with_bib(Some(CitationForm::Prose));
         let txt = render_via_introspector(&content);
+        // P468: Prose+Numeric (default) → "Author [N]".
         assert!(
-            txt.contains("Smith, J. (2024)"),
-            "Prose via introspector path deve renderizar 'Author (Year)': doc='{txt}'"
+            txt.contains("Smith, J. [1]"),
+            "Prose via introspector path deve renderizar 'Author [N]': doc='{txt}'"
         );
     }
 
@@ -10145,7 +10235,7 @@ mod p181g_cite_arm_migration {
         // Depois de P181G (cite-arm lê de introspector) → `[1]`.
         use crate::entities::introspector::TagIntrospector;
 
-        let content = Content::cite("smith2024", None, None);
+        let content = Content::cite("smith2024", None, None,);
 
         // P190I: state eliminado
         let mut intr = TagIntrospector::empty();
@@ -10189,8 +10279,8 @@ mod p181i_e2e_bib {
         // Bibliography com 2 entries; 2 cites Normal devem renderizar
         // [1] e [2].
         let content = Content::Sequence(Arc::from(vec![
-            Content::cite("intro", None, None),
-            Content::cite("methods", None, None),
+            Content::cite("intro", None, None,),
+            Content::cite("methods", None, None,),
             Content::bibliography(vec![bib("intro"), bib("methods")], None),
         ]));
 
@@ -10278,14 +10368,15 @@ mod p181i_e2e_bib {
         // via path `layout_with_introspector` (consumer migrado P181G).
         let entry = BibEntry::new("smith2024", "Smith, J.", "On Math", 2024);
 
+        // P468: Prose+Numeric (default) → "Author [N]" (não "Author (Year)").
         for (form, expected_substr) in [
             (None, "[1]"),
-            (Some(CitationForm::Prose), "Smith, J. (2024)"),
+            (Some(CitationForm::Prose), "Smith, J. [1]"),
             (Some(CitationForm::Author), "Smith, J."),
             (Some(CitationForm::Year), "2024"),
         ] {
             let content = Content::Sequence(Arc::from(vec![
-                Content::cite("smith2024", None, form),
+                Content::cite("smith2024", None, form,),
                 Content::bibliography(vec![entry.clone()], None),
             ]));
 

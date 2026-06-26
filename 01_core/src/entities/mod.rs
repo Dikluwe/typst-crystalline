@@ -27,6 +27,7 @@ pub mod bib_store;
 pub mod resolved_label_store;
 pub mod citation_form;
 // P468 — estilos de citação bibliográfica (numeric/author-date/alphabetic).
+pub mod citation_style;
 pub mod content;
 pub mod elements;
 pub mod dir;

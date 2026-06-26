@@ -510,6 +510,7 @@ mod tests {
             key: "key".into(),
             form: None,
             supplement: None,
+            style: None,
         }));
         assert_eq!(repr_content(&c), "cite(<key>)");
     }

@@ -1,5 +1,5 @@
 # Prompt L0 — `rules/layout/link` — Layout de `Content::Link`
-Hash do Código: fd6e07c2
+Hash do Código: bf5df56f
 
 **Camada**: L1 · **Alvo**: `01_core/src/rules/layout/link.rs`
 **Origem**: P422 (S) — atomização do layout de hiperligações; **P424** — bbox.

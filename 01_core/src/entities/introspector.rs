@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/entities/introspector.md
-//! @prompt-hash bfe24f58
+//! @prompt-hash e9787258
 //! @layer L1
 //! @updated 2026-05-12
 //!
@@ -158,6 +158,15 @@ pub trait Introspector: Send + Sync {
     /// `layout/mod.rs:590`. Lookup O(1) via `BibStore::numbers`;
     /// `None` se key não existe.
     fn bib_number_for_key(&self, key: &str) -> Option<u32>;
+
+    /// **P468** — número de citação 1-based por ordem de primeira
+    /// aparição da chave no documento. Delega a
+    /// `BibStore::citation_number_for_key`.
+    fn citation_number_for_key(&self, key: &str) -> Option<u32>;
+
+    /// **P468** — slice com a ordem de primeira aparição das chaves
+    /// citadas no documento. Delega a `BibStore::citation_order`.
+    fn citation_order(&self) -> &[String];
 
     /// **P184C** — número 1-based da figure na posição `idx` (0-indexed)
     /// entre as figures do `kind` indicado, em ordem de aparecimento
@@ -561,6 +570,14 @@ impl Introspector for TagIntrospector {
 
     fn bib_number_for_key(&self, key: &str) -> Option<u32> {
         self.bib_store.number_for_key(key)
+    }
+
+    fn citation_number_for_key(&self, key: &str) -> Option<u32> {
+        self.bib_store.citation_number_for_key(key)
+    }
+
+    fn citation_order(&self) -> &[String] {
+        self.bib_store.citation_order()
     }
 
     fn figure_number_at_index(&self, kind: &str, idx: usize) -> Option<usize> {

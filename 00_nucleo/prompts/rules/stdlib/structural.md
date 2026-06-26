@@ -1,5 +1,5 @@
 # Prompt L0 — `stdlib/structural` — módulo `structural`
-Hash do Código: 40aeddb0
+Hash do Código: a0bcbd04
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/rules/stdlib/structural.rs`
@@ -388,30 +388,37 @@ bibliography(((key: "k", author: "A", title: "T", year: -1),)) -> Err "year espe
 
 ---
 
-### `native_cite(key, supplement:?, form:?)`
+### `native_cite(key, supplement:?, form:?, style:?)`
 
-**Assinatura**: `cite(key: Str, supplement: Content | Str | None, form: Str | Auto | None) -> Content`
+**Assinatura**: `cite(key: Str, supplement: Content | Str | None, form: Str | Auto | None, style: Str | None) -> Content`
 
 **Argumentos**:
 - 1º posicional `key`: `Str` não vazia.
 - `supplement`: `Content`/`Str`/`none` (named; default `None`).
 - `form`: `"normal"`, `"prose"`, `"author"`, `"year"`, `auto` ou `none` (named; default `None`, resolvido a `Normal` em layout).
+- `style`: `"numeric"`, `"author-date"`, `"alphabetic"` ou `none` (named; **P468**; default `None`, resolvido a `Numeric` em layout).
 
-**Semântica**: Emite `Content::Cite { key, supplement, form }`.
+**Semântica**: Emite `Content::Cite { key, supplement, form, style }`.
+
+**P468 — CitationStyle**:
+`style` aceita strings lowercase canonical via `extract_citation_style`. `None` resolve a `CitationStyle::Numeric` em layout (default cristalino). Strings inválidas produzem erro com lista dos valores válidos.
 
 **Paridade vanilla**: Subset básico de citações.
 
 **Limitações / scope-outs**:
 - Não valida `key ∈ Bibliography.keys` — introspection runtime adiada per ADR-0017.
-- `style` (CSL override) scope-out.
+- Propagação automática de `bibliography.style` para cite — scope-out.
 - Renderização CSL real em `rules/layout/cite.rs`.
 
 **Testes canónicos**:
 ```
-cite("k") -> CiteElem { key: "k", supplement: None, form: None }
+cite("k") -> CiteElem { key: "k", supplement: None, form: None, style: None }
 cite("k", supplement: "p. 3", form: "prose") -> CiteElem { supplement: Some("p. 3"), form: Some(Prose) }
+cite("k", style: "numeric") -> CiteElem { style: Some(Numeric) }
+cite("k", style: "author-date") -> CiteElem { style: Some(AuthorDate) }
 cite("") -> Err "cite() key não pode ser vazia"
 cite("k", form: "bad") -> Err "form 'bad' inválido"
+cite("k", style: "bad") -> Err "cite(): style 'bad' inválido ..."
 ```
 
 ---

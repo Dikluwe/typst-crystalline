@@ -264,7 +264,7 @@ mod tests {
             // Locatable (4)
             Content::heading(1, Content::Empty),
             Content::figure(Content::Empty, None, None, None),
-            Content::cite("k", None, None),
+            Content::cite("k", None, None,),
             // P461: Table passa a locatable.
             Content::table(Vec::new(), Vec::new(), Vec::new()),
             // Não-locatable: amostra representativa

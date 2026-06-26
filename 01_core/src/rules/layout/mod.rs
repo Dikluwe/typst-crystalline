@@ -1416,8 +1416,21 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
 /// **P159G**: editor/series após title; location antes de
 /// publisher; organization substitutivo a publisher quando
 /// publisher ausente; isbn antes de url/doi; note ao final.
+/// **P468** — corpo da entry sem prefixo `[key]`. Usado por `bibliography.rs`
+/// para adicionar `[N]` numeração por ordem de citação.
+pub(super) fn format_bib_entry_body(e: &crate::entities::bib_entry::BibEntry) -> String {
+    let mut out = format!("{}. {}", e.author, e.title);
+    format_bib_entry_body_fields(e, &mut out);
+    out
+}
+
 fn format_bib_entry(e: &crate::entities::bib_entry::BibEntry) -> String {
     let mut out = format!("[{}] {}. {}", e.key, e.author, e.title);
+    format_bib_entry_body_fields(e, &mut out);
+    out
+}
+
+fn format_bib_entry_body_fields(e: &crate::entities::bib_entry::BibEntry, out: &mut String) {
     // P159G — editor/series após title.
     if let Some(ed) = &e.editor {
         out.push_str(&format!(" (Ed. {})", ed));
@@ -1469,7 +1482,6 @@ fn format_bib_entry(e: &crate::entities::bib_entry::BibEntry) -> String {
     if let Some(n) = &e.note {
         out.push_str(&format!(" [{}]", n));
     }
-    out
 }
 
 pub fn layout(content: &Content) -> PagedDocument {

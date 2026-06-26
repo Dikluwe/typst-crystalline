@@ -1,5 +1,5 @@
 # Prompt L0 — `infra/export/builder` — PdfBuilder
-Hash do Código: 9d76cf4b
+Hash do Código: 588f500e
 
 **Camada**: L3
 **Ficheiro alvo**: `03_infra/src/export/builder.rs`

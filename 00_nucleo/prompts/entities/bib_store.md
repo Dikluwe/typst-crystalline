@@ -1,5 +1,5 @@
 # Prompt L0 — `entities/bib_store`
-Hash do Código: 3ea366ac
+Hash do Código: 58b1f5cb
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/entities/bib_store.rs`
@@ -63,6 +63,8 @@ use crate::entities::bib_entry::BibEntry;
 pub struct BibStore {
     entries: Vec<BibEntry>,
     numbers: HashMap<String, u32>,
+    /// **P468** — ordem de primeira aparição de citações no documento.
+    citation_order: Vec<String>,
 }
 
 impl BibStore {
@@ -74,8 +76,15 @@ impl BibStore {
     pub fn numbers_len(&self) -> usize;
     pub fn is_empty(&self) -> bool;
 
+    /// **P468** — posição 1-based na ordem de primeira citação.
+    pub fn citation_number_for_key(&self, key: &str) -> Option<u32>;
+    /// **P468** — slice das keys na ordem de primeira citação.
+    pub fn citation_order(&self) -> &[String];
+
     pub(crate) fn add_bibliography(&mut self, entries: Vec<BibEntry>);
     pub(crate) fn assign_number(&mut self, key: String, number: u32);
+    /// **P468** — regista key na citation_order (ignorada se já presente).
+    pub(crate) fn record_citation(&mut self, key: String);
 }
 ```
 
@@ -208,3 +217,4 @@ papel arquitectural (sub-store de `TagIntrospector` populado em
 |------|--------|-------------------|
 | 2026-05-01 | P181B sub-passo .B: sub-store para entries bibliográficas + numeração 1-based; replica decisões P181A cláusula 1/2/3 | `bib_store.rs`, `bib_store.md` |
 | 2026-05-01 | P181E sub-passo .E: método `numbers_len()` adicionado para suportar `from_tags` arm Bibliography (paralelo a `state.bib_numbers.len()` em walk arm) | `bib_store.rs`, `bib_store.md` |
+| 2026-06-25 | P468: campo `citation_order: Vec<String>` + `record_citation` (pub crate) + `citation_number_for_key` + `citation_order()` para suporte a citação numérica ordenada por primeira aparição | `bib_store.rs`, `bib_store.md` |

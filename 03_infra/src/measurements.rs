@@ -282,6 +282,16 @@ impl<I: Introspector + Send + Sync> Introspector for CountingIntrospector<I> {
         self.inner.bib_number_for_key(key)
     }
 
+    fn citation_number_for_key(&self, key: &str) -> Option<u32> {
+        record_call(13);
+        self.inner.citation_number_for_key(key)
+    }
+
+    fn citation_order(&self) -> &[String] {
+        record_call(13);
+        self.inner.citation_order()
+    }
+
     // Lote F-4 E0 (P338): `is_numbering_active`/`is_numbering_active_at`
     // removidos do trait (API legada morta — triagem-47). O proxy de medição
     // deixou de os forwardar; os índices de `record_call` re-compactaram (24).
@@ -483,5 +493,70 @@ mod tests {
     fn p204g_call_counts_for_metodo_desconhecido_devolve_zero() {
         let counts = introspector_call_counts();
         assert_eq!(counts.count_for("metodo_inexistente"), 0);
+    }
+
+    // ── P468 — E2E L3: citation_number_for_key e citation_order ─────
+
+    /// P468 E2E L3: `CountingIntrospector` delega `citation_number_for_key`
+    /// e `citation_order` correctamente. Documento com 2 entries BibTeX,
+    /// citação em ordem invertida (second antes de first): second=[1], first=[2].
+    #[test]
+    fn p468_e2e_citation_number_for_key_via_proxy() {
+        use typst_core::entities::bib_entry::BibEntry;
+        use typst_core::entities::content::Content;
+        use typst_core::entities::introspector::Introspector;
+        use typst_core::rules::introspect::introspect_with_introspector;
+        use std::sync::Arc;
+
+        // Documento: cite("second") antes de cite("first").
+        let doc = Content::Sequence(Arc::from(vec![
+            Content::cite("second", None, None),
+            Content::cite("first", None, None),
+            Content::bibliography(
+                vec![
+                    BibEntry::new("first",  "Author A", "Paper A", 2021),
+                    BibEntry::new("second", "Author B", "Paper B", 2022),
+                ],
+                None,
+            ),
+        ]));
+
+        let intr_base = introspect_with_introspector(&doc);
+        let wrapped = CountingIntrospector::new(intr_base);
+
+        // second citado primeiro → citation_number = 1; first → 2.
+        assert_eq!(wrapped.citation_number_for_key("second"), Some(1));
+        assert_eq!(wrapped.citation_number_for_key("first"),  Some(2));
+        assert_eq!(wrapped.citation_number_for_key("nao_existe"), None);
+    }
+
+    /// P468 E2E L3: `citation_order` via proxy reflete ordem de primeira
+    /// aparição das citações no documento.
+    #[test]
+    fn p468_e2e_citation_order_via_proxy() {
+        use typst_core::entities::bib_entry::BibEntry;
+        use typst_core::entities::content::Content;
+        use typst_core::entities::introspector::Introspector;
+        use typst_core::rules::introspect::introspect_with_introspector;
+        use std::sync::Arc;
+
+        let doc = Content::Sequence(Arc::from(vec![
+            Content::cite("second", None, None),
+            Content::cite("first",  None, None),
+            Content::bibliography(
+                vec![
+                    BibEntry::new("first",  "Author A", "Paper A", 2021),
+                    BibEntry::new("second", "Author B", "Paper B", 2022),
+                ],
+                None,
+            ),
+        ]));
+
+        let intr_base = introspect_with_introspector(&doc);
+        let wrapped = CountingIntrospector::new(intr_base);
+
+        // citation_order: second aparece primeiro, depois first.
+        let order = wrapped.citation_order();
+        assert_eq!(order, &["second", "first"][..]);
     }
 }

@@ -11,18 +11,21 @@
 use std::sync::Arc;
 
 use crate::entities::citation_form::CitationForm;
+use crate::entities::citation_style::CitationStyle;
 use crate::entities::content::Content;
 use crate::entities::element_kind::ElementKind;
 use crate::entities::element_payload::ElementPayload;
 use crate::entities::elements::Element;
 use crate::entities::source_result::SourceResult;
 
-/// Citação `@key` com `supplement` e `form` opcionais.
+/// Citação `@key` com `supplement`, `form` e `style` opcionais.
 #[derive(Debug, Clone, PartialEq, Hash)]
 pub struct CiteElem {
     pub key: String,
     pub supplement: Option<Content>,
     pub form: Option<CitationForm>,
+    /// **P468** — estilo de citação (`numeric`, `author-date`, `alphabetic`).
+    pub style: Option<CitationStyle>,
 }
 
 impl Element for CiteElem {
@@ -46,6 +49,7 @@ impl Element for CiteElem {
                 .map(|s| s.map_content(transform))
                 .transpose()?,
             form: self.form,
+            style: self.style,
         })))
     }
 
@@ -57,6 +61,7 @@ impl Element for CiteElem {
             key: self.key.clone(),
             supplement: self.supplement.as_ref().map(|s| s.map_text(transform)),
             form: self.form,
+            style: self.style,
         }))
     }
 
@@ -80,6 +85,7 @@ mod tests {
             key: "smith2024".to_string(),
             supplement: None,
             form: None,
+            style: None,
         }
     }
 
@@ -94,6 +100,7 @@ mod tests {
             key: "k".to_string(),
             supplement: Some(Content::text(" p.5")),
             form: None,
+            style: None,
         };
         assert_eq!(c.plain_text(), "[k] p.5");
     }
@@ -118,6 +125,7 @@ mod tests {
             key: "k".to_string(),
             supplement: Some(Content::text("a")),
             form: Some(CitationForm::Prose),
+            style: None,
         };
         let mut f = |x: &Content| -> SourceResult<Option<Content>> {
             match x {
@@ -149,6 +157,7 @@ mod tests {
             key: "other".to_string(),
             supplement: None,
             form: None,
+            style: None,
         };
         assert_ne!(h(&ex()), h(&outro));
     }

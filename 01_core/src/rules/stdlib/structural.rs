@@ -2,7 +2,7 @@
 //! @prompt 00_nucleo/prompts/rules/model/document.md
 //! @prompt 00_nucleo/prompts/rules/model/asset.md
 //! @prompt 00_nucleo/prompts/rules/stdlib/structural.md
-//! @prompt-hash 38e57188
+//! @prompt-hash aeacd89f
 //! @layer L1
 //! @updated 2026-06-22
 //!
@@ -1351,7 +1351,7 @@ pub fn native_bibliography(
     Ok(Value::Content(Content::Bibliography(Arc::new(elem))))
 }
 
-/// `cite(key, supplement: ?, form: ?)` → `Content::Cite`.
+/// `cite(key, supplement: ?, form: ?, style: ?)` → `Content::Cite`.
 ///
 /// Par com `bibliography` (acoplamento semântico vanilla
 /// inseparável — cite referencia entries de bibliography).
@@ -1365,9 +1365,9 @@ pub fn native_bibliography(
 /// - `form: Str` (named); ADR-0064 Caso A (Passo 159C);
 ///   `"normal"`/`"prose"`/`"author"`/`"year"` ou `auto`/`none`/
 ///   ausente ↔ None (resolvido a Normal default em layout).
-///
-/// **Atributos vanilla scope-out** per ADR-0054 graded:
-/// `style` (CSL override). Refinos futuros NÃO reservados.
+/// - `style: Str` (named); P468;
+///   `"numeric"`/`"author-date"`/`"alphabetic"` ou `auto`/`none`/
+///   ausente ↔ None (resolvido a Numeric default em layout fallback).
 ///
 /// **Sem validação cross-reference** `key ∈ Bibliography.keys`
 /// — diferida per ADR-0017 Introspection runtime adiada.
@@ -1405,7 +1405,7 @@ pub fn native_cite(
 
     // Validar named args.
     for k in args.named.keys() {
-        if !["supplement", "form"].contains(&k.as_str()) {
+        if !["supplement", "form", "style"].contains(&k.as_str()) {
             return Err(vec![SourceDiagnostic::error(
                 Span::detached(),
                 format!("cite(): argumento nomeado inesperado '{}' (atributos avançados scope-out per ADR-0054 graded — refino futuro NÃO reservado)", k),
@@ -1421,8 +1421,11 @@ pub fn native_cite(
     });
 
     let form = extract_citation_form(args.named.get("form"))?;
+    let style = extract_citation_style(args.named.get("style"))?;
 
-    Ok(Value::Content(Content::cite(key, supplement, form)))
+    Ok(Value::Content(Content::cite_with_style(
+        key, supplement, form, style,
+    )))
 }
 
 /// `link(url, body)` — hiperligação (P422).
@@ -1501,6 +1504,36 @@ fn extract_citation_form(
         Some(other) => Err(vec![SourceDiagnostic::error(
             Span::detached(),
             format!("cite(): form espera string, recebeu {}", other.type_name()),
+        )]),
+    }
+}
+
+/// Helper privado P468 — parsing `Value::Str` para
+/// `Option<CitationStyle>`. Strict matching (case-sensitive);
+/// `auto`/`none`/ausente → None (resolvido a Numeric default em
+/// layout fallback). String inválida rejeitada com mensagem listando
+/// styles válidos.
+fn extract_citation_style(
+    val: Option<&Value>,
+) -> SourceResult<Option<crate::entities::citation_style::CitationStyle>> {
+    use crate::entities::citation_style::CitationStyle;
+    match val {
+        None | Some(Value::Auto) | Some(Value::None) => Ok(None),
+        Some(Value::Str(s)) => match s.as_str() {
+            "numeric" => Ok(Some(CitationStyle::Numeric)),
+            "author-date" => Ok(Some(CitationStyle::AuthorDate)),
+            "alphabetic" => Ok(Some(CitationStyle::Alphabetic)),
+            other => Err(vec![SourceDiagnostic::error(
+                Span::detached(),
+                format!(
+                    "cite(): style '{}' inválido (válidos: numeric, author-date, alphabetic)",
+                    other
+                ),
+            )]),
+        },
+        Some(other) => Err(vec![SourceDiagnostic::error(
+            Span::detached(),
+            format!("cite(): style espera string, recebeu {}", other.type_name()),
         )]),
     }
 }

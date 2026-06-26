@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/rules/introspect.md
-//! @prompt-hash 0c508658
+//! @prompt-hash 969f8768
 //! @layer L1
 //! @updated 2026-05-05
 //!
@@ -378,10 +378,11 @@ fn materialize_time(content: &Content, intr: &TagIntrospector, location: Locatio
                 locale: e.locale.clone(),
             },
         )),
-        Content::Cite(e) => Content::cite(
+        Content::Cite(e) => Content::cite_with_style(
             e.key.clone(),
             e.supplement.as_ref().map(|s| materialize_time(s, intr, location)),
             e.form,
+            e.style,
         ),
         Content::Align(e) => Content::align(e.alignment, materialize_time(&e.body, intr, location)),
         // P223 — Place refino: preservar float + clearance no materialize_time.
@@ -494,11 +495,18 @@ fn populate_intr_from_tag_start(
                 }
             }
         }
-        ElementPayload::Citation { .. } => {
+        ElementPayload::Citation { key } => {
             intr.kind_index
                 .entry(ElementKind::Citation)
                 .or_default()
                 .push(loc);
+            // **P468** — numeração de citações por ordem de aparição.
+            intr.counters.apply_at(
+                "citation".to_string(),
+                crate::entities::counter_update::CounterUpdate::Step,
+                loc,
+            );
+            intr.bib_store.record_citation(key.as_str().to_string());
         }
         ElementPayload::Metadata { value } => {
             intr.kind_index
@@ -1818,7 +1826,7 @@ mod tests {
                 Content::heading(1, Content::text("Capítulo")),
                 Content::figure(Content::Empty, Some(Content::text("legenda")), Some("image".into()), Some("1".into())),
                 Content::heading(2, Content::text("Secção")),
-                Content::cite("smith2024", None, None),
+                Content::cite("smith2024", None, None,),
             ]
             .into(),
         )
@@ -2014,9 +2022,9 @@ mod tests {
         // P163 .D.3: walk sobre Content com 3 citations distintas.
         let content = Content::Sequence(
             vec![
-                Content::cite("smith2024", None, None),
-                Content::cite("jones2023", None, None),
-                Content::cite("smith2024", None, None),  // repetida
+                Content::cite("smith2024", None, None,),
+                Content::cite("jones2023", None, None,),
+                Content::cite("smith2024", None, None,),  // repetida
             ]
             .into(),
         );
@@ -2127,9 +2135,9 @@ mod tests {
         // P165 .G.3: 3 citations distintas com keys → introspector indexa 3.
         let content = Content::Sequence(
             vec![
-                Content::cite("smith2024", None, None),
-                Content::cite("jones2023", None, None),
-                Content::cite("brown2022", None, None),
+                Content::cite("smith2024", None, None,),
+                Content::cite("jones2023", None, None,),
+                Content::cite("brown2022", None, None,),
             ]
             .into(),
         );

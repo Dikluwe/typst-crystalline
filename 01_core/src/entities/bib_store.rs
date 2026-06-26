@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/entities/bib_store.md
-//! @prompt-hash 4051b23d
+//! @prompt-hash d5aee69b
 //! @layer L1
 //! @updated 2026-06-23
 //!
@@ -25,7 +25,8 @@ use crate::entities::bib_entry::BibEntry;
 pub type BibStyleKey = u64;
 
 /// Acumulador de entries bibliográficas + mapa key→número 1-based +
-/// tabela lateral de styles resolvidos (P429).
+/// tabela lateral de styles resolvidos (P429) + ordem de primeira
+/// citação (P468).
 ///
 /// `from_tags` (P181E) popula via `add_bibliography` +
 /// `assign_number` ao processar `Tag::Start(_, info)` onde
@@ -36,6 +37,10 @@ pub type BibStyleKey = u64;
 /// Ordem de `entries` preservada por `Vec` interno; multi-Bibliography
 /// concatena (cláusula 2 P181A). `numbers` preserva primeiro número
 /// via `or_insert` (cláusula 3 P181A).
+///
+/// **P468** — `citation_order` guarda a key da primeira citação de cada
+/// entrada, na ordem de aparição no documento. Usado para numerar
+/// citações e ordenar a bibliografia.
 #[derive(Debug, Clone, Default)]
 pub struct BibStore {
     entries: Vec<BibEntry>,
@@ -44,6 +49,8 @@ pub struct BibStore {
     /// do `BibliographyElem` correspondente. Tabela lateral: não polui a
     /// identidade do elemento.
     bib_styles: HashMap<BibStyleKey, Arc<IndependentStyle>>,
+    /// **P468** — ordem de primeira aparição das citações no walk.
+    citation_order: Vec<String>,
 }
 
 impl BibStore {
@@ -113,6 +120,28 @@ impl BibStore {
     /// **P429** — devolve o style resolvido associado à chave, se existir.
     pub fn style_for_key(&self, key: BibStyleKey) -> Option<&Arc<IndependentStyle>> {
         self.bib_styles.get(&key)
+    }
+
+    /// **P468** — regista uma citação ao walk. Se for a primeira vez que
+    /// `key` é citada, adiciona-a a `citation_order`.
+    pub(crate) fn record_citation(&mut self, key: String) {
+        if !self.citation_order.contains(&key) {
+            self.citation_order.push(key);
+        }
+    }
+
+    /// **P468** — número de citação 1-based por ordem de primeira aparição.
+    /// `None` se a entry nunca foi citada.
+    pub fn citation_number_for_key(&self, key: &str) -> Option<u32> {
+        self.citation_order
+            .iter()
+            .position(|k| k == key)
+            .map(|i| i as u32 + 1)
+    }
+
+    /// **P468** — slice da ordem de primeira citação.
+    pub fn citation_order(&self) -> &[String] {
+        &self.citation_order
     }
 }
 
@@ -210,5 +239,29 @@ mod tests {
         assert!(store.style_for_key(123).is_some());
         assert_eq!(store.style_for_key(123).unwrap().info.title.value, style.info.title.value);
         assert!(store.style_for_key(999).is_none());
+    }
+
+    // ── P468 — ordem de citação ───────────────────────────────────────────
+
+    #[test]
+    fn record_citation_mantem_primeira_aparicao() {
+        let mut store = BibStore::empty();
+        store.record_citation("b".to_string());
+        store.record_citation("a".to_string());
+        store.record_citation("b".to_string()); // repetida ignora
+        store.record_citation("c".to_string());
+        assert_eq!(store.citation_order(), vec!["b", "a", "c"]);
+    }
+
+    #[test]
+    fn citation_number_for_key_pela_primeira_aparicao() {
+        let mut store = BibStore::empty();
+        store.record_citation("z".to_string());
+        store.record_citation("x".to_string());
+        store.record_citation("y".to_string());
+        assert_eq!(store.citation_number_for_key("z"), Some(1));
+        assert_eq!(store.citation_number_for_key("x"), Some(2));
+        assert_eq!(store.citation_number_for_key("y"), Some(3));
+        assert_eq!(store.citation_number_for_key("nao_citado"), None);
     }
 }

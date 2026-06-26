@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/entities/content.md
-//! @prompt-hash c6b5939f
+//! @prompt-hash 4024c65a
 //! @layer L1
 //! @updated 2026-06-22
 //!
@@ -1851,15 +1851,25 @@ impl Content {
         }))
     }
 
-    /// `cite(key, supplement, form)` — Passo 159A (par acoplado com
-    /// `bibliography`) + Passo 159C (form variants). Sem validação
-    /// cross-reference (ADR-0017 Introspection runtime adiada).
+    /// `cite(key, supplement, form, style)` — Passo 159A (par acoplado com
+    /// `bibliography`) + Passo 159C (form variants) + P468 (style).
+    /// Sem validação cross-reference (ADR-0017 Introspection runtime adiada).
     pub fn cite(
         key: impl Into<String>,
         supplement: Option<Content>,
         form: Option<crate::entities::citation_form::CitationForm>,
     ) -> Self {
-        Self::Cite(Arc::new(CiteElem { key: key.into(), supplement, form }))
+        Self::cite_with_style(key, supplement, form, None)
+    }
+
+    /// **P468** — constructor de `Content::Cite` com estilo explícito.
+    pub fn cite_with_style(
+        key: impl Into<String>,
+        supplement: Option<Content>,
+        form: Option<crate::entities::citation_form::CitationForm>,
+        style: Option<crate::entities::citation_style::CitationStyle>,
+    ) -> Self {
+        Self::Cite(Arc::new(CiteElem { key: key.into(), supplement, form, style }))
     }
 
     pub fn sequence(parts: Vec<Content>) -> Self {
@@ -5702,7 +5712,7 @@ mod tests {
 
     #[test]
     fn cite_constructor_so_key() {
-        let c = Content::cite("smith2024", None, None);
+        let c = Content::cite("smith2024", None, None,);
         if let Content::Cite(e) = &c {
             assert_eq!(e.key, "smith2024");
             assert!(e.supplement.is_none());
@@ -5730,7 +5740,7 @@ mod tests {
     #[test]
     fn cite_is_empty_sempre_false() {
         // Cite nunca vazio — placeholder [key] sempre observable.
-        let c1 = Content::cite("k", None, None);
+        let c1 = Content::cite("k", None, None,);
         let c2 = Content::cite("k", Some(Content::text("p. 1")), None);
         assert!(!c1.is_empty());
         assert!(!c2.is_empty());
@@ -5739,7 +5749,7 @@ mod tests {
     #[test]
     fn cite_plain_text_emite_placeholder_com_key() {
         // Sem supplement.
-        let c1 = Content::cite("smith2024", None, None);
+        let c1 = Content::cite("smith2024", None, None,);
         assert_eq!(c1.plain_text(), "[smith2024]");
         // Com supplement.
         let c2 = Content::cite("smith2024", Some(Content::text("p. 42")), None);
@@ -5757,7 +5767,7 @@ mod tests {
         let other_sup = Content::cite("k", Some(Content::text("p. 99")), None);
         assert_ne!(mk(), other_sup);
         // supplement None vs Some → diferente.
-        let other_none = Content::cite("k", None, None);
+        let other_none = Content::cite("k", None, None,);
         assert_ne!(mk(), other_none);
     }
 
@@ -5784,7 +5794,7 @@ mod tests {
         let other_form = Content::cite("k", None, Some(CitationForm::Author));
         assert_ne!(mk(), other_form);
         // form None vs Some → diferente.
-        let other_none = Content::cite("k", None, None);
+        let other_none = Content::cite("k", None, None,);
         assert_ne!(mk(), other_none);
     }
 

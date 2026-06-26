@@ -1,8 +1,8 @@
 //! Crystalline Lineage
-//! @prompt 00_nucleo/prompts/rules/atomizacao_elementos.md
-//! @prompt-hash 3331d6ba
+//! @prompt 00_nucleo/prompts/rules/layout/bibliography.md
+//! @prompt-hash e6ead03e
 //! @layer L1
-//! @updated 2026-06-23
+//! @updated 2026-06-25
 //!
 //! Atomização (ADR-0109, P381): o layout de `Bibliography` movido do monólito
 //! `layout_content` para o arquivo da feature (forma B). Content-preserving.
@@ -13,12 +13,15 @@
 
 use crate::entities::content::Content;
 use crate::entities::elements::bibliography::BibliographyElem;
+use crate::entities::introspector::Introspector;
 
 use super::{FontMetrics, ImageSizer, Layouter};
 
 /// Layout de `bibliography(...)`: renderiza o title (se presente) e a lista de
 /// referências. Com cache CSL disponível, usa a bibliografia pré-renderizada;
 /// senão usa o fallback local `format_bib_entry`.
+///
+/// **P468** — fallback reordena entries por `citation_order` e prefixa com `[N]`.
 pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
     layouter: &mut Layouter<M, S>,
     b: &BibliographyElem,
@@ -37,9 +40,20 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
         return;
     }
 
-    // Fallback P418: formatação local simples quando CSL não produz output.
-    for e in &b.entries {
-        let line = super::format_bib_entry(e);
+    // Fallback P418/P468: reordena entries por ordem de primeira citação.
+    // Entries não citadas ficam no final (na ordem original).
+    let citation_order: Vec<String> = layouter.introspector.citation_order().to_vec();
+    let mut ordered: Vec<_> = b.entries.iter().collect();
+    ordered.sort_by_key(|e| {
+        citation_order
+            .iter()
+            .position(|k| k == &e.key)
+            .unwrap_or(usize::MAX)
+    });
+    for (idx, e) in ordered.iter().enumerate() {
+        let n = idx + 1;
+        let body = super::format_bib_entry_body(e);
+        let line = format!("[{}] {}", n, body);
         layouter.layout_content(&Content::text(line));
         layouter.flush_line();
     }
