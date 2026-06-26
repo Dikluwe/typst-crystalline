@@ -4,7 +4,7 @@ Hash do Código: 8b74a405
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/entities/value.rs`
 **Criado em**: 2026-03-22 (Passo 13)
-**Atualizado em**: 2026-06-25 (P465 — `repr()` completo; P466 — métodos de coleção `array`/`dict`/`str` + `Value::truthy()` + eval de dict literal)
+**Atualizado em**: 2026-06-25 (P465 — `repr()` completo; P466 — métodos de coleção `array`/`dict`/`str` + `Value::truthy()` + eval de dict literal; P469 — `Value::Relative`) 
 **ADRs relevantes**: ADR-0017 (adiamento eval), ADR-0023 (indexmap em L1), ADR-0024 (EcoString em Value::Str), ADR-0025 (Int == Float), ADR-0028/ADR-0029 (tipos tipográficos), ADR-0117 Cláusula 4 (`repr()` função pura)
 
 ---
@@ -16,18 +16,19 @@ todos os valores possíveis durante a avaliação (`eval.rs`). O original tem
 ~35 variantes. A migração adiciona variantes incrementalmente, protegida pela
 regra: **não adicionar variantes sem ADR e tipo migrado**.
 
-### Estado actual (Passo 25)
+### Estado actual (Passo 25 + P469)
 
-16 variantes implementadas:
+17 variantes implementadas:
 
 - **Passo 13** — 5 primitivos: `None`, `Bool`, `Int`, `Float`, `Str`
 - **Passo 15** — 4 variantes compostas: `Array`, `Dict`, `Module`, `Datetime`
 - **Passo 16** — `Func`
 - **Passo 18** — `Content`
 - **Passo 25** — 5 tipos tipográficos: `Auto`, `Length`, `Ratio`, `Angle`, `Color`
+- **P469** — `Relative(Rel<Length>)` (comprimento relativo: `50%`, `100% - 1em`)
 - **Passo 395** — `Tiling` (padrão de azulejos; abertura ADR-0017)
 
-~13 variantes futuras permanecem comentadas no código (não implementar sem ADR).
+~12 variantes futuras permanecem comentadas no código (não implementar sem ADR).
 
 ---
 
@@ -105,6 +106,7 @@ pub enum Value {
     // Passo 25 — tipos tipográficos (ADR-0028/0029)
     Auto,
     Length(Length),
+    Relative(Rel<Length>),     // P469 — comprimento relativo
     Ratio(Ratio),
     Angle(Angle),
     Color(Color),
@@ -119,8 +121,8 @@ impl Value {
     pub fn type_name(&self) -> &'static str  // "none", "bool", "int", "float", "str",
                                               // "array", "dictionary", "module", "datetime",
                                               // "function", "content", "auto",
-                                              // "length", "ratio", "angle", "color",
-                                              // "tiling"
+                                              // "length", "relative length", "ratio",
+                                              // "angle", "color", "tiling"
     pub fn is_none(&self) -> bool
     pub fn truthy(&self) -> bool             // P466: semântica Typst minimal
     pub fn cast_bool(&self)  -> Option<bool>
@@ -151,6 +153,7 @@ impl From<Datetime>   for Value
 impl From<Func>       for Value
 impl From<Content>    for Value
 impl From<Length>     for Value
+impl From<Rel<Length>> for Value  // P469
 impl From<Ratio>      for Value
 impl From<Angle>      for Value
 impl From<Color>      for Value
@@ -191,13 +194,14 @@ cast_dict().unwrap().get("k") = Some(&Value::Int(1))
 // Module — clone O(1) via Arc
 Value::Module(m1) clone → type_name() ainda "module"
 
-// Tipos tipográficos (Passo 25)
-Value::Length(Length::pt(12.0)).type_name() = "length"
-Value::Ratio(Ratio(0.5)).type_name()        = "ratio"
-Value::Angle(Angle::deg(90.0)).type_name()  = "angle"
-Value::Color(Color::rgb(0,0,0)).type_name() = "color"
-Value::Auto.type_name()                     = "auto"
-Value::Tiling(...).type_name()              = "tiling"
+// Tipos tipográficos (Passo 25 + P469)
+Value::Length(Length::pt(12.0)).type_name()     = "length"
+Value::Relative(Rel::from_percent(50.0)).type_name() = "relative length"
+Value::Ratio(Ratio(0.5)).type_name()            = "ratio"
+Value::Angle(Angle::deg(90.0)).type_name()      = "angle"
+Value::Color(Color::rgb(0,0,0)).type_name()     = "color"
+Value::Auto.type_name()                         = "auto"
+Value::Tiling(...).type_name()                  = "tiling"
 
 // Scope integration
 Scope::define("x", Value::Int(42))
@@ -208,8 +212,8 @@ scope.get("x") = Some(&Value::Int(42))
 
 ## Variantes futuras (comentadas no código — NÃO implementar sem ADR)
 
-`Relative`, `Fraction`, `Gradient`, `Symbol`, `Version`,
-`Bytes`, `Decimal`, `Duration`, `Styles`, `Args`, `Type`, `Dyn` (~12 restantes)
+`Fraction`, `Gradient`, `Symbol`, `Version`,
+`Bytes`, `Decimal`, `Duration`, `Styles`, `Args`, `Type`, `Dyn` (~11 restantes)
 
 ---
 
@@ -231,3 +235,4 @@ scope.get("x") = Some(&Value::Int(42))
 | 2026-03-28 | Passo 25: Auto, Length, Ratio, Angle, Color (ADR-0028) | `value.rs` |
 | 2026-06-22 | Passo 395: Tiling (abertura ADR-0017) | `value.rs`, `tiling.rs` |
 | 2026-04-12 | Restauro — prompt expandido para refletir Passos 15–25; sem mudanças no código | `value.md` |
+| 2026-06-25 | P469: `Value::Relative(Rel<Length>)`, `repr`, cast `NeedsContext` | `value.rs`, `rel.rs`, `repr.rs`, `cast.rs` |

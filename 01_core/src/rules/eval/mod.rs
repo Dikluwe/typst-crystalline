@@ -51,6 +51,8 @@ use crate::rules::scopes::Scopes;
 // Submódulos por domínio (Passo 96.1, ADR-0037).
 mod math;
 pub(crate) mod operators;
+pub(crate) mod cast;
+pub use cast::{cast_length, CastError};
 mod control_flow;
 pub(crate) mod closures;
 mod bindings;
@@ -677,7 +679,8 @@ pub(crate) fn eval_expr(
         // Passo 76 — literais numéricos com unidade (ex: 100pt, 1.5em).
         Expr::Numeric(num) => {
             use crate::entities::ast::expr::Unit;
-            use crate::entities::layout_types::{Abs, Angle, Length, Ratio};
+            use crate::entities::layout_types::{Abs, Angle, Length};
+            use crate::entities::rel::Rel;
             let (value, unit) = num.get();
             match unit {
                 Unit::Pt      => Ok(Value::Length(Length { abs: Abs(value),            em: 0.0 })),
@@ -687,7 +690,8 @@ pub(crate) fn eval_expr(
                 Unit::Em      => Ok(Value::Length(Length { abs: Abs(0.0),              em: value })),
                 Unit::Deg     => Ok(Value::Angle(Angle::deg(value))),
                 Unit::Rad     => Ok(Value::Angle(Angle::rad(value))),
-                Unit::Percent => Ok(Value::Ratio(Ratio::from_percent(value))),
+                // P469 — percentual puro materializa comprimento relativo.
+                Unit::Percent => Ok(Value::Relative(Rel::from_percent(value))),
                 Unit::Fr      => Ok(Value::Fraction(value)),
             }
         }

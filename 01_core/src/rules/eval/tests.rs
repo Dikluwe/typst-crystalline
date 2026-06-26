@@ -2272,6 +2272,83 @@ mod tests {
         }
     }
 
+    // ── P469 — comprimentos relativos (`Rel<Length>`) ──────────────────────
+
+    #[test]
+    fn p469_eval_50_percent_e_relative() {
+        use crate::entities::rel::Rel;
+        let world = MockWorld::new("#let x = 50%");
+        let source = World::source(&world, World::main(&world)).unwrap();
+        let m = eval_for_test(&world, &source).unwrap();
+        assert_eq!(
+            m.scope().get("x"),
+            Some(&Value::Relative(Rel::<crate::entities::layout_types::Length>::from_percent(50.0)))
+        );
+    }
+
+    #[test]
+    fn p469_eval_100_percent_minus_1em() {
+        use crate::entities::layout_types::Length;
+        use crate::entities::rel::Rel;
+        let world = MockWorld::new("#let x = 100% - 1em");
+        let source = World::source(&world, World::main(&world)).unwrap();
+        let m = eval_for_test(&world, &source).unwrap();
+        let expected = Value::Relative(
+            Rel::<Length>::from_percent(100.0) - Length::em(1.0)
+        );
+        assert_eq!(m.scope().get("x"), Some(&expected));
+    }
+
+    #[test]
+    fn p469_eval_50_percent_plus_2cm() {
+        use crate::entities::layout_types::Length;
+        use crate::entities::rel::Rel;
+        let world = MockWorld::new("#let x = 50% + 2cm");
+        let source = World::source(&world, World::main(&world)).unwrap();
+        let m = eval_for_test(&world, &source).unwrap();
+        let expected = Value::Relative(
+            Rel::<Length>::from_percent(50.0) + Length::cm(2.0)
+        );
+        assert_eq!(m.scope().get("x"), Some(&expected));
+    }
+
+    #[test]
+    fn p469_eval_50_percent_times_2() {
+        use crate::entities::layout_types::Length;
+        use crate::entities::rel::Rel;
+        let world = MockWorld::new("#let x = 50% * 2");
+        let source = World::source(&world, World::main(&world)).unwrap();
+        let m = eval_for_test(&world, &source).unwrap();
+        let expected = Value::Relative(
+            Rel::<Length>::from_percent(50.0) * 2.0
+        );
+        assert_eq!(m.scope().get("x"), Some(&expected));
+    }
+
+    #[test]
+    fn p469_relative_plus_length_via_binary_op() {
+        use crate::entities::layout_types::Length;
+        use crate::entities::rel::Rel;
+        let r = eval_binary_op(
+            BinOp::Add,
+            Value::Relative(Rel::<Length>::from_percent(50.0)),
+            Value::Length(Length::cm(2.0)),
+        );
+        let expected = Value::Relative(
+            Rel::<Length>::from_percent(50.0) + Length::cm(2.0)
+        );
+        assert_eq!(r, Ok(expected));
+    }
+
+    #[test]
+    fn p469_cast_relative_to_length_needs_context() {
+        use crate::entities::layout_types::Length;
+        use crate::entities::rel::Rel;
+        use crate::rules::eval::cast::{cast_length, CastError};
+        let result = cast_length(Value::Relative(Rel::<Length>::from_percent(50.0)));
+        assert!(matches!(result, Err(CastError::NeedsContext(_))));
+    }
+
     // ── Passo 84.5 — Value::Align + composição via `+` (DEBT-36) ─────────
 
     #[test]
@@ -5922,6 +5999,44 @@ mod tests {
         let mut world = MockWorld::new("#repr(bibliography(\"refs.bib\"))");
         world.add_file("refs.bib", b"".to_vec());
         assert_eq!(p421_eval_plain_text(&world), "bibliography(\"refs.bib\")");
+    }
+
+    // ── P468 — E2E cite(style: ...) ───────────────────────────────────────────
+
+    fn p468_eval_content(world: &MockWorld) -> crate::entities::content::Content {
+        let module = eval_for_test(world, &world.source).unwrap();
+        module.content().unwrap().clone()
+    }
+
+    #[test]
+    fn p468_cite_style_numeric_explicito() {
+        let world = MockWorld::new(r#"#cite("key", style: "numeric")"#);
+        let content = p468_eval_content(&world);
+        match content {
+            crate::entities::content::Content::Cite(c) => {
+                assert_eq!(c.key, "key");
+                assert_eq!(c.style, Some(crate::entities::citation_style::CitationStyle::Numeric));
+            }
+            other => panic!("esperado Content::Cite, obtive {:?}", other),
+        }
+    }
+
+    #[test]
+    fn p468_cite_style_author_date_explicito() {
+        let world = MockWorld::new(r#"#cite("key", style: "author-date")"#);
+        let content = p468_eval_content(&world);
+        match content {
+            crate::entities::content::Content::Cite(c) => {
+                assert_eq!(c.style, Some(crate::entities::citation_style::CitationStyle::AuthorDate));
+            }
+            other => panic!("esperado Content::Cite, obtive {:?}", other),
+        }
+    }
+
+    #[test]
+    fn p468_cite_style_invalido_produz_erro() {
+        let world = MockWorld::new(r#"#cite("key", style: "foo")"#);
+        assert!(eval_for_test(&world, &world.source).is_err());
     }
 
     // ── P422 — E2E link render visual ─────────────────────────────────────────

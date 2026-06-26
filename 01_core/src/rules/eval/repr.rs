@@ -10,7 +10,9 @@
 //! representação scope-out ("function", "module", nome do tipo).
 
 
+use crate::entities::layout_types::Length;
 use crate::entities::content::Content;
+use crate::entities::rel::Rel;
 use crate::entities::selector::Selector;
 use crate::entities::value::Value;
 
@@ -49,6 +51,7 @@ pub fn repr_value(v: &Value) -> String {
         }
         Value::Auto => "auto".to_string(),
         Value::Length(l) => format!("{:?}", l),
+        Value::Relative(rel) => repr_relative(rel),
         Value::Ratio(r) => format!("{:?}", r),
         Value::Angle(a) => format!("{:?}", a),
         Value::Color(c) => format!("{:?}", c),
@@ -66,6 +69,18 @@ pub fn repr_value(v: &Value) -> String {
             format!("version({}, {}, {})", ver.major, ver.minor, ver.patch)
         }
         Value::Selector(s) => repr_selector(s),
+    }
+}
+
+/// Representação de um comprimento relativo (`Rel<Length>`).
+///
+/// Reconhecível, mas não round-trip: usa `{:?}` para a componente absoluta.
+fn repr_relative(rel: &Rel<Length>) -> String {
+    let pct = rel.rel * 100.0;
+    if rel.abs.is_zero() {
+        format!("{}%", pct)
+    } else {
+        format!("{}% + {:?}", pct, rel.abs)
     }
 }
 
@@ -422,6 +437,23 @@ mod tests {
         use crate::entities::regex::Regex;
         let r = Value::Regex(Regex::new("a+").unwrap());
         assert_eq!(repr_value(&r), "regex(\"a+\")");
+    }
+
+    #[test]
+    fn repr_value_relative_pure_percent() {
+        use crate::entities::layout_types::Length;
+        use crate::entities::rel::Rel;
+        let r = Value::Relative(Rel::<Length>::from_percent(50.0));
+        assert_eq!(repr_value(&r), "50%");
+    }
+
+    #[test]
+    fn repr_value_relative_with_abs_offset() {
+        use crate::entities::layout_types::Length;
+        use crate::entities::rel::Rel;
+        let r = Value::Relative(Rel::<Length>::from_percent(50.0) + Length::cm(2.0));
+        let s = repr_value(&r);
+        assert!(s.starts_with("50% + "), "repr relative with offset: {s}");
     }
 
     #[test]

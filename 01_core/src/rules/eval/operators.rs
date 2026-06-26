@@ -215,6 +215,34 @@ pub(crate) fn eval_binary_op(op: BinOp, lhs: Value, rhs: Value) -> Result<Value,
         (BinOp::Mul, Value::Int(n), Value::Ratio(r)) =>
             Ok(Value::Ratio(crate::entities::layout_types::Ratio(n as f64 * r.get()))),
 
+        // ── Comprimentos relativos (P469) ────────────────────────────────────
+        // Relative + Relative, Relative - Relative
+        (BinOp::Add, Value::Relative(a), Value::Relative(b)) =>
+            Ok(Value::Relative(a + b)),
+        (BinOp::Sub, Value::Relative(a), Value::Relative(b)) =>
+            Ok(Value::Relative(a - b)),
+        // Relative + Length / Length + Relative
+        (BinOp::Add, Value::Relative(r), Value::Length(l)) |
+        (BinOp::Add, Value::Length(l), Value::Relative(r)) =>
+            Ok(Value::Relative(r + l)),
+        // Relative - Length
+        (BinOp::Sub, Value::Relative(r), Value::Length(l)) =>
+            Ok(Value::Relative(r - l)),
+        // Relative * Int / Int * Relative
+        (BinOp::Mul, Value::Relative(r), Value::Int(n)) |
+        (BinOp::Mul, Value::Int(n), Value::Relative(r)) =>
+            Ok(Value::Relative(r * n as f64)),
+        // Relative * Float / Float * Relative
+        (BinOp::Mul, Value::Relative(r), Value::Float(f)) |
+        (BinOp::Mul, Value::Float(f), Value::Relative(r)) =>
+            Ok(Value::Relative(r * f)),
+        // Relative / Int
+        (BinOp::Div, Value::Relative(r), Value::Int(n)) =>
+            Ok(Value::Relative(r / n as f64)),
+        // Relative / Float
+        (BinOp::Div, Value::Relative(r), Value::Float(f)) =>
+            Ok(Value::Relative(r / f)),
+
         // ── Alinhamento (Passo 84.5, encerra DEBT-36) ────────────────────────
         // `center + bottom` → Align2D { h: Center, v: Bottom }.
         // Erro em conflito (semântica vanilla — não sobrescrita silenciosa):
@@ -260,6 +288,7 @@ pub(crate) fn eval_unary_op(op: UnOp, operand: Value) -> Result<Value, String> {
             use crate::entities::layout_types::{Abs, Length};
             Ok(Value::Length(Length { abs: Abs(-l.abs.to_pt()), em: -l.em }))
         }
+        (UnOp::Neg, Value::Relative(r)) => Ok(Value::Relative(-r)),
         (UnOp::Not, Value::Bool(b))  => Ok(Value::Bool(!b)),
         (UnOp::Pos, Value::Int(i))   => Ok(Value::Int(i)),
         (UnOp::Pos, Value::Float(f)) => Ok(Value::Float(f)),

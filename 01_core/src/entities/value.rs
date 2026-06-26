@@ -60,6 +60,8 @@ pub enum Value {
     Auto,
     /// Comprimento tipográfico (pt ou em). Ver ADR-0028.
     Length(crate::entities::layout_types::Length),
+    /// Comprimento relativo (`50%`, `50% + 2cm`). P469.
+    Relative(crate::entities::rel::Rel<crate::entities::layout_types::Length>),
     /// Rácio (percentagem normalizada). Ver ADR-0028.
     Ratio(crate::entities::layout_types::Ratio),
     /// Ângulo (armazenado em radianos). Ver ADR-0028.
@@ -169,6 +171,7 @@ impl Value {
             Self::Content(_) => "content",
             Self::Auto         => "auto",
             Self::Length(_)    => "length",
+            Self::Relative(_)  => "relative length",
             Self::Ratio(_)     => "ratio",
             Self::Angle(_)     => "angle",
             Self::Color(_)     => "color",
@@ -339,6 +342,9 @@ impl From<crate::entities::content::Content> for Value {
 }
 impl From<crate::entities::layout_types::Length> for Value {
     fn from(v: crate::entities::layout_types::Length) -> Self { Self::Length(v) }
+}
+impl From<crate::entities::rel::Rel<crate::entities::layout_types::Length>> for Value {
+    fn from(v: crate::entities::rel::Rel<crate::entities::layout_types::Length>) -> Self { Self::Relative(v) }
 }
 impl From<crate::entities::layout_types::Ratio> for Value {
     fn from(v: crate::entities::layout_types::Ratio) -> Self { Self::Ratio(v) }

@@ -620,6 +620,21 @@ impl std::ops::Neg for Abs {
     fn neg(self) -> Self { Self(-self.0) }
 }
 
+impl std::ops::Sub for Abs {
+    type Output = Self;
+    fn sub(self, rhs: Self) -> Self { Self(self.0 - rhs.0) }
+}
+
+impl std::ops::Mul<f64> for Abs {
+    type Output = Self;
+    fn mul(self, rhs: f64) -> Self { Self(self.0 * rhs) }
+}
+
+impl std::ops::Div<f64> for Abs {
+    type Output = Self;
+    fn div(self, rhs: f64) -> Self { Self(self.0 / rhs) }
+}
+
 /// Comprimento tipográfico — combinação de componente absoluta e relativa.
 ///
 /// ADR-0029 — revoga ADR-0028. Estrutura fiel ao Typst vanilla:
@@ -639,6 +654,13 @@ impl Length {
 
     pub fn pt(v: f64) -> Self { Self { abs: Abs::pt(v), em: 0.0 } }
     pub fn em(v: f64) -> Self { Self { abs: Abs::ZERO,  em: v   } }
+
+    /// Centímetros: 1 cm = 28.346 pt (paridade com parser `Unit::Cm`).
+    pub fn cm(v: f64) -> Self { Self { abs: Abs::pt(v * 28.346), em: 0.0 } }
+    /// Milímetros: 1 mm = 2.8346 pt (paridade com parser `Unit::Mm`).
+    pub fn mm(v: f64) -> Self { Self { abs: Abs::pt(v * 2.8346), em: 0.0 } }
+    /// Polegadas: 1 in = 72 pt.
+    pub fn inches(v: f64) -> Self { Self { abs: Abs::pt(v * 72.0), em: 0.0 } }
 
     pub fn is_zero(&self) -> bool { self.abs.is_zero() && self.em == 0.0 }
 
@@ -660,9 +682,30 @@ impl std::ops::Add for Length {
     }
 }
 
+impl std::ops::Sub for Length {
+    type Output = Self;
+    fn sub(self, rhs: Self) -> Self {
+        Self { abs: self.abs - rhs.abs, em: self.em - rhs.em }
+    }
+}
+
 impl std::ops::Neg for Length {
     type Output = Self;
     fn neg(self) -> Self { Self { abs: -self.abs, em: -self.em } }
+}
+
+impl std::ops::Mul<f64> for Length {
+    type Output = Self;
+    fn mul(self, rhs: f64) -> Self {
+        Self { abs: self.abs * rhs, em: self.em * rhs }
+    }
+}
+
+impl std::ops::Div<f64> for Length {
+    type Output = Self;
+    fn div(self, rhs: f64) -> Self {
+        Self { abs: self.abs / rhs, em: self.em / rhs }
+    }
 }
 
 /// Rácio — valor normalizado (0.0 = 0%, 1.0 = 100%).

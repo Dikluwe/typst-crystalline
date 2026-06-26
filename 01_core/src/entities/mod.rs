@@ -26,6 +26,7 @@ pub mod bib_entry;
 pub mod bib_store;
 pub mod resolved_label_store;
 pub mod citation_form;
+// P468 — estilos de citação bibliográfica (numeric/author-date/alphabetic).
 pub mod content;
 pub mod elements;
 pub mod dir;
@@ -92,5 +93,6 @@ pub mod version;
 // P264 — Axes<T> minimal per ADR-0088 + ADR-0080; consumer Radial.center.
 pub mod axes;
 pub mod ptr_eq_arc;
+pub mod rel;
 pub mod value;
 pub mod world_types;
