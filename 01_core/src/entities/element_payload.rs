@@ -60,6 +60,10 @@ pub enum ElementPayload {
         /// preservando paridade com `CounterStateLegacy.figure_label_numbers`
         /// que aplica o mesmo filtro no walk arm `Content::Labelled`.
         is_counted: bool,
+
+        /// **P472** — texto plano da caption, para popular `figures_for_lof`.
+        /// `None` se figura não tem caption.
+        caption_text: Option<String>,
     },
 
     Citation {
@@ -212,6 +216,8 @@ pub enum ElementPayload {
     Table {
         counter_update: CounterUpdate,
         is_counted:     bool,
+        /// **P472** — texto plano da caption, para popular `tables_for_lot`.
+        caption_text: Option<String>,
     },
 
     /// **P200B** (M5 universal completo) — Tag derivada de Heading
@@ -286,11 +292,13 @@ mod tests {
             kind: None,
             counter_update: CounterUpdate::Step,
             is_counted: false,
+            caption_text: None,
         };
         let b = ElementPayload::Figure {
             kind: Some("image".into()),
             counter_update: CounterUpdate::Step,
             is_counted: false,
+            caption_text: None,
         };
         assert_ne!(a, b);
     }
@@ -302,11 +310,13 @@ mod tests {
             kind: Some("image".into()),
             counter_update: CounterUpdate::Step,
             is_counted: true,
+            caption_text: None,
         };
         let uncounted = ElementPayload::Figure {
             kind: Some("image".into()),
             counter_update: CounterUpdate::Step,
             is_counted: false,
+            caption_text: None,
         };
         assert_ne!(counted, uncounted);
     }
@@ -341,6 +351,7 @@ mod tests {
             kind: None,
             counter_update: CounterUpdate::Step,
             is_counted: false,
+            caption_text: None,
         };
         let c = ElementPayload::Citation { key: "x".into() };
         assert_ne!(h, f);
@@ -453,6 +464,7 @@ mod tests {
             kind:           None,
             counter_update: CounterUpdate::Step,
             is_counted:     false,
+            caption_text:   None,
         };
         let outline = ElementPayload::Outline;
         let cite = ElementPayload::Citation { key: "x".into() };

@@ -1,5 +1,5 @@
 # Prompt L0 — `entities/bib_store`
-Hash do Código: 58b1f5cb
+Hash do Código: 581b57be
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/entities/bib_store.rs`
@@ -65,6 +65,8 @@ pub struct BibStore {
     numbers: HashMap<String, u32>,
     /// **P468** — ordem de primeira aparição de citações no documento.
     citation_order: Vec<String>,
+    /// **P472** — mapeamento key → lista de posições de citação (1-based, todas as ocorrências).
+    back_refs: HashMap<String, Vec<usize>>,
 }
 
 impl BibStore {
@@ -80,10 +82,15 @@ impl BibStore {
     pub fn citation_number_for_key(&self, key: &str) -> Option<u32>;
     /// **P468** — slice das keys na ordem de primeira citação.
     pub fn citation_order(&self) -> &[String];
+    /// **P472** — lista de posições de citação (1-based, todas as ocorrências) para `key`.
+    /// Vec vazia se key nunca foi citada.
+    pub fn back_refs_for_key(&self, key: &str) -> Vec<usize>;
 
     pub(crate) fn add_bibliography(&mut self, entries: Vec<BibEntry>);
     pub(crate) fn assign_number(&mut self, key: String, number: u32);
-    /// **P468** — regista key na citation_order (ignorada se já presente).
+    /// **P468/P472** — regista key na citation_order (ignorada se já presente) e
+    /// acumula posição 1-based em back_refs. cite_pos = total de citações registadas até
+    /// agora + 1 (= soma de todos os `back_refs[k].len()` antes desta chamada + 1).
     pub(crate) fn record_citation(&mut self, key: String);
 }
 ```
@@ -218,3 +225,4 @@ papel arquitectural (sub-store de `TagIntrospector` populado em
 | 2026-05-01 | P181B sub-passo .B: sub-store para entries bibliográficas + numeração 1-based; replica decisões P181A cláusula 1/2/3 | `bib_store.rs`, `bib_store.md` |
 | 2026-05-01 | P181E sub-passo .E: método `numbers_len()` adicionado para suportar `from_tags` arm Bibliography (paralelo a `state.bib_numbers.len()` em walk arm) | `bib_store.rs`, `bib_store.md` |
 | 2026-06-25 | P468: campo `citation_order: Vec<String>` + `record_citation` (pub crate) + `citation_number_for_key` + `citation_order()` para suporte a citação numérica ordenada por primeira aparição | `bib_store.rs`, `bib_store.md` |
+| 2026-06-26 | P472: campo `back_refs: HashMap<String, Vec<usize>>` + `back_refs_for_key()` + `record_citation` actualizado para acumular posição global 1-based; back-refs renderizados em `bibliography.rs` como ` ↑[1][3]`. | `bib_store.rs`, `bib_store.md` |

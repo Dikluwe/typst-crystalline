@@ -82,6 +82,7 @@ impl Element for FigureElem {
             kind:           self.kind.clone(),
             counter_update: CounterUpdate::Step,
             is_counted:     self.caption.is_some(),
+            caption_text:   self.caption.as_ref().map(|c| c.plain_text()),
         })
     }
 }
@@ -139,7 +140,7 @@ mod tests {
     fn locatavel_kind_e_payload() {
         assert_eq!(ex().element_kind(), Some(ElementKind::Figure));
         match ex().to_payload() {
-            Some(ElementPayload::Figure { kind, counter_update, is_counted }) => {
+            Some(ElementPayload::Figure { kind, counter_update, is_counted, .. }) => {
                 assert_eq!(kind, Some("image".to_string()));
                 assert_eq!(counter_update, CounterUpdate::Step);
                 // F-5a de-bake (P365): `is_counted` no payload é o placeholder

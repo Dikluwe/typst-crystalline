@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/entities/elements/outline.md
-//! @prompt-hash 9ce22615
+//! @prompt-hash 62025c53
 //! @layer L1
 //! @updated 2026-06-11
 //!
@@ -16,18 +16,37 @@ use crate::entities::element_payload::ElementPayload;
 use crate::entities::elements::Element;
 use crate::entities::source_result::SourceResult;
 
-/// Marcador de índice (table of contents).
+/// Alvo do índice: headings (TOC), figures (LoF) ou tables (LoT).
+///
+/// **P472** — `OutlineTarget` distingue os três tipos de lista gerados
+/// por `outline()`, `lof()` e `lot()`.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Default)]
+pub enum OutlineTarget {
+    #[default]
+    Headings,
+    Figures,
+    Tables,
+}
+
+/// Marcador de índice (table of contents / list of figures / list of tables).
 #[derive(Debug, Clone, PartialEq, Hash)]
 pub struct OutlineElem {
     pub title:  Option<Content>,
     pub depth:  usize,
     pub indent: bool,
+    /// **P472** — alvo do índice. Default `Headings` (TOC normal).
+    pub target: OutlineTarget,
 }
 
 impl OutlineElem {
     /// Defaults do vanilla: sem título customizado, profundidade 3, indentação activa.
     pub fn new(title: Option<Content>, depth: usize, indent: bool) -> Self {
-        Self { title, depth, indent }
+        Self { title, depth, indent, target: OutlineTarget::Headings }
+    }
+
+    /// **P472** — constrói com `target` explícito.
+    pub fn with_target(title: Option<Content>, depth: usize, indent: bool, target: OutlineTarget) -> Self {
+        Self { title, depth, indent, target }
     }
 }
 
@@ -48,6 +67,7 @@ impl Element for OutlineElem {
                 .transpose()?,
             depth: self.depth,
             indent: self.indent,
+            target: self.target,
         })))
     }
 
@@ -59,6 +79,7 @@ impl Element for OutlineElem {
             title: self.title.as_ref().map(|c| c.map_text(transform)),
             depth: self.depth,
             indent: self.indent,
+            target: self.target,
         }))
     }
 

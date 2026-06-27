@@ -471,7 +471,7 @@ fn populate_intr_from_tag_start(
                 intr.label_to_counter_key.insert(label.clone(), "heading".into());
             }
         }
-        ElementPayload::Figure { kind, counter_update, is_counted, .. } => {
+        ElementPayload::Figure { kind, counter_update, is_counted, caption_text } => {
             intr.kind_index
                 .entry(ElementKind::Figure)
                 .or_default()
@@ -498,6 +498,13 @@ fn populate_intr_from_tag_start(
                     counter_update.clone(),
                     loc,
                 );
+                // **P472** — popular figures_for_lof com (número, caption).
+                let num = intr.counters.value_at("figure", loc)
+                    .and_then(|v| v.last().copied())
+                    .unwrap_or(0);
+                if let Some(cap) = caption_text {
+                    intr.figures_for_lof.push((num, cap.clone()));
+                }
                 if let Some(label) = &info.label {
                     let next_num = intr.figure_label_numbers.len() + 1;
                     intr.figure_label_numbers
@@ -621,7 +628,7 @@ fn populate_intr_from_tag_start(
             // Content::Label numérico.
             intr.label_to_counter_key.remove(label);
         }
-        ElementPayload::Table { counter_update, is_counted } => {
+        ElementPayload::Table { counter_update, is_counted, caption_text } => {
             intr.kind_index
                 .entry(ElementKind::Table)
                 .or_default()
@@ -633,6 +640,13 @@ fn populate_intr_from_tag_start(
                     counter_update.clone(),
                     loc,
                 );
+                // **P472** — popular tables_for_lot com (número, caption).
+                let num = intr.counters.value_at("table", loc)
+                    .and_then(|v| v.last().copied())
+                    .unwrap_or(0);
+                if let Some(cap) = caption_text {
+                    intr.tables_for_lot.push((num, cap.clone()));
+                }
                 if let Some(label) = &info.label {
                     intr.label_to_counter_key.insert(label.clone(), "table".into());
                 }

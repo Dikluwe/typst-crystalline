@@ -96,6 +96,7 @@ impl Element for TableElem {
         Some(ElementPayload::Table {
             counter_update: CounterUpdate::Step,
             is_counted:     self.caption.is_some(),
+            caption_text:   self.caption.as_ref().map(|c| c.plain_text()),
         })
     }
 }

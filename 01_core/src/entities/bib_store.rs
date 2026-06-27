@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/entities/bib_store.md
-//! @prompt-hash d5aee69b
+//! @prompt-hash 308b33f5
 //! @layer L1
 //! @updated 2026-06-23
 //!
@@ -51,6 +51,10 @@ pub struct BibStore {
     bib_styles: HashMap<BibStyleKey, Arc<IndependentStyle>>,
     /// **P468** — ordem de primeira aparição das citações no walk.
     citation_order: Vec<String>,
+    /// **P472** — mapa inverso: key → posições de citação (1-based) em
+    /// ordem de aparição. Cada chamada a `record_citation` acrescenta a
+    /// posição global de citação (total de `record_citation` calls + 1).
+    back_refs: HashMap<String, Vec<usize>>,
 }
 
 impl BibStore {
@@ -122,12 +126,22 @@ impl BibStore {
         self.bib_styles.get(&key)
     }
 
-    /// **P468** — regista uma citação ao walk. Se for a primeira vez que
-    /// `key` é citada, adiciona-a a `citation_order`.
+    /// **P468/P472** — regista uma citação ao walk. Se for a primeira vez que
+    /// `key` é citada, adiciona-a a `citation_order`. Em todos os casos,
+    /// acrescenta a posição de citação (1-based, global) a `back_refs[key]`.
     pub(crate) fn record_citation(&mut self, key: String) {
+        // Posição global = total de citações já registadas + 1.
+        let cite_pos: usize = self.back_refs.values().map(|v| v.len()).sum::<usize>() + 1;
+        self.back_refs.entry(key.clone()).or_default().push(cite_pos);
         if !self.citation_order.contains(&key) {
             self.citation_order.push(key);
         }
+    }
+
+    /// **P472** — lista de posições de citação (1-based) para `key`.
+    /// Vec vazio se a key nunca foi citada.
+    pub fn back_refs_for_key(&self, key: &str) -> Vec<usize> {
+        self.back_refs.get(key).cloned().unwrap_or_default()
     }
 
     /// **P468** — número de citação 1-based por ordem de primeira aparição.
@@ -263,5 +277,39 @@ mod tests {
         assert_eq!(store.citation_number_for_key("x"), Some(2));
         assert_eq!(store.citation_number_for_key("y"), Some(3));
         assert_eq!(store.citation_number_for_key("nao_citado"), None);
+    }
+
+    // ── P472 — back-references ────────────────────────────────────────────
+
+    #[test]
+    fn back_refs_vazio_para_key_nao_citada() {
+        let store = BibStore::empty();
+        assert!(store.back_refs_for_key("nenhuma").is_empty());
+    }
+
+    #[test]
+    fn back_refs_acumula_todas_posicoes() {
+        let mut store = BibStore::empty();
+        store.record_citation("a".to_string());
+        store.record_citation("b".to_string());
+        store.record_citation("a".to_string());
+        store.record_citation("c".to_string());
+        store.record_citation("a".to_string());
+        assert_eq!(store.back_refs_for_key("a"), vec![1, 3, 5]);
+        assert_eq!(store.back_refs_for_key("b"), vec![2]);
+        assert_eq!(store.back_refs_for_key("c"), vec![4]);
+    }
+
+    #[test]
+    fn back_refs_nao_afecta_citation_order() {
+        let mut store = BibStore::empty();
+        store.record_citation("b".to_string());
+        store.record_citation("a".to_string());
+        store.record_citation("b".to_string());
+        // citation_order só tem "b" e "a" (primeira aparição)
+        assert_eq!(store.citation_order(), &["b", "a"]);
+        // back_refs tem todas as posições
+        assert_eq!(store.back_refs_for_key("b"), vec![1, 3]);
+        assert_eq!(store.back_refs_for_key("a"), vec![2]);
     }
 }

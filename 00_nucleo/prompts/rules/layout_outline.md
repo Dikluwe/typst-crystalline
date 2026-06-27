@@ -1,5 +1,5 @@
 # L0 — Layout: Tabela de Conteúdos
-Hash do Código: P457
+Hash do Código: eb12645c
 
 ## Módulo
 `01_core/src/rules/layout/outline.rs`
@@ -39,3 +39,37 @@ parâmetros do `OutlineElem` (`title`, `depth`, `indent`).
 - Ausência de headings → TOC exibe apenas o título.
 - `is_readonly = true` durante layout de cada linha → CounterUpdate no clone
   não avança contadores.
+
+---
+
+## P472 — List of Figures (`layout_lof`) e List of Tables (`layout_lot`)
+
+### Despacho
+
+No início de `layout_outline`, antes do caminho Headings:
+
+```rust
+match e.target {
+    OutlineTarget::Figures => { layout_lof(layouter, e); return; }
+    OutlineTarget::Tables  => { layout_lot(layouter, e); return; }
+    OutlineTarget::Headings => {}
+}
+```
+
+### `layout_lof`
+
+1. Renderiza o título: `e.title.clone()` ou `Content::text("List of Figures")`.
+2. Lê `layouter.introspector.figures_for_lof()` (slice de `(usize, String)`).
+3. Para cada `(num, caption)`: emite `Content::text(format!("Figure {}  {}", num, caption))` + `flush_line()`.
+4. Sem `is_readonly` (figuras não têm CounterUpdate no clone).
+5. Divergência declarada: sem page numbers (requer 2-pass — scope-out).
+
+### `layout_lot`
+
+Idêntico a `layout_lof` mas com `tables_for_lot()` e prefixo `"Table"`.
+
+### Scope-out explícito (P472)
+
+- Page numbers em LoF/LoT (requer 2-pass convergente — DEBT).
+- LoF/LoT filtrado por `kind` (ex: só `"image"` vs `"table:custom"`) — futuro.
+- `lof(title: [Custom])` / `lot(title: [Custom])` com Content arbitrário — suportado pelo campo `title: Option<Content>` mas sem testes de formatação rich.

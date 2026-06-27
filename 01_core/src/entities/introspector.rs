@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/entities/introspector.md
-//! @prompt-hash e9787258
+//! @prompt-hash 241031ce
 //! @layer L1
 //! @updated 2026-05-12
 //!
@@ -167,6 +167,17 @@ pub trait Introspector: Send + Sync {
     /// **P468** — slice com a ordem de primeira aparição das chaves
     /// citadas no documento. Delega a `BibStore::citation_order`.
     fn citation_order(&self) -> &[String];
+
+    /// **P472** — back-references de uma chave bibliográfica: lista
+    /// 1-based de posições de citação no documento (em ordem de aparição).
+    /// Vec vazio se a key nunca foi citada.
+    fn back_refs_for_key(&self, key: &str) -> Vec<usize>;
+
+    /// **P472** — lista de figuras para List of Figures: `(número, caption)`.
+    fn figures_for_lof(&self) -> &[(usize, String)];
+
+    /// **P472** — lista de tabelas para List of Tables: `(número, caption)`.
+    fn tables_for_lot(&self) -> &[(usize, String)];
 
     /// **P184C** — número 1-based da figure na posição `idx` (0-indexed)
     /// entre as figures do `kind` indicado, em ordem de aparecimento
@@ -360,6 +371,14 @@ pub struct TagIntrospector {
     /// `Introspector::counter_display_value(key, loc)`.
     pub counter_displays:
         HashMap<(String, Location), crate::entities::content::Content>,
+
+    /// **P472** — lista de figuras para List of Figures: `(número, caption)`.
+    /// Populado em `populate_intr_from_tag_start` para Figure `is_counted`.
+    pub figures_for_lof: Vec<(usize, String)>,
+
+    /// **P472** — lista de tabelas para List of Tables: `(número, caption)`.
+    /// Populado em `populate_intr_from_tag_start` para Table `is_counted`.
+    pub tables_for_lot: Vec<(usize, String)>,
 }
 
 impl TagIntrospector {
@@ -578,6 +597,18 @@ impl Introspector for TagIntrospector {
 
     fn citation_order(&self) -> &[String] {
         self.bib_store.citation_order()
+    }
+
+    fn back_refs_for_key(&self, key: &str) -> Vec<usize> {
+        self.bib_store.back_refs_for_key(key)
+    }
+
+    fn figures_for_lof(&self) -> &[(usize, String)] {
+        &self.figures_for_lof
+    }
+
+    fn tables_for_lot(&self) -> &[(usize, String)] {
+        &self.tables_for_lot
     }
 
     fn figure_number_at_index(&self, kind: &str, idx: usize) -> Option<usize> {
@@ -1356,5 +1387,49 @@ mod tests {
         // = soma de label_count para todos os labels únicos.
         let total = i.query_labelled().len();
         assert_eq!(total, i.label_count(&lbl("unica")) + i.label_count(&lbl("multi")));
+    }
+
+    // ── P472 — back_refs_for_key / figures_for_lof / tables_for_lot ──────
+
+    #[test]
+    fn back_refs_for_key_vazio_em_introspector_vazio() {
+        let i = TagIntrospector::empty();
+        assert!(i.back_refs_for_key("x").is_empty());
+    }
+
+    #[test]
+    fn back_refs_via_introspector_delega_a_bib_store() {
+        use crate::entities::bib_store::BibStore;
+        let mut i = TagIntrospector::empty();
+        i.bib_store.record_citation("key1".to_string());
+        i.bib_store.record_citation("key2".to_string());
+        i.bib_store.record_citation("key1".to_string());
+        let refs1 = i.back_refs_for_key("key1");
+        assert_eq!(refs1, vec![1, 3]);
+        let refs2 = i.back_refs_for_key("key2");
+        assert_eq!(refs2, vec![2]);
+    }
+
+    #[test]
+    fn figures_for_lof_vazio_em_introspector_vazio() {
+        let i = TagIntrospector::empty();
+        assert!(i.figures_for_lof().is_empty());
+    }
+
+    #[test]
+    fn tables_for_lot_vazio_em_introspector_vazio() {
+        let i = TagIntrospector::empty();
+        assert!(i.tables_for_lot().is_empty());
+    }
+
+    #[test]
+    fn figures_for_lof_populado_directamente() {
+        let mut i = TagIntrospector::empty();
+        i.figures_for_lof.push((1, "Diagrama 1".to_string()));
+        i.figures_for_lof.push((2, "Mapa".to_string()));
+        let lof = i.figures_for_lof();
+        assert_eq!(lof.len(), 2);
+        assert_eq!(lof[0], (1, "Diagrama 1".to_string()));
+        assert_eq!(lof[1], (2, "Mapa".to_string()));
     }
 }

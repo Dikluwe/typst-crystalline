@@ -345,6 +345,18 @@ impl<I: Introspector + Send + Sync> Introspector for CountingIntrospector<I> {
         record_call(23);
         self.inner.page_supplement(location)
     }
+
+    fn back_refs_for_key(&self, key: &str) -> Vec<usize> {
+        self.inner.back_refs_for_key(key)
+    }
+
+    fn figures_for_lof(&self) -> &[(usize, String)] {
+        self.inner.figures_for_lof()
+    }
+
+    fn tables_for_lot(&self) -> &[(usize, String)] {
+        self.inner.tables_for_lot()
+    }
 }
 
 #[cfg(test)]

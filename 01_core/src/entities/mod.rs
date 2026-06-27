@@ -100,3 +100,5 @@ pub mod world_types;
 // P470 — Tipos de marcador de list/enum.
 pub mod list_marker;
 pub mod enum_numbering;
+// P471 — Símbolo Unicode nomeado.
+pub mod symbol;

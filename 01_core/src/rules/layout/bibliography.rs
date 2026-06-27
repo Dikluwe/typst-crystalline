@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/rules/layout/bibliography.md
-//! @prompt-hash e6ead03e
+//! @prompt-hash 74585cfa
 //! @layer L1
 //! @updated 2026-06-25
 //!
@@ -53,7 +53,18 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
     for (idx, e) in ordered.iter().enumerate() {
         let n = idx + 1;
         let body = super::format_bib_entry_body(e);
-        let line = format!("[{}] {}", n, body);
+        // **P472** — back-refs: lista de posições onde a entry foi citada.
+        let refs = layouter.introspector.back_refs_for_key(&e.key);
+        let back_ref_str = if refs.is_empty() {
+            String::new()
+        } else {
+            let cited: String = refs.iter()
+                .map(|p| format!("[{}]", p))
+                .collect::<Vec<_>>()
+                .join("");
+            format!(" ↑{}", cited)
+        };
+        let line = format!("[{}] {}{}", n, body, back_ref_str);
         layouter.layout_content(&Content::text(line));
         layouter.flush_line();
     }

@@ -79,6 +79,7 @@ mod tests {
             kind:           Some("image".into()),
             counter_update: CounterUpdate::Step,
             is_counted:     true,
+            caption_text:   None,
         };
         let tags2 = vec![Tag::Start(loc(1), ElementInfo::new(figure_payload))];
         assert_ne!(compute_tags_hash(&tags1), compute_tags_hash(&tags2));

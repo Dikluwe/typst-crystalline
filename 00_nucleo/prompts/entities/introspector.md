@@ -1,5 +1,5 @@
 # Prompt L0 — `entities/introspector`
-Hash do Código: ce3b60e3
+Hash do Código: cb67cfb3
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/entities/introspector.rs`
@@ -147,6 +147,22 @@ pub trait Introspector {
     /// `label_to_counter_key.get(label)`.
     fn counter_key_for_label(&self, label: &Label) -> Option<&str>;
 
+    /// **P472** — lista de posições de citação (1-based) para todas as
+    /// ocorrências da key `key`. Vec vazia se nunca citada. Delega a
+    /// `bib_store.back_refs_for_key(key)`. Suporta renderização de
+    /// back-refs em `bibliography.rs` (` ↑[1][3]` após o corpo da entry).
+    fn back_refs_for_key(&self, key: &str) -> Vec<usize>;
+
+    /// **P472** — slice de `(counter_value, caption_text)` para todas as
+    /// figuras indexadas no walk (populado em `introspect.rs` arm Figure quando
+    /// `caption_text.is_some()`). Suporta `layout_lof` em `outline.rs`.
+    fn figures_for_lof(&self) -> &[(usize, String)];
+
+    /// **P472** — slice de `(counter_value, caption_text)` para todas as
+    /// tabelas indexadas no walk (populado em `introspect.rs` arm Table quando
+    /// `caption_text.is_some()`). Suporta `layout_lot` em `outline.rs`.
+    fn tables_for_lot(&self) -> &[(usize, String)];
+
     /// **P193B** (M5 sequência §9 P189 passo 1) — texto resolvido
     /// para a `Label` indicada. `Some(&str)` se label registada no
     /// `ResolvedLabelStore`; `None` caso contrário. Delega a
@@ -218,6 +234,13 @@ pub trait Introspector {
     /// a página. Vanilla retorna `Option<&Content>` (cristalino
     /// preserva tipo idêntico per ADR-0026).
     fn page_supplement(&self, location: Location) -> Option<&Content>;
+
+    /// **P472** — back-refs para key. Delega a `bib_store.back_refs_for_key`.
+    fn back_refs_for_key(&self, key: &str) -> Vec<usize>;
+    /// **P472** — slice de figuras para LoF: `(counter, caption)`.
+    fn figures_for_lof(&self) -> &[(usize, String)];
+    /// **P472** — slice de tabelas para LoT: `(counter, caption)`.
+    fn tables_for_lot(&self) -> &[(usize, String)];
 }
 
 #[derive(Debug, Clone, Default)]
@@ -260,6 +283,12 @@ pub struct TagIntrospector {
     /// injectado pós-layout via `inject_pages`. Default empty
     /// (pre-injecção, queries page-aware retornam `None`).
     pub page_store:            PageStore,
+    /// **P472** — lista de `(counter, caption)` para figuras com caption,
+    /// populada em `introspect.rs` arm Figure via `ElementPayload::Figure.caption_text`.
+    pub figures_for_lof:       Vec<(usize, String)>,
+    /// **P472** — lista de `(counter, caption)` para tabelas com caption,
+    /// populada em `introspect.rs` arm Table via `ElementPayload::Table.caption_text`.
+    pub tables_for_lot:        Vec<(usize, String)>,
 }
 
 impl TagIntrospector {
@@ -360,3 +389,4 @@ Fan-in baixo: M3 não tem consumers externos ainda.
 | 2026-06-25 | P468 (Bibliography Phase 2): trait estendido com `citation_number_for_key(key) -> Option<u32>` (posição 1-based por primeira citação, delega a `bib_store.citation_number_for_key`) e `citation_order() -> &[String]` (slice da ordem de citação, delega a `bib_store.citation_order()`). Suporte a citação numérica `[1]`/`[2]` em `layout/cite.rs` e ordenação de `layout/bibliography.rs`. | `introspector.rs`, `introspector.md`, `bib_store.rs`, `bib_store.md` |
 | 2026-05-12 | P207D (M9c — Bloco II page-aware + Bloco VIII infraestrutura parcial per ADR-0076): trait estendido com 4 métodos page-aware: `pages` (total via `PageStore::total_pages`), `page` (via `SealedPositions`), `page_numbering` (via `PageStore::numbering_for_page` — `Option<&EcoString>` per ADR-0024), `page_supplement` (via `PageStore::supplement_for_page`). Novo field `pub page_store: PageStore` em `TagIntrospector` + novo método `inject_pages` paralelo a `inject_positions` (P205C). Opção 2 fixada em C2 (sub-store dedicado paralelo a `SealedPositions`). Pre-injecção: todos retornam `None`. Trait passa de 22 para 26 métodos. | `introspector.rs`, `introspector.md`, `page_store.rs`, `page_store.md` |
 | 2026-06-25 | P462: `TagIntrospector` ganha `label_to_counter_key: HashMap<Label, EcoString>`; trait estende `counter_key_for_label(&Label) -> Option<&str>`. População no walk de `introspect.rs` para elementos numerados etiquetados via `Content::Label`. Suporte ao layout de `ref` com resolução numérica. | `introspector.rs`, `introspector.md`, `introspect.rs`, `references.rs`, `ref.rs`, `content.rs` |
+| 2026-06-26 | P472: `TagIntrospector` ganha `figures_for_lof: Vec<(usize, String)>` e `tables_for_lot: Vec<(usize, String)>`; trait estendido com `back_refs_for_key`, `figures_for_lof`, `tables_for_lot`; `ElementPayload::Figure/Table` ganham `caption_text: Option<String>`; `introspect.rs` popula os 2 novos campos. Suporte a LoF/LoT em `outline.rs`. | `introspector.rs`, `introspector.md`, `element_payload.rs`, `introspect.rs`, `outline.rs`, `measurements.rs` |

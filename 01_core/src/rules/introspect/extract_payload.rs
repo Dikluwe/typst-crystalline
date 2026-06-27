@@ -108,7 +108,7 @@ mod tests {
     fn figure_produz_some_payload() {
         let c = Content::figure(Content::Empty, None, Some("image".into()), None);
         match extract_payload(&c) {
-            Some(ElementPayload::Figure { kind, counter_update, is_counted: _ }) => {
+            Some(ElementPayload::Figure { kind, counter_update, is_counted: _, .. }) => {
                 assert_eq!(kind, Some("image".to_string()));
                 assert_eq!(counter_update, CounterUpdate::Step);
             }

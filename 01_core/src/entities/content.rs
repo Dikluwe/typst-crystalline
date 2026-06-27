@@ -1404,6 +1404,14 @@ impl Content {
         Self::Styled(Box::new(body), Styles::from_iter([Style::subscript(true)]))
     }
 
+    /// **P471** — `sub(body, size: length)` com tamanho explícito.
+    pub fn sub_with_size(body: Content, size: Option<crate::entities::layout_types::Length>) -> Self {
+        use crate::entities::style::{Style, Styles};
+        let mut styles = vec![Style::subscript(true)];
+        if let Some(s) = size { styles.push(Style::subscript_size(s)); }
+        Self::Styled(Box::new(body), Styles::from_iter(styles))
+    }
+
     /// **Passo 448** — `super(body)` (`super` é keyword em Rust, logo o
     /// construtor chama-se `superscript`).
     pub fn superscript(body: Content) -> Self {
@@ -1411,10 +1419,32 @@ impl Content {
         Self::Styled(Box::new(body), Styles::from_iter([Style::superscript(true)]))
     }
 
+    /// **P471** — `super(body, size: length)` com tamanho explícito.
+    pub fn superscript_with_size(body: Content, size: Option<crate::entities::layout_types::Length>) -> Self {
+        use crate::entities::style::{Style, Styles};
+        let mut styles = vec![Style::superscript(true)];
+        if let Some(s) = size { styles.push(Style::superscript_size(s)); }
+        Self::Styled(Box::new(body), Styles::from_iter(styles))
+    }
+
     /// **Passo 449** — `highlight(body, fill)`.
     pub fn highlight(body: Content, fill: Option<crate::entities::layout_types::Color>) -> Self {
         use crate::entities::style::{Style, Styles};
         Self::Styled(Box::new(body), Styles::from_iter([Style::highlight(fill)]))
+    }
+
+    /// **P471** — `highlight(body, fill, radius, extent)` com parâmetros cosmésticos.
+    pub fn highlight_full(
+        body: Content,
+        fill: Option<crate::entities::layout_types::Color>,
+        radius: Option<crate::entities::layout_types::Length>,
+        extent: Option<crate::entities::layout_types::Length>,
+    ) -> Self {
+        use crate::entities::style::{Style, Styles};
+        let mut styles = vec![Style::highlight(fill)];
+        if let Some(r) = radius { styles.push(Style::highlight_radius(r)); }
+        if let Some(e) = extent { styles.push(Style::highlight_extent(e)); }
+        Self::Styled(Box::new(body), Styles::from_iter(styles))
     }
 
     /// `pad(body, sides)` — Passo 156C (ADR-0061 Fase 1) /
@@ -1714,6 +1744,18 @@ impl Content {
 
     pub fn outline_with(title: Option<Content>, depth: usize, indent: bool) -> Self {
         Self::Outline(Arc::new(OutlineElem::new(title, depth, indent)))
+    }
+
+    /// **P472** — List of Figures (`lof()`).
+    pub fn lof(title: Option<Content>) -> Self {
+        use crate::entities::elements::outline::OutlineTarget;
+        Self::Outline(Arc::new(OutlineElem::with_target(title, 1, false, OutlineTarget::Figures)))
+    }
+
+    /// **P472** — List of Tables (`lot()`).
+    pub fn lot(title: Option<Content>) -> Self {
+        use crate::entities::elements::outline::OutlineTarget;
+        Self::Outline(Arc::new(OutlineElem::with_target(title, 1, false, OutlineTarget::Tables)))
     }
 
     /// **Lote 8 P323** — `Content::Quote` (citação).

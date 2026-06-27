@@ -1,5 +1,5 @@
 # Prompt L0 — `rules/layout/bibliography` — Layout de Bibliography e Cite (fallback numérico)
-Hash do Código: 1350c0e0
+Hash do Código: 9ac1788e
 
 **Camada**: L1
 **Ficheiros alvo**: `01_core/src/rules/layout/bibliography.rs`, `01_core/src/rules/layout/cite.rs`
@@ -52,12 +52,44 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
     for (idx, e) in ordered.iter().enumerate() {
         let n = idx + 1;
         let body = super::format_bib_entry_body(e);
-        let line = format!("[{}] {}", n, body);
+        // **P472** — back-refs: lista de posições onde a entry foi citada.
+        let refs = layouter.introspector.back_refs_for_key(&e.key);
+        let back_ref_str = if refs.is_empty() {
+            String::new()
+        } else {
+            let cited: String = refs.iter().map(|p| format!("[{}]", p)).collect::<Vec<_>>().join("");
+            format!(" ↑{}", cited)
+        };
+        let line = format!("[{}] {}{}", n, body, back_ref_str);
         layouter.layout_content(&Content::text(line));
         layouter.flush_line();
     }
 }
 ```
+
+---
+
+## `rules/layout/cite.rs` — P472 ibid.
+
+Quando `CitationStyle::Numeric` + `CitationForm::Normal` e a key é idêntica à
+última citada, o layouter emite `ibid.` em vez do número:
+
+```rust
+let is_ibid = style == CitationStyle::Numeric
+    && form == CitationForm::Normal
+    && layouter.last_cited_key.as_deref() == Some(key.as_str());
+layouter.last_cited_key = Some(key.clone());
+if is_ibid {
+    layouter.layout_content(&Content::text("ibid.".to_string()));
+    if let Some(s) = &e.supplement { layouter.layout_content(s); }
+    return;
+}
+```
+
+`last_cited_key: Option<String>` é campo de `Layouter` (inicializado `None`;
+actualizado em cada citação, incluindo no caminho CSL cache).
+
+**Scope-out**: ibid. apenas para `Numeric + Normal`; outros styles e forms não usam ibid.
 
 ---
 
@@ -133,3 +165,4 @@ Contrasta com `format_bib_entry` (inclui `[key]` no início — fallback origina
 | Data | Motivo | Arquivos afetados |
 |------|--------|-------------------|
 | 2026-06-25 | P468: fallback numérico em bibliography.rs (ordenação por citation_order); CitationStyle match em cite.rs; format_bib_entry_body em mod.rs | `bibliography.rs`, `cite.rs`, `bibliography.md` |
+| 2026-06-26 | P472: back-refs em bibliography.rs (` ↑[1][3]` via `back_refs_for_key`); ibid. em cite.rs (`last_cited_key` no Layouter + detecção Numeric+Normal) | `bibliography.rs`, `cite.rs`, `bibliography.md` |

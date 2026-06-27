@@ -1,5 +1,5 @@
 # Prompt L0 — `entities/elements/outline` — `OutlineElem`
-Hash do Código: P457
+Hash do Código: 713a71c0
 
 **Camada**: L1 · **Alvo**: `01_core/src/entities/elements/outline.rs`
 **Origem**: modelo D (ADR-0105), **Lote 8 P323** (por largura) + **P457** (campos settable).
@@ -19,6 +19,25 @@ Trait: ver `entities/elements/_comum.md`. Comportamento idêntico ao braço atua
 
 ---
 
+## `OutlineTarget` — P472
+
+```rust
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Default)]
+pub enum OutlineTarget {
+    #[default] Headings,
+    Figures,
+    Tables,
+}
+```
+
+- `Headings` (default): TOC clássica de headings.
+- `Figures`: List of Figures — lê `Introspector::figures_for_lof()`.
+- `Tables`: List of Tables — lê `Introspector::tables_for_lot()`.
+
+Usado internamente por `layout_outline.rs` para despachar para o arm correcto.
+
+---
+
 ## Struct
 
 ```rust
@@ -27,17 +46,22 @@ pub struct OutlineElem {
     pub title:  Option<Content>,
     pub depth:  usize,
     pub indent: bool,
+    /// **P472** — distingue TOC / LoF / LoT. Default `Headings`.
+    pub target: OutlineTarget,
 }
 ```
 
-- `title`: título customizado da TOC; `None` renderiza o default `"Índice"`.
-- `depth`: profundidade máxima de headings listados (default `3`).
-- `indent`: se `true` (default), entradas de nível > 1 são indentadas.
+- `title`: título customizado; `None` usa default do target (TOC→`"Índice"`, LoF→`"List of Figures"`, LoT→`"List of Tables"`).
+- `depth`: profundidade máxima de headings (só relevante para `Headings`).
+- `indent`: indentação (só relevante para `Headings`).
+- `target`: qual lista gerar.
 
 `Content::Outline` → `Content::Outline(Arc<OutlineElem>)`.
 Construtores ergonómicos:
-- `Content::outline()` → `outline_with(None, 3, true)`.
+- `Content::outline()` → `outline_with(None, 3, true)` com `target: Headings`.
 - `Content::outline_with(title, depth, indent)`.
+- `Content::lof(title: Option<Content>)` → P472, `target: Figures`.
+- `Content::lot(title: Option<Content>)` → P472, `target: Tables`.
 
 **Deriva `Hash`/`PartialEq`**, mas **não `Eq`** porque `Content` não implementa
 `Eq`.
@@ -48,12 +72,22 @@ Construtores ergonómicos:
 |---|---|
 | `plain_text` | `String::new()` |
 | `is_empty` | default `false` |
-| `map_content`/`map_text` | recursivos sobre `title`; preservam `depth` e `indent` |
+| `map_content`/`map_text` | recursivos sobre `title`; preservam `depth`, `indent`, `target` |
 | `get_field` | default `None` |
 | `element_kind` | `Some(ElementKind::Outline)` |
 | `to_payload` | `Some(ElementPayload::Outline)` |
 
+## `with_target` — P472
+
+```rust
+pub fn with_target(title: Option<Content>, target: OutlineTarget) -> Self {
+    Self { title, depth: 3, indent: true, target }
+}
+```
+
+Usado por `Content::lof` e `Content::lot`.
+
 ## `eq`
 
-`#[derive(PartialEq)]` — comparação estrutural dos três campos (delegada ao
-`PartialEq` de `Content` para `title`).
+`#[derive(PartialEq)]` — comparação estrutural dos quatro campos (delegada ao
+`PartialEq` de `Content` para `title`, `Copy` para `target`).

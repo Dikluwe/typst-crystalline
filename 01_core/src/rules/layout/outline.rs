@@ -1,14 +1,17 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/rules/layout_outline.md
-//! @prompt-hash b8b9a54b
+//! @prompt-hash 2fd037a8
 //! @layer L1
-//! @updated 2026-04-13
+//! @updated 2026-06-26
 //!
 //! P457: Gera a Tabela de Conteúdos visual respeitando os parâmetros do
 //! `OutlineElem` (title, depth, indent).
+//!
+//! **P472** — `OutlineTarget::Figures` e `OutlineTarget::Tables` geram
+//! List of Figures e List of Tables respectivamente.
 
 use crate::entities::content::Content;
-use crate::entities::elements::outline::OutlineElem;
+use crate::entities::elements::outline::{OutlineElem, OutlineTarget};
 use crate::entities::introspector::Introspector;
 
 use super::{FontMetrics, ImageSizer, Layouter};
@@ -28,6 +31,11 @@ pub(super) fn layout_outline<M: FontMetrics, S: ImageSizer>(
     layouter: &mut Layouter<M, S>,
     e:        &OutlineElem,
 ) {
+    match e.target {
+        OutlineTarget::Figures => { layout_lof(layouter, e); return; }
+        OutlineTarget::Tables  => { layout_lot(layouter, e); return; }
+        OutlineTarget::Headings => {}
+    }
     // P200B (M5 universal completo) — caminho Introspector activo via
     // Tag::HeadingForToc pós-recursão (3ª Tag emitida pelo walk arm
     // Heading); sub-store `intr.headings_for_toc` populated via
@@ -105,5 +113,47 @@ pub(super) fn layout_outline<M: FontMetrics, S: ImageSizer>(
         layouter.layout_content(&line);
         // Restaurar DEPOIS do layout — a protecção deve cobrir toda a execução.
         layouter.runtime.is_readonly = false;
+    }
+}
+
+/// **P472** — List of Figures: itera `figures_for_lof` do Introspector e
+/// emite uma linha por figura com o número e a caption.
+/// Divergência declarada: sem page numbers (requer 2-pass — scope-out).
+fn layout_lof<M: FontMetrics, S: ImageSizer>(
+    layouter: &mut Layouter<M, S>,
+    e:        &OutlineElem,
+) {
+    let title_content = e
+        .title
+        .clone()
+        .unwrap_or_else(|| Content::text("List of Figures"));
+    layouter.layout_content(&Content::heading(1, title_content));
+
+    let entries: Vec<(usize, String)> = layouter.introspector.figures_for_lof().to_vec();
+    for (num, caption) in entries {
+        let line = format!("Figure {}  {}", num, caption);
+        layouter.layout_content(&Content::text(line));
+        layouter.flush_line();
+    }
+}
+
+/// **P472** — List of Tables: itera `tables_for_lot` do Introspector e
+/// emite uma linha por tabela com o número e a caption.
+/// Divergência declarada: sem page numbers (requer 2-pass — scope-out).
+fn layout_lot<M: FontMetrics, S: ImageSizer>(
+    layouter: &mut Layouter<M, S>,
+    e:        &OutlineElem,
+) {
+    let title_content = e
+        .title
+        .clone()
+        .unwrap_or_else(|| Content::text("List of Tables"));
+    layouter.layout_content(&Content::heading(1, title_content));
+
+    let entries: Vec<(usize, String)> = layouter.introspector.tables_for_lot().to_vec();
+    for (num, caption) in entries {
+        let line = format!("Table {}  {}", num, caption);
+        layouter.layout_content(&Content::text(line));
+        layouter.flush_line();
     }
 }
