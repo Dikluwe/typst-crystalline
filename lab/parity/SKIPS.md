@@ -47,44 +47,53 @@ P206D não duplica semantic em structural matrix.
 
 ---
 
-## §3 INCLUDE-com-diff (3 divergências documentadas)
+## §3 INCLUDE-com-diff (divergências documentadas)
 
-Estes ficheiros são **INCLUDE** na matriz P206D mas
-têm divergências empíricas observadas em P206C —
-documentadas como dados, não regressões.
+Estes ficheiros são **INCLUDE** na matriz mas têm
+divergências empíricas observadas — documentadas como
+dados, não regressões.
 
-| Ficheiro | Selector | Divergência | Causa identificada |
-|----------|----------|-------------|---------------------|
-| `math/{block,simple}.typ` + visuais com equation | `equation` | Vanilla rejeita `equation` standalone ("unknown variable"); cristalino aceita | Vanilla usa `math.equation` namespace; cristalino aceita `equation` via `ElementKind::Equation` (P186B). Divergência arquitectónica de selector parsing. Fix exigiria parsing de namespace vanilla — fora-de-escopo P206. |
-| `visual/cite-bibliography.typ` | (todos selectors) | Cristalino eval falha (1 diagnostic) | Bibliography stdlib cristalino é parcial (P181 series não-completa). Vanilla compila ok. Gap conhecido. |
-| `visual/outline-toc.typ` | `heading` | Count mismatch cristalino vs vanilla | TOC entries são contadas distintamente: cristalino emite headings auto-toc internos (P200B); vanilla query distingue. Decision design legítima. |
+### Estado P479 (2026-06-27)
+
+| Ficheiro | Selector | Divergência | Causa identificada | Estado |
+|----------|----------|-------------|---------------------|--------|
+| `math/{block,simple}.typ` + visuais com equation | `equation` | Vanilla rejeita `equation` standalone ("unknown variable"); cristalino aceita | Vanilla usa `math.equation` namespace; cristalino aceita `equation` via `ElementKind::Equation` (P186B). Divergência arquitectónica de selector parsing. Fix exigiria parsing de namespace vanilla — fora-de-escopo P206. | INCLUDE-com-diff (error, não diff) |
+| `visual/cite-bibliography.typ` | `heading` | ~~Cristalino eval falha (1 diagnostic)~~ → **✓ MATCH (P479)** | P479: `native_bibliography` agora define título padrão `Content::heading(1, "Bibliography")`; walk arm `Content::Bibliography` recursivo em `e.title` conta o heading → cristalino=1 = vanilla=1. | **RESOLVIDO P479** |
+| `visual/outline-toc.typ` | `heading` | cristalino=5, vanilla=6 (sub-contagem por 1) | Vanilla conta o heading do título do `#outline()` (criado em layout). Cristalino usa introspector pré-layout que não vê headings criados durante o layout. Raiz: `walk` arm `Content::Outline` vazio (P189B — não recursivo em title); outline layout cria heading `Content::heading(1, title_content)` durante layout. Fix M-size: requer mudança em walk/layout/native_outline — scope-out P479. | INCLUDE-com-diff (1 diff) |
 
 Resolução de cada um:
 
 - `equation` namespace: fix exige expandir parsing de
   selector cristalino para suportar dotted syntax
-  (`math.equation`). Sub-passo dedicado pós-P206.
-- Bibliography stdlib: tracking via DEBT existente
-  (P181 series); fora-de-escopo P206.
-- Outline-toc heading count: design intencional per
-  P200B (auto-toc emissions visíveis em query). Documentado.
+  (`math.equation`). Sub-passo dedicado pós-P479.
+- cite-bibliography heading: **RESOLVIDO P479** (ver tabela acima).
+- Outline-toc heading count: raiz identificada P479 (layout-time
+  heading não visível a pré-layout query). Fix M-size; scope-out.
 
 ---
 
-## §4 Sumário de cobertura matriz P206D
+## §4 Sumário de cobertura matriz P479 (2026-06-27)
 
 | Etiqueta | Count | Percentagem |
 |----------|------:|-------------|
-| INCLUDE (testado em matriz) | 23 | 64% |
-| SKIP-pre-existing | 3 | 8% |
-| SKIP-feature | 10 | 28% |
-| **Total corpus** | **36** | **100%** |
+| INCLUDE (testado em matriz) | 28 | 61% |
+| SKIP-pre-existing | 1 | 2% |
+| SKIP-feature | 17 | 37% |
+| **Total corpus** | **46** | **100%** |
 
-Dos 23 INCLUDE:
-- ~20 produzem `Match` empírico em pelo menos 1
-  selector (per matriz P206C runtime).
-- 3 têm divergências documentadas (`equation` /
-  `cite-bibliography` / `outline-toc`).
+Dos 28 INCLUDE:
+- 50 comparações com match; 1 diff documentado
+  (`outline-toc heading`, M-size, raiz identificada).
+- 22 errors (todos `equation` selector namespace — vanilla
+  rejeita selector standalone; pré-existente).
+
+### Histórico de cobertura
+
+| Passo | Corpus | INCLUDE | Matches | Diffs |
+|-------|-------:|--------:|--------:|------:|
+| P150  | 25 | N/A | N/A | N/A |
+| P206D | 36 | 23 | ~20 | 3 |
+| P479  | 46 | 28 | 50 | 1 |
 
 ---
 

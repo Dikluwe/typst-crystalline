@@ -2,7 +2,7 @@
 //! @prompt 00_nucleo/prompts/rules/model/document.md
 //! @prompt 00_nucleo/prompts/rules/model/asset.md
 //! @prompt 00_nucleo/prompts/rules/stdlib/structural.md
-//! @prompt-hash 00000000
+//! @prompt-hash eb51f7a4
 //! @layer L1
 //! @updated 2026-06-26
 //!
@@ -18,6 +18,8 @@ use super::expect_no_named;
 
 use crate::entities::args::Args;
 use crate::entities::content::Content;
+use crate::entities::elements::outline::OutlineTarget;
+use crate::entities::elements::outline::OutlineElem;
 use crate::entities::source_result::{SourceDiagnostic, SourceResult};
 use crate::entities::span::Span;
 use crate::entities::value::Value;
@@ -264,7 +266,67 @@ pub fn native_outline(
         }
     };
 
-    Ok(Value::Content(Content::outline_with(title, depth, indent)))
+    // **P472** — argumento `target:` opcional: "headings" | "figures" | "tables"
+    let target = match args.named.get("target") {
+        Some(Value::Str(s)) => match s.as_str() {
+            "headings" | "heading" => OutlineTarget::Headings,
+            "figures"  | "figure"  => OutlineTarget::Figures,
+            "tables"   | "table"   => OutlineTarget::Tables,
+            other => return Err(vec![SourceDiagnostic::error(
+                Span::detached(),
+                format!("outline(target:): valor \"{}\" desconhecido; esperado \"headings\", \"figures\" ou \"tables\"", other),
+            )]),
+        },
+        Some(Value::None) | None => OutlineTarget::Headings,
+        Some(other) => return Err(vec![SourceDiagnostic::error(
+            Span::detached(),
+            format!("outline(target:): espera string, recebeu {}", other.type_name()),
+        )]),
+    };
+
+    Ok(Value::Content(Content::Outline(std::sync::Arc::new(
+        OutlineElem::with_target(title, depth, indent, target)
+    ))))
+}
+
+/// **P472** — `lof(title:?)` — emite `Content::Outline` com `target = Figures`.
+/// Alias de `outline(target: "figures")`. Title opcional.
+pub fn native_lof(
+    _ctx: &mut EvalContext,
+    args: &Args,
+    _world: &dyn crate::contracts::world::World,
+    _current_file: FileId,
+) -> SourceResult<Value> {
+    let title = match args.named.get("title") {
+        Some(Value::Content(c)) => Some(c.clone()),
+        Some(Value::Str(s)) => Some(Content::text(s.as_str())),
+        Some(Value::None) | None => None,
+        Some(other) => return Err(vec![SourceDiagnostic::error(
+            Span::detached(),
+            format!("lof(title:): espera content ou string, recebeu {}", other.type_name()),
+        )]),
+    };
+    Ok(Value::Content(Content::lof(title)))
+}
+
+/// **P472** — `lot(title:?)` — emite `Content::Outline` com `target = Tables`.
+/// Alias de `outline(target: "tables")`. Title opcional.
+pub fn native_lot(
+    _ctx: &mut EvalContext,
+    args: &Args,
+    _world: &dyn crate::contracts::world::World,
+    _current_file: FileId,
+) -> SourceResult<Value> {
+    let title = match args.named.get("title") {
+        Some(Value::Content(c)) => Some(c.clone()),
+        Some(Value::Str(s)) => Some(Content::text(s.as_str())),
+        Some(Value::None) | None => None,
+        Some(other) => return Err(vec![SourceDiagnostic::error(
+            Span::detached(),
+            format!("lot(title:): espera content ou string, recebeu {}", other.type_name()),
+        )]),
+    };
+    Ok(Value::Content(Content::lot(title)))
 }
 
 // ── Passo 154B (ADR-0060 Fase 1) — terms + divider ──────────────────────────
@@ -1310,13 +1372,16 @@ pub fn native_bibliography(
         (Vec::new(), None)
     };
 
-    // title: named opcional.
-    let title = args.named.get("title").and_then(|v| match v {
-        Value::Content(c) => Some(c.clone()),
-        Value::Str(s) => Some(Content::text(s.as_str())),
-        Value::None => None,
-        other => Some(Content::text(other.type_name())),
-    });
+    // title: named opcional. P479 — default heading "Bibliography" quando não especificado.
+    // Sem arg → heading L1 "Bibliography" (paridade vanilla; walk recursivo em e.title conta-o).
+    // title: none → None (sem título). title: content/str → conteúdo do arg (sem wrapper).
+    let title = match args.named.get("title") {
+        Some(Value::Content(c)) => Some(c.clone()),
+        Some(Value::Str(s))     => Some(Content::text(s.as_str())),
+        Some(Value::None)       => None,
+        Some(other)             => Some(Content::text(other.type_name())),
+        None => Some(Content::heading(1, Content::text("Bibliography"))),
+    };
 
     let style = args.named.get("style").and_then(|v| match v {
         Value::Str(s) => Some(s.clone()),

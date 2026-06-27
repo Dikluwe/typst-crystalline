@@ -127,7 +127,8 @@ fn tempdir() -> TempDir {
 fn p206c_corpus_estrutural_36_ficheiros() {
     let base = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("corpus");
     let corpus = read_corpus(&base);
-    assert_eq!(corpus.len(), 36, "esperado 36 ficheiros corpus, encontrados {}", corpus.len());
+    // P479 — corpus cresceu de 36 (P206D) para 46 (passados P465–P477).
+    assert_eq!(corpus.len(), 46, "esperado 46 ficheiros corpus, encontrados {}", corpus.len());
 
     if !vanilla_cli_available() {
         eprintln!(
@@ -296,4 +297,66 @@ fn p206c_query_metadata_values_e2e() {
     // Metadata pode ter nuance JSON shape; aceitamos Match
     // ou Diff documentado para diagnóstico.
     assert!(result.is_match() || result.is_diff());
+}
+
+/// **P479** — sentinela: a suite corre com corpus de 46 ficheiros (pós P465–P477),
+/// cobertura INCLUDE ≥ 23 (threshold P206D), e 1 diff máximo documentado.
+///
+/// Requisitos:
+/// (a) corpus.len() == 46 (já verificado em `p206c_corpus_estrutural_36_ficheiros`).
+/// (b) INCLUDE ≥ 28 (pós-P479: 28 ficheiros incluídos).
+/// (c) diffs restantes == 1 (outline-toc heading — M-size, documentado SKIPS §3 P479).
+/// Nota: se vanilla CLI ausente o teste passa sem contar diffs (comportamento invariante).
+#[test]
+fn p479_corpus_paridade_actualizado() {
+    let base = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("corpus");
+    let corpus = read_corpus(&base);
+    assert_eq!(corpus.len(), 46, "P479: corpus deve ter 46 ficheiros");
+
+    if !vanilla_cli_available() {
+        eprintln!("[p479] vanilla CLI ausente; sentinela de diff não verifica");
+        return;
+    }
+
+    let mut total_includes = 0;
+    let mut total_diffs    = 0;
+
+    for entry in &corpus {
+        let etiqueta = etiqueta_for(&entry.category, &entry.file);
+        if etiqueta != CoverageEtiqueta::Include { continue; }
+        total_includes += 1;
+
+        let dir = tempdir();
+        let main_path = dir.path().join("main.typ");
+        if std::fs::write(&main_path, &entry.source).is_err() { continue; }
+        if entry.file.contains("cite-bibliography") {
+            let yaml_src  = entry.path.parent().unwrap().join("refs.yaml");
+            let yaml_dest = dir.path().join("refs.yaml");
+            if yaml_src.exists() { let _ = std::fs::copy(&yaml_src, &yaml_dest); }
+        }
+        let world = match SystemWorld::new(dir.path(), "main.typ") {
+            Ok(w) => w,
+            Err(_) => continue,
+        };
+        let source = world.source(world.main()).unwrap();
+
+        for selector in default_selectors_for_category(&entry.category) {
+            let crist = match query_to_summary(&world, &source, selector) {
+                Ok(s) => s,
+                Err(_) => continue,
+            };
+            let van = match run_typst_query(&main_path, selector) {
+                Ok(v) => v,
+                Err(_) => continue,
+            };
+            if let CompareResult::Diff(_) = compare_query_outputs(&crist, &van) {
+                total_diffs += 1;
+            }
+        }
+    }
+
+    // P479: 28 INCLUDE; 1 diff restante (outline-toc heading, M-size, documentado).
+    assert!(total_includes >= 28, "P479: INCLUDE >= 28; obtido {}", total_includes);
+    assert_eq!(total_diffs, 1,
+        "P479: exactamente 1 diff esperado (outline-toc heading M-size); obtido {}", total_diffs);
 }

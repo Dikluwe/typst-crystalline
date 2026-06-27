@@ -1,5 +1,5 @@
 # Prompt L0 — `stdlib/structural` — módulo `structural`
-Hash do Código: a0bcbd04
+Hash do Código: ff17070d
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/rules/stdlib/structural.rs`
@@ -359,11 +359,16 @@ grid_footer([F], repeat: false) -> GridFooter { body: "F", repeat: false }
 
 **Argumentos**:
 - `entries`: `Array<Dict>` posicional ou named; ou `Str` como path para ficheiro `.bib`/`.yaml`/`.yml` (P419/P450).
-- `title`: `Content`/`Str` (named; ADR-0064 Caso A; default `None`).
+- `title`: `Content`/`Str` (named; ADR-0064 Caso A; default `Content::heading(1, "Bibliography")`).
+  - Omitido → `BibliographyElem.title = Some(Content::heading(1, "Bibliography"))` (P479 — paridade vanilla: a bibliography tem sempre um título que é um `heading` de nível 1).
+  - `title: none` → `BibliographyElem.title = None` (sem título).
+  - `title: "Custom"` ou `title: [Custom]` → `BibliographyElem.title = Some(conteúdo do arg)` (texto/content sem wrapper de heading — comportamento user-facing).
 - `style`: `Str` (named; nome CSL built-in como `"ieee"`, `"apa"`).
 - `locale`: `Str` (named; locale override como `"en-US"`, `"pt-PT"`).
 
 **Semântica**: Constrói `Content::Bibliography(Arc<BibliographyElem { entries, path, title, style, locale }>)`. Cada Dict de entrada valida 4 campos obrigatórios (`key`, `author`, `title`, `year` com `year >= 0`) e 12 campos opcionais string (`volume`, `pages`, `journal`, `publisher`, `url`, `doi`, `editor`, `series`, `note`, `isbn`, `location`, `organization`).
+
+**P479 — título padrão como heading**: quando o utilizador não especifica `title:`, `BibliographyElem.title` recebe `Some(Content::heading(1, Content::text("Bibliography")))`. Isto torna o título da bibliografia visível ao introspector pré-layout (`walk` arm `Content::Bibliography` recursivo em `e.title`), alinhando a contagem de headings com o vanilla (que gera um heading para o título da bibliografia). O `bibliography::layout` renderiza `e.title` via `layout_content` sem alteração. A regra "medir antes de decidir" (ADR-0108) confirma: corpus `visual/cite-bibliography.typ` → cristalino=0, vanilla=1 antes de P479.
 
 Carregamento por path (P419/P450):
 - `.bib` → parser BibTeX minimal custom (`rules/eval/bibtex.rs`); suporta os tipos
@@ -625,6 +630,52 @@ list([a], foo: 1) -> Err "argumento nomeado inesperado 'foo'"
 
 ---
 
+### `native_lof(title:?)` — P472
+
+**Assinatura**: `lof(title: Content?) -> Content`
+
+**Argumentos**:
+- `title`: `Content` named opcional. Se omitido, título default `"List of Figures"` em `layout_lof`.
+- Não aceita argumentos posicionais.
+
+**Semântica**: Produz `Content::lof(title)` — atalho para `Content::outline_with_target(title, OutlineTarget::Figures)`. Renderizado por `layout_lof` que itera `Introspector::figures_for_lof()`.
+
+**Paridade vanilla**: Divergência intencional — vanilla não tem `lof()` global; cristalin introduz como função stdlib por conveniência.
+
+**Scope-out (P472)**: page numbers em LoF (requer 2-pass — DEBT). Filtro por kind.
+
+**Testes canónicos**:
+```
+lof() -> Content::Outline { target: Figures, title: None, depth: 3, indent: true }
+lof(title: [Lista de Figuras]) -> Outline { target: Figures, title: Some("Lista de Figuras") }
+lof(foo: 1) -> Err "argumento nomeado inesperado 'foo'"
+```
+
+---
+
+### `native_lot(title:?)` — P472
+
+**Assinatura**: `lot(title: Content?) -> Content`
+
+**Argumentos**:
+- `title`: `Content` named opcional. Se omitido, título default `"List of Tables"` em `layout_lot`.
+- Não aceita argumentos posicionais.
+
+**Semântica**: Produz `Content::lot(title)` — atalho para `Content::outline_with_target(title, OutlineTarget::Tables)`. Renderizado por `layout_lot` que itera `Introspector::tables_for_lot()`.
+
+**Paridade vanilla**: Divergência intencional — vanilla não tem `lot()` global; cristalin introduz como função stdlib por conveniência.
+
+**Scope-out (P472)**: page numbers em LoT (requer 2-pass — DEBT). Filtro por kind.
+
+**Testes canónicos**:
+```
+lot() -> Content::Outline { target: Tables, title: None, depth: 3, indent: true }
+lot(title: [Lista de Tabelas]) -> Outline { target: Tables, title: Some("Lista de Tabelas") }
+lot(foo: 1) -> Err "argumento nomeado inesperado 'foo'"
+```
+
+---
+
 ### `native_enum(..items, numbering:?)` — P470
 
 **Assinatura**: `enum(..items: Content | Str, numbering: Str?) -> Content`
@@ -723,4 +774,10 @@ list([a], marker: 1) -> Err "list(marker:) espera string"
 enum([a], [b]) -> Sequence[EnumItem{number:Some(1)}, EnumItem{number:Some(2)}]
 enum([a], [b], numbering: "a)") -> items com numbering: Some(LowerAlpha)
 enum([a], numbering: 1) -> Err "enum(numbering:) espera string"
+
+// lof / lot (P472)
+lof() -> Content::Outline { target: Figures, title: None }
+lof(title: [Lista de Figuras]) -> Outline { target: Figures, title: Some(...) }
+lot() -> Content::Outline { target: Tables, title: None }
+lot(title: [Lista de Tabelas]) -> Outline { target: Tables, title: Some(...) }
 ```
