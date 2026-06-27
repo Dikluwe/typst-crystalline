@@ -1,5 +1,5 @@
 # Prompt L0 — `entities/list_marker` — `ListMarker`
-Hash do Código: (a calcular após implementação)
+Hash do Código: cacc1d0f
 
 **Camada**: L1 · **Alvo**: `01_core/src/entities/list_marker.rs`
 **Origem**: P470 — Marcadores configuráveis de `list`.

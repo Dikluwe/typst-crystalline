@@ -9,6 +9,7 @@
 //! Extraído de `layout/mod.rs` no Passo 96.7 conforme ADR-0037.
 
 use crate::entities::{
+    corners::Corners,
     geometry::ShapeKind,
     image_sizer::ImageSizer,
     layout_types::{FrameItem, Page, Point, Pt},
@@ -51,19 +52,31 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
         self.regions.current.cursor_y + Pt(offset_pt)
     }
 
-    /// **P449** — emite um `FrameItem::Text` precedido, se necessário, por um
-    /// rectângulo de preenchimento do highlight. O shape cobre a altura da
-    /// linha (`ascender → ascender + line_height`) e a largura do run.
+    /// **P449/P471** — emite um `FrameItem::Text` precedido, se necessário, por
+    /// um rectângulo de highlight. P471 adiciona `radius` (RoundedRect) e
+    /// `extent` (extensão horizontal). O shape cobre `ascender → line_height`.
     fn push_text(&mut self, text: ecow::EcoString, width: Pt) {
         if let Some(fill) = self.style.highlight {
             let (ascender, line_height) = self.metrics.vertical_metrics(self.font_size_pt);
+            let font_size_pt = self.font_size_pt.0;
+            let extent_pt = self.style.highlight_extent
+                .map(|e| e.resolve_pt(font_size_pt))
+                .unwrap_or(0.0);
+            let shape_kind = match self.style.highlight_radius {
+                Some(r) if r.resolve_pt(font_size_pt) > 0.0 => {
+                    ShapeKind::RoundedRect {
+                        radii: Corners::uniform(r),
+                    }
+                }
+                _ => ShapeKind::Rect,
+            };
             self.regions.current.current_line.push(FrameItem::Shape {
                 pos: Point {
-                    x: self.regions.current.cursor_x,
+                    x: Pt(self.regions.current.cursor_x.0 - extent_pt),
                     y: self.baseline_y() - ascender,
                 },
-                kind: ShapeKind::Rect,
-                width: width.0,
+                kind: shape_kind,
+                width: width.0 + 2.0 * extent_pt,
                 height: line_height.0,
                 fill: Some(fill),
                 stroke: None,

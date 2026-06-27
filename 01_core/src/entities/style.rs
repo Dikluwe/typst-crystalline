@@ -137,6 +137,16 @@ pub enum Style {
     /// **Passo 449 (P449)**: fundo colorido (`#highlight[text]`).
     /// `None` desactiva o highlight; `Some(Color)` define a cor de fundo.
     Highlight(Option<Color>),
+    /// **Passo 471 (P471)**: raio dos cantos do highlight. `None` = rect.
+    HighlightRadius(Length),
+    /// **Passo 471 (P471)**: extensão horizontal do rectângulo de highlight.
+    HighlightExtent(Length),
+    /// **Passo 471 (P471)**: tamanho do corpo de subscrito.
+    /// `None` (ausente) usa 65% do font-size actual.
+    SubscriptSize(Length),
+    /// **Passo 471 (P471)**: tamanho do corpo de sobrescrito.
+    /// `None` (ausente) usa 65% do font-size actual.
+    SuperscriptSize(Length),
 }
 
 impl Style {
@@ -164,9 +174,13 @@ impl Style {
             Style::Leading(l)      => delta.leading = Some(*l),
             // `FontList: !Copy` (Vec<FontFamily>) — clone material (P292).
             Style::Font(f)         => delta.font = Some(f.clone()),
-            Style::Subscript(v)    => delta.subscript = Some(*v),
-            Style::Superscript(v)  => delta.superscript = Some(*v),
-            Style::Highlight(c)    => delta.highlight = Some(*c),
+            Style::Subscript(v)        => delta.subscript = Some(*v),
+            Style::Superscript(v)      => delta.superscript = Some(*v),
+            Style::Highlight(c)        => delta.highlight = Some(*c),
+            Style::HighlightRadius(l)  => delta.highlight_radius = Some(*l),
+            Style::HighlightExtent(l)  => delta.highlight_extent = Some(*l),
+            Style::SubscriptSize(l)    => delta.subscript_size = Some(*l),
+            Style::SuperscriptSize(l)  => delta.superscript_size = Some(*l),
         }
     }
 
@@ -215,6 +229,26 @@ impl Style {
     /// Fundo colorido (`#highlight[...]`).
     pub fn highlight(color: Option<Color>) -> Self {
         Self::Highlight(color)
+    }
+
+    /// Raio dos cantos do highlight (`#highlight(radius: ...)`).
+    pub fn highlight_radius(r: Length) -> Self {
+        Self::HighlightRadius(r)
+    }
+
+    /// Extensão horizontal do highlight (`#highlight(extent: ...)`).
+    pub fn highlight_extent(e: Length) -> Self {
+        Self::HighlightExtent(e)
+    }
+
+    /// Tamanho do corpo de subscrito (`#sub(size: ...)`).
+    pub fn subscript_size(s: Length) -> Self {
+        Self::SubscriptSize(s)
+    }
+
+    /// Tamanho do corpo de sobrescrito (`#super(size: ...)`).
+    pub fn superscript_size(s: Length) -> Self {
+        Self::SuperscriptSize(s)
     }
 }
 

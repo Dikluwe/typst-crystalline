@@ -1,5 +1,5 @@
 # Prompt L0 — `entities/elements/list_item` — `ListItemElem`
-Hash do Código: (a calcular após P470)
+Hash do Código: 45237289
 
 **Camada**: L1 · **Alvo**: `01_core/src/entities/elements/list_item.rs`
 **Origem**: modelo D (ADR-0105), **Lote 3 P318** (família lista/termos). Campo

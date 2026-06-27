@@ -80,6 +80,14 @@ pub struct StyleDelta {
     /// `None` no `Option` externo = não definido; `Some(None)` = desactivado;
     /// `Some(Some(Color))` = cor activa.
     pub highlight: Option<Option<crate::entities::layout_types::Color>>,
+    /// **P471**: raio dos cantos do highlight. `None` = rect sem arredondamento.
+    pub highlight_radius: Option<crate::entities::layout_types::Length>,
+    /// **P471**: extensão horizontal do highlight. `None` = sem extensão.
+    pub highlight_extent: Option<crate::entities::layout_types::Length>,
+    /// **P471**: tamanho explícito do corpo de subscrito. `None` = 65% do font-size.
+    pub subscript_size: Option<crate::entities::layout_types::Length>,
+    /// **P471**: tamanho explícito do corpo de sobrescrito. `None` = 65% do font-size.
+    pub superscript_size: Option<crate::entities::layout_types::Length>,
     /// **Canal aberto das `Set*` (Lote F-2, P335)** — propriedades não-texto
     /// dinâmicas resolvidas por chave (`PropKey → Value`), ao lado das 13
     /// nativas fechadas. Eixo do **DEBT 99.E**: as `Set*` (numbering de
@@ -102,6 +110,8 @@ impl StyleDelta {
             lang: None, font: None,
             subscript: None, superscript: None,
             highlight: None,
+            highlight_radius: None, highlight_extent: None,
+            subscript_size: None, superscript_size: None,
             custom: Vec::new(),
         }
     }
@@ -125,6 +135,10 @@ impl StyleDelta {
             && self.subscript.is_none()
             && self.superscript.is_none()
             && self.highlight.is_none()
+            && self.highlight_radius.is_none()
+            && self.highlight_extent.is_none()
+            && self.subscript_size.is_none()
+            && self.superscript_size.is_none()
             && self.custom.is_empty()
     }
 
@@ -192,6 +206,26 @@ impl StyleDelta {
         }
         if self.highlight != other.highlight {
             styles.push(Style::highlight(self.highlight.unwrap_or(None)));
+        }
+        if self.highlight_radius != other.highlight_radius {
+            if let Some(r) = self.highlight_radius {
+                styles.push(Style::highlight_radius(r));
+            }
+        }
+        if self.highlight_extent != other.highlight_extent {
+            if let Some(e) = self.highlight_extent {
+                styles.push(Style::highlight_extent(e));
+            }
+        }
+        if self.subscript_size != other.subscript_size {
+            if let Some(s) = self.subscript_size {
+                styles.push(Style::subscript_size(s));
+            }
+        }
+        if self.superscript_size != other.superscript_size {
+            if let Some(s) = self.superscript_size {
+                styles.push(Style::superscript_size(s));
+            }
         }
         for (k, v) in &self.custom {
             let changed = other
@@ -505,6 +539,46 @@ impl StyleChain {
         None
     }
 
+    /// Resolve raio dos cantos do highlight (P471).
+    pub fn highlight_radius(&self) -> Option<crate::entities::layout_types::Length> {
+        let mut node = self.0.as_deref();
+        while let Some(n) = node {
+            if let Some(v) = n.delta.highlight_radius { return Some(v); }
+            node = n.parent.as_deref();
+        }
+        None
+    }
+
+    /// Resolve extensão horizontal do highlight (P471).
+    pub fn highlight_extent(&self) -> Option<crate::entities::layout_types::Length> {
+        let mut node = self.0.as_deref();
+        while let Some(n) = node {
+            if let Some(v) = n.delta.highlight_extent { return Some(v); }
+            node = n.parent.as_deref();
+        }
+        None
+    }
+
+    /// Resolve tamanho do corpo de subscrito (P471). `None` = usar escala padrão.
+    pub fn subscript_size(&self) -> Option<crate::entities::layout_types::Length> {
+        let mut node = self.0.as_deref();
+        while let Some(n) = node {
+            if let Some(v) = n.delta.subscript_size { return Some(v); }
+            node = n.parent.as_deref();
+        }
+        None
+    }
+
+    /// Resolve tamanho do corpo de sobrescrito (P471). `None` = usar escala padrão.
+    pub fn superscript_size(&self) -> Option<crate::entities::layout_types::Length> {
+        let mut node = self.0.as_deref();
+        while let Some(n) = node {
+            if let Some(v) = n.delta.superscript_size { return Some(v); }
+            node = n.parent.as_deref();
+        }
+        None
+    }
+
 }
 
 /// **F-5b fatia 2 (P373)** — lê o valor do canal `custom` para `key` no delta
@@ -533,9 +607,13 @@ impl From<&StyleChain> for TextStyle {
             leading:       chain.leading(),
             lang:          chain.lang(),
             font:          chain.font(),
-            subscript:     chain.subscript(),
-            superscript:   chain.superscript(),
-            highlight:     chain.highlight(),
+            subscript:        chain.subscript(),
+            superscript:      chain.superscript(),
+            highlight:        chain.highlight(),
+            highlight_radius: chain.highlight_radius(),
+            highlight_extent: chain.highlight_extent(),
+            subscript_size:   chain.subscript_size(),
+            superscript_size: chain.superscript_size(),
             baseline_offset: crate::entities::layout_types::Length::ZERO,
         }
     }

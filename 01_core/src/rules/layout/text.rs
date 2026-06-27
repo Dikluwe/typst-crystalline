@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/rules/atomizacao_elementos.md
-//! @prompt-hash 3331d6ba
+//! @prompt-hash e6442e3f
 //! @layer L1
 //! @updated 2026-06-19
 //!
@@ -128,20 +128,28 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
         leading:       layouter.style.leading.clone().or(ns_leading),
         lang:          layouter.style.lang.clone().or(ns_lang),
         font:          layouter.style.font.clone().or(ns_font),
-        subscript:     layouter.style.subscript,
-        superscript:   layouter.style.superscript,
-        highlight:     layouter.style.highlight,
-        baseline_offset: layouter.style.baseline_offset,
+        subscript:        layouter.style.subscript,
+        superscript:      layouter.style.superscript,
+        highlight:        layouter.style.highlight,
+        highlight_radius: layouter.style.highlight_radius,
+        highlight_extent: layouter.style.highlight_extent,
+        subscript_size:   layouter.style.subscript_size,
+        superscript_size: layouter.style.superscript_size,
+        baseline_offset:  layouter.style.baseline_offset,
     };
 
-    // **P448**: subscrito/sobrescrito reduzem o corpo e deslocam a baseline.
-    const SUBSCRIPT_SCALE: f64 = 0.6;
-    const SUPERSCRIPT_SCALE: f64 = 0.6;
+    // **P448/P471**: subscrito/sobrescrito reduzem o corpo e deslocam a baseline.
+    // P471: `size` explícito substitui a escala padrão de 65%.
+    const SCRIPT_SCALE: f64 = 0.65;
     if effective.subscript {
-        effective.size = Pt(effective.size.0 * SUBSCRIPT_SCALE);
+        effective.size = effective.subscript_size
+            .map(|l| Pt(l.resolve_pt(effective.size.val())))
+            .unwrap_or_else(|| Pt(effective.size.0 * SCRIPT_SCALE));
         effective.baseline_offset = Length::em(-0.2);
     } else if effective.superscript {
-        effective.size = Pt(effective.size.0 * SUPERSCRIPT_SCALE);
+        effective.size = effective.superscript_size
+            .map(|l| Pt(l.resolve_pt(effective.size.val())))
+            .unwrap_or_else(|| Pt(effective.size.0 * SCRIPT_SCALE));
         effective.baseline_offset = Length::em(0.3);
     }
 

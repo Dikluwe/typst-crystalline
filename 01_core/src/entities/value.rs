@@ -15,6 +15,7 @@ use crate::entities::decimal::Decimal;
 use crate::entities::duration::Duration;
 use crate::entities::regex::Regex;
 use crate::entities::selector::Selector;
+use crate::entities::symbol::Symbol;
 use crate::entities::version::Version;
 
 /// Valor em tempo de avaliação do Typst.
@@ -123,11 +124,14 @@ pub enum Value {
     /// de primeira classe.
     Selector(Selector),
 
+    /// **P471** — Símbolo Unicode nomeado. Subset minimal: char + nome canónico.
+    /// Modificadores encadeados (`sym.arrow.r.double`) são scope-out futuro.
+    Symbol(Symbol),
+
     // ── Variantes futuras — NÃO implementar sem ADR e tipo migrado ───────
-    // Variantes futuras (~9 restantes após P262):
-    // Relative(Relative),       // comprimento relativo
-    // Tiling(Tiling),           // padrão de azulejos
-    // Symbol(Symbol),           // símbolo Unicode
+    // Variantes futuras restantes:
+    // Relative(Relative),       // comprimento relativo — já em L1 como tipo separado
+    // Tiling(Tiling),           // padrão de azulejos — já em L1 como tipo separado
     // Version(Version),         // versão semântica — já em L1 como tipo separado
     // Bytes(Bytes),             // bytes binários — já em L1 como tipo separado
     // Decimal(Decimal),         // decimal de alta precisão — já em L1 como tipo separado
@@ -187,6 +191,7 @@ impl Value {
             Self::Duration(_)  => "duration",
             Self::Version(_)   => "version",
             Self::Selector(_)  => "selector",
+            Self::Symbol(_)    => "symbol",
         }
     }
 
@@ -375,6 +380,9 @@ impl From<crate::entities::version::Version> for Value {
 }
 impl From<crate::entities::regex::Regex> for Value {
     fn from(v: crate::entities::regex::Regex) -> Self { Self::Regex(v) }
+}
+impl From<crate::entities::symbol::Symbol> for Value {
+    fn from(v: crate::entities::symbol::Symbol) -> Self { Self::Symbol(v) }
 }
 
 #[cfg(test)]
@@ -770,5 +778,22 @@ mod tests {
         let c = Value::from(Regex::new("b+").unwrap());
         assert_eq!(a, b);
         assert_ne!(a, c);
+    }
+
+    // ── P471 — Value::Symbol ─────────────────────────────────────────────────
+
+    #[test]
+    fn p471_symbol_type_name() {
+        use crate::entities::symbol::Symbol;
+        let s = Symbol::new('α', "alpha");
+        assert_eq!(Value::Symbol(s).type_name(), "symbol");
+    }
+
+    #[test]
+    fn p471_symbol_from() {
+        use crate::entities::symbol::Symbol;
+        let s = Symbol::new('→', "arrow");
+        let v: Value = s.into();
+        assert!(matches!(v, Value::Symbol(_)));
     }
 }

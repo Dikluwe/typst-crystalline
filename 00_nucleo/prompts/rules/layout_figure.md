@@ -1,5 +1,5 @@
 # L0 — Layout: Figuras e Legendas
-Hash do Código: (a calcular após P470)
+Hash do Código: e60f165e
 
 ## Módulo
 `01_core/src/rules/layout/figure.rs`

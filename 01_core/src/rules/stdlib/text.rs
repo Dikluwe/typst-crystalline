@@ -266,9 +266,9 @@ pub fn native_smallcaps(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate:
 // elementos de texto que deslocam a baseline e reduzem o corpo. Modelo
 // minimal: `Content::Styled` com `Style::Subscript`/`Style::Superscript`.
 
-/// `sub(body)` → content embrulhado em `Content::Styled([Subscript(true)])`.
+/// `sub(body, size:?)` → content embrulhado em `Content::Styled([Subscript(true)])`.
+/// P471: argumento nomeado `size: Length` define tamanho explícito do script.
 pub fn native_subscript(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contracts::world::World, _current_file: FileId) -> SourceResult<Value> {
-    expect_no_named(&args.named)?;
     let body = match args.items.as_slice() {
         [Value::Content(c)] => c.clone(),
         [Value::Str(s)]     => Content::text(s.as_str()),
@@ -285,12 +285,30 @@ pub fn native_subscript(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate:
             format!("sub() recebeu {} argumentos posicionais (espera 1)", args.items.len()),
         )]),
     };
-    Ok(Value::Content(Content::sub(body)))
+    let mut size: Option<Length> = None;
+    for (key, value) in args.named.iter() {
+        match key.as_str() {
+            "size" => {
+                size = match value {
+                    Value::Length(l) => Some(*l),
+                    other => return Err(vec![SourceDiagnostic::error(
+                        Span::detached(),
+                        format!("sub(size:) espera length, recebeu {}", other.type_name()),
+                    )]),
+                };
+            }
+            other => return Err(vec![SourceDiagnostic::error(
+                Span::detached(),
+                format!("sub() argumento nomeado inesperado '{}'", other),
+            )]),
+        }
+    }
+    Ok(Value::Content(Content::sub_with_size(body, size)))
 }
 
-/// `super(body)` → content embrulhado em `Content::Styled([Superscript(true)])`.
+/// `super(body, size:?)` → content embrulhado em `Content::Styled([Superscript(true)])`.
+/// P471: argumento nomeado `size: Length` define tamanho explícito do script.
 pub fn native_superscript(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contracts::world::World, _current_file: FileId) -> SourceResult<Value> {
-    expect_no_named(&args.named)?;
     let body = match args.items.as_slice() {
         [Value::Content(c)] => c.clone(),
         [Value::Str(s)]     => Content::text(s.as_str()),
@@ -307,7 +325,25 @@ pub fn native_superscript(_ctx: &mut EvalContext, args: &Args, _world: &dyn crat
             format!("super() recebeu {} argumentos posicionais (espera 1)", args.items.len()),
         )]),
     };
-    Ok(Value::Content(Content::superscript(body)))
+    let mut size: Option<Length> = None;
+    for (key, value) in args.named.iter() {
+        match key.as_str() {
+            "size" => {
+                size = match value {
+                    Value::Length(l) => Some(*l),
+                    other => return Err(vec![SourceDiagnostic::error(
+                        Span::detached(),
+                        format!("super(size:) espera length, recebeu {}", other.type_name()),
+                    )]),
+                };
+            }
+            other => return Err(vec![SourceDiagnostic::error(
+                Span::detached(),
+                format!("super() argumento nomeado inesperado '{}'", other),
+            )]),
+        }
+    }
+    Ok(Value::Content(Content::superscript_with_size(body, size)))
 }
 
 // ── Passo 449 — `highlight(body, fill: color)` ──────────────────────────────
@@ -320,8 +356,9 @@ fn default_highlight_color() -> Color {
     Color::rgba(255, 242, 54, 255)
 }
 
-/// `highlight(body, fill: color = yellow)` → content embrulhado em
-/// `Content::Styled([Highlight(Some(color))])`.
+/// `highlight(body, fill:?, radius:?, extent:?)` → content com fundo colorido.
+/// P471: adiciona `radius: Length` (cantos arredondados) e `extent: Length`
+/// (extensão horizontal). Cor default: amarelo vanilla `#fff236`.
 pub fn native_highlight(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contracts::world::World, _current_file: FileId) -> SourceResult<Value> {
     let body = match args.items.as_slice() {
         [Value::Content(c)] => c.clone(),
@@ -341,6 +378,8 @@ pub fn native_highlight(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate:
     };
 
     let mut fill: Option<Color> = Some(default_highlight_color());
+    let mut radius: Option<Length> = None;
+    let mut extent: Option<Length> = None;
     for (key, value) in args.named.iter() {
         match key.as_str() {
             "fill" => {
@@ -355,6 +394,26 @@ pub fn native_highlight(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate:
                     },
                 };
             }
+            "radius" => {
+                radius = match value {
+                    Value::None => None,
+                    Value::Length(l) => Some(*l),
+                    other => return Err(vec![SourceDiagnostic::error(
+                        Span::detached(),
+                        format!("highlight(radius:) espera length ou none, recebeu {}", other.type_name()),
+                    )]),
+                };
+            }
+            "extent" => {
+                extent = match value {
+                    Value::None => None,
+                    Value::Length(l) => Some(*l),
+                    other => return Err(vec![SourceDiagnostic::error(
+                        Span::detached(),
+                        format!("highlight(extent:) espera length ou none, recebeu {}", other.type_name()),
+                    )]),
+                };
+            }
             other => return Err(vec![SourceDiagnostic::error(
                 Span::detached(),
                 format!("highlight() argumento nomeado inesperado '{}'", other),
@@ -362,7 +421,7 @@ pub fn native_highlight(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate:
         }
     }
 
-    Ok(Value::Content(Content::highlight(body, fill)))
+    Ok(Value::Content(Content::highlight_full(body, fill, radius, extent)))
 }
 
 // ── Passo 287 — função `#smartquote(double, enabled, alternative)` ──────────
@@ -514,3 +573,4 @@ pub fn native_regex(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::con
         _ => err("regex() requer 1 argumento (pattern)".to_string()),
     }
 }
+

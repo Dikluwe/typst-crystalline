@@ -69,6 +69,7 @@ pub fn repr_value(v: &Value) -> String {
             format!("version({}, {}, {})", ver.major, ver.minor, ver.patch)
         }
         Value::Selector(s) => repr_selector(s),
+        Value::Symbol(s) => s.ch.to_string(),
     }
 }
 

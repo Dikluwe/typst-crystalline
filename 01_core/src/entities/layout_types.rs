@@ -142,9 +142,17 @@ pub struct TextStyle {
     pub superscript:   bool,
     /// **Passo 449 (P449)**: cor de fundo do highlight (`#highlight[...]`).
     pub highlight:     Option<Color>,
+    /// **P471**: raio dos cantos do rectângulo de highlight.
+    pub highlight_radius: Option<Length>,
+    /// **P471**: extensão horizontal do rectângulo de highlight.
+    pub highlight_extent: Option<Length>,
+    /// **P471**: tamanho explícito do subscrito. `None` = 65% do font-size.
+    pub subscript_size:   Option<Length>,
+    /// **P471**: tamanho explícito do sobrescrito. `None` = 65% do font-size.
+    pub superscript_size: Option<Length>,
     /// **Passo 448 (P448)**: deslocamento vertical da baseline (resolvido em
     /// `layout/text.rs` e aplicado em `cursor.rs`).
-    pub baseline_offset: crate::entities::layout_types::Length,
+    pub baseline_offset: Length,
 }
 
 impl TextStyle {
