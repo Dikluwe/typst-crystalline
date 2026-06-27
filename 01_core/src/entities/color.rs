@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/entities/color.md
-//! @prompt-hash 20a91590
+//! @prompt-hash bf7c5345
 //! @layer L1
 //! @updated 2026-05-15
 //!
@@ -333,6 +333,105 @@ fn hsv_to_rgb(h: f32, s: f32, v: f32) -> (f32, f32, f32) {
     (r1 + m, g1 + m, b1 + m)
 }
 
+// ── P476 — Operadores de cor (lighten / darken / mix / negate) ──────────────
+//
+// Helpers privados: duplicados de gradient.rs (circular dep impede import).
+
+/// sRGB → linear RGB (inverso de gamma 2.2). Duplicado de `gradient::srgb_to_linear`.
+fn srgb_to_linear_p476(c: f32) -> f32 {
+    if c <= 0.04045 { c / 12.92 } else { ((c + 0.055) / 1.055).powf(2.4) }
+}
+
+/// linear sRGB → Oklab. Duplicado de `gradient::linear_rgb_to_oklab` (P270).
+fn linear_rgb_to_oklab_p476(r: f32, g: f32, b: f32) -> (f32, f32, f32) {
+    let l = 0.412_221_46 * r + 0.536_332_55 * g + 0.051_445_995 * b;
+    let m = 0.211_903_5  * r + 0.680_699_56 * g + 0.107_396_96  * b;
+    let s = 0.088_302_46 * r + 0.281_718_85 * g + 0.629_978_71  * b;
+    let l_ = l.cbrt();
+    let m_ = m.cbrt();
+    let s_ = s.cbrt();
+    (
+        0.210_454_26  * l_ + 0.793_617_8   * m_ - 0.004_072_047 * s_,
+        1.977_998_5   * l_ - 2.428_592_2   * m_ + 0.450_593_7   * s_,
+        0.025_904_037 * l_ + 0.782_771_77  * m_ - 0.808_675_77  * s_,
+    )
+}
+
+/// Qualquer Color → Oklab (l, a, b, alpha). Base de `mix` e `to_oklch_p476`.
+fn to_oklab_p476(c: Color) -> (f32, f32, f32, f32) {
+    match c {
+        Color::Oklab { l, a, b, alpha } => (l, a, b, alpha),
+        _ => {
+            let (r, g, b_c, alpha) = c.to_rgba_f32();
+            let (lab_l, lab_a, lab_b) = linear_rgb_to_oklab_p476(
+                srgb_to_linear_p476(r),
+                srgb_to_linear_p476(g),
+                srgb_to_linear_p476(b_c),
+            );
+            (lab_l, lab_a, lab_b, alpha)
+        }
+    }
+}
+
+/// Qualquer Color → Oklch (l, c, h, alpha). Base de `lighten`/`darken`.
+fn to_oklch_p476(c: Color) -> (f32, f32, f32, f32) {
+    match c {
+        Color::Oklch { l, c, h, alpha } => (l, c, h, alpha),
+        _ => {
+            let (l, a, b, alpha) = to_oklab_p476(c);
+            let chroma = (a * a + b * b).sqrt();
+            let h = b.atan2(a).to_degrees().rem_euclid(360.0);
+            (l, chroma, h, alpha)
+        }
+    }
+}
+
+impl Color {
+    /// Aumenta luminância por `amount` [0.0, 1.0] via Oklch.
+    pub fn lighten(self, amount: f32) -> Self {
+        let (l, c, h, alpha) = to_oklch_p476(self);
+        Color::oklch((l + amount).clamp(0.0, 1.0), c, h, alpha)
+    }
+
+    /// Diminui luminância por `amount` [0.0, 1.0] via Oklch.
+    pub fn darken(self, amount: f32) -> Self {
+        let (l, c, h, alpha) = to_oklch_p476(self);
+        Color::oklch((l - amount).clamp(0.0, 1.0), c, h, alpha)
+    }
+
+    /// Interpolação linear entre `self` e `other` em Oklab.
+    /// `weight` [0.0, 1.0]: 0.0 = self; 1.0 = other.
+    pub fn mix(self, other: Self, weight: f32) -> Self {
+        let (l0, a0, b0, alpha0) = to_oklab_p476(self);
+        let (l1, a1, b1, alpha1) = to_oklab_p476(other);
+        let t = weight.clamp(0.0, 1.0);
+        Color::oklab(
+            l0 + (l1 - l0) * t,
+            a0 + (a1 - a0) * t,
+            b0 + (b1 - b0) * t,
+            alpha0 + (alpha1 - alpha0) * t,
+        )
+    }
+
+    /// Negação: complementar em sRGB `(1-r, 1-g, 1-b)`. Alpha preservado.
+    pub fn negate(self) -> Self {
+        let (r, g, b, a) = self.to_rgba_f32();
+        Color::srgb_f32(1.0 - r, 1.0 - g, 1.0 - b, a)
+    }
+
+    /// Aumenta saturação por `amount` (chroma Oklch). Clamp mínimo 0.0; sem máximo.
+    pub fn saturate(self, amount: f32) -> Self {
+        let (l, c, h, alpha) = to_oklch_p476(self);
+        Color::oklch(l, (c + amount).max(0.0), h, alpha)
+    }
+
+    /// Diminui saturação por `amount` (chroma Oklch). Equivale a `saturate(-amount)`.
+    pub fn desaturate(self, amount: f32) -> Self {
+        let (l, c, h, alpha) = to_oklch_p476(self);
+        Color::oklch(l, (c - amount).max(0.0), h, alpha)
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -590,5 +689,150 @@ mod tests {
         let c3 = c.clone();
         assert_eq!(c, c2);
         assert_eq!(c, c3);
+    }
+
+    // ── P476 — lighten / darken / mix / negate ──
+
+    #[test]
+    fn p476_negate_vermelho_da_ciano() {
+        let red = Color::srgb_f32(1.0, 0.0, 0.0, 1.0);
+        let (r, g, b, a) = red.negate().to_rgba_f32();
+        assert!((r - 0.0).abs() < 1e-5, "r esperado 0; obtido {}", r);
+        assert!((g - 1.0).abs() < 1e-5, "g esperado 1; obtido {}", g);
+        assert!((b - 1.0).abs() < 1e-5, "b esperado 1; obtido {}", b);
+        assert!((a - 1.0).abs() < 1e-5);
+    }
+
+    #[test]
+    fn p476_negate_preserva_alpha() {
+        let c = Color::srgb_f32(0.5, 0.5, 0.5, 0.3);
+        let n = c.negate();
+        let (_, _, _, a) = n.to_rgba_f32();
+        assert!((a - 0.3).abs() < 1e-5, "alpha deve ser preservado; obtido {}", a);
+    }
+
+    #[test]
+    fn p476_lighten_zero_nao_altera_luminancia() {
+        let red = Color::rgb(255, 0, 0);
+        let lightened = red.lighten(0.0);
+        let (l0, c0, h0, _) = to_oklch_p476(red);
+        let (l1, c1, h1, _) = to_oklch_p476(lightened);
+        assert!((l1 - l0).abs() < 1e-4, "l deve ser igual; delta={}", (l1 - l0).abs());
+        assert!((c1 - c0).abs() < 1e-4);
+        let _ = h0; let _ = h1;
+    }
+
+    #[test]
+    fn p476_lighten_um_da_branco_oklch() {
+        let red = Color::rgb(255, 0, 0);
+        let lightened = red.lighten(1.0);
+        let (l, _, _, _) = to_oklch_p476(lightened);
+        assert!((l - 1.0).abs() < 1e-4, "lighten(1.0) → l clamped a 1.0; obtido {}", l);
+    }
+
+    #[test]
+    fn p476_darken_zero_nao_altera_luminancia() {
+        let blue = Color::rgb(0, 0, 255);
+        let darkened = blue.darken(0.0);
+        let (l0, _, _, _) = to_oklch_p476(blue);
+        let (l1, _, _, _) = to_oklch_p476(darkened);
+        assert!((l1 - l0).abs() < 1e-4);
+    }
+
+    #[test]
+    fn p476_darken_um_da_preto_oklch() {
+        let blue = Color::rgb(0, 0, 255);
+        let darkened = blue.darken(1.0);
+        let (l, _, _, _) = to_oklch_p476(darkened);
+        assert!((l - 0.0).abs() < 1e-4, "darken(1.0) → l clamped a 0.0; obtido {}", l);
+    }
+
+    #[test]
+    fn p476_mix_peso_zero_igual_a_self() {
+        let red  = Color::srgb_f32(1.0, 0.0, 0.0, 1.0);
+        let blue = Color::srgb_f32(0.0, 0.0, 1.0, 1.0);
+        let (l0, a0, b0, _) = to_oklab_p476(red);
+        let mixed = red.mix(blue, 0.0);
+        let (l1, a1, b1, _) = to_oklab_p476(mixed);
+        assert!((l1 - l0).abs() < 1e-4);
+        assert!((a1 - a0).abs() < 1e-4);
+        assert!((b1 - b0).abs() < 1e-4);
+    }
+
+    #[test]
+    fn p476_mix_peso_um_igual_a_other() {
+        let red  = Color::srgb_f32(1.0, 0.0, 0.0, 1.0);
+        let blue = Color::srgb_f32(0.0, 0.0, 1.0, 1.0);
+        let (l0, a0, b0, _) = to_oklab_p476(blue);
+        let mixed = red.mix(blue, 1.0);
+        let (l1, a1, b1, _) = to_oklab_p476(mixed);
+        assert!((l1 - l0).abs() < 1e-4);
+        assert!((a1 - a0).abs() < 1e-4);
+        assert!((b1 - b0).abs() < 1e-4);
+    }
+
+    #[test]
+    fn p476_mix_meio_esta_entre_red_e_blue() {
+        let red  = Color::srgb_f32(1.0, 0.0, 0.0, 1.0);
+        let blue = Color::srgb_f32(0.0, 0.0, 1.0, 1.0);
+        let (l0, _, _, _) = to_oklab_p476(red);
+        let (l1, _, _, _) = to_oklab_p476(blue);
+        let mixed = red.mix(blue, 0.5);
+        let (lm, _, _, _) = to_oklab_p476(mixed);
+        let expected_l = (l0 + l1) / 2.0;
+        assert!((lm - expected_l).abs() < 1e-4, "l médio esperado {}; obtido {}", expected_l, lm);
+    }
+
+    // ── P477 — saturate / desaturate ──
+
+    #[test]
+    fn p477_saturate_zero_nao_altera_chroma() {
+        let red = Color::rgb(255, 0, 0);
+        let (_, c0, _, _) = to_oklch_p476(red);
+        let (_, c1, _, _) = to_oklch_p476(red.saturate(0.0));
+        assert!((c1 - c0).abs() < 1e-5, "saturate(0) não deve alterar chroma; delta={}", (c1-c0).abs());
+    }
+
+    #[test]
+    fn p477_saturate_aumenta_chroma() {
+        let red = Color::rgb(255, 0, 0);
+        let (_, c0, _, _) = to_oklch_p476(red);
+        let (_, c1, _, _) = to_oklch_p476(red.saturate(0.1));
+        assert!(c1 > c0, "saturate(0.1) deve aumentar chroma: c0={}, c1={}", c0, c1);
+    }
+
+    #[test]
+    fn p477_desaturate_zero_nao_altera_chroma() {
+        let blue = Color::rgb(0, 0, 255);
+        let (_, c0, _, _) = to_oklch_p476(blue);
+        let (_, c1, _, _) = to_oklch_p476(blue.desaturate(0.0));
+        assert!((c1 - c0).abs() < 1e-5);
+    }
+
+    #[test]
+    fn p477_desaturate_grande_clampado_a_zero() {
+        let red = Color::rgb(255, 0, 0);
+        let (_, c, _, _) = to_oklch_p476(red.desaturate(1.0));
+        assert!((c - 0.0).abs() < 1e-5, "desaturate(1.0) → c=0 (cinzento); obtido {}", c);
+    }
+
+    #[test]
+    fn p477_saturate_preserva_l_e_h() {
+        let red = Color::rgb(255, 0, 0);
+        let (l0, _, h0, a0) = to_oklch_p476(red);
+        let (l1, _, h1, a1) = to_oklch_p476(red.saturate(0.2));
+        assert!((l1 - l0).abs() < 1e-4, "l deve ser preservado");
+        assert!((h1 - h0).abs() < 1e-3, "h deve ser preservado");
+        assert!((a1 - a0).abs() < 1e-5, "alpha deve ser preservado");
+    }
+
+    #[test]
+    fn p477_desaturate_preserva_l_e_h() {
+        let blue = Color::rgb(0, 0, 255);
+        let (l0, _, h0, a0) = to_oklch_p476(blue);
+        let (l1, _, h1, a1) = to_oklch_p476(blue.desaturate(0.05));
+        assert!((l1 - l0).abs() < 1e-4);
+        assert!((h1 - h0).abs() < 1e-3);
+        assert!((a1 - a0).abs() < 1e-5);
     }
 }

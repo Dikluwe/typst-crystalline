@@ -1,5 +1,5 @@
 # Prompt L0 — Color (espaços de cor vanilla paridade)
-Hash do Código: 7188e8d9
+Hash do Código: 2701d418
 
 ## Módulo
 `01_core/src/entities/color.rs`
@@ -136,6 +136,73 @@ Por cada espaço materializado, ≥2 tests:
 - Remoção: `01_core/src/entities/layout_types.rs:638-654` —
   `pub enum Color { Rgb, Rgba }` removido (migração).
 
+## Operadores de cor (P476 — ADR-0083 §"Operadores cor" parcialmente revogado)
+
+4 métodos adicionados em P476:
+
+```rust
+impl Color {
+    /// Aumenta luminância por `amount` [0.0, 1.0] via Oklch.
+    pub fn lighten(self, amount: f32) -> Self;
+
+    /// Diminui luminância por `amount` [0.0, 1.0] via Oklch.
+    pub fn darken(self, amount: f32) -> Self;
+
+    /// Interpolação linear entre `self` e `other` em Oklab.
+    /// `weight` [0.0, 1.0]: 0.0 = self; 1.0 = other.
+    pub fn mix(self, other: Self, weight: f32) -> Self;
+
+    /// Negação: complementar em sRGB (1-r, 1-g, 1-b). Alpha preservado.
+    pub fn negate(self) -> Self;
+}
+```
+
+**Helpers privados** (duplicados de `gradient.rs` — circular dep impede import):
+- `srgb_to_linear_p476`, `linear_rgb_to_oklab_p476`, `to_oklab_p476`, `to_oklch_p476`.
+
+**Critérios P476**:
+- `negate(red)` → `(0.0, 1.0, 1.0, 1.0)` (ciano).
+- `lighten(c, 0.0)` → Oklch idêntico ao original.
+- `lighten(c, 1.0)` → l clamped a 1.0.
+- `darken(c, 1.0)` → l clamped a 0.0.
+- `mix(red, blue, 0.0)` → oklab idêntico a red.
+- `mix(red, blue, 1.0)` → oklab idêntico a blue.
+- `mix(red, blue, 0.5)` → l médio entre red e blue.
+
+**P477 — `saturate` e `desaturate`** — ADR-0083 §"Operadores cor" TOTALMENTE FECHADO (6/6):
+
+```rust
+impl Color {
+    /// Aumenta saturação por `amount` (chroma Oklch). Clamp mínimo 0.0.
+    pub fn saturate(self, amount: f32) -> Self;
+
+    /// Diminui saturação por `amount` (chroma Oklch). Clamp mínimo 0.0.
+    pub fn desaturate(self, amount: f32) -> Self;
+}
+```
+
+Critérios P477:
+- `saturate(0.0)` → chroma inalterada.
+- `saturate(0.1)` → chroma aumenta.
+- `desaturate(1.0)` → chroma clamped a 0.0 (cinzento).
+- l e h preservados em ambos.
+
+**ADR-0083 §"Operadores cor": TOTALMENTE FECHADO pós-P477** (6/6).
+
+## Constantes de cor nomeadas em `parse_color` (P477)
+
+`parse_color` em `rules/stdlib/shapes.rs` alargada de 5 para 18 cores:
+
+**Originais (P-base):** `red`, `green`, `blue`, `black`, `white`.
+
+**Novas P477 (13 + 2 aliases):**
+`yellow`, `cyan`, `magenta`, `orange`, `purple`, `gray`/`grey` (alias), `silver`,
+`maroon`, `navy`, `olive`, `teal`, `lime`, `aqua` (alias de cyan).
+
+Aliases: `gray` == `grey` == `rgb(128,128,128)`; `aqua` == `cyan` == `rgb(0,255,255)`.
+
+ADR-0083 §"Constantes nomeadas": parcialmente revogado (CSS basic colors cobertas).
+
 ## Sobre paridade vanilla (ADR-0083)
 
 Referência: `lab/typst-original/crates/typst-library/src/visualize/color.rs`
@@ -146,8 +213,7 @@ linha 194 (enum `Color` com 8 variantes) + `ColorSpace` linha
 
 1. PDF native `/DeviceCMYK` — CMYK converte para sRGB no
    exporter; refino futuro **P-Color-CMYK-PDF**.
-2. Operadores cor (`lighten`/`darken`/`mix`/etc.) — não
-   materializados; refino futuro por operador.
+2. Operadores cor — **P477 TOTALMENTE FECHADO** (6/6: lighten/darken/mix/negate P476 + saturate/desaturate P477).
 3. `ColorSpace` enum runtime — não materializado; match
    exhaustive em consumers.
 4. Constantes nomeadas extras — refino incremental via

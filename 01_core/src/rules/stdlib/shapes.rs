@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/rules/stdlib/_comum.md
-//! @prompt-hash 30848226
+//! @prompt-hash 55d33081
 //! @prompt 00_nucleo/prompts/rules/stdlib/square.md
 //! @prompt 00_nucleo/prompts/rules/stdlib/shapes.md
 //! @layer L1
@@ -31,12 +31,26 @@ pub(super) fn parse_color(val: &Value) -> Option<Color> {
     match val {
         Value::Color(c) => Some(*c),
         Value::Str(s) => match s.as_str() {
-            "red"   => Some(Color::rgb(255, 0,   0)),
-            "green" => Some(Color::rgb(0,   128, 0)),
-            "blue"  => Some(Color::rgb(0,   0,   255)),
-            "black" => Some(Color::rgb(0,   0,   0)),
-            "white" => Some(Color::rgb(255, 255, 255)),
-            _       => None,
+            "red"     => Some(Color::rgb(255, 0,   0)),
+            "green"   => Some(Color::rgb(0,   128, 0)),
+            "blue"    => Some(Color::rgb(0,   0,   255)),
+            "black"   => Some(Color::rgb(0,   0,   0)),
+            "white"   => Some(Color::rgb(255, 255, 255)),
+            // P477 — CSS basic colors (13 novas + 2 aliases)
+            "yellow"  => Some(Color::rgb(255, 255, 0)),
+            "cyan"    => Some(Color::rgb(0,   255, 255)),
+            "magenta" => Some(Color::rgb(255, 0,   255)),
+            "orange"  => Some(Color::rgb(255, 165, 0)),
+            "purple"  => Some(Color::rgb(128, 0,   128)),
+            "gray" | "grey" => Some(Color::rgb(128, 128, 128)),
+            "silver"  => Some(Color::rgb(192, 192, 192)),
+            "maroon"  => Some(Color::rgb(128, 0,   0)),
+            "navy"    => Some(Color::rgb(0,   0,   128)),
+            "olive"   => Some(Color::rgb(128, 128, 0)),
+            "teal"    => Some(Color::rgb(0,   128, 128)),
+            "lime"    => Some(Color::rgb(0,   255, 0)),
+            "aqua"    => Some(Color::rgb(0,   255, 255)),
+            _         => None,
         },
         _ => None,
     }

@@ -1,5 +1,5 @@
 # Prompt L0 — `stdlib/shapes` — módulo `shapes`
-Hash do Código: ef3d2aa0
+Hash do Código: 149dbe59
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/rules/stdlib/shapes.rs`
@@ -34,6 +34,9 @@ fn native_X(
 
 Helpers partilhados no módulo:
 - `parse_color` — converte `Value::Str` (nomes conhecidos) ou `Value::Color` em `Color`.
+  P477: 18 cores suportadas (5 originais + 13 novas CSS basic + 2 aliases gray/grey, aqua/cyan).
+  Nomes: red, green, blue, black, white, yellow, cyan, magenta, orange, purple, gray, grey,
+  silver, maroon, navy, olive, teal, lime, aqua.
 - `parse_paint` — converte `Color`, `Tiling`, `Gradient` ou string nomeada em `Paint`.
 
 ---
