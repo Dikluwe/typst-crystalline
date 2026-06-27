@@ -451,6 +451,10 @@ pub(crate) fn eval_markup(
                         Value::Str(s)     => {
                             parts.push(Content::Text(s));
                         }
+                        // P471 — símbolo Unicode em markup → char como Content::Text.
+                        Value::Symbol(s)  => {
+                            parts.push(Content::Text(EcoString::from(s.ch)));
+                        }
                         Value::None       => {}
                         _                 => {}
                     }
@@ -746,6 +750,12 @@ fn make_stdlib() -> Scope {
         native_decimal, native_duration, native_version,
         // P470 — list/enum com marcadores configuráveis.
         native_list, native_enum,
+        // P471 — módulo sym.
+        build_sym_dict,
+        // P472 — lof/lot.
+        native_lof, native_lot,
+        // P476 — módulo color.
+        make_color_module,
     };
     let mut scope = Scope::new();
     scope.define("type",    Value::Func(Func::native("type",    native_type)));
@@ -772,6 +782,9 @@ fn make_stdlib() -> Scope {
     scope.define("version",  Value::Func(Func::native("version",  native_version)));
     scope.define("heading",   Value::Func(Func::native("heading",   native_heading)));
     scope.define("outline",   Value::Func(Func::native("outline",   native_outline)));
+    // **P472** — lof() e lot() como aliases de outline(target: "figures"/"tables").
+    scope.define("lof",       Value::Func(Func::native("lof",       native_lof)));
+    scope.define("lot",       Value::Func(Func::native("lot",       native_lot)));
     scope.define("strong",    Value::Func(Func::native("strong",    native_strong)));
     scope.define("emph",      Value::Func(Func::native("emph",      native_emph)));
     scope.define("raw",       Value::Func(Func::native("raw",       native_raw)));
@@ -1003,7 +1016,11 @@ fn make_stdlib() -> Scope {
     // P470 — list/enum com marcadores configuráveis.
     scope.define("list", Value::Func(Func::native("list", native_list)));
     scope.define("enum", Value::Func(Func::native("enum", native_enum)));
+    // P471 — módulo sym como Value::Dict de símbolos Unicode.
+    scope.define("sym", build_sym_dict());
     scope.define("calc",    make_calc_module());
+    // P476 — módulo `color` com operadores lighten/darken/mix/negate.
+    scope.define("color", make_color_module());
     // P262 — `gradient.linear(...)` via module dict (ADR-0087).
     scope.define("gradient", make_gradient_module());
     // P299 — `math.sin`/`math.lim`/etc. (P298.X; 42 operadores

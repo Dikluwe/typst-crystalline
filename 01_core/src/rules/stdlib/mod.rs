@@ -47,6 +47,10 @@ mod visualize;
 mod primitives_constructors;
 // P466 — métodos de instância para array, dict e str.
 mod collections;
+// P471 — módulo `sym` com tabela de símbolos Unicode.
+mod sym;
+// P476 — módulo `color` com operadores lighten/darken/mix/negate.
+mod color;
 
 // Re-exports públicos — preservam o path `crate::rules::stdlib::native_X` usado
 // por `make_stdlib` em `eval/mod.rs`.
@@ -69,7 +73,7 @@ pub use crate::rules::stdlib::structural::{
     make_math_module, native_accent, native_asset, native_bibliography, native_cancel,
     native_cite, native_divider, native_document, native_emph, native_enum, native_footnote,
     native_grid_cell, native_grid_footer, native_grid_header, native_heading,
-    native_link, native_list, native_op, native_outline, native_quote, native_raw, native_strong,
+    native_link, native_list, native_lof, native_lot, native_op, native_outline, native_quote, native_raw, native_strong,
     native_table, native_table_cell, native_table_footer, native_table_header, native_terms,
     native_underover,
 };
@@ -110,6 +114,10 @@ pub use crate::rules::stdlib::primitives_constructors::{
 };
 // P466 — dispatcher de métodos de array/dict/str.
 pub(crate) use crate::rules::stdlib::collections::try_dispatch_collection_method;
+// P471 — módulo sym.
+pub use crate::rules::stdlib::sym::build_sym_dict;
+// P476 — módulo color.
+pub use crate::rules::stdlib::color::make_color_module;
 // P311b.3 — 12 funções math style (paridade categoria 12/12 = 100%).
 pub use crate::rules::stdlib::math_style::{
     native_bb, native_bold, native_cal, native_frak, native_math_italic, native_mono,
@@ -8634,13 +8642,16 @@ mod tests {
 
     #[test]
     fn native_bibliography_default_vazia() {
-        // P159A: bibliography() sem args produz Bibliography vazia.
+        // P479: bibliography() sem args produz título default Content::heading(1, "Bibliography").
         null_ctx!(ctx);
         let r = native_bibliography(&mut ctx, &p(vec![]), &null_world(), test_file_id())
             .unwrap();
         if let Value::Content(Content::Bibliography(e)) = r {
             assert!(e.entries.is_empty());
-            assert!(e.title.is_none());
+            // P479: título default é heading nível 1 "Bibliography" (não None).
+            assert!(e.title.is_some(), "P479: título default deve ser Some");
+            let title_text = e.title.as_ref().unwrap().plain_text();
+            assert_eq!(title_text, "Bibliography", "P479: texto do título default");
         } else {
             panic!("esperado Content::Bibliography");
         }
@@ -8680,6 +8691,50 @@ mod tests {
                 e.title.as_ref().map(|t| t.plain_text()).as_deref(),
                 Some("Referências")
             );
+        } else {
+            panic!("esperado Content::Bibliography");
+        }
+    }
+
+    // ── P479 — testes de título padrão de bibliography ────────────────────────
+    #[test]
+    fn p479_native_bibliography_default_titulo_e_heading() {
+        null_ctx!(ctx);
+        let r = native_bibliography(&mut ctx, &p(vec![]), &null_world(), test_file_id()).unwrap();
+        if let Value::Content(Content::Bibliography(e)) = r {
+            let title = e.title.as_ref().expect("P479: default title deve ser Some");
+            assert!(
+                matches!(title, Content::Heading(_)),
+                "P479: default title deve ser Content::Heading, obtido {:?}", title
+            );
+            assert_eq!(title.plain_text(), "Bibliography");
+        } else {
+            panic!("esperado Content::Bibliography");
+        }
+    }
+
+    #[test]
+    fn p479_native_bibliography_title_none_suprime_titulo() {
+        null_ctx!(ctx);
+        let mut args = p(vec![]);
+        args.named.insert("title".into(), Value::None);
+        let r = native_bibliography(&mut ctx, &args, &null_world(), test_file_id()).unwrap();
+        if let Value::Content(Content::Bibliography(e)) = r {
+            assert!(e.title.is_none(), "P479: title: none deve suprimir o título");
+        } else {
+            panic!("esperado Content::Bibliography");
+        }
+    }
+
+    #[test]
+    fn p479_native_bibliography_title_explicito_preservado() {
+        null_ctx!(ctx);
+        let mut args = p(vec![]);
+        args.named.insert("title".into(), Value::Str("Referências".into()));
+        let r = native_bibliography(&mut ctx, &args, &null_world(), test_file_id()).unwrap();
+        if let Value::Content(Content::Bibliography(e)) = r {
+            let title = e.title.as_ref().expect("P479: título explícito deve ser Some");
+            assert_eq!(title.plain_text(), "Referências");
         } else {
             panic!("esperado Content::Bibliography");
         }
@@ -11253,5 +11308,532 @@ mod tests {
             )
         });
         assert!(r.is_err(), "named arg inesperado deve falhar");
+    }
+
+    // ── P471 — highlight radius/extent ──────────────────────────────────────
+
+    #[test]
+    fn p471_highlight_sem_args_ok() {
+        null_ctx!(ctx);
+        let r = text::native_highlight(
+            &mut ctx,
+            &p(vec![Value::Content(Content::text("x"))]),
+            &null_world(),
+            test_file_id(),
+        );
+        assert!(r.is_ok());
+        assert!(matches!(r.unwrap(), Value::Content(_)));
+    }
+
+    #[test]
+    fn p471_highlight_radius_produz_campo() {
+        null_ctx!(ctx);
+        let mut args = p(vec![Value::Content(Content::text("x"))]);
+        args.named.insert("radius".into(), Value::Length(Length::pt(3.0)));
+        let r = text::native_highlight(&mut ctx, &args, &null_world(), test_file_id()).unwrap();
+        if let Value::Content(Content::Styled(_, styles)) = r {
+            assert_eq!(styles.delta().highlight_radius, Some(Length::pt(3.0)));
+        } else {
+            panic!("esperado Content::Styled");
+        }
+    }
+
+    #[test]
+    fn p471_highlight_extent_produz_campo() {
+        null_ctx!(ctx);
+        let mut args = p(vec![Value::Content(Content::text("x"))]);
+        args.named.insert("extent".into(), Value::Length(Length::pt(2.0)));
+        let r = text::native_highlight(&mut ctx, &args, &null_world(), test_file_id()).unwrap();
+        if let Value::Content(Content::Styled(_, styles)) = r {
+            assert_eq!(styles.delta().highlight_extent, Some(Length::pt(2.0)));
+        } else {
+            panic!("esperado Content::Styled");
+        }
+    }
+
+    #[test]
+    fn p471_highlight_named_desconhecido_erro() {
+        null_ctx!(ctx);
+        let mut args = p(vec![Value::Content(Content::text("x"))]);
+        args.named.insert("color".into(), Value::Length(Length::pt(1.0)));
+        let r = text::native_highlight(&mut ctx, &args, &null_world(), test_file_id());
+        assert!(r.is_err());
+    }
+
+    // ── P471 — sub/super size ────────────────────────────────────────────────
+
+    #[test]
+    fn p471_sub_sem_size_sem_campo() {
+        null_ctx!(ctx);
+        let r = text::native_subscript(
+            &mut ctx,
+            &p(vec![Value::Content(Content::text("x"))]),
+            &null_world(),
+            test_file_id(),
+        ).unwrap();
+        if let Value::Content(Content::Styled(_, styles)) = r {
+            assert_eq!(styles.delta().subscript_size, None);
+        } else {
+            panic!("esperado Content::Styled");
+        }
+    }
+
+    #[test]
+    fn p471_sub_com_size_produz_campo() {
+        null_ctx!(ctx);
+        let mut args = p(vec![Value::Content(Content::text("x"))]);
+        args.named.insert("size".into(), Value::Length(Length::pt(8.0)));
+        let r = text::native_subscript(&mut ctx, &args, &null_world(), test_file_id()).unwrap();
+        if let Value::Content(Content::Styled(_, styles)) = r {
+            assert_eq!(styles.delta().subscript_size, Some(Length::pt(8.0)));
+        } else {
+            panic!("esperado Content::Styled");
+        }
+    }
+
+    #[test]
+    fn p471_super_com_size_produz_campo() {
+        null_ctx!(ctx);
+        let mut args = p(vec![Value::Content(Content::text("x"))]);
+        args.named.insert("size".into(), Value::Length(Length::pt(9.0)));
+        let r = text::native_superscript(&mut ctx, &args, &null_world(), test_file_id()).unwrap();
+        if let Value::Content(Content::Styled(_, styles)) = r {
+            assert_eq!(styles.delta().superscript_size, Some(Length::pt(9.0)));
+        } else {
+            panic!("esperado Content::Styled");
+        }
+    }
+
+    #[test]
+    fn p471_sub_named_desconhecido_erro() {
+        null_ctx!(ctx);
+        let mut args = p(vec![Value::Content(Content::text("x"))]);
+        args.named.insert("offset".into(), Value::Length(Length::pt(1.0)));
+        let r = text::native_subscript(&mut ctx, &args, &null_world(), test_file_id());
+        assert!(r.is_err());
+    }
+
+    // ── P471 — Value::Symbol + sym module ────────────────────────────────────
+
+    #[test]
+    fn p471_value_symbol_type_name() {
+        use crate::entities::symbol::Symbol;
+        let s = Symbol::new('α', "alpha");
+        assert_eq!(Value::Symbol(s).type_name(), "symbol");
+    }
+
+    #[test]
+    fn p471_sym_dict_contem_arrow() {
+        use super::sym::build_sym_dict;
+        let d = build_sym_dict();
+        if let Value::Dict(map) = d {
+            assert!(map.contains_key("arrow"));
+            assert!(map.contains_key("alpha"));
+        } else {
+            panic!("esperado Value::Dict");
+        }
+    }
+
+    #[test]
+    fn p471_sym_dict_arrow_e_simbolo_correcto() {
+        use super::sym::build_sym_dict;
+        use crate::entities::symbol::Symbol;
+        let d = build_sym_dict();
+        if let Value::Dict(map) = d {
+            if let Some(Value::Symbol(s)) = map.get("arrow") {
+                assert_eq!(s.ch, '→');
+            } else {
+                panic!("esperado Value::Symbol para arrow");
+            }
+        } else {
+            panic!("esperado Value::Dict");
+        }
+    }
+
+    // ── P472 — back-refs + ibid + LoF/LoT ────────────────────────────────────
+
+    #[test]
+    fn p472_back_refs_acumula_posicoes() {
+        use crate::entities::bib_store::BibStore;
+        let mut store = BibStore::empty();
+        store.record_citation("a".to_string());
+        store.record_citation("b".to_string());
+        store.record_citation("a".to_string()); // segunda citação de "a"
+        assert_eq!(store.back_refs_for_key("a"), vec![1, 3]);
+        assert_eq!(store.back_refs_for_key("b"), vec![2]);
+        assert!(store.back_refs_for_key("c").is_empty());
+    }
+
+    #[test]
+    fn p472_back_refs_nao_afecta_citation_order() {
+        use crate::entities::bib_store::BibStore;
+        let mut store = BibStore::empty();
+        store.record_citation("b".to_string());
+        store.record_citation("a".to_string());
+        store.record_citation("b".to_string());
+        // citation_order preserva primeira aparição
+        assert_eq!(store.citation_order(), &["b", "a"]);
+        // back_refs regista todas as chamadas
+        assert_eq!(store.back_refs_for_key("b"), vec![1, 3]);
+    }
+
+    #[test]
+    fn p472_native_lof_sem_titulo() {
+        null_ctx!(ctx);
+        let result = super::structural::native_lof(
+            &mut ctx, &p(vec![]), &null_world(), test_file_id(),
+        );
+        assert!(result.is_ok());
+        match result.unwrap() {
+            Value::Content(c) => match c {
+                crate::entities::content::Content::Outline(e) => {
+                    assert_eq!(e.target, crate::entities::elements::outline::OutlineTarget::Figures);
+                    assert!(e.title.is_none());
+                }
+                _ => panic!("esperado Outline"),
+            },
+            _ => panic!("esperado Content"),
+        }
+    }
+
+    #[test]
+    fn p472_native_lot_sem_titulo() {
+        null_ctx!(ctx);
+        let result = super::structural::native_lot(
+            &mut ctx, &p(vec![]), &null_world(), test_file_id(),
+        );
+        assert!(result.is_ok());
+        match result.unwrap() {
+            Value::Content(c) => match c {
+                crate::entities::content::Content::Outline(e) => {
+                    assert_eq!(e.target, crate::entities::elements::outline::OutlineTarget::Tables);
+                    assert!(e.title.is_none());
+                }
+                _ => panic!("esperado Outline"),
+            },
+            _ => panic!("esperado Content"),
+        }
+    }
+
+    #[test]
+    fn p472_native_outline_target_figures() {
+        null_ctx!(ctx);
+        let args = pn(vec![], "target", Value::Str("figures".into()));
+        let result = super::structural::native_outline(
+            &mut ctx, &args, &null_world(), test_file_id(),
+        );
+        assert!(result.is_ok());
+        match result.unwrap() {
+            Value::Content(c) => match c {
+                crate::entities::content::Content::Outline(e) => {
+                    assert_eq!(e.target, crate::entities::elements::outline::OutlineTarget::Figures);
+                }
+                _ => panic!("esperado Outline"),
+            },
+            _ => panic!("esperado Content"),
+        }
+    }
+
+    #[test]
+    fn p472_native_outline_target_tables() {
+        null_ctx!(ctx);
+        let args = pn(vec![], "target", Value::Str("tables".into()));
+        let result = super::structural::native_outline(
+            &mut ctx, &args, &null_world(), test_file_id(),
+        );
+        assert!(result.is_ok());
+        match result.unwrap() {
+            Value::Content(c) => match c {
+                crate::entities::content::Content::Outline(e) => {
+                    assert_eq!(e.target, crate::entities::elements::outline::OutlineTarget::Tables);
+                }
+                _ => panic!("esperado Outline"),
+            },
+            _ => panic!("esperado Content"),
+        }
+    }
+
+    #[test]
+    fn p472_native_outline_target_invalido_erro() {
+        null_ctx!(ctx);
+        let args = pn(vec![], "target", Value::Str("unknown".into()));
+        let result = super::structural::native_outline(
+            &mut ctx, &args, &null_world(), test_file_id(),
+        );
+        assert!(result.is_err());
+    }
+
+    #[test]
+    fn p472_outline_target_headings_default() {
+        null_ctx!(ctx);
+        let result = super::structural::native_outline(
+            &mut ctx, &p(vec![]), &null_world(), test_file_id(),
+        );
+        assert!(result.is_ok());
+        match result.unwrap() {
+            Value::Content(c) => match c {
+                crate::entities::content::Content::Outline(e) => {
+                    assert_eq!(e.target, crate::entities::elements::outline::OutlineTarget::Headings);
+                }
+                _ => panic!("esperado Outline"),
+            },
+            _ => panic!("esperado Content"),
+        }
+    }
+
+    // ── P475 — inset/outset Sides dict + Value::Relative em extract_length ────
+
+    #[test]
+    fn p475_block_inset_dict_per_side() {
+        use ecow::EcoString;
+        use indexmap::IndexMap;
+        use rustc_hash::FxBuildHasher;
+        null_ctx!(ctx);
+        let mut d: IndexMap<EcoString, Value, FxBuildHasher> = IndexMap::default();
+        d.insert("left".into(),  Value::Length(Length::pt(3.0)));
+        d.insert("right".into(), Value::Length(Length::pt(5.0)));
+        let mut args = p(vec![Value::Content(crate::entities::content::Content::text("x"))]);
+        args.named.insert("inset".into(), Value::Dict(d));
+        let r = native_block(&mut ctx, &args, &null_world(), test_file_id()).unwrap();
+        if let Value::Content(crate::entities::content::Content::Block(e)) = r {
+            assert_eq!(e.inset.left,   Length::pt(3.0), "inset.left");
+            assert_eq!(e.inset.right,  Length::pt(5.0), "inset.right");
+            assert_eq!(e.inset.top,    Length::ZERO,    "inset.top default zero");
+            assert_eq!(e.inset.bottom, Length::ZERO,    "inset.bottom default zero");
+        } else { panic!("esperado Block"); }
+    }
+
+    #[test]
+    fn p475_block_outset_dict_x_axis() {
+        use ecow::EcoString;
+        use indexmap::IndexMap;
+        use rustc_hash::FxBuildHasher;
+        null_ctx!(ctx);
+        let mut d: IndexMap<EcoString, Value, FxBuildHasher> = IndexMap::default();
+        d.insert("x".into(), Value::Length(Length::pt(2.0)));
+        let mut args = p(vec![Value::Content(crate::entities::content::Content::text("x"))]);
+        args.named.insert("outset".into(), Value::Dict(d));
+        let r = native_block(&mut ctx, &args, &null_world(), test_file_id()).unwrap();
+        if let Value::Content(crate::entities::content::Content::Block(e)) = r {
+            assert_eq!(e.outset.left,  Length::pt(2.0), "outset.left via x");
+            assert_eq!(e.outset.right, Length::pt(2.0), "outset.right via x");
+            assert_eq!(e.outset.top,   Length::ZERO,    "outset.top zero (y não declarado)");
+        } else { panic!("esperado Block"); }
+    }
+
+    #[test]
+    fn p475_box_inset_dict_per_side() {
+        use ecow::EcoString;
+        use indexmap::IndexMap;
+        use rustc_hash::FxBuildHasher;
+        null_ctx!(ctx);
+        let mut d: IndexMap<EcoString, Value, FxBuildHasher> = IndexMap::default();
+        d.insert("left".into(), Value::Length(Length::pt(3.0)));
+        d.insert("top".into(),  Value::Length(Length::pt(5.0)));
+        let mut args = p(vec![Value::Content(crate::entities::content::Content::text("x"))]);
+        args.named.insert("inset".into(), Value::Dict(d));
+        let r = native_box(&mut ctx, &args, &null_world(), test_file_id()).unwrap();
+        if let Value::Content(crate::entities::content::Content::Boxed(e)) = r {
+            assert_eq!(e.inset.left,   Length::pt(3.0), "inset.left");
+            assert_eq!(e.inset.top,    Length::pt(5.0), "inset.top");
+            assert_eq!(e.inset.right,  Length::ZERO,    "inset.right default zero");
+            assert_eq!(e.inset.bottom, Length::ZERO,    "inset.bottom default zero");
+        } else { panic!("esperado Boxed"); }
+    }
+
+    #[test]
+    fn p475_block_inset_uniforme_ainda_funciona() {
+        null_ctx!(ctx);
+        let mut args = p(vec![Value::Content(crate::entities::content::Content::text("x"))]);
+        args.named.insert("inset".into(), Value::Length(Length::pt(4.0)));
+        let r = native_block(&mut ctx, &args, &null_world(), test_file_id()).unwrap();
+        if let Value::Content(crate::entities::content::Content::Block(e)) = r {
+            assert_eq!(e.inset.left,  Length::pt(4.0), "inset uniforme left");
+            assert_eq!(e.inset.right, Length::pt(4.0), "inset uniforme right");
+            assert_eq!(e.inset.top,   Length::pt(4.0), "inset uniforme top");
+        } else { panic!("esperado Block"); }
+    }
+
+    #[test]
+    fn p475_relative_aceite_em_extract_length_parte_abs() {
+        use crate::entities::rel::Rel;
+        null_ctx!(ctx);
+        // Rel { rel: 0.5, abs: 2pt } → extract_length → Some(2pt); parte rel truncada.
+        let rel = Rel { rel: 0.5, abs: Length::pt(2.0) };
+        let mut args = p(vec![Value::Content(crate::entities::content::Content::text("x"))]);
+        args.named.insert("inset".into(), Value::Relative(rel));
+        let r = native_block(&mut ctx, &args, &null_world(), test_file_id()).unwrap();
+        if let Value::Content(crate::entities::content::Content::Block(e)) = r {
+            assert_eq!(e.inset.left, Length::pt(2.0),
+                "Relative {{ rel: 0.5, abs: 2pt }} → inset = 2pt (rel truncado)");
+        } else { panic!("esperado Block"); }
+    }
+
+    #[test]
+    fn p475_block_inset_dict_chave_invalida_erro() {
+        use ecow::EcoString;
+        use indexmap::IndexMap;
+        use rustc_hash::FxBuildHasher;
+        null_ctx!(ctx);
+        let mut d: IndexMap<EcoString, Value, FxBuildHasher> = IndexMap::default();
+        d.insert("diagonal".into(), Value::Length(Length::pt(1.0)));
+        let mut args = p(vec![Value::Content(crate::entities::content::Content::text("x"))]);
+        args.named.insert("inset".into(), Value::Dict(d));
+        let r = native_block(&mut ctx, &args, &null_world(), test_file_id());
+        assert!(r.is_err(), "chave desconhecida no dict de inset deve dar erro");
+    }
+
+    // ── P476 — módulo color (lighten / darken / mix / negate) ────────────────
+
+    use super::color::{
+        native_color_darken, native_color_lighten, native_color_mix, native_color_negate,
+    };
+
+    #[test]
+    fn p476_native_color_lighten_retorna_color() {
+        null_ctx!(ctx);
+        let red = Value::Color(Color::srgb_f32(1.0, 0.0, 0.0, 1.0));
+        let args = p(vec![red, Value::Float(0.2)]);
+        let r = native_color_lighten(&mut ctx, &args, &null_world(), test_file_id());
+        assert!(r.is_ok(), "lighten deve retornar Ok; erro: {:?}", r.err());
+        assert!(matches!(r.unwrap(), Value::Color(_)), "resultado deve ser Color");
+    }
+
+    #[test]
+    fn p476_native_color_darken_retorna_color() {
+        null_ctx!(ctx);
+        let blue = Value::Color(Color::srgb_f32(0.0, 0.0, 1.0, 1.0));
+        let args = p(vec![blue, Value::Float(0.2)]);
+        let r = native_color_darken(&mut ctx, &args, &null_world(), test_file_id());
+        assert!(r.is_ok());
+        assert!(matches!(r.unwrap(), Value::Color(_)));
+    }
+
+    #[test]
+    fn p476_native_color_negate_vermelho_da_ciano() {
+        null_ctx!(ctx);
+        let red = Value::Color(Color::srgb_f32(1.0, 0.0, 0.0, 1.0));
+        let args = p(vec![red]);
+        let r = native_color_negate(&mut ctx, &args, &null_world(), test_file_id()).unwrap();
+        if let Value::Color(c) = r {
+            let (r, g, b, _) = c.to_rgba_f32();
+            assert!((r - 0.0).abs() < 1e-5);
+            assert!((g - 1.0).abs() < 1e-5);
+            assert!((b - 1.0).abs() < 1e-5);
+        } else { panic!("esperado Color"); }
+    }
+
+    #[test]
+    fn p476_native_color_mix_dois_positional_sem_weight() {
+        null_ctx!(ctx);
+        let red  = Value::Color(Color::srgb_f32(1.0, 0.0, 0.0, 1.0));
+        let blue = Value::Color(Color::srgb_f32(0.0, 0.0, 1.0, 1.0));
+        let args = p(vec![red, blue]);
+        let r = native_color_mix(&mut ctx, &args, &null_world(), test_file_id());
+        assert!(r.is_ok(), "mix sem weight: default 0.5; erro: {:?}", r.err());
+        assert!(matches!(r.unwrap(), Value::Color(_)));
+    }
+
+    #[test]
+    fn p476_native_color_mix_com_weight_named() {
+        null_ctx!(ctx);
+        let red  = Value::Color(Color::srgb_f32(1.0, 0.0, 0.0, 1.0));
+        let blue = Value::Color(Color::srgb_f32(0.0, 0.0, 1.0, 1.0));
+        let mut args = p(vec![red, blue]);
+        args.named.insert("weight".into(), Value::Float(0.25));
+        let r = native_color_mix(&mut ctx, &args, &null_world(), test_file_id());
+        assert!(r.is_ok(), "mix com weight: 0.25; erro: {:?}", r.err());
+    }
+
+    #[test]
+    fn p476_color_module_no_scope_tem_4_entradas() {
+        use crate::rules::stdlib::make_color_module;
+        let m = make_color_module();
+        if let Value::Dict(d) = m {
+            assert!(d.contains_key("lighten"), "falta lighten");
+            assert!(d.contains_key("darken"),  "falta darken");
+            assert!(d.contains_key("mix"),     "falta mix");
+            assert!(d.contains_key("negate"),  "falta negate");
+            // NOTE: P477 aumenta para 6; atualizado em p477_color_module_tem_6_entradas
+        } else { panic!("make_color_module deve retornar Dict"); }
+    }
+
+    // ── P477 — saturate/desaturate + constantes nomeadas ─────────────────────
+
+    use super::color::{native_color_desaturate, native_color_saturate};
+
+    #[test]
+    fn p477_native_color_saturate_retorna_color() {
+        null_ctx!(ctx);
+        let red  = Value::Color(Color::srgb_f32(1.0, 0.0, 0.0, 1.0));
+        let args = p(vec![red, Value::Float(0.2)]);
+        let r = native_color_saturate(&mut ctx, &args, &null_world(), test_file_id());
+        assert!(r.is_ok(), "saturate deve retornar Ok; erro: {:?}", r.err());
+        assert!(matches!(r.unwrap(), Value::Color(_)));
+    }
+
+    #[test]
+    fn p477_native_color_desaturate_retorna_color() {
+        null_ctx!(ctx);
+        let blue = Value::Color(Color::srgb_f32(0.0, 0.0, 1.0, 1.0));
+        let args = p(vec![blue, Value::Float(0.3)]);
+        let r = native_color_desaturate(&mut ctx, &args, &null_world(), test_file_id());
+        assert!(r.is_ok());
+        assert!(matches!(r.unwrap(), Value::Color(_)));
+    }
+
+    #[test]
+    fn p477_color_module_tem_6_entradas() {
+        use crate::rules::stdlib::make_color_module;
+        let m = make_color_module();
+        if let Value::Dict(d) = m {
+            assert!(d.contains_key("saturate"),   "falta saturate");
+            assert!(d.contains_key("desaturate"), "falta desaturate");
+            assert_eq!(d.len(), 6, "módulo color deve ter exactamente 6 entradas pós-P477");
+        } else { panic!("make_color_module deve retornar Dict"); }
+    }
+
+    #[test]
+    fn p477_parse_color_yellow() {
+        let v = Value::Str("yellow".into());
+        let c = parse_color(&v);
+        assert_eq!(c, Some(Color::rgb(255, 255, 0)), "yellow deve ser (255,255,0)");
+    }
+
+    #[test]
+    fn p477_parse_color_gray_grey_aliases() {
+        let gray = parse_color(&Value::Str("gray".into()));
+        let grey = parse_color(&Value::Str("grey".into()));
+        assert_eq!(gray, grey, "gray e grey devem ser idênticos");
+        assert_eq!(gray, Some(Color::rgb(128, 128, 128)));
+    }
+
+    #[test]
+    fn p477_parse_color_aqua_cyan_aliases() {
+        let aqua = parse_color(&Value::Str("aqua".into()));
+        let cyan = parse_color(&Value::Str("cyan".into()));
+        assert_eq!(aqua, cyan, "aqua e cyan devem ser idênticos");
+        assert_eq!(aqua, Some(Color::rgb(0, 255, 255)));
+    }
+
+    #[test]
+    fn p477_parse_color_navy_maroon_teal() {
+        assert_eq!(parse_color(&Value::Str("navy".into())),   Some(Color::rgb(0, 0, 128)));
+        assert_eq!(parse_color(&Value::Str("maroon".into())), Some(Color::rgb(128, 0, 0)));
+        assert_eq!(parse_color(&Value::Str("teal".into())),   Some(Color::rgb(0, 128, 128)));
+    }
+
+    #[test]
+    fn p477_parse_color_original_5_sem_regressao() {
+        assert_eq!(parse_color(&Value::Str("red".into())),   Some(Color::rgb(255, 0,   0)));
+        assert_eq!(parse_color(&Value::Str("green".into())), Some(Color::rgb(0,   128, 0)));
+        assert_eq!(parse_color(&Value::Str("blue".into())),  Some(Color::rgb(0,   0,   255)));
+        assert_eq!(parse_color(&Value::Str("black".into())), Some(Color::rgb(0,   0,   0)));
+        assert_eq!(parse_color(&Value::Str("white".into())), Some(Color::rgb(255, 255, 255)));
+    }
+
+    #[test]
+    fn p477_parse_color_desconhecida_retorna_none() {
+        assert_eq!(parse_color(&Value::Str("ultraviolet".into())), None);
     }
 }
