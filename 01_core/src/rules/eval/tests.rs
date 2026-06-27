@@ -6328,4 +6328,126 @@ mod tests {
         let world = MockWorld::new("#let x = \"ab\".repeat(3)");
         assert_eq!(eval_let(&world, "x"), Some(Value::Str("ababab".into())));
     }
+
+    // ── P473 — op. cit. + wiring show regex (já em P393) ─────────────────────
+
+    /// cite(a), cite(b), cite(a) — terceira citação de 'a' (não consecutiva)
+    /// deve renderizar como "[1] Knuth, op. cit.".
+    #[test]
+    fn p473_op_cit_detectado_apos_citacao_intercalada() {
+        use crate::entities::bib_entry::BibEntry;
+        use crate::entities::content::Content;
+        use crate::rules::introspect::introspect_with_introspector;
+        use crate::rules::layout::layout_with_introspector;
+
+        let entry_a = BibEntry::new("knuth73", "Knuth, D.", "TAOCP", 1973);
+        let entry_b = BibEntry::new("lamport94", "Lamport, L.", "LaTeX", 1994);
+        // cite(a) → [1]; cite(b) → [2]; cite(a) → [1] Knuth, op. cit.
+        let content = Content::sequence(vec![
+            Content::bibliography(vec![entry_a, entry_b], None),
+            Content::cite("knuth73", None, None),
+            Content::text(" "),
+            Content::cite("lamport94", None, None),
+            Content::text(" "),
+            Content::cite("knuth73", None, None),
+        ]);
+        let intr = introspect_with_introspector(&content);
+        let doc = layout_with_introspector(&content, intr);
+        let text = doc.plain_text();
+        assert!(
+            text.contains("op. cit."),
+            "terceira citação de knuth73 (não consecutiva) deve ser op. cit.; obtido: {text:?}"
+        );
+    }
+
+    /// cite(a), cite(a) — segunda citação consecutiva deve ser ibid., não op. cit.
+    #[test]
+    fn p473_ibid_nao_confundido_com_op_cit() {
+        use crate::entities::bib_entry::BibEntry;
+        use crate::entities::content::Content;
+        use crate::rules::introspect::introspect_with_introspector;
+        use crate::rules::layout::layout_with_introspector;
+
+        let entry_a = BibEntry::new("knuth73", "Knuth, D.", "TAOCP", 1973);
+        // cite(a), cite(a) → segundo deve ser ibid. e NÃO op. cit.
+        let content = Content::sequence(vec![
+            Content::bibliography(vec![entry_a], None),
+            Content::cite("knuth73", None, None),
+            Content::text(" "),
+            Content::cite("knuth73", None, None),
+        ]);
+        let intr = introspect_with_introspector(&content);
+        let doc = layout_with_introspector(&content, intr);
+        let text = doc.plain_text();
+        assert!(
+            text.contains("ibid."),
+            "segunda citação consecutiva deve ser ibid.; obtido: {text:?}"
+        );
+        assert!(
+            !text.contains("op. cit."),
+            "ibid. não deve ser confundido com op. cit.; obtido: {text:?}"
+        );
+    }
+
+    /// Sem citações anteriores da key, não há op. cit.
+    #[test]
+    fn p473_primeira_citacao_nunca_e_op_cit() {
+        use crate::entities::bib_entry::BibEntry;
+        use crate::entities::content::Content;
+        use crate::rules::introspect::introspect_with_introspector;
+        use crate::rules::layout::layout_with_introspector;
+
+        let entry_a = BibEntry::new("knuth73", "Knuth, D.", "TAOCP", 1973);
+        let content = Content::sequence(vec![
+            Content::bibliography(vec![entry_a], None),
+            Content::cite("knuth73", None, None),
+        ]);
+        let intr = introspect_with_introspector(&content);
+        let doc = layout_with_introspector(&content, intr);
+        let text = doc.plain_text();
+        assert!(
+            !text.contains("op. cit.") && !text.contains("ibid."),
+            "primeira citação não deve ser op. cit. nem ibid.; obtido: {text:?}"
+        );
+    }
+
+    // ── P474 — sonda Trilha 3: fecho + sonda Trilha 8: pad/corners ────────────
+
+    /// P474 Sonda A — confirma wiring E2E de `#show heading.where(level: N)`:
+    /// `eval_show_rule` → `query_selector_to_show_selector` → `apply_show_rules`
+    /// → `selector_matches(Where)`. Trilha 3: 3/3 fechado.
+    #[test]
+    fn p474_show_where_wiring_completo_heading_level_2() {
+        let world = MockWorld::new(
+            "#show heading.where(level: 2): it => [SEC: ] + it.body\n\n= Cap\n\n== Sub",
+        );
+        let src = world.source(world.main()).unwrap();
+        let module = eval_for_test(&world, &src).unwrap();
+        let text = module.content().unwrap().plain_text();
+        assert!(
+            text.contains("SEC: Sub"),
+            "where(level: 2) deve aplicar-se ao heading nível 2: {:?}",
+            text
+        );
+        assert!(
+            !text.contains("SEC: Cap"),
+            "where(level: 2) NÃO deve aplicar-se ao heading nível 1: {:?}",
+            text
+        );
+    }
+
+    /// P474 Sonda B — confirma que `pad(rest: Xpt)` aplica o mesmo valor
+    /// em todos os lados (atalho `rest`). Implementado em P156L.
+    #[test]
+    fn p474_pad_rest_aplica_uniforme_via_extract_sides() {
+        let world = MockWorld::new("#pad(rest: 5pt)[texto]");
+        let src = world.source(world.main()).unwrap();
+        let module = eval_for_test(&world, &src).unwrap();
+        let c = module.content().unwrap();
+        assert!(
+            c.plain_text().contains("texto"),
+            "pad(rest:) deve preservar o body: {:?}",
+            c.plain_text()
+        );
+    }
 }

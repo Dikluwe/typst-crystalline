@@ -72,3 +72,8 @@ Em `apply_show_rules`, após o loop de NodeKind/DynKind e antes de retornar, per
 - Não dividir nós de texto internamente; transformar o nó inteiro que casa.
 - Não tocar em layout/render.
 - Não aplicar regex a conteúdo não-texto.
+
+---
+
+> **Estatuto: MATERIALIZADO — P393 + confirmado P473 + P474.**
+> `Value::Regex`, `Selector::Regex`, `native_regex`, `eval_show_rule` wiring e `apply_show_rules` implementados e testados (P393). P473 confirma o wiring via L2 tests. P474 (sonda) confirma `#show heading.where(level: N)` E2E completo desde P417. **Trilha 3: 3/3 completo (fechado).**

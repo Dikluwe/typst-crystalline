@@ -162,6 +162,7 @@ paridade contra o vanilla e A2/A3 entram nessa hora — não antes (ADR-0107/010
 | 2026-06-23 | P417 (M): +variant `Selector::Where { base, field, value }` para filtragem de show rules por campo de elemento. Integração com `Value::Selector`, parsing de `heading.where(level: 1)`, e matching via `Content::get_field`. | `show.rs`, `show.md`, `value.rs`, `selector.rs`, `selector.md`, `eval/closures.rs`, `eval/rules.rs`, `introspector.rs`, `stdlib/foundations.rs` |
 | 2026-06-23 | P423 (S-M): +variants `Selector::And(Vec<Selector>)`/`Or(Vec<Selector>)` e methods `.or()`/`.and()` em `Value::Selector`. Matching recursivo com curto-circuito em show rules; query já suporta And/Or (P209C). | `show.rs`, `show.md`, `eval/closures.rs`, `eval/rules.rs` |
 | 2026-06-25 | P467 (S — sonda A.0): confirma estado funcional de `Selector::Where` em show rules; inventário de cobertura atualizado; nenhuma alteração de código. | `show.md`, `cobertura-vanilla-vs-cristalino.md` |
+| 2026-06-27 | P474 (XS — sonda fecho): confirma wiring E2E completo de `#show elem.where(field: value)` desde P417 — `eval_show_rule` → `query_selector_to_show_selector` → `apply_show_rules` → `selector_matches(Where)`. **Trilha 3: 3/3 fechado.** 2 testes confirmatórios adicionados. | `show.md`, `show-regex.md`, `eval/tests.rs` |
 
 ## Layer
 
