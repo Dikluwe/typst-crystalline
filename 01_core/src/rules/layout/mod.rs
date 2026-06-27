@@ -341,6 +341,14 @@ pub struct Layouter<'a, M: FontMetrics, S: ImageSizer = NullImageSizer> {
     pub(super) bib_render_cache: Option<crate::rules::layout::bib_csl::BibRenderCache>,
     /// **P446** — smallcaps activo no corpo de um `#smallcaps[...]`.
     pub(super) smallcaps: bool,
+    /// **P472** — chave da última citação renderizada. Usada para ibid:
+    /// quando a mesma key é citada consecutivamente, emite "ibid." em vez
+    /// do número. `None` antes da primeira citação.
+    pub(super) last_cited_key: Option<String>,
+    /// **P473** — conjunto de todas as keys citadas antes da posição actual,
+    /// excluindo a última (coberta por `last_cited_key`). Usada para op. cit.:
+    /// key já citada mas não consecutivamente → "[N] Author, op. cit.".
+    pub(super) previously_cited_keys: std::collections::HashSet<String>,
 }
 
 /// **P286** — Segmento de linha visual capturado por `flush_line`
@@ -501,6 +509,10 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
             smallcaps: false,
             // P418 — cache pré-renderizado de citações/bibliografia CSL.
             bib_render_cache: None,
+            // P472 — última key citada para ibid.
+            last_cited_key: None,
+            // P473 — keys citadas anteriormente para op. cit.
+            previously_cited_keys: std::collections::HashSet::new(),
         }
     }
 

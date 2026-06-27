@@ -1,6 +1,6 @@
 # Prompt L0 — Atomização dos elementos (layout/introspect → arquivo do elemento)
 
-Hash do Código: 06d79823
+Hash do Código: 00110025
 
 **Camada**: L1 · **Módulos afetados**: `01_core/src/rules/layout/mod.rs` (o monólito
 `layout_content`), `01_core/src/rules/introspect.rs` (o walk), e os arquivos dos elementos
@@ -318,3 +318,109 @@ counter/state. Os **elementos de domínio do layout (incl. math) estão atomizad
 A camada layout (P376-382) e a camada introspect (M5/M6 + este passo) têm a lógica por-elemento
 atomizada. O walk e o `layout_content` ficam **máquina**. A frente seguinte é a **varredura do
 projeto** (decisão do dono).
+
+---
+
+## §13 — P472: extensão de `cite.rs` — ibid. + last_cited_key
+
+> `cite.rs` materializado em P381 (Fatia 2). P472 adiciona lógica de **ibid.**:
+> quando a mesma key é citada consecutivamente em `CitationStyle::Numeric` +
+> `CitationForm::Normal`, o layouter emite `ibid.` em vez do número.
+
+### Mudança em `rules/layout/cite.rs`
+
+```rust
+// Antes do match principal de cite:
+let is_ibid = style == CitationStyle::Numeric
+    && form == CitationForm::Normal
+    && layouter.last_cited_key.as_deref() == Some(key.as_str());
+layouter.last_cited_key = Some(key.clone());
+if is_ibid {
+    layouter.layout_content(&Content::text("ibid.".to_string()));
+    if let Some(s) = &e.supplement { layouter.layout_content(s); }
+    return;
+}
+```
+
+### Mudança em `rules/layout/mod.rs` — campo `last_cited_key`
+
+```rust
+pub(super) last_cited_key: Option<String>,  // inicializado None em Layouter::new()
+```
+
+Actualizado em cada citação (inclusive no caminho CSL cache). Permite detecção de ibid.
+sem consultar o Introspector (estado local do Layouter).
+
+### Scope-out explícito (P472)
+
+- ibid. apenas para `Numeric + Normal`; outros styles e forms não usam ibid.
+- ~~op. cit. (citação não-consecutiva para key já vista) — futuro~~ → **implementado em P473**.
+- reset de `last_cited_key` em pagebreak — não necessário para semântica mínima.
+
+---
+
+## §14 — P473: extensão de `cite.rs` — op. cit. + `previously_cited_keys`
+
+> `ibid.` (P472) cobre citações *consecutivas*. `op. cit.` cobre o caso
+> complementar: a key já foi citada antes, mas não consecutivamente.
+
+### Campo `previously_cited_keys` no Layouter
+
+```rust
+// Em layout/mod.rs — Layouter struct:
+pub(super) previously_cited_keys: std::collections::HashSet<String>,
+// Inicializado: previously_cited_keys: std::collections::HashSet::new()
+```
+
+### Detecção em `rules/layout/cite.rs`
+
+Antes de actualizar `last_cited_key`, push `last_cited_key` para `previously_cited_keys`:
+
+```rust
+let is_ibid = style == Numeric && form == Normal
+    && layouter.last_cited_key.as_deref() == Some(key.as_str());
+let is_op_cit = style == Numeric && form == Normal
+    && !is_ibid
+    && layouter.previously_cited_keys.contains(key.as_str());
+
+// Actualiza previously_cited_keys com a key anterior ANTES de last_cited_key.
+if let Some(prev) = layouter.last_cited_key.take() {
+    layouter.previously_cited_keys.insert(prev);
+}
+layouter.last_cited_key = Some(key.clone());
+```
+
+**Ordem obrigatória:** (1) computar `is_ibid`/`is_op_cit` com o estado actual; (2) `take()` de `last_cited_key` e insert; (3) set `last_cited_key` com key actual.
+
+### Render de `op. cit.`
+
+```rust
+if is_op_cit {
+    let n_str = citation_number_for_key(intr, key)
+        .or_else(|| bib_number_for_key(intr, key))
+        .map(|n| n.to_string())
+        .unwrap_or_else(|| key.clone());
+    let author_abbrev = entry
+        .map(|e| e.author.split(',').next().unwrap_or(&e.key).to_string())
+        .unwrap_or_else(|| key.clone());
+    let text = format!("[{}] {}, op. cit.", n_str, author_abbrev);
+    layouter.layout_content(&Content::text(text));
+    // supplement se presente
+    return;
+}
+```
+
+### Invariante de exclusão mútua
+
+```
+ibid.    = last_cited_key == current_key (consecutivo)
+op. cit. = previously_cited_keys.contains(current_key) AND NOT ibid.
+normal   = NOT ibid. AND NOT op. cit.
+```
+
+### Scope-out explícito (P473)
+
+- `op. cit.` apenas para `Numeric + Normal`; outros styles/forms sem op. cit.
+- `ibid., p. N` / `op. cit., p. N` com page override — scope-out.
+- `loc. cit.` — scope-out.
+- Reset de `previously_cited_keys` em nova secção — não implementado.

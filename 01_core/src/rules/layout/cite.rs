@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/rules/atomizacao_elementos.md
-//! @prompt-hash 3331d6ba
+//! @prompt-hash e6442e3f
 //! @layer L1
 //! @updated 2026-06-23
 //!
@@ -19,6 +19,9 @@ use crate::entities::introspector::Introspector;
 use super::{FontMetrics, ImageSizer, Layouter};
 
 /// Layout de `cite(...)`: usa cache CSL se disponível; senão fallback por form.
+///
+/// **P472** — ibid: quando a mesma key é citada consecutivamente (estilo
+/// numérico), a segunda citação emite "ibid." em vez de "[N]".
 pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
     layouter: &mut Layouter<M, S>,
     e: &CiteElem,
@@ -34,6 +37,7 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
         .and_then(|m| m.get(&e.key))
         .cloned()
     {
+        layouter.last_cited_key = Some(e.key.clone());
         layouter.layout_content(&content);
         if let Some(s) = &e.supplement {
             layouter.layout_content(s);
@@ -44,6 +48,52 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
     // Fallback local P418/P468.
     let key = &e.key;
     let entry = layouter.introspector.bib_entry_for_key(key);
+
+    // P472: ibid — mesma key consecutivamente (estilo numérico, forma normal).
+    let is_ibid = style == CitationStyle::Numeric
+        && form == CitationForm::Normal
+        && layouter.last_cited_key.as_deref() == Some(key.as_str());
+
+    // P473: op. cit. — key já citada antes mas não consecutivamente.
+    let is_op_cit = style == CitationStyle::Numeric
+        && form == CitationForm::Normal
+        && !is_ibid
+        && layouter.previously_cited_keys.contains(key.as_str());
+
+    // Actualiza previously_cited_keys com a key anterior ANTES de actualizar last_cited_key.
+    if let Some(prev) = layouter.last_cited_key.take() {
+        layouter.previously_cited_keys.insert(prev);
+    }
+    layouter.last_cited_key = Some(key.clone());
+
+    if is_ibid {
+        layouter.layout_content(&Content::text("ibid.".to_string()));
+        if let Some(s) = &e.supplement {
+            layouter.layout_content(s);
+        }
+        return;
+    }
+
+    if is_op_cit {
+        let n_str = crate::entities::introspector::Introspector::citation_number_for_key(
+            &*layouter.introspector, key,
+        )
+        .or_else(|| crate::entities::introspector::Introspector::bib_number_for_key(
+            &*layouter.introspector, key,
+        ))
+        .map(|n| n.to_string())
+        .unwrap_or_else(|| key.clone());
+        let author_abbrev = entry
+            .map(|e| e.author.split(',').next().unwrap_or(&e.key).to_string())
+            .unwrap_or_else(|| key.clone());
+        let text = format!("[{}] {}, op. cit.", n_str, author_abbrev);
+        layouter.layout_content(&Content::text(text));
+        if let Some(s) = &e.supplement {
+            layouter.layout_content(s);
+        }
+        return;
+    }
+
     // P468: número de citação — citation_number (order of first appearance) se
     // disponível; caso contrário bib_number (legado assign_number); fallback [key].
     let numeric_n = |intr: &_| -> String {
