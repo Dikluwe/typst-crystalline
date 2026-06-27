@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/rules/stdlib/_comum.md
-//! @prompt-hash f0f214b5
+//! @prompt-hash 284672b8
 //! @prompt 00_nucleo/prompts/rules/stdlib/layout.md
 //! @layer L1
 //! @updated 2026-04-23
@@ -305,11 +305,76 @@ pub fn native_grid(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::cont
 /// `Int` (idem). Retorna `None` para outros tipos.
 fn extract_length(val: &Value) -> Option<Length> {
     match val {
-        Value::Length(l) => Some(*l),
-        Value::Float(f)  => Some(Length { abs: Abs(*f),         em: 0.0 }),
-        Value::Int(i)    => Some(Length { abs: Abs(*i as f64),  em: 0.0 }),
-        _                => None,
+        Value::Length(l)   => Some(*l),
+        Value::Float(f)    => Some(Length { abs: Abs(*f),         em: 0.0 }),
+        Value::Int(i)      => Some(Length { abs: Abs(*i as f64),  em: 0.0 }),
+        // **P475** — `Rel<Length>` aceite: parte relativa (`rel`) truncada para zero
+        // (resolução percentual requer contexto de layout — scope-out P475).
+        Value::Relative(r) => Some(r.abs),
+        _                  => None,
     }
+}
+
+/// **P475** — Parse `Value` para `Sides<Length>`: uniforme (Length / Relative / Float / Int)
+/// ou dict `{left?, right?, top?, bottom?, x?, y?, rest?}` per-side.
+/// Precedência dentro do dict: específico > eixo (`x`/`y`) > `rest`.
+/// Lados não declarados num dict ficam `Length::ZERO`.
+/// Parte `rel` de `Value::Relative` truncada (scope-out: requer contexto de layout).
+fn extract_sides_from_value(val: &Value, fn_name: &str, field: &str) -> SourceResult<Sides<Length>> {
+    let reject_neg = |l: Length, key: &str| -> SourceResult<Length> {
+        if l.abs.0 < 0.0 || l.em < 0.0 {
+            return Err(vec![SourceDiagnostic::error(
+                Span::detached(),
+                format!("{}({}:{}): valor negativo não suportado", fn_name, field, key),
+            )]);
+        }
+        Ok(l)
+    };
+    // Uniforme: Length, Float, Int, Relative.
+    if let Some(l) = extract_length(val) {
+        let l = reject_neg(l, "")?;
+        return Ok(Sides::uniform(l));
+    }
+    // Dict per-side: {left, right, top, bottom, x, y, rest}.
+    if let Value::Dict(d) = val {
+        let mut left:   Option<Length> = None;
+        let mut right:  Option<Length> = None;
+        let mut top:    Option<Length> = None;
+        let mut bottom: Option<Length> = None;
+        let mut x_axis: Option<Length> = None;
+        let mut y_axis: Option<Length> = None;
+        let mut rest:   Option<Length> = None;
+        for (k, v) in d.iter() {
+            let l = extract_length(v).ok_or_else(|| vec![SourceDiagnostic::error(
+                Span::detached(),
+                format!("{}({}:) dict: chave '{}' espera length, recebeu {}", fn_name, field, k, v.type_name()),
+            )])?;
+            let l = reject_neg(l, k.as_str())?;
+            match k.as_str() {
+                "left"   => left   = Some(l),
+                "right"  => right  = Some(l),
+                "top"    => top    = Some(l),
+                "bottom" => bottom = Some(l),
+                "x"      => x_axis = Some(l),
+                "y"      => y_axis = Some(l),
+                "rest"   => rest   = Some(l),
+                other => return Err(vec![SourceDiagnostic::error(
+                    Span::detached(),
+                    format!("{}({}:) dict: chave inesperada '{}'", fn_name, field, other),
+                )]),
+            }
+        }
+        return Ok(Sides {
+            left:   left  .or(x_axis).or(rest).unwrap_or(Length::ZERO),
+            right:  right .or(x_axis).or(rest).unwrap_or(Length::ZERO),
+            top:    top   .or(y_axis).or(rest).unwrap_or(Length::ZERO),
+            bottom: bottom.or(y_axis).or(rest).unwrap_or(Length::ZERO),
+        });
+    }
+    Err(vec![SourceDiagnostic::error(
+        Span::detached(),
+        format!("{}({}:) espera length ou dict, recebeu {}", fn_name, field, val.type_name()),
+    )])
 }
 
 /// P227 — Coage `Value` para `Stroke` aceitando shorthands paridade
@@ -673,7 +738,7 @@ pub fn native_block(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::con
 
     let mut width:     Option<Length> = None;
     let mut height:    Option<Length> = None;
-    let mut inset_uniform: Option<Length> = None;
+    let mut inset_val: Option<&Value> = None;
     let mut breakable: bool = true;
 
     for (key, value) in args.named.iter() {
@@ -690,14 +755,8 @@ pub fn native_block(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::con
                     format!("block(height:) espera length, recebeu {}", value.type_name()),
                 )])?);
             }
-            "inset" => {
-                // Aceita Length uniforme; refino futuro para dict
-                // `{left, right, top, bottom}` (per ADR-0054 graded).
-                inset_uniform = Some(extract_length(value).ok_or_else(|| vec![SourceDiagnostic::error(
-                    Span::detached(),
-                    format!("block(inset:) espera length uniforme, recebeu {}", value.type_name()),
-                )])?);
-            }
+            // **P475** — inset: Length | Relative | Dict per-side.
+            "inset" => { inset_val = Some(value); }
             "breakable" => match value {
                 Value::Bool(b) => breakable = *b,
                 other => return Err(vec![SourceDiagnostic::error(
@@ -707,8 +766,7 @@ pub fn native_block(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::con
             },
             // P231 — aceitar outset/radius/clip (parsing pós-loop).
             // P247 — aceitar fill/stroke (parsing pós-loop paralelo).
-            // P250 — aceitar spacing/above/below/sticky (parsing pós-loop;
-            //         cita ADR-0082 PROPOSTO N=1 primeira aplicação citante).
+            // P250 — aceitar spacing/above/below/sticky (parsing pós-loop).
             "outset" | "radius" | "clip" | "fill" | "stroke"
                 | "spacing" | "above" | "below" | "sticky" => {},
             other => return Err(vec![SourceDiagnostic::error(
@@ -718,8 +776,7 @@ pub fn native_block(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::con
         }
     }
 
-    // Validação: width/height/inset negativos rejeitados (consistente
-    // com pad em P156C; refino futuro para layout overflow).
+    // Validação: width/height negativos rejeitados.
     for (label, len) in [("width", width), ("height", height)].iter().filter_map(|(l, opt)| opt.map(|len| (*l, len))).collect::<Vec<_>>() {
         if len.abs.0 < 0.0 || len.em < 0.0 {
             return Err(vec![SourceDiagnostic::error(
@@ -728,37 +785,17 @@ pub fn native_block(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::con
             )]);
         }
     }
-    if let Some(i) = inset_uniform {
-        if i.abs.0 < 0.0 || i.em < 0.0 {
-            return Err(vec![SourceDiagnostic::error(
-                Span::detached(),
-                "block(inset:): valor negativo não suportado neste passo (P156G)".to_string(),
-            )]);
-        }
-    }
 
-    let inset = match inset_uniform {
-        Some(l) => Sides::uniform(l),
-        None    => Sides::uniform(Length::ZERO),
+    // **P475** — inset: Length | Relative (abs) | Dict per-side.
+    let inset = match inset_val {
+        Some(val) => extract_sides_from_value(val, "block", "inset")?,
+        None      => Sides::uniform(Length::ZERO),
     };
 
-    // P231 — extract 3 cosméticos (outset/radius/clip).
-    // outset: Length uniforme aceito (subset; per-side refino futuro).
+    // P231 — outset. **P475** — aceita Dict per-side além de Length uniforme.
     let outset = match args.named.get("outset") {
-        Some(val) => {
-            let len = extract_length(val).ok_or_else(|| vec![SourceDiagnostic::error(
-                Span::detached(),
-                format!("block(outset): espera length, recebeu {}", val.type_name()),
-            )])?;
-            if len.abs.0 < 0.0 || len.em < 0.0 {
-                return Err(vec![SourceDiagnostic::error(
-                    Span::detached(),
-                    "block(outset): negativo rejeitado".to_string(),
-                )]);
-            }
-            Sides::uniform(len)
-        }
-        None => Sides::uniform(Length::ZERO),
+        Some(val) => extract_sides_from_value(val, "block", "outset")?,
+        None      => Sides::uniform(Length::ZERO),
     };
     // P242 — radius `Corners<Length>` (refino face P231 `Option<Length>`).
     // Aceita Length uniforme OR Dict por canto via helper centralizado.
@@ -941,7 +978,7 @@ pub fn native_box(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contr
 
     let mut width:    Option<Length> = None;
     let mut height:   Option<Length> = None;
-    let mut inset_uniform: Option<Length> = None;
+    let mut inset_val: Option<&Value> = None;
     let mut baseline: Length = Length::ZERO;
 
     for (key, value) in args.named.iter() {
@@ -958,12 +995,8 @@ pub fn native_box(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contr
                     format!("box(height:) espera length, recebeu {}", value.type_name()),
                 )])?);
             }
-            "inset" => {
-                inset_uniform = Some(extract_length(value).ok_or_else(|| vec![SourceDiagnostic::error(
-                    Span::detached(),
-                    format!("box(inset:) espera length uniforme, recebeu {}", value.type_name()),
-                )])?);
-            }
+            // **P475** — inset: Length | Relative | Dict per-side.
+            "inset" => { inset_val = Some(value); }
             "baseline" => {
                 baseline = extract_length(value).ok_or_else(|| vec![SourceDiagnostic::error(
                     Span::detached(),
@@ -980,8 +1013,7 @@ pub fn native_box(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contr
         }
     }
 
-    // Validação: width/height/inset negativos rejeitados (consistente
-    // com block em P156G; baseline negativo ACEITE — move para cima).
+    // Validação: width/height negativos rejeitados (baseline negativo ACEITE).
     for (label, len) in [("width", width), ("height", height)].iter().filter_map(|(l, opt)| opt.map(|len| (*l, len))).collect::<Vec<_>>() {
         if len.abs.0 < 0.0 || len.em < 0.0 {
             return Err(vec![SourceDiagnostic::error(
@@ -990,36 +1022,17 @@ pub fn native_box(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contr
             )]);
         }
     }
-    if let Some(i) = inset_uniform {
-        if i.abs.0 < 0.0 || i.em < 0.0 {
-            return Err(vec![SourceDiagnostic::error(
-                Span::detached(),
-                "box(inset:): valor negativo não suportado neste passo (P156H)".to_string(),
-            )]);
-        }
-    }
 
-    let inset = match inset_uniform {
-        Some(l) => Sides::uniform(l),
-        None    => Sides::uniform(Length::ZERO),
+    // **P475** — inset: Length | Relative (abs) | Dict per-side.
+    let inset = match inset_val {
+        Some(val) => extract_sides_from_value(val, "box", "inset")?,
+        None      => Sides::uniform(Length::ZERO),
     };
 
-    // P231 — extract 3 cosméticos (outset/radius/clip) paralelo Block.
+    // P231 — outset. **P475** — aceita Dict per-side além de Length uniforme.
     let outset = match args.named.get("outset") {
-        Some(val) => {
-            let len = extract_length(val).ok_or_else(|| vec![SourceDiagnostic::error(
-                Span::detached(),
-                format!("box(outset): espera length, recebeu {}", val.type_name()),
-            )])?;
-            if len.abs.0 < 0.0 || len.em < 0.0 {
-                return Err(vec![SourceDiagnostic::error(
-                    Span::detached(),
-                    "box(outset): negativo rejeitado".to_string(),
-                )]);
-            }
-            Sides::uniform(len)
-        }
-        None => Sides::uniform(Length::ZERO),
+        Some(val) => extract_sides_from_value(val, "box", "outset")?,
+        None      => Sides::uniform(Length::ZERO),
     };
     // P242 — radius `Corners<Length>` paralelo block. Aceita Length
     // uniforme OR Dict por canto via helper centralizado.

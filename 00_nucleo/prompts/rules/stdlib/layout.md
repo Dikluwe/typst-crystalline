@@ -1,5 +1,5 @@
 # Prompt L0 — `stdlib/layout` — módulo `layout`
-Hash do Código: a605d2e6
+Hash do Código: 3ed63979
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/rules/stdlib/layout.rs`
@@ -218,9 +218,9 @@ v(1em, weak: true) -> VSpace { weak: true }
 **Argumentos**:
 - `body`: posicional opcional (`Content`, `Str`, ou omitido → `Empty`).
 - `width` / `height`: `Length` (ou `Float`/`Int` coagidos), ausente = auto.
-- `inset`: `Length` uniforme (default `0pt`).
+- `inset`: `Length` uniforme, `Relative` (parte abs), ou `Dict {left?, right?, top?, bottom?, x?, y?, rest?}` per-side (P475). Default `0pt`.
 - `breakable`: bool default `true`.
-- `outset`: `Length` uniforme (P231), default `0pt`.
+- `outset`: `Length` uniforme, `Relative` (parte abs), ou `Dict` per-side (P475). Default `0pt`.
 - `radius`: `Length` uniforme ou dict por canto (P242).
 - `clip`: bool default `false`.
 - `fill`: `Color` (P247).
@@ -228,16 +228,18 @@ v(1em, weak: true) -> VSpace { weak: true }
 - `spacing`, `above`, `below`: `Length` opcionais (P250).
 - `sticky`: bool default `false` (P250).
 
-**Semântica**: Cria `Content::Block(BlockElem { body, width, height, inset, breakable, outset, radius, clip, fill, stroke, spacing, above, below, sticky })`.
+**Semântica**: Cria `Content::Block(BlockElem { body, width, height, inset, breakable, outset, radius, clip, fill, stroke, spacing, above, below, sticky })`. `inset`/`outset` resolvidos como `Sides<Length>` via `extract_sides_from_value`; parte `rel` de `Relative` truncada (scope-out: requer contexto de layout).
 
 **Paridade vanilla**: Equivalente a `#block(width: 5cm, [body])`; scope-outs listados acima.
 
-**Limitações / scope-outs**: Alguns atributos avançados (per-side outset, fills complexos, etc.) scope-out per ADR-0054 graded.
+**Limitações / scope-outs**: `inset: (left: 50%)` — parte relativa truncada para `Length::ZERO`; fills complexos scope-out per ADR-0054 graded.
 
 **Testes canónicos**:
 ```
 block([x], width: 5cm) -> Block { width: 5cm, body: "x" }
 block([x], inset: 1em, fill: red) -> Block com inset/fill
+block([x], inset: (left: 3pt, right: 5pt)) -> Block { inset: {left:3, right:5, top:0, bottom:0} }
+block([x], outset: (x: 2pt)) -> Block { outset: {left:2, right:2, top:0, bottom:0} }
 block([x], width: -1cm) -> Err "negativo"
 block([x], foo: 1) -> Err "argumento nomeado inesperado"
 ```
@@ -275,20 +277,22 @@ stack(123) -> Err "children devem ser content ou string"
 
 **Argumentos**:
 - `body`: posicional opcional (`Content`, `Str`, omitido → `Empty`).
-- `width`, `height`, `inset`, `outset`, `radius`, `clip`, `fill`, `stroke`: idênticos a `block`.
+- `width`, `height`, `radius`, `clip`, `fill`, `stroke`: idênticos a `block`.
+- `inset`, `outset`: `Length` | `Relative` (parte abs) | `Dict` per-side — idêntico a `block` (P475).
 - `baseline`: `Length` (default zero); negativos aceites.
 
-**Semântica**: Cria `Content::Boxed(BoxedElem { body, width, height, inset, baseline, outset, radius, clip, fill, stroke })`.
+**Semântica**: Cria `Content::Boxed(BoxedElem { body, width, height, inset, baseline, outset, radius, clip, fill, stroke })`. `inset`/`outset` via `extract_sides_from_value` (idêntico a block).
 
 **Paridade vanilla**: Equivalente a `#box(width: 1fr, [body])`.
 
-**Limitações / scope-outs**: Idênticas a `block` para os campos partilhados.
+**Limitações / scope-outs**: Parte `rel` de `Relative` truncada (scope-out: requer contexto de layout). Outras limitações idênticas a `block`.
 
 **Testes canónicos**:
 ```
 box([x]) -> Boxed { body: "x" }
 box(width: 1fr, repeat[.]) -> Boxed { width: 1fr, body: Repeat }
 box([x], baseline: -2pt) -> baseline: -2pt (aceite)
+box([x], inset: (left: 3pt, top: 5pt)) -> Boxed { inset: {left:3, right:0, top:5, bottom:0} }
 ```
 
 ---
