@@ -1,15 +1,17 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/shaper.md
-//! @prompt-hash 325595fd
+//! @prompt-hash 6fbff5fe
 //! @layer L3
-//! @updated 2026-06-27
+//! @updated 2026-06-28
 //!
 //! **P482** — Post-processing shaping pass (Trilha 5 Fase 1).
+//! **P484** — RTL básico via unicode-bidi (Trilha 5 Fase 3, ADR-0120).
 //! Converte `FrameItem::Text` → `FrameItem::TextShaped` via rustybuzz.
 //! Executado entre layout e export. ADR-0120 Opção A1.
 
 #![allow(deprecated)] // P483 — FrameItem::Text fallback path legítimo
-use rustybuzz::UnicodeBuffer;
+use rustybuzz::{Direction, UnicodeBuffer};
+use unicode_bidi::BidiInfo;
 use typst_core::contracts::world::World;
 use typst_core::entities::font_book::FontVariant;
 use typst_core::entities::font_list::{FontList, FontNamePattern};
@@ -68,36 +70,97 @@ fn try_shape(
 
     let rb_face = rustybuzz::Face::from_slice(font_data, 0)?;
 
-    let mut buffer = UnicodeBuffer::new();
-    buffer.push_str(text.as_str());
-    buffer.guess_segment_properties();
-    let output = rustybuzz::shape(&rb_face, &[], buffer);
+    // P484 — dividir em runs bidirectionais antes de shape
+    let runs = bidi_runs(text.as_str());
+    if runs.is_empty() {
+        return None;
+    }
 
-    let infos     = output.glyph_infos();
-    let positions = output.glyph_positions();
+    let mut all_glyphs: Vec<ShapedGlyph> = Vec::new();
 
-    let glyphs: Vec<ShapedGlyph> = infos.iter().zip(positions.iter())
-        .map(|(info, pos_g)| {
-            let char_code = byte_idx_to_char(text.as_str(), info.cluster as usize)
-                .unwrap_or('\u{FFFD}');
-            ShapedGlyph {
-                glyph_id:  info.glyph_id as u16,
-                x_advance: pos_g.x_advance,
-                x_offset:  pos_g.x_offset,
-                y_offset:  pos_g.y_offset,
-                cluster:   info.cluster,
-                char_code,
-            }
-        })
-        .collect();
+    for run in &runs {
+        let mut buffer = UnicodeBuffer::new();
+        buffer.push_str(&run.text);
+        // Direcção explícita (não guess) — ADR-0120 Fase 3
+        if run.rtl {
+            buffer.set_direction(Direction::RightToLeft);
+        } else {
+            buffer.set_direction(Direction::LeftToRight);
+        }
+        let output    = rustybuzz::shape(&rb_face, &[], buffer);
+        let infos     = output.glyph_infos();
+        let positions = output.glyph_positions();
+
+        let run_glyphs: Vec<ShapedGlyph> = infos.iter().zip(positions.iter())
+            .map(|(info, pos_g)| {
+                // cluster é offset no run; converter para offset no texto original
+                let abs_cluster = run.byte_start as u32 + info.cluster;
+                let char_code = byte_idx_to_char(text.as_str(), abs_cluster as usize)
+                    .unwrap_or('\u{FFFD}');
+                ShapedGlyph {
+                    glyph_id:  info.glyph_id as u16,
+                    x_advance: pos_g.x_advance,
+                    x_offset:  pos_g.x_offset,
+                    y_offset:  pos_g.y_offset,
+                    cluster:   abs_cluster,
+                    char_code,
+                }
+            })
+            .collect();
+
+        all_glyphs.extend(run_glyphs);
+    }
+
+    if all_glyphs.is_empty() {
+        return None;
+    }
 
     Some(FrameItem::TextShaped {
-        pos:   *pos,
-        glyphs,
-        style: style.clone(),
-        text:  text.clone(),
+        pos:    *pos,
+        glyphs: all_glyphs,
+        style:  style.clone(),
+        text:   text.clone(),
     })
 }
+
+// ── P484 — runs bidirectionais ──────────────────────────────────────────────
+
+struct BidiRun {
+    text:       String,
+    rtl:        bool,
+    /// Offset byte do run no string original (para ajuste de `cluster`).
+    byte_start: usize,
+}
+
+/// Divide `text` em runs bidirectionais na ordem visual correcta.
+/// Para texto puramente LTR retorna um único run.
+/// API unicode-bidi 0.3: `BidiInfo::new`, `visual_runs(para, range)`.
+fn bidi_runs(text: &str) -> Vec<BidiRun> {
+    if text.is_empty() {
+        return vec![];
+    }
+    let bidi = BidiInfo::new(text, None);
+    if bidi.paragraphs.is_empty() {
+        return vec![BidiRun { text: text.to_owned(), rtl: false, byte_start: 0 }];
+    }
+    let para              = &bidi.paragraphs[0];
+    let line              = para.range.clone();
+    let (levels, runs)    = bidi.visual_runs(para, line);
+
+    runs.into_iter().map(|run_range| {
+        let rtl = levels
+            .get(run_range.start)
+            .map(|l: &unicode_bidi::Level| l.is_rtl())
+            .unwrap_or(false);
+        BidiRun {
+            text:       text[run_range.clone()].to_owned(),
+            rtl,
+            byte_start: run_range.start,
+        }
+    }).collect()
+}
+
+// ── fim P484 ─────────────────────────────────────────────────────────────────
 
 fn resolve_slot(world: &dyn World, font_list: &FontList) -> Option<usize> {
     let variant = FontVariant::default();
@@ -237,6 +300,63 @@ mod tests {
         };
         let s = format!("{:?}", g);
         assert!(s.contains("glyph_id: 1"), "Debug deve incluir glyph_id");
+    }
+
+    // ── P484 — testes RTL ────────────────────────────────────────────────────
+
+    #[test]
+    fn p484_bidi_runs_ltr_unico_run() {
+        let runs = bidi_runs("Hello world");
+        assert_eq!(runs.len(), 1, "texto inglês deve produzir 1 run");
+        assert!(!runs[0].rtl, "texto inglês deve ser LTR");
+        assert_eq!(runs[0].byte_start, 0);
+    }
+
+    #[test]
+    fn p484_bidi_runs_vazio_zero_runs() {
+        let runs = bidi_runs("");
+        assert_eq!(runs.len(), 0, "texto vazio → 0 runs");
+    }
+
+    #[test]
+    fn p484_bidi_runs_arabico_rtl() {
+        // مرحبا = "Olá" em árabe (5 chars, todos RTL)
+        let runs = bidi_runs("مرحبا");
+        assert!(!runs.is_empty(), "árabe deve ter pelo menos 1 run");
+        assert!(runs.iter().any(|r| r.rtl), "árabe deve ter run RTL");
+    }
+
+    #[test]
+    fn p484_try_shape_rtl_sem_fonte_nao_panic() {
+        // Shape de texto árabe sem fonte carregada → sem panic (fallback Text)
+        let mut item = FrameItem::Text {
+            pos:   Point { x: Pt(0.0), y: Pt(0.0) },
+            text:  EcoString::from("مرحبا"),
+            style: TextStyle::default(),
+        };
+        // style.font = None → shaper guard (is_some() == false) → item inalterado
+        shape_item(&empty_world(), &mut item);
+        // o critério é simplesmente não entrar em panic
+        assert!(matches!(item, FrameItem::Text { .. }), "sem fonte: preservado como Text");
+    }
+
+    #[test]
+    fn p484_bidi_runs_misto_ingles_arabico() {
+        // "Hi مرحبا" — deve ter 2 runs (LTR + RTL)
+        let runs = bidi_runs("Hi مرحبا");
+        assert!(runs.len() >= 2, "texto misto deve ter ≥2 runs, got {}", runs.len());
+        let has_ltr = runs.iter().any(|r| !r.rtl);
+        let has_rtl = runs.iter().any(|r| r.rtl);
+        assert!(has_ltr, "deve ter run LTR");
+        assert!(has_rtl, "deve ter run RTL");
+    }
+
+    #[test]
+    fn p484_bidi_runs_byte_start_correcto() {
+        // Para texto LTR puro, byte_start do único run deve ser 0
+        let runs = bidi_runs("abc");
+        assert_eq!(runs[0].byte_start, 0);
+        assert_eq!(runs[0].text, "abc");
     }
 
     #[test]

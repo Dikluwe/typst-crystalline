@@ -329,3 +329,15 @@ ADR-0120 transita para `ACEITE` quando P482 for concluído com:
 - 5 novos testes verdes (2 L1 + 3 L3).
 - 73/73 paridade mantida.
 - Fase 2 **FECHADA**.
+
+---
+
+## P484 (2026-06-28) — Fase 3 RTL básico executada
+
+- `unicode-bidi = "0.3"` adicionado ao `[workspace.dependencies]` + `03_infra/Cargo.toml`.
+- `shaper.rs` recebe `BidiRun` + `bidi_runs(text) -> Vec<BidiRun>` usando `BidiInfo::visual_runs`.
+- `try_shape` substituí `guess_segment_properties()` por iteração de runs com `set_direction(Direction::LeftToRight | RightToLeft)`.
+- Cluster mapping ajustado: `abs_cluster = run.byte_start + info.cluster`.
+- **`FrameItem::Text` preservado** — remoção requereria migração dos emit sites L1 (violaria ADR-0029). Manter como tipo pré-shaping.
+- 6 novos testes verdes (4 bidi + 2 extras); 73/73 paridade mantida.
+- Fase 3 **FECHADA**. **Trilha 5 completa.**

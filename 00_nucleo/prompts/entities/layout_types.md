@@ -129,3 +129,14 @@ legítimos receberam `#[allow(deprecated)]` ou `#![allow(deprecated)]`.
 Garante cobertura ≥95% do shaping em produção.
 
 Path primário em `export/stream.rs`: `TextShaped` antes de `Text`.
+
+## P484 — FrameItem::Text como tipo pré-shaping (permanente)
+
+**Data:** 2026-06-28
+
+`FrameItem::Text` **não removido**. A remoção exigiria migrar os emit sites de
+L1 (`cursor.rs`, `list_item.rs`, etc.) para emitir `FrameItem::TextShaped`
+directamente — impossível sem bytes de fonte (ADR-0029). `FrameItem::Text` é
+o tipo de **pré-shaping**: emitido por L1, convertido para `TextShaped` pelo
+shaper L3. O `#[deprecated]` (P483) sinaliza que L3/export não deve usar
+`Text` directamente; não indica remoção iminente.
