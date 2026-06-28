@@ -1,5 +1,5 @@
 # Prompt L0 — `infra/export/stream` — PageContext + emit unificado
-Hash do Código: 31a41bfe
+Hash do Código: 30ad603b
 
 **Camada**: L3
 **Ficheiro alvo**: `03_infra/src/export/stream.rs`
@@ -60,3 +60,33 @@ pub(super) fn draw_item_local(ops, item, ctx, ...);
 - Tests P281+ em `tests.rs` validam paridade entre caminhos.
 - Test `p282_line_stroke_color_simetric` valida que `RG` injecção é simétrica.
 - Snapshot binário em `p307b_snapshot_tests.rs` valida invariante observable.
+
+## §P486 — `x_offset` no TJ array (Sub-item B)
+
+**P486** adiciona suporte a `ShapedGlyph.x_offset` no operador PDF `TJ` em
+`emit_shaped_pdf`. Aplicado simetricamente em `Cidfont` e `Multifont`.
+
+### Fórmula por glifo com x_offset != 0
+
+```
+[ {-x_offset_tu} <GID> {advance_tu + x_offset_tu} ... ] TJ
+```
+
+Onde:
+- `x_offset_tu = -(x_offset / upm * 1000)` — pré-glifo: desloca cursor à direita
+- `advance_tu = -(x_advance / upm * 1000)` — idêntico ao P485
+- Post-glifo = `advance_tu + x_offset_tu` — cancela o desvio pré-glifo
+
+Para `x_offset = 0`: output idêntico ao P485 (zero regressão).
+
+### `y_offset` — scope-out confirmado
+
+`y_offset` requer sequências `Td` (saída do array TJ) e não há corpus LTR com
+`y_offset != 0`. Scope-out declarado — não implementado em P486.
+
+### Testes adicionados P486
+
+- `p486_emit_x_offset_zero_equivale_p485`: x_offset=0 → sem número antes do GID
+- `p486_emit_x_offset_nonzero_aplica_ajuste`: x_offset=-50, upm=1000 → "50 " antes do GID
+- `p486_emit_x_offset_positivo`: x_offset=30, upm=1000 → "-30 " antes do GID
+- `p486_parity_73_73_mantido`: sentinela parity (lab/parity)

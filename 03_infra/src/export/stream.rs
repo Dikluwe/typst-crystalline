@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/export/stream.md
-//! @prompt-hash 9acca994
+//! @prompt-hash 49b2c8cc
 //! @layer L3
 //! @updated 2026-05-19
 //!
@@ -197,7 +197,13 @@ pub(super) fn emit_shaped_pdf(
                 style.size.val(), pos_x, base_y
             ));
             for g in glyphs {
-                let advance_tu = -(g.x_advance as f64 / upm * 1000.0);
+                // P486 — x_offset: deslocar glifo e cancelar após (kern marks, diacríticos)
+                if g.x_offset != 0 {
+                    let xoff_tu = -(g.x_offset as f64 / upm * 1000.0);
+                    ops.push_str(&format!("{:.0} ", xoff_tu));
+                }
+                let advance_tu = -(g.x_advance as f64 / upm * 1000.0)
+                    + (g.x_offset as f64 / upm * 1000.0);
                 ops.push_str(&format!("<{:04X}> {:.0} ", g.glyph_id, advance_tu));
             }
             ops.push_str("] TJ\nET\n");
@@ -211,7 +217,13 @@ pub(super) fn emit_shaped_pdf(
                 fi + 1, style.size.val(), pos_x, base_y
             ));
             for g in glyphs {
-                let advance_tu = -(g.x_advance as f64 / upm * 1000.0);
+                // P486 — x_offset: deslocar glifo e cancelar após (kern marks, diacríticos)
+                if g.x_offset != 0 {
+                    let xoff_tu = -(g.x_offset as f64 / upm * 1000.0);
+                    ops.push_str(&format!("{:.0} ", xoff_tu));
+                }
+                let advance_tu = -(g.x_advance as f64 / upm * 1000.0)
+                    + (g.x_offset as f64 / upm * 1000.0);
                 ops.push_str(&format!("<{:04X}> {:.0} ", g.glyph_id, advance_tu));
             }
             ops.push_str("] TJ\nET\n");
@@ -775,6 +787,10 @@ mod stream_tests {
         ShapedGlyph { glyph_id, x_advance, x_offset: 0, y_offset: 0, cluster: 0, char_code: 'A' }
     }
 
+    fn glyph_xoff(glyph_id: u16, x_advance: i32, x_offset: i32) -> ShapedGlyph {
+        ShapedGlyph { glyph_id, x_advance, x_offset, y_offset: 0, cluster: 0, char_code: 'A' }
+    }
+
     #[test]
     fn p485_emit_shaped_cidfont_usa_tj() {
         let mut ops = String::new();
@@ -814,6 +830,46 @@ mod stream_tests {
         emit_shaped_pdf(&mut ops, 0.0, 0.0, &[], "x", &TextStyle::default(),
                         &FontScenario::Type1, 1000);
         assert!(ops.is_empty(), "P485: glyphs vazios → sem output");
+    }
+
+    #[test]
+    fn p486_emit_x_offset_zero_equivale_p485() {
+        // x_offset=0 → output idêntico ao P485 (sem número antes do GID)
+        let mut ops = String::new();
+        let glyphs = vec![glyph_xoff(0x0042, 600, 0)];
+        let style = TextStyle::default();
+        let scenario = FontScenario::Cidfont { char_to_gid: &std::collections::HashMap::new() };
+        emit_shaped_pdf(&mut ops, 0.0, 0.0, &glyphs, "B", &style, &scenario, 1000);
+        assert!(ops.contains("<0042>"), "P486: GID presente");
+        assert!(ops.contains("-600"), "P486: advance -600 igual a P485");
+        let after_bracket = ops.split("[ ").nth(1).unwrap_or("");
+        assert!(after_bracket.starts_with("<0042>"), "P486: x_offset=0 → sem ajuste antes do GID");
+    }
+
+    #[test]
+    fn p486_emit_x_offset_nonzero_aplica_ajuste() {
+        // x_offset=-50, upm=1000 → -((-50)/1000*1000) = 50 → "50 " antes do GID
+        let mut ops = String::new();
+        let glyphs = vec![glyph_xoff(0x0043, 600, -50)];
+        let style = TextStyle::default();
+        let scenario = FontScenario::Cidfont { char_to_gid: &std::collections::HashMap::new() };
+        emit_shaped_pdf(&mut ops, 0.0, 0.0, &glyphs, "C", &style, &scenario, 1000);
+        let after_bracket = ops.split("[ ").nth(1).unwrap_or("");
+        assert!(after_bracket.starts_with("50 "), "P486: x_offset=-50 → '50 ' antes do GID");
+        assert!(ops.contains("<0043>"), "P486: GID presente");
+    }
+
+    #[test]
+    fn p486_emit_x_offset_positivo() {
+        // x_offset=30, upm=1000 → -(30/1000*1000) = -30 → "-30 " antes do GID
+        let mut ops = String::new();
+        let glyphs = vec![glyph_xoff(0x0044, 600, 30)];
+        let style = TextStyle::default();
+        let scenario = FontScenario::Cidfont { char_to_gid: &std::collections::HashMap::new() };
+        emit_shaped_pdf(&mut ops, 0.0, 0.0, &glyphs, "D", &style, &scenario, 1000);
+        let after_bracket = ops.split("[ ").nth(1).unwrap_or("");
+        assert!(after_bracket.starts_with("-30 "), "P486: x_offset=30 → '-30 ' antes do GID");
+        assert!(ops.contains("<0044>"), "P486: GID presente");
     }
 }
 

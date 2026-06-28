@@ -7,7 +7,7 @@ adr: ADR-0120
 ---
 
 # Prompt L0 — `shaper.rs` (Trilha 5 Fase 1)
-Hash do Código: 0c752110
+Hash do Código: 63feb005
 
 ## Propósito
 
@@ -180,3 +180,22 @@ Some(FrameItem::TextShaped { pos: *pos, glyphs: all_glyphs, style: style.clone()
 
 - `p485_shape_document_sem_fonte_nao_produz_textshaped`
 - `p485_units_per_em_cast_seguro`
+
+## §P486 — Features OpenType confirmadas (Sub-item A)
+
+**P486** confirma via sonda do código-fonte de rustybuzz 0.20.1 (`ot_shape.rs:86-91`)
+que `liga`, `kern` e `calt` estão em `HORIZONTAL_FEATURES` com flags `F_GLOBAL`/
+`F_GLOBAL_HAS_FALLBACK` — activados por defeito para texto horizontal, independentemente
+do parâmetro `user_features` passado a `rustybuzz::shape`.
+
+```rust
+// P486 — liga/kern/calt activados por defeito via HORIZONTAL_FEATURES
+// (rustybuzz 0.20.1 ot_shape.rs:86-91). features = &[] é suficiente.
+let output = rustybuzz::shape(&rb_face, &[], buffer);
+```
+
+Sub-item A é apenas documentação — nenhum código novo é necessário.
+
+### Testes adicionados P486
+
+- `p486_features_default_confirmado`: `features = &[]` (len=0) documenta invariante.

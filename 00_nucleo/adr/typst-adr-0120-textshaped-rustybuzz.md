@@ -350,3 +350,11 @@ ADR-0120 transita para `ACEITE` quando P482 for concluído com:
 - Sites de match de `TextShaped` que não precisam de `units_per_em` usam `..`.
 - 8 novos testes verdes (2 L1 + 4 L3 stream + 2 L3 shaper); 73/73 paridade mantida.
 - `crystalline-lint`: 0 erros V1–V14.
+
+## P486 (2026-06-28) — Features OpenType + x_offset em TJ
+
+- **Sub-item A**: `liga`, `kern`, `calt` confirmadas activas por defeito via `HORIZONTAL_FEATURES` (rustybuzz 0.20.1 `ot_shape.rs:86-91`, flags `F_GLOBAL`/`F_GLOBAL_HAS_FALLBACK`). `features = &[]` é suficiente — nenhuma user feature necessária. Documentação adicionada em `shaper.rs:92`.
+- **Sub-item B**: `ShapedGlyph.x_offset` aplicado no array TJ de `emit_shaped_pdf` (Cidfont + Multifont): pré-glifo `-(x_offset/upm×1000)`, post-glifo `-(x_advance-x_offset)/upm×1000`. Para x_offset=0: output idêntico ao P485 (zero regressão).
+- **`y_offset` scope-out**: nenhum corpus LTR com y_offset!=0; implementação requer saída do TJ para sequências `Td`. Scope-out documentado.
+- 4 novos testes verdes (1 shaper + 3 stream) + sentinela `p486_parity_73_73_mantido`.
+- `crystalline-lint`: 0 erros V1–V14. **Trilha 5 extensão final FECHADA.**

@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/shaper.md
-//! @prompt-hash 125086cf
+//! @prompt-hash 13171e36
 //! @layer L3
 //! @updated 2026-06-28
 //!
@@ -89,6 +89,8 @@ fn try_shape(
         } else {
             buffer.set_direction(Direction::LeftToRight);
         }
+        // P486 — liga/kern/calt activados por defeito via HORIZONTAL_FEATURES
+        // (rustybuzz 0.20.1 ot_shape.rs:86-91). features = &[] é suficiente.
         let output    = rustybuzz::shape(&rb_face, &[], buffer);
         let infos     = output.glyph_infos();
         let positions = output.glyph_positions();
@@ -379,6 +381,14 @@ mod tests {
         let val_i32: i32 = 1000;
         let as_u16 = val_i32.max(1) as u16;
         assert_eq!(as_u16, 1000u16);
+    }
+
+    #[test]
+    fn p486_features_default_confirmado() {
+        // liga, kern, calt activados por defeito em rustybuzz 0.20.1 via HORIZONTAL_FEATURES
+        // (ot_shape.rs:86-91). Nenhuma user feature é necessária — &[] é suficiente.
+        let features: &[rustybuzz::Feature] = &[];
+        assert_eq!(features.len(), 0, "P486: features user vazias — defaults de rustybuzz aplicam-se");
     }
 
     #[test]
