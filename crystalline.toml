@@ -141,6 +141,11 @@ types = [
 "00_nucleo/prompts/rules/stdlib/_comum.md" = "prompt comum partilhado por múltiplos ficheiros stdlib; não tem dono único"
 # Prompt auxiliar do helper `square`; referenciado em shapes.rs mas shapes.md é o prompt dono do ficheiro
 "00_nucleo/prompts/rules/stdlib/square.md" = "prompt auxiliar do helper square; referenciado em shapes.rs mas não é o prompt dono do ficheiro"
+# Prompts auxiliares e detalhados implementados nos arquivos principais do eval
+"00_nucleo/prompts/rules/eval/decimal-arithmetic.md" = "especificação de aritmética decimal integrada em operators.rs"
+"00_nucleo/prompts/rules/eval/table.md" = "especificação de set table numbering integrada em rules.rs"
+"00_nucleo/prompts/rules/show-regex.md" = "especificação de show regex integrada em rules.rs"
+"00_nucleo/prompts/rules/style/font-dict.md" = "especificação de set font dict integrada em rules.rs"
 # ADRs não materializam código directamente
 "00_nucleo/adr/adr-0001-estrategia-migracao.md" = "ADR — não materializa código"
 # Template editorial — não materializa código directamente

@@ -1,5 +1,5 @@
 # Prompt L0 — `rules/eval/operators`
-Hash do Código: —
+Hash do Código: adccec9b
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/rules/eval/operators.rs`

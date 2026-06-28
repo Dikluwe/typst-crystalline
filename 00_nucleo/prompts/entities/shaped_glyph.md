@@ -7,6 +7,7 @@ adr: ADR-0120
 ---
 
 # Prompt L0 — `ShapedGlyph` (P482)
+Hash do Código: 1330ae2d
 
 ## Propósito
 

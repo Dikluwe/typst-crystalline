@@ -1,10 +1,8 @@
 //! Crystalline Lineage
-//! @prompt 00_nucleo/prompts/rules/eval.md
-//! @prompt-hash 7a92cc2d
-//! @prompt 00_nucleo/prompts/rules/eval/decimal-arithmetic.md
-//! @prompt-hash 1e867e48
+//! @prompt 00_nucleo/prompts/rules/eval/ops.md
+//! @prompt-hash 467f9022
 //! @layer L1
-//! @updated 2026-06-22
+//! @updated 2026-06-25
 //!
 //! Operadores binários e unários do eval. Extraído de `eval.rs` no Passo 96.1
 //! conforme ADR-0037 (coesão por domínio).
