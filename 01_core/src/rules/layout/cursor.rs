@@ -313,9 +313,9 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
                     pos: Point { x: pos.x + Pt(target_x), y: pos.y + Pt(target_y) },
                     text, style,
                 },
-                FrameItem::TextShaped { pos, glyphs, style, text } => FrameItem::TextShaped {
+                FrameItem::TextShaped { pos, glyphs, style, text, units_per_em } => FrameItem::TextShaped {
                     pos: Point { x: pos.x + Pt(target_x), y: pos.y + Pt(target_y) },
-                    glyphs, style, text,
+                    glyphs, style, text, units_per_em,
                 },
                 FrameItem::Shape { pos, kind, width, height, fill, stroke, parent_bbox_at_emit } =>
                     FrameItem::Shape {
@@ -465,9 +465,9 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
                         pos: Point { x: pos.x + Pt(target_x), y: pos.y + Pt(target_y) },
                         text, style,
                     },
-                    FrameItem::TextShaped { pos, glyphs, style, text } => FrameItem::TextShaped {
+                    FrameItem::TextShaped { pos, glyphs, style, text, units_per_em } => FrameItem::TextShaped {
                         pos: Point { x: pos.x + Pt(target_x), y: pos.y + Pt(target_y) },
-                        glyphs, style, text,
+                        glyphs, style, text, units_per_em,
                     },
                     FrameItem::Shape { pos, kind, width, height, fill, stroke, parent_bbox_at_emit } =>
                         FrameItem::Shape {

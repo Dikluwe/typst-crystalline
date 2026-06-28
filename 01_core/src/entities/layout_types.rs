@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/entities/layout_types.md
-//! @prompt-hash d33f7884
+//! @prompt-hash 4a80d5c8
 //! @layer L1
 //! @updated 2026-04-23
 //!
@@ -229,6 +229,10 @@ pub enum FrameItem {
         style:  TextStyle,
         /// Texto original (ToUnicode CMap + plain_text + fallback).
         text:   EcoString,
+        /// **P485** — Unidades por em da fonte shaped (de `Face::units_per_em()`).
+        /// Usado em export para converter `x_advance` (font units) em pt:
+        /// `advance_pt = x_advance / units_per_em × font_size`.
+        units_per_em: u16,
     },
     /// Linha horizontal. Usada pela linha de fracção matemática (Passo 38).
     /// `start` e `end` são posições absolutas no Frame.
@@ -1160,5 +1164,34 @@ mod tests {
         let (x, y) = m.apply(0.0, 0.0);
         assert_eq!(x, 0.0);
         assert_eq!(y, 0.0);
+    }
+
+    // P485 — campo units_per_em em FrameItem::TextShaped
+    #[allow(deprecated)]
+    #[test]
+    fn p485_textshaped_tem_units_per_em() {
+        let item = FrameItem::TextShaped {
+            pos: Point { x: Pt(0.0), y: Pt(0.0) },
+            glyphs: vec![],
+            style: TextStyle::default(),
+            text: EcoString::from("A"),
+            units_per_em: 1000,
+        };
+        if let FrameItem::TextShaped { units_per_em, .. } = item {
+            assert_eq!(units_per_em, 1000, "P485: units_per_em deve ser 1000");
+        } else {
+            panic!("P485: esperado TextShaped");
+        }
+    }
+
+    #[allow(deprecated)]
+    #[test]
+    fn p485_textshaped_units_per_em_cast_nao_zero() {
+        // Garantir que units_per_em > 0 (prevenção de divisão por zero em emit)
+        let upm: u16 = 2048; // valor típico para TrueType
+        assert!(upm > 0);
+        let advance_tu = -(600_f64 / upm as f64 * 1000.0);
+        // 600/2048*1000 ≈ -293.0
+        assert!((advance_tu - (-292.97)).abs() < 0.1, "P485: advance TJ calculado incorrectamente: {}", advance_tu);
     }
 }

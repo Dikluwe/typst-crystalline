@@ -169,43 +169,52 @@ pub(super) fn emit_text_pdf(
     }
 }
 
-/// **P482** — emit TextShaped PDF. Usa glyph IDs de rustybuzz.
-/// CIDFont/Multifont: hex string de glyph IDs directamente.
-/// Type1: não suporta glyph IDs — fallback para text field via `emit_text_pdf`.
+/// **P482/P485** — emit TextShaped PDF via operador `TJ` com avanços explícitos.
+///
+/// **P485**: cada glifo é emitido individualmente no array `TJ` com o número de
+/// deslocamento derivado de `x_advance / units_per_em × 1000` (unidades TJ).
+/// Isto garante posicionamento correcto mesmo quando GPOS/kerning altera os avanços
+/// relativamente ao `hmtx`. Type1: fallback para `emit_text_pdf` (sem glyph IDs).
 pub(super) fn emit_shaped_pdf(
-    ops:      &mut String,
-    pos_x:    f64,
-    base_y:   f64,
-    glyphs:   &[typst_core::entities::layout_types::ShapedGlyph],
-    text:     &str,
-    style:    &typst_core::entities::layout_types::TextStyle,
-    scenario: &FontScenario,
+    ops:          &mut String,
+    pos_x:        f64,
+    base_y:       f64,
+    glyphs:       &[typst_core::entities::layout_types::ShapedGlyph],
+    text:         &str,
+    style:        &typst_core::entities::layout_types::TextStyle,
+    scenario:     &FontScenario,
+    units_per_em: u16,
 ) {
     if glyphs.is_empty() { return; }
+    let upm = units_per_em as f64;
     match scenario {
         FontScenario::Type1 => {
             emit_text_pdf(ops, pos_x, base_y, text, style, scenario);
         }
         FontScenario::Cidfont { .. } => {
-            let mut hex = String::from("<");
-            for g in glyphs { hex.push_str(&format!("{:04X}", g.glyph_id)); }
-            hex.push('>');
             ops.push_str(&format!(
-                "BT\n/F1 {:.1} Tf\n{:.1} {:.1} Td\n{hex} Tj\nET\n",
+                "BT\n/F1 {:.1} Tf\n{:.3} {:.3} Td\n[ ",
                 style.size.val(), pos_x, base_y
             ));
+            for g in glyphs {
+                let advance_tu = -(g.x_advance as f64 / upm * 1000.0);
+                ops.push_str(&format!("<{:04X}> {:.0} ", g.glyph_id, advance_tu));
+            }
+            ops.push_str("] TJ\nET\n");
         }
         FontScenario::Multifont { fonts, .. } => {
             let fi = style.font.as_ref()
                 .and_then(|fl| fonts.iter().position(|(stored, _)| stored == fl))
                 .unwrap_or(0);
-            let mut hex = String::from("<");
-            for g in glyphs { hex.push_str(&format!("{:04X}", g.glyph_id)); }
-            hex.push('>');
             ops.push_str(&format!(
-                "BT\n/F{} {:.1} Tf\n{:.1} {:.1} Td\n{hex} Tj\nET\n",
+                "BT\n/F{} {:.1} Tf\n{:.3} {:.3} Td\n[ ",
                 fi + 1, style.size.val(), pos_x, base_y
             ));
+            for g in glyphs {
+                let advance_tu = -(g.x_advance as f64 / upm * 1000.0);
+                ops.push_str(&format!("<{:04X}> {:.0} ", g.glyph_id, advance_tu));
+            }
+            ops.push_str("] TJ\nET\n");
         }
     }
 }
@@ -304,10 +313,10 @@ pub(super) fn build_page_stream(page: &Page, ctx: &PageContext) -> Vec<u8> {
     for item in &page.items {
         match item {
             // P483 — path primário: glifos com shaping real.
-            FrameItem::TextShaped { pos, glyphs, style, text } => {
+            FrameItem::TextShaped { pos, glyphs, style, text, units_per_em } => {
                 let pdf_y = page_height - pos.y.val();
                 emit_shaped_pdf(&mut ops, pos.x.val(), pdf_y, glyphs, text.as_str(),
-                                style, &ctx.font_scenario);
+                                style, &ctx.font_scenario, *units_per_em);
             }
             // P483 — fallback: fonte não carregada, Type1, ou shaping indisponível.
             FrameItem::Text { pos, text, style } => {
@@ -722,9 +731,9 @@ pub(super) fn draw_item_local(
         // **P281** — Text/Glyph/Line arms real (substituem stubs P278/P279).
         // P483 — path primário TextShaped; Text = fallback.
         // Local emit: `pos.y.0` directo (matriz `cm` do Group já inverteu Y).
-        FrameItem::TextShaped { pos, glyphs, style, text } => {
+        FrameItem::TextShaped { pos, glyphs, style, text, units_per_em } => {
             emit_shaped_pdf(ops, pos.x.0, pos.y.0, glyphs, text.as_str(),
-                            style, &ctx.font_scenario);
+                            style, &ctx.font_scenario, *units_per_em);
         }
         FrameItem::Text { pos, text, style } => {
             emit_text_pdf(ops, pos.x.0, pos.y.0, text.as_str(),
@@ -754,6 +763,57 @@ pub(super) fn draw_item_local(
                 draw_item_local(ops, child, parent_bbox_override, ctx);
             }
         }
+    }
+}
+
+#[cfg(test)]
+mod stream_tests {
+    use super::*;
+    use typst_core::entities::layout_types::{ShapedGlyph, TextStyle};
+
+    fn glyph(glyph_id: u16, x_advance: i32) -> ShapedGlyph {
+        ShapedGlyph { glyph_id, x_advance, x_offset: 0, y_offset: 0, cluster: 0, char_code: 'A' }
+    }
+
+    #[test]
+    fn p485_emit_shaped_cidfont_usa_tj() {
+        let mut ops = String::new();
+        let glyphs = vec![glyph(0x0041, 600)];
+        let style = TextStyle::default();
+        let scenario = FontScenario::Cidfont { char_to_gid: &std::collections::HashMap::new() };
+        emit_shaped_pdf(&mut ops, 72.0, 770.0, &glyphs, "A", &style, &scenario, 1000);
+        assert!(ops.contains("TJ"), "P485: CIDFont deve usar TJ, não Tj");
+        assert!(!ops.contains("] Tj"), "P485: não deve conter Tj no path CIDFont");
+        assert!(ops.contains("<0041>"), "P485: deve conter hex do glyph_id");
+    }
+
+    #[test]
+    fn p485_emit_shaped_advance_calculado() {
+        // x_advance=600, upm=1000 → número TJ = -(600/1000*1000) = -600
+        let mut ops = String::new();
+        let glyphs = vec![glyph(0x0042, 600)];
+        let style = TextStyle::default();
+        let scenario = FontScenario::Cidfont { char_to_gid: &std::collections::HashMap::new() };
+        emit_shaped_pdf(&mut ops, 0.0, 0.0, &glyphs, "B", &style, &scenario, 1000);
+        assert!(ops.contains("-600"), "P485: advance TJ deve ser -600 para x_advance=600, upm=1000");
+    }
+
+    #[test]
+    fn p485_emit_shaped_type1_nao_usa_tj() {
+        // Type1 faz fallback para emit_text_pdf (string plana, sem TJ)
+        let mut ops = String::new();
+        let glyphs = vec![glyph(0x0043, 600)];
+        let style = TextStyle::default();
+        emit_shaped_pdf(&mut ops, 0.0, 0.0, &glyphs, "C", &style, &FontScenario::Type1, 1000);
+        assert!(!ops.contains("TJ"), "P485: Type1 não deve usar TJ");
+    }
+
+    #[test]
+    fn p485_emit_shaped_vazio_sem_output() {
+        let mut ops = String::new();
+        emit_shaped_pdf(&mut ops, 0.0, 0.0, &[], "x", &TextStyle::default(),
+                        &FontScenario::Type1, 1000);
+        assert!(ops.is_empty(), "P485: glyphs vazios → sem output");
     }
 }
 

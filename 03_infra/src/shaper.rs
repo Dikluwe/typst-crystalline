@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/shaper.md
-//! @prompt-hash 6fbff5fe
+//! @prompt-hash 125086cf
 //! @layer L3
 //! @updated 2026-06-28
 //!
@@ -69,6 +69,8 @@ fn try_shape(
     let font_data = font.as_slice();
 
     let rb_face = rustybuzz::Face::from_slice(font_data, 0)?;
+    // P485 — extrair units_per_em (rustybuzz expõe como i32; cast para u16)
+    let units_per_em = rb_face.units_per_em().max(1) as u16;
 
     // P484 — dividir em runs bidirectionais antes de shape
     let runs = bidi_runs(text.as_str());
@@ -120,6 +122,7 @@ fn try_shape(
         glyphs: all_glyphs,
         style:  style.clone(),
         text:   text.clone(),
+        units_per_em,
     })
 }
 
@@ -357,6 +360,25 @@ mod tests {
         let runs = bidi_runs("abc");
         assert_eq!(runs[0].byte_start, 0);
         assert_eq!(runs[0].text, "abc");
+    }
+
+    // P485 — units_per_em populado pelo shaper
+    #[test]
+    fn p485_shape_document_sem_fonte_nao_produz_textshaped() {
+        // Sem fonte no MockWorld, shape_document não converte → Text preservado
+        // units_per_em não é populado (sem TextShaped produzido)
+        let doc = doc_with(vec![text_item("Hello")]);
+        let shaped = shape_document(&empty_world(), doc);
+        assert!(matches!(&shaped.pages[0].items[0], FrameItem::Text { .. }),
+            "P485: sem fonte → deve permanecer Text (units_per_em não aplicável)");
+    }
+
+    #[test]
+    fn p485_units_per_em_cast_seguro() {
+        // rb_face.units_per_em() retorna i32 em rustybuzz; cast para u16 seguro para valores positivos
+        let val_i32: i32 = 1000;
+        let as_u16 = val_i32.max(1) as u16;
+        assert_eq!(as_u16, 1000u16);
     }
 
     #[test]

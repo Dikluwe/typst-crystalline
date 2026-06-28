@@ -7,7 +7,7 @@ adr: ADR-0120
 ---
 
 # Prompt L0 — `shaper.rs` (Trilha 5 Fase 1)
-Hash do Código: 5902ce05
+Hash do Código: 0c752110
 
 ## Propósito
 
@@ -160,3 +160,23 @@ normal será `TextShaped`. `FrameItem::Text` resta apenas para fontes ausentes.
 - `p483_text_com_font_helvetica_tenta_shape_mas_sem_fontes_preserva_text`
 - `p483_text_sem_font_nao_tenta_shape`
 - `p483_shaped_glyph_debug_display`
+
+## §P485 — `units_per_em` em `try_shape`
+
+**P485** adiciona extracção de `units_per_em` de `rb_face.units_per_em()` (retorna
+`i32` via rustybuzz; cast `.max(1) as u16`). O valor é armazenado em
+`FrameItem::TextShaped.units_per_em: u16` e usado em `emit_shaped_pdf` para
+converter `x_advance` (font units) em unidades TJ do PDF.
+
+```rust
+// Em try_shape, após construir rb_face:
+let units_per_em = rb_face.units_per_em().max(1) as u16;
+// ...
+Some(FrameItem::TextShaped { pos: *pos, glyphs: all_glyphs, style: style.clone(),
+                              text: text.clone(), units_per_em })
+```
+
+### Testes adicionados P485
+
+- `p485_shape_document_sem_fonte_nao_produz_textshaped`
+- `p485_units_per_em_cast_seguro`

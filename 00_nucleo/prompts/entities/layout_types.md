@@ -1,5 +1,5 @@
 # Prompt L0 — layout_types
-Hash do Código: f16848fe
+Hash do Código: 3622a965
 
 ## Módulo
 `01_core/src/entities/layout_types.rs`
@@ -140,3 +140,23 @@ directamente — impossível sem bytes de fonte (ADR-0029). `FrameItem::Text` é
 o tipo de **pré-shaping**: emitido por L1, convertido para `TextShaped` pelo
 shaper L3. O `#[deprecated]` (P483) sinaliza que L3/export não deve usar
 `Text` directamente; não indica remoção iminente.
+
+## P485 — `units_per_em: u16` em `FrameItem::TextShaped`
+
+**Data:** 2026-06-28
+
+`FrameItem::TextShaped` recebe campo adicional `units_per_em: u16`:
+
+```rust
+TextShaped {
+    pos:          Point,
+    glyphs:       Vec<ShapedGlyph>,
+    style:        TextStyle,
+    text:         EcoString,
+    units_per_em: u16,   // ← P485
+}
+```
+
+Populado por `shaper.rs::try_shape` via `rb_face.units_per_em().max(1) as u16`.
+Usado em `emit_shaped_pdf` para calcular números TJ: `-(x_advance / upm * 1000)`.
+Sites de match que não precisam de `units_per_em` usam `..` (wildcard).

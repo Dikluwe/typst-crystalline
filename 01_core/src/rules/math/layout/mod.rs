@@ -98,9 +98,9 @@ pub(super) fn offset_item(item: FrameItem, dx: Pt, dy: Pt) -> FrameItem {
             text,
             style,
         },
-        FrameItem::TextShaped { pos, glyphs, style, text } => FrameItem::TextShaped {
+        FrameItem::TextShaped { pos, glyphs, style, text, units_per_em } => FrameItem::TextShaped {
             pos: Point { x: Pt(pos.x.val() + dx.val()), y: Pt(pos.y.val() + dy.val()) },
-            glyphs, style, text,
+            glyphs, style, text, units_per_em,
         },
         FrameItem::Line { start, end, thickness, color } => FrameItem::Line {
             start: Point { x: Pt(start.x.val() + dx.val()), y: Pt(start.y.val() + dy.val()) },

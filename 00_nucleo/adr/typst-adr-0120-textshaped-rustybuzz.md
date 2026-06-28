@@ -341,3 +341,12 @@ ADR-0120 transita para `ACEITE` quando P482 for concluído com:
 - **`FrameItem::Text` preservado** — remoção requereria migração dos emit sites L1 (violaria ADR-0029). Manter como tipo pré-shaping.
 - 6 novos testes verdes (4 bidi + 2 extras); 73/73 paridade mantida.
 - Fase 3 **FECHADA**. **Trilha 5 completa.**
+
+## P485 (2026-06-28) — TJ operator + units_per_em
+
+- `FrameItem::TextShaped` recebe campo `units_per_em: u16` (de `rb_face.units_per_em().max(1) as u16`).
+- `emit_shaped_pdf` actualizado: usa operador PDF `TJ` em vez de `Tj`; cada glifo emitido com número de avanço `-(x_advance / upm × 1000)`.
+- Garante posicionamento correcto mesmo com GPOS/kerning que difira do `hmtx`.
+- Sites de match de `TextShaped` que não precisam de `units_per_em` usam `..`.
+- 8 novos testes verdes (2 L1 + 4 L3 stream + 2 L3 shaper); 73/73 paridade mantida.
+- `crystalline-lint`: 0 erros V1–V14.

@@ -45,3 +45,11 @@ Consumido por:
 - `export/stream.rs::emit_shaped_pdf` — para emitir hex string de glyph IDs.
 - `export/fonts.rs::collect_codepoints` — para extrair chars usados.
 - `export/fonts.rs::collect_glyph_ids` — para extrair IDs usados.
+
+## §P485 — `units_per_em` em `TextShaped` (não em `ShapedGlyph`)
+
+`units_per_em` é propriedade do **run** (toda a `TextShaped`), não do glifo
+individual. Portanto está em `FrameItem::TextShaped.units_per_em: u16` e não
+em `ShapedGlyph`. O campo `ShapedGlyph.x_advance` (int32, font units) é
+convertido para unidades TJ em `emit_shaped_pdf`:
+`advance_tu = -(x_advance / units_per_em * 1000)`.

@@ -544,3 +544,60 @@ fn p483_parity_73_73_mantido() {
     assert_eq!(total_diffs, 0,
         "P483: zero diffs esperados pós-P483; obtido {}", total_diffs);
 }
+
+#[test]
+fn p485_parity_73_73_mantido() {
+    // P485 — sentinela de paridade pós-P485 (units_per_em + TJ operator).
+    // A mudança é apenas no emit PDF (TJ vs Tj) — não afecta a estrutura
+    // semântica comparada. Resultado esperado: 73/73 = igual a P484.
+    let base = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("corpus");
+    let corpus = read_corpus(&base);
+    assert_eq!(corpus.len(), 46, "P485: corpus deve ter 46 ficheiros");
+
+    if !vanilla_cli_available() {
+        eprintln!("[p485] vanilla CLI ausente; sentinela não verifica diffs");
+        return;
+    }
+
+    let mut total_includes = 0;
+    let mut total_diffs    = 0;
+    let mut total_errors   = 0;
+
+    for entry in &corpus {
+        let etiqueta = etiqueta_for(&entry.category, &entry.file);
+        if etiqueta != CoverageEtiqueta::Include { continue; }
+        total_includes += 1;
+
+        let dir = tempdir();
+        let main_path = dir.path().join("main.typ");
+        if std::fs::write(&main_path, &entry.source).is_err() { continue; }
+        if entry.file.contains("cite-bibliography") {
+            let yaml_src  = entry.path.parent().unwrap().join("refs.yaml");
+            let yaml_dest = dir.path().join("refs.yaml");
+            if yaml_src.exists() { let _ = std::fs::copy(&yaml_src, &yaml_dest); }
+        }
+        let world = match SystemWorld::new(dir.path(), "main.typ") {
+            Ok(w) => w,
+            Err(_) => { total_errors += 1; continue; }
+        };
+        let source = world.source(world.main()).unwrap();
+
+        for selector in default_selectors_for_category(&entry.category) {
+            let crist = match query_to_summary(&world, &source, selector) {
+                Ok(s) => s,
+                Err(_) => { total_errors += 1; continue; }
+            };
+            let van = match vanilla_query_summary(&main_path, selector) {
+                Ok(s) => s,
+                Err(_) => { total_errors += 1; continue; }
+            };
+            if crist != van { total_diffs += 1; }
+        }
+    }
+
+    assert!(total_includes >= 28, "P485: INCLUDE >= 28; obtido {}", total_includes);
+    assert_eq!(total_diffs, 0,
+        "P485: zero diffs esperados pós-P485; obtido {}", total_diffs);
+    assert_eq!(total_errors, 0,
+        "P485: zero errors esperados; obtido {}", total_errors);
+}

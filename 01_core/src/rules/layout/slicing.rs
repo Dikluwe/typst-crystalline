@@ -82,10 +82,10 @@ pub(super) fn rebase_item_y(item: FrameItem, delta: f64) -> FrameItem {
                 pos: Point { x: pos.x, y: Pt(pos.y.0 + delta) },
                 text, style,
             },
-        FrameItem::TextShaped { pos, glyphs, style, text } =>
+        FrameItem::TextShaped { pos, glyphs, style, text, units_per_em } =>
             FrameItem::TextShaped {
                 pos: Point { x: pos.x, y: Pt(pos.y.0 + delta) },
-                glyphs, style, text,
+                glyphs, style, text, units_per_em,
             },
         FrameItem::Line { start, end, thickness, color } =>
             FrameItem::Line {

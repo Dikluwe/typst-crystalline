@@ -33,8 +33,8 @@ pub(super) fn translate_frame_item(item: FrameItem, new_x: Pt, new_y: Pt) -> Fra
     match item {
         FrameItem::Text { text, style, .. } =>
             FrameItem::Text { pos: Point { x: new_x, y: new_y }, text, style },
-        FrameItem::TextShaped { glyphs, style, text, .. } =>
-            FrameItem::TextShaped { pos: Point { x: new_x, y: new_y }, glyphs, style, text },
+        FrameItem::TextShaped { glyphs, style, text, units_per_em, .. } =>
+            FrameItem::TextShaped { pos: Point { x: new_x, y: new_y }, glyphs, style, text, units_per_em },
         FrameItem::Line { start, end, thickness, color } => {
             let dx = end.x.0 - start.x.0;
             let dy = end.y.0 - start.y.0;
