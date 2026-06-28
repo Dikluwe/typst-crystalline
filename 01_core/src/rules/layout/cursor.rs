@@ -7,7 +7,7 @@
 //! Gestão do cursor do Layouter: largura de palavra, layout de palavra,
 //! `flush_line`, `new_page`, número de página actual.
 //! Extraído de `layout/mod.rs` no Passo 96.7 conforme ADR-0037.
-
+#![allow(deprecated)] // P483 — FrameItem::Text fallback path legítimo
 use crate::entities::{
     corners::Corners,
     geometry::ShapeKind,

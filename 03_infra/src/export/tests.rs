@@ -12,6 +12,7 @@
 //! Migrado de `export.rs::tests` em P307b.1 (decomposição L3).
 //! Conteúdo bit-exact pré e pós migração — só path muda.
 
+#![allow(deprecated)] // P483 — FrameItem::Text fallback path legítimo
 use super::*;
 use typst_core::entities::content::Content;
 use typst_core::entities::layout_types::{Color, LinkTarget};

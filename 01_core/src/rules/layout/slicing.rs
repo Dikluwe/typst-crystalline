@@ -22,6 +22,7 @@
 //!    head vs tail é via `start.y`. Ambos start.y e end.y são
 //!    rebased simétricamente para preservar geometria da linha.
 
+#![allow(deprecated)] // P483 — FrameItem::Text fallback path legítimo
 use crate::entities::layout_types::{FrameItem, Point, Pt};
 
 /// **P251** — divide items em `(head, tail)` por `threshold` em

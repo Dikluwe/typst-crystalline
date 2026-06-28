@@ -15,6 +15,7 @@
 //!
 //! Conteúdo bit-exact pré e pós migração.
 
+#![allow(deprecated)] // P483 — FrameItem::Text fallback path legítimo
 use std::collections::HashMap;
 use std::sync::Arc;
 
@@ -302,15 +303,17 @@ pub(super) fn build_page_stream(page: &Page, ctx: &PageContext) -> Vec<u8> {
 
     for item in &page.items {
         match item {
-            FrameItem::Text { pos, text, style } => {
-                let pdf_y = page_height - pos.y.val();
-                emit_text_pdf(&mut ops, pos.x.val(), pdf_y, text.as_str(),
-                              style, &ctx.font_scenario);
-            }
+            // P483 — path primário: glifos com shaping real.
             FrameItem::TextShaped { pos, glyphs, style, text } => {
                 let pdf_y = page_height - pos.y.val();
                 emit_shaped_pdf(&mut ops, pos.x.val(), pdf_y, glyphs, text.as_str(),
                                 style, &ctx.font_scenario);
+            }
+            // P483 — fallback: fonte não carregada, Type1, ou shaping indisponível.
+            FrameItem::Text { pos, text, style } => {
+                let pdf_y = page_height - pos.y.val();
+                emit_text_pdf(&mut ops, pos.x.val(), pdf_y, text.as_str(),
+                              style, &ctx.font_scenario);
             }
             FrameItem::Line { start, end, thickness, color } => {
                 let x1 = start.x.val();
@@ -717,14 +720,15 @@ pub(super) fn draw_item_local(
             }
         }
         // **P281** — Text/Glyph/Line arms real (substituem stubs P278/P279).
+        // P483 — path primário TextShaped; Text = fallback.
         // Local emit: `pos.y.0` directo (matriz `cm` do Group já inverteu Y).
-        FrameItem::Text { pos, text, style } => {
-            emit_text_pdf(ops, pos.x.0, pos.y.0, text.as_str(),
-                          style, &ctx.font_scenario);
-        }
         FrameItem::TextShaped { pos, glyphs, style, text } => {
             emit_shaped_pdf(ops, pos.x.0, pos.y.0, glyphs, text.as_str(),
                             style, &ctx.font_scenario);
+        }
+        FrameItem::Text { pos, text, style } => {
+            emit_text_pdf(ops, pos.x.0, pos.y.0, text.as_str(),
+                          style, &ctx.font_scenario);
         }
         FrameItem::Glyph { pos, glyph_id, size, .. } => {
             emit_glyph_pdf(ops, pos.x.0, pos.y.0, *glyph_id, *size,

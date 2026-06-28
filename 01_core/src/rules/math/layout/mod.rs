@@ -4,6 +4,7 @@
 //! @layer L1
 //! @updated 2026-04-11
 
+#![allow(deprecated)] // P483 — FrameItem::Text fallback path legítimo
 use std::sync::Arc;
 
 use ecow::EcoString;

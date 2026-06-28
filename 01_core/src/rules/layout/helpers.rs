@@ -7,7 +7,7 @@
 //! Helpers livres usados pelo Layouter: manipulação de `FrameItem`,
 //! medição aproximada de `Content`, recolha de items para sub-frames.
 //! Extraído de `layout/mod.rs` no Passo 96.7 conforme ADR-0037.
-
+#![allow(deprecated)] // P483 — FrameItem::Text fallback path legítimo
 use crate::entities::{
     content::Content,
     geometry::ShapeKind,

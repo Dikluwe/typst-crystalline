@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/entities/layout_types.md
-//! @prompt-hash b13692d6
+//! @prompt-hash 867b46c8
 //! @layer L1
 //! @updated 2026-04-23
 //!
@@ -208,7 +208,12 @@ pub struct ShapedGlyph {
 /// Cristalino embute `pos` em `FrameItem::Text` por simplicidade.
 #[derive(Debug, Clone)]
 pub enum FrameItem {
-    /// Texto posicionado.
+    /// Texto posicionado (string plana, sem shaping real).
+    ///
+    /// **P483 — DEPRECATED**: Use `FrameItem::TextShaped`.
+    /// Preservado como fallback para fontes não carregadas ou Type1.
+    #[deprecated(since = "P483", note = "Use FrameItem::TextShaped. \
+        Preserved as fallback for fonts not loaded or Type1.")]
     Text {
         pos:   Point,
         text:  EcoString,
@@ -457,6 +462,7 @@ pub struct Page {
     pub items:  Vec<FrameItem>,
 }
 
+#[allow(deprecated)] // P483 — Text é fallback legítimo em plain_text
 fn plain_text_items<'a>(items: &'a [FrameItem], out: &mut Vec<&'a str>) {
     for item in items {
         match item {

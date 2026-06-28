@@ -7,6 +7,7 @@
 //! Método `layout_frac` de `MathLayouter`. Extraído de `math/layout/mod.rs`
 //! no Passo 96.8 conforme ADR-0037.
 
+#![allow(deprecated)] // P483 — FrameItem::Text fallback path legítimo
 use crate::entities::{
     content::Content,
     layout_types::{FrameItem, Point, Pt, TextStyle},

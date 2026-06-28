@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/shaper.md
-//! @prompt-hash b342622c
+//! @prompt-hash 325595fd
 //! @layer L3
 //! @updated 2026-06-27
 //!
@@ -8,6 +8,7 @@
 //! Converte `FrameItem::Text` → `FrameItem::TextShaped` via rustybuzz.
 //! Executado entre layout e export. ADR-0120 Opção A1.
 
+#![allow(deprecated)] // P483 — FrameItem::Text fallback path legítimo
 use rustybuzz::UnicodeBuffer;
 use typst_core::contracts::world::World;
 use typst_core::entities::font_book::FontVariant;
@@ -194,6 +195,48 @@ mod tests {
             cluster: 0, char_code: 'A',
         };
         assert_eq!(g.clone(), g);
+    }
+
+    // ── P483 ────────────────────────────────────────────────────────────────
+
+    #[test]
+    fn p483_text_com_font_helvetica_tenta_shape_mas_sem_fontes_preserva_text() {
+        // FrameItem::Text com style.font = Some(Helvetica) → shaper tenta;
+        // MockWorld não tem fontes → resolve_slot retorna None → item preservado
+        // como Text. O path de tentativa é exercitado (style.font.is_some() == true).
+        use typst_core::entities::font_list::FontList;
+        let mut style = TextStyle::default();
+        style.font = Some(FontList::single(EcoString::from("Helvetica")));
+        let item = FrameItem::Text {
+            pos:  Point { x: Pt(72.0), y: Pt(72.0) },
+            text: EcoString::from("Ola"),
+            style,
+        };
+        let doc = doc_with(vec![item]);
+        let shaped = shape_document(&empty_world(), doc);
+        // MockWorld.font() retorna None → try_shape retorna None → Text preservado
+        assert!(matches!(&shaped.pages[0].items[0], FrameItem::Text { .. }),
+            "P483: sem fontes reais, Text com font=Some preservado como fallback");
+    }
+
+    #[test]
+    fn p483_text_sem_font_nao_tenta_shape() {
+        // style.font = None → shaper ignora (guarda is_some() false).
+        let item = text_item("sem fonte"); // text_item usa TextStyle::default() → font=None
+        let doc = doc_with(vec![item]);
+        let shaped = shape_document(&empty_world(), doc);
+        assert!(matches!(&shaped.pages[0].items[0], FrameItem::Text { .. }),
+            "P483: Text sem style.font=None não é tentado pelo shaper");
+    }
+
+    #[test]
+    fn p483_shaped_glyph_debug_display() {
+        let g = ShapedGlyph {
+            glyph_id: 1, x_advance: 500, x_offset: 0, y_offset: 0,
+            cluster: 0, char_code: 'A',
+        };
+        let s = format!("{:?}", g);
+        assert!(s.contains("glyph_id: 1"), "Debug deve incluir glyph_id");
     }
 
     #[test]

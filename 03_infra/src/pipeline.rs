@@ -12,6 +12,7 @@
 //! test-only em `integration_tests.rs`. API pública consumível
 //! pelo 04_wiring (CLI) e por testes.
 
+#![allow(deprecated)] // P483 — FrameItem::Text fallback path legítimo
 use comemo::Track;
 
 use typst_core::contracts::world::World;

@@ -8,6 +8,7 @@
 //! resultantes em `FrameItem::Link`, preservando o URL como metadado.
 
 
+#![allow(deprecated)] // P483 — FrameItem::Text fallback path legítimo
 use crate::entities::elements::link::LinkElem;
 use crate::entities::layout_types::{FrameItem, Point, Pt, Size};
 

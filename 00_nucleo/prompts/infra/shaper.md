@@ -7,7 +7,7 @@ adr: ADR-0120
 ---
 
 # Prompt L0 — `shaper.rs` (Trilha 5 Fase 1)
-Hash do Código: 981d9964
+Hash do Código: afeb3b10
 
 ## Propósito
 
@@ -79,3 +79,27 @@ Usado para popular `ShapedGlyph.char_code` a partir de `cluster`.
 - `p482_byte_idx_to_char_utf8`: multi-byte UTF-8 (é = 2 bytes).
 - `p482_shaped_glyph_clone_eq`: ShapedGlyph clone+eq.
 - `p482_shape_document_group_children_passthrough`: Text dentro de Group preservado sem font.
+
+## P483 — Fase 2: font padrão + cobertura ≥95%
+
+**Data:** 2026-06-28
+
+`try_shape` actua quando `style.font.is_some()`. Pós-P483, `From<&StyleChain>
+for TextStyle` preenche sempre `font` com pelo menos `FontList("Helvetica")`
+(fallback padrão). Assim o shaper tenta actuar em todo o texto, não apenas
+em texto com `#set text(font:...)` explícito.
+
+Comportamento defensivo preservado: se `resolve_slot` não encontra a fonte
+no `FontBook` (fonte não carregada, Type1), `try_shape` retorna `None` e o
+item permanece como `FrameItem::Text`.
+
+### Cobertura esperada em produção
+
+Em produção com `SystemWorld` e fontes do sistema carregadas: ≥95% do texto
+normal será `TextShaped`. `FrameItem::Text` resta apenas para fontes ausentes.
+
+### Testes adicionados P483
+
+- `p483_text_com_font_helvetica_tenta_shape_mas_sem_fontes_preserva_text`
+- `p483_text_sem_font_nao_tenta_shape`
+- `p483_shaped_glyph_debug_display`

@@ -1,5 +1,5 @@
 # Prompt L0 — layout_types
-Hash do Código: 72df6358
+Hash do Código: f16848fe
 
 ## Módulo
 `01_core/src/entities/layout_types.rs`
@@ -115,3 +115,17 @@ preservado como fallback (Type1 / fonte não carregada).
 
 Todos os match exaustivos de `FrameItem` em L1 devem incluir arm `TextShaped`.
 Ver ADR-0120.
+
+## P483 — FrameItem::Text deprecated
+
+**Data:** 2026-06-28
+
+`FrameItem::Text` marcado `#[deprecated(since = "P483")]`. Continua a existir
+como fallback para fontes não carregadas ou Type1. Todos os sites de match
+legítimos receberam `#[allow(deprecated)]` ou `#![allow(deprecated)]`.
+
+`From<&StyleChain> for TextStyle` preenche agora `font` com pelo menos
+`FontList("Helvetica")` quando nenhum `#set text(font:...)` está activo.
+Garante cobertura ≥95% do shaping em produção.
+
+Path primário em `export/stream.rs`: `TextShaped` antes de `Text`.

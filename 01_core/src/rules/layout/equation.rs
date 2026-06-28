@@ -7,7 +7,7 @@
 //! Braço `Content::Equation` do `layout_content`. Extraído de `layout/mod.rs`
 //! no Passo 96.7 conforme ADR-0037. P456: numeração de bloco formatada pelo
 //! pattern da chain e posicionada à direita da página.
-
+#![allow(deprecated)] // P483 — FrameItem::Text fallback path legítimo
 use crate::entities::{
     content::Content,
     counter_format::format_counter,

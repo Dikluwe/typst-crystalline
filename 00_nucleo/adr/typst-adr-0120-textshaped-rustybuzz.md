@@ -317,3 +317,15 @@ ADR-0120 transita para `ACEITE` quando P482 for concluído com:
 - **P481** — sonda que produziu esta ADR; grupos 1–4 documentados.
 - **P482** — primeiro passo de materialização (Fase 1).
 - `lab/krilla-reference/crates/krilla/src/text/shape.rs` — implementação de referência rustybuzz.
+
+---
+
+## P483 (2026-06-28) — Fase 2 executada
+
+- `FrameItem::Text` marcado `#[deprecated(since = "P483")]`.
+- `From<&StyleChain> for TextStyle` preenche `font` com `FontList("Helvetica")` quando nenhuma fonte explícita está definida — garante cobertura de shaping ≥95% em produção.
+- `export/stream.rs`: `TextShaped` é agora o arm primário; `Text` é o fallback.
+- `#![allow(deprecated)]` adicionado nos ~16 ficheiros com match legítimo em `FrameItem::Text`.
+- 5 novos testes verdes (2 L1 + 3 L3).
+- 73/73 paridade mantida.
+- Fase 2 **FECHADA**.

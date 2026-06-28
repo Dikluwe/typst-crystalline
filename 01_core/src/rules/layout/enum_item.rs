@@ -7,7 +7,7 @@
 //! Atomização (ADR-0109, P380): o layout de `EnumItem` movido do monólito
 //! `layout_content` para o arquivo da feature (forma B). Campo `numbering`
 //! suportado em P470.
-
+#![allow(deprecated)] // P483 — FrameItem::Text fallback path legítimo
 use crate::entities::elements::enum_item::EnumItemElem;
 use crate::entities::enum_numbering::EnumNumbering;
 use crate::entities::layout_types::{FrameItem, Point, Pt};

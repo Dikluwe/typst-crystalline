@@ -7,7 +7,7 @@
 //! Atomização (ADR-0109, P380): o layout de `ListItem` movido do monólito
 //! `layout_content` para o arquivo da feature (forma B). Campo `marker`
 //! suportado em P470.
-
+#![allow(deprecated)] // P483 — FrameItem::Text fallback path legítimo
 use crate::entities::elements::list_item::ListItemElem;
 use crate::entities::layout_types::{FrameItem, Point, Pt};
 

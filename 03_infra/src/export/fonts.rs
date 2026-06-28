@@ -14,6 +14,7 @@
 //!
 //! Conteúdo bit-exact pré e pós migração — comportamento idêntico.
 
+#![allow(deprecated)] // P483 — FrameItem::Text fallback path legítimo
 use std::collections::{BTreeSet, HashMap};
 
 use ttf_parser::Face;

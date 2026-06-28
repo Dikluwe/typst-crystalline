@@ -12,6 +12,7 @@
 /// Pipeline: SystemWorld → eval → layout → export_pdf
 #[cfg(test)]
 mod integration {
+    #![allow(deprecated)] // P483 — FrameItem::Text fallback path legítimo
     use std::path::{Path, PathBuf};
 
     use typst_core::contracts::world::World;

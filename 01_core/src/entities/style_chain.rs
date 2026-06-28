@@ -606,7 +606,12 @@ impl From<&StyleChain> for TextStyle {
             tracking:      chain.tracking(),
             leading:       chain.leading(),
             lang:          chain.lang(),
-            font:          chain.font(),
+            // P483 — fonte padrão Helvetica garante que o shaper actua mesmo
+            // sem `#set text(font:...)` no documento. Shaper faz fallback
+            // defensivo (Text preservado) se a fonte não estiver carregada.
+            font:          Some(chain.font().unwrap_or_else(|| {
+                FontList::single(EcoString::from("Helvetica"))
+            })),
             subscript:        chain.subscript(),
             superscript:      chain.superscript(),
             highlight:        chain.highlight(),
@@ -758,6 +763,37 @@ mod tests {
         assert!(!chain.bold());
         assert!(!chain.italic());
         assert_eq!(chain.size(),   11.0);
+    }
+
+    // ── P483 ────────────────────────────────────────────────────────────────
+
+    #[test]
+    fn p483_textstyle_from_chain_font_nunca_none() {
+        // P483 — From<&StyleChain> para TextStyle com chain vazia deve
+        // retornar font = Some(Helvetica) (fallback padrão).
+        use crate::entities::layout_types::TextStyle;
+        let chain = StyleChain::default_chain(); // sem #set text(font:...)
+        let style = TextStyle::from(&chain);
+        assert!(style.font.is_some(),
+            "P483: TextStyle de chain default deve ter font = Some(Helvetica)");
+        let families = style.font.as_ref().unwrap().as_slice();
+        assert_eq!(families.len(), 1);
+        assert_eq!(families[0].name.as_str(), Some("helvetica"),
+            "P483: fonte padrão deve ser 'helvetica' (lowercase)");
+    }
+
+    #[test]
+    fn p483_textstyle_from_chain_com_font_explicity_preserva() {
+        // Se #set text(font: "Arial") → font = Some(Arial), não Helvetica.
+        use crate::entities::layout_types::TextStyle;
+        use crate::entities::font_list::FontList;
+        let fl = FontList::single(EcoString::from("Arial"));
+        let chain = StyleChain::default_chain()
+            .push(StyleDelta { font: Some(fl.clone()), ..StyleDelta::empty() });
+        let style = TextStyle::from(&chain);
+        let families = style.font.as_ref().unwrap().as_slice();
+        assert_eq!(families[0].name.as_str(), Some("arial"),
+            "P483: font explícito do documento deve ser preservado");
     }
 
     // ── Passo 99 (ADR-0038): Styles/Style integração ──────────────────────
