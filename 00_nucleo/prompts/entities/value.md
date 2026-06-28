@@ -1,10 +1,10 @@
 # Prompt L0 — `entities/value`
-Hash do Código: 7aa44121
+Hash do Código: d0ab6632
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/entities/value.rs`
 **Criado em**: 2026-03-22 (Passo 13)
-**Atualizado em**: 2026-06-25 (P465 — `repr()` completo; P466 — métodos de coleção `array`/`dict`/`str` + `Value::truthy()` + eval de dict literal; P469 — `Value::Relative`) 
+**Atualizado em**: 2026-06-25 (P465 — `repr()` completo; P466 — métodos de coleção `array`/`dict`/`str` + `Value::truthy()` + eval de dict literal; P469 — `Value::Relative`)
 **ADRs relevantes**: ADR-0017 (adiamento eval), ADR-0023 (indexmap em L1), ADR-0024 (EcoString em Value::Str), ADR-0025 (Int == Float), ADR-0028/ADR-0029 (tipos tipográficos), ADR-0117 Cláusula 4 (`repr()` função pura)
 
 ---

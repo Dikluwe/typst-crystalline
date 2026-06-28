@@ -1,2 +1,8 @@
 [alias]
 testit = "run --quiet --package=test-wrapper --"
+
+[env]
+# P487: evaluador recursivo em debug mode usa ~100KB/frame × 80 frames = 8MB.
+# 32MB evita crash nos testes de profundidade (Route::MAX_CALL_DEPTH = 80,
+# MAX_SHOW_RULE_DEPTH = 64). Não afecta produção (só test threads).
+RUST_MIN_STACK = "33554432"

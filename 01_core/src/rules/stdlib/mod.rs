@@ -4517,7 +4517,7 @@ mod tests {
             parse_color(&Value::Str("white".into())),
             Some(Color::rgb(255, 255, 255))
         );
-        assert_eq!(parse_color(&Value::Str("purple".into())), None);
+        assert_eq!(parse_color(&Value::Str("purple".into())), Some(Color::rgb(128, 0, 128))); // P477
         assert_eq!(parse_color(&Value::Int(42)), None);
     }
 
@@ -10953,8 +10953,8 @@ mod tests {
         if let Value::Dict(d) = make_math_module() {
             assert_eq!(
                 d.len(),
-                42,
-                "P299: 31 scripts + 11 limits = 42 operadores vanilla"
+                43,
+                "P299+: 31 scripts + 11 limits = 42 vanilla + 1 adicionado pós-P299"
             );
         } else {
             panic!("make_math_module deve retornar Value::Dict");
