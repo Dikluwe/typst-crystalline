@@ -1,5 +1,5 @@
 # Prompt L0 — layout_types
-Hash do Código: 25b928e1
+Hash do Código: 72df6358
 
 ## Módulo
 `01_core/src/entities/layout_types.rs`
@@ -80,3 +80,38 @@ alterar a assinatura de `layout()`.
 - `Pt * f64` compila; `Pt + f64` não compila
 - `Frame::plain_text()` junta texto dos FrameItem::Text com espaço
 - `PagedDocument::plain_text()` concatena páginas com newline
+
+## P482 — `ShapedGlyph` e `FrameItem::TextShaped`
+
+**P482** adiciona:
+
+```rust
+pub struct ShapedGlyph {
+    pub glyph_id:  u16,
+    pub x_advance: i32,
+    pub x_offset:  i32,
+    pub y_offset:  i32,
+    pub cluster:   u32,
+    pub char_code: char,
+}
+```
+
+e variante:
+
+```rust
+FrameItem::TextShaped {
+    pos:    Point,
+    glyphs: Vec<ShapedGlyph>,
+    style:  TextStyle,
+    text:   EcoString,  // texto original (fallback + CMap)
+}
+```
+
+`TextShaped` é produzido pelo shaper L3 (`03_infra/src/shaper.rs`) a
+partir de `FrameItem::Text` com `style.font.is_some()`. `Text` é
+preservado como fallback (Type1 / fonte não carregada).
+
+`plain_text_items` trata `TextShaped` como `Text` — extrai `text` field.
+
+Todos os match exaustivos de `FrameItem` em L1 devem incluir arm `TextShaped`.
+Ver ADR-0120.

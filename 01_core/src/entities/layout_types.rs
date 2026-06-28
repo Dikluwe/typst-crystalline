@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/entities/layout_types.md
-//! @prompt-hash 5ca36fb3
+//! @prompt-hash b13692d6
 //! @layer L1
 //! @updated 2026-04-23
 //!
@@ -183,6 +183,25 @@ impl TextStyle {
 
 // ── Frame e FrameItem ──────────────────────────────────────────────────────
 
+/// **P482** — Glifo com shaping real via rustybuzz.
+/// Campos em unidades de fonte; converter para pt no export:
+/// `advance_pt = x_advance as f64 / units_per_em * font_size_pt`.
+#[derive(Debug, Clone, PartialEq)]
+pub struct ShapedGlyph {
+    /// ID do glifo na fonte (índice na tabela de glifos).
+    pub glyph_id:  u16,
+    /// Advance horizontal em unidades de fonte.
+    pub x_advance: i32,
+    /// Offset horizontal (kerning, marks).
+    pub x_offset:  i32,
+    /// Offset vertical (diacríticos).
+    pub y_offset:  i32,
+    /// Índice byte no string original (ToUnicode CMap).
+    pub cluster:   u32,
+    /// Codepoint Unicode derivado de `cluster`.
+    pub char_code: char,
+}
+
 /// Item posicionado num frame.
 ///
 /// Divergência: original usa `(Point, FrameItem)` como tupla separada.
@@ -194,6 +213,17 @@ pub enum FrameItem {
         pos:   Point,
         text:  EcoString,
         style: TextStyle,
+    },
+    /// **P482** — Texto com shaping real (rustybuzz). Substitui `Text`
+    /// após a passagem do shaper (L3). `Text` preservado para fallback
+    /// quando shaping não disponível (fonte não carregada, etc.).
+    TextShaped {
+        pos:    Point,
+        /// Glifos shaped por rustybuzz.
+        glyphs: Vec<ShapedGlyph>,
+        style:  TextStyle,
+        /// Texto original (ToUnicode CMap + plain_text + fallback).
+        text:   EcoString,
     },
     /// Linha horizontal. Usada pela linha de fracção matemática (Passo 38).
     /// `start` e `end` são posições absolutas no Frame.
@@ -431,6 +461,7 @@ fn plain_text_items<'a>(items: &'a [FrameItem], out: &mut Vec<&'a str>) {
     for item in items {
         match item {
             FrameItem::Text { text, .. } => out.push(text.as_str()),
+            FrameItem::TextShaped { text, .. } => out.push(text.as_str()),
             FrameItem::Link { items, .. } => plain_text_items(items, out),
             _ => {}
         }

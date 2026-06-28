@@ -1,6 +1,6 @@
 # ADR-0120: FrameItem::TextShaped e pipeline rustybuzz
 
-**Status**: **PROPOSTO** (P481 2026-06-27; aguarda materialização P482).
+**Status**: **ACEITE** (P482 2026-06-27; materializado em P482).
 **Trilha**: 5 — Shaping / rustybuzz.
 **Substitui/Complementa**: ADR-0039 (`TextStyle` como struct; `FrameItem::Text` usa `TextStyle`).
 **Qualquer mudança a `FrameItem` requer atualização deste ADR.**

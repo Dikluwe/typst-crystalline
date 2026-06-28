@@ -122,6 +122,8 @@ pub fn compile_to_pdf_bytes_full_error(
         intr.bib_store.add_style(*key, style.clone());
     }
     let doc = layout_with_introspector(content, intr);
+    // P482 — shaping pass: Text → TextShaped (Trilha 5 Fase 1, ADR-0120 A1).
+    let doc = crate::shaper::shape_document(world, doc);
     // Passo 146 (ADR-0055 decisão 5): dispatch multi-font.
     // 0 fonts resolvidos → fallback Helvetica.
     // 1 font resolvido → preserva caminho single-font do 140B/141.
@@ -154,7 +156,8 @@ fn collect_fonts_from_doc(doc: &PagedDocument) -> Vec<FontList> {
 fn collect_fonts_in_items(items: &[FrameItem], seen: &mut Vec<FontList>) {
     for item in items {
         match item {
-            FrameItem::Text { style, .. } => {
+            FrameItem::Text { style, .. }
+            | FrameItem::TextShaped { style, .. } => {
                 if let Some(fl) = &style.font {
                     if !seen.contains(fl) {
                         seen.push(fl.clone());
@@ -210,7 +213,8 @@ fn first_font_from_doc(doc: &PagedDocument) -> Option<FontList> {
 fn first_font_in_items(items: &[FrameItem]) -> Option<FontList> {
     for item in items {
         match item {
-            FrameItem::Text { style, .. } => {
+            FrameItem::Text { style, .. }
+            | FrameItem::TextShaped { style, .. } => {
                 if let Some(fl) = &style.font {
                     return Some(fl.clone());
                 }

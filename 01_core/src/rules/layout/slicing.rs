@@ -56,7 +56,8 @@ pub(super) fn slice_frame_items_at_height(
 /// `start.y`; para outros variants, é `pos.y`.
 fn item_y_start(item: &FrameItem) -> f64 {
     match item {
-        FrameItem::Text  { pos, .. } => pos.y.0,
+        FrameItem::Text        { pos, .. } => pos.y.0,
+        FrameItem::TextShaped  { pos, .. } => pos.y.0,
         FrameItem::Line  { start, .. } => start.y.0,
         FrameItem::Glyph { pos, .. } => pos.y.0,
         FrameItem::Image { pos, .. } => pos.y.0,
@@ -79,6 +80,11 @@ pub(super) fn rebase_item_y(item: FrameItem, delta: f64) -> FrameItem {
             FrameItem::Text {
                 pos: Point { x: pos.x, y: Pt(pos.y.0 + delta) },
                 text, style,
+            },
+        FrameItem::TextShaped { pos, glyphs, style, text } =>
+            FrameItem::TextShaped {
+                pos: Point { x: pos.x, y: Pt(pos.y.0 + delta) },
+                glyphs, style, text,
             },
         FrameItem::Line { start, end, thickness, color } =>
             FrameItem::Line {

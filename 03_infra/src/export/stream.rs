@@ -168,6 +168,47 @@ pub(super) fn emit_text_pdf(
     }
 }
 
+/// **P482** — emit TextShaped PDF. Usa glyph IDs de rustybuzz.
+/// CIDFont/Multifont: hex string de glyph IDs directamente.
+/// Type1: não suporta glyph IDs — fallback para text field via `emit_text_pdf`.
+pub(super) fn emit_shaped_pdf(
+    ops:      &mut String,
+    pos_x:    f64,
+    base_y:   f64,
+    glyphs:   &[typst_core::entities::layout_types::ShapedGlyph],
+    text:     &str,
+    style:    &typst_core::entities::layout_types::TextStyle,
+    scenario: &FontScenario,
+) {
+    if glyphs.is_empty() { return; }
+    match scenario {
+        FontScenario::Type1 => {
+            emit_text_pdf(ops, pos_x, base_y, text, style, scenario);
+        }
+        FontScenario::Cidfont { .. } => {
+            let mut hex = String::from("<");
+            for g in glyphs { hex.push_str(&format!("{:04X}", g.glyph_id)); }
+            hex.push('>');
+            ops.push_str(&format!(
+                "BT\n/F1 {:.1} Tf\n{:.1} {:.1} Td\n{hex} Tj\nET\n",
+                style.size.val(), pos_x, base_y
+            ));
+        }
+        FontScenario::Multifont { fonts, .. } => {
+            let fi = style.font.as_ref()
+                .and_then(|fl| fonts.iter().position(|(stored, _)| stored == fl))
+                .unwrap_or(0);
+            let mut hex = String::from("<");
+            for g in glyphs { hex.push_str(&format!("{:04X}", g.glyph_id)); }
+            hex.push('>');
+            ops.push_str(&format!(
+                "BT\n/F{} {:.1} Tf\n{:.1} {:.1} Td\n{hex} Tj\nET\n",
+                fi + 1, style.size.val(), pos_x, base_y
+            ));
+        }
+    }
+}
+
 /// **P281** — emit Glyph PDF dispatched por `FontScenario`.
 ///
 /// P285 — Constrói o prefixo `r g b RG ` para emit de `FrameItem::Line`
@@ -265,6 +306,11 @@ pub(super) fn build_page_stream(page: &Page, ctx: &PageContext) -> Vec<u8> {
                 let pdf_y = page_height - pos.y.val();
                 emit_text_pdf(&mut ops, pos.x.val(), pdf_y, text.as_str(),
                               style, &ctx.font_scenario);
+            }
+            FrameItem::TextShaped { pos, glyphs, style, text } => {
+                let pdf_y = page_height - pos.y.val();
+                emit_shaped_pdf(&mut ops, pos.x.val(), pdf_y, glyphs, text.as_str(),
+                                style, &ctx.font_scenario);
             }
             FrameItem::Line { start, end, thickness, color } => {
                 let x1 = start.x.val();
@@ -675,6 +721,10 @@ pub(super) fn draw_item_local(
         FrameItem::Text { pos, text, style } => {
             emit_text_pdf(ops, pos.x.0, pos.y.0, text.as_str(),
                           style, &ctx.font_scenario);
+        }
+        FrameItem::TextShaped { pos, glyphs, style, text } => {
+            emit_shaped_pdf(ops, pos.x.0, pos.y.0, glyphs, text.as_str(),
+                            style, &ctx.font_scenario);
         }
         FrameItem::Glyph { pos, glyph_id, size, .. } => {
             emit_glyph_pdf(ops, pos.x.0, pos.y.0, *glyph_id, *size,

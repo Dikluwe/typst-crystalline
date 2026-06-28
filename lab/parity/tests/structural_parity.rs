@@ -424,3 +424,64 @@ fn p480_corpus_paridade_actualizado() {
     assert_eq!(total_diffs, 0,
         "P480: zero diffs esperados pós-P480; obtido {}", total_diffs);
 }
+
+#[test]
+fn p482_parity_73_73_mantido() {
+    // P482 — sentinela de paridade pós-P482 (Trilha 5 Fase 1: ShapedGlyph + shaper.rs).
+    // Shaping é post-processing L3 pass; paridade estrutural cristalino vs vanilla
+    // não é afectada porque o shaper não muda o conjunto de items, apenas converte
+    // FrameItem::Text → TextShaped. DTO classifica TextShaped como Text.
+    // Resultado esperado: 0 diffs (igual a P480).
+    let base = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("corpus");
+    let corpus = read_corpus(&base);
+    assert_eq!(corpus.len(), 46, "P482: corpus deve ter 46 ficheiros");
+
+    if !vanilla_cli_available() {
+        eprintln!("[p482] vanilla CLI ausente; sentinela não verifica diffs");
+        return;
+    }
+
+    let mut total_includes = 0;
+    let mut total_diffs    = 0;
+
+    for entry in &corpus {
+        let etiqueta = etiqueta_for(&entry.category, &entry.file);
+        if etiqueta != CoverageEtiqueta::Include { continue; }
+        total_includes += 1;
+
+        let dir = tempdir();
+        let main_path = dir.path().join("main.typ");
+        if std::fs::write(&main_path, &entry.source).is_err() { continue; }
+        if entry.file.contains("cite-bibliography") {
+            let yaml_src  = entry.path.parent().unwrap().join("refs.yaml");
+            let yaml_dest = dir.path().join("refs.yaml");
+            if yaml_src.exists() { let _ = std::fs::copy(&yaml_src, &yaml_dest); }
+        }
+        let world = match SystemWorld::new(dir.path(), "main.typ") {
+            Ok(w) => w,
+            Err(_) => continue,
+        };
+        let source = world.source(world.main()).unwrap();
+
+        for selector in default_selectors_for_category(&entry.category) {
+            let crist = match query_to_summary(&world, &source, selector) {
+                Ok(s) => s,
+                Err(_) => continue,
+            };
+            let van = match run_typst_query(&main_path, selector) {
+                Ok(v) => v,
+                Err(_) => continue,
+            };
+            if let CompareResult::Diff(diffs) = compare_query_outputs(&crist, &van) {
+                total_diffs += 1;
+                eprintln!("[p482] diff {}/{} selector `{}`: {:?}",
+                    entry.category, entry.file, selector, diffs);
+            }
+        }
+    }
+
+    // P482: paridade mantida em 0 diffs (shaper é transparent a paridade estrutural).
+    assert!(total_includes >= 28, "P482: INCLUDE >= 28; obtido {}", total_includes);
+    assert_eq!(total_diffs, 0,
+        "P482: zero diffs esperados pós-P482; obtido {}", total_diffs);
+}

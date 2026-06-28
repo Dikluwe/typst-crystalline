@@ -82,8 +82,10 @@ impl FrameDTO {
                 let (kind, pos) = classify_item(item);
                 items.push(kind);
                 item_positions.push(pos);
-                if let FrameItem::Text { text: t, .. } = item {
-                    text.push_str(t.as_str());
+                match item {
+                    FrameItem::Text       { text: t, .. }
+                    | FrameItem::TextShaped { text: t, .. } => text.push_str(t.as_str()),
+                    _ => {}
                 }
             }
             PageDTO { text, items, item_positions, width: p.width, height: p.height }
@@ -180,12 +182,14 @@ impl FrameDTO {
 
 fn classify_item(item: &FrameItem) -> (ItemDTO, (f64, f64)) {
     match item {
-        FrameItem::Text  { pos, .. } => (ItemDTO::Text,  (pos.x.val(), pos.y.val())),
+        FrameItem::Text        { pos, .. } => (ItemDTO::Text,  (pos.x.val(), pos.y.val())),
+        FrameItem::TextShaped  { pos, .. } => (ItemDTO::Text,  (pos.x.val(), pos.y.val())),
         FrameItem::Group { pos, .. } => (ItemDTO::Group, (pos.x.val(), pos.y.val())),
         FrameItem::Glyph { pos, .. } => (ItemDTO::Glyph, (pos.x.val(), pos.y.val())),
         FrameItem::Line  { start, .. } => (ItemDTO::Line, (start.x.val(), start.y.val())),
         FrameItem::Image { pos, .. } => (ItemDTO::Image, (pos.x.val(), pos.y.val())),
         FrameItem::Shape { pos, .. } => (ItemDTO::Shape, (pos.x.val(), pos.y.val())),
+        FrameItem::Link  { .. } => (ItemDTO::Other("Link".into()), (0.0, 0.0)),
     }
 }
 

@@ -65,6 +65,10 @@ impl MathBox {
                     pos.x = Pt(pos.x.val() + x_origin);
                     pos.y = Pt(baseline_y - self.ascent + pos.y.val());
                 }
+                FrameItem::TextShaped { ref mut pos, .. } => {
+                    pos.x = Pt(pos.x.val() + x_origin);
+                    pos.y = Pt(baseline_y - self.ascent + pos.y.val());
+                }
                 FrameItem::Line { ref mut start, ref mut end, .. } => {
                     start.x = Pt(start.x.val() + x_origin);
                     end.x   = Pt(end.x.val() + x_origin);
@@ -92,6 +96,10 @@ pub(super) fn offset_item(item: FrameItem, dx: Pt, dy: Pt) -> FrameItem {
             pos: Point { x: Pt(pos.x.val() + dx.val()), y: Pt(pos.y.val() + dy.val()) },
             text,
             style,
+        },
+        FrameItem::TextShaped { pos, glyphs, style, text } => FrameItem::TextShaped {
+            pos: Point { x: Pt(pos.x.val() + dx.val()), y: Pt(pos.y.val() + dy.val()) },
+            glyphs, style, text,
         },
         FrameItem::Line { start, end, thickness, color } => FrameItem::Line {
             start: Point { x: Pt(start.x.val() + dx.val()), y: Pt(start.y.val() + dy.val()) },
@@ -670,6 +678,9 @@ impl<'a, M: FontMetrics> MathLayouter<'a, M> {
             for mut item in b.items {
                 match item {
                     FrameItem::Text { ref mut pos, .. } => {
+                        pos.x = Pt(pos.x.val() + x);
+                    }
+                    FrameItem::TextShaped { ref mut pos, .. } => {
                         pos.x = Pt(pos.x.val() + x);
                     }
                     FrameItem::Line { ref mut start, ref mut end, .. } => {

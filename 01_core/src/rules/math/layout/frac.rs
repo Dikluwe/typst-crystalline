@@ -54,9 +54,13 @@ impl<'a, M: FontMetrics> super::MathLayouter<'a, M> {
         let mut items = Vec::new();
 
         for mut item in num_box.items {
-            if let FrameItem::Text { ref mut pos, .. } = item {
-                pos.x = Pt(pos.x.val() + num_x);
-                pos.y = Pt(pos.y.val() + num_y);
+            match item {
+                FrameItem::Text { ref mut pos, .. }
+                | FrameItem::TextShaped { ref mut pos, .. } => {
+                    pos.x = Pt(pos.x.val() + num_x);
+                    pos.y = Pt(pos.y.val() + num_y);
+                }
+                _ => {}
             }
             items.push(item);
         }
@@ -71,9 +75,13 @@ impl<'a, M: FontMetrics> super::MathLayouter<'a, M> {
         });
 
         for mut item in den_box.items {
-            if let FrameItem::Text { ref mut pos, .. } = item {
-                pos.x = Pt(pos.x.val() + den_x);
-                pos.y = Pt(pos.y.val() + den_y);
+            match item {
+                FrameItem::Text { ref mut pos, .. }
+                | FrameItem::TextShaped { ref mut pos, .. } => {
+                    pos.x = Pt(pos.x.val() + den_x);
+                    pos.y = Pt(pos.y.val() + den_y);
+                }
+                _ => {}
             }
             items.push(item);
         }

@@ -17,7 +17,8 @@ use crate::entities::{
 /// Extrai a posição primária de um FrameItem (posição do canto superior esquerdo).
 pub(super) fn item_pos(item: &FrameItem) -> (f64, f64) {
     match item {
-        FrameItem::Text  { pos, .. } => (pos.x.0, pos.y.0),
+        FrameItem::Text        { pos, .. } => (pos.x.0, pos.y.0),
+        FrameItem::TextShaped  { pos, .. } => (pos.x.0, pos.y.0),
         FrameItem::Line  { start, .. } => (start.x.0, start.y.0),
         FrameItem::Glyph { pos, .. } => (pos.x.0, pos.y.0),
         FrameItem::Image { pos, .. } => (pos.x.0, pos.y.0),
@@ -32,6 +33,8 @@ pub(super) fn translate_frame_item(item: FrameItem, new_x: Pt, new_y: Pt) -> Fra
     match item {
         FrameItem::Text { text, style, .. } =>
             FrameItem::Text { pos: Point { x: new_x, y: new_y }, text, style },
+        FrameItem::TextShaped { glyphs, style, text, .. } =>
+            FrameItem::TextShaped { pos: Point { x: new_x, y: new_y }, glyphs, style, text },
         FrameItem::Line { start, end, thickness, color } => {
             let dx = end.x.0 - start.x.0;
             let dy = end.y.0 - start.y.0;

@@ -14,6 +14,7 @@ pub mod layout;
 pub mod measurements;
 pub mod pipeline;
 pub mod query_helpers;
+pub mod shaper;
 pub mod world;
 
 #[cfg(test)]

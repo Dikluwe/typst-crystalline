@@ -1615,7 +1615,8 @@ mod integration {
     {
         use typst_core::entities::layout_types::FrameItem;
         match item {
-            FrameItem::Text  { pos, .. } => *pos,
+            FrameItem::Text        { pos, .. } => *pos,
+            FrameItem::TextShaped  { pos, .. } => *pos,
             FrameItem::Line  { start, .. } => *start,
             FrameItem::Glyph { pos, .. } => *pos,
             FrameItem::Image { pos, .. } => *pos,

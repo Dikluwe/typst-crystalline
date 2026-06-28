@@ -313,6 +313,10 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
                     pos: Point { x: pos.x + Pt(target_x), y: pos.y + Pt(target_y) },
                     text, style,
                 },
+                FrameItem::TextShaped { pos, glyphs, style, text } => FrameItem::TextShaped {
+                    pos: Point { x: pos.x + Pt(target_x), y: pos.y + Pt(target_y) },
+                    glyphs, style, text,
+                },
                 FrameItem::Shape { pos, kind, width, height, fill, stroke, parent_bbox_at_emit } =>
                     FrameItem::Shape {
                         pos: Point { x: pos.x + Pt(target_x), y: pos.y + Pt(target_y) },
@@ -392,7 +396,8 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
         // a `margin` se página vazia.
         let top_safe = self.regions.current.current_items.iter()
             .map(|it| match it {
-                FrameItem::Text  { pos, .. } => pos.y.0,
+                FrameItem::Text        { pos, .. } => pos.y.0,
+                FrameItem::TextShaped  { pos, .. } => pos.y.0,
                 FrameItem::Line  { start, .. } => start.y.0,
                 FrameItem::Glyph { pos, .. } => pos.y.0,
                 FrameItem::Image { pos, .. } => pos.y.0,
@@ -459,6 +464,10 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
                     FrameItem::Text { pos, text, style } => FrameItem::Text {
                         pos: Point { x: pos.x + Pt(target_x), y: pos.y + Pt(target_y) },
                         text, style,
+                    },
+                    FrameItem::TextShaped { pos, glyphs, style, text } => FrameItem::TextShaped {
+                        pos: Point { x: pos.x + Pt(target_x), y: pos.y + Pt(target_y) },
+                        glyphs, style, text,
                     },
                     FrameItem::Shape { pos, kind, width, height, fill, stroke, parent_bbox_at_emit } =>
                         FrameItem::Shape {
@@ -549,7 +558,8 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
             let mut tail_h = 0.0_f64;
             for item in tail.items.iter() {
                 let y = match item {
-                    FrameItem::Text  { pos, .. } => pos.y.0,
+                    FrameItem::Text        { pos, .. } => pos.y.0,
+                    FrameItem::TextShaped  { pos, .. } => pos.y.0,
                     FrameItem::Line  { start, .. } => start.y.0,
                     FrameItem::Glyph { pos, .. } => pos.y.0,
                     FrameItem::Image { pos, .. } => pos.y.0,

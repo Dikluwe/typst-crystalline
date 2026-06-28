@@ -97,6 +97,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
                         color,
                     });
                 }
+                FrameItem::TextShaped { .. } => {} // TextShaped não ocorre antes do shaper em math inline
                 FrameItem::Image { .. } => {} // imagens não ocorrem em math inline
                 FrameItem::Shape { .. } => {} // formas não ocorrem em math inline
                 FrameItem::Group { .. } => {} // grupos não ocorrem em math inline
