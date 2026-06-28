@@ -1,5 +1,5 @@
 # Prompt L0 — `stdlib/structural` — módulo `structural`
-Hash do Código: ff17070d
+Hash do Código: 6461e58f
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/rules/stdlib/structural.rs`
@@ -780,4 +780,20 @@ lof() -> Content::Outline { target: Figures, title: None }
 lof(title: [Lista de Figuras]) -> Outline { target: Figures, title: Some(...) }
 lot() -> Content::Outline { target: Tables, title: None }
 lot(title: [Lista de Tabelas]) -> Outline { target: Tables, title: Some(...) }
+
+// make_math_module — P480 (equation alias)
+make_math_module().get("equation") == Value::None  // alias; namespace vanilla
 ```
+
+---
+
+## P480 — `equation` alias em `make_math_module`
+
+`make_math_module()` insere `"equation": Value::None` no dict do módulo math.
+
+Razão: vanilla expõe `math.equation` como namespace de selector. Cristalino
+regista aqui para que `scope.get("math").equation` resolva (mesmo que o valor
+seja `Value::None` porque não existe `native_equation` em L1).
+
+`parse_selector("math.equation")` em L3 `query-helpers.md` é o mecanismo
+primário de paridade de selector — o scope entry é complementar.

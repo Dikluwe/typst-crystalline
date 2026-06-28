@@ -1,8 +1,8 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/rules/introspect.md
-//! @prompt-hash 969f8768
+//! @prompt-hash cf873757
 //! @layer L1
-//! @updated 2026-05-05
+//! @updated 2026-06-27
 //!
 //! P162 sub-passos .E + .F: walk passa a aceitar `&mut Locator` e
 //! `&mut Vec<Tag>`; emite `Tag::Start` antes da mutação de estado e
@@ -1231,6 +1231,24 @@ pub(crate) fn walk(
             // `Content::Outline` continua a ser locatable e emite
             // Tag::Start no topo da `walk` fn — apenas a mutação
             // directa em state foi removida.
+            //
+            // P480 — registo sintético de heading de título em kind_index
+            // para paridade de query de count com vanilla (vanilla conta
+            // o heading de título do outline via pós-layout; aqui registo
+            // pré-layout como entry sintética). headings_for_toc NÃO
+            // actualizado — evita TOC auto-referente. Counter NÃO
+            // aplicado — título do outline não é secção numerada.
+            // Abordagem directa ao kind_index adoptada em vez da Sequence
+            // em native_outline (spec P480 §A.1) porque a Sequence faria
+            // walk normal do Heading → headings_for_toc receberia o
+            // título → layout_outline listaria o próprio título como
+            // entrada na TOC (auto-referência). ADR-0108 §6: intenção
+            // = count parity; comportamento = registo sintético.
+            let title_loc = locator.next();
+            intr.kind_index
+                .entry(ElementKind::Heading)
+                .or_default()
+                .push(title_loc);
         }
 
         // P397 — Document/Asset são metadata/resources; não entram no walk
@@ -3458,6 +3476,53 @@ mod tests {
             intr.resolved_labels.get(&Label("auto-sec".to_string())),
             Some("Secção 2"),
             "auto label deve ter texto resolvido via caminho legacy",
+        );
+    }
+
+    // ── P480 — Outline arm kind_index ────────────────────────────────────────
+
+    #[test]
+    fn p480_walk_outline_registra_heading_em_kind_index() {
+        // P480 — walk arm de Content::Outline regista 1 entrada em
+        // kind_index[Heading] para paridade de count com vanilla.
+        // vanilla conta o heading do título via pós-layout; cristalino
+        // regista aqui pré-layout como entrada sintética.
+        let content = Content::outline();
+        let intr = introspect_with_introspector(&content);
+        assert_eq!(
+            intr.query_by_kind(ElementKind::Heading).len(),
+            1,
+            "P480: walk arm Outline deve registar 1 heading sintético em kind_index",
+        );
+    }
+
+    #[test]
+    fn p480_outline_nao_adiciona_headings_for_toc() {
+        // P480 — registo sintético no kind_index NÃO afecta headings_for_toc.
+        // headings_for_toc continua a conter apenas os headings reais
+        // do documento (sem auto-referência do TOC).
+        let content = Content::Sequence(
+            vec![
+                Content::outline(),
+                Content::heading(1, Content::text("H1")),
+                Content::heading(2, Content::text("H2")),
+            ]
+            .into(),
+        );
+        let intr = introspect_with_introspector(&content);
+
+        // kind_index: 1 outline title + 2 headings reais = 3
+        assert_eq!(
+            intr.query_by_kind(ElementKind::Heading).len(),
+            3,
+            "P480: kind_index deve conter 1 outline title + 2 headings reais",
+        );
+        // headings_for_toc: apenas 2 headings reais (sem outline title)
+        assert_eq!(
+            intr.headings_for_toc().len(),
+            2,
+            "P480: headings_for_toc deve conter só headings reais; \
+             outline title não incluído (evita TOC auto-referente)",
         );
     }
 }

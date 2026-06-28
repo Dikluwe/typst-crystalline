@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/query-helpers.md
-//! @prompt-hash 51294329
+//! @prompt-hash 158c5d26
 //! @layer L3
 //! @updated 2026-05-08
 //!
@@ -115,6 +115,11 @@ pub fn parse_selector(s: &str) -> Result<ParsedSelector, QueryError> {
             return Err(QueryError::InvalidSelector("empty label".to_string()));
         }
         return Ok(ParsedSelector::Label(label.to_string()));
+    }
+    // P480 — alias vanilla: `math.equation` → ElementKind::Equation.
+    // Vanilla rejeita `equation` standalone; aceita `math.equation`.
+    if trimmed == "math.equation" {
+        return Ok(ParsedSelector::Kind(ElementKind::Equation));
     }
     if trimmed.contains('.') || trimmed.contains('(') {
         return Err(QueryError::InvalidSelector(format!(
@@ -373,5 +378,28 @@ mod tests {
             QueryError::InvalidSelector(_) => (),
             other => panic!("expected InvalidSelector, got {:?}", other),
         }
+    }
+
+    // ── P480 — math.equation alias ────────────────────────────────────────────
+
+    #[test]
+    fn p480_parse_selector_math_equation_resolve_equation_kind() {
+        // P480 — `math.equation` é o namespace vanilla para o selector de
+        // equações. parse_selector aceita este alias e mapeia para
+        // ElementKind::Equation (vanilla rejeita `equation` standalone).
+        let parsed = parse_selector("math.equation").unwrap();
+        assert_eq!(
+            parsed,
+            ParsedSelector::Kind(ElementKind::Equation),
+            "P480: math.equation deve resolver para ElementKind::Equation",
+        );
+    }
+
+    #[test]
+    fn p480_parse_selector_equation_standalone_ainda_aceito() {
+        // P480 — `equation` standalone continua a funcionar em cristalino
+        // (compatibilidade interna). Não é alterado.
+        let parsed = parse_selector("equation").unwrap();
+        assert_eq!(parsed, ParsedSelector::Kind(ElementKind::Equation));
     }
 }

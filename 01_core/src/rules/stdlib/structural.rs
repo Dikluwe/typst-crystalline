@@ -2,7 +2,7 @@
 //! @prompt 00_nucleo/prompts/rules/model/document.md
 //! @prompt 00_nucleo/prompts/rules/model/asset.md
 //! @prompt 00_nucleo/prompts/rules/stdlib/structural.md
-//! @prompt-hash eb51f7a4
+//! @prompt-hash 5defd191
 //! @layer L1
 //! @updated 2026-06-26
 //!
@@ -1945,6 +1945,12 @@ pub fn make_math_module() -> Value {
     ] {
         dict.insert(name.into(), op_value(text, true));
     }
+
+    // P480 — alias `equation` no módulo math para paridade de namespace vanilla.
+    // Vanilla expõe `math.equation` como selector; cristalino regista aqui para
+    // que `parse_selector("math.equation")` e `scope.get("math").equation`
+    // resolvam. Value::None porque não existe função nativa `equation` em L1.
+    dict.insert("equation".into(), Value::None);
 
     Value::Dict(dict)
 }

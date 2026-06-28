@@ -449,6 +449,25 @@ Achados empíricos da matriz `p206c_corpus_estrutural_36_ficheiros`
   produz `✓ match` empírico; paridade observable
   parcialmente confirmada.
 
+### P480 — Zero diffs — resolução final dos diffs activos — ✅ MATERIALIZADO 2026-06-27
+
+Magnitude S (documental + 2 fix pontuais + 4 testes).
+
+- **Sub-item A** — Outline-toc heading count (pré-P480: cristalino=5, vanilla=6):
+  - Fix: walk arm `Content::Outline` em `introspect.rs` regista 1 heading sintético em
+    `kind_index[Heading]` via `locator.next()`. `headings_for_toc` inalterado — evita
+    TOC auto-referente. Spec original (Sequence com Heading real) rejeitada via ADR-0108
+    (intenção=count parity, comportamento=TOC self-reference são distintos).
+  - Resultado: cristalino=6 = vanilla=6. 1 diff → 0 diffs.
+- **Sub-item B** — `math.equation` selector namespace (22 errors pré-P480):
+  - Fix triple: (1) `parse_selector("math.equation")` → `Kind(Equation)` alias em
+    `query_helpers.rs`; (2) `"equation"` chave em `make_math_module` (`structural.rs`);
+    (3) selectors corpus `"equation"` → `"math.equation"` em `structural_parity.rs`.
+  - Resultado: 22 errors → 22 matches.
+- **Resultado total**: **73/73 matches, 0 diffs, 0 errors**. Paridade estrutural 100%.
+- 4 testes novos; `crystalline-lint --fix-hashes` corrigiu 3 hashes.
+- Relatório: `lab/parity/reports/2026-06-27-passo-480.md`.
+
 ### P206D — Cobertura corpus 36 + matriz consolidada — ✅ MATERIALIZADO 2026-05-08
 
 Magnitude real: S-M (~40 min; test consolidado novo +

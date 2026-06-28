@@ -57,22 +57,29 @@ dados, não regressões.
 
 | Ficheiro | Selector | Divergência | Causa identificada | Estado |
 |----------|----------|-------------|---------------------|--------|
-| `math/{block,simple}.typ` + visuais com equation | `equation` | Vanilla rejeita `equation` standalone ("unknown variable"); cristalino aceita | Vanilla usa `math.equation` namespace; cristalino aceita `equation` via `ElementKind::Equation` (P186B). Divergência arquitectónica de selector parsing. Fix exigiria parsing de namespace vanilla — fora-de-escopo P206. | INCLUDE-com-diff (error, não diff) |
+| `math/{block,simple}.typ` + visuais com equation | `equation` | Vanilla rejeita `equation` standalone ("unknown variable"); cristalino aceita | Vanilla usa `math.equation` namespace; cristalino aceita `equation` via `ElementKind::Equation` (P186B). Divergência arquitectónica de selector parsing. Fix exigiria parsing de namespace vanilla — fora-de-escopo P206. | **RESOLVIDO P480** |
 | `visual/cite-bibliography.typ` | `heading` | ~~Cristalino eval falha (1 diagnostic)~~ → **✓ MATCH (P479)** | P479: `native_bibliography` agora define título padrão `Content::heading(1, "Bibliography")`; walk arm `Content::Bibliography` recursivo em `e.title` conta o heading → cristalino=1 = vanilla=1. | **RESOLVIDO P479** |
-| `visual/outline-toc.typ` | `heading` | cristalino=5, vanilla=6 (sub-contagem por 1) | Vanilla conta o heading do título do `#outline()` (criado em layout). Cristalino usa introspector pré-layout que não vê headings criados durante o layout. Raiz: `walk` arm `Content::Outline` vazio (P189B — não recursivo em title); outline layout cria heading `Content::heading(1, title_content)` durante layout. Fix M-size: requer mudança em walk/layout/native_outline — scope-out P479. | INCLUDE-com-diff (1 diff) |
+| `visual/outline-toc.typ` | `heading` | ~~cristalino=5, vanilla=6 (sub-contagem por 1)~~ → **✓ MATCH (P480)** | P480: walk arm `Content::Outline` regista 1 heading sintético em `kind_index[Heading]` via `locator.next()`. headings_for_toc não afectado (evita TOC auto-referente). | **RESOLVIDO P480** |
 
 Resolução de cada um:
 
-- `equation` namespace: fix exige expandir parsing de
-  selector cristalino para suportar dotted syntax
-  (`math.equation`). Sub-passo dedicado pós-P479.
+- `equation` namespace: **RESOLVIDO P480** — `parse_selector("math.equation")`
+  mapeado para `ElementKind::Equation`; selector corpus alterado para
+  `"math.equation"`. 22 errors → 22 matches.
 - cite-bibliography heading: **RESOLVIDO P479** (ver tabela acima).
-- Outline-toc heading count: raiz identificada P479 (layout-time
-  heading não visível a pré-layout query). Fix M-size; scope-out.
+- Outline-toc heading count: **RESOLVIDO P480** — registo sintético
+  em `kind_index[Heading]` no walk arm `Content::Outline`. 1 diff → 0 diffs.
+
+### Estado P480 (2026-06-27) — TODOS OS DIFFS RESOLVIDOS
+
+| Ficheiro | Selector | Divergência | Estado |
+|----------|----------|-------------|--------|
+| `math/*.typ` + `visual/equation-ref.typ` | `math.equation` | 22 errors → **22 matches** | **RESOLVIDO** |
+| `visual/outline-toc.typ` | `heading` | count=5 → **count=6 = vanilla** | **RESOLVIDO** |
 
 ---
 
-## §4 Sumário de cobertura matriz P479 (2026-06-27)
+## §4 Sumário de cobertura matriz P480 (2026-06-27)
 
 | Etiqueta | Count | Percentagem |
 |----------|------:|-------------|
@@ -82,18 +89,17 @@ Resolução de cada um:
 | **Total corpus** | **46** | **100%** |
 
 Dos 28 INCLUDE:
-- 50 comparações com match; 1 diff documentado
-  (`outline-toc heading`, M-size, raiz identificada).
-- 22 errors (todos `equation` selector namespace — vanilla
-  rejeita selector standalone; pré-existente).
+- **73 comparações com match; 0 diffs; 0 errors.**
+- Paridade estrutural 100% nas 73 comparações activas.
 
 ### Histórico de cobertura
 
-| Passo | Corpus | INCLUDE | Matches | Diffs |
-|-------|-------:|--------:|--------:|------:|
-| P150  | 25 | N/A | N/A | N/A |
-| P206D | 36 | 23 | ~20 | 3 |
-| P479  | 46 | 28 | 50 | 1 |
+| Passo | Corpus | INCLUDE | Matches | Diffs | Errors |
+|-------|-------:|--------:|--------:|------:|-------:|
+| P150  | 25 | N/A | N/A | N/A | N/A |
+| P206D | 36 | 23 | ~20 | 3 | — |
+| P479  | 46 | 28 | 50 | 1 | 22 |
+| **P480** | **46** | **28** | **73** | **0** | **0** |
 
 ---
 

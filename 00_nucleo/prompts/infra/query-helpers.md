@@ -1,5 +1,5 @@
 # Prompt L0 — `infra/query-helpers`
-Hash do Código: c7ea6387
+Hash do Código: adf98462
 
 **Camada**: L3.
 **Fase**: P206C / Vanilla integration.
@@ -171,3 +171,17 @@ sub-passo dedicado pós-P206.
   (separação via domain struct).
 - Materializa `Selector::Label` ou `Selector::Where`
   em L1 (futuro; out-of-scope P206).
+
+---
+
+## P480 — `math.equation` alias em `parse_selector`
+
+`parse_selector("math.equation")` → `ParsedSelector::Kind(ElementKind::Equation)`.
+
+Vanilla rejeita `equation` standalone; aceita `math.equation` como namespace.
+O alias é tratado antes do guard `.contains('.')` para não ser rejeitado
+como selector complexo. `equation` standalone continua a funcionar internamente.
+
+Novos testes:
+- `p480_parse_selector_math_equation_resolve_equation_kind`
+- `p480_parse_selector_equation_standalone_ainda_aceito`

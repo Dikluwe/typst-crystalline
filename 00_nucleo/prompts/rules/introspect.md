@@ -1,5 +1,5 @@
 # L0 — Motor de Introspecção (`rules/introspect.rs`)
-Hash do Código: d88cc9bd
+Hash do Código: 526d53ff
 
 ## Módulo
 `01_core/src/rules/introspect.rs`
@@ -1149,3 +1149,25 @@ associa a label à figura subjacente.
 `figure_label_numbers`). Para evitar ambiguidade, o arm `Content::Labelled` do
 walk remove qualquer entrada eventualmente preenchida em `label_to_counter_key`
 para a label do wrapper.
+
+---
+
+## P480 — Outline title em `kind_index[Heading]`
+
+Walk arm `Content::Outline` regista **1 entry sintética** em
+`kind_index[ElementKind::Heading]` via `locator.next()`. Isto
+corrige o diff de count no selector `heading` vs vanilla (vanilla
+conta o heading de título do outline via pós-layout; cristalino
+regista aqui pré-layout).
+
+**headings_for_toc NÃO actualizado** — evita TOC auto-referente
+(se o título ficasse em `headings_for_toc`, `layout_outline`
+listaria o próprio título como entrada da TOC).
+
+**Counter NÃO aplicado** — título do outline não é secção numerada.
+
+Abordagem `kind_index` directo adoptada em vez de `native_outline`
+produzir `Content::Sequence([Heading, Outline])` (alternativa da
+spec P480 §A.1) porque a Sequence faria o walk normal do Heading →
+`headings_for_toc` receberia o título → auto-referência. ADR-0108:
+intenção = count parity; comportamento = registo sintético.
