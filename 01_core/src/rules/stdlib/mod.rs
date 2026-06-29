@@ -1507,6 +1507,52 @@ mod tests {
         );
     }
 
+    // ── P491 — str(base:) ────────────────────────────────────────────────────
+
+    #[test]
+    fn p491_str_base_named() {
+        null_ctx!(ctx);
+        assert_eq!(
+            native_str(&mut ctx, &pn(vec![Value::Int(255)], "base", Value::Int(16)), &null_world(), test_file_id())
+                .unwrap(),
+            Value::Str("ff".into())
+        );
+        assert_eq!(
+            native_str(&mut ctx, &pn(vec![Value::Int(42)], "base", Value::Int(2)), &null_world(), test_file_id())
+                .unwrap(),
+            Value::Str("101010".into())
+        );
+        assert_eq!(
+            native_str(&mut ctx, &p(vec![Value::Int(255)]), &null_world(), test_file_id())
+                .unwrap(),
+            Value::Str("255".into())
+        );
+    }
+
+    #[test]
+    fn p491_str_base_negativo() {
+        null_ctx!(ctx);
+        assert_eq!(
+            native_str(&mut ctx, &pn(vec![Value::Int(-255)], "base", Value::Int(16)), &null_world(), test_file_id())
+                .unwrap(),
+            Value::Str("-ff".into())
+        );
+    }
+
+    #[test]
+    fn p491_str_base_invalida() {
+        null_ctx!(ctx);
+        assert!(native_str(&mut ctx, &pn(vec![Value::Int(255)], "base", Value::Int(37)), &null_world(), test_file_id()).is_err());
+        assert!(native_str(&mut ctx, &pn(vec![Value::Int(255)], "base", Value::Int(1)), &null_world(), test_file_id()).is_err());
+        assert!(native_str(&mut ctx, &pn(vec![Value::Float(3.14)], "base", Value::Int(16)), &null_world(), test_file_id()).is_err());
+    }
+
+    #[test]
+    fn p491_str_named_desconhecido_rejeitado() {
+        null_ctx!(ctx);
+        assert!(native_str(&mut ctx, &pn(vec![Value::Int(255)], "foo", Value::Int(16)), &null_world(), test_file_id()).is_err());
+    }
+
     #[test]
     fn native_int_de_int() {
         null_ctx!(ctx);
@@ -1779,6 +1825,60 @@ mod tests {
             .unwrap(),
             Value::Int(3)
         );
+    }
+
+    // ── P491 — calc.round(digits:) ───────────────────────────────────────────
+
+    #[test]
+    fn p491_calc_round_digits_named() {
+        null_ctx!(ctx);
+        approx_float(
+            calc_round(
+                &mut ctx,
+                &pn(vec![Value::Float(3.567)], "digits", Value::Int(2)),
+                &null_world(),
+                test_file_id(),
+            )
+            .unwrap(),
+            3.57,
+        );
+        approx_float(
+            calc_round(
+                &mut ctx,
+                &pn(vec![Value::Float(1234.0)], "digits", Value::Int(-2)),
+                &null_world(),
+                test_file_id(),
+            )
+            .unwrap(),
+            1200.0,
+        );
+        // default 0 preservado
+        assert_eq!(
+            calc_round(&mut ctx, &p(vec![Value::Float(3.5)]), &null_world(), test_file_id())
+                .unwrap(),
+            Value::Int(4)
+        );
+    }
+
+    #[test]
+    fn p491_calc_round_digits_int_input() {
+        null_ctx!(ctx);
+        approx_float(
+            calc_round(
+                &mut ctx,
+                &pn(vec![Value::Int(255)], "digits", Value::Int(2)),
+                &null_world(),
+                test_file_id(),
+            )
+            .unwrap(),
+            255.0,
+        );
+    }
+
+    #[test]
+    fn p491_calc_round_named_desconhecido_rejeitado() {
+        null_ctx!(ctx);
+        assert!(calc_round(&mut ctx, &pn(vec![Value::Float(3.5)], "foo", Value::Int(2)), &null_world(), test_file_id()).is_err());
     }
 
     #[test]
@@ -2502,6 +2602,62 @@ mod tests {
             test_file_id()
         )
         .is_err());
+    }
+
+    // ── P491 — calc.log(base:) ───────────────────────────────────────────────
+
+    #[test]
+    fn p491_calc_log_base_named() {
+        null_ctx!(ctx);
+        approx_float(
+            calc_log(
+                &mut ctx,
+                &pn(vec![Value::Float(100.0)], "base", Value::Int(10)),
+                &null_world(),
+                test_file_id(),
+            )
+            .unwrap(),
+            2.0,
+        );
+        approx_float(
+            calc_log(
+                &mut ctx,
+                &pn(vec![Value::Float(8.0)], "base", Value::Int(2)),
+                &null_world(),
+                test_file_id(),
+            )
+            .unwrap(),
+            3.0,
+        );
+        // posicional preservado
+        approx_float(
+            calc_log(
+                &mut ctx,
+                &p(vec![Value::Float(27.0), Value::Float(3.0)]),
+                &null_world(),
+                test_file_id(),
+            )
+            .unwrap(),
+            3.0,
+        );
+    }
+
+    #[test]
+    fn p491_calc_log_base_e_posicional_sao_mutuamente_exclusivos() {
+        null_ctx!(ctx);
+        assert!(calc_log(
+            &mut ctx,
+            &Args { items: vec![Value::Float(100.0), Value::Float(10.0)], named: [("base".into(), Value::Int(10))].into_iter().collect() },
+            &null_world(),
+            test_file_id()
+        )
+        .is_err());
+    }
+
+    #[test]
+    fn p491_calc_log_named_desconhecido_rejeitado() {
+        null_ctx!(ctx);
+        assert!(calc_log(&mut ctx, &pn(vec![Value::Float(100.0)], "foo", Value::Int(10)), &null_world(), test_file_id()).is_err());
     }
 
     // ── P306 — aritmética inteira, combinatória, norma, raiz ────────────────

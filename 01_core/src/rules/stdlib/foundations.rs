@@ -280,10 +280,37 @@ pub fn native_range(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::con
 // ── Funções de conversão de tipo (Passo 27) ─────────────────────────────────
 
 /// `str(v)` → representação textual do valor.
+/// P491: `str(int, base: n)` converte inteiro para base 2–36.
 pub fn native_str(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contracts::world::World, _current_file: FileId) -> SourceResult<Value> {
-    expect_no_named(&args.named)?;
+    // P491 — arg nomeado `base` (aplicável apenas a Int). Apenas `base` é aceite.
+    let base_arg = args.named.get("base");
+    if args.named.len() > 1 || (args.named.len() == 1 && base_arg.is_none()) {
+        let bad = args.named.keys().find(|k| k.as_str() != "base")
+            .map(|k| k.as_str()).unwrap_or("?");
+        return err(format!("str() argumento nomeado desconhecido: '{bad}'"));
+    }
+
     match args.items.as_slice() {
         [v] => {
+            // P491: str(Int, base: n)
+            if let Some(base_val) = base_arg {
+                if let Value::Int(i) = v {
+                    let base = match base_val {
+                        Value::Int(b) => *b as u32,
+                        other => return err(format!(
+                            "str() argumento 'base' requer Int, recebeu {}", other.type_name()
+                        )),
+                    };
+                    if !(2..=36).contains(&base) {
+                        return err(format!("str() base deve estar entre 2 e 36, recebeu {}", base));
+                    }
+                    return Ok(Value::Str(EcoString::from(format_radix(*i, base))));
+                }
+                return err(format!(
+                    "str() argumento 'base' só se aplica a Int, recebeu {}", v.type_name()
+                ));
+            }
+
             let s: String = match v {
                 Value::None        => "none".into(),
                 Value::Bool(b)     => if *b { "true" } else { "false" }.into(),
@@ -307,6 +334,27 @@ pub fn native_str(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contr
 fn format_float(f: f64) -> String {
     let s = format!("{}", f);
     if s.contains('.') || s.contains('e') { s } else { format!("{s}.0") }
+}
+
+/// Converte um inteiro para a representação textual numa base 2–36.
+/// P491: paridade vanilla `str(255, base: 16) == "ff"`.
+fn format_radix(mut n: i64, base: u32) -> String {
+    if n == 0 {
+        return "0".to_string();
+    }
+    let negative = n < 0;
+    let mut n = n.abs();
+    let mut result = String::new();
+    while n > 0 {
+        let digit = (n % base as i64) as u32;
+        let c = std::char::from_digit(digit, base).unwrap();
+        result.push(c);
+        n /= base as i64;
+    }
+    if negative {
+        result.push('-');
+    }
+    result.chars().rev().collect()
 }
 
 /// Formata Length como string (ex: "12pt", "1.5em", "6pt + 1em").

@@ -671,7 +671,6 @@ fn p486_parity_73_73_mantido() {
         "P486: zero errors esperados; obtido {}", total_errors);
 }
 
-#[test]
 /// **P490** — sentinela: bateria de paridade funcional com 20 ficheiros de teste
 /// criados especificamente para sondar comportamento em funcionalidades `parcial`
 /// e de alto impacto. Zero PANICs obrigatório (ADR-0054 graded).
@@ -810,6 +809,38 @@ fn p490_bateria_paridade_funcional_20_ficheiros() {
 
     // Critério estrito: ZERO panics
     assert_eq!(panics, 0, "P490: zero PANICs exigido; obtido {}", panics);
+}
+
+/// **P491** — sentinela do lote D2: args nomeados `calc.log(base:)`,
+/// `calc.round(digits:)`, `str(base:)` e `dict.at(default:)`.
+/// Cada caso envolve o resultado num `metadata(...)` e verifica que o
+/// cristalino consegue compilar + query sem PANIC e retorna count=1.
+#[test]
+fn p491_args_nomeados_lote_d2() {
+    let cases: &[(&str, &str)] = &[
+        ("calc_log_base",   "#metadata(calc.log(100, base: 10))"),
+        ("calc_round_digits", "#metadata(calc.round(3.567, digits: 2))"),
+        ("str_base",        "#metadata(str(255, base: 16))"),
+        ("dict_at_default", "#let d = (a: 1)\n#metadata(d.at(\"z\", default: 99))"),
+    ];
+
+    for (name, source) in cases {
+        let dir = tempdir();
+        let main_path = dir.path().join("main.typ");
+        std::fs::write(&main_path, source).expect("escrever main.typ");
+
+        let world = match SystemWorld::new(dir.path(), "main.typ") {
+            Ok(w)  => w,
+            Err(e) => panic!("[p491] {}: erro build world: {:?}", name, e),
+        };
+        let source_ref = world.source(world.main()).unwrap();
+        match query_to_summary(&world, &source_ref, "metadata") {
+            Ok(summary) => {
+                assert_eq!(summary.count, 1, "[p491] {}: esperado count=1, obtido {}", name, summary.count);
+            }
+            Err(e) => panic!("[p491] {}: query falhou: {:?}", name, e),
+        }
+    }
 }
 
 #[test]

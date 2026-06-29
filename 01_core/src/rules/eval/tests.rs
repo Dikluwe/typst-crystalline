@@ -6274,6 +6274,35 @@ mod tests {
         assert_eq!(eval_let(&world, "x"), Some(Value::Dict(expected)));
     }
 
+    // ── P491 — dict.at(default:) ─────────────────────────────────────────────
+
+    #[test]
+    fn p491_dict_at_default_named() {
+        let world = MockWorld::new("#let d = (a: 1, b: 2)\n#let x = d.at(\"z\", default: 99)\n#let y = d.at(\"a\")\n#let z = d.at(\"z\", default: \"missing\")");
+        assert_eq!(eval_let(&world, "x"), Some(Value::Int(99)));
+        assert_eq!(eval_let(&world, "y"), Some(Value::Int(1)));
+        assert_eq!(eval_let(&world, "z"), Some(Value::Str("missing".into())));
+    }
+
+    #[test]
+    fn p491_dict_at_sem_default_chave_ausente_da_erro() {
+        let world = MockWorld::new("#let d = (a: 1)\n#let x = d.at(\"z\")");
+        assert!(eval_let(&world, "x").is_none());
+    }
+
+    #[test]
+    fn p491_dict_keys_values() {
+        let world = MockWorld::new("#let d = (a: 1, b: 2)\n#let k = d.keys()\n#let v = d.values()");
+        assert_eq!(
+            eval_let(&world, "k"),
+            Some(Value::Array(vec![Value::Str("a".into()), Value::Str("b".into())]))
+        );
+        assert_eq!(
+            eval_let(&world, "v"),
+            Some(Value::Array(vec![Value::Int(1), Value::Int(2)]))
+        );
+    }
+
     #[test]
     fn p466_str_contains() {
         let world = MockWorld::new("#let x = \"hello\".contains(\"ell\")");

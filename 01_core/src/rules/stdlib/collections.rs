@@ -51,9 +51,12 @@ pub(crate) fn try_dispatch_collection_method(
         (Value::Array(arr), "enumerate") => Some(Ok(array_enumerate(arr))),
 
         // ── dict ─────────────────────────────────────────────────────────────
+        (Value::Dict(dict), "keys") => Some(Ok(dict_keys(dict))),
+        (Value::Dict(dict), "values") => Some(Ok(dict_values(dict))),
         (Value::Dict(dict), "pairs") => Some(Ok(dict_pairs(dict))),
         (Value::Dict(dict), "remove") => Some(dict_remove(dict, args)),
         (Value::Dict(dict), "update") => Some(dict_update(dict, args)),
+        (Value::Dict(dict), "at") => Some(dict_at(dict, args)),
 
         // ── str ──────────────────────────────────────────────────────────────
         (Value::Str(s), "contains") => Some(str_contains(s, args)),
@@ -272,6 +275,14 @@ fn array_enumerate(arr: Vec<Value>) -> Value {
 
 // ── dict helpers ────────────────────────────────────────────────────────────
 
+fn dict_keys(dict: IndexMap<EcoString, Value, FxBuildHasher>) -> Value {
+    Value::Array(dict.into_keys().map(Value::Str).collect())
+}
+
+fn dict_values(dict: IndexMap<EcoString, Value, FxBuildHasher>) -> Value {
+    Value::Array(dict.into_values().collect())
+}
+
 fn dict_pairs(dict: IndexMap<EcoString, Value, FxBuildHasher>) -> Value {
     Value::Array(
         dict.into_iter()
@@ -295,6 +306,35 @@ fn dict_update(
     let other = expect_one_dict(args, "dict.update()")?;
     dict.extend(other);
     Ok(Value::Dict(dict))
+}
+
+/// `dict.at(key, default: value)` — P491.
+/// Retorna o valor associado a `key` ou `default` se a chave não existir.
+fn dict_at(
+    dict: IndexMap<EcoString, Value, FxBuildHasher>,
+    args: Args,
+) -> SourceResult<Value> {
+    // Validar named args antes de consumir `args`.
+    if args.named.len() > 1 || (args.named.len() == 1 && !args.named.contains_key("default")) {
+        let bad = args.named.keys().find(|k| k.as_str() != "default")
+            .map(|k| k.as_str()).unwrap_or("?");
+        return Err(vec![SourceDiagnostic::error(
+            Span::detached(),
+            format!("dict.at() argumento nomeado desconhecido: '{bad}'"),
+        )]);
+    }
+    let default = args.named.get("default").cloned();
+    let key = expect_one_str(args, "dict.at()")?;
+    match dict.get(&key) {
+        Some(value) => Ok(value.clone()),
+        None => match default {
+            Some(value) => Ok(value),
+            None => Err(vec![SourceDiagnostic::error(
+                Span::detached(),
+                format!("dicionário não contém a chave {:?}", key.as_str()),
+            )]),
+        },
+    }
 }
 
 // ── str helpers ─────────────────────────────────────────────────────────────
