@@ -1096,3 +1096,188 @@ fn p488_parity_corpus_48_ficheiros_rtl_skipfeature() {
     assert_eq!(total_errors, 0,
         "P488: zero errors esperados; obtido {}", total_errors);
 }
+
+
+/// **P500** — Audit de cobertura stdlib expandida.
+///
+/// Cria 17 ficheiros de teste em `corpus/p500` que sondam funcionalidades
+/// do vanilla 0.14.2 não cobertas pela bateria P490. Correr o eval + query
+/// cristalino e comparar estruturalmente com `typst query` vanilla quando
+/// disponível. O teste é uma medição: não faz `assert` sobre MATCH/DIFF,
+/// mas exige zero PANICs (qualquer panic é bug prioritário para P501).
+#[test]
+fn p500_audit_cobertura_stdlib_expandida() {
+    let corpus_dir = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("corpus/p500");
+    if !corpus_dir.is_dir() {
+        eprintln!("[p500] corpus/p500 ausente; skip.");
+        return;
+    }
+
+    // (ficheiro, [selectors a testar])
+    let cases: &[(&str, &[&str])] = &[
+        ("test-image-fit.typ", &["metadata"]),
+        ("test-page-header-footer.typ", &["metadata"]),
+        ("test-place-absolute.typ", &["metadata"]),
+        ("test-calc-rest.typ", &["metadata"]),
+        ("test-str-methods.typ", &["metadata"]),
+        ("test-dict-methods.typ", &["metadata"]),
+        ("test-list-advanced.typ", &["list"]),
+        ("test-enum-advanced.typ", &["enum"]),
+        ("test-par-advanced.typ", &["par"]),
+        ("test-raw-advanced.typ", &["raw"]),
+        ("test-quote-advanced.typ", &["quote"]),
+        ("test-footnote-advanced.typ", &["footnote"]),
+        ("test-figure-advanced.typ", &["figure"]),
+        ("test-bibliography-csl.typ", &["bibliography"]),
+        ("test-outline-advanced.typ", &["outline"]),
+        ("test-state-counter.typ", &["metadata"]),
+        ("test-metadata-query.typ", &["metadata", "<tag>"]),
+    ];
+
+    let vanilla_available = vanilla_cli_available();
+    if !vanilla_available {
+        eprintln!("[p500] vanilla CLI ausente; medição cristalino-only.");
+    }
+
+    let mut matches = 0usize;
+    let mut diffs = 0usize;
+    let mut compile_errors = 0usize;
+    let mut panics = 0usize;
+    let mut vanilla_missing = 0usize;
+
+    let mut rows: Vec<String> = Vec::new();
+
+    for (filename, selectors) in cases {
+        let path = corpus_dir.join(filename);
+        let Ok(source) = std::fs::read_to_string(&path) else {
+            eprintln!("[p500] ficheiro ausente: {}", filename);
+            continue;
+        };
+
+        let dir = tempdir();
+        let main_path = dir.path().join("main.typ");
+        if std::fs::write(&main_path, &source).is_err() {
+            eprintln!("[p500] {}: erro a escrever tempdir", filename);
+            continue;
+        }
+
+        // Copiar assets auxiliares se existirem no corpus.
+        for asset in &["test.png", "refs.bib"] {
+            let src = corpus_dir.join(asset);
+            if src.exists() {
+                let _ = std::fs::copy(&src, dir.path().join(asset));
+            }
+        }
+
+        let world = match SystemWorld::new(dir.path(), "main.typ") {
+            Ok(w) => w,
+            Err(e) => {
+                eprintln!("[p500] {}: erro build world: {:?}", filename, e);
+                compile_errors += 1;
+                rows.push(format!("| {} | — | build world: {:?} | ERRO_DESCRITIVO | world init |", filename, e));
+                continue;
+            }
+        };
+        let source_ref = world.source(world.main()).unwrap();
+
+        let mut file_had_panic = false;
+        let mut file_had_error = false;
+        let mut file_had_diff = false;
+        let mut file_match = true;
+        let mut details: Vec<String> = Vec::new();
+
+        for selector in *selectors {
+            let crist = match query_to_summary(&world, &source_ref, selector) {
+                Ok(s) => s,
+                Err(e) => {
+                    let msg = format!("{:?}", e);
+                    if msg.contains("panicked") || msg.contains("PANIC") {
+                        eprintln!("[p500] {} sel={}: PANIC: {}", filename, selector, msg);
+                        panics += 1;
+                        file_had_panic = true;
+                    } else {
+                        eprintln!("[p500] {} sel={}: ERRO: {}", filename, selector, msg);
+                        compile_errors += 1;
+                        file_had_error = true;
+                    }
+                    details.push(format!("{}: {}", selector, msg));
+                    file_match = false;
+                    continue;
+                }
+            };
+
+            if !vanilla_available {
+                vanilla_missing += 1;
+                details.push(format!("{}: crist count={} (vanilla ausente)", selector, crist.count));
+                file_match = false;
+                continue;
+            }
+
+            let van = match run_typst_query(&main_path, selector) {
+                Ok(v) => v,
+                Err(e) => {
+                    eprintln!("[p500] {} sel={}: vanilla erro: {}", filename, selector, e);
+                    vanilla_missing += 1;
+                    details.push(format!("{}: crist count={}, vanilla erro: {}", selector, crist.count, e));
+                    file_match = false;
+                    continue;
+                }
+            };
+
+            match compare_query_outputs(&crist, &van) {
+                CompareResult::Match => {
+                    eprintln!("[p500] {} sel={}: ✓ match count={}", filename, selector, crist.count);
+                    details.push(format!("{}: match count={}", selector, crist.count));
+                }
+                CompareResult::Diff(diffs_vec) => {
+                    eprintln!("[p500] {} sel={}: ✗ diff {:?}", filename, selector, diffs_vec);
+                    diffs += 1;
+                    file_had_diff = true;
+                    file_match = false;
+                    details.push(format!("{}: diff {:?}", selector, diffs_vec));
+                }
+                CompareResult::Skip(reason) => {
+                    eprintln!("[p500] {} sel={}: skip {}", filename, selector, reason);
+                    file_match = false;
+                    details.push(format!("{}: skip {}", selector, reason));
+                }
+            }
+        }
+
+        if file_had_panic {
+            rows.push(format!("| {} | ok/esperado | PANIC | PANIC | {} |", filename, details.join("; ")));
+        } else if file_had_error {
+            let cls = if details.iter().any(|d| d.contains("unknown") || d.contains("unrecognized") || d.contains("expected")) {
+                "AUSENTE"
+            } else {
+                "ERRO_DESCRITIVO"
+            };
+            rows.push(format!("| {} | ok/esperado | {} | {} | {} |", filename, cls, cls, details.join("; ")));
+        } else if file_had_diff {
+            rows.push(format!("| {} | ok | DIFF | DIFF | {} |", filename, details.join("; ")));
+        } else if file_match {
+            matches += 1;
+            rows.push(format!("| {} | ok | ok | MATCH | {} |", filename, details.join("; ")));
+        } else {
+            // vanilla ausente ou skip
+            rows.push(format!("| {} | — | — | — | {} |", filename, details.join("; ")));
+        }
+    }
+
+    eprintln!("\n=== P500 — Matriz de auditoria stdlib expandida ===");
+    eprintln!("Ficheiros:            {}", cases.len());
+    eprintln!("MATCH:                {}", matches);
+    eprintln!("DIFF:                 {}", diffs);
+    eprintln!("Erros de compilação:  {}", compile_errors);
+    eprintln!("PANICs:               {}", panics);
+    if !vanilla_available {
+        eprintln!("Vanilla CLI ausente; comparações estruturais skipadas.");
+    }
+
+    for row in &rows {
+        eprintln!("{}", row);
+    }
+
+    // Zero PANICs é invariante de qualquer audit de paridade.
+    assert_eq!(panics, 0, "P500: zero PANICs exigido em audit; obtido {}", panics);
+}

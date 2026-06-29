@@ -311,7 +311,7 @@ fn p206d_corpus_consolidado() {
 fn p206d_corpus_cobertura_minima() {
     let base = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("corpus");
     let corpus = read_corpus(&base);
-    assert_eq!(corpus.len(), 36, "esperado 36 ficheiros corpus");
+    assert_eq!(corpus.len(), 46, "esperado 46 ficheiros corpus (P488 sem RTL)");
 
     let included_count = corpus.iter()
         .filter(|f| skip_reason(&f.category, &f.file).is_none())
