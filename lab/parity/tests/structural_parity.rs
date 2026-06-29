@@ -945,6 +945,46 @@ fn p497_variaveis_cor_predefinidas() {
     }
 }
 
+/// **P498** — Fecho do gap D3c residual: `query(heading)` continua a
+/// encontrar o heading original mesmo após `#show heading.where(...)`.
+/// Usa o snippet exacto do corpus p490/test-show-where-multi.typ.
+#[test]
+fn p498_d3c_residual() {
+    let source = "#show heading.where(level: 1, outlined: true): it => upper(it.body)\n\n= Heading nível 1";
+
+    let dir = tempdir();
+    let main_path = dir.path().join("main.typ");
+    std::fs::write(&main_path, source).expect("escrever main.typ");
+
+    let world = match SystemWorld::new(dir.path(), "main.typ") {
+        Ok(w)  => w,
+        Err(e) => panic!("[p498] erro build world: {:?}", e),
+    };
+    let source_ref = world.source(world.main()).unwrap();
+
+    match query_to_summary(&world, &source_ref, "heading") {
+        Ok(summary) => {
+            assert_eq!(
+                summary.count, 1,
+                "[p498] esperado count=1 após show-rule, obtido {}",
+                summary.count
+            );
+        }
+        Err(e) => panic!("[p498] query falhou: {:?}", e),
+    }
+
+    if vanilla_cli_available() {
+        let van = run_typst_query(&main_path, "heading")
+            .unwrap_or_else(|e| panic!("[p498] vanilla query falhou: {:?}", e));
+        let van_array = van.as_array()
+            .unwrap_or_else(|| panic!("[p498] vanilla output não é array"));
+        assert_eq!(
+            van_array.len(), 1,
+            "[p498] vanilla esperado count=1, obtido {}", van_array.len()
+        );
+    }
+}
+
 /// **P494** — sentinela dos 7 selectors de elementos de documento:
 /// `list`, `enum`, `par`, `link`, `raw`, `quote`, `footnote`.
 /// Compara count cristalino vs vanilla `typst query` para corpus

@@ -409,7 +409,11 @@ pub fn query_to_summary(
         QueryError::EvalFailed(format!("{} diagnostic(s)", errors.len()))
     })?;
     let content = module.content().ok_or(QueryError::NoContent)?;
-    let intr = introspect(content);
+    // P498 — usar conteúdo original (pré-show-rules) para introspecção,
+    // garantindo que elementos locatable consumidos por show-rules ainda
+    // são visíveis a `query`.
+    let intr_content = module.introspection_content().unwrap_or(content);
+    let intr = introspect(intr_content);
     Ok(summarize_query(&intr, content, &parsed, selector))
 }
 

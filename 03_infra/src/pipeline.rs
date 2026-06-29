@@ -116,9 +116,12 @@ pub fn compile_to_pdf_bytes_full_error(
         None => return (Ok(Vec::new()), warnings),
     };
     // P190I (M6 fechado): popula TagIntrospector a partir do content.
+    // P498: usa o conteúdo original (pré-show-rules) para que elementos
+    // locatable transformados por show-rules continuem indexados.
+    let intr_content = module.introspection_content().unwrap_or(content);
     // P429 (DEBT-63): injecta no BibStore os styles CSL resolvidos em
     // eval time, indexados pela chave do BibliographyElem correspondente.
-    let mut intr = introspect_with_introspector(content);
+    let mut intr = introspect_with_introspector(intr_content);
     for (key, style) in module.bibliography_styles() {
         intr.bib_store.add_style(*key, style.clone());
     }

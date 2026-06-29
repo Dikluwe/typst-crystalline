@@ -1,5 +1,5 @@
 # Prompt L0 — rules/eval
-Hash do Código: eb34873b
+Hash do Código: d6a5e1f8
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/rules/eval.rs`
@@ -43,6 +43,22 @@ O entrypoint `pub fn eval` (`eval/mod.rs`) constrói o scope base do documento:
 4. Elementos de utilizador registados no `ElementRegistry`.
 
 O scope base é depois herdado por closures e show-rules.
+
+## Passagem dupla do eval (P498)
+
+`eval_with_full_error` corre o eval **duas vezes**:
+
+1. `apply_show_rules = false` — produz `Module::introspection_content`, a árvore
+   original de elementos locatable (heading, figure, metadata, etc.) antes de
+   qualquer transformação de show-rule. Este conteúdo alimenta o
+   `TagIntrospector`.
+2. `apply_show_rules = true` — produz `Module::content`, o output renderizado
+   pós-show-rules, usado pelo layout/PDF.
+
+A flag `EvalContext::apply_show_rules` controla `intercept_content`: quando
+`false`, as show-rules são registadas mas não aplicadas. Isto espelha o modelo
+vanilla, onde o `Introspector` consulta os elementos originais, não o documento
+renderizado.
 
 ## Variantes de Expr suportadas
 

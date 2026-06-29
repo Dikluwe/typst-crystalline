@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/rules/eval.md
-//! @prompt-hash 62c93675
+//! @prompt-hash 7272c897
 //! @layer L1
 //! @updated 2026-06-25
 //!
@@ -593,6 +593,13 @@ pub(crate) fn intercept_content(
     ctx: &mut EvalContext,
     engine: &mut Engine<'_>,
 ) -> SourceResult<Content> {
+    // P498 — passagem de captura do conteúdo original: não aplicar show-rules,
+    // apenas registá-las (feito em `eval_show_rule`). Isto preserva os elementos
+    // locatable para a introspecção, espelhando o modelo vanilla.
+    if !ctx.apply_show_rules {
+        return Ok(content);
+    }
+
     if engine.show_rules.is_empty() {
         return Ok(content);
     }

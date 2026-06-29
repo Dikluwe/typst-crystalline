@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/rules/eval.md
-//! @prompt-hash 62c93675
+//! @prompt-hash 7272c897
 //! @layer L1
 //! @updated 2026-06-17
 //!
@@ -19,7 +19,7 @@ use std::sync::Arc;
 
 use indexmap::IndexMap;
 
-use comemo::{Tracked, TrackedMut};
+use comemo::{Track, Tracked, TrackedMut};
 use ecow::EcoString;
 use hayagriva::citationberg::IndependentStyle;
 
@@ -152,6 +152,13 @@ pub struct EvalContext {
     /// byte-idêntico ao vanilla).
     pub full_error: bool,
 
+    /// **P498 — separação entre conteúdo original (para introspecção) e output
+    /// de show-rules (para layout/render)**. Quando `false`, `intercept_content`
+    /// não aplica show-rules, produzindo a árvore original de elementos locatable.
+    /// O entrypoint `eval` corre duas passagens: uma com `false` (captura original)
+    /// e outra com `true` (render real). Default `true`.
+    pub apply_show_rules: bool,
+
     /// **P429 (DEBT-63)** — styles CSL resolvidos em eval time, indexados pela
     /// chave determinística do `BibliographyElem` correspondente. Transporta-se
     /// para o `Module` no fim do eval e depois para o `BibStore` do
@@ -169,6 +176,7 @@ impl EvalContext {
             introspector: crate::entities::introspector::TagIntrospector::empty(),
             current_location: None,
             full_error: false,
+            apply_show_rules: true,
             bibliography_styles: HashMap::new(),
         }
     }
@@ -267,81 +275,103 @@ pub fn eval_with_full_error(
         );
     }
 
-    let mut ctx = EvalContext::new();
-    ctx.full_error = full_error; // P350c: flag resolvida (default false via `eval`)
+    // P498 — passagem dupla do eval:
+    // 1. `apply_show_rules = false`: produz o conteúdo original (pré-show-rules)
+    //    para alimentar a introspecção. Espelha o modelo vanilla, onde o
+    //    Introspector vê os elementos antes da realização das show-rules.
+    // 2. `apply_show_rules = true`: produz o output renderizado para layout/PDF.
+    //
+    // O scope, as definições de stdlib e as show-rules registadas são idênticos
+    // nas duas passagens; só a aplicação das show-rules difere.
+    let mut run_pass = |apply_show_rules: bool,
+                        pass_sink: &mut TrackedMut<Sink>|
+     -> SourceResult<(Value, Scope, HashMap<u64, Arc<IndependentStyle>>)> {
+        let mut ctx = EvalContext::new();
+        ctx.full_error = full_error; // P350c: flag resolvida (default false via `eval`)
+        ctx.apply_show_rules = apply_show_rules; // P498
 
-    // Route raiz com o FileId do ficheiro principal — primeira aplicação da
-    // ADR-0036 (Passo 92), agora campo do Engine (ADR-0044, Passo 109).
-    let route = Route::root().with_id(source.id());
-    let mut styles = StyleChain::default_chain();
-    let mut show_rules: Arc<[ShowRule]> = Arc::from([]);
-    let mut active_guards: Vec<RuleId> = Vec::new();
-    let current_file = source.id();
+        // Route raiz com o FileId do ficheiro principal — primeira aplicação da
+        // ADR-0036 (Passo 92), agora campo do Engine (ADR-0044, Passo 109).
+        let route = Route::root().with_id(source.id());
+        let mut styles = StyleChain::default_chain();
+        let mut show_rules: Arc<[ShowRule]> = Arc::from([]);
+        let mut active_guards: Vec<RuleId> = Vec::new();
+        let current_file = source.id();
 
-    let mut scopes = Scopes::new(None);
-    // Stdlib como scope base — type, len, range visíveis em todo o documento
-    let stdlib = make_stdlib();
-    for (name, binding) in stdlib.iter() {
-        scopes.define(name, binding.value().clone());
-    }
-    // P492 — cores predefinidas (red, blue, green, ...) como atalhos globais.
-    for (name, value) in crate::rules::stdlib::predefined_color_bindings() {
-        scopes.define(name.as_str(), value);
-    }
-    // P492 — constructor `text(...)` no scope global (usado em show-rules, etc.).
-    scopes.define(
-        "text",
-        Value::Func(crate::entities::func::Func::native("text", crate::rules::stdlib::native_text)),
-    );
-    // Lote F-3 inc-2: elementos de utilizador registados entram no escopo como
-    // funções (`#name(args)` → `Content::Dynamic` via o construtor do registry).
-    // Mesmo escopo base que os nativos (document-wide); `#set`/`#show` léxicos
-    // por cima seguem o padrão `local_styles` (F-2).
-    for name in registry.names() {
-        if let Some(ctor) = registry.ctor(name) {
-            scopes.define(
-                name.as_str(),
-                Value::Func(Func::element(name.as_str(), ctor)),
-            );
+        let mut scopes = Scopes::new(None);
+        // Stdlib como scope base — type, len, range visíveis em todo o documento
+        let stdlib = make_stdlib();
+        for (name, binding) in stdlib.iter() {
+            scopes.define(name, binding.value().clone());
         }
-    }
-    scopes.enter();  // âmbito do módulo
+        // P492 — cores predefinidas (red, blue, green, ...) como atalhos globais.
+        for (name, value) in crate::rules::stdlib::predefined_color_bindings() {
+            scopes.define(name.as_str(), value);
+        }
+        // P492 — constructor `text(...)` no scope global (usado em show-rules, etc.).
+        scopes.define(
+            "text",
+            Value::Func(crate::entities::func::Func::native("text", crate::rules::stdlib::native_text)),
+        );
+        // Lote F-3 inc-2: elementos de utilizador registados entram no escopo como
+        // funções (`#name(args)` → `Content::Dynamic` via o construtor do registry).
+        // Mesmo escopo base que os nativos (document-wide); `#set`/`#show` léxicos
+        // por cima seguem o padrão `local_styles` (F-2).
+        for name in registry.names() {
+            if let Some(ctor) = registry.ctor(name) {
+                scopes.define(
+                    name.as_str(),
+                    Value::Func(Func::element(name.as_str(), ctor)),
+                );
+            }
+        }
+        scopes.enter();  // âmbito do módulo
 
-    // ADR-0044 (Passo 109): agregar os 8 campos num `Engine<'_>` e passar
-    // `&mut engine` às funções internas em vez de 8 parâmetros individuais.
-    // Reborrow do `sink` encurta o lifetime inner do `TrackedMut` ao da
-    // stack frame local, permitindo que `Engine<'a>` tenha um único `'a`.
-    let mut local_sink = TrackedMut::reborrow_mut(&mut sink);
-    let mut engine = Engine {
-        world,
-        route: route.track(),
-        styles: &mut styles,
-        show_rules: &mut show_rules,
-        active_guards: &mut active_guards,
-        current_file,
-        sink: &mut local_sink,
+        // ADR-0044 (Passo 109): agregar os 8 campos num `Engine<'_>` e passar
+        // `&mut engine` às funções internas em vez de 8 parâmetros individuais.
+        // Reborrow do `sink` encurta o lifetime inner do `TrackedMut` ao da
+        // stack frame local, permitindo que `Engine<'a>` tenha um único `'a`.
+        let mut local_sink = TrackedMut::reborrow_mut(&mut *pass_sink);
+        let mut engine = Engine {
+            world,
+            route: route.track(),
+            styles: &mut styles,
+            show_rules: &mut show_rules,
+            active_guards: &mut active_guards,
+            current_file,
+            sink: &mut local_sink,
+        };
+
+        let content_val = eval_markup(root, &mut scopes, &mut ctx, &mut engine)?;
+        let module_scope = scopes.exit();
+        Ok((content_val, module_scope, ctx.bibliography_styles))
     };
 
-    let content_val = eval_markup(
-        root,
-        &mut scopes,
-        &mut ctx,
-        &mut engine,
-    )?;
-
-    let module_scope = scopes.exit();
-    let content = match content_val {
+    // Passo 1: captura do conteúdo original (pré-show-rules) com sink dummy.
+    let mut original_sink = Sink::new();
+    let mut original_tracked = original_sink.track_mut();
+    let (original_val, _, _) = run_pass(false, &mut original_tracked)?;
+    let original_content = match original_val {
         Value::Content(c) => Some(c),
         _ => None,
     };
+
+    // Passo 2: eval normal (com show-rules) — este é o resultado oficial.
+    let (rendered_val, module_scope, bibliography_styles) = run_pass(true, &mut sink)?;
+    let rendered_content = match rendered_val {
+        Value::Content(c) => Some(c),
+        _ => None,
+    };
+
     let mut module = Module::new(
         source.id().into_raw().get().to_string(),
         module_scope,
     );
-    module.set_content(content);
+    module.set_content(rendered_content);
+    module.set_introspection_content(original_content);
     // P429 (DEBT-63): transportar styles resolvidos do eval para o Module,
     // de onde o pipeline os injectará no BibStore do TagIntrospector.
-    module.set_bibliography_styles(ctx.bibliography_styles);
+    module.set_bibliography_styles(bibliography_styles);
     Ok(module)
 }
 

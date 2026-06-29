@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/entities/module.md
-//! @prompt-hash 913115d9
+//! @prompt-hash e9055d10
 //! @layer L1
 //! @updated 2026-06-23
 //!
@@ -29,12 +29,16 @@ pub struct Module(Arc<ModuleInner>);
 
 #[derive(Debug)]
 struct ModuleInner {
-    name:       String,
-    scope:      Scope,
-    content:    Option<Content>,
+    name:                 String,
+    scope:                Scope,
+    content:              Option<Content>,
+    /// **P498** — conteúdo original (pré-show-rules) para introspecção.
+    /// Permite que `query(heading)` encontre o elemento mesmo quando uma
+    /// show-rule o transforma no output renderizado.
+    introspection_content: Option<Content>,
     /// **P429** — styles CSL resolvidos em eval time. Tabela lateral
     /// indexada por `BibliographyElem::style_key()`.
-    bib_styles: HashMap<u64, Arc<IndependentStyle>>,
+    bib_styles:           HashMap<u64, Arc<IndependentStyle>>,
 }
 
 impl std::fmt::Debug for Module {
@@ -57,6 +61,7 @@ impl Module {
             name: name.into(),
             scope,
             content: None,
+            introspection_content: None,
             bib_styles: HashMap::new(),
         }))
     }
@@ -81,6 +86,18 @@ impl Module {
     pub fn set_content(&mut self, content: Option<Content>) {
         if let Some(inner) = Arc::get_mut(&mut self.0) {
             inner.content = content;
+        }
+    }
+
+    /// **P498** — conteúdo original (pré-show-rules) para introspecção.
+    pub fn introspection_content(&self) -> Option<&Content> {
+        self.0.introspection_content.as_ref()
+    }
+
+    /// **P498** — define o conteúdo original para introspecção.
+    pub fn set_introspection_content(&mut self, content: Option<Content>) {
+        if let Some(inner) = Arc::get_mut(&mut self.0) {
+            inner.introspection_content = content;
         }
     }
 

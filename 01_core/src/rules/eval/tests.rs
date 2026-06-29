@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/rules/eval.md
-//! @prompt-hash 62c93675
+//! @prompt-hash 7272c897
 //! @layer L1
 //! @updated 2026-06-17
 //!
@@ -19,6 +19,7 @@ use super::*;
 use ecow::EcoString;
 use indexmap::IndexMap;
 use rustc_hash::FxBuildHasher;
+use crate::entities::introspector::Introspector;
 
 pub(crate) fn eval_for_test<W: World>(
     world: &W,
@@ -6488,6 +6489,40 @@ mod tests {
             !text.contains("CAPÍTULO: Dois"),
             "show rule where multi-field não deve aplicar-se ao heading 2: {:?}",
             text
+        );
+    }
+
+    // ── P498 — separação conteúdo original vs output de show-rules (D3c) ────
+
+    #[test]
+    fn p498_d3c_residual_heading_query_pos_show_rule() {
+        // Ficheiro corpus/p490/test-show-where-multi.typ
+        let world = MockWorld::new(
+            "#show heading.where(level: 1, outlined: true): it => upper(it.body)\n\n= Heading nível 1"
+        );
+        let src = world.source(world.main()).unwrap();
+        let module = eval_for_test(&world, &src).unwrap();
+
+        // O output renderizado não contém o heading locatable (foi substituído).
+        let rendered_text = module.content().unwrap().plain_text();
+        assert!(
+            rendered_text.contains("HEADING NÍVEL 1"),
+            "show rule deve transformar o body do heading: {:?}",
+            rendered_text
+        );
+
+        // O conteúdo original (para introspecção) mantém o heading.
+        let intr_content = module
+            .introspection_content()
+            .expect("P498: módulo deve ter introspection_content");
+        let intr = crate::rules::introspect::introspect_with_introspector(intr_content);
+        let locations = intr.query(&crate::entities::selector::Selector::Kind(
+            crate::entities::element_kind::ElementKind::Heading,
+        ));
+        assert_eq!(
+            locations.len(),
+            1,
+            "query heading deve encontrar 1 elemento original após show-rule"
         );
     }
 

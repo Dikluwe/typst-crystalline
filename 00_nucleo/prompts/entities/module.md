@@ -1,5 +1,5 @@
 # Prompt L0 — entities/module
-Hash do Código: dcdb6481
+Hash do Código: f866fcb3
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/entities/module.rs`
@@ -32,14 +32,23 @@ impl Module {
 impl Clone for Module  // O(1) — Arc::clone
 ```
 
-## Campo content omitido
+## Campos do `ModuleInner`
 
 ```rust
-// content: Content,  // ADR-0017: adiado — Content não migrado
+struct ModuleInner {
+    name: String,
+    scope: Scope,
+    content: Option<Content>,
+    introspection_content: Option<Content>,
+    bib_styles: HashMap<u64, Arc<IndependentStyle>>,
+}
 ```
 
-Documentado em DEBT.md quando necessário. `eval()` parcial sem `Content`
-ainda permite testar a estrutura de scoping.
+- `content` — output renderizado pós-show-rules (usado por layout/PDF).
+- `introspection_content` — conteúdo original pré-show-rules (P498), usado
+  para construir o `TagIntrospector`. Garante que `query(heading)` encontra
+  o elemento mesmo quando uma show-rule o transforma no output renderizado.
+- `bib_styles` — styles CSL resolvidos em eval time (P429 / DEBT-63).
 
 ## Critérios de Verificação
 
