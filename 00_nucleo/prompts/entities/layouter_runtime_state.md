@@ -26,10 +26,29 @@ pub struct LayouterRuntimeState {
     /// **P190D** — modo read-only do Layouter (DEBT-13).
     /// Set/unset por `outline.rs` em volta de render TOC entries.
     pub is_readonly: bool,
+
+    /// **P488** — páginas de figuras contadas, em ordem de documento.
+    /// Populated por `figure.rs::layout()` durante a iteração corrente (write).
+    /// Lido por `mod.rs::layout()` em `finish()` → `PagedDocument.extracted_figure_page_numbers`.
+    pub figure_page_numbers: Vec<usize>,
+
+    /// **P488** — páginas de tabelas contadas, em ordem de documento.
+    /// Populated por `table.rs::layout()` durante a iteração corrente (write).
+    pub table_page_numbers: Vec<usize>,
+
+    /// **P488** — páginas de figuras da iteração anterior do fixpoint.
+    /// Injectado por `mod.rs` no início de cada iteração.
+    /// Lido por `outline.rs::layout_lof()` (read-only).
+    pub known_figure_page_numbers: Vec<usize>,
+
+    /// **P488** — páginas de tabelas da iteração anterior do fixpoint.
+    /// Injectado por `mod.rs` no início de cada iteração.
+    /// Lido por `outline.rs::layout_lot()` (read-only).
+    pub known_table_page_numbers: Vec<usize>,
 }
 ```
 
-3 fields (após P190D). Field `lang: Option<Lang>` deferido — requer walk fn signature change (lido por `compute_labelled` durante walk pre-pass).
+7 fields (após P488). Field `lang: Option<Lang>` deferido — requer walk fn signature change.
 
 ## Pattern arquitectural
 

@@ -1,5 +1,5 @@
 # Prompt L0 — layout_types
-Hash do Código: 3622a965
+Hash do Código: c07a3c11
 
 ## Módulo
 `01_core/src/entities/layout_types.rs`
@@ -72,7 +72,10 @@ Campos de labels (P460):
   gerado por `layout_labelled` durante a passagem.
 - `extracted_label_positions: HashMap<Label, Point>` — mapa label → posição (x, y)
   no momento da inserção, usado pelo exportador PDF para `/Dests`.
-Ambos inicializados vazios em `new()` e populados por `Layouter::finish()` — sem
+**P488** — campos de página para LoF/LoT (fixpoint carry-forward):
+- `extracted_figure_page_numbers: Vec<usize>` — páginas de figuras contadas, em ordem de documento.
+- `extracted_table_page_numbers: Vec<usize>` — páginas de tabelas contadas, em ordem de documento.
+Todos inicializados vazios em `new()` e populados por `Layouter::finish()` — sem
 alterar a assinatura de `layout()`.
 
 ## Critérios de verificação

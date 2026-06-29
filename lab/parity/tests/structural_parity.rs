@@ -66,6 +66,12 @@ fn etiqueta_for(category: &str, file: &str) -> CoverageEtiqueta {
     if category == "semantic" {
         return CoverageEtiqueta::SkipFeature;
     }
+    // P488 — rtl/: dir:rtl scope-out em stdlib; corpus presente para declarar intenção
+    // e verificar que ficheiros árabe/hebraico não causam panic no crystalline.
+    // Comparação estrutural com vanilla skip-feature (vanilla pode divergir em RTL).
+    if category == "rtl" {
+        return CoverageEtiqueta::SkipFeature;
+    }
     CoverageEtiqueta::Include
 }
 
@@ -79,7 +85,8 @@ struct CorpusFile {
 
 fn read_corpus(base: &Path) -> Vec<CorpusFile> {
     let mut entries = Vec::new();
-    let categories = ["markup", "math", "code", "visual", "semantic"];
+    // P488 — "rtl" adicionado ao corpus para validar P484 (bidi_runs).
+    let categories = ["markup", "math", "code", "visual", "semantic", "rtl"];
     for cat in &categories {
         let dir = base.join(cat);
         if !dir.is_dir() { continue; }
@@ -129,8 +136,8 @@ fn tempdir() -> TempDir {
 fn p206c_corpus_estrutural_36_ficheiros() {
     let base = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("corpus");
     let corpus = read_corpus(&base);
-    // P479 — corpus cresceu de 36 (P206D) para 46 (passados P465–P477).
-    assert_eq!(corpus.len(), 46, "esperado 46 ficheiros corpus, encontrados {}", corpus.len());
+    // P488 — corpus cresceu de 46 (P479) para 48 (adição de 2 ficheiros RTL).
+    assert_eq!(corpus.len(), 48, "esperado 48 ficheiros corpus, encontrados {}", corpus.len());
 
     if !vanilla_cli_available() {
         eprintln!(
@@ -313,7 +320,7 @@ fn p206c_query_metadata_values_e2e() {
 fn p479_corpus_paridade_actualizado() {
     let base = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("corpus");
     let corpus = read_corpus(&base);
-    assert_eq!(corpus.len(), 46, "P479: corpus deve ter 46 ficheiros");
+    assert_eq!(corpus.len(), 48, "P479 (actualizado P488): corpus deve ter 48 ficheiros");
 
     if !vanilla_cli_available() {
         eprintln!("[p479] vanilla CLI ausente; sentinela de diff não verifica");
@@ -373,7 +380,7 @@ fn p480_corpus_paridade_actualizado() {
     // Resultado esperado: 0 diffs (vs 1 diff em P479).
     let base = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("corpus");
     let corpus = read_corpus(&base);
-    assert_eq!(corpus.len(), 46, "P480: corpus deve ter 46 ficheiros");
+    assert_eq!(corpus.len(), 48, "P480 (actualizado P488): corpus deve ter 48 ficheiros");
 
     if !vanilla_cli_available() {
         eprintln!("[p480] vanilla CLI ausente; sentinela não verifica diffs");
@@ -434,7 +441,7 @@ fn p482_parity_73_73_mantido() {
     // Resultado esperado: 0 diffs (igual a P480).
     let base = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("corpus");
     let corpus = read_corpus(&base);
-    assert_eq!(corpus.len(), 46, "P482: corpus deve ter 46 ficheiros");
+    assert_eq!(corpus.len(), 48, "P482 (actualizado P488): corpus deve ter 48 ficheiros");
 
     if !vanilla_cli_available() {
         eprintln!("[p482] vanilla CLI ausente; sentinela não verifica diffs");
@@ -494,7 +501,7 @@ fn p483_parity_73_73_mantido() {
     // como Text; resultado esperado: 0 diffs = igual a P482).
     let base = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("corpus");
     let corpus = read_corpus(&base);
-    assert_eq!(corpus.len(), 46, "P483: corpus deve ter 46 ficheiros");
+    assert_eq!(corpus.len(), 48, "P483 (actualizado P488): corpus deve ter 48 ficheiros");
 
     if !vanilla_cli_available() {
         eprintln!("[p483] vanilla CLI ausente; sentinela não verifica diffs");
@@ -552,7 +559,7 @@ fn p485_parity_73_73_mantido() {
     // semântica comparada. Resultado esperado: 73/73 = igual a P484.
     let base = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("corpus");
     let corpus = read_corpus(&base);
-    assert_eq!(corpus.len(), 46, "P485: corpus deve ter 46 ficheiros");
+    assert_eq!(corpus.len(), 48, "P485 (actualizado P488): corpus deve ter 48 ficheiros");
 
     if !vanilla_cli_available() {
         eprintln!("[p485] vanilla CLI ausente; sentinela não verifica diffs");
@@ -609,7 +616,8 @@ fn p486_parity_73_73_mantido() {
     // Resultado esperado: 73/73 = igual a P485.
     let base = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("corpus");
     let corpus = read_corpus(&base);
-    assert_eq!(corpus.len(), 46, "P486: corpus deve ter 46 ficheiros");
+    // P488: corpus cresceu para 48 — P486 mantém diffs=0 (RTL são SkipFeature).
+    assert_eq!(corpus.len(), 48, "P486 (actualizado P488): corpus deve ter 48 ficheiros");
 
     if !vanilla_cli_available() {
         eprintln!("[p486] vanilla CLI ausente; sentinela não verifica diffs");
@@ -657,4 +665,63 @@ fn p486_parity_73_73_mantido() {
         "P486: zero diffs esperados pós-P486; obtido {}", total_diffs);
     assert_eq!(total_errors, 0,
         "P486: zero errors esperados; obtido {}", total_errors);
+}
+
+#[test]
+fn p488_parity_corpus_48_ficheiros_rtl_skipfeature() {
+    // P488 — sentinela de corpus pós-P488.
+    // 2 ficheiros RTL adicionados (arabic_basic.typ + hebrew_basic.typ).
+    // RTL = SkipFeature: dir:rtl scope-out em stdlib; corpus presente para validar
+    // que ficheiros árabe/hebraico não causam crash no pipeline.
+    // INCLUDE count mantém-se ≥28 (RTL files são SkipFeature).
+    let base = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("corpus");
+    let corpus = read_corpus(&base);
+    assert_eq!(corpus.len(), 48, "P488: corpus deve ter 48 ficheiros (46 anteriores + 2 RTL)");
+
+    if !vanilla_cli_available() {
+        eprintln!("[p488] vanilla CLI ausente; sentinela verifica apenas count");
+        return;
+    }
+
+    let mut total_includes = 0;
+    let mut total_diffs    = 0;
+    let mut total_errors   = 0;
+
+    for entry in &corpus {
+        let etiqueta = etiqueta_for(&entry.category, &entry.file);
+        if etiqueta != CoverageEtiqueta::Include { continue; }
+        total_includes += 1;
+
+        let dir = tempdir();
+        let main_path = dir.path().join("main.typ");
+        if std::fs::write(&main_path, &entry.source).is_err() { continue; }
+        if entry.file.contains("cite-bibliography") {
+            let yaml_src  = entry.path.parent().unwrap().join("refs.yaml");
+            let yaml_dest = dir.path().join("refs.yaml");
+            if yaml_src.exists() { let _ = std::fs::copy(&yaml_src, &yaml_dest); }
+        }
+        let world = match SystemWorld::new(dir.path(), "main.typ") {
+            Ok(w) => w,
+            Err(_) => { total_errors += 1; continue; }
+        };
+        let source = world.source(world.main()).unwrap();
+
+        for selector in default_selectors_for_category(&entry.category) {
+            let crist = match query_to_summary(&world, &source, selector) {
+                Ok(s) => s,
+                Err(_) => { total_errors += 1; continue; }
+            };
+            let van = match vanilla_query_summary(&main_path, selector) {
+                Ok(s) => s,
+                Err(_) => { total_errors += 1; continue; }
+            };
+            if crist != van { total_diffs += 1; }
+        }
+    }
+
+    assert!(total_includes >= 28, "P488: INCLUDE >= 28; obtido {}", total_includes);
+    assert_eq!(total_diffs, 0,
+        "P488: zero diffs esperados pós-P488; obtido {}", total_diffs);
+    assert_eq!(total_errors, 0,
+        "P488: zero errors esperados; obtido {}", total_errors);
 }

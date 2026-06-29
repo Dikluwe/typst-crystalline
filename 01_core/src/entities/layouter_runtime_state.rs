@@ -81,4 +81,55 @@ pub struct LayouterRuntimeState {
     /// re-emite valores correctos). Iterações posteriores
     /// sobrescrevem valores de iterações anteriores.
     pub positions: HashMap<Location, Position>,
+
+    /// **P488** — páginas de figuras contadas, em ordem de documento.
+    /// Populated por `figure.rs::layout()` durante layout (write).
+    /// Lido por `mod.rs::finish()` → `PagedDocument.extracted_figure_page_numbers`.
+    pub figure_page_numbers: Vec<usize>,
+
+    /// **P488** — páginas de tabelas contadas, em ordem de documento.
+    /// Populated por `table.rs::layout()` durante layout (write).
+    /// Lido por `mod.rs::finish()` → `PagedDocument.extracted_table_page_numbers`.
+    pub table_page_numbers: Vec<usize>,
+
+    /// **P488** — páginas de figuras da iteração anterior do fixpoint.
+    /// Injectado por `mod.rs` no início de cada iteração de fixpoint.
+    /// Lido por `outline.rs::layout_lof()` para page numbers no LoF.
+    pub known_figure_page_numbers: Vec<usize>,
+
+    /// **P488** — páginas de tabelas da iteração anterior do fixpoint.
+    /// Injectado por `mod.rs` no início de cada iteração de fixpoint.
+    /// Lido por `outline.rs::layout_lot()` para page numbers no LoT.
+    pub known_table_page_numbers: Vec<usize>,
+}
+
+#[cfg(test)]
+mod p488_tests {
+    use super::LayouterRuntimeState;
+
+    #[test]
+    fn p488_layouter_runtime_figure_page_numbers_default_vazio() {
+        let state = LayouterRuntimeState::default();
+        assert!(state.figure_page_numbers.is_empty());
+        assert!(state.table_page_numbers.is_empty());
+        assert!(state.known_figure_page_numbers.is_empty());
+        assert!(state.known_table_page_numbers.is_empty());
+    }
+
+    #[test]
+    fn p488_record_figure_page_armazena_page_number() {
+        let mut state = LayouterRuntimeState::default();
+        state.figure_page_numbers.push(3);
+        state.figure_page_numbers.push(7);
+        assert_eq!(state.figure_page_numbers, vec![3, 7]);
+    }
+
+    #[test]
+    fn p488_known_figure_page_numbers_injectado_e_lido() {
+        let mut state = LayouterRuntimeState::default();
+        state.known_figure_page_numbers = vec![2, 5];
+        assert_eq!(state.known_figure_page_numbers.get(0).copied(), Some(2));
+        assert_eq!(state.known_figure_page_numbers.get(1).copied(), Some(5));
+        assert_eq!(state.known_figure_page_numbers.get(2).copied(), None);
+    }
 }

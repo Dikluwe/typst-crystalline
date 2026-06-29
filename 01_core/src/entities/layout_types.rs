@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/entities/layout_types.md
-//! @prompt-hash 4a80d5c8
+//! @prompt-hash 1729f39e
 //! @layer L1
 //! @updated 2026-04-23
 //!
@@ -520,15 +520,25 @@ pub struct PagedDocument {
     /// PROPOSTO. Vazio por defeito — só tem dados após `layout()`
     /// com locatable content. Consumer migration em P205C.
     pub extracted_positions: crate::entities::sealed_positions::SealedPositions,
+    /// **P488** — páginas de figuras contadas, em ordem de documento.
+    /// Populado por `Layouter::finish()` a partir de `runtime.figure_page_numbers`.
+    /// Usado pelo fixpoint em `mod.rs` para carry-forward entre iterações (LoF).
+    pub extracted_figure_page_numbers: Vec<usize>,
+    /// **P488** — páginas de tabelas contadas, em ordem de documento.
+    /// Populado por `Layouter::finish()` a partir de `runtime.table_page_numbers`.
+    /// Usado pelo fixpoint em `mod.rs` para carry-forward entre iterações (LoT).
+    pub extracted_table_page_numbers: Vec<usize>,
 }
 
 impl PagedDocument {
     pub fn new(pages: Vec<Page>) -> Self {
         Self {
             pages,
-            extracted_label_pages:     HashMap::new(),
-            extracted_label_positions: HashMap::new(),
-            extracted_positions:       crate::entities::sealed_positions::SealedPositions::empty(),
+            extracted_label_pages:          HashMap::new(),
+            extracted_label_positions:      HashMap::new(),
+            extracted_positions:            crate::entities::sealed_positions::SealedPositions::empty(),
+            extracted_figure_page_numbers:  Vec::new(),
+            extracted_table_page_numbers:   Vec::new(),
         }
     }
 

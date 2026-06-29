@@ -1,7 +1,7 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/rules/atomizacao_elementos.md
 //! @prompt 00_nucleo/prompts/rules/layout/table.md
-//! @prompt-hash d36ca01b
+//! @prompt-hash ceec9166
 //! @layer L1
 //! @updated 2026-06-25
 //!
@@ -41,6 +41,9 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
                 .current_location
                 .and_then(|loc| layouter.introspector.flat_counter_at("table", loc))
                 .unwrap_or(1);
+            // P488 — regista página actual para LoT carry-forward entre iterações fixpoint.
+            let page = layouter.current_page_number();
+            layouter.runtime.table_page_numbers.push(page);
             let formatted = format_counter(&[table_number], pattern)
                 .unwrap_or_else(|| table_number.to_string());
             Some(format!("Table {}: ", formatted))

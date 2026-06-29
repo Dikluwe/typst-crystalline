@@ -14096,3 +14096,81 @@ mod p462_ref_numeric {
         );
     }
 }
+
+// ── P488 — LoF/LoT com page numbers (2-pass fixpoint) ──────────────────────
+
+#[test]
+fn p488_lof_sem_known_pages_usa_formato_sem_numero() {
+    // Iteração 0: sem known_figure_page_numbers → LoF sem ". . . N".
+    let content = Content::Sequence(
+        vec![
+            Content::lof(None),
+            Content::figure(
+                Content::text("Corpo"),
+                Some(Content::text("Diagrama de fluxo")),
+                Some("image".to_string()),
+                Some("1".to_string()),
+            ),
+        ]
+        .into(),
+    );
+    let _state = introspect(&content);
+    let doc = layout(&content);
+    let text = doc.plain_text();
+    // LoF deve aparecer com "Figure 1  Diagrama de fluxo"
+    assert!(
+        text.contains("List of Figures"),
+        "LoF deve ter título: {text:?}"
+    );
+    assert!(
+        text.contains("Figure 1") && text.contains("Diagrama de fluxo"),
+        "LoF deve listar a figura: {text:?}"
+    );
+}
+
+#[test]
+fn p488_lof_com_figura_regista_page_number_no_extracted() {
+    // Verifica que extracted_figure_page_numbers é populado após layout.
+    let content = Content::Sequence(
+        vec![
+            Content::lof(None),
+            Content::figure(
+                Content::text("Mapa"),
+                Some(Content::text("Legenda do mapa")),
+                Some("image".to_string()),
+                Some("1".to_string()),
+            ),
+        ]
+        .into(),
+    );
+    let _state = introspect(&content);
+    let doc = layout(&content);
+    // Após layout com figura contada, extracted_figure_page_numbers não vazio.
+    assert!(
+        !doc.extracted_figure_page_numbers.is_empty(),
+        "extracted_figure_page_numbers deve ser populado após layout com figura contada"
+    );
+    // A figura deve ter sido registada na página 1.
+    assert_eq!(
+        doc.extracted_figure_page_numbers[0], 1,
+        "figura na primeira página deve ser página 1"
+    );
+}
+
+#[test]
+fn p488_extracted_table_page_numbers_default_vazio() {
+    // Documento sem tabelas contadas → extracted_table_page_numbers permanece vazio.
+    let content = Content::Sequence(
+        vec![
+            Content::lot(None),
+            Content::text("Sem tabelas contadas aqui"),
+        ]
+        .into(),
+    );
+    let _state = introspect(&content);
+    let doc = layout(&content);
+    assert!(
+        doc.extracted_table_page_numbers.is_empty(),
+        "sem tabelas contadas: extracted_table_page_numbers deve estar vazio"
+    );
+}

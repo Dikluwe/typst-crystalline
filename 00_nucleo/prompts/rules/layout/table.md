@@ -1,5 +1,5 @@
 # Prompt L0 — `rules/layout/table` — Layout de `Table`
-Hash do Código: 0de7a090
+Hash do Código: 39e6b909
 
 **Camada**: L1 · **Alvo**: `01_core/src/rules/layout/table.rs`
 **Prompt pai**: `00_nucleo/prompts/rules/layout.md`
@@ -23,8 +23,22 @@ Hash do Código: 0de7a090
 4. Delegar o corpo da table a `layout_grid` (P157A/P224), preservando
    `columns`, `rows`, `children`, `stroke`, `fill`.
 
+## §P488 — Registo de página para LoT
+
+Quando `caption_prefix.is_some()` (tabela contada), após calcular `table_number`,
+regista a página actual em `layouter.runtime.table_page_numbers`:
+
+```rust
+let page = layouter.current_page_number();
+layouter.runtime.table_page_numbers.push(page);
+```
+
+Inserção em ordem de documento — positional match com `tables_for_lot`
+no `layout_lot` (§P488 em `layout_outline.md`). Tabelas sem caption ou sem
+numbering não são registadas.
+
 ## Scope-out
 
 - Caption abaixo da table (vanilla default é acima).
 - Cross-reference / label / ref (Trilha 2).
-- List of tables.
+- ~~List of tables~~ — **LoT com page numbers resolvido em P488**.

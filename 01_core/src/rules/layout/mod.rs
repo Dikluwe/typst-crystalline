@@ -1131,6 +1131,9 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
             crate::entities::sealed_positions::SealedPositions::from_runtime(
                 self.runtime.positions,
             );
+        // P488 — expor páginas de figuras/tabelas para fixpoint carry-forward (LoF/LoT).
+        doc.extracted_figure_page_numbers = self.runtime.figure_page_numbers;
+        doc.extracted_table_page_numbers  = self.runtime.table_page_numbers;
         doc
     }
 
@@ -1591,6 +1594,9 @@ pub fn layout_with_introspector(
     // Separação leitura/escrita: Layouter lê de `known_page_numbers` e
     // escreve em `label_pages` (que começa vazio em cada iteração via Layouter::new()).
     let mut known_page_numbers: HashMap<Label, usize> = HashMap::new();
+    // P488 — carry-forward páginas de figuras/tabelas entre iterações (LoF/LoT).
+    let mut known_figure_page_numbers: Vec<usize> = Vec::new();
+    let mut known_table_page_numbers:  Vec<usize> = Vec::new();
     let mut final_doc: Option<PagedDocument> = None;
 
     for _ in 0..MAX_ITERATIONS {
@@ -1614,17 +1620,27 @@ pub fn layout_with_introspector(
         // P190C (M6 categoria Page tracking): known_page_numbers movido
         // para LayouterRuntimeState.
         l.runtime.known_page_numbers = known_page_numbers.clone();
+        // P488 — injectar páginas de figuras/tabelas da iteração anterior.
+        l.runtime.known_figure_page_numbers = known_figure_page_numbers.clone();
+        l.runtime.known_table_page_numbers  = known_table_page_numbers.clone();
 
         l.layout_content(content);
         let doc = l.finish();
 
         // Convergência: mapa de páginas gerado == mapa da iteração anterior?
-        if doc.extracted_label_pages == known_page_numbers {
+        // P488: estendido para incluir páginas de figuras/tabelas (LoF/LoT).
+        if doc.extracted_label_pages == known_page_numbers
+            && doc.extracted_figure_page_numbers == known_figure_page_numbers
+            && doc.extracted_table_page_numbers  == known_table_page_numbers
+        {
             return doc;
         }
 
         // Actualizar para a próxima iteração.
         known_page_numbers = doc.extracted_label_pages.clone();
+        // P488 — actualizar carry-forward de figuras/tabelas.
+        known_figure_page_numbers = doc.extracted_figure_page_numbers.clone();
+        known_table_page_numbers  = doc.extracted_table_page_numbers.clone();
         final_doc = Some(doc);
     }
 

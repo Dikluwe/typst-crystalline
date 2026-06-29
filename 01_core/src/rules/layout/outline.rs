@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/rules/layout_outline.md
-//! @prompt-hash 2fd037a8
+//! @prompt-hash f60186de
 //! @layer L1
 //! @updated 2026-06-26
 //!
@@ -116,9 +116,10 @@ pub(super) fn layout_outline<M: FontMetrics, S: ImageSizer>(
     }
 }
 
-/// **P472** — List of Figures: itera `figures_for_lof` do Introspector e
-/// emite uma linha por figura com o número e a caption.
-/// Divergência declarada: sem page numbers (requer 2-pass — scope-out).
+/// **P472/P488** — List of Figures: itera `figures_for_lof` do Introspector e
+/// emite uma linha por figura com o número, caption e page number (P488).
+/// P488: page numbers via `runtime.known_figure_page_numbers` (carry-forward
+/// do fixpoint). Na iteração 0 o Vec está vazio → linha sem ". . . N".
 fn layout_lof<M: FontMetrics, S: ImageSizer>(
     layouter: &mut Layouter<M, S>,
     e:        &OutlineElem,
@@ -130,16 +131,22 @@ fn layout_lof<M: FontMetrics, S: ImageSizer>(
     layouter.layout_content(&Content::heading(1, title_content));
 
     let entries: Vec<(usize, String)> = layouter.introspector.figures_for_lof().to_vec();
-    for (num, caption) in entries {
-        let line = format!("Figure {}  {}", num, caption);
+    // P488 — match posicional: ambas as fontes seguem ordem de documento.
+    let known_pages = layouter.runtime.known_figure_page_numbers.clone();
+    for (i, (num, caption)) in entries.iter().enumerate() {
+        let page_num = known_pages.get(i).copied().unwrap_or(0);
+        let line = if page_num > 0 {
+            format!("Figure {}  {} . . . {}", num, caption, page_num)
+        } else {
+            format!("Figure {}  {}", num, caption)
+        };
         layouter.layout_content(&Content::text(line));
         layouter.flush_line();
     }
 }
 
-/// **P472** — List of Tables: itera `tables_for_lot` do Introspector e
-/// emite uma linha por tabela com o número e a caption.
-/// Divergência declarada: sem page numbers (requer 2-pass — scope-out).
+/// **P472/P488** — List of Tables: itera `tables_for_lot` do Introspector e
+/// emite uma linha por tabela com o número, caption e page number (P488).
 fn layout_lot<M: FontMetrics, S: ImageSizer>(
     layouter: &mut Layouter<M, S>,
     e:        &OutlineElem,
@@ -151,8 +158,15 @@ fn layout_lot<M: FontMetrics, S: ImageSizer>(
     layouter.layout_content(&Content::heading(1, title_content));
 
     let entries: Vec<(usize, String)> = layouter.introspector.tables_for_lot().to_vec();
-    for (num, caption) in entries {
-        let line = format!("Table {}  {}", num, caption);
+    // P488 — match posicional: ambas as fontes seguem ordem de documento.
+    let known_pages = layouter.runtime.known_table_page_numbers.clone();
+    for (i, (num, caption)) in entries.iter().enumerate() {
+        let page_num = known_pages.get(i).copied().unwrap_or(0);
+        let line = if page_num > 0 {
+            format!("Table {}  {} . . . {}", num, caption, page_num)
+        } else {
+            format!("Table {}  {}", num, caption)
+        };
         layouter.layout_content(&Content::text(line));
         layouter.flush_line();
     }

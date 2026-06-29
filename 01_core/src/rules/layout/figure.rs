@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/rules/layout_figure.md
-//! @prompt-hash f46114f1
+//! @prompt-hash 129fae12
 //! @layer L1
 //! @updated 2026-06-26
 
@@ -46,6 +46,9 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
             .introspector
             .figure_number_at_index(kind_key, idx)
             .unwrap_or(idx + 1);
+        // P488 — regista página actual para LoF carry-forward entre iterações fixpoint.
+        let page = layouter.current_page_number();
+        layouter.runtime.figure_page_numbers.push(page);
         let formatted = numbering_pattern
             .and_then(|pat| format_counter(&[figure_number], pat))
             .unwrap_or_else(|| figure_number.to_string());

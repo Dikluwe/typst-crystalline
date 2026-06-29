@@ -1,5 +1,5 @@
 # L0 — Layout: Figuras e Legendas
-Hash do Código: e60f165e
+Hash do Código: acf27633
 
 ## Módulo
 `01_core/src/rules/layout/figure.rs`
@@ -38,3 +38,18 @@ use crate::rules::lang::figure_supplement::figure_supplement_for_lang;
 - Figura numerada, caption, pattern inválido → fallback `"Figura 1: "` (sem lang).
 - Figura sem caption → sem prefixo numérico.
 - Duas figuras sequenciais com mesmo pattern → `"Figura 1: "` e `"Figura 2: "`.
+
+## §P488 — Registo de página para LoF
+
+Quando `numbering_pattern.is_some()` (figura contada com caption), após calcular
+`figure_number`, regista a página actual em `layouter.runtime.figure_page_numbers`:
+
+```rust
+let page = layouter.current_page_number();
+layouter.runtime.figure_page_numbers.push(page);
+```
+
+Inserção em ordem de documento — positional match com `figures_for_lof`
+no `layout_lof` (§P488 em `layout_outline.md`). Figuras sem caption ou sem
+numbering não são registadas (coerência com `figures_for_lof` que só tem
+elementos `is_counted`).
