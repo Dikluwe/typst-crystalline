@@ -2,24 +2,25 @@ use std::fs;
 use std::io::Write;
 use std::path::PathBuf;
 use std::str::FromStr;
-use std::sync::Arc;
 
-use chrono::{Datelike, FixedOffset, TimeZone, Utc};
 use comemo::Tracked;
 use typst::diag::{At, FileError, FileResult, SourceResult, StrResult, bail};
 use typst::engine::Engine;
 use typst::foundations::{
-    Array, Bytes, Context, Datetime, Duration, IntoValue, LocatableSelector, NoneValue,
-    Repr, Selector, Smart, Value, func,
+    Array, Bytes, Content, Context, Datetime, Duration, IntoValue, NativeElement,
+    NoneValue, Packed, Repr, Smart, StyleChain, Value, elem, func,
 };
-use typst::layout::{Abs, Margin, PageElem};
+use typst::introspection::Locator;
+use typst::layout::{Abs, BlockElem, Fragment, Margin, PageElem, Regions};
 use typst::model::{Numbering, NumberingPattern};
 use typst::syntax::{FileId, Source, Span};
 use typst::text::{Font, FontBook, TextElem, TextSize};
 use typst::utils::{LazyHash, singleton};
 use typst::visualize::Color;
 use typst::{Features, Library, LibraryExt, World};
+use typst_kit::datetime::Time;
 use typst_kit::files::{FileLoader, FileStore};
+use typst_layout::layout_fragment;
 use typst_syntax::package::PackageSpec;
 use typst_syntax::{RootedPath, VirtualPath, VirtualRoot};
 use unscanny::Scanner;
@@ -78,32 +79,8 @@ impl World for TestWorld {
     }
 
     fn today(&self, offset: Option<Duration>) -> Option<Datetime> {
-        // Create a fixed UTC date value by implementing a chrono-based approach similar to
-        // `typst-cli`. This ensures that test cases will more closely mimic CLI's behavior,
-        // compared to directly constructing the result using our Datetime and Duration types.
-
-        let now = Utc.with_ymd_and_hms(1970, 1, 1, 12, 0, 0).unwrap().fixed_offset();
-
-        let with_offset = match offset {
-            None => now,
-            Some(offset) => {
-                let seconds = offset.seconds().trunc();
-                // Check whether we can convert seconds from f64 to i32
-                if !seconds.is_finite()
-                    || seconds < f64::from(i32::MIN)
-                    || seconds > f64::from(i32::MAX)
-                {
-                    return None;
-                }
-                now.with_timezone(&FixedOffset::east_opt(seconds as i32)?)
-            }
-        };
-
-        Datetime::from_ymd(
-            with_offset.year(),
-            with_offset.month().try_into().ok()?,
-            with_offset.day().try_into().ok()?,
-        )
+        let datetime = Datetime::from_ymd_hms(1970, 1, 1, 12, 0, 0).unwrap();
+        Time::fixed(datetime).unwrap().today(offset)
     }
 }
 
@@ -137,7 +114,7 @@ pub struct TestFiles;
 
 impl TestFiles {
     /// Resolves the file system path for a file ID.
-    pub fn resolve(&self, id: FileId) -> PathBuf {
+    pub fn resolve(&self, id: FileId) -> FileResult<PathBuf> {
         let root = match id.root() {
             VirtualRoot::Project => PathBuf::new(),
             VirtualRoot::Package(spec) => {
@@ -145,7 +122,7 @@ impl TestFiles {
                 format!("tests/packages/{}-{}", spec.name, spec.version).into()
             }
         };
-        id.vpath().realize(&root)
+        id.vpath().realize(&root).map_err(Into::into)
     }
 
     /// Get the rooted path for a loaded file.
@@ -171,7 +148,7 @@ impl TestFiles {
 
 impl FileLoader for TestFiles {
     fn load(&self, id: FileId) -> FileResult<Bytes> {
-        let path = self.resolve(id);
+        let path = self.resolve(id)?;
 
         // Resolve asset.
         if let Ok(suffix) = path.strip_prefix("assets/") {
@@ -201,7 +178,7 @@ fn library() -> Library {
     lib.global.scope_mut().define_func::<test_repr>();
     lib.global.scope_mut().define_func::<print>();
     lib.global.scope_mut().define_func::<lines>();
-    lib.global.scope_mut().define_func::<selector_within>();
+    lib.global.scope_mut().define_func::<bounds>();
     lib.global
         .scope_mut()
         .define("conifer", Color::from_u8(0x9f, 0xEB, 0x52, 0xFF));
@@ -212,8 +189,10 @@ fn library() -> Library {
     // Hook up default styles.
     lib.styles.set(PageElem::width, Smart::Custom(Abs::pt(120.0).into()));
     lib.styles.set(PageElem::height, Smart::Auto);
-    lib.styles
-        .set(PageElem::margin, Margin::splat(Some(Smart::Custom(Abs::pt(10.0).into()))));
+    lib.styles.set(
+        PageElem::margin,
+        Smart::Custom(Margin::splat(Some(Smart::Custom(Abs::pt(10.0).into())))),
+    );
     lib.styles.set(TextElem::size, TextSize(Abs::pt(10.0).into()));
 
     lib
@@ -260,18 +239,37 @@ fn lines(
     numbering: Numbering,
 ) -> SourceResult<Value> {
     (1..=count)
-        .map(|n| numbering.apply(engine, context, &[n]))
+        .map(|n| numbering.apply(engine, context, span, &[n]))
         .collect::<SourceResult<Array>>()?
         .join(Some('\n'.into_value()), None, None)
         .at(span)
 }
 
-/// This exists just to test `within` selectors (which are already used
-/// internally) while they are not yet publicly exposed.
+/// Display boundaries and the baseline around some content's frames.
 #[func]
-fn selector_within(selector: LocatableSelector, ancestor: LocatableSelector) -> Selector {
-    Selector::Within {
-        selector: Arc::new(selector.0),
-        ancestor: Arc::new(ancestor.0),
+fn bounds(content: Content) -> SourceResult<Content> {
+    Ok(BlockElem::multi_layouter(Packed::new(BoundsElem::new(content)), layout_bounds)
+        .pack())
+}
+
+#[elem]
+struct BoundsElem {
+    #[positional]
+    #[required]
+    body: Content,
+}
+
+fn layout_bounds(
+    elem: &Packed<BoundsElem>,
+    engine: &mut Engine,
+    locator: Locator,
+    styles: StyleChain,
+    regions: Regions,
+) -> SourceResult<Fragment> {
+    let mut fragment = layout_fragment(engine, &elem.body, locator, styles, regions)?;
+    for frame in &mut fragment {
+        frame.mark_box_in_place();
     }
+
+    Ok(fragment)
 }

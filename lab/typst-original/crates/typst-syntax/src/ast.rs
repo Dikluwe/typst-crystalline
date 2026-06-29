@@ -203,7 +203,7 @@ node! {
 impl<'a> LineComment<'a> {
     /// The contents of the line comment.
     pub fn text(&self) -> &'a str {
-        let text = self.0.text();
+        let text = self.0.leaf_text();
         text.strip_prefix("//").unwrap_or(text)
     }
 }
@@ -216,7 +216,7 @@ node! {
 impl<'a> BlockComment<'a> {
     /// The contents of the block comment.
     pub fn text(&self) -> &'a str {
-        let text = self.0.text();
+        let text = self.0.leaf_text();
         text.strip_prefix("/*")
             .and_then(|text| text.strip_suffix("*/"))
             .unwrap_or(text)
@@ -292,10 +292,14 @@ pub enum Expr<'a> {
     MathText(MathText<'a>),
     /// An identifier in math: `pi`.
     MathIdent(MathIdent<'a>),
+    /// A field access in math: `arrow.r.long.double.bar`.
+    MathFieldAccess(MathFieldAccess<'a>),
     /// A shorthand for a unicode codepoint in math: `a <= b`.
     MathShorthand(MathShorthand<'a>),
     /// An alignment point in math: `&`.
     MathAlignPoint(MathAlignPoint<'a>),
+    /// A function call in math: `mat(delim: "[", a, b; ..#($c$,), d)`
+    MathCall(MathCall<'a>),
     /// Matched delimiters in math: `[x + y]`.
     MathDelimited(MathDelimited<'a>),
     /// A base with optional attachments in math: `a_1^2`.
@@ -403,10 +407,14 @@ impl<'a> AstNode<'a> for Expr<'a> {
             SyntaxKind::Math => Some(Self::Math(Math(node))),
             SyntaxKind::MathText => Some(Self::MathText(MathText(node))),
             SyntaxKind::MathIdent => Some(Self::MathIdent(MathIdent(node))),
+            SyntaxKind::MathFieldAccess => {
+                Some(Self::MathFieldAccess(MathFieldAccess(node)))
+            }
             SyntaxKind::MathShorthand => Some(Self::MathShorthand(MathShorthand(node))),
             SyntaxKind::MathAlignPoint => {
                 Some(Self::MathAlignPoint(MathAlignPoint(node)))
             }
+            SyntaxKind::MathCall => Some(Self::MathCall(MathCall(node))),
             SyntaxKind::MathDelimited => Some(Self::MathDelimited(MathDelimited(node))),
             SyntaxKind::MathAttach => Some(Self::MathAttach(MathAttach(node))),
             SyntaxKind::MathPrimes => Some(Self::MathPrimes(MathPrimes(node))),
@@ -472,8 +480,10 @@ impl<'a> AstNode<'a> for Expr<'a> {
             Self::Math(v) => v.to_untyped(),
             Self::MathText(v) => v.to_untyped(),
             Self::MathIdent(v) => v.to_untyped(),
+            Self::MathFieldAccess(v) => v.to_untyped(),
             Self::MathShorthand(v) => v.to_untyped(),
             Self::MathAlignPoint(v) => v.to_untyped(),
+            Self::MathCall(v) => v.to_untyped(),
             Self::MathDelimited(v) => v.to_untyped(),
             Self::MathAttach(v) => v.to_untyped(),
             Self::MathPrimes(v) => v.to_untyped(),
@@ -576,7 +586,7 @@ node! {
 impl<'a> Text<'a> {
     /// Get the text.
     pub fn get(self) -> &'a EcoString {
-        self.0.text()
+        self.0.leaf_text()
     }
 }
 
@@ -604,7 +614,7 @@ node! {
 impl Escape<'_> {
     /// Get the escaped character.
     pub fn get(self) -> char {
-        let mut s = Scanner::new(self.0.text());
+        let mut s = Scanner::new(self.0.leaf_text());
         s.expect('\\');
         if s.eat_if("u{") {
             let hex = s.eat_while(char::is_ascii_hexdigit);
@@ -637,7 +647,7 @@ impl Shorthand<'_> {
 
     /// Get the shorthanded character.
     pub fn get(self) -> char {
-        let text = self.0.text();
+        let text = self.0.leaf_text();
         Self::LIST
             .iter()
             .find(|&&(s, _)| s == text)
@@ -653,7 +663,7 @@ node! {
 impl SmartQuote<'_> {
     /// Whether this is a double quote.
     pub fn double(self) -> bool {
-        self.0.text() == "\""
+        self.0.leaf_text() == "\""
     }
 }
 
@@ -709,7 +719,8 @@ impl<'a> Raw<'a> {
             .try_cast_first()
             .is_some_and(|delim: RawDelim| delim.0.len() >= 3)
             && self.0.children().any(|e| {
-                e.kind() == SyntaxKind::RawTrimmed && e.text().chars().any(is_newline)
+                e.kind() == SyntaxKind::RawTrimmed
+                    && e.leaf_text().chars().any(is_newline)
             })
     }
 }
@@ -722,7 +733,7 @@ node! {
 impl<'a> RawLang<'a> {
     /// Get the language tag.
     pub fn get(self) -> &'a EcoString {
-        self.0.text()
+        self.0.leaf_text()
     }
 }
 
@@ -739,7 +750,7 @@ node! {
 impl<'a> Link<'a> {
     /// Get the URL.
     pub fn get(self) -> &'a EcoString {
-        self.0.text()
+        self.0.leaf_text()
     }
 }
 
@@ -751,7 +762,7 @@ node! {
 impl<'a> Label<'a> {
     /// Get the label's text.
     pub fn get(self) -> &'a str {
-        self.0.text().trim_start_matches('<').trim_end_matches('>')
+        self.0.leaf_text().trim_start_matches('<').trim_end_matches('>')
     }
 }
 
@@ -768,7 +779,7 @@ impl<'a> Ref<'a> {
         self.0
             .children()
             .find(|node| node.kind() == SyntaxKind::RefMarker)
-            .map(|node| node.text().trim_start_matches('@'))
+            .map(|node| node.leaf_text().trim_start_matches('@'))
             .unwrap_or_default()
     }
 
@@ -820,7 +831,7 @@ impl<'a> EnumItem<'a> {
     /// The explicit numbering, if any: `23.`.
     pub fn number(self) -> Option<u64> {
         self.0.children().find_map(|node| match node.kind() {
-            SyntaxKind::EnumMarker => node.text().trim_end_matches('.').parse().ok(),
+            SyntaxKind::EnumMarker => node.leaf_text().trim_end_matches('.').parse().ok(),
             _ => Option::None,
         })
     }
@@ -904,7 +915,7 @@ pub enum MathTextKind<'a> {
 impl<'a> MathText<'a> {
     /// Return the underlying text.
     pub fn get(self) -> MathTextKind<'a> {
-        let text = self.0.text();
+        let text = self.0.leaf_text();
         if text.chars().next().unwrap_or_default().is_numeric() {
             // Numbers are potentially grouped as multiple characters. This is
             // done in `Lexer::math_text()`.
@@ -923,7 +934,7 @@ node! {
 impl<'a> MathIdent<'a> {
     /// Get the identifier.
     pub fn get(self) -> &'a EcoString {
-        self.0.text()
+        self.0.leaf_text()
     }
 
     /// Get the identifier as a string slice.
@@ -939,6 +950,53 @@ impl Deref for MathIdent<'_> {
     /// may need to use [`get()`](Self::get) instead in some situations.
     fn deref(&self) -> &Self::Target {
         self.as_str()
+    }
+}
+
+node! {
+    /// A field access in math: `arrow.r.long.double.bar`.
+    struct MathFieldAccess
+}
+
+impl<'a> MathFieldAccess<'a> {
+    /// The expression to access the field on.
+    pub fn target(self) -> MathAccess<'a> {
+        self.0.cast_first()
+    }
+
+    /// The name of the field.
+    pub fn field(self) -> MathIdent<'a> {
+        self.0.cast_last()
+    }
+}
+
+/// A variable or field access in math.
+#[derive(Debug, Copy, Clone, Eq, PartialEq, Hash)]
+pub enum MathAccess<'a> {
+    MathIdent(MathIdent<'a>),
+    MathFieldAccess(MathFieldAccess<'a>),
+}
+
+impl<'a> AstNode<'a> for MathAccess<'a> {
+    fn from_untyped(node: &'a SyntaxNode) -> Option<Self> {
+        match node.kind() {
+            SyntaxKind::MathIdent => Some(Self::MathIdent(MathIdent(node))),
+            SyntaxKind::MathFieldAccess => {
+                Some(Self::MathFieldAccess(MathFieldAccess(node)))
+            }
+            _ => Option::None,
+        }
+    }
+
+    fn to_untyped(self) -> &'a SyntaxNode {
+        match self {
+            Self::MathIdent(v) => v.to_untyped(),
+            Self::MathFieldAccess(v) => v.to_untyped(),
+        }
+    }
+
+    fn placeholder() -> Self {
+        Self::MathIdent(MathIdent::placeholder())
     }
 }
 
@@ -992,11 +1050,125 @@ impl MathShorthand<'_> {
 
     /// Get the shorthanded character.
     pub fn get(self) -> char {
-        let text = self.0.text();
+        let text = self.0.leaf_text();
         Self::LIST
             .iter()
             .find(|&&(s, _)| s == text)
             .map_or_else(char::default, |&(_, c)| c)
+    }
+}
+
+node! {
+    /// A function call in math: `mat(delim: "[", a, b; ..#($c$,), d)`.
+    struct MathCall
+}
+
+impl<'a> MathCall<'a> {
+    /// The function to call. If not actually a function, will be rendered as
+    /// content next to its arguments.
+    pub fn callee(self) -> MathAccess<'a> {
+        self.0.cast_first()
+    }
+
+    /// The arguments to the function.
+    pub fn args(self) -> MathArgs<'a> {
+        self.0.cast_last()
+    }
+}
+
+node! {
+    /// Function arguments in math: `(delim: "[", a, b; ..#($c$,), d)`.
+    struct MathArgs
+}
+
+/// An argument in a [`MathCall`] for an actual function and whether it ends in
+/// a semicolon.
+#[derive(Debug, Copy, Clone, Hash)]
+pub struct MathArg<'a> {
+    /// The argument.
+    pub arg: Arg<'a>,
+    /// Whether the argument ends with a semicolon and should create
+    /// two-dimensional args. This excludes semicolons that end embedded code
+    /// expressions.
+    pub ends_in_semicolon: bool,
+}
+
+/// Items at the top-level of a [`MathCall`] argument list that will be rendered
+/// into content if unparsing for a non-function.
+///
+/// This enum does not implement [`AstNode`] because the `Semicolon` variant
+/// requires extra context to convert correctly making it a likely footgun.
+#[derive(Debug, Copy, Clone, Hash)]
+pub enum MathArgItem<'a> {
+    /// A normal argument.
+    Arg(Arg<'a>),
+    /// A space between arguments and other punctuation.
+    Space(Space<'a>),
+    /// A comma separating arguments.
+    Comma(char, &'a SyntaxNode),
+    /// A semicolon separating arguments. This excludes semicolons that end
+    /// embedded code expressions.
+    Semicolon(char, &'a SyntaxNode),
+    /// The left paren at the start of the arguments.
+    LeftParen(char, &'a SyntaxNode),
+    /// The right paren at the end of the arguments.
+    RightParen(char, &'a SyntaxNode),
+}
+
+impl<'a> MathArgs<'a> {
+    /// Arguments for actual function calls in math.
+    pub fn arg_items(self) -> impl Iterator<Item = MathArg<'a>> {
+        let mut content_items = self.content_items().peekable();
+        std::iter::from_fn(move || {
+            let arg = content_items.find_map(|node| match node {
+                MathArgItem::Arg(arg) => Some(arg),
+                _ => Option::None,
+            })?;
+
+            // `self.content_items()` handles code-ending semicolons for us :)
+            let ends_in_semicolon = loop {
+                match content_items.peek() {
+                    Option::None | Some(MathArgItem::Arg(_)) => break false,
+                    Some(MathArgItem::Semicolon(_, _)) => break true,
+                    Some(_) => {}
+                }
+                content_items.next();
+            };
+
+            Some(MathArg { arg, ends_in_semicolon })
+        })
+    }
+
+    /// Items at the top-level of the argument list that will be rendered into
+    /// content if unparsing for a non-function.
+    pub fn content_items(self) -> impl Iterator<Item = MathArgItem<'a>> {
+        let mut children = self.0.children().peekable();
+        let mut prev_hash = false;
+        std::iter::from_fn(move || {
+            for node in children.by_ref() {
+                if let Some(arg) = node.cast() {
+                    return Some(MathArgItem::Arg(arg));
+                }
+                let semicolon_ends_code = prev_hash;
+                prev_hash = false;
+                let item = match node.kind() {
+                    SyntaxKind::Space => MathArgItem::Space(Space(node)),
+                    SyntaxKind::Comma => MathArgItem::Comma(',', node),
+                    SyntaxKind::LeftParen => MathArgItem::LeftParen('(', node),
+                    SyntaxKind::RightParen => MathArgItem::RightParen(')', node),
+                    SyntaxKind::Semicolon if !semicolon_ends_code => {
+                        MathArgItem::Semicolon(';', node)
+                    }
+                    SyntaxKind::Hash => {
+                        prev_hash = true;
+                        continue;
+                    }
+                    _ => continue,
+                };
+                return Some(item);
+            }
+            Option::None
+        })
     }
 }
 
@@ -1073,7 +1245,7 @@ impl MathPrimes<'_> {
     /// The number of grouped primes.
     pub fn count(self) -> usize {
         // We can use byte length since single quotes are one byte.
-        self.0.text().len()
+        self.0.leaf_text().len()
     }
 }
 
@@ -1102,7 +1274,7 @@ node! {
 impl<'a> MathRoot<'a> {
     /// The index of the root.
     pub fn index(self) -> Option<u8> {
-        match self.0.children().next().map(|node| node.text().as_str()) {
+        match self.0.children().next().map(|node| node.leaf_text().as_str()) {
             Some("∜") => Some(4),
             Some("∛") => Some(3),
             Some("√") => Option::None,
@@ -1124,7 +1296,7 @@ node! {
 impl<'a> Ident<'a> {
     /// Get the identifier.
     pub fn get(self) -> &'a EcoString {
-        self.0.text()
+        self.0.leaf_text()
     }
 
     /// Get the identifier as a string slice.
@@ -1161,7 +1333,7 @@ node! {
 impl Bool<'_> {
     /// Get the boolean value.
     pub fn get(self) -> bool {
-        self.0.text() == "true"
+        self.0.leaf_text() == "true"
     }
 }
 
@@ -1173,7 +1345,7 @@ node! {
 impl Int<'_> {
     /// Get the integer value.
     pub fn get(self) -> i64 {
-        let text = self.0.text();
+        let text = self.0.leaf_text();
         if let Some(rest) = text.strip_prefix("0x") {
             i64::from_str_radix(rest, 16)
         } else if let Some(rest) = text.strip_prefix("0o") {
@@ -1195,7 +1367,7 @@ node! {
 impl Float<'_> {
     /// Get the floating-point value.
     pub fn get(self) -> f64 {
-        self.0.text().parse().unwrap_or_default()
+        self.0.leaf_text().parse().unwrap_or_default()
     }
 }
 
@@ -1207,7 +1379,7 @@ node! {
 impl Numeric<'_> {
     /// Get the numeric value and unit.
     pub fn get(self) -> (f64, Unit) {
-        let text = self.0.text();
+        let text = self.0.leaf_text();
         let count = text
             .chars()
             .rev()
@@ -1264,7 +1436,7 @@ node! {
 impl Str<'_> {
     /// Get the string value with resolved escape sequences.
     pub fn get(self) -> EcoString {
-        let text = self.0.text();
+        let text = self.0.leaf_text();
         let unquoted = &text[1..text.len() - 1];
         if !unquoted.contains('\\') {
             return unquoted.into();

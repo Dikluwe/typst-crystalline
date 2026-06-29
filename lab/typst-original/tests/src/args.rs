@@ -8,7 +8,7 @@ use crate::collect::TestStages;
 
 /// Typst's test runner.
 #[derive(Debug, Clone, Parser)]
-#[command(bin_name = "cargo test --workspace --test tests --")]
+#[command(bin_name = "cargo testit")]
 #[clap(name = "typst-test", author)]
 pub struct CliArguments {
     /// The command to run.
@@ -144,6 +144,8 @@ pub enum Command {
     Undangle,
     /// Prints the tags from a PDF file.
     Pdftags(PdftagsCommand),
+    /// Open the last generated HTML test report in a browser.
+    OpenReport,
 }
 
 #[derive(Debug, Clone, Parser)]

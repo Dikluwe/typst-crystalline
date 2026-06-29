@@ -1,5 +1,8 @@
 // Test dictionaries.
 
+// Tests for method calls on dictionaries are in `../scripting/methods.typ` as
+// `field-call-dict-*`.
+
 --- dict-basic-syntax paged ---
 
 // Empty
@@ -122,6 +125,11 @@
   test(dict.state.err, false)
 }
 
+--- dict-at-call eval ---
+// Test calling a function in a dictionary via `.at()`.
+#let dict = (func: x => x + 1)
+#test(dict.at("func")(0), 1)
+
 --- dict-at-missing-key eval ---
 // Test rvalue missing key.
 #{
@@ -221,26 +229,9 @@
 // Error: 3-15 cannot mutate a temporary value
 #((key: "val").other = "some")
 
---- dict-function-item-not-a-method eval ---
-#{
-  let dict = (
-    call-me: () => 1,
-  )
-  // Error: 8-15 type dictionary has no method `call-me`
-  // Hint: 8-15 to call the function stored in the dictionary, surround the field access with parentheses, e.g. `(dict.call-me)(..)`
-  dict.call-me()
-}
-
---- dict-item-missing-method eval ---
-#{
-  let dict = (
-    nonfunc: 1
-  )
-
-  // Error: 8-15 type dictionary has no method `nonfunc`
-  // Hint: 8-15 did you mean to access the field `nonfunc`?
-  dict.nonfunc()
-}
+--- dict-method-typo eval ---
+// Error: 2-25 type dictionary has no method `rmeove`
+#(typo: "rmeove").rmeove("typo")
 
 --- dict-dynamic-duplicate-key eval ---
 #let a = "hello"
