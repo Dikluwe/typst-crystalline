@@ -49,7 +49,20 @@ pub fn run_typst_query(
     typ_path: &Path,
     selector: &str,
 ) -> Result<serde_json::Value, VanillaInvokeError> {
-    let output = Command::new("typst")
+    run_typst_query_with_bin("typst", typ_path, selector)
+}
+
+/// Executa `typst query <typ_path> <selector> --format json`
+/// com um binário vanilla específico (ex: `/tmp/typst-0.15.0/...`).
+///
+/// Usado em passos de re-baseline (P503) onde se compara contra
+/// uma versão concreta do vanilla não instalada em PATH.
+pub fn run_typst_query_with_bin(
+    bin: &str,
+    typ_path: &Path,
+    selector: &str,
+) -> Result<serde_json::Value, VanillaInvokeError> {
+    let output = Command::new(bin)
         .arg("query")
         .arg(typ_path)
         .arg(selector)
@@ -80,7 +93,12 @@ pub fn run_typst_query(
 /// Útil como guard antes de iterar sobre corpus inteiro —
 /// permite skip global se ausente.
 pub fn vanilla_cli_available() -> bool {
-    Command::new("typst")
+    vanilla_cli_available_with_bin("typst")
+}
+
+/// Confirma que um binário vanilla específico está disponível e executável.
+pub fn vanilla_cli_available_with_bin(bin: &str) -> bool {
+    Command::new(bin)
         .arg("--version")
         .output()
         .map(|o| o.status.success())

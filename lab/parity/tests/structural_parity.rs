@@ -21,11 +21,11 @@ mod structural_compare;
 
 use std::path::{Path, PathBuf};
 
-use vanilla_invoke::{run_typst_query, vanilla_cli_available};
+use vanilla_invoke::{run_typst_query, run_typst_query_with_bin, vanilla_cli_available, vanilla_cli_available_with_bin};
 use structural_compare::{compare_query_outputs, CompareResult};
 
 use typst_core::contracts::world::World;
-use typst_infra::query_helpers::query_to_summary;
+use typst_infra::query_helpers::{query_to_summary, QuerySummary};
 use typst_infra::world::SystemWorld;
 
 /// Selector default por categoria de corpus.
@@ -1529,4 +1529,212 @@ fn p502_outline_indent_api() {
     let summary = query_to_summary(&world, &source_ref, "outline")
         .expect("outline(indent: length) deve compilar sem erro");
     assert_eq!(summary.count, 1, "p502d: esperado count=1");
+}
+
+/// **P503** — Re-baseline de paridade da bateria P490 contra Typst 0.15.0.
+///
+/// Re-executa os 20 ficheiros da bateria P490 contra:
+/// - vanilla 0.14.2 (PATH `typst`) — baseline P498
+/// - vanilla 0.15.0 (`/tmp/typst-0.15.0/.../typst`)
+/// - cristalino (commit atual)
+///
+/// Classificação P503: MATCH / DIFF / ERRO_DESCRITIVO / PANIC / AUSENTE,
+/// medida entre cristalino e vanilla 0.15.0.
+///
+/// NOTA: `page`, `place`, `stroke-sides` são non-locatable; o critério é
+/// query `heading` retornar count=0 em ambos sem PANIC.
+#[test]
+fn p503_rebaseline_0150() {
+    let corpus_dir = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("corpus/p490");
+    if !corpus_dir.is_dir() {
+        eprintln!("[p503] corpus/p490 ausente; skip.");
+        return;
+    }
+
+    let typst_0150_bin = "/tmp/typst-0.15.0/typst-x86_64-unknown-linux-musl/typst";
+    let vanilla_0150_available = vanilla_cli_available_with_bin(typst_0150_bin);
+    let vanilla_0142_available = vanilla_cli_available();
+
+    if !vanilla_0150_available {
+        eprintln!("[p503] vanilla 0.15.0 não encontrado em {}; skip comparação 0.15.0.", typst_0150_bin);
+        return;
+    }
+
+    // (ficheiro, selector, descrição, non-locatable?)
+    let cases: &[(&str, &str, &str, bool)] = &[
+        // Cat 1: funcionalidades parciais
+        ("test-list-marker-array.typ", "list",     "marker:Array", false),
+        ("test-enum-start.typ",        "enum",     "start:5 + (a)", false),
+        ("test-par.typ",               "par",      "leading/spacing/justify", false),
+        ("test-show-link.typ",         "link",     "#show link: ...", false),
+        // Cat 2: alto impacto
+        ("test-table.typ",             "table",    "table.header/footer", false),
+        ("test-raw.typ",               "raw",      "raw com lang rust", false),
+        ("test-quote.typ",             "quote",    "attribution", false),
+        ("test-footnote.typ",          "footnote", "footnote body", false),
+        // Cat 3: calc
+        ("test-calc.typ",              "metadata", "calc args nomeados", false),
+        // Cat 4: métodos avançados
+        ("test-array.typ",             "metadata", "array métodos", false),
+        ("test-str.typ",               "metadata", "str métodos", false),
+        ("test-dict.typ",              "metadata", "dict.at(default:)", false),
+        // Cat 5: show/set edge
+        ("test-show-regex.typ",        "heading",  "show regex", false),
+        ("test-set-local.typ",         "heading",  "#set local em bloco", false),
+        ("test-show-where-multi.typ",  "heading",  "show.where(multi) scope-out", false),
+        // Cat 6: math
+        ("test-math.typ",              "math.equation", "vec/mat/cases", false),
+        // Cat 7: layout
+        ("test-columns.typ",           "heading",  "columns + colbreak", false),
+        // Non-locatable: verifica sem PANIC com selector heading
+        ("test-page.typ",              "heading",  "page (non-locatable)", true),
+        ("test-place.typ",             "heading",  "place (non-locatable)", true),
+        ("test-stroke-sides.typ",      "heading",  "stroke-sides (non-locatable)", true),
+    ];
+
+    enum CristResult {
+        Ok(QuerySummary),
+        Panic(String),
+        Ausente(String),
+        Erro(String),
+    }
+
+    fn classify_crist_error(msg: String) -> CristResult {
+        if msg.contains("panicked") || msg.contains("PANIC") {
+            CristResult::Panic(msg)
+        } else if msg.contains("unknown") || msg.contains("unrecognized") || msg.contains("expected") {
+            CristResult::Ausente(msg)
+        } else {
+            CristResult::Erro(msg)
+        }
+    }
+
+    let mut rows: Vec<String> = Vec::new();
+    let mut matches = 0usize;
+    let mut diffs = 0usize;
+    let mut erros = 0usize;
+    let mut panics = 0usize;
+    let mut ausentes = 0usize;
+
+    for (filename, selector, desc, non_locatable) in cases {
+        let path = corpus_dir.join(filename);
+        let Ok(source) = std::fs::read_to_string(&path) else {
+            eprintln!("[p503] ficheiro ausente: {}", filename);
+            continue;
+        };
+
+        let dir = tempdir();
+        let main_path = dir.path().join("main.typ");
+        if std::fs::write(&main_path, &source).is_err() {
+            eprintln!("[p503] {}: erro a escrever tempdir", filename);
+            continue;
+        }
+
+        // --- Cristalino ---
+        let crist_result = match SystemWorld::new(dir.path(), "main.typ") {
+            Ok(world) => {
+                let source_ref = world.source(world.main()).unwrap();
+                match query_to_summary(&world, &source_ref, selector) {
+                    Ok(summary) => CristResult::Ok(summary),
+                    Err(e) => classify_crist_error(format!("{:?}", e)),
+                }
+            }
+            Err(e) => classify_crist_error(format!("{:?}", e)),
+        };
+
+        // --- Vanilla 0.14.2 ---
+        let van_0142_result: Result<serde_json::Value, String> = if vanilla_0142_available {
+            run_typst_query(&main_path, selector).map_err(|e| format!("{}", e))
+        } else {
+            Err("vanilla 0.14.2 ausente".to_string())
+        };
+
+        // --- Vanilla 0.15.0 ---
+        let van_0150_result: Result<serde_json::Value, String> =
+            run_typst_query_with_bin(typst_0150_bin, &main_path, selector)
+                .map_err(|e| format!("{}", e));
+
+        // --- Contagens para a tabela ---
+        let crist_label = match &crist_result {
+            CristResult::Ok(s) => format!("count={}", s.count),
+            CristResult::Panic(m) | CristResult::Ausente(m) | CristResult::Erro(m) => {
+                let truncated = if m.len() > 80 { format!("{}...", &m[..80]) } else { m.clone() };
+                truncated
+            }
+        };
+
+        let van_0142_label = match &van_0142_result {
+            Ok(v) => format!("count={}", v.as_array().map(|a| a.len()).unwrap_or(0)),
+            Err(e) => {
+                let truncated = if e.len() > 80 { format!("{}...", &e[..80]) } else { e.clone() };
+                format!("ERRO: {}", truncated)
+            }
+        };
+
+        let van_0150_label = match &van_0150_result {
+            Ok(v) => format!("count={}", v.as_array().map(|a| a.len()).unwrap_or(0)),
+            Err(e) => {
+                let truncated = if e.len() > 80 { format!("{}...", &e[..80]) } else { e.clone() };
+                format!("ERRO: {}", truncated)
+            }
+        };
+
+        // --- Classificação P503 (cristalino vs 0.15.0) ---
+        let classificacao = match (&crist_result, &van_0150_result) {
+            (CristResult::Ok(crist), Ok(van_0150)) => {
+                match compare_query_outputs(crist, van_0150) {
+                    CompareResult::Match => {
+                        matches += 1;
+                        "MATCH".to_string()
+                    }
+                    CompareResult::Diff(diffs_vec) => {
+                        diffs += 1;
+                        format!("DIFF: {}", diffs_vec.join("; "))
+                    }
+                    CompareResult::Skip(reason) => {
+                        erros += 1;
+                        format!("ERRO_DESCRITIVO (skip: {})", reason)
+                    }
+                }
+            }
+            (CristResult::Panic(_), _) => {
+                panics += 1;
+                "PANIC".to_string()
+            }
+            (CristResult::Ausente(_), _) => {
+                ausentes += 1;
+                "AUSENTE".to_string()
+            }
+            (CristResult::Erro(_), _) | (_, Err(_)) => {
+                erros += 1;
+                "ERRO_DESCRITIVO".to_string()
+            }
+        };
+
+        eprintln!(
+            "[p503] {:<35} sel={:<15} crist={:<40} van0142={:<40} van0150={:<40} => {}",
+            filename, selector, crist_label, van_0142_label, van_0150_label, classificacao
+        );
+
+        let p498 = if *non_locatable { "ERRO_DESCRITIVO (non-loc)".to_string() } else { "MATCH".to_string() };
+        rows.push(format!(
+            "| `{}` | `{}` | {} | {} | {} | {} | {} | {}",
+            filename, selector, desc, p498, van_0142_label, van_0150_label, crist_label, classificacao
+        ));
+    }
+
+    eprintln!("\n=== P503 — Re-baseline P490 vs Typst 0.15.0 ===");
+    eprintln!("Ficheiros:        {}", cases.len());
+    eprintln!("MATCH:            {}", matches);
+    eprintln!("DIFF:             {}", diffs);
+    eprintln!("ERRO_DESCRITIVO:  {}", erros);
+    eprintln!("AUSENTE:          {}", ausentes);
+    eprintln!("PANIC:            {}", panics);
+
+    for row in &rows {
+        eprintln!("{}", row);
+    }
+
+    // Invariante: zero PANICs em qualquer re-baseline de paridade.
+    assert_eq!(panics, 0, "P503: zero PANICs exigido; obtido {}", panics);
 }
