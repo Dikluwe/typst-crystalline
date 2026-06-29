@@ -349,6 +349,12 @@ pub struct Layouter<'a, M: FontMetrics, S: ImageSizer = NullImageSizer> {
     /// excluindo a última (coberta por `last_cited_key`). Usada para op. cit.:
     /// key já citada mas não consecutivamente → "[N] Author, op. cit.".
     pub(super) previously_cited_keys: std::collections::HashSet<String>,
+    /// **P505** — `true` se o item anterior numa sequência foi um
+    /// `ListItem`/`EnumItem` com `tight: false`. Usado para adicionar
+    /// espaçamento de parágrafo *entre* itens soltos sem duplicar o
+    /// espaço após o último item. Resetado quando um elemento não-lista
+    /// aparece na sequência.
+    pub(super) last_was_loose_item: bool,
 }
 
 /// **P286** — Segmento de linha visual capturado por `flush_line`
@@ -513,6 +519,8 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
             last_cited_key: None,
             // P473 — keys citadas anteriormente para op. cit.
             previously_cited_keys: std::collections::HashSet::new(),
+            // P505 — estado de espaçamento entre itens de lista soltos.
+            last_was_loose_item: false,
         }
     }
 

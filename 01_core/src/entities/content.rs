@@ -1341,25 +1341,56 @@ impl Content {
     }
     // ── Construtores ergonómicos família lista/termos (Modelo D, Lote 3 P318) ──
     pub fn list_item(body: Content) -> Self {
-        Self::ListItem(Arc::new(ListItemElem { body, marker: None, marker_align: None }))
+        Self::ListItem(Arc::new(ListItemElem {
+            body,
+            marker: None,
+            marker_align: None,
+            indent: None,
+            body_indent: None,
+            tight: None,
+        }))
     }
     /// P470 — construtor com marcador customizado.
     pub fn list_item_with_marker(
         body:   Content,
         marker: crate::entities::list_marker::ListMarker,
     ) -> Self {
-        Self::ListItem(Arc::new(ListItemElem { body, marker: Some(marker), marker_align: None }))
+        Self::ListItem(Arc::new(ListItemElem {
+            body,
+            marker: Some(marker),
+            marker_align: None,
+            indent: None,
+            body_indent: None,
+            tight: None,
+        }))
     }
-    /// **P504** — construtor completo com marcador e alinhamento (Typst 0.15.0).
+    /// **P504/P505** — construtor completo com marcador, alinhamento e indentação.
     pub fn list_item_full(
         body:         Content,
         marker:       Option<crate::entities::list_marker::ListMarker>,
         marker_align: Option<crate::entities::layout_types::Align2D>,
+        indent:       Option<crate::entities::layout_types::Length>,
+        body_indent:  Option<crate::entities::layout_types::Length>,
+        tight:        Option<bool>,
     ) -> Self {
-        Self::ListItem(Arc::new(ListItemElem { body, marker, marker_align }))
+        Self::ListItem(Arc::new(ListItemElem {
+            body,
+            marker,
+            marker_align,
+            indent,
+            body_indent,
+            tight,
+        }))
     }
     pub fn enum_item(number: Option<u32>, body: Content) -> Self {
-        Self::EnumItem(Arc::new(EnumItemElem { number, body, numbering: None }))
+        Self::EnumItem(Arc::new(EnumItemElem {
+            number,
+            body,
+            numbering: None,
+            indent: None,
+            body_indent: None,
+            tight: None,
+        }))
     }
     /// P470 — construtor com esquema de numeração.
     pub fn enum_item_with_numbering(
@@ -1367,7 +1398,32 @@ impl Content {
         body:      Content,
         numbering: crate::entities::enum_numbering::EnumNumbering,
     ) -> Self {
-        Self::EnumItem(Arc::new(EnumItemElem { number, body, numbering: Some(numbering) }))
+        Self::EnumItem(Arc::new(EnumItemElem {
+            number,
+            body,
+            numbering: Some(numbering),
+            indent: None,
+            body_indent: None,
+            tight: None,
+        }))
+    }
+    /// **P505** — construtor completo com numeração e indentação.
+    pub fn enum_item_full(
+        number:      Option<u32>,
+        body:        Content,
+        numbering:   Option<crate::entities::enum_numbering::EnumNumbering>,
+        indent:      Option<crate::entities::layout_types::Length>,
+        body_indent: Option<crate::entities::layout_types::Length>,
+        tight:       Option<bool>,
+    ) -> Self {
+        Self::EnumItem(Arc::new(EnumItemElem {
+            number,
+            body,
+            numbering,
+            indent,
+            body_indent,
+            tight,
+        }))
     }
     pub fn link(url: impl Into<EcoString>, body: Content) -> Self {
         Self::Link(Arc::new(LinkElem { url: url.into(), body }))

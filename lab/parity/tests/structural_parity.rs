@@ -1388,12 +1388,16 @@ fn p501_gaps_p1_p2() {
     // O vanilla 0.14.2 instalado não suporta alguns métodos (calc.log10,
     // str.to-upper, etc.), pelo que esses ficheiros podem não dar MATCH
     // estrutural, mas devem deixar de ser AUSENTE no cristalino.
+    //
+    // **P505** — test-list-advanced.typ e test-enum-advanced.typ deixam de ser
+    // AUSENTE (indent/body-indent/tight aceites), mas continuam DIFF porque o
+    // corpus usa `marker: Array` (scope-out P494) e `numbering: "(a)"`
+    // (scope-out P470). O gap de indentação está fechado; os diffs são dos
+    // scope-outs pré-existentes.
     assert_eq!(panics, 0, "P501: zero PANICs; obtido {}", panics);
-    assert_eq!(diffs, 0, "P501: zero DIFFs; obtido {}", diffs);
-    // P502 fechou 4 gaps S/XS (4 ficheiros); restam 3 ficheiros AUSENTEs:
-    // test-list-advanced.typ, test-enum-advanced.typ, test-state-counter.typ.
-    assert_eq!(ausentes, 3, "P501/P502: esperados 3 ficheiros AUSENTEs restantes; obtidos {}", ausentes);
-    assert!(matches >= 12, "P501/P502: esperados pelo menos 12 MATCH; obtidos {}", matches);
+    assert_eq!(ausentes, 1, "P501/P505: esperado 1 ficheiro AUSENTE restante (test-state-counter.typ); obtidos {}", ausentes);
+    assert!(matches >= 12, "P501/P502/P505: esperados pelo menos 12 MATCH; obtidos {}", matches);
+    assert!(diffs <= 2, "P501/P505: esperados no máximo 2 DIFFs (list/enum avançados com scope-outs); obtidos {}", diffs);
 }
 
 
@@ -1852,4 +1856,121 @@ fn p504_audit_novas_funcionalidades_0150() {
     }
 
     assert_eq!(panic, 0, "P504: zero PANICs exigido; obtido {}", panic);
+}
+
+/// **P505** — Fecho dos gaps de indentação em `list` e `enum`.
+///
+/// Valida que `indent`, `body-indent` e `tight` são aceites e produzem
+/// resultados estruturais equivalentes ao vanilla 0.15.0.
+#[test]
+fn p505_indentacao_listas_enums() {
+    let typst_0150_bin = "/tmp/typst-0.15.0/typst-x86_64-unknown-linux-musl/typst";
+    let vanilla_0150_available = vanilla_cli_available_with_bin(typst_0150_bin);
+
+    let cases: &[(&str, &str, &str)] = &[
+        (
+            "list_indent",
+            "list",
+            "#list(indent: 1.5em, body-indent: 0.5em, tight: false, [Item A], [Item B])",
+        ),
+        (
+            "enum_indent",
+            "enum",
+            "#enum(indent: 1.5em, body-indent: 0.5em, tight: false, [Primeiro], [Segundo])",
+        ),
+        (
+            "list_tight_true",
+            "list",
+            "#list(tight: true, [A], [B], [C])",
+        ),
+        (
+            "enum_tight_true",
+            "enum",
+            "#enum(tight: true, [A], [B], [C])",
+        ),
+    ];
+
+    let mut rows: Vec<String> = Vec::new();
+    let mut matches = 0usize;
+    let mut ausentes = 0usize;
+    let mut panics = 0usize;
+    let mut diffs = 0usize;
+
+    for (name, selector, expr) in cases {
+        let source = format!("{}\n#metadata(1)", expr);
+        let dir = tempdir();
+        let main_path = dir.path().join("main.typ");
+        std::fs::write(&main_path, &source).expect("escrever main.typ");
+
+        let crist_result = match SystemWorld::new(dir.path(), "main.typ") {
+            Ok(world) => {
+                let source_ref = world.source(world.main()).unwrap();
+                match query_to_summary(&world, &source_ref, selector) {
+                    Ok(s) => Ok(s),
+                    Err(e) => Err(format!("{:?}", e)),
+                }
+            }
+            Err(e) => Err(format!("{:?}", e)),
+        };
+
+        if !vanilla_0150_available {
+            eprintln!("[p505] {}: vanilla 0.15.0 ausente; crist-only.", name);
+            rows.push(format!("| {} | — | crist-only |", name));
+            continue;
+        }
+
+        let van_result = run_typst_query_with_bin(typst_0150_bin, &main_path, selector);
+
+        let classificacao = match (&crist_result, &van_result) {
+            (Ok(crist), Ok(van)) => match compare_query_outputs(crist, van) {
+                CompareResult::Match => {
+                    matches += 1;
+                    "MATCH".to_string()
+                }
+                CompareResult::Diff(diffs_vec) => {
+                    diffs += 1;
+                    format!("DIFF: {}", diffs_vec.join("; "))
+                }
+                CompareResult::Skip(reason) => {
+                    diffs += 1;
+                    format!("SKIP: {}", reason)
+                }
+            },
+            (Err(e), _) => {
+                let msg = e.clone();
+                if msg.contains("panicked") || msg.contains("PANIC") {
+                    panics += 1;
+                    "PANIC".to_string()
+                } else if msg.contains("unknown") || msg.contains("unrecognized") || msg.contains("expected") {
+                    ausentes += 1;
+                    "AUSENTE".to_string()
+                } else {
+                    diffs += 1;
+                    format!("ERRO: {}", msg)
+                }
+            }
+            (_, Err(e)) => {
+                diffs += 1;
+                format!("VANILLA_ERRO: {}", e)
+            }
+        };
+
+        eprintln!("[p505] {:<20} => {}", name, classificacao);
+        rows.push(format!("| {} | {} | {}", name, selector, classificacao));
+    }
+
+    eprintln!("\n=== P505 — Indentação list/enum ===");
+    eprintln!("MATCH:   {}", matches);
+    eprintln!("DIFF:    {}", diffs);
+    eprintln!("AUSENTE: {}", ausentes);
+    eprintln!("PANIC:   {}", panics);
+    for row in &rows {
+        eprintln!("{}", row);
+    }
+
+    assert_eq!(panics, 0, "P505: zero PANICs exigido; obtido {}", panics);
+    assert_eq!(ausentes, 0, "P505: zero AUSENTEs esperado; obtido {}", ausentes);
+    if vanilla_0150_available {
+        assert_eq!(diffs, 0, "P505: zero DIFFs esperado; obtido {}", diffs);
+    }
 }

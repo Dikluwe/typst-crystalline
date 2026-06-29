@@ -57,6 +57,12 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
             layouter.block_chain_active = false;
             layouter.prev_block_below_pending = 0.0;
         }
+        // P505 — apenas ListItem/EnumItem consecutivos com tight=false
+        // partilham o espaçamento de parágrafo; qualquer outro conteúdo
+        // reseta o estado.
+        if !matches!(part, Content::ListItem(_) | Content::EnumItem(_)) {
+            layouter.last_was_loose_item = false;
+        }
     }
 
     layouter.prev_block_below_pending = saved_below;

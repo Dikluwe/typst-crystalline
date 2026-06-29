@@ -126,6 +126,7 @@ impl ValueDTO {
             Value::Version(v) => ValueDTO::Other(format!("version:{v:?}")),
             Value::Selector(s) => ValueDTO::Other(format!("selector:{s:?}")),
             Value::Symbol(s) => ValueDTO::Other(format!("symbol:{s:?}")),
+            Value::Args(_) => ValueDTO::Other("args".into()),
         }
     }
 

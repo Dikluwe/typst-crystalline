@@ -784,6 +784,257 @@ fn layout_list_item_tem_bullet() {
     assert!(has_marker, "ListItem deve ter marcador '•'");
 }
 
+// ── P505 — indentação e espaçamento em listas/enums ──────────────────────
+
+#[test]
+fn layout_list_item_respeita_indentacao() {
+    use crate::entities::layout_types::Length;
+    use crate::entities::list_marker::ListMarker;
+
+    let body = Content::text("Item com texto suficientemente longo para forçar uma quebra de linha no body do item");
+    let item = Content::list_item_full(
+        body,
+        Some(ListMarker::Custom("→".into())),
+        None,
+        Some(Length::em(1.5)),
+        Some(Length::em(0.5)),
+        None,
+    );
+    let doc = layout(&item);
+    let margin = 70.87_f64;
+    let indent_em = 18.0_f64; // 1.5em @ 12pt
+    let body_indent_em = 6.0_f64; // 0.5em @ 12pt
+    let expected_marker_x = margin + indent_em;
+
+    let marker = doc
+        .pages
+        .iter()
+        .flat_map(|p| p.items.iter())
+        .find(|i| matches!(i, FrameItem::Text { text, .. } if text.as_str() == "→"));
+    let marker = marker.expect("deve haver marcador '→'");
+    let marker_x = match marker {
+        FrameItem::Text { pos, .. } => pos.x.val(),
+        _ => unreachable!(),
+    };
+    let marker_width = FixedMetrics.advance("→", Pt(12.0)).val();
+    let expected_body_x = expected_marker_x + marker_width + body_indent_em;
+
+    assert!(
+        (marker_x - expected_marker_x).abs() < 0.01,
+        "marker_x={marker_x}, esperado={expected_marker_x}"
+    );
+
+    // O primeiro caractere do body deve aparecer na posição body_x.
+    let body_texts: Vec<_> = doc
+        .pages
+        .iter()
+        .flat_map(|p| p.items.iter())
+        .filter(|i| matches!(i, FrameItem::Text { text, .. } if !text.as_str().trim().is_empty() && text.as_str() != "→"))
+        .collect();
+    assert!(!body_texts.is_empty(), "deve haver texto do body");
+    let first_body = body_texts.first().unwrap();
+    let body_x = match first_body {
+        FrameItem::Text { pos, .. } => pos.x.val(),
+        _ => unreachable!(),
+    };
+    assert!(
+        (body_x - expected_body_x).abs() < 0.01,
+        "body_x={body_x}, esperado={expected_body_x}"
+    );
+}
+
+#[test]
+fn layout_list_tight_false_adiciona_espaco() {
+    use crate::entities::layout_types::Length;
+
+    let items = Content::sequence(vec![
+        Content::list_item_full(
+            Content::text("A"),
+            None,
+            None,
+            None,
+            None,
+            Some(false),
+        ),
+        Content::list_item_full(
+            Content::text("B"),
+            None,
+            None,
+            None,
+            None,
+            Some(false),
+        ),
+    ]);
+    let doc = layout(&items);
+
+    let ys: Vec<f64> = doc
+        .pages
+        .iter()
+        .flat_map(|p| p.items.iter())
+        .filter_map(|i| match i {
+            FrameItem::Text { text, pos, .. } if text.as_str() == "•" => Some(pos.y.val()),
+            _ => None,
+        })
+        .collect();
+    assert_eq!(ys.len(), 2, "deve haver dois marcadores");
+    let (_, line_height) = FixedMetrics.vertical_metrics(Pt(12.0));
+    // P505 — `tight: false` adiciona um line_height de espaçamento de
+    // parágrafo *além* do line_height natural do flush_line.
+    let expected_gap = 2.0 * line_height.val();
+    let actual_gap = ys[1] - ys[0];
+    assert!(
+        (actual_gap - expected_gap).abs() < 0.01,
+        "gap={actual_gap}, esperado={expected_gap}"
+    );
+}
+
+#[test]
+fn layout_list_tight_default_preserva_gap_natural() {
+    let items = Content::sequence(vec![
+        Content::list_item_full(Content::text("A"), None, None, None, None, None),
+        Content::list_item_full(Content::text("B"), None, None, None, None, None),
+    ]);
+    let doc = layout(&items);
+    let ys: Vec<f64> = doc
+        .pages
+        .iter()
+        .flat_map(|p| p.items.iter())
+        .filter_map(|i| match i {
+            FrameItem::Text { text, pos, .. } if text.as_str() == "•" => Some(pos.y.val()),
+            _ => None,
+        })
+        .collect();
+    assert_eq!(ys.len(), 2, "deve haver dois marcadores");
+    let (_, line_height) = FixedMetrics.vertical_metrics(Pt(12.0));
+    let actual_gap = ys[1] - ys[0];
+    assert!(
+        (actual_gap - line_height.val()).abs() < 0.01,
+        "gap={actual_gap}, esperado={}",
+        line_height.val()
+    );
+}
+
+#[test]
+fn layout_enum_item_respeita_indentacao() {
+    use crate::entities::enum_numbering::EnumNumbering;
+    use crate::entities::layout_types::Length;
+
+    let body = Content::text("Primeiro item");
+    let item = Content::enum_item_full(
+        Some(1),
+        body,
+        Some(EnumNumbering::Decimal),
+        Some(Length::em(1.5)),
+        Some(Length::em(0.5)),
+        None,
+    );
+    let doc = layout(&item);
+    let margin = 70.87_f64;
+    let indent_em = 18.0_f64;
+    let body_indent_em = 6.0_f64;
+    let expected_label_x = margin + indent_em;
+
+    let label = doc
+        .pages
+        .iter()
+        .flat_map(|p| p.items.iter())
+        .find(|i| matches!(i, FrameItem::Text { text, .. } if text.as_str() == "1."));
+    let label = label.expect("deve haver rótulo '1.'");
+    let label_x = match label {
+        FrameItem::Text { pos, .. } => pos.x.val(),
+        _ => unreachable!(),
+    };
+    let label_width = FixedMetrics.advance("1.", Pt(12.0)).val();
+    let expected_body_x = expected_label_x + label_width + body_indent_em;
+
+    assert!(
+        (label_x - expected_label_x).abs() < 0.01,
+        "label_x={label_x}, esperado={expected_label_x}"
+    );
+
+    let body_texts: Vec<_> = doc
+        .pages
+        .iter()
+        .flat_map(|p| p.items.iter())
+        .filter(|i| matches!(i, FrameItem::Text { text, .. } if text.as_str().contains("Primeiro")))
+        .collect();
+    assert!(!body_texts.is_empty(), "deve haver texto do body");
+    let first_body = body_texts.first().unwrap();
+    let body_x = match first_body {
+        FrameItem::Text { pos, .. } => pos.x.val(),
+        _ => unreachable!(),
+    };
+    assert!(
+        (body_x - expected_body_x).abs() < 0.01,
+        "body_x={body_x}, esperado={expected_body_x}"
+    );
+}
+
+#[test]
+fn layout_enum_tight_false_adiciona_espaco() {
+    use crate::entities::layout_types::Length;
+
+    let items = Content::sequence(vec![
+        Content::enum_item_full(Some(1), Content::text("A"), None, None, None, Some(false)),
+        Content::enum_item_full(Some(2), Content::text("B"), None, None, None, Some(false)),
+    ]);
+    let doc = layout(&items);
+
+    let ys: Vec<f64> = doc
+        .pages
+        .iter()
+        .flat_map(|p| p.items.iter())
+        .filter_map(|i| match i {
+            FrameItem::Text { text, pos, .. }
+                if text.as_str() == "1." || text.as_str() == "2." =>
+            {
+                Some(pos.y.val())
+            }
+            _ => None,
+        })
+        .collect();
+    assert_eq!(ys.len(), 2, "deve haver dois rótulos");
+    let (_, line_height) = FixedMetrics.vertical_metrics(Pt(12.0));
+    // P505 — `tight: false` adiciona um line_height de espaçamento de
+    // parágrafo *além* do line_height natural do flush_line.
+    let expected_gap = 2.0 * line_height.val();
+    let actual_gap = ys[1] - ys[0];
+    assert!(
+        (actual_gap - expected_gap).abs() < 0.01,
+        "gap={actual_gap}, esperado={expected_gap}"
+    );
+}
+
+#[test]
+fn layout_enum_tight_default_preserva_gap_natural() {
+    let items = Content::sequence(vec![
+        Content::enum_item_full(Some(1), Content::text("A"), None, None, None, None),
+        Content::enum_item_full(Some(2), Content::text("B"), None, None, None, None),
+    ]);
+    let doc = layout(&items);
+    let ys: Vec<f64> = doc
+        .pages
+        .iter()
+        .flat_map(|p| p.items.iter())
+        .filter_map(|i| match i {
+            FrameItem::Text { text, pos, .. }
+                if text.as_str() == "1." || text.as_str() == "2." =>
+            {
+                Some(pos.y.val())
+            }
+            _ => None,
+        })
+        .collect();
+    assert_eq!(ys.len(), 2, "deve haver dois rótulos");
+    let (_, line_height) = FixedMetrics.vertical_metrics(Pt(12.0));
+    let actual_gap = ys[1] - ys[0];
+    assert!(
+        (actual_gap - line_height.val()).abs() < 0.01,
+        "gap={actual_gap}, esperado={}",
+        line_height.val()
+    );
+}
+
 #[test]
 fn layout_raw_block_tamanho_menor() {
     let content = Content::sequence(vec![

@@ -2,9 +2,9 @@
 //! @prompt 00_nucleo/prompts/rules/model/document.md
 //! @prompt 00_nucleo/prompts/rules/model/asset.md
 //! @prompt 00_nucleo/prompts/rules/stdlib/structural.md
-//! @prompt-hash 2e87c4ac
+//! @prompt-hash a5cfada4
 //! @layer L1
-//! @updated 2026-06-26
+//! @updated 2026-06-29
 //!
 //! Funções nativas estruturais (strong, emph, raw, heading).
 //! Extraído de `stdlib.rs` no Passo 96.5 conforme ADR-0037.
@@ -2147,19 +2147,23 @@ fn infer_asset_kind(path: &EcoString) -> Option<EcoString> {
 
 // ── P470 — native_list / native_enum ────────────────────────────────────────
 
-/// `list(..items, marker:?)` — cria itens de lista não ordenada com marcador
-/// configurável (P470). Cada item posicional torna-se um `Content::ListItem`.
+/// `list(..items, marker:?, marker-align:?, indent:?, body-indent:?, tight:?)` —
+/// cria itens de lista não ordenada com marcador configurável (P470/P504/P505).
+/// Cada item posicional torna-se um `Content::ListItem`.
 pub fn native_list(
     _ctx: &mut EvalContext,
     args: &Args,
     _world: &dyn crate::contracts::world::World,
     _current_file: FileId,
 ) -> SourceResult<Value> {
-    use crate::entities::layout_types::Align2D;
+    use crate::entities::layout_types::{Align2D, Length};
     use crate::entities::list_marker::ListMarker;
 
     for key in args.named.keys() {
-        if key.as_str() != "marker" && key.as_str() != "marker-align" {
+        if !matches!(
+            key.as_str(),
+            "marker" | "marker-align" | "indent" | "body-indent" | "tight"
+        ) {
             return Err(vec![SourceDiagnostic::error(
                 Span::detached(),
                 format!("argumento nomeado inesperado '{}'", key),
@@ -2211,6 +2215,37 @@ pub fn native_list(
             )]);
         }
     };
+    // P505 — parâmetros de indentação.
+    let indent: Option<Length> = match args.named.get("indent") {
+        None | Some(Value::None) => None,
+        Some(Value::Length(l)) => Some(*l),
+        Some(other) => {
+            return Err(vec![SourceDiagnostic::error(
+                Span::detached(),
+                format!("list(indent:) espera length, recebeu {}", other.type_name()),
+            )]);
+        }
+    };
+    let body_indent: Option<Length> = match args.named.get("body-indent") {
+        None | Some(Value::None) => None,
+        Some(Value::Length(l)) => Some(*l),
+        Some(other) => {
+            return Err(vec![SourceDiagnostic::error(
+                Span::detached(),
+                format!("list(body-indent:) espera length, recebeu {}", other.type_name()),
+            )]);
+        }
+    };
+    let tight: Option<bool> = match args.named.get("tight") {
+        None | Some(Value::None) => None,
+        Some(Value::Bool(b)) => Some(*b),
+        Some(other) => {
+            return Err(vec![SourceDiagnostic::error(
+                Span::detached(),
+                format!("list(tight:) espera bool, recebeu {}", other.type_name()),
+            )]);
+        }
+    };
     if args.items.is_empty() {
         return Ok(Value::Content(Content::Empty));
     }
@@ -2226,7 +2261,14 @@ pub fn native_list(
                 )]);
             }
         };
-        let item = Content::list_item_full(body, marker.clone(), marker_align);
+        let item = Content::list_item_full(
+            body,
+            marker.clone(),
+            marker_align,
+            indent,
+            body_indent,
+            tight,
+        );
         items.push(item);
     }
     Ok(Value::Content(if items.len() == 1 {
@@ -2236,9 +2278,10 @@ pub fn native_list(
     }))
 }
 
-/// `enum(..items, numbering:?)` — cria itens de lista ordenada com esquema de
-/// numeração configurável (P470). Cada item posicional torna-se um
-/// `Content::EnumItem` com número 1-based.
+/// `enum(..items, numbering:?, start:?, indent:?, body-indent:?, tight:?)` —
+/// cria itens de lista ordenada com esquema de numeração configurável
+/// (P470/P505). Cada item posicional torna-se um `Content::EnumItem` com
+/// número 1-based respeitando `start`.
 pub fn native_enum(
     _ctx: &mut EvalContext,
     args: &Args,
@@ -2246,9 +2289,13 @@ pub fn native_enum(
     _current_file: FileId,
 ) -> SourceResult<Value> {
     use crate::entities::enum_numbering::EnumNumbering;
+    use crate::entities::layout_types::Length;
 
     for key in args.named.keys() {
-        if key.as_str() != "numbering" && key.as_str() != "start" {
+        if !matches!(
+            key.as_str(),
+            "numbering" | "start" | "indent" | "body-indent" | "tight"
+        ) {
             return Err(vec![SourceDiagnostic::error(
                 Span::detached(),
                 format!("argumento nomeado inesperado '{}'", key),
@@ -2275,6 +2322,37 @@ pub fn native_enum(
             )]);
         }
     };
+    // P505 — parâmetros de indentação.
+    let indent: Option<Length> = match args.named.get("indent") {
+        None | Some(Value::None) => None,
+        Some(Value::Length(l)) => Some(*l),
+        Some(other) => {
+            return Err(vec![SourceDiagnostic::error(
+                Span::detached(),
+                format!("enum(indent:) espera length, recebeu {}", other.type_name()),
+            )]);
+        }
+    };
+    let body_indent: Option<Length> = match args.named.get("body-indent") {
+        None | Some(Value::None) => None,
+        Some(Value::Length(l)) => Some(*l),
+        Some(other) => {
+            return Err(vec![SourceDiagnostic::error(
+                Span::detached(),
+                format!("enum(body-indent:) espera length, recebeu {}", other.type_name()),
+            )]);
+        }
+    };
+    let tight: Option<bool> = match args.named.get("tight") {
+        None | Some(Value::None) => None,
+        Some(Value::Bool(b)) => Some(*b),
+        Some(other) => {
+            return Err(vec![SourceDiagnostic::error(
+                Span::detached(),
+                format!("enum(tight:) espera bool, recebeu {}", other.type_name()),
+            )]);
+        }
+    };
     if args.items.is_empty() {
         return Ok(Value::Content(Content::Empty));
     }
@@ -2291,10 +2369,14 @@ pub fn native_enum(
             }
         };
         let number = Some((idx as u32) + start);
-        let item = match &numbering {
-            None    => Content::enum_item(number, body),
-            Some(n) => Content::enum_item_with_numbering(number, body, n.clone()),
-        };
+        let item = Content::enum_item_full(
+            number,
+            body,
+            numbering.clone(),
+            indent,
+            body_indent,
+            tight,
+        );
         items.push(item);
     }
     Ok(Value::Content(if items.len() == 1 {
@@ -2723,5 +2805,97 @@ mod tests {
         named.insert("foo".into(), Value::Int(1));
         let args = Args { items: vec![], named };
         assert!(call_enum(args).is_err());
+    }
+
+    // ── Testes P505 — indentação e tight em list/enums ───────────────────────
+
+    #[test]
+    fn list_indent_body_indent_tight_sao_propagados() {
+        use crate::entities::layout_types::Length;
+        let mut named = indexmap::IndexMap::default();
+        named.insert("indent".into(), Value::Length(Length::em(1.5)));
+        named.insert("body-indent".into(), Value::Length(Length::em(0.5)));
+        named.insert("tight".into(), Value::Bool(false));
+        let args = Args {
+            items: vec![Value::Content(Content::text("a"))],
+            named,
+        };
+        let result = call_list(args).unwrap();
+        if let Value::Content(Content::ListItem(li)) = result {
+            assert_eq!(li.indent, Some(Length::em(1.5)));
+            assert_eq!(li.body_indent, Some(Length::em(0.5)));
+            assert_eq!(li.tight, Some(false));
+        } else {
+            panic!("esperado ListItem");
+        }
+    }
+
+    #[test]
+    fn list_indent_invalido_retorna_erro() {
+        let mut named = indexmap::IndexMap::default();
+        named.insert("indent".into(), Value::Str("x".into()));
+        let args = Args { items: vec![Value::Content(Content::text("a"))], named };
+        assert!(call_list(args).is_err());
+    }
+
+    #[test]
+    fn list_body_indent_invalido_retorna_erro() {
+        let mut named = indexmap::IndexMap::default();
+        named.insert("body-indent".into(), Value::Int(1));
+        let args = Args { items: vec![Value::Content(Content::text("a"))], named };
+        assert!(call_list(args).is_err());
+    }
+
+    #[test]
+    fn list_tight_invalido_retorna_erro() {
+        let mut named = indexmap::IndexMap::default();
+        named.insert("tight".into(), Value::Int(1));
+        let args = Args { items: vec![Value::Content(Content::text("a"))], named };
+        assert!(call_list(args).is_err());
+    }
+
+    #[test]
+    fn enum_indent_body_indent_tight_sao_propagados() {
+        use crate::entities::layout_types::Length;
+        let mut named = indexmap::IndexMap::default();
+        named.insert("indent".into(), Value::Length(Length::em(1.5)));
+        named.insert("body-indent".into(), Value::Length(Length::em(0.5)));
+        named.insert("tight".into(), Value::Bool(false));
+        let args = Args {
+            items: vec![Value::Content(Content::text("a"))],
+            named,
+        };
+        let result = call_enum(args).unwrap();
+        if let Value::Content(Content::EnumItem(ei)) = result {
+            assert_eq!(ei.indent, Some(Length::em(1.5)));
+            assert_eq!(ei.body_indent, Some(Length::em(0.5)));
+            assert_eq!(ei.tight, Some(false));
+        } else {
+            panic!("esperado EnumItem");
+        }
+    }
+
+    #[test]
+    fn enum_indent_invalido_retorna_erro() {
+        let mut named = indexmap::IndexMap::default();
+        named.insert("indent".into(), Value::Str("x".into()));
+        let args = Args { items: vec![Value::Content(Content::text("a"))], named };
+        assert!(call_enum(args).is_err());
+    }
+
+    #[test]
+    fn enum_start_maior_que_um_propaga_numeracao() {
+        let mut named = indexmap::IndexMap::default();
+        named.insert("start".into(), Value::Int(3));
+        let args = Args {
+            items: vec![Value::Content(Content::text("a"))],
+            named,
+        };
+        let result = call_enum(args).unwrap();
+        if let Value::Content(Content::EnumItem(ei)) = result {
+            assert_eq!(ei.number, Some(3));
+        } else {
+            panic!("esperado EnumItem");
+        }
     }
 }

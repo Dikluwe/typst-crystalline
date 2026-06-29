@@ -1,5 +1,5 @@
 # Prompt L0 — `stdlib/structural` — módulo `structural`
-Hash do Código: 70513826
+Hash do Código: 26876a74
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/rules/stdlib/structural.rs`
@@ -612,29 +612,40 @@ Ver prompt dedicado `00_nucleo/prompts/rules/model/asset.md`. Resumo:
 
 ---
 
-### `native_list(..items, marker:?)` — P470
+### `native_list(..items, marker:?, marker-align:?, indent:?, body-indent:?, tight:?)` — P470/P504/P505
 
-**Assinatura**: `list(..items: Content | Str, marker: Str?) -> Content`
+**Assinatura**: `list(..items: Content | Str, marker: Str?, marker-align: Align?, indent: Length?, body-indent: Length?, tight: Bool?) -> Content`
 
 **Argumentos**:
 - `..items`: variádicos posicionais `Content` ou `Str`.
 - `marker`: `Str` named opcional. Se omitido, marcador default (`"•"`) via
   `ListMarker::Default`; se presente, `ListMarker::Custom(marker)`.
+- `marker-align`: `Align` named opcional (P504). Aceite e propagado para cada
+  item; efeito visual scope-out.
+- `indent`: `Length` named opcional (P505). Indentação do marker em relação à
+  margem esquerda. Default `0pt`.
+- `body-indent`: `Length` named opcional (P505). Indentação do corpo do item em
+  relação ao marker. Default `0pt`.
+- `tight`: `Bool` named opcional (P505). `true` (default) não adiciona espaço
+  entre itens; `false` adiciona espaçamento de parágrafo entre itens.
 
-**Semântica**: Para cada item posicional, cria um `Content::ListItem(Arc<ListItemElem { body: item, marker }>)`. Devolve `Content::Sequence` de todos os itens (ou item único se só um). Sem itens → `Content::Empty`.
+**Semântica**: Para cada item posicional, cria um `Content::ListItem(Arc<ListItemElem { body: item, marker, marker_align, indent, body_indent, tight }>)`. Devolve `Content::Sequence` de todos os itens (ou item único se só um). Sem itens → `Content::Empty`.
 
-**Paridade vanilla**: Equivalente a `#list(marker: "→", [a], [b])` do Typst vanilla. Divergência: cristalino não suporta marcadores por nível neste passo.
+**Paridade vanilla**: Equivalente a `#list(marker: "→", indent: 1.5em, body-indent: 0.5em, tight: false, [a], [b])` do Typst vanilla. Divergência mecânica: os valores `indent`/`body-indent`/`tight` são replicados em cada `ListItemElem` (o cristalino não materializa um container `ListElem`). A paridade é com a **linguagem** (semântica/resultado visual), não com a estrutura de dados (ADR-0107).
 
-**Scope-out explícito (P470)**:
+**Scope-out explícito (P470/P504/P505)**:
 - Marcadores por nível (`marker: ([•], [–], [·])`) — futuro.
 - `marker: Content` (marcador como bloco arbitrário) — futuro.
+- Efeito visual de `marker-align` (P504) — campo aceite e propagado.
 
-**Testes canónicos**:
+**Testes canônicos**:
 ```
-list([a], [b]) -> Sequence[ListItem{body:"a", marker:None}, ListItem{body:"b", marker:None}]
-list([a], marker: "→") -> Sequence[ListItem{body:"a", marker:Some(Custom("→"))}, ...]
+list([a], [b]) -> Sequence[ListItem{body:"a", marker:None, indent:None, body_indent:None, tight:None}, ListItem{body:"b", marker:None, ...}]
+list([a], marker: "→") -> Sequence[ListItem{body:"a", marker:Some(Custom("→")), ...}]
+list([a], indent: 1.5em, body-indent: 0.5em, tight: false) -> Sequence[ListItem{..., indent:Some(1.5em), body_indent:Some(0.5em), tight:Some(false)}]
 list(marker: "→") -> Empty  (sem itens)
-list([a], marker: 1) -> Err "list(marker:) espera string"
+list([a], marker: 1) -> Err "list(marker:) espera string ou array"
+list([a], indent: "x") -> Err "list(indent:) espera length"
 list([a], foo: 1) -> Err "argumento nomeado inesperado 'foo'"
 ```
 
@@ -686,32 +697,42 @@ lot(foo: 1) -> Err "argumento nomeado inesperado 'foo'"
 
 ---
 
-### `native_enum(..items, numbering:?)` — P470
+### `native_enum(..items, numbering:?, start:?, indent:?, body-indent:?, tight:?)` — P470/P505
 
-**Assinatura**: `enum(..items: Content | Str, numbering: Str?) -> Content`
+**Assinatura**: `enum(..items: Content | Str, numbering: Str?, start: Int?, indent: Length?, body-indent: Length?, tight: Bool?) -> Content`
 
 **Argumentos**:
 - `..items`: variádicos posicionais `Content` ou `Str`.
 - `numbering`: `Str` named opcional. Se omitido, `EnumNumbering::Decimal` (default `"N."`);
   se presente, `EnumNumbering::from_pattern(s)`.
+- `start`: `Int` named opcional (P470). Offset inicial (≥ 1). Default `1`.
+- `indent`: `Length` named opcional (P505). Indentação do rótulo numérico em
+  relação à margem esquerda. Default `0pt`.
+- `body-indent`: `Length` named opcional (P505). Indentação do corpo do item em
+  relação ao rótulo. Default `0pt`.
+- `tight`: `Bool` named opcional (P505). `true` (default) não adiciona espaço
+  entre itens; `false` adiciona espaçamento de parágrafo entre itens.
 
-**Semântica**: Para cada item posicional com índice `i` (1-based), cria
-`Content::EnumItem(Arc<EnumItemElem { number: Some(i), body: item, numbering }>)`.
+**Semântica**: Para cada item posicional com índice `i` (1-based) e `start` dado,
+cria
+`Content::EnumItem(Arc<EnumItemElem { number: Some(start + i - 1), body: item, numbering, indent, body_indent, tight }>)`.
 Devolve `Content::Sequence` de todos os itens. Sem itens → `Content::Empty`.
 
-**Paridade vanilla**: Equivalente a `#enum(numbering: "a)", [primeiro], [segundo])`. Subset P470: apenas `"1."`, `"a)"`, `"A)"`, `"i)"`.
+**Paridade vanilla**: Equivalente a `#enum(numbering: "a)", indent: 1.5em, body-indent: 0.5em, tight: false, [primeiro], [segundo])`. Subset P470: apenas `"1."`, `"a)"`, `"A)"`, `"i)"`. Divergência mecânica: os valores `indent`/`body-indent`/`tight` são replicados em cada `EnumItemElem` (o cristalino não materializa um container `EnumElem`). A paridade é com a **linguagem** (semântica/resultado visual), não com a estrutura de dados (ADR-0107).
 
-**Scope-out explícito (P470)**:
+**Scope-out explícito (P470/P505)**:
 - Patterns completos com prefixo/sufixo arbitrário.
-- `start:` (offset inicial).
 - `full:` (numeração hierárquica).
 
 **Testes canónicos**:
 ```
-enum([a], [b]) -> Sequence[EnumItem{number:Some(1), body:"a", numbering:None}, EnumItem{number:Some(2), body:"b", numbering:None}]
+enum([a], [b]) -> Sequence[EnumItem{number:Some(1), body:"a", numbering:None, indent:None, body_indent:None, tight:None}, EnumItem{number:Some(2), body:"b", numbering:None, ...}]
 enum([a], [b], numbering: "a)") -> items com numbering: Some(LowerAlpha)
 enum([a], numbering: "?!") -> item com numbering: Some(Custom("?!")) (pattern desconhecido armazenado)
+enum([a], [b], start: 3) -> Sequence[EnumItem{number:Some(3), ...}, EnumItem{number:Some(4), ...}]
+enum([a], indent: 1.5em, body-indent: 0.5em, tight: false) -> Sequence[EnumItem{..., indent:Some(1.5em), body_indent:Some(0.5em), tight:Some(false)}]
 enum([a], numbering: 1) -> Err "enum(numbering:) espera string"
+enum([a], indent: "x") -> Err "enum(indent:) espera length"
 enum([a], foo: 1) -> Err "argumento nomeado inesperado 'foo'"
 ```
 
@@ -777,13 +798,18 @@ document(title: [T]) -> Content::Document { title: Some("T"), author: [], date: 
 asset("logo.png") -> Content::Asset { path: "logo.png", kind: Some("image") }
 asset("x.bin", kind: "custom") -> Asset { kind: Some("custom") }
 
-// list / enum (P470)
-list([a], [b]) -> Sequence[ListItem{marker:None}, ListItem{marker:None}]
+// list / enum (P470/P504/P505)
+list([a], [b]) -> Sequence[ListItem{marker:None, indent:None, body_indent:None, tight:None}, ListItem{marker:None, ...}]
 list([a], marker: "→") -> ListItem com marker: Some(Custom("→"))
-list([a], marker: 1) -> Err "list(marker:) espera string"
-enum([a], [b]) -> Sequence[EnumItem{number:Some(1)}, EnumItem{number:Some(2)}]
+list([a], indent: 1.5em, body-indent: 0.5em, tight: false) -> ListItem com indent:Some(1.5em), body_indent:Some(0.5em), tight:Some(false)
+list([a], marker: 1) -> Err "list(marker:) espera string ou array"
+list([a], indent: "x") -> Err "list(indent:) espera length"
+enum([a], [b]) -> Sequence[EnumItem{number:Some(1), numbering:None, indent:None, body_indent:None, tight:None}, EnumItem{number:Some(2), ...}]
 enum([a], [b], numbering: "a)") -> items com numbering: Some(LowerAlpha)
+enum([a], [b], start: 3) -> EnumItem{number:Some(3)}, EnumItem{number:Some(4)}
+enum([a], indent: 1.5em, body-indent: 0.5em, tight: false) -> EnumItem com indent:Some(1.5em), body_indent:Some(0.5em), tight:Some(false)
 enum([a], numbering: 1) -> Err "enum(numbering:) espera string"
+enum([a], indent: "x") -> Err "enum(indent:) espera length"
 
 // lof / lot (P472)
 lof() -> Content::Outline { target: Figures, title: None }
