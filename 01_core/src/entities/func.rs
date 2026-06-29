@@ -43,11 +43,15 @@ pub struct ElementFunc {
 pub struct ClosureRepr {
     /// Nome da binding — preenchido em eval_let para permitir recursão.
     /// Injectado no call_scope em cada chamada (sem ciclo Arc).
-    pub name:     Option<String>,
+    pub name:      Option<String>,
     /// Parâmetros com nomes e defaults opcionais.
-    pub params:   Vec<ClosureParam>,
+    pub params:    Vec<ClosureParam>,
+    /// Nome do sink de argumentos (`..args`). Se `Some`, todos os args não
+    /// consumidos por `params` são empacotados num `Value::Args` e ligados a
+    /// este nome no scope da chamada (P504).
+    pub sink_name: Option<String>,
     /// Corpo da closure — SyntaxNode clone O(1) via Arc interno.
-    pub body:     SyntaxNode,
+    pub body:      SyntaxNode,
     /// Scope capturado no momento da definição da closure.
     ///
     /// `Arc<Scope>` com snapshot eager (Opção B — DEBT-2):
@@ -291,6 +295,7 @@ mod tests {
         Func::closure(ClosureRepr {
             name: None,
             params: vec![ClosureParam { name: "x".into(), default: None }],
+            sink_name: None,
             body,
             captured: Arc::new(Scope::new()),
         })

@@ -1738,3 +1738,118 @@ fn p503_rebaseline_0150() {
     // Invariante: zero PANICs em qualquer re-baseline de paridade.
     assert_eq!(panics, 0, "P503: zero PANICs exigido; obtido {}", panics);
 }
+
+/// **P504** — Audit de novas funcionalidades Typst 0.15.0.
+///
+/// Mede o estado actual do cristalino face às funcionalidades novas do 0.15.0.
+/// Não faz asserts de paridade; apenas classifica cada caso como OK / ERRO /
+/// PANIC / AUSENTE e produz matriz para o diagnóstico P504.
+#[test]
+fn p504_audit_novas_funcionalidades_0150() {
+    let cases: &[(&str, &str)] = &[
+        // 504a — within selector
+        ("within_selector", "#figure[\n  = Dentro\n]\n= Fora\n#metadata(query(selector(heading).within(figure)).len())"),
+        // 504b — dict.map
+        ("dict_map", "#let d = (a: 1, b: 2)\n#metadata(d.map((k, v) => v * 2))"),
+        // 504b — dict.filter
+        ("dict_filter", "#let d = (a: 1, b: 2)\n#metadata(d.filter((k, v) => v > 1))"),
+        // 504c — arguments field access
+        ("args_field", "#let f(..args) = args.named\n#metadata(f(x: 1, y: 2))"),
+        // 504d — int(base:)
+        ("int_base", "#metadata(int(\"ff\", base: 16))"),
+        // 504e — calc.asinh
+        ("calc_asinh", "#metadata(calc.asinh(1.0))"),
+        // 504e — calc.acosh
+        ("calc_acosh", "#metadata(calc.acosh(1.0))"),
+        // 504e — calc.atanh
+        ("calc_atanh", "#metadata(calc.atanh(0.5))"),
+        // 504e — calc.erf
+        ("calc_erf", "#metadata(calc.erf(1.0))"),
+        // 504f — int.min / int.max
+        ("int_min", "#metadata(int.min)"),
+        ("int_max", "#metadata(int.max)"),
+        // 504g — range(inclusive:)
+        ("range_inclusive", "#metadata(range(1, 5, inclusive: true))"),
+        // 504h — counter.display(at:)  (vanilla syntax)
+        ("counter_display_at", "= Secção <sec>\n#counter(heading).display(\"1.\", at: <sec>)\n#metadata(1)"),
+        // 504i — page.bleed
+        ("page_bleed", "#set page(bleed: 3mm)\n#metadata(1)"),
+        // 504j — list.marker-align
+        ("list_marker_align", "#list(marker-align: start, [A], [B])\n#metadata(1)"),
+        // 504k — divider element
+        ("divider", "#divider\n#metadata(1)"),
+    ];
+
+    let mut rows: Vec<String> = Vec::new();
+    let mut ok = 0usize;
+    let mut erro = 0usize;
+    let mut panic = 0usize;
+    let mut ausente = 0usize;
+
+    for (name, source) in cases {
+        let dir = tempdir();
+        let main_path = dir.path().join("main.typ");
+        std::fs::write(&main_path, source).expect("escrever main.typ");
+
+        let result = match SystemWorld::new(dir.path(), "main.typ") {
+            Ok(world) => {
+                let source_ref = world.source(world.main()).unwrap();
+                match query_to_summary(&world, &source_ref, "metadata") {
+                    Ok(summary) => {
+                        if summary.count >= 1 {
+                            ok += 1;
+                            format!("OK (count={})", summary.count)
+                        } else {
+                            erro += 1;
+                            "ERRO: count=0".to_string()
+                        }
+                    }
+                    Err(e) => {
+                        let msg = format!("{:?}", e);
+                        if msg.contains("panicked") || msg.contains("PANIC") {
+                            panic += 1;
+                            format!("PANIC: {}", msg)
+                        } else if msg.contains("unknown") || msg.contains("unrecognized") || msg.contains("expected") {
+                            ausente += 1;
+                            format!("AUSENTE: {}", msg)
+                        } else {
+                            erro += 1;
+                            format!("ERRO: {}", msg)
+                        }
+                    }
+                }
+            }
+            Err(e) => {
+                let msg = format!("{:?}", e);
+                if msg.contains("panicked") || msg.contains("PANIC") {
+                    panic += 1;
+                    format!("PANIC: {}", msg)
+                } else if msg.contains("unknown") || msg.contains("unrecognized") || msg.contains("expected") {
+                    ausente += 1;
+                    format!("AUSENTE: {}", msg)
+                } else {
+                    erro += 1;
+                    format!("ERRO: {}", msg)
+                }
+            }
+        };
+
+        eprintln!("[p504] {:<25} => {}", name, result);
+        if result.starts_with("ERRO") || result.starts_with("AUSENTE") {
+            eprintln!("[p504-detail] source: {}", source.replace('\n', "\\n"));
+        }
+        rows.push(format!("| {} | {}", name, result));
+    }
+
+    eprintln!("\n=== P504 — Audit Novas Funcionalidades 0.15.0 ===");
+    eprintln!("Total:   {}", cases.len());
+    eprintln!("OK:      {}", ok);
+    eprintln!("ERRO:    {}", erro);
+    eprintln!("AUSENTE: {}", ausente);
+    eprintln!("PANIC:   {}", panic);
+    for row in &rows {
+        eprintln!("{}", row);
+    }
+
+    assert_eq!(panic, 0, "P504: zero PANICs exigido; obtido {}", panic);
+}

@@ -128,6 +128,10 @@ pub enum Value {
     /// Modificadores encadeados (`sym.arrow.r.double`) são scope-out futuro.
     Symbol(Symbol),
 
+    /// **P504** — Argumentos de função (`..args`) como valor de primeira
+    /// classe. Exposto via `.named` e `.positional`.
+    Args(crate::entities::args::Args),
+
     // ── Variantes futuras — NÃO implementar sem ADR e tipo migrado ───────
     // Variantes futuras restantes:
     // Relative(Relative),       // comprimento relativo — já em L1 como tipo separado
@@ -192,6 +196,7 @@ impl Value {
             Self::Version(_)   => "version",
             Self::Selector(_)  => "selector",
             Self::Symbol(_)    => "symbol",
+            Self::Args(_)      => "arguments",
         }
     }
 

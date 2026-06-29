@@ -70,6 +70,7 @@ pub fn repr_value(v: &Value) -> String {
         }
         Value::Selector(s) => repr_selector(s),
         Value::Symbol(s) => s.ch.to_string(),
+        Value::Args(_) => "arguments(...)".to_string(),
     }
 }
 
@@ -250,6 +251,9 @@ pub fn repr_selector(sel: &Selector) -> String {
         Selector::Regex(r) => format!("regex(\"{}\")", r.pattern()),
         Selector::Where { base, field, value } => {
             format!("{}.where({}: {})", repr_selector(base), field.as_str(), repr_value(value))
+        }
+        Selector::Within { base, ancestor } => {
+            format!("{}.within({})", repr_selector(base), repr_selector(ancestor))
         }
     }
 }

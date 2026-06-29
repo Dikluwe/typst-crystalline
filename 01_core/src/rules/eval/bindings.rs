@@ -126,7 +126,67 @@ pub(super) fn eval_counter_method<'a>(
         }
 
         // get(), display() e outros — fallback até motor de introspecção completo
-        _ => Ok(Value::Content(Content::counter_display(key.to_string()))),
+        _ => {
+            // P504 — counter.display(pattern?, at: <label>?)
+            let mut pattern: Option<String> = None;
+            let mut at_label: Option<crate::entities::label::Label> = None;
+            for arg in args.items() {
+                match arg {
+                    Arg::Pos(expr) if pattern.is_none() => {
+                        if let Ok(Value::Str(s)) = eval_expr(expr, scopes, ctx, engine) {
+                            pattern = Some(s.to_string());
+                        }
+                    }
+                    Arg::Named(named) if named.name().as_str() == "at" => {
+                        // Typst 0.15.0 aceita `at: <label>` — o cristalino ainda
+                        // não tem `Value::Label`, pelo que extraímos a string do
+                        // nó AST `Expr::Label` directamente.
+                        match named.expr() {
+                            Expr::Label(label_node) => {
+                                at_label = Some(crate::entities::label::Label(
+                                    label_node.get().to_string().into(),
+                                ));
+                            }
+                            other_expr => {
+                                if let Ok(Value::Str(s)) =
+                                    eval_expr(other_expr, scopes, ctx, engine)
+                                {
+                                    at_label = Some(crate::entities::label::Label(s.to_string()));
+                                }
+                            }
+                        }
+                    }
+                    _ => {}
+                }
+            }
+
+            if let Some(label) = at_label {
+                use crate::entities::introspector::Introspector;
+                let text = ctx
+                    .introspector
+                    .query_by_label(&label)
+                    .and_then(|loc| ctx.introspector.formatted_counter_at(key, loc))
+                    .unwrap_or_default();
+                // Aplicar pattern minimal: "1." → "1." (append).
+                let rendered = match pattern {
+                    Some(p) if !p.is_empty() => {
+                        let mut out = text.clone();
+                        // Se o pattern termina com separador, anexá-lo ao
+                        // valor hierárquico já formatado.
+                        if p.ends_with('.') {
+                            out.push('.');
+                        } else {
+                            out = format!("{p}{text}");
+                        }
+                        out
+                    }
+                    _ => text,
+                };
+                Ok(Value::Content(Content::text(rendered)))
+            } else {
+                Ok(Value::Content(Content::counter_display(key.to_string())))
+            }
+        }
     }
 }
 
@@ -290,6 +350,42 @@ pub(super) fn eval_selector_or_and<'a>(
     }
 }
 
+/// **P504** — Intercepta `selector(base).within(ancestor)`.
+pub(super) fn eval_selector_within<'a>(
+    target_expr: Expr<'_>,
+    args_node: crate::entities::ast::expr::Args<'a>,
+    scopes: &mut Scopes<'_>,
+    ctx: &mut EvalContext,
+    engine: &mut Engine<'_>,
+) -> SourceResult<Option<Selector>> {
+    let target = eval_expr(target_expr, scopes, ctx, engine)?;
+    let Some(base) = value_to_query_selector(&target) else {
+        return Ok(None);
+    };
+
+    let args = super::closures::eval_args(args_node, scopes, ctx, engine)?;
+    let other = args.items.into_iter().next().ok_or_else(|| {
+        vec![SourceDiagnostic::error(
+            args_node.span(),
+            "selector.within() requer um argumento posicional".to_string(),
+        )]
+    })?;
+    let Some(ancestor) = value_to_query_selector(&other) else {
+        return Err(vec![SourceDiagnostic::error(
+            args_node.span(),
+            format!(
+                "selector.within() espera um selector, recebeu {}",
+                other.type_name()
+            ),
+        )]);
+    };
+
+    Ok(Some(Selector::Within {
+        base: Box::new(base),
+        ancestor: Box::new(ancestor),
+    }))
+}
+
 // ── Dispatcher arms: FieldAccess (Passo 96.2, ADR-0037 Regra 4) ───────────
 
 pub(super) fn eval_field_access(
@@ -361,6 +457,15 @@ pub(super) fn eval_field_access(
             _ => Err(vec![SourceDiagnostic::error(
                 access.span(),
                 format!("campo desconhecido em array: '{}'", field),
+            )]),
+        },
+        // P504 — Field access em Value::Args: `.named` e `.positional`.
+        Value::Args(a) => match field.as_str() {
+            "named" => Ok(Value::Dict(a.named.clone())),
+            "positional" => Ok(Value::Array(a.items.clone())),
+            _ => Err(vec![SourceDiagnostic::error(
+                access.span(),
+                format!("campo desconhecido em arguments: '{}'", field),
             )]),
         },
         // P493b — Field access em Value::Func com namespace anexado (table.header, etc.).

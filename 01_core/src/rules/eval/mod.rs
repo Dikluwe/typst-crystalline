@@ -774,7 +774,7 @@ fn make_stdlib() -> Scope {
         make_calc_module, make_gradient_module, make_math_module, native_accent, native_align, native_assert, native_bibliography, native_block, native_box, native_cancel, native_circle, native_cite, native_divider,
         native_ellipse, native_emph, native_figure, native_float, native_footnote, native_grid, native_h, native_heading,
         native_hide, native_image, native_int, native_len, native_line, native_outline,
-        native_counter_at, native_counter_display, native_counter_final, native_counter_step, native_curve, native_eval, native_here, native_locate, native_lower, native_lorem, native_luma, native_measure, native_metadata, native_move, native_pad, native_pagebreak, native_place, native_polygon, native_query, native_regex, native_state, native_state_at, native_state_display, native_state_final, native_state_update, native_state_update_with,
+        native_counter_at, native_counter_display, native_counter_final, native_counter_step, native_curve, native_eval, native_here, native_locate, native_lower, native_lorem, native_luma, native_measure, native_metadata, native_move, native_pad, native_pagebreak, native_place, native_polygon, native_query, native_regex, native_selector, native_state, native_state_at, native_state_display, native_state_final, native_state_update, native_state_update_with,
         native_asset, native_cmyk, native_colbreak, native_columns, native_document, native_hsl, native_hsv, native_label, native_linear_rgb, native_link, native_oklab, native_oklch, native_op, native_panic, native_quote, native_range, native_rect, native_repeat, native_replace, native_raw, native_repr, native_rgb, native_rotate,
         native_square, native_tiling,
         native_highlight, native_scale, native_skew, native_smallcaps, native_smartquote, native_stack, native_str, native_str_from_unicode, native_strike, native_stroke, native_strong, native_subscript, native_superscript, native_table, native_table_cell, native_table_footer, native_table_header, native_grid_cell, native_grid_footer, native_grid_header, native_terms, native_type, native_underline, native_underover, native_overline, native_upper, native_v,
@@ -818,7 +818,16 @@ fn make_stdlib() -> Scope {
         str_ns.define("from-unicode", Value::Func(Func::native("str.from-unicode", native_str_from_unicode)));
         scope.define("str", Value::Func(Func::native_with_namespace("str", native_str, std::sync::Arc::new(str_ns))));
     }
-    scope.define("int",     Value::Func(Func::native("int",     native_int)));
+    // P504 — `int` com namespace para `int.min` / `int.max` (Typst 0.15.0).
+    {
+        let mut int_ns = Scope::new();
+        int_ns.define("min", Value::Int(i64::MIN));
+        int_ns.define("max", Value::Int(i64::MAX));
+        scope.define(
+            "int",
+            Value::Func(Func::native_with_namespace("int", native_int, Arc::new(int_ns))),
+        );
+    }
     scope.define("float",   Value::Func(Func::native("float",   native_float)));
     // P403 — constructors stdlib para tipos primitivos L1 modelados em P399–P401.
     scope.define("decimal",  Value::Func(Func::native("decimal",  native_decimal)));
@@ -926,6 +935,8 @@ fn make_stdlib() -> Scope {
     // da iter de fixpoint anterior. Retorna Value::Int(count) — forma
     // minimal sem Value::Location.
     scope.define("query", Value::Func(Func::native("query", native_query)));
+    // P504: selector(kind|func) — constrói selector como valor de primeira classe.
+    scope.define("selector", Value::Func(Func::native("selector", native_selector)));
     // P208B (M9c Bloco IV): here() — retorna Value::Location(loc) onde
     // loc = ctx.current_location. Erro contextual se current_location
     // é None (P208B infra minimal; captura automática deferred).
@@ -1083,6 +1094,8 @@ fn make_stdlib() -> Scope {
     scope.define("left",    Value::Align(Align2D { h: Some(HAlign::Left),    v: None }));
     scope.define("center",  Value::Align(Align2D { h: Some(HAlign::Center),  v: None }));
     scope.define("right",   Value::Align(Align2D { h: Some(HAlign::Right),   v: None }));
+    scope.define("start",   Value::Align(Align2D { h: Some(HAlign::Start),   v: None }));
+    scope.define("end",     Value::Align(Align2D { h: Some(HAlign::End),     v: None }));
     scope.define("top",     Value::Align(Align2D { h: None, v: Some(VAlign::Top) }));
     scope.define("horizon", Value::Align(Align2D { h: None, v: Some(VAlign::Horizon) }));
     scope.define("bottom",  Value::Align(Align2D { h: None, v: Some(VAlign::Bottom) }));

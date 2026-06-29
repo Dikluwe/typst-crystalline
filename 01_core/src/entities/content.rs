@@ -1341,14 +1341,22 @@ impl Content {
     }
     // ── Construtores ergonómicos família lista/termos (Modelo D, Lote 3 P318) ──
     pub fn list_item(body: Content) -> Self {
-        Self::ListItem(Arc::new(ListItemElem { body, marker: None }))
+        Self::ListItem(Arc::new(ListItemElem { body, marker: None, marker_align: None }))
     }
     /// P470 — construtor com marcador customizado.
     pub fn list_item_with_marker(
         body:   Content,
         marker: crate::entities::list_marker::ListMarker,
     ) -> Self {
-        Self::ListItem(Arc::new(ListItemElem { body, marker: Some(marker) }))
+        Self::ListItem(Arc::new(ListItemElem { body, marker: Some(marker), marker_align: None }))
+    }
+    /// **P504** — construtor completo com marcador e alinhamento (Typst 0.15.0).
+    pub fn list_item_full(
+        body:         Content,
+        marker:       Option<crate::entities::list_marker::ListMarker>,
+        marker_align: Option<crate::entities::layout_types::Align2D>,
+    ) -> Self {
+        Self::ListItem(Arc::new(ListItemElem { body, marker, marker_align }))
     }
     pub fn enum_item(number: Option<u32>, body: Content) -> Self {
         Self::EnumItem(Arc::new(EnumItemElem { number, body, numbering: None }))

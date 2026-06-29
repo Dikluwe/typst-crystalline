@@ -553,9 +553,9 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
         origin_y: f64,
     ) -> (f64, f64) {
         let x = match align.h.unwrap_or(HAlign::Left) {
-            HAlign::Left => origin_x,
+            HAlign::Left | HAlign::Start => origin_x,
             HAlign::Center => origin_x + (available_w - content_w) / 2.0,
-            HAlign::Right => origin_x + (available_w - content_w),
+            HAlign::Right | HAlign::End => origin_x + (available_w - content_w),
         };
 
         let y = match align.v.unwrap_or(VAlign::Top) {

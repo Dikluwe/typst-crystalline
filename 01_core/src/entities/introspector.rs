@@ -379,6 +379,10 @@ pub struct TagIntrospector {
     /// **P472** — lista de tabelas para List of Tables: `(número, caption)`.
     /// Populado em `populate_intr_from_tag_start` para Table `is_counted`.
     pub tables_for_lot: Vec<(usize, String)>,
+
+    /// **P504** — mapa `Location → Location` do parent imediato no walk.
+    /// Populado pós-walk a partir das tags `Start`/`End`.
+    pub parent_locations: HashMap<Location, Location>,
 }
 
 impl TagIntrospector {
@@ -558,6 +562,31 @@ impl Introspector for TagIntrospector {
             // em tempo de realização; query fica para passo dedicado
             // se houver consumer real.
             Selector::Where { .. } => Vec::new(),
+            // **P504** — `selector(base).within(ancestor)`: retém matches de
+            // `base` cujo parent imediato (ou algum ancestral) matcha
+            // `ancestor`.
+            Selector::Within { base, ancestor } => {
+                let base_matches = self.query(base);
+                let ancestor_matches: std::collections::HashSet<Location> =
+                    self.query(ancestor).into_iter().collect();
+                base_matches
+                    .into_iter()
+                    .filter(|loc| {
+                        let mut current = Some(*loc);
+                        while let Some(current_loc) = current {
+                            if let Some(parent) = self.parent_locations.get(&current_loc) {
+                                if ancestor_matches.contains(parent) {
+                                    return true;
+                                }
+                                current = Some(*parent);
+                            } else {
+                                break;
+                            }
+                        }
+                        false
+                    })
+                    .collect()
+            }
         }
     }
 

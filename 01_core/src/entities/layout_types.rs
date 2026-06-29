@@ -327,17 +327,24 @@ pub enum LinkTarget {
 // ── Alinhamento (Passo 82) ─────────────────────────────────────────────────
 
 /// Alinhamento horizontal.
-#[derive(Debug, Clone, Copy, PartialEq)]
+///
+/// Inclui `Start`/`End` (Typst 0.15.0) — por enquanto resolvem para
+/// `Left`/`Right` no layout, porque o cristalino ainda não modela
+/// direção do texto. A semântica da linguagem (aceitar `start`/`end`)
+/// é preservada; o efeito visual é scope-out.
+#[derive(Debug, Clone, Copy, PartialEq, Hash)]
 pub enum HAlign {
     Left,
     Center,
     Right,
+    Start,
+    End,
 }
 
 /// Alinhamento vertical.
 ///
 /// `Horizon` é o termo interno do Typst para centro vertical.
-#[derive(Debug, Clone, Copy, PartialEq)]
+#[derive(Debug, Clone, Copy, PartialEq, Hash)]
 pub enum VAlign {
     Top,
     Horizon,
@@ -347,7 +354,7 @@ pub enum VAlign {
 /// Alinhamento 2D composto por componentes horizontal e vertical opcionais.
 ///
 /// Ambos `None` equivale a `Left + Top` (comportamento por omissão).
-#[derive(Debug, Clone, Copy, PartialEq, Default)]
+#[derive(Debug, Clone, Copy, PartialEq, Default, Hash)]
 pub struct Align2D {
     pub h: Option<HAlign>,
     pub v: Option<VAlign>,
@@ -371,6 +378,8 @@ impl Align2D {
                 "left"    => align.h = Some(HAlign::Left),
                 "center"  => align.h = Some(HAlign::Center),
                 "right"   => align.h = Some(HAlign::Right),
+                "start"   => align.h = Some(HAlign::Start),
+                "end"     => align.h = Some(HAlign::End),
                 "top"     => align.v = Some(VAlign::Top),
                 "horizon" => align.v = Some(VAlign::Horizon),
                 "bottom"  => align.v = Some(VAlign::Bottom),
@@ -1107,6 +1116,17 @@ mod tests {
         let e = Align2D::from_string("invalid");
         assert_eq!(e.h, None);
         assert_eq!(e.v, None);
+    }
+
+    #[test]
+    fn p504_align2d_start_end_parse() {
+        let start = Align2D::from_string("start");
+        assert_eq!(start.h, Some(HAlign::Start));
+        let end = Align2D::from_string("end");
+        assert_eq!(end.h, Some(HAlign::End));
+        let start_bottom = Align2D::from_string("start-bottom");
+        assert_eq!(start_bottom.h, Some(HAlign::Start));
+        assert_eq!(start_bottom.v, Some(VAlign::Bottom));
     }
 
     #[test]

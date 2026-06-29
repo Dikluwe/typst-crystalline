@@ -2002,6 +2002,7 @@ mod tests {
         let f = Func::closure(ClosureRepr {
             name: None,
             params: vec![],
+            sink_name: None,
             body,
             captured: Arc::new(Scope::new()),
         });
@@ -6765,5 +6766,119 @@ mod tests {
             matches!(eval_let(&world_rad, "x"), Some(Value::Float(f)) if (f - std::f64::consts::PI).abs() < 1e-9),
             "calc.rad(180) deve ser aproximadamente pi"
         );
+    }
+
+    // ── P504 — Novas funcionalidades Typst 0.15.0 ────────────────────────────
+
+    #[test]
+    fn p504_int_min_max() {
+        let world_min = MockWorld::new("#let x = int.min");
+        let world_max = MockWorld::new("#let x = int.max");
+        assert_eq!(eval_let(&world_min, "x"), Some(Value::Int(i64::MIN)));
+        assert_eq!(eval_let(&world_max, "x"), Some(Value::Int(i64::MAX)));
+    }
+
+    #[test]
+    fn p504_int_base() {
+        let world = MockWorld::new("#let x = int(\"ff\", base: 16)");
+        assert_eq!(eval_let(&world, "x"), Some(Value::Int(255)));
+    }
+
+    #[test]
+    fn p504_range_inclusive() {
+        let world = MockWorld::new("#let x = range(1, 5, inclusive: true)");
+        assert_eq!(
+            eval_let(&world, "x"),
+            Some(Value::Array(vec![
+                Value::Int(1), Value::Int(2), Value::Int(3), Value::Int(4), Value::Int(5)
+            ]))
+        );
+    }
+
+    #[test]
+    fn p504_calc_hyperbolics_and_erf() {
+        let world_asinh = MockWorld::new("#let x = calc.asinh(1.0)");
+        let world_acosh = MockWorld::new("#let x = calc.acosh(1.0)");
+        let world_atanh = MockWorld::new("#let x = calc.atanh(0.5)");
+        let world_erf = MockWorld::new("#let x = calc.erf(1.0)");
+        assert!(matches!(eval_let(&world_asinh, "x"), Some(Value::Float(f)) if f > 0.88));
+        assert!(matches!(eval_let(&world_acosh, "x"), Some(Value::Float(f)) if f == 0.0));
+        assert!(matches!(eval_let(&world_atanh, "x"), Some(Value::Float(f)) if f > 0.54));
+        assert!(matches!(eval_let(&world_erf, "x"), Some(Value::Float(f)) if f > 0.84));
+    }
+
+    #[test]
+    fn p504_dict_map_filter() {
+        let world_map = MockWorld::new("#let d = (a: 1, b: 2)\n#let x = d.map((k, v) => v * 2)");
+        let world_filter = MockWorld::new("#let d = (a: 1, b: 2)\n#let x = d.filter((k, v) => v > 1)");
+        let mut expected_map: IndexMap<EcoString, Value, FxBuildHasher> = IndexMap::default();
+        expected_map.insert("a".into(), Value::Int(2));
+        expected_map.insert("b".into(), Value::Int(4));
+        let mut expected_filter: IndexMap<EcoString, Value, FxBuildHasher> = IndexMap::default();
+        expected_filter.insert("b".into(), Value::Int(2));
+        assert_eq!(eval_let(&world_map, "x"), Some(Value::Dict(expected_map)));
+        assert_eq!(eval_let(&world_filter, "x"), Some(Value::Dict(expected_filter)));
+    }
+
+    #[test]
+    fn p504_arguments_field_access() {
+        let world = MockWorld::new("#let f(..args) = args.named\n#let x = f(x: 1, y: 2)");
+        let mut expected: IndexMap<EcoString, Value, FxBuildHasher> = IndexMap::default();
+        expected.insert("x".into(), Value::Int(1));
+        expected.insert("y".into(), Value::Int(2));
+        assert_eq!(eval_let(&world, "x"), Some(Value::Dict(expected)));
+    }
+
+    #[test]
+    fn p504_arguments_positional_field() {
+        let world = MockWorld::new("#let f(..args) = args.positional\n#let x = f(1, 2)");
+        assert_eq!(
+            eval_let(&world, "x"),
+            Some(Value::Array(vec![Value::Int(1), Value::Int(2)]))
+        );
+    }
+
+    #[test]
+    fn p504_array_len_method() {
+        let world = MockWorld::new("#let x = (1, 2, 3).len()");
+        assert_eq!(eval_let(&world, "x"), Some(Value::Int(3)));
+    }
+
+    #[test]
+    fn p504_divider() {
+        let world = MockWorld::new("#let x = divider()");
+        assert!(matches!(eval_let(&world, "x"), Some(Value::Content(_))));
+    }
+
+    #[test]
+    fn p504_list_marker_align() {
+        let world = MockWorld::new("#let x = list(marker-align: start, [A], [B])");
+        assert!(matches!(eval_let(&world, "x"), Some(Value::Content(_))));
+    }
+
+    #[test]
+    fn p504_within_selector_value() {
+        let world = MockWorld::new("#let x = selector(heading).within(figure)");
+        assert!(matches!(
+            eval_let(&world, "x"),
+            Some(Value::Selector(crate::entities::selector::Selector::Within { .. }))
+        ));
+    }
+
+    #[test]
+    fn p504_selector_func() {
+        let world = MockWorld::new("#let x = selector(heading)");
+        assert!(matches!(
+            eval_let(&world, "x"),
+            Some(Value::Selector(crate::entities::selector::Selector::Kind(
+                crate::entities::element_kind::ElementKind::Heading
+            )))
+        ));
+    }
+
+    #[test]
+    fn p504_counter_display_at() {
+        let world = MockWorld::new("= Secção <sec>\n#let x = counter(heading).display(\"1.\", at: <sec>)");
+        assert!(matches!(eval_let(&world, "x"), Some(Value::Content(_))));
     }
 }

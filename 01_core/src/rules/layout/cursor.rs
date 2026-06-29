@@ -301,8 +301,8 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
         // Calcular X conforme alignment.x.
         let x_offset = match f.alignment.h {
             Some(HAlign::Center) => (avail_w - f.body_width) / 2.0,
-            Some(HAlign::Right)  => avail_w - f.body_width,
-            _                    => 0.0, // None → Left default.
+            Some(HAlign::Right) | Some(HAlign::End) => avail_w - f.body_width,
+            _ => 0.0, // None / Left / Start default.
         };
         let target_x = margin + x_offset.max(0.0);
 

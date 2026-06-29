@@ -54,6 +54,9 @@ pub enum Selector {
     /// Query arm é stub `vec![]` documentado (single-pass indexa
     /// `ElementPayload`, não Content fields).
     Where { base: Box<Selector>, field: EcoString, value: Box<Value> },
+    /// **P504** — Selector de ancestral: matches elementos de `base`
+    /// que estão contidos num elemento que match `ancestor`.
+    Within { base: Box<Selector>, ancestor: Box<Selector> },
 }
 
 #[cfg(test)]
@@ -274,5 +277,28 @@ mod tests {
         ]));
         let and_copy = and.clone();
         assert_eq!(and, and_copy);
+    }
+
+    #[test]
+    fn p504_selector_within_estrutural() {
+        let a = Selector::Within {
+            base: Box::new(Selector::Kind(ElementKind::Heading)),
+            ancestor: Box::new(Selector::Kind(ElementKind::Figure)),
+        };
+        let b = Selector::Within {
+            base: Box::new(Selector::Kind(ElementKind::Heading)),
+            ancestor: Box::new(Selector::Kind(ElementKind::Figure)),
+        };
+        let c = Selector::Within {
+            base: Box::new(Selector::Kind(ElementKind::Figure)),
+            ancestor: Box::new(Selector::Kind(ElementKind::Heading)),
+        };
+        assert_eq!(a, b);
+        assert_ne!(a, c);
+        let mut h1 = DefaultHasher::new();
+        let mut h2 = DefaultHasher::new();
+        a.hash(&mut h1);
+        a.hash(&mut h2);
+        assert_eq!(h1.finish(), h2.finish());
     }
 }

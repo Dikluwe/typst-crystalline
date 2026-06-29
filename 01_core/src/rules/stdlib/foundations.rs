@@ -256,8 +256,28 @@ pub fn native_hsv(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contr
 }
 
 /// `range(n)` → Array de 0..n; `range(start, end)` → Array de start..end.
+/// P504: `range(start, end, inclusive: true)` inclui o `end`.
 pub fn native_range(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contracts::world::World, _current_file: FileId) -> SourceResult<Value> {
-    expect_no_named(&args.named)?;
+    // P504 — arg nomeado `inclusive` (apenas este é aceite).
+    let inclusive = match args.named.get("inclusive") {
+        Some(Value::Bool(b)) => *b,
+        Some(other) => {
+            return Err(vec![SourceDiagnostic::error(
+                Span::detached(),
+                format!("range() argumento 'inclusive' requer bool, recebeu {}", other.type_name()),
+            )]);
+        }
+        None => false,
+    };
+    if args.named.len() > 1 || (args.named.len() == 1 && !args.named.contains_key("inclusive")) {
+        let bad = args.named.keys().find(|k| k.as_str() != "inclusive")
+            .map(|k| k.as_str()).unwrap_or("?");
+        return Err(vec![SourceDiagnostic::error(
+            Span::detached(),
+            format!("range() argumento nomeado desconhecido: '{bad}'"),
+        )]);
+    }
+
     match args.items.as_slice() {
         [Value::Int(n)] => {
             if *n < 0 {
@@ -266,8 +286,12 @@ pub fn native_range(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::con
             Ok(Value::Array((0..*n).map(Value::Int).collect()))
         }
         [Value::Int(start), Value::Int(end)] => {
-            let items = if start <= end {
-                (*start..*end).map(Value::Int).collect()
+            let items: Vec<Value> = if start <= end {
+                if inclusive {
+                    (*start..=*end).map(Value::Int).collect()
+                } else {
+                    (*start..*end).map(Value::Int).collect()
+                }
             } else {
                 vec![]
             };
@@ -396,17 +420,57 @@ fn format_length(l: &Length) -> String {
 
 /// `int(v)` → inteiro. Aceita Int, Str (decimal), Bool.
 /// Float → Err (semântica vanilla: Float não é `ToInt`).
+/// P504: `int(str, base: n)` parseia string na base indicada (2–36).
 pub fn native_int(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contracts::world::World, _current_file: FileId) -> SourceResult<Value> {
-    expect_no_named(&args.named)?;
+    // P504 — arg nomeado `base` (apenas este é aceite).
+    let base = match args.named.get("base") {
+        Some(Value::Int(b)) => {
+            let base = *b as u32;
+            if !(2..=36).contains(&base) {
+                return Err(vec![SourceDiagnostic::error(
+                    Span::detached(),
+                    format!("int() base deve estar entre 2 e 36, recebeu {}", b),
+                )]);
+            }
+            Some(base)
+        }
+        Some(other) => {
+            return Err(vec![SourceDiagnostic::error(
+                Span::detached(),
+                format!("int() argumento 'base' requer Int, recebeu {}", other.type_name()),
+            )]);
+        }
+        None => None,
+    };
+    if args.named.len() > 1 || (args.named.len() == 1 && !args.named.contains_key("base")) {
+        let bad = args.named.keys().find(|k| k.as_str() != "base")
+            .map(|k| k.as_str()).unwrap_or("?");
+        return Err(vec![SourceDiagnostic::error(
+            Span::detached(),
+            format!("int() argumento nomeado desconhecido: '{bad}'"),
+        )]);
+    }
+
     match args.items.as_slice() {
         [Value::Int(i)]    => Ok(Value::Int(*i)),
         [Value::Bool(b)]   => Ok(Value::Int(if *b { 1 } else { 0 })),
-        [Value::Str(s)]    => s.parse::<i64>()
-            .map(Value::Int)
-            .map_err(|_| vec![SourceDiagnostic::error(
-                Span::detached(),
-                format!("int() não consegue parsear {:?}", s.as_str()),
-            )]),
+        [Value::Str(s)]    => {
+            if let Some(base) = base {
+                i64::from_str_radix(s.as_str(), base)
+                    .map(Value::Int)
+                    .map_err(|_| vec![SourceDiagnostic::error(
+                        Span::detached(),
+                        format!("int() não consegue parsear {:?} na base {}", s.as_str(), base),
+                    )])
+            } else {
+                s.parse::<i64>()
+                    .map(Value::Int)
+                    .map_err(|_| vec![SourceDiagnostic::error(
+                        Span::detached(),
+                        format!("int() não consegue parsear {:?}", s.as_str()),
+                    )])
+            }
+        }
         [Value::Float(f)]  => err(format!(
             "int() não converte float {f} — usar int(calc.round(x)) ou int(calc.floor(x))"
         )),
@@ -941,6 +1005,63 @@ fn parse_selector_arg(
             "{}() requer 1 argumento (selector), recebeu {}",
             func_name, items.len()
         )),
+    }
+}
+
+/// **P504** — `selector(target)` — converte um kind string, label
+/// string ou função nativa de elemento num `Value::Selector`.
+pub fn native_selector(
+    _ctx:                &mut EvalContext,
+    args:                &Args,
+    _world:              &dyn crate::contracts::world::World,
+    _current_file:       FileId,
+) -> SourceResult<Value> {
+    use crate::entities::element_kind::ElementKind;
+    use crate::entities::selector::Selector;
+    use crate::rules::stdlib::{native_figure, native_heading};
+    use std::ptr::fn_addr_eq;
+
+    expect_no_named(&args.named)?;
+    match args.items.as_slice() {
+        [Value::Str(s)] if s.len() >= 2 && s.starts_with('<') && s.ends_with('>') => {
+            let name = &s[1..s.len() - 1];
+            Ok(Value::Selector(Selector::Label(crate::entities::label::Label(
+                name.to_string(),
+            ))))
+        }
+        [Value::Str(kind_str)] => match ElementKind::from_name(kind_str.as_str()) {
+            Some(kind) => Ok(Value::Selector(Selector::Kind(kind))),
+            None => Err(vec![SourceDiagnostic::error(
+                Span::detached(),
+                format!("selector(): kind '{}' não reconhecido", kind_str),
+            )]),
+        },
+        [Value::Func(f)] => {
+            let addr = f.native_fn_addr().ok_or_else(|| {
+                vec![SourceDiagnostic::error(
+                    Span::detached(),
+                    "selector(): função nativa esperada".to_string(),
+                )]
+            })?;
+            if fn_addr_eq(addr, native_heading as fn(_, _, _, _) -> _) {
+                Ok(Value::Selector(Selector::Kind(ElementKind::Heading)))
+            } else if fn_addr_eq(addr, native_figure as fn(_, _, _, _) -> _) {
+                Ok(Value::Selector(Selector::Kind(ElementKind::Figure)))
+            } else {
+                Err(vec![SourceDiagnostic::error(
+                    Span::detached(),
+                    "selector(): função nativa não suportada como selector".to_string(),
+                )])
+            }
+        }
+        [other] => Err(vec![SourceDiagnostic::error(
+            Span::detached(),
+            format!("selector(): argumento inválido ({})", other.type_name()),
+        )]),
+        _ => Err(vec![SourceDiagnostic::error(
+            Span::detached(),
+            format!("selector() requer 1 argumento, recebeu {}", args.items.len()),
+        )]),
     }
 }
 

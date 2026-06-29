@@ -23,6 +23,8 @@
 //! parâmetros engine/ctx (Funcs continuam ignoradas neste path
 //! coerente com semântica P171 pré-P191B).
 
+use std::collections::HashMap;
+
 pub mod convergence;
 pub mod extract_payload;
 pub mod fixpoint;
@@ -138,6 +140,7 @@ pub fn introspect_with_introspector(
     // P363: chain raiz = default_chain (espelha o root do layout, `layout/mod.rs`).
     let root_chain = StyleChain::default_chain();
     walk(content, &mut locator, &mut tags, &mut intr, &mut auto_label_counter, None, &root_chain, None);
+    intr.parent_locations = build_parent_index(&tags);
     intr
 }
 
@@ -691,6 +694,53 @@ fn populate_intr_from_tag_start(
             ));
         }
     }
+}
+
+/// **P504** — Constrói mapa `Location → Location` do parent imediato a
+/// partir da sequência `Start`/`End` de tags. Cada `Start` empilha a sua
+/// Location; `End` desempilha. Filhos são registados contra o topo da
+/// pilha no momento do seu `Start`.
+fn build_parent_index(tags: &[Tag]) -> HashMap<Location, Location> {
+    use crate::entities::element_payload::ElementPayload;
+    use crate::entities::tag::Tag;
+    let mut parent_map = HashMap::new();
+    let mut stack: Vec<Location> = Vec::new();
+    for tag in tags {
+        match tag {
+            Tag::Start(loc, info) => {
+                // P504: só nós locatable reais (Heading, Figure, etc.) são
+                // entradas de parentesco. Tags pós-recursão (Labelled,
+                // HeadingForToc) reutilizam a mesma Location e não devem
+                // sobrescrever o parent do nó real.
+                if matches!(
+                    info.payload,
+                    ElementPayload::Heading { .. }
+                        | ElementPayload::Figure { .. }
+                        | ElementPayload::Citation { .. }
+                        | ElementPayload::Metadata { .. }
+                        | ElementPayload::State { .. }
+                        | ElementPayload::StateUpdate { .. }
+                        | ElementPayload::Outline
+                        | ElementPayload::Bibliography { .. }
+                        | ElementPayload::Equation { .. }
+                        | ElementPayload::Table { .. }
+                        | ElementPayload::CounterUpdate { .. }
+                ) {
+                    parent_map.insert(*loc, stack.last().copied());
+                }
+                stack.push(*loc);
+            }
+            Tag::End(loc, _) => {
+                if stack.last() == Some(loc) {
+                    stack.pop();
+                }
+            }
+        }
+    }
+    parent_map
+        .into_iter()
+        .filter_map(|(loc, parent)| parent.map(|p| (loc, p)))
+        .collect()
 }
 
 /// **P162 .E**: emite `Tag::Start`/`Tag::End` em paralelo para os 3 kinds
@@ -2116,6 +2166,7 @@ mod tests {
         let mut intr = TagIntrospector::empty();
         let mut auto_label_counter: usize = 0;
         walk(content, &mut locator, &mut tags, &mut intr, &mut auto_label_counter, None, &crate::entities::style_chain::StyleChain::default_chain(), None);
+        intr.parent_locations = build_parent_index(&tags);
         intr
     }
 
@@ -3524,5 +3575,43 @@ mod tests {
             "P480: headings_for_toc deve conter só headings reais; \
              outline title não incluído (evita TOC auto-referente)",
         );
+    }
+
+    #[test]
+    fn p504_within_selector_query() {
+        use crate::entities::selector::Selector;
+        let content = Content::Sequence(
+            vec![
+                Content::figure(Content::heading(1, Content::text("Dentro")), None, None, None),
+                Content::heading(1, Content::text("Fora")),
+            ]
+            .into(),
+        );
+        let intr = introspect_with_introspector(&content);
+        let within = Selector::Within {
+            base: Box::new(Selector::Kind(ElementKind::Heading)),
+            ancestor: Box::new(Selector::Kind(ElementKind::Figure)),
+        };
+        let locations = intr.query(&within);
+        assert_eq!(locations.len(), 1, "só o heading dentro da figure deve match");
+    }
+
+    #[test]
+    fn p504_parent_locations_index() {
+        let content = Content::Sequence(
+            vec![
+                Content::figure(Content::heading(1, Content::text("Dentro")), None, None, None),
+                Content::heading(1, Content::text("Fora")),
+            ]
+            .into(),
+        );
+        let intr = introspect_with_introspector(&content);
+        let headings = intr.query_by_kind(ElementKind::Heading);
+        let figures = intr.query_by_kind(ElementKind::Figure);
+        assert_eq!(headings.len(), 2);
+        assert_eq!(figures.len(), 1);
+        // O primeiro heading é filho da figure; o segundo não tem parent.
+        assert_eq!(intr.parent_locations.get(&headings[0]), Some(&figures[0]));
+        assert_eq!(intr.parent_locations.get(&headings[1]), None);
     }
 }

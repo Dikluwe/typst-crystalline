@@ -2155,10 +2155,11 @@ pub fn native_list(
     _world: &dyn crate::contracts::world::World,
     _current_file: FileId,
 ) -> SourceResult<Value> {
+    use crate::entities::layout_types::Align2D;
     use crate::entities::list_marker::ListMarker;
 
     for key in args.named.keys() {
-        if key.as_str() != "marker" {
+        if key.as_str() != "marker" && key.as_str() != "marker-align" {
             return Err(vec![SourceDiagnostic::error(
                 Span::detached(),
                 format!("argumento nomeado inesperado '{}'", key),
@@ -2199,6 +2200,17 @@ pub fn native_list(
             )]);
         }
     };
+    // P504 — alinhamento do marker (aceite; efeito visual scope-out).
+    let marker_align: Option<Align2D> = match args.named.get("marker-align") {
+        None => None,
+        Some(Value::Align(a)) => Some(*a),
+        Some(other) => {
+            return Err(vec![SourceDiagnostic::error(
+                Span::detached(),
+                format!("list(marker-align:) espera alignment, recebeu {}", other.type_name()),
+            )]);
+        }
+    };
     if args.items.is_empty() {
         return Ok(Value::Content(Content::Empty));
     }
@@ -2214,10 +2226,7 @@ pub fn native_list(
                 )]);
             }
         };
-        let item = match &marker {
-            None    => Content::list_item(body),
-            Some(m) => Content::list_item_with_marker(body, m.clone()),
-        };
+        let item = Content::list_item_full(body, marker.clone(), marker_align);
         items.push(item);
     }
     Ok(Value::Content(if items.len() == 1 {

@@ -37,6 +37,7 @@ pub(crate) fn try_dispatch_collection_method(
 ) -> Option<SourceResult<Value>> {
     match (target, method) {
         // ── array ────────────────────────────────────────────────────────────
+        (Value::Array(arr), "len") => Some(Ok(Value::Int(arr.len() as i64))),
         (Value::Array(arr), "first") => Some(Ok(array_first(arr))),
         (Value::Array(arr), "last") => Some(Ok(array_last(arr))),
         (Value::Array(arr), "rev") => Some(Ok(array_rev(arr))),
@@ -64,6 +65,8 @@ pub(crate) fn try_dispatch_collection_method(
         (Value::Dict(dict), "insert") => Some(dict_insert(dict, args)),
         (Value::Dict(dict), "at") => Some(dict_at(dict, args)),
         (Value::Dict(dict), "len") => Some(Ok(dict_len(dict))),
+        (Value::Dict(dict), "map") => Some(dict_map(dict, args, scopes, ctx, engine)),
+        (Value::Dict(dict), "filter") => Some(dict_filter(dict, args, scopes, ctx, engine)),
 
         // ── str ──────────────────────────────────────────────────────────────
         (Value::Str(s), "contains") => Some(str_contains(s, args)),
@@ -509,6 +512,54 @@ fn dict_len(dict: IndexMap<EcoString, Value, FxBuildHasher>) -> Value {
     Value::Int(dict.len() as i64)
 }
 
+/// `dict.map((k, v) => ...)` — aplica função a cada par chave-valor.
+fn dict_map(
+    dict: IndexMap<EcoString, Value, FxBuildHasher>,
+    args: Args,
+    scopes: &mut Scopes<'_>,
+    ctx: &mut EvalContext,
+    engine: &mut Engine<'_>,
+) -> SourceResult<Value> {
+    let func = expect_one_func(args, "dict.map()")?;
+    let mut result = IndexMap::with_capacity_and_hasher(dict.len(), FxBuildHasher);
+    for (key, value) in dict {
+        let mapped = apply_func(
+            func.clone(),
+            Args::positional(vec![Value::Str(key.clone()), value.clone()]),
+            scopes,
+            ctx,
+            engine,
+        )?;
+        result.insert(key, mapped);
+    }
+    Ok(Value::Dict(result))
+}
+
+/// `dict.filter((k, v) => bool)` — mantém pares que satisfazem o predicado.
+fn dict_filter(
+    dict: IndexMap<EcoString, Value, FxBuildHasher>,
+    args: Args,
+    scopes: &mut Scopes<'_>,
+    ctx: &mut EvalContext,
+    engine: &mut Engine<'_>,
+) -> SourceResult<Value> {
+    let func = expect_one_func(args, "dict.filter()")?;
+    let mut result = IndexMap::with_capacity_and_hasher(dict.len(), FxBuildHasher);
+    for (key, value) in dict {
+        let keep = apply_func(
+            func.clone(),
+            Args::positional(vec![Value::Str(key.clone()), value.clone()]),
+            scopes,
+            ctx,
+            engine,
+        )?;
+        if keep.truthy() {
+            result.insert(key, value);
+        }
+    }
+    Ok(Value::Dict(result))
+}
+
 // ── argument helpers ────────────────────────────────────────────────────────
 
 fn expect_str_value(args: Args, context: &str) -> SourceResult<(EcoString, Value)> {
@@ -726,4 +777,5 @@ mod tests {
         ]);
         assert_eq!(result, expected);
     }
+
 }

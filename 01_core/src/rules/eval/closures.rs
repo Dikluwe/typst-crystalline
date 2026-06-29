@@ -140,6 +140,18 @@ pub(super) fn apply_closure(
         call_scopes.define(param.name.as_str(), val);
     }
 
+    // P504 — sink de argumentos: empacota os restantes num `Value::Args`.
+    if let Some(ref sink_name) = closure.sink_name {
+        let remaining_items = args.items.into_iter().skip(pos_idx).collect();
+        call_scopes.define(
+            sink_name.as_str(),
+            Value::Args(crate::entities::args::Args {
+                items: remaining_items,
+                named: args.named,
+            }),
+        );
+    }
+
     // Frame de chamada: novo segmento `Route::extend(route)` com `len: 1`.
     // Paridade com `typst-eval/src/call.rs` do vanilla.
     let child_route = Route::extend(engine.route);
@@ -185,7 +197,9 @@ pub(super) fn eval_closure_expr(
     // Para closures anónimas (n) => ..., name é None (preenchido por eval_let).
     let name = closure_expr.name().map(|n| n.as_str().to_string());
 
-    // Extrair parâmetros — Param::Pos(Pattern::Normal(Ident)) e Param::Named
+    // Extrair parâmetros — Param::Pos(Pattern::Normal(Ident)), Param::Named,
+    // e sink spread `..args` (P504).
+    let mut sink_name: Option<String> = None;
     let params: SourceResult<Vec<ClosureParam>> = closure_expr
         .params()
         .children()
@@ -200,7 +214,13 @@ pub(super) fn eval_closure_expr(
                         .map(|v| ClosureParam { name, default: Some(v) }),
                 )
             }
-            _ => None, // Spread, Placeholder, Destructuring — adiado
+            Param::Spread(spread) => {
+                if let Some(ident) = spread.sink_ident() {
+                    sink_name = Some(ident.as_str().to_string());
+                }
+                None
+            }
+            _ => None, // Placeholder, Destructuring — adiado
         })
         .collect();
     let params = params?;
@@ -208,7 +228,13 @@ pub(super) fn eval_closure_expr(
     // Body: SyntaxNode clone O(1) via Arc interno
     let body = closure_expr.body().to_untyped().clone();
 
-    Ok(Value::Func(Func::closure(ClosureRepr { name, params, body, captured })))
+    Ok(Value::Func(Func::closure(ClosureRepr {
+        name,
+        params,
+        sink_name,
+        body,
+        captured,
+    })))
 }
 
 pub(super) fn eval_func_call(
@@ -262,6 +288,21 @@ pub(super) fn eval_func_call(
             if let Some(selector) = bindings::eval_selector_or_and(
                 access.target(),
                 method,
+                call.args(),
+                scopes,
+                ctx,
+                engine,
+            )? {
+                return Ok(Value::Selector(selector));
+            }
+        }
+    }
+
+    // **P504** — Intercepção de `selector.within(ancestor)`.
+    if let Expr::FieldAccess(access) = call.callee() {
+        if access.field().as_str() == "within" {
+            if let Some(selector) = bindings::eval_selector_within(
+                access.target(),
                 call.args(),
                 scopes,
                 ctx,

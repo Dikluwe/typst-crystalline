@@ -63,7 +63,7 @@ pub use crate::rules::stdlib::foundations::{
     native_counter_step, native_float, native_here, native_hsl, native_hsv, native_int,
     native_len, native_linear_rgb, native_locate, native_luma, native_metadata,
     native_oklab, native_oklch, native_query, native_range, native_repr, native_rgb,
-    native_state, native_state_at, native_state_display, native_state_final,
+    native_selector, native_state, native_state_at, native_state_display, native_state_final,
     native_state_update, native_state_update_with, native_str, native_str_from_unicode,
     native_type,
 };
