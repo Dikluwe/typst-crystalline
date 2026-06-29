@@ -75,6 +75,10 @@ pub fn make_calc_module() -> Value {
     dict.insert("exp".into(),   Value::Func(Func::native("calc.exp",   calc_exp)));
     dict.insert("ln".into(),    Value::Func(Func::native("calc.ln",    calc_ln)));
     dict.insert("log".into(),   Value::Func(Func::native("calc.log",   calc_log)));
+    dict.insert("log10".into(), Value::Func(Func::native("calc.log10", calc_log10)));
+    // P501 — conversões deg/rad (sem tipo Angle).
+    dict.insert("deg".into(),   Value::Func(Func::native("calc.deg",   calc_deg)));
+    dict.insert("rad".into(),   Value::Func(Func::native("calc.rad",   calc_rad)));
     // P306 — aritmética inteira, divisão e partes.
     dict.insert("trunc".into(),      Value::Func(Func::native("calc.trunc",      calc_trunc)));
     dict.insert("fract".into(),      Value::Func(Func::native("calc.fract",      calc_fract)));
@@ -458,6 +462,32 @@ pub(crate) fn calc_log(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::
     #[allow(clippy::disallowed_methods)]
     let r = f64::ln(x) / f64::ln(base);
     guard_float(r)
+}
+
+/// `calc.log10(x)` — logaritmo base 10.
+pub(crate) fn calc_log10(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contracts::world::World, _current_file: FileId) -> SourceResult<Value> {
+    expect_no_named(&args.named)?;
+    match args.items.as_slice() {
+        [v] => {
+            let x = coerce_to_f64(v, "calc.log10()")?;
+            if x <= 0.0 {
+                return err(format!("calc.log10() valor deve ser estritamente positivo, recebeu {x}"));
+            }
+            #[allow(clippy::disallowed_methods)]
+            guard_float(f64::log10(x))
+        }
+        _ => err(format!("calc.log10() requer 1 argumento, recebeu {}", args.items.len())),
+    }
+}
+
+/// `calc.deg(rad)` — converte radianos para graus.
+pub(crate) fn calc_deg(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contracts::world::World, _current_file: FileId) -> SourceResult<Value> {
+    unary_f64("calc.deg", args, f64::to_degrees)
+}
+
+/// `calc.rad(deg)` — converte graus para radianos.
+pub(crate) fn calc_rad(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contracts::world::World, _current_file: FileId) -> SourceResult<Value> {
+    unary_f64("calc.rad", args, f64::to_radians)
 }
 
 // ── P306 — aritmética inteira, combinatória, norma, raiz ────────────────────

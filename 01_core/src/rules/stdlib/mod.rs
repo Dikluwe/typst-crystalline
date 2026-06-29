@@ -64,7 +64,8 @@ pub use crate::rules::stdlib::foundations::{
     native_len, native_linear_rgb, native_locate, native_luma, native_metadata,
     native_oklab, native_oklch, native_query, native_range, native_repr, native_rgb,
     native_state, native_state_at, native_state_display, native_state_final,
-    native_state_update, native_state_update_with, native_str, native_type,
+    native_state_update, native_state_update_with, native_str, native_str_from_unicode,
+    native_type,
 };
 pub use crate::rules::stdlib::label::native_label;
 pub use crate::rules::stdlib::panic::native_panic;
@@ -3598,11 +3599,11 @@ mod tests {
             matches!(dict.get("erf"), Some(Value::Func(_))),
             "calc.erf não está registado como Func no módulo (P308)",
         );
-        // Marco P308: módulo tem 41 funções + 4 constantes = 45 entradas.
+        // P501: módulo tem 44 funções + 4 constantes = 48 entradas.
         assert_eq!(
             dict.len(),
-            45,
-            "esperava 41 funções + 4 constantes = 45, obtido {}",
+            48,
+            "esperava 44 funções + 4 constantes = 48, obtido {}",
             dict.len()
         );
     }
@@ -3664,9 +3665,10 @@ mod tests {
         // + 16 P283 (trig/hyperbolic/log/exp)
         // + 15 P306 (trunc/fract/even/odd/rem/rem-euclid/div-euclid/quo/
         //            gcd/lcm/fact/perm/binom/norm/root)
-        // + 1  P308 (erf) = 41 funções (paridade vanilla 41/41 = 100%).
+        // + 1  P308 (erf)
+        // + 3  P501 (log10/deg/rad) = 44 funções.
         let n_funcs = dict.values().filter(|v| matches!(v, Value::Func(_))).count();
-        assert_eq!(n_funcs, 41, "esperava 41 funções calc, encontrei {n_funcs}");
+        assert_eq!(n_funcs, 44, "esperava 44 funções calc, encontrei {n_funcs}");
         // + 4 constantes (pi/tau/e/inf).
         let n_floats = dict.values().filter(|v| matches!(v, Value::Float(_))).count();
         assert_eq!(n_floats, 4, "esperava 4 constantes Float, encontrei {n_floats}");

@@ -281,6 +281,7 @@ pub fn native_range(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::con
 
 /// `str(v)` → representação textual do valor.
 /// P491: `str(int, base: n)` converte inteiro para base 2–36.
+/// P501: `str.from-unicode(codepoint)` constrói carácter a partir de um scalar Unicode.
 pub fn native_str(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contracts::world::World, _current_file: FileId) -> SourceResult<Value> {
     // P491 — arg nomeado `base` (aplicável apenas a Int). Apenas `base` é aceite.
     let base_arg = args.named.get("base");
@@ -327,6 +328,30 @@ pub fn native_str(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contr
             Ok(Value::Str(EcoString::from(s)))
         }
         _ => err(format!("str() requer 1 argumento, recebeu {}", args.items.len())),
+    }
+}
+
+/// `str.from-unicode(codepoint)` → carácter correspondente ao scalar Unicode.
+pub fn native_str_from_unicode(
+    _ctx: &mut EvalContext,
+    args: &Args,
+    _world: &dyn crate::contracts::world::World,
+    _current_file: FileId,
+) -> SourceResult<Value> {
+    expect_no_named(&args.named)?;
+    match args.items.as_slice() {
+        [Value::Int(i)] => match char::try_from(*i as u32) {
+            Ok(c) if c != '\0' => Ok(Value::Str(EcoString::from(c.to_string()))),
+            _ => err("str.from-unicode() requer um codepoint Unicode válido"),
+        },
+        [other] => err(format!(
+            "str.from-unicode() requer Int, recebeu {}",
+            other.type_name()
+        )),
+        _ => err(format!(
+            "str.from-unicode() requer 1 argumento, recebeu {}",
+            args.items.len()
+        )),
     }
 }
 

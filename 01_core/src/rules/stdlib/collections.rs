@@ -61,7 +61,9 @@ pub(crate) fn try_dispatch_collection_method(
         (Value::Dict(dict), "pairs") => Some(Ok(dict_pairs(dict))),
         (Value::Dict(dict), "remove") => Some(dict_remove(dict, args)),
         (Value::Dict(dict), "update") => Some(dict_update(dict, args)),
+        (Value::Dict(dict), "insert") => Some(dict_insert(dict, args)),
         (Value::Dict(dict), "at") => Some(dict_at(dict, args)),
+        (Value::Dict(dict), "len") => Some(Ok(dict_len(dict))),
 
         // ── str ──────────────────────────────────────────────────────────────
         (Value::Str(s), "contains") => Some(str_contains(s, args)),
@@ -72,6 +74,10 @@ pub(crate) fn try_dispatch_collection_method(
         (Value::Str(s), "trim") => Some(Ok(str_trim(s))),
         (Value::Str(s), "split") => Some(str_split(s, args)),
         (Value::Str(s), "repeat") => Some(str_repeat(s, args)),
+        (Value::Str(s), "to-upper") => Some(Ok(str_to_upper(s))),
+        (Value::Str(s), "to-lower") => Some(Ok(str_to_lower(s))),
+        (Value::Str(s), "to-unicode") => Some(Ok(str_to_unicode(s))),
+        (Value::Str(s), "rev") => Some(Ok(str_rev(s))),
 
         _ => None,
     }
@@ -474,7 +480,50 @@ fn str_repeat(s: EcoString, args: Args) -> SourceResult<Value> {
     Ok(Value::Str(s.repeat(n as usize).into()))
 }
 
+fn str_to_upper(s: EcoString) -> Value {
+    Value::Str(s.to_uppercase().into())
+}
+
+fn str_to_lower(s: EcoString) -> Value {
+    Value::Str(s.to_lowercase().into())
+}
+
+fn str_to_unicode(s: EcoString) -> Value {
+    Value::Array(s.chars().map(|c| Value::Int(c as i64)).collect())
+}
+
+fn str_rev(s: EcoString) -> Value {
+    Value::Str(s.chars().rev().collect::<String>().into())
+}
+
+fn dict_insert(
+    mut dict: IndexMap<EcoString, Value, FxBuildHasher>,
+    args: Args,
+) -> SourceResult<Value> {
+    let (key, value) = expect_str_value(args, "dict.insert()")?;
+    dict.insert(key, value);
+    Ok(Value::Dict(dict))
+}
+
+fn dict_len(dict: IndexMap<EcoString, Value, FxBuildHasher>) -> Value {
+    Value::Int(dict.len() as i64)
+}
+
 // ── argument helpers ────────────────────────────────────────────────────────
+
+fn expect_str_value(args: Args, context: &str) -> SourceResult<(EcoString, Value)> {
+    match args.items.as_slice() {
+        [Value::Str(key), value] => Ok((key.clone(), value.clone())),
+        [other, ..] => Err(vec![SourceDiagnostic::error(
+            Span::detached(),
+            format!("{}: primeiro argumento deve ser string, recebeu {}", context, other.type_name()),
+        )]),
+        _ => Err(vec![SourceDiagnostic::error(
+            Span::detached(),
+            format!("{} requer 2 argumentos posicionais", context),
+        )]),
+    }
+}
 
 fn expect_one_func(args: Args, context: &str) -> SourceResult<Func> {
     match args.items.as_slice() {

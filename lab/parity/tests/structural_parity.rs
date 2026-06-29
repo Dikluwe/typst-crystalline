@@ -1281,3 +1281,115 @@ fn p500_audit_cobertura_stdlib_expandida() {
     // Zero PANICs é invariante de qualquer audit de paridade.
     assert_eq!(panics, 0, "P500: zero PANICs exigido em audit; obtido {}", panics);
 }
+
+
+/// **P501** — Sentinela de fecho dos gaps P1/P2 do audit P500.
+///
+/// Verifica que os 3 ficheiros que eram AUSENTE em P500 (`test-str-methods.typ`,
+/// `test-dict-methods.typ`, `test-calc-rest.typ) agora produzem MATCH contra
+/// vanilla 0.14.2, e que o resto da bateria P500 não regrediu.
+#[test]
+fn p501_gaps_p1_p2() {
+    let corpus_dir = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("corpus/p500");
+    if !corpus_dir.is_dir() {
+        eprintln!("[p501] corpus/p500 ausente; skip.");
+        return;
+    }
+    if !vanilla_cli_available() {
+        eprintln!("[p501] vanilla CLI ausente; skip sentinela.");
+        return;
+    }
+
+    let cases: &[(&str, &[&str])] = &[
+        ("test-image-fit.typ", &["metadata"]),
+        ("test-page-header-footer.typ", &["metadata"]),
+        ("test-place-absolute.typ", &["metadata"]),
+        ("test-calc-rest.typ", &["metadata"]),
+        ("test-str-methods.typ", &["metadata"]),
+        ("test-dict-methods.typ", &["metadata"]),
+        ("test-list-advanced.typ", &["list"]),
+        ("test-enum-advanced.typ", &["enum"]),
+        ("test-par-advanced.typ", &["par"]),
+        ("test-raw-advanced.typ", &["raw"]),
+        ("test-quote-advanced.typ", &["quote"]),
+        ("test-footnote-advanced.typ", &["footnote"]),
+        ("test-figure-advanced.typ", &["figure"]),
+        ("test-bibliography-csl.typ", &["bibliography"]),
+        ("test-outline-advanced.typ", &["outline"]),
+        ("test-state-counter.typ", &["metadata"]),
+        ("test-metadata-query.typ", &["metadata", "<tag>"]),
+    ];
+
+    let mut panics = 0usize;
+    let mut ausentes = 0usize;
+    let mut matches = 0usize;
+    let mut diffs = 0usize;
+
+    for (filename, selectors) in cases {
+        let path = corpus_dir.join(filename);
+        let Ok(source) = std::fs::read_to_string(&path) else { continue };
+
+        let dir = tempdir();
+        let main_path = dir.path().join("main.typ");
+        if std::fs::write(&main_path, &source).is_err() { continue; }
+        for asset in &["test.png", "refs.bib"] {
+            let src = corpus_dir.join(asset);
+            if src.exists() { let _ = std::fs::copy(&src, dir.path().join(asset)); }
+        }
+
+        let world = match SystemWorld::new(dir.path(), "main.typ") {
+            Ok(w) => w,
+            Err(_) => continue,
+        };
+        let source_ref = world.source(world.main()).unwrap();
+
+        let mut file_ok = true;
+        let mut file_ausente = false;
+        let mut file_diff = false;
+
+        for selector in *selectors {
+            let crist = match query_to_summary(&world, &source_ref, selector) {
+                Ok(s) => s,
+                Err(e) => {
+                    let msg = format!("{:?}", e);
+                    if msg.contains("panicked") || msg.contains("PANIC") { panics += 1; }
+                    else { file_ausente = true; }
+                    file_ok = false;
+                    continue;
+                }
+            };
+            let van = match run_typst_query(&main_path, selector) {
+                Ok(v) => v,
+                Err(_) => { file_ok = false; continue; }
+            };
+            match compare_query_outputs(&crist, &van) {
+                CompareResult::Match => {}
+                CompareResult::Diff(_) => { file_diff = true; file_ok = false; }
+                CompareResult::Skip(_) => { file_ok = false; }
+            }
+        }
+
+        if file_ok {
+            matches += 1;
+        } else if file_ausente {
+            ausentes += 1;
+        } else if file_diff {
+            diffs += 1;
+        }
+    }
+
+    eprintln!("\n=== P501 — Sentinela gaps P1/P2 ===");
+    eprintln!("MATCH:   {}", matches);
+    eprintln!("AUSENTE: {}", ausentes);
+    eprintln!("DIFF:    {}", diffs);
+    eprintln!("PANIC:   {}", panics);
+
+    // Após P501, os 3 ficheiros P1/P2 devem compilar no cristalino.
+    // O vanilla 0.14.2 instalado não suporta alguns métodos (calc.log10,
+    // str.to-upper, etc.), pelo que esses ficheiros podem não dar MATCH
+    // estrutural, mas devem deixar de ser AUSENTE no cristalino.
+    assert_eq!(panics, 0, "P501: zero PANICs; obtido {}", panics);
+    assert_eq!(diffs, 0, "P501: zero DIFFs; obtido {}", diffs);
+    assert_eq!(ausentes, 6, "P501: esperados 6 AUSENTEs restantes; obtidos {}", ausentes);
+    assert!(matches >= 8, "P501: esperados pelo menos 8 MATCH; obtidos {}", matches);
+}

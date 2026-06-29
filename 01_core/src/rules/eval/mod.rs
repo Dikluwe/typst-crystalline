@@ -777,7 +777,7 @@ fn make_stdlib() -> Scope {
         native_counter_at, native_counter_display, native_counter_final, native_counter_step, native_curve, native_eval, native_here, native_locate, native_lower, native_lorem, native_luma, native_measure, native_metadata, native_move, native_pad, native_pagebreak, native_place, native_polygon, native_query, native_regex, native_state, native_state_at, native_state_display, native_state_final, native_state_update, native_state_update_with,
         native_asset, native_cmyk, native_colbreak, native_columns, native_document, native_hsl, native_hsv, native_label, native_linear_rgb, native_link, native_oklab, native_oklch, native_op, native_panic, native_quote, native_range, native_rect, native_repeat, native_replace, native_raw, native_repr, native_rgb, native_rotate,
         native_square, native_tiling,
-        native_highlight, native_scale, native_skew, native_smallcaps, native_smartquote, native_stack, native_str, native_strike, native_stroke, native_strong, native_subscript, native_superscript, native_table, native_table_cell, native_table_footer, native_table_header, native_grid_cell, native_grid_footer, native_grid_header, native_terms, native_type, native_underline, native_underover, native_overline, native_upper, native_v,
+        native_highlight, native_scale, native_skew, native_smallcaps, native_smartquote, native_stack, native_str, native_str_from_unicode, native_strike, native_stroke, native_strong, native_subscript, native_superscript, native_table, native_table_cell, native_table_footer, native_table_header, native_grid_cell, native_grid_footer, native_grid_header, native_terms, native_type, native_underline, native_underover, native_overline, native_upper, native_v,
         native_ref,
         // P311b.3 — math style funcs.
         native_bb, native_bold, native_cal, native_frak, native_math_italic,
@@ -812,7 +812,12 @@ fn make_stdlib() -> Scope {
     scope.define("cmyk",       Value::Func(Func::native("cmyk",       native_cmyk)));
     scope.define("hsl",        Value::Func(Func::native("hsl",        native_hsl)));
     scope.define("hsv",        Value::Func(Func::native("hsv",        native_hsv)));
-    scope.define("str",     Value::Func(Func::native("str",     native_str)));
+    // P501 — `str` com namespace para métodos estáticos (`str.from-unicode`).
+    {
+        let mut str_ns = Scope::new();
+        str_ns.define("from-unicode", Value::Func(Func::native("str.from-unicode", native_str_from_unicode)));
+        scope.define("str", Value::Func(Func::native_with_namespace("str", native_str, std::sync::Arc::new(str_ns))));
+    }
     scope.define("int",     Value::Func(Func::native("int",     native_int)));
     scope.define("float",   Value::Func(Func::native("float",   native_float)));
     // P403 — constructors stdlib para tipos primitivos L1 modelados em P399–P401.

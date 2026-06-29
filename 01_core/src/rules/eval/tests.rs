@@ -6702,4 +6702,68 @@ mod tests {
             c.plain_text()
         );
     }
+
+    // ── P501 — métodos str/dict e calc log10/deg/rad ──────────────────────────
+
+    #[test]
+    fn p501_str_methods() {
+        let cases = [
+            ("#let x = \"Hello\".to-upper()", Value::Str("HELLO".into())),
+            ("#let x = \"HELLO\".to-lower()", Value::Str("hello".into())),
+            (
+                "#let x = \"Hello, World!\".split(\", \")",
+                Value::Array(vec![
+                    Value::Str("Hello".into()),
+                    Value::Str("World!".into()),
+                ]),
+            ),
+            ("#let x = \"  hello  \".trim()", Value::Str("hello".into())),
+            ("#let x = \"hello\".replace(\"l\", \"r\")", Value::Str("herro".into())),
+            (
+                "#let x = \"abc\".to-unicode()",
+                Value::Array(vec![Value::Int(97), Value::Int(98), Value::Int(99)]),
+            ),
+            ("#let x = str.from-unicode(97)", Value::Str("a".into())),
+            ("#let x = \"hello\".contains(\"ell\")", Value::Bool(true)),
+            ("#let x = \"hello\".starts-with(\"he\")", Value::Bool(true)),
+            ("#let x = \"hello\".ends-with(\"lo\")", Value::Bool(true)),
+            ("#let x = \"hello\".find(\"l\")", Value::Int(2)),
+            ("#let x = \"hello\".rev()", Value::Str("olleh".into())),
+            (
+                "#let x = \"hello\".repeat(3)",
+                Value::Str("hellohellohello".into()),
+            ),
+        ];
+        for (src, expected) in cases {
+            let world = MockWorld::new(src);
+            assert_eq!(eval_let(&world, "x"), Some(expected), "falhou em: {src}");
+        }
+    }
+
+    #[test]
+    fn p501_dict_insert_len() {
+        let world = MockWorld::new(
+            "#let d = (a: 1, b: 2, c: 3)\n#let x = d.insert(\"d\", 4)\n#let y = x.len()",
+        );
+        assert_eq!(
+            eval_let(&world, "y"),
+            Some(Value::Int(4)),
+            "dict.insert() + dict.len() devem devolver tamanho 4"
+        );
+    }
+
+    #[test]
+    fn p501_calc_log10_deg_rad() {
+        let world_log10 = MockWorld::new("#let x = calc.log10(100)");
+        assert_eq!(eval_let(&world_log10, "x"), Some(Value::Float(2.0)));
+
+        let world_deg = MockWorld::new("#let x = calc.deg(calc.pi)");
+        assert_eq!(eval_let(&world_deg, "x"), Some(Value::Float(180.0)));
+
+        let world_rad = MockWorld::new("#let x = calc.rad(180)");
+        assert!(
+            matches!(eval_let(&world_rad, "x"), Some(Value::Float(f)) if (f - std::f64::consts::PI).abs() < 1e-9),
+            "calc.rad(180) deve ser aproximadamente pi"
+        );
+    }
 }
