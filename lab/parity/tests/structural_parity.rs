@@ -909,6 +909,42 @@ fn p496_field_access_colecoes() {
     }
 }
 
+/// **P497** — validação formal dos gaps D4/D5 (cores predefinidas e
+/// `text()` em show-regex). Os dois casos do corpus p490 são
+/// não-locatable por `heading`, pelo que o critério é: compilam sem
+/// PANIC e retornam count=0, como o vanilla.
+#[test]
+fn p497_variaveis_cor_predefinidas() {
+    let cases: &[(&str, &str)] = &[
+        (
+            "stroke_sides",
+            "#rect(stroke: (left: 3pt + red, right: 1pt + blue, top: none, bottom: 2pt + green))",
+        ),
+        (
+            "show_regex_text",
+            "#show regex(\"\\\\d+\"): it => text(red, it)\nO número 42 e o número 100 aparecem a vermelho.",
+        ),
+    ];
+
+    for (name, source) in cases {
+        let dir = tempdir();
+        let main_path = dir.path().join("main.typ");
+        std::fs::write(&main_path, source).expect("escrever main.typ");
+
+        let world = match SystemWorld::new(dir.path(), "main.typ") {
+            Ok(w)  => w,
+            Err(e) => panic!("[p497] {}: erro build world: {:?}", name, e),
+        };
+        let source_ref = world.source(world.main()).unwrap();
+        match query_to_summary(&world, &source_ref, "heading") {
+            Ok(summary) => {
+                assert_eq!(summary.count, 0, "[p497] {}: esperado count=0, obtido {}", name, summary.count);
+            }
+            Err(e) => panic!("[p497] {}: query falhou: {:?}", name, e),
+        }
+    }
+}
+
 /// **P494** — sentinela dos 7 selectors de elementos de documento:
 /// `list`, `enum`, `par`, `link`, `raw`, `quote`, `footnote`.
 /// Compara count cristalino vs vanilla `typst query` para corpus

@@ -1,5 +1,5 @@
 # Prompt L0 — stdlib módulo `color` (operadores de cor)
-Hash do Código: bcea91be
+Hash do Código: c634083a
 
 ## Módulo
 `01_core/src/rules/stdlib/color.rs`
@@ -84,6 +84,26 @@ dict.insert("desaturate", Value::Func(Func::native("color.desaturate", native_co
 `color.desaturate(col, amount)` — diminui chroma Oklch; clamp mínimo 0.0.
 
 ADR-0083 §"Operadores cor": **TOTALMENTE FECHADO** (6/6) pós-P477.
+
+## Cores predefinidas (P492/P497)
+
+`color.rs` exporta `predefined_color_bindings()` — vector de pares `(EcoString, Value)`
+para injeção no scope global de eval (`eval/mod.rs`). Cada entrada é um atalho vanilla:
+
+| Nome | Valor |
+|------|-------|
+| `red` | `Color::rgb(0xEF, 0x23, 0x11)` |
+| `blue` | `Color::rgb(0x00, 0x5E, 0xE5)` |
+| `green` | `Color::rgb(0x00, 0xB3, 0x00)` |
+| `black` | `Color::rgb(0x00, 0x00, 0x00)` |
+| `white` | `Color::rgb(0xFF, 0xFF, 0xFF)` |
+| `yellow` | `Color::rgb(0xF5, 0xD8, 0x00)` |
+| `cyan` | `Color::rgb(0x00, 0xB3, 0xB3)` |
+| `magenta` | `Color::rgb(0xE5, 0x00, 0xE5)` |
+| `none` | `Value::None` |
+
+A função `text(...)` é registada separadamente no scope global (P492) para permitir
+`#show regex("\\d+"): it => text(red, it)`.
 
 ## Scope-out
 

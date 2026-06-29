@@ -1,5 +1,5 @@
 # Prompt L0 — rules/eval
-Hash do Código: d5ecef5a
+Hash do Código: eb34873b
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/rules/eval.rs`
@@ -30,6 +30,19 @@ pub fn eval(
 
 **Invariante**: `eval.rs` não importa nada de `03_infra`. Acesso ao
 world sempre via `TrackedWorld` (L1).
+
+## Scope global
+
+O entrypoint `pub fn eval` (`eval/mod.rs`) constrói o scope base do documento:
+
+1. `make_stdlib()` — todas as funções nativas (`type`, `len`, `rgb`, `table`, etc.).
+2. `predefined_color_bindings()` — atalhos `red`, `blue`, `green`, `black`, `white`,
+   `yellow`, `cyan`, `magenta`, `none` (P492/P497).
+3. `text` — função nativa `native_text` exposta globalmente para uso em show-rules
+   (P492; ex.: `#show regex("\\d+"): it => text(red, it)`).
+4. Elementos de utilizador registados no `ElementRegistry`.
+
+O scope base é depois herdado por closures e show-rules.
 
 ## Variantes de Expr suportadas
 

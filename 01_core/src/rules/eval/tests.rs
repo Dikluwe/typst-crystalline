@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/rules/eval.md
-//! @prompt-hash 7a92cc2d
+//! @prompt-hash 62c93675
 //! @layer L1
 //! @updated 2026-06-17
 //!
@@ -6357,6 +6357,43 @@ mod tests {
         let world = MockWorld::new("#let x = 3pt + red\n#let y = red + 3pt");
         assert!(matches!(eval_let(&world, "x"), Some(Value::Stroke(_))));
         assert!(matches!(eval_let(&world, "y"), Some(Value::Stroke(_))));
+    }
+
+    // ── P497 — validação formal dos gaps D4/D5 (já implementados em P492) ───
+
+    #[test]
+    fn p497_stroke_cores_predefinidas() {
+        // Ficheiro corpus/p490/test-stroke-sides.typ
+        let world = MockWorld::new(
+            "#rect(stroke: (left: 3pt + red, right: 1pt + blue, top: none, bottom: 2pt + green))"
+        );
+        match eval_for_test(&world, &world.source) {
+            Ok(_) => {}
+            Err(e) => {
+                eprintln!("P497 stroke error: {:?}", e);
+                panic!("stroke com cores predefinidas deveria avaliar sem erro");
+            }
+        }
+    }
+
+    #[test]
+    fn p497_show_regex_text_color() {
+        // Ficheiro corpus/p490/test-show-regex.typ
+        let world = MockWorld::new(
+            "#show regex(\"\\\\d+\"): it => text(red, it)\nO número 42 e o número 100 aparecem a vermelho."
+        );
+        let src = world.source(world.main()).unwrap();
+        match eval_for_test(&world, &src) {
+            Ok(module) => {
+                let text = module.content().unwrap().plain_text();
+                assert!(text.contains("42"), "texto '42' deve permanecer no output");
+                assert!(text.contains("100"), "texto '100' deve permanecer no output");
+            }
+            Err(e) => {
+                eprintln!("P497 show-regex error: {:?}", e);
+                panic!("show-regex com text(red, it) deveria avaliar sem erro");
+            }
+        }
     }
 
     // ── P496 — Field access em coleções (D3) ────────────────────────────────
