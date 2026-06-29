@@ -1,5 +1,5 @@
 # Prompt L0 — `entities/elements/footnote` — `FootnoteElem`
-Hash do Código: 759a4f1a
+Hash do Código: f04714d3
 
 **Camada**: L1 · **Alvo**: `01_core/src/entities/elements/footnote.rs`
 **Origem**: modelo D (ADR-0105), **Lote 11 P326** (por largura). Trait: ver
@@ -14,13 +14,17 @@ locatável, mas hoje não). Contentor — `map_*` recursam no `body`.
 ```rust
 #[derive(Debug, Clone, PartialEq, Hash)]
 pub struct FootnoteElem {
-    pub body: Content,           // era Box<Content>
+    pub body:      Content,           // era Box<Content>
+    pub numbering: Option<EcoString>,
 }
 ```
 
-`Content::Footnote { body }` → `Content::Footnote(Arc<FootnoteElem>)`.
-Construtor ergonómico: `Content::footnote(body)`. **Deriva `Hash`**
-(`Content` tem `impl Hash` manual).
+`Content::Footnote { body, numbering }` → `Content::Footnote(Arc<FootnoteElem>)`.
+Construtores ergonómicos:
+- `Content::footnote(body)` → `numbering: None`.
+- `Content::footnote_with_numbering(body, numbering)` (P502).
+**Deriva `Hash`** (`Content` tem `impl Hash` manual).
+(P502 — `native_footnote` aceita `numbering:` named; uso no marcador de rodapé scope-out per ADR-0054.)
 
 ## `impl Element for FootnoteElem`
 

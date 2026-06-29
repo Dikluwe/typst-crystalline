@@ -1,5 +1,5 @@
 # Prompt L0 — `stdlib/structural` — módulo `structural`
-Hash do Código: c3d7d162
+Hash do Código: 70513826
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/rules/stdlib/structural.rs`
@@ -75,25 +75,27 @@ emph(123) -> Err "emph() espera content ou string"
 
 ---
 
-### `native_raw(text)`
+### `native_raw(text, lang:?, block:?)`
 
-**Assinatura**: `raw(text: Str) -> Content`
+**Assinatura**: `raw(text: Str, lang: Str?, block: Bool?) -> Content`
 
 **Argumentos**:
 - 1º posicional `text`: `Str`. Se omitido, string vazia.
-- Não aceita argumentos nomeados.
+- `lang`: `Str` named opcional (default `None`).
+- `block`: `Bool` named opcional (default `false`).
 
-**Semântica**: Cria `Content::Raw { text, syntax: None, block: false }` via `Content::raw(text, None, false)`. Aceita apenas string porque não faz sentido semântico aceitar `Content` aqui.
+**Semântica**: Cria `Content::Raw { text, lang, block }` via `Content::raw(text, lang, block)`. Aceita apenas string porque não faz sentido semântico aceitar `Content` aqui.
 
-**Paridade vanilla**: Equivalente a `` `text` `` inline (modo não-block, sem syntax highlighting).
+**Paridade vanilla**: Equivalente a `` `text` `` inline ou bloco; `lang` é armazenado para syntax highlighting.
 
 **Limitações / scope-outs**:
-- Modo `block: true`, especificação de linguagem `lang`, e destaque de syntax scope-out per ADR-0054 graded.
+- Destaque de syntax real scope-out per ADR-0054 graded.
 
 **Testes canónicos**:
 ```
-raw("let x = 1") -> Content::Raw { text: "let x = 1", syntax: None, block: false }
-raw() -> Content::Raw { text: "", ... }
+raw("let x = 1") -> Content::Raw { text: "let x = 1", lang: None, block: false }
+raw("fn main() {}", lang: "rust", block: true) -> Content::Raw { lang: Some("rust"), block: true }
+raw() -> Content::Raw { text: "", lang: None, block: false }
 raw([content]) -> Err "raw() espera string"
 ```
 
@@ -127,24 +129,28 @@ heading(1, [X], numbering: 1) -> Err "numbering espera string"
 
 ### `native_outline(title?, depth:?, indent:?)`
 
-**Assinatura**: `outline(title: Content | Str?, depth: Int?, indent: Bool?) -> Content`
+**Assinatura**: `outline(title: Content | Str?, depth: Int?, indent: Length | Function | Auto | Bool?) -> Content`
 
 **Argumentos**:
 - `title`: primeiro argumento posicional ou named `title`; `Content` ou `Str`. Se omitido, `None` (layout renderiza `"Índice"`).
 - `depth`: inteiro named opcional (default `3`). Deve ser `>= 1`.
-- `indent`: boolean named opcional (default `true`).
+- `indent`: `Length`, `Function`, `Auto` ou `Bool` named opcional (default `auto`).
+  - `bool` preserva compatibilidade com código cristalino existente (`true` = indentação ativa, `false` = inactiva).
+  - `length`/`function` são aceites e armazenados; renderização específica é scope-out per ADR-0054.
 
-**Semântica**: Cria `Content::Outline(Arc::OutlineElem { title, depth, indent })`. O layout substitui este nó pela lista de headings do documento, respeitando `depth` e `indent` e usando `title` customizado quando presente. Também é locatável (`ElementKind::Outline`) para `query("outline")`.
+**Semântica**: Cria `Content::Outline(Arc::OutlineElem { title, depth, indent: OutlineIndent::... })`. O layout substitui este nó pela lista de headings do documento, respeitando `depth` e `indent` e usando `title` customizado quando presente. Também é locatável (`ElementKind::Outline`) para `query("outline")`.
 
-**Paridade vanilla**: Equivalente a `#outline(...)` do Typst 0.14.2 com os três parâmetros settable cobertos (`title`, `depth`, `indent`).
+**Paridade vanilla**: Equivalente a `#outline(...)` do Typst 0.14.2/0.15.0 com `indent: length | function | auto`; `bool` é extensão de compatibilidade cristalina.
 
-**Limitações / scope-outs**: Outros campos do vanilla (`fill`, `entry`, etc.) são scope-out por ora.
+**Limitações / scope-outs**: Outros campos do vanilla (`fill`, `entry`, etc.) são scope-out por ora; `length`/`function` em `indent` são aceites mas renderização específica scope-out.
 
 **Testes canónicos**:
 ```
-outline() -> Content::Outline { title: None, depth: 3, indent: true }
-outline([Sumário]) -> Content::Outline { title: Some("Sumário"), depth: 3, indent: true }
-outline(title: [Sumário], depth: 1, indent: false) -> Content::Outline { title: Some("Sumário"), depth: 1, indent: false }
+outline() -> Content::Outline { title: None, depth: 3, indent: Auto }
+outline([Sumário]) -> Content::Outline { title: Some("Sumário"), depth: 3, indent: Auto }
+outline(title: [Sumário], depth: 1, indent: false) -> Content::Outline { title: Some("Sumário"), depth: 1, indent: Bool(false) }
+outline(indent: 1em) -> Outline { indent: Length(1em) }
+outline(indent: it => it) -> Outline { indent: Function(...) }
 outline(depth: 0) -> Err "depth deve ser >= 1"
 outline(title: 1) -> Err "title espera content ou string"
 outline(depth: "x") -> Err "depth espera int"
@@ -457,28 +463,28 @@ link("u", 123) -> Err "body deve ser content"
 
 ---
 
-### `native_footnote(body)`
+### `native_footnote(body, numbering:?)`
 
-**Assinatura**: `footnote(body: Content | Str) -> Content`
+**Assinatura**: `footnote(body: Content | Str, numbering: Str?) -> Content`
 
 **Argumentos**:
 - 1º posicional `body`: `Content` ou `Str` (obrigatório).
-- Não aceita argumentos nomeados.
+- `numbering`: `Str` named opcional (default `None`).
 
-**Semântica**: Emite `Content::Footnote { body }`.
+**Semântica**: Emite `Content::Footnote { body, numbering }`.
 
-**Paridade vanilla**: Fase 1 P295 marker-only.
+**Paridade vanilla**: Fase 1 P295 marker-only; `numbering` é aceite e armazenado.
 
 **Limitações / scope-outs** (ADR-0054 graded):
-- `numbering` scope-out.
+- Uso de `numbering` no marcador de rodapé scope-out.
 - `FootnoteBody::Reference(Label)` (multi-ref) scope-out.
 - Body armazenado mas renderização no rodapé diferida.
 
 **Testes canónicos**:
 ```
-footnote([nota]) -> FootnoteElem { body: "nota" }
+footnote([nota]) -> FootnoteElem { body: "nota", numbering: None }
+footnote([nota], numbering: "1.") -> FootnoteElem { body: "nota", numbering: Some("1.") }
 footnote(123) -> Err "footnote() espera content ou string"
-footnote([x], numbering: "1.") -> Err "argumento nomeado não suportado"
 ```
 
 ---

@@ -1,5 +1,5 @@
 # Prompt L0 — `entities/elements/outline` — `OutlineElem`
-Hash do Código: 713a71c0
+Hash do Código: 0e92d647
 
 **Camada**: L1 · **Alvo**: `01_core/src/entities/elements/outline.rs`
 **Origem**: modelo D (ADR-0105), **Lote 8 P323** (por largura) + **P457** (campos settable).
@@ -38,6 +38,25 @@ Usado internamente por `layout_outline.rs` para despachar para o arm correcto.
 
 ---
 
+## `OutlineIndent` — P502
+
+```rust
+#[derive(Debug, Clone, PartialEq, Hash)]
+pub enum OutlineIndent {
+    Auto,
+    Bool(bool),
+    Length(Length),
+    Function(Func),
+}
+```
+
+Representa os tipos aceites por `outline(indent:)` no vanilla 0.14.2
+(`length | function | auto`) mais `bool` para compatibilidade reversa com
+ código cristalino existente. O layout de headings consome `Auto`/`Bool(true)`
+como indentação ativa e `Bool(false)` como inactiva; `Length`/`Function`
+são aceites e armazenados, mas a renderização específica é scope-out per
+ADR-0054.
+
 ## Struct
 
 ```rust
@@ -45,7 +64,7 @@ Usado internamente por `layout_outline.rs` para despachar para o arm correcto.
 pub struct OutlineElem {
     pub title:  Option<Content>,
     pub depth:  usize,
-    pub indent: bool,
+    pub indent: OutlineIndent,
     /// **P472** — distingue TOC / LoF / LoT. Default `Headings`.
     pub target: OutlineTarget,
 }
@@ -58,10 +77,10 @@ pub struct OutlineElem {
 
 `Content::Outline` → `Content::Outline(Arc<OutlineElem>)`.
 Construtores ergonómicos:
-- `Content::outline()` → `outline_with(None, 3, true)` com `target: Headings`.
+- `Content::outline()` → `outline_with(None, 3, OutlineIndent::Auto)` com `target: Headings`.
 - `Content::outline_with(title, depth, indent)`.
-- `Content::lof(title: Option<Content>)` → P472, `target: Figures`.
-- `Content::lot(title: Option<Content>)` → P472, `target: Tables`.
+- `Content::lof(title: Option<Content>)` → P472, `target: Figures`, `indent: Bool(false)`.
+- `Content::lot(title: Option<Content>)` → P472, `target: Tables`, `indent: Bool(false)`.
 
 **Deriva `Hash`/`PartialEq`**, mas **não `Eq`** porque `Content` não implementa
 `Eq`.

@@ -21,6 +21,7 @@ pub struct RawElem {
 
 `Content::Raw { text, lang, block }` → `Content::Raw(Arc<RawElem>)`.
 Construtor ergonómico preservado: `Content::raw(text, lang, block)`.
+(P502 — `native_raw` passa a aceitar `lang:` e `block:` named; syntax highlighting real continua scope-out per ADR-0054.)
 **Deriva `Hash`** (`EcoString`/`Option<EcoString>`/`bool`).
 
 ## `impl Element`

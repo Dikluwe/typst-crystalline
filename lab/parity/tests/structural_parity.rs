@@ -1390,6 +1390,143 @@ fn p501_gaps_p1_p2() {
     // estrutural, mas devem deixar de ser AUSENTE no cristalino.
     assert_eq!(panics, 0, "P501: zero PANICs; obtido {}", panics);
     assert_eq!(diffs, 0, "P501: zero DIFFs; obtido {}", diffs);
-    assert_eq!(ausentes, 6, "P501: esperados 6 AUSENTEs restantes; obtidos {}", ausentes);
-    assert!(matches >= 8, "P501: esperados pelo menos 8 MATCH; obtidos {}", matches);
+    // P502 fechou 4 gaps S/XS (4 ficheiros); restam 3 ficheiros AUSENTEs:
+    // test-list-advanced.typ, test-enum-advanced.typ, test-state-counter.typ.
+    assert_eq!(ausentes, 3, "P501/P502: esperados 3 ficheiros AUSENTEs restantes; obtidos {}", ausentes);
+    assert!(matches >= 12, "P501/P502: esperados pelo menos 12 MATCH; obtidos {}", matches);
+}
+
+
+/// **P502** — Fecho dos gaps S/XS restantes do audit P500.
+///
+/// Valida que os 4 ficheiros que eram AUSENTE/DIFF em P501 agora produzem
+/// MATCH contra vanilla 0.14.2/0.15.0:
+/// - `test-image-fit.typ`
+/// - `test-raw-advanced.typ`
+/// - `test-footnote-advanced.typ`
+/// - `test-outline-advanced.typ`
+#[test]
+fn p502_gaps_s_xs() {
+    let corpus_dir = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("corpus/p500");
+    if !corpus_dir.is_dir() {
+        eprintln!("[p502] corpus/p500 ausente; skip.");
+        return;
+    }
+    if !vanilla_cli_available() {
+        eprintln!("[p502] vanilla CLI ausente; skip sentinela.");
+        return;
+    }
+
+    let cases: &[(&str, &[&str])] = &[
+        ("test-image-fit.typ", &["metadata"]),
+        ("test-raw-advanced.typ", &["raw"]),
+        ("test-footnote-advanced.typ", &["footnote"]),
+        ("test-outline-advanced.typ", &["outline"]),
+    ];
+
+    for (filename, selectors) in cases {
+        let path = corpus_dir.join(filename);
+        let source = std::fs::read_to_string(&path)
+            .unwrap_or_else(|_| panic!("[p502] ficheiro ausente: {}", filename));
+
+        let dir = tempdir();
+        let main_path = dir.path().join("main.typ");
+        std::fs::write(&main_path, &source).expect("escrever main.typ");
+
+        for asset in &["test.png", "refs.bib"] {
+            let src = corpus_dir.join(asset);
+            if src.exists() {
+                let _ = std::fs::copy(&src, dir.path().join(asset));
+            }
+        }
+
+        let world = match SystemWorld::new(dir.path(), "main.typ") {
+            Ok(w) => w,
+            Err(e) => panic!("[p502] {}: erro build world: {:?}", filename, e),
+        };
+        let source_ref = world.source(world.main()).unwrap();
+
+        for selector in *selectors {
+            let crist = match query_to_summary(&world, &source_ref, selector) {
+                Ok(s) => s,
+                Err(e) => panic!("[p502] {} sel={}: cristalino query falhou: {:?}", filename, selector, e),
+            };
+            let van = match run_typst_query(&main_path, selector) {
+                Ok(v) => v,
+                Err(e) => panic!("[p502] {} sel={}: vanilla query falhou: {}", filename, selector, e),
+            };
+            let result = compare_query_outputs(&crist, &van);
+            assert!(
+                result.is_match(),
+                "[p502] {} sel={}: esperado MATCH, obtido {:?}",
+                filename, selector, result
+            );
+        }
+    }
+}
+
+/// **P502a** — `image.fit` aceita `contain`/`cover`/`stretch`.
+#[test]
+fn p502_image_fit() {
+    let source = "#metadata(image(\"test.png\", width: 50%, fit: \"contain\"))";
+    let dir = tempdir();
+    let main_path = dir.path().join("main.typ");
+    std::fs::write(&main_path, source).expect("escrever main.typ");
+
+    let corpus_dir = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("corpus/p500");
+    let asset = corpus_dir.join("test.png");
+    if asset.exists() {
+        let _ = std::fs::copy(&asset, dir.path().join("test.png"));
+    }
+
+    let world = SystemWorld::new(dir.path(), "main.typ").expect("build world");
+    let source_ref = world.source(world.main()).unwrap();
+    let summary = query_to_summary(&world, &source_ref, "metadata")
+        .expect("image.fit deve compilar sem erro");
+    assert_eq!(summary.count, 1, "p502a: esperado count=1");
+}
+
+/// **P502b** — `raw(lang:, block:)` aceita argumentos nomeados.
+#[test]
+fn p502_raw_lang_block() {
+    let source = "#metadata(raw(\"fn main() {}\", lang: \"rust\", block: true))";
+    let dir = tempdir();
+    let main_path = dir.path().join("main.typ");
+    std::fs::write(&main_path, source).expect("escrever main.typ");
+
+    let world = SystemWorld::new(dir.path(), "main.typ").expect("build world");
+    let source_ref = world.source(world.main()).unwrap();
+    let summary = query_to_summary(&world, &source_ref, "metadata")
+        .expect("raw(lang:, block:) deve compilar sem erro");
+    assert_eq!(summary.count, 1, "p502b: esperado count=1");
+}
+
+/// **P502c** — `footnote(numbering:)` aceita argumento nomeado.
+#[test]
+fn p502_footnote_numbering() {
+    let source = "Texto.#footnote(numbering: \"1\")[Nota] #metadata(1)";
+    let dir = tempdir();
+    let main_path = dir.path().join("main.typ");
+    std::fs::write(&main_path, source).expect("escrever main.typ");
+
+    let world = SystemWorld::new(dir.path(), "main.typ").expect("build world");
+    let source_ref = world.source(world.main()).unwrap();
+    let summary = query_to_summary(&world, &source_ref, "metadata")
+        .expect("footnote(numbering:) deve compilar sem erro");
+    assert_eq!(summary.count, 1, "p502c: esperado count=1");
+}
+
+/// **P502d** — `outline.indent` aceita `length|function|auto|bool`.
+#[test]
+fn p502_outline_indent_api() {
+    let source = "#outline(title: [Índice], depth: 2, indent: 1em)\n= Capítulo\n";
+    let dir = tempdir();
+    let main_path = dir.path().join("main.typ");
+    std::fs::write(&main_path, source).expect("escrever main.typ");
+
+    let world = SystemWorld::new(dir.path(), "main.typ").expect("build world");
+    let source_ref = world.source(world.main()).unwrap();
+    let summary = query_to_summary(&world, &source_ref, "outline")
+        .expect("outline(indent: length) deve compilar sem erro");
+    assert_eq!(summary.count, 1, "p502d: esperado count=1");
 }

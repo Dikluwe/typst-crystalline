@@ -5121,7 +5121,7 @@ mod tests {
         use crate::entities::ptr_eq_arc::PtrEqArc;
         let data = std::sync::Arc::new(vec![1u8, 2, 3]);
         let img =
-            Content::image("img.png".to_string(), PtrEqArc(data.clone()), None, None);
+            Content::image("img.png".to_string(), PtrEqArc(data.clone()), None, None, "cover");
         let img2 = img.clone();
         assert_eq!(img, img2);
         // PtrEqArc::PartialEq compara por ponteiro — clone do mesmo Arc é igual (O(1)).

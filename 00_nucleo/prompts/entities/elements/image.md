@@ -1,5 +1,5 @@
 # Prompt L0 — `entities/elements/image` — `ImageElem`
-Hash do Código: 490eb825
+Hash do Código: fff26d8d
 
 **Camada**: L1 · **Alvo**: `01_core/src/entities/elements/image.rs`
 **Origem**: modelo D (ADR-0105), **Lote 7 P322** (por largura). Trait: ver
@@ -17,11 +17,14 @@ pub struct ImageElem {
     pub data:   PtrEqArc<Vec<u8>>,
     pub width:  Option<Box<Value>>,
     pub height: Option<Box<Value>>,
+    pub fit:    EcoString,
 }
 ```
 
-`Content::Image { path, data, width, height }` → `Content::Image(Arc<ImageElem>)`.
-Construtor ergonómico: `Content::image(path, data, width, height)`.
+`Content::Image { path, data, width, height, fit }` → `Content::Image(Arc<ImageElem>)`.
+Construtor ergonómico: `Content::image(path, data, width, height, fit)`.
+`fit` default `"cover"`; valores válidos `"contain"`, `"cover"`, `"stretch"`.
+(P502 — paridade `image.fit` do vanilla 0.14.2; renderização do fit scope-out per ADR-0054.)
 `PtrEqArc`/`Value` de `entities`.
 
 > **`Hash` manual via Debug** (precedente Lote 4/6): `Value` carrega `f64` e

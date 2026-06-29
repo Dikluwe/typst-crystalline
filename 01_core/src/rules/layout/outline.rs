@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/rules/layout_outline.md
-//! @prompt-hash f60186de
+//! @prompt-hash 05797e08
 //! @layer L1
 //! @updated 2026-06-26
 //!
@@ -62,7 +62,7 @@ pub(super) fn layout_outline<M: FontMetrics, S: ImageSizer>(
             continue;
         }
 
-        let indent = if e.indent {
+        let indent = if e.indent.is_active() {
             "  ".repeat(level.saturating_sub(1))
         } else {
             String::new()

@@ -2,7 +2,7 @@
 //! @prompt 00_nucleo/prompts/rules/model/document.md
 //! @prompt 00_nucleo/prompts/rules/model/asset.md
 //! @prompt 00_nucleo/prompts/rules/stdlib/structural.md
-//! @prompt-hash 678df661
+//! @prompt-hash 2e87c4ac
 //! @layer L1
 //! @updated 2026-06-26
 //!
@@ -76,15 +76,15 @@ pub fn native_emph(
     Ok(Value::Content(Content::emph(body)))
 }
 
-/// `raw(text)` — cria `Content::Raw` ou serve como selector em show rules.
+/// `raw(text, lang:?, block:?)` — cria `Content::Raw` ou serve como selector em show rules.
 /// Aceita apenas string — não faz sentido semântico aceitar Content aqui.
+/// P502: `lang` e `block` named opcionais; syntax highlighting real continua scope-out.
 pub fn native_raw(
     _ctx: &mut EvalContext,
     args: &Args,
     _world: &dyn crate::contracts::world::World,
     _current_file: FileId,
 ) -> SourceResult<Value> {
-    expect_no_named(&args.named)?;
     let text: EcoString = match args.items.first() {
         Some(Value::Str(s)) => s.clone(),
         Some(other) => {
@@ -95,7 +95,42 @@ pub fn native_raw(
         }
         None => EcoString::default(),
     };
-    Ok(Value::Content(Content::raw(text, None, false)))
+
+    for (key, _value) in args.named.iter() {
+        match key.as_str() {
+            "lang" | "block" => {}
+            other => {
+                return Err(vec![SourceDiagnostic::error(
+                    Span::detached(),
+                    format!("raw(): argumento nomeado inesperado '{}'", other),
+                )])
+            }
+        }
+    }
+
+    let lang = match args.named.get("lang") {
+        Some(Value::Str(s)) => Some(s.clone()),
+        Some(Value::None) | None => None,
+        Some(v) => {
+            return Err(vec![SourceDiagnostic::error(
+                Span::detached(),
+                format!("raw(lang:): espera string, recebeu {}", v.type_name()),
+            )]);
+        }
+    };
+
+    let block = match args.named.get("block") {
+        Some(Value::Bool(b)) => *b,
+        Some(Value::None) | None => false,
+        Some(other) => {
+            return Err(vec![SourceDiagnostic::error(
+                Span::detached(),
+                format!("raw(block:): espera bool, recebeu {}", other.type_name()),
+            )])
+        }
+    };
+
+    Ok(Value::Content(Content::raw(text, lang, block)))
 }
 
 // ── `heading()` — função nativa + selector para show rules (P451) ───────────
@@ -255,13 +290,16 @@ pub fn native_outline(
         }
     };
 
+    use crate::entities::elements::outline::OutlineIndent;
     let indent = match args.named.get("indent") {
-        Some(Value::Bool(b)) => *b,
-        Some(Value::None) | None => true,
+        Some(Value::Bool(b)) => OutlineIndent::Bool(*b),
+        Some(Value::Length(l)) => OutlineIndent::Length(*l),
+        Some(Value::Func(f)) => OutlineIndent::Function(f.clone()),
+        Some(Value::Auto) | Some(Value::None) | None => OutlineIndent::Auto,
         Some(other) => {
             return Err(vec![SourceDiagnostic::error(
                 Span::detached(),
-                format!("outline(indent:): espera bool, recebeu {}", other.type_name()),
+                format!("outline(indent:): espera length, function, auto ou bool, recebeu {}", other.type_name()),
             )])
         }
     };
@@ -1616,8 +1654,9 @@ fn extract_citation_style(
 // Padrão "variant rico" N=4 cumulativo **inalterado** — A.2 → (a)
 // minimal.
 
-/// `footnote(body)` — emite `Content::Footnote { body }`. Body
-/// posicional obrigatório (content ou string).
+/// `footnote(body, numbering:?)` — emite `Content::Footnote { body, numbering }`.
+/// Body posicional obrigatório (content ou string).
+/// P502: `numbering` named opcional; uso no marcador scope-out per ADR-0054.
 pub fn native_footnote(
     _ctx: &mut EvalContext,
     args: &Args,
@@ -1644,15 +1683,31 @@ pub fn native_footnote(
         }
     };
 
-    // Validar ausência de named args (P295 Fase 1: sem cosméticos).
-    for k in args.named.keys() {
-        return Err(vec![SourceDiagnostic::error(
-            Span::detached(),
-            format!("footnote(): argumento nomeado '{}' não suportado em P295 Fase 1 (numbering/cosméticos scope-out per ADR-0054 graded)", k),
-        )]);
+    let mut numbering: Option<EcoString> = None;
+    for (k, v) in args.named.iter() {
+        match k.as_str() {
+            "numbering" => {
+                numbering = match v {
+                    Value::Str(s) => Some(s.clone()),
+                    Value::None => None,
+                    _ => {
+                        return Err(vec![SourceDiagnostic::error(
+                            Span::detached(),
+                            format!("footnote(numbering:): espera string, recebeu {}", v.type_name()),
+                        )])
+                    }
+                };
+            }
+            other => {
+                return Err(vec![SourceDiagnostic::error(
+                    Span::detached(),
+                    format!("footnote(): argumento nomeado '{}' não suportado (cosméticos scope-out per ADR-0054 graded)", other),
+                )]);
+            }
+        }
     }
 
-    Ok(Value::Content(Content::footnote(body)))
+    Ok(Value::Content(Content::footnote_with_numbering(body, numbering)))
 }
 
 // ── Passo 296 — `accent()` + `cancel()` math (P-math-accent-cancel) ──────

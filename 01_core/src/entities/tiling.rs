@@ -93,6 +93,7 @@ mod tests {
             data: PtrEqArc(Arc::new(vec![1, 2, 3])),
             width: None,
             height: None,
+            fit: "cover".into(),
         }
     }
 

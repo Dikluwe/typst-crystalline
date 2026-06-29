@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/entities/elements/footnote.md
-//! @prompt-hash 47dc41e8
+//! @prompt-hash 8c5e6722
 //! @layer L1
 //! @updated 2026-06-11
 //!
@@ -10,6 +10,8 @@
 
 use std::sync::Arc;
 
+use ecow::EcoString;
+
 use crate::entities::content::Content;
 use crate::entities::elements::Element;
 use crate::entities::source_result::SourceResult;
@@ -17,7 +19,8 @@ use crate::entities::source_result::SourceResult;
 /// Nota de rodapé. `body` é o conteúdo diferido para o rodapé.
 #[derive(Debug, Clone, PartialEq, Hash)]
 pub struct FootnoteElem {
-    pub body: Content,
+    pub body:      Content,
+    pub numbering: Option<EcoString>,
 }
 
 impl Element for FootnoteElem {
@@ -33,7 +36,8 @@ impl Element for FootnoteElem {
         F: FnMut(&Content) -> SourceResult<Option<Content>>,
     {
         Ok(Content::Footnote(Arc::new(FootnoteElem {
-            body: self.body.map_content(transform)?,
+            body:      self.body.map_content(transform)?,
+            numbering: self.numbering.clone(),
         })))
     }
 
@@ -42,7 +46,8 @@ impl Element for FootnoteElem {
         F: FnMut(&str) -> String,
     {
         Content::Footnote(Arc::new(FootnoteElem {
-            body: self.body.map_text(transform),
+            body:      self.body.map_text(transform),
+            numbering: self.numbering.clone(),
         }))
     }
 }
@@ -51,20 +56,24 @@ impl Element for FootnoteElem {
 mod tests {
     use super::*;
 
+    fn ex(body: Content) -> FootnoteElem {
+        FootnoteElem { body, numbering: None }
+    }
+
     #[test]
     fn plain_text_incorpora_body() {
-        assert_eq!(FootnoteElem { body: Content::text("nota") }.plain_text(), "nota");
+        assert_eq!(ex(Content::text("nota")).plain_text(), "nota");
     }
 
     #[test]
     fn is_empty_default_false_nao_delega() {
         // Mesmo com body Empty, Footnote nunca é "vazio" (marker observable).
-        assert!(!FootnoteElem { body: Content::Empty }.is_empty());
+        assert!(!ex(Content::Empty).is_empty());
     }
 
     #[test]
     fn map_content_recurse_body() {
-        let e = FootnoteElem { body: Content::text("a") };
+        let e = ex(Content::text("a"));
         let mut f = |c: &Content| -> SourceResult<Option<Content>> {
             match c {
                 Content::Text(s) if s.as_str() == "a" => Ok(Some(Content::text("Z"))),
@@ -72,14 +81,17 @@ mod tests {
             }
         };
         match e.map_content(&mut f).unwrap() {
-            Content::Footnote(el) => assert!(matches!(&el.body, Content::Text(s) if s.as_str() == "Z")),
+            Content::Footnote(el) => {
+                assert!(matches!(&el.body, Content::Text(s) if s.as_str() == "Z"));
+                assert_eq!(el.numbering, None);
+            }
             _ => panic!("esperado Footnote"),
         }
     }
 
     #[test]
     fn map_text_recurse_body() {
-        let e = FootnoteElem { body: Content::text("hi") };
+        let e = ex(Content::text("hi"));
         match e.map_text(&mut |s| s.to_uppercase()) {
             Content::Footnote(el) => assert!(matches!(&el.body, Content::Text(s) if s.as_str() == "HI")),
             _ => panic!("esperado Footnote"),

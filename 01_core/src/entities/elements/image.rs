@@ -1,12 +1,14 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/entities/elements/image.md
-//! @prompt-hash ef4f8ecd
+//! @prompt-hash dd2977d5
 //! @layer L1
 //! @updated 2026-06-11
 //!
 //! `ImageElem` — Lote 7 P322. Imagem embebida (`image(path)`). Folha.
 
 use std::sync::Arc;
+
+use ecow::EcoString;
 
 use crate::entities::content::Content;
 use crate::entities::elements::Element;
@@ -21,6 +23,7 @@ pub struct ImageElem {
     pub data:   PtrEqArc<Vec<u8>>,
     pub width:  Option<Box<Value>>,
     pub height: Option<Box<Value>>,
+    pub fit:    EcoString,
 }
 
 // `Hash` manual via `Debug` (paridade `content_hash`): `Value` carrega `f64` e
@@ -63,6 +66,7 @@ mod tests {
             data:   PtrEqArc(Arc::new(vec![1, 2, 3])),
             width:  None,
             height: None,
+            fit:    "cover".into(),
         }
     }
 

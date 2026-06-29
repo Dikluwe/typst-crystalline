@@ -21,11 +21,12 @@ pub fn compact_original(node: &typst_syntax::SyntaxNode) -> CompactNode {
     use typst_syntax::SyntaxKind;
 
     if node.kind() == SyntaxKind::Error {
-        let msg = node.errors()
+        let (errors, _) = node.errors_and_warnings();
+        let msg = errors
             .first()
             .map(|e| e.message.to_string())
             .unwrap_or_default();
-        return CompactNode::Error(msg, node.text().to_string());
+        return CompactNode::Error(msg, node.full_text().to_string());
     }
 
     let children: Vec<_> = node.children()
@@ -35,7 +36,7 @@ pub fn compact_original(node: &typst_syntax::SyntaxNode) -> CompactNode {
     let kind_name = node.kind().name().to_string();
 
     if children.is_empty() {
-        CompactNode::Leaf(kind_name, node.text().to_string())
+        CompactNode::Leaf(kind_name, node.full_text().to_string())
     } else {
         CompactNode::Branch(kind_name, children)
     }

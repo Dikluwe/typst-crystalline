@@ -3788,7 +3788,7 @@ mod tests {
         use crate::entities::content::Content;
         use crate::entities::ptr_eq_arc::PtrEqArc;
         use std::sync::Arc;
-        let img = Content::image("a.png", PtrEqArc(Arc::new(Vec::new())), None, None);
+        let img = Content::image("a.png", PtrEqArc(Arc::new(Vec::new())), None, None, "cover");
         let args = p(vec![Value::Content(img)]);
         let r = native_figure(&mut ctx, &args, &null_world(), test_file_id()).unwrap();
         if let Value::Content(Content::Figure(e)) = r {
@@ -3849,7 +3849,7 @@ mod tests {
         use crate::entities::content::Content;
         use crate::entities::ptr_eq_arc::PtrEqArc;
         use std::sync::Arc;
-        let img = Content::image("a.png", PtrEqArc(Arc::new(Vec::new())), None, None);
+        let img = Content::image("a.png", PtrEqArc(Arc::new(Vec::new())), None, None, "cover");
         let args =
             pn(vec![Value::Content(img)], "kind", Value::Str("custom-kind".into()));
         let r = native_figure(&mut ctx, &args, &null_world(), test_file_id()).unwrap();
@@ -3872,7 +3872,7 @@ mod tests {
         use crate::entities::content::Content;
         use crate::entities::ptr_eq_arc::PtrEqArc;
         use std::sync::Arc;
-        let img = Content::image("a.png", PtrEqArc(Arc::new(Vec::new())), None, None);
+        let img = Content::image("a.png", PtrEqArc(Arc::new(Vec::new())), None, None, "cover");
         let args = pn(vec![Value::Content(img)], "kind", Value::Auto);
         let r = native_figure(&mut ctx, &args, &null_world(), test_file_id()).unwrap();
         if let Value::Content(Content::Figure(e)) = r {
@@ -3909,7 +3909,7 @@ mod tests {
         use crate::entities::content::Content;
         use crate::entities::ptr_eq_arc::PtrEqArc;
         use std::sync::Arc;
-        let img = Content::image("a.png", PtrEqArc(Arc::new(Vec::new())), None, None);
+        let img = Content::image("a.png", PtrEqArc(Arc::new(Vec::new())), None, None, "cover");
         // Sequence começa com Text (não detectável) e contém Image.
         let seq = Content::Sequence(Arc::from(vec![Content::text("legenda"), img]));
         let args = p(vec![Value::Content(seq)]);
@@ -10621,14 +10621,28 @@ mod tests {
     }
 
     #[test]
-    fn p295_native_footnote_named_arg_rejeitado_fase1() {
+    fn p295_native_footnote_numbering_aceite_p502() {
         use super::native_footnote;
         null_ctx!(ctx);
         let mut args = p(vec![Value::Str("a".into())]);
         args.named.insert("numbering".into(), Value::Str("*".into()));
         let r = native_footnote(&mut ctx, &args, &null_world(), test_file_id());
-        assert!(r.is_err(), "Fase 1 P295 scope-out cosméticos");
-        assert!(format!("{:?}", r).contains("numbering"));
+        assert!(r.is_ok(), "P502: numbering deve ser aceite em footnote()");
+        if let Value::Content(Content::Footnote(e)) = r.unwrap() {
+            assert_eq!(e.numbering.as_deref(), Some("*"));
+        } else {
+            panic!("esperado Content::Footnote");
+        }
+    }
+
+    #[test]
+    fn p295_native_footnote_named_arg_desconhecido_rejeitado() {
+        use super::native_footnote;
+        null_ctx!(ctx);
+        let mut args = p(vec![Value::Str("a".into())]);
+        args.named.insert("foo".into(), Value::Str("bar".into()));
+        let r = native_footnote(&mut ctx, &args, &null_world(), test_file_id());
+        assert!(r.is_err(), "named arg desconhecido deve ser rejeitado");
     }
 
     #[test]

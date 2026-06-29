@@ -18,6 +18,7 @@ use super::*;
 use crate::entities::paint::Paint;
 use crate::entities::{
     content::Content,
+    elements::outline::OutlineIndent,
     geometry::ShapeKind,
     layout_types::{FrameItem, Point},
 };
@@ -1781,7 +1782,7 @@ fn layout_outline_title_custom() {
     // fornecido em vez do default "Índice".
     let content = Content::Sequence(
         vec![
-            Content::outline_with(Some(Content::text("Sumário")), 3, true),
+            Content::outline_with(Some(Content::text("Sumário")), 3, OutlineIndent::Auto),
             Content::heading(1, Content::text("H1")),
         ]
         .into(),
@@ -1810,7 +1811,7 @@ fn layout_outline_depth_limita_niveis() {
     // distinguir "aparece no documento" de "aparece na TOC".
     let content = Content::Sequence(
         vec![
-            Content::outline_with(None, 1, true),
+            Content::outline_with(None, 1, OutlineIndent::Auto),
             Content::heading(1, Content::text("H1")),
             Content::heading(2, Content::text("H2")),
             Content::heading(3, Content::text("H3")),
@@ -1850,7 +1851,7 @@ fn layout_outline_indent_false_nao_indenta() {
     // assim inclui o corpo da entrada.
     let content = Content::Sequence(
         vec![
-            Content::outline_with(None, 3, false),
+            Content::outline_with(None, 3, OutlineIndent::Bool(false)),
             Content::heading(1, Content::text("H1")),
             Content::heading(2, Content::text("H2")),
         ]
@@ -1870,8 +1871,8 @@ fn layout_outline_parametros_default_igual_a_vanilla() {
     // P457: `outline()` sem argumentos deve usar title=None, depth=3,
     // indent=true — comportamento idêntico a Content::outline().
     let a = Content::outline();
-    let b = Content::outline_with(None, 3, true);
-    assert_eq!(a, b, "outline() default deve ser igual a outline_with(None,3,true)");
+    let b = Content::outline_with(None, 3, OutlineIndent::Auto);
+    assert_eq!(a, b, "outline() default deve ser igual a outline_with(None,3,Auto)");
 }
 
 // ── Testes de Passo 62 — Figuras ─────────────────────────────────────────
@@ -2205,6 +2206,7 @@ fn layout_image_gera_frameitem() {
         crate::entities::ptr_eq_arc::PtrEqArc(std::sync::Arc::new(jpeg_magic)),
         None,
         None,
+        "cover",
     );
 
     let state = introspect(&content);

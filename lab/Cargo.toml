@@ -65,6 +65,7 @@ web-sys     = "0.3"
 # Deps externas de typst-utils adicionais
 libm      = "0.2.11"
 siphasher = "1"
+smallvec  = "1"
 thin-vec  = "0.2.13"
 
 # Dep de typst-syntax adicional

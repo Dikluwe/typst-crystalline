@@ -1,5 +1,5 @@
 # L0 — Layout: Tabela de Conteúdos
-Hash do Código: f45a77ed
+Hash do Código: f8cca175
 
 ## Módulo
 `01_core/src/rules/layout/outline.rs`
@@ -15,8 +15,10 @@ parâmetros do `OutlineElem` (`title`, `depth`, `indent`).
   - `e.title.clone()` se presente;
   - caso contrário, heading de nível 1 com corpo `"Índice"`.
 - Profundidade (P457): ignora entradas com `level > e.depth`.
-- Indentação (P457): se `e.indent` for `true`, prefixa a linha com
-  `"  ".repeat(level.saturating_sub(1))`; se `false`, não prefixa.
+- Indentação (P457/P502): consome `e.indent.is_active()`. `OutlineIndent::Auto`
+  e `OutlineIndent::Bool(true)` activam indentação; `Bool(false)` desactiva.
+  `Length`/`Function` são aceites mas tratados como `Auto` (renderização
+  específica scope-out per ADR-0054).
 - Para cada entrada, lê `runtime.known_page_numbers.get(&label)` antes de activar
   `is_readonly` para evitar borrow duplo.
 - Activa `runtime.is_readonly = true` antes de `layout_content` e restaura

@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/rules/stdlib/figure_image.md
-//! @prompt-hash eca4cd8c
+//! @prompt-hash 85c42418
 //! @layer L1
 //! @updated 2026-04-23
 //!
@@ -10,6 +10,7 @@
 use crate::entities::args::Args;
 use crate::entities::file_id::FileId;
 use crate::entities::content::Content;
+use ecow::EcoString;
 use crate::entities::ptr_eq_arc::PtrEqArc;
 use crate::entities::span::Span;
 use crate::entities::source_result::{SourceDiagnostic, SourceResult};
@@ -102,9 +103,9 @@ pub fn native_figure(ctx: &mut EvalContext, args: &Args, _world: &dyn crate::con
 /// `width` e `height` são preservados no AST para o Passo 72 (dimensões reais).
 /// O layouter usa placeholder 100×100 pt neste passo (DEBT-24b).
 pub fn native_image(_ctx: &mut EvalContext, args: &Args, world: &dyn crate::contracts::world::World, current_file: FileId) -> SourceResult<Value> {
-    // Validar named args: apenas "width" e "height" são aceites.
+    // Validar named args: apenas "width", "height" e "fit" são aceites.
     for key in args.named.keys() {
-        if key.as_str() != "width" && key.as_str() != "height" {
+        if !matches!(key.as_str(), "width" | "height" | "fit") {
             return Err(vec![SourceDiagnostic::error(
                 Span::detached(),
                 format!("argumento nomeado inesperado em image(): '{}'", key),
@@ -135,5 +136,19 @@ pub fn native_image(_ctx: &mut EvalContext, args: &Args, world: &dyn crate::cont
     let width  = args.named.get("width").cloned().map(Box::new);
     let height = args.named.get("height").cloned().map(Box::new);
 
-    Ok(Value::Content(Content::image(path, PtrEqArc(data), width, height)))
+    let fit = args.named.get("fit")
+        .and_then(|v| match v {
+            Value::Str(s) => Some(s.clone()),
+            _ => None,
+        })
+        .unwrap_or_else(|| EcoString::from("cover"));
+
+    if !matches!(fit.as_str(), "contain" | "cover" | "stretch") {
+        return Err(vec![SourceDiagnostic::error(
+            Span::detached(),
+            format!("image(fit:): valor '{}' inválido; esperado 'contain', 'cover' ou 'stretch'", fit),
+        )]);
+    }
+
+    Ok(Value::Content(Content::image(path, PtrEqArc(data), width, height, fit)))
 }

@@ -1323,14 +1323,21 @@ impl Content {
     pub fn align(alignment: Align2D, body: Content) -> Self {
         Self::Align(Arc::new(AlignElem { alignment, body }))
     }
-    /// `image(path, data, width, height)` — Modelo D (Lote 7 P322).
+    /// `image(path, data, width, height, fit)` — Modelo D (Lote 7 P322) + P502.
     pub fn image(
         path: impl Into<String>,
         data: PtrEqArc<Vec<u8>>,
         width: Option<Box<crate::entities::value::Value>>,
         height: Option<Box<crate::entities::value::Value>>,
+        fit: impl Into<EcoString>,
     ) -> Self {
-        Self::Image(Arc::new(ImageElem { path: path.into(), data, width, height }))
+        Self::Image(Arc::new(ImageElem {
+            path: path.into(),
+            data,
+            width,
+            height,
+            fit: fit.into(),
+        }))
     }
     // ── Construtores ergonómicos família lista/termos (Modelo D, Lote 3 P318) ──
     pub fn list_item(body: Content) -> Self {
@@ -1474,7 +1481,12 @@ impl Content {
 
     /// **Lote 11 P326** — `Content::Footnote` (nota de rodapé).
     pub fn footnote(body: Content) -> Self {
-        Self::Footnote(Arc::new(FootnoteElem { body }))
+        Self::Footnote(Arc::new(FootnoteElem { body, numbering: None }))
+    }
+
+    /// **P502** — `Content::Footnote` com `numbering` customizado.
+    pub fn footnote_with_numbering(body: Content, numbering: Option<EcoString>) -> Self {
+        Self::Footnote(Arc::new(FootnoteElem { body, numbering }))
     }
 
     /// **Lote 11 P326** — `Content::Shape` (geometria).
@@ -1738,24 +1750,34 @@ impl Content {
 
     /// **Lote 8 P323** — `Content::Outline` (índice). Unit struct.
     /// P457: adiciona parâmetros `title`, `depth`, `indent` com defaults vanilla.
+    /// P502: `indent` é `OutlineIndent` (auto/bool/length/function).
     pub fn outline() -> Self {
-        Self::outline_with(None, 3, true)
+        use crate::entities::elements::outline::OutlineIndent;
+        Self::outline_with(None, 3, OutlineIndent::Auto)
     }
 
-    pub fn outline_with(title: Option<Content>, depth: usize, indent: bool) -> Self {
+    pub fn outline_with(
+        title: Option<Content>,
+        depth: usize,
+        indent: crate::entities::elements::outline::OutlineIndent,
+    ) -> Self {
         Self::Outline(Arc::new(OutlineElem::new(title, depth, indent)))
     }
 
     /// **P472** — List of Figures (`lof()`).
     pub fn lof(title: Option<Content>) -> Self {
-        use crate::entities::elements::outline::OutlineTarget;
-        Self::Outline(Arc::new(OutlineElem::with_target(title, 1, false, OutlineTarget::Figures)))
+        use crate::entities::elements::outline::{OutlineIndent, OutlineTarget};
+        Self::Outline(Arc::new(OutlineElem::with_target(
+            title, 1, OutlineIndent::Bool(false), OutlineTarget::Figures,
+        )))
     }
 
     /// **P472** — List of Tables (`lot()`).
     pub fn lot(title: Option<Content>) -> Self {
-        use crate::entities::elements::outline::OutlineTarget;
-        Self::Outline(Arc::new(OutlineElem::with_target(title, 1, false, OutlineTarget::Tables)))
+        use crate::entities::elements::outline::{OutlineIndent, OutlineTarget};
+        Self::Outline(Arc::new(OutlineElem::with_target(
+            title, 1, OutlineIndent::Bool(false), OutlineTarget::Tables,
+        )))
     }
 
     /// **Lote 8 P323** — `Content::Quote` (citação).

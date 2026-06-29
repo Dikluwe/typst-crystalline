@@ -70,6 +70,7 @@ pub fn native_tiling(
                 data: PtrEqArc(data),
                 width: None,
                 height: None,
+                fit: "cover".into(),
             })
         }
         Value::Tiling(t) => return Ok(Value::Tiling(Arc::clone(t))),
