@@ -1,5 +1,5 @@
 # Prompt L0 — `entities/element_kind`
-Hash do Código: 4421c65e
+Hash do Código: 8502f5bf
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/entities/element_kind.rs`
@@ -53,6 +53,51 @@ pub enum ElementKind {
     /// — dormente em produção até `Content::SetEquationNumbering`
     /// materializar (P186A §11.2).
     Equation,
+    /// **P198C** — `Content::CounterUpdate` promovido a locatable
+    /// (cenário β-promote ADR-0069). Indexa locations de CounterUpdate
+    /// em `kind_index`; `from_tags` arm aplica à CounterRegistry.
+    CounterUpdate,
+    /// **P461** — `Content::Table` promovido a locatable. Indexa
+    /// locations de tables em `kind_index`; counter flat `"table"`
+    /// populado quando numbering+caption activos.
+    Table,
+    /// **P494** — Selector `list`. Cristalino não materializa
+    /// `Content::List` (lista é `Sequence` de `ListItem`), por isso
+    /// `kind_index` fica vazio; a contagem é feita em L3 por análise
+    /// do `Content` (`query_helpers.rs`). O kind existe em L1 para
+    /// permitir `Selector::Kind(List)` e paridade de parse.
+    List,
+    /// **P494** — Selector `enum`. Cristalino não materializa
+    /// `Content::Enum` (enum é `Sequence` de `EnumItem`); contagem em
+    /// L3 por análise do `Content`.
+    Enum,
+    /// **P494** — Selector `par`. Cristalino não materializa
+    /// `Content::Par` (parágrafo é texto plano numa `Sequence`);
+    /// contagem aproximada em L3 (presença de texto no documento).
+    Par,
+    /// **P494** — Selector `link`. `Content::Link` existe em L1;
+    /// contagem por análise do `Content` em L3 (alternativa: tornar
+    /// locatable em passo futuro).
+    Link,
+    /// **P494** — Selector `raw`. `Content::Raw` existe em L1;
+    /// contagem por análise do `Content` em L3.
+    Raw,
+    /// **P494** — Selector `quote`. `Content::Quote` existe em L1;
+    /// contagem por análise do `Content` em L3.
+    Quote,
+    /// **P494** — Selector `footnote`. `Content::Footnote` existe em
+    /// L1; contagem por análise do `Content` em L3.
+    Footnote,
+    /// **P240 (M9d/M7+1)** — `Content::StateDisplay` promovido a
+    /// locatable. Indexa locations de StateDisplay em `kind_index`;
+    /// valor pre-rendered é produzido em `apply_state_displays`
+    /// pós-fixpoint (paralelo `apply_state_funcs` P191B).
+    StateDisplay,
+    /// **P241 (M9d/M7+2)** — `Content::CounterDisplayCallback`
+    /// promovido a locatable paralelo absoluto `StateDisplay` P240.
+    /// Indexa locations em `kind_index`; valor pre-rendered produzido
+    /// em `apply_counter_displays` pós-fixpoint.
+    CounterDisplay,
 }
 
 impl ElementKind {
@@ -65,27 +110,32 @@ impl ElementKind {
 
 ## Semântica
 
-- `as_str()`: retorna `"heading"`, `"figure"`, ou `"citation"`. Use case: chave em mapas se `ElementKind` for usado como `&str` (e.g. selectores futuros). Não usar para reconstrução do enum — sem `from_str`.
+- `as_str()`: retorna `"heading"`, `"figure"`, `"citation"`, etc. Use case: chave em mapas se `ElementKind` for usado como `&str` (e.g. selectores). Não usar para reconstrução do enum — a reconstrução é via `from_name` (P175), não `from_str`.
 - `Hash`/`Eq`/`Copy` derivados — usável como chave em `HashMap<ElementKind, T>`.
+- **P494**: Kinds `List`, `Enum`, `Par`, `Link`, `Raw`, `Quote`, `Footnote` existem em L1 para permitir `Selector::Kind(...)` e parsing de selectores vanilla, mas a sua contagem em queries de introspecção é realizada em L3 (`query_helpers.rs`) por análise do `Content`, porque cristalino não materializa os containers `List`/`Enum`/`Par` (usa `Sequence` de itens / texto plano).
 
 ---
 
 ## Invariantes
 
-- Apenas 3 variantes em P161. **Adicionar variantes nova exige passo dedicado** com inventário do consumer e ADR justificativa quando a feature correspondente for activada.
+- **Adicionar variantes nova exige passo dedicado** com inventário do consumer e ADR justificativa quando a feature correspondente for activada.
 - Sem variantes catch-all (`Other`, `Unknown`).
+- **P494**: Kinds `List`/`Enum`/`Par`/`Link`/`Raw`/`Quote`/`Footnote` são adicionados como discriminadores de selector válidos; a correspondência com elementos concretos do `Content` é resolvida em L3, não obrigatoriamente via `kind_index` em L1.
 
 ---
 
 ## Consumers actuais
 
-Nenhum em P161. Apenas listado em re-exports.
+- `entities/selector.rs` — `Selector::Kind(ElementKind)`.
+- `entities/introspector.rs` — `query_by_kind`, `query_first`, `query_unique`.
+- `rules/stdlib/foundations.rs` — `parse_selector_arg` converte string → `Selector::Kind`.
+- `03_infra/query_helpers.rs` — parsing de selectors para comparação vanilla; P494 adiciona contagem por análise do `Content` para os novos kinds.
 
 ## Consumers planeados
 
-- `entities/element_payload.rs` (P161 sub-passo .7) — cada variante de `ElementPayload` corresponde a um `ElementKind`.
-- `rules/introspect.rs` walk em P162 — branches `Content::Heading` / `Content::Figure` / `Content::Cite` constroem o `ElementKind` apropriado.
-- `Introspector` em M3 — usar como discriminador para queries por tipo.
+- `entities/element_payload.rs` — cada variante locatable de `ElementPayload` corresponde a um `ElementKind`.
+- `rules/introspect.rs` walk — branches locatable constroem o `ElementKind` apropriado.
+- `Introspector` — usar como discriminador para queries por tipo.
 
 ---
 
@@ -115,3 +165,4 @@ Ver `00_nucleo/diagnosticos/inventario-tipos-introspection-vanilla.md` (2026-04-
 | 2026-04-29 | P178: variant `Outline` adicionada; fecha lacuna #7 (`has_outline` via `query("outline")`) | `element_kind.rs`, `element_kind.md` |
 | 2026-05-01 | P181C: variant `Bibliography` adicionada; suporte ao plano P181 (lacuna #6); `from_name("bibliography")` round-trip | `element_kind.rs`, `element_kind.md` |
 | 2026-05-03 | P186B: variant `Equation` adicionada; suporte ao plano P186 (eixo 2 do bloqueio P183C — C2 equation counter); `from_name("equation")` round-trip; `from_tags` arm Equation populará `kind_index` em P186E. Dormente em produção até `Content::SetEquationNumbering` materializar (passo dedicado fora da série P186-P188). | `element_kind.rs`, `element_kind.md` |
+| 2026-06-29 | P494: adicionadas variants `List`, `Enum`, `Par`, `Link`, `Raw`, `Quote`, `Footnote` para paridade de selectores de documento. Kinds `List`/`Enum`/`Par` mapeiam para estruturas implícitas de `Content` (`Sequence` de itens / texto); contagem em L3 `query_helpers.rs`. Kinds `Link`/`Raw`/`Quote`/`Footnote` mapeiam para variantes existentes de `Content`. | `element_kind.rs`, `element_kind.md`, `selector.rs`, `query_helpers.rs`, `foundations.rs` |

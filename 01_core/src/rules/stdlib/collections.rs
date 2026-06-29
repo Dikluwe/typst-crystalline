@@ -581,3 +581,46 @@ fn value_cmp(a: &Value, b: &Value) -> Option<Ordering> {
         _ => None,
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    fn make_args(items: Vec<Value>, named: Option<(&str, Value)>) -> Args {
+        let mut args = Args { items, named: IndexMap::default() };
+        if let Some((k, v)) = named {
+            args.named.insert(k.into(), v);
+        }
+        args
+    }
+
+    #[test]
+    fn p495_dict_at_default_named() {
+        let mut dict: IndexMap<EcoString, Value, FxBuildHasher> = IndexMap::default();
+        dict.insert("a".into(), Value::Int(1));
+        dict.insert("b".into(), Value::Int(2));
+
+        // key existente → valor
+        let args = make_args(vec![Value::Str("a".into())], None);
+        assert_eq!(dict_at(dict.clone(), args).unwrap(), Value::Int(1));
+
+        // key ausente com default → default
+        let args = make_args(
+            vec![Value::Str("z".into())],
+            Some(("default", Value::Int(99))),
+        );
+        assert_eq!(dict_at(dict.clone(), args).unwrap(), Value::Int(99));
+
+        // key ausente sem default → erro
+        let args = make_args(vec![Value::Str("z".into())], None);
+        assert!(dict_at(dict, args).is_err());
+    }
+
+    #[test]
+    fn p495_dict_at_named_desconhecido_rejeitado() {
+        let dict: IndexMap<EcoString, Value, FxBuildHasher> = IndexMap::default();
+        let mut args = make_args(vec![Value::Str("a".into())], None);
+        args.named.insert("foo".into(), Value::Int(1));
+        assert!(dict_at(dict, args).is_err());
+    }
+}

@@ -1,5 +1,5 @@
 # Prompt L0 — `infra/query-helpers`
-Hash do Código: adf98462
+Hash do Código: 45fd0dd0
 
 **Camada**: L3.
 **Fase**: P206C / Vanilla integration.
@@ -58,6 +58,7 @@ sub-passo dedicado pós-P206.
    - Extrair Content via `module.content`.
    - Construir TagIntrospector via `introspect`.
    - Aplicar selector → dispatching a método correcto.
+   - **P494**: para os kinds `List`, `Enum`, `Par`, `Link`, `Raw`, `Quote`, `Footnote`, o count é obtido por análise directa do `Content` (função `count_element_in_content`), porque cristalino não materializa containers `List`/`Enum`/`Par` e os demais elementos (`Link`/`Raw`/`Quote`/`Footnote`) ainda não são locatable em L1. O `Introspector` é usado para os kinds tradicionalmente locatable (`heading`, `figure`, etc.) e para labels.
    - Retornar **`QuerySummary`** estrutura mínima.
 
 3. **`QuerySummary`** — struct domain-level (sem
@@ -79,6 +80,21 @@ sub-passo dedicado pós-P206.
    - `InvalidSelector(String)` (selector não parseável).
    - `WorldError(String)` (I/O ou source loading).
 
+5. **P494 — Contagem por análise do `Content`**:
+   Função pura `count_element_in_content(content: &Content, kind: ElementKind) -> usize`:
+   - `ElementKind::List`: conta `Sequence`s cujos filhos são todos
+     `Content::ListItem`. Se a raiz for um único `ListItem`, conta 1.
+   - `ElementKind::Enum`: conta `Sequence`s cujos filhos são todos
+     `Content::EnumItem`. Se a raiz for um único `EnumItem`, conta 1.
+   - `ElementKind::Par`: retorna 1 se o `Content` contiver qualquer
+     `Content::Text` (aproximação — cristalino não materializa
+     `ParElem`).
+   - `ElementKind::Link`: conta `Content::Link`.
+   - `ElementKind::Raw`: conta `Content::Raw`.
+   - `ElementKind::Quote`: conta `Content::Quote`.
+   - `ElementKind::Footnote`: conta `Content::Footnote`.
+   - Outros kinds: `0` (delegados ao `Introspector`).
+
 5. **Função pública principal**:
    ```text
    pub fn query_to_summary(
@@ -91,7 +107,8 @@ sub-passo dedicado pós-P206.
 6. **Funções auxiliares pub** (úteis para callers
    isolados):
    - `parse_selector(s: &str) -> Result<ParsedSelector, QueryError>`.
-   - `summarize_query(intr: &TagIntrospector, parsed: &ParsedSelector) -> QuerySummary`.
+   - `summarize_query(intr: &TagIntrospector, content: &Content, parsed: &ParsedSelector) -> QuerySummary`.
+     Recebe o `Content` para contagem dos kinds P494.
 
 ---
 
@@ -102,9 +119,10 @@ sub-passo dedicado pós-P206.
 - Domain struct (`QuerySummary`) não implementa
   `Serialize`; lab/parity usa `to_string()` ou
   manual JSON build.
-- Selector parsing minimal: aceita Kind names existentes
-  (10 variants ElementKind via `from_str`) + label
-  syntax `<label>`. Outras formas vanilla
+- Selector parsing minimal: aceita Kind names
+  (`ElementKind::from_name`) + label syntax `<label>`. P494 expande
+  para 17 kinds incluindo `list`, `enum`, `par`, `link`, `raw`,
+  `quote`, `footnote`. Outras formas vanilla
   (`heading.where(...)`, `figure.where(kind: image)`)
   → `InvalidSelector`. Documentado.
 - Sem dependência circular: 03_infra usa 01_core; não
@@ -143,6 +161,10 @@ sub-passo dedicado pós-P206.
    `count == 1`.
 7. `summarize_metadata_values` — corpus com 3 metadata
    → `metadata_values.len() == 3`.
+8. **P494** — `parse_selector` aceita `list`, `enum`, `par`, `link`,
+   `raw`, `quote`, `footnote` → `ParsedSelector::Kind(...)`.
+9. **P494** — `query_to_summary` retorna `count == 1` para corpus
+   mínimo de cada novo selector (ex.: `#list([A])`, `#link(...)`).
 
 ---
 
@@ -185,3 +207,13 @@ como selector complexo. `equation` standalone continua a funcionar internamente.
 Novos testes:
 - `p480_parse_selector_math_equation_resolve_equation_kind`
 - `p480_parse_selector_equation_standalone_ainda_aceito`
+
+---
+
+## Histórico de Revisões
+
+| Data | Motivo | Arquivos afetados |
+|------|--------|-------------------|
+| 2026-05-08 | P206C: helper L3 para comparação estrutural cristalino vs vanilla | `query_helpers.rs`, `query-helpers.md` |
+| 2026-05-12 | P480: alias `math.equation` em `parse_selector` | `query_helpers.rs`, `query-helpers.md` |
+| 2026-06-29 | P494: expansão de selectores para `list`, `enum`, `par`, `link`, `raw`, `quote`, `footnote`; contagem por análise do `Content` para kinds sem container locatable em L1 | `query_helpers.rs`, `query-helpers.md`, `element_kind.rs`, `element_kind.md`, `foundations.rs` |

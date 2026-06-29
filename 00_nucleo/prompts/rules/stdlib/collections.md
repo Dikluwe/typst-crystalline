@@ -110,6 +110,7 @@ Reduz o array a um único valor, aplicando a função `reducer(start, item)` e a
 
 | Método | Assinatura | Semântica |
 |--------|-----------|-----------|
+| `at` | `dict.at(key: str, default: any?) -> any` | Valor associado a `key`, ou `default` se a chave não existir. Sem `default` → erro. |
 | `pairs` | `dict.pairs() -> array` | Array de pares `(key, value)`. |
 | `remove` | `dict.remove(key: str) -> any` | Valor removido ou `none`. **Nota**: no cristalino o dict original não é mutado (dispatch por valor). |
 | `update` | `dict.update(other: dict) -> dict` | Mescla com outro dict. |
@@ -145,7 +146,7 @@ Reduz o array a um único valor, aplicando a função `reducer(start, item)` e a
 - `array.min()`, `array.max()`.
 - `str.rev()`.
 - `str.replace` com regex.
-- Métodos com argumento `default` (exceto `dict.at(default:)` já implementado em P491).
+- Métodos com argumento `default` (exceto `dict.at(default:)`, implementado).
 - Unicode avançado (grapheme clusters); índices de `str.find` são byte/char.
 - Mutação do dict original em `.remove()`.
 

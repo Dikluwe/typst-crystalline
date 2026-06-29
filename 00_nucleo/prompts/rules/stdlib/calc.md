@@ -1,5 +1,5 @@
 # Prompt L0 — `stdlib/calc` — subset trig/hiperbólicas/log/exp/constantes
-Hash do Código: d7f84154
+Hash do Código: dd0d13b2
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/rules/stdlib/calc.rs`
@@ -381,58 +381,66 @@ ln(-1) -> Err
 
 ---
 
-### `calc.log(x)`
+### `calc.log(x)` / `calc.log(x, base:)` / `calc.log(x, base)`
 
-**Assinatura**: `log(x: Int | Float) -> Float`
-
-**Argumentos**:
-- 1º posicional `x`.
-
-**Semântica**: `log10(x) = ln(x) / ln(10)`. Valida `x > 0`; `guard_float`.
-
-**Domínio**: `(0, +∞)`.
-
-**Paridade vanilla**: Equivalente a `calc.log(x)` (base default 10).
-
-**Limitações**: Vanilla usa argumento nomeado `base:`; cristalino usa
-posicional.
-
-**Testes canónicos**:
-```
-log(1) -> 0.0
-log(100) -> 2.0
-log(0) -> Err "valor deve ser estritamente positivo"
-```
-
----
-
-### `calc.log(x, base)`
-
-**Assinatura**: `log(x: Int | Float, base: Int | Float) -> Float`
+**Assinatura**: `log(x: Int | Float, base: Int | Float?) -> Float`
 
 **Argumentos**:
 - 1º posicional `x`.
-- 2º posicional `base`.
+- `base`: named opcional (`Int | Float`). Default `10`.
+- 2º posicional `base`: forma legada, mutuamente exclusiva com `base:`.
 
 **Semântica**: `ln(x) / ln(base)`. Valida `x > 0`, `base` finita, `base > 0`,
 `base != 1`; `guard_float`.
 
 **Domínio**: `x > 0`; `base ∈ (0, +∞) \ {1}`.
 
-**Paridade vanilla**: **Divergência consciente**: vanilla usa `log(x, base: b)`
-(named arg); cristalino aceita segundo posicional.
-
-**Limitações / scope-outs**: O plano P433 listava `log(base, value)` como
-scope-out; a implementação actual suporta a base como segundo posicional, mas
-mantém-se a divergência de interface.
+**Paridade vanilla**: Equivalente a `calc.log(x)` (base default 10) e a
+`calc.log(x, base: b)`.
 
 **Testes canónicos**:
 ```
+log(1) -> 0.0
+log(100) -> 2.0
+log(100, base: 10) -> 2.0
 log(8, 2) -> 3.0
-log(27, 3) -> 3.0
+log(8, base: 2) -> 3.0
+log(0) -> Err "valor deve ser estritamente positivo"
 log(10, 1) -> Err "base inválida"
+log(10, base: 1) -> Err "base inválida"
 log(10, 0) -> Err
 log(10, inf) -> Err
+log(100, 10, base: 10) -> Err (ambos especificados)
+```
+
+---
+
+### `calc.round(x, digits:)`
+
+**Assinatura**: `round(x: Int | Float, digits: Int?) -> Int | Float`
+
+**Argumentos**:
+- 1º posicional `x`.
+- `digits`: named opcional (`Int`). Default `0`.
+
+**Semântica**: Arredondamento half-up de `x` com `digits` casas decimais.
+`digits` pode ser negativo (arredonda para dezenas, centenas, etc.).
+- Se `digits == 0`, `Float` → `Int` (paridade vanilla `round(3.5) == 4`).
+- Se `digits != 0`, retorna `Float`.
+- `Int` com `digits == 0` → identidade; com `digits != 0` → `Float` arredondado.
+
+**Domínio**: ℝ.
+
+**Paridade vanilla**: Equivalente a `calc.round(x)` e `calc.round(x, digits: n)`.
+
+**Testes canónicos**:
+```
+round(3.567) -> 4
+round(3.567, digits: 2) -> 3.57
+round(1234.0, digits: -2) -> 1200.0
+round(255, digits: 2) -> 255.0
+round(3.5, digits: "x") -> Err
+round(3.5, foo: 1) -> Err
 ```
 
 ---
@@ -512,7 +520,7 @@ anteriores. Mantêm-se as tabelas do estado actual de `calc.md`.
 | `calc_sqrt` | `Int` ou `Float` | argumento negativo → Err |
 | `calc_floor` | `Int` ou `Float` | `Int`→`Int` (identidade); `Float`→`Int` |
 | `calc_ceil` | `Int` ou `Float` | idem `floor` com `ceil` |
-| `calc_round` | `Int` ou `Float` | arredondamento half-up |
+| `calc_round` | `Int` ou `Float` | arredondamento half-up; `digits:` named opcional (default 0) |
 | `calc_min` | `≥1 Num` (mistos Int/Float) | coerção Int→f64 quando misturado |
 | `calc_max` | `≥1 Num` | idem `min` |
 | `calc_clamp` | `(value, min, max)` | min > max → Err |
@@ -582,7 +590,10 @@ calc_ln([Float(E)]) -> Ok(Float(1.0))
 calc_ln([Float(0.0)]) -> Err
 calc_log([Float(100.0)]) -> Ok(Float(2.0))
 calc_log([Float(8.0), Float(2.0)]) -> Ok(Float(3.0))
+calc_log([Float(100.0)], named={base: Int(10)}) -> Ok(Float(2.0))
 calc_log([Float(10.0), Float(1.0)]) -> Err
+calc_round([Float(3.567)], named={digits: Int(2)}) -> Ok(Float(3.57))
+calc_round([Float(1234.0)], named={digits: Int(-2)}) -> Ok(Float(1200.0))
 
 make_calc_module().pi  -> Float(PI)
 make_calc_module().tau -> Float(TAU)

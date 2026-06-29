@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/query-helpers.md
-//! @prompt-hash 158c5d26
+//! @prompt-hash d8de80fb
 //! @layer L3
 //! @updated 2026-05-08
 //!
@@ -21,6 +21,7 @@
 //! cross-modular era L magnitude.
 
 use typst_core::contracts::world::World;
+use typst_core::entities::content::Content;
 use typst_core::entities::element_kind::ElementKind;
 use typst_core::entities::introspector::{Introspector, TagIntrospector};
 use typst_core::entities::label::Label;
@@ -130,24 +131,31 @@ pub fn parse_selector(s: &str) -> Result<ParsedSelector, QueryError> {
     match ElementKind::from_name(trimmed) {
         Some(kind) => Ok(ParsedSelector::Kind(kind)),
         None       => Err(QueryError::InvalidSelector(format!(
-            "unknown kind name `{}`; expected one of: heading, figure, citation, metadata, state, state_update, outline, bibliography, equation, counter_update",
+            "unknown kind name `{}`; expected one of: heading, figure, citation, metadata, state, state_update, outline, bibliography, equation, counter_update, table, list, enum, par, link, raw, quote, footnote",
             trimmed
         ))),
     }
 }
 
-/// Sumariza o resultado de aplicar `parsed` a `intr`.
+/// Sumariza o resultado de aplicar `parsed` a `intr` e `content`.
 ///
 /// Pure function — sem I/O. Útil para callers que já
 /// têm um `TagIntrospector` construído.
 pub fn summarize_query(
     intr: &TagIntrospector,
+    content: &Content,
     parsed: &ParsedSelector,
     raw_selector: &str,
 ) -> QuerySummary {
     match parsed {
         ParsedSelector::Kind(kind) => {
-            let locations = intr.query_by_kind(*kind);
+            // P494: kinds de elementos de documento sem container
+            // locatable em L1 são contados por análise do Content.
+            let count = if is_document_element_kind(*kind) {
+                count_element_in_content(content, *kind)
+            } else {
+                intr.query_by_kind(*kind).len()
+            };
             let metadata_values = if matches!(kind, ElementKind::Metadata) {
                 intr.query_metadata()
                     .iter()
@@ -159,7 +167,7 @@ pub fn summarize_query(
             QuerySummary {
                 selector:        raw_selector.to_string(),
                 kind:            SelectorKind::Kind,
-                count:           locations.len(),
+                count,
                 kind_name:       Some(kind.as_str().to_string()),
                 label_found:     None,
                 metadata_values,
@@ -180,6 +188,211 @@ pub fn summarize_query(
     }
 }
 
+/// **P494** — Kinds que devem ser contados por análise directa do
+/// `Content` em vez de `Introspector::query_by_kind`.
+fn is_document_element_kind(kind: ElementKind) -> bool {
+    matches!(
+        kind,
+        ElementKind::List
+            | ElementKind::Enum
+            | ElementKind::Par
+            | ElementKind::Link
+            | ElementKind::Raw
+            | ElementKind::Quote
+            | ElementKind::Footnote
+    )
+}
+
+/// **P494** — Conta ocorrências de um elemento de documento no
+/// `Content` resultante do eval. Usado para kinds que não têm
+/// container locatable em L1 (`list`, `enum`, `par`) ou que ainda
+/// não foram promovidos a locatable (`link`, `raw`, `quote`,
+/// `footnote`).
+///
+/// - `List`: `Sequence` cujos filhos são todos `ListItem`, ou um
+///   único `ListItem` na raiz. Conta 1 por lista.
+/// - `Enum`: análogo a `List` para `EnumItem`.
+/// - `Par`: retorna 1 se o documento contiver qualquer `Content::Text`
+///   (aproximação — cristalino não materializa `ParElem`).
+/// - `Link`/`Raw`/`Quote`/`Footnote`: conta variantes directas.
+pub fn count_element_in_content(content: &Content, kind: ElementKind) -> usize {
+    match kind {
+        ElementKind::List => count_list_groups(content),
+        ElementKind::Enum => count_enum_groups(content),
+        ElementKind::Par => if has_any_text(content) { 1 } else { 0 },
+        ElementKind::Link => count_variant(content, |c| matches!(c, Content::Link(_))),
+        ElementKind::Raw => count_variant(content, |c| matches!(c, Content::Raw(_))),
+        ElementKind::Quote => count_variant(content, |c| matches!(c, Content::Quote(_))),
+        ElementKind::Footnote => count_variant(content, |c| matches!(c, Content::Footnote(_))),
+        _ => 0,
+    }
+}
+
+fn count_list_groups(content: &Content) -> usize {
+    match content {
+        Content::Sequence(seq) => {
+            if seq.iter().all(|c| matches!(c, Content::ListItem(_))) {
+                1
+            } else {
+                seq.iter().map(count_list_groups).sum()
+            }
+        }
+        Content::ListItem(item) => count_list_groups(&item.body),
+        _ => 0,
+    }
+}
+
+fn count_enum_groups(content: &Content) -> usize {
+    match content {
+        Content::Sequence(seq) => {
+            if seq.iter().all(|c| matches!(c, Content::EnumItem(_))) {
+                1
+            } else {
+                seq.iter().map(count_enum_groups).sum()
+            }
+        }
+        Content::EnumItem(item) => count_enum_groups(&item.body),
+        _ => 0,
+    }
+}
+
+fn has_any_text(content: &Content) -> bool {
+    match content {
+        Content::Text(_) => true,
+        Content::Sequence(seq) => seq.iter().any(has_any_text),
+        Content::ListItem(item) => has_any_text(&item.body),
+        Content::EnumItem(item) => has_any_text(&item.body),
+        Content::Link(link) => has_any_text(&link.body),
+        Content::Quote(quote) => has_any_text(&quote.body),
+        Content::Footnote(footnote) => has_any_text(&footnote.body),
+        // Contentores comuns que podem embrulhar texto.
+        Content::Styled(body, _) => has_any_text(body),
+        Content::Strong(strong) => has_any_text(&strong.body),
+        Content::Emph(emph) => has_any_text(&emph.body),
+        Content::Align(align) => has_any_text(&align.body),
+        Content::Pad(pad) => has_any_text(&pad.body),
+        Content::Hide(hide) => has_any_text(&hide.body),
+        Content::Block(block) => has_any_text(&block.body),
+        Content::Boxed(boxed) => has_any_text(&boxed.body),
+        Content::Stack(stack) => stack.children.iter().any(has_any_text),
+        Content::Grid(grid) => {
+            let header_text = grid.header.as_ref().map_or(false, has_any_text);
+            let footer_text = grid.footer.as_ref().map_or(false, has_any_text);
+            header_text || grid.cells.iter().any(has_any_text) || footer_text
+        }
+        Content::GridCell(cell) => has_any_text(&cell.body),
+        Content::Table(table) => {
+            let caption_text = table.caption.as_ref().map_or(false, |c| has_any_text(c));
+            caption_text || table.children.iter().any(has_any_text)
+        }
+        Content::TableHeader(header) => has_any_text(&header.body),
+        Content::TableFooter(footer) => has_any_text(&footer.body),
+        Content::TableCell(cell) => has_any_text(&cell.body),
+        Content::Terms(terms) => terms.items.iter().any(has_any_text),
+        Content::TermItem(item) => has_any_text(&item.term) || has_any_text(&item.description),
+        Content::Repeat(repeat) => has_any_text(&repeat.body),
+        Content::Columns(columns) => has_any_text(&columns.body),
+        Content::Place(place) => has_any_text(&place.body),
+        Content::Transform(transform) => has_any_text(&transform.body),
+        Content::Underline(u) => has_any_text(&u.body),
+        Content::Strike(s) => has_any_text(&s.body),
+        Content::Overline(o) => has_any_text(&o.body),
+        Content::SmallCaps { body } => has_any_text(body),
+        Content::Figure(figure) => has_any_text(&figure.body),
+        Content::Equation(equation) => has_any_text(&equation.body),
+        Content::Bibliography(bib) => bib.title.as_ref().map_or(false, has_any_text),
+        Content::Label(label) => has_any_text(&label.body),
+        Content::Heading(_)
+        | Content::Metadata(_) | Content::State(_) | Content::StateUpdate(_)
+        | Content::StateDisplay(_) | Content::CounterDisplayCallback(_) | Content::CounterDisplay(_)
+        | Content::CounterUpdate(_) | Content::Outline(_) | Content::Cite(_)
+        | Content::Raw(_) | Content::Ref(_) | Content::Image(_)
+        | Content::Shape { .. } | Content::Divider(_)
+        | Content::Linebreak(_) | Content::HSpace(_) | Content::VSpace(_)
+        | Content::Pagebreak(_) | Content::Colbreak(_)
+        | Content::MathSequence(_) | Content::MathIdent(_) | Content::MathText(_)
+        | Content::MathFrac(_) | Content::MathAttach(_) | Content::MathRoot(_)
+        | Content::MathDelimited(_) | Content::MathAlignPoint(_)
+        | Content::MathMatrix(_) | Content::MathCases(_)
+        | Content::MathAccent(_) | Content::MathCancel(_)
+        | Content::MathUnderover(_) | Content::MathOp(_) | Content::MathStyled(_)
+        | Content::SmartQuote(_) | Content::Dynamic(_)
+        | Content::GridHeader(_) | Content::GridFooter(_) | Content::SetPage { .. }
+        | Content::Empty | Content::Space | Content::Document { .. } | Content::Asset { .. } => false,
+    }
+}
+
+fn count_variant<F>(content: &Content, predicate: F) -> usize
+where
+    F: Fn(&Content) -> bool + Copy,
+{
+    if predicate(content) {
+        return 1;
+    }
+    match content {
+        Content::Sequence(seq) => seq.iter().map(|c| count_variant(c, predicate)).sum(),
+        Content::ListItem(item) => count_variant(&item.body, predicate),
+        Content::EnumItem(item) => count_variant(&item.body, predicate),
+        Content::Quote(quote) => count_variant(&quote.body, predicate),
+        Content::Footnote(footnote) => count_variant(&footnote.body, predicate),
+        Content::Styled(body, _) => count_variant(body, predicate),
+        Content::Strong(strong) => count_variant(&strong.body, predicate),
+        Content::Emph(emph) => count_variant(&emph.body, predicate),
+        Content::Align(align) => count_variant(&align.body, predicate),
+        Content::Pad(pad) => count_variant(&pad.body, predicate),
+        Content::Hide(hide) => count_variant(&hide.body, predicate),
+        Content::Block(block) => count_variant(&block.body, predicate),
+        Content::Boxed(boxed) => count_variant(&boxed.body, predicate),
+        Content::Stack(stack) => stack.children.iter().map(|c| count_variant(c, predicate)).sum(),
+        Content::Grid(grid) => {
+            grid.header.as_ref().map_or(0, |h| count_variant(h, predicate))
+                + grid.cells.iter().map(|c| count_variant(c, predicate)).sum::<usize>()
+                + grid.footer.as_ref().map_or(0, |f| count_variant(f, predicate))
+        }
+        Content::GridCell(cell) => count_variant(&cell.body, predicate),
+        Content::Table(table) => {
+            table.caption.as_ref().map_or(0, |c| count_variant(c, predicate))
+                + table.children.iter().map(|c| count_variant(c, predicate)).sum::<usize>()
+        }
+        Content::TableHeader(header) => count_variant(&header.body, predicate),
+        Content::TableFooter(footer) => count_variant(&footer.body, predicate),
+        Content::TableCell(cell) => count_variant(&cell.body, predicate),
+        Content::Terms(terms) => terms.items.iter().map(|c| count_variant(c, predicate)).sum(),
+        Content::TermItem(item) => {
+            count_variant(&item.term, predicate) + count_variant(&item.description, predicate)
+        }
+        Content::Repeat(repeat) => count_variant(&repeat.body, predicate),
+        Content::Columns(columns) => count_variant(&columns.body, predicate),
+        Content::Place(place) => count_variant(&place.body, predicate),
+        Content::Transform(transform) => count_variant(&transform.body, predicate),
+        Content::Underline(u) => count_variant(&u.body, predicate),
+        Content::Strike(s) => count_variant(&s.body, predicate),
+        Content::Overline(o) => count_variant(&o.body, predicate),
+        Content::SmallCaps { body } => count_variant(body, predicate),
+        Content::Figure(figure) => count_variant(&figure.body, predicate),
+        Content::Equation(equation) => count_variant(&equation.body, predicate),
+        Content::Bibliography(bib) => bib.title.as_ref().map_or(0, |t| count_variant(t, predicate)),
+        Content::Label(label) => count_variant(&label.body, predicate),
+        Content::Heading(_) | Content::Link(_) | Content::Raw(_) | Content::Metadata(_)
+        | Content::State(_) | Content::StateUpdate(_) | Content::StateDisplay(_)
+        | Content::CounterDisplayCallback(_) | Content::CounterDisplay(_)
+        | Content::CounterUpdate(_) | Content::Outline(_) | Content::Cite(_)
+        | Content::Ref(_) | Content::Image(_) | Content::Shape { .. }
+        | Content::Divider(_) | Content::Linebreak(_) | Content::HSpace(_)
+        | Content::VSpace(_) | Content::Pagebreak(_) | Content::Colbreak(_)
+        | Content::MathSequence(_) | Content::MathIdent(_) | Content::MathText(_)
+        | Content::MathFrac(_) | Content::MathAttach(_) | Content::MathRoot(_)
+        | Content::MathDelimited(_) | Content::MathAlignPoint(_)
+        | Content::MathMatrix(_) | Content::MathCases(_)
+        | Content::MathAccent(_) | Content::MathCancel(_)
+        | Content::MathUnderover(_) | Content::MathOp(_) | Content::MathStyled(_)
+        | Content::SmartQuote(_) | Content::Dynamic(_)
+        | Content::GridHeader(_) | Content::GridFooter(_) | Content::SetPage { .. }
+        | Content::Empty | Content::Space | Content::Text(_)
+        | Content::Document { .. } | Content::Asset { .. } => 0,
+    }
+}
+
 /// Função pública principal — pipeline completo source
 /// → query summary.
 ///
@@ -197,7 +410,7 @@ pub fn query_to_summary(
     })?;
     let content = module.content().ok_or(QueryError::NoContent)?;
     let intr = introspect(content);
-    Ok(summarize_query(&intr, &parsed, selector))
+    Ok(summarize_query(&intr, content, &parsed, selector))
 }
 
 /// Plain text representation of a `Value` for metadata
@@ -401,5 +614,79 @@ mod tests {
         // (compatibilidade interna). Não é alterado.
         let parsed = parse_selector("equation").unwrap();
         assert_eq!(parsed, ParsedSelector::Kind(ElementKind::Equation));
+    }
+
+    // ── P494 — Selectors de elementos de documento ───────────────────────
+
+    #[test]
+    fn p494_parse_selector_list() {
+        assert_eq!(parse_selector("list").unwrap(), ParsedSelector::Kind(ElementKind::List));
+    }
+
+    #[test]
+    fn p494_parse_selector_enum() {
+        assert_eq!(parse_selector("enum").unwrap(), ParsedSelector::Kind(ElementKind::Enum));
+    }
+
+    #[test]
+    fn p494_parse_selector_par() {
+        assert_eq!(parse_selector("par").unwrap(), ParsedSelector::Kind(ElementKind::Par));
+    }
+
+    #[test]
+    fn p494_parse_selector_link_raw_quote_footnote() {
+        assert_eq!(parse_selector("link").unwrap(), ParsedSelector::Kind(ElementKind::Link));
+        assert_eq!(parse_selector("raw").unwrap(), ParsedSelector::Kind(ElementKind::Raw));
+        assert_eq!(parse_selector("quote").unwrap(), ParsedSelector::Kind(ElementKind::Quote));
+        assert_eq!(parse_selector("footnote").unwrap(), ParsedSelector::Kind(ElementKind::Footnote));
+    }
+
+    #[test]
+    fn p494_query_list_count() {
+        let summary = run_query("#list([A], [B])", "list").unwrap();
+        assert_eq!(summary.count, 1);
+        assert_eq!(summary.kind_name.as_deref(), Some("list"));
+    }
+
+    #[test]
+    fn p494_query_enum_count() {
+        let summary = run_query("#enum([A], [B])", "enum").unwrap();
+        assert_eq!(summary.count, 1);
+        assert_eq!(summary.kind_name.as_deref(), Some("enum"));
+    }
+
+    #[test]
+    fn p494_query_par_count() {
+        let summary = run_query("#set par(leading: 1.5em)\nParágrafo.", "par").unwrap();
+        assert_eq!(summary.count, 1);
+        assert_eq!(summary.kind_name.as_deref(), Some("par"));
+    }
+
+    #[test]
+    fn p494_query_link_count() {
+        let summary = run_query("#link(\"https://x.pt\")[sítio]", "link").unwrap();
+        assert_eq!(summary.count, 1);
+        assert_eq!(summary.kind_name.as_deref(), Some("link"));
+    }
+
+    #[test]
+    fn p494_query_raw_count() {
+        let summary = run_query("```rust\nfn main() {}\n```", "raw").unwrap();
+        assert_eq!(summary.count, 1);
+        assert_eq!(summary.kind_name.as_deref(), Some("raw"));
+    }
+
+    #[test]
+    fn p494_query_quote_count() {
+        let summary = run_query("#quote[Texto]", "quote").unwrap();
+        assert_eq!(summary.count, 1);
+        assert_eq!(summary.kind_name.as_deref(), Some("quote"));
+    }
+
+    #[test]
+    fn p494_query_footnote_count() {
+        let summary = run_query("Texto#footnote[Nota]", "footnote").unwrap();
+        assert_eq!(summary.count, 1);
+        assert_eq!(summary.kind_name.as_deref(), Some("footnote"));
     }
 }

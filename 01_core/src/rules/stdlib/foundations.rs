@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/rules/stdlib/foundations.md
-//! @prompt-hash 557b62c6
+//! @prompt-hash 0f8ce14b
 //! @layer L1
 //! @updated 2026-06-24
 //!
@@ -890,8 +890,9 @@ fn parse_selector_arg(
                 None => msg(format!(
                     "{}(): kind '{}' não reconhecido (válidos: \
                      heading, figure, citation, metadata, state, \
-                     state_update, outline). Para label, use \
-                     `<nome>` syntax.",
+                     state_update, outline, bibliography, equation, \
+                     counter_update, table, list, enum, par, link, raw, \
+                     quote, footnote). Para label, use `<nome>` syntax.",
                     func_name, kind_str
                 )),
             }

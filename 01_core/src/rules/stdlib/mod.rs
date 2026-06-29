@@ -1507,10 +1507,10 @@ mod tests {
         );
     }
 
-    // ── P491 — str(base:) ────────────────────────────────────────────────────
+    // ── P495 — str(base:) ────────────────────────────────────────────────────
 
     #[test]
-    fn p491_str_base_named() {
+    fn p495_str_base_named() {
         null_ctx!(ctx);
         assert_eq!(
             native_str(&mut ctx, &pn(vec![Value::Int(255)], "base", Value::Int(16)), &null_world(), test_file_id())
@@ -1530,7 +1530,7 @@ mod tests {
     }
 
     #[test]
-    fn p491_str_base_negativo() {
+    fn p495_str_base_negativo() {
         null_ctx!(ctx);
         assert_eq!(
             native_str(&mut ctx, &pn(vec![Value::Int(-255)], "base", Value::Int(16)), &null_world(), test_file_id())
@@ -1540,7 +1540,7 @@ mod tests {
     }
 
     #[test]
-    fn p491_str_base_invalida() {
+    fn p495_str_base_invalida() {
         null_ctx!(ctx);
         assert!(native_str(&mut ctx, &pn(vec![Value::Int(255)], "base", Value::Int(37)), &null_world(), test_file_id()).is_err());
         assert!(native_str(&mut ctx, &pn(vec![Value::Int(255)], "base", Value::Int(1)), &null_world(), test_file_id()).is_err());
@@ -1548,7 +1548,7 @@ mod tests {
     }
 
     #[test]
-    fn p491_str_named_desconhecido_rejeitado() {
+    fn p495_str_named_desconhecido_rejeitado() {
         null_ctx!(ctx);
         assert!(native_str(&mut ctx, &pn(vec![Value::Int(255)], "foo", Value::Int(16)), &null_world(), test_file_id()).is_err());
     }
@@ -1827,10 +1827,10 @@ mod tests {
         );
     }
 
-    // ── P491 — calc.round(digits:) ───────────────────────────────────────────
+    // ── P495 — calc.round(digits:) ───────────────────────────────────────────
 
     #[test]
-    fn p491_calc_round_digits_named() {
+    fn p495_calc_round_digits_named() {
         null_ctx!(ctx);
         approx_float(
             calc_round(
@@ -1861,7 +1861,7 @@ mod tests {
     }
 
     #[test]
-    fn p491_calc_round_digits_int_input() {
+    fn p495_calc_round_digits_int_input() {
         null_ctx!(ctx);
         approx_float(
             calc_round(
@@ -1876,7 +1876,7 @@ mod tests {
     }
 
     #[test]
-    fn p491_calc_round_named_desconhecido_rejeitado() {
+    fn p495_calc_round_named_desconhecido_rejeitado() {
         null_ctx!(ctx);
         assert!(calc_round(&mut ctx, &pn(vec![Value::Float(3.5)], "foo", Value::Int(2)), &null_world(), test_file_id()).is_err());
     }
@@ -2604,10 +2604,10 @@ mod tests {
         .is_err());
     }
 
-    // ── P491 — calc.log(base:) ───────────────────────────────────────────────
+    // ── P495 — calc.log(base:) ───────────────────────────────────────────────
 
     #[test]
-    fn p491_calc_log_base_named() {
+    fn p495_calc_log_base_named() {
         null_ctx!(ctx);
         approx_float(
             calc_log(
@@ -2643,7 +2643,7 @@ mod tests {
     }
 
     #[test]
-    fn p491_calc_log_base_e_posicional_sao_mutuamente_exclusivos() {
+    fn p495_calc_log_base_e_posicional_sao_mutuamente_exclusivos() {
         null_ctx!(ctx);
         assert!(calc_log(
             &mut ctx,
@@ -2655,7 +2655,7 @@ mod tests {
     }
 
     #[test]
-    fn p491_calc_log_named_desconhecido_rejeitado() {
+    fn p495_calc_log_named_desconhecido_rejeitado() {
         null_ctx!(ctx);
         assert!(calc_log(&mut ctx, &pn(vec![Value::Float(100.0)], "foo", Value::Int(10)), &null_world(), test_file_id()).is_err());
     }

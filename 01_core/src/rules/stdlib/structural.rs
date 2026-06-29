@@ -2113,10 +2113,34 @@ pub fn native_list(
     let marker: Option<ListMarker> = match args.named.get("marker") {
         None => None,
         Some(Value::Str(s)) => Some(ListMarker::Custom(s.clone())),
+        Some(Value::Array(arr)) => {
+            // P494 — marker como array de strings/contents (ex: ([•], [–], [·])).
+            let mut markers = Vec::with_capacity(arr.len());
+            for v in arr.iter() {
+                match v {
+                    Value::Str(s) => markers.push(ListMarker::Custom(s.clone())),
+                    Value::Content(c) => markers.push(ListMarker::Custom(c.plain_text().into())),
+                    other => {
+                        return Err(vec![SourceDiagnostic::error(
+                            Span::detached(),
+                            format!(
+                                "list(marker:) array espera strings ou content, recebeu {}",
+                                other.type_name()
+                            ),
+                        )]);
+                    }
+                }
+            }
+            if markers.is_empty() {
+                None
+            } else {
+                Some(ListMarker::Array(markers))
+            }
+        }
         Some(other) => {
             return Err(vec![SourceDiagnostic::error(
                 Span::detached(),
-                format!("list(marker:) espera string, recebeu {}", other.type_name()),
+                format!("list(marker:) espera string ou array, recebeu {}", other.type_name()),
             )]);
         }
     };
@@ -2160,7 +2184,7 @@ pub fn native_enum(
     use crate::entities::enum_numbering::EnumNumbering;
 
     for key in args.named.keys() {
-        if key.as_str() != "numbering" {
+        if key.as_str() != "numbering" && key.as_str() != "start" {
             return Err(vec![SourceDiagnostic::error(
                 Span::detached(),
                 format!("argumento nomeado inesperado '{}'", key),
@@ -2174,6 +2198,16 @@ pub fn native_enum(
             return Err(vec![SourceDiagnostic::error(
                 Span::detached(),
                 format!("enum(numbering:) espera string, recebeu {}", other.type_name()),
+            )]);
+        }
+    };
+    let start: u32 = match args.named.get("start") {
+        None => 1,
+        Some(Value::Int(n)) if *n >= 1 => *n as u32,
+        Some(other) => {
+            return Err(vec![SourceDiagnostic::error(
+                Span::detached(),
+                format!("enum(start:) espera inteiro >= 1, recebeu {}", other.type_name()),
             )]);
         }
     };
@@ -2192,7 +2226,7 @@ pub fn native_enum(
                 )]);
             }
         };
-        let number = Some((idx as u32) + 1);
+        let number = Some((idx as u32) + start);
         let item = match &numbering {
             None    => Content::enum_item(number, body),
             Some(n) => Content::enum_item_with_numbering(number, body, n.clone()),

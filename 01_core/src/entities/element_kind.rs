@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/entities/element_kind.md
-//! @prompt-hash 1c2f3200
+//! @prompt-hash a8e6ef80
 //! @layer L1
 //! @updated 2026-04-30
 //!
@@ -49,6 +49,33 @@ pub enum ElementKind {
     /// populado quando numbering+caption activos. Alinha com heading/
     /// figure/equation e desbloqueia label/ref para tables (Trilha 2).
     Table,
+    /// **P494** — Selector `list`. Cristalino não materializa
+    /// `Content::List` (lista é `Sequence` de `ListItem`), por isso
+    /// `kind_index` fica vazio; a contagem é feita em L3 por análise
+    /// do `Content` (`query_helpers.rs`). O kind existe em L1 para
+    /// permitir `Selector::Kind(List)` e paridade de parse.
+    List,
+    /// **P494** — Selector `enum`. Cristalino não materializa
+    /// `Content::Enum` (enum é `Sequence` de `EnumItem`); contagem em
+    /// L3 por análise do `Content`.
+    Enum,
+    /// **P494** — Selector `par`. Cristalino não materializa
+    /// `Content::Par` (parágrafo é texto plano numa `Sequence`);
+    /// contagem aproximada em L3 (presença de texto no documento).
+    Par,
+    /// **P494** — Selector `link`. `Content::Link` existe em L1;
+    /// contagem por análise do `Content` em L3 (alternativa: tornar
+    /// locatable em passo futuro).
+    Link,
+    /// **P494** — Selector `raw`. `Content::Raw` existe em L1;
+    /// contagem por análise do `Content` em L3.
+    Raw,
+    /// **P494** — Selector `quote`. `Content::Quote` existe em L1;
+    /// contagem por análise do `Content` em L3.
+    Quote,
+    /// **P494** — Selector `footnote`. `Content::Footnote` existe em
+    /// L1; contagem por análise do `Content` em L3.
+    Footnote,
     /// **P240 (M9d/M7+1)** — `Content::StateDisplay` promovido a
     /// locatable. Indexa locations de StateDisplay em `kind_index`;
     /// valor pre-rendered é produzido em `apply_state_displays`
@@ -77,6 +104,13 @@ impl ElementKind {
             ElementKind::Equation      => "equation",
             ElementKind::CounterUpdate => "counter_update",
             ElementKind::Table         => "table",
+            ElementKind::List          => "list",
+            ElementKind::Enum          => "enum",
+            ElementKind::Par           => "par",
+            ElementKind::Link          => "link",
+            ElementKind::Raw           => "raw",
+            ElementKind::Quote         => "quote",
+            ElementKind::Footnote      => "footnote",
             ElementKind::StateDisplay  => "state_display",
             ElementKind::CounterDisplay => "counter_display",
         }
@@ -98,6 +132,13 @@ impl ElementKind {
             "equation"       => Some(ElementKind::Equation),
             "counter_update" => Some(ElementKind::CounterUpdate),
             "table"          => Some(ElementKind::Table),
+            "list"           => Some(ElementKind::List),
+            "enum"           => Some(ElementKind::Enum),
+            "par"            => Some(ElementKind::Par),
+            "link"           => Some(ElementKind::Link),
+            "raw"            => Some(ElementKind::Raw),
+            "quote"          => Some(ElementKind::Quote),
+            "footnote"       => Some(ElementKind::Footnote),
             "state_display"  => Some(ElementKind::StateDisplay),
             "counter_display" => Some(ElementKind::CounterDisplay),
             _                => None,
@@ -207,5 +248,61 @@ mod tests {
             ElementKind::from_name("equation"),
             Some(ElementKind::Equation),
         );
+    }
+
+    // ── P494 — Selectors de elementos de documento ──────────────────────
+
+    #[test]
+    fn p494_document_element_kinds_existem_e_sao_distintos() {
+        let list = ElementKind::List;
+        let enu = ElementKind::Enum;
+        let par = ElementKind::Par;
+        let link = ElementKind::Link;
+        let raw = ElementKind::Raw;
+        let quote = ElementKind::Quote;
+        let footnote = ElementKind::Footnote;
+
+        assert_eq!(list, ElementKind::List);
+        assert_eq!(enu, ElementKind::Enum);
+        assert_eq!(par, ElementKind::Par);
+        assert_eq!(link, ElementKind::Link);
+        assert_eq!(raw, ElementKind::Raw);
+        assert_eq!(quote, ElementKind::Quote);
+        assert_eq!(footnote, ElementKind::Footnote);
+
+        assert_ne!(list, enu);
+        assert_ne!(enu, par);
+        assert_ne!(par, link);
+        assert_ne!(link, raw);
+        assert_ne!(raw, quote);
+        assert_ne!(quote, footnote);
+        assert_ne!(footnote, list);
+
+        // Devem ser distintos dos kinds clássicos.
+        assert_ne!(list, ElementKind::Heading);
+        assert_ne!(link, ElementKind::Figure);
+        assert_ne!(raw, ElementKind::Equation);
+    }
+
+    #[test]
+    fn p494_document_element_as_str() {
+        assert_eq!(ElementKind::List.as_str(), "list");
+        assert_eq!(ElementKind::Enum.as_str(), "enum");
+        assert_eq!(ElementKind::Par.as_str(), "par");
+        assert_eq!(ElementKind::Link.as_str(), "link");
+        assert_eq!(ElementKind::Raw.as_str(), "raw");
+        assert_eq!(ElementKind::Quote.as_str(), "quote");
+        assert_eq!(ElementKind::Footnote.as_str(), "footnote");
+    }
+
+    #[test]
+    fn p494_document_element_from_name() {
+        assert_eq!(ElementKind::from_name("list"), Some(ElementKind::List));
+        assert_eq!(ElementKind::from_name("enum"), Some(ElementKind::Enum));
+        assert_eq!(ElementKind::from_name("par"), Some(ElementKind::Par));
+        assert_eq!(ElementKind::from_name("link"), Some(ElementKind::Link));
+        assert_eq!(ElementKind::from_name("raw"), Some(ElementKind::Raw));
+        assert_eq!(ElementKind::from_name("quote"), Some(ElementKind::Quote));
+        assert_eq!(ElementKind::from_name("footnote"), Some(ElementKind::Footnote));
     }
 }

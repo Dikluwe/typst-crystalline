@@ -811,12 +811,12 @@ fn p490_bateria_paridade_funcional_20_ficheiros() {
     assert_eq!(panics, 0, "P490: zero PANICs exigido; obtido {}", panics);
 }
 
-/// **P491** — sentinela do lote D2: args nomeados `calc.log(base:)`,
+/// **P495** — sentinela do lote D2: args nomeados `calc.log(base:)`,
 /// `calc.round(digits:)`, `str(base:)` e `dict.at(default:)`.
 /// Cada caso envolve o resultado num `metadata(...)` e verifica que o
 /// cristalino consegue compilar + query sem PANIC e retorna count=1.
 #[test]
-fn p491_args_nomeados_lote_d2() {
+fn p495_args_nomeados_lote_d2() {
     let cases: &[(&str, &str)] = &[
         ("calc_log_base",   "#metadata(calc.log(100, base: 10))"),
         ("calc_round_digits", "#metadata(calc.round(3.567, digits: 2))"),
@@ -905,6 +905,57 @@ fn p493_field_access_colecoes() {
                 assert_eq!(summary.count, 1, "[p493] {}: esperado count=1, obtido {}", name, summary.count);
             }
             Err(e) => panic!("[p493] {}: query falhou: {:?}", name, e),
+        }
+    }
+}
+
+/// **P494** — sentinela dos 7 selectors de elementos de documento:
+/// `list`, `enum`, `par`, `link`, `raw`, `quote`, `footnote`.
+/// Compara count cristalino vs vanilla `typst query` para corpus
+/// mínimo; objetivo é count=1 em ambos para cada selector.
+#[test]
+fn p494_selectores_elementos_documento() {
+    let cases: &[(&str, &str)] = &[
+        ("#list([Item A], [Item B])", "list"),
+        ("#enum([Primeiro], [Segundo])", "enum"),
+        ("#set par(leading: 1.5em)\nParágrafo de texto.", "par"),
+        ("Visita #link(\"https://example.com\")[este sítio]", "link"),
+        ("```rust\nfn main() {}\n```", "raw"),
+        ("#quote(attribution: [Autor])[Citação]", "quote"),
+        ("Texto com nota.#footnote[Nota de rodapé]", "footnote"),
+    ];
+
+    for (name, (source, selector)) in ["list", "enum", "par", "link", "raw", "quote", "footnote"]
+        .iter()
+        .zip(cases.iter())
+    {
+        let dir = tempdir();
+        let main_path = dir.path().join("main.typ");
+        std::fs::write(&main_path, source).expect("escrever main.typ");
+
+        let world = match SystemWorld::new(dir.path(), "main.typ") {
+            Ok(w)  => w,
+            Err(e) => panic!("[p494] {}: erro build world: {:?}", name, e),
+        };
+        let source_ref = world.source(world.main()).unwrap();
+
+        let crist = match query_to_summary(&world, &source_ref, selector) {
+            Ok(s)  => s,
+            Err(e) => panic!("[p494] {}: query cristalino falhou: {:?}", name, e),
+        };
+        assert_eq!(crist.count, 1, "[p494] {}: esperado count=1, obtido {}", name, crist.count);
+        assert_eq!(crist.kind_name.as_deref(), Some(*selector));
+
+        if vanilla_cli_available() {
+            let van = run_typst_query(&main_path, selector)
+                .unwrap_or_else(|e| panic!("[p494] {}: vanilla query falhou: {:?}", name, e));
+            let van_array = van.as_array()
+                .unwrap_or_else(|| panic!("[p494] {}: vanilla output não é array", name));
+            assert_eq!(
+                van_array.len(), 1,
+                "[p494] {}: vanilla esperado count=1, obtido {}",
+                name, van_array.len()
+            );
         }
     }
 }

@@ -1,5 +1,5 @@
 # Prompt L0 — `stdlib/foundations` — utilitários, cores, conversões e introspeção
-Hash do Código: 69bc00dc
+Hash do Código: ecb5e930
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/rules/stdlib/foundations.rs`
@@ -181,17 +181,19 @@ range(1.5)      -> Err "range() requer 1 ou 2 Int"
 
 ---
 
-### `native_str` — `str(v)`
+### `native_str` — `str(v)` / `str(int, base:)`
 
-**Assinatura**: `str(v: any) -> str`
+**Assinatura**: `str(v: any) -> str` / `str(int: Int, base: Int) -> str`
 
 **Argumentos**:
 - `v`: um valor posicional obrigatório.
+- `base`: named opcional (`Int`), apenas quando `v` é `Int`. Default `10`.
+  Deve estar em `[2, 36]`.
 
 **Semântica**: Converte o valor para string. Suporta:
 - `None` → `"none"`
 - `Bool` → `"true"` / `"false"`
-- `Int` → decimal
+- `Int` → decimal (ou representação na `base` indicada)
 - `Float` → compacto com ponto decimal (`format_float`)
 - `Str` → pass-through
 - `Auto` → `"auto"`
@@ -214,6 +216,11 @@ str(auto)         -> "auto"
 str(12pt + 1em)   -> "12pt + 1em"
 str(50%)          -> "50%"
 str(45deg)        -> "45deg"
+str(255, base: 16) -> "ff"
+str(42, base: 2)  -> "101010"
+str(-255, base: 16) -> "-ff"
+str(255, base: 37) -> Err "base deve estar entre 2 e 36"
+str(3.14, base: 16) -> Err "base só se aplica a Int"
 str(red)          -> Err "str() não suporta color"
 ```
 

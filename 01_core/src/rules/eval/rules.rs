@@ -48,6 +48,12 @@ fn query_selector_to_show_selector(
         match kind {
             ElementKind::Heading => Some(NodeKind::Heading),
             ElementKind::Figure => Some(NodeKind::Figure),
+            ElementKind::Link => Some(NodeKind::Link),
+            ElementKind::Raw => Some(NodeKind::Raw),
+            ElementKind::Quote => Some(NodeKind::Quote),
+            ElementKind::Footnote => Some(NodeKind::Footnote),
+            ElementKind::List => Some(NodeKind::List),
+            ElementKind::Enum => Some(NodeKind::Enum),
             _ => None,
         }
     }
@@ -187,6 +193,20 @@ fn selector_matches(work: &Content, selector: &Selector) -> bool {
                 | (Content::Strike(_), NodeKind::Strike)
                 | (Content::Overline(_), NodeKind::Overline)
                 | (Content::SmallCaps { .. }, NodeKind::Smallcaps)
+                // P494
+                | (Content::Link(_), NodeKind::Link)
+                | (Content::Quote(_), NodeKind::Quote)
+                | (Content::Footnote(_), NodeKind::Footnote)
+        ) || matches!(
+            (work, kind),
+            (_, NodeKind::List)
+                if matches!(work, Content::Sequence(seq) if seq.iter().all(|c| matches!(c, Content::ListItem(_))))
+                || matches!(work, Content::ListItem(_))
+        ) || matches!(
+            (work, kind),
+            (_, NodeKind::Enum)
+                if matches!(work, Content::Sequence(seq) if seq.iter().all(|c| matches!(c, Content::EnumItem(_))))
+                || matches!(work, Content::EnumItem(_))
         ) || matches!(
             (work, kind),
             (_, NodeKind::Strong) if is_styled_origin(work, true, false, false, false, false)
@@ -1057,9 +1077,11 @@ pub(super) fn eval_show_rule(
                     // Closures retornam `None` em `native_fn_addr()` —
                     // function pointers de closures não são estáveis.
                     use crate::rules::stdlib::{
-                        native_emph, native_figure, native_heading, native_overline,
-                        native_raw, native_smallcaps, native_strike, native_strong,
-                        native_subscript, native_superscript, native_underline,
+                        native_emph, native_enum, native_figure, native_footnote,
+                        native_heading, native_link, native_list, native_overline,
+                        native_quote, native_raw, native_smallcaps, native_strike,
+                        native_strong, native_subscript, native_superscript,
+                        native_underline,
                     };
                     use std::ptr::fn_addr_eq;
                     match f.native_fn_addr() {
@@ -1085,12 +1107,24 @@ pub(super) fn eval_show_rule(
                             Selector::NodeKind(NodeKind::Subscript),
                         Some(addr) if fn_addr_eq(addr, native_superscript as fn(_, _, _, _) -> _) =>
                             Selector::NodeKind(NodeKind::Superscript),
+                        // P494 — selectores de elementos de documento.
+                        Some(addr) if fn_addr_eq(addr, native_link as fn(_, _, _, _) -> _) =>
+                            Selector::NodeKind(NodeKind::Link),
+                        Some(addr) if fn_addr_eq(addr, native_quote as fn(_, _, _, _) -> _) =>
+                            Selector::NodeKind(NodeKind::Quote),
+                        Some(addr) if fn_addr_eq(addr, native_footnote as fn(_, _, _, _) -> _) =>
+                            Selector::NodeKind(NodeKind::Footnote),
+                        Some(addr) if fn_addr_eq(addr, native_list as fn(_, _, _, _) -> _) =>
+                            Selector::NodeKind(NodeKind::List),
+                        Some(addr) if fn_addr_eq(addr, native_enum as fn(_, _, _, _) -> _) =>
+                            Selector::NodeKind(NodeKind::Enum),
                         Some(_) => return Err(vec![SourceDiagnostic::error(
                             sel_expr.span(),
                             format!(
                                 "função '{}' não é um tipo de nó suportado como selector. \
                                  Tipos suportados: heading, figure, strong, emph, raw, \
-                                 underline, strike, overline, smallcaps, sub, super.",
+                                 underline, strike, overline, smallcaps, sub, super, \
+                                 link, quote, list, enum.",
                                 f.name().unwrap_or("<anónima>")
                             ),
                         )]),

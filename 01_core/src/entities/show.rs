@@ -43,6 +43,18 @@ pub enum NodeKind {
     Superscript,
     /// **Passo 449 (P449)**: fundo colorido (`highlight`).
     Highlight,
+    /// **P494** — hiperligação (`link`).
+    Link,
+    /// **P494** — citação (`quote`).
+    Quote,
+    /// **P494** — nota de rodapé (`footnote`).
+    Footnote,
+    /// **P494** — lista não ordenada (`list`).
+    List,
+    /// **P494** — lista ordenada (`enum`).
+    Enum,
+    /// **P494** — parágrafo (`par`).
+    Paragraph,
 }
 
 /// Selector de uma show rule.
