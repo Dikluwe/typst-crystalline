@@ -41,6 +41,24 @@ pub fn make_color_module() -> Value {
     Value::Dict(dict)
 }
 
+/// P492 — bindings de cores predefinidas para injeção no scope global.
+///
+/// Vanilla expõe `red`, `blue`, `green`, etc. como atalhos globais para as
+/// cores do módulo `color`. O subset abaixo cobre os gaps D4/D5 do P490.
+pub fn predefined_color_bindings() -> Vec<(EcoString, Value)> {
+    vec![
+        ("red".into(),     Value::Color(Color::rgb(0xEF, 0x23, 0x11))),
+        ("blue".into(),    Value::Color(Color::rgb(0x00, 0x5E, 0xE5))),
+        ("green".into(),   Value::Color(Color::rgb(0x00, 0xB3, 0x00))),
+        ("black".into(),   Value::Color(Color::rgb(0x00, 0x00, 0x00))),
+        ("white".into(),   Value::Color(Color::rgb(0xFF, 0xFF, 0xFF))),
+        ("yellow".into(),  Value::Color(Color::rgb(0xF5, 0xD8, 0x00))),
+        ("cyan".into(),    Value::Color(Color::rgb(0x00, 0xB3, 0xB3))),
+        ("magenta".into(), Value::Color(Color::rgb(0xE5, 0x00, 0xE5))),
+        ("none".into(),    Value::None),
+    ]
+}
+
 fn extract_color_arg(val: &Value, fn_name: &str, arg_name: &str) -> SourceResult<Color> {
     match val {
         Value::Color(c) => Ok(*c),

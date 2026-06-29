@@ -80,7 +80,7 @@ pub use crate::rules::stdlib::structural::{
 pub use crate::rules::stdlib::text::{
     native_highlight, native_lorem, native_lower, native_overline, native_regex, native_replace,
     native_smallcaps, native_smartquote, native_strike, native_subscript, native_superscript,
-    native_underline, native_upper,
+    native_text, native_underline, native_upper,
 };
 // P387 (ADR-0111) — data import.
 pub use crate::rules::stdlib::layout::{
@@ -117,7 +117,7 @@ pub(crate) use crate::rules::stdlib::collections::try_dispatch_collection_method
 // P471 — módulo sym.
 pub use crate::rules::stdlib::sym::build_sym_dict;
 // P476 — módulo color.
-pub use crate::rules::stdlib::color::make_color_module;
+pub use crate::rules::stdlib::color::{make_color_module, predefined_color_bindings};
 // P311b.3 — 12 funções math style (paridade categoria 12/12 = 100%).
 pub use crate::rules::stdlib::math_style::{
     native_bb, native_bold, native_cal, native_frak, native_math_italic, native_mono,

@@ -113,6 +113,19 @@ impl ValueDTO {
             // catch-all (l.65-67) — extensão futura para
             // `ValueDTO::Location` se P206C/D exigir.
             Value::Location(loc) => ValueDTO::Other(format!("location:{loc:?}")),
+            // Variantes adicionadas após P206B. Mapeadas para `Other`
+            // até haver necessidade de comparação estrutural específica.
+            Value::Relative(r) => ValueDTO::Other(format!("relative:{r:?}")),
+            Value::Stroke(s) => ValueDTO::Other(format!("stroke:{s:?}")),
+            Value::Gradient(g) => ValueDTO::Other(format!("gradient:{g:?}")),
+            Value::Regex(r) => ValueDTO::Other(format!("regex:{r:?}")),
+            Value::Tiling(t) => ValueDTO::Other(format!("tiling:{t:?}")),
+            Value::Bytes(b) => ValueDTO::Other(format!("bytes:{b:?}")),
+            Value::Decimal(d) => ValueDTO::Other(format!("decimal:{d:?}")),
+            Value::Duration(d) => ValueDTO::Other(format!("duration:{d:?}")),
+            Value::Version(v) => ValueDTO::Other(format!("version:{v:?}")),
+            Value::Selector(s) => ValueDTO::Other(format!("selector:{s:?}")),
+            Value::Symbol(s) => ValueDTO::Other(format!("symbol:{s:?}")),
         }
     }
 

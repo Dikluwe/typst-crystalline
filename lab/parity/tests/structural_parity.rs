@@ -843,6 +843,38 @@ fn p491_args_nomeados_lote_d2() {
     }
 }
 
+/// P492 — Cores predefinidas e `text(...)` global.
+/// Garante que as variáveis de cor (`red`, `blue`, ...), a função `text`
+/// com fill posicional/nomeado e o operador Length + Color funcionam sem PANIC.
+#[test]
+fn p492_cores_predefinidas_text_e_stroke() {
+    let cases: &[(&str, &str)] = &[
+        ("red_global",   "#metadata(red)"),
+        ("blue_global",  "#metadata(blue)"),
+        ("text_fill_pos", "#metadata(text(red, [x]))"),
+        ("text_fill_named", "#metadata(text(fill: red, [x]))"),
+        ("stroke_color", "#metadata(3pt + red)"),
+    ];
+
+    for (name, source) in cases {
+        let dir = tempdir();
+        let main_path = dir.path().join("main.typ");
+        std::fs::write(&main_path, source).expect("escrever main.typ");
+
+        let world = match SystemWorld::new(dir.path(), "main.typ") {
+            Ok(w)  => w,
+            Err(e) => panic!("[p492] {}: erro build world: {:?}", name, e),
+        };
+        let source_ref = world.source(world.main()).unwrap();
+        match query_to_summary(&world, &source_ref, "metadata") {
+            Ok(summary) => {
+                assert_eq!(summary.count, 1, "[p492] {}: esperado count=1, obtido {}", name, summary.count);
+            }
+            Err(e) => panic!("[p492] {}: query falhou: {:?}", name, e),
+        }
+    }
+}
+
 #[test]
 fn p488_parity_corpus_48_ficheiros_rtl_skipfeature() {
     // P488 — sentinela de corpus pós-P488.

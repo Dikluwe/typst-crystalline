@@ -207,6 +207,14 @@ pub(crate) fn eval_binary_op(op: BinOp, lhs: Value, rhs: Value) -> Result<Value,
         // Length + Length: sempre válido (abs + abs, em + em, mistos representáveis)
         (BinOp::Add, Value::Length(a), Value::Length(b)) =>
             Ok(Value::Length(a + b)),
+        // P492 — Length + Color / Color + Length → Stroke (paridade vanilla stroke syntax).
+        (BinOp::Add, Value::Length(l), Value::Color(c)) |
+        (BinOp::Add, Value::Color(c), Value::Length(l)) =>
+            Ok(Value::Stroke(crate::entities::geometry::Stroke {
+                paint: crate::entities::paint::Paint::Solid(c),
+                thickness: l.abs.to_pt(),
+                overhang: false,
+            })),
         // Ratio * Int ou Int * Ratio → escala o rácio
         (BinOp::Mul, Value::Ratio(r), Value::Int(n)) =>
             Ok(Value::Ratio(crate::entities::layout_types::Ratio(r.get() * n as f64))),
@@ -223,6 +231,14 @@ pub(crate) fn eval_binary_op(op: BinOp, lhs: Value, rhs: Value) -> Result<Value,
         (BinOp::Add, Value::Relative(r), Value::Length(l)) |
         (BinOp::Add, Value::Length(l), Value::Relative(r)) =>
             Ok(Value::Relative(r + l)),
+        // P492 — Relative + Color / Color + Relative → Stroke (usa parte absoluta).
+        (BinOp::Add, Value::Relative(r), Value::Color(c)) |
+        (BinOp::Add, Value::Color(c), Value::Relative(r)) =>
+            Ok(Value::Stroke(crate::entities::geometry::Stroke {
+                paint: crate::entities::paint::Paint::Solid(c),
+                thickness: r.abs.abs.to_pt(),
+                overhang: false,
+            })),
         // Relative - Length
         (BinOp::Sub, Value::Relative(r), Value::Length(l)) =>
             Ok(Value::Relative(r - l)),

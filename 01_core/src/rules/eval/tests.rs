@@ -6303,6 +6303,62 @@ mod tests {
         );
     }
 
+    // ── P492 — variáveis de cor predefinidas ─────────────────────────────────
+
+    #[test]
+    fn p492_cor_predefinida_no_scope_global() {
+        let world = MockWorld::new("#let x = red\n#let y = blue\n#let z = none");
+        assert!(matches!(eval_let(&world, "x"), Some(Value::Color(_))));
+        assert!(matches!(eval_let(&world, "y"), Some(Value::Color(_))));
+        assert_eq!(eval_let(&world, "z"), Some(Value::None));
+    }
+
+    #[test]
+    fn p492_stroke_cores_predefinidas() {
+        let world = MockWorld::new("#let x = rect(stroke: (left: 3pt + red, right: 1pt + blue, top: none, bottom: 2pt + green))");
+        match eval_for_test(&world, &world.source) {
+            Ok(module) => {
+                let result = module.scope().get("x").cloned();
+                assert!(result.is_some(), "x não definido no module scope");
+            }
+            Err(e) => {
+                eprintln!("P492 stroke error: {:?}", e);
+                panic!("rect com stroke colorido deveria avaliar sem erro");
+            }
+        }
+    }
+
+    #[test]
+    fn p492_show_regex_text_color() {
+        let world = MockWorld::new("#show regex(\"\\\\d+\"): it => text(red, it)\nO número 42 e o número 100 aparecem a vermelho.");
+        match eval_for_test(&world, &world.source) {
+            Ok(_) => {}
+            Err(e) => {
+                eprintln!("P492 show-regex error: {:?}", e);
+                panic!("show-regex com text(red, it) deveria avaliar sem erro");
+            }
+        }
+    }
+
+    #[test]
+    fn p492_text_fill_named() {
+        let world = MockWorld::new("#let x = text(fill: red, [hello])");
+        assert!(matches!(eval_let(&world, "x"), Some(Value::Content(_))));
+    }
+
+    #[test]
+    fn p492_text_fill_positional() {
+        let world = MockWorld::new("#let x = text(red, [hello])");
+        assert!(matches!(eval_let(&world, "x"), Some(Value::Content(_))));
+    }
+
+    #[test]
+    fn p492_length_plus_color_cria_stroke() {
+        let world = MockWorld::new("#let x = 3pt + red\n#let y = red + 3pt");
+        assert!(matches!(eval_let(&world, "x"), Some(Value::Stroke(_))));
+        assert!(matches!(eval_let(&world, "y"), Some(Value::Stroke(_))));
+    }
+
     #[test]
     fn p466_str_contains() {
         let world = MockWorld::new("#let x = \"hello\".contains(\"ell\")");

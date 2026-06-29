@@ -284,6 +284,15 @@ pub fn eval_with_full_error(
     for (name, binding) in stdlib.iter() {
         scopes.define(name, binding.value().clone());
     }
+    // P492 — cores predefinidas (red, blue, green, ...) como atalhos globais.
+    for (name, value) in crate::rules::stdlib::predefined_color_bindings() {
+        scopes.define(name.as_str(), value);
+    }
+    // P492 — constructor `text(...)` no scope global (usado em show-rules, etc.).
+    scopes.define(
+        "text",
+        Value::Func(crate::entities::func::Func::native("text", crate::rules::stdlib::native_text)),
+    );
     // Lote F-3 inc-2: elementos de utilizador registados entram no escopo como
     // funções (`#name(args)` → `Content::Dynamic` via o construtor do registry).
     // Mesmo escopo base que os nativos (document-wide); `#set`/`#show` léxicos

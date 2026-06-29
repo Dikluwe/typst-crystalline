@@ -16,10 +16,79 @@ use crate::entities::layout_types::{Color, Length};
 use crate::entities::regex::Regex;
 use crate::entities::source_result::{SourceDiagnostic, SourceResult};
 use crate::entities::span::Span;
+use crate::entities::style::{Style, Styles};
 use crate::entities::value::Value;
 use crate::rules::eval::EvalContext;
 
 use super::shapes::parse_color;
+
+// ── P492 — constructor `text(...)` ──────────────────────────────────────────
+
+/// `text(...)` — constructor de elemento de texto (parcial).
+///
+/// P492: suporta `text(red, it)` (fill posicional inferido por tipo) e
+/// `text(fill: red, it)`. Aceita body como `Content` ou `Str`.
+pub fn native_text(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contracts::world::World, _current_file: FileId) -> SourceResult<Value> {
+    // Determinar fill: named arg prevalece; senão, primeiro posicional Color.
+    let mut fill: Option<Color> = None;
+    let mut body_idx = 0usize;
+
+    if let Some(v) = args.named.get("fill") {
+        fill = match v {
+            Value::None => None,
+            Value::Color(c) => Some(*c),
+            other => return Err(vec![SourceDiagnostic::error(
+                Span::detached(),
+                format!("text(fill:) espera color, recebeu {}", other.type_name()),
+            )]),
+        };
+    }
+
+    // Se o primeiro posicional for Color e fill ainda não definido, usá-lo como fill.
+    if fill.is_none() {
+        if let Some(Value::Color(c)) = args.items.first() {
+            fill = Some(*c);
+            body_idx = 1;
+        }
+    }
+
+    let body = match args.items.get(body_idx) {
+        Some(Value::Content(c)) => c.clone(),
+        Some(Value::Str(s)) => Content::text(s.as_str()),
+        Some(other) => return Err(vec![SourceDiagnostic::error(
+            Span::detached(),
+            format!("text() espera content ou string como body, recebeu {}", other.type_name()),
+        )]),
+        None => return Err(vec![SourceDiagnostic::error(
+            Span::detached(),
+            "text() requer body como argumento".to_string(),
+        )]),
+    };
+
+    // Validar que não há argumentos posicionais além do fill + body.
+    if args.items.len() > body_idx + 1 {
+        return Err(vec![SourceDiagnostic::error(
+            Span::detached(),
+            format!("text() recebeu {} argumentos posicionais (espera 1-2)", args.items.len()),
+        )]);
+    }
+
+    // Rejeitar named args desconhecidos (exceto fill).
+    for key in args.named.keys() {
+        if key.as_str() != "fill" {
+            return Err(vec![SourceDiagnostic::error(
+                Span::detached(),
+                format!("text() argumento nomeado desconhecido: '{}'", key),
+            )]);
+        }
+    }
+
+    let styled = match fill {
+        Some(c) => Content::Styled(Box::new(body), Styles::from_iter([Style::Fill(c)])),
+        None => body,
+    };
+    Ok(Value::Content(styled))
+}
 
 // ── `upper()` / `lower()` / `replace()` — motor map_text (Passo 67) ─────────
 
