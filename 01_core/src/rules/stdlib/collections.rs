@@ -623,4 +623,58 @@ mod tests {
         args.named.insert("foo".into(), Value::Int(1));
         assert!(dict_at(dict, args).is_err());
     }
+
+    // ── P496 — métodos estruturais de array ───────────────────────────────────
+
+    #[test]
+    fn p496_array_dedup_remove_duplicados_adjacentes() {
+        let arr = vec![
+            Value::Int(3), Value::Int(1), Value::Int(4), Value::Int(1),
+            Value::Int(5), Value::Int(9), Value::Int(2), Value::Int(6),
+        ];
+        assert_eq!(
+            array_dedup(arr),
+            Value::Array(vec![
+                Value::Int(3), Value::Int(1), Value::Int(4), Value::Int(1),
+                Value::Int(5), Value::Int(9), Value::Int(2), Value::Int(6),
+            ])
+        );
+
+        let arr2 = vec![
+            Value::Int(1), Value::Int(1), Value::Int(2), Value::Int(2),
+            Value::Int(2), Value::Int(3),
+        ];
+        assert_eq!(
+            array_dedup(arr2),
+            Value::Array(vec![Value::Int(1), Value::Int(2), Value::Int(3)])
+        );
+    }
+
+    #[test]
+    fn p496_array_chunks_divide_em_blocos() {
+        let arr = vec![
+            Value::Int(3), Value::Int(1), Value::Int(4), Value::Int(1),
+            Value::Int(5), Value::Int(9), Value::Int(2), Value::Int(6),
+        ];
+        let result = array_chunks(arr, make_args(vec![Value::Int(3)], None)).unwrap();
+        let expected = Value::Array(vec![
+            Value::Array(vec![Value::Int(3), Value::Int(1), Value::Int(4)]),
+            Value::Array(vec![Value::Int(1), Value::Int(5), Value::Int(9)]),
+            Value::Array(vec![Value::Int(2), Value::Int(6)]),
+        ]);
+        assert_eq!(result, expected);
+    }
+
+    #[test]
+    fn p496_array_windows_janelas_deslizantes() {
+        let arr = vec![
+            Value::Int(3), Value::Int(1), Value::Int(4), Value::Int(1),
+        ];
+        let result = array_windows(arr, make_args(vec![Value::Int(3)], None)).unwrap();
+        let expected = Value::Array(vec![
+            Value::Array(vec![Value::Int(3), Value::Int(1), Value::Int(4)]),
+            Value::Array(vec![Value::Int(1), Value::Int(4), Value::Int(1)]),
+        ]);
+        assert_eq!(result, expected);
+    }
 }

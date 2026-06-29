@@ -1,5 +1,5 @@
 # Prompt L0 — `stdlib/structural` — módulo `structural`
-Hash do Código: 6461e58f
+Hash do Código: c3d7d162
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/rules/stdlib/structural.rs`
@@ -242,7 +242,11 @@ quote([x], foo: 1) -> Err "argumento nomeado inesperado 'foo'"
 **Limitações / scope-outs** (ADR-0054 graded):
 - `gutter` / `column_gutter` / `row_gutter`.
 - `inset` / `align` / `fill` (adicionalmente scope-out em P157A, mas `fill` e `stroke` foram depois incluídos em P227/P228).
-- `TableCell` estruturado (P157B), `TableHeader`/`TableFooter` (P157C), `TableHLine`/`TableVLine`.
+- `TableHLine`/`TableVLine`.
+
+**Namespace anexado (P493b/P496):** a função `table` expõe `table.header`,
+`table.footer` e `table.cell` via field access. Os nomes flat
+(`table_header`, `table_footer`, `table_cell`) continuam disponíveis.
 
 **Testes canónicos**:
 ```
@@ -269,7 +273,7 @@ table(foo: 1) -> Err "argumento nomeado inesperado 'foo'"
 
 **Semântica**: Cria `Content::TableCell(Arc<TableCellElem { body, x, y, colspan, rowspan, stroke, fill, align, inset, breakable }>)`.
 
-**Paridade vanilla**: Naming flat `table_cell` em vez de `table.cell` (divergência intencional ADR-0033 porque `Value::Func` não suporta subnames).
+**Paridade vanilla**: `table.cell` acessível via namespace anexado em `table`; o nome flat `table_cell` continua disponível.
 
 **Limitações / scope-outs**:
 - `x`/`y`/`colspan`/`rowspan` são armazenados mas **ignorados em layout** — algoritmo de placement diferido em DEBT-34e (per ADR-0054 graded).
@@ -294,7 +298,7 @@ table_cell([A], colspan: 0) -> Err "table_cell(colspan:): valor 0 < 1"
 
 **Semântica**: Emite `Content::TableHeader { body, repeat }` / `Content::TableFooter { body, repeat }`.
 
-**Paridade vanilla**: Naming flat `table_header`/`table_footer` em vez de `table.header`/`table.footer` (ADR-0033).
+**Paridade vanilla**: `table.header`/`table.footer` acessíveis via namespace anexado em `table`; os nomes flat `table_header`/`table_footer` continuam disponíveis.
 
 **Limitações / scope-outs**:
 - `repeat` armazenado mas **ignorado em layout** — repetição em page breaks diferida em DEBT-56 (refactor multi-region).

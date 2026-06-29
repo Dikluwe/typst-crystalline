@@ -6359,7 +6359,7 @@ mod tests {
         assert!(matches!(eval_let(&world, "y"), Some(Value::Stroke(_))));
     }
 
-    // ── P493 — Field access em coleções (D3) ────────────────────────────────
+    // ── P496 — Field access em coleções (D3) ────────────────────────────────
 
     #[test]
     fn p493_array_dedup() {
@@ -6429,13 +6429,13 @@ mod tests {
     }
 
     #[test]
-    fn p493_table_cell_field() {
+    fn p496_table_cell_field() {
         let world = MockWorld::new("#let x = table.cell[Conteúdo]");
         assert!(matches!(eval_let(&world, "x"), Some(Value::Content(_))));
     }
 
     #[test]
-    fn p493_heading_where_multi() {
+    fn p496_heading_where_multi() {
         let world = MockWorld::new(
             "#show heading.where(level: 1, outlined: true): it => [CAPÍTULO: ] + it.body\n\n= Um\n\n== Dois"
         );

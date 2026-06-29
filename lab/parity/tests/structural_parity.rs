@@ -875,11 +875,11 @@ fn p492_cores_predefinidas_text_e_stroke() {
     }
 }
 
-/// P493 — Field access em coleções (D3).
+/// **P496** — Field access em coleções (D3).
 /// Garante que arr.dedup/chunks/windows, table.header/footer/cell e
 /// heading.where multi-field funcionam sem PANIC.
 #[test]
-fn p493_field_access_colecoes() {
+fn p496_field_access_colecoes() {
     let cases: &[(&str, &str)] = &[
         ("array_dedup",   "#metadata((3, 1, 4, 4, 1).dedup())"),
         ("array_chunks",  "#metadata((1, 2, 3, 4).chunks(2))"),
