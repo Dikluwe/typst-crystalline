@@ -594,11 +594,13 @@ fn p485_parity_73_73_mantido() {
                 Ok(s) => s,
                 Err(_) => { total_errors += 1; continue; }
             };
-            let van = match vanilla_query_summary(&main_path, selector) {
-                Ok(s) => s,
+            let van = match run_typst_query(&main_path, selector) {
+                Ok(v) => v,
                 Err(_) => { total_errors += 1; continue; }
             };
-            if crist != van { total_diffs += 1; }
+            if let CompareResult::Diff(_) = compare_query_outputs(&crist, &van) {
+                total_diffs += 1;
+            }
         }
     }
 
@@ -652,11 +654,13 @@ fn p486_parity_73_73_mantido() {
                 Ok(s) => s,
                 Err(_) => { total_errors += 1; continue; }
             };
-            let van = match vanilla_query_summary(&main_path, selector) {
-                Ok(s) => s,
+            let van = match run_typst_query(&main_path, selector) {
+                Ok(v) => v,
                 Err(_) => { total_errors += 1; continue; }
             };
-            if crist != van { total_diffs += 1; }
+            if let CompareResult::Diff(_) = compare_query_outputs(&crist, &van) {
+                total_diffs += 1;
+            }
         }
     }
 
@@ -711,11 +715,13 @@ fn p488_parity_corpus_48_ficheiros_rtl_skipfeature() {
                 Ok(s) => s,
                 Err(_) => { total_errors += 1; continue; }
             };
-            let van = match vanilla_query_summary(&main_path, selector) {
-                Ok(s) => s,
+            let van = match run_typst_query(&main_path, selector) {
+                Ok(v) => v,
                 Err(_) => { total_errors += 1; continue; }
             };
-            if crist != van { total_diffs += 1; }
+            if let CompareResult::Diff(_) = compare_query_outputs(&crist, &van) {
+                total_diffs += 1;
+            }
         }
     }
 
