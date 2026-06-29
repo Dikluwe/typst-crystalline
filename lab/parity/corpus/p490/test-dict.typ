@@ -1,0 +1,5 @@
+#let d = (a: 1, b: 2, c: 3)
+#d.at("z", default: 99)
+#d.keys()
+#d.values()
+#d.pairs()

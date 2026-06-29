@@ -1,0 +1,6 @@
+#upper("Hello")
+#lower("HELLO")
+#"Hello, World!".split(", ")
+#"  hello  ".trim()
+#"hello".replace("l", "r")
+#str(255, base: 16)

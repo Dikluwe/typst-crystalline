@@ -672,6 +672,147 @@ fn p486_parity_73_73_mantido() {
 }
 
 #[test]
+/// **P490** — sentinela: bateria de paridade funcional com 20 ficheiros de teste
+/// criados especificamente para sondar comportamento em funcionalidades `parcial`
+/// e de alto impacto. Zero PANICs obrigatório (ADR-0054 graded).
+///
+/// Ficheiros testados: test-list-marker-array, test-enum-start, test-par,
+/// test-show-link, test-table, test-raw, test-quote, test-footnote, test-page,
+/// test-place, test-calc, test-array, test-str, test-dict, test-show-regex,
+/// test-set-local, test-show-where-multi, test-math, test-stroke-sides, test-columns.
+///
+/// NOTA: `page`, `place`, `rect` não são locatable pelo selector → resultado
+/// esperado é ERRO_DESCRITIVO (não PANIC). Scope-out declarado em P490.
+#[test]
+fn p490_bateria_paridade_funcional_20_ficheiros() {
+    let corpus_dir = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("corpus/p490");
+    if !corpus_dir.is_dir() {
+        eprintln!("[p490] corpus/p490 ausente; skip.");
+        return;
+    }
+
+    // Mapa: (ficheiro, selector) → descrição
+    let cases: &[(&str, &str, &str)] = &[
+        // Cat 1: funcionalidades parciais
+        ("test-list-marker-array.typ", "list",     "marker:Array"),
+        ("test-enum-start.typ",        "enum",     "start:5 + (a)"),
+        ("test-par.typ",               "par",      "leading/spacing/justify"),
+        ("test-show-link.typ",         "link",     "#show link: ..."),
+        // Cat 2: alto impacto
+        ("test-table.typ",             "table",    "table.header/footer"),
+        ("test-raw.typ",               "raw",      "raw com lang rust"),
+        ("test-quote.typ",             "quote",    "attribution"),
+        ("test-footnote.typ",          "footnote", "footnote body"),
+        // Cat 3: calc
+        ("test-calc.typ",              "metadata", "calc args nomeados"),
+        // Cat 4: métodos avançados
+        ("test-array.typ",             "metadata", "array métodos"),
+        ("test-str.typ",               "metadata", "str métodos"),
+        ("test-dict.typ",              "metadata", "dict.at(default:)"),
+        // Cat 5: show/set edge
+        ("test-show-regex.typ",        "heading",  "show regex"),
+        ("test-set-local.typ",         "heading",  "#set local em bloco"),
+        ("test-show-where-multi.typ",  "heading",  "show.where(multi) scope-out"),
+        // Cat 6: math
+        ("test-math.typ",              "math.equation", "vec/mat/cases"),
+        // Cat 7: layout
+        ("test-columns.typ",           "heading",  "columns + colbreak"),
+    ];
+
+    // Ficheiros onde "erro" é esperado (não locatable / scope-out): não contam como PANIC
+    let non_locatable = &["test-page.typ", "test-place.typ", "test-stroke-sides.typ"];
+
+    let mut panics     = 0usize;
+    let mut errors     = 0usize;
+    let mut matches    = 0usize;
+    let mut absents    = 0usize;
+
+    for (filename, selector, desc) in cases {
+        let path = corpus_dir.join(filename);
+        let Ok(source) = std::fs::read_to_string(&path) else {
+            eprintln!("[p490] ficheiro ausente: {}", filename);
+            continue;
+        };
+
+        let dir = tempdir();
+        let main_path = dir.path().join("main.typ");
+        if std::fs::write(&main_path, &source).is_err() { continue; }
+
+        let world = match typst_infra::world::SystemWorld::new(dir.path(), "main.typ") {
+            Ok(w)  => w,
+            Err(e) => {
+                eprintln!("[p490] {}: erro build world: {:?}", filename, e);
+                errors += 1;
+                continue;
+            }
+        };
+        let source_ref = world.source(world.main()).unwrap();
+
+        match typst_infra::query_helpers::query_to_summary(&world, &source_ref, selector) {
+            Ok(summary) => {
+                eprintln!("[p490] {} sel={} [{}]: count={}", filename, selector, desc, summary.count);
+                if summary.count > 0 {
+                    matches += 1;
+                } else {
+                    absents += 1;
+                }
+            }
+            Err(e) => {
+                let msg = format!("{:?}", e);
+                if msg.contains("panicked") || msg.contains("PANIC") {
+                    eprintln!("[p490] {} sel={}: PANIC: {}", filename, selector, msg);
+                    panics += 1;
+                } else {
+                    eprintln!("[p490] {} sel={} [{}]: ERRO_DESCRITIVO: {}", filename, selector, desc, msg);
+                    errors += 1;
+                }
+            }
+        }
+    }
+
+    // Non-locatable: apenas verifica que não causam PANIC
+    for filename in non_locatable {
+        let path = corpus_dir.join(filename);
+        let Ok(source) = std::fs::read_to_string(&path) else { continue; };
+        let dir = tempdir();
+        let main_path = dir.path().join("main.typ");
+        if std::fs::write(&main_path, &source).is_err() { continue; }
+        let world = match typst_infra::world::SystemWorld::new(dir.path(), "main.typ") {
+            Ok(w)  => w,
+            Err(e) => {
+                eprintln!("[p490] {}: erro build world (non-loc): {:?}", filename, e);
+                errors += 1;
+                continue;
+            }
+        };
+        let source_ref = world.source(world.main()).unwrap();
+        match typst_infra::query_helpers::query_to_summary(&world, &source_ref, "heading") {
+            Ok(s) => {
+                eprintln!("[p490] {} non-locatable [heading]: count={} (OK, sem PANIC)", filename, s.count);
+            }
+            Err(e) => {
+                let msg = format!("{:?}", e);
+                if msg.contains("panicked") || msg.contains("PANIC") {
+                    eprintln!("[p490] {} non-locatable: PANIC: {}", filename, msg);
+                    panics += 1;
+                } else {
+                    eprintln!("[p490] {} non-locatable: ERRO_DESCRITIVO (esperado): {}", filename, msg);
+                }
+            }
+        }
+    }
+
+    eprintln!("\n=== P490 — Resumo ===");
+    eprintln!("  Matches (count>0): {}", matches);
+    eprintln!("  Absents (count=0): {}", absents);
+    eprintln!("  Erros descritivos: {}", errors);
+    eprintln!("  PANICs:            {}", panics);
+
+    // Critério estrito: ZERO panics
+    assert_eq!(panics, 0, "P490: zero PANICs exigido; obtido {}", panics);
+}
+
+#[test]
 fn p488_parity_corpus_48_ficheiros_rtl_skipfeature() {
     // P488 — sentinela de corpus pós-P488.
     // 2 ficheiros RTL adicionados (arabic_basic.typ + hebrew_basic.typ).
