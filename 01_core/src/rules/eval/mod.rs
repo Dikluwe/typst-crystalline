@@ -989,19 +989,25 @@ fn make_stdlib() -> Scope {
     // Passo 157A (ADR-0060 Fase 2 sub-passo 1): table minimal
     // (subset 3 fields; reusa layout_grid; TableCell/Header/Footer
     // diferidos para P157B/C). **Primeiro sub-passo Model Fase 2.**
-    scope.define("table",   Value::Func(Func::native("table",   native_table)));
+    // P493b — table com namespace anexado para table.header/footer/cell.
+    let mut table_namespace = Scope::new();
+    table_namespace.define("header", Value::Func(Func::native("table_header", native_table_header)));
+    table_namespace.define("footer", Value::Func(Func::native("table_footer", native_table_footer)));
+    table_namespace.define("cell",   Value::Func(Func::native("table_cell",   native_table_cell)));
+    scope.define(
+        "table",
+        Value::Func(Func::native_with_namespace("table", native_table, Arc::new(table_namespace))),
+    );
     // Passo 157B (ADR-0060 Fase 2 sub-passo 2): table cell
     // (subset 5 fields; ADR-0064 Caso A para x/y, Caso C para
     // colspan/rowspan; placement diferido em DEBT-34e).
-    // Naming `table_cell` flat (não vanilla `table.cell`) per
-    // diagnóstico P157B §8 — FieldAccess actual não suporta
-    // namespacing de funcs.
+    // Mantém bindings flat como fallback não-regressão.
     scope.define("table_cell", Value::Func(Func::native("table_cell", native_table_cell)));
     // Passo 157C (ADR-0060 Fase 2 sub-passo 3 — fecha "table foundations"):
     // par simétrico TableHeader/TableFooter. ADR-0064 Caso D para
     // `repeat: bool` default true (primeira aplicação Caso D em
     // Model). Algoritmo de repetição em page breaks diferido em
-    // DEBT-56 (refactor multi-region). Naming flat per padrão P157B.
+    // DEBT-56 (refactor multi-region). Mantém bindings flat como fallback.
     scope.define("table_header", Value::Func(Func::native("table_header", native_table_header)));
     scope.define("table_footer", Value::Func(Func::native("table_footer", native_table_footer)));
     // P224 (ADR-0061 Fase 4 Layout candidata sub-passo 3 — fecha série α

@@ -1,8 +1,8 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/rules/eval.md
-//! @prompt-hash 7a92cc2d
+//! @prompt-hash 4f183cf8
 //! @prompt 00_nucleo/prompts/rules/eval/field-access.md
-//! @prompt-hash 6316e1ef
+//! @prompt-hash c822a5ed
 //! @layer L1
 //! @updated 2026-06-22
 //!
@@ -182,8 +182,7 @@ pub(super) fn eval_element_where<'a>(
         _ => return Ok(None),
     };
 
-    let mut field: Option<EcoString> = None;
-    let mut value: Option<Value> = None;
+    let mut named_args: Vec<(EcoString, Value)> = Vec::new();
     for arg in args_node.items() {
         match arg {
             Arg::Pos(_) => {
@@ -194,31 +193,30 @@ pub(super) fn eval_element_where<'a>(
                 )]);
             }
             Arg::Named(named) => {
-                if field.is_some() {
-                    return Err(vec![SourceDiagnostic::error(
-                        named.name().to_untyped().span(),
-                        "heading.where() suporta apenas um campo em P417".to_string(),
-                    )]);
-                }
-                field = Some(named.name().as_str().into());
-                value = Some(eval_expr(named.expr(), scopes, ctx, engine)?);
+                let field = named.name().as_str().into();
+                let value = eval_expr(named.expr(), scopes, ctx, engine)?;
+                named_args.push((field, value));
             }
             Arg::Spread(_) => {}
         }
     }
 
-    let (Some(field), Some(value)) = (field, value) else {
+    if named_args.is_empty() {
         return Err(vec![SourceDiagnostic::error(
             args_node.span(),
-            "heading.where() requer um argumento nomeado".to_string(),
+            "heading.where() requer pelo menos um argumento nomeado".to_string(),
         )]);
-    };
+    }
 
-    Ok(Some(Selector::Where {
-        base: Box::new(Selector::Kind(kind)),
-        field,
-        value: Box::new(value),
-    }))
+    let mut selector = Selector::Kind(kind);
+    for (field, value) in named_args {
+        selector = Selector::Where {
+            base: Box::new(selector),
+            field,
+            value: Box::new(value),
+        };
+    }
+    Ok(Some(selector))
 }
 
 /// **P423 (S-M)** — Tenta avaliar `<selector>.or(other)` ou
@@ -353,6 +351,31 @@ pub(super) fn eval_field_access(
                 )]),
             }
         }
+        // P493a — Field access em Value::Array: len, first, last.
+        // dedup/chunks/windows são despachados via try_dispatch_collection_method
+        // em closures.rs (method call), não como field access.
+        Value::Array(arr) => match field.as_str() {
+            "len" => Ok(Value::Int(arr.len() as i64)),
+            "first" => Ok(arr.first().cloned().unwrap_or(Value::None)),
+            "last" => Ok(arr.last().cloned().unwrap_or(Value::None)),
+            _ => Err(vec![SourceDiagnostic::error(
+                access.span(),
+                format!("campo desconhecido em array: '{}'", field),
+            )]),
+        },
+        // P493b — Field access em Value::Func com namespace anexado (table.header, etc.).
+        Value::Func(f) => match f.namespace() {
+            Some(ns) => ns.get(field.as_str()).cloned().ok_or_else(|| {
+                vec![SourceDiagnostic::error(
+                    access.span(),
+                    format!("função não tem campo '{}'", field),
+                )]
+            }),
+            None => Err(vec![SourceDiagnostic::error(
+                access.span(),
+                "esta função não tem campos".to_string(),
+            )]),
+        },
         other => Err(vec![SourceDiagnostic::error(
             access.span(),
             format!("field access não suportado em {}", other.type_name()),

@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/entities/func.md
-//! @prompt-hash 2e530d45
+//! @prompt-hash e462be0f
 //! @layer L1
 //! @updated 2026-04-13
 
@@ -80,6 +80,7 @@ pub struct ClosureParam {
 /// **removido** do ABI — era a fonte assada do `#set figure(numbering:)`, agora
 /// vive só na chain (`custom("figure.numbering")`). Morto em todas as natives após
 /// o de-bake → colapsado (disciplina anti-morto).
+/// **P493** — namespace anexado para sub-funções via field access (`table.header`).
 pub struct NativeFunc {
     pub name: &'static str,
     pub call: fn(
@@ -88,10 +89,12 @@ pub struct NativeFunc {
         &dyn crate::contracts::world::World,
         FileId,
     ) -> SourceResult<Value>,
+    pub namespace: Option<Arc<Scope>>,
 }
 
 /// **P394** — native function com acesso ao `Scopes` e `Engine` actuais.
 /// Usada por `eval(source)` para re-avaliar código Typst no contexto de chamada.
+/// **P493** — namespace anexado para sub-funções via field access.
 pub struct NativeFuncWithEngine {
     pub name: &'static str,
     pub call: fn(
@@ -102,6 +105,7 @@ pub struct NativeFuncWithEngine {
         &mut crate::rules::scopes::Scopes<'_>,
         &mut crate::entities::engine::Engine<'_>,
     ) -> SourceResult<Value>,
+    pub namespace: Option<Arc<Scope>>,
 }
 
 impl Func {
@@ -121,7 +125,21 @@ impl Func {
             FileId,
         ) -> SourceResult<Value>,
     ) -> Self {
-        Self(Arc::new(FuncRepr::Native(NativeFunc { name, call })))
+        Self(Arc::new(FuncRepr::Native(NativeFunc { name, call, namespace: None })))
+    }
+
+    /// **P493** — constrói uma Func nativa com namespace anexado.
+    pub fn native_with_namespace(
+        name: &'static str,
+        call: fn(
+            &mut crate::rules::eval::EvalContext,
+            &Args,
+            &dyn crate::contracts::world::World,
+            FileId,
+        ) -> SourceResult<Value>,
+        namespace: Arc<Scope>,
+    ) -> Self {
+        Self(Arc::new(FuncRepr::Native(NativeFunc { name, call, namespace: Some(namespace) })))
     }
 
     /// **P394** — constrói uma Func nativa com acesso ao `Scopes` e `Engine`
@@ -137,7 +155,24 @@ impl Func {
             &mut crate::entities::engine::Engine<'_>,
         ) -> SourceResult<Value>,
     ) -> Self {
-        Self(Arc::new(FuncRepr::NativeWithEngine(NativeFuncWithEngine { name, call })))
+        Self(Arc::new(FuncRepr::NativeWithEngine(NativeFuncWithEngine { name, call, namespace: None })))
+    }
+
+    /// **P493** — constrói uma Func nativa com acesso ao `Scopes`/`Engine` e
+    /// namespace anexado.
+    pub fn native_with_engine_and_namespace(
+        name: &'static str,
+        call: fn(
+            &mut crate::rules::eval::EvalContext,
+            &Args,
+            &dyn crate::contracts::world::World,
+            FileId,
+            &mut crate::rules::scopes::Scopes<'_>,
+            &mut crate::entities::engine::Engine<'_>,
+        ) -> SourceResult<Value>,
+        namespace: Arc<Scope>,
+    ) -> Self {
+        Self(Arc::new(FuncRepr::NativeWithEngine(NativeFuncWithEngine { name, call, namespace: Some(namespace) })))
     }
 
     /// Constrói uma Func de elemento de utilizador (Lote F-3 inc-2) — `#name(args)`
@@ -215,6 +250,15 @@ impl Func {
             if c.name.is_none() {
                 c.name = Some(name);
             }
+        }
+    }
+
+    /// **P493** — retorna o namespace anexado à função nativa, se existir.
+    pub fn namespace(&self) -> Option<&Scope> {
+        match self.0.as_ref() {
+            FuncRepr::Native(n) => n.namespace.as_deref(),
+            FuncRepr::NativeWithEngine(n) => n.namespace.as_deref(),
+            _ => None,
         }
     }
 }

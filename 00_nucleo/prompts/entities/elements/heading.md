@@ -1,5 +1,5 @@
 # Prompt L0 — `entities/elements/heading` — `HeadingElem`
-Hash do Código: 37534266
+Hash do Código: 4cd1189d
 
 **Camada**: L1 · **Alvo**: `01_core/src/entities/elements/heading.rs`
 **Origem**: modelo D (ADR-0105), lote piloto P316. Trait e regras partilhadas:
@@ -15,6 +15,7 @@ absorção de `ElementKind`/`ElementPayload`; se quebrar, **parar e voltar ao L0
 pub struct HeadingElem {
     pub level: u8,        // clamped 1..=6
     pub body:  Content,   // era Box<Content>; agora Content dentro do Arc
+    pub outlined: bool,   // P493 — visível no outline; default true (paridade vanilla)
 }
 ```
 
@@ -27,9 +28,9 @@ Construtor preserva o clamp: `level.clamp(1, 6)` (`content.rs:1267`).
 |---|---|
 | `plain_text` | `self.body.plain_text()` (`content.rs:1573`) |
 | `is_empty` | `false` (structural; comportamento atual do braço Heading) |
-| `map_content` | `Content::Heading(Arc::new(HeadingElem { level: self.level, body: self.body.map_content(f)? }))` |
-| `map_text` | `Content::Heading(Arc::new(HeadingElem { level: self.level, body: self.body.map_text(f) }))` |
-| `get_field` | `"body"` → `Some(Value::Content(self.body.clone()))`; `"level"` → `Some(Value::Int(self.level as i64))`; outro → `None` (`content.rs:2021-2022`) |
+| `map_content` | `Content::Heading(Arc::new(HeadingElem { level: self.level, outlined: self.outlined, body: self.body.map_content(f)? }))` |
+| `map_text` | `Content::Heading(Arc::new(HeadingElem { level: self.level, outlined: self.outlined, body: self.body.map_text(f) }))` |
+| `get_field` | `"body"` → `Some(Value::Content(self.body.clone()))`; `"level"` → `Some(Value::Int(self.level as i64))`; `"outlined"` → `Some(Value::Bool(self.outlined))`; outro → `None` (`content.rs:2021-2022`) |
 | `element_kind` | `Some(ElementKind::Heading)` — **absorção** (era `element_kind.rs`) |
 | `to_payload` | `Some(ElementPayload::Heading { depth: self.level, body_hash: hash_content(&self.body), counter_update: CounterUpdate::Step })` — **absorção** (era `extract_payload.rs:21`) |
 

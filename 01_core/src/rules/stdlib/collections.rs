@@ -49,6 +49,11 @@ pub(crate) fn try_dispatch_collection_method(
         (Value::Array(arr), "all") => Some(array_all(arr, args, scopes, ctx, engine)),
         (Value::Array(arr), "zip") => Some(array_zip(arr, args)),
         (Value::Array(arr), "enumerate") => Some(Ok(array_enumerate(arr))),
+        (Value::Array(arr), "dedup") => Some(Ok(array_dedup(arr))),
+        (Value::Array(arr), "chunks") => Some(array_chunks(arr, args)),
+        (Value::Array(arr), "windows") => Some(array_windows(arr, args)),
+        (Value::Array(arr), "flatten") => Some(Ok(array_flatten(arr))),
+        (Value::Array(arr), "fold") => Some(array_fold(arr, args, scopes, ctx, engine)),
 
         // ── dict ─────────────────────────────────────────────────────────────
         (Value::Dict(dict), "keys") => Some(Ok(dict_keys(dict))),
@@ -271,6 +276,85 @@ fn array_enumerate(arr: Vec<Value>) -> Value {
             .map(|(i, v)| Value::Array(vec![Value::Int(i as i64), v]))
             .collect(),
     )
+}
+
+fn array_dedup(arr: Vec<Value>) -> Value {
+    let mut result = Vec::new();
+    for item in arr {
+        if result.last() != Some(&item) {
+            result.push(item);
+        }
+    }
+    Value::Array(result)
+}
+
+fn array_chunks(arr: Vec<Value>, args: Args) -> SourceResult<Value> {
+    let n = expect_one_int(args, "array.chunks()")?;
+    if n <= 0 {
+        return Err(vec![SourceDiagnostic::error(
+            Span::detached(),
+            "array.chunks() requer inteiro positivo".to_string(),
+        )]);
+    }
+    let n = n as usize;
+    let chunks: Vec<Value> = arr.chunks(n).map(|c| Value::Array(c.to_vec())).collect();
+    Ok(Value::Array(chunks))
+}
+
+fn array_windows(arr: Vec<Value>, args: Args) -> SourceResult<Value> {
+    let n = expect_one_int(args, "array.windows()")?;
+    if n <= 0 {
+        return Err(vec![SourceDiagnostic::error(
+            Span::detached(),
+            "array.windows() requer inteiro positivo".to_string(),
+        )]);
+    }
+    let n = n as usize;
+    let windows: Vec<Value> = arr.windows(n).map(|w| Value::Array(w.to_vec())).collect();
+    Ok(Value::Array(windows))
+}
+
+fn array_flatten(arr: Vec<Value>) -> Value {
+    let mut result = Vec::new();
+    for item in arr {
+        if let Value::Array(inner) = item {
+            result.extend(inner);
+        } else {
+            result.push(item);
+        }
+    }
+    Value::Array(result)
+}
+
+fn array_fold(
+    arr: Vec<Value>,
+    args: Args,
+    scopes: &mut Scopes<'_>,
+    ctx: &mut EvalContext,
+    engine: &mut Engine<'_>,
+) -> SourceResult<Value> {
+    let mut items = args.items.into_iter();
+    let start = items.next().unwrap_or(Value::None);
+    let reducer = match items.next() {
+        Some(Value::Func(f)) => f,
+        Some(other) => {
+            return Err(vec![SourceDiagnostic::error(
+                Span::detached(),
+                format!("array.fold() espera função como reducer, recebeu {}", other.type_name()),
+            )]);
+        }
+        None => {
+            return Err(vec![SourceDiagnostic::error(
+                Span::detached(),
+                "array.fold() requer start e reducer como argumentos posicionais".to_string(),
+            )]);
+        }
+    };
+    let mut acc = start;
+    for item in arr {
+        acc = apply_func(reducer.clone(), Args::positional(vec![acc, item]), scopes, ctx, engine)?;
+    }
+    Ok(acc)
 }
 
 // ── dict helpers ────────────────────────────────────────────────────────────

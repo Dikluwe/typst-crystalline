@@ -6359,6 +6359,101 @@ mod tests {
         assert!(matches!(eval_let(&world, "y"), Some(Value::Stroke(_))));
     }
 
+    // ── P493 — Field access em coleções (D3) ────────────────────────────────
+
+    #[test]
+    fn p493_array_dedup() {
+        // dedup remove apenas duplicados ADJACENTES (paridade vanilla).
+        let world = MockWorld::new("#let x = (3, 1, 4, 4, 1, 5, 9, 2, 6).dedup()");
+        assert_eq!(
+            eval_let(&world, "x"),
+            Some(Value::Array(vec![
+                Value::Int(3), Value::Int(1), Value::Int(4), Value::Int(1),
+                Value::Int(5), Value::Int(9), Value::Int(2), Value::Int(6),
+            ]))
+        );
+    }
+
+    #[test]
+    fn p493_array_chunks() {
+        let world = MockWorld::new("#let x = (1, 2, 3, 4, 5).chunks(2)");
+        assert_eq!(
+            eval_let(&world, "x"),
+            Some(Value::Array(vec![
+                Value::Array(vec![Value::Int(1), Value::Int(2)]),
+                Value::Array(vec![Value::Int(3), Value::Int(4)]),
+                Value::Array(vec![Value::Int(5)]),
+            ]))
+        );
+    }
+
+    #[test]
+    fn p493_array_windows() {
+        let world = MockWorld::new("#let x = (1, 2, 3).windows(2)");
+        assert_eq!(
+            eval_let(&world, "x"),
+            Some(Value::Array(vec![
+                Value::Array(vec![Value::Int(1), Value::Int(2)]),
+                Value::Array(vec![Value::Int(2), Value::Int(3)]),
+            ]))
+        );
+    }
+
+    #[test]
+    fn p493_array_flatten() {
+        let world = MockWorld::new("#let x = (1, (2, 3), 4).flatten()");
+        assert_eq!(
+            eval_let(&world, "x"),
+            Some(Value::Array(vec![
+                Value::Int(1), Value::Int(2), Value::Int(3), Value::Int(4),
+            ]))
+        );
+    }
+
+    #[test]
+    fn p493_array_fold() {
+        let world = MockWorld::new("#let x = (1, 2, 3).fold(0, (acc, x) => acc + x)");
+        assert_eq!(eval_let(&world, "x"), Some(Value::Int(6)));
+    }
+
+    #[test]
+    fn p493_table_header_field() {
+        let world = MockWorld::new("#let x = table.header[Nome][Idade]");
+        assert!(matches!(eval_let(&world, "x"), Some(Value::Content(_))));
+    }
+
+    #[test]
+    fn p493_table_footer_field() {
+        let world = MockWorld::new("#let x = table.footer[Total]");
+        assert!(matches!(eval_let(&world, "x"), Some(Value::Content(_))));
+    }
+
+    #[test]
+    fn p493_table_cell_field() {
+        let world = MockWorld::new("#let x = table.cell[Conteúdo]");
+        assert!(matches!(eval_let(&world, "x"), Some(Value::Content(_))));
+    }
+
+    #[test]
+    fn p493_heading_where_multi() {
+        let world = MockWorld::new(
+            "#show heading.where(level: 1, outlined: true): it => [CAPÍTULO: ] + it.body\n\n= Um\n\n== Dois"
+        );
+        let src = world.source(world.main()).unwrap();
+        let module = eval_for_test(&world, &src).unwrap();
+        let text = module.content().unwrap().plain_text();
+        assert!(
+            text.contains("CAPÍTULO: Um"),
+            "show rule where multi-field deve aplicar-se ao heading 1: {:?}",
+            text
+        );
+        assert!(
+            !text.contains("CAPÍTULO: Dois"),
+            "show rule where multi-field não deve aplicar-se ao heading 2: {:?}",
+            text
+        );
+    }
+
     #[test]
     fn p466_str_contains() {
         let world = MockWorld::new("#let x = \"hello\".contains(\"ell\")");

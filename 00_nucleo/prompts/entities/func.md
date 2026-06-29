@@ -1,15 +1,13 @@
 # Prompt L0 — entities/func e entities/args
-Hash do Código: 42a416a7
+Hash do Código: fbdba763
 
 **Camada**: L1
 **Ficheiros alvo**: `01_core/src/entities/func.rs`, `01_core/src/entities/args.rs`
-**ADRs relevantes**: ADR-0016 (adiamento Routines), ADR-0017 (adiamento eval completo)
+**ADRs relevantes**: ADR-0016 (adiamento Routines), ADR-0017 (adiamento eval completo), ADR-0107 (paridade linguagem), ADR-0109 (atomização)
 
 ## Contexto
 
-`Func` representa uma função Typst — neste passo apenas closures definidas
-no documento. Funções nativas (built-ins) ficam para quando `Routines` real
-migrar (ADR-0016). `Args` representa os argumentos de uma chamada de função.
+`Func` representa uma função Typst — closures definidas no documento, funções nativas (built-ins) e construtores de elemento de utilizador. `Args` representa os argumentos de uma chamada de função.
 
 ## Tipos públicos
 
@@ -17,17 +15,22 @@ migrar (ADR-0016). `Args` representa os argumentos de uma chamada de função.
 
 ```rust
 #[derive(Clone)]
-pub struct Func(Arc<FuncRepr>);
+pub struct Func(pub(crate) Arc<FuncRepr>);
 
 pub(crate) enum FuncRepr {
     Closure(ClosureRepr),
     Native(NativeFunc),
+    /// P394 — native function com acesso ao `Scopes` e `Engine` actuais.
+    NativeWithEngine(NativeFuncWithEngine),
+    /// Lote F-3 inc-2 — construtor de elemento de utilizador.
+    Element(ElementFunc),
 }
 
 pub struct ClosureRepr {
+    pub name: Option<String>,
     pub params: Vec<ClosureParam>,
     pub body: SyntaxNode,           // clone O(1) via Arc interno
-    pub captured: IndexMap<String, Value, FxBuildHasher>,
+    pub captured: Arc<Scope>,       // eager snapshot do scope no momento da definição
 }
 
 pub struct ClosureParam {
@@ -35,48 +38,98 @@ pub struct ClosureParam {
     pub default: Option<Value>,
 }
 
-/// Função nativa implementada em Rust (Passo 71 — DEBT-24).
-/// `call` recebe `ctx` para aceder ao `World` (ex: ler ficheiros para native_image).
-/// Funções sem I/O ignoram `_ctx`.
+/// Função nativa implementada em Rust.
 pub struct NativeFunc {
     pub name: &'static str,
-    pub call: fn(&mut crate::rules::eval::EvalContext<'_>, &Args) -> SourceResult<Value>,
+    pub call: fn(&mut crate::rules::eval::EvalContext, &Args, &dyn crate::contracts::world::World, FileId) -> SourceResult<Value>,
+}
+
+/// P394 — native function com acesso ao `Scopes` e `Engine` actuais.
+pub struct NativeFuncWithEngine {
+    pub name: &'static str,
+    pub call: fn(&mut crate::rules::eval::EvalContext, &Args, &dyn crate::contracts::world::World, FileId, &mut crate::rules::scopes::Scopes<'_>, &mut crate::entities::engine::Engine<'_>) -> SourceResult<Value>,
+}
+
+/// Lote F-3 inc-2 — construtor de elemento de utilizador.
+pub struct ElementFunc {
+    pub name: String,
+    pub ctor: crate::entities::element_registry::ElementCtor,
 }
 ```
 
 `Func(Arc<FuncRepr>)` — clone O(1), consistente com `Module`.
 
-`ClosureRepr.captured` — eager snapshot do scope no momento da definição.
-Semântica: captura por valor, não por referência. Divergência do original
-(que usa `comemo` para lazy access) — registada em DEBT.md.
+`ClosureRepr.captured` — eager snapshot do scope no momento da definição. Semântica: captura por valor, não por referência. Divergência do original (que usa `comemo` para lazy access) — registada em DEBT.md.
 
-### Args
+## Namespace anexado (P493)
+
+**P493 — Field access em funções com namespace:** algumas funções nativas do Typst expõem sub-funções via field access (ex.: `table.header`, `table.footer`, `table.cell`). Para suportar isto, `Func` pode ter um namespace anexado.
+
+### Representação
+
+Adicionar a `FuncRepr::Native` e `FuncRepr::NativeWithEngine` um campo opcional `namespace: Option<Arc<Scope>>`:
 
 ```rust
-#[derive(Debug, Clone, PartialEq)]
-pub struct Args {
-    pub items: Vec<Value>,
+pub struct NativeFunc {
+    pub name: &'static str,
+    pub call: fn(...) -> SourceResult<Value>,
+    pub namespace: Option<Arc<Scope>>,
+}
+
+pub struct NativeFuncWithEngine {
+    pub name: &'static str,
+    pub call: fn(...) -> SourceResult<Value>,
+    pub namespace: Option<Arc<Scope>>,
 }
 ```
 
-Apenas args posicionais neste passo. Named args e spread adiados (ADR-0016).
+- `namespace: None` — função sem sub-funções (`heading`, `figure`, etc.);
+- `namespace: Some(scope)` — função com sub-funções acessíveis via field access (`table`, `list`, `enum`, etc.).
+
+### Construtores
+
+- `Func::native(name, call)` — cria `Func` com `namespace: None`.
+- `Func::native_with_namespace(name, call, namespace)` — cria `Func` com namespace anexado.
+- `Func::native_with_engine(name, call)` — cria `Func` com `namespace: None`.
+- `Func::native_with_engine_and_namespace(name, call, namespace)` — cria `Func` com namespace anexado.
+
+### Acesso
+
+```rust
+impl Func {
+    /// Retorna o namespace anexado, se existir.
+    pub fn namespace(&self) -> Option<&Scope>;
+}
+```
 
 ## Interface pública de Func
 
 ```rust
 impl Func {
     pub fn closure(repr: ClosureRepr) -> Self;
+    pub fn native(name: &'static str, call: NativeFn) -> Self;
+    pub fn native_with_namespace(name: &'static str, call: NativeFn, namespace: Arc<Scope>) -> Self;
+    pub fn native_with_engine(name: &'static str, call: NativeFnWithEngine) -> Self;
+    pub fn native_with_engine_and_namespace(name: &'static str, call: NativeFnWithEngine, namespace: Arc<Scope>) -> Self;
+    pub fn element(name: impl Into<String>, ctor: ElementCtor) -> Self;
     pub(crate) fn repr(&self) -> &FuncRepr;
+    pub fn element_name(&self) -> Option<&str>;
+    pub fn name(&self) -> Option<&str>;
+    pub fn native_fn_addr(&self) -> Option<NativeFn>;
+    pub fn namespace(&self) -> Option<&Scope>;
+    pub fn set_name(&mut self, name: String);
 }
-
-impl std::fmt::Debug for Func { /* "<function>" */ }
-impl PartialEq for Func { /* Arc::ptr_eq */ }
-impl Clone for Func { /* derive */ }
 ```
 
 ## Interface pública de Args
 
 ```rust
+#[derive(Debug, Clone, PartialEq)]
+pub struct Args {
+    pub items: Vec<Value>,
+    pub named: IndexMap<EcoString, Value, FxBuildHasher>,
+}
+
 impl Args {
     pub fn positional(items: Vec<Value>) -> Self;
     pub fn len(&self) -> usize;
@@ -86,12 +139,11 @@ impl Args {
 
 ## Semântica confirmada
 
-- **PartialEq por identidade**: duas `Func` são iguais se e só se partilham
-  o mesmo `Arc<FuncRepr>` (mesmo ponteiro). Consistente com `Module`.
+- **PartialEq por identidade**: duas `Func` são iguais se e só se partilham o mesmo `Arc<FuncRepr>` (mesmo ponteiro). Consistente com `Module`.
 - **Clone O(1)**: `Arc::clone` — não clona o conteúdo da closure.
 - **Debug**: `"<function>"` (string literal, nunca pânico).
-- **Eager capture**: `ClosureRepr.captured` é um snapshot imutável;
-  redefinições posteriores no scope pai não afectam a closure.
+- **Eager capture**: `ClosureRepr.captured` é um snapshot imutável; redefinições posteriores no scope pai não afectam a closure.
+- **Namespace anexado**: clone O(1) via `Arc<Scope>`; field access em `Func` delega ao `Scope` se existir.
 
 ## Critérios de Verificação
 
@@ -102,3 +154,8 @@ format!("{:?}", func)  → "<function>"
 Args::positional(vec![]).is_empty()  → true
 Args::positional(vec![Value::Int(1)]).len()  → 1
 ```
+
+## Scope-outs
+
+- Namespace anexado não se aplica a closures (`FuncRepr::Closure`) nem a elementos de utilizador (`FuncRepr::Element`) neste passo.
+- Não implementar field access mutável (set) no namespace.

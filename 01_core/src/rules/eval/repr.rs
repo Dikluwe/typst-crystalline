@@ -501,6 +501,7 @@ mod tests {
         let h = Content::Heading(Arc::new(HeadingElem {
             level: 2,
             body: Content::text("Title"),
+            outlined: true,
         }));
         assert_eq!(repr_content(&h), "heading(level: 2)[\"Title\"]");
     }

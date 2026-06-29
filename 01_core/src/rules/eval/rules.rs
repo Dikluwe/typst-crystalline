@@ -63,26 +63,22 @@ fn query_selector_to_show_selector(
                 ),
             )]),
         },
-        QuerySelector::Where { base, field, value } => match *base {
-            QuerySelector::Kind(kind) => match kind_to_node(kind) {
-                Some(node) => Ok(Selector::Where {
-                    base: Box::new(Selector::NodeKind(node)),
+        // P493c — Where encadeado: converte recursivamente a base.
+        QuerySelector::Where { base, field, value } => {
+            let base_sel = query_selector_to_show_selector(*base, span)?;
+            if is_node_rule(&base_sel) {
+                Ok(Selector::Where {
+                    base: Box::new(base_sel),
                     field,
                     value,
-                }),
-                None => Err(vec![SourceDiagnostic::error(
+                })
+            } else {
+                Err(vec![SourceDiagnostic::error(
                     span,
-                    format!(
-                        "selector where sobre kind '{}' não suportado em show rule",
-                        kind.as_str()
-                    ),
-                )]),
-            },
-            _ => Err(vec![SourceDiagnostic::error(
-                span,
-                "selector where com base não-Kind não suportado em show rule".to_string(),
-            )]),
-        },
+                    "selector where com base não-node não suportado em show rule".to_string(),
+                )])
+            }
+        }
         // **P423 (S-M)** — combinadores And/Or convertidos recursivamente.
         QuerySelector::And(sels) => {
             let mut converted = Vec::with_capacity(sels.len());

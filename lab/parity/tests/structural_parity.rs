@@ -875,6 +875,40 @@ fn p492_cores_predefinidas_text_e_stroke() {
     }
 }
 
+/// P493 — Field access em coleções (D3).
+/// Garante que arr.dedup/chunks/windows, table.header/footer/cell e
+/// heading.where multi-field funcionam sem PANIC.
+#[test]
+fn p493_field_access_colecoes() {
+    let cases: &[(&str, &str)] = &[
+        ("array_dedup",   "#metadata((3, 1, 4, 4, 1).dedup())"),
+        ("array_chunks",  "#metadata((1, 2, 3, 4).chunks(2))"),
+        ("array_windows", "#metadata((1, 2, 3).windows(2))"),
+        ("table_header",  "#metadata(table.header[A][B])"),
+        ("table_footer",  "#metadata(table.footer[A])"),
+        ("table_cell",    "#metadata(table.cell[A])"),
+        ("heading_where_multi", "#show heading.where(level: 1, outlined: true): it => [X: ] + it.body\n= H\n#metadata(1)"),
+    ];
+
+    for (name, source) in cases {
+        let dir = tempdir();
+        let main_path = dir.path().join("main.typ");
+        std::fs::write(&main_path, source).expect("escrever main.typ");
+
+        let world = match SystemWorld::new(dir.path(), "main.typ") {
+            Ok(w)  => w,
+            Err(e) => panic!("[p493] {}: erro build world: {:?}", name, e),
+        };
+        let source_ref = world.source(world.main()).unwrap();
+        match query_to_summary(&world, &source_ref, "metadata") {
+            Ok(summary) => {
+                assert_eq!(summary.count, 1, "[p493] {}: esperado count=1, obtido {}", name, summary.count);
+            }
+            Err(e) => panic!("[p493] {}: query falhou: {:?}", name, e),
+        }
+    }
+}
+
 #[test]
 fn p488_parity_corpus_48_ficheiros_rtl_skipfeature() {
     // P488 — sentinela de corpus pós-P488.

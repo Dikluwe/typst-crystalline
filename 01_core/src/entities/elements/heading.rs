@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/entities/elements/heading.md
-//! @prompt-hash 0effb467
+//! @prompt-hash cd89a7bc
 //! @layer L1
 //! @updated 2026-06-10
 //!
@@ -25,6 +25,8 @@ pub struct HeadingElem {
     pub level: u8,
     /// Corpo do cabeçalho (era `Box<Content>`; agora `Content` dentro do `Arc`).
     pub body: Content,
+    /// P493 — visível no outline; default true (paridade vanilla).
+    pub outlined: bool,
 }
 
 impl HeadingElem {
@@ -37,7 +39,12 @@ impl HeadingElem {
     /// gate da chain; o **valor** do contador segue via Introspector
     /// (`formatted_counter_at("heading")`, P335 incondicional).
     pub fn new(level: u8, body: Content) -> Self {
-        Self { level: level.clamp(1, 6), body }
+        Self { level: level.clamp(1, 6), body, outlined: true }
+    }
+
+    /// P493 — construtor completo com controlo de `outlined`.
+    pub fn new_with_outlined(level: u8, body: Content, outlined: bool) -> Self {
+        Self { level: level.clamp(1, 6), body, outlined }
     }
 }
 
@@ -52,6 +59,7 @@ impl Element for HeadingElem {
     {
         Ok(Content::Heading(Arc::new(HeadingElem {
             level: self.level,
+            outlined: self.outlined,
             body: self.body.map_content(transform)?,
         })))
     }
@@ -62,6 +70,7 @@ impl Element for HeadingElem {
     {
         Content::Heading(Arc::new(HeadingElem {
             level: self.level,
+            outlined: self.outlined,
             body: self.body.map_text(transform),
         }))
     }
@@ -70,6 +79,7 @@ impl Element for HeadingElem {
         match field {
             "body" => Some(Value::Content(self.body.clone())),
             "level" => Some(Value::Int(self.level as i64)),
+            "outlined" => Some(Value::Bool(self.outlined)),
             _ => None,
         }
     }

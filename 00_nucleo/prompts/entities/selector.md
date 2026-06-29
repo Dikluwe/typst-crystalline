@@ -147,6 +147,21 @@ pub enum Selector {
 
 - `Introspector::query(&self, &Selector) -> Vec<Location>` (P175 sub-passo .C).
 - Stdlib `query(kind_str)` (P175 sub-passo .D) — constrói `Selector::Kind` internamente.
+- **P493c — `eval_element_where`**: dado `<elemento>.where(field1: v1, field2: v2)`, constrói uma cadeia de `Selector::Where` aninhados:
+
+  ```rust
+  Selector::Where {
+      base: Box::new(Selector::Where {
+          base: Box::new(Selector::Kind(kind)),
+          field: "field1",
+          value: v1,
+      }),
+      field: "field2",
+      value: v2,
+  }
+  ```
+
+  O matching em show rules (`apply_show_rules`) percorre recursivamente a cadeia `Where` e aplica AND lógico: todos os predicados devem satisfazer-se para a regra aplicar. Query (`Introspector::query`) mantém-se stub `vec![]` para `Where` (single-pass não indexa Content fields).
 
 ---
 
@@ -158,8 +173,8 @@ Vanilla tem 10+ variants em `Selector`. Cristalino P175 implementa só `Kind` �
 
 ## Resultado Esperado
 
-- `01_core/src/entities/selector.rs` — enum + 3+ tests
-  (P175 base + P209B variants Label/Location).
+- `01_core/src/entities/selector.rs` — enum + tests
+  (P175 base + P209B variants Label/Location + P209C + P417 + P493c).
 - Re-export em `01_core/src/entities/mod.rs`.
 
 ---
@@ -173,3 +188,4 @@ Vanilla tem 10+ variants em `Selector`. Cristalino P175 implementa só `Kind` �
 | 2026-05-12 | P209C (M9c — Bloco VI Selector extensions per C4 P207A): +variants compósitos `And(EcoVec<Selector>)` + `Or(EcoVec<Selector>)`. Hash derive recursivo via discriminant + EcoVec elementos. Query arms: `And` faz intersecção via filter+contains; `Or` faz união dedupliquada via HashSet check preservando ordem. **Opção A** fixada para `And/Or` vazios: ambos retornam `vec![]` (consistência + cristalino single-pass sem universo computável). Stdlib API: **Opção (c) Rust API only** — sem dispatch via `Value` em `native_query`/`native_locate`. | `selector.rs`, `selector.md`, `introspector.rs` |
 | 2026-06-23 | P417 (M): +variant `Where { base, field, value }`. Estrutura estática sem vtable; query arm stub `vec![]` documentado (single-pass não indexa Content fields). Semântica de igualdade via `Value` (ADR-0107). | `selector.rs`, `selector.md`, `value.rs`, `introspector.rs`, `show.rs`, `show.md`, `eval/` |
 | 2026-06-25 | P467 (S — sonda A.0): confirma que `Selector::Where` já está implementado e funcional em show rules; nenhuma alteração de código necessária. Inventário de cobertura atualizado. | `selector.md`, `cobertura-vanilla-vs-cristalino.md` |
+| 2026-06-29 | P493c: `Where` multi-field via `eval_element_where`. Cadeia de `Selector::Where` aninhados; show-rule matching recursivo. | `selector.md`, `bindings.rs` |
