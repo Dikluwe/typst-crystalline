@@ -73,6 +73,7 @@ pub fn repr_value(v: &Value) -> String {
         Value::Args(_) => "arguments(...)".to_string(),
         Value::State(_) => "state(...)".to_string(),
         Value::Counter(_) => "counter(...)".to_string(),
+        Value::Label(l) => format!("<{}>", l.0),
     }
 }
 

@@ -3,7 +3,7 @@
 **Camada**: L1  
 **Ficheiro alvo**: `01_core/src/rules/stdlib/collections.rs`  
 **Criado em**: 2026-06-25 (Passo P466)  
-**Atualizado em**: 2026-06-29 (Passo P493 — `array.dedup`, `array.chunks`, `array.windows`)  
+**Atualizado em**: 2026-06-30 (P509 — `str.len/first/last/at/slice/clusters` e field access `dict.len/insert/remove`)  
 **ADRs**: ADR-0037 (coesão por domínio), ADR-0117 Cláusula 4 (métodos de tipos existentes; não propõe estrutura em elementos).
 
 ---
@@ -114,6 +114,8 @@ Reduz o array a um único valor, aplicando a função `reducer(start, item)` e a
 | `pairs` | `dict.pairs() -> array` | Array de pares `(key, value)`. |
 | `remove` | `dict.remove(key: str) -> any` | Valor removido ou `none`. **Nota**: no cristalino o dict original não é mutado (dispatch por valor). |
 | `update` | `dict.update(other: dict) -> dict` | Mescla com outro dict. |
+| `len` | `dict.len() -> int` | Número de entradas. |
+| `insert` | `dict.insert(key: str, value: any) -> dict` | Devolve novo dict com a entrada adicionada/alterada. |
 
 ---
 
@@ -121,6 +123,12 @@ Reduz o array a um único valor, aplicando a função `reducer(start, item)` e a
 
 | Método | Assinatura | Semântica |
 |--------|-----------|-----------|
+| `len` | `str.len() -> int` | Número de chars (codepoints). |
+| `first` | `str.first() -> str \| none` | Primeiro char como string, ou `none` se vazia. |
+| `last` | `str.last() -> str \| none` | Último char como string, ou `none` se vazia. |
+| `at` | `str.at(index: int) -> str` | Char no índice (negativo conta do fim). Erro se fora de limites. |
+| `slice` | `str.slice(start: int, end: int?, count: int?) -> str` | Substring de `start` até `end` ou `count` chars. Erro se ambos `end` e `count`. |
+| `clusters` | `str.clusters() -> array` | Array de strings com cada char (clusters simplificados). |
 | `contains` | `str.contains(substr: str) -> bool` | Contém substring? |
 | `starts-with` | `str.starts-with(prefix: str) -> bool` | Começa com prefixo? |
 | `ends-with` | `str.ends-with(suffix: str) -> bool` | Termina com sufixo? |
@@ -144,11 +152,10 @@ Reduz o array a um único valor, aplicando a função `reducer(start, item)` e a
 ## 6. Scope-outs
 
 - `array.min()`, `array.max()`.
-- `str.rev()`.
 - `str.replace` com regex.
 - Métodos com argumento `default` (exceto `dict.at(default:)`, implementado).
-- Unicode avançado (grapheme clusters); índices de `str.find` são byte/char.
-- Mutação do dict original em `.remove()`.
+- Unicode avançado (`str.clusters()` devolve chars, não grapheme clusters reais); índices de `str.find` são byte/char.
+- Mutação do dict original em `.remove()` / `.insert()` (dispatch por valor devolve novo dict).
 
 ---
 

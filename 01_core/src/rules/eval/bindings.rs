@@ -566,6 +566,19 @@ pub(super) fn eval_field_access(
 
     let target = eval_expr(access.target(), scopes, ctx, engine)?;
     let field = access.field().as_str().to_string();
+
+    // P509 — field access em coleções despacha para métodos de instância.
+    if let Some(result) = crate::rules::stdlib::try_dispatch_collection_method(
+        target.clone(),
+        field.as_str(),
+        crate::entities::args::Args::positional(vec![]),
+        scopes,
+        ctx,
+        engine,
+    ) {
+        return result;
+    }
+
     match target {
         Value::Dict(d) => d.get(field.as_str()).cloned().ok_or_else(|| {
             vec![SourceDiagnostic::error(

@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/entities/value.md
-//! @prompt-hash 0a2085a5
+//! @prompt-hash 04e8ef46
 //! @layer L1
 //! @updated 2026-03-28
 
@@ -140,6 +140,10 @@ pub enum Value {
     /// **P506** — Counter documental (`counter(heading)`).
     Counter(Counter),
 
+    /// **P509** — Etiqueta (`<name>`) como valor de primeira classe para
+    /// `query(<label>)` / `locate(<label>)`.
+    Label(crate::entities::label::Label),
+
     // ── Variantes futuras — NÃO implementar sem ADR e tipo migrado ───────
     // Variantes futuras restantes:
     // Relative(Relative),       // comprimento relativo — já em L1 como tipo separado
@@ -207,6 +211,7 @@ impl Value {
             Self::Args(_)      => "arguments",
             Self::State(_)     => "state",
             Self::Counter(_)   => "counter",
+            Self::Label(_)     => "label",
         }
     }
 

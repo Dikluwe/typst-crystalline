@@ -693,9 +693,13 @@ pub(crate) fn eval_expr(
             Ok(Value::Content(Content::reference(name)))
         }
 
-        // Passo 56 — label em contexto de código (raro); a associação retroactiva
-        // acontece em eval_markup via SyntaxKind::Label. Aqui apenas ignoramos.
-        Expr::Label(_) => Ok(Value::None),
+        // Passo 56 — label em contexto de código; associação retroactiva em markup
+        // acontece via SyntaxKind::Label. Em código, <label> é um valor de primeira
+        // classe (P509) para query/locate.
+        Expr::Label(label_node) => {
+            let name = label_node.get().to_string();
+            Ok(Value::Label(crate::entities::label::Label(name)))
+        }
 
         Expr::ShowRule(s) => rules::eval_show_rule(s, scopes, ctx, engine),
 

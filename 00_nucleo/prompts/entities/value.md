@@ -1,10 +1,10 @@
 # Prompt L0 — `entities/value`
-Hash do Código: d0ab6632
+Hash do Código: 4f0a0648
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/entities/value.rs`
 **Criado em**: 2026-03-22 (Passo 13)
-**Atualizado em**: 2026-06-25 (P465 — `repr()` completo; P466 — métodos de coleção `array`/`dict`/`str` + `Value::truthy()` + eval de dict literal; P469 — `Value::Relative`)
+**Atualizado em**: 2026-06-30 (P509 — `Value::Label` para labels como valor de primeira classe em argumentos de `query`/`locate`)
 **ADRs relevantes**: ADR-0017 (adiamento eval), ADR-0023 (indexmap em L1), ADR-0024 (EcoString em Value::Str), ADR-0025 (Int == Float), ADR-0028/ADR-0029 (tipos tipográficos), ADR-0117 Cláusula 4 (`repr()` função pura)
 
 ---
@@ -16,9 +16,9 @@ todos os valores possíveis durante a avaliação (`eval.rs`). O original tem
 ~35 variantes. A migração adiciona variantes incrementalmente, protegida pela
 regra: **não adicionar variantes sem ADR e tipo migrado**.
 
-### Estado actual (Passo 25 + P469)
+### Estado actual (Passo 25 + P469 + P509)
 
-17 variantes implementadas:
+19 variantes implementadas:
 
 - **Passo 13** — 5 primitivos: `None`, `Bool`, `Int`, `Float`, `Str`
 - **Passo 15** — 4 variantes compostas: `Array`, `Dict`, `Module`, `Datetime`
@@ -27,8 +27,9 @@ regra: **não adicionar variantes sem ADR e tipo migrado**.
 - **Passo 25** — 5 tipos tipográficos: `Auto`, `Length`, `Ratio`, `Angle`, `Color`
 - **P469** — `Relative(Rel<Length>)` (comprimento relativo: `50%`, `100% - 1em`)
 - **Passo 395** — `Tiling` (padrão de azulejos; abertura ADR-0017)
+- **P509** — `Label(Label)` (etiqueta `<name>` como valor de primeira classe)
 
-~12 variantes futuras permanecem comentadas no código (não implementar sem ADR).
+~11 variantes futuras permanecem comentadas no código (não implementar sem ADR).
 
 ---
 
@@ -114,7 +115,10 @@ pub enum Value {
     // Passo 395 — Tiling (padrão de azulejos; abertura ADR-0017)
     Tiling(Arc<Tiling>),
 
-    // ~13 variantes futuras comentadas — NÃO implementar sem ADR e tipo migrado
+    // P509 — Label como valor de primeira classe (query/locate com <label>)
+    Label(Label),
+
+    // ~12 variantes futuras comentadas — NÃO implementar sem ADR e tipo migrado
 }
 
 impl Value {
@@ -122,7 +126,7 @@ impl Value {
                                               // "array", "dictionary", "module", "datetime",
                                               // "function", "content", "auto",
                                               // "length", "relative length", "ratio",
-                                              // "angle", "color", "tiling"
+                                              // "angle", "color", "tiling", "label"
     pub fn is_none(&self) -> bool
     pub fn truthy(&self) -> bool             // P466: semântica Typst minimal
     pub fn cast_bool(&self)  -> Option<bool>

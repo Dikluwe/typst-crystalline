@@ -994,6 +994,10 @@ fn parse_selector_arg(
             // P417: Selector como valor de primeira classe.
             Ok(sel.clone())
         }
+        [Value::Label(l)] => {
+            // P509: <label> como valor de primeira classe.
+            Ok(Selector::Label(l.clone()))
+        }
         [other] => msg(format!(
             "{}() requer string ou location, recebeu {}. \
              Tipos suportados: \"kind\", \"<label>\", \

@@ -69,6 +69,12 @@ pub(crate) fn try_dispatch_collection_method(
         (Value::Dict(dict), "filter") => Some(dict_filter(dict, args, scopes, ctx, engine)),
 
         // ── str ──────────────────────────────────────────────────────────────
+        (Value::Str(s), "len") => Some(Ok(str_len(s))),
+        (Value::Str(s), "first") => Some(Ok(str_first(s))),
+        (Value::Str(s), "last") => Some(Ok(str_last(s))),
+        (Value::Str(s), "at") => Some(str_at(s, args)),
+        (Value::Str(s), "slice") => Some(str_slice(s, args)),
+        (Value::Str(s), "clusters") => Some(Ok(str_clusters(s))),
         (Value::Str(s), "contains") => Some(str_contains(s, args)),
         (Value::Str(s), "starts-with") => Some(str_starts_with(s, args)),
         (Value::Str(s), "ends-with") => Some(str_ends_with(s, args)),
@@ -431,6 +437,96 @@ fn dict_at(
 }
 
 // ── str helpers ─────────────────────────────────────────────────────────────
+
+fn str_len(s: EcoString) -> Value {
+    Value::Int(s.chars().count() as i64)
+}
+
+fn str_first(s: EcoString) -> Value {
+    s.chars()
+        .next()
+        .map(|c| Value::Str(c.to_string().into()))
+        .unwrap_or(Value::None)
+}
+
+fn str_last(s: EcoString) -> Value {
+    s.chars()
+        .last()
+        .map(|c| Value::Str(c.to_string().into()))
+        .unwrap_or(Value::None)
+}
+
+fn str_at(s: EcoString, args: Args) -> SourceResult<Value> {
+    let index = expect_one_int(args, "str.at()")?;
+    let chars: Vec<char> = s.chars().collect();
+    let idx = if index < 0 {
+        (chars.len() as i64 + index) as usize
+    } else {
+        index as usize
+    };
+    if idx >= chars.len() {
+        return Err(vec![SourceDiagnostic::error(
+            Span::detached(),
+            "str.at(): índice fora de limites".to_string(),
+        )]);
+    }
+    Ok(Value::Str(chars[idx].to_string().into()))
+}
+
+fn str_slice(s: EcoString, args: Args) -> SourceResult<Value> {
+    let mut positional = args.items.iter();
+    let start = positional
+        .next()
+        .and_then(|v| v.cast_int())
+        .ok_or_else(|| {
+            vec![SourceDiagnostic::error(
+                Span::detached(),
+                "str.slice(): start espera int".to_string(),
+            )]
+        })?;
+    let end_positional = positional.next().and_then(|v| v.cast_int());
+    let end_named = args.named.get("end").and_then(|v| v.cast_int());
+    let count = args.named.get("count").and_then(|v| v.cast_int());
+    let end = end_positional.or(end_named);
+
+    if end.is_some() && count.is_some() {
+        return Err(vec![SourceDiagnostic::error(
+            Span::detached(),
+            "str.slice(): não pode especificar end e count simultaneamente".to_string(),
+        )]);
+    }
+
+    let chars: Vec<char> = s.chars().collect();
+    let start_idx = if start < 0 {
+        (chars.len() as i64 + start) as usize
+    } else {
+        start as usize
+    };
+    let start_idx = start_idx.min(chars.len());
+    let end_idx = match (end, count) {
+        (Some(e), None) => {
+            let e = if e < 0 {
+                (chars.len() as i64 + e) as usize
+            } else {
+                e as usize
+            };
+            e.min(chars.len())
+        }
+        (None, Some(c)) => (start_idx + c.max(0) as usize).min(chars.len()),
+        (None, None) => chars.len(),
+        (Some(_), Some(_)) => unreachable!("end e count simultâneos já rejeitados acima"),
+    };
+    let result: String = chars[start_idx..end_idx.max(start_idx)].iter().collect();
+    Ok(Value::Str(result.into()))
+}
+
+fn str_clusters(s: EcoString) -> Value {
+    Value::Array(
+        s.chars()
+            .map(|c| Value::Str(c.to_string().into()))
+            .collect(),
+    )
+}
 
 fn str_contains(s: EcoString, args: Args) -> SourceResult<Value> {
     let substr = expect_one_str(args, "str.contains()")?;
