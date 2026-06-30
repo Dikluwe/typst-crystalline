@@ -667,7 +667,7 @@ pub(crate) fn eval_expr(
 
         Expr::Equation(eq) => {
             let block = eq.block();
-            let body  = math::eval_math_content(scopes, ctx, eq.body())?;
+            let body  = math::eval_math_content(scopes, ctx, engine, eq.body())?;
             // F-5a de-bake (P364, `f_fronteira_e1.md` §3a.9): a equação **não
             // baka** mais o gate. O `#set math.equation(numbering:)` vive **só na
             // chain** (`custom("equation.numbering")` no `Content::Styled` da
@@ -680,7 +680,7 @@ pub(crate) fn eval_expr(
 
         Expr::Math(math) => {
             // Math node isolado (fora de Equation) — produzir como sequence.
-            let content = math::eval_math_content(scopes, ctx, math)?;
+            let content = math::eval_math_content(scopes, ctx, engine, math)?;
             Ok(Value::Content(content))
         }
 

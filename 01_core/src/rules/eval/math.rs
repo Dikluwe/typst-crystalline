@@ -8,16 +8,20 @@
 //! conforme ADR-0037 (coesão por domínio).
 
 use ecow::EcoString;
+use indexmap::IndexMap;
+use rustc_hash::FxBuildHasher;
 
+use crate::entities::args::Args;
 use crate::entities::ast::expr::{Arg, ArrayItem, Expr};
 use crate::entities::ast::math::{Math, MathTextKind};
 use crate::entities::ast::AstNode;
 use crate::entities::content::Content;
+use crate::entities::engine::Engine;
 use crate::entities::source_result::{SourceDiagnostic, SourceResult};
 use crate::entities::value::Value;
 use crate::rules::scopes::Scopes;
 
-use super::EvalContext;
+use super::{apply_func, EvalContext};
 
 // ── Passo 301 — Auto-lookup math mode ─────────────────────────────────────
 //
@@ -57,11 +61,12 @@ fn lookup_math_op(scopes: &Scopes<'_>, name: &str) -> Option<Content> {
 pub(super) fn eval_math_content(
     scopes: &mut Scopes<'_>,
     ctx: &mut EvalContext,
+    engine: &mut Engine<'_>,
     math: Math<'_>,
 ) -> SourceResult<Content> {
     let mut nodes: Vec<Content> = Vec::new();
     for expr in math.exprs() {
-        let node = eval_math_expr(scopes, ctx, expr)?;
+        let node = eval_math_expr(scopes, ctx, engine, expr)?;
         if !matches!(node, Content::Empty) {
             nodes.push(node);
         }
@@ -77,6 +82,7 @@ pub(super) fn eval_math_content(
 fn eval_math_expr(
     scopes: &mut Scopes<'_>,
     ctx: &mut EvalContext,
+    engine: &mut Engine<'_>,
     expr: Expr<'_>,
 ) -> SourceResult<Content> {
     match expr {
@@ -103,17 +109,17 @@ fn eval_math_expr(
         }
         Expr::MathShorthand(sh) => Ok(Content::MathText(sh.get().to_string().into())),
         Expr::MathFrac(frac) => {
-            let num = eval_math_expr(scopes, ctx, frac.num())?;
-            let den = eval_math_expr(scopes, ctx, frac.denom())?;
+            let num = eval_math_expr(scopes, ctx, engine, frac.num())?;
+            let den = eval_math_expr(scopes, ctx, engine, frac.denom())?;
             Ok(Content::math_frac(num, den))
         }
         Expr::MathAttach(attach) => {
-            let base = eval_math_expr(scopes, ctx, attach.base())?;
+            let base = eval_math_expr(scopes, ctx, engine, attach.base())?;
             let sub  = attach.bottom()
-                .map(|e| eval_math_expr(scopes, ctx, e))
+                .map(|e| eval_math_expr(scopes, ctx, engine, e))
                 .transpose()?;
             let sup  = attach.top()
-                .map(|e| eval_math_expr(scopes, ctx, e))
+                .map(|e| eval_math_expr(scopes, ctx, engine, e))
                 .transpose()?;
 
             // Primes (′ ″ ‴ ⁗) — convertidos para superscript.
@@ -149,14 +155,14 @@ fn eval_math_expr(
         Expr::MathRoot(root) => {
             // root.index() retorna Option<u8> — converter para Content::MathText se presente
             let index = root.index().map(|n| Content::MathText(n.to_string().into()));
-            let radicand = eval_math_expr(scopes, ctx, root.radicand())?;
+            let radicand = eval_math_expr(scopes, ctx, engine, root.radicand())?;
             Ok(Content::math_root(index, radicand))
         }
-        Expr::Math(inner) => eval_math_content(scopes, ctx, inner),
+        Expr::Math(inner) => eval_math_content(scopes, ctx, engine, inner),
 
         // MathDelimited: preservar estrutura para layout extensível (Passo 42)
         Expr::MathDelimited(delim) => {
-            let body = eval_math_content(scopes, ctx, delim.body())?;
+            let body = eval_math_content(scopes, ctx, engine, delim.body())?;
             // Extrair o char delimitador do expr (MathText ou MathIdent com 1 char)
             let open_str  = delim.open().to_untyped().text();
             let close_str = delim.close().to_untyped().text();
@@ -178,8 +184,8 @@ fn eval_math_expr(
                         _ => None,
                     });
                     if let (Some(num_expr), Some(den_expr)) = (pos_args.next(), pos_args.next()) {
-                        let num = eval_math_expr(scopes, ctx, num_expr)?;
-                        let den = eval_math_expr(scopes, ctx, den_expr)?;
+                        let num = eval_math_expr(scopes, ctx, engine, num_expr)?;
+                        let den = eval_math_expr(scopes, ctx, engine, den_expr)?;
                         Ok(Content::math_frac(num, den))
                     } else {
                         Ok(Content::Empty)
@@ -197,7 +203,7 @@ fn eval_math_expr(
                             format!("sqrt espera exactamente 1 argumento, recebeu {}", args.len()),
                         )]);
                     }
-                    let radicand = eval_math_expr(scopes, ctx, args[0])?;
+                    let radicand = eval_math_expr(scopes, ctx, engine, args[0])?;
                     Ok(Content::math_root(None, radicand))
                 }
                 // root(n, x) — 2 argumentos posicionais: índice, radicando
@@ -212,8 +218,8 @@ fn eval_math_expr(
                             format!("root espera exactamente 2 argumentos, recebeu {}", args.len()),
                         )]);
                     }
-                    let index    = eval_math_expr(scopes, ctx, args[0])?;
-                    let radicand = eval_math_expr(scopes, ctx, args[1])?;
+                    let index    = eval_math_expr(scopes, ctx, engine, args[0])?;
+                    let radicand = eval_math_expr(scopes, ctx, engine, args[1])?;
                     Ok(Content::math_root(Some(index), radicand))
                 }
                 // vec(...) — vector coluna (Passo 55): cada arg torna-se uma linha de uma célula.
@@ -224,7 +230,7 @@ fn eval_math_expr(
                         .collect();
                     let mut rows: Vec<Vec<Content>> = Vec::new();
                     for expr in pos_args {
-                        let cell = eval_math_expr(scopes, ctx, expr)?;
+                        let cell = eval_math_expr(scopes, ctx, engine, expr)?;
                         rows.push(vec![cell]);
                     }
                     Ok(Content::math_matrix(rows, ('(', ')')))
@@ -238,7 +244,7 @@ fn eval_math_expr(
                         .collect();
                     let mut rows: Vec<Vec<Content>> = Vec::new();
                     for expr in pos_args {
-                        let content = eval_math_expr(scopes, ctx, expr)?;
+                        let content = eval_math_expr(scopes, ctx, engine, expr)?;
                         let cells = match &content {
                             Content::MathSequence(items) => {
                                 let mut cols: Vec<Vec<Content>> = vec![vec![]];
@@ -278,18 +284,18 @@ fn eval_math_expr(
                                 Expr::Array(arr) => {
                                     for item in arr.items() {
                                         if let ArrayItem::Pos(e) = item {
-                                            row.push(eval_math_expr(scopes, ctx, e)?);
+                                            row.push(eval_math_expr(scopes, ctx, engine, e)?);
                                         }
                                     }
                                 }
-                                other => row.push(eval_math_expr(scopes, ctx, *other)?),
+                                other => row.push(eval_math_expr(scopes, ctx, engine, *other)?),
                             }
                             rows.push(row);
                         }
                     } else {
                         let mut row = Vec::new();
                         for e in &pos_args {
-                            row.push(eval_math_expr(scopes, ctx, *e)?);
+                            row.push(eval_math_expr(scopes, ctx, engine, *e)?);
                         }
                         if !row.is_empty() { rows.push(row); }
                     }
@@ -312,6 +318,50 @@ fn eval_math_expr(
                 // pré-P301). Agora `MathSequence([MathIdent, MathDelimited])`
                 // — paralelo arquitectural directo P302.
                 _ => {
+                    // **P510** — chamada a funções do scope global em modo math
+                    // (ex.: `bb(x)`, `bold(x + y)`). Antes do fallback P302/P303,
+                    // tentar resolver o nome no scope global; se for uma `Func`,
+                    // avaliar os args como conteúdo math e aplicar.
+                    let maybe_func = scopes.get(&name).cloned();
+                    if let Some(Value::Func(func)) = maybe_func {
+                        let mut items = Vec::new();
+                        let mut named: IndexMap<EcoString, Value, FxBuildHasher> =
+                            IndexMap::default();
+                        for arg in call.args().items() {
+                            match arg {
+                                Arg::Pos(expr) => {
+                                    let content = eval_math_expr(scopes, ctx, engine, expr)?;
+                                    items.push(Value::Content(content));
+                                }
+                                Arg::Named(name_expr) => {
+                                    let content = eval_math_expr(
+                                        scopes,
+                                        ctx,
+                                        engine,
+                                        name_expr.expr(),
+                                    )?;
+                                    named.insert(
+                                        name_expr.name().as_str().into(),
+                                        Value::Content(content),
+                                    );
+                                }
+                                Arg::Spread(_) => {}
+                            }
+                        }
+                        let args = Args { items, named };
+                        return match apply_func(func, args, scopes, ctx, engine)? {
+                            Value::Content(c) => Ok(c),
+                            other => Err(vec![SourceDiagnostic::error(
+                                call.span(),
+                                format!(
+                                    "{}() em modo math deve devolver content, recebeu {}",
+                                    name,
+                                    other.type_name()
+                                ),
+                            )]),
+                        };
+                    }
+
                     let pos_args: Vec<Expr<'_>> = call.args().items()
                         .filter_map(|a| match a { Arg::Pos(e) => Some(e), _ => None })
                         .collect();
@@ -325,7 +375,7 @@ fn eval_math_expr(
                         return Ok(base);
                     }
                     let body = if pos_args.len() == 1 {
-                        eval_math_expr(scopes, ctx, pos_args[0])?
+                        eval_math_expr(scopes, ctx, engine, pos_args[0])?
                     } else {
                         // Múltiplos args: separados por `, ` (paridade vanilla).
                         let mut items: Vec<Content> = Vec::new();
@@ -333,7 +383,7 @@ fn eval_math_expr(
                             if i > 0 {
                                 items.push(Content::MathText(", ".into()));
                             }
-                            items.push(eval_math_expr(scopes, ctx, *expr)?);
+                            items.push(eval_math_expr(scopes, ctx, engine, *expr)?);
                         }
                         Content::MathSequence(std::sync::Arc::from(items))
                     };
