@@ -24,10 +24,12 @@ Inclui:
 - **Construtores de cor**: `rgb`, `luma`, `oklab`, `oklch`, `linear_rgb`,
   `cmyk`, `hsl`, `hsv`.
 - **Metadados**: `metadata`.
-- **Estado runtime**: `state`, `state_update`, `state_update_with`,
+- **Estado runtime**: `state` (objeto com métodos — ver
+  `rules/stdlib/state.md`), `state_update`, `state_update_with`,
   `state_display`, `state_final`, `state_at`.
-- **Contadores**: `counter_display`, `counter_at`, `counter_final`,
-  `counter_step`.
+- **Contadores**: `counter` (objeto com métodos — ver
+  `rules/stdlib/counter.md`), `counter_display`, `counter_at`,
+  `counter_final`, `counter_step`.
 - **Query / localização**: `query`, `locate`, `here`.
 
 A assinatura padrão das funções nativas é:
@@ -431,18 +433,20 @@ metadata()    -> Err "metadata() requer 1 argumento"
 
 ### `native_state` — `state(key, init)`
 
-**Assinatura**: `state(key: str, init: any) -> content`
+**Assinatura**: `state(key: str, init: any) -> state`
 
 **Argumentos**:
 - `key`: string identificadora.
 - `init`: valor inicial.
 
-**Semântica**: Produz `Content::State { key, init }`. Invisível em layout;
-regista estado mutável runtime.
+**Semântica**: Produz `Value::State { key, init }` (valor de primeira classe
+com métodos `.update`, `.get`, `.display`). Quando usado em posição de markup,
+o eval converte-o para `Content::State { key, init }` para registo no
+`StateRegistry`. Detalhes dos métodos em `rules/stdlib/state.md`.
 
 **Testes canônicos**:
 ```
-state("total", 0) -> Content::State
+state("total", 0) -> Value::State
 state(1, 0)       -> Err "state() requer string como primeiro argumento"
 state("total")    -> Err "state() requer 2 argumentos"
 ```
@@ -530,6 +534,26 @@ state_at("total", 1)       -> Err "string como segundo argumento"
 ---
 
 ## 7. Contadores
+
+### `native_counter` — `counter(selector)`
+
+**Assinatura**: `counter(selector: str | selector) -> counter`
+
+**Argumentos**:
+- `selector`: string de kind ou `Value::Selector` designando um kind.
+
+**Semântica**: Produz `Value::Counter { key }` (valor de primeira classe com
+métodos `.update`, `.step`, `.get`, `.display`, `.at`). Detalhes dos métodos em
+`rules/stdlib/counter.md`.
+
+**Testes canônicos**:
+```
+counter("heading") -> Value::Counter
+counter(heading)   -> Value::Counter { key: "heading" }
+counter(1)         -> Err "counter() requer string ou selector"
+```
+
+---
 
 ### `native_counter_display` — `counter_display(key)` / `counter_display(key, callback)`
 
