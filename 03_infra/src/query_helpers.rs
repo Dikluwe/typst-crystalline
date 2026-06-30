@@ -318,6 +318,7 @@ fn has_any_text(content: &Content) -> bool {
         | Content::MathUnderover(_) | Content::MathOp(_) | Content::MathStyled(_)
         | Content::SmartQuote(_) | Content::Dynamic(_)
         | Content::GridHeader(_) | Content::GridFooter(_) | Content::SetPage { .. }
+        | Content::ContextBlock(_)
         | Content::Empty | Content::Space | Content::Document { .. } | Content::Asset { .. } => false,
     }
 }
@@ -388,6 +389,7 @@ where
         | Content::MathUnderover(_) | Content::MathOp(_) | Content::MathStyled(_)
         | Content::SmartQuote(_) | Content::Dynamic(_)
         | Content::GridHeader(_) | Content::GridFooter(_) | Content::SetPage { .. }
+        | Content::ContextBlock(_)
         | Content::Empty | Content::Space | Content::Text(_)
         | Content::Document { .. } | Content::Asset { .. } => 0,
     }

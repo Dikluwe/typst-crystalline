@@ -1,5 +1,5 @@
 # Prompt L0 — `stdlib/state` — objeto `state` e métodos
-Hash do Código: TBD
+Hash do Código: 56d3b8d0
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/rules/stdlib/state.rs` (novo; funções exportadas para `rules/stdlib/mod.rs` e registadas em `rules/eval/mod.rs::make_stdlib`).

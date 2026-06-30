@@ -251,6 +251,15 @@ pub enum ElementPayload {
         body:   crate::entities::content::Content,
         level:  usize,
     },
+
+    /// **P506** — payload de `Content::ContextBlock`.
+    ///
+    /// Apenas o `id` é necessário para indexação; o closure vive no
+    /// `Content::ContextBlock` e é avaliado na fase de expansão
+    /// pós-introspecção.
+    ContextBlock {
+        id: u64,
+    },
 }
 
 impl std::hash::Hash for ElementPayload {

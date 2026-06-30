@@ -17,7 +17,6 @@ use crate::entities::ast::expr::{
     Arg, Closure as ClosureNode, Expr, FuncCall as FuncCallNode, Param, Pattern,
 };
 use crate::entities::ast::AstNode;
-use crate::entities::content::Content;
 use crate::entities::engine::Engine;
 use crate::entities::func::{ClosureParam, ClosureRepr, Func, FuncRepr};
 use crate::entities::source_result::SourceDiagnostic;
@@ -59,7 +58,7 @@ pub(super) fn eval_args(
 }
 
 /// Aplica uma função (closure, native ou native-with-engine) aos args dados.
-pub(crate) fn apply_func(
+pub fn apply_func(
     func: Func,
     args: Args,
     scopes: &mut Scopes<'_>,
@@ -245,22 +244,6 @@ pub(super) fn eval_func_call(
 ) -> SourceResult<Value> {
     use super::{bindings, rules};
 
-    // Intercepção de `counter(key).method(...)` antes de avaliar o callee.
-    // Anatomia AST: FuncCall { callee: FieldAccess { target: FuncCall(counter, [key]), field: method } }
-    if let Expr::FieldAccess(access) = call.callee() {
-        if let Some(counter_key) = bindings::extract_counter_key(access.target()) {
-            let method_name = access.field().as_str().to_string();
-            return bindings::eval_counter_method(
-                &counter_key,
-                &method_name,
-                call.args(),
-                scopes,
-                ctx,
-                engine,
-            );
-        }
-    }
-
     // **P417 (M)** — Intercepção de `heading.where(field: value)` (method call
     // syntax) antes de avaliar o callee genérico. O target deve avaliar para
     // uma `Value::Func` nativa de elemento (heading, figure, strong, emph, raw).
@@ -322,6 +305,35 @@ pub(super) fn eval_func_call(
             try_dispatch_collection_method(target, method, args, scopes, ctx, engine)
         {
             return result;
+        }
+    }
+
+    // **P506** — Métodos de instância para `state` e `counter`.
+    if let Expr::FieldAccess(access) = call.callee() {
+        let target = eval_expr(access.target(), scopes, ctx, engine)?;
+        let method = access.field().as_str();
+        match target {
+            Value::State(ref state) => {
+                return super::bindings::eval_state_method(
+                    state,
+                    method,
+                    call.args(),
+                    scopes,
+                    ctx,
+                    engine,
+                )
+            }
+            Value::Counter(ref counter) => {
+                return super::bindings::eval_counter_method_value(
+                    counter,
+                    method,
+                    call.args(),
+                    scopes,
+                    ctx,
+                    engine,
+                )
+            }
+            _ => {}
         }
     }
 

@@ -11,10 +11,12 @@ use indexmap::IndexMap;
 use rustc_hash::FxBuildHasher;
 
 use crate::entities::bytes::Bytes;
+use crate::entities::counter::Counter;
 use crate::entities::decimal::Decimal;
 use crate::entities::duration::Duration;
 use crate::entities::regex::Regex;
 use crate::entities::selector::Selector;
+use crate::entities::state::State;
 use crate::entities::symbol::Symbol;
 use crate::entities::version::Version;
 
@@ -132,6 +134,12 @@ pub enum Value {
     /// classe. Exposto via `.named` e `.positional`.
     Args(crate::entities::args::Args),
 
+    /// **P506** — Estado documental mutável (`state("key", init)`).
+    State(State),
+
+    /// **P506** — Counter documental (`counter(heading)`).
+    Counter(Counter),
+
     // ── Variantes futuras — NÃO implementar sem ADR e tipo migrado ───────
     // Variantes futuras restantes:
     // Relative(Relative),       // comprimento relativo — já em L1 como tipo separado
@@ -197,6 +205,8 @@ impl Value {
             Self::Selector(_)  => "selector",
             Self::Symbol(_)    => "symbol",
             Self::Args(_)      => "arguments",
+            Self::State(_)     => "state",
+            Self::Counter(_)   => "counter",
         }
     }
 

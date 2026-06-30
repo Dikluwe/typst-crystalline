@@ -51,6 +51,10 @@ mod collections;
 mod sym;
 // P476 — módulo `color` com operadores lighten/darken/mix/negate.
 mod color;
+// P506 — runtime state/counter/context.
+pub(crate) mod state;
+pub(crate) mod counter;
+pub(crate) mod context;
 
 // Re-exports públicos — preservam o path `crate::rules::stdlib::native_X` usado
 // por `make_stdlib` em `eval/mod.rs`.
@@ -63,10 +67,14 @@ pub use crate::rules::stdlib::foundations::{
     native_counter_step, native_float, native_here, native_hsl, native_hsv, native_int,
     native_len, native_linear_rgb, native_locate, native_luma, native_metadata,
     native_oklab, native_oklch, native_query, native_range, native_repr, native_rgb,
-    native_selector, native_state, native_state_at, native_state_display, native_state_final,
+    native_selector, native_state_at, native_state_display, native_state_final,
     native_state_update, native_state_update_with, native_str, native_str_from_unicode,
     native_type,
 };
+// P506 — state/counter/context como valores de primeira classe.
+pub use crate::rules::stdlib::counter::{native_counter, counter_at, counter_display, counter_get, counter_step, counter_update};
+pub use crate::rules::stdlib::context::native_context;
+pub use crate::rules::stdlib::state::{native_state, state_display, state_get, state_update, value_to_content};
 pub use crate::rules::stdlib::label::native_label;
 pub use crate::rules::stdlib::panic::native_panic;
 pub use crate::rules::stdlib::r#ref::native_ref;

@@ -383,6 +383,10 @@ pub struct TagIntrospector {
     /// **P504** — mapa `Location → Location` do parent imediato no walk.
     /// Populado pós-walk a partir das tags `Start`/`End`.
     pub parent_locations: HashMap<Location, Location>,
+
+    /// **P506** — mapa `ContextBlock id → Location` para expansão
+    /// pós-introspecção. Populado durante o walk.
+    pub context_block_locations: HashMap<u64, Location>,
 }
 
 impl TagIntrospector {

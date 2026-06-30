@@ -17,8 +17,6 @@
 use std::collections::HashMap;
 use std::sync::Arc;
 
-use indexmap::IndexMap;
-
 use comemo::{Track, Tracked, TrackedMut};
 use ecow::EcoString;
 use hayagriva::citationberg::IndependentStyle;
@@ -29,6 +27,7 @@ use crate::entities::show::{RuleId, ShowRule};
 use crate::entities::ast::AstNode;
 use crate::entities::content::Content;
 use crate::entities::elements::bibliography::BibliographyElem;
+use crate::entities::elements::context_block::ContextBlockElem;
 #[cfg(test)]
 use crate::entities::counter_update::CounterUpdate as CounterAction;
 use crate::entities::ast::expr::{ArrayItem, Expr};
@@ -37,7 +36,7 @@ use crate::entities::ast::expr::{BinOp, UnOp};
 use crate::entities::ast::markup::Label as AstLabel;
 use crate::entities::style_chain::StyleChain;
 use crate::entities::syntax_kind::SyntaxKind;
-use crate::entities::func::Func;
+use crate::entities::func::{ClosureRepr, Func};
 use crate::entities::module::Module;
 use crate::entities::scope::Scope;
 use crate::entities::source::Source;
@@ -55,6 +54,7 @@ pub(crate) mod cast;
 pub use cast::{cast_length, CastError};
 mod control_flow;
 pub(crate) mod closures;
+pub use closures::apply_func;
 mod bindings;
 pub(crate) mod rules;
 mod markup;
@@ -159,6 +159,16 @@ pub struct EvalContext {
     /// e outra com `true` (render real). Default `true`.
     pub apply_show_rules: bool,
 
+    /// **P506 — indica que o eval está a correr dentro da expansão de um
+    /// `context { ... }`. Quando `true`, métodos `.get()` e `.display()` de
+    /// `state`/`counter` podem consultar o introspector e a localização actual.
+    pub in_context: bool,
+
+    /// **P506 — contador monotónico para IDs de `ContextBlock`. Garante
+    /// identificadores estáveis entre a criação em eval e a expansão
+    /// pós-introspecção.
+    pub next_context_id: u64,
+
     /// **P429 (DEBT-63)** — styles CSL resolvidos em eval time, indexados pela
     /// chave determinística do `BibliographyElem` correspondente. Transporta-se
     /// para o `Module` no fim do eval e depois para o `BibStore` do
@@ -177,8 +187,17 @@ impl EvalContext {
             current_location: None,
             full_error: false,
             apply_show_rules: true,
+            in_context: false,
+            next_context_id: 0,
             bibliography_styles: HashMap::new(),
         }
+    }
+
+    /// **P506** — gera um ID estável para `ContextBlockElem`.
+    pub fn next_context_id(&mut self) -> u64 {
+        let id = self.next_context_id;
+        self.next_context_id += 1;
+        id
     }
 
     /// **P429 (DEBT-63)** — regista o style CSL resolvido para o
@@ -494,6 +513,14 @@ pub(crate) fn eval_markup(
                         Value::Symbol(s)  => {
                             parts.push(Content::Text(EcoString::from(s.ch)));
                         }
+                        // P506 — state(key, init) em markup → Content::State locatável.
+                        Value::State(s) => parts.push(Content::state(
+                            s.key.to_string(),
+                            s.init.as_ref().clone(),
+                        )),
+                        // P506 — counter(selector) em markup → terminal Empty (só é
+                        // visível quando emitido via .update()/.step()/.display()).
+                        Value::Counter(_) => {}
                         Value::None       => {}
                         _                 => {}
                     }
@@ -739,6 +766,26 @@ pub(crate) fn eval_expr(
             }
         }
 
+        // **P506** — `context { body }` cria um bloco de delayed evaluation.
+        // O parser expõe `Contextual` como sugar; construímos uma closure
+        // sem argumentos que captura o scope actual e devolvemos
+        // `Content::ContextBlock`.
+        Expr::Contextual(node) => {
+            let body = node.body().to_untyped().clone();
+            let captured = std::sync::Arc::new(scopes.snapshot());
+            let closure = Func::closure(ClosureRepr {
+                name: None,
+                params: Vec::new(),
+                sink_name: None,
+                body,
+                captured,
+            });
+            let id = ctx.next_context_id();
+            Ok(Value::Content(Content::ContextBlock(Arc::new(
+                ContextBlockElem { id, closure },
+            ))))
+        }
+
         // Fronteira deliberada — requer tipos não migrados (Content, Styles, etc.)
         _ => Ok(Value::None),
     }
@@ -774,7 +821,7 @@ fn make_stdlib() -> Scope {
         make_calc_module, make_gradient_module, make_math_module, native_accent, native_align, native_assert, native_bibliography, native_block, native_box, native_cancel, native_circle, native_cite, native_divider,
         native_ellipse, native_emph, native_figure, native_float, native_footnote, native_grid, native_h, native_heading,
         native_hide, native_image, native_int, native_len, native_line, native_outline,
-        native_counter_at, native_counter_display, native_counter_final, native_counter_step, native_curve, native_eval, native_here, native_locate, native_lower, native_lorem, native_luma, native_measure, native_metadata, native_move, native_pad, native_pagebreak, native_place, native_polygon, native_query, native_regex, native_selector, native_state, native_state_at, native_state_display, native_state_final, native_state_update, native_state_update_with,
+        native_counter, native_counter_at, native_counter_display, native_counter_final, native_counter_step, native_context, native_curve, native_eval, native_here, native_locate, native_lower, native_lorem, native_luma, native_measure, native_metadata, native_move, native_pad, native_pagebreak, native_place, native_polygon, native_query, native_regex, native_selector, native_state, native_state_at, native_state_display, native_state_final, native_state_update, native_state_update_with,
         native_asset, native_cmyk, native_colbreak, native_columns, native_document, native_hsl, native_hsv, native_label, native_linear_rgb, native_link, native_oklab, native_oklch, native_op, native_panic, native_quote, native_range, native_rect, native_repeat, native_replace, native_raw, native_repr, native_rgb, native_rotate,
         native_square, native_tiling,
         native_highlight, native_scale, native_skew, native_smallcaps, native_smartquote, native_stack, native_str, native_str_from_unicode, native_strike, native_stroke, native_strong, native_subscript, native_superscript, native_table, native_table_cell, native_table_footer, native_table_header, native_grid_cell, native_grid_footer, native_grid_header, native_terms, native_type, native_underline, native_underover, native_overline, native_upper, native_v,
@@ -900,8 +947,13 @@ fn make_stdlib() -> Scope {
     scope.define("eval",    Value::Func(Func::native_with_engine("eval", native_eval)));
     // P169 (M9 sub-passo 1): metadata(value) — feature Introspection vanilla.
     scope.define("metadata", Value::Func(Func::native("metadata", native_metadata)));
-    // P171 (M9 sub-passo 3): state(key, init) + state_update(key, value).
+    // P506: state(key, init) como valor de primeira classe.
     scope.define("state", Value::Func(Func::native("state", native_state)));
+    // P506: counter(selector) como valor de primeira classe.
+    scope.define("counter", Value::Func(Func::native("counter", native_counter)));
+    // P506: context { expr } — delayed evaluation block.
+    scope.define("context", Value::Func(Func::native("context", native_context)));
+    // P171 (M9 sub-passo 3): state_update(key, value) — mantido como compatibilidade.
     scope.define("state_update", Value::Func(Func::native("state_update", native_state_update)));
     // P236 (Fase 5 Layout candidata Categoria D 1/?, refino aditivo
     // pós-P236.div-1): state_final(key) — valor final do state pós-walk.

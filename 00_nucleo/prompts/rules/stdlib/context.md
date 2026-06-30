@@ -1,5 +1,5 @@
 # Prompt L0 — `stdlib/context` — delayed evaluation via `context`
-Hash do Código: TBD
+Hash do Código: 73231203
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/rules/stdlib/context.rs` (novo; função exportada para `rules/stdlib/mod.rs` e registada em `rules/eval/mod.rs::make_stdlib`).

@@ -64,6 +64,8 @@ pub mod metadata;
 pub mod state;
 pub mod state_display;
 pub mod state_update;
+// P506 — context block (delayed evaluation).
+pub mod context_block;
 // Lote 7 P322 — por largura (5 variantes element-shaped).
 pub mod align;
 pub mod hide;

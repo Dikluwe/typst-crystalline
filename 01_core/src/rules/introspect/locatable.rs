@@ -46,6 +46,11 @@ pub fn is_locatable(content: &Content) -> bool {
         // (não-locatable; single-pass Layouter directo).
         Content::CounterDisplayCallback(_) => true,
 
+        // ── Locatable em P506 — ContextBlock (delayed evaluation via
+        // `context { expr }`). Walk emite tag para capturar a Location
+        // onde o bloco aparece; expansão pós-introspecção avalia o closure.
+        Content::ContextBlock(_) => true,
+
         // ── Locatable em P178 — Outline fecha lacuna #7 ────────────
         Content::Outline(_) => true,
 

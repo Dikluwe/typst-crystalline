@@ -87,6 +87,11 @@ pub enum ElementKind {
     /// em `apply_counter_displays` pós-fixpoint. Distinto de
     /// `Content::CounterDisplay { kind }` legacy (não-locatable).
     CounterDisplay,
+
+    /// **P506** — `Content::ContextBlock` (delayed evaluation via
+    /// `context { expr }`). Locatável para capturar a Location do
+    /// ponto do documento onde o bloco aparece.
+    ContextBlock,
 }
 
 impl ElementKind {
@@ -113,6 +118,7 @@ impl ElementKind {
             ElementKind::Footnote      => "footnote",
             ElementKind::StateDisplay  => "state_display",
             ElementKind::CounterDisplay => "counter_display",
+            ElementKind::ContextBlock  => "context_block",
         }
     }
 
@@ -141,6 +147,7 @@ impl ElementKind {
             "footnote"       => Some(ElementKind::Footnote),
             "state_display"  => Some(ElementKind::StateDisplay),
             "counter_display" => Some(ElementKind::CounterDisplay),
+            "context_block"  => Some(ElementKind::ContextBlock),
             _                => None,
         }
     }

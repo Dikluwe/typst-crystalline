@@ -78,6 +78,10 @@ pub fn extract_payload(content: &Content) -> Option<ElementPayload> {
         // mantém `is_locatable ↔ extract_payload.is_some()` (locatable.rs).
         Content::Dynamic(e) => e.dyn_to_payload(),
 
+        // P506 — ContextBlock captura a sua localização no walk para a
+        // expansão pós-introspecção. Delega ao elemento para o payload.
+        Content::ContextBlock(e) => e.to_payload(),
+
         // Todas as outras variantes não são locatable em M1.
         // Adicionar uma variant locatable nova exige edição explícita
         // deste match (compilador não força exaustividade aqui porque

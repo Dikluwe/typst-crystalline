@@ -13,21 +13,31 @@
 //! pelo 04_wiring (CLI) e por testes.
 
 #![allow(deprecated)] // P483 — FrameItem::Text fallback path legítimo
-use comemo::Track;
+use std::collections::HashMap;
+use std::sync::Arc;
+
+use comemo::{Track, TrackedMut};
 
 use typst_core::contracts::world::World;
+use typst_core::entities::args::Args;
+use typst_core::entities::content::Content;
+use typst_core::entities::elements::context_block::ContextBlockElem;
+use typst_core::entities::engine::Engine;
 use typst_core::entities::font_book::{FontBook, FontVariant};
 use typst_core::entities::font_list::FontList;
 use typst_core::entities::layout_types::{FrameItem, PagedDocument};
 use typst_core::entities::module::Module;
+use typst_core::entities::show::ShowRule;
+use typst_core::entities::sink::Sink as TypstSink;
 use typst_core::entities::source::Source;
 use typst_core::entities::source_result::{SourceDiagnostic, SourceResult};
+use typst_core::entities::style_chain::StyleChain;
 use typst_core::entities::world_types::{Route, Routines, Sink, Traced};
-use typst_core::rules::eval::eval_with_full_error;
-// P429 (DEBT-63): pipeline passa a orquestrar introspect + injecção de
-// styles resolvidos no BibStore antes de chamar layout.
+use typst_core::rules::eval::{apply_func, eval_with_full_error, EvalContext};
 use typst_core::rules::introspect::introspect_with_introspector;
 use typst_core::rules::layout::layout_with_introspector;
+use typst_core::rules::scopes::Scopes;
+use typst_core::rules::stdlib::value_to_content;
 
 use crate::export::{export_pdf, export_pdf_multifont, export_pdf_with_font};
 
@@ -73,6 +83,114 @@ fn eval_to_module_with_sink_full_error(
     );
     let warnings = sink.into_diagnostics();
     (result, warnings)
+}
+
+/// **P506** — Expande todos os `Content::ContextBlock` do documento
+/// avaliando as closures num contexto com `in_context = true` e a
+/// localização capturada pelo walk de introspecção.
+pub fn expand_context_blocks(
+    content: Content,
+    intr: &typst_core::entities::introspector::TagIntrospector,
+    world: &dyn World,
+    source: &Source,
+) -> SourceResult<Content> {
+    if intr.context_block_locations.is_empty() {
+        return Ok(content);
+    }
+
+    // Colecta os ContextBlocks pelo id.
+    let blocks = collect_context_blocks(&content);
+
+    // Resolve cada ContextBlock.
+    let mut resolved = HashMap::new();
+    for (id, loc) in &intr.context_block_locations {
+        let Some(elem) = blocks.get(id) else { continue };
+        let mut ctx = EvalContext::new();
+        ctx.in_context = true;
+        ctx.introspector = intr.clone();
+        ctx.current_location = Some(*loc);
+
+        let mut scopes = Scopes::new(None);
+        let mut styles = StyleChain::default_chain();
+        let mut show_rules: Arc<[ShowRule]> = Arc::from([]);
+        let mut active_guards: Vec<u64> = Vec::new();
+        let mut sink = TypstSink::new();
+        let route = Route::root().with_id(source.id());
+        let mut tracked_sink = sink.track_mut();
+        let mut local_sink = TrackedMut::reborrow_mut(&mut tracked_sink);
+        let mut engine = Engine {
+            world,
+            route: route.track(),
+            styles: &mut styles,
+            show_rules: &mut show_rules,
+            active_guards: &mut active_guards,
+            current_file: source.id(),
+            sink: &mut local_sink,
+        };
+
+        let result = apply_func(
+            elem.closure.clone(),
+            Args::positional(vec![]),
+            &mut scopes,
+            &mut ctx,
+            &mut engine,
+        )?;
+        resolved.insert(*id, value_to_content(&result));
+    }
+
+    Ok(substitute_context_blocks(content, &resolved))
+}
+
+fn collect_context_blocks(content: &Content) -> HashMap<u64, Arc<ContextBlockElem>> {
+    let mut map = HashMap::new();
+    match content {
+        Content::ContextBlock(elem) => {
+            map.insert(elem.id, elem.clone());
+        }
+        Content::Sequence(seq) => {
+            for child in seq.iter() {
+                map.extend(collect_context_blocks(child));
+            }
+        }
+        Content::Styled(inner, _) => {
+            map.extend(collect_context_blocks(inner));
+        }
+        Content::Strong(e) => map.extend(collect_context_blocks(&e.body)),
+        Content::Emph(e) => map.extend(collect_context_blocks(&e.body)),
+        Content::Heading(e) => map.extend(collect_context_blocks(&e.body)),
+        Content::Raw(_) | Content::Text(_) | Content::Space | Content::Empty => {}
+        // Containers não listados: ContextBlock não deve aparecer aninhado
+        // dentro de Grid/Table/etc. neste subset. Ignorar defensivamente.
+        _ => {}
+    }
+    map
+}
+
+fn substitute_context_blocks(
+    content: Content,
+    resolved: &HashMap<u64, Content>,
+) -> Content {
+    match content {
+        Content::ContextBlock(elem) => {
+            resolved.get(&elem.id).cloned().unwrap_or(Content::Empty)
+        }
+        Content::Sequence(seq) => Content::Sequence(
+            seq.iter()
+                .map(|c| substitute_context_blocks(c.clone(), resolved))
+                .collect::<Vec<_>>()
+                .into(),
+        ),
+        Content::Styled(inner, styles) => Content::Styled(
+            Box::new(substitute_context_blocks(*inner, resolved)),
+            styles,
+        ),
+        Content::Strong(e) => Content::strong(substitute_context_blocks(e.body.clone(), resolved)),
+        Content::Emph(e) => Content::emph(substitute_context_blocks(e.body.clone(), resolved)),
+        Content::Heading(e) => {
+            Content::heading(e.level, substitute_context_blocks(e.body.clone(), resolved))
+        }
+        other => other,
+    }
 }
 
 /// Pipeline completo `Source` → bytes PDF.
@@ -125,7 +243,12 @@ pub fn compile_to_pdf_bytes_full_error(
     for (key, style) in module.bibliography_styles() {
         intr.bib_store.add_style(*key, style.clone());
     }
-    let doc = layout_with_introspector(content, intr);
+    // P506: expande ContextBlocks pós-introspecção (delayed evaluation).
+    let content = match expand_context_blocks(content.clone(), &intr, world, source) {
+        Ok(c) => c,
+        Err(errors) => return (Err(errors), warnings),
+    };
+    let doc = layout_with_introspector(&content, intr);
     // P482 — shaping pass: Text → TextShaped (Trilha 5 Fase 1, ADR-0120 A1).
     let doc = crate::shaper::shape_document(world, doc);
     // Passo 146 (ADR-0055 decisão 5): dispatch multi-font.

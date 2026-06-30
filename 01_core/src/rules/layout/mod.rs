@@ -1093,6 +1093,10 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
             // ── Passo 155 (ADR-0060 Fase 1, sub-passo 2) — quote ───────────
             // Atomizado (ADR-0109, P381) → layout/quote.rs.
             Content::Quote(e) => quote::layout(self, e),
+
+            // ── P506 — ContextBlock (delayed evaluation). Deve ter sido
+            // expandido antes do layout; se chegou aqui, é defensive no-op.
+            Content::ContextBlock(_) => {}
         }
     }
     pub fn finish(mut self) -> PagedDocument {

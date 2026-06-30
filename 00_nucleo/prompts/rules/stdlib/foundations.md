@@ -1,5 +1,5 @@
 # Prompt L0 — `stdlib/foundations` — utilitários, cores, conversões e introspeção
-Hash do Código: ecb5e930
+Hash do Código: 1f0a2f50
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/rules/stdlib/foundations.rs`

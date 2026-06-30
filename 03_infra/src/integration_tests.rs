@@ -2874,4 +2874,88 @@ mod integration {
         let pdf = compile_to_pdf(src);
         assert!(!pdf.is_empty(), "query-metadata.typ deve produzir PDF");
     }
+
+    // ── P506 — runtime state/counter/context ───────────────────────────────
+
+    #[test]
+    fn p506_context_block_expande_valor_simples() {
+        let (world, _dir) = world_from_str("#context { 1 + 2 }");
+        let source = world.source(world.main()).unwrap();
+        let module = do_eval(&world, &source).unwrap();
+        let content = module.content().unwrap();
+        let intr = introspect_with_introspector(content);
+        let expanded = crate::pipeline::expand_context_blocks(
+            content.clone(),
+            &intr,
+            &world,
+            &source,
+        )
+        .unwrap();
+        assert_eq!(expanded.plain_text(), "3");
+    }
+
+    #[test]
+    fn p506_state_update_e_get_via_context() {
+        let src = "#let s = state(\"x\", 0)\n#s.update(5)\n#context s.get()";
+        let (world, _dir) = world_from_str(src);
+        let source = world.source(world.main()).unwrap();
+        let module = do_eval(&world, &source).unwrap();
+        let content = module.content().unwrap();
+        let intr = introspect_with_introspector(content);
+        let expanded = crate::pipeline::expand_context_blocks(
+            content.clone(),
+            &intr,
+            &world,
+            &source,
+        )
+        .unwrap();
+        assert!(expanded.plain_text().contains("5"), "esperado '5' em {:?}", expanded.plain_text());
+    }
+
+    #[test]
+    fn p506_counter_step_e_get_via_context() {
+        let src = "#counter(heading).step()\n#context counter(heading).get()";
+        let (world, _dir) = world_from_str(src);
+        let source = world.source(world.main()).unwrap();
+        let module = do_eval(&world, &source).unwrap();
+        let content = module.content().unwrap();
+        let intr = introspect_with_introspector(content);
+        let expanded = crate::pipeline::expand_context_blocks(
+            content.clone(),
+            &intr,
+            &world,
+            &source,
+        )
+        .unwrap();
+        assert!(expanded.plain_text().contains("1"), "esperado '1' em {:?}", expanded.plain_text());
+    }
+
+    #[test]
+    fn p506_counter_at_label_via_context() {
+        let src = concat!(
+            "#counter(heading).step()\n",
+            "= Heading <lbl>\n",
+            "#context counter(heading).at(<lbl>)"
+        );
+        let (world, _dir) = world_from_str(src);
+        let source = world.source(world.main()).unwrap();
+        let module = do_eval(&world, &source).unwrap();
+        let content = module.content().unwrap();
+        let intr = introspect_with_introspector(content);
+        let expanded = crate::pipeline::expand_context_blocks(
+            content.clone(),
+            &intr,
+            &world,
+            &source,
+        )
+        .unwrap();
+        assert!(expanded.plain_text().contains("2"), "esperado '2' em {:?}", expanded.plain_text());
+    }
+
+    #[test]
+    fn p506_pipeline_com_context_state_produz_pdf() {
+        let src = "#let s = state(\"x\", 0)\n#s.update(7)\n#context s.display()";
+        let pdf = compile_to_pdf(src);
+        assert!(!pdf.is_empty());
+    }
 }

@@ -422,6 +422,10 @@ fn materialize_time(content: &Content, intr: &TagIntrospector, location: Locatio
             styles.clone(),
         ),
 
+        // P506: ContextBlock é terminal em materialize_time (o conteúdo real
+        // só existe após expansão pós-introspecção).
+        Content::ContextBlock(_) => content.clone(),
+
         // Lote F-1 (P334): a fronteira dinâmica é **terminal** aqui (clone). A
         // travessia/realização do nó dinâmico (e dos seus filhos) chega em F-2
         // (L0 `f_fronteira_e1.md` §3a.7); em F-1 só existe em fixtures.
@@ -692,6 +696,15 @@ fn populate_intr_from_tag_start(
                 body.clone(),
                 *level,
             ));
+        }
+        ElementPayload::ContextBlock { id } => {
+            // P506: ContextBlock só precisa de ser locatable (tag emitida);
+            // a expansão pós-introspecção resolve o closure.
+            intr.kind_index
+                .entry(ElementKind::ContextBlock)
+                .or_default()
+                .push(loc);
+            intr.context_block_locations.insert(*id, loc);
         }
     }
 }
@@ -1300,6 +1313,11 @@ pub(crate) fn walk(
                 .or_default()
                 .push(title_loc);
         }
+
+        // P506 — ContextBlock é terminal no walk (a tag já foi emitida no
+        // topo via extract_payload; o corpo é uma closure avaliada na
+        // fase de expansão pós-introspecção).
+        Content::ContextBlock(_) => {}
 
         // P397 — Document/Asset são metadata/resources; não entram no walk
         // de conteúdo renderizável.

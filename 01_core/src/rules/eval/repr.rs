@@ -71,6 +71,8 @@ pub fn repr_value(v: &Value) -> String {
         Value::Selector(s) => repr_selector(s),
         Value::Symbol(s) => s.ch.to_string(),
         Value::Args(_) => "arguments(...)".to_string(),
+        Value::State(_) => "state(...)".to_string(),
+        Value::Counter(_) => "counter(...)".to_string(),
     }
 }
 
@@ -221,6 +223,7 @@ pub fn repr_content(c: &Content) -> String {
         Content::StateUpdate(_) => "state.update".to_string(),
         Content::StateDisplay(_) => "state.display".to_string(),
         Content::CounterDisplayCallback(_) => "counter.display.callback".to_string(),
+        Content::ContextBlock(_) => "context(...)".to_string(),
         Content::Dynamic(_) => "dynamic".to_string(),
         Content::SetPage { .. } => "setpage".to_string(),
         Content::Document { title, .. } => {

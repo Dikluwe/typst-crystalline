@@ -73,6 +73,7 @@ use crate::entities::elements::table_footer::TableFooterElem;
 use crate::entities::elements::table_header::TableHeaderElem;
 use crate::entities::elements::v_space::VSpaceElem;
 // Lote 6 P321 — família state/counter + Metadata (7 variantes).
+use crate::entities::elements::context_block::ContextBlockElem;
 use crate::entities::elements::counter_display::CounterDisplayElem;
 use crate::entities::elements::counter_display_callback::CounterDisplayCallbackElem;
 use crate::entities::elements::counter_update::CounterUpdateElem;
@@ -1051,6 +1052,10 @@ pub enum Content {
     /// (locatável).
     CounterDisplayCallback(Arc<CounterDisplayCallbackElem>),
 
+    /// **P506** — Bloco de delayed evaluation (`context { expr }`).
+    /// `entities::elements::context_block::ContextBlockElem` (locatável).
+    ContextBlock(Arc<ContextBlockElem>),
+
     /// **Lote F-1 (P334) — a fronteira de extensão E1** (ADR-0106; L0
     /// `entities/f_fronteira_e1.md` §3a). A **única** porta de extensão: um
     /// elemento de utilizador (`impl Element`) entra aqui via `Arc<dyn
@@ -1174,6 +1179,7 @@ fn fmt_content(c: &Content, f: &mut fmt::Formatter<'_>) -> fmt::Result {
             }
         }
         Content::Asset { path, .. } => write!(f, "asset({:?})", path),
+        Content::ContextBlock(e) => write!(f, "context({:?})", e),
     }
 }
 
@@ -2258,6 +2264,9 @@ impl Content {
                 title.as_ref().map_or(String::new(), |t| t.plain_text())
             }
             Self::Asset { .. } => String::new(),
+            // P506: ContextBlock é terminal para plain_text (conteúdo real só
+            // existe após expansão pós-introspecção).
+            Self::ContextBlock(_) => String::new(),
             // Lote F-1 (P334): a fronteira dinâmica delega ao elemento.
             Self::Dynamic(e) => e.dyn_plain_text(),
         }
@@ -2636,6 +2645,9 @@ impl Content {
                 keywords: keywords.clone(),
             },
             Content::Asset { .. } => self.clone(),
+            // P506: ContextBlock é terminal em map_content (o corpo é closure,
+            // não content; expansão acontece pós-introspecção).
+            Content::ContextBlock(_) => self.clone(),
             // Lote F-1 (P334): a fronteira dinâmica recursa nos filhos via o
             // elemento (mesmo contrato dos 65: devolve o nó com filhos
             // transformados; o hub aplica `transform` ao nó abaixo).
@@ -2864,6 +2876,8 @@ impl Content {
                 keywords: keywords.clone(),
             },
             Content::Asset { .. } => self.clone(),
+            // P506: ContextBlock é terminal em map_text.
+            Content::ContextBlock(_) => self.clone(),
             // Lote F-1 (P334): a fronteira dinâmica delega ao elemento.
             Content::Dynamic(e) => e.dyn_map_text(transform),
         }

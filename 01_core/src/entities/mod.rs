@@ -35,6 +35,7 @@ pub mod parity;
 pub mod sides;
 // P242 — Corners<T> paralelo Sides<T> para radius rounded-rect.
 pub mod corners;
+pub mod counter;
 pub mod counter_state_legacy;
 pub mod counter_update;
 pub mod counter_registry;
@@ -51,6 +52,7 @@ pub mod introspector;
 pub mod label_registry;
 pub mod metadata_store;
 pub mod selector;
+pub mod state;
 pub mod state_registry;
 pub mod state_update;
 pub mod location;

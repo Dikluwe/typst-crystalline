@@ -16,13 +16,18 @@ use crate::entities::ast::code::{LetBinding, LetBindingKind};
 use crate::entities::ast::expr::{Arg, Expr};
 use crate::entities::ast::AstNode;
 use crate::entities::content::Content;
+use crate::entities::counter::Counter;
 use crate::entities::counter_update::CounterUpdate as CounterAction;
 use crate::entities::element_kind::ElementKind;
 use crate::entities::engine::Engine;
 use crate::entities::selector::Selector;
 use crate::entities::source_result::{SourceDiagnostic, SourceResult};
+use crate::entities::span::Span;
+use crate::entities::state::State;
 use crate::entities::value::Value;
 use crate::rules::scopes::Scopes;
+use crate::rules::stdlib::counter::{counter_at, counter_display, counter_get, counter_step, counter_update};
+use crate::rules::stdlib::state::{state_display, state_get, state_update};
 
 use super::{eval_expr, EvalContext};
 
@@ -188,6 +193,168 @@ pub(super) fn eval_counter_method<'a>(
             }
         }
     }
+}
+
+/// **P506** — Despacha métodos de `Value::State`: `.update()`, `.get()`,
+/// `.display()`.
+pub(super) fn eval_state_method(
+    state: &State,
+    method: &str,
+    args: crate::entities::ast::expr::Args<'_>,
+    scopes: &mut Scopes<'_>,
+    ctx: &mut EvalContext,
+    engine: &mut Engine<'_>,
+) -> SourceResult<Value> {
+    use crate::rules::eval::closures::eval_args;
+    let span = args.span();
+    match method {
+        "update" => {
+            let args = eval_args(args, scopes, ctx, engine)?;
+            match args.items.as_slice() {
+                [value] => Ok(state_update(state.key.clone(), value.clone())),
+                _ => Err(vec![SourceDiagnostic::error(
+                    span,
+                    "state.update() requer 1 argumento".to_string(),
+                )]),
+            }
+        }
+        "get" => {
+            let _ = eval_args(args, scopes, ctx, engine)?;
+            state_get(state, ctx, span)
+        }
+        "display" => {
+            let args = eval_args(args, scopes, ctx, engine)?;
+            state_display(state, &args, scopes, ctx, engine, span)
+        }
+        _ => Err(vec![SourceDiagnostic::error(
+            span,
+            format!("state não tem método '{}'", method),
+        )]),
+    }
+}
+
+/// **P506** — Despacha métodos de `Value::Counter`: `.update()`, `.step()`,
+/// `.get()`, `.display()`, `.at()`.
+pub(super) fn eval_counter_method_value(
+    counter: &Counter,
+    method: &str,
+    args: crate::entities::ast::expr::Args<'_>,
+    scopes: &mut Scopes<'_>,
+    ctx: &mut EvalContext,
+    engine: &mut Engine<'_>,
+) -> SourceResult<Value> {
+    use crate::rules::eval::closures::eval_args;
+    let span = args.span();
+    match method {
+        "update" => {
+            let args = eval_args(args, scopes, ctx, engine)?;
+            counter_update(counter.key.clone(), args.items.into_iter().next().unwrap_or(Value::None))
+        }
+        "step" => {
+            let _ = eval_args(args, scopes, ctx, engine)?;
+            Ok(counter_step(counter.key.clone()))
+        }
+        "get" => {
+            let _ = eval_args(args, scopes, ctx, engine)?;
+            counter_get(counter, ctx, span)
+        }
+        "display" => {
+            // at: <label> variant doesn't require context (P504 semantics preserved).
+            let mut at_label: Option<crate::entities::label::Label> = None;
+            let mut pattern: Option<String> = None;
+            for arg in args.items() {
+                match arg {
+                    Arg::Named(named) if named.name().as_str() == "at" => {
+                        match named.expr() {
+                            Expr::Label(node) => {
+                                at_label = Some(crate::entities::label::Label(node.get().to_string()));
+                            }
+                            other => {
+                                if let Ok(Value::Str(s)) = eval_expr(other, scopes, ctx, engine) {
+                                    at_label = Some(crate::entities::label::Label(s.to_string()));
+                                }
+                            }
+                        }
+                    }
+                    Arg::Pos(expr) if pattern.is_none() => {
+                        if let Ok(Value::Str(s)) = eval_expr(expr, scopes, ctx, engine) {
+                            pattern = Some(s.to_string());
+                        }
+                    }
+                    _ => {}
+                }
+            }
+            if let Some(label) = at_label {
+                use crate::entities::introspector::Introspector;
+                let text = ctx
+                    .introspector
+                    .query_by_label(&label)
+                    .and_then(|loc| ctx.introspector.formatted_counter_at(counter.key.as_str(), loc))
+                    .unwrap_or_default();
+                let rendered = match pattern {
+                    Some(p) if !p.is_empty() => {
+                        if p.ends_with('.') {
+                            let mut out = text.clone();
+                            out.push('.');
+                            out
+                        } else {
+                            format!("{p}{text}")
+                        }
+                    }
+                    _ => text,
+                };
+                Ok(Value::Content(Content::text(rendered)))
+            } else {
+                let args = eval_args(args, scopes, ctx, engine)?;
+                counter_display(counter, &args, scopes, ctx, engine, span)
+            }
+        }
+        "at" => {
+            // P506 — counter.at(label): o parser cristalino avalia `<label>`
+            // como Value::None; extraímos a string directamente do nó AST
+            // para suportar a sintaxe vanilla.
+            let label = extract_label_from_args(args, scopes, ctx, engine, span)?;
+            counter_at(counter, label, ctx, span)
+        }
+        _ => Err(vec![SourceDiagnostic::error(
+            span,
+            format!("counter não tem método '{}'", method),
+        )]),
+    }
+}
+
+/// **P506** — Extrai uma `Label` do primeiro argumento de `counter.at(label)`.
+/// Suporta `<label>` (nó AST Label → Value::None no eval cristalino) e strings.
+fn extract_label_from_args(
+    args: crate::entities::ast::expr::Args<'_>,
+    scopes: &mut Scopes<'_>,
+    ctx: &mut EvalContext,
+    engine: &mut Engine<'_>,
+    span: Span,
+) -> SourceResult<crate::entities::label::Label> {
+    use crate::entities::ast::expr::Arg;
+    if let Some(first) = args.items().next() {
+        match first {
+            Arg::Pos(Expr::Label(node)) => {
+                return Ok(crate::entities::label::Label(node.get().to_string()));
+            }
+            Arg::Pos(expr) => {
+                let value = eval_expr(expr, scopes, ctx, engine)?;
+                match value {
+                    Value::Str(s) => return Ok(crate::entities::label::Label(s.to_string())),
+                    Value::Content(crate::entities::content::Content::Label(e)) => {
+                        return Ok(crate::entities::label::Label(e.name.to_string()));
+                    }
+                    _ => {}
+                }
+            }
+            _ => {}
+        }
+    }
+    Err(vec![SourceDiagnostic::error(
+        span,
+        "counter.at() requer label ou string como argumento".to_string(),
+    )])
 }
 
 /// **P417 (M)** — Tenta avaliar `<elemento>.where(field: value)`.
