@@ -295,6 +295,8 @@ fn materialize_time(content: &Content, intr: &TagIntrospector, location: Locatio
         // Passo 220 (ADR-0078 sub-fase b 4/4) — colbreak leaf.
         | Content::Colbreak(_)
         | Content::Shape { .. }
+        // Passo 513 — Curve é leaf não-locatable.
+        | Content::Curve(_)
         // P169 (M9): Metadata é terminal — clonar directamente.
         | Content::Metadata(_)
         // P171 (M9): State e StateUpdate são terminais.
@@ -348,6 +350,8 @@ fn materialize_time(content: &Content, intr: &TagIntrospector, location: Locatio
         Content::Grid(e) => Content::Grid(std::sync::Arc::new(
             crate::entities::elements::grid::GridElem {
                 cells:  e.cells.iter().map(|c| materialize_time(c, intr, location)).collect(),
+                    hlines: vec![],
+                    vlines: vec![],
                 header: e.header.as_ref().map(|h| materialize_time(h, intr, location)),
                 footer: e.footer.as_ref().map(|f| materialize_time(f, intr, location)),
                 ..(**e).clone()
@@ -356,6 +360,8 @@ fn materialize_time(content: &Content, intr: &TagIntrospector, location: Locatio
         // Modelo D (Lote 5 P320): GridHeader/GridFooter via construtor.
         Content::GridHeader(e) => Content::grid_header(materialize_time(&e.body, intr, location), e.repeat),
         Content::GridFooter(e) => Content::grid_footer(materialize_time(&e.body, intr, location), e.repeat),
+        // Passo 512 — linhas em grid/table são terminais.
+        Content::GridHLine(_) | Content::GridVLine(_) => content.clone(),
         // Modelo D (Lote 12 P327): GridCell — recurse no body via struct-update.
         Content::GridCell(e) => Content::GridCell(std::sync::Arc::new(
             crate::entities::elements::grid_cell::GridCellElem {
@@ -368,6 +374,8 @@ fn materialize_time(content: &Content, intr: &TagIntrospector, location: Locatio
             crate::entities::elements::table::TableElem {
                 caption: e.caption.as_ref().map(|c| materialize_time(c, intr, location)),
                 children: e.children.iter().map(|c| materialize_time(c, intr, location)).collect(),
+                    hlines: vec![],
+                    vlines: vec![],
                 ..(**e).clone()
             },
         )),
@@ -381,6 +389,8 @@ fn materialize_time(content: &Content, intr: &TagIntrospector, location: Locatio
         // Modelo D (Lote 5 P320): TableHeader/TableFooter via construtor.
         Content::TableHeader(e) => Content::table_header(materialize_time(&e.body, intr, location), e.repeat),
         Content::TableFooter(e) => Content::table_footer(materialize_time(&e.body, intr, location), e.repeat),
+        // Passo 512 — linhas em grid/table são terminais.
+        Content::TableHLine(_) | Content::TableVLine(_) => content.clone(),
         // Passo 159A — par acoplado Bibliography + Cite. Recurse em
         // title (Bibliography) ou supplement (Cite); preserva
         // entries/key/style/locale/path (P429).
@@ -1197,6 +1207,10 @@ pub(crate) fn walk(
         // P224.C — GridCell (recurse no body; paridade P157B TableCell).
         Content::GridCell(e) => walk(&e.body, locator, tags, intr, auto_label_counter, lang, chain, None),
 
+        // Passo 512 — linhas em grid/table não têm body recursivo.
+        Content::GridHLine(_) | Content::GridVLine(_) => {}
+        Content::TableHLine(_) | Content::TableVLine(_) => {}
+
         // P461 — Table locatable. Tag emitido no walk top; aqui recursa
         // em caption (se houver) + children, espelhando Figure.
         Content::Table(e) => {
@@ -1323,6 +1337,9 @@ pub(crate) fn walk(
         // de conteúdo renderizável.
         Content::Document { .. } => {}
         Content::Asset { .. }    => {}
+
+        // Passo 513 — Curve é leaf não-locatable; sem descendência.
+        Content::Curve(_) => {}
     }
 
     // P162 .E: emissão Tag::End após recursão. Usa o mesmo Location

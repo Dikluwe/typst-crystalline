@@ -18,11 +18,14 @@ use crate::entities::source_result::SourceResult;
 
 /// Grade: `cells` distribuídas em `columns`×`rows`; `header`/`footer` opcionais;
 /// `gutter`/`align`/`inset`/`stroke`/`fill` cosméticos.
+/// **P512**: `hlines`/`vlines` são renderizadas pelo layout_grid.
 #[derive(Debug, Clone, PartialEq)]
 pub struct GridElem {
     pub columns: Vec<TrackSizing>,
     pub rows:    Vec<TrackSizing>,
     pub cells:   Vec<Content>,
+    pub hlines:  Vec<crate::entities::elements::grid_hline::GridHLineElem>,
+    pub vlines:  Vec<crate::entities::elements::grid_vline::GridVLineElem>,
     pub gutter:  Option<Length>,
     pub align:   Option<Align2D>,
     pub inset:   Sides<Length>,
@@ -59,6 +62,8 @@ impl Element for GridElem {
             columns: self.columns.clone(),
             rows:    self.rows.clone(),
             cells:   new_cells?,
+            hlines:  self.hlines.clone(),
+            vlines:  self.vlines.clone(),
             gutter:  self.gutter,
             align:   self.align,
             inset:   self.inset,
@@ -77,6 +82,8 @@ impl Element for GridElem {
             columns: self.columns.clone(),
             rows:    self.rows.clone(),
             cells:   self.cells.iter().map(|c| c.map_text(transform)).collect(),
+            hlines:  self.hlines.clone(),
+            vlines:  self.vlines.clone(),
             gutter:  self.gutter,
             align:   self.align,
             inset:   self.inset,
@@ -98,6 +105,7 @@ mod tests {
         GridElem {
             columns: vec![], rows: vec![],
             cells: vec![Content::text("a"), Content::text("b")],
+            hlines: vec![], vlines: vec![],
             gutter: None, align: None, inset: Sides::uniform(Length::pt(0.0)),
             header: None, footer: None, stroke: None, fill: None,
         }

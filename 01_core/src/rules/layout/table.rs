@@ -68,7 +68,9 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
     }
 
     // P224+P227+P228 — Table delegate; herda stroke + fill.
+    // P512 — passa hlines/vlines para o motor grid partilhado.
     layouter.layout_grid(&e.columns, &e.rows, &e.children,
+                         &e.hlines, &e.vlines,
                          None, None,
                          crate::entities::sides::Sides::uniform(
                              crate::entities::layout_types::Length::pt(0.0)),

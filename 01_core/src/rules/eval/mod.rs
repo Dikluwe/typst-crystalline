@@ -823,12 +823,12 @@ fn eval_markup_body(
 fn make_stdlib() -> Scope {
     use crate::rules::stdlib::{
         make_calc_module, make_gradient_module, make_math_module, native_accent, native_align, native_assert, native_bibliography, native_block, native_box, native_cancel, native_circle, native_cite, native_divider,
-        native_ellipse, native_emph, native_figure, native_float, native_footnote, native_grid, native_h, native_heading,
+        native_ellipse, native_emph, native_figure, native_float, native_footnote, native_grid, native_grid_cell, native_grid_footer, native_grid_header, native_grid_hline, native_grid_vline, native_h, native_heading,
         native_hide, native_image, native_int, native_len, native_line, native_outline,
-        native_counter, native_counter_at, native_counter_display, native_counter_final, native_counter_step, native_context, native_curve, native_eval, native_here, native_locate, native_lower, native_lorem, native_luma, native_measure, native_metadata, native_move, native_pad, native_pagebreak, native_place, native_polygon, native_query, native_regex, native_selector, native_state, native_state_at, native_state_display, native_state_final, native_state_update, native_state_update_with,
+        native_counter, native_counter_at, native_counter_display, native_counter_final, native_counter_step, native_context, native_curve, native_curve_close, native_curve_cubic, native_curve_line, native_curve_move, native_curve_quad, native_eval, native_here, native_locate, native_lower, native_lorem, native_luma, native_measure, native_metadata, native_move, native_pad, native_pagebreak, native_place, native_polygon, native_query, native_regex, native_selector, native_state, native_state_at, native_state_display, native_state_final, native_state_update, native_state_update_with,
         native_asset, native_cmyk, native_colbreak, native_columns, native_document, native_hsl, native_hsv, native_label, native_linear_rgb, native_link, native_oklab, native_oklch, native_op, native_panic, native_quote, native_range, native_rect, native_repeat, native_replace, native_raw, native_repr, native_rgb, native_rotate,
         native_square, native_tiling,
-        native_highlight, native_scale, native_skew, native_smallcaps, native_smartquote, native_stack, native_str, native_str_from_unicode, native_strike, native_stroke, native_strong, native_subscript, native_superscript, native_table, native_table_cell, native_table_footer, native_table_header, native_grid_cell, native_grid_footer, native_grid_header, native_terms, native_type, native_underline, native_underover, native_overline, native_upper, native_v,
+        native_highlight, native_scale, native_skew, native_smallcaps, native_smartquote, native_stack, native_str, native_str_from_unicode, native_strike, native_stroke, native_strong, native_subscript, native_superscript, native_table, native_table_cell, native_table_footer, native_table_header, native_table_hline, native_table_vline, native_terms, native_type, native_underline, native_underover, native_overline, native_upper, native_v,
         native_ref,
         // P311b.3 — math style funcs.
         native_bb, native_bold, native_cal, native_frak, native_math_italic,
@@ -935,8 +935,32 @@ fn make_stdlib() -> Scope {
     // `PathItem::CubicTo` via stdlib novo. Reaplicação ADR-0099 para
     // `PathItem` (paralelo P285-P292 para `Style`). Hash `export.rs`
     // preservado pelo 10º passo consecutivo — emit já existe.
-    scope.define("curve",   Value::Func(Func::native("curve",   native_curve)));
-    scope.define("grid",    Value::Func(Func::native("grid",    native_grid)));
+    // P513 — `curve` ganha namespace com move/line/cubic/quad/close.
+    {
+        let mut curve_namespace = Scope::new();
+        curve_namespace.define("move",  Value::Func(Func::native("curve.move",  native_curve_move)));
+        curve_namespace.define("line",  Value::Func(Func::native("curve.line",  native_curve_line)));
+        curve_namespace.define("cubic", Value::Func(Func::native("curve.cubic", native_curve_cubic)));
+        curve_namespace.define("quad",  Value::Func(Func::native("curve.quad",  native_curve_quad)));
+        curve_namespace.define("close", Value::Func(Func::native("curve.close", native_curve_close)));
+        scope.define(
+            "curve",
+            Value::Func(Func::native_with_namespace("curve", native_curve, Arc::new(curve_namespace))),
+        );
+    }
+    // P512 — `grid` com namespace para cell/header/footer/hline/vline.
+    {
+        let mut grid_namespace = Scope::new();
+        grid_namespace.define("cell",   Value::Func(Func::native("grid_cell",   native_grid_cell)));
+        grid_namespace.define("header", Value::Func(Func::native("grid_header", native_grid_header)));
+        grid_namespace.define("footer", Value::Func(Func::native("grid_footer", native_grid_footer)));
+        grid_namespace.define("hline",  Value::Func(Func::native("grid_hline",  native_grid_hline)));
+        grid_namespace.define("vline",  Value::Func(Func::native("grid_vline",  native_grid_vline)));
+        scope.define(
+            "grid",
+            Value::Func(Func::native_with_namespace("grid", native_grid, Arc::new(grid_namespace))),
+        );
+    }
     // Lote F-2 S4/D4 (P335): `page(...)` função-forma legacy removida.
     scope.define("move",    Value::Func(Func::native("move",    native_move)));
     scope.define("rotate",  Value::Func(Func::native("rotate",  native_rotate)));
@@ -1092,10 +1116,13 @@ fn make_stdlib() -> Scope {
     // (subset 3 fields; reusa layout_grid; TableCell/Header/Footer
     // diferidos para P157B/C). **Primeiro sub-passo Model Fase 2.**
     // P493b — table com namespace anexado para table.header/footer/cell.
+    // P512 — adiciona table.hline / table.vline.
     let mut table_namespace = Scope::new();
     table_namespace.define("header", Value::Func(Func::native("table_header", native_table_header)));
     table_namespace.define("footer", Value::Func(Func::native("table_footer", native_table_footer)));
     table_namespace.define("cell",   Value::Func(Func::native("table_cell",   native_table_cell)));
+    table_namespace.define("hline",  Value::Func(Func::native("table_hline",  native_table_hline)));
+    table_namespace.define("vline",  Value::Func(Func::native("table_vline",  native_table_vline)));
     scope.define(
         "table",
         Value::Func(Func::native_with_namespace("table", native_table, Arc::new(table_namespace))),

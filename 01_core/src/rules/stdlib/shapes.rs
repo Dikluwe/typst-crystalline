@@ -12,8 +12,9 @@
 use crate::entities::args::Args;
 use crate::entities::file_id::FileId;
 use crate::entities::content::Content;
+use crate::entities::elements::curve::{CurvePoint, CurveSegment};
 use crate::entities::geometry::{PathItem, ShapeKind, Stroke};
-use crate::entities::layout_types::{Color, Point, Pt};
+use crate::entities::layout_types::{Color, Length, Point, Pt};
 use crate::entities::paint::Paint;
 use crate::entities::span::Span;
 use crate::entities::source_result::{SourceDiagnostic, SourceResult};
@@ -272,6 +273,47 @@ fn extract_coordinate(val: &Value) -> Option<(f64, f64)> {
     }
 }
 
+/// Extrai um `CurvePoint` de um `Value::Array` de 2 elementos.
+///
+/// Aceita `Value::Length`, `Value::Float` ou `Value::Int` (este último
+/// convertido para pt). `Value::Relative`/`Ratio` ficam fora do scope
+/// minimal do Passo 513.
+fn extract_curve_point(val: &Value, fn_name: &str, arg_name: &str) -> SourceResult<CurvePoint> {
+    let arr = match val {
+        Value::Array(a) if a.len() == 2 => a,
+        _ => {
+            return Err(vec![SourceDiagnostic::error(
+                Span::detached(),
+                format!("{}: {} deve ser um array de 2 elementos", fn_name, arg_name),
+            )]);
+        }
+    };
+
+    let x = extract_curve_length(&arr[0], fn_name, arg_name, "x")?;
+    let y = extract_curve_length(&arr[1], fn_name, arg_name, "y")?;
+    Ok(CurvePoint { x, y })
+}
+
+fn extract_curve_length(
+    val: &Value,
+    fn_name: &str,
+    arg_name: &str,
+    coord: &str,
+) -> SourceResult<Length> {
+    match val {
+        Value::Length(l) => Ok(*l),
+        Value::Float(f) => Ok(Length::pt(*f)),
+        Value::Int(i) => Ok(Length::pt(*i as f64)),
+        _ => Err(vec![SourceDiagnostic::error(
+            Span::detached(),
+            format!(
+                "{}: {}.{} deve ser length, float ou int",
+                fn_name, arg_name, coord
+            ),
+        )]),
+    }
+}
+
 /// `polygon(pt1, pt2, ...; fill?, stroke?)` → `Content::Shape { kind: Path, ... }`.
 ///
 /// Cada argumento posicional é um array `[x, y]` em pontos tipográficos.
@@ -336,6 +378,65 @@ pub fn native_polygon(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::c
 //   C₂ = (P₂ + 2·C) / 3        // end + 2/3 do vector end→control
 // As duas curvas paramétricas são pointwise idênticas.
 
+/// Converte segmentos de `CurveElem` para `PathItem` absolutos.
+///
+/// P513: componente `em` em `Length` não é resolvível em tempo de eval
+/// (sem font-size). Usa-se apenas a componente absoluta `abs` — paridade
+/// vanilla para coordenadas puramente absolutas; `em` é scope-out deste
+/// passo (pode ser adicionado quando `CurveElem` passar a transportar
+/// font-size ou quando `native_curve` for convertido para layout-time).
+fn curve_segments_to_path_items(
+    segments: &[CurveSegment],
+    last_point: &mut Point,
+    path_items: &mut Vec<PathItem>,
+) {
+    for seg in segments {
+        match seg {
+            CurveSegment::Move(p) => {
+                let target = Point { x: Pt(p.x.abs.to_pt()), y: Pt(p.y.abs.to_pt()) };
+                path_items.push(PathItem::MoveTo(target));
+                *last_point = target;
+            }
+            CurveSegment::Line(p) => {
+                let target = Point { x: Pt(p.x.abs.to_pt()), y: Pt(p.y.abs.to_pt()) };
+                path_items.push(PathItem::LineTo(target));
+                *last_point = target;
+            }
+            CurveSegment::Cubic(c1, c2, end) => {
+                let target = Point { x: Pt(end.x.abs.to_pt()), y: Pt(end.y.abs.to_pt()) };
+                path_items.push(PathItem::CubicTo(
+                    Point { x: Pt(c1.x.abs.to_pt()), y: Pt(c1.y.abs.to_pt()) },
+                    Point { x: Pt(c2.x.abs.to_pt()), y: Pt(c2.y.abs.to_pt()) },
+                    target,
+                ));
+                *last_point = target;
+            }
+            CurveSegment::Quad(c, end) => {
+                let p0x = last_point.x.0;
+                let p0y = last_point.y.0;
+                let qx = c.x.abs.to_pt();
+                let qy = c.y.abs.to_pt();
+                let ex = end.x.abs.to_pt();
+                let ey = end.y.abs.to_pt();
+                let c1x = (p0x + 2.0 * qx) / 3.0;
+                let c1y = (p0y + 2.0 * qy) / 3.0;
+                let c2x = (ex + 2.0 * qx) / 3.0;
+                let c2y = (ey + 2.0 * qy) / 3.0;
+                let target = Point { x: Pt(ex), y: Pt(ey) };
+                path_items.push(PathItem::CubicTo(
+                    Point { x: Pt(c1x), y: Pt(c1y) },
+                    Point { x: Pt(c2x), y: Pt(c2y) },
+                    target,
+                ));
+                *last_point = target;
+            }
+            CurveSegment::Close => {
+                path_items.push(PathItem::ClosePath);
+            }
+        }
+    }
+}
+
 /// `curve(seg1, seg2, ...; fill?, stroke?)` → `Content::Shape { kind: Path }`
 ///
 /// Cada segmento posicional é um array com tipo + coordenadas:
@@ -346,9 +447,8 @@ pub fn native_polygon(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::c
 ///   conversão q→c paridade vanilla (P294 H1').
 /// - `("close",)` → `PathItem::ClosePath`
 ///
-/// Divergência aproximada vs vanilla typst (`curve.move`/`curve.cubic`
-/// scope methods): cristalino usa tuples descritivos por simplicidade
-/// (proc macros `#elem(scope)` não materializados em L1).
+/// P513: também aceita `Content::Curve(...)` como argumentos posicionais,
+/// concatenando os seus segmentos ao path final.
 pub fn native_curve(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contracts::world::World, _current_file: FileId) -> SourceResult<Value> {
     let mut path_items: Vec<PathItem> = Vec::new();
     // P294: tracking de last_point para conversão q→c em "quadratic"
@@ -357,6 +457,11 @@ pub fn native_curve(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::con
     let mut last_point: Point = Point::ZERO;
 
     for (i, val) in args.items.iter().enumerate() {
+        if let Value::Content(Content::Curve(e)) = val {
+            curve_segments_to_path_items(&e.segments, &mut last_point, &mut path_items);
+            continue;
+        }
+
         let arr = match val {
             Value::Array(a) if !a.is_empty() => a,
             _ => return Err(vec![SourceDiagnostic::error(
@@ -496,4 +601,93 @@ pub fn native_curve(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::con
     let height = if max_y > min_y { Some(Box::new(Value::Float(max_y - min_y))) } else { None };
 
     Ok(Value::Content(Content::shape(ShapeKind::Path(path_items), width, height, fill, stroke)))
+}
+
+/// `curve.move(point)` → `Content::Curve` com segmento `Move`.
+pub fn native_curve_move(
+    _ctx: &mut EvalContext,
+    args: &Args,
+    _world: &dyn crate::contracts::world::World,
+    _current_file: FileId,
+) -> SourceResult<Value> {
+    if args.items.is_empty() {
+        return Err(vec![SourceDiagnostic::error(
+            Span::detached(),
+            "curve.move() requer um ponto".to_string(),
+        )]);
+    }
+    let p = extract_curve_point(&args.items[0], "curve.move", "point")?;
+    Ok(Value::Content(Content::curve_move(p.x, p.y)))
+}
+
+/// `curve.line(point)` → `Content::Curve` com segmento `Line`.
+pub fn native_curve_line(
+    _ctx: &mut EvalContext,
+    args: &Args,
+    _world: &dyn crate::contracts::world::World,
+    _current_file: FileId,
+) -> SourceResult<Value> {
+    if args.items.is_empty() {
+        return Err(vec![SourceDiagnostic::error(
+            Span::detached(),
+            "curve.line() requer um ponto".to_string(),
+        )]);
+    }
+    let p = extract_curve_point(&args.items[0], "curve.line", "point")?;
+    Ok(Value::Content(Content::curve_line(p.x, p.y)))
+}
+
+/// `curve.cubic(c1, c2, end)` → `Content::Curve` com segmento `Cubic`.
+pub fn native_curve_cubic(
+    _ctx: &mut EvalContext,
+    args: &Args,
+    _world: &dyn crate::contracts::world::World,
+    _current_file: FileId,
+) -> SourceResult<Value> {
+    if args.items.len() != 3 {
+        return Err(vec![SourceDiagnostic::error(
+            Span::detached(),
+            "curve.cubic() requer 3 pontos (control1, control2, end)".to_string(),
+        )]);
+    }
+    let c1 = extract_curve_point(&args.items[0], "curve.cubic", "control1")?;
+    let c2 = extract_curve_point(&args.items[1], "curve.cubic", "control2")?;
+    let e = extract_curve_point(&args.items[2], "curve.cubic", "end")?;
+    Ok(Value::Content(Content::curve_cubic(
+        c1.x, c1.y, c2.x, c2.y, e.x, e.y,
+    )))
+}
+
+/// `curve.quad(control, end)` → `Content::Curve` com segmento `Quad`.
+pub fn native_curve_quad(
+    _ctx: &mut EvalContext,
+    args: &Args,
+    _world: &dyn crate::contracts::world::World,
+    _current_file: FileId,
+) -> SourceResult<Value> {
+    if args.items.len() != 2 {
+        return Err(vec![SourceDiagnostic::error(
+            Span::detached(),
+            "curve.quad() requer 2 pontos (control, end)".to_string(),
+        )]);
+    }
+    let c = extract_curve_point(&args.items[0], "curve.quad", "control")?;
+    let e = extract_curve_point(&args.items[1], "curve.quad", "end")?;
+    Ok(Value::Content(Content::curve_quad(c.x, c.y, e.x, e.y)))
+}
+
+/// `curve.close()` → `Content::Curve` com segmento `Close`.
+pub fn native_curve_close(
+    _ctx: &mut EvalContext,
+    args: &Args,
+    _world: &dyn crate::contracts::world::World,
+    _current_file: FileId,
+) -> SourceResult<Value> {
+    if !args.items.is_empty() {
+        return Err(vec![SourceDiagnostic::error(
+            Span::detached(),
+            "curve.close() não aceita argumentos".to_string(),
+        )]);
+    }
+    Ok(Value::Content(Content::curve_close()))
 }

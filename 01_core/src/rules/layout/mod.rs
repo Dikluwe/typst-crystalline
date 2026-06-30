@@ -47,6 +47,7 @@ mod stack;
 
 // Atomização dos elementos visuais (ADR-0109, P377): mesma forma B.
 mod columns;
+mod curve;
 mod heading;
 mod shape;
 mod transform;
@@ -796,6 +797,9 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
             // Atomizado (ADR-0109, P377) → layout/shape.rs.
             Content::Shape(e) => shape::layout(self, e),
 
+            // Passo 513 — Atomizado (ADR-0109) → layout/curve.rs.
+            Content::Curve(e) => curve::layout(self, e),
+
             // Atomizado (ADR-0109, P377) → layout/transform.rs.
             Content::Transform(e) => transform::layout(self, e),
 
@@ -807,10 +811,14 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
             Content::GridHeader(e) => grid_header::layout(self, e),
             Content::GridFooter(e) => grid_footer::layout(self, e),
             Content::GridCell(e) => grid_cell::layout(self, e),
+            // Passo 512 — linhas em grid/table são renderizadas pelo
+            // layout_grid interno, não como content independente.
+            Content::GridHLine(_) | Content::GridVLine(_) => {}
             Content::Table(e) => table::layout(self, e),
             Content::TableCell(e) => table_cell::layout(self, e),
             Content::TableHeader(e) => table_header::layout(self, e),
             Content::TableFooter(e) => table_footer::layout(self, e),
+            Content::TableHLine(_) | Content::TableVLine(_) => {}
 
             // ── Passo 159A (ADR-0060 Fase 2 — Bibliography + Cite par acoplado) ──
             // Render placeholder per ADR-0033 + ADR-0054 graded:
@@ -1244,6 +1252,15 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
                     }
                     ShapeKind::Line { dx, dy } => (dx.abs().min(max_width), dy.abs()),
                 }
+            }
+
+            // Passo 513 — medição de `Content::Curve` via bbox do path.
+            Content::Curve(e) => {
+                let items = curve::path_items_from_curve(&e.segments, self.font_size_pt.val());
+                let (min_x, min_y, max_x, max_y) = crate::entities::geometry::path_bbox(&items);
+                let w = (max_x - min_x).max(0.0).min(max_width);
+                let h = (max_y - min_y).max(0.0);
+                (w, h)
             }
 
             // Passo 156C / 156L: Pad / Hide para grid measurement.

@@ -1,0 +1,109 @@
+//! Crystalline Lineage
+//! @prompt 00_nucleo/prompts/entities/elements/grid_vline.md
+//! @layer L1
+//! @updated 2026-06-30
+//!
+//! `GridVLineElem` — linha vertical em `grid()` (Passo 512).
+
+use std::sync::Arc;
+
+use ecow::EcoString;
+
+use crate::entities::content::Content;
+use crate::entities::elements::Element;
+use crate::entities::geometry::Stroke;
+use crate::entities::source_result::SourceResult;
+
+/// Linha vertical num grid.
+#[derive(Debug, Clone, PartialEq)]
+pub struct GridVLineElem {
+    pub start:    usize,
+    pub end:      Option<usize>, // None = até à última linha
+    pub col:      usize,          // coluna do grid onde a vline se posiciona
+    pub stroke:   Stroke,
+    pub position: EcoString,      // "left" | "right"
+}
+
+// `Hash` manual via `Debug` (paridade `content_hash`): `Stroke` carrega `f64`.
+impl std::hash::Hash for GridVLineElem {
+    fn hash<H: std::hash::Hasher>(&self, state: &mut H) {
+        format!("{self:?}").hash(state);
+    }
+}
+
+impl Element for GridVLineElem {
+    fn plain_text(&self) -> String {
+        String::new()
+    }
+
+    fn is_empty(&self) -> bool {
+        false
+    }
+
+    fn map_content<F>(&self, _transform: &mut F) -> SourceResult<Content>
+    where
+        F: FnMut(&Content) -> SourceResult<Option<Content>>,
+    {
+        Ok(Content::GridVLine(Arc::new(self.clone())))
+    }
+
+    fn map_text<F>(&self, _transform: &mut F) -> Content
+    where
+        F: FnMut(&str) -> String,
+    {
+        Content::GridVLine(Arc::new(self.clone()))
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::entities::paint::Paint;
+    use crate::entities::layout_types::Color;
+    use std::hash::{Hash, Hasher};
+    use std::collections::hash_map::DefaultHasher;
+
+    fn ex() -> GridVLineElem {
+        GridVLineElem {
+            start: 0,
+            end: Some(2),
+            col: 1,
+            stroke: Stroke { paint: Paint::Solid(Color::rgb(0, 0, 0)), thickness: 1.0, overhang: false },
+            position: EcoString::from("left"),
+        }
+    }
+
+    #[test]
+    fn plain_text_vazio() {
+        assert_eq!(ex().plain_text(), "");
+    }
+
+    #[test]
+    fn is_empty_false() {
+        assert!(!ex().is_empty());
+    }
+
+    #[test]
+    fn map_content_terminal() {
+        let mut f = |_: &Content| -> SourceResult<Option<Content>> { Ok(Some(Content::text("X"))) };
+        let c = ex().map_content(&mut f).unwrap();
+        assert!(matches!(c, Content::GridVLine(_)));
+    }
+
+    #[test]
+    fn map_text_terminal() {
+        let mut f = |_: &str| -> String { "X".to_string() };
+        let c = ex().map_text(&mut f);
+        assert!(matches!(c, Content::GridVLine(_)));
+    }
+
+    fn h(e: &GridVLineElem) -> u64 {
+        let mut s = DefaultHasher::new(); e.hash(&mut s); s.finish()
+    }
+
+    #[test]
+    fn hash_diferente_com_col_diferente() {
+        let mut outro = ex(); outro.col = 2;
+        assert_ne!(h(&ex()), h(&outro));
+    }
+}

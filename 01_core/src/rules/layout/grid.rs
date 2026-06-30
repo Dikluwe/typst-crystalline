@@ -15,10 +15,66 @@ use crate::entities::{
     layout_types::{Align2D, Color, FrameItem, Length, Point, Pt, TrackSizing},
     sides::Sides,
 };
+use crate::entities::elements::grid_hline::GridHLineElem;
+use crate::entities::elements::grid_vline::GridVLineElem;
+use crate::entities::elements::table_hline::TableHLineElem;
+use crate::entities::elements::table_vline::TableVLineElem;
 
 use super::grid_placement::{place_cells, PlacedCell};
 use super::metrics::FontMetrics;
 use super::{item_pos, translate_frame_item};
+
+/// Trait privado para desenhar hlines tanto de grid como de table com o
+/// mesmo algoritmo (`layout_grid`).
+pub(super) trait LayoutHLine {
+    fn start(&self) -> usize;
+    fn end(&self) -> Option<usize>;
+    fn row(&self) -> usize;
+    fn stroke(&self) -> &Stroke;
+    fn position(&self) -> &str;
+}
+
+impl LayoutHLine for GridHLineElem {
+    fn start(&self) -> usize { self.start }
+    fn end(&self) -> Option<usize> { self.end }
+    fn row(&self) -> usize { self.row }
+    fn stroke(&self) -> &Stroke { &self.stroke }
+    fn position(&self) -> &str { self.position.as_str() }
+}
+
+impl LayoutHLine for TableHLineElem {
+    fn start(&self) -> usize { self.start }
+    fn end(&self) -> Option<usize> { self.end }
+    fn row(&self) -> usize { self.row }
+    fn stroke(&self) -> &Stroke { &self.stroke }
+    fn position(&self) -> &str { self.position.as_str() }
+}
+
+/// Trait privado para desenhar vlines tanto de grid como de table com o
+/// mesmo algoritmo (`layout_grid`).
+pub(super) trait LayoutVLine {
+    fn start(&self) -> usize;
+    fn end(&self) -> Option<usize>;
+    fn col(&self) -> usize;
+    fn stroke(&self) -> &Stroke;
+    fn position(&self) -> &str;
+}
+
+impl LayoutVLine for GridVLineElem {
+    fn start(&self) -> usize { self.start }
+    fn end(&self) -> Option<usize> { self.end }
+    fn col(&self) -> usize { self.col }
+    fn stroke(&self) -> &Stroke { &self.stroke }
+    fn position(&self) -> &str { self.position.as_str() }
+}
+
+impl LayoutVLine for TableVLineElem {
+    fn start(&self) -> usize { self.start }
+    fn end(&self) -> Option<usize> { self.end }
+    fn col(&self) -> usize { self.col }
+    fn stroke(&self) -> &Stroke { &self.stroke }
+    fn position(&self) -> &str { self.position.as_str() }
+}
 
 /// Layout de `grid(...)` (atomização ADR-0109 P380): delega ao motor
 /// `layout_grid` (cluster Grid+Table). Content-preserving — era inline no
@@ -27,7 +83,9 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
     layouter: &mut super::Layouter<M, S>,
     e:        &GridElem,
 ) {
-    layouter.layout_grid(&e.columns, &e.rows, &e.cells, e.gutter, e.align, e.inset,
+    layouter.layout_grid(&e.columns, &e.rows, &e.cells,
+                         &e.hlines, &e.vlines,
+                         e.gutter, e.align, e.inset,
                          e.header.as_ref(), e.footer.as_ref(),
                          e.stroke.as_ref(), e.fill.as_ref());
 }
@@ -41,11 +99,13 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
     /// futura quando integração for substantiva). `_align`/`_inset`
     /// armazenados mas ignorados nesta versão — `gutter` aplicado
     /// horizontalmente como soma a col_starts (graded).
-    pub(super) fn layout_grid(
+    pub(super) fn layout_grid<H: LayoutHLine, V: LayoutVLine>(
         &mut self,
         columns: &[TrackSizing],
         rows:    &[TrackSizing],
         cells:   &[Content],
+        hlines:  &[H],
+        vlines:  &[V],
         _gutter: Option<Length>,
         align:   Option<Align2D>,  // P232 — Grid-level align disponível para Place herdar
         inset:   Sides<Length>,    // P235 — Grid-level inset (default per-cell)
@@ -292,6 +352,10 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
             ascender.0
         };
 
+        // P512 — guarda o Y real de cada linha emitida (afectado por
+        // paginação) para posicionar hlines/vlines depois das células.
+        let mut emitted_row_starts = vec![0.0_f64; num_rows_produced_final];
+
         for row_idx in 0..num_rows_produced_final {
             let row_h = row_heights[row_idx];
 
@@ -308,6 +372,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
             }
 
             let row_start_y = self.regions.current.cursor_y.0;
+            emitted_row_starts[row_idx] = row_start_y;
 
             for &placed_idx in &cells_per_row[row_idx] {
                 let placed = &placed_cells[placed_idx];
@@ -563,6 +628,68 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
 
             // Avançar cursor para o fim da linha (altura conhecida).
             self.regions.current.cursor_y = Pt(row_start_y + row_h);
+        }
+
+        // P512 — desenhar hlines/vlines por cima das células, usando os
+        // Y reais emitidos (já consideraram paginação).
+        if !hlines.is_empty() || !vlines.is_empty() {
+            let grid_left = col_starts.first().copied().unwrap_or(0.0);
+            let row_bottom = |r: usize| {
+                emitted_row_starts.get(r).copied().unwrap_or(0.0)
+                    + row_heights.get(r).copied().unwrap_or(0.0)
+            };
+            let col_right = |c: usize| {
+                col_starts.get(c).copied().unwrap_or(0.0)
+                    + resolved_widths.get(c).copied().unwrap_or(0.0)
+            };
+
+            for h in hlines {
+                let row = h.row().min(num_rows_produced_final.saturating_sub(1));
+                let y = match h.position() {
+                    "bottom" => row_bottom(row),
+                    _        => emitted_row_starts.get(row).copied().unwrap_or(0.0),
+                };
+                let start = h.start().min(num_cols);
+                let end = h.end().map(|e| e.min(num_cols)).unwrap_or(num_cols);
+                if start >= end {
+                    continue;
+                }
+                let x0 = col_starts.get(start).copied().unwrap_or(grid_left);
+                let x1 = col_right(end.saturating_sub(1));
+                self.regions.current.current_items.push(FrameItem::Shape {
+                    pos:    Point { x: Pt(x0), y: Pt(y) },
+                    kind:   ShapeKind::Line { dx: x1 - x0, dy: 0.0 },
+                    width:  0.0,
+                    height: 0.0,
+                    fill:   None,
+                    stroke: Some(h.stroke().clone()),
+                    parent_bbox_at_emit: None,
+                });
+            }
+
+            for v in vlines {
+                let col = v.col().min(num_cols.saturating_sub(1));
+                let x = match v.position() {
+                    "right" => col_right(col),
+                    _       => col_starts.get(col).copied().unwrap_or(grid_left),
+                };
+                let start = v.start().min(num_rows_produced_final);
+                let end = v.end().map(|e| e.min(num_rows_produced_final)).unwrap_or(num_rows_produced_final);
+                if start >= end {
+                    continue;
+                }
+                let y0 = emitted_row_starts.get(start).copied().unwrap_or(0.0);
+                let y1 = row_bottom(end.saturating_sub(1));
+                self.regions.current.current_items.push(FrameItem::Shape {
+                    pos:    Point { x: Pt(x), y: Pt(y0) },
+                    kind:   ShapeKind::Line { dx: 0.0, dy: y1 - y0 },
+                    width:  0.0,
+                    height: 0.0,
+                    fill:   None,
+                    stroke: Some(v.stroke().clone()),
+                    parent_bbox_at_emit: None,
+                });
+            }
         }
 
         // P232 — restore cell_align ao sair de Grid context (paridade

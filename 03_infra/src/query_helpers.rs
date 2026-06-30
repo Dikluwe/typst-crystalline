@@ -307,7 +307,8 @@ fn has_any_text(content: &Content) -> bool {
         | Content::StateDisplay(_) | Content::CounterDisplayCallback(_) | Content::CounterDisplay(_)
         | Content::CounterUpdate(_) | Content::Outline(_) | Content::Cite(_)
         | Content::Raw(_) | Content::Ref(_) | Content::Image(_)
-        | Content::Shape { .. } | Content::Divider(_)
+        | Content::Shape { .. } | Content::Curve(_)
+        | Content::Divider(_)
         | Content::Linebreak(_) | Content::HSpace(_) | Content::VSpace(_)
         | Content::Pagebreak(_) | Content::Colbreak(_)
         | Content::MathSequence(_) | Content::MathIdent(_) | Content::MathText(_)
@@ -319,6 +320,7 @@ fn has_any_text(content: &Content) -> bool {
         | Content::SmartQuote(_) | Content::Dynamic(_)
         | Content::GridHeader(_) | Content::GridFooter(_) | Content::SetPage { .. }
         | Content::ContextBlock(_)
+        | Content::GridHLine(_) | Content::GridVLine(_) | Content::TableHLine(_) | Content::TableVLine(_)
         | Content::Empty | Content::Space | Content::Document { .. } | Content::Asset { .. } => false,
     }
 }
@@ -378,7 +380,7 @@ where
         | Content::State(_) | Content::StateUpdate(_) | Content::StateDisplay(_)
         | Content::CounterDisplayCallback(_) | Content::CounterDisplay(_)
         | Content::CounterUpdate(_) | Content::Outline(_) | Content::Cite(_)
-        | Content::Ref(_) | Content::Image(_) | Content::Shape { .. }
+        | Content::Ref(_) | Content::Image(_) | Content::Shape { .. } | Content::Curve(_)
         | Content::Divider(_) | Content::Linebreak(_) | Content::HSpace(_)
         | Content::VSpace(_) | Content::Pagebreak(_) | Content::Colbreak(_)
         | Content::MathSequence(_) | Content::MathIdent(_) | Content::MathText(_)
@@ -390,6 +392,7 @@ where
         | Content::SmartQuote(_) | Content::Dynamic(_)
         | Content::GridHeader(_) | Content::GridFooter(_) | Content::SetPage { .. }
         | Content::ContextBlock(_)
+        | Content::GridHLine(_) | Content::GridVLine(_) | Content::TableHLine(_) | Content::TableVLine(_)
         | Content::Empty | Content::Space | Content::Text(_)
         | Content::Document { .. } | Content::Asset { .. } => 0,
     }

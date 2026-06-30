@@ -21,11 +21,14 @@ use crate::entities::source_result::SourceResult;
 
 /// Tabela: `children` distribuídos em `columns`×`rows`; `stroke`/`fill` globais.
 /// **P459**: `caption` opcional para numeração automática via `table.numbering`.
+/// **P512**: `hlines`/`vlines` são renderizadas pelo layout_grid.
 #[derive(Debug, Clone, PartialEq)]
 pub struct TableElem {
     pub columns:  Vec<TrackSizing>,
     pub rows:     Vec<TrackSizing>,
     pub children: Vec<Content>,
+    pub hlines:   Vec<crate::entities::elements::table_hline::TableHLineElem>,
+    pub vlines:   Vec<crate::entities::elements::table_vline::TableVLineElem>,
     pub stroke:   Option<Stroke>,
     pub fill:     Option<Color>,
     pub caption:  Option<Content>,
@@ -65,6 +68,8 @@ impl Element for TableElem {
             columns:  self.columns.clone(),
             rows:     self.rows.clone(),
             children: new_children?,
+            hlines:   self.hlines.clone(),
+            vlines:   self.vlines.clone(),
             stroke:   self.stroke.clone(),
             fill:     self.fill,
             caption:  self.caption.as_ref().map(|c| c.map_content(transform)).transpose()?,
@@ -79,6 +84,8 @@ impl Element for TableElem {
             columns:  self.columns.clone(),
             rows:     self.rows.clone(),
             children: self.children.iter().map(|c| c.map_text(transform)).collect(),
+            hlines:   self.hlines.clone(),
+            vlines:   self.vlines.clone(),
             stroke:   self.stroke.clone(),
             fill:     self.fill,
             caption:  self.caption.as_ref().map(|c| c.map_text(transform)),
@@ -111,6 +118,7 @@ mod tests {
         TableElem {
             columns: vec![], rows: vec![],
             children: vec![Content::text("a"), Content::text("b")],
+            hlines: vec![], vlines: vec![],
             stroke: None, fill: None, caption: None,
         }
     }
@@ -123,7 +131,7 @@ mod tests {
     #[test]
     fn is_empty_so_sem_children() {
         assert!(!ex().is_empty());
-        assert!(TableElem { columns: vec![], rows: vec![], children: vec![], stroke: None, fill: None, caption: None }.is_empty());
+        assert!(TableElem { columns: vec![], rows: vec![], children: vec![], hlines: vec![], vlines: vec![], stroke: None, fill: None, caption: None }.is_empty());
     }
 
     #[test]
@@ -146,7 +154,7 @@ mod tests {
 
     #[test]
     fn payload_diferente_produz_hash_diferente() {
-        let outro = TableElem { columns: vec![], rows: vec![], children: vec![], stroke: None, fill: None, caption: None };
+        let outro = TableElem { columns: vec![], rows: vec![], children: vec![], hlines: vec![], vlines: vec![], stroke: None, fill: None, caption: None };
         assert_ne!(h(&ex()), h(&outro));
     }
 }

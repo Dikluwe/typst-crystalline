@@ -81,9 +81,9 @@ pub use crate::rules::stdlib::r#ref::native_ref;
 pub use crate::rules::stdlib::structural::{
     make_math_module, native_accent, native_asset, native_bibliography, native_cancel,
     native_cite, native_divider, native_document, native_emph, native_enum, native_footnote,
-    native_grid_cell, native_grid_footer, native_grid_header, native_heading,
+    native_grid_cell, native_grid_footer, native_grid_header, native_grid_hline, native_grid_vline, native_heading,
     native_link, native_list, native_lof, native_lot, native_op, native_outline, native_quote, native_raw, native_strong,
-    native_table, native_table_cell, native_table_footer, native_table_header, native_terms,
+    native_table, native_table_cell, native_table_footer, native_table_header, native_table_hline, native_table_vline, native_terms,
     native_underover,
 };
 pub use crate::rules::stdlib::text::{
@@ -102,7 +102,8 @@ pub use crate::rules::stdlib::loading::{
     native_yaml,
 };
 pub use crate::rules::stdlib::shapes::{
-    native_circle, native_curve, native_ellipse, native_line, native_polygon,
+    native_circle, native_curve, native_curve_close, native_curve_cubic, native_curve_line,
+    native_curve_move, native_curve_quad, native_ellipse, native_line, native_polygon,
     native_rect, native_square,
 };
 pub use crate::rules::stdlib::transforms::{
@@ -4670,6 +4671,138 @@ mod tests {
         if let Value::Content(Content::Shape(e)) = result {
             assert!(e.fill.is_some(), "fill deve ser parseado");
             assert!(e.stroke.is_some(), "stroke deve ser parseado");
+        }
+    }
+
+    // ── Passo 513 — `curve.move/line/cubic/quad/close` ────────────────────
+
+    #[test]
+    fn p513_curve_move_devolve_content_curve() {
+        use crate::entities::elements::curve::CurveSegment;
+        use crate::entities::layout_types::Length;
+        null_ctx!(ctx);
+        let args = Args::positional(vec![Value::Array(vec![
+            Value::Float(10.0),
+            Value::Length(Length::pt(20.0)),
+        ])]);
+        let result = native_curve_move(&mut ctx, &args, &null_world(), test_file_id()).unwrap();
+        if let Value::Content(Content::Curve(e)) = result {
+            assert_eq!(e.segments.len(), 1);
+            assert!(
+                matches!(&e.segments[0], CurveSegment::Move(p) if p.x == Length::pt(10.0) && p.y == Length::pt(20.0))
+            );
+        } else {
+            panic!("esperado Content::Curve");
+        }
+    }
+
+    #[test]
+    fn p513_curve_line_devolve_content_curve() {
+        use crate::entities::elements::curve::CurveSegment;
+        use crate::entities::layout_types::Length;
+        null_ctx!(ctx);
+        let args = Args::positional(vec![Value::Array(vec![
+            Value::Int(5),
+            Value::Int(15),
+        ])]);
+        let result = native_curve_line(&mut ctx, &args, &null_world(), test_file_id()).unwrap();
+        if let Value::Content(Content::Curve(e)) = result {
+            assert!(matches!(&e.segments[0], CurveSegment::Line(p) if p.x == Length::pt(5.0) && p.y == Length::pt(15.0)));
+        } else {
+            panic!("esperado Content::Curve");
+        }
+    }
+
+    #[test]
+    fn p513_curve_cubic_devolve_content_curve() {
+        use crate::entities::elements::curve::CurveSegment;
+        use crate::entities::layout_types::Length;
+        null_ctx!(ctx);
+        let args = Args::positional(vec![
+            Value::Array(vec![Value::Float(0.0), Value::Float(0.0)]),
+            Value::Array(vec![Value::Float(50.0), Value::Float(50.0)]),
+            Value::Array(vec![Value::Float(100.0), Value::Float(0.0)]),
+        ]);
+        let result = native_curve_cubic(&mut ctx, &args, &null_world(), test_file_id()).unwrap();
+        if let Value::Content(Content::Curve(e)) = result {
+            assert!(matches!(&e.segments[0], CurveSegment::Cubic(c1, c2, end)
+                if c1.x == Length::pt(0.0) && c1.y == Length::pt(0.0)
+                && c2.x == Length::pt(50.0) && c2.y == Length::pt(50.0)
+                && end.x == Length::pt(100.0) && end.y == Length::pt(0.0)));
+        } else {
+            panic!("esperado Content::Curve");
+        }
+    }
+
+    #[test]
+    fn p513_curve_quad_devolve_content_curve() {
+        use crate::entities::elements::curve::CurveSegment;
+        use crate::entities::layout_types::Length;
+        null_ctx!(ctx);
+        let args = Args::positional(vec![
+            Value::Array(vec![Value::Float(25.0), Value::Float(25.0)]),
+            Value::Array(vec![Value::Float(50.0), Value::Float(0.0)]),
+        ]);
+        let result = native_curve_quad(&mut ctx, &args, &null_world(), test_file_id()).unwrap();
+        if let Value::Content(Content::Curve(e)) = result {
+            assert!(matches!(&e.segments[0], CurveSegment::Quad(c, end)
+                if c.x == Length::pt(25.0) && c.y == Length::pt(25.0)
+                && end.x == Length::pt(50.0) && end.y == Length::pt(0.0)));
+        } else {
+            panic!("esperado Content::Curve");
+        }
+    }
+
+    #[test]
+    fn p513_curve_close_devolve_content_curve() {
+        use crate::entities::elements::curve::CurveSegment;
+        null_ctx!(ctx);
+        let args = Args::positional(vec![]);
+        let result = native_curve_close(&mut ctx, &args, &null_world(), test_file_id()).unwrap();
+        if let Value::Content(Content::Curve(e)) = result {
+            assert!(matches!(e.segments[0], CurveSegment::Close));
+        } else {
+            panic!("esperado Content::Curve");
+        }
+    }
+
+    #[test]
+    fn p513_curve_aceita_content_curve_como_argumento() {
+        // `curve(curve.move(...), curve.line(...), curve.close())` deve
+        // concatenar os segmentos num `Content::Shape` final.
+        use crate::entities::geometry::{PathItem, ShapeKind};
+        null_ctx!(ctx);
+        let seg1 = native_curve_move(
+            &mut ctx,
+            &Args::positional(vec![Value::Array(vec![Value::Float(0.0), Value::Float(0.0)])]),
+            &null_world(),
+            test_file_id(),
+        )
+        .unwrap();
+        let seg2 = native_curve_line(
+            &mut ctx,
+            &Args::positional(vec![Value::Array(vec![Value::Float(100.0), Value::Float(0.0)])]),
+            &null_world(),
+            test_file_id(),
+        )
+        .unwrap();
+        let seg3 = native_curve_close(
+            &mut ctx,
+            &Args::positional(vec![]),
+            &null_world(),
+            test_file_id(),
+        )
+        .unwrap();
+        let args = Args::positional(vec![seg1, seg2, seg3]);
+        let result = native_curve(&mut ctx, &args, &null_world(), test_file_id()).unwrap();
+        if let Value::Content(Content::Shape(e)) = result {
+            let ShapeKind::Path(items) = &e.kind else { panic!("esperado Path") };
+            assert_eq!(items.len(), 3);
+            assert!(matches!(items[0], PathItem::MoveTo(_)));
+            assert!(matches!(items[1], PathItem::LineTo(_)));
+            assert!(matches!(items[2], PathItem::ClosePath));
+        } else {
+            panic!("esperado Content::Shape");
         }
     }
 

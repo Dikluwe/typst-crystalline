@@ -93,6 +93,8 @@ use crate::entities::elements::figure::FigureElem;
 use crate::entities::elements::footnote::FootnoteElem;
 use crate::entities::elements::grid::GridElem;
 use crate::entities::elements::grid_cell::GridCellElem;
+use crate::entities::elements::grid_hline::GridHLineElem;
+use crate::entities::elements::grid_vline::GridVLineElem;
 use crate::entities::elements::hide::HideElem;
 use crate::entities::elements::image::ImageElem;
 use crate::entities::elements::outline::OutlineElem;
@@ -102,11 +104,14 @@ use crate::entities::elements::quote::QuoteElem;
 use crate::entities::elements::r#ref::RefElem;
 use crate::entities::elements::raw::RawElem;
 use crate::entities::elements::repeat::RepeatElem;
+use crate::entities::elements::curve::CurveElem;
 use crate::entities::elements::shape::ShapeElem;
 use crate::entities::elements::smartquote::SmartQuoteElem;
 use crate::entities::elements::stack::StackElem;
 use crate::entities::elements::table::TableElem;
 use crate::entities::elements::table_cell::TableCellElem;
+use crate::entities::elements::table_hline::TableHLineElem;
+use crate::entities::elements::table_vline::TableVLineElem;
 use crate::entities::elements::transform::TransformElem;
 
 /// Conteúdo declarativo produzido por `eval()`.
@@ -394,6 +399,13 @@ pub enum Content {
     /// **Modelo D (Lote 11 P326)**: `entities::elements::shape::ShapeElem`
     /// (não-locatável, leaf — geometria pura).
     Shape(Arc<ShapeElem>),
+
+    /// Path de curva composto por segmentos (Passo 513).
+    ///
+    /// `CurveElem` agrupa `Move`/`Line`/`Cubic`/`Quad`/`Close`. O layouter
+    /// converte para `FrameItem::Shape { kind: Path(...) }`.
+    /// **Modelo D**: `entities::elements::curve::CurveElem`.
+    Curve(Arc<CurveElem>),
 
     /// Aplica uma transformação afim ao conteúdo interno (Passo 78).
     ///
@@ -906,6 +918,16 @@ pub enum Content {
     /// **Modelo D (Lote 5 P320)**: `entities::elements::table_footer::TableFooterElem`.
     TableFooter(Arc<TableFooterElem>),
 
+    // ── Passo 512 — linhas em grid/table ────────────────────────────────
+    /// Linha horizontal num grid.
+    GridHLine(Arc<GridHLineElem>),
+    /// Linha vertical num grid.
+    GridVLine(Arc<GridVLineElem>),
+    /// Linha horizontal numa tabela.
+    TableHLine(Arc<TableHLineElem>),
+    /// Linha vertical numa tabela.
+    TableVLine(Arc<TableVLineElem>),
+
     // ── Passo 157A (ADR-0060 Fase 2 sub-passo 1) — table minimal ────────
     /// Container tabular semântico — vanilla `TableElem`.
     /// **Primeiro sub-passo Model Fase 2**.
@@ -1127,11 +1149,14 @@ fn fmt_content(c: &Content, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         Content::Figure(fig) => write!(f, "figure({:?})", fig),
         Content::Image(i) => write!(f, "image({:?})", i),
         Content::Shape(_) => write!(f, "shape"),
+        Content::Curve(_) => write!(f, "curve"),
         Content::Transform(t) => write!(f, "transform({:?})", t),
         Content::Grid(_) => write!(f, "grid"),
         Content::GridHeader(_) => write!(f, "grid.header"),
         Content::GridFooter(_) => write!(f, "grid.footer"),
         Content::GridCell(_) => write!(f, "grid.cell"),
+        Content::GridHLine(_) => write!(f, "grid.hline"),
+        Content::GridVLine(_) => write!(f, "grid.vline"),
         Content::SetPage { .. } => write!(f, "set.page"),
         Content::Align(a) => write!(f, "align({:?})", a),
         Content::Place(p) => write!(f, "place({:?})", p),
@@ -1162,6 +1187,8 @@ fn fmt_content(c: &Content, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         Content::Footnote(foot) => write!(f, "footnote({:?})", foot),
         Content::TableHeader(_) => write!(f, "table.header"),
         Content::TableFooter(_) => write!(f, "table.footer"),
+        Content::TableHLine(_) => write!(f, "table.hline"),
+        Content::TableVLine(_) => write!(f, "table.vline"),
         Content::Table(_) => write!(f, "table"),
         Content::Repeat(_) => write!(f, "repeat"),
         Content::Columns(_) => write!(f, "columns"),
@@ -1607,6 +1634,26 @@ impl Content {
     pub fn grid_footer(body: Content, repeat: bool) -> Self {
         Self::GridFooter(Arc::new(GridFooterElem { body, repeat }))
     }
+    /// `grid_hline(start, end, row, stroke, position)` — Passo 512.
+    pub fn grid_hline(
+        start: usize,
+        end: Option<usize>,
+        row: usize,
+        stroke: Stroke,
+        position: EcoString,
+    ) -> Self {
+        Self::GridHLine(Arc::new(GridHLineElem { start, end, row, stroke, position }))
+    }
+    /// `grid_vline(start, end, col, stroke, position)` — Passo 512.
+    pub fn grid_vline(
+        start: usize,
+        end: Option<usize>,
+        col: usize,
+        stroke: Stroke,
+        position: EcoString,
+    ) -> Self {
+        Self::GridVLine(Arc::new(GridVLineElem { start, end, col, stroke, position }))
+    }
 
     // ── Construtores ergonómicos família state/counter (Modelo D, Lote 6 P321) ──
     /// **P460/P464** — `Content::Label` criado explicitamente pelo utilizador
@@ -1888,6 +1935,8 @@ impl Content {
             columns,
             rows,
             children,
+            hlines: vec![],
+            vlines: vec![],
             stroke: None,
             fill: None,
             caption: None,
@@ -1906,6 +1955,8 @@ impl Content {
             columns,
             rows,
             children,
+            hlines: vec![],
+            vlines: vec![],
             stroke: None,
             fill: None,
             caption,
@@ -1950,6 +2001,80 @@ impl Content {
     /// (Passo 157C). Mesma decisão Caso D + DEBT-56.
     pub fn table_footer(body: Content, repeat: bool) -> Self {
         Self::TableFooter(Arc::new(TableFooterElem { body, repeat }))
+    }
+    /// `table_hline(start, end, row, stroke, position)` — Passo 512.
+    pub fn table_hline(
+        start: usize,
+        end: Option<usize>,
+        row: usize,
+        stroke: Stroke,
+        position: EcoString,
+    ) -> Self {
+        Self::TableHLine(Arc::new(TableHLineElem { start, end, row, stroke, position }))
+    }
+    /// `table_vline(start, end, col, stroke, position)` — Passo 512.
+    pub fn table_vline(
+        start: usize,
+        end: Option<usize>,
+        col: usize,
+        stroke: Stroke,
+        position: EcoString,
+    ) -> Self {
+        Self::TableVLine(Arc::new(TableVLineElem { start, end, col, stroke, position }))
+    }
+
+    // ── Passo 513 — curve elements ────────────────────────────────────────────
+    /// `curve.move(point)`.
+    pub fn curve_move(x: Length, y: Length) -> Self {
+        Self::Curve(Arc::new(crate::entities::elements::curve::CurveElem {
+            segments: vec![crate::entities::elements::curve::CurveSegment::Move(
+                crate::entities::elements::curve::CurvePoint { x, y },
+            )],
+        }))
+    }
+
+    /// `curve.line(point)`.
+    pub fn curve_line(x: Length, y: Length) -> Self {
+        Self::Curve(Arc::new(crate::entities::elements::curve::CurveElem {
+            segments: vec![crate::entities::elements::curve::CurveSegment::Line(
+                crate::entities::elements::curve::CurvePoint { x, y },
+            )],
+        }))
+    }
+
+    /// `curve.cubic(control1, control2, end)`.
+    pub fn curve_cubic(
+        c1x: Length,
+        c1y: Length,
+        c2x: Length,
+        c2y: Length,
+        ex: Length,
+        ey: Length,
+    ) -> Self {
+        Self::Curve(Arc::new(crate::entities::elements::curve::CurveElem {
+            segments: vec![crate::entities::elements::curve::CurveSegment::Cubic(
+                crate::entities::elements::curve::CurvePoint { x: c1x, y: c1y },
+                crate::entities::elements::curve::CurvePoint { x: c2x, y: c2y },
+                crate::entities::elements::curve::CurvePoint { x: ex, y: ey },
+            )],
+        }))
+    }
+
+    /// `curve.quad(control, end)`.
+    pub fn curve_quad(cx: Length, cy: Length, ex: Length, ey: Length) -> Self {
+        Self::Curve(Arc::new(crate::entities::elements::curve::CurveElem {
+            segments: vec![crate::entities::elements::curve::CurveSegment::Quad(
+                crate::entities::elements::curve::CurvePoint { x: cx, y: cy },
+                crate::entities::elements::curve::CurvePoint { x: ex, y: ey },
+            )],
+        }))
+    }
+
+    /// `curve.close()`.
+    pub fn curve_close() -> Self {
+        Self::Curve(Arc::new(crate::entities::elements::curve::CurveElem {
+            segments: vec![crate::entities::elements::curve::CurveSegment::Close],
+        }))
     }
 
     /// `bibliography(entries, title)` — Passo 159A (par acoplado
@@ -2044,6 +2169,9 @@ impl Content {
             Self::GridFooter(e) => e.is_empty(),
             // P224.C — GridCell vazio se body for (paridade P157B TableCell).
             Self::GridCell(e) => e.is_empty(),
+            // Passo 512 — linhas em grid/table são sempre visíveis.
+            Self::GridHLine(_) | Self::GridVLine(_) => false,
+            Self::TableHLine(_) | Self::TableVLine(_) => false,
             // Passo 157A (ADR-0060 Fase 2): Table é vazio se children
             // for vazio (paridade com Grid; cells / children indistintos
             // semanticamente para is_empty).
@@ -2190,6 +2318,7 @@ impl Content {
             Self::Figure(e) => e.plain_text(),
             Self::Image(e) => e.plain_text(),
             Self::Shape(e) => e.plain_text(),
+            Self::Curve(e) => e.plain_text(),
             Self::Transform(e) => e.plain_text(),
             Self::Grid(e) => e.plain_text(),
             // P224.B — GridHeader/GridFooter transparentes (paridade P157C).
@@ -2197,6 +2326,9 @@ impl Content {
             Self::GridFooter(e) => e.plain_text(),
             // P224.C — GridCell transparente (paridade P157B TableCell).
             Self::GridCell(e) => e.plain_text(),
+            // Passo 512 — linhas em grid/table não contribuem para texto plano.
+            Self::GridHLine(_) | Self::GridVLine(_) => String::new(),
+            Self::TableHLine(_) | Self::TableVLine(_) => String::new(),
             // Passo 157A: Table concatena children com space (paridade
             // com Grid em plain_text — semântica de "células visíveis
             // em sequência").
@@ -2325,6 +2457,8 @@ impl PartialEq for Content {
             (Self::Image(a), Self::Image(b)) => a == b,
             // Modelo D (Lote 11 P326): Shape delega ao `Arc<…Elem>`.
             (Self::Shape(a), Self::Shape(b)) => a == b,
+            // Passo 513: Curve delega ao `Arc<CurveElem>`.
+            (Self::Curve(a), Self::Curve(b)) => a == b,
             // Modelo D (Lote 9 P324): Transform delega ao `Arc<…Elem>`.
             (Self::Transform(a), Self::Transform(b)) => a == b,
             // P224+P227+P228 — Grid refino +7 fields (gutter/align/inset/header/footer/stroke/fill).
@@ -2337,6 +2471,11 @@ impl PartialEq for Content {
             // P224.C + P230 + P235 — GridCell +5 fields cumulativos.
             // Modelo D (Lote 12 P327): GridCell delega ao `Arc<…Elem>`.
             (Self::GridCell(a), Self::GridCell(b)) => a == b,
+            // Passo 512 — linhas em grid/table.
+            (Self::GridHLine(a), Self::GridHLine(b)) => a == b,
+            (Self::GridVLine(a), Self::GridVLine(b)) => a == b,
+            (Self::TableHLine(a), Self::TableHLine(b)) => a == b,
+            (Self::TableVLine(a), Self::TableVLine(b)) => a == b,
             // Modelo D (Lote 12 P327): Table delega ao `Arc<…Elem>`.
             (Self::Table(a), Self::Table(b)) => a == b,
             // Passo 157B + P230 + P235 — TableCell +5 fields cumulativos.
@@ -2588,6 +2727,8 @@ impl Content {
             // P220: Colbreak é leaf (event sem body), terminal.
             | Content::Colbreak(_)
             | Content::Shape(_)
+            // Passo 513: Curve é leaf — terminal.
+            | Content::Curve(_)
             // P169 (M9): Metadata é terminal — clonar directamente.
             | Content::Metadata(_)
             // P171 (M9): State e StateUpdate são terminais.
@@ -2609,6 +2750,9 @@ impl Content {
             Content::GridFooter(e) => e.map_content(transform)?,
             // Modelo D (Lote 12 P327): GridCell container delega ao elemento.
             Content::GridCell(e) => e.map_content(transform)?,
+            // Passo 512 — linhas em grid/table são terminais.
+            Content::GridHLine(_) | Content::GridVLine(_) => self.clone(),
+            Content::TableHLine(_) | Content::TableVLine(_) => self.clone(),
             // Passo 157A + P227 + P228: Table — mapear children; preservar stroke + fill.
             // Modelo D (Lote 12 P327): Table container delega ao elemento.
             Content::Table(e) => e.map_content(transform)?,
@@ -2823,6 +2967,8 @@ impl Content {
             // P220: Colbreak é leaf (event sem body), terminal.
             | Content::Colbreak(_)
             | Content::Shape(_)
+            // Passo 513: Curve é leaf — terminal.
+            | Content::Curve(_)
             // P169 (M9): Metadata é terminal — clonar directamente.
             | Content::Metadata(_)
             // P171 (M9): State e StateUpdate são terminais.
@@ -2843,6 +2989,9 @@ impl Content {
             // P224.C + P230 + P235 — GridCell recurse no body (map_text);
             // Modelo D (Lote 12 P327): GridCell container delega ao elemento.
             Content::GridCell(e) => e.map_text(transform),
+            // Passo 512 — linhas em grid/table são terminais.
+            Content::GridHLine(_) | Content::GridVLine(_) => self.clone(),
+            Content::TableHLine(_) | Content::TableVLine(_) => self.clone(),
             // Passo 157A + P227 + P228: Table — map_text em children; preservar stroke + fill.
             // Modelo D (Lote 12 P327): Table container delega ao elemento.
             Content::Table(e) => e.map_text(transform),
@@ -4493,6 +4642,8 @@ mod tests {
                 columns: vec![TrackSizing::Auto],
                 rows: vec![],
                 cells: vec![Content::text("A")],
+                    hlines: vec![],
+                    vlines: vec![],
                 gutter: Some(Length::pt(5.0)),
                 align: Some(Align2D { h: Some(HAlign::Left), v: Some(VAlign::Top) }),
                 inset: Sides::uniform(Length::pt(2.0)),
@@ -4521,6 +4672,8 @@ mod tests {
                     columns: vec![TrackSizing::Auto],
                     rows: vec![],
                     cells: vec![],
+                        hlines: vec![],
+                        vlines: vec![],
                     gutter,
                     align: None,
                     inset: Sides::uniform(Length::pt(0.0)),
@@ -4652,6 +4805,8 @@ mod tests {
                 columns: vec![TrackSizing::Auto],
                 rows: vec![],
                 cells: vec![Content::text("A")],
+                    hlines: vec![],
+                    vlines: vec![],
                 gutter: None,
                 align: None,
                 inset: Sides::uniform(Length::pt(0.0)),
@@ -4684,6 +4839,8 @@ mod tests {
                 columns: vec![TrackSizing::Auto],
                 rows: vec![],
                 children: vec![Content::text("X")],
+                    hlines: vec![],
+                    vlines: vec![],
                 stroke: Some(Stroke {
                     paint: Paint::Solid(Color::rgb(0, 0, 255)),
                     thickness: 1.5,
@@ -4712,6 +4869,8 @@ mod tests {
                     columns: vec![TrackSizing::Auto],
                     rows: vec![],
                     cells: vec![],
+                        hlines: vec![],
+                        vlines: vec![],
                     gutter: None,
                     align: None,
                     inset: Sides::uniform(Length::pt(0.0)),
@@ -4743,6 +4902,8 @@ mod tests {
                 columns: vec![TrackSizing::Auto],
                 rows: vec![],
                 cells: vec![Content::text("A")],
+                    hlines: vec![],
+                    vlines: vec![],
                 gutter: None,
                 align: None,
                 inset: Sides::uniform(Length::pt(0.0)),
@@ -4767,6 +4928,8 @@ mod tests {
                 columns: vec![TrackSizing::Auto],
                 rows: vec![],
                 children: vec![Content::text("X")],
+                    hlines: vec![],
+                    vlines: vec![],
                 stroke: None,
                 fill: Some(Color::rgb(0, 255, 0)),
                 caption: None,
@@ -4789,6 +4952,8 @@ mod tests {
                     columns: vec![TrackSizing::Auto],
                     rows: vec![],
                     cells: vec![],
+                        hlines: vec![],
+                        vlines: vec![],
                     gutter: None,
                     align: None,
                     inset: Sides::uniform(Length::pt(0.0)),
@@ -4813,6 +4978,8 @@ mod tests {
                 columns: vec![TrackSizing::Auto],
                 rows: vec![],
                 cells: vec![Content::text("a")],
+                    hlines: vec![],
+                    vlines: vec![],
                 gutter: None,
                 align: None,
                 inset: Sides::uniform(Length::pt(0.0)),
@@ -4846,6 +5013,8 @@ mod tests {
                 columns: vec![TrackSizing::Auto],
                 rows: vec![],
                 cells: vec![Content::text("a")],
+                    hlines: vec![],
+                    vlines: vec![],
                 gutter: None,
                 align: None,
                 inset: Sides::uniform(Length::pt(0.0)),

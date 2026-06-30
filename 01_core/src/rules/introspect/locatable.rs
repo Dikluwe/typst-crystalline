@@ -134,6 +134,7 @@ pub fn is_locatable(content: &Content) -> bool {
         | Content::CounterDisplay(_)
         | Content::Image(_)
         | Content::Shape { .. }
+        | Content::Curve(_)
         | Content::Transform(_)
         | Content::Grid(_)
         | Content::SetPage { .. }
@@ -174,6 +175,11 @@ pub fn is_locatable(content: &Content) -> bool {
         | Content::GridHeader { .. }
         | Content::GridFooter { .. }
         | Content::GridCell(_)
+        // Passo 512 — linhas em grid/table não-locatable.
+        | Content::GridHLine(_)
+        | Content::GridVLine(_)
+        | Content::TableHLine(_)
+        | Content::TableVLine(_)
         | Content::Repeat(_)
         // P217 — Columns container não-locatable (transparente para
         // introspect; consumer multi-region em P219).
@@ -284,6 +290,8 @@ mod tests {
             Content::divider(),
             Content::math_align_point(),
             Content::list_item(Content::Empty),
+            // Passo 513 — Curve não-locatable.
+            Content::curve_move(crate::entities::layout_types::Length::pt(0.0), crate::entities::layout_types::Length::pt(0.0)),
             // P186D: Equation cobertura no test de invariante.
             // Lacuna pré-existente — Equation estava omitida do
             // helper, escondendo divergências entre is_locatable e

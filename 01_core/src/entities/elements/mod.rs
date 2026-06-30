@@ -95,6 +95,13 @@ pub mod table_cell;
 pub mod table;
 pub mod grid_cell;
 pub mod grid;
+// Passo 512 — linhas em grid/table.
+pub mod grid_hline;
+pub mod grid_vline;
+pub mod table_hline;
+pub mod table_vline;
+// Passo 513 — curve elements (move/line/cubic/quad/close).
+pub mod curve;
 // Lote 13 P328 — o último element-shaped.
 pub mod figure;
 // Lote 14 P329 — reclassificados da triagem DEBT-58 (wrappers densos).

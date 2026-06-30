@@ -20,6 +20,9 @@ use crate::entities::args::Args;
 use crate::entities::content::Content;
 use crate::entities::elements::outline::OutlineTarget;
 use crate::entities::elements::outline::OutlineElem;
+use crate::entities::geometry::Stroke;
+use crate::entities::layout_types::{Align2D, Color, HAlign, VAlign};
+use crate::entities::paint::Paint;
 use crate::entities::source_result::{SourceDiagnostic, SourceResult};
 use crate::entities::span::Span;
 use crate::entities::value::Value;
@@ -569,11 +572,52 @@ pub fn native_table(
         rows = vec![TrackSizing::Auto];
     }
     // Children variádicos posicionais (Content ou Str).
+    // P512 — separar linhas hline/vline dos children e calcular row/col
+    // efectivos com base na ordem de aparecimento e no número de colunas.
     let mut children: Vec<Content> = Vec::with_capacity(args.items.len());
+    let mut hlines: Vec<crate::entities::elements::table_hline::TableHLineElem> = Vec::new();
+    let mut vlines: Vec<crate::entities::elements::table_vline::TableVLineElem> = Vec::new();
+    let num_cols = columns.len().max(1);
+    let mut row = 0usize;
+    let mut col = 0usize;
     for v in args.items.iter() {
         match v {
-            Value::Content(c) => children.push(c.clone()),
-            Value::Str(s) => children.push(Content::text(s.as_str())),
+            Value::Content(Content::TableHLine(e)) => {
+                let mut h = (**e).clone();
+                if h.position == "auto" {
+                    h.position = if col == 0 {
+                        EcoString::from("top")
+                    } else {
+                        EcoString::from("bottom")
+                    };
+                }
+                h.row = row;
+                hlines.push(h);
+            }
+            Value::Content(Content::TableVLine(e)) => {
+                let mut vline = (**e).clone();
+                if vline.position == "auto" {
+                    vline.position = EcoString::from("left");
+                }
+                vline.col = col;
+                vlines.push(vline);
+            }
+            Value::Content(c) => {
+                children.push(c.clone());
+                col += 1;
+                if col >= num_cols {
+                    col = 0;
+                    row += 1;
+                }
+            }
+            Value::Str(s) => {
+                children.push(Content::text(s.as_str()));
+                col += 1;
+                if col >= num_cols {
+                    col = 0;
+                    row += 1;
+                }
+            }
             other => {
                 return Err(vec![SourceDiagnostic::error(
                     Span::detached(),
@@ -618,6 +662,8 @@ pub fn native_table(
             columns,
             rows,
             children,
+            hlines,
+            vlines,
             stroke,
             fill,
             caption,
@@ -2386,6 +2432,179 @@ pub fn native_enum(
     }))
 }
 
+// ── Passo 512 — Grid/Table HLine/VLine ──────────────────────────────────────
+
+/// Stroke padrão para `grid.hline`/`grid.vline`/`table.hline`/`table.vline`
+/// quando `stroke` é omitido: 1pt preto com overhang vanilla (`true`).
+fn default_hline_stroke() -> Stroke {
+    Stroke { paint: Paint::Solid(Color::rgb(0, 0, 0)), thickness: 1.0, overhang: true }
+}
+
+/// Helper P512 — extrai `start`/`end` comuns a hline/vline.
+fn extract_line_range(
+    args: &Args,
+    fn_name: &str,
+) -> SourceResult<(usize, Option<usize>)> {
+    let start = match args.named.get("start") {
+        Some(v) => match v {
+            Value::Int(n) if *n >= 0 => *n as usize,
+            other => {
+                return Err(vec![SourceDiagnostic::error(
+                    Span::detached(),
+                    format!("{}(start): espera int >= 0, recebeu {}", fn_name, other.type_name()),
+                )])
+            }
+        },
+        None => 0,
+    };
+    let end = match args.named.get("end") {
+        Some(v) => match v {
+            Value::Auto | Value::None => None,
+            Value::Int(n) if *n >= 0 => Some(*n as usize),
+            other => {
+                return Err(vec![SourceDiagnostic::error(
+                    Span::detached(),
+                    format!("{}(end): espera int >= 0 ou auto, recebeu {}", fn_name, other.type_name()),
+                )])
+            }
+        },
+        None => None,
+    };
+    Ok((start, end))
+}
+
+/// `grid.hline(start, end, stroke, position)` — Passo 512.
+pub fn native_grid_hline(
+    _ctx: &mut EvalContext,
+    args: &Args,
+    _world: &dyn crate::contracts::world::World,
+    _current_file: FileId,
+) -> SourceResult<Value> {
+    let (start, end) = extract_line_range(args, "grid.hline")?;
+    let stroke = match args.named.get("stroke") {
+        Some(v) => super::layout::extract_stroke(v, "grid.hline", "stroke")?,
+        None => default_hline_stroke(),
+    };
+    let position = match args.named.get("position") {
+        Some(Value::Str(s)) => s.clone(),
+        Some(Value::Align(Align2D { v: Some(VAlign::Top), .. })) => EcoString::from("top"),
+        Some(Value::Align(Align2D { v: Some(VAlign::Bottom), .. })) => EcoString::from("bottom"),
+        Some(Value::Auto) | Some(Value::None) | None => EcoString::from("auto"),
+        Some(other) => {
+            return Err(vec![SourceDiagnostic::error(
+                Span::detached(),
+                format!("grid.hline(position): espera str, alignment ou auto, recebeu {}", other.type_name()),
+            )])
+        }
+    };
+    if !matches!(position.as_str(), "top" | "bottom" | "auto") {
+        return Err(vec![SourceDiagnostic::error(
+            Span::detached(),
+            "grid.hline(position): deve ser 'top', 'bottom' ou 'auto'".to_string(),
+        )]);
+    }
+    Ok(Value::Content(Content::grid_hline(start, end, 0, stroke, position)))
+}
+
+/// `grid.vline(start, end, stroke, position)` — Passo 512.
+pub fn native_grid_vline(
+    _ctx: &mut EvalContext,
+    args: &Args,
+    _world: &dyn crate::contracts::world::World,
+    _current_file: FileId,
+) -> SourceResult<Value> {
+    let (start, end) = extract_line_range(args, "grid.vline")?;
+    let stroke = match args.named.get("stroke") {
+        Some(v) => super::layout::extract_stroke(v, "grid.vline", "stroke")?,
+        None => default_hline_stroke(),
+    };
+    let position = match args.named.get("position") {
+        Some(Value::Str(s)) => s.clone(),
+        Some(Value::Align(Align2D { h: Some(HAlign::Left), .. })) => EcoString::from("left"),
+        Some(Value::Align(Align2D { h: Some(HAlign::Right), .. })) => EcoString::from("right"),
+        Some(Value::Auto) | Some(Value::None) | None => EcoString::from("left"),
+        Some(other) => {
+            return Err(vec![SourceDiagnostic::error(
+                Span::detached(),
+                format!("grid.vline(position): espera str, alignment ou auto, recebeu {}", other.type_name()),
+            )])
+        }
+    };
+    if !matches!(position.as_str(), "left" | "right" | "auto") {
+        return Err(vec![SourceDiagnostic::error(
+            Span::detached(),
+            "grid.vline(position): deve ser 'left', 'right' ou 'auto'".to_string(),
+        )]);
+    }
+    Ok(Value::Content(Content::grid_vline(start, end, 0, stroke, position)))
+}
+
+/// `table.hline(start, end, stroke, position)` — Passo 512.
+pub fn native_table_hline(
+    _ctx: &mut EvalContext,
+    args: &Args,
+    _world: &dyn crate::contracts::world::World,
+    _current_file: FileId,
+) -> SourceResult<Value> {
+    let (start, end) = extract_line_range(args, "table.hline")?;
+    let stroke = match args.named.get("stroke") {
+        Some(v) => super::layout::extract_stroke(v, "table.hline", "stroke")?,
+        None => default_hline_stroke(),
+    };
+    let position = match args.named.get("position") {
+        Some(Value::Str(s)) => s.clone(),
+        Some(Value::Align(Align2D { v: Some(VAlign::Top), .. })) => EcoString::from("top"),
+        Some(Value::Align(Align2D { v: Some(VAlign::Bottom), .. })) => EcoString::from("bottom"),
+        Some(Value::Auto) | Some(Value::None) | None => EcoString::from("auto"),
+        Some(other) => {
+            return Err(vec![SourceDiagnostic::error(
+                Span::detached(),
+                format!("table.hline(position): espera str, alignment ou auto, recebeu {}", other.type_name()),
+            )])
+        }
+    };
+    if !matches!(position.as_str(), "top" | "bottom" | "auto") {
+        return Err(vec![SourceDiagnostic::error(
+            Span::detached(),
+            "table.hline(position): deve ser 'top', 'bottom' ou 'auto'".to_string(),
+        )]);
+    }
+    Ok(Value::Content(Content::table_hline(start, end, 0, stroke, position)))
+}
+
+/// `table.vline(start, end, stroke, position)` — Passo 512.
+pub fn native_table_vline(
+    _ctx: &mut EvalContext,
+    args: &Args,
+    _world: &dyn crate::contracts::world::World,
+    _current_file: FileId,
+) -> SourceResult<Value> {
+    let (start, end) = extract_line_range(args, "table.vline")?;
+    let stroke = match args.named.get("stroke") {
+        Some(v) => super::layout::extract_stroke(v, "table.vline", "stroke")?,
+        None => default_hline_stroke(),
+    };
+    let position = match args.named.get("position") {
+        Some(Value::Str(s)) => s.clone(),
+        Some(Value::Align(Align2D { h: Some(HAlign::Left), .. })) => EcoString::from("left"),
+        Some(Value::Align(Align2D { h: Some(HAlign::Right), .. })) => EcoString::from("right"),
+        Some(Value::Auto) | Some(Value::None) | None => EcoString::from("left"),
+        Some(other) => {
+            return Err(vec![SourceDiagnostic::error(
+                Span::detached(),
+                format!("table.vline(position): espera str, alignment ou auto, recebeu {}", other.type_name()),
+            )])
+        }
+    };
+    if !matches!(position.as_str(), "left" | "right" | "auto") {
+        return Err(vec![SourceDiagnostic::error(
+            Span::detached(),
+            "table.vline(position): deve ser 'left', 'right' ou 'auto'".to_string(),
+        )]);
+    }
+    Ok(Value::Content(Content::table_vline(start, end, 0, stroke, position)))
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -2896,6 +3115,113 @@ mod tests {
             assert_eq!(ei.number, Some(3));
         } else {
             panic!("esperado EnumItem");
+        }
+    }
+
+    // ── Passo 512 — grid/table hline/vline ───────────────────────────────────
+
+    fn call_grid_hline(args: Args) -> SourceResult<Value> {
+        native_grid_hline(
+            &mut EvalContext::new(),
+            &args,
+            &NullWorld::default(),
+            test_file_id(),
+        )
+    }
+
+    fn call_table_hline(args: Args) -> SourceResult<Value> {
+        native_table_hline(
+            &mut EvalContext::new(),
+            &args,
+            &NullWorld::default(),
+            test_file_id(),
+        )
+    }
+
+    fn call_grid_vline(args: Args) -> SourceResult<Value> {
+        native_grid_vline(
+            &mut EvalContext::new(),
+            &args,
+            &NullWorld::default(),
+            test_file_id(),
+        )
+    }
+
+    fn call_table_vline(args: Args) -> SourceResult<Value> {
+        native_table_vline(
+            &mut EvalContext::new(),
+            &args,
+            &NullWorld::default(),
+            test_file_id(),
+        )
+    }
+
+    #[test]
+    fn grid_hline_defaults() {
+        let v = call_grid_hline(Args::positional(vec![])).unwrap();
+        if let Value::Content(Content::GridHLine(e)) = v {
+            assert_eq!(e.start, 0);
+            assert_eq!(e.end, None);
+            assert_eq!(e.row, 0);
+            assert_eq!(e.position.as_str(), "auto");
+            assert_eq!(e.stroke.thickness, 1.0);
+        } else {
+            panic!("esperado GridHLine");
+        }
+    }
+
+    #[test]
+    fn grid_hline_position_bottom_alignment() {
+        use crate::entities::layout_types::{Align2D, VAlign};
+        let mut args = Args::positional(vec![]);
+        args.named.insert(
+            "position".into(),
+            Value::Align(Align2D { h: None, v: Some(VAlign::Bottom) }),
+        );
+        let v = call_grid_hline(args).unwrap();
+        if let Value::Content(Content::GridHLine(e)) = v {
+            assert_eq!(e.position.as_str(), "bottom");
+        } else {
+            panic!("esperado GridHLine");
+        }
+    }
+
+    #[test]
+    fn grid_vline_defaults() {
+        let v = call_grid_vline(Args::positional(vec![])).unwrap();
+        if let Value::Content(Content::GridVLine(e)) = v {
+            assert_eq!(e.start, 0);
+            assert_eq!(e.end, None);
+            assert_eq!(e.col, 0);
+            assert_eq!(e.position.as_str(), "left");
+        } else {
+            panic!("esperado GridVLine");
+        }
+    }
+
+    #[test]
+    fn table_hline_defaults() {
+        let v = call_table_hline(Args::positional(vec![])).unwrap();
+        if let Value::Content(Content::TableHLine(e)) = v {
+            assert_eq!(e.start, 0);
+            assert_eq!(e.end, None);
+            assert_eq!(e.row, 0);
+            assert_eq!(e.position.as_str(), "auto");
+        } else {
+            panic!("esperado TableHLine");
+        }
+    }
+
+    #[test]
+    fn table_vline_defaults() {
+        let v = call_table_vline(Args::positional(vec![])).unwrap();
+        if let Value::Content(Content::TableVLine(e)) = v {
+            assert_eq!(e.start, 0);
+            assert_eq!(e.end, None);
+            assert_eq!(e.col, 0);
+            assert_eq!(e.position.as_str(), "left");
+        } else {
+            panic!("esperado TableVLine");
         }
     }
 }

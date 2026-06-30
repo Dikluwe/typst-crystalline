@@ -10,6 +10,7 @@
 
 use super::expect_no_named;
 use crate::entities::file_id::FileId;
+use ecow::EcoString;
 
 use crate::entities::args::Args;
 use crate::entities::content::Content;
@@ -264,9 +265,48 @@ pub fn native_grid(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::cont
         None => None,
     };
 
-    let cells: Vec<Content> = args.items.iter()
-        .filter_map(|v| if let Value::Content(c) = v { Some(c.clone()) } else { None })
-        .collect();
+    let mut cells: Vec<Content> = Vec::new();
+    let mut hlines: Vec<crate::entities::elements::grid_hline::GridHLineElem> = Vec::new();
+    let mut vlines: Vec<crate::entities::elements::grid_vline::GridVLineElem> = Vec::new();
+    // P512 — separar linhas e calcular row/col efectivos com base na ordem
+    // dos children e no número de colunas (posicionamento automático).
+    let num_cols = columns.len().max(1);
+    let mut row = 0usize;
+    let mut col = 0usize;
+    for v in args.items.iter() {
+        if let Value::Content(c) = v {
+            match c {
+                Content::GridHLine(e) => {
+                    let mut h = (**e).clone();
+                    if h.position == "auto" {
+                        h.position = if col == 0 {
+                            EcoString::from("top")
+                        } else {
+                            EcoString::from("bottom")
+                        };
+                    }
+                    h.row = row;
+                    hlines.push(h);
+                }
+                Content::GridVLine(e) => {
+                    let mut vline = (**e).clone();
+                    if vline.position == "auto" {
+                        vline.position = EcoString::from("left");
+                    }
+                    vline.col = col;
+                    vlines.push(vline);
+                }
+                other => {
+                    cells.push(other.clone());
+                    col += 1;
+                    if col >= num_cols {
+                        col = 0;
+                        row += 1;
+                    }
+                }
+            }
+        }
+    }
     // P227 — extract stroke (Length/Color/Stroke shorthand via extract_stroke).
     let stroke = match args.named.get("stroke") {
         Some(val) => Some(extract_stroke(val, "grid", "stroke")?),
@@ -286,6 +326,7 @@ pub fn native_grid(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::cont
     Ok(Value::Content(Content::Grid(std::sync::Arc::new(
         crate::entities::elements::grid::GridElem {
             columns, rows, cells,
+            hlines, vlines,
             gutter, align, inset, header, footer,
             stroke, fill,
         },
