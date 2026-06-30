@@ -1,0 +1,238 @@
+Corpus: 40 documentos. Hyperfine: True
+
+=== test-array (micro) ===
+  vanilla mean: 98.97 ms
+  cristalino mean: 3.24 ms
+  ratio: 0.03x
+  eval: 0.56 ms | layout: 0.01 ms | render: 0.01 ms
+
+=== test-calc (micro) ===
+  vanilla mean: 97.97 ms
+  cristalino mean: 2.97 ms
+  ratio: 0.03x
+  eval: 0.64 ms | layout: 0.01 ms | render: 0.02 ms
+
+=== test-columns (micro) ===
+  vanilla mean: 100.28 ms
+  cristalino mean: 3.01 ms
+  ratio: 0.03x
+  eval: 0.42 ms | layout: 0.04 ms | render: 0.10 ms
+
+=== test-dict (micro) ===
+  vanilla mean: 99.98 ms
+  cristalino mean: 2.81 ms
+  ratio: 0.03x
+  eval: 0.43 ms | layout: 0.02 ms | render: 0.02 ms
+
+=== test-enum-start (micro) ===
+  vanilla mean: 96.65 ms
+  cristalino mean: 2.82 ms
+  ratio: 0.03x
+  eval: 0.46 ms | layout: 0.02 ms | render: 0.03 ms
+
+=== test-footnote (micro) ===
+  vanilla mean: 96.45 ms
+  cristalino mean: 2.66 ms
+  ratio: 0.03x
+  eval: 0.47 ms | layout: 0.04 ms | render: 0.04 ms
+
+=== test-list-marker-array (micro) ===
+  vanilla mean: 98.38 ms
+  cristalino mean: 2.86 ms
+  ratio: 0.03x
+  eval: 0.43 ms | layout: 0.02 ms | render: 0.03 ms
+
+=== test-math (micro) ===
+  vanilla mean: 96.01 ms
+  cristalino mean: 3.01 ms
+  ratio: 0.03x
+  eval: 0.49 ms | layout: 0.05 ms | render: 0.05 ms
+
+=== test-page (micro) ===
+  vanilla mean: 102.27 ms
+  cristalino mean: 3.10 ms
+  ratio: 0.03x
+  eval: 0.43 ms | layout: 0.02 ms | render: 0.05 ms
+
+=== test-par (micro) ===
+  vanilla mean: 98.47 ms
+  cristalino mean: 2.88 ms
+  ratio: 0.03x
+  eval: 0.44 ms | layout: 0.03 ms | render: 0.04 ms
+
+=== test-place (micro) ===
+  vanilla mean: 100.03 ms
+  cristalino mean: 2.74 ms
+  ratio: 0.03x
+  eval: 0.44 ms | layout: 0.02 ms | render: 0.04 ms
+
+=== test-quote (micro) ===
+  vanilla mean: 97.52 ms
+  cristalino mean: 2.91 ms
+  ratio: 0.03x
+  eval: 0.45 ms | layout: 0.02 ms | render: 0.04 ms
+
+=== test-raw (micro) ===
+  vanilla mean: 121.71 ms
+  cristalino mean: 2.52 ms
+  ratio: 0.02x
+  eval: 0.46 ms | layout: 0.02 ms | render: 0.02 ms
+
+=== test-set-local (micro) ===
+  vanilla mean: 97.08 ms
+  cristalino mean: 3.17 ms
+  ratio: 0.03x
+  eval: 0.42 ms | layout: 0.03 ms | render: 0.03 ms
+
+=== test-show-link (micro) ===
+  vanilla mean: 97.41 ms
+  cristalino mean: 3.40 ms
+  ratio: 0.03x
+  eval: 0.60 ms | layout: 0.02 ms | render: 0.04 ms
+
+=== test-show-regex (micro) ===
+  vanilla mean: 99.65 ms
+  cristalino mean: 3.34 ms
+  ratio: 0.03x
+  eval: 0.99 ms | layout: 0.02 ms | render: 0.03 ms
+
+=== test-show-where-multi (micro) ===
+  vanilla mean: 95.66 ms
+  cristalino mean: 2.94 ms
+  ratio: 0.03x
+  eval: 0.58 ms | layout: 0.02 ms | render: 0.03 ms
+
+=== test-str (micro) ===
+  vanilla mean: 103.55 ms
+  cristalino mean: 3.46 ms
+  ratio: 0.03x
+  eval: 0.44 ms | layout: 0.02 ms | render: 0.03 ms
+
+=== test-stroke-sides (micro) ===
+  vanilla mean: 6.71 ms
+  cristalino mean: 2.53 ms
+  ratio: 0.38x
+  eval: 0.41 ms | layout: 0.01 ms | render: 0.02 ms
+
+=== test-table (micro) ===
+  vanilla mean: 94.82 ms
+  cristalino mean: 2.30 ms
+  ratio: 0.02x
+  eval: 0.41 ms | layout: 0.03 ms | render: 0.02 ms
+
+=== test-bibliography-csl (micro) ===
+  vanilla mean: 148.77 ms
+  cristalino mean: 57.63 ms
+  ratio: 0.39x
+  eval: 1.44 ms | layout: 52.16 ms | render: 0.04 ms
+
+=== test-calc-rest (micro) ===
+hyperfine falhou para test-calc-rest: Error: Command terminated with non-zero exit code 1 in the first warmup run. Use the '-i'/'--ignore-failure' option if you want to ignore this. Alternatively, use the '--show-output' option to debug what went wrong.
+
+  [skip] comparação falhou
+
+=== test-dict-methods (micro) ===
+  vanilla mean: 96.18 ms
+  cristalino mean: 3.01 ms
+  ratio: 0.03x
+  eval: 0.44 ms | layout: 0.02 ms | render: 0.02 ms
+
+=== test-enum-advanced (micro) ===
+  vanilla mean: 101.01 ms
+  cristalino mean: 3.06 ms
+  ratio: 0.03x
+  eval: 0.46 ms | layout: 0.03 ms | render: 0.04 ms
+
+=== test-figure-advanced (micro) ===
+  vanilla mean: 100.22 ms
+  cristalino mean: 3.56 ms
+  ratio: 0.04x
+  eval: 0.45 ms | layout: 0.02 ms | render: 0.48 ms
+
+=== test-footnote-advanced (micro) ===
+  vanilla mean: 102.90 ms
+  cristalino mean: 4.72 ms
+  ratio: 0.05x
+  eval: 0.56 ms | layout: 0.05 ms | render: 0.05 ms
+
+=== test-image-fit (micro) ===
+  vanilla mean: 7.83 ms
+  cristalino mean: 4.43 ms
+  ratio: 0.57x
+  eval: 0.56 ms | layout: 0.02 ms | render: 1.38 ms
+
+=== test-list-advanced (micro) ===
+  vanilla mean: 95.75 ms
+  cristalino mean: 3.00 ms
+  ratio: 0.03x
+  eval: 0.45 ms | layout: 0.02 ms | render: 0.03 ms
+
+=== test-metadata-query (micro) ===
+hyperfine falhou para test-metadata-query: Error: Command terminated with non-zero exit code 1 in the first warmup run. Use the '-i'/'--ignore-failure' option if you want to ignore this. Alternatively, use the '--show-output' option to debug what went wrong.
+
+  [skip] comparação falhou
+
+=== test-outline-advanced (micro) ===
+  vanilla mean: 94.67 ms
+  cristalino mean: 2.58 ms
+  ratio: 0.03x
+  eval: 0.40 ms | layout: 0.03 ms | render: 0.03 ms
+
+=== test-page-header-footer (micro) ===
+  vanilla mean: 98.48 ms
+  cristalino mean: 2.62 ms
+  ratio: 0.03x
+  eval: 0.59 ms | layout: 0.02 ms | render: 0.04 ms
+
+=== test-par-advanced (micro) ===
+  vanilla mean: 93.95 ms
+  cristalino mean: 2.87 ms
+  ratio: 0.03x
+  eval: 0.39 ms | layout: 0.02 ms | render: 0.03 ms
+
+=== test-place-absolute (micro) ===
+  vanilla mean: 97.31 ms
+  cristalino mean: 2.75 ms
+  ratio: 0.03x
+  eval: 0.40 ms | layout: 0.02 ms | render: 0.03 ms
+
+=== test-quote-advanced (micro) ===
+  vanilla mean: 94.24 ms
+  cristalino mean: 2.60 ms
+  ratio: 0.03x
+  eval: 0.41 ms | layout: 0.02 ms | render: 0.03 ms
+
+=== test-raw-advanced (micro) ===
+  vanilla mean: 155.60 ms
+  cristalino mean: 3.80 ms
+  ratio: 0.02x
+  eval: 0.47 ms | layout: 0.02 ms | render: 0.03 ms
+
+=== test-state-counter (micro) ===
+  vanilla mean: 106.26 ms
+  cristalino mean: 4.37 ms
+  ratio: 0.04x
+  eval: 0.85 ms | layout: 0.02 ms | render: 0.02 ms
+
+=== test-str-methods (micro) ===
+hyperfine falhou para test-str-methods: Error: Command terminated with non-zero exit code 1 in the first warmup run. Use the '-i'/'--ignore-failure' option if you want to ignore this. Alternatively, use the '--show-output' option to debug what went wrong.
+
+  [skip] comparação falhou
+
+=== medium-combined (medium) ===
+hyperfine falhou para medium-combined: Error: Command terminated with non-zero exit code 1 in the first warmup run. Use the '-i'/'--ignore-failure' option if you want to ignore this. Alternatively, use the '--show-output' option to debug what went wrong.
+
+  [skip] comparação falhou
+
+=== 0.15.0-spec (medium) ===
+hyperfine falhou para 0.15.0-spec: Error: Command terminated with non-zero exit code 1 in the first warmup run. Use the '-i'/'--ignore-failure' option if you want to ignore this. Alternatively, use the '--show-output' option to debug what went wrong.
+
+  [skip] comparação falhou
+
+=== macro-10x (macro) ===
+  vanilla mean: 4750.11 ms
+  cristalino mean: 1233.16 ms
+  ratio: 0.26x
+  eval: 397.52 ms | layout: 226.54 ms | render: 262.05 ms
+
+Resultados: /home/dikluwe/Documentos/Antigravity/typst-crystalline/tools/perf/results/benchmark-p507-summary.json

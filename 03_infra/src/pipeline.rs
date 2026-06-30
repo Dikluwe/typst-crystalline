@@ -15,6 +15,7 @@
 #![allow(deprecated)] // P483 — FrameItem::Text fallback path legítimo
 use std::collections::HashMap;
 use std::sync::Arc;
+use std::time::Instant;
 
 use comemo::{Track, TrackedMut};
 
@@ -193,6 +194,27 @@ fn substitute_context_blocks(
     }
 }
 
+/// Tempos das fases do pipeline cristalino, em milissegundos.
+///
+/// P507 — instrumentação de benchmark; não altera a semântica da compilação.
+#[derive(Debug, Clone, Default)]
+pub struct Timings {
+    /// Parse do `.typ` → `Source` (medido pelo caller, tipicamente L2/L4).
+    pub parse_ms: f64,
+    /// Eval com passagem dupla (P498): introspection + layout.
+    pub eval_ms: f64,
+    /// Construção do `TagIntrospector` a partir do conteúdo original.
+    pub introspect_ms: f64,
+    /// Expansão pós-introspecção de `Content::ContextBlock` (P506).
+    pub expand_context_ms: f64,
+    /// Layout engine → `PagedDocument`.
+    pub layout_ms: f64,
+    /// Shaping + export PDF.
+    pub render_ms: f64,
+    /// Tempo total do pipeline (sem o parse).
+    pub total_ms: f64,
+}
+
 /// Pipeline completo `Source` → bytes PDF.
 ///
 /// Retorna `(Ok(pdf_bytes), warnings)` em sucesso ou
@@ -218,20 +240,54 @@ pub fn compile_to_pdf_bytes(
 /// This function exists only to support the internal path from
 /// `RunIntent.full_error` (DEBT-59 / P428). It is `pub` only because L4 lives
 /// in a different crate; treat it as an implementation detail.
+/// Compila `source` contra `world` para bytes PDF e devolve tempos por fase.
+///
+/// P507 — instrumentação de benchmark; API pública para testes e ferramentas.
+/// O campo `parse_ms` não é preenchido por esta função (o parse ocorre no
+/// caller); o caller deve preenchê-lo se desejar o tempo total completo.
+pub fn compile_to_pdf_bytes_with_timings(
+    world: &dyn World,
+    source: &Source,
+) -> (Result<Vec<u8>, Vec<SourceDiagnostic>>, Vec<SourceDiagnostic>, Timings) {
+    compile_to_pdf_bytes_with_timings_full_error(world, source, false)
+}
+
+/// Internal variant com instrumentação de tempos e `full_error`.
 #[doc(hidden)]
-pub fn compile_to_pdf_bytes_full_error(
+pub fn compile_to_pdf_bytes_with_timings_full_error(
     world: &dyn World,
     source: &Source,
     full_error: bool,
+) -> (Result<Vec<u8>, Vec<SourceDiagnostic>>, Vec<SourceDiagnostic>, Timings) {
+    let mut timings = Timings::default();
+    let result = compile_to_pdf_bytes_impl(world, source, full_error, &mut timings);
+    (result.0, result.1, timings)
+}
+
+fn compile_to_pdf_bytes_impl(
+    world: &dyn World,
+    source: &Source,
+    full_error: bool,
+    timings: &mut Timings,
 ) -> (Result<Vec<u8>, Vec<SourceDiagnostic>>, Vec<SourceDiagnostic>) {
+    let t0 = Instant::now();
     let (eval_result, warnings) = eval_to_module_with_sink_full_error(world, source, full_error);
+    let t1 = Instant::now();
+    timings.eval_ms = duration_ms(t1.duration_since(t0));
+
     let module = match eval_result {
         Ok(m) => m,
-        Err(errors) => return (Err(errors), warnings),
+        Err(errors) => {
+            timings.total_ms = timings.eval_ms;
+            return (Err(errors), warnings);
+        }
     };
     let content = match module.content() {
         Some(c) => c,
-        None => return (Ok(Vec::new()), warnings),
+        None => {
+            timings.total_ms = timings.eval_ms;
+            return (Ok(Vec::new()), warnings);
+        }
     };
     // P190I (M6 fechado): popula TagIntrospector a partir do content.
     // P498: usa o conteúdo original (pré-show-rules) para que elementos
@@ -243,12 +299,25 @@ pub fn compile_to_pdf_bytes_full_error(
     for (key, style) in module.bibliography_styles() {
         intr.bib_store.add_style(*key, style.clone());
     }
+    let t2 = Instant::now();
+    timings.introspect_ms = duration_ms(t2.duration_since(t1));
+
     // P506: expande ContextBlocks pós-introspecção (delayed evaluation).
     let content = match expand_context_blocks(content.clone(), &intr, world, source) {
         Ok(c) => c,
-        Err(errors) => return (Err(errors), warnings),
+        Err(errors) => {
+            timings.expand_context_ms = duration_ms(Instant::now().duration_since(t2));
+            timings.total_ms = timings.eval_ms + timings.introspect_ms + timings.expand_context_ms;
+            return (Err(errors), warnings);
+        }
     };
+    let t3 = Instant::now();
+    timings.expand_context_ms = duration_ms(t3.duration_since(t2));
+
     let doc = layout_with_introspector(&content, intr);
+    let t4 = Instant::now();
+    timings.layout_ms = duration_ms(t4.duration_since(t3));
+
     // P482 — shaping pass: Text → TextShaped (Trilha 5 Fase 1, ADR-0120 A1).
     let doc = crate::shaper::shape_document(world, doc);
     // Passo 146 (ADR-0055 decisão 5): dispatch multi-font.
@@ -262,7 +331,41 @@ pub fn compile_to_pdf_bytes_full_error(
         [(_, b)]   => export_pdf_with_font(&doc, b),
         many       => export_pdf_multifont(&doc, many),
     };
+    let t5 = Instant::now();
+    timings.render_ms = duration_ms(t5.duration_since(t4));
+    timings.total_ms = duration_ms(t5.duration_since(t0));
+
     (Ok(pdf), warnings)
+}
+
+#[doc(hidden)]
+pub fn compile_to_pdf_bytes_full_error(
+    world: &dyn World,
+    source: &Source,
+    full_error: bool,
+) -> (Result<Vec<u8>, Vec<SourceDiagnostic>>, Vec<SourceDiagnostic>) {
+    let mut timings = Timings::default();
+    compile_to_pdf_bytes_impl(world, source, full_error, &mut timings)
+}
+
+fn duration_ms(d: std::time::Duration) -> f64 {
+    d.as_secs_f64() * 1000.0
+}
+
+impl Timings {
+    /// Serializa os tempos como JSON compacto (sem dependência externa).
+    pub fn to_json(&self) -> String {
+        format!(
+            "{{\"parse_ms\":{:.6},\"eval_ms\":{:.6},\"introspect_ms\":{:.6},\"expand_context_ms\":{:.6},\"layout_ms\":{:.6},\"render_ms\":{:.6},\"total_ms\":{:.6}}}",
+            self.parse_ms,
+            self.eval_ms,
+            self.introspect_ms,
+            self.expand_context_ms,
+            self.layout_ms,
+            self.render_ms,
+            self.total_ms,
+        )
+    }
 }
 
 /// Itera `doc.pages → items` recursivamente (atravessa `Group`)

@@ -1,0 +1,1612 @@
+[
+  {
+    "name": "test-array",
+    "category": "micro",
+    "path": "/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/parity/corpus/p490/test-array.typ",
+    "comparison": {
+      "vanilla": {
+        "mean_ms": 98.97269092,
+        "stddev_ms": 1.737767288736413,
+        "min_ms": 96.86030232,
+        "max_ms": 100.98295732000001
+      },
+      "cristalino": {
+        "mean_ms": 3.24320992,
+        "stddev_ms": 0.12210606519456771,
+        "min_ms": 3.10532832,
+        "max_ms": 3.4137433200000005
+      },
+      "ratio": 0.03276873539410481
+    },
+    "phases": {
+      "eval_ms": {
+        "mean": 0.5550606,
+        "stddev": 0.0439853489903172
+      },
+      "introspect_ms": {
+        "mean": 0.008095399999999999,
+        "stddev": 0.0013544822996259497
+      },
+      "expand_context_ms": {
+        "mean": 0.0048712,
+        "stddev": 0.003765183753816007
+      },
+      "layout_ms": {
+        "mean": 0.0090892,
+        "stddev": 0.0037321503453103277
+      },
+      "render_ms": {
+        "mean": 0.0148942,
+        "stddev": 0.0016965126583671584
+      },
+      "total_ms": {
+        "mean": 0.5920105999999999,
+        "stddev": 0.046885372087677825
+      }
+    }
+  },
+  {
+    "name": "test-calc",
+    "category": "micro",
+    "path": "/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/parity/corpus/p490/test-calc.typ",
+    "comparison": {
+      "vanilla": {
+        "mean_ms": 97.9719418,
+        "stddev_ms": 0.5121180138534474,
+        "min_ms": 97.30455359999999,
+        "max_ms": 98.5222796
+      },
+      "cristalino": {
+        "mean_ms": 2.9686441999999995,
+        "stddev_ms": 0.21014714379762578,
+        "min_ms": 2.6445186,
+        "max_ms": 3.1763156
+      },
+      "ratio": 0.030300963168211896
+    },
+    "phases": {
+      "eval_ms": {
+        "mean": 0.641745,
+        "stddev": 0.1370627293413494
+      },
+      "introspect_ms": {
+        "mean": 0.0081654,
+        "stddev": 0.002511055714236544
+      },
+      "expand_context_ms": {
+        "mean": 0.0041236,
+        "stddev": 0.0038396706629605618
+      },
+      "layout_ms": {
+        "mean": 0.011031,
+        "stddev": 0.004550458163745712
+      },
+      "render_ms": {
+        "mean": 0.0159364,
+        "stddev": 0.001934412132923075
+      },
+      "total_ms": {
+        "mean": 0.6810014,
+        "stddev": 0.14297327573641166
+      }
+    }
+  },
+  {
+    "name": "test-columns",
+    "category": "micro",
+    "path": "/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/parity/corpus/p490/test-columns.typ",
+    "comparison": {
+      "vanilla": {
+        "mean_ms": 100.28007436000001,
+        "stddev_ms": 1.7802971414030015,
+        "min_ms": 98.54708416000001,
+        "max_ms": 103.02808716
+      },
+      "cristalino": {
+        "mean_ms": 3.0076233599999997,
+        "stddev_ms": 0.251398348033952,
+        "min_ms": 2.7403871599999996,
+        "max_ms": 3.39947516
+      },
+      "ratio": 0.029992233045248805
+    },
+    "phases": {
+      "eval_ms": {
+        "mean": 0.42454379999999997,
+        "stddev": 0.04323733306646007
+      },
+      "introspect_ms": {
+        "mean": 0.0046548,
+        "stddev": 0.00039643814145462827
+      },
+      "expand_context_ms": {
+        "mean": 0.0012224,
+        "stddev": 0.001844683929566255
+      },
+      "layout_ms": {
+        "mean": 0.041783,
+        "stddev": 0.006393923013299425
+      },
+      "render_ms": {
+        "mean": 0.0995064,
+        "stddev": 0.014769131399645682
+      },
+      "total_ms": {
+        "mean": 0.5717104,
+        "stddev": 0.05749259578676195
+      }
+    }
+  },
+  {
+    "name": "test-dict",
+    "category": "micro",
+    "path": "/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/parity/corpus/p490/test-dict.typ",
+    "comparison": {
+      "vanilla": {
+        "mean_ms": 99.97649280000002,
+        "stddev_ms": 6.052265625191635,
+        "min_ms": 94.84264320000001,
+        "max_ms": 109.8795312
+      },
+      "cristalino": {
+        "mean_ms": 2.8057674000000006,
+        "stddev_ms": 0.2764114861645587,
+        "min_ms": 2.4827442000000004,
+        "max_ms": 3.2373122000000003
+      },
+      "ratio": 0.028064271124341744
+    },
+    "phases": {
+      "eval_ms": {
+        "mean": 0.4288098,
+        "stddev": 0.05879499349179317
+      },
+      "introspect_ms": {
+        "mean": 0.0066284,
+        "stddev": 0.0023979137390656904
+      },
+      "expand_context_ms": {
+        "mean": 0.0009176,
+        "stddev": 0.0007667420035448691
+      },
+      "layout_ms": {
+        "mean": 0.022649,
+        "stddev": 0.00938504384646124
+      },
+      "render_ms": {
+        "mean": 0.016038399999999998,
+        "stddev": 0.006760259706549741
+      },
+      "total_ms": {
+        "mean": 0.4750432,
+        "stddev": 0.07070842239577968
+      }
+    }
+  },
+  {
+    "name": "test-enum-start",
+    "category": "micro",
+    "path": "/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/parity/corpus/p490/test-enum-start.typ",
+    "comparison": {
+      "vanilla": {
+        "mean_ms": 96.65449392000001,
+        "stddev_ms": 1.3791966949635954,
+        "min_ms": 94.66342592000001,
+        "max_ms": 98.54443392
+      },
+      "cristalino": {
+        "mean_ms": 2.8234865200000008,
+        "stddev_ms": 0.26816343224291417,
+        "min_ms": 2.5754229200000003,
+        "max_ms": 3.2773219200000003
+      },
+      "ratio": 0.029212159781592497
+    },
+    "phases": {
+      "eval_ms": {
+        "mean": 0.4562476,
+        "stddev": 0.09931595855047666
+      },
+      "introspect_ms": {
+        "mean": 0.0059093999999999995,
+        "stddev": 0.0019228919106387648
+      },
+      "expand_context_ms": {
+        "mean": 0.0019156,
+        "stddev": 0.0030961646920020258
+      },
+      "layout_ms": {
+        "mean": 0.0207814,
+        "stddev": 0.003053911721055472
+      },
+      "render_ms": {
+        "mean": 0.0255762,
+        "stddev": 0.0036603537670558558
+      },
+      "total_ms": {
+        "mean": 0.5104302000000001,
+        "stddev": 0.10416982949107674
+      }
+    }
+  },
+  {
+    "name": "test-footnote",
+    "category": "micro",
+    "path": "/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/parity/corpus/p490/test-footnote.typ",
+    "comparison": {
+      "vanilla": {
+        "mean_ms": 96.44738722,
+        "stddev_ms": 0.9076085808098672,
+        "min_ms": 95.71176541999999,
+        "max_ms": 97.98899542000001
+      },
+      "cristalino": {
+        "mean_ms": 2.6555760200000003,
+        "stddev_ms": 0.2518990335755579,
+        "min_ms": 2.4016474199999998,
+        "max_ms": 3.05551542
+      },
+      "ratio": 0.027533934267628575
+    },
+    "phases": {
+      "eval_ms": {
+        "mean": 0.469134,
+        "stddev": 0.09663817528544298
+      },
+      "introspect_ms": {
+        "mean": 0.0064098,
+        "stddev": 0.001798401707072143
+      },
+      "expand_context_ms": {
+        "mean": 0.0015794000000000001,
+        "stddev": 0.0024772590296535404
+      },
+      "layout_ms": {
+        "mean": 0.0352004,
+        "stddev": 0.008898014542581956
+      },
+      "render_ms": {
+        "mean": 0.0365292,
+        "stddev": 0.011637353251491508
+      },
+      "total_ms": {
+        "mean": 0.5488528,
+        "stddev": 0.10179242210351419
+      }
+    }
+  },
+  {
+    "name": "test-list-marker-array",
+    "category": "micro",
+    "path": "/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/parity/corpus/p490/test-list-marker-array.typ",
+    "comparison": {
+      "vanilla": {
+        "mean_ms": 98.3843655,
+        "stddev_ms": 4.031431634579642,
+        "min_ms": 95.06433350000002,
+        "max_ms": 105.2727905
+      },
+      "cristalino": {
+        "mean_ms": 2.8636663,
+        "stddev_ms": 0.20656269284577986,
+        "min_ms": 2.6751515,
+        "max_ms": 3.1397015
+      },
+      "ratio": 0.02910692451434268
+    },
+    "phases": {
+      "eval_ms": {
+        "mean": 0.4252732,
+        "stddev": 0.0456910847726337
+      },
+      "introspect_ms": {
+        "mean": 0.0051456,
+        "stddev": 0.0008736356792164567
+      },
+      "expand_context_ms": {
+        "mean": 0.000545,
+        "stddev": 0.0002920710529990947
+      },
+      "layout_ms": {
+        "mean": 0.0201642,
+        "stddev": 0.003439998212208838
+      },
+      "render_ms": {
+        "mean": 0.0252858,
+        "stddev": 0.002188445041576325
+      },
+      "total_ms": {
+        "mean": 0.4764138,
+        "stddev": 0.04908938620211093
+      }
+    }
+  },
+  {
+    "name": "test-math",
+    "category": "micro",
+    "path": "/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/parity/corpus/p490/test-math.typ",
+    "comparison": {
+      "vanilla": {
+        "mean_ms": 96.01413256000001,
+        "stddev_ms": 0.6782645888091886,
+        "min_ms": 95.32562456000001,
+        "max_ms": 96.76393756
+      },
+      "cristalino": {
+        "mean_ms": 3.01087836,
+        "stddev_ms": 0.332702044314729,
+        "min_ms": 2.7022905600000002,
+        "max_ms": 3.53796256
+      },
+      "ratio": 0.03135869980514043
+    },
+    "phases": {
+      "eval_ms": {
+        "mean": 0.4947144,
+        "stddev": 0.06964575990180594
+      },
+      "introspect_ms": {
+        "mean": 0.0319848,
+        "stddev": 0.005110556789626741
+      },
+      "expand_context_ms": {
+        "mean": 0.0026190000000000002,
+        "stddev": 0.0029572988519931498
+      },
+      "layout_ms": {
+        "mean": 0.049574,
+        "stddev": 0.00868974171077599
+      },
+      "render_ms": {
+        "mean": 0.0491126,
+        "stddev": 0.007798018645784324
+      },
+      "total_ms": {
+        "mean": 0.6280048,
+        "stddev": 0.08215001974254175
+      }
+    }
+  },
+  {
+    "name": "test-page",
+    "category": "micro",
+    "path": "/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/parity/corpus/p490/test-page.typ",
+    "comparison": {
+      "vanilla": {
+        "mean_ms": 102.2724484,
+        "stddev_ms": 0.3256407557190898,
+        "min_ms": 101.81553280000001,
+        "max_ms": 102.59340580000001
+      },
+      "cristalino": {
+        "mean_ms": 3.0952828000000006,
+        "stddev_ms": 0.413718694252508,
+        "min_ms": 2.7243138,
+        "max_ms": 3.720329800000001
+      },
+      "ratio": 0.03026506990322528
+    },
+    "phases": {
+      "eval_ms": {
+        "mean": 0.427489,
+        "stddev": 0.04508258768637843
+      },
+      "introspect_ms": {
+        "mean": 0.0052022,
+        "stddev": 0.0007643802718542648
+      },
+      "expand_context_ms": {
+        "mean": 0.0018792000000000001,
+        "stddev": 0.003092183484206589
+      },
+      "layout_ms": {
+        "mean": 0.0237252,
+        "stddev": 0.002062791361238455
+      },
+      "render_ms": {
+        "mean": 0.045742399999999996,
+        "stddev": 0.01036611293108463
+      },
+      "total_ms": {
+        "mean": 0.504038,
+        "stddev": 0.05778018498153152
+      }
+    }
+  },
+  {
+    "name": "test-par",
+    "category": "micro",
+    "path": "/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/parity/corpus/p490/test-par.typ",
+    "comparison": {
+      "vanilla": {
+        "mean_ms": 98.47376394000001,
+        "stddev_ms": 0.40828376374955294,
+        "min_ms": 98.00734494000001,
+        "max_ms": 99.02216594000001
+      },
+      "cristalino": {
+        "mean_ms": 2.87715934,
+        "stddev_ms": 0.4180801875511443,
+        "min_ms": 2.4537039400000005,
+        "max_ms": 3.3697879400000006
+      },
+      "ratio": 0.02921752175283003
+    },
+    "phases": {
+      "eval_ms": {
+        "mean": 0.44432119999999997,
+        "stddev": 0.055274723049509714
+      },
+      "introspect_ms": {
+        "mean": 0.010878800000000001,
+        "stddev": 0.003232934224508751
+      },
+      "expand_context_ms": {
+        "mean": 0.0033742,
+        "stddev": 0.004146912610605629
+      },
+      "layout_ms": {
+        "mean": 0.0264598,
+        "stddev": 0.009110979074720783
+      },
+      "render_ms": {
+        "mean": 0.0353472,
+        "stddev": 0.009774208392499107
+      },
+      "total_ms": {
+        "mean": 0.5203812,
+        "stddev": 0.06496055684567369
+      }
+    }
+  },
+  {
+    "name": "test-place",
+    "category": "micro",
+    "path": "/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/parity/corpus/p490/test-place.typ",
+    "comparison": {
+      "vanilla": {
+        "mean_ms": 100.02589176000001,
+        "stddev_ms": 1.212476995764167,
+        "min_ms": 98.66749216000001,
+        "max_ms": 101.73834516000001
+      },
+      "cristalino": {
+        "mean_ms": 2.7378639600000008,
+        "stddev_ms": 0.2096230708812844,
+        "min_ms": 2.59791516,
+        "max_ms": 3.10826116
+      },
+      "ratio": 0.02737155262328651
+    },
+    "phases": {
+      "eval_ms": {
+        "mean": 0.443251,
+        "stddev": 0.06406582256944805
+      },
+      "introspect_ms": {
+        "mean": 0.0056608000000000006,
+        "stddev": 0.0007487133630435617
+      },
+      "expand_context_ms": {
+        "mean": 0.0020758,
+        "stddev": 0.0034833701640796084
+      },
+      "layout_ms": {
+        "mean": 0.0203686,
+        "stddev": 0.0020799245899791653
+      },
+      "render_ms": {
+        "mean": 0.038110200000000004,
+        "stddev": 0.003844376243293572
+      },
+      "total_ms": {
+        "mean": 0.5094664,
+        "stddev": 0.07148939027785872
+      }
+    }
+  },
+  {
+    "name": "test-quote",
+    "category": "micro",
+    "path": "/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/parity/corpus/p490/test-quote.typ",
+    "comparison": {
+      "vanilla": {
+        "mean_ms": 97.51708734000002,
+        "stddev_ms": 1.5898854431730884,
+        "min_ms": 96.06867054000001,
+        "max_ms": 99.69645854000001
+      },
+      "cristalino": {
+        "mean_ms": 2.9075829399999993,
+        "stddev_ms": 0.21800464110610118,
+        "min_ms": 2.64350154,
+        "max_ms": 3.1227085399999996
+      },
+      "ratio": 0.029816138066783227
+    },
+    "phases": {
+      "eval_ms": {
+        "mean": 0.4518214,
+        "stddev": 0.06358431216345743
+      },
+      "introspect_ms": {
+        "mean": 0.007019,
+        "stddev": 0.001893711567266779
+      },
+      "expand_context_ms": {
+        "mean": 0.002589,
+        "stddev": 0.0030801260526153794
+      },
+      "layout_ms": {
+        "mean": 0.0221638,
+        "stddev": 0.004180425241527469
+      },
+      "render_ms": {
+        "mean": 0.0351668,
+        "stddev": 0.007860652212125913
+      },
+      "total_ms": {
+        "mean": 0.51876,
+        "stddev": 0.06581100910941877
+      }
+    }
+  },
+  {
+    "name": "test-raw",
+    "category": "micro",
+    "path": "/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/parity/corpus/p490/test-raw.typ",
+    "comparison": {
+      "vanilla": {
+        "mean_ms": 121.70838929999998,
+        "stddev_ms": 0.7390586938694405,
+        "min_ms": 120.9431403,
+        "max_ms": 122.86996830000001
+      },
+      "cristalino": {
+        "mean_ms": 2.5199373000000005,
+        "stddev_ms": 0.26002942717796385,
+        "min_ms": 2.2561383,
+        "max_ms": 2.9140933
+      },
+      "ratio": 0.02070471324526847
+    },
+    "phases": {
+      "eval_ms": {
+        "mean": 0.464714,
+        "stddev": 0.07276294208592722
+      },
+      "introspect_ms": {
+        "mean": 0.010167200000000001,
+        "stddev": 0.002843441787693218
+      },
+      "expand_context_ms": {
+        "mean": 0.0018072000000000001,
+        "stddev": 0.0028594130866315907
+      },
+      "layout_ms": {
+        "mean": 0.021497,
+        "stddev": 0.004949200794067665
+      },
+      "render_ms": {
+        "mean": 0.0232578,
+        "stddev": 0.008291259053967617
+      },
+      "total_ms": {
+        "mean": 0.5214432,
+        "stddev": 0.0872597640823077
+      }
+    }
+  },
+  {
+    "name": "test-set-local",
+    "category": "micro",
+    "path": "/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/parity/corpus/p490/test-set-local.typ",
+    "comparison": {
+      "vanilla": {
+        "mean_ms": 97.07864112,
+        "stddev_ms": 1.3041511543178925,
+        "min_ms": 95.90117792000001,
+        "max_ms": 99.24116092
+      },
+      "cristalino": {
+        "mean_ms": 3.17372972,
+        "stddev_ms": 0.34856949470543164,
+        "min_ms": 2.9061829200000004,
+        "max_ms": 3.7427269200000004
+      },
+      "ratio": 0.03269235831264796
+    },
+    "phases": {
+      "eval_ms": {
+        "mean": 0.4248404,
+        "stddev": 0.04418586731410847
+      },
+      "introspect_ms": {
+        "mean": 0.010620000000000001,
+        "stddev": 0.0018411509986961958
+      },
+      "expand_context_ms": {
+        "mean": 0.0066346,
+        "stddev": 0.004967703020511593
+      },
+      "layout_ms": {
+        "mean": 0.026424,
+        "stddev": 0.002833128394549037
+      },
+      "render_ms": {
+        "mean": 0.0326276,
+        "stddev": 0.003790649258372503
+      },
+      "total_ms": {
+        "mean": 0.5011466,
+        "stddev": 0.042078810692556416
+      }
+    }
+  },
+  {
+    "name": "test-show-link",
+    "category": "micro",
+    "path": "/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/parity/corpus/p490/test-show-link.typ",
+    "comparison": {
+      "vanilla": {
+        "mean_ms": 97.40547972,
+        "stddev_ms": 1.307376725150483,
+        "min_ms": 95.66123592000001,
+        "max_ms": 99.20511392
+      },
+      "cristalino": {
+        "mean_ms": 3.40217132,
+        "stddev_ms": 0.27606125081818345,
+        "min_ms": 3.12531192,
+        "max_ms": 3.80017892
+      },
+      "ratio": 0.0349279253054327
+    },
+    "phases": {
+      "eval_ms": {
+        "mean": 0.5996114,
+        "stddev": 0.039788599338252656
+      },
+      "introspect_ms": {
+        "mean": 0.0051554,
+        "stddev": 0.0024731324873528307
+      },
+      "expand_context_ms": {
+        "mean": 0.0015192,
+        "stddev": 0.0019901000477362944
+      },
+      "layout_ms": {
+        "mean": 0.0243258,
+        "stddev": 0.010037197004144136
+      },
+      "render_ms": {
+        "mean": 0.0402764,
+        "stddev": 0.010915431933734919
+      },
+      "total_ms": {
+        "mean": 0.6708882,
+        "stddev": 0.055897472596710455
+      }
+    }
+  },
+  {
+    "name": "test-show-regex",
+    "category": "micro",
+    "path": "/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/parity/corpus/p490/test-show-regex.typ",
+    "comparison": {
+      "vanilla": {
+        "mean_ms": 99.65119926000001,
+        "stddev_ms": 2.60436362791057,
+        "min_ms": 96.55135526,
+        "max_ms": 102.90222726
+      },
+      "cristalino": {
+        "mean_ms": 3.34152286,
+        "stddev_ms": 0.4387196244519956,
+        "min_ms": 2.91508726,
+        "max_ms": 4.05551626
+      },
+      "ratio": 0.033532189123802014
+    },
+    "phases": {
+      "eval_ms": {
+        "mean": 0.9858022000000001,
+        "stddev": 0.06848733079701678
+      },
+      "introspect_ms": {
+        "mean": 0.0051118,
+        "stddev": 0.000685074959402254
+      },
+      "expand_context_ms": {
+        "mean": 0.0021802,
+        "stddev": 0.0036401831272615945
+      },
+      "layout_ms": {
+        "mean": 0.0198334,
+        "stddev": 0.002243143285659656
+      },
+      "render_ms": {
+        "mean": 0.026999,
+        "stddev": 0.003952183447159305
+      },
+      "total_ms": {
+        "mean": 1.0399266,
+        "stddev": 0.07090606156246443
+      }
+    }
+  },
+  {
+    "name": "test-show-where-multi",
+    "category": "micro",
+    "path": "/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/parity/corpus/p490/test-show-where-multi.typ",
+    "comparison": {
+      "vanilla": {
+        "mean_ms": 95.66220108,
+        "stddev_ms": 0.42933286590557973,
+        "min_ms": 95.17123388000002,
+        "max_ms": 96.17395188
+      },
+      "cristalino": {
+        "mean_ms": 2.93819008,
+        "stddev_ms": 0.1665232582515128,
+        "min_ms": 2.7307208800000002,
+        "max_ms": 3.1726078800000006
+      },
+      "ratio": 0.03071422198975813
+    },
+    "phases": {
+      "eval_ms": {
+        "mean": 0.5803206,
+        "stddev": 0.11205768239081156
+      },
+      "introspect_ms": {
+        "mean": 0.0234044,
+        "stddev": 0.006077268572311084
+      },
+      "expand_context_ms": {
+        "mean": 0.002212,
+        "stddev": 0.002361803759841194
+      },
+      "layout_ms": {
+        "mean": 0.0152368,
+        "stddev": 0.0014912656369674726
+      },
+      "render_ms": {
+        "mean": 0.0257952,
+        "stddev": 0.00733693639743456
+      },
+      "total_ms": {
+        "mean": 0.646969,
+        "stddev": 0.12424299468581718
+      }
+    }
+  },
+  {
+    "name": "test-str",
+    "category": "micro",
+    "path": "/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/parity/corpus/p490/test-str.typ",
+    "comparison": {
+      "vanilla": {
+        "mean_ms": 103.55147584000002,
+        "stddev_ms": 2.7150272563392823,
+        "min_ms": 99.01692204000001,
+        "max_ms": 105.51779804000002
+      },
+      "cristalino": {
+        "mean_ms": 3.458585039999999,
+        "stddev_ms": 0.5978103057504948,
+        "min_ms": 3.02425504,
+        "max_ms": 4.486253039999999
+      },
+      "ratio": 0.03339966921711425
+    },
+    "phases": {
+      "eval_ms": {
+        "mean": 0.443596,
+        "stddev": 0.020762706723835393
+      },
+      "introspect_ms": {
+        "mean": 0.0048128,
+        "stddev": 0.0028460833965293425
+      },
+      "expand_context_ms": {
+        "mean": 0.0045546,
+        "stddev": 0.004861856414992117
+      },
+      "layout_ms": {
+        "mean": 0.02104,
+        "stddev": 0.003903884475749763
+      },
+      "render_ms": {
+        "mean": 0.033912,
+        "stddev": 0.004743253893689437
+      },
+      "total_ms": {
+        "mean": 0.5079154,
+        "stddev": 0.016404187508072442
+      }
+    }
+  },
+  {
+    "name": "test-stroke-sides",
+    "category": "micro",
+    "path": "/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/parity/corpus/p490/test-stroke-sides.typ",
+    "comparison": {
+      "vanilla": {
+        "mean_ms": 6.707979120000002,
+        "stddev_ms": 0.6963842654563646,
+        "min_ms": 6.218656320000001,
+        "max_ms": 7.866456320000001
+      },
+      "cristalino": {
+        "mean_ms": 2.53180012,
+        "stddev_ms": 0.21495210853978614,
+        "min_ms": 2.2606343200000008,
+        "max_ms": 2.8631653200000002
+      },
+      "ratio": 0.3774311271261082
+    },
+    "phases": {
+      "eval_ms": {
+        "mean": 0.4087078,
+        "stddev": 0.03975688437491046
+      },
+      "introspect_ms": {
+        "mean": 0.008402,
+        "stddev": 0.002741504422757695
+      },
+      "expand_context_ms": {
+        "mean": 0.0028774,
+        "stddev": 0.002655084330110816
+      },
+      "layout_ms": {
+        "mean": 0.0081114,
+        "stddev": 0.0017250370430805246
+      },
+      "render_ms": {
+        "mean": 0.0199678,
+        "stddev": 0.0030428735925108687
+      },
+      "total_ms": {
+        "mean": 0.4480664,
+        "stddev": 0.04071902687073942
+      }
+    }
+  },
+  {
+    "name": "test-table",
+    "category": "micro",
+    "path": "/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/parity/corpus/p490/test-table.typ",
+    "comparison": {
+      "vanilla": {
+        "mean_ms": 94.82488404,
+        "stddev_ms": 1.423026294763315,
+        "min_ms": 93.01530264,
+        "max_ms": 96.44403364000001
+      },
+      "cristalino": {
+        "mean_ms": 2.3031466400000005,
+        "stddev_ms": 0.20864428889619777,
+        "min_ms": 2.09837564,
+        "max_ms": 2.6302316400000003
+      },
+      "ratio": 0.024288420316216402
+    },
+    "phases": {
+      "eval_ms": {
+        "mean": 0.4130238,
+        "stddev": 0.029963152499361597
+      },
+      "introspect_ms": {
+        "mean": 0.009059,
+        "stddev": 0.0023497662649719013
+      },
+      "expand_context_ms": {
+        "mean": 0.0014508,
+        "stddev": 0.002455238318371559
+      },
+      "layout_ms": {
+        "mean": 0.0309686,
+        "stddev": 0.00433996852523149
+      },
+      "render_ms": {
+        "mean": 0.022663,
+        "stddev": 0.0035798668271319815
+      },
+      "total_ms": {
+        "mean": 0.4771652,
+        "stddev": 0.032976096906698935
+      }
+    }
+  },
+  {
+    "name": "test-bibliography-csl",
+    "category": "micro",
+    "path": "/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/parity/corpus/p500/test-bibliography-csl.typ",
+    "comparison": {
+      "vanilla": {
+        "mean_ms": 148.77263382,
+        "stddev_ms": 2.897103322986305,
+        "min_ms": 145.90263922000003,
+        "max_ms": 153.51445822000002
+      },
+      "cristalino": {
+        "mean_ms": 57.631967020000005,
+        "stddev_ms": 0.9371981662283078,
+        "min_ms": 56.688384219999996,
+        "max_ms": 59.02919622
+      },
+      "ratio": 0.3873828508657642
+    },
+    "phases": {
+      "eval_ms": {
+        "mean": 1.4364532,
+        "stddev": 0.11558536281337704
+      },
+      "introspect_ms": {
+        "mean": 0.0375892,
+        "stddev": 0.0037761282684781786
+      },
+      "expand_context_ms": {
+        "mean": 0.0008636,
+        "stddev": 0.00029509710266283534
+      },
+      "layout_ms": {
+        "mean": 52.1639684,
+        "stddev": 0.7483101755744727
+      },
+      "render_ms": {
+        "mean": 0.042755,
+        "stddev": 0.001815674117235801
+      },
+      "total_ms": {
+        "mean": 53.6816294,
+        "stddev": 0.8546764690327561
+      }
+    }
+  },
+  {
+    "name": "test-dict-methods",
+    "category": "micro",
+    "path": "/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/parity/corpus/p500/test-dict-methods.typ",
+    "comparison": {
+      "vanilla": {
+        "mean_ms": 96.18123693999999,
+        "stddev_ms": 4.071574113909053,
+        "min_ms": 93.08230554000001,
+        "max_ms": 103.18478854
+      },
+      "cristalino": {
+        "mean_ms": 3.0128221400000004,
+        "stddev_ms": 0.3321524605934749,
+        "min_ms": 2.5444375400000006,
+        "max_ms": 3.40768254
+      },
+      "ratio": 0.03132442704890005
+    },
+    "phases": {
+      "eval_ms": {
+        "mean": 0.4440668,
+        "stddev": 0.0754264151985231
+      },
+      "introspect_ms": {
+        "mean": 0.0061512,
+        "stddev": 0.002233772974140389
+      },
+      "expand_context_ms": {
+        "mean": 0.0027516,
+        "stddev": 0.003429232902559988
+      },
+      "layout_ms": {
+        "mean": 0.0184288,
+        "stddev": 0.004994402286560426
+      },
+      "render_ms": {
+        "mean": 0.0172486,
+        "stddev": 0.004453615194423515
+      },
+      "total_ms": {
+        "mean": 0.488647,
+        "stddev": 0.08164517833283239
+      }
+    }
+  },
+  {
+    "name": "test-enum-advanced",
+    "category": "micro",
+    "path": "/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/parity/corpus/p500/test-enum-advanced.typ",
+    "comparison": {
+      "vanilla": {
+        "mean_ms": 101.01462494000002,
+        "stddev_ms": 1.3616855844882814,
+        "min_ms": 99.50834514,
+        "max_ms": 102.44311114
+      },
+      "cristalino": {
+        "mean_ms": 3.0599321400000004,
+        "stddev_ms": 0.20799143453156915,
+        "min_ms": 2.8066111400000002,
+        "max_ms": 3.2738251400000005
+      },
+      "ratio": 0.03029197150231977
+    },
+    "phases": {
+      "eval_ms": {
+        "mean": 0.4612192,
+        "stddev": 0.03018928491534705
+      },
+      "introspect_ms": {
+        "mean": 0.0067546,
+        "stddev": 0.0017542030384194414
+      },
+      "expand_context_ms": {
+        "mean": 0.0013142,
+        "stddev": 0.0017314328459400324
+      },
+      "layout_ms": {
+        "mean": 0.026404399999999998,
+        "stddev": 0.0026792566693021403
+      },
+      "render_ms": {
+        "mean": 0.0350906,
+        "stddev": 0.003690533606404363
+      },
+      "total_ms": {
+        "mean": 0.530783,
+        "stddev": 0.03414235790773683
+      }
+    }
+  },
+  {
+    "name": "test-figure-advanced",
+    "category": "micro",
+    "path": "/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/parity/corpus/p500/test-figure-advanced.typ",
+    "comparison": {
+      "vanilla": {
+        "mean_ms": 100.21774359999999,
+        "stddev_ms": 2.444109987601519,
+        "min_ms": 96.64249960000001,
+        "max_ms": 102.6216786
+      },
+      "cristalino": {
+        "mean_ms": 3.558748400000001,
+        "stddev_ms": 0.44792559125004267,
+        "min_ms": 3.1192016000000007,
+        "max_ms": 4.307992600000001
+      },
+      "ratio": 0.03551016289295104
+    },
+    "phases": {
+      "eval_ms": {
+        "mean": 0.4457582,
+        "stddev": 0.04472201940543381
+      },
+      "introspect_ms": {
+        "mean": 0.06538580000000001,
+        "stddev": 0.0021669023282095603
+      },
+      "expand_context_ms": {
+        "mean": 0.0023582,
+        "stddev": 0.002409214124979347
+      },
+      "layout_ms": {
+        "mean": 0.018775399999999998,
+        "stddev": 0.006026667138643049
+      },
+      "render_ms": {
+        "mean": 0.4811792,
+        "stddev": 0.01926732686959975
+      },
+      "total_ms": {
+        "mean": 1.0134568,
+        "stddev": 0.06139036113837416
+      }
+    }
+  },
+  {
+    "name": "test-footnote-advanced",
+    "category": "micro",
+    "path": "/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/parity/corpus/p500/test-footnote-advanced.typ",
+    "comparison": {
+      "vanilla": {
+        "mean_ms": 102.90029704,
+        "stddev_ms": 1.9943325947083925,
+        "min_ms": 100.30721264,
+        "max_ms": 105.46091964000001
+      },
+      "cristalino": {
+        "mean_ms": 4.721395639999999,
+        "stddev_ms": 1.597668901443287,
+        "min_ms": 3.44048664,
+        "max_ms": 7.440648639999999
+      },
+      "ratio": 0.04588320710254773
+    },
+    "phases": {
+      "eval_ms": {
+        "mean": 0.5598296,
+        "stddev": 0.09193625253565647
+      },
+      "introspect_ms": {
+        "mean": 0.0160744,
+        "stddev": 0.002057313977009829
+      },
+      "expand_context_ms": {
+        "mean": 0.0078792,
+        "stddev": 0.0039172512939560054
+      },
+      "layout_ms": {
+        "mean": 0.0480448,
+        "stddev": 0.01392418018053487
+      },
+      "render_ms": {
+        "mean": 0.0466766,
+        "stddev": 0.014254017268826358
+      },
+      "total_ms": {
+        "mean": 0.6785046,
+        "stddev": 0.11319310828535457
+      }
+    }
+  },
+  {
+    "name": "test-image-fit",
+    "category": "micro",
+    "path": "/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/parity/corpus/p500/test-image-fit.typ",
+    "comparison": {
+      "vanilla": {
+        "mean_ms": 7.832828580000001,
+        "stddev_ms": 1.1883816595788155,
+        "min_ms": 6.588026180000001,
+        "max_ms": 9.21757418
+      },
+      "cristalino": {
+        "mean_ms": 4.42682918,
+        "stddev_ms": 0.400840996155583,
+        "min_ms": 3.9267581800000007,
+        "max_ms": 4.961668180000001
+      },
+      "ratio": 0.5651635465766824
+    },
+    "phases": {
+      "eval_ms": {
+        "mean": 0.5635886,
+        "stddev": 0.046765958792694504
+      },
+      "introspect_ms": {
+        "mean": 0.008929,
+        "stddev": 0.0073329313033738425
+      },
+      "expand_context_ms": {
+        "mean": 0.0050754,
+        "stddev": 0.005942720698468
+      },
+      "layout_ms": {
+        "mean": 0.0201704,
+        "stddev": 0.004916244023642441
+      },
+      "render_ms": {
+        "mean": 1.3766137999999999,
+        "stddev": 0.22588661564090073
+      },
+      "total_ms": {
+        "mean": 1.9743772,
+        "stddev": 0.18374437348991124
+      }
+    }
+  },
+  {
+    "name": "test-list-advanced",
+    "category": "micro",
+    "path": "/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/parity/corpus/p500/test-list-advanced.typ",
+    "comparison": {
+      "vanilla": {
+        "mean_ms": 95.75215654,
+        "stddev_ms": 2.9860698037059183,
+        "min_ms": 93.16125414,
+        "max_ms": 99.33737514
+      },
+      "cristalino": {
+        "mean_ms": 2.9975743400000003,
+        "stddev_ms": 0.1591910984279585,
+        "min_ms": 2.7951651400000004,
+        "max_ms": 3.21104214
+      },
+      "ratio": 0.03130555434276593
+    },
+    "phases": {
+      "eval_ms": {
+        "mean": 0.44969339999999997,
+        "stddev": 0.09634331222664082
+      },
+      "introspect_ms": {
+        "mean": 0.0054342,
+        "stddev": 0.00131594555358495
+      },
+      "expand_context_ms": {
+        "mean": 0.0009418,
+        "stddev": 0.0011970341264976535
+      },
+      "layout_ms": {
+        "mean": 0.0225988,
+        "stddev": 0.004791878619080412
+      },
+      "render_ms": {
+        "mean": 0.0324354,
+        "stddev": 0.006980392596408888
+      },
+      "total_ms": {
+        "mean": 0.5111036,
+        "stddev": 0.10851837646131643
+      }
+    }
+  },
+  {
+    "name": "test-outline-advanced",
+    "category": "micro",
+    "path": "/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/parity/corpus/p500/test-outline-advanced.typ",
+    "comparison": {
+      "vanilla": {
+        "mean_ms": 94.66687356,
+        "stddev_ms": 0.49688162541373665,
+        "min_ms": 93.91721296000001,
+        "max_ms": 95.24648896
+      },
+      "cristalino": {
+        "mean_ms": 2.5778807600000007,
+        "stddev_ms": 0.031124115773785505,
+        "min_ms": 2.55171296,
+        "max_ms": 2.6282179600000006
+      },
+      "ratio": 0.027231075275409154
+    },
+    "phases": {
+      "eval_ms": {
+        "mean": 0.3991776,
+        "stddev": 0.03947846501321954
+      },
+      "introspect_ms": {
+        "mean": 0.032185,
+        "stddev": 0.0047609575192391704
+      },
+      "expand_context_ms": {
+        "mean": 0.0020438,
+        "stddev": 0.002604356868787379
+      },
+      "layout_ms": {
+        "mean": 0.0324796,
+        "stddev": 0.011821149195403974
+      },
+      "render_ms": {
+        "mean": 0.027083199999999998,
+        "stddev": 0.003139595547200308
+      },
+      "total_ms": {
+        "mean": 0.4929692,
+        "stddev": 0.05039848260314985
+      }
+    }
+  },
+  {
+    "name": "test-page-header-footer",
+    "category": "micro",
+    "path": "/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/parity/corpus/p500/test-page-header-footer.typ",
+    "comparison": {
+      "vanilla": {
+        "mean_ms": 98.47825874,
+        "stddev_ms": 1.8174055593948208,
+        "min_ms": 96.15325754000001,
+        "max_ms": 100.30989654000001
+      },
+      "cristalino": {
+        "mean_ms": 2.6235561399999994,
+        "stddev_ms": 0.12380602047477336,
+        "min_ms": 2.4829655400000004,
+        "max_ms": 2.81987354
+      },
+      "ratio": 0.02664096800215214
+    },
+    "phases": {
+      "eval_ms": {
+        "mean": 0.5924036,
+        "stddev": 0.06053463395280425
+      },
+      "introspect_ms": {
+        "mean": 0.0052016,
+        "stddev": 0.0003822398461699148
+      },
+      "expand_context_ms": {
+        "mean": 0.0025108,
+        "stddev": 0.0017691242748885676
+      },
+      "layout_ms": {
+        "mean": 0.023767,
+        "stddev": 0.0017353506850201776
+      },
+      "render_ms": {
+        "mean": 0.044941,
+        "stddev": 0.001341421447569703
+      },
+      "total_ms": {
+        "mean": 0.668824,
+        "stddev": 0.060724190801524906
+      }
+    }
+  },
+  {
+    "name": "test-par-advanced",
+    "category": "micro",
+    "path": "/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/parity/corpus/p500/test-par-advanced.typ",
+    "comparison": {
+      "vanilla": {
+        "mean_ms": 93.95355334000001,
+        "stddev_ms": 0.9720788900190658,
+        "min_ms": 93.26790554,
+        "max_ms": 95.66563454
+      },
+      "cristalino": {
+        "mean_ms": 2.86578194,
+        "stddev_ms": 0.3326599970537486,
+        "min_ms": 2.35020354,
+        "max_ms": 3.25408454
+      },
+      "ratio": 0.03050211341799156
+    },
+    "phases": {
+      "eval_ms": {
+        "mean": 0.393619,
+        "stddev": 0.05032659063060003
+      },
+      "introspect_ms": {
+        "mean": 0.009067,
+        "stddev": 0.0020446010613320146
+      },
+      "expand_context_ms": {
+        "mean": 0.0003728,
+        "stddev": 7.430477777370712e-05
+      },
+      "layout_ms": {
+        "mean": 0.0208174,
+        "stddev": 0.0017340133505829756
+      },
+      "render_ms": {
+        "mean": 0.0285102,
+        "stddev": 0.0023144479255321334
+      },
+      "total_ms": {
+        "mean": 0.4523864,
+        "stddev": 0.05277518815977827
+      }
+    }
+  },
+  {
+    "name": "test-place-absolute",
+    "category": "micro",
+    "path": "/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/parity/corpus/p500/test-place-absolute.typ",
+    "comparison": {
+      "vanilla": {
+        "mean_ms": 97.3062338,
+        "stddev_ms": 1.7097907117350633,
+        "min_ms": 96.2031898,
+        "max_ms": 100.14774680000001
+      },
+      "cristalino": {
+        "mean_ms": 2.7524094,
+        "stddev_ms": 0.2429765959558656,
+        "min_ms": 2.4913418000000003,
+        "max_ms": 2.9975188
+      },
+      "ratio": 0.02828605416644951
+    },
+    "phases": {
+      "eval_ms": {
+        "mean": 0.3950956,
+        "stddev": 0.021337164778854757
+      },
+      "introspect_ms": {
+        "mean": 0.0044706,
+        "stddev": 0.00057917553470429
+      },
+      "expand_context_ms": {
+        "mean": 0.0019398,
+        "stddev": 0.0015148621059357186
+      },
+      "layout_ms": {
+        "mean": 0.0172866,
+        "stddev": 0.0014224945694096694
+      },
+      "render_ms": {
+        "mean": 0.0336156,
+        "stddev": 0.0032243078792199725
+      },
+      "total_ms": {
+        "mean": 0.4524082,
+        "stddev": 0.025672176985990093
+      }
+    }
+  },
+  {
+    "name": "test-quote-advanced",
+    "category": "micro",
+    "path": "/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/parity/corpus/p500/test-quote-advanced.typ",
+    "comparison": {
+      "vanilla": {
+        "mean_ms": 94.2402691,
+        "stddev_ms": 0.7861028503969418,
+        "min_ms": 93.09732690000001,
+        "max_ms": 95.2847789
+      },
+      "cristalino": {
+        "mean_ms": 2.5957695000000007,
+        "stddev_ms": 0.3166356759736653,
+        "min_ms": 2.2500919000000006,
+        "max_ms": 2.9423819000000004
+      },
+      "ratio": 0.02754416476936822
+    },
+    "phases": {
+      "eval_ms": {
+        "mean": 0.4124066,
+        "stddev": 0.051373234872840144
+      },
+      "introspect_ms": {
+        "mean": 0.0049812,
+        "stddev": 0.0010270962467071915
+      },
+      "expand_context_ms": {
+        "mean": 0.0008638,
+        "stddev": 0.0011876203938969725
+      },
+      "layout_ms": {
+        "mean": 0.0205768,
+        "stddev": 0.0035484810412344035
+      },
+      "render_ms": {
+        "mean": 0.0278206,
+        "stddev": 0.0034264002685033736
+      },
+      "total_ms": {
+        "mean": 0.466649,
+        "stddev": 0.05507643870113609
+      }
+    }
+  },
+  {
+    "name": "test-raw-advanced",
+    "category": "micro",
+    "path": "/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/parity/corpus/p500/test-raw-advanced.typ",
+    "comparison": {
+      "vanilla": {
+        "mean_ms": 155.59776208,
+        "stddev_ms": 6.212527884627437,
+        "min_ms": 144.90695108,
+        "max_ms": 160.21143207999998
+      },
+      "cristalino": {
+        "mean_ms": 3.79839048,
+        "stddev_ms": 0.40138199587213663,
+        "min_ms": 3.13661408,
+        "max_ms": 4.22247908
+      },
+      "ratio": 0.024411600971786934
+    },
+    "phases": {
+      "eval_ms": {
+        "mean": 0.47024,
+        "stddev": 0.04752626155611231
+      },
+      "introspect_ms": {
+        "mean": 0.0074702,
+        "stddev": 0.0020098484271208112
+      },
+      "expand_context_ms": {
+        "mean": 0.0061438000000000005,
+        "stddev": 0.003672158180144205
+      },
+      "layout_ms": {
+        "mean": 0.0233982,
+        "stddev": 0.005884879837345874
+      },
+      "render_ms": {
+        "mean": 0.0329202,
+        "stddev": 0.004738490287000702
+      },
+      "total_ms": {
+        "mean": 0.5401724,
+        "stddev": 0.05599039689357453
+      }
+    }
+  },
+  {
+    "name": "test-state-counter",
+    "category": "micro",
+    "path": "/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/parity/corpus/p500/test-state-counter.typ",
+    "comparison": {
+      "vanilla": {
+        "mean_ms": 106.26210123999999,
+        "stddev_ms": 1.556421374149944,
+        "min_ms": 104.34243364,
+        "max_ms": 108.08397663999999
+      },
+      "cristalino": {
+        "mean_ms": 4.374949440000001,
+        "stddev_ms": 0.7479531779427774,
+        "min_ms": 3.799295640000001,
+        "max_ms": 5.65595064
+      },
+      "ratio": 0.041171305563767156
+    },
+    "phases": {
+      "eval_ms": {
+        "mean": 0.8477768,
+        "stddev": 0.07878287164225481
+      },
+      "introspect_ms": {
+        "mean": 0.0366474,
+        "stddev": 0.007877565823273074
+      },
+      "expand_context_ms": {
+        "mean": 0.032403,
+        "stddev": 0.0036144081119873573
+      },
+      "layout_ms": {
+        "mean": 0.0239174,
+        "stddev": 0.005492632092175845
+      },
+      "render_ms": {
+        "mean": 0.0197252,
+        "stddev": 0.0022604822936709763
+      },
+      "total_ms": {
+        "mean": 0.9604698,
+        "stddev": 0.07189242149698402
+      }
+    }
+  },
+  {
+    "name": "macro-10x",
+    "category": "macro",
+    "path": "/home/dikluwe/Documentos/Antigravity/typst-crystalline/tools/perf/corpus/macro-10x.typ",
+    "comparison": {
+      "vanilla": {
+        "mean_ms": 4750.111765879999,
+        "stddev_ms": 108.4271684808774,
+        "min_ms": 4633.865356679999,
+        "max_ms": 4882.75439268
+      },
+      "cristalino": {
+        "mean_ms": 1233.1643018799998,
+        "stddev_ms": 19.41441791325954,
+        "min_ms": 1209.83197268,
+        "max_ms": 1256.55581468
+      },
+      "ratio": 0.25960742876363574
+    },
+    "phases": {
+      "eval_ms": {
+        "mean": 397.520968,
+        "stddev": 6.609593566050274
+      },
+      "introspect_ms": {
+        "mean": 66.3328408,
+        "stddev": 1.4577315505687984
+      },
+      "expand_context_ms": {
+        "mean": 0.0107084,
+        "stddev": 0.005604110928595186
+      },
+      "layout_ms": {
+        "mean": 226.541419,
+        "stddev": 1.3726527699467617
+      },
+      "render_ms": {
+        "mean": 262.0460054,
+        "stddev": 6.04133804194089
+      },
+      "total_ms": {
+        "mean": 952.4519415999999,
+        "stddev": 8.992159419560505
+      }
+    }
+  }
+]

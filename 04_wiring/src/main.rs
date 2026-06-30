@@ -47,7 +47,7 @@ use typst_core::contracts::world::World;
 use typst_core::entities::source::Source;
 use typst_core::entities::source_result::SourceDiagnostic;
 use typst_infra::fonts::discover_fonts;
-use typst_infra::pipeline::compile_to_pdf_bytes_full_error;
+use typst_infra::pipeline::{compile_to_pdf_bytes_full_error, compile_to_pdf_bytes_with_timings_full_error};
 use typst_infra::world::SystemWorld;
 use typst_shell::cli::{self, RunIntent};
 use typst_shell::diagnostic::format_diagnostic;
@@ -55,7 +55,7 @@ use typst_shell::diagnostic::format_diagnostic;
 fn main() -> ExitCode {
     // P428 (DEBT-59): `full_error` é fiado de RunIntent até L1 pelo caminho
     // interno de L3. O campo mantém default `false` quando a flag não é usada.
-    let RunIntent { input, output, root, font_paths, colored, full_error } = cli::parse();
+    let RunIntent { input, output, root, font_paths, colored, full_error, timings_json } = cli::parse();
 
     let main_path = match input.file_name() {
         Some(name) => PathBuf::from(name),
@@ -85,7 +85,13 @@ fn main() -> ExitCode {
 
     let source_path = input.display().to_string();
 
-    let (result, warnings) = compile_to_pdf_bytes_full_error(&world, &source, full_error);
+    let (result, warnings, timings) = if timings_json.is_some() {
+        let (r, w, t) = compile_to_pdf_bytes_with_timings_full_error(&world, &source, full_error);
+        (r, w, t)
+    } else {
+        let (r, w) = compile_to_pdf_bytes_full_error(&world, &source, full_error);
+        (r, w, typst_infra::pipeline::Timings::default())
+    };
     drain_to_stderr(&warnings, &source, &source_path, colored);
 
     let exit_code = match result {
@@ -94,10 +100,22 @@ fn main() -> ExitCode {
                 eprintln!("error: failed to write {}: {}", output.display(), e);
                 return ExitCode::from(2);
             }
+            if let Some(path) = timings_json {
+                if let Err(e) = std::fs::write(&path, timings.to_json()) {
+                    eprintln!("error: failed to write timings {}: {}", path.display(), e);
+                    return ExitCode::from(2);
+                }
+            }
             ExitCode::SUCCESS
         }
         Err(errors) => {
             drain_to_stderr(&errors, &source, &source_path, colored);
+            if let Some(path) = timings_json {
+                if let Err(e) = std::fs::write(&path, timings.to_json()) {
+                    eprintln!("error: failed to write timings {}: {}", path.display(), e);
+                    return ExitCode::from(2);
+                }
+            }
             ExitCode::from(1)
         }
     };

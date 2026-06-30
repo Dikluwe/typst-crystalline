@@ -366,10 +366,10 @@ pub fn eval_with_full_error(
         Ok((content_val, module_scope, ctx.bibliography_styles))
     };
 
-    // Passo 1: captura do conteúdo original (pré-show-rules) com sink dummy.
-    let mut original_sink = Sink::new();
-    let mut original_tracked = original_sink.track_mut();
-    let (original_val, _, _) = run_pass(false, &mut original_tracked)?;
+    // Passo 1: captura do conteúdo original (pré-show-rules).
+    // Usa o mesmo sink principal para que warnings emitidos antes de um erro
+    // cheguem ao caller (dedup por (span, message) previne duplicação com passo 2).
+    let (original_val, _, _) = run_pass(false, &mut sink)?;
     let original_content = match original_val {
         Value::Content(c) => Some(c),
         _ => None,

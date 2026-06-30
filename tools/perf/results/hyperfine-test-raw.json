@@ -1,0 +1,66 @@
+{
+  "results": [
+    {
+      "command": "/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst compile /home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/parity/corpus/p490/test-raw.typ /tmp/tmpqlfpus5b.pdf",
+      "mean": 0.12170838929999998,
+      "stddev": 0.0007390586938694404,
+      "median": 0.1213997153,
+      "user": 0.08272517999999998,
+      "system": 0.04128343999999999,
+      "min": 0.1209431403,
+      "max": 0.12286996830000001,
+      "times": [
+        0.12286996830000001,
+        0.1213997153,
+        0.1209431403,
+        0.1219391863,
+        0.1213899363
+      ],
+      "memory_usage_byte": [
+        39645184,
+        39784448,
+        39899136,
+        39899136,
+        39899136
+      ],
+      "exit_codes": [
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "command": "/home/dikluwe/Documentos/Antigravity/typst-crystalline/target/release/typst /home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/parity/corpus/p490/test-raw.typ /tmp/tmpqlfpus5b.pdf",
+      "mean": 0.0025199373000000004,
+      "stddev": 0.00026002942717796385,
+      "median": 0.0024271813,
+      "user": 0.00030802399999999995,
+      "system": 0.0022772400000000003,
+      "min": 0.0022561383,
+      "max": 0.0029140933,
+      "times": [
+        0.0022561383,
+        0.0023665973,
+        0.0024271813,
+        0.0029140933,
+        0.0026356763
+      ],
+      "memory_usage_byte": [
+        39899136,
+        39899136,
+        39899136,
+        39899136,
+        39899136
+      ],
+      "exit_codes": [
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    }
+  ]
+}

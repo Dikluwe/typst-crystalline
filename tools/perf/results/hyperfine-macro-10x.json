@@ -1,0 +1,66 @@
+{
+  "results": [
+    {
+      "command": "/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst compile /home/dikluwe/Documentos/Antigravity/typst-crystalline/tools/perf/corpus/macro-10x.typ /tmp/tmp72sw63fz.pdf",
+      "mean": 4.75011176588,
+      "stddev": 0.1084271684808774,
+      "median": 4.75193034568,
+      "user": 4.17562094,
+      "system": 0.73955128,
+      "min": 4.633865356679999,
+      "max": 4.88275439268,
+      "times": [
+        4.88275439268,
+        4.82974362768,
+        4.65226510668,
+        4.75193034568,
+        4.633865356679999
+      ],
+      "memory_usage_byte": [
+        1045020672,
+        1045020672,
+        1045176320,
+        1045176320,
+        1045176320
+      ],
+      "exit_codes": [
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "command": "/home/dikluwe/Documentos/Antigravity/typst-crystalline/target/release/typst /home/dikluwe/Documentos/Antigravity/typst-crystalline/tools/perf/corpus/macro-10x.typ /tmp/tmp72sw63fz.pdf",
+      "mean": 1.2331643018799998,
+      "stddev": 0.01941441791325954,
+      "median": 1.23016625068,
+      "user": 0.8413639399999999,
+      "system": 0.37863808000000004,
+      "min": 1.20983197268,
+      "max": 1.25655581468,
+      "times": [
+        1.2488254806799999,
+        1.25655581468,
+        1.20983197268,
+        1.23016625068,
+        1.22044199068
+      ],
+      "memory_usage_byte": [
+        1045176320,
+        1045176320,
+        1045176320,
+        1045176320,
+        1045176320
+      ],
+      "exit_codes": [
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    }
+  ]
+}

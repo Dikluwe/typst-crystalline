@@ -97,6 +97,10 @@ struct Args {
     /// Show an extended third hint for show-rule recursion errors.
     #[arg(long = "full-error", action = clap::ArgAction::SetTrue)]
     full_error: bool,
+
+    /// P507 — escreve tempos das fases do pipeline em JSON.
+    #[arg(long = "timings-json", value_name = "FILE")]
+    timings_json: Option<PathBuf>,
 }
 
 /// Intenção de execução — output puro de L2 para L4 (ADR-0049).
@@ -118,6 +122,8 @@ pub struct RunIntent {
     /// de L3 (a assinatura pública de `compile_to_pdf_bytes` **não** muda). Até o
     /// débito, este campo é a **casa** da origem (ao lado de `colored`), default `false`.
     pub full_error: bool,
+    /// P507 — path opcional para JSON com tempos das fases do pipeline.
+    pub timings_json: Option<PathBuf>,
 }
 
 /// Ponto de entrada público da CLI.
@@ -139,6 +145,7 @@ pub fn parse() -> RunIntent {
         // P350c → P428 (DEBT-59): a flag CLI é parseada e fiada a L4/L1.
         // Default `false` preserva comportamento byte-idêntico ao vanilla.
         full_error: args.full_error,
+        timings_json: args.timings_json,
     }
 }
 
