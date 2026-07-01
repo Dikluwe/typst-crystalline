@@ -67,6 +67,16 @@ O exportador actual já emite CIDFont + Identity-H e usa `FrameItem::TextShaped`
 
 4. Alterar `03_infra/src/export/fonts.rs`:
    - `widths_array` e `to_unicode_cmap` operam sobre `mappings` já re-mapeados.
+   - **P521**: criar `cluster_text(glyphs, text) -> Vec<(old_gid, hex_utf16be)>`.
+     As fronteiras de cluster são calculadas a partir do **conjunto ordenado**
+     de valores de byte (`g.cluster`), não da posição sequencial no vector de
+     glifos. Isto torna o algoritmo correcto tanto para LTR como para RTL
+     (onde rustybuzz devolve glifos em ordem visual inversa). Glifos mark que
+     partilham o mesmo `cluster` apenas duplicam a substring; apenas a primeira
+     ocorrência de cada cluster gera entrada no CMap, as restantes ficam com
+     hex vazio.
+   - **P521**: `to_unicode_cmap` recebe `&[(new_gid, hex_utf16be)]` e emite
+     entradas `beginbfchar` do tipo `<gid> <00660069>` para ligatures.
 
 5. Alterar `03_infra/src/export/stream.rs`:
    - Adicionar `glyph_mapping` ao `FontScenario::Cidfont` e `per_font_glyph_mapping` ao `FontScenario::Multifont`.
@@ -116,3 +126,4 @@ Então retorna Some(bytes) contendo apenas .notdef
 |------|--------|-------------------|
 | 2026-06-30 | Criação — activação do subsetting para P515 | `font_subset.md` |
 | 2026-06-30 | P520 — mapping de `additional_gids` via codepoints PUA para ligatures | `font_subset.md`, `subset.rs` |
+| 2026-07-01 | P521 — ToUnicode completo para ligatures via `cluster_text` (LTR/RTL) | `font_subset.md`, `fonts.rs`, `builder.rs` |

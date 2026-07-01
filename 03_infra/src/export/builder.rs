@@ -25,7 +25,8 @@ use ecow::EcoString;
 use super::{
     adaptive_n_for_stops, apply_parent_transform, build_jpeg_xobject,
     build_page_stream, build_png_rgb_xobject, build_png_smask_xobject,
-    collect_codepoints, collect_glyph_ids, collect_shaped_glyph_mappings,
+    collect_codepoints, collect_glyph_ids, collect_shaped_cluster_texts,
+    collect_shaped_glyph_mappings,
     compute_axial_coords, compute_coons_patches_n_stops,
     compute_coons_patches_n_stops_extended, compute_radial_coords,
     emit_conic_coons_stream_cmyk, emit_conic_coons_stream_rgb,
@@ -35,7 +36,7 @@ use super::{
     multispace_sample_stops_radial_cmyk, pattern_resources_for_page,
     resolve_relative, scan_all_gradients, scan_all_images,
     subset::{remap_glyph_id, subset_font_with_mapping, FontSubset},
-    text_to_hex_string, to_unicode_cmap, widths_array,
+    char_to_utf16_hex, text_to_hex_string, to_unicode_cmap, widths_array,
     xobject_resources_for_page, FontScenario, GradientObject,
     GradientObjectKind, ImageRef, ImageXObject, PageContext, PatternRef,
 };
@@ -244,23 +245,23 @@ impl PdfBuilder {
             }
         }
 
-        // P520 — O ToUnicode CMap e o array /W devem cobrir os glifos
-        // reais usados pelo shaper (incluindo ligatures). Construir
-        // `to_unicode_mappings` a partir de `shaped_mappings` re-mapeados;
-        // caracteres normais (não shaped) são adicionados como fallback.
-        let mut to_unicode_mappings: Vec<(char, u16)> = Vec::new();
+        // P521 — ToUnicode CMap e /W a partir dos glifos reais do shaper,
+        // reconstruindo o texto completo de cada cluster (ligatures, RTL).
+        // Caracteres normais (não shaped) são adicionados como fallback
+        // single-codepoint.
+        let mut to_unicode_mappings: Vec<(u16, String)> = Vec::new();
         let mut seen_to_unicode_gids: HashSet<u16> = HashSet::new();
         if !glyph_mapping.is_empty() {
-            for (&old_gid, &ch) in &shaped_mappings {
+            for (old_gid, hex) in collect_shaped_cluster_texts(doc) {
                 let new_gid = remap_glyph_id(old_gid, &glyph_mapping);
                 if new_gid != 0 && seen_to_unicode_gids.insert(new_gid) {
-                    to_unicode_mappings.push((ch, new_gid));
+                    to_unicode_mappings.push((new_gid, hex));
                 }
             }
         }
         for &(ch, new_gid) in &mappings {
             if new_gid != 0 && seen_to_unicode_gids.insert(new_gid) {
-                to_unicode_mappings.push((ch, new_gid));
+                to_unicode_mappings.push((new_gid, char_to_utf16_hex(ch)));
             }
         }
 
@@ -401,7 +402,7 @@ impl PdfBuilder {
         // P520 — glifos reais do shaper (ligatures) mapeados para o primeiro
         // caractere do cluster. Prioridade idêntica a build_cidfont.
         let shaped_mappings = collect_shaped_glyph_mappings(doc);
-        let mut per_font_mappings: Vec<Vec<(char, u16)>> = Vec::with_capacity(n_fonts);
+        let mut per_font_mappings: Vec<Vec<(u16, String)>> = Vec::with_capacity(n_fonts);
         let mut per_font_char_to_gid: Vec<HashMap<char, u16>> = Vec::with_capacity(n_fonts);
         let mut per_font_widths: Vec<String> = Vec::with_capacity(n_fonts);
         let mut per_font_embed_data: Vec<Vec<u8>> = Vec::with_capacity(n_fonts);
@@ -455,20 +456,21 @@ impl PdfBuilder {
                 }
             }
 
-            // P520 — ToUnicode/widths a partir dos glifos reais do shaper.
-            let mut to_unicode_mappings: Vec<(char, u16)> = Vec::new();
+            // P521 — ToUnicode/widths a partir dos glifos reais do shaper,
+            // reconstruindo o texto completo de cada cluster.
+            let mut to_unicode_mappings: Vec<(u16, String)> = Vec::new();
             let mut seen_to_unicode_gids: HashSet<u16> = HashSet::new();
             if !glyph_mapping.is_empty() {
-                for (&old_gid, &ch) in &shaped_mappings {
+                for (old_gid, hex) in collect_shaped_cluster_texts(doc) {
                     let new_gid = remap_glyph_id(old_gid, &glyph_mapping);
                     if new_gid != 0 && seen_to_unicode_gids.insert(new_gid) {
-                        to_unicode_mappings.push((ch, new_gid));
+                        to_unicode_mappings.push((new_gid, hex));
                     }
                 }
             }
             for &(ch, new_gid) in &mappings {
                 if new_gid != 0 && seen_to_unicode_gids.insert(new_gid) {
-                    to_unicode_mappings.push((ch, new_gid));
+                    to_unicode_mappings.push((new_gid, char_to_utf16_hex(ch)));
                 }
             }
 

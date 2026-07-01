@@ -1,7 +1,7 @@
 // P488 — Sub-item B: corpus RTL hebraico básico.
 // Validação P484 (bidi_runs via unicode-bidi).
 // SKIP-feature em structural_parity: dir:rtl scope-out em stdlib.
-#heading[כותרת המסמך]
+= כותרת המסמך
 
 שלום עולם
 

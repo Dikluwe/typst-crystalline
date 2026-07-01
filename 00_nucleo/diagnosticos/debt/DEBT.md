@@ -232,30 +232,39 @@
 >
 > **Passo 520 (2026-06-30)**: aberto **DEBT-64** — ToUnicode parcial para
 > ligatures no export PDF. Total abertos: **6 → 7**.
+>
+> **Passo 521 (2026-07-01)**: fechado **DEBT-64** — ToUnicode completo para
+> ligatures via `cluster_text` (LTR/RTL). Total abertos: **7 → 6**.
 
 ---
 
 ## Secção 1 — DEBTs em aberto ou parcialmente resolvidos
 
-## DEBT-64 — ToUnicode parcial para ligatures no export PDF — ABERTO
+## DEBT-64 — ToUnicode parcial para ligatures no export PDF — FECHADO (P521) ✓
 
 **Origem**: Passo 520 — correção de ligatures (`fi`, `fl`, `ffi`) no subsetting
 PDF. O `ShapedGlyph` transporta apenas o primeiro caractere do cluster
-(`char_code`), pelo que todas as ligatures que começam com `f` mapeiam
+(`char_code`), pelo que todas as ligatures que começam com `f` mapeavam
 ToUnicode para `U+0066`.
 
-**Impacto**: `pdftotext` e selecção/cópia em visualizadores PDF extraem
-"f" em vez de "fi"/"fl"/"ffi". A morfologia visual está correcta; a
-semântica de extração de texto está degradada.
+**Resolução (P521)**: implementado `cluster_text` em
+`03_infra/src/export/fonts.rs`, que reconstrói a substring completa de cada
+cluster a partir do byte-index `ShapedGlyph.cluster` e das fronteiras de
+cluster ordenadas por byte — não por posição no vector de glifos. Isto
+garante correcção para runs LTR e RTL (onde rustybuzz devolve glifos em
+ordem visual inversa). O ToUnicode CMap passou a emitir strings UTF-16BE
+multi-codepoint (ex.: `<0001> <00660069>` para `fi`).
 
-**Critério de fecho**: implementar mapeamento multi-caractere no ToUnicode
-CMap (formato `beginbfchar`/`beginbfrange` com strings de comprimento > 1)
-ou transportar o texto original do cluster no `ShapedGlyph` de forma a
-emitir `<0001> <0066><0069>` para `fi`.
+**Nota importante**: a primeira versão do algoritmo assumida (fronteira =
+cluster do próximo glyph no vector) continha um bug de panic para texto RTL
+(`start > end` num slice de string). Esse bug foi corrigido durante a
+implementação deste passo antes de chegar a produção — a abordagem por
+fronteiras ordenadas por byte elimina a dependência da ordem visual.
 
-**Referência**: `03_infra/src/export/subset.rs` (PUA mapping para
-additional_gids); `03_infra/src/export/fonts.rs` (`to_unicode_cmap`);
-corpus de regressão em `lab/parity/corpus/p520/`.
+**Referência**: `03_infra/src/export/fonts.rs` (`cluster_text`,
+`collect_shaped_cluster_texts`, `to_unicode_cmap`);
+`03_infra/src/export/builder.rs` (integração no CMap);
+`lab/parity/corpus/p520/`; relatório P521.
 
 ---
 

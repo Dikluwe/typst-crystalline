@@ -102,6 +102,30 @@ pub(super) fn collect_glyph_ids(doc: &PagedDocument) -> BTreeSet<u16> {
     ids
 }
 
+/// P521 — coleciona todos os pares `(old_gid, hex_utf16be)` dos glifos shaped
+/// no documento, usando `cluster_text` para reconstruir o texto completo de
+/// cada cluster (incluindo ligatures e RTL).
+pub(super) fn collect_shaped_cluster_texts(doc: &PagedDocument) -> Vec<(u16, String)> {
+    fn walk(items: &[FrameItem], out: &mut Vec<(u16, String)>) {
+        for item in items {
+            match item {
+                FrameItem::TextShaped { glyphs, text, .. } => {
+                    out.extend(cluster_text(glyphs, text));
+                }
+                FrameItem::Group { items: child, .. }
+                | FrameItem::Link { items: child, .. } => walk(child, out),
+                _ => {}
+            }
+        }
+    }
+
+    let mut out = Vec::new();
+    for page in &doc.pages {
+        walk(&page.items, &mut out);
+    }
+    out
+}
+
 /// P520 — coleciona os glifos reais produzidos pelo shaper, juntamente com o
 /// caractere representativo do cluster a que pertencem.
 ///
@@ -143,10 +167,13 @@ pub(super) fn map_chars_to_glyphs(face: &Face<'_>, chars: &[char]) -> Vec<(char,
 }
 
 /// Gera o array W do CIDFont: "gid [width] ..." em unidades PDF (1/1000 text space).
-pub(super) fn widths_array(face: &Face<'_>, mappings: &[(char, u16)]) -> String {
+///
+/// P521 — `mappings` contém pares `(gid, _hex)`; apenas o `gid` é usado para
+/// obter a largura da fonte subset.
+pub(super) fn widths_array(face: &Face<'_>, mappings: &[(u16, String)]) -> String {
     let upem = face.units_per_em() as f64;
     let mut parts = Vec::new();
-    for (_c, gid) in mappings {
+    for (gid, _hex) in mappings {
         let adv = face.glyph_hor_advance(ttf_parser::GlyphId(*gid))
             .unwrap_or(500) as f64;
         let w = (adv / upem * 1000.0).round() as i32;
@@ -155,9 +182,17 @@ pub(super) fn widths_array(face: &Face<'_>, mappings: &[(char, u16)]) -> String 
     parts.join(" ")
 }
 
-/// Gera o stream ToUnicode CMap para o mapeamento glyph_id → char.
+/// Converte um caractere numa string hex UTF-16BE de 4 dígitos.
+pub(super) fn char_to_utf16_hex(c: char) -> String {
+    format!("{:04X}", c as u16)
+}
+
+/// Gera o stream ToUnicode CMap para o mapeamento `new_gid → hex UTF-16BE`.
+///
+/// P521 — `mappings` contém pares `(new_gid, hex_string)` onde `hex_string` é
+/// uma sequência de codepoints UTF-16BE em hex (ex.: `"00660069"` para "fi").
 /// Emite em blocos de ≤ 100 entradas (limite PDF spec).
-pub(super) fn to_unicode_cmap(mappings: &[(char, u16)]) -> Vec<u8> {
+pub(super) fn to_unicode_cmap(mappings: &[(u16, String)]) -> Vec<u8> {
     let mut s = String::new();
     s.push_str("/CIDInit /ProcSet findresource begin\n");
     s.push_str("12 dict begin\n");
@@ -171,9 +206,8 @@ pub(super) fn to_unicode_cmap(mappings: &[(char, u16)]) -> Vec<u8> {
 
     for chunk in mappings.chunks(100) {
         s.push_str(&format!("{} beginbfchar\n", chunk.len()));
-        for (c, gid) in chunk {
-            let cp = *c as u32;
-            s.push_str(&format!("<{gid:04X}> <{cp:04X}>\n"));
+        for (gid, hex) in chunk {
+            s.push_str(&format!("<{gid:04X}> <{hex}>\n"));
         }
         s.push_str("endbfchar\n");
     }

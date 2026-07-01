@@ -262,7 +262,10 @@ use typst_core::rules::layout::layout;
 
     #[test]
     fn to_unicode_cmap_estrutura_basica() {
-        let mappings: Vec<(char, u16)> = vec![('A', 36), ('B', 37)];
+        let mappings: Vec<(u16, String)> = vec![
+            (36, "0041".to_string()),
+            (37, "0042".to_string()),
+        ];
         let cmap = to_unicode_cmap(&mappings);
         let s = String::from_utf8(cmap).unwrap();
         assert!(s.contains("begincmap"), "deve ter begincmap");
@@ -275,8 +278,8 @@ use typst_core::rules::layout::layout;
     #[test]
     fn to_unicode_cmap_blocos_de_100() {
         // 101 mappings → dois blocos (100 + 1)
-        let mappings: Vec<(char, u16)> = (0u16..101)
-            .filter_map(|i| char::from_u32(i as u32 + 32).map(|c| (c, i)))
+        let mappings: Vec<(u16, String)> = (0u16..101)
+            .filter_map(|i| char::from_u32(i as u32 + 32).map(|c| (i, format!("{:04X}", c as u16))))
             .collect();
         let cmap = to_unicode_cmap(&mappings);
         let s = String::from_utf8(cmap).unwrap();
@@ -337,7 +340,7 @@ use typst_core::rules::layout::layout;
     #[test]
     fn to_unicode_cmap_inclui_glifo_variante() {
         // Glyph ID 0x00A2 → '(' (U+0028)
-        let mappings = vec![('(', 0x00A2u16)];
+        let mappings = vec![(0x00A2u16, "0028".to_string())];
         let cmap = to_unicode_cmap(&mappings);
         let s = String::from_utf8(cmap).unwrap();
         assert!(s.contains("<00A2> <0028>"), "CMap deve ter entrada glyph→Unicode: {s}");
