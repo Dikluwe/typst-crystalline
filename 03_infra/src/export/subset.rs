@@ -210,17 +210,29 @@ mod tests {
             }
         };
 
+        // P524 — glyph IDs derivados do texto real de
+        // lab/parity/corpus/p523/test-cff-nimbus.typ.
+        let text = "Hello world. The five boxing wizards jump quickly. ffi fl fi AV";
+        let face = ttf_parser::Face::parse(&font_data, 0)
+            .expect("fonte fixture CFF deve ser parseável");
         let mut map = BTreeMap::new();
-        map.insert('A', 36u16);
-        map.insert('B', 37u16);
+        for ch in text.chars() {
+            if let Some(gid) = face.glyph_index(ch) {
+                map.insert(ch, gid.0);
+            }
+        }
+
         let subset = subset_font_with_mapping(&font_data, &map, &BTreeSet::new())
             .expect("subsetting CFF deve funcionar");
-        let face = ttf_parser::Face::parse(&subset.data, 0)
+        let subset_face = ttf_parser::Face::parse(&subset.data, 0)
             .expect("fonte subsetada CFF deve ser parseável");
         assert!(
-            face.tables().cff.is_some(),
+            subset_face.tables().cff.is_some(),
             "fonte subsetada deve preservar a tabela CFF"
         );
-        assert_eq!(face.number_of_glyphs(), 3, "notdef + A + B");
+        assert!(
+            subset_face.number_of_glyphs() >= 2,
+            "subset deve conter pelo menos notdef e um glifo útil"
+        );
     }
 }

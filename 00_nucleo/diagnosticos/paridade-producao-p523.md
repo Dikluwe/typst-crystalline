@@ -80,7 +80,7 @@ Resultado: PDF gerado com sucesso; texto seleccionável; ligatures `fi`/`fl`/`ff
 | CFF subsetting funcional | ✅ Fechado em P523 | `oxifont-subset` trata CFF/CFF2 internamente |
 | Descritor PDF `CID Type 0C` | ⏸️ Scope-out mecânico | `pdffonts` reporta `CID TrueType`; a fonte embutida é CFF. Sob ADR-0107, isto é observável mecânico, não paridade de linguagem. |
 | Variation fonts (VF) | ⏸️ Scope-out XL | Não abordado |
-| Kerning no subset | ⏸️ Scope-out | GPOS/GSUB removidas pelo subsetter; posicionamento aplicado previamente pelo shaper |
+| Kerning no subset | ✅ Fechado em P520/P521 | Delta model no operador TJ; validado com corpus dedicado (lab/parity/corpus/p520/) |
 
 ## Recomendações
 
