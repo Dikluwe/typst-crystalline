@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/export/builder.md
-//! @prompt-hash e9f8ca26
+//! @prompt-hash c06b0d16
 //! @layer L3
 //! @updated 2026-05-19
 //!
@@ -197,6 +197,14 @@ impl PdfBuilder {
             }
         }
 
+        // P520 — recolher larguras nominais (hmtx) dos glyph IDs que o shaper
+        // pode usar, para calcular corretamente os deltas do operador TJ.
+        let mut glyph_to_nominal: HashMap<u16, i32> = HashMap::new();
+        for &gid in collect_glyph_ids(doc).iter().chain(mappings.iter().map(|(_, gid)| gid)) {
+            let adv = face.glyph_hor_advance(ttf_parser::GlyphId(gid)).unwrap_or(0) as i32;
+            glyph_to_nominal.insert(gid, adv);
+        }
+
         // P516 — subsetting TrueType/OpenType.
         let char_to_old_gid: std::collections::BTreeMap<char, u16> =
             mappings.iter().copied().collect();
@@ -259,7 +267,7 @@ impl PdfBuilder {
 
             let ctx = PageContext::cidfont(
                 &ptr_to_idx, &img_refs, &pat_ptr_to_idx, &pat_refs,
-                &char_to_gid, &glyph_mapping,
+                &char_to_gid, &glyph_mapping, &glyph_to_nominal,
             );
             let stream_bytes = build_page_stream(page, &ctx);
             let len = stream_bytes.len();
@@ -359,8 +367,17 @@ impl PdfBuilder {
         let mut per_font_widths: Vec<String> = Vec::with_capacity(n_fonts);
         let mut per_font_embed_data: Vec<Vec<u8>> = Vec::with_capacity(n_fonts);
         let mut per_font_glyph_mapping: Vec<HashMap<u16, u16>> = Vec::with_capacity(n_fonts);
+        let mut per_font_glyph_to_nominal: Vec<HashMap<u16, i32>> = Vec::with_capacity(n_fonts);
         for face in faces {
             let mut mappings = map_chars_to_glyphs(face, &chars);
+
+            // P520 — larguras nominais (hmtx) desta face para todos os glyph IDs
+            // que podem aparecer no stream.
+            let mut glyph_to_nominal: HashMap<u16, i32> = HashMap::new();
+            for &gid in glyph_ids.iter().chain(mappings.iter().map(|(_, gid)| gid)) {
+                let adv = face.glyph_hor_advance(ttf_parser::GlyphId(gid)).unwrap_or(0) as i32;
+                glyph_to_nominal.insert(gid, adv);
+            }
             // Adicionar glifos variantes de tamanho matemático
             // (Passo 45, DEBT-9) — mesmo tratamento que `build_cidfont`.
             let glyph_reverse = build_math_glyph_reverse_map(face);
@@ -404,6 +421,7 @@ impl PdfBuilder {
             per_font_widths.push(widths);
             per_font_embed_data.push(embed_data);
             per_font_glyph_mapping.push(glyph_mapping);
+            per_font_glyph_to_nominal.push(glyph_to_nominal);
         }
 
         let (img_refs, ptr_to_idx, img_xobjects) = scan_all_images(doc, first_img_id);
@@ -445,6 +463,7 @@ impl PdfBuilder {
             let ctx = PageContext::multifont(
                 &ptr_to_idx, &img_refs, &pat_ptr_to_idx, &pat_refs,
                 fonts, &per_font_char_to_gid, &per_font_glyph_mapping,
+                &per_font_glyph_to_nominal,
             );
             let stream_bytes = build_page_stream(page, &ctx);
             let len = stream_bytes.len();

@@ -1,5 +1,5 @@
 # Prompt L0 — `infra/export/builder` — PdfBuilder
-Hash do Código: 588f500e
+Hash do Código: 86b9d7a7
 
 **Camada**: L3
 **Ficheiro alvo**: `03_infra/src/export/builder.rs`
@@ -20,6 +20,22 @@ Três caminhos paralelos:
 - `build_multifont` — N TTFs, cada `FrameItem::Text` dispatched para `/F{i+1}` baseado em `style.font`.
 
 Centraliza chamadas aos helpers `super::scan_all_images`, `super::scan_all_gradients`, `super::collect_codepoints`, `super::collect_glyph_ids`, etc.
+
+## §P520 — Larguras nominais para delta model do TJ
+
+Em `build_cidfont` e `build_multifont`, construir um mapa
+`glyph_to_nominal: HashMap<u16, i32>` que associa cada old `glyph_id`
+à sua largura horizontal nominal (`face.glyph_hor_advance`). Este mapa
+inclui:
+
+1. Todos os `glyph_id` recolhidos por `collect_glyph_ids(doc)` (glifos
+   reais usados por `FrameItem::Glyph` e `FrameItem::TextShaped`,
+   incluindo ligatures produzidas pelo shaper).
+2. Todos os `glyph_id` mapeados a partir de codepoints (`mappings`).
+
+O mapa é passado para `PageContext::cidfont` / `PageContext::multifont`
+através de `FontScenario` e consumido por `emit_shaped_pdf` para calcular
+o delta `x_advance - nominal` no operador PDF `TJ`.
 
 ## Restrições estruturais
 

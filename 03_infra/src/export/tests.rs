@@ -6306,8 +6306,9 @@ use typst_core::rules::layout::layout;
         let pat_ptr_to_idx = HashMap::new();
         let pat_refs: Vec<PatternRef> = Vec::new();
         let glyph_mapping = std::collections::HashMap::new();
+        let glyph_to_nominal = std::collections::HashMap::new();
         let ctx = PageContext::cidfont(&ptr_to_idx, &img_refs,
-            &pat_ptr_to_idx, &pat_refs, &char_to_gid, &glyph_mapping);
+            &pat_ptr_to_idx, &pat_refs, &char_to_gid, &glyph_mapping, &glyph_to_nominal);
         let bytes = build_page_stream(&page, &ctx);
         let s = String::from_utf8_lossy(&bytes);
         // CIDFont emit: `<00410042> Tj` (hex glyph IDs Identity-H).
@@ -6346,8 +6347,9 @@ use typst_core::rules::layout::layout;
         let pat_ptr_to_idx = HashMap::new();
         let pat_refs: Vec<PatternRef> = Vec::new();
         let glyph_mapping = std::collections::HashMap::new();
+        let glyph_to_nominal = std::collections::HashMap::new();
         let ctx = PageContext::cidfont(&ptr_to_idx, &img_refs,
-            &pat_ptr_to_idx, &pat_refs, &char_to_gid, &glyph_mapping);
+            &pat_ptr_to_idx, &pat_refs, &char_to_gid, &glyph_mapping, &glyph_to_nominal);
         let bytes = build_page_stream(&page, &ctx);
         let s = String::from_utf8_lossy(&bytes);
         // glyph_id 42 = 0x002A em hex 4-digit.
@@ -6400,8 +6402,11 @@ use typst_core::rules::layout::layout;
         let pat_refs: Vec<PatternRef> = Vec::new();
         let per_font_glyph_mapping: Vec<std::collections::HashMap<u16, u16>> =
             (0..fonts.len()).map(|_| std::collections::HashMap::new()).collect();
+        let per_font_glyph_to_nominal: Vec<std::collections::HashMap<u16, i32>> =
+            (0..fonts.len()).map(|_| std::collections::HashMap::new()).collect();
         let ctx = PageContext::multifont(&ptr_to_idx, &img_refs,
-            &pat_ptr_to_idx, &pat_refs, &fonts, &per_font_char_to_gid, &per_font_glyph_mapping);
+            &pat_ptr_to_idx, &pat_refs, &fonts, &per_font_char_to_gid, &per_font_glyph_mapping,
+            &per_font_glyph_to_nominal);
         let bytes = build_page_stream(&page, &ctx);
         let s = String::from_utf8_lossy(&bytes);
         // FontB matched → /F2 selected; X glyph_id 0x0058.

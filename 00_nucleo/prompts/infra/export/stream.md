@@ -1,5 +1,5 @@
 # Prompt L0 — `infra/export/stream` — PageContext + emit unificado
-Hash do Código: 30ad603b
+Hash do Código: 4931e1a6
 
 **Camada**: L3
 **Ficheiro alvo**: `03_infra/src/export/stream.rs`
@@ -31,12 +31,16 @@ top-level (`build_page_stream`) como pelo caminho local em Group
 ## Interface
 
 ```rust
-pub(crate) enum FontScenario<'a> { Type1, Cidfont { char_to_gid }, Multifont { fonts, per_font_char_to_gid } }
+pub(crate) enum FontScenario<'a> {
+    Type1,
+    Cidfont { char_to_gid, glyph_mapping, glyph_to_nominal },
+    Multifont { fonts, per_font_char_to_gid, per_font_glyph_mapping, per_font_glyph_to_nominal },
+}
 pub(crate) struct PageContext<'a> { /* ptr_to_idx, img_refs, pat_*, font_scenario */ }
 impl<'a> PageContext<'a> {
     pub(crate) fn type1(...) -> Self;
-    pub(crate) fn cidfont(..., char_to_gid) -> Self;
-    pub(crate) fn multifont(..., fonts, per_font_char_to_gid) -> Self;
+    pub(crate) fn cidfont(..., char_to_gid, glyph_mapping, glyph_to_nominal) -> Self;
+    pub(crate) fn multifont(..., fonts, per_font_char_to_gid, per_font_glyph_mapping, per_font_glyph_to_nominal) -> Self;
 }
 
 pub(super) fn emit_text_pdf(ops, pos_x, base_y, text, style, scenario);
@@ -69,15 +73,15 @@ pub(super) fn draw_item_local(ops, item, ctx, ...);
 ### Fórmula por glifo com x_offset != 0
 
 ```
-[ {-x_offset_tu} <GID> {advance_tu + x_offset_tu} ... ] TJ
+[ {-x_offset_tu} <GID> {advance_tu} ... ] TJ
 ```
 
 Onde:
-- `x_offset_tu = -(x_offset / upm * 1000)` — pré-glifo: desloca cursor à direita
-- `advance_tu = -(x_advance / upm * 1000)` — idêntico ao P485
-- Post-glifo = `advance_tu + x_offset_tu` — cancela o desvio pré-glifo
+- `x_offset_tu = -(x_offset / upm * 1000)` — pré-glifo: desloca cursor
+- `advance_tu` — ver §P520 (delta model)
 
-Para `x_offset = 0`: output idêntico ao P485 (zero regressão).
+O `x_offset` é uma translação visual do glifo actual; não altera o avanço
+para o glifo seguinte.
 
 ### `y_offset` — scope-out confirmado
 
@@ -89,4 +93,28 @@ Para `x_offset = 0`: output idêntico ao P485 (zero regressão).
 - `p486_emit_x_offset_zero_equivale_p485`: x_offset=0 → sem número antes do GID
 - `p486_emit_x_offset_nonzero_aplica_ajuste`: x_offset=-50, upm=1000 → "50 " antes do GID
 - `p486_emit_x_offset_positivo`: x_offset=30, upm=1000 → "-30 " antes do GID
-- `p486_parity_73_73_mantido`: sentinela parity (lab/parity)
+
+## §P520 — Kerning via delta model no TJ
+
+**P520** corrige o avanço do operador `TJ` para reflicta kerning aplicado
+pelo shaper (rustybuzz). O CIDFont declara `/W` com larguras nominais
+(`hmtx`), pelo que o `TJ` deve conter apenas o *delta* entre a largura
+declarada e o avanço real.
+
+### Fórmula por glifo
+
+```
+nominal    = glyph_to_nominal.get(glyph_id).unwrap_or(x_advance)
+advance_tu = (x_advance - nominal) as f64 / upm * 1000.0
+[ {-x_offset_tu} <GID> {advance_tu} ... ] TJ
+```
+
+- `advance_tu` negativo quando `x_advance > nominal` (afasta o próximo glifo)
+- `advance_tu` positivo quando `x_advance < nominal` (aproxima — kerning)
+- `glyph_to_nominal` é construído em `builder.rs` a partir do `hmtx` da fonte
+  original, para todos os `glyph_id` usados no documento (`collect_glyph_ids`
+  + codepoints mapeados).
+
+### Testes adicionados P520
+
+- `p520_emit_shaped_kerning_delta`: x_advance=599, nominal=639, upm=1000 → delta = -40

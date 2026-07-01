@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/export/stream.md
-//! @prompt-hash 49b2c8cc
+//! @prompt-hash eaf016c2
 //! @layer L3
 //! @updated 2026-05-19
 //!
@@ -50,6 +50,10 @@ pub(crate) enum FontScenario<'a> {
         char_to_gid: &'a HashMap<char, u16>,
         /// P516 — mapa old → new glyph ID quando a fonte foi subsetada.
         glyph_mapping: &'a HashMap<u16, u16>,
+        /// P520 — largura nominal (hmtx) de cada old glyph ID, em unidades da fonte.
+        /// Necessário para calcular o delta do operador `TJ` quando o shaper
+        /// aplica kerning (x_advance ≠ largura declarada no `/W`).
+        glyph_to_nominal: &'a HashMap<u16, i32>,
     },
     /// Multifont Identity-H com selecção `/F{fi+1}` por `style.font`.
     Multifont {
@@ -57,6 +61,8 @@ pub(crate) enum FontScenario<'a> {
         per_font_char_to_gid: &'a [HashMap<char, u16>],
         /// P516 — mapa old → new glyph ID por fonte (vazio se não subsetada).
         per_font_glyph_mapping: &'a [HashMap<u16, u16>],
+        /// P520 — largura nominal por old glyph ID, por fonte.
+        per_font_glyph_to_nominal: &'a [HashMap<u16, i32>],
     },
 }
 
@@ -83,27 +89,31 @@ impl<'a> PageContext<'a> {
     }
 
     pub(crate) fn cidfont(
-        ptr_to_idx:     &'a HashMap<usize, usize>,
-        img_refs:       &'a [ImageRef],
-        pat_ptr_to_idx: &'a HashMap<DedupKey, usize>,
-        pat_refs:       &'a [PatternRef],
-        char_to_gid:    &'a HashMap<char, u16>,
-        glyph_mapping:  &'a HashMap<u16, u16>,
+        ptr_to_idx:        &'a HashMap<usize, usize>,
+        img_refs:          &'a [ImageRef],
+        pat_ptr_to_idx:    &'a HashMap<DedupKey, usize>,
+        pat_refs:          &'a [PatternRef],
+        char_to_gid:       &'a HashMap<char, u16>,
+        glyph_mapping:     &'a HashMap<u16, u16>,
+        glyph_to_nominal:  &'a HashMap<u16, i32>,
     ) -> Self {
         Self {
             ptr_to_idx, img_refs, pat_ptr_to_idx, pat_refs,
-            font_scenario: FontScenario::Cidfont { char_to_gid, glyph_mapping },
+            font_scenario: FontScenario::Cidfont {
+                char_to_gid, glyph_mapping, glyph_to_nominal,
+            },
         }
     }
 
     pub(crate) fn multifont(
-        ptr_to_idx:             &'a HashMap<usize, usize>,
-        img_refs:               &'a [ImageRef],
-        pat_ptr_to_idx:         &'a HashMap<DedupKey, usize>,
-        pat_refs:               &'a [PatternRef],
-        fonts:                  &'a [(FontList, Vec<u8>)],
-        per_font_char_to_gid:   &'a [HashMap<char, u16>],
-        per_font_glyph_mapping: &'a [HashMap<u16, u16>],
+        ptr_to_idx:                  &'a HashMap<usize, usize>,
+        img_refs:                    &'a [ImageRef],
+        pat_ptr_to_idx:              &'a HashMap<DedupKey, usize>,
+        pat_refs:                    &'a [PatternRef],
+        fonts:                       &'a [(FontList, Vec<u8>)],
+        per_font_char_to_gid:        &'a [HashMap<char, u16>],
+        per_font_glyph_mapping:      &'a [HashMap<u16, u16>],
+        per_font_glyph_to_nominal:   &'a [HashMap<u16, i32>],
     ) -> Self {
         Self {
             ptr_to_idx, img_refs, pat_ptr_to_idx, pat_refs,
@@ -111,6 +121,7 @@ impl<'a> PageContext<'a> {
                 fonts,
                 per_font_char_to_gid,
                 per_font_glyph_mapping,
+                per_font_glyph_to_nominal,
             },
         }
     }
@@ -201,19 +212,26 @@ pub(super) fn emit_shaped_pdf(
         FontScenario::Type1 => {
             emit_text_pdf(ops, pos_x, base_y, text, style, scenario);
         }
-        FontScenario::Cidfont { glyph_mapping, .. } => {
+        FontScenario::Cidfont { glyph_mapping, glyph_to_nominal, .. } => {
             ops.push_str(&format!(
                 "BT\n/F1 {:.1} Tf\n{:.3} {:.3} Td\n[ ",
                 style.size.val(), pos_x, base_y
             ));
             for g in glyphs {
-                // P486 — x_offset: deslocar glifo e cancelar após (kern marks, diacríticos)
+                // P486 — x_offset: deslocar glifo sem alterar o avanço do próximo.
                 if g.x_offset != 0 {
                     let xoff_tu = -(g.x_offset as f64 / upm * 1000.0);
                     ops.push_str(&format!("{:.0} ", xoff_tu));
                 }
-                let advance_tu = -(g.x_advance as f64 / upm * 1000.0)
-                    + (g.x_offset as f64 / upm * 1000.0);
+                // P520 — delta model: o CIDFont /W já fornece a largura nominal
+                // (hmtx). O TJ deve conter apenas a diferença entre essa largura
+                // declarada e o avanço real produzido pelo shaper.
+                // P520 — delta model: o CIDFont /W já fornece a largura nominal
+                // (hmtx). O TJ deve conter apenas a diferença entre essa largura
+                // declarada e o avanço real produzido pelo shaper.
+                let nominal = glyph_to_nominal.get(&g.glyph_id).copied()
+                    .unwrap_or(g.x_advance);
+                let advance_tu = (g.x_advance - nominal) as f64 / upm * 1000.0;
                 let new_gid = if glyph_mapping.is_empty() {
                     g.glyph_id
                 } else {
@@ -223,23 +241,26 @@ pub(super) fn emit_shaped_pdf(
             }
             ops.push_str("] TJ\nET\n");
         }
-        FontScenario::Multifont { fonts, per_font_glyph_mapping, .. } => {
+        FontScenario::Multifont { fonts, per_font_glyph_mapping, per_font_glyph_to_nominal, .. } => {
             let fi = style.font.as_ref()
                 .and_then(|fl| fonts.iter().position(|(stored, _)| stored == fl))
                 .unwrap_or(0);
             let glyph_mapping = &per_font_glyph_mapping[fi];
+            let glyph_to_nominal = &per_font_glyph_to_nominal[fi];
             ops.push_str(&format!(
                 "BT\n/F{} {:.1} Tf\n{:.3} {:.3} Td\n[ ",
                 fi + 1, style.size.val(), pos_x, base_y
             ));
             for g in glyphs {
-                // P486 — x_offset: deslocar glifo e cancelar após (kern marks, diacríticos)
+                // P486 — x_offset: deslocar glifo sem alterar o avanço do próximo.
                 if g.x_offset != 0 {
                     let xoff_tu = -(g.x_offset as f64 / upm * 1000.0);
                     ops.push_str(&format!("{:.0} ", xoff_tu));
                 }
-                let advance_tu = -(g.x_advance as f64 / upm * 1000.0)
-                    + (g.x_offset as f64 / upm * 1000.0);
+                // P520 — delta model: ver Caso A em P520 / ADR-0108.
+                let nominal = glyph_to_nominal.get(&g.glyph_id).copied()
+                    .unwrap_or(g.x_advance);
+                let advance_tu = (g.x_advance - nominal) as f64 / upm * 1000.0;
                 let new_gid = if glyph_mapping.is_empty() {
                     g.glyph_id
                 } else {
@@ -820,6 +841,7 @@ mod stream_tests {
         let scenario = FontScenario::Cidfont {
             char_to_gid: &std::collections::HashMap::new(),
             glyph_mapping: &std::collections::HashMap::new(),
+            glyph_to_nominal: &std::collections::HashMap::new(),
         };
         emit_shaped_pdf(&mut ops, 72.0, 770.0, &glyphs, "A", &style, &scenario, 1000);
         assert!(ops.contains("TJ"), "P485: CIDFont deve usar TJ, não Tj");
@@ -829,16 +851,18 @@ mod stream_tests {
 
     #[test]
     fn p485_emit_shaped_advance_calculado() {
-        // x_advance=600, upm=1000 → número TJ = -(600/1000*1000) = -600
+        // P520 — delta model: sem mapa de larguras nominais, o fallback é
+        // nominal=x_advance, logo o delta TJ é 0.
         let mut ops = String::new();
         let glyphs = vec![glyph(0x0042, 600)];
         let style = TextStyle::default();
         let scenario = FontScenario::Cidfont {
             char_to_gid: &std::collections::HashMap::new(),
             glyph_mapping: &std::collections::HashMap::new(),
+            glyph_to_nominal: &std::collections::HashMap::new(),
         };
         emit_shaped_pdf(&mut ops, 0.0, 0.0, &glyphs, "B", &style, &scenario, 1000);
-        assert!(ops.contains("-600"), "P485: advance TJ deve ser -600 para x_advance=600, upm=1000");
+        assert!(ops.contains("<0042> 0"), "P485: fallback nominal=x_advance → delta TJ = 0");
     }
 
     #[test]
@@ -868,10 +892,11 @@ mod stream_tests {
         let scenario = FontScenario::Cidfont {
             char_to_gid: &std::collections::HashMap::new(),
             glyph_mapping: &std::collections::HashMap::new(),
+            glyph_to_nominal: &std::collections::HashMap::new(),
         };
         emit_shaped_pdf(&mut ops, 0.0, 0.0, &glyphs, "B", &style, &scenario, 1000);
         assert!(ops.contains("<0042>"), "P486: GID presente");
-        assert!(ops.contains("-600"), "P486: advance -600 igual a P485");
+        assert!(ops.contains("<0042> 0"), "P486: delta 0 igual a P485");
         let after_bracket = ops.split("[ ").nth(1).unwrap_or("");
         assert!(after_bracket.starts_with("<0042>"), "P486: x_offset=0 → sem ajuste antes do GID");
     }
@@ -885,6 +910,7 @@ mod stream_tests {
         let scenario = FontScenario::Cidfont {
             char_to_gid: &std::collections::HashMap::new(),
             glyph_mapping: &std::collections::HashMap::new(),
+            glyph_to_nominal: &std::collections::HashMap::new(),
         };
         emit_shaped_pdf(&mut ops, 0.0, 0.0, &glyphs, "C", &style, &scenario, 1000);
         let after_bracket = ops.split("[ ").nth(1).unwrap_or("");
@@ -901,11 +927,33 @@ mod stream_tests {
         let scenario = FontScenario::Cidfont {
             char_to_gid: &std::collections::HashMap::new(),
             glyph_mapping: &std::collections::HashMap::new(),
+            glyph_to_nominal: &std::collections::HashMap::new(),
         };
         emit_shaped_pdf(&mut ops, 0.0, 0.0, &glyphs, "D", &style, &scenario, 1000);
         let after_bracket = ops.split("[ ").nth(1).unwrap_or("");
         assert!(after_bracket.starts_with("-30 "), "P486: x_offset=30 → '-30 ' antes do GID");
         assert!(ops.contains("<0044>"), "P486: GID presente");
+    }
+
+    // P520 — teste do delta model com largura nominal explícita.
+    #[test]
+    fn p520_emit_shaped_kerning_delta() {
+        // Glifo A: x_advance=599, largura nominal (hmtx)=639, upm=1000.
+        // delta TJ = (599 - 639) / 1000 * 1000 = -40.
+        let mut ops = String::new();
+        let glyphs = vec![
+            ShapedGlyph { glyph_id: 0x0041, x_advance: 599, x_offset: 0, y_offset: 0, cluster: 0, char_code: 'A' },
+        ];
+        let style = TextStyle::default();
+        let mut nominal = std::collections::HashMap::new();
+        nominal.insert(0x0041, 639);
+        let scenario = FontScenario::Cidfont {
+            char_to_gid: &std::collections::HashMap::new(),
+            glyph_mapping: &std::collections::HashMap::new(),
+            glyph_to_nominal: &nominal,
+        };
+        emit_shaped_pdf(&mut ops, 0.0, 0.0, &glyphs, "A", &style, &scenario, 1000);
+        assert!(ops.contains("<0041> -40"), "P520: kerning positivo → delta negativo (aproxima)");
     }
 }
 

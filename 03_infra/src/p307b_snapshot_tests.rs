@@ -61,6 +61,15 @@ mod p307b_snapshot {
             )
         });
         if actual != expected.as_slice() {
+            // P520 — permitir regenerar referências quando o output PDF muda
+            // intencionalmente (ex.: fix de kerning). Definir
+            // `UPDATE_P307B_SNAPSHOTS=1` para gravar o actual como referência.
+            if std::env::var("UPDATE_P307B_SNAPSHOTS").is_ok() {
+                std::fs::write(&ref_full, actual).unwrap_or_else(|e| {
+                    panic!("falha ao escrever referência {}: {}", ref_full.display(), e)
+                });
+                return;
+            }
             panic!(
                 "PDF binário regrediu: {} | actual={}B expected={}B",
                 fixture_name,
