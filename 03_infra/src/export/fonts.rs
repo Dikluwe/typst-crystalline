@@ -15,10 +15,11 @@
 //! Conteúdo bit-exact pré e pós migração — comportamento idêntico.
 
 #![allow(deprecated)] // P483 — FrameItem::Text fallback path legítimo
-use std::collections::{BTreeMap, BTreeSet, HashMap};
+use std::collections::{BTreeMap, BTreeSet, HashMap, HashSet};
 
 use ttf_parser::Face;
 use typst_core::entities::layout_types::{FrameItem, PagedDocument};
+use typst_core::entities::shaped_glyph::ShapedGlyph;
 
 pub(super) fn escape_pdf_string(text: &str) -> String {
     let mut out = String::with_capacity(text.len());
@@ -193,4 +194,136 @@ pub(super) fn text_to_hex_string(text: &str, char_to_gid: &HashMap<char, u16>) -
     }
     hex.push('>');
     hex
+}
+
+/// P521 — Reconstrói o texto Unicode de cada glifo shaped a partir do
+/// `cluster` (byte-index na string original) e das fronteiras de cluster.
+///
+/// Funciona para runs LTR e RTL porque as fronteiras são calculadas a
+/// partir do conjunto ordenado de valores de byte, não da posição no
+/// vector de glifos. Glifos mark (mesmo `cluster` que a base) partilham a
+/// mesma substring, mas apenas a primeira ocorrência de cada cluster leva
+/// o hex completo; as restantes ficam com string vazia.
+pub(super) fn cluster_text(glyphs: &[ShapedGlyph], text: &str) -> Vec<(u16, String)> {
+    if glyphs.is_empty() {
+        return Vec::new();
+    }
+
+    // Fronteiras de cluster únicas, ordenadas por byte — independente da
+    // ordem visual (LTR/RTL) em que os glyphs aparecem no vector.
+    let mut boundaries: Vec<usize> = glyphs.iter().map(|g| g.cluster as usize).collect();
+    boundaries.push(text.len());
+    boundaries.sort_unstable();
+    boundaries.dedup();
+
+    let mut result: Vec<(u16, String)> = Vec::with_capacity(glyphs.len());
+    let mut seen_clusters: HashSet<u32> = HashSet::new();
+
+    for g in glyphs {
+        let start = g.cluster as usize;
+        let end = boundaries
+            .iter()
+            .find(|&&b| b > start)
+            .copied()
+            .unwrap_or(text.len());
+
+        let cluster_str = if start < end
+            && text.is_char_boundary(start)
+            && text.is_char_boundary(end)
+        {
+            &text[start..end]
+        } else {
+            ""
+        };
+
+        let mut hex: String = cluster_str
+            .encode_utf16()
+            .map(|u| format!("{:04X}", u))
+            .collect();
+
+        // Mark glyph: mesmo cluster que uma base já vista → sem entrada própria.
+        if !seen_clusters.insert(g.cluster) {
+            hex.clear();
+        }
+
+        result.push((g.glyph_id, hex));
+    }
+
+    result
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    fn glyph(gid: u16, cluster: u32) -> ShapedGlyph {
+        ShapedGlyph {
+            glyph_id: gid,
+            x_advance: 500,
+            x_offset: 0,
+            y_offset: 0,
+            cluster,
+            char_code: '\0',
+        }
+    }
+
+    #[test]
+    fn p521_cluster_text_ltr_ligature() {
+        // "fi" → 1 glyph, cluster=0
+        let glyphs = vec![glyph(5042, 0)];
+        let result = cluster_text(&glyphs, "fi");
+        assert_eq!(result.len(), 1);
+        assert_eq!(result[0].0, 5042);
+        assert_eq!(result[0].1, "00660069");
+    }
+
+    #[test]
+    fn p521_cluster_text_ltr_simples() {
+        // "café" — 'é' é 2 bytes UTF-8, 1 codepoint
+        let text = "café";
+        let glyphs = vec![
+            glyph(1, 0), // c
+            glyph(2, 1), // a
+            glyph(3, 2), // f
+            glyph(4, 3), // é
+        ];
+        let result = cluster_text(&glyphs, text);
+        assert_eq!(result[0].1, "0063"); // c
+        assert_eq!(result[1].1, "0061"); // a
+        assert_eq!(result[2].1, "0066"); // f
+        assert_eq!(result[3].1, "00E9"); // é
+    }
+
+    #[test]
+    fn p521_cluster_text_mark_glyph_nao_duplica() {
+        // Base + combining acute no mesmo cluster.
+        let text = "é"; // U+00E9 como base única para simplificar
+        let glyphs = vec![
+            glyph(1, 0), // base
+            glyph(2, 0), // mark
+        ];
+        let result = cluster_text(&glyphs, text);
+        assert_eq!(result.len(), 2);
+        assert_eq!(result[0].1, "00E9");
+        assert_eq!(result[1].1, "");
+    }
+
+    #[test]
+    fn p521_cluster_text_rtl_nao_entra_panic() {
+        // Simula ordem visual RTL: clusters decrescentes ao longo do vector.
+        // Cada caractere ocupa 1 byte; ordem visual inverte a lógica.
+        let text = "abc";
+        let glyphs = vec![
+            glyph(1, 2), // visualmente primeiro = logicamente último (c)
+            glyph(2, 1), // b
+            glyph(3, 0), // visualmente último = logicamente primeiro (a)
+        ];
+        let result = cluster_text(&glyphs, text);
+        assert_eq!(result.len(), 3);
+        // Cada glyph representa um cluster diferente; fronteiras por byte
+        // ordenado dão substrings correctas na ordem lógica.
+        assert_eq!(result[0].1, "0063");
+        assert_eq!(result[1].1, "0062");
+        assert_eq!(result[2].1, "0061");
+    }
 }
