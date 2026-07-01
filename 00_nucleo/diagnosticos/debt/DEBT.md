@@ -229,10 +229,35 @@
 > Detalhes em
 > [`diagnosticos/diagnostico-paridade-emit-passo-282.md`](diagnosticos/diagnostico-paridade-emit-passo-282.md)
 > + [`diagnosticos/estado-percentual-projecto-passo-282.md`](diagnosticos/estado-percentual-projecto-passo-282.md).
+>
+> **Passo 520 (2026-06-30)**: aberto **DEBT-64** — ToUnicode parcial para
+> ligatures no export PDF. Total abertos: **6 → 7**.
 
 ---
 
 ## Secção 1 — DEBTs em aberto ou parcialmente resolvidos
+
+## DEBT-64 — ToUnicode parcial para ligatures no export PDF — ABERTO
+
+**Origem**: Passo 520 — correção de ligatures (`fi`, `fl`, `ffi`) no subsetting
+PDF. O `ShapedGlyph` transporta apenas o primeiro caractere do cluster
+(`char_code`), pelo que todas as ligatures que começam com `f` mapeiam
+ToUnicode para `U+0066`.
+
+**Impacto**: `pdftotext` e selecção/cópia em visualizadores PDF extraem
+"f" em vez de "fi"/"fl"/"ffi". A morfologia visual está correcta; a
+semântica de extração de texto está degradada.
+
+**Critério de fecho**: implementar mapeamento multi-caractere no ToUnicode
+CMap (formato `beginbfchar`/`beginbfrange` com strings de comprimento > 1)
+ou transportar o texto original do cluster no `ShapedGlyph` de forma a
+emitir `<0001> <0066><0069>` para `fi`.
+
+**Referência**: `03_infra/src/export/subset.rs` (PUA mapping para
+additional_gids); `03_infra/src/export/fonts.rs` (`to_unicode_cmap`);
+corpus de regressão em `lab/parity/corpus/p520/`.
+
+---
 
 ## DEBT-62 — `Value::Bytes` ausente (bloqueia `read` binário + cbor byte-strings) — FECHADO (Passo 398)
 

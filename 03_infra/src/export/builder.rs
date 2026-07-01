@@ -14,7 +14,7 @@
 //! Depende de `super::` para os submódulos extraídos
 //! (fonts, gradients, images, stream).
 
-use std::collections::{BTreeSet, HashMap};
+use std::collections::{BTreeSet, HashMap, HashSet};
 use std::sync::Arc;
 
 use ttf_parser::Face;
@@ -244,10 +244,30 @@ impl PdfBuilder {
             }
         }
 
+        // P520 — O ToUnicode CMap e o array /W devem cobrir os glifos
+        // reais usados pelo shaper (incluindo ligatures). Construir
+        // `to_unicode_mappings` a partir de `shaped_mappings` re-mapeados;
+        // caracteres normais (não shaped) são adicionados como fallback.
+        let mut to_unicode_mappings: Vec<(char, u16)> = Vec::new();
+        let mut seen_to_unicode_gids: HashSet<u16> = HashSet::new();
+        if !glyph_mapping.is_empty() {
+            for (&old_gid, &ch) in &shaped_mappings {
+                let new_gid = remap_glyph_id(old_gid, &glyph_mapping);
+                if new_gid != 0 && seen_to_unicode_gids.insert(new_gid) {
+                    to_unicode_mappings.push((ch, new_gid));
+                }
+            }
+        }
+        for &(ch, new_gid) in &mappings {
+            if new_gid != 0 && seen_to_unicode_gids.insert(new_gid) {
+                to_unicode_mappings.push((ch, new_gid));
+            }
+        }
+
         let subset_face = Face::parse(&embed_font_data, 0).ok();
         let face_for_widths = subset_face.as_ref().unwrap_or(face);
         let char_to_gid: HashMap<char, u16> = mappings.iter().copied().collect();
-        let widths = widths_array(face_for_widths, &mappings);
+        let widths = widths_array(face_for_widths, &to_unicode_mappings);
 
         let (img_refs, ptr_to_idx, img_xobjects) = scan_all_images(doc, first_img_id);
 
@@ -337,7 +357,7 @@ impl PdfBuilder {
         self.add_bytes(font_stream_id, font_stream);
 
         // ToUnicode CMap stream
-        let cmap = to_unicode_cmap(&mappings);
+        let cmap = to_unicode_cmap(&to_unicode_mappings);
         let cmap_len = cmap.len();
         let mut cmap_obj = format!("<< /Length {cmap_len} >>\nstream\n").into_bytes();
         cmap_obj.extend_from_slice(&cmap);
@@ -435,11 +455,28 @@ impl PdfBuilder {
                 }
             }
 
+            // P520 — ToUnicode/widths a partir dos glifos reais do shaper.
+            let mut to_unicode_mappings: Vec<(char, u16)> = Vec::new();
+            let mut seen_to_unicode_gids: HashSet<u16> = HashSet::new();
+            if !glyph_mapping.is_empty() {
+                for (&old_gid, &ch) in &shaped_mappings {
+                    let new_gid = remap_glyph_id(old_gid, &glyph_mapping);
+                    if new_gid != 0 && seen_to_unicode_gids.insert(new_gid) {
+                        to_unicode_mappings.push((ch, new_gid));
+                    }
+                }
+            }
+            for &(ch, new_gid) in &mappings {
+                if new_gid != 0 && seen_to_unicode_gids.insert(new_gid) {
+                    to_unicode_mappings.push((ch, new_gid));
+                }
+            }
+
             let subset_face = Face::parse(&embed_data, 0).ok();
             let face_for_widths = subset_face.as_ref().unwrap_or(face);
             let char_to_gid: HashMap<char, u16> = mappings.iter().copied().collect();
-            let widths = widths_array(face_for_widths, &mappings);
-            per_font_mappings.push(mappings);
+            let widths = widths_array(face_for_widths, &to_unicode_mappings);
+            per_font_mappings.push(to_unicode_mappings);
             per_font_char_to_gid.push(char_to_gid);
             per_font_widths.push(widths);
             per_font_embed_data.push(embed_data);

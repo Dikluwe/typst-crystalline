@@ -44,8 +44,20 @@ pub fn subset_font_with_mapping(
         old_gid_set.insert(old_gid);
         cp_to_old_gid.insert(ch as u32, old_gid);
     }
+
+    // P520 — glifos adicionais (ligatures) não têm codepoint Unicode
+    // próprio. Atribuir codepoints na Área de Uso Privado (PUA) para que
+    // o subsetter os inclua na cmap e possamos recuperar o new_gid.
+    let mut private_cp: u32 = 0xF0000;
+    let mut gid_to_private_cp: BTreeMap<u16, u32> = BTreeMap::new();
     for &old_gid in additional_gids {
         old_gid_set.insert(old_gid);
+        while cp_to_old_gid.contains_key(&private_cp) {
+            private_cp += 1;
+        }
+        cp_to_old_gid.insert(private_cp, old_gid);
+        gid_to_private_cp.insert(old_gid, private_cp);
+        private_cp += 1;
     }
 
     let opts = oxifont_subset::SubsetOptions::default()
@@ -63,6 +75,11 @@ pub fn subset_font_with_mapping(
     mapping.insert(0, 0);
     for (&ch, &old_gid) in char_to_old_gid {
         if let Some(new_gid) = face.glyph_index(ch).map(|g| g.0) {
+            mapping.insert(old_gid, new_gid);
+        }
+    }
+    for (&old_gid, &pcp) in &gid_to_private_cp {
+        if let Some(new_gid) = face.glyph_index(char::from_u32(pcp).unwrap_or('\u{FFFD}')).map(|g| g.0) {
             mapping.insert(old_gid, new_gid);
         }
     }
@@ -147,6 +164,19 @@ mod tests {
         let subset = subset_font_with_mapping(&data, &map, &additional).expect("subset deve funcionar");
         let face = ttf_parser::Face::parse(&subset.data, 0).expect("subset parseável");
         assert!(face.number_of_glyphs() >= 3, "deve incluir notdef + A + B adicional");
+    }
+
+    #[test]
+    fn p520_additional_gid_gets_new_gid_mapping() {
+        let Some(data) = load_test_font() else { return };
+        let mut map = BTreeMap::new();
+        map.insert('A', 65u16);
+        let mut additional = BTreeSet::new();
+        additional.insert(66);
+        let subset = subset_font_with_mapping(&data, &map, &additional).expect("subset deve funcionar");
+        // O glifo adicional deve ter uma entrada old → new no mapping.
+        let new_gid = subset.mapping.get(&66).copied().expect("B adicional deve ter new_gid");
+        assert_ne!(new_gid, 0, "new_gid de B não deve ser .notdef");
     }
 
     #[test]
