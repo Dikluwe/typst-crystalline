@@ -182,7 +182,9 @@ O usuário deve escolher a direção. Opções:
 
 | # | Passo | Tamanho | Descrição |
 |---|-------|---------|-----------|
-| A | **P528** | Diagnóstico (concluído) | Fix real de Variation Fonts: fontTools instancer demora ~4 min/instância (inviável); faux-bold/faux-italic é fallback de baixa fidelidade. Implementação pendente de pesquisa de alternativas (Fontations/skrifa). Ver relatório P528. |
+| A | **P529** | Diagnóstico (concluído) | Re-teste de instanciação VF: com subset-first (oxifont-subset) + remoção de GPOS/GSUB/GDEF, a instanciação demora ~0.3s por peso/estilo. **Abordagem A viável.** Ver relatório P529. |
+| B | **P530** | M | Implementar fix real de Variation Fonts: colectar (FontList, FontVariant), subsetar com oxifont-subset, instanciar estaticamente com fontTools, embutir múltiplas instâncias no PDF |
+| C | **P519** | L | Lookahead Layout Engine (inovação — já escrito, aguardando execução) |
 | B | **P519** | L | Lookahead Layout Engine (inovação — já escrito, aguardando execução) |
 | C | **P520** | M | Publicação / artigo sobre arquitetura cristalina |
 | D | **Trilha 6** | XL | CFF subsetting (completa paridade de produção) |
