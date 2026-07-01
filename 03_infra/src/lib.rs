@@ -8,6 +8,7 @@
 // no Passo 119 (ADR-0050). L3 já não conhece formatação user-facing.
 pub mod export;
 pub mod font_metrics;
+pub mod fontdb;
 pub mod fonts;
 pub mod image_sizer;
 pub mod layout;

@@ -2,7 +2,11 @@
 //! @prompt 00_nucleo/prompts/infra/system-world.md
 //! @prompt-hash 4052c562
 //! @layer L3
-//! @updated 2026-04-20
+//! @updated 2026-06-30
+//!
+//! **P515** — Adicionado `SystemWorld::with_system_fonts` e
+//! `with_fonts_and_system` para descoberta automática de fontes do sistema
+//! via `fontdb` (ativação da ADR-0020).
 
 use std::collections::HashMap;
 use std::num::NonZeroU16;
@@ -143,6 +147,39 @@ impl SystemWorld {
     pub fn with_fonts(mut self, font_slots: Vec<FontSlot>) -> Self {
         self.font_book  = crate::fonts::build_font_book(&font_slots);
         self.font_slots = font_slots;
+        self
+    }
+
+    /// Builder: descobre e associa as fontes instaladas no sistema.
+    ///
+    /// Usa `fontdb` para carregar as fontes do sistema operativo.
+    /// Comportamento defensivo: se nenhuma fonte for encontrada, o
+    /// `FontBook` fica vazio mas o `SystemWorld` continua funcional.
+    pub fn with_system_fonts(mut self) -> Self {
+        let (slots, book) = crate::fontdb::load_system_fonts();
+        self.font_slots = slots;
+        self.font_book  = book;
+        self
+    }
+
+    /// Builder: combina fontes do sistema com fontes de projecto.
+    ///
+    /// As fontes de projecto (`font_paths`) são adicionadas *depois* das
+    /// fontes do sistema. A ordem final é: sistema primeiro, projecto depois.
+    /// Não remove duplicados — o consumidor decide se quer deduplicar.
+    pub fn with_fonts_and_system(mut self, font_paths: &[PathBuf]) -> Self {
+        let (mut slots, mut book) = crate::fontdb::load_system_fonts();
+        let project_slots = crate::fonts::discover_fonts(font_paths);
+
+        // Projecto é adicionado depois do sistema.
+        let project_book = crate::fonts::build_font_book(&project_slots);
+        slots.extend(project_slots);
+        for info in project_book.infos() {
+            book.push(info.clone());
+        }
+
+        self.font_slots = slots;
+        self.font_book  = book;
         self
     }
 
@@ -413,6 +450,45 @@ mod tests {
         let id1 = world.register_file(extra.clone());
         let id2 = world.register_file(extra);
         assert_eq!(id1, id2);
+    }
+
+    #[test]
+    fn system_world_with_system_fonts_nao_panic() {
+        let dir = tempfile_write("main.typ", "text");
+        let world = SystemWorld::new(dir.path(), "main.typ")
+            .unwrap()
+            .with_system_fonts();
+        // Invariante: book.len() <= slots.len()
+        assert!(world.book().len() <= world.font_slots.len());
+    }
+
+    #[test]
+    fn system_world_with_fonts_and_system_inclui_projecto() {
+        let dir = tempfile_write("main.typ", "text");
+        let font_dir = tempdir();
+        std::fs::write(font_dir.path().join("fake.ttf"), b"not a font").unwrap();
+
+        let world = SystemWorld::new(dir.path(), "main.typ")
+            .unwrap()
+            .with_fonts_and_system(&[font_dir.path().to_path_buf()]);
+
+        // Sistema pode ou não ter fontes; projecto adiciona 1 slot.
+        assert!(world.font_slots.len() >= 1);
+    }
+
+    #[test]
+    fn system_world_with_fonts_and_system_preserva_ordem() {
+        let dir = tempfile_write("main.typ", "text");
+        let font_dir = tempdir();
+        std::fs::write(font_dir.path().join("fake.ttf"), b"not a font").unwrap();
+
+        let world = SystemWorld::new(dir.path(), "main.typ")
+            .unwrap()
+            .with_fonts_and_system(&[font_dir.path().to_path_buf()]);
+
+        // O último slot deve ser o do projecto.
+        let last = world.font_slots.last().unwrap();
+        assert_eq!(last.path.file_name().unwrap(), "fake.ttf");
     }
 
     #[test]

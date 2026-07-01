@@ -1,11 +1,13 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/shaper.md
-//! @prompt-hash 13171e36
+//! @prompt-hash 084a5fe9
 //! @layer L3
-//! @updated 2026-06-28
+//! @updated 2026-06-30
 //!
 //! **P482** — Post-processing shaping pass (Trilha 5 Fase 1).
 //! **P484** — RTL básico via unicode-bidi (Trilha 5 Fase 3, ADR-0120).
+//! **P515** — Font fallback por caractere usando múltiplas fontes da
+//! `FontList` (cada sub-run shaped na sua própria face).
 //! Converte `FrameItem::Text` → `FrameItem::TextShaped` via rustybuzz.
 //! Executado entre layout e export. ADR-0120 Opção A1.
 
@@ -15,7 +17,7 @@ use unicode_bidi::BidiInfo;
 use typst_core::contracts::world::World;
 use typst_core::entities::font_book::FontVariant;
 use typst_core::entities::font_list::{FontList, FontNamePattern};
-use typst_core::entities::layout_types::{FrameItem, Page, PagedDocument, Point, ShapedGlyph};
+use typst_core::entities::layout_types::{FrameItem, Page, PagedDocument, Point, Pt, ShapedGlyph};
 
 /// Converte todos os `FrameItem::Text` de um `PagedDocument` em
 /// `FrameItem::TextShaped` via rustybuzz.
@@ -30,30 +32,39 @@ pub fn shape_document(world: &dyn World, mut doc: PagedDocument) -> PagedDocumen
 }
 
 fn shape_page(world: &dyn World, page: &mut Page) {
-    for item in page.items.iter_mut() {
-        shape_item(world, item);
+    let mut new_items = Vec::with_capacity(page.items.len());
+    for item in page.items.drain(..) {
+        new_items.extend(shape_item(world, item));
     }
+    page.items = new_items;
 }
 
-fn shape_item(world: &dyn World, item: &mut FrameItem) {
-    match item {
+/// Processa um `FrameItem`, devolvendo 1 ou mais itens (fallback por
+/// caractere pode expandir um `Text` em vários `TextShaped` consecutivos).
+fn shape_item(world: &dyn World, mut item: FrameItem) -> Vec<FrameItem> {
+    match &mut item {
         FrameItem::Text { pos, text, style } if style.font.is_some() => {
             if let Some(shaped) = try_shape(world, pos, text, style) {
-                *item = shaped;
+                return shaped;
             }
         }
         FrameItem::Group { items, .. } => {
-            for child in items.iter_mut() {
-                shape_item(world, child);
+            let mut new_children = Vec::with_capacity(items.len());
+            for child in items.drain(..) {
+                new_children.extend(shape_item(world, child));
             }
+            *items = new_children;
         }
         FrameItem::Link { items, .. } => {
-            for child in items.iter_mut() {
-                shape_item(world, child);
+            let mut new_children = Vec::with_capacity(items.len());
+            for child in items.drain(..) {
+                new_children.extend(shape_item(world, child));
             }
+            *items = new_children;
         }
         _ => {}
     }
+    vec![item]
 }
 
 fn try_shape(
@@ -61,16 +72,14 @@ fn try_shape(
     pos:   &Point,
     text:  &ecow::EcoString,
     style: &typst_core::entities::layout_types::TextStyle,
-) -> Option<FrameItem> {
+) -> Option<Vec<FrameItem>> {
     let font_list = style.font.as_ref()?;
 
-    let slot_idx = resolve_slot(world, font_list)?;
-    let font = world.font(slot_idx)?;
-    let font_data = font.as_slice();
-
-    let rb_face = rustybuzz::Face::from_slice(font_data, 0)?;
-    // P485 — extrair units_per_em (rustybuzz expõe como i32; cast para u16)
-    let units_per_em = rb_face.units_per_em().max(1) as u16;
+    // P515 — resolver todas as fontes candidatas da FontList.
+    let candidates = resolve_candidates(world, font_list)?;
+    if candidates.is_empty() {
+        return None;
+    }
 
     // P484 — dividir em runs bidirectionais antes de shape
     let runs = bidi_runs(text.as_str());
@@ -78,54 +87,142 @@ fn try_shape(
         return None;
     }
 
-    let mut all_glyphs: Vec<ShapedGlyph> = Vec::new();
+    let mut items = Vec::new();
+    let mut x_offset = Pt(0.0);
 
     for run in &runs {
-        let mut buffer = UnicodeBuffer::new();
-        buffer.push_str(&run.text);
-        // Direcção explícita (não guess) — ADR-0120 Fase 3
-        if run.rtl {
-            buffer.set_direction(Direction::RightToLeft);
-        } else {
-            buffer.set_direction(Direction::LeftToRight);
-        }
-        // P486 — liga/kern/calt activados por defeito via HORIZONTAL_FEATURES
-        // (rustybuzz 0.20.1 ot_shape.rs:86-91). features = &[] é suficiente.
-        let output    = rustybuzz::shape(&rb_face, &[], buffer);
-        let infos     = output.glyph_infos();
-        let positions = output.glyph_positions();
+        for subrun in split_run_by_font(run, world, &candidates) {
+            let candidate = &candidates[subrun.candidate_idx];
+            let font = world.font(candidate.slot_idx)?;
+            let rb_face = rustybuzz::Face::from_slice(font.as_slice(), 0)?;
 
-        let run_glyphs: Vec<ShapedGlyph> = infos.iter().zip(positions.iter())
-            .map(|(info, pos_g)| {
-                // cluster é offset no run; converter para offset no texto original
-                let abs_cluster = run.byte_start as u32 + info.cluster;
+            let mut buffer = UnicodeBuffer::new();
+            buffer.push_str(&subrun.text);
+            if run.rtl {
+                buffer.set_direction(Direction::RightToLeft);
+            } else {
+                buffer.set_direction(Direction::LeftToRight);
+            }
+            let output    = rustybuzz::shape(&rb_face, &[], buffer);
+            let infos     = output.glyph_infos();
+            let positions = output.glyph_positions();
+
+            let mut run_glyphs: Vec<ShapedGlyph> = Vec::with_capacity(infos.len());
+            let mut run_width = 0i32;
+            for (info, pos_g) in infos.iter().zip(positions.iter()) {
+                let abs_cluster = run.byte_start as u32
+                                + subrun.byte_start as u32
+                                + info.cluster;
                 let char_code = byte_idx_to_char(text.as_str(), abs_cluster as usize)
                     .unwrap_or('\u{FFFD}');
-                ShapedGlyph {
+                run_glyphs.push(ShapedGlyph {
                     glyph_id:  info.glyph_id as u16,
                     x_advance: pos_g.x_advance,
                     x_offset:  pos_g.x_offset,
                     y_offset:  pos_g.y_offset,
                     cluster:   abs_cluster,
                     char_code,
+                });
+                run_width += pos_g.x_advance;
+            }
+
+            if !run_glyphs.is_empty() {
+                let subrun_width_pt = run_width as f64 * style.size.0 / candidate.units_per_em as f64;
+                let item_pos = Point {
+                    x: Pt(pos.x.0 + x_offset.0),
+                    y: pos.y,
+                };
+                x_offset.0 += subrun_width_pt;
+
+                items.push(FrameItem::TextShaped {
+                    pos:    item_pos,
+                    glyphs: run_glyphs,
+                    style:  style.clone(),
+                    text:   text.clone(),
+                    units_per_em: candidate.units_per_em,
+                });
+            }
+        }
+    }
+
+    if items.is_empty() {
+        None
+    } else {
+        Some(items)
+    }
+}
+
+/// Candidata a fonte para shaping/fallback.
+struct FontCandidate {
+    slot_idx:     usize,
+    units_per_em: u16,
+}
+
+fn resolve_candidates(world: &dyn World, font_list: &FontList) -> Option<Vec<FontCandidate>> {
+    let variant = FontVariant::default();
+    let book = world.book();
+    let mut candidates = Vec::new();
+    for family in font_list.as_slice() {
+        if let Some(idx) = book.select_pattern(&family.name, &variant) {
+            if let Some(font) = world.font(idx) {
+                if let Ok(face) = ttf_parser::Face::parse(font.as_slice(), 0) {
+                    let units_per_em = face.units_per_em().max(1) as u16;
+                    candidates.push(FontCandidate { slot_idx: idx, units_per_em });
                 }
-            })
-            .collect();
+            }
+        }
+    }
+    if candidates.is_empty() {
+        None
+    } else {
+        Some(candidates)
+    }
+}
 
-        all_glyphs.extend(run_glyphs);
+/// Sub-run dentro de um BidiRun, todos os caracteres cobertos pela mesma
+/// fonte candidata.
+struct SubRun {
+    text:              String,
+    byte_start:        usize,
+    candidate_idx:     usize,
+}
+
+fn split_run_by_font(run: &BidiRun, world: &dyn World, candidates: &[FontCandidate]) -> Vec<SubRun> {
+    let mut result = Vec::new();
+    let mut current_start = 0usize;
+    let mut current_candidate = None::<usize>;
+
+    for (byte_offset, c) in run.text.char_indices() {
+        let covering = candidates.iter().position(|cand| {
+            let Some(font) = world.font(cand.slot_idx) else { return false; };
+            let Some(face) = ttf_parser::Face::parse(font.as_slice(), 0).ok() else { return false; };
+            face.glyph_index(c).is_some()
+        });
+        // Se nenhuma fonte cobrir, fallback para a primeira candidata (notdef).
+        let candidate_idx = covering.unwrap_or(0);
+
+        if Some(candidate_idx) != current_candidate {
+            if let Some(idx) = current_candidate {
+                result.push(SubRun {
+                    text: run.text[current_start..byte_offset].to_owned(),
+                    byte_start: current_start,
+                    candidate_idx: idx,
+                });
+            }
+            current_start = byte_offset;
+            current_candidate = Some(candidate_idx);
+        }
     }
 
-    if all_glyphs.is_empty() {
-        return None;
+    if let Some(idx) = current_candidate {
+        result.push(SubRun {
+            text: run.text[current_start..].to_owned(),
+            byte_start: current_start,
+            candidate_idx: idx,
+        });
     }
 
-    Some(FrameItem::TextShaped {
-        pos:    *pos,
-        glyphs: all_glyphs,
-        style:  style.clone(),
-        text:   text.clone(),
-        units_per_em,
-    })
+    result
 }
 
 // ── P484 — runs bidirectionais ──────────────────────────────────────────────
@@ -167,19 +264,6 @@ fn bidi_runs(text: &str) -> Vec<BidiRun> {
 
 // ── fim P484 ─────────────────────────────────────────────────────────────────
 
-fn resolve_slot(world: &dyn World, font_list: &FontList) -> Option<usize> {
-    let variant = FontVariant::default();
-    let book = world.book();
-    for family in font_list.as_slice() {
-        if let Some(idx) = book.select_pattern(&family.name, &variant) {
-            if world.font(idx).is_some() {
-                return Some(idx);
-            }
-        }
-    }
-    None
-}
-
 fn byte_idx_to_char(s: &str, byte_idx: usize) -> Option<char> {
     s.get(byte_idx..)?.chars().next()
 }
@@ -193,6 +277,8 @@ mod tests {
     use typst_core::entities::file_id::FileId;
     use typst_core::entities::source::Source;
     use typst_core::entities::world_types::{Bytes, Datetime, FileResult, Font, Library};
+    use crate::world::SystemWorld;
+    use std::path::PathBuf;
 
     struct MockWorld {
         book: FontBook,
@@ -220,6 +306,27 @@ mod tests {
 
     fn doc_with(items: Vec<FrameItem>) -> PagedDocument {
         PagedDocument::new(vec![Page { width: 595.0, height: 842.0, items }])
+    }
+
+    struct TempDir(PathBuf);
+    impl TempDir {
+        fn path(&self) -> &std::path::Path { &self.0 }
+    }
+    impl Drop for TempDir {
+        fn drop(&mut self) { let _ = std::fs::remove_dir_all(&self.0); }
+    }
+
+    fn tempfile_write(name: &str, content: &str) -> TempDir {
+        let path = std::env::temp_dir().join(format!(
+            "typst-shaper-test-{}",
+            std::time::SystemTime::now()
+                .duration_since(std::time::UNIX_EPOCH)
+                .map(|d| d.subsec_nanos())
+                .unwrap_or(0)
+        ));
+        std::fs::create_dir_all(&path).unwrap();
+        std::fs::write(path.join(name), content).unwrap();
+        TempDir(path)
     }
 
     #[test]
@@ -334,15 +441,16 @@ mod tests {
     #[test]
     fn p484_try_shape_rtl_sem_fonte_nao_panic() {
         // Shape de texto árabe sem fonte carregada → sem panic (fallback Text)
-        let mut item = FrameItem::Text {
+        let item = FrameItem::Text {
             pos:   Point { x: Pt(0.0), y: Pt(0.0) },
             text:  EcoString::from("مرحبا"),
             style: TextStyle::default(),
         };
         // style.font = None → shaper guard (is_some() == false) → item inalterado
-        shape_item(&empty_world(), &mut item);
+        let result = shape_item(&empty_world(), item);
         // o critério é simplesmente não entrar em panic
-        assert!(matches!(item, FrameItem::Text { .. }), "sem fonte: preservado como Text");
+        assert_eq!(result.len(), 1);
+        assert!(matches!(result[0], FrameItem::Text { .. }), "sem fonte: preservado como Text");
     }
 
     #[test]
@@ -389,6 +497,69 @@ mod tests {
         // (ot_shape.rs:86-91). Nenhuma user feature é necessária — &[] é suficiente.
         let features: &[rustybuzz::Feature] = &[];
         assert_eq!(features.len(), 0, "P486: features user vazias — defaults de rustybuzz aplicam-se");
+    }
+
+    // ── P515 — font fallback por caractere ──────────────────────────────────
+
+    #[test]
+    fn p515_resolve_candidates_sem_fontes_retorna_none() {
+        let world = empty_world();
+        let font_list = FontList::single(EcoString::from("Helvetica"));
+        assert!(resolve_candidates(&world, &font_list).is_none());
+    }
+
+    #[test]
+    fn p515_shape_document_real_font_produz_textshaped() {
+        // Carrega uma fonte real do sistema (fallback se ausente).
+        let candidates = load_real_font_candidates();
+        if candidates.is_empty() {
+            return; // skip em ambientes sem fontes
+        }
+
+        let mut book = FontBook::new();
+        // O MockWorld precisa de um FontBook que corresponda aos slots.
+        // Para simplificar, usamos SystemWorld com with_system_fonts.
+        let dir = tempfile_write("main.typ", "text");
+        let world = SystemWorld::new(dir.path(), "main.typ")
+            .unwrap()
+            .with_system_fonts();
+        if world.book().is_empty() {
+            return; // skip
+        }
+
+        let mut style = TextStyle::default();
+        // Usa a primeira família disponível no sistema.
+        let family = EcoString::from(world.book().infos()[0].family.clone());
+        style.font = Some(FontList::single(family));
+        style.size = Pt(12.0);
+
+        let item = FrameItem::Text {
+            pos:   Point { x: Pt(0.0), y: Pt(0.0) },
+            text:  EcoString::from("Hello"),
+            style,
+        };
+        let result = shape_item(&world, item);
+        assert!(!result.is_empty(), "deve produzir pelo menos 1 TextShaped");
+        assert!(result.iter().all(|it| matches!(it, FrameItem::TextShaped { .. })),
+                "todos os resultados devem ser TextShaped");
+    }
+
+    // Helper: carrega bytes de uma fonte real do sistema para mock.
+    // Retorna (slot_idx, bytes). Usado apenas se houver fontes disponíveis.
+    fn load_real_font_candidates() -> Vec<(usize, Vec<u8>)> {
+        let mut result = Vec::new();
+        for path in [
+            "/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf",
+            "/usr/share/fonts/opentype/urw-base35/C059-Roman.otf",
+        ] {
+            if let Ok(bytes) = std::fs::read(path) {
+                if ttf_parser::Face::parse(&bytes, 0).is_ok() {
+                    result.push((0, bytes));
+                    break;
+                }
+            }
+        }
+        result
     }
 
     #[test]

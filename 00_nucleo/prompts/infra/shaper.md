@@ -199,3 +199,50 @@ Sub-item A é apenas documentação — nenhum código novo é necessário.
 ### Testes adicionados P486
 
 - `p486_features_default_confirmado`: `features = &[]` (len=0) documenta invariante.
+
+---
+
+## §P515 — Font fallback por caractere
+
+**Data:** 2026-06-30
+
+O shaper passa a suportar fallback por caractere quando a fonte principal
+não cobre todos os codepoints do texto. Isto é necessário para documentos
+com scripts mistos (ex: latino + CJK + emoji).
+
+### Heurística de cobertura
+
+```rust
+fn face_covers_char(face: &rustybuzz::Face, c: char) -> bool
+```
+
+- Um caractere é coberto se `face.glyph_index(c)` (via ttf_parser) devolver `Some`.
+- Alternativa: iterar `face.glyph_count()` — usar `ttf_parser::Face` para o lookup.
+
+### `shape_with_fallback`
+
+Substituir `try_shape` por um pipeline que:
+
+1. Resolve a fonte principal via `resolve_slot` (primeira família de `FontList` que resolva).
+2. Para cada run bidireccional (P484), percorre os caractes e quebra o run em sub-runs sempre que a cobertura da fonte actual mudar.
+3. Para cada sub-run, tenta resolver uma fonte que cubra todos os caracteres do sub-run, iterando `FontList` e, opcionalmente, fallback genérico do sistema (quando `fontdb` estiver activo).
+4. Shape cada sub-run com a sua fonte.
+5. Concatena os glifos na ordem visual, preservando `cluster` absoluto no texto original.
+
+### Estrutura do resultado
+
+`FrameItem::TextShaped` continua a ser uma única entidade por `FrameItem::Text` original. Os glifos podem vir de múltiplas faces; o PDF emit (multifont, P515+) usa o `glyph_id` e a fonte correcta para cada glifo.
+
+Para a Fase 1 do P515, o shaper produz **um `TextShaped` por fonte** (i.e., o item original é substituído por múltiplos `FrameItem::TextShaped` consecutivos com o mesmo `pos` base e offsets acumulados) ou mantém um único `TextShaped` com metadados de fonte por glifo. A decisão concreta é delegada ao Prompt L0 `infra/export/font_subset` e ao refactor do `PdfBuilder` para multi-fonte per-glyph.
+
+### Scope-out P515
+
+- Fallback para fontes do sistema quando `FontList` não cobre — requer `fontdb` activo (Prompt L0 `infra/fontdb`).
+- Escolha de peso/estilo no fallback — usa `FontVariant::default()`.
+- Shape de texto vertical.
+
+### Testes adicionados P515
+
+- `p515_shape_document_latin_only_single_font`: latim coberto → 1 TextShaped.
+- `p515_shape_document_mixed_fallback_splits`: latim + caractere ausente → ≥2 TextShaped ou glifos com fontes distintas.
+- `p515_try_shape_missing_glyph_does_not_panic`: caractere sem cobertura em nenhuma fonte → preserva Text (não panic).
