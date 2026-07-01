@@ -306,12 +306,15 @@ if !axis_vars.is_empty() {
 
 ### Limitações do MVP
 
-- O subsetter (`oxifont-subset`) preserva `fvar`/`gvar`/`avar`/`HVAR`, pelo que
-  a fonte VF é embutida no PDF sem corromper variação.
-- O export PDF calcula `/W` a partir da fonte subsetada na instância default;
-  visualizar variações no PDF requer trabalho adicional no export (instanciar
-  ou emitir coordenadas de eixo). O MVP garante que o **shaper** aplica a
-  variação, corrigindo a regressão de linguagem `text(weight: 700)`.
+- O shaper aplica variações nos avanços e posicionamentos, mas o **export PDF
+  não as reflecte no output visual**. O `resolve_font` da pipeline usa
+  `FontVariant::default()` e `collect_fonts_from_doc` agrupa por `FontList`
+  (sem weight/style), pelo que todos os pesos partilham a mesma fonte subsetada
+  na instância default. Um leitor de PDF não varia contornos embutidos.
+- Portanto, `text(weight: 700)` numa fonte VF produz avanços de bold mas
+  **contornos de regular** — regressão de linguagem no output visual.
+- Fix real (P528) requer instanciar a VF estaticamente para cada combinação
+  peso/estilo usada no documento e embutir cada instância separadamente.
 
 ### Testes adicionados P525
 

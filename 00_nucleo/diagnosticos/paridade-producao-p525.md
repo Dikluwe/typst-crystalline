@@ -97,7 +97,9 @@ Resultado:
 
 A propriedade `stretch` não foi testada porque a linguagem a rejeita (`unknown font dict field` em P414).
 
-**Limitação observada:** o shaper agora aplica variações correctamente (confirmado pelo teste unitário), mas o export PDF calcula `/W` a partir da instância default da fonte subsetada. Visualmente, o PDF ainda renderiza com peso default, embora as posições internas de layout tenham sido calculadas com o peso correcto. Esta é uma pendência do export, não do shaper.
+**Limitação observada / regressão de linguagem:** o shaper aplica variações correctamente nos avanços (confirmado pelo teste unitário), mas o export PDF embebe sempre a **instância default** dos contornos da fonte. O `resolve_font` em `03_infra/src/pipeline.rs:496` usa `FontVariant::default()` e `collect_fonts_from_doc` agrupa por `FontList` (sem weight/style), pelo que todos os pesos partilham a mesma fonte subsetada. Um leitor de PDF não tem mecanismo para variar contornos embutidos, pelo que `text(weight: 700)` numa fonte VF produz avanços de bold mas **contornos de regular** — visualmente indistinguível de `weight: 400`.
+
+Classificação ADR-0107: **regressão de linguagem** — a semântica `weight:` é ignorada no output visual. Fix real requer instanciar a VF estaticamente para cada combinação peso/estilo usada no documento (como vanilla faz) e embutir cada instância separadamente.
 
 ---
 

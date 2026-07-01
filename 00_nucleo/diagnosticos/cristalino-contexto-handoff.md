@@ -161,7 +161,7 @@ python3 tools/perf/benchmark-p507.py
 | System fonts por defeito | ✅ Fechado em P517 | CLI default |
 | Marcação de subset | ✅ Fechado em P517 | `AAAAAA+` prefix |
 | CFF subsetting | ✅ Fechado em P523 | Funcional via `oxifont-subset`; polimento de descritor PDF (CID Type 0C) pendente sonda P524 se necessário |
-| Variation fonts (VF) | ✅ Fechado em P525 (MVP) | Shaper aplica `wght`/`ital` via `set_variations`; export PDF de variações visuais (coordenadas de eixo) pendente |
+| Variation fonts (VF) | ⚠️ Parcial — P525 (MVP shaper) | Shaper aplica `wght`/`ital` correctamente nos avanços; **export PDF embebe sempre a instância default**, pelo que `text(weight: 700)` numa fonte VF não é visualmente bold. Fix real requer instanciar VF estaticamente por combinação de peso/estilo usada no documento. |
 | Kerning no subset | ✅ Fechado em P520/P521 | Delta model no operador TJ; validado com corpus dedicado (lab/parity/corpus/p520/) |
 
 ### 5.2 Fora de Escopo (Declarado)
@@ -182,13 +182,14 @@ O usuário deve escolher a direção. Opções:
 
 | # | Passo | Tamanho | Descrição |
 |---|-------|---------|-----------|
-| A | **P519** | L | Lookahead Layout Engine (inovação — já escrito, aguardando execução) |
-| B | **P520** | M | Publicação / artigo sobre arquitetura cristalina |
-| C | **Trilha 6** | XL | CFF subsetting (completa paridade de produção) |
-| D | **Trilha 7** | L | Variation fonts (VF) support |
-| E | **Otimização** | M | Cache de shaping, paralelização de subsetting |
-| F | **Nova funcionalidade** | ? | A definir pelo usuário |
-| G | **Manutenção** | S | Bug fixes, refatoração, documentação |
+| A | **P528** | S–M | Fix real de Variation Fonts: instanciar VF estaticamente por combinação peso/estilo; subsetar cada instância separadamente; referenciar a instância correcta no PDF |
+| B | **P519** | L | Lookahead Layout Engine (inovação — já escrito, aguardando execução) |
+| C | **P520** | M | Publicação / artigo sobre arquitetura cristalina |
+| D | **Trilha 6** | XL | CFF subsetting (completa paridade de produção) |
+| E | **Trilha 7** | L | Variation fonts (VF) support |
+| F | **Otimização** | M | Cache de shaping, paralelização de subsetting |
+| G | **Nova funcionalidade** | ? | A definir pelo usuário |
+| H | **Manutenção** | S | Bug fixes, refatoração, documentação |
 
 **Recomendação do assistente:** O benchmark P518 confirma que o cristalino é competitivo (mediana 1.10×). O Lookahead (P519) é a inovação mais impactante já planejada. Se o usuário quer provar superioridade sobre vanilla, P519 é o caminho.
 
