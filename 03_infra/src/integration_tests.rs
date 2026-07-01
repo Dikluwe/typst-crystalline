@@ -2762,10 +2762,15 @@ mod integration {
              export_pdf_with_font preservado); encontradas {}", n_type0);
         // Nome canónico do single-font path = "/CrystallineFont"
         // (sem sufixo numérico). Multi-font path usaria "CrystallineFont1".
-        assert!(blob.contains("/BaseFont /CrystallineFont\n")
-                 || blob.contains("/BaseFont /CrystallineFont "),
+        // P517 — aceita prefixo de subset AAAAAA+CrystallineFont.
+        assert!(
+            blob.contains("/BaseFont /CrystallineFont\n")
+                || blob.contains("/BaseFont /CrystallineFont ")
+                || blob.contains("+CrystallineFont\n")
+                || blob.contains("+CrystallineFont "),
             "single-font path usa nome canónico /CrystallineFont \
-             (não /CrystallineFont1)");
+             (não /CrystallineFont1)"
+        );
     }
 
     #[test]

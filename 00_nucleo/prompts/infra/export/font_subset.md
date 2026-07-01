@@ -90,6 +90,9 @@ Então retorna Some(bytes) contendo apenas .notdef
 - `PdfBuilder` usa subsetting quando possível.
 - Testes unitários para subset de TrueType e fallback de CFF.
 - Teste de integração: PDF gerado mantém texto seleccionável/copiável (ToUnicode CMap válido).
+- Quando o subsetting é aplicado, o nome base da fonte no PDF
+  (`/BaseFont`) recebe prefixo `AAAAAA+` para marcar o subset
+  conforme convenção dos produtores PDF (Passo 517).
 - `crystalline-lint .` com zero violations.
 
 ## Scope-outs

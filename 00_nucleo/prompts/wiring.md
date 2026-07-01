@@ -1,5 +1,5 @@
 # Wiring — typst-wiring
-Hash do Código: 145e443b
+Hash do Código: e5646088
 
 ## Módulo
 `04_wiring/src/main.rs`
@@ -21,6 +21,8 @@ Passos relevantes:
   directamente (sem `input.parent()` local).
 - **Passo 122** (ADR-0051): `--font-path` (repetível) em L2; L4
   invoca `typst_infra::fonts::discover_fonts` + `.with_fonts(...)`.
+- **Passo 517**: L4 activa descoberta de fontes do sistema por
+  defeito via `SystemWorld::with_fonts_and_system(&font_paths)`.
 
 ## Contrato
 
@@ -38,9 +40,11 @@ typst --version
 1. `typst_shell::cli::parse()` → `RunIntent { input, output, root,
    font_paths, colored }`.
 2. `main_path = input.file_name()` — falha → exit 2.
-3. `font_slots = discover_fonts(&font_paths)` (L3).
-4. `SystemWorld::new(&root, &main_path).with_fonts(font_slots)` →
-   `World`. Falha de `new` → exit 2.
+3. `SystemWorld::new(&root, &main_path)` → `SystemWorld` (L3).
+   Falha de `new` → exit 2.
+4. `world.with_fonts_and_system(&font_paths)` → `World` (L3).
+   Combina fontes explicitamente passadas em `--font-path` com fontes
+   do sistema carregadas via `fontdb`.
 5. `world.source(world.main())` → `Source`.
 6. `compile_to_pdf_bytes(&world, &source)` (L3):
    - `eval` → `Module` + warnings.
@@ -94,5 +98,3 @@ Fora dos passos 113–122:
 - Virtualização de imports (resolução real contra `root`) — hoje
   `SystemWorld` ignora `root` para imports e usa `directory_of(
   current_file)`.
-- Descoberta de system fonts (hoje `discover_fonts` só varre
-  paths explícitos; vanilla varre também `fontdb::Database::load_system_fonts`).

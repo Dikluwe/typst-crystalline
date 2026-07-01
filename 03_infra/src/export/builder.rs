@@ -41,6 +41,13 @@ use super::{
 
 use crate::font_metrics::build_math_glyph_reverse_map;
 
+/// P517 — gera nome de fonte com prefixo de subset quando a fonte foi
+/// efectivamente subsetada. Usa o prefixo fixo `AAAAAA+` conforme
+/// convenção PDF para fontes subsetadas (ex: `AAAAAA+FontName`).
+fn subset_font_name(base_name: &str, _subset_data: &[u8]) -> String {
+    format!("AAAAAA+{}", base_name)
+}
+
 // ── Builder ────────────────────────────────────────────────────────────────
 
 pub(super) struct PdfBuilder {
@@ -242,9 +249,16 @@ impl PdfBuilder {
             self.add_bytes(stream_id, obj);
         }
 
+        // P517 — nome com prefixo de subset quando aplicável.
+        let base_font_name = if glyph_mapping.is_empty() {
+            "CrystallineFont".to_string()
+        } else {
+            subset_font_name("CrystallineFont", &embed_font_data)
+        };
+
         // Type0 font (F1)
         self.add(font_id, format!(
-            "<< /Type /Font /Subtype /Type0 /BaseFont /CrystallineFont \
+            "<< /Type /Font /Subtype /Type0 /BaseFont /{base_font_name} \
                /Encoding /Identity-H \
                /DescendantFonts [{cidfont_id} 0 R] \
                /ToUnicode {to_unicode_id} 0 R >>"
@@ -252,7 +266,7 @@ impl PdfBuilder {
 
         // CIDFont
         self.add(cidfont_id, format!(
-            "<< /Type /Font /Subtype /CIDFontType2 /BaseFont /CrystallineFont \
+            "<< /Type /Font /Subtype /CIDFontType2 /BaseFont /{base_font_name} \
                /CIDSystemInfo << /Registry (Adobe) /Ordering (Identity) /Supplement 0 >> \
                /FontDescriptor {font_descriptor_id} 0 R \
                /DW 500 \
@@ -261,7 +275,7 @@ impl PdfBuilder {
 
         // FontDescriptor
         self.add(font_descriptor_id, format!(
-            "<< /Type /FontDescriptor /FontName /CrystallineFont \
+            "<< /Type /FontDescriptor /FontName /{base_font_name} \
                /Flags 32 \
                /FontBBox [-1000 -200 2000 900] \
                /ItalicAngle 0 /Ascent 800 /Descent -200 \
@@ -426,9 +440,15 @@ impl PdfBuilder {
             let descriptor_id = type0_id + 2;
             let stream_id     = type0_id + 3;
             let to_unicode_id = type0_id + 4;
-            let name = format!("CrystallineFont{}", fi + 1);
             let widths = &per_font_widths[fi];
             let mappings = &per_font_mappings[fi];
+            let glyph_mapping = &per_font_glyph_mapping[fi];
+            let base_name = format!("CrystallineFont{}", fi + 1);
+            let name = if glyph_mapping.is_empty() {
+                base_name.clone()
+            } else {
+                subset_font_name(&base_name, font_data)
+            };
 
             // Type0
             self.add(type0_id, format!(
@@ -457,7 +477,7 @@ impl PdfBuilder {
                    /FontFile2 {stream_id} 0 R >>"
             ));
 
-            // FontFile2 stream — fonte completa, sem subsetting (ADR-0027).
+            // FontFile2 stream — P516: usa subset se possível, senão fonte completa.
             let font_len = font_data.len();
             let mut font_stream = format!(
                 "<< /Length {font_len} /Subtype /CIDFontType2 >>\nstream\n"

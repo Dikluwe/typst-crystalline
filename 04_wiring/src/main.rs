@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/wiring.md
-//! @prompt-hash 63faaf24
+//! @prompt-hash ae486d4c
 //! @layer L4
 //! @updated 2026-06-17
 //!
@@ -21,7 +21,7 @@
 //! - Passo 121 (ADR-0051): `--root` resolvido em L2; L4 apenas consome
 //!   `intent.root` — sem cálculo local de parent.
 //! - Passo 122 (ADR-0051): `--font-path` (repetível) resolvido em L2;
-//!   L4 invoca `discover_fonts` + `.with_fonts(...)`.
+//!   L4 invoca `.with_fonts_and_system(...)` (P517).
 //!
 //! Exit codes:
 //! - 0: sucesso.
@@ -46,7 +46,6 @@ use std::process::ExitCode;
 use typst_core::contracts::world::World;
 use typst_core::entities::source::Source;
 use typst_core::entities::source_result::SourceDiagnostic;
-use typst_infra::fonts::discover_fonts;
 use typst_infra::pipeline::{compile_to_pdf_bytes_full_error, compile_to_pdf_bytes_with_timings_full_error};
 use typst_infra::world::SystemWorld;
 use typst_shell::cli::{self, RunIntent};
@@ -65,10 +64,10 @@ fn main() -> ExitCode {
         }
     };
 
-    let font_slots = discover_fonts(&font_paths);
-
+    // P517 — fontes do sistema activas por defeito; `--font-path` adiciona
+    // fontes de projecto às fontes do sistema.
     let world = match SystemWorld::new(&root, &main_path) {
-        Ok(w) => w.with_fonts(font_slots),
+        Ok(w) => w.with_fonts_and_system(&font_paths),
         Err(e) => {
             eprintln!("error: {}", e);
             return ExitCode::from(2);
