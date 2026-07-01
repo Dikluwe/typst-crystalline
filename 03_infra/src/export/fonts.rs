@@ -15,7 +15,7 @@
 //! Conteúdo bit-exact pré e pós migração — comportamento idêntico.
 
 #![allow(deprecated)] // P483 — FrameItem::Text fallback path legítimo
-use std::collections::{BTreeSet, HashMap};
+use std::collections::{BTreeMap, BTreeSet, HashMap};
 
 use ttf_parser::Face;
 use typst_core::entities::layout_types::{FrameItem, PagedDocument};
@@ -99,6 +99,38 @@ pub(super) fn collect_glyph_ids(doc: &PagedDocument) -> BTreeSet<u16> {
         walk(&page.items, &mut ids);
     }
     ids
+}
+
+/// P520 — coleciona os glifos reais produzidos pelo shaper, juntamente com o
+/// caractere representativo do cluster a que pertencem.
+///
+/// Para ligatures (ex.: "fi" → um único glifo), o `char_code` é o primeiro
+/// caractere do cluster (o `ShapedGlyph` já o transporta). Isto permite
+/// incluir o glifo de ligature no subset e registar um mapeamento ToUnicode
+/// parcial sem duplicar a lógica de walk do documento.
+pub(super) fn collect_shaped_glyph_mappings(doc: &PagedDocument) -> BTreeMap<u16, char> {
+    fn walk(items: &[FrameItem], out: &mut BTreeMap<u16, char>) {
+        for item in items {
+            match item {
+                FrameItem::TextShaped { glyphs, .. } => {
+                    for g in glyphs {
+                        // Preferir o primeiro caractere do cluster; se já
+                        // existir uma entrada para este glyph_id, manter a
+                        // primeira encontrada (ordem de walk é estável).
+                        out.entry(g.glyph_id).or_insert(g.char_code);
+                    }
+                }
+                FrameItem::Group { items: child, .. }
+                | FrameItem::Link { items: child, .. } => walk(child, out),
+                _ => {}
+            }
+        }
+    }
+    let mut out = BTreeMap::new();
+    for page in &doc.pages {
+        walk(&page.items, &mut out);
+    }
+    out
 }
 
 /// Para um conjunto de chars, retorna Vec<(char, glyph_id)>.

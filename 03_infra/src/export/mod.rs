@@ -31,8 +31,9 @@ use self::stream::{
     FontScenario, PageContext,
 };
 use self::fonts::{
-    collect_codepoints, collect_glyph_ids, escape_pdf_string,
-    map_chars_to_glyphs, text_to_hex_string, to_unicode_cmap, widths_array,
+    collect_codepoints, collect_glyph_ids, collect_shaped_glyph_mappings,
+    escape_pdf_string, map_chars_to_glyphs, text_to_hex_string,
+    to_unicode_cmap, widths_array,
 };
 use self::subset::remap_glyph_id;
 use self::gradients::{

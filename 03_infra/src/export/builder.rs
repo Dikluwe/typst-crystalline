@@ -25,15 +25,16 @@ use ecow::EcoString;
 use super::{
     adaptive_n_for_stops, apply_parent_transform, build_jpeg_xobject,
     build_page_stream, build_png_rgb_xobject, build_png_smask_xobject,
-    collect_codepoints, collect_glyph_ids, compute_axial_coords,
-    compute_coons_patches_n_stops, compute_coons_patches_n_stops_extended,
-    compute_radial_coords, emit_conic_coons_stream_cmyk,
-    emit_conic_coons_stream_rgb, emit_function_dict, emit_function_dict_cmyk,
-    jpeg_color_space, map_chars_to_glyphs, multispace_sample_stops,
-    multispace_sample_stops_conic, multispace_sample_stops_linear_cmyk,
-    multispace_sample_stops_radial, multispace_sample_stops_radial_cmyk,
-    pattern_resources_for_page, resolve_relative, scan_all_gradients,
-    scan_all_images, subset::{remap_glyph_id, subset_font_with_mapping, FontSubset},
+    collect_codepoints, collect_glyph_ids, collect_shaped_glyph_mappings,
+    compute_axial_coords, compute_coons_patches_n_stops,
+    compute_coons_patches_n_stops_extended, compute_radial_coords,
+    emit_conic_coons_stream_cmyk, emit_conic_coons_stream_rgb,
+    emit_function_dict, emit_function_dict_cmyk, jpeg_color_space,
+    map_chars_to_glyphs, multispace_sample_stops, multispace_sample_stops_conic,
+    multispace_sample_stops_linear_cmyk, multispace_sample_stops_radial,
+    multispace_sample_stops_radial_cmyk, pattern_resources_for_page,
+    resolve_relative, scan_all_gradients, scan_all_images,
+    subset::{remap_glyph_id, subset_font_with_mapping, FontSubset},
     text_to_hex_string, to_unicode_cmap, widths_array,
     xobject_resources_for_page, FontScenario, GradientObject,
     GradientObjectKind, ImageRef, ImageXObject, PageContext, PatternRef,
@@ -69,9 +70,10 @@ impl PdfBuilder {
         &mut self,
         font_data: &[u8],
         char_to_old_gid: &std::collections::BTreeMap<char, u16>,
+        additional_gids: &std::collections::BTreeSet<u16>,
     ) -> Option<FontSubset> {
         let t0 = std::time::Instant::now();
-        let result = subset_font_with_mapping(font_data, char_to_old_gid);
+        let result = subset_font_with_mapping(font_data, char_to_old_gid, additional_gids);
         self.subset_ms += duration_ms(t0.elapsed());
         result
     }
@@ -185,6 +187,12 @@ impl PdfBuilder {
         let chars = collect_codepoints(doc);
         let mut mappings = map_chars_to_glyphs(face, &chars);
 
+        // P520 — glifos reais produzidos pelo shaper (incluindo ligatures como
+        // "fi" → gid_ligature). O char_code é o primeiro caractere do cluster.
+        // Estas entradas têm prioridade sobre o mapeamento codepoint→glyph
+        // da fonte porque reflectem o glifo efectivamente usado.
+        let shaped_mappings = collect_shaped_glyph_mappings(doc);
+
         // Passo 45 — DEBT-9: adicionar glifos variantes (FrameItem::Glyph) ao ToUnicode.
         // O dicionário reverso mapeia glyph_id → char base para caracteres extensíveis.
         let glyph_reverse = build_math_glyph_reverse_map(face);
@@ -206,10 +214,18 @@ impl PdfBuilder {
         }
 
         // P516 — subsetting TrueType/OpenType.
-        let char_to_old_gid: std::collections::BTreeMap<char, u16> =
+        // P520: shaped glyphs sobrescrevem codepoints no char_to_old_gid para
+        // que ligatures sejam incluídas no subset e tenham ToUnicode parcial.
+        let mut char_to_old_gid: std::collections::BTreeMap<char, u16> =
             mappings.iter().copied().collect();
+        for (&old_gid, &ch) in &shaped_mappings {
+            char_to_old_gid.insert(ch, old_gid);
+        }
+        // P520 — todos os glyph IDs reais (incluindo ligatures com mesmo
+        // char_code representativo) devem ser preservados no subset.
+        let all_glyph_ids = collect_glyph_ids(doc);
         let (embed_font_data, glyph_mapping) =
-            match self.measure_subset(font_data, &char_to_old_gid) {
+            match self.measure_subset(font_data, &char_to_old_gid, &all_glyph_ids) {
                 Some(FontSubset { data, mapping }) => {
                     if Face::parse(&data, 0).is_ok() {
                         (data, mapping)
@@ -362,6 +378,9 @@ impl PdfBuilder {
         // mapping (chars partilhados; gids específicos da face).
         let chars = collect_codepoints(doc);
         let glyph_ids = collect_glyph_ids(doc);
+        // P520 — glifos reais do shaper (ligatures) mapeados para o primeiro
+        // caractere do cluster. Prioridade idêntica a build_cidfont.
+        let shaped_mappings = collect_shaped_glyph_mappings(doc);
         let mut per_font_mappings: Vec<Vec<(char, u16)>> = Vec::with_capacity(n_fonts);
         let mut per_font_char_to_gid: Vec<HashMap<char, u16>> = Vec::with_capacity(n_fonts);
         let mut per_font_widths: Vec<String> = Vec::with_capacity(n_fonts);
@@ -391,11 +410,15 @@ impl PdfBuilder {
             }
 
             // P516 — subsetting por fonte.
-            let char_to_old_gid: std::collections::BTreeMap<char, u16> =
+            // P520: shaped glyphs (ligatures) têm prioridade no char_to_old_gid.
+            let mut char_to_old_gid: std::collections::BTreeMap<char, u16> =
                 mappings.iter().copied().collect();
+            for (&old_gid, &ch) in &shaped_mappings {
+                char_to_old_gid.insert(ch, old_gid);
+            }
             let font_index = per_font_mappings.len();
             let (embed_data, glyph_mapping) =
-                match self.measure_subset(&fonts[font_index].1, &char_to_old_gid) {
+                match self.measure_subset(&fonts[font_index].1, &char_to_old_gid, &glyph_ids) {
                     Some(FontSubset { data, mapping }) => {
                         if Face::parse(&data, 0).is_ok() {
                             (data, mapping)

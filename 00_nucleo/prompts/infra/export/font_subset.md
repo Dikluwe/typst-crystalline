@@ -35,11 +35,20 @@ O exportador actual já emite CIDFont + Identity-H e usa `FrameItem::TextShaped`
    pub fn subset_font_with_mapping(
        font_data: &[u8],
        char_to_old_gid: &std::collections::BTreeMap<char, u16>,
+       additional_gids: &std::collections::BTreeSet<u16>,
    ) -> Option<FontSubset>
    ```
    - Recebe os pares `(char, old_glyph_id)` usados no documento (obtidos dos `ShapedGlyph`).
+   - Recebe `additional_gids` — glyph IDs adicionais sem codepoint próprio que
+     devem ser preservados (ex.: glifos de ligature como "fi", "fl", "ffi").
    - Usa `oxifont_subset::subset_with_gid_set` para gerar o subset.
    - Reconstrói o mapa `old_gid → new_gid` parseando a cmap do subset resultante.
+   - Para `additional_gids` sem codepoint Unicode próprio (ex.: ligatures
+     como "fi", "fl", "ffi"), atribuir codepoints na Área de Uso Privado
+     (PUA) começando em `0xF0000` e incluí-los em `cp_to_old_gid` antes de
+     chamar o subsetter. Após o subset, obter o `new_gid` desses glifos
+     via `face.glyph_index(private_cp)`. Estes codepoints privados não devem
+     ser expostos no ToUnicode CMap do PDF.
    - Inclui `.notdef` (glyph ID 0) sempre no subset.
    - Retorna `None` se a fonte for CFF/OpenType sem `glyf` ou se o subsetting falhar.
 
@@ -106,3 +115,4 @@ Então retorna Some(bytes) contendo apenas .notdef
 | Data | Motivo | Arquivos afetados |
 |------|--------|-------------------|
 | 2026-06-30 | Criação — activação do subsetting para P515 | `font_subset.md` |
+| 2026-06-30 | P520 — mapping de `additional_gids` via codepoints PUA para ligatures | `font_subset.md`, `subset.rs` |

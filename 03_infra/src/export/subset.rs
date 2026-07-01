@@ -24,14 +24,16 @@ pub struct FontSubset {
 /// Cria um subset de fonte a partir dos glifos usados.
 ///
 /// `char_to_old_gid` mapeia cada codepoint usado no documento para o
-/// glyph ID original na fonte. Esta informação é obtida a partir dos
-/// `ShapedGlyph` produzidos pelo shaper (`char_code` + `glyph_id`).
+/// glyph ID original na fonte. `additional_gids` contém glyph IDs
+/// adicionais que devem ser preservados no subset mas não têm um
+/// codepoint único (ex.: glifos de ligature produzidos pelo shaper).
 ///
 /// Retorna `None` se a fonte for CFF/OpenType sem tabela `glyf` (scope-out
 /// do P516) ou se o subsetting falhar.
 pub fn subset_font_with_mapping(
     font_data: &[u8],
     char_to_old_gid: &BTreeMap<char, u16>,
+    additional_gids: &BTreeSet<u16>,
 ) -> Option<FontSubset> {
     // Sempre incluir .notdef (GID 0).
     let mut old_gid_set: BTreeSet<u16> = BTreeSet::new();
@@ -41,6 +43,9 @@ pub fn subset_font_with_mapping(
     for (&ch, &old_gid) in char_to_old_gid {
         old_gid_set.insert(old_gid);
         cp_to_old_gid.insert(ch as u32, old_gid);
+    }
+    for &old_gid in additional_gids {
+        old_gid_set.insert(old_gid);
     }
 
     let opts = oxifont_subset::SubsetOptions::default()
@@ -75,7 +80,7 @@ pub fn subset_font(font_data: &[u8], used_glyphs: &BTreeSet<u16>) -> Option<Vec<
         .filter(|&&gid| gid != 0)
         .map(|&gid| (char::from_u32(gid as u32).unwrap_or('\u{FFFD}'), gid))
         .collect();
-    subset_font_with_mapping(font_data, &char_to_old_gid).map(|s| s.data)
+    subset_font_with_mapping(font_data, &char_to_old_gid, &BTreeSet::new()).map(|s| s.data)
 }
 
 /// Aplica o mapa de remapeamento a um glyph ID original.
@@ -127,9 +132,21 @@ mod tests {
         let Some(data) = load_test_font() else { return };
         let mut map = BTreeMap::new();
         map.insert('A', 65u16);
-        let subset = subset_font_with_mapping(&data, &map).expect("subset deve funcionar");
+        let subset = subset_font_with_mapping(&data, &map, &BTreeSet::new()).expect("subset deve funcionar");
         assert_eq!(subset.mapping.get(&0), Some(&0));
         assert!(subset.mapping.contains_key(&65));
+    }
+
+    #[test]
+    fn p520_subset_mapping_includes_additional_gids() {
+        let Some(data) = load_test_font() else { return };
+        let mut map = BTreeMap::new();
+        map.insert('A', 65u16);
+        let mut additional = BTreeSet::new();
+        additional.insert(66);
+        let subset = subset_font_with_mapping(&data, &map, &additional).expect("subset deve funcionar");
+        let face = ttf_parser::Face::parse(&subset.data, 0).expect("subset parseável");
+        assert!(face.number_of_glyphs() >= 3, "deve incluir notdef + A + B adicional");
     }
 
     #[test]
