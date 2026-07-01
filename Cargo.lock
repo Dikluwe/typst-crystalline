@@ -1021,6 +1021,33 @@ dependencies = [
 ]
 
 [[package]]
+name = "oxifont-core"
+version = "0.2.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "ec9b90b9b985d9a5d6a7dd0362d748d94c3ff15a70d79ceb61735038779b3675"
+
+[[package]]
+name = "oxifont-parser"
+version = "0.2.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "a35255aa2f9564bf79b9c9fa49116b765c5bd96b1a500859db3d9655fa4c66a0"
+dependencies = [
+ "oxifont-core",
+ "ttf-parser",
+]
+
+[[package]]
+name = "oxifont-subset"
+version = "0.2.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "5be4a97fac60ca86aded9253f910b5bb5af77b9af7a98704f3f19e175e7b20f4"
+dependencies = [
+ "oxifont-core",
+ "oxifont-parser",
+ "ttf-parser",
+]
+
+[[package]]
 name = "parking_lot"
 version = "0.12.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1832,6 +1859,7 @@ dependencies = [
  "fontdb",
  "image",
  "imagesize",
+ "oxifont-subset",
  "rustybuzz",
  "thiserror",
  "time",

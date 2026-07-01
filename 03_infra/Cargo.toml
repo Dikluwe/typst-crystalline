@@ -25,8 +25,9 @@ ecow       = { workspace = true }
 ttf-parser  = { workspace = true }  # ADR-0019 — parsing de fontes
 rustybuzz   = { workspace = true }  # ADR-0019 — shaping de texto
 unicode-bidi = { workspace = true } # P484 — re-order de runs RTL
-fontdb      = "0.23"                # P515 — descoberta automática de fontes do sistema
-time        = { workspace = true }  # ADR-0021 — today() em SystemWorld
+fontdb        = "0.23"              # P515 — descoberta automática de fontes do sistema
+oxifont-subset = "0.2.0"             # P516 — subsetting TrueType/OpenType para PDF
+time          = { workspace = true }  # ADR-0021 — today() em SystemWorld
 imagesize   = "0.12"                # leitura de cabeçalho de imagem — L3 apenas
 image       = { version = "0.24", default-features = false, features = ["png", "jpeg"] }
 flate2      = "1.0"                 # compressão Zlib para PNG /FlateDecode

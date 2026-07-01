@@ -25,20 +25,23 @@ O exportador actual já emite CIDFont + Identity-H e usa `FrameItem::TextShaped`
 
 ## Instrução
 
-1. Criar `03_infra/src/export/subset.rs` com a função pública:
+1. Criar `03_infra/src/export/subset.rs` com a estrutura e função pública:
    ```rust
-   pub fn subset_font(font_data: &[u8], used_glyphs: &std::collections::BTreeSet<u16>) -> Option<Vec<u8>>
+   pub struct FontSubset {
+       pub data: Vec<u8>,
+       pub mapping: std::collections::HashMap<u16, u16>, // old_gid → new_gid
+   }
+
+   pub fn subset_font_with_mapping(
+       font_data: &[u8],
+       char_to_old_gid: &std::collections::BTreeMap<char, u16>,
+   ) -> Option<FontSubset>
    ```
-   - Parsear a fonte original com `ttf_parser::Face::parse(font_data, 0)`.
-   - Criar um mapa de glyph IDs originais → novos glyph IDs sequenciais, começando em 1 (0 reservado a `.notdef`).
-   - Incluir `.notdef` (glyph ID 0 original) sempre no subset.
-   - Construir uma fonte minimamente válida contendo:
-     - `head`, `hhea`, `maxp`, `post`, `loca`, `glyf` (TrueType) ou equivalente CFF (CFF opcional para esta fase).
-     - Tabela `cmap` mapeando codepoints usados para os novos glyph IDs.
-     - Tabela `hmtx` com advances dos glyphs incluídos.
-     - Tabela `name` mínima (preservar nome da família).
-   - Para esta fase, **TrueType outlines (`glyf`) são obrigatórios**; CFF é scope-out.
-   - Retornar `None` se a fonte for CFF ou se a construção falhar.
+   - Recebe os pares `(char, old_glyph_id)` usados no documento (obtidos dos `ShapedGlyph`).
+   - Usa `oxifont_subset::subset_with_gid_set` para gerar o subset.
+   - Reconstrói o mapa `old_gid → new_gid` parseando a cmap do subset resultante.
+   - Inclui `.notdef` (glyph ID 0) sempre no subset.
+   - Retorna `None` se a fonte for CFF/OpenType sem `glyf` ou se o subsetting falhar.
 
 2. Criar função auxiliar pública:
    ```rust
@@ -47,18 +50,18 @@ O exportador actual já emite CIDFont + Identity-H e usa `FrameItem::TextShaped`
    - Retorna o novo ID se existir no mapa, senão retorna 0 (`.notdef`).
 
 3. Alterar `03_infra/src/export/builder.rs`:
-   - Em `build_cidfont` e `build_multifont`, antes de embeber `font_data`, chamar `subset_font`.
-   - Se `subset_font` devolver `Some(subset_data)`, usar o subset e o mapa de remapeamento.
-   - Passar o mapa de remapeamento para `to_unicode_cmap`, `widths_array` e `text_to_hex_string`/`emit_shaped_pdf`.
-   - Se `subset_font` devolver `None`, manter comportamento actual (fonte completa).
+   - Em `build_cidfont` e `build_multifont`, antes de embeber `font_data`, chamar `subset_font_with_mapping`.
+   - Se devolver `Some(FontSubset)`, usar `subset.data` como bytes a embeddar e `subset.mapping` para remapear.
+   - Re-mapear `mappings: Vec<(char, u16)>` para novos glyph IDs.
+   - Usar a `Face` parseada a partir do subset para calcular `widths_array`.
+   - Se devolver `None`, manter comportamento actual (fonte completa) e mapping vazio.
 
 4. Alterar `03_infra/src/export/fonts.rs`:
-   - Adicionar função `map_chars_to_glyphs_subset` (ou parâmetro opcional de remapeamento) que gere o `mappings: Vec<(char, u16)>` com novos glyph IDs.
-   - `widths_array` e `to_unicode_cmap` devem aceitar o mapa de remapeamento opcional.
-   - `text_to_hex_string` (ou equivalente usado por `emit_shaped_pdf`) deve mapear `ShapedGlyph.glyph_id` original para o novo ID.
+   - `widths_array` e `to_unicode_cmap` operam sobre `mappings` já re-mapeados.
 
 5. Alterar `03_infra/src/export/stream.rs`:
-   - No emit de `FrameItem::TextShaped` (caminhos CIDFont e Multifont), aplicar o remapeamento de `glyph_id` antes de serializar no operador TJ.
+   - Adicionar `glyph_mapping` ao `FontScenario::Cidfont` e `per_font_glyph_mapping` ao `FontScenario::Multifont`.
+   - No emit de `FrameItem::TextShaped`, aplicar `remap_glyph_id(g.glyph_id, mapping)` antes de serializar no operador TJ. Se o mapping estiver vazio (sem subsetting), manter o `glyph_id` original.
 
 ## Critérios de Verificação
 

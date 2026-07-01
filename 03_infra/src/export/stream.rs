@@ -23,8 +23,8 @@ use typst_core::entities::font_list::FontList;
 use typst_core::entities::layout_types::{FrameItem, Page};
 
 use super::{
-    dedup_key_for, escape_pdf_string, group_bbox_from_fields, text_to_hex_string,
-    DedupKey, ImageRef, PatternRef,
+    dedup_key_for, escape_pdf_string, group_bbox_from_fields, remap_glyph_id,
+    text_to_hex_string, DedupKey, ImageRef, PatternRef,
 };
 
 // ── Helpers — caminho Helvetica ────────────────────────────────────────────
@@ -48,11 +48,15 @@ pub(crate) enum FontScenario<'a> {
     /// CIDFont single-font Identity-H (Unicode completo, fonte embebida).
     Cidfont {
         char_to_gid: &'a HashMap<char, u16>,
+        /// P516 — mapa old → new glyph ID quando a fonte foi subsetada.
+        glyph_mapping: &'a HashMap<u16, u16>,
     },
     /// Multifont Identity-H com selecção `/F{fi+1}` por `style.font`.
     Multifont {
         fonts:                &'a [(FontList, Vec<u8>)],
         per_font_char_to_gid: &'a [HashMap<char, u16>],
+        /// P516 — mapa old → new glyph ID por fonte (vazio se não subsetada).
+        per_font_glyph_mapping: &'a [HashMap<u16, u16>],
     },
 }
 
@@ -84,24 +88,30 @@ impl<'a> PageContext<'a> {
         pat_ptr_to_idx: &'a HashMap<DedupKey, usize>,
         pat_refs:       &'a [PatternRef],
         char_to_gid:    &'a HashMap<char, u16>,
+        glyph_mapping:  &'a HashMap<u16, u16>,
     ) -> Self {
         Self {
             ptr_to_idx, img_refs, pat_ptr_to_idx, pat_refs,
-            font_scenario: FontScenario::Cidfont { char_to_gid },
+            font_scenario: FontScenario::Cidfont { char_to_gid, glyph_mapping },
         }
     }
 
     pub(crate) fn multifont(
-        ptr_to_idx:           &'a HashMap<usize, usize>,
-        img_refs:             &'a [ImageRef],
-        pat_ptr_to_idx:       &'a HashMap<DedupKey, usize>,
-        pat_refs:             &'a [PatternRef],
-        fonts:                &'a [(FontList, Vec<u8>)],
-        per_font_char_to_gid: &'a [HashMap<char, u16>],
+        ptr_to_idx:             &'a HashMap<usize, usize>,
+        img_refs:               &'a [ImageRef],
+        pat_ptr_to_idx:         &'a HashMap<DedupKey, usize>,
+        pat_refs:               &'a [PatternRef],
+        fonts:                  &'a [(FontList, Vec<u8>)],
+        per_font_char_to_gid:   &'a [HashMap<char, u16>],
+        per_font_glyph_mapping: &'a [HashMap<u16, u16>],
     ) -> Self {
         Self {
             ptr_to_idx, img_refs, pat_ptr_to_idx, pat_refs,
-            font_scenario: FontScenario::Multifont { fonts, per_font_char_to_gid },
+            font_scenario: FontScenario::Multifont {
+                fonts,
+                per_font_char_to_gid,
+                per_font_glyph_mapping,
+            },
         }
     }
 }
@@ -147,7 +157,7 @@ pub(super) fn emit_text_pdf(
                 style.size.val(), pos_x, base_y
             ));
         }
-        FontScenario::Cidfont { char_to_gid } => {
+        FontScenario::Cidfont { char_to_gid, .. } => {
             if text.is_empty() { return; }
             let hex_str = text_to_hex_string(text, char_to_gid);
             ops.push_str(&format!(
@@ -155,7 +165,7 @@ pub(super) fn emit_text_pdf(
                 style.size.val(), pos_x, base_y
             ));
         }
-        FontScenario::Multifont { fonts, per_font_char_to_gid } => {
+        FontScenario::Multifont { fonts, per_font_char_to_gid, .. } => {
             if text.is_empty() { return; }
             let fi = style.font.as_ref()
                 .and_then(|fl| fonts.iter().position(|(stored, _)| stored == fl))
@@ -191,7 +201,7 @@ pub(super) fn emit_shaped_pdf(
         FontScenario::Type1 => {
             emit_text_pdf(ops, pos_x, base_y, text, style, scenario);
         }
-        FontScenario::Cidfont { .. } => {
+        FontScenario::Cidfont { glyph_mapping, .. } => {
             ops.push_str(&format!(
                 "BT\n/F1 {:.1} Tf\n{:.3} {:.3} Td\n[ ",
                 style.size.val(), pos_x, base_y
@@ -204,14 +214,20 @@ pub(super) fn emit_shaped_pdf(
                 }
                 let advance_tu = -(g.x_advance as f64 / upm * 1000.0)
                     + (g.x_offset as f64 / upm * 1000.0);
-                ops.push_str(&format!("<{:04X}> {:.0} ", g.glyph_id, advance_tu));
+                let new_gid = if glyph_mapping.is_empty() {
+                    g.glyph_id
+                } else {
+                    remap_glyph_id(g.glyph_id, glyph_mapping)
+                };
+                ops.push_str(&format!("<{:04X}> {:.0} ", new_gid, advance_tu));
             }
             ops.push_str("] TJ\nET\n");
         }
-        FontScenario::Multifont { fonts, .. } => {
+        FontScenario::Multifont { fonts, per_font_glyph_mapping, .. } => {
             let fi = style.font.as_ref()
                 .and_then(|fl| fonts.iter().position(|(stored, _)| stored == fl))
                 .unwrap_or(0);
+            let glyph_mapping = &per_font_glyph_mapping[fi];
             ops.push_str(&format!(
                 "BT\n/F{} {:.1} Tf\n{:.3} {:.3} Td\n[ ",
                 fi + 1, style.size.val(), pos_x, base_y
@@ -224,7 +240,12 @@ pub(super) fn emit_shaped_pdf(
                 }
                 let advance_tu = -(g.x_advance as f64 / upm * 1000.0)
                     + (g.x_offset as f64 / upm * 1000.0);
-                ops.push_str(&format!("<{:04X}> {:.0} ", g.glyph_id, advance_tu));
+                let new_gid = if glyph_mapping.is_empty() {
+                    g.glyph_id
+                } else {
+                    remap_glyph_id(g.glyph_id, glyph_mapping)
+                };
+                ops.push_str(&format!("<{:04X}> {:.0} ", new_gid, advance_tu));
             }
             ops.push_str("] TJ\nET\n");
         }
@@ -796,7 +817,10 @@ mod stream_tests {
         let mut ops = String::new();
         let glyphs = vec![glyph(0x0041, 600)];
         let style = TextStyle::default();
-        let scenario = FontScenario::Cidfont { char_to_gid: &std::collections::HashMap::new() };
+        let scenario = FontScenario::Cidfont {
+            char_to_gid: &std::collections::HashMap::new(),
+            glyph_mapping: &std::collections::HashMap::new(),
+        };
         emit_shaped_pdf(&mut ops, 72.0, 770.0, &glyphs, "A", &style, &scenario, 1000);
         assert!(ops.contains("TJ"), "P485: CIDFont deve usar TJ, não Tj");
         assert!(!ops.contains("] Tj"), "P485: não deve conter Tj no path CIDFont");
@@ -809,7 +833,10 @@ mod stream_tests {
         let mut ops = String::new();
         let glyphs = vec![glyph(0x0042, 600)];
         let style = TextStyle::default();
-        let scenario = FontScenario::Cidfont { char_to_gid: &std::collections::HashMap::new() };
+        let scenario = FontScenario::Cidfont {
+            char_to_gid: &std::collections::HashMap::new(),
+            glyph_mapping: &std::collections::HashMap::new(),
+        };
         emit_shaped_pdf(&mut ops, 0.0, 0.0, &glyphs, "B", &style, &scenario, 1000);
         assert!(ops.contains("-600"), "P485: advance TJ deve ser -600 para x_advance=600, upm=1000");
     }
@@ -838,7 +865,10 @@ mod stream_tests {
         let mut ops = String::new();
         let glyphs = vec![glyph_xoff(0x0042, 600, 0)];
         let style = TextStyle::default();
-        let scenario = FontScenario::Cidfont { char_to_gid: &std::collections::HashMap::new() };
+        let scenario = FontScenario::Cidfont {
+            char_to_gid: &std::collections::HashMap::new(),
+            glyph_mapping: &std::collections::HashMap::new(),
+        };
         emit_shaped_pdf(&mut ops, 0.0, 0.0, &glyphs, "B", &style, &scenario, 1000);
         assert!(ops.contains("<0042>"), "P486: GID presente");
         assert!(ops.contains("-600"), "P486: advance -600 igual a P485");
@@ -852,7 +882,10 @@ mod stream_tests {
         let mut ops = String::new();
         let glyphs = vec![glyph_xoff(0x0043, 600, -50)];
         let style = TextStyle::default();
-        let scenario = FontScenario::Cidfont { char_to_gid: &std::collections::HashMap::new() };
+        let scenario = FontScenario::Cidfont {
+            char_to_gid: &std::collections::HashMap::new(),
+            glyph_mapping: &std::collections::HashMap::new(),
+        };
         emit_shaped_pdf(&mut ops, 0.0, 0.0, &glyphs, "C", &style, &scenario, 1000);
         let after_bracket = ops.split("[ ").nth(1).unwrap_or("");
         assert!(after_bracket.starts_with("50 "), "P486: x_offset=-50 → '50 ' antes do GID");
@@ -865,7 +898,10 @@ mod stream_tests {
         let mut ops = String::new();
         let glyphs = vec![glyph_xoff(0x0044, 600, 30)];
         let style = TextStyle::default();
-        let scenario = FontScenario::Cidfont { char_to_gid: &std::collections::HashMap::new() };
+        let scenario = FontScenario::Cidfont {
+            char_to_gid: &std::collections::HashMap::new(),
+            glyph_mapping: &std::collections::HashMap::new(),
+        };
         emit_shaped_pdf(&mut ops, 0.0, 0.0, &glyphs, "D", &style, &scenario, 1000);
         let after_bracket = ops.split("[ ").nth(1).unwrap_or("");
         assert!(after_bracket.starts_with("-30 "), "P486: x_offset=30 → '-30 ' antes do GID");

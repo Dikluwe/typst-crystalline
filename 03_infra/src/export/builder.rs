@@ -33,7 +33,8 @@ use super::{
     multispace_sample_stops_conic, multispace_sample_stops_linear_cmyk,
     multispace_sample_stops_radial, multispace_sample_stops_radial_cmyk,
     pattern_resources_for_page, resolve_relative, scan_all_gradients,
-    scan_all_images, text_to_hex_string, to_unicode_cmap, widths_array,
+    scan_all_images, subset::{remap_glyph_id, subset_font_with_mapping, FontSubset},
+    text_to_hex_string, to_unicode_cmap, widths_array,
     xobject_resources_for_page, FontScenario, GradientObject,
     GradientObjectKind, ImageRef, ImageXObject, PageContext, PatternRef,
 };
@@ -169,8 +170,33 @@ impl PdfBuilder {
             }
         }
 
+        // P516 — subsetting TrueType/OpenType.
+        let char_to_old_gid: std::collections::BTreeMap<char, u16> =
+            mappings.iter().copied().collect();
+        let (embed_font_data, glyph_mapping) =
+            match subset_font_with_mapping(font_data, &char_to_old_gid) {
+                Some(FontSubset { data, mapping }) => {
+                    if Face::parse(&data, 0).is_ok() {
+                        (data, mapping)
+                    } else {
+                        // Fallback para fonte completa se o subset não parsear.
+                        (font_data.to_vec(), HashMap::new())
+                    }
+                }
+                None => (font_data.to_vec(), HashMap::new()),
+            };
+
+        // Re-mapear mappings para os novos glyph IDs do subset.
+        if !glyph_mapping.is_empty() {
+            for (_, old_gid) in mappings.iter_mut() {
+                *old_gid = remap_glyph_id(*old_gid, &glyph_mapping);
+            }
+        }
+
+        let subset_face = Face::parse(&embed_font_data, 0).ok();
+        let face_for_widths = subset_face.as_ref().unwrap_or(face);
         let char_to_gid: HashMap<char, u16> = mappings.iter().copied().collect();
-        let widths = widths_array(face, &mappings);
+        let widths = widths_array(face_for_widths, &mappings);
 
         let (img_refs, ptr_to_idx, img_xobjects) = scan_all_images(doc, first_img_id);
 
@@ -204,7 +230,10 @@ impl PdfBuilder {
                    /Resources << {resources_str} >> >>"
             ));
 
-            let ctx = PageContext::cidfont(&ptr_to_idx, &img_refs, &pat_ptr_to_idx, &pat_refs, &char_to_gid);
+            let ctx = PageContext::cidfont(
+                &ptr_to_idx, &img_refs, &pat_ptr_to_idx, &pat_refs,
+                &char_to_gid, &glyph_mapping,
+            );
             let stream_bytes = build_page_stream(page, &ctx);
             let len = stream_bytes.len();
             let mut obj = format!("<< /Length {len} >>\nstream\n").into_bytes();
@@ -240,12 +269,12 @@ impl PdfBuilder {
                /FontFile2 {font_stream_id} 0 R >>"
         ));
 
-        // Font data stream — Opção A: fonte completa sem subsetting (ADR-0027)
-        let font_len = font_data.len();
+        // Font data stream — P516: usa subset se possível, senão fonte completa.
+        let font_len = embed_font_data.len();
         let mut font_stream = format!(
             "<< /Length {font_len} /Subtype /CIDFontType2 >>\nstream\n"
         ).into_bytes();
-        font_stream.extend_from_slice(font_data);
+        font_stream.extend_from_slice(&embed_font_data);
         font_stream.extend_from_slice(b"\nendstream");
         self.add_bytes(font_stream_id, font_stream);
 
@@ -293,6 +322,8 @@ impl PdfBuilder {
         let mut per_font_mappings: Vec<Vec<(char, u16)>> = Vec::with_capacity(n_fonts);
         let mut per_font_char_to_gid: Vec<HashMap<char, u16>> = Vec::with_capacity(n_fonts);
         let mut per_font_widths: Vec<String> = Vec::with_capacity(n_fonts);
+        let mut per_font_embed_data: Vec<Vec<u8>> = Vec::with_capacity(n_fonts);
+        let mut per_font_glyph_mapping: Vec<HashMap<u16, u16>> = Vec::with_capacity(n_fonts);
         for face in faces {
             let mut mappings = map_chars_to_glyphs(face, &chars);
             // Adicionar glifos variantes de tamanho matemático
@@ -306,11 +337,37 @@ impl PdfBuilder {
                     }
                 }
             }
+
+            // P516 — subsetting por fonte.
+            let char_to_old_gid: std::collections::BTreeMap<char, u16> =
+                mappings.iter().copied().collect();
+            let (embed_data, glyph_mapping) =
+                match subset_font_with_mapping(&fonts[per_font_mappings.len()].1, &char_to_old_gid) {
+                    Some(FontSubset { data, mapping }) => {
+                        if Face::parse(&data, 0).is_ok() {
+                            (data, mapping)
+                        } else {
+                            (fonts[per_font_mappings.len()].1.clone(), HashMap::new())
+                        }
+                    }
+                    None => (fonts[per_font_mappings.len()].1.clone(), HashMap::new()),
+                };
+
+            if !glyph_mapping.is_empty() {
+                for (_, old_gid) in mappings.iter_mut() {
+                    *old_gid = remap_glyph_id(*old_gid, &glyph_mapping);
+                }
+            }
+
+            let subset_face = Face::parse(&embed_data, 0).ok();
+            let face_for_widths = subset_face.as_ref().unwrap_or(face);
             let char_to_gid: HashMap<char, u16> = mappings.iter().copied().collect();
-            let widths = widths_array(face, &mappings);
+            let widths = widths_array(face_for_widths, &mappings);
             per_font_mappings.push(mappings);
             per_font_char_to_gid.push(char_to_gid);
             per_font_widths.push(widths);
+            per_font_embed_data.push(embed_data);
+            per_font_glyph_mapping.push(glyph_mapping);
         }
 
         let (img_refs, ptr_to_idx, img_xobjects) = scan_all_images(doc, first_img_id);
@@ -351,7 +408,7 @@ impl PdfBuilder {
 
             let ctx = PageContext::multifont(
                 &ptr_to_idx, &img_refs, &pat_ptr_to_idx, &pat_refs,
-                fonts, &per_font_char_to_gid,
+                fonts, &per_font_char_to_gid, &per_font_glyph_mapping,
             );
             let stream_bytes = build_page_stream(page, &ctx);
             let len = stream_bytes.len();
@@ -362,7 +419,8 @@ impl PdfBuilder {
         }
 
         // Emit objectos por font (5 cada).
-        for (fi, ((_, font_data), _face)) in fonts.iter().zip(faces.iter()).enumerate() {
+        for (fi, _) in fonts.iter().enumerate() {
+            let font_data = &per_font_embed_data[fi];
             let type0_id      = fonts_start + 5 * fi;
             let cidfont_id    = type0_id + 1;
             let descriptor_id = type0_id + 2;

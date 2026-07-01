@@ -23,6 +23,7 @@ mod fonts;
 mod gradients;
 mod images;
 mod stream;
+mod subset;
 use self::builder::PdfBuilder;
 use self::stream::{
     build_page_stream, draw_item_local, emit_glyph_pdf, emit_rounded_rect_ops,
@@ -33,6 +34,7 @@ use self::fonts::{
     collect_codepoints, collect_glyph_ids, escape_pdf_string,
     map_chars_to_glyphs, text_to_hex_string, to_unicode_cmap, widths_array,
 };
+use self::subset::remap_glyph_id;
 use self::gradients::{
     adaptive_n_for_stops, apply_parent_transform, bezier_control_points_for_arc,
     compute_axial_coords, compute_coons_patches_n_stops,

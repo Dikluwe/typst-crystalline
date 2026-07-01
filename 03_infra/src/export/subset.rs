@@ -1,0 +1,147 @@
+//! Crystalline Lineage
+//! @prompt 00_nucleo/prompts/infra/export/font_subset.md
+//! @layer L3
+//! @updated 2026-06-30
+//!
+//! **P516** — Subsetting TrueType/OpenType de fontes para embed no PDF.
+//! Usa `oxifont-subset` para reescrever as tabelas da fonte, mantendo
+//! apenas os glifos efectivamente usados no documento.
+
+use std::collections::{BTreeMap, BTreeSet, HashMap};
+
+/// Resultado de um subset de fonte.
+///
+/// Contém os bytes da fonte subsetada e o mapa de remapeamento
+/// `old_glyph_id → new_glyph_id` necessário para ajustar o operador
+/// `TJ` e o ToUnicode CMap no PDF.
+pub struct FontSubset {
+    /// Bytes SFNT da fonte subsetada.
+    pub data: Vec<u8>,
+    /// Mapa old → new glyph ID. Inclui sempre a entrada `0 → 0`.
+    pub mapping: HashMap<u16, u16>,
+}
+
+/// Cria um subset de fonte a partir dos glifos usados.
+///
+/// `char_to_old_gid` mapeia cada codepoint usado no documento para o
+/// glyph ID original na fonte. Esta informação é obtida a partir dos
+/// `ShapedGlyph` produzidos pelo shaper (`char_code` + `glyph_id`).
+///
+/// Retorna `None` se a fonte for CFF/OpenType sem tabela `glyf` (scope-out
+/// do P516) ou se o subsetting falhar.
+pub fn subset_font_with_mapping(
+    font_data: &[u8],
+    char_to_old_gid: &BTreeMap<char, u16>,
+) -> Option<FontSubset> {
+    // Sempre incluir .notdef (GID 0).
+    let mut old_gid_set: BTreeSet<u16> = BTreeSet::new();
+    old_gid_set.insert(0);
+
+    let mut cp_to_old_gid: BTreeMap<u32, u16> = BTreeMap::new();
+    for (&ch, &old_gid) in char_to_old_gid {
+        old_gid_set.insert(old_gid);
+        cp_to_old_gid.insert(ch as u32, old_gid);
+    }
+
+    let opts = oxifont_subset::SubsetOptions::default()
+        .strip_hints(false)
+        .retain_names(true)
+        .retain_layout_tables(true);
+
+    let (subset_data, _stats) =
+        oxifont_subset::subset_with_gid_set(font_data, &old_gid_set, &cp_to_old_gid, &opts)
+            .ok()?;
+
+    // Reconstruir o mapeamento old → new parseando a cmap do subset.
+    let face = ttf_parser::Face::parse(&subset_data, 0).ok()?;
+    let mut mapping = HashMap::new();
+    mapping.insert(0, 0);
+    for (&ch, &old_gid) in char_to_old_gid {
+        if let Some(new_gid) = face.glyph_index(ch).map(|g| g.0) {
+            mapping.insert(old_gid, new_gid);
+        }
+    }
+
+    Some(FontSubset { data: subset_data, mapping })
+}
+
+/// Wrapper compatível com a assinatura do Prompt L0 original.
+///
+/// Mantido para consumidores que apenas precisam dos bytes. O mapa de
+/// remapeamento pode ser obtido via [`subset_font_with_mapping`].
+pub fn subset_font(font_data: &[u8], used_glyphs: &BTreeSet<u16>) -> Option<Vec<u8>> {
+    let char_to_old_gid: BTreeMap<char, u16> = used_glyphs
+        .iter()
+        .filter(|&&gid| gid != 0)
+        .map(|&gid| (char::from_u32(gid as u32).unwrap_or('\u{FFFD}'), gid))
+        .collect();
+    subset_font_with_mapping(font_data, &char_to_old_gid).map(|s| s.data)
+}
+
+/// Aplica o mapa de remapeamento a um glyph ID original.
+pub fn remap_glyph_id(old_id: u16, mapping: &HashMap<u16, u16>) -> u16 {
+    mapping.get(&old_id).copied().unwrap_or(0)
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    fn load_test_font() -> Option<Vec<u8>> {
+        let paths = [
+            "/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf",
+            "/usr/share/fonts/opentype/urw-base35/C059-Roman.otf",
+        ];
+        for path in &paths {
+            if let Ok(bytes) = std::fs::read(path) {
+                if ttf_parser::Face::parse(&bytes, 0).is_ok() {
+                    return Some(bytes);
+                }
+            }
+        }
+        None
+    }
+
+    #[test]
+    fn subset_font_valid_true_type() {
+        let Some(data) = load_test_font() else { return };
+        let mut used = BTreeSet::new();
+        used.insert(65);
+        used.insert(66);
+        let subset = subset_font(&data, &used).expect("subset deve funcionar");
+        let face = ttf_parser::Face::parse(&subset, 0).expect("subset deve ser parseável");
+        assert!(face.number_of_glyphs() >= 3); // notdef + A + B
+    }
+
+    #[test]
+    fn subset_font_empty_keeps_notdef() {
+        let Some(data) = load_test_font() else { return };
+        let used = BTreeSet::new();
+        let subset = subset_font(&data, &used).expect("subset vazio deve funcionar");
+        let face = ttf_parser::Face::parse(&subset, 0).expect("subset deve ser parseável");
+        assert_eq!(face.number_of_glyphs(), 1);
+    }
+
+    #[test]
+    fn subset_mapping_contains_notdef() {
+        let Some(data) = load_test_font() else { return };
+        let mut map = BTreeMap::new();
+        map.insert('A', 65u16);
+        let subset = subset_font_with_mapping(&data, &map).expect("subset deve funcionar");
+        assert_eq!(subset.mapping.get(&0), Some(&0));
+        assert!(subset.mapping.contains_key(&65));
+    }
+
+    #[test]
+    fn remap_glyph_id_missing_returns_notdef() {
+        let mapping = HashMap::new();
+        assert_eq!(remap_glyph_id(42, &mapping), 0);
+    }
+
+    #[test]
+    fn remap_glyph_id_known_returns_new() {
+        let mut mapping = HashMap::new();
+        mapping.insert(65, 1);
+        assert_eq!(remap_glyph_id(65, &mapping), 1);
+    }
+}
