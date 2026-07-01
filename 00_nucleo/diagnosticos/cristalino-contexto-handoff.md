@@ -161,7 +161,7 @@ python3 tools/perf/benchmark-p507.py
 | System fonts por defeito | ✅ Fechado em P517 | CLI default |
 | Marcação de subset | ✅ Fechado em P517 | `AAAAAA+` prefix |
 | CFF subsetting | ✅ Fechado em P523 | Funcional via `oxifont-subset`; polimento de descritor PDF (CID Type 0C) pendente sonda P524 se necessário |
-| Variation fonts (VF) | ⏸️ Scope-out | XL-size |
+| Variation fonts (VF) | ✅ Fechado em P525 (MVP) | Shaper aplica `wght`/`ital` via `set_variations`; export PDF de variações visuais (coordenadas de eixo) pendente |
 | Kerning no subset | ✅ Fechado em P520/P521 | Delta model no operador TJ; validado com corpus dedicado (lab/parity/corpus/p520/) |
 
 ### 5.2 Fora de Escopo (Declarado)

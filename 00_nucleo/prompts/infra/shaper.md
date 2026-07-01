@@ -7,7 +7,7 @@ adr: ADR-0120
 ---
 
 # Prompt L0 — `shaper.rs` (Trilha 5 Fase 1)
-Hash do Código: 63feb005
+Hash do Código: 9db46e7e
 
 ## Propósito
 
@@ -246,3 +246,75 @@ Para a Fase 1 do P515, o shaper produz **um `TextShaped` por fonte** (i.e., o it
 - `p515_shape_document_latin_only_single_font`: latim coberto → 1 TextShaped.
 - `p515_shape_document_mixed_fallback_splits`: latim + caractere ausente → ≥2 TextShaped ou glifos com fontes distintas.
 - `p515_try_shape_missing_glyph_does_not_panic`: caractere sem cobertura em nenhuma fonte → preserva Text (não panic).
+
+---
+
+## P525 — Variation Fonts MVP
+
+**Data:** 2026-07-01
+
+Aplica coordenadas de eixo OpenType (`wght`, `ital`) ao `rustybuzz::Face`
+antes do shape, usando `set_variations`. Resolve fontes candidatas com a
+`FontVariant` real derivada do `TextStyle`, não mais `FontVariant::default()`.
+
+### Decisão de arquitectura: gestão do `Face`
+
+P525 sondou a pipeline e confirmou que **não existe cache de `rustybuzz::Face`**
+no shaper: cada run de texto cria uma nova face via `Face::from_slice`. Portanto,
+chamar `set_variations` logo após a criação do face é seguro e não há risco de
+contaminação entre pesos diferentes no mesmo documento.
+
+Se futuramente for introduzida uma cache de `Face`, a chave deve incluir a
+variante (ou `set_variations` deve ser reaplicado antes de cada `shape`), para
+não reintroduzir contaminação.
+
+### `text_style_to_font_variant`
+
+```rust
+fn text_style_to_font_variant(style: &TextStyle) -> FontVariant
+```
+
+Deriva `FontVariant` de `TextStyle.weight`/`bold`/`italic`. `stretch` não está
+exposto no `TextStyle` actual (rejeitado em P414); `Oblique(angle)` não existe
+no modelo actual (`FontStyle::Oblique` é uma flag sem ângulo).
+
+### `axis_variations_for_font_variant`
+
+```rust
+fn axis_variations_for_font_variant(variant: &FontVariant) -> Vec<rustybuzz::Variation>
+```
+
+Mapeamento:
+
+- `weight` → `wght` (100–900). Omissão quando 400 (default).
+- `FontStyle::Italic` → `ital` = 1.0.
+- `stretch` → `wdth` (não activo até `TextStyle` expor stretch).
+- `Oblique(angle)` → `slnt` (não activo até `FontStyle::Oblique` carregar ângulo).
+
+### Aplicação no `try_shape`
+
+```rust
+let variant = text_style_to_font_variant(style);
+let axis_vars = axis_variations_for_font_variant(&variant);
+let candidates = resolve_candidates(world, font_list, &variant)?;
+// ...
+let mut rb_face = rustybuzz::Face::from_slice(font.as_slice(), 0)?;
+if !axis_vars.is_empty() {
+    rb_face.set_variations(&axis_vars);
+}
+```
+
+### Limitações do MVP
+
+- O subsetter (`oxifont-subset`) preserva `fvar`/`gvar`/`avar`/`HVAR`, pelo que
+  a fonte VF é embutida no PDF sem corromper variação.
+- O export PDF calcula `/W` a partir da fonte subsetada na instância default;
+  visualizar variações no PDF requer trabalho adicional no export (instanciar
+  ou emitir coordenadas de eixo). O MVP garante que o **shaper** aplica a
+  variação, corrigindo a regressão de linguagem `text(weight: 700)`.
+
+### Testes adicionados P525
+
+- `p525_axis_variations_weight_italic`: mapeamento `FontVariant` → eixos.
+- `p525_shape_document_mixed_weights_no_contamination`: pipeline real com
+  `wght=700 → 100 → 700`, confirmando que o terceiro shape reproduz o primeiro.

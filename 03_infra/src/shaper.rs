@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/shaper.md
-//! @prompt-hash 084a5fe9
+//! @prompt-hash f45e54e8
 //! @layer L3
 //! @updated 2026-06-30
 //!
@@ -8,6 +8,8 @@
 //! **P484** — RTL básico via unicode-bidi (Trilha 5 Fase 3, ADR-0120).
 //! **P515** — Font fallback por caractere usando múltiplas fontes da
 //! `FontList` (cada sub-run shaped na sua própria face).
+//! **P525** — Variation Fonts MVP: aplica coordenadas de eixo OpenType
+//! (`wght`, `ital`) via `rustybuzz::Face::set_variations` antes do shape.
 //! Converte `FrameItem::Text` → `FrameItem::TextShaped` via rustybuzz.
 //! Executado entre layout e export. ADR-0120 Opção A1.
 
@@ -15,9 +17,9 @@
 use rustybuzz::{Direction, UnicodeBuffer};
 use unicode_bidi::BidiInfo;
 use typst_core::contracts::world::World;
-use typst_core::entities::font_book::FontVariant;
+use typst_core::entities::font_book::{FontStretch, FontStyle, FontVariant, FontWeight};
 use typst_core::entities::font_list::{FontList, FontNamePattern};
-use typst_core::entities::layout_types::{FrameItem, Page, PagedDocument, Point, Pt, ShapedGlyph};
+use typst_core::entities::layout_types::{FrameItem, Page, PagedDocument, Point, Pt, ShapedGlyph, TextStyle};
 
 /// Converte todos os `FrameItem::Text` de um `PagedDocument` em
 /// `FrameItem::TextShaped` via rustybuzz.
@@ -71,12 +73,16 @@ fn try_shape(
     world: &dyn World,
     pos:   &Point,
     text:  &ecow::EcoString,
-    style: &typst_core::entities::layout_types::TextStyle,
+    style: &TextStyle,
 ) -> Option<Vec<FrameItem>> {
     let font_list = style.font.as_ref()?;
 
+    // P525 — derivar a variante real do TextStyle para VF e selecção de fonte.
+    let variant = text_style_to_font_variant(style);
+    let axis_vars = axis_variations_for_font_variant(&variant);
+
     // P515 — resolver todas as fontes candidatas da FontList.
-    let candidates = resolve_candidates(world, font_list)?;
+    let candidates = resolve_candidates(world, font_list, &variant)?;
     if candidates.is_empty() {
         return None;
     }
@@ -94,7 +100,12 @@ fn try_shape(
         for subrun in split_run_by_font(run, world, &candidates) {
             let candidate = &candidates[subrun.candidate_idx];
             let font = world.font(candidate.slot_idx)?;
-            let rb_face = rustybuzz::Face::from_slice(font.as_slice(), 0)?;
+            let mut rb_face = rustybuzz::Face::from_slice(font.as_slice(), 0)?;
+
+            // P525 — aplicar coordenadas de eixo OpenType (weight/italic) antes de shape.
+            if !axis_vars.is_empty() {
+                rb_face.set_variations(&axis_vars);
+            }
 
             let mut buffer = UnicodeBuffer::new();
             buffer.push_str(&subrun.text);
@@ -152,14 +163,63 @@ fn try_shape(
     }
 }
 
+/// Converte `TextStyle` para `FontVariant` usado na selecção de fonte e
+/// nas coordenadas de eixo OpenType.
+///
+/// P525 — MVP de Variation Fonts. Considera `weight` e `italic`; `stretch`
+/// não está exposto no `TextStyle` actual (rejeitado em P414), e `Oblique`
+/// não carrega ângulo no modelo actual (FontStyle::Oblique é uma flag).
+fn text_style_to_font_variant(style: &TextStyle) -> FontVariant {
+    let weight = style
+        .weight
+        .map(FontWeight::from_number)
+        .unwrap_or_else(|| if style.bold { FontWeight::BOLD } else { FontWeight::REGULAR });
+    let style = if style.italic { FontStyle::Italic } else { FontStyle::Normal };
+    FontVariant {
+        style,
+        weight,
+        stretch: FontStretch::NORMAL,
+    }
+}
+
+/// Mapeia `FontVariant` para coordenadas de eixo OpenType passáveis ao
+/// `rustybuzz::Face::set_variations`.
+///
+/// P525 — MVP: `wght` (weight) e `ital` (italic). `wdth` (stretch) só será
+/// mapeado quando `TextStyle` expuser stretch; `slnt` (Oblique com ângulo)
+/// requer `FontStyle::Oblique(angle)`, que o modelo actual não tem.
+fn axis_variations_for_font_variant(variant: &FontVariant) -> Vec<rustybuzz::Variation> {
+    let mut vars = Vec::new();
+
+    let wght_value = variant.weight.to_number() as f32;
+    if wght_value != 400.0 {
+        vars.push(rustybuzz::Variation {
+            tag: ttf_parser::Tag::from_bytes(b"wght"),
+            value: wght_value,
+        });
+    }
+
+    if variant.style == FontStyle::Italic {
+        vars.push(rustybuzz::Variation {
+            tag: ttf_parser::Tag::from_bytes(b"ital"),
+            value: 1.0,
+        });
+    }
+
+    vars
+}
+
 /// Candidata a fonte para shaping/fallback.
 struct FontCandidate {
     slot_idx:     usize,
     units_per_em: u16,
 }
 
-fn resolve_candidates(world: &dyn World, font_list: &FontList) -> Option<Vec<FontCandidate>> {
-    let variant = FontVariant::default();
+fn resolve_candidates(
+    world: &dyn World,
+    font_list: &FontList,
+    variant: &FontVariant,
+) -> Option<Vec<FontCandidate>> {
     let book = world.book();
     let mut candidates = Vec::new();
     for family in font_list.as_slice() {
@@ -505,7 +565,7 @@ mod tests {
     fn p515_resolve_candidates_sem_fontes_retorna_none() {
         let world = empty_world();
         let font_list = FontList::single(EcoString::from("Helvetica"));
-        assert!(resolve_candidates(&world, &font_list).is_none());
+        assert!(resolve_candidates(&world, &font_list, &FontVariant::default()).is_none());
     }
 
     #[test]
@@ -582,5 +642,90 @@ mod tests {
         } else {
             panic!("esperava Group");
         }
+    }
+
+    // ── P525 — Variation Fonts (MVP) ────────────────────────────────────────
+
+    #[test]
+    fn p525_axis_variations_weight_italic() {
+        let bold = axis_variations_for_font_variant(&FontVariant {
+            style: FontStyle::Normal,
+            weight: FontWeight::BOLD,
+            stretch: FontStretch::NORMAL,
+        });
+        assert_eq!(bold.len(), 1);
+        assert_eq!(bold[0].tag, ttf_parser::Tag::from_bytes(b"wght"));
+        assert_eq!(bold[0].value, 700.0);
+
+        let italic = axis_variations_for_font_variant(&FontVariant {
+            style: FontStyle::Italic,
+            weight: FontWeight::REGULAR,
+            stretch: FontStretch::NORMAL,
+        });
+        assert_eq!(italic.len(), 1);
+        assert_eq!(italic[0].tag, ttf_parser::Tag::from_bytes(b"ital"));
+        assert_eq!(italic[0].value, 1.0);
+
+        let regular = axis_variations_for_font_variant(&FontVariant::default());
+        assert!(regular.is_empty(), "regular upright não precisa de variações");
+    }
+
+    #[test]
+    fn p525_shape_document_mixed_weights_no_contamination() {
+        // Usa Ubuntu Sans VF do sistema, se disponível. Se não estiver,
+        // o teste faz skip gracioso.
+        let dir = tempfile_write("main.typ", "text");
+        let world = SystemWorld::new(dir.path(), "main.typ")
+            .unwrap()
+            .with_system_fonts();
+        if world.book().select("Ubuntu Sans", &FontVariant::default()).is_none() {
+            eprintln!("SKIP: Ubuntu Sans não disponível no sistema");
+            return;
+        }
+
+        fn text_item_with_weight(text: &str, weight: u16) -> FrameItem {
+            let mut style = TextStyle::default();
+            style.font = Some(FontList::single(EcoString::from("Ubuntu Sans")));
+            style.weight = Some(weight);
+            style.size = Pt(40.0);
+            FrameItem::Text {
+                pos: Point { x: Pt(0.0), y: Pt(0.0) },
+                text: EcoString::from(text),
+                style,
+            }
+        }
+
+        fn total_width(item: &FrameItem) -> i32 {
+            match item {
+                FrameItem::TextShaped { glyphs, .. } => {
+                    glyphs.iter().map(|g| g.x_advance).sum()
+                }
+                _ => 0,
+            }
+        }
+
+        let doc = doc_with(vec![
+            text_item_with_weight("Hello", 700),
+            text_item_with_weight("Hello", 100),
+            text_item_with_weight("Hello", 700),
+        ]);
+        let shaped = shape_document(&world, doc);
+        let items = &shaped.pages[0].items;
+        assert_eq!(items.len(), 3, "cada Text deve produzir um TextShaped");
+
+        let bold_1 = total_width(&items[0]);
+        let thin = total_width(&items[1]);
+        let bold_2 = total_width(&items[2]);
+
+        assert!(
+            bold_1 > thin,
+            "bold (wght=700) deve ser mais largo que thin (wght=100): {} > {}",
+            bold_1, thin
+        );
+        assert_eq!(
+            bold_1, bold_2,
+            "duas chamadas com wght=700, intercaladas por wght=100, \
+             devem produzir a mesma largura — indica contaminação de estado se falhar"
+        );
     }
 }
