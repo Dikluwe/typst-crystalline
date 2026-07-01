@@ -41,6 +41,10 @@ use super::{
 
 use crate::font_metrics::build_math_glyph_reverse_map;
 
+fn duration_ms(d: std::time::Duration) -> f64 {
+    d.as_secs_f64() * 1000.0
+}
+
 /// P517 — gera nome de fonte com prefixo de subset quando a fonte foi
 /// efectivamente subsetada. Usa o prefixo fixo `AAAAAA+` conforme
 /// convenção PDF para fontes subsetadas (ex: `AAAAAA+FontName`).
@@ -52,10 +56,25 @@ fn subset_font_name(base_name: &str, _subset_data: &[u8]) -> String {
 
 pub(super) struct PdfBuilder {
     objects: Vec<(usize, Vec<u8>)>,
+    /// P518 — tempo acumulado em `subset_font_with_mapping` (ms).
+    subset_ms: f64,
 }
 
 impl PdfBuilder {
-    pub(super) fn new() -> Self { Self { objects: Vec::new() } }
+    pub(super) fn new() -> Self {
+        Self { objects: Vec::new(), subset_ms: 0.0 }
+    }
+
+    fn measure_subset(
+        &mut self,
+        font_data: &[u8],
+        char_to_old_gid: &std::collections::BTreeMap<char, u16>,
+    ) -> Option<FontSubset> {
+        let t0 = std::time::Instant::now();
+        let result = subset_font_with_mapping(font_data, char_to_old_gid);
+        self.subset_ms += duration_ms(t0.elapsed());
+        result
+    }
 
     fn add(&mut self, id: usize, content: String) {
         self.objects.push((id, content.into_bytes()));
@@ -65,7 +84,7 @@ impl PdfBuilder {
         self.objects.push((id, content));
     }
 
-    pub(super) fn build(self, doc: &PagedDocument, font_data: Option<&[u8]>) -> Vec<u8> {
+    pub(super) fn build(self, doc: &PagedDocument, font_data: Option<&[u8]>) -> (Vec<u8>, f64) {
         if let Some(data) = font_data {
             if let Ok(face) = Face::parse(data, 0) {
                 return self.build_cidfont(doc, &face, data);
@@ -76,7 +95,7 @@ impl PdfBuilder {
 
     // ── Caminho Helvetica (fallback, Type1 sem embedding) ─────────────────
 
-    fn build_helvetica(mut self, doc: &PagedDocument) -> Vec<u8> {
+    fn build_helvetica(mut self, doc: &PagedDocument) -> (Vec<u8>, f64) {
         let n = doc.pages.len().max(1);
         let first_page   = 3usize;
         let first_stream = first_page + n;
@@ -146,12 +165,13 @@ impl PdfBuilder {
 
         self.emit_link_annotations(doc);
         self.emit_named_destinations(doc);
-        self.serialize()
+        let subset_ms = self.subset_ms;
+        (self.serialize(), subset_ms)
     }
 
     // ── Caminho CIDFont (Unicode completo, Identity-H) ─────────────────────
 
-    fn build_cidfont(mut self, doc: &PagedDocument, face: &Face<'_>, font_data: &[u8]) -> Vec<u8> {
+    fn build_cidfont(mut self, doc: &PagedDocument, face: &Face<'_>, font_data: &[u8]) -> (Vec<u8>, f64) {
         let n = doc.pages.len().max(1);
         let first_page         = 3usize;
         let first_stream       = first_page + n;
@@ -181,7 +201,7 @@ impl PdfBuilder {
         let char_to_old_gid: std::collections::BTreeMap<char, u16> =
             mappings.iter().copied().collect();
         let (embed_font_data, glyph_mapping) =
-            match subset_font_with_mapping(font_data, &char_to_old_gid) {
+            match self.measure_subset(font_data, &char_to_old_gid) {
                 Some(FontSubset { data, mapping }) => {
                     if Face::parse(&data, 0).is_ok() {
                         (data, mapping)
@@ -309,7 +329,8 @@ impl PdfBuilder {
 
         self.emit_link_annotations(doc);
         self.emit_named_destinations(doc);
-        self.serialize()
+        let subset_ms = self.subset_ms;
+        (self.serialize(), subset_ms)
     }
 
     // ── Caminho Multi-font (Passo 146, ADR-0055 decisão 5) ───────────────────
@@ -319,7 +340,7 @@ impl PdfBuilder {
         doc:   &PagedDocument,
         fonts: &[(FontList, Vec<u8>)],
         faces: &[Face<'_>],
-    ) -> Vec<u8> {
+    ) -> (Vec<u8>, f64) {
         let n_pages = doc.pages.len().max(1);
         let n_fonts = fonts.len();
         let first_page   = 3usize;
@@ -355,8 +376,9 @@ impl PdfBuilder {
             // P516 — subsetting por fonte.
             let char_to_old_gid: std::collections::BTreeMap<char, u16> =
                 mappings.iter().copied().collect();
+            let font_index = per_font_mappings.len();
             let (embed_data, glyph_mapping) =
-                match subset_font_with_mapping(&fonts[per_font_mappings.len()].1, &char_to_old_gid) {
+                match self.measure_subset(&fonts[font_index].1, &char_to_old_gid) {
                     Some(FontSubset { data, mapping }) => {
                         if Face::parse(&data, 0).is_ok() {
                             (data, mapping)
@@ -504,7 +526,8 @@ impl PdfBuilder {
 
         self.emit_link_annotations(doc);
         self.emit_named_destinations(doc);
-        self.serialize()
+        let subset_ms = self.subset_ms;
+        (self.serialize(), subset_ms)
     }
 
     /// Emite todos os XObjects de imagem pré-processados para o builder.

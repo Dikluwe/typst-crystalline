@@ -1,5 +1,5 @@
 # Pipeline — L3 orquestração
-Hash do Código: 88dcf9b6
+Hash do Código: 0b3417e3
 
 ## Módulo
 `03_infra/src/pipeline.rs`
@@ -69,6 +69,11 @@ pub fn compile_to_pdf_bytes(
   materializada no Passo 146): N fonts distintas → N
   `/Subtype /Type0` no PDF. Single-font como caso particular
   (preservado por dispatch).
+- **Instrumentação de benchmark** (Passo 518): a struct
+  `Timings` expõe `shape_ms` e `subset_ms` para permitir a
+  análise de gargalos do pipeline de produção real. O tempo
+  de `render_ms` passa a ser o tempo de export PDF *após* o
+  subsetting.
 - **Array fallback chain** (ADR-0055 decisão 4, Passo 141):
   dentro de uma `FontList`, todas as famílias são tentadas
   até resolver.

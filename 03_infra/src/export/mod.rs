@@ -60,14 +60,26 @@ use self::images::{
 /// Sem fonte TrueType → fallback para Helvetica Type1 (WinAnsiEncoding, Latin-1).
 /// Para suporte Unicode completo, usar `export_pdf_with_font` (ADR-0027).
 pub fn export_pdf(doc: &PagedDocument) -> Vec<u8> {
-    PdfBuilder::new().build(doc, None)
+    PdfBuilder::new().build(doc, None).0
 }
 
 /// Serializa com fonte TrueType embebida — CIDFont + Identity-H (ADR-0027).
 /// Suporte Unicode completo para codepoints arbitrários.
 /// `font_data`: bytes brutos de um ficheiro `.ttf`/`.otf`.
 pub fn export_pdf_with_font(doc: &PagedDocument, font_data: &[u8]) -> Vec<u8> {
-    PdfBuilder::new().build(doc, Some(font_data))
+    PdfBuilder::new().build(doc, Some(font_data)).0
+}
+
+/// Variante instrumentada de `export_pdf_with_font` (P518).
+/// Devolve `(pdf_bytes, subset_ms)` onde `subset_ms` é o tempo gasto
+/// em `subset_font_with_mapping` para construir os subsets TrueType.
+pub fn export_pdf_with_font_and_timings(
+    doc: &PagedDocument,
+    font_data: &[u8],
+) -> (Vec<u8>, f64) {
+    let builder = PdfBuilder::new();
+    let (pdf, subset_ms) = builder.build(doc, Some(font_data));
+    (pdf, subset_ms)
 }
 
 /// Serializa com **N** fontes TrueType embebidas — multi-font per
@@ -86,17 +98,42 @@ pub fn export_pdf_multifont(
     fonts: &[(FontList, Vec<u8>)],
 ) -> Vec<u8> {
     if fonts.is_empty() {
-        return PdfBuilder::new().build(doc, None);
+        return PdfBuilder::new().build(doc, None).0;
     }
     let faces: Vec<Face<'_>> = fonts.iter()
         .filter_map(|(_, data)| Face::parse(data, 0).ok())
         .collect();
     if faces.len() != fonts.len() {
         // Algum bytes não parseou — fallback Helvetica.
-        return PdfBuilder::new().build(doc, None);
+        return PdfBuilder::new().build(doc, None).0;
     }
-    PdfBuilder::new().build_multifont(doc, fonts, &faces)
+    PdfBuilder::new().build_multifont(doc, fonts, &faces).0
 }
+
+/// Variante instrumentada de `export_pdf_multifont` (P518).
+/// Devolve `(pdf_bytes, subset_ms)` onde `subset_ms` é o tempo total
+/// gasto em `subset_font_with_mapping` para todas as fontes do documento.
+pub fn export_pdf_multifont_and_timings(
+    doc:   &PagedDocument,
+    fonts: &[(FontList, Vec<u8>)],
+) -> (Vec<u8>, f64) {
+    if fonts.is_empty() {
+        let (pdf, _) = PdfBuilder::new().build(doc, None);
+        return (pdf, 0.0);
+    }
+    let faces: Vec<Face<'_>> = fonts.iter()
+        .filter_map(|(_, data)| Face::parse(data, 0).ok())
+        .collect();
+    if faces.len() != fonts.len() {
+        // Algum bytes não parseou — fallback Helvetica.
+        let (pdf, _) = PdfBuilder::new().build(doc, None);
+        return (pdf, 0.0);
+    }
+    let builder = PdfBuilder::new();
+    let (pdf, subset_ms) = builder.build_multifont(doc, fonts, &faces);
+    (pdf, subset_ms)
+}
+
 
 
 // ── Testes ─────────────────────────────────────────────────────────────────

@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/pipeline.md
-//! @prompt-hash 1b030acd
+//! @prompt-hash 8695ff8d
 //! @layer L3
 //! @updated 2026-04-24
 //!
@@ -40,7 +40,11 @@ use typst_core::rules::layout::layout_with_introspector;
 use typst_core::rules::scopes::Scopes;
 use typst_core::rules::stdlib::value_to_content;
 
-use crate::export::{export_pdf, export_pdf_multifont, export_pdf_with_font};
+use crate::export::{
+    export_pdf,
+    export_pdf_multifont_and_timings,
+    export_pdf_with_font_and_timings,
+};
 
 /// Avalia `source` contra `world` e devolve `(Module, warnings)`.
 ///
@@ -197,6 +201,8 @@ fn substitute_context_blocks(
 /// Tempos das fases do pipeline cristalino, em milissegundos.
 ///
 /// P507 — instrumentação de benchmark; não altera a semântica da compilação.
+/// P518 — adiciona `shape_ms` e `subset_ms` para decompor o estágio de
+/// produção real (shaping + subsetting + render PDF).
 #[derive(Debug, Clone, Default)]
 pub struct Timings {
     /// Parse do `.typ` → `Source` (medido pelo caller, tipicamente L2/L4).
@@ -209,7 +215,11 @@ pub struct Timings {
     pub expand_context_ms: f64,
     /// Layout engine → `PagedDocument`.
     pub layout_ms: f64,
-    /// Shaping + export PDF.
+    /// Shaping: Text → TextShaped (rustybuzz + font fallback).
+    pub shape_ms: f64,
+    /// Subsetting TrueType/OpenType para embed no PDF.
+    pub subset_ms: f64,
+    /// Export PDF após subsetting.
     pub render_ms: f64,
     /// Tempo total do pipeline (sem o parse).
     pub total_ms: f64,
@@ -320,20 +330,24 @@ fn compile_to_pdf_bytes_impl(
 
     // P482 — shaping pass: Text → TextShaped (Trilha 5 Fase 1, ADR-0120 A1).
     let doc = crate::shaper::shape_document(world, doc);
+    let t5 = Instant::now();
+    timings.shape_ms = duration_ms(t5.duration_since(t4));
+
     // Passo 146 (ADR-0055 decisão 5): dispatch multi-font.
     // 0 fonts resolvidos → fallback Helvetica.
     // 1 font resolvido → preserva caminho single-font do 140B/141.
     // 2+ fonts resolvidos → multi-font (resource dict com /F1..N).
     let font_lists = collect_fonts_from_doc(&doc);
     let resolved = resolve_fonts(&font_lists, world.book(), world);
-    let pdf = match resolved.as_slice() {
-        []         => export_pdf(&doc),
-        [(_, b)]   => export_pdf_with_font(&doc, b),
-        many       => export_pdf_multifont(&doc, many),
+    let (pdf, subset_ms) = match resolved.as_slice() {
+        []         => (export_pdf(&doc), 0.0),
+        [(_, b)]   => export_pdf_with_font_and_timings(&doc, b),
+        many       => export_pdf_multifont_and_timings(&doc, many),
     };
-    let t5 = Instant::now();
-    timings.render_ms = duration_ms(t5.duration_since(t4));
-    timings.total_ms = duration_ms(t5.duration_since(t0));
+    timings.subset_ms = subset_ms;
+    let t6 = Instant::now();
+    timings.render_ms = duration_ms(t6.duration_since(t5)) - subset_ms;
+    timings.total_ms = duration_ms(t6.duration_since(t0));
 
     (Ok(pdf), warnings)
 }
@@ -356,12 +370,14 @@ impl Timings {
     /// Serializa os tempos como JSON compacto (sem dependência externa).
     pub fn to_json(&self) -> String {
         format!(
-            "{{\"parse_ms\":{:.6},\"eval_ms\":{:.6},\"introspect_ms\":{:.6},\"expand_context_ms\":{:.6},\"layout_ms\":{:.6},\"render_ms\":{:.6},\"total_ms\":{:.6}}}",
+            "{{\"parse_ms\":{:.6},\"eval_ms\":{:.6},\"introspect_ms\":{:.6},\"expand_context_ms\":{:.6},\"layout_ms\":{:.6},\"shape_ms\":{:.6},\"subset_ms\":{:.6},\"render_ms\":{:.6},\"total_ms\":{:.6}}}",
             self.parse_ms,
             self.eval_ms,
             self.introspect_ms,
             self.expand_context_ms,
             self.layout_ms,
+            self.shape_ms,
+            self.subset_ms,
             self.render_ms,
             self.total_ms,
         )
