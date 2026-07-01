@@ -182,7 +182,7 @@ O usuário deve escolher a direção. Opções:
 
 | # | Passo | Tamanho | Descrição |
 |---|-------|---------|-----------|
-| A | **P528** | S–M | Fix real de Variation Fonts: instanciar VF estaticamente por combinação peso/estilo; subsetar cada instância separadamente; referenciar a instância correcta no PDF |
+| A | **P528** | Diagnóstico (concluído) | Fix real de Variation Fonts: fontTools instancer demora ~4 min/instância (inviável); faux-bold/faux-italic é fallback de baixa fidelidade. Implementação pendente de pesquisa de alternativas (Fontations/skrifa). Ver relatório P528. |
 | B | **P519** | L | Lookahead Layout Engine (inovação — já escrito, aguardando execução) |
 | C | **P520** | M | Publicação / artigo sobre arquitetura cristalina |
 | D | **Trilha 6** | XL | CFF subsetting (completa paridade de produção) |
