@@ -11,6 +11,14 @@ materializada — ver
 Modelo análogo a ADR-0019 + nota factual de 140A: anotação
 factual sem revisão; status permanece `IMPLEMENTADO`.
 
+**Anotação Passo 523**: a tabela de alternativas desta ADR listava
+"Paridade total (subsetting + CFF)" como XL com crates novas. A sonda
+P522 confirmou que `oxifont-subset` já suporta CFF/CFF2, pelo que
+subsetting CFF é funcional sem crates novas. O scope-out de CFF foi
+levantado em P523; a única pendência é polimento do descritor PDF
+(`CID TrueType` vs `CID Type 0C`), que permanece como scope-out
+mecânico documentado (ADR-0107) até sonda adicional.
+
 ---
 
 ## Contexto

@@ -116,9 +116,15 @@ Então retorna Some(bytes) contendo apenas .notdef
 
 ## Scope-outs
 
-- CFF subsetting (fontes Type1/CFF caem em fallback fonte completa).
 - Variation fonts (VF) e fontes com múltiplos eixos.
 - Subsetting de tabelas OpenType avançadas (GPOS, GSUB, kern) — o subset resultante pode não conter kerning, mas o posicionamento já foi aplicado pelo rustybuzz no `x_offset`/`x_advance`.
+
+## Notas P523
+
+- CFF/CFF2 subsetting é suportado pelo `oxifont-subset` desde P516; a
+  narrativa de "CFF scope-out" estava desactualizada. O trabalho restante
+  é polimento de descritor PDF (`CID TrueType` vs `CID Type 0C`), não
+  implementação de subsetting CFF.
 
 ## Histórico de Revisões
 

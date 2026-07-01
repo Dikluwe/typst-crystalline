@@ -28,8 +28,9 @@ pub struct FontSubset {
 /// adicionais que devem ser preservados no subset mas não têm um
 /// codepoint único (ex.: glifos de ligature produzidos pelo shaper).
 ///
-/// Retorna `None` se a fonte for CFF/OpenType sem tabela `glyf` (scope-out
-/// do P516) ou se o subsetting falhar.
+/// P523 — `oxifont-subset` detecta o formato internamente e suporta tanto
+/// TrueType (`glyf`) como CFF/CFF2. Retorna `None` apenas se `font_data`
+/// for inválido ou se o subsetting falhar.
 pub fn subset_font_with_mapping(
     font_data: &[u8],
     char_to_old_gid: &BTreeMap<char, u16>,
@@ -190,5 +191,36 @@ mod tests {
         let mut mapping = HashMap::new();
         mapping.insert(65, 1);
         assert_eq!(remap_glyph_id(65, &mapping), 1);
+    }
+
+    #[test]
+    fn p523_subset_cff_nimbus_sans_preserves_cff_table() {
+        let fixture_path = concat!(
+            env!("CARGO_MANIFEST_DIR"),
+            "/fixtures/fonts/NimbusSans-Regular.otf"
+        );
+        let font_data = match std::fs::read(fixture_path) {
+            Ok(d) => d,
+            Err(e) => {
+                eprintln!(
+                    "SKIP subset_cff_nimbus_sans: fixture não encontrada em {}: {}",
+                    fixture_path, e
+                );
+                return;
+            }
+        };
+
+        let mut map = BTreeMap::new();
+        map.insert('A', 36u16);
+        map.insert('B', 37u16);
+        let subset = subset_font_with_mapping(&font_data, &map, &BTreeSet::new())
+            .expect("subsetting CFF deve funcionar");
+        let face = ttf_parser::Face::parse(&subset.data, 0)
+            .expect("fonte subsetada CFF deve ser parseável");
+        assert!(
+            face.tables().cff.is_some(),
+            "fonte subsetada deve preservar a tabela CFF"
+        );
+        assert_eq!(face.number_of_glyphs(), 3, "notdef + A + B");
     }
 }
