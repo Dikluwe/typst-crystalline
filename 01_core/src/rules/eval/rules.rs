@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/rules/eval.md
-//! @prompt-hash 7272c897
+//! @prompt-hash 15f29e40
 //! @layer L1
 //! @updated 2026-06-25
 //!
@@ -696,6 +696,48 @@ pub(super) fn eval_set_rule(
             }
             return Ok(Value::None);
         }
+    }
+
+    if target == "document" {
+        // **P536** — `#set document(title: ..., author: ..., keywords: ...)`.
+        // Extrai os valores, converte arrays para strings separadas por vírgula,
+        // e acumula no `EvalContext`. O eval copia isto para o `Module` no final;
+        // o pipeline transporta para o exportador PDF (`/Info`).
+        fn value_to_eco_string(val: &crate::entities::value::Value) -> Option<ecow::EcoString> {
+            match val {
+                crate::entities::value::Value::Str(s) => Some(s.clone()),
+                crate::entities::value::Value::Array(arr) => {
+                    let parts: Vec<&str> = arr
+                        .iter()
+                        .filter_map(|v| match v {
+                            crate::entities::value::Value::Str(s) => Some(s.as_str()),
+                            _ => None,
+                        })
+                        .collect();
+                    if parts.is_empty() {
+                        None
+                    } else {
+                        Some(ecow::EcoString::from(parts.join(", ")))
+                    }
+                }
+                _ => None,
+            }
+        }
+
+        for arg in set.args().items() {
+            if let Arg::Named(named) = arg {
+                let key = named.name().as_str();
+                let val = eval_expr(named.expr(), scopes, ctx, engine)
+                    .unwrap_or(crate::entities::value::Value::None);
+                match key {
+                    "title" => ctx.document_info.title = value_to_eco_string(&val),
+                    "author" => ctx.document_info.author = value_to_eco_string(&val),
+                    "keywords" => ctx.document_info.keywords = value_to_eco_string(&val),
+                    _ => {}
+                }
+            }
+        }
+        return Ok(Value::None);
     }
 
     if target == "page" {

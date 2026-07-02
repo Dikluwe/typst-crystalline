@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/rules/eval.md
-//! @prompt-hash 7272c897
+//! @prompt-hash 15f29e40
 //! @layer L1
 //! @updated 2026-06-17
 //!
@@ -22,6 +22,7 @@ use ecow::EcoString;
 use hayagriva::citationberg::IndependentStyle;
 
 use crate::contracts::world::World;
+use crate::entities::document_info::DocumentInfo;
 use crate::entities::engine::Engine;
 use crate::entities::show::{RuleId, ShowRule};
 use crate::entities::ast::AstNode;
@@ -175,6 +176,11 @@ pub struct EvalContext {
     /// `TagIntrospector` no pipeline (L3), evitando que o elemento guarde cache
     /// de estado computado.
     pub bibliography_styles: HashMap<u64, Arc<IndependentStyle>>,
+
+    /// **P536** — metadados do documento definidos por `#set document(...)`.
+    /// Transporta-se para o `Module` no fim do eval e depois para o
+    /// exportador PDF (`/Info`).
+    pub document_info: DocumentInfo,
 }
 
 impl EvalContext {
@@ -190,6 +196,7 @@ impl EvalContext {
             in_context: false,
             next_context_id: 0,
             bibliography_styles: HashMap::new(),
+            document_info: DocumentInfo::empty(),
         }
     }
 
@@ -304,7 +311,7 @@ pub fn eval_with_full_error(
     // nas duas passagens; só a aplicação das show-rules difere.
     let mut run_pass = |apply_show_rules: bool,
                         pass_sink: &mut TrackedMut<Sink>|
-     -> SourceResult<(Value, Scope, HashMap<u64, Arc<IndependentStyle>>)> {
+     -> SourceResult<(Value, Scope, HashMap<u64, Arc<IndependentStyle>>, DocumentInfo)> {
         let mut ctx = EvalContext::new();
         ctx.full_error = full_error; // P350c: flag resolvida (default false via `eval`)
         ctx.apply_show_rules = apply_show_rules; // P498
@@ -363,20 +370,21 @@ pub fn eval_with_full_error(
 
         let content_val = eval_markup(root, &mut scopes, &mut ctx, &mut engine)?;
         let module_scope = scopes.exit();
-        Ok((content_val, module_scope, ctx.bibliography_styles))
+        Ok((content_val, module_scope, ctx.bibliography_styles, ctx.document_info))
     };
 
     // Passo 1: captura do conteúdo original (pré-show-rules).
     // Usa o mesmo sink principal para que warnings emitidos antes de um erro
     // cheguem ao caller (dedup por (span, message) previne duplicação com passo 2).
-    let (original_val, _, _) = run_pass(false, &mut sink)?;
+    let (original_val, _, _, _) = run_pass(false, &mut sink)?;
     let original_content = match original_val {
         Value::Content(c) => Some(c),
         _ => None,
     };
 
     // Passo 2: eval normal (com show-rules) — este é o resultado oficial.
-    let (rendered_val, module_scope, bibliography_styles) = run_pass(true, &mut sink)?;
+    let (rendered_val, module_scope, bibliography_styles, document_info) =
+        run_pass(true, &mut sink)?;
     let rendered_content = match rendered_val {
         Value::Content(c) => Some(c),
         _ => None,
@@ -391,6 +399,8 @@ pub fn eval_with_full_error(
     // P429 (DEBT-63): transportar styles resolvidos do eval para o Module,
     // de onde o pipeline os injectará no BibStore do TagIntrospector.
     module.set_bibliography_styles(bibliography_styles);
+    // P536: transportar metadados do documento para o Module.
+    module.set_document_info(document_info);
     Ok(module)
 }
 

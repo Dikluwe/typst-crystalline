@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/entities/layout_types.md
-//! @prompt-hash ca046576
+//! @prompt-hash 459cc5e8
 //! @layer L1
 //! @updated 2026-04-23
 //!
@@ -19,6 +19,7 @@ use std::sync::Arc;
 
 use ecow::EcoString;
 
+use crate::entities::document_info::DocumentInfo;
 use crate::entities::geometry::{ShapeKind, Stroke};
 use crate::entities::label::Label;
 
@@ -546,6 +547,9 @@ pub struct PagedDocument {
     /// Cópia de `Introspector::headings_for_toc()` feita pelo pipeline
     /// pós-layout. Cada tuplo é `(auto-label, número, body, level)`.
     pub extracted_headings: Vec<(crate::entities::label::Label, Option<String>, crate::entities::content::Content, usize)>,
+    /// **P536** — metadados do documento definidos por `#set document(...)`.
+    /// Copiado do `Module` pelo pipeline antes da exportação PDF (`/Info`).
+    pub document_info: DocumentInfo,
 }
 
 impl PagedDocument {
@@ -558,6 +562,7 @@ impl PagedDocument {
             extracted_figure_page_numbers:  Vec::new(),
             extracted_table_page_numbers:   Vec::new(),
             extracted_headings:             Vec::new(),
+            document_info:                  DocumentInfo::empty(),
         }
     }
 

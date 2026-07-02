@@ -1,5 +1,5 @@
 # Prompt L0 — layout_types
-Hash do Código: 7f5279e0
+Hash do Código: a0ab14cc
 
 ## Módulo
 `01_core/src/entities/layout_types.rs`
@@ -80,6 +80,10 @@ Campos de labels (P460):
 - `extracted_headings: Vec<(Label, Option<String>, Content, usize)>` — cópia
   de `Introspector::headings_for_toc()` no pipeline, usada pelo exportador para
   construir a árvore `/Outlines`. Cada tuplo é `(auto-label, número, body, level)`.
+
+**P536** — metadados do documento (`/Info`):
+- `document_info: DocumentInfo` — metadados definidos por `#set document(...)`.
+  Copiado do `Module` pelo pipeline antes da exportação PDF.
 
 Todos inicializados vazios em `new()` e populados por `Layouter::finish()` ou
 pelo pipeline pós-layout — sem alterar a assinatura de `layout()`.

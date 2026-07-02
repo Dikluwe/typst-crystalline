@@ -39,6 +39,8 @@ pub mod counter;
 pub mod counter_state_legacy;
 pub mod counter_update;
 pub mod counter_registry;
+// P536 — metadados do documento definidos por `#set document(...)`.
+pub mod document_info;
 // P451 — formatação de counters hierárquicos com patterns.
 pub mod counter_format;
 pub mod layouter_runtime_state;

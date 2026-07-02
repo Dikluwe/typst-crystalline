@@ -1,5 +1,5 @@
 # Prompt L0 — `infra/export/builder` — PdfBuilder
-Hash do Código: 46997eee
+Hash do Código: 88792f7c
 
 **Camada**: L3
 **Ficheiro alvo**: `03_infra/src/export/builder.rs`
@@ -84,6 +84,19 @@ O `PdfBuilder` constrói uma árvore `/Outlines` a partir de
    `extracted_label_pages` / `extracted_label_positions` via auto-label do heading.
 3. O dicionário raiz `/Outlines` é referenciado pelo `/Catalog` (objecto 1).
 4. `/Count` na raiz é o número total de bookmarks.
+
+## §P536 — Metadados do documento (`/Info`)
+
+O `PdfBuilder` emite um dicionário `/Info` quando
+`PagedDocument::document_info` não está vazio:
+
+1. Campos presentes (`/Title`, `/Author`, `/Keywords`) são escritos como
+   strings literais PDF escapadas.
+2. `/CreationDate` é escrita no formato `D:YYYYMMDDHHMMSS` (UTC do momento da
+   compilação).
+3. `/Creator` é preenchida com `typst-crystalline`.
+4. O objecto `/Info` é alocado após todos os outros objectos e referenciado
+   pelo `/Trailer` (`/Info X 0 R`).
 
 ## Critérios de verificação
 

@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/export/builder.md
-//! @prompt-hash 26812ea7
+//! @prompt-hash 2e1434e4
 //! @layer L3
 //! @updated 2026-05-19
 //!
@@ -61,11 +61,14 @@ pub(super) struct PdfBuilder {
     objects: Vec<(usize, Vec<u8>)>,
     /// P518 — tempo acumulado em `subset_font_with_mapping` (ms).
     subset_ms: f64,
+    /// **P536** — object ID do dicionário `/Info`, ou `None` se não houver
+    /// metadados para emitir.
+    info_id: Option<usize>,
 }
 
 impl PdfBuilder {
     pub(super) fn new() -> Self {
-        Self { objects: Vec::new(), subset_ms: 0.0 }
+        Self { objects: Vec::new(), subset_ms: 0.0, info_id: None }
     }
 
     fn measure_subset(
@@ -170,6 +173,7 @@ impl PdfBuilder {
         self.emit_link_annotations(doc);
         self.emit_named_destinations(doc);
         self.emit_outlines(doc);
+        self.emit_info(doc);
         let subset_ms = self.subset_ms;
         (self.serialize(), subset_ms)
     }
@@ -377,6 +381,7 @@ impl PdfBuilder {
         self.emit_link_annotations(doc);
         self.emit_named_destinations(doc);
         self.emit_outlines(doc);
+        self.emit_info(doc);
         let subset_ms = self.subset_ms;
         (self.serialize(), subset_ms)
     }
@@ -640,6 +645,7 @@ impl PdfBuilder {
         self.emit_link_annotations(doc);
         self.emit_named_destinations(doc);
         self.emit_outlines(doc);
+        self.emit_info(doc);
         let subset_ms = self.subset_ms;
         (self.serialize(), subset_ms)
     }
@@ -1129,6 +1135,48 @@ impl PdfBuilder {
         }
     }
 
+    /// **P536** — emite o dicionário `/Info` com Title, Author, Creator e
+    /// CreationDate. Chamado no final de cada caminho de build antes de
+    /// `serialize`. Só aloca objecto se houver pelo menos um campo preenchido
+    /// (o pipeline pode deixar `document_info` vazio).
+    fn emit_info(&mut self, doc: &PagedDocument) {
+        if doc.document_info.is_empty() {
+            return;
+        }
+
+        let mut parts = Vec::new();
+        if let Some(title) = &doc.document_info.title {
+            parts.push(format!("/Title {}", escape_pdf_literal(title.as_str())));
+        }
+        if let Some(author) = &doc.document_info.author {
+            parts.push(format!("/Author {}", escape_pdf_literal(author.as_str())));
+        }
+        if let Some(keywords) = &doc.document_info.keywords {
+            parts.push(format!("/Keywords {}", escape_pdf_literal(keywords.as_str())));
+        }
+        if parts.is_empty() {
+            return;
+        }
+
+        // Formato PDF: D:YYYYMMDDHHMMSS (UTC).
+        let now = time::OffsetDateTime::now_utc();
+        let creation_date = format!(
+            "D:{:04}{:02}{:02}{:02}{:02}{:02}",
+            now.year(),
+            now.month() as u8,
+            now.day(),
+            now.hour(),
+            now.minute(),
+            now.second()
+        );
+        parts.push(format!("/CreationDate ({})" , creation_date));
+        parts.push("/Creator (typst-crystalline)".to_string());
+
+        let next_id = self.objects.iter().map(|(id, _)| *id).max().unwrap_or(0) + 1;
+        self.add(next_id, format!("<< {} >>", parts.join(" ")));
+        self.info_id = Some(next_id);
+    }
+
     fn serialize(self) -> Vec<u8> {
         // Header — %PDF-1.7 + comentário binário (4 bytes > 127)
         let mut out: Vec<u8> = b"%PDF-1.7\n%\xe2\xe3\xcf\xd3\n".to_vec();
@@ -1153,9 +1201,13 @@ impl PdfBuilder {
         }
 
         // Trailer
+        let info_ref = self
+            .info_id
+            .map(|id| format!(" /Info {id} 0 R"))
+            .unwrap_or_default();
         out.extend_from_slice(format!(
-            "trailer\n<< /Size {} /Root 1 0 R >>\nstartxref\n{}\n%%EOF\n",
-            max_id + 1, xref_start
+            "trailer\n<< /Size {} /Root 1 0 R{} >>\nstartxref\n{}\n%%EOF\n",
+            max_id + 1, info_ref, xref_start
         ).as_bytes());
 
         out
@@ -1166,8 +1218,14 @@ impl PdfBuilder {
 /// Mantém a URI o mais intacta possível; escapa apenas `(`, `)`, `\` e
 /// caracteres de controlo (0x00–0x1f, 0x7f) por compatibilidade com leitores.
 fn escape_pdf_uri(uri: &str) -> String {
-    let mut out = String::with_capacity(uri.len());
-    for b in uri.bytes() {
+    escape_pdf_literal(uri)
+}
+
+/// **P536** — escapa uma string literal PDF (operando `(...)`).
+fn escape_pdf_literal(s: &str) -> String {
+    let mut out = String::with_capacity(s.len() + 2);
+    out.push('(');
+    for b in s.bytes() {
         match b {
             b'(' => out.push_str("\\("),
             b')' => out.push_str("\\)"),
@@ -1176,6 +1234,7 @@ fn escape_pdf_uri(uri: &str) -> String {
             _ => out.push(b as char),
         }
     }
+    out.push(')');
     out
 }
 

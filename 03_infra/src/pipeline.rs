@@ -356,6 +356,9 @@ fn compile_to_pdf_bytes_impl(
         }
     }
 
+    // P536 — transportar metadados do documento para o PagedDocument.
+    doc.document_info = module.document_info().clone();
+
     let t4 = Instant::now();
     timings.layout_ms = duration_ms(t4.duration_since(t3));
 

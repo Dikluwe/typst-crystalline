@@ -1,5 +1,5 @@
 # Prompt L0 — rules/eval
-Hash do Código: d6a5e1f8
+Hash do Código: ad4db0ff
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/rules/eval.rs`
@@ -130,6 +130,22 @@ Requer Content, Func, Styles para implementação completa (ADR-0017).
 - **BinOp variants**: `Add, Sub, Mul, Div, And, Or, Eq, Neq, Lt, Leq, Gt, Geq,
   Assign, In, NotIn, AddAssign, SubAssign, MulAssign, DivAssign`
 - **UnOp variants**: `Pos, Neg, Not`
+
+## §P536 — Metadados do documento (`#set document(...)`)
+
+`#set document(title: ..., author: ..., keywords: ...)` é interceptado em
+`eval_set_rule` (target `"document"`) e não emite aviso de "não suportado".
+Os valores avaliados são acumulados em `EvalContext::document_info`:
+
+- `title` → `Option<EcoString>`.
+- `author` → `Option<EcoString>`; arrays de strings convertidos para uma única
+  string separada por vírgula.
+- `keywords` → `Option<EcoString>`; arrays convertidos da mesma forma.
+
+No final do eval (`eval_with_full_error`), `ctx.document_info` é copiado para
+o `Module` via `Module::set_document_info`. O pipeline transporta-o para
+`PagedDocument::document_info`, e o exportador PDF (`PdfBuilder`) escreve o
+`/Info` do PDF.
 
 ## Política IEEE 754 — propagação silenciosa (ADR-0101 EM VIGOR)
 

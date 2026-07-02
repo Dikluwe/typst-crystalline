@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/entities/module.md
-//! @prompt-hash e9055d10
+//! @prompt-hash 0abfc6bf
 //! @layer L1
 //! @updated 2026-06-23
 //!
@@ -19,6 +19,7 @@ use std::sync::Arc;
 use hayagriva::citationberg::IndependentStyle;
 
 use crate::entities::content::Content;
+use crate::entities::document_info::DocumentInfo;
 use crate::entities::scope::Scope;
 
 /// Resultado da avaliação de um ficheiro Typst.
@@ -39,6 +40,8 @@ struct ModuleInner {
     /// **P429** — styles CSL resolvidos em eval time. Tabela lateral
     /// indexada por `BibliographyElem::style_key()`.
     bib_styles:           HashMap<u64, Arc<IndependentStyle>>,
+    /// **P536** — metadados do documento definidos por `#set document(...)`.
+    document_info:        DocumentInfo,
 }
 
 impl std::fmt::Debug for Module {
@@ -63,6 +66,7 @@ impl Module {
             content: None,
             introspection_content: None,
             bib_styles: HashMap::new(),
+            document_info: DocumentInfo::empty(),
         }))
     }
 
@@ -111,6 +115,19 @@ impl Module {
     pub fn set_bibliography_styles(&mut self, styles: HashMap<u64, Arc<IndependentStyle>>) {
         if let Some(inner) = Arc::get_mut(&mut self.0) {
             inner.bib_styles = styles;
+        }
+    }
+
+    /// **P536** — metadados do documento definidos por `#set document(...)`.
+    pub fn document_info(&self) -> &DocumentInfo {
+        &self.0.document_info
+    }
+
+    /// **P536** — define os metadados do documento. Chamado em `eval()` antes
+    /// de devolver o módulo. Requer Arc com referência única.
+    pub fn set_document_info(&mut self, info: DocumentInfo) {
+        if let Some(inner) = Arc::get_mut(&mut self.0) {
+            inner.document_info = info;
         }
     }
 }

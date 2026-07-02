@@ -1,6 +1,7 @@
 # Prompt L0 — entities/module
-Hash do Código: f866fcb3
+Hash do Código: 1c3111da
 
+**Passo**: P536
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/entities/module.rs`
 **ADRs relevantes**: ADR-0017 (adiamento eval/typst-library), ADR-0023 (indexmap/Scope)
@@ -27,6 +28,8 @@ impl Module {
     pub fn new(name: impl Into<String>, scope: Scope) -> Self
     pub fn name(&self) -> &str
     pub fn scope(&self) -> &Scope
+    pub fn document_info(&self) -> &DocumentInfo
+    pub fn set_document_info(&mut self, info: DocumentInfo)
 }
 
 impl Clone for Module  // O(1) — Arc::clone
@@ -41,6 +44,7 @@ struct ModuleInner {
     content: Option<Content>,
     introspection_content: Option<Content>,
     bib_styles: HashMap<u64, Arc<IndependentStyle>>,
+    document_info: DocumentInfo,
 }
 ```
 
@@ -49,6 +53,8 @@ struct ModuleInner {
   para construir o `TagIntrospector`. Garante que `query(heading)` encontra
   o elemento mesmo quando uma show-rule o transforma no output renderizado.
 - `bib_styles` — styles CSL resolvidos em eval time (P429 / DEBT-63).
+- `document_info` — metadados do documento definidos por `#set document(...)`
+  (P536). Transporte eval → pipeline → exportador PDF (`/Info`).
 
 ## Critérios de Verificação
 
