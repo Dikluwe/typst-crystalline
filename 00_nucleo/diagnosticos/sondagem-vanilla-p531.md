@@ -5,14 +5,14 @@
 | Passo | P531 |
 | Tipo | Diagnóstico |
 | Data | 2026-07-02 |
-| Vanilla de referência | 0.14.2 (instalado em `/usr/local/bin/typst`; 0.15.0 não disponível localmente) |
+| Vanilla de referência | **0.15.0** (`/tmp/typst-x86_64-unknown-linux-musl/typst`, release de 15 Jun 2026). Comparável também com 0.14.2 (`/usr/local/bin/typst`) onde relevante. |
 | Status | Concluído |
 
 ---
 
 ## Nota metodológica
 
-Este relatório segue ADR-0108: medição directa antes de classificação. Sempre que possível, os itens foram verificados com comandos corridos no repositório e comparados com o vanilla instalado. O vanilla é 0.14.2, não 0.15.0; onde 0.15.0 introduziu funcionalidades adicionais (ex.: melhorias em CSL, novos packages), isso é assinalado.
+Este relatório segue ADR-0108: medição directa antes de classificação. Sempre que possível, os itens foram verificados com comandos corridos no repositório e comparados com o vanilla instalado. Inicialmente o único vanilla disponível era 0.14.2; posteriormente foi descarregado o binário oficial 0.15.0 (release 15 Jun 2026) e todos os testes directos foram repetidos. A secção "Diferenças 0.14.2 → 0.15.0 observadas" resume o que mudou no baseline.
 
 ---
 
@@ -55,7 +55,7 @@ Fonte: `cristalino-contexto-handoff.md` (actualizado em P530) e relatórios de p
 |---------|-----------|
 | Código que referencia COLR/CPAL/CBDT/CBLC/sbix | Nenhuma referência em `01_core/src/` ou `03_infra/src/`. |
 | Teste directo com Noto Color Emoji | Compila (exit 0), mas o PDF embute `CrystallineFont` (CID TrueType fallback), não `NotoColorEmoji`. `pdftotext` mostra glifos PUA (``, ``) em vez de emoji colorido. |
-| Vanilla 0.14.2 | Usa `NotoColorEmoji` Type 3 com emoji colorido. |
+| Vanilla 0.15.0 | Usa `NotoColorEmoji` Type 3 com emoji colorido. |
 | Estado | **AUSENTE** — nenhum suporte a fontes de cor. |
 
 ### 3.2 — Fontes Type1/PostScript antigas
@@ -64,7 +64,7 @@ Fonte: `cristalino-contexto-handoff.md` (actualizado em P530) e relatórios de p
 |---------|-----------|
 | Fontes Type1 no sistema | Sim: `/usr/share/fonts/X11/Type1/C059-*.pfb`. |
 | Teste directo com C059 | Cristalino compila mas usa fallback `CrystallineFont`; não usa C059. |
-| Vanilla 0.14.2 | Usa `C059-Roman-Identity-H` (CID Type 0C). |
+| Vanilla 0.15.0 | Usa `C059-Roman-Identity-H` (CID Type 0C). |
 | Estado | **AUSENTE** — Type1 não é suportado como fonte seleccionável. |
 
 ### 3.3 — Qualidade do fallback por caractere
@@ -73,7 +73,7 @@ Fonte: `cristalino-contexto-handoff.md` (actualizado em P530) e relatórios de p
 |---------|-----------|
 | Teste directo | Documento com latim + CJK + emoji + árabe na mesma linha. |
 | Cristalino | Usa Helvetica; `pdftotext` mostra `Hello ???? ? ?????` — caracteres não-latinos perdem-se. |
-| Vanilla 0.14.2 | Selecciona Libertinus (latim), NotoSansCJKjp (CJK), NotoColorEmoji (emoji), FreeMono (árabe) na mesma linha. |
+| Vanilla 0.15.0 | Selecciona Libertinus (latim), NotoSansCJKjp (CJK), NotoColorEmoji (emoji), FreeMono (árabe) na mesma linha. |
 | Estado | **PARCIAL/FRAGIL** — existe fallback para fonte default, mas não fallback por caractere com qualidade vanilla. |
 
 ---
@@ -106,7 +106,7 @@ Fonte: `cristalino-contexto-handoff.md` (actualizado em P530) e relatórios de p
 | `.bib` parsing | **PARCIAL** — `#bibliography("refs.bib", style: "ieee")` compila e lê o ficheiro. |
 | Citação inline | **AUSENTE** — `@key1` não é resolvido; o PDF mostra "See ." em vez de "See [1]." |
 | Formatação CSL | **PARCIAL** — a bibliografia final é emitida com estilo "ieee", mas com erros de pontuação (`?A Sample Paper,?`, `Bibliograph` truncado). |
-| Vanilla 0.14.2 | Citação e bibliografia correctas. |
+| Vanilla 0.15.0 | Citação e bibliografia correctas. |
 | Estado | **PARCIAL** — infraestrutura existe, mas citações e formatação têm bugs. |
 
 ---
@@ -147,7 +147,7 @@ Fonte: `cristalino-contexto-handoff.md` (actualizado em P530) e relatórios de p
 |---------|-----------|
 | Teste directo | `#set page(columns: 2)` + `footnote[...]`. |
 | Cristalino | Compila; a nota aparece no final da página, depois de ambas as colunas. Não fica no fundo da coluna onde foi referenciada. |
-| Vanilla 0.14.2 | Nota no fundo da coluna correcta. |
+| Vanilla 0.15.0 | Nota no fundo da coluna correcta. |
 | Estado | **PARCIAL** — footnotes funcionam em single-column; em multi-coluna o posicionamento está incorrecto. |
 
 ### 8.2 — Numeração de página customizada
@@ -156,8 +156,29 @@ Fonte: `cristalino-contexto-handoff.md` (actualizado em P530) e relatórios de p
 |---------|-----------|
 | Teste directo | `#set page(numbering: "i")`. |
 | Cristalino | Compila, mas os números de página não aparecem no PDF. |
-| Vanilla 0.14.2 | Mostra `i`, `ii`, etc. |
+| Vanilla 0.15.0 | Mostra `i`, `ii`, etc. |
 | Estado | **AUSENTE** — a propriedade é reconhecida, mas o render não a aplica. |
+
+---
+
+## Diferenças 0.14.2 → 0.15.0 observadas
+
+Todos os testes directos do Grupo 3–8 foram repetidos com o binário oficial 0.15.0. As diferenças observadas face a 0.14.2:
+
+| Área | 0.14.2 | 0.15.0 | Impacto no gap cristalino |
+|------|--------|--------|---------------------------|
+| Emoji | NotoColorEmoji Type 3 | Igual | Sem alteração. |
+| Fallback multi-script | Libertinus + NotoSansCJKjp + NotoColorEmoji + FreeMono | Igual | Sem alteração. |
+| Type1 (C059) | C059-Roman-Identity-H CID Type 0C | Igual | Sem alteração. |
+| Bibliografia CSL | `[1]` + formatação correcta | Igual | Sem alteração. |
+| Metadados XMP | Title, Author, Creator, Metadata Stream, Tagged | Igual | Sem alteração. |
+| Bookmarks | `/Outlines` presente | Igual | Sem alteração. |
+| Numeração romana | `i`, `ii` | Igual | Sem alteração. |
+| Footnotes multi-coluna | Nota no fundo da coluna correcta | Igual | Sem alteração. |
+| Quebra CJK | NotoSansCJKjp + quebras correctas | Igual | Sem alteração. |
+| Pacotes `@preview` | Não testado | `@preview/cetz:0.2.2` descarrega e compila com sucesso | 0.15.0 confirma que packages são realidade de produção; cristalino ainda não reconhece sintaxe. |
+
+**Conclusão:** para o conjunto de funcionalidades sondadas, o vanilla 0.15.0 comporta-se de forma idêntica ao 0.14.2. A única novidade confirmada é o ecossistema de packages (`@preview`) a funcionar de forma madura. Os gaps do cristalino mantêm-se os mesmos.
 
 ---
 
@@ -257,3 +278,4 @@ pdftotext /tmp/page-num-cristalino.pdf -
 - `00_nucleo/materialization/typst-passo-531.md` — especificação do passo.
 - `00_nucleo/diagnosticos/cristalino-contexto-handoff.md` — baseline de funcionalidades fechadas.
 - `00_nucleo/diagnosticos/sonda-igualdade-saida-p526.md` — sondagem anterior de HTML/SVG/PNG/LSP.
+- Typst 0.15.0 release: <https://github.com/typst/typst/releases/tag/v0.15.0> (asset `typst-x86_64-unknown-linux-musl.tar.xz`).
