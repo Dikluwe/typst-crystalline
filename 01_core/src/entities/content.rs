@@ -484,9 +484,11 @@ pub enum Content {
     /// de aplicar a nova configuração. Se a página actual estiver vazia, aplica
     /// directamente sem quebra.
     SetPage {
-        width: Option<f64>,
-        height: Option<f64>,
-        margin: Option<f64>,
+        width:     Option<f64>,
+        height:    Option<f64>,
+        margin:    Option<f64>,
+        /// **P532** — padrão de numeração automática de páginas.
+        numbering: Option<EcoString>,
     },
 
     /// Altera a posição do conteúdo dentro do espaço disponível no fluxo (Passo 82).
@@ -2493,9 +2495,9 @@ impl PartialEq for Content {
             // Modelo D (Lote 11 P326): Footnote delega ao `Arc<…Elem>`.
             (Self::Footnote(a), Self::Footnote(b)) => a == b,
             (
-                Self::SetPage { width: wa, height: ha, margin: ma },
-                Self::SetPage { width: wb, height: hb, margin: mb },
-            ) => wa == wb && ha == hb && ma == mb,
+                Self::SetPage { width: wa, height: ha, margin: ma, numbering: na },
+                Self::SetPage { width: wb, height: hb, margin: mb, numbering: nb },
+            ) => wa == wb && ha == hb && ma == mb && na == nb,
             // Modelo D (Lote 7 P322): Align delega ao `Arc<…Elem>`.
             (Self::Align(a), Self::Align(b)) => a == b,
             // Modelo D (Lote 9 P324): Place delega ao `Arc<…Elem>`.

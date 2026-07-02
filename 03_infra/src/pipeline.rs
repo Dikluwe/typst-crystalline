@@ -612,7 +612,7 @@ mod tests {
     }
 
     fn page_with(items: Vec<FrameItem>) -> Page {
-        Page { width: 100.0, height: 100.0, items }
+        Page { width: 100.0, height: 100.0, numbering: None, items }
     }
 
     fn font_list(name: &str) -> FontList {

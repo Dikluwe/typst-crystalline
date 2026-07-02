@@ -54,6 +54,7 @@ pub fn format_counter(values: &[usize], pattern: &str) -> Option<String> {
 enum TokenKind {
     Arabic,
     Roman,
+    RomanLower,
     LetterLower,
     LetterUpper,
 }
@@ -62,6 +63,7 @@ fn token_kind(ch: char) -> Option<TokenKind> {
     match ch {
         '1' => Some(TokenKind::Arabic),
         'I' => Some(TokenKind::Roman),
+        'i' => Some(TokenKind::RomanLower),
         'a' => Some(TokenKind::LetterLower),
         'A' => Some(TokenKind::LetterUpper),
         _ => None,
@@ -72,6 +74,7 @@ fn format_level(value: usize, kind: TokenKind) -> String {
     match kind {
         TokenKind::Arabic => value.to_string(),
         TokenKind::Roman => to_roman(value),
+        TokenKind::RomanLower => to_roman(value).to_lowercase(),
         TokenKind::LetterLower => to_letters(value, false),
         TokenKind::LetterUpper => to_letters(value, true),
     }

@@ -17,7 +17,7 @@ use crate::entities::{
     label::Label,
     image_sizer::{ImageSizer, NullImageSizer},
     layout_types::{
-        Align2D, FrameItem, HAlign, Page, PageConfig, PagedDocument, Pt,
+        Align2D, FrameItem, HAlign, Page, PageConfig, PagedDocument, Point, Pt,
         TextStyle, VAlign,
     },
     location::Location,
@@ -844,8 +844,8 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
             Content::Cite(e) => cite::layout(self, e),
 
             // Atomizado (ADR-0109, P425) → layout/set_page.rs.
-            Content::SetPage { width, height, margin } => {
-                set_page::layout(self, width, height, margin);
+            Content::SetPage { width, height, margin, numbering } => {
+                set_page::layout(self, width, height, margin, numbering);
             }
 
             // Atomizado (ADR-0109, P378) → layout/image.rs.
@@ -1129,11 +1129,30 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
             self.new_page();
             iter_limit -= 1;
         }
-        if !self.regions.current.current_items.is_empty() {
+        if !self.regions.current.current_items.is_empty() || !self.pages.is_empty() {
+            let page_numbering = self.page_config.numbering.clone();
+            let page_number = self.pages.len() + 1;
+            let mut items = self.regions.current.current_items;
+
+            // **P532** — numeração automática na última página.
+            if let Some(pattern) = &page_numbering {
+                if let Some(text) = crate::entities::counter_format::format_counter(&[page_number], pattern.as_str()) {
+                    let text_width = self.metrics.advance(&text, self.font_size_pt).0;
+                    let x = (self.regions.current.width - text_width) / 2.0;
+                    let y = self.regions.current.height - self.page_config.margin / 2.0;
+                    items.push(FrameItem::Text {
+                        pos: Point { x: Pt(x), y: Pt(y) },
+                        text: text.into(),
+                        style: TextStyle::regular(self.font_size_pt),
+                    });
+                }
+            }
+
             let page = Page {
                 width: self.regions.current.width,
                 height: self.regions.current.height,
-                items: self.regions.current.current_items,
+                numbering: page_numbering,
+                items,
             };
             self.pages.push(page);
         }

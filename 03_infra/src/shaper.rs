@@ -321,7 +321,7 @@ mod tests {
     }
 
     fn doc_with(items: Vec<FrameItem>) -> PagedDocument {
-        PagedDocument::new(vec![Page { width: 595.0, height: 842.0, items }])
+        PagedDocument::new(vec![Page { width: 595.0, height: 842.0, numbering: None, items }])
     }
 
     struct TempDir(PathBuf);

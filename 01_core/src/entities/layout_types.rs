@@ -430,17 +430,20 @@ pub enum TrackSizing {
 /// As páginas já fechadas têm os seus próprios snapshots de width/height.
 #[derive(Debug, Clone, PartialEq)]
 pub struct PageConfig {
-    pub width:  f64, // em pontos
-    pub height: f64, // em pontos
-    pub margin: f64, // margem uniforme em pontos
+    pub width:     f64, // em pontos
+    pub height:    f64, // em pontos
+    pub margin:    f64, // margem uniforme em pontos
+    /// **P532** — padrão de numeração automática de páginas.
+    pub numbering: Option<EcoString>,
 }
 
 impl Default for PageConfig {
     fn default() -> Self {
         Self {
-            width:  595.28, // A4 portrait
-            height: 841.89, // A4 portrait
-            margin:  70.87, // ≈ 2.5 cm
+            width:     595.28, // A4 portrait
+            height:    841.89, // A4 portrait
+            margin:     70.87, // ≈ 2.5 cm
+            numbering: None,
         }
     }
 }
@@ -455,6 +458,8 @@ pub struct Page {
     pub width:  f64,
     /// Altura da página no momento em que foi fechada.
     pub height: f64,
+    /// **P532** — padrão de numeração automática activo na página.
+    pub numbering: Option<EcoString>,
     pub items:  Vec<FrameItem>,
 }
 
@@ -866,11 +871,11 @@ mod tests {
     fn paged_document_plain_text() {
         let style = TextStyle::regular(Pt(12.0));
         let p1 = Page {
-            width: 595.28, height: 841.89,
+            width: 595.28, height: 841.89, numbering: None,
             items: vec![FrameItem::Text { pos: Point::ZERO, text: "page1".into(), style: style.clone() }],
         };
         let p2 = Page {
-            width: 595.28, height: 841.89,
+            width: 595.28, height: 841.89, numbering: None,
             items: vec![FrameItem::Text { pos: Point::ZERO, text: "page2".into(), style }],
         };
         let doc = PagedDocument::new(vec![p1, p2]);

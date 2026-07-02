@@ -9,6 +9,12 @@ use typst_core::entities::font_book::FontVariant;
 use typst_core::entities::font_list::FontList;
 use typst_core::entities::layout_types::PagedDocument;
 
+// Imports usados por `tests.rs` via `use super::*`.
+#[cfg(test)]
+use std::collections::HashMap;
+#[cfg(test)]
+use typst_core::entities::layout_types::{FrameItem, Page};
+
 // Submódulos extraídos em P307b.1 (ADR-0100 / diagnóstico P307a §5).
 mod builder;
 mod fonts;

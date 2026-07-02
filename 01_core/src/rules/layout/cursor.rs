@@ -10,9 +10,10 @@
 #![allow(deprecated)] // P483 — FrameItem::Text fallback path legítimo
 use crate::entities::{
     corners::Corners,
+    counter_format::format_counter,
     geometry::ShapeKind,
     image_sizer::ImageSizer,
-    layout_types::{FrameItem, Page, Point, Pt},
+    layout_types::{FrameItem, Page, Point, Pt, TextStyle},
 };
 
 use super::metrics::FontMetrics;
@@ -209,10 +210,35 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
         // bottom-up; tornam-se parte dos `current_items` da página.
         self.flush_pending_footnote_bodies();
 
+        // **P532** — guardar snapshot do numbering da página actual antes de
+        // a fechar, para que o export PDF saiba se/desenha o número.
+        let page_numbering = self.page_config.numbering.clone();
+        let page_number = self.pages.len() + 1;
+
+        let mut items = std::mem::take(&mut self.regions.current.current_items);
+
+        // **P532** — se houver numeração automática, desenhar o número no rodapé.
+        if let Some(pattern) = &page_numbering {
+            if let Some(text) = format_counter(&[page_number], pattern.as_str()) {
+                let text_width = self.metrics.advance(&text, self.font_size_pt).0;
+                let x = (self.regions.current.width - text_width) / 2.0;
+                // Coordenadas do layout: origem no canto superior-esquerdo,
+                // Y cresce para baixo. O PDF inverte Y; posicionar perto do
+                // fundo da página requer Y próximo de height - margin/2.
+                let y = self.regions.current.height - self.page_config.margin / 2.0;
+                items.push(FrameItem::Text {
+                    pos: Point { x: Pt(x), y: Pt(y) },
+                    text: text.into(),
+                    style: TextStyle::regular(self.font_size_pt),
+                });
+            }
+        }
+
         let page = Page {
             width:  self.regions.current.width,
             height: self.regions.current.height,
-            items:  std::mem::take(&mut self.regions.current.current_items),
+            numbering: page_numbering,
+            items,
         };
         self.pages.push(page);
         self.regions.current.cursor_x = Pt(self.page_config.margin);

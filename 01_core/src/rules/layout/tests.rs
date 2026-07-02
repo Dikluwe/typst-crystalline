@@ -14146,6 +14146,7 @@ mod f_caracterizacao_estilo {
                     width: Some(123.0),
                     height: Some(456.0),
                     margin: None,
+                    numbering: None,
                 },
                 Content::text("x"),
             ]

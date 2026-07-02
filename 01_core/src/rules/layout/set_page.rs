@@ -19,9 +19,10 @@ use super::Layouter;
 /// força nova página se a configuração mudou.
 pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
     layouter: &mut Layouter<'_, M, S>,
-    width:    &Option<f64>,
-    height:   &Option<f64>,
-    margin:   &Option<f64>,
+    width:     &Option<f64>,
+    height:    &Option<f64>,
+    margin:    &Option<f64>,
+    numbering: &Option<ecow::EcoString>,
 ) {
     let mut new_config = layouter.page_config.clone();
     let mut changed = false;
@@ -36,6 +37,10 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
     }
     if let Some(m) = margin {
         new_config.margin = *m;
+        changed = true;
+    }
+    if numbering != &new_config.numbering {
+        new_config.numbering = numbering.clone();
         changed = true;
     }
 

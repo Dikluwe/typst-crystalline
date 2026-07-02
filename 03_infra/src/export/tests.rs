@@ -91,8 +91,10 @@ use typst_core::rules::layout::layout;
 
         let page_h = 841.89;
         let page = Page {
+
             width:  595.28,
             height: page_h,
+            numbering: None,
             items:  vec![FrameItem::Link {
                 target: LinkTarget::Url("https://example.com".into()),
                 items: vec![FrameItem::Group {
@@ -183,6 +185,7 @@ use typst_core::rules::layout::layout;
         };
         let page = Page {
             width: 595.28, height: 841.89,
+            numbering: None,
             items: vec![FrameItem::Text {
                 pos:   Point { x: Pt(72.0), y: Pt(84.0) },
                 text:  "Top".into(),
@@ -319,6 +322,7 @@ use typst_core::rules::layout::layout;
         use typst_core::entities::layout_types::{Page, PagedDocument, Point, Pt};
         let page = Page {
             width: 595.28, height: 841.89,
+            numbering: None,
             items: vec![
                 FrameItem::Glyph {
                     pos: Point::ZERO, glyph_id: 42, x_advance: Pt(10.0), size: Pt(12.0),
@@ -378,6 +382,7 @@ use typst_core::rules::layout::layout;
         };
         let page = Page {
             width: 595.28, height: 841.89,
+            numbering: None,
             items: vec![
                 FrameItem::Text {
                     pos: Point::ZERO,
@@ -422,6 +427,7 @@ use typst_core::rules::layout::layout;
         };
         let page = Page {
             width: 595.28, height: 841.89,
+            numbering: None,
             items: vec![outer],
         };
         let doc = PagedDocument::new(vec![page]);
@@ -449,6 +455,7 @@ use typst_core::rules::layout::layout;
         };
         let page = Page {
             width: 595.28, height: 841.89,
+            numbering: None,
             items: vec![
                 FrameItem::Glyph {
                     pos: Point::ZERO,
@@ -494,6 +501,7 @@ use typst_core::rules::layout::layout;
         };
         let page = Page {
             width: 595.28, height: 841.89,
+            numbering: None,
             items: vec![outer],
         };
         let doc = PagedDocument::new(vec![page]);
@@ -533,6 +541,7 @@ use typst_core::rules::layout::layout;
 
         let page = Page {
             width: 595.28, height: 841.89,
+            numbering: None,
             items: vec![FrameItem::Image {
                 pos:              Point { x: Pt(72.0), y: Pt(100.0) },
                 data:             Arc::clone(&jpeg_bytes),
@@ -565,6 +574,7 @@ use typst_core::rules::layout::layout;
 
         let page = Page {
             width: 595.28, height: 841.89,
+            numbering: None,
             items: vec![FrameItem::Image {
                 pos:              Point { x: Pt(72.0), y: Pt(100.0) },
                 data:             Arc::clone(&png_bytes),
@@ -673,6 +683,7 @@ use typst_core::rules::layout::layout;
 
         let page = Page {
             width: 595.28, height: 841.89,
+            numbering: None,
             items: vec![FrameItem::Image {
                 pos: Point { x: Pt(72.0), y: Pt(100.0) },
                 data: Arc::clone(&data),
@@ -696,6 +707,7 @@ use typst_core::rules::layout::layout;
         // Mesma imagem duas vezes na mesma página — deve gerar apenas um XObject.
         let page = Page {
             width: 595.28, height: 841.89,
+            numbering: None,
             items: vec![
                 FrameItem::Image {
                     pos: Point { x: Pt(72.0), y: Pt(72.0) },
@@ -742,6 +754,7 @@ use typst_core::rules::layout::layout;
 
         let page = Page {
             width: 595.28, height: 841.89,
+            numbering: None,
             items: vec![FrameItem::Shape {
                 pos:    Point { x: Pt(72.0), y: Pt(72.0) },
                 kind:   ShapeKind::Path(path),
@@ -781,6 +794,7 @@ use typst_core::rules::layout::layout;
 
         let page = Page {
             width: 595.28, height: 841.89,
+            numbering: None,
             items: vec![FrameItem::Group {
                 pos:          Point { x: Pt(100.0), y: Pt(100.0) },
                 matrix:       TransformMatrix { a: 1.0, b: 0.0, c: 0.0, d: 1.0, tx: 0.0, ty: 0.0 },
@@ -923,8 +937,10 @@ use typst_core::rules::layout::layout;
         };
 
         let page = Page {
+
             width:  100.0,
             height: 100.0,
+            numbering: None,
             items: vec![FrameItem::Shape {
                 pos: Point { x: Pt(10.0), y: Pt(10.0) },
                 kind: ShapeKind::Rect,
@@ -968,8 +984,10 @@ use typst_core::rules::layout::layout;
             overhang: false,
         };
         let page = Page {
+
             width:  100.0,
             height: 100.0,
+            numbering: None,
             items: vec![FrameItem::Shape {
                 pos: Point { x: Pt(0.0), y: Pt(0.0) },
                 kind: ShapeKind::Rect,
@@ -1028,8 +1046,10 @@ use typst_core::rules::layout::layout;
             }
         };
         let page = Page {
+
             width:  100.0,
             height: 100.0,
+            numbering: None,
             items: vec![make_shape(0.0), make_shape(25.0), make_shape(50.0)],
         };
         let doc = PagedDocument::new(vec![page]);
@@ -1148,8 +1168,10 @@ use typst_core::rules::layout::layout;
         };
 
         let page = Page {
+
             width:  100.0,
             height: 100.0,
+            numbering: None,
             items: vec![FrameItem::Shape {
                 pos: Point { x: Pt(10.0), y: Pt(10.0) },
                 kind: ShapeKind::Rect,
@@ -1221,8 +1243,10 @@ use typst_core::rules::layout::layout;
             }
         };
         let page = Page {
+
             width:  100.0,
             height: 100.0,
+            numbering: None,
             items: vec![make_shape(0.0), make_shape(25.0), make_shape(50.0)],
         };
         let doc = PagedDocument::new(vec![page]);
@@ -1268,8 +1292,10 @@ use typst_core::rules::layout::layout;
             relative: None,
         }));
         let page = Page {
+
             width:  100.0,
             height: 100.0,
+            numbering: None,
             items: vec![
                 FrameItem::Shape {
                     pos: Point { x: Pt(0.0), y: Pt(0.0) },
@@ -1366,6 +1392,7 @@ use typst_core::rules::layout::layout;
         }));
         let page = Page {
             width: 100.0, height: 100.0,
+            numbering: None,
             items: vec![FrameItem::Shape {
                 pos: Point { x: Pt(10.0), y: Pt(10.0) },
                 kind: ShapeKind::Rect, width: 50.0, height: 30.0,
@@ -1426,6 +1453,7 @@ use typst_core::rules::layout::layout;
         );
         let page = Page {
             width: 100.0, height: 100.0,
+            numbering: None,
             items: vec![FrameItem::Shape {
                 pos: Point { x: Pt(10.0), y: Pt(10.0) },
                 kind: ShapeKind::Rect, width: 50.0, height: 30.0,
@@ -1490,6 +1518,7 @@ use typst_core::rules::layout::layout;
         };
         let page = Page {
             width: 100.0, height: 100.0,
+            numbering: None,
             items: vec![mk_shape(0.0), mk_shape(25.0), mk_shape(50.0)],
         };
         let doc = PagedDocument::new(vec![page]);
@@ -1588,6 +1617,7 @@ use typst_core::rules::layout::layout;
         };
         let page = Page {
             width: 100.0, height: 100.0,
+            numbering: None,
             items: vec![mk(linear, 0.0), mk(radial, 30.0), mk(conic, 60.0)],
         };
         let doc = PagedDocument::new(vec![page]);
@@ -1658,6 +1688,7 @@ use typst_core::rules::layout::layout;
             );
             let page = Page {
                 width: 100.0, height: 100.0,
+            numbering: None,
                 items: vec![FrameItem::Shape {
                     pos: Point { x: Pt(10.0), y: Pt(10.0) },
                     kind: ShapeKind::Rect, width: 50.0, height: 30.0,
@@ -1749,6 +1780,7 @@ use typst_core::rules::layout::layout;
             };
             let page = Page {
                 width: 100.0, height: 100.0,
+            numbering: None,
                 items: vec![mk_shape(0.0), mk_shape(25.0), mk_shape(50.0)],
             };
             PagedDocument::new(vec![page])
@@ -1815,6 +1847,7 @@ use typst_core::rules::layout::layout;
             };
             let page = Page {
                 width: 100.0, height: 100.0,
+            numbering: None,
                 items: vec![mk(linear, 0.0), mk(radial, 30.0), mk(conic, 60.0)],
             };
             PagedDocument::new(vec![page])
@@ -2145,6 +2178,7 @@ use typst_core::rules::layout::layout;
         }));
         let page = Page {
             width: 100.0, height: 100.0,
+            numbering: None,
             items: vec![FrameItem::Shape {
                 pos: Point { x: Pt(10.0), y: Pt(10.0) },
                 kind: ShapeKind::Rect, width: 50.0, height: 30.0,
@@ -2186,6 +2220,7 @@ use typst_core::rules::layout::layout;
             }));
             let page = Page {
                 width: 100.0, height: 100.0,
+            numbering: None,
                 items: vec![FrameItem::Shape {
                     pos: Point { x: Pt(10.0), y: Pt(10.0) },
                     kind: ShapeKind::Rect, width: 50.0, height: 30.0,
@@ -2229,6 +2264,7 @@ use typst_core::rules::layout::layout;
         }));
         let page = Page {
             width: 100.0, height: 100.0,
+            numbering: None,
             items: vec![FrameItem::Shape {
                 pos: Point { x: Pt(10.0), y: Pt(10.0) },
                 kind: ShapeKind::Rect, width: 50.0, height: 30.0,
@@ -2270,6 +2306,7 @@ use typst_core::rules::layout::layout;
         }));
         let page = Page {
             width: 100.0, height: 100.0,
+            numbering: None,
             items: vec![FrameItem::Shape {
                 pos: Point { x: Pt(10.0), y: Pt(10.0) },
                 kind: ShapeKind::Rect, width: 50.0, height: 30.0,
@@ -2345,6 +2382,7 @@ use typst_core::rules::layout::layout;
         };
         let page = Page {
             width: 100.0, height: 100.0,
+            numbering: None,
             items: vec![mk(linear, 0.0), mk(radial, 30.0), mk(conic, 60.0)],
         };
         let doc = PagedDocument::new(vec![page]);
@@ -2377,6 +2415,7 @@ use typst_core::rules::layout::layout;
             );
             let page = Page {
                 width: 100.0, height: 100.0,
+            numbering: None,
                 items: vec![FrameItem::Shape {
                     pos: Point { x: Pt(10.0), y: Pt(10.0) },
                     kind: ShapeKind::Rect, width: 50.0, height: 30.0,
@@ -2416,6 +2455,7 @@ use typst_core::rules::layout::layout;
             );
             let page = Page {
                 width: 100.0, height: 100.0,
+            numbering: None,
                 items: vec![FrameItem::Shape {
                     pos: Point { x: Pt(10.0), y: Pt(10.0) },
                     kind: ShapeKind::Rect, width: 50.0, height: 30.0,
@@ -2455,6 +2495,7 @@ use typst_core::rules::layout::layout;
             );
             let page = Page {
                 width: 100.0, height: 100.0,
+            numbering: None,
                 items: vec![FrameItem::Shape {
                     pos: Point { x: Pt(10.0), y: Pt(10.0) },
                     kind: ShapeKind::Rect, width: 50.0, height: 30.0,
@@ -2570,6 +2611,7 @@ use typst_core::rules::layout::layout;
         }));
         let page = Page {
             width: 100.0, height: 100.0,
+            numbering: None,
             items: vec![FrameItem::Shape {
                 pos: Point { x: Pt(10.0), y: Pt(10.0) },
                 kind: ShapeKind::Rect, width: 50.0, height: 30.0,
@@ -2617,6 +2659,7 @@ use typst_core::rules::layout::layout;
         }));
         let page = Page {
             width: 100.0, height: 100.0,
+            numbering: None,
             items: vec![FrameItem::Shape {
                 pos: Point { x: Pt(10.0), y: Pt(10.0) },
                 kind: ShapeKind::Rect, width: 50.0, height: 30.0,
@@ -2656,6 +2699,7 @@ use typst_core::rules::layout::layout;
         );
         let page = Page {
             width: 100.0, height: 100.0,
+            numbering: None,
             items: vec![FrameItem::Shape {
                 pos: Point { x: Pt(10.0), y: Pt(10.0) },
                 kind: ShapeKind::Rect, width: 50.0, height: 30.0,
@@ -2704,6 +2748,7 @@ use typst_core::rules::layout::layout;
         }));
         let page = Page {
             width: 100.0, height: 100.0,
+            numbering: None,
             items: vec![FrameItem::Shape {
                 pos: Point { x: Pt(10.0), y: Pt(10.0) },
                 kind: ShapeKind::Rect, width: 50.0, height: 30.0,
@@ -2783,6 +2828,7 @@ use typst_core::rules::layout::layout;
         };
         let page = Page {
             width: 100.0, height: 100.0,
+            numbering: None,
             items: vec![mk(linear, 0.0), mk(radial, 30.0), mk(conic, 60.0)],
         };
         let doc = PagedDocument::new(vec![page]);
@@ -2824,6 +2870,7 @@ use typst_core::rules::layout::layout;
             );
             let page = Page {
                 width: 100.0, height: 100.0,
+            numbering: None,
                 items: vec![FrameItem::Shape {
                     pos: Point { x: Pt(10.0), y: Pt(10.0) },
                     kind: ShapeKind::Rect, width: 50.0, height: 30.0,
@@ -2865,6 +2912,7 @@ use typst_core::rules::layout::layout;
             );
             let page = Page {
                 width: 100.0, height: 100.0,
+            numbering: None,
                 items: vec![FrameItem::Shape {
                     pos: Point { x: Pt(10.0), y: Pt(10.0) },
                     kind: ShapeKind::Rect, width: 50.0, height: 30.0,
@@ -3110,6 +3158,7 @@ use typst_core::rules::layout::layout;
         }));
         let page = Page {
             width: 100.0, height: 100.0,
+            numbering: None,
             items: vec![FrameItem::Shape {
                 pos: Point { x: Pt(10.0), y: Pt(10.0) },
                 kind: ShapeKind::Rect, width: 50.0, height: 30.0,
@@ -3155,6 +3204,7 @@ use typst_core::rules::layout::layout;
         }));
         let page = Page {
             width: 100.0, height: 100.0,
+            numbering: None,
             items: vec![FrameItem::Shape {
                 pos: Point { x: Pt(10.0), y: Pt(10.0) },
                 kind: ShapeKind::Rect, width: 50.0, height: 30.0,
@@ -3255,6 +3305,7 @@ use typst_core::rules::layout::layout;
         };
         let page = Page {
             width: 100.0, height: 100.0,
+            numbering: None,
             items: vec![mk(linear, 0.0), mk(radial, 30.0), mk(conic, 60.0)],
         };
         let doc = PagedDocument::new(vec![page]);
@@ -3293,6 +3344,7 @@ use typst_core::rules::layout::layout;
             );
             let page = Page {
                 width: 100.0, height: 100.0,
+            numbering: None,
                 items: vec![FrameItem::Shape {
                     pos: Point { x: Pt(10.0), y: Pt(10.0) },
                     kind: ShapeKind::Rect, width: 50.0, height: 30.0,
@@ -3437,6 +3489,7 @@ use typst_core::rules::layout::layout;
         }));
         let page = Page {
             width: 100.0, height: 100.0,
+            numbering: None,
             items: vec![FrameItem::Shape {
                 pos: Point { x: Pt(10.0), y: Pt(10.0) },
                 kind: ShapeKind::Rect, width: 50.0, height: 30.0,
@@ -3483,6 +3536,7 @@ use typst_core::rules::layout::layout;
         }));
         let page = Page {
             width: 100.0, height: 100.0,
+            numbering: None,
             items: vec![FrameItem::Shape {
                 pos: Point { x: Pt(10.0), y: Pt(10.0) },
                 kind: ShapeKind::Rect, width: 50.0, height: 30.0,
@@ -3527,6 +3581,7 @@ use typst_core::rules::layout::layout;
         }));
         let page = Page {
             width: 100.0, height: 100.0,
+            numbering: None,
             items: vec![FrameItem::Shape {
                 pos: Point { x: Pt(10.0), y: Pt(10.0) },
                 kind: ShapeKind::Rect, width: 50.0, height: 30.0,
@@ -3606,6 +3661,7 @@ use typst_core::rules::layout::layout;
         };
         let page = Page {
             width: 100.0, height: 100.0,
+            numbering: None,
             items: vec![
                 mk(linear_cmyk, 0.0), mk(radial_cmyk, 30.0), mk(conic_cmyk, 60.0),
             ],
@@ -3653,6 +3709,7 @@ use typst_core::rules::layout::layout;
             }));
             let page = Page {
                 width: 100.0, height: 100.0,
+            numbering: None,
                 items: vec![FrameItem::Shape {
                     pos: Point { x: Pt(10.0), y: Pt(10.0) },
                     kind: ShapeKind::Rect, width: 50.0, height: 30.0,
@@ -3693,6 +3750,7 @@ use typst_core::rules::layout::layout;
             );
             let page = Page {
                 width: 100.0, height: 100.0,
+            numbering: None,
                 items: vec![FrameItem::Shape {
                     pos: Point { x: Pt(10.0), y: Pt(10.0) },
                     kind: ShapeKind::Rect, width: 50.0, height: 30.0,
@@ -3749,6 +3807,7 @@ use typst_core::rules::layout::layout;
         }));
         let page = Page {
             width: 100.0, height: 100.0,
+            numbering: None,
             items: vec![FrameItem::Shape {
                 pos: Point { x: Pt(10.0), y: Pt(10.0) },
                 kind: ShapeKind::Rect, width: 50.0, height: 30.0,
@@ -3940,6 +3999,7 @@ use typst_core::rules::layout::layout;
             );
             let page = Page {
                 width: 100.0, height: 100.0,
+            numbering: None,
                 items: vec![FrameItem::Shape {
                     pos: Point { x: Pt(10.0), y: Pt(10.0) },
                     kind: ShapeKind::Rect, width: 50.0, height: 30.0,
@@ -3984,6 +4044,7 @@ use typst_core::rules::layout::layout;
         }));
         let page = Page {
             width: 100.0, height: 100.0,
+            numbering: None,
             items: vec![FrameItem::Shape {
                 pos: Point { x: Pt(10.0), y: Pt(10.0) },
                 kind: ShapeKind::Rect, width: 50.0, height: 30.0,
@@ -4059,6 +4120,7 @@ use typst_core::rules::layout::layout;
         };
         let page = Page {
             width: 100.0, height: 100.0,
+            numbering: None,
             items: vec![mk(linear, 0.0), mk(radial, 30.0), mk(conic, 60.0)],
         };
         let doc = PagedDocument::new(vec![page]);
@@ -4297,6 +4359,7 @@ use typst_core::rules::layout::layout;
             );
             let page = Page {
                 width: 100.0, height: 100.0,
+            numbering: None,
                 items: vec![FrameItem::Shape {
                     pos: Point { x: Pt(10.0), y: Pt(10.0) },
                     kind: ShapeKind::Rect, width: 50.0, height: 30.0,
@@ -4334,6 +4397,7 @@ use typst_core::rules::layout::layout;
         );
         let page = Page {
             width: 100.0, height: 100.0,
+            numbering: None,
             items: vec![FrameItem::Shape {
                 pos: Point { x: Pt(10.0), y: Pt(10.0) },
                 kind: ShapeKind::Rect, width: 50.0, height: 30.0,
@@ -4378,6 +4442,7 @@ use typst_core::rules::layout::layout;
             }));
             let page = Page {
                 width: 100.0, height: 100.0,
+            numbering: None,
                 items: vec![FrameItem::Shape {
                     pos: Point { x: Pt(10.0), y: Pt(10.0) },
                     kind: ShapeKind::Rect, width: 50.0, height: 30.0,
@@ -4437,6 +4502,7 @@ use typst_core::rules::layout::layout;
         }));
         let page = Page {
             width: 100.0, height: 100.0,
+            numbering: None,
             items: vec![FrameItem::Shape {
                 pos: Point { x: Pt(10.0), y: Pt(10.0) },
                 kind: ShapeKind::Rect, width: 50.0, height: 30.0,
@@ -4480,6 +4546,7 @@ use typst_core::rules::layout::layout;
         }));
         let page = Page {
             width: 100.0, height: 100.0,
+            numbering: None,
             items: vec![FrameItem::Shape {
                 pos: Point { x: Pt(10.0), y: Pt(10.0) },
                 kind: ShapeKind::Rect, width: 50.0, height: 30.0,
@@ -4521,6 +4588,7 @@ use typst_core::rules::layout::layout;
             }));
             let page = Page {
                 width: 100.0, height: 100.0,
+            numbering: None,
                 items: vec![FrameItem::Shape {
                     pos: Point { x: Pt(10.0), y: Pt(10.0) },
                     kind: ShapeKind::Rect, width: 50.0, height: 30.0,
@@ -4566,6 +4634,7 @@ use typst_core::rules::layout::layout;
             }));
             let page = Page {
                 width: 100.0, height: 100.0,
+            numbering: None,
                 items: vec![FrameItem::Shape {
                     pos: Point { x: Pt(10.0), y: Pt(10.0) },
                     kind: ShapeKind::Rect, width: 50.0, height: 30.0,
@@ -4608,6 +4677,7 @@ use typst_core::rules::layout::layout;
             }));
             let page = Page {
                 width: 100.0, height: 100.0,
+            numbering: None,
                 items: vec![FrameItem::Shape {
                     pos: Point { x: Pt(0.0), y: Pt(0.0) },
                     kind: ShapeKind::Rect, width: 100.0, height: 100.0,
@@ -4670,6 +4740,7 @@ use typst_core::rules::layout::layout;
         }));
         let page = Page {
             width: 100.0, height: 100.0,
+            numbering: None,
             items: vec![FrameItem::Shape {
                 pos: Point { x: Pt(10.0), y: Pt(10.0) },
                 kind: ShapeKind::Rect, width: 50.0, height: 30.0,
@@ -4756,6 +4827,7 @@ use typst_core::rules::layout::layout;
         });
         let page = Page {
             width: 595.0, height: 842.0,
+            numbering: None,
             items: vec![FrameItem::Shape {
                 pos: Point { x: Pt(10.0), y: Pt(10.0) },
                 kind: ShapeKind::Rect, width: 50.0, height: 30.0,
@@ -4797,6 +4869,7 @@ use typst_core::rules::layout::layout;
         }));
         let page = Page {
             width: 100.0, height: 100.0,
+            numbering: None,
             items: vec![FrameItem::Shape {
                 pos: Point { x: Pt(10.0), y: Pt(10.0) },
                 kind: ShapeKind::Rect, width: 50.0, height: 30.0,
@@ -4840,6 +4913,7 @@ use typst_core::rules::layout::layout;
         let mk_doc = |parent_bbox: Option<Rect>| {
             let page = Page {
                 width: 595.0, height: 842.0,
+            numbering: None,
                 items: vec![FrameItem::Shape {
                     pos: Point { x: Pt(10.0), y: Pt(10.0) },
                     kind: ShapeKind::Rect, width: 50.0, height: 30.0,
@@ -4894,6 +4968,7 @@ use typst_core::rules::layout::layout;
         let mk_doc = |parent_bbox: Option<Rect>| {
             let page = Page {
                 width: 595.0, height: 842.0,
+            numbering: None,
                 items: vec![FrameItem::Shape {
                     pos: Point { x: Pt(10.0), y: Pt(10.0) },
                     kind: ShapeKind::Rect, width: 50.0, height: 30.0,
@@ -4963,6 +5038,7 @@ use typst_core::rules::layout::layout;
         let mk_doc = |parent_bbox: Option<Rect>| {
             let page = Page {
                 width: 595.0, height: 842.0,
+            numbering: None,
                 items: vec![FrameItem::Shape {
                     pos: Point { x: Pt(50.0), y: Pt(50.0) },
                     kind: ShapeKind::Rect, width: 50.0, height: 30.0,
@@ -5013,6 +5089,7 @@ use typst_core::rules::layout::layout;
         let mk_doc = |parent_bbox: Option<Rect>| {
             let page = Page {
                 width: 595.0, height: 842.0,
+            numbering: None,
                 items: vec![FrameItem::Shape {
                     pos: Point { x: Pt(50.0), y: Pt(50.0) },
                     kind: ShapeKind::Rect, width: 50.0, height: 30.0,
@@ -5103,6 +5180,7 @@ use typst_core::rules::layout::layout;
         };
         let page = Page {
             width: 595.0, height: 842.0,
+            numbering: None,
             items: vec![group],
         };
         let doc = PagedDocument::new(vec![page]);
@@ -5154,6 +5232,7 @@ use typst_core::rules::layout::layout;
         };
         let doc_a = PagedDocument::new(vec![Page {
             width: 595.0, height: 842.0,
+            numbering: None,
             items: vec![shape_a],
         }]);
 
@@ -5178,6 +5257,7 @@ use typst_core::rules::layout::layout;
         };
         let doc_b = PagedDocument::new(vec![Page {
             width: 595.0, height: 842.0,
+            numbering: None,
             items: vec![group],
         }]);
 
@@ -5263,6 +5343,7 @@ use typst_core::rules::layout::layout;
         };
         let doc = PagedDocument::new(vec![Page {
             width: 595.0, height: 842.0,
+            numbering: None,
             items: vec![outer_group],
         }]);
         let pdf = export_pdf(&doc);
@@ -5316,6 +5397,7 @@ use typst_core::rules::layout::layout;
         };
         let doc = PagedDocument::new(vec![Page {
             width: 595.0, height: 842.0,
+            numbering: None,
             items: vec![group],
         }]);
         let pdf = export_pdf(&doc);
@@ -5348,6 +5430,7 @@ use typst_core::rules::layout::layout;
         }));
         let page = Page {
             width: 595.0, height: 842.0,
+            numbering: None,
             items: vec![FrameItem::Shape {
                 pos: Point { x: Pt(50.0), y: Pt(50.0) },
                 kind: ShapeKind::Rect, width: 30.0, height: 20.0,
@@ -5412,6 +5495,7 @@ use typst_core::rules::layout::layout;
         };
         let doc = PagedDocument::new(vec![Page {
             width: 595.0, height: 842.0,
+            numbering: None,
             items: vec![group],
         }]);
         let pdf = export_pdf(&doc);
@@ -5481,6 +5565,7 @@ use typst_core::rules::layout::layout;
         };
         let page = Page {
             width: 595.0, height: 842.0,
+            numbering: None,
             items: vec![mk_shape(50.0), mk_shape(100.0)],  // 2 shapes; same Arc; same bbox
         };
         let pdf = export_pdf(&PagedDocument::new(vec![page]));
@@ -5526,6 +5611,7 @@ use typst_core::rules::layout::layout;
         let bbox_b = Rect { x: Pt(10.0), y: Pt(150.0), w: Pt(400.0), h: Pt(200.0) };
         let page = Page {
             width: 595.0, height: 842.0,
+            numbering: None,
             items: vec![mk_shape(bbox_a, 50.0), mk_shape(bbox_b, 250.0)],
         };
         let pdf = export_pdf(&PagedDocument::new(vec![page]));
@@ -5569,6 +5655,7 @@ use typst_core::rules::layout::layout;
         };
         let page = Page {
             width: 595.0, height: 842.0,
+            numbering: None,
             items: vec![mk_shape(50.0), mk_shape(100.0), mk_shape(150.0)],
         };
         let pdf = export_pdf(&PagedDocument::new(vec![page]));
@@ -5613,6 +5700,7 @@ use typst_core::rules::layout::layout;
         let bbox3 = Rect { x: Pt(0.0), y: Pt(0.0), w: Pt(300.0), h: Pt(150.0) };
         let page = Page {
             width: 595.0, height: 842.0,
+            numbering: None,
             items: vec![
                 mk_shape(bbox1, 50.0),
                 mk_shape(bbox2, 150.0),
@@ -5661,6 +5749,7 @@ use typst_core::rules::layout::layout;
         let bbox_large = Rect { x: Pt(10.0), y: Pt(200.0), w: Pt(400.0), h: Pt(200.0) };
         let page = Page {
             width: 595.0, height: 842.0,
+            numbering: None,
             items: vec![
                 mk_shape(bbox_small, 50.0),
                 mk_shape(bbox_large, 300.0),
@@ -5750,6 +5839,7 @@ use typst_core::rules::layout::layout;
         };
         let doc = PagedDocument::new(vec![Page {
             width: 595.0, height: 842.0,
+            numbering: None,
             items: vec![group],
         }]);
         let pdf = export_pdf(&doc);
@@ -5804,6 +5894,7 @@ use typst_core::rules::layout::layout;
         };
         let doc = PagedDocument::new(vec![Page {
             width: 595.0, height: 842.0,
+            numbering: None,
             items: vec![group],
         }]);
         let pdf = export_pdf(&doc);
@@ -5860,6 +5951,7 @@ use typst_core::rules::layout::layout;
         };
         let doc = PagedDocument::new(vec![Page {
             width: 595.0, height: 842.0,
+            numbering: None,
             items: vec![group],
         }]);
         let pdf = export_pdf(&doc);
@@ -5922,6 +6014,7 @@ use typst_core::rules::layout::layout;
         };
         let doc = PagedDocument::new(vec![Page {
             width: 595.0, height: 842.0,
+            numbering: None,
             items: vec![outer_group],
         }]);
         let pdf = export_pdf(&doc);
@@ -5957,6 +6050,7 @@ use typst_core::rules::layout::layout;
         }));
         let page = Page {
             width: 595.0, height: 842.0,
+            numbering: None,
             items: vec![FrameItem::Shape {
                 pos: Point { x: Pt(50.0), y: Pt(50.0) },
                 kind: ShapeKind::Rect, width: 30.0, height: 20.0,
@@ -6025,6 +6119,7 @@ use typst_core::rules::layout::layout;
         };
         PagedDocument::new(vec![Page {
             width: 595.0, height: 842.0,
+            numbering: None,
             items: vec![group],
         }])
     }
@@ -6086,6 +6181,7 @@ use typst_core::rules::layout::layout;
         };
         let doc = PagedDocument::new(vec![Page {
             width: 595.0, height: 842.0,
+            numbering: None,
             items: vec![mk_image_in_group(50.0, 50.0), mk_image_in_group(200.0, 50.0)],
         }]);
         let pdf = export_pdf(&doc);
@@ -6136,6 +6232,7 @@ use typst_core::rules::layout::layout;
         };
         let doc = PagedDocument::new(vec![Page {
             width: 595.0, height: 842.0,
+            numbering: None,
             items: vec![outer_group],
         }]);
         let pdf = export_pdf(&doc);
@@ -6158,6 +6255,7 @@ use typst_core::rules::layout::layout;
         let jpeg_bytes = Arc::new(vec![0xFFu8, 0xD8, 0xFF, 0xE0]);
         let doc = PagedDocument::new(vec![Page {
             width: 595.0, height: 842.0,
+            numbering: None,
             items: vec![FrameItem::Image {
                 pos:              Point { x: Pt(72.0), y: Pt(100.0) },
                 data:             Arc::clone(&jpeg_bytes),
@@ -6202,6 +6300,7 @@ use typst_core::rules::layout::layout;
         };
         let doc = PagedDocument::new(vec![Page {
             width: 595.0, height: 842.0,
+            numbering: None,
             items: vec![group],
         }]);
         let pdf = export_pdf(&doc);
@@ -6260,6 +6359,7 @@ use typst_core::rules::layout::layout;
         };
         PagedDocument::new(vec![Page {
             width: 595.0, height: 842.0,
+            numbering: None,
             items: vec![group],
         }])
     }
@@ -6300,6 +6400,7 @@ use typst_core::rules::layout::layout;
         };
         let page = Page {
             width: 595.0, height: 842.0,
+            numbering: None,
             items: vec![group],
         };
         let mut char_to_gid: HashMap<char, u16> = HashMap::new();
@@ -6343,6 +6444,7 @@ use typst_core::rules::layout::layout;
         };
         let page = Page {
             width: 595.0, height: 842.0,
+            numbering: None,
             items: vec![group],
         };
         let char_to_gid: HashMap<char, u16> = HashMap::new();
@@ -6388,6 +6490,7 @@ use typst_core::rules::layout::layout;
         };
         let page = Page {
             width: 595.0, height: 842.0,
+            numbering: None,
             items: vec![group],
         };
         let fonts: Vec<((FontList, FontVariant), Vec<u8>)> = vec![
@@ -6444,6 +6547,7 @@ use typst_core::rules::layout::layout;
         };
         let doc = PagedDocument::new(vec![Page {
             width: 595.0, height: 842.0,
+            numbering: None,
             items: vec![group],
         }]);
         let pdf = export_pdf(&doc);
@@ -6475,6 +6579,7 @@ use typst_core::rules::layout::layout;
         };
         let doc = PagedDocument::new(vec![Page {
             width: 595.0, height: 842.0,
+            numbering: None,
             items: vec![group],
         }]);
         let pdf = export_pdf(&doc);
@@ -6515,6 +6620,7 @@ use typst_core::rules::layout::layout;
         };
         let doc = PagedDocument::new(vec![Page {
             width: 595.0, height: 842.0,
+            numbering: None,
             items: vec![outer_group],
         }]);
         let pdf = export_pdf(&doc);

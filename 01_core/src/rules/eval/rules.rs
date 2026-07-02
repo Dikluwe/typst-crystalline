@@ -712,6 +712,7 @@ pub(super) fn eval_set_rule(
         let mut width = None;
         let mut height = None;
         let mut margin = None;
+        let mut numbering = None;
         for arg in set.args().items() {
             if let Arg::Named(named) = arg {
                 let key = named.name().as_str();
@@ -721,11 +722,18 @@ pub(super) fn eval_set_rule(
                     "width" => width = extract_pt(&val),
                     "height" => height = extract_pt(&val),
                     "margin" => margin = extract_pt(&val),
+                    "numbering" => {
+                        numbering = match val {
+                            Value::Str(s) => Some(s),
+                            Value::None => Some(ecow::EcoString::new()),
+                            _ => None,
+                        };
+                    }
                     _ => {}
                 }
             }
         }
-        return Ok(Value::Content(Content::SetPage { width, height, margin }));
+        return Ok(Value::Content(Content::SetPage { width, height, margin, numbering }));
     }
 
     if target == "figure" {
