@@ -9666,6 +9666,27 @@ mod tests_show_rule_integration {
         assert!(txt.contains("Smith"), "author entry presente");
     }
 
+    /// **P533** — `Content::Ref` cujo nome é uma key bibliográfica deve
+    /// renderizar como citação numerada, não como referência cruzada.
+    #[test]
+    fn layout_ref_bibliografico_renderiza_como_cite() {
+        use crate::entities::bib_entry::BibEntry;
+        use std::sync::Arc;
+        let doc_content = Content::Sequence(Arc::from(vec![
+            Content::reference("smith2024"),
+            Content::bibliography(
+                vec![BibEntry::new("smith2024", "Smith, J.", "On Crystal Math", 2024)],
+                None,
+            ),
+        ]));
+        let doc = layout(&doc_content);
+        let txt = doc.plain_text();
+        assert!(
+            txt.contains("[1]"),
+            "@key bibliográfico deve renderizar [1]: doc='{}'", txt
+        );
+    }
+
     // ── Passo 159C — Cite.form variants (E2E) ─────────────────────────────
 
     /// Helper: corre introspect (para popular bib_entries) seguido

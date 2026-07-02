@@ -56,25 +56,43 @@ pub fn build_cache(
     entries: &[BibEntry],
     style: Option<&str>,
     locale: Option<&str>,
+    citation_order: Option<&[String]>,
 ) -> Option<BibRenderCache> {
     let style_name = style.unwrap_or(DEFAULT_STYLE);
     let independent = resolve_style_name(style_name)?;
-    build_cache_with_style(entries, &independent, locale)
+    build_cache_with_style(entries, &independent, locale, citation_order)
 }
 
 /// Constrói o cache a partir de um `IndependentStyle` já resolvido (P420).
 ///
 /// Usado pelo layout quando `BibliographyElem.resolved_style` foi preenchido
 /// em eval time (built-in ou custom `.csl`).
+///
+/// **P533** — `citation_order` reordena as entries antes de renderizar a
+/// bibliografia, garantindo que estilos numéricos (ex: `ieee`) listam as
+/// referências pela ordem de primeira citação no documento.
 pub fn build_cache_with_style(
     entries: &[BibEntry],
     independent: &IndependentStyle,
     locale: Option<&str>,
+    citation_order: Option<&[String]>,
 ) -> Option<BibRenderCache> {
     let locales = build_locales(locale);
 
-    let hay_entries: Vec<Entry> =
-        entries.iter().filter_map(bib_entry_to_hayagriva).collect();
+    let mut ordered_entries: Vec<BibEntry> = entries.to_vec();
+    if let Some(order) = citation_order {
+        ordered_entries.sort_by_key(|e| {
+            order
+                .iter()
+                .position(|k| k == &e.key)
+                .unwrap_or(usize::MAX)
+        });
+    }
+
+    let hay_entries: Vec<Entry> = ordered_entries
+        .iter()
+        .filter_map(bib_entry_to_hayagriva)
+        .collect();
     if hay_entries.is_empty() {
         return Some(BibRenderCache { citations: HashMap::new(), bibliography: None });
     }
@@ -364,7 +382,7 @@ mod tests {
 
     #[test]
     fn build_cache_ieee_produz_citacoes_e_bibliografia() {
-        let cache = build_cache(&sample_entries(), Some("ieee"), None).unwrap();
+        let cache = build_cache(&sample_entries(), Some("ieee"), None, None).unwrap();
         assert!(cache.bibliography.is_some());
         let normal = cache.citations.get(&CitationForm::Normal).unwrap();
         assert!(normal.contains_key("k1"));
@@ -372,8 +390,26 @@ mod tests {
     }
 
     #[test]
+    fn build_cache_ieee_reordena_por_citation_order() {
+        let cache = build_cache(
+            &sample_entries(),
+            Some("ieee"),
+            None,
+            Some(&["k2".to_string(), "k1".to_string()]),
+        )
+        .unwrap();
+        let bib = cache.bibliography.unwrap().plain_text();
+        let crystal_pos = bib.find("Crystal Paper").unwrap_or(usize::MAX);
+        let another_pos = bib.find("Another Book").unwrap_or(usize::MAX);
+        assert!(
+            another_pos < crystal_pos,
+            "bibliografia deve listar k2 (Another Book) antes de k1 (Crystal Paper): {bib}"
+        );
+    }
+
+    #[test]
     fn build_cache_apa_produz_citacoes_author_year() {
-        let cache = build_cache(&sample_entries(), Some("apa"), None).unwrap();
+        let cache = build_cache(&sample_entries(), Some("apa"), None, None).unwrap();
         let author = cache.citations.get(&CitationForm::Author).unwrap();
         let year = cache.citations.get(&CitationForm::Year).unwrap();
         let k1_author = author.get("k1").unwrap().plain_text();
@@ -384,12 +420,12 @@ mod tests {
 
     #[test]
     fn build_cache_style_inexistente_retorna_none() {
-        assert!(build_cache(&sample_entries(), Some("not-a-real-style"), None).is_none());
+        assert!(build_cache(&sample_entries(), Some("not-a-real-style"), None, None).is_none());
     }
 
     #[test]
     fn build_cache_entries_vazias_produz_cache_vazio() {
-        let cache = build_cache(&[], Some("ieee"), None).unwrap();
+        let cache = build_cache(&[], Some("ieee"), None, None).unwrap();
         assert!(cache.citations.is_empty());
         assert!(cache.bibliography.is_none());
     }
@@ -416,7 +452,7 @@ mod tests {
 
     #[test]
     fn build_cache_locale_pt_br_nao_quebra() {
-        let cache = build_cache(&sample_entries(), Some("ieee"), Some("pt-BR")).unwrap();
+        let cache = build_cache(&sample_entries(), Some("ieee"), Some("pt-BR"), None).unwrap();
         assert!(cache.bibliography.is_some());
         let normal = cache.citations.get(&CitationForm::Normal).unwrap();
         assert!(normal.contains_key("k1"));
@@ -425,14 +461,14 @@ mod tests {
     #[test]
     fn build_cache_locale_inexistente_usa_locales_disponiveis() {
         // Locale inexistente: slice vazio; hayagriva recai no locale do style.
-        let cache = build_cache(&sample_entries(), Some("ieee"), Some("xx-XX")).unwrap();
+        let cache = build_cache(&sample_entries(), Some("ieee"), Some("xx-XX"), None).unwrap();
         assert!(cache.bibliography.is_some());
     }
 
     #[test]
     fn build_cache_chicago_author_date_resolve() {
         let cache =
-            build_cache(&sample_entries(), Some("chicago-author-date"), None).unwrap();
+            build_cache(&sample_entries(), Some("chicago-author-date"), None, None).unwrap();
         assert!(cache.bibliography.is_some());
         let prose = cache.citations.get(&CitationForm::Prose).unwrap();
         let txt = prose.get("k1").unwrap().plain_text();
@@ -441,7 +477,7 @@ mod tests {
 
     #[test]
     fn citation_normal_ieee_brackets() {
-        let cache = build_cache(&sample_entries(), Some("ieee"), None).unwrap();
+        let cache = build_cache(&sample_entries(), Some("ieee"), None, None).unwrap();
         let normal = cache.citations.get(&CitationForm::Normal).unwrap();
         let txt = normal.get("k1").unwrap().plain_text();
         assert!(txt.starts_with('[') && txt.ends_with(']'), "ieee normal: {txt}");
@@ -449,7 +485,7 @@ mod tests {
 
     #[test]
     fn citation_prose_apa_contem_author_e_year() {
-        let cache = build_cache(&sample_entries(), Some("apa"), None).unwrap();
+        let cache = build_cache(&sample_entries(), Some("apa"), None, None).unwrap();
         let prose = cache.citations.get(&CitationForm::Prose).unwrap();
         let txt = prose.get("k1").unwrap().plain_text();
         assert!(txt.contains("Doe"), "prose author: {txt}");
@@ -458,7 +494,7 @@ mod tests {
 
     #[test]
     fn citation_author_apa_is_author_only() {
-        let cache = build_cache(&sample_entries(), Some("apa"), None).unwrap();
+        let cache = build_cache(&sample_entries(), Some("apa"), None, None).unwrap();
         let author = cache.citations.get(&CitationForm::Author).unwrap();
         let txt = author.get("k1").unwrap().plain_text();
         assert!(txt.contains("Doe"), "author: {txt}");
@@ -466,7 +502,7 @@ mod tests {
 
     #[test]
     fn citation_year_apa_is_year_only() {
-        let cache = build_cache(&sample_entries(), Some("apa"), None).unwrap();
+        let cache = build_cache(&sample_entries(), Some("apa"), None, None).unwrap();
         let year = cache.citations.get(&CitationForm::Year).unwrap();
         let txt = year.get("k1").unwrap().plain_text();
         assert!(txt.contains("2024"), "year: {txt}");
@@ -474,7 +510,7 @@ mod tests {
 
     #[test]
     fn bibliography_ieee_contains_numbers() {
-        let cache = build_cache(&sample_entries(), Some("ieee"), None).unwrap();
+        let cache = build_cache(&sample_entries(), Some("ieee"), None, None).unwrap();
         let txt = cache.bibliography.unwrap().plain_text();
         assert!(txt.contains("[1]"), "bib: {txt}");
         assert!(txt.contains("[2]"), "bib: {txt}");
@@ -482,7 +518,7 @@ mod tests {
 
     #[test]
     fn bibliography_apa_contains_author_title_year() {
-        let cache = build_cache(&sample_entries(), Some("apa"), None).unwrap();
+        let cache = build_cache(&sample_entries(), Some("apa"), None, None).unwrap();
         let txt = cache.bibliography.unwrap().plain_text();
         assert!(txt.contains("Doe"), "apa bib author: {txt}");
         assert!(txt.contains("Crystal Paper"), "apa bib title: {txt}");
@@ -626,7 +662,7 @@ mod tests {
     fn p420_build_cache_with_style_custom_aplica_titulo() {
         let style = parse_csl_style(p420_custom_csl()).unwrap();
         let entries = vec![BibEntry::new("k1", "Author, A.", "The Title", 2024)];
-        let cache = build_cache_with_style(&entries, &style, None).unwrap();
+        let cache = build_cache_with_style(&entries, &style, None, None).unwrap();
         let bib = cache.bibliography.unwrap().plain_text();
         assert!(bib.contains("The Title"), "bib: {bib}");
     }

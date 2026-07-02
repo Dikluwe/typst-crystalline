@@ -4,8 +4,8 @@
 //! @updated 2026-06-25
 
 use crate::entities::{
-    content::Content, counter_format::format_counter, elements::r#ref::RefElem,
-    introspector::Introspector, label::Label,
+    content::Content, counter_format::format_counter, elements::cite::CiteElem,
+    elements::r#ref::RefElem, introspector::Introspector, label::Label,
     layout_types::{FrameItem, LinkTarget, Point},
 };
 
@@ -40,6 +40,20 @@ pub(super) fn layout_ref<M: FontMetrics, S: ImageSizer>(
     layouter: &mut Layouter<M, S>,
     elem: &RefElem,
 ) {
+    // **P533** — `@key` é uma referência bibliográfica se a key existir no
+    // BibStore. Neste caso, delegamos ao layout de `Cite` em vez de tratar
+    // como referência cruzada genérica.
+    if layouter.introspector.bib_entry_for_key(elem.name.as_str()).is_some() {
+        let cite = CiteElem {
+            key: elem.name.to_string(),
+            supplement: elem.supplement.clone(),
+            form: None,
+            style: None,
+        };
+        super::cite::layout(layouter, &cite);
+        return;
+    }
+
     let target_label = Label(elem.name.to_string());
     let text = resolve_ref_text(layouter, elem, &target_label);
 

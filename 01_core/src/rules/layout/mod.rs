@@ -1573,6 +1573,7 @@ pub fn layout_with_introspector(
     content: &Content,
     introspector: crate::entities::introspector::TagIntrospector,
 ) -> PagedDocument {
+    use crate::entities::introspector::Introspector;
     use crate::entities::label::Label;
     use std::collections::HashMap;
 
@@ -1603,18 +1604,21 @@ pub fn layout_with_introspector(
     // `BibStore` do TagIntrospector pelo pipeline; built-ins continuam
     // resolvidos aqui por nome quando não houver entrada na tabela lateral.
     let bib_style = find_first_bibliography_style(content, &introspector);
+    let citation_order = introspector.citation_order();
     let bib_render_cache = bib_style.and_then(|style| {
         if let Some(resolved) = style.resolved_style {
             crate::rules::layout::bib_csl::build_cache_with_style(
                 introspector.bib_store.entries(),
                 &resolved,
                 style.locale.as_deref(),
+                Some(citation_order),
             )
         } else if let Some(name) = style.style.as_deref() {
             crate::rules::layout::bib_csl::build_cache(
                 introspector.bib_store.entries(),
                 Some(name),
                 style.locale.as_deref(),
+                Some(citation_order),
             )
         } else {
             None

@@ -26,6 +26,7 @@ use typst_core::entities::elements::context_block::ContextBlockElem;
 use typst_core::entities::engine::Engine;
 use typst_core::entities::font_book::{FontBook, FontVariant};
 use typst_core::entities::font_list::FontList;
+use typst_core::entities::introspector::Introspector;
 use typst_core::entities::layout_types::{FrameItem, PagedDocument};
 
 use crate::font_variant::text_style_to_font_variant;
@@ -304,10 +305,15 @@ fn compile_to_pdf_bytes_impl(
     // P190I (M6 fechado): popula TagIntrospector a partir do content.
     // P498: usa o conteúdo original (pré-show-rules) para que elementos
     // locatable transformados por show-rules continuem indexados.
-    let intr_content = module.introspection_content().unwrap_or(content);
+    let intr_content = module.introspection_content().unwrap_or(content).clone();
+    // **P533** — converter `@key` bibliográficos em `Content::Cite` antes
+    // de introspecção e layout, garantindo contagem de citações e
+    // ordenação da bibliografia por ordem de aparição.
+    let intr_content = typst_core::rules::introspect::convert_bib_refs_to_cites(intr_content);
+    let content = typst_core::rules::introspect::convert_bib_refs_to_cites(content.clone());
     // P429 (DEBT-63): injecta no BibStore os styles CSL resolvidos em
     // eval time, indexados pela chave do BibliographyElem correspondente.
-    let mut intr = introspect_with_introspector(intr_content);
+    let mut intr = introspect_with_introspector(&intr_content);
     for (key, style) in module.bibliography_styles() {
         intr.bib_store.add_style(*key, style.clone());
     }

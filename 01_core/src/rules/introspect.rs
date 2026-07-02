@@ -55,6 +55,216 @@ use crate::entities::{
 
 use crate::rules::introspect::extract_payload::extract_payload as do_extract_payload;
 
+/// **P533** — Converte referências `@key` que correspondam a entradas
+/// bibliográficas em `Content::Cite`, de modo que o walk de introspecção
+/// as conte corretamente para `citation_order`/`back_refs` e o layout as
+/// renderize como citações resolvidas em vez de referências cruzadas.
+pub fn convert_bib_refs_to_cites(content: Content) -> Content {
+    let keys = collect_bib_keys(&content);
+    if keys.is_empty() {
+        return content;
+    }
+    convert_refs(content, &keys)
+}
+
+fn collect_bib_keys(content: &Content) -> std::collections::HashSet<String> {
+    use crate::entities::content::Content;
+    let mut keys = std::collections::HashSet::new();
+    fn walk(c: &Content, keys: &mut std::collections::HashSet<String>) {
+        match c {
+            Content::Bibliography(b) => {
+                for e in &b.entries {
+                    keys.insert(e.key.clone());
+                }
+            }
+            Content::Sequence(seq) => seq.iter().for_each(|c| walk(c, keys)),
+            Content::Styled(body, _) => walk(body, keys),
+            Content::Block(e) => walk(&e.body, keys),
+            Content::Boxed(e) => walk(&e.body, keys),
+            Content::Pad(e) => walk(&e.body, keys),
+            Content::Align(e) => walk(&e.body, keys),
+            Content::Hide(e) => walk(&e.body, keys),
+            Content::Figure(e) => {
+                walk(&e.body, keys);
+                if let Some(cap) = &e.caption {
+                    walk(cap, keys);
+                }
+            }
+            Content::Table(e) => {
+                if let Some(cap) = &e.caption {
+                    walk(cap, keys);
+                }
+                for child in &e.children {
+                    walk(child, keys);
+                }
+            }
+            Content::Grid(e) => e.cells.iter().for_each(|c| walk(c, keys)),
+            Content::Stack(e) => e.children.iter().for_each(|c| walk(c, keys)),
+            Content::ListItem(e) => walk(&e.body, keys),
+            Content::EnumItem(e) => walk(&e.body, keys),
+            Content::TermItem(e) => {
+                walk(&e.term, keys);
+                walk(&e.description, keys);
+            }
+            Content::Footnote(e) => walk(&e.body, keys),
+            Content::Quote(e) => walk(&e.body, keys),
+            Content::Overline(e) => walk(&e.body, keys),
+            Content::Underline(e) => walk(&e.body, keys),
+            Content::Strike(e) => walk(&e.body, keys),
+            Content::Strong(e) => walk(&e.body, keys),
+            Content::Emph(e) => walk(&e.body, keys),
+            Content::SmallCaps { body, .. } => walk(body, keys),
+            Content::Link(e) => walk(&e.body, keys),
+            // ContextBlock e Dynamic não contêm content estático navegável.
+            Content::ContextBlock(_) | Content::Dynamic(_) => {}
+            _ => {}
+        }
+    }
+    walk(content, &mut keys);
+    keys
+}
+
+fn convert_refs(content: Content, keys: &std::collections::HashSet<String>) -> Content {
+    use crate::entities::content::Content;
+    use std::sync::Arc;
+    match content {
+        Content::Ref(r) => {
+            let key = r.name.to_string();
+            if keys.contains(&key) {
+                Content::cite(key, r.supplement.clone(), None)
+            } else {
+                Content::Ref(r)
+            }
+        }
+        Content::Sequence(seq) => Content::Sequence(
+            seq.iter().map(|c| convert_refs(c.clone(), keys)).collect::<Vec<_>>().into()
+        ),
+        Content::Styled(body, styles) => Content::Styled(
+            Box::new(convert_refs(*body, keys)),
+            styles,
+        ),
+        Content::Block(e) => {
+            let mut e = Arc::unwrap_or_clone(e);
+            e.body = convert_refs(e.body, keys);
+            Content::Block(Arc::new(e))
+        }
+        Content::Boxed(e) => {
+            let mut e = Arc::unwrap_or_clone(e);
+            e.body = convert_refs(e.body, keys);
+            Content::Boxed(Arc::new(e))
+        }
+        Content::Pad(e) => {
+            let mut e = Arc::unwrap_or_clone(e);
+            e.body = convert_refs(e.body, keys);
+            Content::Pad(Arc::new(e))
+        }
+        Content::Align(e) => {
+            let mut e = Arc::unwrap_or_clone(e);
+            e.body = convert_refs(e.body, keys);
+            Content::Align(Arc::new(e))
+        }
+        Content::Hide(e) => {
+            let mut e = Arc::unwrap_or_clone(e);
+            e.body = convert_refs(e.body, keys);
+            Content::Hide(Arc::new(e))
+        }
+        Content::Figure(e) => {
+            let mut e = Arc::unwrap_or_clone(e);
+            e.body = convert_refs(e.body, keys);
+            e.caption = e.caption.map(|c| convert_refs(c, keys));
+            Content::Figure(Arc::new(e))
+        }
+        Content::Table(e) => {
+            let mut e = Arc::unwrap_or_clone(e);
+            e.caption = e.caption.map(|c| convert_refs(c, keys));
+            e.children = e.children.into_iter().map(|c| convert_refs(c, keys)).collect();
+            Content::Table(Arc::new(e))
+        }
+        Content::Grid(e) => {
+            let mut e = Arc::unwrap_or_clone(e);
+            e.cells = e.cells.into_iter().map(|c| convert_refs(c, keys)).collect();
+            Content::Grid(Arc::new(e))
+        }
+        Content::Stack(e) => {
+            let mut e = Arc::unwrap_or_clone(e);
+            let new_children: Vec<Content> = e.children.iter()
+                .map(|c| convert_refs(c.clone(), keys))
+                .collect();
+            e.children = Arc::from(new_children);
+            Content::Stack(Arc::new(e))
+        }
+        Content::ListItem(e) => {
+            let mut e = Arc::unwrap_or_clone(e);
+            e.body = convert_refs(e.body, keys);
+            Content::ListItem(Arc::new(e))
+        }
+        Content::EnumItem(e) => {
+            let mut e = Arc::unwrap_or_clone(e);
+            e.body = convert_refs(e.body, keys);
+            Content::EnumItem(Arc::new(e))
+        }
+        Content::TermItem(e) => {
+            let mut e = Arc::unwrap_or_clone(e);
+            e.term = convert_refs(e.term, keys);
+            e.description = convert_refs(e.description, keys);
+            Content::TermItem(Arc::new(e))
+        }
+        Content::Footnote(e) => {
+            let mut e = Arc::unwrap_or_clone(e);
+            e.body = convert_refs(e.body, keys);
+            Content::Footnote(Arc::new(e))
+        }
+        Content::Quote(e) => {
+            let mut e = Arc::unwrap_or_clone(e);
+            e.body = convert_refs(e.body, keys);
+            Content::Quote(Arc::new(e))
+        }
+        Content::Overline(e) => {
+            let mut e = Arc::unwrap_or_clone(e);
+            e.body = convert_refs(e.body, keys);
+            Content::Overline(Arc::new(e))
+        }
+        Content::Underline(e) => {
+            let mut e = Arc::unwrap_or_clone(e);
+            e.body = convert_refs(e.body, keys);
+            Content::Underline(Arc::new(e))
+        }
+        Content::Strike(e) => {
+            let mut e = Arc::unwrap_or_clone(e);
+            e.body = convert_refs(e.body, keys);
+            Content::Strike(Arc::new(e))
+        }
+        Content::Strong(e) => {
+            let mut e = Arc::unwrap_or_clone(e);
+            e.body = convert_refs(e.body, keys);
+            Content::Strong(Arc::new(e))
+        }
+        Content::Emph(e) => {
+            let mut e = Arc::unwrap_or_clone(e);
+            e.body = convert_refs(e.body, keys);
+            Content::Emph(Arc::new(e))
+        }
+        Content::SmallCaps { body, .. } => Content::smallcaps(convert_refs(*body, keys)),
+        Content::Link(e) => {
+            let mut e = Arc::unwrap_or_clone(e);
+            e.body = convert_refs(e.body, keys);
+            Content::Link(Arc::new(e))
+        }
+        // ContextBlock não contém content aninhado (P506).
+        Content::ContextBlock(e) => Content::ContextBlock(e),
+        // Elementos dinâmicos: a transformação object-safe delega ao trait.
+        // A transformação não pode falhar (não faz eval), por isso unwrap é
+        // seguro — qualquer erro seria um bug interno.
+        Content::Dynamic(e) => {
+            let mut f = |c: &Content| -> crate::entities::source_result::SourceResult<Option<Content>> {
+                Ok(Some(convert_refs(c.clone(), keys)))
+            };
+            e.dyn_map_content(&mut f).expect("convert_bib_refs_to_cites: dyn_map_content não deve falhar")
+        }
+        other => other,
+    }
+}
+
 /// **P363 (introspect-chain) — probe de verificação, `#[cfg(test)]`.** Captura, por
 /// heading visitado no walk, o gate de numbering **lido da chain** — para um teste
 /// provar que a infra threadou o custom `heading.numbering` até o heading (sem mudar
@@ -133,13 +343,17 @@ pub fn introspect(content: &Content) -> TagIntrospector {
 pub fn introspect_with_introspector(
     content: &Content,
 ) -> TagIntrospector {
+    // **P533** — garantir que `@key` bibliográficos são vistos como
+    // `Content::Cite` durante o walk, para que `citation_order` e
+    // `back_refs` fiquem correctos.
+    let content = convert_bib_refs_to_cites(content.clone());
     let mut locator = Locator::new();
     let mut tags: Vec<Tag> = Vec::new();
     let mut intr = TagIntrospector::empty();
     let mut auto_label_counter: usize = 0;
     // P363: chain raiz = default_chain (espelha o root do layout, `layout/mod.rs`).
     let root_chain = StyleChain::default_chain();
-    walk(content, &mut locator, &mut tags, &mut intr, &mut auto_label_counter, None, &root_chain, None);
+    walk(&content, &mut locator, &mut tags, &mut intr, &mut auto_label_counter, None, &root_chain, None);
     intr.parent_locations = build_parent_index(&tags);
     intr
 }
@@ -2196,11 +2410,14 @@ mod tests {
     /// silenciosamente ignoradas neste path local (sem Engine
     /// disponível) — coerente com semântica P173 pré-P191B.
     fn introspect_with_introspector(content: &Content) -> TagIntrospector {
+        // **P533** — mirror do path público: converter `@key` bibliográficos
+        // antes do walk para contar citações correctamente.
+        let content = convert_bib_refs_to_cites(content.clone());
         let mut locator = Locator::new();
         let mut tags: Vec<Tag> = Vec::new();
         let mut intr = TagIntrospector::empty();
         let mut auto_label_counter: usize = 0;
-        walk(content, &mut locator, &mut tags, &mut intr, &mut auto_label_counter, None, &crate::entities::style_chain::StyleChain::default_chain(), None);
+        walk(&content, &mut locator, &mut tags, &mut intr, &mut auto_label_counter, None, &crate::entities::style_chain::StyleChain::default_chain(), None);
         intr.parent_locations = build_parent_index(&tags);
         intr
     }
@@ -3648,5 +3865,42 @@ mod tests {
         // O primeiro heading é filho da figure; o segundo não tem parent.
         assert_eq!(intr.parent_locations.get(&headings[0]), Some(&figures[0]));
         assert_eq!(intr.parent_locations.get(&headings[1]), None);
+    }
+
+    // **P533** — `@key` bibliográficos devem ser contados como citações.
+    #[test]
+    fn p533_bib_refs_convertidos_contam_citation_order() {
+        use crate::entities::bib_entry::BibEntry;
+        let bib = Content::bibliography(
+            vec![
+                BibEntry::new("k1", "A1", "T1", 2024),
+                BibEntry::new("k2", "A2", "T2", 2023),
+            ],
+            None,
+        );
+        let content = Content::Sequence(
+            vec![
+                Content::reference("k2"),
+                Content::reference("k1"),
+                bib,
+            ]
+            .into(),
+        );
+        let converted = convert_bib_refs_to_cites(content.clone());
+        let refs: Vec<_> = match &converted {
+            Content::Sequence(seq) => seq.iter().collect(),
+            _ => panic!("esperado Sequence"),
+        };
+        assert!(
+            matches!(&refs[0], Content::Cite(c) if c.key == "k2"),
+            "primeiro ref deve converter para Cite(k2): {:?}", refs[0]
+        );
+        assert!(
+            matches!(&refs[1], Content::Cite(c) if c.key == "k1"),
+            "segundo ref deve converter para Cite(k1): {:?}", refs[1]
+        );
+        // O path interno de introspecção também deve aplicar a conversão.
+        let intr = introspect_with_introspector(&content);
+        assert_eq!(intr.citation_order(), &["k2", "k1"]);
     }
 }
