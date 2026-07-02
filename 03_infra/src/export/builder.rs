@@ -15,7 +15,6 @@
 //! (fonts, gradients, images, stream).
 
 use std::collections::{BTreeSet, HashMap, HashSet};
-use std::sync::Arc;
 
 use ttf_parser::Face;
 use typst_core::entities::font_book::FontVariant;
@@ -30,18 +29,17 @@ use super::{
     build_page_stream, build_png_rgb_xobject, build_png_smask_xobject,
     collect_codepoints, collect_glyph_ids, collect_shaped_cluster_texts,
     collect_shaped_glyph_mappings,
-    compute_axial_coords, compute_coons_patches_n_stops,
-    compute_coons_patches_n_stops_extended, compute_radial_coords,
+    compute_axial_coords, compute_radial_coords,
     emit_conic_coons_stream_cmyk, emit_conic_coons_stream_rgb,
     emit_function_dict, emit_function_dict_cmyk, jpeg_color_space,
-    map_chars_to_glyphs, multispace_sample_stops, multispace_sample_stops_conic,
+    map_chars_to_glyphs, multispace_sample_stops,
     multispace_sample_stops_linear_cmyk, multispace_sample_stops_radial,
     multispace_sample_stops_radial_cmyk, pattern_resources_for_page,
     resolve_relative, scan_all_gradients, scan_all_images,
     subset::{remap_glyph_id, subset_font_with_mapping, FontSubset},
-    char_to_utf16_hex, text_to_hex_string, to_unicode_cmap, widths_array,
-    xobject_resources_for_page, FontScenario, GradientObject,
-    GradientObjectKind, ImageRef, ImageXObject, PageContext, PatternRef,
+    char_to_utf16_hex, to_unicode_cmap, widths_array,
+    xobject_resources_for_page, GradientObject,
+    GradientObjectKind, ImageXObject, PageContext,
 };
 
 use crate::font_metrics::build_math_glyph_reverse_map;

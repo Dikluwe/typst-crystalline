@@ -127,6 +127,9 @@ impl ValueDTO {
             Value::Selector(s) => ValueDTO::Other(format!("selector:{s:?}")),
             Value::Symbol(s) => ValueDTO::Other(format!("symbol:{s:?}")),
             Value::Args(_) => ValueDTO::Other("args".into()),
+            Value::State(s) => ValueDTO::Other(format!("state:{s:?}")),
+            Value::Counter(c) => ValueDTO::Other(format!("counter:{c:?}")),
+            Value::Label(l) => ValueDTO::Other(format!("label:{l:?}")),
         }
     }
 

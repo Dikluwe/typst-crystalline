@@ -4,19 +4,10 @@
 //! @layer L3
 //! @updated 2026-04-20
 
-use std::collections::{BTreeSet, HashMap};
-use std::io::Write;
-use std::sync::Arc;
-
-use flate2::Compression;
-use flate2::write::ZlibEncoder;
-
 use ttf_parser::Face;
 use typst_core::entities::font_book::FontVariant;
 use typst_core::entities::font_list::FontList;
-use typst_core::entities::layout_types::{FrameItem, Page, PagedDocument};
-
-use crate::font_metrics::build_math_glyph_reverse_map;
+use typst_core::entities::layout_types::PagedDocument;
 
 // Submódulos extraídos em P307b.1 (ADR-0100 / diagnóstico P307a §5).
 mod builder;

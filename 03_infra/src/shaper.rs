@@ -18,7 +18,7 @@ use rustybuzz::{Direction, UnicodeBuffer};
 use unicode_bidi::BidiInfo;
 use typst_core::contracts::world::World;
 use typst_core::entities::font_book::FontVariant;
-use typst_core::entities::font_list::{FontList, FontNamePattern};
+use typst_core::entities::font_list::FontList;
 use typst_core::entities::layout_types::{FrameItem, Page, PagedDocument, Point, Pt, ShapedGlyph, TextStyle};
 
 use crate::font_variant::{axis_variations_for_font_variant, text_style_to_font_variant};
