@@ -1394,9 +1394,11 @@ fn p501_gaps_p1_p2() {
     // corpus usa `marker: Array` (scope-out P494) e `numbering: "(a)"`
     // (scope-out P470). O gap de indentação está fechado; os diffs são dos
     // scope-outs pré-existentes.
+    // **P506** — test-state-counter.typ deixou de ser AUSENTE (state/counter
+    // implementados); portanto zero ficheiros AUSENTE restantes nesta sentinela.
     assert_eq!(panics, 0, "P501: zero PANICs; obtido {}", panics);
-    assert_eq!(ausentes, 1, "P501/P505: esperado 1 ficheiro AUSENTE restante (test-state-counter.typ); obtidos {}", ausentes);
-    assert!(matches >= 12, "P501/P502/P505: esperados pelo menos 12 MATCH; obtidos {}", matches);
+    assert_eq!(ausentes, 0, "P501/P505/P506: esperado 0 ficheiros AUSENTE; obtidos {}", ausentes);
+    assert!(matches >= 12, "P501/P502/P505/P506: esperados pelo menos 12 MATCH; obtidos {}", matches);
     assert!(diffs <= 2, "P501/P505: esperados no máximo 2 DIFFs (list/enum avançados com scope-outs); obtidos {}", diffs);
 }
 
