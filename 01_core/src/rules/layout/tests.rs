@@ -4298,11 +4298,12 @@ mod tests_show_rule_integration {
         );
     }
 
-    /// Colbreak dentro de columns block produz pagebreak literal — P219
-    /// single-region scope-out preserva downgrade graded (sem flow real
-    /// entre colunas reais).
+    /// **P537** — colbreak dentro de `columns` separa colunas reais na
+    /// mesma página (deixa de ser downgrade a pagebreak). O texto antes
+    /// do colbreak fica na coluna esquerda e o texto depois na coluna
+    /// direita.
     #[test]
-    fn p220_colbreak_dentro_columns_downgrade_graded() {
+    fn p220_colbreak_dentro_columns_separa_colunas_reais() {
         use std::sync::Arc;
         let body = Content::Sequence(Arc::from(vec![
             Content::text("p220before"),
@@ -4311,22 +4312,114 @@ mod tests_show_rule_integration {
         ]));
         let cols = Content::columns(body, 2, None);
         let doc = layout(&cols);
-        assert!(
-            doc.pages.len() >= 2,
-            "colbreak dentro de columns produz pagebreak (downgrade β), pages={}",
+        assert_eq!(
+            doc.pages.len(),
+            1,
+            "colbreak dentro de columns mantém-se numa página, pages={}",
             doc.pages.len()
         );
-        let texts: String = doc
-            .pages
+        let items: Vec<_> = doc.pages[0].items.iter().collect();
+        let before_x = items
             .iter()
-            .flat_map(|p| p.items.iter())
-            .filter_map(|item| match item {
-                FrameItem::Text { text, .. } => Some(text.as_str().to_string()),
+            .filter_map(|it| match it {
+                FrameItem::Text { text, pos, .. } if text.as_str() == "p220before" => Some(pos.x.0),
                 _ => None,
             })
-            .collect();
-        assert!(texts.contains("p220before"), "before-colbreak renderiza");
-        assert!(texts.contains("p220after"), "after-colbreak renderiza");
+            .next();
+        let after_x = items
+            .iter()
+            .filter_map(|it| match it {
+                FrameItem::Text { text, pos, .. } if text.as_str() == "p220after" => Some(pos.x.0),
+                _ => None,
+            })
+            .next();
+        let (a, b) = (before_x.expect("before"), after_x.expect("after"));
+        assert!(
+            b > a,
+            "after-colbreak deve estar à direita de before-colbreak: a={} b={}",
+            a,
+            b
+        );
+    }
+
+    // ── Passo 537 — notas de rodapé em colunas reais ─────────────────────
+
+    /// **P537** — footnotes em `columns(2)` com `colbreak()` são
+    /// desenhadas no fundo de cada coluna, não no fundo da página inteira.
+    /// Observable: numa única página, os corpos das notas A e B aparecem
+    /// com x distinto (colunas diferentes) e y próximo do fundo da página.
+    #[test]
+    fn p537_footnotes_columns_colbreak_posicionam_por_coluna() {
+        use std::sync::Arc;
+        let body = Content::Sequence(Arc::from(vec![
+            Content::text("Hello "),
+            Content::footnote(Content::text("Nota A")),
+            Content::text(" world."),
+            Content::colbreak(false),
+            Content::text("Goodbye "),
+            Content::footnote(Content::text("Nota B")),
+            Content::text(" moon."),
+        ]));
+        let cols = Content::columns(body, 2, None);
+        let doc = layout(&cols);
+        assert_eq!(
+            doc.pages.len(),
+            1,
+            "duas colunas curtas cabem numa única página"
+        );
+        let items: Vec<_> = doc.pages[0].items.iter().collect();
+        let note_a_x = items
+            .iter()
+            .filter_map(|it| match it {
+                FrameItem::Text { text, pos, .. } if text.as_str() == "Nota" => Some(pos.x.0),
+                _ => None,
+            })
+            .next();
+        let note_b_x = items
+            .iter()
+            .rev()
+            .filter_map(|it| match it {
+                FrameItem::Text { text, pos, .. } if text.as_str() == "Nota" => Some(pos.x.0),
+                _ => None,
+            })
+            .next();
+        let (a, b) = (note_a_x.expect("nota A"), note_b_x.expect("nota B"));
+        assert!(
+            b > a,
+            "nota B deve estar à direita de nota A (coluna 2 > coluna 1): a={} b={}",
+            a,
+            b
+        );
+        // Ambas as notas devem estar na metade inferior da página.
+        for it in &items {
+            if let FrameItem::Text { text, pos, .. } = it {
+                if text.as_str() == "Nota" {
+                    assert!(
+                        pos.y.0 > 700.0,
+                        "nota deve estar no fundo da página, y={}",
+                        pos.y.0
+                    );
+                }
+            }
+        }
+    }
+
+    /// **P537** — num documento de uma coluna, footnotes continuam a ser
+    /// desenhadas no fundo da página (sem regressão do modo coluna).
+    #[test]
+    fn p537_footnote_uma_coluna_sem_regressao() {
+        let content = Content::sequence(vec![
+            Content::text("Hello "),
+            Content::footnote(Content::text("Nota simples")),
+            Content::text(" world."),
+        ]);
+        let doc = layout(&content);
+        assert_eq!(doc.pages.len(), 1);
+        let has_note = doc.pages[0].items.iter().any(|it| match it {
+            FrameItem::Text { text, .. } => text.as_str() == "Nota",
+            _ => false,
+        });
+        assert!(has_note, "nota de uma coluna continua a renderizar");
     }
 
     /// Colbreak misturado com pagebreak — downgrade graded faz colbreak

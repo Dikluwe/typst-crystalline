@@ -414,7 +414,15 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
         let margin   = self.page_config.margin;
         let page_w   = self.regions.current.width;
         let page_h   = self.regions.current.height;
-        let avail_w  = page_w - 2.0 * margin;
+        // P537 — em modo coluna as notas são posicionadas em coordenadas
+        // "locais da coluna" (origem no canto superior-esquerdo útil da
+        // coluna, i.e. `margin` de offset). O arquivo `columns.rs` depois
+        // translada todos os items da coluna para `column_origin_x`.
+        let (avail_w, left_x) = if self.column_mode {
+            (self.column_width - 2.0 * margin, margin)
+        } else {
+            (page_w - 2.0 * margin, margin)
+        };
         let area_bot = page_h - margin;
 
         // P305 — compute top boundary safe: max Y of current_items
@@ -484,7 +492,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
         let mut y_cursor = (area_bot - acc_h).max(top_safe);
         for (h, items) in measured {
             let target_y = y_cursor - ascender.0;
-            let target_x = margin;
+            let target_x = left_x;
             for item in items {
                 let translated = match item {
                     FrameItem::Text { pos, text, style } => FrameItem::Text {

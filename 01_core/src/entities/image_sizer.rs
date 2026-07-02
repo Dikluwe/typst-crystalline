@@ -15,6 +15,7 @@ pub trait ImageSizer {
 
 /// Implementação nula — retorna sempre None.
 /// Usada em testes L1 que não precisam de dimensões reais.
+#[derive(Clone)]
 pub struct NullImageSizer;
 
 impl ImageSizer for NullImageSizer {

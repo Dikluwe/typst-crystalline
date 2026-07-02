@@ -356,6 +356,13 @@ pub struct Layouter<'a, M: FontMetrics, S: ImageSizer = NullImageSizer> {
     /// espaço após o último item. Resetado quando um elemento não-lista
     /// aparece na sequência.
     pub(super) last_was_loose_item: bool,
+    /// **P537** — modo coluna: quando `true`, `flush_pending_footnote_bodies`
+    /// usa `column_origin_x`/`column_width` em vez da página inteira.
+    pub(super) column_mode: bool,
+    /// **P537** — origem horizontal absoluta da coluna actual na página.
+    pub(super) column_origin_x: f64,
+    /// **P537** — largura útil da coluna actual.
+    pub(super) column_width: f64,
 }
 
 /// **P286** — Segmento de linha visual capturado por `flush_line`
@@ -506,6 +513,10 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
             pending_cell_tails: Vec::new(),
             // P304 — buffer footnote bodies inicializado vazio.
             pending_footnote_bodies: Vec::new(),
+            // P537 — modo coluna inactivo por default.
+            column_mode: false,
+            column_origin_x: 0.0,
+            column_width: 0.0,
             // P286 — collector inactivo por default; consumer P284 activa
             // localmente antes de layout_content do body decorado.
             decoration_lines_collector: None,
