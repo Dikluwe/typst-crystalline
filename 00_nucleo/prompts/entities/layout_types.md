@@ -1,5 +1,5 @@
 # Prompt L0 — layout_types
-Hash do Código: c07a3c11
+Hash do Código: 7f5279e0
 
 ## Módulo
 `01_core/src/entities/layout_types.rs`
@@ -75,8 +75,14 @@ Campos de labels (P460):
 **P488** — campos de página para LoF/LoT (fixpoint carry-forward):
 - `extracted_figure_page_numbers: Vec<usize>` — páginas de figuras contadas, em ordem de documento.
 - `extracted_table_page_numbers: Vec<usize>` — páginas de tabelas contadas, em ordem de documento.
-Todos inicializados vazios em `new()` e populados por `Layouter::finish()` — sem
-alterar a assinatura de `layout()`.
+
+**P535** — headings para bookmarks PDF:
+- `extracted_headings: Vec<(Label, Option<String>, Content, usize)>` — cópia
+  de `Introspector::headings_for_toc()` no pipeline, usada pelo exportador para
+  construir a árvore `/Outlines`. Cada tuplo é `(auto-label, número, body, level)`.
+
+Todos inicializados vazios em `new()` e populados por `Layouter::finish()` ou
+pelo pipeline pós-layout — sem alterar a assinatura de `layout()`.
 
 ## Critérios de verificação
 - `Pt(10.0) + Pt(5.0) == Pt(15.0)`

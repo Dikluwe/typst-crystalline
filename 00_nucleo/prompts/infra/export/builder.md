@@ -1,5 +1,5 @@
 # Prompt L0 — `infra/export/builder` — PdfBuilder
-Hash do Código: 86b9d7a7
+Hash do Código: 46997eee
 
 **Camada**: L3
 **Ficheiro alvo**: `03_infra/src/export/builder.rs`
@@ -70,7 +70,20 @@ Ordem canónica para todos os caminhos:
    após todos os recursos, referenciados pelo `/Annots` de cada página.
 
 Alocação dependente: gradients vêm após imagens; sub-Functions vêm após gradients;
-annotations vêm após gradients; named destinations vêm após annotations.
+annotations vêm após gradients; named destinations vêm após annotations;
+bookmarks (`/Outlines`) vêm após named destinations.
+
+## §P535 — Bookmarks PDF (`/Outlines`)
+
+O `PdfBuilder` constrói uma árvore `/Outlines` a partir de
+`PagedDocument::extracted_headings`:
+
+1. Cada heading gera um objecto outline item com `/Title`, `/Parent`, `/Prev`,
+   `/Next`, `/First`, `/Last` e `/Dest`.
+2. `/Dest` aponta para a página e posição `(x, y-up)` extraídas de
+   `extracted_label_pages` / `extracted_label_positions` via auto-label do heading.
+3. O dicionário raiz `/Outlines` é referenciado pelo `/Catalog` (objecto 1).
+4. `/Count` na raiz é o número total de bookmarks.
 
 ## Critérios de verificação
 

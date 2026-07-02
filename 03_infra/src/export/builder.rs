@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/export/builder.md
-//! @prompt-hash c06b0d16
+//! @prompt-hash 26812ea7
 //! @layer L3
 //! @updated 2026-05-19
 //!
@@ -169,6 +169,7 @@ impl PdfBuilder {
 
         self.emit_link_annotations(doc);
         self.emit_named_destinations(doc);
+        self.emit_outlines(doc);
         let subset_ms = self.subset_ms;
         (self.serialize(), subset_ms)
     }
@@ -375,6 +376,7 @@ impl PdfBuilder {
 
         self.emit_link_annotations(doc);
         self.emit_named_destinations(doc);
+        self.emit_outlines(doc);
         let subset_ms = self.subset_ms;
         (self.serialize(), subset_ms)
     }
@@ -637,6 +639,7 @@ impl PdfBuilder {
 
         self.emit_link_annotations(doc);
         self.emit_named_destinations(doc);
+        self.emit_outlines(doc);
         let subset_ms = self.subset_ms;
         (self.serialize(), subset_ms)
     }
@@ -990,6 +993,142 @@ impl PdfBuilder {
         }
     }
 
+    /// **P535** — Emite a árvore `/Outlines` no catálogo (objecto 1) a partir
+    /// dos headings registados em `PagedDocument::extracted_headings`.
+    ///
+    /// Cada bookmark aponta para a página e posição `(x, y-up)` do heading via
+    /// `extracted_label_pages` / `extracted_label_positions`. O aninhamento usa
+    /// `/Parent`, `/Prev`, `/Next`, `/First` e `/Last`.
+    fn emit_outlines(&mut self, doc: &PagedDocument) {
+        const FIRST_PAGE_ID: usize = 3;
+
+        if doc.extracted_headings.is_empty() {
+            return;
+        }
+
+        struct Node {
+            id:          usize,
+            title:       String,
+            page_ref:    String,
+            x:           f64,
+            y:           f64,
+            parent:      Option<usize>,
+            prev:        Option<usize>,
+            next:        Option<usize>,
+            first_child: Option<usize>,
+            last_child:  Option<usize>,
+        }
+
+        let mut nodes: Vec<Node> = Vec::new();
+        let mut stack: Vec<usize> = Vec::new();
+
+        for (label, _number, body, level) in &doc.extracted_headings {
+            let page = doc.extracted_label_pages.get(label).copied().unwrap_or(1);
+            let pos = doc.extracted_label_positions.get(label).copied().unwrap_or(Point::ZERO);
+            let page_idx = page.saturating_sub(1);
+            let page_ref = if page_idx < doc.pages.len() {
+                format!("{} 0 R", FIRST_PAGE_ID + page_idx)
+            } else {
+                format!("{} 0 R", FIRST_PAGE_ID + doc.pages.len().saturating_sub(1))
+            };
+            let page_h = doc.pages.get(page_idx).map(|p| p.height).unwrap_or(842.0);
+            let pdf_y = page_h - pos.y.val();
+            let title = body.plain_text();
+
+            // Fechar níveis até ao pai correcto.
+            while stack.len() >= *level {
+                stack.pop();
+            }
+            let parent = stack.last().copied();
+            let node_idx = nodes.len();
+
+            // Irmão anterior: último filho do pai, ou último top-level.
+            let prev = if let Some(p) = parent {
+                nodes[p].last_child
+            } else {
+                nodes.iter().rposition(|n| n.parent.is_none())
+            };
+
+            nodes.push(Node {
+                id:          0, // preenchido depois
+                title,
+                page_ref,
+                x:           pos.x.val(),
+                y:           pdf_y,
+                parent,
+                prev,
+                next:        None,
+                first_child: None,
+                last_child:  None,
+            });
+
+            if let Some(p) = parent {
+                if nodes[p].first_child.is_none() {
+                    nodes[p].first_child = Some(node_idx);
+                }
+                nodes[p].last_child = Some(node_idx);
+            }
+            if let Some(prev_idx) = prev {
+                nodes[prev_idx].next = Some(node_idx);
+            }
+
+            stack.push(node_idx);
+        }
+
+        // Alocar object IDs após todos os objectos existentes.
+        let mut next_id = self.objects.iter().map(|(id, _)| *id).max().unwrap_or(0) + 1;
+        let root_id = next_id;
+        next_id += 1;
+        let first_node_id = next_id;
+        for (i, node) in nodes.iter_mut().enumerate() {
+            node.id = first_node_id + i;
+        }
+
+        // Emitir cada item de outline.
+        for node in &nodes {
+            let title_hex = utf16be_hex_string(&node.title);
+            let parent_ref = node.parent
+                .map(|p| format!("{} 0 R", nodes[p].id))
+                .unwrap_or_else(|| format!("{root_id} 0 R"));
+            let mut dict = format!(
+                "<< /Title {title_hex} /Parent {parent_ref} /Dest [{} /XYZ {:.2} {:.2} null]",
+                node.page_ref, node.x, node.y
+            );
+            if let Some(prev_idx) = node.prev {
+                dict.push_str(&format!(" /Prev {} 0 R", nodes[prev_idx].id));
+            }
+            if let Some(next_idx) = node.next {
+                dict.push_str(&format!(" /Next {} 0 R", nodes[next_idx].id));
+            }
+            if let Some(first_idx) = node.first_child {
+                dict.push_str(&format!(" /First {} 0 R", nodes[first_idx].id));
+            }
+            if let Some(last_idx) = node.last_child {
+                dict.push_str(&format!(" /Last {} 0 R", nodes[last_idx].id));
+            }
+            dict.push_str(" >>");
+            self.add(node.id, dict);
+        }
+
+        let first_top = nodes.iter().find(|n| n.parent.is_none()).map(|n| n.id).unwrap_or(0);
+        let last_top = nodes.iter().rfind(|n| n.parent.is_none()).map(|n| n.id).unwrap_or(0);
+        let count = nodes.len();
+        self.add(root_id, format!(
+            "<< /Type /Outlines /First {first_top} 0 R /Last {last_top} 0 R /Count {count} >>"
+        ));
+
+        // Editar objecto 1 (catalog) para incluir /Outlines.
+        if let Some((_, content)) = self.objects.iter_mut().find(|(id, _)| *id == 1) {
+            let s = String::from_utf8_lossy(content);
+            if let Some(idx) = s.rfind(">>") {
+                let mut new = s[..idx].to_string();
+                new.push_str(&format!(" /Outlines {root_id} 0 R"));
+                new.push_str(&s[idx..]);
+                *content = new.into_bytes();
+            }
+        }
+    }
+
     fn serialize(self) -> Vec<u8> {
         // Header — %PDF-1.7 + comentário binário (4 bytes > 127)
         let mut out: Vec<u8> = b"%PDF-1.7\n%\xe2\xe3\xcf\xd3\n".to_vec();
@@ -1056,6 +1195,18 @@ fn escape_pdf_dest_name(name: &str) -> String {
     } else {
         format!("/{}", name)
     }
+}
+
+/// Converte uma string para representação PDF UTF-16BE com BOM, em hex.
+/// Resultado: `<FEFF...>` adequado para valores `/Title` em bookmarks.
+fn utf16be_hex_string(s: &str) -> String {
+    let mut bytes: Vec<u8> = Vec::with_capacity(2 + s.encode_utf16().count() * 2);
+    bytes.extend_from_slice(&[0xFE, 0xFF]); // BOM
+    for unit in s.encode_utf16() {
+        bytes.extend_from_slice(&unit.to_be_bytes());
+    }
+    let hex: String = bytes.iter().map(|b| format!("{:02X}", b)).collect();
+    format!("<{hex}>")
 }
 
 /// Recolhe `FrameItem::Link` de uma lista de items, incluindo links aninhados

@@ -26,6 +26,7 @@ use typst_core::entities::elements::context_block::ContextBlockElem;
 use typst_core::entities::engine::Engine;
 use typst_core::entities::font_book::{FontBook, FontVariant};
 use typst_core::entities::font_list::FontList;
+use typst_core::entities::element_kind::ElementKind;
 use typst_core::entities::introspector::Introspector;
 use typst_core::entities::layout_types::{FrameItem, PagedDocument};
 
@@ -317,6 +318,9 @@ fn compile_to_pdf_bytes_impl(
     for (key, style) in module.bibliography_styles() {
         intr.bib_store.add_style(*key, style.clone());
     }
+    // P535 — headings para bookmarks PDF: guarda antes de `intr` ser
+    // consumido por `layout_with_introspector`.
+    let extracted_headings = intr.headings_for_toc().to_vec();
     let t2 = Instant::now();
     timings.introspect_ms = duration_ms(t2.duration_since(t1));
 
@@ -332,7 +336,26 @@ fn compile_to_pdf_bytes_impl(
     let t3 = Instant::now();
     timings.expand_context_ms = duration_ms(t3.duration_since(t2));
 
-    let doc = layout_with_introspector(&content, intr);
+    // P535 — manter uma cópia do introspector para resolver a Location de
+    // cada heading após o layout (auto-labels não passam por
+    // `Content::Label`, pelo que não deixam rasto em
+    // `extracted_label_pages` durante o layout).
+    let intr_for_positions = intr.clone();
+    let mut doc = layout_with_introspector(&content, intr);
+    doc.extracted_headings = extracted_headings;
+
+    // P535 — preencher página/ponto dos destinos auto-toc a partir das
+    // positions single-pass do layout.
+    let heading_locations = intr_for_positions.query_by_kind(ElementKind::Heading);
+    for (idx, (label, _, _, _)) in doc.extracted_headings.iter().enumerate() {
+        if let Some(loc) = heading_locations.get(idx) {
+            if let Some(pos) = doc.extracted_positions.position_of(*loc) {
+                doc.extracted_label_pages.insert(label.clone(), pos.page.get());
+                doc.extracted_label_positions.insert(label.clone(), pos.point);
+            }
+        }
+    }
+
     let t4 = Instant::now();
     timings.layout_ms = duration_ms(t4.duration_since(t3));
 

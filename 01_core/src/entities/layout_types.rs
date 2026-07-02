@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/entities/layout_types.md
-//! @prompt-hash 1729f39e
+//! @prompt-hash ca046576
 //! @layer L1
 //! @updated 2026-04-23
 //!
@@ -542,6 +542,10 @@ pub struct PagedDocument {
     /// Populado por `Layouter::finish()` a partir de `runtime.table_page_numbers`.
     /// Usado pelo fixpoint em `mod.rs` para carry-forward entre iterações (LoT).
     pub extracted_table_page_numbers: Vec<usize>,
+    /// **P535** — headings para bookmarks PDF (`/Outlines`).
+    /// Cópia de `Introspector::headings_for_toc()` feita pelo pipeline
+    /// pós-layout. Cada tuplo é `(auto-label, número, body, level)`.
+    pub extracted_headings: Vec<(crate::entities::label::Label, Option<String>, crate::entities::content::Content, usize)>,
 }
 
 impl PagedDocument {
@@ -553,6 +557,7 @@ impl PagedDocument {
             extracted_positions:            crate::entities::sealed_positions::SealedPositions::empty(),
             extracted_figure_page_numbers:  Vec::new(),
             extracted_table_page_numbers:   Vec::new(),
+            extracted_headings:             Vec::new(),
         }
     }
 
