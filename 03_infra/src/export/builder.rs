@@ -18,8 +18,11 @@ use std::collections::{BTreeSet, HashMap, HashSet};
 use std::sync::Arc;
 
 use ttf_parser::Face;
+use typst_core::entities::font_book::FontVariant;
 use typst_core::entities::font_list::FontList;
 use typst_core::entities::layout_types::{FrameItem, LinkTarget, PagedDocument, Point, Size};
+
+use crate::font_variant::{axis_variations_for_font_variant, instantiate_variable_font};
 use ecow::EcoString;
 
 use super::{
@@ -383,7 +386,7 @@ impl PdfBuilder {
     pub(super) fn build_multifont(
         mut self,
         doc:   &PagedDocument,
-        fonts: &[(FontList, Vec<u8>)],
+        fonts: &[((FontList, FontVariant), Vec<u8>)],
         faces: &[Face<'_>],
     ) -> (Vec<u8>, f64) {
         let n_pages = doc.pages.len().max(1);
@@ -438,17 +441,46 @@ impl PdfBuilder {
                 char_to_old_gid.insert(ch, old_gid);
             }
             let font_index = per_font_mappings.len();
+            let (font_list, font_variant) = &fonts[font_index].0;
+            let font_bytes = &fonts[font_index].1;
+
             let (embed_data, glyph_mapping) =
-                match self.measure_subset(&fonts[font_index].1, &char_to_old_gid, &glyph_ids) {
+                match self.measure_subset(font_bytes, &char_to_old_gid, &glyph_ids) {
                     Some(FontSubset { data, mapping }) => {
                         if Face::parse(&data, 0).is_ok() {
                             (data, mapping)
                         } else {
-                            (fonts[per_font_mappings.len()].1.clone(), HashMap::new())
+                            (font_bytes.clone(), HashMap::new())
                         }
                     }
-                    None => (fonts[per_font_mappings.len()].1.clone(), HashMap::new()),
+                    None => (font_bytes.clone(), HashMap::new()),
                 };
+
+            // P530 — instanciar estaticamente a VF se a combinação usar um
+            // peso/estilo diferente do default. A instanciação é feita depois
+            // do subsetting para operar sobre uma fonte pequena (P529).
+            let axis_vars = axis_variations_for_font_variant(font_variant);
+            let embed_data = if !axis_vars.is_empty() {
+                let axis_tuples: Vec<(ttf_parser::Tag, f32)> = axis_vars
+                    .iter()
+                    .map(|v| (v.tag, v.value))
+                    .collect();
+                match instantiate_variable_font(&embed_data, &axis_tuples) {
+                    Some(instanced) => instanced,
+                    None => {
+                        // Se o instancer falhar (ex.: Python/fontTools ausente),
+                        // mantém o subset default com aviso.
+                        eprintln!(
+                            "Aviso: falha ao instanciar fonte variável para {:?}/{:?}; \
+                             a usar instância default.",
+                            font_list, font_variant
+                        );
+                        embed_data
+                    }
+                }
+            } else {
+                embed_data
+            };
 
             if !glyph_mapping.is_empty() {
                 for (_, old_gid) in mappings.iter_mut() {

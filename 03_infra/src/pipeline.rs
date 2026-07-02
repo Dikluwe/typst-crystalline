@@ -27,6 +27,8 @@ use typst_core::entities::engine::Engine;
 use typst_core::entities::font_book::{FontBook, FontVariant};
 use typst_core::entities::font_list::FontList;
 use typst_core::entities::layout_types::{FrameItem, PagedDocument};
+
+use crate::font_variant::text_style_to_font_variant;
 use typst_core::entities::module::Module;
 use typst_core::entities::show::ShowRule;
 use typst_core::entities::sink::Sink as TypstSink;
@@ -337,12 +339,12 @@ fn compile_to_pdf_bytes_impl(
     // 0 fonts resolvidos → fallback Helvetica.
     // 1 font resolvido → preserva caminho single-font do 140B/141.
     // 2+ fonts resolvidos → multi-font (resource dict com /F1..N).
-    let font_lists = collect_fonts_from_doc(&doc);
-    let resolved = resolve_fonts(&font_lists, world.book(), world);
+    let font_combos = collect_fonts_from_doc(&doc);
+    let resolved = resolve_fonts(&font_combos, world.book(), world);
     let (pdf, subset_ms) = match resolved.as_slice() {
-        []         => (export_pdf(&doc), 0.0),
-        [(_, b)]   => export_pdf_with_font_and_timings(&doc, b),
-        many       => export_pdf_multifont_and_timings(&doc, many),
+        []                       => (export_pdf(&doc), 0.0),
+        [((_, _), bytes)]        => export_pdf_with_font_and_timings(&doc, bytes),
+        many                     => export_pdf_multifont_and_timings(&doc, many),
     };
     timings.subset_ms = subset_ms;
     let t6 = Instant::now();
@@ -385,28 +387,34 @@ impl Timings {
 }
 
 /// Itera `doc.pages → items` recursivamente (atravessa `Group`)
-/// e devolve **todas** as `FontList` distintas em ordem de
-/// primeira ocorrência (Passo 146, ADR-0055 decisão 5).
+/// e devolve **todas** as combinações `(FontList, FontVariant)` distintas
+/// em ordem de primeira ocorrência (Passo 146, ADR-0055 decisão 5;
+/// P530 — chave expandida para incluir weight/style).
 ///
 /// Deduplicação por igualdade estrutural via `Vec::contains`.
-/// Complexidade O(N²) em N = fonts distintas; aceite porque N é
+/// Complexidade O(N²) em N = combinações distintas; aceite porque N é
 /// tipicamente pequeno (<10) em documentos reais.
-fn collect_fonts_from_doc(doc: &PagedDocument) -> Vec<FontList> {
-    let mut seen: Vec<FontList> = Vec::new();
+fn collect_fonts_from_doc(doc: &PagedDocument) -> Vec<(FontList, FontVariant)> {
+    let mut seen: Vec<(FontList, FontVariant)> = Vec::new();
     for page in &doc.pages {
         collect_fonts_in_items(&page.items, &mut seen);
     }
     seen
 }
 
-fn collect_fonts_in_items(items: &[FrameItem], seen: &mut Vec<FontList>) {
+fn collect_fonts_in_items(
+    items: &[FrameItem],
+    seen: &mut Vec<(FontList, FontVariant)>,
+) {
     for item in items {
         match item {
             FrameItem::Text { style, .. }
             | FrameItem::TextShaped { style, .. } => {
                 if let Some(fl) = &style.font {
-                    if !seen.contains(fl) {
-                        seen.push(fl.clone());
+                    let variant = text_style_to_font_variant(style);
+                    let key = (fl.clone(), variant);
+                    if !seen.contains(&key) {
+                        seen.push(key);
                     }
                 }
             }
@@ -423,19 +431,21 @@ fn collect_fonts_in_items(items: &[FrameItem], seen: &mut Vec<FontList>) {
 }
 
 /// Map-filter de `resolve_font` (Passo 141) sobre uma lista de
-/// `FontList`. Devolve `(FontList, bytes)` para preservar a
-/// associação entre input style e output embed (Passo 146).
+/// combinações `(FontList, FontVariant)`. Devolve
+/// `((FontList, FontVariant), bytes)` para preservar a associação entre
+/// input style e output embed (Passo 146; P530 — chave expandida).
 ///
 /// Silent drop quando `resolve_font` devolve `None` — consistente
 /// com a política de fallback de fonts (140B/141).
 fn resolve_fonts(
-    font_lists: &[FontList],
-    font_book:  &FontBook,
-    world:      &dyn World,
-) -> Vec<(FontList, Vec<u8>)> {
-    font_lists.iter()
-        .filter_map(|fl| {
-            resolve_font(fl, font_book, world).map(|bytes| (fl.clone(), bytes))
+    font_combos: &[(FontList, FontVariant)],
+    font_book:   &FontBook,
+    world:       &dyn World,
+) -> Vec<((FontList, FontVariant), Vec<u8>)> {
+    font_combos.iter()
+        .filter_map(|(fl, variant)| {
+            resolve_font(fl, variant, font_book, world)
+                .map(|bytes| ((fl.clone(), variant.clone()), bytes))
         })
         .collect()
 }
@@ -481,7 +491,7 @@ fn first_font_in_items(items: &[FrameItem]) -> Option<FontList> {
 }
 
 /// Itera `font_list.as_slice()` em ordem. Para cada família,
-/// consulta `font_book.select_pattern(&family.name, &FontVariant::default())`;
+/// consulta `font_book.select_pattern(&family.name, variant)`;
 /// se devolve `Some(index)`, chama `world.font(index)`; primeira
 /// família que completa ambos os passos vence. Se nenhuma
 /// completa, devolve `None` (pipeline cai em fallback Helvetica).
@@ -493,16 +503,18 @@ fn first_font_in_items(items: &[FrameItem]) -> Option<FontList> {
 /// `world.font` devolve `None`) **continua** a tentar as famílias
 /// seguintes — não curto-circuita.
 ///
-/// Selecção usa `FontVariant::default()` (regular). Weight/style
-/// continuam a ser renderizados por faux-bold (Passo 139).
+/// P530 — usa a `FontVariant` real do `TextStyle` na selecção. Se o
+/// sistema tiver instâncias estáticas (ex.: UbuntuSans-Bold.ttf), são
+/// preferidas. Caso contrário, a fonte VF é resolvida e instanciada
+/// estaticamente mais tarde no export.
 fn resolve_font(
     font_list: &FontList,
+    variant:   &FontVariant,
     font_book: &FontBook,
     world:     &dyn World,
 ) -> Option<Vec<u8>> {
-    let variant = FontVariant::default();
     for family in font_list.as_slice() {
-        if let Some(index) = font_book.select_pattern(&family.name, &variant) {
+        if let Some(index) = font_book.select_pattern(&family.name, variant) {
             if let Some(font) = world.font(index) {
                 return Some(font.as_slice().to_vec());
             }
@@ -688,7 +700,7 @@ mod tests {
             fonts: vec![Some(Font::from_data(bytes_esperados.clone()))],
         };
         let fl = font_list("Inria Serif");
-        let got = resolve_font(&fl, world.book(), &world).expect("deve resolver");
+        let got = resolve_font(&fl, &FontVariant::default(), world.book(), &world).expect("deve resolver");
         assert_eq!(got, bytes_esperados);
     }
 
@@ -702,7 +714,7 @@ mod tests {
             fonts: vec![Some(Font::from_data(vec![0]))],
         };
         let fl = font_list("Não Existe");
-        assert!(resolve_font(&fl, world.book(), &world).is_none());
+        assert!(resolve_font(&fl, &FontVariant::default(), world.book(), &world).is_none());
     }
 
     #[test]
@@ -713,7 +725,7 @@ mod tests {
             fonts:   vec![],
         };
         let fl = font_list("Qualquer");
-        assert!(resolve_font(&fl, world.book(), &world).is_none());
+        assert!(resolve_font(&fl, &FontVariant::default(), world.book(), &world).is_none());
     }
 
     // ── Passo 141: array fallback chain ───────────────────────────────
@@ -736,7 +748,7 @@ mod tests {
             fonts: vec![Some(Font::from_data(bytes_a.clone()))],
         };
         let fl = font_list_multi(&["A", "B", "C"]);
-        let got = resolve_font(&fl, world.book(), &world).expect("deve resolver");
+        let got = resolve_font(&fl, &FontVariant::default(), world.book(), &world).expect("deve resolver");
         assert_eq!(got, bytes_a, "primeira família vence quando existe");
     }
 
@@ -752,7 +764,7 @@ mod tests {
             fonts: vec![Some(Font::from_data(bytes_b.clone()))],
         };
         let fl = font_list_multi(&["X", "B", "C"]);
-        let got = resolve_font(&fl, world.book(), &world).expect("deve resolver via B");
+        let got = resolve_font(&fl, &FontVariant::default(), world.book(), &world).expect("deve resolver via B");
         assert_eq!(got, bytes_b, "segunda família vence quando primeira falha");
     }
 
@@ -768,7 +780,7 @@ mod tests {
             fonts: vec![Some(Font::from_data(bytes_c.clone()))],
         };
         let fl = font_list_multi(&["X", "Y", "C"]);
-        let got = resolve_font(&fl, world.book(), &world).expect("deve resolver via C");
+        let got = resolve_font(&fl, &FontVariant::default(), world.book(), &world).expect("deve resolver via C");
         assert_eq!(got, bytes_c, "terceira família vence quando duas primeiras falham");
     }
 
@@ -783,7 +795,7 @@ mod tests {
             fonts: vec![Some(Font::from_data(vec![0xFF]))],
         };
         let fl = font_list_multi(&["X", "Y", "Z"]);
-        assert!(resolve_font(&fl, world.book(), &world).is_none(),
+        assert!(resolve_font(&fl, &FontVariant::default(), world.book(), &world).is_none(),
             "nenhuma família resolve → fallback Helvetica via None");
     }
 
@@ -802,7 +814,7 @@ mod tests {
         ]);
         let collected = collect_fonts_from_doc(&doc);
         assert_eq!(collected.len(), 1);
-        assert_eq!(collected[0].as_slice()[0].name.as_str(), Some("inria"));
+        assert_eq!(collected[0].0.as_slice()[0].name.as_str(), Some("inria"));
     }
 
     #[test]
@@ -815,8 +827,8 @@ mod tests {
         ]);
         let collected = collect_fonts_from_doc(&doc);
         assert_eq!(collected.len(), 2);
-        assert_eq!(collected[0].as_slice()[0].name.as_str(), Some("primeira"));
-        assert_eq!(collected[1].as_slice()[0].name.as_str(), Some("segunda"));
+        assert_eq!(collected[0].0.as_slice()[0].name.as_str(), Some("primeira"));
+        assert_eq!(collected[1].0.as_slice()[0].name.as_str(), Some("segunda"));
     }
 
     #[test]
@@ -836,8 +848,8 @@ mod tests {
         let collected = collect_fonts_from_doc(&doc);
         assert_eq!(collected.len(), 2,
             "dedup estrutural: A e B aparecem cada um uma vez no resultado");
-        assert_eq!(collected[0].as_slice()[0].name.as_str(), Some("a"));
-        assert_eq!(collected[1].as_slice()[0].name.as_str(), Some("b"));
+        assert_eq!(collected[0].0.as_slice()[0].name.as_str(), Some("a"));
+        assert_eq!(collected[1].0.as_slice()[0].name.as_str(), Some("b"));
     }
 
     // resolve_fonts (plural)
@@ -855,7 +867,7 @@ mod tests {
                 Some(Font::from_data(vec![0xBB])),
             ],
         };
-        let inputs = vec![font_list("A"), font_list("B")];
+        let inputs = vec![(font_list("A"), FontVariant::default()), (font_list("B"), FontVariant::default())];
         let out = resolve_fonts(&inputs, world.book(), &world);
         assert_eq!(out.len(), 2);
         assert_eq!(out[0].1, vec![0xAA]);
@@ -872,7 +884,7 @@ mod tests {
             book,
             fonts: vec![Some(Font::from_data(vec![0xAA]))],
         };
-        let inputs = vec![font_list("A"), font_list("B")];
+        let inputs = vec![(font_list("A"), FontVariant::default()), (font_list("B"), FontVariant::default())];
         let out = resolve_fonts(&inputs, world.book(), &world);
         assert_eq!(out.len(), 1, "B silenciosamente filtrado");
         assert_eq!(out[0].1, vec![0xAA]);
@@ -887,7 +899,7 @@ mod tests {
             book,
             fonts: vec![Some(Font::from_data(vec![0]))],
         };
-        let inputs = vec![font_list("X"), font_list("Y")];
+        let inputs = vec![(font_list("X"), FontVariant::default()), (font_list("Y"), FontVariant::default())];
         assert!(resolve_fonts(&inputs, world.book(), &world).is_empty());
     }
 
@@ -913,7 +925,7 @@ mod tests {
             fonts: vec![Some(Font::from_data(bytes.clone()))],
         };
         let fl = font_list_regex("Name.*");
-        let got = resolve_font(&fl, world.book(), &world).expect("deve resolver via regex");
+        let got = resolve_font(&fl, &FontVariant::default(), world.book(), &world).expect("deve resolver via regex");
         assert_eq!(got, bytes);
     }
 
@@ -927,7 +939,7 @@ mod tests {
             fonts: vec![Some(Font::from_data(vec![0xEE]))],
         };
         let fl = font_list_regex("Name.*");
-        assert!(resolve_font(&fl, world.book(), &world).is_none());
+        assert!(resolve_font(&fl, &FontVariant::default(), world.book(), &world).is_none());
     }
 
     #[test]
@@ -941,7 +953,7 @@ mod tests {
             fonts: vec![Some(Font::from_data(bytes.clone()))],
         };
         let fl = font_list("Inria Serif");
-        let got = resolve_font(&fl, world.book(), &world).expect("literal continua a resolver");
+        let got = resolve_font(&fl, &FontVariant::default(), world.book(), &world).expect("literal continua a resolver");
         assert_eq!(got, bytes);
     }
 }

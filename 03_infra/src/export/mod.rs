@@ -12,6 +12,7 @@ use flate2::Compression;
 use flate2::write::ZlibEncoder;
 
 use ttf_parser::Face;
+use typst_core::entities::font_book::FontVariant;
 use typst_core::entities::font_list::FontList;
 use typst_core::entities::layout_types::{FrameItem, Page, PagedDocument};
 
@@ -97,7 +98,7 @@ pub fn export_pdf_with_font_and_timings(
 /// é caso particular válido.
 pub fn export_pdf_multifont(
     doc:   &PagedDocument,
-    fonts: &[(FontList, Vec<u8>)],
+    fonts: &[((FontList, FontVariant), Vec<u8>)],
 ) -> Vec<u8> {
     if fonts.is_empty() {
         return PdfBuilder::new().build(doc, None).0;
@@ -117,7 +118,7 @@ pub fn export_pdf_multifont(
 /// gasto em `subset_font_with_mapping` para todas as fontes do documento.
 pub fn export_pdf_multifont_and_timings(
     doc:   &PagedDocument,
-    fonts: &[(FontList, Vec<u8>)],
+    fonts: &[((FontList, FontVariant), Vec<u8>)],
 ) -> (Vec<u8>, f64) {
     if fonts.is_empty() {
         let (pdf, _) = PdfBuilder::new().build(doc, None);

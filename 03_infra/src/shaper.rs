@@ -17,9 +17,11 @@
 use rustybuzz::{Direction, UnicodeBuffer};
 use unicode_bidi::BidiInfo;
 use typst_core::contracts::world::World;
-use typst_core::entities::font_book::{FontStretch, FontStyle, FontVariant, FontWeight};
+use typst_core::entities::font_book::FontVariant;
 use typst_core::entities::font_list::{FontList, FontNamePattern};
 use typst_core::entities::layout_types::{FrameItem, Page, PagedDocument, Point, Pt, ShapedGlyph, TextStyle};
+
+use crate::font_variant::{axis_variations_for_font_variant, text_style_to_font_variant};
 
 /// Converte todos os `FrameItem::Text` de um `PagedDocument` em
 /// `FrameItem::TextShaped` via rustybuzz.
@@ -163,52 +165,6 @@ fn try_shape(
     }
 }
 
-/// Converte `TextStyle` para `FontVariant` usado na selecção de fonte e
-/// nas coordenadas de eixo OpenType.
-///
-/// P525 — MVP de Variation Fonts. Considera `weight` e `italic`; `stretch`
-/// não está exposto no `TextStyle` actual (rejeitado em P414), e `Oblique`
-/// não carrega ângulo no modelo actual (FontStyle::Oblique é uma flag).
-fn text_style_to_font_variant(style: &TextStyle) -> FontVariant {
-    let weight = style
-        .weight
-        .map(FontWeight::from_number)
-        .unwrap_or_else(|| if style.bold { FontWeight::BOLD } else { FontWeight::REGULAR });
-    let style = if style.italic { FontStyle::Italic } else { FontStyle::Normal };
-    FontVariant {
-        style,
-        weight,
-        stretch: FontStretch::NORMAL,
-    }
-}
-
-/// Mapeia `FontVariant` para coordenadas de eixo OpenType passáveis ao
-/// `rustybuzz::Face::set_variations`.
-///
-/// P525 — MVP: `wght` (weight) e `ital` (italic). `wdth` (stretch) só será
-/// mapeado quando `TextStyle` expuser stretch; `slnt` (Oblique com ângulo)
-/// requer `FontStyle::Oblique(angle)`, que o modelo actual não tem.
-fn axis_variations_for_font_variant(variant: &FontVariant) -> Vec<rustybuzz::Variation> {
-    let mut vars = Vec::new();
-
-    let wght_value = variant.weight.to_number() as f32;
-    if wght_value != 400.0 {
-        vars.push(rustybuzz::Variation {
-            tag: ttf_parser::Tag::from_bytes(b"wght"),
-            value: wght_value,
-        });
-    }
-
-    if variant.style == FontStyle::Italic {
-        vars.push(rustybuzz::Variation {
-            tag: ttf_parser::Tag::from_bytes(b"ital"),
-            value: 1.0,
-        });
-    }
-
-    vars
-}
-
 /// Candidata a fonte para shaping/fallback.
 struct FontCandidate {
     slot_idx:     usize,
@@ -332,7 +288,7 @@ fn byte_idx_to_char(s: &str, byte_idx: usize) -> Option<char> {
 mod tests {
     use super::*;
     use ecow::EcoString;
-    use typst_core::entities::font_book::FontBook;
+    use typst_core::entities::font_book::{FontBook, FontStretch, FontStyle, FontWeight};
     use typst_core::entities::layout_types::{FrameItem, Page, PagedDocument, Point, Pt, TextStyle};
     use typst_core::entities::file_id::FileId;
     use typst_core::entities::source::Source;

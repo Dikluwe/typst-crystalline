@@ -15,6 +15,7 @@
 #![allow(deprecated)] // P483 — FrameItem::Text fallback path legítimo
 use super::*;
 use typst_core::entities::content::Content;
+use typst_core::entities::font_book::FontVariant;
 use typst_core::entities::layout_types::{Color, LinkTarget};
 use typst_core::rules::layout::layout;
 
@@ -6389,9 +6390,9 @@ use typst_core::rules::layout::layout;
             width: 595.0, height: 842.0,
             items: vec![group],
         };
-        let fonts: Vec<(FontList, Vec<u8>)> = vec![
-            (font_a, Vec::new()),
-            (font_b, Vec::new()),
+        let fonts: Vec<((FontList, FontVariant), Vec<u8>)> = vec![
+            ((font_a, FontVariant::default()), Vec::new()),
+            ((font_b, FontVariant::default()), Vec::new()),
         ];
         let mut map_b: HashMap<char, u16> = HashMap::new();
         map_b.insert('X', 0x0058);
