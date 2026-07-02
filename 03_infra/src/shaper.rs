@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/shaper.md
-//! @prompt-hash f24393e2
+//! @prompt-hash 355f8197
 //! @layer L3
 //! @updated 2026-06-30
 //!
@@ -10,12 +10,17 @@
 //! `FontList` (cada sub-run shaped na sua própria face).
 //! **P525** — Variation Fonts MVP: aplica coordenadas de eixo OpenType
 //! (`wght`, `ital`) via `rustybuzz::Face::set_variations` antes do shape.
+//! **P534** — Fallback multi-script: segmentação por script Unicode e
+//! fallback ao `FontBook` global quando as famílias declaradas não cobrem.
 //! Converte `FrameItem::Text` → `FrameItem::TextShaped` via rustybuzz.
 //! Executado entre layout e export. ADR-0120 Opção A1.
 
 #![allow(deprecated)] // P483 — FrameItem::Text fallback path legítimo
+use std::collections::HashMap;
+
 use rustybuzz::{Direction, UnicodeBuffer};
 use unicode_bidi::BidiInfo;
+use unicode_script::{Script, UnicodeScript};
 use typst_core::contracts::world::World;
 use typst_core::entities::font_book::FontVariant;
 use typst_core::entities::font_list::FontList;
@@ -84,10 +89,13 @@ fn try_shape(
     let axis_vars = axis_variations_for_font_variant(&variant);
 
     // P515 — resolver todas as fontes candidatas da FontList.
-    let candidates = resolve_candidates(world, font_list, &variant)?;
-    if candidates.is_empty() {
+    let primary = resolve_candidates(world, font_list, &variant)?;
+    if primary.is_empty() {
         return None;
     }
+
+    // P534 — candidatos de fallback: todo o FontBook, carregados lazy.
+    let mut candidates = CandidateSet::new(world, primary);
 
     // P484 — dividir em runs bidirectionais antes de shape
     let runs = bidi_runs(text.as_str());
@@ -99,8 +107,8 @@ fn try_shape(
     let mut x_offset = Pt(0.0);
 
     for run in &runs {
-        for subrun in split_run_by_font(run, world, &candidates) {
-            let candidate = &candidates[subrun.candidate_idx];
+        for subrun in split_run_by_font(run, &mut candidates) {
+            let candidate = candidates.get(subrun.candidate_idx)?;
             let font = world.font(candidate.slot_idx)?;
             let mut rb_face = rustybuzz::Face::from_slice(font.as_slice(), 0)?;
 
@@ -147,10 +155,17 @@ fn try_shape(
                 };
                 x_offset.0 += subrun_width_pt;
 
+                // P534 — cada sub-run reflecte a família real usada, para que o
+                // export multi-font embuta a face correcta e a associe via
+                // `font_index_for_style`.
+                let mut segment_style = style.clone();
+                let real_family = world.book().infos().get(candidate.slot_idx)?.family.clone();
+                segment_style.font = Some(FontList::single(ecow::EcoString::from(real_family)));
+
                 items.push(FrameItem::TextShaped {
                     pos:    item_pos,
                     glyphs: run_glyphs,
-                    style:  style.clone(),
+                    style:  segment_style,
                     text:   text.clone(),
                     units_per_em: candidate.units_per_em,
                 });
@@ -166,11 +181,14 @@ fn try_shape(
 }
 
 /// Candidata a fonte para shaping/fallback.
+#[derive(Clone, Copy)]
 struct FontCandidate {
     slot_idx:     usize,
     units_per_em: u16,
 }
 
+/// Resolve as fontes declaradas na `FontList` (primárias), na ordem do
+/// utilizador. Se nenhuma resolver, `try_shape` cai no fallback `Text`.
 fn resolve_candidates(
     world: &dyn World,
     font_list: &FontList,
@@ -195,51 +213,148 @@ fn resolve_candidates(
     }
 }
 
-/// Sub-run dentro de um BidiRun, todos os caracteres cobertos pela mesma
-/// fonte candidata.
+/// Conjunto de candidatas primárias + fallback lazy sobre todo o `FontBook`.
+///
+/// P534: quando as famílias declaradas não cobrem um caractere, procura-se no
+/// resto do catálogo na ordem de descoberta. O fallback é lazy para evitar
+/// carregar todas as fontes do sistema em documentos que não precisam.
+struct CandidateSet<'a> {
+    world:    &'a dyn World,
+    primary:  Vec<FontCandidate>,
+    fallback: Vec<Option<FontCandidate>>,
+    cache:    HashMap<char, usize>,
+}
+
+impl<'a> CandidateSet<'a> {
+    fn new(world: &'a dyn World, primary: Vec<FontCandidate>) -> Self {
+        Self {
+            world,
+            primary,
+            fallback: Vec::new(),
+            cache: HashMap::new(),
+        }
+    }
+
+    /// Índice global do primeiro candidato que cobre `c`. Primárias têm
+    /// prioridade; fallback é percorrido lazy. Se nenhuma fonte cobrir,
+    /// devolve `None` (o caller usa a primeira primária como `.notdef`).
+    fn covering(&mut self, c: char) -> Option<usize> {
+        if let Some(&idx) = self.cache.get(&c) {
+            return Some(idx);
+        }
+
+        // 1. Primárias — já carregadas/validadas.
+        for (i, cand) in self.primary.iter().enumerate() {
+            if face_covers_char(self.world, cand.slot_idx, c) {
+                self.cache.insert(c, i);
+                return Some(i);
+            }
+        }
+
+        // 2. Fallback lazy: percorre o FontBook inteiro.
+        let book_len = self.world.book().len();
+        for slot_idx in self.primary.len()..book_len {
+            let fb_idx = slot_idx - self.primary.len();
+            if fb_idx >= self.fallback.len() {
+                self.fallback.push(self.load_fallback(slot_idx));
+            }
+            let Some(cand) = self.fallback[fb_idx] else { continue };
+            if face_covers_char(self.world, cand.slot_idx, c) {
+                self.cache.insert(c, slot_idx);
+                return Some(slot_idx);
+            }
+        }
+
+        // Cache explícita de "não encontrado" para evitar re-scans.
+        self.cache.insert(c, 0);
+        None
+    }
+
+    fn load_fallback(&self, slot_idx: usize) -> Option<FontCandidate> {
+        let font = self.world.font(slot_idx)?;
+        let face = ttf_parser::Face::parse(font.as_slice(), 0).ok()?;
+        Some(FontCandidate {
+            slot_idx,
+            units_per_em: face.units_per_em().max(1) as u16,
+        })
+    }
+
+    fn get(&self, idx: usize) -> Option<&FontCandidate> {
+        if idx < self.primary.len() {
+            self.primary.get(idx)
+        } else {
+            self.fallback.get(idx - self.primary.len())?.as_ref()
+        }
+    }
+}
+
+fn face_covers_char(world: &dyn World, slot_idx: usize, c: char) -> bool {
+    let Some(font) = world.font(slot_idx) else { return false };
+    let Some(face) = ttf_parser::Face::parse(font.as_slice(), 0).ok() else { return false };
+    face.glyph_index(c).is_some()
+}
+
+/// Sub-run dentro de um BidiRun: todos os caracteres partilham o mesmo script
+/// efectivo e a mesma fonte candidata.
 struct SubRun {
     text:              String,
     byte_start:        usize,
     candidate_idx:     usize,
 }
 
-fn split_run_by_font(run: &BidiRun, world: &dyn World, candidates: &[FontCandidate]) -> Vec<SubRun> {
+/// P534 — divide um BidiRun em sub-runs por (a) mudança de script Unicode e
+/// (b) mudança de fonte necessária para cobertura do caractere.
+fn split_run_by_font(run: &BidiRun, candidates: &mut CandidateSet) -> Vec<SubRun> {
     let mut result = Vec::new();
-    let mut current_start = 0usize;
+    let text = run.text.as_str();
+    let mut seg_start = 0usize;
+    let mut current_script = Script::Unknown;
     let mut current_candidate = None::<usize>;
 
-    for (byte_offset, c) in run.text.char_indices() {
-        let covering = candidates.iter().position(|cand| {
-            let Some(font) = world.font(cand.slot_idx) else { return false; };
-            let Some(face) = ttf_parser::Face::parse(font.as_slice(), 0).ok() else { return false; };
-            face.glyph_index(c).is_some()
-        });
-        // Se nenhuma fonte cobrir, fallback para a primeira candidata (notdef).
-        let candidate_idx = covering.unwrap_or(0);
+    for (byte_offset, c) in text.char_indices() {
+        let script = c.script();
+        let script_eff = if is_generic_script(script) && !is_generic_script(current_script) {
+            current_script
+        } else {
+            script
+        };
+        let script_changed = byte_offset > 0 && !is_compatible(script_eff, current_script);
+        let candidate_idx = candidates.covering(c).unwrap_or(0);
 
-        if Some(candidate_idx) != current_candidate {
+        if script_changed || Some(candidate_idx) != current_candidate {
             if let Some(idx) = current_candidate {
                 result.push(SubRun {
-                    text: run.text[current_start..byte_offset].to_owned(),
-                    byte_start: current_start,
+                    text: text[seg_start..byte_offset].to_owned(),
+                    byte_start: seg_start,
                     candidate_idx: idx,
                 });
             }
-            current_start = byte_offset;
+            seg_start = byte_offset;
             current_candidate = Some(candidate_idx);
         }
+
+        current_script = if script_changed { script } else { script_eff };
     }
 
     if let Some(idx) = current_candidate {
         result.push(SubRun {
-            text: run.text[current_start..].to_owned(),
-            byte_start: current_start,
+            text: text[seg_start..].to_owned(),
+            byte_start: seg_start,
             candidate_idx: idx,
         });
     }
 
     result
 }
+
+fn is_generic_script(script: Script) -> bool {
+    matches!(script, Script::Unknown | Script::Common | Script::Inherited)
+}
+
+fn is_compatible(a: Script, b: Script) -> bool {
+    is_generic_script(a) || is_generic_script(b) || a == b
+}
+
 
 // ── P484 — runs bidirectionais ──────────────────────────────────────────────
 
@@ -289,10 +404,11 @@ mod tests {
     use super::*;
     use ecow::EcoString;
     use typst_core::entities::font_book::{FontBook, FontStretch, FontStyle, FontWeight};
+    use typst_core::entities::font_list::FontList;
     use typst_core::entities::layout_types::{FrameItem, Page, PagedDocument, Point, Pt, TextStyle};
     use typst_core::entities::file_id::FileId;
     use typst_core::entities::source::Source;
-    use typst_core::entities::world_types::{Bytes, Datetime, FileResult, Font, Library};
+    use typst_core::entities::world_types::{Bytes, Datetime, FileError, FileResult, Font, Library};
     use crate::world::SystemWorld;
     use std::path::PathBuf;
 
@@ -311,6 +427,69 @@ mod tests {
     }
 
     fn empty_world() -> MockWorld { MockWorld { book: FontBook::new() } }
+
+    // ── P534 — helpers para testes com fontes reais ─────────────────────────────
+
+    /// `World` de teste com `FontBook` e bytes de fontes controlados.
+    struct FontWorld {
+        book:  FontBook,
+        fonts: Vec<Option<Font>>,
+    }
+
+    impl FontWorld {
+        fn push_font(&mut self, path: &str) {
+            let slot = self.fonts.len();
+            if let Ok(data) = std::fs::read(path) {
+                if let Some(info) = crate::fonts::font_info_from_bytes(&data, 0) {
+                    self.book.push(info);
+                    self.fonts.push(Some(Font::from_data(data)));
+                    return;
+                }
+            }
+            // Fonte ausente ou inválida: reserva slot vazio para manter índices
+            // consistentes com o FontBook (não deve ser usada em testes que
+            // dependem desta fonte).
+            self.fonts.push(None);
+        }
+
+        fn is_complete(&self) -> bool {
+            self.fonts.iter().all(|f| f.is_some())
+        }
+    }
+
+    impl typst_core::contracts::world::World for FontWorld {
+        fn library(&self) -> &Library {
+            static L: std::sync::OnceLock<Library> = std::sync::OnceLock::new();
+            L.get_or_init(Library::new)
+        }
+        fn book(&self) -> &FontBook { &self.book }
+        fn main(&self) -> FileId { unimplemented!() }
+        fn source(&self, _: FileId) -> FileResult<Source> { unimplemented!() }
+        fn file(&self, _: FileId) -> FileResult<Bytes> { Err(FileError::NotFound) }
+        fn font(&self, idx: usize) -> Option<Font> {
+            self.fonts.get(idx).cloned().flatten()
+        }
+        fn today(&self, _: Option<i64>) -> Option<Datetime> { None }
+    }
+
+    fn font_world_with(paths: &[&str]) -> FontWorld {
+        let mut world = FontWorld { book: FontBook::new(), fonts: Vec::new() };
+        for path in paths {
+            world.push_font(path);
+        }
+        world
+    }
+
+    fn text_item_with_font(text: &str, family: &str) -> FrameItem {
+        let mut style = TextStyle::default();
+        style.font = Some(FontList::single(EcoString::from(family)));
+        style.size = Pt(12.0);
+        FrameItem::Text {
+            pos:  Point { x: Pt(0.0), y: Pt(0.0) },
+            text: EcoString::from(text),
+            style,
+        }
+    }
 
     fn text_item(text: &str) -> FrameItem {
         FrameItem::Text {
@@ -683,5 +862,82 @@ mod tests {
             "duas chamadas com wght=700, intercaladas por wght=100, \
              devem produzir a mesma largura — indica contaminação de estado se falhar"
         );
+    }
+
+    // ── P534 — Fallback multi-script ────────────────────────────────────────────
+
+    #[test]
+    fn p534_split_run_by_font_respects_script_boundaries() {
+        // DejaVuSans cobre latim, mas não CJK. O fallback global (Noto Sans CJK)
+        // é usado para o segmento CJK. Verifica-se que o shaper produz pelo
+        // menos dois TextShaped distintos.
+        let world = font_world_with(&[
+            "/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf",
+            "/usr/share/fonts/opentype/noto/NotoSansCJK-Bold.ttc",
+        ]);
+        if !world.is_complete() {
+            eprintln!("SKIP: fontes necessárias não disponíveis");
+            return;
+        }
+
+        let doc = doc_with(vec![text_item_with_font("Hello 你好", "DejaVu Sans")]);
+        let shaped = shape_document(&world, doc);
+        let items = &shaped.pages[0].items;
+        assert!(
+            items.iter().all(|it| matches!(it, FrameItem::TextShaped { .. })),
+            "todos os itens devem ser TextShaped"
+        );
+        assert!(
+            items.len() >= 2,
+            "latim + CJK devem produzir ≥2 TextShaped (fontes distintas), got {}",
+            items.len()
+        );
+    }
+
+    #[test]
+    fn p534_shape_mixed_script_system_fallback() {
+        // Documento latim + CJK + árabe. A fonte pedida (DejaVu Sans) só cobre
+        // latim; o fallback global deve cobrir CJK e árabe, produzindo três
+        // scripts distintos.
+        let world = font_world_with(&[
+            "/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf",
+            "/usr/share/fonts/opentype/noto/NotoSansCJK-Bold.ttc",
+            "/usr/share/fonts/truetype/noto/NotoNaskhArabic-Bold.ttf",
+        ]);
+        if !world.is_complete() {
+            eprintln!("SKIP: fontes necessárias não disponíveis");
+            return;
+        }
+
+        let doc = doc_with(vec![text_item_with_font("Hello 你好 مرحبا", "DejaVu Sans")]);
+        let shaped = shape_document(&world, doc);
+        let items = &shaped.pages[0].items;
+        assert!(
+            items.iter().all(|it| matches!(it, FrameItem::TextShaped { .. })),
+            "todos os itens devem ser TextShaped"
+        );
+        assert!(
+            items.len() >= 3,
+            "latim + CJK + árabe devem produzir ≥3 TextShaped, got {}",
+            items.len()
+        );
+    }
+
+    #[test]
+    fn p534_latin_only_stays_single_textshaped() {
+        // Sem texto misto, não deve haver fragmentação adicional.
+        let world = font_world_with(&[
+            "/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf",
+            "/usr/share/fonts/opentype/noto/NotoSansCJK-Bold.ttc",
+        ]);
+        if !world.is_complete() {
+            eprintln!("SKIP: fontes necessárias não disponíveis");
+            return;
+        }
+
+        let doc = doc_with(vec![text_item_with_font("Hello World", "DejaVu Sans")]);
+        let shaped = shape_document(&world, doc);
+        let items = &shaped.pages[0].items;
+        assert_eq!(items.len(), 1, "texto latim puro deve produzir 1 TextShaped");
     }
 }

@@ -1866,6 +1866,7 @@ dependencies = [
  "ttf-parser",
  "typst-core",
  "unicode-bidi",
+ "unicode-script",
 ]
 
 [[package]]

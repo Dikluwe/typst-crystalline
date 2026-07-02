@@ -25,6 +25,7 @@ ecow       = { workspace = true }
 ttf-parser  = { workspace = true }  # ADR-0019 — parsing de fontes
 rustybuzz   = { workspace = true }  # ADR-0019 — shaping de texto
 unicode-bidi = { workspace = true } # P484 — re-order de runs RTL
+unicode-script = { workspace = true } # P534 — segmentação por script para fallback
 fontdb        = "0.23"              # P515 — descoberta automática de fontes do sistema
 oxifont-subset = "0.2.0"             # P516 — subsetting TrueType/OpenType para PDF
 time          = { workspace = true }  # ADR-0021 — today() em SystemWorld

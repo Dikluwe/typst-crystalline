@@ -7,7 +7,7 @@ adr: ADR-0120
 ---
 
 # Prompt L0 — `shaper.rs` (Trilha 5 Fase 1)
-Hash do Código: 9db46e7e
+Hash do Código: e86037f7
 
 ## Propósito
 
@@ -321,3 +321,61 @@ if !axis_vars.is_empty() {
 - `p525_axis_variations_weight_italic`: mapeamento `FontVariant` → eixos.
 - `p525_shape_document_mixed_weights_no_contamination`: pipeline real com
   `wght=700 → 100 → 700`, confirmando que o terceiro shape reproduz o primeiro.
+
+---
+
+## P534 — Fallback de fonte por script/cobertura (multi-script)
+
+**Data:** 2026-07-02
+
+Correcção de P515: o fallback anterior limitava-se às famílias declaradas na
+`FontList`; caracteres fora da cobertura dessas famílias perdiam-se. P534
+segmenta o texto por script Unicode e, para cada segmento, procura primeiro nas
+famílias declaradas e depois em todas as fontes disponíveis no `FontBook`
+(fontdb), escolhendo a primeira que cubra todos os caracteres do segmento.
+
+### Segmentação por script
+
+```rust
+fn script_runs(run: &BidiRun) -> Vec<ScriptRun>
+```
+
+Usa `unicode-script::{Script, UnicodeScript}`. Caracteres com script `Common` ou
+`Inherited` herdam o script do segmento actual (`is_compatible`). Mudanças de
+script forçam uma quebra de sub-run, mesmo que a mesma fonte cubra ambos.
+
+### Escolha por cobertura
+
+Para cada segmento de script:
+
+1. Itera as `primary_candidates` (famílias da `FontList`, na ordem declarada).
+2. Se alguma cobrir todos os caracteres do segmento, usa-a.
+3. Caso contrário, itera `fallback_candidates` (todo o `FontBook`, na ordem de
+   descoberta), escolhendo a primeira que cubra todos os caracteres.
+4. Se nenhuma fonte cobrir o segmento inteiro, divide o segmento no ponto onde
+   a cobertura muda e repete.
+
+Implementação concreta: `split_run_by_font` percorre os caracteres de cada
+`BidiRun`, mantendo o script efectivo e o índice da fonte candidata. Em cada
+mudança de script ou de fonte, fecha a sub-run actual.
+
+### Caching de cobertura
+
+Para evitar re-parse da face para cada caractere, `try_shape` mantém um cache
+`HashMap<char, usize>` do primeiro candidato (primary+fallback) que cobre cada
+caractere. O cache é local a cada chamada de `try_shape`.
+
+### Scope-out P534
+
+- Fontes de cor para emoji (COLR/CPAL) — mecanismo de renderização, não escolha
+  de fonte.
+- Fundir blocos `BT...ET` consecutivos da mesma fonte — scope-out; cada
+  `FrameItem::TextShaped` continua a gerar o seu próprio bloco.
+- Ordenação sofisticada de fallback por script (fontique) — usa ordem do
+  `FontBook`.
+
+### Testes adicionados P534
+
+- `p534_split_run_by_font_respects_script_boundaries`: segmentação por script.
+- `p534_shape_mixed_script_system_fallback`: texto latim+CJK+árabe com system
+  fonts produz múltiplos `TextShaped` com fontes distintas.
