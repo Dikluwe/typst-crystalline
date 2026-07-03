@@ -154,18 +154,21 @@ fn try_shape(
 
             let mut run_glyphs: Vec<ShapedGlyph> = Vec::with_capacity(infos.len());
             let mut run_width = 0i32;
+            // **P543** — o campo `text` do TextShaped reflecte apenas o sub-run,
+            // e os clusters são relativos a esse texto. Isto evita que o export
+            // ToUnicode ou `pdftotext` dupliquem conteúdo quando o texto original
+            // era partido em sub-runs pequenos.
+            let subrun_text = subrun.text.as_str();
             for (info, pos_g) in infos.iter().zip(positions.iter()) {
-                let abs_cluster = run.byte_start as u32
-                                + subrun.byte_start as u32
-                                + info.cluster;
-                let char_code = byte_idx_to_char(text.as_str(), abs_cluster as usize)
+                let cluster = info.cluster as usize;
+                let char_code = byte_idx_to_char(subrun_text, cluster)
                     .unwrap_or('\u{FFFD}');
                 run_glyphs.push(ShapedGlyph {
                     glyph_id:  info.glyph_id as u16,
                     x_advance: pos_g.x_advance,
                     x_offset:  pos_g.x_offset,
                     y_offset:  pos_g.y_offset,
-                    cluster:   abs_cluster,
+                    cluster:   cluster as u32,
                     char_code,
                 });
                 run_width += pos_g.x_advance;
@@ -190,7 +193,7 @@ fn try_shape(
                     pos:    item_pos,
                     glyphs: run_glyphs,
                     style:  segment_style,
-                    text:   text.clone(),
+                    text:   subrun.text.clone().into(),
                     units_per_em: candidate.units_per_em,
                 });
             }
@@ -246,7 +249,6 @@ struct CandidateSet<'a> {
     world:    &'a dyn World,
     primary:  Vec<FontCandidate>,
     fallback: Vec<Option<FontCandidate>>,
-    cache:    HashMap<char, usize>,
 }
 
 impl<'a> CandidateSet<'a> {
@@ -255,43 +257,95 @@ impl<'a> CandidateSet<'a> {
             world,
             primary,
             fallback: Vec::new(),
-            cache: HashMap::new(),
         }
     }
 
-    /// Índice global do primeiro candidato que cobre `c`. Primárias têm
-    /// prioridade; fallback é percorrido lazy. Se nenhuma fonte cobrir,
-    /// devolve `None` (o caller usa a primeira primária como `.notdef`).
-    fn covering(&mut self, c: char) -> Option<usize> {
-        if let Some(&idx) = self.cache.get(&c) {
-            return Some(idx);
-        }
-
-        // 1. Primárias — já carregadas/validadas.
+    /// Todos os candidatos que cobrem `c`, em ordem de prioridade (primárias
+    /// primeiro, depois fallback lazy na ordem do FontBook).
+    fn covering_all(&mut self, c: char) -> Vec<usize> {
+        let mut result = Vec::new();
         for (i, cand) in self.primary.iter().enumerate() {
             if face_covers_char(self.world, cand.slot_idx, c) {
-                self.cache.insert(c, i);
-                return Some(i);
+                result.push(i);
             }
         }
-
-        // 2. Fallback lazy: percorre o FontBook inteiro.
         let book_len = self.world.book().len();
         for slot_idx in self.primary.len()..book_len {
             let fb_idx = slot_idx - self.primary.len();
             if fb_idx >= self.fallback.len() {
                 self.fallback.push(self.load_fallback(slot_idx));
             }
-            let Some(cand) = self.fallback[fb_idx] else { continue };
-            if face_covers_char(self.world, cand.slot_idx, c) {
-                self.cache.insert(c, slot_idx);
-                return Some(slot_idx);
+            if let Some(cand) = self.fallback[fb_idx] {
+                if face_covers_char(self.world, cand.slot_idx, c) {
+                    result.push(slot_idx);
+                }
+            }
+        }
+        result
+    }
+
+    /// Escolhe o candidato que cobre o maior trecho contíguo de `text`
+    /// começando em `start`. As primárias têm prioridade: só se nenhuma
+    /// primária cobrir o primeiro caractere é que se recai no fallback global.
+    /// Devolve `(candidate_idx, end_byte)`. Se nenhuma fonte cobrir o primeiro
+    /// caractere, devolve `None`.
+    fn covering_run(&mut self, text: &str, start: usize) -> Option<(usize, usize)> {
+        let first_char = text[start..].chars().next()?;
+
+        // 1. Tentar primárias primeiro.
+        let mut primary_candidates = Vec::new();
+        for (i, cand) in self.primary.iter().enumerate() {
+            if face_covers_char(self.world, cand.slot_idx, first_char) {
+                primary_candidates.push(i);
+            }
+        }
+        if let Some(result) = self.best_covering_run(text, start, &primary_candidates) {
+            return Some(result);
+        }
+
+        // 2. Recair no fallback global.
+        let fallback_candidates = self.covering_all(first_char);
+        self.best_covering_run(text, start, &fallback_candidates)
+    }
+
+    /// Dado um conjunto de índices de candidatos, escolhe o que cobre o maior
+    /// trecho contíguo a partir de `start`.
+    fn best_covering_run(
+        &mut self,
+        text: &str,
+        start: usize,
+        candidates: &[usize],
+    ) -> Option<(usize, usize)> {
+        if candidates.is_empty() {
+            return None;
+        }
+
+        let mut best_idx = candidates[0];
+        let mut best_end = start;
+
+        for &idx in candidates {
+            let mut end = start;
+            for c in text[start..].chars() {
+                let covers = if idx < self.primary.len() {
+                    face_covers_char(self.world, self.primary[idx].slot_idx, c)
+                } else {
+                    self.fallback
+                        .get(idx - self.primary.len())
+                        .and_then(|f| f.as_ref())
+                        .map_or(false, |cand| face_covers_char(self.world, cand.slot_idx, c))
+                };
+                if !covers {
+                    break;
+                }
+                end += c.len_utf8();
+            }
+            if end > best_end {
+                best_end = end;
+                best_idx = idx;
             }
         }
 
-        // Cache explícita de "não encontrado" para evitar re-scans.
-        self.cache.insert(c, 0);
-        None
+        Some((best_idx, best_end))
     }
 
     fn load_fallback(&self, slot_idx: usize) -> Option<FontCandidate> {
@@ -322,53 +376,97 @@ fn face_covers_char(world: &dyn World, slot_idx: usize, c: char) -> bool {
 /// efectivo e a mesma fonte candidata.
 struct SubRun {
     text:              String,
-    byte_start:        usize,
     candidate_idx:     usize,
 }
 
-/// P534 — divide um BidiRun em sub-runs por (a) mudança de script Unicode e
-/// (b) mudança de fonte necessária para cobertura do caractere.
+/// P534/P543 — divide um BidiRun em sub-runs por (a) mudança de script
+/// Unicode e (b) mudança de fonte necessária para cobertura do caractere.
+///
+/// **P543**: em vez de escolher a primeira fonte que cobre o caractere
+/// actual, escolhe-se a fonte que cobre o maior trecho contíguo a partir da
+/// posição actual. Isto evita fragmentação excessiva (ex.: "Hello" → "H" +
+/// "ello") quando o FontBook começa por fontes especializadas de cobertura
+/// parcial.
 fn split_run_by_font(run: &BidiRun, candidates: &mut CandidateSet) -> Vec<SubRun> {
-    let mut result = Vec::new();
     let text = run.text.as_str();
-    let mut seg_start = 0usize;
-    let mut current_script = Script::Unknown;
-    let mut current_candidate = None::<usize>;
-
-    for (byte_offset, c) in text.char_indices() {
-        let script = c.script();
-        let script_eff = if is_generic_script(script) && !is_generic_script(current_script) {
-            current_script
-        } else {
-            script
-        };
-        let script_changed = byte_offset > 0 && !is_compatible(script_eff, current_script);
-        let candidate_idx = candidates.covering(c).unwrap_or(0);
-
-        if script_changed || Some(candidate_idx) != current_candidate {
-            if let Some(idx) = current_candidate {
-                result.push(SubRun {
-                    text: text[seg_start..byte_offset].to_owned(),
-                    byte_start: seg_start,
-                    candidate_idx: idx,
-                });
-            }
-            seg_start = byte_offset;
-            current_candidate = Some(candidate_idx);
-        }
-
-        current_script = if script_changed { script } else { script_eff };
+    if text.is_empty() {
+        return Vec::new();
     }
 
-    if let Some(idx) = current_candidate {
-        result.push(SubRun {
-            text: text[seg_start..].to_owned(),
-            byte_start: seg_start,
-            candidate_idx: idx,
+    let mut result = Vec::new();
+    let mut pos = 0usize;
+    let mut current_script = Script::Unknown;
+    let mut current: Option<SubRun> = None;
+
+    while pos < text.len() {
+        let c = text[pos..].chars().next().unwrap();
+        let script = effective_script(c.script(), current_script);
+        let script_changed = pos > 0 && !is_compatible(script, current_script);
+
+        // Próxima fronteira de script dentro do run.
+        let script_end = next_script_boundary(text, pos, script);
+
+        // P543 — fonte que cobre o maior trecho contíguo a partir de pos.
+        let (candidate_idx, font_end) = candidates
+            .covering_run(text, pos)
+            .unwrap_or((0, pos + c.len_utf8()));
+
+        let end_byte = font_end.min(script_end);
+
+        if script_changed {
+            if let Some(cur) = current.take() {
+                result.push(cur);
+            }
+            current_script = script;
+        }
+
+        if let Some(ref mut cur) = current {
+            if cur.candidate_idx == candidate_idx {
+                // Mesma fonte: estender o sub-run actual.
+                cur.text.push_str(&text[pos..end_byte]);
+                pos = end_byte;
+                continue;
+            }
+            // Fonte diferente: fechar o actual e iniciar novo.
+            result.push(current.take().unwrap());
+        }
+
+        current = Some(SubRun {
+            text: text[pos..end_byte].to_owned(),
+            candidate_idx,
         });
+        pos = end_byte;
+    }
+
+    if let Some(cur) = current {
+        result.push(cur);
     }
 
     result
+}
+
+/// Script efectivo de `c` dado o script do segmento actual: scripts genéricos
+/// herdam o script corrente para evitar fragmentação por pontuação/espaço.
+fn effective_script(script: Script, current: Script) -> Script {
+    if is_generic_script(script) && !is_generic_script(current) {
+        current
+    } else {
+        script
+    }
+}
+
+/// Byte offset imediatamente após a maior sequência de caracteres a partir de
+/// `start` que partilham o mesmo script efectivo `current_script`.
+fn next_script_boundary(text: &str, start: usize, current_script: Script) -> usize {
+    let mut end = start;
+    for (off, c) in text[start..].char_indices() {
+        let script = effective_script(c.script(), current_script);
+        if off > 0 && !is_compatible(script, current_script) {
+            break;
+        }
+        end = start + off + c.len_utf8();
+    }
+    end
 }
 
 fn is_generic_script(script: Script) -> bool {
@@ -386,6 +484,7 @@ struct BidiRun {
     text:       String,
     rtl:        bool,
     /// Offset byte do run no string original (para ajuste de `cluster`).
+    #[allow(dead_code)]
     byte_start: usize,
 }
 
@@ -1000,6 +1099,55 @@ mod tests {
             glyph_chars.contains('H') && glyph_chars.contains('你'),
             "deve conter caracteres latinos e CJK, got {:?}",
             glyph_chars
+        );
+    }
+
+    /// **P543** — quando nenhuma das fontes padrão existe e o FontBook começa
+    /// por uma fonte especializada de cobertura parcial (MathJax_AMS cobre 'H'
+    /// mas não 'ello'), o shaper deve escolher a fonte que cobre o maior trecho
+    /// contíguo, evitando fragmentar "Hello" em "H" + "ello" e duplicar texto.
+    #[test]
+    fn p543_fallback_global_escolhe_maior_trecho_e_nao_duplica() {
+        // MathJax_AMS primeiro: cobre 'H' mas não 'e'/'l'/'o'.
+        // DejaVu Sans depois: cobre "Hello" inteiro.
+        let world = font_world_with(&[
+            "/usr/share/fonts/opentype/mathjax/MathJax_AMS-Regular.otf",
+            "/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf",
+        ]);
+        if !world.is_complete() {
+            eprintln!("SKIP: fontes necessárias não disponíveis");
+            return;
+        }
+
+        // "Helvetica" não existe; as primárias ficam vazias e recai-se no
+        // fallback global. Sem a correcção de P543, MathJax_AMS seria escolhida
+        // para 'H' e DejaVu Sans para "ello", produzindo duplicação.
+        let doc = doc_with(vec![text_item_with_font("Hello", "Helvetica")]);
+        let shaped = shape_document(&world, doc);
+        let items = &shaped.pages[0].items;
+        assert!(
+            items.iter().all(|i| matches!(i, FrameItem::TextShaped { .. })),
+            "deve produzir TextShaped"
+        );
+
+        // O texto combinado dos itens não deve duplicar caracteres.
+        let rendered: String = items
+            .iter()
+            .filter_map(|i| match i {
+                FrameItem::TextShaped { glyphs, .. } => {
+                    Some(glyphs.iter().map(|g| g.char_code).collect::<String>())
+                }
+                _ => None,
+            })
+            .collect();
+        assert_eq!(rendered, "Hello", "texto não deve ser duplicado: got {:?}", rendered);
+
+        // Deve haver apenas um TextShaped, porque DejaVu Sans cobre tudo.
+        assert_eq!(
+            items.len(),
+            1,
+            "fonte que cobre toda a palavra deve produzir 1 TextShaped, got {}",
+            items.len()
         );
     }
 }

@@ -240,7 +240,7 @@
 
 ## Secção 1 — DEBTs em aberto ou parcialmente resolvidos
 
-## DEBT-65 — Fallback de fonte por carácter depende de lista fixa de nomes — ABERTO (P538g)
+## DEBT-65 — Fallback de fonte por carácter depende de lista fixa de nomes — FECHADO (P543) ✓
 
 **Origem**: Passo P538e — quando a fonte declarada (ou a default "Helvetica")
 não existe no `FontBook`, o shaper recai numa lista fixa de fontes padrão
@@ -248,19 +248,24 @@ não existe no `FontBook`, o shaper recai numa lista fixa de fontes padrão
 destas existir no sistema, o código cai no mecanismo global de fallback
 por carácter.
 
-**Problema residual**: o fallback global carácter-a-carácter tem um bug
+**Problema residual**: o fallback global carácter-a-caractere tinha um bug
 conhecido de duplicação de texto quando o catálogo começa por fontes
 especializadas que cobrem apenas alguns caracteres latinos (documentado em
 `00_nucleo/diagnosticos/paridade-producao-p538e.md`, "Passo 3"). O exemplo
 observado foi `"Hello"` renderizado como `"Helloello"`.
 
-**Impacto**: baixo em ambientes desktop comuns (onde DejaVu Sans ou Noto
-Sans tipicamente existem), mas alto em containers mínimos ou sistemas sem
-essas famílias.
+**Resolução (P543)**: `split_run_by_font` deixou de escolher a primeira
+fonte que cobre o caractere actual. Agora escolhe a fonte (primária ou de
+fallback) que cobre o **maior trecho contíguo** a partir da posição actual.
+As primárias mantêm prioridade sobre o fallback global. Além disso, o campo
+`text` de cada `FrameItem::TextShaped` passou a reflectir apenas o sub-run,
+com clusters relativos a esse texto, evitando duplicação no ToUnicode /
+`pdftotext`.
 
-**Decisão**: scope-out por agora. Nenhuma correcção aplicada em P538e/g.
-Regista-se formalmente para não ficar esquecido na prosa de um relatório
-já fechado.
+**Referência**: `03_infra/src/shaper.rs` (`covering_run`,
+`best_covering_run`, `split_run_by_font`, `try_shape`);
+teste `p543_fallback_global_escolhe_maior_trecho_e_nao_duplica`;
+`00_nucleo/diagnosticos/paridade-producao-p543.md`.
 
 ---
 
