@@ -334,10 +334,9 @@ fn p206c_corpus_estrutural_36_ficheiros() {
                         if entry.file == "for-with-counter.typ" {
                             let norm = normalize_extracted_text(&crist_text);
                             assert!(
-                                norm.contains("Item 1")
-                                    && norm.contains("Item 2")
-                                    && norm.contains("Item 3"),
-                                "for-with-counter.typ deve conter 'Item 1', 'Item 2', 'Item 3'; got {:?}",
+                                norm.contains("A") && norm.contains("B") && norm.contains("C")
+                                    && norm.contains("1") && norm.contains("2") && norm.contains("3"),
+                                "for-with-counter.typ deve conter A/B/C e índices 1/2/3; got {:?}",
                                 norm
                             );
                         }

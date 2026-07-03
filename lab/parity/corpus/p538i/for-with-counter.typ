@@ -1,4 +1,5 @@
-// P538i — #for com range numérico (contador).
-#for i in range(1, 4) [
-  Item #str(i): letra
+// P538i/P540 — #for com destructuring de tuplo via enumerate().
+#let items = ("A", "B", "C")
+#for (i, x) in items.enumerate() [
+  #str(i+1). #x
 ]

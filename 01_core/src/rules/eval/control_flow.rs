@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/rules/eval.md
-//! @prompt-hash 2ef05cee
+//! @prompt-hash 2b4597d5
 //! @layer L1
 //! @updated 2026-04-23
 //!
@@ -73,17 +73,44 @@ pub(super) fn eval_for(
     match iterable {
         Value::Array(items) => {
             let bindings = loop_expr.pattern().bindings();
-            let name = bindings.first()
-                .map(|ident| ident.as_str().to_string())
-                .unwrap_or_default();
-            // **P538f** — acumular o conteúdo produzido pelo corpo de cada
-            // iteração, em vez de descartá-lo. Isto permite que `#for` em modo
-            // markup gere conteúdo renderizável.
+            // **P540** — suportar destructuring de tuplo em #for. Se o padrão
+            // tiver múltiplos bindings (ex: (i, x)), cada item do iterável deve
+            // ser um array cujos elementos são atribuídos posicionalmente.
             let mut parts = Vec::new();
             for item in items {
                 ctx.tick_loop(loop_expr.span())?;
                 scopes.enter();
-                scopes.define(name.as_str(), item);
+
+                if bindings.is_empty() {
+                    // Pattern vazio ou underscore — não definir variáveis.
+                } else if bindings.len() == 1 {
+                    scopes.define(bindings[0].as_str(), item);
+                } else {
+                    let tuple = match &item {
+                        Value::Array(t) => t.clone(),
+                        other => {
+                            scopes.exit();
+                            return Err(vec![SourceDiagnostic::error(
+                                loop_expr.pattern().span(),
+                                format!("cannot destructure value of type {}", other.type_name()),
+                            )]);
+                        }
+                    };
+                    if tuple.len() != bindings.len() {
+                        scopes.exit();
+                        return Err(vec![SourceDiagnostic::error(
+                            loop_expr.pattern().span(),
+                            format!(
+                                "cannot destructure {} values into {} bindings",
+                                tuple.len(), bindings.len()
+                            ),
+                        )]);
+                    }
+                    for (ident, value) in bindings.iter().zip(tuple.into_iter()) {
+                        scopes.define(ident.as_str(), value);
+                    }
+                }
+
                 match eval_expr(loop_expr.body(), scopes, ctx, engine)? {
                     Value::Content(c) => parts.push(c),
                     Value::Str(s) => parts.push(Content::text(s.as_str())),

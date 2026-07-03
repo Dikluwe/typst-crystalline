@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/rules/eval.md
-//! @prompt-hash 2ef05cee
+//! @prompt-hash 2b4597d5
 //! @layer L1
 //! @updated 2026-06-17
 //!
@@ -2113,6 +2113,24 @@ mod tests {
         );
         let doc = layout(content);
         assert!(!doc.pages.is_empty(), "documento layoutado não deve ser vazio");
+    }
+
+    /// **P540** — `#for` suporta destructuring de tuplo.
+    #[test]
+    fn p540_for_destructuring_tuplo() {
+        let world = MockWorld::new(
+            "#let items = (\"um\", \"dois\", \"três\")\n#for (i, x) in items.enumerate() [#str(i) #x]",
+        );
+        let src = World::source(&world, World::main(&world)).unwrap();
+        let module = eval_for_test(&world, &src).unwrap();
+        let content = module.content().expect("eval deve produzir Content");
+        let text = content.plain_text();
+        assert!(text.contains("um"), "deve conter 'um'");
+        assert!(text.contains("dois"), "deve conter 'dois'");
+        assert!(text.contains("três"), "deve conter 'três'");
+        // Os índices 0, 1, 2 devem estar presentes.
+        assert!(text.contains('0') && text.contains('1') && text.contains('2'),
+            "deve conter índices 0, 1, 2 de enumerate");
     }
 
     // ── Testes de Passo 17 — Named args ──────────────────────────────────────

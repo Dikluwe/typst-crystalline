@@ -1,5 +1,5 @@
 # Prompt L0 — rules/eval
-Hash do Código: ad4db0ff
+Hash do Código: f9375764
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/rules/eval.rs`
@@ -74,10 +74,12 @@ renderizado.
 - `Expr::Unary(unary)` → eval_unary_op(unary.op(), operand)
 - `Expr::Conditional(cond)` → eval_conditional: condition(), if_body(), else_body()
 - `Expr::WhileLoop(loop)` → eval_while: MAX_ITER=10_000 limite de segurança
-- `Expr::ForLoop(loop)` → eval_for: iterable() (não iter()), pattern().bindings(),
-  body(); cada iteração avalia o corpo e concatena os valores `Content`/`Str`
-  produzidos numa `Content::sequence`; `Value::None` no corpo é ignorado;
-  `Value::None` como iterable é iterável vazio (sem parsing de array literal)
+- `Expr::ForLoop(loop)` → eval_for: iterable() (não iter()), pattern().bindings()
+  (incluindo destructuring de tuplo: `(i, x)` atribui posicionalmente de cada
+  item `Value::Array`), body(); cada iteração avalia o corpo e concatena os
+  valores `Content`/`Str` produzidos numa `Content::sequence`; `Value::None`
+  no corpo é ignorado; `Value::None` como iterable é iterável vazio (sem
+  parsing de array literal)
 
 ## Fronteira deliberada
 
