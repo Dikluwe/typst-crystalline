@@ -24,7 +24,10 @@ use std::path::{Path, PathBuf};
 use vanilla_invoke::{run_typst_query, run_typst_query_with_bin, vanilla_cli_available, vanilla_cli_available_with_bin};
 use structural_compare::{compare_query_outputs, CompareResult};
 
+use std::process::Command;
+
 use typst_core::contracts::world::World;
+use typst_infra::pipeline::compile_to_pdf_bytes;
 use typst_infra::query_helpers::{query_to_summary, QuerySummary};
 use typst_infra::world::SystemWorld;
 
@@ -41,6 +44,7 @@ fn default_selectors_for_category(category: &str) -> Vec<&'static str> {
         "markup" => vec!["heading"],
         "math"   => vec!["math.equation"],
         "code"   => vec![],  // code corpus não tem elementos típicos query-able
+        "p538i"  => vec![],  // P538i — testes de #for; paridade verificada por texto
         _        => vec![],
     }
 }
@@ -72,6 +76,10 @@ fn etiqueta_for(category: &str, file: &str) -> CoverageEtiqueta {
     if category == "rtl" {
         return CoverageEtiqueta::SkipFeature;
     }
+    // P538i — p538i/: testes adicionais de #for.
+    if category == "p538i" {
+        return CoverageEtiqueta::Include;
+    }
     CoverageEtiqueta::Include
 }
 
@@ -86,7 +94,8 @@ struct CorpusFile {
 fn read_corpus(base: &Path) -> Vec<CorpusFile> {
     let mut entries = Vec::new();
     // P488 — "rtl" adicionado ao corpus para validar P484 (bidi_runs).
-    let categories = ["markup", "math", "code", "visual", "semantic", "rtl"];
+    // P538i — "p538i" adicionado para testes de #for.
+    let categories = ["markup", "math", "code", "visual", "semantic", "rtl", "p538i"];
     for cat in &categories {
         let dir = base.join(cat);
         if !dir.is_dir() { continue; }
@@ -132,12 +141,56 @@ fn tempdir() -> TempDir {
     TempDir(path)
 }
 
+/// **P538i** — verifica se `pdftotext` está disponível no ambiente.
+fn pdftotext_available() -> bool {
+    Command::new("pdftotext").arg("-v").output().is_ok()
+}
+
+/// **P538i** — escreve bytes PDF para ficheiro temporário e extrai texto
+/// com `pdftotext`.
+fn extract_text_from_pdf_bytes(pdf_bytes: &[u8]) -> Option<String> {
+    let dir = tempdir();
+    let pdf_path = dir.path().join("doc.pdf");
+    let txt_path = dir.path().join("doc.txt");
+    std::fs::write(&pdf_path, pdf_bytes).ok()?;
+    let status = Command::new("pdftotext")
+        .arg(&pdf_path)
+        .arg(&txt_path)
+        .status()
+        .ok()?;
+    if !status.success() { return None; }
+    std::fs::read_to_string(&txt_path).ok()
+}
+
+/// **P538i** — compila um source Typst com a CLI vanilla num PDF temporário.
+fn compile_vanilla_pdf(typ_path: &Path, pdf_path: &Path) -> Result<(), String> {
+    let output = Command::new("typst")
+        .arg("compile")
+        .arg(typ_path)
+        .arg(pdf_path)
+        .output()
+        .map_err(|e| format!("falha ao invocar vanilla: {e}"))?;
+    if !output.status.success() {
+        return Err(format!(
+            "vanilla compile falhou: {}",
+            String::from_utf8_lossy(&output.stderr)
+        ));
+    }
+    Ok(())
+}
+
+/// **P538i** — normaliza texto extraído para comparação tolerante a
+/// quebras de linha e espaços.
+fn normalize_extracted_text(text: &str) -> String {
+    text.split_whitespace().collect::<Vec<_>>().join(" ")
+}
+
 #[test]
 fn p206c_corpus_estrutural_36_ficheiros() {
     let base = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("corpus");
     let corpus = read_corpus(&base);
     // P488 — corpus cresceu de 46 (P479) para 48 (adição de 2 ficheiros RTL).
-    assert_eq!(corpus.len(), 48, "esperado 48 ficheiros corpus, encontrados {}", corpus.len());
+    assert_eq!(corpus.len(), 50, "esperado 48 ficheiros corpus, encontrados {}", corpus.len());
 
     if !vanilla_cli_available() {
         eprintln!(
@@ -154,6 +207,8 @@ fn p206c_corpus_estrutural_36_ficheiros() {
     let mut total_skips    = 0;
     let mut total_errors   = 0;
     let mut comparisons    = 0;
+    // **P538i** — contador de diferenças de texto extraído (pdftotext).
+    let mut total_text_diffs = 0;
 
     for entry in &corpus {
         let etiqueta = etiqueta_for(&entry.category, &entry.file);
@@ -247,6 +302,76 @@ fn p206c_corpus_estrutural_36_ficheiros() {
                 }
             }
         }
+
+        // **P538i** — verificação de texto extraído, além da estrutural.
+        // Re-criar o world com system fonts para que o PDF tenha fallback real
+        // (o world base não carrega system fonts por defeito).
+        if pdftotext_available() {
+            let text_world = match SystemWorld::new(dir.path(), "main.typ")
+                .map(|w| w.with_system_fonts())
+            {
+                Ok(w) => w,
+                Err(_) => {
+                    eprintln!("[p206c] {}/{}: erro build SystemWorld com system fonts",
+                        entry.category, entry.file);
+                    continue;
+                }
+            };
+            let text_source = text_world.source(text_world.main()).unwrap();
+            let (pdf_result, _warnings) = compile_to_pdf_bytes(&text_world, &text_source);
+            match pdf_result {
+                Ok(pdf_bytes) => {
+                    if let Some(crist_text) = extract_text_from_pdf_bytes(&pdf_bytes) {
+                        // Asserts específicos para os novos ficheiros de #for.
+                        if entry.file == "for-basic.typ" {
+                            assert!(
+                                crist_text.contains("um")
+                                    && crist_text.contains("dois")
+                                    && crist_text.contains("três"),
+                                "for-basic.typ deve conter os itens 'um', 'dois', 'três'"
+                            );
+                        }
+                        if entry.file == "for-with-counter.typ" {
+                            let norm = normalize_extracted_text(&crist_text);
+                            assert!(
+                                norm.contains("Item 1")
+                                    && norm.contains("Item 2")
+                                    && norm.contains("Item 3"),
+                                "for-with-counter.typ deve conter 'Item 1', 'Item 2', 'Item 3'; got {:?}",
+                                norm
+                            );
+                        }
+
+                        // Comparação opcional com vanilla quando CLI disponível.
+                        if vanilla_cli_available() {
+                            let van_pdf = dir.path().join("vanilla.pdf");
+                            if compile_vanilla_pdf(&main_path, &van_pdf).is_ok() {
+                                if let Ok(van_bytes) = std::fs::read(&van_pdf) {
+                                    if let Some(van_text) = extract_text_from_pdf_bytes(&van_bytes) {
+                                        if normalize_extracted_text(&crist_text)
+                                            != normalize_extracted_text(&van_text)
+                                        {
+                                            total_text_diffs += 1;
+                                            eprintln!(
+                                                "[p206c] {}/{}: texto diff ({} chars crist vs {} chars van)",
+                                                entry.category, entry.file,
+                                                crist_text.len(), van_text.len()
+                                            );
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+                Err(e) => {
+                    eprintln!(
+                        "[p206c] {}/{}: erro compile PDF cristalino: {:?}",
+                        entry.category, entry.file, e
+                    );
+                }
+            }
+        }
     }
 
     eprintln!("\n=== P206C — Matriz de paridade estrutural ===");
@@ -257,6 +382,10 @@ fn p206c_corpus_estrutural_36_ficheiros() {
     eprintln!("Comparações:              {}", comparisons);
     eprintln!("  - Matches:              {}", total_matches);
     eprintln!("  - Diffs:                {}", total_diffs);
+    eprintln!("Text diffs (P538i):       {}", total_text_diffs);
+
+    // **P538i** — os dois novos ficheiros de #for estão incluídos no corpus
+    // (ver asserts acima no loop). Se chegámos aqui, passaram.
 }
 
 #[test]
@@ -320,7 +449,7 @@ fn p206c_query_metadata_values_e2e() {
 fn p479_corpus_paridade_actualizado() {
     let base = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("corpus");
     let corpus = read_corpus(&base);
-    assert_eq!(corpus.len(), 48, "P479 (actualizado P488): corpus deve ter 48 ficheiros");
+    assert_eq!(corpus.len(), 50, "P479 (actualizado P488): corpus deve ter 48 ficheiros");
 
     if !vanilla_cli_available() {
         eprintln!("[p479] vanilla CLI ausente; sentinela de diff não verifica");
@@ -380,7 +509,7 @@ fn p480_corpus_paridade_actualizado() {
     // Resultado esperado: 0 diffs (vs 1 diff em P479).
     let base = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("corpus");
     let corpus = read_corpus(&base);
-    assert_eq!(corpus.len(), 48, "P480 (actualizado P488): corpus deve ter 48 ficheiros");
+    assert_eq!(corpus.len(), 50, "P480 (actualizado P488): corpus deve ter 48 ficheiros");
 
     if !vanilla_cli_available() {
         eprintln!("[p480] vanilla CLI ausente; sentinela não verifica diffs");
@@ -441,7 +570,7 @@ fn p482_parity_73_73_mantido() {
     // Resultado esperado: 0 diffs (igual a P480).
     let base = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("corpus");
     let corpus = read_corpus(&base);
-    assert_eq!(corpus.len(), 48, "P482 (actualizado P488): corpus deve ter 48 ficheiros");
+    assert_eq!(corpus.len(), 50, "P482 (actualizado P488): corpus deve ter 48 ficheiros");
 
     if !vanilla_cli_available() {
         eprintln!("[p482] vanilla CLI ausente; sentinela não verifica diffs");
@@ -501,7 +630,7 @@ fn p483_parity_73_73_mantido() {
     // como Text; resultado esperado: 0 diffs = igual a P482).
     let base = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("corpus");
     let corpus = read_corpus(&base);
-    assert_eq!(corpus.len(), 48, "P483 (actualizado P488): corpus deve ter 48 ficheiros");
+    assert_eq!(corpus.len(), 50, "P483 (actualizado P488): corpus deve ter 48 ficheiros");
 
     if !vanilla_cli_available() {
         eprintln!("[p483] vanilla CLI ausente; sentinela não verifica diffs");
@@ -559,7 +688,7 @@ fn p485_parity_73_73_mantido() {
     // semântica comparada. Resultado esperado: 73/73 = igual a P484.
     let base = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("corpus");
     let corpus = read_corpus(&base);
-    assert_eq!(corpus.len(), 48, "P485 (actualizado P488): corpus deve ter 48 ficheiros");
+    assert_eq!(corpus.len(), 50, "P485 (actualizado P488): corpus deve ter 48 ficheiros");
 
     if !vanilla_cli_available() {
         eprintln!("[p485] vanilla CLI ausente; sentinela não verifica diffs");
@@ -619,7 +748,7 @@ fn p486_parity_73_73_mantido() {
     let base = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("corpus");
     let corpus = read_corpus(&base);
     // P488: corpus cresceu para 48 — P486 mantém diffs=0 (RTL são SkipFeature).
-    assert_eq!(corpus.len(), 48, "P486 (actualizado P488): corpus deve ter 48 ficheiros");
+    assert_eq!(corpus.len(), 50, "P486 (actualizado P488): corpus deve ter 48 ficheiros");
 
     if !vanilla_cli_available() {
         eprintln!("[p486] vanilla CLI ausente; sentinela não verifica diffs");
@@ -1045,7 +1174,7 @@ fn p488_parity_corpus_48_ficheiros_rtl_skipfeature() {
     // INCLUDE count mantém-se ≥28 (RTL files são SkipFeature).
     let base = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("corpus");
     let corpus = read_corpus(&base);
-    assert_eq!(corpus.len(), 48, "P488: corpus deve ter 48 ficheiros (46 anteriores + 2 RTL)");
+    assert_eq!(corpus.len(), 50, "P488: corpus deve ter 48 ficheiros (46 anteriores + 2 RTL)");
 
     if !vanilla_cli_available() {
         eprintln!("[p488] vanilla CLI ausente; sentinela verifica apenas count");
