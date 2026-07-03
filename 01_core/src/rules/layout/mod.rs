@@ -1162,15 +1162,20 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
             let mut items = self.regions.current.current_items;
 
             // **P532** — numeração automática na última página.
+            // **P538d** — o texto de numeração deve usar o estilo activo da
+            // página (StyleChain), não `TextStyle::regular`, para que `font`
+            // esteja definida. Mesma correção de P483 para texto normal.
             if let Some(pattern) = &page_numbering {
                 if let Some(text) = crate::entities::counter_format::format_counter(&[page_number], pattern.as_str()) {
                     let text_width = self.metrics.advance(&text, self.font_size_pt).0;
                     let x = (self.regions.current.width - text_width) / 2.0;
                     let y = self.regions.current.height - self.page_config.margin / 2.0;
+                    let mut style = TextStyle::from(&self.chain);
+                    style.size = self.font_size_pt;
                     items.push(FrameItem::Text {
                         pos: Point { x: Pt(x), y: Pt(y) },
                         text: text.into(),
-                        style: TextStyle::regular(self.font_size_pt),
+                        style,
                     });
                 }
             }

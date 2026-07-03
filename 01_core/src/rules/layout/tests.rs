@@ -3423,6 +3423,23 @@ Goodbye #footnote[Nota B] moon."#,
             );
         }
     }
+
+    /// **P538d** — texto de numeração automática de página tem `style.font`
+    /// preenchido (correcção equivalente a P483 para texto normal).
+    #[test]
+    fn p538d_page_numbering_text_tem_font_definida() {
+        let doc = layout_typst(
+            r#"#set page(numbering: "1")
+Página."#,
+        );
+        assert!(
+            doc.pages.iter().any(|p| p.items.iter().any(|item| {
+                matches!(item, FrameItem::Text { text, style, .. }
+                    if text.as_str() == "1" && style.font.is_some())
+            })),
+            "numeração de página deve ser renderizada com style.font preenchido"
+        );
+    }
 }
 
 // ── Passo 103.D: Integração `#show` end-to-end ────────────────────────────
