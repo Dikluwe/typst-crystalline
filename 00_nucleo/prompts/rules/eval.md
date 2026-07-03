@@ -75,7 +75,9 @@ renderizado.
 - `Expr::Conditional(cond)` → eval_conditional: condition(), if_body(), else_body()
 - `Expr::WhileLoop(loop)` → eval_while: MAX_ITER=10_000 limite de segurança
 - `Expr::ForLoop(loop)` → eval_for: iterable() (não iter()), pattern().bindings(),
-  body(); Value::None tratado como iterável vazio (sem parsing de array literal)
+  body(); cada iteração avalia o corpo e concatena os valores `Content`/`Str`
+  produzidos numa `Content::sequence`; `Value::None` no corpo é ignorado;
+  `Value::None` como iterable é iterável vazio (sem parsing de array literal)
 
 ## Fronteira deliberada
 

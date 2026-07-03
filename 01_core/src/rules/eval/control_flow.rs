@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/rules/eval.md
-//! @prompt-hash 15f29e40
+//! @prompt-hash 2ef05cee
 //! @layer L1
 //! @updated 2026-04-23
 //!
@@ -10,6 +10,7 @@
 
 use crate::entities::ast::code::{Conditional, ForLoop, WhileLoop};
 use crate::entities::ast::AstNode;
+use crate::entities::content::Content;
 use crate::entities::engine::Engine;
 use crate::entities::source_result::{SourceDiagnostic, SourceResult};
 use crate::entities::value::Value;
@@ -75,14 +76,33 @@ pub(super) fn eval_for(
             let name = bindings.first()
                 .map(|ident| ident.as_str().to_string())
                 .unwrap_or_default();
+            // **P538f** — acumular o conteúdo produzido pelo corpo de cada
+            // iteração, em vez de descartá-lo. Isto permite que `#for` em modo
+            // markup gere conteúdo renderizável.
+            let mut parts = Vec::new();
             for item in items {
                 ctx.tick_loop(loop_expr.span())?;
                 scopes.enter();
                 scopes.define(name.as_str(), item);
-                eval_expr(loop_expr.body(), scopes, ctx, engine)?;
+                match eval_expr(loop_expr.body(), scopes, ctx, engine)? {
+                    Value::Content(c) => parts.push(c),
+                    Value::Str(s) => parts.push(Content::text(s.as_str())),
+                    Value::None => {}
+                    other => {
+                        scopes.exit();
+                        return Err(vec![SourceDiagnostic::error(
+                            loop_expr.body().span(),
+                            format!("corpo do for deve ser content, encontrado {}", other.type_name()),
+                        )]);
+                    }
+                }
                 scopes.exit();
             }
-            Ok(Value::None)
+            if parts.is_empty() {
+                Ok(Value::None)
+            } else {
+                Ok(Value::Content(Content::sequence(parts)))
+            }
         }
         // `()` em Typst avalia para None via fronteira deliberada (não há parsing
         // de array literal neste passo). Tratar None como iterável vazio.

@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/rules/eval.md
-//! @prompt-hash 15f29e40
+//! @prompt-hash 2ef05cee
 //! @layer L1
 //! @updated 2026-06-17
 //!
@@ -2096,6 +2096,23 @@ mod tests {
         let world = MockWorld::new("#for i in range(3) { }");
         let src = World::source(&world, World::main(&world)).unwrap();
         assert!(eval_for_test(&world, &src).is_ok());
+    }
+
+    /// **P538f** — corpo de `#for` em modo markup acumula conteúdo e produz
+    /// um documento não vazio.
+    #[test]
+    fn p538f_for_acumula_conteudo_do_corpo() {
+        use crate::rules::layout::layout;
+        let world = MockWorld::new("#for i in range(3) [A]");
+        let src = World::source(&world, World::main(&world)).unwrap();
+        let module = eval_for_test(&world, &src).unwrap();
+        let content = module.content().expect("eval deve produzir Content");
+        assert!(
+            content.plain_text().contains("A"),
+            "for deve acumular conteúdo do corpo"
+        );
+        let doc = layout(content);
+        assert!(!doc.pages.is_empty(), "documento layoutado não deve ser vazio");
     }
 
     // ── Testes de Passo 17 — Named args ──────────────────────────────────────
