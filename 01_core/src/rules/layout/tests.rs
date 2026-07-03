@@ -3440,6 +3440,45 @@ Página."#,
             "numeração de página deve ser renderizada com style.font preenchido"
         );
     }
+
+    /// **P541** — padrões compostos de numeração de página usam o número da
+    /// página actual e o total de páginas (ex.: `"1 / 1"` → `"1 / 3"`).
+    #[test]
+    fn p541_page_numbering_composto_usa_total_de_paginas() {
+        let doc = layout_typst(
+            r#"#set page(numbering: "1 / 1")
+Página um.
+#pagebreak()
+Página dois.
+#pagebreak()
+Página três."#,
+        );
+        assert_eq!(doc.pages.len(), 3, "documento deve ter 3 páginas");
+        let texts: Vec<String> = doc
+            .pages
+            .iter()
+            .map(|p| {
+                p.items
+                    .iter()
+                    .filter_map(|item| match item {
+                        FrameItem::Text { text, .. } => Some(text.as_str()),
+                        _ => None,
+                    })
+                    .collect::<Vec<_>>()
+                    .join("")
+            })
+            .collect();
+        let expected = vec!["1 / 3", "2 / 3", "3 / 3"];
+        for (idx, exp) in expected.iter().enumerate() {
+            assert!(
+                texts[idx].contains(exp),
+                "página {} deve conter '{}', obtido: '{}'",
+                idx + 1,
+                exp,
+                texts[idx]
+            );
+        }
+    }
 }
 
 // ── Passo 103.D: Integração `#show` end-to-end ────────────────────────────

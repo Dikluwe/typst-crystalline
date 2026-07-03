@@ -7,6 +7,16 @@
 //! Formatação de counters hierárquicos com patterns (P451).
 //! Subset suportado: "1.", "1.1", "I.", "(a)", "A.".
 
+/// Verifica se um caractere é um token de numeração reconhecido.
+pub fn is_numbering_token(ch: char) -> bool {
+    matches!(ch, '1' | 'I' | 'i' | 'a' | 'A')
+}
+
+/// Conta o número de tokens de numeração num pattern.
+pub fn count_numbering_tokens(pattern: &str) -> usize {
+    pattern.chars().filter(|c| is_numbering_token(*c)).count()
+}
+
 /// Formata um vector de valores hierárquicos segundo um pattern.
 ///
 /// Cada caractere do pattern que for um token de nível (`1`, `I`, `a`, `A`)

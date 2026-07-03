@@ -10,7 +10,7 @@
 #![allow(deprecated)] // P483 — FrameItem::Text fallback path legítimo
 use crate::entities::{
     corners::Corners,
-    counter_format::format_counter,
+    counter_format::{count_numbering_tokens, format_counter},
     geometry::ShapeKind,
     image_sizer::ImageSizer,
     layout_types::{FrameItem, Page, Point, Pt, TextStyle},
@@ -237,8 +237,16 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
         let mut items = std::mem::take(&mut self.regions.current.current_items);
 
         // **P532** — se houver numeração automática, desenhar o número no rodapé.
+        // **P541** — padrões compostos (≥2 tokens de numeração) precisam do total
+        // de páginas, só conhecido no final; adiar para `finish()`.
         if let Some(pattern) = &page_numbering {
-            if let Some(text) = format_counter(&[page_number], pattern.as_str()) {
+            if count_numbering_tokens(pattern) >= 2 {
+                self.pending_page_numbering.push((
+                    self.pages.len(),
+                    page_number,
+                    pattern.clone(),
+                ));
+            } else if let Some(text) = format_counter(&[page_number], pattern.as_str()) {
                 let text_width = self.metrics.advance(&text, self.font_size_pt).0;
                 let x = (self.regions.current.width - text_width) / 2.0;
                 // Coordenadas do layout: origem no canto superior-esquerdo,

@@ -13,6 +13,7 @@ pub mod references;
 
 use crate::entities::{
     content::Content,
+    counter_format::count_numbering_tokens,
     geometry::ShapeKind,
     label::Label,
     image_sizer::{ImageSizer, NullImageSizer},
@@ -374,6 +375,11 @@ pub struct Layouter<'a, M: FontMetrics, S: ImageSizer = NullImageSizer> {
     /// **P538c** — posições horizontais absolutas (x) de cada coluna na
     /// página actual. Usado para translação e avanço de coluna.
     pub(super) column_x_offsets: Vec<f64>,
+    /// **P541** — numeração de página adiada que precisa do total de páginas.
+    /// Cada entrada: (índice da página no Vec, número da página, pattern).
+    /// O FrameItem::Text é adicionado no final de `finish()` quando o total
+    /// de páginas é conhecido.
+    pub(super) pending_page_numbering: Vec<(usize, usize, ecow::EcoString)>,
 }
 
 /// **P286** — Segmento de linha visual capturado por `flush_line`
@@ -549,6 +555,8 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
             previously_cited_keys: std::collections::HashSet::new(),
             // P505 — estado de espaçamento entre itens de lista soltos.
             last_was_loose_item: false,
+            // P541 — numeração adiada para patterns compostos (ex: "1 / 1").
+            pending_page_numbering: Vec::new(),
         }
     }
 
@@ -1165,8 +1173,16 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
             // **P538d** — o texto de numeração deve usar o estilo activo da
             // página (StyleChain), não `TextStyle::regular`, para que `font`
             // esteja definida. Mesma correção de P483 para texto normal.
+            // **P541** — padrões compostos (≥2 tokens de numeração) adiam-se
+            // porque precisam do total de páginas, só conhecido no final.
             if let Some(pattern) = &page_numbering {
-                if let Some(text) = crate::entities::counter_format::format_counter(&[page_number], pattern.as_str()) {
+                if count_numbering_tokens(pattern) >= 2 {
+                    self.pending_page_numbering.push((
+                        self.pages.len(),
+                        page_number,
+                        pattern.clone(),
+                    ));
+                } else if let Some(text) = crate::entities::counter_format::format_counter(&[page_number], pattern.as_str()) {
                     let text_width = self.metrics.advance(&text, self.font_size_pt).0;
                     let x = (self.regions.current.width - text_width) / 2.0;
                     let y = self.regions.current.height - self.page_config.margin / 2.0;
@@ -1188,6 +1204,31 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
             };
             self.pages.push(page);
         }
+
+        // **P541** — aplicar numerações de página adiadas agora que o total
+        // de páginas é conhecido. Cada entrada pendente contém o índice da
+        // página, o número da página e o pattern composto.
+        let total_pages = self.pages.len();
+        for (page_idx, page_number, pattern) in std::mem::take(&mut self.pending_page_numbering) {
+            if let Some(text) = crate::entities::counter_format::format_counter(
+                &[page_number, total_pages],
+                pattern.as_str(),
+            ) {
+                if let Some(page) = self.pages.get_mut(page_idx) {
+                    let text_width = self.metrics.advance(&text, self.font_size_pt).0;
+                    let x = (page.width - text_width) / 2.0;
+                    let y = page.height - self.page_config.margin / 2.0;
+                    let mut style = TextStyle::from(&self.chain);
+                    style.size = self.font_size_pt;
+                    page.items.push(FrameItem::Text {
+                        pos: Point { x: Pt(x), y: Pt(y) },
+                        text: text.into(),
+                        style,
+                    });
+                }
+            }
+        }
+
         let mut doc = PagedDocument::new(self.pages);
         // Expor o mapa de páginas sem mudar a assinatura de layout() (Passo 63).
         // P190C (M6 categoria Page tracking): label_pages movido para
