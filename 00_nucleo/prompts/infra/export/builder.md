@@ -91,7 +91,9 @@ O `PdfBuilder` emite um dicionário `/Info` quando
 `PagedDocument::document_info` não está vazio:
 
 1. Campos presentes (`/Title`, `/Author`, `/Keywords`) são escritos como
-   strings literais PDF escapadas.
+   strings UTF-16BE com marca de ordem de bytes (`\xFE\xFF`) codificadas em
+   hexadecimal (`<FEFF...>`). Isto evita dupla codificação de texto UTF-8
+   proveniente do documento Typst e suporta qualquer carácter Unicode.
 2. `/CreationDate` é escrita no formato `D:YYYYMMDDHHMMSS` (UTC do momento da
    compilação).
 3. `/Creator` é preenchida com `typst-crystalline`.

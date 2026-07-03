@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/export/builder.md
-//! @prompt-hash 2e1434e4
+//! @prompt-hash bf679d81
 //! @layer L3
 //! @updated 2026-05-19
 //!
@@ -1146,13 +1146,13 @@ impl PdfBuilder {
 
         let mut parts = Vec::new();
         if let Some(title) = &doc.document_info.title {
-            parts.push(format!("/Title {}", escape_pdf_literal(title.as_str())));
+            parts.push(format!("/Title {}", utf16be_hex_string(title.as_str())));
         }
         if let Some(author) = &doc.document_info.author {
-            parts.push(format!("/Author {}", escape_pdf_literal(author.as_str())));
+            parts.push(format!("/Author {}", utf16be_hex_string(author.as_str())));
         }
         if let Some(keywords) = &doc.document_info.keywords {
-            parts.push(format!("/Keywords {}", escape_pdf_literal(keywords.as_str())));
+            parts.push(format!("/Keywords {}", utf16be_hex_string(keywords.as_str())));
         }
         if parts.is_empty() {
             return;

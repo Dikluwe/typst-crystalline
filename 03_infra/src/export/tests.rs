@@ -7402,3 +7402,94 @@ use typst_core::rules::layout::layout;
         assert!(s.contains("https://example.com"), "URI deve aparecer");
         assert!(!s.contains("/S /GoTo"), "link externo não deve ter /GoTo");
     }
+
+    // ── P538b — Metadados `/Info` em UTF-16BE ───────────────────────────────
+
+    #[test]
+    fn pdf_info_utf16be_com_acentos() {
+        use typst_core::entities::document_info::DocumentInfo;
+        use typst_core::entities::layout_types::{Page, PagedDocument};
+
+        let mut doc = PagedDocument::new(vec![Page {
+            width: 595.28,
+            height: 841.89,
+            numbering: None,
+            items: vec![],
+        }]);
+        doc.document_info = DocumentInfo {
+            title: Some("Relatório de José".into()),
+            author: Some("João Conceição".into()),
+            keywords: None,
+        };
+
+        let pdf = export_pdf(&doc);
+        let s = String::from_utf8_lossy(&pdf);
+        assert!(s.contains("/Info"), "deve haver referência /Info no trailer");
+        assert!(s.contains("/Title <FEFF"), "/Title deve ser UTF-16BE hex");
+        assert!(s.contains("/Author <FEFF"), "/Author deve ser UTF-16BE hex");
+        assert!(
+            decode_utf16be_hex_in_pdf(&extract_info_value(&s, "/Title")) == "Relatório de José",
+            "título decodificado deve ser correcto"
+        );
+        assert!(
+            decode_utf16be_hex_in_pdf(&extract_info_value(&s, "/Author")) == "João Conceição",
+            "autor decodificado deve ser correcto"
+        );
+    }
+
+    #[test]
+    fn pdf_info_utf16be_caracter_nao_latino() {
+        use typst_core::entities::document_info::DocumentInfo;
+        use typst_core::entities::layout_types::{Page, PagedDocument};
+
+        let mut doc = PagedDocument::new(vec![Page {
+            width: 595.28,
+            height: 841.89,
+            numbering: None,
+            items: vec![],
+        }]);
+        doc.document_info = DocumentInfo {
+            title: Some("日本語".into()),
+            author: Some("用户".into()),
+            keywords: Some("你好 مرحبا".into()),
+        };
+
+        let pdf = export_pdf(&doc);
+        let s = String::from_utf8_lossy(&pdf);
+        assert!(
+            decode_utf16be_hex_in_pdf(&extract_info_value(&s, "/Title")) == "日本語",
+            "título CJK decodificado deve ser correcto"
+        );
+        assert!(
+            decode_utf16be_hex_in_pdf(&extract_info_value(&s, "/Author")) == "用户",
+            "autor CJK decodificado deve ser correcto"
+        );
+        assert!(
+            decode_utf16be_hex_in_pdf(&extract_info_value(&s, "/Keywords")) == "你好 مرحبا",
+            "keywords mistas decodificadas devem ser correctas"
+        );
+    }
+
+    /// Extrai o valor hex de uma chave do dicionário `/Info` (ex: `/Title <FEFF...>`).
+    fn extract_info_value(pdf: &str, key: &str) -> String {
+        let key_pos = pdf.find(key).expect("chave /Info deve existir");
+        let after = &pdf[key_pos + key.len()..];
+        // O valor começa imediatamente após a chave, com um espaço antes do '<'.
+        let start = after.find('<').expect("valor hex deve começar com <") + 1;
+        let end = after[start..].find('>').expect("valor hex deve terminar com >");
+        after[start..start + end].to_string()
+    }
+
+    /// Converte `<FEFF00410042>` (sem os delimitadores) para `String`.
+    fn decode_utf16be_hex_in_pdf(hex: &str) -> String {
+        assert!(hex.starts_with("FEFF"), "esperado BOM UTF-16BE");
+        let bytes: Vec<u8> = (4..hex.len())
+            .step_by(2)
+            .map(|i| u8::from_str_radix(&hex[i..i + 2], 16).expect("hex válido"))
+            .collect();
+        let units: Vec<u16> = bytes
+            .chunks_exact(2)
+            .map(|c| u16::from_be_bytes([c[0], c[1]]))
+            .collect();
+        String::from_utf16(&units).expect("UTF-16BE válido")
+    }
