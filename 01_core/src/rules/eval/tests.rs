@@ -2116,10 +2116,12 @@ mod tests {
     }
 
     /// **P540** — `#for` suporta destructuring de tuplo.
+    /// **P545** — o teste passou a usar `#{i+1}` para validar a
+    /// interpolação de expressões em markup.
     #[test]
     fn p540_for_destructuring_tuplo() {
         let world = MockWorld::new(
-            "#let items = (\"um\", \"dois\", \"três\")\n#for (i, x) in items.enumerate() [#str(i) #x]",
+            "#let items = (\"um\", \"dois\", \"três\")\n#for (i, x) in items.enumerate() [#{i+1}. #x]",
         );
         let src = World::source(&world, World::main(&world)).unwrap();
         let module = eval_for_test(&world, &src).unwrap();
@@ -2128,9 +2130,11 @@ mod tests {
         assert!(text.contains("um"), "deve conter 'um'");
         assert!(text.contains("dois"), "deve conter 'dois'");
         assert!(text.contains("três"), "deve conter 'três'");
-        // Os índices 0, 1, 2 devem estar presentes.
-        assert!(text.contains('0') && text.contains('1') && text.contains('2'),
-            "deve conter índices 0, 1, 2 de enumerate");
+        // **P545** — os índices interpolados devem ser 1, 2, 3.
+        assert!(
+            text.contains('1') && text.contains('2') && text.contains('3'),
+            "deve conter índices interpolados 1, 2, 3; got {}", text
+        );
     }
 
     // ── Testes de Passo 17 — Named args ──────────────────────────────────────

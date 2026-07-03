@@ -533,7 +533,15 @@ pub(crate) fn eval_markup(
                         // visível quando emitido via .update()/.step()/.display()).
                         Value::Counter(_) => {}
                         Value::None       => {}
-                        _                 => {}
+                        // **P545** — interpolação #{expr} em markup: valores
+                        // primitivos convertem-se para texto. Int, Float, Bool,
+                        // Array, Dict, Length, Datetime, etc. usam repr_value.
+                        other => {
+                            let text = crate::rules::eval::repr::repr_value(&other);
+                            if !text.is_empty() {
+                                parts.push(Content::Text(text.into()));
+                            }
+                        }
                     }
                 }
             }

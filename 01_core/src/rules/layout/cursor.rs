@@ -125,7 +125,13 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
             self.flush_line();
         }
         self.push_text(word.into(), w);
-        self.regions.current.cursor_x += w + self.space_width();
+        // **P545** — o avanço de `space_width()` foi removido de
+        // `layout_word`. O espaço entre palavras é responsabilidade do
+        // caller: o layout de `Content::Text` (múltiplas palavras num
+        // token) ou `Content::Space` (tokens adjacentes no markup).
+        // Isto evita inserir espaço automático entre fragmentos de texto
+        // produzidos por interpolações `#{expr}` adjacentes.
+        self.regions.current.cursor_x += w;
     }
 
     /// P446 — emite um fragmento de texto sem adicionar o espaço de separação
