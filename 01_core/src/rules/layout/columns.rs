@@ -1,8 +1,8 @@
 //! Crystalline Lineage
-//! @prompt 00_nucleo/prompts/rules/atomizacao_elementos.md
-//! @prompt-hash e6442e3f
+//! @prompt 00_nucleo/prompts/rules/columns.md
+//! @prompt-hash f0f98713
 //! @layer L1
-//! @updated 2026-07-02
+//! @updated 2026-07-03
 //!
 //! Atomização (ADR-0109, P377): o layout de `Columns` movido do monólito
 //! `layout_content` para o arquivo da feature (forma B — free function na
@@ -23,15 +23,20 @@ use super::{FontMetrics, ImageSizer, Layouter};
 /// Divide uma sequência de content pelos `Content::Colbreak`.
 /// Garante pelo menos `count` segmentos — se houver menos colbreaks do que
 /// `count - 1`, os segmentos em falta ficam vazios.
-fn split_by_colbreak(content: &Content, count: usize) -> Vec<Content> {
+/// Retorna também um booleano que indica se houve pelo menos um `colbreak`
+/// real no body (usado por P538c para escolher entre modo segmentado e
+/// modo fluxo contínuo).
+fn split_by_colbreak(content: &Content, count: usize) -> (Vec<Content>, bool) {
     let mut segments: Vec<Vec<Content>> = vec![Vec::new()];
     let children = match content {
         Content::Sequence(seq) => seq.iter().collect::<Vec<_>>(),
         Content::Empty => Vec::new(),
         other => vec![other],
     };
+    let mut had_colbreak = false;
     for child in children {
         if matches!(child, Content::Colbreak(_)) {
+            had_colbreak = true;
             segments.push(Vec::new());
         } else {
             segments.last_mut().unwrap().push(child.clone());
@@ -47,15 +52,16 @@ fn split_by_colbreak(content: &Content, count: usize) -> Vec<Content> {
         let tail: Vec<Content> = segments.drain(count - 1..).flatten().collect();
         segments.push(tail);
     }
-    segments.into_iter().map(Content::sequence).collect()
+    (segments.into_iter().map(Content::sequence).collect(), had_colbreak)
 }
 
 /// Layout real de `columns(count, body, gutter:)`.
 ///
-/// Cada segmento delimitado por `colbreak()` é renderizado numa coluna da
-/// mesma página. As notas de rodapé são flushed no fim de cada coluna
-/// através de `flush_pending_footnote_bodies`, que em `column_mode` usa a
-/// largura e origem horizontal da coluna actual.
+/// Se o body contiver `colbreak()`, cada segmento é renderizado numa
+/// coluna da mesma página (modo segmentado, P537). Se não houver
+/// `colbreak()`, o body é tratado como fluxo contínuo que preenche as
+/// colunas sequencialmente e só cria nova página quando todas as colunas
+/// da página actual estiverem cheias (P538c).
 pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
     layouter: &mut Layouter<M, S>,
     e:        &ColumnsElem,
@@ -79,8 +85,8 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
     // 3. column_width = (full_width - (count-1)*gutter) / count.
     let column_width = (full_width - (count_f - 1.0) * gutter_pt) / count_f;
 
-    // 4. Dividir body pelos colbreaks.
-    let segments = split_by_colbreak(&e.body, count);
+    // 4. Dividir body pelos colbreaks e detectar se há colbreaks reais.
+    let (segments, had_colbreak) = split_by_colbreak(&e.body, count);
 
     // 5. Posições horizontais das colunas (origem x absoluta na página).
     let margin = layouter.page_config.margin;
@@ -88,11 +94,22 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
         .map(|i| margin + i as f64 * (column_width + gutter_pt))
         .collect();
 
-    // 6. Renderizar cada segmento como uma coluna independente na mesma
-    //    página. Todas as colunas partilham o mesmo y inicial; a altura do
-    //    bloco columns é a máxima altura consumida por qualquer coluna.
-    //    Activamos `column_mode` para que as footnotes sejam posicionadas no
-    //    fundo da coluna actual.
+    if had_colbreak {
+        layout_segmented(layouter, &segments, &column_x_offsets, column_width, margin);
+    } else {
+        layout_flow(layouter, &segments[0], count, &column_x_offsets, column_width, margin);
+    }
+}
+
+/// Modo segmentado (P537): cada segmento delimitado por `colbreak()` é
+/// renderizado numa coluna da mesma página.
+fn layout_segmented<M: FontMetrics, S: ImageSizer>(
+    layouter: &mut Layouter<M, S>,
+    segments: &[Content],
+    column_x_offsets: &[f64],
+    column_width: f64,
+    margin: f64,
+) {
     let ascender = layouter.metrics.vertical_metrics(layouter.font_size_pt).0;
     let mut all_column_items: Vec<FrameItem> = Vec::new();
     let column_start_y = layouter.regions.current.cursor_y;
@@ -158,6 +175,57 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
     // 8. Avançar o cursor principal para a altura máxima consumida pelas
     //    colunas.
     layouter.regions.current.cursor_y = max_column_bottom_y;
+}
+
+/// Modo fluxo contínuo (P538c): o body é renderizado numa sequência de
+/// colunas. Quando uma coluna enche, avança para a seguinte na mesma
+/// página; só cria nova página física quando todas as colunas estão cheias.
+fn layout_flow<M: FontMetrics, S: ImageSizer>(
+    layouter: &mut Layouter<M, S>,
+    body: &Content,
+    count: usize,
+    column_x_offsets: &[f64],
+    column_width: f64,
+    margin: f64,
+) {
+    // Configurar estado de colunas no Layouter.
+    layouter.page_columns = Some(count);
+    layouter.current_column = 0;
+    layouter.column_x_offsets = column_x_offsets.to_vec();
+    layouter.column_width = column_width;
+    layouter.column_mode = true;
+    layouter.column_origin_x = column_x_offsets[0];
+
+    // Configurar region para a primeira coluna. O cursor_y actual já é
+    // a baseline da primeira linha (o Layouter inicializa com ascender);
+    // não se adiciona ascender novamente.
+    layouter.regions.current.width = column_width;
+    layouter.regions.current.cursor_x = Pt(margin);
+    layouter.regions.current.line_start_x = Pt(margin);
+
+    // Renderizar o body contínuo.
+    layouter.layout_content(body);
+    layouter.flush_line();
+
+    // Fechar colunas, fundir items e restaurar estado de página normal.
+    layouter.finish_columns();
+
+    // O cursor principal avança para o fundo da coluna mais baixa da
+    // última página. Como `finish_columns` reposiciona o cursor no topo
+    // da coluna, usamos a altura da página actual para estimar o fundo
+    // do bloco columns. Em modo fluxo contínuo as colunas preenchem a
+    // altura útil da página, excepto a última página que pode ser parcial.
+    // Simplificação segura: avançar para `height - margin` quando houve
+    // pelo menos uma página física criada; caso contrário manter o cursor.
+    if layouter.pages.len() > 0 {
+        // O Layouter acabou de fechar uma página? Não — finish_columns não
+        // cria página. Se new_page() foi chamado, a(s) página(s) anterior(es)
+        // já estão em `pages`; a última página ainda está em current_items.
+        // O cursor_y após finish_columns é o topo da coluna. Para evitar
+        // sobreposição com conteúdo seguinte, avançamos para o fundo da
+        // área útil actual.
+        layouter.regions.current.cursor_y = Pt(layouter.page_config.height - layouter.page_config.margin);
+    }
 }
 
 /// Translada um `FrameItem` horizontalmente por `dx` pontos,

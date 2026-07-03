@@ -201,6 +201,25 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
     }
 
     pub(super) fn new_page(&mut self) {
+        // **P538c** — se estiver em fluxo contínuo de colunas, fechar a
+        // coluna actual e avançar para a seguinte da mesma página, se
+        // possível. Só cria página física quando todas as colunas da
+        // página actual estiverem cheias.
+        if self.page_columns.is_some() {
+            self.close_current_column();
+            let count = self.page_columns.unwrap_or(1);
+            if self.current_column + 1 < count {
+                self.start_next_column();
+                return;
+            }
+            // Última coluna da página: juntar items de todas as colunas
+            // no current_items e restaurar dimensões da página física antes
+            // de a criar.
+            self.merge_column_items();
+            self.regions.current.width = self.page_config.width;
+            self.regions.current.height = self.page_config.height;
+        }
+
         // P245 (M9d / M7+4) — flush floats pendentes na página actual
         // antes da transição. Top floats emit no topo, bottom no fundo.
         self.flush_pending_floats();
@@ -256,6 +275,95 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
         // buffer + flush em new_page" N=1 → 2 cumulativo (P245
         // floats + P251 cell tails).
         self.flush_pending_cell_tails();
+
+        // **P538c** — após criar página física, se estiver em modo colunas,
+        // preparar a primeira coluna da nova página.
+        if self.page_columns.is_some() {
+            self.current_column = 0;
+            self.column_page_items.clear();
+            self.start_column(0);
+        }
+    }
+
+    /// **P538c** — fecha a coluna actual em fluxo contínuo: flush das
+    /// notas de rodapé pendentes, translada os items da coluna para a
+    /// posição horizontal absoluta correcta e guarda-os no buffer de
+    /// colunas da página.
+    fn close_current_column(&mut self) {
+        // Flush das footnotes no fundo da coluna actual.
+        let prev_column_mode = self.column_mode;
+        self.column_mode = true;
+        self.flush_pending_footnote_bodies();
+        self.column_mode = prev_column_mode;
+
+        // Transladar items da coluna actual de coordenadas locais (origem
+        // na margem) para coordenadas absolutas na página.
+        let dx = self.column_origin_x - self.page_config.margin;
+        let items = std::mem::take(&mut self.regions.current.current_items);
+        let translated = items
+            .into_iter()
+            .map(|item| {
+                let (x, y) = item_pos(&item);
+                translate_frame_item(item, Pt(x + dx), Pt(y))
+            })
+            .collect();
+        self.column_page_items.push(translated);
+    }
+
+    /// **P538c** — funde os items acumulados de todas as colunas da
+    /// página actual no `current_items` da região actual, preparando a
+    /// criação de uma nova página física.
+    pub(super) fn merge_column_items(&mut self) {
+        let mut merged: Vec<FrameItem> = Vec::new();
+        for column in std::mem::take(&mut self.column_page_items) {
+            merged.extend(column);
+        }
+        // A coluna actual já foi fechada e está em column_page_items;
+        // limpar current_items por segurança e repor merged.
+        self.regions.current.current_items = merged;
+    }
+
+    /// **P538c** — fecha a coluna actual, funde as colunas da página e
+    /// restaura o estado do Layouter para layout de página normal.
+    /// Chamado por `columns::layout` no fim do modo fluxo contínuo.
+    pub(super) fn finish_columns(&mut self) {
+        if self.page_columns.is_none() {
+            return;
+        }
+        self.close_current_column();
+        self.merge_column_items();
+        // Restaurar estado de página normal.
+        self.page_columns = None;
+        self.current_column = 0;
+        self.column_page_items.clear();
+        self.column_x_offsets.clear();
+        self.column_mode = false;
+        self.column_origin_x = 0.0;
+        self.column_width = self.regions.current.width; // já é a largura da página
+        self.regions.current.width = self.page_config.width;
+        self.regions.current.cursor_x = Pt(self.page_config.margin);
+        self.regions.current.line_start_x = Pt(self.page_config.margin);
+    }
+
+    /// **P538c** — avança o cursor para a coluna seguinte da mesma página.
+    fn start_next_column(&mut self) {
+        self.current_column += 1;
+        self.start_column(self.current_column);
+    }
+
+    /// **P538c** — configura a região actual para a coluna `idx`.
+    fn start_column(&mut self, idx: usize) {
+        let count = self.page_columns.unwrap_or(1);
+        if idx >= count {
+            return;
+        }
+        self.column_origin_x = self.column_x_offsets[idx];
+        self.regions.current.width = self.column_width;
+        self.regions.current.cursor_x = Pt(self.page_config.margin);
+        self.regions.current.line_start_x = Pt(self.page_config.margin);
+        let (ascender, _) = self.metrics.vertical_metrics(self.font_size_pt);
+        self.regions.current.cursor_y = Pt(self.page_config.margin) + ascender;
+        self.regions.current.current_line.clear();
     }
 
     /// **P245 (M9d / M7+4)** — flush dos floats pendentes na página

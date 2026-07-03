@@ -3371,6 +3371,58 @@ Goodbye #footnote[Nota B] moon."#,
         let result = eval_for_test(&world, &src);
         assert!(result.is_err(), "columns: 0 deve produzir erro");
     }
+
+    /// **P538c** — `#set page(columns: 2)` com texto corrido distribui o
+    /// conteúdo pelas duas colunas da mesma página (modo fluxo contínuo).
+    #[test]
+    fn p538c_set_page_columns_fluxo_continuo_uma_pagina() {
+        let doc = layout_typst(
+            r#"#set page(columns: 2)
+#lorem(200)"#,
+        );
+        assert_eq!(doc.pages.len(), 1, "deve caber numa página");
+        let items: Vec<_> = doc.pages[0]
+            .items
+            .iter()
+            .filter_map(|it| match it {
+                FrameItem::Text { text, pos, .. } => Some((text.to_string(), pos.x.0)),
+                _ => None,
+            })
+            .collect();
+        let left = items.iter().find(|(t, _)| t.contains("Lorem"));
+        let right = items.iter().rev().find(|(t, _)| t.contains("aliqua"));
+        assert!(left.is_some(), "primeira coluna deve ter texto");
+        assert!(right.is_some(), "segunda coluna deve ter texto");
+        assert!(
+            right.unwrap().1 > left.unwrap().1,
+            "segunda coluna deve estar à direita da primeira"
+        );
+    }
+
+    /// **P538c** — `#set page(columns: 2)` com texto longo cria múltiplas
+    /// páginas A4 (não páginas de largura de coluna) e o PDF não fica
+    /// malformado. O número de páginas deve ser significativamente menor
+    /// do que as 9 páginas observadas antes da correcção.
+    #[test]
+    fn p538c_set_page_columns_fluxo_continuo_multi_pagina() {
+        let doc = layout_typst(
+            r#"#set page(columns: 2)
+#lorem(1200)"#,
+        );
+        assert!(
+            doc.pages.len() < 9,
+            "documento longo deve ter menos de 9 páginas (era 9 antes do fix), got {}",
+            doc.pages.len()
+        );
+        for (idx, page) in doc.pages.iter().enumerate() {
+            assert!(
+                (page.width - 595.28).abs() < 0.1,
+                "página {} deve ter largura A4 (595.28), got {}",
+                idx + 1,
+                page.width
+            );
+        }
+    }
 }
 
 // ── Passo 103.D: Integração `#show` end-to-end ────────────────────────────

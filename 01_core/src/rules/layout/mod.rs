@@ -363,6 +363,17 @@ pub struct Layouter<'a, M: FontMetrics, S: ImageSizer = NullImageSizer> {
     pub(super) column_origin_x: f64,
     /// **P537** — largura útil da coluna actual.
     pub(super) column_width: f64,
+    /// **P538c** — número de colunas da página actual em fluxo contínuo.
+    /// `None` significa layout de página normal (uma coluna).
+    pub(super) page_columns: Option<usize>,
+    /// **P538c** — índice da coluna actual dentro da página (0-based).
+    pub(super) current_column: usize,
+    /// **P538c** — items já fechados de cada coluna da página actual.
+    /// Só preenchido quando `page_columns` é `Some`.
+    pub(super) column_page_items: Vec<Vec<FrameItem>>,
+    /// **P538c** — posições horizontais absolutas (x) de cada coluna na
+    /// página actual. Usado para translação e avanço de coluna.
+    pub(super) column_x_offsets: Vec<f64>,
 }
 
 /// **P286** — Segmento de linha visual capturado por `flush_line`
@@ -517,6 +528,11 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
             column_mode: false,
             column_origin_x: 0.0,
             column_width: 0.0,
+            // P538c — fluxo contínuo multi-coluna inactivo por default.
+            page_columns: None,
+            current_column: 0,
+            column_page_items: Vec::new(),
+            column_x_offsets: Vec::new(),
             // P286 — collector inactivo por default; consumer P284 activa
             // localmente antes de layout_content do body decorado.
             decoration_lines_collector: None,
