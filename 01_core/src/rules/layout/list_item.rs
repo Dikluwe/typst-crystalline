@@ -42,7 +42,7 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
         Pt(e.body_indent.unwrap_or(Length::pt(0.0)).resolve_pt(font_size.val()));
 
     let marker_str = e.marker.as_ref().map(|m| m.render()).unwrap_or("•");
-    let marker_width = layouter.metrics.advance(marker_str, font_size);
+    let marker_width = layouter.metrics.advance(marker_str, font_size, &layouter.style);
 
     let marker_x = margin_pt + indent_pt;
     let body_x = marker_x + marker_width + body_indent_pt;

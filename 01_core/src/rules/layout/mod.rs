@@ -1183,11 +1183,11 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
                         pattern.clone(),
                     ));
                 } else if let Some(text) = crate::entities::counter_format::format_counter(&[page_number], pattern.as_str()) {
-                    let text_width = self.metrics.advance(&text, self.font_size_pt).0;
-                    let x = (self.regions.current.width - text_width) / 2.0;
-                    let y = self.regions.current.height - self.page_config.margin / 2.0;
                     let mut style = TextStyle::from(&self.chain);
                     style.size = self.font_size_pt;
+                    let text_width = self.metrics.advance(&text, self.font_size_pt, &style).0;
+                    let x = (self.regions.current.width - text_width) / 2.0;
+                    let y = self.regions.current.height - self.page_config.margin / 2.0;
                     items.push(FrameItem::Text {
                         pos: Point { x: Pt(x), y: Pt(y) },
                         text: text.into(),
@@ -1215,11 +1215,11 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
                 pattern.as_str(),
             ) {
                 if let Some(page) = self.pages.get_mut(page_idx) {
-                    let text_width = self.metrics.advance(&text, self.font_size_pt).0;
-                    let x = (page.width - text_width) / 2.0;
-                    let y = page.height - self.page_config.margin / 2.0;
                     let mut style = TextStyle::from(&self.chain);
                     style.size = self.font_size_pt;
+                    let text_width = self.metrics.advance(&text, self.font_size_pt, &style).0;
+                    let x = (page.width - text_width) / 2.0;
+                    let y = page.height - self.page_config.margin / 2.0;
                     page.items.push(FrameItem::Text {
                         pos: Point { x: Pt(x), y: Pt(y) },
                         text: text.into(),
@@ -1302,10 +1302,10 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
                 let mut max_line_w = 0.0_f64;
                 let mut current_w = 0.0_f64;
                 let mut line_count = 1usize;
-                let space_w = self.metrics.advance(" ", self.font_size_pt).0;
+                let space_w = self.metrics.advance(" ", self.font_size_pt, &self.style).0;
 
                 for word in text.split_whitespace() {
-                    let word_w = self.metrics.advance(word, self.font_size_pt).0;
+                    let word_w = self.metrics.advance(word, self.font_size_pt, &self.style).0;
                     if current_w + word_w > max_width && current_w > 0.0 {
                         max_line_w = max_line_w.max(current_w);
                         line_count += 1;
@@ -1642,9 +1642,32 @@ pub fn layout(content: &Content) -> PagedDocument {
 ///
 /// **P190I (M6 fechado)**: signature drop `initial_state:
 /// CounterStateLegacy` parameter — struct eliminada.
+///
+/// **P544**: este entry point mantém o comportamento legacy com
+/// `FixedMetrics`. A pipeline de produção usa
+/// `layout_with_introspector_and_metrics` para métricas reais de fonte.
 pub fn layout_with_introspector(
     content: &Content,
     introspector: crate::entities::introspector::TagIntrospector,
+) -> PagedDocument {
+    layout_with_introspector_and_metrics(
+        content,
+        introspector,
+        FixedMetrics,
+        NullImageSizer,
+        DEFAULT_FONT_SIZE,
+    )
+}
+
+/// **P544** — entry point genérico que permite injectar métricas de fonte
+/// reais (com fallback multi-script) no layout. Usado pela pipeline de
+/// produção em L3.
+pub fn layout_with_introspector_and_metrics<M: FontMetrics + Clone, S: ImageSizer + Clone>(
+    content: &Content,
+    introspector: crate::entities::introspector::TagIntrospector,
+    metrics: M,
+    sizer: S,
+    font_size: f64,
 ) -> PagedDocument {
     use crate::entities::introspector::Introspector;
     use crate::entities::label::Label;
@@ -1699,8 +1722,7 @@ pub fn layout_with_introspector(
     });
 
     if !has_outline {
-        let mut l =
-            Layouter::new(FixedMetrics, NullImageSizer, DEFAULT_FONT_SIZE, intr_tracked);
+        let mut l = Layouter::new(metrics.clone(), sizer.clone(), font_size, intr_tracked);
         l.bib_render_cache = bib_render_cache;
         // P204C (M8): introspector já fornecido a Layouter::new via
         // tracked. Mutações pós-construção (`l.introspector =
@@ -1725,8 +1747,7 @@ pub fn layout_with_introspector(
     let mut final_doc: Option<PagedDocument> = None;
 
     for _ in 0..MAX_ITERATIONS {
-        let mut l =
-            Layouter::new(FixedMetrics, NullImageSizer, DEFAULT_FONT_SIZE, intr_tracked);
+        let mut l = Layouter::new(metrics.clone(), sizer.clone(), font_size, intr_tracked);
         l.bib_render_cache = bib_render_cache.clone();
 
         // P204C (M8): assignment `l.introspector = introspector.clone()`

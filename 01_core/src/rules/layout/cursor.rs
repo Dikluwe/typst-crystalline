@@ -30,7 +30,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
     /// `(n - 1) × tracking_pt` onde n é o número de codepoints —
     /// paridade vanilla (entre pares de glyphs, não depois do último).
     fn word_width(&self, word: &str) -> Pt {
-        let base = self.metrics.advance(word, self.style.size);
+        let base = self.metrics.advance(word, self.style.size, &self.style);
         let tracking_extra = self.style.tracking
             .map(|t| {
                 let tracking_pt = t.resolve_pt(self.style.size.val());
@@ -42,7 +42,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
     }
 
     pub(super) fn space_width(&self) -> Pt {
-        self.metrics.advance(" ", self.style.size)
+        self.metrics.advance(" ", self.style.size, &self.style)
     }
 
     /// **P448** — baseline ajustada pelo offset vertical do estilo (subscrito/
@@ -247,7 +247,8 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
                     pattern.clone(),
                 ));
             } else if let Some(text) = format_counter(&[page_number], pattern.as_str()) {
-                let text_width = self.metrics.advance(&text, self.font_size_pt).0;
+                let style = TextStyle::from(&self.chain);
+                let text_width = self.metrics.advance(&text, self.font_size_pt, &style).0;
                 let x = (self.regions.current.width - text_width) / 2.0;
                 // Coordenadas do layout: origem no canto superior-esquerdo,
                 // Y cresce para baixo. O PDF inverte Y; posicionar perto do

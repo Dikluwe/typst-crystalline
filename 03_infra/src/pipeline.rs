@@ -40,7 +40,7 @@ use typst_core::entities::style_chain::StyleChain;
 use typst_core::entities::world_types::{Route, Routines, Sink, Traced};
 use typst_core::rules::eval::{apply_func, eval_with_full_error, EvalContext};
 use typst_core::rules::introspect::introspect_with_introspector;
-use typst_core::rules::layout::layout_with_introspector;
+use typst_core::rules::layout::layout_with_introspector_and_metrics;
 use typst_core::rules::scopes::Scopes;
 use typst_core::rules::stdlib::value_to_content;
 
@@ -49,6 +49,8 @@ use crate::export::{
     export_pdf_multifont_and_timings,
     export_pdf_with_font_and_timings,
 };
+use crate::font_metrics::FallbackFontMetrics;
+use crate::image_sizer::ImageSizeImageSizer;
 
 /// Avalia `source` contra `world` e devolve `(Module, warnings)`.
 ///
@@ -341,7 +343,13 @@ fn compile_to_pdf_bytes_impl(
     // `Content::Label`, pelo que não deixam rasto em
     // `extracted_label_pages` durante o layout).
     let intr_for_positions = intr.clone();
-    let mut doc = layout_with_introspector(&content, intr);
+    let mut doc = layout_with_introspector_and_metrics(
+        &content,
+        intr,
+        FallbackFontMetrics::new(world),
+        ImageSizeImageSizer,
+        11.0,
+    );
     doc.extracted_headings = extracted_headings;
 
     // P535 — preencher página/ponto dos destinos auto-toc a partir das

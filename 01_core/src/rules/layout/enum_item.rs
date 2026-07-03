@@ -49,7 +49,7 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
         }
         None => "-".into(),
     };
-    let label_width = layouter.metrics.advance(&label, font_size);
+    let label_width = layouter.metrics.advance(&label, font_size, &layouter.style);
 
     let label_x = margin_pt + indent_pt;
     let body_x = label_x + label_width + body_indent_pt;

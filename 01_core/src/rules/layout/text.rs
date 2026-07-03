@@ -155,9 +155,16 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
 
     let prev_style = layouter.style.clone();
     layouter.style = effective;
-    if layouter.smallcaps {
-        const SCALE: f64 = 0.8;
-        for word in text.split_whitespace() {
+
+    // **P544** — preservar espaços entre palavras dentro de um nó Text.
+    // O lexer agrupa palavras separadas por um único espaço num só token
+    // (ex: "commodo consequat"). `split_whitespace()` perdia esses
+    // separadores, juntando as palavras no output. Iteramos pelas palavras
+    // e inserimos `space_width()` entre elas.
+    let mut words = text.split_whitespace().peekable();
+    while let Some(word) = words.next() {
+        if layouter.smallcaps {
+            const SCALE: f64 = 0.8;
             let chars: Vec<char> = word.chars().collect();
             let mut i = 0;
             while i < chars.len() {
@@ -178,11 +185,11 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
                 }
                 i = j;
             }
-            layouter.regions.current.cursor_x += layouter.space_width();
-        }
-    } else {
-        for word in text.split_whitespace() {
+        } else {
             layouter.layout_word(word);
+        }
+        if words.peek().is_some() {
+            layouter.regions.current.cursor_x += layouter.space_width();
         }
     }
     layouter.style = prev_style;

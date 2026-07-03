@@ -71,7 +71,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
                         x: offset_x + pos.x,
                         y: offset_y + pos.y,
                     };
-                    let advance = self.metrics.advance(&text, style.size);
+                    let advance = self.metrics.advance(&text, style.size, &style);
                     self.regions.current.current_line.push(FrameItem::Text {
                         pos: abs_pos,
                         text,
@@ -143,7 +143,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
                 .unwrap_or_else(|| n.to_string());
 
             let number_text: ecow::EcoString = formatted.into();
-            let number_width = self.metrics.advance(&number_text, self.style.size);
+            let number_width = self.metrics.advance(&number_text, self.style.size, &self.style);
             let right_x =
                 Pt(self.regions.current.width - self.page_config.margin) - number_width;
 

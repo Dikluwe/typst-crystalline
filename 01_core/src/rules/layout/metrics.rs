@@ -9,7 +9,7 @@
 
 use crate::entities::{
     glyph_variants::{GlyphAssembly, GlyphVariants, MathGlyphKern},
-    layout_types::Pt,
+    layout_types::{Pt, TextStyle},
     math_constants::MathConstants,
 };
 
@@ -20,7 +20,10 @@ use crate::entities::{
 /// (rich text futuro).
 pub trait FontMetrics: Send + Sync {
     /// Avanço horizontal de uma string em pontos tipográficos.
-    fn advance(&self, text: &str, size: Pt) -> Pt;
+    ///
+    /// **P544** — o estilo de texto é passado para que implementações com
+    /// fallback multi-script (L3) saibam quais fontes primárias resolver.
+    fn advance(&self, text: &str, size: Pt, style: &TextStyle) -> Pt;
 
     /// Métricas verticais: `(ascender, line_height)` em pontos tipográficos.
     ///
@@ -75,10 +78,13 @@ pub trait FontMetrics: Send + Sync {
 /// Métricas fixas monoespaçadas — para layout sem FontBook real.
 ///
 /// Passo 21: substituída por `FontBookMetrics` em L3 quando disponível.
+/// **P544**: `Clone + Copy` para poder ser reutilizada em múltiplos
+/// Layouters no fixpoint loop sem dependências externas.
+#[derive(Clone, Copy)]
 pub struct FixedMetrics;
 
 impl FontMetrics for FixedMetrics {
-    fn advance(&self, text: &str, size: Pt) -> Pt {
+    fn advance(&self, text: &str, size: Pt, _style: &TextStyle) -> Pt {
         // 0.6 * size por codepoint — monoespaçado
         size * (text.chars().count() as f64 * 0.6)
     }

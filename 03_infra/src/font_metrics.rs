@@ -11,9 +11,13 @@ use typst_core::entities::glyph_variants::{
     GlyphAssembly, GlyphPart, GlyphVariant, GlyphVariants,
     MathGlyphKern, MathKernRecord, MathKernTable,
 };
-use typst_core::entities::layout_types::Pt;
+use typst_core::contracts::world::World;
+use typst_core::entities::font_list::FontNamePattern;
+use typst_core::entities::layout_types::{Pt, TextStyle};
 use typst_core::entities::math_constants::MathConstants;
 use typst_core::rules::layout::FontMetrics;
+
+use crate::font_variant::text_style_to_font_variant;
 
 /// Extrai variantes verticais de um glifo directamente a partir da face.
 fn extract_variants(face: &Face<'_>, c: char) -> GlyphVariants {
@@ -101,7 +105,7 @@ impl<'a> FontBookMetrics<'a> {
 }
 
 impl FontMetrics for FontBookMetrics<'_> {
-    fn advance(&self, text: &str, size: Pt) -> Pt {
+    fn advance(&self, text: &str, size: Pt, _style: &TextStyle) -> Pt {
         // Fórmula: advance_pt = font_size * (Σ glyph_units / upem)
         let units: f64 = text
             .chars()
@@ -233,6 +237,156 @@ impl FontMetrics for FontBookMetrics<'_> {
     }
 }
 
+/// **P544** — Métricas de fonte com fallback multi-script.
+///
+/// Dado um `World`, resolve a fonte real (primárias do `TextStyle` + fallback
+/// global do `FontBook`) para medir cada caractere com a face correcta,
+/// em vez de usar uma largura fixa monoespaçada.
+pub struct FallbackFontMetrics<'a> {
+    world: &'a dyn World,
+}
+
+/// Candidata a fonte para medição.
+#[derive(Clone, Copy)]
+struct FontCandidate {
+    slot_idx:     usize,
+    units_per_em: u16,
+}
+
+/// Fontes padrão de fallback usadas pelo shaper (P538e/P543).
+/// Devem ser consistentes entre `FallbackFontMetrics` e `shaper.rs` para
+/// evitar desalinhamento de posicionamento no PDF.
+pub(crate) const DEFAULT_FALLBACK_FONTS: &[&str] = &[
+    "DejaVu Sans",
+    "Noto Sans",
+    "Liberation Sans",
+    "FreeSans",
+    "Arial",
+];
+
+impl<'a> FallbackFontMetrics<'a> {
+    /// Constrói métricas de fallback a partir do `World`.
+    pub fn new(world: &'a dyn World) -> Self {
+        Self { world }
+    }
+
+    /// Resolve as fontes primárias declaradas no estilo. Se o estilo não
+    /// declarar fonte (ou nenhuma resolver), replica o fallback padrão do
+    /// shaper (`DEFAULT_FALLBACK_FONTS`) para manter as métricas alinhadas
+    /// com a face que será efectivamente usada no shaping/PDF.
+    fn resolve_primary(&self, style: &TextStyle) -> Vec<FontCandidate> {
+        let mut primary = Vec::new();
+        let variant = text_style_to_font_variant(style);
+
+        if let Some(font_list) = &style.font {
+            for family in font_list.as_slice() {
+                let Some(idx) = self.world.book().select_pattern(&family.name, &variant) else {
+                    continue;
+                };
+                let Some(font) = self.world.font(idx) else { continue };
+                let Ok(face) = ttf_parser::Face::parse(font.as_slice(), 0) else { continue };
+                primary.push(FontCandidate {
+                    slot_idx: idx,
+                    units_per_em: face.units_per_em().max(1) as u16,
+                });
+            }
+        }
+
+        if primary.is_empty() {
+            for family in DEFAULT_FALLBACK_FONTS {
+                let pattern = FontNamePattern::Literal(ecow::EcoString::from(*family));
+                let Some(idx) = self.world.book().select_pattern(&pattern, &variant) else {
+                    continue;
+                };
+                let Some(font) = self.world.font(idx) else { continue };
+                let Ok(face) = ttf_parser::Face::parse(font.as_slice(), 0) else { continue };
+                primary.push(FontCandidate {
+                    slot_idx: idx,
+                    units_per_em: face.units_per_em().max(1) as u16,
+                });
+                break;
+            }
+        }
+
+        primary
+    }
+
+    /// Encontra a primeira fonte (primárias primeiro, depois FontBook) que
+    /// cobre `c`.
+    fn covering(&self, c: char, primary: &[FontCandidate]) -> Option<FontCandidate> {
+        for cand in primary {
+            let Some(font) = self.world.font(cand.slot_idx) else { continue };
+            let Ok(face) = ttf_parser::Face::parse(font.as_slice(), 0) else { continue };
+            if face.glyph_index(c).is_some() {
+                return Some(*cand);
+            }
+        }
+
+        let book_len = self.world.book().len();
+        for slot_idx in 0..book_len {
+            if primary.iter().any(|cand| cand.slot_idx == slot_idx) {
+                continue;
+            }
+            let Some(font) = self.world.font(slot_idx) else { continue };
+            let Ok(face) = ttf_parser::Face::parse(font.as_slice(), 0) else { continue };
+            if face.glyph_index(c).is_some() {
+                return Some(FontCandidate {
+                    slot_idx,
+                    units_per_em: face.units_per_em().max(1) as u16,
+                });
+            }
+        }
+
+        None
+    }
+}
+
+impl Clone for FallbackFontMetrics<'_> {
+    fn clone(&self) -> Self {
+        Self { world: self.world }
+    }
+}
+
+impl FontMetrics for FallbackFontMetrics<'_> {
+    fn advance(&self, text: &str, size: Pt, style: &TextStyle) -> Pt {
+        let primary = self.resolve_primary(style);
+        let mut total = 0.0;
+        for c in text.chars() {
+            let cand = self.covering(c, &primary);
+            let char_pt = cand
+                .and_then(|cand| {
+                    let font = self.world.font(cand.slot_idx)?;
+                    let face = ttf_parser::Face::parse(font.as_slice(), 0).ok()?;
+                    let gid = face.glyph_index(c)?;
+                    let adv = face.glyph_hor_advance(gid)?;
+                    Some(adv as f64 * size.val() / cand.units_per_em as f64)
+                })
+                .unwrap_or(size.val() * 0.6);
+            total += char_pt;
+        }
+        Pt(total)
+    }
+
+    fn vertical_metrics(&self, size: Pt) -> (Pt, Pt) {
+        // Usa a primeira fonte disponível no FontBook para métricas verticais.
+        let book_len = self.world.book().len();
+        for slot_idx in 0..book_len {
+            let Some(font) = self.world.font(slot_idx) else { continue };
+            let Ok(face) = ttf_parser::Face::parse(font.as_slice(), 0) else { continue };
+            let upem = face.units_per_em().max(1) as f64;
+            let ascender = face.ascender() as f64;
+            let descender = (face.descender() as f64).abs();
+            let line_gap = face.line_gap() as f64;
+            return (
+                size * (ascender / upem),
+                size * ((ascender + descender + line_gap) / upem),
+            );
+        }
+        // Fallback: proporções fixas se não houver nenhuma fonte.
+        (size * 0.8, size * 1.2)
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -252,9 +406,10 @@ mod tests {
 
         let m = FontBookMetrics::from_bytes(&data).expect("fonte válida");
         let size = Pt(12.0);
+        let style = TextStyle::default();
 
-        let ai = m.advance("iiii", size);
-        let aw = m.advance("WWWW", size);
+        let ai = m.advance("iiii", size, &style);
+        let aw = m.advance("WWWW", size, &style);
 
         assert!(
             ai.val() < aw.val(),
@@ -263,7 +418,7 @@ mod tests {
             ai.val(), aw.val()
         );
 
-        let aa = m.advance("A", size);
+        let aa = m.advance("A", size, &style);
         assert!(
             aa.val() > 3.0 && aa.val() < 12.0,
             "'A' em 12pt deve ser 3–12pt, foi {:.2}pt", aa.val()

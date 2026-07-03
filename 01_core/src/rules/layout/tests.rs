@@ -44,8 +44,9 @@ fn labelled_prod(target: Content, label: crate::entities::label::Label) -> Conte
 #[test]
 fn fixed_metrics_advance_proporcional_ao_tamanho() {
     let m = FixedMetrics;
-    let a12 = m.advance("Hello", Pt(12.0));
-    let a24 = m.advance("Hello", Pt(24.0));
+    let style = TextStyle::default();
+    let a12 = m.advance("Hello", Pt(12.0), &style);
+    let a24 = m.advance("Hello", Pt(24.0), &style);
     assert!(
         (a24.val() - 2.0 * a12.val()).abs() < 0.001,
         "advance deve escalar linearmente com font_size"
@@ -55,8 +56,9 @@ fn fixed_metrics_advance_proporcional_ao_tamanho() {
 #[test]
 fn fixed_metrics_monoespaco_iiii_eq_wwww() {
     let m = FixedMetrics;
-    let ai = m.advance("iiii", Pt(12.0));
-    let aw = m.advance("WWWW", Pt(12.0));
+    let style = TextStyle::default();
+    let ai = m.advance("iiii", Pt(12.0), &style);
+    let aw = m.advance("WWWW", Pt(12.0), &style);
     assert_eq!(ai, aw, "FixedMetrics é monoespaçado — iiii == WWWW");
 }
 
@@ -816,7 +818,7 @@ fn layout_list_item_respeita_indentacao() {
         FrameItem::Text { pos, .. } => pos.x.val(),
         _ => unreachable!(),
     };
-    let marker_width = FixedMetrics.advance("→", Pt(12.0)).val();
+    let marker_width = FixedMetrics.advance("→", Pt(12.0), &TextStyle::default()).val();
     let expected_body_x = expected_marker_x + marker_width + body_indent_em;
 
     assert!(
@@ -944,7 +946,7 @@ fn layout_enum_item_respeita_indentacao() {
         FrameItem::Text { pos, .. } => pos.x.val(),
         _ => unreachable!(),
     };
-    let label_width = FixedMetrics.advance("1.", Pt(12.0)).val();
+    let label_width = FixedMetrics.advance("1.", Pt(12.0), &TextStyle::default()).val();
     let expected_body_x = expected_label_x + label_width + body_indent_em;
 
     assert!(
@@ -14851,3 +14853,4 @@ fn p488_extracted_table_page_numbers_default_vazio() {
         "sem tabelas contadas: extracted_table_page_numbers deve estar vazio"
     );
 }
+

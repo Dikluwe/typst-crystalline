@@ -8,7 +8,7 @@ use typst_core::entities::image_sizer::ImageSizer;
 
 /// Implementação de ImageSizer usando a crate imagesize.
 /// imagesize lê apenas o cabeçalho do ficheiro — não descodifica píxeis.
-#[derive(Clone)]
+#[derive(Clone, Copy)]
 pub struct ImageSizeImageSizer;
 
 impl ImageSizer for ImageSizeImageSizer {

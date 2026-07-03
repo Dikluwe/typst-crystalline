@@ -65,12 +65,12 @@ pub(super) fn link_bbox<M: FontMetrics>(items: &[FrameItem], metrics: &M) -> (Po
     for item in items {
         match item {
             FrameItem::Text { pos, text, style } => {
-                let w = metrics.advance(text.as_str(), style.size).0;
+                let w = metrics.advance(text.as_str(), style.size, style).0;
                 let (_, line_h) = metrics.vertical_metrics(style.size);
                 expand(pos.x.0, pos.y.0, w, line_h.0);
             }
             FrameItem::TextShaped { pos, text, style, .. } => {
-                let w = metrics.advance(text.as_str(), style.size).0;
+                let w = metrics.advance(text.as_str(), style.size, style).0;
                 let (_, line_h) = metrics.vertical_metrics(style.size);
                 expand(pos.x.0, pos.y.0, w, line_h.0);
             }
