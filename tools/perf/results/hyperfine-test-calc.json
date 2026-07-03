@@ -1,27 +1,27 @@
 {
   "results": [
     {
-      "command": "/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst compile /home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/parity/corpus/p490/test-calc.typ /tmp/tmp4_qn_vl6.pdf",
-      "mean": 0.09797194179999999,
-      "stddev": 0.0005121180138534474,
-      "median": 0.0979485336,
-      "user": 0.06109011999999999,
-      "system": 0.039095819999999996,
-      "min": 0.0973045536,
-      "max": 0.0985222796,
+      "command": "/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst compile /home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/parity/corpus/p490/test-calc.typ /tmp/tmpntag9izz.pdf",
+      "mean": 0.09334970342,
+      "stddev": 0.0009107782237895242,
+      "median": 0.09304039822,
+      "user": 0.06149052000000001,
+      "system": 0.03421792,
+      "min": 0.09233568422,
+      "max": 0.09476152622,
       "times": [
-        0.0976611406,
-        0.0973045536,
-        0.0985222796,
-        0.0979485336,
-        0.0984232016
+        0.09361930422,
+        0.09304039822,
+        0.09233568422,
+        0.09299160422,
+        0.09476152622
       ],
       "memory_usage_byte": [
-        29630464,
-        29630464,
-        29630464,
-        29630464,
-        29630464
+        29057024,
+        29057024,
+        29057024,
+        29057024,
+        29057024
       ],
       "exit_codes": [
         0,
@@ -32,27 +32,27 @@
       ]
     },
     {
-      "command": "/home/dikluwe/Documentos/Antigravity/typst-crystalline/target/release/typst /home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/parity/corpus/p490/test-calc.typ /tmp/tmp4_qn_vl6.pdf",
-      "mean": 0.0029686441999999995,
-      "stddev": 0.0002101471437976258,
-      "median": 0.0030243076,
-      "user": 0.0005581119999999999,
-      "system": 0.00249842,
-      "min": 0.0026445186,
-      "max": 0.0031763156,
+      "command": "/home/dikluwe/Documentos/Antigravity/typst-crystalline/target/release/typst /home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/parity/corpus/p490/test-calc.typ /tmp/tmpntag9izz.pdf",
+      "mean": 0.17149703062000002,
+      "stddev": 0.0012517335975671148,
+      "median": 0.17158954122,
+      "user": 0.010388119999999997,
+      "system": 0.16079952,
+      "min": 0.17018589222,
+      "max": 0.17325657422000001,
       "times": [
-        0.0031763156,
-        0.0026445186,
-        0.0028906046,
-        0.0030243076,
-        0.0031074746
+        0.17042114822,
+        0.17158954122,
+        0.17018589222,
+        0.17203199722,
+        0.17325657422000001
       ],
       "memory_usage_byte": [
-        29630464,
-        29630464,
-        29630464,
-        29630464,
-        29630464
+        54505472,
+        54505472,
+        54538240,
+        54538240,
+        54538240
       ],
       "exit_codes": [
         0,

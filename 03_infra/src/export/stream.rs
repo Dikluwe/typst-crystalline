@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/export/stream.md
-//! @prompt-hash eaf016c2
+//! @prompt-hash d44999d5
 //! @layer L3
 //! @updated 2026-05-19
 //!
@@ -245,12 +245,16 @@ pub(super) fn emit_shaped_pdf(
                 // P520 — delta model: o CIDFont /W já fornece a largura nominal
                 // (hmtx). O TJ deve conter apenas a diferença entre essa largura
                 // declarada e o avanço real produzido pelo shaper.
-                // P520 — delta model: o CIDFont /W já fornece a largura nominal
-                // (hmtx). O TJ deve conter apenas a diferença entre essa largura
-                // declarada e o avanço real produzido pelo shaper.
+                // P520/P548 — delta model: o CIDFont /W já fornece a largura
+                // nominal (hmtx). O TJ deve conter apenas a diferença entre essa
+                // largura declarada e o avanço real produzido pelo shaper. No
+                // operador PDF TJ, o número é subtraído da coordenada horizontal,
+                // logo `nominal - x_advance` é o sinal correcto: positivo para
+                // kerning negativo (aproxima), negativo para kerning positivo
+                // (afasta).
                 let nominal = glyph_to_nominal.get(&g.glyph_id).copied()
                     .unwrap_or(g.x_advance);
-                let advance_tu = (g.x_advance - nominal) as f64 / upm * 1000.0;
+                let advance_tu = (nominal - g.x_advance) as f64 / upm * 1000.0;
                 let new_gid = if glyph_mapping.is_empty() {
                     g.glyph_id
                 } else {
@@ -274,10 +278,11 @@ pub(super) fn emit_shaped_pdf(
                     let xoff_tu = -(g.x_offset as f64 / upm * 1000.0);
                     ops.push_str(&format!("{:.0} ", xoff_tu));
                 }
-                // P520 — delta model: ver Caso A em P520 / ADR-0108.
+                // P520/P548 — delta model: `nominal - x_advance` porque no
+                // operador PDF TJ o número é subtraído da coordenada horizontal.
                 let nominal = glyph_to_nominal.get(&g.glyph_id).copied()
                     .unwrap_or(g.x_advance);
-                let advance_tu = (g.x_advance - nominal) as f64 / upm * 1000.0;
+                let advance_tu = (nominal - g.x_advance) as f64 / upm * 1000.0;
                 let new_gid = if glyph_mapping.is_empty() {
                     g.glyph_id
                 } else {
@@ -952,11 +957,12 @@ mod stream_tests {
         assert!(ops.contains("<0044>"), "P486: GID presente");
     }
 
-    // P520 — teste do delta model com largura nominal explícita.
+    // P520/P548 — teste do delta model com largura nominal explícita.
     #[test]
     fn p520_emit_shaped_kerning_delta() {
         // Glifo A: x_advance=599, largura nominal (hmtx)=639, upm=1000.
-        // delta TJ = (599 - 639) / 1000 * 1000 = -40.
+        // O operador TJ subtrai o delta da coordenada horizontal, logo:
+        // delta TJ = (639 - 599) / 1000 * 1000 = +40 (aproxima o próximo glifo).
         let mut ops = String::new();
         let glyphs = vec![
             ShapedGlyph { glyph_id: 0x0041, x_advance: 599, x_offset: 0, y_offset: 0, cluster: 0, char_code: 'A' },
@@ -970,7 +976,7 @@ mod stream_tests {
             glyph_to_nominal: &nominal,
         };
         emit_shaped_pdf(&mut ops, 0.0, 0.0, &glyphs, "A", &style, &scenario, 1000);
-        assert!(ops.contains("<0041> -40"), "P520: kerning positivo → delta negativo (aproxima)");
+        assert!(ops.contains("<0041> 40"), "P548: kerning negativo → delta positivo (aproxima)");
     }
 }
 

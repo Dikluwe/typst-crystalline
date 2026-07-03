@@ -1,9 +1,10 @@
 # Prompt L0 — `infra/export/stream` — PageContext + emit unificado
-Hash do Código: 4931e1a6
+Hash do Código: 8fff2a2c
 
 **Camada**: L3
 **Ficheiro alvo**: `03_infra/src/export/stream.rs`
 **Criado em**: 2026-05-19 (P307c)
+**Atualizado em**: 2026-07-03 (P548 — correção do sinal do delta TJ)
 **ADRs**: ADR-0098 (SSoT helpers unificados pós-P281)
 
 ---
@@ -105,16 +106,30 @@ declarada e o avanço real.
 
 ```
 nominal    = glyph_to_nominal.get(glyph_id).unwrap_or(x_advance)
-advance_tu = (x_advance - nominal) as f64 / upm * 1000.0
+advance_tu = (nominal - x_advance) as f64 / upm * 1000.0
 [ {-x_offset_tu} <GID> {advance_tu} ... ] TJ
 ```
 
-- `advance_tu` negativo quando `x_advance > nominal` (afasta o próximo glifo)
-- `advance_tu` positivo quando `x_advance < nominal` (aproxima — kerning)
+No operador PDF `TJ`, cada número é **subtraído** da coordenada horizontal
+antes de desenhar o próximo glifo. Portanto:
+
+- `advance_tu` **positivo** quando `x_advance < nominal` (kerning negativo —
+  aproxima o próximo glifo).
+- `advance_tu` **negativo** quando `x_advance > nominal` (kerning positivo —
+  afasta o próximo glifo).
 - `glyph_to_nominal` é construído em `builder.rs` a partir do `hmtx` da fonte
   original, para todos os `glyph_id` usados no documento (`collect_glyph_ids`
   + codepoints mapeados).
 
 ### Testes adicionados P520
 
-- `p520_emit_shaped_kerning_delta`: x_advance=599, nominal=639, upm=1000 → delta = -40
+- `p520_emit_shaped_kerning_delta`: x_advance=599, nominal=639, upm=1000 → delta = +40
+
+---
+
+## Histórico de Revisões
+
+| Data | Motivo | Ficheiros afetados |
+|------|--------|--------------------|
+| 2026-05-19 | Criação — P307c: PageContext + emit unificado | `stream.rs` |
+| 2026-07-03 | P548 — correção do sinal do delta TJ: `advance_tu = (nominal - x_advance)` em vez de `(x_advance - nominal)` | `stream.rs`, `stream.md`, `builder.md`, `tests.rs` |

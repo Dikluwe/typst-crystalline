@@ -1,5 +1,5 @@
 # Prompt L0 — `infra/font_metrics` — Parser de Métricas TrueType/OpenType
-Hash do Código: 4de1ffe2
+Hash do Código: 88903d1e
 
 **Camada**: L3
 **Ficheiro alvo**: `03_infra/src/font_metrics.rs`
@@ -173,9 +173,127 @@ MathConstants::fallback().axis_height = 500.0
 
 ---
 
+## `FallbackFontMetrics<'a>` — métricas com fallback multi-script
+
+### Motivação
+
+`FontBookMetrics` assume uma única fonte por instância. O layout de texto
+normal (P544) precisa de medir strings que podem conter caracteres de
+múltiplos scripts, recorrendo às fontes primárias declaradas no estilo e,
+se necessário, a um conjunto padrão de fallbacks. Esta struct resolve o
+mesmo conjunto de candidatos que o shaper (`03_infra/src/shaper.rs`) e
+mede cada caractere com a face correcta.
+
+### Interface
+
+```rust
+pub struct FallbackFontMetrics<'a> {
+    world: &'a dyn World,
+    cache: Arc<Mutex<HashMap<usize, Arc<CachedFace>>>>,
+}
+
+impl<'a> FallbackFontMetrics<'a> {
+    /// Constrói a partir de um `World`. A cache de faces é lazy.
+    pub fn new(world: &'a dyn World) -> Self
+}
+```
+
+Implementa `FontMetrics` (trait de L1) e `Clone`. O clone partilha a mesma
+cache, de modo que faces parseadas num layouter são reutilizadas em
+layouters posteriores (fixpoint loop de TOC, etc.).
+
+### `CachedFace` — cache do `Face` parseado
+
+```rust
+struct CachedFace {
+    data: Font,            // bytes owned (Vec<u8> wrapper de L1)
+    face: Face<'static>,   // ttf-parser — empresta dos bytes internos
+}
+```
+
+**Decisão de desenho (lifetime):** `Face<'a>` exige bytes com lifetime `'a`.
+Em vez de reconstruir o `Face` a cada chamada, guardamos os bytes e o
+`Face` juntos numa struct alocada em `Arc` (estabilidade no heap). O
+`Face` é criado com um slice `'static` obtido via `std::slice::from_raw_parts`
+sobre o ponteiro dos bytes.
+
+**Justificativa do `unsafe`:**
+- O `Font` (campo `data`) nunca é movido depois de `CachedFace` construído
+  (a struct vive dentro de `Arc`, logo a alocação no heap é estável).
+- O `Face<'static>` não escapa do módulo como `'static`; é devolvido apenas
+  como `&Face<'_>` em métodos internos.
+- Este é o mesmo padrão usado pelo Typst vanilla em
+  `typst-library/src/text/font/mod.rs` (`FontInner { ttf, data }`).
+
+A cache é indexada por `slot_idx` do `FontBook`. Cada fonte é parseada uma
+única vez por instância de `FallbackFontMetrics`; chamadas subsequentes a
+`advance`, `resolve_primary` e `covering` reutilizam o `CachedFace`.
+
+### Resolução de fontes
+
+- `resolve_primary(style)`: fontes declaradas em `style.font`, na ordem;
+  se nenhuma resolver, usa `DEFAULT_FALLBACK_FONTS` na ordem (consistente
+  com `shaper.rs`).
+- `covering(c, primary)`: procura a primeira fonte que cobre o caractere
+  (primárias primeiro, depois todo o `FontBook`), usando o `Face` cacheado.
+
+### Kerning na medição de largura
+
+**Decisão:** aplicar kerning a partir das tabelas legacy `kern` e `kerx`
+do TrueType/OpenType.
+
+**Razão:** o shaper (`rustybuzz`) aplica kerning por omissão. A medição
+anterior somava apenas `glyph_hor_advance`, o que reservava mais espaço do
+que o shaping usava para pares com kerning negativo (ex.: `Te`, `To`, `Ty`,
+`Ye` em DejaVu Sans). O excesso aparecia como espaço real no PDF e era
+extraído pelo `pdftotext`.
+
+**Algoritmo:**
+- Itera caractere a caractere, resolvendo a fonte para cada um.
+- Para o par `(anterior, actual)` na mesma fonte, consulta as subtables
+  `kern` e depois `kerx`; se encontrar valor, adiciona-o (em design units)
+  ao total, convertido para `Pt` com `units_per_em` da fonte.
+- Pares que mudam de fonte não aplicam kerning (o shaper parte em sub-runs
+  separados, onde o kerning inter-fonte não existe).
+
+**Limitação conhecida:** kerning via GPOS (`GPOS` lookup type 2, feature
+`kern`) não é consultado nesta iteração. A maioria das fontes com kerning
+inclui também a tabela legacy `kern`; quando não incluir, a medição pode
+continuar ligeiramente acima do shaping. Esta limitação é aceite e
+registada para extensão futura.
+
+### Invariantes adicionais
+
+| Invariante | Detalhe |
+|-----------|---------|
+| Zero re-parses por carácter | Cada `slot_idx` é parseado no máximo uma vez por instância |
+| `CachedFace` estável | Alocado em `Arc`; bytes não são movidos após criação do `Face` |
+| Kerning intra-fonte | Só aplica entre glifos da mesma fonte candidata |
+| Fallback de largura | Glifo ausente: `size * 0.6` (mesmo valor de `FontBookMetrics` proporcional) |
+| `ttf-parser` não escapa | L1 continua a receber apenas `Pt` e tipos puros |
+
+### Critérios de Verificação adicionais
+
+```
+// Cache — sem re-parse redundante
+resolve_primary(style) seguido de advance(text) não chama Face::parse
+mais do que uma vez por slot_idx
+
+// Kerning — casos de P546
+advance("Texto", 12pt) medido ≈ largura shaped (sem corte em pdftotext)
+advance("Type", 12pt) < advance("Ti" em espaçamento)  // kerning aplicado
+
+// Sem regressão
+advance("Ti", 12pt) continua correcto
+vertical_metrics(12pt) retorna valores positivos e escaláveis
+```
+
+---
+
 ## Histórico de Revisões
 
 | Data | Motivo | Ficheiros afetados |
 |------|--------|--------------------|
 | 2026-03-28 | Criação — Passo 19: `advance`, `vertical_metrics`, `from_bytes` | `font_metrics.rs` |
 | 2026-04-12 | Restauro — expandido: `math_constants`, `math_kern`, `vertical_glyph_variants`, `vertical_glyph_assembly`, `glyph_to_char`, `build_math_glyph_reverse_map` | `font_metrics.md` |
+| 2026-07-03 | P548 — documentação de `FallbackFontMetrics`, cache do `Face` parseado e kerning via tabelas `kern`/`kerx` | `font_metrics.md`, `font_metrics.rs` |

@@ -1,5 +1,5 @@
 # Prompt L0 — `infra/export/builder` — PdfBuilder
-Hash do Código: 88792f7c
+Hash do Código: d1401d6a
 
 **Camada**: L3
 **Ficheiro alvo**: `03_infra/src/export/builder.rs`
@@ -35,7 +35,7 @@ inclui:
 
 O mapa é passado para `PageContext::cidfont` / `PageContext::multifont`
 através de `FontScenario` e consumido por `emit_shaped_pdf` para calcular
-o delta `x_advance - nominal` no operador PDF `TJ`.
+o delta `nominal - x_advance` no operador PDF `TJ`.
 
 ## Restrições estruturais
 

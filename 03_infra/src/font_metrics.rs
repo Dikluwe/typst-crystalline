@@ -1,10 +1,11 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/font_metrics.md
-//! @prompt-hash d174e288
+//! @prompt-hash fa749886
 //! @layer L3
 //! @updated 2026-03-28
 
 use std::collections::HashMap;
+use std::sync::{Arc, Mutex};
 
 use ttf_parser::Face;
 use typst_core::entities::glyph_variants::{
@@ -15,6 +16,7 @@ use typst_core::contracts::world::World;
 use typst_core::entities::font_list::FontNamePattern;
 use typst_core::entities::layout_types::{Pt, TextStyle};
 use typst_core::entities::math_constants::MathConstants;
+use typst_core::entities::world_types::Font;
 use typst_core::rules::layout::FontMetrics;
 
 use crate::font_variant::text_style_to_font_variant;
@@ -237,6 +239,38 @@ impl FontMetrics for FontBookMetrics<'_> {
     }
 }
 
+/// Face parseada e bytes correspondentes, alocada em `Arc` para garantir
+/// que os bytes não se movem depois de o `Face` ser criado.
+///
+/// Segue o mesmo padrão do Typst vanilla: o `Face` empresta internamente
+/// dos bytes via um slice `'static` obtido com `from_raw_parts`. O campo
+/// `data` nunca é movido porque a struct vive dentro de `Arc`.
+struct CachedFace {
+    // `data` é lido implicitamente pelo `Face`; mantém os bytes vivos.
+    #[allow(dead_code)]
+    data: Font,
+    face: Face<'static>,
+}
+
+impl CachedFace {
+    /// Parseia uma fonte e devolve a face cacheada.
+    fn new(data: Font) -> Option<Arc<Self>> {
+        // Safety: `data` é owned e não será movido (a struct fica em Arc no
+        // heap). O slice `'static` é apenas um artefacto para satisfazer o
+        // lifetime do `Face`; nunca escapa como `'static` para fora deste
+        // módulo.
+        let slice: &'static [u8] = unsafe {
+            std::slice::from_raw_parts(data.as_slice().as_ptr(), data.as_slice().len())
+        };
+        let face = Face::parse(slice, 0).ok()?;
+        Some(Arc::new(Self { data, face }))
+    }
+
+    fn face(&self) -> &Face<'_> {
+        &self.face
+    }
+}
+
 /// **P544** — Métricas de fonte com fallback multi-script.
 ///
 /// Dado um `World`, resolve a fonte real (primárias do `TextStyle` + fallback
@@ -244,6 +278,7 @@ impl FontMetrics for FontBookMetrics<'_> {
 /// em vez de usar uma largura fixa monoespaçada.
 pub struct FallbackFontMetrics<'a> {
     world: &'a dyn World,
+    cache: Arc<Mutex<HashMap<usize, Arc<CachedFace>>>>,
 }
 
 /// Candidata a fonte para medição.
@@ -267,7 +302,21 @@ pub(crate) const DEFAULT_FALLBACK_FONTS: &[&str] = &[
 impl<'a> FallbackFontMetrics<'a> {
     /// Constrói métricas de fallback a partir do `World`.
     pub fn new(world: &'a dyn World) -> Self {
-        Self { world }
+        Self {
+            world,
+            cache: Arc::new(Mutex::new(HashMap::new())),
+        }
+    }
+
+    /// Devolve a face cacheada para `slot_idx`, criando-a se necessário.
+    fn cached_face(&self, slot_idx: usize) -> Option<Arc<CachedFace>> {
+        if let Some(cached) = self.cache.lock().unwrap().get(&slot_idx).cloned() {
+            return Some(cached);
+        }
+        let font = self.world.font(slot_idx)?;
+        let cached = CachedFace::new(font)?;
+        self.cache.lock().unwrap().insert(slot_idx, cached.clone());
+        Some(cached)
     }
 
     /// Resolve as fontes primárias declaradas no estilo. Se o estilo não
@@ -283,11 +332,10 @@ impl<'a> FallbackFontMetrics<'a> {
                 let Some(idx) = self.world.book().select_pattern(&family.name, &variant) else {
                     continue;
                 };
-                let Some(font) = self.world.font(idx) else { continue };
-                let Ok(face) = ttf_parser::Face::parse(font.as_slice(), 0) else { continue };
+                let Some(cached) = self.cached_face(idx) else { continue };
                 primary.push(FontCandidate {
                     slot_idx: idx,
-                    units_per_em: face.units_per_em().max(1) as u16,
+                    units_per_em: cached.face().units_per_em().max(1) as u16,
                 });
             }
         }
@@ -298,11 +346,10 @@ impl<'a> FallbackFontMetrics<'a> {
                 let Some(idx) = self.world.book().select_pattern(&pattern, &variant) else {
                     continue;
                 };
-                let Some(font) = self.world.font(idx) else { continue };
-                let Ok(face) = ttf_parser::Face::parse(font.as_slice(), 0) else { continue };
+                let Some(cached) = self.cached_face(idx) else { continue };
                 primary.push(FontCandidate {
                     slot_idx: idx,
-                    units_per_em: face.units_per_em().max(1) as u16,
+                    units_per_em: cached.face().units_per_em().max(1) as u16,
                 });
                 break;
             }
@@ -315,9 +362,8 @@ impl<'a> FallbackFontMetrics<'a> {
     /// cobre `c`.
     fn covering(&self, c: char, primary: &[FontCandidate]) -> Option<FontCandidate> {
         for cand in primary {
-            let Some(font) = self.world.font(cand.slot_idx) else { continue };
-            let Ok(face) = ttf_parser::Face::parse(font.as_slice(), 0) else { continue };
-            if face.glyph_index(c).is_some() {
+            let cached = self.cached_face(cand.slot_idx)?;
+            if cached.face().glyph_index(c).is_some() {
                 return Some(*cand);
             }
         }
@@ -327,12 +373,11 @@ impl<'a> FallbackFontMetrics<'a> {
             if primary.iter().any(|cand| cand.slot_idx == slot_idx) {
                 continue;
             }
-            let Some(font) = self.world.font(slot_idx) else { continue };
-            let Ok(face) = ttf_parser::Face::parse(font.as_slice(), 0) else { continue };
-            if face.glyph_index(c).is_some() {
+            let cached = self.cached_face(slot_idx)?;
+            if cached.face().glyph_index(c).is_some() {
                 return Some(FontCandidate {
                     slot_idx,
-                    units_per_em: face.units_per_em().max(1) as u16,
+                    units_per_em: cached.face().units_per_em().max(1) as u16,
                 });
             }
         }
@@ -343,27 +388,71 @@ impl<'a> FallbackFontMetrics<'a> {
 
 impl Clone for FallbackFontMetrics<'_> {
     fn clone(&self) -> Self {
-        Self { world: self.world }
+        Self {
+            world: self.world,
+            cache: self.cache.clone(),
+        }
     }
+}
+
+/// Kerning entre dois glifos numa face, consultando as tabelas legacy
+/// `kern` e `kerx`. GPOS kerning não é suportado nesta iteração.
+fn face_kerning(face: &Face<'_>, left: ttf_parser::GlyphId, right: ttf_parser::GlyphId) -> i16 {
+    if let Some(kern) = face.tables().kern {
+        for subtable in kern.subtables {
+            if let Some(v) = subtable.glyphs_kerning(left, right) {
+                return v;
+            }
+        }
+    }
+    if let Some(kerx) = face.tables().kerx {
+        for subtable in kerx.subtables {
+            if let Some(v) = subtable.glyphs_kerning(left, right) {
+                return v;
+            }
+        }
+    }
+    0
 }
 
 impl FontMetrics for FallbackFontMetrics<'_> {
     fn advance(&self, text: &str, size: Pt, style: &TextStyle) -> Pt {
         let primary = self.resolve_primary(style);
         let mut total = 0.0;
+        let mut prev: Option<(usize, u16)> = None;
+
         for c in text.chars() {
             let cand = self.covering(c, &primary);
+            let mut slot = None;
+            let mut gid = 0u16;
+
             let char_pt = cand
                 .and_then(|cand| {
-                    let font = self.world.font(cand.slot_idx)?;
-                    let face = ttf_parser::Face::parse(font.as_slice(), 0).ok()?;
-                    let gid = face.glyph_index(c)?;
-                    let adv = face.glyph_hor_advance(gid)?;
+                    let cached = self.cached_face(cand.slot_idx)?;
+                    let face = cached.face();
+                    let g = face.glyph_index(c)?;
+                    let adv = face.glyph_hor_advance(g)?;
+                    slot = Some(cand.slot_idx);
+                    gid = g.0;
                     Some(adv as f64 * size.val() / cand.units_per_em as f64)
                 })
                 .unwrap_or(size.val() * 0.6);
+
+            if let (Some(slot_idx), Some((prev_slot, prev_gid))) = (slot, prev) {
+                if prev_slot == slot_idx {
+                    if let Some(cached) = self.cached_face(slot_idx) {
+                        let face = cached.face();
+                        let kern = face_kerning(face, ttf_parser::GlyphId(prev_gid), ttf_parser::GlyphId(gid));
+                        let upem = face.units_per_em().max(1) as f64;
+                        total += kern as f64 * size.val() / upem;
+                    }
+                }
+            }
+
             total += char_pt;
+            prev = slot.map(|s| (s, gid));
         }
+
         Pt(total)
     }
 
@@ -371,8 +460,8 @@ impl FontMetrics for FallbackFontMetrics<'_> {
         // Usa a primeira fonte disponível no FontBook para métricas verticais.
         let book_len = self.world.book().len();
         for slot_idx in 0..book_len {
-            let Some(font) = self.world.font(slot_idx) else { continue };
-            let Ok(face) = ttf_parser::Face::parse(font.as_slice(), 0) else { continue };
+            let Some(cached) = self.cached_face(slot_idx) else { continue };
+            let face = cached.face();
             let upem = face.units_per_em().max(1) as f64;
             let ascender = face.ascender() as f64;
             let descender = (face.descender() as f64).abs();
@@ -431,6 +520,40 @@ mod tests {
         // Bytes inválidos → None (nunca chega a upem=0 em advance)
         assert!(FontBookMetrics::from_bytes(b"not a font").is_none());
         assert!(FontBookMetrics::from_bytes(b"").is_none());
+    }
+
+    #[test]
+    fn p548_kerning_aplicado_em_dejavu_sans() {
+        use typst_core::contracts::world::World;
+        use crate::world::SystemWorld;
+
+        let dir = std::env::temp_dir().join(format!(
+            "typst-fontmetrics-test-{}",
+            std::time::SystemTime::now()
+                .duration_since(std::time::UNIX_EPOCH)
+                .map(|d| d.subsec_nanos())
+                .unwrap_or(0)
+        ));
+        std::fs::create_dir_all(&dir).unwrap();
+        std::fs::write(dir.join("main.typ"), "text").unwrap();
+        let Ok(world) = SystemWorld::new(&dir, "main.typ").map(|w| w.with_system_fonts()) else {
+            return;
+        };
+        if world.book().is_empty() {
+            return;
+        }
+
+        let metrics = FallbackFontMetrics::new(&world);
+        let mut style = TextStyle::default();
+        style.font = Some(typst_core::entities::font_list::FontList::single(
+            ecow::EcoString::from("DejaVu Sans")
+        ));
+        style.size = Pt(12.0);
+
+        let text = metrics.advance("Texto", Pt(12.0), &style);
+        let t = metrics.advance("T", Pt(12.0), &style);
+        let exto = metrics.advance("exto", Pt(12.0), &style);
+        assert!(text.val() < t.val() + exto.val(), "kerning deve reduzir a largura de 'Texto'");
     }
 
     #[test]

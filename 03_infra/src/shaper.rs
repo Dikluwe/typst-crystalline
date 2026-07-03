@@ -16,7 +16,6 @@
 //! Executado entre layout e export. ADR-0120 Opção A1.
 
 #![allow(deprecated)] // P483 — FrameItem::Text fallback path legítimo
-use std::collections::HashMap;
 
 use rustybuzz::{Direction, UnicodeBuffer};
 use unicode_bidi::BidiInfo;
