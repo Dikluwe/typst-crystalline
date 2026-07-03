@@ -240,6 +240,30 @@
 
 ## Secção 1 — DEBTs em aberto ou parcialmente resolvidos
 
+## DEBT-65 — Fallback de fonte por carácter depende de lista fixa de nomes — ABERTO (P538g)
+
+**Origem**: Passo P538e — quando a fonte declarada (ou a default "Helvetica")
+não existe no `FontBook`, o shaper recai numa lista fixa de fontes padrão
+(DejaVu Sans, Noto Sans, Liberation Sans, FreeSans, Arial). Se nenhuma
+destas existir no sistema, o código cai no mecanismo global de fallback
+por carácter.
+
+**Problema residual**: o fallback global carácter-a-carácter tem um bug
+conhecido de duplicação de texto quando o catálogo começa por fontes
+especializadas que cobrem apenas alguns caracteres latinos (documentado em
+`00_nucleo/diagnosticos/paridade-producao-p538e.md`, "Passo 3"). O exemplo
+observado foi `"Hello"` renderizado como `"Helloello"`.
+
+**Impacto**: baixo em ambientes desktop comuns (onde DejaVu Sans ou Noto
+Sans tipicamente existem), mas alto em containers mínimos ou sistemas sem
+essas famílias.
+
+**Decisão**: scope-out por agora. Nenhuma correcção aplicada em P538e/g.
+Regista-se formalmente para não ficar esquecido na prosa de um relatório
+já fechado.
+
+---
+
 ## DEBT-64 — ToUnicode parcial para ligatures no export PDF — FECHADO (P521) ✓
 
 **Origem**: Passo 520 — correção de ligatures (`fi`, `fl`, `ffi`) no subsetting
