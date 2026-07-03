@@ -1,8 +1,8 @@
 //! Crystalline Lineage
-//! @prompt 00_nucleo/prompts/rules/layout.md
-//! @prompt-hash 12536b5c
+//! @prompt 00_nucleo/prompts/passo-537b-set-page-columns.md
+//! @prompt-hash 32b2bef3
 //! @layer L1
-//! @updated 2026-06-23
+//! @updated 2026-07-03
 //!
 //! Layout de `Content::SetPage` — aplica nova configuração de página.
 //! Extraído de `layout/mod.rs` no P425 (ADR-0109 forma B).
@@ -15,14 +15,15 @@ use crate::entities::{
 use super::metrics::FontMetrics;
 use super::Layouter;
 
-/// Aplica uma nova configuração de página (largura, altura, margem) e
-/// força nova página se a configuração mudou.
+/// Aplica uma nova configuração de página (largura, altura, margem, colunas)
+/// e força nova página se a configuração mudou.
 pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
     layouter: &mut Layouter<'_, M, S>,
     width:     &Option<f64>,
     height:    &Option<f64>,
     margin:    &Option<f64>,
     numbering: &Option<ecow::EcoString>,
+    columns:   &Option<usize>,
 ) {
     let mut new_config = layouter.page_config.clone();
     let mut changed = false;
@@ -41,6 +42,10 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
     }
     if numbering != &new_config.numbering {
         new_config.numbering = numbering.clone();
+        changed = true;
+    }
+    if columns != &new_config.columns {
+        new_config.columns = *columns;
         changed = true;
     }
 

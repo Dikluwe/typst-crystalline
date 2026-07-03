@@ -436,6 +436,8 @@ pub struct PageConfig {
     pub margin:    f64, // margem uniforme em pontos
     /// **P532** — padrão de numeração automática de páginas.
     pub numbering: Option<EcoString>,
+    /// **P537b** — colunas activas para páginas desta configuração.
+    pub columns:   Option<usize>,
 }
 
 impl Default for PageConfig {
@@ -445,6 +447,7 @@ impl Default for PageConfig {
             height:    841.89, // A4 portrait
             margin:     70.87, // ≈ 2.5 cm
             numbering: None,
+            columns:   None,
         }
     }
 }

@@ -3281,6 +3281,96 @@ mod tests_set_rule_integration {
             );
         }
     }
+
+    /// **P537b** — `#set page(columns: 2)` produz duas colunas reais na mesma
+    /// página. Texto antes e depois do `colbreak()` têm x distinto.
+    #[test]
+    fn p537b_set_page_columns_produz_colunas_reais() {
+        let doc = layout_typst(
+            r#"#set page(columns: 2)
+#lorem(5)
+#colbreak()
+#lorem(5)"#,
+        );
+        assert_eq!(doc.pages.len(), 1, "deve caber numa página");
+        let items: Vec<_> = doc.pages[0]
+            .items
+            .iter()
+            .filter_map(|it| match it {
+                FrameItem::Text { text, pos, .. } => Some((text.to_string(), pos.x.0)),
+                _ => None,
+            })
+            .collect();
+        // Procurar uma palavra do primeiro bloco e uma do segundo.
+        let left = items.iter().find(|(t, _)| t.contains("Lorem"));
+        let right = items.iter().find(|(t, _)| t.contains("amet"));
+        assert!(left.is_some(), "primeira coluna deve ter texto");
+        assert!(right.is_some(), "segunda coluna deve ter texto");
+        assert!(
+            right.unwrap().1 > left.unwrap().1,
+            "segunda coluna deve estar à direita da primeira"
+        );
+    }
+
+    /// **P537b** — `#set page(columns: 2)` com footnotes posiciona cada nota
+    /// no fundo da respectiva coluna, reaproveitando o fix de P537.
+    #[test]
+    fn p537b_set_page_columns_footnotes_por_coluna() {
+        let doc = layout_typst(
+            r#"#set page(columns: 2)
+Hello #footnote[Nota A] world.
+#colbreak()
+Goodbye #footnote[Nota B] moon."#,
+        );
+        assert_eq!(doc.pages.len(), 1, "deve caber numa página");
+        let items = &doc.pages[0].items;
+        let note_a_x = items
+            .iter()
+            .rev()
+            .filter_map(|it| match it {
+                FrameItem::Text { text, pos, .. } if text.as_str() == "Nota" => Some(pos.x.0),
+                _ => None,
+            })
+            .nth(1);
+        let note_b_x = items
+            .iter()
+            .rev()
+            .filter_map(|it| match it {
+                FrameItem::Text { text, pos, .. } if text.as_str() == "Nota" => Some(pos.x.0),
+                _ => None,
+            })
+            .next();
+        let (a, b) = (
+            note_a_x.expect("nota A deve existir"),
+            note_b_x.expect("nota B deve existir"),
+        );
+        assert!(
+            b > a,
+            "nota B deve estar à direita de nota A (coluna 2 > coluna 1): a={} b={}",
+            a,
+            b
+        );
+        for it in items {
+            if let FrameItem::Text { text, pos, .. } = it {
+                if text.as_str() == "Nota" {
+                    assert!(
+                        pos.y.0 > 700.0,
+                        "nota deve estar no fundo da página, y={}",
+                        pos.y.0
+                    );
+                }
+            }
+        }
+    }
+
+    /// **P537b** — `#set page(columns: 0)` rejeitado no eval.
+    #[test]
+    fn p537b_set_page_columns_zero_erro() {
+        let world = MockWorld::new("#set page(columns: 0)\nX");
+        let src = World::source(&world, World::main(&world)).unwrap();
+        let result = eval_for_test(&world, &src);
+        assert!(result.is_err(), "columns: 0 deve produzir erro");
+    }
 }
 
 // ── Passo 103.D: Integração `#show` end-to-end ────────────────────────────
@@ -14261,6 +14351,7 @@ mod f_caracterizacao_estilo {
                     height: Some(456.0),
                     margin: None,
                     numbering: None,
+                    columns: None,
                 },
                 Content::text("x"),
             ]

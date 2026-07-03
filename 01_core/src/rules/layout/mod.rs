@@ -855,8 +855,8 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
             Content::Cite(e) => cite::layout(self, e),
 
             // Atomizado (ADR-0109, P425) → layout/set_page.rs.
-            Content::SetPage { width, height, margin, numbering } => {
-                set_page::layout(self, width, height, margin, numbering);
+            Content::SetPage { width, height, margin, numbering, columns } => {
+                set_page::layout(self, width, height, margin, numbering, columns);
             }
 
             // Atomizado (ADR-0109, P378) → layout/image.rs.

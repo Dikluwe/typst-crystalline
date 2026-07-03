@@ -489,6 +489,8 @@ pub enum Content {
         margin:    Option<f64>,
         /// **P532** — padrão de numeração automática de páginas.
         numbering: Option<EcoString>,
+        /// **P537b** — número de colunas definido por `#set page(columns: N)`.
+        columns:   Option<usize>,
     },
 
     /// Altera a posição do conteúdo dentro do espaço disponível no fluxo (Passo 82).
@@ -2156,6 +2158,72 @@ impl Content {
         }
     }
 
+    /// **P537b** — Liga `#set page(columns: N)` ao consumer `Content::Columns`.
+    ///
+    /// Percorre a árvore de `Content` e, sempre que encontra um
+    /// `Content::SetPage { columns: Some(n) }` dentro de uma `Sequence`, envolve
+    /// os nós subsequentes (até outro `SetPage`, `Pagebreak` ou fim da sequência)
+    /// num `Content::Columns { count: n, body: ... }`.
+    ///
+    /// O `SetPage` original permanece imediatamente antes do `Columns`, para que
+    /// `set_page::layout` actualize `page_config` antes de `columns::layout`
+    /// consumir o body.
+    ///
+    /// Se uma `Sequence` não contiver `SetPage { columns: Some(_) }`, é
+    /// preservada exactamente como está (zero reescrita estrutural).
+    pub fn wrap_page_columns(self) -> Self {
+        self.map_content(&mut |content| {
+            if let Self::Sequence(parts) = content {
+                // Só reescrever Sequences que efectivamente têm um set-rule de
+                // colunas. Isto evita alterar a estrutura AST de documentos que
+                // não usam `#set page(columns:)` (preserva snapshots P307b).
+                let needs_wrap = parts.iter().any(|p| {
+                    matches!(p, Self::SetPage { columns: Some(_), .. })
+                });
+                if !needs_wrap {
+                    return Ok(None);
+                }
+
+                let parts_vec: Vec<Self> = parts.iter().cloned().collect();
+                let mut out = Vec::with_capacity(parts_vec.len());
+                let mut i = 0;
+                while i < parts_vec.len() {
+                    if let Self::SetPage { columns: Some(count), .. } = &parts_vec[i] {
+                        let count = *count;
+                        // Encontrar a fronteira do body implícito: próximo SetPage
+                        // ou Pagebreak termina o grupo deste set-rule.
+                        let mut j = i + 1;
+                        while j < parts_vec.len()
+                            && !matches!(
+                                &parts_vec[j],
+                                Self::SetPage { .. } | Self::Pagebreak(_)
+                            )
+                        {
+                            j += 1;
+                        }
+                        // Preservar o SetPage original (actualiza page_config).
+                        out.push(parts_vec[i].clone());
+                        // Envolver o grupo num Columns.
+                        let body = Self::sequence(parts_vec[i + 1..j].to_vec());
+                        out.push(Self::Columns(Arc::new(ColumnsElem {
+                            count,
+                            gutter: None,
+                            body,
+                        })));
+                        i = j;
+                    } else {
+                        out.push(parts_vec[i].clone());
+                        i += 1;
+                    }
+                }
+                Ok(Some(Self::sequence(out)))
+            } else {
+                Ok(None)
+            }
+        })
+        .unwrap_or(self)
+    }
+
     /// Retorna `true` se este conteúdo não contém informação visível.
     pub fn is_empty(&self) -> bool {
         match self {
@@ -2495,9 +2563,9 @@ impl PartialEq for Content {
             // Modelo D (Lote 11 P326): Footnote delega ao `Arc<…Elem>`.
             (Self::Footnote(a), Self::Footnote(b)) => a == b,
             (
-                Self::SetPage { width: wa, height: ha, margin: ma, numbering: na },
-                Self::SetPage { width: wb, height: hb, margin: mb, numbering: nb },
-            ) => wa == wb && ha == hb && ma == mb && na == nb,
+                Self::SetPage { width: wa, height: ha, margin: ma, numbering: na, columns: ca },
+                Self::SetPage { width: wb, height: hb, margin: mb, numbering: nb, columns: cb },
+            ) => wa == wb && ha == hb && ma == mb && na == nb && ca == cb,
             // Modelo D (Lote 7 P322): Align delega ao `Arc<…Elem>`.
             (Self::Align(a), Self::Align(b)) => a == b,
             // Modelo D (Lote 9 P324): Place delega ao `Arc<…Elem>`.

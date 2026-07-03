@@ -386,7 +386,8 @@ pub fn eval_with_full_error(
     let (rendered_val, module_scope, bibliography_styles, document_info) =
         run_pass(true, &mut sink)?;
     let rendered_content = match rendered_val {
-        Value::Content(c) => Some(c),
+        // **P537b** — ligar `#set page(columns: N)` ao consumer `Content::Columns`.
+        Value::Content(c) => Some(c.wrap_page_columns()),
         _ => None,
     };
 

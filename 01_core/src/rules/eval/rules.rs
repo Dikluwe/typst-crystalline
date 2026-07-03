@@ -755,6 +755,7 @@ pub(super) fn eval_set_rule(
         let mut height = None;
         let mut margin = None;
         let mut numbering = None;
+        let mut columns: Option<usize> = None;
         for arg in set.args().items() {
             if let Arg::Named(named) = arg {
                 let key = named.name().as_str();
@@ -771,11 +772,24 @@ pub(super) fn eval_set_rule(
                             _ => None,
                         };
                     }
+                    "columns" => {
+                        columns = match val {
+                            Value::Int(n) if n >= 1 => Some(n as usize),
+                            Value::Int(n) if n < 1 => {
+                                return Err(vec![SourceDiagnostic::error(
+                                    named.span(),
+                                    "columns must be at least 1".to_string(),
+                                )]);
+                            }
+                            Value::None => None,
+                            _ => None,
+                        };
+                    }
                     _ => {}
                 }
             }
         }
-        return Ok(Value::Content(Content::SetPage { width, height, margin, numbering }));
+        return Ok(Value::Content(Content::SetPage { width, height, margin, numbering, columns }));
     }
 
     if target == "figure" {
