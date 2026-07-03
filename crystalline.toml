@@ -133,6 +133,8 @@ types = [
     "Library", "RenderedBibliography", "BibliographyRequest", "new",
     "archive", "ArchivedStyle", "locales",
     "citationberg", "Display", "IndependentStyle", "Locale", "Style", "FontStyle", "FontVariant", "FontWeight", "TextDecoration",
+    "CitationFormat", "StyleCategory",
+    "citationberg::CitationFormat", "citationberg::StyleCategory",
     "io", "from_biblatex_str", "from_yaml_str",
     "types", "Person",
 ]  # ADR-0062 (P418)

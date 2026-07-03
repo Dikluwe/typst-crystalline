@@ -204,43 +204,41 @@ fn parse_value(src: &str, start: usize) -> Result<(String, usize), BibTeXError> 
 }
 
 fn parse_braced(src: &str, start: usize) -> Result<(String, usize), BibTeXError> {
-    let mut pos = start + 1; // pula '{'
+    let mut iter = src[start..].char_indices();
+    iter.next(); // pula '{'
     let mut depth = 1;
     let mut content = String::new();
 
-    while pos < src.len() {
-        let c = src.as_bytes()[pos];
+    for (idx, c) in iter {
         match c {
-            b'{' => {
+            '{' => {
                 depth += 1;
                 content.push('{');
             }
-            b'}' => {
+            '}' => {
                 depth -= 1;
                 if depth == 0 {
-                    return Ok((content, pos + 1));
+                    return Ok((content, start + idx + c.len_utf8()));
                 }
                 content.push('}');
             }
-            _ => content.push(src.as_bytes()[pos] as char),
+            _ => content.push(c),
         }
-        pos += 1;
     }
 
     Err(BibTeXError::new("chaveta não fechada no valor do campo"))
 }
 
 fn parse_quoted(src: &str, start: usize) -> Result<(String, usize), BibTeXError> {
-    let mut pos = start + 1; // pula '"'
+    let mut iter = src[start..].char_indices();
+    iter.next(); // pula '"'
     let mut content = String::new();
 
-    while pos < src.len() {
-        let c = src.as_bytes()[pos];
-        if c == b'"' {
-            return Ok((content, pos + 1));
+    for (idx, c) in iter {
+        if c == '"' {
+            return Ok((content, start + idx + 1));
         }
-        content.push(src.as_bytes()[pos] as char);
-        pos += 1;
+        content.push(c);
     }
 
     Err(BibTeXError::new("aspas não fechadas no valor do campo"))
@@ -294,6 +292,9 @@ fn build_entry(
     }
     if let Some(u) = get("url") {
         entry.url = Some(u);
+    }
+    if let Some(p) = get("publisher") {
+        entry.publisher = Some(p);
     }
 
     Ok(entry)

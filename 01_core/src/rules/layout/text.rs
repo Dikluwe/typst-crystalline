@@ -156,39 +156,42 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
     let prev_style = layouter.style.clone();
     layouter.style = effective;
 
-    // **P544** — preservar espaços entre palavras dentro de um nó Text.
-    // O lexer agrupa palavras separadas por um único espaço num só token
-    // (ex: "commodo consequat"). `split_whitespace()` perdia esses
-    // separadores, juntando as palavras no output. Iteramos pelas palavras
-    // e inserimos `space_width()` entre elas.
-    let mut words = text.split_whitespace().peekable();
-    while let Some(word) = words.next() {
-        if layouter.smallcaps {
-            const SCALE: f64 = 0.8;
-            let chars: Vec<char> = word.chars().collect();
-            let mut i = 0;
-            while i < chars.len() {
-                let is_lower = chars[i].is_lowercase();
-                let mut j = i;
-                while j < chars.len() && chars[j].is_lowercase() == is_lower {
-                    j += 1;
+    // **P544/P547** — preservar espaços entre palavras dentro de um nó Text,
+    // incluindo espaços iniciais/finais e nós Text compostos só por espaços.
+    // `split_whitespace()` perdia esses separadores, juntando palavras e
+    // removendo o espaço antes de pontuação. `split(' ')` mantém cada
+    // posição de espaço como um segmento vazio; adicionamos `space_width()`
+    // entre segmentos e para cada segmento vazio.
+    let mut parts = text.split(' ').peekable();
+    while let Some(part) = parts.next() {
+        if !part.is_empty() {
+            if layouter.smallcaps {
+                const SCALE: f64 = 0.8;
+                let chars: Vec<char> = part.chars().collect();
+                let mut i = 0;
+                while i < chars.len() {
+                    let is_lower = chars[i].is_lowercase();
+                    let mut j = i;
+                    while j < chars.len() && chars[j].is_lowercase() == is_lower {
+                        j += 1;
+                    }
+                    let run: String = chars[i..j].iter().collect();
+                    if is_lower {
+                        let upper = run.to_uppercase();
+                        let base_size = layouter.style.size;
+                        layouter.style.size = Pt(base_size.0 * SCALE);
+                        layouter.layout_chunk(&upper);
+                        layouter.style.size = base_size;
+                    } else {
+                        layouter.layout_chunk(&run);
+                    }
+                    i = j;
                 }
-                let run: String = chars[i..j].iter().collect();
-                if is_lower {
-                    let upper = run.to_uppercase();
-                    let base_size = layouter.style.size;
-                    layouter.style.size = Pt(base_size.0 * SCALE);
-                    layouter.layout_chunk(&upper);
-                    layouter.style.size = base_size;
-                } else {
-                    layouter.layout_chunk(&run);
-                }
-                i = j;
+            } else {
+                layouter.layout_word(part);
             }
-        } else {
-            layouter.layout_word(word);
         }
-        if words.peek().is_some() {
+        if parts.peek().is_some() {
             layouter.regions.current.cursor_x += layouter.space_width();
         }
     }

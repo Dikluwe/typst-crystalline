@@ -21,6 +21,7 @@
 use std::collections::HashMap;
 
 use hayagriva::archive::ArchivedStyle;
+use hayagriva::citationberg;
 use hayagriva::citationberg::{Display, IndependentStyle, Locale};
 use hayagriva::{
     BibliographyDriver, CitationItem, CitationRequest, CitePurpose, ElemChild,
@@ -79,14 +80,19 @@ pub fn build_cache_with_style(
 ) -> Option<BibRenderCache> {
     let locales = build_locales(locale);
 
+    // **P547** — só reordenar por citation_order em estilos numéricos (ex: IEEE).
+    // Estilos autor-data (APA, Chicago, MLA) ordenam alfabeticamente pelo CSL.
+    let numeric = is_numeric_style(independent);
     let mut ordered_entries: Vec<BibEntry> = entries.to_vec();
-    if let Some(order) = citation_order {
-        ordered_entries.sort_by_key(|e| {
-            order
-                .iter()
-                .position(|k| k == &e.key)
-                .unwrap_or(usize::MAX)
-        });
+    if numeric {
+        if let Some(order) = citation_order {
+            ordered_entries.sort_by_key(|e| {
+                order
+                    .iter()
+                    .position(|k| k == &e.key)
+                    .unwrap_or(usize::MAX)
+            });
+        }
     }
 
     let hay_entries: Vec<Entry> = ordered_entries
@@ -169,6 +175,18 @@ pub fn parse_csl_style(content: &str) -> Result<IndependentStyle, String> {
         .map_err(|e| format!("failed to parse CSL style: {:?}", e))
 }
 
+/// Devolve `true` se o style CSL declarar formato de citação numérico.
+fn is_numeric_style(independent: &IndependentStyle) -> bool {
+    independent.info.category.iter().any(|cat| {
+        matches!(
+            cat,
+            citationberg::StyleCategory::CitationFormat {
+                format: citationberg::CitationFormat::Numeric,
+            }
+        )
+    })
+}
+
 /// Constrói o slice de locales a passar ao hayagriva.
 fn build_locales(locale: Option<&str>) -> Vec<Locale> {
     let all = hayagriva::archive::locales();
@@ -201,14 +219,37 @@ fn bib_entry_to_hayagriva(entry: &BibEntry) -> Option<Entry> {
     let entry_type = if entry.journal.is_some() { "Article" } else { "Book" };
     yaml.push_str(&format!("  type: {entry_type}\n"));
     yaml.push_str(&format!("  title: {}\n", escape_yaml_scalar(&entry.title)));
-    yaml.push_str(&format!("  author: {}\n", escape_yaml_scalar(&entry.author)));
+
+    // **P547** — o campo author cristalino usa "Last, First and Last2, First2".
+    // Hayagriva interpreta uma string única como uma única pessoa; enviar como
+    // lista YAML permite separação correcta dos autores.
+    let authors: Vec<&str> = entry
+        .author
+        .split(" and ")
+        .map(|s| s.trim())
+        .filter(|s| !s.is_empty())
+        .collect();
+    if authors.is_empty() {
+        yaml.push_str("  author: \"\"\n");
+    } else if authors.len() == 1 {
+        yaml.push_str(&format!("  author: {}\n", escape_yaml_scalar(authors[0])));
+    } else {
+        yaml.push_str("  author:\n");
+        for a in authors {
+            yaml.push_str(&format!("    - {}\n", escape_yaml_scalar(a)));
+        }
+    }
+
     yaml.push_str(&format!("  date: {}\n", entry.year));
 
     if let Some(v) = &entry.volume {
         yaml.push_str(&format!("  volume: {}\n", escape_yaml_scalar(v)));
     }
     if let Some(p) = &entry.pages {
-        yaml.push_str(&format!("  page-range: {}\n", escape_yaml_scalar(p)));
+        // **P547** — BibTeX usa "--" como travessão; hayagriva formata o range
+        // a partir de um hífen simples. Normalizar para evitar "45––67".
+        let normalized = p.replace("--", "-");
+        yaml.push_str(&format!("  page-range: {}\n", escape_yaml_scalar(&normalized)));
     }
     if let Some(j) = &entry.journal {
         yaml.push_str("  parent:\n");

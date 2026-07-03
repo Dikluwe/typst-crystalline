@@ -808,7 +808,10 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
             | Content::MathStyled(_) => self.layout_math_fallback(content),
 
             // Marcadores estruturais de equações — ignorados fora de contexto matemático.
-            Content::MathAlignPoint(_) | Content::Linebreak(_) => {}
+            Content::MathAlignPoint(_) => {}
+
+            // Quebra de linha explícita (`\\` e pré-renderizações como bibliografia CSL).
+            Content::Linebreak(_) => self.flush_line(),
 
             // P460/P464 — Label: destino nomeado. Layout transparente do body
             // com registo de página + posição para /Dests no PDF.
