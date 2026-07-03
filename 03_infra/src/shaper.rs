@@ -76,6 +76,19 @@ fn shape_item(world: &dyn World, mut item: FrameItem) -> Vec<FrameItem> {
     vec![item]
 }
 
+/// **P538e** — fontes padrão de fallback quando a fonte declarada (ou a
+/// default "Helvetica") não existe no FontBook. Ordenadas por cobertura
+/// multi-script comum em sistemas Linux; a primeira que resolver torna-se
+/// a primária, evitando segmentação carácter-a-carácter sobre o catálogo
+/// inteiro (que pode começar por fontes especiais como MathJax).
+const DEFAULT_FALLBACK_FONTS: &[&str] = &[
+    "DejaVu Sans",
+    "Noto Sans",
+    "Liberation Sans",
+    "FreeSans",
+    "Arial",
+];
+
 fn try_shape(
     world: &dyn World,
     pos:   &Point,
@@ -89,9 +102,20 @@ fn try_shape(
     let axis_vars = axis_variations_for_font_variant(&variant);
 
     // P515 — resolver todas as fontes candidatas da FontList.
-    let primary = resolve_candidates(world, font_list, &variant)?;
+    // **P538e** — se a fonte declarada (incluindo a default "Helvetica")
+    // não existe no FontBook, tentar fontes padrão de fallback antes de
+    // recair no fallback global carácter-a-carácter.
+    let mut primary = resolve_candidates(world, font_list, &variant).unwrap_or_default();
     if primary.is_empty() {
-        return None;
+        for family in DEFAULT_FALLBACK_FONTS {
+            let fallback_list = FontList::single(ecow::EcoString::from(*family));
+            if let Some(cands) = resolve_candidates(world, &fallback_list, &variant) {
+                if !cands.is_empty() {
+                    primary = cands;
+                    break;
+                }
+            }
+        }
     }
 
     // P534 — candidatos de fallback: todo o FontBook, carregados lazy.
@@ -939,5 +963,43 @@ mod tests {
         let shaped = shape_document(&world, doc);
         let items = &shaped.pages[0].items;
         assert_eq!(items.len(), 1, "texto latim puro deve produzir 1 TextShaped");
+    }
+
+    /// **P538e** — quando a fonte declarada ("Helvetica") não existe no
+    /// FontBook, o shaper recai na lista de fontes padrão (DejaVu Sans, ...)
+    /// e shapeia o texto misto em vez de preservar `FrameItem::Text`.
+    #[test]
+    fn p538e_fonte_default_ausente_usa_fallback_padrao() {
+        let world = font_world_with(&[
+            "/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf",
+            "/usr/share/fonts/opentype/noto/NotoSansCJK-Bold.ttc",
+        ]);
+        if !world.is_complete() {
+            eprintln!("SKIP: fontes necessárias não disponíveis");
+            return;
+        }
+
+        // "Helvetica" não está no FontWorld; o shaper deve tentar DejaVu Sans.
+        let doc = doc_with(vec![text_item_with_font("Hello 你好", "Helvetica")]);
+        let shaped = shape_document(&world, doc);
+        let items = &shaped.pages[0].items;
+        assert!(
+            items.iter().all(|i| matches!(i, FrameItem::TextShaped { .. })),
+            "texto misto com fonte inexistente deve ser shapeado via fallback padrão"
+        );
+        let glyph_chars: String = items
+            .iter()
+            .filter_map(|i| match i {
+                FrameItem::TextShaped { glyphs, .. } => {
+                    Some(glyphs.iter().map(|g| g.char_code).collect::<String>())
+                }
+                _ => None,
+            })
+            .collect();
+        assert!(
+            glyph_chars.contains('H') && glyph_chars.contains('你'),
+            "deve conter caracteres latinos e CJK, got {:?}",
+            glyph_chars
+        );
     }
 }
