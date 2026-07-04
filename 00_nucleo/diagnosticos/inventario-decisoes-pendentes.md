@@ -1,7 +1,8 @@
 # Inventário de Decisões Pendentes / Pontos em Aberto
 
 **Criado em:** 2026-07-03 (Passo 550)  
-**Nota:** Não existia um ficheiro `inventario-decisoes-pendentes.md` anterior. Esta é a primeira consolidação formal. Uma lista informal de ~24 itens tinha sido referida em contexto de conversa, mas nunca foi materializada em ficheiro; esses itens devem ser re-auditados e acrescentados em secções futuras, separadamente dos achados de P550.
+**Actualizado em:** 2026-07-03 (Passo 551)  
+**Nota:** Não existia um ficheiro `inventario-decisoes-pendentes.md` anterior. Esta é a primeira consolidação formal. A lista informal de ~24 itens referida em P550 foi auditada e integrada na secção 2 deste documento.
 
 ---
 
@@ -86,17 +87,98 @@ Estes relatórios contêm evidência concreta noutras secções, mas a conclusã
 
 ---
 
-## 2. Notas sobre risco geral
+## 2. Lista de ~24 itens materializada em P551
+
+A lista informal referida em P550 foi auditada e integrada nesta secção. Itens já corrigidos por passos posteriores são marcados como tal; itens ainda abertos mantêm o estado original.
+
+### 2.1 Formatos de exportação — nunca implementados
+
+| Item | Onde foi encontrado | Estado |
+|------|---------------------|--------|
+| HTML export | P526 | Ausente |
+| SVG export | P526 | Ausente |
+| PNG/raster export | P526 | Ausente |
+| IDE / LSP | P526 | Ausente |
+
+### 2.2 Fontes
+
+| Item | Onde foi encontrado | Estado |
+|------|---------------------|--------|
+| Fontes de cor para emoji (COLR/CPAL/CBDT/CBLC/sbix) | P531 | Ausente |
+| Fontes Type1/PostScript | P531 | Ausente |
+| Escrita vertical CJK | P531 | Ausente |
+| Quebra de linha para CJK/Thai | P531 | Ausente |
+| Quebra de linha errada com fallback de fonte | P534, P538e | **Já corrigido — ver P544/P548** |
+| Lista fixa de 5 fontes no fallback, sem alternativa se nenhuma existir | P538e (DEBT-65) | **Já corrigido — ver P543** |
+| `y_offset` no emit PDF | P486 (histórico) | Scope-out declarado |
+| `smcp` via OpenType real | P446/P486 (histórico) | Scope-out declarado |
+| `x_advance` exacto vs `hmtx` | P485 (histórico) | Scope-out declarado |
+
+### 2.3 PDF — estrutura e metadados
+
+| Item | Onde foi encontrado | Estado |
+|------|---------------------|--------|
+| PDF Tagged / PDF-UA | P531 | Ausente |
+| Compressão por object streams | P531 | Ausente |
+| Stream XMP | P536 | Scope-out — já em P550 |
+| `/Producer` | P536 | Não preenchido — já em P550 |
+| `/CreationDate` sem fuso horário | P536 | Scope-out |
+| `subject` em `#set document(...)` | P536 | Não suportado |
+| Zoom explícito nos bookmarks | P535 | Scope-out — já em P550 |
+| Bookmarks só de headings | P535 | Scope-out |
+| `/Count` aberto/fechado | P535 | Scope-out |
+
+### 2.4 Numeração de página
+
+| Item | Onde foi encontrado | Estado |
+|------|---------------------|--------|
+| Padrões compostos (`"1 / 1"`, `"I-1"`) | P532 | **Já corrigido — ver P541** |
+
+### 2.5 Colunas
+
+| Item | Onde foi encontrado | Estado |
+|------|---------------------|--------|
+| Nota de rodapé maior do que o espaço restante | P537 | Scope-out — já em P550 |
+| Notas de rodapé lado a lado vs empilhadas | Ver Parte 2 de P551 | **Verificado em P551** — com `#set page(columns: 2)` o cristalino e o vanilla 0.14.2/0.15.0 alinham as notas lado a lado; com `#columns(2)` o vanilla empilha e o cristalino continua lado a lado, o que é uma diferença real de comportamento |
+| Numeração duplicada de notas em `#set page(columns: 2)` | Descoberto em P551 | **Aberto** — cristalino repete `[1]` nas duas colunas; vanilla 0.14.2/0.15.0 incrementam correctamente `1`, `2` |
+
+### 2.6 Bibliografia
+
+| Item | Onde foi encontrado | Estado |
+|------|---------------------|--------|
+| Formatação CSL — cinco categorias de bug | P533, P539 | **Já corrigido — ver P547/P548** |
+
+### 2.7 Pacotes
+
+| Item | Onde foi encontrado | Estado |
+|------|---------------------|--------|
+| `#import "@preview/..."` | P531 | Ausente |
+
+### 2.8 Linguagem
+
+| Item | Onde foi encontrado | Estado |
+|------|---------------------|--------|
+| `#for` descarta conteúdo | Descoberto em P538c | **Já corrigido — ver P538f** |
+| `#for` com destructuring de tuplos | Descoberto em P538i | **Já corrigido — ver P540** |
+| `#{expr}` em markup | Descoberto em P540 | **Já corrigido — ver P545** |
+| 20 diferenças de texto do corpus | P538i | **Maioria explicada — ver P539/P544** |
+| Contagem de `lorem()` | P538c/g | **Explicada — ver P539/P544** |
+
+---
+
+## 3. Notas sobre risco geral
 
 - **Risco documental é maior que risco funcional.** A maioria dos "fechados" sem número na conclusão tem evidência concreta noutras secções; o problema é a conclusão não ser autocontida.
 - **Scope-outs do projecto** (HTML/SVG/raster/IDE/plugin) estão bem estabelecidos como decisões arquitecturais, mas a justificativa nos relatórios P514/P508/P531 é mínima. Isso não invalida a decisão, mas enfraquece a trilha de auditoria.
 - **Passos recentes cruzam referências de forma geralmente boa.** Os únicos pontos de atenção são `cursor.rs` (P545 vs P544) e `builder.rs` (P535 vs P536), onde a documentação de coordenação podia ser mais explícita.
+- **Novo achado funcional em P551:** a numeração de notas de rodapé em `#set page(columns: 2)` está duplicada no cristalino. Este é o primeiro item funcional de risco médio detectado directamente por comparação visual com vanilla 0.15.0.
 
 ---
 
-## 3. Próximos passos sugeridos
+## 4. Próximos passos sugeridos
 
 1. **Corrigir conclusões dos 5 relatórios da Categoria A** para incluir o comando/número/comparação vanilla que sustenta o fecho.
 2. **Completar justificativas dos scope-outs em P514** (e referências cruzadas noutros relatórios) com a razão arquitectural PDF-only.
-3. **Resolver ou formalizar o ponto em aberto de colunas multi-página** (P537) — é o único item funcional de risco médio/alto identificado nesta auditoria.
-4. **Re-auditar a lista informal de ~24 itens** referida em contexto de conversa e integrá-la neste inventário.
+3. **Resolver ou formalizar o ponto em aberto de colunas multi-página** (P537) — é o único item funcional de risco médio/alto identificado em P550.
+4. **Corrigir a numeração duplicada de notas de rodapé** em `#set page(columns: 2)` detectada em P551.
+5. **Decidir por escrito** se a diferença de posicionamento de notas com `#columns(2)` (cristalino lado a lado vs vanilla empilhado) deve ser corrigida ou aceite com razão nova, de acordo com ADR-0107/0108.
