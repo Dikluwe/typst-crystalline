@@ -168,3 +168,18 @@ de `pdftotext` deverá aproximar-se de `n`.
 3. **Math/itálicos**: aceitar como divergência tipográfica documentada.
 4. **Outline leaders**: pode ser resolvido no mesmo passo de layout ou
    separadamente, dependendo da causa.
+
+---
+
+## Follow-up — Passo 557 (`visual/outline-toc.typ`)
+
+A sonda P557 confirmou a causa da disparidade de palavras extraídas (524 no
+vanilla vs 35 no cristalino): o vanilla gera **leaders/dots e números de
+página** no `#outline()`, enquanto o cristalino emite apenas o título e as
+entradas do índice. O conteúdo semântico (5 headings + 5 frases) está presente
+em ambas as versões.
+
+- O item **"Sem leaders/dots"** permanece aberto.
+- A diferença bruta de `pdftotext | wc -w` não deve ser usada como métrica de
+  paridade para documentos com outline até que o gap seja fechado.
+- Detalhes completos em `00_nucleo/diagnosticos/paridade-producao-p557.md`.
