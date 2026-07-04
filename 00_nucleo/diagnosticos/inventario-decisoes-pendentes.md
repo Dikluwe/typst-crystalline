@@ -78,7 +78,7 @@ Estes relatórios contêm evidência concreta noutras secções, mas a conclusã
 
 | Item | Passo original | Estado actual | Por que continua aberto |
 |---|---|---|---|
-| Documento multi-página em `#set page(columns: 2)` | P537/P537b/P553 | **Aberto** | Re-medido em P553: cristalino **5 páginas**, vanilla 0.14.2/0.15.0 **2 páginas** para `#lorem(1200)`. A causa não é largura de palavra (P544) nem footnotes (P552); é o cálculo de `column_width` em `columns::layout` a partir da largura total da página em vez da largura útil (`page - 2×margin`). Ver `paridade-producao-p553.md`. |
+| Documento multi-página em `#set page(columns: 2)` | P537/P537b/P553 | **Corrigido — geometria** | Após correção em P553: cristalino **3 páginas**, vanilla 0.14.2/0.15.0 **2 páginas** para `#lorem(1200)`. A diferença restante (3 vs 2) é da fonte padrão sans-serif do cristalino vs serif do vanilla; a geometria de colunas (causa principal de 5 vs 2) está corrigida. Ver `paridade-producao-p553.md`. |
 | Fusão de blocos `BT...ET` consecutivos | P534 | **Aberto** (scope-out) | Optimização de export; vários `TextShaped` geram blocos separados, aumentando tamanho do PDF. |
 | Zoom explícito em destinos `/XYZ` de bookmarks | P535 | **Aberto** (scope-out) | Cristalino usa `null`; vanilla usa `100`. |
 | Stream XMP de metadados | P536 | **Aberto** (scope-out) | Apenas `/Info` é emitido; XMP requer XML extra. |
@@ -172,7 +172,7 @@ A lista informal referida em P550 foi auditada e integrada nesta secção. Itens
 - **Scope-outs do projecto** (HTML/SVG/raster/IDE/plugin) estão bem estabelecidos como decisões arquitecturais, mas a justificativa nos relatórios P514/P508/P531 é mínima. Isso não invalida a decisão, mas enfraquece a trilha de auditoria.
 - **Passos recentes cruzam referências de forma geralmente boa.** Os únicos pontos de atenção são `cursor.rs` (P545 vs P544) e `builder.rs` (P535 vs P536), onde a documentação de coordenação podia ser mais explícita.
 - **Achado funcional de P551 corrigido em P552:** a numeração duplicada de notas de rodapé em `#set page(columns: 2)` e o posicionamento lado a lado em `#columns(2)` foram corrigidos.
-- **Achado de P553:** o documento multi-página em `#set page(columns: 2)` permanece aberto. A causa foi refinada: o cálculo de `column_width` usa a largura total da página em vez da largera útil. Com a mesma fonte no vanilla, a diferença passa de 5 vs 2 para 5 vs 3 páginas; a fonte padrão do cristalino explica o restante.
+- **Achado de P553:** o documento multi-página em `#set page(columns: 2)` teve a sua geometria corrigida. A diferença de páginas passou de 5 vs 2 para 3 vs 2; as 2 páginas extra eram causadas pelo cálculo errado de `column_width` (largura total em vez de largura útil). A diferença restante (3 vs 2) é da fonte padrão sans-serif do cristalino vs serif do vanilla.
 
 ---
 
@@ -180,4 +180,4 @@ A lista informal referida em P550 foi auditada e integrada nesta secção. Itens
 
 1. **Corrigir conclusões dos 5 relatórios da Categoria A** para incluir o comando/número/comparação vanilla que sustenta o fecho.
 2. **Completar justificativas dos scope-outs em P514** (e referências cruzadas noutros relatórios) com a razão arquitectural PDF-only.
-3. **Corrigir a geometria de colunas em `columns::layout`** (P553) — actualizar o Prompt L0 de `rules/columns.md`, implementar o cálculo de `column_width` a partir da largura útil da página e ajustar a região de trabalho de cada coluna. Validar que `#set page(columns: 2)` com `#lorem(1200)` reduz de 5 para 3 páginas com a fonte actual, e que não há regressões em `layout_segmented` / `#columns(2)`. A diferença restante para 2 páginas do vanilla deve ser tratada no eixo de fonte padrão.
+3. **Tratar o eixo de fonte padrão** — a diferença restante de 3 vs 2 páginas em `#set page(columns: 2)\n#lorem(1200)` é atribuída à fonte padrão do cristalino (sans-serif) vs vanilla (serif). Se se pretender paridade total de paginação neste cenário, avaliar se a fonte padrão deve mudar ou se o gap é aceitável.

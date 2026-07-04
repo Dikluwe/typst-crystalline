@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/rules/columns.md
-//! @prompt-hash eb0357b0
+//! @prompt-hash ee51ca6b
 //! @layer L1
 //! @updated 2026-07-03
 //!
@@ -13,6 +13,11 @@
 //! segmento é renderizado sequencialmente no mesmo `Layouter`, reutilizando
 //! o estado da página actual. As notas de rodapé pendentes são flushed no
 //! fim de cada coluna através do modo `column_mode` do `Layouter`.
+//!
+//! **P553** — correção geométrica: `column_width` passa a ser calculado a
+//! partir da largura útil da página (`page_width - 2×margin`), e cada coluna
+//! é renderizada como uma mini-página de largura `column_width + 2×margin`,
+//! preenchendo toda a largura útil disponível.
 
 use crate::entities::content::Content;
 use crate::entities::elements::columns::ColumnsElem;
@@ -72,32 +77,38 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
         layouter.flush_line();
     }
 
-    let full_width = layouter.regions.current.width;
+    let page_width = layouter.regions.current.width;
+    let margin = layouter.page_config.margin;
+    let usable_width = page_width - 2.0 * margin;
     let count = e.count.max(1) as usize;
     let count_f = count as f64;
 
-    // 2. Resolver gutter (Length → f64 Pt; default ~4% width).
+    // 2. Resolver gutter (Length → f64 Pt; default ~4% page width).
     let gutter_pt = match e.gutter {
         Some(g) => g.resolve_pt(layouter.font_size_pt.0),
-        None => full_width * super::COLUMNS_DEFAULT_GUTTER_RATIO,
+        None => page_width * super::COLUMNS_DEFAULT_GUTTER_RATIO,
     };
 
-    // 3. column_width = (full_width - (count-1)*gutter) / count.
-    let column_width = (full_width - (count_f - 1.0) * gutter_pt) / count_f;
+    // 3. column_width = (usable_width - (count-1)*gutter) / count.
+    //    A largura útil da página é page_width - 2*margin (P553).
+    let column_width = (usable_width - (count_f - 1.0) * gutter_pt) / count_f;
+    // Largura da região de trabalho de cada coluna: mini-página com
+    // margens internas, de modo que o layout preencha toda a largura útil.
+    let column_region_width = column_width + 2.0 * margin;
+    eprintln!("columns layout: page_width={}, usable_width={}, gutter={}, column_width={}, region_width={}, page_columns={}", page_width, usable_width, gutter_pt, column_width, column_region_width, e.page_columns);
 
     // 4. Dividir body pelos colbreaks e detectar se há colbreaks reais.
     let (segments, had_colbreak) = split_by_colbreak(&e.body, count);
 
     // 5. Posições horizontais das colunas (origem x absoluta na página).
-    let margin = layouter.page_config.margin;
     let column_x_offsets: Vec<f64> = (0..count)
         .map(|i| margin + i as f64 * (column_width + gutter_pt))
         .collect();
 
     if had_colbreak {
-        layout_segmented(layouter, &segments, &column_x_offsets, column_width, margin, e.page_columns);
+        layout_segmented(layouter, &segments, &column_x_offsets, column_region_width, margin, e.page_columns);
     } else {
-        layout_flow(layouter, &segments[0], count, &column_x_offsets, column_width, margin);
+        layout_flow(layouter, &segments[0], count, &column_x_offsets, column_region_width, margin);
     }
 }
 
@@ -112,7 +123,7 @@ fn layout_segmented<M: FontMetrics, S: ImageSizer>(
     layouter: &mut Layouter<M, S>,
     segments: &[Content],
     column_x_offsets: &[f64],
-    column_width: f64,
+    column_region_width: f64,
     margin: f64,
     page_columns: bool,
 ) {
@@ -135,10 +146,13 @@ fn layout_segmented<M: FontMetrics, S: ImageSizer>(
         // Activar modo coluna para flush de footnotes.
         layouter.column_mode = true;
         layouter.column_origin_x = column_x_offsets[idx];
-        layouter.column_width = column_width;
+        // column_width no Layouter é a largura total da mini-página,
+        // para que flush_pending_footnote_bodies use column_width - 2*margin
+        // como largura útil das notas.
+        layouter.column_width = column_region_width;
 
-        // Configurar region para a coluna actual.
-        layouter.regions.current.width = column_width;
+        // Configurar region para a coluna actual (mini-página P553).
+        layouter.regions.current.width = column_region_width;
         layouter.regions.current.cursor_x = Pt(margin);
         layouter.regions.current.line_start_x = Pt(margin);
         layouter.regions.current.cursor_y = column_start_y + ascender;
@@ -180,7 +194,7 @@ fn layout_segmented<M: FontMetrics, S: ImageSizer>(
         // conteúdo do contentor.
         layouter.column_mode = true;
         layouter.column_origin_x = column_x_offsets[0];
-        layouter.column_width = column_width;
+        layouter.column_width = column_region_width;
         let footnote_bottom = max_column_bottom_y.0 + layouter.page_config.margin;
         layouter.flush_pending_footnote_bodies(Some(footnote_bottom));
         let mut footnote_items = std::mem::take(&mut layouter.regions.current.current_items);
@@ -214,21 +228,24 @@ fn layout_flow<M: FontMetrics, S: ImageSizer>(
     body: &Content,
     count: usize,
     column_x_offsets: &[f64],
-    column_width: f64,
+    column_region_width: f64,
     margin: f64,
 ) {
     // Configurar estado de colunas no Layouter.
     layouter.page_columns = Some(count);
     layouter.current_column = 0;
     layouter.column_x_offsets = column_x_offsets.to_vec();
-    layouter.column_width = column_width;
+    // Largura total da mini-página (inclui margens internas) para que
+    // flush_pending_footnote_bodies e start_column usem a largura útil
+    // correcta (P553).
+    layouter.column_width = column_region_width;
     layouter.column_mode = true;
     layouter.column_origin_x = column_x_offsets[0];
 
-    // Configurar region para a primeira coluna. O cursor_y actual já é
-    // a baseline da primeira linha (o Layouter inicializa com ascender);
-    // não se adiciona ascender novamente.
-    layouter.regions.current.width = column_width;
+    // Configurar region para a primeira coluna (mini-página P553). O
+    // cursor_y actual já é a baseline da primeira linha (o Layouter
+    // inicializa com ascender); não se adiciona ascender novamente.
+    layouter.regions.current.width = column_region_width;
     layouter.regions.current.cursor_x = Pt(margin);
     layouter.regions.current.line_start_x = Pt(margin);
 

@@ -121,18 +121,64 @@ Ou seja, o vanilla calcula a largura das colunas a partir da **área útil** da 
 
 ---
 
-## 5. Conclusão
+## 5. Alterações implementadas
 
-- A diferença de paginação **persiste** após P544 e P552: cristalino **5 páginas**, vanilla **2 páginas** para `#lorem(1200)` em `#set page(columns: 2)`.
-- A medição antiga de P538c/g não estava desactualizada no número; estava desactualizada na **causa**. A causa não é largura de palavra nem footnotes, mas o cálculo geométrico de `columns::layout`.
-- A correção requer mudanças em `01_core/src/rules/layout/columns.rs` (e interacção com `cursor.rs`):
-  1. Calcular `column_width` a partir da largura útil da página (`page_width - 2 × margin`).
-  2. Ajustar a largura da região de trabalho dentro de cada coluna para que o layout preencha toda a largura útil da coluna (actualmente perde margem à direita).
-- O item no inventário de decisões pendentes foi actualizado com a medição nova e a causa. Continua **aberto** até a correção geométrica ser implementada e validada.
+### 5.1 `columns::layout`
+
+- `page_width` passou a ser distinguido de `usable_width = page_width - 2 × margin`.
+- `column_width` passou a ser calculado a partir de `usable_width`:
+  ```text
+  column_width = (usable_width - (count - 1) × gutter) / count
+  ```
+- Gutter default mantém-se proporcional à largura total da página (`0.04 × page_width`), para paridade com a medição vanilla.
+- Adicionada `column_region_width = column_width + 2 × margin`, a largura da mini-página usada durante o layout de cada coluna.
+
+### 5.2 `columns::layout_segmented` e `columns::layout_flow`
+
+- A região de trabalho de cada coluna passou a ter largura `column_region_width` (em vez de `column_width`).
+- O cursor continua a iniciar em `margin`, mas agora o `right_margin` interno (`width - margin`) coincide com o fim da área útil da coluna, preenchendo toda a largura disponível.
+- A translação horizontal dos items mantém-se: `dx = column_x_offsets[idx] - margin`.
 
 ---
 
-## 6. Ficheiros de verificação
+## 6. Validação final
+
+### 6.1 Paginação de `#lorem(1200)`
+
+Após a correção:
+
+| Versão | Fonte | Páginas | Palavras |
+|---|---|---|---|
+| Cristalino | CrystallineFont (sans-serif) | **3** | 1200 |
+| Vanilla 0.15.0 | LibertinusSerif-Regular | **2** | 1213 |
+| Vanilla 0.15.0 (Liberation Sans) | Liberation Sans | **3** | — |
+
+A correção geométrica eliminou 2 das 3 páginas extra. A diferença restante (3 vs 2) é da fonte padrão sans-serif do cristalino vs serif do vanilla.
+
+### 6.2 Regressões em colunas
+
+- `#set page(columns: 2)` com footnotes em ambas as colunas continua a numerar `[1]`, `[2]` e a colocar notas no fundo de cada coluna (P552).
+- `#columns(2)[...]` com footnotes continua a empilhar as notas na primeira coluna (P552).
+
+### 6.3 Comandos de validação
+
+```bash
+cargo build --release        # ok
+cargo test --workspace       # 3568 + 573 + 24 + 2 + 21 + 2 passed; 0 failed
+crystalline-lint .           # 0 violations
+```
+
+---
+
+## 7. Conclusão
+
+- A diferença de paginação foi **reduzida** de 5 vs 2 para **3 vs 2** páginas.
+- A causa geométrica identificada em P553 foi **corrigida** em `01_core/src/rules/layout/columns.rs`.
+- O item do inventário foi actualizado: a geometria de colunas está corrigida; a diferença restante para 2 páginas do vanilla é atribuída à fonte padrão do cristalino, que é um eixo de paridade separado.
+
+---
+
+## 8. Ficheiros de verificação
 
 - `/tmp/p553-cols-long.typ`
 - `/tmp/p553-cristalino.pdf`
