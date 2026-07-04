@@ -1,8 +1,8 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/shaper.md
-//! @prompt-hash 355f8197
+//! @prompt-hash b3313968
 //! @layer L3
-//! @updated 2026-06-30
+//! @updated 2026-07-03
 //!
 //! **P482** — Post-processing shaping pass (Trilha 5 Fase 1).
 //! **P484** — RTL básico via unicode-bidi (Trilha 5 Fase 3, ADR-0120).
@@ -12,6 +12,8 @@
 //! (`wght`, `ital`) via `rustybuzz::Face::set_variations` antes do shape.
 //! **P534** — Fallback multi-script: segmentação por script Unicode e
 //! fallback ao `FontBook` global quando as famílias declaradas não cobrem.
+//! **P555** — fallback por classe visual (serif/sans) via
+//! `03_infra/src/fallback_fonts.rs`.
 //! Converte `FrameItem::Text` → `FrameItem::TextShaped` via rustybuzz.
 //! Executado entre layout e export. ADR-0120 Opção A1.
 
@@ -25,6 +27,7 @@ use typst_core::entities::font_book::FontVariant;
 use typst_core::entities::font_list::FontList;
 use typst_core::entities::layout_types::{FrameItem, Page, PagedDocument, Point, Pt, ShapedGlyph, TextStyle};
 
+use crate::fallback_fonts::fallback_font_list_for;
 use crate::font_variant::{axis_variations_for_font_variant, text_style_to_font_variant};
 
 /// Converte todos os `FrameItem::Text` de um `PagedDocument` em
@@ -75,18 +78,7 @@ fn shape_item(world: &dyn World, mut item: FrameItem) -> Vec<FrameItem> {
     vec![item]
 }
 
-/// **P538e** — fontes padrão de fallback quando a fonte declarada (ou a
-/// default "Helvetica") não existe no FontBook. Ordenadas por cobertura
-/// multi-script comum em sistemas Linux; a primeira que resolver torna-se
-/// a primária, evitando segmentação carácter-a-carácter sobre o catálogo
-/// inteiro (que pode começar por fontes especiais como MathJax).
-const DEFAULT_FALLBACK_FONTS: &[&str] = &[
-    "DejaVu Sans",
-    "Noto Sans",
-    "Liberation Sans",
-    "FreeSans",
-    "Arial",
-];
+
 
 fn try_shape(
     world: &dyn World,
@@ -101,14 +93,19 @@ fn try_shape(
     let axis_vars = axis_variations_for_font_variant(&variant);
 
     // P515 — resolver todas as fontes candidatas da FontList.
-    // **P538e** — se a fonte declarada (incluindo a default "Helvetica")
-    // não existe no FontBook, tentar fontes padrão de fallback antes de
-    // recair no fallback global carácter-a-carácter.
+    // **P538e/P555** — se a fonte declarada (incluindo a default "FreeSerif")
+    // não existe no FontBook, tentar fontes padrão de fallback da mesma
+    // classe (serif/sans) antes de recair no fallback global carácter-a-carácter.
     let mut primary = resolve_candidates(world, font_list, &variant).unwrap_or_default();
     if primary.is_empty() {
-        for family in DEFAULT_FALLBACK_FONTS {
-            let fallback_list = FontList::single(ecow::EcoString::from(*family));
-            if let Some(cands) = resolve_candidates(world, &fallback_list, &variant) {
+        let first_family = font_list.as_slice()
+            .first()
+            .and_then(|f| f.name.as_str())
+            .unwrap_or("");
+        let fallback_list = fallback_font_list_for(first_family);
+        for family in fallback_list {
+            let fallback_font_list = FontList::single(ecow::EcoString::from(*family));
+            if let Some(cands) = resolve_candidates(world, &fallback_font_list, &variant) {
                 if !cands.is_empty() {
                     primary = cands;
                     break;

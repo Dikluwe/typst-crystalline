@@ -1,8 +1,8 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/font_metrics.md
-//! @prompt-hash fa749886
+//! @prompt-hash f0a0a619
 //! @layer L3
-//! @updated 2026-03-28
+//! @updated 2026-07-03
 
 use std::collections::HashMap;
 use std::sync::{Arc, Mutex};
@@ -19,6 +19,7 @@ use typst_core::entities::math_constants::MathConstants;
 use typst_core::entities::world_types::Font;
 use typst_core::rules::layout::FontMetrics;
 
+use crate::fallback_fonts::fallback_font_list_for;
 use crate::font_variant::text_style_to_font_variant;
 
 /// Extrai variantes verticais de um glifo directamente a partir da face.
@@ -291,14 +292,6 @@ struct FontCandidate {
 /// Fontes padrão de fallback usadas pelo shaper (P538e/P543).
 /// Devem ser consistentes entre `FallbackFontMetrics` e `shaper.rs` para
 /// evitar desalinhamento de posicionamento no PDF.
-pub(crate) const DEFAULT_FALLBACK_FONTS: &[&str] = &[
-    "DejaVu Sans",
-    "Noto Sans",
-    "Liberation Sans",
-    "FreeSans",
-    "Arial",
-];
-
 impl<'a> FallbackFontMetrics<'a> {
     /// Constrói métricas de fallback a partir do `World`.
     pub fn new(world: &'a dyn World) -> Self {
@@ -327,6 +320,11 @@ impl<'a> FallbackFontMetrics<'a> {
         let mut primary = Vec::new();
         let variant = text_style_to_font_variant(style);
 
+        // Nome da primeira família para decidir a classe de fallback (P555).
+        let first_family: Option<&str> = style.font.as_ref()
+            .and_then(|fl| fl.as_slice().first())
+            .and_then(|f| f.name.as_str());
+
         if let Some(font_list) = &style.font {
             for family in font_list.as_slice() {
                 let Some(idx) = self.world.book().select_pattern(&family.name, &variant) else {
@@ -341,7 +339,8 @@ impl<'a> FallbackFontMetrics<'a> {
         }
 
         if primary.is_empty() {
-            for family in DEFAULT_FALLBACK_FONTS {
+            let fallback_list = fallback_font_list_for(first_family.unwrap_or(""));
+            for family in fallback_list {
                 let pattern = FontNamePattern::Literal(ecow::EcoString::from(*family));
                 let Some(idx) = self.world.book().select_pattern(&pattern, &variant) else {
                     continue;
