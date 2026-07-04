@@ -1,8 +1,8 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/entities/style_chain.md
-//! @prompt-hash de464849
+//! @prompt-hash e6d8ee13
 //! @layer L1
-//! @updated 2026-04-23
+//! @updated 2026-07-03
 //!
 //! Passo 99 (ADR-0038): `StyleChain` aceita uma colecção `Styles` via
 //! `push_styles`. **Lote F-4 (P338): a dualidade de backing colapsou** —
@@ -12,6 +12,10 @@
 //! único lido pelos accessors **e** carregado por `Content::Styled`. A
 //! coexistência "até migrar" terminou (o canal `custom` do F-2 fica disponível
 //! no `Styled` para F-realização/F-5).
+//!
+//! **P554** — fonte por defeito do bridge `From<&StyleChain> for TextStyle`
+//! alterada de `Helvetica` para `FreeSerif`, uma serif amplamente disponível
+//! em sistemas Linux, para paridade visual e de paginação com o vanilla.
 
 use std::sync::Arc;
 
@@ -606,11 +610,13 @@ impl From<&StyleChain> for TextStyle {
             tracking:      chain.tracking(),
             leading:       chain.leading(),
             lang:          chain.lang(),
-            // P483 — fonte padrão Helvetica garante que o shaper actua mesmo
-            // sem `#set text(font:...)` no documento. Shaper faz fallback
-            // defensivo (Text preservado) se a fonte não estiver carregada.
+            // P483/P554 — fonte padrão FreeSerif garante que o shaper actua
+            // mesmo sem `#set text(font:...)` no documento. FreeSerif é uma
+            // serif amplamente disponível em sistemas Linux; se não estiver
+            // disponível, o shaper faz fallback defensivo pelas fontes
+            // sans-serif de DEFAULT_FALLBACK_FONTS.
             font:          Some(chain.font().unwrap_or_else(|| {
-                FontList::single(EcoString::from("Helvetica"))
+                FontList::single(EcoString::from("FreeSerif"))
             })),
             subscript:        chain.subscript(),
             superscript:      chain.superscript(),
@@ -769,17 +775,17 @@ mod tests {
 
     #[test]
     fn p483_textstyle_from_chain_font_nunca_none() {
-        // P483 — From<&StyleChain> para TextStyle com chain vazia deve
-        // retornar font = Some(Helvetica) (fallback padrão).
+        // P483/P554 — From<&StyleChain> para TextStyle com chain vazia deve
+        // retornar font = Some(FreeSerif) (fallback padrão).
         use crate::entities::layout_types::TextStyle;
         let chain = StyleChain::default_chain(); // sem #set text(font:...)
         let style = TextStyle::from(&chain);
         assert!(style.font.is_some(),
-            "P483: TextStyle de chain default deve ter font = Some(Helvetica)");
+            "P483/P554: TextStyle de chain default deve ter font = Some(FreeSerif)");
         let families = style.font.as_ref().unwrap().as_slice();
         assert_eq!(families.len(), 1);
-        assert_eq!(families[0].name.as_str(), Some("helvetica"),
-            "P483: fonte padrão deve ser 'helvetica' (lowercase)");
+        assert_eq!(families[0].name.as_str(), Some("freeserif"),
+            "P483/P554: fonte padrão deve ser 'freeserif' (lowercase)");
     }
 
     #[test]

@@ -1,7 +1,7 @@
 # Inventário de Decisões Pendentes / Pontos em Aberto
 
 **Criado em:** 2026-07-03 (Passo 550)  
-**Actualizado em:** 2026-07-03 (Passo 553)  
+**Actualizado em:** 2026-07-03 (Passo 554)  
 **Nota:** Não existia um ficheiro `inventario-decisoes-pendentes.md` anterior. Esta é a primeira consolidação formal. A lista informal de ~24 itens referida em P550 foi auditada e integrada na secção 2 deste documento.
 
 ---
@@ -78,7 +78,8 @@ Estes relatórios contêm evidência concreta noutras secções, mas a conclusã
 
 | Item | Passo original | Estado actual | Por que continua aberto |
 |---|---|---|---|
-| Documento multi-página em `#set page(columns: 2)` | P537/P537b/P553 | **Corrigido — geometria** | Após correção em P553: cristalino **3 páginas**, vanilla 0.14.2/0.15.0 **2 páginas** para `#lorem(1200)`. A diferença restante (3 vs 2) é da fonte padrão sans-serif do cristalino vs serif do vanilla; a geometria de colunas (causa principal de 5 vs 2) está corrigida. Ver `paridade-producao-p553.md`. |
+| Documento multi-página em `#set page(columns: 2)` | P537/P537b/P553/P554 | **Fechado** | Após P553 (geometria) e P554 (fonte padrão): cristalino **2 páginas**, vanilla 0.14.2/0.15.0 **2 páginas** para `#lorem(1200)`. Ver `paridade-producao-p553.md` e `paridade-producao-p554.md`. |
+| Fonte por defeito do cristalino | P554 | **Fechado** | Alterada de `Helvetica`/fallback sans-serif para `FreeSerif` (serif amplamente disponível). Libertinus Serif do vanilla não está disponível no ambiente; FreeSerif mantém a classe visual e atinge paridade de paginação. Item separado do fallback ausente (P538e). Ver `paridade-producao-p554.md`. |
 | Fusão de blocos `BT...ET` consecutivos | P534 | **Aberto** (scope-out) | Optimização de export; vários `TextShaped` geram blocos separados, aumentando tamanho do PDF. |
 | Zoom explícito em destinos `/XYZ` de bookmarks | P535 | **Aberto** (scope-out) | Cristalino usa `null`; vanilla usa `100`. |
 | Stream XMP de metadados | P536 | **Aberto** (scope-out) | Apenas `/Info` é emitido; XMP requer XML extra. |
@@ -172,7 +173,7 @@ A lista informal referida em P550 foi auditada e integrada nesta secção. Itens
 - **Scope-outs do projecto** (HTML/SVG/raster/IDE/plugin) estão bem estabelecidos como decisões arquitecturais, mas a justificativa nos relatórios P514/P508/P531 é mínima. Isso não invalida a decisão, mas enfraquece a trilha de auditoria.
 - **Passos recentes cruzam referências de forma geralmente boa.** Os únicos pontos de atenção são `cursor.rs` (P545 vs P544) e `builder.rs` (P535 vs P536), onde a documentação de coordenação podia ser mais explícita.
 - **Achado funcional de P551 corrigido em P552:** a numeração duplicada de notas de rodapé em `#set page(columns: 2)` e o posicionamento lado a lado em `#columns(2)` foram corrigidos.
-- **Achado de P553:** o documento multi-página em `#set page(columns: 2)` teve a sua geometria corrigida. A diferença de páginas passou de 5 vs 2 para 3 vs 2; as 2 páginas extra eram causadas pelo cálculo errado de `column_width` (largura total em vez de largura útil). A diferença restante (3 vs 2) é da fonte padrão sans-serif do cristalino vs serif do vanilla.
+- **Achado de P553/P554:** o documento multi-página em `#set page(columns: 2)` foi fechado. P553 corrigiu a geometria de colunas (5 vs 3 páginas); P554 alterou a fonte padrão do cristalino para `FreeSerif` (3 vs 2 → 2 vs 2 páginas). O item de fonte padrão foi registado separadamente do fallback ausente de P538e.
 
 ---
 
@@ -180,4 +181,4 @@ A lista informal referida em P550 foi auditada e integrada nesta secção. Itens
 
 1. **Corrigir conclusões dos 5 relatórios da Categoria A** para incluir o comando/número/comparação vanilla que sustenta o fecho.
 2. **Completar justificativas dos scope-outs em P514** (e referências cruzadas noutros relatórios) com a razão arquitectural PDF-only.
-3. **Tratar o eixo de fonte padrão** — a diferença restante de 3 vs 2 páginas em `#set page(columns: 2)\n#lorem(1200)` é atribuída à fonte padrão do cristalino (sans-serif) vs vanilla (serif). Se se pretender paridade total de paginação neste cenário, avaliar se a fonte padrão deve mudar ou se o gap é aceitável.
+3. **Monitorar o novo default `FreeSerif`** — se em algum ambiente de testes/ci a fonte não estiver instalada, o shaper regredirá para sans-serif e o caso de teste de P553 voltará a 3 páginas. Considerar adicionar `fonts-freefont-ttf` como dependência do ambiente de testes.
