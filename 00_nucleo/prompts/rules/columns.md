@@ -1,11 +1,11 @@
 # Prompt L0 — `rules/columns` — Layout de colunas multi-página
 
-Hash do Código: b4352a93
+Hash do Código: `ee51ca6b`
 
 **Camada**: L1  
 **Ficheiro alvo**: `01_core/src/rules/layout/columns.rs`  
 **Ficheiros adjacentes**: `01_core/src/rules/layout/cursor.rs`, `01_core/src/rules/layout/mod.rs`, `01_core/src/rules/layout/footnote.rs`, `01_core/src/entities/elements/columns.rs`  
-**Origem**: P537 (colunas reais), P537b (`#set page(columns:)`), P552 (correcção de footnotes)  
+**Origem**: P537 (colunas reais), P537b (`#set page(columns:)`), P552 (correcção de footnotes), P553 (correcção geométrica de largura de coluna)  
 **ADRs**: ADR-0107 (paridade linguagem), ADR-0108 (medir antes de decidir), ADR-0109 (atomização forma B), ADR-0054 (graded / scope-outs).
 
 ---
@@ -17,18 +17,32 @@ O consumer `Content::Columns` serve dois contextos sintacticamente distintos:
 1. **`#columns(N)[body]`** — contentor de colunas no fluxo regular.
 2. **`#set page(columns: N)`** — configuração de página que, após transformação AST (`wrap_page_columns`), produz um `Content::Columns` sintético envolvendo o resto do escopo.
 
-A implementação base (P537) introduziu colunas reais para ambos os contextos, mas tratava as notas de rodapé de forma uniforme. Medições de P551/P552 mostram que o vanilla distingue os dois contextos para footnotes. Este L0 corrige essa distinção.
+A implementação base (P537) introduziu colunas reais para ambos os contextos, mas tratava as notas de rodapé de forma uniforme. Medições de P551/P552 mostram que o vanilla distingue os dois contextos para footnotes. O L0 corrigiu essa distinção em P552.
+
+A medição P553 identificou um segundo problema: as colunas são renderizadas com largura efetiva muito menor do que no vanilla, porque o cálculo de `column_width` parte da **largura total** da página em vez da **largura útil**. Este L0 corrige essa geometria.
 
 ---
 
 ## 2. Medições que sustentam a decisão
 
-- `01_core/src/rules/layout/columns.rs:126` e `:161` — em `layout_segmented`, `footnote_counter` é salvo e restaurado por segmento. Combinado com `flush_pending_footnote_bodies()` ao fim de cada coluna, isso faz com que o contador não avance e cada coluna reutilize o mesmo número.
+### 2.1 Footnotes — P552
+
+- Em `layout_segmented` (`01_core/src/rules/layout/columns.rs`), `footnote_counter` era salvo e restaurado por segmento. Combinado com `flush_pending_footnote_bodies()` ao fim de cada coluna, isso fazia com que o contador não avance e cada coluna reutilizasse o mesmo número.
 - P551 — imagens de `#set page(columns: 2)` mostram cristalino com notas lado a lado mas numeradas ambas como `[1]`; vanilla 0.14.2/0.15.0 numera `1`, `2` e também coloca lado a lado.
 - P552 — testes adicionais com vanilla:
   - `#columns(2)[...]` com notas em ambas as colunas: vanilla empilha as notas na coluna esquerda.
   - `#columns(2)[#colbreak() #lorem(80)#footnote[...]]`: vanilla coloca a nota na coluna esquerda, não na direita.
   - `#set page(columns: 2)` com notas em ambas as colunas: vanilla coloca cada nota no fundo da respectiva coluna.
+
+### 2.2 Geometria de colunas — P553
+
+- Em `columns::layout` (`01_core/src/rules/layout/columns.rs`), a variável `full_width` era atribuída a `layouter.regions.current.width`, usando a largura total da página (`595.28 pt` em A4) e produzindo `column_width = (595.28 - 23.81) / 2 = 285.73 pt`.
+- O layout interno de cada coluna (`layout_word` / `layout_chunk` em `cursor.rs`) impõe `right_margin = regions.current.width - page_config.margin`, e o cursor começa em `page_config.margin` (`70.87 pt` em A4). Isso reduz a área útil efetiva da coluna para `285.73 - 2 × 70.87 ≈ 144 pt`.
+- P553 — para `#set page(columns: 2)\n#lorem(1200)`:
+  - Cristalino: **5 páginas**; primeira linha da coluna esquerda ocupa ~124 pt.
+  - Vanilla 0.14.2/0.15.0: **2 páginas**; primeira linha da coluna esquerda ocupa ~212 pt.
+  - Vanilla 0.14.2/0.15.0 com `#set text(font: "Liberation Sans")`: **3 páginas**.
+- Interpretação: ~2 das 3 páginas extra do cristalino são causadas pela geometria errada; a diferença restante (3 vs 2) é da fonte padrão sans-serif do cristalino vs serif do vanilla.
 
 ---
 
@@ -53,6 +67,23 @@ O `Content::Columns` sintético de `#set page(columns:)` deve ser marcado como "
 - `true`: comportamento `#set page(columns: N)` — notas por coluna.
 
 A transformação `wrap_page_columns` (P537b) cria o `ColumnsElem` com `page_columns: true`. A função stdlib `columns()` cria com `page_columns: false`.
+
+### 3.4 Geometria de colunas
+
+As colunas devem ocupar a **largura útil** da página, definida como `page_width - 2 × margin`. A largura de cada coluna é calculada a partir dessa largura útil, com gutter default ainda proporcional à **largura total** da página (para paridade com a medição vanilla).
+
+Formalmente, para `count` colunas:
+
+```text
+usable_width = page_width - 2 × margin
+gutter       = page_width × COLUMNS_DEFAULT_GUTTER_RATIO   (ou valor explícito)
+column_width = (usable_width - (count - 1) × gutter) / count
+x_i          = margin + i × (column_width + gutter)         (início absoluto da coluna i)
+```
+
+Durante o layout de cada coluna, o sistema vê uma "mini-página" de largura `column_width + 2 × margin`, com cursor iniciando em `margin`. Isso faz com que o `right_margin` interno (`width - margin`) termine exactamente no fim da área útil da coluna (`x_i + column_width`), preenchendo toda a largura disponível.
+
+A translação horizontal dos items da mini-página para a posição absoluta na página mantém-se: `dx = x_i - margin`.
 
 ---
 
@@ -83,11 +114,34 @@ Em `01_core/src/entities/content.rs`, manter `Content::columns(count, gutter, bo
 
 Em `01_core/src/rules/eval/mod.rs` (ou onde viver a transformação), o `Content::Columns` produzido a partir de `Content::SetPage { columns: Some(n), .. }` deve usar `page_columns: true`.
 
-### 4.4 `columns::layout_segmented` — corrigir contador e posicionamento
+### 4.4 `columns::layout` — cálculo a partir da largura útil
 
 Em `01_core/src/rules/layout/columns.rs`:
 
-1. **Remover save/restore de `footnote_counter`** (linhas 126 e 161). O contador avança naturalmente.
+1. Guardar `page_width = layouter.regions.current.width` e `margin = layouter.page_config.margin`.
+2. Calcular `usable_width = page_width - 2.0 * margin`.
+3. Resolver `gutter_pt` (default `page_width * COLUMNS_DEFAULT_GUTTER_RATIO`).
+4. Calcular `column_width = (usable_width - (count_f - 1.0) * gutter_pt) / count_f`.
+5. Calcular `column_x_offsets[i] = margin + i as f64 * (column_width + gutter_pt)`.
+
+### 4.5 `columns::layout_segmented` — região de coluna
+
+- Configurar `regions.current.width = column_width + 2.0 * margin` (em vez de `column_width`).
+- Manter `cursor_x = margin` e `line_start_x = margin`.
+- Manter translação `dx = column_x_offsets[idx] - margin`.
+- Manter semântica de footnotes de P552.
+
+### 4.6 `columns::layout_flow` e `start_column` — região de coluna
+
+- Configurar `regions.current.width = column_width + 2.0 * margin`.
+- Manter `cursor_x = margin` e `line_start_x = margin`.
+- Manter translação `dx = column_x_offsets[idx] - margin` em `close_current_column`.
+
+### 4.7 `columns::layout_segmented` — correcção de contador e posicionamento
+
+Em `01_core/src/rules/layout/columns.rs`:
+
+1. **Remover save/restore de `footnote_counter`** em `layout_segmented`. O contador avança naturalmente.
 2. Se `e.page_columns` for `true`:
    - Manter flush de `pending_footnote_bodies` no fim de cada coluna (`layout_segmented` actual).
    - As notas são transladadas juntamente com os items da coluna.
@@ -97,19 +151,28 @@ Em `01_core/src/rules/layout/columns.rs`:
    - No final do loop, após recolher todos os items das colunas, posicionar as notas no fundo da primeira coluna (x = `column_x_offsets[0]`, y = altura máxima consumida pelas colunas ou `height - margin`, conforme já usado pelo flush).
    - Adicionar os items das notas a `all_column_items` (ou a `current_items` directamente) já transladados para a coluna esquerda.
 
-### 4.5 `columns::layout_flow` — sem alterações de footnotes
+### 4.8 `columns::layout_flow` — sem alterações de footnotes
 
 O modo fluxo contínuo (sem `colbreak()`) é usado por `#columns(N)[body]` quando não há colbreaks suficientes. Neste modo, o flush de notas já acontece no fim de cada coluna preenchida pelo `Layouter`. Para `#columns()` isso ainda difere do vanilla (que acumula até ao fim do contentor), mas o caso sem `colbreak()` é secundário para P552; pode ser tratado na mesma alteração se o mecanismo de `page_columns` permitir.
 
 **Scope-out consciente**: se a alteração de `layout_flow` para empilhar notas exigir refacção profunda do `Layouter`, fica para passo seguinte. O critério mínimo de P552 é corrigir `layout_segmented` (caso com `colbreak()`), que é o observado nas imagens.
 
-### 4.6 Testes
+### 4.9 `flush_pending_footnote_bodies` — bottom opcional
+
+- `01_core/src/rules/layout/cursor.rs` — a função passa a aceitar `bottom_y: Option<f64>`, permitindo ao `columns.rs` posicionar footnotes de contentor abaixo do conteúdo, em vez de no fundo da página.
+
+### 4.10 `layout_sub_frame_with_width` — altura de linha não-flushed
+
+- `01_core/src/rules/layout/mod.rs` — corrigido cálculo de `cell_height` para incluir a altura da linha quando há itens em `current_line` não flushed. Sem esta correção, footnotes de uma única linha eram medidas com altura 0 e empilhadas sobrepostas.
+
+### 4.11 Testes
 
 - Teste do contador: duas notas em `#set page(columns: 2)` produzem `[1]` e `[2]`.
 - Teste do contador: três notas em `#set page(columns: 2)` produzem `[1]`, `[2]`, `[3]`.
 - Teste de `#columns(2)[...]` com duas notas: notas empilhadas na coluna esquerda.
 - Regressão: `#columns(2)[...]` sem notas continua a funcionar.
 - Regressão: `#set page(columns: 2)` continua com notas lado a lado.
+- Regressão P553: `#set page(columns: 2)` com `#lorem(1200)` reduz de 5 para 3 páginas (fonte actual), mantendo 1200 palavras.
 
 ---
 
@@ -120,6 +183,7 @@ O modo fluxo contínuo (sem `colbreak()`) é usado por `#columns(N)[body]` quand
 - A lógica permanece em L1 (sem I/O, sem estado global).
 - `#set page(columns: N)` a meio do documento continua scope-out per ADR-0054.
 - Gutter personalizado via `#set page(gutter: ...)` continua scope-out.
+- Não se altera `layout_word` / `layout_chunk` directamente; a geometria é corrigida ajustando a largura da região de coluna em `columns.rs`.
 
 ---
 
@@ -130,3 +194,4 @@ O modo fluxo contínuo (sem `colbreak()`) é usado por `#columns(N)[body]` quand
 - `#columns(2)[...]` com duas notas: notas empilhadas na coluna esquerda.
 - `cargo test --workspace` limpo.
 - `crystalline-lint .` limpo.
+- P553: `#set page(columns: 2)\n#lorem(1200)` produz 3 páginas no cristalino (com a fonte padrão actual); vanilla com `Liberation Sans` também produz 3 páginas.
