@@ -1,4 +1,5 @@
 # Prompt L0 — `infra/export/font_subset` — Subsetting de fontes no PDF
+Hash do Código: 4a8b0078
 
 **Camada**: L3  
 **Criado em**: 2026-06-30  
@@ -50,7 +51,9 @@ O exportador actual já emite CIDFont + Identity-H e usa `FrameItem::TextShaped`
      via `face.glyph_index(private_cp)`. Estes codepoints privados não devem
      ser expostos no ToUnicode CMap do PDF.
    - Inclui `.notdef` (glyph ID 0) sempre no subset.
-   - Retorna `None` se a fonte for CFF/OpenType sem `glyf` ou se o subsetting falhar.
+   - Retorna `None` apenas se o subsetting falhar (fonte inválida ou erro do
+     subsetter). Tanto TrueType (`glyf`) como CFF/OpenType (`CFF`/`CFF2`) são
+     suportados pelo `oxifont-subset`.
 
 2. Criar função auxiliar pública:
    ```rust
@@ -92,7 +95,9 @@ E face.number_of_glyphs() == 3 (notdef + A + B)
 
 Dado uma fonte CFF fixture e used_glyphs = {65}
 Quando subset_font(font_data, used_glyphs) é chamada
-Então retorna None (fallback para fonte completa)
+Então retorna Some(bytes) e ttf_parser::Face::parse(&bytes, 0) é Ok
+E face.tables().cff é Some
+E face.number_of_glyphs() >= 2
 
 Dado um documento PagedDocument com FrameItem::TextShaped contendo glyph_id 65
 Quando export_pdf_with_font é chamado com subsetting activo
@@ -119,12 +124,14 @@ Então retorna Some(bytes) contendo apenas .notdef
 - Variation fonts (VF) e fontes com múltiplos eixos.
 - Subsetting de tabelas OpenType avançadas (GPOS, GSUB, kern) — o subset resultante pode não conter kerning, mas o posicionamento já foi aplicado pelo rustybuzz no `x_offset`/`x_advance`.
 
-## Notas P523
+## Notas P523/P560
 
 - CFF/CFF2 subsetting é suportado pelo `oxifont-subset` desde P516; a
-  narrativa de "CFF scope-out" estava desactualizada. O trabalho restante
-  é polimento de descritor PDF (`CID TrueType` vs `CID Type 0C`), não
-  implementação de subsetting CFF.
+  narrativa de "CFF scope-out" estava desactualizada.
+- O trabalho restante de polimento de descritor PDF (`CID TrueType` vs
+  `CID Type 0C`) foi feito em P560 no `PdfBuilder`:
+  fontes CFF/OpenType emitem `/CIDFontType0` + `/FontFile3 /Subtype /OpenType`;
+  fontes TrueType mantêm `/CIDFontType2` + `/FontFile2`.
 
 ## Histórico de Revisões
 
@@ -133,3 +140,4 @@ Então retorna Some(bytes) contendo apenas .notdef
 | 2026-06-30 | Criação — activação do subsetting para P515 | `font_subset.md` |
 | 2026-06-30 | P520 — mapping de `additional_gids` via codepoints PUA para ligatures | `font_subset.md`, `subset.rs` |
 | 2026-07-01 | P521 — ToUnicode completo para ligatures via `cluster_text` (LTR/RTL) | `font_subset.md`, `fonts.rs`, `builder.rs` |
+| 2026-07-04 | P560 — CFF/OpenType não retorna None; descritor PDF tratado no builder | `font_subset.md`, `builder.rs` |

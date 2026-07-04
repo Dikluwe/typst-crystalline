@@ -221,10 +221,51 @@ use typst_core::rules::layout::layout;
     }
 
     #[test]
-    #[ignore = "requer fixture de fonte TrueType"]
     fn cidfont_presente_quando_ha_fonte() {
-        // Estrutura esperada no PDF com fonte real:
-        // /Type0, /CIDFontType2, /ToUnicode, /FontFile2 devem estar presentes
+        // Estrutura esperada no PDF com fonte TrueType real:
+        // /Type0, /CIDFontType2, /ToUnicode, /FontFile2 devem estar presentes.
+        let fixture_path = concat!(
+            env!("CARGO_MANIFEST_DIR"),
+            "/fixtures/fonts/UbuntuSans-Variable.ttf"
+        );
+        let font_data = match std::fs::read(fixture_path) {
+            Ok(d) => d,
+            Err(_) => {
+                eprintln!("SKIP cidfont_presente_quando_ha_fonte: fixture não encontrada");
+                return;
+            }
+        };
+        let doc = layout(&Content::text("Hello"));
+        let pdf = export_pdf_with_font(&doc, &font_data);
+        let s = String::from_utf8_lossy(&pdf);
+        assert!(s.contains("/Type0"), "deve haver /Type0");
+        assert!(s.contains("/CIDFontType2"), "TrueType deve gerar /CIDFontType2");
+        assert!(s.contains("/ToUnicode"), "deve haver /ToUnicode");
+        assert!(s.contains("/FontFile2"), "TrueType deve usar /FontFile2");
+    }
+
+    #[test]
+    fn p560_fonte_cff_usa_cidfont_type0() {
+        // Fonte CFF/OpenType deve ser embutida como programa CFF puro,
+        // com /CIDFontType0 + /FontFile3 + /CIDFontType0C.
+        let fixture_path = concat!(
+            env!("CARGO_MANIFEST_DIR"),
+            "/fixtures/fonts/NimbusSans-Regular.otf"
+        );
+        let font_data = match std::fs::read(fixture_path) {
+            Ok(d) => d,
+            Err(e) => {
+                eprintln!("SKIP p560_fonte_cff_usa_cidfont_type0: fixture não encontrada: {e}");
+                return;
+            }
+        };
+        let doc = layout(&Content::text("Hello"));
+        let pdf = export_pdf_with_font(&doc, &font_data);
+        let s = String::from_utf8_lossy(&pdf);
+        assert!(s.contains("/CIDFontType0"), "CFF deve gerar /CIDFontType0");
+        assert!(s.contains("/FontFile3"), "CFF deve usar /FontFile3");
+        assert!(s.contains("/CIDFontType0C"), "CFF deve embutir CFF puro");
+        assert!(!s.contains("/CIDFontType2"), "CFF não deve usar /CIDFontType2");
     }
 
     #[test]

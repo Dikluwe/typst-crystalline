@@ -1,5 +1,5 @@
 # Prompt L0 — `infra/export/builder` — PdfBuilder
-Hash do Código: d1401d6a
+Hash do Código: 3989e5c3
 
 **Camada**: L3
 **Ficheiro alvo**: `03_infra/src/export/builder.rs`
@@ -16,8 +16,8 @@ serialização final com xref + trailer.
 
 Três caminhos paralelos:
 - `build_helvetica` — fallback Type1 (sem font embedding; Latin-1).
-- `build_cidfont` — single TTF embebida via Type0 + Identity-H + ToUnicode CMap.
-- `build_multifont` — N TTFs, cada `FrameItem::Text` dispatched para `/F{i+1}` baseado em `style.font`.
+- `build_cidfont` — single fonte TrueType/CFF embebida via Type0 + Identity-H + ToUnicode CMap.
+- `build_multifont` — N fontes TrueType/CFF, cada `FrameItem::Text` dispatched para `/F{i+1}` baseado em `style.font`.
 
 Centraliza chamadas aos helpers `super::scan_all_images`, `super::scan_all_gradients`, `super::collect_codepoints`, `super::collect_glyph_ids`, etc.
 
@@ -36,6 +36,36 @@ inclui:
 O mapa é passado para `PageContext::cidfont` / `PageContext::multifont`
 através de `FontScenario` e consumido por `emit_shaped_pdf` para calcular
 o delta `nominal - x_advance` no operador PDF `TJ`.
+
+## §P560 — Descritor PDF conforme o tipo de fonte (TrueType vs CFF)
+
+`build_cidfont` e `build_multifont` detectam se os bytes a embeber são uma
+fonte TrueType (`glyf`) ou uma fonte CFF/OpenType (`CFF`/`CFF2`). O
+descritor PDF emitido deve corresponder ao formato interno da fonte, porque
+leitores como poppler e mupdf rejeitam uma fonte CFF embutida como
+`/FontFile2` com `/Subtype /CIDFontType2`.
+
+Regras:
+
+1. Detecção: após obter `embed_font_data`, fazer `ttf_parser::Face::parse` e
+   consultar `face.tables().cff`.
+   - Se `cff.is_some()` → fonte CFF/OpenType.
+   - Senão → fonte TrueType (`glyf`).
+2. Para **TrueType** (comportamento existente):
+   - `/Subtype /CIDFontType2` no dicionário `/Font` descendente.
+   - `/FontFile2 {stream_id} 0 R` no `/FontDescriptor`.
+   - Stream: `<< /Length {len} /Subtype /CIDFontType2 >>`.
+   - Bytes do stream: a fonte TrueType completa (SFNT).
+3. Para **CFF/OpenType**:
+   - `/Subtype /CIDFontType0` no dicionário `/Font` descendente.
+   - `/FontFile3 {stream_id} 0 R` no `/FontDescriptor`.
+   - Stream: `<< /Length {len} /Subtype /CIDFontType0C >>`.
+   - Bytes do stream: **apenas a tabela `CFF`** extraída do contêiner
+     OpenType/SFNT via `ttf_parser::Face::table_data(Tag::from_bytes(b"CFF "))`.
+     Leitores de PDF esperam o programa CFF puro, não o contêiner SFNT
+     completo, quando o descritor diz `/CIDFontType0C`.
+4. O ToUnicode CMap, o array `/W` e o operador `TJ` permanecem inalterados —
+   apenas a envolvência do descritor de fonte muda.
 
 ## Restrições estruturais
 
@@ -104,6 +134,10 @@ O `PdfBuilder` emite um dicionário `/Info` quando
 
 - `PdfBuilder::new().build(doc, None)` produz PDF Helvetica para doc qualquer.
 - `PdfBuilder::new().build(doc, Some(data))` produz PDF CIDFont se `data` parser TTF/OTF; senão fallback Helvetica.
+- Fontes TrueType geram `/CIDFontType2` + `/FontFile2`.
+- Fontes CFF/OpenType geram `/CIDFontType0` + `/FontFile3 /Subtype /OpenType`.
+- PDF com texto árabe/hebraico (fallback CFF) renderiza correctamente em poppler
+  (`pdftoppm`) e mupdf (`mutool draw`).
 - Tests `pdf_header_correcto`, `pdf_termina_com_eof`, `pdf_tem_estrutura_valida` em `tests.rs` validam invariantes estruturais.
 
 ## Link annotations (P424/P463)
@@ -151,3 +185,10 @@ para notação hexadecimal `<hex>`.
 Não usa `SystemTime`, RNG, ou parallel iteration sobre ordem emergente.
 HashMaps internos só são consultados (não iterados para output).
 `flate2` é determinístico em toolchain fixa.
+
+## Histórico de Revisões
+
+| Data | Motivo | Arquivos afetados |
+|------|--------|-------------------|
+| 2026-05-19 | Criação em P307c | `builder.md` |
+| 2026-07-04 | P560 — descritor PDF distinto para fontes TrueType e CFF/OpenType | `builder.md`, `builder.rs` |

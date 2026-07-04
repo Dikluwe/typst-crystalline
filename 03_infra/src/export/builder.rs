@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/export/builder.md
-//! @prompt-hash 76f1308d
+//! @prompt-hash a4e34e0f
 //! @layer L3
 //! @updated 2026-05-19
 //!
@@ -53,6 +53,30 @@ fn duration_ms(d: std::time::Duration) -> f64 {
 /// convenção PDF para fontes subsetadas (ex: `AAAAAA+FontName`).
 fn subset_font_name(base_name: &str, _subset_data: &[u8]) -> String {
     format!("AAAAAA+{}", base_name)
+}
+
+/// P560 — extrai a tabela `CFF` de uma fonte OpenType/SFNT.
+///
+/// Leitores de PDF esperam o programa CFF puro quando o descritor indica
+/// `/Subtype /CIDFontType0C`; o contêiner SFNT completo causa mismatch.
+fn cff_table_data(font_data: &[u8]) -> Option<&[u8]> {
+    let face = Face::parse(font_data, 0).ok()?;
+    if face.tables().cff.is_some() {
+        face.table_data(ttf_parser::Tag::from_bytes(b"CFF "))
+    } else {
+        None
+    }
+}
+
+/// P560 — devolve os componentes PDF correctos e os bytes a embeber.
+///
+/// TrueType (`glyf`) usa `/CIDFontType2` + `/FontFile2` + stream `/CIDFontType2`.
+/// CFF/OpenType usa `/CIDFontType0` + `/FontFile3` + stream `/CIDFontType0C`.
+fn font_embedding_data(font_data: &[u8]) -> (&'static str, &'static str, &'static str, &[u8]) {
+    if let Some(cff) = cff_table_data(font_data) {
+        return ("/CIDFontType0", "/FontFile3", "CIDFontType0C", cff);
+    }
+    ("/CIDFontType2", "/FontFile2", "CIDFontType2", font_data)
 }
 
 // ── Builder ────────────────────────────────────────────────────────────────
@@ -327,6 +351,10 @@ impl PdfBuilder {
             subset_font_name("CrystallineFont", &embed_font_data)
         };
 
+        // P560 — descritor PDF e bytes conforme o tipo de fonte (TrueType vs CFF/OpenType).
+        let (cid_subtype, font_file_key, stream_subtype, font_stream_data) =
+            font_embedding_data(&embed_font_data);
+
         // Type0 font (F1)
         self.add(font_id, format!(
             "<< /Type /Font /Subtype /Type0 /BaseFont /{base_font_name} \
@@ -337,7 +365,7 @@ impl PdfBuilder {
 
         // CIDFont
         self.add(cidfont_id, format!(
-            "<< /Type /Font /Subtype /CIDFontType2 /BaseFont /{base_font_name} \
+            "<< /Type /Font /Subtype {cid_subtype} /BaseFont /{base_font_name} \
                /CIDSystemInfo << /Registry (Adobe) /Ordering (Identity) /Supplement 0 >> \
                /FontDescriptor {font_descriptor_id} 0 R \
                /DW 500 \
@@ -351,15 +379,16 @@ impl PdfBuilder {
                /FontBBox [-1000 -200 2000 900] \
                /ItalicAngle 0 /Ascent 800 /Descent -200 \
                /CapHeight 700 /StemV 80 \
-               /FontFile2 {font_stream_id} 0 R >>"
+               {font_file_key} {font_stream_id} 0 R >>"
         ));
 
         // Font data stream — P516: usa subset se possível, senão fonte completa.
-        let font_len = embed_font_data.len();
+        // P560: stream subtype TrueType (CIDFontType2) ou CFF (CIDFontType0C).
+        let font_len = font_stream_data.len();
         let mut font_stream = format!(
-            "<< /Length {font_len} /Subtype /CIDFontType2 >>\nstream\n"
+            "<< /Length {font_len} /Subtype /{stream_subtype} >>\nstream\n"
         ).into_bytes();
-        font_stream.extend_from_slice(&embed_font_data);
+        font_stream.extend_from_slice(font_stream_data);
         font_stream.extend_from_slice(b"\nendstream");
         self.add_bytes(font_stream_id, font_stream);
 
@@ -590,6 +619,10 @@ impl PdfBuilder {
                 subset_font_name(&base_name, font_data)
             };
 
+            // P560 — descritor PDF e bytes conforme o tipo de fonte (TrueType vs CFF/OpenType).
+            let (cid_subtype, font_file_key, stream_subtype, font_stream_data) =
+                font_embedding_data(font_data);
+
             // Type0
             self.add(type0_id, format!(
                 "<< /Type /Font /Subtype /Type0 /BaseFont /{name} \
@@ -600,7 +633,7 @@ impl PdfBuilder {
 
             // CIDFont
             self.add(cidfont_id, format!(
-                "<< /Type /Font /Subtype /CIDFontType2 /BaseFont /{name} \
+                "<< /Type /Font /Subtype {cid_subtype} /BaseFont /{name} \
                    /CIDSystemInfo << /Registry (Adobe) /Ordering (Identity) /Supplement 0 >> \
                    /FontDescriptor {descriptor_id} 0 R \
                    /DW 500 \
@@ -614,15 +647,16 @@ impl PdfBuilder {
                    /FontBBox [-1000 -200 2000 900] \
                    /ItalicAngle 0 /Ascent 800 /Descent -200 \
                    /CapHeight 700 /StemV 80 \
-                   /FontFile2 {stream_id} 0 R >>"
+                   {font_file_key} {stream_id} 0 R >>"
             ));
 
-            // FontFile2 stream — P516: usa subset se possível, senão fonte completa.
-            let font_len = font_data.len();
+            // Font data stream — P516: usa subset se possível, senão fonte completa.
+            // P560: stream subtype TrueType (CIDFontType2) ou CFF (CIDFontType0C).
+            let font_len = font_stream_data.len();
             let mut font_stream = format!(
-                "<< /Length {font_len} /Subtype /CIDFontType2 >>\nstream\n"
+                "<< /Length {font_len} /Subtype /{stream_subtype} >>\nstream\n"
             ).into_bytes();
-            font_stream.extend_from_slice(font_data);
+            font_stream.extend_from_slice(font_stream_data);
             font_stream.extend_from_slice(b"\nendstream");
             self.add_bytes(stream_id, font_stream);
 
