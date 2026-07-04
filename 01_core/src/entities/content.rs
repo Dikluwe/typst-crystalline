@@ -1852,7 +1852,12 @@ impl Content {
     /// Stdlib `native_columns` em P218 com validação `count >= 1`.
     /// Consumer multi-region real em P219.
     pub fn columns(body: Content, count: usize, gutter: Option<Length>) -> Self {
-        Self::Columns(Arc::new(ColumnsElem { count, gutter, body }))
+        Self::Columns(Arc::new(ColumnsElem {
+            count,
+            gutter,
+            body,
+            page_columns: false,
+        }))
     }
 
     /// **P462** — `Content::Ref` (referência cruzada `@label` / `ref("label")`).
@@ -2209,6 +2214,7 @@ impl Content {
                             count,
                             gutter: None,
                             body,
+                            page_columns: true,
                         })));
                         i = j;
                     } else {

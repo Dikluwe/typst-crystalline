@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/entities/elements/columns.md
-//! @prompt-hash 49ba5837
+//! @prompt-hash e5100460
 //! @layer L1
 //! @updated 2026-06-11
 //!
@@ -17,9 +17,13 @@ use crate::entities::source_result::SourceResult;
 /// Distribui o `body` por `count` colunas, com `gutter` entre elas.
 #[derive(Debug, Clone, PartialEq)]
 pub struct ColumnsElem {
-    pub count:  usize,
-    pub gutter: Option<Length>,
-    pub body:   Content,
+    pub count:        usize,
+    pub gutter:       Option<Length>,
+    pub body:         Content,
+    /// **P552** — `true` quando este `ColumnsElem` foi produzido por
+    /// `#set page(columns: N)` (via `wrap_page_columns`). Distingue a
+    /// semântica de footnotes: por coluna (página) vs empilhadas (contentor).
+    pub page_columns: bool,
 }
 
 // `Hash` manual via `Debug` (paridade `content_hash`): `Length` carrega `f64`
@@ -45,9 +49,10 @@ impl Element for ColumnsElem {
         F: FnMut(&Content) -> SourceResult<Option<Content>>,
     {
         Ok(Content::Columns(Arc::new(ColumnsElem {
-            count:  self.count,
-            gutter: self.gutter,
-            body:   self.body.map_content(transform)?,
+            count:        self.count,
+            gutter:       self.gutter,
+            body:         self.body.map_content(transform)?,
+            page_columns: self.page_columns,
         })))
     }
 
@@ -56,9 +61,10 @@ impl Element for ColumnsElem {
         F: FnMut(&str) -> String,
     {
         Content::Columns(Arc::new(ColumnsElem {
-            count:  self.count,
-            gutter: self.gutter,
-            body:   self.body.map_text(transform),
+            count:        self.count,
+            gutter:       self.gutter,
+            body:         self.body.map_text(transform),
+            page_columns: self.page_columns,
         }))
     }
 }
@@ -70,7 +76,7 @@ mod tests {
     use std::collections::hash_map::DefaultHasher;
 
     fn ex() -> ColumnsElem {
-        ColumnsElem { count: 2, gutter: None, body: Content::text("a") }
+        ColumnsElem { count: 2, gutter: None, body: Content::text("a"), page_columns: false }
     }
 
     #[test]
@@ -81,7 +87,7 @@ mod tests {
     #[test]
     fn is_empty_delega_ao_body() {
         assert!(!ex().is_empty());
-        assert!(ColumnsElem { count: 2, gutter: None, body: Content::Empty }.is_empty());
+        assert!(ColumnsElem { count: 2, gutter: None, body: Content::Empty, page_columns: false }.is_empty());
     }
 
     #[test]
@@ -109,6 +115,6 @@ mod tests {
 
     #[test]
     fn payload_diferente_produz_hash_diferente() {
-        assert_ne!(h(&ex()), h(&ColumnsElem { count: 3, gutter: None, body: Content::text("a") }));
+        assert_ne!(h(&ex()), h(&ColumnsElem { count: 3, gutter: None, body: Content::text("a"), page_columns: false }));
     }
 }

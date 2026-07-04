@@ -233,7 +233,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
         // P304 (P295.1) — flush footnote bodies pendentes no rodapé
         // antes de saving a Page. Items posicionados em Y absoluto
         // bottom-up; tornam-se parte dos `current_items` da página.
-        self.flush_pending_footnote_bodies();
+        self.flush_pending_footnote_bodies(None);
 
         // **P532** — guardar snapshot do numbering da página actual antes de
         // a fechar, para que o export PDF saiba se/desenha o número.
@@ -308,7 +308,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
         // Flush das footnotes no fundo da coluna actual.
         let prev_column_mode = self.column_mode;
         self.column_mode = true;
-        self.flush_pending_footnote_bodies();
+        self.flush_pending_footnote_bodies(None);
         self.column_mode = prev_column_mode;
 
         // Transladar items da coluna actual de coordenadas locais (origem
@@ -527,7 +527,13 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
     /// Subpadrão "DeferredX buffer + flush em new_page" N=3 cumulativo
     /// (P245 floats + P251 cell tails + P304 footnotes; P305 estende
     /// com cross-page partial drain).
-    pub(super) fn flush_pending_footnote_bodies(&mut self) {
+    /// Flush das footnotes pendentes.
+    ///
+    /// `bottom_y` permite forçar a coordenada Y inferior da área de
+    /// footnotes (usado por `columns.rs` quando as notas de um contentor
+    /// `#columns()` devem ser empilhadas abaixo do conteúdo, não no fundo
+    /// da página).
+    pub(super) fn flush_pending_footnote_bodies(&mut self, bottom_y: Option<f64>) {
         use crate::entities::content::Content;
         if self.pending_footnote_bodies.is_empty() {
             return;
@@ -546,7 +552,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
         } else {
             (page_w - 2.0 * margin, margin)
         };
-        let area_bot = page_h - margin;
+        let area_bot = bottom_y.unwrap_or(page_h - margin);
 
         // P305 — compute top boundary safe: max Y of current_items
         // (above which bodies would overlap main content). Fallback

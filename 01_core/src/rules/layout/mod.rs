@@ -1155,7 +1155,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
         // P304 (P295.1) — flush footnote bodies pendentes da última
         // página antes de comitar a Page final. Subpadrão DeferredX
         // N=3 paralelo a P245/P251.
-        self.flush_pending_footnote_bodies();
+        self.flush_pending_footnote_bodies(None);
         // P305 (P295.2) — overflow: se bodies sobraram no buffer,
         // criar páginas adicionais (`new_page()`) até buffer vazio.
         // Cada iteração: new_page() saves current page + flush
@@ -1511,12 +1511,29 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
 
         self.layout_content(content);
 
-        // Flush de itens pendentes sem avançar linha (evitar double advance).
+        // Flush de itens pendentes. Se a line tiver conteúdo, conta a
+        // altura da linha no cell_height; caso contrário, conteúdo de uma
+        // única linha não-flushed produziria altura 0 (P552).
+        let line_leading_pt = self.regions.current.current_line
+            .iter()
+            .rev()
+            .find_map(|item| match item {
+                crate::entities::layout_types::FrameItem::Text { style, .. } => {
+                    style.leading.map(|l| l.resolve_pt(self.font_size_pt.val()))
+                }
+                _ => None,
+            })
+            .unwrap_or(0.0);
+        let had_items = !self.regions.current.current_line.is_empty();
         for item in self.regions.current.current_line.drain(..) {
             self.regions.current.current_items.push(item);
         }
 
-        let end_y = self.regions.current.cursor_y.0;
+        let mut end_y = self.regions.current.cursor_y.0;
+        if had_items {
+            let (_, line_height) = self.metrics.vertical_metrics(self.font_size_pt);
+            end_y += line_height.0 + line_leading_pt;
+        }
         let cell_height = (end_y - start_y).max(0.0);
 
         // Recuperar items do sub-frame e restaurar estado.

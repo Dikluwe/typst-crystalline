@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/rules/columns.md
-//! @prompt-hash f0f98713
+//! @prompt-hash eb0357b0
 //! @layer L1
 //! @updated 2026-07-03
 //!
@@ -95,7 +95,7 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
         .collect();
 
     if had_colbreak {
-        layout_segmented(layouter, &segments, &column_x_offsets, column_width, margin);
+        layout_segmented(layouter, &segments, &column_x_offsets, column_width, margin, e.page_columns);
     } else {
         layout_flow(layouter, &segments[0], count, &column_x_offsets, column_width, margin);
     }
@@ -103,17 +103,26 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
 
 /// Modo segmentado (P537): cada segmento delimitado por `colbreak()` é
 /// renderizado numa coluna da mesma página.
+///
+/// **P552** — quando `page_columns` é `true` (origem `#set page(columns:)`),
+/// as notas de rodapé são flushadas no fundo de cada coluna. Quando é
+/// `false` (origem `#columns()`), as notas são acumuladas e flushadas só no
+/// final, empilhadas na primeira coluna (semântica do vanilla).
 fn layout_segmented<M: FontMetrics, S: ImageSizer>(
     layouter: &mut Layouter<M, S>,
     segments: &[Content],
     column_x_offsets: &[f64],
     column_width: f64,
     margin: f64,
+    page_columns: bool,
 ) {
     let ascender = layouter.metrics.vertical_metrics(layouter.font_size_pt).0;
     let mut all_column_items: Vec<FrameItem> = Vec::new();
     let column_start_y = layouter.regions.current.cursor_y;
     let mut max_column_bottom_y = column_start_y;
+
+    // Guardar footnotes eventualmente pendentes do contexto exterior.
+    let saved_outer_footnotes = std::mem::take(&mut layouter.pending_footnote_bodies);
 
     for (idx, segment) in segments.iter().enumerate() {
         // Salvaguardar estado actual (os items da página principal ficam
@@ -122,8 +131,6 @@ fn layout_segmented<M: FontMetrics, S: ImageSizer>(
         let saved_line = std::mem::take(&mut layouter.regions.current.current_line);
         let saved_cursor_x = layouter.regions.current.cursor_x;
         let saved_width = layouter.regions.current.width;
-        let saved_footnotes = std::mem::take(&mut layouter.pending_footnote_bodies);
-        let saved_footnote_counter = layouter.footnote_counter;
 
         // Activar modo coluna para flush de footnotes.
         layouter.column_mode = true;
@@ -139,7 +146,10 @@ fn layout_segmented<M: FontMetrics, S: ImageSizer>(
         // Layout do segmento e flush final da coluna.
         layouter.layout_content(segment);
         layouter.flush_line();
-        layouter.flush_pending_footnote_bodies();
+        if page_columns {
+            // Notas por coluna: flush imediato no fundo desta coluna.
+            layouter.flush_pending_footnote_bodies(None);
+        }
 
         // Altura consumida por esta coluna.
         let column_bottom_y = layouter.regions.current.cursor_y;
@@ -155,10 +165,6 @@ fn layout_segmented<M: FontMetrics, S: ImageSizer>(
         layouter.regions.current.cursor_y = column_start_y;
         layouter.regions.current.line_start_x = Pt(margin);
         layouter.regions.current.width = saved_width;
-        // Nota: footnotes pendentes que não couberam na coluna são
-        // descartadas aqui; no teste de P537 cada coluna cabe na página.
-        layouter.pending_footnote_bodies = saved_footnotes;
-        layouter.footnote_counter = saved_footnote_counter;
         layouter.column_mode = false;
 
         // Translada os items horizontalmente para a coluna correcta.
@@ -169,11 +175,34 @@ fn layout_segmented<M: FontMetrics, S: ImageSizer>(
         all_column_items.extend(column_items);
     }
 
+    if !page_columns {
+        // Notas de contentor: flush acumulado na primeira coluna, abaixo do
+        // conteúdo do contentor.
+        layouter.column_mode = true;
+        layouter.column_origin_x = column_x_offsets[0];
+        layouter.column_width = column_width;
+        let footnote_bottom = max_column_bottom_y.0 + layouter.page_config.margin;
+        layouter.flush_pending_footnote_bodies(Some(footnote_bottom));
+        let mut footnote_items = std::mem::take(&mut layouter.regions.current.current_items);
+        layouter.column_mode = false;
+        let dx = column_x_offsets[0] - margin;
+        for item in &mut footnote_items {
+            *item = translate_item_x(item.clone(), dx);
+        }
+        all_column_items.extend(footnote_items);
+        // As notas desceram abaixo do conteúdo; actualizar altura consumida
+        // para que o cursor principal não sobreponha conteúdo seguinte.
+        max_column_bottom_y = Pt(footnote_bottom);
+    }
+
+    // Restaurar footnotes do contexto exterior.
+    layouter.pending_footnote_bodies = saved_outer_footnotes;
+
     // 7. Adicionar todos os items das colunas à página actual.
     layouter.regions.current.current_items.extend(all_column_items);
 
     // 8. Avançar o cursor principal para a altura máxima consumida pelas
-    //    colunas.
+    //    colunas (ou pelas notas, se empilhadas).
     layouter.regions.current.cursor_y = max_column_bottom_y;
 }
 

@@ -4544,12 +4544,12 @@ mod tests_show_rule_integration {
 
     // ── Passo 537 — notas de rodapé em colunas reais ─────────────────────
 
-    /// **P537** — footnotes em `columns(2)` com `colbreak()` são
-    /// desenhadas no fundo de cada coluna, não no fundo da página inteira.
-    /// Observable: numa única página, os corpos das notas A e B aparecem
-    /// com x distinto (colunas diferentes) e y próximo do fundo da página.
+    /// **P537** / **P552** — footnotes em `#columns(2)` com `colbreak()`
+    /// são empilhadas na primeira coluna (semântica do vanilla para a
+    /// forma-função `columns`). Observable: os corpos das notas A e B têm
+    /// x igual (coluna esquerda) e y distinto (empilhadas).
     #[test]
-    fn p537_footnotes_columns_colbreak_posicionam_por_coluna() {
+    fn p537_footnotes_columns_colbreak_empilham_na_primeira_coluna() {
         use std::sync::Arc;
         let body = Content::Sequence(Arc::from(vec![
             Content::text("Hello "),
@@ -4567,41 +4567,126 @@ mod tests_show_rule_integration {
             1,
             "duas colunas curtas cabem numa única página"
         );
-        let items: Vec<_> = doc.pages[0].items.iter().collect();
-        let note_a_x = items
+        let note_positions: Vec<_> = doc.pages[0]
+            .items
             .iter()
             .filter_map(|it| match it {
-                FrameItem::Text { text, pos, .. } if text.as_str() == "Nota" => Some(pos.x.0),
+                FrameItem::Text { text, pos, .. } if text.as_str() == "Nota" => Some(pos),
                 _ => None,
             })
-            .next();
-        let note_b_x = items
-            .iter()
-            .rev()
-            .filter_map(|it| match it {
-                FrameItem::Text { text, pos, .. } if text.as_str() == "Nota" => Some(pos.x.0),
-                _ => None,
-            })
-            .next();
-        let (a, b) = (note_a_x.expect("nota A"), note_b_x.expect("nota B"));
+            .collect();
+        assert_eq!(note_positions.len(), 2, "esperadas duas notas");
+        let (a, b) = (note_positions[0], note_positions[1]);
         assert!(
-            b > a,
+            (a.x.0 - b.x.0).abs() < 1.0,
+            "notas A e B devem estar na mesma coluna (esquerda): a={} b={}",
+            a.x.0,
+            b.x.0
+        );
+        assert!(
+            (a.y.0 - b.y.0).abs() > 1.0,
+            "notas A e B devem estar empilhadas verticalmente (y distinto): ay={} by={}",
+            a.y.0,
+            b.y.0
+        );
+    }
+
+    /// **P552** — footnotes em `#set page(columns: 2)` (representado aqui
+    /// por um `ColumnsElem` com `page_columns: true`) são desenhadas no
+    /// fundo de cada coluna, com numeração contínua.
+    #[test]
+    fn p552_footnotes_set_page_columns_colbreak_posicionam_por_coluna() {
+        use std::sync::Arc;
+        use crate::entities::elements::columns::ColumnsElem;
+        use crate::entities::layout_types::Length;
+        let body = Content::Sequence(Arc::from(vec![
+            Content::text("Hello "),
+            Content::footnote(Content::text("Nota A")),
+            Content::text(" world."),
+            Content::colbreak(false),
+            Content::text("Goodbye "),
+            Content::footnote(Content::text("Nota B")),
+            Content::text(" moon."),
+        ]));
+        let cols = Content::Columns(Arc::new(ColumnsElem {
+            count: 2,
+            gutter: None,
+            body,
+            page_columns: true,
+        }));
+        let doc = layout(&cols);
+        assert_eq!(
+            doc.pages.len(),
+            1,
+            "duas colunas curtas cabem numa única página"
+        );
+        let note_positions: Vec<_> = doc.pages[0]
+            .items
+            .iter()
+            .filter_map(|it| match it {
+                FrameItem::Text { text, pos, .. } if text.as_str() == "Nota" => Some(pos),
+                _ => None,
+            })
+            .collect();
+        assert_eq!(note_positions.len(), 2, "esperadas duas notas");
+        let (a, b) = (note_positions[0], note_positions[1]);
+        assert!(
+            b.x.0 > a.x.0,
             "nota B deve estar à direita de nota A (coluna 2 > coluna 1): a={} b={}",
-            a,
-            b
+            a.x.0,
+            b.x.0
         );
         // Ambas as notas devem estar na metade inferior da página.
-        for it in &items {
-            if let FrameItem::Text { text, pos, .. } = it {
-                if text.as_str() == "Nota" {
-                    assert!(
-                        pos.y.0 > 700.0,
-                        "nota deve estar no fundo da página, y={}",
-                        pos.y.0
-                    );
-                }
-            }
+        for pos in &note_positions {
+            assert!(
+                pos.y.0 > 700.0,
+                "nota deve estar no fundo da página, y={}",
+                pos.y.0
+            );
         }
+    }
+
+    /// **P552** — contador de footnotes avança correctamente em
+    /// `#set page(columns: 2)` com três notas.
+    #[test]
+    fn p552_footnote_counter_avanca_em_set_page_columns() {
+        use std::sync::Arc;
+        use crate::entities::elements::columns::ColumnsElem;
+        let body = Content::Sequence(Arc::from(vec![
+            Content::text("A"),
+            Content::footnote(Content::text("Nota 1")),
+            Content::colbreak(false),
+            Content::text("B"),
+            Content::footnote(Content::text("Nota 2")),
+            Content::colbreak(false),
+            Content::text("C"),
+            Content::footnote(Content::text("Nota 3")),
+        ]));
+        let cols = Content::Columns(Arc::new(ColumnsElem {
+            count: 3,
+            gutter: None,
+            body,
+            page_columns: true,
+        }));
+        let doc = layout(&cols);
+        // Filtrar apenas os markers inline (corpo das colunas), excluindo
+        // os prefixos das notas de rodapé.
+        let markers: Vec<_> = doc.pages[0]
+            .items
+            .iter()
+            .filter_map(|it| match it {
+                FrameItem::Text { text, pos, .. } if pos.y.0 > 400.0 => {
+                    let s = text.as_str();
+                    if s == "[1]" || s == "[2]" || s == "[3]" {
+                        Some(s.to_string())
+                    } else {
+                        None
+                    }
+                }
+                _ => None,
+            })
+            .collect();
+        assert_eq!(markers, vec!["[1]", "[2]", "[3]"]);
     }
 
     /// **P537** — num documento de uma coluna, footnotes continuam a ser

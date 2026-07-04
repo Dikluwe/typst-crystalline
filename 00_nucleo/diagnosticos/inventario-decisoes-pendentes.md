@@ -139,8 +139,8 @@ A lista informal referida em P550 foi auditada e integrada nesta secção. Itens
 | Item | Onde foi encontrado | Estado |
 |------|---------------------|--------|
 | Nota de rodapé maior do que o espaço restante | P537 | Scope-out — já em P550 |
-| Notas de rodapé lado a lado vs empilhadas | Ver Parte 2 de P551 | **Verificado em P551** — com `#set page(columns: 2)` o cristalino e o vanilla 0.14.2/0.15.0 alinham as notas lado a lado; com `#columns(2)` o vanilla empilha e o cristalino continua lado a lado, o que é uma diferença real de comportamento |
-| Numeração duplicada de notas em `#set page(columns: 2)` | Descoberto em P551 | **Aberto** — cristalino repete `[1]` nas duas colunas; vanilla 0.14.2/0.15.0 incrementam correctamente `1`, `2` |
+| Notas de rodapé lado a lado vs empilhadas | Ver Parte 2 de P551 | **Corrigido em P552** — `#set page(columns: 2)` mantém notas lado a lado (alinhado com vanilla); `#columns(2)` passa a empilhar notas na primeira coluna, como o vanilla |
+| Numeração duplicada de notas em `#set page(columns: 2)` | Descoberto em P551 | **Corrigido em P552** — `footnote_counter` deixa de ser restaurado por segmento de coluna; contador avança monotonicamente `[1]`, `[2]`, ... |
 
 ### 2.6 Bibliografia
 
@@ -171,7 +171,7 @@ A lista informal referida em P550 foi auditada e integrada nesta secção. Itens
 - **Risco documental é maior que risco funcional.** A maioria dos "fechados" sem número na conclusão tem evidência concreta noutras secções; o problema é a conclusão não ser autocontida.
 - **Scope-outs do projecto** (HTML/SVG/raster/IDE/plugin) estão bem estabelecidos como decisões arquitecturais, mas a justificativa nos relatórios P514/P508/P531 é mínima. Isso não invalida a decisão, mas enfraquece a trilha de auditoria.
 - **Passos recentes cruzam referências de forma geralmente boa.** Os únicos pontos de atenção são `cursor.rs` (P545 vs P544) e `builder.rs` (P535 vs P536), onde a documentação de coordenação podia ser mais explícita.
-- **Novo achado funcional em P551:** a numeração de notas de rodapé em `#set page(columns: 2)` está duplicada no cristalino. Este é o primeiro item funcional de risco médio detectado directamente por comparação visual com vanilla 0.15.0.
+- **Achado funcional de P551 corrigido em P552:** a numeração duplicada de notas de rodapé em `#set page(columns: 2)` e o posicionamento lado a lado em `#columns(2)` foram corrigidos. O único item funcional de risco médio/alto que permanece aberto é o documento multi-página em `#set page(columns: 2)` (P537/P537b).
 
 ---
 
@@ -179,6 +179,4 @@ A lista informal referida em P550 foi auditada e integrada nesta secção. Itens
 
 1. **Corrigir conclusões dos 5 relatórios da Categoria A** para incluir o comando/número/comparação vanilla que sustenta o fecho.
 2. **Completar justificativas dos scope-outs em P514** (e referências cruzadas noutros relatórios) com a razão arquitectural PDF-only.
-3. **Resolver ou formalizar o ponto em aberto de colunas multi-página** (P537) — é o único item funcional de risco médio/alto identificado em P550.
-4. **Corrigir a numeração duplicada de notas de rodapé** em `#set page(columns: 2)` detectada em P551.
-5. **Decidir por escrito** se a diferença de posicionamento de notas com `#columns(2)` (cristalino lado a lado vs vanilla empilhado) deve ser corrigida ou aceite com razão nova, de acordo com ADR-0107/0108.
+3. **Resolver ou formalizar o ponto em aberto de colunas multi-página** (P537) — é o único item funcional de risco médio/alto identificado em P550/P552.

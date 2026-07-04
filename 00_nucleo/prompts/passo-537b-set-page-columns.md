@@ -26,6 +26,8 @@ Este L0 autoriza a ligação: `#set page(columns: N)` deve produzir o mesmo obse
 
 **Decisão**: reaproveitar `Content::Columns` existente. Não recriar mecânica de colunas. A diferença entre `#columns(2)[body]` e `#set page(columns: 2)` é apenas **quem fornece o body**: na forma-função o body é explícito; na set-rule o body é o resto do documento (até próxima fronteira de página/colunas).
 
+**P552 — correcção**: as notas de rodapé de `#columns(2)[body]` e `#set page(columns: 2)` **não** têm o mesmo observable. O vanilla coloca as notas de `#columns()` empilhadas no final do contentor (coluna esquerda), enquanto `#set page(columns:)` coloca cada nota no fundo da coluna onde é referenciada. Para preservar esta distinção, o `ColumnsElem` sintético produzido por `wrap_page_columns` deve ser marcado com `page_columns: true` (ver L0 `rules/columns` P552).
+
 ---
 
 ## 3. Alterações autorizadas
