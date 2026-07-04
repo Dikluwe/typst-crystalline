@@ -183,3 +183,18 @@ em ambas as versões.
 - A diferença bruta de `pdftotext | wc -w` não deve ser usada como métrica de
   paridade para documentos com outline até que o gap seja fechado.
 - Detalhes completos em `00_nucleo/diagnosticos/paridade-producao-p557.md`.
+
+---
+
+## Follow-up — Passo 558 (acentos trocados)
+
+A sonda P558 corrigiu os acentos trocados observados em `visual/outline-toc.typ`
+e noutros documentos com caracteres acentuados. A causa era a combinação da fonte
+por defeito `FreeSerif` (que descompõe acentos em base + mark) com o mapeamento
+de glifos shaped que incluía os mark glyphs no subset.
+
+- **Correcção:** fonte por defeito alterada para `Liberation Serif`; mark glyphs
+  (`x_advance == 0`) ignorados em `collect_shaped_glyph_mappings`; fallback
+  serif reordenado para preferir fontes sem o bug.
+- **Estado:** resolvido.
+- Detalhes completos em `00_nucleo/diagnosticos/paridade-producao-p558.md`.

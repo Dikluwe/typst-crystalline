@@ -12,11 +12,16 @@
 //! a classe da fonte pedida.
 
 /// Fontes serif de fallback, preferidas quando a primária é uma serif.
+///
+/// **P558** — `Liberation Serif` e `DejaVu Serif` são preferidas a `FreeSerif`
+/// porque `FreeSerif` descompõe acentos em base + mark e o subsetter CFF do
+/// cristalino não reconstrói esses glifos correctamente. `FreeSerif` mantém-se
+/// como último recurso para cobertura de símbolos e outros scripts.
 pub(crate) const DEFAULT_FALLBACK_FONTS_SERIF: &[&str] = &[
-    "FreeSerif",
-    "DejaVu Serif",
     "Liberation Serif",
+    "DejaVu Serif",
     "Bitstream Vera Serif",
+    "FreeSerif",
 ];
 
 /// Fontes sans-serif de fallback, usadas quando a primária é sans-serif

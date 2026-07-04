@@ -133,12 +133,21 @@ pub(super) fn collect_shaped_cluster_texts(doc: &PagedDocument) -> Vec<(u16, Str
 /// caractere do cluster (o `ShapedGlyph` já o transporta). Isto permite
 /// incluir o glifo de ligature no subset e registar um mapeamento ToUnicode
 /// parcial sem duplicar a lógica de walk do documento.
+///
+/// **P558** — glifos mark (`x_advance == 0`) são ignorados: partilham o
+/// `char_code` da base, mas o seu `glyph_id` aponta para o acento combinante,
+/// não para o carácter acentuado. Incluí-los fazia com que o subsetter
+/// associasse o codepoint composto ao glifo do acento (ex.: "ú" → acute).
 pub(super) fn collect_shaped_glyph_mappings(doc: &PagedDocument) -> BTreeMap<u16, char> {
     fn walk(items: &[FrameItem], out: &mut BTreeMap<u16, char>) {
         for item in items {
             match item {
                 FrameItem::TextShaped { glyphs, .. } => {
                     for g in glyphs {
+                        // P558 — ignorar mark glyphs (zero advance).
+                        if g.x_advance == 0 {
+                            continue;
+                        }
                         // Preferir o primeiro caractere do cluster; se já
                         // existir uma entrada para este glyph_id, manter a
                         // primeira encontrada (ordem de walk é estável).
@@ -359,5 +368,55 @@ mod tests {
         assert_eq!(result[0].1, "0063");
         assert_eq!(result[1].1, "0062");
         assert_eq!(result[2].1, "0061");
+    }
+
+    // ── P558 — mark glyphs não devem poluir o mapeamento shaped ───────────────
+
+    #[test]
+    fn p558_shaped_glyph_mappings_ignora_mark_glyphs() {
+        // Simula "ú" shaped como base 'u' (gid 87, advance>0) + mark acute
+        // (gid 706, advance=0). O mapeamento só deve incluir a base.
+        let page = typst_core::entities::layout_types::Page {
+            width:  595.0,
+            height: 842.0,
+            numbering: None,
+            items: vec![
+                typst_core::entities::layout_types::FrameItem::TextShaped {
+                    pos: typst_core::entities::layout_types::Point {
+                        x: typst_core::entities::layout_types::Pt(0.0),
+                        y: typst_core::entities::layout_types::Pt(0.0),
+                    },
+                    glyphs: vec![
+                        ShapedGlyph {
+                            glyph_id: 87,
+                            x_advance: 490,
+                            x_offset: 0,
+                            y_offset: 0,
+                            cluster: 5,
+                            char_code: 'ú',
+                        },
+                        ShapedGlyph {
+                            glyph_id: 706,
+                            x_advance: 0,
+                            x_offset: -85,
+                            y_offset: 0,
+                            cluster: 5,
+                            char_code: 'ú',
+                        },
+                    ],
+                    style: typst_core::entities::layout_types::TextStyle::default(),
+                    text: ecow::EcoString::from("Conteúdo").into(),
+                    units_per_em: 1000,
+                },
+            ],
+        };
+        let doc = typst_core::entities::layout_types::PagedDocument::new(vec![page]);
+        let mappings = collect_shaped_glyph_mappings(&doc);
+        assert!(mappings.contains_key(&87), "base 'u' deve estar no mapeamento");
+        assert!(
+            !mappings.contains_key(&706),
+            "mark glyph (x_advance=0) não deve estar no mapeamento"
+        );
+        assert_eq!(mappings.get(&87).copied(), Some('ú'));
     }
 }

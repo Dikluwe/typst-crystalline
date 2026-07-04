@@ -1,5 +1,5 @@
 # Prompt L0 — StyleChain
-Hash do Código: e6d8ee13
+Hash do Código: 07af7ec5
 
 ## Módulo
 `01_core/src/entities/style_chain.rs`
@@ -55,7 +55,7 @@ Se nenhum nó define a propriedade, usa o valor por defeito do accessor.
 `impl From<&StyleChain> for TextStyle` — converte para `TextStyle` plano,
 compatível com o layout e export actuais durante a migração.
 
-### Fonte por defeito (P554)
+### Fonte por defeito (P554/P558)
 
 Quando nenhum nó da cadeia define `font`, o bridge `From<&StyleChain> for TextStyle`
 deve fornecer uma fonte por defeito para que o shaper tenha sempre uma família primária.
@@ -67,9 +67,16 @@ deve fornecer uma fonte por defeito para que o shaper tenha sempre uma família 
   amplamente disponível em sistemas Linux (pacote `fonts-freefont-ttf`). Isto mantém
   a mesma classe visual do vanilla (serif) e atinge paridade de paginação no caso
   de teste de P553 (`#set page(columns: 2)\n#lorem(1200)` reduz de 3 para 2 páginas).
-- Se `FreeSerif` não estiver disponível, o shaper continua a fazer fallback pelas
-  fontes sans-serif definidas em `DEFAULT_FALLBACK_FONTS`, preservando o comportamento
-  anterior de degradado.
+- **Correcção P558**: `FreeSerif` descompõe caracteres acentuados em base + mark
+  durante o shaping, e o subsetter de fontes CFF do cristalino não consegue
+  reconstruir correctamente esses glifos (resultado: acentos trocados ou perdidos
+  no PDF, visíveis e na extracção de texto). A fonte por defeito passa a ser
+  `Liberation Serif`, uma serif igualmente disponível que mantém a paridade de
+  paginação de P553/P554 e não descompõe os acentos desta forma.
+- Se `Liberation Serif` não estiver disponível, o shaper faz fallback pelas
+  fontes serif definidas em `DEFAULT_FALLBACK_FONTS_SERIF`, ordenadas para
+  preferir fontes sem o bug de decomposição (Liberation Serif, DejaVu Serif,
+  Bitstream Vera Serif, FreeSerif como último recurso).
 
 ## Camada
 L1 — pura. Sem I/O de sistema. Usa apenas `Arc` (RAM).
@@ -81,7 +88,7 @@ L1 — pura. Sem I/O de sistema. Usa apenas `Arc` (RAM).
 - Herança: filho com `bold: None` herda bold do pai
 - Clone de `StyleChain` é O(1) (só clona o Arc do topo)
 - `From<&StyleChain> for TextStyle` converte correctamente
-- P554: `TextStyle.font` de uma chain sem `font` definido é `Some(FreeSerif)`
+- P554/P558: `TextStyle.font` de uma chain sem `font` definido é `Some(Liberation Serif)`
 
 ---
 
