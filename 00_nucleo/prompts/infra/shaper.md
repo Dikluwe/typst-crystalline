@@ -7,7 +7,7 @@ adr: ADR-0120
 ---
 
 # Prompt L0 — `shaper.rs` (Trilha 5 Fase 1)
-Hash do Código: e86037f7
+Hash do Código: b3313968
 
 ## Propósito
 
@@ -379,3 +379,50 @@ caractere. O cache é local a cada chamada de `try_shape`.
 - `p534_split_run_by_font_respects_script_boundaries`: segmentação por script.
 - `p534_shape_mixed_script_system_fallback`: texto latim+CJK+árabe com system
   fonts produz múltiplos `TextShaped` com fontes distintas.
+
+---
+
+## P555 — Fallback preserva a classe da fonte (serifa / sem serifa)
+
+**Data:** 2026-07-03
+
+P554 mudou a fonte por defeito do cristalino para `FreeSerif`. Se `FreeSerif`
+não estiver disponível no ambiente, o shaper deve tentar outras serifas antes
+de recair em sans-serif, preservando a classe visual escolhida.
+
+### Listas de fallback por classe
+
+```rust
+const DEFAULT_FALLBACK_FONTS_SERIF: &[&str] = &[
+    "FreeSerif", "DejaVu Serif", "Liberation Serif", "Bitstream Vera Serif",
+];
+const DEFAULT_FALLBACK_FONTS_SANS: &[&str] = &[
+    "DejaVu Sans", "Noto Sans", "Liberation Sans", "FreeSans", "Arial",
+];
+```
+
+### Heurística de classe
+
+A classe é inferida a partir do nome da primeira família declarada em
+`style.font`:
+
+- Se o nome (case-insensitive) contiver `"serif"` → usar `DEFAULT_FALLBACK_FONTS_SERIF`.
+- Se contiver `"sans"` → usar `DEFAULT_FALLBACK_FONTS_SANS`.
+- Caso contrário → manter comportamento anterior (`DEFAULT_FALLBACK_FONTS_SANS`).
+
+Nomes em regex ou sem indicação de classe usam a lista sans por defeito.
+
+### Implementação
+
+- Novo módulo `03_infra/src/fallback_fonts.rs` centraliza as constantes e a
+  função `fallback_font_list_for(name: &str) -> &'static [&'static str]`.
+- `shaper.rs` e `font_metrics.rs` importam deste módulo e removem as suas
+  definições locais duplicadas.
+- Em `try_shape`, quando as fontes primárias não resolvem, itera a lista
+  escolhida antes de recair no fallback carácter-a-carácter do `FontBook`.
+
+### Testes adicionados P555
+
+- `p555_fallback_font_list_serif_for_freeserif`: `FreeSerif` → lista serif.
+- `p555_fallback_font_list_sans_for_dejavu_sans`: `DejaVu Sans` → lista sans.
+- `p555_fallback_font_list_default_for_unknown`: nome sem indicação → lista sans.

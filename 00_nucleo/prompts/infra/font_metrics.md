@@ -1,5 +1,5 @@
 # Prompt L0 — `infra/font_metrics` — Parser de Métricas TrueType/OpenType
-Hash do Código: 88903d1e
+Hash do Código: f0a0a619
 
 **Camada**: L3
 **Ficheiro alvo**: `03_infra/src/font_metrics.rs`
@@ -232,8 +232,9 @@ A cache é indexada por `slot_idx` do `FontBook`. Cada fonte é parseada uma
 ### Resolução de fontes
 
 - `resolve_primary(style)`: fontes declaradas em `style.font`, na ordem;
-  se nenhuma resolver, usa `DEFAULT_FALLBACK_FONTS` na ordem (consistente
-  com `shaper.rs`).
+  se nenhuma resolver, usa a lista de fallback apropriada à classe da primeira
+  família (serif vs sans), consistente com `shaper.rs` (P555). Se não for
+  possível inferir a classe, usa a lista sans.
 - `covering(c, primary)`: procura a primeira fonte que cobre o caractere
   (primárias primeiro, depois todo o `FontBook`), usando o `Face` cacheado.
 
