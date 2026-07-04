@@ -1,5 +1,5 @@
 # Prompt L0 — StyleChain
-Hash do Código: fc17a37b
+Hash do Código: e6d8ee13
 
 ## Módulo
 `01_core/src/entities/style_chain.rs`
@@ -55,6 +55,22 @@ Se nenhum nó define a propriedade, usa o valor por defeito do accessor.
 `impl From<&StyleChain> for TextStyle` — converte para `TextStyle` plano,
 compatível com o layout e export actuais durante a migração.
 
+### Fonte por defeito (P554)
+
+Quando nenhum nó da cadeia define `font`, o bridge `From<&StyleChain> for TextStyle`
+deve fornecer uma fonte por defeito para que o shaper tenha sempre uma família primária.
+
+- O vanilla 0.15.0 usa `Libertinus Serif` como fonte por defeito.
+- O cristalino não embute fontes e depende das fontes do sistema. `Libertinus Serif`
+  não está disponível no ambiente de testes.
+- **Decisão P554**: a fonte por defeito do cristalino é `FreeSerif`, uma serif
+  amplamente disponível em sistemas Linux (pacote `fonts-freefont-ttf`). Isto mantém
+  a mesma classe visual do vanilla (serif) e atinge paridade de paginação no caso
+  de teste de P553 (`#set page(columns: 2)\n#lorem(1200)` reduz de 3 para 2 páginas).
+- Se `FreeSerif` não estiver disponível, o shaper continua a fazer fallback pelas
+  fontes sans-serif definidas em `DEFAULT_FALLBACK_FONTS`, preservando o comportamento
+  anterior de degradado.
+
 ## Camada
 L1 — pura. Sem I/O de sistema. Usa apenas `Arc` (RAM).
 
@@ -65,6 +81,7 @@ L1 — pura. Sem I/O de sistema. Usa apenas `Arc` (RAM).
 - Herança: filho com `bold: None` herda bold do pai
 - Clone de `StyleChain` é O(1) (só clona o Arc do topo)
 - `From<&StyleChain> for TextStyle` converte correctamente
+- P554: `TextStyle.font` de uma chain sem `font` definido é `Some(FreeSerif)`
 
 ---
 
