@@ -8,7 +8,7 @@ adr: ADR-0120, ADR-0109, ADR-0114
 ---
 
 # Prompt L0 — Reordenação visual bidireccional de linhas (layout bidi)
-Hash do Código: 2036cf70
+Hash do Código: 8602ed3c
 
 ## Medições que fundamentam a decisão
 
@@ -41,8 +41,11 @@ Hash do Código: 2036cf70
 
 **Opção escolhida:** passagem posterior em L3, entre `layout` e
 `shape_document`, que reordena os `FrameItem::Text` dentro de cada linha
-visual usando `unicode-bidi` (já dependência do workspace desde P484) e
-recalcula as coordenadas x com base em `FontMetrics`.
+visual usando `unicode-bidi` (já dependência do workspace desde P484),
+recalcula as coordenadas x com base em `FontMetrics` e, quando
+necessário, faz **reflow** de blocos RTL adjacentes para corrigir
+quebras de linha provocadas pela ausência de noção de direcção no
+Layouter.
 
 **Opções rejeitadas e porquê:**
 
@@ -56,6 +59,10 @@ recalcula as coordenadas x com base em `FontMetrics`.
   palavra e evita ter de reconstruir textos fragmentados.
 - **Preservar posições x do layout LTR após inversão (P562)**: reprovado
   em P563 porque gera quebra de linha incorrecta em texto misto.
+- **Reflow completo em cascata**: rejeitado por complexidade XL neste
+  passo. A implementação limita-se a fundir blocos de linhas RTL
+  adjacentes quando o texto total cabe numa única linha, e a compactar
+  parcialmente linhas quando o cabe.
 
 ## Módulo
 
@@ -125,37 +132,73 @@ reais** devolvidas por `FontMetrics::advance(text, size, style)`:
 
 - Determina o intervalo horizontal ocupado pelos items de texto da
   linha: `x_min` (posição x do primeiro item na ordem original) e
-  `x_max` (posição x do último item original mais a sua largura real).
+  `x_max` (posição x do último item original, sem incluir a sua
+  largura).
 - Calcula o espaçamento médio entre items originais:
-  `gap = (x_max - x_min - sum(widths)) / (n - 1)` quando `n > 1`;
-  `gap = 0.0` quando `n <= 1`.
+  `gap = (x_max - x_min - sum(widths[0..n-1])) / (n - 1)` quando
+  `n > 1`; `gap = 0.0` quando `n <= 1`.
 - Posiciona os items na ordem visual invertida a partir de `x_min`,
   avançando `x += width_i + gap` para cada item.
 
 Itens de texto vazios contribuem com largura zero.
 
-### 5. Preservação de propriedades
+### 5. Reflow de blocos RTL adjacentes (P565)
 
-- A posição `y` (baseline) dos items não muda.
-- Itens não-texto na linha mantêm a sua posição relativa: são
-  considerados pontos de ancoragem neutros e não são deslocados
-  horizontalmente.
-- Altura da linha, leading e quebra de linha permanecem inalterados.
+Após a reordenação individual de cada linha, a passagem identifica
+**blocos de linhas RTL consecutivas** na mesma página (linhas cujo
+texto concatenado tenha direcção base RTL).
+
+Para cada bloco:
+
+- Coleta todos os `FrameItem::Text` do bloco.
+- Calcula a largura total do bloco: soma das larguras reais dos items
+  mais um espaçamento (`gap`) por par de items consecutivos. O `gap`
+  é inferido dos gaps originais entre items (média dos gaps dentro do
+  bloco), com um floor de `0.0` para evitar sobreposição.
+- Calcula a largura útil disponível: `page_width - 2 * x_min`, onde
+  `x_min` é a menor posição x dos items do bloco (aproxima a margem
+  esquerda).
+- Se a largura total do bloco for menor ou igual à largura útil, o
+  bloco é fundido numa única linha. As palavras são reordenadas
+  visualmente (RTL) e reposicionadas a partir de `x_min` com o gap
+  calculado.
+- Se a largura total exceder a largura útil, o bloco não é fundido.
+  Nesse caso, a passagem ainda tenta **compactar parcialmente** as
+  linhas: move palavras do início (visualmente à direita) da linha
+  seguinte para o final (visualmente à esquerda) da linha anterior se
+  couberem, recalculando posições x em ambas as linhas. O processo é
+  repetido iterativamente até não haver mais movimentos.
+
+### 6. Preservação de propriedades
+
+- A posição `y` (baseline) dos items não muda, excepto quando um bloco
+  é fundido: nesse caso, os items das linhas subsequentes movem-se para
+  a `y` da primeira linha do bloco, e as linhas fundidas desaparecem.
+- Itens não-texto dentro de um bloco são considerados ancoragens
+  fixas: o reflow não move items não-texto nem funde blocos que os
+  contenham entre as linhas afectadas.
+- Altura da linha, leading e paginação permanecem inalterados; o
+  reflow só afecta a distribuição horizontal de palavras dentro de um
+  parágrafo RTL.
 
 ## Casos de teste mínimos
 
-- `p564_latin_no_change`: documento LTR puro — saída idêntica à entrada,
-  incluindo posições x.
-- `p564_reorder_arabic_line`: documento `الكتاب على الطاولة` — textos
+- `p565_latin_no_change`: documento LTR puro — saída idêntica à entrada,
+  incluindo posições x e quebras de linha.
+- `p565_reorder_arabic_line`: documento `الكتاب على الطاولة` — textos
   invertidos e posições x recalculadas com base nas larguras reais; a
   primeira palavra visual (`الطاولة`) fica em `x_min` e a última
   (`الكتاب`) em `x_max - largura`.
-- `p564_mixed_latin_arabic`: `الكتاب 42 على الطاولة` — o número 42
-  mantém-se LTR no meio; os trechos árabes invertem visualmente e as
+- `p565_mixed_latin_arabic`: `الكتاب 42 على الطاولة` a 20 pt — o número
+  42 mantém-se LTR no meio; os trechos árabes invertem visualmente e as
   posições x de todos os items são recalculadas.
-- `p564_empty_text_unchanged`: `FrameItem::Text` vazio — sem panic.
-- `p564_line_with_shape_unchanged`: linha com `Shape` no meio — shape
-  mantém posição; texto ao redor reordena-se correctamente.
+- `p565_mixed_40pt_reflow`: `الكتاب 42 على الطاولة` a 40 pt — o
+  Layouter LTR coloca `الطاولة` numa segunda linha; o reflow funde o
+  bloco numa única linha quando o texto total cabe na largura útil.
+- `p565_empty_text_unchanged`: `FrameItem::Text` vazio — sem panic.
+- `p565_line_with_shape_unchanged`: linha com `Shape` no meio — shape
+  mantém posição; texto ao redor reordena-se correctamente; reflow não
+  funde linhas com shapes.
 
 ## Scope-out
 
