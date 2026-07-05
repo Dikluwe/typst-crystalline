@@ -3,8 +3,8 @@ prompt: infra/layout_bidi
 layer: L3
 created: 2026-07-04
 updated: 2026-07-04
-passo: P562, P564
-adr: ADR-0120, ADR-0109, ADR-0114
+passo: P562, P564, P569
+adr: ADR-0120, ADR-0109, ADR-0114, ADR-0108
 ---
 
 # Prompt L0 — Reordenação visual bidireccional de linhas (layout bidi)
@@ -22,10 +22,10 @@ Hash do Código: 22e5a45e
 4. `01_core/src/rules/layout/mod.rs:727` — o braço `Content::Text`
    delega em `text::layout(self, text)`; não existe arm de direcção nem
    campo de bidi no `Layouter`.
-5. `03_infra/src/shaper.rs:121` — `bidi_runs(text.as_str())` existe em
-   L3 e é usado **apenas** para decidir a direcção de shaping de cada
-   sub-run; os `FrameItem::TextShaped` resultantes mantêm a posição base
-   imposta pelo Layouter.
+5. `03_infra/src/shaper.rs:508` — `bidi.visual_runs(para, line)` separa
+   caracteres neutros (espaços) e sufixos LTR (pontuação, números) em
+   runs próprios, o que faz com que extratores sequenciais como
+   `pdftotext` percam ou desloquem o espaço entre palavras árabes.
 6. `03_infra/src/pipeline.rs:346-374` — a pipeline é `layout → shape →
    export`, portanto uma passagem pura sobre `PagedDocument` pode ser
    inserida entre layout e shape sem alterar a lógica de quebra de
@@ -36,16 +36,22 @@ Hash do Código: 22e5a45e
    posição x de `الكتاب` (mais estreita), estoura a linha e salta para
    a linha seguinte. A correção exige recalcular as posições x a partir
    das larguras reais das palavras.
+8. Sonda P569 (documento `معلومات قيمة.` com `lang: "ar"`) —
+   `pdftotext` devolve `معلوماتقيمة.` (palavras coladas, sem espaço);
+   `mutool draw -F txt` devolve `معلومات قيمة.` (visualmente correcto).
+   A causa é a interacção entre (a) items de espaço neutro soltos pela
+   separação em runs bidi e (b) sufixos LTR (o ponto final) colados ao
+   run RTL seguinte na ordem do stream PDF.
 
 ## Decisão arquitectural
 
 **Opção escolhida:** passagem posterior em L3, entre `layout` e
 `shape_document`, que reordena os `FrameItem::Text` dentro de cada linha
 visual usando `unicode-bidi` (já dependência do workspace desde P484),
-recalcula as coordenadas x com base em `FontMetrics` e, quando
-necessário, faz **reflow** de blocos RTL adjacentes para corrigir
-quebras de linha provocadas pela ausência de noção de direcção no
-Layouter.
+recalcula as coordenadas x com base em `FontMetrics`, faz **reflow** de
+blocos RTL adjacentes quando necessário e, a partir de P569, aplica um
+pós-processamento de limpeza da ordem visual para preservar espaços
+entre palavras árabes e isolar sufixos LTR.
 
 **Opções rejeitadas e porquê:**
 
@@ -63,6 +69,11 @@ Layouter.
   passo. A implementação limita-se a fundir parágrafos RTL — sequências
   de linhas consecutivas do mesmo parágrafo, incluindo linhas LTR
   intermédias como números — quando o texto total cabe numa única linha.
+- **Corrigir a extracção ajustando `visual_runs` no shaper (P569)**:
+  experimentado e revertido; alterar a ordem dos glifos no nível do
+  shaping quebra a renderização visual. A solução correcta é no nível
+  de `FrameItem::Text`, antes do shaping, onde ainda temos o texto
+  plano e podemos recalcular posições e larguras.
 
 ## Módulo
 
@@ -72,8 +83,10 @@ Layouter.
 
 Corrige a ordem visual das palavras em linhas com conteúdo RTL (árabe,
 hebraico, etc.) sem alterar a quebra de linha nem o shaping interno de
-cada palavra, e recalcula as posições x para que as palavras reordenadas
-fiquem contíguas sem sobreposição nem lacunas.
+cada palavra, recalcula as posições x para que as palavras reordenadas
+fiquem contíguas sem sobreposição nem lacunas e, em P569, garante que
+espaços entre palavras RTL não desapareçam na extracção sequencial de
+texto (ex.: `pdftotext`).
 
 ## API pública
 
@@ -142,7 +155,49 @@ reais** devolvidas por `FontMetrics::advance(text, size, style)`:
 
 Itens de texto vazios contribuem com largura zero.
 
-### 5. Reflow de parágrafos RTL (P565/P567)
+### 5. Ordenação do vector por x crescente (P569)
+
+Após reposicionar visualmente, os items de cada linha são reordenados no
+vector `page.items` para a ordem visual esquerda→direita (x crescente).
+Extratores sequenciais como `pdftotext` seguem a ordem dos operadores no
+stream PDF; sem esta ordenação, caracteres RTL podem ficar na ordem
+lógica e espaços entre palavras podem desaparecer na extracção.
+
+### 6. Coalescência de espaços soltos (P569)
+
+Items de texto cujo conteúdo seja apenas espaços (ou whitespace) são
+**coalescidos no item de texto anterior na ordem visual** (menor x),
+transformando-se num *trailing space* desse item. Isto posiciona o
+espaço entre palavras adjacentes na ordem do stream, evitando que o
+espaço neutro seja capturado por sufixos LTR ou descartado pelo
+shaper/extractor.
+
+A função não altera o comprimento do vector; items totalmente vazios
+ficam com texto `EcoString` vazio e são ignorados pelo export.
+
+### 7. Separação de sufixos LTR (P569)
+
+Após a coalescência, cada `FrameItem::Text` que termine num sufixo com
+direcção forte LTR (pontuação, dígitos e outros caracteres `L`/`EN`/`AN`
+da classificação bidi) é dividido em dois items:
+
+- O **sufixo** é removido do texto original e colocado num novo
+  `FrameItem::Text` independente, com o mesmo `TextStyle`, posicionado
+  imediatamente à esquerda do item original (`x = x_original -
+  largura_do_sufixo`, mesmo `y`).
+- O **texto base** (RTL) permanece na posição original.
+
+O sufixo é identificado a partir do final da string: percorre os
+caracteres de trás para a frente enquanto forem espaços ou tiverem
+classificação bidi forte LTR (`L`, `EN`, `AN`). O primeiro caractere que
+não satisfizer essa condição define o limite. Espaços iniciais do sufixo
+são removidos e não produzem item separado.
+
+Esta separação evita que o ponto final (ou outro sufixo LTR) fique
+colado ao run árabe seguinte no stream PDF, o que era a causa raiz do
+espaço perdido em `pdftotext`.
+
+### 8. Reflow de parágrafos RTL (P565/P567)
 
 Após a reordenação individual de cada linha, a passagem identifica
 **parágrafos RTL** — sequências de linhas consecutivas na mesma página
@@ -165,7 +220,9 @@ Para cada parágrafo:
 - Linhas LTR intermédias (ex.: números dentro de texto árabe) são
   incluídas na run, desde que a run total seja predominantemente RTL.
 
-### 6. Preservação de propriedades
+O reflow aplica os passos 5, 6 e 7 à linha resultante.
+
+### 9. Preservação de propriedades
 
 - A posição `y` (baseline) dos items não muda, excepto quando um bloco
   é fundido: nesse caso, os items das linhas subsequentes movem-se para
@@ -196,6 +253,19 @@ Para cada parágrafo:
 - `p565_line_with_shape_unchanged`: linha com `Shape` no meio — shape
   mantém posição; texto ao redor reordena-se correctamente; reflow não
   funde linhas com shapes.
+- `p569_arabic_words_not_glued`: documento `معلومات قيمة.` com
+  `lang: "ar"` — após a passagem, `pdftotext` deve extrair as duas
+  palavras separadas por um espaço; a ordem visual pode permanecer
+  invertida (`قيمة. معلومات`/`قيمة .معلومات` conforme extractor), mas
+  o espaço entre palavras não pode desaparecer.
+- `p569_ltr_suffix_split`: item `FrameItem::Text` contendo
+  `قيمة.` numa linha RTL — deve ser dividido em dois items independentes
+  (`قيمة` e `.`), com o ponto posicionado imediatamente à esquerda do
+  texto árabe.
+- `p569_trailing_space_coalesced`: linha RTL com items `معلومات`,
+  `<espaço>`, `قيمة` — o espaço torna-se trailing space de `قيمة`
+  (a palavra que o precede visualmente, mais à esquerda), de modo que o
+  stream esquerda→direita leia `قيمة معلومات`.
 
 ## Scope-out
 
@@ -205,6 +275,11 @@ Para cada parágrafo:
   documentos árabes/hebraicos simples.
 - Mudança da direcção base da página (`dir: rtl`) — trata-se da
   ordenação visual dentro da linha, não do alinhamento de parágrafo.
+- Garantia de ordem lógica na extracção de texto por `pdftotext`. O
+  objectivo de P569 é **preservar os espaços entre palavras** na
+  extracção sequencial; a inversão visual das palavras (ordem
+  direita→esquerda no texto extraído) é um comportamento conhecido e
+  aceite para este passo.
 - Texto vertical ou scripts top-down (ver secção seguinte).
 
 ## Sugestões para passos futuros

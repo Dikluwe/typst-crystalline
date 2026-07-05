@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/layout_bidi.md
-//! @prompt-hash cd19b43d
+//! @prompt-hash 603ffda0
 //! @layer L3
 //! @updated 2026-07-04
 //!
@@ -15,7 +15,7 @@
 
 use typst_core::entities::layout_types::{FrameItem, Page, PagedDocument, Point, Pt};
 use typst_core::rules::layout::FontMetrics;
-use unicode_bidi::BidiInfo;
+use unicode_bidi::{bidi_class, BidiClass, BidiInfo};
 
 /// Tolerância para agrupar items na mesma linha visual (baseline y).
 const Y_TOLERANCE_PT: f64 = 0.01;
@@ -76,6 +76,11 @@ fn reorder_bidi_page(page: &mut Page, metrics: &dyn FontMetrics) {
             reorder_bidi_line(&mut page.items, line, metrics);
         }
     }
+
+    // P569 — separar sufixos LTR (pontuação, dígitos) do final de items
+    // RTL. Esta passagem insere novos items no vector da página, pelo que
+    // é feita no fim, depois de todas as reordenações e reflows.
+    split_ltr_suffixes_page(page, &mut lines, &line_is_rtl, &fused_lines, metrics);
 }
 
 /// Devolve a baseline y de um item para efeitos de agrupamento por linha.
@@ -146,6 +151,21 @@ fn reorder_bidi_line(
 
     let target_y = item_baseline_y(&items[text_indices[0]]).0;
     reorder_indices(items, &text_indices, metrics, x_min, gap, target_y);
+
+    // P569 — depois de reposicionar visualmente, ordenar os items no vector
+    // da página por x crescente (ordem visual esquerda→direita). Extratores
+    // de texto como `pdftotext` seguem a ordem dos operadores no stream;
+    // sem esta ordenação, caracteres RTL ficam na ordem lógica e espaços
+    // entre palavras podem desaparecer na extração.
+    sort_line_items(items, line);
+
+    // P569 — itens de espaço soltos são neutros no bidi e ficam presos à
+    // pontuação LTR. Coalescer cada espaço com o item de texto seguinte
+    // na ordem visual (maior x), transformando-o em trailing space desse
+    // item; o shaper `visual_runs` coloca trailing spaces do lado correcto
+    // do run RTL.
+    coalesce_space_items(items, line);
+
 }
 
 /// Aplica a ordem visual RTL a uma lista de índices, recalculando x e y.
@@ -182,6 +202,238 @@ fn reorder_indices(
             current_x += width + gap;
         }
     }
+}
+
+/// Reordena os items de uma linha no vector `items` para a ordem visual
+/// esquerda→direita (x crescente). Preserva os conteúdos já reposicionados.
+fn sort_line_items(items: &mut [FrameItem], line: &[usize]) {
+    if line.len() <= 1 {
+        return;
+    }
+    let mut sorted: Vec<usize> = line.to_vec();
+    sorted.sort_by(|&a, &b| {
+        item_x(&items[a])
+            .partial_cmp(&item_x(&items[b]))
+            .unwrap_or(std::cmp::Ordering::Equal)
+    });
+
+    use typst_core::entities::layout_types::{Point, TextStyle};
+    let dummy = FrameItem::Text {
+        pos: Point::ZERO,
+        text: ecow::EcoString::default(),
+        style: TextStyle::default(),
+    };
+
+    let mut extracted: Vec<FrameItem> = Vec::with_capacity(line.len());
+    for &idx in &sorted {
+        extracted.push(std::mem::replace(&mut items[idx], dummy.clone()));
+    }
+    for (&idx, item) in line.iter().zip(extracted.into_iter()) {
+        items[idx] = item;
+    }
+}
+
+/// Junta items de espaço ao item de texto seguinte na ordem visual.
+/// Modifica os textos dos items e remove os items de espaço do vector.
+fn coalesce_space_items(items: &mut [FrameItem], line: &[usize]) {
+    if line.len() <= 1 {
+        return;
+    }
+
+    let mut sorted: Vec<usize> = line.to_vec();
+    sorted.sort_by(|&a, &b| {
+        item_x(&items[a])
+            .partial_cmp(&item_x(&items[b]))
+            .unwrap_or(std::cmp::Ordering::Equal)
+    });
+
+    let mut to_remove: std::collections::BTreeSet<usize> = std::collections::BTreeSet::new();
+    for i in 0..sorted.len() {
+        if !is_space_item(&items[sorted[i]]) {
+            continue;
+        }
+        // P569 — anexar o espaço como *trailing space* do item de texto
+        // anterior na ordem visual (menor x). Assim o espaço fica entre
+        // as duas palavras na ordem do stream e não é capturado por
+        // sufixos LTR.
+        for j in (0..i).rev() {
+            if is_space_item(&items[sorted[j]]) {
+                continue;
+            }
+            if let FrameItem::Text { text, .. } = &mut items[sorted[j]] {
+                let mut merged = ecow::EcoString::with_capacity(text.len() + 1);
+                merged.push_str(text.as_str());
+                merged.push(' ');
+                *text = merged;
+            }
+            to_remove.insert(sorted[i]);
+            break;
+        }
+    }
+
+    if to_remove.is_empty() {
+        return;
+    }
+
+    // Remover items coalescidos substituindo por dummy e depois filtrando.
+    // Como `line` contém índices no slice `items`, não podemos alterar
+    // comprimentos; pomos texto vazio e posição fora da página para que
+    // o export os ignore.
+    for &idx in &to_remove {
+        if let FrameItem::Text { text, .. } = &mut items[idx] {
+            *text = ecow::EcoString::default();
+        }
+    }
+}
+
+fn is_space_item(item: &FrameItem) -> bool {
+    matches!(item, FrameItem::Text { text, .. } if text.trim().is_empty())
+}
+
+/// P569 — separa sufixos com direcção forte LTR (pontuação, dígitos,
+/// etc.) do final de cada item `FrameItem::Text` numa linha RTL.
+/// O sufixo é colocado num item independente imediatamente à esquerda
+/// do item original na ordem visual, evitando que o espaço neutro entre
+/// palavras seja capturado pelo ponto na extracção sequencial.
+fn split_ltr_suffixes_page(
+    page: &mut Page,
+    lines: &mut [(f64, Vec<usize>)],
+    line_is_rtl: &[bool],
+    fused_lines: &std::collections::HashSet<usize>,
+    metrics: &dyn FontMetrics,
+) {
+    for (i, (_, line)) in lines.iter_mut().enumerate() {
+        if !line_is_rtl[i] || fused_lines.contains(&i) {
+            continue;
+        }
+        split_ltr_suffixes_line(&mut page.items, line, metrics);
+    }
+}
+
+fn split_ltr_suffixes_line(
+    items: &mut Vec<FrameItem>,
+    line: &mut Vec<usize>,
+    metrics: &dyn FontMetrics,
+) {
+    if line.is_empty() {
+        return;
+    }
+
+    // Processar da direita para a esquerda (maior x primeiro). Cada
+    // inserção acontece *antes* do índice do item base, pelo que não
+    // afecta os índices dos items já processados (que têm x maior).
+    let mut sorted: Vec<usize> = line.clone();
+    sorted.sort_by(|&a, &b| {
+        item_x(&items[b])
+            .partial_cmp(&item_x(&items[a]))
+            .unwrap_or(std::cmp::Ordering::Equal)
+    });
+
+    for &idx in &sorted {
+        let (text, style, x, y) = match &items[idx] {
+            FrameItem::Text { text, style, pos } => {
+                (text.clone(), style.clone(), pos.x.0, pos.y.0)
+            }
+            _ => continue,
+        };
+
+        let (base_prefix, suffix, trailing) = match split_ltr_suffix(text.as_str()) {
+            Some(parts) => parts,
+            None => continue,
+        };
+
+        let suffix_width = metrics.advance(suffix, style.size, &style).0;
+        let mut base_text = ecow::EcoString::with_capacity(base_prefix.len() + trailing.len());
+        base_text.push_str(base_prefix);
+        base_text.push_str(trailing);
+
+        let suffix_item = FrameItem::Text {
+            pos: Point {
+                x: Pt(x - suffix_width),
+                y: Pt(y),
+            },
+            text: suffix.into(),
+            style: style.clone(),
+        };
+
+        items.insert(idx, suffix_item);
+
+        // Ajustar todos os índices da linha que se deslocaram com a inserção.
+        for n in line.iter_mut() {
+            if *n >= idx {
+                *n += 1;
+            }
+        }
+
+        // O índice original agora aponta para o sufixo; a base passou
+        // para idx + 1. Substituímos a referência no vector da linha para
+        // apontar à base e adicionamos o sufixo como item próprio.
+        for n in line.iter_mut() {
+            if *n == idx {
+                *n = idx + 1;
+                break;
+            }
+        }
+        line.push(idx);
+
+        if let FrameItem::Text { text, .. } = &mut items[idx + 1] {
+            *text = base_text;
+        }
+    }
+}
+
+/// Divide `s` em `(base_prefix, suffix, trailing)` onde `suffix` é o
+/// maior sufixo final composto por caracteres LTR fortes (letras L,
+/// dígitos EN/AN, e pontuação ASCII). `base_prefix` é a parte antes do
+/// sufixo; `trailing` são os espaços finais originais do item (que
+/// devem ser recolados ao base). Espaços iniciais do sufixo são
+/// descartados. Devolve `None` quando não há sufixo a separar.
+fn split_ltr_suffix(s: &str) -> Option<(&str, &str, &str)> {
+    // Ignorar trailing spaces: eles pertencem ao base como separação
+    // visual entre palavras.
+    let trimmed_end = s.trim_end_matches(|c: char| c.is_whitespace());
+    if trimmed_end.is_empty() {
+        return None;
+    }
+
+    let mut split = trimmed_end.len();
+    for (idx, ch) in trimmed_end.char_indices().rev() {
+        if is_ltr_suffix_char(ch) {
+            split = idx;
+        } else {
+            break;
+        }
+    }
+    if split == trimmed_end.len() {
+        return None;
+    }
+
+    let suffix = &trimmed_end[split..];
+    let trimmed_suffix = suffix.trim_start();
+    let suffix_leading_spaces = suffix.len() - trimmed_suffix.len();
+
+    // Remover apenas os bytes do sufixo; os espaços à frente do sufixo
+    // e os espaços finais originais permanecem no base.
+    let suffix_start = split + suffix_leading_spaces;
+    let suffix_end = suffix_start + trimmed_suffix.len();
+    let base_prefix = &s[..suffix_start];
+    let trailing = &s[suffix_end..];
+
+    if base_prefix.trim().is_empty() {
+        // Não dividir um item que é puramente sufixo (ex.: "42").
+        return None;
+    }
+    Some((base_prefix, trimmed_suffix, trailing))
+}
+
+fn is_ltr_suffix_char(c: char) -> bool {
+    if c.is_ascii() && !c.is_ascii_alphabetic() && !c.is_ascii_whitespace() {
+        return true;
+    }
+    matches!(
+        bidi_class(c),
+        BidiClass::L | BidiClass::EN | BidiClass::AN
+    )
 }
 
 /// Detecta se uma linha tem direcção base RTL, mesmo que tenha apenas
@@ -356,6 +608,18 @@ fn try_fuse_paragraph(
         gap,
         target_y,
     );
+
+    // P569 — manter ordem visual esquerda→direita no vector de items para
+    // extratores de texto que seguem a ordem dos operadores PDF.
+    let mut line_indices: Vec<usize> = lines[start..end]
+        .iter()
+        .flat_map(|(_, l)| l.iter().copied())
+        .collect();
+    sort_line_items(page.items.as_mut_slice(), &line_indices);
+
+    // P569 — coalescer espaços e separar sufixos LTR na linha fundida.
+    coalesce_space_items(page.items.as_mut_slice(), &line_indices);
+    split_ltr_suffixes_line(&mut page.items, &mut line_indices, metrics);
 
     true
 }
@@ -567,6 +831,80 @@ mod tests {
         y_values.sort_by(|a, b| a.partial_cmp(b).unwrap());
         y_values.dedup_by(|a, b| (*a - *b).abs() < 0.001);
         assert_eq!(y_values.len(), 2);
+    }
+
+    #[test]
+    fn p569_ltr_suffix_split() {
+        // Um único item RTL que termina com ponto LTR deve ser dividido.
+        // FixedMetrics a 12 pt: 0.6 * 12 = 7.2 pt por caractere.
+        // "قيمة" = 4 chars → 28.8 pt; "." = 1 char → 7.2 pt.
+        let doc = PagedDocument::new(vec![page_with(vec![
+            text_item(100.0, 100.0, "قيمة."),
+        ])]);
+        let out = reorder_bidi_document(doc, &FixedMetrics);
+        let items = &out.pages[0].items;
+
+        // Sufixo à esquerda do texto base na ordem visual.
+        assert_eq!(items.len(), 2);
+        assert_eq!(extract_text(&items[0]), ".");
+        assert_eq!(extract_text(&items[1]), "قيمة");
+        assert!((item_x(&items[0]) - 92.8).abs() < 0.001);
+        assert!((item_x(&items[1]) - 100.0).abs() < 0.001);
+    }
+
+    #[test]
+    fn p569_trailing_space_coalesced() {
+        // Linha RTL com espaço solto entre duas palavras. O espaço deve
+        // tornar-se trailing space da palavra visualmente mais à esquerda.
+        // "معلومات" = 8 chars → 57.6 pt; " " = 1 char → 7.2 pt;
+        // "قيمة" = 4 chars → 28.8 pt.
+        let doc = PagedDocument::new(vec![page_with(vec![
+            text_item(100.0, 100.0, "معلومات"),
+            text_item(200.0, 100.0, " "),
+            text_item(208.0, 100.0, "قيمة"),
+        ])]);
+        let out = reorder_bidi_document(doc, &FixedMetrics);
+        let items = &out.pages[0].items;
+
+        // Ordem visual x crescente: قيمة + espaço, (espaço vazio), معلومات.
+        assert_eq!(extract_text(&items[0]), "قيمة ");
+        assert_eq!(extract_text(&items[1]), "");
+        assert_eq!(extract_text(&items[2]), "معلومات");
+
+        // "معلومات" = 7 chars → 50.4 pt; " " = 1 char → 7.2 pt;
+        // "قيمة" = 4 chars → 28.8 pt.
+        // x_min = 100; x_max = 208; widths_before_last = 50.4 + 7.2 = 57.6.
+        // gap = (208 - 100 - 57.6) / 2 = 25.2.
+        assert!((item_x(&items[0]) - 100.0).abs() < 0.001);
+        assert!((item_x(&items[1]) - 154.0).abs() < 0.001);
+        assert!((item_x(&items[2]) - 186.4).abs() < 0.001);
+    }
+
+    #[test]
+    fn p569_suffix_and_space() {
+        // Combinação: espaço solto + sufixo LTR no final.
+        // "معلومات" = 7 → 50.4; " " = 7.2; "قيمة." = 5 → 36.0.
+        let doc = PagedDocument::new(vec![page_with(vec![
+            text_item(100.0, 100.0, "معلومات"),
+            text_item(200.0, 100.0, " "),
+            text_item(208.0, 100.0, "قيمة."),
+        ])]);
+        let out = reorder_bidi_document(doc, &FixedMetrics);
+        let items = &out.pages[0].items;
+
+        // Ordem visual x crescente: ".", "قيمة ", (vazio), "معلومات".
+        assert_eq!(extract_text(&items[0]), ".");
+        assert_eq!(extract_text(&items[1]), "قيمة ");
+        assert_eq!(extract_text(&items[2]), "");
+        assert_eq!(extract_text(&items[3]), "معلومات");
+
+        // widths_before_last = 50.4 + 7.2 = 57.6.
+        // gap = (208 - 100 - 57.6) / 2 = 25.2.
+        // "قيمة." começa em x=100, largura 36.0; após split o ponto fica
+        // em 100 - 7.2 = 92.8 e o base "قيمة " permanece em 100.
+        assert!((item_x(&items[0]) - 92.8).abs() < 0.001);
+        assert!((item_x(&items[1]) - 100.0).abs() < 0.001);
+        assert!((item_x(&items[3]) - 193.6).abs() < 0.001);
     }
 
     fn extract_text(item: &FrameItem) -> String {
