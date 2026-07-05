@@ -2,7 +2,8 @@
 prompt: infra/layout_bidi
 layer: L3
 created: 2026-07-04
-passo: P562
+updated: 2026-07-04
+passo: P562, P564
 adr: ADR-0120, ADR-0109, ADR-0114
 ---
 
@@ -29,12 +30,19 @@ Hash do Código: 2036cf70
    export`, portanto uma passagem pura sobre `PagedDocument` pode ser
    inserida entre layout e shape sem alterar a lógica de quebra de
    linha.
+7. `00_nucleo/diagnosticos/paridade-producao-p563.md` — a inversão
+   simples de P562 preserva posições x do layout LTR. Em texto misto
+   (`الكتاب 42 على الطاولة`), `الطاولة` (mais larga) é colocada na
+   posição x de `الكتاب` (mais estreita), estoura a linha e salta para
+   a linha seguinte. A correção exige recalcular as posições x a partir
+   das larguras reais das palavras.
 
 ## Decisão arquitectural
 
 **Opção escolhida:** passagem posterior em L3, entre `layout` e
 `shape_document`, que reordena os `FrameItem::Text` dentro de cada linha
-visual usando `unicode-bidi` (já dependência do workspace desde P484).
+visual usando `unicode-bidi` (já dependência do workspace desde P484) e
+recalcula as coordenadas x com base em `FontMetrics`.
 
 **Opções rejeitadas e porquê:**
 
@@ -46,6 +54,8 @@ visual usando `unicode-bidi` (já dependência do workspace desde P484).
   sido dividido em múltiplos `FrameItem::TextShaped` (fallback por
   caractere/fonte). Reordenar antes do shaping mantém a unidade da
   palavra e evita ter de reconstruir textos fragmentados.
+- **Preservar posições x do layout LTR após inversão (P562)**: reprovado
+  em P563 porque gera quebra de linha incorrecta em texto misto.
 
 ## Módulo
 
@@ -55,12 +65,18 @@ visual usando `unicode-bidi` (já dependência do workspace desde P484).
 
 Corrige a ordem visual das palavras em linhas com conteúdo RTL (árabe,
 hebraico, etc.) sem alterar a quebra de linha nem o shaping interno de
-cada palavra.
+cada palavra, e recalcula as posições x para que as palavras reordenadas
+fiquem contíguas sem sobreposição nem lacunas.
 
 ## API pública
 
 ```rust
-pub fn reorder_bidi_document(doc: PagedDocument) -> PagedDocument
+use typst_core::rules::layout::FontMetrics;
+
+pub fn reorder_bidi_document(
+    doc: PagedDocument,
+    metrics: &dyn FontMetrics,
+) -> PagedDocument
 ```
 
 Chamada na pipeline logo após `layout_with_introspector_and_metrics` e
@@ -70,7 +86,8 @@ antes de `shape_document`:
 let mut doc = layout_with_introspector_and_metrics(...);
 doc.extracted_headings = extracted_headings;
 // ...
-let doc = crate::layout_bidi::reorder_bidi_document(doc);
+let metrics = crate::font_metrics::FallbackFontMetrics::new(world);
+let doc = crate::layout_bidi::reorder_bidi_document(doc, &metrics);
 let doc = crate::shaper::shape_document(world, doc);
 ```
 
@@ -91,20 +108,33 @@ Para cada linha, concatena o texto dos `FrameItem::Text` (em ordem LTR
 imposta pelo Layouter) num buffer. Se o buffer for puramente LTR
 (`BidiInfo::new` produzir um único run LTR), a linha não é alterada.
 
-### 3. Reordenação com unicode-bidi
+### 3. Reordenação visual
 
 Se a linha contiver runs RTL:
 
-- Usa `unicode_bidi::BidiInfo::new(buffer, None)` e
-  `visual_runs(para, line)` para obter a ordem visual dos runs.
-- Para cada run devolvido por `visual_runs`, identifica o subconjunto
-  de `FrameItem::Text` (ou frações de `FrameItem::Text`) que cobre esse
-  run.
-- Substitui os items de texto da linha pelos mesmos items na ordem
-  visual calculada, ajustando as coordenadas `x` para que fiquem
-  contíguos sem sobreposição nem lacunas.
+- Usa `unicode_bidi::BidiInfo::new(buffer, None)` para determinar a
+  direcção base do parágrafo.
+- Quando a direcção base é RTL, inverte a ordem visual dos
+  `FrameItem::Text` da linha: a primeira palavra lógica passa a ocupar a
+  posição mais à direita e a última a posição mais à esquerda.
 
-### 4. Preservação de propriedades
+### 4. Recálculo das posições x
+
+Após a inversão, as posições x são recalculadas a partir das **larguras
+reais** devolvidas por `FontMetrics::advance(text, size, style)`:
+
+- Determina o intervalo horizontal ocupado pelos items de texto da
+  linha: `x_min` (posição x do primeiro item na ordem original) e
+  `x_max` (posição x do último item original mais a sua largura real).
+- Calcula o espaçamento médio entre items originais:
+  `gap = (x_max - x_min - sum(widths)) / (n - 1)` quando `n > 1`;
+  `gap = 0.0` quando `n <= 1`.
+- Posiciona os items na ordem visual invertida a partir de `x_min`,
+  avançando `x += width_i + gap` para cada item.
+
+Itens de texto vazios contribuem com largura zero.
+
+### 5. Preservação de propriedades
 
 - A posição `y` (baseline) dos items não muda.
 - Itens não-texto na linha mantêm a sua posição relativa: são
@@ -114,13 +144,17 @@ Se a linha contiver runs RTL:
 
 ## Casos de teste mínimos
 
-- `p562_reorder_arabic_line`: documento `الكتاب على الطاولة` — a
-  primeira palavra fica à direita da linha, a última à esquerda.
-- `p562_mixed_latin_arabic`: `الكتاب 42 على الطاولة` — o número 42
-  mantém-se LTR no meio; só os trechos árabes invertem visualmente.
-- `p562_latin_no_change`: texto latino puro — saída idêntica à entrada.
-- `p562_empty_text_unchanged`: `FrameItem::Text` vazio — sem panic.
-- `p562_line_with_shape_unchanged`: linha com `Shape` no meio — shape
+- `p564_latin_no_change`: documento LTR puro — saída idêntica à entrada,
+  incluindo posições x.
+- `p564_reorder_arabic_line`: documento `الكتاب على الطاولة` — textos
+  invertidos e posições x recalculadas com base nas larguras reais; a
+  primeira palavra visual (`الطاولة`) fica em `x_min` e a última
+  (`الكتاب`) em `x_max - largura`.
+- `p564_mixed_latin_arabic`: `الكتاب 42 على الطاولة` — o número 42
+  mantém-se LTR no meio; os trechos árabes invertem visualmente e as
+  posições x de todos os items são recalculadas.
+- `p564_empty_text_unchanged`: `FrameItem::Text` vazio — sem panic.
+- `p564_line_with_shape_unchanged`: linha com `Shape` no meio — shape
   mantém posição; texto ao redor reordena-se correctamente.
 
 ## Scope-out
@@ -155,3 +189,5 @@ e atrasar a entrega do RTL horizontal.
 
 - `unicode-bidi` (já em `[workspace.dependencies]` desde P484).
 - `typst_core::entities::layout_types::{FrameItem, Page, PagedDocument, Point, Pt}`.
+- `typst_core::rules::layout::FontMetrics`.
+- `crate::font_metrics::FallbackFontMetrics` para a chamada na pipeline.
