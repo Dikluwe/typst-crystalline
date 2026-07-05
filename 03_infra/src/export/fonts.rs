@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/export/fonts.md
-//! @prompt-hash c7d24b28
+//! @prompt-hash 90c82266
 //! @layer L3
 //! @updated 2026-05-19
 //!
@@ -61,6 +61,31 @@ pub(super) fn collect_codepoints(doc: &PagedDocument) -> Vec<char> {
                 FrameItem::Group { items: child, .. }
                 | FrameItem::Link { items: child, .. } => walk(child, seen),
                 _ => {} // Image, Line, Glyph não contribuem com codepoints de texto.
+            }
+        }
+    }
+    let mut seen = std::collections::BTreeSet::new();
+    for page in &doc.pages {
+        walk(&page.items, &mut seen);
+    }
+    seen.into_iter().collect()
+}
+
+/// Coleciona todos os codepoints distintos usados apenas em `FrameItem::Text`
+/// (não shaped) no documento. Usado para garantir que glyphs de espaços e
+/// outros caracteres do caminho fallback são incluídos no subset.
+pub(super) fn collect_text_codepoints(doc: &PagedDocument) -> Vec<char> {
+    fn walk(items: &[FrameItem], seen: &mut std::collections::BTreeSet<char>) {
+        for item in items {
+            match item {
+                FrameItem::Text { text, .. } => {
+                    for c in text.chars() {
+                        seen.insert(c);
+                    }
+                }
+                FrameItem::Group { items: child, .. }
+                | FrameItem::Link { items: child, .. } => walk(child, seen),
+                _ => {}
             }
         }
     }
@@ -418,5 +443,42 @@ mod tests {
             "mark glyph (x_advance=0) não deve estar no mapeamento"
         );
         assert_eq!(mappings.get(&87).copied(), Some('ú'));
+    }
+
+    // ── P568 — collect_text_codepoints extrai codepoints de FrameItem::Text ─────
+
+    #[test]
+    fn p568_collect_text_codepoints_inclui_texto_fallback_e_recursao() {
+        use typst_core::entities::layout_types::{Page, Point, Pt, TextStyle};
+        let style = TextStyle::regular(Pt(12.0));
+        let page = Page {
+            width:  595.0,
+            height: 842.0,
+            numbering: None,
+            items: vec![
+                FrameItem::Text {
+                    pos: Point::ZERO,
+                    text: "Olá ".into(),
+                    style: style.clone(),
+                },
+                FrameItem::Group {
+                    pos: Point::ZERO,
+                    matrix: typst_core::entities::layout_types::TransformMatrix::identity(),
+                    clip_mask: None,
+                    inner_width: 100.0,
+                    inner_height: 20.0,
+                    items: vec![FrameItem::Text {
+                        pos: Point::ZERO,
+                        text: "mundo!".into(),
+                        style,
+                    }],
+                },
+            ],
+        };
+        let doc = PagedDocument::new(vec![page]);
+        let codepoints = collect_text_codepoints(&doc);
+        let expected: std::collections::BTreeSet<char> = "Olá mundo!".chars().collect();
+        let actual: std::collections::BTreeSet<char> = codepoints.into_iter().collect();
+        assert_eq!(actual, expected);
     }
 }

@@ -1,5 +1,5 @@
 # Prompt L0 — `infra/export/fonts` — Helpers de fontes e escape
-Hash do Código: 51b65b81
+Hash do Código: 5ac6048a
 
 **Camada**: L3
 **Ficheiro alvo**: `03_infra/src/export/fonts.rs`
@@ -25,6 +25,7 @@ Agregado de helpers para emit de texto PDF:
 ```rust
 pub(super) fn escape_pdf_string(text: &str) -> String;
 pub(super) fn collect_codepoints(doc: &PagedDocument) -> Vec<char>;
+pub(super) fn collect_text_codepoints(doc: &PagedDocument) -> Vec<char>;
 pub(super) fn collect_glyph_ids(doc: &PagedDocument) -> BTreeSet<u16>;
 pub(super) fn map_chars_to_glyphs(face: &Face<'_>, chars: &[char]) -> Vec<(char, u16)>;
 pub(super) fn widths_array(face: &Face<'_>, mappings: &[(char, u16)]) -> String;
@@ -32,9 +33,26 @@ pub(super) fn to_unicode_cmap(mappings: &[(char, u16)]) -> Vec<u8>;
 pub(super) fn text_to_hex_string(text: &str, char_to_gid: &HashMap<char, u16>) -> String;
 ```
 
+## §P568 — Codepoints do caminho fallback (`FrameItem::Text`)
+
+**Data:** 2026-07-05
+
+`collect_text_codepoints(doc: &PagedDocument) -> Vec<char>` coleciona todos os
+codepoints distintos usados em `FrameItem::Text` (não shaped) do documento.
+
+- Percorre `FrameItem::Group` e `FrameItem::Link` recursivamente, tal como
+  `collect_codepoints`.
+- Não examina `FrameItem::TextShaped` nem `FrameItem::Glyph` — esses já são
+  cobertos por `collect_codepoints` / `collect_glyph_ids`.
+- Saída determinística via `BTreeSet<char>`.
+
+Usado por `PdfBuilder` para garantir que caracteres do caminho fallback
+(ex.: espaços entre palavras quando o shaper os preserva como `FrameItem::Text`)
+entram no subset da fonte e no ToUnicode CMap.
+
 ## Invariantes
 
-- `collect_codepoints` e `collect_glyph_ids` atravessam `FrameItem::Group` recursivamente (P280 bug fix).
+- `collect_codepoints`, `collect_text_codepoints` e `collect_glyph_ids` atravessam `FrameItem::Group` recursivamente (P280 bug fix).
 - `widths_array` usa `units_per_em` da face para converter glyph_advance → 1/1000 text space.
 - `to_unicode_cmap` emite blocos de ≤100 entradas (PDF spec limit).
 - `text_to_hex_string` mapeia chars sem glyph para `<0000>` (notdef).
@@ -43,4 +61,5 @@ pub(super) fn text_to_hex_string(text: &str, char_to_gid: &HashMap<char, u16>) -
 
 - `escape_pdf_string("a(b)c")` → `"a\\(b\\)c"`.
 - `to_unicode_cmap(&[])` produz CMap mínimo válido com `0 beginbfchar`.
+- `collect_text_codepoints` inclui texto fallback dentro de `Group`/`Link` e exclui `TextShaped`.
 - Tests P150+ + ToUnicode tests em `tests.rs` validam estrutura.

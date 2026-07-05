@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/export/mod.md
-//! @prompt-hash 54a226fa
+//! @prompt-hash 057f9604
 //! @layer L3
 //! @updated 2026-04-20
 
@@ -31,8 +31,8 @@ use self::stream::{
 use self::fonts::{
     char_to_utf16_hex, collect_codepoints, collect_glyph_ids,
     collect_shaped_cluster_texts, collect_shaped_glyph_mappings,
-    escape_pdf_string, map_chars_to_glyphs, text_to_hex_string,
-    to_unicode_cmap, widths_array,
+    collect_text_codepoints, escape_pdf_string, map_chars_to_glyphs,
+    text_to_hex_string, to_unicode_cmap, widths_array,
 };
 use self::subset::remap_glyph_id;
 use self::gradients::{

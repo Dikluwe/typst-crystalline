@@ -1,5 +1,5 @@
 # Prompt L0 — `infra/export/mod` — API pública do exporter PDF
-Hash do Código: 3fd31db5
+Hash do Código: adce3224
 
 **Camada**: L3
 **Ficheiro alvo**: `03_infra/src/export/mod.rs`
@@ -35,7 +35,7 @@ pub use self::images::{PdfImagePayload, process_png_for_pdf};
 
 ```text
 mod builder;     // PdfBuilder + build_helvetica/cidfont/multifont
-mod fonts;       // CIDFont helpers + escape_pdf_string
+mod fonts;       // CIDFont helpers + escape_pdf_string + collect_text_codepoints (P568)
 mod gradients;   // gradient cluster (sub-decomposto P307b.2)
 mod images;      // JPEG/PNG/XObject
 mod stream;      // PageContext + emit

@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/export/builder.md
-//! @prompt-hash a4e34e0f
+//! @prompt-hash 7be061e2
 //! @layer L3
 //! @updated 2026-05-19
 //!
@@ -28,7 +28,7 @@ use super::{
     adaptive_n_for_stops, apply_parent_transform, build_jpeg_xobject,
     build_page_stream, build_png_rgb_xobject, build_png_smask_xobject,
     collect_codepoints, collect_glyph_ids, collect_shaped_cluster_texts,
-    collect_shaped_glyph_mappings,
+    collect_shaped_glyph_mappings, collect_text_codepoints,
     compute_axial_coords, compute_radial_coords,
     emit_conic_coons_stream_cmyk, emit_conic_coons_stream_rgb,
     emit_function_dict, emit_function_dict_cmyk, jpeg_color_space,
@@ -215,7 +215,8 @@ impl PdfBuilder {
         let to_unicode_id      = font_id + 4;
         let first_img_id       = to_unicode_id + 1;
 
-        let chars = collect_codepoints(doc);
+        let mut chars = collect_codepoints(doc);
+        chars.extend(collect_text_codepoints(doc).iter().copied());
         let mut mappings = map_chars_to_glyphs(face, &chars);
 
         // P520 — glifos reais produzidos pelo shaper (incluindo ligatures como
@@ -254,7 +255,14 @@ impl PdfBuilder {
         }
         // P520 — todos os glyph IDs reais (incluindo ligatures com mesmo
         // char_code representativo) devem ser preservados no subset.
-        let all_glyph_ids = collect_glyph_ids(doc);
+        // P568 — incluir também glyphs de FrameItem::Text (ex.: espaços entre
+        // palavras), que não passam pelo shaper mas precisam de estar no subset.
+        let mut all_glyph_ids = collect_glyph_ids(doc);
+        for &c in collect_text_codepoints(doc).iter() {
+            if let Some(gid) = face.glyph_index(c) {
+                all_glyph_ids.insert(gid.0);
+            }
+        }
         let (embed_font_data, glyph_mapping) =
             match self.measure_subset(font_data, &char_to_old_gid, &all_glyph_ids) {
                 Some(FontSubset { data, mapping }) => {
@@ -434,7 +442,9 @@ impl PdfBuilder {
 
         // Codepoints + glyph mappings por font. Cada font tem o seu
         // mapping (chars partilhados; gids específicos da face).
-        let chars = collect_codepoints(doc);
+        let mut chars = collect_codepoints(doc);
+        let text_chars = collect_text_codepoints(doc);
+        chars.extend(text_chars.iter().copied());
         let glyph_ids = collect_glyph_ids(doc);
         // P520 — glifos reais do shaper (ligatures) mapeados para o primeiro
         // caractere do cluster. Prioridade idêntica a build_cidfont.
@@ -448,10 +458,19 @@ impl PdfBuilder {
         for face in faces {
             let mut mappings = map_chars_to_glyphs(face, &chars);
 
+            // P568 — incluir glyphs de FrameItem::Text para que espaços e outros
+            // caracteres do caminho fallback sejam subsetados.
+            let mut extended_glyph_ids = glyph_ids.clone();
+            for &c in &text_chars {
+                if let Some(gid) = face.glyph_index(c) {
+                    extended_glyph_ids.insert(gid.0);
+                }
+            }
+
             // P520 — larguras nominais (hmtx) desta face para todos os glyph IDs
             // que podem aparecer no stream.
             let mut glyph_to_nominal: HashMap<u16, i32> = HashMap::new();
-            for &gid in glyph_ids.iter().chain(mappings.iter().map(|(_, gid)| gid)) {
+            for &gid in extended_glyph_ids.iter().chain(mappings.iter().map(|(_, gid)| gid)) {
                 let adv = face.glyph_hor_advance(ttf_parser::GlyphId(gid)).unwrap_or(0) as i32;
                 glyph_to_nominal.insert(gid, adv);
             }
@@ -989,6 +1008,9 @@ impl PdfBuilder {
             let pos = doc.extracted_label_positions.get(label).copied().unwrap_or(Point::ZERO);
             entries.push((label.0.clone().into(), page, pos));
         }
+        // Ordenar por nome de label para garantir output PDF determinístico
+        // (os HashMaps subjacentes não preservam ordem de inserção).
+        entries.sort_by(|a, b| a.0.cmp(&b.0));
         if entries.is_empty() {
             return;
         }

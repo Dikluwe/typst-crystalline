@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/shaper.md
-//! @prompt-hash b3313968
+//! @prompt-hash a9e026b8
 //! @layer L3
 //! @updated 2026-07-03
 //!
@@ -86,6 +86,14 @@ fn try_shape(
     text:  &ecow::EcoString,
     style: &TextStyle,
 ) -> Option<Vec<FrameItem>> {
+    // P568 — espaços entre palavras são emitidos como FrameItem::Text para
+    // que o PDF contenha o caractere de espaço. Não os shapear, para que
+    // o export primário (emit_text_pdf) os escreva directamente na stream
+    // de texto em vez de os perder no shaping de glyphs.
+    if text.trim().is_empty() {
+        return None;
+    }
+
     let font_list = style.font.as_ref()?;
 
     // P525 — derivar a variante real do TextStyle para VF e selecção de fonte.

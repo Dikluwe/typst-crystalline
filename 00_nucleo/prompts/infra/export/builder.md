@@ -1,5 +1,5 @@
 # Prompt L0 — `infra/export/builder` — PdfBuilder
-Hash do Código: 3989e5c3
+Hash do Código: d358e2cf
 
 **Camada**: L3
 **Ficheiro alvo**: `03_infra/src/export/builder.rs`
@@ -36,6 +36,24 @@ inclui:
 O mapa é passado para `PageContext::cidfont` / `PageContext::multifont`
 através de `FontScenario` e consumido por `emit_shaped_pdf` para calcular
 o delta `nominal - x_advance` no operador PDF `TJ`.
+
+## §P568 — Subsetar glyphs do caminho fallback (`FrameItem::Text`)
+
+**Data:** 2026-07-05
+
+Em `build_cidfont` e `build_multifont`, além dos codepoints/glyphs já
+recolhidos por `collect_codepoints` / `collect_glyph_ids`, o builder inclui
+os codepoints devolvidos por `collect_text_codepoints(doc)`:
+
+1. O conjunto de codepoints passado a `map_chars_to_glyphs` é a união de
+   `collect_codepoints` com `collect_text_codepoints`.
+2. O conjunto de glyph IDs usados no subset (`all_glyph_ids` / `extended_glyph_ids`)
+   estende-se com `face.glyph_index(c)` para cada `c` em `collect_text_codepoints`.
+
+Motivo: quando `try_shape` decide não shapear um texto (ex.: texto que só
+contém espaços), o `FrameItem::Text` resultante ainda precisa de ter o seu
+glyph presente no subset, caso contrário o leitor de PDF não consegue
+selecionar/copiar esse caractere.
 
 ## §P560 — Descritor PDF conforme o tipo de fonte (TrueType vs CFF)
 

@@ -7,7 +7,7 @@ adr: ADR-0120
 ---
 
 # Prompt L0 — `shaper.rs` (Trilha 5 Fase 1)
-Hash do Código: b3313968
+Hash do Código: bfc99c3f
 
 ## Propósito
 
@@ -381,6 +381,18 @@ caractere. O cache é local a cada chamada de `try_shape`.
   fonts produz múltiplos `TextShaped` com fontes distintas.
 
 ---
+
+## §P568 — Preservar espaços como `FrameItem::Text`
+
+**Data:** 2026-07-05
+
+`try_shape` retorna `None` (i.e., não shapeia e preserva `FrameItem::Text`)
+quando o texto é composto apenas por whitespace (`text.trim().is_empty()`).
+
+- Espaços entre palavras são assim emitidos pelo caminho primário de texto
+  (`emit_text_pdf`) em vez de serem absorvidos no shaping de glyphs.
+- O export PDF garante que os glyphs correspondentes a esses caracteres
+  ainda são subsetados (ver §P568 em `builder.md`).
 
 ## P555 — Fallback preserva a classe da fonte (serifa / sem serifa)
 
