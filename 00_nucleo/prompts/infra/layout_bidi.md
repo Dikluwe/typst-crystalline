@@ -8,7 +8,7 @@ adr: ADR-0120, ADR-0109, ADR-0114
 ---
 
 # Prompt L0 — Reordenação visual bidireccional de linhas (layout bidi)
-Hash do Código: 8602ed3c
+Hash do Código: 22e5a45e
 
 ## Medições que fundamentam a decisão
 
@@ -60,9 +60,9 @@ Layouter.
 - **Preservar posições x do layout LTR após inversão (P562)**: reprovado
   em P563 porque gera quebra de linha incorrecta em texto misto.
 - **Reflow completo em cascata**: rejeitado por complexidade XL neste
-  passo. A implementação limita-se a fundir blocos de linhas RTL
-  adjacentes quando o texto total cabe numa única linha, e a compactar
-  parcialmente linhas quando o cabe.
+  passo. A implementação limita-se a fundir parágrafos RTL — sequências
+  de linhas consecutivas do mesmo parágrafo, incluindo linhas LTR
+  intermédias como números — quando o texto total cabe numa única linha.
 
 ## Módulo
 
@@ -142,32 +142,28 @@ reais** devolvidas por `FontMetrics::advance(text, size, style)`:
 
 Itens de texto vazios contribuem com largura zero.
 
-### 5. Reflow de blocos RTL adjacentes (P565)
+### 5. Reflow de parágrafos RTL (P565/P567)
 
 Após a reordenação individual de cada linha, a passagem identifica
-**blocos de linhas RTL consecutivas** na mesma página (linhas cujo
-texto concatenado tenha direcção base RTL).
+**parágrafos RTL** — sequências de linhas consecutivas na mesma página
+que fazem parte do mesmo parágrafo (baseline y próximo, até 1.5× a
+altura da linha) e cujo conjunto de items seja predominantemente RTL.
 
-Para cada bloco:
+Para cada parágrafo:
 
-- Coleta todos os `FrameItem::Text` do bloco.
-- Calcula a largura total do bloco: soma das larguras reais dos items
-  mais um espaçamento (`gap`) por par de items consecutivos. O `gap`
-  é inferido dos gaps originais entre items (média dos gaps dentro do
-  bloco), com um floor de `0.0` para evitar sobreposição.
+- Coleta todos os `FrameItem::Text` do parágrafo, na ordem lógica em
+  que o Layouter os emitiu.
+- Calcula a largura total: soma das larguras reais dos items.
 - Calcula a largura útil disponível: `page_width - 2 * x_min`, onde
-  `x_min` é a menor posição x dos items do bloco (aproxima a margem
+  `x_min` é a menor posição x dos items do parágrafo (aproxima a margem
   esquerda).
-- Se a largura total do bloco for menor ou igual à largura útil, o
-  bloco é fundido numa única linha. As palavras são reordenadas
-  visualmente (RTL) e reposicionadas a partir de `x_min` com o gap
-  calculado.
-- Se a largura total exceder a largura útil, o bloco não é fundido.
-  Nesse caso, a passagem ainda tenta **compactar parcialmente** as
-  linhas: move palavras do início (visualmente à direita) da linha
-  seguinte para o final (visualmente à esquerda) da linha anterior se
-  couberem, recalculando posições x em ambas as linhas. O processo é
-  repetido iterativamente até não haver mais movimentos.
+- Se a largura total couber na largura útil, funde o parágrafo numa
+  única linha. As palavras são reordenadas visualmente (RTL) e
+  reposicionadas a partir de `x_min`, distribuindo o espaço restante
+  uniformemente como `gap` entre os items.
+- Se a largura total exceder a largura útil, o parágrafo não é fundido.
+- Linhas LTR intermédias (ex.: números dentro de texto árabe) são
+  incluídas na run, desde que a run total seja predominantemente RTL.
 
 ### 6. Preservação de propriedades
 
@@ -194,7 +190,8 @@ Para cada bloco:
   posições x de todos os items são recalculadas.
 - `p565_mixed_40pt_reflow`: `الكتاب 42 على الطاولة` a 40 pt — o
   Layouter LTR coloca `الطاولة` numa segunda linha; o reflow funde o
-  bloco numa única linha quando o texto total cabe na largura útil.
+  parágrafo numa única linha quando o texto total cabe na largura útil,
+  mesmo com `42` (LTR) entre palavras árabes.
 - `p565_empty_text_unchanged`: `FrameItem::Text` vazio — sem panic.
 - `p565_line_with_shape_unchanged`: linha com `Shape` no meio — shape
   mantém posição; texto ao redor reordena-se correctamente; reflow não

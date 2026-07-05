@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/layout_bidi.md
-//! @prompt-hash 383df31b
+//! @prompt-hash cd19b43d
 //! @layer L3
 //! @updated 2026-07-04
 //!
@@ -63,9 +63,12 @@ fn reorder_bidi_page(page: &mut Page, metrics: &dyn FontMetrics) {
         .map(|(_, line)| detect_rtl_line(&page.items, line))
         .collect();
 
-    // Reflow primeiro: fundir blocos de linhas RTL consecutivas quando o
-    // texto total cabe na largura útil da página.
-    let fused_lines = reflow_rtl_blocks(page, &lines, &line_is_rtl, metrics);
+    // Reflow primeiro: fundir linhas consecutivas que formam um parágrafo
+    // RTL, mesmo quando alguma linha intermédia contém texto LTR (ex.:
+    // números dentro de texto árabe). O shaper é aplicado depois desta
+    // passagem, por isso trabalhamos com os items Text do Layouter na sua
+    // ordem lógica original.
+    let fused_lines = reflow_rtl_paragraphs(page, &lines, &line_is_rtl, metrics);
 
     // Reordenar visualmente as linhas que não foram fundidas.
     for (i, (_, line)) in lines.iter().enumerate() {
@@ -200,108 +203,161 @@ fn detect_rtl_line(items: &[FrameItem], line: &[usize]) -> bool {
         .unwrap_or(false)
 }
 
-/// Identifica e funde blocos de linhas RTL consecutivas quando o texto
-/// total cabe na largura útil da página. Devolve o conjunto de índices
-/// de linhas que foram fundidas (e portanto não devem ser reordenadas
-/// novamente individualmente).
-fn reflow_rtl_blocks(
+/// Identifica e funde linhas consecutivas que formam um parágrafo RTL,
+/// mesmo quando alguma linha intermédia contém texto LTR. Devolve o
+/// conjunto de índices de linhas que foram fundidas.
+fn reflow_rtl_paragraphs(
     page: &mut Page,
     lines: &[(f64, Vec<usize>)],
     line_is_rtl: &[bool],
     metrics: &dyn FontMetrics,
 ) -> std::collections::HashSet<usize> {
-    let mut rtl_blocks: Vec<Vec<usize>> = Vec::new();
-    let mut current_block: Vec<usize> = Vec::new();
-
-    for (i, is_rtl) in line_is_rtl.iter().enumerate() {
-        if *is_rtl {
-            current_block.push(i);
-        } else if !current_block.is_empty() {
-            rtl_blocks.push(current_block.clone());
-            current_block.clear();
-        }
-    }
-    if !current_block.is_empty() {
-        rtl_blocks.push(current_block);
-    }
-
-    // Para cada bloco, decidir se funde.
     let mut fused_lines: std::collections::HashSet<usize> = std::collections::HashSet::new();
-    for block in &rtl_blocks {
-        if block.len() <= 1 {
+
+    let mut i = 0;
+    while i < lines.len() {
+        if !line_is_rtl[i] {
+            i += 1;
             continue;
         }
 
-        // Apenas fundir se todas as linhas do bloco contiverem apenas
-        // items de texto (não movemos shapes/images entre linhas).
-        let has_non_text = block.iter().any(|&line_idx| {
-            lines[line_idx].1.iter().any(|&item_idx| {
-                !matches!(page.items[item_idx], FrameItem::Text { .. })
-            })
-        });
-        if has_non_text {
-            continue;
+        // Estender a run enquanto as linhas seguintes fizerem parte do
+        // mesmo parágrafo (y próximo), independentemente de direcção.
+        let mut end = i + 1;
+        while end < lines.len() && same_paragraph(page, lines, end - 1, end) {
+            end += 1;
         }
 
-        // Coletar todos os items de texto do bloco, na ordem original
-        // do Layouter (que é a ordem lógica do texto).
-        let mut block_text_indices: Vec<usize> = Vec::new();
-        for &line_idx in block {
-            block_text_indices.extend(
-                lines[line_idx]
-                    .1
-                    .iter()
-                    .copied()
-                    .filter(|&idx| matches!(page.items[idx], FrameItem::Text { .. })),
-            );
+        // Ajustar os limites para que a run comece e termine em linhas RTL,
+        // removendo linhas LTR soltas no início ou no fim.
+        let mut run_start = i;
+        let mut run_end = end;
+        while run_start < run_end && !line_is_rtl[run_start] {
+            run_start += 1;
+        }
+        while run_end > run_start && !line_is_rtl[run_end - 1] {
+            run_end -= 1;
         }
 
-        if block_text_indices.len() <= 1 {
-            continue;
-        }
-
-        let widths: Vec<f64> = block_text_indices
-            .iter()
-            .map(|&idx| {
-                if let FrameItem::Text { text, style, .. } = &page.items[idx] {
-                    metrics.advance(text.as_str(), style.size, style).0
-                } else {
-                    0.0
+        if run_end - run_start > 1 && is_predominantly_rtl(line_is_rtl, run_start..run_end) {
+            if try_fuse_paragraph(page, lines, run_start, run_end, metrics) {
+                for k in run_start..run_end {
+                    fused_lines.insert(k);
                 }
-            })
-            .collect();
-
-        let sum_widths: f64 = widths.iter().sum();
-        let x_min = block_text_indices
-            .iter()
-            .map(|&idx| item_x(&page.items[idx]))
-            .min_by(|a, b| a.partial_cmp(b).unwrap())
-            .unwrap_or(0.0);
-        let available_width = page.width - 2.0 * x_min;
-
-        if sum_widths > available_width {
-            // Não cabe nem mesmo sem espaçamento; manter quebra original.
-            continue;
+            }
         }
 
-        // Fundir o bloco numa única linha, usando y da primeira linha.
-        let target_y = lines[block[0]].0;
-        let gap = if block_text_indices.len() > 1 {
-            (available_width - sum_widths) / (block_text_indices.len() - 1) as f64
-        } else {
-            0.0
-        };
-
-        reorder_indices(page.items.as_mut_slice(), &block_text_indices, metrics, x_min, gap, target_y);
-
-        // Marcar todas as linhas do bloco como fundidas, para que não
-        // sejam reordenadas novamente individualmente.
-        for &line_idx in block {
-            fused_lines.insert(line_idx);
-        }
+        i = end;
     }
 
     fused_lines
+}
+
+/// Heurística de "mesmo parágrafo": duas linhas consecutivas estão
+/// separadas por no máximo 1.5× a altura da linha seguinte.
+fn same_paragraph(
+    page: &Page,
+    lines: &[(f64, Vec<usize>)],
+    a: usize,
+    b: usize,
+) -> bool {
+    let y_diff = lines[b].0 - lines[a].0;
+    let max_height = lines[b]
+        .1
+        .iter()
+        .filter_map(|&idx| item_height(&page.items[idx]))
+        .fold(0.0, f64::max);
+    y_diff <= 1.5 * max_height.max(1.0)
+}
+
+/// Devolve a altura de um item, se tiver dimensão tipográfica.
+fn item_height(item: &FrameItem) -> Option<f64> {
+    match item {
+        FrameItem::Text { style, .. } => Some(style.size.0),
+        FrameItem::TextShaped { style, .. } => Some(style.size.0),
+        _ => None,
+    }
+}
+
+/// Verifica se a maioria das linhas do intervalo é RTL.
+fn is_predominantly_rtl(line_is_rtl: &[bool], range: std::ops::Range<usize>) -> bool {
+    let rtl_count = range.clone().filter(|&i| line_is_rtl[i]).count();
+    rtl_count * 2 > range.len()
+}
+
+/// Tenta fundir as linhas [start, end) numa única linha. Se conseguir,
+/// reposiciona os items e devolve true.
+fn try_fuse_paragraph(
+    page: &mut Page,
+    lines: &[(f64, Vec<usize>)],
+    start: usize,
+    end: usize,
+    metrics: &dyn FontMetrics,
+) -> bool {
+    // Apenas fundir se todas as linhas contiverem apenas items de texto.
+    let has_non_text = lines[start..end].iter().any(|(_, line)| {
+        line.iter()
+            .any(|&idx| !matches!(page.items[idx], FrameItem::Text { .. }))
+    });
+    if has_non_text {
+        return false;
+    }
+
+    // Coletar todos os items de texto na ordem original do Layouter
+    // (ordem lógica do texto).
+    let mut text_indices: Vec<usize> = Vec::new();
+    for (_, line) in &lines[start..end] {
+        for &idx in line {
+            if matches!(page.items[idx], FrameItem::Text { .. }) {
+                text_indices.push(idx);
+            }
+        }
+    }
+
+    if text_indices.len() <= 1 {
+        return false;
+    }
+
+    let widths: Vec<f64> = text_indices
+        .iter()
+        .map(|&idx| {
+            if let FrameItem::Text { text, style, .. } = &page.items[idx] {
+                metrics.advance(text.as_str(), style.size, style).0
+            } else {
+                0.0
+            }
+        })
+        .collect();
+
+    let sum_widths: f64 = widths.iter().sum();
+    let x_min = text_indices
+        .iter()
+        .map(|&idx| item_x(&page.items[idx]))
+        .min_by(|a, b| a.partial_cmp(b).unwrap())
+        .unwrap_or(0.0);
+    let available_width = page.width - 2.0 * x_min;
+
+    if sum_widths > available_width {
+        return false;
+    }
+
+    let target_y = lines[start].0;
+    let gap = if text_indices.len() > 1 {
+        (available_width - sum_widths) / (text_indices.len() - 1) as f64
+    } else {
+        0.0
+    };
+
+    reorder_indices(
+        page.items.as_mut_slice(),
+        &text_indices,
+        metrics,
+        x_min,
+        gap,
+        target_y,
+    );
+
+    true
 }
 
 #[cfg(test)]
