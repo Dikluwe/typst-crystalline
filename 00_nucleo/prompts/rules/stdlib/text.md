@@ -1,5 +1,5 @@
 # Prompt L0 — `stdlib/text` — smartquote, decoração textual, lorem e smallcaps
-Hash do Código: 0a3f4916
+Hash do Código: 67fadf11
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/rules/stdlib/text.rs`
@@ -7,6 +7,30 @@ Hash do Código: 0a3f4916
 helpers partilhados: ver `stdlib/_comum.md`.
 **Nota de deriva (F4)**: `text.rs` também define `native_upper`/`native_lower`/
 `native_replace`, não specados em `stdlib.md`; candidatos a spec dedicada.
+
+---
+
+## `dir` — Passo 576
+
+Propriedade do `#set text(...)`: `dir: Dir`, onde `Dir` é o enum L1
+`ltr | rtl | ttb | btt`. Em runtime, os identificadores `ltr`, `rtl`, `ttb`, `btt`
+resolvem para `Value::Dir(Dir)` (ver `entities/dir.md` e `entities/value.md`).
+
+**Semântica no eval**: `eval_set_rule` para target `text` aceita a chave `"dir"`,
+valida que o valor é `Value::Dir(Dir::LTR | Dir::RTL)` (os valores verticais são
+scope-out neste passo) e empurha para a chain como `text.dir`.
+
+**Semântica no layout**: o campo é lido por `rules/layout/text.rs` e transportado
+no `TextStyle.dir` (novo campo). O Layouter usa `dir == Dir::RTL` para decidir o
+alinhamento inicial do parágrafo; a passagem `layout_bidi` (ver
+`infra/layout_bidi.md`) completa o posicionamento visual das palavras.
+
+**Testes canónicos**:
+```
+#set text(dir: rtl)   → chain custom "text.dir" = Value::Dir(Dir::RTL)
+#set text(dir: ltr)   → chain custom "text.dir" = Value::Dir(Dir::LTR)
+#set text(dir: "rtl") → erro de tipo (não aceita string)
+```
 
 ---
 

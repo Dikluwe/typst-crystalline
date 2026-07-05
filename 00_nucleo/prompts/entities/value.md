@@ -28,8 +28,9 @@ regra: **não adicionar variantes sem ADR e tipo migrado**.
 - **P469** — `Relative(Rel<Length>)` (comprimento relativo: `50%`, `100% - 1em`)
 - **Passo 395** — `Tiling` (padrão de azulejos; abertura ADR-0017)
 - **P509** — `Label(Label)` (etiqueta `<name>` como valor de primeira classe)
+- **P576** — `Dir(Dir)` (direcção de texto `ltr` / `rtl` / `ttb` / `btt`; requer `Dir` migrado em L1, ADR-0033)
 
-~11 variantes futuras permanecem comentadas no código (não implementar sem ADR).
+~10 variantes futuras permanecem comentadas no código (não implementar sem ADR).
 
 ---
 

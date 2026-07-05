@@ -63,11 +63,12 @@ impl Default for Dir {
 ## Consumers actuais
 
 - `Content::Stack { children, dir, spacing }` (Passo 156I).
+- `Value::Dir(Dir)` em runtime (Passo 576), expondo `ltr`, `rtl`, `ttb`, `btt`
+  como valores de primeira classe no escopo global do eval.
 
 ## Consumers planeados
 
-- Possível uso futuro em refino do layouter (e.g. RTL bidi
-  shaping integration).
+- `text.dir` no `#set text(...)` para alinhamento de parágrafo RTL (P576).
 - `Content::Columns { dir, ... }` quando Fase 3 Layout
   materializar columns (per DEBT-56).
 

@@ -8,7 +8,7 @@ adr: ADR-0120, ADR-0109, ADR-0114, ADR-0108
 ---
 
 # Prompt L0 — Reordenação visual bidireccional de linhas (layout bidi)
-Hash do Código: 22e5a45e
+Hash do Código: 0c5f5cc5
 
 ## Medições que fundamentam a decisão
 
@@ -273,14 +273,76 @@ O reflow aplica os passos 5, 6 e 7 à linha resultante.
   embeddings explícitos, overrides e isolates — a implementação cobre
   o caso de texto RTL/LTR natural via `unicode-bidi`, suficiente para
   documentos árabes/hebraicos simples.
-- Mudança da direcção base da página (`dir: rtl`) — trata-se da
-  ordenação visual dentro da linha, não do alinhamento de parágrafo.
 - Garantia de ordem lógica na extracção de texto por `pdftotext`. O
   objectivo de P569 é **preservar os espaços entre palavras** na
   extracção sequencial; a inversão visual das palavras (ordem
   direita→esquerda no texto extraído) é um comportamento conhecido e
   aceite para este passo.
 - Texto vertical ou scripts top-down (ver secção seguinte).
+
+## Alinhamento de parágrafo com `text.dir` — Passo 576
+
+A direcção base do parágrafo passa a ser controlada pela propriedade
+`dir` do `#set text(...)`. Quando `text.dir == Dir::RTL`, o parágrafo
+inicia-se na margem direita e flui para a esquerda; quando `Dir::LTR`,
+comporta-se como o default actual (margem esquerda).
+
+### Decisão arquitectural
+
+**Opção escolhida:** o Layouter (L1) lê `text.dir` da `StyleChain` e
+ajusta a origem horizontal do parágrafo. A passagem `layout_bidi` em L3
+continua a responsável pela reordenação visual das palavras dentro da
+linha e pelo reflow de parágrafos RTL, mas assume que as linhas já
+começam na margem correcta.
+
+**Opções rejeitadas:**
+- **Fazer o alinhamento só em L3 (passagem posterior)**: deslocar blocos
+  inteiros após o layout LTR esconde o problema da quebra de linha e
+  não reproduz o comportamento vanilla para texto misto.
+- **Usar a detecção automática de direcção (`unicode-bidi`) para
+  alinhar**: o vanilla só alinha à direita com `dir: rtl` explícito;
+  texto árabe sem `dir:` mantém o alinhamento esquerdo.
+
+### Medições que fundamentam a decisão
+
+- `01_core/src/rules/eval/rules.rs:931` — `eval_set_rule` target `text`
+  trata `bold`, `italic`, `size`, `fill`, `weight`, `tracking`, `lang`,
+  `font`; `dir` cai no warn de propriedade não suportada.
+- `01_core/src/rules/eval/mod.rs:1196-1203` — `left`, `center`, `right`,
+  `start`, `end`, `top`, `horizon`, `bottom` são expostos como
+  `Value::Align`; `ltr`/`rtl`/`ttb`/`btt` ainda não existem no escopo.
+- `01_core/src/rules/layout/mod.rs:499-501` — `cursor_x` e
+  `line_start_x` inicializam-se em `margin`, fixando a origem LTR.
+- `01_core/src/rules/layout/text.rs:54` — `text.lang` é lido da chain;
+  `text.dir` ainda não é.
+- Sonda P576: documento árabe sem `dir:` começa à esquerda no vanilla e
+  no cristalino; com `dir: rtl` o vanilla começa à direita, o cristalino
+  ainda não suporta a propriedade.
+
+### Comportamento
+
+1. O eval aceita `dir: Dir` em `#set text(...)` e transporta
+   `text.dir` na `StyleChain` como `Value::Dir`.
+2. `rules/layout/text.rs` lê `text.dir` e coloca-o no `TextStyle.dir`.
+3. No início de cada parágrafo (ou bloco de texto contínuo), o Layouter
+   consulta `TextStyle.dir`:
+   - `Dir::LTR` (default): origem em `margin` (comportamento actual).
+   - `Dir::RTL`: origem em `width - margin` e avanço do cursor para a
+     esquerda; a quebra de linha ocorre quando `cursor_x < margin`.
+4. A passagem `layout_bidi` preserva o comportamento de P562/P564/P569
+   e ajusta as posições x das palavras dentro da linha já originada à
+   direita.
+
+### Casos de teste mínimos
+
+- `p576_rtl_starts_right`: `#set text(dir: rtl, lang: "ar")` + texto
+  árabe curto → linha começa na margem direita.
+- `p576_ltr_starts_left`: `#set text(dir: ltr, lang: "ar")` + texto
+  árabe curto → linha começa na margem esquerda (comportamento default).
+- `p576_mixed_paragraphs`: documento com parágrafo árabe (`dir: rtl`) e
+  parágrafo latino (`dir: ltr`) → cada um alinhado no seu próprio lado.
+- `p576_no_regression_p569`: documentos de referência de P569 continuam
+  com palavras separadas e com o novo alinhamento quando `dir: rtl`.
 
 ## Sugestões para passos futuros
 
