@@ -146,7 +146,8 @@ Nenhuma palavra está colada; os espaços entre palavras são preservados. Os po
 2. **Risco baixo**: o algoritmo de sufixo usa heurística LTR (ASCII não-letra + classes bidi L/EN/AN). Pontuação árabe (e.g. `،`) não é separada, o que é o comportamento correcto.  
    **Excepção**: texto que termine em pontuação árabe seguida de ponto ASCII pode ser separado de forma inesperada; não observado nos casos de teste.
 
-3. **Risco a monitorar**: `cargo test -p typst-infra` falha em 17 testes fora do scope de P569 (ver secção 5). Essas falhas são pré-existentes: verificou-se que `align_center_reposiciona_no_eixo_x` e `p307b_01_markup_plain` também falham com `03_infra/src/layout_bidi.rs` no estado anterior a P569.
+3. **Risco a monitorar**: `cargo test -p typst-infra` falha em 17 testes fora do scope de P569 (ver secção 5).  
+   **Actualização (P571):** a afirmação de que as 5 falhas em `p307b_snapshot_tests` eram "pré-existentes, anterior a P569" está incorrecta. P571 confirmou que o commit P569 isolado só apresenta a falha preexistente em `07-multi-feature`; as falhas `01`, `02`, `03` e `09` foram causadas por código órfão em L1 (`layout_space` em `01_core/src/rules/layout/cursor.rs`, `mod.rs`, `text.rs`) que existia no working tree quando P569 foi validado, mas que nunca foi commitado nem tem Prompt L0. Esse código L1 foi descartado em P572.
 
 ---
 
@@ -166,12 +167,14 @@ Resultado do linter:
 ✓ No violations found
 ```
 
-Testes do crate `typst-infra` com falhas **fora do scope** (não causadas por P569):
+Testes do crate `typst-infra` com falhas **fora do scope** (não causadas pelo commit P569):
 
 - 12 `integration_tests` de `align`, `grid` e `place`;
-- 5 `p307b_snapshot_tests` (`01`, `02`, `03`, `07`, `09`).
+- 1 `p307b_snapshot_test` (`07-multi-feature`), preexistente ao commit P569 e corrigido posteriormente em P570.
 
-Total: 17 falhas em 591 testes (574 passaram, 5 ignorados).
+**Nota (P571/P572):** as falhas adicionais `01`, `02`, `03` e `09` observadas no working tree durante a validação de P569 eram causadas por código órfão em L1 (`layout_space`), não pelo commit P569. Esse código L1 foi descartado em P572.
+
+Total no momento da escrita de P569: 17 falhas em 591 testes (574 passaram, 5 ignorados).
 
 ```bash
 cargo test -p typst-infra
@@ -182,4 +185,5 @@ cargo test -p typst-infra
 
 ## 6. Conclusão
 
-P569 está **activo e validado**. A separação de sufixos LTR e a coalescência de espaços no item anterior eliminam a colagem de palavras árabes observada em extratores sequenciais, enquanto preservam a morfologia do texto. O linter reporta zero violations; os testes unitários do módulo `layout_bidi` passam.
+P569 está **activo e validado**. A separação de sufixos LTR e a coalescência de espaços no item anterior eliminam a colagem de palavras árabes observada em extratores sequenciais, enquanto preservam a morfologia do texto. O linter reporta zero violations; os testes unitários do módulo `layout_bidi` passam.  
+**Actualização (P571/P572):** a solução de P569 em L3 provou-se suficiente sozinha; uma tentativa paralela em L1 (`layout_space`) foi identificada como órfã e redundante, e descartada.
