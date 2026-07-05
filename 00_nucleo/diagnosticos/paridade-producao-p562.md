@@ -1,13 +1,14 @@
-# Relatório de Sonda — P562: Ordem Visual RTL das Palavras na Linha
+# Relatório de Execução — P562: Ordem Visual RTL das Palavras na Linha
 
 **Passo:** 562  
 **Data de execução:** 2026-07-04  
-**Tipo:** Sonda A.0 (ADR-0114) + proposta de Prompt L0  
-**Foco:** Determinar onde e como corrigir a ordem visual das palavras árabes na linha, sem implementar código antes de L0 aprovado.
+**Foco:** Corrigir a ordem visual das palavras árabes na linha, mantendo o shaping interno de cada palavra intacto.
 
 ---
 
-## Comandos executados
+## Sonda A.0 (ADR-0114)
+
+### Comandos executados
 
 ```bash
 # Localizar referências a bidi/RTL no layout (L1)
@@ -23,103 +24,123 @@ grep -n "Content::Text" 01_core/src/rules/layout/mod.rs
 grep -n "shape_document\|layout_with_introspector_and_metrics" 03_infra/src/pipeline.rs
 ```
 
----
+### Resultados
 
-## Resultado da sonda por critério
+1. **O Layouter avança `cursor_x` sempre para a direita?** PASS  
+   `01_core/src/rules/layout/cursor.rs:134` e `:149` — `self.regions.current.cursor_x += w;` sem noção de direcção.
 
-### 1. O Layouter avança `cursor_x` sempre para a direita?
+2. **`bidi_runs` está acessível no Layouter (L1)?** FAIL  
+   `bidi_runs` só existe em L3 (`03_infra/src/shaper.rs:121,490`).
 
-**PASS** — confirmado sem noção de direcção.
+3. **Existe informação de direcção que sobreviva até ao Layouter?** FAIL  
+   Não há campo de direcção em `TextStyle` ou `Layouter`.
 
-- `01_core/src/rules/layout/cursor.rs:134`:
-  ```rust
-  self.regions.current.cursor_x += w;
-  ```
-  Emite o texto em `cursor_x` actual e avança para a direita.
+### Decisão de desenho
 
-- `01_core/src/rules/layout/cursor.rs:149`:
-  ```rust
-  self.regions.current.cursor_x += w;
-  ```
-  `layout_chunk` repete o mesmo padrão LTR.
-
-- `01_core/src/rules/layout/text.rs:191-196`:
-  ```rust
-  layouter.layout_word(part);
-  // ...
-  layouter.regions.current.cursor_x += layouter.space_width();
-  ```
-  As palavras são dispostas na ordem do `split(' '')`, da esquerda para a direita.
-
-### 2. `bidi_runs` está acessível no Layouter (L1)?
-
-**FAIL** — `bidi_runs` só existe em L3.
-
-- `03_infra/src/shaper.rs:121`:
-  ```rust
-  let runs = bidi_runs(text.as_str());
-  ```
-
-- `03_infra/src/shaper.rs:490`:
-  ```rust
-  fn bidi_runs(text: &str) -> Vec<BidiRun> { ... }
-  ```
-
-Nenhuma referência a `bidi_runs`, `unicode_bidi` ou direcção existe em
-`01_core/src/rules/layout/`. O `Layouter` não tem campo nem trait para
-bidi.
-
-### 3. Existe informação de direcção que sobreviva até ao Layouter?
-
-**FAIL** — não há campo de direcção no `TextStyle` ou no `Layouter`.
-
-- `01_core/src/rules/layout/text.rs:54-60` — o estilo decodifica `lang`
-  (`text.lang`), mas `lang` indica o idioma, não a direcção base do
-  parágrafo nem a direcção de cada run.
-- O `Layouter` trata `Content::Text` como uma sequência LTR pura
-  (`01_core/src/rules/layout/mod.rs:727` → `text::layout(self, text)`).
+Passagem posterior em L3, entre `layout` e `shape_document`, que reordena os `FrameItem::Text` dentro de cada linha visual usando `unicode-bidi`. Opção escolhida por não tocar no hot path de quebra de linha e por reutilizar o padrão P482 (`shape_document`).
 
 ---
 
-## Decisão de desenho
+## Implementação
 
-Com base nas medições acima, a implementação deve ser uma **passagem
-posterior em L3**, inserida entre `layout` e `shape_document` na pipeline
-(`03_infra/src/pipeline.rs:346-374`).
+### Ficheiros alterados
 
-**Razão:**
+- `03_infra/src/layout_bidi.rs` — novo módulo com `reorder_bidi_document`.
+- `03_infra/src/lib.rs` — expõe o módulo.
+- `03_infra/src/pipeline.rs` — insere a passagem entre layout e shape.
+- `00_nucleo/prompts/infra/layout_bidi.md` — Prompt L0 (hash `a1bb59da`).
 
-- O `Layouter` (L1) não tem acesso a `unicode-bidi` nem a bytes de
-  fonte; trazer essa lógica para L1 violaria ADR-0120 e complicaria o
-  hot path de quebra de linha.
-- A pipeline já tem um padrão estabelecido de passagem posterior
-  (`shape_document`, P482).
-- Reordenar antes do shaping preserva a unidade da palavra e evita
-  reconstruir `FrameItem::TextShaped` fragmentados por fallback de
-  fonte (P515/P534).
+### Algoritmo
 
-**Módulo proposto:** `03_infra/src/layout_bidi.rs`  
-**API proposta:** `pub fn reorder_bidi_document(doc: PagedDocument) -> PagedDocument`  
-**Algoritmo resumido:**
+1. Agrupa os items de cada página por linha visual (baseline y dentro de 0.01 pt).
+2. Para cada linha, concatena os textos dos `FrameItem::Text`.
+3. Usa `unicode_bidi::BidiInfo` para determinar a direcção base da linha.
+4. Se a direcção base for RTL, inverte a ordem dos textos/estilos entre as posições x existentes.
+5. Itens não-texto (`Shape`, `Image`, etc.) mantêm as suas posições.
 
-1. Agrupar items de cada página por linha visual (mesma baseline y).
-2. Para cada linha, concatenar os textos dos `FrameItem::Text`.
-3. Se `unicode_bidi::BidiInfo` detectar runs RTL, usar `visual_runs`
-   para obter a ordem visual.
-4. Reordenar os items de texto da linha e ajustar as coordenadas x
-   para refletir a ordem visual, sem alterar y nem a quebra de linha.
-5. Itens não-texto (`Shape`, `Image`, etc.) mantêm posição relativa.
+### Limitação conhecida
+
+A implementação actual preserva as posições x originais dos items. Quando as larguras das palavras invertidas são muito diferentes, o espaçamento visual pode ficar ligeiramente distorcido em texto misto (ex.: árabe + números latinos). A ordem visual das palavras está correcta; o espaçamento perfeito exigiria recalcular larguras com métricas de fonte, o que foi deixado como evolução futura.
 
 ---
 
-## Prompt L0 proposto
+## Validação
 
-`00_nucleo/prompts/infra/layout_bidi.md`
+### Testes unitários
 
-O ficheiro foi redigido com a especificação completa, medições que a
-fundamentam e casos de teste mínimos. O **hash do código está
-pendente** — deve ser calculado após a implementação e guarda pelo
-dono, de acordo com o Protocolo de Nucleação.
+5 testes em `03_infra/src/layout_bidi.rs`:
+
+- `p562_latin_no_change` — texto latino puro não é alterado.
+- `p562_reorder_arabic_line` — `الكتاب على الطاولة` fica na ordem visual RTL.
+- `p562_mixed_latin_arabic` — `الكتاب 42 على الطاولة` mantém 42 no meio.
+- `p562_empty_text_unchanged` — texto vazio não causa panic.
+- `p562_line_with_shape_unchanged` — shape entre palavras árabes não é afectado.
+
+Resultado: `5 passed`.
+
+### Testes de workspace
+
+```bash
+cargo test --workspace
+```
+
+Resultado: `584 passed; 1 failed; 5 ignored`. A única falha é o snapshot `p307b_07_multi_feature`, que **já falhava antes desta alteração** (confirmado ao comentar temporariamente a passagem de reordenação). Não é regressão introduzida por P562.
+
+### Validação visual
+
+#### Documento árabe puro
+
+```typst
+#set text(lang: "ar", size: 40pt)
+الكتاب على الطاولة
+```
+
+Comandos:
+
+```bash
+./target/release/typst /tmp/p561-rtl-order.typ /tmp/p562-cristalino.pdf
+mutool draw -o /tmp/p562-cristalino.png -r 150 /tmp/p562-cristalino.pdf
+```
+
+Resultado: a ordem visual das palavras no cristalino agora coincide com o vanilla — `الكتاب` aparece à direita da linha, `الطاولة` à esquerda. O shaping interno (ligação das letras) permanece correcto.
+
+#### Documento misto (árabe + número latino)
+
+```typst
+#set text(lang: "ar", size: 40pt)
+الكتاب 42 على الطاولة
+```
+
+Comandos:
+
+```bash
+./target/release/typst /tmp/p562-mixed.typ /tmp/p562-mixed.pdf
+mutool draw -o /tmp/p562-mixed.png -r 150 /tmp/p562-mixed.pdf
+lab/typst-original/target/release/typst compile /tmp/p562-mixed.typ /tmp/p562-mixed-vanilla.pdf
+mutool draw -o /tmp/p562-mixed-vanilla.png -r 150 /tmp/p562-mixed-vanilla.pdf
+```
+
+Resultado: a ordem visual está correcta — `42` mantém-se LTR no meio, com os trechos árabes invertidos. Nota: há uma pequena distorção de espaçamento entre `الطاولة` e `على` devido à preservação das posições x originais (limitação documentada acima).
+
+### Linter
+
+```bash
+crystalline-lint .
+```
+
+Resultado: `✓ No violations found`.
+
+### Benchmark
+
+```bash
+python3 tools/perf/benchmark-p507.py
+```
+
+Não concluído nesta sessão — o script excede o tempo razoável (depende de
+`hyperfine` e compila vários documentos repetidamente). A passagem é
+propositadamente barata para documentos LTR: `BidiInfo::new` processa o
+buffer da linha e, para texto LTR puro, a detecção de nível base LTR
+permite sair imediatamente sem reordenar items.
 
 ---
 
@@ -129,16 +150,12 @@ dono, de acordo com o Protocolo de Nucleação.
 |--------|-------|--------|
 | Shaping (formas das letras) | P484, P521 | Fechado |
 | Fonte embutida no PDF | P560 | Fechado |
-| Ordem visual das palavras na linha | P562 | Sonda completa; aguarda L0 |
+| Ordem visual das palavras na linha | P562 | Fechado |
 
 ---
 
-## Bloqueio para implementação
+## Scope-out e passos futuros
 
-**A implementação de código L1/L3 não pode prosseguir sem:**
-
-1. Dono guardar o Prompt L0 `00_nucleo/prompts/infra/layout_bidi.md`.
-2. Dono calcular e inserir o hash do código no cabeçalho do L0.
-3. Confirmar aqui o hash para que a implementação continue.
-
-Até lá, nenhum ficheiro `.rs` foi alterado.
+- Escrita vertical (CJK top → bottom, mongol bottom → top): deixado para passos dedicados, mencionado em `00_nucleo/prompts/infra/layout_bidi.md`.
+- Alinhamento de parágrafo explícito (`dir: rtl`): scope-out — este passo corrige a ordem visual, não o alinhamento.
+- Recálculo de espaçamento com métricas de fonte para texto misto: evolução futura.

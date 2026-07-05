@@ -14,6 +14,7 @@ pub mod fontdb;
 pub mod fonts;
 pub mod image_sizer;
 pub mod layout;
+pub mod layout_bidi;
 pub mod measurements;
 pub mod pipeline;
 pub mod query_helpers;

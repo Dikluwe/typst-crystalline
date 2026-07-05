@@ -370,6 +370,12 @@ fn compile_to_pdf_bytes_impl(
     let t4 = Instant::now();
     timings.layout_ms = duration_ms(t4.duration_since(t3));
 
+    // P562 — reordenação visual bidireccional: corrige a ordem das
+    // palavras em linhas RTL antes do shaping. Passagem posterior pura
+    // sobre PagedDocument; documentos LTR passam por detecção rápida e
+    // saem sem alterações.
+    let doc = crate::layout_bidi::reorder_bidi_document(doc);
+
     // P482 — shaping pass: Text → TextShaped (Trilha 5 Fase 1, ADR-0120 A1).
     let doc = crate::shaper::shape_document(world, doc);
     let t5 = Instant::now();

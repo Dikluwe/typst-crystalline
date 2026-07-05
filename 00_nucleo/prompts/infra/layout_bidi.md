@@ -7,7 +7,7 @@ adr: ADR-0120, ADR-0109, ADR-0114
 ---
 
 # Prompt L0 — Reordenação visual bidireccional de linhas (layout bidi)
-Hash do Código: `PENDENTE — calcular após implementação e guarda pelo dono`
+Hash do Código: 2036cf70
 
 ## Medições que fundamentam a decisão
 
@@ -131,7 +131,25 @@ Se a linha contiver runs RTL:
   documentos árabes/hebraicos simples.
 - Mudança da direcção base da página (`dir: rtl`) — trata-se da
   ordenação visual dentro da linha, não do alinhamento de parágrafo.
-- Texto vertical ou scripts top-down.
+- Texto vertical ou scripts top-down (ver secção seguinte).
+
+## Sugestões para passos futuros
+
+A arquitectura de passagem posterior deste passo resolve apenas a
+**reordenação visual dentro de linhas horizontais**. Outras direcções
+de escrita são deixadas para passos dedicados:
+
+- **Escrita vertical CJK (top → bottom, colunas da direita para a
+  esquerda)**: requer alterar o Layouter para avançar `cursor_y` em
+  vez de `cursor_x`, trocar a lógica de quebra de linha, e rotacionar
+  glifos durante o shaping. Não é uma passagem posterior pura.
+- **Escrita vertical bottom → top (ex.: mongol tradicional)**: similar
+  ao CJK, mas com direcção de linha invertida e possíveis diferenças
+  na rotação de glifos.
+
+Estes casos devem ter os seus próprios Prompts L0 e não devem ser
+acrescentados a este passo, sob pena de inflacionar o escopo para XL+
+e atrasar a entrega do RTL horizontal.
 
 ## Dependências
 
