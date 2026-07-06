@@ -123,7 +123,48 @@ Resultado após a correcção:
 5	1	0	0	1	0	346.41	108.54	168.00	40.00	100	ةلواطلا
 ```
 
-A quebra de linha prematura **ainda ocorre**, mas agora por uma razão diferente: sem o espaço inicial, o total ocupado pelas quatro palavras é `454 pt` e a largura útil é `453.54 pt`. A diferença é de apenas **0.46 pt**, na fronteira do arredondamento/espaçamento. Esta diferença residual é aceite por escrito como limite da paridade actual — está abaixo do limiar visualmente significativo e não resulta de um bug identificável no código de layout.
+A quebra de linha prematura **ainda ocorre**. Sem o espaço inicial, o total ocupado pelas quatro palavras é `454 pt`, enquanto a largura útil é `453.54 pt` — uma diferença de **0.46 pt**.
+
+### Investigação da origem dos 0.46 pt
+
+A diferença vem da largura do número `42`:
+
+| Compilador | Largura de `42` a 40 pt | Fonte default usada |
+|---|---|---|
+| Cristalino | `40.00 pt` | Liberation Serif |
+| Vanilla | `37.20 pt` | Libertinus Serif |
+
+Medimos directamente os ficheiros de fonte:
+
+```bash
+python3 -m venv /tmp/fontenv && /tmp/fontenv/bin/pip install fonttools -q
+/tmp/fontenv/bin/python - <<'PY'
+from fontTools.ttLib import TTFont
+
+lib = TTFont('/usr/share/fonts/truetype/liberation/LiberationSerif-Regular.ttf')
+lib_upem = lib['head'].unitsPerEm
+lib_total = sum(lib['hmtx'][lib.getBestCmap()[ord(c)]][0] for c in '42')
+print(f"Liberation Serif: upem={lib_upem}, '42' units={lib_total}, at 40pt={lib_total/lib_upem*40:.4f}pt")
+
+van = TTFont('/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/krilla-reference/assets/fonts/LibertinusSerif-Regular.otf')
+van_upem = van['head'].unitsPerEm
+van_total = sum(van['hmtx'][van.getBestCmap()[ord(c)]][0] for c in '42')
+print(f"Libertinus Serif: upem={van_upem}, '42' units={van_total}, at 40pt={van_total/van_upem*40:.4f}pt")
+PY
+```
+
+Resultado:
+
+```text
+Liberation Serif: upem=2048, '42' units=2048, at 40pt=40.0000pt
+Libertinus Serif: upem=1000, '42' units=930, at 40pt=37.2000pt
+```
+
+A diferença de `2.8 pt` no `42` é exactamente a diferença entre as duas fontes. O cristalino não tem um erro de layout — tem uma **fonte default diferente** (Liberation Serif, escolhida em P558), cujos dígitos são mais largos do que os da Libertinus Serif do vanilla.
+
+Se o `42` tivesse a largura do vanilla (`37.2 pt`), o total ocupado seria `454 − 2.8 = 451.2 pt`, cabendo dentro da largura útil (`453.54 pt`). Esse valor (`451.2 pt`) coincide exactamente com a largura da linha medida no PDF do vanilla em P586.
+
+**Conclusão:** a quebra residual não é um erro de layout do cristalino. É uma consequência directa da escolha de fonte default. A sequência RTL está fechada quanto aos bugs de layout; a diferença residual é de paridade de fonte, não de algoritmo.
 
 ---
 
@@ -172,7 +213,7 @@ Resultado: todos os 36 ficheiros compilaram com sucesso.
 - [x] Alcance confirmado — geral, não só RTL.
 - [x] Correcção aplicada em `01_core/src/rules/layout/mod.rs:729`.
 - [x] Documento latino sem deslocamento inicial.
-- [x] Documento árabe re-testado; a quebra prematura principal foi eliminada, ficando apenas uma diferença de fronteira de `0.46 pt`, registada como aceitável.
+- [x] Documento árabe re-testado; a quebra prematura principal foi eliminada. A diferença residual de `0.46 pt` foi investigada e atribuída à fonte default diferente (Liberation Serif vs Libertinus Serif), com medição directa nos ficheiros de fonte.
 - [x] Snapshots regenerados sem regressão funcional.
 - [x] Corpus geral sem regressão nova.
 - [x] `cargo test --workspace` limpo.
