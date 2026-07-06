@@ -32,3 +32,8 @@ package-lock.json
 /result
 .direnv/
 lab/krilla-reference/
+
+# Temporary files and outputs
+/temp_p581/
+/test_output.txt
+
