@@ -60,12 +60,12 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
     fn push_text(&mut self, text: ecow::EcoString, width: Pt) {
         if let Some(fill) = self.style.highlight {
             let (ascender, line_height) = self.metrics.vertical_metrics(self.style.size);
-            let font_size_pt = self.style.size.val();
+            let size_pt = self.style.size.val();
             let extent_pt = self.style.highlight_extent
-                .map(|e| e.resolve_pt(font_size_pt))
+                .map(|e| e.resolve_pt(size_pt))
                 .unwrap_or(0.0);
             let shape_kind = match self.style.highlight_radius {
-                Some(r) if r.resolve_pt(font_size_pt) > 0.0 => {
+                Some(r) if r.resolve_pt(size_pt) > 0.0 => {
                     ShapeKind::RoundedRect {
                         radii: Corners::uniform(r),
                     }

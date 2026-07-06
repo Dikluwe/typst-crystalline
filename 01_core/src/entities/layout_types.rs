@@ -738,8 +738,8 @@ impl Length {
 
     /// Resolve para pontos dado um font-size em pt.
     /// `1pt + 1em` com font_size=12.0 → 13.0pt
-    pub fn resolve_pt(&self, font_size_pt: f64) -> f64 {
-        self.abs.to_pt() + self.em * font_size_pt
+    pub fn resolve_pt(&self, size_pt: f64) -> f64 {
+        self.abs.to_pt() + self.em * size_pt
     }
 }
 

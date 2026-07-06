@@ -6,7 +6,7 @@
 
 /// **P482** — Glifo com shaping real via rustybuzz.
 /// Campos em unidades de fonte; converter para pt no export:
-/// `advance_pt = x_advance as f64 / units_per_em * font_size_pt`.
+/// `advance_pt = x_advance as f64 / units_per_em * size_pt`.
 #[derive(Debug, Clone, PartialEq)]
 pub struct ShapedGlyph {
     /// ID do glifo na fonte (índice na tabela de glifos).

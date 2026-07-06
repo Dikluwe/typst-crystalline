@@ -18,7 +18,7 @@ use super::{FontMetrics, ImageSizer, Layouter};
 
 /// Converte segmentos de curva para `PathItem` absolutos, resolvendo
 /// `Length` com o font-size actual.
-pub(super) fn path_items_from_curve(segments: &[CurveSegment], font_size_pt: f64) -> Vec<PathItem> {
+pub(super) fn path_items_from_curve(segments: &[CurveSegment], size_pt: f64) -> Vec<PathItem> {
     let mut items = Vec::new();
     let mut last_point = Point::ZERO;
 
@@ -26,33 +26,33 @@ pub(super) fn path_items_from_curve(segments: &[CurveSegment], font_size_pt: f64
         match seg {
             CurveSegment::Move(p) => {
                 let target = Point {
-                    x: Pt(p.x.resolve_pt(font_size_pt)),
-                    y: Pt(p.y.resolve_pt(font_size_pt)),
+                    x: Pt(p.x.resolve_pt(size_pt)),
+                    y: Pt(p.y.resolve_pt(size_pt)),
                 };
                 items.push(PathItem::MoveTo(target));
                 last_point = target;
             }
             CurveSegment::Line(p) => {
                 let target = Point {
-                    x: Pt(p.x.resolve_pt(font_size_pt)),
-                    y: Pt(p.y.resolve_pt(font_size_pt)),
+                    x: Pt(p.x.resolve_pt(size_pt)),
+                    y: Pt(p.y.resolve_pt(size_pt)),
                 };
                 items.push(PathItem::LineTo(target));
                 last_point = target;
             }
             CurveSegment::Cubic(c1, c2, end) => {
                 let target = Point {
-                    x: Pt(end.x.resolve_pt(font_size_pt)),
-                    y: Pt(end.y.resolve_pt(font_size_pt)),
+                    x: Pt(end.x.resolve_pt(size_pt)),
+                    y: Pt(end.y.resolve_pt(size_pt)),
                 };
                 items.push(PathItem::CubicTo(
                     Point {
-                        x: Pt(c1.x.resolve_pt(font_size_pt)),
-                        y: Pt(c1.y.resolve_pt(font_size_pt)),
+                        x: Pt(c1.x.resolve_pt(size_pt)),
+                        y: Pt(c1.y.resolve_pt(size_pt)),
                     },
                     Point {
-                        x: Pt(c2.x.resolve_pt(font_size_pt)),
-                        y: Pt(c2.y.resolve_pt(font_size_pt)),
+                        x: Pt(c2.x.resolve_pt(size_pt)),
+                        y: Pt(c2.y.resolve_pt(size_pt)),
                     },
                     target,
                 ));
@@ -61,10 +61,10 @@ pub(super) fn path_items_from_curve(segments: &[CurveSegment], font_size_pt: f64
             CurveSegment::Quad(c, end) => {
                 let p0x = last_point.x.0;
                 let p0y = last_point.y.0;
-                let qx = c.x.resolve_pt(font_size_pt);
-                let qy = c.y.resolve_pt(font_size_pt);
-                let ex = end.x.resolve_pt(font_size_pt);
-                let ey = end.y.resolve_pt(font_size_pt);
+                let qx = c.x.resolve_pt(size_pt);
+                let qy = c.y.resolve_pt(size_pt);
+                let ex = end.x.resolve_pt(size_pt);
+                let ey = end.y.resolve_pt(size_pt);
                 let c1x = (p0x + 2.0 * qx) / 3.0;
                 let c1y = (p0y + 2.0 * qy) / 3.0;
                 let c2x = (ex + 2.0 * qx) / 3.0;
