@@ -105,7 +105,7 @@ O relatório do Passo 581 menciona o teste `p581_cobertura_de_escape_e_shorthand
 
 ### 3.4. Ponto cego de cobertura e legado
 
-Embera exista cobertura por meio do teste `p581_cobertura_de_escape_e_shorthand_em_layout`, destaca-se que:
+Embora exista cobertura por meio do teste `p581_cobertura_de_escape_e_shorthand_em_layout`, destaca-se que:
 - O corpus de paridade (os 90 arquivos `.typ` existentes) **não** continha antes e não exercita de forma variada essas construções específicas de escape e shorthands em markup.
 - O bug persistiu por muito tempo sem ser detectado justamente pela ausência inicial de testes direcionados para essas construções específicas do `eval`.
 
@@ -116,7 +116,7 @@ Embera exista cobertura por meio do teste `p581_cobertura_de_escape_e_shorthand_
   - `Expr::Escape` e `Expr::Shorthand`: nunca implementados no eval cristalino.
   - `Expr::Linebreak` em markup: perdido no refactor `08de07dba` (Passo 96).
 - [x] Corpus verificado: 90 ficheiros `.typ`, nenhum usa escape/shorthand/linebreak.
-- [x] Ponto cego de cobertura registado: nenhum teste automático cobria estas construções; a deteção foi manual/visual no Passo 581.
+- [x] Ponto cego de cobertura registado: o corpus de paridade não exercita estas construções; a deteção inicial no Passo 581 foi manual/visual, e a cobertura de testes automáticos foi adicionada no mesmo passo (`p581_cobertura_de_escape_e_shorthand_em_layout`).
 
 ---
 
