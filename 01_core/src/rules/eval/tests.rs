@@ -5411,6 +5411,75 @@ mod tests {
         );
     }
 
+    // ── Passo 584 — Escape, Shorthand e Linebreak em markup ─────────────
+
+    #[test]
+    fn p584_escape_shorthand_linebreak_em_markup_preservados() {
+        // Escape: \# \$ \& \* \\
+        let text = eval_plain_text("\\# \\$ \\& \\* \\\\\\n");
+        assert!(
+            text.contains('#'),
+            "escape \\# deve produzir '#': {:?}",
+            text
+        );
+        assert!(
+            text.contains('$'),
+            "escape \\$ deve produzir '$': {:?}",
+            text
+        );
+        assert!(
+            text.contains('&'),
+            "escape \\& deve produzir '&': {:?}",
+            text
+        );
+        assert!(
+            text.contains('*'),
+            "escape \\* deve produzir '*': {:?}",
+            text
+        );
+        assert!(
+            text.contains('\\'),
+            "escape \\\\ deve produzir '\\\\': {:?}",
+            text
+        );
+
+        // Shorthand: -- (en-dash), --- (em-dash), ... (ellipsis)
+        let text = eval_plain_text("a -- b --- c ... d");
+        assert!(
+            text.contains('\u{2013}'),
+            "shorthand -- deve produzir en-dash U+2013: {:?}",
+            text
+        );
+        assert!(
+            text.contains('\u{2014}'),
+            "shorthand --- deve produzir em-dash U+2014: {:?}",
+            text
+        );
+        assert!(
+            text.contains('\u{2026}'),
+            "shorthand ... deve produzir ellipsis U+2026: {:?}",
+            text
+        );
+
+        // Linebreak em markup: \ (barra seguida de whitespace)
+        let text = eval_plain_text("linha um \\ linha dois");
+        assert!(
+            text.contains("linha um"),
+            "texto antes da quebra deve estar presente: {:?}",
+            text
+        );
+        assert!(
+            text.contains("linha dois"),
+            "texto depois da quebra deve estar presente: {:?}",
+            text
+        );
+        assert!(
+            text.contains('\n'),
+            "linebreak \\ deve introduzir newline em plain_text: {:?}",
+            text
+        );
+    }
+
     // ── Passo 448 — Subscript / Superscript ──────────────────────────────
 
     #[test]
