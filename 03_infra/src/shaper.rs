@@ -1,8 +1,9 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/shaper.md
-//! @prompt-hash a9e026b8
+//! @prompt-hash f2386495
+
 //! @layer L3
-//! @updated 2026-07-03
+//! @updated 2026-07-06
 //!
 //! **P482** — Post-processing shaping pass (Trilha 5 Fase 1).
 //! **P484** — RTL básico via unicode-bidi (Trilha 5 Fase 3, ADR-0120).
@@ -28,7 +29,9 @@ use typst_core::entities::font_list::FontList;
 use typst_core::entities::layout_types::{FrameItem, Page, PagedDocument, Point, Pt, ShapedGlyph, TextStyle};
 
 use crate::fallback_fonts::fallback_font_list_for;
+use crate::font_metrics::FallbackFontMetrics;
 use crate::font_variant::{axis_variations_for_font_variant, text_style_to_font_variant};
+use typst_core::entities::dir::Dir;
 
 /// Converte todos os `FrameItem::Text` de um `PagedDocument` em
 /// `FrameItem::TextShaped` via rustybuzz.
@@ -1154,4 +1157,321 @@ mod tests {
             items.len()
         );
     }
+
+    fn make_textshaped(x: f64, y: f64, glyphs: Vec<ShapedGlyph>, upem: u16, size: f64) -> FrameItem {
+        FrameItem::TextShaped {
+            pos:          Point { x: Pt(x), y: Pt(y) },
+            glyphs,
+            style:        TextStyle { size: Pt(size), ..TextStyle::default() },
+            text:         ecow::EcoString::from(""),
+            units_per_em: upem,
+        }
+    }
+
+    fn glyph(x_advance: i32) -> ShapedGlyph {
+        ShapedGlyph { glyph_id: 1, x_advance, x_offset: 0, y_offset: 0, cluster: 0, char_code: 'A' }
+    }
+
+    fn page_with(items: Vec<FrameItem>) -> Page {
+        Page { items, width: 595.28, height: 841.89, numbering: None }
+    }
+
+    // P582-T1: item único — posição inalterada.
+    #[test]
+    fn p582_single_item_unchanged() {
+        let mut doc = PagedDocument::new(vec![page_with(vec![
+            make_textshaped(70.87, 50.0, vec![glyph(500)], 1000, 12.0),
+        ])]);
+        doc = fix_line_positions(&empty_world(), doc);
+        if let FrameItem::TextShaped { pos, .. } = &doc.pages[0].items[0] {
+            assert!((pos.x.0 - 70.87).abs() < 0.01, "item único: x inalterado");
+        }
+    }
+
+    // P582-T2: dois itens — segundo recebe x = x_orig + (w_real - w_est) de item0.
+    #[test]
+    fn p582_two_items_redistributed() {
+        // item1 em x=70, glyphs advance = 500/1000 * 12 = 6pt, w_est = 0
+        // item2 originalmente em x=100, deve ir para 100 + (6 - 0) = 106
+        let mut doc = PagedDocument::new(vec![page_with(vec![
+            make_textshaped(70.0, 50.0, vec![glyph(500)], 1000, 12.0),
+            make_textshaped(100.0, 50.0, vec![glyph(300)], 1000, 12.0),
+        ])]);
+        doc = fix_line_positions(&empty_world(), doc);
+        let items = &doc.pages[0].items;
+        // item[0] mantém x=70
+        if let FrameItem::TextShaped { pos, .. } = &items[0] {
+            assert!((pos.x.0 - 70.0).abs() < 0.01, "item[0] x deve ser 70.0, got {}", pos.x.0);
+        }
+        // item[1] deve ser 106.0
+        if let FrameItem::TextShaped { pos, .. } = &items[1] {
+            assert!((pos.x.0 - 106.0).abs() < 0.01, "item[1] x deve ser 106.0, got {}", pos.x.0);
+        }
+    }
+
+    // P582-T3: itens em linhas diferentes — redistribuídos de forma independente.
+    #[test]
+    fn p582_two_lines_independent() {
+        let mut doc = PagedDocument::new(vec![page_with(vec![
+            make_textshaped(70.0, 50.0, vec![glyph(500)], 1000, 12.0),  // linha 1
+            make_textshaped(100.0, 50.0, vec![glyph(300)], 1000, 12.0), // linha 1
+            make_textshaped(70.0, 70.0, vec![glyph(400)], 1000, 12.0),  // linha 2
+            make_textshaped(90.0, 70.0, vec![glyph(200)], 1000, 12.0),  // linha 2
+        ])]);
+        doc = fix_line_positions(&empty_world(), doc);
+        let items = &doc.pages[0].items;
+        // linha 1: item[1] = 100 + (6 - 0) = 106
+        if let FrameItem::TextShaped { pos, .. } = &items[1] {
+            assert!((pos.x.0 - 106.0).abs() < 0.01, "linha1 item[1] x deve ser 106.0, got {}", pos.x.0);
+        }
+        // linha 2: item[3] = 90 + (4.8 - 0) = 94.8
+        if let FrameItem::TextShaped { pos, .. } = &items[3] {
+            assert!((pos.x.0 - 94.8).abs() < 0.01, "linha2 item[3] x deve ser 94.8, got {}", pos.x.0);
+        }
+    }
+
+    // P582-T4: item com zero glyphs — advance zero, item seguinte mantém gap original.
+    #[test]
+    fn p582_zero_glyphs_zero_advance() {
+        let mut doc = PagedDocument::new(vec![page_with(vec![
+            make_textshaped(70.0, 50.0, vec![], 1000, 12.0),         // sem glyphs
+            make_textshaped(100.0, 50.0, vec![glyph(500)], 1000, 12.0),
+        ])]);
+        doc = fix_line_positions(&empty_world(), doc);
+        let items = &doc.pages[0].items;
+        // item[1] = 100 + 0 = 100
+        if let FrameItem::TextShaped { pos, .. } = &items[1] {
+            assert!((pos.x.0 - 100.0).abs() < 0.01, "advance zero: item[1] x deve ser 100.0, got {}", pos.x.0);
+        }
+    }
+
+    // P582-T5: coordenada y inalterada.
+    #[test]
+    fn p582_y_unchanged() {
+        let mut doc = PagedDocument::new(vec![page_with(vec![
+            make_textshaped(70.0, 123.45, vec![glyph(500)], 1000, 12.0),
+            make_textshaped(100.0, 123.45, vec![glyph(300)], 1000, 12.0),
+        ])]);
+        doc = fix_line_positions(&empty_world(), doc);
+        for item in &doc.pages[0].items {
+            if let FrameItem::TextShaped { pos, .. } = item {
+                assert!((pos.y.0 - 123.45).abs() < 0.01, "y deve ser inalterado, got {}", pos.y.0);
+            }
+        }
+    }
+
+    // P582-T6: linha RTL — redistribuição com âncora à direita.
+    #[test]
+    fn p582_rtl_redistributed() {
+        // Dois itens com dir RTL:
+        // item0 (esquerda): x_orig = 70.0, w_real = 6.0, w_est = 0.0
+        // item1 (direita/ancora): x_orig = 100.0, w_real = 3.6, w_est = 0.0
+        let mut item0 = make_textshaped(70.0, 50.0, vec![glyph(500)], 1000, 12.0);
+        let mut item1 = make_textshaped(100.0, 50.0, vec![glyph(300)], 1000, 12.0);
+        if let FrameItem::TextShaped { style, .. } = &mut item0 {
+            style.dir = Some(Dir::RTL);
+        }
+        if let FrameItem::TextShaped { style, .. } = &mut item1 {
+            style.dir = Some(Dir::RTL);
+        }
+
+        let mut doc = PagedDocument::new(vec![page_with(vec![item0, item1])]);
+        doc = fix_line_positions(&empty_world(), doc);
+        let items = &doc.pages[0].items;
+
+        // Âncora à direita (item1) mantém x=100.0
+        if let FrameItem::TextShaped { pos, .. } = &items[1] {
+            assert!((pos.x.0 - 100.0).abs() < 0.01, "âncora RTL: x deve ser 100.0, got {}", pos.x.0);
+        }
+        // Item à esquerda (item0) deve ser deslocado por shift = - (w_real[0] - w_est[0]) = -6.0.
+        // Assim, x_new[0] = 70.0 - 6.0 = 64.0.
+        if let FrameItem::TextShaped { pos, .. } = &items[0] {
+            assert!((pos.x.0 - 64.0).abs() < 0.01, "item RTL esquerdo: x deve ser 64.0, got {}", pos.x.0);
+        }
+    }
 }
+
+
+// ── P582 — redistribuição de posições x após shaping ─────────────────────────
+
+/// Tolerância y para agrupar `FrameItem` na mesma linha visual.
+/// Maior que a do bidi (0.01pt) porque aqui não estamos a reposicionar;
+/// 0.5pt cobre sub-pixel rounding sem cruzar linhas adjacentes.
+const Y_TOL_SHAPED: f64 = 0.5;
+
+/// P582 — corrige posições x de todos os itens de uma linha usando os advances
+/// reais dos glyphs obtidos no shaper. O Layouter usa `FallbackFontMetrics`
+/// (estimativa) para calcular o cursor_x de cada palavra; o shaper usa a fonte
+/// real (rustybuzz). Quando as duas fontes diferem (ex.: bold resolve face
+/// diferente), as posições ficam descasadas. Esta passagem redistribui as
+/// posições dentro de cada linha acumulando a diferença (width_real - width_est)
+/// de forma a manter todos os espaçamentos e layouts relativos intactos.
+///
+/// Chamado na pipeline logo após `shape_document`.
+pub fn fix_line_positions(world: &dyn World, mut doc: PagedDocument) -> PagedDocument {
+    let metrics = FallbackFontMetrics::new(world);
+    for page in &mut doc.pages {
+        fix_line_positions_page(&metrics, page);
+    }
+    doc
+}
+
+fn get_item_x(item: &FrameItem) -> Option<f64> {
+    match item {
+        FrameItem::Text { pos, .. } => Some(pos.x.0),
+        FrameItem::TextShaped { pos, .. } => Some(pos.x.0),
+        FrameItem::Glyph { pos, .. } => Some(pos.x.0),
+        FrameItem::Image { pos, .. } => Some(pos.x.0),
+        FrameItem::Shape { pos, .. } => Some(pos.x.0),
+        FrameItem::Group { pos, .. } => Some(pos.x.0),
+        FrameItem::Link { pos, .. } => Some(pos.x.0),
+        FrameItem::Line { start, .. } => Some(start.x.0),
+    }
+}
+
+fn set_item_x(item: &mut FrameItem, x: f64) {
+    match item {
+        FrameItem::Text { pos, .. } => pos.x = Pt(x),
+        FrameItem::TextShaped { pos, .. } => pos.x = Pt(x),
+        FrameItem::Glyph { pos, .. } => pos.x = Pt(x),
+        FrameItem::Image { pos, .. } => pos.x = Pt(x),
+        FrameItem::Shape { pos, .. } => pos.x = Pt(x),
+        FrameItem::Group { pos, .. } => pos.x = Pt(x),
+        FrameItem::Link { pos, .. } => pos.x = Pt(x),
+        FrameItem::Line { start, end, .. } => {
+            let dx = end.x.0 - start.x.0;
+            start.x = Pt(x);
+            end.x = Pt(x + dx);
+        }
+    }
+}
+
+fn get_item_y(item: &FrameItem) -> Option<f64> {
+    match item {
+        FrameItem::Text { pos, .. } => Some(pos.y.0),
+        FrameItem::TextShaped { pos, .. } => Some(pos.y.0),
+        FrameItem::Glyph { pos, .. } => Some(pos.y.0),
+        FrameItem::Image { pos, .. } => Some(pos.y.0),
+        FrameItem::Shape { pos, .. } => Some(pos.y.0),
+        FrameItem::Group { pos, .. } => Some(pos.y.0),
+        FrameItem::Link { pos, .. } => Some(pos.y.0),
+        FrameItem::Line { start, .. } => Some(start.y.0),
+    }
+}
+
+fn estimate_width(metrics: &FallbackFontMetrics, text: &str, style: &TextStyle) -> f64 {
+    use typst_core::rules::layout::FontMetrics;
+    let base = metrics.advance(text, style.size, style).val();
+    let tracking_extra = style.tracking
+        .map(|t| {
+            let tracking_pt = t.resolve_pt(style.size.val());
+            let n = text.chars().count();
+            tracking_pt * n.saturating_sub(1) as f64
+        })
+        .unwrap_or(0.0);
+    base + tracking_extra
+}
+
+fn fix_line_positions_page(metrics: &FallbackFontMetrics, page: &mut Page) {
+    if page.items.is_empty() {
+        return;
+    }
+
+    // 1. Recolher todos os índices de itens que têm coordenada x e y,
+    // agrupados por linha visual (y).
+    let mut lines: Vec<Vec<usize>> = Vec::new();
+    for i in 0..page.items.len() {
+        let y = match get_item_y(&page.items[i]) {
+            Some(y) => y,
+            None => continue,
+        };
+        if let Some(line) = lines.iter_mut().find(|l| {
+            let ly = get_item_y(&page.items[*l.first().unwrap()]).unwrap_or(0.0);
+            (y - ly).abs() <= Y_TOL_SHAPED
+        }) {
+            line.push(i);
+        } else {
+            lines.push(vec![i]);
+        }
+    }
+
+    // 2. Para cada linha, ordenar e aplicar os desvios cumulativos
+    for line in &lines {
+        if line.len() < 2 {
+            continue; // sem vizinhos para acumular desvios
+        }
+
+        // Ordenar por x original crescente (esquerda→direita).
+        let mut sorted = line.clone();
+        sorted.sort_by(|&a, &b| {
+            let xa = get_item_x(&page.items[a]).unwrap_or(0.0);
+            let xb = get_item_x(&page.items[b]).unwrap_or(0.0);
+            xa.partial_cmp(&xb).unwrap_or(std::cmp::Ordering::Equal)
+        });
+
+        // Verificar se a linha é RTL (se algum item tem direcção RTL)
+        let is_rtl_line = sorted.iter().any(|&idx| {
+            match &page.items[idx] {
+                FrameItem::TextShaped { style, .. } => style.dir == Some(Dir::RTL),
+                FrameItem::Text { style, .. } => style.dir == Some(Dir::RTL),
+                _ => false,
+            }
+        });
+
+        if is_rtl_line {
+            // Em linhas RTL, ancoramos o item mais à direita (o início da linha RTL)
+            // e acumulamos desvios para a esquerda (valores negativos de shift).
+            let mut shift = 0.0;
+            for i in (0..sorted.len()).rev() {
+                let idx = sorted[i];
+                let x_orig = match get_item_x(&page.items[idx]) {
+                    Some(x) => x,
+                    None => continue,
+                };
+                set_item_x(&mut page.items[idx], x_orig + shift);
+
+                // O shift que afeta os itens à esquerda (i-1) acumula a diferença
+                // do item que acabamos de posicionar.
+                if i > 0 {
+                    let prev_idx = sorted[i - 1];
+                    let (w_est, w_real) = match &page.items[prev_idx] {
+                        FrameItem::TextShaped { text, style, glyphs, units_per_em, .. } => {
+                            let upem = (*units_per_em).max(1) as f64;
+                            let size = style.size.0;
+                            let w_real = glyphs.iter().map(|g| g.x_advance as f64 / upem * size).sum::<f64>();
+                            let w_est = estimate_width(metrics, text, style);
+                            (w_est, w_real)
+                        }
+                        _ => (0.0, 0.0),
+                    };
+                    shift -= w_real - w_est;
+                }
+            }
+        } else {
+            // Linha LTR normal: ancoramos o primeiro item (mais à esquerda)
+            // e acumulamos desvios para a direita (valores positivos de shift).
+            let mut shift = 0.0;
+            for &idx in &sorted {
+                let x_orig = match get_item_x(&page.items[idx]) {
+                    Some(x) => x,
+                    None => continue,
+                };
+                set_item_x(&mut page.items[idx], x_orig + shift);
+
+                let (w_est, w_real) = match &page.items[idx] {
+                    FrameItem::TextShaped { text, style, glyphs, units_per_em, .. } => {
+                        let upem = (*units_per_em).max(1) as f64;
+                        let size = style.size.0;
+                        let w_real = glyphs.iter().map(|g| g.x_advance as f64 / upem * size).sum::<f64>();
+                        let w_est = estimate_width(metrics, text, style);
+                        (w_est, w_real)
+                    }
+                    _ => (0.0, 0.0),
+                };
+                shift += w_real - w_est;
+            }
+        }
+    }
+}
+
+

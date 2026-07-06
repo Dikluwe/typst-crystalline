@@ -32,7 +32,7 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
     if e.block {
         if layouter.regions.current.cursor_x.0 > layouter.page_config.margin { layouter.flush_line(); }
         let margin_pt = Pt(layouter.page_config.margin);
-        layouter.regions.current.cursor_x = margin_pt + layouter.font_size_pt * 1.5;
+        layouter.regions.current.cursor_x = margin_pt + layouter.style.size * 1.5;
         if !open.is_empty() {
             layouter.layout_content(&Content::text(open));
         }
@@ -42,7 +42,7 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
         }
         if let Some(a) = &e.attribution {
             layouter.flush_line();
-            layouter.regions.current.cursor_x = margin_pt + layouter.font_size_pt * 1.5;
+            layouter.regions.current.cursor_x = margin_pt + layouter.style.size * 1.5;
             layouter.layout_content(&Content::text("— "));
             layouter.layout_content(a);
         }

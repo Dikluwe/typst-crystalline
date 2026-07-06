@@ -31,7 +31,7 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
     let level = &h.level;
     let body = &h.body;
 
-    let heading_size = layouter.font_size_pt * heading_scale(*level);
+    let heading_size = layouter.style.size * heading_scale(*level);
     let prev = layouter.style.clone();
     layouter.style = TextStyle { bold: true, italic: false, size: heading_size, ..TextStyle::default() };
     if layouter.regions.current.cursor_x.0 > layouter.page_config.margin { layouter.flush_line(); }

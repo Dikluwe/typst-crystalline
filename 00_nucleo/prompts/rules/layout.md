@@ -1,5 +1,5 @@
 # Prompt L0 — layout
-Hash do Código: 1b3c3556
+Hash do Código: f93a2eb1
 
 ## Módulo
 `01_core/src/rules/layout.rs`
@@ -39,6 +39,19 @@ API pública — usa `FixedMetrics::new(12.0)`.
 - Paginação: nova página quando `cursor_y > page_height - MARGIN`
 - `flush_line()` move `current_line` para o frame actual
 - `finish()` faz flush final e descarta página vazia
+
+### Avanço vertical e cálculo de line_height dinâmico (Passo 579)
+
+Para suportar parágrafos com fontes de tamanhos mistos ou tamanhos diferentes do padrão do documento, o Layouter deve calcular o avanço do cursor vertical (`cursor_y`) e a altura de quebra de linha de forma dinâmica:
+
+1. **Cálculo em `flush_line()`**:
+   - O `line_height` deve ser calculado chamando `vertical_metrics` com o tamanho de fonte máximo (`style.size`) encontrado entre todos os elementos de texto (`FrameItem::Text` e `FrameItem::TextShaped`) contidos na `current_line` que será drenada.
+   - Se `current_line` estiver vazia, utiliza-se o tamanho de fonte ativo `self.style.size` como fallback.
+   - O `line_leading_pt` de cada elemento de texto na linha deve ser resolvido usando o tamanho de fonte do próprio elemento (`style.size`) em vez da constante base do documento.
+
+2. **Inicialização do Cursor (Página e Coluna)**:
+   - Ao iniciar uma nova página ou coluna, o deslocamento inicial do cursor (`ascender`) deve ser calculado usando o tamanho de fonte ativo (`self.style.size`) do Layouter, garantindo que o início da primeira linha esteja alinhado de forma consistente com o estilo ativo.
+
 
 ### Decoração textual wrap-aware (Passo 286 — fecha cluster P284-P285-P286)
 

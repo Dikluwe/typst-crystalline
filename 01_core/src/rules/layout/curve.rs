@@ -92,7 +92,7 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
     layouter: &mut Layouter<M, S>,
     e:        &CurveElem,
 ) {
-    let font = layouter.font_size_pt.val();
+    let font = layouter.style.size.val();
     let path_items = path_items_from_curve(&e.segments, font);
 
     let (min_x, min_y, max_x, max_y) = crate::entities::geometry::path_bbox(&path_items);

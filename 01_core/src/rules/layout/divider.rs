@@ -32,5 +32,5 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
         stroke: Some(Stroke { paint: Paint::Solid(Color::rgb(0, 0, 0)), thickness: 0.5, overhang: false }),
         parent_bbox_at_emit: None,
     });
-    layouter.regions.current.cursor_y += layouter.font_size_pt * 0.6;
+    layouter.regions.current.cursor_y += layouter.style.size * 0.6;
 }

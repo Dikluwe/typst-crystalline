@@ -25,7 +25,7 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
     // **P243**: `right` agora reduz `regions.current.width`
     // efectiva durante body layout via save/restore (paridade
     // mecânica vanilla).
-    let font = layouter.font_size_pt.val();
+    let font = layouter.style.size.val();
     let left   = sides.left  .map_or(0.0, |l| l.resolve_pt(font));
     let top    = sides.top   .map_or(0.0, |l| l.resolve_pt(font));
     let right  = sides.right .map_or(0.0, |l| l.resolve_pt(font));

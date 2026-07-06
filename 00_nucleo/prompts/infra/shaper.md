@@ -7,7 +7,7 @@ adr: ADR-0120
 ---
 
 # Prompt L0 — `shaper.rs` (Trilha 5 Fase 1)
-Hash do Código: bfc99c3f
+Hash do Código: 04ab225d
 
 ## Propósito
 
@@ -438,3 +438,41 @@ Nomes em regex ou sem indicação de classe usam a lista sans por defeito.
 - `p555_fallback_font_list_serif_for_freeserif`: `FreeSerif` → lista serif.
 - `p555_fallback_font_list_sans_for_dejavu_sans`: `DejaVu Sans` → lista sans.
 - `p555_fallback_font_list_default_for_unknown`: nome sem indicação → lista sans.
+
+---
+
+## §P582 — Redistribuição de posições x após shaping
+
+**Data:** 2026-07-06
+
+Corrige posições x de todos os itens de uma linha usando os advances reais dos glyphs obtidos no shaper. O Layouter usa `FallbackFontMetrics` (estimativa) para calcular o cursor_x de cada palavra; o shaper usa a fonte real (rustybuzz). Quando as duas fontes diferem (ex.: bold resolve face diferente), as posições ficam descasadas. Esta passagem redistribui as posições dentro de cada linha acumulando a diferença (width_real - width_est) de forma a manter todos os espaçamentos e layouts relativos intactos.
+
+### Chamada na pipeline (`03_infra/src/pipeline.rs`)
+
+```rust
+let doc = crate::shaper::shape_document(world, doc);
+let doc = crate::shaper::fix_line_positions(world, doc);
+```
+
+### Comportamento
+
+1. **Agrupamento por linha**: Para cada página, percorre `page.items` e agrupa os itens por baseline y (dentro de tolerância 0.5pt).
+2. **Redistribuição de x**: Para cada linha, ordena os itens por x original (esquerda para direita).
+   - Se a linha for RTL (se algum item tiver direção RTL):
+     - Ancoramos o item mais à direita (o início da linha RTL) na sua coordenada original.
+     - Percorremos a linha de trás para frente (da direita para a esquerda) aplicando `x_new = x_orig + shift`.
+     - O shift acumula negativamente a diferença: `shift -= w_real - w_est` do item à esquerda.
+   - Caso contrário (linha LTR normal):
+     - Ancoramos o primeiro item (mais à esquerda) na sua coordenada original.
+     - Percorremos a linha da esquerda para a direita aplicando `x_new = x_orig + shift`.
+     - O shift acumula positivamente a diferença: `shift += w_real - w_est` de cada item.
+
+### Testes adicionados P582
+
+- `p582_single_item_unchanged`: item único — posição inalterada.
+- `p582_two_items_redistributed`: dois itens — segundo recebe o shift cumulativo de largura.
+- `p582_two_lines_independent`: itens em linhas diferentes redistribuídos independentemente.
+- `p582_zero_glyphs_zero_advance`: item com glyphs vazios não altera a posição do seguinte.
+- `p582_y_unchanged`: coordenada y mantida inalterada.
+- `p582_rtl_redistributed`: linha RTL com âncora à direita e shift para a esquerda.
+

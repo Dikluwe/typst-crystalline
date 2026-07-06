@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/rules/layout.md
-//! @prompt-hash 12536b5c
+//! @prompt-hash 5249700d
 //! @layer L1
 //! @updated 2026-04-23
 //!
@@ -804,8 +804,8 @@ fn layout_list_item_respeita_indentacao() {
     );
     let doc = layout(&item);
     let margin = 70.87_f64;
-    let indent_em = 18.0_f64; // 1.5em @ 12pt
-    let body_indent_em = 6.0_f64; // 0.5em @ 12pt
+    let indent_em = 16.5_f64; // 1.5em @ 11pt
+    let body_indent_em = 5.5_f64; // 0.5em @ 11pt
     let expected_marker_x = margin + indent_em;
 
     let marker = doc
@@ -818,7 +818,7 @@ fn layout_list_item_respeita_indentacao() {
         FrameItem::Text { pos, .. } => pos.x.val(),
         _ => unreachable!(),
     };
-    let marker_width = FixedMetrics.advance("→", Pt(12.0), &TextStyle::default()).val();
+    let marker_width = FixedMetrics.advance("→", Pt(11.0), &TextStyle::default()).val();
     let expected_body_x = expected_marker_x + marker_width + body_indent_em;
 
     assert!(
@@ -879,7 +879,7 @@ fn layout_list_tight_false_adiciona_espaco() {
         })
         .collect();
     assert_eq!(ys.len(), 2, "deve haver dois marcadores");
-    let (_, line_height) = FixedMetrics.vertical_metrics(Pt(12.0));
+    let (_, line_height) = FixedMetrics.vertical_metrics(Pt(11.0));
     // P505 — `tight: false` adiciona um line_height de espaçamento de
     // parágrafo *além* do line_height natural do flush_line.
     let expected_gap = 2.0 * line_height.val();
@@ -907,7 +907,7 @@ fn layout_list_tight_default_preserva_gap_natural() {
         })
         .collect();
     assert_eq!(ys.len(), 2, "deve haver dois marcadores");
-    let (_, line_height) = FixedMetrics.vertical_metrics(Pt(12.0));
+    let (_, line_height) = FixedMetrics.vertical_metrics(Pt(11.0));
     let actual_gap = ys[1] - ys[0];
     assert!(
         (actual_gap - line_height.val()).abs() < 0.01,
@@ -932,8 +932,8 @@ fn layout_enum_item_respeita_indentacao() {
     );
     let doc = layout(&item);
     let margin = 70.87_f64;
-    let indent_em = 18.0_f64;
-    let body_indent_em = 6.0_f64;
+    let indent_em = 16.5_f64; // 1.5em @ 11pt
+    let body_indent_em = 5.5_f64; // 0.5em @ 11pt
     let expected_label_x = margin + indent_em;
 
     let label = doc
@@ -946,7 +946,7 @@ fn layout_enum_item_respeita_indentacao() {
         FrameItem::Text { pos, .. } => pos.x.val(),
         _ => unreachable!(),
     };
-    let label_width = FixedMetrics.advance("1.", Pt(12.0), &TextStyle::default()).val();
+    let label_width = FixedMetrics.advance("1.", Pt(11.0), &TextStyle::default()).val();
     let expected_body_x = expected_label_x + label_width + body_indent_em;
 
     assert!(
@@ -996,7 +996,7 @@ fn layout_enum_tight_false_adiciona_espaco() {
         })
         .collect();
     assert_eq!(ys.len(), 2, "deve haver dois rótulos");
-    let (_, line_height) = FixedMetrics.vertical_metrics(Pt(12.0));
+    let (_, line_height) = FixedMetrics.vertical_metrics(Pt(11.0));
     // P505 — `tight: false` adiciona um line_height de espaçamento de
     // parágrafo *além* do line_height natural do flush_line.
     let expected_gap = 2.0 * line_height.val();
@@ -1028,7 +1028,7 @@ fn layout_enum_tight_default_preserva_gap_natural() {
         })
         .collect();
     assert_eq!(ys.len(), 2, "deve haver dois rótulos");
-    let (_, line_height) = FixedMetrics.vertical_metrics(Pt(12.0));
+    let (_, line_height) = FixedMetrics.vertical_metrics(Pt(11.0));
     let actual_gap = ys[1] - ys[0];
     assert!(
         (actual_gap - line_height.val()).abs() < 0.01,
@@ -2515,7 +2515,7 @@ fn grid_fr_distribution_quando_auto_e_pequeno() {
     let intr = TagIntrospector::empty();
     let intr_dyn: &dyn Introspector = &intr;
     let intr_tracked = intr_dyn.track();
-    let layouter =
+    let mut layouter =
         Layouter::new(FixedMetrics, NullImageSizer, DEFAULT_FONT_SIZE, intr_tracked);
 
     // Simular Fase 1.
@@ -2588,7 +2588,7 @@ fn grid_fr_recebe_zero_quando_auto_e_guloso() {
     let intr = TagIntrospector::empty();
     let intr_dyn: &dyn Introspector = &intr;
     let intr_tracked = intr_dyn.track();
-    let layouter =
+    let mut layouter =
         Layouter::new(FixedMetrics, NullImageSizer, DEFAULT_FONT_SIZE, intr_tracked);
 
     let mut resolved = vec![0.0_f64; 3];
@@ -2705,7 +2705,7 @@ fn grid_auto_respects_safe_available() {
     let intr = TagIntrospector::empty();
     let intr_dyn: &dyn Introspector = &intr;
     let intr_tracked = intr_dyn.track();
-    let layouter =
+    let mut layouter =
         Layouter::new(FixedMetrics, NullImageSizer, DEFAULT_FONT_SIZE, intr_tracked);
 
     let mut resolved = vec![0.0_f64; 1];
@@ -3481,7 +3481,28 @@ Página três."#,
             );
         }
     }
+
+    /// Passo 581 — Garante que caracteres de escape e shorthands em markup
+    /// sejam avaliados e renderizados corretamente no layout, sem desaparecer.
+    #[test]
+    fn p581_cobertura_de_escape_e_shorthand_em_layout() {
+        let doc = layout_typst("A \\# B \\$ C -- D ... E");
+        let items: Vec<_> = doc.pages[0]
+            .items
+            .iter()
+            .filter_map(|it| match it {
+                FrameItem::Text { text, .. } => Some(text.to_string()),
+                _ => None,
+            })
+            .collect();
+        let joined = items.join(" ");
+        assert!(joined.contains("#"), "deve conter '#' do escape; obtido: '{}'", joined);
+        assert!(joined.contains("$"), "deve conter '$' do escape; obtido: '{}'", joined);
+        assert!(joined.contains("–"), "deve conter '–' do shorthand; obtido: '{}'", joined);
+        assert!(joined.contains("…"), "deve conter '…' do shorthand; obtido: '{}'", joined);
+    }
 }
+
 
 // ── Passo 103.D: Integração `#show` end-to-end ────────────────────────────
 

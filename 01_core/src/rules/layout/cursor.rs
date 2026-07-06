@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/rules/layout.md
-//! @prompt-hash 12536b5c
+//! @prompt-hash 5249700d
 //! @layer L1
 //! @updated 2026-04-23
 //!
@@ -11,6 +11,7 @@
 use crate::entities::{
     corners::Corners,
     counter_format::{count_numbering_tokens, format_counter},
+    dir::Dir,
     geometry::ShapeKind,
     image_sizer::ImageSizer,
     layout_types::{FrameItem, Page, Point, Pt, TextStyle},
@@ -58,8 +59,8 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
     /// `extent` (extensão horizontal). O shape cobre `ascender → line_height`.
     fn push_text(&mut self, text: ecow::EcoString, width: Pt) {
         if let Some(fill) = self.style.highlight {
-            let (ascender, line_height) = self.metrics.vertical_metrics(self.font_size_pt);
-            let font_size_pt = self.font_size_pt.0;
+            let (ascender, line_height) = self.metrics.vertical_metrics(self.style.size);
+            let font_size_pt = self.style.size.val();
             let extent_pt = self.style.highlight_extent
                 .map(|e| e.resolve_pt(font_size_pt))
                 .unwrap_or(0.0);
@@ -149,6 +150,35 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
         self.regions.current.cursor_x += w;
     }
 
+    /// P576 — desloca a linha actual para a margem direita se o seu
+    /// estilo indicar `dir: rtl`. Usado por `flush_line` e por `finish`
+    /// (a última linha do documento não passa por `flush_line`).
+    pub(super) fn align_current_line_rtl(&mut self) {
+        let is_rtl = self.regions.current.current_line
+            .iter()
+            .find_map(|item| match item {
+                FrameItem::Text { style, .. } | FrameItem::TextShaped { style, .. } => style.dir,
+                _ => None,
+            })
+            == Some(Dir::RTL);
+        if !is_rtl {
+            return;
+        }
+        let right_margin = self.regions.current.width - self.page_config.margin;
+        let offset = right_margin - self.regions.current.cursor_x.0;
+        let translated: Vec<FrameItem> = self
+            .regions
+            .current
+            .current_line
+            .drain(..)
+            .map(|item| {
+                let (ix, iy) = super::helpers::item_pos(&item);
+                super::helpers::translate_frame_item(item, Pt(ix + offset), Pt(iy))
+            })
+            .collect();
+        self.regions.current.current_line = translated;
+    }
+
     pub(super) fn flush_line(&mut self) {
         // Avançar cursor_y apenas se havia items pendentes na linha actual
         // (Passo 83). Caso contrário, flush_line é um no-op semanticamente
@@ -171,30 +201,42 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
             }
         }
 
+        // Determinar o tamanho máximo de fonte presente nos items da linha.
+        // Se a linha não tiver items de texto, usa self.style.size como fallback.
+        #[allow(deprecated)]
+        let max_font_size = self.regions.current.current_line
+            .iter()
+            .map(|item| match item {
+                crate::entities::layout_types::FrameItem::Text { style, .. } => style.size,
+                crate::entities::layout_types::FrameItem::TextShaped { style, .. } => style.size,
+                _ => Pt::ZERO,
+            })
+            .fold(self.style.size, |max, size| if size.0 > max.0 { size } else { max });
+
         // Passo 138 (Fase B.2 DEBT-52): consumer leading.
         // `self.style` pode ter sido restaurado ao outer scope antes de
-        // flush_line ser chamado (ver arm Content::Text em layout/mod.rs
-        // que faz `self.style = prev_style` após layout_word). Em vez
-        // disso, peek no último FrameItem::Text da current_line — o seu
-        // `.style.leading` é o valor efectivo do baseline.
-        //
-        // Fórmula (opt soma): `line_height = default + user_leading`.
+        // flush_line ser chamado. Em vez disso, peek no último item da
+        // current_line — resolve o leading com base no seu próprio tamanho.
+        #[allow(deprecated)]
         let line_leading_pt = self.regions.current.current_line
             .iter()
             .rev()
             .find_map(|item| match item {
-                crate::entities::layout_types::FrameItem::Text { style, .. } => {
-                    style.leading.map(|l| l.resolve_pt(self.font_size_pt.val()))
+                crate::entities::layout_types::FrameItem::Text { style, .. } | crate::entities::layout_types::FrameItem::TextShaped { style, .. } => {
+                    style.leading.map(|l| l.resolve_pt(style.size.val()))
                 }
                 _ => None,
             })
             .unwrap_or(0.0);
 
+        // P576 — alinhamento de parágrafo RTL.
+        self.align_current_line_rtl();
+
         for item in self.regions.current.current_line.drain(..) {
             self.regions.current.current_items.push(item);
         }
         if had_items {
-            let (_, line_height) = self.metrics.vertical_metrics(self.font_size_pt);
+            let (_, line_height) = self.metrics.vertical_metrics(max_font_size);
             self.regions.current.cursor_y += line_height + Pt(line_leading_pt);
         }
         // Reiniciar ao início da linha actual — margem da página, ou cell_x
@@ -254,7 +296,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
                 ));
             } else if let Some(text) = format_counter(&[page_number], pattern.as_str()) {
                 let style = TextStyle::from(&self.chain);
-                let text_width = self.metrics.advance(&text, self.font_size_pt, &style).0;
+                let text_width = self.metrics.advance(&text, style.size, &style).0;
                 let x = (self.regions.current.width - text_width) / 2.0;
                 // Coordenadas do layout: origem no canto superior-esquerdo,
                 // Y cresce para baixo. O PDF inverte Y; posicionar perto do
@@ -263,7 +305,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
                 items.push(FrameItem::Text {
                     pos: Point { x: Pt(x), y: Pt(y) },
                     text: text.into(),
-                    style: TextStyle::regular(self.font_size_pt),
+                    style,
                 });
             }
         }
@@ -277,7 +319,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
         self.pages.push(page);
         self.regions.current.cursor_x = Pt(self.page_config.margin);
         self.regions.current.line_start_x = Pt(self.page_config.margin);
-        let (ascender, _) = self.metrics.vertical_metrics(self.font_size_pt);
+        let (ascender, _) = self.metrics.vertical_metrics(self.style.size);
         self.regions.current.cursor_y = Pt(self.page_config.margin) + ascender;
         // P245 — reset reservas na nova página.
         self.cursor_y_top_reserve = 0.0;
@@ -376,7 +418,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
         self.regions.current.width = self.column_width;
         self.regions.current.cursor_x = Pt(self.page_config.margin);
         self.regions.current.line_start_x = Pt(self.page_config.margin);
-        let (ascender, _) = self.metrics.vertical_metrics(self.font_size_pt);
+        let (ascender, _) = self.metrics.vertical_metrics(self.style.size);
         self.regions.current.cursor_y = Pt(self.page_config.margin) + ascender;
         self.regions.current.current_line.clear();
     }
@@ -445,7 +487,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
         // target_y final exacto (não baseline), subtrair ascender do
         // offset de translação — paridade pattern `layout_place`
         // (placement.rs).
-        let (ascender, _) = self.metrics.vertical_metrics(self.font_size_pt);
+        let (ascender, _) = self.metrics.vertical_metrics(self.style.size);
         let target_y = target_y - ascender.0;
         // Calcular X conforme alignment.x.
         let x_offset = match f.alignment.h {
@@ -614,7 +656,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
         // target_y absoluto exacto (não baseline), subtrair ascender
         // do offset de translação — paridade pattern `emit_deferred_float`
         // (P245) + `layout_place` (placement.rs).
-        let (ascender, _) = self.metrics.vertical_metrics(self.font_size_pt);
+        let (ascender, _) = self.metrics.vertical_metrics(self.style.size);
         // P305 — clamp Y inicial ao top_safe para evitar overlap em
         // defensive emit (body > full_avail). Se acc_h ≤ available_h,
         // clamp é no-op (area_bot - acc_h ≥ top_safe por construção).

@@ -85,7 +85,7 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
 
     // 2. Resolver gutter (Length → f64 Pt; default ~4% page width).
     let gutter_pt = match e.gutter {
-        Some(g) => g.resolve_pt(layouter.font_size_pt.0),
+        Some(g) => g.resolve_pt(layouter.style.size.0),
         None => page_width * super::COLUMNS_DEFAULT_GUTTER_RATIO,
     };
 
@@ -127,7 +127,7 @@ fn layout_segmented<M: FontMetrics, S: ImageSizer>(
     margin: f64,
     page_columns: bool,
 ) {
-    let ascender = layouter.metrics.vertical_metrics(layouter.font_size_pt).0;
+    let ascender = layouter.metrics.vertical_metrics(layouter.style.size).0;
     let mut all_column_items: Vec<FrameItem> = Vec::new();
     let column_start_y = layouter.regions.current.cursor_y;
     let mut max_column_bottom_y = column_start_y;

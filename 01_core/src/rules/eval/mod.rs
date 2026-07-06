@@ -809,6 +809,10 @@ pub(crate) fn eval_expr(
             ))))
         }
 
+        Expr::Escape(v) => Ok(Value::Str(ecow::EcoString::from(v.get()))),
+        Expr::Shorthand(v) => Ok(Value::Str(ecow::EcoString::from(v.get()))),
+        Expr::Linebreak(_) => Ok(Value::Content(Content::linebreak())),
+
         // Fronteira deliberada — requer tipos não migrados (Content, Styles, etc.)
         _ => Ok(Value::None),
     }
@@ -1201,6 +1205,13 @@ fn make_stdlib() -> Scope {
     scope.define("top",     Value::Align(Align2D { h: None, v: Some(VAlign::Top) }));
     scope.define("horizon", Value::Align(Align2D { h: None, v: Some(VAlign::Horizon) }));
     scope.define("bottom",  Value::Align(Align2D { h: None, v: Some(VAlign::Bottom) }));
+
+    // Constantes de direcção (Passo 576).
+    use crate::entities::dir::Dir;
+    scope.define("ltr", Value::Dir(Dir::LTR));
+    scope.define("rtl", Value::Dir(Dir::RTL));
+    scope.define("ttb", Value::Dir(Dir::TTB));
+    scope.define("btt", Value::Dir(Dir::BTT));
 
     scope
 }

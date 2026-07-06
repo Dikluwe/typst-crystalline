@@ -46,7 +46,7 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
         );
         let (content_w, _) = measure_content(body, avail_w_page);
         let resolved_clearance = clearance
-            .map(|l| l.resolve_pt(layouter.font_size_pt.val()))
+            .map(|l| l.resolve_pt(layouter.style.size.val()))
             .unwrap_or(0.0);
 
         // Reserva espaço top se alignment.y == Top.

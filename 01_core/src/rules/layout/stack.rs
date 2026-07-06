@@ -22,7 +22,7 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
     let children = &e.children;
     let dir = &e.dir;
     let spacing = &e.spacing;
-    let font = layouter.font_size_pt.val();
+    let font = layouter.style.size.val();
     let space_pt = spacing.map_or(0.0, |l| l.resolve_pt(font));
 
     // Stack é STRUCTURAL: força flush_line antes.

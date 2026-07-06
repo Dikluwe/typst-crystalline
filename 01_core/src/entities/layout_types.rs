@@ -19,6 +19,7 @@ use std::sync::Arc;
 
 use ecow::EcoString;
 
+use crate::entities::dir::Dir;
 use crate::entities::document_info::DocumentInfo;
 use crate::entities::geometry::{ShapeKind, Stroke};
 use crate::entities::label::Label;
@@ -137,6 +138,8 @@ pub struct TextStyle {
     pub leading:       Option<crate::entities::layout_types::Length>,
     pub lang:          Option<crate::entities::lang::Lang>,
     pub font:          Option<crate::entities::font_list::FontList>,
+    /// **P576**: direcção de texto (`ltr`/`rtl`), transportada do `#set text(dir: ...)`.
+    pub dir:           Option<Dir>,
     /// **Passo 448 (P448)**: subscrito (`#sub[...]`).
     pub subscript:     bool,
     /// **Passo 448 (P448)**: sobrescrito (`#super[...]`).

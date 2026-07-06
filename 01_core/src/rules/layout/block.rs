@@ -20,7 +20,7 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
 ) {
     let (body, width, height, inset, breakable, outset, radius, clip, fill, stroke, spacing, above, below) =
         (&e.body, &e.width, &e.height, &e.inset, &e.breakable, &e.outset, &e.radius, &e.clip, &e.fill, &e.stroke, &e.spacing, &e.above, &e.below);
-    let font = layouter.font_size_pt.val();
+    let font = layouter.style.size.val();
     let inset_left   = inset.left.resolve_pt(font);
     let inset_top    = inset.top.resolve_pt(font);
     let inset_bottom = inset.bottom.resolve_pt(font);

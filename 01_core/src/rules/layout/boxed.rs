@@ -20,7 +20,7 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
 ) {
     let (body, width, height, inset, baseline, outset, radius, clip, fill, stroke) =
         (&e.body, &e.width, &e.height, &e.inset, &e.baseline, &e.outset, &e.radius, &e.clip, &e.fill, &e.stroke);
-    let font = layouter.font_size_pt.val();
+    let font = layouter.style.size.val();
     let inset_left  = inset.left.resolve_pt(font);
     let inset_right = inset.right.resolve_pt(font);
 
@@ -122,7 +122,7 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
                     // Baseline-relative: top da caixa ~
                     // cursor_y - line_height (refino futuro).
                     y: layouter.regions.current.cursor_y
-                       - layouter.metrics.vertical_metrics(layouter.font_size_pt).1,
+                       - layouter.metrics.vertical_metrics(layouter.style.size).1,
                 };
                 layouter.regions.current.current_items.push(FrameItem::Group {
                     pos:          pos_box,
@@ -147,7 +147,7 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
     // ajustada por outset.top + outset.bottom. Width = avanço
     // horizontal total (cursor_x - start_x).
     if has_shape || has_outset {
-        let (_, line_h) = layouter.metrics.vertical_metrics(layouter.font_size_pt);
+        let (_, line_h) = layouter.metrics.vertical_metrics(layouter.style.size);
         // outer_w cobre todo o intervalo (start_x captado
         // ANTES de outset_left).
         let mut outer_w = layouter.regions.current.cursor_x.0 - start_x;

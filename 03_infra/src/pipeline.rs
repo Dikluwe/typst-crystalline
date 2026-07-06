@@ -379,6 +379,13 @@ fn compile_to_pdf_bytes_impl(
 
     // P482 — shaping pass: Text → TextShaped (Trilha 5 Fase 1, ADR-0120 A1).
     let doc = crate::shaper::shape_document(world, doc);
+    // P582 — redistribuição de posições x usando advances reais dos glyphs.
+    // Corrige divergência entre FallbackFontMetrics (layout) e métricas reais
+    // da fonte (shaping), que causa espaçamento incorrecto em headings bold e
+    // em qualquer linha onde o Layouter usa uma face diferente da que o shaper
+    // escolhe. A âncora (x do primeiro item) é preservada; apenas os itens
+    // subsequentes são redistribuídos.
+    let doc = crate::shaper::fix_line_positions(world, doc);
     let t5 = Instant::now();
     timings.shape_ms = duration_ms(t5.duration_since(t4));
 

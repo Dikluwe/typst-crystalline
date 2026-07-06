@@ -20,6 +20,7 @@ use crate::entities::ast::code::{SetRule, ShowRule as ShowRuleNode};
 use crate::entities::ast::expr::{Arg, ArrayItem, Dict, DictItem, Expr};
 use crate::entities::ast::AstNode;
 use crate::entities::content::Content;
+use crate::entities::dir::Dir;
 use crate::entities::element_kind::ElementKind;
 use crate::entities::engine::Engine;
 use crate::entities::font_book::FontWeight;
@@ -1069,6 +1070,12 @@ pub(super) fn eval_set_rule(
                     };
                     *engine.styles =
                         engine.styles.push_custom("text.font", Value::Array(arr));
+                }
+                "dir" => {
+                    if let Value::Dir(dir) = val {
+                        *engine.styles =
+                            engine.styles.push_custom("text.dir", Value::Dir(dir));
+                    }
                 }
                 _ => {
                     // Passo 107 (encerra DEBT-49): propriedades não suportadas

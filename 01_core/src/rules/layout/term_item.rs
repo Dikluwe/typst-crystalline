@@ -22,7 +22,7 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
 ) {
     if layouter.regions.current.cursor_x.0 > layouter.page_config.margin { layouter.flush_line(); }
     let margin_pt = Pt(layouter.page_config.margin);
-    layouter.regions.current.cursor_x = margin_pt + layouter.font_size_pt * 1.5;
+    layouter.regions.current.cursor_x = margin_pt + layouter.style.size * 1.5;
     // O termo aparece em negrito — convenção de listas de definições.
     let prev_chain = layouter.chain.clone();
     let prev_style = layouter.style.clone();

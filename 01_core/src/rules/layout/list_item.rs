@@ -26,7 +26,7 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
     }
 
     let margin_pt = Pt(layouter.page_config.margin);
-    let font_size = layouter.font_size_pt;
+    let font_size = layouter.style.size;
 
     // P505 — espaçamento de parágrafo *entre* itens soltos.
     let is_loose = e.tight == Some(false);

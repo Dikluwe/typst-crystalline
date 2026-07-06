@@ -177,20 +177,106 @@ fn reorder_indices(
     gap: f64,
     target_y: f64,
 ) {
-    let mut pairs: Vec<(ecow::EcoString, typst_core::entities::layout_types::TextStyle)> =
-        indices
-            .iter()
-            .filter_map(|&idx| {
-                if let FrameItem::Text { text, style, .. } = &items[idx] {
-                    Some((text.clone(), style.clone()))
-                } else {
-                    None
-                }
-            })
-            .collect();
+    if indices.is_empty() {
+        return;
+    }
 
-    pairs.reverse();
+    // 1. Concatenar texto e registrar intervalos
+    let mut line_text = String::new();
+    let mut item_ranges = Vec::new();
+    for &idx in indices {
+        if let FrameItem::Text { text, .. } = &items[idx] {
+            let start = line_text.len();
+            line_text.push_str(text.as_str());
+            let end = line_text.len();
+            item_ranges.push((idx, start..end));
+            line_text.push(' ');
+        }
+    }
 
+    // 2. Determinar nível padrão do parágrafo
+    let mut has_rtl_dir = false;
+    for &idx in indices {
+        if let FrameItem::Text { style, .. } = &items[idx] {
+            if style.dir == Some(typst_core::entities::dir::Dir::RTL) {
+                has_rtl_dir = true;
+                break;
+            }
+        }
+    }
+    let default_level = if has_rtl_dir { Some(unicode_bidi::Level::rtl()) } else { None };
+
+    // 3. Executar Unicode Bidi
+    let bidi = BidiInfo::new(&line_text, default_level);
+    if bidi.paragraphs.is_empty() {
+        // Fallback para reversão total se não houver parágrafos (improvável)
+        let mut pairs: Vec<(ecow::EcoString, typst_core::entities::layout_types::TextStyle)> =
+            indices
+                .iter()
+                .filter_map(|&idx| {
+                    if let FrameItem::Text { text, style, .. } = &items[idx] {
+                        Some((text.clone(), style.clone()))
+                    } else {
+                        None
+                    }
+                })
+                .collect();
+        pairs.reverse();
+        let mut current_x = x_min;
+        for (&idx, (text, style)) in indices.iter().zip(pairs.into_iter()) {
+            if let FrameItem::Text { text: t, style: s, pos } = &mut items[idx] {
+                *t = text;
+                *s = style;
+                pos.x = Pt(current_x);
+                pos.y = Pt(target_y);
+                let w = metrics.advance(t.as_str(), s.size, s).0;
+                current_x += w + gap;
+            }
+        }
+        return;
+    }
+    let para = &bidi.paragraphs[0];
+    let (levels, runs) = bidi.visual_runs(para, para.range.clone());
+
+    // 4. Mapear itens para runs visuais e reordenar
+    let mut visual_item_order = Vec::new();
+    for run_range in runs {
+        let is_run_rtl = levels
+            .get(run_range.start)
+            .map(|l| l.is_rtl())
+            .unwrap_or(false);
+
+        // Encontrar todos os itens que caem dentro deste run visual
+        let mut run_items = Vec::new();
+        for &(idx, ref range) in &item_ranges {
+            let mid = (range.start + range.end) / 2;
+            if run_range.contains(&mid) {
+                run_items.push(idx);
+            }
+        }
+
+        if is_run_rtl {
+            run_items.reverse();
+        }
+        visual_item_order.extend(run_items);
+    }
+
+    // Adicionar quaisquer itens não mapeados
+    for &idx in indices {
+        if !visual_item_order.contains(&idx) {
+            visual_item_order.push(idx);
+        }
+    }
+
+    // 5. Coletar os pares (texto, estilo) originais correspondentes aos índices em ordem visual
+    let mut pairs = Vec::new();
+    for &idx in &visual_item_order {
+        if let FrameItem::Text { text, style, .. } = &items[idx] {
+            pairs.push((text.clone(), style.clone()));
+        }
+    }
+
+    // 6. Posicionar os itens em ordem visual nas posições originais da linha
     let mut current_x = x_min;
     for (&idx, (text, style)) in indices.iter().zip(pairs.into_iter()) {
         if let FrameItem::Text { text: t, style: s, pos } = &mut items[idx] {
@@ -198,8 +284,8 @@ fn reorder_indices(
             *s = style;
             pos.x = Pt(current_x);
             pos.y = Pt(target_y);
-            let width = metrics.advance(t.as_str(), s.size, s).0;
-            current_x += width + gap;
+            let w = metrics.advance(t.as_str(), s.size, s).0;
+            current_x += w + gap;
         }
     }
 }
@@ -448,6 +534,11 @@ fn detect_rtl_line(items: &[FrameItem], line: &[usize]) -> bool {
     if buffer.is_empty() {
         return false;
     }
+    // Usa o nível de parágrafo determinado pelo algoritmo Unicode Bidi.
+    // Linhas com prefixo LTR (ex.: "Arabic: \u0645\u0631\u062d\u0628\u0627") ficam
+    // com nível LTR e NÃO são tratadas como RTL. Só parágrafos
+    // iniciados com caracteres RTL fortes (\u00e1rabe, hebraico puro) têm
+    // nível base RTL e entram no reflow.
     let bidi = BidiInfo::new(&buffer, None);
     bidi.paragraphs
         .first()
@@ -519,7 +610,46 @@ fn same_paragraph(
         .iter()
         .filter_map(|&idx| item_height(&page.items[idx]))
         .fold(0.0, f64::max);
-    y_diff <= 1.5 * max_height.max(1.0)
+    if y_diff > 1.5 * max_height.max(1.0) {
+        return false;
+    }
+
+    // Heurística para evitar fundir linhas separadas por quebra manual (\ ou parágrafo).
+    // Se sobrar espaço suficiente na linha `a` para caber o primeiro item de texto da
+    // linha `b`, a quebra foi manual e não automática por wrapping.
+    let line_a_end_x = lines[a].1.iter()
+        .map(|&idx| {
+            let item = &page.items[idx];
+            let x = item_x(item);
+            let w = match item {
+                FrameItem::Text { text, style, .. } => {
+                    text.len() as f64 * style.size.0 * 0.5
+                }
+                _ => 0.0,
+            };
+            x + w
+        })
+        .max_by(|x1, x2| x1.partial_cmp(x2).unwrap())
+        .unwrap_or(0.0);
+
+    let x_min = lines[a].1.iter()
+        .map(|&idx| item_x(&page.items[idx]))
+        .min_by(|x1, x2| x1.partial_cmp(x2).unwrap())
+        .unwrap_or(70.87);
+
+    let right_margin = page.width - x_min;
+    let remaining = right_margin - line_a_end_x;
+
+    if let Some(&first_b_idx) = lines[b].1.iter().find(|&&idx| matches!(page.items[idx], FrameItem::Text { .. })) {
+        if let FrameItem::Text { text, style, .. } = &page.items[first_b_idx] {
+            let word_w = text.len() as f64 * style.size.0 * 0.5;
+            if remaining > word_w + 30.0 {
+                return false;
+            }
+        }
+    }
+
+    true
 }
 
 /// Devolve a altura de um item, se tiver dimensão tipográfica.

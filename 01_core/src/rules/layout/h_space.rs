@@ -17,6 +17,6 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
     layouter: &mut Layouter<M, S>,
     e:        &HSpaceElem,
 ) {
-    let pt = e.amount.resolve_pt(layouter.font_size_pt.val());
+    let pt = e.amount.resolve_pt(layouter.style.size.val());
     layouter.regions.current.cursor_x += Pt(pt);
 }

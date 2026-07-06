@@ -620,6 +620,7 @@ impl From<&StyleChain> for TextStyle {
             font:          Some(chain.font().unwrap_or_else(|| {
                 FontList::single(EcoString::from("Liberation Serif"))
             })),
+            dir:           None,
             subscript:        chain.subscript(),
             superscript:      chain.superscript(),
             highlight:        chain.highlight(),

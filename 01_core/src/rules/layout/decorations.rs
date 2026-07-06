@@ -30,7 +30,7 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
         Content::Overline(e)  => (&e.body, e.stroke, e.offset, e.extent, -0.80),
         _ => unreachable!("arm gates Underline/Strike/Overline"),
     };
-    let font_pt = layouter.font_size_pt.val();
+    let font_pt = layouter.style.size.val();
     let offset_pt = offset
         .map(|l| l.resolve_pt(font_pt))
         .unwrap_or(kind_em * font_pt);

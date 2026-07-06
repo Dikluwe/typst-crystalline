@@ -143,7 +143,7 @@ const COLUMNS_DEFAULT_GUTTER_RATIO: f64 = 0.04;
 pub struct Layouter<'a, M: FontMetrics, S: ImageSizer = NullImageSizer> {
     pub(super) metrics: M,
     sizer: S,
-    pub(super) font_size_pt: Pt,
+
     /// Estilo activo resolvido — vista achatada de `self.chain` cacheada
     /// para evitar resolver em cada leitura de `.size` no hot path do layout.
     /// Mantido sincronizado com `self.chain` por cada push/pop (Passo 100,
@@ -475,7 +475,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
         Self {
             metrics,
             sizer,
-            font_size_pt: size,
+
             // **F-5b fatia 2 (P373)**: o `self.style` inicial deriva da chain
             // (ADR-0039: a chain é a fonte da verdade do estilo de texto), não de
             // `font_size` (geometria). Antes: `regular(size=12)` → `style.size=12`
@@ -1146,6 +1146,8 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
         }
     }
     pub fn finish(mut self) -> PagedDocument {
+        // P576 — a última linha também pode ser RTL; alinhar antes de drenar.
+        self.align_current_line_rtl();
         for item in self.regions.current.current_line.drain(..) {
             self.regions.current.current_items.push(item);
         }
@@ -1186,9 +1188,8 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
                         pattern.clone(),
                     ));
                 } else if let Some(text) = crate::entities::counter_format::format_counter(&[page_number], pattern.as_str()) {
-                    let mut style = TextStyle::from(&self.chain);
-                    style.size = self.font_size_pt;
-                    let text_width = self.metrics.advance(&text, self.font_size_pt, &style).0;
+                    let style = TextStyle::from(&self.chain);
+                    let text_width = self.metrics.advance(&text, style.size, &style).0;
                     let x = (self.regions.current.width - text_width) / 2.0;
                     let y = self.regions.current.height - self.page_config.margin / 2.0;
                     items.push(FrameItem::Text {
@@ -1218,9 +1219,8 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
                 pattern.as_str(),
             ) {
                 if let Some(page) = self.pages.get_mut(page_idx) {
-                    let mut style = TextStyle::from(&self.chain);
-                    style.size = self.font_size_pt;
-                    let text_width = self.metrics.advance(&text, self.font_size_pt, &style).0;
+                    let style = TextStyle::from(&self.chain);
+                    let text_width = self.metrics.advance(&text, style.size, &style).0;
                     let x = (page.width - text_width) / 2.0;
                     let y = page.height - self.page_config.margin / 2.0;
                     page.items.push(FrameItem::Text {
@@ -1259,7 +1259,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
     /// Decisão 1β Fase A: método em Layouter (reutiliza
     /// `measure_content_constrained` via `&self`).
     pub(super) fn measure_stack(
-        &self,
+        &mut self,
         children: &[Content],
         dir: crate::entities::dir::Dir,
         spacing: Option<crate::entities::layout_types::Length>,
@@ -1269,7 +1269,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
         if n == 0 {
             return (0.0, 0.0);
         }
-        let space_pt = spacing.map_or(0.0, |l| l.resolve_pt(self.font_size_pt.val()));
+        let space_pt = spacing.map_or(0.0, |l| l.resolve_pt(self.style.size.val()));
         if dir.is_vertical() {
             let mut max_child_w = 0.0_f64;
             let mut sum_h = 0.0_f64;
@@ -1296,7 +1296,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
     /// Usado pelo algoritmo de grid para determinar a largura das colunas Auto.
     /// Retorna `(width, height)` em pontos.
     pub(super) fn measure_content_constrained(
-        &self,
+        &mut self,
         content: &Content,
         max_width: f64,
     ) -> (f64, f64) {
@@ -1305,10 +1305,10 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
                 let mut max_line_w = 0.0_f64;
                 let mut current_w = 0.0_f64;
                 let mut line_count = 1usize;
-                let space_w = self.metrics.advance(" ", self.font_size_pt, &self.style).0;
+                let space_w = self.metrics.advance(" ", self.style.size, &self.style).0;
 
                 for word in text.split_whitespace() {
-                    let word_w = self.metrics.advance(word, self.font_size_pt, &self.style).0;
+                    let word_w = self.metrics.advance(word, self.style.size, &self.style).0;
                     if current_w + word_w > max_width && current_w > 0.0 {
                         max_line_w = max_line_w.max(current_w);
                         line_count += 1;
@@ -1318,7 +1318,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
                     }
                 }
                 max_line_w = max_line_w.max(current_w);
-                let (_, line_height) = self.metrics.vertical_metrics(self.font_size_pt);
+                let (_, line_height) = self.metrics.vertical_metrics(self.style.size);
                 (max_line_w.min(max_width), line_height.0 * line_count as f64)
             }
 
@@ -1351,7 +1351,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
 
             // Passo 513 — medição de `Content::Curve` via bbox do path.
             Content::Curve(e) => {
-                let items = curve::path_items_from_curve(&e.segments, self.font_size_pt.val());
+                let items = curve::path_items_from_curve(&e.segments, self.style.size.val());
                 let (min_x, min_y, max_x, max_y) = crate::entities::geometry::path_bbox(&items);
                 let w = (max_x - min_x).max(0.0).min(max_width);
                 let h = (max_y - min_y).max(0.0);
@@ -1362,7 +1362,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
             // P156L: cada side é Option<Length>; None ↔ zero.
             Content::Pad(e) => {
                 let sides = &e.sides;
-                let font = self.font_size_pt.val();
+                let font = self.style.size.val();
                 let left = sides.left.map_or(0.0, |l| l.resolve_pt(font));
                 let right = sides.right.map_or(0.0, |l| l.resolve_pt(font));
                 let top = sides.top.map_or(0.0, |l| l.resolve_pt(font));
@@ -1379,8 +1379,8 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
             }
 
             // Passo 156D: HSpace/VSpace dimensões para grid measurement.
-            Content::HSpace(e) => (e.amount.resolve_pt(self.font_size_pt.val()), 0.0),
-            Content::VSpace(e) => (0.0, e.amount.resolve_pt(self.font_size_pt.val())),
+            Content::HSpace(e) => (e.amount.resolve_pt(self.style.size.val()), 0.0),
+            Content::VSpace(e) => (0.0, e.amount.resolve_pt(self.style.size.val())),
 
             // Passo 156E/220: Pagebreak/Colbreak — events sem dimensões em cell.
             Content::Pagebreak(_) => (0.0, 0.0),
@@ -1401,7 +1401,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
             Content::Boxed(e) => {
                 let (body, width, height, inset) =
                     (&e.body, &e.width, &e.height, &e.inset);
-                let font = self.font_size_pt.val();
+                let font = self.style.size.val();
                 let inset_l = inset.left.resolve_pt(font);
                 let inset_r = inset.right.resolve_pt(font);
                 let inset_t = inset.top.resolve_pt(font);
@@ -1421,7 +1421,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
             }
 
             // Passo 156J: Repeat dimensões para grid measurement.
-            // Single-render do body (consistente com layout_content
+            // Single-render do body (consistente with layout_content
             // arm). Algoritmo dinâmico de quantidade defere per
             // ADR-0054 graded.
             Content::Repeat(e) => self.measure_content_constrained(&e.body, max_width),
@@ -1434,7 +1434,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
             Content::Columns(e) => {
                 let count_f = if e.count == 0 { 1.0 } else { e.count as f64 };
                 let gutter_pt = match e.gutter {
-                    Some(g) => g.resolve_pt(self.font_size_pt.0),
+                    Some(g) => g.resolve_pt(self.style.size.0),
                     None => max_width * COLUMNS_DEFAULT_GUTTER_RATIO,
                 };
                 let column_width = if count_f >= 1.0 {
@@ -1453,7 +1453,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
             Content::Block(e) => {
                 let (body, width, height, inset) =
                     (&e.body, &e.width, &e.height, &e.inset);
-                let font = self.font_size_pt.val();
+                let font = self.style.size.val();
                 let inset_l = inset.left.resolve_pt(font);
                 let inset_r = inset.right.resolve_pt(font);
                 let inset_t = inset.top.resolve_pt(font);
@@ -1470,6 +1470,41 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
                     None => body_h_with_inset,
                 };
                 (total_w, total_h)
+            }
+
+            Content::Styled(body, styles) => {
+                let prev_chain = self.chain.clone();
+                let prev_style = self.style.clone();
+                self.chain = self.chain.push_styles(styles);
+                self.style = TextStyle::from(&self.chain);
+                let res = self.measure_content_constrained(body, max_width);
+                self.chain = prev_chain;
+                self.style = prev_style;
+                res
+            }
+
+            Content::Strong(e) => {
+                use crate::entities::style::{Style, Styles};
+                let prev_chain = self.chain.clone();
+                let prev_style = self.style.clone();
+                self.chain = self.chain.push_styles(&Styles::from_iter([Style::strong()]));
+                self.style = TextStyle::from(&self.chain);
+                let res = self.measure_content_constrained(&e.body, max_width);
+                self.chain = prev_chain;
+                self.style = prev_style;
+                res
+            }
+
+            Content::Emph(e) => {
+                use crate::entities::style::{Style, Styles};
+                let prev_chain = self.chain.clone();
+                let prev_style = self.style.clone();
+                self.chain = self.chain.push_styles(&Styles::from_iter([Style::emph()]));
+                self.style = TextStyle::from(&self.chain);
+                let res = self.measure_content_constrained(&e.body, max_width);
+                self.chain = prev_chain;
+                self.style = prev_style;
+                res
             }
 
             _ => (0.0, 0.0),
@@ -1501,7 +1536,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
         // da célula, não à margem global da página (Passo 81.5).
         self.regions.current.cursor_x = Pt(cell_x);
         self.regions.current.line_start_x = Pt(cell_x);
-        let (ascender, _) = self.metrics.vertical_metrics(self.font_size_pt);
+        let (ascender, _) = self.metrics.vertical_metrics(self.style.size);
         self.regions.current.cursor_y = ascender;
         let start_y = self.regions.current.cursor_y.0;
 
@@ -1514,12 +1549,25 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
         // Flush de itens pendentes. Se a line tiver conteúdo, conta a
         // altura da linha no cell_height; caso contrário, conteúdo de uma
         // única linha não-flushed produziria altura 0 (P552).
+        // Determinar o tamanho máximo de fonte presente nos items da linha.
+        // Se a linha não tiver items de texto, usa self.style.size como fallback.
+        #[allow(deprecated)]
+        let max_font_size = self.regions.current.current_line
+            .iter()
+            .map(|item| match item {
+                crate::entities::layout_types::FrameItem::Text { style, .. } => style.size,
+                crate::entities::layout_types::FrameItem::TextShaped { style, .. } => style.size,
+                _ => Pt::ZERO,
+            })
+            .fold(self.style.size, |max, size| if size.0 > max.0 { size } else { max });
+
+        #[allow(deprecated)]
         let line_leading_pt = self.regions.current.current_line
             .iter()
             .rev()
             .find_map(|item| match item {
-                crate::entities::layout_types::FrameItem::Text { style, .. } => {
-                    style.leading.map(|l| l.resolve_pt(self.font_size_pt.val()))
+                crate::entities::layout_types::FrameItem::Text { style, .. } | crate::entities::layout_types::FrameItem::TextShaped { style, .. } => {
+                    style.leading.map(|l| l.resolve_pt(style.size.val()))
                 }
                 _ => None,
             })
@@ -1531,7 +1579,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
 
         let mut end_y = self.regions.current.cursor_y.0;
         if had_items {
-            let (_, line_height) = self.metrics.vertical_metrics(self.font_size_pt);
+            let (_, line_height) = self.metrics.vertical_metrics(max_font_size);
             end_y += line_height.0 + line_leading_pt;
         }
         let cell_height = (end_y - start_y).max(0.0);

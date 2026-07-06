@@ -58,6 +58,10 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
         }
         _ => None,
     };
+    let ns_dir = match cs("text.dir") {
+        Some(Value::Dir(dir)) => Some(*dir),
+        _ => None,
+    };
     let ns_font = match cs("text.font") {
         Some(Value::Array(arr)) => {
             use crate::entities::font_list::{FontFamily, FontNamePattern};
@@ -110,16 +114,7 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
     let mut effective = TextStyle {
         bold:   ns_bold   || layouter.style.bold,
         italic: ns_italic || layouter.style.italic,
-        size:   if layouter.style.size > layouter.font_size_pt {
-            layouter.style.size   // heading ou Content::Styled aumentou
-        } else {
-            // F-5b fatia 2 (P373): equivalente exato do antigo
-            // `node_style.size` = `TextStyle::from(chain).size` =
-            // `chain.size()` (default 11.0); `ns_size` = `#set text(size)`
-            // (custom). NÃO `layouter.font_size_pt` (12.0 — default do layouter,
-            // distinto do default da chain; ver P373).
-            ns_size.unwrap_or(Pt(layouter.chain.size()))
-        },
+        size:   ns_size.unwrap_or(layouter.style.size),
         fill:          layouter.style.fill.or(ns_fill),
         heading_level: layouter.style.heading_level,
         // Top-wins: chain tipada (heading) vence; senão o ns (#set).
@@ -128,6 +123,7 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
         leading:       layouter.style.leading.clone().or(ns_leading),
         lang:          layouter.style.lang.clone().or(ns_lang),
         font:          layouter.style.font.clone().or(ns_font),
+        dir:           layouter.style.dir.or(ns_dir),
         subscript:        layouter.style.subscript,
         superscript:      layouter.style.superscript,
         highlight:        layouter.style.highlight,

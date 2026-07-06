@@ -13,6 +13,7 @@ use rustc_hash::FxBuildHasher;
 use crate::entities::bytes::Bytes;
 use crate::entities::counter::Counter;
 use crate::entities::decimal::Decimal;
+use crate::entities::dir::Dir;
 use crate::entities::duration::Duration;
 use crate::entities::regex::Regex;
 use crate::entities::selector::Selector;
@@ -144,6 +145,9 @@ pub enum Value {
     /// `query(<label>)` / `locate(<label>)`.
     Label(crate::entities::label::Label),
 
+    /// **P576** — Direcção de texto (`ltr`, `rtl`, `ttb`, `btt`).
+    Dir(Dir),
+
     // ── Variantes futuras — NÃO implementar sem ADR e tipo migrado ───────
     // Variantes futuras restantes:
     // Relative(Relative),       // comprimento relativo — já em L1 como tipo separado
@@ -212,6 +216,7 @@ impl Value {
             Self::State(_)     => "state",
             Self::Counter(_)   => "counter",
             Self::Label(_)     => "label",
+            Self::Dir(_)       => "direction",
         }
     }
 

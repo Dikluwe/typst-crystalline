@@ -18,7 +18,7 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
     layouter: &mut Layouter<M, S>,
     e:        &VSpaceElem,
 ) {
-    let pt = e.amount.resolve_pt(layouter.font_size_pt.val());
+    let pt = e.amount.resolve_pt(layouter.style.size.val());
     // Termina linha em curso se houver content pendente — caso
     // contrário texto na linha actual fica meio-render.
     if layouter.regions.current.cursor_x.0 > layouter.regions.current.line_start_x.0 {

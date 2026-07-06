@@ -21,10 +21,10 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
     let prev = layouter.style.clone();
     // Raw: tamanho 90%, sem bold/italic
     // DEBT: seleccionar fonte monospace real quando FontBook tiver uma
-    layouter.style = TextStyle { bold: false, italic: false, size: layouter.font_size_pt * 0.9, ..TextStyle::default() };
+    layouter.style = TextStyle { bold: false, italic: false, size: prev.size * 0.9, ..TextStyle::default() };
     if e.block {
         if layouter.regions.current.cursor_x.0 > layouter.page_config.margin { layouter.flush_line(); }
-        layouter.regions.current.cursor_x = Pt(layouter.page_config.margin) + layouter.font_size_pt;
+        layouter.regions.current.cursor_x = Pt(layouter.page_config.margin) + prev.size;
     }
     for word in e.text.split_whitespace() { layouter.layout_word(word); }
     if e.block { layouter.flush_line(); }
