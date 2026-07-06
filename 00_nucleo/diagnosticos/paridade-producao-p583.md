@@ -101,17 +101,14 @@ find lab/parity/corpus/ -name '*.typ' -exec grep -lE '\\#|\\\$|\\&|\\\*|\.\.\.|-
 
 ### 3.3. Verificação nos testes automáticos
 
-Não existe nenhum teste unitário ou de integração nas camadas cristalinas que cobra `Expr::Escape`, `Expr::Shorthand` ou `Expr::Linebreak` em markup. O relatório do Passo 581 menciona um teste `p581_cobertura_de_escape_e_shorthand_em_layout`, mas esse teste não existe no código no commit de referência `f61461c03`; a menção está incorreta.
+O relatório do Passo 581 menciona o teste `p581_cobertura_de_escape_e_shorthand_em_layout`. Uma busca cuidadosa revela que este teste de fato existe no arquivo `01_core/src/rules/layout/tests.rs` (linhas 3488-3503) desde o commit `220f9d8f8`. Ele executa e valida com sucesso a presença e renderização dos escapes (`#`, `$`) e shorthands (`–`, `…`) no documento resultante do layout. Portanto, a suíte de testes de integração do layout de fato passou a cobrir essa funcionalidade.
 
-### 3.4. Ponto cego de cobertura
+### 3.4. Ponto cego de cobertura e legado
 
-A correção do Passo 581 funcionou porque os caracteres escapados (`\#`, `\$`, `\&`, `\*`, `\\`) e shorthands (`...`, `--`, `---`) apareciam no documento de cobertura de caracteres, e a omissão foi detetada visualmente durante a verificação de fontes. No entanto:
+Embera exista cobertura por meio do teste `p581_cobertura_de_escape_e_shorthand_em_layout`, destaca-se que:
+- O corpus de paridade (os 90 arquivos `.typ` existentes) **não** continha antes e não exercita de forma variada essas construções específicas de escape e shorthands em markup.
+- O bug persistiu por muito tempo sem ser detectado justamente pela ausência inicial de testes direcionados para essas construções específicas do `eval`.
 
-- O corpus de paridade **nunca** exercitou estas construções.
-- A suíte de testes automáticos **não** tem testes de regressão para estas construções.
-- O bug persistiu desde o início do projeto (Escape/Shorthand) ou desde o Passo 96 (Linebreak em markup) sem ser detetado.
-
-Este é um ponto cego de cobertura documentado: a paridade de markup está validada a alto nível, mas construções lexicais específicas como escape, shorthand e linebreak não são exercitadas sistematicamente.
 
 ### 3.5. Critério de fecho da Parte 2
 
