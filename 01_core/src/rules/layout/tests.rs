@@ -3501,6 +3501,28 @@ Página três."#,
         assert!(joined.contains("–"), "deve conter '–' do shorthand; obtido: '{}'", joined);
         assert!(joined.contains("…"), "deve conter '…' do shorthand; obtido: '{}'", joined);
     }
+
+    /// P588 — newline após `#set` não deve produzir espaço visual no início
+    /// do parágrafo seguinte.
+    #[test]
+    fn p588_newline_apos_set_nao_desloca_texto_inicial() {
+        let doc = layout_typst("#set text(size: 20pt)\nTexto normal aqui.");
+        let first_text_x = doc.pages[0]
+            .items
+            .iter()
+            .find_map(|item| match item {
+                FrameItem::Text { pos, .. } => Some(pos.x.0),
+                _ => None,
+            })
+            .expect("deve haver pelo menos um Text item");
+        // Margem default = 70.87 pt. Antes da correcção, o primeiro texto
+        // começava em 75.87 pt (margem + space_width de 5 pt).
+        assert!(
+            (first_text_x - 70.87).abs() < 0.01,
+            "texto inicial deve começar na margem (70.87 pt), não deslocado por espaco; obtido {}",
+            first_text_x
+        );
+    }
 }
 
 

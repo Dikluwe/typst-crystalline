@@ -727,11 +727,16 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
             Content::Text(text) => text::layout(self, text),
 
             Content::Space => {
-                self.regions.current.cursor_x += self.space_width();
-                if self.regions.current.cursor_x.0
-                    > self.regions.current.width - self.page_config.margin
-                {
-                    self.flush_line();
+                // P588 — não renderizar espaço visual no início de uma linha
+                // ou parágrafo. Espaços iniciais são gerados por newlines após
+                // `#set`, headings, etc., e não devem avançar o cursor.
+                if !self.regions.current.current_line.is_empty() {
+                    self.regions.current.cursor_x += self.space_width();
+                    if self.regions.current.cursor_x.0
+                        > self.regions.current.width - self.page_config.margin
+                    {
+                        self.flush_line();
+                    }
                 }
             }
 
