@@ -177,12 +177,16 @@ def main():
     for name, path, category in docs:
         print(f"\n=== {name} ({category}) ===")
         output_pdf = tempfile.mktemp(suffix=".pdf")
+        # **P594** — documentos macro (ex: macro-10x) demoram dezenas de
+        # segundos no cristalino. Usar menos runs evita que o benchmark
+        # exceda o tempo limite por lentidão genuína, não por ciclo.
+        runs = 2 if category == "macro" else 5
         try:
             if use_hyperfine:
-                comparison = hyperfine_compare(name, path, output_pdf)
+                comparison = hyperfine_compare(name, path, output_pdf, runs=runs)
             else:
-                comparison = manual_compare(name, path, output_pdf)
-            phases = cristalino_phases(name, path, output_pdf)
+                comparison = manual_compare(name, path, output_pdf, runs=runs)
+            phases = cristalino_phases(name, path, output_pdf, runs=runs)
 
             if comparison is None:
                 print(f"  [skip] comparação falhou")
