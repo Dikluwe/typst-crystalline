@@ -167,7 +167,19 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
             return;
         }
         let right_margin = self.regions.current.width - self.page_config.margin;
-        let offset = right_margin - self.regions.current.cursor_x.0;
+        // **P592** — alinhar pelo limite direito do conteúdo real, não pelo
+        // cursor. O cursor pode incluir avanço de `Content::Space` final (por
+        // exemplo, o newline após o texto), o que deslocaria visualmente a
+        // linha RTL para a esquerda por um espaço. Usar as bounding boxes dos
+        // items evita esse erro.
+        let content_right = self.regions.current.current_line
+            .iter()
+            .map(|item| {
+                let (x, _) = super::helpers::item_pos(item);
+                x + super::helpers::item_width(item, &self.metrics)
+            })
+            .fold(0.0, f64::max);
+        let offset = right_margin - content_right;
         let translated: Vec<FrameItem> = self
             .regions
             .current

@@ -28,6 +28,33 @@ pub(super) fn item_pos(item: &FrameItem) -> (f64, f64) {
     }
 }
 
+/// **P592** — largura horizontal de um FrameItem para cálculo da extensão
+/// real da linha. Usado por `align_current_line_rtl` para ignorar espaços
+/// finais (cursor_x pode incluir avanço de `Content::Space` sem item real).
+pub(super) fn item_width(item: &FrameItem, metrics: &dyn super::FontMetrics) -> f64 {
+    match item {
+        FrameItem::Text { text, style, .. } => {
+            // Usar a mesma métrica de largura que `layout_word`/`text_width_for_bidi`
+            // (shaping quando disponível), para que content_right coincida com o
+            // cursor de layout em scripts contextuais (árabe, hebraico).
+            metrics.advance_shaped(text.as_str(), style.size, style)
+                .map(|p| p.0)
+                .unwrap_or_else(|| metrics.advance(text.as_str(), style.size, style).0)
+        }
+        FrameItem::TextShaped { glyphs, style, units_per_em, .. } => {
+            let size_pt = style.size.val();
+            let upem = *units_per_em as f64;
+            glyphs.iter().map(|g| g.x_advance as f64 / upem * size_pt).sum()
+        }
+        FrameItem::Line { start, end, .. } => (end.x.0 - start.x.0).abs(),
+        FrameItem::Glyph { x_advance, .. } => x_advance.0,
+        FrameItem::Image { width, .. } => width.0,
+        FrameItem::Shape { width, .. } => *width,
+        FrameItem::Group { inner_width, .. } => *inner_width,
+        FrameItem::Link { size, .. } => size.width.0,
+    }
+}
+
 /// Cria um FrameItem com a posição substituída por `(new_x, new_y)`.
 pub(super) fn translate_frame_item(item: FrameItem, new_x: Pt, new_y: Pt) -> FrameItem {
     match item {

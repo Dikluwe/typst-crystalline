@@ -150,10 +150,19 @@ fn reorder_bidi_line(
         .collect();
 
     let x_min = item_x(&items[text_indices[0]]);
-    let x_max = item_x(&items[text_indices[text_indices.len() - 1]]);
-    let width_before_last: f64 = widths[..widths.len() - 1].iter().sum();
+    // **P592** — usar o limite direito real do conteúdo (right edge do item
+    // mais à direita), não o left edge do último item. O cursor pode incluir
+    // avanço de `Content::Space` final; o left edge do último item não captura
+    // esse erro. Usar content_right faz com que o último item termine na
+    // margem direita quando a linha for RTL, como no vanilla.
+    let content_right = text_indices
+        .iter()
+        .zip(widths.iter())
+        .map(|(&idx, &w)| item_x(&items[idx]) + w)
+        .fold(0.0, f64::max);
+    let total_width: f64 = widths.iter().sum();
     let gap = if text_indices.len() > 1 {
-        (x_max - x_min - width_before_last) / (text_indices.len() - 1) as f64
+        ((content_right - x_min - total_width) / (text_indices.len() - 1) as f64).max(0.0)
     } else {
         0.0
     };
