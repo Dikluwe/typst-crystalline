@@ -84,7 +84,7 @@ Estes relatórios contêm evidência concreta noutras secções, mas a conclusã
 | Zoom explícito em destinos `/XYZ` de bookmarks | P535 | **Aberto** (scope-out) | Cristalino usa `null`; vanilla usa `100`. |
 | Stream XMP de metadados | P536 | **Aberto** (scope-out) | Apenas `/Info` é emitido; XMP requer XML extra. |
 | Ordenação sofisticada de fallback (fontique) | P534 | **Aberto** (scope-out) | Ordem linear do `FontBook` pode não ser ideal para scripts complexos. |
-| `/Producer` em `/Info` | P536 | **Aberto** (scope-out) | Campo não preenchido. |
+| `/Producer` em `/Info` | P536 | **Fechado** (P600) | Medição em P600 mostra que o vanilla 0.15.0 **não** escreve `/Producer`; escreve `/Creator (Typst 0.15.0)`. O cristalino já preenche `/Creator (typst-crystalline)`. A disparidade era um mal-entendido. |
 
 ---
 
@@ -122,7 +122,7 @@ A lista informal referida em P550 foi auditada e integrada nesta secção. Itens
 | PDF Tagged / PDF-UA | P531 | Ausente |
 | Compressão por object streams | P531 | Ausente |
 | Stream XMP | P536 | Scope-out — já em P550 |
-| `/Producer` | P536 | Não preenchido — já em P550 |
+| `/Producer` | P536 | **Fechado em P600** — o vanilla não usa este campo; usa `/Creator`. O cristalino já preenche `/Creator`. |
 | `/CreationDate` sem fuso horário | P536 | Scope-out |
 | `subject` em `#set document(...)` | P536 | Não suportado |
 | Zoom explícito nos bookmarks | P535 | Scope-out — já em P550 |

@@ -26,7 +26,6 @@
 | Item | Razão |
 |------|-------|
 | Stream de metadados XMP | Só `/Info` é emitido; cobre o caso comum (P536). |
-| `/Producer` no `/Info` | Não preenchido (P536). |
 | Zoom explícito nos destinos de bookmarks | Cristalino usa `null`; funciona nos leitores testados (P535). |
 | Bookmarks só a partir de headings | Não suporta labels manuais (P535). |
 | `/Count` de bookmarks aberto/fechado | Não distinguido (P535). |
@@ -60,6 +59,7 @@
 | Caracteres de escape e abreviaturas tipográficas | P581, confirmado com teste em P584/P585 |
 | Fallback de fonte por carácter (multi-script) | P534, P543 |
 | Nota de rodapé maior do que o espaço restante numa coluna | P595 — detecta overflow, emite aviso, e nunca descarta em silêncio |
+| `/Producer` no `/Info` | P600 — medição mostrou que o vanilla 0.15.0 não usa `/Producer`; usa `/Creator`. O cristalino já preenche `/Creator (typst-crystalline)`. |
 | Fusão de blocos `BT...ET` | Não corrigido — continua scope-out (ver acima, faltou listar antes; confirmar se ainda se aplica) |
 
 ## Ainda por confirmar (não é "corrigido", nem "scope-out" — é incerto)
