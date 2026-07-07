@@ -45,7 +45,7 @@ Corrigida a perda silenciosa de conteúdo em notas de rodapé grandes em documen
 
 ### Comportamento do vanilla (referência em quarentena)
 
-A versão vanilla em `lab/typst-original/target/release/typst` não aplicou `page(columns:)` da mesma forma (renderizou como página de coluna única), pelo que não serviu de referencial directo para a paridade de layout em colunas. A paridade mantém-se ao nível linguístico (ADR-0107): o conteúdo da nota deve ser recuperável ou o utilizador avisado.
+O binário vanilla usado foi `lab/typst-original/target/release/typst` — o mesmo de P553/P554 (`typst 0.15.0 (969087ec)`). No documento exacto de P595 (`#set page(columns: 2, height: 200pt)` com nota grande e pouco texto principal), o vanilla renderizou o texto numa única coluna e colocou a nota no rodapé. Isto não significa que o vanilla não suporte `page(columns:)`; em documentos com conteúdo suficiente para transbordar (por exemplo, com `#lorem(200)` ou a nota enorme de P595), o vanilla produz colunas normalmente. O documento específico de P595 não atingiu o limiar de transbordo, pelo que o vanilla não serviu de referencial directo para o layout em colunas nesse caso. A decisão de P595 mantém-se ao nível linguístico (ADR-0107): o conteúdo da nota deve ser recuperável ou o utilizador avisado.
 
 ---
 
@@ -106,4 +106,4 @@ Todos passam.
 ## Notas
 
 - L1 permanece puro: os avisos são `String` simples acumuladas no `Layouter` e convertidas a `SourceDiagnostic` apenas em L3 (`pipeline.rs`).
-- O vanilla original em quarentena não suporta `page(columns:)` como o cristalino; a decisão foi tomada ao nível da linguagem (semântica de visibilidade/avisos), não da mecânica de layout exacta (ADR-0107).
+- O binário vanilla (`typst 0.15.0`) é o mesmo de P553/P554; o documento específico de P595 não atingiu o limiar de transbordo para ativar colunas no vanilla. A decisão de paridade foi tomada ao nível da linguagem (semântica de visibilidade/avisos), não da mecânica de layout exacta (ADR-0107).
