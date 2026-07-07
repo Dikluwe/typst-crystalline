@@ -1,5 +1,5 @@
 # Prompt L0 — layout_types
-Hash do Código: a0ab14cc
+Hash do Código: a2a08b60
 
 ## Módulo
 `01_core/src/entities/layout_types.rs`
@@ -88,11 +88,52 @@ Campos de labels (P460):
 Todos inicializados vazios em `new()` e populados por `Layouter::finish()` ou
 pelo pipeline pós-layout — sem alterar a assinatura de `layout()`.
 
+## `PageConfig`
+
+Configuração da página activa durante o layout. Campos principais:
+- `width`, `height`: dimensões em pt.
+- `margin`: margem uniforme em pt.
+- `numbering`: padrão de numeração automática (P532).
+- `columns`: número de colunas activas (P537b).
+
+### Margem automática por omissão
+
+A margem por omissão **não é um valor fixo**. Segue o vanilla 0.15.0:
+
+```text
+margin = min(width, height) * (2.5 / 21)
+```
+
+Equivalentemente, `≈ 11.90476 %` da menor dimensão da página. Para uma
+página A4 (`595.28 pt × 841.89 pt`), isto produz `70.87 pt` (`≈ 2.5 cm`).
+Para uma página pequena (`height: 200 pt`, `width: 595.28 pt`), produz
+`≈ 23.81 pt`.
+
+`PageConfig` distingue duas situações através do campo `margin_is_auto`:
+
+- `margin_is_auto: true` — margem calculada automaticamente. O default é
+  `true`. Sempre que `SetPage` alterar `width` ou `height` sem fornecer um
+  valor explícito de `margin`, a margem deve ser recalculada pela fórmula
+  acima (`auto_margin()`).
+- `margin_is_auto: false` — margem fixa definida pelo utilizador. Não é
+  recalculada quando `width`/`height` mudam.
+
+`PageConfig::default()` deve calcular a margem a partir de `width` e
+`height`, não hard-codificar `70.87`. Quando `SetPage` recebe `margin`
+explicitamente, `margin_is_auto` passa a `false`. Quando `margin` é
+ausente, `margin_is_auto` não muda — o default é `true`, e uma margem
+fixa pelo utilizador permanece fixa até novo `margin` explícito.
+
+Sempre que `SetPage` altera `width` ou `height`, se `margin_is_auto` for
+`true` a margem é recalculada pela fórmula; se for `false`, a margem
+fixa é preservada.
+
 ## Critérios de verificação
 - `Pt(10.0) + Pt(5.0) == Pt(15.0)`
 - `Pt * f64` compila; `Pt + f64` não compila
 - `Frame::plain_text()` junta texto dos FrameItem::Text com espaço
 - `PagedDocument::plain_text()` concatena páginas com newline
+- `PageConfig::default()` calcula margem como `min(width, height) * 2.5 / 21`
 
 ## P482 — `ShapedGlyph` e `FrameItem::TextShaped`
 

@@ -38,8 +38,14 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
     }
     if let Some(m) = margin {
         new_config.margin = *m;
+        new_config.margin_is_auto = false;
         changed = true;
     }
+    // Nota P598: `margin` ausente não altera `margin_is_auto`. O default
+    // já é automático; uma vez fixada pelo utilizador, só um `margin`
+    // explícito (incluindo `auto`, se o eval o distinguir no futuro) a
+    // mudaria. Nesta fase, o eval representa tanto ausente como `auto` por
+    // `None`, pelo que mantemos o estado anterior.
     if numbering != &new_config.numbering {
         new_config.numbering = numbering.clone();
         changed = true;
@@ -47,6 +53,12 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
     if columns != &new_config.columns {
         new_config.columns = *columns;
         changed = true;
+    }
+
+    // P598 — se a margem é automática, recalculá-la sempre que as
+    // dimensões da página mudarem (ou quando se volta para auto).
+    if new_config.margin_is_auto {
+        new_config.margin = new_config.auto_margin();
     }
 
     if changed {

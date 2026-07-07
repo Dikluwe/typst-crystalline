@@ -14479,6 +14479,63 @@ Goodbye #footnote[Nota B] moon."#,
     }
 
     #[test]
+    fn p598_colunas_pagina_pequena_texto_curto_uma_pagina() {
+        // P598 — com margens automáticas (2.5/21 da menor dimensão),
+        // uma página de 200pt com duas colunas tem colunas largas
+        // suficientes para que #lorem(30) caiba numa única página,
+        // tal como no vanilla 0.15.0.
+        let doc = layout_test(
+            r#"#set page(columns: 2, height: 200pt)
+#lorem(30)"#,
+        );
+        assert_eq!(
+            doc.pages.len(),
+            1,
+            "#lorem(30) numa página 200pt/2cols deve caber numa página"
+        );
+    }
+
+    #[test]
+    fn p598_colunas_pagina_pequena_texto_medio_uma_pagina() {
+        // P598 — regressão do caso P597: #lorem(50) no vanilla 0.15.0
+        // ainda cabe numa única página 200pt/2cols graças às margens
+        // automáticas. O cristalino deve reproduzir o mesmo observable.
+        let doc = layout_test(
+            r#"#set page(columns: 2, height: 200pt)
+#lorem(50)"#,
+        );
+        assert_eq!(
+            doc.pages.len(),
+            1,
+            "#lorem(50) numa página 200pt/2cols deve caber numa página"
+        );
+    }
+
+    #[test]
+    fn p598_margem_explicita_nao_recalculada_ao_mudar_altura() {
+        // P598 — quando o utilizador define margem explicitamente,
+        // alterar height não deve recalcular a margem.
+        let doc = layout_test(
+            r#"#set page(margin: 50pt)
+#set page(height: 200pt)
+#lorem(5)"#,
+        );
+        let first_text_x = doc.pages[0]
+            .items
+            .iter()
+            .find_map(|item| match item {
+                FrameItem::Text { pos, .. } => Some(pos.x.0),
+                _ => None,
+            })
+            .expect("deve haver texto");
+        assert!(
+            (first_text_x - 50.0).abs() < 0.01,
+            "texto deve começar na margem explícita (50 pt), não na automática; obtido {}",
+            first_text_x
+        );
+    }
+
+    #[test]
     fn p292_marco_arquitectural_serie_p288_a_p292_fechada() {
         // **Marco simbólico**: este teste atesta o fecho da série
         // cirúrgica P288-P292 (5/5 da assimetria residual P289 §5.6

@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/entities/layout_types.md
-//! @prompt-hash 459cc5e8
+//! @prompt-hash 269ba6e5
 //! @layer L1
 //! @updated 2026-04-23
 //!
@@ -437,6 +437,12 @@ pub struct PageConfig {
     pub width:     f64, // em pontos
     pub height:    f64, // em pontos
     pub margin:    f64, // margem uniforme em pontos
+    /// **P598** — `true` se a margem está em modo automático (vanilla
+    /// `margin: auto`). Quando `true`, qualquer alteração de `width` ou
+    /// `height` por `SetPage` recalcula `margin` proporcionalmente à menor
+    /// dimensão. Quando `false`, `margin` é um valor fixo definido pelo
+    /// utilizador e não é recalculado.
+    pub margin_is_auto: bool,
     /// **P532** — padrão de numeração automática de páginas.
     pub numbering: Option<EcoString>,
     /// **P537b** — colunas activas para páginas desta configuração.
@@ -445,13 +451,27 @@ pub struct PageConfig {
 
 impl Default for PageConfig {
     fn default() -> Self {
+        // P598 — margem automática do vanilla 0.15.0:
+        // 2.5/21 da menor dimensão da página (≈ 11.90476 %).
+        // Para A4 dá 70.87 pt; para height: 200pt dá ≈ 23.81 pt.
+        let width = 595.28;  // A4 portrait
+        let height = 841.89; // A4 portrait
         Self {
-            width:     595.28, // A4 portrait
-            height:    841.89, // A4 portrait
-            margin:     70.87, // ≈ 2.5 cm
+            width,
+            height,
+            margin: width.min(height) * 2.5 / 21.0,
+            margin_is_auto: true,
             numbering: None,
             columns:   None,
         }
+    }
+}
+
+impl PageConfig {
+    /// Calcula a margem automática do vanilla 0.15.0 para as dimensões
+    /// actuais (P598).
+    pub fn auto_margin(&self) -> f64 {
+        self.width.min(self.height) * 2.5 / 21.0
     }
 }
 
@@ -1233,5 +1253,42 @@ mod tests {
         let advance_tu = -(600_f64 / upm as f64 * 1000.0);
         // 600/2048*1000 ≈ -293.0
         assert!((advance_tu - (-292.97)).abs() < 0.1, "P485: advance TJ calculado incorrectamente: {}", advance_tu);
+    }
+
+    #[test]
+    fn p598_page_config_default_margin_a4_bate_vanilla() {
+        let cfg = PageConfig::default();
+        // Vanilla 0.15.0: margin = min(width, height) * 2.5/21.
+        // Para A4 isto dá 70.8666... pt, tradicionalmente arredondado a 70.87 pt.
+        assert!((cfg.width - 595.28).abs() < 0.001);
+        assert!((cfg.height - 841.89).abs() < 0.001);
+        assert!((cfg.margin - 70.87).abs() < 0.01);
+        assert!(cfg.margin_is_auto, "margem por omissão deve ser automática");
+        let expected = cfg.width.min(cfg.height) * 2.5 / 21.0;
+        assert!((cfg.margin - expected).abs() < 0.001);
+    }
+
+    #[test]
+    fn p598_page_config_margin_formula_uses_smaller_dimension() {
+        // Se height for a dimensão menor, a margem deve ser proporcional a height.
+        let mut cfg = PageConfig::default();
+        cfg.height = 200.0;
+        cfg.margin = cfg.auto_margin();
+        assert!((cfg.margin - 23.8095).abs() < 0.001);
+    }
+
+    #[test]
+    fn p598_page_config_auto_margin_follows_dimension_changes() {
+        // Margem automática acompanha a menor dimensão mesmo quando width > height.
+        let mut cfg = PageConfig::default();
+        cfg.width = 800.0;
+        cfg.height = 200.0;
+        cfg.margin = cfg.auto_margin();
+        assert!((cfg.margin - 23.8095).abs() < 0.001);
+
+        cfg.width = 200.0;
+        cfg.height = 800.0;
+        cfg.margin = cfg.auto_margin();
+        assert!((cfg.margin - 23.8095).abs() < 0.001);
     }
 }
