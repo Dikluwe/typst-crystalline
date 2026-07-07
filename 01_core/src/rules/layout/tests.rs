@@ -24,6 +24,18 @@ use crate::entities::{
 };
 use crate::rules::introspect::introspect;
 
+/// **P589** — Fonte neutra para testes de algoritmo. Deve estar disponível
+/// tanto no cristalino como no vanilla, e não deve ter os problemas já
+/// conhecidos de outras fontes (ex.: FreeSerif com decomposição de acentos).
+pub(crate) const FONTE_NEUTRA_TESTE: &str = "DejaVu Sans";
+
+/// **P589** — Helper que envolve um documento de teste de algoritmo com a
+/// fonte neutra, para evitar ruído de fontes default diferentes entre
+/// cristalino e vanilla.
+pub(crate) fn documento_algoritmo(conteudo: &str) -> String {
+    format!("#set text(font: \"{}\")\n{}", FONTE_NEUTRA_TESTE, conteudo)
+}
+
 /// **F-5a de-bake (P365)** — rotula reproduzindo a **forma de produção**: o
 /// transporte de numbering (`Content::Styled`, ex.: `Content::figure(.., Some)`)
 /// fica **fora** do `Labelled` (`Styled{ Labelled{ alvo } }`), como a fatia-1
@@ -3520,6 +3532,27 @@ Página três."#,
         assert!(
             (first_text_x - 70.87).abs() < 0.01,
             "texto inicial deve começar na margem (70.87 pt), não deslocado por espaco; obtido {}",
+            first_text_x
+        );
+    }
+
+    /// P589 — helper `documento_algoritmo` aplica a fonte neutra sem alterar
+    /// o posicionamento base de texto simples. Serve como sentinel de que o
+    /// helper funciona e que a fonte escolhida existe no ambiente de teste.
+    #[test]
+    fn p589_documento_algoritmo_aplica_fonte_neutra() {
+        let doc = layout_typst(&documento_algoritmo("Hello world"));
+        let first_text_x = doc.pages[0]
+            .items
+            .iter()
+            .find_map(|item| match item {
+                FrameItem::Text { pos, .. } => Some(pos.x.0),
+                _ => None,
+            })
+            .expect("deve haver pelo menos um Text item");
+        assert!(
+            (first_text_x - 70.87).abs() < 0.01,
+            "texto com fonte neutra deve começar na margem (70.87 pt); obtido {}",
             first_text_x
         );
     }
