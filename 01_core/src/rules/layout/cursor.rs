@@ -31,15 +31,9 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
     /// `(n - 1) × tracking_pt` onde n é o número de codepoints —
     /// paridade vanilla (entre pares de glyphs, não depois do último).
     fn word_width(&self, word: &str) -> Pt {
-        let base = self.metrics.advance(word, self.style.size, &self.style);
-        let tracking_extra = self.style.tracking
-            .map(|t| {
-                let tracking_pt = t.resolve_pt(self.style.size.val());
-                let n = word.chars().count();
-                tracking_pt * n.saturating_sub(1) as f64
-            })
-            .unwrap_or(0.0);
-        Pt(base.val() + tracking_extra)
+        // **P593** — delegado para `FontMetrics::text_width`, a fonte única de
+        // verdade do nível palavra (shaping + tracking).
+        self.metrics.text_width(word, self.style.size, &self.style)
     }
 
     pub(super) fn space_width(&self) -> Pt {
@@ -93,9 +87,9 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
     }
 
     pub(super) fn layout_word(&mut self, word: &str) {
-        let w = self.metrics
-            .advance_shaped(word, self.style.size, &self.style)
-            .unwrap_or_else(|| self.word_width(word));
+        // **P593** — usar `FontMetrics::text_width` (shaping + tracking) como
+        // única fonte de largura de palavra.
+        let w = self.metrics.text_width(word, self.style.size, &self.style);
         let right_margin = self.regions.current.width - self.page_config.margin;
         if self.regions.current.cursor_x.0 + w.0 > right_margin && self.regions.current.cursor_x.0 > self.page_config.margin {
             // Passo 144 (ADR-0057): tentar hyphenation antes do
@@ -167,18 +161,13 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
             return;
         }
         let right_margin = self.regions.current.width - self.page_config.margin;
-        // **P592** — alinhar pelo limite direito do conteúdo real, não pelo
-        // cursor. O cursor pode incluir avanço de `Content::Space` final (por
-        // exemplo, o newline após o texto), o que deslocaria visualmente a
-        // linha RTL para a esquerda por um espaço. Usar as bounding boxes dos
-        // items evita esse erro.
-        let content_right = self.regions.current.current_line
-            .iter()
-            .map(|item| {
-                let (x, _) = super::helpers::item_pos(item);
-                x + super::helpers::item_width(item, &self.metrics)
-            })
-            .fold(0.0, f64::max);
+        // **P592/P593** — alinhar pelo limite direito do conteúdo real, não
+        // pelo cursor. O cursor pode incluir avanço de `Content::Space` final
+        // (por exemplo, o newline após o texto), o que deslocaria visualmente a
+        // linha RTL para a esquerda por um espaço. Usar `line_content_right`
+        // evita esse erro.
+        let line_refs: Vec<&FrameItem> = self.regions.current.current_line.iter().collect();
+        let content_right = self.metrics.line_content_right(&line_refs);
         let offset = right_margin - content_right;
         let translated: Vec<FrameItem> = self
             .regions

@@ -17,13 +17,11 @@ use typst_core::entities::layout_types::{FrameItem, Page, PagedDocument, Point, 
 use typst_core::rules::layout::FontMetrics;
 use unicode_bidi::{bidi_class, BidiClass, BidiInfo};
 
-/// **P591** — largura de um item de texto para reordenação bidi, usando
-/// `advance_shaped` quando disponível (scripts contextuais) e caindo em
-/// `advance` para os restantes.
+/// **P591/P593** — largura de um item de texto para reordenação bidi.
+/// Delegado para `FontMetrics::text_width`, a fonte única do nível palavra
+/// (shaping + tracking).
 fn text_width_for_bidi(metrics: &dyn FontMetrics, text: &str, style: &typst_core::entities::layout_types::TextStyle) -> f64 {
-    metrics.advance_shaped(text, style.size, style)
-        .map(|p| p.0)
-        .unwrap_or_else(|| metrics.advance(text, style.size, style).0)
+    metrics.text_width(text, style.size, style).0
 }
 
 /// Tolerância para agrupar items na mesma linha visual (baseline y).
@@ -150,16 +148,12 @@ fn reorder_bidi_line(
         .collect();
 
     let x_min = item_x(&items[text_indices[0]]);
-    // **P592** — usar o limite direito real do conteúdo (right edge do item
-    // mais à direita), não o left edge do último item. O cursor pode incluir
-    // avanço de `Content::Space` final; o left edge do último item não captura
-    // esse erro. Usar content_right faz com que o último item termine na
-    // margem direita quando a linha for RTL, como no vanilla.
-    let content_right = text_indices
-        .iter()
-        .zip(widths.iter())
-        .map(|(&idx, &w)| item_x(&items[idx]) + w)
-        .fold(0.0, f64::max);
+    // **P592/P593** — usar `FontMetrics::line_content_right`, a fonte única do
+    // nível linha. O limite direito real do conteúdo (right edge do item mais
+    // à direita) substitui o left edge do último item, evitando que espaços
+    // finais sem item visual desloquem a linha RTL para a esquerda.
+    let line_refs: Vec<&FrameItem> = line.iter().map(|&idx| &items[idx]).collect();
+    let content_right = metrics.line_content_right(&line_refs);
     let total_width: f64 = widths.iter().sum();
     let gap = if text_indices.len() > 1 {
         ((content_right - x_min - total_width) / (text_indices.len() - 1) as f64).max(0.0)

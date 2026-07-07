@@ -1432,18 +1432,9 @@ fn get_item_y(item: &FrameItem) -> Option<f64> {
 
 fn estimate_width(metrics: &FallbackFontMetrics, text: &str, style: &TextStyle) -> f64 {
     use typst_core::rules::layout::FontMetrics;
-    let base = metrics
-        .advance_shaped(text, style.size, style)
-        .map(|p| p.val())
-        .unwrap_or_else(|| metrics.advance(text, style.size, style).val());
-    let tracking_extra = style.tracking
-        .map(|t| {
-            let tracking_pt = t.resolve_pt(style.size.val());
-            let n = text.chars().count();
-            tracking_pt * n.saturating_sub(1) as f64
-        })
-        .unwrap_or(0.0);
-    base + tracking_extra
+    // **P593** — delegar para `FontMetrics::text_width`, a fonte única do
+    // nível palavra (shaping + tracking).
+    metrics.text_width(text, style.size, style).val()
 }
 
 fn fix_line_positions_page(metrics: &FallbackFontMetrics, page: &mut Page) {

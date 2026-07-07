@@ -28,18 +28,16 @@ pub(super) fn item_pos(item: &FrameItem) -> (f64, f64) {
     }
 }
 
-/// **P592** — largura horizontal de um FrameItem para cálculo da extensão
-/// real da linha. Usado por `align_current_line_rtl` para ignorar espaços
-/// finais (cursor_x pode incluir avanço de `Content::Space` sem item real).
+/// **P592/P593** — largura horizontal de um FrameItem para cálculo da
+/// extensão real da linha. Usado por `align_current_line_rtl` e
+/// `reorder_bidi_line` para ignorar espaços finais (cursor_x pode incluir
+/// avanço de `Content::Space` sem item real).
 pub(super) fn item_width(item: &FrameItem, metrics: &dyn super::FontMetrics) -> f64 {
     match item {
+        // **P593** — delegar para `FontMetrics::text_width`, a fonte única do
+        // nível palavra (shaping + tracking).
         FrameItem::Text { text, style, .. } => {
-            // Usar a mesma métrica de largura que `layout_word`/`text_width_for_bidi`
-            // (shaping quando disponível), para que content_right coincida com o
-            // cursor de layout em scripts contextuais (árabe, hebraico).
-            metrics.advance_shaped(text.as_str(), style.size, style)
-                .map(|p| p.0)
-                .unwrap_or_else(|| metrics.advance(text.as_str(), style.size, style).0)
+            metrics.text_width(text.as_str(), style.size, style).0
         }
         FrameItem::TextShaped { glyphs, style, units_per_em, .. } => {
             let size_pt = style.size.val();
@@ -53,6 +51,22 @@ pub(super) fn item_width(item: &FrameItem, metrics: &dyn super::FontMetrics) -> 
         FrameItem::Group { inner_width, .. } => *inner_width,
         FrameItem::Link { size, .. } => size.width.0,
     }
+}
+
+/// **P593** — limite direito real de uma linha, calculado a partir das
+/// bounding boxes dos items desenhados. Usado em vez de `cursor_x` para que
+/// espaços finais (sem item visual) não afectem o alinhamento RTL.
+pub(super) fn line_content_right<'a>(
+    items: impl IntoIterator<Item = &'a FrameItem>,
+    metrics: &dyn super::FontMetrics,
+) -> f64 {
+    items
+        .into_iter()
+        .map(|item| {
+            let (x, _) = item_pos(item);
+            x + item_width(item, metrics)
+        })
+        .fold(0.0, f64::max)
 }
 
 /// Cria um FrameItem com a posição substituída por `(new_x, new_y)`.
