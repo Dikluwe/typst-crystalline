@@ -4,7 +4,7 @@
 **Passo:** 596  
 **Foco:** Confirmar qual binário vanilla foi usado em P595 e validar a afirmação sobre `page(columns:)`  
 **Hash do commit de base:** `3e5b487a8073746121fc1876cde773cdb75cac3b`  
-**Hash do commit de fecho:** `4a9d3be16270a254007b42a918dd12886a0fb5e9`
+**Hash do commit de fecho:** `680e604261d2c536a477d9115974080bb483e737`
 
 ---
 
