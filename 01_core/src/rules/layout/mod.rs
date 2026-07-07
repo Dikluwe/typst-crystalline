@@ -380,6 +380,10 @@ pub struct Layouter<'a, M: FontMetrics, S: ImageSizer = NullImageSizer> {
     /// O FrameItem::Text é adicionado no final de `finish()` quando o total
     /// de páginas é conhecido.
     pub(super) pending_page_numbering: Vec<(usize, usize, ecow::EcoString)>,
+    /// **P595** — avisos produzidos durante o layout. L1 puro: strings
+    /// simples, sem construção de `SourceDiagnostic` nem acesso a Sink.
+    /// Exportado no `PagedDocument` e convertido a diagnósticos em L3.
+    pub(super) layout_warnings: Vec<String>,
 }
 
 /// **P286** — Segmento de linha visual capturado por `flush_line`
@@ -557,6 +561,8 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
             last_was_loose_item: false,
             // P541 — numeração adiada para patterns compostos (ex: "1 / 1").
             pending_page_numbering: Vec::new(),
+            // **P595** — avisos de layout inicializados vazios.
+            layout_warnings: Vec::new(),
         }
     }
 
@@ -1254,6 +1260,8 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
         // P488 — expor páginas de figuras/tabelas para fixpoint carry-forward (LoF/LoT).
         doc.extracted_figure_page_numbers = self.runtime.figure_page_numbers;
         doc.extracted_table_page_numbers  = self.runtime.table_page_numbers;
+        // **P595** — exportar avisos de layout acumulados no Layouter.
+        doc.layout_warnings = self.layout_warnings;
         doc
     }
 

@@ -556,6 +556,11 @@ pub struct PagedDocument {
     /// **P536** — metadados do documento definidos por `#set document(...)`.
     /// Copiado do `Module` pelo pipeline antes da exportação PDF (`/Info`).
     pub document_info: DocumentInfo,
+    /// **P595** — avisos produzidos durante o layout (ex: footnote body
+    /// maior do que a página/coluna). L1 permanece puro; a conversão
+    /// para `SourceDiagnostic` e injecção no `Sink` é responsabilidade
+    /// da pipeline em L3.
+    pub layout_warnings: Vec<String>,
 }
 
 impl PagedDocument {
@@ -569,6 +574,7 @@ impl PagedDocument {
             extracted_table_page_numbers:   Vec::new(),
             extracted_headings:             Vec::new(),
             document_info:                  DocumentInfo::empty(),
+            layout_warnings:                Vec::new(),
         }
     }
 

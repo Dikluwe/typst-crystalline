@@ -1,6 +1,8 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/rules/layout.md
 //! @prompt-hash 5249700d
+//! @prompt 00_nucleo/prompts/rules/footnote_overflow_columns.md
+//! @prompt-hash 3a8202e4
 //! @layer L1
 //! @updated 2026-04-23
 //!
@@ -602,18 +604,25 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
         // P305 — compute top boundary safe: max Y of current_items
         // (above which bodies would overlap main content). Fallback
         // a `margin` se página vazia.
+        // **P595** — incluir cursor_y e current_line no cálculo, porque
+        // o texto ainda não flushado para current_items também ocupa
+        // espaço; ignorá-lo faz a nota sobrepor o conteúdo principal
+        // (especialmente em colunas).
+        let item_top_y = |it: &FrameItem| match it {
+            FrameItem::Text        { pos, .. } => pos.y.0,
+            FrameItem::TextShaped  { pos, .. } => pos.y.0,
+            FrameItem::Line  { start, .. } => start.y.0,
+            FrameItem::Glyph { pos, .. } => pos.y.0,
+            FrameItem::Image { pos, .. } => pos.y.0,
+            FrameItem::Shape { pos, .. } => pos.y.0,
+            FrameItem::Group { pos, .. } => pos.y.0,
+            FrameItem::Link { .. }       => 0.0,
+        };
         let top_safe = self.regions.current.current_items.iter()
-            .map(|it| match it {
-                FrameItem::Text        { pos, .. } => pos.y.0,
-                FrameItem::TextShaped  { pos, .. } => pos.y.0,
-                FrameItem::Line  { start, .. } => start.y.0,
-                FrameItem::Glyph { pos, .. } => pos.y.0,
-                FrameItem::Image { pos, .. } => pos.y.0,
-                FrameItem::Shape { pos, .. } => pos.y.0,
-                FrameItem::Group { pos, .. } => pos.y.0,
-                FrameItem::Link { .. }       => 0.0,
-            })
-            .fold(margin, f64::max);
+            .map(item_top_y)
+            .chain(self.regions.current.current_line.iter().map(item_top_y))
+            .fold(margin, f64::max)
+            .max(self.regions.current.cursor_y.0);
         let available_h = (area_bot - top_safe).max(0.0);
 
         // P305 — greedy measure-then-fit. Bodies que cabem ficam
@@ -643,6 +652,16 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
             // Defensive: primeiro body emite mesmo se > available_h SE
             // body > full_avail (não fits em nenhuma página).
             let force_emit = measured.is_empty() && h > full_avail;
+            if force_emit {
+                // **P595** — body maior do que a página/coluna inteira:
+                // emite-se para evitar loop infinito, mas o utilizador
+                // deve ser avisado de que o conteúdo pode ser truncado
+                // ou sobreposto.
+                self.layout_warnings.push(format!(
+                    "footnote body [{}] exceeds available column/page height and may be truncated or overlap content",
+                    n
+                ));
+            }
             if fits || force_emit {
                 acc_h += h;
                 measured.push((h, items));

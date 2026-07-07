@@ -14404,6 +14404,81 @@ mod p292_style_font_tests {
     }
 
     #[test]
+    fn p595_nota_pequena_colunas_sem_regressao() {
+        // REGRESSÃO: nota pequena que cabe em `#set page(columns: 2)`
+        // continua a ser renderizada no fundo da coluna correspondente.
+        let doc = layout_test(
+            r#"#set page(columns: 2)
+Hello #footnote[Nota A] world.
+#colbreak()
+Goodbye #footnote[Nota B] moon."#,
+        );
+        assert_eq!(doc.pages.len(), 1, "deve caber numa página");
+        assert!(doc.layout_warnings.is_empty(), "sem avisos para notas que cabem");
+        let combined = doc.plain_text();
+        assert!(combined.contains("Nota A"), "Nota A presente");
+        assert!(combined.contains("Nota B"), "Nota B presente");
+    }
+
+    #[test]
+    fn p595_nota_enorme_colunas_gera_warning() {
+        // CASO DEGENERATE: body de footnote maior do que a altura útil
+        // total da coluna/página. O algoritmo emite-o defensivemente
+        // para evitar loop infinito, mas deve registar um aviso.
+        let doc = layout_test(
+            r#"#set page(columns: 2, height: 200pt)
+#lorem(10)#footnote[
+  Esta nota é maior do que a coluna inteira. #lorem(200)
+]
+#lorem(10)"#,
+        );
+        assert!(
+            doc.layout_warnings.iter().any(|w: &String| w.contains("footnote body")),
+            "deve haver aviso de footnote body exceed: {:?}",
+            doc.layout_warnings
+        );
+        // Marker e parte do body devem ser visíveis no documento.
+        let combined = doc.plain_text();
+        assert!(combined.contains("[1]"), "marker [1] presente");
+        assert!(
+            combined.contains("Esta nota é maior do que a coluna inteira"),
+            "início do body presente"
+        );
+    }
+
+    #[test]
+    fn p595_nota_grande_colunas_nao_sobrepoe_topo() {
+        // Nota grande que não cabe no espaço restante da coluna não
+        // pode ser desenhada acima do conteúdo principal (topo da página).
+        let doc = layout_test(
+            r#"#set page(columns: 2, height: 200pt)
+#lorem(30)#footnote[
+  Esta é uma nota de rodapé muito longa, com texto suficiente para não caber no espaço restante de uma coluna pequena, testando o que acontece quando isto excede o espaço disponível na página.
+]
+#lorem(30)"#,
+        );
+        // Nenhum item da nota pode estar acima do topo útil da página.
+        let min_note_y = doc
+            .pages
+            .iter()
+            .flat_map(|p| p.items.iter())
+            .filter_map(|it| match it {
+                FrameItem::Text { pos, text, .. } if text.contains("nota de rodapé") => {
+                    Some(pos.y.0)
+                }
+                _ => None,
+            })
+            .fold(f64::INFINITY, f64::min);
+        if min_note_y.is_finite() {
+            assert!(
+                min_note_y >= 70.0,
+                "nota não pode começar acima do topo útil da página, y={}",
+                min_note_y
+            );
+        }
+    }
+
+    #[test]
     fn p292_marco_arquitectural_serie_p288_a_p292_fechada() {
         // **Marco simbólico**: este teste atesta o fecho da série
         // cirúrgica P288-P292 (5/5 da assimetria residual P289 §5.6

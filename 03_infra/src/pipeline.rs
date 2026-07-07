@@ -1,6 +1,8 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/pipeline.md
 //! @prompt-hash 8695ff8d
+//! @prompt 00_nucleo/prompts/rules/footnote_overflow_columns.md
+//! @prompt-hash 3a8202e4
 //! @layer L3
 //! @updated 2026-04-24
 //!
@@ -36,6 +38,7 @@ use typst_core::entities::show::ShowRule;
 use typst_core::entities::sink::Sink as TypstSink;
 use typst_core::entities::source::Source;
 use typst_core::entities::source_result::{SourceDiagnostic, SourceResult};
+use typst_core::entities::span::Span;
 use typst_core::entities::style_chain::StyleChain;
 use typst_core::entities::world_types::{Route, Routines, Sink, Traced};
 use typst_core::rules::eval::{apply_func, eval_with_full_error, EvalContext};
@@ -287,7 +290,7 @@ fn compile_to_pdf_bytes_impl(
     timings: &mut Timings,
 ) -> (Result<Vec<u8>, Vec<SourceDiagnostic>>, Vec<SourceDiagnostic>) {
     let t0 = Instant::now();
-    let (eval_result, warnings) = eval_to_module_with_sink_full_error(world, source, full_error);
+    let (eval_result, mut warnings) = eval_to_module_with_sink_full_error(world, source, full_error);
     let t1 = Instant::now();
     timings.eval_ms = duration_ms(t1.duration_since(t0));
 
@@ -350,6 +353,11 @@ fn compile_to_pdf_bytes_impl(
         ImageSizeImageSizer,
         11.0,
     );
+    // **P595** — propagar avisos de layout (ex: footnote body maior do que
+    // a página/coluna) para o Sink do documento.
+    for warning in doc.layout_warnings.drain(..) {
+        warnings.push(SourceDiagnostic::warning(Span::detached(), warning));
+    }
     doc.extracted_headings = extracted_headings;
 
     // P535 — preencher página/ponto dos destinos auto-toc a partir das
