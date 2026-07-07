@@ -17,6 +17,15 @@ use typst_core::entities::layout_types::{FrameItem, Page, PagedDocument, Point, 
 use typst_core::rules::layout::FontMetrics;
 use unicode_bidi::{bidi_class, BidiClass, BidiInfo};
 
+/// **P591** — largura de um item de texto para reordenação bidi, usando
+/// `advance_shaped` quando disponível (scripts contextuais) e caindo em
+/// `advance` para os restantes.
+fn text_width_for_bidi(metrics: &dyn FontMetrics, text: &str, style: &typst_core::entities::layout_types::TextStyle) -> f64 {
+    metrics.advance_shaped(text, style.size, style)
+        .map(|p| p.0)
+        .unwrap_or_else(|| metrics.advance(text, style.size, style).0)
+}
+
 /// Tolerância para agrupar items na mesma linha visual (baseline y).
 const Y_TOLERANCE_PT: f64 = 0.01;
 
@@ -133,7 +142,7 @@ fn reorder_bidi_line(
         .iter()
         .map(|&idx| {
             if let FrameItem::Text { text, style, .. } = &items[idx] {
-                metrics.advance(text.as_str(), style.size, style).0
+                text_width_for_bidi(metrics, text.as_str(), style)
             } else {
                 0.0
             }
@@ -229,7 +238,7 @@ fn reorder_indices(
                 *s = style;
                 pos.x = Pt(current_x);
                 pos.y = Pt(target_y);
-                let w = metrics.advance(t.as_str(), s.size, s).0;
+                let w = text_width_for_bidi(metrics, t.as_str(), s);
                 current_x += w + gap;
             }
         }
@@ -284,7 +293,7 @@ fn reorder_indices(
             *s = style;
             pos.x = Pt(current_x);
             pos.y = Pt(target_y);
-            let w = metrics.advance(t.as_str(), s.size, s).0;
+            let w = text_width_for_bidi(metrics, t.as_str(), s);
             current_x += w + gap;
         }
     }
@@ -428,7 +437,7 @@ fn split_ltr_suffixes_line(
             None => continue,
         };
 
-        let suffix_width = metrics.advance(suffix, style.size, &style).0;
+        let suffix_width = text_width_for_bidi(metrics, suffix, &style);
         let mut base_text = ecow::EcoString::with_capacity(base_prefix.len() + trailing.len());
         base_text.push_str(base_prefix);
         base_text.push_str(trailing);
@@ -704,7 +713,7 @@ fn try_fuse_paragraph(
         .iter()
         .map(|&idx| {
             if let FrameItem::Text { text, style, .. } = &page.items[idx] {
-                metrics.advance(text.as_str(), style.size, style).0
+                text_width_for_bidi(metrics, text.as_str(), style)
             } else {
                 0.0
             }

@@ -93,7 +93,9 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
     }
 
     pub(super) fn layout_word(&mut self, word: &str) {
-        let w = self.word_width(word);
+        let w = self.metrics
+            .advance_shaped(word, self.style.size, &self.style)
+            .unwrap_or_else(|| self.word_width(word));
         let right_margin = self.regions.current.width - self.page_config.margin;
         if self.regions.current.cursor_x.0 + w.0 > right_margin && self.regions.current.cursor_x.0 > self.page_config.margin {
             // Passo 144 (ADR-0057): tentar hyphenation antes do

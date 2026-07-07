@@ -12,6 +12,7 @@ use crate::entities::{
     layout_types::{Pt, TextStyle},
     math_constants::MathConstants,
 };
+use unicode_script::{Script, UnicodeScript};
 
 /// Interface de métricas de fonte para o Layouter.
 ///
@@ -73,6 +74,30 @@ pub trait FontMetrics: Send + Sync {
         let _ = c;
         MathGlyphKern::default()
     }
+
+    /// **P591** — avanço horizontal já com forma de escrita aplicada
+    /// (shaping). Implementações L3 podem devolver `Some(width)` para
+    /// scripts que alteram a forma dos caracteres em contexto (árabe,
+    /// síriaco, etc.); `None` mantém o caminho normal `advance`.
+    fn advance_shaped(&self, text: &str, size: Pt, style: &TextStyle) -> Option<Pt> {
+        let _ = (text, size, style);
+        None
+    }
+}
+
+/// **P591** — detecta se um trecho de texto precisa de medição com shaping
+/// porque pertence a um script com formas contextuais obrigatórias.
+pub fn needs_shaped_width(text: &str) -> bool {
+    text.chars().any(|c| {
+        matches!(
+            c.script(),
+            Script::Arabic
+                | Script::Syriac
+                | Script::Mongolian
+                | Script::Nko
+                | Script::Mandaic
+        )
+    })
 }
 
 /// Métricas fixas monoespaçadas — para layout sem FontBook real.

@@ -277,9 +277,25 @@ impl CachedFace {
 /// Dado um `World`, resolve a fonte real (primárias do `TextStyle` + fallback
 /// global do `FontBook`) para medir cada caractere com a face correcta,
 /// em vez de usar uma largura fixa monoespaçada.
+/// **P591** — chave para cache de `advance_shaped`. Inclui os campos do
+/// `TextStyle` que afectam a largura shaped; campos puramente visuais
+/// (fill, highlight, etc.) são omitidos porque não alteram métricas.
+#[derive(Hash, Eq, PartialEq)]
+struct ShapedWidthKey {
+    text:      String,
+    size_bits: u64,
+    font_hash: u64,
+    bold:      bool,
+    italic:    bool,
+    weight:    Option<u16>,
+    dir:       u8,
+    lang:      Option<typst_core::entities::lang::Lang>,
+}
+
 pub struct FallbackFontMetrics<'a> {
     world: &'a dyn World,
     cache: Arc<Mutex<HashMap<usize, Arc<CachedFace>>>>,
+    shaped_width_cache: Arc<Mutex<HashMap<ShapedWidthKey, Pt>>>,
 }
 
 /// Candidata a fonte para medição.
@@ -298,7 +314,65 @@ impl<'a> FallbackFontMetrics<'a> {
         Self {
             world,
             cache: Arc::new(Mutex::new(HashMap::new())),
+            shaped_width_cache: Arc::new(Mutex::new(HashMap::new())),
         }
+    }
+
+    /// **P591** — constrói uma chave de cache para `advance_shaped`.
+    fn shaped_width_key(text: &str, style: &TextStyle) -> Option<ShapedWidthKey> {
+        use std::collections::hash_map::DefaultHasher;
+        use std::hash::{Hash, Hasher};
+        use typst_core::entities::dir::Dir;
+
+        let dir = style.dir.map(|d| match d {
+            Dir::LTR => 1u8,
+            Dir::RTL => 2,
+            Dir::TTB => 3,
+            Dir::BTT => 4,
+        }).unwrap_or(0);
+
+        let font_hash = style.font.as_ref().map(|fl| {
+            let mut h = DefaultHasher::new();
+            fl.hash(&mut h);
+            h.finish()
+        }).unwrap_or(0);
+
+        Some(ShapedWidthKey {
+            text: text.to_string(),
+            size_bits: style.size.0.to_bits(),
+            font_hash,
+            bold: style.bold,
+            italic: style.italic,
+            weight: style.weight,
+            dir,
+            lang: style.lang,
+        })
+    }
+
+    /// **P591** — cache lookup/inserção para `advance_shaped`.
+    fn cached_shaped_width(
+        &self,
+        text: &str,
+        style: &TextStyle,
+        compute: impl FnOnce() -> Option<Pt>,
+    ) -> Option<Pt> {
+        // Não cachear quando tracking ou outros ajustes de largura estão
+        // activos, para evitar valores incorrectos.
+        if style.tracking.is_some() {
+            return compute();
+        }
+
+        let key = Self::shaped_width_key(text, style)?;
+        {
+            let cache = self.shaped_width_cache.lock().unwrap();
+            if let Some(&value) = cache.get(&key) {
+                return Some(value);
+            }
+        }
+
+        let value = compute()?;
+        self.shaped_width_cache.lock().unwrap().insert(key, value);
+        Some(value)
     }
 
     /// Devolve a face cacheada para `slot_idx`, criando-a se necessário.
@@ -390,6 +464,7 @@ impl Clone for FallbackFontMetrics<'_> {
         Self {
             world: self.world,
             cache: self.cache.clone(),
+            shaped_width_cache: self.shaped_width_cache.clone(),
         }
     }
 }
@@ -453,6 +528,20 @@ impl FontMetrics for FallbackFontMetrics<'_> {
         }
 
         Pt(total)
+    }
+
+    /// **P591** — para scripts contextuais (árabe, síriaco, etc.), usa o
+    /// shaper para obter a largura real com formas ligadas. Para os restantes
+    /// scripts, mantém o caminho rápido `advance`.
+    fn advance_shaped(&self, text: &str, _size: Pt, style: &TextStyle) -> Option<Pt> {
+        use typst_core::rules::layout::needs_shaped_width;
+        if !needs_shaped_width(text) {
+            return None;
+        }
+        let world = self.world;
+        self.cached_shaped_width(text, style, || {
+            crate::shaper::shaped_width(world, text, style)
+        })
     }
 
     fn vertical_metrics(&self, size: Pt) -> (Pt, Pt) {
@@ -553,6 +642,56 @@ mod tests {
         let t = metrics.advance("T", Pt(12.0), &style);
         let exto = metrics.advance("exto", Pt(12.0), &style);
         assert!(text.val() < t.val() + exto.val(), "kerning deve reduzir a largura de 'Texto'");
+    }
+
+    #[test]
+    fn p591_advance_shaped_arabico_reduz_largura() {
+        use typst_core::contracts::world::World;
+        use crate::world::SystemWorld;
+
+        let dir = std::env::temp_dir().join(format!(
+            "typst-fontmetrics-test-{}",
+            std::time::SystemTime::now()
+                .duration_since(std::time::UNIX_EPOCH)
+                .map(|d| d.subsec_nanos())
+                .unwrap_or(0)
+        ));
+        std::fs::create_dir_all(&dir).unwrap();
+        std::fs::write(dir.join("main.typ"), "text").unwrap();
+        let Ok(world) = SystemWorld::new(&dir, "main.typ").map(|w| w.with_system_fonts()) else {
+            return;
+        };
+        if world.book().is_empty() {
+            return;
+        }
+
+        let metrics = FallbackFontMetrics::new(&world);
+        let mut style = TextStyle::default();
+        style.font = Some(typst_core::entities::font_list::FontList::single(
+            ecow::EcoString::from("DejaVu Sans")
+        ));
+        style.size = Pt(40.0);
+        style.lang = Some("ar".parse().unwrap());
+        style.dir = Some(typst_core::entities::dir::Dir::RTL);
+
+        // Para palavras árabes, a largura com shaping deve ser menor que a
+        // soma das letras isoladas.
+        let plain = metrics.advance("الكتاب", Pt(40.0), &style);
+        let shaped = metrics.advance_shaped("الكتاب", Pt(40.0), &style);
+        assert!(shaped.is_some(), "advance_shaped deve retornar Some para arabe");
+        assert!(
+            shaped.unwrap().val() < plain.val() - 10.0,
+            "shaped width de 'الكتاب' deve ser significativamente menor que non-shaped; plain={:.4}, shaped={:.4}",
+            plain.val(), shaped.unwrap().val()
+        );
+
+        // Dígitos latinos não precisam de shaping.
+        let digits_plain = metrics.advance("42", Pt(40.0), &style);
+        let digits_shaped = metrics.advance_shaped("42", Pt(40.0), &style);
+        assert!(
+            digits_shaped.is_none() || (digits_shaped.unwrap().val() - digits_plain.val()).abs() < 0.1,
+            "'42' nao deve sofrer shaping contextual"
+        );
     }
 
     #[test]

@@ -45,6 +45,77 @@ pub fn shape_document(world: &dyn World, mut doc: PagedDocument) -> PagedDocumen
     doc
 }
 
+/// **P591** — mede a largura de `text` já com shaping aplicado, sem gerar
+/// `FrameItem`s. Usado pelo `FallbackFontMetrics::advance_shaped` para que o
+/// Layouter decida quebras de linha com a largura real de scripts contextuais
+/// (árabe, síriaco, etc.).
+///
+/// Retorna `None` se não conseguir resolver fonte ou se o texto for vazio.
+pub fn shaped_width(world: &dyn World, text: &str, style: &TextStyle) -> Option<Pt> {
+    if text.is_empty() {
+        return Some(Pt(0.0));
+    }
+
+    let font_list = style.font.as_ref()?;
+
+    let variant = text_style_to_font_variant(style);
+    let axis_vars = axis_variations_for_font_variant(&variant);
+
+    let mut primary = resolve_candidates(world, font_list, &variant).unwrap_or_default();
+    if primary.is_empty() {
+        let first_family = font_list.as_slice()
+            .first()
+            .and_then(|f| f.name.as_str())
+            .unwrap_or("");
+        let fallback_list = fallback_font_list_for(first_family);
+        for family in fallback_list {
+            let fallback_font_list = FontList::single(ecow::EcoString::from(*family));
+            if let Some(cands) = resolve_candidates(world, &fallback_font_list, &variant) {
+                if !cands.is_empty() {
+                    primary = cands;
+                    break;
+                }
+            }
+        }
+    }
+
+    let mut candidates = CandidateSet::new(world, primary);
+
+    let runs = bidi_runs(text);
+    if runs.is_empty() {
+        return Some(Pt(0.0));
+    }
+
+    let mut total = 0.0;
+
+    for run in &runs {
+        for subrun in split_run_by_font(run, &mut candidates) {
+            let candidate = candidates.get(subrun.candidate_idx)?;
+            let font = world.font(candidate.slot_idx)?;
+            let mut rb_face = rustybuzz::Face::from_slice(font.as_slice(), 0)?;
+
+            if !axis_vars.is_empty() {
+                rb_face.set_variations(&axis_vars);
+            }
+
+            let mut buffer = UnicodeBuffer::new();
+            buffer.push_str(&subrun.text);
+            if run.rtl {
+                buffer.set_direction(Direction::RightToLeft);
+            } else {
+                buffer.set_direction(Direction::LeftToRight);
+            }
+            let output = rustybuzz::shape(&rb_face, &[], buffer);
+            let positions = output.glyph_positions();
+
+            let run_width: i32 = positions.iter().map(|p| p.x_advance).sum();
+            total += run_width as f64 * style.size.0 / candidate.units_per_em as f64;
+        }
+    }
+
+    Some(Pt(total))
+}
+
 fn shape_page(world: &dyn World, page: &mut Page) {
     let mut new_items = Vec::with_capacity(page.items.len());
     for item in page.items.drain(..) {
@@ -1361,7 +1432,10 @@ fn get_item_y(item: &FrameItem) -> Option<f64> {
 
 fn estimate_width(metrics: &FallbackFontMetrics, text: &str, style: &TextStyle) -> f64 {
     use typst_core::rules::layout::FontMetrics;
-    let base = metrics.advance(text, style.size, style).val();
+    let base = metrics
+        .advance_shaped(text, style.size, style)
+        .map(|p| p.val())
+        .unwrap_or_else(|| metrics.advance(text, style.size, style).val());
     let tracking_extra = style.tracking
         .map(|t| {
             let tracking_pt = t.resolve_pt(style.size.val());

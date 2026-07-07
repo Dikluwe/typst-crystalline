@@ -32,7 +32,7 @@ use std::sync::Arc;
 
 // FontMetrics / FixedMetrics extraídos para metrics.rs (Passo 96.7, ADR-0037).
 mod metrics;
-pub use crate::rules::layout::metrics::{FixedMetrics, FontMetrics};
+pub use crate::rules::layout::metrics::{needs_shaped_width, FixedMetrics, FontMetrics};
 
 // Braços pesados do `layout_content` extraídos por cluster (Passo 96.7).
 mod equation;
