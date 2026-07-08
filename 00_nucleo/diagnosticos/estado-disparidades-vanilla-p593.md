@@ -1,7 +1,7 @@
 # Estado das disparidades com o vanilla — depois de P593
 
 **Data:** 2026-07-05  
-**Actualizado:** 2026-07-08 (P602, P604, P605, P606, P608, P611)
+**Actualizado:** 2026-07-08 (P602, P604, P605, P606, P608, P611, P616)
 
 ---
 
@@ -15,7 +15,7 @@
 | IDE / LSP | P526 |
 | Fontes de cor para emoji (COLR/CPAL/CBDT/CBLC/sbix) | P531 |
 | Fontes Type1/PostScript | P531 |
-| Escrita vertical CJK (de cima para baixo) | P531, confirmado como scope-out específico em P576 (`ttb`/`btt`) |
+| Escrita vertical CJK (de cima para baixo) | **Não é disparidade** — o vanilla 0.15.0 também rejeita `dir: ttb/btt` em `#set text(...)` (P616). O layout vertical de texto continua não implementado em ambos; é funcionalidade nova, não bug. |
 | Quebra de linha para CJK/Thai (scripts sem espaços) | P531. Nunca testado directamente — a sequência RTL confirmou o algoritmo para árabe/hebraico, não para CJK/Thai. |
 | PDF Tagged / PDF-UA (acessibilidade) | P531 |
 | Compressão por object streams / cross-reference streams | P531 |

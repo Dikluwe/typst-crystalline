@@ -1,5 +1,5 @@
 # Prompt L0 — rules/eval
-Hash do Código: f9375764
+Hash do Código: 7e811a89
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/rules/eval.rs`
@@ -213,3 +213,30 @@ eval_binary_op(Add, Int(MAX), Int(1))   → Err(...)
 eval_unary_op(Not, Bool(true))          → Ok(Bool(false))
 eval_for_test: Source("#let x = 1") → module.scope().get("x") = Some(&Value::Int(1))
 ```
+
+## §P616 — Validação de `dir` em `#set text(...)`
+
+Medição na fonte vanilla 0.15.0:
+
+- `lab/typst-original/crates/typst-library/src/text/mod.rs:1258-1259`: o cast
+  `Smart<Dir> → TextDir` rejeita direcções de eixo Y com
+  `bail!("text direction must be horizontal")`.
+- `lab/typst-original/tests/suite/layout/inline/bidi.typ:70`: o teste de suite
+  espera `// Error: 16-19 text direction must be horizontal` para
+  `#set text(dir: ttb)`.
+
+Regra para `eval_set_rule` com target `"text"` e propriedade `"dir"`:
+
+- Aceitar `Value::Dir(Dir::LTR)` e `Value::Dir(Dir::RTL)` e propagar para a
+  chain como `"text.dir"` (sem alteração de comportamento existente).
+- Rejeitar `Value::Dir(Dir::TTB)` e `Value::Dir(Dir::BTT)` com erro hard,
+  mensagem byte-idêntica ao vanilla: `"text direction must be horizontal"`.
+- O span do diagnóstico deve apontar para a expressão do argumento
+  (`named.expr().span()`), de modo a reproduzir o enquadramento do erro do
+  vanilla.
+
+Esta validação é **paridade da linguagem** (semântica da propriedade `dir` do
+elemento `text`): o Typst actual não implementa escrita vertical de texto, e
+rejeitar explicitamente é preferível a aceitar silenciosamente e renderizar
+horizontal. A escrita vertical enquanto funcionalidade nova permanece fora do
+scope actual (ver `00_nucleo/diagnosticos/paridade-producao-p614.md`).

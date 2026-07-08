@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/rules/eval.md
-//! @prompt-hash 2b4597d5
+//! @prompt-hash 24fc3da1
 //! @layer L1
 //! @updated 2026-06-25
 //!
@@ -20,7 +20,6 @@ use crate::entities::ast::code::{SetRule, ShowRule as ShowRuleNode};
 use crate::entities::ast::expr::{Arg, ArrayItem, Dict, DictItem, Expr};
 use crate::entities::ast::AstNode;
 use crate::entities::content::Content;
-use crate::entities::dir::Dir;
 use crate::entities::element_kind::ElementKind;
 use crate::entities::engine::Engine;
 use crate::entities::font_book::FontWeight;
@@ -1073,6 +1072,12 @@ pub(super) fn eval_set_rule(
                 }
                 "dir" => {
                     if let Value::Dir(dir) = val {
+                        if dir.is_vertical() {
+                            return Err(vec![SourceDiagnostic::error(
+                                named.expr().span(),
+                                "text direction must be horizontal".to_string(),
+                            )]);
+                        }
                         *engine.styles =
                             engine.styles.push_custom("text.dir", Value::Dir(dir));
                     }

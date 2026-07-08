@@ -1,7 +1,7 @@
 # Inventário de Decisões Pendentes / Pontos em Aberto
 
 **Criado em:** 2026-07-03 (Passo 550)  
-**Actualizado em:** 2026-07-08 (Passos 602, 604, 605, 606, P608, P611)  
+**Actualizado em:** 2026-07-08 (Passos 602, 604, 605, 606, P608, P611, P616)  
 **Nota:** Não existia um ficheiro `inventario-decisoes-pendentes.md` anterior. Esta é a primeira consolidação formal. A lista informal de ~24 itens referida em P550 foi auditada e integrada na secção 2 deste documento.
 
 ---
@@ -107,7 +107,7 @@ A lista informal referida em P550 foi auditada e integrada nesta secção. Itens
 |------|---------------------|--------|
 | Fontes de cor para emoji (COLR/CPAL/CBDT/CBLC/sbix) | P531 | Ausente |
 | Fontes Type1/PostScript | P531 | Ausente |
-| Escrita vertical CJK | P531 | Ausente |
+| Escrita vertical CJK | P531 | **Não é disparidade após P616** — o vanilla 0.15.0 rejeita `dir: ttb/btt` em `#set text(...)`. O layout vertical continua ausente, mas agora com validação de paridade. |
 | Quebra de linha para CJK/Thai | P531 | Ausente |
 | Quebra de linha errada com fallback de fonte | P534, P538e | **Já corrigido — ver P544/P548** |
 | Lista fixa de 5 fontes no fallback, sem alternativa se nenhuma existir | P538e (DEBT-65) | **Já corrigido — ver P543** |

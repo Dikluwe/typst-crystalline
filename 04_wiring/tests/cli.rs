@@ -583,6 +583,79 @@ fn disciplina_exit_zero_implica_pdf_nao_vazio() {
     cleanup(&[&input, &output]);
 }
 
+/// P616: `#set text(dir: ttb)` é rejeitado com a mesma mensagem do vanilla.
+#[test]
+fn p616_text_dir_ttb_rejeitado() {
+    let input = temp_typ("p616_ttb", "#set text(dir: ttb)\nTexto.");
+    let output = temp_pdf("p616_ttb");
+
+    let result = Command::new(BIN)
+        .arg(&input)
+        .arg("-o")
+        .arg(&output)
+        .output()
+        .expect("executar binário");
+
+    let stderr = String::from_utf8_lossy(&result.stderr);
+
+    assert_eq!(result.status.code(), Some(1),
+        "esperava exit 1 para dir: ttb; stderr:\n{}", stderr);
+    assert!(
+        stderr.contains("text direction must be horizontal"),
+        "stderr deve conter a mensagem do vanilla; got:\n{}", stderr
+    );
+    assert!(!output.exists(), "não deve criar PDF quando dir: ttb é inválido");
+
+    cleanup(&[&input, &output]);
+}
+
+/// P616: `#set text(dir: btt)` também é rejeitado.
+#[test]
+fn p616_text_dir_btt_rejeitado() {
+    let input = temp_typ("p616_btt", "#set text(dir: btt)\nTexto.");
+    let output = temp_pdf("p616_btt");
+
+    let result = Command::new(BIN)
+        .arg(&input)
+        .arg("-o")
+        .arg(&output)
+        .output()
+        .expect("executar binário");
+
+    let stderr = String::from_utf8_lossy(&result.stderr);
+
+    assert_eq!(result.status.code(), Some(1),
+        "esperava exit 1 para dir: btt; stderr:\n{}", stderr);
+    assert!(
+        stderr.contains("text direction must be horizontal"),
+        "stderr deve conter a mensagem do vanilla; got:\n{}", stderr
+    );
+
+    cleanup(&[&input, &output]);
+}
+
+/// P616: `#set text(dir: rtl)` continua a funcionar sem regressão.
+#[test]
+fn p616_text_dir_rtl_continua_funcionar() {
+    let input = temp_typ("p616_rtl", "#set text(dir: rtl, lang: \"ar\", size: 20pt)\nمرحبا");
+    let output = temp_pdf("p616_rtl");
+
+    let result = Command::new(BIN)
+        .arg(&input)
+        .arg("-o")
+        .arg(&output)
+        .output()
+        .expect("executar binário");
+
+    let stderr = String::from_utf8_lossy(&result.stderr);
+
+    assert_eq!(result.status.code(), Some(0),
+        "esperava exit 0 para dir: rtl; stderr:\n{}", stderr);
+    assert!(output.exists(), "PDF deve existir para dir: rtl");
+
+    cleanup(&[&input, &output]);
+}
+
 /// Ordem: warnings aparecem antes de errors no stderr (ADR-0045).
 /// Input misto = `#set text(hyphenate: true)` (warning ADR-0040) +
 /// `#variavel_desconhecida` (erro de eval).
