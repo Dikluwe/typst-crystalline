@@ -33,14 +33,72 @@ impl FontSlot {
     /// Carrega e valida a fonte do disco (apenas na primeira chamada).
     /// Retorna `None` se o ficheiro não existir, não for legível, ou não
     /// for uma fonte OpenType/TrueType válida com o índice especificado.
+    ///
+    /// **P609** — se o ficheiro for uma TrueType/OpenType Collection (.ttc/.otc),
+    /// extrai a face correspondente a `self.index` para bytes independentes antes
+    /// de expor. Isto permite que o export/subsetter receba uma fonte simples
+    /// válida para `Face::parse(data, 0)` e `oxifont_subset`, em vez de falhar
+    /// silenciosamente e embutir a coleção inteira.
     pub fn get(&self) -> Option<Font> {
         self.font.get_or_init(|| {
             let data = std::fs::read(&self.path).ok()?;
+            // P609: extrair face de uma coleção, se aplicável.
+            let data = extract_collection_face(&data, self.index).unwrap_or(data);
             // Validar que é uma fonte válida — ttf_parser não escapa a fronteira
-            ttf_parser::Face::parse(&data, self.index).ok()?;
+            ttf_parser::Face::parse(&data, 0).ok()?;
             Some(Font::from_data(data))
         }).clone()
     }
+}
+
+/// Extrai a face de índice `index` de uma TrueType/OpenType Collection.
+///
+/// Devolve `Some(fonte_simples)` se `data` for uma coleção e o índice for
+/// válido. Devolve `None` se não for uma coleção (incluindo quando só há
+/// uma única face), mantendo o comportamento anterior para fontes normais.
+///
+/// Formato do cabeçalho `ttcf`:
+/// - tag 'ttcf' (4 bytes)
+/// - version (4 bytes)
+/// - numFonts (4 bytes)
+/// - offsetTableOffsets[ numFonts ] (4 bytes cada)
+///
+/// A face `i` ocupa os bytes desde offsetTableOffsets[i] até
+/// offsetTableOffsets[i+1] (ou até ao fim do ficheiro para a última face).
+fn extract_collection_face(data: &[u8], index: u32) -> Option<Vec<u8>> {
+    let count = ttf_parser::fonts_in_collection(data)?;
+    if count <= 1 || index >= count {
+        return None;
+    }
+    if data.len() < 12 || &data[..4] != b"ttcf" {
+        return None;
+    }
+    let count_usize = count as usize;
+    let index_usize = index as usize;
+    let offsets_start = 12;
+    let header_end = offsets_start + 4 * count_usize;
+    if data.len() < header_end {
+        return None;
+    }
+    let read_offset = |i: usize| -> Option<usize> {
+        let off = offsets_start + 4 * i;
+        Some(u32::from_be_bytes([
+            *data.get(off)?,
+            *data.get(off + 1)?,
+            *data.get(off + 2)?,
+            *data.get(off + 3)?,
+        ]) as usize)
+    };
+    let start = read_offset(index_usize)?;
+    let end = if index_usize + 1 < count_usize {
+        read_offset(index_usize + 1)?
+    } else {
+        data.len()
+    };
+    if start >= end || end > data.len() {
+        return None;
+    }
+    Some(data[start..end].to_vec())
 }
 
 /// Descobre fontes nos paths fornecidos.

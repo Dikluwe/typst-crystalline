@@ -58,6 +58,7 @@
 | `#{expr}` em markup | P545 |
 | Caracteres de escape e abreviaturas tipográficas | P581, confirmado com teste em P584/P585 |
 | Fallback de fonte por carácter (multi-script) | P534, P543 |
+| Subsetting de fontes de fallback em `.ttc` | P609 — `FontSlot::get()` agora extrai a face individual de uma TrueType Collection antes de expor os bytes; o subsetter (`oxifont_subset`) recebe uma fonte simples em vez da coleção completa. Documento de teste de P608 passou de 15,7 MB para ~196 KB. |
 | Nota de rodapé maior do que o espaço restante numa coluna | P595 — detecta overflow, emite aviso, e nunca descarta em silêncio |
 | `/Producer` no `/Info` | P600 — medição mostrou que o vanilla 0.15.0 não usa `/Producer`; usa `/Creator`. O cristalino já preenche `/Creator (typst-crystalline)`. |
 | `/Count` de bookmarks aberto/fechado | P602 — vanilla 0.15.0 usa `/Count -N` (negativo) para entradas com filhos (fechadas por defeito) e `/Count N` positivo na raiz `/Outlines`; implementado no cristalino. |
