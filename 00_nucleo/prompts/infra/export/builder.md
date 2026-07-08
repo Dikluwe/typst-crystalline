@@ -1,5 +1,5 @@
 # Prompt L0 — `infra/export/builder` — PdfBuilder
-Hash do Código: d358e2cf
+Hash do Código: f7ce43fd
 
 **Camada**: L3
 **Ficheiro alvo**: `03_infra/src/export/builder.rs`
@@ -135,15 +135,15 @@ O `PdfBuilder` constrói uma árvore `/Outlines` a partir de
 
 ## §P536 — Metadados do documento (`/Info`)
 
-O `PdfBuilder` emite um dicionário `/Info` quando
-`PagedDocument::document_info` não está vazio:
+O `PdfBuilder` **sempre** emite um dicionário `/Info`, independentemente de
+`PagedDocument::document_info` estar vazio:
 
 1. Campos presentes (`/Title`, `/Author`, `/Keywords`) são escritos como
    strings UTF-16BE com marca de ordem de bytes (`\xFE\xFF`) codificadas em
    hexadecimal (`<FEFF...>`). Isto evita dupla codificação de texto UTF-8
    proveniente do documento Typst e suporta qualquer carácter Unicode.
-2. `/CreationDate` é escrita no formato `D:YYYYMMDDHHMMSS` (UTC do momento da
-   compilação).
+2. `/CreationDate` e `/ModDate` são escritos no formato
+   `D:YYYYMMDDHHMMSS` (UTC do momento da compilação).
 3. `/Creator` é preenchida com `typst-crystalline`.
 4. O objecto `/Info` é alocado após todos os outros objectos e referenciado
    pelo `/Trailer` (`/Info X 0 R`).

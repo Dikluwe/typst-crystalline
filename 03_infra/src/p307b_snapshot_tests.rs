@@ -32,6 +32,9 @@ mod p307b_snapshot {
     /// `src_rel`: path relativo a `03_infra/` (e.g. `"fixtures/p307b/sources/01-markup-plain.typ"`).
     /// `font_path_rel`: opcional, e.g. `"../lab/krilla-reference/assets/fonts"` para fixture 09.
     fn compile_fixture(src_rel: &str, font_path_rel: Option<&str>) -> Vec<u8> {
+        // P601 — datas fixas para manter os snapshots binários determinísticos.
+        std::env::set_var("CRYSTALLINE_PDF_FIXED_EPOCH", "0");
+
         let src_path = manifest_path(src_rel);
         let root = src_path.parent().expect("source has parent dir").to_path_buf();
         let main_filename = src_path.file_name().expect("source has filename");

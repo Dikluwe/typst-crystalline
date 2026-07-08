@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/export/builder.md
-//! @prompt-hash 7be061e2
+//! @prompt-hash 0022088e
 //! @layer L3
 //! @updated 2026-05-19
 //!
@@ -1191,15 +1191,11 @@ impl PdfBuilder {
         }
     }
 
-    /// **P536** — emite o dicionário `/Info` com Title, Author, Creator e
-    /// CreationDate. Chamado no final de cada caminho de build antes de
-    /// `serialize`. Só aloca objecto se houver pelo menos um campo preenchido
-    /// (o pipeline pode deixar `document_info` vazio).
+    /// **P536/P601** — emite o dicionário `/Info` com Title, Author, Keywords,
+    /// Creator, CreationDate e ModDate. Chamado no final de cada caminho de
+    /// build antes de `serialize`. O dicionário é sempre emitido, mesmo quando
+    /// `document_info` não tem campos de utilizador (P601).
     fn emit_info(&mut self, doc: &PagedDocument) {
-        if doc.document_info.is_empty() {
-            return;
-        }
-
         let mut parts = Vec::new();
         if let Some(title) = &doc.document_info.title {
             parts.push(format!("/Title {}", utf16be_hex_string(title.as_str())));
@@ -1210,13 +1206,16 @@ impl PdfBuilder {
         if let Some(keywords) = &doc.document_info.keywords {
             parts.push(format!("/Keywords {}", utf16be_hex_string(keywords.as_str())));
         }
-        if parts.is_empty() {
-            return;
-        }
 
         // Formato PDF: D:YYYYMMDDHHMMSS (UTC).
-        let now = time::OffsetDateTime::now_utc();
-        let creation_date = format!(
+        // P601 — em testes de snapshot, permitir congelar a data para manter
+        // os PDFs de referência determinísticos.
+        let now = std::env::var("CRYSTALLINE_PDF_FIXED_EPOCH")
+            .ok()
+            .and_then(|s| s.parse::<i64>().ok())
+            .and_then(|ts| time::OffsetDateTime::from_unix_timestamp(ts).ok())
+            .unwrap_or_else(time::OffsetDateTime::now_utc);
+        let date = format!(
             "D:{:04}{:02}{:02}{:02}{:02}{:02}",
             now.year(),
             now.month() as u8,
@@ -1225,7 +1224,8 @@ impl PdfBuilder {
             now.minute(),
             now.second()
         );
-        parts.push(format!("/CreationDate ({})" , creation_date));
+        parts.push(format!("/CreationDate ({})" , date));
+        parts.push(format!("/ModDate ({})" , date));
         parts.push("/Creator (typst-crystalline)".to_string());
 
         let next_id = self.objects.iter().map(|(id, _)| *id).max().unwrap_or(0) + 1;
