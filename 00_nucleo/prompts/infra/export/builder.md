@@ -219,6 +219,13 @@ Regras de geração:
    - Durante testes (`CRYSTALLINE_PDF_FIXED_EPOCH` definida), ambos usam
      valores fixos (`typst-crystalline/xmp-instance` e
      `typst-crystalline/xmp-document`), garantindo snapshots deterministas.
+   - **Divergência intencional (P613):** o vanilla 0.15.0 gera um
+     `DocumentID` diferente a cada compilação do mesmo documento. O
+     cristalino mantém `DocumentID` estável por conteúdo, por opção
+     consciente: permite reconhecer duas cópias do mesmo documento como
+     "o mesmo documento", o que o vanilla não permite. Esta diferença é
+     semântica, não morfológica — a forma do pacote XMP permanece
+     idêntica.
 9. `xmpMM:RenditionClass` é sempre `proof`.
 10. `pdf:PDFVersion` é sempre `1.7`.
 11. Caracteres especiais no título/autor/palavras-chave são escapados para
