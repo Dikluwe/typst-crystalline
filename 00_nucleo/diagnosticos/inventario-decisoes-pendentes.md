@@ -1,7 +1,7 @@
 # Inventário de Decisões Pendentes / Pontos em Aberto
 
 **Criado em:** 2026-07-03 (Passo 550)  
-**Actualizado em:** 2026-07-08 (Passos 602, 604, 605, 606, P608)  
+**Actualizado em:** 2026-07-08 (Passos 602, 604, 605, 606, P608, P611)  
 **Nota:** Não existia um ficheiro `inventario-decisoes-pendentes.md` anterior. Esta é a primeira consolidação formal. A lista informal de ~24 itens referida em P550 foi auditada e integrada na secção 2 deste documento.
 
 ---
@@ -82,7 +82,7 @@ Estes relatórios contêm evidência concreta noutras secções, mas a conclusã
 | Fonte por defeito do cristalino | P554/P555/P556 | **Fechado** | Alterada de `Helvetica`/fallback sans-serif para `FreeSerif` (serif amplamente disponível). P555 adicionou fallback por classe (serif/sans). P556 mediu o corpus completo: 0 documentos mudaram de páginas; variações de palavras extraídas são artefactos de extração, não regressão. Ver `paridade-producao-p554.md`, `paridade-producao-p555.md` e `paridade-producao-p556.md`. |
 | Fusão de blocos `BT...ET` consecutivos | P534, P608 | **Scope-out confirmado** | P608 reconfirmou que o sintoma persiste: num documento com fallback de fonte, o cristalino gera 11 blocos `BT...ET` contra 5 do vanilla. Trata-se de optimização de export — o texto renderiza correctamente; a correcção exigiria fundir runs adjacentes com fontes diferentes num único bloco. **Nota:** o tamanho massivo do PDF em P608 (15,7 MB vs 12 KB do vanilla) não era causado pela fusão de blocos, mas por fontes de fallback `.ttc` embutidas inteiras; corrigido em P609. |
 | Zoom explícito em destinos `/XYZ` de bookmarks | P535 | **Aberto** (scope-out) | Cristalino usa `null`; vanilla usa `100`. |
-| Stream XMP de metadados | P536 | **Aberto** (scope-out) | Apenas `/Info` é emitido; XMP requer XML extra. |
+| Stream XMP de metadados | P536 | **Fechado em P611** | O vanilla 0.15.0 emite sempre um pacote XMP (`<?xpacket ... ?>`), mesmo sem metadados de utilizador. O cristalino passa a emitir o equivalente com `/Type /Metadata /Subtype /XML` referenciado no catálogo. |
 | Ordenação sofisticada de fallback (fontique) | P534 | **Aberto** (scope-out) | Ordem linear do `FontBook` pode não ser ideal para scripts complexos. |
 | `/Producer` em `/Info` | P536 | **Fechado** (P600) | Medição em P600 mostra que o vanilla 0.15.0 **não** escreve `/Producer`; escreve `/Creator (Typst 0.15.0)`. O cristalino já preenche `/Creator (typst-crystalline)`. A disparidade era um mal-entendido. |
 
@@ -121,7 +121,7 @@ A lista informal referida em P550 foi auditada e integrada nesta secção. Itens
 |------|---------------------|--------|
 | PDF Tagged / PDF-UA | P531 | Ausente |
 | Compressão por object streams | P531 | Ausente |
-| Stream XMP | P536 | Scope-out — já em P550 |
+| Stream XMP | P536 | **Fechado em P611** — o vanilla 0.15.0 emite sempre um pacote XMP (`<?xpacket ... ?>`), mesmo sem metadados de utilizador. O cristalino passa a emitir o equivalente com `/Type /Metadata /Subtype /XML` referenciado no catálogo. |
 | `/Producer` | P536 | **Fechado em P600** — o vanilla não usa este campo; usa `/Creator`. O cristalino já preenche `/Creator`. |
 | `/CreationDate` sem fuso horário | P536 | Scope-out |
 | `subject` em `#set document(...)` | P536 | Não suportado |

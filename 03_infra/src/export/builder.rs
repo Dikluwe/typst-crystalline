@@ -1,8 +1,8 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/export/builder.md
-//! @prompt-hash 27be9535
+//! @prompt-hash 53ca2d8f
 //! @layer L3
-//! @updated 2026-05-19
+//! @updated 2026-07-08
 //!
 //! `PdfBuilder` — orquestrador L3 que constrói o ficheiro PDF
 //! agregando objects, xref, trailer. Três caminhos: Helvetica
@@ -48,6 +48,17 @@ fn duration_ms(d: std::time::Duration) -> f64 {
     d.as_secs_f64() * 1000.0
 }
 
+/// **P611** — devolve o timestamp a usar em `/Info` e no XMP.
+/// P601 — em testes de snapshot, permitir congelar a data para manter
+/// os PDFs de referência determinísticos.
+fn current_pdf_timestamp() -> time::OffsetDateTime {
+    std::env::var("CRYSTALLINE_PDF_FIXED_EPOCH")
+        .ok()
+        .and_then(|s| s.parse::<i64>().ok())
+        .and_then(|ts| time::OffsetDateTime::from_unix_timestamp(ts).ok())
+        .unwrap_or_else(time::OffsetDateTime::now_utc)
+}
+
 /// P517 — gera nome de fonte com prefixo de subset quando a fonte foi
 /// efectivamente subsetada. Usa o prefixo fixo `AAAAAA+` conforme
 /// convenção PDF para fontes subsetadas (ex: `AAAAAA+FontName`).
@@ -88,11 +99,19 @@ pub(super) struct PdfBuilder {
     /// **P536** — object ID do dicionário `/Info`, ou `None` se não houver
     /// metadados para emitir.
     info_id: Option<usize>,
+    /// **P611** — object ID do stream `/Metadata` (XMP), ou `None` se ainda
+    /// não emitido.
+    xmp_id: Option<usize>,
 }
 
 impl PdfBuilder {
     pub(super) fn new() -> Self {
-        Self { objects: Vec::new(), subset_ms: 0.0, info_id: None }
+        Self {
+            objects: Vec::new(),
+            subset_ms: 0.0,
+            info_id: None,
+            xmp_id: None,
+        }
     }
 
     fn measure_subset(
@@ -198,6 +217,7 @@ impl PdfBuilder {
         self.emit_named_destinations(doc);
         self.emit_outlines(doc);
         self.emit_info(doc);
+        self.emit_xmp_metadata(doc);
         let subset_ms = self.subset_ms;
         (self.serialize(), subset_ms)
     }
@@ -419,6 +439,7 @@ impl PdfBuilder {
         self.emit_named_destinations(doc);
         self.emit_outlines(doc);
         self.emit_info(doc);
+        self.emit_xmp_metadata(doc);
         let subset_ms = self.subset_ms;
         (self.serialize(), subset_ms)
     }
@@ -699,6 +720,7 @@ impl PdfBuilder {
         self.emit_named_destinations(doc);
         self.emit_outlines(doc);
         self.emit_info(doc);
+        self.emit_xmp_metadata(doc);
         let subset_ms = self.subset_ms;
         (self.serialize(), subset_ms)
     }
@@ -1218,13 +1240,7 @@ impl PdfBuilder {
         }
 
         // Formato PDF: D:YYYYMMDDHHMMSS (UTC).
-        // P601 — em testes de snapshot, permitir congelar a data para manter
-        // os PDFs de referência determinísticos.
-        let now = std::env::var("CRYSTALLINE_PDF_FIXED_EPOCH")
-            .ok()
-            .and_then(|s| s.parse::<i64>().ok())
-            .and_then(|ts| time::OffsetDateTime::from_unix_timestamp(ts).ok())
-            .unwrap_or_else(time::OffsetDateTime::now_utc);
+        let now = current_pdf_timestamp();
         let date = format!(
             "D:{:04}{:02}{:02}{:02}{:02}{:02}",
             now.year(),
@@ -1241,6 +1257,113 @@ impl PdfBuilder {
         let next_id = self.objects.iter().map(|(id, _)| *id).max().unwrap_or(0) + 1;
         self.add(next_id, format!("<< {} >>", parts.join(" ")));
         self.info_id = Some(next_id);
+    }
+
+    /// **P611** — emite o stream `/Type /Metadata /Subtype /XML` com um pacote
+    /// XMP mínimo, referenciado a partir de `/Metadata` no catálogo. Sempre
+    /// emitido, mesmo quando `document_info` está vazio.
+    fn emit_xmp_metadata(&mut self, doc: &PagedDocument) {
+        let now = current_pdf_timestamp();
+        let xmp_date = format!(
+            "{:04}-{:02}-{:02}T{:02}:{:02}:{:02}Z",
+            now.year(),
+            now.month() as u8,
+            now.day(),
+            now.hour(),
+            now.minute(),
+            now.second()
+        );
+
+        let n_pages = doc.pages.len().max(1);
+
+        // Campos condicionais a metadados do utilizador.
+        let title_elem = doc
+            .document_info
+            .title
+            .as_ref()
+            .map(|t| format!(
+                "<dc:title><rdf:Alt><rdf:li xml:lang=\"x-default\">{}</rdf:li></rdf:Alt></dc:title>",
+                escape_xml_text(t.as_str())
+            ))
+            .unwrap_or_default();
+        let keywords_elem = doc
+            .document_info
+            .keywords
+            .as_ref()
+            .map(|k| format!(
+                "<pdf:Keywords>{}</pdf:Keywords>",
+                escape_xml_text(k.as_str())
+            ))
+            .unwrap_or_default();
+        let creator_elem = doc
+            .document_info
+            .author
+            .as_ref()
+            .map(|a| format!(
+                "<dc:creator><rdf:Seq><rdf:li>{}</rdf:li></rdf:Seq></dc:creator>",
+                escape_xml_text(a.as_str())
+            ))
+            .unwrap_or_default();
+
+        // Identificadores determinísticos (16 bytes em base64).
+        const INSTANCE_ID: &str = "dHlwc3QtY3J5c3QtaW5zdA==";
+        const DOCUMENT_ID: &str = "dHlwc3QtY3J5c3QtZG9jdQ==";
+
+        // Estrutura exacta do vanilla (krilla + xmp-writer), sem quebras de
+        // linha entre elementos, para manter a mesma forma do pacote XMP.
+        let xml = format!(
+            "<?xpacket begin=\"﻿\" id=\"W5M0MpCehiHzreSzNTczkc9d\"?>\
+             <x:xmpmeta xmlns:x=\"adobe:ns:meta/\" x:xmptk=\"xmp-writer\">\
+             <rdf:RDF xmlns:rdf=\"http://www.w3.org/1999/02/22-rdf-syntax-ns#\">\
+             <rdf:Description rdf:about=\"\" xmlns:dc=\"http://purl.org/dc/elements/1.1/\" \
+             xmlns:xmp=\"http://ns.adobe.com/xap/1.0/\" \
+             xmlns:xmpMM=\"http://ns.adobe.com/xap/1.0/mm/\" \
+             xmlns:xmpTPg=\"http://ns.adobe.com/xap/1.0/t/pg/\" \
+             xmlns:pdf=\"http://ns.adobe.com/pdf/1.3/\">\
+             {title}\
+             {keywords}\
+             {creator}\
+             <xmp:CreatorTool>typst-crystalline</xmp:CreatorTool>\
+             <dc:language><rdf:Bag><rdf:li>en</rdf:li></rdf:Bag></dc:language>\
+             <xmp:ModifyDate>{date}</xmp:ModifyDate>\
+             <xmp:CreateDate>{date}</xmp:CreateDate>\
+             <xmpTPg:NPages>{n_pages}</xmpTPg:NPages>\
+             <dc:format>application/pdf</dc:format>\
+             <xmpMM:InstanceID>{instance_id}</xmpMM:InstanceID>\
+             <xmpMM:DocumentID>{document_id}</xmpMM:DocumentID>\
+             <xmpMM:RenditionClass>proof</xmpMM:RenditionClass>\
+             <pdf:PDFVersion>1.7</pdf:PDFVersion></rdf:Description></rdf:RDF></x:xmpmeta>\
+             <?xpacket end=\"r\"?>",
+            title = title_elem,
+            keywords = keywords_elem,
+            creator = creator_elem,
+            date = xmp_date,
+            n_pages = n_pages,
+            instance_id = INSTANCE_ID,
+            document_id = DOCUMENT_ID,
+        );
+
+        let next_id = self.objects.iter().map(|(id, _)| *id).max().unwrap_or(0) + 1;
+        let len = xml.len();
+        let mut obj = format!(
+            "<< /Length {len} /Type /Metadata /Subtype /XML >>\nstream\n"
+        )
+        .into_bytes();
+        obj.extend_from_slice(xml.as_bytes());
+        obj.extend_from_slice(b"\nendstream");
+        self.add_bytes(next_id, obj);
+        self.xmp_id = Some(next_id);
+
+        // Editar objecto 1 (catálogo) para incluir /Metadata.
+        if let Some((_, content)) = self.objects.iter_mut().find(|(id, _)| *id == 1) {
+            let s = String::from_utf8_lossy(content);
+            if let Some(idx) = s.rfind(">>") {
+                let mut new = s[..idx].to_string();
+                new.push_str(&format!(" /Metadata {next_id} 0 R"));
+                new.push_str(&s[idx..]);
+                *content = new.into_bytes();
+            }
+        }
     }
 
     fn serialize(self) -> Vec<u8> {
@@ -1278,6 +1401,22 @@ impl PdfBuilder {
 
         out
     }
+}
+
+/// **P611** — escapa caracteres XML especiais para texto dentro de elementos.
+fn escape_xml_text(s: &str) -> String {
+    let mut out = String::with_capacity(s.len());
+    for ch in s.chars() {
+        match ch {
+            '&' => out.push_str("&amp;"),
+            '<' => out.push_str("&lt;"),
+            '>' => out.push_str("&gt;"),
+            '"' => out.push_str("&quot;"),
+            '\'' => out.push_str("&apos;"),
+            ch => out.push(ch),
+        }
+    }
+    out
 }
 
 /// Escapa caracteres problemáticos para uma string PDF dentro de `(...)`.

@@ -1,5 +1,5 @@
 # Prompt L0 — `infra/export/builder` — PdfBuilder
-Hash do Código: c734340d
+Hash do Código: 40965557
 
 **Camada**: L3
 **Ficheiro alvo**: `03_infra/src/export/builder.rs`
@@ -150,6 +150,88 @@ O `PdfBuilder` **sempre** emite um dicionário `/Info`, independentemente de
 3. `/Creator` é preenchida com `typst-crystalline`.
 4. O objecto `/Info` é alocado após todos os outros objectos e referenciado
    pelo `/Trailer` (`/Info X 0 R`).
+
+## §P611 — Stream de metadados XMP
+
+**Data:** 2026-07-08
+
+Além do dicionário `/Info` (P536/P601), o `PdfBuilder` emite sempre um
+stream `/Type /Metadata /Subtype /XML` com um pacote XMP mínimo,
+referenciado a partir de `/Metadata` no catálogo (objeto 1).
+
+Motivo: paridade com o vanilla 0.15.0, que escreve XMP mesmo quando o
+documento não tem metadados de utilizador.
+
+### Conteúdo do pacote XMP
+
+O XML segue a estrutura exacta gerada pelo vanilla (krilla + xmp-writer),
+com os mesmos namespaces e ordem de campos:
+
+```xml
+<?xpacket begin="﻿" id="W5M0MpCehiHzreSzNTczkc9d"?>
+<x:xmpmeta xmlns:x="adobe:ns:meta/" x:xmptk="xmp-writer">
+  <rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+    <rdf:Description rdf:about=""
+      xmlns:dc="http://purl.org/dc/elements/1.1/"
+      xmlns:xmp="http://ns.adobe.com/xap/1.0/"
+      xmlns:xmpMM="http://ns.adobe.com/xap/1.0/mm/"
+      xmlns:xmpTPg="http://ns.adobe.com/xap/1.0/t/pg/"
+      xmlns:pdf="http://ns.adobe.com/pdf/1.3/">
+      <dc:title><rdf:Alt><rdf:li xml:lang="x-default">...</rdf:li></rdf:Alt></dc:title>
+      <pdf:Keywords>...</pdf:Keywords>
+      <dc:creator><rdf:Seq><rdf:li>...</rdf:li></rdf:Seq></dc:creator>
+      <xmp:CreatorTool>...</xmp:CreatorTool>
+      <dc:language><rdf:Bag><rdf:li>en</rdf:li></rdf:Bag></dc:language>
+      <xmp:ModifyDate>...</xmp:ModifyDate>
+      <xmp:CreateDate>...</xmp:CreateDate>
+      <xmpTPg:NPages>...</xmpTPg:NPages>
+      <dc:format>application/pdf</dc:format>
+      <xmpMM:InstanceID>...</xmpMM:InstanceID>
+      <xmpMM:DocumentID>...</xmpMM:DocumentID>
+      <xmpMM:RenditionClass>proof</xmpMM:RenditionClass>
+      <pdf:PDFVersion>1.7</pdf:PDFVersion>
+    </rdf:Description>
+  </rdf:DF>
+</x:xmpmeta>
+<?xpacket end="r"?>
+```
+
+Regras de geração:
+
+1. **Sempre emitido**, mesmo que `PagedDocument::document_info` esteja vazio.
+2. Campos condicionais a metadados do utilizador (`dc:title`, `pdf:Keywords`,
+   `dc:creator`) só aparecem quando `document_info` os tem preenchidos.
+3. `xmp:CreatorTool` usa `typst-crystalline` (divergência de branding
+   permitida; o vanilla usa `Typst 0.15.0`).
+4. `dc:language` usa `en` como valor fixo até o cristalino propagar a
+   linguagem do documento para `PagedDocument`.
+5. `xmp:CreateDate` e `xmp:ModifyDate` usam o mesmo instante de `/Info`
+   (P601), no formato ISO 8601 com offset (`YYYY-MM-DDTHH:MM:SS±HH:MM`).
+   O vanilla usou o offset local (`-03:00`); o cristalino segue o mesmo
+   instante, convertido para offset local via `time::OffsetDateTime`.
+6. `xmpTPg:NPages` é o número de páginas de `PagedDocument`.
+7. `dc:format` é sempre `application/pdf`.
+8. `xmpMM:InstanceID` e `xmpMM:DocumentID` são base64 de 16 bytes.
+   Para determinismo em testes, usam valores fixos derivados de uma string
+   constante (`typst-crystalline/xmp-instance` e `typst-crystalline/xmp-document`).
+9. `xmpMM:RenditionClass` é sempre `proof`.
+10. `pdf:PDFVersion` é sempre `1.7`.
+11. Caracteres especiais no título/autor/palavras-chave são escapados para
+    entidades XML (`&`, `<`, `>`, `"`, `'`).
+
+### Alocação de Object IDs
+
+O stream `/Metadata` é alocado **após** todos os outros objectos (incluindo
+`/Info`), logo antes de `serialize`. O seu ID é guardado em `PdfBuilder` e
+referenciado no `/Catalog` (objeto 1) via `/Metadata {id} 0 R`.
+
+## Histórico de Revisões
+
+| Data | Motivo | Arquivos afetados |
+|------|--------|-------------------|
+| 2026-05-19 | Criação em P307c | `builder.md` |
+| 2026-07-04 | P560 — descritor PDF distinto para fontes TrueType e CFF/OpenType | `builder.md`, `builder.rs` |
+| 2026-07-08 | P611 — stream de metadados XMP | `builder.md`, `builder.rs` |
 
 ## Critérios de verificação
 

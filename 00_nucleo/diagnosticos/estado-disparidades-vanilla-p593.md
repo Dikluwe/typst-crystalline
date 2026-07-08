@@ -1,7 +1,7 @@
 # Estado das disparidades com o vanilla — depois de P593
 
 **Data:** 2026-07-05  
-**Actualizado:** 2026-07-08 (P602, P604, P605, P606, P608)
+**Actualizado:** 2026-07-08 (P602, P604, P605, P606, P608, P611)
 
 ---
 
@@ -26,7 +26,6 @@
 
 | Item | Razão |
 |------|-------|
-| Stream de metadados XMP | Só `/Info` é emitido; cobre o caso comum (P536). |
 | Zoom explícito nos destinos de bookmarks | Cristalino usa `null`; funciona nos leitores testados (P535). |
 | `y_offset` no emit PDF (diacríticos) | Scope-out histórico (P486). |
 | `smcp` via OpenType real | Scope-out histórico; usa scaling em vez do mecanismo real (P486). |
@@ -62,6 +61,7 @@
 | Nota de rodapé maior do que o espaço restante numa coluna | P595 — detecta overflow, emite aviso, e nunca descarta em silêncio |
 | `/Producer` no `/Info` | P600 — medição mostrou que o vanilla 0.15.0 não usa `/Producer`; usa `/Creator`. O cristalino já preenche `/Creator (typst-crystalline)`. |
 | `/Count` de bookmarks aberto/fechado | P602 — vanilla 0.15.0 usa `/Count -N` (negativo) para entradas com filhos (fechadas por defeito) e `/Count N` positivo na raiz `/Outlines`; implementado no cristalino. |
+| Stream de metadados XMP | P611 — o vanilla 0.15.0 emite sempre um pacote XMP (`<?xpacket ... ?>`) mesmo sem metadados de utilizador. O cristalino passa a emitir o equivalente: `/Type /Metadata /Subtype /XML` referenciado no catálogo, com `CreatorTool`, datas, `NPages`, `format`, IDs e `PDFVersion`. |
 | Bookmarks só a partir de headings | P604 — medição directa ao vanilla 0.15.0 mostra que só headings geram bookmarks; labels manuais (`#label(...)`) não entram em `/Outlines`, e `#outline(target: ...)` é para TOC/listas no documento, não para bookmarks PDF. O comportamento do cristalino coincide com o vanilla. |
 | Parâmetro `bookmarked`/`outlined` de `heading()` | P606 — o vanilla 0.15.0 distingue `outlined` (índice do documento) de `bookmarked` (bookmarks PDF), com `bookmarked: auto` a seguir `outlined` por defeito. O cristalino agora implementa a mesma separação: `HeadingElem` tem `outlined: bool` e `bookmarked: Option<bool>`, e o walk emite `HeadingForToc` e `HeadingForBookmarks` independentemente. |
 
