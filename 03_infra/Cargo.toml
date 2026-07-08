@@ -38,3 +38,4 @@ flate2      = "1.0"                 # compressão Zlib para PNG /FlateDecode
 # `CountingIntrospector::page_numbering` delega `Option<&EcoString>`.
 # Sem entries em dev-dependencies remanescentes — tests P140B
 # continuam a usar transitivamente via `[dependencies]`.)
+regex = { workspace = true }  # P603 — parsing isolado da árvore /Outlines em testes

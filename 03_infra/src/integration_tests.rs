@@ -15,6 +15,8 @@ mod integration {
     #![allow(deprecated)] // P483 — FrameItem::Text fallback path legítimo
     use std::path::{Path, PathBuf};
 
+    use regex::Regex;
+
     use typst_core::contracts::world::World;
     use typst_core::entities::bytes::Bytes;
     use typst_core::entities::module::Module;
@@ -1038,7 +1040,110 @@ mod integration {
         assert!(!pdf.is_empty(), "PDF com TOC em 3 passagens não deve estar vazio");
     }
 
-    // ── P602 — /Count nos bookmarks PDF ────────────────────────────────────
+    // ── P602/P603 — /Count nos bookmarks PDF ─────────────────────────────
+
+    /// **P603** — Parser mínimo do PDF que isola a árvore `/Outlines` antes de
+    /// extrair os valores de `/Count`. Evita misturar com `/Count` do catálogo
+    /// `/Pages` ou de outros objectos.
+    fn parse_pdf_objects(pdf: &[u8]) -> std::collections::HashMap<usize, String> {
+        let text = String::from_utf8_lossy(pdf);
+        let start_re = Regex::new(r"(\d+)\s+0\s+obj\s*<<").unwrap();
+        let mut objects = std::collections::HashMap::new();
+        for m in start_re.captures_iter(&text) {
+            let id: usize = m[1].parse().unwrap();
+            let start = m.get(0).unwrap().end();
+            let mut depth = 1usize;
+            let mut i = start;
+            let mut in_paren = false;
+            let mut in_hex = false;
+            let bytes = text.as_bytes();
+            while i < text.len() && depth > 0 {
+                let c = bytes[i] as char;
+                if in_paren {
+                    if c == ')' {
+                        in_paren = false;
+                    } else if c == '\\' {
+                        i += 1;
+                    }
+                } else if in_hex {
+                    if c == '>' {
+                        in_hex = false;
+                    }
+                } else {
+                    if c == '(' {
+                        in_paren = true;
+                    } else if c == '<' {
+                        in_hex = true;
+                    } else if i + 1 < text.len() && c == '<' && bytes[i + 1] == b'<' {
+                        depth += 1;
+                        i += 1;
+                    } else if i + 1 < text.len() && c == '>' && bytes[i + 1] == b'>' {
+                        depth -= 1;
+                        i += 1;
+                    }
+                }
+                i += 1;
+            }
+            let end = i.saturating_sub(2);
+            objects.insert(id, text[start..end].to_string());
+        }
+        objects
+    }
+
+    /// Devolve os valores de `/Count` presentes apenas na árvore de bookmarks.
+    fn outline_counts(pdf: &[u8]) -> Vec<i64> {
+        use std::collections::HashSet;
+
+        let objects = parse_pdf_objects(pdf);
+        let catalog_re = Regex::new(r"/Type\s*/Catalog").unwrap();
+        let outlines_re = Regex::new(r"/Outlines\s*(\d+)\s+0\s+R").unwrap();
+        let count_re = Regex::new(r"/Count\s*(-?\d+)").unwrap();
+        let first_re = Regex::new(r"/First\s*(\d+)\s+0\s+R").unwrap();
+        let next_re = Regex::new(r"/Next\s*(\d+)\s+0\s+R").unwrap();
+
+        let root_id = objects
+            .iter()
+            .find(|(_, body)| catalog_re.is_match(body))
+            .and_then(|(_, body)| outlines_re.captures(body))
+            .map(|c| c[1].parse::<usize>().unwrap())
+            .or_else(|| {
+                objects.iter().find(|(_, body)| {
+                    body.contains("/Type /Outlines") || body.contains("/Type/Outlines")
+                }).map(|(id, _)| *id)
+            })
+            .expect("PDF deve ter catálogo com /Outlines");
+
+        let mut counts = Vec::new();
+        let mut visited = HashSet::new();
+        let mut stack = vec![root_id];
+        while let Some(id) = stack.pop() {
+            if !visited.insert(id) {
+                continue;
+            }
+            let body = objects.get(&id).cloned().unwrap_or_default();
+            if let Some(c) = count_re.captures(&body) {
+                counts.push(c[1].parse::<i64>().unwrap());
+            }
+            if let Some(c) = first_re.captures(&body) {
+                stack.push(c[1].parse().unwrap());
+            }
+            if let Some(c) = next_re.captures(&body) {
+                stack.push(c[1].parse().unwrap());
+            }
+        }
+        counts
+    }
+
+    fn assert_outline_counts(pdf: &[u8], expected: &mut [i64]) {
+        let mut counts = outline_counts(pdf);
+        counts.sort();
+        expected.sort();
+        assert_eq!(
+            counts, expected,
+            "/Count isolados da árvore /Outlines devem ser {:?}; obtive {:?}",
+            expected, counts
+        );
+    }
 
     #[test]
     fn p602_outline_count_sinal_negativo_para_entradas_com_filhos() {
@@ -1048,20 +1153,9 @@ mod integration {
              == Subsecção B\n\
              = Segunda Secção"
         );
-        let text = String::from_utf8_lossy(&pdf);
-
-        // Raiz /Outlines: /Count 2 (dois itens de topo, abertos por defeito).
-        assert!(
-            text.contains("/Type /Outlines") && text.contains("/Count 2"),
-            "raiz /Outlines deve ter /Count 2"
-        );
-
-        // Itens com filhos têm /Count negativo igual ao número de filhos directos.
-        // Primeira Secção tem 2 filhos -> /Count -2.
-        assert!(
-            text.contains("/Count -2"),
-            "entrada com 2 filhos deve ter /Count -2"
-        );
+        // Raiz /Outlines: 2 itens de topo (abertos por defeito).
+        // Primeira Secção: 2 filhos directos (fechados por defeito).
+        assert_outline_counts(&pdf, &mut [2, -2]);
     }
 
     #[test]
@@ -1073,17 +1167,27 @@ mod integration {
              == Nível 2 B\n\
              = Nível 1 B"
         );
-        let text = String::from_utf8_lossy(&pdf);
+        // Raiz: 2 itens de topo.
+        // Nível 1: 2 filhos directos.
+        // Nível 2: 1 filho directo.
+        assert_outline_counts(&pdf, &mut [2, -2, -1]);
+    }
 
-        // Nível 1 tem 2 filhos directos (Nível 2 e Nível 2 B) -> /Count -2.
-        assert!(text.contains("/Count -2"), "Nível 1 deve ter /Count -2");
-        // Nível 2 tem 1 filho directo (Nível 3) -> /Count -1.
-        assert!(text.contains("/Count -1"), "Nível 2 deve ter /Count -1");
-        // Raiz tem 2 itens de topo -> /Count 2.
-        assert!(
-            text.contains("/Type /Outlines") && text.contains("/Count 2"),
-            "raiz /Outlines deve ter /Count 2"
+    #[test]
+    fn p603_outline_count_isolado_em_documento_multipagina() {
+        // P603 — com várias páginas, o /Count de /Pages é diferente do das
+        // bookmarks; o parser isolado deve continuar a dar os mesmos valores.
+        let pdf = compile_to_pdf(
+            "= Primeira Secção\n\
+             == Subsecção A\n\
+             === Sub-sub A1\n\
+             #lorem(400)\n\
+             == Subsecção B\n\
+             #lorem(400)\n\
+             = Segunda Secção\n\
+             #lorem(400)"
         );
+        assert_outline_counts(&pdf, &mut [2, -2, -1]);
     }
 
     // ── Testes de imagem PNG (Passo 74) ───────────────────────────────────────
