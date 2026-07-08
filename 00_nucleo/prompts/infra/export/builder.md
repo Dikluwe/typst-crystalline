@@ -1,5 +1,5 @@
 # Prompt L0 — `infra/export/builder` — PdfBuilder
-Hash do Código: f7ce43fd
+Hash do Código: c734340d
 
 **Camada**: L3
 **Ficheiro alvo**: `03_infra/src/export/builder.rs`
@@ -127,11 +127,14 @@ O `PdfBuilder` constrói uma árvore `/Outlines` a partir de
 `PagedDocument::extracted_headings`:
 
 1. Cada heading gera um objecto outline item com `/Title`, `/Parent`, `/Prev`,
-   `/Next`, `/First`, `/Last` e `/Dest`.
+   `/Next`, `/First`, `/Last`, `/Count` (quando tem filhos) e `/Dest`.
 2. `/Dest` aponta para a página e posição `(x, y-up)` extraídas de
    `extracted_label_pages` / `extracted_label_positions` via auto-label do heading.
 3. O dicionário raiz `/Outlines` é referenciado pelo `/Catalog` (objecto 1).
-4. `/Count` na raiz é o número total de bookmarks.
+4. `/Count` num item com filhos é o número de filhos directos, com sinal
+   negativo (entrada fechada por defeito), seguindo o vanilla 0.15.0.
+5. `/Count` na raiz `/Outlines` é o número de bookmarks de topo (itens sem
+   pai), com sinal positivo (abertos por defeito).
 
 ## §P536 — Metadados do documento (`/Info`)
 

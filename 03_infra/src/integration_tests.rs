@@ -21,6 +21,7 @@ mod integration {
     use typst_core::entities::source::Source;
     use typst_core::entities::source_result::SourceResult;
     use typst_core::entities::value::Value;
+    use typst_core::entities::introspector::Introspector;
     use typst_core::rules::introspect::{introspect, introspect_with_introspector};
     use typst_core::rules::layout::layout;
 
@@ -77,10 +78,10 @@ mod integration {
         result
     }
 
-    /// Pipeline completo → bytes PDF (Passo 65).
+    /// Pipeline completo → bytes PDF (Passo 65 + P602).
     ///
-    /// Passagem 1 (introspecção): `introspect()` resolve labels, headings_for_toc
-    /// e sinaliza `has_outline`.
+    /// Passagem 1 (introspecção): `introspect_with_introspector()` resolve labels,
+    /// headings para bookmarks e popula `extracted_headings` no documento.
     /// Passagem 2+ (fixpoint interno a L1): `layout()` converge o mapa de páginas
     /// da TOC internamente. O orquestrador L3 é agora linear.
     fn compile_to_pdf(src: &str) -> Vec<u8> {
@@ -90,10 +91,14 @@ mod integration {
         let content = module.content().expect("deve ter content");
 
         // ── Introspecção ──────────────────────────────────────────────────
-        let intro_state = introspect(content);
+        let intr = introspect_with_introspector(content);
 
         // ── Layout (fixpoint acontece internamente em L1) ─────────────────
-        let doc = layout(content);
+        let mut doc = layout(content);
+
+        // P602 — transportar headings para que `emit_outlines` possa gerar
+        // os bookmarks PDF (igual à pipeline de produção).
+        doc.extracted_headings = intr.headings_for_toc().to_vec();
 
         export_pdf(&doc)
     }
@@ -1031,6 +1036,54 @@ mod integration {
              Mais conteúdo."
         );
         assert!(!pdf.is_empty(), "PDF com TOC em 3 passagens não deve estar vazio");
+    }
+
+    // ── P602 — /Count nos bookmarks PDF ────────────────────────────────────
+
+    #[test]
+    fn p602_outline_count_sinal_negativo_para_entradas_com_filhos() {
+        let pdf = compile_to_pdf(
+            "= Primeira Secção\n\
+             == Subsecção A\n\
+             == Subsecção B\n\
+             = Segunda Secção"
+        );
+        let text = String::from_utf8_lossy(&pdf);
+
+        // Raiz /Outlines: /Count 2 (dois itens de topo, abertos por defeito).
+        assert!(
+            text.contains("/Type /Outlines") && text.contains("/Count 2"),
+            "raiz /Outlines deve ter /Count 2"
+        );
+
+        // Itens com filhos têm /Count negativo igual ao número de filhos directos.
+        // Primeira Secção tem 2 filhos -> /Count -2.
+        assert!(
+            text.contains("/Count -2"),
+            "entrada com 2 filhos deve ter /Count -2"
+        );
+    }
+
+    #[test]
+    fn p602_outline_count_tres_niveis_conta_filhos_directos() {
+        let pdf = compile_to_pdf(
+            "= Nível 1\n\
+             == Nível 2\n\
+             === Nível 3\n\
+             == Nível 2 B\n\
+             = Nível 1 B"
+        );
+        let text = String::from_utf8_lossy(&pdf);
+
+        // Nível 1 tem 2 filhos directos (Nível 2 e Nível 2 B) -> /Count -2.
+        assert!(text.contains("/Count -2"), "Nível 1 deve ter /Count -2");
+        // Nível 2 tem 1 filho directo (Nível 3) -> /Count -1.
+        assert!(text.contains("/Count -1"), "Nível 2 deve ter /Count -1");
+        // Raiz tem 2 itens de topo -> /Count 2.
+        assert!(
+            text.contains("/Type /Outlines") && text.contains("/Count 2"),
+            "raiz /Outlines deve ter /Count 2"
+        );
     }
 
     // ── Testes de imagem PNG (Passo 74) ───────────────────────────────────────

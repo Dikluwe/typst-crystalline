@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/export/builder.md
-//! @prompt-hash 0022088e
+//! @prompt-hash 27be9535
 //! @layer L3
 //! @updated 2026-05-19
 //!
@@ -1079,6 +1079,7 @@ impl PdfBuilder {
             next:        Option<usize>,
             first_child: Option<usize>,
             last_child:  Option<usize>,
+            child_count: usize,
         }
 
         let mut nodes: Vec<Node> = Vec::new();
@@ -1122,6 +1123,7 @@ impl PdfBuilder {
                 next:        None,
                 first_child: None,
                 last_child:  None,
+                child_count: 0,
             });
 
             if let Some(p) = parent {
@@ -1129,6 +1131,7 @@ impl PdfBuilder {
                     nodes[p].first_child = Some(node_idx);
                 }
                 nodes[p].last_child = Some(node_idx);
+                nodes[p].child_count += 1;
             }
             if let Some(prev_idx) = prev {
                 nodes[prev_idx].next = Some(node_idx);
@@ -1168,15 +1171,22 @@ impl PdfBuilder {
             if let Some(last_idx) = node.last_child {
                 dict.push_str(&format!(" /Last {} 0 R", nodes[last_idx].id));
             }
+            // P602 — /Count com sinal negativo para entradas com filhos
+            // (fechadas por defeito), seguindo o vanilla 0.15.0.
+            if node.child_count > 0 {
+                dict.push_str(&format!(" /Count -{}", node.child_count));
+            }
             dict.push_str(" >>");
             self.add(node.id, dict);
         }
 
         let first_top = nodes.iter().find(|n| n.parent.is_none()).map(|n| n.id).unwrap_or(0);
         let last_top = nodes.iter().rfind(|n| n.parent.is_none()).map(|n| n.id).unwrap_or(0);
-        let count = nodes.len();
+        // P602 — /Count na raiz é o número de bookmarks de topo (sem pai),
+        // positivo (abertos por defeito).
+        let top_count = nodes.iter().filter(|n| n.parent.is_none()).count();
         self.add(root_id, format!(
-            "<< /Type /Outlines /First {first_top} 0 R /Last {last_top} 0 R /Count {count} >>"
+            "<< /Type /Outlines /First {first_top} 0 R /Last {last_top} 0 R /Count {top_count} >>"
         ));
 
         // Editar objecto 1 (catalog) para incluir /Outlines.
