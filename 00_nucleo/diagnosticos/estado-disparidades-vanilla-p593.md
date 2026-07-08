@@ -1,7 +1,7 @@
 # Estado das disparidades com o vanilla — depois de P593
 
 **Data:** 2026-07-05  
-**Actualizado:** 2026-07-08 (P602, P604, P605, P606)
+**Actualizado:** 2026-07-08 (P602, P604, P605, P606, P608)
 
 ---
 
@@ -32,6 +32,7 @@
 | `smcp` via OpenType real | Scope-out histórico; usa scaling em vez do mecanismo real (P486). |
 | `x_advance` exacto vs `hmtx` | Scope-out histórico (P485). |
 | Descritor PDF `CIDFontType2` vs `CIDFontType0C` para fontes CFF | Mecânico, não afecta renderização nos leitores testados (P523). |
+| Fusão de blocos `BT...ET` | P608 — confirmado que ainda diverge: cristalino gera 11 blocos num documento de fallback onde o vanilla gera 5. É uma optimização de export (o texto renderiza correctamente); correcção exigiria fundir runs adjacentes com fontes diferentes num único bloco `BT...ET`, o que está fora do scope actual. |
 
 ## Corrigido ao longo desta conversa (já não é disparidade)
 
@@ -62,7 +63,6 @@
 | `/Count` de bookmarks aberto/fechado | P602 — vanilla 0.15.0 usa `/Count -N` (negativo) para entradas com filhos (fechadas por defeito) e `/Count N` positivo na raiz `/Outlines`; implementado no cristalino. |
 | Bookmarks só a partir de headings | P604 — medição directa ao vanilla 0.15.0 mostra que só headings geram bookmarks; labels manuais (`#label(...)`) não entram em `/Outlines`, e `#outline(target: ...)` é para TOC/listas no documento, não para bookmarks PDF. O comportamento do cristalino coincide com o vanilla. |
 | Parâmetro `bookmarked`/`outlined` de `heading()` | P606 — o vanilla 0.15.0 distingue `outlined` (índice do documento) de `bookmarked` (bookmarks PDF), com `bookmarked: auto` a seguir `outlined` por defeito. O cristalino agora implementa a mesma separação: `HeadingElem` tem `outlined: bool` e `bookmarked: Option<bool>`, e o walk emite `HeadingForToc` e `HeadingForBookmarks` independentemente. |
-| Fusão de blocos `BT...ET` | Não corrigido — continua scope-out (ver acima, faltou listar antes; confirmar se ainda se aplica) |
 
 ## Ainda por confirmar (não é "corrigido", nem "scope-out" — é incerto)
 

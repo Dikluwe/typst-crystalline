@@ -1,7 +1,7 @@
 # Inventário de Decisões Pendentes / Pontos em Aberto
 
 **Criado em:** 2026-07-03 (Passo 550)  
-**Actualizado em:** 2026-07-08 (Passos 602, 604, 605, 606)  
+**Actualizado em:** 2026-07-08 (Passos 602, 604, 605, 606, P608)  
 **Nota:** Não existia um ficheiro `inventario-decisoes-pendentes.md` anterior. Esta é a primeira consolidação formal. A lista informal de ~24 itens referida em P550 foi auditada e integrada na secção 2 deste documento.
 
 ---
@@ -80,7 +80,7 @@ Estes relatórios contêm evidência concreta noutras secções, mas a conclusã
 |---|---|---|---|
 | Documento multi-página em `#set page(columns: 2)` | P537/P537b/P553/P554 | **Fechado** | Após P553 (geometria) e P554 (fonte padrão): cristalino **2 páginas**, vanilla 0.14.2/0.15.0 **2 páginas** para `#lorem(1200)`. Ver `paridade-producao-p553.md` e `paridade-producao-p554.md`. |
 | Fonte por defeito do cristalino | P554/P555/P556 | **Fechado** | Alterada de `Helvetica`/fallback sans-serif para `FreeSerif` (serif amplamente disponível). P555 adicionou fallback por classe (serif/sans). P556 mediu o corpus completo: 0 documentos mudaram de páginas; variações de palavras extraídas são artefactos de extração, não regressão. Ver `paridade-producao-p554.md`, `paridade-producao-p555.md` e `paridade-producao-p556.md`. |
-| Fusão de blocos `BT...ET` consecutivos | P534 | **Aberto** (scope-out) | Optimização de export; vários `TextShaped` geram blocos separados, aumentando tamanho do PDF. |
+| Fusão de blocos `BT...ET` consecutivos | P534, P608 | **Scope-out confirmado** | P608 reconfirmou que o sintoma persiste: num documento com fallback de fonte, o cristalino gera 11 blocos `BT...ET` contra 5 do vanilla. Trata-se de optimização de export — o texto renderiza correctamente; a correcção exigiria fundir runs adjacentes com fontes diferentes num único bloco. |
 | Zoom explícito em destinos `/XYZ` de bookmarks | P535 | **Aberto** (scope-out) | Cristalino usa `null`; vanilla usa `100`. |
 | Stream XMP de metadados | P536 | **Aberto** (scope-out) | Apenas `/Info` é emitido; XMP requer XML extra. |
 | Ordenação sofisticada de fallback (fontique) | P534 | **Aberto** (scope-out) | Ordem linear do `FontBook` pode não ser ideal para scripts complexos. |
