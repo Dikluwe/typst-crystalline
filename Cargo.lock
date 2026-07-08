@@ -1857,6 +1857,7 @@ dependencies = [
  "ecow",
  "flate2",
  "fontdb",
+ "getrandom",
  "image",
  "imagesize",
  "oxifont-subset",

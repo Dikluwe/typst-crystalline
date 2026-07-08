@@ -32,6 +32,7 @@ time          = { workspace = true }  # ADR-0021 — today() em SystemWorld
 imagesize   = "0.12"                # leitura de cabeçalho de imagem — L3 apenas
 image       = { version = "0.24", default-features = false, features = ["png", "jpeg"] }
 flate2      = "1.0"                 # compressão Zlib para PNG /FlateDecode
+getrandom   = "0.2"                 # P615 — bytes aleatórios para DocumentID/InstanceID do XMP
 
 [dev-dependencies]
 # (P207D 2026-05-12: `ecow` promovido a `[dependencies]` porque

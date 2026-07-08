@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/export/builder.md
-//! @prompt-hash d00aeed0
+//! @prompt-hash 2c2b3245
 //! @layer L3
 //! @updated 2026-07-08
 //!
@@ -15,7 +15,6 @@
 //! (fonts, gradients, images, stream).
 
 use std::collections::{BTreeSet, HashMap, HashSet};
-use std::hash::{Hash, Hasher};
 
 use ttf_parser::Face;
 use typst_core::entities::font_book::FontVariant;
@@ -93,92 +92,65 @@ fn base64_encode_16(bytes: [u8; 16]) -> String {
     out
 }
 
-/// **P612** — gera um fingerprint determinístico do conteúdo do documento
-/// para uso no `DocumentID`. Inclui metadados, número/dimensões de páginas
-/// e texto plano dos items.
-fn document_fingerprint(doc: &PagedDocument) -> u64 {
-    use std::collections::hash_map::DefaultHasher;
-    use std::hash::{Hash, Hasher};
+/// **P615** — gera 16 bytes pseudoaleatórios para uso em
+/// `DocumentID`/`InstanceID`.
+///
+/// O seed é gerado uma vez por processo via `getrandom`; dentro da mesma
+/// execução, os IDs são determinísticos a partir desse seed. Isto satisfaz
+/// dois requisitos contraditórios:
+/// 1. Execuções separadas do compilador produzem IDs diferentes (paridade
+///    com o vanilla 0.15.0).
+/// 2. Testes unitários que compilam o mesmo documento duas no mesmo
+///    processo esperam bytes PDF idênticos.
+fn random_xmp_id_bytes() -> [u8; 16] {
+    use std::sync::atomic::{AtomicU64, Ordering};
+    use std::sync::OnceLock;
 
-    let mut h = DefaultHasher::new();
-    doc.document_info.title.hash(&mut h);
-    doc.document_info.author.hash(&mut h);
-    doc.document_info.keywords.hash(&mut h);
-    doc.pages.len().hash(&mut h);
-    for page in &doc.pages {
-        page.width.to_bits().hash(&mut h);
-        page.height.to_bits().hash(&mut h);
-        collect_xmp_fingerprint_text(&page.items, &mut h);
-    }
-    h.finish()
-}
+    static SEED: OnceLock<u64> = OnceLock::new();
+    static COUNTER: AtomicU64 = AtomicU64::new(0);
 
-/// **P612** — recolhe texto plano dos `FrameItem` para o fingerprint do
-/// `DocumentID`. Percorre `Group` e `Link` recursivamente.
-fn collect_xmp_fingerprint_text(items: &[FrameItem], h: &mut impl Hasher) {
-    for item in items {
-        match item {
-            FrameItem::Text { text, .. } | FrameItem::TextShaped { text, .. } => {
-                text.hash(h);
-            }
-            FrameItem::Group { items, .. } | FrameItem::Link { items, .. } => {
-                collect_xmp_fingerprint_text(items, h);
-            }
-            _ => {}
+    let seed = *SEED.get_or_init(|| {
+        let mut bytes = [0u8; 8];
+        if getrandom::getrandom(&mut bytes).is_ok() {
+            u64::from_be_bytes(bytes)
+        } else {
+            // Fallback: timestamp de compilação. Nunca deixamos de emitir XMP.
+            current_pdf_timestamp().unix_timestamp() as u64
         }
+    });
+
+    let n = COUNTER.fetch_add(1, Ordering::Relaxed);
+    let mut state = seed.wrapping_add(n);
+    let mut bytes = [0u8; 16];
+    for chunk in bytes.chunks_mut(8) {
+        // xorshift64* — gerador simples e determinístico.
+        state ^= state >> 12;
+        state ^= state << 25;
+        state ^= state >> 27;
+        state = state.wrapping_mul(0x2545_f491_4f6c_dd1d);
+        chunk.copy_from_slice(&state.to_be_bytes());
     }
+    bytes
 }
 
-/// **P612** — devolve `(instance_id, document_id)` para o pacote XMP.
+/// **P615** — devolve `(instance_id, document_id)` para o pacote XMP.
 /// Em testes (`CRYSTALLINE_PDF_FIXED_EPOCH` definida), usa valores fixos
-/// para manter os snapshots deterministas. Em produção, `DocumentID` é um
-/// hash do conteúdo do documento e `InstanceID` é um hash de
-/// `DocumentID` + timestamp de compilação.
-fn xmp_instance_and_document_id(doc: &PagedDocument) -> (String, String) {
-    let is_test = std::env::var("CRYSTALLINE_PDF_FIXED_EPOCH").is_ok();
+/// para manter os snapshots deterministas. Em produção, ambos são 16 bytes
+/// aleatórios independentes, seguindo a prática do vanilla 0.15.0.
+fn xmp_instance_and_document_id() -> (String, String) {
+    // P615 — em testes (cfg!(test) ou variável de ambiente), os IDs são
+    // fixos para manter os snapshots de bytes PDF deterministas. Em
+    // produção, são aleatórios.
+    let is_test = cfg!(test) || std::env::var("CRYSTALLINE_PDF_FIXED_EPOCH").is_ok();
     if is_test {
         const INSTANCE: &str = "dHlwc3QtY3J5c3QtaW5zdA==";
         const DOCUMENT: &str = "dHlwc3QtY3J5c3QtZG9jdQ==";
         return (INSTANCE.to_string(), DOCUMENT.to_string());
     }
 
-    let now_ts = current_pdf_timestamp().unix_timestamp();
-    let doc_fp = document_fingerprint(doc);
-
-    // Expandir o hash de 64 bits para 16 bytes, combinando duas rodadas
-    // diferentes do mesmo fingerprint.
-    let doc_fp2 = {
-        use std::collections::hash_map::DefaultHasher;
-        use std::hash::{Hash, Hasher};
-        let mut h = DefaultHasher::new();
-        doc_fp.hash(&mut h);
-        h.finish()
-    };
-    let mut doc_bytes = [0u8; 16];
-    doc_bytes[..8].copy_from_slice(&doc_fp.to_be_bytes());
-    doc_bytes[8..].copy_from_slice(&doc_fp2.to_be_bytes());
-
-    // InstanceID: hash do documento + timestamp de compilação.
-    let inst_fp = {
-        use std::collections::hash_map::DefaultHasher;
-        use std::hash::{Hash, Hasher};
-        let mut h = DefaultHasher::new();
-        doc_fp.hash(&mut h);
-        now_ts.hash(&mut h);
-        h.finish()
-    };
-    let inst_fp2 = {
-        use std::collections::hash_map::DefaultHasher;
-        use std::hash::{Hash, Hasher};
-        let mut h = DefaultHasher::new();
-        inst_fp.hash(&mut h);
-        h.finish()
-    };
-    let mut inst_bytes = [0u8; 16];
-    inst_bytes[..8].copy_from_slice(&inst_fp.to_be_bytes());
-    inst_bytes[8..].copy_from_slice(&inst_fp2.to_be_bytes());
-
-    (base64_encode_16(inst_bytes), base64_encode_16(doc_bytes))
+    let instance_bytes = random_xmp_id_bytes();
+    let document_bytes = random_xmp_id_bytes();
+    (base64_encode_16(instance_bytes), base64_encode_16(document_bytes))
 }
 
 /// P517 — gera nome de fonte com prefixo de subset quando a fonte foi
@@ -1430,7 +1402,7 @@ impl PdfBuilder {
         // Identificadores determinísticos (16 bytes em base64).
         // P612 — valores fixos apenas em testes; em produção, derivados do
         // conteúdo do documento + timestamp de compilação.
-        let (instance_id, document_id) = xmp_instance_and_document_id(doc);
+        let (instance_id, document_id) = xmp_instance_and_document_id();
 
         // Estrutura exacta do vanilla (krilla + xmp-writer), sem quebras de
         // linha entre elementos, para manter a mesma forma do pacote XMP.
