@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/export/builder.md
-//! @prompt-hash 53ca2d8f
+//! @prompt-hash 16737e53
 //! @layer L3
 //! @updated 2026-07-08
 //!
@@ -15,6 +15,7 @@
 //! (fonts, gradients, images, stream).
 
 use std::collections::{BTreeSet, HashMap, HashSet};
+use std::hash::{Hash, Hasher};
 
 use ttf_parser::Face;
 use typst_core::entities::font_book::FontVariant;
@@ -57,6 +58,127 @@ fn current_pdf_timestamp() -> time::OffsetDateTime {
         .and_then(|s| s.parse::<i64>().ok())
         .and_then(|ts| time::OffsetDateTime::from_unix_timestamp(ts).ok())
         .unwrap_or_else(time::OffsetDateTime::now_utc)
+}
+
+/// **P612** — codifica 16 bytes em base64 (URL-safe não é necessário; usa-se
+/// o alfabeto standard).
+fn base64_encode_16(bytes: [u8; 16]) -> String {
+    const ALPHABET: &[u8; 64] =
+        b"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
+    let mut out = String::with_capacity(24);
+    for chunk in bytes.chunks(3) {
+        let b = match chunk.len() {
+            3 => [chunk[0], chunk[1], chunk[2]],
+            2 => [chunk[0], chunk[1], 0],
+            1 => [chunk[0], 0, 0],
+            _ => unreachable!(),
+        };
+        out.push(ALPHABET[(b[0] >> 2) as usize] as char);
+        out.push(ALPHABET[(((b[0] & 0x03) << 4) | (b[1] >> 4)) as usize] as char);
+        out.push(ALPHABET[(((b[1] & 0x0F) << 2) | (b[2] >> 6)) as usize] as char);
+        out.push(ALPHABET[(b[2] & 0x3F) as usize] as char);
+    }
+    match bytes.len() % 3 {
+        1 => {
+            out.pop();
+            out.pop();
+            out.push_str("==");
+        }
+        2 => {
+            out.pop();
+            out.push('=');
+        }
+        _ => {}
+    }
+    out
+}
+
+/// **P612** — gera um fingerprint determinístico do conteúdo do documento
+/// para uso no `DocumentID`. Inclui metadados, número/dimensões de páginas
+/// e texto plano dos items.
+fn document_fingerprint(doc: &PagedDocument) -> u64 {
+    use std::collections::hash_map::DefaultHasher;
+    use std::hash::{Hash, Hasher};
+
+    let mut h = DefaultHasher::new();
+    doc.document_info.title.hash(&mut h);
+    doc.document_info.author.hash(&mut h);
+    doc.document_info.keywords.hash(&mut h);
+    doc.pages.len().hash(&mut h);
+    for page in &doc.pages {
+        page.width.to_bits().hash(&mut h);
+        page.height.to_bits().hash(&mut h);
+        collect_xmp_fingerprint_text(&page.items, &mut h);
+    }
+    h.finish()
+}
+
+/// **P612** — recolhe texto plano dos `FrameItem` para o fingerprint do
+/// `DocumentID`. Percorre `Group` e `Link` recursivamente.
+fn collect_xmp_fingerprint_text(items: &[FrameItem], h: &mut impl Hasher) {
+    for item in items {
+        match item {
+            FrameItem::Text { text, .. } | FrameItem::TextShaped { text, .. } => {
+                text.hash(h);
+            }
+            FrameItem::Group { items, .. } | FrameItem::Link { items, .. } => {
+                collect_xmp_fingerprint_text(items, h);
+            }
+            _ => {}
+        }
+    }
+}
+
+/// **P612** — devolve `(instance_id, document_id)` para o pacote XMP.
+/// Em testes (`CRYSTALLINE_PDF_FIXED_EPOCH` definida), usa valores fixos
+/// para manter os snapshots deterministas. Em produção, `DocumentID` é um
+/// hash do conteúdo do documento e `InstanceID` é um hash de
+/// `DocumentID` + timestamp de compilação.
+fn xmp_instance_and_document_id(doc: &PagedDocument) -> (String, String) {
+    let is_test = std::env::var("CRYSTALLINE_PDF_FIXED_EPOCH").is_ok();
+    if is_test {
+        const INSTANCE: &str = "dHlwc3QtY3J5c3QtaW5zdA==";
+        const DOCUMENT: &str = "dHlwc3QtY3J5c3QtZG9jdQ==";
+        return (INSTANCE.to_string(), DOCUMENT.to_string());
+    }
+
+    let now_ts = current_pdf_timestamp().unix_timestamp();
+    let doc_fp = document_fingerprint(doc);
+
+    // Expandir o hash de 64 bits para 16 bytes, combinando duas rodadas
+    // diferentes do mesmo fingerprint.
+    let doc_fp2 = {
+        use std::collections::hash_map::DefaultHasher;
+        use std::hash::{Hash, Hasher};
+        let mut h = DefaultHasher::new();
+        doc_fp.hash(&mut h);
+        h.finish()
+    };
+    let mut doc_bytes = [0u8; 16];
+    doc_bytes[..8].copy_from_slice(&doc_fp.to_be_bytes());
+    doc_bytes[8..].copy_from_slice(&doc_fp2.to_be_bytes());
+
+    // InstanceID: hash do documento + timestamp de compilação.
+    let inst_fp = {
+        use std::collections::hash_map::DefaultHasher;
+        use std::hash::{Hash, Hasher};
+        let mut h = DefaultHasher::new();
+        doc_fp.hash(&mut h);
+        now_ts.hash(&mut h);
+        h.finish()
+    };
+    let inst_fp2 = {
+        use std::collections::hash_map::DefaultHasher;
+        use std::hash::{Hash, Hasher};
+        let mut h = DefaultHasher::new();
+        inst_fp.hash(&mut h);
+        h.finish()
+    };
+    let mut inst_bytes = [0u8; 16];
+    inst_bytes[..8].copy_from_slice(&inst_fp.to_be_bytes());
+    inst_bytes[8..].copy_from_slice(&inst_fp2.to_be_bytes());
+
+    (base64_encode_16(inst_bytes), base64_encode_16(doc_bytes))
 }
 
 /// P517 — gera nome de fonte com prefixo de subset quando a fonte foi
@@ -1306,8 +1428,9 @@ impl PdfBuilder {
             .unwrap_or_default();
 
         // Identificadores determinísticos (16 bytes em base64).
-        const INSTANCE_ID: &str = "dHlwc3QtY3J5c3QtaW5zdA==";
-        const DOCUMENT_ID: &str = "dHlwc3QtY3J5c3QtZG9jdQ==";
+        // P612 — valores fixos apenas em testes; em produção, derivados do
+        // conteúdo do documento + timestamp de compilação.
+        let (instance_id, document_id) = xmp_instance_and_document_id(doc);
 
         // Estrutura exacta do vanilla (krilla + xmp-writer), sem quebras de
         // linha entre elementos, para manter a mesma forma do pacote XMP.
@@ -1339,8 +1462,8 @@ impl PdfBuilder {
             creator = creator_elem,
             date = xmp_date,
             n_pages = n_pages,
-            instance_id = INSTANCE_ID,
-            document_id = DOCUMENT_ID,
+            instance_id = instance_id,
+            document_id = document_id,
         );
 
         let next_id = self.objects.iter().map(|(id, _)| *id).max().unwrap_or(0) + 1;

@@ -1,5 +1,5 @@
 # Prompt L0 — `infra/export/builder` — PdfBuilder
-Hash do Código: 40965557
+Hash do Código: e47381d4
 
 **Camada**: L3
 **Ficheiro alvo**: `03_infra/src/export/builder.rs`
@@ -212,8 +212,13 @@ Regras de geração:
 6. `xmpTPg:NPages` é o número de páginas de `PagedDocument`.
 7. `dc:format` é sempre `application/pdf`.
 8. `xmpMM:InstanceID` e `xmpMM:DocumentID` são base64 de 16 bytes.
-   Para determinismo em testes, usam valores fixos derivados de uma string
-   constante (`typst-crystalline/xmp-instance` e `typst-crystalline/xmp-document`).
+   - Em produção, `DocumentID` é um hash determinístico do conteúdo do
+     documento (metadados + páginas + texto), para identificar o documento
+     de forma única. `InstanceID` é um hash de `DocumentID` + timestamp de
+     compilação, para ser único por compilação.
+   - Durante testes (`CRYSTALLINE_PDF_FIXED_EPOCH` definida), ambos usam
+     valores fixos (`typst-crystalline/xmp-instance` e
+     `typst-crystalline/xmp-document`), garantindo snapshots deterministas.
 9. `xmpMM:RenditionClass` é sempre `proof`.
 10. `pdf:PDFVersion` é sempre `1.7`.
 11. Caracteres especiais no título/autor/palavras-chave são escapados para
