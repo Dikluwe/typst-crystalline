@@ -45,7 +45,7 @@ static LAST_MAX_AGE: AtomicUsize = AtomicUsize::new(0);
 
 /// Ordem fixa dos 20 métodos do trait `Introspector`. Índice nesta
 /// constante = índice em `CALL_COUNTERS`.
-pub const INTROSPECTOR_METHODS: [&str; 26] = [
+pub const INTROSPECTOR_METHODS: [&str; 27] = [
     "query_by_kind",
     "query_by_label",
     "query_first",
@@ -66,6 +66,8 @@ pub const INTROSPECTOR_METHODS: [&str; 26] = [
     "flat_counter_at",
     "resolved_label_for",
     "headings_for_toc",
+    // P606
+    "headings_for_bookmarks",
     // P207B (M9c)
     "query_labelled",
     // P207C (M9c)
@@ -79,7 +81,7 @@ pub const INTROSPECTOR_METHODS: [&str; 26] = [
     "counter_key_for_label",
 ];
 
-static CALL_COUNTERS: [AtomicUsize; 26] = [
+static CALL_COUNTERS: [AtomicUsize; 27] = [
     AtomicUsize::new(0), AtomicUsize::new(0), AtomicUsize::new(0),
     AtomicUsize::new(0), AtomicUsize::new(0), AtomicUsize::new(0),
     AtomicUsize::new(0), AtomicUsize::new(0), AtomicUsize::new(0),
@@ -88,7 +90,7 @@ static CALL_COUNTERS: [AtomicUsize; 26] = [
     AtomicUsize::new(0), AtomicUsize::new(0), AtomicUsize::new(0),
     AtomicUsize::new(0), AtomicUsize::new(0), AtomicUsize::new(0),
     AtomicUsize::new(0), AtomicUsize::new(0), AtomicUsize::new(0),
-    AtomicUsize::new(0), AtomicUsize::new(0),
+    AtomicUsize::new(0), AtomicUsize::new(0), AtomicUsize::new(0),
 ];
 
 // ── API pública ────────────────────────────────────────────────────
@@ -316,6 +318,11 @@ impl<I: Introspector + Send + Sync> Introspector for CountingIntrospector<I> {
         self.inner.headings_for_toc()
     }
 
+    fn headings_for_bookmarks(&self) -> &[(Label, Option<String>, Content, usize)] {
+        record_call(26);
+        self.inner.headings_for_bookmarks()
+    }
+
     fn query_labelled(&self) -> Vec<(Label, Location)> {
         record_call(18);
         self.inner.query_labelled()
@@ -390,8 +397,9 @@ mod tests {
         // + 4 page-aware (P207D) + `counter_values_at` (P451)
         // − 2 (`is_numbering_active`/`_at` removidos no F-4 E0, P338 — API legada morta)
         // + `counter_key_for_label` (P462).
+        // + `headings_for_bookmarks` (P606).
         let counts: CallCounts = introspector_call_counts();
-        assert_eq!(counts.per_method.len(), 26);
+        assert_eq!(counts.per_method.len(), 27);
     }
 
     // ── C6 Test 1 (smoke): tracking activo após uso ──────────────────

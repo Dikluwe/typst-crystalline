@@ -1,5 +1,5 @@
 # L0 — Motor de Introspecção (`rules/introspect.rs`)
-Hash do Código: 8e4a9178
+Hash do Código: d41e7701
 
 ## Módulo
 `01_core/src/rules/introspect.rs`
@@ -177,20 +177,34 @@ não tem supplement para heading). O formato `{n}.` espelha o corpo do heading
 que **mantém** "Secção {n}" (correto no corpo) — labels diferentes, stores não
 conflitam.
 
-## Heading `outlined` — gate para índice e bookmarks (P605)
+## Heading `outlined` vs `bookmarked` — índice e bookmarks separados (P606)
 
-O campo assado `HeadingElem::outlined` (default `true`) controla se o heading
-entra na lista `headings_for_toc`. O walk arm `Content::Heading` emite a
-`Tag::HeadingForToc` pós-recursão **apenas** quando `h.outlined == true`. Se
-`outlined == false`, o heading continua a ser locatable (tags `Heading` e
-`Labelled` são emitidas), mas não aparece no índice do documento nem na árvore
-de bookmarks PDF. O label automático `auto-toc-{n}` é ainda gerado para não
-quebrar a contagem sequencial das auto-labels; apenas a tag `HeadingForToc` é
-suprimida.
+`HeadingElem` armazena dois campos independentes:
+- `outlined: bool` (default `true`) — controla a inclusão no índice do documento (`#outline()`).
+- `bookmarked: Option<bool>` (`None` = `auto`, segue `outlined`) — controla a inclusão na árvore de bookmarks PDF (`/Outlines`).
 
-Esta decisão reflecte a limitação actual de partilha da fonte de dados entre
-`#outline()` e bookmarks PDF. Quando essas duas listas forem separadas, o gate
-pode ser refinado para distinguir `outlined` de `bookmarked`.
+O método `HeadingElem::is_bookmarked()` devolve `bookmarked.unwrap_or(self.outlined)`.
+
+O walk arm `Content::Heading` (P200B/P606) emite duas tags pós-recursão quando
+os critérios se aplicam, partilhando o mesmo cálculo de entrada (`label`,
+`number`, `body`, `level`):
+- `Tag::HeadingForToc` **apenas** quando `h.outlined == true`. Popula
+  `Introspector::headings_for_toc()`, consumido pelo layout de `#outline()`.
+- `Tag::HeadingForBookmarks` **apenas** quando `h.is_bookmarked() == true`.
+  Popula `Introspector::headings_for_bookmarks()`, consumido pela geração de
+  `/Outlines` do PDF.
+
+Se `outlined == false` e `bookmarked` não for explicitamente `Some(true)`, o
+heading continua locatable (tags `Heading` e `Labelled` são emitidas), mas não
+entra em `headings_for_toc`. Se `bookmarked == Some(false)`, o heading pode
+ainda entrar em `headings_for_toc` (se `outlined == true`) mas não em
+`headings_for_bookmarks`. O label automático `auto-toc-{n}` é sempre gerado
+para não quebrar a contagem sequencial das auto-labels, independentemente dos
+gates acima.
+
+A separação das duas sub-stores elimina a limitação de P605: o utilizador pode
+agora ter um heading no índice impresso mas fora dos bookmarks, ou nos
+bookmarks mas fora do índice.
 
 ## Critérios de verificação
 - `Labelled` após `Heading` → `resolved_labels` contém a chave.

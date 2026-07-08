@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/rules/introspect.md
-//! @prompt-hash 42b9ffbd
+//! @prompt-hash 4d0b61c1
 //! @layer L1
 //! @updated 2026-06-27
 //!
@@ -398,11 +398,12 @@ fn materialize_time(content: &Content, intr: &TagIntrospector, location: Locatio
         // (o consumer real de small caps será aplicado no layout; DEBT-53).
         Content::SmallCaps { body } => Content::smallcaps(materialize_time(body, intr, location)),
         // Modelo D (P316): Heading delegado; reconstrói via ctor.
-        // P605 — preserva `outlined` durante materialização de tempo.
-        Content::Heading(h) => Content::heading_with_outlined(
+        // P606 — preserva `outlined` e `bookmarked` durante materialização de tempo.
+        Content::Heading(h) => Content::heading_with_outlined_and_bookmarked(
             h.level,
             materialize_time(&h.body, intr, location),
             h.outlined,
+            h.bookmarked,
         ),
         // Modelo D (Lote 3 P318): destructure de Arc<Elem> + reconstrução via construtor.
         Content::ListItem(e) => {
@@ -926,6 +927,14 @@ fn populate_intr_from_tag_start(
                 *level,
             ));
         }
+        ElementPayload::HeadingForBookmarks { label, number, body, level } => {
+            intr.headings_for_bookmarks.push((
+                label.clone(),
+                number.clone(),
+                body.clone(),
+                *level,
+            ));
+        }
         ElementPayload::ContextBlock { id } => {
             // P506: ContextBlock só precisa de ser locatable (tag emitida);
             // a expansão pós-introspecção resolve o closure.
@@ -1182,26 +1191,32 @@ pub(crate) fn walk(
                 tags.push(Tag::End(loc, 0));
             }
 
-            // P200B: emit Tag::HeadingForToc pós-recursão (3ª Tag).
-            // Popula sub-store intr.headings_for_toc via
-            // populate_intr_from_tag_start (P191B). Mesma Location
-            // que Heading + Tag::Labelled auto-toc — sub-stores
-            // diferentes (sem conflito per P196A §11.5). Fecha
-            // E2-residuo + lacuna #3.
-            //
-            // P605 — `outlined: false` suprime a entrada no índice e nos
-            // bookmarks PDF, mas mantém o heading locatable (Heading + Labelled).
-            if h.outlined {
-                if let Some(loc) = emitted_loc {
-                    if let Some((label, number, body_for_toc, lvl)) = heading::compute_heading_for_toc(
-                        &*intr,
-                        loc,
-                        current_auto_label,
-                        frozen_body,
-                        *level as usize,
-                        numbering_active,
-                    ) {
+            // P200B/P606: emit Tag::HeadingForToc e/ou Tag::HeadingForBookmarks
+            // pós-recursão. `outlined` controla o índice do documento;
+            // `bookmarked` (explicitamente ou via `outlined`) controla a árvore
+            // `/Outlines` do PDF. Ambas partilham o mesmo cálculo de entrada.
+            if let Some(loc) = emitted_loc {
+                if let Some((label, number, body_for_toc, lvl)) = heading::compute_heading_for_toc(
+                    &*intr,
+                    loc,
+                    current_auto_label,
+                    frozen_body,
+                    *level as usize,
+                    numbering_active,
+                ) {
+                    if h.outlined {
                         let info = ElementInfo::new(ElementPayload::HeadingForToc {
+                            label: label.clone(),
+                            number: number.clone(),
+                            body: body_for_toc.clone(),
+                            level: lvl,
+                        });
+                        populate_intr_from_tag_start(intr, &info, loc);
+                        tags.push(Tag::Start(loc, info));
+                        tags.push(Tag::End(loc, 0));
+                    }
+                    if h.is_bookmarked() {
+                        let info = ElementInfo::new(ElementPayload::HeadingForBookmarks {
                             label,
                             number,
                             body: body_for_toc,
@@ -2063,33 +2078,36 @@ mod tests {
     fn walk_emite_start_e_end_para_heading() {
         let h = Content::heading(1, Content::text("title"));
         let tags = introspect_with_tags(&h);
-        // P200B: heading emite 6 tags com mesma Location:
+        // P606: heading emite 8 tags com mesma Location:
         //   Start(Heading), Start(Labelled auto-toc), End(Labelled),
-        //   Start(HeadingForToc), End(HeadingForToc), End(Heading).
-        // 3 pares Start/End — bracketing por construção (mesma loc).
-        assert_eq!(tags.len(), 6, "heading deve emitir 6 tags pós-P200B; obtido {tags:?}");
+        //   Start(HeadingForToc), End(HeadingForToc),
+        //   Start(HeadingForBookmarks), End(HeadingForBookmarks), End(Heading).
+        // 4 pares Start/End — bracketing por construção (mesma loc).
+        assert_eq!(tags.len(), 8, "heading deve emitir 8 tags pós-P606; obtido {tags:?}");
         let locs: Vec<_> = tags.iter().map(|t| match t {
             Tag::Start(l, _) | Tag::End(l, _) => *l,
         }).collect();
-        // Todas as 6 tags partilham mesma Location (P196A §11.5 +
-        // P200B trabalho híbrido).
+        // Todas as 8 tags partilham mesma Location (P196A §11.5 +
+        // P200B/P606 trabalho híbrido).
         for w in locs.windows(2) {
             assert_eq!(w[0], w[1], "tags devem partilhar mesma Location");
         }
-        // Ordem esperada: 3 Start consecutivas + 3 End consecutivas
+        // Ordem esperada: 4 Start consecutivas + 4 End consecutivas
         // (Heading abre, Labelled abre, Labelled fecha, HeadingForToc
-        // abre, HeadingForToc fecha, Heading fecha) — ou variação
-        // específica per ordem de emit no walk arm.
-        match (&tags[0], &tags[1], &tags[2], &tags[3], &tags[4], &tags[5]) {
+        // abre, HeadingForToc fecha, HeadingForBookmarks abre,
+        // HeadingForBookmarks fecha, Heading fecha).
+        match (&tags[0], &tags[1], &tags[2], &tags[3], &tags[4], &tags[5], &tags[6], &tags[7]) {
             (
                 Tag::Start(_, _),
                 Tag::Start(_, _),
                 Tag::End(_, _),
                 Tag::Start(_, _),
                 Tag::End(_, _),
+                Tag::Start(_, _),
+                Tag::End(_, _),
                 Tag::End(_, _),
             ) => {}
-            other => panic!("ordem esperada: Start, Start, End, Start, End, End; obtido {other:?}"),
+            other => panic!("ordem esperada: Start, Start, End, Start, End, Start, End, End; obtido {other:?}"),
         }
     }
 
@@ -2106,12 +2124,13 @@ mod tests {
         let figure = Content::figure(Content::Empty, Some(Content::text("cap")), Some("image".into()), Some("1".into()));
         let h = Content::heading(1, figure);
         let tags = introspect_with_tags(&h);
-        // P200B: heading emite 6 tags + figura emite 2 tags = 8 tags.
+        // P606: heading emite 8 tags + figura emite 2 tags = 10 tags.
         // Sequência: Start(Heading), Start(Figure), End(Figure),
         // Start(Labelled), End(Labelled), Start(HeadingForToc),
-        // End(HeadingForToc), End(Heading).
-        assert_eq!(tags.len(), 8, "heading-com-figura deve emitir 8 tags pós-P200B, obtido {tags:?}");
-        match (&tags[0], &tags[1], &tags[2], &tags[3], &tags[4], &tags[5], &tags[6], &tags[7]) {
+        // End(HeadingForToc), Start(HeadingForBookmarks),
+        // End(HeadingForBookmarks), End(Heading).
+        assert_eq!(tags.len(), 10, "heading-com-figura deve emitir 10 tags pós-P606, obtido {tags:?}");
+        match (&tags[0], &tags[1], &tags[2], &tags[3], &tags[4], &tags[5], &tags[6], &tags[7], &tags[8], &tags[9]) {
             (
                 Tag::Start(_, _), // Heading
                 Tag::Start(_, _), // Figure
@@ -2120,9 +2139,11 @@ mod tests {
                 Tag::End(_, _),   // Labelled auto-toc
                 Tag::Start(_, _), // HeadingForToc
                 Tag::End(_, _),   // HeadingForToc
+                Tag::Start(_, _), // HeadingForBookmarks
+                Tag::End(_, _),   // HeadingForBookmarks
                 Tag::End(_, _),   // Heading
             ) => {}
-            other => panic!("ordem esperada após P200B: 8 tags; obtido {other:?}"),
+            other => panic!("ordem esperada após P606: 10 tags; obtido {other:?}"),
         }
     }
 
@@ -2145,10 +2166,11 @@ mod tests {
             "intr deve ter contador heading=2 após dois headings nível 1");
         // P182C: SetHeadingNumbering passou a ser locatable (emite
         // ElementPayload::StateUpdate sob chave numbering_active:heading).
-        // P200B: cada heading emite 6 tags (Start_h, Start_labelled,
-        // End_labelled, Start_HeadingForToc, End_HeadingForToc, End_h).
-        // Total: 1 SetHeadingNumbering × 2 + 2 headings × 6 = 14.
-        assert_eq!(tags.len(), 12, "deve haver 6 tags por heading (2 headings x 6); obtido {tags:?}");
+        // P606: cada heading emite 8 tags (Start_h, Start_labelled,
+        // End_labelled, Start_HeadingForToc, End_HeadingForToc,
+        // Start_HeadingForBookmarks, End_HeadingForBookmarks, End_h).
+        // Total: 2 headings × 8 = 16.
+        assert_eq!(tags.len(), 16, "deve haver 8 tags por heading (2 headings x 8); obtido {tags:?}");
     }
 
     #[test]
@@ -2248,11 +2270,12 @@ mod tests {
             }
         }
         assert!(stack.is_empty());
-        // P200B: cada heading emite 6 tags (Start_h, Start_labelled,
-        // End_labelled, Start_HeadingForToc, End_HeadingForToc, End_h)
+        // P606: cada heading emite 8 tags (Start_h, Start_labelled,
+        // End_labelled, Start_HeadingForToc, End_HeadingForToc,
+        // Start_HeadingForBookmarks, End_HeadingForBookmarks, End_h)
         // — todas com mesma Location, bracketing continua válido.
-        // 3 headings × 6 = 18.
-        assert_eq!(tags.len(), 18, "3 headings × 6 tags pós-P200B = 18");
+        // 3 headings × 8 = 24.
+        assert_eq!(tags.len(), 24, "3 headings × 8 tags pós-P606 = 24");
     }
 
     #[test]
@@ -3002,6 +3025,34 @@ mod tests {
     }
 
     #[test]
+    fn p606_outlined_e_bookmarked_separados_nas_substores() {
+        // Quatro casos vanilla:
+        // A: outlined=true,  bookmarked=auto  -> em TOC e bookmarks
+        // B: outlined=false, bookmarked=auto  -> fora de TOC e bookmarks
+        // C: outlined=true,  bookmarked=false -> em TOC, fora de bookmarks
+        // D: outlined=false, bookmarked=false -> fora de ambos
+        let content = Content::Sequence(vec![
+            Content::heading(1, Content::text("A")),
+            Content::heading_with_outlined_and_bookmarked(1, Content::text("B"), false, None),
+            Content::heading_with_outlined_and_bookmarked(1, Content::text("C"), true, Some(false)),
+            Content::heading_with_outlined_and_bookmarked(1, Content::text("D"), false, Some(false)),
+        ].into());
+        let intr = introspect_with_introspector(&content);
+
+        let toc_titles: Vec<String> = intr.headings_for_toc()
+            .iter()
+            .map(|(_, _, body, _)| body.plain_text())
+            .collect();
+        let bm_titles: Vec<String> = intr.headings_for_bookmarks()
+            .iter()
+            .map(|(_, _, body, _)| body.plain_text())
+            .collect();
+
+        assert_eq!(toc_titles, vec!["A", "C"], "TOC deve conter A e C");
+        assert_eq!(bm_titles, vec!["A"], "Bookmarks devem conter apenas A");
+    }
+
+    #[test]
     fn consumer_c4_recebe_some_para_auto_toc_label() {
         // P196B: consumer C4 (Ref-arm em Layouter, P194B) usa
         // substitution-with-fallback: `intr.resolved_label_for(label)
@@ -3577,13 +3628,13 @@ mod tests {
     }
 
     #[test]
-    fn bracketing_valido_6_tags_por_heading_p200b() {
-        // P200B test 3: confirma bracketing válido com 6 tags por
-        // Heading folha (3 Start + 3 End consecutivas; mesma Location).
+    fn bracketing_valido_8_tags_por_heading_p606() {
+        // P606 test: confirma bracketing válido com 8 tags por
+        // Heading folha (4 Start + 4 End consecutivas; mesma Location).
         let h = Content::heading(1, Content::text("título"));
         let tags = introspect_with_tags(&h);
 
-        assert_eq!(tags.len(), 6, "P200B: 6 tags por Heading folha");
+        assert_eq!(tags.len(), 8, "P606: 8 tags por Heading folha");
 
         let mut stack: Vec<Location> = Vec::new();
         for tag in &tags {

@@ -2,7 +2,7 @@
 //! @prompt 00_nucleo/prompts/rules/model/document.md
 //! @prompt 00_nucleo/prompts/rules/model/asset.md
 //! @prompt 00_nucleo/prompts/rules/stdlib/structural.md
-//! @prompt-hash e6d3a5b5
+//! @prompt-hash e3351b12
 //! @layer L1
 //! @updated 2026-06-29
 //!
@@ -223,24 +223,13 @@ pub fn native_heading(
         }
     };
 
-    // P605 — `outlined` e `bookmarked` controlam a presença do heading no
-    // índice do documento e na árvore de bookmarks PDF. O cristalino usa uma
-    // única flag interna (`HeadingElem::outlined`); `bookmarked` é aceite como
-    // sinónimo para compatibilidade com a sintaxe vanilla.
+    // P606 — `outlined` e `bookmarked` são flags separadas. `outlined`
+    // controla o índice do documento (`#outline()`); `bookmarked` controla a
+    // árvore `/Outlines` do PDF. Quando `bookmarked` não é definido (`None`),
+    // o valor efectivo segue `outlined` (comportamento vanilla `auto`).
     let outlined = match args.named.get("outlined") {
         Some(Value::Bool(b)) => *b,
-        Some(Value::None) | None => {
-            match args.named.get("bookmarked") {
-                Some(Value::Bool(b)) => *b,
-                Some(Value::None) | None => true,
-                Some(other) => {
-                    return Err(vec![SourceDiagnostic::error(
-                        Span::detached(),
-                        format!("heading(bookmarked:): espera bool, recebeu {}", other.type_name()),
-                    )])
-                }
-            }
-        }
+        Some(Value::None) | None => true,
         Some(other) => {
             return Err(vec![SourceDiagnostic::error(
                 Span::detached(),
@@ -248,11 +237,23 @@ pub fn native_heading(
             )])
         }
     };
+    let bookmarked = match args.named.get("bookmarked") {
+        Some(Value::Bool(b)) => Some(*b),
+        Some(Value::None) | None => None,
+        Some(other) => {
+            return Err(vec![SourceDiagnostic::error(
+                Span::detached(),
+                format!("heading(bookmarked:): espera bool, recebeu {}", other.type_name()),
+            )])
+        }
+    };
 
     let content = if let Some(pattern) = numbering {
-        Content::heading_numbered_with_pattern_and_outlined(level, body, Some(pattern), outlined)
+        Content::heading_numbered_with_pattern_outlined_bookmarked(
+            level, body, Some(pattern), outlined, bookmarked,
+        )
     } else {
-        Content::heading_with_outlined(level, body, outlined)
+        Content::heading_with_outlined_and_bookmarked(level, body, outlined, bookmarked)
     };
     Ok(Value::Content(content))
 }
@@ -2929,7 +2930,7 @@ mod tests {
     }
 
     #[test]
-    fn native_heading_outlined_false_marca_campo() {
+    fn native_heading_outlined_false_mantem_bookmarked_auto() {
         let mut args = Args::positional(vec![
             Value::Int(1),
             Value::Content(Content::text("X")),
@@ -2939,11 +2940,13 @@ mod tests {
         let Value::Content(Content::Heading(h)) = v else {
             panic!("esperado Content::Heading, recebeu {:?}", v);
         };
-        assert!(!h.outlined, "outlined: false deve propagar para HeadingElem");
+        assert!(!h.outlined);
+        assert_eq!(h.bookmarked, None, "bookmarked deve ficar auto (None)");
+        assert!(!h.is_bookmarked(), "bookmarked efectivo segue outlined");
     }
 
     #[test]
-    fn native_heading_bookmarked_false_usa_outlined() {
+    fn native_heading_bookmarked_false_mantem_outlined_true() {
         let mut args = Args::positional(vec![
             Value::Int(1),
             Value::Content(Content::text("X")),
@@ -2953,11 +2956,13 @@ mod tests {
         let Value::Content(Content::Heading(h)) = v else {
             panic!("esperado Content::Heading, recebeu {:?}", v);
         };
-        assert!(!h.outlined, "bookmarked: false deve propagar para HeadingElem::outlined");
+        assert!(h.outlined, "outlined default deve permanecer true");
+        assert_eq!(h.bookmarked, Some(false));
+        assert!(!h.is_bookmarked());
     }
 
     #[test]
-    fn native_heading_outlined_prioridade_sobre_bookmarked() {
+    fn native_heading_outlined_false_bookmarked_true_separados() {
         let mut args = Args::positional(vec![
             Value::Int(1),
             Value::Content(Content::text("X")),
@@ -2968,7 +2973,9 @@ mod tests {
         let Value::Content(Content::Heading(h)) = v else {
             panic!("esperado Content::Heading, recebeu {:?}", v);
         };
-        assert!(!h.outlined, "outlined deve ter prioridade sobre bookmarked");
+        assert!(!h.outlined);
+        assert_eq!(h.bookmarked, Some(true));
+        assert!(h.is_bookmarked());
     }
 
     #[test]

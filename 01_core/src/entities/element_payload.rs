@@ -252,6 +252,17 @@ pub enum ElementPayload {
         level:  usize,
     },
 
+    /// **P606** — payload de bookmark PDF (`/Outlines`), emitido pelo walk
+    /// arm Heading quando `HeadingElem::is_bookmarked()` é `true`. Mesma
+    /// forma de `HeadingForToc`, mas alimenta a sub-store
+    /// `intr.headings_for_bookmarks` em vez de `intr.headings_for_toc`.
+    HeadingForBookmarks {
+        label:  Label,
+        number: Option<String>,
+        body:   crate::entities::content::Content,
+        level:  usize,
+    },
+
     /// **P506** — payload de `Content::ContextBlock`.
     ///
     /// Apenas o `id` é necessário para indexação; o closure vive no

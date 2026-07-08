@@ -323,9 +323,10 @@ fn compile_to_pdf_bytes_impl(
     for (key, style) in module.bibliography_styles() {
         intr.bib_store.add_style(*key, style.clone());
     }
-    // P535 — headings para bookmarks PDF: guarda antes de `intr` ser
-    // consumido por `layout_with_introspector`.
-    let extracted_headings = intr.headings_for_toc().to_vec();
+    // P535/P606 — headings para bookmarks PDF: guarda antes de `intr` ser
+    // consumido por `layout_with_introspector`. A partir de P606, a lista de
+    // bookmarks PDF é separada do índice do documento (`headings_for_toc`).
+    let extracted_headings = intr.headings_for_bookmarks().to_vec();
     let t2 = Instant::now();
     timings.introspect_ms = duration_ms(t2.duration_since(t1));
 

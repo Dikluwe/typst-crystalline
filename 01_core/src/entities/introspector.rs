@@ -220,6 +220,12 @@ pub trait Introspector: Send + Sync {
     /// `layout/outline.rs:24` migrado para substitution-with-fallback.
     fn headings_for_toc(&self) -> &[(Label, Option<String>, crate::entities::content::Content, usize)];
 
+    /// **P606** — entries de bookmarks PDF (`/Outlines`), separadas do
+    /// índice do documento. Seguem a mesma forma de `headings_for_toc`, mas
+    /// são filtradas pelo valor efectivo de `bookmarked` (explicitamente
+    /// definido ou `outlined` como fallback).
+    fn headings_for_bookmarks(&self) -> &[(Label, Option<String>, crate::entities::content::Content, usize)];
+
     /// **P207B (M9c)** — todos os labels registados com a respectiva
     /// `Location`, ordenados alfabéticamente por `Label` (estabilidade
     /// determinística). Delega a `LabelRegistry::iter()` + clone+copy.
@@ -331,6 +337,11 @@ pub struct TagIntrospector {
     /// assignments `mod.rs:1490, 1521` dependem); cleanup
     /// orgânico em M6.
     pub headings_for_toc: Vec<(Label, Option<String>, crate::entities::content::Content, usize)>,
+    /// **P606** — sub-store dedicado a bookmarks PDF (`/Outlines`).
+    /// Populada por `ElementPayload::HeadingForBookmarks`. Partilha a
+    /// mesma forma de `headings_for_toc` mas filtra pelo valor efectivo
+    /// de `HeadingElem::bookmarked`.
+    pub headings_for_bookmarks: Vec<(Label, Option<String>, crate::entities::content::Content, usize)>,
     /// **P205C (F3)** — sub-store sealed `Location → Position`
     /// injectado pós-layout via `inject_positions` per ADR-0074.
     /// `Default::default()` é vazio (pre-layout); `position_of`
@@ -663,6 +674,10 @@ impl Introspector for TagIntrospector {
 
     fn headings_for_toc(&self) -> &[(Label, Option<String>, crate::entities::content::Content, usize)] {
         &self.headings_for_toc
+    }
+
+    fn headings_for_bookmarks(&self) -> &[(Label, Option<String>, crate::entities::content::Content, usize)] {
+        &self.headings_for_bookmarks
     }
 
     fn query_labelled(&self) -> Vec<(Label, Location)> {

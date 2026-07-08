@@ -1249,9 +1249,24 @@ impl Content {
 pub fn heading(level: u8, body: Content) -> Self {
         Self::Heading(Arc::new(HeadingElem::new(level, body)))
     }
-    /// **P605** — heading com controlo explícito do campo `outlined`.
-    pub fn heading_with_outlined(level: u8, body: Content, outlined: bool) -> Self {
+    /// **P605/P606** — heading com controlo explícito de `outlined` e `bookmarked`.
+    pub fn heading_with_outlined(
+        level: u8,
+        body: Content,
+        outlined: bool,
+    ) -> Self {
         Self::Heading(Arc::new(HeadingElem::new_with_outlined(level, body, outlined)))
+    }
+    /// **P606** — heading com controlo separado de `outlined` e `bookmarked`.
+    pub fn heading_with_outlined_and_bookmarked(
+        level: u8,
+        body: Content,
+        outlined: bool,
+        bookmarked: Option<bool>,
+    ) -> Self {
+        Self::Heading(Arc::new(HeadingElem::new_with_outlined_and_bookmarked(
+            level, body, outlined, bookmarked,
+        )))
     }
     /// Heading numerado **na forma de transporte** (F-5a de-bake, P364,
     /// `f_fronteira_e1.md` §3a.9). O campo assado `numbering_active` foi
@@ -1274,12 +1289,22 @@ pub fn heading(level: u8, body: Content) -> Self {
     ) -> Self {
         Self::heading_numbered_with_pattern_and_outlined(level, body, pattern, true)
     }
-    /// **P605** — variant numerado com controlo de `outlined`.
+    /// **P605/P606** — variant numerado com controlo de `outlined`.
     pub fn heading_numbered_with_pattern_and_outlined(
         level: u8,
         body: Content,
         pattern: Option<ecow::EcoString>,
         outlined: bool,
+    ) -> Self {
+        Self::heading_numbered_with_pattern_outlined_bookmarked(level, body, pattern, outlined, None)
+    }
+    /// **P606** — variant numerado com controlo separado de `outlined` e `bookmarked`.
+    pub fn heading_numbered_with_pattern_outlined_bookmarked(
+        level: u8,
+        body: Content,
+        pattern: Option<ecow::EcoString>,
+        outlined: bool,
+        bookmarked: Option<bool>,
     ) -> Self {
         use crate::entities::style::Styles;
         use crate::entities::value::Value;
@@ -1287,7 +1312,10 @@ pub fn heading(level: u8, body: Content) -> Self {
         if let Some(pattern) = pattern {
             styles = styles.push_custom("heading.numbering.pattern", Value::Str(pattern));
         }
-        Self::Styled(Box::new(Self::heading_with_outlined(level, body, outlined)), styles)
+        Self::Styled(
+            Box::new(Self::heading_with_outlined_and_bookmarked(level, body, outlined, bookmarked)),
+            styles,
+        )
     }
     /// Construtor do separador estrutural (Modelo D, P316).
     pub fn divider() -> Self {

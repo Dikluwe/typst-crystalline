@@ -25,8 +25,11 @@ pub struct HeadingElem {
     pub level: u8,
     /// Corpo do cabeçalho (era `Box<Content>`; agora `Content` dentro do `Arc`).
     pub body: Content,
-    /// P493 — visível no outline; default true (paridade vanilla).
+    /// P493/P605 — visível no índice do documento (`#outline()`); default true.
     pub outlined: bool,
+    /// **P606** — visível na árvore de bookmarks PDF (`/Outlines`);
+    /// `None` significa "seguir `outlined`" (comportamento vanilla `auto`).
+    pub bookmarked: Option<bool>,
 }
 
 impl HeadingElem {
@@ -39,12 +42,27 @@ impl HeadingElem {
     /// gate da chain; o **valor** do contador segue via Introspector
     /// (`formatted_counter_at("heading")`, P335 incondicional).
     pub fn new(level: u8, body: Content) -> Self {
-        Self { level: level.clamp(1, 6), body, outlined: true }
+        Self { level: level.clamp(1, 6), body, outlined: true, bookmarked: None }
     }
 
-    /// P493 — construtor completo com controlo de `outlined`.
+    /// P493 — construtor com controlo de `outlined`.
     pub fn new_with_outlined(level: u8, body: Content, outlined: bool) -> Self {
-        Self { level: level.clamp(1, 6), body, outlined }
+        Self { level: level.clamp(1, 6), body, outlined, bookmarked: None }
+    }
+
+    /// **P606** — construtor completo com controlo separado de `outlined` e `bookmarked`.
+    pub fn new_with_outlined_and_bookmarked(
+        level: u8,
+        body: Content,
+        outlined: bool,
+        bookmarked: Option<bool>,
+    ) -> Self {
+        Self { level: level.clamp(1, 6), body, outlined, bookmarked }
+    }
+
+    /// **P606** — valor efectivo de `bookmarked`: explicitamente definido ou segue `outlined`.
+    pub fn is_bookmarked(&self) -> bool {
+        self.bookmarked.unwrap_or(self.outlined)
     }
 }
 
@@ -60,6 +78,7 @@ impl Element for HeadingElem {
         Ok(Content::Heading(Arc::new(HeadingElem {
             level: self.level,
             outlined: self.outlined,
+            bookmarked: self.bookmarked,
             body: self.body.map_content(transform)?,
         })))
     }
@@ -71,6 +90,7 @@ impl Element for HeadingElem {
         Content::Heading(Arc::new(HeadingElem {
             level: self.level,
             outlined: self.outlined,
+            bookmarked: self.bookmarked,
             body: self.body.map_text(transform),
         }))
     }
@@ -80,6 +100,7 @@ impl Element for HeadingElem {
             "body" => Some(Value::Content(self.body.clone())),
             "level" => Some(Value::Int(self.level as i64)),
             "outlined" => Some(Value::Bool(self.outlined)),
+            "bookmarked" => self.bookmarked.map(Value::Bool),
             _ => None,
         }
     }
