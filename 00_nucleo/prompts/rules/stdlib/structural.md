@@ -1,5 +1,5 @@
 # Prompt L0 — `stdlib/structural` — módulo `structural`
-Hash do Código: 26876a74
+Hash do Código: 15fff74e
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/rules/stdlib/structural.rs`
@@ -101,28 +101,33 @@ raw([content]) -> Err "raw() espera string"
 
 ---
 
-### `native_heading(level, body, numbering:?)`
+### `native_heading(level, body, numbering:?, outlined:?, bookmarked:?)`
 
-**Assinatura**: `heading(level: Int, body: Content | Str, numbering: Str?) -> Content`
+**Assinatura**: `heading(level: Int, body: Content | Str, numbering: Str?, outlined: Bool?, bookmarked: Bool?) -> Content`
 
 **Argumentos**:
 - `level`: inteiro posicional 1..=6 (obrigatório).
 - `body`: `Content` ou `Str` posicional (obrigatório).
 - `numbering`: string named opcional. Se presente, activa numeração com o pattern indicado.
+- `outlined`: booleano named opcional (default `true`). Se `false`, o heading não entra no índice do documento (`#outline()`) nem na árvore de bookmarks PDF.
+- `bookmarked`: booleano named opcional (default `true`). Reconhecido como sinónimo de `outlined` no cristalino, porque a fonte de dados para bookmarks PDF (`headings_for_toc`) é partilhada com o índice do documento. `bookmarked: false` exclui o heading dos bookmarks PDF (e, por arrasto, do `#outline()`).
 
-**Semântica**: Cria um `Content::Heading(level, body)`. Se `numbering` for `Some(pattern)`, embrulha o heading num `Content::Styled` que transporta `heading.numbering=true` e `heading.numbering.pattern=pattern`, a forma canônica de heading numerado. Também serve como selector em show rules (`#show heading: it => ...`).
+**Semântica**: Cria um `Content::Heading(level, body, outlined)`. Se `numbering` for `Some(pattern)`, embrulha o heading num `Content::Styled` que transporta `heading.numbering=true` e `heading.numbering.pattern=pattern`, a forma canônica de heading numerado. Também serve como selector em show rules (`#show heading: it => ...`).
 
-**Paridade vanilla**: Equivalente a `heading(level, body, numbering: pattern)` em Typst. A forma sem `numbering` cria heading não-numerado.
+**Paridade vanilla**: Equivalente a `heading(level, body, numbering: pattern, outlined: ..., bookmarked: ...)` em Typst 0.15.0. Nota: o vanilla distingue `outlined` (índice do documento) de `bookmarked` (bookmarks PDF), mas o cristalino usa uma única flag interna; ambos os argumentos são aceites e produzem exclusão de `/Outlines`.
 
-**Limitações / scope-outs**: Layout/renderização de headings é responsabilidade do pipeline de markup/layout; ver prompts dedicados `entities/elements/heading.md` e `rules/layout/heading.md`.
+**Limitações / scope-outs**: Não é possível, nesta implementação, estar no índice do documento mas ausente dos bookmarks PDF, ou vice-versa — a mesma lista `headings_for_toc` alimenta ambos.
 
 **Testes canónicos**:
 ```
-heading(1, [Título]) -> Content::Heading { level: 1, body: "Título" }
-heading(2, "Sub", numbering: "1.1") -> Content::Styled(Heading { level: 2, body: "Sub" }, heading.numbering=true, heading.numbering.pattern="1.1")
+heading(1, [Título]) -> Content::Heading { level: 1, body: "Título", outlined: true }
+heading(2, "Sub", numbering: "1.1") -> Content::Styled(Heading { level: 2, body: "Sub", outlined: true }, heading.numbering=true, heading.numbering.pattern="1.1")
+heading(1, [X], outlined: false) -> Content::Heading { level: 1, body: "X", outlined: false }
+heading(1, [X], bookmarked: false) -> Content::Heading { level: 1, body: "X", outlined: false }
 heading(0, [X]) -> Err "level deve estar entre 1 e 6"
 heading(1, 123) -> Err "body espera content ou string"
 heading(1, [X], numbering: 1) -> Err "numbering espera string"
+heading(1, [X], outlined: 1) -> Err "outlined espera bool"
 ```
 
 ---

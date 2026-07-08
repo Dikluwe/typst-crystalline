@@ -1,7 +1,7 @@
 # Inventário de Decisões Pendentes / Pontos em Aberto
 
 **Criado em:** 2026-07-03 (Passo 550)  
-**Actualizado em:** 2026-07-07 (Passos 602, 604)  
+**Actualizado em:** 2026-07-07 (Passos 602, 604, 605)  
 **Nota:** Não existia um ficheiro `inventario-decisoes-pendentes.md` anterior. Esta é a primeira consolidação formal. A lista informal de ~24 itens referida em P550 foi auditada e integrada na secção 2 deste documento.
 
 ---
@@ -128,6 +128,7 @@ A lista informal referida em P550 foi auditada e integrada nesta secção. Itens
 | Zoom explícito nos bookmarks | P535 | Scope-out — já em P550 |
 | Bookmarks só de headings | P535 | **Fechado em P604** — vanilla 0.15.0 também só gera bookmarks a partir de headings. Labels manuais não entram em `/Outlines`; `#outline(target: ...)` gera TOC/listas no documento, não bookmarks PDF. |
 | `/Count` aberto/fechado | P535 | **Fechado em P602** — vanilla 0.15.0 emite `/Count -N` para entradas com filhos (fechadas por defeito) e `/Count N` positivo na raiz `/Outlines`; cristalino replica o comportamento. |
+| `bookmarked`/`outlined` em `heading()` | P604/P605 | **Fechado em P605** — o campo interno `HeadingElem::outlined` existia mas não era exposto. `heading()` agora aceita `outlined: bool` e `bookmarked: bool` (sinónimo); `false` exclui o heading de `/Outlines`. |
 
 ### 2.4 Numeração de página
 

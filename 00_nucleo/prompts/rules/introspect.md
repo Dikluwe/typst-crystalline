@@ -1,5 +1,5 @@
 # L0 — Motor de Introspecção (`rules/introspect.rs`)
-Hash do Código: 526d53ff
+Hash do Código: 8e4a9178
 
 ## Módulo
 `01_core/src/rules/introspect.rs`
@@ -176,6 +176,21 @@ não tem supplement para heading). O formato `{n}.` espelha o corpo do heading
 (`layout/mod.rs:720`). **Distinto** de `compute_labelled** (refs de corpo `@heading`),
 que **mantém** "Secção {n}" (correto no corpo) — labels diferentes, stores não
 conflitam.
+
+## Heading `outlined` — gate para índice e bookmarks (P605)
+
+O campo assado `HeadingElem::outlined` (default `true`) controla se o heading
+entra na lista `headings_for_toc`. O walk arm `Content::Heading` emite a
+`Tag::HeadingForToc` pós-recursão **apenas** quando `h.outlined == true`. Se
+`outlined == false`, o heading continua a ser locatable (tags `Heading` e
+`Labelled` são emitidas), mas não aparece no índice do documento nem na árvore
+de bookmarks PDF. O label automático `auto-toc-{n}` é ainda gerado para não
+quebrar a contagem sequencial das auto-labels; apenas a tag `HeadingForToc` é
+suprimida.
+
+Esta decisão reflecte a limitação actual de partilha da fonte de dados entre
+`#outline()` e bookmarks PDF. Quando essas duas listas forem separadas, o gate
+pode ser refinado para distinguir `outlined` de `bookmarked`.
 
 ## Critérios de verificação
 - `Labelled` após `Heading` → `resolved_labels` contém a chave.

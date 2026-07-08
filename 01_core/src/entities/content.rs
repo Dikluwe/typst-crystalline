@@ -1246,8 +1246,12 @@ impl Content {
     pub fn emph(body: Content) -> Self {
         Self::Emph(Arc::new(EmphElem::new(body)))
     }
-    pub fn heading(level: u8, body: Content) -> Self {
+pub fn heading(level: u8, body: Content) -> Self {
         Self::Heading(Arc::new(HeadingElem::new(level, body)))
+    }
+    /// **P605** — heading com controlo explícito do campo `outlined`.
+    pub fn heading_with_outlined(level: u8, body: Content, outlined: bool) -> Self {
+        Self::Heading(Arc::new(HeadingElem::new_with_outlined(level, body, outlined)))
     }
     /// Heading numerado **na forma de transporte** (F-5a de-bake, P364,
     /// `f_fronteira_e1.md` §3a.9). O campo assado `numbering_active` foi
@@ -1268,13 +1272,22 @@ impl Content {
         body: Content,
         pattern: Option<ecow::EcoString>,
     ) -> Self {
+        Self::heading_numbered_with_pattern_and_outlined(level, body, pattern, true)
+    }
+    /// **P605** — variant numerado com controlo de `outlined`.
+    pub fn heading_numbered_with_pattern_and_outlined(
+        level: u8,
+        body: Content,
+        pattern: Option<ecow::EcoString>,
+        outlined: bool,
+    ) -> Self {
         use crate::entities::style::Styles;
         use crate::entities::value::Value;
         let mut styles = Styles::new().push_custom("heading.numbering", Value::Bool(true));
         if let Some(pattern) = pattern {
             styles = styles.push_custom("heading.numbering.pattern", Value::Str(pattern));
         }
-        Self::Styled(Box::new(Self::heading(level, body)), styles)
+        Self::Styled(Box::new(Self::heading_with_outlined(level, body, outlined)), styles)
     }
     /// Construtor do separador estrutural (Modelo D, P316).
     pub fn divider() -> Self {

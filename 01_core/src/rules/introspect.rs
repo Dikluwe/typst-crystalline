@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/rules/introspect.md
-//! @prompt-hash cf873757
+//! @prompt-hash 42b9ffbd
 //! @layer L1
 //! @updated 2026-06-27
 //!
@@ -398,7 +398,12 @@ fn materialize_time(content: &Content, intr: &TagIntrospector, location: Locatio
         // (o consumer real de small caps será aplicado no layout; DEBT-53).
         Content::SmallCaps { body } => Content::smallcaps(materialize_time(body, intr, location)),
         // Modelo D (P316): Heading delegado; reconstrói via ctor.
-        Content::Heading(h) => Content::heading(h.level, materialize_time(&h.body, intr, location)),
+        // P605 — preserva `outlined` durante materialização de tempo.
+        Content::Heading(h) => Content::heading_with_outlined(
+            h.level,
+            materialize_time(&h.body, intr, location),
+            h.outlined,
+        ),
         // Modelo D (Lote 3 P318): destructure de Arc<Elem> + reconstrução via construtor.
         Content::ListItem(e) => {
             let body = materialize_time(&e.body, intr, location);
@@ -1183,24 +1188,29 @@ pub(crate) fn walk(
             // que Heading + Tag::Labelled auto-toc — sub-stores
             // diferentes (sem conflito per P196A §11.5). Fecha
             // E2-residuo + lacuna #3.
-            if let Some(loc) = emitted_loc {
-                if let Some((label, number, body_for_toc, lvl)) = heading::compute_heading_for_toc(
-                    &*intr,
-                    loc,
-                    current_auto_label,
-                    frozen_body,
-                    *level as usize,
-                    numbering_active,
-                ) {
-                    let info = ElementInfo::new(ElementPayload::HeadingForToc {
-                        label,
-                        number,
-                        body: body_for_toc,
-                        level: lvl,
-                    });
-                    populate_intr_from_tag_start(intr, &info, loc);
-                    tags.push(Tag::Start(loc, info));
-                    tags.push(Tag::End(loc, 0));
+            //
+            // P605 — `outlined: false` suprime a entrada no índice e nos
+            // bookmarks PDF, mas mantém o heading locatable (Heading + Labelled).
+            if h.outlined {
+                if let Some(loc) = emitted_loc {
+                    if let Some((label, number, body_for_toc, lvl)) = heading::compute_heading_for_toc(
+                        &*intr,
+                        loc,
+                        current_auto_label,
+                        frozen_body,
+                        *level as usize,
+                        numbering_active,
+                    ) {
+                        let info = ElementInfo::new(ElementPayload::HeadingForToc {
+                            label,
+                            number,
+                            body: body_for_toc,
+                            level: lvl,
+                        });
+                        populate_intr_from_tag_start(intr, &info, loc);
+                        tags.push(Tag::Start(loc, info));
+                        tags.push(Tag::End(loc, 0));
+                    }
                 }
             }
         }

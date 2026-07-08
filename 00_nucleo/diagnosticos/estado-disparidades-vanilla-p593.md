@@ -1,7 +1,7 @@
 # Estado das disparidades com o vanilla — depois de P593
 
 **Data:** 2026-07-05  
-**Actualizado:** 2026-07-07 (P602, P604)
+**Actualizado:** 2026-07-07 (P602, P604, P605)
 
 ---
 
@@ -61,6 +61,7 @@
 | `/Producer` no `/Info` | P600 — medição mostrou que o vanilla 0.15.0 não usa `/Producer`; usa `/Creator`. O cristalino já preenche `/Creator (typst-crystalline)`. |
 | `/Count` de bookmarks aberto/fechado | P602 — vanilla 0.15.0 usa `/Count -N` (negativo) para entradas com filhos (fechadas por defeito) e `/Count N` positivo na raiz `/Outlines`; implementado no cristalino. |
 | Bookmarks só a partir de headings | P604 — medição directa ao vanilla 0.15.0 mostra que só headings geram bookmarks; labels manuais (`#label(...)`) não entram em `/Outlines`, e `#outline(target: ...)` é para TOC/listas no documento, não para bookmarks PDF. O comportamento do cristalino coincide com o vanilla. |
+| Parâmetro `bookmarked`/`outlined` de `heading()` | P605 — o vanilla 0.15.0 distingue `outlined` (índice do documento) e `bookmarked` (bookmarks PDF); o cristalino reconhece ambos os argumentos e exclui o heading de `/Outlines` quando `false`. Nota: o cristalino usa uma única flag interna, pelo que não é possível estar no índice mas ausente dos bookmarks, ou vice-versa. |
 | Fusão de blocos `BT...ET` | Não corrigido — continua scope-out (ver acima, faltou listar antes; confirmar se ainda se aplica) |
 
 ## Ainda por confirmar (não é "corrigido", nem "scope-out" — é incerto)

@@ -2,7 +2,7 @@
 //! @prompt 00_nucleo/prompts/rules/model/document.md
 //! @prompt 00_nucleo/prompts/rules/model/asset.md
 //! @prompt 00_nucleo/prompts/rules/stdlib/structural.md
-//! @prompt-hash a5cfada4
+//! @prompt-hash e6d3a5b5
 //! @layer L1
 //! @updated 2026-06-29
 //!
@@ -155,8 +155,14 @@ pub fn native_heading(
     _world: &dyn crate::contracts::world::World,
     _current_file: FileId,
 ) -> SourceResult<Value> {
-    let level = match args.items.first() {
-        Some(Value::Int(n)) => {
+    // P605 — suporte às formas vanilla:
+    //   #heading[level](level como int, body trailing)
+    //   #heading[body]    (body trailing, level default 1)
+    //   #heading(1, [b])  (dois posicionais)
+    //   #heading(level: 1, body: [b]) (named)
+    // Quando o primeiro posicional é Content/Str, trata-se como body e level = 1.
+    let (level, body) = match (args.items.first(), args.items.get(1)) {
+        (Some(Value::Int(n)), Some(body_arg)) => {
             let level = *n as u8;
             if level == 0 || level > 6 {
                 return Err(vec![SourceDiagnostic::error(
@@ -164,35 +170,44 @@ pub fn native_heading(
                     format!("heading(): level deve estar entre 1 e 6, recebeu {}", n),
                 )]);
             }
-            level
+            let body = match body_arg {
+                Value::Content(c) => c.clone(),
+                Value::Str(s) => Content::text(s.as_str()),
+                other => {
+                    return Err(vec![SourceDiagnostic::error(
+                        Span::detached(),
+                        format!("heading(): body espera content ou string, recebeu {}", other.type_name()),
+                    )])
+                }
+            };
+            (level, body)
         }
-        Some(other) => {
+        (Some(Value::Int(n)), None) => {
+            // Apenas level fornecido — falta body.
+            let level = *n as u8;
+            if level == 0 || level > 6 {
+                return Err(vec![SourceDiagnostic::error(
+                    Span::detached(),
+                    format!("heading(): level deve estar entre 1 e 6, recebeu {}", n),
+                )]);
+            }
             return Err(vec![SourceDiagnostic::error(
                 Span::detached(),
-                format!("heading(): level espera int, recebeu {}", other.type_name()),
+                "heading() exige body".to_string(),
+            )]);
+        }
+        (Some(Value::Content(c)), _) => (1, c.clone()),
+        (Some(Value::Str(s)), _) => (1, Content::text(s.as_str())),
+        (Some(other), _) => {
+            return Err(vec![SourceDiagnostic::error(
+                Span::detached(),
+                format!("heading(): primeiro argumento deve ser int (level) ou content/string (body), recebeu {}", other.type_name()),
             )])
         }
-        None => {
+        (None, _) => {
             return Err(vec![SourceDiagnostic::error(
                 Span::detached(),
-                "heading() exige level como primeiro argumento posicional".to_string(),
-            )])
-        }
-    };
-
-    let body = match args.items.get(1) {
-        Some(Value::Content(c)) => c.clone(),
-        Some(Value::Str(s)) => Content::text(s.as_str()),
-        Some(other) => {
-            return Err(vec![SourceDiagnostic::error(
-                Span::detached(),
-                format!("heading(): body espera content ou string, recebeu {}", other.type_name()),
-            )])
-        }
-        None => {
-            return Err(vec![SourceDiagnostic::error(
-                Span::detached(),
-                "heading() exige body como segundo argumento posicional".to_string(),
+                "heading() exige body".to_string(),
             )])
         }
     };
@@ -208,10 +223,36 @@ pub fn native_heading(
         }
     };
 
+    // P605 — `outlined` e `bookmarked` controlam a presença do heading no
+    // índice do documento e na árvore de bookmarks PDF. O cristalino usa uma
+    // única flag interna (`HeadingElem::outlined`); `bookmarked` é aceite como
+    // sinónimo para compatibilidade com a sintaxe vanilla.
+    let outlined = match args.named.get("outlined") {
+        Some(Value::Bool(b)) => *b,
+        Some(Value::None) | None => {
+            match args.named.get("bookmarked") {
+                Some(Value::Bool(b)) => *b,
+                Some(Value::None) | None => true,
+                Some(other) => {
+                    return Err(vec![SourceDiagnostic::error(
+                        Span::detached(),
+                        format!("heading(bookmarked:): espera bool, recebeu {}", other.type_name()),
+                    )])
+                }
+            }
+        }
+        Some(other) => {
+            return Err(vec![SourceDiagnostic::error(
+                Span::detached(),
+                format!("heading(outlined:): espera bool, recebeu {}", other.type_name()),
+            )])
+        }
+    };
+
     let content = if let Some(pattern) = numbering {
-        Content::heading_numbered_with_pattern(level, body, Some(pattern))
+        Content::heading_numbered_with_pattern_and_outlined(level, body, Some(pattern), outlined)
     } else {
-        Content::heading(level, body)
+        Content::heading_with_outlined(level, body, outlined)
     };
     Ok(Value::Content(content))
 }
@@ -2884,6 +2925,59 @@ mod tests {
     #[test]
     fn native_heading_rejeita_body_invalido() {
         let args = Args::positional(vec![Value::Int(1), Value::Int(42)]);
+        assert!(call_heading(args).is_err());
+    }
+
+    #[test]
+    fn native_heading_outlined_false_marca_campo() {
+        let mut args = Args::positional(vec![
+            Value::Int(1),
+            Value::Content(Content::text("X")),
+        ]);
+        args.named.insert("outlined".into(), Value::Bool(false));
+        let v = call_heading(args).unwrap();
+        let Value::Content(Content::Heading(h)) = v else {
+            panic!("esperado Content::Heading, recebeu {:?}", v);
+        };
+        assert!(!h.outlined, "outlined: false deve propagar para HeadingElem");
+    }
+
+    #[test]
+    fn native_heading_bookmarked_false_usa_outlined() {
+        let mut args = Args::positional(vec![
+            Value::Int(1),
+            Value::Content(Content::text("X")),
+        ]);
+        args.named.insert("bookmarked".into(), Value::Bool(false));
+        let v = call_heading(args).unwrap();
+        let Value::Content(Content::Heading(h)) = v else {
+            panic!("esperado Content::Heading, recebeu {:?}", v);
+        };
+        assert!(!h.outlined, "bookmarked: false deve propagar para HeadingElem::outlined");
+    }
+
+    #[test]
+    fn native_heading_outlined_prioridade_sobre_bookmarked() {
+        let mut args = Args::positional(vec![
+            Value::Int(1),
+            Value::Content(Content::text("X")),
+        ]);
+        args.named.insert("outlined".into(), Value::Bool(false));
+        args.named.insert("bookmarked".into(), Value::Bool(true));
+        let v = call_heading(args).unwrap();
+        let Value::Content(Content::Heading(h)) = v else {
+            panic!("esperado Content::Heading, recebeu {:?}", v);
+        };
+        assert!(!h.outlined, "outlined deve ter prioridade sobre bookmarked");
+    }
+
+    #[test]
+    fn native_heading_rejeita_outlined_nao_bool() {
+        let mut args = Args::positional(vec![
+            Value::Int(1),
+            Value::Content(Content::text("X")),
+        ]);
+        args.named.insert("outlined".into(), Value::Int(1));
         assert!(call_heading(args).is_err());
     }
 

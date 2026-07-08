@@ -1190,6 +1190,30 @@ mod integration {
         assert_outline_counts(&pdf, &mut [2, -2, -1]);
     }
 
+    #[test]
+    fn p605_heading_outlined_false_exclui_de_bookmarks() {
+        // P605 — heading com outlined/bookmarked false não deve aparecer em
+        // /Outlines, mas headings vizinhos sem o parâmetro continuam.
+        let pdf = compile_to_pdf(
+            "= Visível\n\
+             #heading(outlined: false)[Oculto de bookmarks]\n\
+             = Outro visível"
+        );
+        assert_outline_counts(&pdf, &mut [2]);
+    }
+
+    #[test]
+    fn p605_heading_bookmarked_false_exclui_de_bookmarks() {
+        // P605 — `bookmarked: false` é sinónimo reconhecido de `outlined: false`
+        // para exclusão de bookmarks PDF.
+        let pdf = compile_to_pdf(
+            "= Visível\n\
+             #heading(bookmarked: false)[Oculto de bookmarks]\n\
+             = Outro visível"
+        );
+        assert_outline_counts(&pdf, &mut [2]);
+    }
+
     // ── Testes de imagem PNG (Passo 74) ───────────────────────────────────────
 
     /// Gera PNG em memória e escreve no diretório temporário.
