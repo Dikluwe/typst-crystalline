@@ -7181,14 +7181,63 @@ mod tests {
     }
 
     #[test]
-    fn p633_counter_display_invalid_arg_silent() {
-        // `counter.display` requer contexto; o argumento inválido é ignorado.
-        assert!(p633_eval_succeeds("#context(counter(\"x\").display(123))"));
+    fn p633_counter_display_invalid_arg_error() {
+        // P640 — argumento posicional inválido em counter.display produz erro.
+        // Usa-se `at: <sec>` para forçar a avaliação imediata no eval.
+        assert!(p633_eval_fails("#let sec = <sec>\n#let x = counter(\"x\").display(123, at: sec)"));
     }
 
     #[test]
-    fn p633_counter_display_at_invalid_silent() {
-        assert!(p633_eval_succeeds("#context(counter(\"x\").display(\"1.\", at: 123))"));
+    fn p633_counter_display_at_invalid_error() {
+        // P640 — argumento nomeado `at:` inválido em counter.display produz erro.
+        assert!(p633_eval_fails("#let x = counter(\"x\").display(at: 123)"));
+    }
+
+    // ── P640 — counter.display com argumentos inválidos (unificação e erros) ──
+
+    #[test]
+    fn p640_counter_display_pattern_works() {
+        // `at:` força a avaliação imediata; o pattern "I" é aplicado.
+        let world = MockWorld::new("= Secção <sec>\n#let x = counter(\"x\").display(\"I\", at: <sec>)");
+        assert!(matches!(eval_let(&world, "x"), Some(Value::Content(_))));
+    }
+
+    #[test]
+    fn p640_counter_display_at_label_works() {
+        let world = MockWorld::new("= Secção <sec>\n#let x = counter(\"x\").display(\"1.\", at: <sec>)");
+        assert!(matches!(eval_let(&world, "x"), Some(Value::Content(_))));
+    }
+
+    #[test]
+    fn p640_counter_display_unknown_named_arg_error() {
+        assert!(p633_eval_fails("#let x = counter(\"x\").display(\"1.\", unknown: 123)"));
+    }
+
+    #[test]
+    fn p640_counter_display_too_many_positional_args_error() {
+        assert!(p633_eval_fails("#let x = counter(\"x\").display(\"1.\", \"2.\")"));
+    }
+
+    #[test]
+    fn p640_counter_display_invalid_arg_message() {
+        let world = MockWorld::new("#let sec = <sec>\n#let x = counter(\"x\").display(123, at: sec)");
+        let err = eval_for_test(&world, &world.source).unwrap_err();
+        let msg = err.first().map(|d| d.message.to_string()).unwrap_or_default();
+        assert!(
+            msg.contains("expected string, function, or auto, found int"),
+            "mensagem inesperada: {msg}"
+        );
+    }
+
+    #[test]
+    fn p640_counter_display_at_invalid_message() {
+        let world = MockWorld::new("#let x = counter(\"x\").display(\"1.\", at: 123)");
+        let err = eval_for_test(&world, &world.source).unwrap_err();
+        let msg = err.first().map(|d| d.message.to_string()).unwrap_or_default();
+        assert!(
+            msg.contains("expected label, function, location, selector, or auto, found int"),
+            "mensagem inesperada: {msg}"
+        );
     }
 
     #[test]

@@ -21,6 +21,7 @@ use crate::entities::counter_update::CounterUpdate as CounterAction;
 use crate::entities::element_kind::ElementKind;
 use crate::entities::engine::Engine;
 use crate::entities::selector::Selector;
+use crate::entities::args::Args;
 use crate::entities::source_result::{SourceDiagnostic, SourceResult};
 use crate::entities::span::Span;
 use crate::entities::state::State;
@@ -68,133 +69,6 @@ pub(super) fn eval_let(
     Ok(Value::None)
 }
 
-/// Retorna `None` se a expressão não for uma chamada a `counter`.
-pub(super) fn extract_counter_key(expr: Expr<'_>) -> Option<String> {
-    let call = match expr {
-        Expr::FuncCall(c) => c,
-        _ => return None,
-    };
-    // Verificar que o callee é o identificador "counter"
-    let callee_name = match call.callee() {
-        Expr::Ident(id) => id.as_str().to_string(),
-        _ => return None,
-    };
-    if callee_name != "counter" {
-        return None;
-    }
-
-    // Extrair o primeiro argumento posicional como chave string
-    let first_arg = call.args().items().next()?;
-    match first_arg {
-        Arg::Pos(Expr::Ident(id)) => Some(id.as_str().to_string()),
-        Arg::Pos(Expr::Str(s)) => Some(s.get().to_string()),
-        _ => None,
-    }
-}
-
-/// Avalia um método de contador: step(), update(), get(), display().
-pub(super) fn eval_counter_method<'a>(
-    key: &str,
-    method: &str,
-    args: crate::entities::ast::expr::Args<'a>,
-    scopes: &mut Scopes<'_>,
-    ctx: &mut EvalContext,
-    engine: &mut Engine<'_>,
-) -> SourceResult<Value> {
-    match method {
-        "step" => Ok(Value::Content(Content::counter_update(
-            key.to_string(),
-            CounterAction::Step,
-        ))),
-
-        "update" => {
-            // Extrair o valor numérico do primeiro argumento.
-            // Defensivo: se o argumento não for Int, usar 0 silenciosamente.
-            let val = args
-                .items()
-                .next()
-                .and_then(|arg| match arg {
-                    Arg::Pos(expr) => {
-                        if let Ok(Value::Int(n)) = eval_expr(expr, scopes, ctx, engine) {
-                            Some(n.max(0) as usize)
-                        } else {
-                            None
-                        }
-                    }
-                    _ => None,
-                })
-                .unwrap_or(0);
-            Ok(Value::Content(Content::counter_update(
-                key.to_string(),
-                CounterAction::Update(val),
-            )))
-        }
-
-        // get(), display() e outros — fallback até motor de introspecção completo
-        _ => {
-            // P504 — counter.display(pattern?, at: <label>?)
-            let mut pattern: Option<String> = None;
-            let mut at_label: Option<crate::entities::label::Label> = None;
-            for arg in args.items() {
-                match arg {
-                    Arg::Pos(expr) if pattern.is_none() => {
-                        if let Ok(Value::Str(s)) = eval_expr(expr, scopes, ctx, engine) {
-                            pattern = Some(s.to_string());
-                        }
-                    }
-                    Arg::Named(named) if named.name().as_str() == "at" => {
-                        // Typst 0.15.0 aceita `at: <label>` — o cristalino ainda
-                        // não tem `Value::Label`, pelo que extraímos a string do
-                        // nó AST `Expr::Label` directamente.
-                        match named.expr() {
-                            Expr::Label(label_node) => {
-                                at_label = Some(crate::entities::label::Label(
-                                    label_node.get().to_string().into(),
-                                ));
-                            }
-                            other_expr => {
-                                if let Ok(Value::Str(s)) =
-                                    eval_expr(other_expr, scopes, ctx, engine)
-                                {
-                                    at_label = Some(crate::entities::label::Label(s.to_string()));
-                                }
-                            }
-                        }
-                    }
-                    _ => {}
-                }
-            }
-
-            if let Some(label) = at_label {
-                use crate::entities::introspector::Introspector;
-                let text = ctx
-                    .introspector
-                    .query_by_label(&label)
-                    .and_then(|loc| ctx.introspector.formatted_counter_at(key, loc))
-                    .unwrap_or_default();
-                // Aplicar pattern minimal: "1." → "1." (append).
-                let rendered = match pattern {
-                    Some(p) if !p.is_empty() => {
-                        let mut out = text.clone();
-                        // Se o pattern termina com separador, anexá-lo ao
-                        // valor hierárquico já formatado.
-                        if p.ends_with('.') {
-                            out.push('.');
-                        } else {
-                            out = format!("{p}{text}");
-                        }
-                        out
-                    }
-                    _ => text,
-                };
-                Ok(Value::Content(Content::text(rendered)))
-            } else {
-                Ok(Value::Content(Content::counter_display(key.to_string())))
-            }
-        }
-    }
-}
-
 /// **P506** — Despacha métodos de `Value::State`: `.update()`, `.get()`,
 /// `.display()`.
 pub(super) fn eval_state_method(
@@ -233,6 +107,141 @@ pub(super) fn eval_state_method(
     }
 }
 
+/// **P640** — Faz parse e validação dos argumentos de `counter.display(...)`.
+/// Devolve o argumento nomeado `at:` (se válido) e o argumento posicional
+/// pattern/callback (se válido). Produz erro claro para tipos inválidos,
+/// argumentos não reconhecidos ou argumentos posicionais a mais.
+fn parse_counter_display_args(
+    args: crate::entities::ast::expr::Args<'_>,
+    scopes: &mut Scopes<'_>,
+    ctx: &mut EvalContext,
+    engine: &mut Engine<'_>,
+) -> SourceResult<(Option<crate::entities::label::Label>, Option<Value>)> {
+    use crate::entities::ast::expr::Arg;
+
+    let mut at_label: Option<crate::entities::label::Label> = None;
+    let mut pattern: Option<Value> = None;
+
+    for arg in args.items() {
+        match arg {
+            Arg::Named(named) if named.name().as_str() == "at" => {
+                at_label = Some(extract_display_at_label(
+                    named.expr(),
+                    scopes,
+                    ctx,
+                    engine,
+                )?);
+            }
+            Arg::Named(named) => {
+                return Err(vec![SourceDiagnostic::error(
+                    named.span(),
+                    format!(
+                        "unexpected argument: {}",
+                        named.name().as_str()
+                    ),
+                )]);
+            }
+            Arg::Pos(expr) if pattern.is_none() => {
+                let value = eval_expr(expr, scopes, ctx, engine)?;
+                match value {
+                    Value::Str(_) | Value::Func(_) => pattern = Some(value),
+                    other => {
+                        return Err(vec![SourceDiagnostic::error(
+                            expr.span(),
+                            format!(
+                                "expected string, function, or auto, found {}",
+                                other.type_name()
+                            ),
+                        )]);
+                    }
+                }
+            }
+            Arg::Pos(expr) => {
+                return Err(vec![SourceDiagnostic::error(
+                    expr.span(),
+                    "counter.display() takes at most one positional argument"
+                        .to_string(),
+                )]);
+            }
+            Arg::Spread(spread) => {
+                return Err(vec![SourceDiagnostic::error(
+                    spread.span(),
+                    "spread not allowed in counter.display()".to_string(),
+                )]);
+            }
+        }
+    }
+
+    Ok((at_label, pattern))
+}
+
+/// **P640** — Extrai uma label do argumento nomeado `at:` de `counter.display`.
+/// Aceita `<label>` (nó AST), string, ou content label.
+fn extract_display_at_label(
+    expr: Expr<'_>,
+    scopes: &mut Scopes<'_>,
+    ctx: &mut EvalContext,
+    engine: &mut Engine<'_>,
+) -> SourceResult<crate::entities::label::Label> {
+    let span = expr.span();
+    match expr {
+        Expr::Label(node) => Ok(crate::entities::label::Label(
+            node.get().to_string(),
+        )),
+        other => {
+            let value = eval_expr(other, scopes, ctx, engine)?;
+            match value {
+                Value::Str(s) => Ok(crate::entities::label::Label(s.to_string())),
+                Value::Content(crate::entities::content::Content::Label(e)) => {
+                    Ok(crate::entities::label::Label(e.name.to_string()))
+                }
+                other => Err(vec![SourceDiagnostic::error(
+                    span,
+                    format!(
+                        "expected label, function, location, selector, or auto, found {}",
+                        other.type_name()
+                    ),
+                )]),
+            }
+        }
+    }
+}
+
+/// **P640** — Renderiza `counter.display(..., at: <label>)` para texto plano.
+fn render_counter_at_label(
+    key: &str,
+    label: &crate::entities::label::Label,
+    pattern: Option<&Value>,
+    ctx: &EvalContext,
+) -> SourceResult<Value> {
+    use crate::entities::introspector::Introspector;
+    let text = ctx
+        .introspector
+        .query_by_label(label)
+        .and_then(|loc| ctx.introspector.formatted_counter_at(key, loc))
+        .unwrap_or_default();
+
+    let rendered = match pattern {
+        Some(Value::Str(p)) if !p.is_empty() => {
+            if p.as_str().ends_with('.') {
+                let mut out = text.clone();
+                out.push('.');
+                out
+            } else {
+                format!("{p}{text}")
+            }
+        }
+        Some(Value::Func(_)) => {
+            // Callbacks com `at:` não são suportados nesta fase; ignorar o
+            // pattern e devolver o texto formatado pelo introspector.
+            text
+        }
+        _ => text,
+    };
+
+    Ok(Value::Content(Content::text(rendered)))
+}
+
 /// **P506** — Despacha métodos de `Value::Counter`: `.update()`, `.step()`,
 /// `.get()`, `.display()`, `.at()`.
 pub(super) fn eval_counter_method_value(
@@ -259,53 +268,12 @@ pub(super) fn eval_counter_method_value(
             counter_get(counter, ctx, span)
         }
         "display" => {
-            // at: <label> variant doesn't require context (P504 semantics preserved).
-            let mut at_label: Option<crate::entities::label::Label> = None;
-            let mut pattern: Option<String> = None;
-            for arg in args.items() {
-                match arg {
-                    Arg::Named(named) if named.name().as_str() == "at" => {
-                        match named.expr() {
-                            Expr::Label(node) => {
-                                at_label = Some(crate::entities::label::Label(node.get().to_string()));
-                            }
-                            other => {
-                                if let Ok(Value::Str(s)) = eval_expr(other, scopes, ctx, engine) {
-                                    at_label = Some(crate::entities::label::Label(s.to_string()));
-                                }
-                            }
-                        }
-                    }
-                    Arg::Pos(expr) if pattern.is_none() => {
-                        if let Ok(Value::Str(s)) = eval_expr(expr, scopes, ctx, engine) {
-                            pattern = Some(s.to_string());
-                        }
-                    }
-                    _ => {}
-                }
-            }
+            // P640 — parse unificado e validação estrita dos argumentos.
+            let (at_label, pattern) = parse_counter_display_args(args, scopes, ctx, engine)?;
             if let Some(label) = at_label {
-                use crate::entities::introspector::Introspector;
-                let text = ctx
-                    .introspector
-                    .query_by_label(&label)
-                    .and_then(|loc| ctx.introspector.formatted_counter_at(counter.key.as_str(), loc))
-                    .unwrap_or_default();
-                let rendered = match pattern {
-                    Some(p) if !p.is_empty() => {
-                        if p.ends_with('.') {
-                            let mut out = text.clone();
-                            out.push('.');
-                            out
-                        } else {
-                            format!("{p}{text}")
-                        }
-                    }
-                    _ => text,
-                };
-                Ok(Value::Content(Content::text(rendered)))
+                render_counter_at_label(counter.key.as_str(), &label, pattern.as_ref(), ctx)
             } else {
-                let args = eval_args(args, scopes, ctx, engine)?;
+                let args = Args::positional(pattern.into_iter().collect());
                 counter_display(counter, &args, scopes, ctx, engine, span)
             }
         }
