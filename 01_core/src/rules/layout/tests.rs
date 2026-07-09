@@ -3440,6 +3440,52 @@ Goodbye #footnote[Nota B] moon."#,
         );
     }
 
+    /// **P627** — documento bilingue com um único `#set page(columns: 2)` e
+    /// mudança de `text.dir` por `#pagebreak()`: cada página preenche as
+    /// colunas na direcção correcta.
+    #[test]
+    fn p627_bilingue_muda_direcao_com_pagebreak() {
+        let doc = layout_typst(
+            r#"#set page(columns: 2)
+#set text(lang: "en", dir: ltr, size: 16pt)
+#lorem(150)
+
+#pagebreak()
+
+#set text(lang: "ar", dir: rtl, size: 16pt)
+#lorem(150)"#,
+        );
+        assert_eq!(doc.pages.len(), 2, "documento bilingue deve ter duas páginas");
+
+        let first_text_page1 = doc.pages[0]
+            .items
+            .iter()
+            .find_map(|it| match it {
+                FrameItem::Text { text, pos, .. } => Some((text.to_string(), pos.x.0)),
+                _ => None,
+            });
+        let (_, x1) = first_text_page1.expect("página 1 deve ter texto");
+        assert!(
+            x1 < 297.0,
+            "página 1 LTR deve começar na coluna da esquerda: x={}",
+            x1
+        );
+
+        let first_text_page2 = doc.pages[1]
+            .items
+            .iter()
+            .find_map(|it| match it {
+                FrameItem::Text { text, pos, .. } => Some((text.to_string(), pos.x.0)),
+                _ => None,
+            });
+        let (_, x2) = first_text_page2.expect("página 2 deve ter texto");
+        assert!(
+            x2 > 297.0,
+            "página 2 RTL deve começar na coluna da direita: x={}",
+            x2
+        );
+    }
+
     /// **P538c** — `#set page(columns: 2)` com texto longo cria múltiplas
     /// páginas A4 (não páginas de largura de coluna) e o PDF não fica
     /// malformado. O número de páginas deve ser significativamente menor

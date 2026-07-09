@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/rules/columns.md
-//! @prompt-hash 05d7626d
+//! @prompt-hash b9d094f3
 //! @layer L1
 //! @updated 2026-07-03
 //!
@@ -63,19 +63,26 @@ fn split_by_colbreak(content: &Content, count: usize) -> (Vec<Content>, bool) {
     (segments.into_iter().map(Content::sequence).collect(), had_colbreak)
 }
 
-/// **P626** — descobre a direcção de texto (canal `"text.dir"`) que envolve
-/// o body de um `ColumnsElem`. O `text.dir` viaja no `Content::Styled` do body
-/// (não na chain activa do `Layouter` quando `columns::layout` é invocado),
-/// por isso percorremos o body procurando o primeiro `Styled` que defina a
-/// propriedade. Recursão limitada a `Sequence` e `Styled` — elementos
-/// estruturais transparentes para este efeito.
+/// **P626/P627** — descobre a direcção de texto (canal `"text.dir"`) que
+/// envolve o body de um `ColumnsElem`. O `text.dir` viaja no `Content::Styled`
+/// do body (não na chain activa do `Layouter` quando `columns::layout` é
+/// invocado), por isso percorremos o body procurando o `Styled` mais interno
+/// que defina a propriedade sobre conteúdo visível. Recursão limitada a
+/// `Sequence` e `Styled` — elementos estruturais transparentes são ignorados.
 fn body_dir(content: &Content) -> Option<Dir> {
     match content {
         Content::Styled(body, styles) => {
-            if let Some(dir) = styles_dir(styles) {
+            // Preferir a direcção mais interna (top-wins semântico); só usar a
+            // direcção deste `Styled` se o body tiver conteúdo visível, para
+            // não ficar preso a estilos vazios (ex.: `parbreak` embrulhado).
+            if let Some(dir) = body_dir(body) {
                 return Some(dir);
             }
-            body_dir(body)
+            if has_visible_content(body) {
+                styles_dir(styles)
+            } else {
+                None
+            }
         }
         Content::Sequence(seq) => {
             for child in seq.iter() {
@@ -100,6 +107,19 @@ fn styles_dir(styles: &Styles) -> Option<Dir> {
             Value::Dir(dir) => Some(*dir),
             _ => None,
         })
+}
+
+/// `true` se o content tiver algum conteúdo visível (texto, imagem, etc.),
+/// excluindo separadores estruturais (`Space`, `Parbreak`, `Pagebreak`, `Empty`).
+fn has_visible_content(content: &Content) -> bool {
+    match content {
+        Content::Text(_) => true,
+        Content::Sequence(seq) => seq.iter().any(has_visible_content),
+        Content::Styled(body, _) => has_visible_content(body),
+        Content::Empty | Content::Space | Content::Parbreak | Content::Pagebreak(_) => false,
+        // Outros elementos (figuras, formas, etc.) presumem conteúdo visível.
+        _ => true,
+    }
 }
 
 /// Layout real de `columns(count, body, gutter:)`.

@@ -2208,12 +2208,61 @@ pub fn heading(level: u8, body: Content) -> Self {
         }
     }
 
+    /// **P627** — Divide o body de um `Content::Columns` sintético nos
+    /// `Content::Pagebreak` que aparecem na sua `Sequence`, mesmo quando
+    /// aninhados dentro de `Content::Styled`. Cada segmento (e os `Pagebreak`
+    /// originais, preservados) são devolvidos como uma lista de `Content`,
+    /// pronta para ser envolvida em `ColumnsElem` ou emitida directamente.
+    fn page_column_segments(body: &Self) -> Vec<Self> {
+        match body {
+            Self::Pagebreak(_) => vec![body.clone()],
+            Self::Sequence(seq) => {
+                let mut pieces: Vec<Self> = Vec::new();
+                let mut current: Vec<Self> = Vec::new();
+                for child in seq.iter() {
+                    for piece in Self::page_column_segments(child) {
+                        if matches!(piece, Self::Pagebreak(_)) {
+                            if !current.is_empty() {
+                                pieces.push(Self::sequence(current));
+                                current = Vec::new();
+                            }
+                            pieces.push(piece);
+                        } else {
+                            current.push(piece);
+                        }
+                    }
+                }
+                if !current.is_empty() {
+                    pieces.push(Self::sequence(current));
+                }
+                pieces
+            }
+            Self::Styled(inner, styles) => {
+                let inner_pieces = Self::page_column_segments(inner);
+                inner_pieces
+                    .into_iter()
+                    .map(|piece| match piece {
+                        Self::Pagebreak(_) => piece,
+                        _ => Self::Styled(Box::new(piece), styles.clone()),
+                    })
+                    .collect()
+            }
+            _ => vec![body.clone()],
+        }
+    }
+
     /// **P537b** — Liga `#set page(columns: N)` ao consumer `Content::Columns`.
     ///
     /// Percorre a árvore de `Content` e, sempre que encontra um
     /// `Content::SetPage { columns: Some(n) }` dentro de uma `Sequence`, envolve
     /// os nós subsequentes (até outro `SetPage`, `Pagebreak` ou fim da sequência)
     /// num `Content::Columns { count: n, body: ... }`.
+    ///
+    /// **P627**: se o body resultante for uma `Sequence` que contém
+    /// `Content::Pagebreak` ao seu nível, o body é partido em segmentos;
+    /// cada segmento (e cada `Pagebreak` preservado) é emitido como elemento
+    /// separado. Isto permite que secções de páginas subsequentes, com
+    /// `text.dir` diferentes, obtenham a sua própria direcção de preenchimento.
     ///
     /// O `SetPage` original permanece imediatamente antes do `Columns`, para que
     /// `set_page::layout` actualize `page_config` antes de `columns::layout`
@@ -2253,14 +2302,24 @@ pub fn heading(level: u8, body: Content) -> Self {
                         }
                         // Preservar o SetPage original (actualiza page_config).
                         out.push(parts_vec[i].clone());
-                        // Envolver o grupo num Columns.
+                        // **P627** — partir o body nos Pagebreaks ao nível da
+                        // Sequence, para que cada secção de página tenha o seu
+                        // próprio ColumnsElem (e portanto a sua própria
+                        // direcção de preenchimento).
                         let body = Self::sequence(parts_vec[i + 1..j].to_vec());
-                        out.push(Self::Columns(Arc::new(ColumnsElem {
-                            count,
-                            gutter: None,
-                            body,
-                            page_columns: true,
-                        })));
+                        let segments = Self::page_column_segments(&body);
+                        eprintln!("P627 segments count: {}", segments.len());
+                        for piece in segments {
+                            match piece {
+                                Self::Pagebreak(_) => out.push(piece),
+                                _ => out.push(Self::Columns(Arc::new(ColumnsElem {
+                                    count,
+                                    gutter: None,
+                                    body: piece,
+                                    page_columns: true,
+                                }))),
+                            }
+                        }
                         i = j;
                     } else {
                         out.push(parts_vec[i].clone());
