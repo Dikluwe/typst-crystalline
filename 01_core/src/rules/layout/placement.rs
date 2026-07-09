@@ -28,7 +28,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
         // Layoutar o corpo num sub-frame — cell_x=0 para que items internos
         // comecem em x=0. O sub_frame activa is_height_unconstrained=true
         // e restaura ao terminar.
-        let (sub_h, sub_items) = self.layout_sub_frame_with_width(body, 0.0, avail_w);
+        let (sub_h, sub_items) = self.layout_sub_frame_with_width(body, 0.0, avail_w, false);
 
         // Origem vertical local do sub-frame (ascender). Necessária para
         // rebaser as coordenadas Y ao colocar no frame pai.
@@ -121,7 +121,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
         let avail_w_page = self.available_width();
         let avail_h_page = self.available_height();
 
-        let (sub_h, sub_items) = self.layout_sub_frame_with_width(body, 0.0, avail_w_page);
+        let (sub_h, sub_items) = self.layout_sub_frame_with_width(body, 0.0, avail_w_page, false);
 
         let (ascender_local, _) = self.metrics.vertical_metrics(self.style.size);
         let sub_origin_y        = ascender_local.0;

@@ -1547,7 +1547,8 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
         &mut self,
         content: &Content,
         cell_x: f64,
-        _cell_width: f64,
+        cell_width: f64,
+        align_rtl: bool,
     ) -> (f64, Vec<FrameItem>) {
         // Salvar estado.
         let saved_items = std::mem::take(&mut self.regions.current.current_items);
@@ -1555,6 +1556,8 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
         let saved_x = self.regions.current.cursor_x;
         let saved_y = self.regions.current.cursor_y;
         let saved_line_start_x = self.regions.current.line_start_x;
+        let saved_width = self.regions.current.width;
+        let saved_height = self.regions.current.height;
         let saved_unconstrained = self.is_height_unconstrained;
 
         // Inicializar cursor local — x = cell_x, y = ascender (como o layout principal).
@@ -1563,6 +1566,15 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
         // da célula, não à margem global da página (Passo 81.5).
         self.regions.current.cursor_x = Pt(cell_x);
         self.regions.current.line_start_x = Pt(cell_x);
+        // **P625** — durante o sub-layout o alinhamento RTL deve usar o limite
+        // direito do sub-frame (`cell_x + cell_width`), não o da página.
+        // `align_current_line_rtl` calcula `right_margin = width - margin`,
+        // logo configuramos `width = cell_x + cell_width + margin` para que
+        // `flush_line` e o alinhamento final do sub-frame usem o limite
+        // correcto. A altura é elevada para evitar quebras de página dentro
+        // do sub-frame; a largura/altura são restauradas antes de regressar.
+        self.regions.current.width = cell_x + cell_width + self.page_config.margin;
+        self.regions.current.height = 1_000_000_000.0;
         let (ascender, _) = self.metrics.vertical_metrics(self.style.size);
         self.regions.current.cursor_y = ascender;
         let start_y = self.regions.current.cursor_y.0;
@@ -1572,6 +1584,12 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
         self.is_height_unconstrained = true;
 
         self.layout_content(content);
+
+        // **P625** — alinhar linha RTL antes de a drenar, do mesmo modo
+        // que `flush_line` e `finish` fazem no fluxo principal.
+        if align_rtl {
+            self.align_current_line_rtl();
+        }
 
         // Flush de itens pendentes. Se a line tiver conteúdo, conta a
         // altura da linha no cell_height; caso contrário, conteúdo de uma
@@ -1617,6 +1635,8 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
         self.regions.current.cursor_x = saved_x;
         self.regions.current.cursor_y = saved_y;
         self.regions.current.line_start_x = saved_line_start_x;
+        self.regions.current.width = saved_width;
+        self.regions.current.height = saved_height;
         self.regions.current.current_line = saved_line;
         self.is_height_unconstrained = saved_unconstrained;
 

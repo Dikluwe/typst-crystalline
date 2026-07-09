@@ -42,7 +42,7 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
         // capturar items + dimensões, push ao buffer.
         let avail_w_page = layouter.available_width();
         let (body_height, body_items) = layouter.layout_sub_frame_with_width(
-            body, 0.0, avail_w_page,
+            body, 0.0, avail_w_page, false,
         );
         let (content_w, _) = measure_content(body, avail_w_page);
         let resolved_clearance = clearance

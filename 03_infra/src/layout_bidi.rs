@@ -579,7 +579,7 @@ fn reflow_rtl_paragraphs(
         // Estender a run enquanto as linhas seguintes fizerem parte do
         // mesmo parágrafo (y próximo), independentemente de direcção.
         let mut end = i + 1;
-        while end < lines.len() && same_paragraph(page, lines, end - 1, end) {
+        while end < lines.len() && same_paragraph(page, lines, end - 1, end, metrics) {
             end += 1;
         }
 
@@ -615,6 +615,7 @@ fn same_paragraph(
     lines: &[(f64, Vec<usize>)],
     a: usize,
     b: usize,
+    metrics: &dyn FontMetrics,
 ) -> bool {
     let y_diff = lines[b].0 - lines[a].0;
     let max_height = lines[b]
@@ -627,8 +628,13 @@ fn same_paragraph(
     }
 
     // Heurística para evitar fundir linhas separadas por quebra manual (\ ou parágrafo).
-    // Se sobrar espaço suficiente na linha `a` para caber o primeiro item de texto da
-    // linha `b`, a quebra foi manual e não automática por wrapping.
+    // O espaço disponível na linha `a` é medido até ao limite direito real do
+    // contento (content_right), não até à largura da página — isso permite que
+    // colunas e outros sub-layouts com largura reduzida sejam tratados
+    // correctamente (P625).
+    let line_a_refs: Vec<&FrameItem> = lines[a].1.iter().map(|&idx| &page.items[idx]).collect();
+    let content_right = metrics.line_content_right(&line_a_refs);
+
     let line_a_end_x = lines[a].1.iter()
         .map(|&idx| {
             let item = &page.items[idx];
@@ -644,13 +650,7 @@ fn same_paragraph(
         .max_by(|x1, x2| x1.partial_cmp(x2).unwrap())
         .unwrap_or(0.0);
 
-    let x_min = lines[a].1.iter()
-        .map(|&idx| item_x(&page.items[idx]))
-        .min_by(|x1, x2| x1.partial_cmp(x2).unwrap())
-        .unwrap_or(70.87);
-
-    let right_margin = page.width - x_min;
-    let remaining = right_margin - line_a_end_x;
+    let remaining = content_right - line_a_end_x;
 
     if let Some(&first_b_idx) = lines[b].1.iter().find(|&&idx| matches!(page.items[idx], FrameItem::Text { .. })) {
         if let FrameItem::Text { text, style, .. } = &page.items[first_b_idx] {
@@ -729,7 +729,19 @@ fn try_fuse_paragraph(
         .map(|&idx| item_x(&page.items[idx]))
         .min_by(|a, b| a.partial_cmp(b).unwrap())
         .unwrap_or(0.0);
-    let available_width = page.width - 2.0 * x_min;
+    // **P625** — usar o limite direito real do conteúdo (content_right) em vez
+    // da largura da página. Isto faz com que sub-layouts com largura reduzida
+    // (colunas, caixas, células) usem a sua própria largura útil ao decidir se
+    // cabem numa única linha visual.
+    let content_right = lines[start..end]
+        .iter()
+        .map(|(_, line)| {
+            let line_refs: Vec<&FrameItem> = line.iter().map(|&idx| &page.items[idx]).collect();
+            metrics.line_content_right(&line_refs)
+        })
+        .max_by(|a, b| a.partial_cmp(b).unwrap())
+        .unwrap_or(page.width);
+    let available_width = content_right - x_min;
 
     if sum_widths > available_width {
         return false;
@@ -914,10 +926,15 @@ mod tests {
         // Total = 432. Com gap = 10, total = 462.
         // Página 595 x 842; margem = 66.5 → available = 595 - 133 = 462.
         // Cabe exactamente.
+        // **P625** — o limite direito da primeira linha tem de tocar na
+        // margem direita (content_right = 595 - 66.5 = 528.5), porque o
+        // reflow agora usa o limite real do conteúdo, não a largura da
+        // página. O último item da primeira linha foi reposicionado para
+        // x = 528.5 - 72 = 456.5.
         let doc = PagedDocument::new(vec![page_with(vec![
             text_item_with_size(66.5, 100.0, "الكتاب", Pt(40.0)),
             text_item_with_size(220.5, 100.0, "42", Pt(40.0)),
-            text_item_with_size(278.5, 100.0, "على", Pt(40.0)),
+            text_item_with_size(456.5, 100.0, "على", Pt(40.0)),
             // Layouter colocou الطاولة numa segunda linha
             text_item_with_size(66.5, 130.0, "الطاولة", Pt(40.0)),
         ])]);

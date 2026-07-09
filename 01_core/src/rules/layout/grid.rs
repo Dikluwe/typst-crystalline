@@ -247,7 +247,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
                         let cell_w = resolved_widths[col_idx];
                         let cell_x = col_starts[col_idx];
                         let (sub_h, _sub_items) =
-                            self.layout_sub_frame_with_width(item, cell_x, cell_w);
+                            self.layout_sub_frame_with_width(item, cell_x, cell_w, true);
                         if sub_h > max_h {
                             max_h = sub_h;
                         }
@@ -475,7 +475,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
                 let saved_cursor_x = self.regions.current.cursor_x;
                 let saved_cursor_y = self.regions.current.cursor_y;
                 let (cell_h_measured, cell_items) =
-                    self.layout_sub_frame_with_width(cell, body_x, body_w);
+                    self.layout_sub_frame_with_width(cell, body_x, body_w, true);
                 self.regions.current.cursor_x = saved_cursor_x;
                 self.regions.current.cursor_y = saved_cursor_y;
 

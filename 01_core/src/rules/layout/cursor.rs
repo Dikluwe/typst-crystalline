@@ -647,7 +647,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
                 Content::text(format!("[{}] ", n)),
                 (*body).clone(),
             ]);
-            let (h, items) = self.layout_sub_frame_with_width(&combined, 0.0, avail_w);
+            let (h, items) = self.layout_sub_frame_with_width(&combined, 0.0, avail_w, true);
             let fits = acc_h + h <= available_h;
             // Defensive: primeiro body emite mesmo se > available_h SE
             // body > full_avail (não fits em nenhuma página).
