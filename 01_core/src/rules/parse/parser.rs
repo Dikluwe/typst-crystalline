@@ -14,7 +14,7 @@ use rustc_hash::FxHashMap;
 
 use crate::entities::syntax_kind::SyntaxKind;
 use crate::entities::syntax_mode::SyntaxMode;
-use crate::entities::syntax_node::{SyntaxError, SyntaxNode};
+use crate::entities::syntax_node::{SyntaxError, SyntaxErrorKind, SyntaxNode};
 use crate::entities::syntax_set::SyntaxSet;
 use crate::rules::lexer::Lexer;
 use crate::syntax_set;
@@ -391,7 +391,7 @@ impl<'s> Parser<'s> {
         self.lexer.set_mode(mode);
         self.with_nl_mode(stop, func);
         if mode != previous {
-            // **P648** — ao mudar de modo, o lexer re-lexa o token de
+            // **P648/P649** — ao mudar de modo, o lexer re-lexa o token de
             // lookahead. Se esse token for um erro de lexer genuíno (número
             // hexadecimal inválido ou escape Unicode inválido), a mensagem
             // original seria perdida. Preservamo-lo selectivamente para que
@@ -404,10 +404,11 @@ impl<'s> Parser<'s> {
                     let errors = self.token.node.errors();
                     let text = self.token.node.text();
                     errors.into_iter().next().and_then(|e| {
-                        let msg = e.message.as_str();
-                        if msg.starts_with("invalid hexadecimal number:")
-                            || msg.starts_with("invalid Unicode codepoint:")
-                        {
+                        if matches!(
+                            e.kind,
+                            SyntaxErrorKind::InvalidHexNumber
+                                | SyntaxErrorKind::InvalidUnicodeCodepoint
+                        ) {
                             Some(SyntaxNode::error(e, text))
                         } else {
                             None

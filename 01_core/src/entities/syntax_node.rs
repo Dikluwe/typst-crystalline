@@ -607,11 +607,29 @@ impl Debug for ErrorNode {
     }
 }
 
+/// Categoria de um erro sintático.
+///
+/// **P649** — usada para decidir quais erros de lexer devem ser
+/// propagados pelo eval, em vez de depender da comparação frágil de
+/// strings com o texto exacto da mensagem.
+#[derive(Debug, Clone, Copy, Eq, PartialEq, Hash, Default)]
+pub enum SyntaxErrorKind {
+    /// Erro genérico ou não categorizado.
+    #[default]
+    Other,
+    /// Literal numérico hexadecimal malformado (ex: `0xZZ`).
+    InvalidHexNumber,
+    /// Escape Unicode inválido (ex: `\u{FFFFFFFF}`).
+    InvalidUnicodeCodepoint,
+}
+
 /// A syntactical error.
 #[derive(Debug, Clone, Eq, PartialEq, Hash)]
 pub struct SyntaxError {
     /// The node's span.
     pub span: Span,
+    /// Categoria do erro.
+    pub kind: SyntaxErrorKind,
     /// The error message.
     pub message: SyntaxText,
     /// Additional hints to the user.
@@ -623,13 +641,24 @@ impl SyntaxError {
     pub fn new(message: impl Into<SyntaxText>) -> Self {
         Self {
             span: Span::detached(),
+            kind: SyntaxErrorKind::Other,
+            message: message.into(),
+            hints: vec![],
+        }
+    }
+
+    /// Create a new detached syntax error with a specific kind.
+    pub fn with_kind(message: impl Into<SyntaxText>, kind: SyntaxErrorKind) -> Self {
+        Self {
+            span: Span::detached(),
+            kind,
             message: message.into(),
             hints: vec![],
         }
     }
 
     fn spanless_eq(&self, other: &Self) -> bool {
-        self.message == other.message && self.hints == other.hints
+        self.kind == other.kind && self.message == other.message && self.hints == other.hints
     }
 }
 

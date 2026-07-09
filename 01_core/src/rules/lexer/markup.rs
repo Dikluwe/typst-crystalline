@@ -11,7 +11,7 @@
 use unicode_script::{Script, UnicodeScript};
 
 use crate::entities::syntax_kind::SyntaxKind;
-use crate::entities::syntax_node::{SyntaxError, SyntaxNode};
+use crate::entities::syntax_node::{SyntaxError, SyntaxErrorKind, SyntaxNode};
 use crate::rules::lexer::scanner::Scanner;
 
 use super::{is_id_continue, is_newline,
@@ -68,7 +68,10 @@ impl Lexer<'_> {
                 .and_then(std::char::from_u32)
                 .is_none()
             {
-                return self.error(format!("invalid Unicode codepoint: {}", hex));
+                return self.error_with_kind(
+                    format!("invalid Unicode codepoint: {}", hex),
+                    SyntaxErrorKind::InvalidUnicodeCodepoint,
+                );
             }
 
             return SyntaxKind::Escape;

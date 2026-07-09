@@ -11,6 +11,7 @@ use std::num::IntErrorKind;
 
 
 use crate::entities::syntax_kind::SyntaxKind;
+use crate::entities::syntax_node::SyntaxErrorKind;
 
 use super::{is_id_continue, is_id_start, keyword, Lexer};
 
@@ -206,6 +207,12 @@ impl Lexer<'_> {
         };
 
         // Return our number or write an error with helpful hints.
+        let hex_error_kind = if base == 16 {
+            SyntaxErrorKind::InvalidHexNumber
+        } else {
+            SyntaxErrorKind::Other
+        };
+
         match (number_result, suffix_result) {
             // Valid numbers :D
             (Ok(()), Ok(None)) if is_float => SyntaxKind::Float,
@@ -213,11 +220,13 @@ impl Lexer<'_> {
             (Ok(()), Ok(Some(()))) => SyntaxKind::Numeric,
             // Invalid numbers :(
             (Err(number_err), Err(suffix_err)) => {
-                let error = self.error(number_err);
+                let error = self.error_with_kind(number_err, hex_error_kind);
                 self.hint(suffix_err);
                 error
             }
-            (Ok(()), Err(msg)) | (Err(msg), Ok(_)) => self.error(msg),
+            (Ok(()), Err(msg)) | (Err(msg), Ok(_)) => {
+                self.error_with_kind(msg, hex_error_kind)
+            }
         }
     }
 

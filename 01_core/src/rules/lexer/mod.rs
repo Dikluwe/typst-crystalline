@@ -7,7 +7,7 @@
 
 use crate::entities::syntax_kind::SyntaxKind;
 use crate::entities::syntax_mode::SyntaxMode;
-use crate::entities::syntax_node::{SyntaxError, SyntaxNode};
+use crate::entities::syntax_node::{SyntaxError, SyntaxErrorKind, SyntaxNode};
 use crate::entities::syntax_text::SyntaxText;
 use crate::rules::lexer::scanner::Scanner;
 use unicode_ident::{is_xid_continue, is_xid_start};
@@ -88,7 +88,16 @@ impl<'s> Lexer<'s> {
 impl Lexer<'_> {
     /// Construct a full-positioned syntax error.
     pub(super) fn error(&mut self, message: impl Into<SyntaxText>) -> SyntaxKind {
-        self.error = Some(SyntaxError::new(message));
+        self.error_with_kind(message, SyntaxErrorKind::Other)
+    }
+
+    /// Construct a full-positioned syntax error with a specific kind.
+    pub(super) fn error_with_kind(
+        &mut self,
+        message: impl Into<SyntaxText>,
+        kind: SyntaxErrorKind,
+    ) -> SyntaxKind {
+        self.error = Some(SyntaxError::with_kind(message, kind));
         SyntaxKind::Error
     }
 

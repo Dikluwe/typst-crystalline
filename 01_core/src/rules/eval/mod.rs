@@ -43,7 +43,7 @@ use crate::entities::scope::Scope;
 use crate::entities::source::Source;
 use crate::entities::source_result::{SourceDiagnostic, SourceResult};
 use crate::entities::span::Span;
-use crate::entities::syntax_node::SyntaxNode;
+use crate::entities::syntax_node::{SyntaxErrorKind, SyntaxNode};
 use crate::entities::value::Value;
 use crate::entities::world_types::{Route, Routines, Sink, Traced};
 use crate::rules::scopes::Scopes;
@@ -298,19 +298,21 @@ pub fn eval_with_full_error(
 ) -> SourceResult<Module> {
     let root = source.root();
 
-    // **P648** — propagação selectiva de erros de sintaxe que o eval
+    // **P648/P649** — propagação selectiva de erros de sintaxe que o eval
     // actualmente descarta. A tentativa de propagar *todos* os erros de
     // parser (P634) quebrou dezassete testes porque o parser assinala
     // construções válidas como erro (smart quotes, `#set` dentro de blocos,
-    // etc.). Só propagamos classes de erro confirmadas como genuínas:
-    // literais numéricos malformados e escapes Unicode inválidos em markup.
+    // etc.). Só propagamos classes de erro confirmadas como genuínas,
+    // identificadas agora por `SyntaxErrorKind` em vez de comparação de
+    // texto (P649).
     let syntax_errors: Vec<SourceDiagnostic> = root
         .errors()
         .into_iter()
         .filter(|e| {
-            let msg = e.message.as_str();
-            msg.starts_with("invalid hexadecimal number:")
-                || msg.starts_with("invalid Unicode codepoint:")
+            matches!(
+                e.kind,
+                SyntaxErrorKind::InvalidHexNumber | SyntaxErrorKind::InvalidUnicodeCodepoint
+            )
         })
         .map(|e| SourceDiagnostic::error(e.span, e.message.to_string()))
         .collect();
