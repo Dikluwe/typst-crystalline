@@ -142,4 +142,4 @@ Grids válidas (incluindo o exemplo do passo com duas células `colspan: 2` numa
 
 ## 7. Hash do commit
 
-`HASH_A_PREENCHER`
+`1693aa6f2`
