@@ -2308,7 +2308,6 @@ pub fn heading(level: u8, body: Content) -> Self {
                         // direcção de preenchimento).
                         let body = Self::sequence(parts_vec[i + 1..j].to_vec());
                         let segments = Self::page_column_segments(&body);
-                        eprintln!("P627 segments count: {}", segments.len());
                         for piece in segments {
                             match piece {
                                 Self::Pagebreak(_) => out.push(piece),
