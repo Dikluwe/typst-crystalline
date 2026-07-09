@@ -85,18 +85,23 @@ Ambos são documentos muito pequenos em que o tempo de arranque/fixe do cristali
 
 O documento `macro-10x` (renderização repetida de conteúdo com markup denso) continua a ser o caso mais pesado, mas melhorou significativamente face a P546 (28,68×) e P548 (11,98×), situando-se agora em **6,78×**. Isto confirma que a correcção de P594 se mantém efectiva e que o trabalho subsequente (P595–P617) não introduziu regressão severa neste cenário.
 
-### Fases do `macro-10x` (médias, cristalino)
+### Fases do `macro-10x` (medição P619, cristalino)
+
+A repartição completa de fases, incluindo `shape_ms` e `subset_ms`, foi obtida em P619 com `--timings-json`.
 
 | Fase | Tempo (ms) | % do total |
 |---|---|---:|
-| eval | 545,97 | 1,5 % |
-| introspect | 92,44 | 0,3 % |
-| expand_context | 0,00 | 0,0 % |
-| layout | 1247,25 | 3,5 % |
-| render | 1473,38 | 4,1 % |
-| **total interno** | **34930,72** | **97,1 %** |
+| parse | 0,00 | 0,00 % |
+| eval | 539,36 | 1,50 % |
+| introspect | 88,59 | 0,25 % |
+| expand_context | 0,00 | 0,00 % |
+| layout | 1 254,53 | 3,49 % |
+| **shape** | **32 577,36** | **90,66 %** |
+| subset | 0,87 | 0,00 % |
+| render | 1 472,48 | 4,10 % |
+| **total** | **35 933,21** | **100,00 %** |
 
-A soma das fases medidas (`eval`…`render`) é muito menor que o tempo total de processo, confirmando que a maior parte do tempo do cristalino no macro não está ainda isolada em fases instrumentadas.
+A fase `shape_ms` é claramente dominante, explicando mais de 90% do tempo de compilação do `macro-10x`. A soma das restantes fases é inferior a 10% do total.
 
 ## Falhas
 
