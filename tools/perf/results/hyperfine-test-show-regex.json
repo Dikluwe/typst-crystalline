@@ -1,27 +1,27 @@
 {
   "results": [
     {
-      "command": "/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst compile /home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/parity/corpus/p490/test-show-regex.typ /tmp/tmptro3kwdg.pdf",
-      "mean": 0.09504802127999999,
-      "stddev": 0.0016978351508108818,
-      "median": 0.09421777828,
-      "user": 0.06033016,
-      "system": 0.037135039999999994,
-      "min": 0.09364346028,
-      "max": 0.09777728528,
+      "command": "/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst compile /home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/parity/corpus/p490/test-show-regex.typ /tmp/tmps5numbcz.pdf",
+      "mean": 0.09097093652000002,
+      "stddev": 0.0009172971034701893,
+      "median": 0.09125111192,
+      "user": 0.058605,
+      "system": 0.03462692,
+      "min": 0.08963758992000001,
+      "max": 0.09181949292000001,
       "times": [
-        0.09777728528,
-        0.09560619628,
-        0.09421777828,
-        0.09364346028,
-        0.09399538628
+        0.09169309992,
+        0.09181949292000001,
+        0.09045338792,
+        0.09125111192,
+        0.08963758992000001
       ],
       "memory_usage_byte": [
-        29810688,
-        29810688,
-        29810688,
-        29945856,
-        29945856
+        29732864,
+        29732864,
+        29732864,
+        29732864,
+        29732864
       ],
       "exit_codes": [
         0,
@@ -32,27 +32,27 @@
       ]
     },
     {
-      "command": "/home/dikluwe/Documentos/Antigravity/typst-crystalline/target/release/typst /home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/parity/corpus/p490/test-show-regex.typ /tmp/tmptro3kwdg.pdf",
-      "mean": 0.18141918148000002,
-      "stddev": 0.0010215700661935527,
-      "median": 0.18125285828,
-      "user": 0.00970076,
-      "system": 0.17149424000000002,
-      "min": 0.18019068528,
-      "max": 0.18273471028000002,
+      "command": "/home/dikluwe/Documentos/Antigravity/typst-crystalline/target/release/typst /home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/parity/corpus/p490/test-show-regex.typ /tmp/tmps5numbcz.pdf",
+      "mean": 0.15239572712000002,
+      "stddev": 0.0016517915120290467,
+      "median": 0.15176448992000002,
+      "user": 0.0077404,
+      "system": 0.14447951999999997,
+      "min": 0.15108068592,
+      "max": 0.15527595192000002,
       "times": [
-        0.18213106028,
-        0.18125285828,
-        0.18273471028000002,
-        0.18078659328000002,
-        0.18019068528
+        0.15176436992,
+        0.15527595192000002,
+        0.15209313792,
+        0.15108068592,
+        0.15176448992000002
       ],
       "memory_usage_byte": [
-        54112256,
-        54124544,
-        54124544,
-        54210560,
-        54210560
+        54161408,
+        54161408,
+        54259712,
+        54263808,
+        54325248
       ],
       "exit_codes": [
         0,

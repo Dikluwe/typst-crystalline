@@ -1,7 +1,7 @@
 # Estado das disparidades com o vanilla — depois de P593
 
 **Data:** 2026-07-05  
-**Actualizado:** 2026-07-08 (P602, P604, P605, P606, P608, P611, P616)
+**Actualizado:** 2026-07-08 (P602, P604, P605, P606, P608, P611, P616, P618)
 
 ---
 
@@ -65,11 +65,16 @@
 | Bookmarks só a partir de headings | P604 — medição directa ao vanilla 0.15.0 mostra que só headings geram bookmarks; labels manuais (`#label(...)`) não entram em `/Outlines`, e `#outline(target: ...)` é para TOC/listas no documento, não para bookmarks PDF. O comportamento do cristalino coincide com o vanilla. |
 | Parâmetro `bookmarked`/`outlined` de `heading()` | P606 — o vanilla 0.15.0 distingue `outlined` (índice do documento) de `bookmarked` (bookmarks PDF), com `bookmarked: auto` a seguir `outlined` por defeito. O cristalino agora implementa a mesma separação: `HeadingElem` tem `outlined: bool` e `bookmarked: Option<bool>`, e o walk emite `HeadingForToc` e `HeadingForBookmarks` independentemente. |
 
+## Confirmado (medição completa)
+
+| Item | Passo de confirmação | Resultado |
+|------|----------------------|-----------|
+| Benchmark completo (`macro-10x`) | P618 — correr `tools/perf/benchmark-p507.py` até ao fim (timeout 900s). Tempo real: ~4m41s. `macro-10x`: vanilla 5303 ms, cristalino 35958 ms, rácio **6.78×** (melhoria face a 11.98× em P548 e 28.68× em P546). Micro: mediana **1.70×**, média 3.07× (dois outliers de documentos muito pequenos: `test-stroke-sides` 26.27×, `test-image-fit` 25.70×). | Confirmado — o ajuste de P594 continua válido; o benchmark termina dentro do tempo. |
+
 ## Ainda por confirmar (não é "corrigido", nem "scope-out" — é incerto)
 
 | Item | Porquê fica incerto |
 |------|----------------------|
-| Benchmark completo (`macro-10x`) | Excede o tempo limite do script sempre que é tentado (P546, P563, P565, P593). Nunca foi medido de forma completa desde P548. Substituído por medições isoladas em cada passo, o que não cobre o mesmo terreno. |
 | Cobertura de `text_width`/`line_content_right` fora dos ficheiros já revistos em P593 | P593 confirmou consolidação em `cursor.rs`, `helpers.rs`, `layout_bidi.rs`, `shaper.rs`. Não confirmou se `grid.rs`, `placement.rs`, `columns.rs`, `boxed.rs` (tocados em P579/P580) continuam a usar as suas próprias contas antigas, ou se já chamam as funções únicas. |
 | Escrita vertical e a mesma classe de bug de largura letra→palavra→linha | Nunca construída; se for, precisa de reaproveitar a cascata de P593, não repetir os quatro erros já encontrados para RTL. |
 | Documentos com `tracking` + texto árabe | P593 identificou que esta combinação nunca foi testada; a inconsistência de tracking entre `word_width`/`estimate_width` e as versões shaped foi corrigida na consolidação, mas sem teste específico desta combinação. |
@@ -84,4 +89,4 @@ Scope-out com razão: 10 itens, todos pequenos, já decididos.
 
 Corrigido: a lista mais longa — a maior parte do trabalho recente (P544 a P593) fechou disparidades reais, uma a seguir à outra.
 
-Incerto: 4 itens, o mais importante sendo o benchmark completo, que nunca correu até ao fim desde P548.
+Incerto: 3 itens. O benchmark completo foi confirmado em P618; já não é incerto.

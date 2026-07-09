@@ -1,63 +1,45 @@
 {
   "results": [
     {
-      "command": "/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst compile /home/dikluwe/Documentos/Antigravity/typst-crystalline/tools/perf/corpus/macro-10x.typ /tmp/tmpybjz51ms.pdf",
-      "mean": 4.68403457774,
-      "stddev": 0.019367910408707265,
-      "median": 4.6883169895400005,
-      "user": 4.08445226,
-      "system": 0.76142534,
-      "min": 4.65076871154,
-      "max": 4.70066095354,
+      "command": "/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst compile /home/dikluwe/Documentos/Antigravity/typst-crystalline/tools/perf/corpus/macro-10x.typ /tmp/tmpnbzbce8o.pdf",
+      "mean": 5.30353819472,
+      "stddev": 0.016895991267332988,
+      "median": 5.30353819472,
+      "user": 3.94325568,
+      "system": 0.7427327199999999,
+      "min": 5.29159092472,
+      "max": 5.31548546472,
       "times": [
-        4.68684252054,
-        4.70066095354,
-        4.65076871154,
-        4.69358371354,
-        4.6883169895400005
+        5.29159092472,
+        5.31548546472
       ],
       "memory_usage_byte": [
-        1044111360,
-        1044111360,
-        1044111360,
-        1044111360,
-        1044111360
+        1044033536,
+        1044033536
       ],
       "exit_codes": [
-        0,
-        0,
-        0,
         0,
         0
       ]
     },
     {
-      "command": "/home/dikluwe/Documentos/Antigravity/typst-crystalline/target/release/typst /home/dikluwe/Documentos/Antigravity/typst-crystalline/tools/perf/corpus/macro-10x.typ /tmp/tmpybjz51ms.pdf",
-      "mean": 56.10036038994,
-      "stddev": 0.2979134372964616,
-      "median": 55.99309687654,
-      "user": 55.282884460000005,
-      "system": 0.74599854,
-      "min": 55.76474755654,
-      "max": 56.42056402154,
+      "command": "/home/dikluwe/Documentos/Antigravity/typst-crystalline/target/release/typst /home/dikluwe/Documentos/Antigravity/typst-crystalline/tools/perf/corpus/macro-10x.typ /tmp/tmpnbzbce8o.pdf",
+      "mean": 35.95809544522,
+      "stddev": 0.5427199310067957,
+      "median": 35.95809544522,
+      "user": 34.18393718,
+      "system": 0.68856272,
+      "min": 35.57433450172,
+      "max": 36.341856388720004,
       "times": [
-        55.91591883354,
-        56.42056402154,
-        55.76474755654,
-        56.40747466154,
-        55.99309687654
+        36.341856388720004,
+        35.57433450172
       ],
       "memory_usage_byte": [
-        1044111360,
-        1044111360,
-        1044111360,
-        1044111360,
-        1044111360
+        1044033536,
+        1044033536
       ],
       "exit_codes": [
-        0,
-        0,
-        0,
         0,
         0
       ]
