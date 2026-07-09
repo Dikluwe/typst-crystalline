@@ -149,6 +149,15 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
         content: &Content,
         region: SubLayoutRegion,
     ) -> (f64, Vec<FrameItem>) {
+        // A variante inline opera sobre a linha horizontal do pai e não usa
+        // região geométrica própria. Se estes campos vierem preenchidos, o
+        // caller provavelmente queria `layout_sub_frame`.
+        debug_assert!(
+            region.origin_x == 0.0 && region.width == 0.0,
+            "layout_sub_frame_inline ignora `origin_x` e `width`; \
+             valores diferentes de 0.0 indicam uso incorreto"
+        );
+
         // Guardar comprimento da linha do pai antes de layoutar o body,
         // para podermos isolar apenas os itens produzidos pelo body (P625).
         let parent_line_len_before = self.regions.current.current_line.len();
