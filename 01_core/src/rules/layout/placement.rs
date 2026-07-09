@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/rules/layout.md
-//! @prompt-hash faf0ea7a
+//! @prompt-hash 2b3c0378
 //! @layer L1
 //! @updated 2026-04-23
 //!
@@ -28,7 +28,16 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
         // Layoutar o corpo num sub-frame — cell_x=0 para que items internos
         // comecem em x=0. O sub_frame activa is_height_unconstrained=true
         // e restaura ao terminar.
-        let (sub_h, sub_items) = self.layout_sub_frame_with_width(body, 0.0, avail_w, false);
+        let (sub_h, sub_items) = self.layout_sub_frame(
+            body,
+            super::sub_frame::SubLayoutRegion {
+                origin_x: 0.0,
+                width: avail_w,
+                height: None,
+                align_rtl: false,
+                unconstrained_height: true,
+            },
+        );
 
         // Origem vertical local do sub-frame (ascender). Necessária para
         // rebaser as coordenadas Y ao colocar no frame pai.
@@ -121,7 +130,16 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
         let avail_w_page = self.available_width();
         let avail_h_page = self.available_height();
 
-        let (sub_h, sub_items) = self.layout_sub_frame_with_width(body, 0.0, avail_w_page, false);
+        let (sub_h, sub_items) = self.layout_sub_frame(
+            body,
+            super::sub_frame::SubLayoutRegion {
+                origin_x: 0.0,
+                width: avail_w_page,
+                height: None,
+                align_rtl: false,
+                unconstrained_height: true,
+            },
+        );
 
         let (ascender_local, _) = self.metrics.vertical_metrics(self.style.size);
         let sub_origin_y        = ascender_local.0;

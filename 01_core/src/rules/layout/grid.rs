@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/rules/layout.md
-//! @prompt-hash faf0ea7a
+//! @prompt-hash 2b3c0378
 //! @layer L1
 //! @updated 2026-04-23
 //!
@@ -221,7 +221,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
 
         // ── Resolução de alturas (Passo 83): 3 passagens ─────
         // Fase 1 — Fixed e Auto numa travessia. Auto mede via
-        // layout_sub_frame_with_width.
+        // layout_sub_frame.
         //
         // P234 (B.2 consumer geometric): cache `cell_cache` removido
         // porque emissão pós-P234 itera `placed_cells` (não
@@ -246,8 +246,16 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
                         if col_idx >= num_cols { break; }
                         let cell_w = resolved_widths[col_idx];
                         let cell_x = col_starts[col_idx];
-                        let (sub_h, _sub_items) =
-                            self.layout_sub_frame_with_width(item, cell_x, cell_w, true);
+                        let (sub_h, _sub_items) = self.layout_sub_frame(
+                            item,
+                            super::sub_frame::SubLayoutRegion {
+                                origin_x: cell_x,
+                                width: cell_w,
+                                height: None,
+                                align_rtl: true,
+                                unconstrained_height: true,
+                            },
+                        );
                         if sub_h > max_h {
                             max_h = sub_h;
                         }
@@ -474,8 +482,16 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
                 // P235 — layout em body_x/body_w reduzidos por inset.
                 let saved_cursor_x = self.regions.current.cursor_x;
                 let saved_cursor_y = self.regions.current.cursor_y;
-                let (cell_h_measured, cell_items) =
-                    self.layout_sub_frame_with_width(cell, body_x, body_w, true);
+                let (cell_h_measured, cell_items) = self.layout_sub_frame(
+                    cell,
+                    super::sub_frame::SubLayoutRegion {
+                        origin_x: body_x,
+                        width: body_w,
+                        height: None,
+                        align_rtl: true,
+                        unconstrained_height: true,
+                    },
+                );
                 self.regions.current.cursor_x = saved_cursor_x;
                 self.regions.current.cursor_y = saved_cursor_y;
 

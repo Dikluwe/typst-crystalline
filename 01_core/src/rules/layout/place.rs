@@ -41,8 +41,15 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
         // P245 — float real: layout body em sub-frame,
         // capturar items + dimensões, push ao buffer.
         let avail_w_page = layouter.available_width();
-        let (body_height, body_items) = layouter.layout_sub_frame_with_width(
-            body, 0.0, avail_w_page, false,
+        let (body_height, body_items) = layouter.layout_sub_frame(
+            body,
+            super::sub_frame::SubLayoutRegion {
+                origin_x: 0.0,
+                width: avail_w_page,
+                height: None,
+                align_rtl: false,
+                unconstrained_height: true,
+            },
         );
         let (content_w, _) = measure_content(body, avail_w_page);
         let resolved_clearance = clearance

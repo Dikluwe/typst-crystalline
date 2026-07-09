@@ -1,5 +1,5 @@
 # Prompt L0 — layout
-Hash do Código: 19cff6df
+Hash do Código: eb141de7
 
 ## Módulo
 `01_core/src/rules/layout/mod.rs` e sub-módulos (`metrics.rs`, etc.)
@@ -651,3 +651,59 @@ layout real.
   largura que o layout final.
 - Para outros tipos de `Content`, mantém a lógica específica (Shape,
   Curve, Pad, etc.).
+
+## Secção: Sub-layout isolado (`layout_sub_frame`, Passo 629)
+
+O helper `layout_sub_frame` vive em `01_core/src/rules/layout/sub_frame.rs`
+e é o ponto comum para executar layout de conteúdo numa região isolada,
+salvando e restaurando o estado do `Layouter`.
+
+### `SubLayoutRegion`
+
+```rust
+pub(super) struct SubLayoutRegion {
+    pub origin_x: f64,
+    pub width: f64,
+    pub height: Option<f64>,
+    pub align_rtl: bool,
+    pub unconstrained_height: bool,
+}
+```
+
+- `origin_x`: origem horizontal da região dentro do frame pai.
+- `width`: largura útil disponível para o conteúdo.
+- `height`: altura útil disponível; `None` significa "sem limite".
+- `align_rtl`: se a última linha deve ser alinhada à direita quando o
+  estilo de texto for RTL.
+- `unconstrained_height`: se a altura é ilimitada; afecta o ancoramento
+  de `Content::Align` (decai `VAlign::Bottom`/`VAlign::Horizon` para `Top`).
+
+### `layout_sub_frame`
+
+```rust
+pub(super) fn layout_sub_frame(
+    &mut self,
+    content: &Content,
+    region: SubLayoutRegion,
+) -> (f64, Vec<FrameItem>)
+```
+
+- Salva o estado completo do `Layouter` (`current_items`, `current_line`,
+  cursor, dimensões da região, `is_height_unconstrained`).
+- Inicializa um frame temporário com origem em (`origin_x`, ascender).
+- Executa `layout_content(content)`.
+- Alinha a última linha RTL se `align_rtl` for `true`.
+- Faz flush dos itens pendentes, calculando a altura real do sub-frame.
+- Restaura o estado e devolve `(height, items)` em coordenadas locais ao
+  frame temporário.
+
+### Invariantes
+
+- O helper não deve introduzir comportamento específico de nenhum
+  container (`grid`, `place`, `box`, etc.). Essa lógica permanece nos
+  call-sites.
+- Refactors deste helper são passivos: alterações na assinatura só
+  acontecem quando há ganho de clareza e todos os call-sites são
+  actualizados.
+- Passos que tocam `layout_sub_frame` devem manter zero regressão nos
+  testes de `grid`, `placement`, `p624`, `p625`, `p626` e `p627`.

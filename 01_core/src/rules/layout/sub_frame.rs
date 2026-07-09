@@ -1,29 +1,46 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/rules/layout.md
-//! @prompt-hash 9c9b7122
+//! @prompt-hash 2b3c0378
 //! @layer L1
 //! @updated 2026-07-09
 //!
 //! Sub-layout de conteúdo numa região isolada.
-//! Extraído de `layout/mod.rs` no Passo 629 (sub-passo A).
+//! Extraído de `layout/mod.rs` no Passo 629 (sub-passo A) e refactorizado
+//! para `SubLayoutRegion` no sub-passo B.
 
 use crate::entities::content::Content;
 use crate::entities::layout_types::{FrameItem, Pt};
 
 use super::{FontMetrics, ImageSizer, Layouter};
 
+/// Região onde um sub-layout é executado.
+///
+/// Define a origem horizontal, a largura útil, a altura útil (se houver),
+/// se o alinhamento RTL deve ser aplicado à última linha, e se a altura
+/// é ilimitada (afecta o ancoramento de `Content::Align`).
+pub(super) struct SubLayoutRegion {
+    /// Origem x dentro do frame pai.
+    pub origin_x: f64,
+    /// Largura útil disponível para o conteúdo.
+    pub width: f64,
+    /// Altura útil disponível. `None` significa "sem limite".
+    pub height: Option<f64>,
+    /// Se a última linha deve ser alinhada à direita quando o estilo for RTL.
+    pub align_rtl: bool,
+    /// Se a altura é ilimitada (decai `VAlign::Bottom`/`VAlign::Horizon`).
+    pub unconstrained_height: bool,
+}
+
 impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
-    /// Layout de conteúdo numa célula de grid isolada.
+    /// Layout de conteúdo numa região isolada.
     ///
     /// Salva o estado completo do layouter, cria um frame temporário com
-    /// cursor em (cell_x, ascender), executa o layout e restaura o estado.
+    /// cursor em (`origin_x`, ascender), executa o layout e restaura o estado.
     /// Retorna `(height, items)` com posições locais ao frame temporário.
-    pub(super) fn layout_sub_frame_with_width(
+    pub(super) fn layout_sub_frame(
         &mut self,
         content: &Content,
-        cell_x: f64,
-        cell_width: f64,
-        align_rtl: bool,
+        region: SubLayoutRegion,
     ) -> (f64, Vec<FrameItem>) {
         // Salvar estado.
         let saved_items = std::mem::take(&mut self.regions.current.current_items);
@@ -35,34 +52,33 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
         let saved_height = self.regions.current.height;
         let saved_unconstrained = self.is_height_unconstrained;
 
-        // Inicializar cursor local — x = cell_x, y = ascender (como o layout principal).
-        // `line_start_x = cell_x` garante que `flush_line()` dentro da célula
-        // (chamado por Shape, word-wrap, etc.) reinicia o cursor à coluna
-        // da célula, não à margem global da página (Passo 81.5).
-        self.regions.current.cursor_x = Pt(cell_x);
-        self.regions.current.line_start_x = Pt(cell_x);
+        // Inicializar cursor local — x = origin_x, y = ascender (como o layout principal).
+        // `line_start_x = origin_x` garante que `flush_line()` dentro do sub-frame
+        // reinicia o cursor à origem da região, não à margem global da página.
+        self.regions.current.cursor_x = Pt(region.origin_x);
+        self.regions.current.line_start_x = Pt(region.origin_x);
         // **P625** — durante o sub-layout o alinhamento RTL deve usar o limite
-        // direito do sub-frame (`cell_x + cell_width`), não o da página.
+        // direito do sub-frame (`origin_x + width`), não o da página.
         // `align_current_line_rtl` calcula `right_margin = width - margin`,
-        // logo configuramos `width = cell_x + cell_width + margin` para que
+        // logo configuramos `width = origin_x + width + margin` para que
         // `flush_line` e o alinhamento final do sub-frame usem o limite
         // correcto. A altura é elevada para evitar quebras de página dentro
         // do sub-frame; a largura/altura são restauradas antes de regressar.
-        self.regions.current.width = cell_x + cell_width + self.page_config.margin;
-        self.regions.current.height = 1_000_000_000.0;
+        self.regions.current.width = region.origin_x + region.width + self.page_config.margin;
+        self.regions.current.height = region.height.unwrap_or(1_000_000_000.0);
         let (ascender, _) = self.metrics.vertical_metrics(self.style.size);
         self.regions.current.cursor_y = ascender;
         let start_y = self.regions.current.cursor_y.0;
 
         // Contexto sem altura delimitada — Content::Align decai VAlign::Bottom
         // e VAlign::Horizon para Top (não há "fundo" para ancorar). Passo 82.
-        self.is_height_unconstrained = true;
+        self.is_height_unconstrained = region.unconstrained_height;
 
         self.layout_content(content);
 
         // **P625** — alinhar linha RTL antes de a drenar, do mesmo modo
         // que `flush_line` e `finish` fazem no fluxo principal.
-        if align_rtl {
+        if region.align_rtl {
             self.align_current_line_rtl();
         }
 
@@ -116,5 +132,15 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
         self.is_height_unconstrained = saved_unconstrained;
 
         (cell_height, cell_items)
+    }
+}
+
+#[cfg(test)]
+mod smoke {
+    #[test]
+    fn module_compila_e_carrega() {
+        // V2 smoke test — módulo extraído do monólito no Passo 629.
+        // A cobertura funcional vive em `layout/tests.rs` e nos testes
+        // específicos de grid/placement/cursor.
     }
 }

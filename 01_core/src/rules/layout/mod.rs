@@ -211,7 +211,7 @@ pub struct Layouter<'a, M: FontMetrics, S: ImageSizer = NullImageSizer> {
     ///
     /// Quando true, `VAlign::Bottom` e `VAlign::Horizon` em `Content::Align`
     /// decaem para `VAlign::Top` — não existe "fundo" para ancorar.
-    /// Definido como true por `layout_sub_frame_with_width` e restaurado
+    /// Definido como true por `layout_sub_frame` e restaurado
     /// ao regressar ao contexto pai.
     pub(super) is_height_unconstrained: bool,
     // **P246 (cell layout migration)** — fields `cell_available_h` +
@@ -316,7 +316,7 @@ pub struct Layouter<'a, M: FontMetrics, S: ImageSizer = NullImageSizer> {
     /// arm `Content::Footnote` quando o marker `[N]` é emitido; flush
     /// em `new_page()` (antes de saving a Page) + `finish()` (última
     /// página). Cada entry: `(número, body)`. Bodies são layoutados
-    /// no rodapé via `layout_sub_frame_with_width` + posicionamento
+    /// no rodapé via `layout_sub_frame` + posicionamento
     /// absoluto Y bottom.
     /// Sub-padrão "DeferredX buffer + flush em new_page" N=2 → 3
     /// cumulativo (P245 floats + P251 cell tails + P304 footnotes).
@@ -412,12 +412,12 @@ pub(super) struct DeferredFloat {
     /// `alignment.x` aplica-se à largura útil da página para
     /// posicionamento horizontal.
     pub alignment: crate::entities::layout_types::Align2D,
-    /// Items do body já layouted via `layout_sub_frame_with_width`;
+    /// Items do body já layouted via `layout_sub_frame`;
     /// posições locais (origem 0,0); flush translada para destino
     /// final.
     pub body_items: Vec<crate::entities::layout_types::FrameItem>,
     /// Altura ocupada pelo body (sub_h retornado por
-    /// `layout_sub_frame_with_width`).
+    /// `layout_sub_frame`).
     pub body_height: f64,
     /// Largura ocupada pelo body (`content_w` via
     /// `measure_content`).

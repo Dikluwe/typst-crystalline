@@ -487,7 +487,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
         avail_w: f64,
     ) {
         use crate::entities::layout_types::{FrameItem, Point, HAlign};
-        // `layout_sub_frame_with_width` posicionou items com ascender
+        // `layout_sub_frame` posicionou items com ascender
         // offset (cursor_y = ascender inicial). Para alinhar shapes ao
         // target_y final exacto (não baseline), subtrair ascender do
         // offset de translação — paridade pattern `layout_place`
@@ -557,7 +557,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
 
     /// **P304 (P295.1)** — flush dos footnote bodies pendentes no
     /// rodapé da página actual. Cada body é layoutado num sub-frame
-    /// (`layout_sub_frame_with_width`) e posicionado em Y absoluto
+    /// (`layout_sub_frame`) e posicionado em Y absoluto
     /// bottom-up: a primeira footnote fica imediatamente acima do
     /// limite inferior `page_h - margin`, a segunda abaixo dela, etc.
     /// Marker `[N]: ` prepende cada body para identificação.
@@ -647,7 +647,16 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
                 Content::text(format!("[{}] ", n)),
                 (*body).clone(),
             ]);
-            let (h, items) = self.layout_sub_frame_with_width(&combined, 0.0, avail_w, true);
+            let (h, items) = self.layout_sub_frame(
+                &combined,
+                super::sub_frame::SubLayoutRegion {
+                    origin_x: 0.0,
+                    width: avail_w,
+                    height: None,
+                    align_rtl: true,
+                    unconstrained_height: true,
+                },
+            );
             let fits = acc_h + h <= available_h;
             // Defensive: primeiro body emite mesmo se > available_h SE
             // body > full_avail (não fits em nenhuma página).
@@ -673,7 +682,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
 
         // Pass 2 — place top-down a partir de `area_bot - acc_h`.
         // Primeira footnote no topo da zona; última no fundo.
-        // `layout_sub_frame_with_width` posicionou items com ascender
+        // `layout_sub_frame` posicionou items com ascender
         // offset (cursor_y inicial = ascender). Para alinhar ao
         // target_y absoluto exacto (não baseline), subtrair ascender
         // do offset de translação — paridade pattern `emit_deferred_float`
