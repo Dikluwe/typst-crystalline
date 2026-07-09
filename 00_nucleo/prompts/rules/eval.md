@@ -1,5 +1,5 @@
 # Prompt L0 — rules/eval
-Hash do Código: cdc6b6c6
+Hash do Código: 994eeff3
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/rules/eval/mod.rs`
@@ -302,7 +302,8 @@ usando os nomes de tipo de `Value::type_name()`.
 | 12 | `#set page` | `numbering` | `str` ou `none` | match de `page.numbering` |
 | 13 | `#set page` | `columns` | `int` ≥ 1 | match de `page.columns` |
 | 14 | `#set text` | `weight` | `int` ou `str` | match de `text.weight` |
-| 15 | `#set document` | `title`, `author`, `keywords` | `str` ou array de `str` | `value_to_eco_string` |
+| 15 | `#set document` | `title` | `str` | `value_to_eco_string` |
+| 15 | `#set document` | `author`, `keywords` | `str` ou array de `str` | `value_to_eco_string` |
 | 16 | `#set page` | `width`, `height`, `margin` | `length`, `float` ou `int` | `extract_pt` |
 
 ### Semântica
@@ -314,9 +315,12 @@ usando os nomes de tipo de `Value::type_name()`.
 - Propriedades com múltiplos tipos válidos (ex.: `text.weight` → `int` ou `str`):
   - Aceitar os tipos válidos.
   - Para tipos inválidos, devolver erro no mesmo formato.
-- `document.title`/`author`/`keywords`: a função `value_to_eco_string` deve
-  devolver `Result<EcoString, SourceDiagnostic>`; arrays só são válidos se
-  todos os elementos forem `str` (caso contrário, erro no elemento inválido).
+- `document.title`: a função `value_to_eco_string` deve devolver
+  `Result<EcoString, SourceDiagnostic>`; só aceita `str` (no vanilla,
+  `title: Option<Content>`; no cristalino, `DocumentInfo.title` é `EcoString`).
+- `document.author`/`keywords`: a função `value_to_eco_string` aceita `str` ou
+  array de `str`; arrays só são válidos se todos os elementos forem `str`
+  (caso contrário, erro no elemento inválido).
 - `math.equation` target pontuado: o erro de `eval_expr` (variável indefinida)
   já deve propagar; não descartar com `.ok()`.
 
@@ -326,7 +330,10 @@ usando os nomes de tipo de `Value::type_name()`.
   `expected length, found str` (ou equivalente com os nomes de tipo do cristalino).
 - `eval_for_test(Source("#set page(numbering: 123)\n#let x = 1"))` → `Err`.
 - `eval_for_test(Source("#set page(columns: 'foo')\n#let x = 1"))` → `Err`.
-- `eval_for_test(Source("#set document(title: 123)\n#let x = 1"))` → `Err`.
+- `eval_for_test(Source("#set document(title: 123)\n#let x = 1"))` → `Err` contendo
+  `expected string, found int`.
+- `eval_for_test(Source("#set document(title: (\"A\", \"B\"))\n#let x = 1"))` → `Err`
+  contendo `expected string, found array`.
 - `eval_for_test(Source("#set text(weight: 'foo')\n#let x = 1"))` → `Err`.
 - `eval_for_test(Source("#set math.equation(numbering: 123)\n#let x = 1"))` → `Err`.
 - `eval_for_test(Source("#set math.equation(numbering: nao_existe)\n#let x = 1"))` → `Err`

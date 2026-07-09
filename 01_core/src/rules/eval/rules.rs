@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/rules/eval.md
-//! @prompt-hash aa004f05
+//! @prompt-hash a8523b4b
 //! @layer L1
 //! @updated 2026-07-09
 //!
@@ -718,10 +718,11 @@ pub(super) fn eval_set_rule(
         fn value_to_eco_string(
             val: &crate::entities::value::Value,
             span: Span,
+            allow_array: bool,
         ) -> SourceResult<Option<ecow::EcoString>> {
             match val {
                 crate::entities::value::Value::Str(s) => Ok(Some(s.clone())),
-                crate::entities::value::Value::Array(arr) => {
+                crate::entities::value::Value::Array(arr) if allow_array => {
                     let mut parts = Vec::new();
                     for v in arr.iter() {
                         match v {
@@ -742,7 +743,14 @@ pub(super) fn eval_set_rule(
                     }
                 }
                 crate::entities::value::Value::None => Ok(None),
-                other => Err(vec![type_mismatch("string or array of strings", other, span)]),
+                other => {
+                    let expected = if allow_array {
+                        "string or array of strings"
+                    } else {
+                        "string"
+                    };
+                    Err(vec![type_mismatch(expected, other, span)])
+                }
             }
         }
 
@@ -752,9 +760,11 @@ pub(super) fn eval_set_rule(
                 let val = eval_expr(named.expr(), scopes, ctx, engine)?;
                 let span = named.expr().span();
                 match key {
-                    "title" => ctx.document_info.title = value_to_eco_string(&val, span)?,
-                    "author" => ctx.document_info.author = value_to_eco_string(&val, span)?,
-                    "keywords" => ctx.document_info.keywords = value_to_eco_string(&val, span)?,
+                    // P637: no vanilla, title é Option<Content> (não array);
+                    // author/keywords são OneOrMultiple<EcoString>.
+                    "title" => ctx.document_info.title = value_to_eco_string(&val, span, false)?,
+                    "author" => ctx.document_info.author = value_to_eco_string(&val, span, true)?,
+                    "keywords" => ctx.document_info.keywords = value_to_eco_string(&val, span, true)?,
                     _ => {}
                 }
             }

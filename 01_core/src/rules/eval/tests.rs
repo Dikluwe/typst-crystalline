@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/rules/eval.md
-//! @prompt-hash aa004f05
+//! @prompt-hash a8523b4b
 //! @layer L1
 //! @updated 2026-06-17
 //!
@@ -7141,6 +7141,33 @@ mod tests {
     #[test]
     fn p633_set_table_numbering_int_error() {
         assert!(p633_eval_fails("#set table(numbering: 123)\n#let x = 1"));
+    }
+
+    // P637 — document.title só aceita string; author/keywords aceitam string ou
+    // array de strings (paridade com vanilla: title é Option<Content>,
+    // author/keywords são OneOrMultiple<EcoString>).
+    #[test]
+    fn p637_document_title_array_is_error() {
+        assert!(
+            p633_eval_fails("#set document(title: (\"A\", \"B\"))\n#let x = 1"),
+            "title não deve aceitar array"
+        );
+    }
+
+    #[test]
+    fn p637_document_author_array_works() {
+        assert!(
+            p633_eval_succeeds("#set document(author: (\"A\", \"B\"))\n#let x = 1"),
+            "author deve aceitar array de strings"
+        );
+    }
+
+    #[test]
+    fn p637_document_keywords_array_works() {
+        assert!(
+            p633_eval_succeeds("#set document(keywords: (\"A\", \"B\"))\n#let x = 1"),
+            "keywords deve aceitar array de strings"
+        );
     }
 
     // Confirmam comportamento actual de métodos de counter.
