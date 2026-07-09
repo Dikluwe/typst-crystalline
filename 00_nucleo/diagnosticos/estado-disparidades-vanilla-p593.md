@@ -1,7 +1,7 @@
 # Estado das disparidades com o vanilla — depois de P593
 
 **Data:** 2026-07-05  
-**Actualizado:** 2026-07-08 (P602, P604, P605, P606, P608, P611, P616, P618)
+**Actualizado:** 2026-07-09 (P621)
 
 ---
 
@@ -58,6 +58,7 @@
 | Caracteres de escape e abreviaturas tipográficas | P581, confirmado com teste em P584/P585 |
 | Fallback de fonte por carácter (multi-script) | P534, P543 |
 | Subsetting de fontes de fallback em `.ttc` | P609 — `FontSlot::get()` agora extrai a face individual de uma TrueType Collection antes de expor os bytes; o subsetter (`oxifont_subset`) recebe uma fonte simples em vez da coleção completa. Documento de teste de P608 passou de 15,7 MB para ~196 KB. |
+| `tracking` + texto árabe / devanágari | P621 — tracking aplicado nos `x_advance` dos glifos durante o shaping (não no export PDF). O espaçamento é inserido entre clusters de caracteres distintos, preservando conjuntos em devanágari. Limitação visual separada: quebras de parágrafo em RTL ainda não são respeitadas (ver secção "Divergência conhecida" abaixo). |
 | Nota de rodapé maior do que o espaço restante numa coluna | P595 — detecta overflow, emite aviso, e nunca descarta em silêncio |
 | `/Producer` no `/Info` | P600 — medição mostrou que o vanilla 0.15.0 não usa `/Producer`; usa `/Creator`. O cristalino já preenche `/Creator (typst-crystalline)`. |
 | `/Count` de bookmarks aberto/fechado | P602 — vanilla 0.15.0 usa `/Count -N` (negativo) para entradas com filhos (fechadas por defeito) e `/Count N` positivo na raiz `/Outlines`; implementado no cristalino. |
@@ -77,7 +78,12 @@
 |------|----------------------|
 | Cobertura de `text_width`/`line_content_right` fora dos ficheiros já revistos em P593 | P593 confirmou consolidação em `cursor.rs`, `helpers.rs`, `layout_bidi.rs`, `shaper.rs`. Não confirmou se `grid.rs`, `placement.rs`, `columns.rs`, `boxed.rs` (tocados em P579/P580) continuam a usar as suas próprias contas antigas, ou se já chamam as funções únicas. |
 | Escrita vertical e a mesma classe de bug de largura letra→palavra→linha | Nunca construída; se for, precisa de reaproveitar a cascata de P593, não repetir os quatro erros já encontrados para RTL. |
-| Documentos com `tracking` + texto árabe | P593 identificou que esta combinação nunca foi testada; a inconsistência de tracking entre `word_width`/`estimate_width` e as versões shaped foi corrigida na consolidação, mas sem teste específico desta combinação. |
+
+## Divergência conhecida (não corrigida nesta conversa)
+
+| Item | Onde foi confirmado |
+|------|---------------------|
+| Quebras de parágrafo em RTL | P621 — um documento com duas linhas de árabe separadas por linha em branco é renderizado numa única linha visual no cristalino, independentemente de `tracking`. O vanilla 0.15.0 mantém as duas linhas. O problema é anterior a P621 e afecta a comparação visual de tracking. |
 
 ---
 

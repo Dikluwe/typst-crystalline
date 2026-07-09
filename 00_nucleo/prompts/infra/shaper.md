@@ -7,7 +7,7 @@ adr: ADR-0120
 ---
 
 # Prompt L0 — `shaper.rs` (Trilha 5 Fase 1)
-Hash do Código: 04ab225d
+Hash do Código: b832b2b5
 
 ## Propósito
 
@@ -475,4 +475,71 @@ let doc = crate::shaper::fix_line_positions(world, doc);
 - `p582_zero_glyphs_zero_advance`: item com glyphs vazios não altera a posição do seguinte.
 - `p582_y_unchanged`: coordenada y mantida inalterada.
 - `p582_rtl_redistributed`: linha RTL com âncora à direita e shift para a esquerda.
+
+---
+
+## §P621 — Tracking aplicado nos `x_advance` dos glifos
+
+**Data:** 2026-07-08
+
+Aplica `text.tracking` aos avanços horizontais (`x_advance`) de cada glifo
+produzido pelo shaper, convertendo o valor de pontos para unidades da fonte.
+
+### Decisão
+
+- O layout reserva a largura correcta via `FontMetrics::text_width`, que
+  adiciona `tracking × (n_chars − 1)` à largura base.
+- Para que o posicionamento pós-shaping (`fix_line_positions`) e o output PDF
+  reflitam essa largura, o tracking tem de estar presente nos avanços reais dos
+  glifos.
+- Aplicar tracking no export (via operador PDF `Tc`) desalinha o layout em
+  texto RTL, porque o `fix_line_positions_page` distribui as posições usando
+  `width_real` calculado a partir dos `x_advance` dos glifos.
+- A solução correcta é aumentar `x_advance` de cada glifo durante o shaping,
+  garantindo que a largura real do run já inclui o tracking.
+
+### Fórmula
+
+```rust
+let tracking_pt = style.tracking.resolve_pt(style.size.val());
+let tracking_fu = (tracking_pt * candidate.units_per_em as f64 / style.size.val()).round() as i32;
+```
+
+Para cada glifo, o tracking é aplicado ao avanço actual quando o glifo
+seguinte pertence a um cluster de caracteres diferente:
+
+```rust
+let is_last = idx + 1 == n_glyphs;
+let next_cluster_differs = !is_last && clusters[idx + 1] != cluster;
+let extra = if next_cluster_differs { tracking_fu } else { 0 };
+x_advance: pos_g.x_advance + extra,
+run_width += pos_g.x_advance + extra;
+```
+
+- `tracking_fu` pode ser negativo (tracking negativo).
+- Tracking nulo produz `tracking_fu = 0` e mantém bit-exact com documentos sem
+  tracking.
+- O último glifo de cada sub-run não recebe tracking (não há glifo seguinte).
+- Em scripts com ligaduras/conjuntos (devanágari, árabe contextual), vários
+  glifos podem partilhar o mesmo `cluster`; nesses casos o tracking não é
+  inserido dentro do cluster, evitando partir a forma visual do caractere.
+
+### Consequências
+
+- `emit_shaped_pdf` continua a usar o delta model de P520/P548 sem `Tc`;
+  o tracking já está reflectido em `x_advance`, logo o TJ delta é correcto.
+- `fix_line_positions_page` recebe runs cuja largura real inclui tracking,
+  pelo que o reposicionamento RTL/LTR mantém-se coerente com a largura
+  reservada pelo layout.
+- Scripts complexos (devanágari, árabe) beneficiam do tracking em `x_advance`,
+  mas diferenças visuais podem persistir devido a ligatures, marks e
+  reordering — essas limitações são documentadas no relatório de paridade do
+  passo.
+
+### Testes adicionados P621
+
+- `p621_tracking_aumenta_x_advance`: shape do mesmo texto com e sem tracking
+  numa fonte real; verifica que a soma dos `x_advance` aumenta pelo valor
+  esperado em unidades da fonte.
+
 

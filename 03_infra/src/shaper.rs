@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/shaper.md
-//! @prompt-hash f2386495
+//! @prompt-hash 17b09f30
 
 //! @layer L3
 //! @updated 2026-07-06
@@ -237,19 +237,36 @@ fn try_shape(
             // ToUnicode ou `pdftotext` dupliquem conteúdo quando o texto original
             // era partido em sub-runs pequenos.
             let subrun_text = subrun.text.as_str();
-            for (info, pos_g) in infos.iter().zip(positions.iter()) {
-                let cluster = info.cluster as usize;
+            // **P621** — tracking: adicionar espaçamento extra entre clusters
+            // de caracteres, convertido de pontos para unidades da fonte.
+            // O tracking é aplicado ao avanço de um glifo apenas quando o glifo
+            // seguinte pertence a um cluster diferente, evitando partir ligaduras
+            // e conjuntos (ex.: devanágari) onde vários glifos compõem um único
+            // caractere visual. O último glifo do sub-run nunca recebe tracking.
+            let tracking_fu = style.tracking
+                .map(|t| {
+                    let pt = t.resolve_pt(style.size.val());
+                    (pt * candidate.units_per_em as f64 / style.size.val()).round() as i32
+                })
+                .unwrap_or(0);
+            let n_glyphs = infos.len();
+            let clusters: Vec<usize> = infos.iter().map(|info| info.cluster as usize).collect();
+            for (idx, (info, pos_g)) in infos.iter().zip(positions.iter()).enumerate() {
+                let cluster = clusters[idx];
                 let char_code = byte_idx_to_char(subrun_text, cluster)
                     .unwrap_or('\u{FFFD}');
+                let is_last = idx + 1 == n_glyphs;
+                let next_cluster_differs = !is_last && clusters[idx + 1] != cluster;
+                let extra = if next_cluster_differs { tracking_fu } else { 0 };
                 run_glyphs.push(ShapedGlyph {
                     glyph_id:  info.glyph_id as u16,
-                    x_advance: pos_g.x_advance,
+                    x_advance: pos_g.x_advance + extra,
                     x_offset:  pos_g.x_offset,
                     y_offset:  pos_g.y_offset,
                     cluster:   cluster as u32,
                     char_code,
                 });
-                run_width += pos_g.x_advance;
+                run_width += pos_g.x_advance + extra;
             }
 
             if !run_glyphs.is_empty() {
@@ -606,7 +623,7 @@ mod tests {
     use ecow::EcoString;
     use typst_core::entities::font_book::{FontBook, FontStretch, FontStyle, FontWeight};
     use typst_core::entities::font_list::FontList;
-    use typst_core::entities::layout_types::{FrameItem, Page, PagedDocument, Point, Pt, TextStyle};
+    use typst_core::entities::layout_types::{FrameItem, Length, Page, PagedDocument, Point, Pt, TextStyle};
     use typst_core::entities::file_id::FileId;
     use typst_core::entities::source::Source;
     use typst_core::entities::world_types::{Bytes, Datetime, FileError, FileResult, Font, Library};
@@ -1359,6 +1376,71 @@ mod tests {
         if let FrameItem::TextShaped { pos, .. } = &items[0] {
             assert!((pos.x.0 - 64.0).abs() < 0.01, "item RTL esquerdo: x deve ser 64.0, got {}", pos.x.0);
         }
+    }
+
+    /// **P621** — tracking aumenta os avanços reais dos glifos no shaper.
+    /// Usa DejaVu Sans se disponível; skip caso contrário.
+    #[test]
+    fn p621_tracking_aumenta_x_advance() {
+        let world = font_world_with(&[
+            "/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf",
+        ]);
+        if !world.is_complete() {
+            eprintln!("SKIP: DejaVu Sans não disponível");
+            return;
+        }
+
+        let mut style_no_tracking = TextStyle::default();
+        style_no_tracking.font = Some(FontList::single(EcoString::from("DejaVu Sans")));
+        style_no_tracking.size = Pt(12.0);
+
+        let mut style_tracking = style_no_tracking.clone();
+        let tracking_pt = 5.0;
+        style_tracking.tracking = Some(Length::pt(tracking_pt));
+
+        let text = "Hello";
+        let item_no = FrameItem::Text {
+            pos: Point { x: Pt(0.0), y: Pt(0.0) },
+            text: EcoString::from(text),
+            style: style_no_tracking,
+        };
+        let item_yes = FrameItem::Text {
+            pos: Point { x: Pt(0.0), y: Pt(0.0) },
+            text: EcoString::from(text),
+            style: style_tracking,
+        };
+
+        let measure = |items: &[FrameItem]| -> (i32, usize) {
+            items
+                .iter()
+                .filter_map(|it| match it {
+                    FrameItem::TextShaped { glyphs, units_per_em, .. } => {
+                        let upm = *units_per_em as f64;
+                        let sum_fu: i32 = glyphs.iter().map(|g| g.x_advance).sum();
+                        let width = (sum_fu as f64 * 12.0 / upm * 1000.0).round() as i32;
+                        Some((width, glyphs.len()))
+                    }
+                    _ => None,
+                })
+                .fold((0, 0), |(w, n), (dw, dn)| (w + dw, n + dn))
+        };
+
+        let shaped_no = shape_item(&world, item_no);
+        let shaped_yes = shape_item(&world, item_yes);
+
+        let (width_no, n_glyphs) = measure(&shaped_no);
+        let (width_yes, _) = measure(&shaped_yes);
+
+        // Tracking é aplicado entre glifos (n_glyphs - 1 gaps).
+        // Cada gap adiciona tracking_pt em unidades de texto (1/1000 de em).
+        let expected_delta = (tracking_pt * 1000.0 * (n_glyphs.saturating_sub(1)) as f64).round() as i32;
+        let actual_delta = width_yes - width_no;
+
+        assert!(
+            (actual_delta - expected_delta).abs() <= 20,
+            "P621: tracking deve aumentar largura real em ~{} ({} glyphs), got {} (sem tracking {}, com tracking {})",
+            expected_delta, n_glyphs, actual_delta, width_no, width_yes
+        );
     }
 }
 
