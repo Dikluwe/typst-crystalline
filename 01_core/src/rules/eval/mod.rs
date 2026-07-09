@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/rules/eval.md
-//! @prompt-hash 24fc3da1
+//! @prompt-hash d1f52ef5
 //! @layer L1
 //! @updated 2026-06-17
 //!
@@ -491,7 +491,9 @@ pub(crate) fn eval_markup(
                 let quote_node = Content::Text(glyph.into());
                 parts.push(rules::intercept_content(quote_node, ctx, engine)?);
             }
-            SyntaxKind::Space | SyntaxKind::Parbreak => parts.push(Content::Space),
+            SyntaxKind::Space => parts.push(Content::Space),
+            // P622: quebra de parágrafo semântica — distinta de Space.
+            SyntaxKind::Parbreak => parts.push(Content::Parbreak),
             k if k.is_trivia() => continue,
             // Passo 56 — associação retroactiva: <label> envolve o nó precedente.
             // O parser expõe <label> como nó irmão (não filho) do nó anterior.

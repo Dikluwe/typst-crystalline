@@ -476,6 +476,8 @@ fn materialize_time(content: &Content, intr: &TagIntrospector, location: Locatio
         Content::Empty
         | Content::Text(_)
         | Content::Space
+        // P622: Parbreak é leaf estrutural — sem CounterDisplay possível.
+        | Content::Parbreak
         | Content::Raw(_)
         | Content::Ref(_)
         | Content::SetPage { .. }
@@ -1344,6 +1346,8 @@ pub(crate) fn walk(
         Content::Empty
         | Content::Text(_)
         | Content::Space
+        // P622: Parbreak é leaf estrutural — sem efeito em counters.
+        | Content::Parbreak
         | Content::Ref(_)
         | Content::CounterDisplay(_)
         | Content::Raw(_)

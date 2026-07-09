@@ -113,6 +113,8 @@ pub fn is_locatable(content: &Content) -> bool {
         Content::Empty
         | Content::Text(_)
         | Content::Space
+        // P622: Parbreak não é locatable — é cola estrutural.
+        | Content::Parbreak
         | Content::Sequence(_)
         | Content::Raw(_)
         | Content::ListItem(_)

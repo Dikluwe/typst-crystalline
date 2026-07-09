@@ -1,5 +1,7 @@
 # Prompt L0 — Content
-Hash do Código: 7fad73fb
+Hash do Código: ce62f432
+
+> **P622**: adicionada variante `Parbreak` — ver secção `Parbreak`.
 
 ## Módulo
 `01_core/src/entities/content.rs`
@@ -29,6 +31,7 @@ pub enum Content {
     Empty,
     Text(EcoString),         // TextElem mínimo
     Space,                   // SpaceElem / espaço entre palavras
+    Parbreak,                // quebra de parágrafo (linha em branco no markup)
     Sequence(Vec<Content>),  // sequência de elementos
     // Variantes futuras — NÃO implementar sem ADR:
     // Styled(Box<Content>, Styles),             // requer Styles real
@@ -95,10 +98,10 @@ variantes **permanecem no hub por desenho**, não por dívida — o arm próprio
 não de *estrutura Rust*; migrar não compra atomicidade quando não há semântica
 de utilizador nem campos por crescer.
 
-- **Definitivos (4)** — `Sequence`, `MathSequence`, `Empty`, `Space`:
+- **Definitivos (5)** — `Sequence`, `MathSequence`, `Empty`, `Space`, `Parbreak`:
   álgebra/cola do próprio `Content` (`sequence()` constrói `Sequence`/`Empty`;
-  `Space` é cola de whitespace; `MathSequence` é o contentor math interno). Sem
-  campos de utilizador. **Não migram nunca.**
+  `Space`/`Parbreak` são cola de whitespace; `MathSequence` é o contentor math
+  interno). Sem campos de utilizador. **Não migram nunca.**
 - **Provisórios (3)** — `Text`, `MathText`, `MathIdent`: permanecem no hub **com
   revisita marcada no diagnóstico do F** — os campos que o vanilla lhes daria
   são estilo (StyleChain), território do F; decidir agora desenharia o F por
@@ -286,6 +289,7 @@ impl Content {
 - `Empty` → `""`
 - `Text(s)` → `s.to_string()`
 - `Space` → `" "`
+- `Parbreak` → `"\n"` (separação de parágrafos)
 - `Sequence(v)` → concatenação recursiva
 
 ## Método `map_content` (Passo 69 — DEBT-19)
@@ -309,9 +313,27 @@ Containers (recursão bottom-up): `Sequence`, `Strong`, `Emph`, `Heading`,
 `MathFrac`, `MathAttach`, `MathRoot`, `MathDelimited`, `MathMatrix`, `MathCases`,
 `Outline`.
 
-Terminais (clone directo): `Text`, `Space`, `Empty`, `Linebreak`,
+Terminais (clone directo): `Text`, `Space`, `Parbreak`, `Empty`, `Linebreak`,
 `Raw`, `Ref`, `SetHeadingNumbering`, `CounterUpdate`, `CounterDisplay`,
 `MathAlignPoint`, `MathIdent`, `MathText`.
+
+## Variante `Content::Parbreak` — P622
+
+Quebra de parágrafo semântica, produzida por uma linha em branco no markup
+(`SyntaxKind::Parbreak`). Distinta de `Content::Space` (espaço inter-palavras) e
+de `Content::Linebreak` (`\\` explícito).
+
+- `plain_text()` → `"\n"`.
+- `is_empty()` → `false` (marker estrutural; separa parágrafos).
+- `map_content` / `map_text` → terminal (clone directo).
+- `fmt_content` → `"parbreak"`.
+- Layout → `flush_line()` no ponto onde ocorre. Avança `cursor_y` por
+  `line_height + leading` da linha que termina, separando visualmente os
+  parágrafos. Múltiplos `Parbreak` consecutivos: o primeiro drena a linha
+  actual; subsequentes encontram `current_line` vazia e são no-op em termos de
+  avanço vertical (sem parágrafos vazios adicionais nesta versão).
+- Introspecção → não-locatable; `extract_payload` → `None`; terminal em
+  `materialize_time` e `walk`.
 
 ## Variante `Content::Label` — P460 + P464
 
@@ -381,7 +403,8 @@ Suporta `.body` e `.level` em `Heading`, `.body` em `Figure`.
 - `Content::sequence(vec![]).is_empty() == true`
 - `Content::sequence(vec![Content::text("a")]) == Content::text("a")` (desembrulha)
 - `Content::sequence(vec![Content::text("a"), Content::Space, Content::text("b")]).plain_text() == "a b"`
-- `Content::Empty` e `Content::Space` — clone e PartialEq funcionam
+- `Content::Parbreak.plain_text() == "\n"` e `is_empty() == false`
+- `Content::Empty`, `Content::Space` e `Content::Parbreak` — clone e PartialEq funcionam
 
 ## Variantes estruturais — Passo 154B (ADR-0060 Fase 1)
 

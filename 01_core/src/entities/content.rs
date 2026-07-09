@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/entities/content.md
-//! @prompt-hash 4024c65a
+//! @prompt-hash eaca2719
 //! @layer L1
 //! @updated 2026-06-22
 //!
@@ -137,6 +137,9 @@ pub enum Content {
     Text(EcoString),
     /// Espaço entre elementos (SpaceElem).
     Space,
+    /// Quebra de parágrafo semântica (linha em branco no markup).
+    /// **P622**: distinta de `Space` e de `Linebreak` (`\\` explícito).
+    Parbreak,
     /// Sequência de elementos — clone O(1) via Arc (ADR-0026 revisão).
     Sequence(Arc<[Content]>),
 
@@ -1116,6 +1119,7 @@ fn fmt_content(c: &Content, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         Content::Empty => write!(f, "empty"),
         Content::Text(t) => write!(f, "text({:?})", t),
         Content::Space => write!(f, "space"),
+        Content::Parbreak => write!(f, "parbreak"),
         Content::Sequence(seq) => {
             f.debug_tuple("sequence").field(&seq.as_ref()).finish()
         }
@@ -2275,6 +2279,8 @@ pub fn heading(level: u8, body: Content) -> Self {
     pub fn is_empty(&self) -> bool {
         match self {
             Self::Empty => true,
+            // P622: Parbreak é marker estrutural — nunca vazio.
+            Self::Parbreak => false,
             Self::Sequence(v) => v.is_empty(),
             Self::Label(e) => e.is_empty(),
             // Figura: não está vazia se tiver body OU caption com conteúdo.
@@ -2378,6 +2384,8 @@ pub fn heading(level: u8, body: Content) -> Self {
             Self::Empty => String::new(),
             Self::Text(s) => s.to_string(),
             Self::Space => " ".to_string(),
+            // P622: representação textual de separação de parágrafos.
+            Self::Parbreak => "\n".to_string(),
             Self::Sequence(v) => v.iter().map(|c| c.plain_text()).collect(),
             // Passo 101: Content::Strong/Emph removidos — cobertos por
             // Content::Styled(body, _) => body.plain_text() no fim do match.
@@ -2528,6 +2536,7 @@ impl PartialEq for Content {
             (Self::Empty, Self::Empty) => true,
             (Self::Text(a), Self::Text(b)) => a == b,
             (Self::Space, Self::Space) => true,
+            (Self::Parbreak, Self::Parbreak) => true,
             (Self::Sequence(a), Self::Sequence(b)) => a.as_ref() == b.as_ref(),
             // Passo 101: Content::Strong/Emph removidos — Content::Styled cobre.
             (Self::Heading(a), Self::Heading(b)) => a == b,
@@ -2822,8 +2831,10 @@ impl Content {
             // Listados explicitamente — variantes novas não passam em silêncio.
             // Passo 156D: HSpace/VSpace são leaves (sem body), terminais.
             // Passo 156E: Pagebreak é leaf (event sem body), terminal.
+            // P622: Parbreak é leaf estrutural — terminal.
             Content::Text(_)
             | Content::Space
+            | Content::Parbreak
             | Content::Empty
             | Content::Linebreak(_)
             | Content::Outline(_)
@@ -3045,8 +3056,10 @@ impl Content {
             // Content::Text, portanto clonar em bloco é correcto e seguro.
             // Passo 156D: HSpace/VSpace são leaves (sem body), terminais.
             // Passo 156E: Pagebreak é leaf (event sem body), terminal.
+            // P622: Parbreak é leaf estrutural — terminal.
             Content::Empty
             | Content::Space
+            | Content::Parbreak
             | Content::Linebreak(_)
             | Content::Outline(_)
             | Content::Raw(_)
@@ -3170,6 +3183,14 @@ mod tests {
     fn space_nao_e_empty() {
         assert!(!Content::Space.is_empty());
         assert_eq!(Content::Space.plain_text(), " ");
+    }
+
+    #[test]
+    fn parbreak_e_marker_estrutural() {
+        assert!(!Content::Parbreak.is_empty());
+        assert_eq!(Content::Parbreak.plain_text(), "\n");
+        assert_eq!(Content::Parbreak, Content::Parbreak);
+        assert_ne!(Content::Parbreak, Content::Space);
     }
 
     #[test]

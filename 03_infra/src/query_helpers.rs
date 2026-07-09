@@ -321,7 +321,8 @@ fn has_any_text(content: &Content) -> bool {
         | Content::GridHeader(_) | Content::GridFooter(_) | Content::SetPage { .. }
         | Content::ContextBlock(_)
         | Content::GridHLine(_) | Content::GridVLine(_) | Content::TableHLine(_) | Content::TableVLine(_)
-        | Content::Empty | Content::Space | Content::Document { .. } | Content::Asset { .. } => false,
+        // P622: Parbreak não contém texto.
+        | Content::Empty | Content::Space | Content::Parbreak | Content::Document { .. } | Content::Asset { .. } => false,
     }
 }
 
@@ -393,7 +394,8 @@ where
         | Content::GridHeader(_) | Content::GridFooter(_) | Content::SetPage { .. }
         | Content::ContextBlock(_)
         | Content::GridHLine(_) | Content::GridVLine(_) | Content::TableHLine(_) | Content::TableVLine(_)
-        | Content::Empty | Content::Space | Content::Text(_)
+        // P622: Parbreak é leaf estrutural — não conta para a variante.
+        | Content::Empty | Content::Space | Content::Parbreak | Content::Text(_)
         | Content::Document { .. } | Content::Asset { .. } => 0,
     }
 }

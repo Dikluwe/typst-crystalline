@@ -96,6 +96,7 @@ pub fn repr_content(c: &Content) -> String {
         Content::Empty => "empty".to_string(),
         Content::Text(t) => format!("\"{}\"", t.as_str().escape_debug()),
         Content::Space => "space".to_string(),
+        Content::Parbreak => "parbreak".to_string(),
         Content::Sequence(seq) => {
             let inner: String = seq.iter().map(repr_content).collect();
             format!("[{}]", inner)

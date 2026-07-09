@@ -746,6 +746,12 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
                 }
             }
 
+            // P622 — quebra de parágrafo semântica: drena a linha actual,
+            // avançando verticalmente por line_height + leading.
+            Content::Parbreak => {
+                self.flush_line();
+            }
+
             // Atomizado (ADR-0109, P425) → layout/sequence.rs.
             Content::Sequence(parts) => sequence::layout(self, parts),
 

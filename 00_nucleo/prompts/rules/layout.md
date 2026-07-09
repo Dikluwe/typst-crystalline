@@ -1,5 +1,5 @@
 # Prompt L0 — layout
-Hash do Código: f93a2eb1
+Hash do Código: 19cff6df
 
 ## Módulo
 `01_core/src/rules/layout.rs`
@@ -35,6 +35,8 @@ API pública — usa `FixedMetrics::new(12.0)`.
 
 ## Comportamento
 - `Content::Empty` → zero páginas
+- `Content::Parbreak` → `flush_line()` no ponto onde ocorre, separando os
+  parágrafos visualmente (avanço vertical por `line_height + leading`).
 - Word-wrap: quebra quando palavra ultrapassa `page_width - MARGIN`
 - Paginação: nova página quando `cursor_y > page_height - MARGIN`
 - `flush_line()` move `current_line` para o frame actual
@@ -118,6 +120,8 @@ ausentes. DEBT-53 candidato XL futuro endereça shaping.
 - `layout(&Content::text("Hello world")).plain_text()` contém "Hello" e "world"
 - 100 palavras → todos os items dentro dos limites da página (x<595, y<842)
 - 50 palavras → múltiplas linhas (y_values.len() > 1)
+- Dois parágrafos separados por `Content::Parbreak` produzem pelo menos 2
+  linhas visuais distintas (y diferentes)
 - Pipeline parse→eval→layout sem crash
 
 ## Secção: Referências e Contadores Automáticos (Passo 59)

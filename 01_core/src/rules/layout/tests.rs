@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/rules/layout.md
-//! @prompt-hash 5249700d
+//! @prompt-hash 6c4613b5
 //! @layer L1
 //! @updated 2026-04-23
 //!
@@ -10664,6 +10664,44 @@ mod tests_show_rule_integration {
             txt.contains("MIT"),
             "organization deve aparecer no slot publisher: doc='{}'",
             txt
+        );
+    }
+}
+
+// ── P622 — Quebra de parágrafo (`Content::Parbreak`) ───────────────────────
+
+#[cfg(test)]
+mod p622_parbreak {
+    use super::*;
+    use crate::entities::content::Content;
+    use crate::entities::layout_types::FrameItem;
+
+    #[test]
+    fn parbreak_separa_dois_paragrafos_em_linhas_distintas() {
+        let content = Content::sequence(vec![
+            Content::text("Primeiro parágrafo."),
+            Content::Parbreak,
+            Content::text("Segundo parágrafo."),
+        ]);
+        let doc = layout(&content);
+        assert!(
+            !doc.pages.is_empty(),
+            "documento deve ter pelo menos uma página"
+        );
+
+        let ys: std::collections::HashSet<i64> = doc.pages[0]
+            .items
+            .iter()
+            .filter_map(|item| match item {
+                FrameItem::Text { pos, .. } => Some(pos.y.0.round() as i64),
+                _ => None,
+            })
+            .collect();
+
+        assert!(
+            ys.len() >= 2,
+            "dois parágrafos separados por Parbreak devem produzir pelo menos 2 linhas visuais; ys={:?}",
+            ys
         );
     }
 }

@@ -201,6 +201,18 @@ em `TrackedWorld` gera `impl Track for dyn TrackedWorld`.
 - `use BinOp::*` e `use UnOp::*` PROIBIDOS: o linter confunde com imports externos (V14)
   — usar sempre `BinOp::Add`, `UnOp::Neg`, etc. directamente nos braços do match
 
+## Whitespace no markup — P622
+
+O eval de markup distingue dois tokens de whitespace:
+
+- `SyntaxKind::Space` → `Content::Space` (espaço inter-palavras; não quebra linha).
+- `SyntaxKind::Parbreak` → `Content::Parbreak` (quebra de parágrafo; produzida por
+  uma linha em branco no markup).
+
+Anteriormente ambos os tokens eram mapeados para `Content::Space`, o que fazia com
+que parágrafos separados fossem concatenados numa única linha visual. A distinção
+permite ao layout inserir uma quebra de linha no ponto do `Parbreak`.
+
 ## Critérios de Verificação
 
 ```

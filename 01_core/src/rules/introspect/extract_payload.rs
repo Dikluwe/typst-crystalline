@@ -150,6 +150,8 @@ mod tests {
     fn empty_e_space_produzem_none() {
         assert_eq!(extract_payload(&Content::Empty), None);
         assert_eq!(extract_payload(&Content::Space), None);
+        // P622: Parbreak não é locatable.
+        assert_eq!(extract_payload(&Content::Parbreak), None);
     }
 
     #[test]
