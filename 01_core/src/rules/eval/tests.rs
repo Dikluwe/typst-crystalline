@@ -6281,6 +6281,19 @@ mod tests {
         );
     }
 
+    // P652 — array.sorted() com tipos incompatíveis deve produzir erro,
+    // não assumir Ordering::Equal em silêncio.
+    #[test]
+    fn p652_array_sorted_tipo_incompativel_errors() {
+        let world = MockWorld::new("#let x = (1, \"a\", 2).sorted()");
+        let err = eval_for_test(&world, &world.source).unwrap_err();
+        let msg = err.first().map(|d| d.message.to_string()).unwrap_or_default();
+        assert!(
+            msg.contains("cannot compare str and int"),
+            "mensagem inesperada: {msg}"
+        );
+    }
+
     #[test]
     fn p466_array_filter() {
         let world = MockWorld::new("#let x = (1, 2, 3).filter(x => x > 1)");

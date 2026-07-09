@@ -175,16 +175,46 @@ fn array_sorted(
     };
 
     let mut sorted = arr;
+    let mut cmp_err: Option<EcoString> = None;
+
     if let Some(key_fn) = key {
         let mut keyed: Vec<(Value, Value)> = Vec::with_capacity(sorted.len());
         for v in sorted {
             let k = apply_func(key_fn.clone(), Args::positional(vec![v.clone()]), scopes, ctx, engine)?;
             keyed.push((k, v));
         }
-        keyed.sort_by(|a, b| value_cmp(&a.0, &b.0).unwrap_or(Ordering::Equal));
+        keyed.sort_by(|a, b| {
+            if cmp_err.is_some() {
+                return Ordering::Equal;
+            }
+            match value_cmp(&a.0, &b.0) {
+                Ok(ord) => ord,
+                Err(e) => {
+                    cmp_err = Some(e);
+                    Ordering::Equal
+                }
+            }
+        });
+        if let Some(e) = cmp_err {
+            return Err(vec![SourceDiagnostic::error(Span::detached(), e)]);
+        }
         Ok(Value::Array(keyed.into_iter().map(|(_, v)| v).collect()))
     } else {
-        sorted.sort_by(|a, b| value_cmp(a, b).unwrap_or(Ordering::Equal));
+        sorted.sort_by(|a, b| {
+            if cmp_err.is_some() {
+                return Ordering::Equal;
+            }
+            match value_cmp(a, b) {
+                Ok(ord) => ord,
+                Err(e) => {
+                    cmp_err = Some(e);
+                    Ordering::Equal
+                }
+            }
+        });
+        if let Some(e) = cmp_err {
+            return Err(vec![SourceDiagnostic::error(Span::detached(), e)]);
+        }
         Ok(Value::Array(sorted))
     }
 }
@@ -767,14 +797,30 @@ fn expect_one_int(args: Args, context: &str) -> SourceResult<i64> {
 
 /// Comparação parcial entre valores, alinhada com o Typst vanilla para os
 /// tipos primitivos suportados em P466: `int`, `float` e `str`.
-fn value_cmp(a: &Value, b: &Value) -> Option<Ordering> {
+///
+/// **P652** — devolve `Err` quando os valores não são comparáveis (tipos
+/// incompatíveis ou `NaN`), em vez de assumir `Ordering::Equal` em silêncio.
+fn value_cmp(a: &Value, b: &Value) -> Result<Ordering, EcoString> {
     match (a, b) {
-        (Value::Int(a), Value::Int(b)) => a.partial_cmp(b),
-        (Value::Int(i), Value::Float(f)) => (*i as f64).partial_cmp(f),
-        (Value::Float(f), Value::Int(i)) => f.partial_cmp(&(*i as f64)),
-        (Value::Float(a), Value::Float(b)) => a.partial_cmp(b),
-        (Value::Str(a), Value::Str(b)) => Some(a.cmp(b)),
-        _ => None,
+        (Value::Int(a), Value::Int(b)) => {
+            a.partial_cmp(b).ok_or_else(|| "cannot compare integers".into())
+        }
+        (Value::Int(i), Value::Float(f)) => (*i as f64)
+            .partial_cmp(f)
+            .ok_or_else(|| "cannot compare integer and float".into()),
+        (Value::Float(f), Value::Int(i)) => f
+            .partial_cmp(&(*i as f64))
+            .ok_or_else(|| "cannot compare float and integer".into()),
+        (Value::Float(a), Value::Float(b)) => a
+            .partial_cmp(b)
+            .ok_or_else(|| "cannot compare floats".into()),
+        (Value::Str(a), Value::Str(b)) => Ok(a.cmp(b)),
+        _ => Err(format!(
+            "cannot compare {} and {}",
+            a.type_name(),
+            b.type_name()
+        )
+        .into()),
     }
 }
 
