@@ -4,7 +4,7 @@
 **Data:** 2026-07-09  
 **Foco:** Terceira ronda de deteção de falhas silenciosas, usando avisos nativos do compilador e do `clippy` em vez de padrões de texto.  
 **Dependências:** P633, P650 (rondas anteriores por padrões de texto).  
-**Hash do commit com o relatório:** `fa4d5fd1d`
+**Hash do commit com o relatório:** `587aaf726`
 
 ---
 
