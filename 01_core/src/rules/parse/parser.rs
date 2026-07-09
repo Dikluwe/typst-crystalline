@@ -391,9 +391,38 @@ impl<'s> Parser<'s> {
         self.lexer.set_mode(mode);
         self.with_nl_mode(stop, func);
         if mode != previous {
+            // **P648** — ao mudar de modo, o lexer re-lexa o token de
+            // lookahead. Se esse token for um erro de lexer genuíno (número
+            // hexadecimal inválido ou escape Unicode inválido), a mensagem
+            // original seria perdida. Preservamo-lo selectivamente para que
+            // o eval o possa propagar. Apenas estas classes são seguras:
+            // outras mensagens de lexer (ex: `#` em bloco de código) marcam
+            // construções válidas em contextos de markup e não podem ser
+            // propagadas sem repetir as regressões de P634.
+            let preserved_error =
+                if self.token.kind == SyntaxKind::Error {
+                    let errors = self.token.node.errors();
+                    let text = self.token.node.text();
+                    errors.into_iter().next().and_then(|e| {
+                        let msg = e.message.as_str();
+                        if msg.starts_with("invalid hexadecimal number:")
+                            || msg.starts_with("invalid Unicode codepoint:")
+                        {
+                            Some(SyntaxNode::error(e, text))
+                        } else {
+                            None
+                        }
+                    })
+                } else {
+                    None
+                };
+
             self.lexer.set_mode(previous);
             self.lexer.jump(self.token.prev_end);
             self.nodes.truncate(self.nodes.len() - self.token.n_trivia);
+            if let Some(node) = preserved_error {
+                self.nodes.push(node);
+            }
             self.token = Self::lex(&mut self.nodes, &mut self.lexer, self.nl_mode);
         }
     }

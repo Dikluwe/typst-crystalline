@@ -7266,25 +7266,30 @@ mod tests {
         );
     }
 
-    // P634 — nota: `0xZZ` não é silenciado pelo catch-all de `eval_expr` (o
-    // nó nem chega a ser uma `Expr`). O parser cria um nó de erro que o eval
-    // ainda não propaga; isso é débito do parser, não deste passo. Teste
-    // mantido como medição do comportamento actual.
+    // P648 — literais numéricos malformados (aqui `0xZZ`) são erros de
+    // parser que o eval passou a propagar selectivamente.
     #[test]
-    fn p633_parse_error_expr_silent_none() {
+    fn p648_parse_error_hex_literal_errors() {
         let world = MockWorld::new("#let x = 0xZZ");
-        let module = eval_for_test(&world, &world.source).expect("eval deve suceder");
-        assert_eq!(module.scope().get("x"), Some(&Value::None));
+        let err = eval_for_test(&world, &world.source).unwrap_err();
+        let msg = err.first().map(|d| d.message.to_string()).unwrap_or_default();
+        assert!(
+            msg.contains("invalid hexadecimal number: 0xZZ"),
+            "mensagem inesperada: {msg}"
+        );
     }
 
-    // P643: escape unicode inválido em markup é detectado pelo lexer
-    // (markup.rs:71), mas o eval ainda não propaga nós de erro do parser.
-    // Corrigir isto exige o passo dedicado ao parser/lexer já identificado
-    // em P634; este teste documenta o comportamento actual.
+    // P648 — escape Unicode inválido em markup é detectado pelo lexer
+    // (markup.rs:71); o eval propagava-o em code strings mas descartava-o
+    // em markup. A propagação selectiva de erros de parser corrige isto.
     #[test]
-    fn p643_invalid_unicode_escape_markup_still_silent() {
+    fn p648_invalid_unicode_escape_markup_errors() {
         let world = MockWorld::new("#let x = [\\u{FFFFFFFF}]");
-        let module = eval_for_test(&world, &world.source).expect("eval deve suceder");
-        assert!(module.scope().get("x").is_some());
+        let err = eval_for_test(&world, &world.source).unwrap_err();
+        let msg = err.first().map(|d| d.message.to_string()).unwrap_or_default();
+        assert!(
+            msg.contains("invalid Unicode codepoint: FFFFFFFF"),
+            "mensagem inesperada: {msg}"
+        );
     }
 }

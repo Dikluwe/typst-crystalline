@@ -298,6 +298,26 @@ pub fn eval_with_full_error(
 ) -> SourceResult<Module> {
     let root = source.root();
 
+    // **P648** — propagação selectiva de erros de sintaxe que o eval
+    // actualmente descarta. A tentativa de propagar *todos* os erros de
+    // parser (P634) quebrou dezassete testes porque o parser assinala
+    // construções válidas como erro (smart quotes, `#set` dentro de blocos,
+    // etc.). Só propagamos classes de erro confirmadas como genuínas:
+    // literais numéricos malformados e escapes Unicode inválidos em markup.
+    let syntax_errors: Vec<SourceDiagnostic> = root
+        .errors()
+        .into_iter()
+        .filter(|e| {
+            let msg = e.message.as_str();
+            msg.starts_with("invalid hexadecimal number:")
+                || msg.starts_with("invalid Unicode codepoint:")
+        })
+        .map(|e| SourceDiagnostic::error(e.span, e.message.to_string()))
+        .collect();
+    if !syntax_errors.is_empty() {
+        return Err(syntax_errors);
+    }
+
     // Passo 106 (ADR-0043): canal de warnings activo. Pilot: emitir nota
     // quando o ficheiro fonte está vazio. Prova de vida do canal — o
     // caller lê `sink.into_diagnostics()` após este retorno.
