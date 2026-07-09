@@ -6989,4 +6989,138 @@ mod tests {
         let world = MockWorld::new("= Secção <sec>\n#let x = counter(heading).display(\"1.\", at: <sec>)");
         assert!(matches!(eval_let(&world, "x"), Some(Value::Content(_))));
     }
+
+    // ── P633 — sonda de falhas silenciosas: testes de confirmação/refutação ──
+
+    fn p633_eval_succeeds(src: &str) -> bool {
+        let world = MockWorld::new(src);
+        eval_for_test(&world, &world.source).is_ok()
+    }
+
+    fn p633_eval_fails(src: &str) -> bool {
+        let world = MockWorld::new(src);
+        eval_for_test(&world, &world.source).is_err()
+    }
+
+    // Confirmam o catch-all de `eval_expr` (`_ => Ok(Value::None)`).
+    #[test]
+    fn p633_break_top_level_silently_none() {
+        assert!(p633_eval_succeeds("#break"));
+    }
+
+    #[test]
+    fn p633_continue_top_level_silently_none() {
+        assert!(p633_eval_succeeds("#continue"));
+    }
+
+    #[test]
+    fn p633_return_top_level_silently_none() {
+        assert!(p633_eval_succeeds("#return 1"));
+    }
+
+    // Confirmam falhas silenciosas em `#set` rules (valores inválidos são ignorados).
+    #[test]
+    fn p633_set_page_width_string_silent() {
+        assert!(p633_eval_succeeds("#set page(width: \"foo\")\n#let x = 1"));
+    }
+
+    #[test]
+    fn p633_set_page_numbering_int_silent() {
+        assert!(p633_eval_succeeds("#set page(numbering: 123)\n#let x = 1"));
+    }
+
+    #[test]
+    fn p633_set_page_columns_string_silent() {
+        assert!(p633_eval_succeeds("#set page(columns: \"foo\")\n#let x = 1"));
+    }
+
+    #[test]
+    fn p633_set_document_title_int_silent() {
+        assert!(p633_eval_succeeds("#set document(title: 123)\n#let x = 1"));
+    }
+
+    #[test]
+    fn p633_set_text_weight_string_silent() {
+        assert!(p633_eval_succeeds("#set text(weight: \"foo\")\n#let x = 1"));
+    }
+
+    #[test]
+    fn p633_set_equation_numbering_int_silent() {
+        assert!(p633_eval_succeeds("#set math.equation(numbering: 123)\n#let x = 1"));
+    }
+
+    #[test]
+    fn p633_set_equation_numbering_undefined_silent() {
+        // O erro de `eval_expr(named.expr())` é descartado por `.ok()`.
+        assert!(p633_eval_succeeds("#set math.equation(numbering: nao_existe)\n#let x = 1"));
+    }
+
+    #[test]
+    fn p633_set_figure_numbering_int_silent() {
+        assert!(p633_eval_succeeds("#set figure(numbering: 123)\n#let x = 1"));
+    }
+
+    #[test]
+    fn p633_set_table_numbering_int_silent() {
+        assert!(p633_eval_succeeds("#set table(numbering: 123)\n#let x = 1"));
+    }
+
+    // Confirmam comportamento actual de métodos de counter.
+    // Nota: sem `#` no início, a linha inteira é interpretada como texto de
+    // markup; os testes usam `#` para forçar avaliação como código.
+    #[test]
+    fn p633_counter_update_string_rejeitado() {
+        // `native_counter_update` rejeita tipos não-inteiros; o caminho
+        // `unwrap_or(0)` em `bindings.rs` não é atingível via syntax pública.
+        assert!(p633_eval_fails("#counter(\"x\").update(\"abc\")"));
+    }
+
+    #[test]
+    fn p633_counter_display_invalid_arg_silent() {
+        // `counter.display` requer contexto; o argumento inválido é ignorado.
+        assert!(p633_eval_succeeds("#context(counter(\"x\").display(123))"));
+    }
+
+    #[test]
+    fn p633_counter_display_at_invalid_silent() {
+        assert!(p633_eval_succeeds("#context(counter(\"x\").display(\"1.\", at: 123))"));
+    }
+
+    #[test]
+    fn p633_state_method_dead_code_path() {
+        // `state()` devolve `Content`, não `Value::State`; o branch
+        // `eval_state_method` em `closures.rs` não é atingível por syntax
+        // pública. O `.get` em content dá erro de field access.
+        assert!(p633_eval_fails("#state(\"x\", 0).get(1, 2)"));
+    }
+
+    // Confirma falha silenciosa em grid(columns: <inválido>).
+    #[test]
+    fn p633_grid_columns_string_silent_auto() {
+        assert!(p633_eval_succeeds("#let x = grid(columns: \"foo\")[A]"));
+    }
+
+    // Confirma que escape unicode inválido é preservado como texto literal.
+    #[test]
+    fn p633_invalid_unicode_escape_preserved() {
+        assert!(p633_eval_succeeds("#let x = \"\\u{FFFFFFFF}\""));
+    }
+
+    // Confirma que erros de parse em expressões (`0xZZ`) são silenciosamente
+    // convertidos em `Value::None` pelo catch-all de `eval_expr`, em vez de
+    // falharem a avaliação.
+    #[test]
+    fn p633_parse_error_expr_silent_none() {
+        let world = MockWorld::new("#let x = 0xZZ");
+        let module = eval_for_test(&world, &world.source).expect("eval deve suceder");
+        assert_eq!(module.scope().get("x"), Some(&Value::None));
+    }
+
+    // Confirma que escape unicode inválido em markup é preservado como texto.
+    #[test]
+    fn p633_invalid_unicode_escape_markup_preserved() {
+        let world = MockWorld::new("#let x = [\\u{FFFFFFFF}]");
+        let module = eval_for_test(&world, &world.source).expect("eval deve suceder");
+        assert!(module.scope().get("x").is_some());
+    }
 }
