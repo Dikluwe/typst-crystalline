@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/rules/eval.md
-//! @prompt-hash d1f52ef5
+//! @prompt-hash a9cc504d
 //! @layer L1
 //! @updated 2026-06-17
 //!
@@ -815,8 +815,44 @@ pub(crate) fn eval_expr(
         Expr::Shorthand(v) => Ok(Value::Str(ecow::EcoString::from(v.get()))),
         Expr::Linebreak(_) => Ok(Value::Content(Content::linebreak())),
 
-        // Fronteira deliberada — requer tipos não migrados (Content, Styles, etc.)
-        _ => Ok(Value::None),
+        // P634 — controlo de fluxo fora de contexto: mensagens byte-idênticas
+        // ao vanilla (`typst-eval/src/flow.rs:28-36`). O mecanismo FlowEvent
+        // ainda não existe no cristalino; enquanto não existir, qualquer
+        // ocorrência destas variantes no dispatcher topo é um erro.
+        Expr::LoopBreak(node) => Err(vec![SourceDiagnostic::error(
+            node.span(),
+            "cannot break outside of loop",
+        )]),
+        Expr::LoopContinue(node) => Err(vec![SourceDiagnostic::error(
+            node.span(),
+            "cannot continue outside of loop",
+        )]),
+        Expr::FuncReturn(node) => Err(vec![SourceDiagnostic::error(
+            node.span(),
+            "cannot return outside of function",
+        )]),
+
+        // Fronteira deliberada — variantes estritamente estruturais que não
+        // entram no dispatcher normal (markup/math) ou ainda não migradas.
+        Expr::Text(_)
+        | Expr::Space(_)
+        | Expr::Parbreak(_)
+        | Expr::SmartQuote(_)
+        | Expr::TermItem(_)
+        | Expr::MathText(_)
+        | Expr::MathIdent(_)
+        | Expr::MathShorthand(_)
+        | Expr::MathAlignPoint(_)
+        | Expr::MathDelimited(_)
+        | Expr::MathAttach(_)
+        | Expr::MathPrimes(_)
+        | Expr::MathFrac(_)
+        | Expr::MathRoot(_) => Ok(Value::None),
+
+        Expr::DestructAssignment(node) => Err(vec![SourceDiagnostic::error(
+            node.span(),
+            "destructuring assignment is not yet implemented",
+        )]),
     }
 }
 

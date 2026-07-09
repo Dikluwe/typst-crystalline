@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/rules/eval.md
-//! @prompt-hash d1f52ef5
+//! @prompt-hash a9cc504d
 //! @layer L1
 //! @updated 2026-06-17
 //!
@@ -7002,20 +7002,21 @@ mod tests {
         eval_for_test(&world, &world.source).is_err()
     }
 
-    // Confirmam o catch-all de `eval_expr` (`_ => Ok(Value::None)`).
+    // P634 — após remover o catch-all silencioso, break/continue/return no topo
+    // do documento produzem erros claros.
     #[test]
-    fn p633_break_top_level_silently_none() {
-        assert!(p633_eval_succeeds("#break"));
+    fn p634_break_top_level_errors() {
+        assert!(p633_eval_fails("#break"));
     }
 
     #[test]
-    fn p633_continue_top_level_silently_none() {
-        assert!(p633_eval_succeeds("#continue"));
+    fn p634_continue_top_level_errors() {
+        assert!(p633_eval_fails("#continue"));
     }
 
     #[test]
-    fn p633_return_top_level_silently_none() {
-        assert!(p633_eval_succeeds("#return 1"));
+    fn p634_return_top_level_errors() {
+        assert!(p633_eval_fails("#return 1"));
     }
 
     // Confirmam falhas silenciosas em `#set` rules (valores inválidos são ignorados).
@@ -7106,9 +7107,10 @@ mod tests {
         assert!(p633_eval_succeeds("#let x = \"\\u{FFFFFFFF}\""));
     }
 
-    // Confirma que erros de parse em expressões (`0xZZ`) são silenciosamente
-    // convertidos em `Value::None` pelo catch-all de `eval_expr`, em vez de
-    // falharem a avaliação.
+    // P634 — nota: `0xZZ` não é silenciado pelo catch-all de `eval_expr` (o
+    // nó nem chega a ser uma `Expr`). O parser cria um nó de erro que o eval
+    // ainda não propaga; isso é débito do parser, não deste passo. Teste
+    // mantido como medição do comportamento actual.
     #[test]
     fn p633_parse_error_expr_silent_none() {
         let world = MockWorld::new("#let x = 0xZZ");

@@ -1,9 +1,9 @@
 # Prompt L0 — rules/eval
-Hash do Código: 7e811a89
+Hash do Código: 3daff1a8
 
 **Camada**: L1
-**Ficheiro alvo**: `01_core/src/rules/eval.rs`
-**ADRs relevantes**: ADR-0017 (adiamento eval), ADR-0001 (comemo em L1), ADR-0024 (ecow/Value::Str)
+**Ficheiro alvo**: `01_core/src/rules/eval/mod.rs`
+**ADRs relevantes**: ADR-0017 (adiamento eval), ADR-0001 (comemo em L1), ADR-0024 (ecow/Value::Str), ADR-0107 (paridade língua), ADR-0108 (medir antes de decidir), ADR-0109 (atomização)
 
 ## Contexto
 
@@ -81,11 +81,38 @@ renderizado.
   no corpo é ignorado; `Value::None` como iterable é iterável vazio (sem
   parsing de array literal)
 
-## Fronteira deliberada
+## §P634 — Controlo de fluxo fora de contexto
 
-`_ => Ok(Value::None)` — nós não implementados retornam None sem erro.
-Permite encontrar `#let x = 1` dentro de markup sem avaliar texto puro.
-Requer Content, Func, Styles para implementação completa (ADR-0017).
+O dispatcher `eval_expr` em `01_core/src/rules/eval/mod.rs` deve reconhecer
+`Expr::LoopBreak`, `Expr::LoopContinue` e `Expr::FuncReturn` e produzir erros
+claros quando ocorrem fora do contexto respectivo. As mensagens são
+byte-idênticas ao vanilla (`lab/typst-original/crates/typst-eval/src/flow.rs:28-36`):
+
+- `Expr::LoopBreak` fora de loop → `cannot break outside of loop`
+- `Expr::LoopContinue` fora de loop → `cannot continue outside of loop`
+- `Expr::FuncReturn` fora de função → `cannot return outside of function`
+
+O cristalino ainda não implementa o mecanismo `FlowEvent` do vanilla; nesta
+fase, qualquer ocorrência destas variantes no dispatcher topo (`eval_expr`)
+produz o erro acima. Uso legítimo dentro de ciclos/funções é trabalho futuro
+(ver `control_flow.rs`/`closures.rs`); a presente alteração não regrede porque,
+antes dela, esses usos também caíam no catch-all e silenciosamente devolviam
+`Value::None`.
+
+## Fronteira deliberada (actualizada por P634)
+
+O catch-all `_ => Ok(Value::None)` de `eval_expr` foi removido. O `match` deve
+ser exaustivo: cada variante de `Expr` deve ter braço explícito ou estar
+agrupada num braço documentado. Permanece `Ok(Value::None)` apenas para
+variantes estritamente estruturais que não entram no dispatcher normal:
+
+- Markup estrutural: `Text`, `Space`, `Parbreak`, `SmartQuote`, `TermItem`.
+- Math estrutural: `MathText`, `MathIdent`, `MathShorthand`, `MathAlignPoint`,
+  `MathDelimited`, `MathAttach`, `MathPrimes`, `MathFrac`, `MathRoot`.
+
+Todas as outras variantes não migradas devem devolver um erro claro em vez de
+`Value::None`. Em particular, `Expr::DestructAssignment` não está implementado
+e deve produzir erro.
 
 ## Semântica Typst confirmada (ops.rs de referência)
 
@@ -106,7 +133,7 @@ Requer Content, Func, Styles para implementação completa (ADR-0017).
 - **Recursão de `#show` por PONTO-FIXO MORFOLÓGICO (P348, modelo α, ADR-0107)**: em
   `apply_show_rules` (`rules/eval/rules.rs`), o output de uma **element rule** que re-casa
   é **revisitado** num loop local até **ponto-fixo morfológico** (`morph_canon`, P345 — para
-  quando a regra é no-op morfológico) ou até o **teto-64 backstop** (`MAX_SHOW_RULE_DEPTH`;
+  quando a regra é no-op morfológica) ou até o **teto-64 backstop** (`MAX_SHOW_RULE_DEPTH`;
   não-convergente → erro `"maximum show rule depth exceeded"` + hints, byte-idêntico ao
   vanilla, ADR-0033). `active_guards` impede a recursão **durante** a chamada do recipe; a
   revisitação é o loop, após devolver. Caminho comum não paga `morph_canon` (checa do 2º
@@ -225,6 +252,14 @@ eval_binary_op(Add, Int(MAX), Int(1))   → Err(...)
 eval_unary_op(Not, Bool(true))          → Ok(Bool(false))
 eval_for_test: Source("#let x = 1") → module.scope().get("x") = Some(&Value::Int(1))
 ```
+
+## §P634 — Critérios adicionais de verificação
+
+- `eval_for_test(Source("#break"))` → `Err` contendo `cannot break outside of loop`
+- `eval_for_test(Source("#continue"))` → `Err` contendo `cannot continue outside of loop`
+- `eval_for_test(Source("#return 1"))` → `Err` contendo `cannot return outside of function`
+- `cargo test --workspace` continua a passar.
+- `crystalline-lint .` limpo.
 
 ## §P616 — Validação de `dir` em `#set text(...)`
 
