@@ -1,8 +1,8 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/rules/eval.md
-//! @prompt-hash ea93fd36
+//! @prompt-hash aa004f05
 //! @layer L1
-//! @updated 2026-06-25
+//! @updated 2026-07-09
 //!
 //! Show rules e set rules — aplicação e intercepção. Extraído de `eval.rs`
 //! no Passo 96.1 conforme ADR-0037 (coesão por domínio).
@@ -35,6 +35,12 @@ use crate::entities::world_types::check_show_depth as route_check_show_depth;
 use crate::rules::scopes::Scopes;
 
 use super::{closures, eval_expr, EvalContext};
+
+/// P636 — mensagem de mismatch de tipo no formato do vanilla
+/// (`foundations/cast.rs:325-335`): "expected {expected}, found {actual}".
+fn type_mismatch(expected: &str, found: &Value, span: Span) -> SourceDiagnostic {
+    SourceDiagnostic::error(span, format!("expected {}, found {}", expected, found.type_name()))
+}
 
 /// **P417 (M)** — Converte um `entities::selector::Selector` (query)
 /// para um `entities::show::Selector` (show rule). Apenas `Kind` e
@@ -675,24 +681,30 @@ pub(super) fn eval_set_rule(
             let numbering = set.args().items().find_map(|arg| {
                 if let Arg::Named(named) = arg {
                     if named.name().as_str() == "numbering" {
-                        return eval_expr(named.expr(), scopes, ctx, engine).ok();
+                        // P636: propagar erro de avaliação (variável indefinida,
+                        // por exemplo) em vez de descartar com `.ok()`.
+                        return Some((named.expr().span(), eval_expr(named.expr(), scopes, ctx, engine)));
                     }
                 }
                 None
             });
             match numbering {
-                Some(Value::Str(s)) => {
+                Some((_, Ok(Value::Str(s)))) => {
                     *engine.styles = engine
                         .styles
                         .push_custom("equation.numbering", Value::Str(s));
                 }
-                Some(Value::None) => {
+                Some((_, Ok(Value::None))) => {
                     // Limpa a numeração no escopo (None = ausente).
                     *engine.styles = engine
                         .styles
                         .push_custom("equation.numbering", Value::None);
                 }
-                _ => {}
+                Some((span, Ok(other))) => {
+                    return Err(vec![type_mismatch("string or none", &other, span)]);
+                }
+                Some((_, Err(err))) => return Err(err),
+                None => {}
             }
             return Ok(Value::None);
         }
@@ -703,36 +715,46 @@ pub(super) fn eval_set_rule(
         // Extrai os valores, converte arrays para strings separadas por vírgula,
         // e acumula no `EvalContext`. O eval copia isto para o `Module` no final;
         // o pipeline transporta para o exportador PDF (`/Info`).
-        fn value_to_eco_string(val: &crate::entities::value::Value) -> Option<ecow::EcoString> {
+        fn value_to_eco_string(
+            val: &crate::entities::value::Value,
+            span: Span,
+        ) -> SourceResult<Option<ecow::EcoString>> {
             match val {
-                crate::entities::value::Value::Str(s) => Some(s.clone()),
+                crate::entities::value::Value::Str(s) => Ok(Some(s.clone())),
                 crate::entities::value::Value::Array(arr) => {
-                    let parts: Vec<&str> = arr
-                        .iter()
-                        .filter_map(|v| match v {
-                            crate::entities::value::Value::Str(s) => Some(s.as_str()),
-                            _ => None,
-                        })
-                        .collect();
+                    let mut parts = Vec::new();
+                    for v in arr.iter() {
+                        match v {
+                            crate::entities::value::Value::Str(s) => parts.push(s.as_str()),
+                            other => {
+                                return Err(vec![type_mismatch(
+                                    "string",
+                                    other,
+                                    span,
+                                )]);
+                            }
+                        }
+                    }
                     if parts.is_empty() {
-                        None
+                        Ok(None)
                     } else {
-                        Some(ecow::EcoString::from(parts.join(", ")))
+                        Ok(Some(ecow::EcoString::from(parts.join(", "))))
                     }
                 }
-                _ => None,
+                crate::entities::value::Value::None => Ok(None),
+                other => Err(vec![type_mismatch("string or array of strings", other, span)]),
             }
         }
 
         for arg in set.args().items() {
             if let Arg::Named(named) = arg {
                 let key = named.name().as_str();
-                let val = eval_expr(named.expr(), scopes, ctx, engine)
-                    .unwrap_or(crate::entities::value::Value::None);
+                let val = eval_expr(named.expr(), scopes, ctx, engine)?;
+                let span = named.expr().span();
                 match key {
-                    "title" => ctx.document_info.title = value_to_eco_string(&val),
-                    "author" => ctx.document_info.author = value_to_eco_string(&val),
-                    "keywords" => ctx.document_info.keywords = value_to_eco_string(&val),
+                    "title" => ctx.document_info.title = value_to_eco_string(&val, span)?,
+                    "author" => ctx.document_info.author = value_to_eco_string(&val, span)?,
+                    "keywords" => ctx.document_info.keywords = value_to_eco_string(&val, span)?,
                     _ => {}
                 }
             }
@@ -743,12 +765,14 @@ pub(super) fn eval_set_rule(
     if target == "page" {
         // #set page(width: .., height: .., margin: ..) — Passo 81.
         // Valores ausentes ficam None e preservam o valor actual em layout.
-        fn extract_pt(val: &Value) -> Option<f64> {
+        // P636: rejeitar tipos inválidos em vez de ignorar silenciosamente.
+        fn extract_pt(val: &Value, span: Span) -> SourceResult<Option<f64>> {
             match val {
-                Value::Length(l) => Some(l.abs.to_pt()),
-                Value::Float(f) => Some(*f),
-                Value::Int(i) => Some(*i as f64),
-                _ => None,
+                Value::Length(l) => Ok(Some(l.abs.to_pt())),
+                Value::Float(f) => Ok(Some(*f)),
+                Value::Int(i) => Ok(Some(*i as f64)),
+                Value::None => Ok(None),
+                other => Err(vec![type_mismatch("length, float, or int", other, span)]),
             }
         }
         let mut width = None;
@@ -759,17 +783,23 @@ pub(super) fn eval_set_rule(
         for arg in set.args().items() {
             if let Arg::Named(named) = arg {
                 let key = named.name().as_str();
-                let val =
-                    eval_expr(named.expr(), scopes, ctx, engine).unwrap_or(Value::None);
+                let val = eval_expr(named.expr(), scopes, ctx, engine)?;
+                let span = named.expr().span();
                 match key {
-                    "width" => width = extract_pt(&val),
-                    "height" => height = extract_pt(&val),
-                    "margin" => margin = extract_pt(&val),
+                    "width" => width = extract_pt(&val, span)?,
+                    "height" => height = extract_pt(&val, span)?,
+                    "margin" => margin = extract_pt(&val, span)?,
                     "numbering" => {
                         numbering = match val {
                             Value::Str(s) => Some(s),
                             Value::None => Some(ecow::EcoString::new()),
-                            _ => None,
+                            other => {
+                                return Err(vec![type_mismatch(
+                                    "string or none",
+                                    &other,
+                                    span,
+                                )]);
+                            }
                         };
                     }
                     "columns" => {
@@ -782,7 +812,9 @@ pub(super) fn eval_set_rule(
                                 )]);
                             }
                             Value::None => None,
-                            _ => None,
+                            other => {
+                                return Err(vec![type_mismatch("int", &other, span)]);
+                            }
                         };
                     }
                     _ => {}
@@ -801,8 +833,8 @@ pub(super) fn eval_set_rule(
         for arg in set.args().items() {
             if let Arg::Named(named) = arg {
                 if named.name().as_str() == "numbering" {
-                    let val = eval_expr(named.expr(), scopes, ctx, engine)
-                        .unwrap_or(Value::None);
+                    let val = eval_expr(named.expr(), scopes, ctx, engine)?;
+                    let span = named.expr().span();
                     match val {
                         Value::Str(s) => {
                             *engine.styles = engine
@@ -815,8 +847,9 @@ pub(super) fn eval_set_rule(
                                 .styles
                                 .push_custom("figure.numbering", Value::None);
                         }
-                        // Outros tipos: herdar (não empurra).
-                        _ => {}
+                        other => {
+                            return Err(vec![type_mismatch("string or none", &other, span)]);
+                        }
                     }
                 }
             }
@@ -832,8 +865,8 @@ pub(super) fn eval_set_rule(
         for arg in set.args().items() {
             if let Arg::Named(named) = arg {
                 if named.name().as_str() == "numbering" {
-                    let val = eval_expr(named.expr(), scopes, ctx, engine)
-                        .unwrap_or(Value::None);
+                    let val = eval_expr(named.expr(), scopes, ctx, engine)?;
+                    let span = named.expr().span();
                     match val {
                         Value::Str(s) => {
                             *engine.styles = engine
@@ -845,7 +878,9 @@ pub(super) fn eval_set_rule(
                                 .styles
                                 .push_custom("table.numbering", Value::None);
                         }
-                        _ => {}
+                        other => {
+                            return Err(vec![type_mismatch("string or none", &other, span)]);
+                        }
                     }
                 }
             }
@@ -957,19 +992,37 @@ pub(super) fn eval_set_rule(
                 }
                 "weight" => {
                     // Int direto ou nome simbólico (FontWeight::from_name) → u16
-                    // canónico em Value::Int. Tipo/nome inválido: silent skip
-                    // (padrão histórico).
-                    let w: Option<u16> = match &val {
-                        Value::Int(n) => u16::try_from(*n).ok(),
-                        Value::Str(s) => {
-                            FontWeight::from_name(s.as_str()).map(|fw| fw.to_number())
+                    // canónico em Value::Int. P636: rejeitar tipos inválidos.
+                    let span = named.expr().span();
+                    match &val {
+                        Value::Int(n) => {
+                            if let Ok(w) = u16::try_from(*n) {
+                                *engine.styles = engine
+                                    .styles
+                                    .push_custom("text.weight", Value::Int(w as i64));
+                            } else {
+                                return Err(vec![SourceDiagnostic::error(
+                                    span,
+                                    "font weight must be between 100 and 900".to_string(),
+                                )]);
+                            }
                         }
-                        _ => None,
-                    };
-                    if let Some(w) = w {
-                        *engine.styles = engine
-                            .styles
-                            .push_custom("text.weight", Value::Int(w as i64));
+                        Value::Str(s) => {
+                            if let Some(fw) = FontWeight::from_name(s.as_str()) {
+                                *engine.styles = engine
+                                    .styles
+                                    .push_custom("text.weight", Value::Int(fw.to_number() as i64));
+                            } else {
+                                return Err(vec![SourceDiagnostic::error(
+                                    span,
+                                    format!("unknown font weight name: {s}"),
+                                )]);
+                            }
+                        }
+                        Value::None => {}
+                        other => {
+                            return Err(vec![type_mismatch("int or string", other, span)]);
+                        }
                     }
                 }
                 "tracking" => {

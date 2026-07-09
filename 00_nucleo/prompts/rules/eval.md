@@ -1,5 +1,5 @@
 # Prompt L0 — rules/eval
-Hash do Código: 200742d8
+Hash do Código: cdc6b6c6
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/rules/eval/mod.rs`
@@ -283,6 +283,57 @@ No final do eval (`eval_with_full_error`), `ctx.document_info` é copiado para
 o `Module` via `Module::set_document_info`. O pipeline transporta-o para
 `PagedDocument::document_info`, e o exportador PDF (`PdfBuilder`) escreve o
 `/Info` do PDF.
+
+## §P636 — Validação de tipos em `#set` rules
+
+Regras `#set` que aceitam um tipo específico devem rejeitar valores de tipo
+errado com mensagem clara, em vez de ignorar silenciosamente. O formato segue
+o vanilla (`foundations/cast.rs:325-335`): `expected {expected}, found {found}`,
+usando os nomes de tipo de `Value::type_name()`.
+
+### Nove casos corrigidos
+
+| # | Regra | Propriedade | Tipo esperado | Local em `rules.rs` |
+|---|---|---|---|---|
+| 8 | `#set math.equation` | `numbering` | `str` ou `none` | `math.equation` arm (`.ok()` descarta erro) |
+| 9 | `#set math.equation` | `numbering` | `str` ou `none` | match pós-avaliação |
+| 10 | `#set figure` | `numbering` | `str` ou `none` | match de `figure.numbering` |
+| 11 | `#set table` | `numbering` | `str` ou `none` | match de `table.numbering` |
+| 12 | `#set page` | `numbering` | `str` ou `none` | match de `page.numbering` |
+| 13 | `#set page` | `columns` | `int` ≥ 1 | match de `page.columns` |
+| 14 | `#set text` | `weight` | `int` ou `str` | match de `text.weight` |
+| 15 | `#set document` | `title`, `author`, `keywords` | `str` ou array de `str` | `value_to_eco_string` |
+| 16 | `#set page` | `width`, `height`, `margin` | `length`, `float` ou `int` | `extract_pt` |
+
+### Semântica
+
+- Propriedades com tipo único esperado (ex.: `page.width` → length/float/int):
+  - Se o valor avaliado não for do tipo esperado, devolver
+    `Err(vec![SourceDiagnostic::error(span, "expected {expected}, found {actual}")])`.
+  - `Value::None` continua a significar "não alterar" / "herdar".
+- Propriedades com múltiplos tipos válidos (ex.: `text.weight` → `int` ou `str`):
+  - Aceitar os tipos válidos.
+  - Para tipos inválidos, devolver erro no mesmo formato.
+- `document.title`/`author`/`keywords`: a função `value_to_eco_string` deve
+  devolver `Result<EcoString, SourceDiagnostic>`; arrays só são válidos se
+  todos os elementos forem `str` (caso contrário, erro no elemento inválido).
+- `math.equation` target pontuado: o erro de `eval_expr` (variável indefinida)
+  já deve propagar; não descartar com `.ok()`.
+
+### Critérios de verificação
+
+- `eval_for_test(Source("#set page(width: 'foo')\n#let x = 1"))` → `Err` contendo
+  `expected length, found str` (ou equivalente com os nomes de tipo do cristalino).
+- `eval_for_test(Source("#set page(numbering: 123)\n#let x = 1"))` → `Err`.
+- `eval_for_test(Source("#set page(columns: 'foo')\n#let x = 1"))` → `Err`.
+- `eval_for_test(Source("#set document(title: 123)\n#let x = 1"))` → `Err`.
+- `eval_for_test(Source("#set text(weight: 'foo')\n#let x = 1"))` → `Err`.
+- `eval_for_test(Source("#set math.equation(numbering: 123)\n#let x = 1"))` → `Err`.
+- `eval_for_test(Source("#set math.equation(numbering: nao_existe)\n#let x = 1"))` → `Err`
+  (`unknown variable`).
+- `eval_for_test(Source("#set figure(numbering: 123)\n#let x = 1"))` → `Err`.
+- `eval_for_test(Source("#set table(numbering: 123)\n#let x = 1"))` → `Err`.
+- Uso correcto dos nove casos continua a funcionar.
 
 ## Política IEEE 754 — propagação silenciosa (ADR-0101 EM VIGOR)
 

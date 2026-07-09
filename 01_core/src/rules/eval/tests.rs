@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/rules/eval.md
-//! @prompt-hash ea93fd36
+//! @prompt-hash aa004f05
 //! @layer L1
 //! @updated 2026-06-17
 //!
@@ -3075,11 +3075,10 @@ mod tests {
         }
     }
 
-    /// Passo 129: nome simbólico desconhecido é capturado silenciosamente
-    /// (`delta.weight` fica `None`; sem warning). Coerente com pattern
-    /// DEBT-1 XS de tipo errado nos outros arms.
+    /// Passo 129 / P636: nome simbólico desconhecido passou de silencioso
+    /// para erro hard, como parte da validação de tipos de `#set` rules.
     #[test]
-    fn eval_set_text_weight_simbolico_desconhecido_silent_passo_129() {
+    fn eval_set_text_weight_simbolico_desconhecido_error_passo_129() {
         use comemo::Track;
         let world = MockWorld::new("#set text(weight: \"arcoiris\")\nOlá");
         let src = World::source(&world, World::main(&world)).unwrap();
@@ -3098,13 +3097,7 @@ mod tests {
             &crate::entities::element_registry::ElementRegistry::new(),
         );
 
-        assert!(result.is_ok(), "eval falhou: {:?}", result);
-        let diags = sink.into_diagnostics();
-        assert!(
-            diags.iter().all(|d| !d.message.contains("'weight'")),
-            "nome desconhecido deve ser silent (sem warning 'weight'); got: {:?}",
-            diags
-        );
+        assert!(result.is_err(), "nome simbólico desconhecido deve falhar; got: {:?}", result);
     }
 
     /// Passo 131B (ADR-0052): `lang` valido (ISO 639-1) é aceite
@@ -7102,51 +7095,52 @@ mod tests {
         assert!(p633_eval_fails(src), "continue dentro de função fora de loop deve ser erro");
     }
 
-    // Confirmam falhas silenciosas em `#set` rules (valores inválidos são ignorados).
+    // P636 — falhas silenciosas de `#set` rules invertidas: valores de tipo
+    // inválido agora produzem erro.
     #[test]
-    fn p633_set_page_width_string_silent() {
-        assert!(p633_eval_succeeds("#set page(width: \"foo\")\n#let x = 1"));
+    fn p633_set_page_width_string_error() {
+        assert!(p633_eval_fails("#set page(width: \"foo\")\n#let x = 1"));
     }
 
     #[test]
-    fn p633_set_page_numbering_int_silent() {
-        assert!(p633_eval_succeeds("#set page(numbering: 123)\n#let x = 1"));
+    fn p633_set_page_numbering_int_error() {
+        assert!(p633_eval_fails("#set page(numbering: 123)\n#let x = 1"));
     }
 
     #[test]
-    fn p633_set_page_columns_string_silent() {
-        assert!(p633_eval_succeeds("#set page(columns: \"foo\")\n#let x = 1"));
+    fn p633_set_page_columns_string_error() {
+        assert!(p633_eval_fails("#set page(columns: \"foo\")\n#let x = 1"));
     }
 
     #[test]
-    fn p633_set_document_title_int_silent() {
-        assert!(p633_eval_succeeds("#set document(title: 123)\n#let x = 1"));
+    fn p633_set_document_title_int_error() {
+        assert!(p633_eval_fails("#set document(title: 123)\n#let x = 1"));
     }
 
     #[test]
-    fn p633_set_text_weight_string_silent() {
-        assert!(p633_eval_succeeds("#set text(weight: \"foo\")\n#let x = 1"));
+    fn p633_set_text_weight_string_error() {
+        assert!(p633_eval_fails("#set text(weight: \"foo\")\n#let x = 1"));
     }
 
     #[test]
-    fn p633_set_equation_numbering_int_silent() {
-        assert!(p633_eval_succeeds("#set math.equation(numbering: 123)\n#let x = 1"));
+    fn p633_set_equation_numbering_int_error() {
+        assert!(p633_eval_fails("#set math.equation(numbering: 123)\n#let x = 1"));
     }
 
     #[test]
-    fn p633_set_equation_numbering_undefined_silent() {
-        // O erro de `eval_expr(named.expr())` é descartado por `.ok()`.
-        assert!(p633_eval_succeeds("#set math.equation(numbering: nao_existe)\n#let x = 1"));
+    fn p633_set_equation_numbering_undefined_error() {
+        // P636: o erro de `eval_expr(named.expr())` já não é descartado.
+        assert!(p633_eval_fails("#set math.equation(numbering: nao_existe)\n#let x = 1"));
     }
 
     #[test]
-    fn p633_set_figure_numbering_int_silent() {
-        assert!(p633_eval_succeeds("#set figure(numbering: 123)\n#let x = 1"));
+    fn p633_set_figure_numbering_int_error() {
+        assert!(p633_eval_fails("#set figure(numbering: 123)\n#let x = 1"));
     }
 
     #[test]
-    fn p633_set_table_numbering_int_silent() {
-        assert!(p633_eval_succeeds("#set table(numbering: 123)\n#let x = 1"));
+    fn p633_set_table_numbering_int_error() {
+        assert!(p633_eval_fails("#set table(numbering: 123)\n#let x = 1"));
     }
 
     // Confirmam comportamento actual de métodos de counter.
