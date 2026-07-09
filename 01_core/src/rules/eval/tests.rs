@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/rules/eval.md
-//! @prompt-hash a9cc504d
+//! @prompt-hash ea93fd36
 //! @layer L1
 //! @updated 2026-06-17
 //!
@@ -7017,6 +7017,89 @@ mod tests {
     #[test]
     fn p634_return_top_level_errors() {
         assert!(p633_eval_fails("#return 1"));
+    }
+
+    // ── P635 — FlowEvent: break/continue/return afectam o fluxo de execução ──
+
+    /// Helper: avalia `src` e devolve o `plain_text()` do content resultante.
+    fn p635_plain_text(src: &str) -> String {
+        eval_doc(src).plain_text()
+    }
+
+    #[test]
+    fn p635_break_in_for_stops_loop() {
+        let text = p635_plain_text("#for i in range(10) { if i == 3 { break } str(i) }");
+        assert_eq!(text, "012", "break deve parar o ciclo for em i=3; obtido: {text:?}");
+    }
+
+    #[test]
+    fn p635_break_in_while_stops_loop() {
+        // Não usa assignment mutável (fronteira separada): testa apenas que
+        // break pára um while infinito.
+        let text = p635_plain_text("#while true { break str(1) }");
+        assert_eq!(text, "", "break deve parar o ciclo while antes de produzir output; obtido: {text:?}");
+    }
+
+    #[test]
+    fn p635_continue_in_for_skips_iteration() {
+        let text = p635_plain_text("#for i in range(5) { if i == 2 { continue } str(i) }");
+        assert_eq!(
+            text, "0134",
+            "continue deve saltar a iteração i=2; obtido: {text:?}"
+        );
+    }
+
+
+    #[test]
+    fn p635_return_from_function_with_value() {
+        let src = "#let f(x) = { if x < 0 { return \"neg\" } \"pos\" } #f(-5) #f(5)";
+        let text = p635_plain_text(src);
+        assert!(
+            text.contains("neg") && text.contains("pos"),
+            "return deve devolver os valores antecipadamente; obtido: {text:?}"
+        );
+    }
+
+    #[test]
+    fn p635_return_without_value() {
+        let src = "#let f(x) = { if x < 0 { return } \"pos\" } #f(-5) #f(5)";
+        let text = p635_plain_text(src);
+        assert!(
+            text.contains("pos"),
+            "return sem valor deve deixar a 1ª chamada vazia e a 2ª 'pos'; obtido: {text:?}"
+        );
+    }
+
+    #[test]
+    fn p635_return_stops_function_body() {
+        let src = "#let f() = { return \"a\" \"b\" } #f()";
+        let text = p635_plain_text(src);
+        assert!(
+            text.contains("a") && !text.contains("b"),
+            "return deve interromper o corpo da função; obtido: {text:?}"
+        );
+    }
+
+    #[test]
+    fn p635_nested_loops_break_only_inner() {
+        let src = "#for i in range(3) { for j in range(3) { if j == 1 { break } str(i) + str(j) } }";
+        let text = p635_plain_text(src);
+        assert_eq!(
+            text, "001020",
+            "break deve sair só do ciclo mais interno; obtido: {text:?}"
+        );
+    }
+
+    #[test]
+    fn p635_break_inside_function_is_forbidden() {
+        let src = "#let f() = { break } #f()";
+        assert!(p633_eval_fails(src), "break dentro de função fora de loop deve ser erro");
+    }
+
+    #[test]
+    fn p635_continue_inside_function_is_forbidden() {
+        let src = "#let f() = { continue } #f()";
+        assert!(p633_eval_fails(src), "continue dentro de função fora de loop deve ser erro");
     }
 
     // Confirmam falhas silenciosas em `#set` rules (valores inválidos são ignorados).

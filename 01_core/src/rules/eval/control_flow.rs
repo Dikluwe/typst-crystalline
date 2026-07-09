@@ -1,8 +1,8 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/rules/eval.md
-//! @prompt-hash a9cc504d
+//! @prompt-hash ea93fd36
 //! @layer L1
-//! @updated 2026-04-23
+//! @updated 2026-07-09
 //!
 //! Controlo de fluxo: `if`/`else`, `while`, `for`. Extraído de `eval.rs` no
 //! Passo 96.1 conforme ADR-0037 (coesão por domínio). Assinaturas
@@ -16,7 +16,7 @@ use crate::entities::source_result::{SourceDiagnostic, SourceResult};
 use crate::entities::value::Value;
 use crate::rules::scopes::Scopes;
 
-use super::{eval_expr, EvalContext};
+use super::{eval_expr, EvalContext, FlowEvent};
 
 pub(super) fn eval_conditional(
     cond: Conditional<'_>,
@@ -25,7 +25,7 @@ pub(super) fn eval_conditional(
     engine: &mut Engine<'_>,
 ) -> SourceResult<Value> {
     let condition = eval_expr(cond.condition(), scopes, ctx, engine)?;
-    match condition {
+    let output = match condition {
         Value::Bool(true) => eval_expr(cond.if_body(), scopes, ctx, engine),
         Value::Bool(false) => match cond.else_body() {
             Some(else_body) => eval_expr(else_body, scopes, ctx, engine),
@@ -35,7 +35,15 @@ pub(super) fn eval_conditional(
             cond.condition().span(),
             format!("condição if deve ser bool, encontrado {}", other.type_name()),
         )]),
+    };
+
+    // P635 — marcar return como conditional (paridade com
+    // `typst-eval/src/flow.rs:55-57`).
+    if let Some(FlowEvent::Return(_, _, conditional)) = &mut ctx.flow {
+        *conditional = true;
     }
+
+    output
 }
 
 pub(super) fn eval_while(
@@ -44,6 +52,7 @@ pub(super) fn eval_while(
     ctx: &mut EvalContext,
     engine: &mut Engine<'_>,
 ) -> SourceResult<Value> {
+    let flow = ctx.flow.take();
     loop {
         let cond = eval_expr(loop_expr.condition(), scopes, ctx, engine)?;
         match cond {
@@ -52,6 +61,16 @@ pub(super) fn eval_while(
                 scopes.enter();
                 eval_expr(loop_expr.body(), scopes, ctx, engine)?;
                 scopes.exit();
+
+                match ctx.flow {
+                    Some(FlowEvent::Break(_)) => {
+                        ctx.flow = None;
+                        break;
+                    }
+                    Some(FlowEvent::Continue(_)) => ctx.flow = None,
+                    Some(FlowEvent::Return(..)) => break,
+                    None => {}
+                }
             }
             Value::Bool(false) => break,
             other => return Err(vec![SourceDiagnostic::error(
@@ -59,6 +78,9 @@ pub(super) fn eval_while(
                 format!("condição while deve ser bool, encontrado {}", other.type_name()),
             )]),
         }
+    }
+    if flow.is_some() {
+        ctx.flow = flow;
     }
     Ok(Value::None)
 }
@@ -76,6 +98,7 @@ pub(super) fn eval_for(
             // **P540** — suportar destructuring de tuplo em #for. Se o padrão
             // tiver múltiplos bindings (ex: (i, x)), cada item do iterável deve
             // ser um array cujos elementos são atribuídos posicionalmente.
+            let flow = ctx.flow.take();
             let mut parts = Vec::new();
             for item in items {
                 ctx.tick_loop(loop_expr.span())?;
@@ -124,6 +147,19 @@ pub(super) fn eval_for(
                     }
                 }
                 scopes.exit();
+
+                match ctx.flow {
+                    Some(FlowEvent::Break(_)) => {
+                        ctx.flow = None;
+                        break;
+                    }
+                    Some(FlowEvent::Continue(_)) => ctx.flow = None,
+                    Some(FlowEvent::Return(..)) => break,
+                    None => {}
+                }
+            }
+            if flow.is_some() {
+                ctx.flow = flow;
             }
             if parts.is_empty() {
                 Ok(Value::None)

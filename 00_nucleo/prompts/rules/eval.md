@@ -1,5 +1,5 @@
 # Prompt L0 — rules/eval
-Hash do Código: 3daff1a8
+Hash do Código: 200742d8
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/rules/eval/mod.rs`
@@ -11,7 +11,7 @@ Hash do Código: 3daff1a8
 e retorna um `Module` com os bindings definidos nesse ficheiro.
 
 **Estado actual (Passo 15)**: travessia AST com control flow e ADR-0025.
-Avalia literais, Ident, Let, CodeBlock, Binary, Unary, Conditional (if/else),
+Avalia literais, Ident, LetBinding, CodeBlock, Binary, Unary, Conditional (if/else),
 WhileLoop, ForLoop (apenas Array). Fronteira deliberada: `_ => Ok(Value::None)`
 para nós que requerem Content, Func, Styles.
 
@@ -81,25 +81,131 @@ renderizado.
   no corpo é ignorado; `Value::None` como iterable é iterável vazio (sem
   parsing de array literal)
 
+## §P635 — Mecanismo `FlowEvent` para controlo de fluxo
+
+O cristalino implementa o mecanismo `FlowEvent` do vanilla
+(`lab/typst-original/crates/typst-eval/src/flow.rs:14-22`) para que
+`#break`, `#continue` e `#return` afectem de facto o fluxo de execução.
+
+### Tipo e localização
+
+Criar `01_core/src/rules/eval/flow.rs` em L1 com:
+
+```rust
+#[derive(Debug, Clone, PartialEq)]
+pub enum FlowEvent {
+    Break(Span),
+    Continue(Span),
+    Return(Span, Option<Value>, bool),
+}
+```
+
+O método `FlowEvent::forbidden(&self) -> SourceDiagnostic` produz as mensagens
+byte-idênticas ao vanilla (`lab/typst-original/crates/typst-eval/src/flow.rs:28-36`):
+
+- `Break(span)` → `cannot break outside of loop`
+- `Continue(span)` → `cannot continue outside of loop`
+- `Return(span, _, _)` → `cannot return outside of function`
+
+### Transporte no `EvalContext`
+
+Adicionar a `EvalContext`:
+
+```rust
+pub flow: Option<FlowEvent>,
+```
+
+Inicializado a `None` em `EvalContext::new`. O campo é o equivalente cristalino
+a `vm.flow` do vanilla; transporta o evento de controlo de fluxo para cima até
+ao consumidor correcto (ciclo, função, ou entrypoint).
+
+### Semântica no dispatcher (`eval_expr`)
+
+As variantes `Expr::LoopBreak`, `Expr::LoopContinue` e `Expr::FuncReturn` deixam
+de produzir erro no dispatcher topo. Em vez disso:
+
+1. Se `ctx.flow` já for `Some`, não sobrescrever — preserva o primeiro evento
+   (paridade com `vm.flow.is_none()` do vanilla).
+2. Caso contrário, definir `ctx.flow` para o evento correspondente:
+   - `LoopBreak(node)` → `FlowEvent::Break(node.span())`
+   - `LoopContinue(node)` → `FlowEvent::Continue(node.span())`
+   - `FuncReturn(node)` → avaliar o corpo opcional (`node.body()`); se houver
+     valor, `FlowEvent::Return(span, Some(value), false)`; senão
+     `FlowEvent::Return(span, None, false)`.
+3. Devolver `Ok(Value::None)`.
+
+### Consumo em ciclos (`eval_for`, `eval_while`)
+
+Antes de entrar no loop, guardar e limpar o flow externo:
+
+```rust
+let flow = ctx.flow.take();
+```
+
+Após cada iteração (avaliação do corpo), inspeccionar `ctx.flow`:
+
+- `Some(FlowEvent::Break(_))` → limpar (`ctx.flow = None`), sair do loop.
+- `Some(FlowEvent::Continue(_))` → limpar (`ctx.flow = None`), continuar para a
+  próxima iteração.
+- `Some(FlowEvent::Return(..))` → sair do loop **sem limpar**, propagando o
+  return para o contexto envolvente (função ou entrypoint).
+- `None` → continuar normalmente.
+
+No final do loop, se `flow` era `Some`, restaurar `ctx.flow = flow` para
+propagar eventos de contextos externos (ex.: return de uma função externa).
+
+### Consumo em funções (`apply_closure`)
+
+Após avaliar o corpo da closure (`eval_expr(body_expr, ...)`), inspeccionar
+`ctx.flow`:
+
+- `Some(FlowEvent::Return(_, Some(explicit), _))` → limpar `ctx.flow`,
+  devolver `Ok(explicit)`.
+- `Some(FlowEvent::Return(_, None, _))` → limpar `ctx.flow`, devolver o valor
+  produzido pelo corpo (normalmente `Value::None`).
+- `Some(FlowEvent::Break(_) | FlowEvent::Continue(_))` → **não limpar**;
+  devolver `Err(vec![flow.forbidden()])` (break/continue não são válidos
+  directamente no corpo de uma função fora de um loop).
+- `None` → devolver o valor do corpo.
+
+A limpeza do `Return` ao sair da função evita que o evento seja re-interpretado
+como "fora de função" pelo contexto de chamada.
+
+### Consumo em blocos de código (`Expr::CodeBlock`)
+
+O eval de `CodeBlock` itera sobre `body().exprs()`. Após cada expressão, se
+`ctx.flow` ficar `Some`, interromper imediatamente a iteração e devolver o
+último valor (o evento permanece em `ctx.flow` para o consumidor externo).
+
+### Consumo em condicionais (`eval_conditional`)
+
+Após avaliar o ramo `if` ou `else`, se `ctx.flow` contiver `Return`, marcar o
+flag `conditional = true` (paridade com `flow.rs:55-57` do vanilla). Eventos
+`Break`/`Continue` propagam-se naturalmente sem alteração.
+
+### Consumo no entrypoint (`eval_with_full_error`)
+
+Após `eval_markup(root, ...)` retornar, se `ctx.flow` ainda for `Some`,
+devolver `Err(vec![flow.forbidden()])`. Isto cobre usos fora de contexto:
+`#break`/`#continue` no topo do documento dão `cannot break outside of loop`;
+`#return` no topo dá `cannot return outside of function`.
+
 ## §P634 — Controlo de fluxo fora de contexto
 
-O dispatcher `eval_expr` em `01_core/src/rules/eval/mod.rs` deve reconhecer
-`Expr::LoopBreak`, `Expr::LoopContinue` e `Expr::FuncReturn` e produzir erros
-claros quando ocorrem fora do contexto respectivo. As mensagens são
-byte-idênticas ao vanilla (`lab/typst-original/crates/typst-eval/src/flow.rs:28-36`):
+As mensagens de erro para `LoopBreak`, `LoopContinue` e `FuncReturn` fora de
+contexto mantêm-se byte-idênticas ao vanilla
+(`lab/typst-original/crates/typst-eval/src/flow.rs:28-36`):
 
 - `Expr::LoopBreak` fora de loop → `cannot break outside of loop`
 - `Expr::LoopContinue` fora de loop → `cannot continue outside of loop`
 - `Expr::FuncReturn` fora de função → `cannot return outside of function`
 
-O cristalino ainda não implementa o mecanismo `FlowEvent` do vanilla; nesta
-fase, qualquer ocorrência destas variantes no dispatcher topo (`eval_expr`)
-produz o erro acima. Uso legítimo dentro de ciclos/funções é trabalho futuro
-(ver `control_flow.rs`/`closures.rs`); a presente alteração não regrede porque,
-antes dela, esses usos também caíam no catch-all e silenciosamente devolviam
-`Value::None`.
+Com P635, a detecção de "fora de contexto" deixa de ser feita no dispatcher
+topo e passa a ser feita pelo consumidor que detém o `FlowEvent`: ciclos
+consomem break/continue; `apply_closure` consome return; o entrypoint converte
+qualquer evento residual em erro.
 
-## Fronteira deliberada (actualizada por P634)
+## Fronteira deliberada (actualizada por P634/P635)
 
 O catch-all `_ => Ok(Value::None)` de `eval_expr` foi removido. O `match` deve
 ser exaustivo: cada variante de `Expr` deve ter braço explícito ou estar
@@ -258,6 +364,18 @@ eval_for_test: Source("#let x = 1") → module.scope().get("x") = Some(&Value::I
 - `eval_for_test(Source("#break"))` → `Err` contendo `cannot break outside of loop`
 - `eval_for_test(Source("#continue"))` → `Err` contendo `cannot continue outside of loop`
 - `eval_for_test(Source("#return 1"))` → `Err` contendo `cannot return outside of function`
+- `cargo test --workspace` continua a passar.
+- `crystalline-lint .` limpo.
+
+## §P635 — Critérios adicionais de verificação
+
+- `#break` dentro de `#for` pára o ciclo; output de `#for i in range(10) { if i == 3 { break } str(i) }`
+  é `"012"`.
+- `#break` dentro de `#while` pára o ciclo.
+- `#continue` dentro de `#for`/`#while` salta para a iteração seguinte.
+- `#return` dentro de função devolve o valor dado e interrompe o corpo.
+- Ciclos aninhados: `#break` só afecta o ciclo mais interno.
+- `#break`/`#continue`/`#return` fora de contexto mantêm os erros de P634.
 - `cargo test --workspace` continua a passar.
 - `crystalline-lint .` limpo.
 

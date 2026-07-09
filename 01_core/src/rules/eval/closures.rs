@@ -1,8 +1,8 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/rules/eval.md
-//! @prompt-hash a9cc504d
+//! @prompt-hash ea93fd36
 //! @layer L1
-//! @updated 2026-04-23
+//! @updated 2026-07-09
 //!
 //! Closures, chamadas de função e avaliação de argumentos. Extraído de
 //! `eval.rs` no Passo 96.1 conforme ADR-0037 (coesão por domínio).
@@ -28,7 +28,7 @@ use crate::entities::world_types::{check_call_depth as route_check_call_depth, R
 use crate::rules::scopes::Scopes;
 use crate::rules::stdlib::try_dispatch_collection_method;
 
-use super::{eval_expr, EvalContext};
+use super::{eval_expr, EvalContext, FlowEvent};
 
 /// Avalia a lista de argumentos de uma chamada de função.
 ///
@@ -162,7 +162,7 @@ pub(super) fn apply_closure(
     // `sink` é `TrackedMut<'caller, Sink>`; precisa de reborrow para
     // shortar o lifetime ao do `local_engine`.
     let mut local_sink = TrackedMut::reborrow_mut(&mut *engine.sink);
-    if let Some(body_expr) = Expr::from_untyped(&closure.body) {
+    let output = if let Some(body_expr) = Expr::from_untyped(&closure.body) {
         let mut local_engine = Engine {
             world: engine.world,
             route: child_route.track(),
@@ -172,9 +172,17 @@ pub(super) fn apply_closure(
             current_file: engine.current_file,
             sink: &mut local_sink,
         };
-        eval_expr(body_expr, &mut call_scopes, ctx, &mut local_engine)
+        eval_expr(body_expr, &mut call_scopes, ctx, &mut local_engine)?
     } else {
-        Ok(Value::None)
+        Value::None
+    };
+
+    // P635 — consumir FlowEvent ao sair da closure.
+    match ctx.flow.take() {
+        Some(FlowEvent::Return(_, Some(explicit), _)) => Ok(explicit),
+        Some(FlowEvent::Return(_, None, _)) => Ok(output),
+        Some(flow) => Err(vec![flow.forbidden()]),
+        None => Ok(output),
     }
 }
 

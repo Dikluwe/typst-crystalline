@@ -1,8 +1,8 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/rules/eval.md
-//! @prompt-hash a9cc504d
+//! @prompt-hash ea93fd36
 //! @layer L1
-//! @updated 2026-06-17
+//! @updated 2026-07-09
 //!
 //! Dispatcher central do eval: `EvalContext` struct + impl, `pub fn eval`
 //! entry point, `eval_markup` iterator, `eval_expr` dispatcher delegando
@@ -53,6 +53,8 @@ mod math;
 pub(crate) mod operators;
 pub(crate) mod cast;
 pub use cast::{cast_length, CastError};
+pub(crate) mod flow;
+pub use flow::FlowEvent;
 mod control_flow;
 pub(crate) mod closures;
 pub use closures::apply_func;
@@ -181,6 +183,11 @@ pub struct EvalContext {
     /// Transporta-se para o `Module` no fim do eval e depois para o
     /// exportador PDF (`/Info`).
     pub document_info: DocumentInfo,
+
+    /// **P635 — evento de controlo de fluxo activo**. Equivalente a `vm.flow`
+    /// do vanilla (`typst-eval/src/vm.rs:20`). Propagado de `eval_expr` para
+    /// ciclos, funções e o entrypoint.
+    pub flow: Option<FlowEvent>,
 }
 
 impl EvalContext {
@@ -197,6 +204,7 @@ impl EvalContext {
             next_context_id: 0,
             bibliography_styles: HashMap::new(),
             document_info: DocumentInfo::empty(),
+            flow: None,
         }
     }
 
@@ -369,6 +377,9 @@ pub fn eval_with_full_error(
         };
 
         let content_val = eval_markup(root, &mut scopes, &mut ctx, &mut engine)?;
+        if let Some(flow) = ctx.flow {
+            return Err(vec![flow.forbidden()]);
+        }
         let module_scope = scopes.exit();
         Ok((content_val, module_scope, ctx.bibliography_styles, ctx.document_info))
     };
@@ -623,6 +634,9 @@ pub(crate) fn eval_expr(
                 };
                 for expr in code_block.body().exprs() {
                     last = eval_expr(expr, scopes, ctx, &mut local_engine)?;
+                    if ctx.flow.is_some() {
+                        break;
+                    }
                 }
             }
             Ok(last)
@@ -815,22 +829,29 @@ pub(crate) fn eval_expr(
         Expr::Shorthand(v) => Ok(Value::Str(ecow::EcoString::from(v.get()))),
         Expr::Linebreak(_) => Ok(Value::Content(Content::linebreak())),
 
-        // P634 — controlo de fluxo fora de contexto: mensagens byte-idênticas
-        // ao vanilla (`typst-eval/src/flow.rs:28-36`). O mecanismo FlowEvent
-        // ainda não existe no cristalino; enquanto não existir, qualquer
-        // ocorrência destas variantes no dispatcher topo é um erro.
-        Expr::LoopBreak(node) => Err(vec![SourceDiagnostic::error(
-            node.span(),
-            "cannot break outside of loop",
-        )]),
-        Expr::LoopContinue(node) => Err(vec![SourceDiagnostic::error(
-            node.span(),
-            "cannot continue outside of loop",
-        )]),
-        Expr::FuncReturn(node) => Err(vec![SourceDiagnostic::error(
-            node.span(),
-            "cannot return outside of function",
-        )]),
+        // P635 — controlo de fluxo: definir `FlowEvent` em `ctx.flow` e
+        // devolver `Value::None`. O consumo (e a detecção de "fora de
+        // contexto") é feito pelos ciclos, por `apply_closure` e pelo
+        // entrypoint `eval_with_full_error`.
+        Expr::LoopBreak(node) => {
+            if ctx.flow.is_none() {
+                ctx.flow = Some(FlowEvent::Break(node.span()));
+            }
+            Ok(Value::None)
+        }
+        Expr::LoopContinue(node) => {
+            if ctx.flow.is_none() {
+                ctx.flow = Some(FlowEvent::Continue(node.span()));
+            }
+            Ok(Value::None)
+        }
+        Expr::FuncReturn(node) => {
+            let value = node.body().map(|body| eval_expr(body, scopes, ctx, engine)).transpose()?;
+            if ctx.flow.is_none() {
+                ctx.flow = Some(FlowEvent::Return(node.span(), value, false));
+            }
+            Ok(Value::None)
+        }
 
         // Fronteira deliberada — variantes estritamente estruturais que não
         // entram no dispatcher normal (markup/math) ou ainda não migradas.
