@@ -5422,6 +5422,116 @@ mod tests_show_rule_integration {
         );
     }
 
+    // ── P647 — grid inválida produz erro de layout ────────────────────────────
+
+    #[test]
+    fn p647_grid_explicit_overlap_produz_layout_error() {
+        // Duas células explicitas ocupam a mesma posição (0,0).
+        use crate::entities::layout_types::TrackSizing;
+        use crate::entities::sides::Sides;
+        let cell_a = Content::GridCell(std::sync::Arc::new(
+            crate::entities::elements::grid_cell::GridCellElem {
+                body: Content::text("A"),
+                x: Some(0),
+                y: Some(0),
+                colspan: Some(2),
+                rowspan: None,
+                stroke: None,
+                fill: None,
+                align: None,
+                inset: None,
+                breakable: None,
+            },
+        ));
+        let cell_b = Content::GridCell(std::sync::Arc::new(
+            crate::entities::elements::grid_cell::GridCellElem {
+                body: Content::text("B"),
+                x: Some(0),
+                y: Some(0),
+                colspan: None,
+                rowspan: None,
+                stroke: None,
+                fill: None,
+                align: None,
+                inset: None,
+                breakable: None,
+            },
+        ));
+        let g = Content::Grid(std::sync::Arc::new(
+            crate::entities::elements::grid::GridElem {
+                columns: vec![TrackSizing::Fixed(50.0), TrackSizing::Fixed(50.0)],
+                rows: vec![],
+                cells: vec![cell_a, cell_b],
+                hlines: vec![],
+                vlines: vec![],
+                gutter: None,
+                align: None,
+                inset: Sides::uniform(crate::entities::layout_types::Length::pt(0.0)),
+                header: None,
+                footer: None,
+                stroke: None,
+                fill: None,
+            },
+        ));
+        let doc = layout(&g);
+        assert!(
+            !doc.layout_errors.is_empty(),
+            "grid com overlap explicit deve produzir layout_errors"
+        );
+        assert!(
+            doc.layout_errors[0].message.contains("conflito"),
+            "mensagem deve identificar conflito: {}",
+            doc.layout_errors[0].message
+        );
+    }
+
+    #[test]
+    fn p647_grid_colspan_maior_que_num_cols_produz_layout_error() {
+        // Célula auto com colspan maior do que o número de colunas.
+        use crate::entities::layout_types::TrackSizing;
+        use crate::entities::sides::Sides;
+        let cell = Content::GridCell(std::sync::Arc::new(
+            crate::entities::elements::grid_cell::GridCellElem {
+                body: Content::text("A"),
+                x: None,
+                y: None,
+                colspan: Some(3),
+                rowspan: None,
+                stroke: None,
+                fill: None,
+                align: None,
+                inset: None,
+                breakable: None,
+            },
+        ));
+        let g = Content::Grid(std::sync::Arc::new(
+            crate::entities::elements::grid::GridElem {
+                columns: vec![TrackSizing::Fixed(50.0), TrackSizing::Fixed(50.0)],
+                rows: vec![],
+                cells: vec![cell],
+                hlines: vec![],
+                vlines: vec![],
+                gutter: None,
+                align: None,
+                inset: Sides::uniform(crate::entities::layout_types::Length::pt(0.0)),
+                header: None,
+                footer: None,
+                stroke: None,
+                fill: None,
+            },
+        ));
+        let doc = layout(&g);
+        assert!(
+            !doc.layout_errors.is_empty(),
+            "grid com colspan > num_cols deve produzir layout_errors"
+        );
+        assert!(
+            doc.layout_errors[0].message.contains("excede num_cols"),
+            "mensagem deve indicar colspan a exceder num_cols: {}",
+            doc.layout_errors[0].message
+        );
+    }
+
     // ── Passo 230 (Fase 5 Layout Categoria A.3) — precedência per-cell vs Grid-level ──
 
     /// Per-cell stroke override Grid-level: cell `Some(...)` prevalece.

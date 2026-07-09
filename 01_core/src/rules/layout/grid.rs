@@ -316,10 +316,16 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
         // colspan/rowspan > 1 ocupam bounds reais.
         //
         // Error path: place_cells retorna Err em conflict explicit/
-        // explicit ou colspan excede num_cols; MVP fallback vec vazio
-        // (sem render — comportamento "no-op" para grid inválido).
-        // Sink reporting candidato futuro.
-        let placed_cells: Vec<PlacedCell> = place_cells(cells, num_cols).unwrap_or_default();
+        // explicit ou colspan excede num_cols. P647: propagar como erro
+        // de layout em vez de renderizar grid vazia em silêncio.
+        let placed_cells: Vec<PlacedCell> = match place_cells(cells, num_cols) {
+            Ok(placed) => placed,
+            Err(diagnostics) => {
+                self.layout_errors.extend(diagnostics);
+                self.cell_align = saved_cell_align;
+                return;
+            }
+        };
 
         // Derive num_rows_produced_final do placed (pode estender
         // além de rows_of_items.len() para cells explicit com y > N).
