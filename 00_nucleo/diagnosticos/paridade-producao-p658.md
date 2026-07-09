@@ -4,7 +4,7 @@
 **Data:** 2026-07-09  
 **Foco:** Estender a cache de resultados de shaping (P657) a `shaped_width` (P591).  
 **Dependências:** P657 (cache em `shape_document`), P591 (`shaped_width`).  
-**Hash do commit com o relatório:** `PLACEHOLDER`
+**Hash do commit com o relatório:** `aee92bc31`
 
 ---
 
