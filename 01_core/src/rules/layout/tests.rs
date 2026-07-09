@@ -3413,6 +3413,33 @@ Goodbye #footnote[Nota B] moon."#,
         );
     }
 
+    /// **P626** — `#set page(columns: 2)` com `dir: rtl` preenche a coluna
+    /// da direita primeiro. O primeiro texto do documento aparece na coluna
+    /// da direita (x > centro da página).
+    #[test]
+    fn p626_set_page_columns_rtl_preenche_direita_primeiro() {
+        let doc = layout_typst(
+            r#"#set page(columns: 2)
+#set text(lang: "ar", dir: rtl)
+#lorem(200)"#,
+        );
+        assert!(!doc.pages.is_empty(), "deve haver pelo menos uma página");
+        let first_text = doc.pages[0]
+            .items
+            .iter()
+            .find_map(|it| match it {
+                FrameItem::Text { text, pos, .. } => Some((text.to_string(), pos.x.0)),
+                _ => None,
+            });
+        let (text, x) = first_text.expect("primeira página deve ter texto");
+        assert!(
+            x > 297.0,
+            "em RTL o primeiro texto deve estar na coluna da direita (x > centro): text={:?} x={}",
+            text,
+            x
+        );
+    }
+
     /// **P538c** — `#set page(columns: 2)` com texto longo cria múltiplas
     /// páginas A4 (não páginas de largura de coluna) e o PDF não fica
     /// malformado. O número de páginas deve ser significativamente menor

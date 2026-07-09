@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/rules/columns.md
-//! @prompt-hash ee51ca6b
+//! @prompt-hash 05d7626d
 //! @layer L1
 //! @updated 2026-07-03
 //!
@@ -20,8 +20,11 @@
 //! preenchendo toda a largura útil disponível.
 
 use crate::entities::content::Content;
+use crate::entities::dir::Dir;
 use crate::entities::elements::columns::ColumnsElem;
 use crate::entities::layout_types::{FrameItem, Pt};
+use crate::entities::style::Styles;
+use crate::entities::value::Value;
 
 use super::{FontMetrics, ImageSizer, Layouter};
 
@@ -60,6 +63,45 @@ fn split_by_colbreak(content: &Content, count: usize) -> (Vec<Content>, bool) {
     (segments.into_iter().map(Content::sequence).collect(), had_colbreak)
 }
 
+/// **P626** — descobre a direcção de texto (canal `"text.dir"`) que envolve
+/// o body de um `ColumnsElem`. O `text.dir` viaja no `Content::Styled` do body
+/// (não na chain activa do `Layouter` quando `columns::layout` é invocado),
+/// por isso percorremos o body procurando o primeiro `Styled` que defina a
+/// propriedade. Recursão limitada a `Sequence` e `Styled` — elementos
+/// estruturais transparentes para este efeito.
+fn body_dir(content: &Content) -> Option<Dir> {
+    match content {
+        Content::Styled(body, styles) => {
+            if let Some(dir) = styles_dir(styles) {
+                return Some(dir);
+            }
+            body_dir(body)
+        }
+        Content::Sequence(seq) => {
+            for child in seq.iter() {
+                if let Some(dir) = body_dir(child) {
+                    return Some(dir);
+                }
+            }
+            None
+        }
+        _ => None,
+    }
+}
+
+/// Lê `"text.dir"` de um `Styles`, se presente.
+fn styles_dir(styles: &Styles) -> Option<Dir> {
+    styles
+        .delta()
+        .custom
+        .iter()
+        .find(|(k, _)| k.as_str() == "text.dir")
+        .and_then(|(_, v)| match v {
+            Value::Dir(dir) => Some(*dir),
+            _ => None,
+        })
+}
+
 /// Layout real de `columns(count, body, gutter:)`.
 ///
 /// Se o body contiver `colbreak()`, cada segmento é renderizado numa
@@ -95,7 +137,6 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
     // Largura da região de trabalho de cada coluna: mini-página com
     // margens internas, de modo que o layout preencha toda a largura útil.
     let column_region_width = column_width + 2.0 * margin;
-    eprintln!("columns layout: page_width={}, usable_width={}, gutter={}, column_width={}, region_width={}, page_columns={}", page_width, usable_width, gutter_pt, column_width, column_region_width, e.page_columns);
 
     // 4. Dividir body pelos colbreaks e detectar se há colbreaks reais.
     let (segments, had_colbreak) = split_by_colbreak(&e.body, count);
@@ -104,6 +145,19 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
     let column_x_offsets: Vec<f64> = (0..count)
         .map(|i| margin + i as f64 * (column_width + gutter_pt))
         .collect();
+
+    // **P626** — em RTL a ordem de leitura é da direita para a esquerda,
+    // logo a primeira coluna a encher é a mais à direita. Invertemos os
+    // offsets para que o índice 0 corresponda à coluna mais à direita e
+    // `start_next_column` avance para a esquerda.
+    // A direcção do texto é lida do `Content::Styled` que envolve o body,
+    // porque a chain activa do `Layouter` ainda não incluiu esses estilos.
+    let is_rtl = body_dir(&e.body) == Some(Dir::RTL);
+    let column_x_offsets: Vec<f64> = if is_rtl {
+        column_x_offsets.into_iter().rev().collect()
+    } else {
+        column_x_offsets
+    };
 
     if had_colbreak {
         layout_segmented(layouter, &segments, &column_x_offsets, column_region_width, margin, e.page_columns);

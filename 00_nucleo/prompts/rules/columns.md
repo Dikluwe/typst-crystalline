@@ -1,6 +1,6 @@
 # Prompt L0 — `rules/columns` — Layout de colunas multi-página
 
-Hash do Código: `ee51ca6b`
+Hash do Código: 981f9677
 
 **Camada**: L1  
 **Ficheiro alvo**: `01_core/src/rules/layout/columns.rs`  
@@ -176,6 +176,26 @@ O modo fluxo contínuo (sem `colbreak()`) é usado por `#columns(N)[body]` quand
 
 ---
 
+## 5.1. Direcção de preenchimento em RTL — P626
+
+### 5.1.1. Medições
+
+- P625 — `#set page(columns: 2)` com texto árabe (`#set text(lang: "ar", dir: rtl)`) preenche a coluna **esquerda** primeiro no cristalino, enquanto o vanilla 0.15.0 preenche a coluna **direita** primeiro.
+- Sonda P626 com `mutool trace` no vanilla 0.15.0:
+  - 2 colunas: primeiro `fill_text` aparece em `x ≈ 344` (coluna da direita).
+  - 3 colunas: primeiro `fill_text` aparece em `x ≈ 416` (coluna mais à direita).
+- Interpretação: a ordem de preenchimento segue a direcção de leitura do texto. Em RTL a "primeira" coluna é a mais à direita; o layout deve avançar da direita para a esquerda.
+
+### 5.1.2. Decisão
+
+- `columns::layout` determina a direcção efectiva do body consultando o canal `"text.dir"` nos estilos que o envolvem.
+- Como o `Content::Columns` sintético de `#set page(columns:)` é criado num contexto onde o `text.dir` viaja no `Content::Styled` do body (e não na chain activa do `Layouter` no momento em que `columns::layout` é invocado), a direcção é lida percorrendo o body do elemento: o primeiro `Content::Styled` (incluindo recursão por `Sequence`) que defina `"text.dir"` vence.
+- Quando a direcção for `Dir::RTL`, o vector `column_x_offsets` é invertido antes de ser usado em `layout_segmented`/`layout_flow`. Isto faz com que o índice 0 corresponda à coluna mais à direita e a progressão `start_next_column` avance para a esquerda.
+- Documentos LTR mantêm a ordem original (esquerda para a direita).
+- Documentos mistos (secções com `#set page(columns:)` e `text.dir` diferentes) funcionam porque cada `ColumnsElem` lê a direcção do seu próprio body.
+
+---
+
 ## 5. Restrições
 
 - Não se remove o `match` exaustivo em `layout_content`.
@@ -192,6 +212,10 @@ O modo fluxo contínuo (sem `colbreak()`) é usado por `#columns(N)[body]` quand
 - `#set page(columns: 2)` com duas notas: `[1]` na primeira coluna, `[2]` na segunda; notas no fundo de cada coluna.
 - `#set page(columns: 2)` com três notas: `[1]`, `[2]`, `[3]` correctos.
 - `#columns(2)[...]` com duas notas: notas empilhadas na coluna esquerda.
+- **P626** — `#set page(columns: 2)` + `#set text(lang: "ar", dir: rtl)` + `#lorem(200)`: primeira coluna preenchida é a da direita.
+- **P626** — `#set page(columns: 3)` + `#set text(lang: "ar", dir: rtl)` + `#lorem(300)`: ordem de preenchimento é direita → meio → esquerda.
+- **P626** — Documento LTR (`dir: ltr` implícito) com 2 colunas continua a encher da esquerda para a direita.
+- **P626** — Documento misto: secção LTR seguida de secção RTL com `#set page(columns:)` distintos; cada secção preenche na direcção correcta.
 - `cargo test --workspace` limpo.
 - `crystalline-lint .` limpo.
 - P553: `#set page(columns: 2)\n#lorem(1200)` produz 3 páginas no cristalino (com a fonte padrão actual); vanilla com `Liberation Sans` também produz 3 páginas.
