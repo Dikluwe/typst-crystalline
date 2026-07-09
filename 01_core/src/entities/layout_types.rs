@@ -23,6 +23,7 @@ use crate::entities::dir::Dir;
 use crate::entities::document_info::DocumentInfo;
 use crate::entities::geometry::{ShapeKind, Stroke};
 use crate::entities::label::Label;
+use crate::entities::source_result::SourceDiagnostic;
 
 // ── Coordenadas e medidas ──────────────────────────────────────────────────
 
@@ -581,11 +582,10 @@ pub struct PagedDocument {
     /// para `SourceDiagnostic` e injecção no `Sink` é responsabilidade
     /// da pipeline em L3.
     pub layout_warnings: Vec<String>,
-    /// **P644** — erros produzidos durante o layout (ex: conversão de
-    /// entrada bibliográfica para hayagriva). L1 permanece puro; a
-    /// conversão para `SourceDiagnostic` e propagação como erro é
-    /// responsabilidade da pipeline em L3.
-    pub layout_errors: Vec<String>,
+    /// **P644/P645** — erros produzidos durante o layout (ex: conversão de
+    /// entrada bibliográfica para hayagriva). Guardados como
+    /// `SourceDiagnostic` para preservar `span` e posição no ficheiro.
+    pub layout_errors: Vec<SourceDiagnostic>,
 }
 
 impl PagedDocument {

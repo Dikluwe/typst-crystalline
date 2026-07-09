@@ -23,6 +23,7 @@ use crate::entities::{
     },
     location::Location,
     locator::Locator,
+    source_result::SourceDiagnostic,
     style_chain::StyleChain,
 };
 use crate::rules::introspect::locatable::is_locatable;
@@ -387,11 +388,10 @@ pub struct Layouter<'a, M: FontMetrics, S: ImageSizer = NullImageSizer> {
     /// simples, sem construção de `SourceDiagnostic` nem acesso a Sink.
     /// Exportado no `PagedDocument` e convertido a diagnósticos em L3.
     pub(super) layout_warnings: Vec<String>,
-    /// **P644** — erros produzidos durante o layout (ex: conversão de
-    /// entrada bibliográfica). L1 puro: strings simples, sem construção
-    /// de `SourceDiagnostic` nem acesso a Sink. Exportado no
-    /// `PagedDocument` e convertido a erro em L3.
-    pub(super) layout_errors: Vec<String>,
+    /// **P644/P645** — erros produzidos durante o layout (ex: conversão de
+    /// entrada bibliográfica). Guardados como `SourceDiagnostic` para
+    /// preservar `span` e posição no ficheiro.
+    pub(super) layout_errors: Vec<SourceDiagnostic>,
 }
 
 /// **P286** — Segmento de linha visual capturado por `flush_line`
@@ -1723,7 +1723,7 @@ pub fn layout_with_introspector_and_metrics<M: FontMetrics + Clone, S: ImageSize
     // resolvidos aqui por nome quando não houver entrada na tabela lateral.
     let bib_style = find_first_bibliography_style(content, &introspector);
     let citation_order = introspector.citation_order();
-    let mut layout_errors: Vec<String> = Vec::new();
+    let mut layout_errors: Vec<SourceDiagnostic> = Vec::new();
     let bib_render_cache = bib_style.and_then(|style| {
         let result = if let Some(resolved) = style.resolved_style {
             crate::rules::layout::bib_csl::build_cache_with_style(
@@ -1745,9 +1745,7 @@ pub fn layout_with_introspector_and_metrics<M: FontMetrics + Clone, S: ImageSize
         match result {
             Ok(cache) => Some(cache),
             Err(diagnostics) => {
-                for d in diagnostics {
-                    layout_errors.push(d.message);
-                }
+                layout_errors.extend(diagnostics);
                 None
             }
         }
