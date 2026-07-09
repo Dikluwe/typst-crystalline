@@ -6294,6 +6294,61 @@ mod tests {
         );
     }
 
+    // P653 — array.sorted(key: ...) ordena pelo resultado da função chave.
+    #[test]
+    fn p653_array_sorted_key_funciona() {
+        let world = MockWorld::new("#let x = (3, -10, 2).sorted(key: x => calc.abs(x))");
+        assert_eq!(
+            eval_let(&world, "x"),
+            Some(Value::Array(vec![Value::Int(2), Value::Int(3), Value::Int(-10)]))
+        );
+    }
+
+    #[test]
+    fn p653_array_sorted_key_em_dicionarios() {
+        let world = MockWorld::new(
+            "#let x = ((name: \"Bob\", age: 30), (name: \"Alice\", age: 25), (name: \"Carol\", age: 35)).sorted(key: x => x.name)"
+        );
+
+        fn dict_with(name: &str, age: i64) -> Value {
+            let mut map: IndexMap<EcoString, Value, FxBuildHasher> = IndexMap::default();
+            map.insert("name".into(), Value::Str(name.into()));
+            map.insert("age".into(), Value::Int(age));
+            Value::Dict(map)
+        }
+
+        let expected = Some(Value::Array(vec![
+            dict_with("Alice", 25),
+            dict_with("Bob", 30),
+            dict_with("Carol", 35),
+        ]));
+        assert_eq!(eval_let(&world, "x"), expected);
+    }
+
+    #[test]
+    fn p653_array_sorted_rejeita_positional() {
+        let world = MockWorld::new("#let x = (3, 1, 2).sorted(x => -x)");
+        let err = eval_for_test(&world, &world.source).unwrap_err();
+        let msg = err.first().map(|d| d.message.to_string()).unwrap_or_default();
+        assert!(
+            msg.contains("does not accept positional arguments"),
+            "mensagem inesperada: {msg}"
+        );
+    }
+
+    #[test]
+    fn p653_array_sorted_key_tipo_incompativel_propaga() {
+        // O erro de comparação deve aplicar-se aos valores produzidos pela
+        // função chave, não aos elementos originais do array.
+        let world = MockWorld::new("#let x = (1, \"a\", 2).sorted(key: x => x)");
+        let err = eval_for_test(&world, &world.source).unwrap_err();
+        let msg = err.first().map(|d| d.message.to_string()).unwrap_or_default();
+        assert!(
+            msg.contains("cannot compare str and int"),
+            "mensagem inesperada: {msg}"
+        );
+    }
+
     #[test]
     fn p466_array_filter() {
         let world = MockWorld::new("#let x = (1, 2, 3).filter(x => x > 1)");

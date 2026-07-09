@@ -151,27 +151,36 @@ fn array_sorted(
     ctx: &mut EvalContext,
     engine: &mut Engine<'_>,
 ) -> SourceResult<Value> {
-    let key = if args.items.is_empty() {
-        None
-    } else {
-        match args.items.as_slice() {
-            [Value::Func(f)] => Some(f.clone()),
-            [other] => {
-                return Err(vec![SourceDiagnostic::error(
-                    Span::detached(),
-                    format!(
-                        "array.sorted() espera função como chave, recebeu {}",
-                        other.type_name()
-                    ),
-                )]);
-            }
-            _ => {
-                return Err(vec![SourceDiagnostic::error(
-                    Span::detached(),
-                    "array.sorted() aceita no máximo 1 argumento".to_string(),
-                )]);
-            }
+    // `array.sorted()` não aceita argumentos posicionais; a única named arg
+    // válida é `key`. Qualquer outra nomeada é rejeitada, alinhando com o
+    // Typst vanilla.
+    if !args.items.is_empty() {
+        return Err(vec![SourceDiagnostic::error(
+            Span::detached(),
+            "array.sorted() does not accept positional arguments".to_string(),
+        )]);
+    }
+
+    let mut unknown = args.named.keys().filter(|k| k.as_str() != "key");
+    if let Some(bad) = unknown.next() {
+        return Err(vec![SourceDiagnostic::error(
+            Span::detached(),
+            format!("array.sorted() unexpected argument '{}'", bad.as_str()),
+        )]);
+    }
+
+    let key = match args.named.get("key") {
+        Some(Value::Func(f)) => Some(f.clone()),
+        Some(other) => {
+            return Err(vec![SourceDiagnostic::error(
+                Span::detached(),
+                format!(
+                    "array.sorted() expects function for key, received {}",
+                    other.type_name()
+                ),
+            )]);
         }
+        None => None,
     };
 
     let mut sorted = arr;
