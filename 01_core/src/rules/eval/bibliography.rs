@@ -443,4 +443,27 @@ semtitulo:
         assert_eq!(entries[0].author, "Autor Sem Título");
         assert!(entries[0].title.is_empty());
     }
+
+    // ── P646 — chave vazia em YAML via path completo ──────────────────────────
+
+    #[test]
+    fn p646_yaml_chave_vazia_via_load_bib_entries_produz_erro() {
+        // P646: o caminho completo (leitura do ficheiro + parse YAML) deve
+        // rejeitar chave vazia, tal como o caminho .bib e o vanilla.
+        let yaml = r#"
+"":
+  type: Article
+  title: Sem chave
+  author: Alguém
+  date: 2024
+"#;
+        let mut world = MockWorldFs::new();
+        world.add_file("refs.yaml", yaml.as_bytes().to_vec());
+        let err = load_bib_entries_from_path(&world, world.main(), "refs.yaml").unwrap_err();
+        assert!(
+            err[0].message.contains("bibliography contains entry with empty key"),
+            "{}",
+            err[0].message
+        );
+    }
 }
