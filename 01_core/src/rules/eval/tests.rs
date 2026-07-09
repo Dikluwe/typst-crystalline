@@ -6331,7 +6331,7 @@ mod tests {
         let err = eval_for_test(&world, &world.source).unwrap_err();
         let msg = err.first().map(|d| d.message.to_string()).unwrap_or_default();
         assert!(
-            msg.contains("does not accept positional arguments"),
+            msg.contains("unexpected argument"),
             "mensagem inesperada: {msg}"
         );
     }

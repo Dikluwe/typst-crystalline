@@ -157,7 +157,7 @@ fn array_sorted(
     if !args.items.is_empty() {
         return Err(vec![SourceDiagnostic::error(
             Span::detached(),
-            "array.sorted() does not accept positional arguments".to_string(),
+            "unexpected argument".to_string(),
         )]);
     }
 
@@ -165,7 +165,7 @@ fn array_sorted(
     if let Some(bad) = unknown.next() {
         return Err(vec![SourceDiagnostic::error(
             Span::detached(),
-            format!("array.sorted() unexpected argument '{}'", bad.as_str()),
+            format!("unexpected argument: {}", bad.as_str()),
         )]);
     }
 
