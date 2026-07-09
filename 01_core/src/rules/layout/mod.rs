@@ -387,6 +387,11 @@ pub struct Layouter<'a, M: FontMetrics, S: ImageSizer = NullImageSizer> {
     /// simples, sem construção de `SourceDiagnostic` nem acesso a Sink.
     /// Exportado no `PagedDocument` e convertido a diagnósticos em L3.
     pub(super) layout_warnings: Vec<String>,
+    /// **P644** — erros produzidos durante o layout (ex: conversão de
+    /// entrada bibliográfica). L1 puro: strings simples, sem construção
+    /// de `SourceDiagnostic` nem acesso a Sink. Exportado no
+    /// `PagedDocument` e convertido a erro em L3.
+    pub(super) layout_errors: Vec<String>,
 }
 
 /// **P286** — Segmento de linha visual capturado por `flush_line`
@@ -566,6 +571,8 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
             pending_page_numbering: Vec::new(),
             // **P595** — avisos de layout inicializados vazios.
             layout_warnings: Vec::new(),
+            // **P644** — erros de layout inicializados vazios.
+            layout_errors: Vec::new(),
         }
     }
 
@@ -1271,6 +1278,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
         doc.extracted_table_page_numbers  = self.runtime.table_page_numbers;
         // **P595** — exportar avisos de layout acumulados no Layouter.
         doc.layout_warnings = self.layout_warnings;
+        doc.layout_errors = self.layout_errors;
         doc
     }
 
@@ -1715,8 +1723,9 @@ pub fn layout_with_introspector_and_metrics<M: FontMetrics + Clone, S: ImageSize
     // resolvidos aqui por nome quando não houver entrada na tabela lateral.
     let bib_style = find_first_bibliography_style(content, &introspector);
     let citation_order = introspector.citation_order();
+    let mut layout_errors: Vec<String> = Vec::new();
     let bib_render_cache = bib_style.and_then(|style| {
-        if let Some(resolved) = style.resolved_style {
+        let result = if let Some(resolved) = style.resolved_style {
             crate::rules::layout::bib_csl::build_cache_with_style(
                 introspector.bib_store.entries(),
                 &resolved,
@@ -1731,13 +1740,23 @@ pub fn layout_with_introspector_and_metrics<M: FontMetrics + Clone, S: ImageSize
                 Some(citation_order),
             )
         } else {
-            None
+            return None;
+        };
+        match result {
+            Ok(cache) => Some(cache),
+            Err(diagnostics) => {
+                for d in diagnostics {
+                    layout_errors.push(d.message);
+                }
+                None
+            }
         }
     });
 
     if !has_outline {
         let mut l = Layouter::new(metrics.clone(), sizer.clone(), font_size, intr_tracked);
         l.bib_render_cache = bib_render_cache;
+        l.layout_errors = layout_errors;
         // P204C (M8): introspector já fornecido a Layouter::new via
         // tracked. Mutações pós-construção (`l.introspector =
         // introspector`) eliminadas porque Tracked é borrow.
@@ -1763,6 +1782,7 @@ pub fn layout_with_introspector_and_metrics<M: FontMetrics + Clone, S: ImageSize
     for _ in 0..MAX_ITERATIONS {
         let mut l = Layouter::new(metrics.clone(), sizer.clone(), font_size, intr_tracked);
         l.bib_render_cache = bib_render_cache.clone();
+        l.layout_errors = layout_errors.clone();
 
         // P204C (M8): assignment `l.introspector = introspector.clone()`
         // eliminado — Tracked partilhado entre iterações via construtor.

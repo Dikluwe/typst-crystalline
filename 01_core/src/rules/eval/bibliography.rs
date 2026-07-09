@@ -87,8 +87,8 @@ pub fn parse_bibliography(content: &str, path: &str) -> SourceResult<Vec<BibEntr
     Ok(library
         .iter()
         .cloned()
-        .filter_map(hay_entry_to_bib_entry)
-        .collect::<Vec<_>>())
+        .map(hay_entry_to_bib_entry)
+        .collect::<Result<Vec<_>, _>>()?)
 }
 
 /// Resolve uma string `style` para um `IndependentStyle` (P420).
@@ -143,8 +143,16 @@ fn load_csl_style_from_path(
 }
 
 /// Converte um `hayagriva::Entry` para o subset `BibEntry` cristalino.
-fn hay_entry_to_bib_entry(entry: hayagriva::Entry) -> Option<BibEntry> {
+fn hay_entry_to_bib_entry(entry: hayagriva::Entry) -> SourceResult<BibEntry> {
     let key = entry.key().to_string();
+
+    // P644: chave vazia é erro, não omissão silenciosa.
+    if key.is_empty() {
+        return Err(vec![SourceDiagnostic::error(
+            Span::detached(),
+            "bibliography contains entry with empty key".to_string(),
+        )]);
+    }
 
     // Autor: primeiro autor disponível (authors > editors > organization).
     let author = entry
@@ -169,11 +177,6 @@ fn hay_entry_to_bib_entry(entry: hayagriva::Entry) -> Option<BibEntry> {
         .map(|d| d.year)
         .unwrap_or(0) as u32;
 
-    if key.is_empty() || (author.is_empty() && title.is_empty()) {
-        // Entry sem dados mínimos: ignora silenciosamente.
-        return None;
-    }
-
     let mut bib = BibEntry::new(key, author, title, year);
 
     // Fields opcionais quando diretamente acessíveis.
@@ -187,7 +190,7 @@ fn hay_entry_to_bib_entry(entry: hayagriva::Entry) -> Option<BibEntry> {
         bib.publisher = Some(p.to_string());
     }
 
-    Some(bib)
+    Ok(bib)
 }
 
 /// Representação canónica de uma pessoa hayagriva.
@@ -402,5 +405,42 @@ smith2024:
         world.add_file("bad-encoding.csl", vec![0xFF, 0xFE]);
         let err = resolve_style(&world, world.main(), "bad-encoding.csl").unwrap_err();
         assert!(err[0].message.contains("not valid UTF-8"), "{}", err[0].message);
+    }
+
+    // ── P644 — entradas bibliográficas omitidas silenciosamente ───────────────
+
+    #[test]
+    fn p644_yaml_chave_vazia_quoted_produz_erro() {
+        // P644: chave vazia (mesmo como string YAML quoted) deve propagar
+        // erro em hay_entry_to_bib_entry.
+        let yaml = r#"
+"":
+  type: Article
+  title: Sem chave
+  author: Alguém
+  date: 2024
+"#;
+        let err = parse_bibliography(yaml, "refs.yaml").unwrap_err();
+        assert!(
+            err[0].message.contains("bibliography contains entry with empty key"),
+            "{}",
+            err[0].message
+        );
+    }
+
+    #[test]
+    fn p644_yaml_sem_titulo_aceite() {
+        // P644: entrada sem título (mas com autor) deve ser aceite, não omitida.
+        let yaml = r#"
+semtitulo:
+  type: Article
+  author: Autor Sem Título
+  date: 2024
+"#;
+        let entries = parse_bibliography(yaml, "refs.yaml").unwrap();
+        assert_eq!(entries.len(), 1);
+        assert_eq!(entries[0].key, "semtitulo");
+        assert_eq!(entries[0].author, "Autor Sem Título");
+        assert!(entries[0].title.is_empty());
     }
 }

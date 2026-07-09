@@ -581,6 +581,11 @@ pub struct PagedDocument {
     /// para `SourceDiagnostic` e injecção no `Sink` é responsabilidade
     /// da pipeline em L3.
     pub layout_warnings: Vec<String>,
+    /// **P644** — erros produzidos durante o layout (ex: conversão de
+    /// entrada bibliográfica para hayagriva). L1 permanece puro; a
+    /// conversão para `SourceDiagnostic` e propagação como erro é
+    /// responsabilidade da pipeline em L3.
+    pub layout_errors: Vec<String>,
 }
 
 impl PagedDocument {
@@ -595,6 +600,7 @@ impl PagedDocument {
             extracted_headings:             Vec::new(),
             document_info:                  DocumentInfo::empty(),
             layout_warnings:                Vec::new(),
+            layout_errors:                  Vec::new(),
         }
     }
 

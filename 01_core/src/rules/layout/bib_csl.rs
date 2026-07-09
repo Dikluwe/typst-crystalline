@@ -21,6 +21,8 @@
 use std::collections::HashMap;
 
 use hayagriva::archive::ArchivedStyle;
+use crate::entities::source_result::{SourceDiagnostic, SourceResult};
+use crate::entities::span::Span;
 use hayagriva::citationberg;
 use hayagriva::citationberg::{Display, IndependentStyle, Locale};
 use hayagriva::{
@@ -58,9 +60,13 @@ pub fn build_cache(
     style: Option<&str>,
     locale: Option<&str>,
     citation_order: Option<&[String]>,
-) -> Option<BibRenderCache> {
+) -> SourceResult<BibRenderCache> {
     let style_name = style.unwrap_or(DEFAULT_STYLE);
-    let independent = resolve_style_name(style_name)?;
+    let independent = resolve_style_name(style_name)
+        .ok_or_else(|| vec![SourceDiagnostic::error(
+            Span::detached(),
+            format!("unknown bibliography style '{}'", style_name),
+        )])?;
     build_cache_with_style(entries, &independent, locale, citation_order)
 }
 
@@ -77,7 +83,7 @@ pub fn build_cache_with_style(
     independent: &IndependentStyle,
     locale: Option<&str>,
     citation_order: Option<&[String]>,
-) -> Option<BibRenderCache> {
+) -> SourceResult<BibRenderCache> {
     let locales = build_locales(locale);
 
     // **P547** — só reordenar por citation_order em estilos numéricos (ex: IEEE).
@@ -97,10 +103,10 @@ pub fn build_cache_with_style(
 
     let hay_entries: Vec<Entry> = ordered_entries
         .iter()
-        .filter_map(bib_entry_to_hayagriva)
-        .collect();
+        .map(bib_entry_to_hayagriva)
+        .collect::<Result<Vec<_>, _>>()?;
     if hay_entries.is_empty() {
-        return Some(BibRenderCache { citations: HashMap::new(), bibliography: None });
+        return Ok(BibRenderCache { citations: HashMap::new(), bibliography: None });
     }
 
     let mut citations: HashMap<CitationForm, HashMap<String, Content>> = HashMap::new();
@@ -153,7 +159,7 @@ pub fn build_cache_with_style(
         driver.finish(hayagriva::BibliographyRequest::new(independent, None, &locales));
     let bibliography = rendered.bibliography.as_ref().map(render_bibliography);
 
-    Some(BibRenderCache { citations, bibliography })
+    Ok(BibRenderCache { citations, bibliography })
 }
 
 /// Resolve um style built-in pelo nome. Aceita styles do hayagriva archive.
@@ -211,7 +217,15 @@ fn form_to_purpose(form: CitationForm) -> Option<CitePurpose> {
 
 /// Converte um `BibEntry` cristalino num `hayagriva::Entry` gerando YAML
 /// intermédio e aproveitando o parser do hayagriva.
-fn bib_entry_to_hayagriva(entry: &BibEntry) -> Option<Entry> {
+fn bib_entry_to_hayagriva(entry: &BibEntry) -> SourceResult<Entry> {
+    // P644: chave vazia é erro antes de gerar YAML.
+    if entry.key.is_empty() {
+        return Err(vec![SourceDiagnostic::error(
+            Span::detached(),
+            "bibliography contains entry with empty key".to_string(),
+        )]);
+    }
+
     let mut yaml = String::new();
     yaml.push_str(&format!("{}:\n", sanitize_yaml_key(&entry.key)));
 
@@ -283,8 +297,25 @@ fn bib_entry_to_hayagriva(entry: &BibEntry) -> Option<Entry> {
         yaml.push_str(&format!("  organization: {}\n", escape_yaml_scalar(o)));
     }
 
-    let library = hayagriva::io::from_yaml_str(&yaml).ok()?;
-    library.get(&entry.key).cloned()
+    let library = hayagriva::io::from_yaml_str(&yaml).map_err(|e| {
+        vec![SourceDiagnostic::error(
+            Span::detached(),
+            format!("failed to parse bibliography entry '{}': {}", entry.key, e),
+        )]
+    })?;
+
+    library
+        .get(&entry.key)
+        .cloned()
+        .ok_or_else(|| {
+            vec![SourceDiagnostic::error(
+                Span::detached(),
+                format!(
+                    "bibliography entry '{}' missing after YAML conversion",
+                    entry.key
+                ),
+            )]
+        })
 }
 
 /// Escapa um escalar YAML plain suficientemente para as entradas típicas.
@@ -461,7 +492,7 @@ mod tests {
 
     #[test]
     fn build_cache_style_inexistente_retorna_none() {
-        assert!(build_cache(&sample_entries(), Some("not-a-real-style"), None, None).is_none());
+        assert!(build_cache(&sample_entries(), Some("not-a-real-style"), None, None).is_err());
     }
 
     #[test]
@@ -706,5 +737,36 @@ mod tests {
         let cache = build_cache_with_style(&entries, &style, None, None).unwrap();
         let bib = cache.bibliography.unwrap().plain_text();
         assert!(bib.contains("The Title"), "bib: {bib}");
+    }
+
+    // ── P644 — erros em bib_entry_to_hayagriva ────────────────────────────────
+
+    #[test]
+    fn p644_bib_entry_to_hayagriva_chave_vazia_produz_erro() {
+        let entry = BibEntry::new("".to_string(), "Autor".to_string(), "Título".to_string(), 2024);
+        let err = bib_entry_to_hayagriva(&entry).unwrap_err();
+        assert!(
+            err[0].message.contains("bibliography contains entry with empty key"),
+            "{}",
+            err[0].message
+        );
+    }
+
+    #[test]
+    fn p644_bib_entry_to_hayagriva_yaml_invalido_produz_erro() {
+        // Caractere de controlo nulo no título — o YAML gerado contém U+0000,
+        // que o parser hayagriva rejeita.
+        let entry = BibEntry::new(
+            "key".to_string(),
+            "Autor".to_string(),
+            "Título\u{0000}inválido".to_string(),
+            2024,
+        );
+        let err = bib_entry_to_hayagriva(&entry).unwrap_err();
+        assert!(
+            err[0].message.contains("failed to parse bibliography entry"),
+            "{}",
+            err[0].message
+        );
     }
 }

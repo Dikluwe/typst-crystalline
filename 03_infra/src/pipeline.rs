@@ -371,6 +371,18 @@ fn compile_to_pdf_bytes_impl(
     for warning in doc.layout_warnings.drain(..) {
         warnings.push(SourceDiagnostic::warning(Span::detached(), warning));
     }
+    // **P644** — propagar erros de layout (ex: conversão de entrada
+    // bibliográfica) como erro de compilação.
+    if !doc.layout_errors.is_empty() {
+        let errors: Vec<SourceDiagnostic> = doc
+            .layout_errors
+            .drain(..)
+            .map(|msg| SourceDiagnostic::error(Span::detached(), msg))
+            .collect();
+        timings.layout_ms = duration_ms(Instant::now().duration_since(t3));
+        timings.total_ms = timings.eval_ms + timings.introspect_ms + timings.expand_context_ms + timings.layout_ms;
+        return (Err(errors), warnings);
+    }
     doc.extracted_headings = extracted_headings;
 
     // P535 — preencher página/ponto dos destinos auto-toc a partir das
