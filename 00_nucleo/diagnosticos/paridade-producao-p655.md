@@ -123,6 +123,8 @@ Verificados os casos não-triviais:
 - `deprecated_semver` — metadados de `#[deprecated]`. Não afecta runtime.
 - `never_loop` (×2) — `for k in args.named.keys() { return Err(...) }`. Reporta erro no primeiro named arg e sai. Semântica intencional (P296 scope-out cosméticos), embora o estilo possa ser melhorado.
 
+> **Nota P656:** a ordem de `args.named` foi confirmada como determinística. `args.named` é `IndexMap<EcoString, Value, FxBuildHasher>` (ordem de inserção preservada), e testes directos com múltiplos named args inválidos (`sorted(reverse: true, stable: false, alpha: 1)`) reportam sempre o primeiro na ordem de escrita, tanto no cristalino como no vanilla. A classificação "semântica intencional" mantém-se.
+
 ### 2.3 Categoria 3 — Novo, suspeito
 
 Nenhum. Todos os casos acima têm justificação documentada ou invariante local.
