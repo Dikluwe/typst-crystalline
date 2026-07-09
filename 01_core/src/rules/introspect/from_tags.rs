@@ -24,6 +24,7 @@ use crate::entities::args::Args;
 use crate::entities::element_payload::ElementPayload;
 use crate::entities::engine::Engine;
 use crate::entities::introspector::TagIntrospector;
+use crate::entities::source_result::SourceResult;
 use crate::entities::state_update::StateUpdate;
 use crate::entities::tag::Tag;
 use crate::rules::eval::closures::apply_func;
@@ -51,7 +52,7 @@ pub fn apply_state_funcs(
     intr:   &mut TagIntrospector,
     engine: &mut Engine<'_>,
     ctx:    &mut EvalContext,
-) {
+) -> SourceResult<()> {
     // P394: callbacks de state não têm acesso ao scope de eval; usam scope
     // vazio (closures trazem o seu captured scope como parent).
     let mut scopes = Scopes::new(None);
@@ -61,17 +62,16 @@ pub fn apply_state_funcs(
                 if let StateUpdate::Func(func) = update {
                     if let Some(curr) = intr.state.value_at(key, *loc).cloned() {
                         let args = Args::positional(vec![curr]);
-                        if let Ok(new_value) =
-                            apply_func(func.clone(), args, &mut scopes, ctx, engine)
-                        {
-                            intr.state.update(
-                                key.clone(),
-                                new_value,
-                                *loc,
-                            );
+                        match apply_func(func.clone(), args, &mut scopes, ctx, engine) {
+                            Ok(new_value) => {
+                                intr.state.update(
+                                    key.clone(),
+                                    new_value,
+                                    *loc,
+                                );
+                            }
+                            Err(diagnostics) => return Err(diagnostics),
                         }
-                        // Err: defensive ignore — refino futuro pode
-                        // propagar via Sink.
                     }
                     // value_at == None: defensive ignore (P171 padrão
                     // "update sem init").
@@ -79,6 +79,7 @@ pub fn apply_state_funcs(
             }
         }
     }
+    Ok(())
 }
 
 /// **P240 (M9d/M7+1)** — slim post-pass para `Content::StateDisplay`
@@ -346,7 +347,8 @@ mod tests {
         ];
         let world = make_world();
         with_engine!(&world, |engine, ctx| {
-            apply_state_funcs(&tags, &mut intr, &mut engine, &mut ctx);
+            apply_state_funcs(&tags, &mut intr, &mut engine, &mut ctx)
+                .expect("apply_state_funcs deve suceder");
         });
         assert_eq!(intr.state.final_value("c"), Some(&Value::Int(1)));
     }
@@ -368,7 +370,8 @@ mod tests {
         ];
         let world = make_world();
         with_engine!(&world, |engine, ctx| {
-            apply_state_funcs(&tags, &mut intr, &mut engine, &mut ctx);
+            apply_state_funcs(&tags, &mut intr, &mut engine, &mut ctx)
+                .expect("apply_state_funcs deve suceder");
         });
         // Sem init → state vazio para "c".
         assert_eq!(intr.state.final_value("c"), None);
@@ -402,9 +405,55 @@ mod tests {
         ];
         let world = make_world();
         with_engine!(&world, |engine, ctx| {
-            apply_state_funcs(&tags, &mut intr, &mut engine, &mut ctx);
+            apply_state_funcs(&tags, &mut intr, &mut engine, &mut ctx)
+                .expect("apply_state_funcs deve suceder");
         });
         assert_eq!(intr.state.final_value("c"), Some(&Value::Int(10)));
+    }
+
+    #[test]
+    fn func_eval_callback_erro_propaga_diagnostics() {
+        // P642: callback de state.update que retorna Err deve propagar
+        // diagnostics em vez de ser descartado silenciosamente.
+        fn err_callback(
+            _ctx: &mut crate::rules::eval::EvalContext,
+            _args: &crate::entities::args::Args,
+            _world: &dyn crate::contracts::world::World,
+            _current_file: crate::entities::file_id::FileId,
+        ) -> crate::entities::source_result::SourceResult<crate::entities::value::Value> {
+            Err(vec![
+                crate::entities::source_result::SourceDiagnostic::error(
+                    crate::entities::span::Span::detached(),
+                    "state update callback error",
+                ),
+            ])
+        }
+        let f = Func::native("err_callback", err_callback);
+        let mut intr = TagIntrospector::empty();
+        intr.state.init("c".to_string(), Value::Int(0), loc(10));
+        let tags = vec![
+            Tag::Start(
+                loc(20),
+                ElementInfo::new(ElementPayload::StateUpdate {
+                    key:    "c".to_string(),
+                    update: StateUpdate::Func(f),
+                }),
+            ),
+            Tag::End(loc(20), 0),
+        ];
+        let world = make_world();
+        let result: SourceResult<()> = with_engine!(&world, |engine, ctx| {
+            apply_state_funcs(&tags, &mut intr, &mut engine, &mut ctx)
+        });
+        match result {
+            Err(diagnostics) => {
+                assert_eq!(diagnostics.len(), 1);
+                assert!(diagnostics[0].message.contains("state update callback error"));
+            }
+            Ok(_) => panic!("esperado Err com diagnostics, recebido Ok"),
+        }
+        // State não deve ter sido actualizado.
+        assert_eq!(intr.state.final_value("c"), Some(&Value::Int(0)));
     }
 
     // ── Passo 240 (M9d/M7+1; ADR-0081 PROPOSTO P239 Opção γ) —

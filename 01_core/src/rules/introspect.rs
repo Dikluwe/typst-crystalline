@@ -2766,7 +2766,7 @@ mod tests {
             );
             super::from_tags::apply_state_funcs(
                 &tags, &mut intr, &mut engine, &mut ctx,
-            );
+            ).expect("apply_state_funcs deve suceder");
             intr
         });
         assert_eq!(intr.state_final_value("c"), Some(&Value::Int(1)));
@@ -2822,7 +2822,7 @@ mod tests {
             );
             super::from_tags::apply_state_funcs(
                 &tags, &mut intr, &mut engine, &mut ctx,
-            );
+            ).expect("apply_state_funcs deve suceder");
             intr.state_final_value("c").cloned()
         });
         let v_b = with_engine!(&world, |engine, ctx| {
@@ -2836,7 +2836,7 @@ mod tests {
             );
             super::from_tags::apply_state_funcs(
                 &tags, &mut intr, &mut engine, &mut ctx,
-            );
+            ).expect("apply_state_funcs deve suceder");
             intr.state_final_value("c").cloned()
         });
         assert_eq!(v_a, Some(Value::Int(6)));

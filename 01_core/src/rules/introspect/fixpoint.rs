@@ -100,7 +100,8 @@ where
         );
 
         let curr_hash = compute_tags_hash(&tags);
-        apply_state_funcs(&tags, &mut introspector, engine, ctx);
+        apply_state_funcs(&tags, &mut introspector, engine, ctx)
+            .map_err(FixpointError::Eval)?;
         // P240 (M9d/M7+1): pre-render `Content::StateDisplay` callbacks
         // paralelo `apply_state_funcs` (Opção γ ADR-0081 PROPOSTO P239).
         apply_state_displays(&tags, &mut introspector, engine, ctx);
@@ -264,6 +265,49 @@ mod tests {
         match result {
             Err(FixpointError::Eval(diags)) => {
                 assert_eq!(diags.len(), 1);
+            }
+            _ => panic!("esperado Err(Eval(_)), recebido {:?}", result),
+        }
+    }
+
+    #[test]
+    fn fixpoint_propaga_erro_state_update_callback() {
+        // P642: state.update(func) com callback que dá erro deve propagar
+        // via FixpointError::Eval, não ser descartado.
+        use crate::entities::content::Content;
+        use crate::entities::func::Func;
+        use crate::entities::state_update::StateUpdate;
+        use crate::entities::value::Value;
+
+        fn err_callback(
+            _ctx: &mut EvalContext,
+            _args: &Args,
+            _world: &dyn crate::contracts::world::World,
+            _current_file: FileId,
+        ) -> SourceResult<Value> {
+            Err(vec![SourceDiagnostic::error(
+                Span::detached(),
+                "state update callback error".to_string(),
+            )])
+        }
+
+        let world = make_world();
+        let f = Func::native("err_callback", err_callback);
+        let result = with_engine!(&world, |engine, ctx| {
+            run_fixpoint(&mut engine, &mut ctx, |_eng, _ctx| {
+                Ok(Content::Sequence(
+                    vec![
+                        Content::state("c".to_string(), Value::Int(0)),
+                        Content::state_update("c".to_string(), StateUpdate::Func(f.clone())),
+                    ]
+                    .into(),
+                ))
+            })
+        });
+        match result {
+            Err(FixpointError::Eval(diags)) => {
+                assert_eq!(diags.len(), 1);
+                assert!(diags[0].message.contains("state update callback error"));
             }
             _ => panic!("esperado Err(Eval(_)), recebido {:?}", result),
         }
