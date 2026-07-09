@@ -117,4 +117,4 @@ Resultado: o comando terminou com sucesso e produziu PDF. Este cenário não pro
 
 ## 6. Hash do commit
 
-`HASH_A_PREENCHER`
+`e497cbe6f`
