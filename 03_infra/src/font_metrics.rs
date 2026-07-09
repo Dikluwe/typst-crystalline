@@ -20,7 +20,7 @@ use typst_core::entities::world_types::Font;
 use typst_core::rules::layout::FontMetrics;
 
 use crate::fallback_fonts::fallback_font_list_for;
-use crate::font_variant::text_style_to_font_variant;
+use crate::font_variant::{axis_variations_for_font_variant, text_style_to_font_variant};
 
 /// Extrai variantes verticais de um glifo directamente a partir da face.
 fn extract_variants(face: &Face<'_>, c: char) -> GlyphVariants {
@@ -280,7 +280,10 @@ impl CachedFace {
 /// **P591** — chave para cache de `advance_shaped`. Inclui os campos do
 /// `TextStyle` que afectam a largura shaped; campos puramente visuais
 /// (fill, highlight, etc.) são omitidos porque não alteram métricas.
-#[derive(Hash, Eq, PartialEq)]
+/// **P659** — adicionado `axis_hash` para incluir variações de eixo OpenType
+/// (weight, width, italic slant, etc.) na chave, evitando colisões entre
+/// estilos com o mesmo texto/tamanho mas eixos diferentes.
+#[derive(Debug, Hash, Eq, PartialEq)]
 struct ShapedWidthKey {
     text:      String,
     size_bits: u64,
@@ -290,6 +293,7 @@ struct ShapedWidthKey {
     weight:    Option<u16>,
     dir:       u8,
     lang:      Option<typst_core::entities::lang::Lang>,
+    axis_hash: u64,
 }
 
 pub struct FallbackFontMetrics<'a> {
@@ -337,6 +341,20 @@ impl<'a> FallbackFontMetrics<'a> {
             h.finish()
         }).unwrap_or(0);
 
+        // P659 — incluir variações de eixo OpenType na chave. O mesmo texto,
+        // tamanho e peso nominal pode ter larguras diferentes se os eixos
+        // (wdth, wght real, etc.) divergirem.
+        let variant = text_style_to_font_variant(style);
+        let axis_vars = axis_variations_for_font_variant(&variant);
+        let axis_hash = {
+            let mut h = DefaultHasher::new();
+            for v in &axis_vars {
+                v.tag.hash(&mut h);
+                v.value.to_bits().hash(&mut h);
+            }
+            h.finish()
+        };
+
         Some(ShapedWidthKey {
             text: text.to_string(),
             size_bits: style.size.0.to_bits(),
@@ -346,6 +364,7 @@ impl<'a> FallbackFontMetrics<'a> {
             weight: style.weight,
             dir,
             lang: style.lang,
+            axis_hash,
         })
     }
 
@@ -692,6 +711,31 @@ mod tests {
             digits_shaped.is_none() || (digits_shaped.unwrap().val() - digits_plain.val()).abs() < 0.1,
             "'42' nao deve sofrer shaping contextual"
         );
+    }
+
+    // P659 — a chave de cache de shaped_width deve distinguir variações de eixo
+    // OpenType. O mesmo texto, tamanho e peso nominal pode ter larguras shaped
+    // diferentes se o eixo efectivo (ex.: wght) divergir.
+    #[test]
+    fn p659_shaped_width_key_distingue_variacoes_de_eixo() {
+        let mut style_a = TextStyle::default();
+        style_a.weight = Some(400);
+
+        let mut style_b = TextStyle::default();
+        style_b.weight = Some(700);
+
+        let key_a = FallbackFontMetrics::shaped_width_key("abc", &style_a).unwrap();
+        let key_b = FallbackFontMetrics::shaped_width_key("abc", &style_b).unwrap();
+
+        assert_ne!(
+            key_a.axis_hash, key_b.axis_hash,
+            "pesos 400 e 700 devem produzir axis_hash diferentes"
+        );
+        assert_ne!(key_a, key_b, "ShapedWidthKey de 400 e 700 deve ser distinta");
+
+        // Dois estilos com o mesmo peso devem colidir em axis_hash.
+        let key_a2 = FallbackFontMetrics::shaped_width_key("abc", &style_a).unwrap();
+        assert_eq!(key_a.axis_hash, key_a2.axis_hash);
     }
 
     #[test]
