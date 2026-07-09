@@ -21,7 +21,8 @@ Em `01_core/src/rules/eval/rules.rs`:
 
 - `value_to_eco_string` (document title/author/keywords) devolvia `Option<EcoString>`, convertendo tipos inválidos em `None`.
 - `extract_pt` (page width/height/margin) devolvia `Option<f64>`, convertendo tipos inválidos em `None`.
-- `page.numbering`, `page.columns`, `figure.numbering`, `table.numbering`, `math.equation.numbering` usavam match com braço `_ => {}` ou `_ => None` que ignorava tipos inválidos.
+- `page.numbering`, `page.columns`, `figure.numbering`, `math.equation.numbering` usavam match com braço `_ => {}` ou `_ => None` que ignorava tipos inválidos.
+- `table.numbering` também usava o mesmo padrão, mas — como P639 confirmou — esta propriedade é uma extensão do cristalino (P459) e não existe no vanilla. No vanilla, a numeração de tabelas é feita através de `#figure(table(...), caption: ...)`. A validação de tipo mantém-se correcta dentro do cristalino.
 - `text.weight` usava `Option<u16>` com fallback silencioso.
 - `math.equation.numbering` ainda usava `.ok()` para descartar erros de avaliação (variável indefinida).
 
@@ -46,7 +47,8 @@ O cristalino usa nomes de tipo em inglês (`int`, `str`, `array`, etc.) via `Val
    - `math.equation.numbering`: propaga erros de `eval_expr` e rejeita tipos inválidos.
    - `document.title`/`author`/`keywords`: `value_to_eco_string` passa a devolver `SourceResult<Option<EcoString>>`; rejeita tipos inválidos e arrays com elementos não-string.
    - `page.width`/`height`/`margin`/`numbering`/`columns`: `extract_pt` devolve `SourceResult<Option<f64>>`; outros campos validam tipos explicitamente.
-   - `figure.numbering`, `table.numbering`: rejeitam tipos inválidos.
+   - `figure.numbering`: rejeita tipos inválidos.
+   - `table.numbering`: rejeita tipos inválidos. *Nota P639: `table.numbering` só existe no cristalino (extensão P459); o vanilla não tem esta propriedade.*
    - `text.weight`: rejeita tipos inválidos e nomes simbólicos desconhecidos; `Value::Int` fora do range `u16` dá erro.
 
 2. **`01_core/src/rules/eval/tests.rs`**:
@@ -66,7 +68,7 @@ O cristalino usa nomes de tipo em inglês (`int`, `str`, `array`, etc.) via `Val
 | `text.weight` | `expected int or string, found {tipo}` (ou `unknown font weight name: {nome}` / `font weight must be between 100 and 900`) |
 | `math.equation.numbering` | `expected string or none, found {tipo}` |
 | `figure.numbering` | `expected string or none, found {tipo}` |
-| `table.numbering` | `expected string or none, found {tipo}` |
+| `table.numbering` | `expected string or none, found {tipo}` (extensão cristalina P459; não existe no vanilla) |
 
 ---
 

@@ -58,7 +58,7 @@ Nestes casos a avaliação continua, mas a intenção do utilizador é ignorada:
 | 8 | `01_core/src/rules/eval/rules.rs:678` | `eval_expr(named.expr(), scopes, ctx, engine).ok()` silencia erros no argumento `numbering` de `#set math.equation`; variável indefinida é ignorada. | `p633_set_equation_numbering_undefined_silent` |
 | 9 | `01_core/src/rules/eval/rules.rs:695` | `#set math.equation(numbering: <não-Str>)` ignora o tipo inválido sem diagnóstico. | `p633_set_equation_numbering_int_silent` |
 | 10 | `01_core/src/rules/eval/rules.rs:819` | `#set figure(numbering: <não-Str>)` ignora o tipo inválido sem diagnóstico. | `p633_set_figure_numbering_int_silent` |
-| 11 | `01_core/src/rules/eval/rules.rs:848` | `#set table(numbering: <não-Str>)` ignora o tipo inválido sem diagnóstico. | `p633_set_table_numbering_int_silent` |
+| 11 | `01_core/src/rules/eval/rules.rs:848` | `#set table(numbering: <não-Str>)` ignora o tipo inválido sem diagnóstico. *Ver P639: `table.numbering` é uma extensão do cristalino (P459); o vanilla não tem esta propriedade.* | `p633_set_table_numbering_int_silent` |
 | 12 | `01_core/src/rules/eval/rules.rs:772` | `#set page(numbering: <não-Str/None>)` converte silenciosamente para sem numeração. | `p633_set_page_numbering_int_silent` |
 | 13 | `01_core/src/rules/eval/rules.rs:785` | `#set page(columns: <não-Int>)` ignora o tipo inválido sem diagnóstico. | `p633_set_page_columns_string_silent` |
 | 14 | `01_core/src/rules/eval/rules.rs:967` | `#set text(weight: <não-Int>)` ignora o tipo inválido sem diagnóstico. | `p633_set_text_weight_string_silent` |
@@ -229,7 +229,7 @@ Os testes foram introduzidos em `01_core/src/rules/eval/tests.rs` sob a secção
 - `01_core/src/rules/eval/bindings.rs:284` — `counter.display(...)` ignora argumento posicional quando pattern já está definido. **Promovido a Confirmado** pelos mesmos testes.
 - `01_core/src/rules/eval/rules.rs:695` — `#set equation(numbering: <não-Str>)` ignora tipo inválido. **Promovido a Confirmado** por `p633_set_equation_numbering_int_silent`.
 - `01_core/src/rules/eval/rules.rs:819` — `#set figure(numbering: <não-Str>)` ignora tipo inválido. **Promovido a Confirmado** por `p633_set_figure_numbering_int_silent`.
-- `01_core/src/rules/eval/rules.rs:848` — `#set table(numbering: <não-Str>)` ignora tipo inválido. **Promovido a Confirmado** por `p633_set_table_numbering_int_silent`.
+- `01_core/src/rules/eval/rules.rs:848` — `#set table(numbering: <não-Str>)` ignora tipo inválido. **Promovido a Confirmado** por `p633_set_table_numbering_int_silent`. *P639 confirmou que `table.numbering` é uma extensão cristalina (P459): no vanilla `table` não tem `numbering`; a numeração de tabelas faz-se via `#figure(table(...), caption: ...)`. A validação de tipo introduzida em P636 mantém-se correcta dentro do cristalino, mas não é paridade com o vanilla.*
 - `01_core/src/rules/eval/rules.rs:772` — `#set page(numbering: <não-Str/None>)` converte silenciosamente para sem numeração. **Promovido a Confirmado** por `p633_set_page_numbering_int_silent`.
 - `01_core/src/rules/eval/rules.rs:785` — `#set page(columns: <não-Int>)` ignora tipo inválido. **Promovido a Confirmado** por `p633_set_page_columns_string_silent`.
 
