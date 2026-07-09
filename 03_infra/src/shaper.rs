@@ -20,13 +20,15 @@
 
 #![allow(deprecated)] // P483 — FrameItem::Text fallback path legítimo
 
+use std::collections::HashMap;
+
 use rustybuzz::{Direction, UnicodeBuffer};
 use unicode_bidi::BidiInfo;
 use unicode_script::{Script, UnicodeScript};
 use typst_core::contracts::world::World;
 use typst_core::entities::font_book::FontVariant;
 use typst_core::entities::font_list::FontList;
-use typst_core::entities::layout_types::{FrameItem, Page, PagedDocument, Point, Pt, ShapedGlyph, TextStyle};
+use typst_core::entities::layout_types::{FrameItem, Length, Page, PagedDocument, Point, Pt, ShapedGlyph, TextStyle};
 
 use crate::fallback_fonts::fallback_font_list_for;
 use crate::font_metrics::FallbackFontMetrics;
@@ -39,10 +41,57 @@ use typst_core::entities::dir::Dir;
 /// Itens sem fonte resolvida (`style.font == None` ou lookup falha)
 /// são preservados como `FrameItem::Text` (fallback Helvetica).
 pub fn shape_document(world: &dyn World, mut doc: PagedDocument) -> PagedDocument {
+    // P657 — cache local de resultados de shaping. Criada por documento para
+    // evitar invalidação complexa entre mundos; reaproveita sub-runs idênticos
+    // (mesmo texto, face, direção, variações e tracking) dentro do mesmo
+    // documento, o que é comum em documentos com conteúdo repetido.
+    let mut cache = ShapeCache::new();
+
     for page in &mut doc.pages {
-        shape_page(world, page);
+        shape_page(world, page, &mut cache);
     }
+
     doc
+}
+
+/// Cache de resultados de shaping por documento.
+///
+/// A chave inclui tudo o que afecta o output de `rustybuzz::shape` para um
+/// sub-run: texto, identificador da face, direção, variações de eixo e
+/// tracking. O valor guarda os glifos shaped e a largura total em unidades
+/// de fonte.
+struct ShapeCache {
+    map: HashMap<String, CachedRun>,
+}
+
+#[derive(Clone)]
+struct CachedRun {
+    glyphs: Vec<ShapedGlyph>,
+    width:  i32,
+}
+
+impl ShapeCache {
+    fn new() -> Self {
+        Self { map: HashMap::new() }
+    }
+
+    fn key(
+        text: &str,
+        slot_idx: usize,
+        rtl: bool,
+        axis_vars: &[rustybuzz::Variation],
+        tracking: Option<Length>,
+    ) -> String {
+        let axis_key: String = axis_vars
+            .iter()
+            .map(|v| format!("{}={:.4}", v.tag, v.value))
+            .collect::<Vec<_>>()
+            .join(",");
+        let tracking_key = tracking
+            .map(|t| format!("{:.4}:{:.4}", t.abs.0, t.em))
+            .unwrap_or_default();
+        format!("{}|{}|{}|{}|{}", text, slot_idx, rtl, axis_key, tracking_key)
+    }
 }
 
 /// **P591** — mede a largura de `text` já com shaping aplicado, sem gerar
@@ -116,34 +165,34 @@ pub fn shaped_width(world: &dyn World, text: &str, style: &TextStyle) -> Option<
     Some(Pt(total))
 }
 
-fn shape_page(world: &dyn World, page: &mut Page) {
+fn shape_page(world: &dyn World, page: &mut Page, cache: &mut ShapeCache) {
     let mut new_items = Vec::with_capacity(page.items.len());
     for item in page.items.drain(..) {
-        new_items.extend(shape_item(world, item));
+        new_items.extend(shape_item(world, item, cache));
     }
     page.items = new_items;
 }
 
 /// Processa um `FrameItem`, devolvendo 1 ou mais itens (fallback por
 /// caractere pode expandir um `Text` em vários `TextShaped` consecutivos).
-fn shape_item(world: &dyn World, mut item: FrameItem) -> Vec<FrameItem> {
+fn shape_item(world: &dyn World, mut item: FrameItem, cache: &mut ShapeCache) -> Vec<FrameItem> {
     match &mut item {
         FrameItem::Text { pos, text, style } if style.font.is_some() => {
-            if let Some(shaped) = try_shape(world, pos, text, style) {
+            if let Some(shaped) = try_shape(world, pos, text, style, cache) {
                 return shaped;
             }
         }
         FrameItem::Group { items, .. } => {
             let mut new_children = Vec::with_capacity(items.len());
             for child in items.drain(..) {
-                new_children.extend(shape_item(world, child));
+                new_children.extend(shape_item(world, child, cache));
             }
             *items = new_children;
         }
         FrameItem::Link { items, .. } => {
             let mut new_children = Vec::with_capacity(items.len());
             for child in items.drain(..) {
-                new_children.extend(shape_item(world, child));
+                new_children.extend(shape_item(world, child, cache));
             }
             *items = new_children;
         }
@@ -152,13 +201,12 @@ fn shape_item(world: &dyn World, mut item: FrameItem) -> Vec<FrameItem> {
     vec![item]
 }
 
-
-
 fn try_shape(
     world: &dyn World,
     pos:   &Point,
     text:  &ecow::EcoString,
     style: &TextStyle,
+    cache: &mut ShapeCache,
 ) -> Option<Vec<FrameItem>> {
     // P568 — espaços entre palavras são emitidos como FrameItem::Text para
     // que o PDF contenha o caractere de espaço. Não os shapear, para que
@@ -211,63 +259,86 @@ fn try_shape(
     for run in &runs {
         for subrun in split_run_by_font(run, &mut candidates) {
             let candidate = candidates.get(subrun.candidate_idx)?;
-            let font = world.font(candidate.slot_idx)?;
-            let mut rb_face = rustybuzz::Face::from_slice(font.as_slice(), 0)?;
 
-            // P525 — aplicar coordenadas de eixo OpenType (weight/italic) antes de shape.
-            if !axis_vars.is_empty() {
-                rb_face.set_variations(&axis_vars);
-            }
-
-            let mut buffer = UnicodeBuffer::new();
-            buffer.push_str(&subrun.text);
-            if run.rtl {
-                buffer.set_direction(Direction::RightToLeft);
+            // P657 — cache de shaping: reaproveita o resultado bruto do shaper
+            // quando o mesmo sub-run (texto + face + direção + variações +
+            // tracking) já foi processado neste documento.
+            let cache_key = ShapeCache::key(
+                &subrun.text,
+                candidate.slot_idx,
+                run.rtl,
+                &axis_vars,
+                style.tracking,
+            );
+            let cached = cache.map.get(&cache_key).cloned();
+            let (run_glyphs, run_width) = if let Some(cached) = cached {
+                (cached.glyphs, cached.width)
             } else {
-                buffer.set_direction(Direction::LeftToRight);
-            }
-            let output    = rustybuzz::shape(&rb_face, &[], buffer);
-            let infos     = output.glyph_infos();
-            let positions = output.glyph_positions();
+                let font = world.font(candidate.slot_idx)?;
+                let mut rb_face = rustybuzz::Face::from_slice(font.as_slice(), 0)?;
 
-            let mut run_glyphs: Vec<ShapedGlyph> = Vec::with_capacity(infos.len());
-            let mut run_width = 0i32;
-            // **P543** — o campo `text` do TextShaped reflecte apenas o sub-run,
-            // e os clusters são relativos a esse texto. Isto evita que o export
-            // ToUnicode ou `pdftotext` dupliquem conteúdo quando o texto original
-            // era partido em sub-runs pequenos.
-            let subrun_text = subrun.text.as_str();
-            // **P621** — tracking: adicionar espaçamento extra entre clusters
-            // de caracteres, convertido de pontos para unidades da fonte.
-            // O tracking é aplicado ao avanço de um glifo apenas quando o glifo
-            // seguinte pertence a um cluster diferente, evitando partir ligaduras
-            // e conjuntos (ex.: devanágari) onde vários glifos compõem um único
-            // caractere visual. O último glifo do sub-run nunca recebe tracking.
-            let tracking_fu = style.tracking
-                .map(|t| {
-                    let pt = t.resolve_pt(style.size.val());
-                    (pt * candidate.units_per_em as f64 / style.size.val()).round() as i32
-                })
-                .unwrap_or(0);
-            let n_glyphs = infos.len();
-            let clusters: Vec<usize> = infos.iter().map(|info| info.cluster as usize).collect();
-            for (idx, (info, pos_g)) in infos.iter().zip(positions.iter()).enumerate() {
-                let cluster = clusters[idx];
-                let char_code = byte_idx_to_char(subrun_text, cluster)
-                    .unwrap_or('\u{FFFD}');
-                let is_last = idx + 1 == n_glyphs;
-                let next_cluster_differs = !is_last && clusters[idx + 1] != cluster;
-                let extra = if next_cluster_differs { tracking_fu } else { 0 };
-                run_glyphs.push(ShapedGlyph {
-                    glyph_id:  info.glyph_id as u16,
-                    x_advance: pos_g.x_advance + extra,
-                    x_offset:  pos_g.x_offset,
-                    y_offset:  pos_g.y_offset,
-                    cluster:   cluster as u32,
-                    char_code,
+                // P525 — aplicar coordenadas de eixo OpenType (weight/italic) antes de shape.
+                if !axis_vars.is_empty() {
+                    rb_face.set_variations(&axis_vars);
+                }
+
+                let mut buffer = UnicodeBuffer::new();
+                buffer.push_str(&subrun.text);
+                if run.rtl {
+                    buffer.set_direction(Direction::RightToLeft);
+                } else {
+                    buffer.set_direction(Direction::LeftToRight);
+                }
+                let output    = rustybuzz::shape(&rb_face, &[], buffer);
+                let infos     = output.glyph_infos();
+                let positions = output.glyph_positions();
+
+                let mut run_glyphs: Vec<ShapedGlyph> = Vec::with_capacity(infos.len());
+                let mut run_width = 0i32;
+                // **P543** — o campo `text` do TextShaped reflecte apenas o sub-run,
+                // e os clusters são relativos a esse texto. Isto evita que o export
+                // ToUnicode ou `pdftotext` dupliquem conteúdo quando o texto original
+                // era partido em sub-runs pequenos.
+                let subrun_text = subrun.text.as_str();
+                // **P621** — tracking: adicionar espaçamento extra entre clusters
+                // de caracteres, convertido de pontos para unidades da fonte.
+                // O tracking é aplicado ao avanço de um glifo apenas quando o glifo
+                // seguinte pertence a um cluster diferente, evitando partir ligaduras
+                // e conjuntos (ex.: devanágari) onde vários glifos compõem um único
+                // caractere visual. O último glifo do sub-run nunca recebe tracking.
+                let tracking_fu = style.tracking
+                    .map(|t| {
+                        let pt = t.resolve_pt(style.size.val());
+                        (pt * candidate.units_per_em as f64 / style.size.val()).round() as i32
+                    })
+                    .unwrap_or(0);
+                let n_glyphs = infos.len();
+                let clusters: Vec<usize> = infos.iter().map(|info| info.cluster as usize).collect();
+                for (idx, (info, pos_g)) in infos.iter().zip(positions.iter()).enumerate() {
+                    let cluster = clusters[idx];
+                    let char_code = byte_idx_to_char(subrun_text, cluster)
+                        .unwrap_or('\u{FFFD}');
+                    let is_last = idx + 1 == n_glyphs;
+                    let next_cluster_differs = !is_last && clusters[idx + 1] != cluster;
+                    let extra = if next_cluster_differs { tracking_fu } else { 0 };
+                    run_glyphs.push(ShapedGlyph {
+                        glyph_id:  info.glyph_id as u16,
+                        x_advance: pos_g.x_advance + extra,
+                        x_offset:  pos_g.x_offset,
+                        y_offset:  pos_g.y_offset,
+                        cluster:   cluster as u32,
+                        char_code,
+                    });
+                    run_width += pos_g.x_advance + extra;
+                }
+
+                cache.map.insert(cache_key, CachedRun {
+                    glyphs: run_glyphs.clone(),
+                    width: run_width,
                 });
-                run_width += pos_g.x_advance + extra;
-            }
+
+                (run_glyphs, run_width)
+            };
 
             if !run_glyphs.is_empty() {
                 let subrun_width_pt = run_width as f64 * style.size.0 / candidate.units_per_em as f64;
@@ -860,7 +931,8 @@ mod tests {
             style: TextStyle::default(),
         };
         // style.font = None → shaper guard (is_some() == false) → item inalterado
-        let result = shape_item(&empty_world(), item);
+        let mut cache = ShapeCache::new();
+        let result = shape_item(&empty_world(), item, &mut cache);
         // o critério é simplesmente não entrar em panic
         assert_eq!(result.len(), 1);
         assert!(matches!(result[0], FrameItem::Text { .. }), "sem fonte: preservado como Text");
@@ -951,7 +1023,8 @@ mod tests {
             text:  EcoString::from("Hello"),
             style,
         };
-        let result = shape_item(&world, item);
+        let mut cache = ShapeCache::new();
+        let result = shape_item(&world, item, &mut cache);
         assert!(!result.is_empty(), "deve produzir pelo menos 1 TextShaped");
         assert!(result.iter().all(|it| matches!(it, FrameItem::TextShaped { .. })),
                 "todos os resultados devem ser TextShaped");
@@ -1425,8 +1498,9 @@ mod tests {
                 .fold((0, 0), |(w, n), (dw, dn)| (w + dw, n + dn))
         };
 
-        let shaped_no = shape_item(&world, item_no);
-        let shaped_yes = shape_item(&world, item_yes);
+        let mut cache = ShapeCache::new();
+        let shaped_no = shape_item(&world, item_no, &mut cache);
+        let shaped_yes = shape_item(&world, item_yes, &mut cache);
 
         let (width_no, n_glyphs) = measure(&shaped_no);
         let (width_yes, _) = measure(&shaped_yes);
