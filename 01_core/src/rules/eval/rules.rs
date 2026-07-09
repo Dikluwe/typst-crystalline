@@ -1073,14 +1073,14 @@ pub(super) fn eval_set_rule(
                     let span = named.expr().span();
                     let font_expr = named.expr();
                     let arr: Vec<Value> = match font_expr {
-                        Expr::Str(node) => vec![Value::Str(EcoString::from(node.get()))],
+                        Expr::Str(node) => vec![Value::Str(EcoString::from(node.get()?))],
                         Expr::Array(arr_node) => {
                             let mut items = Vec::new();
                             for item in arr_node.items() {
                                 if let ArrayItem::Pos(expr) = item {
                                     if let Expr::Str(node) = expr {
                                         items.push(Value::Str(EcoString::from(
-                                            node.get(),
+                                            node.get()?,
                                         )));
                                     } else {
                                         return Err(vec![SourceDiagnostic::error(
@@ -1497,7 +1497,7 @@ fn parse_font_dict_legacy<'a>(
             DictItem::Keyed(keyed) => {
                 let key_expr = keyed.key();
                 let name_val = match key_expr {
-                    Expr::Str(node) => Value::Str(EcoString::from(node.get())),
+                    Expr::Str(node) => Value::Str(EcoString::from(node.get()?)),
                     Expr::FuncCall(call) => {
                         // regex("...") avalia para Value::Regex.
                         match eval_expr(Expr::FuncCall(call), scopes, ctx, engine)? {

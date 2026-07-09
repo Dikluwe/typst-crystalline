@@ -7254,10 +7254,16 @@ mod tests {
         assert!(p633_eval_succeeds("#let x = grid(columns: \"foo\")[A]"));
     }
 
-    // Confirma que escape unicode inválido é preservado como texto literal.
+    // P643: escape unicode inválido em code string produz erro.
     #[test]
-    fn p633_invalid_unicode_escape_preserved() {
-        assert!(p633_eval_succeeds("#let x = \"\\u{FFFFFFFF}\""));
+    fn p643_invalid_unicode_escape_code_string_errors() {
+        let world = MockWorld::new("#let x = \"\\u{FFFFFFFF}\"");
+        let err = eval_for_test(&world, &world.source).unwrap_err();
+        let msg = err.first().map(|d| d.message.to_string()).unwrap_or_default();
+        assert!(
+            msg.contains("invalid Unicode codepoint: FFFFFFFF"),
+            "mensagem inesperada: {msg}"
+        );
     }
 
     // P634 — nota: `0xZZ` não é silenciado pelo catch-all de `eval_expr` (o
@@ -7271,9 +7277,12 @@ mod tests {
         assert_eq!(module.scope().get("x"), Some(&Value::None));
     }
 
-    // Confirma que escape unicode inválido em markup é preservado como texto.
+    // P643: escape unicode inválido em markup é detectado pelo lexer
+    // (markup.rs:71), mas o eval ainda não propaga nós de erro do parser.
+    // Corrigir isto exige o passo dedicado ao parser/lexer já identificado
+    // em P634; este teste documenta o comportamento actual.
     #[test]
-    fn p633_invalid_unicode_escape_markup_preserved() {
+    fn p643_invalid_unicode_escape_markup_still_silent() {
         let world = MockWorld::new("#let x = [\\u{FFFFFFFF}]");
         let module = eval_for_test(&world, &world.source).expect("eval deve suceder");
         assert!(module.scope().get("x").is_some());

@@ -159,7 +159,7 @@ impl<'a> ModuleImport<'a> {
             Expr::Ident(ident) => Ok(ident.get().to_owned()),
             Expr::FieldAccess(access) => Ok(access.field().get().to_owned()),
             Expr::Str(string) => {
-                let string = string.get();
+                let string = string.get().map_err(|_| BareImportError::PathInvalid)?;
                 let name: String = if string.starts_with('@') {
                     PackageSpec::from_str(&string)
                         .map_err(|_| BareImportError::PackageInvalid)?

@@ -12,6 +12,9 @@
 //! o enum. ~845 linhas aceitas como custo de coesão do vocabulário
 //! sintáctico tipado.
 
+use crate::entities::source_result::{SourceDiagnostic, SourceResult};
+use crate::entities::span::Span;
+
 use crate::entities::ast::AstNode;
 use crate::entities::ast::markup::{
     Strong, Emph, Raw, Link, Label, Ref, Heading, ListItem, EnumItem,
@@ -354,12 +357,13 @@ node! { struct Str }
 
 impl Str<'_> {
     /// Get the string value with resolved escape sequences.
-    pub fn get(self) -> String {
+    pub fn get(self) -> SourceResult<String> {
         use crate::rules::lexer::scanner::Scanner;
+        let span = self.0.span();
         let text = self.0.text_str();
         let unquoted = &text[1..text.len() - 1];
         if !unquoted.contains('\\') {
-            return unquoted.to_owned();
+            return Ok(unquoted.to_owned());
         }
         let mut out = String::with_capacity(unquoted.len());
         let mut s = Scanner::new(unquoted);
@@ -383,13 +387,21 @@ impl Str<'_> {
                         .and_then(std::char::from_u32)
                     {
                         Some(c) => out.push(c),
-                        Option::None => out.push_str(s.from(start)),
+                        Option::None => {
+                            return Err(vec![SourceDiagnostic::error(
+                                span,
+                                format!(
+                                    "invalid Unicode codepoint: {}",
+                                    sequence.to_uppercase()
+                                ),
+                            )])
+                        }
                     }
                 }
                 _ => out.push_str(s.from(start)),
             }
         }
-        out
+        Ok(out)
     }
 }
 

@@ -596,7 +596,7 @@ pub(crate) fn eval_expr(
     match expr {
         Expr::Int(node)   => Ok(Value::Int(node.get())),
         Expr::Float(node) => Ok(Value::Float(node.get())),
-        Expr::Str(node)   => Ok(Value::Str(EcoString::from(node.get()))),
+        Expr::Str(node)   => Ok(Value::Str(EcoString::from(node.get()?))),
         Expr::Bool(node)  => Ok(Value::Bool(node.get())),
         Expr::None(_)     => Ok(Value::None),
         Expr::Auto(_)     => Ok(Value::Auto),
@@ -767,7 +767,7 @@ pub(crate) fn eval_expr(
                         let key_expr = keyed.key();
                         let key = match key_expr {
                             crate::entities::ast::expr::Expr::Str(node) => {
-                                EcoString::from(node.get())
+                                EcoString::from(node.get()?)
                             }
                             _ => return Ok(Value::None),
                         };
