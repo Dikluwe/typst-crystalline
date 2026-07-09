@@ -90,29 +90,20 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
         });
     }
 
-    // Guardar o comprimento da linha actual do pai antes de layoutar o body
-    // do box, para podermos isolar e alinhar apenas os itens produzidos pelo
-    // body (P625).
-    let parent_line_len_before = layouter.regions.current.current_line.len();
-
-    layouter.layout_content(body);
-
-    // **P625** — alinhar conteúdo RTL à direita do box usando a largura do
-    // box (ainda activa em `regions.current.width`). Isolamos apenas os itens
-    // adicionados pelo body; itens que já existiam na linha do pai permanecem
-    // em `current_line` para serem tratados pelo flush_line do pai.
-    let body_tail: Vec<FrameItem> = layouter
-        .regions
-        .current
-        .current_line
-        .drain(parent_line_len_before..)
-        .collect();
-    let saved_line = std::mem::take(&mut layouter.regions.current.current_line);
-    layouter.regions.current.current_line = body_tail;
-    layouter.align_current_line_rtl();
-    let aligned_body_tail = std::mem::take(&mut layouter.regions.current.current_line);
-    layouter.regions.current.current_line = saved_line;
-    layouter.regions.current.current_items.extend(aligned_body_tail);
+    // P625/P631 — layout inline do body isolando a linha do pai e aplicando
+    // RTL apenas aos itens produzidos pelo body. O width do box ainda está
+    // activo em `regions.current.width` (configurado acima).
+    let (_, body_items) = layouter.layout_sub_frame_inline(
+        body,
+        super::sub_frame::SubLayoutRegion {
+            origin_x: 0.0,
+            width: 0.0,
+            height: None,
+            align_rtl: true,
+            unconstrained_height: true,
+        },
+    );
+    layouter.regions.current.current_items.extend(body_items);
 
     // P273.7 — restore parent_bbox (LIFO). Shape emit do
     // próprio Boxed (linha ~1485) usa parent_bbox outer

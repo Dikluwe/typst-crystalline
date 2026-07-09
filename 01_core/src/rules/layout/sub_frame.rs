@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/rules/layout.md
-//! @prompt-hash 2b3c0378
+//! @prompt-hash 935704d4
 //! @layer L1
 //! @updated 2026-07-09
 //!
@@ -132,6 +132,64 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
         self.is_height_unconstrained = saved_unconstrained;
 
         (cell_height, cell_items)
+    }
+
+    /// Layout inline de conteúdo numa linha do pai.
+    ///
+    /// O conteúdo continua na linha horizontal actual (avança `cursor_x`,
+    /// não `cursor_y`). Os itens produzidos são devolvidos ao caller em vez
+    /// de serem injectados directamente no frame pai. Aplica
+    /// `align_current_line_rtl()` apenas aos itens que o body adicionou à
+    /// `current_line` do pai, sem afectar os itens que já lá estavam.
+    ///
+    /// O caller é responsável por configurar `regions.current.width` antes
+    /// de chamar (por exemplo, `boxed.rs` clampa a largura ao width do box).
+    pub(super) fn layout_sub_frame_inline(
+        &mut self,
+        content: &Content,
+        region: SubLayoutRegion,
+    ) -> (f64, Vec<FrameItem>) {
+        // Guardar comprimento da linha do pai antes de layoutar o body,
+        // para podermos isolar apenas os itens produzidos pelo body (P625).
+        let parent_line_len_before = self.regions.current.current_line.len();
+
+        self.layout_content(content);
+
+        // Isolar a cauda da `current_line` que foi adicionada pelo body.
+        let body_tail: Vec<FrameItem> = self
+            .regions
+            .current
+            .current_line
+            .drain(parent_line_len_before..)
+            .collect();
+
+        // Aplicar RTL apenas sobre os itens do body, numa linha temporária,
+        // preservando a `current_line` do pai.
+        let saved_line = std::mem::take(&mut self.regions.current.current_line);
+        self.regions.current.current_line = body_tail;
+        if region.align_rtl {
+            self.align_current_line_rtl();
+        }
+        let aligned_body_tail = std::mem::take(&mut self.regions.current.current_line);
+        self.regions.current.current_line = saved_line;
+
+        // Altura: altura da linha dos itens de texto produzidos; fallback ao
+        // line_height do estilo activo se o body não produziu texto.
+        let (_, line_h) = self.metrics.vertical_metrics(self.style.size);
+        let mut height = 0.0_f64;
+        for item in &aligned_body_tail {
+            match item {
+                FrameItem::Text { .. } | FrameItem::TextShaped { .. } => {
+                    height = f64::max(height, line_h.0);
+                }
+                _ => {}
+            }
+        }
+        if height == 0.0 {
+            height = line_h.0;
+        }
+
+        (height, aligned_body_tail)
     }
 }
 

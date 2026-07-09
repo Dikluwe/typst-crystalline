@@ -1,5 +1,5 @@
 # Prompt L0 — layout
-Hash do Código: eb141de7
+Hash do Código: 935704d4
 
 ## Módulo
 `01_core/src/rules/layout/mod.rs` e sub-módulos (`metrics.rs`, etc.)
@@ -697,6 +697,51 @@ pub(super) fn layout_sub_frame(
 - Restaura o estado e devolve `(height, items)` em coordenadas locais ao
   frame temporário.
 
+### `layout_sub_frame_inline` (Passo 631)
+
+Variante do helper para **sub-layouts inline**, onde o conteúdo
+continua na linha horizontal do pai (avança `cursor_x`, não
+`cursor_y`) e os itens produzidos devem ser devolvidos ao caller em
+vez de serem injectados directamente no frame pai. Usada por
+`Boxed` (`boxed.rs`) para isolar o corpo da caixa, aplicar
+alinhamento RTL apenas aos itens do body e reduzir a duplicação de
+save/restore de estado.
+
+```rust
+pub(super) fn layout_sub_frame_inline(
+    &mut self,
+    content: &Content,
+    region: SubLayoutRegion,
+) -> (f64, Vec<FrameItem>)
+```
+
+Semântica:
+
+- **Não** altera `regions.current.width` nem `line_start_x` — o
+  caller (por exemplo `boxed.rs`) é responsável por configurar a
+  largura disponível antes de chamar, exactamente como faz hoje.
+  Isto evita qualquer divergência de comportamento entre
+  `width: Some(w)` e `width: None`.
+- Executa `layout_content(content)` sem esvaziar a `current_line` do
+  pai — o body do box pode continuar a linha do pai, tal como hoje.
+- Isola os itens que o body adicionou à `current_line` do pai
+  (`drain` a partir do comprimento anterior), aplica
+  `align_current_line_rtl()` apenas a esses itens se
+  `region.align_rtl` for `true`, e restaura a `current_line` do pai.
+- Devolve `(height, items)` em coordenadas locais à linha inline. O
+  `height` é a altura da linha resultante (fallback ao
+  `line_height` do estilo activo quando o body não produz texto);
+  `items` **não** são adicionados a `current_items` — o caller
+  decide onde e como posicioná-los (por exemplo, para aplicar
+  `clip` antes de os emitir).
+
+Campos de `SubLayoutRegion` usados:
+
+- `align_rtl`: se a última linha do body deve ser alinhada à
+  direita quando o estilo for RTL.
+- `origin_x`, `width`, `height`, `unconstrained_height`: reservados
+  para extensões futuras; nesta variante inline são ignorados.
+
 ### Invariantes
 
 - O helper não deve introduzir comportamento específico de nenhum
@@ -707,3 +752,5 @@ pub(super) fn layout_sub_frame(
   actualizados.
 - Passos que tocam `layout_sub_frame` devem manter zero regressão nos
   testes de `grid`, `placement`, `p624`, `p625`, `p626` e `p627`.
+- `layout_sub_frame_inline` deve manter zero regressão nos testes de
+  `boxed`, `p624` e `p625`.
