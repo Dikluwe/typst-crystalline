@@ -1324,10 +1324,18 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
                 let mut max_line_w = 0.0_f64;
                 let mut current_w = 0.0_f64;
                 let mut line_count = 1usize;
-                let space_w = self.metrics.advance(" ", self.style.size, &self.style).0;
+                // **P624** — usa `text_width` (P593) para herdar shaping em
+                // scripts contextuais, em vez de `advance` directo.
+                let space_w = self
+                    .metrics
+                    .text_width(" ", self.style.size, &self.style)
+                    .0;
 
                 for word in text.split_whitespace() {
-                    let word_w = self.metrics.advance(word, self.style.size, &self.style).0;
+                    let word_w = self
+                        .metrics
+                        .text_width(word, self.style.size, &self.style)
+                        .0;
                     if current_w + word_w > max_width && current_w > 0.0 {
                         max_line_w = max_line_w.max(current_w);
                         line_count += 1;

@@ -1,5 +1,5 @@
 # Prompt L0 — layout
-Hash do Código: fbed936a
+Hash do Código: 19cff6df
 
 ## Módulo
 `01_core/src/rules/layout/mod.rs` e sub-módulos (`metrics.rs`, etc.)
@@ -638,3 +638,16 @@ documentos realistas.
   análise Unicode pura.
 - O shaping real continua a ser responsabilidade de L3 (`shaper.rs`).
 - L1 permanece independente de `rustybuzz` / `ttf-parser`.
+
+### `measure_content_constrained`
+
+Função auxiliar em `layout/mod.rs` usada por `Grid`, `Box`, `Block`,
+`Pad`, `Stack` e `Sequence` para estimar dimensões de conteúdo antes do
+layout real.
+
+- Para `Content::Text`, deve usar `FontMetrics::text_width` (P593) em vez
+  de `FontMetrics::advance` directo, para que medições antecipadas de
+  texto em scripts contextuais (árabe, devanágari, etc.) tenham a mesma
+  largura que o layout final.
+- Para outros tipos de `Content`, mantém a lógica específica (Shape,
+  Curve, Pad, etc.).
