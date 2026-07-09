@@ -1,8 +1,8 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/rules/layout.md
-//! @prompt-hash 6c4613b5
+//! @prompt-hash fbed936a
 //! @layer L1
-//! @updated 2026-04-23
+//! @updated 2026-07-09
 //!
 //! Interface `FontMetrics` e implementação `FixedMetrics` para layout.
 //! Extraído de `layout/mod.rs` no Passo 96.7 conforme ADR-0037.
@@ -145,8 +145,10 @@ pub trait FontMetrics: Send + Sync {
     }
 }
 
-/// **P591** — detecta se um trecho de texto precisa de medição com shaping
-/// porque pertence a um script com formas contextuais obrigatórias.
+/// **P591 / P623** — detecta se um trecho de texto precisa de medição com
+/// shaping porque pertence a um script com formas contextuais obrigatórias
+/// (ligaduras ou conjuntas que reduzem a largura total face à soma de
+/// advances isolados).
 pub fn needs_shaped_width(text: &str) -> bool {
     text.chars().any(|c| {
         matches!(
@@ -156,6 +158,7 @@ pub fn needs_shaped_width(text: &str) -> bool {
                 | Script::Mongolian
                 | Script::Nko
                 | Script::Mandaic
+                | Script::Devanagari
         )
     })
 }
@@ -182,9 +185,31 @@ impl FontMetrics for FixedMetrics {
 
 #[cfg(test)]
 mod smoke {
+    use super::needs_shaped_width;
+
     #[test]
     fn module_compila_e_carrega() {
         // V2 smoke test — submódulo extraído no Passo 96.7 (ADR-0037).
         // A cobertura funcional vive em `layout/tests.rs`.
+    }
+
+    /// P623 — devanágari denso em conjuntas precisa de shaping na medição.
+    #[test]
+    fn devanagari_precisa_shaped_width() {
+        assert!(needs_shaped_width("धर्मक्षेत्रे"));
+        assert!(needs_shaped_width("कुरुक्षेत्रे"));
+        assert!(needs_shaped_width("नमस्ते"));
+    }
+
+    /// P623 — latim continua no caminho rápido.
+    #[test]
+    fn latim_nao_precisa_shaped_width() {
+        assert!(!needs_shaped_width("Hello world"));
+    }
+
+    /// P591 — scripts contextuais já conhecidos continuam marcados.
+    #[test]
+    fn arabic_precisa_shaped_width() {
+        assert!(needs_shaped_width("الكتاب"));
     }
 }

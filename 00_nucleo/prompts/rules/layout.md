@@ -1,8 +1,8 @@
 # Prompt L0 — layout
-Hash do Código: 19cff6df
+Hash do Código: fbed936a
 
 ## Módulo
-`01_core/src/rules/layout.rs`
+`01_core/src/rules/layout/mod.rs` e sub-módulos (`metrics.rs`, etc.)
 
 ## Propósito
 Converte `Content` em `PagedDocument` com word-wrap e paginação básica.
@@ -575,3 +575,66 @@ aberto), P194A §11 (achados), P189 §9 sequência.
 Excepções E2-E6 (P189B walk arms) continuam activas após
 P194 — só fecham com P195+ que materializam o populate
 do sub-store via Tag.
+
+---
+
+## Secção: `rules/layout/metrics.rs` — Métricas de Fonte e Shaping
+
+O sub-módulo `metrics.rs` (`01_core/src/rules/layout/metrics.rs`) hospeda a
+interface `FontMetrics` e a implementação `FixedMetrics`, extraído de
+`layout/mod.rs` no Passo 96.7 (ADR-0037).
+
+### `FontMetrics` trait
+
+```rust
+pub trait FontMetrics: Send + Sync {
+    fn advance(&self, text: &str, size: Pt, style: &TextStyle) -> Pt;
+    fn vertical_metrics(&self, size: Pt) -> (Pt, Pt);
+}
+```
+
+- `advance`: largura horizontal de uma string em pontos tipográficos.
+- `vertical_metrics`: `(ascender, line_height)` em pontos tipográficos.
+
+### `FixedMetrics`
+
+Implementação monoespaçada pura de L1:
+
+- `advance(text, size, _)` → `size * (chars.count() * 0.6)`.
+- `vertical_metrics(size)` → `(size * 0.8, size * 1.2)`.
+
+### `needs_shaped_width` — detecção de scripts contextuais
+
+```rust
+pub fn needs_shaped_width(text: &str) -> bool
+```
+
+Função pura de L1 que decide se um trecho de texto deve ser medido com
+shaping aplicado (formas contextuais / ligaduras) antes da decisão de
+quebra de linha. Usada por `FallbackFontMetrics::advance_shaped` em L3
+(`03_infra/src/font_metrics.rs`).
+
+A lista de scripts é determinada empiricamente: inclui scripts onde as
+formas contextuais reduzem a largura total de forma significativa e
+observável em comparação com a soma de advances isolados.
+
+Scripts activos (actualizados em P623):
+
+- `Arabic`
+- `Syriac`
+- `Mongolian`
+- `Nko`
+- `Mandaic`
+- `Devanagari`
+
+**Critério de inclusão (ADR-0108):** um script só é adicionado à lista
+depois de medição directa que mostre diferença de largura shaped vs
+não-shaped suficiente para alterar a decisão de quebra de linha em
+documentos realistas.
+
+### Invariantes
+
+- `needs_shaped_width` não acede a ficheiros de fonte nem faz I/O — é uma
+  análise Unicode pura.
+- O shaping real continua a ser responsabilidade de L3 (`shaper.rs`).
+- L1 permanece independente de `rustybuzz` / `ttf-parser`.
