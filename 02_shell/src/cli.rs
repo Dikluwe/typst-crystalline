@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/shell/cli.md
-//! @prompt-hash 899148ee
+//! @prompt-hash dc7fe73d
 //! @layer L2
 //! @updated 2026-06-17
 //!
@@ -101,6 +101,11 @@ struct Args {
     /// P507 — escreve tempos das fases do pipeline em JSON.
     #[arg(long = "timings-json", value_name = "FILE")]
     timings_json: Option<PathBuf>,
+
+    /// P617 — UUID externo para fixar o `DocumentID` do pacote XMP entre
+    /// compilações. `InstanceID` continua aleatório.
+    #[arg(long = "document-id", env = "CRYSTALLINE_DOCUMENT_ID", value_name = "UUID")]
+    document_id: Option<String>,
 }
 
 /// Intenção de execução — output puro de L2 para L4 (ADR-0049).
@@ -124,6 +129,8 @@ pub struct RunIntent {
     pub full_error: bool,
     /// P507 — path opcional para JSON com tempos das fases do pipeline.
     pub timings_json: Option<PathBuf>,
+    /// **P617** — `DocumentID` externo de 16 bytes (UUID validado), ou `None`.
+    pub document_id: Option<[u8; 16]>,
 }
 
 /// Ponto de entrada público da CLI.
@@ -136,6 +143,14 @@ pub fn parse() -> RunIntent {
     let colored = resolve_colored(&args.color);
     let output = resolve_output_with(&args.input, args.output.as_ref(), args.output_flag.as_ref());
     let root = resolve_root_with(args.root.as_ref(), &args.input);
+
+    // P617 — validar UUID antes de converter para bytes; erro claro em L2.
+    let document_id = args.document_id.as_deref().and_then(parse_uuid_bytes);
+    if args.document_id.is_some() && document_id.is_none() {
+        eprintln!("error: invalid document ID: expected a UUID (e.g., f81d4fae-7dec-11d0-a765-00a0c91e6bf6)");
+        std::process::exit(2);
+    }
+
     RunIntent {
         input: args.input,
         output,
@@ -146,7 +161,23 @@ pub fn parse() -> RunIntent {
         // Default `false` preserva comportamento byte-idêntico ao vanilla.
         full_error: args.full_error,
         timings_json: args.timings_json,
+        document_id,
     }
+}
+
+/// **P617** — converte uma string UUID textual nos 16 bytes correspondentes.
+/// Aceita o formato canónico `8-4-4-4-12` ou 32 hex sem hífenes.
+/// Devolve `None` se o formato ou os dígitos hex forem inválidos.
+fn parse_uuid_bytes(s: &str) -> Option<[u8; 16]> {
+    let hex: String = s.chars().filter(|&c| c != '-').collect();
+    if hex.len() != 32 {
+        return None;
+    }
+    let mut bytes = [0u8; 16];
+    for (i, byte) in bytes.iter_mut().enumerate() {
+        *byte = u8::from_str_radix(&hex[i * 2..i * 2 + 2], 16).ok()?;
+    }
+    Some(bytes)
 }
 
 /// Decisão pura de resolução do path de output (Passo 120, ADR-0051).
@@ -331,5 +362,51 @@ mod tests {
         let input = PathBuf::from("file.typ");
         let out = resolve_root_with(None, &input);
         assert_eq!(out, PathBuf::from("."));
+    }
+
+    // ── P617 — parsing de UUID para DocumentID ───────────────────────────
+
+    #[test]
+    fn p617_parse_uuid_canonico() {
+        let bytes = parse_uuid_bytes("f81d4fae-7dec-11d0-a765-00a0c91e6bf6").unwrap();
+        assert_eq!(
+            bytes,
+            [
+                0xf8, 0x1d, 0x4f, 0xae, 0x7d, 0xec, 0x11, 0xd0,
+                0xa7, 0x65, 0x00, 0xa0, 0xc9, 0x1e, 0x6b, 0xf6,
+            ]
+        );
+    }
+
+    #[test]
+    fn p617_parse_uuid_sem_hifens() {
+        let bytes = parse_uuid_bytes("f81d4fae7dec11d0a76500a0c91e6bf6").unwrap();
+        assert_eq!(
+            bytes,
+            [
+                0xf8, 0x1d, 0x4f, 0xae, 0x7d, 0xec, 0x11, 0xd0,
+                0xa7, 0x65, 0x00, 0xa0, 0xc9, 0x1e, 0x6b, 0xf6,
+            ]
+        );
+    }
+
+    #[test]
+    fn p617_parse_uuid_maiusculas() {
+        let bytes = parse_uuid_bytes("F81D4FAE-7DEC-11D0-A765-00A0C91E6BF6").unwrap();
+        assert_eq!(
+            bytes,
+            [
+                0xf8, 0x1d, 0x4f, 0xae, 0x7d, 0xec, 0x11, 0xd0,
+                0xa7, 0x65, 0x00, 0xa0, 0xc9, 0x1e, 0x6b, 0xf6,
+            ]
+        );
+    }
+
+    #[test]
+    fn p617_parse_uuid_invalido_devolve_none() {
+        assert!(parse_uuid_bytes("not-a-uuid").is_none());
+        assert!(parse_uuid_bytes("f81d4fae-7dec-11d0-a765").is_none());
+        assert!(parse_uuid_bytes("f81d4fae-7dec-11d0-a765-00a0c91e6bf6-EXTRA").is_none());
+        assert!(parse_uuid_bytes("f81d4fae-7dec-11d0-a765-00a0c91e6bg6").is_none());
     }
 }

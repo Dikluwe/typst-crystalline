@@ -30,7 +30,7 @@ Passos relevantes:
 
 ```bash
 typst <INPUT> [OUTPUT] [-o FILE] [--root DIR] [--font-path DIR]... \
-            [--color=auto|always|never]
+            [--color=auto|always|never] [--document-id UUID]
 typst --help
 typst --version
 ```
@@ -38,7 +38,7 @@ typst --version
 ### Pipeline
 
 1. `typst_shell::cli::parse()` → `RunIntent { input, output, root,
-   font_paths, colored }`.
+   font_paths, colored, document_id }`.
 2. `main_path = input.file_name()` — falha → exit 2.
 3. `SystemWorld::new(&root, &main_path)` → `SystemWorld` (L3).
    Falha de `new` → exit 2.
@@ -46,11 +46,11 @@ typst --version
    Combina fontes explicitamente passadas em `--font-path` com fontes
    do sistema carregadas via `fontdb`.
 5. `world.source(world.main())` → `Source`.
-6. `compile_to_pdf_bytes(&world, &source)` (L3):
+6. `compile_to_pdf_bytes*_with_document_id(&world, &source, document_id)` (L3):
    - `eval` → `Module` + warnings.
    - `introspect` → `CounterState`.
    - `layout` → `PagedDocument`.
-   - `export_pdf` → `Vec<u8>`.
+   - `export_pdf` → `Vec<u8>` (com `DocumentID` fixo quando fornecido).
 7. `drain_to_stderr(&warnings, &source, path, colored)` — propaga
    `colored` do RunIntent.
 8. Em sucesso: `fs::write(output, pdf_bytes)`. Exit 0.

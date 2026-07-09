@@ -40,6 +40,12 @@ pub fn compile_to_pdf_bytes(
 ```
 
 - Pipeline `eval → introspect → layout → (dispatch export)`.
+- **P617** — variantes `_with_document_id` aceitam um `Option<[u8; 16]>`
+  externo e propagam-no ao `PdfBuilder`. Quando `Some`, esse valor
+  fixa o `xmpMM:DocumentID`; `xmpMM:InstanceID` continua aleatório.
+  Quando `None`, mantém o comportamento de P615 (aleatório). As
+  funções públicas sem sufixo mantêm `None` e preservam a API
+  existente.
 - Dispatch font-aware multi-font (Passos 140B + 141 + 146,
   ADR-0055 `IMPLEMENTADO`; decisão 5 anotada por 146):
   - **Colecciona** todas as `FontList` distintas no

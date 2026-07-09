@@ -1,5 +1,5 @@
 # Shell CLI — typst-shell::cli
-Hash do Código: 41e81492
+Hash do Código: 72c740ed
 
 ## Módulo
 `02_shell/src/cli.rs`
@@ -24,6 +24,13 @@ Passo 123 (ADR-0051) adiciona env vars `TYPST_ROOT` e
 `--font-path` (feature `env` do clap). Precedência: flag > env >
 default.
 
+**P617** — adiciona `--document-id <UUID>` (e env var
+`CRYSTALLINE_DOCUMENT_ID`) para fornecer um `DocumentID` externo e
+estável entre compilações. `InstanceID` continua aleatório. A flag é
+validada em L2; se o valor não for um UUID bem formado, o processo
+termina com erro claro (exit 2). O campo `RunIntent.document_id`
+transporta os 16 bytes para L4/L3.
+
 ## Contrato
 
 ### `ColorWhen` — enum público
@@ -47,6 +54,7 @@ pub struct RunIntent {
     pub font_paths: Vec<PathBuf>,
     pub colored: bool,
     pub full_error: bool, // P350c — origem da flag de erro completo
+    pub document_id: Option<[u8; 16]>, // P617 — DocumentID externo (UUID)
 }
 ```
 
@@ -118,6 +126,8 @@ struct Args {
           value_delimiter = ENV_PATH_SEP,
           action = clap::ArgAction::Append)]
     font_paths: Vec<PathBuf>,          // repetível (122); env+delim em 123
+    #[arg(long = "document-id", env = "CRYSTALLINE_DOCUMENT_ID", value_name = "UUID")]
+    document_id: Option<String>,       // P617 — UUID externo para DocumentID
     #[arg(long = "color", value_enum, default_value_t = ColorWhen::Auto)]
     color: ColorWhen,
 }
@@ -128,6 +138,15 @@ Não exposta — L4 só conhece `parse()` e `RunIntent`.
 **Nota sobre `output_flag`**: nome interno divergente do clap
 `--output` para evitar colisão com campo positional `output`.
 Help mostra `-o, --output`.
+
+### Validação de `--document-id` (P617)
+
+- Formato aceite: UUID textual (`8-4-4-4-12` hex) ou 32 hex sem
+  hífenes.
+- Conversão para `[u8; 16]` em L2; valor inválido → mensagem de erro
+  em stderr e exit 2 (sem passar para L4).
+- Precedência: flag `--document-id` > `CRYSTALLINE_DOCUMENT_ID` >
+  `None` (comportamento por defeito de P615).
 
 ## Testes
 

@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/wiring.md
-//! @prompt-hash ae486d4c
+//! @prompt-hash c2fe1e2b
 //! @layer L4
 //! @updated 2026-04-23
 //!
@@ -652,6 +652,112 @@ fn p616_text_dir_rtl_continua_funcionar() {
     assert_eq!(result.status.code(), Some(0),
         "esperava exit 0 para dir: rtl; stderr:\n{}", stderr);
     assert!(output.exists(), "PDF deve existir para dir: rtl");
+
+    cleanup(&[&input, &output]);
+}
+
+/// Extrai um valor do pacote XMP embutido no PDF (texto plano).
+fn extract_xmp_id(pdf: &[u8], tag: &str) -> Option<String> {
+    let text = String::from_utf8_lossy(pdf);
+    let start = text.find(&format!("<xmpMM:{tag}>"))? + tag.len() + 10;
+    let end = text[start..].find(&format!("</xmpMM:{tag}>"))?;
+    Some(text[start..start + end].to_string())
+}
+
+/// P617: `--document-id` fixa DocumentID; InstanceID continua aleatório.
+#[test]
+fn p617_document_id_fixo_instance_id_aleatorio() {
+    let id = "f81d4fae-7dec-11d0-a765-00a0c91e6bf6";
+    let input = temp_typ("p617_docid", "Texto.");
+    let output1 = temp_pdf("p617_docid_1");
+    let output2 = temp_pdf("p617_docid_2");
+
+    for out in [&output1, &output2] {
+        let result = Command::new(BIN)
+            .arg(&input)
+            .arg("--document-id")
+            .arg(id)
+            .arg("-o")
+            .arg(out)
+            .output()
+            .expect("executar binário");
+
+        let stderr = String::from_utf8_lossy(&result.stderr);
+        assert_eq!(result.status.code(), Some(0),
+            "esperava exit 0 com --document-id; stderr:\n{}", stderr);
+        assert!(out.exists(), "PDF deve existir");
+    }
+
+    let pdf1 = fs::read(&output1).expect("ler PDF 1");
+    let pdf2 = fs::read(&output2).expect("ler PDF 2");
+
+    let doc1 = extract_xmp_id(&pdf1, "DocumentID").expect("DocumentID em PDF 1");
+    let doc2 = extract_xmp_id(&pdf2, "DocumentID").expect("DocumentID em PDF 2");
+    let inst1 = extract_xmp_id(&pdf1, "InstanceID").expect("InstanceID em PDF 1");
+    let inst2 = extract_xmp_id(&pdf2, "InstanceID").expect("InstanceID em PDF 2");
+
+    assert_eq!(doc1, doc2, "DocumentID deve ser igual quando --document-id é o mesmo");
+    assert_ne!(inst1, inst2, "InstanceID deve ser diferente em cada compilação");
+
+    cleanup(&[&input, &output1, &output2]);
+}
+
+/// P617: sem `--document-id`, DocumentID continua aleatório (P615).
+#[test]
+fn p617_sem_document_id_document_id_aleatorio() {
+    let input = temp_typ("p617_sem_docid", "Texto.");
+    let output1 = temp_pdf("p617_sem_docid_1");
+    let output2 = temp_pdf("p617_sem_docid_2");
+
+    for out in [&output1, &output2] {
+        let result = Command::new(BIN)
+            .arg(&input)
+            .arg("-o")
+            .arg(out)
+            .output()
+            .expect("executar binário");
+
+        let stderr = String::from_utf8_lossy(&result.stderr);
+        assert_eq!(result.status.code(), Some(0),
+            "esperava exit 0 sem --document-id; stderr:\n{}", stderr);
+        assert!(out.exists(), "PDF deve existir");
+    }
+
+    let pdf1 = fs::read(&output1).expect("ler PDF 1");
+    let pdf2 = fs::read(&output2).expect("ler PDF 2");
+
+    let doc1 = extract_xmp_id(&pdf1, "DocumentID").expect("DocumentID em PDF 1");
+    let doc2 = extract_xmp_id(&pdf2, "DocumentID").expect("DocumentID em PDF 2");
+
+    assert_ne!(doc1, doc2, "DocumentID deve ser diferente sem --document-id");
+
+    cleanup(&[&input, &output1, &output2]);
+}
+
+/// P617: `--document-id` inválido produz erro claro.
+#[test]
+fn p617_document_id_invalido_erro() {
+    let input = temp_typ("p617_invalid", "Texto.");
+    let output = temp_pdf("p617_invalid_out");
+
+    let result = Command::new(BIN)
+        .arg(&input)
+        .arg("--document-id")
+        .arg("nao-e-uuid")
+        .arg("-o")
+        .arg(&output)
+        .output()
+        .expect("executar binário");
+
+    let stderr = String::from_utf8_lossy(&result.stderr);
+
+    assert_eq!(result.status.code(), Some(2),
+        "esperava exit 2 para document-id inválido; stderr:\n{}", stderr);
+    assert!(
+        stderr.contains("invalid document ID"),
+        "stderr deve mencionar document ID inválido; got:\n{}", stderr
+    );
+    assert!(!output.exists(), "não deve criar PDF com document-id inválido");
 
     cleanup(&[&input, &output]);
 }

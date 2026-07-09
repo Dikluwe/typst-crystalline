@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/export/builder.md
-//! @prompt-hash 2c2b3245
+//! @prompt-hash 160b2330
 //! @layer L3
 //! @updated 2026-07-08
 //!
@@ -133,24 +133,31 @@ fn random_xmp_id_bytes() -> [u8; 16] {
     bytes
 }
 
-/// **P615** — devolve `(instance_id, document_id)` para o pacote XMP.
-/// Em testes (`CRYSTALLINE_PDF_FIXED_EPOCH` definida), usa valores fixos
-/// para manter os snapshots deterministas. Em produção, ambos são 16 bytes
-/// aleatórios independentes, seguindo a prática do vanilla 0.15.0.
-fn xmp_instance_and_document_id() -> (String, String) {
-    // P615 — em testes (cfg!(test) ou variável de ambiente), os IDs são
-    // fixos para manter os snapshots de bytes PDF deterministas. Em
-    // produção, são aleatórios.
+/// **P615/P617** — devolve `(instance_id, document_id)` para o pacote XMP.
+/// Em testes (`CRYSTALLINE_PDF_FIXED_EPOCH` definida), o `InstanceID` é
+/// fixo. Em produção, o `InstanceID` é sempre 16 bytes aleatórios.
+/// O `DocumentID` usa `external_id` quando fornecido; caso contrário,
+/// segue a mesma regra do `InstanceID` (fixo em testes, aleatório em
+/// produção), conforme P615.
+fn xmp_instance_and_document_id(external_id: Option<[u8; 16]>) -> (String, String) {
+    // P615 — em testes (cfg!(test) ou variável de ambiente), o InstanceID
+    // é fixo para manter os snapshots de bytes PDF deterministas.
     let is_test = cfg!(test) || std::env::var("CRYSTALLINE_PDF_FIXED_EPOCH").is_ok();
-    if is_test {
-        const INSTANCE: &str = "dHlwc3QtY3J5c3QtaW5zdA==";
-        const DOCUMENT: &str = "dHlwc3QtY3J5c3QtZG9jdQ==";
-        return (INSTANCE.to_string(), DOCUMENT.to_string());
-    }
+    let instance_id = if is_test {
+        "dHlwc3QtY3J5c3QtaW5zdA==".to_string()
+    } else {
+        base64_encode_16(random_xmp_id_bytes())
+    };
 
-    let instance_bytes = random_xmp_id_bytes();
-    let document_bytes = random_xmp_id_bytes();
-    (base64_encode_16(instance_bytes), base64_encode_16(document_bytes))
+    let document_id = if let Some(id) = external_id {
+        base64_encode_16(id)
+    } else if is_test {
+        "dHlwc3QtY3J5c3QtZG9jdQ==".to_string()
+    } else {
+        base64_encode_16(random_xmp_id_bytes())
+    };
+
+    (instance_id, document_id)
 }
 
 /// P517 — gera nome de fonte com prefixo de subset quando a fonte foi
@@ -196,6 +203,9 @@ pub(super) struct PdfBuilder {
     /// **P611** — object ID do stream `/Metadata` (XMP), ou `None` se ainda
     /// não emitido.
     xmp_id: Option<usize>,
+    /// **P617** — `DocumentID` externo de 16 bytes. Quando `Some`, sobrepõe
+    /// o valor aleatório/fixo por defeito. `InstanceID` nunca é fixado.
+    document_id: Option<[u8; 16]>,
 }
 
 impl PdfBuilder {
@@ -205,7 +215,14 @@ impl PdfBuilder {
             subset_ms: 0.0,
             info_id: None,
             xmp_id: None,
+            document_id: None,
         }
+    }
+
+    /// **P617** — fixa o `DocumentID` usado no pacote XMP.
+    pub(super) fn with_document_id(mut self, id: Option<[u8; 16]>) -> Self {
+        self.document_id = id;
+        self
     }
 
     fn measure_subset(
@@ -1399,10 +1416,10 @@ impl PdfBuilder {
             ))
             .unwrap_or_default();
 
-        // Identificadores determinísticos (16 bytes em base64).
-        // P612 — valores fixos apenas em testes; em produção, derivados do
-        // conteúdo do documento + timestamp de compilação.
-        let (instance_id, document_id) = xmp_instance_and_document_id();
+        // Identificadores (16 bytes em base64).
+        // P615 — aleatórios por defeito; P617 — DocumentID pode ser fixado
+        // externamente. InstanceID continua aleatório (ou fixo em testes).
+        let (instance_id, document_id) = xmp_instance_and_document_id(self.document_id);
 
         // Estrutura exacta do vanilla (krilla + xmp-writer), sem quebras de
         // linha entre elementos, para manter a mesma forma do pacote XMP.

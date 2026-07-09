@@ -48,9 +48,9 @@ use typst_core::rules::scopes::Scopes;
 use typst_core::rules::stdlib::value_to_content;
 
 use crate::export::{
-    export_pdf,
-    export_pdf_multifont_and_timings,
-    export_pdf_with_font_and_timings,
+    export_pdf_with_document_id,
+    export_pdf_multifont_and_timings_and_document_id,
+    export_pdf_with_font_and_timings_and_document_id,
 };
 use crate::font_metrics::FallbackFontMetrics;
 use crate::image_sizer::ImageSizeImageSizer;
@@ -278,8 +278,19 @@ pub fn compile_to_pdf_bytes_with_timings_full_error(
     source: &Source,
     full_error: bool,
 ) -> (Result<Vec<u8>, Vec<SourceDiagnostic>>, Vec<SourceDiagnostic>, Timings) {
+    compile_to_pdf_bytes_with_timings_full_error_and_document_id(world, source, full_error, None)
+}
+
+/// **P617** — variant com `DocumentID` externo e instrumentação de tempos.
+#[doc(hidden)]
+pub fn compile_to_pdf_bytes_with_timings_full_error_and_document_id(
+    world: &dyn World,
+    source: &Source,
+    full_error: bool,
+    document_id: Option<[u8; 16]>,
+) -> (Result<Vec<u8>, Vec<SourceDiagnostic>>, Vec<SourceDiagnostic>, Timings) {
     let mut timings = Timings::default();
-    let result = compile_to_pdf_bytes_impl(world, source, full_error, &mut timings);
+    let result = compile_to_pdf_bytes_impl(world, source, full_error, document_id, &mut timings);
     (result.0, result.1, timings)
 }
 
@@ -287,6 +298,7 @@ fn compile_to_pdf_bytes_impl(
     world: &dyn World,
     source: &Source,
     full_error: bool,
+    document_id: Option<[u8; 16]>,
     timings: &mut Timings,
 ) -> (Result<Vec<u8>, Vec<SourceDiagnostic>>, Vec<SourceDiagnostic>) {
     let t0 = Instant::now();
@@ -405,9 +417,11 @@ fn compile_to_pdf_bytes_impl(
     let font_combos = collect_fonts_from_doc(&doc);
     let resolved = resolve_fonts(&font_combos, world.book(), world);
     let (pdf, subset_ms) = match resolved.as_slice() {
-        []                       => (export_pdf(&doc), 0.0),
-        [((_, _), bytes)]        => export_pdf_with_font_and_timings(&doc, bytes),
-        many                     => export_pdf_multifont_and_timings(&doc, many),
+        [] => (export_pdf_with_document_id(&doc, document_id), 0.0),
+        [((_, _), bytes)] => {
+            export_pdf_with_font_and_timings_and_document_id(&doc, bytes, document_id)
+        }
+        many => export_pdf_multifont_and_timings_and_document_id(&doc, many, document_id),
     };
     timings.subset_ms = subset_ms;
     let t6 = Instant::now();
@@ -423,8 +437,19 @@ pub fn compile_to_pdf_bytes_full_error(
     source: &Source,
     full_error: bool,
 ) -> (Result<Vec<u8>, Vec<SourceDiagnostic>>, Vec<SourceDiagnostic>) {
+    compile_to_pdf_bytes_full_error_and_document_id(world, source, full_error, None)
+}
+
+/// **P617** — variant com `DocumentID` externo.
+#[doc(hidden)]
+pub fn compile_to_pdf_bytes_full_error_and_document_id(
+    world: &dyn World,
+    source: &Source,
+    full_error: bool,
+    document_id: Option<[u8; 16]>,
+) -> (Result<Vec<u8>, Vec<SourceDiagnostic>>, Vec<SourceDiagnostic>) {
     let mut timings = Timings::default();
-    compile_to_pdf_bytes_impl(world, source, full_error, &mut timings)
+    compile_to_pdf_bytes_impl(world, source, full_error, document_id, &mut timings)
 }
 
 fn duration_ms(d: std::time::Duration) -> f64 {

@@ -1,5 +1,5 @@
 # Prompt L0 — `infra/export/builder` — PdfBuilder
-Hash do Código: 62308b74
+Hash do Código: 93c81786
 
 **Camada**: L3
 **Ficheiro alvo**: `03_infra/src/export/builder.rs`
@@ -211,19 +211,17 @@ Regras de geração:
    instante, convertido para offset local via `time::OffsetDateTime`.
 6. `xmpTPg:NPages` é o número de páginas de `PagedDocument`.
 7. `dc:format` é sempre `application/pdf`.
-8. `xmpMM:InstanceID` e `xmpMM:DocumentID` são base64 de 16 bytes
-   aleatórios. O cristalino, tal como o vanilla, não tem estado entre
-   compilações; por isso, não consegue detectar "o mesmo documento fonte
-   recompilado". Um `DocumentID` baseado em hash de conteúdo falharia em
-   ambos os sentidos: uma revisão real muda o conteúdo (e quebraria a
-   continuidade pretendida) e documentos distintos com texto igual por
-   coincidência partilhariam ID. A prática correcta, seguida pelo vanilla
-   0.15.0, é gerar 16 bytes aleatórios em cada compilação, tanto para
-   `InstanceID` como para `DocumentID`.
+8. `xmpMM:InstanceID` e `xmpMM:DocumentID` são base64 de 16 bytes.
+   Por defeito (P615), ambos são aleatórios, seguindo o vanilla 0.15.0.
    - Em produção, ambos são gerados aleatoriamente e independentemente.
    - Durante testes (`CRYSTALLINE_PDF_FIXED_EPOCH` definida), ambos usam
      valores fixos (`typst-crystalline/xmp-instance` e
      `typst-crystalline/xmp-document`), garantindo snapshots deterministas.
+   - **P617** — se um `DocumentID` externo de 16 bytes for fornecido ao
+     `PdfBuilder` (via `--document-id` / `CRYSTALLINE_DOCUMENT_ID`), esse
+     valor é usado para `xmpMM:DocumentID` em vez do aleatório. O
+     `xmpMM:InstanceID` continua sempre aleatório (ou fixo em testes),
+     porque cada compilação é uma instância diferente.
 9. `xmpMM:RenditionClass` é sempre `proof`.
 10. `pdf:PDFVersion` é sempre `1.7`.
 11. Caracteres especiais no título/autor/palavras-chave são escapados para
