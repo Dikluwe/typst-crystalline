@@ -131,4 +131,4 @@ Ficheiro `.yaml` com chave preenchida produz PDF sem erros.
 
 ## 6. Hash do commit
 
-`HASH_A_PREENCHER`
+`ef3ca21a9`
