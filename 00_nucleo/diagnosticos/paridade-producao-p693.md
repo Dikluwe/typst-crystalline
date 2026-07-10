@@ -2,7 +2,7 @@
 
 **Passo:** P693 (`00_nucleo/materialization/typst-passo-693.md`)
 **Data:** 2026-07-10
-**Commit deste relatório:** `__P693_COMMIT__` (preenchido no 2.º commit)
+**Commit deste relatório:** `7a8eaf2c6cbc4d1f0a980b52518a7e39ae0c0717` (preenchido no 2.º commit)
 **ADRs:** ADR-0107 (paridade com a linguagem), ADR-0108 (medir antes de decidir),
 regra P662-P664 (nome igual ao vanilla obriga a comportamento igual).
 **Dependências:** P689 (`match()` original), P692 (`matches()` e o helper `match_dict`).
