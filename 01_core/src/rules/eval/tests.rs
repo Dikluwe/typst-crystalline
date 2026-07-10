@@ -7101,8 +7101,9 @@ mod tests {
 
     #[test]
     fn p466_str_find() {
+        // P691: find devolve a substring encontrada (paridade vanilla), não o índice.
         let world = MockWorld::new("#let x = \"hello\".find(\"ll\")");
-        assert_eq!(eval_let(&world, "x"), Some(Value::Int(2)));
+        assert_eq!(eval_let(&world, "x"), Some(Value::Str("ll".into())));
     }
 
     #[test]
@@ -7282,7 +7283,7 @@ mod tests {
             ("#let x = \"hello\".contains(\"ell\")", Value::Bool(true)),
             ("#let x = \"hello\".starts-with(\"he\")", Value::Bool(true)),
             ("#let x = \"hello\".ends-with(\"lo\")", Value::Bool(true)),
-            ("#let x = \"hello\".find(\"l\")", Value::Int(2)),
+            ("#let x = \"hello\".find(\"l\")", Value::Str("l".into())),
             ("#let x = \"hello\".rev()", Value::Str("olleh".into())),
             (
                 "#let x = \"hello\".repeat(3)",

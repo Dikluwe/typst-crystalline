@@ -3,7 +3,7 @@
 **Camada**: L1  
 **Ficheiro alvo**: `01_core/src/rules/stdlib/collections.rs`  
 **Criado em**: 2026-06-25 (Passo P466)  
-**Atualizado em**: 2026-07-10 (P690 — `str.len/at/slice` passam a indexar por **byte** (paridade vanilla); indexação por carácter preservada sob `str.char-len/char-at/char-slice`)  
+**Atualizado em**: 2026-07-10 (P690 — `str.len/at/slice` em bytes; P691 — `str.find` devolve a **substring**/`none`, paridade vanilla)  
 **ADRs**: ADR-0037 (coesão por domínio), ADR-0107 (paridade com a linguagem — aqui a linguagem **é** bytes), ADR-0108 (medir antes de decidir), ADR-0117 Cláusula 4 (métodos de tipos existentes; não propõe estrutura em elementos).
 
 ---
@@ -135,7 +135,7 @@ Reduz o array a um único valor, aplicando a função `reducer(start, item)` e a
 | `contains` | `str.contains(substr: str) -> bool` | Contém substring? |
 | `starts-with` | `str.starts-with(prefix: str) -> bool` | Começa com prefixo? |
 | `ends-with` | `str.ends-with(suffix: str) -> bool` | Termina com sufixo? |
-| `find` | `str.find(substr: str) -> int \| none` | Índice em **bytes** da primeira ocorrência. ⚠️ **Débito (P690)**: o vanilla devolve a **substring** encontrada (`str \| none`), não o índice — o cristalino devolve `int`. Diferença de semântica (tipo de retorno), não de byte/char; fora do alcance deste passo, registada para correcção futura. |
+| `find` | `str.find(pattern: str \| regex) -> str \| none` | A **substring** encontrada (texto do primeiro match), ou `none` se não houver. Aceita `str` (substring literal) ou `regex` (texto do match). (**P691**: era `int` com o índice; corrigido para paridade vanilla. O índice continua disponível via `position`.) |
 | `replace` | `str.replace(old: str, new: str) -> str` | Substitui substring literal. |
 | `trim` | `str.trim() -> str` | Remove whitespace dos extremos. |
 | `split` | `str.split(sep: str) -> array` | Divide por separador. |
@@ -177,7 +177,7 @@ byte/char não se lhes aplica e permanecem inalterados; `position`/`match` já e
 - `str.replace` com regex.
 - Métodos com argumento `default` (exceto `dict.at(default:)`, implementado).
 - Unicode avançado (`str.clusters()` devolve chars, não grapheme clusters reais).
-- `str.find` devolve `int` (índice em bytes) no cristalino, mas o vanilla devolve a substring (`str | none`) — débito de semântica registado (P690), fora do alcance deste passo.
+- ~~`str.find` devolve `int` no cristalino vs substring no vanilla~~ — **resolvido em P691**: `find` agora devolve `str | none` (paridade vanilla); o índice fica disponível via `position`.
 - Mutação do dict original em `.remove()` / `.insert()` (dispatch por valor devolve novo dict).
 
 ---

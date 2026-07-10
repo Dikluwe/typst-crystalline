@@ -766,10 +766,31 @@ fn str_ends_with(s: EcoString, args: Args) -> SourceResult<Value> {
 }
 
 fn str_find(s: EcoString, args: Args) -> SourceResult<Value> {
-    let substr = expect_one_str(args, "str.find()")?;
-    Ok(s.find(substr.as_str())
-        .map(|i| Value::Int(i as i64))
-        .unwrap_or(Value::None))
+    // Paridade vanilla (P691): devolve a **substring** encontrada (texto do
+    // primeiro match), ou `none`. Aceita `str` (substring literal) ou `regex`
+    // (texto do match). O índice da ocorrência continua disponível via
+    // `str.position()`.
+    match args.items.as_slice() {
+        [Value::Str(sub)] => Ok(s
+            .find(sub.as_str())
+            .map(|i| Value::Str(s[i..i + sub.len()].to_string().into()))
+            .unwrap_or(Value::None)),
+        [Value::Regex(re)] => Ok(re
+            .captures_first(s.as_str())
+            .map(|m| Value::Str(m.text.into()))
+            .unwrap_or(Value::None)),
+        [other] => Err(vec![SourceDiagnostic::error(
+            Span::detached(),
+            format!(
+                "str.find() espera str ou regex, recebeu {}",
+                other.type_name()
+            ),
+        )]),
+        _ => Err(vec![SourceDiagnostic::error(
+            Span::detached(),
+            "str.find() requer 1 argumento posicional".to_string(),
+        )]),
+    }
 }
 
 fn str_replace(s: EcoString, args: Args) -> SourceResult<Value> {
@@ -1337,6 +1358,52 @@ mod tests {
                 .unwrap(),
             Value::Str("éa".into())
         );
+    }
+
+    // ── P691 — str.find devolve substring / none (str ou regex) ───────────────
+
+    #[test]
+    fn p691_str_find_substring_e_none() {
+        // substring literal encontrada → devolve a substring
+        let a = make_args(vec![Value::Str("mais".into())], None);
+        assert_eq!(
+            str_find("café mais texto".into(), a).unwrap(),
+            Value::Str("mais".into())
+        );
+        // multi-byte: "xéy".find("é") → "é"
+        let a = make_args(vec![Value::Str("é".into())], None);
+        assert_eq!(str_find("xéy".into(), a).unwrap(), Value::Str("é".into()));
+        let a = make_args(vec![Value::Str("fé".into())], None);
+        assert_eq!(str_find("café".into(), a).unwrap(), Value::Str("fé".into()));
+        // não encontrado → none
+        let a = make_args(vec![Value::Str("inexistente".into())], None);
+        assert_eq!(str_find("café mais texto".into(), a).unwrap(), Value::None);
+        // string vazia → "" (paridade vanilla)
+        let a = make_args(vec![Value::Str("".into())], None);
+        assert_eq!(str_find("abc".into(), a).unwrap(), Value::Str("".into()));
+    }
+
+    #[test]
+    fn p691_str_find_regex() {
+        // regex → texto do primeiro match
+        let a = make_args(vec![Value::Regex(Regex::new("m..s").unwrap())], None);
+        assert_eq!(
+            str_find("café mais texto".into(), a).unwrap(),
+            Value::Str("mais".into())
+        );
+        // regex sem match → none
+        let a = make_args(vec![Value::Regex(Regex::new("z+").unwrap())], None);
+        assert_eq!(str_find("café".into(), a).unwrap(), Value::None);
+    }
+
+    #[test]
+    fn p691_str_find_tipo_e_aridade() {
+        // tipo errado (Int) → erro
+        let a = make_args(vec![Value::Int(1)], None);
+        assert!(str_find("abc".into(), a).is_err());
+        // aridade errada (0 args) → erro
+        let a = make_args(vec![], None);
+        assert!(str_find("abc".into(), a).is_err());
     }
 
 }
