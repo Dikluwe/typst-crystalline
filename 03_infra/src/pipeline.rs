@@ -32,7 +32,10 @@ use typst_core::entities::element_kind::ElementKind;
 use typst_core::entities::introspector::Introspector;
 use typst_core::entities::layout_types::{FrameItem, PagedDocument};
 
-use crate::font_variant::text_style_to_font_variant;
+use crate::font_variant::{
+    axis_variations_for_font_variant, is_variable_font,
+    text_style_to_font_variant, variable_font_instancer_available,
+};
 use typst_core::entities::module::Module;
 use typst_core::entities::show::ShowRule;
 use typst_core::entities::sink::Sink as TypstSink;
@@ -424,6 +427,32 @@ fn compile_to_pdf_bytes_impl(
     // 2+ fonts resolvidos → multi-font (resource dict com /F1..N).
     let font_combos = collect_fonts_from_doc(&doc);
     let resolved = resolve_fonts(&font_combos, world.book(), world);
+
+    // P667 — se o documento usa uma fonte variável com eixos não-default,
+    // a instanciação estática requer Python/fontTools. Falhar cedo com
+    // mensagem clara em vez de produzir um PDF visualmente errado.
+    if !variable_font_instancer_available() {
+        for ((font_list, font_variant), bytes) in &resolved {
+            if is_variable_font(bytes) && !axis_variations_for_font_variant(font_variant).is_empty() {
+                let name = font_list
+                    .as_slice()
+                    .first()
+                    .and_then(|f| f.name.as_str())
+                    .unwrap_or("fonte variável");
+                return (
+                    Err(vec![SourceDiagnostic::error(
+                        Span::detached(),
+                        format!(
+                            "fonte variável '{}' requer instanciação, mas Python/fontTools não está disponível",
+                            name
+                        ),
+                    )]),
+                    warnings,
+                );
+            }
+        }
+    }
+
     let (pdf, subset_ms) = match resolved.as_slice() {
         [] => (export_pdf_with_document_id(&doc, document_id), 0.0),
         [((_, _), bytes)] => {

@@ -126,6 +126,29 @@ instanced.save(out)
 sys.stdout.buffer.write(out.getvalue())
 "#;
 
+/// Devolve o interpretador Python a usar para o fontTools instancer.
+///
+/// Respeita `TYPST_CRYSTALLINE_PYTHON`; senão, usa `python3` no PATH.
+fn python_for_instancer() -> std::ffi::OsString {
+    std::env::var_os("TYPST_CRYSTALLINE_PYTHON").unwrap_or_else(|| "python3".into())
+}
+
+/// Verifica se o Python configurado tem `fontTools` disponível.
+///
+/// Usado pela pipeline para falhar cedo quando uma fonte variável precisa de
+/// ser instanciada mas a dependência não está instalada (P667).
+pub fn variable_font_instancer_available() -> bool {
+    let python = python_for_instancer();
+    std::process::Command::new(&python)
+        .arg("-c")
+        .arg("import fontTools")
+        .stdout(std::process::Stdio::null())
+        .stderr(std::process::Stdio::null())
+        .status()
+        .map(|s| s.success())
+        .unwrap_or(false)
+}
+
 /// Instancia estaticamente uma fonte VF para as coordenadas de eixo dadas.
 ///
 /// Requer `fontTools` instalado e disponível via `python3` no PATH (ou no
@@ -155,8 +178,7 @@ pub fn instantiate_variable_font(
         return Some(data.to_vec());
     }
 
-    let python = std::env::var_os("TYPST_CRYSTALLINE_PYTHON")
-        .unwrap_or_else(|| "python3".into());
+    let python = python_for_instancer();
 
     let mut axis_args = Vec::new();
     for (tag, value) in &filtered {
