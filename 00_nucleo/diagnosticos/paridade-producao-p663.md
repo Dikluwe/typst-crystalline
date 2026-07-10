@@ -4,7 +4,7 @@
 **Data:** 2026-07-09  
 **Foco:** Auditoria por divergências de linguagem introduzidas sem confirmação contra o vanilla.  
 **Dependências:** P660/P662 (onde o problema foi descoberto e corrigido), P459/P639 (extensão `table.numbering`), P617 (`--document-id`).  
-**Hash do commit com as alterações:** `PENDING`
+**Hash do commit com as alterações:** `e2be32877`
 
 ---
 
