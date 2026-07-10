@@ -118,8 +118,8 @@ pub enum Value {
     /// temporais e constructor stdlib são scope-out futuro.
     Duration(Duration),
 
-    /// **P401** — Version (semver). Tipo L1 puro; `Arc`-wrapped porque contém
-    /// `Vec<EcoString>`; constructor stdlib e comparações são scope-out futuro.
+    /// **P401/P684** — Version (sequência arbitrária de componentes inteiros).
+    /// Tipo L1 puro; `Arc`-wrapped porque contém `Vec<u64>`.
     Version(Arc<Version>),
 
     /// **P417 (M)** — Selector (predicado para query/show rules).
@@ -699,13 +699,9 @@ mod tests {
         assert_ne!(a, c);
     }
 
-    // ── Passo 401 — Version (tipo S puro) ────────────────────────────────────
+    // ── Passo 401 / P684 — Version (componentes arbitrários, zero-pad) ───────
 
     use crate::entities::version::Version;
-
-    fn version_ids(parts: &[&str]) -> Vec<EcoString> {
-        parts.iter().map(|s| EcoString::from(*s)).collect()
-    }
 
     #[test]
     fn value_version_type_name() {
@@ -715,7 +711,7 @@ mod tests {
 
     #[test]
     fn value_version_cast_identity() {
-        let ver = Version::new(1, 2, 3).with_pre(version_ids(&["alpha", "1"]));
+        let ver = Version::new(1, 2, 3);
         let v = Value::from(ver.clone());
         let got = v.cast_version().unwrap();
         assert_eq!(*got, ver);
@@ -729,12 +725,17 @@ mod tests {
     }
 
     #[test]
-    fn value_version_cast_from_str_with_pre_build() {
-        let v = Value::Str("1.2.3-alpha.1+build.2".into());
+    fn value_version_cast_from_str_arbitrary() {
+        let v = Value::Str("1.2.3.4.5".into());
         let got = v.cast_version().unwrap();
-        assert_eq!(got.major, 1);
-        assert_eq!(got.pre, version_ids(&["alpha", "1"]));
-        assert_eq!(got.build, version_ids(&["build", "2"]));
+        assert_eq!(*got, Version::from_components(vec![1, 2, 3, 4, 5]));
+    }
+
+    #[test]
+    fn value_version_cast_from_str_rejects_pre_build() {
+        // P684 — `pre`/`build` textuais não existem: cast falha.
+        let v = Value::Str("1.2.3-alpha.1+build.2".into());
+        assert_eq!(v.cast_version(), None);
     }
 
     #[test]
@@ -745,8 +746,8 @@ mod tests {
 
     #[test]
     fn value_version_repr_canonical() {
-        let v = Value::from(Version::new(1, 2, 3).with_pre(version_ids(&["alpha", "1"])));
-        assert_eq!(v.cast_version().unwrap().to_string(), "1.2.3-alpha.1");
+        let v = Value::from(Version::from_components(vec![1, 2, 3, 4, 5]));
+        assert_eq!(v.cast_version().unwrap().to_string(), "1.2.3.4.5");
     }
 
     #[test]
@@ -756,12 +757,16 @@ mod tests {
         let c = Value::from(Version::new(1, 0, 1));
         assert_eq!(a, b);
         assert_ne!(a, c);
+        // zero-pad: `version(1, 2, 3) == version(1, 2, 3, 0)`.
+        let d = Value::from(Version::new(1, 2, 3));
+        let e = Value::from(Version::from_components(vec![1, 2, 3, 0]));
+        assert_eq!(d, e);
     }
 
     #[test]
     fn value_version_ordering_via_cast() {
-        let a = Value::from(Version::new(1, 0, 0).with_pre(version_ids(&["alpha"])));
-        let b = Value::from(Version::new(1, 0, 0));
+        let a = Value::from(Version::from_components(vec![1, 2, 3]));
+        let b = Value::from(Version::from_components(vec![1, 2, 3, 4]));
         assert!(a.cast_version().unwrap() < b.cast_version().unwrap());
     }
 

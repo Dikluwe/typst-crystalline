@@ -1627,7 +1627,7 @@ mod tests {
         assert_eq!(eval_binary_op(BinOp::Gt, dur(60), dur(60)), Ok(Value::Bool(false)));
     }
 
-    // ── P406 — Comparações Version ───────────────────────────────────────────
+    // ── P684 — Comparações Version (componentes arbitrários, zero-pad) ────────
 
     fn ver(major: u64, minor: u64, patch: u64) -> Value {
         Value::Version(Arc::new(crate::entities::version::Version::new(
@@ -1635,20 +1635,9 @@ mod tests {
         )))
     }
 
-    fn ver_pre(major: u64, minor: u64, patch: u64, pre: &str) -> Value {
-        use ecow::EcoString;
-        let pre_ids = pre.split('.').map(EcoString::from).collect();
+    fn verc(comps: &[u64]) -> Value {
         Value::Version(Arc::new(
-            crate::entities::version::Version::new(major, minor, patch).with_pre(pre_ids),
-        ))
-    }
-
-    fn ver_build(major: u64, minor: u64, patch: u64, build: &str) -> Value {
-        use ecow::EcoString;
-        let build_ids = build.split('.').map(EcoString::from).collect();
-        Value::Version(Arc::new(
-            crate::entities::version::Version::new(major, minor, patch)
-                .with_build(build_ids),
+            crate::entities::version::Version::from_components(comps.to_vec()),
         ))
     }
 
@@ -1662,13 +1651,14 @@ mod tests {
             eval_binary_op(BinOp::Eq, ver(1, 2, 3), ver(1, 2, 4)),
             Ok(Value::Bool(false))
         );
+        // zero-pad: `version(1, 2, 3) == version(1, 2, 3, 0)`.
         assert_eq!(
-            eval_binary_op(BinOp::Eq, ver(1, 2, 3), ver_pre(1, 2, 3, "alpha")),
-            Ok(Value::Bool(false))
+            eval_binary_op(BinOp::Eq, ver(1, 2, 3), verc(&[1, 2, 3, 0])),
+            Ok(Value::Bool(true))
         );
         assert_eq!(
-            eval_binary_op(BinOp::Eq, ver_build(1, 2, 3, "a"), ver_build(1, 2, 3, "b")),
-            Ok(Value::Bool(true))
+            eval_binary_op(BinOp::Eq, ver(1, 2, 3), verc(&[1, 2, 3, 4])),
+            Ok(Value::Bool(false))
         );
         assert_eq!(
             eval_binary_op(BinOp::Neq, ver(1, 2, 3), ver(1, 2, 4)),
@@ -1694,36 +1684,19 @@ mod tests {
             eval_binary_op(BinOp::Leq, ver(1, 2, 3), ver(1, 2, 3)),
             Ok(Value::Bool(true))
         );
+        // mais curto (prefixo) < mais longo
         assert_eq!(
-            eval_binary_op(BinOp::Geq, ver(1, 2, 3), ver_pre(1, 2, 3, "alpha")),
+            eval_binary_op(BinOp::Lt, ver(1, 2, 3), verc(&[1, 2, 3, 4])),
             Ok(Value::Bool(true))
         );
-    }
-
-    #[test]
-    fn version_pre_release_ordering() {
+        // componente a componente (zero-pad)
         assert_eq!(
-            eval_binary_op(BinOp::Lt, ver_pre(1, 2, 3, "alpha"), ver(1, 2, 3)),
+            eval_binary_op(BinOp::Lt, verc(&[1, 2, 3, 0]), ver(1, 2, 4)),
             Ok(Value::Bool(true))
         );
+        // trailing zero não altera a ordem
         assert_eq!(
-            eval_binary_op(
-                BinOp::Lt,
-                ver_pre(1, 2, 3, "alpha.1"),
-                ver_pre(1, 2, 3, "alpha.2")
-            ),
-            Ok(Value::Bool(true))
-        );
-        assert_eq!(
-            eval_binary_op(
-                BinOp::Lt,
-                ver_pre(1, 2, 3, "alpha"),
-                ver_pre(1, 2, 3, "beta")
-            ),
-            Ok(Value::Bool(true))
-        );
-        assert_eq!(
-            eval_binary_op(BinOp::Lt, ver_pre(1, 2, 3, "1"), ver_pre(1, 2, 3, "alpha")),
+            eval_binary_op(BinOp::Geq, verc(&[1, 2, 3, 0]), ver(1, 2, 3)),
             Ok(Value::Bool(true))
         );
     }
@@ -1754,42 +1727,48 @@ mod tests {
         assert_eq!(m.scope().get("x"), Some(&Value::Int(3)));
     }
 
-    #[test]
-    fn version_field_pre() {
-        let world = MockWorld::new("#let x = version(\"1.2.3-alpha.1\").pre");
-        let src = World::source(&world, World::main(&world)).unwrap();
-        let m = eval_for_test(&world, &src).unwrap();
-        assert_eq!(
-            m.scope().get("x"),
-            Some(&Value::Array(vec![Value::Str("alpha".into()), Value::Str("1".into())]))
-        );
-    }
+    // P684 — `pre`/`build` deixaram de existir em version: field access é erro.
 
     #[test]
-    fn version_field_pre_empty() {
+    fn version_field_pre_desconhecido() {
         let world = MockWorld::new("#let x = version(\"1.2.3\").pre");
         let src = World::source(&world, World::main(&world)).unwrap();
-        let m = eval_for_test(&world, &src).unwrap();
-        assert_eq!(m.scope().get("x"), Some(&Value::Array(vec![])));
-    }
-
-    #[test]
-    fn version_field_build() {
-        let world = MockWorld::new("#let x = version(\"1.2.3+build.2\").build");
-        let src = World::source(&world, World::main(&world)).unwrap();
-        let m = eval_for_test(&world, &src).unwrap();
-        assert_eq!(
-            m.scope().get("x"),
-            Some(&Value::Array(vec![Value::Str("build".into()), Value::Str("2".into())]))
+        let err = eval_for_test(&world, &src).expect_err("`.pre` já não existe em version");
+        assert!(
+            err.iter().any(|d| d.message.contains("campo desconhecido em version")),
+            "esperava 'campo desconhecido em version'; recebido: {:?}",
+            err.iter().map(|d| &d.message).collect::<Vec<_>>()
         );
     }
 
     #[test]
-    fn version_field_build_empty() {
+    fn version_field_build_desconhecido() {
         let world = MockWorld::new("#let x = version(\"1.2.3\").build");
         let src = World::source(&world, World::main(&world)).unwrap();
+        let err = eval_for_test(&world, &src).expect_err("`.build` já não existe em version");
+        assert!(
+            err.iter().any(|d| d.message.contains("campo desconhecido em version")),
+            "esperava 'campo desconhecido em version'; recebido: {:?}",
+            err.iter().map(|d| &d.message).collect::<Vec<_>>()
+        );
+    }
+
+    // P684 — componentes arbitrários e igualdade zero-pad ao nível do eval.
+
+    #[test]
+    fn version_eval_eq_zero_pad() {
+        let world = MockWorld::new("#let x = version(1, 2, 3) == version(1, 2, 3, 0)");
+        let src = World::source(&world, World::main(&world)).unwrap();
         let m = eval_for_test(&world, &src).unwrap();
-        assert_eq!(m.scope().get("x"), Some(&Value::Array(vec![])));
+        assert_eq!(m.scope().get("x"), Some(&Value::Bool(true)));
+    }
+
+    #[test]
+    fn version_eval_arbitrary_components() {
+        let world = MockWorld::new("#let x = version(1, 2, 3, 4, 5).patch");
+        let src = World::source(&world, World::main(&world)).unwrap();
+        let m = eval_for_test(&world, &src).unwrap();
+        assert_eq!(m.scope().get("x"), Some(&Value::Int(3)));
     }
 
     #[test]

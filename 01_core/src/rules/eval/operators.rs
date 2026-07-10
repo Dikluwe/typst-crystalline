@@ -147,14 +147,10 @@ pub(crate) fn eval_binary_op(op: BinOp, lhs: Value, rhs: Value) -> Result<Value,
             Ok(Value::Bool(a.morph_canon() == b.morph_canon())),
         (BinOp::Neq, Value::Content(a), Value::Content(b)) =>
             Ok(Value::Bool(a.morph_canon() != b.morph_canon())),
-        // P406 — comparação Version explícita (build metadata ignorada em Eq/Neq,
-        // paridade vanilla semver).
-        (BinOp::Eq,  Value::Version(a), Value::Version(b)) => Ok(Value::Bool(
-            a.major == b.major && a.minor == b.minor && a.patch == b.patch && a.pre == b.pre
-        )),
-        (BinOp::Neq, Value::Version(a), Value::Version(b)) => Ok(Value::Bool(
-            a.major != b.major || a.minor != b.minor || a.patch != b.patch || a.pre != b.pre
-        )),
+        // P684 — comparação Version directa sobre todos os componentes (zero-pad),
+        // sem qualquer tratamento especial de `pre`/`build` (não existem no Typst).
+        (BinOp::Eq,  Value::Version(a), Value::Version(b)) => Ok(Value::Bool(a == b)),
+        (BinOp::Neq, Value::Version(a), Value::Version(b)) => Ok(Value::Bool(a != b)),
         (BinOp::Eq,  a, b) => Ok(Value::Bool(a == b)),
         (BinOp::Neq, a, b) => Ok(Value::Bool(a != b)),
         // Ordenação: coerção Int↔Float confirmada no original (ops::compare)
@@ -166,7 +162,7 @@ pub(crate) fn eval_binary_op(op: BinOp, lhs: Value, rhs: Value) -> Result<Value,
         (BinOp::Lt,  Value::Decimal(a), Value::Decimal(b)) => Ok(Value::Bool(a.0 < b.0)),
         // P405 — ordenação Duration homogénea.
         (BinOp::Lt,  Value::Duration(a), Value::Duration(b)) => Ok(Value::Bool(a < b)),
-        // P406 — ordenação Version homogénea (build ignorado via Ord de Version).
+        // P684 — ordenação Version lexicográfica zero-pad sobre os componentes.
         (BinOp::Lt,  Value::Version(a), Value::Version(b)) => Ok(Value::Bool(a < b)),
         (BinOp::Leq, Value::Int(a),   Value::Int(b))   => Ok(Value::Bool(a <= b)),
         (BinOp::Leq, Value::Float(a), Value::Float(b)) => Ok(Value::Bool(a <= b)),

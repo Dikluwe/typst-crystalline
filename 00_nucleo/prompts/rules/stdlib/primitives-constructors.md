@@ -1,5 +1,5 @@
 # Prompt L0 — `stdlib/primitives-constructors` — constructors `decimal`, `duration`, `version`
-Hash do Código: e8068caa
+Hash do Código: cb1f7851
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/rules/stdlib/primitives_constructors.rs`
@@ -17,7 +17,7 @@ P399 (`Decimal`), P400 (`Duration`) e P401 (`Version`) modelaram os tipos L1 e o
 |--------|-------------------|---------|-------|
 | `native_decimal` | `decimal("1.23")` | `Value::Decimal` | `rust_decimal::Decimal::from_str` |
 | `native_duration` | `duration("3d2h30m")` / `duration(seconds: 90)` | `Value::Duration` | string canónica ou named args |
-| `native_version` | `version("1.2.3-alpha")` / `version(1, 2, 3, pre: "alpha")` | `Value::Version` | semver string ou major/minor/patch + pre/build |
+| `native_version` | `version("1.2.3")` / `version(1, 2, 3)` / `version(1, 2, 3, 4, 5)` | `Value::Version` | string de inteiros ou componentes inteiros (sem pre/build) |
 
 ---
 
@@ -101,53 +101,39 @@ Cálculo usa `u128` intermédio e converte para `u64` após verificação.
 
 ### Forma string (compatibilidade P403)
 
-- Delega parse a `Version::from_str(&s)` (já exposto em `entities::version`).
+- Delega parse a `Version::from_str(&s)` (já exposto em `entities::version`) —
+  **só inteiros** separados por `.`; `pre`/`build` textuais (`"1.2.3-alpha.1"`) → erro.
 - Sucesso: `Value::Version(Arc::new(version))`.
 - Erro: `"version(): string inválida: '{s}'"`.
 
-### Forma vanilla (positional + named pre/build)
+### Forma de componentes (posicional) — P684
 
 ```typst
+version()
+version(1)
 version(1, 2, 3)
-version(1, 2, 3, "alpha.1")
-version(1, 2, 3, pre: "alpha.1", build: "build.2")
+version(1, 2, 3, 4, 5)   // qualquer número de componentes inteiros
 ```
 
-Argumentos:
+- Qualquer número (≥ 0) de posicionais `Int` ≥ 0 → `Version::from_components`.
+- Negativo ou não-`Int` em qualquer componente → erro eval (`as_nonneg_int`).
+- **Sem `pre`/`build`** (não existem no Typst): qualquer argumento nomeado → erro
+  `version(): não aceita argumentos nomeados`. Um 4º posicional de texto
+  (`version(1, 2, 3, "alpha.1")`) → erro de tipo (`espera Int`).
 
-- `major`, `minor`, `patch`: 3 posicionais obrigatórios do tipo `Int`, ≥ 0.
-- `pre`: named arg opcional `Str`, default `""`. Parse `"a.b.c"` → vec!["a", "b", "c"]; `""` → vec vazio.
-- `build`: named arg opcional `Str`, default `""`. Parse idem.
+### Forma array (P682/P684)
 
-Validação:
+Um único posicional `array` equivale aos componentes — `version((1, 2, 3))` ≡
+`version(1, 2, 3)`, `version((1, 2, 3, 4, 5))` ≡ `version(1, 2, 3, 4, 5)`.
 
-- major/minor/patch negativos → erro eval.
-- Tipo errado em qualquer arg → erro eval.
-- Mistura da forma string com a forma vanilla → erro eval.
+- Qualquer número (≥ 0) de elementos `Int` ≥ 0; string dentro do array → erro de tipo.
+- Argumentos nomeados → erro (mesma regra da forma posicional).
 
-Constrói `Version::new(major, minor, patch).with_pre(pre_ids).with_build(build_ids)`.
+### Igualdade e ordem
 
-### Forma array (P682)
-
-Um único argumento posicional do tipo `array` equivale aos componentes
-posicionais — medido contra o vanilla `0.15.0 (969087ec)`:
-
-```typst
-version((0, 2, 2))   ≡ version(0, 2, 2)
-```
-
-- Fiel ao vanilla `0.15.0`: o array tem de ter **exactamente 3 inteiros ≥ 0**
-  (`major, minor, patch`), **sem argumentos nomeados** e **sem string** dentro
-  do array.
-- Erros claros: `arr.len() != 3` → "requer exactamente 3 inteiros … recebeu N";
-  elemento não-`Int` ou negativo → erro de tipo/sinal (via `as_nonneg_int`);
-  named args presentes → "a forma de array não aceita argumentos nomeados".
-- Confirmado por sonda que o vanilla `0.15.0` **rejeita** `version((0,2,2,"beta"))`
-  ("expected integer"), `version(0,2,2,"beta")`, `version(0,2,2, pre:"beta")` e
-  `version((0,2,2), pre:"beta")`. O suporte a `pre`/`build` (4º posicional e
-  named) **existe só na forma posicional** do cristalino (pré-existente, fora do
-  scope de P682) e **não** se aplica à forma de array — ver débito registado no
-  diagnóstico de P682.
+Directa sobre todos os componentes com **zero-pad** (ver `entities/version.md`):
+`version(1, 2, 3) == version(1, 2, 3, 0)`; mais curto (prefixo) < mais longo.
+Sem qualquer tratamento especial de `pre`/`build` (removido em P684).
 
 ---
 
@@ -175,7 +161,7 @@ Não implementar coerção `Duration + Int`, `Duration * Duration`, etc.
 | Operador | Operandos | Resultado | Nota |
 |----------|-----------|-----------|------|
 | `==`, `!=` | Version vs Version | Bool | via `PartialEq` (todos os campos) |
-| `<`, `>`, `<=`, `>=` | Version vs Version | Bool | via `Ord` (semver; build metadata ignorado) |
+| `<`, `>`, `<=`, `>=` | Version vs Version | Bool | via `Ord` (lexicográfico zero-pad) |
 
 `Eq`/`Neq` já funcionam via wildcard `(BinOp::Eq, a, b) => Ok(Value::Bool(a == b))`, mas os braços explícitos garantem prioridade e clareza. Não implementar `+`, `-`, `*`, `/` nem comparações com Int/Str.
 
@@ -187,10 +173,10 @@ A paridade é com a **forma da linguagem**: uma função global que converte str
 - `duration("1h30m")` ≡ `5400s`.
 - `duration(seconds: 90) + duration(seconds: 30)` ≡ `120s`.
 - `duration(minutes: 2) > duration(seconds: 119)` ≡ `true`.
-- `version("1.2.3")` compara via semver (operadores futuros; constructor só constrói).
 - `version(1, 2, 3) == version(1, 2, 3)` ≡ `true`.
-- `version(1, 2, 3, "alpha") < version(1, 2, 3)` ≡ `true` (prerelease < release).
-- `version(1, 2, 3, build: "a") == version(1, 2, 3, build: "b")` ≡ `true` (build ignorado).
+- `version(1, 2, 3) == version(1, 2, 3, 0)` ≡ `true` (zero-pad).
+- `version(1, 2, 3) < version(1, 2, 3, 4)` ≡ `true` (prefixo < mais longo).
+- `version(1, 2, 3, 4, 5)` é válido (componentes arbitrários).
 
 ---
 
@@ -223,20 +209,21 @@ native_duration([]) → Err
 ### `native_version`
 
 ```
-native_version([Str("1.2.3")]) → Ok(Value::Version(1,2,3,"",""))
-native_version([Str("1.2.3-alpha.1")]) → Ok(pre=["alpha","1"])
-native_version([Str("1.2.3+build.2")]) → Ok(build=["build","2"])
+native_version([Str("1.2.3")]) → Ok(Version(1,2,3))
+native_version([Str("1.2.3.4.5")]) → Ok(Version(1,2,3,4,5))
+native_version([Str("1.2.3-alpha.1")]) → Err  (P684: sem pre textual)
+native_version([Str("1.2.3+build.2")]) → Err  (P684: sem build textual)
 native_version([Str("invalid")]) → Err
-native_version([Int(1)]) → Err
-native_version([]) → Err
-native_version(positional: [Int(1), Int(2), Int(3)]) → Ok(Value::Version(1,2,3,"",""))
-native_version(positional: [Array([Int(1), Int(2), Int(3)])]) → Ok(Value::Version(1,2,3,"",""))  (P682: forma array ≡ posicional)
-native_version(positional: [Array([Int(1), Int(2)])]) → Err  (P682: array com !=3 componentes)
-native_version(positional: [Array([Int(1), Int(2), Int(3), Int(4)])]) → Err  (P682: array com !=3 componentes)
-native_version(positional: [Array([Int(1), Str("x"), Int(3)])]) → Err  (P682: elemento não-Int)
-native_version(positional: [Array([Int(1), Int(2), Int(3)])], named: {pre: Str("x")}) → Err  (P682: array não aceita named args)
-native_version(positional: [Int(1), Int(2), Int(3)], named: {pre: Str("alpha.1")}) → Ok(pre=["alpha","1"])
-native_version(positional: [Int(1), Int(2), Int(3)], named: {build: Str("build.2")}) → Ok(build=["build","2"])
+native_version([Int(1)]) → Ok(Version(1))  (P684: qualquer número de componentes)
+native_version([]) → Ok(Version())  (P684: zero componentes)
+native_version(positional: [Int(1), Int(2), Int(3)]) → Ok(Version(1,2,3))
+native_version(positional: [Int(1), Int(2), Int(3), Int(4), Int(5)]) → Ok(Version(1,2,3,4,5))
+native_version(positional: [Int(1), Int(2), Int(3), Str("alpha.1")]) → Err  (P684: 4º posicional tem de ser Int)
+native_version(positional: [Int(1), Int(2), Int(3)], named: {pre: Str("x")}) → Err  (P684: sem named args)
+native_version(positional: [Array([Int(1), Int(2), Int(3)])]) → Ok(Version(1,2,3))  (P682: array ≡ posicional)
+native_version(positional: [Array([Int(1), Int(2), Int(3), Int(4), Int(5)])]) → Ok(Version(1,2,3,4,5))
+native_version(positional: [Array([Int(1), Str("x"), Int(3)])]) → Err  (elemento não-Int)
+native_version(positional: [Array([Int(1), Int(2), Int(3)])], named: {pre: Str("x")}) → Err  (sem named args)
 native_version(positional: [Int(-1), Int(2), Int(3)]) → Err
 native_version(positional: [Str("1.2.3")], named: {pre: Str("alpha")}) → Err (mistura de formas)
 ```
@@ -246,15 +233,14 @@ native_version(positional: [Str("1.2.3")], named: {pre: Str("alpha")}) → Err (
 ```
 version(1,2,3) == version(1,2,3) → true
 version(1,2,3) == version(1,2,4) → false
-version(1,2,3) == version(1,2,3,"alpha") → false
-version(1,2,3, build:"a") == version(1,2,3, build:"b") → true
+version(1,2,3) == version(1,2,3,0) → true   (P684: zero-pad)
+version(1,2,3) == version(1,2,3,4) → false
 version(1,2,3) < version(1,2,4) → true
-version(1,2,3,"alpha") < version(1,2,3) → true
-version(1,2,3,"alpha.1") < version(1,2,3,"alpha.2") → true
-version(1,2,3,"alpha") < version(1,2,3,"beta") → true
+version(1,2,3) < version(1,2,3,4) → true   (prefixo < mais longo)
+version(1,2,3,0) < version(1,2,4) → true
 version(1,2,4) > version(1,2,3) → true
 version(1,2,3) <= version(1,2,3) → true
-version(1,2,3) >= version(1,2,3,"alpha") → true
+version(1,2,3,0) >= version(1,2,3) → true   (P684: zero-pad)
 ```
 
 ### `native_duration` named args
@@ -290,7 +276,7 @@ native_duration(positional: [Str("1h30m")], named: {seconds: 1}) → Err
 
 - `repr(decimal("1.5"))` → `"1.5"` (depende de `Value::repr` para `Decimal`).
 - `repr(duration("3d2h30m15.5s"))` → `"3d2h30m15.5s"`.
-- `repr(version("1.2.3-alpha.1+build.2"))` → `"1.2.3-alpha.1+build.2"`.
+- `repr(version((1, 2, 3, 4, 5)))` → `"version(1, 2, 3, 4, 5)"`.
 
 ---
 
@@ -299,7 +285,7 @@ native_duration(positional: [Str("1h30m")], named: {seconds: 1}) → Err
 - Não criar novos variants de `Value`.
 - Não tocar em `entities/`.
 - Não adicionar operações aritméticas para `Decimal`/`Version`.
-- Não adicionar field access (`.major`, `.minor`, `.patch`, `.pre`, `.build`, `.hours()`, `.seconds()`, etc.).
+- Não adicionar field access além de `.major`/`.minor`/`.patch` (P411/P684); `.pre`/`.build` não existem no Typst.
 - Não implementar `.at(index)`, bump, `.in(unit)`, `.display()`, extractores de componente.
 - Não implementar cast `Duration → Int/Float` nem `Version → Str`.
 - Não aceitar argumentos nomeados para `decimal`.

@@ -562,17 +562,13 @@ pub(super) fn eval_field_access(
                 format!("campo '{field}' não existe neste elemento de conteúdo"),
             )]
         }),
-        // P411 — Field access em Value::Version (semver): major/minor/patch/pre/build.
+        // P684 — Field access em Value::Version: só os três primeiros componentes
+        // têm nome (`major`/`minor`/`patch`); 0 se o componente estiver ausente.
+        // `pre`/`build` não existem no Typst → campo desconhecido.
         Value::Version(v) => match field.as_str() {
-            "major" => Ok(Value::Int(v.major as i64)),
-            "minor" => Ok(Value::Int(v.minor as i64)),
-            "patch" => Ok(Value::Int(v.patch as i64)),
-            "pre" => {
-                Ok(Value::Array(v.pre.iter().map(|s| Value::Str(s.clone())).collect()))
-            }
-            "build" => {
-                Ok(Value::Array(v.build.iter().map(|s| Value::Str(s.clone())).collect()))
-            }
+            "major" => Ok(Value::Int(v.component(0) as i64)),
+            "minor" => Ok(Value::Int(v.component(1) as i64)),
+            "patch" => Ok(Value::Int(v.component(2) as i64)),
             _ => Err(vec![SourceDiagnostic::error(
                 access.span(),
                 format!("campo desconhecido em version: '{}'", field),

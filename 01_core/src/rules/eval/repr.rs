@@ -66,7 +66,15 @@ pub fn repr_value(v: &Value) -> String {
         Value::Decimal(d) => d.to_string(),
         Value::Duration(d) => format!("duration({})", d.to_string()),
         Value::Version(ver) => {
-            format!("version({}, {}, {})", ver.major, ver.minor, ver.patch)
+            // P684 — componentes arbitrários; só os três primeiros têm nome, mas
+            // todos são impressos (`version(1, 2, 3, 4, 5)`, `version()` se vazio).
+            let comps = ver
+                .components
+                .iter()
+                .map(|c| c.to_string())
+                .collect::<Vec<_>>()
+                .join(", ");
+            format!("version({})", comps)
         }
         Value::Selector(s) => repr_selector(s),
         Value::Symbol(s) => s.ch.to_string(),
