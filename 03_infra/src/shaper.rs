@@ -21,6 +21,7 @@
 #![allow(deprecated)] // P483 — FrameItem::Text fallback path legítimo
 
 use std::collections::HashMap;
+use std::sync::Arc;
 
 use rustybuzz::{Direction, UnicodeBuffer};
 use unicode_bidi::BidiInfo;
@@ -29,6 +30,7 @@ use typst_core::contracts::world::World;
 use typst_core::entities::font_book::FontVariant;
 use typst_core::entities::font_list::FontList;
 use typst_core::entities::layout_types::{FrameItem, Length, Page, PagedDocument, Point, Pt, ShapedGlyph, TextStyle};
+use typst_core::entities::world_types::Font;
 
 use crate::fallback_fonts::fallback_font_list_for;
 use crate::font_metrics::FallbackFontMetrics;
@@ -46,9 +48,12 @@ pub fn shape_document(world: &dyn World, mut doc: PagedDocument) -> PagedDocumen
     // (mesmo texto, face, direção, variações e tracking) dentro do mesmo
     // documento, o que é comum em documentos com conteúdo repetido.
     let mut cache = ShapeCache::new();
+    // P672 — cache local de faces ttf-parser. Evita re-parsear a mesma fonte
+    // milhares de vezes durante a segmentação por fonte.
+    let mut face_cache = FaceCache::new();
 
     for page in &mut doc.pages {
-        shape_page(world, page, &mut cache);
+        shape_page(world, page, &mut cache, &mut face_cache);
     }
 
     doc
@@ -94,6 +99,50 @@ impl ShapeCache {
     }
 }
 
+/// Cache de faces `ttf-parser` por `slot_idx` dentro de um documento.
+///
+/// Evita re-parsear a mesma fonte milhares de vezes durante a fase de
+/// `split_run_by_font` (P672). O `Face` empresta internamente dos bytes da
+/// `Font` owned; a struct vive dentro de `Arc` para que o slice `'static`
+/// seja válido enquanto a face existir.
+struct FaceCache {
+    map: HashMap<usize, Option<Arc<CachedFace>>>,
+}
+
+impl FaceCache {
+    fn new() -> Self {
+        Self { map: HashMap::new() }
+    }
+
+    fn get(&mut self, world: &dyn World, slot_idx: usize) -> Option<&CachedFace> {
+        if !self.map.contains_key(&slot_idx) {
+            let cached = world.font(slot_idx).and_then(CachedFace::new);
+            self.map.insert(slot_idx, cached);
+        }
+        self.map.get(&slot_idx).and_then(|o| o.as_ref()).map(|arc| arc.as_ref())
+    }
+}
+
+struct CachedFace {
+    #[allow(dead_code)]
+    data: Font,
+    face: ttf_parser::Face<'static>,
+}
+
+impl CachedFace {
+    fn new(data: Font) -> Option<Arc<Self>> {
+        let slice: &'static [u8] = unsafe {
+            std::slice::from_raw_parts(data.as_slice().as_ptr(), data.as_slice().len())
+        };
+        let face = ttf_parser::Face::parse(slice, 0).ok()?;
+        Some(Arc::new(Self { data, face }))
+    }
+
+    fn face(&self) -> &ttf_parser::Face<'_> {
+        &self.face
+    }
+}
+
 /// **P591** — mede a largura de `text` já com shaping aplicado, sem gerar
 /// `FrameItem`s. Usado pelo `FallbackFontMetrics::advance_shaped` para que o
 /// Layouter decida quebras de linha com a largura real de scripts contextuais
@@ -110,7 +159,8 @@ pub fn shaped_width(world: &dyn World, text: &str, style: &TextStyle) -> Option<
     let variant = text_style_to_font_variant(style);
     let axis_vars = axis_variations_for_font_variant(&variant);
 
-    let mut primary = resolve_candidates(world, font_list, &variant).unwrap_or_default();
+    let mut face_cache = FaceCache::new();
+    let mut primary = resolve_candidates(world, font_list, &variant, &mut face_cache).unwrap_or_default();
     if primary.is_empty() {
         let first_family = font_list.as_slice()
             .first()
@@ -119,7 +169,7 @@ pub fn shaped_width(world: &dyn World, text: &str, style: &TextStyle) -> Option<
         let fallback_list = fallback_font_list_for(first_family);
         for family in fallback_list {
             let fallback_font_list = FontList::single(ecow::EcoString::from(*family));
-            if let Some(cands) = resolve_candidates(world, &fallback_font_list, &variant) {
+            if let Some(cands) = resolve_candidates(world, &fallback_font_list, &variant, &mut face_cache) {
                 if !cands.is_empty() {
                     primary = cands;
                     break;
@@ -128,7 +178,7 @@ pub fn shaped_width(world: &dyn World, text: &str, style: &TextStyle) -> Option<
         }
     }
 
-    let mut candidates = CandidateSet::new(world, primary);
+    let mut candidates = CandidateSet::new(world, primary, &mut face_cache);
 
     let runs = bidi_runs(text);
     if runs.is_empty() {
@@ -165,34 +215,34 @@ pub fn shaped_width(world: &dyn World, text: &str, style: &TextStyle) -> Option<
     Some(Pt(total))
 }
 
-fn shape_page(world: &dyn World, page: &mut Page, cache: &mut ShapeCache) {
+fn shape_page(world: &dyn World, page: &mut Page, cache: &mut ShapeCache, face_cache: &mut FaceCache) {
     let mut new_items = Vec::with_capacity(page.items.len());
     for item in page.items.drain(..) {
-        new_items.extend(shape_item(world, item, cache));
+        new_items.extend(shape_item(world, item, cache, face_cache));
     }
     page.items = new_items;
 }
 
 /// Processa um `FrameItem`, devolvendo 1 ou mais itens (fallback por
 /// caractere pode expandir um `Text` em vários `TextShaped` consecutivos).
-fn shape_item(world: &dyn World, mut item: FrameItem, cache: &mut ShapeCache) -> Vec<FrameItem> {
+fn shape_item(world: &dyn World, mut item: FrameItem, cache: &mut ShapeCache, face_cache: &mut FaceCache) -> Vec<FrameItem> {
     match &mut item {
         FrameItem::Text { pos, text, style } if style.font.is_some() => {
-            if let Some(shaped) = try_shape(world, pos, text, style, cache) {
+            if let Some(shaped) = try_shape(world, pos, text, style, cache, face_cache) {
                 return shaped;
             }
         }
         FrameItem::Group { items, .. } => {
             let mut new_children = Vec::with_capacity(items.len());
             for child in items.drain(..) {
-                new_children.extend(shape_item(world, child, cache));
+                new_children.extend(shape_item(world, child, cache, face_cache));
             }
             *items = new_children;
         }
         FrameItem::Link { items, .. } => {
             let mut new_children = Vec::with_capacity(items.len());
             for child in items.drain(..) {
-                new_children.extend(shape_item(world, child, cache));
+                new_children.extend(shape_item(world, child, cache, face_cache));
             }
             *items = new_children;
         }
@@ -207,6 +257,7 @@ fn try_shape(
     text:  &ecow::EcoString,
     style: &TextStyle,
     cache: &mut ShapeCache,
+    face_cache: &mut FaceCache,
 ) -> Option<Vec<FrameItem>> {
     // P568 — espaços entre palavras são emitidos como FrameItem::Text para
     // que o PDF contenha o caractere de espaço. Não os shapear, para que
@@ -226,7 +277,7 @@ fn try_shape(
     // **P538e/P555** — se a fonte declarada (incluindo a default "FreeSerif")
     // não existe no FontBook, tentar fontes padrão de fallback da mesma
     // classe (serif/sans) antes de recair no fallback global carácter-a-carácter.
-    let mut primary = resolve_candidates(world, font_list, &variant).unwrap_or_default();
+    let mut primary = resolve_candidates(world, font_list, &variant, face_cache).unwrap_or_default();
     if primary.is_empty() {
         let first_family = font_list.as_slice()
             .first()
@@ -235,7 +286,7 @@ fn try_shape(
         let fallback_list = fallback_font_list_for(first_family);
         for family in fallback_list {
             let fallback_font_list = FontList::single(ecow::EcoString::from(*family));
-            if let Some(cands) = resolve_candidates(world, &fallback_font_list, &variant) {
+            if let Some(cands) = resolve_candidates(world, &fallback_font_list, &variant, face_cache) {
                 if !cands.is_empty() {
                     primary = cands;
                     break;
@@ -245,7 +296,7 @@ fn try_shape(
     }
 
     // P534 — candidatos de fallback: todo o FontBook, carregados lazy.
-    let mut candidates = CandidateSet::new(world, primary);
+    let mut candidates = CandidateSet::new(world, primary, face_cache);
 
     // P484 — dividir em runs bidirectionais antes de shape
     let runs = bidi_runs(text.as_str());
@@ -386,16 +437,15 @@ fn resolve_candidates(
     world: &dyn World,
     font_list: &FontList,
     variant: &FontVariant,
+    face_cache: &mut FaceCache,
 ) -> Option<Vec<FontCandidate>> {
     let book = world.book();
     let mut candidates = Vec::new();
     for family in font_list.as_slice() {
         if let Some(idx) = book.select_pattern(&family.name, &variant) {
-            if let Some(font) = world.font(idx) {
-                if let Ok(face) = ttf_parser::Face::parse(font.as_slice(), 0) {
-                    let units_per_em = face.units_per_em().max(1) as u16;
-                    candidates.push(FontCandidate { slot_idx: idx, units_per_em });
-                }
+            if let Some(cached) = face_cache.get(world, idx) {
+                let units_per_em = cached.face().units_per_em().max(1) as u16;
+                candidates.push(FontCandidate { slot_idx: idx, units_per_em });
             }
         }
     }
@@ -412,15 +462,17 @@ fn resolve_candidates(
 /// resto do catálogo na ordem de descoberta. O fallback é lazy para evitar
 /// carregar todas as fontes do sistema em documentos que não precisam.
 struct CandidateSet<'a> {
-    world:    &'a dyn World,
-    primary:  Vec<FontCandidate>,
-    fallback: Vec<Option<FontCandidate>>,
+    world:       &'a dyn World,
+    face_cache:  &'a mut FaceCache,
+    primary:     Vec<FontCandidate>,
+    fallback:    Vec<Option<FontCandidate>>,
 }
 
 impl<'a> CandidateSet<'a> {
-    fn new(world: &'a dyn World, primary: Vec<FontCandidate>) -> Self {
+    fn new(world: &'a dyn World, primary: Vec<FontCandidate>, face_cache: &'a mut FaceCache) -> Self {
         Self {
             world,
+            face_cache,
             primary,
             fallback: Vec::new(),
         }
@@ -431,7 +483,7 @@ impl<'a> CandidateSet<'a> {
     fn covering_all(&mut self, c: char) -> Vec<usize> {
         let mut result = Vec::new();
         for (i, cand) in self.primary.iter().enumerate() {
-            if face_covers_char(self.world, cand.slot_idx, c) {
+            if face_covers_char(self.world, self.face_cache, cand.slot_idx, c) {
                 result.push(i);
             }
         }
@@ -439,10 +491,11 @@ impl<'a> CandidateSet<'a> {
         for slot_idx in self.primary.len()..book_len {
             let fb_idx = slot_idx - self.primary.len();
             if fb_idx >= self.fallback.len() {
-                self.fallback.push(self.load_fallback(slot_idx));
+                let fallback = self.load_fallback(slot_idx);
+                self.fallback.push(fallback);
             }
             if let Some(cand) = self.fallback[fb_idx] {
-                if face_covers_char(self.world, cand.slot_idx, c) {
+                if face_covers_char(self.world, self.face_cache, cand.slot_idx, c) {
                     result.push(slot_idx);
                 }
             }
@@ -461,7 +514,7 @@ impl<'a> CandidateSet<'a> {
         // 1. Tentar primárias primeiro.
         let mut primary_candidates = Vec::new();
         for (i, cand) in self.primary.iter().enumerate() {
-            if face_covers_char(self.world, cand.slot_idx, first_char) {
+            if face_covers_char(self.world, self.face_cache, cand.slot_idx, first_char) {
                 primary_candidates.push(i);
             }
         }
@@ -493,12 +546,12 @@ impl<'a> CandidateSet<'a> {
             let mut end = start;
             for c in text[start..].chars() {
                 let covers = if idx < self.primary.len() {
-                    face_covers_char(self.world, self.primary[idx].slot_idx, c)
+                    face_covers_char(self.world, self.face_cache, self.primary[idx].slot_idx, c)
                 } else {
                     self.fallback
                         .get(idx - self.primary.len())
                         .and_then(|f| f.as_ref())
-                        .map_or(false, |cand| face_covers_char(self.world, cand.slot_idx, c))
+                        .map_or(false, |cand| face_covers_char(self.world, self.face_cache, cand.slot_idx, c))
                 };
                 if !covers {
                     break;
@@ -514,12 +567,11 @@ impl<'a> CandidateSet<'a> {
         Some((best_idx, best_end))
     }
 
-    fn load_fallback(&self, slot_idx: usize) -> Option<FontCandidate> {
-        let font = self.world.font(slot_idx)?;
-        let face = ttf_parser::Face::parse(font.as_slice(), 0).ok()?;
+    fn load_fallback(&mut self, slot_idx: usize) -> Option<FontCandidate> {
+        let cached = self.face_cache.get(self.world, slot_idx)?;
         Some(FontCandidate {
             slot_idx,
-            units_per_em: face.units_per_em().max(1) as u16,
+            units_per_em: cached.face().units_per_em().max(1) as u16,
         })
     }
 
@@ -532,10 +584,9 @@ impl<'a> CandidateSet<'a> {
     }
 }
 
-fn face_covers_char(world: &dyn World, slot_idx: usize, c: char) -> bool {
-    let Some(font) = world.font(slot_idx) else { return false };
-    let Some(face) = ttf_parser::Face::parse(font.as_slice(), 0).ok() else { return false };
-    face.glyph_index(c).is_some()
+fn face_covers_char(world: &dyn World, face_cache: &mut FaceCache, slot_idx: usize, c: char) -> bool {
+    let Some(cached) = face_cache.get(world, slot_idx) else { return false };
+    cached.face().glyph_index(c).is_some()
 }
 
 /// Sub-run dentro de um BidiRun: todos os caracteres partilham o mesmo script
@@ -932,7 +983,7 @@ mod tests {
         };
         // style.font = None → shaper guard (is_some() == false) → item inalterado
         let mut cache = ShapeCache::new();
-        let result = shape_item(&empty_world(), item, &mut cache);
+        let result = shape_item(&empty_world(), item, &mut cache, &mut FaceCache::new());
         // o critério é simplesmente não entrar em panic
         assert_eq!(result.len(), 1);
         assert!(matches!(result[0], FrameItem::Text { .. }), "sem fonte: preservado como Text");
@@ -990,7 +1041,8 @@ mod tests {
     fn p515_resolve_candidates_sem_fontes_retorna_none() {
         let world = empty_world();
         let font_list = FontList::single(EcoString::from("Helvetica"));
-        assert!(resolve_candidates(&world, &font_list, &FontVariant::default()).is_none());
+        let mut face_cache = FaceCache::new();
+        assert!(resolve_candidates(&world, &font_list, &FontVariant::default(), &mut face_cache).is_none());
     }
 
     #[test]
@@ -1024,7 +1076,7 @@ mod tests {
             style,
         };
         let mut cache = ShapeCache::new();
-        let result = shape_item(&world, item, &mut cache);
+        let result = shape_item(&world, item, &mut cache, &mut FaceCache::new());
         assert!(!result.is_empty(), "deve produzir pelo menos 1 TextShaped");
         assert!(result.iter().all(|it| matches!(it, FrameItem::TextShaped { .. })),
                 "todos os resultados devem ser TextShaped");
@@ -1499,8 +1551,8 @@ mod tests {
         };
 
         let mut cache = ShapeCache::new();
-        let shaped_no = shape_item(&world, item_no, &mut cache);
-        let shaped_yes = shape_item(&world, item_yes, &mut cache);
+        let shaped_no = shape_item(&world, item_no, &mut cache, &mut FaceCache::new());
+        let shaped_yes = shape_item(&world, item_yes, &mut cache, &mut FaceCache::new());
 
         let (width_no, n_glyphs) = measure(&shaped_no);
         let (width_yes, _) = measure(&shaped_yes);
