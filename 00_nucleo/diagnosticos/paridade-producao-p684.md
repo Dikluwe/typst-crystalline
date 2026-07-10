@@ -1,7 +1,7 @@
 # P684 — Remover `pre`/`build` de `version()`; componentes arbitrários + zero-pad
 
 **Estado:** fechado.
-**Commit do trabalho:** `__P684_COMMIT__` (preenchido no commit seguinte).
+**Commit do trabalho:** `5788d86bb4c94496e293079b8a5e91532b886ec6`.
 **Data/hora da medição:** 2026-07-10T15:14:35-03:00.
 **Commit base (HEAD antes do trabalho):** `e3a38e351838518a6f9b799a0de248533d4a63c3` — "P683: adiciona hash do commit ao relatório".
 **Vanilla de referência:** `lab/typst-original/target/release/typst` = `typst 0.15.0 (969087ec)`.
