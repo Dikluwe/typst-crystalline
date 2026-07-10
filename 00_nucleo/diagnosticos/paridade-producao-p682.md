@@ -1,7 +1,7 @@
 # P682 — `version()` aceita a forma de array `version((M, m, p))`
 
 **Estado:** fechado.
-**Commit do trabalho:** `__P682_COMMIT__` (preenchido no commit seguinte).
+**Commit do trabalho:** `adc82302ff3febbe07e0cc7b70e6ee36ac41d8c1`.
 **Data/hora da medição:** 2026-07-10T14:04:47-03:00.
 **Commit base (HEAD antes do trabalho):** `96841a62fe49923ca32e513dfd8c975ea4a67ac3` — "P681: adiciona hash do commit ao relatório".
 **Vanilla de referência:** `lab/typst-original/target/release/typst` = `typst 0.15.0 (969087ec)`.
