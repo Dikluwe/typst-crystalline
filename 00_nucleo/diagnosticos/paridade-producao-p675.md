@@ -166,4 +166,4 @@ Documentos micro mantiveram-se abaixo de 0,5× do vanilla (continuam a beneficia
 
 ## Hash do commit
 
-`HASH_A_PREENCHER_APOS_COMMIT`
+`a0f44fb77 — P675: evita walks duplicados do documento em build_multifont`
