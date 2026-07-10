@@ -4,7 +4,7 @@
 com bytes sRGB exactos; `gray` de P686 desapareceu em cetz; próximo bloqueio medido é
 `field access não suportado em color`, fora de escopo).
 
-**Commit do trabalho:** `__P687_COMMIT__`
+**Commit do trabalho:** `19456bc382594b6bc65fe19f9b4e023ab5150ca5`
 **Commit base (HEAD antes deste passo):** `99c8a2a9b550077543ab46bb3a54fa8f1ba3bd28`
 **Hora da medição:** `2026-07-10T16:49:16-03:00` (saída de `date -Is`)
 **Árvore:** detached HEAD; working tree com apenas 2 ficheiros tracked alterados
@@ -15,7 +15,7 @@ não foram tocados).
 
 ## Proveniência da medição (regra de P569/P574)
 
-- **Código medido:** este commit `__P687_COMMIT__`, sobre a base `99c8a2a9`.
+- **Código medido:** este commit `19456bc382594b6bc65fe19f9b4e023ab5150ca5`, sobre a base `99c8a2a9`.
 - `git diff HEAD --stat` no momento da medição:
 
 ```
