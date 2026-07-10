@@ -4,7 +4,7 @@
 **Data:** 2026-07-09  
 **Foco:** Testar directamente, sem depender de auto-rotulagem nos relatórios, se argumentos nomeados aceites pelo cristalino também o são pelo vanilla de referência.  
 **Dependências:** P663 (auditoria por palavras-chave), P662 (padrão de reversão de extensões de linguagem por erro).  
-**Hash do commit com as alterações:** `PENDING`
+**Hash do commit com as alterações:** `cc8626e64`
 
 ---
 
