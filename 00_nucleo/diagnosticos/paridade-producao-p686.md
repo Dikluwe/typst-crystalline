@@ -3,7 +3,7 @@
 **Estado:** fechado (resolução de `/...` implementada e validada; cetz desbloqueado no
 ponto de path; próximo bloqueio medido é `gray`, fora de escopo).
 
-**Commit do trabalho:** `__P686_COMMIT__`
+**Commit do trabalho:** `beb027016fc6fe5380ec40050203ecaa3bd43f71`
 **Commit base (HEAD antes deste passo):** `81034f7103b31dc7d5aa68a1ec2945ef5c97b16a`
 **Hora da medição:** `2026-07-10T16:33:13-03:00` (saída de `date -Is`)
 **Árvore:** detached HEAD; working tree com apenas 4 ficheiros tracked alterados
@@ -14,7 +14,7 @@ não foram tocados).
 
 ## Proveniência da medição (regra de P569/P574)
 
-- **Código medido:** este commit `__P686_COMMIT__`, sobre a base `81034f710`.
+- **Código medido:** este commit `beb027016fc6fe5380ec40050203ecaa3bd43f71`, sobre a base `81034f710`.
 - `git diff HEAD --stat` no momento da medição:
 
 ```
