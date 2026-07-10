@@ -125,4 +125,4 @@ O trabalho efectivo deste passo é a cobertura automatizada (§4) para que estes
 
 ## 8. Hash do commit
 
-`__P680_COMMIT__`
+`48bec0480 — P680: cobre cadeia A→B→C e diamante em #import (sem código)`
