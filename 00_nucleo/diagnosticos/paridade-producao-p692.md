@@ -2,7 +2,7 @@
 
 **Passo:** P692 (`00_nucleo/materialization/typst-passo-692.md`)
 **Data:** 2026-07-10
-**Commit deste relatório:** `__P692_COMMIT__` (preenchido no 2.º commit)
+**Commit deste relatório:** `e731f6a2c8ff0aa7e5804f155e1a55ef72960375` (preenchido no 2.º commit)
 **ADRs:** ADR-0107 (paridade com a linguagem), ADR-0108 (medir antes de decidir),
 regra P662-P664 (nome igual ao vanilla obriga a comportamento igual).
 **Dependência:** P689 (`match()` singular e `RegexMatch`/`captures_first`, reaproveitados).
