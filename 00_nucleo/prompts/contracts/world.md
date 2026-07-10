@@ -1,5 +1,5 @@
 # Prompt L0 — `contracts/world` — O Contrato Supremo do Sistema
-Hash do Código: 4b66b77a
+Hash do Código: ff0899fa
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/contracts/world.rs`
@@ -52,6 +52,18 @@ pub trait World: Send + Sync {
     /// Implementação por omissão retorna Err — MockWorlds mínimos não precisam de I/O.
     fn read_bytes(&self, path: &str) -> Result<std::sync::Arc<Vec<u8>>, String> {
         Err(format!("leitura de ficheiro por caminho não suportada: {}", path))
+    }
+
+    /// Resolver um `PackageSpec` (`@preview/nome:versao`) para o `Source` do
+    /// entrypoint do pacote, procurando na cache local (P681, P-β de P678).
+    /// Implementação por omissão retorna Err — mocks e worlds sem filesystem
+    /// não resolvem pacotes. A resolução real (data dir → cache dir, manifesto
+    /// `typst.toml`, `entrypoint`) vive em L3 (`SystemWorld`); L1 só declara o
+    /// contrato (nunca faz I/O). `spec` e `Source` são tipos L1 — nenhum tipo
+    /// externo atravessa esta fronteira (V14).
+    fn resolve_package(&self, spec: &PackageSpec) -> Result<Source, String> {
+        let _ = spec;
+        Err("resolução de pacotes não suportada nesta implementação de World".into())
     }
 
     /// Obter uma fonte (bytes + metadados) pelo índice no FontBook.
@@ -118,6 +130,7 @@ pipeline de eval sem dependências externas.
 | L1 nunca importa `std::fs`, `std::net` etc | Compilação falha (import proibido) |
 | L1 nunca chama I/O directamente | Teste sem mock quebra |
 | `world.source(id)` pode falhar | Caller DEVE tratar `FileResult` |
+| `world.resolve_package(spec)` pode falhar | Caller DEVE tratar `Err` (pacote ausente / não suportado); resolução real é I/O em L3 |
 | `world.font(idx)` pode retornar `None` | Layouter DEVE ter fallback de fonte |
 | `today(None)` significa "sem offset" | `today(Some(0))` = UTC exacto |
 

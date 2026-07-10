@@ -1,12 +1,13 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/contracts/world.md
-//! @prompt-hash dc500c05
+//! @prompt-hash 0dbe1086
 //! @layer L1
 //! @updated 2026-04-20
 
 use crate::entities::file_id::FileId;
-use crate::entities::source::Source;
 use crate::entities::font_book::FontBook;
+use crate::entities::package_spec::PackageSpec;
+use crate::entities::source::Source;
 use crate::entities::world_types::{
     Bytes, Datetime, FileResult, Font, Library,
 };
@@ -49,6 +50,17 @@ pub trait World: Send + Sync {
     fn include_source(&self, current_file: FileId, path: &str) -> Result<Source, String> {
         let _ = current_file;
         Err(format!("include não suportado nesta implementação de World: {}", path))
+    }
+
+    /// Resolver um `PackageSpec` (`@preview/nome:versao`) para o `Source` do
+    /// entrypoint do pacote, procurando na cache local (P681, P-β de P678).
+    /// A resolução real (data dir → cache dir, manifesto `typst.toml`,
+    /// `entrypoint`) é I/O e vive em L3 (`SystemWorld`); L1 só declara o
+    /// contrato. Implementação por omissão: retorna Err — MockWorlds e worlds
+    /// sem filesystem não resolvem pacotes.
+    fn resolve_package(&self, spec: &PackageSpec) -> Result<Source, String> {
+        let _ = spec;
+        Err("resolução de pacotes não suportada nesta implementação de World".into())
     }
 
     /// Obter uma fonte pelo índice no `FontBook`.

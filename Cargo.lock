@@ -1865,6 +1865,7 @@ dependencies = [
  "rustybuzz",
  "thiserror",
  "time",
+ "toml",
  "ttf-parser",
  "typst-core",
  "unicode-bidi",

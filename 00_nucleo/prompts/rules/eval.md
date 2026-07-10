@@ -1,5 +1,5 @@
 # Prompt L0 — rules/eval
-Hash do Código: 1af37735
+Hash do Código: c50fbb5d
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/rules/eval/mod.rs`
@@ -521,9 +521,15 @@ dispatcher `Expr::ModuleImport` em `mod.rs`:
    `import: caminho deve ser uma string literal`. (O cristalino não avalia o source como
    expressão dinâmica neste passo — alinhado ao facto de o vanilla só aceitar path/
    módulo/função/tipo, e de P679 cobrir ficheiros locais.)
-2. Caminho a começar por `@` (pacote `@preview/...`) → erro claro
-   `import de pacotes (@preview/...) ainda não é suportado pelo cristalino`. Scope-out de
-   P679: resolução de pacotes é passo posterior (`PackageSpec` já existe em L1).
+2. Caminho a começar por `@` (pacote `@preview/...`): desde P681, resolvido via
+   `engine.world.resolve_package(&spec)` com `spec = PackageSpec::from_str(&path)?`,
+   que devolve o `Source` do entrypoint; a partir daí reaproveita exactamente o mesmo
+   fluxo do ficheiro local (ciclo, `eval_imported_file`, bindings). A resolução
+   (data dir → cache dir, manifesto `typst.toml`, `entrypoint`) é I/O em L3
+   (`SystemWorld::resolve_package`); L1 só consome o contrato. Pacote ausente →
+   erro claro (`pacote '...' não encontrado na cache local; download ainda não
+   implementado (P-γ)`). Em P679 este braço devolvia "pacotes ainda não suportados";
+   agora resolve offline — download continua fora do scope (P-γ).
 3. Resolução do ficheiro: `engine.world.include_source(engine.current_file, &path)`
    (caminho relativo ao directório do ficheiro actual; regista o ficheiro no world).
    Erro de resolução (ficheiro inexistente) propaga a mensagem do world.

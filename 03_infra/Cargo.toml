@@ -29,6 +29,7 @@ unicode-script = { workspace = true } # P534 — segmentação por script para f
 fontdb        = "0.23"              # P515 — descoberta automática de fontes do sistema
 oxifont-subset = "0.2.0"             # P516 — subsetting TrueType/OpenType para PDF
 time          = { workspace = true }  # ADR-0021 — today() em SystemWorld
+toml          = { workspace = true }  # P681 — parse do manifesto typst.toml (entrypoint) em resolve_package
 imagesize   = "0.12"                # leitura de cabeçalho de imagem — L3 apenas
 image       = { version = "0.24", default-features = false, features = ["png", "jpeg"] }
 flate2      = "1.0"                 # compressão Zlib para PNG /FlateDecode

@@ -220,6 +220,30 @@ mod tests {
     }
 
     #[test]
+    fn package_spec_from_str_preview_cetz() {
+        // P681 — parsing de `@preview/<name>:<version>` (sonda mínima; base para
+        // a resolução offline de pacotes em cache).
+        let spec = "@preview/cetz:0.2.2".parse::<PackageSpec>().unwrap();
+        assert_eq!(spec.namespace, "preview");
+        assert_eq!(spec.name, "cetz");
+        assert_eq!(
+            spec.version,
+            PackageVersion { major: 0, minor: 2, patch: 2 }
+        );
+        assert_eq!(spec.to_string(), "@preview/cetz:0.2.2");
+    }
+
+    #[test]
+    fn package_spec_from_str_err_sem_arroba() {
+        assert!("preview/cetz:0.2.2".parse::<PackageSpec>().is_err());
+    }
+
+    #[test]
+    fn package_spec_from_str_err_sem_versao() {
+        assert!("@preview/cetz".parse::<PackageSpec>().is_err());
+    }
+
+    #[test]
     fn package_version_display() {
         let v = PackageVersion { major: 1, minor: 2, patch: 3 };
         assert_eq!(v.to_string(), "1.2.3");

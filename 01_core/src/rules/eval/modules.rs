@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/rules/eval.md
-//! @prompt-hash a660f985
+//! @prompt-hash 3ea50fcb
 //! @layer L1
 //! @updated 2026-04-23
 //!
@@ -9,6 +9,7 @@
 //! ADR-0037 Regra 4. Assinaturas simplificadas no Passo 109 (ADR-0044)
 //! via `Engine<'_>`.
 
+use std::str::FromStr;
 use std::sync::Arc;
 
 use comemo::{Track, TrackedMut};
@@ -19,6 +20,7 @@ use crate::entities::ast::AstNode;
 use crate::entities::engine::Engine;
 use crate::entities::func::Func;
 use crate::entities::module::Module;
+use crate::entities::package_spec::PackageSpec;
 use crate::entities::show::{RuleId, ShowRule};
 use crate::entities::source::Source;
 use crate::entities::source_result::{SourceDiagnostic, SourceResult};
@@ -115,19 +117,24 @@ pub(super) fn eval_module_import(
         )]),
     };
 
-    // 2. Pacotes (@preview/...) ficam fora do scope de P679 (ficheiros locais).
-    if path.starts_with('@') {
-        return Err(vec![SourceDiagnostic::error(
-            source_span,
-            "import de pacotes (@preview/...) ainda não é suportado pelo cristalino",
-        )]);
-    }
-
-    // 3. Resolver o ficheiro (relativo ao ficheiro actual) e registá-lo no world.
-    let source = engine
-        .world
-        .include_source(engine.current_file, &path)
-        .map_err(|msg| vec![SourceDiagnostic::error(Span::detached(), msg)])?;
+    // 2. Resolver o ficheiro. Para pacotes (@preview/...) a resolução (cache
+    // local, manifesto `typst.toml`, entrypoint) é delegada a
+    // `world.resolve_package` (P681; I/O em L3); para ficheiros locais,
+    // `world.include_source` (P679). Em ambos os casos o resultado é um
+    // `Source` pronto a avaliar pelo mesmo fluxo (ciclo + eval_imported_file).
+    let source = if path.starts_with('@') {
+        let spec = PackageSpec::from_str(&path)
+            .map_err(|e| vec![SourceDiagnostic::error(source_span, e.to_string())])?;
+        engine
+            .world
+            .resolve_package(&spec)
+            .map_err(|msg| vec![SourceDiagnostic::error(Span::detached(), msg)])?
+    } else {
+        engine
+            .world
+            .include_source(engine.current_file, &path)
+            .map_err(|msg| vec![SourceDiagnostic::error(Span::detached(), msg)])?
+    };
     let src_id = source.id();
 
     // 4. Detecção de ciclo via `Route::contains` (ADR-0033, ADR-0036).

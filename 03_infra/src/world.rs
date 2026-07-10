@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/system-world.md
-//! @prompt-hash 4052c562
+//! @prompt-hash f8851745
 //! @layer L3
 //! @updated 2026-06-30
 //!
@@ -17,6 +17,7 @@ use typst_core::contracts::world::World;
 use typst_core::entities::bib_entry::BibEntry;
 use typst_core::entities::file_id::FileId;
 use typst_core::entities::font_book::FontBook;
+use typst_core::entities::package_spec::PackageSpec;
 use typst_core::entities::source::Source;
 use typst_core::entities::world_types::{
     Bytes, Datetime, FileError, FileResult, Font, Library,
@@ -52,6 +53,26 @@ impl SourceSlot {
             Ok(Source::new(self.id, text))
         }).clone()
     }
+}
+
+/// Bases de procura de pacotes, em ordem de prioridade (P678, P681): data dir
+/// primeiro, depois cache dir. Lê variáveis de ambiente em L3 (I/O permitido;
+/// L1 nunca lê env). Cada base é o directório-pai de `{namespace}/{name}/{version}`.
+fn package_candidate_dirs() -> Vec<PathBuf> {
+    let mut dirs = Vec::new();
+    // Data dir — $XDG_DATA_HOME/typst/packages ou ~/.local/share/typst/packages.
+    if let Some(d) = std::env::var_os("XDG_DATA_HOME") {
+        dirs.push(PathBuf::from(d).join("typst/packages"));
+    } else if let Some(home) = std::env::var_os("HOME") {
+        dirs.push(PathBuf::from(&home).join(".local/share/typst/packages"));
+    }
+    // Cache dir — $XDG_CACHE_HOME/typst/packages ou ~/.cache/typst/packages.
+    if let Some(c) = std::env::var_os("XDG_CACHE_HOME") {
+        dirs.push(PathBuf::from(c).join("typst/packages"));
+    } else if let Some(home) = std::env::var_os("HOME") {
+        dirs.push(PathBuf::from(&home).join(".cache/typst/packages"));
+    }
+    dirs
 }
 
 /// Erro de criação do `SystemWorld`.
@@ -227,6 +248,32 @@ impl SystemWorld {
         typst_core::rules::eval::bibtex::parse_bibtex(text)
             .map_err(|e| format!("failed to parse BibTeX '{}': {}", path, e))
     }
+
+    /// **P681** — Lê o manifesto `typst.toml` de `dir`, extrai
+    /// `[package].entrypoint`, regista o ficheiro do entrypoint e devolve o
+    /// seu `Source`. Os imports internos do pacote resolvem relativamente ao
+    /// `current_file` (entrypoint), cujo `directory_of` é o directório do
+    /// entrypoint dentro da cache — logo `#import "..."` internos funcionam
+    /// sem tratamento especial.
+    fn load_package_entrypoint(&self, dir: &Path, spec: &PackageSpec) -> Result<Source, String> {
+        let manifest_path = dir.join("typst.toml");
+        let text = std::fs::read_to_string(&manifest_path).map_err(|e| {
+            format!("pacote '{}': falha a ler '{}': {}", spec, manifest_path.display(), e)
+        })?;
+        let manifest: toml::Value = toml::from_str(&text).map_err(|e| {
+            format!("pacote '{}': typst.toml inválido: {}", spec, e)
+        })?;
+        let entrypoint = manifest
+            .get("package")
+            .and_then(|p| p.get("entrypoint"))
+            .and_then(|e| e.as_str())
+            .ok_or_else(|| format!("pacote '{}': typst.toml sem [package].entrypoint", spec))?;
+        let entry_path = dir.join(entrypoint);
+        let id = self.register_file(entry_path.clone());
+        self.source(id).map_err(|_| {
+            format!("pacote '{}': entrypoint '{}' não encontrado", spec, entry_path.display())
+        })
+    }
 }
 
 impl World for SystemWorld {
@@ -278,6 +325,23 @@ impl World for SystemWorld {
         let abs_path = base_dir.join(path);
         let id = self.register_file(abs_path.clone());
         self.source(id).map_err(|_| format!("include: ficheiro não encontrado: {}", abs_path.display()))
+    }
+
+    fn resolve_package(&self, spec: &PackageSpec) -> Result<typst_core::entities::source::Source, String> {
+        let version = spec.version.to_string();
+        for base in package_candidate_dirs() {
+            let cand = base
+                .join(spec.namespace.as_str())
+                .join(spec.name.as_str())
+                .join(&version);
+            if cand.is_dir() {
+                return self.load_package_entrypoint(&cand, spec);
+            }
+        }
+        Err(format!(
+            "pacote '{}' não encontrado na cache local; download ainda não implementado (ver P-γ de P678)",
+            spec
+        ))
     }
 
     fn today(&self, offset: Option<i64>) -> Option<Datetime> {
