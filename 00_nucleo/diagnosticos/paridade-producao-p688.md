@@ -6,7 +6,7 @@ de teste (versão antiga 0.2.2 + padrão `draw.line` shorthand + inteiros nus). 
 versão actual (0.5.2) e o padrão documentado, o **vanilla renderiza cetz**. O cristalino
 falha num bloqueio **real e localizado** (`str.codepoints()` em falta, via `oxifmt`).
 
-**Commit do trabalho:** `__P688_COMMIT__`
+**Commit do trabalho:** `160dbb36135f715e83758867e41b0c8a16ceb527`
 **Commit base (HEAD antes deste passo):** `45b4af30900be55032ddb4dd21b403c6a645205f`
 **Hora da medição:** `2026-07-10T17:06:38-03:00` (saída de `date -Is`)
 **Árvore:** detached HEAD; **zero** ficheiros tracked alterados (sonda só produz relatório).
@@ -15,7 +15,7 @@ falha num bloqueio **real e localizado** (`str.codepoints()` em falta, via `oxif
 
 ## Proveniência da medição (regra de P569/P574)
 
-- **Código medido:** este commit `__P688_COMMIT__` (= base `45b4af309`; sem diff de código).
+- **Código medido:** este commit `160dbb36135f715e83758867e41b0c8a16ceb527` (= base `45b4af309`; sem diff de código).
 - `git diff HEAD --stat`: vazio (nenhum tracked alterado).
 - Binários: cristalino `target/debug/typst` (CLI posicional); vanilla
   `lab/typst-original/target/release/typst` = `typst 0.15.0 (969087ec)` (`compile`).
