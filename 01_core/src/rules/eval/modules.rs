@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/rules/eval.md
-//! @prompt-hash 3ea50fcb
+//! @prompt-hash 79decd9b
 //! @layer L1
 //! @updated 2026-04-23
 //!
@@ -106,68 +106,95 @@ pub(super) fn eval_module_import(
     ctx: &mut EvalContext,
     engine: &mut Engine<'_>,
 ) -> SourceResult<Value> {
-    // 1. O caminho de um import de ficheiro local é uma string literal.
+    // Resolver a fonte do import para um `Module` + nome de ligação por omissão:
+    //  - `Expr::Str` → ficheiro local (P679) ou pacote `@preview` (P681), avaliado
+    //    num módulo isolado (ciclo + `eval_imported_file`); nome = `bare_name()`.
+    //  - qualquer outra expressão que avalie para `Value::Module` (P683) — ex.:
+    //    `#import util: x` (identificador) ou `#import deps.oxifmt: strfmt`
+    //    (field-access sobre um módulo já ligado) → usa o módulo directamente;
+    //    nome = `Module::name()`.
     let source_expr = import.source();
     let source_span = source_expr.span();
-    let path = match source_expr {
-        Expr::Str(s) => s.get()?,
-        _ => return Err(vec![SourceDiagnostic::error(
-            source_span,
-            "import: caminho deve ser uma string literal (ex.: #import \"ficheiro.typ\")",
-        )]),
+
+    let (module, default_bind_name): (Module, String) = match source_expr {
+        Expr::Str(s) => {
+            let path = s.get()?;
+
+            // Para pacotes (@preview/...) a resolução (cache local, manifesto
+            // `typst.toml`, entrypoint) é delegada a `world.resolve_package`
+            // (P681; I/O em L3); para ficheiros locais, `world.include_source`
+            // (P679). Em ambos o resultado é um `Source` pronto a avaliar.
+            let source = if path.starts_with('@') {
+                let spec = PackageSpec::from_str(&path)
+                    .map_err(|e| vec![SourceDiagnostic::error(source_span, e.to_string())])?;
+                engine
+                    .world
+                    .resolve_package(&spec)
+                    .map_err(|msg| vec![SourceDiagnostic::error(Span::detached(), msg)])?
+            } else {
+                engine
+                    .world
+                    .include_source(engine.current_file, &path)
+                    .map_err(|msg| vec![SourceDiagnostic::error(Span::detached(), msg)])?
+            };
+            let src_id = source.id();
+
+            // Detecção de ciclo via `Route::contains` (ADR-0033, ADR-0036).
+            if engine.route.contains(src_id) {
+                return Err(vec![SourceDiagnostic::error(
+                    Span::detached(),
+                    format!(
+                        "ciclo de importação detectado: ficheiro {:?} já está \
+                         na cadeia de avaliação activa",
+                        src_id
+                    ),
+                )]);
+            }
+
+            // Nome do módulo (file_stem) — usado em `Module::new` e no bare import.
+            let module_name = import.bare_name().map_err(|_| {
+                vec![SourceDiagnostic::error(
+                    source_span,
+                    "module name would not be a valid identifier",
+                )]
+            })?;
+
+            let module = eval_imported_file(&source, &module_name, ctx, engine)?;
+            (module, module_name)
+        }
+        _ => {
+            // P683 — fonte é uma expressão: avalia no scope do chamador e exige
+            // `Value::Module` (identificador de módulo já ligado, ou field-access
+            // que resolve para outro módulo).
+            let value = eval_expr(source_expr, scopes, ctx, engine)?;
+            match value {
+                Value::Module(m) => {
+                    let name = m.name().to_string();
+                    (m, name)
+                }
+                other => {
+                    return Err(vec![SourceDiagnostic::error(
+                        source_span,
+                        format!(
+                            "import: a fonte tem de ser um caminho string ou um módulo, recebeu {}",
+                            other.type_name()
+                        ),
+                    )]);
+                }
+            }
+        }
     };
-
-    // 2. Resolver o ficheiro. Para pacotes (@preview/...) a resolução (cache
-    // local, manifesto `typst.toml`, entrypoint) é delegada a
-    // `world.resolve_package` (P681; I/O em L3); para ficheiros locais,
-    // `world.include_source` (P679). Em ambos os casos o resultado é um
-    // `Source` pronto a avaliar pelo mesmo fluxo (ciclo + eval_imported_file).
-    let source = if path.starts_with('@') {
-        let spec = PackageSpec::from_str(&path)
-            .map_err(|e| vec![SourceDiagnostic::error(source_span, e.to_string())])?;
-        engine
-            .world
-            .resolve_package(&spec)
-            .map_err(|msg| vec![SourceDiagnostic::error(Span::detached(), msg)])?
-    } else {
-        engine
-            .world
-            .include_source(engine.current_file, &path)
-            .map_err(|msg| vec![SourceDiagnostic::error(Span::detached(), msg)])?
-    };
-    let src_id = source.id();
-
-    // 4. Detecção de ciclo via `Route::contains` (ADR-0033, ADR-0036).
-    if engine.route.contains(src_id) {
-        return Err(vec![SourceDiagnostic::error(
-            Span::detached(),
-            format!(
-                "ciclo de importação detectado: ficheiro {:?} já está \
-                 na cadeia de avaliação activa",
-                src_id
-            ),
-        )]);
-    }
-
-    // 5. Nome do módulo (file_stem) — usado em `Module::new` e no bare import.
-    let module_name = import.bare_name().map_err(|_| {
-        vec![SourceDiagnostic::error(
-            source_span,
-            "module name would not be a valid identifier",
-        )]
-    })?;
-
-    // 6. Avaliar o ficheiro num módulo isolado.
-    let module = eval_imported_file(&source, &module_name, ctx, engine)?;
 
     // 7. Aplicar bindings ao scope do chamador conforme a forma do import.
     match import.imports() {
         None => {
-            // Bare import: liga o módulo sob `new_name` (`as`) ou `bare_name`.
+            // Bare import: liga o módulo sob `new_name` (`as`) ou o nome por
+            // omissão (`bare_name` para ficheiro/pacote; `Module::name()` para
+            // fonte-módulo, P683).
             let bind = import
                 .new_name()
                 .map(|i| i.get().to_string())
-                .unwrap_or_else(|| module_name.clone());
+                .unwrap_or_else(|| default_bind_name.clone());
             scopes.define(&bind, Value::Module(module));
         }
         Some(Imports::Wildcard) => {

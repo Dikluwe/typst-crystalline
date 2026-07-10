@@ -1,5 +1,5 @@
 # Prompt L0 — rules/eval
-Hash do Código: c50fbb5d
+Hash do Código: b06b1007
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/rules/eval/mod.rs`
@@ -565,5 +565,50 @@ Critérios de verificação:
 - Ficheiro inexistente → erro de resolução (file not found).
 - Item inexistente → erro contendo `unresolved import`.
 - `#include` continua a funcionar sem regressão.
+- `cargo test --workspace` continua a passar.
+- `crystalline-lint .` limpo.
+
+## §P683 — `#import` a partir de módulo / field-access
+
+Medição na fonte vanilla 0.15.0 e sonda local (`typst 0.15.0 (969087ec)`):
+
+- `#import "a.typ" as modulo_a` seguido de `#import modulo_a: valor` → aceite; o
+  `source` do segundo import avalia para o `Value::Module` ligado sob `modulo_a`,
+  e `valor` é extraído do scope desse módulo.
+- O padrão real de `cetz` é `#import deps.oxifmt: strfmt` e
+  `#import util: typst-length`: a fonte é um identificador (`util`) ou um
+  field-access (`deps.oxifmt`) que **resolve para `Value::Module`**, com `: items`.
+  `deps.typ` é só `#import "@preview/oxifmt:0.2.0"` (bare), logo `deps.oxifmt` é o
+  módulo do pacote `oxifmt` acedido via field-access sobre o módulo `deps`.
+- `#import pacote.valor` onde `valor` **não** é módulo (ex.: string) → o vanilla
+  trata o resultado como caminho e falha com `file not found`; o cristalino
+  recusa com erro claro (ver abaixo) — **paridade ao nível de "é erro"**, não de
+  texto (ADR-0107).
+
+Classificação (ADR-0108): aceitar uma expressão de fonte que resolve para
+`Value::Module` é **sintaxe/morfologia** da linguagem (paridade); o algoritmo de
+resolução e o texto exacto do erro são **mecânica** (divergem de propósito, P329).
+
+Semântica a implementar em `eval_module_import` (`01_core/src/rules/eval/modules.rs`):
+
+1. Se `source` é `Expr::Str` → fluxo de P679/P681 (ficheiro local / pacote), sem
+   alteração; nome por omissão = `bare_name()` (file_stem).
+2. Caso contrário, avaliar a expressão de fonte no scope do chamador
+   (`eval_expr(source_expr, scopes, ctx, engine)`):
+   - `Value::Module(m)` → usa `m` directamente (sem resolução de ficheiro, sem
+     detecção de ciclo, sem `eval_imported_file`); nome por omissão = `m.name()`.
+   - qualquer outro `Value` → erro
+     `import: a fonte tem de ser um caminho string ou um módulo, recebeu {tipo}`
+     no span da fonte.
+3. A aplicação de bindings (`None`/`Wildcard`/`Items`) é a mesma de P679; o bare
+   import liga sob `new_name` (`as`) ou o nome por omissão calculado acima.
+
+Critérios de verificação:
+
+- `#import "u.typ" as u` + `#import u: saudacao` → `#saudacao("Mundo")` = `Olá, Mundo!`.
+- field-access que resolve para módulo (`deps.oxifmt`-like) → import de item funciona.
+- `#import "u.typ": saudacao` (string, P679) sem regressão.
+- `#import "@preview/..."` (pacote, P681) sem regressão.
+- fonte que avalia para não-módulo → erro claro contendo `tem de ser um caminho string ou um módulo`.
 - `cargo test --workspace` continua a passar.
 - `crystalline-lint .` limpo.

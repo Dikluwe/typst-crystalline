@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/rules/eval.md
-//! @prompt-hash 3ea50fcb
+//! @prompt-hash 79decd9b
 //! @layer L1
 //! @updated 2026-06-17
 //!
@@ -2922,6 +2922,64 @@ mod tests {
         assert_eq!(
             module.scope().get("rc"),
             Some(&Value::Str("C usa de D".into()))
+        );
+    }
+
+    // ── ModuleImport a partir de módulo / field-access (P683) ─────────────────
+
+    #[test]
+    fn import_modulo_por_identificador() {
+        // `#import "u.typ" as u` seguido de `#import u: saudacao` (fonte = ident
+        // que resolve para `Value::Module`).
+        let v = import_str(
+            "#import \"u.typ\" as u\n#import u: saudacao\n#let r = saudacao(\"Mundo\")",
+            &[("u.typ", UTILS)],
+            "r",
+        );
+        assert_eq!(v, Value::Str("Olá, Mundo!".into()));
+    }
+
+    #[test]
+    fn import_modulo_field_access() {
+        // Espelha `cetz`: `deps.typ` re-exporta um módulo sob um campo; o import
+        // usa field-access (`deps.inner`) como fonte. `inner.typ` exporta `valor`.
+        let world = ImportMockWorld::new(
+            "#import \"deps.typ\"\n#import deps.inner: valor\n#let r = valor",
+            &[
+                ("deps.typ", "#import \"inner.typ\""),
+                ("inner.typ", "#let valor = \"de INNER, via field-access\""),
+            ],
+        );
+        let src = World::source(&world, World::main(&world)).unwrap();
+        let module = eval_for_test(&world, &src).expect("import por field-access deve funcionar");
+        assert_eq!(
+            module.scope().get("r"),
+            Some(&Value::Str("de INNER, via field-access".into()))
+        );
+    }
+
+    #[test]
+    fn import_modulo_bare_por_identificador() {
+        // `#import "u.typ" as u` + `#import u` (bare, sem items): liga o módulo
+        // sob `Module::name()` ("u"); field-access `u.saudacao(...)` funciona.
+        let v = import_str(
+            "#import \"u.typ\" as u\n#import u\n#let r = u.saudacao(\"Mundo\")",
+            &[("u.typ", UTILS)],
+            "r",
+        );
+        assert_eq!(v, Value::Str("Olá, Mundo!".into()));
+    }
+
+    #[test]
+    fn import_fonte_nao_modulo_retorna_err() {
+        // Fonte avalia para não-módulo → erro claro (paridade ao nível de "é erro").
+        let world = ImportMockWorld::new("#let x = 5\n#import x: foo", &[]);
+        let src = World::source(&world, World::main(&world)).unwrap();
+        let err = eval_for_test(&world, &src).expect_err("fonte não-módulo deve errar");
+        assert!(
+            err.iter().any(|d| d.message.contains("tem de ser um caminho string ou um módulo")),
+            "esperava erro de fonte não-módulo; recebido: {:?}",
+            err.iter().map(|d| &d.message).collect::<Vec<_>>()
         );
     }
 
