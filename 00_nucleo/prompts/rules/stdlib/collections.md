@@ -3,7 +3,7 @@
 **Camada**: L1  
 **Ficheiro alvo**: `01_core/src/rules/stdlib/collections.rs`  
 **Criado em**: 2026-06-25 (Passo P466)  
-**Atualizado em**: 2026-07-10 (P690 — `str.len/at/slice` em bytes; P691 — `str.find` devolve a **substring**/`none`, paridade vanilla)  
+**Atualizado em**: 2026-07-10 (P690 — `str.len/at/slice` em bytes; P691 — `str.find` devolve substring/`none`; P692 — `str.matches` e `str.normalize` implementados; `unicode-normalization` autorizada em L1)  
 **ADRs**: ADR-0037 (coesão por domínio), ADR-0107 (paridade com a linguagem — aqui a linguagem **é** bytes), ADR-0108 (medir antes de decidir), ADR-0117 Cláusula 4 (métodos de tipos existentes; não propõe estrutura em elementos).
 
 ---
@@ -141,8 +141,10 @@ Reduz o array a um único valor, aplicando a função `reducer(start, item)` e a
 | `split` | `str.split(sep: str) -> array` | Divide por separador. |
 | `repeat` | `str.repeat(n: int) -> str` | Repete `n` vezes; `n >= 0`. **Extensão cristalina** (não existe no vanilla 0.15). |
 | `codepoints` | `str.codepoints() -> array` | Array de strings, um por char (scalar value). (**P689**) |
+| `normalize` | `str.normalize(form: str = "nfc") -> str` | Normalização Unicode. `form` (named) ∈ `nfc`, `nfd`, `nfkc`, `nfkd`; default `nfc`. (**P692**) |
 | `position` | `str.position(hay: str \| regex) -> int \| none` | Índice em **bytes** da primeira ocorrência, ou `none`. Aceita `str` ou `regex`. (**P689**) |
-| `match` | `str.match(pattern: regex) -> dict \| none` | Primeiro match: dict `{start, end, text, captures}` com índices em **bytes**, ou `none`. Capturas em ordem posicional (grupos nomeados inclusive). (**P689**) |
+| `match` | `str.match(pattern: regex) -> dict \| none` | Primeiro match: dict `{start, end, text, captures}` com índices em **bytes**, ou `none`. Capturas em ordem posicional (grupos nomeados inclusive). (**P689**) ⚠️ **Débito (P692)**: o vanilla aceita `str \| regex`; o cristalino (P689) só aceita `regex`. Variação de assinatura, fora do alcance deste passo. |
+| `matches` | `str.matches(pattern: str \| regex) -> array` | Array de dicionários `{start, end, text, captures}` (índices em **bytes**), um por ocorrência não sobreposta; `()` se nenhum. Aceita `str` (literal) ou `regex`. (**P692**) |
 
 **Nota P690 (indexação unificada em bytes — ADR-0107):** `len`, `at` e `slice` passam a
 indexar por **byte**, como o vanilla (medido: `"café".len() == 5`, `"éabc".at(2) == "a"`,
@@ -159,6 +161,20 @@ regra P662-P664: diferença de linguagem só com nome distinto e decisão consci
 `trim`/`split`/`rev` não indexam (devolvem strings/arrays/bool), pelo que a questão
 byte/char não se lhes aplica e permanecem inalterados; `position`/`match` já eram bytes
 (P689).
+
+**Nota P692 (`matches` e `normalize`):** `matches(pattern)` devolve um array de dicionários
+`{start, end, text, captures}` (índices em bytes), um por ocorrência não sobreposta —
+`str` usa `str::match_indices` (literal), `regex` usa `Regex::captures_all` (novo,
+generalização de `captures_first` de P689). `normalize(form:)` usa a crate
+`unicode-normalization` (NFC/NFD/NFKC/NFKD; default NFC), computação pura sobre strings,
+sem I/O — admissível em L1 e declarada em `[l1_allowed_external.unicode_normalization]`
+(`crystalline.toml`). A crate já era dependência transitiva (via `hayagriva → biblatex`);
+P692 torna-a dependência **directa** de `typst-core` e regista-a na whitelist. Com estes
+dois métodos, o cristalino cobre **todos** os métodos de instância de `str` da
+documentação oficial do Typst 0.15 (`len, first, last, at, slice, clusters, codepoints,
+to-unicode, normalize, contains, starts-with, ends-with, find, position, match, matches,
+replace, trim, split, rev`) — os restantes símbolos do cristalino (`char-*`, `repeat`,
+`to-upper`, `to-lower`) são extensões não-portáveis, não ausências.
 
 ---
 

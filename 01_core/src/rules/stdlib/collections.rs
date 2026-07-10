@@ -11,6 +11,7 @@ use std::cmp::Ordering;
 use ecow::EcoString;
 use indexmap::IndexMap;
 use rustc_hash::FxBuildHasher;
+use unicode_normalization::UnicodeNormalization;
 
 use crate::entities::args::Args;
 use crate::entities::engine::Engine;
@@ -92,8 +93,10 @@ pub(crate) fn try_dispatch_collection_method(
         (Value::Str(s), "to-unicode") => Some(Ok(str_to_unicode(s))),
         (Value::Str(s), "rev") => Some(Ok(str_rev(s))),
         (Value::Str(s), "codepoints") => Some(Ok(str_codepoints(s))),
+        (Value::Str(s), "normalize") => Some(str_normalize(s, args)),
         (Value::Str(s), "position") => Some(str_position(s, args)),
         (Value::Str(s), "match") => Some(str_match(s, args)),
+        (Value::Str(s), "matches") => Some(str_matches(s, args)),
 
         _ => None,
     }
@@ -714,31 +717,29 @@ fn str_position(s: EcoString, args: Args) -> SourceResult<Value> {
     }
 }
 
+/// Constrói o dict `{start, end, text, captures}` de um match (índices em bytes).
+/// Partilhado por `str.match` (P689) e `str.matches` (P692).
+fn match_dict(start: usize, end: usize, text: &str, captures: Vec<String>) -> Value {
+    let mut dict: IndexMap<EcoString, Value, FxBuildHasher> = IndexMap::default();
+    dict.insert("start".into(), Value::Int(start as i64));
+    dict.insert("end".into(), Value::Int(end as i64));
+    dict.insert("text".into(), Value::Str(text.to_string().into()));
+    dict.insert(
+        "captures".into(),
+        Value::Array(captures.into_iter().map(|c| Value::Str(c.into())).collect()),
+    );
+    Value::Dict(dict)
+}
+
 /// **P689** — `str.match(pattern)`: primeiro match da regex, como dict
 /// `{start, end, text, captures}` com índices em **bytes**, ou `none`.
 /// Capturas em ordem posicional (grupos nomeados inclusive).
 fn str_match(s: EcoString, args: Args) -> SourceResult<Value> {
     match args.items.as_slice() {
-        [Value::Regex(re)] => match re.captures_first(s.as_str()) {
-            Some(m) => {
-                let mut dict: IndexMap<EcoString, Value, FxBuildHasher> =
-                    IndexMap::default();
-                dict.insert("start".into(), Value::Int(m.start as i64));
-                dict.insert("end".into(), Value::Int(m.end as i64));
-                dict.insert("text".into(), Value::Str(m.text.into()));
-                dict.insert(
-                    "captures".into(),
-                    Value::Array(
-                        m.captures
-                            .into_iter()
-                            .map(|c| Value::Str(c.into()))
-                            .collect(),
-                    ),
-                );
-                Ok(Value::Dict(dict))
-            }
-            None => Ok(Value::None),
-        },
+        [Value::Regex(re)] => Ok(re
+            .captures_first(s.as_str())
+            .map(|m| match_dict(m.start, m.end, &m.text, m.captures))
+            .unwrap_or(Value::None)),
         [other] => Err(vec![SourceDiagnostic::error(
             Span::detached(),
             format!("str.match() espera regex, recebeu {}", other.type_name()),
@@ -748,6 +749,79 @@ fn str_match(s: EcoString, args: Args) -> SourceResult<Value> {
             "str.match() requer 1 argumento posicional (regex)".to_string(),
         )]),
     }
+}
+
+/// **P692** — `str.matches(pattern)`: array de dicts `{start, end, text, captures}`
+/// (índices em **bytes**), um por ocorrência não sobreposta; `[]` se nenhuma.
+/// Aceita `str` (literal, via `match_indices`) ou `regex` (via `captures_all`).
+fn str_matches(s: EcoString, args: Args) -> SourceResult<Value> {
+    match args.items.as_slice() {
+        [Value::Str(pat)] => {
+            let arr: Vec<Value> = s
+                .match_indices(pat.as_str())
+                .map(|(i, m)| match_dict(i, i + m.len(), m, vec![]))
+                .collect();
+            Ok(Value::Array(arr))
+        }
+        [Value::Regex(re)] => {
+            let arr: Vec<Value> = re
+                .captures_all(s.as_str())
+                .into_iter()
+                .map(|m| match_dict(m.start, m.end, &m.text, m.captures))
+                .collect();
+            Ok(Value::Array(arr))
+        }
+        [other] => Err(vec![SourceDiagnostic::error(
+            Span::detached(),
+            format!(
+                "str.matches() espera str ou regex, recebeu {}",
+                other.type_name()
+            ),
+        )]),
+        _ => Err(vec![SourceDiagnostic::error(
+            Span::detached(),
+            "str.matches() requer 1 argumento posicional".to_string(),
+        )]),
+    }
+}
+
+/// **P692** — `str.normalize(form:)`: normalização Unicode. `form` (named) ∈
+/// {"nfc", "nfd", "nfkc", "nfkd"}; default "nfc". Não aceita argumentos posicionais.
+fn str_normalize(s: EcoString, args: Args) -> SourceResult<Value> {
+    if !args.items.is_empty() {
+        return Err(vec![SourceDiagnostic::error(
+            Span::detached(),
+            "str.normalize(): não aceita argumentos posicionais (use form:)".to_string(),
+        )]);
+    }
+    let form = match args.named.get("form") {
+        None => "nfc".to_string(),
+        Some(Value::Str(f)) => f.to_string(),
+        Some(other) => {
+            return Err(vec![SourceDiagnostic::error(
+                Span::detached(),
+                format!(
+                    "str.normalize(): form espera str, recebeu {}",
+                    other.type_name()
+                ),
+            )])
+        }
+    };
+    let normalized: String = match form.as_str() {
+        "nfc" => s.nfc().collect(),
+        "nfd" => s.nfd().collect(),
+        "nfkc" => s.nfkc().collect(),
+        "nfkd" => s.nfkd().collect(),
+        other => {
+            return Err(vec![SourceDiagnostic::error(
+                Span::detached(),
+                format!(
+                    "str.normalize(): forma desconhecida '{other}' (esperado nfc, nfd, nfkc, nfkd)"
+                ),
+            )])
+        }
+    };
+    Ok(Value::Str(normalized.into()))
 }
 
 fn str_contains(s: EcoString, args: Args) -> SourceResult<Value> {
@@ -1404,6 +1478,101 @@ mod tests {
         // aridade errada (0 args) → erro
         let a = make_args(vec![], None);
         assert!(str_find("abc".into(), a).is_err());
+    }
+
+    // ── P692 — str.matches / str.normalize ────────────────────────────────────
+
+    fn dict_get<'a>(v: &'a Value, key: &str) -> &'a Value {
+        match v {
+            Value::Dict(d) => d.get(key).unwrap(),
+            other => panic!("esperado dict, recebeu {:?}", other),
+        }
+    }
+
+    #[test]
+    fn p692_str_matches_regex() {
+        let a = make_args(vec![Value::Regex(Regex::new(r"\w+").unwrap())], None);
+        let arr = match str_matches("um dois três quatro".into(), a).unwrap() {
+            Value::Array(a) => a,
+            other => panic!("esperado array, recebeu {:?}", other),
+        };
+        assert_eq!(arr.len(), 4);
+        assert_eq!(dict_get(&arr[0], "start"), &Value::Int(0));
+        assert_eq!(dict_get(&arr[0], "end"), &Value::Int(2));
+        assert_eq!(dict_get(&arr[0], "text"), &Value::Str("um".into()));
+        // "três" começa no byte 8 (dois=3..7, espaço=7, três=8..13 — ê ocupa 2 bytes)
+        assert_eq!(dict_get(&arr[2], "start"), &Value::Int(8));
+        assert_eq!(dict_get(&arr[2], "end"), &Value::Int(13));
+        assert_eq!(dict_get(&arr[2], "text"), &Value::Str("três".into()));
+    }
+
+    #[test]
+    fn p692_str_matches_str_literal_e_vazio() {
+        // literal: "abab".matches("ab") → 2 matches, captures vazias
+        let a = make_args(vec![Value::Str("ab".into())], None);
+        let arr = match str_matches("abab".into(), a).unwrap() {
+            Value::Array(a) => a,
+            other => panic!("esperado array, recebeu {:?}", other),
+        };
+        assert_eq!(arr.len(), 2);
+        assert_eq!(dict_get(&arr[0], "start"), &Value::Int(0));
+        assert_eq!(dict_get(&arr[1], "start"), &Value::Int(2));
+        assert_eq!(dict_get(&arr[0], "captures"), &Value::Array(vec![]));
+        // sem match → array vazio
+        let a = make_args(vec![Value::Regex(Regex::new("z").unwrap())], None);
+        assert_eq!(str_matches("abc".into(), a).unwrap(), Value::Array(vec![]));
+    }
+
+    #[test]
+    fn p692_str_matches_captures() {
+        let a = make_args(vec![Value::Regex(Regex::new(r"([a-z])(\d)").unwrap())], None);
+        let arr = match str_matches("a1b2".into(), a).unwrap() {
+            Value::Array(a) => a,
+            other => panic!("esperado array, recebeu {:?}", other),
+        };
+        assert_eq!(arr.len(), 2);
+        assert_eq!(dict_get(&arr[0], "text"), &Value::Str("a1".into()));
+        assert_eq!(
+            dict_get(&arr[0], "captures"),
+            &Value::Array(vec![Value::Str("a".into()), Value::Str("1".into())])
+        );
+        assert_eq!(
+            dict_get(&arr[1], "captures"),
+            &Value::Array(vec![Value::Str("b".into()), Value::Str("2".into())])
+        );
+    }
+
+    #[test]
+    fn p692_str_normalize_forms() {
+        let none = make_args(vec![], None);
+        let nfc = make_args(vec![], Some(("form", Value::Str("nfc".into()))));
+        let nfd = make_args(vec![], Some(("form", Value::Str("nfd".into()))));
+        let nfkc = make_args(vec![], Some(("form", Value::Str("nfkc".into()))));
+        let nfkd = make_args(vec![], Some(("form", Value::Str("nfkd".into()))));
+        // default == nfc → "café" composto (5 bytes)
+        let def = str_normalize("café".into(), none).unwrap();
+        assert_eq!(def, Value::Str("café".into()));
+        assert_eq!(def, str_normalize("café".into(), nfc).unwrap());
+        // nfd → "cafe" + combining acute (5 chars, 6 bytes)
+        let d = str_normalize("café".into(), nfd).unwrap();
+        assert_eq!(d, Value::Str("cafe\u{301}".into()));
+        assert_eq!(str_len(match &d { Value::Str(s) => s.clone(), _ => panic!() }), Value::Int(6));
+        // nfkc == nfc para "café"; nfkd == nfd
+        assert_eq!(str_normalize("café".into(), nfkc).unwrap(), Value::Str("café".into()));
+        assert_eq!(str_normalize("café".into(), nfkd).unwrap(), Value::Str("cafe\u{301}".into()));
+    }
+
+    #[test]
+    fn p692_str_normalize_erros() {
+        // forma desconhecida → erro
+        let a = make_args(vec![], Some(("form", Value::Str("nfx".into()))));
+        assert!(str_normalize("café".into(), a).is_err());
+        // form com tipo errado → erro
+        let a = make_args(vec![], Some(("form", Value::Int(1))));
+        assert!(str_normalize("café".into(), a).is_err());
+        // argumento posicional → erro
+        let a = make_args(vec![Value::Str("nfc".into())], None);
+        assert!(str_normalize("café".into(), a).is_err());
     }
 
 }

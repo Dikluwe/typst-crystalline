@@ -34,6 +34,7 @@ unicode-ident        = "1"
 unicode-math-class   = "0.1"
 unicode-script       = "0.5"
 unicode-segmentation = "1"
+unicode-normalization= "0.1"   # P692 — str.normalize() em L1 (NFC/NFD/NFKC/NFKD); já transitiva via hayagriva
 hypher               = "0.1"   # ADR-0057 — hyphenation patterns embebidos (no_std, zero deps)
 regex                = "1"     # ADR-0077 — `Selector::Regex` em L1 (M9c P209D); full Unicode
 # grupo loading (data import) — ADR-0111 (P387); decode puro em L1, paridade do Value de saída

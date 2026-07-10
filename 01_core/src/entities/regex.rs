@@ -70,6 +70,29 @@ impl Regex {
             captures,
         })
     }
+
+    /// **P692** — Todos os matches de `text` (não sobrepostos), em ordem, cada um
+    /// com posições em **bytes**, texto e capturas. Generalização de
+    /// `captures_first` (P689). `Vec` vazio se não houver match.
+    pub fn captures_all(&self, text: &str) -> Vec<RegexMatch> {
+        let mut out = Vec::new();
+        for caps in self.compiled.captures_iter(text) {
+            let Some(m) = caps.get(0) else { continue };
+            let mut captures = Vec::with_capacity(caps.len().saturating_sub(1));
+            for i in 1..caps.len() {
+                captures.push(
+                    caps.get(i).map(|g| g.as_str().to_string()).unwrap_or_default(),
+                );
+            }
+            out.push(RegexMatch {
+                start: m.start(),
+                end: m.end(),
+                text: m.as_str().to_string(),
+                captures,
+            });
+        }
+        out
+    }
 }
 
 /// Resultado do primeiro match de uma `Regex` (P689). Índices em **bytes**.

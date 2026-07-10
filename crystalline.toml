@@ -87,6 +87,9 @@ types = ["Script", "UnicodeScript"]  # ADR-0012
 [l1_allowed_external.unicode_segmentation]
 types = ["UnicodeSegmentation"]  # ADR-0013
 
+[l1_allowed_external.unicode_normalization]
+types = ["UnicodeNormalization"]  # P692 — str.normalize() (NFC/NFD/NFKC/NFKD); computação pura sobre strings, sem I/O
+
 [l1_allowed_external.rustc_hash]
 types = ["FxBuildHasher", "FxHasher", "FxHashMap", "FxHashSet"]  # ADR-0018
 
