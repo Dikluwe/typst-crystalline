@@ -10,6 +10,7 @@
 //! estilo tipado, e dispõe cada palavra via `layout_word`. **Não re-entra
 //! `layout_content`** (não orquestra). Caminho quente — content-preserving.
 
+use crate::entities::font_list::FontAxisValue;
 use crate::entities::layout_types::{Length, Pt, TextStyle};
 use crate::entities::value::Value;
 
@@ -95,12 +96,28 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
                             .and_then(|v| if let Value::Str(s) = v { Some(s.clone()) } else { None });
                         let style = dict.get("style")
                             .and_then(|v| if let Value::Str(s) = v { Some(s.clone()) } else { None });
+                        let axes: Vec<(EcoString, FontAxisValue)> = dict.get("axes")
+                            .and_then(|v| if let Value::Dict(a) = v { Some(a) } else { None })
+                            .map(|a| a.iter()
+                                .filter_map(|(k, v)| {
+                                    let tag = k.clone();
+                                    let val = match v {
+                                        Value::Float(f) => FontAxisValue(*f),
+                                        Value::Int(n) => FontAxisValue(*n as f64),
+                                        _ => return None,
+                                    };
+                                    Some((tag, val))
+                                })
+                                .collect()
+                            )
+                            .unwrap_or_default();
                         Some(FontFamily {
                             name: pattern,
                             variants,
                             variant,
                             weight,
                             style,
+                            axes,
                             covers: None,
                         })
                     }
@@ -111,6 +128,12 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
         }
         _ => None,
     };
+    let ns_font_axes = ns_font.as_ref().and_then(|fl| {
+        fl.as_slice()
+            .iter()
+            .find(|f| !f.axes.is_empty())
+            .map(|f| f.axes.clone())
+    });
     let mut effective = TextStyle {
         bold:   ns_bold   || layouter.style.bold,
         italic: ns_italic || layouter.style.italic,
@@ -122,7 +145,12 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
         tracking:      layouter.style.tracking.clone().or(ns_tracking),
         leading:       layouter.style.leading.clone().or(ns_leading),
         lang:          layouter.style.lang.clone().or(ns_lang),
-        font:          layouter.style.font.clone().or(ns_font),
+        // P660 fix: `#set text(font: ...)` deve substituir a fonte default da
+        // chain (Liberation Serif). A chain tipada (heading) ainda vence porque
+        // o eval show-rule já assa a fonte no `StyleDelta::font` da chain, e
+        // `ns_font` (do canal custom `text.font`) é None nesse caminho.
+        font:          ns_font.or(layouter.style.font.clone()),
+        font_axes:     ns_font_axes.or_else(|| layouter.style.font_axes.clone()),
         dir:           layouter.style.dir.or(ns_dir),
         subscript:        layouter.style.subscript,
         superscript:      layouter.style.superscript,

@@ -1,5 +1,5 @@
 # Prompt L0 — entities/font-list
-Hash do Código: 2e17b31c
+Hash do Código: a959dd36
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/entities/font_list.rs`
@@ -32,18 +32,31 @@ impl FontNamePattern {
 }
 
 pub struct FontFamily {
-    pub name: FontNamePattern,       // lowercased se literal
-    pub variants: Vec<EcoString>,    // variant names (scope-out usage)
-    pub covers: Option<Covers>,      // inabitado; sempre None
+    pub name: FontNamePattern,              // lowercased se literal
+    pub variants: Vec<EcoString>,           // variant names (scope-out usage)
+    /// Eixos OpenType explícitos `(tag, valor)`, ex.: `("wdth", 62.5)`.
+    /// P660 — independente de `FontVariant` (peso/estilo/largura).
+    pub axes: Vec<(EcoString, f64)>,
+    pub covers: Option<Covers>,             // inabitado; sempre None
 }
 
 impl FontFamily {
-    /// Família literal, variants vazio, covers None; normaliza name para lowercase.
+    /// Família literal, variants vazio, axes vazio, covers None;
+    /// normaliza name para lowercase.
     pub fn new(name: EcoString) -> Self;
     /// Família literal explícita com variants.
     pub fn new_literal(name: EcoString, variants: Vec<EcoString>) -> Self;
     /// Família regex com variants.
     pub fn new_regex(regex: Regex, variants: Vec<EcoString>) -> Self;
+    /// Família a partir de campos nomeados (P414 + P660).
+    pub fn new_named(
+        name: FontNamePattern,
+        variants: Vec<EcoString>,
+        variant: Option<EcoString>,
+        weight: Option<EcoString>,
+        style: Option<EcoString>,
+        axes: Vec<(EcoString, f64)>,
+    ) -> Self;
 }
 
 pub struct FontList(Vec<FontFamily>);  // non-empty por construção

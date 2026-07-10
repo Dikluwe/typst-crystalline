@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/entities/font-list.md
-//! @prompt-hash d943a0eb
+//! @prompt-hash 6f85bfd1
 //! @layer L1
 //! @updated 2026-06-22
 //!
@@ -17,9 +17,28 @@
 //! Paridade ADR-0033/ADR-0107: string + array + dict (regex keys)
 //! aceites.
 
+use std::hash::{Hash, Hasher};
+
 use ecow::EcoString;
 
 use crate::entities::regex::Regex;
+
+/// Valor de eixo OpenType para fontes variáveis (P660).
+/// Wrapper sobre `f64` com `Hash` determinístico via `to_bits`.
+#[derive(Debug, Clone, Copy, PartialEq)]
+pub struct FontAxisValue(pub f64);
+
+impl Eq for FontAxisValue {}
+
+impl Hash for FontAxisValue {
+    fn hash<H: Hasher>(&self, state: &mut H) {
+        self.0.to_bits().hash(state);
+    }
+}
+
+impl From<f64> for FontAxisValue {
+    fn from(v: f64) -> Self { Self(v) }
+}
 
 /// Enum inabitado. Reserva forma estrutural para futuro
 /// suporte a coverage filtering (ADR-0053 decisão 2).
@@ -79,6 +98,9 @@ pub struct FontFamily {
     pub weight: Option<EcoString>,
     /// Estilo tipográfico (transportado, scope-out ADR-0054bis).
     pub style: Option<EcoString>,
+    /// Eixos OpenType explícitos para fontes variáveis (P660).
+    /// Cada entrada é `(tag de 4 caracteres, valor)`.
+    pub axes: Vec<(EcoString, FontAxisValue)>,
     /// Coverage filter. Sempre `None` neste passo (`Covers`
     /// inabitado).
     pub covers: Option<Covers>,
@@ -99,6 +121,7 @@ impl FontFamily {
             variant: None,
             weight: None,
             style: None,
+            axes: Vec::new(),
             covers: None,
         }
     }
@@ -111,6 +134,7 @@ impl FontFamily {
             variant: None,
             weight: None,
             style: None,
+            axes: Vec::new(),
             covers: None,
         }
     }
@@ -122,6 +146,7 @@ impl FontFamily {
         variant: Option<EcoString>,
         weight: Option<EcoString>,
         style: Option<EcoString>,
+        axes: Vec<(EcoString, FontAxisValue)>,
     ) -> Self {
         Self {
             name,
@@ -129,6 +154,7 @@ impl FontFamily {
             variant,
             weight,
             style,
+            axes,
             covers: None,
         }
     }

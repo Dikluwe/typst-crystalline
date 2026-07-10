@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/font_variant.md
-//! @prompt-hash 9b0c1555
+//! @prompt-hash 6e55951b
 //! @layer L3
 //! @updated 2026-07-01
 //!
@@ -15,7 +15,9 @@
 //! oxifont-subset → fonte VF pequena → remover GPOS/GSUB/GDEF →
 //! fontTools.varLib.instancer → fonte estática por (FontList, FontVariant).
 
+use ecow::EcoString;
 use typst_core::entities::font_book::{FontStretch, FontStyle, FontVariant, FontWeight};
+use typst_core::entities::font_list::FontAxisValue;
 use typst_core::entities::layout_types::TextStyle;
 
 /// Converte `TextStyle` para `FontVariant` usado na selecção de fonte e
@@ -43,7 +45,13 @@ pub fn text_style_to_font_variant(style: &TextStyle) -> FontVariant {
 /// P525/P530 — MVP: `wght` (weight) e `ital` (italic). `wdth` (stretch) só será
 /// mapeado quando `TextStyle` expuser stretch; `slnt` (Oblique com ângulo)
 /// requer `FontStyle::Oblique(angle)`, que o modelo actual não tem.
-pub fn axis_variations_for_font_variant(variant: &FontVariant) -> Vec<rustybuzz::Variation> {
+///
+/// P660: `custom_axes` contém eixos explícitos `(tag, valor)` vindos de
+/// `text.font_axes`. Tags duplicadas são resolvidas a favor do valor explícito.
+pub fn axis_variations_for_font_variant(
+    variant: &FontVariant,
+    custom_axes: &[(EcoString, FontAxisValue)],
+) -> Vec<rustybuzz::Variation> {
     let mut vars = Vec::new();
 
     let wght_value = variant.weight.to_number() as f32;
@@ -60,6 +68,30 @@ pub fn axis_variations_for_font_variant(variant: &FontVariant) -> Vec<rustybuzz:
             value: 1.0,
         });
     }
+
+    for (tag, value) in custom_axes {
+        let bytes = tag.as_bytes();
+        if bytes.len() != 4 {
+            continue;
+        }
+        let mut tag_bytes = [0u8; 4];
+        tag_bytes.copy_from_slice(bytes);
+        vars.push(rustybuzz::Variation {
+            tag: ttf_parser::Tag::from_bytes(&tag_bytes),
+            value: value.0 as f32,
+        });
+    }
+
+    // P660 — deduplicar mantendo o último valor (explícito vence derivado).
+    vars.sort_by_key(|v| v.tag);
+    vars.dedup_by(|a, b| {
+        if a.tag == b.tag {
+            *b = *a;
+            true
+        } else {
+            false
+        }
+    });
 
     vars
 }

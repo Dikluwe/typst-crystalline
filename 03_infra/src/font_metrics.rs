@@ -341,11 +341,12 @@ impl<'a> FallbackFontMetrics<'a> {
             h.finish()
         }).unwrap_or(0);
 
-        // P659 — incluir variações de eixo OpenType na chave. O mesmo texto,
+        // P659/P660 — incluir variações de eixo OpenType na chave. O mesmo texto,
         // tamanho e peso nominal pode ter larguras diferentes se os eixos
         // (wdth, wght real, etc.) divergirem.
         let variant = text_style_to_font_variant(style);
-        let axis_vars = axis_variations_for_font_variant(&variant);
+        let custom_axes = style.font_axes.as_deref().unwrap_or(&[]);
+        let axis_vars = axis_variations_for_font_variant(&variant, custom_axes);
         let axis_hash = {
             let mut h = DefaultHasher::new();
             for v in &axis_vars {

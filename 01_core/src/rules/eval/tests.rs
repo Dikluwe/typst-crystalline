@@ -3624,6 +3624,51 @@ mod tests {
         assert_eq!(arr.len(), 1, "fallback:false mantém lista única");
     }
 
+    // ── Passo 660 — `text.font` dict com variant de eixos ───────────────────
+
+    #[test]
+    fn eval_set_text_font_dict_variant_axes_passo_660() {
+        use crate::entities::value::Value;
+        use ecow::EcoString;
+        let c = eval_doc("#set text(font: (family: \"Arial\", variant: (wdth: 62.5)))\nX");
+        let font_val =
+            find_custom_in_styled(&c, "text.font").expect("text.font deve existir");
+        let arr = font_val.cast_array().expect("text.font deve ser array");
+        let dict = arr[0].cast_dict().expect("item deve ser dict");
+        assert_eq!(dict.get("variant"), None, "variant dict não produz chave variant str");
+        let axes = dict.get("axes").expect("axes deve existir").cast_dict().expect("axes deve ser dict");
+        assert_eq!(axes.get("wdth"), Some(&Value::Float(62.5)));
+    }
+
+    #[test]
+    fn eval_set_text_font_dict_variant_axes_int_passo_660() {
+        use crate::entities::value::Value;
+        use ecow::EcoString;
+        let c = eval_doc("#set text(font: (family: \"Arial\", variant: (wdth: 100)))\nX");
+        let font_val =
+            find_custom_in_styled(&c, "text.font").expect("text.font deve existir");
+        let arr = font_val.cast_array().expect("text.font deve ser array");
+        let dict = arr[0].cast_dict().expect("item deve ser dict");
+        let axes = dict.get("axes").expect("axes deve existir").cast_dict().expect("axes deve ser dict");
+        assert_eq!(axes.get("wdth"), Some(&Value::Float(100.0)));
+    }
+
+    #[test]
+    fn eval_set_text_font_dict_variant_axes_bad_tag_len_passo_660() {
+        let world = MockWorld::new("#set text(font: (family: \"Arial\", variant: (wdt: 62.5)))\nX");
+        let src = World::source(&world, World::main(&world)).unwrap();
+        let result = eval_for_test(&world, &src);
+        assert!(result.is_err(), "tag com !=4 chars deve erro");
+    }
+
+    #[test]
+    fn eval_set_text_font_dict_variant_axes_bad_value_passo_660() {
+        let world = MockWorld::new("#set text(font: (family: \"Arial\", variant: (wdth: \"x\")))\nX");
+        let src = World::source(&world, World::main(&world)).unwrap();
+        let result = eval_for_test(&world, &src);
+        assert!(result.is_err(), "valor não-numérico deve erro");
+    }
+
     // ── Testes de Passo 34 — equações matemáticas ────────────────────────────
 
     #[test]

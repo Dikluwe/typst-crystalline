@@ -6507,7 +6507,7 @@ use typst_core::rules::layout::layout;
     #[test]
     fn p281_text_em_group_multifont() {
         use ecow::EcoString;
-        use typst_core::entities::font_list::FontList;
+        use typst_core::entities::font_list::{FontAxisValue, FontList};
         use typst_core::entities::layout_types::{
             FrameItem, Page, Point, Pt, TextStyle, TransformMatrix,
         };
@@ -6534,9 +6534,9 @@ use typst_core::rules::layout::layout;
             numbering: None,
             items: vec![group],
         };
-        let fonts: Vec<((FontList, FontVariant), Vec<u8>)> = vec![
-            ((font_a, FontVariant::default()), Vec::new()),
-            ((font_b, FontVariant::default()), Vec::new()),
+        let fonts: Vec<((FontList, FontVariant, Vec<(EcoString, FontAxisValue)>), Vec<u8>)> = vec![
+            ((font_a, FontVariant::default(), vec![]), Vec::new()),
+            ((font_b, FontVariant::default(), vec![]), Vec::new()),
         ];
         let mut map_b: HashMap<char, u16> = HashMap::new();
         map_b.insert('X', 0x0058);

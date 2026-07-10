@@ -1,5 +1,5 @@
 # Prompt L0 — layout_types
-Hash do Código: a2a08b60
+Hash do Código: 510c9fd3
 
 ## Módulo
 `01_core/src/entities/layout_types.rs`
@@ -61,6 +61,14 @@ são scope-out (aguardam `FrameItem::Decoration`).
 
 `plain_text()` ignora `Image`, `Line`, `Glyph`, `Shape`, `Group` e desce
 recursivamente em `Link` — retorna apenas texto.
+
+### `TextStyle`
+
+Campos relevantes (não exaustivo):
+- `font: Option<FontList>` — lista de famílias.
+- `font_axes: Option<Vec<(EcoString, f64)>>` — **P660**: eixos OpenType
+  explícitos `(tag, valor)` para fontes variáveis. Transportado do
+  `#set text(font: (family: "...", variant: (wdth: 62.5)))` até o shaper L3.
 
 ### `Frame`
 Canvas de uma página. `plain_text()` para verificação em testes.

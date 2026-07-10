@@ -1,5 +1,5 @@
 # Prompt L0 — `infra/font_variant` — Helpers para Variation Fonts
-Hash do Código: 3a493135
+Hash do Código: ad6c824b
 
 **Camada**: L3  
 **Criado em**: 2026-07-01  
@@ -39,13 +39,21 @@ Este módulo centraliza os helpers necessários para:
 1. Criar `03_infra/src/font_variant.rs` com as funções públicas:
    ```rust
    pub fn text_style_to_font_variant(style: &TextStyle) -> FontVariant;
-   pub fn axis_variations_for_font_variant(variant: &FontVariant) -> Vec<rustybuzz::Variation>;
+   pub fn axis_variations_for_font_variant(
+       variant: &FontVariant,
+       custom_axes: &[(EcoString, f64)],
+   ) -> Vec<rustybuzz::Variation>;
    pub fn is_variable_font(data: &[u8]) -> bool;
    pub fn instantiate_variable_font(
        data: &[u8],
        variations: &[(ttf_parser::Tag, f32)],
    ) -> Option<Vec<u8>>;
    ```
+   
+   `custom_axes` (P660) contém eixos OpenType explícitos vindos de
+   `text.font_axes` (ex.: `("wdth", 62.5)`). São convertidos para
+   `ttf_parser::Tag` e adicionados às variações derivadas de `FontVariant`;
+   em caso de tag duplicada, o valor explícito vence.
 
 2. Criar `03_infra/src/font_variant_instancer.py` embebido via `include_str!`.
    - Lê a fonte subsetada de stdin (binário).
