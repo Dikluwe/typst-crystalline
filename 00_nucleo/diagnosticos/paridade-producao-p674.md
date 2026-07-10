@@ -174,4 +174,4 @@ O `macro-10x` melhorou ligeiramente (1,26× → 1,18×), mas o ganho principal �
 
 ## Hash do commit
 
-`HASH_A_PREENCHER_APOS_COMMIT`
+`686be5c48 — P674: elimina leitura duplicada de fontes do sistema no arranque`
