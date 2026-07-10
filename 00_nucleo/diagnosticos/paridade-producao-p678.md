@@ -237,4 +237,4 @@ Este passo não implementa nada. Produz o mapa acima e a proposta de divisão em
 
 ## Hash do commit
 
-`(a preencher após o commit)`
+`2710647c1 — P678: sonda de suporte a pacotes @preview (sem implementacao)`
