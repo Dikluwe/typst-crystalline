@@ -2,7 +2,7 @@
 
 **Passo:** P690 (`00_nucleo/materialization/typst-passo-690.md`)
 **Data:** 2026-07-10
-**Commit deste relatório:** `__P690_COMMIT__` (preenchido no 2.º commit)
+**Commit deste relatório:** `5796b61477f0fcafbd05a31def15e1d2f5469be5` (preenchido no 2.º commit)
 **ADRs:** ADR-0107 (paridade com a linguagem — aqui a linguagem **é** bytes),
 ADR-0108 (medir antes de decidir), ADR-0114 (sonda obrigatória; mudança
 fundamental na semântica de um tipo usado em todo o lado).
