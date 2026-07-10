@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/rules/eval.md
-//! @prompt-hash 79decd9b
+//! @prompt-hash 276f6bb7
 //! @layer L1
 //! @updated 2026-07-09
 //!
@@ -21,12 +21,14 @@ use crate::entities::engine::Engine;
 use crate::entities::func::{ClosureParam, ClosureRepr, Func, FuncRepr};
 use crate::entities::source_result::SourceDiagnostic;
 use crate::entities::source_result::SourceResult;
-use crate::entities::value::Value;
+use crate::entities::value::{Type, Value};
 use comemo::TrackedMut;
 
 use crate::entities::world_types::{check_call_depth as route_check_call_depth, Route};
 use crate::rules::scopes::Scopes;
-use crate::rules::stdlib::try_dispatch_collection_method;
+use crate::rules::stdlib::{
+    native_float, native_int, native_str, native_type, try_dispatch_collection_method,
+};
 
 use super::{eval_expr, EvalContext, FlowEvent};
 
@@ -356,6 +358,24 @@ pub(super) fn eval_func_call(
                 Ok(Value::Content(rules::intercept_content(c, ctx, engine)?))
             } else {
                 Ok(result)
+            }
+        }
+        // P685 — nomes de tipo chamáveis: `int("5")`, `str(5)`, `float("3.5")`,
+        // `type(1)`. Despacha para o construtor nativo; tipos não chamáveis
+        // (`bool`, `length`, `array`, …) → erro "type X does not have a
+        // constructor" (paridade vanilla).
+        Value::Type(t) => {
+            let world = engine.world;
+            let current_file = engine.current_file;
+            match t {
+                Type::Int   => native_int(ctx, &args, world, current_file),
+                Type::Float => native_float(ctx, &args, world, current_file),
+                Type::Str   => native_str(ctx, &args, world, current_file),
+                Type::Type  => native_type(ctx, &args, world, current_file),
+                other => Err(vec![SourceDiagnostic::error(
+                    call.callee().span(),
+                    format!("type {} does not have a constructor", other.name()),
+                )]),
             }
         }
         other => Err(vec![SourceDiagnostic::error(

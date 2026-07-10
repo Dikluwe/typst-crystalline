@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/rules/stdlib/foundations.md
-//! @prompt-hash f27d43e2
+//! @prompt-hash b82bdd90
 //! @layer L1
 //! @updated 2026-06-24
 //!
@@ -20,11 +20,12 @@ use crate::entities::value::Value;
 use crate::rules::eval::repr::repr_value;
 use crate::rules::eval::EvalContext;
 
-/// `type(v)` → nome do tipo como string Typst.
+/// `type(v)` → valor-tipo do argumento (`Value::Type`). P685: paridade vanilla —
+/// `type(1) == int` funciona por comparação directa de valores de tipo.
 pub fn native_type(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contracts::world::World, _current_file: FileId) -> SourceResult<Value> {
     expect_no_named(&args.named)?;
     match args.items.as_slice() {
-        [v] => Ok(Value::Str(v.type_name().into())),
+        [v] => Ok(Value::Type(v.type_of())),
         _   => err(format!("type() requer 1 argumento, recebeu {}", args.items.len())),
     }
 }

@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/rules/eval.md
-//! @prompt-hash 79decd9b
+//! @prompt-hash 276f6bb7
 //! @layer L1
 //! @updated 2026-07-09
 //!
@@ -44,7 +44,7 @@ use crate::entities::source::Source;
 use crate::entities::source_result::{SourceDiagnostic, SourceResult};
 use crate::entities::span::Span;
 use crate::entities::syntax_node::{SyntaxErrorKind, SyntaxNode};
-use crate::entities::value::Value;
+use crate::entities::value::{Type, Value};
 use crate::entities::world_types::{Route, Routines, Sink, Traced};
 use crate::rules::scopes::Scopes;
 
@@ -927,12 +927,12 @@ fn eval_markup_body(
 fn make_stdlib() -> Scope {
     use crate::rules::stdlib::{
         make_calc_module, make_gradient_module, make_math_module, native_accent, native_align, native_assert, native_bibliography, native_block, native_box, native_cancel, native_circle, native_cite, native_divider,
-        native_ellipse, native_emph, native_figure, native_float, native_footnote, native_grid, native_grid_cell, native_grid_footer, native_grid_header, native_grid_hline, native_grid_vline, native_h, native_heading,
-        native_hide, native_image, native_int, native_len, native_line, native_outline,
+        native_ellipse, native_emph, native_figure, native_footnote, native_grid, native_grid_cell, native_grid_footer, native_grid_header, native_grid_hline, native_grid_vline, native_h, native_heading,
+        native_hide, native_image, native_len, native_line, native_outline,
         native_counter, native_counter_at, native_counter_display, native_counter_final, native_counter_step, native_context, native_curve, native_curve_close, native_curve_cubic, native_curve_line, native_curve_move, native_curve_quad, native_eval, native_here, native_locate, native_lower, native_lorem, native_luma, native_measure, native_metadata, native_move, native_pad, native_pagebreak, native_place, native_polygon, native_query, native_regex, native_selector, native_state, native_state_at, native_state_display, native_state_final, native_state_update, native_state_update_with,
         native_asset, native_cmyk, native_colbreak, native_columns, native_document, native_hsl, native_hsv, native_label, native_linear_rgb, native_link, native_oklab, native_oklch, native_op, native_panic, native_quote, native_range, native_rect, native_repeat, native_replace, native_raw, native_repr, native_rgb, native_rotate,
         native_square, native_tiling,
-        native_highlight, native_scale, native_skew, native_smallcaps, native_smartquote, native_stack, native_str, native_str_from_unicode, native_strike, native_stroke, native_strong, native_subscript, native_superscript, native_table, native_table_cell, native_table_footer, native_table_header, native_table_hline, native_table_vline, native_terms, native_type, native_underline, native_underover, native_overline, native_upper, native_v,
+        native_highlight, native_scale, native_skew, native_smallcaps, native_smartquote, native_stack, native_strike, native_stroke, native_strong, native_subscript, native_superscript, native_table, native_table_cell, native_table_footer, native_table_header, native_table_hline, native_table_vline, native_terms, native_underline, native_underover, native_overline, native_upper, native_v,
         native_ref,
         // P311b.3 — math style funcs.
         native_bb, native_bold, native_cal, native_frak, native_math_italic,
@@ -952,7 +952,8 @@ fn make_stdlib() -> Scope {
         make_color_module,
     };
     let mut scope = Scope::new();
-    scope.define("type",    Value::Func(Func::native("type",    native_type)));
+    // P685 — `type` é um valor-tipo chamável (invoca native_type via eval_func_call).
+    scope.define("type", Value::Type(Type::Type));
     scope.define("repr",    Value::Func(Func::native("repr",    native_repr)));
     scope.define("len",     Value::Func(Func::native("len",     native_len)));
     scope.define("range",   Value::Func(Func::native("range",   native_range)));
@@ -967,23 +968,33 @@ fn make_stdlib() -> Scope {
     scope.define("cmyk",       Value::Func(Func::native("cmyk",       native_cmyk)));
     scope.define("hsl",        Value::Func(Func::native("hsl",        native_hsl)));
     scope.define("hsv",        Value::Func(Func::native("hsv",        native_hsv)));
-    // P501 — `str` com namespace para métodos estáticos (`str.from-unicode`).
-    {
-        let mut str_ns = Scope::new();
-        str_ns.define("from-unicode", Value::Func(Func::native("str.from-unicode", native_str_from_unicode)));
-        scope.define("str", Value::Func(Func::native_with_namespace("str", native_str, std::sync::Arc::new(str_ns))));
-    }
-    // P504 — `int` com namespace para `int.min` / `int.max` (Typst 0.15.0).
-    {
-        let mut int_ns = Scope::new();
-        int_ns.define("min", Value::Int(i64::MIN));
-        int_ns.define("max", Value::Int(i64::MAX));
-        scope.define(
-            "int",
-            Value::Func(Func::native_with_namespace("int", native_int, Arc::new(int_ns))),
-        );
-    }
-    scope.define("float",   Value::Func(Func::native("float",   native_float)));
+    // P685 — `str`, `int`, `float` são valores-tipo chamáveis. Os campos
+    // `str.from-unicode` e `int.min`/`int.max` são agora resolvidos por field
+    // access em `Value::Type` (ver `eval_field_access` em bindings.rs).
+    scope.define("str",   Value::Type(Type::Str));
+    scope.define("int",   Value::Type(Type::Int));
+    scope.define("float", Value::Type(Type::Float));
+
+    // P685 — nomes de tipo como valores de primeira classe (sem colisão com
+    // nomes já registados como função/módulo). Nenhum é chamável. Permite
+    // `type(x) == length`, `type(x) == ratio`, etc. (paridade vanilla).
+    scope.define("bool",       Value::Type(Type::Bool));
+    scope.define("length",     Value::Type(Type::Length));
+    scope.define("ratio",      Value::Type(Type::Ratio));
+    scope.define("angle",      Value::Type(Type::Angle));
+    scope.define("fraction",   Value::Type(Type::Fraction));
+    scope.define("array",      Value::Type(Type::Array));
+    scope.define("dictionary", Value::Type(Type::Dictionary));
+    scope.define("function",   Value::Type(Type::Function));
+    scope.define("content",    Value::Type(Type::Content));
+    scope.define("arguments",  Value::Type(Type::Arguments));
+    scope.define("module",     Value::Type(Type::Module));
+    scope.define("datetime",   Value::Type(Type::Datetime));
+    scope.define("bytes",      Value::Type(Type::Bytes));
+    scope.define("symbol",     Value::Type(Type::Symbol));
+    scope.define("alignment",  Value::Type(Type::Alignment));
+    scope.define("direction",  Value::Type(Type::Direction));
+    scope.define("location",   Value::Type(Type::Location));
     // P403 — constructors stdlib para tipos primitivos L1 modelados em P399–P401.
     scope.define("decimal",  Value::Func(Func::native("decimal",  native_decimal)));
     scope.define("duration", Value::Func(Func::native("duration", native_duration)));

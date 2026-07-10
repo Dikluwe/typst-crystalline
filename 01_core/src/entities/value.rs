@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/entities/value.md
-//! @prompt-hash 015a37b9
+//! @prompt-hash 869428b9
 //! @layer L1
 //! @updated 2026-03-28
 
@@ -148,6 +148,11 @@ pub enum Value {
     /// **P576** — Direcção de texto (`ltr`, `rtl`, `ttb`, `btt`).
     Dir(Dir),
 
+    /// **P685** — Nome de tipo como valor de primeira classe (`int`, `length`,
+    /// `type`, …). `Type` é `Copy` (sem payload). `type(x)` devolve esta
+    /// variante; os nomes de tipo são registados no scope global como ela.
+    Type(Type),
+
     // ── Variantes futuras — NÃO implementar sem ADR e tipo migrado ───────
     // Variantes futuras restantes:
     // Relative(Relative),       // comprimento relativo — já em L1 como tipo separado
@@ -159,8 +164,103 @@ pub enum Value {
     // (Content migrado no Passo 18)
     // Styles(Styles),           // estilos encadeados — bloqueia show/set
     // Args(Args),               // argumentos de função
-    // Type(Type),               // tipo como valor (int, str, etc.)
     // Dyn(Dynamic),             // valor dinâmico opaco
+}
+
+/// **P685** — Enumerador fechado dos tipos Typst visíveis como valor.
+///
+/// `Copy` (sem payload). `Type::name()` coincide com `Value::type_name()`
+/// para a variante correspondente. Usado por `Value::Type`, por `type(x)`
+/// (`Value::type_of`) e pelos bindings globais de nomes de tipo.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
+pub enum Type {
+    None,
+    Auto,
+    Bool,
+    Int,
+    Float,
+    Str,
+    Array,
+    Dictionary,
+    Module,
+    Datetime,
+    Function,
+    Content,
+    Length,
+    Ratio,
+    Angle,
+    Color,
+    Stroke,
+    Fraction,
+    Alignment,
+    Location,
+    Gradient,
+    Regex,
+    Tiling,
+    Bytes,
+    Decimal,
+    Duration,
+    Version,
+    Selector,
+    Symbol,
+    Arguments,
+    State,
+    Counter,
+    Label,
+    Direction,
+    Type,
+}
+
+impl Type {
+    /// Nome textual do tipo, idêntico a `Value::type_name()` da variante
+    /// correspondente (e ao `repr` do valor-tipo no Typst).
+    pub fn name(&self) -> &'static str {
+        match self {
+            Self::None       => "none",
+            Self::Auto       => "auto",
+            Self::Bool       => "bool",
+            Self::Int        => "int",
+            Self::Float      => "float",
+            Self::Str        => "str",
+            Self::Array      => "array",
+            Self::Dictionary => "dictionary",
+            Self::Module     => "module",
+            Self::Datetime   => "datetime",
+            Self::Function   => "function",
+            Self::Content    => "content",
+            Self::Length     => "length",
+            Self::Ratio      => "ratio",
+            Self::Angle      => "angle",
+            Self::Color      => "color",
+            Self::Stroke     => "stroke",
+            Self::Fraction   => "fraction",
+            Self::Alignment  => "alignment",
+            Self::Location   => "location",
+            Self::Gradient   => "gradient",
+            Self::Regex      => "regex",
+            Self::Tiling     => "tiling",
+            Self::Bytes      => "bytes",
+            Self::Decimal    => "decimal",
+            Self::Duration   => "duration",
+            Self::Version    => "version",
+            Self::Selector   => "selector",
+            Self::Symbol     => "symbol",
+            Self::Arguments  => "arguments",
+            Self::State      => "state",
+            Self::Counter    => "counter",
+            Self::Label      => "label",
+            Self::Direction  => "direction",
+            Self::Type       => "type",
+        }
+    }
+
+    /// `true` para os tipos que são chamáveis como construtor no Typst
+    /// (`int`, `float`, `str`, `type`). Medido na sonda P685: `int("5")`,
+    /// `str(5)`, `float("3.5")`, `type(1)` funcionam; `bool(1)`, `array(1,2)`,
+    /// `dictionary(a: 1)` → "type X does not have a constructor".
+    pub fn is_callable(&self) -> bool {
+        matches!(self, Self::Int | Self::Float | Self::Str | Self::Type)
+    }
 }
 
 // P204B (M8): impl Hash via Debug formatting. Necessária para
@@ -217,6 +317,51 @@ impl Value {
             Self::Counter(_)   => "counter",
             Self::Label(_)     => "label",
             Self::Dir(_)       => "direction",
+            Self::Type(_)      => "type",
+        }
+    }
+
+    /// **P685** — O `Type` deste valor (usado por `type(x)` e pela igualdade
+    /// de tipos). `Value::Relative` mapeia para `Type::Length` (paridade
+    /// vanilla: `type(50% + 1pt) == length`).
+    pub fn type_of(&self) -> Type {
+        match self {
+            Self::None         => Type::None,
+            Self::Auto         => Type::Auto,
+            Self::Bool(_)      => Type::Bool,
+            Self::Int(_)       => Type::Int,
+            Self::Float(_)     => Type::Float,
+            Self::Str(_)       => Type::Str,
+            Self::Array(_)     => Type::Array,
+            Self::Dict(_)      => Type::Dictionary,
+            Self::Module(_)    => Type::Module,
+            Self::Datetime(_)  => Type::Datetime,
+            Self::Func(_)      => Type::Function,
+            Self::Content(_)   => Type::Content,
+            Self::Length(_)    => Type::Length,
+            Self::Relative(_)  => Type::Length,
+            Self::Ratio(_)     => Type::Ratio,
+            Self::Angle(_)     => Type::Angle,
+            Self::Color(_)     => Type::Color,
+            Self::Stroke(_)    => Type::Stroke,
+            Self::Fraction(_)  => Type::Fraction,
+            Self::Align(_)     => Type::Alignment,
+            Self::Location(_)  => Type::Location,
+            Self::Gradient(_)  => Type::Gradient,
+            Self::Regex(_)     => Type::Regex,
+            Self::Tiling(_)    => Type::Tiling,
+            Self::Bytes(_)     => Type::Bytes,
+            Self::Decimal(_)   => Type::Decimal,
+            Self::Duration(_)  => Type::Duration,
+            Self::Version(_)   => Type::Version,
+            Self::Selector(_)  => Type::Selector,
+            Self::Symbol(_)    => Type::Symbol,
+            Self::Args(_)      => Type::Arguments,
+            Self::State(_)     => Type::State,
+            Self::Counter(_)   => Type::Counter,
+            Self::Label(_)     => Type::Label,
+            Self::Dir(_)       => Type::Direction,
+            Self::Type(_)      => Type::Type,
         }
     }
 
@@ -410,6 +555,12 @@ impl From<crate::entities::symbol::Symbol> for Value {
     fn from(v: crate::entities::symbol::Symbol) -> Self { Self::Symbol(v) }
 }
 
+/// **P685** — `Type` → `Value::Type`. Ergonomia para registar bindings de
+/// nomes de tipo (`scope.define("length", Value::from(Type::Length))`).
+impl From<Type> for Value {
+    fn from(t: Type) -> Self { Self::Type(t) }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -424,6 +575,62 @@ mod tests {
         assert_eq!(Value::Int(42).type_name(), "int");
         assert_eq!(Value::Float(3.14).type_name(), "float");
         assert_eq!(Value::Str(EcoString::from("hi")).type_name(), "str");
+        assert_eq!(Value::Type(Type::Int).type_name(), "type");
+    }
+
+    // ── P685 — Value::Type e Type ────────────────────────────────────────────
+
+    #[test]
+    fn type_name_coincide_com_value_type_name() {
+        // Type::name() == Value::type_name() para cada variante correspondente.
+        assert_eq!(Type::Int.name(), Value::Int(0).type_name());
+        assert_eq!(Type::Float.name(), Value::Float(0.0).type_name());
+        assert_eq!(Type::Str.name(), Value::Str(EcoString::from("")).type_name());
+        assert_eq!(Type::Length.name(), "length");
+        assert_eq!(Type::Bool.name(), Value::Bool(false).type_name());
+        assert_eq!(Type::Function.name(), "function");
+        assert_eq!(Type::Type.name(), "type");
+    }
+
+    #[test]
+    fn type_of_mapeia_variantes() {
+        assert_eq!(Value::Int(1).type_of(), Type::Int);
+        assert_eq!(Value::Float(1.0).type_of(), Type::Float);
+        assert_eq!(Value::Bool(true).type_of(), Type::Bool);
+        assert_eq!(Value::None.type_of(), Type::None);
+        assert_eq!(Value::Auto.type_of(), Type::Auto);
+        // relative length mapeia para Length (paridade vanilla)
+        let rel = crate::entities::rel::Rel::from_percent(50.0);
+        assert_eq!(Value::Relative(rel).type_of(), Type::Length);
+        // tipo de um tipo é `type`
+        assert_eq!(Value::Type(Type::Int).type_of(), Type::Type);
+    }
+
+    #[test]
+    fn type_equality_por_identidade() {
+        // type(1) == int  (mesma variante Type)
+        assert_eq!(Value::Type(Type::Int), Value::Type(Type::Int));
+        // length == ratio -> false
+        assert_ne!(Value::Type(Type::Length), Value::Type(Type::Ratio));
+        assert_ne!(Value::Type(Type::Int), Value::Type(Type::Float));
+    }
+
+    #[test]
+    fn type_is_callable() {
+        assert!(Type::Int.is_callable());
+        assert!(Type::Float.is_callable());
+        assert!(Type::Str.is_callable());
+        assert!(Type::Type.is_callable());
+        assert!(!Type::Bool.is_callable());
+        assert!(!Type::Length.is_callable());
+        assert!(!Type::Array.is_callable());
+        assert!(!Type::Dictionary.is_callable());
+    }
+
+    #[test]
+    fn from_type_para_value() {
+        let v: Value = Type::Length.into();
+        assert_eq!(v, Value::Type(Type::Length));
     }
 
     #[test]

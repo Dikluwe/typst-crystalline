@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/rules/eval.md
-//! @prompt-hash 79decd9b
+//! @prompt-hash 276f6bb7
 //! @layer L1
 //! @updated 2026-06-17
 //!
@@ -2040,7 +2040,7 @@ mod tests {
         let world = MockWorld::new("#let t = type(42)");
         let src = World::source(&world, World::main(&world)).unwrap();
         let m = eval_for_test(&world, &src).unwrap();
-        assert_eq!(m.scope().get("t"), Some(&Value::Str("int".into())));
+        assert_eq!(m.scope().get("t"), Some(&Value::Type(crate::entities::value::Type::Int)));
     }
 
     #[test]
@@ -2048,7 +2048,136 @@ mod tests {
         let world = MockWorld::new("#let f = () => 1\n#let t = type(f)");
         let src = World::source(&world, World::main(&world)).unwrap();
         let m = eval_for_test(&world, &src).unwrap();
-        assert_eq!(m.scope().get("t"), Some(&Value::Str("function".into())));
+        assert_eq!(m.scope().get("t"), Some(&Value::Type(crate::entities::value::Type::Function)));
+    }
+
+    // ── P685 — tipos como valores de primeira classe ─────────────────────────
+
+    fn eval_bool(src: &str) -> bool {
+        let world = MockWorld::new(src);
+        let s = World::source(&world, World::main(&world)).unwrap();
+        let m = eval_for_test(&world, &s).unwrap();
+        match m.scope().get("r") {
+            Some(Value::Bool(b)) => *b,
+            other => panic!("esperava Bool em r, obteve {other:?}"),
+        }
+    }
+
+    #[test]
+    fn p685_type_eq_int()    { assert!(eval_bool("#let r = (type(1) == int)")); }
+    #[test]
+    fn p685_type_eq_float()  { assert!(eval_bool("#let r = (type(1.0) == float)")); }
+    #[test]
+    fn p685_type_eq_length() { assert!(eval_bool("#let r = (type(1pt) == length)")); }
+    #[test]
+    fn p685_type_eq_angle()  { assert!(eval_bool("#let r = (type(1deg) == angle)")); }
+    // NOTA P685: `type(50%) == ratio` NÃO é paridade no cristalino — `50%` é
+    // modelado como `Value::Relative` (P469), que mapeia para `Type::Length`,
+    // logo `type(50%) == length` aqui. Vanilla distingue `50%` (ratio) de
+    // `50% + 1pt` (length). Divergência pré-existente (P469), fora de escopo.
+    #[test]
+    fn p685_type_eq_str()    { assert!(eval_bool("#let r = (type(\"x\") == str)")); }
+    #[test]
+    fn p685_type_eq_array()  { assert!(eval_bool("#let r = (type(()) == array)")); }
+    #[test]
+    fn p685_type_eq_dict()   { assert!(eval_bool("#let r = (type((:)) == dictionary)")); }
+    #[test]
+    fn p685_type_of_type()   { assert!(eval_bool("#let r = (type(int) == type)")); }
+    #[test]
+    fn p685_type_of_func()   { assert!(eval_bool("#let r = (type(rgb) == function)")); }
+    #[test]
+    fn p685_type_distinct()  { assert!(!eval_bool("#let r = (length == ratio)")); }
+    #[test]
+    fn p685_int_float_distinct() { assert!(!eval_bool("#let r = (int == float)")); }
+
+    #[test]
+    fn p685_repr_int() {
+        let world = MockWorld::new("#let r = repr(int)");
+        let s = World::source(&world, World::main(&world)).unwrap();
+        let m = eval_for_test(&world, &s).unwrap();
+        assert_eq!(m.scope().get("r"), Some(&Value::Str("int".into())));
+    }
+
+    #[test]
+    fn p685_repr_type_of_length() {
+        let world = MockWorld::new("#let r = repr(type(1pt))");
+        let s = World::source(&world, World::main(&world)).unwrap();
+        let m = eval_for_test(&world, &s).unwrap();
+        assert_eq!(m.scope().get("r"), Some(&Value::Str("length".into())));
+    }
+
+    #[test]
+    fn p685_shadow_length() {
+        // variável do utilizador sombreia o valor-tipo global `length`.
+        let world = MockWorld::new("#let length = 5\n#let r = length");
+        let s = World::source(&world, World::main(&world)).unwrap();
+        let m = eval_for_test(&world, &s).unwrap();
+        assert_eq!(m.scope().get("r"), Some(&Value::Int(5)));
+    }
+
+    #[test]
+    fn p685_shadow_then_type_is_int() {
+        // após sombrear `length`, type(length) é o tipo do valor (int), não o
+        // valor-tipo global.
+        let world = MockWorld::new("#let length = 5\n#let r = (type(length) == int)");
+        let s = World::source(&world, World::main(&world)).unwrap();
+        let m = eval_for_test(&world, &s).unwrap();
+        assert_eq!(m.scope().get("r"), Some(&Value::Bool(true)));
+    }
+
+    #[test]
+    fn p685_int_callable() {
+        let world = MockWorld::new("#let r = int(\"5\")");
+        let s = World::source(&world, World::main(&world)).unwrap();
+        let m = eval_for_test(&world, &s).unwrap();
+        assert_eq!(m.scope().get("r"), Some(&Value::Int(5)));
+    }
+
+    #[test]
+    fn p685_str_callable() {
+        let world = MockWorld::new("#let r = str(5)");
+        let s = World::source(&world, World::main(&world)).unwrap();
+        let m = eval_for_test(&world, &s).unwrap();
+        assert_eq!(m.scope().get("r"), Some(&Value::Str("5".into())));
+    }
+
+    #[test]
+    fn p685_float_callable() {
+        let world = MockWorld::new("#let r = float(\"3.5\")");
+        let s = World::source(&world, World::main(&world)).unwrap();
+        let m = eval_for_test(&world, &s).unwrap();
+        assert_eq!(m.scope().get("r"), Some(&Value::Float(3.5)));
+    }
+
+    #[test]
+    fn p685_int_min_max_fields() {
+        let world = MockWorld::new("#let a = int.min\n#let b = int.max");
+        let s = World::source(&world, World::main(&world)).unwrap();
+        let m = eval_for_test(&world, &s).unwrap();
+        assert_eq!(m.scope().get("a"), Some(&Value::Int(i64::MIN)));
+        assert_eq!(m.scope().get("b"), Some(&Value::Int(i64::MAX)));
+    }
+
+    #[test]
+    fn p685_str_from_unicode_field() {
+        let world = MockWorld::new("#let r = str.from-unicode(97)");
+        let s = World::source(&world, World::main(&world)).unwrap();
+        let m = eval_for_test(&world, &s).unwrap();
+        assert_eq!(m.scope().get("r"), Some(&Value::Str("a".into())));
+    }
+
+    #[test]
+    fn p685_bool_not_callable() {
+        let world = MockWorld::new("#let r = bool(1)");
+        let s = World::source(&world, World::main(&world)).unwrap();
+        assert!(eval_for_test(&world, &s).is_err(), "bool(1) deve falhar (type bool has no constructor)");
+    }
+
+    #[test]
+    fn p685_length_not_callable() {
+        let world = MockWorld::new("#let r = length(1pt)");
+        let s = World::source(&world, World::main(&world)).unwrap();
+        assert!(eval_for_test(&world, &s).is_err(), "length(1pt) deve falhar");
     }
 
     #[test]
@@ -2420,7 +2549,7 @@ mod tests {
         let world = MockWorld::new("#let t = type(rgb(0, 0, 0))");
         let src = World::source(&world, World::main(&world)).unwrap();
         let m = eval_for_test(&world, &src).unwrap();
-        assert_eq!(m.scope().get("t"), Some(&Value::Str("color".into())));
+        assert_eq!(m.scope().get("t"), Some(&Value::Type(crate::entities::value::Type::Color)));
     }
 
     // ── Passo 27 — str/int/float/calc pipeline ───────────────────────────────

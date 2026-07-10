@@ -1,8 +1,8 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/rules/eval.md
-//! @prompt-hash a660f985
+//! @prompt-hash 276f6bb7
 //! @prompt 00_nucleo/prompts/rules/eval/field-access.md
-//! @prompt-hash d935c8b5
+//! @prompt-hash 4c11e219
 //! @layer L1
 //! @updated 2026-06-22
 //!
@@ -20,14 +20,16 @@ use crate::entities::counter::Counter;
 use crate::entities::counter_update::CounterUpdate as CounterAction;
 use crate::entities::element_kind::ElementKind;
 use crate::entities::engine::Engine;
+use crate::entities::func::Func;
 use crate::entities::selector::Selector;
 use crate::entities::args::Args;
 use crate::entities::source_result::{SourceDiagnostic, SourceResult};
 use crate::entities::span::Span;
 use crate::entities::state::State;
-use crate::entities::value::Value;
+use crate::entities::value::{Type, Value};
 use crate::rules::scopes::Scopes;
 use crate::rules::stdlib::counter::{counter_at, counter_display, counter_get, counter_step, counter_update};
+use crate::rules::stdlib::native_str_from_unicode;
 use crate::rules::stdlib::state::{state_display, state_get, state_update};
 
 use super::{eval_expr, EvalContext};
@@ -623,6 +625,25 @@ pub(super) fn eval_field_access(
             None => Err(vec![SourceDiagnostic::error(
                 access.span(),
                 "esta função não tem campos".to_string(),
+            )]),
+        },
+        // P685 — Field access em valor-tipo: `int.min`/`int.max` e
+        // `str.from-unicode`. Substitui o `Func::native_with_namespace` usado
+        // antes de `int`/`str` serem `Value::Type`. Tipos sem campos → erro.
+        Value::Type(t) => match (t, field.as_str()) {
+            (Type::Int, "min") => Ok(Value::Int(i64::MIN)),
+            (Type::Int, "max") => Ok(Value::Int(i64::MAX)),
+            (Type::Str, "from-unicode") => Ok(Value::Func(Func::native(
+                "str.from-unicode",
+                native_str_from_unicode,
+            ))),
+            (Type::Int | Type::Str, _) => Err(vec![SourceDiagnostic::error(
+                access.span(),
+                format!("type {} não tem campo '{}'", t.name(), field),
+            )]),
+            _ => Err(vec![SourceDiagnostic::error(
+                access.span(),
+                format!("type {} não tem campos", t.name()),
             )]),
         },
         // P679 — Field access em Value::Module: lookup no scope do módulo importado.

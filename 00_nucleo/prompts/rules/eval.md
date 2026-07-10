@@ -1,5 +1,5 @@
 # Prompt L0 — rules/eval
-Hash do Código: b06b1007
+Hash do Código: 77fc8284
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/rules/eval/mod.rs`
@@ -43,6 +43,34 @@ O entrypoint `pub fn eval` (`eval/mod.rs`) constrói o scope base do documento:
 4. Elementos de utilizador registados no `ElementRegistry`.
 
 O scope base é depois herdado por closures e show-rules.
+
+## §P685 — Tipos como valores no scope global
+
+`make_stdlib()` passa a registar nomes de tipo como **valores** (`Value::Type`),
+não só como funções:
+
+- **Convertidos de função para tipo chamável**: `int`, `float`, `str`, `type`.
+  Ficam `Value::Type(Type::Int | Float | Str | Type)`. A chamada continua a
+  funcionar porque `eval_func_call` (`rules/eval/closures.rs`) despacha
+  `Value::Type` chamável para o construtor nativo (`native_int`/`native_float`/
+  `native_str`/`native_type`).
+- **Novos bindings tipo** (sem colisão com nomes já registados): `bool`,
+  `length`, `ratio`, `angle`, `fraction`, `array`, `dictionary`, `function`,
+  `content`, `arguments`, `module`, `datetime`, `bytes`, `symbol`, `alignment`,
+  `direction`, `location`. Nenhum é chamável (`bool(1)` → erro eval).
+- **Não registados como tipo (débito)**: `color`, `gradient`, `stroke`, `regex`,
+  `tiling`, `decimal`, `duration`, `version`, `label`, `state`, `counter`,
+  `selector` — já existem como função/módulo; convertê-los quebraria
+  `color.rgb`, `gradient.linear`, `regex(...)`, etc. `type(x) == color` fica
+  `false` até reconciliação futura.
+
+`native_type` devolve `Value::Type(v.type_of())`; a igualdade
+`type(x) == length` é a de `#[derive(PartialEq)]` em `Value` (sem braço
+especial em `eval_binary_op`).
+
+Field access em `Value::Type` (`eval_field_access`, `rules/eval/bindings.rs`):
+`int.min` / `int.max` → `i64::MIN`/`MAX`; `str.from-unicode` → função nativa.
+Substitui o `Func::native_with_namespace` usado antes para estes campos.
 
 ## Passagem dupla do eval (P498)
 

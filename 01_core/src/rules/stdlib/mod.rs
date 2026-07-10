@@ -329,10 +329,11 @@ mod tests {
     #[test]
     fn native_type_directo() {
         null_ctx!(ctx);
+        // P685 — type() devolve Value::Type, não Value::Str.
         assert_eq!(
             native_type(&mut ctx, &p(vec![Value::Int(1)]), &null_world(), test_file_id())
                 .unwrap(),
-            Value::Str("int".into())
+            Value::Type(crate::entities::value::Type::Int)
         );
         assert_eq!(
             native_type(
@@ -342,12 +343,12 @@ mod tests {
                 test_file_id()
             )
             .unwrap(),
-            Value::Str("bool".into())
+            Value::Type(crate::entities::value::Type::Bool)
         );
         assert_eq!(
             native_type(&mut ctx, &p(vec![Value::None]), &null_world(), test_file_id())
                 .unwrap(),
-            Value::Str("none".into())
+            Value::Type(crate::entities::value::Type::None)
         );
         assert!(native_type(&mut ctx, &p(vec![]), &null_world(), test_file_id()).is_err());
         assert!(native_type(

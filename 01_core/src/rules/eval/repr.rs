@@ -83,6 +83,8 @@ pub fn repr_value(v: &Value) -> String {
         Value::Counter(_) => "counter(...)".to_string(),
         Value::Label(l) => format!("<{}>", l.0),
         Value::Dir(d) => format!("{:?}", d).to_lowercase(),
+        // P685 — nome de tipo como valor: repr(int) == "int", repr(type) == "type".
+        Value::Type(t) => t.name().to_string(),
     }
 }
 

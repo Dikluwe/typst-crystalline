@@ -1,5 +1,5 @@
 # Prompt L0 — `rules/eval` — Field Access em tipos primitivos e funções com namespace
-Hash do Código: 5894ade3
+Hash do Código: 19a76f1c
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/rules/eval/bindings.rs` (`eval_field_access`, `eval_element_where`)
@@ -283,3 +283,41 @@ Critérios de verificação:
 - `#u.inexistente` → erro `módulo 'u' não tem campo 'inexistente'`.
 - Field access nos tipos já suportados (Version/Duration/Array/Func/Dict/Content) sem
   regressão.
+
+---
+
+## 12. Field Access `Type` (P685)
+
+Com `int`, `float`, `str`, `type` registados como `Value::Type` (P685), os
+campos antes expostos via `Func::native_with_namespace` passam a ser resolvidos
+directamente pelo `Type` em `eval_field_access`.
+
+| `Type` | Campo | Retorno eval |
+|---|---|---|
+| `Int` | `min` | `Value::Int(i64::MIN)` |
+| `Int` | `max` | `Value::Int(i64::MAX)` |
+| `Str` | `from-unicode` | `Value::Func(native_str_from_unicode)` |
+
+Qualquer outro `Type` (ou campo desconhecido) → erro eval
+`"type {name} não tem campo '{field}'"` / `"type {name} não tem campos"`.
+
+Semântica:
+
+```rust
+Value::Type(t) => match (t, field.as_str()) {
+    (Type::Int, "min") => Ok(Value::Int(i64::MIN)),
+    (Type::Int, "max") => Ok(Value::Int(i64::MAX)),
+    (Type::Str, "from-unicode") => Ok(Value::Func(Func::native(
+        "str.from-unicode", native_str_from_unicode))),
+    (Type::Int | Type::Str, _) => Err(... "type {name} não tem campo '{field}'" ...),
+    _ => Err(... "type {name} não tem campos" ...),
+}
+```
+
+Critérios de verificação:
+
+- `int.min` → `Value::Int(i64::MIN)`; `int.max` → `Value::Int(i64::MAX)`.
+- `str.from-unicode(97)` → `"a"` (a função obtida é chamável via `apply_func`).
+- `int.x` → erro; `length.min` → erro (`length` não tem campos).
+- Sem regressão em `table.header`, `grid.cell`, `list.item`, `enum.item`
+  (continuam via `Value::Func` namespace).

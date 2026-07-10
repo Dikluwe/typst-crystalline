@@ -1,11 +1,12 @@
 # Prompt L0 — `stdlib/foundations` — utilitários, cores, conversões e introspeção
-Hash do Código: 1f0a2f50
+Hash do Código: 9f4165fc
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/rules/stdlib/foundations.rs`
 **Origem**: Passo 96.5 (extraído de `stdlib.rs` conforme ADR-0037), com
 reforços pontuais P13–P25, P99–P102, P171–P179, P208–P210, P236–P241,
-P421 (`repr`) e P465 (`repr()` completo).
+P421 (`repr`) e P465 (`repr()` completo). P685: `native_type` devolve
+`Value::Type`; `int`/`float`/`str`/`type` são valores-tipo chamáveis no scope.
 **ADRs**: ADR-0037 (coesão por domínio), ADR-0054 (perfil graded),
 ADR-0081 (state/counter display two-pass), ADR-0083 (color spaces),
 ADR-0107 (paridade linguagem).
@@ -52,25 +53,46 @@ A maioria das funções deste módulo não aceita argumentos nomeados e chama
 
 ### `native_type` — `type(v)`
 
-**Assinatura**: `type(v: any) -> str`
+**Assinatura**: `type(v: any) -> type`  (P685: devolve `Value::Type`, não `str`)
 
 **Argumentos**:
 - `v`: um valor posicional obrigatório.
 
-**Semântica**: Devolve o nome do tipo do valor como string Typst
-(`"int"`, `"float"`, `"str"`, `"bool"`, `"none"`, etc.).
+**Semântica (P685)**: Devolve o **valor-tipo** do argumento — `Value::Type(v.type_of())`.
+Antes de P685 devolvia `Value::Str(v.type_name())`; a mudança é necessária para
+`type(x) == length` funcionar por comparação directa de valores de tipo
+(paridade vanilla, medida na sonda P685). O nome textual do tipo continua
+disponível via `repr(type(x))` (ex.: `repr(type(1)) == "int"`).
 
-**Paridade vanilla**: Equivalente a `#type(1)` → `"int"`.
+**Paridade vanilla**: `#type(1)` → valor `int`; `#(type(1) == int)` → `true`;
+`#(type(int) == type)` → `true`; `#(type(rgb) == function)` → `true`.
 
 **Testes canônicos**:
 ```
-type(1)      -> "int"
-type("abc")  -> "str"
-type(none)   -> "none"
-type(true)   -> "bool"
-type()       -> Err "type() requer 1 argumento"
-type(1, 2)   -> Err "type() requer 1 argumento"
+type(1)             -> Value::Type(Type::Int)
+type("abc")         -> Value::Type(Type::Str)
+type(none)          -> Value::Type(Type::None)
+type(true)          -> Value::Type(Type::Bool)
+type(1pt)           -> Value::Type(Type::Length)
+type(50% + 1pt)     -> Value::Type(Type::Length)   // relative length == length
+type(rgb(0,0,0))    -> Value::Type(Type::Color)
+type(int)           -> Value::Type(Type::Type)     // tipo de um tipo é `type`
+type()              -> Err "type() requer 1 argumento"
+type(1, 2)          -> Err "type() requer 1 argumento"
+repr(type(1))       -> "int"
 ```
+
+---
+
+### Nota P685 — `int`, `float`, `str`, `type` como valores-tipo chamáveis
+
+Os construtores `int`, `float`, `str` (§3) e a função `type` (§2) estão
+registados no scope global como `Value::Type(Type::Int | Float | Str | Type)`,
+não como `Value::Func`. A chamada (`int("5")`, `str(5)`, `float("3.5")`,
+`type(1)`) é despachada em `eval_func_call` (`rules/eval/closures.rs`) que, ao
+ver `Value::Type` chamável, invoca o construtor nativo correspondente. A
+semântica de `native_int`/`native_float`/`native_str`/`native_type` (abaixo) é
+inalterada — só muda o valor no scope (de função para tipo chamável).
 
 ---
 
