@@ -431,7 +431,13 @@ fn compile_to_pdf_bytes_impl(
     // P667 — se o documento usa uma fonte variável com eixos não-default,
     // a instanciação estática requer Python/fontTools. Falhar cedo com
     // mensagem clara em vez de produzir um PDF visualmente errado.
-    if !variable_font_instancer_available() {
+    // P671 — a verificação de disponibilidade de Python só deve correr quando
+    // há de facto uma VF que precisa de instanciação; evita o custo de arranque
+    // do subprocesso em todos os documentos sem fontes variáveis.
+    let needs_variable_font_instancer = resolved.iter().any(|((_, font_variant), bytes)| {
+        is_variable_font(bytes) && !axis_variations_for_font_variant(font_variant).is_empty()
+    });
+    if needs_variable_font_instancer && !variable_font_instancer_available() {
         for ((font_list, font_variant), bytes) in &resolved {
             if is_variable_font(bytes) && !axis_variations_for_font_variant(font_variant).is_empty() {
                 let name = font_list

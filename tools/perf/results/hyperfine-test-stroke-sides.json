@@ -1,27 +1,27 @@
 {
   "results": [
     {
-      "command": "/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst compile /home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/parity/corpus/p490/test-stroke-sides.typ /tmp/tmpysxsrg2i.pdf",
-      "mean": 0.0075562335000000005,
-      "stddev": 0.0004727183392885241,
-      "median": 0.007555459699999999,
-      "user": 0.00181764,
-      "system": 0.00819342,
-      "min": 0.0069234407,
-      "max": 0.0081221567,
+      "command": "/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst compile /home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/parity/corpus/p490/test-stroke-sides.typ /tmp/tmpsxg9un1w.pdf",
+      "mean": 0.006852261700000001,
+      "stddev": 0.000278520446748888,
+      "median": 0.0069466135000000005,
+      "user": 0.0026559,
+      "system": 0.0064278600000000005,
+      "min": 0.0064051735,
+      "max": 0.0071430205000000005,
       "times": [
-        0.007555459699999999,
-        0.0081221567,
-        0.0072977657,
-        0.0069234407,
-        0.0078823447
+        0.0067965235,
+        0.0064051735,
+        0.0069466135000000005,
+        0.0069699775,
+        0.0071430205000000005
       ],
       "memory_usage_byte": [
-        21180416,
-        21487616,
-        21487616,
-        21487616,
-        21487616
+        21266432,
+        21319680,
+        21336064,
+        21336064,
+        21336064
       ],
       "exit_codes": [
         0,
@@ -32,27 +32,27 @@
       ]
     },
     {
-      "command": "/home/dikluwe/Documentos/Antigravity/typst-crystalline/target/release/typst /home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/parity/corpus/p490/test-stroke-sides.typ /tmp/tmpysxsrg2i.pdf",
-      "mean": 0.24891853409999998,
-      "stddev": 0.006555057155202781,
-      "median": 0.24611727670000003,
-      "user": 0.0485626,
-      "system": 0.19998342,
-      "min": 0.24513347470000002,
-      "max": 0.2606009017,
+      "command": "/home/dikluwe/Documentos/Antigravity/typst-crystalline/target/release/typst /home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/parity/corpus/p490/test-stroke-sides.typ /tmp/tmpsxg9un1w.pdf",
+      "mean": 0.2030088089,
+      "stddev": 0.000894460572296682,
+      "median": 0.2035263055,
+      "user": 0.0086007,
+      "system": 0.19410325999999997,
+      "min": 0.2019670545,
+      "max": 0.2037827025,
       "times": [
-        0.2606009017,
-        0.24513347470000002,
-        0.24671605170000002,
-        0.24602496570000001,
-        0.24611727670000003
+        0.2019670545,
+        0.2021038905,
+        0.2035263055,
+        0.2037827025,
+        0.2036640915
       ],
       "memory_usage_byte": [
-        54530048,
-        54530048,
-        54530048,
-        54648832,
-        54648832
+        54456320,
+        54525952,
+        54571008,
+        54571008,
+        54571008
       ],
       "exit_codes": [
         0,

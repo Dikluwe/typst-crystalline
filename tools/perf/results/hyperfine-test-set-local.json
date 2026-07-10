@@ -1,20 +1,20 @@
 {
   "results": [
     {
-      "command": "/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst compile /home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/parity/corpus/p490/test-set-local.typ /tmp/tmpzb3ta4cv.pdf",
-      "mean": 0.10745739506,
-      "stddev": 0.001985575798138918,
-      "median": 0.10771674306000001,
-      "user": 0.0664058,
-      "system": 0.043598740000000004,
-      "min": 0.10461709006,
-      "max": 0.10960267206,
+      "command": "/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst compile /home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/parity/corpus/p490/test-set-local.typ /tmp/tmpahs5kpjx.pdf",
+      "mean": 0.11012426764000001,
+      "stddev": 0.0015696871635353649,
+      "median": 0.10950954044,
+      "user": 0.07007736,
+      "system": 0.04252817999999999,
+      "min": 0.10882325944,
+      "max": 0.11261033744,
       "times": [
-        0.10646314406,
-        0.10960267206,
-        0.10888732606,
-        0.10461709006,
-        0.10771674306000001
+        0.11068821044,
+        0.11261033744,
+        0.10898999044,
+        0.10950954044,
+        0.10882325944
       ],
       "memory_usage_byte": [
         28909568,
@@ -32,27 +32,27 @@
       ]
     },
     {
-      "command": "/home/dikluwe/Documentos/Antigravity/typst-crystalline/target/release/typst /home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/parity/corpus/p490/test-set-local.typ /tmp/tmpzb3ta4cv.pdf",
-      "mean": 0.25382681886,
-      "stddev": 0.003332844417096113,
-      "median": 0.25307278406000006,
-      "user": 0.04957059999999999,
-      "system": 0.20378894,
-      "min": 0.25069316806,
-      "max": 0.25806365206000004,
+      "command": "/home/dikluwe/Documentos/Antigravity/typst-crystalline/target/release/typst /home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/parity/corpus/p490/test-set-local.typ /tmp/tmpahs5kpjx.pdf",
+      "mean": 0.20808751644,
+      "stddev": 0.0011840104873669822,
+      "median": 0.20795970544000003,
+      "user": 0.010301760000000002,
+      "system": 0.19750738,
+      "min": 0.20680854744000002,
+      "max": 0.20986967144000002,
       "times": [
-        0.25082104706,
-        0.25307278406000006,
-        0.25648344306000004,
-        0.25806365206000004,
-        0.25069316806
+        0.20730447344000003,
+        0.20986967144000002,
+        0.20680854744000002,
+        0.20795970544000003,
+        0.20849518444000004
       ],
       "memory_usage_byte": [
-        54579200,
-        54579200,
-        54579200,
-        54579200,
-        54579200
+        54845440,
+        54845440,
+        54845440,
+        54845440,
+        54845440
       ],
       "exit_codes": [
         0,
