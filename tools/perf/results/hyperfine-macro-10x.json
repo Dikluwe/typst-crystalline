@@ -1,21 +1,21 @@
 {
   "results": [
     {
-      "command": "/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst compile /home/dikluwe/Documentos/Antigravity/typst-crystalline/tools/perf/corpus/macro-10x.typ /tmp/tmphird6oto.pdf",
-      "mean": 4.944511005160001,
-      "stddev": 0.06218876154208266,
-      "median": 4.944511005160001,
-      "user": 4.0327635200000005,
-      "system": 0.7846561999999999,
-      "min": 4.9005369101600005,
-      "max": 4.98848510016,
+      "command": "/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst compile /home/dikluwe/Documentos/Antigravity/typst-crystalline/tools/perf/corpus/macro-10x.typ /tmp/tmp6szdd5ef.pdf",
+      "mean": 5.44961624672,
+      "stddev": 0.0021705477034520103,
+      "median": 5.44961624672,
+      "user": 4.04461482,
+      "system": 0.76014348,
+      "min": 5.44808143772,
+      "max": 5.45115105572,
       "times": [
-        4.9005369101600005,
-        4.98848510016
+        5.45115105572,
+        5.44808143772
       ],
       "memory_usage_byte": [
-        1044025344,
-        1044631552
+        1044418560,
+        1044615168
       ],
       "exit_codes": [
         0,
@@ -23,21 +23,21 @@
       ]
     },
     {
-      "command": "/home/dikluwe/Documentos/Antigravity/typst-crystalline/target/release/typst /home/dikluwe/Documentos/Antigravity/typst-crystalline/tools/perf/corpus/macro-10x.typ /tmp/tmphird6oto.pdf",
-      "mean": 6.48970701066,
-      "stddev": 0.008489905145480542,
-      "median": 6.48970701066,
-      "user": 4.50928752,
-      "system": 0.6219022000000001,
-      "min": 6.48370374116,
-      "max": 6.49571028016,
+      "command": "/home/dikluwe/Documentos/Antigravity/typst-crystalline/target/release/typst /home/dikluwe/Documentos/Antigravity/typst-crystalline/tools/perf/corpus/macro-10x.typ /tmp/tmp6szdd5ef.pdf",
+      "mean": 5.01571221772,
+      "stddev": 0.12042114892055501,
+      "median": 5.01571221772,
+      "user": 3.1442113199999997,
+      "system": 0.61939848,
+      "min": 4.93056160672,
+      "max": 5.1008628287199995,
       "times": [
-        6.49571028016,
-        6.48370374116
+        5.1008628287199995,
+        4.93056160672
       ],
       "memory_usage_byte": [
-        1044631552,
-        1044631552
+        1044615168,
+        1044615168
       ],
       "exit_codes": [
         0,

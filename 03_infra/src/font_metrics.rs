@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/font_metrics.md
-//! @prompt-hash f0a0a619
+//! @prompt-hash 06faf789
 //! @layer L3
 //! @updated 2026-07-03
 
@@ -296,6 +296,22 @@ struct ShapedWidthKey {
     axis_hash: u64,
 }
 
+/// **P677** — chave para cache de `advance` (caminho rápido não-shaped).
+/// Inclui os mesmos campos de estilo que `ShapedWidthKey`; `tracking` é
+/// aplicado fora do cache em `text_width`, pelo que não entra na chave.
+#[derive(Debug, Hash, Eq, PartialEq)]
+struct AdvanceWidthKey {
+    text:      String,
+    size_bits: u64,
+    font_hash: u64,
+    bold:      bool,
+    italic:    bool,
+    weight:    Option<u16>,
+    dir:       u8,
+    lang:      Option<typst_core::entities::lang::Lang>,
+    axis_hash: u64,
+}
+
 pub struct FallbackFontMetrics<'a> {
     world: &'a dyn World,
     cache: Arc<Mutex<HashMap<usize, Arc<CachedFace>>>>,
@@ -304,6 +320,10 @@ pub struct FallbackFontMetrics<'a> {
     /// todas as chamadas de `advance_shaped` no mesmo documento. Evita
     /// re-parsear as mesmas fontes em cada medição de palavra.
     shaper_face_cache: Arc<Mutex<crate::shaper::FaceCache>>,
+    /// P677 — cache de larguras `advance` já calculadas. Evita re-medir o
+    /// mesmo texto+estilo (especialmente espaços e palavras repetidas) em
+    /// cada chamada do layout.
+    advance_width_cache: Arc<Mutex<HashMap<AdvanceWidthKey, Pt>>>,
 }
 
 /// Candidata a fonte para medição.
@@ -324,6 +344,7 @@ impl<'a> FallbackFontMetrics<'a> {
             cache: Arc::new(Mutex::new(HashMap::new())),
             shaped_width_cache: Arc::new(Mutex::new(HashMap::new())),
             shaper_face_cache: Arc::new(Mutex::new(crate::shaper::FaceCache::new())),
+            advance_width_cache: Arc::new(Mutex::new(HashMap::new())),
         }
     }
 
@@ -397,6 +418,72 @@ impl<'a> FallbackFontMetrics<'a> {
         let value = compute()?;
         self.shaped_width_cache.lock().unwrap().insert(key, value);
         Some(value)
+    }
+
+    /// **P677** — constrói uma chave de cache para `advance`.
+    fn advance_width_key(text: &str, style: &TextStyle) -> Option<AdvanceWidthKey> {
+        use std::collections::hash_map::DefaultHasher;
+        use std::hash::{Hash, Hasher};
+        use typst_core::entities::dir::Dir;
+
+        let dir = style.dir.map(|d| match d {
+            Dir::LTR => 1u8,
+            Dir::RTL => 2,
+            Dir::TTB => 3,
+            Dir::BTT => 4,
+        }).unwrap_or(0);
+
+        let font_hash = style.font.as_ref().map(|fl| {
+            let mut h = DefaultHasher::new();
+            fl.hash(&mut h);
+            h.finish()
+        }).unwrap_or(0);
+
+        let variant = text_style_to_font_variant(style);
+        let axis_vars = axis_variations_for_font_variant(&variant);
+        let axis_hash = {
+            let mut h = DefaultHasher::new();
+            for v in &axis_vars {
+                v.tag.hash(&mut h);
+                v.value.to_bits().hash(&mut h);
+            }
+            h.finish()
+        };
+
+        Some(AdvanceWidthKey {
+            text: text.to_string(),
+            size_bits: style.size.0.to_bits(),
+            font_hash,
+            bold: style.bold,
+            italic: style.italic,
+            weight: style.weight,
+            dir,
+            lang: style.lang,
+            axis_hash,
+        })
+    }
+
+    /// **P677** — cache lookup/inserção para `advance`.
+    fn cached_advance_width(
+        &self,
+        text: &str,
+        style: &TextStyle,
+        compute: impl FnOnce() -> Pt,
+    ) -> Pt {
+        let key = match Self::advance_width_key(text, style) {
+            Some(k) => k,
+            None => return compute(),
+        };
+        {
+            let cache = self.advance_width_cache.lock().unwrap();
+            if let Some(&value) = cache.get(&key) {
+                return value;
+            }
+        }
+
+        let value = compute();
+        self.advance_width_cache.lock().unwrap().insert(key, value);
+        value
     }
 
     /// Devolve a face cacheada para `slot_idx`, criando-a se necessário.
@@ -490,6 +577,7 @@ impl Clone for FallbackFontMetrics<'_> {
             cache: self.cache.clone(),
             shaped_width_cache: self.shaped_width_cache.clone(),
             shaper_face_cache: self.shaper_face_cache.clone(),
+            advance_width_cache: self.advance_width_cache.clone(),
         }
     }
 }
@@ -516,43 +604,47 @@ fn face_kerning(face: &Face<'_>, left: ttf_parser::GlyphId, right: ttf_parser::G
 
 impl FontMetrics for FallbackFontMetrics<'_> {
     fn advance(&self, text: &str, size: Pt, style: &TextStyle) -> Pt {
-        let primary = self.resolve_primary(style);
-        let mut total = 0.0;
-        let mut prev: Option<(usize, u16)> = None;
+        // **P677** — cache de `advance` por (texto, estilo). Evita re-medir
+        // palavras e espaços repetidos no layout de documentos extensos.
+        self.cached_advance_width(text, style, || {
+            let primary = self.resolve_primary(style);
+            let mut total = 0.0;
+            let mut prev: Option<(usize, u16)> = None;
 
-        for c in text.chars() {
-            let cand = self.covering(c, &primary);
-            let mut slot = None;
-            let mut gid = 0u16;
+            for c in text.chars() {
+                let cand = self.covering(c, &primary);
+                let mut slot = None;
+                let mut gid = 0u16;
 
-            let char_pt = cand
-                .and_then(|cand| {
-                    let cached = self.cached_face(cand.slot_idx)?;
-                    let face = cached.face();
-                    let g = face.glyph_index(c)?;
-                    let adv = face.glyph_hor_advance(g)?;
-                    slot = Some(cand.slot_idx);
-                    gid = g.0;
-                    Some(adv as f64 * size.val() / cand.units_per_em as f64)
-                })
-                .unwrap_or(size.val() * 0.6);
-
-            if let (Some(slot_idx), Some((prev_slot, prev_gid))) = (slot, prev) {
-                if prev_slot == slot_idx {
-                    if let Some(cached) = self.cached_face(slot_idx) {
+                let char_pt = cand
+                    .and_then(|cand| {
+                        let cached = self.cached_face(cand.slot_idx)?;
                         let face = cached.face();
-                        let kern = face_kerning(face, ttf_parser::GlyphId(prev_gid), ttf_parser::GlyphId(gid));
-                        let upem = face.units_per_em().max(1) as f64;
-                        total += kern as f64 * size.val() / upem;
+                        let g = face.glyph_index(c)?;
+                        let adv = face.glyph_hor_advance(g)?;
+                        slot = Some(cand.slot_idx);
+                        gid = g.0;
+                        Some(adv as f64 * size.val() / cand.units_per_em as f64)
+                    })
+                    .unwrap_or(size.val() * 0.6);
+
+                if let (Some(slot_idx), Some((prev_slot, prev_gid))) = (slot, prev) {
+                    if prev_slot == slot_idx {
+                        if let Some(cached) = self.cached_face(slot_idx) {
+                            let face = cached.face();
+                            let kern = face_kerning(face, ttf_parser::GlyphId(prev_gid), ttf_parser::GlyphId(gid));
+                            let upem = face.units_per_em().max(1) as f64;
+                            total += kern as f64 * size.val() / upem;
+                        }
                     }
                 }
+
+                total += char_pt;
+                prev = slot.map(|s| (s, gid));
             }
 
-            total += char_pt;
-            prev = slot.map(|s| (s, gid));
-        }
-
-        Pt(total)
+            Pt(total)
+        })
     }
 
     /// **P591** — para scripts contextuais (árabe, síriaco, etc.), usa o

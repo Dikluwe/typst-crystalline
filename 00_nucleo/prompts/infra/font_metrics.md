@@ -1,5 +1,5 @@
 # Prompt L0 — `infra/font_metrics` — Parser de Métricas TrueType/OpenType
-Hash do Código: f0a0a619
+Hash do Código: d785cd7a
 
 **Camada**: L3
 **Ficheiro alvo**: `03_infra/src/font_metrics.rs`
@@ -190,17 +190,27 @@ mede cada caractere com a face correcta.
 pub struct FallbackFontMetrics<'a> {
     world: &'a dyn World,
     cache: Arc<Mutex<HashMap<usize, Arc<CachedFace>>>>,
+    shaped_width_cache: Arc<Mutex<HashMap<ShapedWidthKey, Pt>>>,
+    shaper_face_cache: Arc<Mutex<crate::shaper::FaceCache>>,
+    advance_width_cache: Arc<Mutex<HashMap<AdvanceWidthKey, Pt>>>,
 }
 
 impl<'a> FallbackFontMetrics<'a> {
-    /// Constrói a partir de um `World`. A cache de faces é lazy.
+    /// Constrói a partir de um `World`. As caches são lazy e partilhadas
+    /// entre clones (fixpoint loop de TOC, etc.).
     pub fn new(world: &'a dyn World) -> Self
 }
 ```
 
-Implementa `FontMetrics` (trait de L1) e `Clone`. O clone partilha a mesma
-cache, de modo que faces parseadas num layouter são reutilizadas em
-layouters posteriores (fixpoint loop de TOC, etc.).
+Implementa `FontMetrics` (trait de L1) e `Clone`. O clone partilha as mesmas
+caches, de modo que faces parseadas e larguras medidas num layouter são
+reutilizadas em layouters posteriores.
+
+**P677** — `advance_width_cache`: guarda resultados de `advance(text, style)`
+para evitar re-medir o mesmo texto+estilo repetidamente no layout (palavras e
+espaços repetidos). A chave inclui texto, tamanho, fonte, variações de eixo e
+outros campos do `TextStyle` que afectam métricas; `tracking` é aplicado fora
+do cache em `text_width`, pelo que não entra na chave.
 
 ### `CachedFace` — cache do `Face` parseado
 
@@ -298,3 +308,4 @@ vertical_metrics(12pt) retorna valores positivos e escaláveis
 | 2026-03-28 | Criação — Passo 19: `advance`, `vertical_metrics`, `from_bytes` | `font_metrics.rs` |
 | 2026-04-12 | Restauro — expandido: `math_constants`, `math_kern`, `vertical_glyph_variants`, `vertical_glyph_assembly`, `glyph_to_char`, `build_math_glyph_reverse_map` | `font_metrics.md` |
 | 2026-07-03 | P548 — documentação de `FallbackFontMetrics`, cache do `Face` parseado e kerning via tabelas `kern`/`kerx` | `font_metrics.md`, `font_metrics.rs` |
+| 2026-07-10 | P677 — adicionada `advance_width_cache` para reutilizar larguras `advance` entre chamadas do layout | `font_metrics.md`, `font_metrics.rs` |
