@@ -145,7 +145,7 @@ Ficheiros actualizados:
 
 ## Pendências e próximos passos
 
-1. **Export PDF com variações visuais:** ✅ **Fechado em P666/P668.** P666 confirmou que o caminho multi-font já instancia correctamente a VF para cada peso/estilo; P668 corrigiu o caminho single-font, que ainda usava a instância default. Ambos os caminhos agora produzem contornos correctos. Ver `00_nucleo/diagnosticos/paridade-producao-p666.md` e `00_nucleo/diagnosticos/paridade-producao-p668.md`.
+1. **Export PDF com variações visuais:** ✅ **Fechado em P666/P668/P669.** P666 confirmou que o caminho multi-font já instancia correctamente a VF para cada peso/estilo; P668 corrigiu o caminho single-font; P669 confirmou que o ramo vazio (sem texto) não pode conter VF por instanciar. Ver `00_nucleo/diagnosticos/paridade-producao-p666.md`, `00_nucleo/diagnosticos/paridade-producao-p668.md` e `00_nucleo/diagnosticos/paridade-producao-p669.md`.
 2. **Expor `stretch` e `Oblique(angle)` na linguagem:** necessário para activar os ramos `wdth` e `slnt` do mapeamento.
 3. **Subsetting VF optimizado:** em vez de embutir a VF completa (~200 KB no teste), subsetar apenas os glifos usados preservando variação.
 
