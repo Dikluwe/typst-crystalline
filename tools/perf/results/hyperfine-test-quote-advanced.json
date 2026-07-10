@@ -1,27 +1,27 @@
 {
   "results": [
     {
-      "command": "/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst compile /home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/parity/corpus/p500/test-quote-advanced.typ /tmp/tmpgwcj9w_g.pdf",
-      "mean": 0.09218951766000001,
-      "stddev": 0.0006534823325565152,
-      "median": 0.09227670766000001,
-      "user": 0.057365120000000006,
-      "system": 0.0371675,
-      "min": 0.09133620166,
-      "max": 0.09284984066000002,
+      "command": "/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst compile /home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/parity/corpus/p500/test-quote-advanced.typ /tmp/tmpj3g4cqfe.pdf",
+      "mean": 0.10946394724000001,
+      "stddev": 0.001068227079044201,
+      "median": 0.10957620964,
+      "user": 0.06914664000000001,
+      "system": 0.04284713999999999,
+      "min": 0.10810763964,
+      "max": 0.11085533464000001,
       "times": [
-        0.09275758066,
-        0.09284984066000002,
-        0.09227670766000001,
-        0.09133620166,
-        0.09172725766
+        0.11085533464000001,
+        0.10810763964,
+        0.10957620964,
+        0.11000892364,
+        0.10877162864
       ],
       "memory_usage_byte": [
-        29052928,
-        29052928,
-        29052928,
-        29052928,
-        29052928
+        28897280,
+        28897280,
+        28897280,
+        28897280,
+        29257728
       ],
       "exit_codes": [
         0,
@@ -32,27 +32,27 @@
       ]
     },
     {
-      "command": "/home/dikluwe/Documentos/Antigravity/typst-crystalline/target/release/typst /home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/parity/corpus/p500/test-quote-advanced.typ /tmp/tmpgwcj9w_g.pdf",
-      "mean": 0.17462774206000004,
-      "stddev": 0.0015189952671107365,
-      "median": 0.17417275966,
-      "user": 0.00846192,
-      "system": 0.16582909999999998,
-      "min": 0.17352164166,
-      "max": 0.17728121766000002,
+      "command": "/home/dikluwe/Documentos/Antigravity/typst-crystalline/target/release/typst /home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/parity/corpus/p500/test-quote-advanced.typ /tmp/tmpj3g4cqfe.pdf",
+      "mean": 0.2511689676400001,
+      "stddev": 0.0018350316707815945,
+      "median": 0.25112317464,
+      "user": 0.049283039999999986,
+      "system": 0.20165693999999998,
+      "min": 0.24859280764000002,
+      "max": 0.25375423464,
       "times": [
-        0.17417275966,
-        0.17352164166,
-        0.17379753366,
-        0.17728121766000002,
-        0.17436555766
+        0.25145785564,
+        0.25112317464,
+        0.25091676564000004,
+        0.24859280764000002,
+        0.25375423464
       ],
       "memory_usage_byte": [
-        54652928,
-        54652928,
-        54652928,
-        54652928,
-        54652928
+        54763520,
+        54763520,
+        54763520,
+        54763520,
+        54763520
       ],
       "exit_codes": [
         0,

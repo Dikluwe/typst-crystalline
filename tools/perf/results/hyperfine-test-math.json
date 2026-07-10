@@ -1,27 +1,27 @@
 {
   "results": [
     {
-      "command": "/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst compile /home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/parity/corpus/p490/test-math.typ /tmp/tmpyss15bnf.pdf",
-      "mean": 0.09476874946,
-      "stddev": 0.0013315549822955832,
-      "median": 0.09456227426,
-      "user": 0.05883912,
-      "system": 0.038275380000000005,
-      "min": 0.09290324526,
-      "max": 0.09624000726,
+      "command": "/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst compile /home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/parity/corpus/p490/test-math.typ /tmp/tmpfeyp92t6.pdf",
+      "mean": 0.11121762546,
+      "stddev": 0.0010925341264224659,
+      "median": 0.11158253426,
+      "user": 0.06856604000000001,
+      "system": 0.04491156,
+      "min": 0.10955519726,
+      "max": 0.11248000426,
       "times": [
-        0.09624000726,
-        0.09585153726,
-        0.09428668326,
-        0.09456227426,
-        0.09290324526
+        0.11158253426,
+        0.11161167926,
+        0.10955519726,
+        0.11085871226,
+        0.11248000426
       ],
       "memory_usage_byte": [
-        29577216,
-        29577216,
-        30154752,
-        30154752,
-        30154752
+        29675520,
+        29880320,
+        30150656,
+        30265344,
+        30265344
       ],
       "exit_codes": [
         0,
@@ -32,27 +32,27 @@
       ]
     },
     {
-      "command": "/home/dikluwe/Documentos/Antigravity/typst-crystalline/target/release/typst /home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/parity/corpus/p490/test-math.typ /tmp/tmpyss15bnf.pdf",
-      "mean": 0.17536620406000003,
-      "stddev": 0.0016985719433590986,
-      "median": 0.17526768526000003,
-      "user": 0.007884119999999998,
-      "system": 0.16714718,
-      "min": 0.17306324426000003,
-      "max": 0.17775592326000003,
+      "command": "/home/dikluwe/Documentos/Antigravity/typst-crystalline/target/release/typst /home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/parity/corpus/p490/test-math.typ /tmp/tmpfeyp92t6.pdf",
+      "mean": 0.24729923025999997,
+      "stddev": 0.0024420594708492566,
+      "median": 0.24717141526,
+      "user": 0.049878240000000004,
+      "system": 0.19715555999999998,
+      "min": 0.24404194526,
+      "max": 0.25080255226000003,
       "times": [
-        0.17306324426000003,
-        0.17775592326000003,
-        0.17486393526000002,
-        0.17588023226000002,
-        0.17526768526000003
+        0.25080255226000003,
+        0.24655159826,
+        0.24792864026,
+        0.24717141526,
+        0.24404194526
       ],
       "memory_usage_byte": [
-        54796288,
-        54796288,
-        54796288,
-        54796288,
-        54796288
+        54857728,
+        54857728,
+        54857728,
+        54857728,
+        54857728
       ],
       "exit_codes": [
         0,
