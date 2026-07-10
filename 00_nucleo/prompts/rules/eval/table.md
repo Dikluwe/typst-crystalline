@@ -65,7 +65,14 @@ Os detalhes de `native_table_header`/`native_table_footer`/`native_table_cell` p
 
 ---
 
-## 4. Verificação
+## 4. Limitação conhecida (P661)
+
+A numeração automática de P459 é uma extensão do cristalino: a tabela
+numerada não é transformada numa `figure` e, consequentemente, **não**
+dispara show rules de `figure.where(kind: table)` nem herda estilos aplicados
+a `figure`. Ver `00_nucleo/prompts/rules/layout/table.md` §P661.
+
+## 5. Verificação
 
 - `#set table(numbering: "1.")` deve transportar `"table.numbering"` até `Content::Table` via `Content::Styled` (escopo léxico).
 - `#table([...], caption: [...])` sem `#set table(numbering:)` não recebe prefixo.
@@ -73,3 +80,4 @@ Os detalhes de `native_table_header`/`native_table_footer`/`native_table_cell` p
 - `table.footer[Total][2][—]` deve avaliar para `Content::TableFooter`.
 - `table.cell[Conteúdo]` deve avaliar para `Content::TableCell`.
 - `table(...)` sem header/footer continua a funcionar (não-regressão).
+- Show rules de `figure.where(kind: table)` não afectam tabelas numeradas por P459 (P661).

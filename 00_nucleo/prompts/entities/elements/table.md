@@ -1,5 +1,5 @@
 # Prompt L0 — `entities/elements/table` — `TableElem`
-Hash do Código: 528168b2
+Hash do Código: f37f26ed
 
 **Camada**: L1 · **Alvo**: `01_core/src/entities/elements/table.rs`
 **Origem**: modelo D (ADR-0105), **Lote 12 P327** (bloco grid/table cell).
@@ -26,6 +26,10 @@ pub struct TableElem {
 `Content::Table { … }` → `Content::Table(Arc<TableElem>)`. Construtores
 ergonómicos: `Content::table(columns, rows, children)` (caption `None`) e
 `Content::table_with_caption(columns, rows, children, caption)` (P459).
+
+> **Nota (P661):** a tabela com `caption` numerada por P459 continua a ser
+> um `Content::Table`, não uma `figure`. Logo, não responde a show rules de
+> `figure.where(kind: table)`.
 
 > **`Hash` manual via Debug**: `TrackSizing` (colunas/linhas) e `Stroke`/`Color`
 > carregam `f64` → `impl Hash { format!("{self:?}").hash(state) }`.
