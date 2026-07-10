@@ -2,7 +2,7 @@
 
 **Passo:** P691 (`00_nucleo/materialization/typst-passo-691.md`)
 **Data:** 2026-07-10
-**Commit deste relatório:** `__P691_COMMIT__` (preenchido no 2.º commit)
+**Commit deste relatório:** `143c9e202132a07c21681f7a9358360d986e3751` (preenchido no 2.º commit)
 **ADRs:** ADR-0107 (paridade com a linguagem), ADR-0108 (medir antes de decidir),
 regra P662-P664 (nome igual ao vanilla obriga a comportamento igual).
 **Dependência:** P690 (onde a diferença foi encontrada e separada como fora de alcance).
