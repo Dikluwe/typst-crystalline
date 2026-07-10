@@ -1,5 +1,5 @@
 # Prompt L0 — infra/system-world
-Hash do Código: 81c2aa25
+Hash do Código: 0450bb2c
 
 **Camada**: L3
 **Ficheiro alvo**: `03_infra/src/world.rs`
@@ -104,3 +104,33 @@ Dado MockWorld("Hello *world*")
 Quando source(main()) for chamado
 Então Ok(Source) com text() == "Hello *world*"
 ```
+
+---
+
+## Resolução de caminhos absolutos (`/...`) — P686
+
+`SystemWorld` resolve o `path` de `include_source` e `read_bytes` via o helper
+privado `resolve_path(current_file, path)`:
+
+- **Absoluto** (`path` começa por `/`): a base é a raiz do pacote de
+  `current_file` (devolvida por `package_root_of`) quando existe, ou `self.root`
+  (raiz do projecto) caso contrário. O resultado é `base.join(path sem '/' inicial)`.
+- **Relativo**: `directory_of(current_file).join(path)` — comportamento inalterado.
+
+Helpers de suporte (privados a `SystemWorld`):
+
+- `path_of(id) -> Option<PathBuf>` — path registado em `slots` para o `FileId`.
+- `package_search_roots() -> Vec<PathBuf>` — directórios `typst/packages` em
+  `data_local_dir`, `data_dir` e `cache_dir` (local, data, cache).
+- `package_root_of(&Path) -> Option<PathBuf>` — se o path vive sob um desses
+  roots com a forma `{ns}/{name}/{version}/...`, devolve
+  `{root}/{ns}/{name}/{version}`.
+
+A detecção da raiz do pacote é por **prefixo de path** (sem I/O de rede),
+coerente com `resolve_package`. Caminhos relativos com `../` que escapem a raiz
+do pacote permanecem fora de escopo (débito de sandbox pré-existente).
+
+**Língua vs mecânica (ADR-0107):** a regra absoluto/relativo e a noção de raiz de
+pacote são semântica da linguagem; a forma `{ns}/{name}/{version}` e os roots de
+procura são mecânica de L3.
+

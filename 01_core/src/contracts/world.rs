@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/contracts/world.md
-//! @prompt-hash 0dbe1086
+//! @prompt-hash a791b2fa
 //! @layer L1
 //! @updated 2026-04-20
 

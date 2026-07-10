@@ -1,5 +1,5 @@
 # Prompt L0 — `contracts/world` — O Contrato Supremo do Sistema
-Hash do Código: ff0899fa
+Hash do Código: bf00552b
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/contracts/world.rs`
@@ -176,3 +176,26 @@ World::book(&mock()).len() = 0  // mock começa sem fontes
 | `contracts/mod.rs` (L1) | Agrega via `pub mod world` |
 | `03_infra/src/world.rs` (L3) | Implementa `World` com I/O real (`SystemWorld`) |
 | `03_infra/src/integration_tests.rs` (L3) | Cria mocks — não usa `MockWorld` de L1 |
+
+---
+
+## Resolução de caminhos absolutos (`/...`) em `include_source` e `read_bytes` (P686)
+
+`include_source(current_file, path)` e `read_bytes(current_file, path)` resolvem
+`path` conforme a sua forma (implementação em L3 — `SystemWorld`):
+
+- Se `path` começa por `/`, é **absoluto**: resolve-se relativamente à **raiz do
+  pacote** quando `current_file` pertence a um pacote, ou à **raiz do projecto**
+  (`World::root()`) caso contrário. A raiz do pacote é o directório
+  `{namespace}/{name}/{version}` que contém `current_file`.
+- Caso contrário, `path` é **relativo** e resolve-se relativamente ao directório
+  de `current_file` (comportamento pré-existente, sem regressão).
+
+Esta semântica iguala a do compilador vanilla e desbloqueia pacotes (ex.: `cetz`)
+que importam módulos internos via `/src/...`.
+
+**Língua vs mecânica (ADR-0107):** a distinção absoluto/relativo e a noção de
+raiz de pacote fazem parte da **semântica** da linguagem (resolução de módulos);
+a estrutura em disco (`{ns}/{name}/{version}`) é mecânica de L3 e diverge de
+propósito.
+

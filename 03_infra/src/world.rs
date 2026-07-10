@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/system-world.md
-//! @prompt-hash f8851745
+//! @prompt-hash 0bb63043
 //! @layer L3
 //! @updated 2026-06-30
 //!
@@ -239,6 +239,47 @@ impl SystemWorld {
             .unwrap_or_else(|| self.root.clone())
     }
 
+    /// **P686** — Path registado para `id`, se existir.
+    fn path_of(&self, id: FileId) -> Option<PathBuf> {
+        self.slots.lock().unwrap().get(&id).map(|s| s.path.clone())
+    }
+
+    /// **P686** — Se `file_path` vive dentro de um pacote
+    /// (`{base}/{namespace}/{name}/{version}/...`), devolve a raiz do pacote
+    /// (`{base}/{namespace}/{name}/{version}`). Caso contrário, `None`.
+    /// A detecção é por prefixo de path (sem I/O), coerente com `resolve_package`.
+    fn package_root_of(&self, file_path: &Path) -> Option<PathBuf> {
+        for base in package_candidate_dirs() {
+            if let Ok(rest) = file_path.strip_prefix(&base) {
+                let mut comps = rest.components();
+                let (Some(ns), Some(name), Some(ver)) =
+                    (comps.next(), comps.next(), comps.next())
+                else {
+                    continue;
+                };
+                return Some(base.join(ns.as_os_str()).join(name.as_os_str()).join(ver.as_os_str()));
+            }
+        }
+        None
+    }
+
+    /// **P686** — Resolve `path` de um `#import`/`#include` contra `current_file`.
+    ///
+    /// - Absoluto (`/...`): base = raiz do pacote de `current_file` se existir,
+    ///   senão `self.root` (raiz do projecto); junta `path` sem a barra inicial.
+    /// - Relativo: `directory_of(current_file).join(path)` (sem regressão).
+    fn resolve_path(&self, current_file: FileId, path: &str) -> PathBuf {
+        if let Some(rest) = path.strip_prefix('/') {
+            let base = self
+                .path_of(current_file)
+                .and_then(|p| self.package_root_of(&p))
+                .unwrap_or_else(|| self.root.clone());
+            base.join(rest)
+        } else {
+            self.directory_of(current_file).join(path)
+        }
+    }
+
     /// **P450** — Carrega um ficheiro `.bib` do disco e parseia-o com o
     /// parser BibTeX minimal do núcleo.
     pub fn load_bibliography(&self, current_file: FileId, path: &str) -> Result<Vec<BibEntry>, String> {
@@ -313,16 +354,14 @@ impl World for SystemWorld {
     }
 
     fn read_bytes(&self, current_file: FileId, path: &str) -> Result<std::sync::Arc<Vec<u8>>, String> {
-        let base_dir = self.directory_of(current_file);
-        let full_path = base_dir.join(path);
+        let full_path = self.resolve_path(current_file, path);
         std::fs::read(&full_path)
             .map(std::sync::Arc::new)
             .map_err(|e| format!("erro ao ler '{}': {}", path, e))
     }
 
     fn include_source(&self, current_file: FileId, path: &str) -> Result<typst_core::entities::source::Source, String> {
-        let base_dir = self.directory_of(current_file);
-        let abs_path = base_dir.join(path);
+        let abs_path = self.resolve_path(current_file, path);
         let id = self.register_file(abs_path.clone());
         self.source(id).map_err(|_| format!("include: ficheiro não encontrado: {}", abs_path.display()))
     }
@@ -610,6 +649,78 @@ mod tests {
         let entries = world.load_bibliography(world.main(), "sub/refs.bib").unwrap();
         assert_eq!(entries.len(), 1);
         assert_eq!(entries[0].key, "doe2023");
+    }
+
+    // ── Passo 686 — caminhos absolutos `/...` ─────────────────────────────
+
+    #[test]
+    fn system_world_include_source_absoluto_no_projecto() {
+        let dir = tempdir();
+        std::fs::create_dir_all(dir.path().join("src")).unwrap();
+        std::fs::write(dir.path().join("main.typ"), "#include \"/src/util.typ\"").unwrap();
+        std::fs::write(dir.path().join("src").join("util.typ"), "de util").unwrap();
+
+        let world = SystemWorld::new(dir.path(), "main.typ").unwrap();
+        let src = world.include_source(world.main(), "/src/util.typ").unwrap();
+        assert_eq!(src.text(), "de util");
+    }
+
+    #[test]
+    fn system_world_read_bytes_absoluto_no_projecto() {
+        let dir = tempdir();
+        std::fs::create_dir_all(dir.path().join("assets")).unwrap();
+        std::fs::write(dir.path().join("main.typ"), "main").unwrap();
+        std::fs::write(dir.path().join("assets").join("data.bin"), b"\x01\x02\x03").unwrap();
+
+        let world = SystemWorld::new(dir.path(), "main.typ").unwrap();
+        let bytes = world.read_bytes(world.main(), "/assets/data.bin").unwrap();
+        assert_eq!(bytes.as_slice(), &[1, 2, 3]);
+    }
+
+    #[test]
+    fn system_world_include_source_absoluto_em_pacote() {
+        let dir = tempdir();
+        // Pacote fake em {dir}/typst/packages/preview/foo/0.1.0
+        let pkg = dir.path().join("typst/packages/preview/foo/0.1.0");
+        std::fs::create_dir_all(pkg.join("src/sub")).unwrap();
+        std::fs::write(
+            pkg.join("typst.toml"),
+            "[package]\nname = \"foo\"\nversion = \"0.1.0\"\nentrypoint = \"src/lib.typ\"\n",
+        )
+        .unwrap();
+        std::fs::write(pkg.join("src/lib.typ"), "library").unwrap();
+        std::fs::write(pkg.join("src/sub/x.typ"), "#import \"/src/lib.typ\"").unwrap();
+        std::fs::write(dir.path().join("main.typ"), "main").unwrap();
+
+        // package_candidate_dirs() lê XDG_DATA_HOME; apontamos para o temp dir
+        // para que o pacote fake seja reconhecido. Restauramos no fim.
+        let prev = std::env::var_os("XDG_DATA_HOME");
+        std::env::set_var("XDG_DATA_HOME", dir.path());
+
+        let world = SystemWorld::new(dir.path(), "main.typ").unwrap();
+        let x_id = world.register_file(pkg.join("src/sub/x.typ"));
+        let src = world.include_source(x_id, "/src/lib.typ");
+
+        if let Some(v) = prev {
+            std::env::set_var("XDG_DATA_HOME", v);
+        } else {
+            std::env::remove_var("XDG_DATA_HOME");
+        }
+
+        // Resolve à raiz do pacote (0.1.0/src/lib.typ), não a src/sub.
+        assert_eq!(src.unwrap().text(), "library");
+    }
+
+    #[test]
+    fn system_world_include_source_relativo_sem_regressao() {
+        let dir = tempdir();
+        std::fs::create_dir_all(dir.path().join("sub")).unwrap();
+        std::fs::write(dir.path().join("main.typ"), "main").unwrap();
+        std::fs::write(dir.path().join("sub").join("x.typ"), "relativo").unwrap();
+
+        let world = SystemWorld::new(dir.path(), "main.typ").unwrap();
+        let src = world.include_source(world.main(), "sub/x.typ").unwrap();
+        assert_eq!(src.text(), "relativo");
     }
 
     // ── Utilitários de teste ──────────────────────────────────────────────
