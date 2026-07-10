@@ -160,4 +160,4 @@ Validação:
 
 ## Hash do commit
 
-`__P679_COMMIT__`
+`52651c8fc — P679: implementa #import de ficheiros locais (nível 5a de P678)`
