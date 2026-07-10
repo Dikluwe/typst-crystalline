@@ -1,5 +1,5 @@
 # Prompt L0 — `stdlib/primitives-constructors` — constructors `decimal`, `duration`, `version`
-Hash do Código: 4a517dd9
+Hash do Código: e8068caa
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/rules/stdlib/primitives_constructors.rs`
@@ -127,6 +127,28 @@ Validação:
 
 Constrói `Version::new(major, minor, patch).with_pre(pre_ids).with_build(build_ids)`.
 
+### Forma array (P682)
+
+Um único argumento posicional do tipo `array` equivale aos componentes
+posicionais — medido contra o vanilla `0.15.0 (969087ec)`:
+
+```typst
+version((0, 2, 2))   ≡ version(0, 2, 2)
+```
+
+- Fiel ao vanilla `0.15.0`: o array tem de ter **exactamente 3 inteiros ≥ 0**
+  (`major, minor, patch`), **sem argumentos nomeados** e **sem string** dentro
+  do array.
+- Erros claros: `arr.len() != 3` → "requer exactamente 3 inteiros … recebeu N";
+  elemento não-`Int` ou negativo → erro de tipo/sinal (via `as_nonneg_int`);
+  named args presentes → "a forma de array não aceita argumentos nomeados".
+- Confirmado por sonda que o vanilla `0.15.0` **rejeita** `version((0,2,2,"beta"))`
+  ("expected integer"), `version(0,2,2,"beta")`, `version(0,2,2, pre:"beta")` e
+  `version((0,2,2), pre:"beta")`. O suporte a `pre`/`build` (4º posicional e
+  named) **existe só na forma posicional** do cristalino (pré-existente, fora do
+  scope de P682) e **não** se aplica à forma de array — ver débito registado no
+  diagnóstico de P682.
+
 ---
 
 ## 6. Operações eval básicas (P405)
@@ -208,6 +230,11 @@ native_version([Str("invalid")]) → Err
 native_version([Int(1)]) → Err
 native_version([]) → Err
 native_version(positional: [Int(1), Int(2), Int(3)]) → Ok(Value::Version(1,2,3,"",""))
+native_version(positional: [Array([Int(1), Int(2), Int(3)])]) → Ok(Value::Version(1,2,3,"",""))  (P682: forma array ≡ posicional)
+native_version(positional: [Array([Int(1), Int(2)])]) → Err  (P682: array com !=3 componentes)
+native_version(positional: [Array([Int(1), Int(2), Int(3), Int(4)])]) → Err  (P682: array com !=3 componentes)
+native_version(positional: [Array([Int(1), Str("x"), Int(3)])]) → Err  (P682: elemento não-Int)
+native_version(positional: [Array([Int(1), Int(2), Int(3)])], named: {pre: Str("x")}) → Err  (P682: array não aceita named args)
 native_version(positional: [Int(1), Int(2), Int(3)], named: {pre: Str("alpha.1")}) → Ok(pre=["alpha","1"])
 native_version(positional: [Int(1), Int(2), Int(3)], named: {build: Str("build.2")}) → Ok(build=["build","2"])
 native_version(positional: [Int(-1), Int(2), Int(3)]) → Err

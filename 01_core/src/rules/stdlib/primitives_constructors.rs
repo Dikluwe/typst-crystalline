@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/rules/stdlib/primitives-constructors.md
-//! @prompt-hash 499f511d
+//! @prompt-hash fe287bb8
 //! @layer L1
 //! @updated 2026-06-22
 //!
@@ -165,6 +165,23 @@ pub fn native_version(
     // Mistura inválida: string posicional com named args.
     if args.items.len() == 1 && matches!(args.items[0], Value::Str(_)) && !args.named.is_empty() {
         return err("version(): não pode misturar string posicional com argumentos nomeados".to_string());
+    }
+
+    // Forma array (P682): `version((M, m, p))` ≡ `version(M, m, p)`.
+    // Fiel ao vanilla 0.15.0: exactamente 3 inteiros ≥ 0, sem argumentos nomeados
+    // e sem string dentro do array. Formas inválidas produzem erro claro.
+    if args.items.len() == 1 && matches!(&args.items[0], Value::Array(_)) {
+        let arr = match &args.items[0] { Value::Array(a) => a, _ => unreachable!() };
+        if !args.named.is_empty() {
+            return err("version(): a forma de array não aceita argumentos nomeados".to_string());
+        }
+        if arr.len() != 3 {
+            return err(format!("version(): a forma de array requer exactamente 3 inteiros (major, minor, patch), recebeu {}", arr.len()));
+        }
+        let major = as_nonneg_int(&arr[0], "major").map_err(|msg| vec![SourceDiagnostic::error(Span::detached(), msg)])?;
+        let minor = as_nonneg_int(&arr[1], "minor").map_err(|msg| vec![SourceDiagnostic::error(Span::detached(), msg)])?;
+        let patch = as_nonneg_int(&arr[2], "patch").map_err(|msg| vec![SourceDiagnostic::error(Span::detached(), msg)])?;
+        return Ok(Value::Version(Arc::new(Version::new(major, minor, patch))));
     }
 
     // Forma vanilla: major/minor/patch posicionais obrigatórios (e opcionalmente pre posicional)
@@ -598,6 +615,43 @@ mod tests {
     #[test]
     fn version_vanilla_too_many_positional() {
         assert!(native_version(&mut ctx(), &p(vec![Value::Int(1), Value::Int(2), Value::Int(3), Value::Int(4)]), &null_world(), test_file_id()).is_err());
+    }
+
+    // ── P682 — constructor version forma array ───────────────────────────────
+
+    #[test]
+    fn version_array_basic() {
+        let v = native_version(&mut ctx(), &p(vec![Value::Array(vec![Value::Int(0), Value::Int(2), Value::Int(2)])]), &null_world(), test_file_id()).unwrap();
+        assert_eq!(v, Value::Version(Arc::new(Version::new(0, 2, 2))));
+    }
+
+    #[test]
+    fn version_array_equivale_posicional() {
+        let pos = native_version(&mut ctx(), &p(vec![Value::Int(1), Value::Int(2), Value::Int(3)]), &null_world(), test_file_id()).unwrap();
+        let arr = native_version(&mut ctx(), &p(vec![Value::Array(vec![Value::Int(1), Value::Int(2), Value::Int(3)])]), &null_world(), test_file_id()).unwrap();
+        assert_eq!(pos, arr);
+    }
+
+    #[test]
+    fn version_array_too_few() {
+        assert!(native_version(&mut ctx(), &p(vec![Value::Array(vec![Value::Int(1), Value::Int(2)])]), &null_world(), test_file_id()).is_err());
+    }
+
+    #[test]
+    fn version_array_too_many() {
+        assert!(native_version(&mut ctx(), &p(vec![Value::Array(vec![Value::Int(1), Value::Int(2), Value::Int(3), Value::Int(4)])]), &null_world(), test_file_id()).is_err());
+    }
+
+    #[test]
+    fn version_array_non_int() {
+        assert!(native_version(&mut ctx(), &p(vec![Value::Array(vec![Value::Int(1), Value::Str("x".into()), Value::Int(3)])]), &null_world(), test_file_id()).is_err());
+    }
+
+    #[test]
+    fn version_array_named_rejected() {
+        let mut args = Args::positional(vec![Value::Array(vec![Value::Int(1), Value::Int(2), Value::Int(3)])]);
+        args.named.insert("pre".into(), Value::Str("alpha".into()));
+        assert!(native_version(&mut ctx(), &args, &null_world(), test_file_id()).is_err());
     }
 
     #[test]
