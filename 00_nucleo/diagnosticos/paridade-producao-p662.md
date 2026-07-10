@@ -4,7 +4,7 @@
 **Data:** 2026-07-09  
 **Foco:** Reverter `variant: (eixo: valor)` porque é uma extensão de linguagem não suportada pelo vanilla.  
 **Dependências:** P660 (onde a sintaxe foi introduzida por engano), P659 (correcção de cache de eixos internos).  
-**Hash do commit com as alterações:** `PENDING`
+**Hash do commit com as alterações:** `ef14c2368`
 
 ---
 
