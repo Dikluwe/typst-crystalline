@@ -3,7 +3,7 @@
 **Camada**: L1  
 **Ficheiro alvo**: `01_core/src/rules/stdlib/collections.rs`  
 **Criado em**: 2026-06-25 (Passo P466)  
-**Atualizado em**: 2026-07-10 (P690 — `str.len/at/slice` em bytes; P691 — `str.find` devolve substring/`none`; P692 — `str.matches` e `str.normalize` implementados; `unicode-normalization` autorizada em L1)  
+**Atualizado em**: 2026-07-10 (P690 — `str.len/at/slice` em bytes; P691 — `str.find` devolve substring/`none`; P692 — `str.matches` e `str.normalize`; P693 — `str.match` aceita `str | regex`; fecha a cadeia de correcções de `str`)  
 **ADRs**: ADR-0037 (coesão por domínio), ADR-0107 (paridade com a linguagem — aqui a linguagem **é** bytes), ADR-0108 (medir antes de decidir), ADR-0117 Cláusula 4 (métodos de tipos existentes; não propõe estrutura em elementos).
 
 ---
@@ -143,7 +143,7 @@ Reduz o array a um único valor, aplicando a função `reducer(start, item)` e a
 | `codepoints` | `str.codepoints() -> array` | Array de strings, um por char (scalar value). (**P689**) |
 | `normalize` | `str.normalize(form: str = "nfc") -> str` | Normalização Unicode. `form` (named) ∈ `nfc`, `nfd`, `nfkc`, `nfkd`; default `nfc`. (**P692**) |
 | `position` | `str.position(hay: str \| regex) -> int \| none` | Índice em **bytes** da primeira ocorrência, ou `none`. Aceita `str` ou `regex`. (**P689**) |
-| `match` | `str.match(pattern: regex) -> dict \| none` | Primeiro match: dict `{start, end, text, captures}` com índices em **bytes**, ou `none`. Capturas em ordem posicional (grupos nomeados inclusive). (**P689**) ⚠️ **Débito (P692)**: o vanilla aceita `str \| regex`; o cristalino (P689) só aceita `regex`. Variação de assinatura, fora do alcance deste passo. |
+| `match` | `str.match(pattern: str \| regex) -> dict \| none` | Primeiro match: dict `{start, end, text, captures}` com índices em **bytes**, ou `none`. Aceita `str` (literal; `captures` vazio) ou `regex` (capturas em ordem posicional, grupos nomeados inclusive). (**P689**; **P693** alargou de `regex`-only para `str \| regex`.) |
 | `matches` | `str.matches(pattern: str \| regex) -> array` | Array de dicionários `{start, end, text, captures}` (índices em **bytes**), um por ocorrência não sobreposta; `()` se nenhum. Aceita `str` (literal) ou `regex`. (**P692**) |
 
 **Nota P690 (indexação unificada em bytes — ADR-0107):** `len`, `at` e `slice` passam a

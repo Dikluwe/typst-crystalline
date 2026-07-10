@@ -731,22 +731,32 @@ fn match_dict(start: usize, end: usize, text: &str, captures: Vec<String>) -> Va
     Value::Dict(dict)
 }
 
-/// **P689** — `str.match(pattern)`: primeiro match da regex, como dict
+/// **P689** — `str.match(pattern)`: primeiro match, como dict
 /// `{start, end, text, captures}` com índices em **bytes**, ou `none`.
-/// Capturas em ordem posicional (grupos nomeados inclusive).
+/// Aceita `str` (literal; `captures` vazio) ou `regex` (capturas em ordem
+/// posicional, grupos nomeados inclusive). (**P693**: alargado de `regex`-only
+/// para `str | regex`, espelhando `str_matches`.)
 fn str_match(s: EcoString, args: Args) -> SourceResult<Value> {
     match args.items.as_slice() {
+        [Value::Str(pat)] => Ok(s
+            .match_indices(pat.as_str())
+            .next()
+            .map(|(i, m)| match_dict(i, i + m.len(), m, vec![]))
+            .unwrap_or(Value::None)),
         [Value::Regex(re)] => Ok(re
             .captures_first(s.as_str())
             .map(|m| match_dict(m.start, m.end, &m.text, m.captures))
             .unwrap_or(Value::None)),
         [other] => Err(vec![SourceDiagnostic::error(
             Span::detached(),
-            format!("str.match() espera regex, recebeu {}", other.type_name()),
+            format!(
+                "str.match() espera str ou regex, recebeu {}",
+                other.type_name()
+            ),
         )]),
         _ => Err(vec![SourceDiagnostic::error(
             Span::detached(),
-            "str.match() requer 1 argumento posicional (regex)".to_string(),
+            "str.match() requer 1 argumento posicional".to_string(),
         )]),
     }
 }
@@ -1296,8 +1306,8 @@ mod tests {
         // position com Int → erro
         let a = make_args(vec![Value::Int(1)], None);
         assert!(str_position("abc".into(), a).is_err());
-        // match com Str (não regex) → erro
-        let a = make_args(vec![Value::Str("b".into())], None);
+        // match com Int (tipo errado) → erro (P693: match aceita str | regex; Int continua a ser rejeitado)
+        let a = make_args(vec![Value::Int(1)], None);
         assert!(str_match("abc".into(), a).is_err());
     }
 
@@ -1573,6 +1583,46 @@ mod tests {
         // argumento posicional → erro
         let a = make_args(vec![Value::Str("nfc".into())], None);
         assert!(str_normalize("café".into(), a).is_err());
+    }
+
+    // ── P693 — str.match aceita str | regex ───────────────────────────────────
+
+    #[test]
+    fn p693_str_match_str_literal() {
+        // "abcabc".match("bc") → primeiro "bc" em start 1, end 3, captures vazio
+        let a = make_args(vec![Value::Str("bc".into())], None);
+        let d = str_match("abcabc".into(), a).unwrap();
+        assert_eq!(dict_get(&d, "start"), &Value::Int(1));
+        assert_eq!(dict_get(&d, "end"), &Value::Int(3));
+        assert_eq!(dict_get(&d, "text"), &Value::Str("bc".into()));
+        assert_eq!(dict_get(&d, "captures"), &Value::Array(vec![]));
+
+        // não encontrado → none
+        let a = make_args(vec![Value::Str("z".into())], None);
+        assert_eq!(str_match("abc".into(), a).unwrap(), Value::None);
+
+        // string vazia → match no início (start 0, end 0, text "")
+        let a = make_args(vec![Value::Str("".into())], None);
+        let d = str_match("abc".into(), a).unwrap();
+        assert_eq!(dict_get(&d, "start"), &Value::Int(0));
+        assert_eq!(dict_get(&d, "end"), &Value::Int(0));
+        assert_eq!(dict_get(&d, "text"), &Value::Str("".into()));
+    }
+
+    #[test]
+    fn p693_str_match_regex_sem_regressao() {
+        // regex com capturas continua a funcionar (paridade P689)
+        let a = make_args(vec![Value::Regex(Regex::new(r"(a)(b)").unwrap())], None);
+        let d = str_match("xab".into(), a).unwrap();
+        assert_eq!(dict_get(&d, "start"), &Value::Int(1));
+        assert_eq!(dict_get(&d, "text"), &Value::Str("ab".into()));
+        assert_eq!(
+            dict_get(&d, "captures"),
+            &Value::Array(vec![Value::Str("a".into()), Value::Str("b".into())])
+        );
+        // tipo errado (Int) → erro
+        let a = make_args(vec![Value::Int(1)], None);
+        assert!(str_match("abc".into(), a).is_err());
     }
 
 }
