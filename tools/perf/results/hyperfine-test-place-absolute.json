@@ -1,27 +1,27 @@
 {
   "results": [
     {
-      "command": "/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst compile /home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/parity/corpus/p500/test-place-absolute.typ /tmp/tmpef7gge7a.pdf",
-      "mean": 0.09754147120000001,
-      "stddev": 0.0005828197521914477,
-      "median": 0.0974179142,
-      "user": 0.061296519999999986,
-      "system": 0.03855346,
-      "min": 0.0969792972,
-      "max": 0.0981949892,
+      "command": "/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst compile /home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/parity/corpus/p500/test-place-absolute.typ /tmp/tmp7pykrdwx.pdf",
+      "mean": 0.09762724202,
+      "stddev": 0.0007492650980115758,
+      "median": 0.09785089562,
+      "user": 0.06234453999999999,
+      "system": 0.03767098,
+      "min": 0.09677608862,
+      "max": 0.09860981362,
       "times": [
-        0.0981949892,
-        0.0981052112,
-        0.0974179142,
-        0.0969792972,
-        0.0970099442
+        0.09792014462,
+        0.09677608862,
+        0.09860981362,
+        0.09697926762,
+        0.09785089562
       ],
       "memory_usage_byte": [
-        30240768,
-        30470144,
-        30470144,
-        30470144,
-        30470144
+        30384128,
+        30625792,
+        30625792,
+        30625792,
+        30625792
       ],
       "exit_codes": [
         0,
@@ -32,27 +32,27 @@
       ]
     },
     {
-      "command": "/home/dikluwe/Documentos/Antigravity/typst-crystalline/target/release/typst /home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/parity/corpus/p500/test-place-absolute.typ /tmp/tmpef7gge7a.pdf",
-      "mean": 0.04069578280000001,
-      "stddev": 0.0005274302947753379,
-      "median": 0.0408194642,
-      "user": 0.01171772,
-      "system": 0.028658859999999998,
-      "min": 0.039800303200000005,
-      "max": 0.0411699042,
+      "command": "/home/dikluwe/Documentos/Antigravity/typst-crystalline/target/release/typst /home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/parity/corpus/p500/test-place-absolute.typ /tmp/tmp7pykrdwx.pdf",
+      "mean": 0.04073974022,
+      "stddev": 0.000560718671785859,
+      "median": 0.04058320362,
+      "user": 0.008505339999999998,
+      "system": 0.031910579999999994,
+      "min": 0.04015185862,
+      "max": 0.04162774462,
       "times": [
-        0.0411699042,
-        0.04095962820000001,
-        0.039800303200000005,
-        0.0408194642,
-        0.04072961420000001
+        0.04045740862,
+        0.04162774462,
+        0.04015185862,
+        0.04087848562,
+        0.04058320362
       ],
       "memory_usage_byte": [
-        30470144,
-        30470144,
-        30470144,
-        30470144,
-        30470144
+        30625792,
+        30625792,
+        30625792,
+        30625792,
+        30625792
       ],
       "exit_codes": [
         0,

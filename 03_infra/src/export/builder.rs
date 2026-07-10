@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/export/builder.md
-//! @prompt-hash 160b2330
+//! @prompt-hash e154f0a4
 //! @layer L3
 //! @updated 2026-07-08
 //!
@@ -581,6 +581,9 @@ impl PdfBuilder {
         // P520 — glifos reais do shaper (ligatures) mapeados para o primeiro
         // caractere do cluster. Prioridade idêntica a build_cidfont.
         let shaped_mappings = collect_shaped_glyph_mappings(doc);
+        // P675 — colectar textos shaped uma única vez e partilhar entre fontes,
+        // em vez de percorrer o documento N vezes (uma por fonte).
+        let shaped_cluster_texts = collect_shaped_cluster_texts(doc);
         let mut per_font_mappings: Vec<Vec<(u16, String)>> = Vec::with_capacity(n_fonts);
         let mut per_font_char_to_gid: Vec<HashMap<char, u16>> = Vec::with_capacity(n_fonts);
         let mut per_font_widths: Vec<String> = Vec::with_capacity(n_fonts);
@@ -678,10 +681,10 @@ impl PdfBuilder {
             let mut to_unicode_mappings: Vec<(u16, String)> = Vec::new();
             let mut seen_to_unicode_gids: HashSet<u16> = HashSet::new();
             if !glyph_mapping.is_empty() {
-                for (old_gid, hex) in collect_shaped_cluster_texts(doc) {
+                for &(old_gid, ref hex) in &shaped_cluster_texts {
                     let new_gid = remap_glyph_id(old_gid, &glyph_mapping);
                     if new_gid != 0 && seen_to_unicode_gids.insert(new_gid) {
-                        to_unicode_mappings.push((new_gid, hex));
+                        to_unicode_mappings.push((new_gid, hex.clone()));
                     }
                 }
             }

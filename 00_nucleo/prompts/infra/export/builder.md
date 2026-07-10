@@ -1,5 +1,5 @@
 # Prompt L0 — `infra/export/builder` — PdfBuilder
-Hash do Código: 93c81786
+Hash do Código: e154f0a4
 
 **Camada**: L3
 **Ficheiro alvo**: `03_infra/src/export/builder.rs`
@@ -233,6 +233,17 @@ O stream `/Metadata` é alocado **após** todos os outros objectos (incluindo
 `/Info`), logo antes de `serialize`. O seu ID é guardado em `PdfBuilder` e
 referenciado no `/Catalog` (objeto 1) via `/Metadata {id} 0 R`.
 
+## §P675 — Evitar walks duplicados do documento em `build_multifont`
+
+**Data:** 2026-07-10
+
+Em `build_multifont`, a colecção de textos shaped (`collect_shaped_cluster_texts`) era feita dentro do loop por fonte. Como esta função percorre todo o `PagedDocument`, o custo escalava linearmente com o número de fontes resolvidas. O P675 identificou que, no `macro-10x`, esta colecção consumia ~91 % do tempo da fase `faces` do export.
+
+Regra:
+1. `collect_shaped_cluster_texts(doc)` deve ser chamada **uma única vez** antes do loop por fonte.
+2. O `Vec<(u16, String)>` resultante é partilhado entre todas as fontes.
+3. Cada fonte continua a fazer o seu próprio `remap_glyph_id` e a manter o seu `seen_to_unicode_gids`, preservando a semântica e os mapeamentos ToUnicode por fonte.
+
 ## Histórico de Revisões
 
 | Data | Motivo | Arquivos afetados |
@@ -240,6 +251,7 @@ referenciado no `/Catalog` (objeto 1) via `/Metadata {id} 0 R`.
 | 2026-05-19 | Criação em P307c | `builder.md` |
 | 2026-07-04 | P560 — descritor PDF distinto para fontes TrueType e CFF/OpenType | `builder.md`, `builder.rs` |
 | 2026-07-08 | P611 — stream de metadados XMP | `builder.md`, `builder.rs` |
+| 2026-07-10 | P675 — evitar walks duplicados do documento em `build_multifont` | `builder.md`, `builder.rs` |
 
 ## Critérios de verificação
 
