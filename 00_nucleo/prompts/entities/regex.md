@@ -47,10 +47,20 @@ pub struct Regex {
     compiled: Arc<regex::Regex>,
 }
 
+pub struct RegexMatch {
+    pub start: usize,
+    pub end: usize,
+    pub text: String,
+    pub captures: Vec<String>,
+}
+
 impl Regex {
     pub fn new(pattern: &str) -> Result<Self, RegexError>;
     pub fn pattern(&self) -> &str;
     pub fn is_match(&self, text: &str) -> bool;
+    /// **P689** — primeiro match: posições em **bytes** (paridade vanilla),
+    /// texto do match e capturas dos grupos (em ordem; grupo não-participante → "").
+    pub fn captures_first(&self, text: &str) -> Option<RegexMatch>;
 }
 
 impl Hash for Regex      { /* via pattern */ }
@@ -65,6 +75,10 @@ impl Default for Regex   { /* pattern vazia */ }
 - `Regex::new(pattern)`: valida pattern; erro contextual.
 - `pattern()`: pattern original.
 - `is_match(text)`: delega ao `regex::Regex` compilado.
+- `captures_first(text)` (**P689**): delega a `regex::Regex::captures`; devolve o
+  primeiro match com índices em **bytes**, o texto e as capturas dos grupos em ordem
+  (grupo opcional não participante → `""`). Base de `str.match` e de
+  `str.position(regex)`. Grupos nomeados entram na ordem posicional (paridade vanilla).
 - `Hash`/`PartialEq`/`Eq`: por `pattern` (valor linguagem).
 - `Clone`: partilha `Arc<regex::Regex>`; não recompila.
 
@@ -84,7 +98,7 @@ impl Default for Regex   { /* pattern vazia */ }
 
 ## Não-objectivos
 
-- Operações regex (`match`, `replace`, etc.) — scope-out ADR-0054.
 - `text.font` dict — DEBT-52, depende de refactor futuro.
 - Flags regex — scope-out ADR-0054.
+- `str.replace` com regex — scope-out (P689 cobre apenas `str.match`/`str.position`).
 - Query `Selector::Regex` sobre Content text — continua stub.

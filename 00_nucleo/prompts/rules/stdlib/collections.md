@@ -137,6 +137,18 @@ Reduz o array a um único valor, aplicando a função `reducer(start, item)` e a
 | `trim` | `str.trim() -> str` | Remove whitespace dos extremos. |
 | `split` | `str.split(sep: str) -> array` | Divide por separador. |
 | `repeat` | `str.repeat(n: int) -> str` | Repete `n` vezes; `n >= 0`. |
+| `codepoints` | `str.codepoints() -> array` | Array de strings, um por char (scalar value). (**P689**) |
+| `position` | `str.position(hay: str \| regex) -> int \| none` | Índice em **bytes** da primeira ocorrência, ou `none`. Aceita `str` ou `regex`. (**P689**) |
+| `match` | `str.match(pattern: regex) -> dict \| none` | Primeiro match: dict `{start, end, text, captures}` com índices em **bytes**, ou `none`. Capturas em ordem posicional (grupos nomeados inclusive). (**P689**) |
+
+**Nota P689 (índices em bytes — paridade vanilla):** `position` e `match` devolvem
+índices em **bytes** (confirmado por sonda: `("xéy").position("y") == 3`,
+`("xéy").match(regex("é")) == (start: 1, end: 3)`). Isto é **semântica da linguagem**
+(ADR-0107) e difere de `str.at`/`str.slice` do cristalino, que indexam por **char** —
+divergência interna pré-existente, não introduzida aqui (ver débito sobre `str.len`
+que também conta chars, enquanto o vanilla conta bytes). `codepoints` itera chars
+(`("café").codepoints() == ("c","a","f","é")`), equivalente ao `clusters` simplificado
+do cristalino.
 
 ---
 

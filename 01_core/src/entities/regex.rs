@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/entities/regex.md
-//! @prompt-hash 52c93345
+//! @prompt-hash 2d267947
 //! @layer L1
 //! @updated 2026-06-22
 //!
@@ -52,6 +52,33 @@ impl Regex {
     pub fn is_match(&self, text: &str) -> bool {
         self.compiled.is_match(text)
     }
+
+    /// **P689** — Primeiro match de `text`: posições em **bytes** (paridade
+    /// vanilla), texto do match e capturas dos grupos em ordem posicional
+    /// (grupo opcional não participante → `""`). `None` se não houver match.
+    pub fn captures_first(&self, text: &str) -> Option<RegexMatch> {
+        let caps = self.compiled.captures(text)?;
+        let m = caps.get(0)?;
+        let mut captures = Vec::with_capacity(caps.len().saturating_sub(1));
+        for i in 1..caps.len() {
+            captures.push(caps.get(i).map(|g| g.as_str().to_string()).unwrap_or_default());
+        }
+        Some(RegexMatch {
+            start: m.start(),
+            end: m.end(),
+            text: m.as_str().to_string(),
+            captures,
+        })
+    }
+}
+
+/// Resultado do primeiro match de uma `Regex` (P689). Índices em **bytes**.
+#[derive(Debug, Clone)]
+pub struct RegexMatch {
+    pub start: usize,
+    pub end: usize,
+    pub text: String,
+    pub captures: Vec<String>,
 }
 
 impl Hash for Regex {

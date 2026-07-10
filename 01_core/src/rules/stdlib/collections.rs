@@ -15,6 +15,7 @@ use rustc_hash::FxBuildHasher;
 use crate::entities::args::Args;
 use crate::entities::engine::Engine;
 use crate::entities::func::Func;
+use crate::entities::regex::Regex;
 use crate::entities::source_result::{SourceDiagnostic, SourceResult};
 use crate::entities::span::Span;
 use crate::entities::value::Value;
@@ -87,6 +88,9 @@ pub(crate) fn try_dispatch_collection_method(
         (Value::Str(s), "to-lower") => Some(Ok(str_to_lower(s))),
         (Value::Str(s), "to-unicode") => Some(Ok(str_to_unicode(s))),
         (Value::Str(s), "rev") => Some(Ok(str_rev(s))),
+        (Value::Str(s), "codepoints") => Some(Ok(str_codepoints(s))),
+        (Value::Str(s), "position") => Some(str_position(s, args)),
+        (Value::Str(s), "match") => Some(str_match(s, args)),
 
         _ => None,
     }
@@ -567,6 +571,79 @@ fn str_clusters(s: EcoString) -> Value {
     )
 }
 
+/// **P689** — `str.codepoints()`: array de strings, um por char (scalar value).
+/// Equivalente ao `clusters` simplificado do cristalino (paridade vanilla para
+/// texto sem grapheme clusters multi-char).
+fn str_codepoints(s: EcoString) -> Value {
+    Value::Array(
+        s.chars()
+            .map(|c| Value::Str(c.to_string().into()))
+            .collect(),
+    )
+}
+
+/// **P689** — `str.position(hay)`: índice em **bytes** da primeira ocorrência,
+/// ou `none`. Aceita `str` (substring literal) ou `regex` (primeiro match).
+fn str_position(s: EcoString, args: Args) -> SourceResult<Value> {
+    match args.items.as_slice() {
+        [Value::Str(sub)] => Ok(s
+            .find(sub.as_str())
+            .map(|i| Value::Int(i as i64))
+            .unwrap_or(Value::None)),
+        [Value::Regex(re)] => Ok(re
+            .captures_first(s.as_str())
+            .map(|m| Value::Int(m.start as i64))
+            .unwrap_or(Value::None)),
+        [other] => Err(vec![SourceDiagnostic::error(
+            Span::detached(),
+            format!(
+                "str.position() espera str ou regex, recebeu {}",
+                other.type_name()
+            ),
+        )]),
+        _ => Err(vec![SourceDiagnostic::error(
+            Span::detached(),
+            "str.position() requer 1 argumento posicional".to_string(),
+        )]),
+    }
+}
+
+/// **P689** — `str.match(pattern)`: primeiro match da regex, como dict
+/// `{start, end, text, captures}` com índices em **bytes**, ou `none`.
+/// Capturas em ordem posicional (grupos nomeados inclusive).
+fn str_match(s: EcoString, args: Args) -> SourceResult<Value> {
+    match args.items.as_slice() {
+        [Value::Regex(re)] => match re.captures_first(s.as_str()) {
+            Some(m) => {
+                let mut dict: IndexMap<EcoString, Value, FxBuildHasher> =
+                    IndexMap::default();
+                dict.insert("start".into(), Value::Int(m.start as i64));
+                dict.insert("end".into(), Value::Int(m.end as i64));
+                dict.insert("text".into(), Value::Str(m.text.into()));
+                dict.insert(
+                    "captures".into(),
+                    Value::Array(
+                        m.captures
+                            .into_iter()
+                            .map(|c| Value::Str(c.into()))
+                            .collect(),
+                    ),
+                );
+                Ok(Value::Dict(dict))
+            }
+            None => Ok(Value::None),
+        },
+        [other] => Err(vec![SourceDiagnostic::error(
+            Span::detached(),
+            format!("str.match() espera regex, recebeu {}", other.type_name()),
+        )]),
+        _ => Err(vec![SourceDiagnostic::error(
+            Span::detached(),
+            "str.match() requer 1 argumento posicional (regex)".to_string(),
+        )]),
+    }
+}
+
 fn str_contains(s: EcoString, args: Args) -> SourceResult<Value> {
     let substr = expect_one_str(args, "str.contains()")?;
     Ok(Value::Bool(s.contains(substr.as_str())))
@@ -927,6 +1004,100 @@ mod tests {
             Value::Array(vec![Value::Int(1), Value::Int(4), Value::Int(1)]),
         ]);
         assert_eq!(result, expected);
+    }
+
+    // ── P689 — str.codepoints / str.position / str.match ────────────────────
+
+    #[test]
+    fn p689_str_codepoints_chars() {
+        assert_eq!(
+            str_codepoints("abc".into()),
+            Value::Array(vec![
+                Value::Str("a".into()),
+                Value::Str("b".into()),
+                Value::Str("c".into()),
+            ])
+        );
+        // multibyte (café precomposto) → 4 codepoints, paridade vanilla
+        assert_eq!(
+            str_codepoints("café".into()),
+            Value::Array(vec![
+                Value::Str("c".into()),
+                Value::Str("a".into()),
+                Value::Str("f".into()),
+                Value::Str("é".into()),
+            ])
+        );
+        assert_eq!(str_codepoints("".into()), Value::Array(vec![]));
+    }
+
+    #[test]
+    fn p689_str_position_str_e_regex_byte_indices() {
+        // str: índice em bytes; não encontrado → none
+        let a = make_args(vec![Value::Str("b".into())], None);
+        assert_eq!(str_position("abc".into(), a).unwrap(), Value::Int(1));
+        let a = make_args(vec![Value::Str("z".into())], None);
+        assert_eq!(str_position("abc".into(), a).unwrap(), Value::None);
+        // multibyte: "xéy" — y no byte 3 (x=1, é=2)
+        let a = make_args(vec![Value::Str("y".into())], None);
+        assert_eq!(str_position("xéy".into(), a).unwrap(), Value::Int(3));
+        // regex: paridade — também byte index
+        let a = make_args(vec![Value::Regex(Regex::new("y").unwrap())], None);
+        assert_eq!(str_position("xéy".into(), a).unwrap(), Value::Int(3));
+        let a = make_args(vec![Value::Regex(Regex::new("z").unwrap())], None);
+        assert_eq!(str_position("abc".into(), a).unwrap(), Value::None);
+    }
+
+    #[test]
+    fn p689_str_match_dict_e_captures() {
+        // sem match → none
+        let a = make_args(vec![Value::Regex(Regex::new("z").unwrap())], None);
+        assert_eq!(str_match("abc".into(), a).unwrap(), Value::None);
+
+        // match simples → dict {start, end, text, captures}
+        let a = make_args(vec![Value::Regex(Regex::new("b").unwrap())], None);
+        let d = match str_match("abc".into(), a).unwrap() {
+            Value::Dict(d) => d,
+            other => panic!("esperado dict, recebeu {:?}", other),
+        };
+        assert_eq!(d.get("start"), Some(&Value::Int(1)));
+        assert_eq!(d.get("end"), Some(&Value::Int(2)));
+        assert_eq!(d.get("text"), Some(&Value::Str("b".into())));
+        assert_eq!(d.get("captures"), Some(&Value::Array(vec![])));
+
+        // multibyte: "xéy" match é → start 1, end 3 (bytes)
+        let a = make_args(vec![Value::Regex(Regex::new("é").unwrap())], None);
+        let d = match str_match("xéy".into(), a).unwrap() {
+            Value::Dict(d) => d,
+            other => panic!("esperado dict, recebeu {:?}", other),
+        };
+        assert_eq!(d.get("start"), Some(&Value::Int(1)));
+        assert_eq!(d.get("end"), Some(&Value::Int(3)));
+
+        // captures posicionais (inclui grupos nomeados em ordem)
+        let a = make_args(vec![Value::Regex(Regex::new("(a)(b)(c)").unwrap())], None);
+        let d = match str_match("abc".into(), a).unwrap() {
+            Value::Dict(d) => d,
+            other => panic!("esperado dict, recebeu {:?}", other),
+        };
+        assert_eq!(
+            d.get("captures"),
+            Some(&Value::Array(vec![
+                Value::Str("a".into()),
+                Value::Str("b".into()),
+                Value::Str("c".into()),
+            ]))
+        );
+    }
+
+    #[test]
+    fn p689_str_position_match_tipo_errado() {
+        // position com Int → erro
+        let a = make_args(vec![Value::Int(1)], None);
+        assert!(str_position("abc".into(), a).is_err());
+        // match com Str (não regex) → erro
+        let a = make_args(vec![Value::Str("b".into())], None);
+        assert!(str_match("abc".into(), a).is_err());
     }
 
 }
