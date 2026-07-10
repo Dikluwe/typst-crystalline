@@ -1,27 +1,27 @@
 {
   "results": [
     {
-      "command": "/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst compile /home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/parity/corpus/p500/test-enum-advanced.typ /tmp/tmpyihmqez1.pdf",
-      "mean": 0.0942320469,
-      "stddev": 0.00045991332437069225,
-      "median": 0.09434431010000001,
-      "user": 0.056463019999999996,
-      "system": 0.03997459999999999,
-      "min": 0.09369566110000001,
-      "max": 0.09484860010000001,
+      "command": "/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst compile /home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/parity/corpus/p500/test-enum-advanced.typ /tmp/tmp973i5cjs.pdf",
+      "mean": 0.09457192310000002,
+      "stddev": 0.0007618281994329863,
+      "median": 0.09460238950000001,
+      "user": 0.05829685999999999,
+      "system": 0.03856891999999999,
+      "min": 0.09368947650000001,
+      "max": 0.09557767750000001,
       "times": [
-        0.09369566110000001,
-        0.09484860010000001,
-        0.0938646161,
-        0.0944070471,
-        0.09434431010000001
+        0.0939858585,
+        0.09557767750000001,
+        0.09460238950000001,
+        0.09500421350000002,
+        0.09368947650000001
       ],
       "memory_usage_byte": [
-        29253632,
-        29331456,
-        29331456,
-        29331456,
-        29642752
+        29556736,
+        29556736,
+        29556736,
+        29556736,
+        29556736
       ],
       "exit_codes": [
         0,
@@ -32,27 +32,27 @@
       ]
     },
     {
-      "command": "/home/dikluwe/Documentos/Antigravity/typst-crystalline/target/release/typst /home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/parity/corpus/p500/test-enum-advanced.typ /tmp/tmpyihmqez1.pdf",
-      "mean": 0.19244280330000002,
-      "stddev": 0.0023526003276769505,
-      "median": 0.19120552710000002,
-      "user": 0.00789322,
-      "system": 0.18437379999999998,
-      "min": 0.1901739641,
-      "max": 0.1955739891,
+      "command": "/home/dikluwe/Documentos/Antigravity/typst-crystalline/target/release/typst /home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/parity/corpus/p500/test-enum-advanced.typ /tmp/tmp973i5cjs.pdf",
+      "mean": 0.0394322773,
+      "stddev": 0.0007104499126734403,
+      "median": 0.0390492195,
+      "user": 0.0074334599999999985,
+      "system": 0.03169672,
+      "min": 0.038844474500000004,
+      "max": 0.0404946125,
       "times": [
-        0.1943014681,
-        0.1901739641,
-        0.19095906810000002,
-        0.19120552710000002,
-        0.1955739891
+        0.0404946125,
+        0.0389427095,
+        0.039830370500000004,
+        0.0390492195,
+        0.038844474500000004
       ],
       "memory_usage_byte": [
-        54484992,
-        54484992,
-        54710272,
-        54710272,
-        54710272
+        29556736,
+        29556736,
+        29556736,
+        29556736,
+        29556736
       ],
       "exit_codes": [
         0,

@@ -1,27 +1,27 @@
 {
   "results": [
     {
-      "command": "/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst compile /home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/parity/corpus/p500/test-footnote-advanced.typ /tmp/tmpo860jz7s.pdf",
-      "mean": 0.09611298472,
-      "stddev": 0.0004415047557124378,
-      "median": 0.09610396392000001,
-      "user": 0.06141751999999999,
-      "system": 0.03671612,
-      "min": 0.09569104392000001,
-      "max": 0.09680845692000001,
+      "command": "/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst compile /home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/parity/corpus/p500/test-footnote-advanced.typ /tmp/tmpxtnlgs6m.pdf",
+      "mean": 0.09468351042,
+      "stddev": 0.0003910012860835624,
+      "median": 0.09450748342,
+      "user": 0.05880386,
+      "system": 0.0381561,
+      "min": 0.09430882542,
+      "max": 0.09519701842,
       "times": [
-        0.09610396392000001,
-        0.09680845692000001,
-        0.09577710492000001,
-        0.09569104392000001,
-        0.09618435392000001
+        0.09450748342,
+        0.09499856742,
+        0.09430882542,
+        0.09440565742,
+        0.09519701842
       ],
       "memory_usage_byte": [
+        29519872,
+        29519872,
         29601792,
         29601792,
-        29650944,
-        29650944,
-        29650944
+        29601792
       ],
       "exit_codes": [
         0,
@@ -32,27 +32,27 @@
       ]
     },
     {
-      "command": "/home/dikluwe/Documentos/Antigravity/typst-crystalline/target/release/typst /home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/parity/corpus/p500/test-footnote-advanced.typ /tmp/tmpo860jz7s.pdf",
-      "mean": 0.19350590552,
-      "stddev": 0.007225590625863968,
-      "median": 0.19149705392000002,
-      "user": 0.00790872,
-      "system": 0.18537292,
-      "min": 0.18856740292000002,
-      "max": 0.20619906492,
+      "command": "/home/dikluwe/Documentos/Antigravity/typst-crystalline/target/release/typst /home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/parity/corpus/p500/test-footnote-advanced.typ /tmp/tmpxtnlgs6m.pdf",
+      "mean": 0.03953977362,
+      "stddev": 0.00044686023433921756,
+      "median": 0.03964792342,
+      "user": 0.01051146,
+      "system": 0.028801699999999996,
+      "min": 0.03881852142,
+      "max": 0.03999276242,
       "times": [
-        0.18856740292000002,
-        0.19149705392000002,
-        0.19181387392000002,
-        0.18945213192000002,
-        0.20619906492
+        0.03999276242,
+        0.039463596420000004,
+        0.03964792342,
+        0.03977606442000001,
+        0.03881852142
       ],
       "memory_usage_byte": [
-        54644736,
-        54644736,
-        54644736,
-        54644736,
-        54644736
+        29601792,
+        29601792,
+        29601792,
+        29601792,
+        29601792
       ],
       "exit_codes": [
         0,

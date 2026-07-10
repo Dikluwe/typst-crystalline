@@ -2,8 +2,9 @@
 
 **Camada**: L3  
 **Criado em**: 2026-06-30  
+**Atualizado em**: 2026-07-10  
 **Arquivos gerados**: `03_infra/src/fontdb.rs` (novo), alterações em `03_infra/src/world.rs`, `03_infra/Cargo.toml`  
-**ADR referência**: ADR-0020 (ativação), ADR-0019, ADR-0022  
+**ADR referência**: ADR-0020 (ativação), ADR-0019, ADR-0022, ADR-0108  
 
 ---
 
@@ -35,7 +36,7 @@ A ADR-0020 adiou a integração de `fontdb` até o CLI precisar de descoberta au
      - Obtém o caminho do ficheiro via `face.source.path()`.
      - Usa `face.index` (índice da face na colecção).
      - Cria um `FontSlot::new(path, index)`.
-     - Extrai `FontInfo` via `font_info_from_bytes` (reutilizar `crate::fonts::font_info_from_bytes`), chamando `std::fs::read(path)` defensivamente (ignorar faces que falhem).
+     - Extrai `FontInfo` via `font_info_from_bytes` (reutilizar `crate::fonts::font_info_from_bytes`), **usando `db.with_face_data(face.id, |data, index| font_info_from_bytes(data, index))`** para reutilizar os bytes já carregados pelo `fontdb` em vez de reler o ficheiro do disco. Faces que falhem a extrair `FontInfo` são mantidas como slots (o `FontBook` ignora-as silenciosamente, preservando os índices).
    - Retorna os slots e o `FontBook` populado.
 
 3. Expor em `03_infra/src/world.rs` um novo builder em `SystemWorld`:
@@ -92,3 +93,4 @@ Então slots e book estão vazios (não panic)
 | Data | Motivo | Arquivos afetados |
 |------|--------|-------------------|
 | 2026-06-30 | Criação — ativação de ADR-0020 para P515 | `fontdb.md` |
+| 2026-07-10 | P674 — elimina leitura duplicada de fontes do sistema usando `db.with_face_data` | `fontdb.md`, `03_infra/src/fontdb.rs` |

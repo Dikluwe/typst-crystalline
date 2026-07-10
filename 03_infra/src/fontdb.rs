@@ -10,7 +10,7 @@ use std::path::{Path, PathBuf};
 
 use typst_core::entities::font_book::FontBook;
 
-use crate::fonts::{build_font_book, font_info_from_bytes, FontSlot};
+use crate::fonts::{font_info_from_bytes, FontSlot};
 
 /// Carrega as fontes instaladas no sistema operativo.
 ///
@@ -25,6 +25,7 @@ pub fn load_system_fonts() -> (Vec<FontSlot>, FontBook) {
     db.load_system_fonts();
 
     let mut slots = Vec::new();
+    let mut book = FontBook::new();
     for face in db.faces() {
         let (path, index) = match &face.source {
             fontdb::Source::File(path)
@@ -35,13 +36,22 @@ pub fn load_system_fonts() -> (Vec<FontSlot>, FontBook) {
                 continue;
             }
         };
+
+        // P674 — reutiliza os bytes já carregados pelo fontdb em vez de reler
+        // o ficheiro do disco. Isto corta pela metade o I/O de arranque.
+        let info = db
+            .with_face_data(face.id, |data, idx| font_info_from_bytes(data, idx))
+            .flatten();
+
         slots.push(FontSlot::new(path, index));
+        if let Some(info) = info {
+            book.push(info);
+        }
     }
 
     // Preservar a ordem estável devolvida pelo fontdb; o FontBook reflecte
     // essa ordem. Duplicados de path+index são mantidos — a deduplicação
     // é responsabilidade do consumidor (SystemWorld) se desejada.
-    let book = build_font_book(&slots);
     (slots, book)
 }
 
@@ -54,16 +64,24 @@ pub fn load_fonts_from_dir<P: AsRef<Path>>(dir: P) -> (Vec<FontSlot>, FontBook) 
     db.load_fonts_dir(dir.as_ref());
 
     let mut slots = Vec::new();
+    let mut book = FontBook::new();
     for face in db.faces() {
         let (path, index) = match &face.source {
             fontdb::Source::File(path)
             | fontdb::Source::SharedFile(path, _) => (path.clone(), face.index),
             fontdb::Source::Binary(_) => continue,
         };
+
+        let info = db
+            .with_face_data(face.id, |data, idx| font_info_from_bytes(data, idx))
+            .flatten();
+
         slots.push(FontSlot::new(path, index));
+        if let Some(info) = info {
+            book.push(info);
+        }
     }
 
-    let book = build_font_book(&slots);
     (slots, book)
 }
 
