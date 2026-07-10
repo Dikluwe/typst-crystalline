@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/rules/eval.md
-//! @prompt-hash cce90241
+//! @prompt-hash a660f985
 //! @layer L1
 //! @updated 2026-04-23
 //!
@@ -9,25 +9,181 @@
 //! ADR-0037 Regra 4. Assinaturas simplificadas no Passo 109 (ADR-0044)
 //! via `Engine<'_>`.
 
-use comemo::TrackedMut;
+use std::sync::Arc;
 
-use crate::entities::ast::code::{ModuleImport, ModuleInclude};
+use comemo::{Track, TrackedMut};
+
+use crate::entities::ast::code::{Imports, ModuleImport, ModuleInclude};
+use crate::entities::ast::expr::Expr;
 use crate::entities::ast::AstNode;
 use crate::entities::engine::Engine;
+use crate::entities::func::Func;
+use crate::entities::module::Module;
+use crate::entities::show::{RuleId, ShowRule};
+use crate::entities::source::Source;
 use crate::entities::source_result::{SourceDiagnostic, SourceResult};
 use crate::entities::span::Span;
+use crate::entities::style_chain::StyleChain;
 use crate::entities::value::Value;
 use crate::entities::world_types::Route;
 use crate::rules::scopes::Scopes;
 
 use super::{eval_expr, eval_markup, EvalContext};
 
-pub(super) fn eval_module_import(import: ModuleImport<'_>) -> SourceResult<Value> {
-    // import não implementado — Passo 33+
-    Err(vec![SourceDiagnostic::error(
-        import.span(),
-        "import não implementado nesta versão do cristalino",
-    )])
+/// Avalia um ficheiro importado num **módulo isolado** e devolve o seu [`Module`].
+///
+/// O ficheiro é avaliado com scope base próprio (stdlib + cores predefinidas +
+/// `text`) e um `Engine`/`EvalContext` locais, de modo que `#set`/`#show` e o
+/// conteúdo de markup do ficheiro importado não vazam para o importador — só os
+/// bindings (`#let`/`#fn`) são expostos via `Module::scope()`. Espelha o
+/// `run_pass` do eval principal (Passo 109, ADR-0044), mas numa única passagem
+/// (o conteúdo é descartado). Ver `00_nucleo/prompts/rules/eval.md` §P679.
+fn eval_imported_file(
+    source: &Source,
+    name: &str,
+    ctx: &EvalContext,
+    engine: &mut Engine<'_>,
+) -> SourceResult<Module> {
+    let src_id = source.id();
+
+    // Scope base do módulo importado — paridade com o eval principal: o ficheiro
+    // importado vê a stdlib (ex.: `range(3)`), as cores predefinidas e `text`.
+    let mut module_scopes = Scopes::new(None);
+    let stdlib = super::make_stdlib();
+    for (n, binding) in stdlib.iter() {
+        module_scopes.define(n, binding.value().clone());
+    }
+    for (n, value) in crate::rules::stdlib::predefined_color_bindings() {
+        module_scopes.define(n.as_str(), value);
+    }
+    module_scopes.define(
+        "text",
+        Value::Func(Func::native("text", crate::rules::stdlib::native_text)),
+    );
+    module_scopes.enter(); // âmbito do módulo importado
+
+    // Frame filho: segmento de rota com o `id` do ficheiro importado.
+    let local_route = Route::extend(engine.route).with_id(src_id);
+
+    // Engine local isolado: estilos/show-rules/guards próprios (não partilhados
+    // com o importador). O `sink` é reborrowed para que warnings do ficheiro
+    // importado cheguem ao caller. Quando a chamada retorna, o Engine do
+    // chamador permanece intacto.
+    let mut styles = StyleChain::default_chain();
+    let mut show_rules: Arc<[ShowRule]> = Arc::from([]);
+    let mut active_guards: Vec<RuleId> = Vec::new();
+    let mut local_sink = TrackedMut::reborrow_mut(&mut *engine.sink);
+    let mut local_engine = Engine {
+        world: engine.world,
+        route: local_route.track(),
+        styles: &mut styles,
+        show_rules: &mut show_rules,
+        active_guards: &mut active_guards,
+        current_file: src_id,
+        sink: &mut local_sink,
+    };
+
+    // Contexto local: herda `full_error`, mas corre sem aplicar show-rules — o
+    // conteúdo é descartado e só os bindings interessam.
+    let mut local_ctx = EvalContext::new();
+    local_ctx.full_error = ctx.full_error;
+    local_ctx.apply_show_rules = false;
+
+    eval_markup(source.root(), &mut module_scopes, &mut local_ctx, &mut local_engine)?;
+    if let Some(flow) = local_ctx.flow {
+        return Err(vec![flow.forbidden()]);
+    }
+
+    let module_scope = module_scopes.exit();
+    Ok(Module::new(name.to_string(), module_scope))
+}
+
+pub(super) fn eval_module_import(
+    import: ModuleImport<'_>,
+    scopes: &mut Scopes<'_>,
+    ctx: &mut EvalContext,
+    engine: &mut Engine<'_>,
+) -> SourceResult<Value> {
+    // 1. O caminho de um import de ficheiro local é uma string literal.
+    let source_expr = import.source();
+    let source_span = source_expr.span();
+    let path = match source_expr {
+        Expr::Str(s) => s.get()?,
+        _ => return Err(vec![SourceDiagnostic::error(
+            source_span,
+            "import: caminho deve ser uma string literal (ex.: #import \"ficheiro.typ\")",
+        )]),
+    };
+
+    // 2. Pacotes (@preview/...) ficam fora do scope de P679 (ficheiros locais).
+    if path.starts_with('@') {
+        return Err(vec![SourceDiagnostic::error(
+            source_span,
+            "import de pacotes (@preview/...) ainda não é suportado pelo cristalino",
+        )]);
+    }
+
+    // 3. Resolver o ficheiro (relativo ao ficheiro actual) e registá-lo no world.
+    let source = engine
+        .world
+        .include_source(engine.current_file, &path)
+        .map_err(|msg| vec![SourceDiagnostic::error(Span::detached(), msg)])?;
+    let src_id = source.id();
+
+    // 4. Detecção de ciclo via `Route::contains` (ADR-0033, ADR-0036).
+    if engine.route.contains(src_id) {
+        return Err(vec![SourceDiagnostic::error(
+            Span::detached(),
+            format!(
+                "ciclo de importação detectado: ficheiro {:?} já está \
+                 na cadeia de avaliação activa",
+                src_id
+            ),
+        )]);
+    }
+
+    // 5. Nome do módulo (file_stem) — usado em `Module::new` e no bare import.
+    let module_name = import.bare_name().map_err(|_| {
+        vec![SourceDiagnostic::error(
+            source_span,
+            "module name would not be a valid identifier",
+        )]
+    })?;
+
+    // 6. Avaliar o ficheiro num módulo isolado.
+    let module = eval_imported_file(&source, &module_name, ctx, engine)?;
+
+    // 7. Aplicar bindings ao scope do chamador conforme a forma do import.
+    match import.imports() {
+        None => {
+            // Bare import: liga o módulo sob `new_name` (`as`) ou `bare_name`.
+            let bind = import
+                .new_name()
+                .map(|i| i.get().to_string())
+                .unwrap_or_else(|| module_name.clone());
+            scopes.define(&bind, Value::Module(module));
+        }
+        Some(Imports::Wildcard) => {
+            for (name, binding) in module.scope().iter() {
+                scopes.define(name, binding.value().clone());
+            }
+        }
+        Some(Imports::Items(items)) => {
+            for item in items.iter() {
+                let orig = item.original_name().get().to_string();
+                let bound = item.bound_name().get().to_string();
+                let value = module.scope().get(&orig).cloned().ok_or_else(|| {
+                    vec![SourceDiagnostic::error(
+                        item.original_name().span(),
+                        format!("unresolved import: `{}`", orig),
+                    )]
+                })?;
+                scopes.define(&bound, value);
+            }
+        }
+    }
+
+    Ok(Value::None)
 }
 
 pub(super) fn eval_module_include(

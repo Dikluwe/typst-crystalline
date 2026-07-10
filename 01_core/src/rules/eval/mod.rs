@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/rules/eval.md
-//! @prompt-hash cce90241
+//! @prompt-hash a660f985
 //! @layer L1
 //! @updated 2026-07-09
 //!
@@ -741,7 +741,7 @@ pub(crate) fn eval_expr(
             Ok(Value::Content(content))
         }
 
-        Expr::ModuleImport(i)  => modules::eval_module_import(i),
+        Expr::ModuleImport(i)  => modules::eval_module_import(i, scopes, ctx, engine),
         Expr::ModuleInclude(i) => modules::eval_module_include(i, scopes, ctx, engine),
 
         // Passo 56 — referência cruzada: @nome → Content::Ref placeholder.

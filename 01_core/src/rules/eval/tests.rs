@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/rules/eval.md
-//! @prompt-hash cce90241
+//! @prompt-hash a660f985
 //! @layer L1
 //! @updated 2026-06-17
 //!
@@ -2671,6 +2671,75 @@ mod tests {
         }
     }
 
+    // ── Mock para testar `#import` de ficheiros locais (P679) ────────────────
+
+    /// Mock com um mapa de ficheiros por caminho. Cada ficheiro é criado uma
+    /// vez (FileId estável) e devolvido por `include_source` via clone — a
+    /// detecção de ciclo depende da estabilidade do FileId entre chamadas.
+    struct ImportMockWorld {
+        library: Library,
+        book: FontBook,
+        main: Source,
+        files: std::collections::HashMap<String, Source>,
+    }
+
+    impl ImportMockWorld {
+        fn new(main_text: &str, files: &[(&str, &str)]) -> Self {
+            let main_id = FileId::from_raw(NonZeroU16::new(1).unwrap());
+            let mut map = std::collections::HashMap::new();
+            let mut next = 2u16;
+            for (path, text) in files {
+                let id = FileId::from_raw(NonZeroU16::new(next).unwrap());
+                next += 1;
+                map.insert(path.to_string(), Source::new(id, text.to_string()));
+            }
+            Self {
+                library: Library::new(),
+                book: FontBook::new(),
+                main: Source::new(main_id, main_text.to_string()),
+                files: map,
+            }
+        }
+    }
+
+    impl World for ImportMockWorld {
+        fn library(&self) -> &Library {
+            &self.library
+        }
+        fn book(&self) -> &FontBook {
+            &self.book
+        }
+        fn main(&self) -> FileId {
+            self.main.id()
+        }
+        fn source(&self, id: FileId) -> FileResult<Source> {
+            if id == self.main.id() {
+                Ok(self.main.clone())
+            } else {
+                self.files
+                    .values()
+                    .find(|s| s.id() == id)
+                    .cloned()
+                    .ok_or(FileError::NotFound)
+            }
+        }
+        fn file(&self, _: FileId) -> FileResult<Bytes> {
+            Err(FileError::NotFound)
+        }
+        fn font(&self, _: usize) -> Option<Font> {
+            None
+        }
+        fn today(&self, _: Option<i64>) -> Option<Datetime> {
+            None
+        }
+        fn include_source(&self, _current_file: FileId, path: &str) -> Result<Source, String> {
+            self.files
+                .get(path)
+                .cloned()
+                .ok_or_else(|| format!("ficheiro não encontrado: {}", path))
+        }
+    }
+
     #[test]
     fn import_cycle_detectado_retorna_err_sem_panic() {
         // main.typ inclui other.typ que inclui main.typ — ciclo.
@@ -2690,19 +2759,112 @@ mod tests {
         );
     }
 
-    // ── ModuleImport retorna Err limpo (não panic) ─────────────────────────────
+    // ── ModuleImport de ficheiros locais (P679) ──────────────────────────────
+
+    const UTILS: &str =
+        "#let saudacao(nome) = \"Olá, \" + nome + \"!\"\n#let PI = 3.14159";
+
+    fn import_str(main: &str, files: &[(&str, &str)], binding: &str) -> Value {
+        let world = ImportMockWorld::new(main, files);
+        let src = World::source(&world, World::main(&world)).unwrap();
+        let module = eval_for_test(&world, &src).expect("eval não deve falhar");
+        module.scope().get(binding).cloned().unwrap_or(Value::None)
+    }
 
     #[test]
-    fn eval_import_retorna_err_sem_panic() {
-        let world = MockWorld::new("#import \"foo.typ\": bar");
+    fn import_item_unico() {
+        let v = import_str(
+            "#import \"u.typ\": saudacao\n#let r = saudacao(\"Mundo\")",
+            &[("u.typ", UTILS)],
+            "r",
+        );
+        assert_eq!(v, Value::Str("Olá, Mundo!".into()));
+    }
+
+    #[test]
+    fn import_wildcard() {
+        let world = ImportMockWorld::new(
+            "#import \"u.typ\": *\n#let r = saudacao(\"Mundo\")",
+            &[("u.typ", UTILS)],
+        );
+        let src = World::source(&world, World::main(&world)).unwrap();
+        let module = eval_for_test(&world, &src).unwrap();
+        assert_eq!(
+            module.scope().get("r"),
+            Some(&Value::Str("Olá, Mundo!".into()))
+        );
+        // wildcard também importa PI (binding auxiliar do mesmo ficheiro)
+        assert!(matches!(module.scope().get("PI"), Some(Value::Float(_))));
+    }
+
+    #[test]
+    fn import_rename_item() {
+        let v = import_str(
+            "#import \"u.typ\": saudacao as ola\n#let r = ola(\"Mundo\")",
+            &[("u.typ", UTILS)],
+            "r",
+        );
+        assert_eq!(v, Value::Str("Olá, Mundo!".into()));
+    }
+
+    #[test]
+    fn import_bare_modulo_field_access() {
+        let v = import_str(
+            "#import \"u.typ\"\n#let r = u.saudacao(\"Mundo\")",
+            &[("u.typ", UTILS)],
+            "r",
+        );
+        assert_eq!(v, Value::Str("Olá, Mundo!".into()));
+    }
+
+    #[test]
+    fn import_as_modulo_field_access() {
+        let v = import_str(
+            "#import \"u.typ\" as u\n#let r = u.saudacao(\"Mundo\")",
+            &[("u.typ", UTILS)],
+            "r",
+        );
+        assert_eq!(v, Value::Str("Olá, Mundo!".into()));
+    }
+
+    #[test]
+    fn import_stdlib_visivel_no_ficheiro_importado() {
+        // Paridade vanilla: o ficheiro importado vê a stdlib (range).
+        let v = import_str(
+            "#import \"u.typ\": nums\n#let r = nums",
+            &[("u.typ", "#let nums = range(3)")],
+            "r",
+        );
+        assert_eq!(
+            v,
+            Value::Array(vec![Value::Int(0), Value::Int(1), Value::Int(2)])
+        );
+    }
+
+    #[test]
+    fn import_item_inexistente_retorna_unresolved_import() {
+        let world = ImportMockWorld::new("#import \"u.typ\": naoexiste", &[("u.typ", UTILS)]);
+        let src = World::source(&world, World::main(&world)).unwrap();
+        let err = eval_for_test(&world, &src).expect_err("item inexistente deve errar");
+        assert!(
+            err.iter().any(|d| d.message.contains("unresolved import")),
+            "esperava 'unresolved import'; recebido: {:?}",
+            err.iter().map(|d| &d.message).collect::<Vec<_>>()
+        );
+    }
+
+    #[test]
+    fn import_ficheiro_ausente_retorna_err_sem_panic() {
+        // Ficheiro não registado → include_source falha → Err limpo (não panic).
+        let world = ImportMockWorld::new("#import \"foo.typ\": bar", &[]);
         let src = World::source(&world, World::main(&world)).unwrap();
         let result = eval_for_test(&world, &src);
-        // Deve retornar Err (import não implementado), não panic
-        assert!(result.is_err());
+        assert!(result.is_err(), "import de ficheiro ausente deve ser Err");
         let err = result.unwrap_err();
         assert!(
-            err[0].message.contains("import")
-                || err[0].message.contains("não implementado")
+            err.iter().any(|d| d.message.contains("foo.typ")),
+            "esperava menção ao caminho; recebido: {:?}",
+            err.iter().map(|d| &d.message).collect::<Vec<_>>()
         );
     }
 

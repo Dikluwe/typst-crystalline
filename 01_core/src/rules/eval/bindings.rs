@@ -1,8 +1,8 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/rules/eval.md
-//! @prompt-hash 4f183cf8
+//! @prompt-hash a660f985
 //! @prompt 00_nucleo/prompts/rules/eval/field-access.md
-//! @prompt-hash c822a5ed
+//! @prompt-hash d935c8b5
 //! @layer L1
 //! @updated 2026-06-22
 //!
@@ -629,6 +629,16 @@ pub(super) fn eval_field_access(
                 "esta função não tem campos".to_string(),
             )]),
         },
+        // P679 — Field access em Value::Module: lookup no scope do módulo importado.
+        // Ex.: `#import "u.typ"` seguido de `#p679-utils.saudacao("Mundo")`, ou
+        // `#import "u.typ" as u` + `#u.saudacao("Mundo")`. O valor obtido é tipicamente
+        // `Value::Func`, que o dispatcher de chamada (`apply_func`) já trata.
+        Value::Module(m) => m.scope().get(field.as_str()).cloned().ok_or_else(|| {
+            vec![SourceDiagnostic::error(
+                access.span(),
+                format!("módulo '{}' não tem campo '{}'", m.name(), field),
+            )]
+        }),
         other => Err(vec![SourceDiagnostic::error(
             access.span(),
             format!("field access não suportado em {}", other.type_name()),

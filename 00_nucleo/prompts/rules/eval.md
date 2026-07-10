@@ -487,3 +487,77 @@ elemento `text`): o Typst actual não implementa escrita vertical de texto, e
 rejeitar explicitamente é preferível a aceitar silenciosamente e renderizar
 horizontal. A escrita vertical enquanto funcionalidade nova permanece fora do
 scope actual (ver `00_nucleo/diagnosticos/paridade-producao-p614.md`).
+
+
+## §P679 — `#import` de ficheiros locais
+
+Medição na fonte vanilla 0.15.0 (`lab/typst-original/crates/typst-eval/src/import.rs`):
+
+- `import.rs:22` — o `source` do import é avaliado (`source_expr.eval(vm)?`); para uma
+  string literal isto produz `Value::Str`.
+- `import.rs:33-39` — `Value::Str(path) => import(...)`: o caminho é resolvido e o
+  ficheiro avaliado; `source` é substituído pelo `Value::Module` resultante
+  (`replaced_source = true`).
+- `import.rs:60-75` — `as nome`: o módulo é ligado no escopo sob `new_name`.
+- `import.rs:78-106` — bare import (`imports() == None`, sem `as`): liga o módulo sob
+  `bare_name()` (file_stem do caminho). Caminho dinâmico →
+  `"dynamic import requires an explicit name"` (linha 96); file_stem não-identificador →
+  `"module name would not be a valid identifier"` (linha 100).
+- `import.rs:108-111` — `Imports::Wildcard`: itera `scope.iter()` do módulo e liga cada
+  binding no escopo do importador.
+- `import.rs:113-121` — `Imports::Items`: para cada item, lookup no escopo do módulo; se
+  falta, `error!(component.span(), "unresolved import")` (linha 121); rename de item
+  (`saudacao as ola`) liga sob `bound_name`.
+
+Classificação (ADR-0108): a forma `#import "f.typ": ...` é **sintaxe/morfologia** da
+linguagem (paridade); a mensagem de erro é **observável mecânico** (paridade ao nível do
+texto do erro); o algoritmo interno de resolução (`import`/`import_file`, `Tracepoint`) é
+**mecânica** e diverge de propósito (P329).
+
+Semântica a implementar em `eval_module_import` (`01_core/src/rules/eval/modules.rs`),
+dispatcher `Expr::ModuleImport` em `mod.rs`:
+
+1. O `source` tem de ser `Expr::Str` (caminho literal). Qualquer outra forma → erro
+   `import: caminho deve ser uma string literal`. (O cristalino não avalia o source como
+   expressão dinâmica neste passo — alinhado ao facto de o vanilla só aceitar path/
+   módulo/função/tipo, e de P679 cobrir ficheiros locais.)
+2. Caminho a começar por `@` (pacote `@preview/...`) → erro claro
+   `import de pacotes (@preview/...) ainda não é suportado pelo cristalino`. Scope-out de
+   P679: resolução de pacotes é passo posterior (`PackageSpec` já existe em L1).
+3. Resolução do ficheiro: `engine.world.include_source(engine.current_file, &path)`
+   (caminho relativo ao directório do ficheiro actual; regista o ficheiro no world).
+   Erro de resolução (ficheiro inexistente) propaga a mensagem do world.
+4. Detecção de ciclo: `engine.route.contains(src_id)` → erro
+   `ciclo de importação detectado: ficheiro ... já está na cadeia de avaliação activa`
+   (mesma família da mensagem de `#include`, em `modules.rs`).
+5. Avaliação do ficheiro importado num **módulo isolado**: scope base próprio (stdlib +
+   cores predefinidas + `text`), `Engine` local com `styles`/`show_rules`/`active_guards`
+   próprios (não partilhados com o importador), `EvalContext` local, `route` estendida
+   (`Route::extend(engine.route).with_id(src_id)`) e `current_file = src_id`. O conteúdo
+   (markup) do ficheiro importado é **descartado** — só os bindings (`#let`/`#fn`) contam.
+   `ctx.flow` no ficheiro importado (`#return`/`#break` solto) produz erro (`forbidden()`).
+   Confirmado por sonda: ficheiro importado vê a stdlib (`range(3) → (0, 1, 2)`) e o seu
+   markup solto não aparece no documento importador.
+6. Construção do módulo: `Module::new(module_name, module_scope)` onde `module_name =
+   bare_name()` (file_stem). Bindings no escopo do chamador conforme `imports()`:
+   - `None`: define o módulo sob `new_name` (se `as`) ou `bare_name` → `Value::Module`.
+   - `Wildcard`: define cada `(name, value)` de `module.scope().iter()`.
+   - `Items`: para cada item, `module.scope().get(orig).cloned()`; se `None` → erro
+     `unresolved import: \`{orig}\`` no span do item; senão define sob `bound_name`
+     (igual a `orig` para `Simple`, ou `new_name` para `Renamed`).
+7. Valor de retorno da expressão: `Value::None` (em markup é descartado; os efeitos são
+   os bindings no escopo).
+
+Critérios de verificação:
+
+- `#import "u.typ": saudacao` liga `saudacao`; `#saudacao("Mundo")` → `Olá, Mundo!`.
+- `#import "u.typ": *` liga todos os bindings (`saudacao`, `PI`).
+- `#import "u.typ": saudacao as ola` liga sob `ola`.
+- `#import "u.typ"` liga o módulo sob o file_stem; `#p679-utils.saudacao("Mundo")` funciona.
+- `#import "u.typ" as u` liga sob `u`.
+- Ciclo `a → b → a` → erro contendo `ciclo de importação detectado`.
+- Ficheiro inexistente → erro de resolução (file not found).
+- Item inexistente → erro contendo `unresolved import`.
+- `#include` continua a funcionar sem regressão.
+- `cargo test --workspace` continua a passar.
+- `crystalline-lint .` limpo.

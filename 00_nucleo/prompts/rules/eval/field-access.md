@@ -1,5 +1,5 @@
 # Prompt L0 — `rules/eval` — Field Access em tipos primitivos e funções com namespace
-Hash do Código: 827d52fe
+Hash do Código: 5894ade3
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/rules/eval/bindings.rs` (`eval_field_access`, `eval_element_where`)
@@ -242,3 +242,44 @@ Então Value::Float(5400.0)
 - Array field access: `p493_array_dedup`, `p493_array_chunks`, `p493_array_windows`, `p493_array_len_first_last`.
 - Func namespace: `p493_table_header_field`, `p493_table_footer_field`, `p493_table_cell_field`.
 - Where multi-field: `p493_heading_where_multi`, `p493_figure_where_multi`, `p493_heading_where_single_regression`.
+
+
+---
+
+## 11. Field Access `Module` (P679)
+
+Medição na fonte vanilla 0.15.0 (`lab/typst-original/crates/typst-eval/src/import.rs`):
+
+- `import.rs:77` — `let scope = source.scope().unwrap();`: um `Value::Module` expõe o seu
+  `Scope` via `Value::scope()`.
+- `import.rs:109` / `import.rs:120` — `scope.iter()` / `scope.get(component)`: a resolução
+  de um nome num módulo é lookup no `Scope` do módulo. O field access `#mod.campo` usa o
+  mesmo `Scope` (typst-eval resolve `FieldAccess` em `Value::Module` por lookup no scope).
+
+Classificação (ADR-0108): o acesso `#mod.campo` é **morfologia** da linguagem (paridade);
+a mensagem de erro para campo ausente é **observável mecânico**.
+
+Semântica a adicionar em `eval_field_access` (`01_core/src/rules/eval/bindings.rs`), novo
+armo no `match target`:
+
+```rust
+Value::Module(m) => m.scope().get(field.as_str()).cloned().ok_or_else(|| {
+    vec![SourceDiagnostic::error(
+        access.span(),
+        format!("módulo '{}' não tem campo '{}'", m.name(), field),
+    )]
+}),
+```
+
+Isto habilita as formas `#import "u.typ"` (bare) e `#import "u.typ" as u` de P679: depois
+de ligar o módulo no escopo, `#u.saudacao("Mundo")` resolve `saudacao` no scope do módulo
+e chama a função resultante. A chamada (`#u.saudacao(...)`) já funciona porque o valor
+obtido é `Value::Func` e o dispatcher de chamada (`apply_func`) trata `Value::Func`.
+
+Critérios de verificação:
+
+- `#import "u.typ"` + `#u.saudacao("Mundo")` → `Olá, Mundo!` (onde `u` é o file_stem).
+- `#import "u.typ" as u` + `#u.saudacao("Mundo")` → `Olá, Mundo!`.
+- `#u.inexistente` → erro `módulo 'u' não tem campo 'inexistente'`.
+- Field access nos tipos já suportados (Version/Duration/Array/Func/Dict/Content) sem
+  regressão.
