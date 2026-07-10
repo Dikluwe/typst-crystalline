@@ -221,4 +221,4 @@ tools/perf/results/*                               | … (benchmark re-executado
 
 ## Hash do commit
 
-`(a preencher após o commit)`
+`56740326a — P677: cache de advance em FallbackFontMetrics reduz layout_ms de ~1305ms para ~426ms`
