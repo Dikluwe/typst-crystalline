@@ -3,8 +3,8 @@
 **Camada**: L1  
 **Ficheiro alvo**: `01_core/src/rules/stdlib/collections.rs`  
 **Criado em**: 2026-06-25 (Passo P466)  
-**Atualizado em**: 2026-06-30 (P509 — `str.len/first/last/at/slice/clusters` e field access `dict.len/insert/remove`)  
-**ADRs**: ADR-0037 (coesão por domínio), ADR-0117 Cláusula 4 (métodos de tipos existentes; não propõe estrutura em elementos).
+**Atualizado em**: 2026-07-10 (P690 — `str.len/at/slice` passam a indexar por **byte** (paridade vanilla); indexação por carácter preservada sob `str.char-len/char-at/char-slice`)  
+**ADRs**: ADR-0037 (coesão por domínio), ADR-0107 (paridade com a linguagem — aqui a linguagem **é** bytes), ADR-0108 (medir antes de decidir), ADR-0117 Cláusula 4 (métodos de tipos existentes; não propõe estrutura em elementos).
 
 ---
 
@@ -123,32 +123,42 @@ Reduz o array a um único valor, aplicando a função `reducer(start, item)` e a
 
 | Método | Assinatura | Semântica |
 |--------|-----------|-----------|
-| `len` | `str.len() -> int` | Número de chars (codepoints). |
+| `len` | `str.len() -> int` | Número de **bytes** (UTF-8). (**P690**: era chars; paridade vanilla.) |
 | `first` | `str.first() -> str \| none` | Primeiro char como string, ou `none` se vazia. |
 | `last` | `str.last() -> str \| none` | Último char como string, ou `none` se vazia. |
-| `at` | `str.at(index: int) -> str` | Char no índice (negativo conta do fim). Erro se fora de limites. |
-| `slice` | `str.slice(start: int, end: int?, count: int?) -> str` | Substring de `start` até `end` ou `count` chars. Erro se ambos `end` e `count`. |
+| `at` | `str.at(index: int) -> str` | Char no índice em **bytes** (negativo conta bytes do fim). Erro se fora de limites ou se o índice não for uma fronteira de carácter. (**P690**: era chars.) |
+| `slice` | `str.slice(start: int, end: int?, count: int?) -> str` | Substring em **bytes** de `start` até `end` ou `count` bytes. Erro se ambos `end` e `count`, se algum índice estiver fora de limites, ou se não for fronteira de carácter; `start > end` → `""`. (**P690**: era chars, com clamp.) |
+| `char-len` | `str.char-len() -> int` | Número de **chars** (codepoints). **Extensão cristalina**, não-portável. (**P690**) |
+| `char-at` | `str.char-at(index: int) -> str` | Char no índice em **chars** (negativo conta do fim). Erro se fora de limites. **Extensão cristalina**, não-portável. (**P690**) |
+| `char-slice` | `str.char-slice(start: int, end: int?, count: int?) -> str` | Substring em **chars** de `start` até `end` ou `count` chars (clamp aos limites). Erro se ambos `end` e `count`. **Extensão cristalina**, não-portável. (**P690**) |
 | `clusters` | `str.clusters() -> array` | Array de strings com cada char (clusters simplificados). |
 | `contains` | `str.contains(substr: str) -> bool` | Contém substring? |
 | `starts-with` | `str.starts-with(prefix: str) -> bool` | Começa com prefixo? |
 | `ends-with` | `str.ends-with(suffix: str) -> bool` | Termina com sufixo? |
-| `find` | `str.find(substr: str) -> int \| none` | Índice da primeira ocorrência. |
+| `find` | `str.find(substr: str) -> int \| none` | Índice em **bytes** da primeira ocorrência. ⚠️ **Débito (P690)**: o vanilla devolve a **substring** encontrada (`str \| none`), não o índice — o cristalino devolve `int`. Diferença de semântica (tipo de retorno), não de byte/char; fora do alcance deste passo, registada para correcção futura. |
 | `replace` | `str.replace(old: str, new: str) -> str` | Substitui substring literal. |
 | `trim` | `str.trim() -> str` | Remove whitespace dos extremos. |
 | `split` | `str.split(sep: str) -> array` | Divide por separador. |
-| `repeat` | `str.repeat(n: int) -> str` | Repete `n` vezes; `n >= 0`. |
+| `repeat` | `str.repeat(n: int) -> str` | Repete `n` vezes; `n >= 0`. **Extensão cristalina** (não existe no vanilla 0.15). |
 | `codepoints` | `str.codepoints() -> array` | Array de strings, um por char (scalar value). (**P689**) |
 | `position` | `str.position(hay: str \| regex) -> int \| none` | Índice em **bytes** da primeira ocorrência, ou `none`. Aceita `str` ou `regex`. (**P689**) |
 | `match` | `str.match(pattern: regex) -> dict \| none` | Primeiro match: dict `{start, end, text, captures}` com índices em **bytes**, ou `none`. Capturas em ordem posicional (grupos nomeados inclusive). (**P689**) |
 
-**Nota P689 (índices em bytes — paridade vanilla):** `position` e `match` devolvem
-índices em **bytes** (confirmado por sonda: `("xéy").position("y") == 3`,
-`("xéy").match(regex("é")) == (start: 1, end: 3)`). Isto é **semântica da linguagem**
-(ADR-0107) e difere de `str.at`/`str.slice` do cristalino, que indexam por **char** —
-divergência interna pré-existente, não introduzida aqui (ver débito sobre `str.len`
-que também conta chars, enquanto o vanilla conta bytes). `codepoints` itera chars
-(`("café").codepoints() == ("c","a","f","é")`), equivalente ao `clusters` simplificado
-do cristalino.
+**Nota P690 (indexação unificada em bytes — ADR-0107):** `len`, `at` e `slice` passam a
+indexar por **byte**, como o vanilla (medido: `"café".len() == 5`, `"éabc".at(2) == "a"`,
+`"éabc".slice(2, 4) == "ab"`, `"café mais texto".at(s.position("m")) == "m"`). Isto é
+**semântica da linguagem** (não mecânica — ADR-0107) e remove a inconsistência interna em
+que `position`/`match` (bytes, P689) não combinavam com `len`/`at`/`slice` (chars).
+`at`/`slice` rejeitam índices que não são fronteira de carácter ou que estão fora de
+limites, como o vanilla (medido: `"éabc".at(1)` → erro "not a character boundary";
+`"éabc".slice(0, 100)` → erro "out of bounds"). A indexação por carácter, genuinamente
+útil para texto humano, é preservada sob `char-len`/`char-at`/`char-slice` — extensão
+cristalina **não-portável**, registada com razão (padrão `table.numbering` de P459;
+regra P662-P664: diferença de linguagem só com nome distinto e decisão consciente).
+`first`/`last`/`clusters`/`codepoints`/`contains`/`starts-with`/`ends-with`/`replace`/
+`trim`/`split`/`rev` não indexam (devolvem strings/arrays/bool), pelo que a questão
+byte/char não se lhes aplica e permanecem inalterados; `position`/`match` já eram bytes
+(P689).
 
 ---
 
@@ -166,7 +176,8 @@ do cristalino.
 - `array.min()`, `array.max()`.
 - `str.replace` com regex.
 - Métodos com argumento `default` (exceto `dict.at(default:)`, implementado).
-- Unicode avançado (`str.clusters()` devolve chars, não grapheme clusters reais); índices de `str.find` são byte/char.
+- Unicode avançado (`str.clusters()` devolve chars, não grapheme clusters reais).
+- `str.find` devolve `int` (índice em bytes) no cristalino, mas o vanilla devolve a substring (`str | none`) — débito de semântica registado (P690), fora do alcance deste passo.
 - Mutação do dict original em `.remove()` / `.insert()` (dispatch por valor devolve novo dict).
 
 ---

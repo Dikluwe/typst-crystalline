@@ -75,6 +75,9 @@ pub(crate) fn try_dispatch_collection_method(
         (Value::Str(s), "last") => Some(Ok(str_last(s))),
         (Value::Str(s), "at") => Some(str_at(s, args)),
         (Value::Str(s), "slice") => Some(str_slice(s, args)),
+        (Value::Str(s), "char-len") => Some(Ok(char_len(s))),
+        (Value::Str(s), "char-at") => Some(char_at(s, args)),
+        (Value::Str(s), "char-slice") => Some(char_slice(s, args)),
         (Value::Str(s), "clusters") => Some(Ok(str_clusters(s))),
         (Value::Str(s), "contains") => Some(str_contains(s, args)),
         (Value::Str(s), "starts-with") => Some(str_starts_with(s, args)),
@@ -482,7 +485,8 @@ fn dict_at(
 // ── str helpers ─────────────────────────────────────────────────────────────
 
 fn str_len(s: EcoString) -> Value {
-    Value::Int(s.chars().count() as i64)
+    // Paridade vanilla (P690): `str.len()` conta bytes UTF-8, não chars.
+    Value::Int(s.len() as i64)
 }
 
 fn str_first(s: EcoString) -> Value {
@@ -500,23 +504,37 @@ fn str_last(s: EcoString) -> Value {
 }
 
 fn str_at(s: EcoString, args: Args) -> SourceResult<Value> {
+    // Paridade vanilla (P690): índice em bytes. Negativo conta bytes do fim.
+    // Erro se fora de limites ou se o índice não for fronteira de carácter.
     let index = expect_one_int(args, "str.at()")?;
-    let chars: Vec<char> = s.chars().collect();
-    let idx = if index < 0 {
-        (chars.len() as i64 + index) as usize
-    } else {
-        index as usize
-    };
-    if idx >= chars.len() {
+    let st = s.as_str();
+    let len = st.len() as i64;
+    let idx = if index < 0 { len + index } else { index };
+    if idx < 0 || idx >= len {
         return Err(vec![SourceDiagnostic::error(
             Span::detached(),
-            "str.at(): índice fora de limites".to_string(),
+            format!("str.at(): índice fora de limites (índice {index}, len {len})"),
         )]);
     }
-    Ok(Value::Str(chars[idx].to_string().into()))
+    let i = idx as usize;
+    if !st.is_char_boundary(i) {
+        return Err(vec![SourceDiagnostic::error(
+            Span::detached(),
+            format!("str.at(): índice {index} não é uma fronteira de carácter"),
+        )]);
+    }
+    let ch = st[i..].chars().next().ok_or_else(|| {
+        vec![SourceDiagnostic::error(
+            Span::detached(),
+            "str.at(): índice fora de limites".to_string(),
+        )]
+    })?;
+    Ok(Value::Str(ch.to_string().into()))
 }
 
 fn str_slice(s: EcoString, args: Args) -> SourceResult<Value> {
+    // Paridade vanilla (P690): índices em bytes. Sem clamp — índice fora de
+    // limites ou fora de fronteira de carácter é erro. `start > end` → "".
     let mut positional = args.items.iter();
     let start = positional
         .next()
@@ -536,6 +554,94 @@ fn str_slice(s: EcoString, args: Args) -> SourceResult<Value> {
         return Err(vec![SourceDiagnostic::error(
             Span::detached(),
             "str.slice(): não pode especificar end e count simultaneamente".to_string(),
+        )]);
+    }
+
+    let st = s.as_str();
+    let len = st.len() as i64;
+    let resolve = |x: i64| if x < 0 { len + x } else { x };
+    let start_idx = resolve(start);
+    let end_idx = match (end, count) {
+        (Some(e), None) => resolve(e),
+        (None, Some(c)) => start_idx + c.max(0),
+        (None, None) => len,
+        (Some(_), Some(_)) => unreachable!("end e count simultâneos já rejeitados acima"),
+    };
+
+    if start_idx < 0 || start_idx > len {
+        return Err(vec![SourceDiagnostic::error(
+            Span::detached(),
+            format!("str.slice(): índice fora de limites (start {start}, len {len})"),
+        )]);
+    }
+    if end_idx < 0 || end_idx > len {
+        return Err(vec![SourceDiagnostic::error(
+            Span::detached(),
+            format!("str.slice(): índice fora de limites (end, len {len})"),
+        )]);
+    }
+    let si = start_idx as usize;
+    let ei = end_idx as usize;
+    if !st.is_char_boundary(si) || !st.is_char_boundary(ei) {
+        return Err(vec![SourceDiagnostic::error(
+            Span::detached(),
+            "str.slice(): índice não é uma fronteira de carácter".to_string(),
+        )]);
+    }
+    if si > ei {
+        return Ok(Value::Str(EcoString::new()));
+    }
+    Ok(Value::Str(st[si..ei].into()))
+}
+
+/// **P690** — `str.char-len()`: número de chars (codepoints). Extensão cristalina
+/// não-portável; preserva a convenção pré-P690 de `str.len()`.
+fn char_len(s: EcoString) -> Value {
+    Value::Int(s.chars().count() as i64)
+}
+
+/// **P690** — `str.char-at(index)`: char no índice em chars. Extensão cristalina
+/// não-portável; preserva a convenção pré-P690 de `str.at()`.
+fn char_at(s: EcoString, args: Args) -> SourceResult<Value> {
+    let index = expect_one_int(args, "str.char-at()")?;
+    let chars: Vec<char> = s.chars().collect();
+    let idx = if index < 0 {
+        (chars.len() as i64 + index) as usize
+    } else {
+        index as usize
+    };
+    if idx >= chars.len() {
+        return Err(vec![SourceDiagnostic::error(
+            Span::detached(),
+            "str.char-at(): índice fora de limites".to_string(),
+        )]);
+    }
+    Ok(Value::Str(chars[idx].to_string().into()))
+}
+
+/// **P690** — `str.char-slice(start, end?, count?)`: substring em chars (clamp aos
+/// limites). Extensão cristalina não-portável; preserva a convenção pré-P690 de
+/// `str.slice()`.
+fn char_slice(s: EcoString, args: Args) -> SourceResult<Value> {
+    let mut positional = args.items.iter();
+    let start = positional
+        .next()
+        .and_then(|v| v.cast_int())
+        .ok_or_else(|| {
+            vec![SourceDiagnostic::error(
+                Span::detached(),
+                "str.char-slice(): start espera int".to_string(),
+            )]
+        })?;
+    let end_positional = positional.next().and_then(|v| v.cast_int());
+    let end_named = args.named.get("end").and_then(|v| v.cast_int());
+    let count = args.named.get("count").and_then(|v| v.cast_int());
+    let end = end_positional.or(end_named);
+
+    if end.is_some() && count.is_some() {
+        return Err(vec![SourceDiagnostic::error(
+            Span::detached(),
+            "str.char-slice(): não pode especificar end e count simultaneamente".to_string(),
         )]);
     }
 
@@ -1098,6 +1204,139 @@ mod tests {
         // match com Str (não regex) → erro
         let a = make_args(vec![Value::Str("b".into())], None);
         assert!(str_match("abc".into(), a).is_err());
+    }
+
+    // ── P690 — str.len/at/slice em bytes; char-len/char-at/char-slice ─────────
+
+    #[test]
+    fn p690_str_len_bytes() {
+        // ASCII: char == byte, sem efeito visível
+        assert_eq!(str_len("abc".into()), Value::Int(3));
+        assert_eq!(str_len("".into()), Value::Int(0));
+        // multi-byte: "café" = 5 bytes (c-a-f-é, é ocupa 2)
+        assert_eq!(str_len("café".into()), Value::Int(5));
+        assert_eq!(str_len("éabc".into()), Value::Int(5));
+    }
+
+    #[test]
+    fn p690_str_at_bytes() {
+        // ASCII
+        assert_eq!(
+            str_at("abc".into(), make_args(vec![Value::Int(1)], None)).unwrap(),
+            Value::Str("b".into())
+        );
+        // multi-byte: "éabc" (é=0-1, a=2, b=3, c=4) → byte 2 = 'a'
+        assert_eq!(
+            str_at("éabc".into(), make_args(vec![Value::Int(2)], None)).unwrap(),
+            Value::Str("a".into())
+        );
+        assert_eq!(
+            str_at("éabc".into(), make_args(vec![Value::Int(0)], None)).unwrap(),
+            Value::Str("é".into())
+        );
+        // negativo conta bytes do fim: "café" (c=0,a=1,f=2,é=3-4), -1 → byte 4
+        // (2º byte do 'é', non-boundary) → erro
+        assert!(str_at("café".into(), make_args(vec![Value::Int(-1)], None)).is_err());
+        // non-boundary: byte 1 de "éabc" (meio do 'é') → erro
+        assert!(str_at("éabc".into(), make_args(vec![Value::Int(1)], None)).is_err());
+        // out of bounds: índice >= len bytes
+        assert!(str_at("éabc".into(), make_args(vec![Value::Int(10)], None)).is_err());
+        // negativo além do início
+        assert!(str_at("éabc".into(), make_args(vec![Value::Int(-6)], None)).is_err());
+    }
+
+    #[test]
+    fn p690_str_slice_bytes() {
+        // ASCII
+        assert_eq!(
+            str_slice("abcdef".into(), make_args(vec![Value::Int(1), Value::Int(4)], None))
+                .unwrap(),
+            Value::Str("bcd".into())
+        );
+        // multi-byte: "éabc".slice(2,4) bytes = "ab"
+        assert_eq!(
+            str_slice("éabc".into(), make_args(vec![Value::Int(2), Value::Int(4)], None))
+                .unwrap(),
+            Value::Str("ab".into())
+        );
+        // count em bytes: "éabc".slice(0, count: 2) = "é"
+        assert_eq!(
+            str_slice("éabc".into(), make_args(vec![Value::Int(0)], Some(("count", Value::Int(2)))))
+                .unwrap(),
+            Value::Str("é".into())
+        );
+        // negativo: "éabc".slice(-3, -1) → bytes 2..4 = "ab"
+        assert_eq!(
+            str_slice("éabc".into(), make_args(vec![Value::Int(-3), Value::Int(-1)], None))
+                .unwrap(),
+            Value::Str("ab".into())
+        );
+        // start > end → ""
+        assert_eq!(
+            str_slice("abcdef".into(), make_args(vec![Value::Int(4), Value::Int(2)], None))
+                .unwrap(),
+            Value::Str("".into())
+        );
+        // end + count simultâneos → erro
+        assert!(str_slice(
+            "abc".into(),
+            {
+                let mut a = make_args(vec![Value::Int(0), Value::Int(2)], None);
+                a.named.insert("count".into(), Value::Int(1));
+                a
+            }
+        )
+        .is_err());
+        // out of bounds (sem clamp): end > len → erro
+        assert!(str_slice("éabc".into(), make_args(vec![Value::Int(0), Value::Int(100)], None))
+            .is_err());
+        // negativo além do início → erro
+        assert!(str_slice("éabc".into(), make_args(vec![Value::Int(-10), Value::Int(2)], None))
+            .is_err());
+        // non-boundary → erro
+        assert!(str_slice("éabc".into(), make_args(vec![Value::Int(1), Value::Int(4)], None))
+            .is_err());
+    }
+
+    #[test]
+    fn p690_str_at_position_consistencia() {
+        // A prova: combinar position (bytes) com at (bytes) sobre texto não-ASCII
+        // produz o carácter correcto. Pré-P690, at era char → dava "a".
+        let s: EcoString = "café mais texto".into();
+        let pos = str_position(s.clone(), make_args(vec![Value::Str("m".into())], None)).unwrap();
+        assert_eq!(pos, Value::Int(6)); // byte 6 (c-a-f-é-space-m)
+        let ch = str_at(s, make_args(vec![pos], None)).unwrap();
+        assert_eq!(ch, Value::Str("m".into()));
+    }
+
+    #[test]
+    fn p690_char_len_at_slice_preserva_chars() {
+        // char-len conta chars
+        assert_eq!(char_len("café".into()), Value::Int(4));
+        assert_eq!(char_len("abc".into()), Value::Int(3));
+        // char-at indexa por char: "éabc" char 2 = 'b'
+        assert_eq!(
+            char_at("éabc".into(), make_args(vec![Value::Int(2)], None)).unwrap(),
+            Value::Str("b".into())
+        );
+        // char-at negativo do fim: "café" char -1 = 'é'
+        assert_eq!(
+            char_at("café".into(), make_args(vec![Value::Int(-1)], None)).unwrap(),
+            Value::Str("é".into())
+        );
+        assert!(char_at("éabc".into(), make_args(vec![Value::Int(10)], None)).is_err());
+        // char-slice por char: "éabc".char-slice(2, 4) = "bc"
+        assert_eq!(
+            char_slice("éabc".into(), make_args(vec![Value::Int(2), Value::Int(4)], None))
+                .unwrap(),
+            Value::Str("bc".into())
+        );
+        // char-slice com count e clamp (comportamento pré-P690)
+        assert_eq!(
+            char_slice("éabc".into(), make_args(vec![Value::Int(0)], Some(("count", Value::Int(2)))))
+                .unwrap(),
+            Value::Str("éa".into())
+        );
     }
 
 }
