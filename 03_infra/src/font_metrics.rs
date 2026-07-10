@@ -300,6 +300,10 @@ pub struct FallbackFontMetrics<'a> {
     world: &'a dyn World,
     cache: Arc<Mutex<HashMap<usize, Arc<CachedFace>>>>,
     shaped_width_cache: Arc<Mutex<HashMap<ShapedWidthKey, Pt>>>,
+    /// P673 — cache de faces ttf-parser para `shaped_width`, partilhada entre
+    /// todas as chamadas de `advance_shaped` no mesmo documento. Evita
+    /// re-parsear as mesmas fontes em cada medição de palavra.
+    shaper_face_cache: Arc<Mutex<crate::shaper::FaceCache>>,
 }
 
 /// Candidata a fonte para medição.
@@ -319,6 +323,7 @@ impl<'a> FallbackFontMetrics<'a> {
             world,
             cache: Arc::new(Mutex::new(HashMap::new())),
             shaped_width_cache: Arc::new(Mutex::new(HashMap::new())),
+            shaper_face_cache: Arc::new(Mutex::new(crate::shaper::FaceCache::new())),
         }
     }
 
@@ -484,6 +489,7 @@ impl Clone for FallbackFontMetrics<'_> {
             world: self.world,
             cache: self.cache.clone(),
             shaped_width_cache: self.shaped_width_cache.clone(),
+            shaper_face_cache: self.shaper_face_cache.clone(),
         }
     }
 }
@@ -558,8 +564,9 @@ impl FontMetrics for FallbackFontMetrics<'_> {
             return None;
         }
         let world = self.world;
+        let mut face_cache = self.shaper_face_cache.lock().unwrap();
         self.cached_shaped_width(text, style, || {
-            crate::shaper::shaped_width(world, text, style)
+            crate::shaper::shaped_width(world, text, style, &mut face_cache)
         })
     }
 

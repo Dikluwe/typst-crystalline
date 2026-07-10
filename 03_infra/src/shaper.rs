@@ -105,16 +105,16 @@ impl ShapeCache {
 /// `split_run_by_font` (P672). O `Face` empresta internamente dos bytes da
 /// `Font` owned; a struct vive dentro de `Arc` para que o slice `'static`
 /// seja válido enquanto a face existir.
-struct FaceCache {
+pub(crate) struct FaceCache {
     map: HashMap<usize, Option<Arc<CachedFace>>>,
 }
 
 impl FaceCache {
-    fn new() -> Self {
+    pub(crate) fn new() -> Self {
         Self { map: HashMap::new() }
     }
 
-    fn get(&mut self, world: &dyn World, slot_idx: usize) -> Option<&CachedFace> {
+    pub(crate) fn get(&mut self, world: &dyn World, slot_idx: usize) -> Option<&CachedFace> {
         if !self.map.contains_key(&slot_idx) {
             let cached = world.font(slot_idx).and_then(CachedFace::new);
             self.map.insert(slot_idx, cached);
@@ -123,14 +123,14 @@ impl FaceCache {
     }
 }
 
-struct CachedFace {
+pub(crate) struct CachedFace {
     #[allow(dead_code)]
     data: Font,
     face: ttf_parser::Face<'static>,
 }
 
 impl CachedFace {
-    fn new(data: Font) -> Option<Arc<Self>> {
+    pub(crate) fn new(data: Font) -> Option<Arc<Self>> {
         let slice: &'static [u8] = unsafe {
             std::slice::from_raw_parts(data.as_slice().as_ptr(), data.as_slice().len())
         };
@@ -138,7 +138,7 @@ impl CachedFace {
         Some(Arc::new(Self { data, face }))
     }
 
-    fn face(&self) -> &ttf_parser::Face<'_> {
+    pub(crate) fn face(&self) -> &ttf_parser::Face<'_> {
         &self.face
     }
 }
@@ -149,7 +149,7 @@ impl CachedFace {
 /// (árabe, síriaco, etc.).
 ///
 /// Retorna `None` se não conseguir resolver fonte ou se o texto for vazio.
-pub fn shaped_width(world: &dyn World, text: &str, style: &TextStyle) -> Option<Pt> {
+pub(crate) fn shaped_width(world: &dyn World, text: &str, style: &TextStyle, face_cache: &mut FaceCache) -> Option<Pt> {
     if text.is_empty() {
         return Some(Pt(0.0));
     }
@@ -159,8 +159,7 @@ pub fn shaped_width(world: &dyn World, text: &str, style: &TextStyle) -> Option<
     let variant = text_style_to_font_variant(style);
     let axis_vars = axis_variations_for_font_variant(&variant);
 
-    let mut face_cache = FaceCache::new();
-    let mut primary = resolve_candidates(world, font_list, &variant, &mut face_cache).unwrap_or_default();
+    let mut primary = resolve_candidates(world, font_list, &variant, face_cache).unwrap_or_default();
     if primary.is_empty() {
         let first_family = font_list.as_slice()
             .first()
@@ -169,7 +168,7 @@ pub fn shaped_width(world: &dyn World, text: &str, style: &TextStyle) -> Option<
         let fallback_list = fallback_font_list_for(first_family);
         for family in fallback_list {
             let fallback_font_list = FontList::single(ecow::EcoString::from(*family));
-            if let Some(cands) = resolve_candidates(world, &fallback_font_list, &variant, &mut face_cache) {
+            if let Some(cands) = resolve_candidates(world, &fallback_font_list, &variant, face_cache) {
                 if !cands.is_empty() {
                     primary = cands;
                     break;
@@ -178,7 +177,7 @@ pub fn shaped_width(world: &dyn World, text: &str, style: &TextStyle) -> Option<
         }
     }
 
-    let mut candidates = CandidateSet::new(world, primary, &mut face_cache);
+    let mut candidates = CandidateSet::new(world, primary, face_cache);
 
     let runs = bidi_runs(text);
     if runs.is_empty() {
