@@ -1,7 +1,7 @@
 # P681 — Pacotes `@preview` só offline (P-β de P678)
 
 **Estado:** fechado (escopo de resolução; ver classificação cetz abaixo).
-**Commit do trabalho:** `__P681_COMMIT__` (preenchido no commit seguinte).
+**Commit do trabalho:** `02a434dea1f59d7f48dbf158dd1b03b9e511ef83`.
 **Data/hora da medição:** 2026-07-10T13:18:25-03:00.
 **Commit base (HEAD antes do trabalho):** `fd60fc62ca4865821be2f8ae6c9457b6fe570427` — "P680: adiciona hash do commit ao relatório".
 
