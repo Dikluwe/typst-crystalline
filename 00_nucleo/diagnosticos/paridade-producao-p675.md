@@ -167,3 +167,5 @@ Documentos micro mantiveram-se abaixo de 0,5× do vanilla (continuam a beneficia
 ## Hash do commit
 
 `a0f44fb77 — P675: evita walks duplicados do documento em build_multifont`
+
+**Nota (P676):** a secção "Benchmark completo" deste relatório foi corrigida no commit `ce99f1c33` para refinar a conclusão sobre a poupança no tempo de parede. O código da optimização permanece no commit acima.
