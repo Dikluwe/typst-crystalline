@@ -141,7 +141,7 @@ Summary: vanilla 1.26 ± 0.10 times faster.
 
 ### Benchmark completo
 
-Documentos micro mantiveram-se abaixo de 0,5× do vanilla (continuam a beneficiar de P674). O `macro-10x` reportou ratio 1,31× numa execução do script, mas medições directas com `hyperfine` confirmam ~1,26×. A variação é atribuída a ruído do sistema; o `render_ms` instrumentado melhorou consistentemente ~36 %.
+Documentos micro mantiveram-se abaixo de 0,5× do vanilla (continuam a beneficiar de P674). A execução do script `benchmark-p507.py` reportou ratio 1,31× para o `macro-10x`, mas essa medição usou uma amostra pequena. O Passo 676 repetiu a medição com 30 runs e confirmou que a poupança se reflecte no tempo de parede: **5,705 s → 5,212 s** (−493 ms), com ratio vs vanilla consistente em ~1,26×. O `render_ms` instrumentado melhorou consistentemente ~36 %.
 
 ---
 
