@@ -3,7 +3,7 @@
 > **Passo:** 685
 > **Data:** 2026-07-10
 > **Commit base:** `f5f23be49aa15d55df1a4a4cb29217d0fb8a978c` (P684)
-> **Commit deste trabalho:** `__P685_COMMIT__` (preenchido no 2.º commit)
+> **Commit deste trabalho:** `342da2cb1e080443fed235d3f06247039a6cbfe0`
 > **Hora da medição (UTC):** 2026-07-10T19:08:04Z
 > **Vanilla de referência:** `typst 0.15.0 (969087ec)`
 > **Estado do repositório no momento da medição:** working tree com os 19 ficheiros listados em §3 modificados (não commitados) + untracked pré-existentes (`materialization/`, `adr/`, `temp_p*/`, `perf.data`) que **não** entraram neste passo.
