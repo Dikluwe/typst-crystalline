@@ -20,6 +20,7 @@ cargo   = ".cargo"
 lab     = "lab"     # quarentena — código original, não enforça regras cristalinas
 benches = "benches" # infra de benchmark — fora da topologia de camadas (ADR-0115)
 tools = "tools" # scripts e resultados de benchmark/diagnóstico — fora da topologia de camadas
+temp_p664 = "temp_p664" # artefactos temporários da auditoria P664
 
 [excluded_files]
 license  = "LICENSE"

@@ -43,6 +43,7 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
         Some(Value::Int(n)) => u16::try_from(*n).ok(),
         _ => None,
     };
+    let ns_style_italic = matches!(cs("text.style"), Some(Value::Str(s)) if s.as_str() == "italic" || s.as_str() == "oblique");
     let ns_tracking = match cs("text.tracking") {
         Some(Value::Length(l)) => Some(l.clone()),
         _ => None,
@@ -113,7 +114,7 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
     };
     let mut effective = TextStyle {
         bold:   ns_bold   || layouter.style.bold,
-        italic: ns_italic || layouter.style.italic,
+        italic: ns_italic || ns_style_italic || layouter.style.italic,
         size:   ns_size.unwrap_or(layouter.style.size),
         fill:          layouter.style.fill.or(ns_fill),
         heading_level: layouter.style.heading_level,

@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/rules/eval.md
-//! @prompt-hash a8523b4b
+//! @prompt-hash cce90241
 //! @layer L1
 //! @updated 2026-07-09
 //!
@@ -974,19 +974,14 @@ pub(super) fn eval_set_rule(
             let key = named.name().as_str().to_owned();
             let val = eval_expr(named.expr(), scopes, ctx, engine)?;
             match key.as_str() {
-                "bold" => {
-                    if let Value::Bool(b) = val {
-                        *engine.styles = engine
-                            .styles
-                            .push_styles(&Styles::from_iter([Style::bold(b)]));
-                    }
-                }
-                "italic" => {
-                    if let Value::Bool(b) = val {
-                        *engine.styles = engine
-                            .styles
-                            .push_styles(&Styles::from_iter([Style::italic(b)]));
-                    }
+                // P665: `bold` e `italic` como argumentos nomeados de `#set text`
+                // não existem no vanilla; o vanilla usa `weight: "bold"` e
+                // `style: "italic"`. Rejeitar para manter a linguagem alinhada.
+                "bold" | "italic" => {
+                    return Err(vec![SourceDiagnostic::error(
+                        named.name().to_untyped().span(),
+                        format!("unexpected argument: {}", key),
+                    )]);
                 }
                 "size" => {
                     if let Value::Length(l) = val {
@@ -1033,6 +1028,28 @@ pub(super) fn eval_set_rule(
                         other => {
                             return Err(vec![type_mismatch("int or string", other, span)]);
                         }
+                    }
+                }
+                "style" => {
+                    // P665: `style` é a forma canónica do vanilla para itálico.
+                    // Aceita os três valores standard; guarda em `text.style`.
+                    let span = named.expr().span();
+                    if let Value::Str(s) = &val {
+                        match s.as_str() {
+                            "normal" | "italic" | "oblique" => {
+                                *engine.styles = engine
+                                    .styles
+                                    .push_custom("text.style", Value::Str(s.clone()));
+                            }
+                            _ => {
+                                return Err(vec![SourceDiagnostic::error(
+                                    span,
+                                    format!("unknown font style name: {s}"),
+                                )]);
+                            }
+                        }
+                    } else {
+                        return Err(vec![type_mismatch("string", &val, span)]);
                     }
                 }
                 "tracking" => {

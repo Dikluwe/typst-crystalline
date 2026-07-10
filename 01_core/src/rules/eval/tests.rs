@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/rules/eval.md
-//! @prompt-hash a8523b4b
+//! @prompt-hash cce90241
 //! @layer L1
 //! @updated 2026-06-17
 //!
@@ -2797,7 +2797,7 @@ mod tests {
 
     #[test]
     fn eval_set_text_bold() {
-        let world = MockWorld::new("#set text(bold: true)");
+        let world = MockWorld::new("#set text(weight: 700)");
         let src = World::source(&world, World::main(&world)).unwrap();
         let result = eval_for_test(&world, &src);
         assert!(result.is_ok(), "set text bold falhou: {:?}", result);
@@ -2828,7 +2828,7 @@ mod tests {
 
     #[test]
     fn eval_set_e_content_combinados() {
-        let world = MockWorld::new("#set text(bold: true)\nOlá mundo");
+        let world = MockWorld::new("#set text(weight: 700)\nOlá mundo");
         let src = World::source(&world, World::main(&world)).unwrap();
         let result = eval_for_test(&world, &src);
         assert!(result.is_ok(), "set + content falhou: {:?}", result);
@@ -2837,7 +2837,7 @@ mod tests {
     #[test]
     fn estilo_capturado_no_momento_da_producao() {
         // Texto antes de #set usa estilo anterior; texto depois usa estilo novo.
-        let world = MockWorld::new("antes\n#set text(bold: true)\ndepois");
+        let world = MockWorld::new("antes\n#set text(weight: 700)\ndepois");
         let src = World::source(&world, World::main(&world)).unwrap();
         let m = eval_for_test(&world, &src).unwrap();
         // No mínimo, confirmar que eval não dá Err.
@@ -3870,9 +3870,9 @@ mod tests {
         // #set dentro de { } não deve afectar o estilo após o bloco.
         // Usar content blocks [ ] para texto dentro de code blocks.
         let world = MockWorld::new(
-            "#set text(bold: true)\n\
+            "#set text(weight: 700)\n\
              antes\n\
-             #{ #set text(bold: false); [normal] }\n\
+             #{ #set text(weight: 400); [normal] }\n\
              depois",
         );
         let src = World::source(&world, World::main(&world)).unwrap();
@@ -3883,7 +3883,7 @@ mod tests {
     #[test]
     fn set_dentro_closure_nao_afecta_caller() {
         let world = MockWorld::new(
-            "#let f() = { #set text(bold: true); [negrito] }\n\
+            "#let f() = { #set text(weight: 700); [negrito] }\n\
              #f()\n\
              texto normal",
         );
@@ -3894,12 +3894,12 @@ mod tests {
 
     #[test]
     fn set_false_reverte_set_true_em_bloco() {
-        // #set text(bold: false) dentro de bloco reverte #set text(bold: true) global.
+        // #set text(weight: 400) dentro de bloco reverte #set text(weight: 700) global.
         // Após o bloco, bold volta a true (estado salvo antes do bloco).
         let world = MockWorld::new(
-            "#set text(bold: true)\n\
+            "#set text(weight: 700)\n\
              negrito\n\
-             #{ #set text(bold: false); [normal] }\n\
+             #{ #set text(weight: 400); [normal] }\n\
              negrito novamente",
         );
         let src = World::source(&world, World::main(&world)).unwrap();
@@ -3929,9 +3929,9 @@ mod tests {
     fn set_em_content_block_nao_vaza() {
         // Content block [ ] também deve ter scoping de styles
         let world = MockWorld::new(
-            "#set text(bold: true)\n\
+            "#set text(weight: 700)\n\
              antes\n\
-             [#set text(bold: false) normal]\n\
+             [#set text(weight: 400) normal]\n\
              depois",
         );
         let src = World::source(&world, World::main(&world)).unwrap();
@@ -4783,7 +4783,7 @@ mod tests {
     #[test]
     fn show_rule_regex_set_rejeitado() {
         // Show-set com regex selector deve ser rejeitado (mesma regra de Selector::Text).
-        let world = MockWorld::new("#show regex(\"\\\\d+\"): set text(bold: true)\n123");
+        let world = MockWorld::new("#show regex(\"\\\\d+\"): set text(weight: 700)\n123");
         let src = world.source(world.main()).unwrap();
         let result = eval_for_test(&world, &src);
         assert!(result.is_err(), "show-set com regex deve gerar Err");
@@ -4901,11 +4901,11 @@ mod tests {
 
     // ── P352 — show-set (`#show k: set …`, Transformation::Style, S5) ─────────
 
-    /// P431 (DEBT-50): `#set text(bold: true)` passa a viajar no campo tipado
-    /// `bold` da `Styles`, com `from_strong: false`. Estes helpers leem esse
-    /// campo; `text.weight` continua no canal `custom`.
+    /// P665: `#set text(weight: 700)` viaja no canal `custom` "text.weight".
+    /// O campo tipado `bold` só é usado por markup `*...*`; `#set text(bold:)`
+    /// foi removido para alinhar com o vanilla.
     fn styles_has_text_bold(s: &crate::entities::style::Styles) -> bool {
-        s.delta().bold == Some(true) && s.delta().bold_from_strong == Some(false)
+        styles_has_text_weight(s, 700)
     }
     fn styles_has_text_weight(s: &crate::entities::style::Styles, w: i64) -> bool {
         s.delta().custom.iter().any(|(k, v)| {
@@ -4939,18 +4939,18 @@ mod tests {
     }
 
     /// `true` se existe um `Content::Text` que contém `needle` **sob** um escopo
-    /// com `#set text(bold: true)` activo (deteta vazamento global do set).
-    /// P431 (DEBT-50): o bold do `#set text` viaja no campo tipado `bold`
-    /// (`from_strong: false`) de um `Content::Styled`. O helper thread o estado
-    /// bold ao descer cada wrap.
+    /// com `#set text(weight: 700)` activo (deteta vazamento global do set).
+    /// P665: o bold do `#set text` viaja no canal custom "text.weight".
     fn texto_bold_contendo(c: &Content, needle: &str) -> bool {
         fn go(c: &Content, needle: &str, bold: bool) -> bool {
             match c {
                 Content::Text(s) => bold && s.as_str().contains(needle),
                 Content::Styled(b, styles) => {
                     let d = styles.delta();
-                    let here =
-                        d.bold == Some(true) && d.bold_from_strong == Some(false);
+                    let here = d.custom.iter().any(|(k, v)| {
+                        k == "text.weight"
+                            && matches!(v, crate::entities::value::Value::Int(n) if *n == 700)
+                    });
                     go(b, needle, bold || here)
                 }
                 Content::Sequence(items) => items.iter().any(|i| go(i, needle, bold)),
@@ -4963,13 +4963,13 @@ mod tests {
 
     #[test]
     fn show_set_text_embrulha_heading_em_styled_bold() {
-        // **Caso 3 (show-set), P352.** `#show heading: set text(bold: true)`
+        // **Caso 3 (show-set), P352.** `#show heading: set text(weight: 700)`
         // ANTES ERRAVA ("requer função ou Content, recebeu none" — o eager avaliava
         // o set como statement e devolvia Value::None; Fase A P352). AGORA o heading
         // é embrulhado num `Content::Styled` carregando `bold=true`, e o texto
         // SOBREVIVE — show-set **não substitui** o elemento (espelha
         // `map.apply(transform); continue` do vanilla, `typst-realize:458-464`).
-        let world = MockWorld::new("#show heading: set text(bold: true)\n\n= titulo");
+        let world = MockWorld::new("#show heading: set text(weight: 700)\n\n= titulo");
         let src = world.source(world.main()).unwrap();
         let module = eval_for_test(&world, &src).expect("show-set não deve errar");
         let c = module.content().unwrap();
@@ -4988,7 +4988,7 @@ mod tests {
     fn show_set_nao_consome_o_passe_preserva_o_elemento() {
         // Show-set NÃO consome o passe: o elemento permanece (não é trocado por
         // outro conteúdo). O heading continua presente sob o wrapper de estilo.
-        let world = MockWorld::new("#show heading: set text(bold: true)\n\n= Cabecalho");
+        let world = MockWorld::new("#show heading: set text(weight: 700)\n\n= Cabecalho");
         let src = world.source(world.main()).unwrap();
         let c = module_content(&world, &src);
         assert!(contem_heading(&c), "o heading sobrevive ao show-set: {c:?}");
@@ -5001,7 +5001,7 @@ mod tests {
         // eager antigo o set mutava o estilo global na declaração — a divergência
         // que o P352 fecha.) Confina-se ao elemento casado, como o vanilla.
         let world = MockWorld::new(
-            "#show heading: set text(bold: true)\n\n= T\n\nparagrafo de fora",
+            "#show heading: set text(weight: 700)\n\n= T\n\nparagrafo de fora",
         );
         let src = world.source(world.main()).unwrap();
         let c = module_content(&world, &src);
@@ -5015,7 +5015,7 @@ mod tests {
     fn show_set_em_selector_de_texto_e_erro() {
         // Show-set é sobre elementos; sobre um selector de texto literal → erro
         // explícito (invariante de `entities/show.md`).
-        let world = MockWorld::new("#show \"x\": set text(bold: true)\nxxx");
+        let world = MockWorld::new("#show \"x\": set text(weight: 700)\nxxx");
         let src = world.source(world.main()).unwrap();
         let r = eval_for_test(&world, &src);
         assert!(r.is_err(), "show-set sobre selector de texto deve errar");
@@ -5049,7 +5049,7 @@ mod tests {
         // show-set era PERDIDO. AGORA: o show-set casa o ELEMENTO original e
         // embrulha o output do func → o "X:" renderiza sob o estilo do show-set.
         let world = MockWorld::new(
-            "#show heading: set text(bold: true)\n#show heading: it => [X:] + it.body\n\n= T"
+            "#show heading: set text(weight: 700)\n#show heading: it => [X:] + it.body\n\n= T"
         );
         let src = world.source(world.main()).unwrap();
         let c = module_content(&world, &src);
@@ -5069,7 +5069,7 @@ mod tests {
         // Regressão (P352): múltiplos show-set same-kind compõem via `collapse` —
         // o conserto do P356 (casar o nó original) não pode quebrar isto.
         let world = MockWorld::new(
-            "#show heading: set text(bold: true)\n#show heading: set text(weight: 700)\n\n= T"
+            "#show heading: set text(weight: 700)\n#show heading: set text(weight: 700)\n\n= T"
         );
         let src = world.source(world.main()).unwrap();
         let c = module_content(&world, &src);

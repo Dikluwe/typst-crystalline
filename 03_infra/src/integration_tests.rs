@@ -157,7 +157,7 @@ mod integration {
 
     #[test]
     fn pipeline_com_set_text_bold() {
-        let (world, _dir) = world_from_str("#set text(bold: true)\nTexto a negrito.");
+        let (world, _dir) = world_from_str("#set text(weight: 700)\nTexto a negrito.");
         let source = world.source(world.main()).unwrap();
         let module = do_eval(&world, &source).unwrap();
         let content = module.content().expect("deve ter content");
@@ -247,7 +247,7 @@ mod integration {
         // Verifica que #set text() dentro de { } não afecta o texto após o bloco.
         // Com Passo 33: ctx.styles é restaurado ao sair do bloco.
         let (world, _dir) = world_from_str(
-            "normal\n#{ #set text(bold: true); [negrito] }\nnormal novamente"
+            "normal\n#{ #set text(weight: 700); [negrito] }\nnormal novamente"
         );
         let source = world.source(world.main()).unwrap();
         let module = do_eval(&world, &source).unwrap();

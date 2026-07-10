@@ -1,5 +1,5 @@
 # Prompt L0 — rules/eval
-Hash do Código: 994eeff3
+Hash do Código: 1af37735
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/rules/eval/mod.rs`
@@ -436,6 +436,30 @@ eval_for_test: Source("#let x = 1") → module.scope().get("x") = Some(&Value::I
 - `#break`/`#continue`/`#return` fora de contexto mantêm os erros de P634.
 - `cargo test --workspace` continua a passar.
 - `crystalline-lint .` limpo.
+
+## §P665 — Reverter `text.bold`/`text.italic` como argumentos nomeados; adicionar `text.style`
+
+Medição na fonte vanilla 0.15.0 (`lab/typst-original/crates/typst-library/src/text/mod.rs`):
+
+- O elemento `text` expõe as propriedades `weight` e `style`, não `bold` nem `italic`.
+- `#set text(bold: true)` e `#set text(italic: true)` produzem `unexpected argument: bold` / `unexpected argument: italic`.
+- `#set text(weight: "bold")` e `#set text(style: "italic")` são as formas canónicas.
+
+Regras para `eval_set_rule` com target `"text"`:
+
+- Remover os arms `bold` e `italic` do match de propriedades de `#set text(...)`.
+- Adicionar arm `style` que aceita `"normal"`, `"italic"` ou `"oblique"` e propaga para a chain como `"text.style"`.
+- `bold` e `italic` devem agora produzir erro hard: `unexpected argument: {key}`.
+- O markup `*...*` e `_..._` continua a usar os campos tipados `bold`/`italic` internos (`Style::bold`, `Style::italic`) — não é afectado pela mudança de linguagem.
+- O layout (`rules/layout/text.rs`) lê `"text.style"` e traduz `"italic"`/`"oblique"` para `italic = true`, coexistente com o campo tipado `italic`.
+
+Critérios de verificação:
+
+- `#set text(bold: true)` → `Err` com `unexpected argument: bold`.
+- `#set text(italic: true)` → `Err` com `unexpected argument: italic`.
+- `#set text(weight: "bold")` e `#set text(style: "italic")` continuam a funcionar.
+- `*negrito*` e `_itálico_` continuam a funcionar.
+- Testes que usavam `#set text(bold: ...)`/`#set text(italic: ...)` são migrados para `weight`/`style`.
 
 ## §P616 — Validação de `dir` em `#set text(...)`
 

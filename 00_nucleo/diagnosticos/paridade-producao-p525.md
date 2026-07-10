@@ -185,3 +185,9 @@ crystalline-lint .
 - ADR-0107: paridade é com a linguagem, não com a mecânica/igualdade do Rust.
 - ADR-0108: medir antes de decidir.
 - ADR-0109: atomização.
+
+---
+
+## Nota póstuma (P665)
+
+O exemplo acima usa `#set text(italic: true)`, que o cristalino aceitava mas o vanilla rejeita (o vanilla usa `style: "italic"`). Em P665 a sintaxe `text.bold`/`text.italic` como argumentos nomeados de `#set text(...)` foi revertida para alinhar com o vanilla. O markup `*...*`/`_..._` continua a funcionar via campos tipados internos (`Style::bold`/`Style::italic`). O exemplo deveria agora ser escrito com `#set text(style: "italic")`.

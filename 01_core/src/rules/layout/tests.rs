@@ -2958,21 +2958,21 @@ mod tests_set_rule_integration {
         }
     }
 
-    /// `#set text(bold: true)` produz bold em todo o texto seguinte.
+    /// `#set text(weight: 700)` produz bold em todo o texto seguinte.
     #[test]
     fn set_text_bold_propaga_ao_frame() {
-        let doc = layout_typst("#set text(bold: true)\nHello");
+        let doc = layout_typst("#set text(weight: 700)\nHello");
         let items = text_items(&doc);
         assert!(!items.is_empty());
         for (text, style) in &items {
-            assert!(style.bold, "text='{}' deve ter bold=true; style={:?}", text, style);
+            assert_eq!(style.weight, Some(700), "text='{}' deve ter weight=700; style={:?}", text, style);
         }
     }
 
-    /// `#set text(italic: true)` produz italic em todo o texto seguinte.
+    /// `#set text(style: "italic")` produz italic em todo o texto seguinte.
     #[test]
     fn set_text_italic_propaga_ao_frame() {
-        let doc = layout_typst("#set text(italic: true)\nHello");
+        let doc = layout_typst("#set text(style: \"italic\")\nHello");
         let items = text_items(&doc);
         assert!(!items.is_empty());
         for (text, style) in &items {
@@ -2989,7 +2989,7 @@ mod tests_set_rule_integration {
     /// anterior ao directive.)
     #[test]
     fn set_text_bold_afecta_conteudo_seguinte_nao_anterior() {
-        let doc = layout_typst("antes\n#set text(bold: true)\ndepois");
+        let doc = layout_typst("antes\n#set text(weight: 700)\ndepois");
         let items = text_items(&doc);
         let antes = items.iter().find(|(t, _)| t == "antes");
         let depois = items.iter().find(|(t, _)| t == "depois");
@@ -3005,30 +3005,30 @@ mod tests_set_rule_integration {
             items.iter().map(|(t, _)| t).collect::<Vec<_>>()
         );
         if let Some((_, s)) = antes {
-            assert!(!s.bold, "'antes' não deve ter bold: {:?}", s);
+            assert_ne!(s.weight, Some(700), "'antes' não deve ter weight=700: {:?}", s);
         }
         if let Some((_, s)) = depois {
-            assert!(s.bold, "'depois' deve ter bold: {:?}", s);
+            assert_eq!(s.weight, Some(700), "'depois' deve ter weight=700: {:?}", s);
         }
     }
 
-    /// `#set text(bold: true)` combinado com `*texto*` — ambos produzem bold.
-    /// Regressão: `*bold*` continua a funcionar após `#set` (Passo 101 preserva).
+    /// `#set text(weight: 700)` combinado com `_texto_` — set dá weight, markup
+    /// dá italic. Regressão: markup continua a funcionar após `#set`.
     #[test]
     fn set_combinado_com_emph_sintactico() {
-        let doc = layout_typst("#set text(bold: true)\n_italic_ normal");
+        let doc = layout_typst("#set text(weight: 700)\n_italic_ normal");
         let items = text_items(&doc);
         assert!(!items.is_empty());
-        // Todos os items devem ter bold=true (vindo do #set).
+        // Todos os items devem ter weight=700 (vindo do #set).
         // Os items do `_italic_` têm italic=true adicionalmente.
         let has_italic = items.iter().any(|(_, s)| s.italic);
-        let all_bold = items.iter().all(|(_, s)| s.bold);
+        let all_bold = items.iter().all(|(_, s)| s.weight == Some(700));
         assert!(
             all_bold,
-            "todos os items devem ter bold=true após #set: {:?}",
+            "todos os items devem ter weight=700 após #set: {:?}",
             items
                 .iter()
-                .map(|(t, s)| (t.as_str(), s.bold, s.italic))
+                .map(|(t, s)| (t.as_str(), s.weight, s.italic))
                 .collect::<Vec<_>>()
         );
         assert!(
@@ -3779,16 +3779,16 @@ mod tests_show_rule_integration {
     }
 
     /// **DEBT-50 fechado (P431)**: `#show strong` só dispara para conteúdo com
-    /// `Style::Bold { from_strong: true }` (sintaxe `*bold*`). `#set text(bold: true)`
+    /// `Style::Bold { from_strong: true }` (sintaxe `*bold*`). `#set text(weight: 700)`
     /// produz `Content::Styled(.., [Style::bold(true)])`, onde `from_strong: false`,
     /// pelo que o selector Strong NÃO deve disparar.
     #[test]
     fn debt_50_show_strong_nao_apanha_set_text_bold() {
-        let doc = layout_typst("#show strong: it => [HIT]\n#set text(bold: true)\ntexto");
+        let doc = layout_typst("#show strong: it => [HIT]\n#set text(weight: 700)\ntexto");
         let text = plain_text(&doc);
         assert!(
             !text.contains("HIT"),
-            "DEBT-50: selector Strong NÃO deve disparar por `#set text(bold: true)` \
+            "DEBT-50: selector Strong NÃO deve disparar por `#set text(weight: 700)` \
              (origem diferente de `*bold*`): {:?}",
             text
         );
