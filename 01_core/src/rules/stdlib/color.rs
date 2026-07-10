@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/rules/stdlib/color.md
-//! @prompt-hash 64415bc3
+//! @prompt-hash 87325eda
 //! @layer L1
 //! @updated 2026-06-27
 //!
@@ -41,18 +41,34 @@ pub fn make_color_module() -> Value {
     Value::Dict(dict)
 }
 
-/// P492 — bindings de cores predefinidas para injeção no scope global.
+/// Cores nomeadas globais para injeção no scope de eval.
 ///
-/// Vanilla expõe `red`, `blue`, `green`, etc. como atalhos globais para as
-/// cores do módulo `color`. O subset abaixo cobre os gaps D4/D5 do P490.
+/// **P687** — paridade vanilla 0.15.0 (969087ec): as 18 cores oficiais
+/// (`lib.rs:359-376` / `visualize/color.rs:291-322`) com bytes sRGB exactos
+/// (confirmados via `#repr`). `cyan`/`magenta`/`none` são extras pré-P687 mantidos
+/// sem regressão (não fazem parte do conjunto oficial vanilla).
 pub fn predefined_color_bindings() -> Vec<(EcoString, Value)> {
     vec![
-        ("red".into(),     Value::Color(Color::rgb(0xEF, 0x23, 0x11))),
-        ("blue".into(),    Value::Color(Color::rgb(0x00, 0x5E, 0xE5))),
-        ("green".into(),   Value::Color(Color::rgb(0x00, 0xB3, 0x00))),
+        // ── 18 cores oficiais vanilla (sRGB exacto) ────────────────────────
         ("black".into(),   Value::Color(Color::rgb(0x00, 0x00, 0x00))),
+        ("gray".into(),    Value::Color(Color::rgb(0xAA, 0xAA, 0xAA))),
+        ("silver".into(),  Value::Color(Color::rgb(0xDD, 0xDD, 0xDD))),
         ("white".into(),   Value::Color(Color::rgb(0xFF, 0xFF, 0xFF))),
-        ("yellow".into(),  Value::Color(Color::rgb(0xF5, 0xD8, 0x00))),
+        ("navy".into(),    Value::Color(Color::rgb(0x00, 0x1F, 0x3F))),
+        ("blue".into(),    Value::Color(Color::rgb(0x00, 0x74, 0xD9))),
+        ("aqua".into(),    Value::Color(Color::rgb(0x7F, 0xDB, 0xFF))),
+        ("teal".into(),    Value::Color(Color::rgb(0x39, 0xCC, 0xCC))),
+        ("eastern".into(), Value::Color(Color::rgb(0x23, 0x9D, 0xAD))),
+        ("purple".into(),  Value::Color(Color::rgb(0xB1, 0x0D, 0xC9))),
+        ("fuchsia".into(), Value::Color(Color::rgb(0xF0, 0x12, 0xBE))),
+        ("maroon".into(),  Value::Color(Color::rgb(0x85, 0x14, 0x4B))),
+        ("red".into(),     Value::Color(Color::rgb(0xFF, 0x41, 0x36))),
+        ("orange".into(),  Value::Color(Color::rgb(0xFF, 0x85, 0x1B))),
+        ("yellow".into(),  Value::Color(Color::rgb(0xFF, 0xDC, 0x00))),
+        ("olive".into(),   Value::Color(Color::rgb(0x3D, 0x99, 0x70))),
+        ("green".into(),   Value::Color(Color::rgb(0x2E, 0xCC, 0x40))),
+        ("lime".into(),    Value::Color(Color::rgb(0x01, 0xFF, 0x70))),
+        // ── extras pré-P687 (não-vanilla; sem regressão) ───────────────────
         ("cyan".into(),    Value::Color(Color::rgb(0x00, 0xB3, 0xB3))),
         ("magenta".into(), Value::Color(Color::rgb(0xE5, 0x00, 0xE5))),
         ("none".into(),    Value::None),
@@ -221,5 +237,72 @@ pub(crate) fn native_color_desaturate(
             "color.desaturate() requer 2 argumentos (col, amount), recebeu {}",
             args.items.len()
         )),
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    fn bytes_of(name: &str) -> Option<(u8, u8, u8)> {
+        for (n, v) in predefined_color_bindings() {
+            if n == name {
+                if let Value::Color(c) = v {
+                    let (r, g, b, _a) = c.to_srgb();
+                    return Some((r, g, b));
+                }
+            }
+        }
+        None
+    }
+
+    fn has(name: &str) -> bool {
+        predefined_color_bindings().iter().any(|(n, _)| n == name)
+    }
+
+    #[test]
+    fn p687_cores_vanilla_18_srgb_exacto() {
+        let esperado: [(&str, (u8, u8, u8)); 18] = [
+            ("black",   (0x00, 0x00, 0x00)),
+            ("gray",    (0xAA, 0xAA, 0xAA)),
+            ("silver",  (0xDD, 0xDD, 0xDD)),
+            ("white",   (0xFF, 0xFF, 0xFF)),
+            ("navy",    (0x00, 0x1F, 0x3F)),
+            ("blue",    (0x00, 0x74, 0xD9)),
+            ("aqua",    (0x7F, 0xDB, 0xFF)),
+            ("teal",    (0x39, 0xCC, 0xCC)),
+            ("eastern", (0x23, 0x9D, 0xAD)),
+            ("purple",  (0xB1, 0x0D, 0xC9)),
+            ("fuchsia", (0xF0, 0x12, 0xBE)),
+            ("maroon",  (0x85, 0x14, 0x4B)),
+            ("red",     (0xFF, 0x41, 0x36)),
+            ("orange",  (0xFF, 0x85, 0x1B)),
+            ("yellow",  (0xFF, 0xDC, 0x00)),
+            ("olive",   (0x3D, 0x99, 0x70)),
+            ("green",   (0x2E, 0xCC, 0x40)),
+            ("lime",    (0x01, 0xFF, 0x70)),
+        ];
+        for (nome, bytes) in esperado {
+            assert_eq!(
+                bytes_of(nome),
+                Some(bytes),
+                "cor '{nome}' deve estar ligada com sRGB exacto {bytes:?}"
+            );
+        }
+    }
+
+    #[test]
+    fn p687_cores_inexistentes_no_vanilla_ausentes() {
+        // Confirmado por sonda: vanilla 0.15.0 não tem `ostrich` nem `pink`.
+        assert!(!has("ostrich"));
+        assert!(!has("pink"));
+    }
+
+    #[test]
+    fn p687_extras_pre_p687_sem_regressao() {
+        // Mantidos para não regredir documentos/testes anteriores a P687.
+        assert_eq!(bytes_of("cyan"), Some((0x00, 0xB3, 0xB3)));
+        assert_eq!(bytes_of("magenta"), Some((0xE5, 0x00, 0xE5)));
+        assert!(has("none"));
     }
 }

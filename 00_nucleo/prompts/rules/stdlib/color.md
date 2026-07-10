@@ -85,22 +85,52 @@ dict.insert("desaturate", Value::Func(Func::native("color.desaturate", native_co
 
 ADR-0083 §"Operadores cor": **TOTALMENTE FECHADO** (6/6) pós-P477.
 
-## Cores predefinidas (P492/P497)
+## Cores predefinidas (P492/P497/P687)
 
 `color.rs` exporta `predefined_color_bindings()` — vector de pares `(EcoString, Value)`
-para injeção no scope global de eval (`eval/mod.rs`). Cada entrada é um atalho vanilla:
+para injeção no scope global de eval (`eval/mod.rs`, `eval/modules.rs`).
 
-| Nome | Valor |
-|------|-------|
-| `red` | `Color::rgb(0xEF, 0x23, 0x11)` |
-| `blue` | `Color::rgb(0x00, 0x5E, 0xE5)` |
-| `green` | `Color::rgb(0x00, 0xB3, 0x00)` |
-| `black` | `Color::rgb(0x00, 0x00, 0x00)` |
-| `white` | `Color::rgb(0xFF, 0xFF, 0xFF)` |
-| `yellow` | `Color::rgb(0xF5, 0xD8, 0x00)` |
-| `cyan` | `Color::rgb(0x00, 0xB3, 0xB3)` |
-| `magenta` | `Color::rgb(0xE5, 0x00, 0xE5)` |
-| `none` | `Value::None` |
+**P687 — paridade vanilla 0.15.0 (969087ec).** A lista oficial de cores nomeadas
+globais do vanilla é **exactamente** o conjunto de 18 abaixo, definido em
+`lab/.../crates/typst-library/src/lib.rs:359-376` com os valores em
+`crates/typst-library/src/visualize/color.rs:291-322`. Os bytes sRGB foram
+confirmados por `#repr(<cor>)` no vanilla (ex.: `gray`→`luma(66.67%)`≡`#aaaaaa`,
+`navy`→`rgb("#001f3f")`, `green`→`rgb("#2ecc40")`). `ostrich` e `pink` (citados no
+passo) **não** são globais vanilla (`unknown variable`) e foram excluídos.
+
+| Nome | sRGB | `Color::rgb` |
+|------|------|--------------|
+| `black` | `#000000` | `Color::rgb(0x00, 0x00, 0x00)` |
+| `gray` | `#AAAAAA` | `Color::rgb(0xAA, 0xAA, 0xAA)` |
+| `silver` | `#DDDDDD` | `Color::rgb(0xDD, 0xDD, 0xDD)` |
+| `white` | `#FFFFFF` | `Color::rgb(0xFF, 0xFF, 0xFF)` |
+| `navy` | `#001F3F` | `Color::rgb(0x00, 0x1F, 0x3F)` |
+| `blue` | `#0074D9` | `Color::rgb(0x00, 0x74, 0xD9)` |
+| `aqua` | `#7FDBFF` | `Color::rgb(0x7F, 0xDB, 0xFF)` |
+| `teal` | `#39CCCC` | `Color::rgb(0x39, 0xCC, 0xCC)` |
+| `eastern` | `#239DAD` | `Color::rgb(0x23, 0x9D, 0xAD)` |
+| `purple` | `#B10DC9` | `Color::rgb(0xB1, 0x0D, 0xC9)` |
+| `fuchsia` | `#F012BE` | `Color::rgb(0xF0, 0x12, 0xBE)` |
+| `maroon` | `#85144B` | `Color::rgb(0x85, 0x14, 0x4B)` |
+| `red` | `#FF4136` | `Color::rgb(0xFF, 0x41, 0x36)` |
+| `orange` | `#FF851B` | `Color::rgb(0xFF, 0x85, 0x1B)` |
+| `yellow` | `#FFDC00` | `Color::rgb(0xFF, 0xDC, 0x00)` |
+| `olive` | `#3D9970` | `Color::rgb(0x3D, 0x99, 0x70)` |
+| `green` | `#2ECC40` | `Color::rgb(0x2E, 0xCC, 0x40)` |
+| `lime` | `#01FF70` | `Color::rgb(0x01, 0xFF, 0x70)` |
+
+**Nota (língua vs mecânica — ADR-0107):** no vanilla, `black/gray/silver/white` são
+cores `Luma` e imprimem como `luma(..%)`; no cristalino são `Color::rgb(..)` (Srgb) e
+imprimem via `Debug`. A **cor observável** (bytes sRGB → PDF) é idêntica; a diferença
+de espaço de cor e de formatação de `repr` é **mecânica** e diverge de propósito
+(P329). A aceitação mede-se pelos bytes sRGB, nunca pela string de `repr`.
+
+**Extras não-vanilla (sem regressão):** `cyan` (`rgb(0x00,0xB3,0xB3)`),
+`magenta` (`rgb(0xE5,0x00,0xE5)`) e `none` (`Value::None`) já existiam antes de P687 e
+são mantidos para não regredir documentos/testes que os usam. Não fazem parte do
+conjunto oficial vanilla de 18 (falso-aceite pré-existente → débito, fora de escopo).
+O parser de cores por *string* (`fill: "gray"` → `rgb(128,128,128)`, em `shapes.rs`) é
+uma via **separada** (nomes CSS) e **não** é alterado por este passo.
 
 A função `text(...)` é registada separadamente no scope global (P492) para permitir
 `#show regex("\\d+"): it => text(red, it)`.
