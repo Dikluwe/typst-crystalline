@@ -4,7 +4,7 @@
 o bloqueio de `codepoints` em `oxifmt` desapareceu; próximo bloqueio medido é `sys`,
 fora de escopo).
 
-**Commit do trabalho:** `__P689_COMMIT__`
+**Commit do trabalho:** `6fff77ef42f9b8632c71800bbb5ad2d9ce75ce1b`
 **Commit base (HEAD antes deste passo):** `1b23fd450c4e1d58ab613944b32721a1a525ca5b`
 **Hora da medição:** `2026-07-10T17:59:17-03:00` (saída de `date -Is`)
 **Árvore:** detached HEAD; working tree com apenas 4 ficheiros tracked alterados
@@ -15,7 +15,7 @@ não foram tocados).
 
 ## Proveniência da medição (regra de P569/P574)
 
-- **Código medido:** este commit `__P689_COMMIT__`, sobre a base `1b23fd450`.
+- **Código medido:** este commit `6fff77ef42f9b8632c71800bbb5ad2d9ce75ce1b`, sobre a base `1b23fd450`.
 - `git diff HEAD --stat` no momento da medição:
 
 ```
