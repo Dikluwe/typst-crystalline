@@ -455,8 +455,16 @@ fn compile_to_pdf_bytes_impl(
 
     let (pdf, subset_ms) = match resolved.as_slice() {
         [] => (export_pdf_with_document_id(&doc, document_id), 0.0),
-        [((_, _), bytes)] => {
-            export_pdf_with_font_and_timings_and_document_id(&doc, bytes, document_id)
+        [single @ ((_, font_variant), bytes)] => {
+            // P668 — se a única fonte resolvida for uma VF com eixos
+            // não-default, usar o caminho multi-font, que já instancia
+            // correctamente (P530/P666). O caminho single-font
+            // (`build_cidfont`) não faz instanciação.
+            if is_variable_font(bytes) && !axis_variations_for_font_variant(font_variant).is_empty() {
+                export_pdf_multifont_and_timings_and_document_id(&doc, std::slice::from_ref(single), document_id)
+            } else {
+                export_pdf_with_font_and_timings_and_document_id(&doc, bytes, document_id)
+            }
         }
         many => export_pdf_multifont_and_timings_and_document_id(&doc, many, document_id),
     };

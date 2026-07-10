@@ -145,7 +145,7 @@ Ficheiros actualizados:
 
 ## Pendências e próximos passos
 
-1. **Export PDF com variações visuais:** ✅ **Fechado em P666.** Verificou-se que `collect_fonts_from_doc` já agrupa por `(FontList, FontVariant)` e o export (`builder.rs`) instancia estaticamente a VF para cada peso/estilo via `fontTools`. O documento de teste de P525 produz agora três pesos visuais distintos. Ver `00_nucleo/diagnosticos/paridade-producao-p666.md`.
+1. **Export PDF com variações visuais:** ✅ **Fechado em P666/P668.** P666 confirmou que o caminho multi-font já instancia correctamente a VF para cada peso/estilo; P668 corrigiu o caminho single-font, que ainda usava a instância default. Ambos os caminhos agora produzem contornos correctos. Ver `00_nucleo/diagnosticos/paridade-producao-p666.md` e `00_nucleo/diagnosticos/paridade-producao-p668.md`.
 2. **Expor `stretch` e `Oblique(angle)` na linguagem:** necessário para activar os ramos `wdth` e `slnt` do mapeamento.
 3. **Subsetting VF optimizado:** em vez de embutir a VF completa (~200 KB no teste), subsetar apenas os glifos usados preservando variação.
 
