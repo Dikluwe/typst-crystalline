@@ -20,9 +20,8 @@ use std::collections::HashMap;
 use std::sync::Arc;
 
 use typst_core::entities::font_book::FontVariant;
-use typst_core::entities::font_list::{FontAxisValue, FontList};
+use typst_core::entities::font_list::FontList;
 use typst_core::entities::layout_types::{FrameItem, Page};
-use ecow::EcoString;
 
 use crate::font_variant::text_style_to_font_variant;
 
@@ -59,9 +58,9 @@ pub(crate) enum FontScenario<'a> {
         /// aplica kerning (x_advance ≠ largura declarada no `/W`).
         glyph_to_nominal: &'a HashMap<u16, i32>,
     },
-    /// Multifont Identity-H com selecção `/F{fi+1}` por `(style.font, variant, axes)`.
+    /// Multifont Identity-H com selecção `/F{fi+1}` por `(style.font, variant)`.
     Multifont {
-        fonts:                &'a [((FontList, FontVariant, Vec<(EcoString, FontAxisValue)>), Vec<u8>)],
+        fonts:                &'a [((FontList, FontVariant), Vec<u8>)],
         per_font_char_to_gid: &'a [HashMap<char, u16>],
         /// P516 — mapa old → new glyph ID por fonte (vazio se não subsetada).
         per_font_glyph_mapping: &'a [HashMap<u16, u16>],
@@ -114,7 +113,7 @@ impl<'a> PageContext<'a> {
         img_refs:                    &'a [ImageRef],
         pat_ptr_to_idx:              &'a HashMap<DedupKey, usize>,
         pat_refs:                    &'a [PatternRef],
-        fonts:                       &'a [((FontList, FontVariant, Vec<(EcoString, FontAxisValue)>), Vec<u8>)],
+        fonts:                       &'a [((FontList, FontVariant), Vec<u8>)],
         per_font_char_to_gid:        &'a [HashMap<char, u16>],
         per_font_glyph_mapping:      &'a [HashMap<u16, u16>],
         per_font_glyph_to_nominal:   &'a [HashMap<u16, i32>],
@@ -134,17 +133,16 @@ impl<'a> PageContext<'a> {
 /// P530 — devolve o índice da fonte embutida que corresponde ao
 /// `(FontList, FontVariant)` derivado do `TextStyle`.
 fn font_index_for_style(
-    fonts: &[((FontList, FontVariant, Vec<(EcoString, FontAxisValue)>), Vec<u8>)],
+    fonts: &[((FontList, FontVariant), Vec<u8>)],
     style: &typst_core::entities::layout_types::TextStyle,
 ) -> usize {
     let variant = text_style_to_font_variant(style);
-    let axes = style.font_axes.clone().unwrap_or_default();
     style
         .font
         .as_ref()
         .and_then(|fl| {
-            fonts.iter().position(|((stored_fl, stored_variant, stored_axes), _)| {
-                stored_fl == fl && stored_variant == &variant && stored_axes == &axes
+            fonts.iter().position(|((stored_fl, stored_variant), _)| {
+                stored_fl == fl && stored_variant == &variant
             })
         })
         .unwrap_or(0)

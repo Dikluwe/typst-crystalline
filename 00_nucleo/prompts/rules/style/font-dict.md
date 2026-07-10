@@ -39,14 +39,11 @@ O arm `"font"` em `eval_set_rule` aceita:
     - Value `Value::Str` → variants `[s]`.
     - Value `Value::Array` de `Value::Str` → variants array.
 
-### Named fields (P414 + P660)
+### Named fields (P414)
 
 Campos suportados:
 - `family` (Str|Regex) — obrigatório.
-- `variant` (Str | Dict) — opcional.
-  - Str: nome de variante canónica (ex.: `"bold"`, `"italic"`).
-  - Dict: eixos OpenType explícitos `tag → valor` (ex.: `(wdth: 62.5)`).
-    Keys devem ser strings de 4 caracteres; valores `Int` ou `Float`.
+- `variant` (Str) — opcional.
 - `weight` (Int|Str) — opcional.
 - `style` (Str) — opcional.
 - `fallback` (Bool, default `true`) — opcional.
@@ -62,10 +59,8 @@ como `Value::Array`. Cada item é um `Value::Dict` com:
 - `"variant"` → `Value::Str` (named fields, opcional).
 - `"weight"` → `Value::Str` (named fields, opcional).
 - `"style"` → `Value::Str` (named fields, opcional).
-- `"axes"` → `Value::Dict` de `Value::Str(tag) → Value::Float(valor)`
-  (P660, quando `variant` for dict de eixos).
 
-Zero tipo novo em `Value`: reusa `Array`, `Dict`, `Str`, `Regex`, `Int`, `Bool`, `Float`.
+Zero tipo novo em `Value`: reusa `Array`, `Dict`, `Str`, `Regex`, `Int`, `Bool`.
 
 ## Erros (erro hard com span)
 

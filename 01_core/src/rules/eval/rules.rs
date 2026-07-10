@@ -1343,9 +1343,9 @@ pub(super) fn eval_show_rule(
     Ok(Value::None)
 }
 
-/// P414 + P660: parsing do dict `text.font` no formato named fields vanilla.
+/// P414: parsing do dict `text.font` no formato named fields vanilla.
 ///
-/// Campos suportados: `family` (Str|Regex), `variant` (Str | Dict),
+/// Campos suportados: `family` (Str|Regex), `variant` (Str),
 /// `weight` (Int|Str), `style` (Str), `fallback` (Bool, default true).
 /// `stretch` e outros campos são rejeitados.
 fn parse_font_dict_named_fields<'a>(
@@ -1359,7 +1359,6 @@ fn parse_font_dict_named_fields<'a>(
 
     let mut family: Option<Value> = None;
     let mut variant: Option<EcoString> = None;
-    let mut axes: Option<IndexMap<EcoString, Value, FxBuildHasher>> = None;
     let mut weight: Option<EcoString> = None;
     let mut style: Option<EcoString> = None;
     let mut fallback = true;
@@ -1393,41 +1392,11 @@ fn parse_font_dict_named_fields<'a>(
             }
             "variant" => match value {
                 Value::Str(s) => variant = Some(s),
-                Value::Dict(dict) => {
-                    let mut parsed = IndexMap::<EcoString, Value, FxBuildHasher>::default();
-                    for (k, v) in dict.iter() {
-                        let tag = k.clone();
-                        if tag.len() != 4 {
-                            return Err(vec![SourceDiagnostic::error(
-                                span,
-                                format!(
-                                    "font dict variant axis tag must be 4 characters, got '{}'",
-                                    tag
-                                ),
-                            )]);
-                        }
-                        let value = match v {
-                            Value::Int(n) => Value::Float(*n as f64),
-                            Value::Float(f) => Value::Float(*f),
-                            other => {
-                                return Err(vec![SourceDiagnostic::error(
-                                    span,
-                                    format!(
-                                        "font dict variant axis value must be a number, recebeu {}",
-                                        other.type_name()
-                                    ),
-                                )]);
-                            }
-                        };
-                        parsed.insert(tag, value);
-                    }
-                    axes = Some(parsed);
-                }
                 other => {
                     return Err(vec![SourceDiagnostic::error(
                         span,
                         format!(
-                            "font dict field 'variant' expects string or dict, recebeu {}",
+                            "font dict field 'variant' expects string, recebeu {}",
                             other.type_name()
                         ),
                     )]);
@@ -1500,9 +1469,6 @@ fn parse_font_dict_named_fields<'a>(
     entry.insert(EcoString::from("variants"), Value::Array(vec![]));
     if let Some(v) = variant {
         entry.insert(EcoString::from("variant"), Value::Str(v));
-    }
-    if let Some(a) = axes {
-        entry.insert(EcoString::from("axes"), Value::Dict(a));
     }
     if let Some(w) = weight {
         entry.insert(EcoString::from("weight"), Value::Str(w));

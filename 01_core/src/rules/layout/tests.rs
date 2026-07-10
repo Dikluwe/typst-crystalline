@@ -2969,21 +2969,6 @@ mod tests_set_rule_integration {
         }
     }
 
-    /// `#set text(font: (family: ..., variant: (wdth: 62.5)))` preenche
-    /// `TextStyle.font_axes` com o eixo explícito (P660).
-    #[test]
-    fn set_text_font_variant_axes_propaga_ao_frame() {
-        use crate::entities::font_list::FontAxisValue;
-        use ecow::EcoString;
-        let doc = layout_typst("#set text(font: (family: \"Arial\", variant: (wdth: 62.5)))\nHello");
-        let items = text_items(&doc);
-        assert!(!items.is_empty());
-        let axes = items[0].1.font_axes.as_ref().expect("font_axes deve existir");
-        assert_eq!(axes.len(), 1);
-        assert_eq!(axes[0].0, EcoString::from("wdth"));
-        assert_eq!(axes[0].1, FontAxisValue(62.5));
-    }
-
     /// `#set text(italic: true)` produz italic em todo o texto seguinte.
     #[test]
     fn set_text_italic_propaga_ao_frame() {

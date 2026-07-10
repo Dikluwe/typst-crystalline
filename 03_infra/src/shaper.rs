@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/shaper.md
-//! @prompt-hash f59be57e
+//! @prompt-hash 17b09f30
 
 //! @layer L3
 //! @updated 2026-07-06
@@ -108,8 +108,7 @@ pub fn shaped_width(world: &dyn World, text: &str, style: &TextStyle) -> Option<
     let font_list = style.font.as_ref()?;
 
     let variant = text_style_to_font_variant(style);
-    let custom_axes = style.font_axes.as_deref().unwrap_or(&[]);
-    let axis_vars = axis_variations_for_font_variant(&variant, custom_axes);
+    let axis_vars = axis_variations_for_font_variant(&variant);
 
     let mut primary = resolve_candidates(world, font_list, &variant).unwrap_or_default();
     if primary.is_empty() {
@@ -221,8 +220,7 @@ fn try_shape(
 
     // P525 — derivar a variante real do TextStyle para VF e selecção de fonte.
     let variant = text_style_to_font_variant(style);
-    let custom_axes = style.font_axes.as_deref().unwrap_or(&[]);
-    let axis_vars = axis_variations_for_font_variant(&variant, custom_axes);
+    let axis_vars = axis_variations_for_font_variant(&variant);
 
     // P515 — resolver todas as fontes candidatas da FontList.
     // **P538e/P555** — se a fonte declarada (incluindo a default "FreeSerif")
@@ -1080,7 +1078,7 @@ mod tests {
             style: FontStyle::Normal,
             weight: FontWeight::BOLD,
             stretch: FontStretch::NORMAL,
-        }, &[]);
+        });
         assert_eq!(bold.len(), 1);
         assert_eq!(bold[0].tag, ttf_parser::Tag::from_bytes(b"wght"));
         assert_eq!(bold[0].value, 700.0);
@@ -1089,30 +1087,13 @@ mod tests {
             style: FontStyle::Italic,
             weight: FontWeight::REGULAR,
             stretch: FontStretch::NORMAL,
-        }, &[]);
+        });
         assert_eq!(italic.len(), 1);
         assert_eq!(italic[0].tag, ttf_parser::Tag::from_bytes(b"ital"));
         assert_eq!(italic[0].value, 1.0);
 
-        let regular = axis_variations_for_font_variant(&FontVariant::default(), &[]);
+        let regular = axis_variations_for_font_variant(&FontVariant::default());
         assert!(regular.is_empty(), "regular upright não precisa de variações");
-    }
-
-    #[test]
-    fn p660_axis_variations_custom_axes_override() {
-        use typst_core::entities::font_list::FontAxisValue;
-        let vars = axis_variations_for_font_variant(&FontVariant {
-            style: FontStyle::Normal,
-            weight: FontWeight::BOLD,
-            stretch: FontStretch::NORMAL,
-        }, &[(ecow::EcoString::from("wdth"), FontAxisValue(62.5)), (ecow::EcoString::from("wght"), FontAxisValue(500.0))]);
-
-        let by_tag: std::collections::HashMap<_, _> = vars.iter()
-            .map(|v| (v.tag, v.value))
-            .collect();
-        assert_eq!(by_tag.get(&ttf_parser::Tag::from_bytes(b"wdth")), Some(&62.5));
-        // explicito wght vence o derivado de weight=BOLD (700).
-        assert_eq!(by_tag.get(&ttf_parser::Tag::from_bytes(b"wght")), Some(&500.0));
     }
 
     #[test]

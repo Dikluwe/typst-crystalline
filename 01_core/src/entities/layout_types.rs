@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/entities/layout_types.md
-//! @prompt-hash 51043020
+//! @prompt-hash 269ba6e5
 //! @layer L1
 //! @updated 2026-04-23
 //!
@@ -139,8 +139,6 @@ pub struct TextStyle {
     pub leading:       Option<crate::entities::layout_types::Length>,
     pub lang:          Option<crate::entities::lang::Lang>,
     pub font:          Option<crate::entities::font_list::FontList>,
-    /// **P660**: eixos OpenType explícitos `(tag, valor)` para fontes variáveis.
-    pub font_axes:     Option<Vec<(EcoString, crate::entities::font_list::FontAxisValue)>>,
     /// **P576**: direcção de texto (`ltr`/`rtl`), transportada do `#set text(dir: ...)`.
     pub dir:           Option<Dir>,
     /// **Passo 448 (P448)**: subscrito (`#sub[...]`).

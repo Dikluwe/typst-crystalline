@@ -27,8 +27,7 @@ use typst_core::entities::content::Content;
 use typst_core::entities::elements::context_block::ContextBlockElem;
 use typst_core::entities::engine::Engine;
 use typst_core::entities::font_book::{FontBook, FontVariant};
-use typst_core::entities::font_list::{FontAxisValue, FontList};
-use ecow::EcoString;
+use typst_core::entities::font_list::FontList;
 use typst_core::entities::element_kind::ElementKind;
 use typst_core::entities::introspector::Introspector;
 use typst_core::entities::layout_types::{FrameItem, PagedDocument};
@@ -427,7 +426,7 @@ fn compile_to_pdf_bytes_impl(
     let resolved = resolve_fonts(&font_combos, world.book(), world);
     let (pdf, subset_ms) = match resolved.as_slice() {
         [] => (export_pdf_with_document_id(&doc, document_id), 0.0),
-        [((_, _, _), bytes)] => {
+        [((_, _), bytes)] => {
             export_pdf_with_font_and_timings_and_document_id(&doc, bytes, document_id)
         }
         many => export_pdf_multifont_and_timings_and_document_id(&doc, many, document_id),
@@ -484,18 +483,15 @@ impl Timings {
 }
 
 /// Itera `doc.pages → items` recursivamente (atravessa `Group`)
-/// e devolve **todas** as combinações `(FontList, FontVariant, axes)` distintas
+/// e devolve **todas** as combinações `(FontList, FontVariant)` distintas
 /// em ordem de primeira ocorrência (Passo 146, ADR-0055 decisão 5;
-/// P530 — chave expandida para incluir weight/style; P660 — inclui eixos
-/// explícitos transportados em `FontFamily.axes`/`TextStyle.font_axes`).
+/// P530 — chave expandida para incluir weight/style).
 ///
 /// Deduplicação por igualdade estrutural via `Vec::contains`.
 /// Complexidade O(N²) em N = combinações distintas; aceite porque N é
 /// tipicamente pequeno (<10) em documentos reais.
-fn collect_fonts_from_doc(
-    doc: &PagedDocument,
-) -> Vec<(FontList, FontVariant, Vec<(EcoString, FontAxisValue)>)> {
-    let mut seen: Vec<(FontList, FontVariant, Vec<(EcoString, FontAxisValue)>)> = Vec::new();
+fn collect_fonts_from_doc(doc: &PagedDocument) -> Vec<(FontList, FontVariant)> {
+    let mut seen: Vec<(FontList, FontVariant)> = Vec::new();
     for page in &doc.pages {
         collect_fonts_in_items(&page.items, &mut seen);
     }
@@ -504,7 +500,7 @@ fn collect_fonts_from_doc(
 
 fn collect_fonts_in_items(
     items: &[FrameItem],
-    seen: &mut Vec<(FontList, FontVariant, Vec<(EcoString, FontAxisValue)>)>,
+    seen: &mut Vec<(FontList, FontVariant)>,
 ) {
     for item in items {
         match item {
@@ -512,8 +508,7 @@ fn collect_fonts_in_items(
             | FrameItem::TextShaped { style, .. } => {
                 if let Some(fl) = &style.font {
                     let variant = text_style_to_font_variant(style);
-                    let axes = style.font_axes.clone().unwrap_or_default();
-                    let key = (fl.clone(), variant, axes);
+                    let key = (fl.clone(), variant);
                     if !seen.contains(&key) {
                         seen.push(key);
                     }
@@ -532,21 +527,21 @@ fn collect_fonts_in_items(
 }
 
 /// Map-filter de `resolve_font` (Passo 141) sobre uma lista de
-/// combinações `(FontList, FontVariant, axes)`. Devolve
-/// `((FontList, FontVariant, axes), bytes)` para preservar a associação entre
-/// input style e output embed (Passo 146; P530/P660 — chave expandida).
+/// combinações `(FontList, FontVariant)`. Devolve
+/// `((FontList, FontVariant), bytes)` para preservar a associação entre
+/// input style e output embed (Passo 146; P530 — chave expandida).
 ///
 /// Silent drop quando `resolve_font` devolve `None` — consistente
 /// com a política de fallback de fonts (140B/141).
 fn resolve_fonts(
-    font_combos: &[(FontList, FontVariant, Vec<(EcoString, FontAxisValue)>)],
+    font_combos: &[(FontList, FontVariant)],
     font_book:   &FontBook,
     world:       &dyn World,
-) -> Vec<((FontList, FontVariant, Vec<(EcoString, FontAxisValue)>), Vec<u8>)> {
+) -> Vec<((FontList, FontVariant), Vec<u8>)> {
     font_combos.iter()
-        .filter_map(|(fl, variant, axes)| {
+        .filter_map(|(fl, variant)| {
             resolve_font(fl, variant, font_book, world)
-                .map(|bytes| ((fl.clone(), variant.clone(), axes.clone()), bytes))
+                .map(|bytes| ((fl.clone(), variant.clone()), bytes))
         })
         .collect()
 }
@@ -968,10 +963,7 @@ mod tests {
                 Some(Font::from_data(vec![0xBB])),
             ],
         };
-        let inputs = vec![
-            (font_list("A"), FontVariant::default(), vec![]),
-            (font_list("B"), FontVariant::default(), vec![]),
-        ];
+        let inputs = vec![(font_list("A"), FontVariant::default()), (font_list("B"), FontVariant::default())];
         let out = resolve_fonts(&inputs, world.book(), &world);
         assert_eq!(out.len(), 2);
         assert_eq!(out[0].1, vec![0xAA]);
@@ -988,10 +980,7 @@ mod tests {
             book,
             fonts: vec![Some(Font::from_data(vec![0xAA]))],
         };
-        let inputs = vec![
-            (font_list("A"), FontVariant::default(), vec![]),
-            (font_list("B"), FontVariant::default(), vec![]),
-        ];
+        let inputs = vec![(font_list("A"), FontVariant::default()), (font_list("B"), FontVariant::default())];
         let out = resolve_fonts(&inputs, world.book(), &world);
         assert_eq!(out.len(), 1, "B silenciosamente filtrado");
         assert_eq!(out[0].1, vec![0xAA]);
@@ -1006,10 +995,7 @@ mod tests {
             book,
             fonts: vec![Some(Font::from_data(vec![0]))],
         };
-        let inputs = vec![
-            (font_list("X"), FontVariant::default(), vec![]),
-            (font_list("Y"), FontVariant::default(), vec![]),
-        ];
+        let inputs = vec![(font_list("X"), FontVariant::default()), (font_list("Y"), FontVariant::default())];
         assert!(resolve_fonts(&inputs, world.book(), &world).is_empty());
     }
 

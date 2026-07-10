@@ -7,7 +7,7 @@ adr: ADR-0120
 ---
 
 # Prompt L0 — `shaper.rs` (Trilha 5 Fase 1)
-Hash do Código: f95e3584
+Hash do Código: b832b2b5
 
 ## Propósito
 
@@ -290,15 +290,12 @@ Mapeamento:
 - `FontStyle::Italic` → `ital` = 1.0.
 - `stretch` → `wdth` (não activo até `TextStyle` expor stretch).
 - `Oblique(angle)` → `slnt` (não activo até `FontStyle::Oblique` carregar ângulo).
-- Eixos explícitos em `text.font_axes` (P660) — ex.: `("wdth", 62.5)` — são
-  adicionados à lista e sobrescrevem valores derivados quando a tag coincide.
 
 ### Aplicação no `try_shape`
 
 ```rust
 let variant = text_style_to_font_variant(style);
-let custom_axes = style.font_axes.as_deref().unwrap_or(&[]);
-let axis_vars = axis_variations_for_font_variant(&variant, custom_axes);
+let axis_vars = axis_variations_for_font_variant(&variant);
 let candidates = resolve_candidates(world, font_list, &variant)?;
 // ...
 let mut rb_face = rustybuzz::Face::from_slice(font.as_slice(), 0)?;
@@ -310,19 +307,18 @@ if !axis_vars.is_empty() {
 ### Limitações do MVP
 
 - O shaper aplica variações nos avanços e posicionamentos, mas o **export PDF
-  não as reflecte no output visual** a menos que a pipeline instancie a VF
-  estaticamente. A partir de P530, `collect_fonts_from_doc` agrupa por
-  `(FontList, FontVariant)` (incluindo peso/estilo) e `resolve_fonts` embute
-  cada instância separadamente. P660 estende a chave com os eixos explícitos
-  transportados em `FontFamily.axes`.
-- Fix real (P528/P530) já implementado: fontTools instancia a VF para cada
-  combinação distinta usada no documento.
+  não as reflecte no output visual**. O `resolve_font` da pipeline usa
+  `FontVariant::default()` e `collect_fonts_from_doc` agrupa por `FontList`
+  (sem weight/style), pelo que todos os pesos partilham a mesma fonte subsetada
+  na instância default. Um leitor de PDF não varia contornos embutidos.
+- Portanto, `text(weight: 700)` numa fonte VF produz avanços de bold mas
+  **contornos de regular** — regressão de linguagem no output visual.
+- Fix real (P528) requer instanciar a VF estaticamente para cada combinação
+  peso/estilo usada no documento e embutir cada instância separadamente.
 
-### Testes adicionados P525/P660
+### Testes adicionados P525
 
 - `p525_axis_variations_weight_italic`: mapeamento `FontVariant` → eixos.
-- `p660_axis_variations_custom_axes_override`: eixos explícitos sobrescrevem
-  valores derivados de `weight`/`style`.
 - `p525_shape_document_mixed_weights_no_contamination`: pipeline real com
   `wght=700 → 100 → 700`, confirmando que o terceiro shape reproduz o primeiro.
 

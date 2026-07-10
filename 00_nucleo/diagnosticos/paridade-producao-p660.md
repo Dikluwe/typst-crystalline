@@ -177,3 +177,9 @@ Embora o documento P659 original use `wdth` (que a fonte Cantarell não expõe),
 - A chave de fontes para embed passou a incluir eixos explícitos, evitando deduplicação incorrecta de variações distintas.
 - Corrigiu-se o merge de `font` em `layout/text.rs`, sem o qual `#set text(font: (...))` ignorava o dicionário especificado.
 - Sem regressões em `cargo test --workspace --lib` nem em `crystalline-lint .`.
+
+---
+
+## 5. Nota póstuma (P662)
+
+A sintaxe `variant: (eixo: valor)` foi introduzida em P660 com base numa premissa não verificada: que era sintaxe válida no vanilla. A sonda de P660 confirmou que o vanilla em quarentena rejeita essa sintaxe (`unexpected key 'variant', in dict`). Em P662 a sintaxe foi revertida por decisão de não divergir da linguagem Typst. O que permanece de valor de P660 é a correcção do merge de `font` em `layout/text.rs` (bug independente) e a extensão da chave de cache/embed para distinguir variações de eixo internas ( necessária para `weight`/`style`/`stretch`, mesmo sem eixos explícitos).
