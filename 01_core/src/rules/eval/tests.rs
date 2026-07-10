@@ -2869,6 +2869,63 @@ mod tests {
     }
 
     #[test]
+    fn import_cadeia_tres_ficheiros_sem_ciclo() {
+        // A → B → C (P680): cadeia de três ficheiros sem ciclo; valor final
+        // bate com o vanilla ("de B, com de C") e não é confundido com ciclo.
+        let world = ImportMockWorld::new(
+            "#import \"p680-b.typ\": valor_b\n#let r = valor_b",
+            &[
+                (
+                    "p680-b.typ",
+                    "#import \"p680-c.typ\": valor_c\n#let valor_b = \"de B, com \" + valor_c",
+                ),
+                ("p680-c.typ", "#let valor_c = \"de C\""),
+            ],
+        );
+        let src = World::source(&world, World::main(&world)).unwrap();
+        let module = eval_for_test(&world, &src).expect("cadeia A→B→C não deve falhar");
+        assert_eq!(
+            module.scope().get("r"),
+            Some(&Value::Str("de B, com de C".into()))
+        );
+    }
+
+    #[test]
+    fn import_diamante_nao_e_ciclo() {
+        // A importa B e C; ambos importam D (P680). D é visto em dois ramos
+        // distintos, não em sequência circular — não deve ser falso positivo
+        // de ciclo. Confirma que Route::contains distingue "activo na cadeia
+        // actual" de "já avaliado em ramo anterior".
+        let world = ImportMockWorld::new(
+            "#import \"p680-db.typ\": valor_b\n\
+             #import \"p680-dc.typ\": valor_c\n\
+             #let rb = valor_b\n\
+             #let rc = valor_c",
+            &[
+                (
+                    "p680-db.typ",
+                    "#import \"p680-d.typ\": valor_d\n#let valor_b = \"B usa \" + valor_d",
+                ),
+                (
+                    "p680-dc.typ",
+                    "#import \"p680-d.typ\": valor_d\n#let valor_c = \"C usa \" + valor_d",
+                ),
+                ("p680-d.typ", "#let valor_d = \"de D\""),
+            ],
+        );
+        let src = World::source(&world, World::main(&world)).unwrap();
+        let module = eval_for_test(&world, &src).expect("diamante não é ciclo");
+        assert_eq!(
+            module.scope().get("rb"),
+            Some(&Value::Str("B usa de D".into()))
+        );
+        assert_eq!(
+            module.scope().get("rc"),
+            Some(&Value::Str("C usa de D".into()))
+        );
+    }
+
+    #[test]
     fn eval_include_retorna_err_sem_panic() {
         let world = MockWorld::new("#include \"foo.typ\"");
         let src = World::source(&world, World::main(&world)).unwrap();
