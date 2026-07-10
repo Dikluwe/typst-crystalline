@@ -1,7 +1,7 @@
 # P683 — `#import` a partir de módulo / field-access
 
 **Estado:** fechado.
-**Commit do trabalho:** `__P683_COMMIT__` (preenchido no commit seguinte).
+**Commit do trabalho:** `cacc26c54cc936effdb14e2f258b3c20243f5a00`.
 **Data/hora da medição:** 2026-07-10T14:26:04-03:00.
 **Commit base (HEAD antes do trabalho):** `c447f17c39db98d6831d3bb1508d6843db8754fc` — "P682: adiciona hash do commit ao relatório".
 **Vanilla de referência:** `lab/typst-original/target/release/typst` = `typst 0.15.0 (969087ec)`.
