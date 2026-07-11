@@ -2,7 +2,7 @@
 
 **Data:** 2026-07-11
 **Passo:** `00_nucleo/materialization/typst-passo-709.md`
-**Hash do commit (implementação):** a preencher no commit seguinte.
+**Hash do commit (implementação):** `8dcbfde19`.
 **HEAD base:** `045aa8f09` (fim de P708, detached HEAD).
 **Estado:** ÂMBITO DE P709 FECHADO — `std` implementado e verificado em **dois** pontos de construção de scope (documento principal e ficheiros importados, achado a meio do passo). `cetz` avança mais fundo de novo, novo bloqueio isolado: `Value::Length` não tem nenhum campo/método (`.pt()`, `.mm()`, `.to-absolute()`, `.abs`, etc.).
 
