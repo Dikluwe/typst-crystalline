@@ -1,5 +1,5 @@
 # Prompt L0 — rules/eval
-Hash do Código: b9502de8
+Hash do Código: 2585e3ab
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/rules/eval/mod.rs`
@@ -44,6 +44,10 @@ O entrypoint `pub fn eval` (`eval/mod.rs`) constrói o scope base do documento:
 3. `text` — função nativa `native_text` exposta globalmente para uso em show-rules
    (P492; ex.: `#show regex("\\d+"): it => text(red, it)`).
 4. Elementos de utilizador registados no `ElementRegistry`.
+5. **P709** — `std`: `Value::Module` com um clone do scope de (1)
+   `make_stdlib`, definido **antes** de (1) ser espalhado (`scopes.define`)
+   em `scopes` — dá acesso à stdlib não-sombreada mesmo que o documento
+   redefina `length`/`calc`/etc. Ver §P709.
 
 O scope base é depois herdado por closures e show-rules.
 
@@ -828,4 +832,74 @@ Critérios de verificação:
 - `cargo test --workspace` continua a passar — **incluindo uma varredura
   alargada do corpus de testes existente** (ADR-0114: bug de mecanismo
   central, alcance potencialmente amplo, não só `cetz`).
+- `crystalline-lint .` limpo.
+
+## §P709 — Módulo `std` (acesso à stdlib não-sombreada)
+
+Isolado por P708 via `cetz` (`canvas.typ:32,42,170,173,180`, `util.typ:197,340,341,344`,
+`styles.typ:191` — `std.length`, `std.measure`, `std.color`, `std.stroke`,
+`std.curve`, `std.gradient`, `std.tiling`): quando o próprio pacote
+sombreia um nome de builtin (`#let length = ...`), `std.<nome>` continua a
+dar acesso à versão original — mecanismo ausente no cristalino
+(`error: unknown variable: std`).
+
+### Mecanismo vanilla confirmado (não assumido)
+
+`foundations/scope.rs:24,51-56` do vanilla: `Scopes.base: Option<&Library>`
+é uma camada de fallback SEPARADA do stack `top`/`scopes` (bindings do
+utilizador). `Scopes::get` procura primeiro no stack do utilizador, depois
+em `base.global.scope()`; **só se `var == "std"` e não encontrado em
+nenhum dos dois**, devolve `&base.std`. `Library::std`
+(`typst-library/src/lib.rs:180,231`) é `Binding::detached(global.clone())`
+— um **clone independente** do módulo `global` (a stdlib inteira),
+capturado uma única vez na construção da `Library`, antes de qualquer
+`#let` do documento.
+
+**Sombreamento de `std` em si — medido, não assumido**: `#let std =
+"oops"; #std` → `"oops"` no vanilla (funciona como qualquer outro nome,
+**não** é protegido de shadowing por `#let`). O `cannot_mutate_constant`
+visto em `Scopes::get_mut` aplica-se a outra operação (mutação directa,
+não à criação de um novo binding via `#let`) — não é relevante para o
+mecanismo de `std` em si.
+
+### Arquitetura cristalina — mais simples que a do vanilla
+
+O cristalino **não tem** uma camada `base` separada do stack de scopes —
+`make_stdlib()` (`eval/mod.rs:931`) devolve um `Scope` que é espalhado
+directamente em `scopes` (`for (name, binding) in stdlib.iter() {
+scopes.define(...) }`) antes de `scopes.enter()` empurrar um novo frame
+para o corpo do documento. Como o stdlib já vive num frame que os `#let`
+do documento nunca mutam (só sombreiam, empilhando por cima), **não é
+preciso replicar o mecanismo de fallback dedicado do vanilla** — basta:
+
+```rust
+let stdlib = make_stdlib(&inputs);
+scopes.define("std", Value::Module(Module::new("std", stdlib.clone())));
+for (name, binding) in stdlib.iter() {
+    scopes.define(name, binding.value().clone());
+}
+```
+
+`std` participa do scope normal (sombreável como qualquer outro nome,
+paridade com o comportamento medido acima) e `.field` sobre
+`Value::Module` já é tratado pelo dispatcher existente de P679
+(`bindings.rs`, `Value::Module(m) => m.scope().get(...)`)  — `std.calc`,
+`std.length`, etc. funcionam **sem** código de dispatch novo.
+
+### Âmbito medido — só o scope de `make_stdlib`
+
+`grep` exaustivo aos usos de `std.` em `cetz` confirma: `color`, `curve`,
+`gradient`, `length`, `measure`, `stroke`, `tiling` — todos vivem em
+`make_stdlib()`. **Scope-out explícito**: `std` não inclui
+`predefined_color_bindings()` (`red`/`blue`/...), `text`, nem elementos do
+`ElementRegistry` — sem consumidor medido em `cetz`; se um pacote real
+precisar de `std.red` ou `std.<elemento-de-utilizador>`, revisitar então.
+
+Critérios de verificação:
+
+- `{let length = 5; std.length}` → `length` (tipo builtin, não sombreado).
+- `{let calc = "x"; std.calc.round(3.7)}` → `4` (sub-módulo através de
+  `std` funciona apesar do sombreamento).
+- `{let std = "oops"; std}` → `"oops"` (sombreável como qualquer nome).
+- `cargo test --workspace` continua a passar.
 - `crystalline-lint .` limpo.

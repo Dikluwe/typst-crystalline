@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/rules/eval.md
-//! @prompt-hash c8253807
+//! @prompt-hash 9433c725
 //! @layer L1
 //! @updated 2026-04-23
 //!
@@ -54,6 +54,12 @@ fn eval_imported_file(
     // P694 — `make_stdlib` precisa de `SysInputs` (vêm do `World`); módulos
     // importados vêem os mesmos `sys.inputs` do documento principal.
     let stdlib = super::make_stdlib(&engine.world.inputs());
+    // P709 — `std` também tem de existir aqui: um ficheiro importado (ex.
+    // `cetz`) que sombreia um builtin (`#let length = ...`) precisa de
+    // `std.length` para aceder à versão não-sombreada, exactamente como o
+    // documento principal (`eval/mod.rs::run_pass`). Mesmo mecanismo — clone
+    // tirado antes de `stdlib` ser espalhado neste scope.
+    module_scopes.define("std", Value::Module(Module::new("std", stdlib.clone())));
     for (n, binding) in stdlib.iter() {
         module_scopes.define(n, binding.value().clone());
     }

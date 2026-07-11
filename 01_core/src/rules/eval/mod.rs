@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/rules/eval.md
-//! @prompt-hash c8253807
+//! @prompt-hash 9433c725
 //! @layer L1
 //! @updated 2026-07-09
 //!
@@ -361,6 +361,13 @@ pub fn eval_with_full_error(
         let mut scopes = Scopes::new(None);
         // Stdlib como scope base — type, len, range visíveis em todo o documento
         let stdlib = make_stdlib(&inputs);
+        // P709 — `std`: clone independente da stdlib, tirado ANTES de ser
+        // espalhada em `scopes`, dá acesso à versão não-sombreada mesmo que
+        // o documento redefina `length`/`calc`/etc. (paridade vanilla,
+        // `Library::std = Binding::detached(global.clone())`). Sombreável
+        // como qualquer outro nome (medido: `#let std = "oops"` funciona
+        // no vanilla) — por isso `scopes.define`, sem mecanismo especial.
+        scopes.define("std", Value::Module(Module::new("std", stdlib.clone())));
         for (name, binding) in stdlib.iter() {
             scopes.define(name, binding.value().clone());
         }

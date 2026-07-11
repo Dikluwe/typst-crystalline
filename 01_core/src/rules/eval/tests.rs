@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/rules/eval.md
-//! @prompt-hash c8253807
+//! @prompt-hash 9433c725
 //! @layer L1
 //! @updated 2026-06-17
 //!
@@ -7574,6 +7574,48 @@ mod tests {
     fn p708_closure_so_sink_sem_regressao() {
         let world = MockWorld::new("#let f(..args) = args.pos().len()\n#let x = f(1, 2, 3)");
         assert_eq!(eval_let(&world, "x"), Some(Value::Int(3)));
+    }
+
+    // ── P709 — módulo `std` (acesso à stdlib não-sombreada) ──────────────────
+
+    #[test]
+    fn p709_std_da_acesso_a_builtin_sombreado() {
+        let world = MockWorld::new("#let length = 5\n#let x = std.length");
+        assert_eq!(eval_let(&world, "x"), Some(Value::Type(Type::Length)));
+    }
+
+    #[test]
+    fn p709_std_submodulo_apesar_de_sombreamento() {
+        let world = MockWorld::new(
+            "#let calc = \"não sou a calculadora\"\n#let x = std.calc.round(3.7)"
+        );
+        assert_eq!(eval_let(&world, "x"), Some(Value::Int(4)));
+    }
+
+    #[test]
+    fn p709_std_e_sombreavel_como_qualquer_nome() {
+        // Medido contra o vanilla: #let std = "oops"; #std -> "oops".
+        let world = MockWorld::new("#let std = \"oops\"\n#let x = std");
+        assert_eq!(eval_let(&world, "x"), Some(Value::Str("oops".into())));
+    }
+
+    #[test]
+    fn p709_sem_sombreamento_std_e_igual_ao_builtin() {
+        let world = MockWorld::new("#let x = std.len((1, 2, 3))");
+        assert_eq!(eval_let(&world, "x"), Some(Value::Int(3)));
+    }
+
+    #[test]
+    fn p709_std_disponivel_em_ficheiro_importado() {
+        // Segunda construção de scope (eval_imported_file, modules.rs) — o
+        // caminho real de cetz: um ficheiro importado sombreia `length` e
+        // usa `std.length` para aceder à versão original.
+        let v = import_str(
+            "#import \"u.typ\": r",
+            &[("u.typ", "#let length = 5\n#let r = std.length")],
+            "r",
+        );
+        assert_eq!(v, Value::Type(Type::Length));
     }
 
     #[test]
