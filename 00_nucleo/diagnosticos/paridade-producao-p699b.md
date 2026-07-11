@@ -2,7 +2,7 @@
 
 **Data:** 2026-07-11
 **Passo:** `00_nucleo/materialization/typst-passo-699b.md`
-**Hash do commit (implementação):** ver §4b (preenchido no commit seguinte, prática já usada em P695–P699).
+**Hash do commit (implementação):** `6cb7c254e`.
 **Estado:** FECHADO — bug encontrado, corrigido, validado ponta a ponta; lint 0, workspace verde.
 
 ---
@@ -111,8 +111,7 @@ documento real).
 - `cargo test --workspace`: **3728 passed**, 0 failed (3726 de P699 + 2 novos
   de P699b); `typst-infra` 626 passed / 5 ignored — inalterado.
 - `crystalline-lint .` → `✓ No violations found`.
-- **Hash do commit:** a preencher no commit seguinte (`git rev-parse --short
-  HEAD`), seguindo a prática já usada em P695–P699.
+- **Hash do commit:** `6cb7c254e` (medido pós-commit; ver §1 topo do relatório).
 
 ---
 
