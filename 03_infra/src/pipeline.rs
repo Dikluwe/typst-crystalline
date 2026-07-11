@@ -115,20 +115,22 @@ pub fn expand_context_blocks(
         return Ok(content);
     }
 
-    // Colecta os ContextBlocks pelo id.
-    let blocks = collect_context_blocks(&content);
+    // Colecta os ContextBlocks pelo id, com o StyleChain acumulado até à
+    // sua posição (P711 — paridade com o show rule `CONTEXT_RULE` vanilla).
+    let blocks = collect_context_blocks(&content, &StyleChain::default_chain());
 
     // Resolve cada ContextBlock.
     let mut resolved = HashMap::new();
     for (id, loc) in &intr.context_block_locations {
-        let Some(elem) = blocks.get(id) else { continue };
+        let Some((elem, block_chain)) = blocks.get(id) else { continue };
         let mut ctx = EvalContext::new();
         ctx.in_context = true;
         ctx.introspector = intr.clone();
         ctx.current_location = Some(*loc);
 
         let mut scopes = Scopes::new(None);
-        let mut styles = StyleChain::default_chain();
+        // P711 — StyleChain real da posição, não `default_chain()` isolada.
+        let mut styles = block_chain.clone();
         let mut show_rules: Arc<[ShowRule]> = Arc::from([]);
         let mut active_guards: Vec<u64> = Vec::new();
         let mut sink = TypstSink::new();
@@ -158,23 +160,29 @@ pub fn expand_context_blocks(
     Ok(substitute_context_blocks(content, &resolved))
 }
 
-fn collect_context_blocks(content: &Content) -> HashMap<u64, Arc<ContextBlockElem>> {
+fn collect_context_blocks(
+    content: &Content,
+    chain: &StyleChain,
+) -> HashMap<u64, (Arc<ContextBlockElem>, StyleChain)> {
     let mut map = HashMap::new();
     match content {
         Content::ContextBlock(elem) => {
-            map.insert(elem.id, elem.clone());
+            map.insert(elem.id, (elem.clone(), chain.clone()));
         }
         Content::Sequence(seq) => {
             for child in seq.iter() {
-                map.extend(collect_context_blocks(child));
+                map.extend(collect_context_blocks(child, chain));
             }
         }
-        Content::Styled(inner, _) => {
-            map.extend(collect_context_blocks(inner));
+        // P711 — acumula o delta na cadeia ao descer, em vez de o descartar;
+        // é esta cadeia que `expand_context_blocks` usa como `engine.styles`.
+        Content::Styled(inner, styles) => {
+            let inner_chain = chain.push_styles(styles);
+            map.extend(collect_context_blocks(inner, &inner_chain));
         }
-        Content::Strong(e) => map.extend(collect_context_blocks(&e.body)),
-        Content::Emph(e) => map.extend(collect_context_blocks(&e.body)),
-        Content::Heading(e) => map.extend(collect_context_blocks(&e.body)),
+        Content::Strong(e) => map.extend(collect_context_blocks(&e.body, chain)),
+        Content::Emph(e) => map.extend(collect_context_blocks(&e.body, chain)),
+        Content::Heading(e) => map.extend(collect_context_blocks(&e.body, chain)),
         Content::Raw(_) | Content::Text(_) | Content::Space | Content::Empty => {}
         // Containers não listados: ContextBlock não deve aparecer aninhado
         // dentro de Grid/Table/etc. neste subset. Ignorar defensivamente.
@@ -1094,5 +1102,64 @@ mod tests {
         let fl = font_list("Inria Serif");
         let got = resolve_font(&fl, &FontVariant::default(), world.book(), &world).expect("literal continua a resolver");
         assert_eq!(got, bytes);
+    }
+
+    // ── P711: collect_context_blocks acumula StyleChain da posição ────
+
+    use typst_core::entities::func::Func;
+    use typst_core::entities::style::{Style, Styles};
+    use typst_core::entities::value::Value;
+
+    fn dummy_context_block(id: u64) -> Content {
+        let closure = Func::native("dummy", |_ctx, _args, _world, _file| {
+            Ok(Value::None)
+        });
+        Content::ContextBlock(Arc::new(ContextBlockElem { id, closure }))
+    }
+
+    #[test]
+    fn collect_context_blocks_acumula_size_de_set_ancestral() {
+        let styles = Styles::from_iter([Style::Size(Pt(20.0))]);
+        let content = Content::Styled(Box::new(dummy_context_block(1)), styles);
+        let blocks = collect_context_blocks(&content, &StyleChain::default_chain());
+        let (_, chain) = blocks.get(&1).expect("bloco 1 deve ter sido colectado");
+        assert_eq!(chain.size(), 20.0,
+            "P711: a cadeia colectada tem de reflectir o #set ancestral, não o default");
+    }
+
+    #[test]
+    fn collect_context_blocks_sem_set_mantem_default() {
+        let content = dummy_context_block(2);
+        let blocks = collect_context_blocks(&content, &StyleChain::default_chain());
+        let (_, chain) = blocks.get(&2).expect("bloco 2 deve ter sido colectado");
+        assert_eq!(chain.size(), 11.0,
+            "sem #set ancestral, o tamanho por defeito (11pt) fica inalterado");
+    }
+
+    #[test]
+    fn collect_context_blocks_sets_aninhados_o_mais_interno_vence() {
+        // #set text(size: 20pt) [ #set text(size: 30pt) [ context ] ]
+        let inner_styles = Styles::from_iter([Style::Size(Pt(30.0))]);
+        let inner = Content::Styled(Box::new(dummy_context_block(3)), inner_styles);
+        let outer_styles = Styles::from_iter([Style::Size(Pt(20.0))]);
+        let content = Content::Styled(Box::new(inner), outer_styles);
+        let blocks = collect_context_blocks(&content, &StyleChain::default_chain());
+        let (_, chain) = blocks.get(&3).expect("bloco 3 deve ter sido colectado");
+        assert_eq!(chain.size(), 30.0,
+            "o #set mais interno (mais próximo do bloco) tem de vencer");
+    }
+
+    #[test]
+    fn collect_context_blocks_multiplos_blocos_em_sequence_cadeias_independentes() {
+        let a = Content::Styled(
+            Box::new(dummy_context_block(4)),
+            Styles::from_iter([Style::Size(Pt(14.0))]),
+        );
+        let b = dummy_context_block(5);
+        let content = Content::sequence(vec![a, b]);
+        let blocks = collect_context_blocks(&content, &StyleChain::default_chain());
+        assert_eq!(blocks.get(&4).unwrap().1.size(), 14.0);
+        assert_eq!(blocks.get(&5).unwrap().1.size(), 11.0,
+            "bloco irmão fora do Styled não deve herdar o #set do outro ramo");
     }
 }

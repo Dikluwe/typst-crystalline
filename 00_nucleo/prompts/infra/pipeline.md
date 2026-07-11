@@ -92,6 +92,55 @@ pub fn compile_to_pdf_bytes(
 - Módulo sem `content` (AST puramente executivo) produz
   `Ok(Vec::new())` — não é erro.
 
+### `expand_context_blocks` (P506, corrigido P711)
+
+```rust
+pub fn expand_context_blocks(
+    content: Content,
+    intr: &TagIntrospector,
+    world: &dyn World,
+    source: &Source,
+) -> SourceResult<Content>;
+
+fn collect_context_blocks(
+    content: &Content,
+    chain: &StyleChain,
+) -> HashMap<u64, (Arc<ContextBlockElem>, StyleChain)>;
+```
+
+- Passo intermédio do pipeline, entre `introspect` e `layout`
+  (`compile_to_pdf_bytes_full_error`, §P506): resolve cada
+  `Content::ContextBlock` chamando a sua closure via `apply_func`
+  e substituindo o nó pela `Content` resultante
+  (`value_to_content`).
+- **P711 — `StyleChain` da posição, não `default_chain()`.**
+  Paridade com o vanilla (`typst-library/foundations/context.rs`
+  `CONTEXT_RULE`): o `context` block é um show rule que recebe o
+  `styles: StyleChain` **da posição onde aparece no documento**
+  (o `StyleChain` acumulado por `#set` léxicos/`Content::Styled`
+  ancestrais), não uma cadeia de defaults isolada. `collect_context_blocks`
+  acumula essa cadeia durante o walk: parte de
+  `StyleChain::default_chain()` e aplica `.push_styles(styles)`
+  a cada `Content::Styled(inner, styles)` atravessado, associando
+  a cadeia resultante (não só o `id`/elem) a cada `ContextBlockElem`
+  encontrado. `expand_context_blocks` usa essa cadeia (não
+  `default_chain()`) como `engine.styles` ao invocar a closure.
+  Antes da correção, `.to-absolute()` (e qualquer resolução
+  dependente de estilo) dentro de `context {...}` ignorava
+  silenciosamente `#set text(size: ...)` e outros `#set`
+  ancestrais, usando sempre os defaults (`size: 11.0`).
+- `collect_context_blocks` continua um walk parcial (Sequence,
+  Styled, Strong, Emph, Heading) — `ContextBlock` não é esperado
+  aninhado dentro de Grid/Table/etc. neste subset (scope-out
+  pré-existente, inalterado por P711).
+- Fora do escopo de P711, medido mas não corrigido aqui (passos
+  próprios): `repr_value` formata `Value::Length`/`Ratio`/`Angle`/
+  `Color`/`Stroke`/`Align` com `{:?}` do Rust em vez do repr Typst
+  quando embutidos directamente em markup (bug pré-existente,
+  independente de `context`); `measure()` devolve sempre `0pt`
+  (dentro e fora de `context`) e não tem o gate "can only be used
+  when context is known" do vanilla.
+
 ## Helpers privados de dispatch (Passos 140B + 141 + 146)
 
 ```rust
