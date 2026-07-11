@@ -2,7 +2,7 @@
 
 **Data:** 2026-07-11
 **Passo:** `00_nucleo/materialization/typst-passo-700.md`
-**Hash do commit (este relatório):** a preencher no commit seguinte.
+**Hash do commit (este relatório):** `976d85301`.
 **HEAD base:** `e3e886f4e` (fim de P699b, detached HEAD).
 **Estado:** SONDA FECHADA COM PRÓXIMO BLOQUEIO IDENTIFICADO — não é sucesso completo, não é regressão. Cadeia P678–700 pausada aqui, com o próximo passo definido.
 
