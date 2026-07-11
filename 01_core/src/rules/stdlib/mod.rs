@@ -39,6 +39,8 @@ mod gradients;
 mod math_style;
 // P387 (ADR-0111) — data import: read/csv/json/yaml/toml/cbor/xml.
 mod loading;
+// P697 — builtin `plugin()` (nível 2 de P696: sintaxe + leitura de bytes).
+mod plugin;
 // P394 — runtime de re-avaliação `eval(source)`.
 mod eval;
 // P396 — constructor `tiling(...)` e helpers visuais.
@@ -103,6 +105,8 @@ pub use crate::rules::stdlib::loading::{
     native_cbor, native_csv, native_json, native_read, native_toml, native_xml,
     native_yaml,
 };
+// P697 — builtin plugin.
+pub use crate::rules::stdlib::plugin::native_plugin;
 pub use crate::rules::stdlib::shapes::{
     native_circle, native_curve, native_curve_close, native_curve_cubic, native_curve_line,
     native_curve_move, native_curve_quad, native_ellipse, native_line, native_polygon,

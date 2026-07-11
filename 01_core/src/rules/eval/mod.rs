@@ -944,6 +944,8 @@ fn make_stdlib(inputs: &SysInputs) -> Scope {
         native_sscript, native_upright,
         // P387 (ADR-0111) — data import.
         native_cbor, native_csv, native_json, native_read, native_toml, native_xml, native_yaml,
+        // P697 — builtin plugin (nível 2 de P696).
+        native_plugin,
         // P403 — constructors stdlib para tipos primitivos L1.
         native_decimal, native_duration, native_version,
         // P470 — list/enum com marcadores configuráveis.
@@ -1044,6 +1046,8 @@ fn make_stdlib(inputs: &SysInputs) -> Scope {
     scope.define("toml",    Value::Func(Func::native("toml",    native_toml)));
     scope.define("cbor",    Value::Func(Func::native("cbor",    native_cbor)));
     scope.define("xml",     Value::Func(Func::native("xml",     native_xml)));
+    // P697 — builtin `plugin()` (nível 2 de P696: sintaxe + leitura; runtime em P698).
+    scope.define("plugin",  Value::Func(Func::native("plugin",  native_plugin)));
     scope.define("rect",    Value::Func(Func::native("rect",    native_rect)));
     scope.define("square",  Value::Func(Func::native("square",  native_square)));
     scope.define("ellipse", Value::Func(Func::native("ellipse", native_ellipse)));
