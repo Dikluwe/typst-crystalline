@@ -1,5 +1,5 @@
 # Prompt L0 — infra/system-world
-Hash do Código: 0450bb2c
+Hash do Código: 267877c4
 
 **Camada**: L3
 **Ficheiro alvo**: `03_infra/src/world.rs`
@@ -24,6 +24,9 @@ impl SystemWorld {
     pub fn new(root: PathBuf, main: PathBuf) -> Result<Self, SystemWorldError>
     /// **P450** — carrega e parseia um ficheiro `.bib` relativo a current_file.
     pub fn load_bibliography(&self, current_file: FileId, path: &str) -> Result<Vec<BibEntry>, String>
+    /// **P694** — builder: associa os pares `--input` (raw strings) e converte
+    /// para `SysInputs` (`EcoString`). Guarda no campo `inputs`.
+    pub fn with_inputs(self, inputs: Vec<(String, String)>) -> Self
 }
 
 impl World for SystemWorld {
@@ -35,8 +38,15 @@ impl World for SystemWorld {
     fn font(&self, index: usize) -> Option<Font>;
     fn today(&self, offset: Option<i64>) -> Option<Datetime>;
     fn resolve_package(&self, spec: &PackageSpec) -> Result<Source, String>;
+    /// **P694** — devolve os `--input` (clone barato; poucos pares).
+    fn inputs(&self) -> SysInputs;
 }
 ```
+
+**Campo `inputs` (P694):** `SysInputs` inicializado vazio em `new` e populado
+por `with_inputs`. É lido por `eval_with_full_error` via `World::inputs()` para
+construir o módulo `sys`. A conversão `String → EcoString` acontece aqui (L3),
+mantendo L2 livre de `ecow`/`indexmap`.
 
 ## Comportamento
 

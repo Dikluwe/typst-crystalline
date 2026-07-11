@@ -1,8 +1,12 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/contracts/world.md
-//! @prompt-hash a791b2fa
+//! @prompt-hash ab91e3f0
 //! @layer L1
-//! @updated 2026-04-20
+//! @updated 2026-07-10
+
+use ecow::EcoString;
+use indexmap::IndexMap;
+use rustc_hash::FxBuildHasher;
 
 use crate::entities::file_id::FileId;
 use crate::entities::font_book::FontBook;
@@ -11,6 +15,14 @@ use crate::entities::source::Source;
 use crate::entities::world_types::{
     Bytes, Datetime, FileResult, Font, Library,
 };
+
+/// Pares `chave → valor` passados à CLI via `--input chave=valor` e expostos à
+/// linguagem em `sys.inputs` (P694). `IndexMap` preserva a ordem de inserção
+/// (repr determinista); `FxBuildHasher` é o hasher de `Value::Dict`; `EcoString`
+/// dá clone O(1). Os três crates estão em `[l1_allowed_external]`, logo o alias
+/// na assinatura do trait não dispara V14. Os valores são sempre strings
+/// (paridade vanilla: `--input n=42` → `sys.inputs.n == "42"`).
+pub type SysInputs = IndexMap<EcoString, EcoString, FxBuildHasher>;
 
 /// Contrato entre o compilador Typst e o ambiente de execução.
 ///
@@ -61,6 +73,14 @@ pub trait World: Send + Sync {
     fn resolve_package(&self, spec: &PackageSpec) -> Result<Source, String> {
         let _ = spec;
         Err("resolução de pacotes não suportada nesta implementação de World".into())
+    }
+
+    /// Pares `--input chave=valor` da CLI para expor em `sys.inputs` (P694).
+    /// Implementação por omissão retorna vazio — MockWorlds e worlds sem CLI
+    /// não precisam de implementar este método. Devolve owned (clone barato —
+    /// poucos pares); L1 lê-o em `eval_with_full_error` para construir `sys`.
+    fn inputs(&self) -> SysInputs {
+        SysInputs::default()
     }
 
     /// Obter uma fonte pelo índice no `FontBook`.

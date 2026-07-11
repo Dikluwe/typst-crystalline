@@ -38,13 +38,14 @@ typst --version
 ### Pipeline
 
 1. `typst_shell::cli::parse()` → `RunIntent { input, output, root,
-   font_paths, colored, document_id }`.
+   font_paths, colored, document_id, inputs }`.
 2. `main_path = input.file_name()` — falha → exit 2.
 3. `SystemWorld::new(&root, &main_path)` → `SystemWorld` (L3).
    Falha de `new` → exit 2.
-4. `world.with_fonts_and_system(&font_paths)` → `World` (L3).
-   Combina fontes explicitamente passadas em `--font-path` com fontes
-   do sistema carregadas via `fontdb`.
+4. `world.with_fonts_and_system(&font_paths).with_inputs(inputs)` → `World`
+   (L3). Combina fontes explicitamente passadas em `--font-path` com fontes
+   do sistema carregadas via `fontdb`; `with_inputs` (P694) entrega os pares
+   `--input` ao `World` para o módulo `sys`.
 5. `world.source(world.main())` → `Source`.
 6. `compile_to_pdf_bytes*_with_document_id(&world, &source, document_id)` (L3):
    - `eval` → `Module` + warnings.

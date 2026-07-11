@@ -1,5 +1,5 @@
 # Prompt L0 — `contracts/world` — O Contrato Supremo do Sistema
-Hash do Código: bf00552b
+Hash do Código: 15212195
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/contracts/world.rs`
@@ -24,6 +24,22 @@ mock.
 `trait World` e o `MockWorld` para testes.
 
 ---
+
+## O Tipo `SysInputs` (P694)
+
+Pares `chave → valor` passados à CLI via `--input chave=valor` e expostos à
+linguagem em `sys.inputs`. Vive neste contrato porque atravessa a fronteira
+ambiente→núcleo: é produzido em L2/L3 e consumido em L1.
+
+```rust
+pub type SysInputs = IndexMap<EcoString, EcoString, FxBuildHasher>;
+```
+
+`IndexMap` preserva a ordem de inserção (repr determinista); `FxBuildHasher` é
+o hasher de `Value::Dict`; `EcoString` dá clone O(1). Os três crates estão em
+`[l1_allowed_external]`, logo `SysInputs` na assinatura do trait não dispara
+V14. Os valores são **sempre strings** (paridade vanilla: `--input n=42` →
+`sys.inputs.n == "42"`).
 
 ## O Trait `World`
 
@@ -64,6 +80,15 @@ pub trait World: Send + Sync {
     fn resolve_package(&self, spec: &PackageSpec) -> Result<Source, String> {
         let _ = spec;
         Err("resolução de pacotes não suportada nesta implementação de World".into())
+    }
+
+    /// Pares `--input chave=valor` da CLI para expor em `sys.inputs` (P694).
+    /// Implementação por omissão retorna vazio — MockWorlds e worlds sem CLI
+    /// não precisam de implementar este método (espelha `read_bytes`/
+    /// `include_source`/`resolve_package`). Devolve owned (clone barato —
+    /// poucos pares); L1 lê-o em `eval_with_full_error` para construir `sys`.
+    fn inputs(&self) -> SysInputs {
+        SysInputs::default()
     }
 
     /// Obter uma fonte (bytes + metadados) pelo índice no FontBook.
@@ -131,6 +156,7 @@ pipeline de eval sem dependências externas.
 | L1 nunca chama I/O directamente | Teste sem mock quebra |
 | `world.source(id)` pode falhar | Caller DEVE tratar `FileResult` |
 | `world.resolve_package(spec)` pode falhar | Caller DEVE tratar `Err` (pacote ausente / não suportado); resolução real é I/O em L3 |
+| `world.inputs()` tem default vazio | MockWorlds vêem `sys.inputs == (:)` sem implementar o método (P694) |
 | `world.font(idx)` pode retornar `None` | Layouter DEVE ter fallback de fonte |
 | `today(None)` significa "sem offset" | `today(Some(0))` = UTC exacto |
 

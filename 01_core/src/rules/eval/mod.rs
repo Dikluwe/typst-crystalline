@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/rules/eval.md
-//! @prompt-hash 276f6bb7
+//! @prompt-hash 3d1353b0
 //! @layer L1
 //! @updated 2026-07-09
 //!
@@ -21,7 +21,7 @@ use comemo::{Track, Tracked, TrackedMut};
 use ecow::EcoString;
 use hayagriva::citationberg::IndependentStyle;
 
-use crate::contracts::world::World;
+use crate::contracts::world::{SysInputs, World};
 use crate::entities::document_info::DocumentInfo;
 use crate::entities::engine::Engine;
 use crate::entities::show::{RuleId, ShowRule};
@@ -339,6 +339,10 @@ pub fn eval_with_full_error(
     //
     // O scope, as definições de stdlib e as show-rules registadas são idênticos
     // nas duas passagens; só a aplicação das show-rules difere.
+    //
+    // P694 — `sys.inputs` vem do ambiente via `World::inputs()` (default vazio);
+    // lido uma vez e partilhado pelas duas passagens.
+    let inputs = world.inputs();
     let mut run_pass = |apply_show_rules: bool,
                         pass_sink: &mut TrackedMut<Sink>|
      -> SourceResult<(Value, Scope, HashMap<u64, Arc<IndependentStyle>>, DocumentInfo)> {
@@ -356,7 +360,7 @@ pub fn eval_with_full_error(
 
         let mut scopes = Scopes::new(None);
         // Stdlib como scope base — type, len, range visíveis em todo o documento
-        let stdlib = make_stdlib();
+        let stdlib = make_stdlib(&inputs);
         for (name, binding) in stdlib.iter() {
             scopes.define(name, binding.value().clone());
         }
@@ -924,9 +928,9 @@ fn eval_markup_body(
 ///
 /// Passo 64 (DEBT-16): `native_figure` migrada do interceptador em eval.rs para cá.
 /// O avaliador deixa de conhecer o nome "figure" — desacoplamento total.
-fn make_stdlib() -> Scope {
+fn make_stdlib(inputs: &SysInputs) -> Scope {
     use crate::rules::stdlib::{
-        make_calc_module, make_gradient_module, make_math_module, native_accent, native_align, native_assert, native_bibliography, native_block, native_box, native_cancel, native_circle, native_cite, native_divider,
+        make_calc_module, make_gradient_module, make_math_module, make_sys_module, native_accent, native_align, native_assert, native_bibliography, native_block, native_box, native_cancel, native_circle, native_cite, native_divider,
         native_ellipse, native_emph, native_figure, native_footnote, native_grid, native_grid_cell, native_grid_footer, native_grid_header, native_grid_hline, native_grid_vline, native_h, native_heading,
         native_hide, native_image, native_len, native_line, native_outline,
         native_counter, native_counter_at, native_counter_display, native_counter_final, native_counter_step, native_context, native_curve, native_curve_close, native_curve_cubic, native_curve_line, native_curve_move, native_curve_quad, native_eval, native_here, native_locate, native_lower, native_lorem, native_luma, native_measure, native_metadata, native_move, native_pad, native_pagebreak, native_place, native_polygon, native_query, native_regex, native_selector, native_state, native_state_at, native_state_display, native_state_final, native_state_update, native_state_update_with,
@@ -1285,6 +1289,9 @@ fn make_stdlib() -> Scope {
     // P299 — `math.sin`/`math.lim`/etc. (P298.X; 42 operadores
     // pré-definidos paridade vanilla via SSoT MathOp).
     scope.define("math",     make_math_module());
+    // P694 — módulo `sys` (sys.version / sys.inputs); `inputs` vem de
+    // `World::inputs()` (vazio por omissão).
+    scope.define("sys", make_sys_module(inputs));
 
     // Constantes de alinhamento (Passo 84.5, encerra DEBT-36).
     // Sintaxe preferida: `align(center, ...)`, `align(center + bottom, ...)`.

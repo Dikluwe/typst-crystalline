@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/rules/eval.md
-//! @prompt-hash 276f6bb7
+//! @prompt-hash 3d1353b0
 //! @layer L1
 //! @updated 2026-04-23
 //!
@@ -51,7 +51,9 @@ fn eval_imported_file(
     // Scope base do módulo importado — paridade com o eval principal: o ficheiro
     // importado vê a stdlib (ex.: `range(3)`), as cores predefinidas e `text`.
     let mut module_scopes = Scopes::new(None);
-    let stdlib = super::make_stdlib();
+    // P694 — `make_stdlib` precisa de `SysInputs` (vêm do `World`); módulos
+    // importados vêem os mesmos `sys.inputs` do documento principal.
+    let stdlib = super::make_stdlib(&engine.world.inputs());
     for (n, binding) in stdlib.iter() {
         module_scopes.define(n, binding.value().clone());
     }

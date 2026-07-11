@@ -1,5 +1,5 @@
 # Prompt L0 — rules/eval
-Hash do Código: 77fc8284
+Hash do Código: 95df37f0
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/rules/eval/mod.rs`
@@ -35,7 +35,10 @@ world sempre via `TrackedWorld` (L1).
 
 O entrypoint `pub fn eval` (`eval/mod.rs`) constrói o scope base do documento:
 
-1. `make_stdlib()` — todas as funções nativas (`type`, `len`, `rgb`, `table`, etc.).
+1. `make_stdlib(&inputs)` — todas as funções nativas (`type`, `len`, `rgb`,
+   `table`, etc.) e os módulos builtin (`calc`, `color`, `gradient`, `math`,
+   `sym`, `sys`). `inputs` vem de `world.inputs()` (P694) e alimenta
+   `sys.inputs`; os restantes módulos não dependem dele.
 2. `predefined_color_bindings()` — atalhos `red`, `blue`, `green`, `black`, `white`,
    `yellow`, `cyan`, `magenta`, `none` (P492/P497).
 3. `text` — função nativa `native_text` exposta globalmente para uso em show-rules
@@ -43,6 +46,16 @@ O entrypoint `pub fn eval` (`eval/mod.rs`) constrói o scope base do documento:
 4. Elementos de utilizador registados no `ElementRegistry`.
 
 O scope base é depois herdado por closures e show-rules.
+
+## §P694 — módulo builtin `sys` no scope global
+
+`eval_with_full_error` lê `let inputs = world.inputs();` (default vazio) e
+passa-o a `make_stdlib(&inputs)`, que regista `scope.define("sys",
+make_sys_module(&inputs))`. `sys` é `Value::Dict` com dois campos
+(`version: version(0, 15, 0)`, `inputs: dict` str→str) — ver
+`rules/stdlib/sys.md`. A decisão de fiar `inputs` pelo `World` (e não por novos
+parâmetros de `eval`/`pipeline`) está em `sys.md` e preserva a assinatura
+pública do eval e os seus callers.
 
 ## §P685 — Tipos como valores no scope global
 

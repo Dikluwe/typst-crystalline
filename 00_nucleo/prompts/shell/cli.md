@@ -1,5 +1,5 @@
 # Shell CLI — typst-shell::cli
-Hash do Código: 72c740ed
+Hash do Código: 7bc3166e
 
 ## Módulo
 `02_shell/src/cli.rs`
@@ -55,6 +55,7 @@ pub struct RunIntent {
     pub colored: bool,
     pub full_error: bool, // P350c — origem da flag de erro completo
     pub document_id: Option<[u8; 16]>, // P617 — DocumentID externo (UUID)
+    pub inputs: Vec<(String, String)>, // P694 — pares `--input chave=valor` (raw; L3 converte para SysInputs)
 }
 ```
 
@@ -128,6 +129,9 @@ struct Args {
     font_paths: Vec<PathBuf>,          // repetível (122); env+delim em 123
     #[arg(long = "document-id", env = "CRYSTALLINE_DOCUMENT_ID", value_name = "UUID")]
     document_id: Option<String>,       // P617 — UUID externo para DocumentID
+    #[arg(long = "input", value_name = "chave=valor",
+          action = clap::ArgAction::Append)]
+    inputs: Vec<String>,               // P694 — popula sys.inputs (repetível)
     #[arg(long = "color", value_enum, default_value_t = ColorWhen::Auto)]
     color: ColorWhen,
 }
@@ -138,6 +142,16 @@ Não exposta — L4 só conhece `parse()` e `RunIntent`.
 **Nota sobre `output_flag`**: nome interno divergente do clap
 `--output` para evitar colisão com campo positional `output`.
 Help mostra `-o, --output`.
+
+### Validação de `--input` (P694)
+
+Cada `--input` tem de ter a forma `chave=valor` (split no **primeiro** `=`,
+para permitir `=` no valor). Entradas sem `=` ou com chave vazia são erro
+claro em L2 (`eprintln!` + exit 2), à semelhança de `--document-id`. Os pares
+validados entram em `RunIntent.inputs` como `Vec<(String, String)>` crus; a
+conversão para `SysInputs` (IndexMap<EcoString, EcoString, _>) acontece em L3
+(`SystemWorld::with_inputs`), mantendo L2 livre de `ecow`/`indexmap`. Os
+valores ficam strings (paridade vanilla: `--input n=42` → `"42"`).
 
 ### Validação de `--document-id` (P617)
 

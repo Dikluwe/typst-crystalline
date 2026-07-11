@@ -1,0 +1,94 @@
+//! Crystalline Lineage
+//! @prompt 00_nucleo/prompts/rules/stdlib/sys.md
+//! @prompt-hash 7cc7a93d
+//! @layer L1
+//! @updated 2026-07-10
+//!
+//! Módulo builtin `sys` (P694) — `sys.version` e `sys.inputs`.
+//!
+//! Paridade com a linguagem (ADR-0107): `sys.version` é a versão de **paridade**
+//! `version(0, 15, 0)` (não a versão do binário cristalino); `sys.inputs` é um
+//! `dict` str→str populado via `--input chave=valor` (vazio por omissão). A
+//! forma impressa de `#sys` é um dicionário (como `calc`/`sym`), não
+//! `<module sys>` — divergência de repr/mecânica aceite.
+
+use ecow::EcoString;
+use indexmap::IndexMap;
+use rustc_hash::FxBuildHasher;
+
+use crate::contracts::world::SysInputs;
+use crate::entities::value::Value;
+use crate::entities::version::Version;
+
+/// Versão de **paridade** reportada por `sys.version` (ADR-0107): a versão da
+/// linguagem Typst com que somos paridade, não a versão do binário cristalino.
+const PARITY_VERSION: (u64, u64, u64) = (0, 15, 0);
+
+/// Constrói o módulo `sys` como `Value::Dict` com `version` e `inputs`.
+///
+/// `inputs` é o `SysInputs` resolvido (lido de `World::inputs()` em
+/// `eval_with_full_error`); vazio por omissão. Os valores viram `Value::Str`
+/// (paridade vanilla: `--input n=42` → `sys.inputs.n == "42"`).
+pub fn make_sys_module(inputs: &SysInputs) -> Value {
+    let (maj, min, pat) = PARITY_VERSION;
+    let mut dict: IndexMap<EcoString, Value, FxBuildHasher> = IndexMap::default();
+    dict.insert("version".into(), Value::from(Version::new(maj, min, pat)));
+
+    let mut inputs_dict: IndexMap<EcoString, Value, FxBuildHasher> = IndexMap::default();
+    for (k, v) in inputs {
+        inputs_dict.insert(k.clone(), Value::Str(v.clone()));
+    }
+    dict.insert("inputs".into(), Value::Dict(inputs_dict));
+
+    Value::Dict(dict)
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    fn version_components(v: &Value) -> Vec<u64> {
+        match v {
+            Value::Version(arc) => arc.components.clone(),
+            other => panic!("esperava Version, recebeu {}", other.type_name()),
+        }
+    }
+
+    #[test]
+    fn sys_sem_inputs_tem_version_e_inputs_vazio() {
+        let m = make_sys_module(&SysInputs::default());
+        let dict = match &m {
+            Value::Dict(d) => d,
+            other => panic!("esperava Dict, recebeu {}", other.type_name()),
+        };
+        // version == version(0, 15, 0)
+        let version = dict.get("version").expect("sys.version em falta");
+        assert_eq!(version_components(version), vec![0, 15, 0]);
+        // inputs == (:)
+        let inputs = dict.get("inputs").expect("sys.inputs em falta");
+        match inputs {
+            Value::Dict(d) => assert!(d.is_empty()),
+            other => panic!("esperava Dict em sys.inputs, recebeu {}", other.type_name()),
+        }
+    }
+
+    #[test]
+    fn sys_com_inputs_converte_para_str() {
+        let mut inputs = SysInputs::default();
+        inputs.insert(EcoString::from("chave"), EcoString::from("valor"));
+        inputs.insert(EcoString::from("n"), EcoString::from("42"));
+
+        let m = make_sys_module(&inputs);
+        let dict = match &m {
+            Value::Dict(d) => d,
+            _ => panic!("esperava Dict"),
+        };
+        let inputs_dict = match dict.get("inputs").unwrap() {
+            Value::Dict(d) => d,
+            _ => panic!("esperava Dict em sys.inputs"),
+        };
+        assert_eq!(inputs_dict.get("chave"), Some(&Value::Str(EcoString::from("valor"))));
+        // n=42 é string "42", não Int 42 (paridade vanilla).
+        assert_eq!(inputs_dict.get("n"), Some(&Value::Str(EcoString::from("42"))));
+    }
+}

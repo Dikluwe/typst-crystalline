@@ -51,6 +51,8 @@ mod collections;
 mod sym;
 // P476 — módulo `color` com operadores lighten/darken/mix/negate.
 mod color;
+// P694 — módulo `sys` (sys.version / sys.inputs).
+mod sys;
 // P506 — runtime state/counter/context.
 pub(crate) mod state;
 pub(crate) mod counter;
@@ -128,6 +130,8 @@ pub(crate) use crate::rules::stdlib::collections::try_dispatch_collection_method
 pub use crate::rules::stdlib::sym::build_sym_dict;
 // P476 — módulo color.
 pub use crate::rules::stdlib::color::{make_color_module, predefined_color_bindings};
+// P694 — módulo sys.
+pub use crate::rules::stdlib::sys::make_sys_module;
 // P311b.3 — 12 funções math style (paridade categoria 12/12 = 100%).
 pub use crate::rules::stdlib::math_style::{
     native_bb, native_bold, native_cal, native_frak, native_math_italic, native_mono,

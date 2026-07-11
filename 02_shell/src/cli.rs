@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/shell/cli.md
-//! @prompt-hash dc7fe73d
+//! @prompt-hash c91dfbf8
 //! @layer L2
 //! @updated 2026-06-17
 //!
@@ -106,6 +106,11 @@ struct Args {
     /// compilações. `InstanceID` continua aleatório.
     #[arg(long = "document-id", env = "CRYSTALLINE_DOCUMENT_ID", value_name = "UUID")]
     document_id: Option<String>,
+
+    /// P694 — par `chave=valor` exposto em `sys.inputs`. Repetível. Os valores
+    /// são sempre strings (paridade vanilla: `--input n=42` → `sys.inputs.n == "42"`).
+    #[arg(long = "input", value_name = "chave=valor", action = clap::ArgAction::Append)]
+    inputs: Vec<String>,
 }
 
 /// Intenção de execução — output puro de L2 para L4 (ADR-0049).
@@ -131,6 +136,10 @@ pub struct RunIntent {
     pub timings_json: Option<PathBuf>,
     /// **P617** — `DocumentID` externo de 16 bytes (UUID validado), ou `None`.
     pub document_id: Option<[u8; 16]>,
+    /// **P694** — pares `--input chave=valor` validados (raw strings). L3
+    /// converte para `SysInputs` em `SystemWorld::with_inputs`. Vazio por
+    /// omissão → `sys.inputs == (:)`.
+    pub inputs: Vec<(String, String)>,
 }
 
 /// Ponto de entrada público da CLI.
@@ -151,6 +160,19 @@ pub fn parse() -> RunIntent {
         std::process::exit(2);
     }
 
+    // P694 — validar `--input chave=valor` (split no primeiro `=`; chave não
+    // vazia). Erro claro em L2 (exit 2) em entrada mal formada.
+    let mut inputs: Vec<(String, String)> = Vec::with_capacity(args.inputs.len());
+    for raw in &args.inputs {
+        match parse_input_entry(raw) {
+            Some(pair) => inputs.push(pair),
+            None => {
+                eprintln!("error: invalid input '{raw}': expected the form key=value");
+                std::process::exit(2);
+            }
+        }
+    }
+
     RunIntent {
         input: args.input,
         output,
@@ -162,7 +184,21 @@ pub fn parse() -> RunIntent {
         full_error: args.full_error,
         timings_json: args.timings_json,
         document_id,
+        inputs,
     }
+}
+
+/// **P694** — valida e divide uma entrada `--input` no primeiro `=`. Aceita
+/// `=` no valor (`k=a=b` → `("k", "a=b")`). Rejeita ausência de `=` e chave
+/// vazia (`"=v"`). O valor pode ser vazio (`"k="` → `("k", "")`).
+fn parse_input_entry(s: &str) -> Option<(String, String)> {
+    let eq = s.find('=')?;
+    if eq == 0 {
+        return None;
+    }
+    let key = s[..eq].to_string();
+    let value = s[eq + 1..].to_string();
+    Some((key, value))
 }
 
 /// **P617** — converte uma string UUID textual nos 16 bytes correspondentes.
@@ -408,5 +444,48 @@ mod tests {
         assert!(parse_uuid_bytes("f81d4fae-7dec-11d0-a765").is_none());
         assert!(parse_uuid_bytes("f81d4fae-7dec-11d0-a765-00a0c91e6bf6-EXTRA").is_none());
         assert!(parse_uuid_bytes("f81d4fae-7dec-11d0-a765-00a0c91e6bg6").is_none());
+    }
+
+    // ── P694 — parsing de `--input chave=valor` ────────────────────────────
+
+    #[test]
+    fn p694_parse_input_simples() {
+        assert_eq!(
+            parse_input_entry("chave=valor"),
+            Some(("chave".to_string(), "valor".to_string()))
+        );
+    }
+
+    #[test]
+    fn p694_parse_input_valor_numerico_e_string() {
+        // Paridade vanilla: `--input n=42` → valor é a string "42".
+        assert_eq!(
+            parse_input_entry("n=42"),
+            Some(("n".to_string(), "42".to_string()))
+        );
+    }
+
+    #[test]
+    fn p694_parse_input_permite_igual_no_valor() {
+        // Split no primeiro `=`; o resto (incluindo `=`) é o valor.
+        assert_eq!(
+            parse_input_entry("k=a=b"),
+            Some(("k".to_string(), "a=b".to_string()))
+        );
+    }
+
+    #[test]
+    fn p694_parse_input_valor_vazio_e_valido() {
+        assert_eq!(
+            parse_input_entry("k="),
+            Some(("k".to_string(), String::new()))
+        );
+    }
+
+    #[test]
+    fn p694_parse_input_rejeita_sem_igual_ou_chave_vazia() {
+        assert!(parse_input_entry("semigual").is_none());
+        assert!(parse_input_entry("=valor").is_none());
+        assert!(parse_input_entry("").is_none());
     }
 }

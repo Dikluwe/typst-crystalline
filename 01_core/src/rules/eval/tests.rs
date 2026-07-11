@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/rules/eval.md
-//! @prompt-hash 276f6bb7
+//! @prompt-hash 3d1353b0
 //! @layer L1
 //! @updated 2026-06-17
 //!
@@ -101,7 +101,7 @@ pub(crate) fn eval_for_test_with_limits<W: World>(
     let mut sink = sink_local.track_mut();
     let root = source.root();
     let mut scopes = Scopes::new(None);
-    let stdlib = make_stdlib();
+    let stdlib = make_stdlib(&world.inputs());
     for (name, binding) in stdlib.iter() {
         scopes.define(name, binding.value().clone());
     }

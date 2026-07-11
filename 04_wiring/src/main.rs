@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/wiring.md
-//! @prompt-hash c2fe1e2b
+//! @prompt-hash 8912c851
 //! @layer L4
 //! @updated 2026-06-17
 //!
@@ -66,6 +66,7 @@ fn main() -> ExitCode {
         full_error,
         timings_json,
         document_id,
+        inputs,
     } = cli::parse();
 
     let main_path = match input.file_name() {
@@ -79,7 +80,7 @@ fn main() -> ExitCode {
     // P517 — fontes do sistema activas por defeito; `--font-path` adiciona
     // fontes de projecto às fontes do sistema.
     let world = match SystemWorld::new(&root, &main_path) {
-        Ok(w) => w.with_fonts_and_system(&font_paths),
+        Ok(w) => w.with_fonts_and_system(&font_paths).with_inputs(inputs),
         Err(e) => {
             eprintln!("error: {}", e);
             return ExitCode::from(2);

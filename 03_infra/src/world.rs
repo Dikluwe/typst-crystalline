@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/system-world.md
-//! @prompt-hash 0bb63043
+//! @prompt-hash afe1031c
 //! @layer L3
 //! @updated 2026-06-30
 //!
@@ -13,7 +13,7 @@ use std::num::NonZeroU16;
 use std::path::{Path, PathBuf};
 use std::sync::{Arc, Mutex, OnceLock};
 
-use typst_core::contracts::world::World;
+use typst_core::contracts::world::{SysInputs, World};
 use typst_core::entities::bib_entry::BibEntry;
 use typst_core::entities::file_id::FileId;
 use typst_core::entities::font_book::FontBook;
@@ -117,6 +117,9 @@ pub struct SystemWorld {
     font_book:  FontBook,
     /// Stub de biblioteca padrão.
     library:    Library,
+    /// **P694** — pares `--input chave=valor` para `sys.inputs`. Vazio por
+    /// omissão; populado via `with_inputs`.
+    inputs:     SysInputs,
 }
 
 impl SystemWorld {
@@ -161,7 +164,20 @@ impl SystemWorld {
             font_slots: Vec::new(),
             font_book:  FontBook::new(),
             library:    Library::new(),
+            inputs:     SysInputs::default(),
         })
+    }
+
+    /// **P694** — Builder: associa os pares `--input` (raw strings), convertendo
+    /// para `SysInputs` (`EcoString`). A conversão `String → EcoString` fica em
+    /// L3, mantendo L2 livre de `ecow`/`indexmap`.
+    pub fn with_inputs(mut self, inputs: Vec<(String, String)>) -> Self {
+        let mut map = SysInputs::default();
+        for (k, v) in inputs {
+            map.insert(k.into(), v.into());
+        }
+        self.inputs = map;
+        self
     }
 
     /// Builder: associa slots de fontes ao world e popula o `FontBook`.
@@ -391,6 +407,11 @@ impl World for SystemWorld {
             None    => now,
         };
         Datetime::new_date(now.year(), now.month() as u8, now.day())
+    }
+
+    /// **P694** — Devolve os pares `--input` (clone barato; poucos pares).
+    fn inputs(&self) -> SysInputs {
+        self.inputs.clone()
     }
 }
 
