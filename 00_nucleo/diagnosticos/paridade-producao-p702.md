@@ -2,7 +2,7 @@
 
 **Data:** 2026-07-11
 **Passo:** `00_nucleo/materialization/typst-passo-702.md`
-**Hash do commit (implementação):** a preencher no commit seguinte.
+**Hash do commit (implementação):** `7b6c3c415`.
 **HEAD base:** `760101de7` (fim de P701, detached HEAD).
 **Estado:** ÂMBITO DE P702 FECHADO — `.with()` implementado, testado, paridade vanilla confirmada (incluindo o caso medido a pedido, `f.with(...).sub_func`). `cetz` progride bem mais longe (chega a invocar o plugin WASM real), mas bloqueia num gap novo e não relacionado (`rgb()` com 1 argumento string/hex).
 
