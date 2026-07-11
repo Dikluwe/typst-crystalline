@@ -1,5 +1,5 @@
 # Prompt L0 — `stdlib/loading` — módulo de carregamento de dados
-Hash do Código: e447fbcb
+Hash do Código: 7e41d62d
 
 **Camada**: L1 (decode puro) + composição com L3 já existente.
 **Ficheiro alvo**: `01_core/src/rules/stdlib/loading.rs`
@@ -21,17 +21,30 @@ Consequência testável: o decode L1 prova-se com bytes literais (sem fixture de
 
 ## 2. Funções nativas (registo em `stdlib/mod.rs`)
 
-Assinatura `fn native_X(ctx: &mut EvalContext<'_>, args: &Args) -> SourceResult<Value>` (ver `_comum.md`). Path posicional obrigatório (`args.items[0]` → `Str`).
+Assinatura `fn native_X(ctx: &mut EvalContext<'_>, args: &Args) -> SourceResult<Value>` (ver `_comum.md`). Posicional obrigatório: **caminho (`Str`) ou dados crus (`Bytes`)** — P701 estende `json`/`yaml`/`toml`/`cbor`/`xml` (a família que partilha a macro `native_loader!`) para aceitar `Value::Bytes` directamente, sem I/O, além do caminho já suportado. Paridade vanilla: estas 5 funções usam `DataSource` (`Str | Bytes`) no vanilla (`loading/{json,yaml,toml,cbor,xml}.rs`, todas `source: Spanned<DataSource>`) — a mesma dualidade, não uma extensão inventada. `read`/`csv` **não** foram tocadas por P701 (não partilham a macro; fora do âmbito medido).
 
 | Função | Args | Devolve | Decode L1 |
 |--------|------|---------|-----------|
 | `read(path)` | path | `Str` (utf8) ou `Bytes` (binário) — **ver §4** | (sem decode; bytes→Str utf8 ou Bytes) |
 | `csv(path, delimiter:, row-type:)` | path + named | `Array` de linhas | `decode_csv` |
-| `json(path)` | path | árvore `Value` | `decode_json` |
-| `yaml(path)` | path | árvore `Value` | `decode_yaml` |
-| `toml(path)` | path | árvore `Value` | `decode_toml` |
-| `cbor(path)` | path | árvore `Value` | `decode_cbor` |
-| `xml(path)` | path | `Array` de nós | `decode_xml` |
+| `json(path \| bytes)` | path ou bytes | árvore `Value` | `decode_json` |
+| `yaml(path \| bytes)` | path ou bytes | árvore `Value` | `decode_yaml` |
+| `toml(path \| bytes)` | path ou bytes | árvore `Value` | `decode_toml` |
+| `cbor(path \| bytes)` | path ou bytes | árvore `Value` | `decode_cbor` |
+| `xml(path \| bytes)` | path ou bytes | `Array` de nós | `decode_xml` |
+| `cbor.encode(value)` | 1 posicional (`any`) | `Bytes` | `value_to_cbor` — **ver §3.4** |
+
+### 2.1 `cbor.encode` — valor com namespace, não função plana (P701)
+
+`cbor` deixa de ser `Value::Func(Func::native("cbor", native_cbor))` plano e
+passa a `Func::native_with_namespace("cbor", native_cbor, ns)`, com
+`ns.define("encode", Value::Func(Func::native("cbor.encode", native_cbor_encode)))`.
+Precedente idêntico já em uso: `curve`/`grid`/`table` (P512/P513/P493b,
+`rules/eval/mod.rs`). `cbor(...)` continua chamável directamente (decode);
+`cbor.encode(...)` é acedido por field access, resolvido pelo braço
+`Value::Func(f) => f.namespace()` já existente em
+`rules/eval/bindings.rs:618` — nenhuma mudança no dispatch de field access,
+só no registo do valor.
 
 ## 3. Decode L1 — paridade de saída por formato (ADR-0107)
 
@@ -69,6 +82,36 @@ Mapa canónico documento→`Value`:
 - Cada elemento → `Dict { tag: Str, attrs: Dict, children: Array }` (forma vanilla `convert_xml`).
 - Nós de texto → `Str`. Documento → `Array` de nós de topo.
 
+### 3.4. `value_to_cbor` — `Value` → CBOR (P701, `cbor.encode`)
+
+Direcção inversa de §3.1 (`Value` cristalino → bytes CBOR), confirmada
+contra `impl Serialize for Value` do vanilla
+(`foundations/value.rs:345-366`) e `impl Serialize for Bytes`
+(`foundations/bytes.rs:364-374`):
+
+| `Value` cristalino | CBOR |
+|---------------------|------|
+| `None` | `Null` |
+| `Bool` | `Bool` |
+| `Int` | `Integer` |
+| `Float` | `Float` |
+| `Str` | `Text` |
+| `Bytes` | `Bytes` (byte-string; CBOR não é human-readable, logo vanilla usa `serialize_bytes`, não a forma texto de `repr()` — `bytes.rs:370`) |
+| `Array` | `Array` (recursivo) |
+| `Dict` | `Map` (chave sempre `Text`; `IndexMap` preserva ordem — ADR-0023) |
+| tudo o resto (Symbol, Content, Length, Color, Func, Module, Type, Label, Duration, Datetime, Version, Decimal, …) | `Text(repr_value(v))` |
+
+**Divergência documentada (não é lacuna):** o vanilla dá a `Symbol` e
+`Content` `Serialize` **dedicados** (`value.rs:357-358` — texto estruturado
+para symbol, mapa descrevendo o elemento para content); tudo o resto cai no
+fallback genérico `serializer.serialize_str(&other.repr())` (`value.rs:363`).
+O cristalino **não** implementa os dois casos dedicados — Symbol e Content
+caem no mesmo fallback `Text(repr_value(v))` que os restantes tipos opacos.
+Scope-out explícito: nenhum consumidor real medido (`cetz`, único motivador
+de P700/P701) usa `cbor.encode` com Symbol ou Content — os payloads são
+dicts/arrays de `Int`/`Float`/`Str`/`None`. Revisitar se um consumidor real
+precisar da forma estruturada.
+
 ## 4. `read` binário e byte-strings CBOR — P398
 
 Com `Value::Bytes` materializado (Passo 398), o graded de P387 é levantado:
@@ -94,6 +137,7 @@ A heurística UTF-8 é suficiente para paridade linguagem (ADR-0107); encoding d
 | Data | Motivo | Arquivos |
 |------|--------|----------|
 | 2026-06-23 | P418 (XL): documentar reutilização do loading para bibliografia. | `loading.md`, `loading.rs`, `bibliography.md`, `bibliography.rs` |
+| 2026-07-11 | P701: `cbor` ganha namespace (`cbor.encode`); `json`/`yaml`/`toml`/`cbor`/`xml` aceitam `Bytes` além de path (desbloqueia `cetz`, P700). | `loading.md`, `loading.rs`, `rules/eval/mod.rs` |
 
 ## 5. Estratificação de erro (critério de aceitação 4)
 
@@ -130,6 +174,11 @@ decode_xml(b"<r><c>t</c></r>") → Ok(Array[Dict{tag:Str("r"), attrs:Dict{}, chi
 read(utf8 bytes) → Ok(Str);  read(bytes inválidos utf8) → Ok(Bytes)
 // estratificação
 native_csv(path inexistente) → Err (I/O, L3);  native_json(path com bytes malformados) → Err (parsing, L1)
+// P701 — cbor.encode (Value → CBOR) e cbor(bytes)/json(bytes)/etc. (aceitar Bytes, não só path)
+value_to_cbor(Dict{a: Int(1), b: Str("texto"), c: Array[Int(1),Int(2),Int(3)]}) → CBOR map equivalente
+cbor.encode((a: 1, b: "texto", c: (1, 2, 3))) → Bytes;  type(cbor.encode(1)) == bytes
+cbor(cbor.encode((a: 1))) → Dict{a: Int(1)}  // ida e volta
+native_json(bytes de `{"a":1}`) → Ok(Dict{a:Int(1)})  // aceita Bytes, não só path
 ```
 
 > Cada caso de teste do decode usa **bytes literais** — prova a paridade de língua sem montar disco. Os bytes de cbor são produzidos por fixture pequena no teste (helper), não lidos de ficheiro.

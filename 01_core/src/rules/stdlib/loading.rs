@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/rules/stdlib/loading.md
-//! @prompt-hash 3d5d7f23
+//! @prompt-hash 43c9012d
 //! @layer L1
 //! @updated 2026-06-21
 //!
@@ -210,6 +210,50 @@ fn cbor_to_value(v: ciborium::value::Value) -> SourceResult<Value> {
     }
 }
 
+/// P701 — `cbor.encode(value)`: `Value` → bytes CBOR. Direcção inversa de
+/// `cbor_to_value`. Paridade vanilla (`foundations/value.rs:345-366`,
+/// `foundations/bytes.rs:364-374`): `None/Bool/Int/Float/Str/Bytes/Array/Dict`
+/// mapeiam 1:1; tudo o resto (inclui `Symbol`/`Content`, que o vanilla
+/// serializa de forma dedicada) cai no fallback `Text(repr(v))` — ver
+/// `loading.md` §3.4 para a divergência documentada.
+fn value_to_cbor(v: &Value) -> ciborium::value::Value {
+    use ciborium::value::Value as C;
+    match v {
+        Value::None       => C::Null,
+        Value::Bool(b)    => C::Bool(*b),
+        Value::Int(i)     => C::Integer((*i).into()),
+        Value::Float(f)   => C::Float(*f),
+        Value::Str(s)     => C::Text(s.to_string()),
+        Value::Bytes(b)   => C::Bytes(b.as_slice().to_vec()),
+        Value::Array(a)   => C::Array(a.iter().map(value_to_cbor).collect()),
+        Value::Dict(d)    => C::Map(
+            d.iter().map(|(k, val)| (C::Text(k.to_string()), value_to_cbor(val))).collect()
+        ),
+        other => C::Text(crate::rules::eval::repr::repr_value(other)),
+    }
+}
+
+/// `cbor.encode(value)` — acedido por field access em `cbor` (namespace,
+/// P701; registo em `rules/eval/mod.rs`).
+pub fn native_cbor_encode(
+    _ctx: &mut EvalContext,
+    args: &Args,
+    _world: &dyn crate::contracts::world::World,
+    _current_file: FileId,
+) -> SourceResult<Value> {
+    reject_named(args, "cbor.encode")?;
+    match args.items.as_slice() {
+        [v] => {
+            let cbor_val = value_to_cbor(v);
+            let mut buf = Vec::new();
+            ciborium::into_writer(&cbor_val, &mut buf)
+                .map_err(|e| err(format!("cbor.encode(): falha ao codificar: {e}")))?;
+            Ok(Value::Bytes(Bytes::new(buf)))
+        }
+        _ => Err(err(format!("cbor.encode() requer 1 argumento, recebeu {}", args.items.len()))),
+    }
+}
+
 // ─────────────────────────────────────────────────────────────────────────────
 // XML — roxmltree (read-only). Cada elemento → Dict{tag, attrs, children}.
 // ─────────────────────────────────────────────────────────────────────────────
@@ -333,6 +377,27 @@ fn read_bytes(
         .map_err(|msg| err(format!("{fname}(): não foi possível ler '{path}': {msg}")))
 }
 
+/// P701 — resolve o 1º posicional de `json`/`yaml`/`toml`/`cbor`/`xml` como
+/// **caminho (`Str`, lido via `World::read_bytes`) ou dados crus (`Bytes`,
+/// usados directamente, sem I/O)**. Paridade vanilla: estas 5 funções usam
+/// `DataSource` (`Str | Bytes`) no vanilla — a mesma dualidade aqui.
+fn resolve_data(
+    args: &Args,
+    world: &dyn crate::contracts::world::World,
+    current_file: FileId,
+    fname: &str,
+) -> SourceResult<std::sync::Arc<Vec<u8>>> {
+    match args.items.first() {
+        Some(Value::Str(s)) => read_bytes(world, current_file, s.as_str(), fname),
+        Some(Value::Bytes(b)) => Ok(std::sync::Arc::new(b.as_slice().to_vec())),
+        Some(other) => Err(err(format!(
+            "{fname}() requer caminho (str) ou bytes, recebeu {}",
+            other.type_name()
+        ))),
+        None => Err(err(format!("{fname}() requer 1 argumento posicional (caminho ou bytes)"))),
+    }
+}
+
 /// `read(path)` → `Str` (utf8) ou `Bytes` (binário).
 /// Heurística vanilla: tenta UTF-8; se falhar, retorna bytes opacos.
 pub fn native_read(
@@ -359,8 +424,7 @@ macro_rules! native_loader {
             current_file: FileId,
         ) -> SourceResult<Value> {
             reject_named(args, $name)?;
-            let path = arg_path(args, $name)?;
-            let data = read_bytes(world, current_file, &path, $name)?;
+            let data = resolve_data(args, world, current_file, $name)?;
             $decode(&data[..])
         }
     };
@@ -654,5 +718,86 @@ mod tests {
         world.files.insert("empty".into(), Arc::new(Vec::new()));
         let v = native_read(&mut EvalContext::new(), &mock_args("empty"), &world, FileId::from_raw(NonZeroU16::new(1).unwrap())).unwrap();
         assert_eq!(v, Value::Str("".into()));
+    }
+
+    // ── P701 — cbor.encode (Value → CBOR) e path|bytes nos 5 loaders ─────────
+
+    fn tfid() -> FileId { FileId::from_raw(NonZeroU16::new(1).unwrap()) }
+
+    #[test]
+    fn cbor_encode_tipos_basicos_ida_e_volta() {
+        let v = dict_of(vec![
+            ("a", Value::Int(1)),
+            ("b", Value::Str("texto".into())),
+            ("c", Value::Array(vec![Value::Int(1), Value::Int(2), Value::Int(3)])),
+            ("d", Value::None),
+            ("e", Value::Bool(true)),
+            ("f", Value::Float(1.5)),
+        ]);
+        let args = Args::positional(vec![v.clone()]);
+        let encoded = native_cbor_encode(&mut EvalContext::new(), &args, &MockWorld::default(), tfid()).unwrap();
+        let bytes = match &encoded { Value::Bytes(b) => b.as_slice().to_vec(), _ => panic!("esperava Bytes") };
+        assert_eq!(decode_cbor(&bytes).unwrap(), v, "ida e volta cbor.encode -> decode_cbor deve preservar o valor");
+    }
+
+    #[test]
+    fn cbor_encode_bytes_como_byte_string_nao_texto() {
+        // Bytes -> CBOR byte-string (não a forma texto de repr()) — paridade
+        // vanilla `bytes.rs:370` (`is_human_readable() == false` em ciborium).
+        let args = Args::positional(vec![Value::Bytes(Bytes::new(vec![1, 2, 3]))]);
+        let encoded = native_cbor_encode(&mut EvalContext::new(), &args, &MockWorld::default(), tfid()).unwrap();
+        let bytes = match &encoded { Value::Bytes(b) => b.as_slice().to_vec(), _ => panic!("esperava Bytes") };
+        assert_eq!(decode_cbor(&bytes).unwrap(), Value::Bytes(Bytes::new(vec![1, 2, 3])));
+    }
+
+    #[test]
+    fn cbor_encode_tipo_opaco_cai_em_repr() {
+        // Length não está na tabela dedicada (§3.4) -> fallback Text(repr(v)),
+        // igual ao "other" do vanilla (value.rs:363).
+        let args = Args::positional(vec![Value::Length(crate::entities::layout_types::Length::pt(12.0))]);
+        let encoded = native_cbor_encode(&mut EvalContext::new(), &args, &MockWorld::default(), tfid()).unwrap();
+        let bytes = match &encoded { Value::Bytes(b) => b.as_slice().to_vec(), _ => panic!("esperava Bytes") };
+        assert_eq!(decode_cbor(&bytes).unwrap(), Value::Str(crate::rules::eval::repr::repr_value(
+            &Value::Length(crate::entities::layout_types::Length::pt(12.0))
+        ).into()));
+    }
+
+    #[test]
+    fn cbor_encode_requer_exactamente_1_arg() {
+        let args = Args::positional(vec![]);
+        assert!(native_cbor_encode(&mut EvalContext::new(), &args, &MockWorld::default(), tfid()).is_err());
+    }
+
+    #[test]
+    fn native_json_aceita_bytes_alem_de_path() {
+        // P701 — resolve_data: Bytes usado directamente, sem tocar em World::read_bytes.
+        let args = Args::positional(vec![Value::Bytes(Bytes::new(br#"{"a":1}"#.to_vec()))]);
+        let v = native_json(&mut EvalContext::new(), &args, &MockWorld::default(), tfid()).unwrap();
+        assert_eq!(v, dict_of(vec![("a", Value::Int(1))]));
+    }
+
+    #[test]
+    fn native_cbor_aceita_bytes_alem_de_path() {
+        use ciborium::value::Value as C;
+        let doc = C::Map(vec![(C::Text("a".into()), C::Integer(1.into()))]);
+        let args = Args::positional(vec![Value::Bytes(Bytes::new(cbor_bytes(&doc)))]);
+        let v = native_cbor(&mut EvalContext::new(), &args, &MockWorld::default(), tfid()).unwrap();
+        assert_eq!(v, dict_of(vec![("a", Value::Int(1))]));
+    }
+
+    #[test]
+    fn native_json_path_continua_a_funcionar() {
+        // Regressão: resolve_data não deve quebrar o caminho já suportado.
+        let mut world = MockWorld::default();
+        world.files.insert("d.json".into(), Arc::new(br#"{"x":2}"#.to_vec()));
+        let v = native_json(&mut EvalContext::new(), &mock_args("d.json"), &world, tfid()).unwrap();
+        assert_eq!(v, dict_of(vec![("x", Value::Int(2))]));
+    }
+
+    #[test]
+    fn native_json_tipo_invalido_erro() {
+        let args = Args::positional(vec![Value::Int(1)]);
+        let e = native_json(&mut EvalContext::new(), &args, &MockWorld::default(), tfid()).unwrap_err();
+        assert!(e[0].message.contains("caminho") || e[0].message.contains("bytes"), "msg: {}", e[0].message);
     }
 }

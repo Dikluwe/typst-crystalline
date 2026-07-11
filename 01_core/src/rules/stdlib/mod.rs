@@ -102,8 +102,8 @@ pub use crate::rules::stdlib::layout::{
     native_repeat, native_stack, native_stroke, native_v,
 };
 pub use crate::rules::stdlib::loading::{
-    native_cbor, native_csv, native_json, native_read, native_toml, native_xml,
-    native_yaml,
+    native_cbor, native_cbor_encode, native_csv, native_json, native_read, native_toml,
+    native_xml, native_yaml,
 };
 // P697 — builtin plugin.
 pub use crate::rules::stdlib::plugin::native_plugin;

@@ -944,6 +944,8 @@ fn make_stdlib(inputs: &SysInputs) -> Scope {
         native_sscript, native_upright,
         // P387 (ADR-0111) — data import.
         native_cbor, native_csv, native_json, native_read, native_toml, native_xml, native_yaml,
+        // P701 — cbor.encode (Value → CBOR), acedido via namespace de `cbor`.
+        native_cbor_encode,
         // P697 — builtin plugin (nível 2 de P696).
         native_plugin,
         // P403 — constructors stdlib para tipos primitivos L1.
@@ -1044,7 +1046,15 @@ fn make_stdlib(inputs: &SysInputs) -> Scope {
     scope.define("json",    Value::Func(Func::native("json",    native_json)));
     scope.define("yaml",    Value::Func(Func::native("yaml",    native_yaml)));
     scope.define("toml",    Value::Func(Func::native("toml",    native_toml)));
-    scope.define("cbor",    Value::Func(Func::native("cbor",    native_cbor)));
+    // P701 — `cbor` ganha namespace com `encode` (mesmo padrão de curve/grid/table).
+    {
+        let mut cbor_namespace = Scope::new();
+        cbor_namespace.define("encode", Value::Func(Func::native("cbor.encode", native_cbor_encode)));
+        scope.define(
+            "cbor",
+            Value::Func(Func::native_with_namespace("cbor", native_cbor, Arc::new(cbor_namespace))),
+        );
+    }
     scope.define("xml",     Value::Func(Func::native("xml",     native_xml)));
     // P697 — builtin `plugin()` (nível 2 de P696: sintaxe + leitura; runtime em P698).
     scope.define("plugin",  Value::Func(Func::native("plugin",  native_plugin)));
