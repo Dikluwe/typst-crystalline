@@ -4,4 +4,5 @@
 //! @layer L1
 //! @updated 2026-03-22
 
+pub mod plugin_host;
 pub mod world;

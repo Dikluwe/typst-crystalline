@@ -17,6 +17,7 @@ pub mod layout;
 pub mod layout_bidi;
 pub mod measurements;
 pub mod pipeline;
+pub mod plugin_host;
 pub mod query_helpers;
 pub mod shaper;
 pub mod world;
