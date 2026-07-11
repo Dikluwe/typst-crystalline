@@ -1,5 +1,5 @@
 # Prompt L0 — entities/func e entities/args
-Hash do Código: 28ad56cb
+Hash do Código: b2fc8bcf
 
 **Camada**: L1
 **Ficheiros alvo**: `01_core/src/entities/func.rs`, `01_core/src/entities/args.rs`
@@ -28,6 +28,9 @@ pub(crate) enum FuncRepr {
     /// cabe num fn-ptr nativo (`Native`/`NativeWithEngine`); a chamada é
     /// delegada ao `PluginHost` capturado. Ver `entities/plugin_func.md`.
     Plugin(crate::entities::plugin_func::PluginFunc),
+    /// **P702** — aplicação parcial de argumentos (`f.with(...)`). Envolve a
+    /// função original e os `Args` pré-ligados; ver secção "Variante `With`".
+    With(Arc<(Func, Args)>),
 }
 
 pub struct ClosureRepr {
@@ -118,6 +121,8 @@ impl Func {
     pub fn element(name: impl Into<String>, ctor: ElementCtor) -> Self;
     /// **P699** — constrói `Func` a partir de um `PluginFunc` (export WASM).
     pub fn plugin(p: crate::entities::plugin_func::PluginFunc) -> Self;
+    /// **P702** — `f.with(args)`: devolve nova `Func` com `args` pré-ligados.
+    pub fn with(self, args: Args) -> Self;
     pub(crate) fn repr(&self) -> &FuncRepr;
     pub fn element_name(&self) -> Option<&str>;
     pub fn name(&self) -> Option<&str>;
@@ -169,6 +174,68 @@ a chamada é delegada ao `PluginHost` capturado no `PluginFunc`
 - A aplicação (`apply_func` em `rules/eval/closures.rs`) delega a
   `call_plugin(p, args, span)`; ver `rules/stdlib/plugin.md`.
 
+## Variante `With` (P702)
+
+`FuncRepr::With(Arc<(Func, Args)>)` representa uma **aplicação parcial de
+argumentos** — `f.with(a: 1, b: 2)` devolve uma nova `Func` que, quando
+chamada, combina os `Args` pré-ligados com os da chamada final e delega à
+função original. Funciona sobre **qualquer** variante de `Func` — `Closure`,
+`Native`, `NativeWithEngine`, `Element`, `Plugin`, ou outro `With`
+(encadeamento; sonda P702 confirmou `f.with(1).with(2)` funcionar por
+recursão natural — cada nível de `With` funde os seus próprios `Args`
+pré-ligados e delega ao nível interior).
+
+**Paridade vanilla** (`foundations/func.rs:149-159,359-362,380-394` do
+vanilla): `FuncInner::With(Arc<(Func, Args)>)`; na chamada,
+`args.items = pre.items.chain(new.items)` (pré-ligados primeiro). O vanilla
+usa uma representação **unificada** de `Args` (posicionais e nomeados no
+mesmo vetor, cada item com `name: Option<EcoString>`); o cristalino separa
+`items`/`named` (ADR-0107: divergência de **mecânica**, não de língua).
+
+**Regra de fusão cristalina** (`merge_with_args`, `rules/eval/closures.rs`):
+
+- **Posicionais**: `pre.items` seguido de `new.items` — mesma ordem
+  observável do vanilla (confirmado: `g.with(1, 2)` seguido de `g2(3)`, com
+  `g(a,b,c) = a+b+c`, dá `6` no vanilla — `a=1,b=2,c=3`).
+- **Nomeados**: `pre.named` sobreposto por `new.named` (`IndexMap::extend`)
+  — em colisão de chave, o valor da chamada mais recente vence. **Não
+  exercitado pela sonda vanilla de P702** (sem teste de colisão); decisão
+  razoável por defeito, registada aqui para revisão se um caso real
+  divergir.
+
+### Interface e dispatch
+
+- `Func::with(self, args)` constrói
+  `Func(Arc::new(FuncRepr::With(Arc::new((self, args)))))`.
+- `Func::name()` ⇒ delega ao nome da função interna (`w.0.name()`) —
+  consistente com o vanilla (`FuncInner::With(with) => with.0.name()`).
+- `Func::native_fn_addr()` ⇒ `None` (uma aplicação parcial não é
+  directamente um fn-ptr nativo).
+- `Func::namespace()` ⇒ **delega** à função interna (`w.0.namespace()`).
+  **Medido contra o vanilla** (não assumido): `table.with(columns:
+  2).cell` compila no vanilla e devolve `function` — confirmado com
+  `foundations/func.rs:269-277` (`Func::scope()`, o equivalente vanilla de
+  `namespace()`), que tem o braço explícito
+  `FuncInner::With(with) => with.0.scope()`. O sub-`Func` devolvido
+  (`t.cell`) é o valor original do namespace, **não** herda os args
+  pré-ligados de `t` — só a função `t` propriamente dita (chamada
+  directamente) combina argumentos; `t.cell(...)` chama `table_cell`
+  normalmente, porque `columns: 2` foi pré-ligado a `table`, não a `cell`.
+- **Dispatch** (`apply_func`, `rules/eval/closures.rs`): funde os `Args`
+  pela regra acima e chama `apply_func` recursivamente com a função
+  interna — o encadeamento resolve-se por recursão, sem lógica extra.
+- **Sintaxe** (`eval_func_call`, `rules/eval/closures.rs`): novo bloco de
+  intercepção, mesmo padrão já em uso para `where`/`or`/`and` (P417/P423),
+  `within` (P504), métodos de colecção (P466) e `state`/`counter` (P506) —
+  se o callee é `FieldAccess` com campo `"with"` e o alvo avalia para
+  `Value::Func`, avalia os argumentos da chamada e devolve
+  `Value::Func(target.with(args))` **sem invocar** (`.with()` devolve uma
+  função nova, não o resultado de a chamar). Aplica-se a **qualquer**
+  `Value::Func` — nativa (com ou sem namespace), closure, elemento, plugin,
+  ou já parcialmente aplicada. Se o alvo não for `Value::Func`, não
+  intercepta (cai no caminho genérico de field access, que erra
+  normalmente — nenhuma mudança de comportamento para não-funções).
+
 ## Critérios de Verificação
 
 ```
@@ -177,9 +244,18 @@ let f1 = Func::closure(...); let f2 = f1.clone(); f1 == f2  → true (mesmo Arc)
 format!("{:?}", func)  → "<function>"
 Args::positional(vec![]).is_empty()  → true
 Args::positional(vec![Value::Int(1)]).len()  → 1
+// P702 — with()
+calc.round.with(digits: 2)(3.14159)                  → 3.14
+{let g(a,b,c) = a+b+c; g.with(1,2)(3)}               → 6
+{let h(a, named: 10) = a+named; h.with(named: 20)(5)} → 25
+{let f(a,b,c) = a+b+c; f.with(1).with(2)(3)}         → 6      (encadeamento)
+{let h(a,x:10,y:20)=a+x+y; h.with(x:100).with(y:200)(1)} → 301 (encadeamento nomeado)
+type(table.with(columns: 2))       → function   (namespace delega através de With)
+type(table.with(columns: 2).cell)  → function   (sub-função, não herda columns: 2)
 ```
 
 ## Scope-outs
 
 - Namespace anexado não se aplica a closures (`FuncRepr::Closure`) nem a elementos de utilizador (`FuncRepr::Element`) neste passo.
 - Não implementar field access mutável (set) no namespace.
+- **P702**: colisão de nome entre argumento pré-ligado e novo em `.with()` encadeado não tem teste de paridade vanilla — decisão por defeito (novo vence), documentada, não uma medição confirmada.

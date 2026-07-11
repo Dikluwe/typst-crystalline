@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/rules/eval.md
-//! @prompt-hash 3d1353b0
+//! @prompt-hash 8f5949ff
 //! @layer L1
 //! @updated 2026-07-09
 //!
@@ -81,6 +81,13 @@ pub fn apply_func(
         // em `PluginFunc::call`). Valida args (só bytes) e propaga erros
         // verbatim (`PluginError.message` é observável — ADR-0107).
         FuncRepr::Plugin(p) => call_plugin(p, &args),
+        // P702 — aplicação parcial (`f.with(...)`): funde os args pré-ligados
+        // com os da chamada final e delega recursivamente — o encadeamento
+        // (`f.with(a).with(b)`) resolve-se sozinho, sem lógica extra.
+        FuncRepr::With(w) => {
+            let (inner, pre) = w.as_ref();
+            apply_func(inner.clone(), merge_with_args(pre, args), scopes, ctx, engine)
+        }
         FuncRepr::Native(native) => {
             let world = engine.world;
             let current_file = engine.current_file;
@@ -98,6 +105,18 @@ pub fn apply_func(
             (native.call)(ctx, &args, world, current_file, scopes, engine)
         }
     }
+}
+
+/// **P702** — funde os `Args` pré-ligados por `.with(...)` com os da chamada
+/// final. Posicionais: pré-ligados primeiro (paridade vanilla,
+/// `foundations/func.rs:360` do vanilla: `pre.items.chain(new.items)`).
+/// Nomeados: `new` sobrepõe `pre` em colisão de chave — decisão por defeito,
+/// não exercitada pelo vanilla (ver `entities/func.md` §"Variante `With`").
+fn merge_with_args(pre: &Args, new: Args) -> Args {
+    let items = pre.items.iter().cloned().chain(new.items).collect();
+    let mut named = pre.named.clone();
+    named.extend(new.named);
+    Args { items, named }
 }
 
 /// **P699** — Aplica um export de plugin WASM (`FuncRepr::Plugin`).
@@ -362,6 +381,22 @@ pub(super) fn eval_func_call(
             try_dispatch_collection_method(target, method, args, scopes, ctx, engine)
         {
             return result;
+        }
+    }
+
+    // **P702** — `f.with(...)`: aplicação parcial de argumentos, disponível
+    // em qualquer `Value::Func` (nativa com/sem namespace, closure, elemento,
+    // plugin, ou já parcialmente aplicada). Mesmo padrão de intercepção das
+    // secções acima; se o alvo não for `Value::Func`, não intercepta — cai
+    // no field access genérico, sem mudança de comportamento para
+    // não-funções (ver `entities/func.md` §"Variante `With`").
+    if let Expr::FieldAccess(access) = call.callee() {
+        if access.field().as_str() == "with" {
+            let target = eval_expr(access.target(), scopes, ctx, engine)?;
+            if let Value::Func(f) = target {
+                let args = eval_args(call.args(), scopes, ctx, engine)?;
+                return Ok(Value::Func(f.with(args)));
+            }
         }
     }
 

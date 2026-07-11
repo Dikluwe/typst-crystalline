@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/entities/func.md
-//! @prompt-hash 4e81dbf8
+//! @prompt-hash 03091d00
 //! @layer L1
 //! @updated 2026-04-13
 
@@ -35,6 +35,10 @@ pub(crate) enum FuncRepr {
     /// módulo), logo não cabe num fn-ptr nativo; a chamada é delegada ao
     /// `PluginHost` capturado em `PluginFunc`. Ver `entities/plugin_func.rs`.
     Plugin(crate::entities::plugin_func::PluginFunc),
+    /// **P702** — aplicação parcial de argumentos (`f.with(...)`). Guarda a
+    /// função original e os `Args` pré-ligados; a chamada final funde-os com
+    /// os novos args e delega (`apply_func` em `rules/eval/closures.rs`).
+    With(Arc<(Func, Args)>),
 }
 
 /// Construtor de elemento de utilizador no escopo do eval (Lote F-3 inc-2).
@@ -195,6 +199,13 @@ impl Func {
         Self(Arc::new(FuncRepr::Plugin(p)))
     }
 
+    /// **P702** — `f.with(args)`: devolve nova `Func` com `args` pré-ligados.
+    /// A fusão com os args da chamada final acontece em `apply_func`
+    /// (`rules/eval/closures.rs`), não aqui.
+    pub fn with(self, args: Args) -> Self {
+        Self(Arc::new(FuncRepr::With(Arc::new((self, args)))))
+    }
+
     /// Acesso à representação interna (restrito a crate).
     pub(crate) fn repr(&self) -> &FuncRepr {
         &self.0
@@ -222,6 +233,9 @@ impl Func {
             FuncRepr::NativeWithEngine(n)=> Some(n.name),
             FuncRepr::Element(e)         => Some(&e.name),
             FuncRepr::Plugin(p)          => Some(p.name.as_str()),
+            // P702 — delega ao nome da função interna (paridade vanilla,
+            // `FuncInner::With(with) => with.0.name()`).
+            FuncRepr::With(w)            => w.0.name(),
         }
     }
 
@@ -254,6 +268,9 @@ impl Func {
             FuncRepr::Element(_) => None,
             // P699 — plugin WASM não tem fn-ptr nativo (chamada via host).
             FuncRepr::Plugin(_) => None,
+            // P702 — aplicação parcial não é directamente um fn-ptr nativo
+            // (o `apply_func` já resolve `With` antes de chegar aqui).
+            FuncRepr::With(_) => None,
         }
     }
 
@@ -275,6 +292,11 @@ impl Func {
         match self.0.as_ref() {
             FuncRepr::Native(n) => n.namespace.as_deref(),
             FuncRepr::NativeWithEngine(n) => n.namespace.as_deref(),
+            // P702 — delega à função interna. Medido contra o vanilla (não
+            // assumido): `table.with(columns: 2).cell` compila e devolve
+            // `function` (`foundations/func.rs:275`,
+            // `FuncInner::With(with) => with.0.scope()`).
+            FuncRepr::With(w) => w.0.namespace(),
             _ => None,
         }
     }
@@ -397,5 +419,46 @@ mod tests {
         // `FuncRepr::Element` é `Func::element`, invocada só no threading
         // registry→escopo (`eval/mod.rs`). A superfície de linguagem comum não
         // tem sintaxe que a construa — só o registry injetado a alcança.
+    }
+
+    // ── P702 — FuncRepr::With ────────────────────────────────────────────────
+
+    #[test]
+    fn with_delega_nome_a_funcao_interna() {
+        let native = Func::native("round", |_ctx, _args, _world, _cf| Ok(Value::None));
+        let wrapped = native.with(Args::positional(vec![Value::Int(2)]));
+        assert_eq!(wrapped.name(), Some("round"), "with() delega o nome à função interna");
+    }
+
+    #[test]
+    fn with_native_fn_addr_e_none() {
+        let native = Func::native("round", |_ctx, _args, _world, _cf| Ok(Value::None));
+        let wrapped = native.with(Args::positional(vec![Value::Int(2)]));
+        assert!(wrapped.native_fn_addr().is_none(), "with() não é directamente um fn-ptr nativo");
+    }
+
+    #[test]
+    fn with_namespace_delega_a_funcao_interna() {
+        // Medido contra o vanilla (não assumido): `table.with(columns: 2).cell`
+        // compila e devolve `function` — func.rs:275 do vanilla delega
+        // `scope()` através de `With`. Reproduzido aqui ao nível de `Func`.
+        let mut ns = Scope::new();
+        ns.define("cell", Value::Func(Func::native("table_cell", |_ctx, _args, _world, _cf| Ok(Value::None))));
+        let table = Func::native_with_namespace(
+            "table",
+            |_ctx, _args, _world, _cf| Ok(Value::None),
+            Arc::new(ns),
+        );
+        let wrapped = table.with(Args::positional(vec![]));
+        assert!(wrapped.namespace().is_some(), "with() delega o namespace à função interna");
+        assert!(wrapped.namespace().unwrap().get("cell").is_some());
+    }
+
+    #[test]
+    fn with_encadeado_preserva_a_funcao_original() {
+        let native = Func::native("round", |_ctx, _args, _world, _cf| Ok(Value::None));
+        let w1 = native.with(Args::positional(vec![Value::Int(1)]));
+        let w2 = w1.with(Args::positional(vec![Value::Int(2)]));
+        assert_eq!(w2.name(), Some("round"), "encadeamento continua a delegar o nome");
     }
 }

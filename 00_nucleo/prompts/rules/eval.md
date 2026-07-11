@@ -1,5 +1,5 @@
 # Prompt L0 — rules/eval
-Hash do Código: 95df37f0
+Hash do Código: 11101140
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/rules/eval/mod.rs`
@@ -651,5 +651,47 @@ Critérios de verificação:
 - `#import "u.typ": saudacao` (string, P679) sem regressão.
 - `#import "@preview/..."` (pacote, P681) sem regressão.
 - fonte que avalia para não-módulo → erro claro contendo `tem de ser um caminho string ou um módulo`.
+- `cargo test --workspace` continua a passar.
+- `crystalline-lint .` limpo.
+
+## §P702 — `.with(...)` — intercepção em `eval_func_call`
+
+Isolado por P701 via `cetz` (`matrix.typ:8`, `calc.round.with(digits:
+precision)`): `.with(...)` (aplicação parcial de argumentos) não existia —
+gap de linguagem geral, não específico de `cbor`/plugins. Semântica de
+`FuncRepr::With` e a regra de fusão de `Args` (posicionais pré-ligados
+primeiro, nomeados com o mais recente a vencer em colisão) estão em
+`entities/func.md` §"Variante `With`". Esta secção documenta só o ponto de
+intercepção sintáctica em `eval_func_call`.
+
+**Mecanismo** (mesmo padrão de P417 `where`, P423 `or`/`and`, P504 `within`,
+P466 métodos de colecção, P506 `state`/`counter`): novo bloco, antes do
+caminho genérico (`callee = eval_expr(call.callee())`), que:
+
+1. Testa se `call.callee()` é `Expr::FieldAccess` com `field == "with"`.
+2. Avalia o alvo (`access.target()`). Se **não** for `Value::Func`, não
+   intercepta — cai no caminho genérico (field access normal, que erra como
+   sempre erraria para esse tipo/campo; nenhuma mudança de comportamento
+   para não-funções, incluindo um eventual dict/módulo com uma chave/export
+   literalmente chamado `with`).
+3. Se for `Value::Func`, avalia os argumentos da chamada
+   (`eval_args(call.args(), ...)`) e devolve
+   `Ok(Value::Func(target.with(args)))` — **sem** invocar `apply_func`
+   (`.with()` devolve uma função nova, não o resultado de a chamar).
+
+Aplica-se a qualquer `Value::Func`: nativa com ou sem namespace (`table`,
+`curve`, `cbor`, `calc.round`), closure de utilizador, elemento, plugin, ou
+outra função já parcialmente aplicada (encadeamento — resolvido por
+recursão em `apply_func`, sem lógica extra aqui).
+
+Critérios de verificação:
+
+- `calc.round.with(digits: 2)(3.14159)` → `3.14` (nativa com namespace).
+- `{let g(a,b,c) = a+b+c; g.with(1,2)(3)}` → `6` (closure, posicionais).
+- `{let h(a, named: 10) = a+named; h.with(named: 20)(5)}` → `25` (closure,
+  nomeado sobrepõe default).
+- `{let f(a,b,c)=a+b+c; f.with(1).with(2)(3)}` → `6` (encadeamento).
+- Um dict com chave `"with"` continua a funcionar por field access normal
+  (não intercetado, porque o alvo não é `Value::Func`).
 - `cargo test --workspace` continua a passar.
 - `crystalline-lint .` limpo.

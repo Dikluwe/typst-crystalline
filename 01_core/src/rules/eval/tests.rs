@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/rules/eval.md
-//! @prompt-hash 3d1353b0
+//! @prompt-hash 8f5949ff
 //! @layer L1
 //! @updated 2026-06-17
 //!
@@ -7745,5 +7745,78 @@ mod tests {
             msg.contains("invalid Unicode codepoint: FFFFFFFF"),
             "mensagem inesperada: {msg}"
         );
+    }
+
+    // ── P702 — `.with(...)` (aplicação parcial de argumentos) ────────────────
+    // Reproduções idênticas às medidas contra o vanilla em
+    // `00_nucleo/diagnosticos/paridade-producao-p702.md`.
+
+    #[test]
+    fn p702_with_nativa_com_namespace_named_pre_ligado() {
+        let world = MockWorld::new("#let f = calc.round.with(digits: 2)\n#let x = f(3.14159)");
+        let src = World::source(&world, World::main(&world)).unwrap();
+        let m = eval_for_test(&world, &src).unwrap();
+        assert_eq!(m.scope().get("x"), Some(&Value::Float(3.14)));
+    }
+
+    #[test]
+    fn p702_with_closure_posicionais_pre_ligados() {
+        let world = MockWorld::new(
+            "#let g(a, b, c) = a + b + c\n#let g2 = g.with(1, 2)\n#let x = g2(3)"
+        );
+        let src = World::source(&world, World::main(&world)).unwrap();
+        let m = eval_for_test(&world, &src).unwrap();
+        assert_eq!(m.scope().get("x"), Some(&Value::Int(6)));
+    }
+
+    #[test]
+    fn p702_with_closure_nomeado_pre_ligado() {
+        let world = MockWorld::new(
+            "#let h(a, named: 10) = a + named\n#let h2 = h.with(named: 20)\n#let x = h2(5)"
+        );
+        let src = World::source(&world, World::main(&world)).unwrap();
+        let m = eval_for_test(&world, &src).unwrap();
+        assert_eq!(m.scope().get("x"), Some(&Value::Int(25)));
+    }
+
+    #[test]
+    fn p702_with_encadeado_posicional() {
+        let world = MockWorld::new(
+            "#let f(a, b, c) = a + b + c\n#let f1 = f.with(1)\n#let f2 = f1.with(2)\n#let x = f2(3)"
+        );
+        let src = World::source(&world, World::main(&world)).unwrap();
+        let m = eval_for_test(&world, &src).unwrap();
+        assert_eq!(m.scope().get("x"), Some(&Value::Int(6)));
+    }
+
+    #[test]
+    fn p702_with_encadeado_nomeado() {
+        let world = MockWorld::new(
+            "#let h(a, x: 10, y: 20) = a + x + y\n#let h1 = h.with(x: 100)\n#let h2 = h1.with(y: 200)\n#let r = h2(1)"
+        );
+        let src = World::source(&world, World::main(&world)).unwrap();
+        let m = eval_for_test(&world, &src).unwrap();
+        assert_eq!(m.scope().get("r"), Some(&Value::Int(301)));
+    }
+
+    #[test]
+    fn p702_with_atraves_de_namespace_sub_funcao() {
+        // Medido contra o vanilla: `table.with(columns: 2).cell` compila e
+        // devolve `function` (não assumido — ver entities/func.md).
+        let world = MockWorld::new("#let t = table.with(columns: 2)\n#let c = type(t.cell)");
+        let src = World::source(&world, World::main(&world)).unwrap();
+        let m = eval_for_test(&world, &src).unwrap();
+        assert_eq!(m.scope().get("c"), Some(&Value::Type(Type::Function)));
+    }
+
+    #[test]
+    fn p702_dict_com_chave_with_nao_e_intercetada() {
+        // Regressão: a intercepção de `.with` só actua quando o alvo é
+        // `Value::Func` — um dict com uma chave "with" continua a funcionar
+        // por field access normal.
+        let world = MockWorld::new("#let d = (with: 5)\n#let x = d.with");
+        let src = World::source(&world, World::main(&world)).unwrap();
+        let m = eval_for_test(&world, &src).unwrap();
+        assert_eq!(m.scope().get("x"), Some(&Value::Int(5)));
     }
 }
