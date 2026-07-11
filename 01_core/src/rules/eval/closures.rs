@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/rules/eval.md
-//! @prompt-hash 8f5949ff
+//! @prompt-hash 4b2ec325
 //! @layer L1
 //! @updated 2026-07-09
 //!
@@ -396,6 +396,26 @@ pub(super) fn eval_func_call(
             if let Value::Func(f) = target {
                 let args = eval_args(call.args(), scopes, ctx, engine)?;
                 return Ok(Value::Func(f.with(args)));
+            }
+        }
+    }
+
+    // **P707** — `args.pos()`/`args.named()`: métodos sobre `Value::Args`,
+    // distintos dos campos `.positional`/`.named` (P504, sem parênteses).
+    // Sem isto, `args.named()` avaliava o campo (Dict) e depois tentava
+    // chamá-lo como função ("não é possível chamar dictionary");
+    // `args.pos()` nem chegava a existir como campo. `.len()`/`.at()`/
+    // `.filter()`/`.map()` do vanilla ficam scope-out — sem consumidor
+    // medido em `cetz` (ver `rules/eval.md` §P707).
+    if let Expr::FieldAccess(access) = call.callee() {
+        let method = access.field().as_str();
+        if method == "pos" || method == "named" {
+            let target = eval_expr(access.target(), scopes, ctx, engine)?;
+            if let Value::Args(a) = target {
+                return Ok(match method {
+                    "pos" => Value::Array(a.items),
+                    _ => Value::Dict(a.named),
+                });
             }
         }
     }

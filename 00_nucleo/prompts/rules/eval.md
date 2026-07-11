@@ -1,5 +1,5 @@
 # Prompt L0 — rules/eval
-Hash do Código: 11101140
+Hash do Código: 8f2f6450
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/rules/eval/mod.rs`
@@ -693,5 +693,64 @@ Critérios de verificação:
 - `{let f(a,b,c)=a+b+c; f.with(1).with(2)(3)}` → `6` (encadeamento).
 - Um dict com chave `"with"` continua a funcionar por field access normal
   (não intercetado, porque o alvo não é `Value::Func`).
+- `cargo test --workspace` continua a passar.
+- `crystalline-lint .` limpo.
+
+## §P707 — `arguments` com métodos (`.pos()`, `.named()`)
+
+Isolado por P706 via `cetz` (`drawable.typ:70,92`, `util.typ:33,34,39,163,171`,
+`coordinate.typ:391` — `sink.pos()` sobre um `..sink` variádico):
+`Value::Args` só expunha `positional`/`named` como **campos** (P504), não
+como métodos. `args.named()` "funcionava" parcialmente por acidente — o
+field access dava o `Dict`, e depois a chamada `()` falhava com "não é
+possível chamar dictionary" (dispatcher genérico de `FuncCall`,
+`closures.rs:428`); `args.pos()`/`.len()`/`.at()` falhavam logo no field
+access ("campo desconhecido").
+
+### Assinatura completa do vanilla, confirmada (não assumida)
+
+`foundations/args.rs:320-449` (`#[scope] impl Args`): `len()`, `at(key,
+default:)`, `pos()` (nome real do método é `to_pos`, exposto como `pos` via
+`#[func(name = "pos")]`), `named()` (idem, `to_named`), `filter(test)`,
+`map(mapper)`. **Não existe `.pairs()` em `Args`** — esse método existe em
+`Dict` (`foundations/dict.rs:270`), confundido inicialmente pelo passo
+anterior por aparecer perto na mesma sonda (`coordinate.typ:90`,
+`c.bary.pairs()`, onde `c.bary` é `Dict`, não `Args`).
+
+Medido com documento real:
+```
+let f(..args) = (args.pos(), args.named(), args.len(), args.at(0), args.at("x"))
+f(1, 2, x: 3, y: 4)
+→ ((1, 2), (x: 3, y: 4), 4, 1, 3)
+```
+
+### Âmbito medido (cetz) — só `.pos()` e `.named()`
+
+`grep` exaustivo aos usos de `.at(`/`.len(` em `cetz` confirma: **nenhum**
+é chamado sobre um valor `Args` real (todos são `Dict`/`Array` — `style.at`,
+`ctx.at`, `radii.at`, `V.at`, `pts.at`, etc., já suportados). Só `.pos()` e
+`.named()` aparecem sobre sinks `..x` variádicos. Implementados **só**
+estes dois — mesma disciplina de P703/P705 (não generalizar sem
+consumidor medido).
+
+**Scope-out explícito**: `.len()`, `.at(key, default:)`, `.filter(test)`,
+`.map(mapper)` em `Args` — não implementados, sem consumidor medido.
+`.filter()`/`.map()` precisariam de acesso a `Engine`/`Context` (chamar um
+`Func`), mais trabalho do que os dois métodos medidos.
+
+### Mecanismo
+
+Mesmo padrão de P417/P423/P504/P466/P506/P702 — novo bloco em
+`eval_func_call`, antes do caminho genérico: se o callee é `FieldAccess`
+com campo `"pos"` ou `"named"` e o alvo avalia para `Value::Args`, devolve
+directamente `Value::Array(a.items.clone())` / `Value::Dict(a.named.clone())`
+— **sem** passar pelo field access genérico de `Value::Args` (P504), que
+continua a existir inalterado para `.positional`/`.named` (sem parênteses).
+
+Critérios de verificação:
+
+- `{let f(..args) = args.pos(); f(1, 2, x: 3)}` → `(1, 2)`.
+- `{let f(..args) = args.named(); f(1, 2, x: 3)}` → `(x: 3)`.
+- `.positional`/`.named` (campo, sem parênteses, P504) sem regressão.
 - `cargo test --workspace` continua a passar.
 - `crystalline-lint .` limpo.

@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/rules/eval.md
-//! @prompt-hash 8f5949ff
+//! @prompt-hash 4b2ec325
 //! @layer L1
 //! @updated 2026-06-17
 //!
@@ -7477,6 +7477,43 @@ mod tests {
         assert_eq!(
             eval_let(&world, "x"),
             Some(Value::Array(vec![Value::Int(1), Value::Int(2)]))
+        );
+    }
+
+    #[test]
+    fn p707_arguments_pos_metodo() {
+        let world = MockWorld::new("#let f(..args) = args.pos()\n#let x = f(1, 2, y: 3)");
+        assert_eq!(
+            eval_let(&world, "x"),
+            Some(Value::Array(vec![Value::Int(1), Value::Int(2)]))
+        );
+    }
+
+    #[test]
+    fn p707_arguments_named_metodo() {
+        let world = MockWorld::new("#let f(..args) = args.named()\n#let x = f(1, 2, y: 3, z: 4)");
+        let mut expected: IndexMap<EcoString, Value, FxBuildHasher> = IndexMap::default();
+        expected.insert("y".into(), Value::Int(3));
+        expected.insert("z".into(), Value::Int(4));
+        assert_eq!(eval_let(&world, "x"), Some(Value::Dict(expected)));
+    }
+
+    #[test]
+    fn p707_arguments_pos_e_named_nao_regridem_campos() {
+        // .positional/.named (campo, P504) continuam a funcionar sem parênteses.
+        let world = MockWorld::new(
+            "#let f(..args) = (args.positional, args.named, args.pos(), args.named())\n#let x = f(1, y: 2)"
+        );
+        let mut expected_named: IndexMap<EcoString, Value, FxBuildHasher> = IndexMap::default();
+        expected_named.insert("y".into(), Value::Int(2));
+        assert_eq!(
+            eval_let(&world, "x"),
+            Some(Value::Array(vec![
+                Value::Array(vec![Value::Int(1)]),
+                Value::Dict(expected_named.clone()),
+                Value::Array(vec![Value::Int(1)]),
+                Value::Dict(expected_named),
+            ]))
         );
     }
 
