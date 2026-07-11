@@ -2,7 +2,7 @@
 
 **Data:** 2026-07-11
 **Passo:** sem materialização prévia (`typst-passo-705.md` não existia — instruído directamente pelo utilizador na sessão, seguindo o mesmo protocolo dos passos anteriores).
-**Hash do commit (implementação):** a preencher no commit seguinte.
+**Hash do commit (implementação):** `4a30362b7`.
 **HEAD base:** `b01565e3d` (fim de P704, detached HEAD).
 **Estado:** ÂMBITO FECHADO — `luma()` aceita percentagem, com **paridade exacta** (incluindo o fallback silencioso do vanilla), corrigido em duas iterações (achado de um bug próprio a meio, corrigido antes de fechar). `cetz` mantém o progresso, novo bloqueio isolado (`in` para `Str`/`Dict`).
 
