@@ -1,5 +1,5 @@
 # Prompt L0 — `stdlib/foundations` — utilitários, cores, conversões e introspeção
-Hash do Código: c0b5aded
+Hash do Código: 012a275b
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/rules/stdlib/foundations.rs`
@@ -410,20 +410,82 @@ rgb("FFFFF")                -> Err "color string has wrong length" (5 dígitos)
 
 ---
 
-### `native_luma` — `luma(l)`
+### `native_luma` — `luma(l)` (P705: `l` aceita `Int` **ou** percentagem; fallback silencioso paritário)
 
-**Assinatura**: `luma(l: int) -> color`
+**Assinatura**: `luma(l: any?) -> color`
 
-**Argumentos**: `l` em `[0, 255]`.
+**Argumentos**: 0 ou 1 posicional.
+- `Int` em `[0, 255]` → `Color::luma(l / 255.0)`.
+- Percentagem em `[0%, 100%]` (**P705**) → `Color::luma(r)` **directamente**
+  (sem divisão). **Causa raiz medida, não assumida**: uma percentagem
+  simples (`50%`, ou `v * 1%` — o padrão real de `cetz`) avalia neste
+  cristalino para **`Value::Relative`** (`Rel<Length>`, campo `rel: f64` +
+  `abs: Length`), **unificado com `length`** (`type(50%) == length`,
+  P685) — **não** `Value::Ratio` (esse tipo existe mas só é produzido por
+  outros caminhos, ex. `Ratio * Int` em `operators.rs:215-218`). O braço
+  novo aceita `Value::Relative(rel)` **apenas quando `rel.abs ==
+  Length::ZERO`** (sem parte absoluta — `50% + 1pt` não é um componente de
+  cor válido, cai no fallback) e `rel.rel` em `[0.0, 1.0]`. `Value::Ratio`
+  também é aceite directamente, para o caso de algum dia ser produzido por
+  outro caminho.
+- **Qualquer outro caso** — tipo errado (`Str`, etc.), `Int` fora de
+  `[0,255]`, percentagem fora de `[0%,100%]`, percentagem com parte
+  absoluta, ou **ausência do argumento** — → **branco
+  (`Color::luma(1.0)`), sem erro**.
 
-**Semântica**: Constrói `Value::Color(Color::luma(l / 255.0))`.
+**Motivação (P704→P705)**: `cetz` (`lib/palette.typ:107`) usa
+`range(90, 40, step: -12).map(v => luma(v * 1%))` — `v * 1%` (`Int *
+Relative`, `operators.rs:242-244`) produz `Value::Relative`, que
+`native_luma` não aceitava (só `Int`).
+
+**Paridade vanilla — `Component` (`visualize/color.rs:2677-2692`)**: o
+vanilla usa um tipo de cast partilhado `Component(Ratio)` que aceita
+`Int` 0–255 (convertido para fracção `/255.0`) **ou** `Ratio` 0–100%
+directamente, usado por `rgb`, `luma`, e outros construtores de cor.
+
+**Decisão de âmbito (medida, não assumida)** — grep exaustivo a
+`~/.cache/typst/packages/preview/cetz/0.5.2/src/` confirma: **nenhum**
+consumidor real usa `oklab`/`oklch`/`hsl`/`hsv`/`cmyk`/`linear-rgb`, nem
+`rgb(ratio, ratio, ratio)` (só `rgb(hex)`, já resolvido em P703). **Não**
+se generaliza um tipo `Component` partilhado — seria trabalho sem
+consumidor medido, seguindo a mesma disciplina de P703 (scope-out de
+`Ratio` em `rgb()`). Só `luma()` ganha o braço de percentagem, isoladamente.
+
+**Fallback silencioso replicado verbatim (correcção, não scope-out)**: o
+vanilla, para o argumento `l` de `luma()`, usa
+`args.expect(...).unwrap_or(Component(Ratio::one()))` — um erro de *cast*
+(tipo errado, valor fora de gama) **ou** a ausência do argumento é
+**engolido silenciosamente** e substituído por branco (`100%`), não
+propagado como erro. Medido directamente (release build do vanilla):
+`luma("bad")`, `luma(300)`, `luma(150%)` e `luma()` (zero argumentos)
+devolvem todos `luma(100%)`, sem aviso. **ADR-0107** — isto é
+comportamento observável da **língua**, não mecânica interna do parser;
+paridade exige replicá-lo, não substituí-lo pela preferência de "falhar
+alto" deste código. Corrigido: `luma(256)` (pré-P705, erguia
+`Err "componente fora de 0–255"`) **deixa de errar** — passa a devolver
+branco, tal como o vanilla. Isto revela que a validação `Int` 0–255
+pré-existente já divergia do vanilla antes de P705; a correcção aproveita
+o mesmo mecanismo do braço `Ratio` novo.
+
+**Scope-out** (mantido, sem consumidor medido): `luma(color)` — converter
+uma `Color` existente para tons de cinzento (segunda forma do vanilla,
+`args.find::<Color>()`) — e o argumento `alpha` (`Color::Luma` do
+cristalino não tem campo de alpha). 2 argumentos posicionais →
+erro claro (estrutural, não é o fallback silencioso descrito acima).
 
 **Testes canônicos**:
 ```
 luma(128)         -> Color::Luma { l: 0.5, a: 1.0 }
 luma(0)           -> preto
 luma(255)         -> branco
-luma(256)         -> Err "componente fora de 0–255"
+luma(50%)         -> Color::Luma { l: 0.5, a: 1.0 }     (P705)
+luma(0%)          -> preto                              (P705)
+luma(100%)        -> branco                             (P705)
+luma(256)         -> branco  (P705 — corrigido; antes: Err, divergia do vanilla)
+luma(150%)        -> branco  (P705 — fallback silencioso, paridade vanilla)
+luma("bad")       -> branco  (P705 — fallback silencioso, paridade vanilla)
+luma()            -> branco  (P705 — fallback silencioso, paridade vanilla)
+luma(0, 1, 2)     -> Err (2+ argumentos — estrutural, alpha não suportado)
 ```
 
 ---

@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/rules/stdlib/foundations.md
-//! @prompt-hash 778e04e0
+//! @prompt-hash fff47946
 //! @layer L1
 //! @updated 2026-06-24
 //!
@@ -119,17 +119,42 @@ fn parse_hex_color(s: &str) -> SourceResult<Value> {
 /// como paridade construtor anterior; converte para f32 [0.0, 1.0]
 /// internamente. PDF output bit-equivalente via `to_srgb()` que
 /// expande Luma para sRGB cinza.
+///
+/// **P705** — aceita também `Ratio` [0%, 100%] (paridade vanilla
+/// `Component`, `visualize/color.rs:2677-2692`). Fallback silencioso
+/// verbatim: qualquer valor que não caste (tipo errado, fora de gama) ou a
+/// ausência do argumento devolve **branco**, não erro — replica
+/// `args.expect(...).unwrap_or(Component(Ratio::one()))` do vanilla,
+/// medido directamente (`luma("bad")`, `luma(300)`, `luma(150%)`,
+/// `luma()` → todos `luma(100%)` no vanilla). ADR-0107: comportamento
+/// observável da língua, não mecânica — paridade exige replicar, não
+/// substituir por erro. 2+ argumentos continua a ser erro estrutural
+/// (`alpha` não suportado — `Color::Luma` do cristalino não tem esse campo).
 pub fn native_luma(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contracts::world::World, _current_file: FileId) -> SourceResult<Value> {
     use crate::entities::layout_types::Color;
     expect_no_named(&args.named)?;
-    match args.items.as_slice() {
-        [Value::Int(l)] => {
-            if !(0..=255).contains(l) {
-                return err(format!("luma(): componente fora de 0–255: {}", l));
+    fn component_to_ratio(v: &Value) -> Option<f32> {
+        match v {
+            Value::Int(i) if (0..=255).contains(i) => Some(*i as f32 / 255.0),
+            Value::Ratio(r) if (0.0..=1.0).contains(&r.get()) => Some(r.get() as f32),
+            // P705 — percentagens simples (`50%`, `v * 1%`) avaliam para
+            // Value::Relative neste cristalino (unificado com `length`, não
+            // Value::Ratio — `type(50%) == length`). Só conta como
+            // componente de cor se não tiver parte absoluta (`50% + 1pt`
+            // não é um componente válido, cai no fallback).
+            Value::Relative(rel)
+                if rel.abs == crate::entities::layout_types::Length::ZERO
+                    && (0.0..=1.0).contains(&rel.rel) =>
+            {
+                Some(rel.rel as f32)
             }
-            Ok(Value::Color(Color::luma(*l as f32 / 255.0)))
+            _ => None,
         }
-        _ => err(format!("luma() requer 1 Int, recebeu {} args", args.items.len())),
+    }
+    match args.items.as_slice() {
+        [] => Ok(Value::Color(Color::luma(1.0))),
+        [v] => Ok(Value::Color(Color::luma(component_to_ratio(v).unwrap_or(1.0)))),
+        _ => err(format!("luma() requer 0 ou 1 argumento, recebeu {} args", args.items.len())),
     }
 }
 
@@ -1496,5 +1521,111 @@ mod tests_p704_range_step {
         args.named.insert("step".into(), Value::Int(0));
         let e = native_range(&mut ctx(), &args, &NullWorld::default(), tfid()).unwrap_err();
         assert!(e[0].message.contains("number must not be zero"), "msg: {}", e[0].message);
+    }
+}
+
+#[cfg(test)]
+mod tests_p705_luma_ratio {
+    use super::*;
+    use crate::entities::layout_types::{Color, Ratio};
+
+    fn ctx() -> EvalContext { EvalContext::new() }
+    fn tfid() -> FileId { FileId::from_raw(std::num::NonZeroU16::new(1).unwrap()) }
+
+    #[derive(Default)]
+    struct NullWorld {
+        library: crate::entities::world_types::Library,
+        book: crate::entities::font_book::FontBook,
+    }
+    impl crate::contracts::world::World for NullWorld {
+        fn library(&self) -> &crate::entities::world_types::Library { &self.library }
+        fn book(&self) -> &crate::entities::font_book::FontBook { &self.book }
+        fn main(&self) -> FileId { tfid() }
+        fn source(&self, _: FileId) -> crate::entities::world_types::FileResult<crate::entities::source::Source> {
+            Err(crate::entities::world_types::FileError::NotFound)
+        }
+        fn file(&self, _: FileId) -> crate::entities::world_types::FileResult<crate::entities::world_types::Bytes> {
+            Err(crate::entities::world_types::FileError::NotFound)
+        }
+        fn font(&self, _: usize) -> Option<crate::entities::world_types::Font> { None }
+        fn today(&self, _: Option<i64>) -> Option<crate::entities::world_types::Datetime> { None }
+        fn read_bytes(&self, _current_file: FileId, path: &str) -> Result<std::sync::Arc<Vec<u8>>, String> {
+            Err(format!("ficheiro não encontrado: {}", path))
+        }
+    }
+
+    fn luma(items: Vec<Value>) -> Value {
+        native_luma(&mut ctx(), &Args::positional(items), &NullWorld::default(), tfid()).unwrap()
+    }
+
+    #[test]
+    fn ratio_valido_mapeia_diretamente() {
+        assert_eq!(luma(vec![Value::Ratio(Ratio(0.5))]), Value::Color(Color::luma(0.5)));
+        assert_eq!(luma(vec![Value::Ratio(Ratio(0.0))]), Value::Color(Color::luma(0.0)));
+        assert_eq!(luma(vec![Value::Ratio(Ratio(1.0))]), Value::Color(Color::luma(1.0)));
+    }
+
+    #[test]
+    fn percentagem_literal_via_relative_mapeia_diretamente() {
+        // P705 — causa raiz real: `50%`/`v * 1%` avaliam para Value::Relative
+        // neste cristalino (unificado com `length`), não Value::Ratio.
+        // Reproduz exactamente o caminho de cetz: `range(...).map(v => luma(v * 1%))`.
+        use crate::entities::rel::Rel;
+        use crate::entities::layout_types::Length;
+        let rel = |pct: f64| Value::Relative(Rel { rel: pct, abs: Length::ZERO });
+        assert_eq!(luma(vec![rel(0.9)]), Value::Color(Color::luma(0.9)));
+        assert_eq!(luma(vec![rel(0.5)]), Value::Color(Color::luma(0.5)));
+        assert_eq!(luma(vec![rel(0.0)]), Value::Color(Color::luma(0.0)));
+        assert_eq!(luma(vec![rel(1.0)]), Value::Color(Color::luma(1.0)));
+    }
+
+    #[test]
+    fn percentagem_com_parte_absoluta_cai_no_fallback() {
+        // `50% + 1pt` não é um componente de cor válido (nem no vanilla) —
+        // deve cair no fallback branco, não ser tratado como 50%.
+        use crate::entities::rel::Rel;
+        use crate::entities::layout_types::Length;
+        let rel = Value::Relative(Rel { rel: 0.5, abs: Length::pt(1.0) });
+        assert_eq!(luma(vec![rel]), Value::Color(Color::luma(1.0)));
+    }
+
+    #[test]
+    fn int_valido_sem_regressao() {
+        assert_eq!(luma(vec![Value::Int(0)]), Value::Color(Color::luma(0.0)));
+        assert_eq!(luma(vec![Value::Int(255)]), Value::Color(Color::luma(1.0)));
+    }
+
+    #[test]
+    fn int_fora_de_gama_devolve_branco_nao_erro() {
+        // P705 — corrigido: paridade vanilla medida (luma(300) -> branco).
+        assert_eq!(luma(vec![Value::Int(300)]), Value::Color(Color::luma(1.0)));
+        assert_eq!(luma(vec![Value::Int(256)]), Value::Color(Color::luma(1.0)));
+    }
+
+    #[test]
+    fn ratio_fora_de_gama_devolve_branco_nao_erro() {
+        assert_eq!(luma(vec![Value::Ratio(Ratio(1.5))]), Value::Color(Color::luma(1.0)));
+        assert_eq!(luma(vec![Value::Ratio(Ratio(-0.2))]), Value::Color(Color::luma(1.0)));
+    }
+
+    #[test]
+    fn tipo_errado_devolve_branco_nao_erro() {
+        assert_eq!(luma(vec![Value::Str("bad".into())]), Value::Color(Color::luma(1.0)));
+    }
+
+    #[test]
+    fn sem_argumentos_devolve_branco() {
+        assert_eq!(luma(vec![]), Value::Color(Color::luma(1.0)));
+    }
+
+    #[test]
+    fn dois_ou_mais_argumentos_erro_estrutural() {
+        let e = native_luma(
+            &mut ctx(),
+            &Args::positional(vec![Value::Int(0), Value::Int(1), Value::Int(2)]),
+            &NullWorld::default(),
+            tfid(),
+        ).unwrap_err();
+        assert!(e[0].message.contains("requer 0 ou 1 argumento"), "msg: {}", e[0].message);
     }
 }
