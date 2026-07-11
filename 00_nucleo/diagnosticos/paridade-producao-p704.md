@@ -2,7 +2,7 @@
 
 **Data:** 2026-07-11
 **Passo:** `00_nucleo/materialization/typst-passo-704.md`
-**Hash do commit (implementação):** a preencher no commit seguinte.
+**Hash do commit (implementação):** `dfc6a4dde`.
 **HEAD base:** `104e9f614` (fim de P703, detached HEAD).
 **Estado:** ÂMBITO DE P704 FECHADO — `range(..., step:)` implementado, testado, paridade vanilla confirmada em todos os casos de borda medidos (incluindo uma correcção de divergência pré-existente: `range(-n)` deixa de errar). `cetz` mantém o progresso (mesmo tempo de compilação), mas bloqueia num gap novo e não relacionado (`luma()` só aceita `Int`, não `Ratio`).
 
