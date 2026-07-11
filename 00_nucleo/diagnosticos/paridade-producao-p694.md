@@ -1,6 +1,6 @@
 # Paridade produção — P694 — módulo builtin `sys` (`sys.version` / `sys.inputs`) + `--input`
 
-**Commit deste passo:** `__P694_COMMIT__` (preenchido no 2º commit; ver §Proveniência).
+**Commit deste passo:** `6c34f85ff6886509f85dd56083d478b21e76378d` (detached HEAD; ver §Proveniência).
 **Passo:** `00_nucleo/materialization/typst-passo-694.md`.
 **ADRs:** ADR-0107 (paridade com a linguagem), ADR-0108 (medir antes de decidir),
 ADR-0023/ADR-0024/ADR-0018 (IndexMap/EcoString/rustc_hash em L1).
