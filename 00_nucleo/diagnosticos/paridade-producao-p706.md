@@ -2,7 +2,7 @@
 
 **Data:** 2026-07-11
 **Passo:** `00_nucleo/materialization/typst-passo-706.md`
-**Hash do commit (implementação):** a preencher no commit seguinte.
+**Hash do commit (implementação):** `d1f4f5591`.
 **HEAD base:** `e08e728e2` (fim de P705, detached HEAD).
 **Estado:** ÂMBITO DE P706 FECHADO — `in`/`not in` implementado para todas as combinações medidas (`Str`/`Dict`/`Str`/`Array`, incluindo tipos mistos e arrays aninhados), paridade vanilla confirmada. `cetz` avança **substancialmente mais fundo** (tempo de compilação salta de ~7s para ~30.7s), novo bloqueio isolado fora da área de operadores: `Arguments::pos()`.
 
