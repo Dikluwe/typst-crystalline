@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/rules/eval.md
-//! @prompt-hash c8253807
+//! @prompt-hash 055ddeb9
 //! @layer L1
 //! @updated 2026-07-09
 //!
@@ -412,6 +412,27 @@ pub(super) fn eval_func_call(
             if let Value::Func(f) = target {
                 let args = eval_args(call.args(), scopes, ctx, engine)?;
                 return Ok(Value::Func(f.with(args)));
+            }
+        }
+    }
+
+    // **P710** — `length.to-absolute()`: resolve a componente `em` usando o
+    // tamanho de texto actual (`StyleChain::size()`, já usado pelo layout de
+    // texto — nenhum mecanismo novo de resolução de estilo). Divergência
+    // documentada (mecânica, não língua — `rules/eval.md` §P710): o vanilla
+    // só permite isto dentro de um bloco `context`; o cristalino não
+    // distingue "scripting" de "contexto resolvido" (`engine.styles` é
+    // sempre acessível), logo não replica esse gate — o valor produzido é
+    // idêntico ao vanilla no único caso medido (`cetz`, sempre dentro de
+    // `context {...}`). `.pt()`/`.mm()`/`.cm()`/`.inches()`/`.abs`/`.em`
+    // ficam scope-out, sem consumidor medido.
+    if let Expr::FieldAccess(access) = call.callee() {
+        if access.field().as_str() == "to-absolute" {
+            let target = eval_expr(access.target(), scopes, ctx, engine)?;
+            if let Value::Length(l) = target {
+                use crate::entities::layout_types::{Abs, Length};
+                let abs_pt = l.abs.to_pt() + l.em * engine.styles.size();
+                return Ok(Value::Length(Length { abs: Abs(abs_pt), em: 0.0 }));
             }
         }
     }

@@ -1,5 +1,5 @@
 # Prompt L0 — rules/eval
-Hash do Código: 2585e3ab
+Hash do Código: 13c592b1
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/rules/eval/mod.rs`
@@ -901,5 +901,69 @@ Critérios de verificação:
 - `{let calc = "x"; std.calc.round(3.7)}` → `4` (sub-módulo através de
   `std` funciona apesar do sombreamento).
 - `{let std = "oops"; std}` → `"oops"` (sombreável como qualquer nome).
+- `cargo test --workspace` continua a passar.
+- `crystalline-lint .` limpo.
+
+## §P710 — `Length.to-absolute()`
+
+Isolado por P709 via `cetz` (`canvas.typ:36`, `util.typ:131`):
+`Value::Length` não tinha nenhum campo ou método. Medido contra o vanilla
+(`foundations/layout/length.rs:96-161`) — `#[scope] impl Length` expõe
+`.pt()`, `.mm()`, `.cm()`, `.inches()`, `.to_absolute()` (nome exposto
+como `to-absolute`); campos `.abs`/`.em` vêm de `#[ty(scope, cast)]` no
+próprio `struct Length` (não do bloco `#[scope]`).
+
+### Semântica confirmada, não assumida
+
+```
+(6pt).to-absolute()                      → 6pt          (em=0, inalterado)
+(6pt + 10em).to-absolute()  [size: 12pt] → 126pt        (6 + 10*12)
+(6pt).pt()/.mm()/.cm()/.inches()          → 6/2.116.../0.211.../0.0833...
+(6pt).abs                                 → 6pt
+(40em + 2pt).abs                          → 2pt          (só a parte abs)
+(3em + 5pt).em                            → 3            (só a parte em)
+(6pt + 1em).pt()                          → Err "cannot convert a length
+                                             with non-zero em units
+                                             (`6pt + 1em`) to pt"
+(6pt).to-absolute()  [sem `context`]      → Err "can only be used when
+                                             context is known"
+```
+
+### Âmbito medido — só `.to-absolute()`
+
+`grep` exaustivo a `cetz`: **só** `.to-absolute()` é usado
+(`canvas.typ:36`, `util.typ:131`). **Scope-out explícito**: `.pt()`,
+`.mm()`, `.cm()`, `.inches()`, `.abs`, `.em` — não implementados, sem
+consumidor medido.
+
+### Mecanismo — tamanho de texto já resolvível, sem gate de `context`
+
+`StyleChain::size(&self) -> f64` (`entities/style_chain.rs:433-443`) **já
+existe** e resolve o tamanho de texto actual em pontos (`text.size`
+tipado ou `custom`, top-wins, default `11.0`) — mesma função usada pelo
+layout de texto. `.to-absolute()` implementado como nova intercepção em
+`eval_func_call` (mesmo padrão de P417/P423/P504/P466/P506/P702/P707):
+se o callee é `FieldAccess` com campo `"to-absolute"` e o alvo avalia
+para `Value::Length`, devolve
+`Value::Length { abs: Abs(l.abs.to_pt() + l.em * engine.styles.size()), em: 0.0 }`.
+
+**Divergência documentada (mecânica, não língua)**: o vanilla restringe
+`.to-absolute()` a dentro de um bloco `context` (precisa de
+`Tracked<Context>`; fora disso, erro `"can only be used when context is
+known"`). O cristalino **não replica este gate** — `engine.styles` é
+sempre acessível em qualquer ponto do eval (não há distinção entre
+"scripting simples" e "contexto resolvido" nesta arquitectura, ver nota
+em `rules/stdlib/context.md`/`entities/context_block.md`), logo
+`.to-absolute()` funciona tanto dentro como fora de `context {...}`,
+sempre com o `text.size` ambiente correcto. Justificação: `cetz` só usa
+`.to-absolute()` dentro de `context {...}` (`canvas.typ:26`, a função
+inteira é `context { ... }`), logo o valor produzido é idêntico ao
+vanilla nesse caso — só o *gate* de erro fora de contexto diverge, sem
+consumidor medido que dependa dele.
+
+Critérios de verificação:
+
+- `(6pt).to-absolute()` → `6pt` (em=0, inalterado).
+- `(6pt + 10em).to-absolute()` com `#set text(size: 12pt)` → `126pt`.
 - `cargo test --workspace` continua a passar.
 - `crystalline-lint .` limpo.

@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/rules/eval.md
-//! @prompt-hash 9433c725
+//! @prompt-hash 055ddeb9
 //! @layer L1
 //! @updated 2026-06-17
 //!
@@ -7616,6 +7616,38 @@ mod tests {
             "r",
         );
         assert_eq!(v, Value::Type(Type::Length));
+    }
+
+    // ── P710 — `Length.to-absolute()` ────────────────────────────────────────
+
+    #[test]
+    fn p710_to_absolute_sem_em_inalterado() {
+        use crate::entities::layout_types::{Abs, Length};
+        let world = MockWorld::new("#let x = (6pt).to-absolute()");
+        assert_eq!(
+            eval_let(&world, "x"),
+            Some(Value::Length(Length { abs: Abs(6.0), em: 0.0 }))
+        );
+    }
+
+    #[test]
+    fn p710_to_absolute_resolve_em_com_tamanho_default() {
+        // Sem `#set text(size:)`, o default é 11pt (`StyleChain::size()`):
+        // 6pt + 10em -> 6 + 10*11 = 116pt.
+        use crate::entities::layout_types::{Abs, Length};
+        let world = MockWorld::new("#let x = (6pt + 10em).to-absolute()");
+        assert_eq!(
+            eval_let(&world, "x"),
+            Some(Value::Length(Length { abs: Abs(116.0), em: 0.0 }))
+        );
+    }
+
+    #[test]
+    fn p710_to_absolute_em_tipo_diferente_nao_intercepta() {
+        // Alvo não é Length -> cai no campo genérico, erro normal (não crasha).
+        let world = MockWorld::new("#let x = (5).to-absolute()");
+        let src = World::source(&world, World::main(&world)).unwrap();
+        assert!(eval_for_test(&world, &src).is_err());
     }
 
     #[test]
