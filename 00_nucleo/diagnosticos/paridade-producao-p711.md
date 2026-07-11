@@ -2,7 +2,7 @@
 
 **Data:** 2026-07-11
 **Passo:** `00_nucleo/materialization/typst-passo-711.md`
-**Hash do commit (implementação):** a preencher no commit seguinte.
+**Hash do commit (implementação):** `a9a108770`.
 **HEAD base:** `f8402e1f2` (fim de P710).
 **Estado:** FECHADO — `expand_context_blocks` (L3) usa agora o `StyleChain`
 acumulado até à posição do bloco `context`, não uma cadeia de defaults
