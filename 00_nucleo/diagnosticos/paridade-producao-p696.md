@@ -1,6 +1,6 @@
 # Paridade produção — P696 — Sonda: suporte a plugins WASM (`plugin()`)
 
-**Commit deste passo:** `__P696_COMMIT__` (preenchido no 2º commit; ver §Proveniência).
+**Commit deste passo:** `d0bb8abe3ac83f55679c0cf75f5181c70309bd21` (detached HEAD; ver §Proveniência).
 **Passo:** `00_nucleo/materialization/typst-passo-696.md`. **Tipo:** sonda (sem implementação).
 **ADRs:** ADR-0108 (medir antes de decidir), ADR-0114 (sonda obrigatória para
 funcionalidade nova nunca tocada), ADR-0107 (paridade com a linguagem).
