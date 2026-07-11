@@ -2,7 +2,7 @@
 
 **Data:** 2026-07-11
 **Passo:** `00_nucleo/materialization/typst-passo-707.md`
-**Hash do commit (implementação):** a preencher no commit seguinte.
+**Hash do commit (implementação):** `bc21a2a7d`.
 **HEAD base:** `e5181603b` (fim de P706, detached HEAD).
 **Estado:** ÂMBITO DE P707 FECHADO — `.pos()`/`.named()` implementados e corretos, confirmado em isolamento. `cetz` continua bloqueado, mas por um **bug estrutural pré-existente e muito mais significativo**, descoberto ao correr a reprodução completa: parâmetros nomeados-com-default (`nome: default`) consomem incorretamente argumentos posicionais quando não são passados explicitamente — **não é um gap de API, é um bug de binding de argumentos**, afetando potencialmente qualquer closure do cristalino, não só `cetz`.
 
