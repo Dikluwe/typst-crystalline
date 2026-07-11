@@ -2,7 +2,7 @@
 
 **Data:** 2026-07-11
 **Passo:** `00_nucleo/materialization/typst-passo-710.md`
-**Hash do commit (implementação):** a preencher no commit seguinte.
+**Hash do commit (implementação):** `c6d1540f8`.
 **HEAD base:** `0f97b5094` (fim de P709, detached HEAD).
 **Estado:** ÂMBITO DE P710 FECHADO — `.to-absolute()` implementado e validado. `cetz` avança mais uma vez, novo bloqueio isolado: `Length / Length` (divisão) não implementado em `eval_binary_op`.
 
