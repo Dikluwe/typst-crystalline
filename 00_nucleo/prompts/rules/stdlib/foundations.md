@@ -116,8 +116,8 @@ inalterada — só muda o valor no scope (de função para tipo chamável).
 | `int` | `"1"` |
 | `float` | `"1.0"`, `"1.5"` |
 | `str` | `"\"hello\""` |
-| `array` | `"(1, 2)"` |
-| `dict` | `"(a: 1)"` |
+| `array` | `"(1, 2)"`; array vazio → `"()"` |
+| `dict` | `"(a: 1)"`; dict vazio → `"(:)"` (P695 — distinto de array vazio `"()"`) |
 | `content` | `"heading(level: 1)[\"Title\"]"` |
 | `function` | `"#repr"` ou `"#function(...)"` |
 | `module` | `"module(mylib)"` |
@@ -148,6 +148,8 @@ repr(version(0,11,0)) -> "version(0, 11, 0)"
 repr(bytes(10))     -> "bytes(10)"
 repr(regex("a+"))   -> "regex(\"a+\")"
 repr((1, "a", none)) -> "(1, \"a\", none)"
+repr(())            -> "()"          (P695 — array vazio)
+repr((:))           -> "(:)"         (P695 — dict vazio; distinto de array vazio)
 repr()              -> Err "repr() requer 1 argumento"
 ```
 

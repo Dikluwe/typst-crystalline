@@ -30,6 +30,12 @@ pub fn repr_value(v: &Value) -> String {
             format!("({})", items.join(", "))
         }
         Value::Dict(dict) => {
+            // P695 — dict vazio é `(:)`, distinto de array vazio `()` (paridade
+            // vanilla). Sem isto, `repr(()) == repr((:)) == "()"` — dois tipos
+            // diferentes com texto de depuração idêntico.
+            if dict.is_empty() {
+                return "(:)".to_string();
+            }
             let items: Vec<String> = dict
                 .iter()
                 .map(|(k, v)| format!("{}: {}", k.as_str(), repr_value(v)))
@@ -328,6 +334,16 @@ mod tests {
         let mut dict = indexmap::IndexMap::default();
         dict.insert("a".into(), Value::Int(1));
         assert_eq!(repr_value(&Value::Dict(dict)), "(a: 1)");
+    }
+
+    #[test]
+    fn repr_value_empty_array_e_dict_distinguem() {
+        // P695 — `()` (array vazio) e `(:)` (dict vazio) não podem colidir.
+        let empty_arr = Value::Array(vec![]);
+        let empty_dict = Value::Dict(indexmap::IndexMap::default());
+        assert_eq!(repr_value(&empty_arr), "()");
+        assert_eq!(repr_value(&empty_dict), "(:)");
+        assert_ne!(repr_value(&empty_arr), repr_value(&empty_dict));
     }
 
     #[test]
