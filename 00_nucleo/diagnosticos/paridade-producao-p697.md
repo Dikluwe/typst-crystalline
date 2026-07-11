@@ -1,6 +1,6 @@
 # Paridade produção — P697 — builtin `plugin()`: sintaxe e leitura de bytes (nível 2 de P696)
 
-**Commit deste passo:** `__P697_COMMIT__` (preenchido no 2º commit; ver §Proveniência).
+**Commit deste passo:** `08d3f23e074f782865f3091393e672e6103051c3` (detached HEAD; ver §Proveniência).
 **Passo:** `00_nucleo/materialization/typst-passo-697.md`. **Tamanho:** S.
 **ADRs:** ADR-0107 (paridade com a linguagem), ADR-0108 (medir antes de decidir),
 ADR-0109 (feature no seu ficheiro), ADR-0111 (leitura reusa `World::read_bytes`).
