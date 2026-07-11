@@ -1,6 +1,6 @@
 # Paridade produção — P698 — host `wasmi` em L3 atrás de `PluginHost` (nível 3 de P696)
 
-**Commit deste passo:** `(preenchido no commit seguinte)` (ver §Proveniência).
+**Commit deste passo:** `da2bb9a472aca6e2fd0339e9675db6085bcd9ac3` (detached HEAD; ver §Proveniência).
 **Passo:** `00_nucleo/materialization/typst-passo-698.md`. **Tamanho:** M.
 **ADRs:** ADR-0107 (paridade com a linguagem — mensagens são mecânica
 observável), ADR-0108 (medir antes de decidir), ADR-0109 (feature no seu
