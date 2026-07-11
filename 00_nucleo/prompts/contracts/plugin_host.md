@@ -70,11 +70,16 @@ assinatura do trait não dispara V14.
 ## O trait `PluginHost`
 
 ```rust
-pub trait PluginHost {
+pub trait PluginHost: Send + Sync {
     /// Compila e valida os bytes WASM, devolvendo um handle. Falha (com a
     /// mensagem exacta do vanilla) se o módulo é inválido ou não exporta
     /// `memory`. Ver `infra/plugin_host.md` para o catálogo de mensagens.
     fn load(&self, bytes: &[u8]) -> Result<PluginModuleId, PluginError>;
+
+    /// **P699** — lista os nomes dos exports do módulo que são funções
+    /// (`ExternType::Func`). Replica `into_module` (`plugin.rs:366-380`); permite
+    /// a `native_plugin` construir o `Module` com um `PluginFunc` por export.
+    fn exports(&self, module: PluginModuleId) -> Result<Vec<EcoString>, PluginError>;
 
     /// Chama a função exportada `func_name` do módulo `module` com os buffers
     /// `args` (cada `Bytes` é um argumento; as **lengths** são passadas ao WASM

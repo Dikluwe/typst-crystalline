@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/system-world.md
-//! @prompt-hash afe1031c
+//! @prompt-hash a97075a4
 //! @layer L3
 //! @updated 2026-06-30
 //!
@@ -13,6 +13,7 @@ use std::num::NonZeroU16;
 use std::path::{Path, PathBuf};
 use std::sync::{Arc, Mutex, OnceLock};
 
+use typst_core::contracts::plugin_host::PluginHost;
 use typst_core::contracts::world::{SysInputs, World};
 use typst_core::entities::bib_entry::BibEntry;
 use typst_core::entities::file_id::FileId;
@@ -120,6 +121,9 @@ pub struct SystemWorld {
     /// **P694** — pares `--input chave=valor` para `sys.inputs`. Vazio por
     /// omissão; populado via `with_inputs`.
     inputs:     SysInputs,
+    /// **P699** — host de plugins WASM (L3). `None` por omissão; instalado via
+    /// `with_plugin_host`. Lido por `World::plugin_host()` em `native_plugin`.
+    plugin_host: Option<Arc<dyn PluginHost>>,
 }
 
 impl SystemWorld {
@@ -165,6 +169,7 @@ impl SystemWorld {
             font_book:  FontBook::new(),
             library:    Library::new(),
             inputs:     SysInputs::default(),
+            plugin_host: None,
         })
     }
 
@@ -177,6 +182,14 @@ impl SystemWorld {
             map.insert(k.into(), v.into());
         }
         self.inputs = map;
+        self
+    }
+
+    /// **P699** — Builder: instala o host de plugins WASM (L3). Consumido por
+    /// `World::plugin_host()` em `native_plugin`. Encadeado em
+    /// `04_wiring/src/main.rs` com `Arc::new(WasmiPluginHost::new())`.
+    pub fn with_plugin_host(mut self, host: Arc<dyn PluginHost>) -> Self {
+        self.plugin_host = Some(host);
         self
     }
 
@@ -412,6 +425,13 @@ impl World for SystemWorld {
     /// **P694** — Devolve os pares `--input` (clone barato; poucos pares).
     fn inputs(&self) -> SysInputs {
         self.inputs.clone()
+    }
+
+    /// **P699** — Devolve o host de plugins WASM, se instalado via
+    /// `with_plugin_host`. `None` ⇒ `native_plugin` erra "plugins não
+    /// suportados neste World".
+    fn plugin_host(&self) -> Option<Arc<dyn PluginHost>> {
+        self.plugin_host.as_ref().map(Arc::clone)
     }
 }
 

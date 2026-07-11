@@ -27,6 +27,11 @@ impl SystemWorld {
     /// **P694** — builder: associa os pares `--input` (raw strings) e converte
     /// para `SysInputs` (`EcoString`). Guarda no campo `inputs`.
     pub fn with_inputs(self, inputs: Vec<(String, String)>) -> Self
+    /// **P699** — builder: instala o host de plugins WASM (L3) no
+    /// `SystemWorld`. Consumido por `World::plugin_host()` (devolve
+    /// `Some(...)`). Encadeado em `04_wiring/src/main.rs` com
+    /// `Arc::new(typst_infra::plugin_host::WasmiPluginHost::new())`.
+    pub fn with_plugin_host(self, host: Arc<dyn PluginHost>) -> Self
 }
 
 impl World for SystemWorld {
@@ -40,6 +45,8 @@ impl World for SystemWorld {
     fn resolve_package(&self, spec: &PackageSpec) -> Result<Source, String>;
     /// **P694** — devolve os `--input` (clone barato; poucos pares).
     fn inputs(&self) -> SysInputs;
+    /// **P699** — devolve `Some(Arc<WasmiPluginHost>)` (host WASM em L3).
+    fn plugin_host(&self) -> Option<Arc<dyn PluginHost>>;
 }
 ```
 

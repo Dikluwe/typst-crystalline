@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/contracts/plugin_host.md
-//! @prompt-hash adb4caf4
+//! @prompt-hash 53b005a7
 //! @layer L1
 //! @updated 2026-07-10
 //!
@@ -49,12 +49,23 @@ impl fmt::Display for PluginError {
 impl std::error::Error for PluginError {}
 
 /// Host de plugins WebAssembly — fronteira entre o núcleo (L1) e o runtime
-/// (L3, `WasmiPluginHost`). Em P699 será injectado como `Arc<dyn PluginHost>`
-/// no eval; em P698 é testado directamente em Rust (sem sintaxe Typst).
-pub trait PluginHost {
+/// (L3, `WasmiPluginHost`). Injectado como `Arc<dyn PluginHost>` no eval via
+/// `World::plugin_host()` (P699); em P698 é testado directamente em Rust (sem
+/// sintaxe Typst).
+///
+/// `Send + Sync` é obrigatório: `World: Send + Sync` e o host viaja em
+/// `SystemWorld` e dentro de `Value::Func(FuncRepr::Plugin(...))` (precedente:
+/// `ElementCtor`).
+pub trait PluginHost: Send + Sync {
     /// Compila e valida os bytes WASM, devolvendo um handle. Falha (mensagem
     /// exacta do vanilla) se o módulo é inválido ou não exporta `memory`.
     fn load(&self, bytes: &[u8]) -> Result<PluginModuleId, PluginError>;
+
+    /// **P699** — Enumera os nomes exportados pelo módulo `module` que são
+    /// funções (`ExternType::Func`), na ordem estável do host. Usado por
+    /// `native_plugin` para construir o `Module` com uma função por export.
+    /// Réplica de `into_module` (`plugin.rs:366-380`), filtrando só funções.
+    fn exports(&self, module: PluginModuleId) -> Result<Vec<EcoString>, PluginError>;
 
     /// Chama a função exportada `func_name` do módulo `module` com os buffers
     /// `args` (cada [`Bytes`] é um argumento; as lengths passam ao WASM como

@@ -1,5 +1,5 @@
 # Prompt L0 — entities/func e entities/args
-Hash do Código: fbdba763
+Hash do Código: 28ad56cb
 
 **Camada**: L1
 **Ficheiros alvo**: `01_core/src/entities/func.rs`, `01_core/src/entities/args.rs`
@@ -24,6 +24,10 @@ pub(crate) enum FuncRepr {
     NativeWithEngine(NativeFuncWithEngine),
     /// Lote F-3 inc-2 — construtor de elemento de utilizador.
     Element(ElementFunc),
+    /// **P699** — função de plugin WASM. O nome do export é dinâmico, logo não
+    /// cabe num fn-ptr nativo (`Native`/`NativeWithEngine`); a chamada é
+    /// delegada ao `PluginHost` capturado. Ver `entities/plugin_func.md`.
+    Plugin(crate::entities::plugin_func::PluginFunc),
 }
 
 pub struct ClosureRepr {
@@ -112,6 +116,8 @@ impl Func {
     pub fn native_with_engine(name: &'static str, call: NativeFnWithEngine) -> Self;
     pub fn native_with_engine_and_namespace(name: &'static str, call: NativeFnWithEngine, namespace: Arc<Scope>) -> Self;
     pub fn element(name: impl Into<String>, ctor: ElementCtor) -> Self;
+    /// **P699** — constrói `Func` a partir de um `PluginFunc` (export WASM).
+    pub fn plugin(p: crate::entities::plugin_func::PluginFunc) -> Self;
     pub(crate) fn repr(&self) -> &FuncRepr;
     pub fn element_name(&self) -> Option<&str>;
     pub fn name(&self) -> Option<&str>;
@@ -144,6 +150,24 @@ impl Args {
 - **Debug**: `"<function>"` (string literal, nunca pânico).
 - **Eager capture**: `ClosureRepr.captured` é um snapshot imutável; redefinições posteriores no scope pai não afectam a closure.
 - **Namespace anexado**: clone O(1) via `Arc<Scope>`; field access em `Func` delega ao `Scope` se existir.
+
+## Variante `Plugin` (P699)
+
+`FuncRepr::Plugin(PluginFunc)` representa um **export de plugin WASM**
+chamável como função da linguagem. O nome do export é dinâmico (vem do
+módulo WASM), logo não cabe num fn-ptr nativo (`Native`/`NativeWithEngine`);
+a chamada é delegada ao `PluginHost` capturado no `PluginFunc`
+(ver `entities/plugin_func.md`).
+
+- `Func::plugin(p)` constrói `Func(Arc::new(FuncRepr::Plugin(p)))`.
+- `Func::name()` ⇒ `Some(&p.name)` (nome do export; usado em mensagens e
+  na rejeição de named args).
+- `Func::native_fn_addr()` ⇒ `None` (um plugin não tem endereço de fn
+  nativa).
+- `Func::namespace()` ⇒ `None` (um plugin não expõe sub-funções via field
+  access neste passo).
+- A aplicação (`apply_func` em `rules/eval/closures.rs`) delega a
+  `call_plugin(p, args, span)`; ver `rules/stdlib/plugin.md`.
 
 ## Critérios de Verificação
 

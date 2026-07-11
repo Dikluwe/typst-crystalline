@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/entities/func.md
-//! @prompt-hash e462be0f
+//! @prompt-hash 4e81dbf8
 //! @layer L1
 //! @updated 2026-04-13
 
@@ -31,6 +31,10 @@ pub(crate) enum FuncRepr {
     /// `ElementRegistry`); `apply_func` invoca o `ctor` e devolve
     /// `Value::Content(Content::Dynamic(...))`. Caminho único com os nativos.
     Element(ElementFunc),
+    /// **P699** — função de plugin WASM. O nome do export é dinâmico (vem do
+    /// módulo), logo não cabe num fn-ptr nativo; a chamada é delegada ao
+    /// `PluginHost` capturado em `PluginFunc`. Ver `entities/plugin_func.rs`.
+    Plugin(crate::entities::plugin_func::PluginFunc),
 }
 
 /// Construtor de elemento de utilizador no escopo do eval (Lote F-3 inc-2).
@@ -185,6 +189,12 @@ impl Func {
         Self(Arc::new(FuncRepr::Element(ElementFunc { name: name.into(), ctor })))
     }
 
+    /// **P699** — Constrói uma Func de plugin WASM a partir de um `PluginFunc`
+    /// (export de módulo). Chamada delegada ao `PluginHost` em `apply_func`.
+    pub fn plugin(p: crate::entities::plugin_func::PluginFunc) -> Self {
+        Self(Arc::new(FuncRepr::Plugin(p)))
+    }
+
     /// Acesso à representação interna (restrito a crate).
     pub(crate) fn repr(&self) -> &FuncRepr {
         &self.0
@@ -211,6 +221,7 @@ impl Func {
             FuncRepr::Native(n)          => Some(n.name),
             FuncRepr::NativeWithEngine(n)=> Some(n.name),
             FuncRepr::Element(e)         => Some(&e.name),
+            FuncRepr::Plugin(p)          => Some(p.name.as_str()),
         }
     }
 
@@ -241,6 +252,8 @@ impl Func {
             // Elemento de utilizador não tem fn-ptr nativo — o selector de
             // `#show` casa-o por **kind dinâmico** (S2), não por endereço.
             FuncRepr::Element(_) => None,
+            // P699 — plugin WASM não tem fn-ptr nativo (chamada via host).
+            FuncRepr::Plugin(_) => None,
         }
     }
 

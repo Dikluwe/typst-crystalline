@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/plugin_host.md
-//! @prompt-hash cefcac62
+//! @prompt-hash 11768b62
 //! @layer L3
 //! @updated 2026-07-10
 //!
@@ -13,6 +13,8 @@
 use std::collections::HashMap;
 use std::sync::atomic::{AtomicU64, Ordering};
 use std::sync::{Arc, Mutex};
+
+use ecow::EcoString;
 
 use typst_core::contracts::plugin_host::{PluginError, PluginHost, PluginModuleId};
 use typst_core::entities::bytes::Bytes;
@@ -102,6 +104,25 @@ impl PluginHost for WasmiPluginHost {
         let base = Arc::new(PluginBase { module, linker });
         self.modules.lock().expect("modules lock").insert(id, base);
         Ok(id)
+    }
+
+    fn exports(&self, module: PluginModuleId) -> Result<Vec<EcoString>, PluginError> {
+        // Lookup do módulo (mesma defesa de API directa de `call`).
+        let base = {
+            let map = self.modules.lock().expect("modules lock");
+            map.get(&module)
+                .cloned()
+                .ok_or_else(|| PluginError::new("plugin module not found"))?
+        };
+
+        // `into_module` (`plugin.rs:366-380`), filtrando só `ExternType::Func`.
+        let mut names = Vec::new();
+        for export in base.module.exports() {
+            if let wasmi::ExternType::Func(_) = export.ty() {
+                names.push(EcoString::from(export.name()));
+            }
+        }
+        Ok(names)
     }
 
     fn call(
@@ -647,5 +668,38 @@ mod tests {
         let id = h.load(&w.build()).unwrap();
         let e = h.call(id, "f", &[]).unwrap_err();
         assert_eq!(e.message.as_str(), "plugin did not respect the protocol");
+    }
+
+    // ----- P699 — exports / Send+Sync ------------------------------------
+
+    #[test]
+    fn exports_devolve_so_funcoes_exportadas() {
+        let (mut w, _, _) = base();
+        let t = w.typ(&[], &[I32]);
+        let hello = w.func(t, i32const(0));
+        let add = w.func(t, i32const(0));
+        w.export("hello", 0x00, hello);
+        w.export("add", 0x00, add);
+        // `base()` já exporta "memory" (kind 0x02) — não é função, filtrada.
+        let h = host();
+        let id = h.load(&w.build()).unwrap();
+        let mut names = h.exports(id).unwrap();
+        names.sort();
+        assert_eq!(names, vec![EcoString::from("add"), EcoString::from("hello")]);
+    }
+
+    #[test]
+    fn exports_modulo_inexistente_erro_defensivo() {
+        let h = host();
+        let e = h.exports(PluginModuleId(9999)).unwrap_err();
+        assert_eq!(e.message.as_str(), "plugin module not found");
+    }
+
+    #[test]
+    fn host_eh_send_e_sync() {
+        // Obrigatório: `World: Send + Sync` e o host viaja em `SystemWorld` e
+        // dentro de `Value::Func(FuncRepr::Plugin(...))`.
+        fn assert_send_sync<T: Send + Sync>() {}
+        assert_send_sync::<WasmiPluginHost>();
     }
 }

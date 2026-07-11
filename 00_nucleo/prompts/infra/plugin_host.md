@@ -162,6 +162,52 @@ Replica `PluginInstance::call` (`plugin.rs:447-520`) sobre uma instância fresca
    - qualquer outro valor → `PluginError::new("plugin did not respect the protocol")`
      (`plugin.rs:516`).
 
+## `exports(&self, id) -> Result<Vec<EcoString>, PluginError>` (P699)
+
+Novo método do contrato L1 (`contracts/plugin_host.md`), necessário para que
+`native_plugin` construa o `Module` com uma função por export (P699). Replica
+`into_module` (`plugin.rs:366-380`), filtrando apenas `ExternType::Func`:
+
+1. Lookup do `Arc<PluginBase>` por `id`; se ausente →
+   `PluginError::new("plugin module not found")` (mesma defesa de API directa
+   do ponto 1 de `call`; **inferência marcada**, sem equivalente observável
+   no vanilla).
+2. Iterar `base.module.exports()`; para cada `export` cujo
+   `export.ty()` é `wasmi::ExternType::Func(_)`, recolher
+   `EcoString::from(export.name())`. A ordem é a do `wasmi` (estável para um
+   dado módulo).
+3. Devolver `Ok(names)`. Se não houver exports de função, devolve `Ok(vec![])`
+   (módulo vazio — `native_plugin` produz um `Module` sem membros).
+
+`EcoString` (ADR-0024) é o tipo do contrato; a conversão `&str → EcoString`
+acontece aqui (L3), sem re-exportar `ecow` em L1.
+
+## `Send + Sync` (P699)
+
+`WasmiPluginHost` implementa `Send + Sync` (obrigatório: `World: Send + Sync`
+— `contracts/world.rs:33` — e o host viaja em `SystemWorld` e dentro de
+`Value::Func(FuncRepr::Plugin(...))`). O precedente é `ElementCtor`
+(derivado `Send + Sync` em L1).
+
+Os campos são todos `Send + Sync`:
+
+- `wasmi::Engine` — `Send + Sync` (partilhado entre threads no vanilla).
+- `AtomicU64` — `Send + Sync`.
+- `Mutex<HashMap<PluginModuleId, Arc<PluginBase>>>` — `Send + Sync` se
+  `PluginBase: Send`.
+- `PluginBase { module: wasmi::Module, linker: wasmi::Linker<CallData> }` —
+  `wasmi::Module: Send + Sync`; `wasmi::Linker<CallData>: Send` (o vanilla
+  guarda `Linker` em `Arc<PluginBase>` e partilha entre threads via
+  `Mutex<Vec<PluginInstance>>`, `plugin.rs:245,355-363`). `CallData: Send`
+  (só contém `Vec`/`Option`).
+
+**Se o build falhar** por `Linker<CallData>` não ser `Send` (mudança de
+versão do `wasmi`): refacto `PluginBase` para guardar só `module: wasmi::Module`
+e reconstruir o `Linker` dentro de `call` (`load` não precisa de linker — só a
+instanciação em `call`). O custo (reconstruir o linker por chamada) é aceitável
+e não muda a semântica. Decisão a tomar **só** se o compilador o exigir
+(ADR-0108: medir — compilar — antes de refactar).
+
 ## Host functions (imports `typst_env`)
 
 Réplica literal de `plugin.rs:577-612`. São `fn` livres em L3 (não métodos),

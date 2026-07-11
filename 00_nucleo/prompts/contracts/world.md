@@ -91,6 +91,16 @@ pub trait World: Send + Sync {
         SysInputs::default()
     }
 
+    /// **P699** — host de plugins WASM, se o ambiente o fornecer. `None` por
+    /// omissão — MockWorlds e worlds sem runtime WASM não implementam este
+    /// método; `native_plugin` devolve então erro claro ("plugins não suportados
+    /// neste World"). `SystemWorld` (L3) devolve `Some(Arc<WasmiPluginHost>)`.
+    /// `Arc` é L1-legal (ADR-0029); `PluginHost` é tipo L1 — sem externo na
+    /// fronteira (V14). `PluginHost: Send + Sync` mantém `SystemWorld: Send + Sync`.
+    fn plugin_host(&self) -> Option<std::sync::Arc<dyn crate::contracts::plugin_host::PluginHost>> {
+        None
+    }
+
     /// Obter uma fonte (bytes + metadados) pelo índice no FontBook.
     /// None se o índice está fora dos limites.
     fn font(&self, index: usize) -> Option<Font>;

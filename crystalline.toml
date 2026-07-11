@@ -73,7 +73,7 @@ V14 = { level = "error" }
 types = ["Error"]  # derive em tipos de erro de domínio L1
 
 [l1_allowed_external.comemo]
-types = ["track", "Track", "Tracked", "TrackedMut", "Validate", "analyze"]  # ADR-0001 / ADR-0074
+types = ["memoize", "track", "Track", "Tracked", "TrackedMut", "Validate", "analyze"]  # ADR-0001 / ADR-0074 / P699 (memoize em PluginFunc::call)
 
 [l1_allowed_external.unicode_ident]
 types = ["is_xid_continue", "is_xid_start"]  # ADR-0010

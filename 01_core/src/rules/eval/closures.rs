@@ -17,10 +17,13 @@ use crate::entities::ast::expr::{
     Arg, Closure as ClosureNode, Expr, FuncCall as FuncCallNode, Param, Pattern,
 };
 use crate::entities::ast::AstNode;
+use crate::entities::bytes::Bytes;
 use crate::entities::engine::Engine;
 use crate::entities::func::{ClosureParam, ClosureRepr, Func, FuncRepr};
+use crate::entities::plugin_func::PluginFunc;
 use crate::entities::source_result::SourceDiagnostic;
 use crate::entities::source_result::SourceResult;
+use crate::entities::span::Span;
 use crate::entities::value::{Type, Value};
 use comemo::TrackedMut;
 
@@ -74,6 +77,10 @@ pub fn apply_func(
         // ponto de despacho dos nativos (sem caminho paralelo). Erro do catálogo
         // existente se o ctor falhar (não panic).
         FuncRepr::Element(ef) => Ok(Value::Content((ef.ctor)(&args.items)?)),
+        // P699 — export de plugin WASM: delega ao host capturado (memoizado
+        // em `PluginFunc::call`). Valida args (só bytes) e propaga erros
+        // verbatim (`PluginError.message` é observável — ADR-0107).
+        FuncRepr::Plugin(p) => call_plugin(p, &args),
         FuncRepr::Native(native) => {
             let world = engine.world;
             let current_file = engine.current_file;
@@ -90,6 +97,46 @@ pub fn apply_func(
             let current_file = engine.current_file;
             (native.call)(ctx, &args, world, current_file, scopes, engine)
         }
+    }
+}
+
+/// **P699** — Aplica um export de plugin WASM (`FuncRepr::Plugin`).
+///
+/// - Rejeita named args (a ABI WASM é posicional).
+/// - Exige que todos os args posicionais sejam `Value::Bytes`; reúne-os num
+///   `Vec<Bytes>` (clone de handle, não de conteúdo).
+/// - Delega a `PluginFunc::call` (memoizada): `Ok(bytes) ⇒ Value::Bytes`,
+///   `Err(e) ⇒ SourceDiagnostic` com `e.message` verbatim (observável).
+fn call_plugin(p: &PluginFunc, args: &Args) -> SourceResult<Value> {
+    if let Some(k) = args.named.keys().next() {
+        return Err(vec![SourceDiagnostic::error(
+            Span::detached(),
+            format!("argumento nomeado inesperado em {}(): '{k}'", p.name),
+        )]);
+    }
+
+    let mut bufs: Vec<Bytes> = Vec::with_capacity(args.items.len());
+    for v in &args.items {
+        match v {
+            Value::Bytes(b) => bufs.push(b.clone()),
+            other => {
+                return Err(vec![SourceDiagnostic::error(
+                    Span::detached(),
+                    format!(
+                        "plugin function arguments must be bytes, found {}",
+                        other.type_name(),
+                    ),
+                )]);
+            }
+        }
+    }
+
+    match p.call(bufs) {
+        Ok(bytes) => Ok(Value::Bytes(bytes)),
+        Err(e) => Err(vec![SourceDiagnostic::error(
+            Span::detached(),
+            e.message.to_string(),
+        )]),
     }
 }
 
@@ -382,5 +429,92 @@ pub(super) fn eval_func_call(
             call.callee().span(),
             format!("não é possível chamar {}", other.type_name()),
         )]),
+    }
+}
+
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use std::sync::atomic::{AtomicU64, AtomicUsize, Ordering};
+    use std::sync::Arc;
+
+    use ecow::EcoString;
+    use indexmap::IndexMap;
+    use rustc_hash::FxBuildHasher;
+
+    use crate::contracts::plugin_host::{PluginError, PluginHost, PluginModuleId};
+    use crate::entities::bytes::Bytes;
+
+    /// Host de teste (sem WASM) para o braço `call_plugin`. Conta chamadas e
+    /// devolve `b"OK"`. Nomes de export únicos por teste evitam colisão no
+    /// cache global do comemo (`PluginFunc::call` é memoizado).
+    struct StubHost {
+        next:  AtomicU64,
+        calls: AtomicUsize,
+    }
+    impl StubHost {
+        fn new() -> Self {
+            Self { next: AtomicU64::new(1), calls: AtomicUsize::new(0) }
+        }
+    }
+    impl PluginHost for StubHost {
+        fn load(&self, _bytes: &[u8]) -> Result<PluginModuleId, PluginError> {
+            Ok(PluginModuleId(self.next.fetch_add(1, Ordering::Relaxed)))
+        }
+        fn exports(&self, _module: PluginModuleId) -> Result<Vec<EcoString>, PluginError> {
+            Ok(Vec::new())
+        }
+        fn call(
+            &self,
+            _module: PluginModuleId,
+            _func_name: &str,
+            _args: &[Bytes],
+        ) -> Result<Bytes, PluginError> {
+            self.calls.fetch_add(1, Ordering::SeqCst);
+            Ok(Bytes::new(b"OK".to_vec()))
+        }
+    }
+
+    fn make_pf(name: &str) -> PluginFunc {
+        let host: Arc<StubHost> = Arc::new(StubHost::new());
+        let id = host.load(&[]).unwrap();
+        PluginFunc {
+            host:   host as Arc<dyn PluginHost>,
+            module: id,
+            name:   EcoString::from(name),
+        }
+    }
+
+    #[test]
+    fn call_plugin_devolve_bytes() {
+        let pf = make_pf("cp_devolve");
+        let args = Args::positional(vec![Value::Bytes(Bytes::new(b"x".to_vec()))]);
+        let v = call_plugin(&pf, &args).unwrap();
+        assert!(matches!(v, Value::Bytes(b) if b.as_slice() == b"OK"));
+    }
+
+    #[test]
+    fn call_plugin_arg_nao_bytes_erro() {
+        let pf = make_pf("cp_argbad");
+        let args = Args::positional(vec![Value::Int(1)]);
+        let e = call_plugin(&pf, &args).unwrap_err();
+        assert!(
+            e[0].message.contains("arguments must be bytes"),
+            "msg: {}", e[0].message,
+        );
+    }
+
+    #[test]
+    fn call_plugin_named_arg_erro() {
+        let pf = make_pf("cp_named");
+        let mut named = IndexMap::with_hasher(FxBuildHasher);
+        named.insert(EcoString::from("x"), Value::None);
+        let args = Args { items: vec![Value::Bytes(Bytes::default())], named };
+        let e = call_plugin(&pf, &args).unwrap_err();
+        assert!(
+            e[0].message.contains("argumento nomeado inesperado"),
+            "msg: {}", e[0].message,
+        );
     }
 }

@@ -68,6 +68,7 @@ pub mod tag;
 pub mod engine;
 pub mod label;
 pub mod func;
+pub mod plugin_func;
 pub mod lang;
 pub mod font_list;
 pub mod glyph_variants;

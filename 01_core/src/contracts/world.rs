@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/contracts/world.md
-//! @prompt-hash ab91e3f0
+//! @prompt-hash a6301e13
 //! @layer L1
 //! @updated 2026-07-10
 
@@ -15,6 +15,7 @@ use crate::entities::source::Source;
 use crate::entities::world_types::{
     Bytes, Datetime, FileResult, Font, Library,
 };
+use crate::contracts::plugin_host::PluginHost;
 
 /// Pares `chave → valor` passados à CLI via `--input chave=valor` e expostos à
 /// linguagem em `sys.inputs` (P694). `IndexMap` preserva a ordem de inserção
@@ -81,6 +82,16 @@ pub trait World: Send + Sync {
     /// poucos pares); L1 lê-o em `eval_with_full_error` para construir `sys`.
     fn inputs(&self) -> SysInputs {
         SysInputs::default()
+    }
+
+    /// **P699** — Host de plugins WASM, se este `World` suportar plugins.
+    /// `native_plugin` chama-o para obter o `Arc<dyn PluginHost>`; `None`
+    /// ⇒ erro "plugins não suportados neste World". Implementação por
+    /// omissão retorna `None` — MockWorlds e worlds sem runtime WASM não
+    /// precisam de implementar. `SystemWorld` (L3) sobrescreve e devolve
+    /// `Some(...)` quando tem um host instalado via `with_plugin_host`.
+    fn plugin_host(&self) -> Option<std::sync::Arc<dyn PluginHost>> {
+        None
     }
 
     /// Obter uma fonte pelo índice no `FontBook`.

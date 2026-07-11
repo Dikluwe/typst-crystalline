@@ -79,8 +79,15 @@ fn main() -> ExitCode {
 
     // P517 — fontes do sistema activas por defeito; `--font-path` adiciona
     // fontes de projecto às fontes do sistema.
+    // P699 — instala o host de plugins WASM (L3) para que `plugin(...)` na
+    // linguagem devolva um `Module` real (em vez de "plugins não suportados").
     let world = match SystemWorld::new(&root, &main_path) {
-        Ok(w) => w.with_fonts_and_system(&font_paths).with_inputs(inputs),
+        Ok(w) => w
+            .with_fonts_and_system(&font_paths)
+            .with_inputs(inputs)
+            .with_plugin_host(std::sync::Arc::new(
+                typst_infra::plugin_host::WasmiPluginHost::new(),
+            )),
         Err(e) => {
             eprintln!("error: {}", e);
             return ExitCode::from(2);
