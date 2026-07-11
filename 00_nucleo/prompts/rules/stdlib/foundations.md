@@ -1,5 +1,5 @@
 # Prompt L0 — `stdlib/foundations` — utilitários, cores, conversões e introspeção
-Hash do Código: 9c34c318
+Hash do Código: c0da9b11
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/rules/stdlib/foundations.rs`
@@ -312,14 +312,43 @@ float()           -> Err "float() requer 1 argumento"
 
 ## 4. Construtores de cor
 
-### `native_rgb` — `rgb(r, g, b)` / `rgb(r, g, b, a)`
+### `native_rgb` — `rgb(r, g, b)` / `rgb(r, g, b, a)` / `rgb(hex: str)` (P703)
 
-**Assinatura**: `rgb(r: int, g: int, b: int, a: int?) -> color`
+**Assinatura**: `rgb(r: int, g: int, b: int, a: int?) -> color` /
+`rgb(hex: str) -> color`
 
-**Argumentos**: componentes inteiros 0–255. Alpha opcional.
+**Argumentos (forma numérica)**: componentes inteiros 0–255. Alpha opcional.
 
-**Semântica**: Constrói `Value::Color(Color::rgb(...))` ou
-`Color::rgba(...)`.
+**Argumentos (forma hex, P703)**: 1 `Str` — cor em notação hexadecimal.
+Aceita 3, 4, 6 ou 8 dígitos hexadecimais, com `#` opcional à frente,
+maiúsculas ou minúsculas indiferentes (paridade vanilla verbatim,
+`visualize/color.rs:2072-2107` do vanilla, `impl FromStr for Rgb`):
+
+1. Remove `#` inicial se presente (`strip_prefix`).
+2. Qualquer carácter não-hexadecimal → `Err "color string contains
+   non-hexadecimal letters"` (mensagem verbatim, `color.rs:2081`).
+3. `len` tem de ser 3, 4, 6 ou 8 → senão `Err "color string has wrong
+   length"` (verbatim, `color.rs:2089`).
+4. `long = len∈{6,8}` (2 dígitos por componente); `short = len∈{3,4}` (1
+   dígito por componente, duplicado: `v + v*16`, i.e. `"a"` → `0xaa`).
+   `has_alpha = len∈{4,8}`; sem alpha, default `255` (opaco).
+5. Componentes na ordem R, G, B, (A) — `Color::rgba(r,g,b,a)`.
+
+**Semântica**: Constrói `Value::Color(Color::rgb(...))` /
+`Color::rgba(...)` — pela forma numérica ou pela forma hex, mesmo tipo de
+saída.
+
+**Scope-out (P703)**: formas do vanilla não implementadas, por não terem
+consumidor real medido (`cetz`, que só usa `.map(rgb)` sobre strings hex em
+`palette.typ`) — **decisão explícita, não omissão silenciosa**:
+- Componentes como `Ratio` (`rgb(25%, 13%, 65%)`) — só `Int` 0–255
+  continua suportado.
+- `rgb(color)` — converter uma `Color` já existente para RGB — não
+  implementado; `rgb(rgb(...))` ou `rgb(cmyk(...))` continuam a falhar
+  como antes de P703.
+- Nomes de cor como string (`rgb("red")`) — **não existe no vanilla
+  também** (medido: `error: color string contains non-hexadecimal
+  letters`), não é scope-out, é paridade correcta de "não suportado".
 
 **Testes canônicos**:
 ```
@@ -327,6 +356,14 @@ rgb(255, 0, 128)          -> Color::rgb(255,0,128)
 rgb(255, 0, 0, 200)       -> Color::rgba(255,0,0,200)
 rgb(300, 0, 0)            -> Err "componente fora de 0–255"
 rgb(0, 0)                 -> Err "rgb() requer 3 ou 4 Int"
+rgb("#FF0000")            -> Color::rgba(255,0,0,255)      (6 dígitos, com #)
+rgb("FF0000")             -> Color::rgba(255,0,0,255)      (6 dígitos, sem #)
+rgb("#FF0000FF")          -> Color::rgba(255,0,0,255)      (8 dígitos, alpha opaco)
+rgb("F00")                -> Color::rgba(255,0,0,255)      (3 dígitos, duplicado)
+rgb("FF00")               -> Color::rgba(255,255,0,0)      (4 dígitos, alpha=0)
+rgb("nothex")              -> Err "color string contains non-hexadecimal letters"
+rgb("red")                 -> Err "color string contains non-hexadecimal letters" (vanilla também erra)
+rgb("FFFFF")                -> Err "color string has wrong length" (5 dígitos)
 ```
 
 ---
