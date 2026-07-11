@@ -1,6 +1,6 @@
 # Paridade produção — P695 — `repr` de dict vazio `(:)` vs array vazio `()`
 
-**Commit deste passo:** `__P695_COMMIT__` (preenchido no 2º commit; ver §Proveniência).
+**Commit deste passo:** `d1d907215793e901d44c48852b6888f2d6efba93` (detached HEAD; ver §Proveniência).
 **Passo:** `00_nucleo/materialization/typst-passo-695.md`. **Tamanho:** XS.
 **ADRs:** ADR-0108 (medir antes de decidir), ADR-0107 (paridade com a linguagem).
 **Origem:** P694 classificou `repr((:)) == "()"` como diferença "mecânica de
