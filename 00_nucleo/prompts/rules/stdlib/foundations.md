@@ -1,5 +1,5 @@
 # Prompt L0 — `stdlib/foundations` — utilitários, cores, conversões e introspeção
-Hash do Código: c0da9b11
+Hash do Código: c0b5aded
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/rules/stdlib/foundations.rs`
@@ -183,16 +183,47 @@ len()                -> Err "len() requer 1 argumento"
 
 ## 3. Conversões de tipo
 
-### `native_range` — `range(n)` / `range(start, end)`
+### `native_range` — `range(n)` / `range(start, end)` (+ `inclusive:`, `step:`)
 
-**Assinatura**: `range(n: int) -> array` / `range(start: int, end: int) -> array`
+**Assinatura**: `range(n: int, inclusive: bool?, step: int?) -> array` /
+`range(start: int, end: int, inclusive: bool?, step: int?) -> array`
 
 **Argumentos**:
-- 1 arg: `n` — limite superior exclusivo; gera `[0, 1, ..., n-1]`.
-- 2 args: `start`, `end` — gera `[start, start+1, ..., end-1]`.
+- 1 arg: `n` — se `step` omitido, limite superior exclusivo a partir de `0`
+  (`[0, 1, ..., n-1]`); com `step`, ver algoritmo abaixo (`start` implícito
+  `0`, `end = n`).
+- 2 args: `start`, `end`.
+- `inclusive` (named, `Bool`, default `false`, **já implementado desde
+  P504**) — se `true`, `end` pode ser incluído no resultado.
+- `step` (named, `Int` não-zero, default `1`, **P704**) — distância entre
+  números gerados. Aceita negativo (sequência descendente).
 
-**Semântica**: Devolve um `Value::Array` de `Value::Int`. `start > end` →
-array vazio. `n < 0` → erro.
+**Semântica (algoritmo, paridade vanilla verbatim —
+`foundations/array.rs:384-430` do vanilla, `Array::range`)**:
+
+1. `step == 0` → `Err "number must not be zero"` (mensagem verbatim; é a
+   mensagem genérica do vanilla para cast de `NonZeroI64`, reaproveitada
+   aqui por ser exactamente o mesmo caso).
+2. `step_dir` = direcção do passo (positivo → ascendente, negativo →
+   descendente).
+3. Condição de paragem (`in_bounds`):
+   - Exclusive (`inclusive: false`, default): continua enquanto
+     `x.cmp(end) == step_dir` (ascendente: `x < end`; descendente: `x > end`).
+   - Inclusive (`inclusive: true`): continua enquanto
+     `x.cmp(end) != step_dir.reverse()` (ascendente: `x <= end`; descendente:
+     `x >= end`).
+4. Direcção incompatível com os limites (ex.: `step` positivo com
+   `start > end` em modo exclusive, ou o inverso) → **array vazio, não
+   erro** — a mesma condição de paragem acima já produz isto naturalmente
+   (a condição falha logo na 1ª iteração).
+
+**Correcção P704 (não é scope creep — é a mesma implementação)**: o
+cristalino tinha um `if n < 0 { Err(...) }` no braço de 1 argumento, que
+**não existe no vanilla** — `range(-5)` no vanilla devolve `()` (array
+vazio), não erro (medido directamente). Ao generalizar para o algoritmo
+`step`-aware acima (que trata `range(n)` como `range(0, n)`), esta
+divergência desaparece sozinha — não é preciso código especial para a
+corrigir, só não reintroduzir o `if n < 0` no caminho novo.
 
 **Testes canônicos**:
 ```
@@ -201,8 +232,19 @@ range(0)        -> ()
 range(2, 5)     -> (2, 3, 4)
 range(3, 3)     -> ()
 range(5, 2)     -> ()
-range(-1)       -> Err "range() requer argumento não-negativo"
+range(-5)       -> ()                          (P704 — corrigido; antes: Err)
 range(1.5)      -> Err "range() requer 1 ou 2 Int"
+range(0, inclusive: true)          -> (0,)
+range(7, 10, inclusive: true)      -> (7, 8, 9, 10)
+range(90, 40, step: -12)           -> (90, 78, 66, 54, 42)
+range(0, 10, step: 2)              -> (0, 2, 4, 6, 8)
+range(0, 10, step: 3)              -> (0, 3, 6, 9)
+range(10, 0, step: -1)             -> (10, 9, 8, 7, 6, 5, 4, 3, 2, 1)
+range(0, 10, step: -1)             -> ()                     (direcção incompatível)
+range(20, step: 4)                 -> (0, 4, 8, 12, 16)
+range(21, step: 4)                 -> (0, 4, 8, 12, 16, 20)
+range(-6, step: -2, inclusive: true) -> (0, -2, -4, -6)
+range(0, 10, step: 0)              -> Err "number must not be zero"
 ```
 
 ---

@@ -3725,13 +3725,19 @@ mod tests {
             .unwrap(),
             Value::Array(vec![])
         );
-        assert!(native_range(
-            &mut ctx,
-            &p(vec![Value::Int(-1)]),
-            &null_world(),
-            test_file_id()
-        )
-        .is_err());
+        // P704 — corrigido: medido directamente contra o vanilla,
+        // `range(-1)`/`range(-5)` devolvem array vazio, não Err. O `if n < 0`
+        // anterior era uma divergência do cristalino, não paridade vanilla.
+        assert_eq!(
+            native_range(
+                &mut ctx,
+                &p(vec![Value::Int(-1)]),
+                &null_world(),
+                test_file_id()
+            )
+            .unwrap(),
+            Value::Array(vec![])
+        );
     }
 
     // ── Passo 64 — native_figure (DEBT-16) ──────────────────────────────────

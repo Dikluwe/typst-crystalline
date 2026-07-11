@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/rules/stdlib/foundations.md
-//! @prompt-hash d1fb9bfd
+//! @prompt-hash 778e04e0
 //! @layer L1
 //! @updated 2026-06-24
 //!
@@ -290,9 +290,10 @@ pub fn native_hsv(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contr
 }
 
 /// `range(n)` → Array de 0..n; `range(start, end)` → Array de start..end.
-/// P504: `range(start, end, inclusive: true)` inclui o `end`.
+/// P504: `inclusive: true` inclui o `end`. P704: `step: n` (não-zero,
+/// default 1, aceita negativo) — algoritmo verbatim do vanilla
+/// (`foundations/array.rs:384-430`, `Array::range`).
 pub fn native_range(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contracts::world::World, _current_file: FileId) -> SourceResult<Value> {
-    // P504 — arg nomeado `inclusive` (apenas este é aceite).
     let inclusive = match args.named.get("inclusive") {
         Some(Value::Bool(b)) => *b,
         Some(other) => {
@@ -303,33 +304,42 @@ pub fn native_range(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::con
         }
         None => false,
     };
-    if args.named.len() > 1 || (args.named.len() == 1 && !args.named.contains_key("inclusive")) {
-        let bad = args.named.keys().find(|k| k.as_str() != "inclusive")
-            .map(|k| k.as_str()).unwrap_or("?");
+    let step: i64 = match args.named.get("step") {
+        Some(Value::Int(0)) => return err("number must not be zero"),
+        Some(Value::Int(s)) => *s,
+        Some(other) => {
+            return Err(vec![SourceDiagnostic::error(
+                Span::detached(),
+                format!("range() argumento 'step' requer int, recebeu {}", other.type_name()),
+            )]);
+        }
+        None => 1,
+    };
+    if let Some(bad) = args.named.keys().find(|k| k.as_str() != "inclusive" && k.as_str() != "step") {
         return Err(vec![SourceDiagnostic::error(
             Span::detached(),
             format!("range() argumento nomeado desconhecido: '{bad}'"),
         )]);
     }
 
-    match args.items.as_slice() {
-        [Value::Int(n)] => {
-            if *n < 0 {
-                return err("range() requer argumento não-negativo");
-            }
-            Ok(Value::Array((0..*n).map(Value::Int).collect()))
+    fn stepped_range(start: i64, end: i64, step: i64, inclusive: bool) -> Vec<Value> {
+        let step_dir = 0i64.cmp(&step);
+        let in_bounds = |x: i64| {
+            if inclusive { x.cmp(&end) != step_dir.reverse() } else { x.cmp(&end) == step_dir }
+        };
+        let mut out = Vec::new();
+        let mut x = start;
+        while in_bounds(x) {
+            out.push(Value::Int(x));
+            x += step;
         }
+        out
+    }
+
+    match args.items.as_slice() {
+        [Value::Int(n)] => Ok(Value::Array(stepped_range(0, *n, step, inclusive))),
         [Value::Int(start), Value::Int(end)] => {
-            let items: Vec<Value> = if start <= end {
-                if inclusive {
-                    (*start..=*end).map(Value::Int).collect()
-                } else {
-                    (*start..*end).map(Value::Int).collect()
-                }
-            } else {
-                vec![]
-            };
-            Ok(Value::Array(items))
+            Ok(Value::Array(stepped_range(*start, *end, step, inclusive)))
         }
         _ => err(format!("range() requer 1 ou 2 Int, recebeu {} args", args.items.len())),
     }
@@ -1377,5 +1387,114 @@ mod tests_p703_rgb_hex {
             FileId::from_raw(std::num::NonZeroU16::new(1).unwrap()),
         ).unwrap();
         assert_eq!(v, Value::Color(Color::rgb(255, 0, 128)));
+    }
+}
+
+#[cfg(test)]
+mod tests_p704_range_step {
+    use super::*;
+
+    fn ctx() -> EvalContext { EvalContext::new() }
+    fn tfid() -> FileId { FileId::from_raw(std::num::NonZeroU16::new(1).unwrap()) }
+
+    #[derive(Default)]
+    struct NullWorld {
+        library: crate::entities::world_types::Library,
+        book: crate::entities::font_book::FontBook,
+    }
+    impl crate::contracts::world::World for NullWorld {
+        fn library(&self) -> &crate::entities::world_types::Library { &self.library }
+        fn book(&self) -> &crate::entities::font_book::FontBook { &self.book }
+        fn main(&self) -> FileId { tfid() }
+        fn source(&self, _: FileId) -> crate::entities::world_types::FileResult<crate::entities::source::Source> {
+            Err(crate::entities::world_types::FileError::NotFound)
+        }
+        fn file(&self, _: FileId) -> crate::entities::world_types::FileResult<crate::entities::world_types::Bytes> {
+            Err(crate::entities::world_types::FileError::NotFound)
+        }
+        fn font(&self, _: usize) -> Option<crate::entities::world_types::Font> { None }
+        fn today(&self, _: Option<i64>) -> Option<crate::entities::world_types::Datetime> { None }
+        fn read_bytes(&self, _current_file: FileId, path: &str) -> Result<std::sync::Arc<Vec<u8>>, String> {
+            Err(format!("ficheiro não encontrado: {}", path))
+        }
+    }
+
+    fn r(items: Vec<Value>, named: &[(&str, Value)]) -> Value {
+        let mut args = Args::positional(items);
+        for (k, v) in named {
+            args.named.insert((*k).into(), v.clone());
+        }
+        native_range(&mut ctx(), &args, &NullWorld::default(), tfid()).unwrap()
+    }
+
+    fn arr(items: &[i64]) -> Value {
+        Value::Array(items.iter().map(|i| Value::Int(*i)).collect())
+    }
+
+    #[test]
+    fn sem_step_sem_regressao() {
+        assert_eq!(r(vec![Value::Int(3)], &[]), arr(&[0, 1, 2]));
+        assert_eq!(r(vec![Value::Int(2), Value::Int(5)], &[]), arr(&[2, 3, 4]));
+        assert_eq!(r(vec![Value::Int(5), Value::Int(2)], &[]), arr(&[]));
+    }
+
+    #[test]
+    fn negativo_devolve_vazio_nao_erro() {
+        // P704 — corrige divergência: o vanilla devolve `()`, não Err.
+        assert_eq!(r(vec![Value::Int(-5)], &[]), arr(&[]));
+    }
+
+    #[test]
+    fn step_positivo_e_negativo() {
+        assert_eq!(
+            r(vec![Value::Int(90), Value::Int(40)], &[("step", Value::Int(-12))]),
+            arr(&[90, 78, 66, 54, 42])
+        );
+        assert_eq!(
+            r(vec![Value::Int(0), Value::Int(10)], &[("step", Value::Int(2))]),
+            arr(&[0, 2, 4, 6, 8])
+        );
+        assert_eq!(
+            r(vec![Value::Int(10), Value::Int(0)], &[("step", Value::Int(-1))]),
+            arr(&[10, 9, 8, 7, 6, 5, 4, 3, 2, 1])
+        );
+    }
+
+    #[test]
+    fn step_com_1_argumento() {
+        assert_eq!(r(vec![Value::Int(20)], &[("step", Value::Int(4))]), arr(&[0, 4, 8, 12, 16]));
+        assert_eq!(r(vec![Value::Int(21)], &[("step", Value::Int(4))]), arr(&[0, 4, 8, 12, 16, 20]));
+    }
+
+    #[test]
+    fn direcao_incompativel_devolve_vazio() {
+        assert_eq!(
+            r(vec![Value::Int(0), Value::Int(10)], &[("step", Value::Int(-1))]),
+            arr(&[])
+        );
+    }
+
+    #[test]
+    fn step_com_inclusive() {
+        assert_eq!(
+            r(vec![Value::Int(-6)], &[("step", Value::Int(-2)), ("inclusive", Value::Bool(true))]),
+            arr(&[0, -2, -4, -6])
+        );
+        assert_eq!(
+            r(vec![Value::Int(0)], &[("inclusive", Value::Bool(true))]),
+            arr(&[0])
+        );
+        assert_eq!(
+            r(vec![Value::Int(7), Value::Int(10)], &[("inclusive", Value::Bool(true))]),
+            arr(&[7, 8, 9, 10])
+        );
+    }
+
+    #[test]
+    fn step_zero_erro_verbatim() {
+        let mut args = Args::positional(vec![Value::Int(0), Value::Int(10)]);
+        args.named.insert("step".into(), Value::Int(0));
+        let e = native_range(&mut ctx(), &args, &NullWorld::default(), tfid()).unwrap_err();
+        assert!(e[0].message.contains("number must not be zero"), "msg: {}", e[0].message);
     }
 }
