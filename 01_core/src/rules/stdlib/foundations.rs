@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/rules/stdlib/foundations.md
-//! @prompt-hash 1771dfcd
+//! @prompt-hash 32063f1f
 //! @layer L1
 //! @updated 2026-06-24
 //!
@@ -347,6 +347,10 @@ pub fn native_str(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contr
                 Value::Length(l)   => format_length(l),
                 Value::Ratio(r)    => format!("{}%", r.to_percent()),
                 Value::Angle(a)    => format!("{}deg", a.to_deg()),
+                Value::Bytes(b)    => match std::str::from_utf8(b.as_slice()) {
+                    Ok(s)  => s.to_string(),
+                    Err(_) => return err("bytes are not valid UTF-8"),
+                },
                 Value::Color(_)    => return err("str() não suporta color"),
                 other => return err(format!("str() não suporta {}", other.type_name())),
             };
@@ -1188,4 +1192,56 @@ pub fn native_locate(
         Some(loc) => Value::Location(loc),
         None      => Value::None,
     })
+}
+
+#[cfg(test)]
+mod tests_p699b_str_bytes {
+    use super::*;
+    use crate::entities::bytes::Bytes;
+    use crate::entities::font_book::FontBook;
+    use crate::entities::world_types::{Datetime, FileError, FileResult, Font, Library};
+    use crate::entities::source::Source;
+    use std::num::NonZeroU16;
+
+    fn ctx() -> EvalContext { EvalContext::new() }
+
+    fn test_file_id() -> FileId { FileId::from_raw(NonZeroU16::new(1).unwrap()) }
+
+    #[derive(Default)]
+    struct NullWorld { library: Library, book: FontBook }
+
+    impl crate::contracts::world::World for NullWorld {
+        fn library(&self) -> &Library { &self.library }
+        fn book(&self) -> &FontBook { &self.book }
+        fn main(&self) -> FileId { test_file_id() }
+        fn source(&self, _: FileId) -> FileResult<Source> { Err(FileError::NotFound) }
+        fn file(&self, _: FileId) -> FileResult<crate::entities::world_types::Bytes> { Err(FileError::NotFound) }
+        fn font(&self, _: usize) -> Option<Font> { None }
+        fn today(&self, _: Option<i64>) -> Option<Datetime> { None }
+        fn read_bytes(&self, _current_file: FileId, path: &str) -> Result<std::sync::Arc<Vec<u8>>, String> {
+            Err(format!("ficheiro não encontrado: {}", path))
+        }
+    }
+
+    fn null_world() -> NullWorld { NullWorld::default() }
+
+    /// P699b — `str()` sobre `Value::Bytes` válido UTF-8 decodifica (paridade
+    /// vanilla `foundations/str.rs:871`). Reproduz o gap encontrado ao
+    /// compilar `str(plugin("hello.wasm").hello())` via documento real.
+    #[test]
+    fn str_de_bytes_valido_utf8_decodifica() {
+        let args = Args::positional(vec![Value::Bytes(Bytes::new(b"hello".to_vec()))]);
+        let v = native_str(&mut ctx(), &args, &null_world(), test_file_id()).unwrap();
+        assert_eq!(v, Value::Str("hello".into()));
+    }
+
+    #[test]
+    fn str_de_bytes_invalido_utf8_erro_verbatim() {
+        let args = Args::positional(vec![Value::Bytes(Bytes::new(vec![0xFF, 0xFE]))]);
+        let e = native_str(&mut ctx(), &args, &null_world(), test_file_id()).unwrap_err();
+        assert!(
+            e[0].message.contains("bytes are not valid UTF-8"),
+            "msg: {}", e[0].message,
+        );
+    }
 }

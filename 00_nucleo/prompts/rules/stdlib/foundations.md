@@ -1,5 +1,5 @@
 # Prompt L0 — `stdlib/foundations` — utilitários, cores, conversões e introspeção
-Hash do Código: 9f4165fc
+Hash do Código: 9c34c318
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/rules/stdlib/foundations.rs`
@@ -226,10 +226,18 @@ range(1.5)      -> Err "range() requer 1 ou 2 Int"
 - `Length` → `"12pt"`, `"1.5em"`, `"6pt + 1em"`
 - `Ratio` → `"50%"`
 - `Angle` → `"45deg"`
+- `Bytes` → decodificados como UTF-8; erro se a sequência não for UTF-8
+  válida. Paridade vanilla verbatim (`foundations/str.rs:871` do vanilla:
+  `v: Bytes => Self::Str(v.to_str().map_err(|_| "bytes are not valid
+  UTF-8")?)`). Descoberto por P699b: `str(plugin(...).export(...))` — o
+  resultado de uma chamada de plugin é sempre `Bytes` — falhava por este
+  braço estar ausente, apesar do despacho `FuncRepr::Plugin` (P699) estar
+  correto.
 - `Color` → erro (não suportado)
 
 **Scope-out**: Conversão de tipos complexos (`Func`, `Module`, `Gradient`,
-`Content`, etc.).
+`Content`, etc.). `Bytes` não é scope-out — é tipo primitivo suportado (ver
+acima).
 
 **Testes canônicos**:
 ```
@@ -248,6 +256,10 @@ str(-255, base: 16) -> "-ff"
 str(255, base: 37) -> Err "base deve estar entre 2 e 36"
 str(3.14, base: 16) -> Err "base só se aplica a Int"
 str(red)          -> Err "str() não suporta color"
+str(<bytes válidos UTF-8, ex.: saída de plugin("hello.wasm").hello()>)
+                  -> "hello"
+str(<bytes inválidos UTF-8, ex.: (0xFF,)>)
+                  -> Err "bytes are not valid UTF-8"
 ```
 
 ---
