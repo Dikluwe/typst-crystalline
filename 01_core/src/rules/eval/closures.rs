@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/rules/eval.md
-//! @prompt-hash 4b2ec325
+//! @prompt-hash c8253807
 //! @layer L1
 //! @updated 2026-07-09
 //!
@@ -192,17 +192,25 @@ pub(super) fn apply_closure(
         call_scopes.define(name.clone(), Value::Func(func.clone()));
     }
 
-    // Bind parâmetros: named args têm prioridade sobre posicionais;
-    // se nenhum, usar default; se não há default, usar None.
+    // Bind parâmetros: named args têm prioridade sobre posicionais.
+    // **P708** — `param.default.is_some()` significa que o parâmetro foi
+    // declarado como `nome: default` (`Param::Named` no parser) — é
+    // keyword-only no vanilla, nunca preenchível por posição (medido:
+    // `#let f(close: false) = close; f(true)` → `error: unexpected
+    // argument`, não `close = true`). Só parâmetros posicionais
+    // (`default.is_none()`, de `Param::Pos`) consomem `args.items`.
+    // Invariante documentada em `entities/func.md` §"Invariante P708".
     let mut pos_idx = 0;
     for param in closure.params.iter() {
         let val = if let Some(v) = args.named.get(param.name.as_str()) {
             v.clone()
-        } else if let Some(v) = args.items.get(pos_idx) {
-            pos_idx += 1;
-            v.clone()
+        } else if param.default.is_none() {
+            match args.items.get(pos_idx) {
+                Some(v) => { pos_idx += 1; v.clone() }
+                None => Value::None,
+            }
         } else {
-            param.default.clone().unwrap_or(Value::None)
+            param.default.clone().unwrap()
         };
         call_scopes.define(param.name.as_str(), val);
     }
@@ -217,6 +225,14 @@ pub(super) fn apply_closure(
                 named: args.named,
             }),
         );
+    } else if pos_idx < args.items.len() {
+        // **P708** — sem sink para absorver o excedente, um argumento
+        // posicional sem parâmetro correspondente é erro (paridade vanilla
+        // verbatim: `"unexpected argument"`), não descarte silencioso.
+        return Err(vec![SourceDiagnostic::error(
+            Span::detached(),
+            "unexpected argument".to_string(),
+        )]);
     }
 
     // Frame de chamada: novo segmento `Route::extend(route)` com `len: 1`.

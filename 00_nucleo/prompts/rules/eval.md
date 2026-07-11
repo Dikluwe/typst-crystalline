@@ -1,5 +1,5 @@
 # Prompt L0 — rules/eval
-Hash do Código: 8f2f6450
+Hash do Código: b9502de8
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/rules/eval/mod.rs`
@@ -753,4 +753,79 @@ Critérios de verificação:
 - `{let f(..args) = args.named(); f(1, 2, x: 3)}` → `(x: 3)`.
 - `.positional`/`.named` (campo, sem parênteses, P504) sem regressão.
 - `cargo test --workspace` continua a passar.
+- `crystalline-lint .` limpo.
+
+## §P708 — Binding de parâmetros keyword-only não consome posicionais
+
+Isolado por P707 via `cetz` (`draw/shapes.typ:582`, `line(..pts-style,
+close: false, name: none)`): `apply_closure` tratava **todo** `ClosureParam`
+da mesma forma — se não vinha por nome, tentava a próxima posição em
+`args.items`. Isto está errado para parâmetros construídos a partir de
+`Param::Named` (`nome: default` na assinatura) — esses são **keyword-only**
+no vanilla, nunca preenchíveis por posição (`entities/func.md` §"Invariante
+P708" documenta a distinção via `default.is_some()`, já garantida na
+construção em `eval_closure_expr`).
+
+### Medido contra o vanilla (`ADR-0114` — sonda antes da correcção)
+
+`typst-syntax/src/ast.rs:2078-2085` confirma a distinção `Param::Pos` /
+`Param::Named` / `Param::Spread` já existe no parser (cristalino já a
+espelha em `entities/ast/expr.rs`, idêntico). Casos medidos:
+
+```
+let f(a, b, close: false) = (a, b, close)
+f(1, 2)              → (1, 2, false)             — named por omissão
+f(1, 2, close: true)  → (1, 2, true)              — named explícito
+f(1, 2, 3)             → Err "unexpected argument" — 3º posicional sem
+                                                      posição correspondente
+                                                      (close é keyword-only)
+
+let f(..args, close: false) = args.pos().len()
+f(1, 2, 3)             → 3   — os 3 posicionais vão todos para o sink;
+                                close continua a aceitar só por nome
+```
+
+### Bug confirmado (antes da correcção) — dois sintomas do mesmo erro
+
+1. **Posicionais perdidos**: `f(..args, close: false)` chamado com
+   `f(1,2,3)` sem passar `close:` → `args.pos().len()` dava `2`, não `3`
+   (o parâmetro `close`, não passado, "roubava" o 3º posicional).
+2. **Aceitação silenciosa, tipo errado**: `f(a, b, close: false)` chamado
+   com `f(1,2,3)` (sem sink) → devolvia `(1, 2, 3)` com `close = 3` (um
+   `Int`, nunca deveria existir), em vez de `Err "unexpected argument"`.
+
+### Correcção
+
+`apply_closure` (`rules/eval/closures.rs`): o loop de binding só tenta
+`args.items.get(pos_idx)` quando `param.default.is_none()` (parâmetro
+posicional, per a invariante de `entities/func.md`). Para
+`param.default.is_some()` (keyword-only), só `args.named.get(...)` é
+consultado; se ausente, usa o default — **nunca** avança `pos_idx`.
+
+Após o loop, se **não** há `sink_name` (P504) e sobram itens em
+`args.items[pos_idx..]`, é um **erro** — `"unexpected argument"` (mensagem
+verbatim do vanilla) — em vez de descarte silencioso. Com sink, o
+comportamento é inalterado (P504): os itens remanescentes vão para o
+`Value::Args` do sink.
+
+**Scope-out explícito** (achado relacionado, não corrigido aqui): argumento
+**nomeado** que não corresponde a nenhum parâmetro declarado e não há sink
+— medido, vanilla também erra (`"unexpected argument: z"`), cristalino
+continua a aceitar silenciosamente. É a mesma categoria de gap
+("validação de forma de `Args` ausente"), mas um código diferente
+(validação de `args.named`, não de `args.items`) — registado para passo
+futuro, não incluído em P708 para não alargar o âmbito já grande deste
+passo.
+
+Critérios de verificação:
+
+- `f(a,b,close:false)` com `f(1,2)`/`f(1,2,close:true)`/`f(1,2,3)` →
+  `(1,2,false)` / `(1,2,true)` / `Err "unexpected argument"`.
+- `f(..args,close:false)` com `f(1,2,3)` → `args.pos().len() == 3`.
+- Closures só-positionais e só-com-sink (sem parâmetros keyword-only)
+  sem regressão — o `if param.default.is_none()` preserva o caminho
+  antigo exactamente para esses casos.
+- `cargo test --workspace` continua a passar — **incluindo uma varredura
+  alargada do corpus de testes existente** (ADR-0114: bug de mecanismo
+  central, alcance potencialmente amplo, não só `cetz`).
 - `crystalline-lint .` limpo.

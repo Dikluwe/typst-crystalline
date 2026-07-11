@@ -44,7 +44,30 @@ pub struct ClosureParam {
     pub name:    String,
     pub default: Option<Value>,
 }
+```
 
+**Invariante (P708 — antes implícita, agora documentada)**: `default` não é
+só "valor por omissão" — é o **discriminante entre parâmetro posicional e
+parâmetro nomeado-com-default (keyword-only)**, herdado da distinção já
+existente no parser (`entities/ast/expr.rs::Param::Pos` vs `Param::Named`,
+espelhando o vanilla, `typst-syntax/src/ast.rs:2078-2085`):
+
+- `default: None` ⟺ construído a partir de `Param::Pos` — parâmetro
+  posicional, nunca tem valor por omissão no vanilla.
+- `default: Some(v)` ⟺ construído a partir de `Param::Named` — parâmetro
+  **keyword-only**: só pode ser preenchido por nome; nunca por posição
+  (medido contra o vanilla: `#let f(close: false) = close; f(true)` →
+  `error: unexpected argument`, não `close = true`).
+
+`eval_closure_expr` (`rules/eval/closures.rs`) só tem dois pontos de
+construção de `ClosureParam` (`Param::Pos` → `default: None`; `Param::Named`
+→ `default: Some(...)`) — a invariante é garantida na origem, não precisa
+de um campo extra (`kind`) para ser fiável. **P708 corrigiu**
+`apply_closure`, que até então ignorava esta invariante e deixava
+parâmetros keyword-only consumirem posicionais quando não vinham por nome
+(ver `rules/eval.md` §P708 para o algoritmo de binding corrigido).
+
+```rust
 /// Função nativa implementada em Rust.
 pub struct NativeFunc {
     pub name: &'static str,

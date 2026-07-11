@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/rules/eval.md
-//! @prompt-hash 4b2ec325
+//! @prompt-hash c8253807
 //! @layer L1
 //! @updated 2026-06-17
 //!
@@ -7515,6 +7515,65 @@ mod tests {
                 Value::Dict(expected_named),
             ]))
         );
+    }
+
+    // ── P708 — parâmetros keyword-only não consomem posicionais ─────────────
+
+    #[test]
+    fn p708_keyword_only_omitido_usa_default() {
+        let world = MockWorld::new(
+            "#let f(a, b, close: false) = (a, b, close)\n#let x = f(1, 2)"
+        );
+        assert_eq!(
+            eval_let(&world, "x"),
+            Some(Value::Array(vec![Value::Int(1), Value::Int(2), Value::Bool(false)]))
+        );
+    }
+
+    #[test]
+    fn p708_keyword_only_explicito_sobrepoe_default() {
+        let world = MockWorld::new(
+            "#let f(a, b, close: false) = (a, b, close)\n#let x = f(1, 2, close: true)"
+        );
+        assert_eq!(
+            eval_let(&world, "x"),
+            Some(Value::Array(vec![Value::Int(1), Value::Int(2), Value::Bool(true)]))
+        );
+    }
+
+    #[test]
+    fn p708_extra_posicional_sem_sink_e_erro() {
+        // P708 — corrigido: antes aceitava silenciosamente e fazia
+        // close = 3 (Int); vanilla erra "unexpected argument" (medido).
+        let world = MockWorld::new(
+            "#let f(a, b, close: false) = (a, b, close)\n#let x = f(1, 2, 3)"
+        );
+        let src = World::source(&world, World::main(&world)).unwrap();
+        let err = eval_for_test(&world, &src).unwrap_err();
+        let msg = err.first().map(|d| d.message.to_string()).unwrap_or_default();
+        assert!(msg.contains("unexpected argument"), "msg: {msg}");
+    }
+
+    #[test]
+    fn p708_sink_absorve_extra_posicional_apesar_de_keyword_only() {
+        // P708 — corrigido: antes args.pos().len() dava 2 (perdia o 3º,
+        // "roubado" por close); agora dá 3, igual ao vanilla.
+        let world = MockWorld::new(
+            "#let f(..args, close: false) = args.pos().len()\n#let x = f(1, 2, 3)"
+        );
+        assert_eq!(eval_let(&world, "x"), Some(Value::Int(3)));
+    }
+
+    #[test]
+    fn p708_closure_so_positional_sem_regressao() {
+        let world = MockWorld::new("#let f(a, b) = a + b\n#let x = f(1, 2)");
+        assert_eq!(eval_let(&world, "x"), Some(Value::Int(3)));
+    }
+
+    #[test]
+    fn p708_closure_so_sink_sem_regressao() {
+        let world = MockWorld::new("#let f(..args) = args.pos().len()\n#let x = f(1, 2, 3)");
+        assert_eq!(eval_let(&world, "x"), Some(Value::Int(3)));
     }
 
     #[test]
