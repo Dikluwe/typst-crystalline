@@ -2,7 +2,7 @@
 
 **Data:** 2026-07-11
 **Passo:** `00_nucleo/materialization/typst-passo-699.md`
-**Hash do commit (implementação):** `preencher-no-commit-2`
+**Hash do commit (implementação):** `8baaadfa4` (detached HEAD; ver §1)
 **Estado:** FECHADO — implementação completa, lint 0, workspace verde.
 
 ---
