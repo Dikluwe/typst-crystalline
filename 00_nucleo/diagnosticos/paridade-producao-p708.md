@@ -2,7 +2,7 @@
 
 **Data:** 2026-07-11
 **Passo:** `00_nucleo/materialization/typst-passo-708.md`
-**Hash do commit (implementação):** a preencher no commit seguinte.
+**Hash do commit (implementação):** `0d4506186`.
 **HEAD base:** `3065cf568` (fim de P707, detached HEAD).
 **ADR-0114 EM VIGOR** — sonda antes da spec, cuidado redobrado (bug de mecanismo central).
 **Estado:** ÂMBITO DE P708 FECHADO — bug corrigido, varredura ampla do corpus existente sem regressões. `cetz` avança **muito mais fundo** (tempo de compilação salta de ~30s para ~51.8s), novo bloqueio isolado: módulo `std` (acesso à stdlib não-sombreada) inexistente.
