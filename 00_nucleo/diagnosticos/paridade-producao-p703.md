@@ -2,7 +2,7 @@
 
 **Data:** 2026-07-11
 **Passo:** `00_nucleo/materialization/typst-passo-703.md`
-**Hash do commit (implementação):** a preencher no commit seguinte.
+**Hash do commit (implementação):** `6b5bb3f5c`.
 **HEAD base:** `d65d7eae0` (fim de P702, detached HEAD).
 **Estado:** ÂMBITO DE P703 FECHADO — `rgb(hex)` implementado, testado, paridade vanilla confirmada (incluindo casos de borda: 3/4/6/8 dígitos, com/sem `#`, erros de conteúdo e comprimento). `cetz` progride ainda mais fundo (mesmo tempo de compilação ~7s), mas bloqueia num gap novo e não relacionado (`range()` não aceita `step:`).
 
