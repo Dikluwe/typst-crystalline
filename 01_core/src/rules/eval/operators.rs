@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/rules/eval/ops.md
-//! @prompt-hash 467f9022
+//! @prompt-hash 146bda0e
 //! @layer L1
 //! @updated 2026-06-25
 //!
@@ -275,11 +275,41 @@ pub(crate) fn eval_binary_op(op: BinOp, lhs: Value, rhs: Value) -> Result<Value,
             }
         }
 
+        // ── P706 — `in` / `not in` ────────────────────────────────────────────
+        // `Str in Dict` testa se a chave existe; `Str in Str` testa substring;
+        // `any in Array` testa igualdade de elemento (mesma coerção Int/Float
+        // do `==`, `value_eq` abaixo — cobre arrays aninhados e tipos mistos
+        // sem código extra, via `PartialEq` recursivo de `Value`).
+        (BinOp::In, Value::Str(s), Value::Dict(d)) =>
+            Ok(Value::Bool(d.contains_key(s.as_str()))),
+        (BinOp::NotIn, Value::Str(s), Value::Dict(d)) =>
+            Ok(Value::Bool(!d.contains_key(s.as_str()))),
+        (BinOp::In, Value::Str(needle), Value::Str(haystack)) =>
+            Ok(Value::Bool(haystack.as_str().contains(needle.as_str()))),
+        (BinOp::NotIn, Value::Str(needle), Value::Str(haystack)) =>
+            Ok(Value::Bool(!haystack.as_str().contains(needle.as_str()))),
+        (BinOp::In, needle, Value::Array(arr)) =>
+            Ok(Value::Bool(arr.iter().any(|item| value_eq(&needle, item)))),
+        (BinOp::NotIn, needle, Value::Array(arr)) =>
+            Ok(Value::Bool(!arr.iter().any(|item| value_eq(&needle, item)))),
+
         // ── Fronteira — tipos não migrados ou combinações inválidas ──────────
         (op, lhs, rhs) => Err(format!(
             "cannot apply {:?} to {} and {}",
             op, lhs.type_name(), rhs.type_name()
         )),
+    }
+}
+
+/// **P706** — igualdade de valor usada por `in`/`not in` sobre `Array`.
+/// Mesma coerção Int/Float do `BinOp::Eq` (medido: `1 in (1.0, 2.0)` → `true`
+/// no vanilla); tudo o resto delega ao `PartialEq` derivado de `Value`
+/// (recursivo — cobre array-de-arrays sem código extra).
+fn value_eq(a: &Value, b: &Value) -> bool {
+    match (a, b) {
+        (Value::Int(a), Value::Float(b)) => (*a as f64) == *b,
+        (Value::Float(a), Value::Int(b)) => *a == (*b as f64),
+        (a, b) => a == b,
     }
 }
 

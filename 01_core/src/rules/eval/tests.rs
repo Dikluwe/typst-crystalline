@@ -1859,6 +1859,93 @@ mod tests {
         assert!(eval_for_test(&world, &src).is_err());
     }
 
+    // ── P706 — `in` / `not in` ────────────────────────────────────────────────
+
+    fn dict_of(pairs: Vec<(&str, Value)>) -> Value {
+        let mut d = IndexMap::with_hasher(FxBuildHasher::default());
+        for (k, v) in pairs {
+            d.insert(EcoString::from(k), v);
+        }
+        Value::Dict(d)
+    }
+
+    #[test]
+    fn paridade_in_str_dict_existe() {
+        let d = dict_of(vec![("a", Value::Int(1)), ("b", Value::Int(2))]);
+        assert_eq!(eval_binary_op(BinOp::In, Value::Str("a".into()), d), Ok(Value::Bool(true)));
+    }
+
+    #[test]
+    fn paridade_in_str_dict_nao_existe() {
+        let d = dict_of(vec![("a", Value::Int(1)), ("b", Value::Int(2))]);
+        assert_eq!(eval_binary_op(BinOp::In, Value::Str("z".into()), d), Ok(Value::Bool(false)));
+    }
+
+    #[test]
+    fn paridade_in_str_str_substring() {
+        assert_eq!(
+            eval_binary_op(BinOp::In, Value::Str("ell".into()), Value::Str("hello".into())),
+            Ok(Value::Bool(true))
+        );
+        assert_eq!(
+            eval_binary_op(BinOp::In, Value::Str("xyz".into()), Value::Str("hello".into())),
+            Ok(Value::Bool(false))
+        );
+    }
+
+    #[test]
+    fn paridade_in_array_elemento() {
+        let arr = Value::Array(vec![Value::Int(1), Value::Int(2), Value::Int(3)]);
+        assert_eq!(eval_binary_op(BinOp::In, Value::Int(1), arr.clone()), Ok(Value::Bool(true)));
+        assert_eq!(eval_binary_op(BinOp::In, Value::Int(5), arr), Ok(Value::Bool(false)));
+    }
+
+    #[test]
+    fn paridade_in_array_de_arrays() {
+        // matrix.typ:252 (`out in _ident`) — array dentro de array de arrays.
+        let ident = Value::Array(vec![
+            Value::Array(vec![Value::Int(1), Value::Int(2)]),
+            Value::Array(vec![Value::Int(3), Value::Int(4)]),
+        ]);
+        let out = Value::Array(vec![Value::Int(1), Value::Int(2)]);
+        let missing = Value::Array(vec![Value::Int(5), Value::Int(6)]);
+        assert_eq!(eval_binary_op(BinOp::In, out, ident.clone()), Ok(Value::Bool(true)));
+        assert_eq!(eval_binary_op(BinOp::In, missing, ident), Ok(Value::Bool(false)));
+    }
+
+    #[test]
+    fn paridade_in_array_tipos_mistos() {
+        // mark.typ:157 (`slant not in (none, 0%)`) — array com tipos diferentes.
+        use crate::entities::layout_types::Length;
+        use crate::entities::rel::Rel;
+        let arr = Value::Array(vec![Value::None, Value::Relative(Rel { rel: 0.0, abs: Length::ZERO })]);
+        assert_eq!(eval_binary_op(BinOp::In, Value::None, arr.clone()), Ok(Value::Bool(true)));
+        assert_eq!(
+            eval_binary_op(BinOp::In, Value::Relative(Rel { rel: 0.01, abs: Length::ZERO }), arr),
+            Ok(Value::Bool(false))
+        );
+    }
+
+    #[test]
+    fn paridade_in_int_float_coercao() {
+        // Medido contra o vanilla: `1 in (1.0, 2.0)` -> true (mesma coerção do `==`).
+        let arr = Value::Array(vec![Value::Float(1.0), Value::Float(2.0)]);
+        assert_eq!(eval_binary_op(BinOp::In, Value::Int(1), arr), Ok(Value::Bool(true)));
+    }
+
+    #[test]
+    fn paridade_not_in() {
+        let arr = Value::Array(vec![Value::Int(1), Value::Int(2), Value::Int(3)]);
+        assert_eq!(eval_binary_op(BinOp::NotIn, Value::Int(1), arr.clone()), Ok(Value::Bool(false)));
+        assert_eq!(eval_binary_op(BinOp::NotIn, Value::Int(5), arr), Ok(Value::Bool(true)));
+    }
+
+    #[test]
+    fn paridade_in_tipos_incompativeis_erro() {
+        // Medido contra o vanilla: `1 in "hello"` -> Err (tipos incompatíveis).
+        assert!(eval_binary_op(BinOp::In, Value::Int(1), Value::Str("hello".into())).is_err());
+    }
+
     // ── Testes de paridade: eval_unary_op ────────────────────────────────────
 
     #[test]
