@@ -1681,6 +1681,59 @@ pub fn layout_with_introspector(
     )
 }
 
+/// **P712** — layout real e isolado de conteúdo para `measure()` (stdlib).
+///
+/// Constrói um `Layouter` isolado com `chain` = `chain` do chamador (o
+/// tamanho medido depende do `#set text(size:)` activo, paridade com o
+/// vanilla `measure()`, que usa `context.styles()`) e corre
+/// `layout_sub_frame` (Passo 629 — o mesmo mecanismo já reutilizado por
+/// `Content::Place`/`Content::Transform` e por `grid.rs` para medir
+/// células) numa região efectivamente sem limites (`width:
+/// f64::INFINITY`, `height: None`) — paridade com o vanilla
+/// `Region::new(.., Abs::inf())` para a `measure()` sem `width`/`height`
+/// explícitos. Devolve `(width, height)` em pontos, a partir dos itens
+/// realmente emitidos pelo layout — não uma aproximação manual por tipo
+/// de `Content` (ao contrário do antigo `measure_content` em
+/// `layout/helpers.rs`, que continua a servir os seus próprios
+/// consumers internos — `Content::Transform`/`Content::Place` —,
+/// inalterado por este passo).
+///
+/// **Divergência mecânica documentada, não de língua (ADR-0107):**
+/// `FixedMetrics` (monoespaçado, 0.6×size por codepoint) — L1 não tem
+/// acesso a métricas de fonte reais (`FallbackFontMetrics` é L3). A
+/// largura devolvida é real e proporcional ao conteúdo dado o motor de
+/// layout usado, mas não byte-exacta ao vanilla (que usa shaping real
+/// via `rustybuzz`).
+pub fn measure_content_real(content: &Content, chain: &StyleChain) -> (f64, f64) {
+    use comemo::Track;
+
+    let font_size = chain.size();
+    let intr = crate::entities::introspector::TagIntrospector::empty();
+    let intr_dyn: &dyn crate::entities::introspector::Introspector = &intr;
+    let mut layouter = Layouter::new(FixedMetrics, NullImageSizer, font_size, intr_dyn.track());
+    layouter.chain = chain.clone();
+    layouter.style = TextStyle::from(chain);
+
+    let (height, items) = layouter.layout_sub_frame(
+        content,
+        sub_frame::SubLayoutRegion {
+            origin_x: 0.0,
+            width: f64::INFINITY,
+            height: None,
+            align_rtl: false,
+            unconstrained_height: true,
+        },
+    );
+
+    let width = if items.is_empty() {
+        0.0
+    } else {
+        let refs: Vec<&FrameItem> = items.iter().collect();
+        FixedMetrics.line_content_right(&refs)
+    };
+    (width, height)
+}
+
 /// **P544** — entry point genérico que permite injectar métricas de fonte
 /// reais (com fallback multi-script) no layout. Usado pela pipeline de
 /// produção em L3.

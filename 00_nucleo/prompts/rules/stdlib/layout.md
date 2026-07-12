@@ -1,5 +1,5 @@
 # Prompt L0 — `stdlib/layout` — módulo `layout`
-Hash do Código: 3ed63979
+Hash do Código: 90a1b107
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/rules/stdlib/layout.rs`
@@ -372,28 +372,66 @@ colbreak("x") -> Err "não aceita posicionais"
 
 ---
 
-### `native_measure(body)`
+### `measure(body)` — **P712: reescrito, medição real via layout isolado**
 
 **Assinatura**: `measure(body: Content | Str) -> Dict { width: Length, height: Length }`
 
-**Argumentos**:
+**Argumentos** (validados por `extract_measure_body`, `stdlib/layout.rs`,
+partilhado entre `native_measure` e a intercepção real):
 - 1º posicional `body`: `Content` ou `Str`.
-- Não aceita named args (width override scope-out).
+- Não aceita named args (width/height override — scope-out, ADR-0054).
 
-**Semântica**: Mede o contento via `measure_content` (`layout/helpers.rs`) e devolve dict com `width` e `height` em `Length`.
+**Semântica (P712)** — duas peças, não uma:
 
-**Paridade vanilla**: Equivalente a `#measure([Hello world]).width`; queries runtime genuínas diferidas per ADR-0066.
+1. **Intercepção real** (`eval_func_call`, `eval/closures.rs` §P712):
+   reconhece `measure(...)` E `std.measure(...)` (qualificado — caminho
+   real do `cetz`, `util.typ:197`) comparando a identidade de fn-ptr de
+   `native_measure` (`native_fn_addr`, não o nome — não intercepta um
+   `measure` sombreado pelo utilizador). Só esta intercepção tem acesso
+   a `engine.styles` (necessário — o tamanho medido depende do `#set
+   text(size:)` activo, paridade com o vanilla `context.styles()`) e ao
+   gate `ctx.in_context` (mesma convenção de `counter.get()`/`state.get()`,
+   `stdlib/counter.rs:144`/`stdlib/state.rs:63`): fora de `context`, erra
+   `"measure() can only be used inside context"`. Dentro, chama
+   `measure_content_real(&body, engine.styles)` (`layout/mod.rs` §P712).
+2. **`measure_content_real`** (`layout/mod.rs`): constrói um `Layouter`
+   isolado (`FixedMetrics` + `NullImageSizer` — L1 não tem métricas de
+   fonte reais, `FallbackFontMetrics` é L3) com `chain` = a `StyleChain`
+   do chamador, corre `layout_sub_frame` (Passo 629 — o mesmo mecanismo
+   já reutilizado por `Content::Place`/`Content::Transform`/`grid.rs`
+   para medir células) numa região efectivamente sem limites (`width:
+   f64::INFINITY`, `height: None` — paridade com o vanilla
+   `Region::new(.., Abs::inf())` para `measure()` sem `width`/`height`
+   explícitos) e devolve `(width, height)` a partir dos itens realmente
+   emitidos — não uma aproximação manual por tipo de `Content`.
+- `native_measure` (o `NativeFn` registado em `scope`) passou a ser só
+  o **fallback de invocação indirecta** (`measure` passado como valor
+  de primeira classe, ex.: `arr.map(measure)` — sem consumidor medido).
+  Sem acesso a `engine.styles`, **falha sempre** (em vez de devolver
+  `(0, 0)` silenciosamente — ADR-0108); o caminho real e directo nunca
+  o alcança (interceptado antes).
 
-**Limitações / scope-outs**:
+**Paridade vanilla**: Equivalente a `#measure([Hello world]).width`,
+incluindo o gate de `context` (`foundations/measure.rs` `#[func(contextual)]`
+no vanilla). **Divergência mecânica documentada, não de língua
+(ADR-0107)**: `FixedMetrics` é monoespaçado (0.6×size/codepoint) — a
+largura é real e proporcional ao conteúdo dado o motor de layout usado,
+mas não byte-exacta ao vanilla (que faz shaping real via `rustybuzz`,
+só disponível em L3).
+
+**Limitações / scope-outs (inalterados)**:
 - Runtime queries (counter values, labels) diferidas.
 - `measure(body, width: 5cm)` scope-out.
-- Conteúdo complexo pode devolver `(0, 0)` aproximação conservadora.
+- Invocação indirecta de `measure` (não directa/qualificada) não
+  suportada — erro claro (P712), não `(0, 0)` silencioso.
 
 **Testes canónicos**:
 ```
-measure([abc]) -> Dict { width: ~width, height: ~height }
-measure("abc") -> Dict { width, height }
-measure([abc], width: 5cm) -> Err "named arg não suportado"
+context measure([abc]) -> Dict { width: >0, height: >0 }   (dentro de context)
+std.measure("abc") -> Dict { width, height }                (forma qualificada)
+measure([abc])                    -> Err "can only be used inside context" (fora)
+measure([abc], width: 5cm)        -> Err "named arg não suportado"
+#let measure = (x) => x + 1; measure(4) -> 5 (sombreado, não intercepta)
 ```
 
 ---

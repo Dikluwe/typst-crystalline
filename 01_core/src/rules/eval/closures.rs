@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/rules/eval.md
-//! @prompt-hash 055ddeb9
+//! @prompt-hash 604e0da8
 //! @layer L1
 //! @updated 2026-07-09
 //!
@@ -30,7 +30,8 @@ use comemo::TrackedMut;
 use crate::entities::world_types::{check_call_depth as route_check_call_depth, Route};
 use crate::rules::scopes::Scopes;
 use crate::rules::stdlib::{
-    native_float, native_int, native_str, native_type, try_dispatch_collection_method,
+    extract_measure_body, native_float, native_int, native_measure, native_str, native_type,
+    try_dispatch_collection_method,
 };
 
 use super::{eval_expr, EvalContext, FlowEvent};
@@ -433,6 +434,53 @@ pub(super) fn eval_func_call(
                 use crate::entities::layout_types::{Abs, Length};
                 let abs_pt = l.abs.to_pt() + l.em * engine.styles.size();
                 return Ok(Value::Length(Length { abs: Abs(abs_pt), em: 0.0 }));
+            }
+        }
+    }
+
+    // **P712** — `measure(body)` / `std.measure(body)`: precisa de
+    // `engine.styles` (o tamanho medido depende do `#set text(size:)`
+    // activo, paridade com o vanilla `context.styles()`) e do gate
+    // `ctx.in_context` (mesma convenção já usada por `counter.get()`/
+    // `state.get()`, `stdlib/counter.rs:144`/`stdlib/state.rs:63`) —
+    // nenhum dos dois acessível pela assinatura genérica
+    // `NativeFn(ctx, args, world, file)`. Verifica primeiro a forma
+    // sintáctica do callee (barato, sem side-effects) para não avaliar
+    // nada quando não é sequer chamado "measure"; só depois avalia e
+    // compara identidade de fn-ptr (`native_fn_addr`, não o nome — mesmo
+    // padrão de `bindings::eval_element_where`, `bindings.rs:354`) para
+    // não capturar um `measure` sombreado pelo utilizador.
+    let measure_name_matches = match call.callee() {
+        Expr::Ident(ident) => ident.as_str() == "measure",
+        Expr::FieldAccess(access) => access.field().as_str() == "measure",
+        _ => false,
+    };
+    if measure_name_matches {
+        let target = eval_expr(call.callee(), scopes, ctx, engine)?;
+        if let Value::Func(ref f) = target {
+            if f.native_fn_addr().is_some_and(|addr| {
+                std::ptr::fn_addr_eq(addr, native_measure as fn(_, _, _, _) -> _)
+            }) {
+                if !ctx.in_context {
+                    return Err(vec![SourceDiagnostic::error(
+                        call.callee().span(),
+                        "measure() can only be used inside context".to_string(),
+                    )]);
+                }
+                let args = eval_args(call.args(), scopes, ctx, engine)?;
+                let body = extract_measure_body(&args)?;
+                let (width_pt, height_pt) =
+                    crate::rules::layout::measure_content_real(&body, engine.styles);
+                let mut dict: IndexMap<EcoString, Value, FxBuildHasher> = IndexMap::default();
+                dict.insert(
+                    "width".into(),
+                    Value::Length(crate::entities::layout_types::Length::pt(width_pt)),
+                );
+                dict.insert(
+                    "height".into(),
+                    Value::Length(crate::entities::layout_types::Length::pt(height_pt)),
+                );
+                return Ok(Value::Dict(dict));
             }
         }
     }

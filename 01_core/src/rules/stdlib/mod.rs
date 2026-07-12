@@ -97,9 +97,9 @@ pub use crate::rules::stdlib::text::{
 };
 // P387 (ADR-0111) — data import.
 pub use crate::rules::stdlib::layout::{
-    native_align, native_block, native_box, native_colbreak, native_columns, native_grid,
-    native_h, native_hide, native_measure, native_pad, native_pagebreak, native_place,
-    native_repeat, native_stack, native_stroke, native_v,
+    extract_measure_body, native_align, native_block, native_box, native_colbreak,
+    native_columns, native_grid, native_h, native_hide, native_measure, native_pad,
+    native_pagebreak, native_place, native_repeat, native_stack, native_stroke, native_v,
 };
 pub use crate::rules::stdlib::loading::{
     native_cbor, native_cbor_encode, native_csv, native_json, native_read, native_toml,
@@ -6905,118 +6905,138 @@ mod tests {
     }
 
     // ── P222 (Fase 4 Layout candidata sub-1; ADR-0066 Bloco C) — measure ──
+    //
+    // **P712** — a validação de argumentos migrou de `native_measure` para
+    // `extract_measure_body` (partilhada com a intercepção real em
+    // `eval/closures.rs`); os testes de validação abaixo migraram com ela.
+    // `native_measure` (o `NativeFn`) passou a ser só o fallback de
+    // invocação indirecta e agora falha sempre — testado em
+    // `p712_native_measure_fallback_indirecto_falha_sempre`. As medições
+    // reais (dimensões > 0, proporcionais) migraram para
+    // `measure_content_real` (`layout/mod.rs`) — ver secção P712 abaixo.
 
     #[test]
-    fn p222_native_measure_body_content_aceita() {
-        null_ctx!(ctx);
-        let r = native_measure(
-            &mut ctx,
-            &p(vec![Value::Content(Content::text("texto"))]),
-            &null_world(),
-            test_file_id(),
-        )
-        .unwrap();
-        if let Value::Dict(d) = r {
-            assert!(d.contains_key("width"));
-            assert!(d.contains_key("height"));
-        } else {
-            panic!("esperado Value::Dict, recebeu {:?}", r);
-        }
+    fn p222_extract_measure_body_content_aceita() {
+        let body = extract_measure_body(&p(vec![Value::Content(Content::text("texto"))]));
+        assert!(body.is_ok());
     }
 
     #[test]
-    fn p222_native_measure_body_str_aceita() {
+    fn p222_extract_measure_body_str_aceita() {
         // Str shortcut → Content::text wrapping.
-        null_ctx!(ctx);
-        let r = native_measure(
-            &mut ctx,
-            &p(vec![Value::Str("texto".into())]),
-            &null_world(),
-            test_file_id(),
-        )
-        .unwrap();
-        if let Value::Dict(d) = r {
-            assert!(d.contains_key("width") && d.contains_key("height"));
-        } else {
-            panic!("esperado Value::Dict");
-        }
+        let body = extract_measure_body(&p(vec![Value::Str("texto".into())]));
+        assert!(body.is_ok());
     }
 
     #[test]
-    fn p222_native_measure_body_ausente_rejeita() {
-        null_ctx!(ctx);
-        let r = native_measure(&mut ctx, &p(vec![]), &null_world(), test_file_id());
-        assert!(r.is_err(), "body ausente deve falhar");
+    fn p222_extract_measure_body_ausente_rejeita() {
+        let body = extract_measure_body(&p(vec![]));
+        assert!(body.is_err(), "body ausente deve falhar");
     }
 
     #[test]
-    fn p222_native_measure_body_tipo_errado_rejeita() {
-        null_ctx!(ctx);
-        let r = native_measure(
-            &mut ctx,
-            &p(vec![Value::Int(42)]),
-            &null_world(),
-            test_file_id(),
-        );
-        assert!(r.is_err(), "body Int deve falhar");
+    fn p222_extract_measure_body_tipo_errado_rejeita() {
+        let body = extract_measure_body(&p(vec![Value::Int(42)]));
+        assert!(body.is_err(), "body Int deve falhar");
     }
 
     #[test]
-    fn p222_native_measure_extra_positional_rejeita() {
-        null_ctx!(ctx);
-        let r = native_measure(
-            &mut ctx,
-            &p(vec![
-                Value::Content(Content::text("a")),
-                Value::Content(Content::text("b")),
-            ]),
-            &null_world(),
-            test_file_id(),
-        );
-        assert!(r.is_err(), ">1 posicional deve falhar");
+    fn p222_extract_measure_body_extra_positional_rejeita() {
+        let body = extract_measure_body(&p(vec![
+            Value::Content(Content::text("a")),
+            Value::Content(Content::text("b")),
+        ]));
+        assert!(body.is_err(), ">1 posicional deve falhar");
     }
 
     #[test]
-    fn p222_native_measure_named_arg_rejeita() {
+    fn p222_extract_measure_body_named_arg_rejeita() {
         // Opção β graded: width override scope-out per ADR-0054.
-        null_ctx!(ctx);
         use crate::entities::layout_types::Length;
         let mut args = p(vec![Value::Content(Content::text("a"))]);
         args.named.insert("width".into(), Value::Length(Length::pt(50.0)));
-        let r = native_measure(&mut ctx, &args, &null_world(), test_file_id());
-        assert!(r.is_err(), "named arg width deve falhar (scope-out graded)");
+        let body = extract_measure_body(&args);
+        assert!(body.is_err(), "named arg width deve falhar (scope-out graded)");
     }
 
+    // ── P712 — measure() real: gate de context + native_measure fallback ──
+
     #[test]
-    fn p222_native_measure_retorna_dict_com_width_height() {
+    fn p712_native_measure_fallback_indirecto_falha_sempre() {
+        // O NativeFn deixou de fazer a medição (não tem acesso a
+        // engine.styles) — é só o fallback para invocação indirecta, e
+        // falha sempre (ADR-0108: falha alto em vez de devolver (0,0)).
         null_ctx!(ctx);
         let r = native_measure(
             &mut ctx,
             &p(vec![Value::Content(Content::text("x"))]),
             &null_world(),
             test_file_id(),
-        )
-        .unwrap();
-        if let Value::Dict(d) = r {
-            assert!(
-                matches!(d.get("width"), Some(Value::Length(_))),
-                "key 'width' deve ser Value::Length"
-            );
-            assert!(
-                matches!(d.get("height"), Some(Value::Length(_))),
-                "key 'height' deve ser Value::Length"
-            );
-        } else {
-            panic!("esperado Value::Dict");
-        }
+        );
+        assert!(r.is_err(), "native_measure directo deve falhar sempre (P712)");
+    }
+
+    // ── P712 — measure_content_real (layout/mod.rs): medição real via
+    // Layouter isolado (Passo 629 `layout_sub_frame`), não aproximação
+    // manual por tipo de Content. ──
+
+    fn measure_default(content: &Content) -> (f64, f64) {
+        use crate::entities::style_chain::StyleChain;
+        use crate::rules::layout::measure_content_real;
+        measure_content_real(content, &StyleChain::default_chain())
     }
 
     #[test]
-    fn p222_native_measure_dimensoes_para_shape_rect() {
-        // Helper measure_content tem suporte explícito para Shape::Rect
-        // (retorna width/height resolvidos). Texto simples retorna (0, 0)
-        // per limitação documentada do helper.
-        null_ctx!(ctx);
+    fn p712_measure_texto_simples_nao_e_mais_zero() {
+        // A regressão que P712 fecha: measure_content (o helper antigo) não
+        // trata Content::Text — dava sempre (0, 0). measure_content_real usa
+        // o motor de layout real (mesmo mecanismo de layout_sub_frame já
+        // usado por Content::Place/Transform/grid) e devolve dimensões reais.
+        let (w, h) = measure_default(&Content::text("Texto de teste"));
+        assert!(w > 0.0, "largura de texto não deve ser zero, recebeu {w}");
+        assert!(h > 0.0, "altura de texto não deve ser zero, recebeu {h}");
+    }
+
+    #[test]
+    fn p712_measure_texto_mais_longo_e_mais_largo() {
+        // Proporcionalidade real (FixedMetrics é monoespaçado — 0.6×size por
+        // codepoint — mas a proporcionalidade com o comprimento do texto é
+        // real, não aproximada por tipo de Content).
+        let (w_curto, _) = measure_default(&Content::text("Oi"));
+        let (w_longo, _) = measure_default(&Content::text(
+            "Um texto bastante mais comprido do que o anterior",
+        ));
+        assert!(
+            w_longo > w_curto,
+            "texto mais longo deve medir mais largo: {w_longo} vs {w_curto}"
+        );
+    }
+
+    #[test]
+    fn p712_measure_tamanho_maior_produz_texto_mais_largo() {
+        // Paridade com o vanilla: measure() depende do #set text(size:)
+        // activo (P711 já corrigiu o mesmo princípio para `context`).
+        use crate::entities::style::{Style, Styles};
+        use crate::entities::style_chain::StyleChain;
+        use crate::entities::layout_types::Pt;
+        use crate::rules::layout::measure_content_real;
+
+        let content = Content::text("mesmo texto");
+        let chain_pequena = StyleChain::default_chain()
+            .push_styles(&Styles::from_iter([Style::Size(Pt(10.0))]));
+        let chain_grande = StyleChain::default_chain()
+            .push_styles(&Styles::from_iter([Style::Size(Pt(40.0))]));
+
+        let (w_pequena, _) = measure_content_real(&content, &chain_pequena);
+        let (w_grande, _) = measure_content_real(&content, &chain_grande);
+        assert!(
+            w_grande > w_pequena,
+            "tamanho maior deve medir mais largo: {w_grande} vs {w_pequena}"
+        );
+    }
+
+    #[test]
+    fn p712_measure_dimensoes_para_shape_rect() {
         use crate::entities::geometry::ShapeKind;
         use crate::entities::layout_types::Length;
         let rect = Content::shape(
@@ -7026,144 +7046,16 @@ mod tests {
             None,
             None,
         );
-        let r = native_measure(
-            &mut ctx,
-            &p(vec![Value::Content(rect)]),
-            &null_world(),
-            test_file_id(),
-        )
-        .unwrap();
-        if let Value::Dict(d) = r {
-            if let Some(Value::Length(w)) = d.get("width") {
-                assert!(w.abs.0 > 0.0, "rect width > 0 esperado");
-            } else {
-                panic!("width não-Length");
-            }
-            if let Some(Value::Length(h)) = d.get("height") {
-                assert!(h.abs.0 > 0.0, "rect height > 0 esperado");
-            } else {
-                panic!("height não-Length");
-            }
-        } else {
-            panic!("esperado Value::Dict");
-        }
+        let (w, h) = measure_default(&rect);
+        assert!(w > 0.0, "rect width > 0 esperado, recebeu {w}");
+        assert!(h > 0.0, "rect height > 0 esperado, recebeu {h}");
     }
 
     #[test]
-    fn p222_native_measure_dimensoes_zero_para_empty() {
-        // Content::Empty → helper retorna (0, 0).
-        null_ctx!(ctx);
-        let r = native_measure(
-            &mut ctx,
-            &p(vec![Value::Content(Content::Empty)]),
-            &null_world(),
-            test_file_id(),
-        )
-        .unwrap();
-        if let Value::Dict(d) = r {
-            if let Some(Value::Length(w)) = d.get("width") {
-                assert_eq!(w.abs.0, 0.0);
-            } else {
-                panic!("width não-Length");
-            }
-            if let Some(Value::Length(h)) = d.get("height") {
-                assert_eq!(h.abs.0, 0.0);
-            } else {
-                panic!("height não-Length");
-            }
-        } else {
-            panic!("esperado Value::Dict");
-        }
-    }
-
-    #[test]
-    fn p222_native_measure_sequence_compose_dimensoes() {
-        // Integration: helper trata Sequence acumulando height + max width
-        // de children. Sequence de 2 Shape rect verticalmente → height
-        // soma; width max.
-        null_ctx!(ctx);
-        use crate::entities::geometry::ShapeKind;
-        use crate::entities::layout_types::Length;
-        use std::sync::Arc;
-        let r1 = Content::shape(
-            ShapeKind::Rect,
-            Some(Box::new(Value::Length(Length::pt(30.0)))),
-            Some(Box::new(Value::Length(Length::pt(10.0)))),
-            None,
-            None,
-        );
-        let r2 = Content::shape(
-            ShapeKind::Rect,
-            Some(Box::new(Value::Length(Length::pt(50.0)))),
-            Some(Box::new(Value::Length(Length::pt(15.0)))),
-            None,
-            None,
-        );
-        let seq = Content::Sequence(Arc::from(vec![r1, r2]));
-        let r = native_measure(
-            &mut ctx,
-            &p(vec![Value::Content(seq)]),
-            &null_world(),
-            test_file_id(),
-        )
-        .unwrap();
-        if let Value::Dict(d) = r {
-            // max_w = 50, total_h = 25.
-            if let Some(Value::Length(w)) = d.get("width") {
-                assert!(w.abs.0 >= 50.0, "Sequence max width >= 50, recebeu {}", w.abs.0);
-            } else {
-                panic!("width não-Length");
-            }
-            if let Some(Value::Length(h)) = d.get("height") {
-                assert!(
-                    h.abs.0 >= 25.0,
-                    "Sequence total height >= 25, recebeu {}",
-                    h.abs.0
-                );
-            } else {
-                panic!("height não-Length");
-            }
-        } else {
-            panic!("esperado Value::Dict");
-        }
-    }
-
-    #[test]
-    fn p222_native_measure_round_trip_dict_access_shape_observable() {
-        // Round-trip: simula `let d = measure([rect]); d.width` —
-        // verifica que Dict permite indexação por key paridade vanilla
-        // `measure(body).width` observable.
-        null_ctx!(ctx);
-        use crate::entities::geometry::ShapeKind;
-        use crate::entities::layout_types::Length;
-        let rect = Content::shape(
-            ShapeKind::Rect,
-            Some(Box::new(Value::Length(Length::pt(20.0)))),
-            Some(Box::new(Value::Length(Length::pt(40.0)))),
-            None,
-            None,
-        );
-        let r = native_measure(
-            &mut ctx,
-            &p(vec![Value::Content(rect)]),
-            &null_world(),
-            test_file_id(),
-        )
-        .unwrap();
-        // Paridade vanilla: `dims.width` retorna Length.
-        if let Value::Dict(d) = &r {
-            let w = d.get("width").cloned().expect("key 'width' presente");
-            let h = d.get("height").cloned().expect("key 'height' presente");
-            assert!(
-                matches!(w, Value::Length(_)),
-                "width deve indexar como Length (paridade observable vanilla)"
-            );
-            assert!(matches!(h, Value::Length(_)), "height deve indexar como Length");
-            // Dict tem exactamente 2 keys.
-            assert_eq!(d.len(), 2, "Dict deve ter exactamente 2 keys (width + height)");
-        } else {
-            panic!("esperado Value::Dict, recebeu {:?}", r);
-        }
+    fn p712_measure_dimensoes_zero_para_empty() {
+        let (w, h) = measure_default(&Content::Empty);
+        assert_eq!(w, 0.0);
+        assert_eq!(h, 0.0);
     }
 
     // ── P223 (Fase 4 Layout candidata sub-2; refino native_place +float +clearance) ──

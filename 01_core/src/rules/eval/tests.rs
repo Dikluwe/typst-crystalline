@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/rules/eval.md
-//! @prompt-hash 055ddeb9
+//! @prompt-hash 604e0da8
 //! @layer L1
 //! @updated 2026-06-17
 //!
@@ -7648,6 +7648,51 @@ mod tests {
         let world = MockWorld::new("#let x = (5).to-absolute()");
         let src = World::source(&world, World::main(&world)).unwrap();
         assert!(eval_for_test(&world, &src).is_err());
+    }
+
+    // ── P712 — `measure()`: gate de context + intercepção directa ──────────
+    //
+    // A medição real (via Layouter isolado, `measure_content_real`) só
+    // corre quando `ctx.in_context = true` — só verdade dentro de
+    // `expand_context_blocks` (L3, `03_infra/pipeline.rs`), fora do alcance
+    // deste harness (só L1 — `layout()` local não resolve
+    // `Content::ContextBlock`, ver `rules/layout/mod.rs:1645`). Os testes
+    // aqui cobrem o que é local a L1: a intercepção reconhece `measure`/
+    // `std.measure` pela identidade da função nativa e aplica o gate. A
+    // medição real, dentro de `context`, é validada por reprodução manual
+    // (`00_nucleo/diagnosticos/paridade-producao-p712.md`).
+
+    #[test]
+    fn p712_measure_fora_de_context_erra_com_gate() {
+        let world = MockWorld::new(r#"#let x = measure("oi")"#);
+        let src = World::source(&world, World::main(&world)).unwrap();
+        let err = eval_for_test(&world, &src).unwrap_err();
+        assert!(
+            err.iter().any(|d| d.message.contains("measure() can only be used inside context")),
+            "esperado erro de gate de context, recebeu {err:?}"
+        );
+    }
+
+    #[test]
+    fn p712_std_measure_fora_de_context_tambem_erra_com_gate() {
+        // Forma qualificada — o caminho real usado pelo cetz
+        // (`std.measure(drawable.body)`, `util.typ:197`).
+        let world = MockWorld::new(r#"#let x = std.measure("oi")"#);
+        let src = World::source(&world, World::main(&world)).unwrap();
+        let err = eval_for_test(&world, &src).unwrap_err();
+        assert!(
+            err.iter().any(|d| d.message.contains("measure() can only be used inside context")),
+            "esperado erro de gate de context (forma std.measure), recebeu {err:?}"
+        );
+    }
+
+    #[test]
+    fn p712_measure_sombreado_pelo_utilizador_nao_intercepta() {
+        // `#let measure = ...` sombreia o builtin — a intercepção compara
+        // identidade de fn-ptr (native_fn_addr), não o nome, logo não deve
+        // capturar esta chamada nem aplicar o gate de context.
+        let world = MockWorld::new("#let measure = (x) => x + 1\n#let y = measure(4)");
+        assert_eq!(eval_let(&world, "y"), Some(Value::Int(5)));
     }
 
     #[test]

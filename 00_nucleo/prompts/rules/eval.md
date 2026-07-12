@@ -1,5 +1,5 @@
 # Prompt L0 — rules/eval
-Hash do Código: 13c592b1
+Hash do Código: c4d532ad
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/rules/eval/mod.rs`
@@ -965,5 +965,80 @@ Critérios de verificação:
 
 - `(6pt).to-absolute()` → `6pt` (em=0, inalterado).
 - `(6pt + 10em).to-absolute()` com `#set text(size: 12pt)` → `126pt`.
+- `cargo test --workspace` continua a passar.
+- `crystalline-lint .` limpo.
+
+## §P712 — `measure()` real (intercepção + gate de `context`)
+
+Isolado por P711 (achado lateral não relacionado): `measure()` devolvia
+sempre `Abs(0.0)`, dentro e fora de `context`, sem erro nenhum
+(`native_measure`, `stdlib/layout.rs`, delegava a `measure_content`,
+`layout/helpers.rs`, que só trata `Content::Shape`/`Content::Sequence`
+— texto nunca é medido). Confirmado no vanilla
+(`layout/measure.rs:46-105`): `#[func(contextual)]` — exige `Context`
+(erro `"can only be used when context is known"` fora de `context`);
+dentro, invoca `(engine.library.routines.layout_frame)(...)` — um
+layout REAL sobre o `body`, numa região `Region::new(.., Abs::inf())`
+(sem `width`/`height` explícitos) — e devolve `frame.size()`.
+
+### Mecanismo — duas peças, porque `NativeFn` não tem `engine`
+
+`measure`, como qualquer stdlib fn registada via `Func::native(name,
+fn)`, tem assinatura genérica `(ctx: &mut EvalContext, args: &Args,
+world: &dyn World, file: FileId)` — **sem** `engine.styles` nem
+`ctx.in_context` gate útil sem mais. Mesmo problema já resolvido por
+P702/P707/P710 (intercepção antes do dispatch genérico); aqui a
+intercepção reconhece **duas formas sintácticas**: `measure(...)`
+(`Expr::Ident`) e `std.measure(...)`/`x.measure(...)`
+(`Expr::FieldAccess`, forma qualificada — o caminho real do `cetz`,
+`util.typ:197`: `std.measure(cnt)`). Verifica primeiro a forma
+sintáctica do nome (`"measure"`, sem side-effects), só depois avalia o
+callee e compara **identidade de fn-ptr** (`native_fn_addr`, mesmo
+padrão de `bindings::eval_element_where`, `bindings.rs:354`) contra
+`native_measure as fn(_, _, _, _) -> _` — não o nome, para não capturar
+um `measure` sombreado pelo utilizador (`#let measure = ...`).
+
+Se a identidade bate:
+
+1. Gate `ctx.in_context` — mesma convenção já usada por
+   `counter.get()`/`state.get()` (`stdlib/counter.rs:144`,
+   `stdlib/state.rs:63`): fora de `context`, erro `"measure() can only
+   be used inside context"` (paridade de comportamento com o vanilla;
+   texto adaptado à convenção já estabelecida no cristalino, não o
+   texto exacto do vanilla com hints).
+2. Dentro: `extract_measure_body` (validação de argumentos, partilhada
+   com o `NativeFn` fallback — `stdlib/layout.rs`) + `measure_content_real`
+   (`layout/mod.rs` §P712, `rules/layout.md` §"`measure_content_real`") —
+   layout real e isolado via `layout_sub_frame` (Passo 629), não
+   aproximação manual por tipo de `Content`. Devolve `Value::Dict {
+   width, height }`.
+
+`native_measure` (o `NativeFn` em si) passa a ser só o fallback de
+invocação indirecta (`measure` como valor de primeira classe — sem
+consumidor medido); sem `engine.styles`, **falha sempre** em vez de
+devolver `(0, 0)` silenciosamente (ADR-0108 — falhar alto é preferível
+a um valor errado sem aviso, quando não há consumidor real a proteger).
+
+### Divergência documentada (mecânica, não língua — ADR-0107)
+
+`FixedMetrics` (monoespaçado, 0.6×size/codepoint) — L1 não tem acesso a
+métricas de fonte reais (`FallbackFontMetrics` é L3, `03_infra`). A
+largura devolvida é real e proporcional ao conteúdo dado o motor de
+layout usado (mesmo `layout_sub_frame` do documento principal), mas não
+byte-exacta ao vanilla (shaping real via `rustybuzz`). Sem consumidor
+medido que dependa do valor exacto (`cetz` usa `measure()` para
+decisões geométricas relativas, não comparação com uma constante).
+
+Critérios de verificação:
+
+- `measure("x")` fora de `context` → `Err "measure() can only be used
+  inside context"` (idem `std.measure("x")`).
+- `#let measure = (x) => x + 1; measure(4)` → `5` (sombreado, não
+  intercepta).
+- Dentro de `context`, `measure(texto)`/`measure(shape)` devolve
+  dimensões reais > 0, proporcionais ao conteúdo (validado por
+  reprodução manual — a resolução de `context` só corre em L3,
+  `expand_context_blocks`, fora do alcance do harness L1 de
+  `eval/tests.rs`; ver `00_nucleo/diagnosticos/paridade-producao-p712.md`).
 - `cargo test --workspace` continua a passar.
 - `crystalline-lint .` limpo.

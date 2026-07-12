@@ -1,5 +1,5 @@
 # Prompt L0 — layout
-Hash do Código: 935704d4
+Hash do Código: f125ccf2
 
 ## Módulo
 `01_core/src/rules/layout/mod.rs` e sub-módulos (`metrics.rs`, etc.)
@@ -741,6 +741,48 @@ Campos de `SubLayoutRegion` usados:
   direita quando o estilo for RTL.
 - `origin_x`, `width`, `height`, `unconstrained_height`: reservados
   para extensões futuras; nesta variante inline são ignorados.
+
+### `measure_content_real` (P712) — consumer standalone, sem `Layouter` do chamador
+
+Diferente dos consumers acima (que já correm dentro de um `Layouter`
+existente, do documento principal), `measure_content_real`
+(`layout/mod.rs`) constrói o **seu próprio** `Layouter` isolado — é o
+motor de medição real por trás da stdlib `measure()` (P712, substitui
+a antiga aproximação manual por tipo de `Content` em
+`layout/helpers.rs::measure_content` **apenas para este consumer**; os
+outros consumers de `measure_content` — `Content::Transform`,
+`Content::Place` — ficam inalterados).
+
+```rust
+pub fn measure_content_real(content: &Content, chain: &StyleChain) -> (f64, f64)
+```
+
+- Constrói `Layouter::new(FixedMetrics, NullImageSizer, chain.size(),
+  <TagIntrospector::empty().track()>)` — L1 não tem métricas de fonte
+  reais (`FallbackFontMetrics` é L3); divergência mecânica documentada
+  (ADR-0107), não de língua.
+- Substitui `layouter.chain`/`layouter.style` pela `StyleChain` do
+  chamador (`chain.clone()`/`TextStyle::from(chain)`) — o tamanho
+  medido depende do `#set text(size:)` activo no ponto de chamada,
+  paridade com o vanilla `context.styles()`.
+- Chama `layout_sub_frame` com `SubLayoutRegion { origin_x: 0.0,
+  width: f64::INFINITY, height: None, align_rtl: false,
+  unconstrained_height: true }` — região efectivamente sem limites,
+  paridade com o vanilla `Region::new(.., Abs::inf())` para `measure()`
+  sem `width`/`height` explícitos (scope-out, ADR-0054 — só a forma
+  sem overrides é medida/implementada).
+- **Largura**: `FixedMetrics.line_content_right(&items)` sobre os itens
+  devolvidos — generaliza correctamente para conteúdo multi-linha,
+  já que `line_start_x` reinicia a 0 a cada linha (o máximo de `x +
+  largura` across todos os itens de todas as linhas dá a linha mais
+  larga).
+- **Altura**: a `height` já devolvida por `layout_sub_frame` (calculada
+  a partir do cursor real avançado durante o layout, não uma
+  aproximação por tipo de `Content`).
+- Caller real: intercepção de `measure()`/`std.measure()` em
+  `eval_func_call` (`eval/closures.rs` §P712, `rules/eval.md` §P712) —
+  ver `rules/stdlib/layout.md` §`measure(body)` para o contrato
+  observável completo (incluindo o gate `ctx.in_context`).
 
 ### Invariantes
 

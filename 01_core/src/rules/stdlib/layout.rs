@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/rules/stdlib/_comum.md
-//! @prompt-hash 284672b8
+//! @prompt-hash 8456831d
 //! @prompt 00_nucleo/prompts/rules/stdlib/layout.md
 //! @layer L1
 //! @updated 2026-04-23
@@ -1324,32 +1324,12 @@ pub fn native_colbreak(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::
     Ok(Value::Content(Content::colbreak(weak)))
 }
 
-/// `measure(body) -> dict(width: length, height: length)` —
-/// Passo 222 (Fase 4 Layout candidata; ADR-0066 §"Plano
-/// promoção" Bloco C cross-módulo primeira materialização
-/// parcial).
-///
-/// Forma: `#measure([Hello world])` ou `#measure("text")`.
-///
-/// **Semantic graded P222** — opera sobre Content evaluated
-/// (single-pass via helper `measure_content` em `layout/helpers.rs`).
-/// Runtime queries genuínas (counter values, labels resolution)
-/// continuam diferidas per ADR-0066 PROPOSTO. Width override
-/// (`measure(body, width: 5cm)`) **scope-out** per Opção β
-/// graded ADR-0054; refino futuro candidato NÃO-reservado.
-///
-/// Retorna `Value::Dict` com keys `"width"` + `"height"` ambos
-/// `Value::Length` (paridade vanilla `measure(body).width`
-/// observable). Para conteúdo complexo (texto multi-linha,
-/// equações), helper retorna aproximação conservadora (0, 0)
-/// — limitação documentada.
-pub fn native_measure(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contracts::world::World, _current_file: FileId) -> SourceResult<Value> {
-    use crate::rules::layout::helpers::measure_content;
-    use ecow::EcoString;
-    use indexmap::IndexMap;
-    use rustc_hash::FxBuildHasher;
-
-    // 1. Extract body (posicional [0], Content ou Str).
+/// Extrai e valida o argumento `body` de `measure(...)` — 1 posicional
+/// (`Content` ou `Str`), sem argumentos nomeados (`width`/`height` override
+/// scope-out, Opção β graded per ADR-0054). Partilhado (P712) entre
+/// `native_measure` (fallback de invocação indirecta) e a intercepção real
+/// em `eval_func_call` (`eval/closures.rs`, com acesso a `engine.styles`).
+pub fn extract_measure_body(args: &Args) -> SourceResult<Content> {
     let body = match args.items.first() {
         Some(Value::Content(c)) => c.clone(),
         Some(Value::Str(s))     => Content::text(s.as_str()),
@@ -1363,7 +1343,6 @@ pub fn native_measure(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::c
         )]),
     };
 
-    // 2. Reject extra positionals.
     if args.items.len() > 1 {
         return Err(vec![SourceDiagnostic::error(
             Span::detached(),
@@ -1371,8 +1350,6 @@ pub fn native_measure(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::c
         )]);
     }
 
-    // 3. Reject all named args (paridade Opção β graded;
-    //    `width` override scope-out per ADR-0054).
     if let Some(key) = args.named.keys().next() {
         return Err(vec![SourceDiagnostic::error(
             Span::detached(),
@@ -1380,17 +1357,31 @@ pub fn native_measure(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::c
         )]);
     }
 
-    // 4. Chamar helper privado `measure_content` (pub(crate) em P222).
-    //    available_w default = f64::INFINITY (sem constraint width);
-    //    helper retorna (0, 0) para Empty + conteúdo complexo.
-    let (width_pt, height_pt) = measure_content(&body, f64::INFINITY);
+    Ok(body)
+}
 
-    // 5. Build Dict { width: Length, height: Length }.
-    let mut dict: IndexMap<EcoString, Value, FxBuildHasher> = IndexMap::default();
-    dict.insert("width".into(),  Value::Length(Length::pt(width_pt)));
-    dict.insert("height".into(), Value::Length(Length::pt(height_pt)));
-
-    Ok(Value::Dict(dict))
+/// `measure(body) -> dict(width: length, height: length)` —
+/// Passo 222 (Fase 4 Layout candidata; ADR-0066 §"Plano
+/// promoção" Bloco C cross-módulo primeira materialização
+/// parcial).
+///
+/// **P712** — este `NativeFn` é apenas o fallback para invocação indirecta
+/// de `measure` (ex.: passado como valor de primeira classe a outra função,
+/// sem sintaxe de chamada directa). A invocação real e directa
+/// (`measure(...)`/`std.measure(...)`) é interceptada em `eval_func_call`
+/// (`eval/closures.rs` §P712, mesmo padrão de `.to-absolute()`/`.with()`),
+/// porque precisa de `engine.styles` (tamanho medido depende do `#set
+/// text(size:)` activo) e do gate `ctx.in_context` — nenhum dos dois
+/// acessível pela assinatura genérica `NativeFn(ctx, args, world, file)`.
+/// Sem consumidor medido para o caminho indirecto (nenhum documento de
+/// teste ou `cetz` passa `measure` como valor); falha alto em vez de
+/// devolver `(0, 0)` silenciosamente (ADR-0108).
+pub fn native_measure(_ctx: &mut EvalContext, _args: &Args, _world: &dyn crate::contracts::world::World, _current_file: FileId) -> SourceResult<Value> {
+    Err(vec![SourceDiagnostic::error(
+        Span::detached(),
+        "measure(): invocação indirecta (fora de measure(...)/std.measure(...) \
+         directo) não suportada — P712".to_string(),
+    )])
 }
 
 /// `stroke(paint: ?, thickness: ?)` → `Value::Stroke` — Passo 227
