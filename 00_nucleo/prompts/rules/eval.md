@@ -1,5 +1,5 @@
 # Prompt L0 — rules/eval
-Hash do Código: 9f2494c7
+Hash do Código: 8329332a
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/rules/eval/mod.rs`
@@ -1264,4 +1264,108 @@ observável (ADR-0107) — usar o nome longo nestes erros.
 - Aninhado: `#{ let n = (xs: (1, 2)); n.xs.at(0) = 9 }` — `access`
   recursivo (`FuncCall` accessor cujo target é `FieldAccess`).
 - Sem regressão: mecanismo `Ident` (§P715) e `cargo test --workspace`.
+- `crystalline-lint .` limpo.
+
+## §P717 — Métodos mutantes (`push`, `pop`, `insert`, `remove`)
+
+Isolado por P716 via `cetz`: `campo desconhecido em array: 'push'`.
+Uso medido em `cetz` 0.5.2: `.push(` 63×, `.insert(` 26×, `.pop(` 1×,
+`.remove(` 1× — os **quatro** têm consumidor; sem questão de scope-out
+por falta de uso. Mecanismo irmão do §P716, sobre a mesma fundação
+`access()`.
+
+### Mecanismo vanilla confirmado (`methods.rs`, `call.rs`)
+
+- **Lista completa** (`typst-eval/methods.rs:9-16`):
+  `is_mutating_method` = `push`/`pop`/`insert`/`remove`;
+  `is_dict_mutating_method` = `insert`/`remove` (dict não tem
+  `push`/`pop`). Não há outros.
+- **Despacho** (`call.rs:33-43` + `maybe_resolve_mutating`,
+  `call.rs:189-212`): `FuncCall` com callee `FieldAccess` e método
+  mutante → **args avaliados primeiro** (`call.rs:196-198`), depois
+  `access()` do target (o mesmo do §P716 — targets temporários erram
+  `cannot mutate a temporary value` **antes** de qualquer resolução;
+  `(1, 2).push(3)` medido). Com o local em mão:
+  - `Dict` + método não-dict-mutante (`push`/`pop`) → no vanilla cai
+    para a resolução normal, que termina em ``type dictionary has no
+    method `push` `` (medido) — dicts deliberadamente não resolvem
+    campos como métodos (`eval_field_callee`, doc `call.rs:233-238`).
+  - `Array`/`Dict` → `call_method_mut`, devolve o output (`pop`/
+    `remove` devolvem o elemento removido; `push`/`insert` devolvem
+    none).
+  - Outros tipos → cai para a resolução normal com o valor clonado
+    (ex.: módulo com função chamada `insert` continua a funcionar;
+    `str` termina em ``type string has no method `push` ``, medido).
+- **`call_method_mut`** (`methods.rs:24-63`): array `push(value)`;
+  `pop()` (vazio → `array is empty`); `insert(index, value)` — `locate`
+  com `end_ok=true` (`array.rs:246-257`: índice == len permitido,
+  negativo conta do fim, `insert(-1, 9)` em `(1,2,3)` → `(1, 2, 9, 3)`
+  medido; fora de limites → `array index out of bounds (index: 4, len:
+  3)` **sem** sufixo); `remove(index, default:)` (`array.rs:261-274`:
+  `locate_opt` → remove e devolve; fora de limites → `default` **sem
+  mutar**, senão erro **com** sufixo `and no default value was
+  specified`). Dict `insert(key, value)` (cria ou substitui);
+  `remove(key, default:)` (`dict.rs:241-251`: devolve o removido;
+  ausente → `default`, senão `dictionary does not contain key "x"`
+  **sem hint** — ao contrário do `at_mut` do §P716). `args.finish()`
+  corre **depois** da mutação (`a.remove(0, bad: 1)` → mutação feita,
+  erro `unexpected argument: bad`).
+
+Comportamento medido (vanilla em `89712433b`, binário
+`lab/typst-original/target/release/typst`):
+
+```
+#{ arr.push(4) }                  → (1, 2, 3, 4); bloco devolve none
+#let x = a.pop()                  → x=3, a=(1, 2)
+#{ arr3.insert(1, 99) }           → (1, 99, 2, 3)
+#{ a.insert(-1, 9) }              → (1, 2, 9, 3)
+#{ a.insert(4, 9) }   (len 3)     → Err array index out of bounds (index: 4, len: 3)
+#{ arr4.remove(1) }               → devolve 2, resta (1, 3)
+#{ a.remove(5) }      (len 3)     → Err ... (index: 5, len: 3) and no default value was specified
+#{ a.remove(5, default: 9) }      → devolve 9, array intacto
+#{ a.remove(0, bad: 1) }          → Err unexpected argument: bad
+#{ a.pop(1) }                     → Err unexpected argument
+#{ a.push() }                     → Err missing argument: value
+#{ a.insert(1) }                  → Err missing argument: value
+#{ a.insert("x", 9) }             → Err expected integer, found string
+#{ d.insert("b", 2) }             → cria a chave
+#{ d.insert(5, 2) }               → Err expected string, found integer
+#{ d.remove("x") }                → Err dictionary does not contain key "x"  [sem hint]
+#{ d.remove("x", default: 7) }    → devolve 7
+#{ d.push(2) }                    → Err type dictionary has no method `push`
+#{ s.push("c") }      (s: str)    → Err type string has no method `push`
+#{ (1, 2).push(3) }               → Err cannot mutate a temporary value
+```
+
+### Implementação
+
+- **`bindings.rs`**: `is_mutating_method`/`is_dict_mutating_method`
+  (listas exactas), `call_method_mut` (mirror, reutiliza
+  `expect_positional`/`finish_args`/`long_type_name`/`missing_key`-sem-
+  hint do §P716) e **`try_eval_mutating_method`** (`pub(super)`, mirror
+  de `maybe_resolve_mutating`): avalia args, `access()` do target,
+  e despacha:
+  - `Dict` + `push`/`pop` → erro verbatim ``type dictionary has no
+    method `{method}` `` (mesmo observável do fall-through vanilla, sem
+    a maquinaria — dicts não resolvem campos como métodos);
+  - `Array`/`Dict` → `call_method_mut`;
+  - `Module`/`Func`/`Type`/`Symbol`/`Content` → devolve `None` =
+    **fall-through** para a cadeia existente de `eval_func_call`
+    (campos destes tipos podem resolver para função — ex.: módulo com
+    função `insert`). **Divergência medida e aceite**: o fall-through
+    cristalino re-avalia target e args (o vanilla passa os já
+    avaliados) — dupla avaliação de efeitos só neste caminho; sem
+    consumidor em `cetz` com args com efeitos.
+  - Restantes tipos (escalares, `str`, `bytes`, …) → erro verbatim
+    ``type {ty} has no method `{method}` `` com nome longo (§P716).
+- **`closures.rs` `eval_func_call`**: intercepção do método mutante
+  **antes** do bloco P466 (que avalia o target como valor — clone), no
+  topo da cadeia de intercepções de `FieldAccess`.
+
+### Critérios de verificação
+
+- Os snippets da tabela acima, cada um com o resultado/erro medido.
+- Retorno como expressão: `#let x = a.pop()` liga `x` ao removido.
+- Sem regressão: §P715/§P716 (`arr.at(1) = 20`, `d.a = 10`) e
+  `cargo test --workspace`.
 - `crystalline-lint .` limpo.

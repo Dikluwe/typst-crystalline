@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/rules/eval.md
-//! @prompt-hash 824cf31b
+//! @prompt-hash 1212a648
 //! @layer L1
 //! @updated 2026-07-09
 //!
@@ -385,6 +385,27 @@ pub(super) fn eval_func_call(
                 engine,
             )? {
                 return Ok(Value::Selector(selector));
+            }
+        }
+    }
+
+    // **P717** — Métodos mutantes (`push`/`pop`/`insert`/`remove`): mirror
+    // de `maybe_resolve_mutating` (vanilla `call.rs:189-212`), sobre o
+    // `access()` de P716. Tem de correr **antes** do bloco P466, que avalia
+    // o target como valor (clone) — mutação exige o local. `Ok(None)` =
+    // fall-through para a cadeia normal (módulos/funcs com campos com estes
+    // nomes continuam a resolver abaixo).
+    if let Expr::FieldAccess(access) = call.callee() {
+        if bindings::is_mutating_method(access.field().as_str()) {
+            if let Some(result) = bindings::try_eval_mutating_method(
+                access,
+                call.args(),
+                call.span(),
+                scopes,
+                ctx,
+                engine,
+            )? {
+                return Ok(result);
             }
         }
     }

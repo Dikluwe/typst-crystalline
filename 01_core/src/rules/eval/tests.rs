@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/rules/eval.md
-//! @prompt-hash 824cf31b
+//! @prompt-hash 1212a648
 //! @layer L1
 //! @updated 2026-06-17
 //!
@@ -7003,13 +7003,12 @@ mod tests {
 
     #[test]
     fn p466_dict_remove() {
-        // P466: `dict.remove(key)` retorna o valor removido. No cristalino,
-        // o dispatch de método recebe o dict por valor; a variável original
-        // não é mutada (divergência documentada vs vanilla).
+        // P466: `dict.remove(key)` retorna o valor removido. P717 fechou a
+        // divergência que aqui estava documentada: a variável original agora
+        // É mutada, como no vanilla (métodos mutantes via access()).
         let world = MockWorld::new("#let d = (a: 1, b: 2)\n#let x = d.remove(\"a\")\n#let y = d");
         assert_eq!(eval_let(&world, "x"), Some(Value::Int(1)));
         let mut expected: IndexMap<EcoString, Value, FxBuildHasher> = IndexMap::default();
-        expected.insert("a".into(), Value::Int(1));
         expected.insert("b".into(), Value::Int(2));
         assert_eq!(eval_let(&world, "y"), Some(Value::Dict(expected)));
     }
@@ -7491,13 +7490,15 @@ mod tests {
 
     #[test]
     fn p501_dict_insert_len() {
+        // P717 fechou a divergência: `d.insert(...)` muta `d` e devolve none
+        // (vanilla), em vez de devolver um dict novo sem mutar o original.
         let world = MockWorld::new(
-            "#let d = (a: 1, b: 2, c: 3)\n#let x = d.insert(\"d\", 4)\n#let y = x.len()",
+            "#let d = (a: 1, b: 2, c: 3)\n#{ d.insert(\"d\", 4) }\n#let y = d.len()",
         );
         assert_eq!(
             eval_let(&world, "y"),
             Some(Value::Int(4)),
-            "dict.insert() + dict.len() devem devolver tamanho 4"
+            "dict.insert() muta o dict original; len() deve devolver 4"
         );
     }
 
@@ -8590,5 +8591,226 @@ mod tests {
         // scopes.get+clone) preserva o caminho Ident.
         let m = p716_eval("#let x = 1\n#{ x += 10 }").unwrap();
         assert_eq!(m.scope().get("x"), Some(&Value::Int(11)));
+    }
+
+    // ── P717 — métodos mutantes (`push`, `pop`, `insert`, `remove`) ────────
+
+    #[test]
+    fn p717_push_muta_array() {
+        let m = p716_eval("#let arr = (1, 2, 3)\n#{ arr.push(4) }").unwrap();
+        assert_eq!(
+            m.scope().get("arr"),
+            Some(&Value::Array(vec![
+                Value::Int(1),
+                Value::Int(2),
+                Value::Int(3),
+                Value::Int(4)
+            ]))
+        );
+    }
+
+    #[test]
+    fn p717_pop_muta_e_devolve() {
+        let m = p716_eval("#let a = (1, 2, 3)\n#let x = a.pop()").unwrap();
+        assert_eq!(m.scope().get("x"), Some(&Value::Int(3)));
+        assert_eq!(
+            m.scope().get("a"),
+            Some(&Value::Array(vec![Value::Int(1), Value::Int(2)]))
+        );
+    }
+
+    #[test]
+    fn p717_pop_vazio_erra() {
+        let err = p716_eval("#let a = ()\n#{ a.pop() }").unwrap_err();
+        assert_eq!(err[0].message, "array is empty");
+    }
+
+    #[test]
+    fn p717_insert_no_meio() {
+        let m = p716_eval("#let a = (1, 2, 3)\n#{ a.insert(1, 99) }").unwrap();
+        assert_eq!(
+            m.scope().get("a"),
+            Some(&Value::Array(vec![
+                Value::Int(1),
+                Value::Int(99),
+                Value::Int(2),
+                Value::Int(3)
+            ]))
+        );
+    }
+
+    #[test]
+    fn p717_insert_no_fim_end_ok() {
+        // locate com end_ok=true: índice == len é permitido (append).
+        let m = p716_eval("#let a = (1, 2)\n#{ a.insert(2, 9) }").unwrap();
+        assert_eq!(
+            m.scope().get("a"),
+            Some(&Value::Array(vec![Value::Int(1), Value::Int(2), Value::Int(9)]))
+        );
+    }
+
+    #[test]
+    fn p717_insert_indice_negativo() {
+        // Medido no vanilla: insert(-1, 9) em (1,2,3) → (1, 2, 9, 3).
+        let m = p716_eval("#let a = (1, 2, 3)\n#{ a.insert(-1, 9) }").unwrap();
+        assert_eq!(
+            m.scope().get("a"),
+            Some(&Value::Array(vec![
+                Value::Int(1),
+                Value::Int(2),
+                Value::Int(9),
+                Value::Int(3)
+            ]))
+        );
+    }
+
+    #[test]
+    fn p717_insert_fora_de_limites_erra_sem_sufixo() {
+        let err = p716_eval("#let a = (1, 2, 3)\n#{ a.insert(4, 9) }").unwrap_err();
+        assert_eq!(err[0].message, "array index out of bounds (index: 4, len: 3)");
+    }
+
+    #[test]
+    fn p717_remove_muta_e_devolve() {
+        let m = p716_eval("#let a = (1, 2, 3)\n#let x = a.remove(1)").unwrap();
+        assert_eq!(m.scope().get("x"), Some(&Value::Int(2)));
+        assert_eq!(
+            m.scope().get("a"),
+            Some(&Value::Array(vec![Value::Int(1), Value::Int(3)]))
+        );
+    }
+
+    #[test]
+    fn p717_remove_fora_de_limites_erra_com_sufixo() {
+        // Ao contrário do insert, remove tem default: → o erro tem o sufixo.
+        let err = p716_eval("#let a = (1, 2, 3)\n#{ a.remove(5) }").unwrap_err();
+        assert_eq!(
+            err[0].message,
+            "array index out of bounds (index: 5, len: 3) and no default value was specified"
+        );
+    }
+
+    #[test]
+    fn p717_remove_fora_de_limites_com_default_nao_muta() {
+        let m = p716_eval("#let a = (1, 2, 3)\n#let x = a.remove(5, default: 9)").unwrap();
+        assert_eq!(m.scope().get("x"), Some(&Value::Int(9)));
+        assert_eq!(
+            m.scope().get("a"),
+            Some(&Value::Array(vec![Value::Int(1), Value::Int(2), Value::Int(3)]))
+        );
+    }
+
+    #[test]
+    fn p717_remove_arg_nomeado_desconhecido_erra() {
+        let err = p716_eval("#let a = (1, 2)\n#{ a.remove(0, bad: 1) }").unwrap_err();
+        assert_eq!(err[0].message, "unexpected argument: bad");
+    }
+
+    #[test]
+    fn p717_pop_com_arg_erra() {
+        let err = p716_eval("#let a = (1, 2)\n#{ a.pop(1) }").unwrap_err();
+        assert_eq!(err[0].message, "unexpected argument");
+    }
+
+    #[test]
+    fn p717_push_sem_arg_erra() {
+        let err = p716_eval("#let a = (1, 2)\n#{ a.push() }").unwrap_err();
+        assert_eq!(err[0].message, "missing argument: value");
+    }
+
+    #[test]
+    fn p717_insert_sem_value_erra() {
+        let err = p716_eval("#let a = (1, 2)\n#{ a.insert(1) }").unwrap_err();
+        assert_eq!(err[0].message, "missing argument: value");
+    }
+
+    #[test]
+    fn p717_insert_indice_nao_int_erra() {
+        let err = p716_eval("#let a = (1, 2)\n#{ a.insert(\"x\", 9) }").unwrap_err();
+        assert_eq!(err[0].message, "expected integer, found string");
+    }
+
+    #[test]
+    fn p717_dict_insert_cria_chave() {
+        let m = p716_eval("#let d = (a: 1)\n#{ d.insert(\"b\", 2) }").unwrap();
+        match m.scope().get("d") {
+            Some(Value::Dict(d)) => {
+                assert_eq!(d.get("a"), Some(&Value::Int(1)));
+                assert_eq!(d.get("b"), Some(&Value::Int(2)));
+            }
+            other => panic!("esperado dict, recebeu {:?}", other),
+        }
+    }
+
+    #[test]
+    fn p717_dict_insert_chave_nao_str_erra() {
+        let err = p716_eval("#let d = (a: 1)\n#{ d.insert(5, 2) }").unwrap_err();
+        assert_eq!(err[0].message, "expected string, found integer");
+    }
+
+    #[test]
+    fn p717_dict_remove_muta_e_devolve() {
+        let m = p716_eval("#let d = (a: 1, b: 2)\n#let x = d.remove(\"a\")").unwrap();
+        assert_eq!(m.scope().get("x"), Some(&Value::Int(1)));
+        match m.scope().get("d") {
+            Some(Value::Dict(d)) => {
+                assert_eq!(d.get("a"), None);
+                assert_eq!(d.get("b"), Some(&Value::Int(2)));
+            }
+            other => panic!("esperado dict, recebeu {:?}", other),
+        }
+    }
+
+    #[test]
+    fn p717_dict_remove_chave_ausente_erra_sem_hint() {
+        // Ao contrário do at_mut (P716), o erro do remove NÃO tem hint.
+        let err = p716_eval("#let d = (a: 1)\n#{ d.remove(\"x\") }").unwrap_err();
+        assert_eq!(err[0].message, "dictionary does not contain key \"x\"");
+        assert!(err[0].hints.is_empty());
+    }
+
+    #[test]
+    fn p717_dict_remove_chave_ausente_com_default() {
+        let m = p716_eval("#let d = (a: 1)\n#let x = d.remove(\"x\", default: 7)").unwrap();
+        assert_eq!(m.scope().get("x"), Some(&Value::Int(7)));
+    }
+
+    #[test]
+    fn p717_dict_push_erra_missing_method() {
+        // push/pop não são dict-mutating; dicts não resolvem campos como
+        // métodos (vanilla call.rs:233-238) → mesma mensagem, sem fall-through.
+        let err = p716_eval("#let d = (a: 1)\n#{ d.push(2) }").unwrap_err();
+        assert_eq!(err[0].message, "type dictionary has no method `push`");
+    }
+
+    #[test]
+    fn p717_str_push_erra_missing_method() {
+        let err = p716_eval("#let s = \"ab\"\n#{ s.push(\"c\") }").unwrap_err();
+        assert_eq!(err[0].message, "type string has no method `push`");
+    }
+
+    #[test]
+    fn p717_temporario_erra() {
+        let err = p716_eval("#{ (1, 2).push(3) }").unwrap_err();
+        assert!(err[0].message.contains("cannot mutate a temporary value"));
+    }
+
+    #[test]
+    fn p717_variavel_inexistente_erra() {
+        let err = p716_eval("#{ nope.push(1) }").unwrap_err();
+        assert!(err[0].message.contains("unknown variable: nope"));
+    }
+
+    #[test]
+    fn p717_mecanismo_p716_sem_regressao() {
+        let m = p716_eval("#let d = (a: 1)\n#{ d.a = 10 }\n#let arr = (1, 2)\n#{ arr.at(1) = 20 }").unwrap();
+        match m.scope().get("d") {
+            Some(Value::Dict(d)) => assert_eq!(d.get("a"), Some(&Value::Int(10))),
+            other => panic!("esperado dict, recebeu {:?}", other),
+        }
+        assert_eq!(
+            m.scope().get("arr"),
+            Some(&Value::Array(vec![Value::Int(1), Value::Int(20)]))
+        );
     }
 }
