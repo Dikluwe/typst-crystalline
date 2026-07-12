@@ -2,7 +2,7 @@
 
 **Data:** 2026-07-12
 **Passo:** `00_nucleo/materialization/typst-passo-717.md`
-**Hash do commit (implementação):** `A_PREENCHER`.
+**Hash do commit (implementação):** `c570d53e5`.
 **HEAD base:** `89712433b` (fim de P716).
 **Estado:** FECHADO — os quatro métodos mutantes implementados com paridade
 ao mecanismo do vanilla (`is_mutating_method`/`call_method_mut` +
@@ -133,7 +133,7 @@ código: 25 testes `p717_*`, 23 a falhar no estado P716.
 ## 3. Validação
 
 Estado da medição: working tree com exactamente as alterações deste passo,
-commitado de seguida como `A_PREENCHER` (o diff do commit é o estado
+commitado de seguida como `c570d53e5` (o diff do commit é o estado
 medido). Re-verificação pós-commit em §3.4.
 
 ### 3.1 Documento do passo vs vanilla
@@ -171,10 +171,14 @@ Documento do passo (`/tmp/p717-cetz.typ`):
 
 ### 3.4 Re-verificação pós-commit (proveniência)
 
-Executada no commit `A_PREENCHER`, working tree limpa:
+Executada no commit `c570d53e5`, working tree limpa:
 
-- `/tmp/p717-mut.typ` → `A_CONFIRMAR`
-- `cetz` → `A_CONFIRMAR` (erro e tempo)
+- `/tmp/p717-mut.typ` → mesmos valores: `(1, 2, 3, 4)` / `3 (1, 2)` /
+  `(1, 99, 2, 3)` / `2 (1, 3)`.
+- `cetz` → mesmo bloqueio (`not enough elements to destructure`, length
+  1 vs 2), tempo real 52,2s (52,4s pré-commit; P716 reportou 53,0s —
+  sem alteração significativa, o documento continua a falhar na fase de
+  eval, antes de qualquer layout).
 
 ---
 
