@@ -2,7 +2,7 @@
 
 **Data:** 2026-07-12
 **Passo:** `00_nucleo/materialization/typst-passo-719.md`
-**Hash do commit (implementação):** `A_PREENCHER`.
+**Hash do commit (implementação):** `3ab08fc54`.
 **HEAD base:** `f571a3644` (fim de P718).
 **Estado:** FECHADO — `for (key, value) in dict`, forma de um só nome, e
 dict vazio implementados com paridade ao vanilla, ordem de inserção
@@ -104,7 +104,7 @@ como esperado por ainda não tocar nesse caminho).
 ## 3. Validação
 
 Estado da medição: working tree com exactamente as alterações deste
-passo, commitado de seguida como `A_PREENCHER` (o diff do commit é o
+passo, commitado de seguida como `3ab08fc54` (o diff do commit é o
 estado medido). Re-verificação pós-commit em §3.4.
 
 ### 3.1 Documento do passo vs vanilla
@@ -136,10 +136,12 @@ Documento do passo (`/tmp/p719-cetz.typ`):
 
 ### 3.4 Re-verificação pós-commit (proveniência)
 
-Executada no commit `A_PREENCHER`, working tree limpa:
+Executada no commit `3ab08fc54`, working tree limpa:
 
-- `/tmp/p719-for-dict.typ` → `A_CONFIRMAR`
-- `cetz` → `A_CONFIRMAR` (erro e tempo)
+- `/tmp/p719-for-dict.typ` → mesmo resultado: `a=1 b=2 ("a", 1) ("b", 2) 1 2`.
+- `cetz` → mesmo bloqueio (`cannot apply Add to array and array`), tempo
+  real 52,4s (51,6s pré-commit — variação normal de ruído de máquina; o
+  documento continua a falhar na fase de eval, antes de qualquer layout).
 
 ---
 
