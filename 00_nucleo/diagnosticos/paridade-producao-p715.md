@@ -4,7 +4,7 @@
 **Passo:** sem materialização prévia — instrução directa do utilizador
 ("avança para a desestruturação e corrija o bug"), sonda feita
 directamente contra `lab/typst-original` per protocolo (ADR-0108).
-**Hash do commit (implementação):** a preencher no commit seguinte.
+**Hash do commit (implementação):** `7a901edd4`.
 **HEAD base:** `1879b4610` (fim de P714).
 **Estado:** FECHADO — `let (a, b) = ...`, `(a, b) = ...` (atribuição) e
 `x = v`/`x += v`/etc. implementados com paridade ao mecanismo do
