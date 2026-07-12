@@ -4,7 +4,7 @@
 **Passo:** sem materialização prévia — instrução directa do utilizador
 ("avança para o array.at()"), sonda feita directamente contra
 `lab/typst-original` per protocolo (ADR-0108).
-**Hash do commit (implementação):** a preencher no commit seguinte.
+**Hash do commit (implementação):** `3ca764ab9`.
 **HEAD base:** `1c10a0b2b` (fim de P713).
 **Estado:** FECHADO — `array.at(index, default:)` implementado com
 paridade exacta ao `Array::at`/`locate_opt` do vanilla.
