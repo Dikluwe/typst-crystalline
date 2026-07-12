@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/rules/eval/ops.md
-//! @prompt-hash de828736
+//! @prompt-hash dc990d82
 //! @layer L1
 //! @updated 2026-06-25
 //!
@@ -56,6 +56,19 @@ pub(crate) fn eval_binary_op(op: BinOp, lhs: Value, rhs: Value) -> Result<Value,
         (BinOp::Add, Value::Str(a),   Value::Str(b))   => Ok(Value::Str(a + b.as_str())),
         (BinOp::Add, Value::Content(a), Value::Content(b)) =>
             Ok(Value::Content(Content::sequence(vec![a, b]))),
+        // P720 — Array/Dict + Array/Dict (paridade `impl Add for Array/Dict`,
+        // vanilla `foundations/array.rs:1203-1216`, `dict.rs:388-404`):
+        // concatenação ordenada (array) / merge com o lado direito a vencer
+        // em colisão, posição da primeira ocorrência preservada (dict,
+        // semântica nativa de `IndexMap::extend`).
+        (BinOp::Add, Value::Array(mut a), Value::Array(b)) => {
+            a.extend(b);
+            Ok(Value::Array(a))
+        }
+        (BinOp::Add, Value::Dict(mut a), Value::Dict(b)) => {
+            a.extend(b);
+            Ok(Value::Dict(a))
+        }
 
         // ── Subtracção ──────────────────────────────────────────────────────
         (BinOp::Sub, Value::Int(a),   Value::Int(b))   =>

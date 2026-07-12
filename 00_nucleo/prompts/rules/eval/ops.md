@@ -1,5 +1,5 @@
 # Prompt L0 — `rules/eval/operators`
-Hash do Código: 05178d5e
+Hash do Código: eb4e710c
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/rules/eval/operators.rs`
@@ -183,6 +183,52 @@ casos já divergentes por design neste ficheiro).
 
 ---
 
+## P720 — `Array + Array` e `Dict + Dict` (concatenação/merge)
+
+`(BinOp::Add, Value::Array(_), Value::Array(_))` e o par `Dict` não
+tinham braço — caíam no fronteira genérico (`"cannot apply Add to array
+and array"`). Isolado por P719 via `cetz` (`path-util.typ:423,430`,
+`bezier.typ:413,522,524`, `hobby.typ:77,78,126` — todos `Array + Array`,
+concatenação de coordenadas/segmentos de path).
+
+### Mecanismo do vanilla (`foundations/array.rs:1203-1216`, `dict.rs:388-404`)
+
+```rust
+impl Add for Array { fn add(mut self, rhs) -> Self { self += rhs; self } }
+impl AddAssign for Array { fn add_assign(&mut self, rhs) { self.0.extend(rhs.0); } }
+// idêntico para Dict, sobre IndexMap::extend
+```
+
+`Array + Array` = concatenação (`extend`, ordem preservada, sem dedup).
+`Dict + Dict` = merge — chave do lado **direito** vence em colisão, mas
+**mantém a posição original** da primeira ocorrência (semântica de
+`IndexMap::extend`/`insert`: actualiza o valor in-place, não move para o
+fim). Medido: `(a: 1, b: 2) + (b: 99, c: 3)` → `(a: 1, b: 99, c: 3)` —
+`b` fica na posição 1, valor 99; `c` é acrescentado no fim.
+
+### `Dict + Dict` — sem consumidor confirmado em `cetz`, implementado por ser a mesma função
+
+Grep a `+ (` em `path-util.typ`/`bezier.typ`/`hobby.typ` (os três ficheiros
+apontados por P719) não encontra nenhum `Dict + Dict` — só `Array +
+Array`. Ainda assim, `Dict + Dict` é implementado no mesmo passo: no
+vanilla partilha a mesma posição estrutural (`ops.rs:39-40,140-141`, par
+de braços lado a lado) e o custo de o adicionar é uma linha idêntica à
+de `Array` — não há scope-out real a fazer sem duplicar artificialmente
+a decisão (mesmo raciocínio de P718 para `Value::Args` em `eval_args`).
+
+### Semântica de implementação
+
+```rust
+(BinOp::Add, Value::Array(mut a), Value::Array(b)) => { a.extend(b); Ok(Value::Array(a)) }
+(BinOp::Add, Value::Dict(mut a), Value::Dict(b))    => { a.extend(b); Ok(Value::Dict(a)) }
+```
+
+`IndexMap::extend`/`Vec::extend` já implementam exactamente a semântica
+medida (concatenação ordenada para array; override-in-place + append
+para dict) — sem lógica adicional.
+
+---
+
 ## Critérios de Verificação
 
 ```rust
@@ -212,6 +258,13 @@ eval_binary_op(Div, Length(10pt+1em), Length(5pt)) == Err (incomensurável)
 eval_binary_op(Div, Length(10pt), Length(0pt))  == Err ("cannot divide by zero")
 eval_binary_op(Div, Length(10pt+4em), Int(2))   == Length(5pt+2em)
 eval_binary_op(Div, Length(10pt), Float(4.0))   == Length(2.5pt)
+
+// P720 — Array + Array, Dict + Dict
+eval_binary_op(Add, Array[1,2], Array[3,4])     == Array[1,2,3,4]
+eval_binary_op(Add, Array[], Array[1,2])        == Array[1,2]
+eval_binary_op(Add, Array[1,2], Array[])        == Array[1,2]
+eval_binary_op(Add, Dict{a:1}, Dict{b:2})       == Dict{a:1,b:2}
+eval_binary_op(Add, Dict{a:1,b:2}, Dict{b:99,c:3}) == Dict{a:1,b:99,c:3}  // ordem preservada
 ```
 
 ---
@@ -232,3 +285,4 @@ eval_binary_op(Div, Length(10pt), Float(4.0))   == Length(2.5pt)
 | 2026-06-25 | Criação — P469 operadores para `Rel<Length>` | `operators.rs`, `eval/mod.rs`, `tests.rs` |
 | 2026-07-11 | P706 — `in`/`not in` para `Str`/`Dict`/`Array` (isolado via `cetz`) | `operators.rs`, `tests.rs` |
 | 2026-07-11 | P713 — `Length / Length` (paridade `try_div`), `Length / Int\|Float`; scope-out `Ratio`/`Relative` mistos (não produzíveis por sintaxe de utilizador) | `operators.rs`, `tests.rs` |
+| 2026-07-12 | P720 — `Array + Array` (concatenação) e `Dict + Dict` (merge, direita vence, posição preservada); isolado via `cetz` | `operators.rs`, `tests.rs` |

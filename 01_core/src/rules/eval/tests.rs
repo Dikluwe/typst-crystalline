@@ -1306,6 +1306,106 @@ mod tests {
         assert_eq!(eval_let(&world, "x"), Some(Value::Float(2.0)));
     }
 
+    // ── P720 — `Array + Array` (concatenação) e `Dict + Dict` (merge) ───────
+
+    #[test]
+    fn p720_array_mais_array_concatena() {
+        assert_eq!(
+            eval_binary_op(
+                BinOp::Add,
+                Value::Array(vec![Value::Int(1), Value::Int(2)]),
+                Value::Array(vec![Value::Int(3), Value::Int(4)]),
+            ),
+            Ok(Value::Array(vec![
+                Value::Int(1),
+                Value::Int(2),
+                Value::Int(3),
+                Value::Int(4)
+            ]))
+        );
+    }
+
+    #[test]
+    fn p720_array_vazio_mais_array() {
+        assert_eq!(
+            eval_binary_op(
+                BinOp::Add,
+                Value::Array(vec![]),
+                Value::Array(vec![Value::Int(1), Value::Int(2)]),
+            ),
+            Ok(Value::Array(vec![Value::Int(1), Value::Int(2)]))
+        );
+    }
+
+    #[test]
+    fn p720_array_mais_array_vazio() {
+        assert_eq!(
+            eval_binary_op(
+                BinOp::Add,
+                Value::Array(vec![Value::Int(1), Value::Int(2)]),
+                Value::Array(vec![]),
+            ),
+            Ok(Value::Array(vec![Value::Int(1), Value::Int(2)]))
+        );
+    }
+
+    #[test]
+    fn p720_dict_mais_dict_sem_colisao() {
+        let mut a = indexmap::IndexMap::default();
+        a.insert(EcoString::from("a"), Value::Int(1));
+        let mut b = indexmap::IndexMap::default();
+        b.insert(EcoString::from("b"), Value::Int(2));
+
+        let mut expected = indexmap::IndexMap::default();
+        expected.insert(EcoString::from("a"), Value::Int(1));
+        expected.insert(EcoString::from("b"), Value::Int(2));
+
+        assert_eq!(
+            eval_binary_op(BinOp::Add, Value::Dict(a), Value::Dict(b)),
+            Ok(Value::Dict(expected))
+        );
+    }
+
+    #[test]
+    fn p720_dict_mais_dict_colisao_direita_vence_posicao_preservada() {
+        // Medido no vanilla: (a:1,b:2) + (b:99,c:3) → (a:1,b:99,c:3) — "b"
+        // fica na posição 1 (não move para o fim), valor do lado direito.
+        let mut a = indexmap::IndexMap::default();
+        a.insert(EcoString::from("a"), Value::Int(1));
+        a.insert(EcoString::from("b"), Value::Int(2));
+        let mut b = indexmap::IndexMap::default();
+        b.insert(EcoString::from("b"), Value::Int(99));
+        b.insert(EcoString::from("c"), Value::Int(3));
+
+        let result = eval_binary_op(BinOp::Add, Value::Dict(a), Value::Dict(b)).unwrap();
+        match result {
+            Value::Dict(d) => {
+                let keys: Vec<&str> = d.keys().map(|k| k.as_str()).collect();
+                assert_eq!(keys, vec!["a", "b", "c"], "ordem das chaves deve ser preservada");
+                assert_eq!(d.get("a"), Some(&Value::Int(1)));
+                assert_eq!(d.get("b"), Some(&Value::Int(99)));
+                assert_eq!(d.get("c"), Some(&Value::Int(3)));
+            }
+            other => panic!("esperado dict, recebeu {:?}", other),
+        }
+    }
+
+    #[test]
+    fn p720_cetz_concat_end_to_end() {
+        // Reprodução do padrão real de cetz (hobby.typ:77): concatenar
+        // arrays via `+` num único `#let`.
+        let world = MockWorld::new("#let x = (1, 2) + (3, 4)");
+        assert_eq!(
+            eval_let(&world, "x"),
+            Some(Value::Array(vec![
+                Value::Int(1),
+                Value::Int(2),
+                Value::Int(3),
+                Value::Int(4)
+            ]))
+        );
+    }
+
     #[test]
     fn paridade_eq_int_int() {
         assert_eq!(
