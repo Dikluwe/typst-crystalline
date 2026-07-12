@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/rules/eval.md
-//! @prompt-hash 1212a648
+//! @prompt-hash dc496ef8
 //! @layer L1
 //! @updated 2026-07-09
 //!
@@ -39,7 +39,12 @@ use super::{eval_expr, EvalContext, FlowEvent};
 /// Avalia a lista de argumentos de uma chamada de função.
 ///
 /// Posicionais são avaliados em ordem; named args são avaliados e indexados
-/// por nome. Spread ignorado (fronteira deliberada, adiado).
+/// por nome. **P718** — `..spread` mirror de `ast::Args::eval` (vanilla
+/// `call.rs:367-416`): `none` ignorado; `array` vira posicionais; `dict`
+/// vira nomeados; `Value::Args` (reencaminhamento de um sink `..rest` de
+/// outra closure) funde posicionais e nomeados; outro tipo erra `cannot
+/// spread {ty}` — **sem** o sufixo "into X" das mensagens de literal
+/// (`Expr::Array`/`Expr::Dict`, `mod.rs`), mensagem distinta no vanilla.
 pub(super) fn eval_args(
     args_node: crate::entities::ast::expr::Args<'_>,
     scopes: &mut Scopes<'_>,
@@ -57,7 +62,27 @@ pub(super) fn eval_args(
                     eval_expr(name_expr.expr(), scopes, ctx, engine)?,
                 );
             }
-            Arg::Spread(_) => {} // fronteira deliberada
+            Arg::Spread(spread) => {
+                let value = eval_expr(spread.expr(), scopes, ctx, engine)?;
+                match value {
+                    Value::None => {}
+                    Value::Array(arr) => items.extend(arr),
+                    Value::Dict(dict) => named.extend(dict),
+                    Value::Args(args) => {
+                        items.extend(args.items);
+                        named.extend(args.named);
+                    }
+                    other => {
+                        return Err(vec![SourceDiagnostic::error(
+                            spread.span(),
+                            format!(
+                                "cannot spread {}",
+                                super::bindings::long_type_name(&other)
+                            ),
+                        )]);
+                    }
+                }
+            }
         }
     }
     Ok(Args { items, named })

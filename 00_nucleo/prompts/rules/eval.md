@@ -1,5 +1,5 @@
 # Prompt L0 — rules/eval
-Hash do Código: 8329332a
+Hash do Código: 14727cc0
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/rules/eval/mod.rs`
@@ -1367,5 +1367,93 @@ Comportamento medido (vanilla em `89712433b`, binário
 - Os snippets da tabela acima, cada um com o resultado/erro medido.
 - Retorno como expressão: `#let x = a.pop()` liga `x` ao removido.
 - Sem regressão: §P715/§P716 (`arr.at(1) = 20`, `d.a = 10`) e
+  `cargo test --workspace`.
+- `crystalline-lint .` limpo.
+
+## §P718 — Spread em literais de array/dict e em argumentos de chamada
+
+Isolado por P717 via `cetz`: `#let x = (1, ..(2, 3))` dava `(1)` (len 1),
+não `(1, 2, 3)` (len 3) — spread em literal de array **ignorado**
+(`Expr::Array` filtrava só `ArrayItem::Pos`; `DictItem::Spread(_) => {}`
+era no-op). Sonda confirmou que `eval_args` (spread em chamadas) tem o
+mesmo gap **e** tem consumidor real e pesado em `cetz` (`func(..c)`,
+`resolve(ctx, ..c)`, `fast-line(..pts, …)` — dezenas de sítios). Tamanho
+efectivo: **M**, como o passo previa.
+
+### Comportamento vanilla confirmado (`typst-eval/code.rs`, `call.rs`)
+
+- **Array literal** (`code.rs:224-271`, `ast::Array::eval`): por item —
+  `None` → ignora (não altera `all_dict_spreads`); `Array` → `extend`
+  (`all_dict_spreads = false`); `Dict` → se `all_dict_spreads` continua
+  `true` **e** todos os itens restantes também são spreads de dict (
+  lookahead via `items.all(...)`, avaliando-os) → erro `cannot spread
+  dictionary into array` **com hint** (`add a colon to create a
+  dictionary instead: `` `{fixed}` ``, `fixed` = texto fonte do literal
+  com o primeiro `(` substituído por `(: `); senão → mesmo erro **sem**
+  hint; outro tipo → `cannot spread {ty} into array`. `Pos` sempre marca
+  `all_dict_spreads = false`.
+- **Dict literal** (`code.rs:273-306`, `ast::Dict::eval`): `None` →
+  ignora; `Dict` → `extend`; outro → `cannot spread {ty} into
+  dictionary`.
+- **Argumentos de chamada** (`call.rs:367-416`, `ast::Args::eval`):
+  `None` → ignora; `Array` → cada elemento vira posicional; `Dict` →
+  cada par vira nomeado; **`Args`** → funde posicionais e nomeados
+  (reencaminhamento de `..rest`, ex. `f(..b)` onde `b` é um sink `..b`
+  de outra closure); outro tipo → `cannot spread {ty}` — **sem** o
+  sufixo "into X" (mensagem distinta da dos literais).
+
+Comportamento medido (vanilla em `a8383e1e6`):
+
+```
+(1, ..(2, 3), 4)              → (1, 2, 3, 4)
+(a: 1, ..(b: 2, c: 3), d: 4)  → (a: 1, b: 2, c: 3, d: 4)
+(..(), 1, ..())                → (1,)
+(1, ..none, 2)                 → (1, 2)
+(a: 1, ..none, b: 2)           → (a: 1, b: 2)
+(..(1,2), ..(a: 1))             → Err cannot spread dictionary into array
+                                    [sem hint — Array spread antes zera
+                                    all_dict_spreads]
+(..(a:1), ..(b:2))               → Err cannot spread dictionary into array
+                                    + hint add a colon … `(: ..(a:1), ..(b:2))`
+f(..5)  (spread int em chamada)  → Err cannot spread integer  [sem "into"]
+f(..(1,2), ..(3,4))  (sink ..a)  → a.pos() = (1, 2, 3, 4)
+f(1, ..(x:1), ..(y:2), 3)        → (a.pos(), a.named()) = ((1,3),(x:1,y:2))
+g(..a)=a; f(..b)=g(..b); f(1,2,x:3) → r.pos()=(1,2), r.named()=(x:3)
+                                        [reencaminhamento de Value::Args]
+```
+
+Confirmado (rest params, `#let f(..pts) = pts.pos().len()`): **fora do
+scope deste passo** — já implementado (P504), sem regressão a verificar
+aqui só pela sua presença.
+
+### Implementação
+
+- **`mod.rs` `Expr::Array`**: reescrito para percorrer
+  `Vec<ArrayItem>` colectado (permite lookahead por índice).
+  `all_dict_spreads` seguido item a item; `Dict` com lookahead via
+  `remaining_are_dict_spreads` (nova, `bindings.rs`-adjacente em
+  `mod.rs`: itera os itens restantes, `Spread` que avalia a `Dict` →
+  continua, qualquer outra coisa → `false`); `fixed` via
+  `arr.to_untyped().clone().into_text()` (`SyntaxNode::into_text`,
+  reconstrói o texto do literal) + `replacen('(', "(: ", 1)`.
+- **`mod.rs` `Expr::Dict`**: braço `DictItem::Spread` deixa de ser
+  no-op — `None`/`Dict`/erro, mirror directo.
+- **`closures.rs` `eval_args`**: braço `Arg::Spread` deixa de ser
+  no-op — `None`/`Array`→items/`Dict`→named/`Args`→funde ambos/erro
+  (mensagem **sem** "into", distinta dos literais).
+- **`long_type_name`** (P716, `bindings.rs`) passa a `pub(super)` —
+  reaproveitado nos três sítios acima para o nome longo do tipo nas
+  mensagens de erro (ADR-0107: a mensagem é o observável).
+
+### Critérios de verificação
+
+- Os snippets da tabela acima, cada um com o resultado/erro medido
+  (incluindo o texto exacto do hint).
+- Reencaminhamento `Value::Args` (`g(..b)` dentro de `f(..b) = g(..b)`)
+  — mecanismo distinto de array/dict, sem consumidor confirmado em
+  `cetz` neste exacto padrão, mas medido no vanilla e implementado por
+  ser a mesma função `Args::eval` (não há como scope-out parcial sem
+  duplicar a função).
+- Sem regressão: rest params (`..pts` em definição de closure, P504) e
   `cargo test --workspace`.
 - `crystalline-lint .` limpo.

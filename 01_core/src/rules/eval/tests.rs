@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/rules/eval.md
-//! @prompt-hash 1212a648
+//! @prompt-hash dc496ef8
 //! @layer L1
 //! @updated 2026-06-17
 //!
@@ -8812,5 +8812,153 @@ mod tests {
             m.scope().get("arr"),
             Some(&Value::Array(vec![Value::Int(1), Value::Int(20)]))
         );
+    }
+
+    // ── P718 — spread em literais de array/dict e em args de chamada ───────
+
+    #[test]
+    fn p718_array_spread_no_meio() {
+        let m = p716_eval("#let a = (1, ..(2, 3), 4)").unwrap();
+        assert_eq!(
+            m.scope().get("a"),
+            Some(&Value::Array(vec![
+                Value::Int(1),
+                Value::Int(2),
+                Value::Int(3),
+                Value::Int(4)
+            ]))
+        );
+    }
+
+    #[test]
+    fn p718_dict_spread_no_meio() {
+        let m = p716_eval("#let d = (a: 1, ..(b: 2, c: 3), d: 4)").unwrap();
+        match m.scope().get("d") {
+            Some(Value::Dict(d)) => {
+                assert_eq!(d.get("a"), Some(&Value::Int(1)));
+                assert_eq!(d.get("b"), Some(&Value::Int(2)));
+                assert_eq!(d.get("c"), Some(&Value::Int(3)));
+                assert_eq!(d.get("d"), Some(&Value::Int(4)));
+            }
+            other => panic!("esperado dict, recebeu {:?}", other),
+        }
+    }
+
+    #[test]
+    fn p718_array_spread_vazio() {
+        let m = p716_eval("#let vazio = (..(), 1, ..())").unwrap();
+        assert_eq!(m.scope().get("vazio"), Some(&Value::Array(vec![Value::Int(1)])));
+    }
+
+    #[test]
+    fn p718_array_spread_none_ignora() {
+        let m = p716_eval("#let a = (1, ..none, 2)").unwrap();
+        assert_eq!(
+            m.scope().get("a"),
+            Some(&Value::Array(vec![Value::Int(1), Value::Int(2)]))
+        );
+    }
+
+    #[test]
+    fn p718_dict_spread_none_ignora() {
+        let m = p716_eval("#let d = (a: 1, ..none, b: 2)").unwrap();
+        match m.scope().get("d") {
+            Some(Value::Dict(d)) => {
+                assert_eq!(d.get("a"), Some(&Value::Int(1)));
+                assert_eq!(d.get("b"), Some(&Value::Int(2)));
+            }
+            other => panic!("esperado dict, recebeu {:?}", other),
+        }
+    }
+
+    #[test]
+    fn p718_array_spread_dict_sem_hint() {
+        // Array-spread antes zera all_dict_spreads — erro sem hint.
+        let err = p716_eval("#let a = (..(1, 2), ..(a: 1))").unwrap_err();
+        assert_eq!(err[0].message, "cannot spread dictionary into array");
+        assert!(err[0].hints.is_empty());
+    }
+
+    #[test]
+    fn p718_array_spread_dict_com_hint() {
+        // Todos os itens são spreads de dict — hint sugere criar dict.
+        let err = p716_eval("#let a = (..(a: 1), ..(b: 2))").unwrap_err();
+        assert_eq!(err[0].message, "cannot spread dictionary into array");
+        assert!(err[0].hints.iter().any(|h| h.contains("add a colon")));
+        assert!(err[0].hints.iter().any(|h| h.contains("(: ..(a: 1), ..(b: 2))")));
+    }
+
+    #[test]
+    fn p718_array_spread_tipo_invalido_erra() {
+        let err = p716_eval("#let a = (1, ..5)").unwrap_err();
+        assert_eq!(err[0].message, "cannot spread integer into array");
+    }
+
+    #[test]
+    fn p718_dict_spread_tipo_invalido_erra() {
+        let err = p716_eval("#let d = (a: 1, ..5)").unwrap_err();
+        assert_eq!(err[0].message, "cannot spread integer into dictionary");
+    }
+
+    #[test]
+    fn p718_call_spread_array_junta_posicionais() {
+        let m = p716_eval(
+            "#let f(a, b, c) = a + b + c\n#let x = f(1, ..(2, 3))",
+        )
+        .unwrap();
+        assert_eq!(m.scope().get("x"), Some(&Value::Int(6)));
+    }
+
+    #[test]
+    fn p718_call_spread_dict_junta_nomeados() {
+        let m = p716_eval(
+            "#let f(a, b: 0) = a + b\n#let x = f(1, ..(b: 9))",
+        )
+        .unwrap();
+        assert_eq!(m.scope().get("x"), Some(&Value::Int(10)));
+    }
+
+    #[test]
+    fn p718_call_spread_none_ignora() {
+        let m = p716_eval("#let f(a, b) = a + b\n#let x = f(1, ..none, ..(2,))").unwrap();
+        assert_eq!(m.scope().get("x"), Some(&Value::Int(3)));
+    }
+
+    #[test]
+    fn p718_call_spread_tipo_invalido_erra_sem_into() {
+        let err = p716_eval("#let f(a, b) = a + b\n#{ f(..5) }").unwrap_err();
+        assert_eq!(err[0].message, "cannot spread integer");
+    }
+
+    #[test]
+    fn p718_call_spread_args_reencaminha_posicionais_e_nomeados() {
+        // Value::Args (sink `..b` de uma closure) reencaminhado para outra
+        // chamada via spread — funde posicionais e nomeados.
+        let m = p716_eval(
+            "#let g(..a) = (a.pos(), a.named())\n\
+             #let f(..b) = g(..b)\n\
+             #let r = f(1, 2, x: 3)",
+        )
+        .unwrap();
+        match m.scope().get("r") {
+            Some(Value::Array(items)) => {
+                assert_eq!(
+                    items[0],
+                    Value::Array(vec![Value::Int(1), Value::Int(2)])
+                );
+                match &items[1] {
+                    Value::Dict(d) => assert_eq!(d.get("x"), Some(&Value::Int(3))),
+                    other => panic!("esperado dict, recebeu {:?}", other),
+                }
+            }
+            other => panic!("esperado array, recebeu {:?}", other),
+        }
+    }
+
+    #[test]
+    fn p718_rest_param_definicao_sem_regressao() {
+        // Fora do scope deste passo (P504) — confirma que não regrediu.
+        let m = p716_eval("#let f(..pts) = pts.pos().len()\n#let x = f(1, 2, 3)").unwrap();
+        assert_eq!(m.scope().get("x"), Some(&Value::Int(3)));
     }
 }

@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/rules/eval.md
-//! @prompt-hash 1212a648
+//! @prompt-hash dc496ef8
 //! @layer L1
 //! @updated 2026-07-09
 //!
@@ -782,20 +782,70 @@ pub(crate) fn eval_expr(
 
         // Passo 81 — array literal `(1fr, 1fr)` / `(10pt, auto, 1fr)`.
         // Necessário para o argumento `columns` de `grid()`.
+        // **P718** — mirror de `ast::Array::eval` (vanilla `code.rs:224-271`):
+        // `..spread` de `none` é ignorado, de `array` estende, de `dict`
+        // erra (com hint se TODOS os itens forem spreads de dict — ver
+        // `remaining_are_dict_spreads`), outro tipo erra sem hint.
         Expr::Array(arr) => {
-            let mut items = Vec::new();
-            for item in arr.items() {
-                if let ArrayItem::Pos(expr) = item {
-                    items.push(eval_expr(expr, scopes, ctx, engine)?);
+            let items_vec: Vec<ArrayItem> = arr.items().collect();
+            let mut result: Vec<Value> = Vec::with_capacity(items_vec.len());
+            let mut all_dict_spreads = true;
+            for (i, item) in items_vec.iter().enumerate() {
+                match *item {
+                    ArrayItem::Pos(expr) => {
+                        all_dict_spreads = false;
+                        result.push(eval_expr(expr, scopes, ctx, engine)?);
+                    }
+                    ArrayItem::Spread(spread) => {
+                        let value = eval_expr(spread.expr(), scopes, ctx, engine)?;
+                        match value {
+                            Value::None => {}
+                            Value::Array(a) => {
+                                all_dict_spreads = false;
+                                result.extend(a);
+                            }
+                            Value::Dict(_)
+                                if all_dict_spreads
+                                    && remaining_are_dict_spreads(
+                                        &items_vec[i + 1..],
+                                        scopes,
+                                        ctx,
+                                        engine,
+                                    ) =>
+                            {
+                                let full_text =
+                                    arr.to_untyped().clone().into_text().to_string();
+                                let fixed = full_text.replacen('(', "(: ", 1);
+                                return Err(vec![SourceDiagnostic::error(
+                                    spread.span(),
+                                    "cannot spread dictionary into array".to_string(),
+                                )
+                                .with_hint(format!(
+                                    "add a colon to create a dictionary instead: `{fixed}`"
+                                ))]);
+                            }
+                            other => {
+                                return Err(vec![SourceDiagnostic::error(
+                                    spread.span(),
+                                    format!(
+                                        "cannot spread {} into array",
+                                        bindings::long_type_name(&other)
+                                    ),
+                                )]);
+                            }
+                        }
+                    }
                 }
             }
-            Ok(Value::Array(items))
+            Ok(Value::Array(result))
         }
 
         // **P466** — dict literal `(a: 1, b: 2)` e `("a": 1)`.
         // Dicts com chaves keyed não-string (ex.: regex) são deixados como
         // `Value::None` para que callers especializados (ex.: `#set text(font:)`)
         // possam inspeccionar o AST directamente.
+        // **P718** — `..spread` mirror de `ast::Dict::eval` (vanilla
+        // `code.rs:273-306`): `none` ignorado, `dict` estende, outro erra.
         Expr::Dict(dict) => {
             let mut map = indexmap::IndexMap::default();
             for item in dict.items() {
@@ -816,7 +866,22 @@ pub(crate) fn eval_expr(
                         let value = eval_expr(keyed.expr(), scopes, ctx, engine)?;
                         map.insert(key, value);
                     }
-                    crate::entities::ast::expr::DictItem::Spread(_) => {}
+                    crate::entities::ast::expr::DictItem::Spread(spread) => {
+                        let value = eval_expr(spread.expr(), scopes, ctx, engine)?;
+                        match value {
+                            Value::None => {}
+                            Value::Dict(d) => map.extend(d),
+                            other => {
+                                return Err(vec![SourceDiagnostic::error(
+                                    spread.span(),
+                                    format!(
+                                        "cannot spread {} into dictionary",
+                                        bindings::long_type_name(&other)
+                                    ),
+                                )]);
+                            }
+                        }
+                    }
                 }
             }
             Ok(Value::Dict(map))
@@ -915,6 +980,29 @@ pub(crate) fn eval_expr(
         // **P715** — `(a, b) = expr`. Ver `bindings::eval_destruct_assignment`.
         Expr::DestructAssignment(node) => bindings::eval_destruct_assignment(node, scopes, ctx, engine),
     }
+}
+
+/// **P718** — lookahead para o hint de `Expr::Array` (mirror do
+/// `items.all(...)` de `ast::Array::eval`, vanilla `code.rs:253-265`):
+/// devolve `true` sse todos os itens restantes forem `Spread` cuja
+/// expressão avalia a `Value::Dict`. Qualquer `Pos`, spread de outro tipo,
+/// ou erro de avaliação → `false` (short-circuit, sem consumir o resto).
+fn remaining_are_dict_spreads(
+    items: &[ArrayItem],
+    scopes: &mut Scopes<'_>,
+    ctx: &mut EvalContext,
+    engine: &mut Engine<'_>,
+) -> bool {
+    for item in items {
+        match item {
+            ArrayItem::Spread(s) => match eval_expr(s.expr(), scopes, ctx, engine) {
+                Ok(Value::Dict(_)) => continue,
+                _ => return false,
+            },
+            ArrayItem::Pos(_) => return false,
+        }
+    }
+    true
 }
 
 /// Avalia o corpo de um nó de markup como Content.

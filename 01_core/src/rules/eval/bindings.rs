@@ -366,7 +366,7 @@ pub(super) fn eval_assign(
 /// **P716** — nome longo do tipo, como o vanilla o escreve nas mensagens de
 /// erro do `Access` ("integer does not have accessible fields") — a mensagem
 /// é o observável (ADR-0107). Só difere do `type_name()` curto nos escalares.
-fn long_type_name(value: &Value) -> &'static str {
+pub(super) fn long_type_name(value: &Value) -> &'static str {
     match value {
         Value::Int(_) => "integer",
         Value::Str(_) => "string",
