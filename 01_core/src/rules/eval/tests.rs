@@ -6800,6 +6800,41 @@ mod tests {
         assert_eq!(eval_let(&world, "x"), Some(Value::Int(3)));
     }
 
+    // ── P714 — array.at(index, default:) — via sintaxe de chamada de método ──
+
+    #[test]
+    fn p714_array_at_e2e_indice_positivo() {
+        let world = MockWorld::new("#let x = (10, 20, 30).at(1)");
+        assert_eq!(eval_let(&world, "x"), Some(Value::Int(20)));
+    }
+
+    #[test]
+    fn p714_array_at_e2e_indice_negativo() {
+        let world = MockWorld::new("#let x = (10, 20, 30).at(-1)");
+        assert_eq!(eval_let(&world, "x"), Some(Value::Int(30)));
+    }
+
+    #[test]
+    fn p714_array_at_e2e_com_default() {
+        let world = MockWorld::new(r#"#let x = (10, 20).at(5, default: "faltou")"#);
+        assert_eq!(eval_let(&world, "x"), Some(Value::Str("faltou".into())));
+    }
+
+    #[test]
+    fn p714_array_at_e2e_fora_de_limites_sem_default_erra() {
+        let world = MockWorld::new("#let x = (10, 20).at(5)");
+        let src = World::source(&world, World::main(&world)).unwrap();
+        assert!(eval_for_test(&world, &src).is_err());
+    }
+
+    #[test]
+    fn p714_array_at_e2e_replica_cetz_aabb() {
+        // Reprodução do padrão real de cetz (`aabb.typ:43,75-77`):
+        // `bounds.high.at(2, default: 0)`.
+        let world = MockWorld::new("#let x = (1, 2).at(2, default: 0)");
+        assert_eq!(eval_let(&world, "x"), Some(Value::Int(0)));
+    }
+
     #[test]
     fn p466_array_rev() {
         let world = MockWorld::new("#let x = (1, 2, 3).rev()");

@@ -42,6 +42,7 @@ pub(crate) fn try_dispatch_collection_method(
         (Value::Array(arr), "len") => Some(Ok(Value::Int(arr.len() as i64))),
         (Value::Array(arr), "first") => Some(Ok(array_first(arr))),
         (Value::Array(arr), "last") => Some(Ok(array_last(arr))),
+        (Value::Array(arr), "at") => Some(array_at(arr, args)),
         (Value::Array(arr), "rev") => Some(Ok(array_rev(arr))),
         (Value::Array(arr), "sum") => Some(array_sum(arr)),
         (Value::Array(arr), "sorted") => Some(array_sorted(arr, args, scopes, ctx, engine)),
@@ -110,6 +111,42 @@ fn array_first(arr: Vec<Value>) -> Value {
 
 fn array_last(arr: Vec<Value>) -> Value {
     arr.last().cloned().unwrap_or(Value::None)
+}
+
+/// `array.at(index, default: value)` — P714. Paridade com o vanilla
+/// (`foundations/array.rs:207-221`, `locate_opt`): índice negativo conta a
+/// partir do fim (`len + index`); fora de limites usa `default` se
+/// fornecido, senão erro (mesma mensagem do vanilla,
+/// `out_of_bounds_no_default`).
+fn array_at(arr: Vec<Value>, args: Args) -> SourceResult<Value> {
+    if args.named.len() > 1 || (args.named.len() == 1 && !args.named.contains_key("default")) {
+        let bad = args.named.keys().find(|k| k.as_str() != "default")
+            .map(|k| k.as_str()).unwrap_or("?");
+        return Err(vec![SourceDiagnostic::error(
+            Span::detached(),
+            format!("array.at() argumento nomeado desconhecido: '{bad}'"),
+        )]);
+    }
+    let default = args.named.get("default").cloned();
+    let index = expect_one_int(args, "array.at()")?;
+    let len = arr.len() as i64;
+    let resolved = if index >= 0 { Some(index) } else { len.checked_add(index) };
+    let value = resolved
+        .filter(|&v| v >= 0 && v < len)
+        .and_then(|v| arr.get(v as usize).cloned());
+    match value {
+        Some(v) => Ok(v),
+        None => match default {
+            Some(v) => Ok(v),
+            None => Err(vec![SourceDiagnostic::error(
+                Span::detached(),
+                format!(
+                    "array index out of bounds (index: {index}, len: {len}) \
+                     and no default value was specified"
+                ),
+            )]),
+        },
+    }
 }
 
 fn array_rev(arr: Vec<Value>) -> Value {
@@ -1161,6 +1198,65 @@ mod tests {
         let mut args = make_args(vec![Value::Str("a".into())], None);
         args.named.insert("foo".into(), Value::Int(1));
         assert!(dict_at(dict, args).is_err());
+    }
+
+    // ── P714 — array.at(index, default:) ──────────────────────────────────────
+
+    #[test]
+    fn p714_array_at_indice_positivo() {
+        let arr = vec![Value::Int(10), Value::Int(20), Value::Int(30)];
+        let args = make_args(vec![Value::Int(1)], None);
+        assert_eq!(array_at(arr, args).unwrap(), Value::Int(20));
+    }
+
+    #[test]
+    fn p714_array_at_indice_negativo_conta_do_fim() {
+        // Paridade `locate_opt`: -1 -> len + (-1) = último elemento.
+        let arr = vec![Value::Int(10), Value::Int(20), Value::Int(30)];
+        let args = make_args(vec![Value::Int(-1)], None);
+        assert_eq!(array_at(arr, args).unwrap(), Value::Int(30));
+
+        let arr = vec![Value::Int(10), Value::Int(20), Value::Int(30)];
+        let args = make_args(vec![Value::Int(-3)], None);
+        assert_eq!(array_at(arr, args).unwrap(), Value::Int(10));
+    }
+
+    #[test]
+    fn p714_array_at_fora_de_limites_com_default() {
+        let arr = vec![Value::Int(10), Value::Int(20)];
+        let args = make_args(vec![Value::Int(5)], Some(("default", Value::Int(99))));
+        assert_eq!(array_at(arr, args).unwrap(), Value::Int(99));
+
+        // Negativo além do início também usa default.
+        let arr = vec![Value::Int(10), Value::Int(20)];
+        let args = make_args(vec![Value::Int(-5)], Some(("default", Value::Int(-1))));
+        assert_eq!(array_at(arr, args).unwrap(), Value::Int(-1));
+    }
+
+    #[test]
+    fn p714_array_at_fora_de_limites_sem_default_erra() {
+        let arr = vec![Value::Int(10), Value::Int(20)];
+        let args = make_args(vec![Value::Int(5)], None);
+        let err = array_at(arr, args).unwrap_err();
+        assert!(
+            err[0].message.contains("out of bounds") && err[0].message.contains("no default"),
+            "mensagem inesperada: {:?}", err[0].message
+        );
+    }
+
+    #[test]
+    fn p714_array_at_named_desconhecido_rejeitado() {
+        let arr = vec![Value::Int(1)];
+        let mut args = make_args(vec![Value::Int(0)], None);
+        args.named.insert("foo".into(), Value::Int(1));
+        assert!(array_at(arr, args).is_err());
+    }
+
+    #[test]
+    fn p714_array_at_vazio_sem_default_erra() {
+        let arr: Vec<Value> = vec![];
+        let args = make_args(vec![Value::Int(0)], None);
+        assert!(array_at(arr, args).is_err());
     }
 
     // ── P496 — métodos estruturais de array ───────────────────────────────────

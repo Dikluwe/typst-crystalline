@@ -3,7 +3,7 @@
 **Camada**: L1  
 **Ficheiro alvo**: `01_core/src/rules/stdlib/collections.rs`  
 **Criado em**: 2026-06-25 (Passo P466)  
-**Atualizado em**: 2026-07-10 (P690 — `str.len/at/slice` em bytes; P691 — `str.find` devolve substring/`none`; P692 — `str.matches` e `str.normalize`; P693 — `str.match` aceita `str | regex`; fecha a cadeia de correcções de `str`)  
+**Atualizado em**: 2026-07-11 (P690 — `str.len/at/slice` em bytes; P691 — `str.find` devolve substring/`none`; P692 — `str.matches` e `str.normalize`; P693 — `str.match` aceita `str | regex`; fecha a cadeia de correcções de `str`; P714 — `array.at(index, default:)`)  
 **ADRs**: ADR-0037 (coesão por domínio), ADR-0107 (paridade com a linguagem — aqui a linguagem **é** bytes), ADR-0108 (medir antes de decidir), ADR-0117 Cláusula 4 (métodos de tipos existentes; não propõe estrutura em elementos).
 
 ---
@@ -35,6 +35,7 @@ Retorna `Some(Result)` se o método for reconhecido; `None` caso contrário, per
 |--------|-----------|-----------|
 | `first` | `array.first() -> any` | Primeiro elemento ou `none`. |
 | `last` | `array.last() -> any` | Último elemento ou `none`. |
+| `at` | `array.at(index: int, default: any?) -> any` | Elemento no índice; negativo conta a partir do fim (`len + index`). Fora de limites usa `default` se fornecido, senão erro. (**P714**) |
 | `rev` | `array.rev() -> array` | Array invertido. |
 | `sum` | `array.sum() -> int \| float` | Soma numérica; rejeita tipos não-numéricos. Mistura int/float produz float. |
 | `sorted` | `array.sorted(key: function?) -> array` | Ordenação; `key` opcional. Compara `int`, `float` e `str`. |
@@ -50,6 +51,31 @@ Retorna `Some(Result)` se o método for reconhecido; `None` caso contrário, per
 | `windows` | `array.windows(n: int) -> array` | Janelas deslizantes de tamanho `n`. |
 | `flatten` | `array.flatten() -> array` | Acha um nível de arrays aninhados. Elementos não-array são incluídos tal como estão. |
 | `fold` | `array.fold(start: any, reducer: function) -> any` | Reduz o array a um único valor aplicando `reducer(acc, item)` em cada elemento. |
+
+### Semântica de `at` (P714)
+
+Paridade com o vanilla (`foundations/array.rs:207-221`, helper interno
+`locate_opt`): índice negativo conta a partir do fim
+(`resolved = len + index`, via `checked_add` — sem overflow para
+índices patológicos). Índice fora de `0 <= resolved < len` usa
+`default:` se fornecido; sem `default`, erro com a mesma mensagem do
+vanilla (`out_of_bounds_no_default`):
+
+```
+(10, 20, 30).at(1)                    → 20
+(10, 20, 30).at(-1)                   → 30           (último elemento)
+(10, 20).at(5, default: 0)            → 0
+(10, 20).at(5)                        → Err "array index out of bounds
+                                          (index: 5, len: 2) and no
+                                          default value was specified"
+(10, 20).at(1, foo: 1)                → Err "argumento nomeado
+                                          desconhecido"
+```
+
+Reproduz o uso real medido em `cetz` (`aabb.typ:43,45,75-77`):
+`bounds.high.at(2, default: 0)`, `padding.at("left", default: 0)` —
+este segundo caso é `dict.at`, já implementado desde P495; `array.at`
+fechava a lacuna para `Array` especificamente.
 
 ### Semântica de `dedup`
 
@@ -191,7 +217,8 @@ replace, trim, split, rev`) — os restantes símbolos do cristalino (`char-*`, 
 
 - `array.min()`, `array.max()`.
 - `str.replace` com regex.
-- Métodos com argumento `default` (exceto `dict.at(default:)`, implementado).
+- Métodos com argumento `default` (exceto `dict.at(default:)` e
+  `array.at(default:)`, P714, implementados).
 - Unicode avançado (`str.clusters()` devolve chars, não grapheme clusters reais).
 - ~~`str.find` devolve `int` no cristalino vs substring no vanilla~~ — **resolvido em P691**: `find` agora devolve `str | none` (paridade vanilla); o índice fica disponível via `position`.
 - Mutação do dict original em `.remove()` / `.insert()` (dispatch por valor devolve novo dict).
