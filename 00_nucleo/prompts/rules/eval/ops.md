@@ -1,5 +1,5 @@
 # Prompt L0 — `rules/eval/operators`
-Hash do Código: 3450b13f
+Hash do Código: 05178d5e
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/rules/eval/operators.rs`
@@ -116,6 +116,73 @@ valores estava implementada. Isolado por P705/P706 via `cetz`
 
 ---
 
+## P713 — `Length / Length` (e `Length / Int|Float`)
+
+`(BinOp::Div, Value::Length(_), Value::Length(_))` não tinha braço —
+caía no fronteira genérico (`"cannot apply Div to length and length"`).
+Isolado por P710/P711/P712 via `cetz` (`canvas.typ:37-38`:
+`assert(length / 1cm != 0, ...)`, e `resolve-number`: `x / length`,
+ambos `Length / Length` — `length` já resolvido por `.to-absolute()`,
+`em: 0.0`).
+
+### Mecanismo do vanilla (`layout/length.rs:64-72`, `foundations/ops.rs:289-342`)
+
+```rust
+pub fn try_div(self, other: Self) -> Option<f64> {
+    if self.abs.is_zero() && other.abs.is_zero() {
+        Some(self.em / other.em)
+    } else if self.em.is_zero() && other.em.is_zero() {
+        Some(self.abs / other.abs)
+    } else {
+        None  // incomensurável — erro no caller, não silencioso
+    }
+}
+```
+
+`div()` (vanilla) verifica `is_zero(&rhs)` **antes** do match, para
+**todos** os tipos numéricos, incluindo `Length` — `x / 0cm` erra
+"cannot divide by zero" antes de chegar a `try_div`. `Length(a) /
+Int(b)` e `Length(a) / Float(b)` são o mesmo agrupamento no vanilla
+(`ops.rs:312-314`) — escala uniforme, já implementado no cristalino
+via `Length: Div<f64>` (`entities/layout_types.rs:808-813`), só faltava
+o braço em `eval_binary_op` para os alcançar a partir do eval.
+
+### Scope-out medido, não assumido — `Value::Ratio`/`Value::Relative` mistos
+
+Vanilla também define `Length/Relative`, `Relative/Length`,
+`Ratio/Relative`, `Relative/Ratio` (`ops.rs:315,324,328-330`). **Não
+implementados aqui** — `Value::Ratio` não é actualmente produzível por
+sintaxe de utilizador no cristalino (`50%` produz `Value::Relative`,
+não `Value::Ratio`; `grep` confirma que os únicos construtores de
+`Value::Ratio` em `eval`/`stdlib` são `Ratio * Int`/`Int * Ratio`, que
+exigem já ter um `Ratio` — circular, sem ponto de entrada). Sem
+consumidor medido em `cetz` para estas combinações; um bug por passo
+(mesma disciplina de P711/P712).
+
+### Semântica de implementação
+
+```rust
+// Div por zero — Length(l) se l.is_zero(), mesmo gate genérico já
+// usado por Int(0)/Float(0.0)/Decimal(0).
+Value::Length(l) if l.is_zero() => Err("cannot divide by zero")
+
+(BinOp::Div, Value::Length(a), Value::Int(b))    => Ok(Value::Length(a / b as f64))
+(BinOp::Div, Value::Length(a), Value::Float(b))  => Ok(Value::Length(a / b))
+(BinOp::Div, Value::Length(a), Value::Length(b)) => {
+    if a.abs.is_zero() && b.abs.is_zero() { Ok(Value::Float(a.em / b.em)) }
+    else if a.em == 0.0 && b.em == 0.0 { Ok(Value::Float(a.abs.to_pt() / b.abs.to_pt())) }
+    else { Err("cannot divide these two lengths") }
+}
+```
+
+Mensagem de erro (`"cannot divide these two lengths"`) segue a
+convenção já usada em `try_div_length` do vanilla (mesmo texto),
+disponível porque o vanilla o expõe como string literal simples (não
+há `hint`/formatação especial a replicar aqui, ao contrário de outros
+casos já divergentes por design neste ficheiro).
+
+---
+
 ## Critérios de Verificação
 
 ```rust
@@ -137,6 +204,14 @@ eval_binary_op(In, Int(1), Array[1,2,3])        == Bool(true)
 eval_binary_op(In, Array[1,2], Array[Array[1,2],Array[3,4]]) == Bool(true)
 eval_binary_op(NotIn, Int(5), Array[1,2,3])     == Bool(true)
 eval_binary_op(In, Int(1), Str("hello"))        == Err (tipos incompatíveis)
+
+// P713 — Length / Length, Length / Int|Float
+eval_binary_op(Div, Length(2cm), Length(1cm))   == Float(2.0)
+eval_binary_op(Div, Length(0em+4em-part), Length(0em+2em-part)) == Float(2.0)  // rácio de em
+eval_binary_op(Div, Length(10pt+1em), Length(5pt)) == Err (incomensurável)
+eval_binary_op(Div, Length(10pt), Length(0pt))  == Err ("cannot divide by zero")
+eval_binary_op(Div, Length(10pt+4em), Int(2))   == Length(5pt+2em)
+eval_binary_op(Div, Length(10pt), Float(4.0))   == Length(2.5pt)
 ```
 
 ---
@@ -156,3 +231,4 @@ eval_binary_op(In, Int(1), Str("hello"))        == Err (tipos incompatíveis)
 |------|--------|-------------------|
 | 2026-06-25 | Criação — P469 operadores para `Rel<Length>` | `operators.rs`, `eval/mod.rs`, `tests.rs` |
 | 2026-07-11 | P706 — `in`/`not in` para `Str`/`Dict`/`Array` (isolado via `cetz`) | `operators.rs`, `tests.rs` |
+| 2026-07-11 | P713 — `Length / Length` (paridade `try_div`), `Length / Int\|Float`; scope-out `Ratio`/`Relative` mistos (não produzíveis por sintaxe de utilizador) | `operators.rs`, `tests.rs` |

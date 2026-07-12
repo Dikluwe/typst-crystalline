@@ -1235,6 +1235,77 @@ mod tests {
         assert!(eval_binary_op(BinOp::Div, Value::Float(1.0), Value::Float(0.0)).is_err());
     }
 
+    // ── P713 — `Length / Length` (e `Length / Int|Float`) ──────────────────
+
+    #[test]
+    fn p713_length_div_length_mesma_unidade_abs() {
+        use crate::entities::layout_types::{Abs, Length};
+        // 2cm / 1cm — o caso exacto do bloqueio de cetz (canvas.typ:37).
+        let a = Length { abs: Abs(2.0 * 28.346), em: 0.0 };
+        let b = Length { abs: Abs(28.346), em: 0.0 };
+        assert_eq!(
+            eval_binary_op(BinOp::Div, Value::Length(a), Value::Length(b)),
+            Ok(Value::Float(2.0))
+        );
+    }
+
+    #[test]
+    fn p713_length_div_length_ratio_em() {
+        use crate::entities::layout_types::{Abs, Length};
+        // Ambos abs=0 -> rácio de em (paridade `Length::try_div` vanilla).
+        let a = Length { abs: Abs(0.0), em: 4.0 };
+        let b = Length { abs: Abs(0.0), em: 2.0 };
+        assert_eq!(
+            eval_binary_op(BinOp::Div, Value::Length(a), Value::Length(b)),
+            Ok(Value::Float(2.0))
+        );
+    }
+
+    #[test]
+    fn p713_length_div_length_mista_incomensuravel_erra() {
+        use crate::entities::layout_types::{Abs, Length};
+        // Nem abs=0 em ambos, nem em=0 em ambos -> incomensurável, erro (não None silencioso).
+        let a = Length { abs: Abs(10.0), em: 1.0 };
+        let b = Length { abs: Abs(5.0), em: 0.0 };
+        assert!(eval_binary_op(BinOp::Div, Value::Length(a), Value::Length(b)).is_err());
+    }
+
+    #[test]
+    fn p713_length_div_length_zero_erra_divisao_por_zero() {
+        use crate::entities::layout_types::{Abs, Length};
+        let a = Length { abs: Abs(10.0), em: 0.0 };
+        let zero = Length { abs: Abs(0.0), em: 0.0 };
+        let err = eval_binary_op(BinOp::Div, Value::Length(a), Value::Length(zero)).unwrap_err();
+        assert!(err.contains("divide by zero"), "erro inesperado: {err}");
+    }
+
+    #[test]
+    fn p713_length_div_int_escala() {
+        use crate::entities::layout_types::{Abs, Length};
+        let a = Length { abs: Abs(10.0), em: 4.0 };
+        assert_eq!(
+            eval_binary_op(BinOp::Div, Value::Length(a), Value::Int(2)),
+            Ok(Value::Length(Length { abs: Abs(5.0), em: 2.0 }))
+        );
+    }
+
+    #[test]
+    fn p713_length_div_float_escala() {
+        use crate::entities::layout_types::{Abs, Length};
+        let a = Length { abs: Abs(10.0), em: 0.0 };
+        assert_eq!(
+            eval_binary_op(BinOp::Div, Value::Length(a), Value::Float(4.0)),
+            Ok(Value::Length(Length { abs: Abs(2.5), em: 0.0 }))
+        );
+    }
+
+    #[test]
+    fn p713_cetz_canvas_length_to_absolute_div_1cm() {
+        // Reprodução exacta do bloqueio: `(2cm).to-absolute() / 1cm`.
+        let world = MockWorld::new("#let x = (2cm).to-absolute() / 1cm");
+        assert_eq!(eval_let(&world, "x"), Some(Value::Float(2.0)));
+    }
+
     #[test]
     fn paridade_eq_int_int() {
         assert_eq!(

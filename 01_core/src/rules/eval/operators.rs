@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/rules/eval/ops.md
-//! @prompt-hash 146bda0e
+//! @prompt-hash de828736
 //! @layer L1
 //! @updated 2026-06-25
 //!
@@ -29,6 +29,9 @@ pub(crate) fn eval_binary_op(op: BinOp, lhs: Value, rhs: Value) -> Result<Value,
             Value::Int(0)   => return Err("cannot divide by zero".into()),
             Value::Float(f) if *f == 0.0 => return Err("cannot divide by zero".into()),
             Value::Decimal(d) if d.0.is_zero() => return Err("cannot divide by zero".into()),
+            // P713 — paridade com `is_zero()` do vanilla (`foundations/ops.rs:344-359`),
+            // que cobre `Length` no mesmo gate genérico usado por todas as divisões.
+            Value::Length(l) if l.is_zero() => return Err("cannot divide by zero".into()),
             _ => {}
         }
     }
@@ -252,6 +255,29 @@ pub(crate) fn eval_binary_op(op: BinOp, lhs: Value, rhs: Value) -> Result<Value,
         // Relative / Float
         (BinOp::Div, Value::Relative(r), Value::Float(f)) =>
             Ok(Value::Relative(r / f)),
+
+        // P713 — Length / Int, Length / Float: escala uniforme (já implementado
+        // em `Length: Div<f64>`, `entities/layout_types.rs:808-813`), mesmo
+        // agrupamento do vanilla (`foundations/ops.rs:312-314`).
+        (BinOp::Div, Value::Length(a), Value::Int(b)) => Ok(Value::Length(a / b as f64)),
+        (BinOp::Div, Value::Length(a), Value::Float(b)) => Ok(Value::Length(a / b)),
+        // P713 — Length / Length: paridade exacta com `Length::try_div` do
+        // vanilla (`layout/length.rs:64-72`) — só divide se ambos os `abs`
+        // forem zero (rácio de `em`) ou ambos os `em` forem zero (rácio de
+        // `abs`); combinação mista (abs+em não-zero de ambos os lados,
+        // incomensurável) é erro, não `None` silencioso.
+        (BinOp::Div, Value::Length(a), Value::Length(b)) => {
+            let result = if a.abs.is_zero() && b.abs.is_zero() {
+                Some(a.em / b.em)
+            } else if a.em == 0.0 && b.em == 0.0 {
+                Some(a.abs.to_pt() / b.abs.to_pt())
+            } else {
+                None
+            };
+            result
+                .map(Value::Float)
+                .ok_or_else(|| "cannot divide these two lengths".to_string())
+        }
 
         // ── Alinhamento (Passo 84.5, encerra DEBT-36) ────────────────────────
         // `center + bottom` → Align2D { h: Center, v: Bottom }.
