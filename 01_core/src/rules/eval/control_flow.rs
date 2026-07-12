@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/rules/eval.md
-//! @prompt-hash dc496ef8
+//! @prompt-hash 605a11fb
 //! @layer L1
 //! @updated 2026-07-09
 //!
@@ -93,79 +93,18 @@ pub(super) fn eval_for(
 ) -> SourceResult<Value> {
     let iterable = eval_expr(loop_expr.iterable(), scopes, ctx, engine)?;
     match iterable {
-        Value::Array(items) => {
-            let bindings = loop_expr.pattern().bindings();
-            // **P540** — suportar destructuring de tuplo em #for. Se o padrão
-            // tiver múltiplos bindings (ex: (i, x)), cada item do iterável deve
-            // ser um array cujos elementos são atribuídos posicionalmente.
-            let flow = ctx.flow.take();
-            let mut parts = Vec::new();
-            for item in items {
-                ctx.tick_loop(loop_expr.span())?;
-                scopes.enter();
-
-                if bindings.is_empty() {
-                    // Pattern vazio ou underscore — não definir variáveis.
-                } else if bindings.len() == 1 {
-                    scopes.define(bindings[0].as_str(), item);
-                } else {
-                    let tuple = match &item {
-                        Value::Array(t) => t.clone(),
-                        other => {
-                            scopes.exit();
-                            return Err(vec![SourceDiagnostic::error(
-                                loop_expr.pattern().span(),
-                                format!("cannot destructure value of type {}", other.type_name()),
-                            )]);
-                        }
-                    };
-                    if tuple.len() != bindings.len() {
-                        scopes.exit();
-                        return Err(vec![SourceDiagnostic::error(
-                            loop_expr.pattern().span(),
-                            format!(
-                                "cannot destructure {} values into {} bindings",
-                                tuple.len(), bindings.len()
-                            ),
-                        )]);
-                    }
-                    for (ident, value) in bindings.iter().zip(tuple.into_iter()) {
-                        scopes.define(ident.as_str(), value);
-                    }
-                }
-
-                match eval_expr(loop_expr.body(), scopes, ctx, engine)? {
-                    Value::Content(c) => parts.push(c),
-                    Value::Str(s) => parts.push(Content::text(s.as_str())),
-                    Value::None => {}
-                    other => {
-                        scopes.exit();
-                        return Err(vec![SourceDiagnostic::error(
-                            loop_expr.body().span(),
-                            format!("corpo do for deve ser content, encontrado {}", other.type_name()),
-                        )]);
-                    }
-                }
-                scopes.exit();
-
-                match ctx.flow {
-                    Some(FlowEvent::Break(_)) => {
-                        ctx.flow = None;
-                        break;
-                    }
-                    Some(FlowEvent::Continue(_)) => ctx.flow = None,
-                    Some(FlowEvent::Return(..)) => break,
-                    None => {}
-                }
-            }
-            if flow.is_some() {
-                ctx.flow = flow;
-            }
-            if parts.is_empty() {
-                Ok(Value::None)
-            } else {
-                Ok(Value::Content(Content::sequence(parts)))
-            }
+        Value::Array(items) => run_for_loop(items, loop_expr, scopes, ctx, engine),
+        // **P719** — mirror do vanilla (`typst-eval/flow.rs:159-162`,
+        // `dict.iter()`): cada par (chave, valor) vira o mesmo formato usado
+        // pela iteração de array — `Value::Array([Str(key), value])`,
+        // espelho de `IntoValue for (&Str, &Value)` (`foundations/cast.rs:
+        // 186-189`). Reaproveita directamente `run_for_loop` — um só nome
+        // liga o par inteiro; dois nomes destroem posicionalmente (mesma
+        // lógica já usada para array, sem código novo de bind).
+        Value::Dict(dict) => {
+            let items: Vec<Value> =
+                dict.into_iter().map(|(k, v)| Value::Array(vec![Value::Str(k), v])).collect();
+            run_for_loop(items, loop_expr, scopes, ctx, engine)
         }
         // `()` em Typst avalia para None via fronteira deliberada (não há parsing
         // de array literal neste passo). Tratar None como iterável vazio.
@@ -174,5 +113,89 @@ pub(super) fn eval_for(
             loop_expr.iterable().span(),
             format!("não é possível iterar sobre {}", other.type_name()),
         )]),
+    }
+}
+
+/// Corpo do `for`: percorre `items` (já achatado para o formato de
+/// iteração — array directo, ou pares de dict como `Value::Array([k, v])`
+/// via P719), ligando o padrão a cada item.
+fn run_for_loop(
+    items: Vec<Value>,
+    loop_expr: ForLoop<'_>,
+    scopes: &mut Scopes<'_>,
+    ctx: &mut EvalContext,
+    engine: &mut Engine<'_>,
+) -> SourceResult<Value> {
+    let bindings = loop_expr.pattern().bindings();
+    // **P540** — suportar destructuring de tuplo em #for. Se o padrão
+    // tiver múltiplos bindings (ex: (i, x)), cada item do iterável deve
+    // ser um array cujos elementos são atribuídos posicionalmente.
+    let flow = ctx.flow.take();
+    let mut parts = Vec::new();
+    for item in items {
+        ctx.tick_loop(loop_expr.span())?;
+        scopes.enter();
+
+        if bindings.is_empty() {
+            // Pattern vazio ou underscore — não definir variáveis.
+        } else if bindings.len() == 1 {
+            scopes.define(bindings[0].as_str(), item);
+        } else {
+            let tuple = match &item {
+                Value::Array(t) => t.clone(),
+                other => {
+                    scopes.exit();
+                    return Err(vec![SourceDiagnostic::error(
+                        loop_expr.pattern().span(),
+                        format!("cannot destructure value of type {}", other.type_name()),
+                    )]);
+                }
+            };
+            if tuple.len() != bindings.len() {
+                scopes.exit();
+                return Err(vec![SourceDiagnostic::error(
+                    loop_expr.pattern().span(),
+                    format!(
+                        "cannot destructure {} values into {} bindings",
+                        tuple.len(), bindings.len()
+                    ),
+                )]);
+            }
+            for (ident, value) in bindings.iter().zip(tuple.into_iter()) {
+                scopes.define(ident.as_str(), value);
+            }
+        }
+
+        match eval_expr(loop_expr.body(), scopes, ctx, engine)? {
+            Value::Content(c) => parts.push(c),
+            Value::Str(s) => parts.push(Content::text(s.as_str())),
+            Value::None => {}
+            other => {
+                scopes.exit();
+                return Err(vec![SourceDiagnostic::error(
+                    loop_expr.body().span(),
+                    format!("corpo do for deve ser content, encontrado {}", other.type_name()),
+                )]);
+            }
+        }
+        scopes.exit();
+
+        match ctx.flow {
+            Some(FlowEvent::Break(_)) => {
+                ctx.flow = None;
+                break;
+            }
+            Some(FlowEvent::Continue(_)) => ctx.flow = None,
+            Some(FlowEvent::Return(..)) => break,
+            None => {}
+        }
+    }
+    if flow.is_some() {
+        ctx.flow = flow;
+    }
+    if parts.is_empty() {
+        Ok(Value::None)
+    } else {
+        Ok(Value::Content(Content::sequence(parts)))
     }
 }

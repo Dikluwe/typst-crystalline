@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/rules/eval.md
-//! @prompt-hash dc496ef8
+//! @prompt-hash 605a11fb
 //! @layer L1
 //! @updated 2026-06-17
 //!
@@ -8960,5 +8960,66 @@ mod tests {
         // Fora do scope deste passo (P504) — confirma que não regrediu.
         let m = p716_eval("#let f(..pts) = pts.pos().len()\n#let x = f(1, 2, 3)").unwrap();
         assert_eq!(m.scope().get("x"), Some(&Value::Int(3)));
+    }
+
+    // ── P719 — for-loop sobre Dict (`for (key, value) in dict`) ────────────
+
+    #[test]
+    fn p719_for_destructuring_par_chave_valor() {
+        let world = MockWorld::new("#for (k, v) in (a: 1, b: 2) [#k=#v ]");
+        let src = World::source(&world, World::main(&world)).unwrap();
+        let module = eval_for_test(&world, &src).unwrap();
+        let text = module.content().expect("eval deve produzir Content").plain_text();
+        assert_eq!(text, "a=1 b=2 ");
+    }
+
+    #[test]
+    fn p719_for_um_nome_liga_par_inteiro() {
+        // Sem desestruturação (um só nome), o padrão liga o par (chave,
+        // valor) inteiro como array — mirror do vanilla (`IntoValue for
+        // (&Str, &Value)`), não só a chave.
+        let world = MockWorld::new("#for k in (a: 1, b: 2) [#repr(k) ]");
+        let src = World::source(&world, World::main(&world)).unwrap();
+        let module = eval_for_test(&world, &src).unwrap();
+        let text = module.content().expect("eval deve produzir Content").plain_text();
+        assert_eq!(text, "(\"a\", 1) (\"b\", 2) ");
+    }
+
+    #[test]
+    fn p719_for_ordem_de_insercao() {
+        let world = MockWorld::new("#for (k, v) in (z: 1, a: 2, m: 3) [#k ]");
+        let src = World::source(&world, World::main(&world)).unwrap();
+        let module = eval_for_test(&world, &src).unwrap();
+        let text = module.content().expect("eval deve produzir Content").plain_text();
+        assert_eq!(text, "z a m ");
+    }
+
+    #[test]
+    fn p719_for_dict_vazio_sem_iteracoes() {
+        let world = MockWorld::new("#for (k, v) in (:) [#k=#v ]");
+        let src = World::source(&world, World::main(&world)).unwrap();
+        let module = eval_for_test(&world, &src).unwrap();
+        assert!(module.content().is_none() || module.content().unwrap().plain_text().is_empty());
+    }
+
+    #[test]
+    fn p719_for_aridade_errada_erra() {
+        let world = MockWorld::new("#for (a, b, c) in (x: 1, y: 2) [x]");
+        let src = World::source(&world, World::main(&world)).unwrap();
+        let err = eval_for_test(&world, &src).unwrap_err();
+        assert!(err[0].message.contains("destructure"));
+    }
+
+    #[test]
+    fn p719_for_array_sem_regressao() {
+        // Iteração sobre array (P540) inalterada pelo reaproveitamento de
+        // run_for_loop entre Array e Dict.
+        let world = MockWorld::new(
+            "#let items = (\"um\", \"dois\", \"três\")\n#for (i, x) in items.enumerate() [#{i+1}. #x]",
+        );
+        let src = World::source(&world, World::main(&world)).unwrap();
+        let module = eval_for_test(&world, &src).unwrap();
+        let text = module.content().expect("eval deve produzir Content").plain_text();
+        assert!(text.contains("um") && text.contains("dois") && text.contains("três"));
     }
 }

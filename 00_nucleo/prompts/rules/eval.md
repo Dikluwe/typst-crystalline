@@ -1,5 +1,5 @@
 # Prompt L0 — rules/eval
-Hash do Código: 14727cc0
+Hash do Código: 427bfbee
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/rules/eval/mod.rs`
@@ -1456,4 +1456,90 @@ aqui só pela sua presença.
   duplicar a função).
 - Sem regressão: rest params (`..pts` em definição de closure, P504) e
   `cargo test --workspace`.
+- `crystalline-lint .` limpo.
+
+## §P719 — For-loop sobre `Dict` (`for (key, value) in dict`)
+
+Isolado por P718 via `cetz`: `for (key, value) in dict {...}` errava
+`"não é possível iterar sobre dictionary"` — `eval_for` (`control_flow.rs`,
+P540) só tinha braço para `Value::Array`. Consumidor real e directo:
+`styles.typ:189,322,354` (`for (key, value) in dict { ... }`, resolução
+de estilos — sempre a forma de 2 nomes, sem `.values()`/`.keys()`).
+
+### Mecanismo vanilla confirmado (`typst-eval/flow.rs:114-190`, `cast.rs:186-189`)
+
+`ast::ForLoop::eval` despacha por **tipo do iterável**, não por padrão:
+`Value::Array` e `Value::Dict` chamam a **mesma** macro `iter!` — a única
+diferença é a fonte do iterador (`array` vs `dict.iter()`, que devolve
+pares `(&Str, &Value)`). Cada item passa por `.into_value()` antes de
+`destructure(vm, pattern, value)`: `IntoValue for (&Str, &Value)`
+(`foundations/cast.rs:186-189`) converte o par em `Value::Array([Str(key),
+value])` — **o mesmo formato usado pela iteração de array com
+destructuring de 2 elementos** (`Value::Array` cujo padrão é `(a, b)`).
+Não há bind especial: o mecanismo de "um nome liga o valor inteiro, N
+nomes destroem posicionalmente" já usado pela iteração de array
+(`destructure`, mesma função de `binding.rs` usada por `let`/atribuição)
+aplica-se automaticamente ao par (chave, valor) sem código extra.
+
+Comportamento medido (vanilla em `f571a3644`):
+
+```
+for (k, v) in (a: 1, b: 2) [#k=#v ]     → "a=1 b=2 "
+for k in (a: 1, b: 2) [#k ]              → "(\"a\", 1) (\"b\", 2) "
+                                             [um nome liga o PAR inteiro,
+                                             não só a chave]
+for v in (a: 1, b: 2).values() [#v ]     → "1 2 "  [.values() já existe]
+for (a, b, c) in (x: 1, y: 2) [x]        → Err not enough elements to
+                                             destructure + hint (length
+                                             of 2, but pattern expects 3)
+                                             [mesma família de mensagem
+                                             de P715 destructure_array,
+                                             não a do cristalino — ver
+                                             nota de divergência pré-
+                                             -existente abaixo]
+```
+
+Ordem de iteração: inserção (`IndexMap`, tanto no vanilla `dict.iter()`
+quanto no cristalino `Value::Dict(IndexMap<...>)::into_iter()`) —
+confirmado com `(z: 1, a: 2, m: 3)` → `z a m` nos dois lados.
+
+### Nota de divergência pré-existente (medida, **não** corrigida neste passo)
+
+A mensagem de aridade errada em `for` já divergia do vanilla **antes**
+deste passo, só para `Value::Array` (P540): cristalino usa `"cannot
+destructure {n} values into {m} bindings"`; vanilla usa `"not enough
+elements to destructure"` + hint (mesma família de `wrong_number_of_
+elements`, P715 `bindings.rs`). Medido: `for (a, b, c) in ((1,2),) [x]`
+→ mensagens diferentes nos dois lados, reproduzível já em P540, sem
+relação com `Dict`. **Fora do scope deste passo** (que é especificamente
+"for-loop sobre Dict") — o reaproveitamento de `run_for_loop` faz esta
+divergência pré-existente aplicar-se também ao caminho de `Dict` (era
+inevitável: os dois tipos partilham o mesmo bind), mas não a introduz.
+Candidato a passo futuro dedicado à paridade da mensagem de aridade do
+`for` (Array e Dict).
+
+### Implementação
+
+- **`control_flow.rs` `eval_for`**: extraído `run_for_loop(items: Vec
+  <Value>, loop_expr, scopes, ctx, engine)` — o corpo do antigo braço
+  `Value::Array` (bind de padrão, corpo, `break`/`continue`/`return`),
+  inalterado, agora reaproveitado por dois braços:
+  - `Value::Array(items)` → `run_for_loop(items, ...)` directo.
+  - `Value::Dict(dict)` (**novo**) → `dict.into_iter().map(|(k, v)|
+    Value::Array(vec![Value::Str(k), v])).collect()`, depois
+    `run_for_loop(items, ...)` — mirror de `IntoValue for (&Str,
+    &Value)`. Zero código de bind novo: o braço `bindings.len() == 1`
+    vs `> 1` já existente em `run_for_loop` cobre "um nome liga o par"
+    e "dois nomes destroem", automaticamente.
+- Nenhuma mudança a `destructure_pattern`/`Scopes` (P715/716) —
+  mecanismo de `for` é independente (`Pattern::bindings()` acha lista
+  plana, não usa `destructure_pattern` recursivo).
+
+### Critérios de verificação
+
+- Os snippets da tabela acima, cada um com o resultado medido.
+- Ordem de inserção preservada (`z a m`, não alfabética).
+- Dict vazio (`(:)`) → zero iterações, sem erro.
+- Sem regressão: iteração sobre array (P540, incluindo `.enumerate()`)
+  e `cargo test --workspace`.
 - `crystalline-lint .` limpo.
