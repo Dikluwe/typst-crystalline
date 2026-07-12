@@ -2,7 +2,7 @@
 
 **Data:** 2026-07-12
 **Passo:** `00_nucleo/materialization/typst-passo-720.md`
-**Hash do commit (implementação):** `A_PREENCHER`.
+**Hash do commit (implementação):** `7926a979f`.
 **HEAD base:** `ccb5dde1c` (fim de P719).
 **Estado:** FECHADO — `Array + Array` (concatenação) e `Dict + Dict`
 (merge, direita vence em colisão, posição preservada) implementados com
@@ -108,7 +108,7 @@ em `eval/tests.rs`, todos a falhar no estado P719.
 ## 3. Validação
 
 Estado da medição: working tree com exactamente as alterações deste
-passo, commitado de seguida como `A_PREENCHER` (o diff do commit é o
+passo, commitado de seguida como `7926a979f` (o diff do commit é o
 estado medido). Re-verificação pós-commit em §3.4.
 
 ### 3.1 Documento do passo vs vanilla
@@ -143,10 +143,14 @@ Documento do passo (`/tmp/p720-cetz.typ`):
 
 ### 3.4 Re-verificação pós-commit (proveniência)
 
-Executada no commit `A_PREENCHER`, working tree limpa:
+Executada no commit `7926a979f`, working tree limpa:
 
-- `/tmp/p720-concat.typ` → `A_CONFIRMAR`
-- `cetz` → `A_CONFIRMAR` (erro e tempo)
+- `/tmp/p720-concat.typ` → mesmo resultado: `(1, 2, 3, 4) (1, 2) (1, 2)
+  (a: 1, b: 2) (a: 99)`.
+- `cetz` → mesmo bloqueio (`esta função não tem campos`), tempo real
+  52,3s (51,8s pré-commit — variação normal de ruído de máquina; o
+  documento continua a falhar na fase de eval, antes de qualquer
+  layout).
 
 ---
 
