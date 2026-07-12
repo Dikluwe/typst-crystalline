@@ -1,5 +1,5 @@
 # Prompt L0 — rules/eval
-Hash do Código: 1a94da87
+Hash do Código: 9f2494c7
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/rules/eval/mod.rs`
@@ -1146,4 +1146,122 @@ Critérios de verificação:
 
 - `cargo test --workspace` → sem regressão (3841 vs 3820 antes de
   P715: +21 testes novos).
+- `crystalline-lint .` limpo.
+
+## §P716 — `Access` genérico: `dict.campo` e accessor methods como alvos de atribuição
+
+Fecha o scope-out medido de §P715: `cetz` usa `arr.at(i) = valor`
+(`hobby.typ:51-58,138-242`) e `dict.campo = valor` (`drawable.typ:36,57`)
+— ambos produziam `"cannot mutate a temporary value"`. Exigem o
+mecanismo `Access` do vanilla: referência mutável ao **local**
+(elemento/campo), não substituição do valor completo do binding.
+
+### Mecanismo vanilla confirmado (`typst-eval/access.rs`, `methods.rs`, `ops.rs`)
+
+- **Lista completa de accessor methods** (`methods.rs:19-21`): `first`,
+  `last`, `at` — array suporta os três (`first_mut`/`last_mut`/`at_mut`,
+  `foundations/array.rs:104-119`); dict só `at` (`Dict::at_mut`,
+  `foundations/dict.rs:99-104`). Não há outros.
+- **`Access`** (`access.rs:14-27`) cobre exactamente 4 formas de alvo:
+  `Ident` (`scopes.get_mut`), `Parenthesized` (recursivo no interior),
+  `FieldAccess` (`access_dict` no target + `Dict::at_mut` no campo),
+  `FuncCall` (só se o callee for `FieldAccess` cujo campo é accessor
+  method: avalia os **args primeiro**, depois `access` recursivo do
+  target, depois `call_method_access`; `access.rs:56-74`). Qualquer
+  outra expressão: **avalia** (para efeitos) e erra
+  `"cannot mutate a temporary value"`.
+- **Caso especial de `apply_assignment`** (`ops.rs:77-85`): `=` puro
+  (não `+=` etc.) com lhs `FieldAccess` **não** passa pelo `at_mut` do
+  campo — faz `access_dict` no target + `Dict::insert` (**cria** a
+  chave se não existir). Ordem de avaliação (`ops.rs:74`): **rhs
+  primeiro**, depois o access do lhs. A forma composta lê o valor
+  actual com `mem::take` no local e escreve o resultado do operador
+  subjacente (`ops.rs:87-90`).
+- **`access_dict`** (`access.rs:76-107`) com target não-dict:
+  `Symbol`/`Content`/`Module`/`Func`/`Args` → `"cannot mutate fields on
+  {ty}"`; `fields_on(ty)` vazio → `"{ty} does not have accessible
+  fields"`; senão (Version, Length, Rel, Stroke, Alignment —
+  `fields.rs:77-91`) → `"fields on {ty} are not yet mutable"` + hint
+  `"try creating a new {ty} with the updated field value instead"`.
+- **Desestruturação-atribuição** usa o mesmo `Access` em cada folha
+  (`binding.rs:30-42`) — **sem** o caso especial de insert.
+- **`call_method_access`** (`methods.rs:66-98`): tipo sem accessor →
+  `"cannot mutate a temporary value"` se o tipo tem um método com esse
+  nome (ex.: `str.at`), senão `"type {ty} has no method \`{method}\`"`.
+
+Comportamento medido (compile do vanilla, working tree em `c69f40187`):
+
+```
+#{ d.a = 10 }        (a existe)      → muta;  #{ d.novo = 5 } → INSERE
+#{ d.novo += 1 }                     → Err dictionary does not contain key "novo"
+                                        + hint use `insert` to add or update values
+#{ d.at("novo") = 7 }                → Err (mesma mensagem + hint)
+#{ arr.at(1) = 20 }                  → muta o elemento
+#{ arr.at(5) = 20 }  (len 3)         → Err array index out of bounds
+                                        (index: 5, len: 3)   [sem sufixo "no default"]
+#{ arr.at(1, default: 0) = 20 }      → Err unexpected argument: default
+#{ arr.at(0, 1) = 5 }                → Err unexpected argument
+#{ arr.at() = 1 }                    → Err missing argument: index
+#{ d.at() = 1 }                      → Err missing argument: key
+#{ arr.at("x") = 1 }                 → Err expected integer, found string
+#{ arr.first() = 100 }               → muta;  vazio → Err array is empty
+#{ arr.last() = 300 }                → muta;  vazio → Err array is empty
+#{ s.at(0) = "x" }   (s: str)        → Err cannot mutate a temporary value
+#{ x.at(0) = 1 }     (x: int)        → Err type integer has no method `at`
+#{ s.len() = 1 }     (não-accessor)  → Err cannot mutate a temporary value
+#{ x.a = 1 }         (x: int)        → Err integer does not have accessible fields
+#{ c.body = [x] }    (c: content)    → Err cannot mutate fields on content
+#{ v.major = 9 }     (v: version)    → Err fields on version are not yet mutable
+                                        + hint try creating a new version with the
+                                        updated field value instead
+#{ (arr.at(0), arr.at(1)) = (9, 8) } → muta ambos
+#{ (d.novo,) = (2,) }                → Err dictionary does not contain key "novo"
+```
+
+Nota de paridade da mensagem: nos erros acima o vanilla usa o nome
+**longo** do tipo (`integer`, `string`, `boolean`), não o curto do
+`type_name()` cristalino (`int`, `str`, `bool`). A mensagem de erro é o
+observável (ADR-0107) — usar o nome longo nestes erros.
+
+### Implementação — mirror em `bindings.rs`
+
+- **`access(expr, scopes, ctx, engine) -> SourceResult<&mut Value>`** —
+  mirror do trait `Access` do vanilla, como free function (o cristalino
+  não tem `Vm`; recebe as três partes). 4 braços + fallback avalia-e-erra.
+  `Ident` ausente → `"unknown variable: {name}"` (mesma convenção §P715).
+- **`access_dict(fa, scopes, ctx, engine) -> SourceResult<&mut IndexMap<…>>`**
+  — mirror de `access_dict`, com os três níveis de erro medidos acima.
+  Braço "not yet mutable": Version, Length, Relative, Stroke, Align (o
+  espelho de `fields_on`); Duration cristalino (P412, campos de leitura)
+  fica **fora** — o vanilla responde `"duration does not have accessible
+  fields"` e a mensagem é o observável.
+- **`is_accessor_method`** (`first`/`last`/`at`) e
+  **`call_method_access(value, method, args, span)`** — mirror exacto,
+  incluindo a ordem: `expect` do posicional → `at_mut` → *depois* o
+  check de args excedentes (`args.finish()`: named → `"unexpected
+  argument: {name}"`, posicional → `"unexpected argument"`). Índice
+  negativo conta do fim (`locate_opt`, mesma regra de `array.at` P714);
+  a mensagem de out-of-bounds na escrita **não** tem o sufixo
+  `"and no default value was specified"` (esse é só do read com
+  `default:` possível).
+- **`eval_assign` reescrito** como mirror de `apply_assignment`: rhs
+  primeiro; caso especial `Assign`+`FieldAccess` → `access_dict` +
+  `insert`; senão `access(lhs)` + `mem::replace` do local + operador
+  subjacente para as formas compostas (deixa de ler via
+  `scopes.get`+clone — o local mutável já dá o valor actual).
+- **`destructure_pattern`/`destructure_array`/`destructure_dict`**
+  passam a enfiar `ctx`/`engine` (assinatura de `f` ganha os dois) — a
+  folha de `eval_destruct_assignment` passa a `*access(expr, …)? = value`
+  (mirror de `binding.rs:30-42`); a folha de `destructure_let` continua
+  a ignorá-los (só `Ident` + `define`).
+- `Scopes::get_mut` (§P715) inalterado.
+
+### Critérios de verificação
+
+- Os snippets da tabela acima, cada um com o resultado/erro medido.
+- `#let d = (a: 1, b: 2); #{ d.a = 10 }; #d` → `(a: 10, b: 2)`.
+- `#let arr = (1, 2, 3); #{ arr.at(1) = 20 }; #arr` → `(1, 20, 3)`.
+- Aninhado: `#{ let n = (xs: (1, 2)); n.xs.at(0) = 9 }` — `access`
+  recursivo (`FuncCall` accessor cujo target é `FieldAccess`).
+- Sem regressão: mecanismo `Ident` (§P715) e `cargo test --workspace`.
 - `crystalline-lint .` limpo.

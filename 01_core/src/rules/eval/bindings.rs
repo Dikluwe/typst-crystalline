@@ -60,7 +60,7 @@ pub(super) fn eval_let(
                     func.set_name(ident.as_str().to_string());
                 }
             }
-            destructure_let(pattern, value, scopes)?;
+            destructure_let(pattern, value, scopes, ctx, engine)?;
         }
         LetBindingKind::Closure(ident) => {
             // Sintaxe function shorthand: #let fib(n) = ...
@@ -80,22 +80,27 @@ pub(super) fn eval_let(
 /// `destructure_impl` do vanilla (`typst-eval/binding.rs:60-82`) — a única
 /// diferença entre `let` e atribuição (`(a,b) = expr`) é o que `f` faz com
 /// cada folha (`destructure_let` define; `eval_destruct_assignment` muta).
+/// **P716** — `ctx`/`engine` enfiados até à folha: a folha da atribuição
+/// usa o `Access` genérico, que avalia args de accessor methods (o vanilla
+/// passa o `Vm` inteiro; aqui as três partes).
 fn destructure_pattern<F>(
     pattern: Pattern<'_>,
     value: Value,
     scopes: &mut Scopes<'_>,
+    ctx: &mut EvalContext,
+    engine: &mut Engine<'_>,
     f: &F,
 ) -> SourceResult<()>
 where
-    F: Fn(&mut Scopes<'_>, Expr<'_>, Value) -> SourceResult<()>,
+    F: Fn(&mut Scopes<'_>, &mut EvalContext, &mut Engine<'_>, Expr<'_>, Value) -> SourceResult<()>,
 {
     match pattern {
-        Pattern::Normal(expr) => f(scopes, expr, value)?,
+        Pattern::Normal(expr) => f(scopes, ctx, engine, expr, value)?,
         Pattern::Placeholder(_) => {}
-        Pattern::Parenthesized(p) => destructure_pattern(p.pattern(), value, scopes, f)?,
+        Pattern::Parenthesized(p) => destructure_pattern(p.pattern(), value, scopes, ctx, engine, f)?,
         Pattern::Destructuring(d) => match value {
-            Value::Array(arr) => destructure_array(d, arr, scopes, f)?,
-            Value::Dict(dict) => destructure_dict(d, dict, scopes, f)?,
+            Value::Array(arr) => destructure_array(d, arr, scopes, ctx, engine, f)?,
+            Value::Dict(dict) => destructure_dict(d, dict, scopes, ctx, engine, f)?,
             other => {
                 return Err(vec![SourceDiagnostic::error(
                     pattern.span(),
@@ -115,10 +120,12 @@ fn destructure_array<F>(
     d: Destructuring<'_>,
     arr: Vec<Value>,
     scopes: &mut Scopes<'_>,
+    ctx: &mut EvalContext,
+    engine: &mut Engine<'_>,
     f: &F,
 ) -> SourceResult<()>
 where
-    F: Fn(&mut Scopes<'_>, Expr<'_>, Value) -> SourceResult<()>,
+    F: Fn(&mut Scopes<'_>, &mut EvalContext, &mut Engine<'_>, Expr<'_>, Value) -> SourceResult<()>,
 {
     let len = arr.len();
     let items: Vec<_> = d.items().collect();
@@ -131,7 +138,7 @@ where
                 if i >= len {
                     return Err(vec![wrong_number_of_elements(d, len)]);
                 }
-                destructure_pattern(pattern, arr[i].clone(), scopes, f)?;
+                destructure_pattern(pattern, arr[i].clone(), scopes, ctx, engine, f)?;
                 i += 1;
             }
             DestructuringItem::Spread(spread) => {
@@ -143,7 +150,7 @@ where
                     return Err(vec![wrong_number_of_elements(d, len)]);
                 }
                 if let Some(expr) = spread.sink_expr() {
-                    f(scopes, expr, Value::Array(arr[i..i + sink_size].to_vec()))?;
+                    f(scopes, ctx, engine, expr, Value::Array(arr[i..i + sink_size].to_vec()))?;
                 }
                 i += sink_size;
             }
@@ -172,10 +179,12 @@ fn destructure_dict<F>(
     d: Destructuring<'_>,
     dict: IndexMap<EcoString, Value, FxBuildHasher>,
     scopes: &mut Scopes<'_>,
+    ctx: &mut EvalContext,
+    engine: &mut Engine<'_>,
     f: &F,
 ) -> SourceResult<()>
 where
-    F: Fn(&mut Scopes<'_>, Expr<'_>, Value) -> SourceResult<()>,
+    F: Fn(&mut Scopes<'_>, &mut EvalContext, &mut Engine<'_>, Expr<'_>, Value) -> SourceResult<()>,
 {
     let mut sink: Option<Expr<'_>> = None;
     let mut used: std::collections::HashSet<EcoString> = std::collections::HashSet::new();
@@ -190,7 +199,7 @@ where
                         format!("dictionary does not contain key {:?}", key),
                     )]
                 })?;
-                f(scopes, Expr::Ident(ident), v)?;
+                f(scopes, ctx, engine, Expr::Ident(ident), v)?;
                 used.insert(EcoString::from(key));
             }
             DestructuringItem::Named(named) => {
@@ -202,7 +211,7 @@ where
                         format!("dictionary does not contain key {:?}", key),
                     )]
                 })?;
-                destructure_pattern(named.pattern(), v, scopes, f)?;
+                destructure_pattern(named.pattern(), v, scopes, ctx, engine, f)?;
                 used.insert(EcoString::from(key));
             }
             DestructuringItem::Spread(spread) => {
@@ -224,7 +233,7 @@ where
                 sink_dict.insert(key, value);
             }
         }
-        f(scopes, expr, Value::Dict(sink_dict))?;
+        f(scopes, ctx, engine, expr, Value::Dict(sink_dict))?;
     }
 
     Ok(())
@@ -262,28 +271,33 @@ fn wrong_number_of_elements(d: Destructuring<'_>, len: usize) -> SourceDiagnosti
 /// **P715** — desestruturação para `#let`: cada folha tem de ser um `Ident`
 /// (define no scope actual). Mirror de `destructure()` do vanilla
 /// (`typst-eval/binding.rs:45-57`).
-fn destructure_let(pattern: Pattern<'_>, value: Value, scopes: &mut Scopes<'_>) -> SourceResult<()> {
-    destructure_pattern(pattern, value, scopes, &|scopes, expr, value| match expr {
-        Expr::Ident(ident) => {
-            scopes.define(ident.as_str(), value);
-            Ok(())
+fn destructure_let(
+    pattern: Pattern<'_>,
+    value: Value,
+    scopes: &mut Scopes<'_>,
+    ctx: &mut EvalContext,
+    engine: &mut Engine<'_>,
+) -> SourceResult<()> {
+    destructure_pattern(pattern, value, scopes, ctx, engine, &|scopes, _ctx, _engine, expr, value| {
+        match expr {
+            Expr::Ident(ident) => {
+                scopes.define(ident.as_str(), value);
+                Ok(())
+            }
+            other => Err(vec![SourceDiagnostic::error(
+                other.span(),
+                "cannot assign to this expression".to_string(),
+            )]),
         }
-        other => Err(vec![SourceDiagnostic::error(
-            other.span(),
-            "cannot assign to this expression".to_string(),
-        )]),
     })
 }
 
 /// **P715** — `(a, b) = expr`: desestruturação em atribuição. Cada folha tem
-/// de já existir (`Scopes::get_mut`); não cria bindings novos. Mirror de
-/// `DestructAssignment::eval` do vanilla (`typst-eval/binding.rs:30-42`).
-///
-/// **Scope-out medido** (sem consumidor em `cetz`): folhas não-`Ident`
-/// (`FieldAccess`, `FuncCall` accessor) — o vanilla suporta via `Access`
-/// (`typst-eval/access.rs`, mutação de campos de dict e `.at()` de array/
-/// dict); aqui produz erro claro ("cannot mutate a temporary value") em vez
-/// de implementar o `Access` genérico sem uso medido.
+/// de já existir; não cria bindings novos. Mirror de
+/// `DestructAssignment::eval` do vanilla (`typst-eval/binding.rs:30-42`):
+/// a folha escreve via `Access` genérico (**P716** — suporta `Ident`,
+/// `FieldAccess` e accessor methods; **sem** o caso especial de insert do
+/// `=` puro, tal como o vanilla — `(d.novo,) = (2,)` erra missing key).
 pub(super) fn eval_destruct_assignment(
     node: DestructAssignment<'_>,
     scopes: &mut Scopes<'_>,
@@ -291,38 +305,21 @@ pub(super) fn eval_destruct_assignment(
     engine: &mut Engine<'_>,
 ) -> SourceResult<Value> {
     let value = eval_expr(node.value(), scopes, ctx, engine)?;
-    destructure_pattern(node.pattern(), value, scopes, &|scopes, expr, value| match expr {
-        Expr::Ident(ident) => {
-            let name = ident.as_str();
-            match scopes.get_mut(name) {
-                Some(slot) => {
-                    *slot = value;
-                    Ok(())
-                }
-                None => Err(vec![SourceDiagnostic::error(
-                    ident.span(),
-                    format!("unknown variable: {name}"),
-                )]),
-            }
-        }
-        other => Err(vec![SourceDiagnostic::error(
-            other.span(),
-            "cannot mutate a temporary value".to_string(),
-        )]),
+    destructure_pattern(node.pattern(), value, scopes, ctx, engine, &|scopes, ctx, engine, expr, value| {
+        *access(expr, scopes, ctx, engine)? = value;
+        Ok(())
     })?;
     Ok(Value::None)
 }
 
-/// **P715** — atribuição simples/composta (`x = v`, `x += v`, `x -= v`,
-/// `x *= v`, `x /= v`) a uma variável já existente. `Expr::Binary` avaliava
-/// incondicionalmente `lhs` e `rhs` como valores antes deste passo — para
-/// `Assign`/`*Assign`, o `lhs` tem de ser resolvido como **local** (nome),
-/// não como valor, daí a intercepção antes do dispatch genérico em
-/// `eval_expr` (`eval/mod.rs`).
-///
-/// **Scope-out medido** (sem consumidor em `cetz`): alvo não-`Ident` — erro
-/// claro ("cannot mutate a temporary value"), mesma convenção de
-/// `eval_destruct_assignment`.
+/// **P715/P716** — atribuição simples/composta (`x = v`, `+=`, `-=`, `*=`,
+/// `/=`). Mirror de `apply_assignment` do vanilla (`typst-eval/ops.rs:69-91`):
+/// **rhs primeiro**; `=` puro com lhs `FieldAccess` é o caso especial que
+/// **cria** a chave (`access_dict` + `insert`, `ops.rs:77-85`); tudo o resto
+/// resolve o lhs como **local** via `Access` genérico e escreve no sítio
+/// (`mem::replace` para ler o valor actual nas formas compostas). A
+/// intercepção antes do dispatch genérico em `eval_expr` (`eval/mod.rs`)
+/// continua necessária: o lhs não pode ser avaliado como valor.
 pub(super) fn eval_assign(
     binary: Binary<'_>,
     scopes: &mut Scopes<'_>,
@@ -330,38 +327,320 @@ pub(super) fn eval_assign(
     engine: &mut Engine<'_>,
 ) -> SourceResult<Value> {
     let rhs = eval_expr(binary.rhs(), scopes, ctx, engine)?;
-    let Expr::Ident(ident) = binary.lhs() else {
-        return Err(vec![SourceDiagnostic::error(
-            binary.lhs().span(),
-            "cannot mutate a temporary value".to_string(),
-        )]);
-    };
-    let name = ident.as_str();
 
-    let new_value = if matches!(binary.op(), BinOp::Assign) {
-        rhs
-    } else {
-        let current = scopes.get(name).cloned().ok_or_else(|| {
-            vec![SourceDiagnostic::error(ident.span(), format!("unknown variable: {name}"))]
-        })?;
-        let underlying = match binary.op() {
-            BinOp::AddAssign => BinOp::Add,
-            BinOp::SubAssign => BinOp::Sub,
-            BinOp::MulAssign => BinOp::Mul,
-            BinOp::DivAssign => BinOp::Div,
-            _ => unreachable!("filtrado por eval_expr antes de chamar eval_assign"),
-        };
-        super::operators::eval_binary_op(underlying, current, rhs)
-            .map_err(|msg| vec![SourceDiagnostic::error(binary.span(), msg)])?
-    };
-
-    match scopes.get_mut(name) {
-        Some(slot) => {
-            *slot = new_value;
-            Ok(Value::None)
+    // Caso especial (vanilla ops.rs:77-85): atribuição pura a um campo de
+    // dict pode CRIAR o campo — não passa pelo `at_mut` do campo.
+    if matches!(binary.op(), BinOp::Assign) {
+        if let Expr::FieldAccess(fa) = binary.lhs() {
+            let field: EcoString = fa.field().as_str().into();
+            let dict = access_dict(fa, scopes, ctx, engine)?;
+            dict.insert(field, rhs);
+            return Ok(Value::None);
         }
-        None => Err(vec![SourceDiagnostic::error(ident.span(), format!("unknown variable: {name}"))]),
     }
+
+    let location = access(binary.lhs(), scopes, ctx, engine)?;
+    let new_value = match binary.op() {
+        BinOp::Assign => rhs,
+        op => {
+            let current = std::mem::replace(location, Value::None);
+            let underlying = match op {
+                BinOp::AddAssign => BinOp::Add,
+                BinOp::SubAssign => BinOp::Sub,
+                BinOp::MulAssign => BinOp::Mul,
+                BinOp::DivAssign => BinOp::Div,
+                _ => unreachable!("filtrado por eval_expr antes de chamar eval_assign"),
+            };
+            super::operators::eval_binary_op(underlying, current, rhs)
+                .map_err(|msg| vec![SourceDiagnostic::error(binary.span(), msg)])?
+        }
+    };
+    *location = new_value;
+    Ok(Value::None)
+}
+
+// ── P716 — `Access` genérico: mirror de `typst-eval/access.rs` e
+// `methods.rs` (accessor methods). Referência mutável ao LOCAL nomeado
+// pela expressão (elemento/campo), não substituição do valor completo. ────
+
+/// **P716** — nome longo do tipo, como o vanilla o escreve nas mensagens de
+/// erro do `Access` ("integer does not have accessible fields") — a mensagem
+/// é o observável (ADR-0107). Só difere do `type_name()` curto nos escalares.
+fn long_type_name(value: &Value) -> &'static str {
+    match value {
+        Value::Int(_) => "integer",
+        Value::Str(_) => "string",
+        Value::Bool(_) => "boolean",
+        other => other.type_name(),
+    }
+}
+
+/// **P716** — a lista exacta (e completa) de accessor methods do vanilla
+/// (`typst-eval/methods.rs:19-21`): `first`, `last`, `at`. Não há outros.
+fn is_accessor_method(method: &str) -> bool {
+    matches!(method, "first" | "last" | "at")
+}
+
+/// **P716** — erro de chave ausente do vanilla (`Dict::at_mut`,
+/// `foundations/dict.rs:99-104`), com o hint.
+fn missing_key(span: Span, key: &str) -> Vec<SourceDiagnostic> {
+    vec![SourceDiagnostic::error(
+        span,
+        format!("dictionary does not contain key {key:?}"),
+    )
+    .with_hint("use `insert` to add or update values".to_string())]
+}
+
+/// **P716** — mirror do trait `Access` do vanilla (`access.rs:14-27`), como
+/// free function (o cristalino não tem `Vm`; recebe as três partes). Quatro
+/// formas de alvo: `Ident`, `Parenthesized`, `FieldAccess`, `FuncCall` de
+/// accessor method. Qualquer outra expressão avalia (para efeitos) e erra
+/// "cannot mutate a temporary value" (`access.rs:21-24,71-72`).
+fn access<'s>(
+    expr: Expr<'_>,
+    scopes: &'s mut Scopes<'_>,
+    ctx: &mut EvalContext,
+    engine: &mut Engine<'_>,
+) -> SourceResult<&'s mut Value> {
+    match expr {
+        Expr::Ident(ident) => {
+            let name = ident.as_str();
+            match scopes.get_mut(name) {
+                Some(slot) => Ok(slot),
+                None => Err(vec![SourceDiagnostic::error(
+                    ident.span(),
+                    format!("unknown variable: {name}"),
+                )]),
+            }
+        }
+        Expr::Parenthesized(paren) => access(paren.expr(), scopes, ctx, engine),
+        Expr::FieldAccess(fa) => {
+            let span = fa.span();
+            let field: EcoString = fa.field().as_str().into();
+            let dict = access_dict(fa, scopes, ctx, engine)?;
+            match dict.get_mut(field.as_str()) {
+                Some(slot) => Ok(slot),
+                None => Err(missing_key(span, field.as_str())),
+            }
+        }
+        Expr::FuncCall(call) => {
+            if let Expr::FieldAccess(fa) = call.callee() {
+                if is_accessor_method(fa.field().as_str()) {
+                    let span = call.span();
+                    let method: EcoString = fa.field().as_str().into();
+                    // Ordem do vanilla (`access.rs:62-64`): args primeiro,
+                    // access do target depois.
+                    let args = super::closures::eval_args(call.args(), scopes, ctx, engine)?;
+                    let target = access(fa.target(), scopes, ctx, engine)?;
+                    return call_method_access(target, method.as_str(), args, span);
+                }
+            }
+            let _ = eval_expr(expr, scopes, ctx, engine)?;
+            Err(vec![SourceDiagnostic::error(
+                expr.span(),
+                "cannot mutate a temporary value".to_string(),
+            )])
+        }
+        other => {
+            let _ = eval_expr(other, scopes, ctx, engine)?;
+            Err(vec![SourceDiagnostic::error(
+                other.span(),
+                "cannot mutate a temporary value".to_string(),
+            )])
+        }
+    }
+}
+
+/// **P716** — mirror de `access_dict` do vanilla (`access.rs:76-107`):
+/// resolve o target de um `FieldAccess` como dict mutável. Os três níveis
+/// de erro para não-dict seguem o vanilla: tipos com field getters próprios
+/// → "cannot mutate fields on {ty}"; tipos em `fields_on`
+/// (`fields.rs:77-91`: Version, Length, Rel, Stroke, Alignment) → "fields on
+/// {ty} are not yet mutable" + hint; resto → "{ty} does not have accessible
+/// fields". Duration cristalino (campos de leitura, P412) fica no último
+/// braço — o vanilla não o tem em `fields_on` e a mensagem é o observável.
+fn access_dict<'s>(
+    fa: crate::entities::ast::expr::FieldAccess<'_>,
+    scopes: &'s mut Scopes<'_>,
+    ctx: &mut EvalContext,
+    engine: &mut Engine<'_>,
+) -> SourceResult<&'s mut IndexMap<EcoString, Value, FxBuildHasher>> {
+    let target_span = fa.target().span();
+    match access(fa.target(), scopes, ctx, engine)? {
+        Value::Dict(dict) => Ok(dict),
+        value => {
+            let ty = long_type_name(value);
+            match value {
+                Value::Symbol(_)
+                | Value::Content(_)
+                | Value::Module(_)
+                | Value::Func(_)
+                | Value::Args(_) => Err(vec![SourceDiagnostic::error(
+                    target_span,
+                    format!("cannot mutate fields on {ty}"),
+                )]),
+                Value::Version(_)
+                | Value::Length(_)
+                | Value::Relative(_)
+                | Value::Stroke(_)
+                | Value::Align(_) => Err(vec![SourceDiagnostic::error(
+                    target_span,
+                    format!("fields on {ty} are not yet mutable"),
+                )
+                .with_hint(format!(
+                    "try creating a new {ty} with the updated field value instead"
+                ))]),
+                _ => Err(vec![SourceDiagnostic::error(
+                    target_span,
+                    format!("{ty} does not have accessible fields"),
+                )]),
+            }
+        }
+    }
+}
+
+/// **P716** — mirror de `Args::expect`: tira o primeiro posicional ou erra
+/// "missing argument: {what}" (mensagem do vanilla).
+fn expect_positional(args: &mut Args, span: Span, what: &str) -> SourceResult<Value> {
+    if args.items.is_empty() {
+        return Err(vec![SourceDiagnostic::error(
+            span,
+            format!("missing argument: {what}"),
+        )]);
+    }
+    Ok(args.items.remove(0))
+}
+
+/// **P716** — mirror de `Args::finish`: args por consumir são erro. Corre
+/// DEPOIS do acesso (ordem do vanilla, `methods.rs:96` — `arr.at(5,
+/// default: 0)` erra out-of-bounds, não unexpected argument).
+fn finish_args(args: &Args, span: Span) -> SourceResult<()> {
+    if let Some(name) = args.named.keys().next() {
+        return Err(vec![SourceDiagnostic::error(
+            span,
+            format!("unexpected argument: {name}"),
+        )]);
+    }
+    if !args.items.is_empty() {
+        return Err(vec![SourceDiagnostic::error(
+            span,
+            "unexpected argument".to_string(),
+        )]);
+    }
+    Ok(())
+}
+
+/// **P716** — se o tipo tem um método (só de leitura) com este nome, o erro
+/// do vanilla é "cannot mutate a temporary value"; senão "type {ty} has no
+/// method `{method}`" (`methods.rs:72-80`, `ty.scope().get(method)`). O
+/// espelho consulta a superfície de métodos do vanilla: str/bytes têm
+/// `first`/`last`/`at`; content, version e arguments têm `at`.
+fn has_readonly_method(value: &Value, method: &str) -> bool {
+    match (value, method) {
+        (Value::Str(_) | Value::Bytes(_), "first" | "last" | "at") => true,
+        (Value::Content(_) | Value::Version(_) | Value::Args(_), "at") => true,
+        _ => false,
+    }
+}
+
+/// **P716** — mirror de `call_method_access` do vanilla (`methods.rs:66-98`):
+/// devolve a referência mutável ao elemento/campo. Array: `first`/`last`/
+/// `at(index)` (índice negativo conta do fim — `locate_opt`, mesma regra do
+/// `array.at` de leitura, P714; a mensagem de out-of-bounds da escrita NÃO
+/// tem o sufixo "and no default value was specified"). Dict: só `at(key)`.
+fn call_method_access<'a>(
+    value: &'a mut Value,
+    method: &str,
+    mut args: Args,
+    span: Span,
+) -> SourceResult<&'a mut Value> {
+    if !matches!(value, Value::Array(_) | Value::Dict(_)) {
+        return Err(vec![if has_readonly_method(value, method) {
+            SourceDiagnostic::error(span, "cannot mutate a temporary value".to_string())
+        } else {
+            SourceDiagnostic::error(
+                span,
+                format!("type {} has no method `{method}`", long_type_name(value)),
+            )
+        }]);
+    }
+
+    let slot = match value {
+        Value::Array(arr) => match method {
+            "first" => match arr.first_mut() {
+                Some(slot) => slot,
+                None => {
+                    return Err(vec![SourceDiagnostic::error(
+                        span,
+                        "array is empty".to_string(),
+                    )])
+                }
+            },
+            "last" => match arr.last_mut() {
+                Some(slot) => slot,
+                None => {
+                    return Err(vec![SourceDiagnostic::error(
+                        span,
+                        "array is empty".to_string(),
+                    )])
+                }
+            },
+            "at" => {
+                let index = match expect_positional(&mut args, span, "index")? {
+                    Value::Int(i) => i,
+                    other => {
+                        return Err(vec![SourceDiagnostic::error(
+                            span,
+                            format!("expected integer, found {}", long_type_name(&other)),
+                        )])
+                    }
+                };
+                let len = arr.len() as i64;
+                let resolved = if index >= 0 { Some(index) } else { len.checked_add(index) };
+                match resolved
+                    .filter(|&v| v >= 0 && v < len)
+                    .and_then(|v| arr.get_mut(v as usize))
+                {
+                    Some(slot) => slot,
+                    None => {
+                        return Err(vec![SourceDiagnostic::error(
+                            span,
+                            format!("array index out of bounds (index: {index}, len: {len})"),
+                        )])
+                    }
+                }
+            }
+            _ => unreachable!("is_accessor_method garante first/last/at"),
+        },
+        Value::Dict(dict) => match method {
+            "at" => {
+                let key = match expect_positional(&mut args, span, "key")? {
+                    Value::Str(s) => s,
+                    other => {
+                        return Err(vec![SourceDiagnostic::error(
+                            span,
+                            format!("expected string, found {}", long_type_name(&other)),
+                        )])
+                    }
+                };
+                match dict.get_mut(key.as_str()) {
+                    Some(slot) => slot,
+                    None => return Err(missing_key(span, key.as_str())),
+                }
+            }
+            // dict não tem `first`/`last` (nem no vanilla) → missing method.
+            _ => {
+                return Err(vec![SourceDiagnostic::error(
+                    span,
+                    format!("type dictionary has no method `{method}`"),
+                )])
+            }
+        },
+        _ => unreachable!("filtrado pelo guard acima"),
+    };
+
+    finish_args(&args, span)?;
+    Ok(slot)
 }
 
 /// **P506** — Despacha métodos de `Value::State`: `.update()`, `.get()`,

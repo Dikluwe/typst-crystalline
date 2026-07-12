@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/rules/eval.md
-//! @prompt-hash 5e82bd92
+//! @prompt-hash 824cf31b
 //! @layer L1
 //! @updated 2026-06-17
 //!
@@ -8377,5 +8377,218 @@ mod tests {
         let src = World::source(&world, World::main(&world)).unwrap();
         let m = eval_for_test(&world, &src).unwrap();
         assert_eq!(m.scope().get("x"), Some(&Value::Int(99)));
+    }
+
+    // ── P716 — `Access` genérico: `dict.campo` e accessor methods
+    // (`.at()`, `.first()`, `.last()`) como alvos de atribuição ─────────────
+
+    fn p716_eval(src: &str) -> SourceResult<Module> {
+        let world = MockWorld::new(src);
+        let source = World::source(&world, World::main(&world)).unwrap();
+        eval_for_test(&world, &source)
+    }
+
+    #[test]
+    fn p716_assign_dict_campo_existente_muta() {
+        let m = p716_eval("#let d = (a: 1, b: 2)\n#{ d.a = 10 }").unwrap();
+        match m.scope().get("d") {
+            Some(Value::Dict(d)) => {
+                assert_eq!(d.get("a"), Some(&Value::Int(10)));
+                assert_eq!(d.get("b"), Some(&Value::Int(2)));
+            }
+            other => panic!("esperado dict, recebeu {:?}", other),
+        }
+    }
+
+    #[test]
+    fn p716_assign_dict_campo_novo_insere() {
+        // Vanilla ops.rs:77-85 — `=` puro em FieldAccess cria a chave.
+        let m = p716_eval("#let d = (a: 1)\n#{ d.novo = 5 }").unwrap();
+        match m.scope().get("d") {
+            Some(Value::Dict(d)) => assert_eq!(d.get("novo"), Some(&Value::Int(5))),
+            other => panic!("esperado dict, recebeu {:?}", other),
+        }
+    }
+
+    #[test]
+    fn p716_assign_composto_dict_campo_inexistente_erra() {
+        // `+=` não passa pelo caso especial de insert — vai a `Dict::at_mut`.
+        let err = p716_eval("#let d = (a: 1)\n#{ d.b += 1 }").unwrap_err();
+        assert!(err[0].message.contains("dictionary does not contain key \"b\""));
+        assert!(err[0].hints.iter().any(|h| h.contains("insert")));
+    }
+
+    #[test]
+    fn p716_assign_array_at_muta() {
+        let m = p716_eval("#let arr = (1, 2, 3)\n#{ arr.at(1) = 20 }").unwrap();
+        assert_eq!(
+            m.scope().get("arr"),
+            Some(&Value::Array(vec![Value::Int(1), Value::Int(20), Value::Int(3)]))
+        );
+    }
+
+    #[test]
+    fn p716_assign_array_at_negativo_muta() {
+        // locate_opt: índice negativo conta do fim.
+        let m = p716_eval("#let arr = (1, 2, 3)\n#{ arr.at(-1) = 9 }").unwrap();
+        assert_eq!(
+            m.scope().get("arr"),
+            Some(&Value::Array(vec![Value::Int(1), Value::Int(2), Value::Int(9)]))
+        );
+    }
+
+    #[test]
+    fn p716_assign_array_at_fora_de_limites_erra() {
+        let err = p716_eval("#let arr2 = (1, 2, 3)\n#{ arr2.at(5) = 20 }").unwrap_err();
+        assert_eq!(err[0].message, "array index out of bounds (index: 5, len: 3)");
+    }
+
+    #[test]
+    fn p716_assign_array_at_default_erra() {
+        // `default:` não faz sentido como alvo de escrita — args.finish().
+        let err = p716_eval("#let arr = (1, 2, 3)\n#{ arr.at(1, default: 0) = 20 }").unwrap_err();
+        assert_eq!(err[0].message, "unexpected argument: default");
+    }
+
+    #[test]
+    fn p716_assign_array_at_sem_indice_erra() {
+        let err = p716_eval("#let arr = (1, 2)\n#{ arr.at() = 1 }").unwrap_err();
+        assert_eq!(err[0].message, "missing argument: index");
+    }
+
+    #[test]
+    fn p716_assign_array_at_indice_nao_int_erra() {
+        let err = p716_eval("#let arr = (1, 2)\n#{ arr.at(\"x\") = 1 }").unwrap_err();
+        assert_eq!(err[0].message, "expected integer, found string");
+    }
+
+    #[test]
+    fn p716_assign_array_first_last_mutam() {
+        let m = p716_eval("#let a3 = (1, 2, 3)\n#{ a3.first() = 100 }\n#{ a3.last() = 300 }").unwrap();
+        assert_eq!(
+            m.scope().get("a3"),
+            Some(&Value::Array(vec![Value::Int(100), Value::Int(2), Value::Int(300)]))
+        );
+    }
+
+    #[test]
+    fn p716_assign_array_first_vazio_erra() {
+        let err = p716_eval("#let a = ()\n#{ a.first() = 1 }").unwrap_err();
+        assert_eq!(err[0].message, "array is empty");
+    }
+
+    #[test]
+    fn p716_assign_dict_at_muta() {
+        let m = p716_eval("#let d2 = (x: 1)\n#{ d2.at(\"x\") = 9 }").unwrap();
+        match m.scope().get("d2") {
+            Some(Value::Dict(d)) => assert_eq!(d.get("x"), Some(&Value::Int(9))),
+            other => panic!("esperado dict, recebeu {:?}", other),
+        }
+    }
+
+    #[test]
+    fn p716_assign_dict_at_chave_inexistente_erra() {
+        // Ao contrário de `d.campo = v`, `d.at("campo") = v` NÃO insere.
+        let err = p716_eval("#let d = (a: 1)\n#{ d.at(\"outro\") = 7 }").unwrap_err();
+        assert!(err[0].message.contains("dictionary does not contain key \"outro\""));
+        assert!(err[0].hints.iter().any(|h| h.contains("insert")));
+    }
+
+    #[test]
+    fn p716_assign_dict_at_sem_chave_erra() {
+        let err = p716_eval("#let d = (a: 1)\n#{ d.at() = 1 }").unwrap_err();
+        assert_eq!(err[0].message, "missing argument: key");
+    }
+
+    #[test]
+    fn p716_assign_composto_array_at() {
+        // Forma composta via Access (mem::replace no local + operador subjacente).
+        let m = p716_eval("#let arr = (10, 2)\n#{ arr.at(0) += 5 }").unwrap();
+        assert_eq!(
+            m.scope().get("arr"),
+            Some(&Value::Array(vec![Value::Int(15), Value::Int(2)]))
+        );
+    }
+
+    #[test]
+    fn p716_assign_str_accessor_erra_temporario() {
+        // str tem método `at` (read) mas não é mutável — vanilla methods.rs:73-80.
+        let err = p716_eval("#let s = \"ab\"\n#{ s.at(0) = \"x\" }").unwrap_err();
+        assert!(err[0].message.contains("cannot mutate a temporary value"));
+    }
+
+    #[test]
+    fn p716_assign_int_metodo_inexistente_erra() {
+        let err = p716_eval("#let x = 5\n#{ x.at(0) = 1 }").unwrap_err();
+        assert_eq!(err[0].message, "type integer has no method `at`");
+    }
+
+    #[test]
+    fn p716_assign_nao_accessor_erra_temporario() {
+        // `len` não é accessor method — avalia e erra (vanilla access.rs:71-72).
+        let err = p716_eval("#let s = \"ab\"\n#{ s.len() = 1 }").unwrap_err();
+        assert!(err[0].message.contains("cannot mutate a temporary value"));
+    }
+
+    #[test]
+    fn p716_assign_campo_em_int_erra() {
+        // Nome longo do tipo na mensagem (vanilla): "integer", não "int".
+        let err = p716_eval("#let x = 5\n#{ x.a = 1 }").unwrap_err();
+        assert_eq!(err[0].message, "integer does not have accessible fields");
+    }
+
+    #[test]
+    fn p716_assign_campo_em_content_erra() {
+        let err = p716_eval("#let c = [oi]\n#{ c.body = 1 }").unwrap_err();
+        assert_eq!(err[0].message, "cannot mutate fields on content");
+    }
+
+    #[test]
+    fn p716_assign_campo_em_length_erra_not_yet_mutable() {
+        // Length está em fields_on (vanilla fields.rs:77-91) → braço "not yet
+        // mutable" com hint.
+        let err = p716_eval("#let l = 5pt\n#{ l.abs = 1pt }").unwrap_err();
+        assert_eq!(err[0].message, "fields on length are not yet mutable");
+        assert!(err[0].hints.iter().any(|h| h.contains("updated field value")));
+    }
+
+    #[test]
+    fn p716_destruct_assignment_com_accessores() {
+        // Padrão real de cetz (`hobby.typ:160-161`): folhas accessor na
+        // desestruturação-atribuição.
+        let m = p716_eval("#let arr = (1, 2)\n#{ (arr.at(0), arr.at(1)) = (9, 8) }").unwrap();
+        assert_eq!(
+            m.scope().get("arr"),
+            Some(&Value::Array(vec![Value::Int(9), Value::Int(8)]))
+        );
+    }
+
+    #[test]
+    fn p716_destruct_assignment_dict_campo_nao_insere() {
+        // A folha da desestruturação usa o Access puro (binding.rs:30-42), sem
+        // o caso especial de insert do `=` — chave nova erra.
+        let err = p716_eval("#let d = (a: 1)\n#{ (d.novo,) = (2,) }").unwrap_err();
+        assert!(err[0].message.contains("dictionary does not contain key \"novo\""));
+    }
+
+    #[test]
+    fn p716_assign_aninhado_dict_array() {
+        // Access recursivo: FuncCall accessor cujo target é FieldAccess.
+        let m = p716_eval("#let n = (xs: (1, 2))\n#{ n.xs.at(0) = 9 }").unwrap();
+        match m.scope().get("n") {
+            Some(Value::Dict(d)) => assert_eq!(
+                d.get("xs"),
+                Some(&Value::Array(vec![Value::Int(9), Value::Int(2)]))
+            ),
+            other => panic!("esperado dict, recebeu {:?}", other),
+        }
+    }
+
+    #[test]
+    fn p716_mecanismo_ident_p715_sem_regressao() {
+        // O rework de eval_assign (access + mem::replace, em vez de
+        // scopes.get+clone) preserva o caminho Ident.
+        let m = p716_eval("#let x = 1\n#{ x += 10 }").unwrap();
+        assert_eq!(m.scope().get("x"), Some(&Value::Int(11)));
     }
 }
