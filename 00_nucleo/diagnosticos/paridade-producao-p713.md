@@ -4,7 +4,7 @@
 **Passo:** sem materialização prévia — instrução directa do utilizador
 ("avança para o Length / Length e corrija o bug"), sonda feita
 directamente contra `lab/typst-original` per protocolo (ADR-0108).
-**Hash do commit (implementação):** a preencher no commit seguinte.
+**Hash do commit (implementação):** `9c47d6cb3`.
 **HEAD base:** `757fa6623` (fim de P712).
 **Estado:** FECHADO — `Length / Length`, `Length / Int`, `Length /
 Float` implementados com paridade exacta ao `Length::try_div` do
