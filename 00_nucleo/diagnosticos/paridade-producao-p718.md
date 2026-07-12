@@ -2,7 +2,7 @@
 
 **Data:** 2026-07-12
 **Passo:** `00_nucleo/materialization/typst-passo-718.md`
-**Hash do commit (implementação):** `A_PREENCHER`.
+**Hash do commit (implementação):** `4d7777da3`.
 **HEAD base:** `a8383e1e6` (fim de P717).
 **Estado:** FECHADO — spread em literal de array (qualquer posição), em
 literal de dict, e em argumentos de chamada (incluindo reencaminhamento
@@ -116,7 +116,7 @@ teste de não-regressão de rest-param).
 ## 3. Validação
 
 Estado da medição: working tree com exactamente as alterações deste
-passo, commitado de seguida como `A_PREENCHER` (o diff do commit é o
+passo, commitado de seguida como `4d7777da3` (o diff do commit é o
 estado medido). Re-verificação pós-commit em §3.4.
 
 ### 3.1 Documentos do passo vs vanilla
@@ -153,10 +153,15 @@ Documento do passo (`/tmp/p718-cetz.typ`):
 
 ### 3.4 Re-verificação pós-commit (proveniência)
 
-Executada no commit `A_PREENCHER`, working tree limpa:
+Executada no commit `4d7777da3`, working tree limpa:
 
-- `/tmp/p718-spread.typ` / `/tmp/p718-call-spread.typ` → `A_CONFIRMAR`
-- `cetz` → `A_CONFIRMAR` (erro e tempo)
+- `/tmp/p718-spread.typ` → mesmo resultado: `(1, 2, 3, 4) (a: 1, b: 2,
+  c: 3, d: 4) (1,)`.
+- `/tmp/p718-call-spread.typ` → mesmo resultado: `6`.
+- `cetz` → mesmo bloqueio (`não é possível iterar sobre dictionary`),
+  tempo real 52,7s (51,9s pré-commit — variação normal de ruído de
+  máquina, sem alteração significativa; o documento continua a falhar
+  na fase de eval, antes de qualquer layout).
 
 ---
 
