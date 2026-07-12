@@ -142,6 +142,25 @@ impl<'a> Scopes<'a> {
         let _ = self.base;
         None
     }
+
+    /// P715 — acesso mutável a um binding existente, para atribuição (`x = v`,
+    /// `x += v`, desestruturação em atribuição). Pesquisa `top` → `scopes`
+    /// (mais recente primeiro) — mesma ordem de `get`. **Não** pesquisa
+    /// `captured` nem `base`: mutar uma variável capturada por uma closure
+    /// (do seu scope de definição) ou da stdlib não é um caso medido/alcançado
+    /// (ver `rules/eval.md` §P715) — devolve `None`, tratado como "unknown
+    /// variable" pelo caller, tal como um nome inexistente.
+    pub fn get_mut(&mut self, name: &str) -> Option<&mut Value> {
+        if let Some(v) = self.top.get_mut(name) {
+            return Some(v);
+        }
+        for scope in self.scopes.iter_mut().rev() {
+            if let Some(v) = scope.get_mut(name) {
+                return Some(v);
+            }
+        }
+        None
+    }
 }
 
 #[cfg(test)]
@@ -197,5 +216,47 @@ mod tests {
         scopes.exit();
         assert!(scopes.get("global").is_some());
         assert!(scopes.get("local").is_none());
+    }
+
+    // ── P715 — get_mut ───────────────────────────────────────────────────────
+
+    #[test]
+    fn p715_get_mut_muta_binding_em_top() {
+        let mut scopes = Scopes::new(None);
+        scopes.define("x", Value::Int(1));
+        *scopes.get_mut("x").unwrap() = Value::Int(42);
+        assert_eq!(scopes.get("x"), Some(&Value::Int(42)));
+    }
+
+    #[test]
+    fn p715_get_mut_atravessa_ambitos_pai() {
+        // Binding no âmbito pai deve ser mutável a partir de um filho —
+        // mesma travessia usada por `x = v` dentro de um bloco `{ }` aninhado.
+        let mut scopes = Scopes::new(None);
+        scopes.define("x", Value::Int(1));
+        scopes.enter();
+        *scopes.get_mut("x").unwrap() = Value::Int(99);
+        assert_eq!(scopes.get("x"), Some(&Value::Int(99)));
+        scopes.exit();
+        // Mutação sobrevive à saída do âmbito filho (mutou o pai, não uma cópia).
+        assert_eq!(scopes.get("x"), Some(&Value::Int(99)));
+    }
+
+    #[test]
+    fn p715_get_mut_ausente_devolve_none() {
+        let mut scopes = Scopes::new(None);
+        assert!(scopes.get_mut("missing").is_none());
+    }
+
+    #[test]
+    fn p715_get_mut_nao_pesquisa_captured() {
+        // Mutar uma variável capturada do scope de definição de uma closure
+        // não é um caso medido/alcançado — `get_mut` devolve `None`, tratado
+        // como "unknown variable" pelo caller.
+        let mut base = Scope::new();
+        base.define("x", Value::Int(1));
+        let mut scopes = Scopes::with_parent(std::sync::Arc::new(base));
+        assert!(scopes.get("x").is_some(), "get deve ver a variável capturada");
+        assert!(scopes.get_mut("x").is_none(), "get_mut não deve alcançar captured");
     }
 }

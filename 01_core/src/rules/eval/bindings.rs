@@ -11,9 +11,11 @@
 //! Passo 109 (ADR-0044) via `Engine<'_>`.
 
 use ecow::{EcoString, EcoVec};
+use indexmap::IndexMap;
+use rustc_hash::FxBuildHasher;
 
-use crate::entities::ast::code::{LetBinding, LetBindingKind};
-use crate::entities::ast::expr::{Arg, Expr};
+use crate::entities::ast::code::{DestructAssignment, LetBinding, LetBindingKind};
+use crate::entities::ast::expr::{Arg, BinOp, Binary, Destructuring, DestructuringItem, Expr, Pattern};
 use crate::entities::ast::AstNode;
 use crate::entities::content::Content;
 use crate::entities::counter::Counter;
@@ -47,16 +49,18 @@ pub(super) fn eval_let(
 
     match binding.kind() {
         LetBindingKind::Normal(pattern) => {
-            // Binding simples: #let x = ... → Pattern::Normal(Expr::Ident(x))
-            let bindings = pattern.bindings();
-            if let Some(ident) = bindings.into_iter().next() {
-                let name = ident.as_str().to_string();
-                // Se a closure ainda não tem nome, dar-lhe o nome da binding (para recursão)
+            // P715 — nomeação pós-hoc só faz sentido para o caso simples (um
+            // único ident): permite recursão em `#let f = (n) => ...`. Padrões
+            // de desestruturação não têm um único "nome" candidato — o
+            // vanilla também não faz esta nomeação em `destructure()`
+            // (`typst-eval/binding.rs:45-57`), é uma extensão só do caso
+            // simples, preservada tal como estava.
+            if let Pattern::Normal(Expr::Ident(ident)) = pattern {
                 if let Value::Func(ref mut func) = value {
-                    func.set_name(name.clone());
+                    func.set_name(ident.as_str().to_string());
                 }
-                scopes.define(name, value);
             }
+            destructure_let(pattern, value, scopes)?;
         }
         LetBindingKind::Closure(ident) => {
             // Sintaxe function shorthand: #let fib(n) = ...
@@ -69,6 +73,295 @@ pub(super) fn eval_let(
     }
 
     Ok(Value::None)
+}
+
+/// **P715** — desestruturação genérica de `Pattern` sobre um `Value`,
+/// aplicando `f` a cada folha (par `Expr` alvo + valor). Mirror exacto de
+/// `destructure_impl` do vanilla (`typst-eval/binding.rs:60-82`) — a única
+/// diferença entre `let` e atribuição (`(a,b) = expr`) é o que `f` faz com
+/// cada folha (`destructure_let` define; `eval_destruct_assignment` muta).
+fn destructure_pattern<F>(
+    pattern: Pattern<'_>,
+    value: Value,
+    scopes: &mut Scopes<'_>,
+    f: &F,
+) -> SourceResult<()>
+where
+    F: Fn(&mut Scopes<'_>, Expr<'_>, Value) -> SourceResult<()>,
+{
+    match pattern {
+        Pattern::Normal(expr) => f(scopes, expr, value)?,
+        Pattern::Placeholder(_) => {}
+        Pattern::Parenthesized(p) => destructure_pattern(p.pattern(), value, scopes, f)?,
+        Pattern::Destructuring(d) => match value {
+            Value::Array(arr) => destructure_array(d, arr, scopes, f)?,
+            Value::Dict(dict) => destructure_dict(d, dict, scopes, f)?,
+            other => {
+                return Err(vec![SourceDiagnostic::error(
+                    pattern.span(),
+                    format!("cannot destructure {}", other.type_name()),
+                )]);
+            }
+        },
+    }
+    Ok(())
+}
+
+/// **P715** — desestruturação de array. Mirror de `destructure_array` do
+/// vanilla (`typst-eval/binding.rs:84-127`): posicionais consomem 1 elemento
+/// cada; `..sink` absorve o resto (tamanho calculado, não iterativo);
+/// `Named` não é permitido (só faz sentido contra `dict`).
+fn destructure_array<F>(
+    d: Destructuring<'_>,
+    arr: Vec<Value>,
+    scopes: &mut Scopes<'_>,
+    f: &F,
+) -> SourceResult<()>
+where
+    F: Fn(&mut Scopes<'_>, Expr<'_>, Value) -> SourceResult<()>,
+{
+    let len = arr.len();
+    let items: Vec<_> = d.items().collect();
+    let item_count = items.len();
+    let mut i = 0usize;
+
+    for item in items {
+        match item {
+            DestructuringItem::Pattern(pattern) => {
+                if i >= len {
+                    return Err(vec![wrong_number_of_elements(d, len)]);
+                }
+                destructure_pattern(pattern, arr[i].clone(), scopes, f)?;
+                i += 1;
+            }
+            DestructuringItem::Spread(spread) => {
+                let sink_size = (1 + len).checked_sub(item_count);
+                let Some(sink_size) = sink_size else {
+                    return Err(vec![wrong_number_of_elements(d, len)]);
+                };
+                if i + sink_size > len {
+                    return Err(vec![wrong_number_of_elements(d, len)]);
+                }
+                if let Some(expr) = spread.sink_expr() {
+                    f(scopes, expr, Value::Array(arr[i..i + sink_size].to_vec()))?;
+                }
+                i += sink_size;
+            }
+            DestructuringItem::Named(named) => {
+                return Err(vec![SourceDiagnostic::error(
+                    named.span(),
+                    "cannot destructure named pattern from an array".to_string(),
+                )]);
+            }
+        }
+    }
+
+    if i < len {
+        return Err(vec![wrong_number_of_elements(d, len)]);
+    }
+    Ok(())
+}
+
+/// **P715** — desestruturação de dict. Mirror de `destructure_dict` do
+/// vanilla (`typst-eval/binding.rs:129-175`): ident nu é atalho para
+/// `key: key` (chave = nome do ident); `Named` renomeia (`key: pattern`,
+/// suporta padrão aninhado); `..sink` recolhe as chaves não usadas num novo
+/// dict; padrão posicional nu (não-ident) é erro (só faz sentido contra
+/// `array`).
+fn destructure_dict<F>(
+    d: Destructuring<'_>,
+    dict: IndexMap<EcoString, Value, FxBuildHasher>,
+    scopes: &mut Scopes<'_>,
+    f: &F,
+) -> SourceResult<()>
+where
+    F: Fn(&mut Scopes<'_>, Expr<'_>, Value) -> SourceResult<()>,
+{
+    let mut sink: Option<Expr<'_>> = None;
+    let mut used: std::collections::HashSet<EcoString> = std::collections::HashSet::new();
+
+    for item in d.items() {
+        match item {
+            DestructuringItem::Pattern(Pattern::Normal(Expr::Ident(ident))) => {
+                let key = ident.as_str();
+                let v = dict.get(key).cloned().ok_or_else(|| {
+                    vec![SourceDiagnostic::error(
+                        ident.span(),
+                        format!("dictionary does not contain key {:?}", key),
+                    )]
+                })?;
+                f(scopes, Expr::Ident(ident), v)?;
+                used.insert(EcoString::from(key));
+            }
+            DestructuringItem::Named(named) => {
+                let name = named.name();
+                let key = name.as_str();
+                let v = dict.get(key).cloned().ok_or_else(|| {
+                    vec![SourceDiagnostic::error(
+                        name.span(),
+                        format!("dictionary does not contain key {:?}", key),
+                    )]
+                })?;
+                destructure_pattern(named.pattern(), v, scopes, f)?;
+                used.insert(EcoString::from(key));
+            }
+            DestructuringItem::Spread(spread) => {
+                sink = spread.sink_expr();
+            }
+            DestructuringItem::Pattern(other) => {
+                return Err(vec![SourceDiagnostic::error(
+                    other.span(),
+                    "cannot destructure unnamed pattern from dictionary".to_string(),
+                )]);
+            }
+        }
+    }
+
+    if let Some(expr) = sink {
+        let mut sink_dict: IndexMap<EcoString, Value, FxBuildHasher> = IndexMap::default();
+        for (key, value) in dict {
+            if !used.contains(&key) {
+                sink_dict.insert(key, value);
+            }
+        }
+        f(scopes, expr, Value::Dict(sink_dict))?;
+    }
+
+    Ok(())
+}
+
+/// A mensagem exacta de erro de aridade do vanilla (`typst-eval/binding.rs:180-209`).
+fn wrong_number_of_elements(d: Destructuring<'_>, len: usize) -> SourceDiagnostic {
+    let mut count = 0;
+    let mut spread = false;
+    for item in d.items() {
+        match item {
+            DestructuringItem::Pattern(_) => count += 1,
+            DestructuringItem::Spread(_) => spread = true,
+            DestructuringItem::Named(_) => {}
+        }
+    }
+
+    let quantifier = if len > count { "too many" } else { "not enough" };
+    let expected = if spread {
+        if count == 1 { "at least 1 element".to_string() } else { format!("at least {count} elements") }
+    } else {
+        match count {
+            0 => "an empty array".to_string(),
+            1 => "a single element".to_string(),
+            c => format!("{c} elements"),
+        }
+    };
+
+    SourceDiagnostic::error(d.span(), format!("{quantifier} elements to destructure"))
+        .with_hint(format!(
+            "the provided array has a length of {len}, but the pattern expects {expected}"
+        ))
+}
+
+/// **P715** — desestruturação para `#let`: cada folha tem de ser um `Ident`
+/// (define no scope actual). Mirror de `destructure()` do vanilla
+/// (`typst-eval/binding.rs:45-57`).
+fn destructure_let(pattern: Pattern<'_>, value: Value, scopes: &mut Scopes<'_>) -> SourceResult<()> {
+    destructure_pattern(pattern, value, scopes, &|scopes, expr, value| match expr {
+        Expr::Ident(ident) => {
+            scopes.define(ident.as_str(), value);
+            Ok(())
+        }
+        other => Err(vec![SourceDiagnostic::error(
+            other.span(),
+            "cannot assign to this expression".to_string(),
+        )]),
+    })
+}
+
+/// **P715** — `(a, b) = expr`: desestruturação em atribuição. Cada folha tem
+/// de já existir (`Scopes::get_mut`); não cria bindings novos. Mirror de
+/// `DestructAssignment::eval` do vanilla (`typst-eval/binding.rs:30-42`).
+///
+/// **Scope-out medido** (sem consumidor em `cetz`): folhas não-`Ident`
+/// (`FieldAccess`, `FuncCall` accessor) — o vanilla suporta via `Access`
+/// (`typst-eval/access.rs`, mutação de campos de dict e `.at()` de array/
+/// dict); aqui produz erro claro ("cannot mutate a temporary value") em vez
+/// de implementar o `Access` genérico sem uso medido.
+pub(super) fn eval_destruct_assignment(
+    node: DestructAssignment<'_>,
+    scopes: &mut Scopes<'_>,
+    ctx: &mut EvalContext,
+    engine: &mut Engine<'_>,
+) -> SourceResult<Value> {
+    let value = eval_expr(node.value(), scopes, ctx, engine)?;
+    destructure_pattern(node.pattern(), value, scopes, &|scopes, expr, value| match expr {
+        Expr::Ident(ident) => {
+            let name = ident.as_str();
+            match scopes.get_mut(name) {
+                Some(slot) => {
+                    *slot = value;
+                    Ok(())
+                }
+                None => Err(vec![SourceDiagnostic::error(
+                    ident.span(),
+                    format!("unknown variable: {name}"),
+                )]),
+            }
+        }
+        other => Err(vec![SourceDiagnostic::error(
+            other.span(),
+            "cannot mutate a temporary value".to_string(),
+        )]),
+    })?;
+    Ok(Value::None)
+}
+
+/// **P715** — atribuição simples/composta (`x = v`, `x += v`, `x -= v`,
+/// `x *= v`, `x /= v`) a uma variável já existente. `Expr::Binary` avaliava
+/// incondicionalmente `lhs` e `rhs` como valores antes deste passo — para
+/// `Assign`/`*Assign`, o `lhs` tem de ser resolvido como **local** (nome),
+/// não como valor, daí a intercepção antes do dispatch genérico em
+/// `eval_expr` (`eval/mod.rs`).
+///
+/// **Scope-out medido** (sem consumidor em `cetz`): alvo não-`Ident` — erro
+/// claro ("cannot mutate a temporary value"), mesma convenção de
+/// `eval_destruct_assignment`.
+pub(super) fn eval_assign(
+    binary: Binary<'_>,
+    scopes: &mut Scopes<'_>,
+    ctx: &mut EvalContext,
+    engine: &mut Engine<'_>,
+) -> SourceResult<Value> {
+    let rhs = eval_expr(binary.rhs(), scopes, ctx, engine)?;
+    let Expr::Ident(ident) = binary.lhs() else {
+        return Err(vec![SourceDiagnostic::error(
+            binary.lhs().span(),
+            "cannot mutate a temporary value".to_string(),
+        )]);
+    };
+    let name = ident.as_str();
+
+    let new_value = if matches!(binary.op(), BinOp::Assign) {
+        rhs
+    } else {
+        let current = scopes.get(name).cloned().ok_or_else(|| {
+            vec![SourceDiagnostic::error(ident.span(), format!("unknown variable: {name}"))]
+        })?;
+        let underlying = match binary.op() {
+            BinOp::AddAssign => BinOp::Add,
+            BinOp::SubAssign => BinOp::Sub,
+            BinOp::MulAssign => BinOp::Mul,
+            BinOp::DivAssign => BinOp::Div,
+            _ => unreachable!("filtrado por eval_expr antes de chamar eval_assign"),
+        };
+        super::operators::eval_binary_op(underlying, current, rhs)
+            .map_err(|msg| vec![SourceDiagnostic::error(binary.span(), msg)])?
+    };
+
+    match scopes.get_mut(name) {
+        Some(slot) => {
+            *slot = new_value;
+            Ok(Value::None)
+        }
+        None => Err(vec![SourceDiagnostic::error(ident.span(), format!("unknown variable: {name}"))]),
+    }
 }
 
 /// **P506** — Despacha métodos de `Value::State`: `.update()`, `.get()`,

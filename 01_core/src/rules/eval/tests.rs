@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/rules/eval.md
-//! @prompt-hash 604e0da8
+//! @prompt-hash 5e82bd92
 //! @layer L1
 //! @updated 2026-06-17
 //!
@@ -8226,5 +8226,156 @@ mod tests {
         let src = World::source(&world, World::main(&world)).unwrap();
         let m = eval_for_test(&world, &src).unwrap();
         assert_eq!(m.scope().get("x"), Some(&Value::Int(5)));
+    }
+
+    // ── P715 — desestruturação (`let`), atribuição por desestruturação e
+    // atribuição simples/composta (`x = v`, `x += v`, ...) ─────────────────
+
+    #[test]
+    fn p715_let_destructuring_array_simples() {
+        let world = MockWorld::new("#let (a, b) = (1, 2)");
+        assert_eq!(eval_let(&world, "a"), Some(Value::Int(1)));
+        assert_eq!(eval_let(&world, "b"), Some(Value::Int(2)));
+    }
+
+    #[test]
+    fn p715_let_destructuring_placeholder_ignora() {
+        let world = MockWorld::new("#let (_, b) = (1, 2)");
+        assert_eq!(eval_let(&world, "b"), Some(Value::Int(2)));
+    }
+
+    #[test]
+    fn p715_let_destructuring_spread() {
+        let world = MockWorld::new("#let (first, ..rest) = (1, 2, 3, 4)");
+        assert_eq!(eval_let(&world, "first"), Some(Value::Int(1)));
+        assert_eq!(
+            eval_let(&world, "rest"),
+            Some(Value::Array(vec![Value::Int(2), Value::Int(3), Value::Int(4)]))
+        );
+    }
+
+    #[test]
+    fn p715_let_destructuring_nested() {
+        let world = MockWorld::new("#let ((a, b), c) = ((1, 2), 3)");
+        assert_eq!(eval_let(&world, "a"), Some(Value::Int(1)));
+        assert_eq!(eval_let(&world, "b"), Some(Value::Int(2)));
+        assert_eq!(eval_let(&world, "c"), Some(Value::Int(3)));
+    }
+
+    #[test]
+    fn p715_let_destructuring_dict_shorthand_e_named() {
+        // Shorthand: `x` liga ao valor da chave `x`. Named: `onto: p` liga
+        // `p` ao valor da chave `onto` (renomeação), com padrão aninhado.
+        let world = MockWorld::new(
+            r#"#let (project: p, onto: (x, y)) = (project: "hi", onto: (3, 4))"#,
+        );
+        assert_eq!(eval_let(&world, "p"), Some(Value::Str("hi".into())));
+        assert_eq!(eval_let(&world, "x"), Some(Value::Int(3)));
+        assert_eq!(eval_let(&world, "y"), Some(Value::Int(4)));
+    }
+
+    #[test]
+    fn p715_let_destructuring_dict_spread_recolhe_nao_usadas() {
+        let world = MockWorld::new("#let (a, ..rest) = (a: 1, b: 2, c: 3)");
+        assert_eq!(eval_let(&world, "a"), Some(Value::Int(1)));
+        match eval_let(&world, "rest") {
+            Some(Value::Dict(d)) => {
+                assert_eq!(d.len(), 2);
+                assert_eq!(d.get("b"), Some(&Value::Int(2)));
+                assert_eq!(d.get("c"), Some(&Value::Int(3)));
+            }
+            other => panic!("esperado dict, recebeu {:?}", other),
+        }
+    }
+
+    #[test]
+    fn p715_let_destructuring_aridade_errada_erra_com_hint() {
+        let world = MockWorld::new("#let (a, b, c) = (1, 2)");
+        let src = World::source(&world, World::main(&world)).unwrap();
+        let err = eval_for_test(&world, &src).unwrap_err();
+        assert!(err[0].message.contains("not enough elements to destructure"));
+        assert!(err[0].hints.iter().any(|h| h.contains("length of 2")));
+    }
+
+    #[test]
+    fn p715_let_destructuring_valor_nao_destructuravel_erra() {
+        let world = MockWorld::new("#let (a, b) = 5");
+        let src = World::source(&world, World::main(&world)).unwrap();
+        assert!(eval_for_test(&world, &src).is_err());
+    }
+
+    #[test]
+    fn p715_destruct_assignment_muta_variaveis_existentes() {
+        // Reprodução exacta do padrão real de cetz (`coordinate.typ:259,264`):
+        // `(ctx, p) = resolve(ctx, p)`.
+        let world = MockWorld::new(
+            "#let ctx = 1\n#let p = 2\n#{ (ctx, p) = (10, 20) }",
+        );
+        let src = World::source(&world, World::main(&world)).unwrap();
+        let m = eval_for_test(&world, &src).unwrap();
+        assert_eq!(m.scope().get("ctx"), Some(&Value::Int(10)));
+        assert_eq!(m.scope().get("p"), Some(&Value::Int(20)));
+    }
+
+    #[test]
+    fn p715_destruct_assignment_variavel_inexistente_erra() {
+        let world = MockWorld::new("#{ (nope, also_nope) = (1, 2) }");
+        let src = World::source(&world, World::main(&world)).unwrap();
+        let err = eval_for_test(&world, &src).unwrap_err();
+        assert!(err[0].message.contains("unknown variable"));
+    }
+
+    #[test]
+    fn p715_assign_simples() {
+        let world = MockWorld::new("#let x = 1\n#{ x = 5 }");
+        let src = World::source(&world, World::main(&world)).unwrap();
+        let m = eval_for_test(&world, &src).unwrap();
+        assert_eq!(m.scope().get("x"), Some(&Value::Int(5)));
+    }
+
+    #[test]
+    fn p715_assign_composta_add_sub_mul_div() {
+        let world = MockWorld::new(
+            "#let a = 1\n#{ a += 10 }\n\
+             #let b = 20\n#{ b -= 5 }\n\
+             #let c = 3\n#{ c *= 4 }\n\
+             #let d = 10\n#{ d /= 4 }",
+        );
+        let src = World::source(&world, World::main(&world)).unwrap();
+        let m = eval_for_test(&world, &src).unwrap();
+        assert_eq!(m.scope().get("a"), Some(&Value::Int(11)));
+        assert_eq!(m.scope().get("b"), Some(&Value::Int(15)));
+        assert_eq!(m.scope().get("c"), Some(&Value::Int(12)));
+        assert_eq!(m.scope().get("d"), Some(&Value::Float(2.5)));
+    }
+
+    #[test]
+    fn p715_assign_variavel_inexistente_erra() {
+        let world = MockWorld::new("#{ nope = 1 }");
+        let src = World::source(&world, World::main(&world)).unwrap();
+        let err = eval_for_test(&world, &src).unwrap_err();
+        assert!(err[0].message.contains("unknown variable"));
+    }
+
+    #[test]
+    fn p715_assign_alvo_nao_ident_erra_mutar_temporario() {
+        // Scope-out medido (P715): alvos não-Ident (FieldAccess, FuncCall
+        // accessor como `.at()`) não são suportados — mesmo padrão que
+        // bloqueia `cetz` a seguir (`hobby.typ:51`: `b.at(i) = ...`).
+        let world = MockWorld::new("#{ 5 = 1 }");
+        let src = World::source(&world, World::main(&world)).unwrap();
+        let err = eval_for_test(&world, &src).unwrap_err();
+        assert!(err[0].message.contains("cannot mutate a temporary value"));
+    }
+
+    #[test]
+    fn p715_assign_escopo_mutado_visivel_apos_bloco() {
+        // A mutação atravessa a fronteira do bloco `{ }` (não fica presa a um
+        // scope filho) — confirma que `Scopes::get_mut` procura em `scopes`
+        // (âmbitos pai), não só em `top`.
+        let world = MockWorld::new("#let x = 1\n#{ { x = 99 } }");
+        let src = World::source(&world, World::main(&world)).unwrap();
+        let m = eval_for_test(&world, &src).unwrap();
+        assert_eq!(m.scope().get("x"), Some(&Value::Int(99)));
     }
 }

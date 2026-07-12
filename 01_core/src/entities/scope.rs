@@ -28,6 +28,12 @@ impl Binding {
         &self.value
     }
 
+    /// P715 — acesso mutável ao valor, para atribuição (`x = v`,
+    /// desestruturação em atribuição).
+    pub fn value_mut(&mut self) -> &mut Value {
+        &mut self.value
+    }
+
     pub fn into_value(self) -> Value {
         self.value
     }
@@ -59,6 +65,12 @@ impl Scope {
 
     pub fn get(&self, name: &str) -> Option<&Value> {
         self.map.get(name).map(|b| b.value())
+    }
+
+    /// P715 — acesso mutável a um binding existente, para atribuição.
+    /// Não cria o binding se ausente (distinto de `define`).
+    pub fn get_mut(&mut self, name: &str) -> Option<&mut Value> {
+        self.map.get_mut(name).map(|b| b.value_mut())
     }
 
     pub fn get_binding(&self, name: &str) -> Option<&Binding> {
@@ -132,5 +144,21 @@ mod tests {
         scope.define("x", Value::None);
         assert!(scope.get_binding("x").is_some());
         assert!(scope.get_binding("missing").is_none());
+    }
+
+    // ── P715 — get_mut / value_mut ──────────────────────────────────────────
+
+    #[test]
+    fn p715_get_mut_muta_binding_existente() {
+        let mut scope = Scope::new();
+        scope.define("x", Value::Int(1));
+        *scope.get_mut("x").unwrap() = Value::Int(99);
+        assert_eq!(scope.get("x"), Some(&Value::Int(99)));
+    }
+
+    #[test]
+    fn p715_get_mut_ausente_devolve_none() {
+        let mut scope = Scope::new();
+        assert!(scope.get_mut("missing").is_none());
     }
 }

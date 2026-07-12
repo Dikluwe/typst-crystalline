@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/rules/eval.md
-//! @prompt-hash 604e0da8
+//! @prompt-hash 5e82bd92
 //! @layer L1
 //! @updated 2026-07-09
 //!
@@ -31,9 +31,9 @@ use crate::entities::elements::bibliography::BibliographyElem;
 use crate::entities::elements::context_block::ContextBlockElem;
 #[cfg(test)]
 use crate::entities::counter_update::CounterUpdate as CounterAction;
-use crate::entities::ast::expr::{ArrayItem, Expr};
+use crate::entities::ast::expr::{ArrayItem, BinOp, Expr};
 #[cfg(test)]
-use crate::entities::ast::expr::{BinOp, UnOp};
+use crate::entities::ast::expr::UnOp;
 use crate::entities::ast::markup::Label as AstLabel;
 use crate::entities::style_chain::StyleChain;
 use crate::entities::syntax_kind::SyntaxKind;
@@ -675,6 +675,15 @@ pub(crate) fn eval_expr(
             Ok(last)
         }
 
+        // **P715** — `Assign`/`AddAssign`/`SubAssign`/`MulAssign`/`DivAssign`
+        // não podem avaliar `lhs` como valor (precisam do nome/local para
+        // mutar) — intercepta antes do dispatch genérico de operadores.
+        // Ver `bindings::eval_assign`.
+        Expr::Binary(binary) if matches!(
+            binary.op(),
+            BinOp::Assign | BinOp::AddAssign | BinOp::SubAssign | BinOp::MulAssign | BinOp::DivAssign
+        ) => bindings::eval_assign(binary, scopes, ctx, engine),
+
         Expr::Binary(binary) => {
             let lhs = eval_expr(binary.lhs(), scopes, ctx, engine)?;
             let rhs = eval_expr(binary.rhs(), scopes, ctx, engine)?;
@@ -903,10 +912,8 @@ pub(crate) fn eval_expr(
         | Expr::MathFrac(_)
         | Expr::MathRoot(_) => Ok(Value::None),
 
-        Expr::DestructAssignment(node) => Err(vec![SourceDiagnostic::error(
-            node.span(),
-            "destructuring assignment is not yet implemented",
-        )]),
+        // **P715** — `(a, b) = expr`. Ver `bindings::eval_destruct_assignment`.
+        Expr::DestructAssignment(node) => bindings::eval_destruct_assignment(node, scopes, ctx, engine),
     }
 }
 

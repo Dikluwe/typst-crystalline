@@ -1,5 +1,5 @@
 # Prompt L0 — rules/eval
-Hash do Código: c4d532ad
+Hash do Código: 1a94da87
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/rules/eval/mod.rs`
@@ -1041,4 +1041,109 @@ Critérios de verificação:
   `expand_context_blocks`, fora do alcance do harness L1 de
   `eval/tests.rs`; ver `00_nucleo/diagnosticos/paridade-producao-p712.md`).
 - `cargo test --workspace` continua a passar.
+- `crystalline-lint .` limpo.
+
+## §P715 — Desestruturação (`let`), atribuição por desestruturação e atribuição simples/composta
+
+Isolado por P714 via `cetz` (`coordinate.typ:259,264`: `(ctx, p) =
+resolve(ctx, p)`) — `Expr::DestructAssignment` era um stub
+(`"destructuring assignment is not yet implemented"`). Sonda revelou
+um problema mais fundamental e anterior: `eval_let` (`bindings.rs`)
+**já estava errado** para `let (a, b) = ...` — usava
+`pattern.bindings().into_iter().next()`, ligando **só o primeiro**
+ident **ao valor inteiro** (não ao elemento correspondente), e nunca
+definia os restantes. Medido: `#let (a, b) = (1, 2); #b` → `error:
+unknown variable: b` (antes desta correcção). Confirmado que
+atribuição simples (`x = 5`) **também** não tinha braço em
+`eval_binary_op` (`"cannot apply Assign to int and int"`) — as duas
+formas partilham a mesma necessidade de raiz: mutar um binding já
+existente, não criar um novo.
+
+### Mecanismo vanilla confirmado (`typst-eval/binding.rs`, `access.rs`)
+
+Um único `destructure_impl` genérico, parametrizado por uma função `f`
+que decide o que fazer com cada folha (ident + valor):
+`destructure()` (para `let`) define um novo binding; `DestructAssignment::eval`
+muta um binding existente via `Access` (`ast::Expr::access(vm)`,
+`access.rs:14-27` — suporta `Ident`, `Parenthesized`, `FieldAccess`
+(mutação de campo de dict), `FuncCall` só para métodos "accessor"
+como `.at()`). Suporta array (posicionais + `..sink`) e dict (`ident`
+shorthand = `key: key`, `key: pattern` renomeia/aninha, `..sink`
+recolhe chaves não usadas), recursivo (padrões aninhados). Mensagens
+de erro exactas: `"cannot destructure {ty}"`, `"cannot destructure
+named pattern from an array"`, `"cannot destructure unnamed pattern
+from dictionary"`, `"{quantifier} elements to destructure"` (com hint
+`"the provided array has a length of {len}, but the pattern expects
+{expected}"`), `"cannot mutate a temporary value"`.
+
+### Implementação — mirror do mecanismo, scope-out medido do `Access` genérico
+
+- **`Scope::get_mut`/`Scopes::get_mut`** (`entities/scope.rs`,
+  `rules/scopes.rs`) — novo: acesso mutável a um binding já existente
+  (não cria, distinto de `define`). `Scopes::get_mut` pesquisa `top` →
+  `scopes` (mesma ordem de `get`), **não** pesquisa `captured` nem
+  `base` — mutar uma variável capturada por uma closure do seu scope
+  de definição não é um caso medido/alcançado; devolve `None`, tratado
+  como "unknown variable" pelo caller.
+- **`destructure_pattern`/`destructure_array`/`destructure_dict`**
+  (`bindings.rs`) — mirror exacto de `destructure_impl`/
+  `destructure_array`/`destructure_dict` do vanilla, incluindo as
+  mensagens de erro e o hint de aridade. `f: &F where F: Fn(&mut
+  Scopes, Expr, Value) -> SourceResult<()>` — mesma forma do vanilla
+  (`Fn`, não `FnMut`: a função não captura `scopes`, recebe-o como
+  argumento em cada folha).
+- **`destructure_let`** — a `f` de `let`: só aceita `Expr::Ident`,
+  `scopes.define(...)`. Reescreve `eval_let` para chamar isto em vez
+  do `.next()` quebrado; a nomeação pós-hoc de closures (`#let f = (n)
+  => ...` → `f` sabe o seu nome para recursão) preservada, mas
+  restrita ao caso `Pattern::Normal(Expr::Ident(_))` (não faz sentido
+  para padrões de desestruturação — o vanilla também não a faz em
+  `destructure()`).
+- **`eval_destruct_assignment`** (nova, chamada por
+  `Expr::DestructAssignment` em `eval/mod.rs`) — a `f` de atribuição:
+  `Expr::Ident` → `scopes.get_mut(name)`, erro `"unknown variable"` se
+  ausente; qualquer outra folha → `"cannot mutate a temporary value"`
+  (**scope-out medido**: sem consumidor em `cetz` para `FieldAccess`/
+  `FuncCall` accessor como alvo de desestruturação).
+- **`eval_assign`** (nova, chamada por `Expr::Binary` quando
+  `op` é `Assign`/`AddAssign`/`SubAssign`/`MulAssign`/`DivAssign`,
+  interceptado em `eval_expr` **antes** do dispatch genérico — o `lhs`
+  não pode ser avaliado como valor, precisa do nome para mutar) — só
+  `Expr::Ident` como alvo (**scope-out medido**, mesmo motivo); `+=`
+  etc. lêem o valor actual via `scopes.get`, aplicam
+  `operators::eval_binary_op` com o operador subjacente
+  (`Add`/`Sub`/`Mul`/`Div`), e escrevem via `scopes.get_mut`.
+
+### Scope-out medido — `Access` genérico (`FieldAccess`/`FuncCall` como alvo)
+
+`cetz` usa activamente `arr.at(i) = valor` (`hobby.typ:51-58,138-242`)
+e `dict.campo = valor` (`drawable.typ:36`) — ambos exigem o `Access`
+completo do vanilla (mutação via referência, não substituição do valor
+inteiro). **Não implementado neste passo** — confirmado como o próximo
+bloqueio de `cetz` após esta correcção (`"cannot mutate a temporary
+value"`); candidato a P716.
+
+Critérios de verificação:
+
+```
+#let (a, b) = (1, 2)                    → a=1, b=2 (ambos, não só a)
+#let (_, b) = (1, 2)                    → b=2 (placeholder ignora)
+#let (first, ..rest) = (1,2,3,4)        → first=1, rest=(2,3,4)
+#let ((a, b), c) = ((1, 2), 3)          → a=1, b=2, c=3 (aninhado)
+#let (x: a) = (x: 1)                    → a=1 (dict renomeado)
+#let (a, ..rest) = (a:1, b:2, c:3)      → a=1, rest=(b:2, c:3)
+#let (a, b, c) = (1, 2)                 → Err "not enough elements to
+                                            destructure" + hint
+#let (a, b) = 5                         → Err "cannot destructure int"
+#{ (ctx, p) = (10, 20) }  (ctx/p já definidos) → muta ambos in-place
+#{ (nope, x) = (1, 2) }                 → Err "unknown variable: nope"
+#{ x = 5 }  (x já definido)             → muta x in-place
+#{ x += 10 }, x -= .., x *= .., x /= .. → aritmética composta
+#{ nope = 1 }                           → Err "unknown variable: nope"
+#{ 5 = 1 }                              → Err "cannot mutate a
+                                            temporary value"
+```
+
+- `cargo test --workspace` → sem regressão (3841 vs 3820 antes de
+  P715: +21 testes novos).
 - `crystalline-lint .` limpo.
