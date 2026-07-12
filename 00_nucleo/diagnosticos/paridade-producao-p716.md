@@ -2,7 +2,7 @@
 
 **Data:** 2026-07-12
 **Passo:** `00_nucleo/materialization/typst-passo-716.md`
-**Hash do commit (implementação):** `A_PREENCHER`.
+**Hash do commit (implementação):** `b806f562d`.
 **HEAD base:** `c69f40187` (fim de P715).
 **Estado:** FECHADO — `dict.campo = v`, `arr.at(i) = v`, `arr.first() = v`,
 `arr.last() = v`, `dict.at(k) = v` (simples e compostas, e como folhas de
@@ -140,7 +140,7 @@ Tudo em `01_core/src/rules/eval/bindings.rs`, mirror de
 Estado da medição: working tree com exactamente as alterações deste passo
 (12 ficheiros, `git diff HEAD --stat`: `eval.md` +120/-1;
 `bindings.rs` +445; `tests.rs` +215; 9 ficheiros só com hash de linhagem),
-commitado de seguida como `A_PREENCHER` — o diff do commit é o estado
+commitado de seguida como `b806f562d` — o diff do commit é o estado
 medido. Re-verificação pós-commit registada em §3.4.
 
 ### 3.1 Documentos vs vanilla
@@ -175,11 +175,15 @@ Documento do passo (`/tmp/p716-cetz.typ`: `canvas` + `line` + `circle`):
 
 ### 3.4 Re-verificação pós-commit (proveniência)
 
-Executada no commit `A_PREENCHER`, working tree limpa (documentos de teste
+Executada no commit `b806f562d`, working tree limpa (documentos de teste
 em `/tmp`, fora do repositório):
 
-- `/tmp/p716-access.typ` → `A_CONFIRMAR`
-- `cetz` → `A_CONFIRMAR` (erro e tempo)
+- `/tmp/p716-access.typ` → mesmo resultado:
+  `error: array index out of bounds (index: 5, len: 3)` (linha 10).
+- `cetz` → mesmo bloqueio (`campo desconhecido em array: 'push'`),
+  tempo real 53,0s (52,6s na medição pré-commit; P715 reportou ~52,9s —
+  sem alteração significativa, o documento continua a falhar na fase de
+  eval, antes de qualquer layout).
 
 ---
 
