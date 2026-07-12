@@ -2,7 +2,7 @@
 
 **Data:** 2026-07-11
 **Passo:** `00_nucleo/materialization/typst-passo-712.md`
-**Hash do commit (implementação):** a preencher no commit seguinte.
+**Hash do commit (implementação):** `72a3b6ae9`.
 **HEAD base:** `726fcb618` (fim de P711).
 **Estado:** FECHADO — `measure()` faz layout real e isolado (via
 `layout_sub_frame`, Passo 629), com gate de `context` idêntico ao
