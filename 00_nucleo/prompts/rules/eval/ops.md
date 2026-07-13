@@ -1,5 +1,5 @@
 # Prompt L0 — `rules/eval/operators`
-Hash do Código: c9c1968e
+Hash do Código: 9ce3fb99
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/rules/eval/operators.rs`
@@ -275,6 +275,78 @@ Um braço com guarda compartilhada para as duas ordens, espelhando
 
 ---
 
+## P725 — `Length * Int|Float` (as quatro combinações)
+
+Nenhum braço `Mul` com `Length` existia — as quatro combinações
+(`Length*Int`, `Int*Length`, `Length*Float`, `Float*Length`) caíam no
+fronteira genérico (`"cannot apply Mul to float and length"`). Isolado
+por P724 via `cetz` (`canvas.typ:146-147,182-186`: `(x - offset) * length`,
+escala de coordenadas).
+
+### Comportamento do vanilla (medido + fonte)
+
+`foundations/ops.rs:238-243`:
+
+```rust
+(Length(a), Int(b))   => Length(a * b as f64),
+(Length(a), Float(b)) => Length(a * b),
+(Int(a), Length(b))   => Length(b * a as f64),
+(Float(a), Length(b)) => Length(b * a),
+```
+
+Medições da sonda (binário vanilla release):
+
+| Expressão | `repr` vanilla |
+|---|---|
+| `2.0 * 1pt`, `1pt * 2.0`, `2 * 1pt`, `1pt * 2` | `2pt` |
+| `0 * 1pt` | `0pt` |
+| `-1 * 1pt` | `-1pt` |
+| `3 * 2em` | `6em` |
+| `0.5 * (1pt + 1em)` | `0.5pt + 0.5em` |
+| `1pt * -0.0` | `-0pt` |
+| `1e308 * 1pt`, `1pt * float.inf` | `float.inf * 1pt` — **inf propaga-se, sem erro** |
+| `1em * float.inf` | `float.inf * 1em` |
+| `1pt * float.nan`, `float.nan * 1pt` | `0pt` — **NaN → 0** |
+| `1em * float.nan`, `(1pt + 1em) * float.nan` | `0pt` |
+
+Mecanismo do NaN → 0: `Abs` e `Em` do vanilla embrulham `Scalar`
+(`layout/abs.rs:13`, `layout/em.rs:16`), e `Scalar::new` saneia
+`if x.is_nan() { 0.0 } else { x }` (`typst-utils/src/scalar.rs:30-32`) —
+toda a multiplicação de componentes passa por ele (`scalar.rs:203-209`).
+Inf **não** é saneado. Isto é observável ao nível da língua (via
+`repr`), logo é paridade (ADR-0107), não mecânica.
+
+### Scope-out medido — `Length * Ratio` / `Ratio * Length`
+
+Vanilla define também `Length * Ratio` e `Ratio * Length`
+(`ops.rs:240,243`). **Não implementados** — mesmo raciocínio de P713:
+`Value::Ratio` não é produzível por sintaxe de utilizador no cristalino
+(`50%` produz `Value::Relative`); sem consumidor medido em `cetz`.
+
+### Semântica de implementação
+
+Dois braços com ordens em guarda partilhada, sobre `Length: Mul<f64>`
+já existente (`entities/layout_types.rs:801-806`), com saneamento
+NaN → 0 por componente no resultado (paridade do efeito observável de
+`Scalar::new`):
+
+```rust
+(BinOp::Mul, Value::Length(a), Value::Int(b)) | (BinOp::Mul, Value::Int(b), Value::Length(a)) =>
+    Ok(Value::Length(sanitize_length_nan(a * b as f64))),
+(BinOp::Mul, Value::Length(a), Value::Float(b)) | (BinOp::Mul, Value::Float(b), Value::Length(a)) =>
+    Ok(Value::Length(sanitize_length_nan(a * b))),
+
+// helper local: if x.is_nan() { 0.0 } else { x } em abs e em
+```
+
+O saneamento fica **no braço do eval** (não em `Length::mul` de
+`entities/layout_types.rs`) por disciplina um-bug-por-passo:
+`Length / Float` com NaN (P713) fica com o comportamento actual
+(NaN propaga-se) — divergência latente registada no relatório de P725
+como candidata a passo futuro.
+
+---
+
 ## Critérios de Verificação
 
 ```rust
@@ -319,6 +391,19 @@ eval_binary_op(Mul, Array[1,2], Int(0))         == Array[]
 eval_binary_op(Mul, Array[], Int(5))            == Array[]
 eval_binary_op(Mul, Array[1,2], Int(-1))        == Err ("number must be at least zero")
 eval_binary_op(Mul, Dict{:}, Int(2))            == Err (fronteira genérica — Dict * Int não existe no vanilla)
+
+// P725 — Length * Int|Float (quatro combinações)
+eval_binary_op(Mul, Length(1pt), Int(2))         == Length(2pt)
+eval_binary_op(Mul, Int(2), Length(1pt))         == Length(2pt)
+eval_binary_op(Mul, Length(1pt), Float(2.5))     == Length(2.5pt)
+eval_binary_op(Mul, Float(2.5), Length(1pt))     == Length(2.5pt)
+eval_binary_op(Mul, Int(0), Length(1pt))         == Length(0pt)
+eval_binary_op(Mul, Int(-1), Length(1pt))        == Length(-1pt)
+eval_binary_op(Mul, Int(3), Length(2em))         == Length(6em)
+eval_binary_op(Mul, Float(0.5), Length(1pt+1em)) == Length(0.5pt+0.5em)
+eval_binary_op(Mul, Length(1pt), Float(NaN))     == Length(0pt)   // NaN → 0 (paridade Scalar::new)
+eval_binary_op(Mul, Length(1em), Float(NaN))     == Length(0pt)
+eval_binary_op(Mul, Length(1pt), Float(inf))     == Length(inf pt) // inf propaga-se
 ```
 
 ---
@@ -341,3 +426,4 @@ eval_binary_op(Mul, Dict{:}, Int(2))            == Err (fronteira genérica — 
 | 2026-07-11 | P713 — `Length / Length` (paridade `try_div`), `Length / Int\|Float`; scope-out `Ratio`/`Relative` mistos (não produzíveis por sintaxe de utilizador) | `operators.rs`, `tests.rs` |
 | 2026-07-12 | P720 — `Array + Array` (concatenação) e `Dict + Dict` (merge, direita vence, posição preservada); isolado via `cetz` | `operators.rs`, `tests.rs` |
 | 2026-07-13 | P722 — `Array * Int` e `Int * Array` (repetição, paridade `Array::repeat`); scope-out `Dict * Int` (inexistente no vanilla); isolado via `cetz` (`hobby.typ:77,78`) | `operators.rs`, `tests.rs` |
+| 2026-07-13 | P725 — `Length * Int\|Float` (quatro combinações, paridade `ops.rs:238-243`); NaN → 0 por componente (paridade `Scalar::new`), inf propaga-se; scope-out `Length * Ratio` (não produzível); isolado via `cetz` (`canvas.typ:146-147,182-186`) | `operators.rs`, `tests.rs` |

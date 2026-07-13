@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/rules/eval/ops.md
-//! @prompt-hash 424a219c
+//! @prompt-hash 0c1a5927
 //! @layer L1
 //! @updated 2026-06-25
 //!
@@ -247,6 +247,17 @@ pub(crate) fn eval_binary_op(op: BinOp, lhs: Value, rhs: Value) -> Result<Value,
             Ok(Value::Ratio(crate::entities::layout_types::Ratio(r.get() * n as f64))),
         (BinOp::Mul, Value::Int(n), Value::Ratio(r)) =>
             Ok(Value::Ratio(crate::entities::layout_types::Ratio(n as f64 * r.get()))),
+        // P725 — Length * Int|Float (as quatro combinações): escala uniforme
+        // sobre `Length: Mul<f64>` (`entities/layout_types.rs:801-806`),
+        // mesmo agrupamento do vanilla (`foundations/ops.rs:238-243`).
+        // NaN → 0 por componente (paridade do efeito observável de
+        // `Scalar::new`, vanilla `typst-utils/src/scalar.rs:30-32` — medido:
+        // `repr(1pt * float.nan)` = `0pt`); inf propaga-se silenciosamente
+        // (`repr(1pt * float.inf)` = `float.inf * 1pt`).
+        (BinOp::Mul, Value::Length(a), Value::Int(b)) | (BinOp::Mul, Value::Int(b), Value::Length(a)) =>
+            Ok(Value::Length(sanitize_length_nan(a * b as f64))),
+        (BinOp::Mul, Value::Length(a), Value::Float(b)) | (BinOp::Mul, Value::Float(b), Value::Length(a)) =>
+            Ok(Value::Length(sanitize_length_nan(a * b))),
 
         // ── Comprimentos relativos (P469) ────────────────────────────────────
         // Relative + Relative, Relative - Relative
@@ -364,6 +375,24 @@ fn value_eq(a: &Value, b: &Value) -> bool {
         (Value::Int(a), Value::Float(b)) => (*a as f64) == *b,
         (Value::Float(a), Value::Int(b)) => *a == (*b as f64),
         (a, b) => a == b,
+    }
+}
+
+/// **P725** — saneamento NaN → 0 por componente de `Length`: paridade do
+/// efeito observável de `Scalar::new` no vanilla
+/// (`typst-utils/src/scalar.rs:30-32`), onde `Abs`/`Em` embrulham `Scalar`
+/// e toda a aritmética converte NaN em 0.0 (medido: `repr(1pt * float.nan)`
+/// = `0pt`, `repr(1em * float.nan)` = `0pt`). Inf não é tocado
+/// (`repr(1em * float.inf)` = `float.inf * 1em`). Fica no braço do eval
+/// (não em `Length::mul`) por disciplina um-bug-por-passo — `Length / Float`
+/// (P713) mantém o comportamento actual.
+fn sanitize_length_nan(l: crate::entities::layout_types::Length) -> crate::entities::layout_types::Length {
+    fn san(x: f64) -> f64 {
+        if x.is_nan() { 0.0 } else { x }
+    }
+    crate::entities::layout_types::Length {
+        abs: crate::entities::layout_types::Abs(san(l.abs.to_pt())),
+        em:  san(l.em),
     }
 }
 

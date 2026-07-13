@@ -1571,6 +1571,149 @@ mod tests {
         );
     }
 
+    // ── P725 — Length * Int|Float (as quatro combinações) ───────────────────
+
+    #[test]
+    fn p725_length_vezes_int_escala() {
+        use crate::entities::layout_types::{Abs, Length};
+        // Medido no vanilla: repr(1pt * 2) → 2pt (ops.rs:238).
+        let a = Length { abs: Abs(10.0), em: 4.0 };
+        assert_eq!(
+            eval_binary_op(BinOp::Mul, Value::Length(a), Value::Int(2)),
+            Ok(Value::Length(Length { abs: Abs(20.0), em: 8.0 }))
+        );
+    }
+
+    #[test]
+    fn p725_int_vezes_length_ordem_inversa() {
+        use crate::entities::layout_types::{Abs, Length};
+        // Medido no vanilla: repr(2 * 1pt) → 2pt (ops.rs:241).
+        let a = Length { abs: Abs(1.0), em: 0.0 };
+        assert_eq!(
+            eval_binary_op(BinOp::Mul, Value::Int(2), Value::Length(a)),
+            Ok(Value::Length(Length { abs: Abs(2.0), em: 0.0 }))
+        );
+    }
+
+    #[test]
+    fn p725_length_vezes_float_escala() {
+        use crate::entities::layout_types::{Abs, Length};
+        // Medido no vanilla: repr(1pt * 2.5) → 2.5pt (ops.rs:239).
+        let a = Length { abs: Abs(1.0), em: 0.0 };
+        assert_eq!(
+            eval_binary_op(BinOp::Mul, Value::Length(a), Value::Float(2.5)),
+            Ok(Value::Length(Length { abs: Abs(2.5), em: 0.0 }))
+        );
+    }
+
+    #[test]
+    fn p725_float_vezes_length_ordem_inversa() {
+        use crate::entities::layout_types::{Abs, Length};
+        // Medido no vanilla: repr(0.5 * (1pt + 1em)) → 0.5pt + 0.5em (ops.rs:242).
+        let a = Length { abs: Abs(1.0), em: 1.0 };
+        assert_eq!(
+            eval_binary_op(BinOp::Mul, Value::Float(0.5), Value::Length(a)),
+            Ok(Value::Length(Length { abs: Abs(0.5), em: 0.5 }))
+        );
+    }
+
+    #[test]
+    fn p725_length_vezes_zero_e_negativo() {
+        use crate::entities::layout_types::{Abs, Length};
+        // Medido no vanilla: repr(0 * 1pt) → 0pt; repr(-1 * 1pt) → -1pt.
+        let a = Length { abs: Abs(1.0), em: 0.0 };
+        assert_eq!(
+            eval_binary_op(BinOp::Mul, Value::Int(0), Value::Length(a)),
+            Ok(Value::Length(Length::ZERO))
+        );
+        assert_eq!(
+            eval_binary_op(BinOp::Mul, Value::Int(-1), Value::Length(a)),
+            Ok(Value::Length(Length { abs: Abs(-1.0), em: 0.0 }))
+        );
+    }
+
+    #[test]
+    fn p725_int_vezes_em_puro() {
+        use crate::entities::layout_types::{Abs, Length};
+        // Medido no vanilla: repr(3 * 2em) → 6em.
+        let a = Length { abs: Abs(0.0), em: 2.0 };
+        assert_eq!(
+            eval_binary_op(BinOp::Mul, Value::Int(3), Value::Length(a)),
+            Ok(Value::Length(Length { abs: Abs(0.0), em: 6.0 }))
+        );
+    }
+
+    #[test]
+    fn p725_length_vezes_nan_saneado_para_zero() {
+        use crate::entities::layout_types::{Abs, Length};
+        // Medido no vanilla: repr(1pt * float.nan) → 0pt,
+        // repr(1em * float.nan) → 0pt, repr((1pt + 1em) * float.nan) → 0pt
+        // (Scalar::new saneia NaN → 0, typst-utils/src/scalar.rs:30-32).
+        assert_eq!(
+            eval_binary_op(BinOp::Mul, Value::Length(Length::pt(1.0)), Value::Float(f64::NAN)),
+            Ok(Value::Length(Length::ZERO))
+        );
+        assert_eq!(
+            eval_binary_op(BinOp::Mul, Value::Float(f64::NAN), Value::Length(Length::em(1.0))),
+            Ok(Value::Length(Length::ZERO))
+        );
+        let misto = Length { abs: Abs(1.0), em: 1.0 };
+        assert_eq!(
+            eval_binary_op(BinOp::Mul, Value::Length(misto), Value::Float(f64::NAN)),
+            Ok(Value::Length(Length::ZERO))
+        );
+    }
+
+    #[test]
+    fn p725_length_vezes_inf_propaga_silencioso() {
+        use crate::entities::layout_types::{Abs, Length};
+        // Medido no vanilla: repr(1pt * float.inf) → float.inf * 1pt —
+        // inf propaga-se, sem erro e sem saneamento.
+        assert_eq!(
+            eval_binary_op(BinOp::Mul, Value::Length(Length::pt(1.0)), Value::Float(f64::INFINITY)),
+            Ok(Value::Length(Length { abs: Abs(f64::INFINITY), em: 0.0 }))
+        );
+        // Medido no vanilla: repr(1em * float.inf) → float.inf * 1em.
+        assert_eq!(
+            eval_binary_op(BinOp::Mul, Value::Float(f64::INFINITY), Value::Length(Length::em(1.0))),
+            Ok(Value::Length(Length { abs: Abs(0.0), em: f64::INFINITY }))
+        );
+    }
+
+    #[test]
+    fn p725_cetz_mul_length_end_to_end() {
+        use crate::entities::layout_types::{Abs, Length};
+        // Reprodução do padrão real de cetz (canvas.typ:146-147):
+        // (x - offset) * length, escala de coordenadas.
+        let world = MockWorld::new("#let x = (3 - 1) * 2.5pt");
+        assert_eq!(
+            eval_let(&world, "x"),
+            Some(Value::Length(Length { abs: Abs(5.0), em: 0.0 }))
+        );
+    }
+
+    #[test]
+    fn p725_repr_length_inf_e2e() {
+        // Paridade de linguagem (ADR-0107) no observável repr, via sintaxe
+        // alcançável no cristalino: `calc.inf` existe (`stdlib/calc.rs:108`),
+        // mas `float.nan`/`float.inf`/`calc.nan` NÃO existem no eval
+        // cristalino (`float` é só Type::Float, `eval/mod.rs:1086`) — o
+        // caminho NaN é coberto pelos testes unitários de eval_binary_op.
+        // Medido no vanilla: repr(1pt * float.inf) == "float.inf * 1pt",
+        // repr(1em * float.inf) == "float.inf * 1em".
+        let world = MockWorld::new("#let x = repr(1pt * calc.inf)");
+        assert_eq!(
+            eval_let(&world, "x"),
+            Some(Value::Str("float.inf * 1pt".into()))
+        );
+        // 1em * inf: abs = 0 * inf = NaN → saneado 0 (cobre o saneamento E2E).
+        let world = MockWorld::new("#let x = repr(1em * calc.inf)");
+        assert_eq!(
+            eval_let(&world, "x"),
+            Some(Value::Str("float.inf * 1em".into()))
+        );
+    }
+
     #[test]
     fn dualidade_eq_typst_coerce() {
         // ADR-0025 Opção B: no motor Typst, 1 == 1.0 → true (coerção Int→f64)
