@@ -2,7 +2,7 @@
 
 **Data:** 2026-07-13
 **Passo:** `00_nucleo/materialization/typst-passo-721.md`
-**Hash do commit (implementação):** _a preencher após o commit_.
+**Hash do commit (implementação):** `cf70a12fe`.
 **HEAD base:** `41ee5cf59` (fim de P720).
 **Estado:** FECHADO — `Length`/`Ratio`/`Angle`/`Fraction`/`Color`/`Stroke`/
 `Align`/`Relative` embutidos em markup (`#expr`) produzem agora o repr
