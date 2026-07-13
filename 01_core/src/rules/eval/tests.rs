@@ -9784,4 +9784,51 @@ mod tests {
             Some(&Value::Array(vec![Value::Int(1), Value::Int(2)]))
         );
     }
+
+    // ── Passo 730 — array.slice(start, end?, count:) ─────────────────────
+    // Bloqueio do cetz após P728/P729 ("campo desconhecido em array:
+    // 'slice'"). Unidade testada em stdlib/collections.rs; aqui o dispatch.
+
+    #[test]
+    fn p730_array_slice_e2e() {
+        // Medido vanilla: (1,2,3,4).slice(1, 3) → (2, 3).
+        let m = p729_eval("#let a = (1, 2, 3, 4)\n#let x = a.slice(1, 3)").unwrap();
+        assert_eq!(
+            m.scope().get("x"),
+            Some(&Value::Array(vec![Value::Int(2), Value::Int(3)]))
+        );
+    }
+
+    #[test]
+    fn p730_array_slice_cetz_idioma() {
+        // O idioma real do cetz (draw/shapes.typ:620): `pts.slice(0, 2)`.
+        let m = p729_eval("#let pts = (10, 20, 30, 40)\n#let x = pts.slice(0, 2)").unwrap();
+        assert_eq!(
+            m.scope().get("x"),
+            Some(&Value::Array(vec![Value::Int(10), Value::Int(20)]))
+        );
+    }
+
+    #[test]
+    fn p730_array_slice_count_e_negativo_e2e() {
+        let m = p729_eval(
+            "#let a = (1, 2, 3, 4)\n#let x = a.slice(0, count: 2)\n#let y = a.slice(-2)",
+        )
+        .unwrap();
+        assert_eq!(
+            m.scope().get("x"),
+            Some(&Value::Array(vec![Value::Int(1), Value::Int(2)]))
+        );
+        assert_eq!(
+            m.scope().get("y"),
+            Some(&Value::Array(vec![Value::Int(3), Value::Int(4)]))
+        );
+    }
+
+    #[test]
+    fn p730_str_slice_sem_regressao_e2e() {
+        // `Str.slice` (P690) partilha nome — sem regressão pelo novo braço.
+        let m = p729_eval("#let s = \"hello\"\n#let x = s.slice(1, 3)").unwrap();
+        assert_eq!(m.scope().get("x"), Some(&Value::Str("el".into())));
+    }
 }

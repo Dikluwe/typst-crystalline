@@ -3,7 +3,7 @@
 **Camada**: L1  
 **Ficheiro alvo**: `01_core/src/rules/stdlib/collections.rs`  
 **Criado em**: 2026-06-25 (Passo P466)  
-**Atualizado em**: 2026-07-11 (P690 — `str.len/at/slice` em bytes; P691 — `str.find` devolve substring/`none`; P692 — `str.matches` e `str.normalize`; P693 — `str.match` aceita `str | regex`; fecha a cadeia de correcções de `str`; P714 — `array.at(index, default:)`)  
+**Atualizado em**: 2026-07-13 (P690 — `str.len/at/slice` em bytes; P691 — `str.find` devolve substring/`none`; P692 — `str.matches` e `str.normalize`; P693 — `str.match` aceita `str | regex`; fecha a cadeia de correcções de `str`; P714 — `array.at(index, default:)`; P730 — `array.slice(start, end?, count:)`)  
 **ADRs**: ADR-0037 (coesão por domínio), ADR-0107 (paridade com a linguagem — aqui a linguagem **é** bytes), ADR-0108 (medir antes de decidir), ADR-0117 Cláusula 4 (métodos de tipos existentes; não propõe estrutura em elementos).
 
 ---
@@ -36,6 +36,7 @@ Retorna `Some(Result)` se o método for reconhecido; `None` caso contrário, per
 | `first` | `array.first() -> any` | Primeiro elemento ou `none`. |
 | `last` | `array.last() -> any` | Último elemento ou `none`. |
 | `at` | `array.at(index: int, default: any?) -> any` | Elemento no índice; negativo conta a partir do fim (`len + index`). Fora de limites usa `default` se fornecido, senão erro. (**P714**) |
+| `slice` | `array.slice(start: int, end: int?, count: int?) -> array` | Sub-array de `start` (inclusivo) a `end` (exclusivo); negativos contam a partir do fim. `count:` é alternativa a `end` (mutuamente exclusivos). Fora de limites → erro; `end < start` → vazio. (**P730**) |
 | `rev` | `array.rev() -> array` | Array invertido. |
 | `sum` | `array.sum() -> int \| float` | Soma numérica; rejeita tipos não-numéricos. Mistura int/float produz float. |
 | `sorted` | `array.sorted(key: function?) -> array` | Ordenação; `key` opcional. Compara `int`, `float` e `str`. |
@@ -76,6 +77,35 @@ Reproduz o uso real medido em `cetz` (`aabb.typ:43,45,75-77`):
 `bounds.high.at(2, default: 0)`, `padding.at("left", default: 0)` —
 este segundo caso é `dict.at`, já implementado desde P495; `array.at`
 fechava a lacuna para `Array` especificamente.
+
+### Semântica de `slice` (P730)
+
+Paridade com o vanilla (`foundations/array.rs:279-300`, sobre o helper
+`locate(index, end_ok: true)` de `array.rs:122-137`): índices negativos
+contam a partir do fim (`len + index`, `checked_add`); `start` e `end`
+efetivos têm de estar em `0 <= i <= len` (`end_ok` admite `i == len`);
+`end` omitido → `len`; `count:` equivale a `end = start_resolvido + count`;
+`end` final é clampado a `>= start` (`end < start` → sub-array vazio, sem
+erro). Erros com as mensagens exactas do vanilla (observável — ADR-0107):
+
+```
+(1,2,3,4).slice(1, 3)            → (2, 3)
+(1,2,3,4).slice(-2)              → (3, 4)
+(1,2,3,4).slice(1)               → (2, 3, 4)
+(1,2,3,4).slice(0, count: 2)     → (1, 2)
+(1,2,3,4).slice(-3, -1)          → (2, 3)
+(1,2,3,4).slice(1, count: -1)    → ()          (end efetivo 0 → max(start) → vazio)
+().slice(0)                      → ()
+(1,2,3,4).slice(1, 2, count: 2)  → Err "`end` and `count` are mutually exclusive"
+(1,2,3,4).slice(10)              → Err "array index out of bounds (index: 10, len: 4)"
+(1,2,3,4).slice(0, count: 99)    → Err "array index out of bounds (index: 99, len: 4)"
+```
+
+Consumidor real, pesado: `cetz` usa `array.slice` em ≥10 sítios
+(`draw/shapes.typ:620,624,630,971,973,1949,2160`, `anchor.typ:218`,
+`coordinate.typ:203`, `drawable.typ:145`) — era o bloqueio da reprodução
+completa de `cetz` após P728/P729. Dispatcher:
+`try_dispatch_collection_method` (mesmo mecanismo de `array.at`, P714).
 
 ### Semântica de `dedup`
 

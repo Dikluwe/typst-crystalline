@@ -43,6 +43,7 @@ pub(crate) fn try_dispatch_collection_method(
         (Value::Array(arr), "first") => Some(Ok(array_first(arr))),
         (Value::Array(arr), "last") => Some(Ok(array_last(arr))),
         (Value::Array(arr), "at") => Some(array_at(arr, args)),
+        (Value::Array(arr), "slice") => Some(array_slice(arr, args)),
         (Value::Array(arr), "rev") => Some(Ok(array_rev(arr))),
         (Value::Array(arr), "sum") => Some(array_sum(arr)),
         (Value::Array(arr), "sorted") => Some(array_sorted(arr, args, scopes, ctx, engine)),
@@ -151,6 +152,61 @@ fn array_at(arr: Vec<Value>, args: Args) -> SourceResult<Value> {
 
 fn array_rev(arr: Vec<Value>) -> Value {
     Value::Array(arr.into_iter().rev().collect())
+}
+
+/// `array.slice(start, end?, count:)` — P730. Paridade com o vanilla
+/// (`foundations/array.rs:279-300`, sobre `locate(index, end_ok: true)`
+/// de `array.rs:122-137`): índices negativos contam a partir do fim
+/// (`len + index`, `checked_add`); `start`/`end` efetivos admitem
+/// `index == len`; `count:` equivale a `end = start_resolvido + count`
+/// (mutuamente exclusivo com `end`); `end < start` → sub-array vazio
+/// (clamp `max(start)`); fora de limites → erro com a mensagem exacta
+/// do vanilla (`out_of_bounds`, com o índice original).
+/// Medido: `(1,2,3,4).slice(1, 3)` → `(2, 3)`; `.slice(-2)` → `(3, 4)`;
+/// `.slice(0, count: 2)` → `(1, 2)`; `.slice(1, count: -1)` → `()`.
+fn array_slice(arr: Vec<Value>, args: Args) -> SourceResult<Value> {
+    let mut positional = args.items.iter();
+    let start = positional
+        .next()
+        .and_then(|v| v.cast_int())
+        .ok_or_else(|| {
+            vec![SourceDiagnostic::error(
+                Span::detached(),
+                "array.slice(): start espera int".to_string(),
+            )]
+        })?;
+    let end_positional = positional.next().and_then(|v| v.cast_int());
+    let end_named = args.named.get("end").and_then(|v| v.cast_int());
+    let count = args.named.get("count").and_then(|v| v.cast_int());
+    let end = end_positional.or(end_named);
+
+    if end.is_some() && count.is_some() {
+        return Err(vec![SourceDiagnostic::error(
+            Span::detached(),
+            "`end` and `count` are mutually exclusive".to_string(),
+        )]);
+    }
+
+    let len = arr.len() as i64;
+    // `locate(index, end_ok: true)` do vanilla: negativo → len + index;
+    // admite index == len; o erro reporta o índice original.
+    let locate = |index: i64| -> Result<usize, Vec<SourceDiagnostic>> {
+        let wrapped = if index >= 0 { Some(index) } else { len.checked_add(index) };
+        wrapped
+            .and_then(|v| usize::try_from(v).ok())
+            .filter(|&v| v <= len as usize)
+            .ok_or_else(|| {
+                vec![SourceDiagnostic::error(
+                    Span::detached(),
+                    format!("array index out of bounds (index: {index}, len: {len})"),
+                )]
+            })
+    };
+
+    let start_idx = locate(start)?;
+    let end_raw = end.or(count.map(|c| start_idx as i64 + c)).unwrap_or(len);
+    let end_idx = locate(end_raw)?.max(start_idx);
+    Ok(Value::Array(arr[start_idx..end_idx].to_vec()))
 }
 
 fn array_sum(arr: Vec<Value>) -> SourceResult<Value> {
@@ -1257,6 +1313,132 @@ mod tests {
         let arr: Vec<Value> = vec![];
         let args = make_args(vec![Value::Int(0)], None);
         assert!(array_at(arr, args).is_err());
+    }
+
+    // ── P730 — array.slice(start, end?, count:) ──────────────────────────────
+    // Paridade vanilla `foundations/array.rs:279-300` (sobre
+    // `locate(index, end_ok: true)`). Medições vanilla no corpo dos testes.
+
+    fn ints(v: &[i64]) -> Vec<Value> {
+        v.iter().map(|&i| Value::Int(i)).collect()
+    }
+
+    #[test]
+    fn p730_array_slice_start_end() {
+        // Vanilla: (1,2,3,4).slice(1, 3) → (2, 3)
+        let arr = ints(&[1, 2, 3, 4]);
+        let args = make_args(vec![Value::Int(1), Value::Int(3)], None);
+        assert_eq!(array_slice(arr, args).unwrap(), Value::Array(ints(&[2, 3])));
+    }
+
+    #[test]
+    fn p730_array_slice_so_start() {
+        // Vanilla: (1,2,3,4).slice(1) → (2, 3, 4)
+        let arr = ints(&[1, 2, 3, 4]);
+        let args = make_args(vec![Value::Int(1)], None);
+        assert_eq!(
+            array_slice(arr, args).unwrap(),
+            Value::Array(ints(&[2, 3, 4]))
+        );
+    }
+
+    #[test]
+    fn p730_array_slice_negativos_contam_do_fim() {
+        // Vanilla: (1,2,3,4).slice(-2) → (3, 4); .slice(-3, -1) → (2, 3)
+        let arr = ints(&[1, 2, 3, 4]);
+        let args = make_args(vec![Value::Int(-2)], None);
+        assert_eq!(array_slice(arr, args).unwrap(), Value::Array(ints(&[3, 4])));
+
+        let arr = ints(&[1, 2, 3, 4]);
+        let args = make_args(vec![Value::Int(-3), Value::Int(-1)], None);
+        assert_eq!(array_slice(arr, args).unwrap(), Value::Array(ints(&[2, 3])));
+    }
+
+    #[test]
+    fn p730_array_slice_count() {
+        // Vanilla: (1,2,3,4).slice(0, count: 2) → (1, 2)
+        let arr = ints(&[1, 2, 3, 4]);
+        let args = make_args(vec![Value::Int(0)], Some(("count", Value::Int(2))));
+        assert_eq!(array_slice(arr, args).unwrap(), Value::Array(ints(&[1, 2])));
+    }
+
+    #[test]
+    fn p730_array_slice_count_negativo_vazio() {
+        // Vanilla: (1,2,3,4).slice(1, count: -1) → ()
+        // (end efetivo = 1 + (-1) = 0 → locate ok → max(start) → [1..1])
+        let arr = ints(&[1, 2, 3, 4]);
+        let args = make_args(vec![Value::Int(1)], Some(("count", Value::Int(-1))));
+        assert_eq!(array_slice(arr, args).unwrap(), Value::Array(vec![]));
+    }
+
+    #[test]
+    fn p730_array_slice_end_menor_que_start_vazio() {
+        // Vanilla: (1,2,3,4).slice(3, 1) → (); .slice(4) → (); .slice(0, 4) → tudo
+        let arr = ints(&[1, 2, 3, 4]);
+        let args = make_args(vec![Value::Int(3), Value::Int(1)], None);
+        assert_eq!(array_slice(arr, args).unwrap(), Value::Array(vec![]));
+
+        let arr = ints(&[1, 2, 3, 4]);
+        let args = make_args(vec![Value::Int(4)], None);
+        assert_eq!(array_slice(arr, args).unwrap(), Value::Array(vec![]));
+
+        let arr = ints(&[1, 2, 3, 4]);
+        let args = make_args(vec![Value::Int(0), Value::Int(4)], None);
+        assert_eq!(
+            array_slice(arr, args).unwrap(),
+            Value::Array(ints(&[1, 2, 3, 4]))
+        );
+    }
+
+    #[test]
+    fn p730_array_slice_array_vazio() {
+        // Vanilla: ().slice(0) → ()
+        let arr: Vec<Value> = vec![];
+        let args = make_args(vec![Value::Int(0)], None);
+        assert_eq!(array_slice(arr, args).unwrap(), Value::Array(vec![]));
+    }
+
+    #[test]
+    fn p730_array_slice_end_e_count_mutuamente_exclusivos() {
+        // Vanilla: "`end` and `count` are mutually exclusive"
+        let arr = ints(&[1, 2, 3, 4]);
+        let args = make_args(
+            vec![Value::Int(1), Value::Int(2)],
+            Some(("count", Value::Int(2))),
+        );
+        let err = array_slice(arr, args).unwrap_err();
+        assert!(
+            err[0].message.contains("mutually exclusive"),
+            "msg: {}",
+            err[0].message
+        );
+    }
+
+    #[test]
+    fn p730_array_slice_fora_de_limites_erra() {
+        // Vanilla: "array index out of bounds (index: 10, len: 4)"
+        let arr = ints(&[1, 2, 3, 4]);
+        let args = make_args(vec![Value::Int(10)], None);
+        let err = array_slice(arr, args).unwrap_err();
+        assert!(
+            err[0].message.contains("out of bounds (index: 10, len: 4)"),
+            "msg: {}",
+            err[0].message
+        );
+    }
+
+    #[test]
+    fn p730_array_slice_count_fora_de_limites_erra() {
+        // Vanilla: (1,2,3,4).slice(0, count: 99) →
+        // "array index out of bounds (index: 99, len: 4)"
+        let arr = ints(&[1, 2, 3, 4]);
+        let args = make_args(vec![Value::Int(0)], Some(("count", Value::Int(99))));
+        let err = array_slice(arr, args).unwrap_err();
+        assert!(
+            err[0].message.contains("out of bounds (index: 99, len: 4)"),
+            "msg: {}",
+            err[0].message
+        );
     }
 
     // ── P496 — métodos estruturais de array ───────────────────────────────────
