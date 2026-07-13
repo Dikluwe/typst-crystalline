@@ -2,7 +2,7 @@
 
 **Data:** 2026-07-13
 **Passo:** `00_nucleo/materialization/typst-passo-723.md`
-**Hash do commit (implementação):** a preencher após o commit.
+**Hash do commit (implementação):** `510c12a9c`.
 **HEAD base:** `aa1d3fa43` (fim de P722, branch `Tekt`).
 **Estado:** FECHADO — a premissa do passo (namespace de `curve` ausente)
 foi **refutada** pela sonda (existe desde P513); os dois bloqueios reais
