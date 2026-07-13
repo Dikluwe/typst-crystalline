@@ -3,6 +3,7 @@
 ## Proveniência da medição (regra 2026-07-05)
 
 - **Commit base:** `a1111e8e4426fefd81486fb104f1d8e77034cac6` ("P734: preenche hash do commit no relatório")
+- **Commit da implementação:** `c323a029446bc7cdddffc3642d0200b4d909b28e` ("P735: namespaces emoji e pdf como modulos (paridade vanilla)")
 - **Estado na medição final:** working tree não commitado; `git diff HEAD --stat`:
   - `01_core/src/rules/eval/mod.rs` (+6), `01_core/src/rules/eval/tests.rs` (+61), `01_core/src/rules/stdlib/mod.rs` (+6)
   - ficheiros novos (untracked): `00_nucleo/prompts/rules/stdlib/emoji.md`, `00_nucleo/prompts/rules/stdlib/pdf.md`, `01_core/src/rules/stdlib/emoji.rs`, `01_core/src/rules/stdlib/pdf.rs`
