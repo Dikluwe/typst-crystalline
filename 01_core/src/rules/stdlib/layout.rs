@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/rules/stdlib/_comum.md
-//! @prompt-hash 8456831d
+//! @prompt-hash 39dc5feb
 //! @prompt 00_nucleo/prompts/rules/stdlib/layout.md
 //! @layer L1
 //! @updated 2026-04-23
@@ -308,19 +308,21 @@ pub fn native_grid(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::cont
         }
     }
     // P227 — extract stroke (Length/Color/Stroke shorthand via extract_stroke).
+    // P726 — `stroke: none` aceite (= sem traço, paridade vanilla).
     let stroke = match args.named.get("stroke") {
+        Some(Value::None) | None => None,
         Some(val) => Some(extract_stroke(val, "grid", "stroke")?),
-        None => None,
     };
 
     // P228 — extract fill (Opção α: apenas Value::Color; rejeita outros).
+    // P726 — `fill: none` aceite (= sem preenchimento, paridade vanilla).
     let fill = match args.named.get("fill") {
         Some(Value::Color(c)) => Some(*c),
+        Some(Value::None) | None => None,
         Some(other) => return Err(vec![SourceDiagnostic::error(
             Span::detached(),
             format!("grid(fill): espera Color, recebeu {}", other.type_name()),
         )]),
-        None => None,
     };
 
     Ok(Value::Content(Content::Grid(std::sync::Arc::new(
@@ -855,20 +857,22 @@ pub fn native_block(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::con
 
     // P247 — fill: aceita Value::Color directo (paridade pattern Grid/
     // Table inline). Refino futuro para Paint enum quando ADR dedicada.
+    // P726 — `fill: none` aceite (= sem preenchimento, paridade vanilla).
     let fill = match args.named.get("fill") {
         Some(Value::Color(c)) => Some(*c),
+        Some(Value::None) | None => None,
         Some(other) => return Err(vec![SourceDiagnostic::error(
             Span::detached(),
             format!("block(fill): espera Color, recebeu {}", other.type_name()),
         )]),
-        None => None,
     };
 
     // P247 — stroke: reusa `extract_stroke` (helper pré-existente
     // P227 stdlib/layout.rs:351). Aceita Length/Color/Stroke shorthand.
+    // P726 — `stroke: none` aceite (= sem traço, paridade vanilla).
     let stroke = match args.named.get("stroke") {
+        Some(Value::None) | None => None,
         Some(val) => Some(extract_stroke(val, "block", "stroke")?),
-        None      => None,
     };
 
     // P250 — 4 named args novos: spacing/above/below (Length opcionais;
@@ -1091,19 +1095,21 @@ pub fn native_box(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contr
     };
 
     // P247 — fill paralelo block.
+    // P726 — `fill: none` aceite (= sem preenchimento, paridade vanilla).
     let fill = match args.named.get("fill") {
         Some(Value::Color(c)) => Some(*c),
+        Some(Value::None) | None => None,
         Some(other) => return Err(vec![SourceDiagnostic::error(
             Span::detached(),
             format!("box(fill): espera Color, recebeu {}", other.type_name()),
         )]),
-        None => None,
     };
 
     // P247 — stroke reusa `extract_stroke` paralelo block.
+    // P726 — `stroke: none` aceite (= sem traço, paridade vanilla).
     let stroke = match args.named.get("stroke") {
+        Some(Value::None) | None => None,
         Some(val) => Some(extract_stroke(val, "box", "stroke")?),
-        None      => None,
     };
 
     Ok(Value::Content(Content::Boxed(std::sync::Arc::new(

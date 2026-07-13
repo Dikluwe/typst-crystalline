@@ -1,5 +1,5 @@
 # Prompt L0 — `stdlib/layout` — módulo `layout`
-Hash do Código: 90a1b107
+Hash do Código: b99036be
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/rules/stdlib/layout.rs`
@@ -490,3 +490,60 @@ pagebreak("x") -> Err "não aceita posicionais"
 ### Nota sobre `page()`
 
 A forma-função legacy `page(...)` foi removida no Passo P335. O caminho canónico em Typst é `#set page(...)` (processado por `eval_set_rule` target `"page"`, não por este módulo). Por isso `stdlib/layout.rs` não exporta `native_page`.
+
+---
+
+## P726 — `fill: none` / `stroke: none` em `block`/`box`/`grid`
+
+Medido no vanilla (binário release, sonda `/tmp/p726-none.typ`):
+`block`, `box`, `rect`, `grid` (e `table`, `table.cell`, `grid.cell` —
+ver `structural.md` P726) aceitam `fill: none` e `stroke: none` **sem
+erro** — `none` significa "sem preenchimento"/"sem traço", equivalente a
+omitir o argumento. O cristalino rejeitava `Value::None` em todos estes
+pontos (`"espera Color, recebeu none"`), bloqueando `canvas.typ:111,129`
+de cetz (`block.with(breakable: false)` invocado com `fill: background,
+stroke: stroke`, defaults `none` em `canvas.typ:25`).
+
+### Semântica de implementação
+
+Em cada ponto de extracção, `Some(Value::None)` junta-se ao braço
+`None => None` (mesmo idiom já usado para `caption` em
+`structural.rs:694`):
+
+```rust
+// fill — 3 pontos neste ficheiro (grid, block, box)
+let fill = match args.named.get("fill") {
+    Some(Value::Color(c)) => Some(*c),
+    Some(Value::None) | None => None,
+    Some(other) => return Err(...),   // tipos inválidos continuam erro
+};
+
+// stroke — 3 pontos neste ficheiro (grid, block, box)
+let stroke = match args.named.get("stroke") {
+    Some(Value::None) | None => None,
+    Some(val) => Some(extract_stroke(val, "block", "stroke")?),
+};
+```
+
+`extract_stroke` **não muda** — continua a rejeitar `none` com erro; os
+call sites tratam `none` antes de o invocar. Blast radius zero nos
+outros consumidores do helper (hlines/vlines — scope-out abaixo).
+
+### Paridade mantida — `stroke(paint: none)` continua erro
+
+Vanilla **rejeita** `stroke(paint: none)` (medido: "expected color,
+gradient, tiling, or auto, found none", exit 1). O braço `stroke(paint)`
+(`layout.rs:1416`) mantém o seu erro — paridade ao nível "é erro"
+(ADR-0107; o texto diverge, mecânica aceite de propósito).
+
+### Scope-out medido — hline/vline `stroke: none`
+
+Vanilla aceita `table.hline(stroke: none)` etc. (linha não desenhada;
+medido exit 0 com namespace correcto `table.hline`). O cristalino guarda
+`Stroke` **não-opcional** em `GridHLineElem`/`TableHLineElem` (e vlines)
+e o render desenha sempre a linha (`rules/layout/grid.rs:668-689`) —
+aceitar `none` aqui exige mudança de entidade para `Option<Stroke>` +
+salto no render, de outra espécie que os braços `Option` deste passo, e
+sem consumidor em cetz. Registado em `achados-adiados-cetz.md` para
+passo futuro (não assumir zero-thickness como atalho — width 0 em PDF é
+hairline, não "invisível").

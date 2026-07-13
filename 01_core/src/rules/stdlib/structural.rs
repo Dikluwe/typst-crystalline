@@ -2,7 +2,7 @@
 //! @prompt 00_nucleo/prompts/rules/model/document.md
 //! @prompt 00_nucleo/prompts/rules/model/asset.md
 //! @prompt 00_nucleo/prompts/rules/stdlib/structural.md
-//! @prompt-hash e3351b12
+//! @prompt-hash edbe2de6
 //! @layer L1
 //! @updated 2026-06-29
 //!
@@ -672,20 +672,22 @@ pub fn native_table(
         }
     }
     // P227 — extract stroke (paridade Grid via extract_stroke shorthand).
+    // P726 — `stroke: none` aceite (= sem traço, paridade vanilla).
     let stroke = match args.named.get("stroke") {
+        Some(Value::None) | None => None,
         Some(val) => Some(extract_stroke(val, "table", "stroke")?),
-        None => None,
     };
     // P228 — extract fill (Opção α: apenas Value::Color).
+    // P726 — `fill: none` aceite (= sem preenchimento, paridade vanilla).
     let fill = match args.named.get("fill") {
         Some(Value::Color(c)) => Some(*c),
+        Some(Value::None) | None => None,
         Some(other) => {
             return Err(vec![SourceDiagnostic::error(
                 Span::detached(),
                 format!("table(fill): espera Color, recebeu {}", other.type_name()),
             )])
         }
-        None => None,
     };
     // P459 — caption opcional (Content ou Str); None se omitido.
     let caption = match args.named.get("caption") {
@@ -872,9 +874,15 @@ pub fn native_table_cell(
             "colspan" => colspan = extract_usize_or_none_min(value, "table_cell", "colspan", 1)?,
             "rowspan" => rowspan = extract_usize_or_none_min(value, "table_cell", "rowspan", 1)?,
             // P230 — stroke/fill per-cell paridade GridCell (refino paralelo).
-            "stroke" => stroke = Some(crate::rules::stdlib::layout::extract_stroke(value, "table_cell", "stroke")?),
+            // P726 — `stroke: none` / `fill: none` aceites (= omitido, paridade vanilla).
+            "stroke" => stroke = if matches!(value, Value::None) {
+                None
+            } else {
+                Some(crate::rules::stdlib::layout::extract_stroke(value, "table_cell", "stroke")?)
+            },
             "fill" => match value {
                 Value::Color(c) => fill = Some(*c),
+                Value::None => fill = None,
                 other => return Err(vec![SourceDiagnostic::error(
                     Span::detached(),
                     format!("table_cell(fill): espera Color, recebeu {}", other.type_name()),
@@ -1099,9 +1107,15 @@ pub fn native_grid_cell(
             "rowspan" => rowspan = extract_usize_or_none_min(value, "grid_cell", "rowspan", 1)?,
             // P230 — stroke/fill per-cell (override Grid-level via .or()).
             // Reuso `extract_stroke` helper P227 (N=1 → 2 cumulativo).
-            "stroke" => stroke = Some(crate::rules::stdlib::layout::extract_stroke(value, "grid_cell", "stroke")?),
+            // P726 — `stroke: none` / `fill: none` aceites (= omitido, paridade vanilla).
+            "stroke" => stroke = if matches!(value, Value::None) {
+                None
+            } else {
+                Some(crate::rules::stdlib::layout::extract_stroke(value, "grid_cell", "stroke")?)
+            },
             "fill" => match value {
                 Value::Color(c) => fill = Some(*c),
+                Value::None => fill = None,
                 other => return Err(vec![SourceDiagnostic::error(
                     Span::detached(),
                     format!("grid_cell(fill): espera Color, recebeu {}", other.type_name()),

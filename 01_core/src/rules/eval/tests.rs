@@ -1714,6 +1714,22 @@ mod tests {
         );
     }
 
+    // ── P726 — `fill: none` / `stroke: none` (padrão real do cetz) ──────────
+
+    #[test]
+    fn p726_cetz_block_with_none_fill_stroke_e2e() {
+        // Padrão exacto de cetz canvas.typ:111,129:
+        // block.with(breakable: false) invocado com fill/stroke none.
+        // Antes de P726: "block(fill): espera Color, recebeu none".
+        let world = MockWorld::new(
+            "#let f = block.with(breakable: false)\n#let x = f(fill: none, stroke: none)[x]",
+        );
+        match eval_let(&world, "x") {
+            Some(Value::Content(_)) => {}
+            other => panic!("block(fill/stroke: none) deve avaliar sem erro: {other:?}"),
+        }
+    }
+
     #[test]
     fn dualidade_eq_typst_coerce() {
         // ADR-0025 Opção B: no motor Typst, 1 == 1.0 → true (coerção Int→f64)

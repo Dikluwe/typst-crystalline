@@ -1,5 +1,5 @@
 # Prompt L0 — `stdlib/structural` — módulo `structural`
-Hash do Código: c392eb15
+Hash do Código: f17bf426
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/rules/stdlib/structural.rs`
@@ -840,3 +840,26 @@ seja `Value::None` porque não existe `native_equation` em L1).
 
 `parse_selector("math.equation")` em L3 `query-helpers.md` é o mecanismo
 primário de paridade de selector — o scope entry é complementar.
+
+---
+
+## P726 — `fill: none` / `stroke: none` em `table`/`table.cell`/`grid.cell`
+
+Mesmo achado de `layout.md` P726 (bloqueio cetz `canvas.typ:111,129`):
+vanilla aceita `none` (= omitir o argumento) em `fill`/`stroke`; o
+cristalino rejeitava com `"espera Color, recebeu none"`. Medido função a
+função contra o vanilla (exit 0 em todos): `table(fill|stroke: none)`,
+`table.cell(fill|stroke: none)`, `grid.cell(fill|stroke: none)`.
+
+### Semântica de implementação
+
+- `native_table` (`structural.rs:675-689`): `Some(Value::None)` junta-se
+  a `None => None` nos matches de `stroke` e `fill` — idiom já usado em
+  `caption` (`structural.rs:694`).
+- Loops de `table_cell`/`grid_cell` (`structural.rs:875-882, 1102-1109`):
+  - `"stroke"` → `if matches!(value, Value::None) { stroke = None } else { stroke = Some(extract_stroke(...)?) }`;
+  - `"fill"` → braço `Value::None => fill = None` antes do erro de tipo.
+
+`extract_stroke` não muda (ver `layout.md` P726). hline/vline
+(`table.hline`/`table.vline`, stroke não-opcional na entidade):
+scope-out medido — ver `layout.md` P726.

@@ -7625,6 +7625,163 @@ mod tests {
         }
     }
 
+    // ── P726 — `fill: none` / `stroke: none` aceites (paridade vanilla) ──
+    // Medido no vanilla: block/box/grid/table (+cells) aceitam none sem erro
+    // (none = omitir). Bloqueava cetz canvas.typ:111,129.
+
+    #[test]
+    fn p726_block_fill_none_aceite() {
+        null_ctx!(ctx);
+        let mut args = p(vec![Value::Content(Content::text("x"))]);
+        args.named.insert("fill".into(), Value::None);
+        let r = native_block(&mut ctx, &args, &null_world(), test_file_id()).unwrap();
+        if let Value::Content(Content::Block(e)) = r {
+            assert!(e.fill.is_none(), "fill: none → sem preenchimento");
+        } else {
+            panic!("esperado Content::Block");
+        }
+    }
+
+    #[test]
+    fn p726_block_stroke_none_aceite() {
+        null_ctx!(ctx);
+        let mut args = p(vec![Value::Content(Content::text("x"))]);
+        args.named.insert("stroke".into(), Value::None);
+        let r = native_block(&mut ctx, &args, &null_world(), test_file_id()).unwrap();
+        if let Value::Content(Content::Block(e)) = r {
+            assert!(e.stroke.is_none(), "stroke: none → sem traço");
+        } else {
+            panic!("esperado Content::Block");
+        }
+    }
+
+    #[test]
+    fn p726_box_fill_none_aceite() {
+        null_ctx!(ctx);
+        let mut args = p(vec![Value::Content(Content::text("x"))]);
+        args.named.insert("fill".into(), Value::None);
+        let r = native_box(&mut ctx, &args, &null_world(), test_file_id()).unwrap();
+        if let Value::Content(Content::Boxed(e)) = r {
+            assert!(e.fill.is_none());
+        } else {
+            panic!("esperado Content::Boxed");
+        }
+    }
+
+    #[test]
+    fn p726_box_stroke_none_aceite() {
+        null_ctx!(ctx);
+        let mut args = p(vec![Value::Content(Content::text("x"))]);
+        args.named.insert("stroke".into(), Value::None);
+        let r = native_box(&mut ctx, &args, &null_world(), test_file_id()).unwrap();
+        if let Value::Content(Content::Boxed(e)) = r {
+            assert!(e.stroke.is_none());
+        } else {
+            panic!("esperado Content::Boxed");
+        }
+    }
+
+    #[test]
+    fn p726_grid_fill_none_aceite() {
+        null_ctx!(ctx);
+        let mut args = p(vec![Value::Content(Content::text("a"))]);
+        args.named.insert("fill".into(), Value::None);
+        let r = native_grid(&mut ctx, &args, &null_world(), test_file_id()).unwrap();
+        if let Value::Content(Content::Grid(e)) = r {
+            assert!(e.fill.is_none());
+        } else {
+            panic!("esperado Content::Grid");
+        }
+    }
+
+    #[test]
+    fn p726_grid_stroke_none_aceite() {
+        null_ctx!(ctx);
+        let mut args = p(vec![Value::Content(Content::text("a"))]);
+        args.named.insert("stroke".into(), Value::None);
+        let r = native_grid(&mut ctx, &args, &null_world(), test_file_id()).unwrap();
+        if let Value::Content(Content::Grid(e)) = r {
+            assert!(e.stroke.is_none());
+        } else {
+            panic!("esperado Content::Grid");
+        }
+    }
+
+    #[test]
+    fn p726_table_fill_none_aceite() {
+        null_ctx!(ctx);
+        let mut args = p(vec![Value::Content(Content::text("a"))]);
+        args.named.insert("fill".into(), Value::None);
+        let r = native_table(&mut ctx, &args, &null_world(), test_file_id()).unwrap();
+        if let Value::Content(Content::Table(e)) = r {
+            assert!(e.fill.is_none());
+        } else {
+            panic!("esperado Content::Table");
+        }
+    }
+
+    #[test]
+    fn p726_table_stroke_none_aceite() {
+        null_ctx!(ctx);
+        let mut args = p(vec![Value::Content(Content::text("a"))]);
+        args.named.insert("stroke".into(), Value::None);
+        let r = native_table(&mut ctx, &args, &null_world(), test_file_id()).unwrap();
+        if let Value::Content(Content::Table(e)) = r {
+            assert!(e.stroke.is_none());
+        } else {
+            panic!("esperado Content::Table");
+        }
+    }
+
+    #[test]
+    fn p726_table_cell_fill_e_stroke_none_aceite() {
+        null_ctx!(ctx);
+        let mut args = p(vec![Value::Content(Content::text("c"))]);
+        args.named.insert("fill".into(), Value::None);
+        args.named.insert("stroke".into(), Value::None);
+        let r = native_table_cell(&mut ctx, &args, &null_world(), test_file_id()).unwrap();
+        if let Value::Content(Content::TableCell(e)) = r {
+            assert!(e.fill.is_none());
+            assert!(e.stroke.is_none());
+        } else {
+            panic!("esperado Content::TableCell");
+        }
+    }
+
+    #[test]
+    fn p726_grid_cell_fill_e_stroke_none_aceite() {
+        null_ctx!(ctx);
+        let mut args = p(vec![Value::Content(Content::text("c"))]);
+        args.named.insert("fill".into(), Value::None);
+        args.named.insert("stroke".into(), Value::None);
+        let r = native_grid_cell(&mut ctx, &args, &null_world(), test_file_id()).unwrap();
+        if let Value::Content(Content::GridCell(e)) = r {
+            assert!(e.fill.is_none());
+            assert!(e.stroke.is_none());
+        } else {
+            panic!("esperado Content::GridCell");
+        }
+    }
+
+    #[test]
+    fn p726_none_nao_abre_porta_a_tipos_invalidos() {
+        // Regressão do caminho de erro: tipos inválidos continuam rejeitados
+        // (só `none` foi adicionado como válido).
+        null_ctx!(ctx);
+        let mut args = p(vec![Value::Content(Content::text("a"))]);
+        args.named.insert("fill".into(), Value::Bool(true));
+        assert!(
+            native_grid(&mut ctx, &args, &null_world(), test_file_id()).is_err(),
+            "fill Bool deve continuar erro em grid"
+        );
+        let mut args = p(vec![Value::Content(Content::text("a"))]);
+        args.named.insert("stroke".into(), Value::Bool(true));
+        assert!(
+            native_table(&mut ctx, &args, &null_world(), test_file_id()).is_err(),
+            "stroke Bool deve continuar erro em table"
+        );
+    }
+
     // ── P230 (Fase 5 Layout Categoria A.3) — stroke/fill per-cell GridCell + TableCell ──
 
     #[test]
