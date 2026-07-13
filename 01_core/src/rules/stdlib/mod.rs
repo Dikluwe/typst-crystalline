@@ -62,7 +62,7 @@ pub(crate) mod context;
 
 // Re-exports públicos — preservam o path `crate::rules::stdlib::native_X` usado
 // por `make_stdlib` em `eval/mod.rs`.
-pub use crate::rules::stdlib::assert::native_assert;
+pub use crate::rules::stdlib::assert::{native_assert, native_assert_eq, native_assert_ne};
 pub use crate::rules::stdlib::calc::make_calc_module;
 pub use crate::rules::stdlib::eval::native_eval;
 pub use crate::rules::stdlib::figure_image::{native_figure, native_image};
@@ -4016,6 +4016,94 @@ mod tests {
             err[0].message.contains("inesperado") && err[0].message.contains("bla"),
             "named arg desconhecido deve gerar erro: {:?}",
             err[0].message
+        );
+    }
+
+    // ── P723 — native_assert_eq / native_assert_ne (namespace de assert) ─────
+
+    #[test]
+    fn p723_assert_eq_iguais_ok() {
+        null_ctx!(ctx);
+        let args = p(vec![Value::Int(1), Value::Int(1)]);
+        assert!(
+            native_assert_eq(&mut ctx, &args, &null_world(), test_file_id()).is_ok(),
+            "assert.eq(1, 1) deve passar"
+        );
+    }
+
+    #[test]
+    fn p723_assert_eq_diferentes_erro_com_repr_vanilla() {
+        null_ctx!(ctx);
+        let args = p(vec![Value::Int(1), Value::Int(2)]);
+        let err = native_assert_eq(&mut ctx, &args, &null_world(), test_file_id())
+            .expect_err("assert.eq(1, 2) deve falhar");
+        // Mensagem default do vanilla (foundations/mod.rs:215-219) — a
+        // mecânica é o observável.
+        assert_eq!(
+            err[0].message,
+            "equality assertion failed: value 1 was not equal to 2"
+        );
+    }
+
+    #[test]
+    fn p723_assert_eq_com_message_customizada() {
+        null_ctx!(ctx);
+        let args = pn(vec![Value::Int(1), Value::Int(2)], "message", Value::Str("x".into()));
+        let err = native_assert_eq(&mut ctx, &args, &null_world(), test_file_id())
+            .expect_err("assert.eq com message deve falhar com a mensagem");
+        assert_eq!(err[0].message, "equality assertion failed: x");
+    }
+
+    #[test]
+    fn p723_assert_eq_coercao_int_float() {
+        // Paridade com o == da linguagem (coerção Int↔Float, vanilla
+        // PartialEq de Value): assert.eq(1, 1.0) passa.
+        null_ctx!(ctx);
+        let args = p(vec![Value::Int(1), Value::Float(1.0)]);
+        assert!(
+            native_assert_eq(&mut ctx, &args, &null_world(), test_file_id()).is_ok(),
+            "assert.eq(1, 1.0) deve passar (coerção Int↔Float)"
+        );
+    }
+
+    #[test]
+    fn p723_assert_ne_diferentes_ok() {
+        null_ctx!(ctx);
+        let args = p(vec![Value::Int(1), Value::Int(2)]);
+        assert!(
+            native_assert_ne(&mut ctx, &args, &null_world(), test_file_id()).is_ok(),
+            "assert.ne(1, 2) deve passar"
+        );
+    }
+
+    #[test]
+    fn p723_assert_ne_iguais_erro_com_repr_vanilla() {
+        null_ctx!(ctx);
+        let args = p(vec![Value::Int(1), Value::Int(1)]);
+        let err = native_assert_ne(&mut ctx, &args, &null_world(), test_file_id())
+            .expect_err("assert.ne(1, 1) deve falhar");
+        assert_eq!(
+            err[0].message,
+            "inequality assertion failed: value 1 was equal to 1"
+        );
+    }
+
+    #[test]
+    fn p723_assert_ne_com_message_customizada() {
+        null_ctx!(ctx);
+        let args = pn(vec![Value::Int(1), Value::Int(1)], "message", Value::Str("x".into()));
+        let err = native_assert_ne(&mut ctx, &args, &null_world(), test_file_id())
+            .expect_err("assert.ne com message deve falhar com a mensagem");
+        assert_eq!(err[0].message, "inequality assertion failed: x");
+    }
+
+    #[test]
+    fn p723_assert_eq_requer_2_posicionais() {
+        null_ctx!(ctx);
+        let args = p(vec![Value::Int(1)]);
+        assert!(
+            native_assert_eq(&mut ctx, &args, &null_world(), test_file_id()).is_err(),
+            "assert.eq com 1 posicional deve ser erro"
         );
     }
 

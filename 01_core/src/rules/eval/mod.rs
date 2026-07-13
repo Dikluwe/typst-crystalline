@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/rules/eval.md
-//! @prompt-hash 605a11fb
+//! @prompt-hash 01633311
 //! @layer L1
 //! @updated 2026-07-09
 //!
@@ -1032,7 +1032,7 @@ fn eval_markup_body(
 /// O avaliador deixa de conhecer o nome "figure" — desacoplamento total.
 fn make_stdlib(inputs: &SysInputs) -> Scope {
     use crate::rules::stdlib::{
-        make_calc_module, make_gradient_module, make_math_module, make_sys_module, native_accent, native_align, native_assert, native_bibliography, native_block, native_box, native_cancel, native_circle, native_cite, native_divider,
+        make_calc_module, make_gradient_module, make_math_module, make_sys_module, native_accent, native_align, native_assert, native_assert_eq, native_assert_ne, native_bibliography, native_block, native_box, native_cancel, native_circle, native_cite, native_divider,
         native_ellipse, native_emph, native_figure, native_footnote, native_grid, native_grid_cell, native_grid_footer, native_grid_header, native_grid_hline, native_grid_vline, native_h, native_heading,
         native_hide, native_image, native_len, native_line, native_outline,
         native_counter, native_counter_at, native_counter_display, native_counter_final, native_counter_step, native_context, native_curve, native_curve_close, native_curve_cubic, native_curve_line, native_curve_move, native_curve_quad, native_eval, native_here, native_locate, native_lower, native_lorem, native_luma, native_measure, native_metadata, native_move, native_pad, native_pagebreak, native_place, native_polygon, native_query, native_regex, native_selector, native_state, native_state_at, native_state_display, native_state_final, native_state_update, native_state_update_with,
@@ -1204,7 +1204,18 @@ fn make_stdlib(inputs: &SysInputs) -> Scope {
     scope.define("skew",    Value::Func(Func::native("skew",    native_skew)));
     scope.define("align",   Value::Func(Func::native("align",   native_align)));
     scope.define("place",   Value::Func(Func::native("place",   native_place)));
-    scope.define("assert",  Value::Func(Func::native("assert",  native_assert)));
+    // P723 — `assert` ganha namespace com eq/ne (bloqueio real do cetz;
+    // a premissa do passo apontava `curve`, refutada pela sonda — o
+    // namespace de curve existe desde P513).
+    {
+        let mut assert_namespace = Scope::new();
+        assert_namespace.define("eq", Value::Func(Func::native("assert.eq", native_assert_eq)));
+        assert_namespace.define("ne", Value::Func(Func::native("assert.ne", native_assert_ne)));
+        scope.define(
+            "assert",
+            Value::Func(Func::native_with_namespace("assert", native_assert, Arc::new(assert_namespace))),
+        );
+    }
     scope.define("panic",   Value::Func(Func::native("panic",   native_panic)));
     // P394: eval(source) — re-avalia string como markup Typst no contexto actual.
     scope.define("eval",    Value::Func(Func::native_with_engine("eval", native_eval)));

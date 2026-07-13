@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/rules/eval.md
-//! @prompt-hash 605a11fb
+//! @prompt-hash 01633311
 //! @layer L1
 //! @updated 2026-06-17
 //!
@@ -1504,6 +1504,70 @@ mod tests {
         assert_eq!(
             eval_let(&world, "x"),
             Some(Value::Array(vec![Value::Int(0), Value::Int(0)]))
+        );
+    }
+
+    // ── P723 — assert.eq / assert.ne via namespace (bloqueio real do cetz) ──
+
+    #[test]
+    fn p723_assert_eq_namespace_e2e_sucesso() {
+        let world = MockWorld::new("#let x = { assert.eq(1, 1); 42 }");
+        assert_eq!(eval_let(&world, "x"), Some(Value::Int(42)));
+    }
+
+    #[test]
+    fn p723_assert_eq_namespace_e2e_erro() {
+        let world = MockWorld::new("#let x = assert.eq(1, 2)");
+        let err = eval_for_test(&world, &world.source)
+            .expect_err("assert.eq(1, 2) deve abortar a avaliação");
+        assert!(
+            err[0].message.contains("equality assertion failed"),
+            "mensagem vanilla esperada: {:?}",
+            err[0].message
+        );
+    }
+
+    // ── P723 — `for` com spread `..sink` (2º bloqueio real do cetz) ─────────
+
+    #[test]
+    fn p723_for_spread_recolhe_resto() {
+        // Reprodução do padrão real de cetz (path-util.typ:106):
+        // for (kind, ..args) in segments — ("c", p1, p2, p3) → args = 3 pts.
+        let world = MockWorld::new(
+            "#let x = { let n = 0; for (kind, ..args) in ((\"c\", 1, 2, 3), (\"l\", 4)) { n = n + args.len() }; n }",
+        );
+        assert_eq!(eval_let(&world, "x"), Some(Value::Int(4)));
+    }
+
+    #[test]
+    fn p723_for_spread_kind_liga_primeiro() {
+        let world = MockWorld::new(
+            "#let x = { let s = \"\"; for (kind, ..args) in ((\"c\", 1), (\"l\", 2)) { s = s + kind }; s }",
+        );
+        assert_eq!(eval_let(&world, "x"), Some(Value::Str("cl".into())));
+    }
+
+    #[test]
+    fn p723_for_tuplo_um_elemento_destroi() {
+        // Corrigido pela delegação: antes, (a,) com bindings.len()==1 ligava
+        // o array inteiro a `a` em vez de destruir o tuplo.
+        let world = MockWorld::new(
+            "#let x = { let n = 0; for (a,) in ((5,), (6,)) { n = n + a }; n }",
+        );
+        assert_eq!(eval_let(&world, "x"), Some(Value::Int(11)));
+    }
+
+    #[test]
+    fn p723_for_aridade_erro_mensagem_vanilla() {
+        // Fecha a divergência pré-existente notada em P719: a mensagem de
+        // aridade do for passa a ser a do vanilla (wrong_number_of_elements).
+        let world = MockWorld::new("#let x = { for (a, b) in ((1, 2, 3),) { 1 } }");
+        let err = eval_for_test(&world, &world.source)
+            .expect_err("aridade errada deve abortar");
+        assert!(
+            err[0].message.contains("too many elements to destructure"),
+            "mensagem vanilla esperada: {:?}",
+            err[0].message
         );
     }
 

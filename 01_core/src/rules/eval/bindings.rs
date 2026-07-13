@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/rules/eval.md
-//! @prompt-hash 276f6bb7
+//! @prompt-hash 01633311
 //! @prompt 00_nucleo/prompts/rules/eval/field-access.md
 //! @prompt-hash 4c11e219
 //! @layer L1
@@ -271,7 +271,10 @@ fn wrong_number_of_elements(d: Destructuring<'_>, len: usize) -> SourceDiagnosti
 /// **P715** — desestruturação para `#let`: cada folha tem de ser um `Ident`
 /// (define no scope actual). Mirror de `destructure()` do vanilla
 /// (`typst-eval/binding.rs:45-57`).
-fn destructure_let(
+/// **P723** — `pub(super)`: reaproveitada por `run_for_loop`
+/// (`control_flow.rs`), que passa a delegar o binding de cada item aqui
+/// (spread `..sink`, mensagens de aridade do vanilla).
+pub(super) fn destructure_let(
     pattern: Pattern<'_>,
     value: Value,
     scopes: &mut Scopes<'_>,

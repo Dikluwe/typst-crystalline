@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/rules/eval.md
-//! @prompt-hash 605a11fb
+//! @prompt-hash 01633311
 //! @layer L1
 //! @updated 2026-07-09
 //!
@@ -16,7 +16,7 @@ use crate::entities::source_result::{SourceDiagnostic, SourceResult};
 use crate::entities::value::Value;
 use crate::rules::scopes::Scopes;
 
-use super::{eval_expr, EvalContext, FlowEvent};
+use super::{bindings::destructure_let, eval_expr, EvalContext, FlowEvent};
 
 pub(super) fn eval_conditional(
     cond: Conditional<'_>,
@@ -126,45 +126,19 @@ fn run_for_loop(
     ctx: &mut EvalContext,
     engine: &mut Engine<'_>,
 ) -> SourceResult<Value> {
-    let bindings = loop_expr.pattern().bindings();
-    // **P540** — suportar destructuring de tuplo em #for. Se o padrão
-    // tiver múltiplos bindings (ex: (i, x)), cada item do iterável deve
-    // ser um array cujos elementos são atribuídos posicionalmente.
     let flow = ctx.flow.take();
     let mut parts = Vec::new();
     for item in items {
         ctx.tick_loop(loop_expr.span())?;
         scopes.enter();
 
-        if bindings.is_empty() {
-            // Pattern vazio ou underscore — não definir variáveis.
-        } else if bindings.len() == 1 {
-            scopes.define(bindings[0].as_str(), item);
-        } else {
-            let tuple = match &item {
-                Value::Array(t) => t.clone(),
-                other => {
-                    scopes.exit();
-                    return Err(vec![SourceDiagnostic::error(
-                        loop_expr.pattern().span(),
-                        format!("cannot destructure value of type {}", other.type_name()),
-                    )]);
-                }
-            };
-            if tuple.len() != bindings.len() {
-                scopes.exit();
-                return Err(vec![SourceDiagnostic::error(
-                    loop_expr.pattern().span(),
-                    format!(
-                        "cannot destructure {} values into {} bindings",
-                        tuple.len(), bindings.len()
-                    ),
-                )]);
-            }
-            for (ident, value) in bindings.iter().zip(tuple.into_iter()) {
-                scopes.define(ident.as_str(), value);
-            }
-        }
+        // **P723** — delegar o binding de cada item ao destructuring
+        // genérico (mesma entrada do `#let`, bindings.rs): suporta spread
+        // `..sink` (cetz path-util.typ:106), destrói tuplos de 1 elemento
+        // e produz as mensagens de aridade exactas do vanilla
+        // (wrong_number_of_elements, P715). Substitui o bind manual de
+        // P540 (sem spread, mensagem própria).
+        destructure_let(loop_expr.pattern(), item, scopes, ctx, engine)?;
 
         match eval_expr(loop_expr.body(), scopes, ctx, engine)? {
             Value::Content(c) => parts.push(c),

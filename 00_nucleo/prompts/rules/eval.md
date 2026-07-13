@@ -1,5 +1,5 @@
 # Prompt L0 — rules/eval
-Hash do Código: 427bfbee
+Hash do Código: 8708a8a8
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/rules/eval/mod.rs`
@@ -119,9 +119,10 @@ renderizado.
 - `Expr::Unary(unary)` → eval_unary_op(unary.op(), operand)
 - `Expr::Conditional(cond)` → eval_conditional: condition(), if_body(), else_body()
 - `Expr::WhileLoop(loop)` → eval_while: MAX_ITER=10_000 limite de segurança
-- `Expr::ForLoop(loop)` → eval_for: iterable() (não iter()), pattern().bindings()
-  (incluindo destructuring de tuplo: `(i, x)` atribui posicionalmente de cada
-  item `Value::Array`), body(); cada iteração avalia o corpo e concatena os
+- `Expr::ForLoop(loop)` → eval_for: iterable() (não iter()), pattern via
+  destructuring genérico `destructure_let` por item (P723 — inclui spread
+  `..sink`, mensagens de aridade do vanilla; substitui o bind manual de
+  P540), body(); cada iteração avalia o corpo e concatena os
   valores `Content`/`Str` produzidos numa `Content::sequence`; `Value::None`
   no corpo é ignorado; `Value::None` como iterable é iterável vazio (sem
   parsing de array literal)
@@ -1543,3 +1544,87 @@ Candidato a passo futuro dedicado à paridade da mensagem de aridade do
 - Sem regressão: iteração sobre array (P540, incluindo `.enumerate()`)
   e `cargo test --workspace`.
 - `crystalline-lint .` limpo.
+
+## §P723 — `for` delega o binding ao destructuring genérico (spread `..sink`)
+
+Isolado por P723 via `cetz` (segundo bloqueio da sonda do passo, após
+`assert.eq`): `for (kind, ..args) in segments` errava `"cannot destructure
+4 values into 2 bindings"` (cristalino, `control_flow.rs` P540). O item é
+um segmento de path de 4 elementos (`("c", p1, p2, p3)` — curva cúbica) e
+o padrão usa **spread** para recolher os pontos. Consumidor real:
+`path-util.typ:106` (pacote `@preview/cetz:0.5.2`), no caminho de
+`line`/`circle` do documento de reprodução da cadeia.
+
+A premissa do passo (namespace de `curve`) foi **refutada** pela sonda —
+o namespace existe desde P513; o bloqueio do `for` foi identificado com
+build instrumentado temporário (mensagem de erro com repr do item e
+bindings), revertido a seguir. Achado lateral medido: `curve(...)`
+compila mas renderiza página em branco — bug de render separado, fora
+deste passo (registado em `achados-adiados-cetz.md`).
+
+### Mecanismo vanilla confirmado (`typst-eval/flow.rs:114-162`)
+
+`ast::ForLoop::eval` chama **`destructure(vm, pattern, value)`** por item
+(flow.rs:128) — o destructuring genérico de `binding.rs` (o mesmo de
+`let` e atribuição), **com suporte a `..sink`**. Não há lógica de bind
+própria do `for`: um `Pattern::Normal`/`Placeholder` liga/descarta o item
+inteiro; `Pattern::Destructuring` consome posicionais e o spread absorve
+o resto (`sink_size = 1 + len - item_count`); aridade errada →
+`wrong_number_of_elements` (`binding.rs:180-209`) — `"too many elements
+to destructure"` / `"not enough elements to destructure"` + hint
+(`"the provided array has a length of {len}, but the pattern expects
+{expected}"`).
+
+Comportamento medido (cristalino antes do fix, vanilla em `f571a3644`):
+
+```
+for (kind, ..args) in (("c", 1, 2, 3),) → cristalino: Err cannot
+    destructure 4 values into 2 bindings
+    vanilla: kind="c", args=(1, 2, 3)
+for (a, b) in ((1, 2, 3),)              → cristalino: Err cannot
+    destructure 3 values into 2 bindings
+    vanilla: Err too many elements to destructure + hint
+for (a,) in ((5,), (6,))                → cristalino: a liga o array
+    inteiro (bindings.len()==1 define directo, sem validar o padrão)
+    vanilla: a=5, a=6 (destructuring de tuplo de 1 elemento)
+```
+
+### Divergência pré-existente fechada neste passo
+
+A nota de §P719 ("mensagem de aridade do `for` diverge do vanilla",
+P540) fica **fechada**: a delegação faz o `for` produzir exactamente as
+mensagens de `wrong_number_of_elements` (já mirror do vanilla desde
+P715), com hint. Item correspondente em `achados-adiados-cetz.md`
+marcado como fechado.
+
+### Implementação
+
+- **`control_flow.rs` `run_for_loop`**: o bloco manual de bind
+  (`bindings.is_empty()` / `bindings.len() == 1` define directo / resto
+  destrói posicionalmente com mensagem própria) é **substituído** por
+  `destructure_let(loop_expr.pattern(), item, scopes, ctx, engine)?` —
+  a mesma entrada usada pelo `#let`. O `let bindings = ...` deixa de
+  existir.
+- **`bindings.rs` `destructure_let`**: passa a `pub(super)` (era
+  privada) — única mudança de visibilidade.
+- Cobertura automática: `for x in arr` (Normal → define), `for _ in
+  arr` (Placeholder → descarta), `for (k, v) in dict` (pares
+  `Array([k,v])` de §P719 → destructure_array), `for (a, ..rest) in
+  arr` (**novo** — spread), `for (a,) in ((1,),)` (**corrigido** —
+  destrói o tuplo de 1 elemento).
+- Mudança de comportamento aceite (paridade com o vanilla, medido
+  acima): pattern destructuring vazio `for () in (1,)` passa a errar
+  (`cannot destructure integer`) em vez de ser no-op — o vanilla valida
+  o pattern contra cada item.
+
+### Critérios de verificação
+
+- `for (kind, ..args) in (("c", 1, 2, 3),)`: `kind == "c"`,
+  `args == (1, 2, 3)` (teste E2E).
+- `for (a, b) in ((1, 2, 3),)` → erro `"too many elements to
+  destructure"` (mensagem vanilla, não a antiga do cristalino).
+- `for (a,) in ((5,), (6,))` → `a == 5, 6` por iteração.
+- Sem regressão: `for x in arr`, `for (k, v) in dict` (§P719),
+  `.enumerate()`, e `cargo test --workspace`.
+- `crystalline-lint .` limpo; `--fix-hashes` actualiza os dois headers
+  (`control_flow.rs`, `bindings.rs`).
