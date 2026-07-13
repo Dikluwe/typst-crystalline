@@ -1,7 +1,7 @@
 # Relatório P727 — corrigir o render de `curve` (página em branco)
 
 **Data:** 2026-07-10 (execução: 2026-07-13)
-**Commit:** A PREENCHER após o commit (ver secção final)
+**Commit:** `fa88c09be30948b57a5f0364c9ffd3dd93f195b6` (branch `Tekt`)
 **Proveniência das medições:** commit base `4e37ac1b77af961e2838252b970e2a4953a36b02`
 (P726 hash-fill) + working tree não commitado com exactamente 6 ficheiros alterados
 (`git diff HEAD --stat` no momento da validação):
