@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/rules/stdlib/_comum.md
-//! @prompt-hash 9653507a
+//! @prompt-hash 33eb1231
 //! @prompt 00_nucleo/prompts/rules/stdlib/square.md
 //! @prompt 00_nucleo/prompts/rules/stdlib/shapes.md
 //! @layer L1
@@ -265,11 +265,24 @@ pub fn native_line(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::cont
 fn extract_coordinate(val: &Value) -> Option<(f64, f64)> {
     match val {
         Value::Array(arr) if arr.len() == 2 => {
-            let x = arr[0].cast_float()?;
-            let y = arr[1].cast_float()?;
+            let x = coord_component(&arr[0])?;
+            let y = coord_component(&arr[1])?;
             Some((x, y))
         }
         _ => None,
+    }
+}
+
+/// Componente de coordenada de vértice/segmento.
+///
+/// **P732** — aceita `Length` (paridade vanilla: os vértices de `polygon`
+/// são `Rel<Length>`; a componente `em` e `Ratio` ficam scope-out, mesmo
+/// precedente de P513 em `curve`) além de `Float`/`Int` em pt (interface
+/// cristalina legada, partilhada com `curve`).
+fn coord_component(val: &Value) -> Option<f64> {
+    match val {
+        Value::Length(l) => Some(l.abs.to_pt()),
+        _ => val.cast_float(),
     }
 }
 
@@ -316,7 +329,9 @@ fn extract_curve_length(
 
 /// `polygon(pt1, pt2, ...; fill?, stroke?)` → `Content::Shape { kind: Path, ... }`.
 ///
-/// Cada argumento posicional é um array `[x, y]` em pontos tipográficos.
+/// Cada argumento posicional é um array `[x, y]` em pontos tipográficos;
+/// desde o Passo 732 cada coordenada aceita `Length` (paridade vanilla) além
+/// de `Float`/`Int` (ver `coord_component`).
 /// Bbox calculada via `geometry::path_bbox` (analítica para CubicTo;
 /// equivalente a min/max para LineTo-only — P277 consolidação DEBT-33).
 pub fn native_polygon(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contracts::world::World, _current_file: FileId) -> SourceResult<Value> {
@@ -346,9 +361,21 @@ pub fn native_polygon(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::c
     path_items.push(PathItem::ClosePath);
 
     let fill   = args.named.get("fill").and_then(parse_paint);
-    let stroke = args.named.get("stroke").and_then(|v| {
-        parse_color(v).map(|c| Stroke { paint: Paint::Solid(c), thickness: 1.0, overhang: false })
-    });
+    let parsed_stroke: Option<Stroke> = args.named.get("stroke")
+        .and_then(parse_color)
+        .map(|c| Stroke { paint: Paint::Solid(c), thickness: 1.0, overhang: false });
+
+    // P732 — fallback determinístico (paridade vanilla `Smart::Auto`,
+    // lab/typst-original/crates/typst-layout/src/shapes.rs:336-339),
+    // idêntico ao de `native_curve` (P727): sem fill nem stroke → stroke
+    // preta de 1pt; com fill sem stroke → sem stroke. Sem ele o polígono
+    // renderiza página em branco (path no PDF sem operador de pintura —
+    // medido: 0 px não-brancos no cristalino vs 898 px no vanilla).
+    let stroke = if fill.is_none() && parsed_stroke.is_none() {
+        Some(Stroke { paint: Paint::Solid(Color::rgb(0, 0, 0)), thickness: 1.0, overhang: false })
+    } else {
+        parsed_stroke
+    };
 
     // P277 — DEBT-33 CLOSED: usar geometry::path_bbox para bbox.
     // Para LineTo-only paths preserva bit-exact min/max behavior.

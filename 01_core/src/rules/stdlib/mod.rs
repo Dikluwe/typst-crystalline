@@ -4397,6 +4397,125 @@ mod tests {
         }
     }
 
+    // ── P732 — fallback de stroke default + coordenadas Length em polygon ──
+
+    fn p732_polygon_args_length() -> Args {
+        // Triângulo do caso medido do passo: (0pt,0pt) (50pt,0pt) (25pt,40pt).
+        use crate::entities::layout_types::Length;
+        Args::positional(vec![
+            Value::Array(vec![
+                Value::Length(Length::pt(0.0)),
+                Value::Length(Length::pt(0.0)),
+            ]),
+            Value::Array(vec![
+                Value::Length(Length::pt(50.0)),
+                Value::Length(Length::pt(0.0)),
+            ]),
+            Value::Array(vec![
+                Value::Length(Length::pt(25.0)),
+                Value::Length(Length::pt(40.0)),
+            ]),
+        ])
+    }
+
+    #[test]
+    fn p732_polygon_aceita_coordenadas_length() {
+        // P732 — medido: o vanilla exige relative length nos vértices
+        // ("expected relative length, found integer"); o cristalino
+        // rejeitava Length ("argumento 0 não é uma coordenada válida").
+        use crate::entities::geometry::{PathItem, ShapeKind};
+        null_ctx!(ctx);
+        let args = p732_polygon_args_length();
+        let result =
+            native_polygon(&mut ctx, &args, &null_world(), test_file_id()).unwrap();
+        if let Value::Content(Content::Shape(e)) = result {
+            let ShapeKind::Path(items) = &e.kind else {
+                panic!("esperado ShapeKind::Path");
+            };
+            assert_eq!(items.len(), 4); // MoveTo + 2×LineTo + ClosePath
+            assert!(matches!(items[0], PathItem::MoveTo(_)));
+            if let PathItem::LineTo(p) = items[1] {
+                assert_eq!(p.x.0, 50.0, "x do segundo vértice em pt");
+                assert_eq!(p.y.0, 0.0, "y do segundo vértice em pt");
+            } else {
+                panic!("segundo item deve ser LineTo");
+            }
+        } else {
+            panic!("Esperado Content::Shape com ShapeKind::Path");
+        }
+    }
+
+    #[test]
+    fn p732_polygon_sem_cores_tem_stroke_preta_1pt() {
+        // P732 — paridade vanilla `Smart::Auto`
+        // (lab/typst-original/crates/typst-layout/src/shapes.rs:336-339):
+        // polygon sem fill nem stroke → stroke preta de 1pt. Sem este
+        // fallback o polígono renderiza página em branco (medido: 0 px
+        // não-brancos no cristalino vs 898 px no vanilla).
+        null_ctx!(ctx);
+        use crate::entities::layout_types::Color;
+        use crate::entities::paint::Paint;
+        let args = p732_polygon_args_length();
+        let result =
+            native_polygon(&mut ctx, &args, &null_world(), test_file_id()).unwrap();
+        if let Value::Content(Content::Shape(e)) = result {
+            assert!(e.fill.is_none(), "polygon sem fill deve ter fill: None");
+            let s = e
+                .stroke
+                .clone()
+                .expect("P732: polygon sem cores deve ter stroke de fallback");
+            assert_eq!(
+                s.paint,
+                Paint::Solid(Color::rgb(0, 0, 0)),
+                "stroke de fallback deve ser preta"
+            );
+            assert_eq!(s.thickness, 1.0, "espessura de fallback deve ser 1pt");
+        } else {
+            panic!("Esperado Content::Shape");
+        }
+    }
+
+    #[test]
+    fn p732_polygon_com_fill_nao_tem_stroke_fallback() {
+        // P732 — paridade vanilla: com fill, o stroke default desaparece.
+        null_ctx!(ctx);
+        let mut args = p732_polygon_args_length();
+        args.named.insert("fill".into(), Value::Str("red".into()));
+        let result =
+            native_polygon(&mut ctx, &args, &null_world(), test_file_id()).unwrap();
+        if let Value::Content(Content::Shape(e)) = result {
+            assert!(e.fill.is_some(), "fill red deve estar presente");
+            assert!(
+                e.stroke.is_none(),
+                "com fill e sem stroke explícito → stroke deve ser None"
+            );
+        } else {
+            panic!("Esperado Content::Shape");
+        }
+    }
+
+    #[test]
+    fn p732_polygon_com_stroke_explicito_preserva() {
+        // P732 — stroke explícito não é substituído pelo fallback.
+        null_ctx!(ctx);
+        use crate::entities::layout_types::Color;
+        use crate::entities::paint::Paint;
+        let mut args = p732_polygon_args_length();
+        args.named.insert("stroke".into(), Value::Str("blue".into()));
+        let result =
+            native_polygon(&mut ctx, &args, &null_world(), test_file_id()).unwrap();
+        if let Value::Content(Content::Shape(e)) = result {
+            let s = e.stroke.clone().expect("stroke explícito deve estar presente");
+            assert_eq!(
+                s.paint,
+                Paint::Solid(Color::rgb(0, 0, 255)),
+                "stroke explícito blue deve ser preservado"
+            );
+        } else {
+            panic!("Esperado Content::Shape");
+        }
+    }
+
     // ── Passo 293 — `curve(...)` activação posterior PathItem::CubicTo ──
 
     #[test]

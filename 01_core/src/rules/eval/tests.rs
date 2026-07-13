@@ -9890,4 +9890,19 @@ mod tests {
         let m = p729_eval("#let e = math.equation").unwrap();
         assert_eq!(m.scope().get("e"), Some(&Value::None));
     }
+
+    // ── Passo 732 — polygon: coordenadas Length + fallback de stroke ────
+
+    #[test]
+    fn p732_polygon_length_compila_e2e() {
+        // O caso exacto do passo usa coordenadas Length. Pré-P732: erro
+        // "polygon(): argumento 0 não é uma coordenada válida"; o vanilla
+        // compila (medido: exit 0, 898 px não-brancos a 150 dpi).
+        let m = p729_eval("#polygon((0pt, 0pt), (50pt, 0pt), (25pt, 40pt))");
+        assert!(
+            m.is_ok(),
+            "polygon com coordenadas Length deve compilar: {:?}",
+            m.err()
+        );
+    }
 }

@@ -1,11 +1,13 @@
 # Prompt L0 — `stdlib/shapes` — módulo `shapes`
-Hash do Código: 0bb635c9
+Hash do Código: c43d72ce
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/rules/stdlib/shapes.rs`
 **Origem**: Passo 96.5 (extraído de `stdlib.rs` conforme ADR-0037), com marcos
 P76 (rect/ellipse/circle/line/polygon), P277 (`path_bbox`), P293-P294 (`curve`
-c/ conversão quadratic→cubic), P396 (`parse_paint` com Tiling/Gradient).
+c/ conversão quadratic→cubic), P396 (`parse_paint` com Tiling/Gradient),
+P727/P732 (fallback de stroke `Smart::Auto` em `curve`/`polygon`; vértices
+`Length` em `polygon`).
 **ADRs**: ADR-0033 (divergência intencional), ADR-0037 (coesão por domínio),
 ADR-0054 (perfil graded).
 **Convenções partilhadas**: ver `00_nucleo/prompts/rules/stdlib/_comum.md`.
@@ -143,26 +145,42 @@ line(dx: -1cm) -> Shape Line dx=-1cm
 
 ### `native_polygon(pt1, pt2, ...; fill?, stroke?)`
 
-**Assinatura**: `polygon(..vertices: Array[Float, Float], fill: Paint?, stroke: Color?) -> Content`
+**Assinatura**: `polygon(..vertices: Array[Length, Length] | Array[Float, Float], fill: Paint?, stroke: Color?) -> Content`
 
 **Argumentos**:
 - `vertices`: variádicos posicionais, cada um array `[x, y]` em pontos
-  tipográficos.
-- `fill`, `stroke`: opcionais.
+  tipográficos. Desde o Passo 732 cada coordenada aceita `Length`
+  (paridade vanilla — os vértices do vanilla são `Rel<Length>`) além de
+  `Float`/`Int` (interface cristalina legada, via `extract_coordinate`,
+  helper partilhado com `curve`).
+- `fill`, `stroke`: opcionais. **Fallback determinístico** (paridade vanilla
+  `Smart::Auto`, `lab/typst-original/crates/typst-layout/src/shapes.rs:336-339`,
+  corrigido no Passo 732): se nem `fill` nem `stroke` forem fornecidos,
+  aplica stroke preta de 1pt; se `fill` for fornecido sem `stroke`, o
+  polígono fica sem stroke — idêntico ao fallback de `native_rect` e de
+  `native_curve` (P727).
 
 **Semântica**: Constrói um path `MoveTo -> LineTo ... -> ClosePath`. Calcula
 bbox via `geometry::path_bbox` para `width`/`height`. Cria
 `Content::Shape { kind: Path, ... }`.
 
-**Paridade vanilla**: Equivalente a `#polygon((0,0), (1,0), (0.5,1))`.
+**Paridade vanilla**: Equivalente a `#polygon((0pt, 0pt), (50pt, 0pt), (25pt, 40pt))`.
 
-**Limitações / scope-outs**: Apenas vértices via `Array`; outras formas de
-especificar pontos scope-out.
+**Limitações / scope-outs**:
+- Vértices com componente `em` ou `Ratio` (`50%`): scope-out — sem dimensão
+  de referência resolvível em tempo de eval (mesmo precedente de P513 em
+  `curve`); o vanilla aceita ratio (medido em P732).
+- O vanilla **rejeita** coordenadas Int/Float ("expected relative length,
+  found integer/float", medido em P732); o cristalino aceita-as (helper
+  partilhado com a interface documentada de `curve`) — divergência
+  registada em `00_nucleo/diagnosticos/achados-adiados-cetz.md`.
 
 **Testes canónicos**:
 ```
-polygon((0,0), (1,0), (0.5,1)) -> Shape Path fechado
-triangle = polygon((0,0), (2,0), (1,1), fill: blue)
+polygon((0pt, 0pt), (50pt, 0pt), (25pt, 40pt)) -> Shape Path fechado, stroke preto 1pt (fallback)
+polygon((0,0), (1,0), (0.5,1)) -> Shape Path fechado, stroke preto 1pt (fallback)
+polygon((0pt,0pt), (2pt,0pt), (1pt,1pt), fill: blue) -> Shape Path fill blue, sem stroke
+polygon((0pt,0pt), (1pt,0pt), stroke: blue) -> Shape Path stroke azul (sem regressão)
 polygon() -> Err "pelo menos um ponto"
 polygon((0,0), "x") -> Err "coordenada inválida"
 ```
