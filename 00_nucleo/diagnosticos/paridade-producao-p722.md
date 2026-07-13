@@ -2,7 +2,7 @@
 
 **Data:** 2026-07-13
 **Passo:** `00_nucleo/materialization/typst-passo-722.md`
-**Hash do commit (implementação):** _a preencher após o commit_.
+**Hash do commit (implementação):** `b9dc92fb1`.
 **HEAD base:** `cd5981056` (fim de P721, branch `Tekt`).
 **Estado:** FECHADO — repetição de array por inteiro implementada nas
 duas ordens, com paridade ao vanilla incluindo a mensagem de erro para
