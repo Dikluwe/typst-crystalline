@@ -4347,10 +4347,12 @@ mod tests {
     #[test]
     fn polygon_com_um_ponto_gera_moveto_e_closepath() {
         use crate::entities::geometry::{PathItem, ShapeKind};
+        use crate::entities::layout_types::Length;
         null_ctx!(ctx);
+        // P734 — vértices são Length (paridade vanilla); números rejeitados.
         let args = Args::positional(vec![Value::Array(vec![
-            Value::Float(10.0),
-            Value::Float(20.0),
+            Value::Length(Length::pt(10.0)),
+            Value::Length(Length::pt(20.0)),
         ])]);
         let result =
             native_polygon(&mut ctx, &args, &null_world(), test_file_id()).unwrap();
@@ -4375,11 +4377,13 @@ mod tests {
     #[test]
     fn polygon_triangulo_gera_moveto_lineto_lineto_closepath() {
         use crate::entities::geometry::{PathItem, ShapeKind};
+        use crate::entities::layout_types::Length;
         null_ctx!(ctx);
+        // P734 — vértices são Length (paridade vanilla); números rejeitados.
         let args = Args::positional(vec![
-            Value::Array(vec![Value::Float(0.0), Value::Float(0.0)]),
-            Value::Array(vec![Value::Float(50.0), Value::Float(0.0)]),
-            Value::Array(vec![Value::Float(25.0), Value::Float(50.0)]),
+            Value::Array(vec![Value::Length(Length::pt(0.0)), Value::Length(Length::pt(0.0))]),
+            Value::Array(vec![Value::Length(Length::pt(50.0)), Value::Length(Length::pt(0.0))]),
+            Value::Array(vec![Value::Length(Length::pt(25.0)), Value::Length(Length::pt(50.0))]),
         ]);
         let result =
             native_polygon(&mut ctx, &args, &null_world(), test_file_id()).unwrap();
@@ -4514,6 +4518,61 @@ mod tests {
         } else {
             panic!("Esperado Content::Shape");
         }
+    }
+
+    // ── P734 — polygon rejeita Int/Float (paridade vanilla) ──────────────
+
+    #[test]
+    fn p734_polygon_rejeita_int_com_mensagem_vanilla() {
+        // Medido vanilla: "expected relative length, found integer".
+        null_ctx!(ctx);
+        let args = Args::positional(vec![
+            Value::Array(vec![Value::Int(0), Value::Int(0)]),
+            Value::Array(vec![Value::Int(50), Value::Int(0)]),
+            Value::Array(vec![Value::Int(25), Value::Int(40)]),
+        ]);
+        let err = native_polygon(&mut ctx, &args, &null_world(), test_file_id())
+            .expect_err("polygon com Int deve ser rejeitado (P734)");
+        let msg = err.first().map(|d| d.message.to_string()).unwrap_or_default();
+        assert_eq!(msg, "expected relative length, found integer", "msg: {msg}");
+    }
+
+    #[test]
+    fn p734_polygon_rejeita_float_com_mensagem_vanilla() {
+        // Medido vanilla: "expected relative length, found float".
+        null_ctx!(ctx);
+        let args = Args::positional(vec![Value::Array(vec![
+            Value::Float(0.0),
+            Value::Float(0.0),
+        ])]);
+        let err = native_polygon(&mut ctx, &args, &null_world(), test_file_id())
+            .expect_err("polygon com Float deve ser rejeitado (P734)");
+        let msg = err.first().map(|d| d.message.to_string()).unwrap_or_default();
+        assert_eq!(msg, "expected relative length, found float", "msg: {msg}");
+    }
+
+    #[test]
+    fn p734_curve_tuplos_com_numeros_sem_regressao() {
+        // A restrição a Length NÃO se aplica a curve: a interface por
+        // tuples é divergência intencional documentada (o vanilla rejeita
+        // tuples — "expected content, found array", medido em P734).
+        null_ctx!(ctx);
+        let args = Args::positional(vec![
+            Value::Array(vec![
+                Value::Str("move".into()),
+                Value::Array(vec![Value::Float(0.0), Value::Float(0.0)]),
+            ]),
+            Value::Array(vec![
+                Value::Str("line".into()),
+                Value::Array(vec![Value::Float(50.0), Value::Float(50.0)]),
+            ]),
+        ]);
+        let result = native_curve(&mut ctx, &args, &null_world(), test_file_id());
+        assert!(
+            result.is_ok(),
+            "curve com tuplos numéricos deve continuar a funcionar: {:?}",
+            result.err()
+        );
     }
 
     // ── Passo 293 — `curve(...)` activação posterior PathItem::CubicTo ──

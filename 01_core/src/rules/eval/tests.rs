@@ -9970,4 +9970,24 @@ mod tests {
         let msg = err.first().map(|d| d.message.to_string()).unwrap_or_default();
         assert_eq!(msg, "unexpected argument", "msg: {msg}");
     }
+
+    // ── Passo 734 — polygon rejeita Int/Float (paridade vanilla) ────────
+
+    #[test]
+    fn p734_polygon_int_rejeitado_e2e() {
+        // Medido vanilla: `#polygon((0, 0), (50, 0), (25, 40))` →
+        // "expected relative length, found integer". Cristalino pré-P734:
+        // aceitava (e pré-P732 era a única forma aceite — domínio invertido).
+        let m = p729_eval("#polygon((0, 0), (50, 0), (25, 40))");
+        let err = m.expect_err("polygon com Int deve ser rejeitado (P734)");
+        let msg = err.first().map(|d| d.message.to_string()).unwrap_or_default();
+        assert_eq!(msg, "expected relative length, found integer", "msg: {msg}");
+    }
+
+    #[test]
+    fn p734_polygon_length_sem_regressao_e2e() {
+        // O caso do passo P732 continua a compilar (Length é o tipo exigido).
+        let m = p729_eval("#polygon((0pt, 0pt), (50pt, 0pt), (25pt, 40pt))");
+        assert!(m.is_ok(), "polygon com Length deve compilar: {:?}", m.err());
+    }
 }

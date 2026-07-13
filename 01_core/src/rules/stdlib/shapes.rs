@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/rules/stdlib/_comum.md
-//! @prompt-hash 33eb1231
+//! @prompt-hash 4f6dc4ae
 //! @prompt 00_nucleo/prompts/rules/stdlib/square.md
 //! @prompt 00_nucleo/prompts/rules/stdlib/shapes.md
 //! @layer L1
@@ -286,6 +286,49 @@ fn coord_component(val: &Value) -> Option<f64> {
     }
 }
 
+/// Vértice de `polygon`: só `Length` (paridade vanilla — **P734**).
+///
+/// O vanilla exige `Rel<Length>` nos vértices e rejeita números nus
+/// ("expected relative length, found integer/float", medido). `Ratio`
+/// (`50%`) é scope-out: o vanilla aceita (resolve no layout contra o
+/// contentor), mas o constructor cristalino corre em tempo de eval, sem
+/// dimensão de referência — erro explícito de scope-out. A restrição não
+/// se aplica a `curve` (interface por tuples, divergência intencional
+/// documentada — o vanilla rejeita tuples: "expected content, found array").
+fn extract_vertex(val: &Value, index: usize) -> SourceResult<(f64, f64)> {
+    let arr = match val {
+        Value::Array(a) if a.len() == 2 => a,
+        _ => {
+            return Err(vec![SourceDiagnostic::error(
+                Span::detached(),
+                format!("polygon(): argumento {} não é uma coordenada válida", index),
+            )]);
+        }
+    };
+    let x = vertex_component(&arr[0])?;
+    let y = vertex_component(&arr[1])?;
+    Ok((x, y))
+}
+
+fn vertex_component(val: &Value) -> SourceResult<f64> {
+    match val {
+        Value::Length(l) => Ok(l.abs.to_pt()),
+        // Paridade verbatim do vanilla (medido): "integer", não "int".
+        Value::Int(_) => Err(vec![SourceDiagnostic::error(
+            Span::detached(),
+            "expected relative length, found integer".to_string(),
+        )]),
+        Value::Ratio(_) => Err(vec![SourceDiagnostic::error(
+            Span::detached(),
+            "polygon(): coordenada ratio (50%) não é resolvível em tempo de eval — scope-out (o vanilla aceita)".to_string(),
+        )]),
+        other => Err(vec![SourceDiagnostic::error(
+            Span::detached(),
+            format!("expected relative length, found {}", other.type_name()),
+        )]),
+    }
+}
+
 /// Extrai um `CurvePoint` de um `Value::Array` de 2 elementos.
 ///
 /// Aceita `Value::Length`, `Value::Float` ou `Value::Int` (este último
@@ -329,20 +372,18 @@ fn extract_curve_length(
 
 /// `polygon(pt1, pt2, ...; fill?, stroke?)` → `Content::Shape { kind: Path, ... }`.
 ///
-/// Cada argumento posicional é um array `[x, y]` em pontos tipográficos;
-/// desde o Passo 732 cada coordenada aceita `Length` (paridade vanilla) além
-/// de `Float`/`Int` (ver `coord_component`).
+/// Cada argumento posicional é um array `[x, y]` de `Length` — desde o
+/// Passo 734 só `Length` é aceite (paridade vanilla: "expected relative
+/// length, found integer/float"; ver `extract_vertex`).
 /// Bbox calculada via `geometry::path_bbox` (analítica para CubicTo;
 /// equivalente a min/max para LineTo-only — P277 consolidação DEBT-33).
 pub fn native_polygon(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contracts::world::World, _current_file: FileId) -> SourceResult<Value> {
     let mut path_items: Vec<PathItem> = Vec::new();
 
     for (i, val) in args.items.iter().enumerate() {
-        let (x, y) = extract_coordinate(val)
-            .ok_or_else(|| vec![SourceDiagnostic::error(
-                Span::detached(),
-                format!("polygon(): argumento {} não é uma coordenada válida", i),
-            )])?;
+        // **P734** — `extract_vertex`: só `Length` (paridade vanilla);
+        // números nus rejeitados com a mensagem do vanilla.
+        let (x, y) = extract_vertex(val, i)?;
 
         if i == 0 {
             path_items.push(PathItem::MoveTo(Point { x: Pt(x), y: Pt(y) }));

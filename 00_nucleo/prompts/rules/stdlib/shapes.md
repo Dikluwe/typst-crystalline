@@ -1,5 +1,5 @@
 # Prompt L0 — `stdlib/shapes` — módulo `shapes`
-Hash do Código: c43d72ce
+Hash do Código: 0e6dc4a5
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/rules/stdlib/shapes.rs`
@@ -7,7 +7,8 @@ Hash do Código: c43d72ce
 P76 (rect/ellipse/circle/line/polygon), P277 (`path_bbox`), P293-P294 (`curve`
 c/ conversão quadratic→cubic), P396 (`parse_paint` com Tiling/Gradient),
 P727/P732 (fallback de stroke `Smart::Auto` em `curve`/`polygon`; vértices
-`Length` em `polygon`).
+`Length` em `polygon`), P734 (`polygon` restringido a `Length` — rejeita
+Int/Float como o vanilla).
 **ADRs**: ADR-0033 (divergência intencional), ADR-0037 (coesão por domínio),
 ADR-0054 (perfil graded).
 **Convenções partilhadas**: ver `00_nucleo/prompts/rules/stdlib/_comum.md`.
@@ -145,14 +146,14 @@ line(dx: -1cm) -> Shape Line dx=-1cm
 
 ### `native_polygon(pt1, pt2, ...; fill?, stroke?)`
 
-**Assinatura**: `polygon(..vertices: Array[Length, Length] | Array[Float, Float], fill: Paint?, stroke: Color?) -> Content`
+**Assinatura**: `polygon(..vertices: Array[Length, Length], fill: Paint?, stroke: Color?) -> Content`
 
 **Argumentos**:
-- `vertices`: variádicos posicionais, cada um array `[x, y]` em pontos
-  tipográficos. Desde o Passo 732 cada coordenada aceita `Length`
-  (paridade vanilla — os vértices do vanilla são `Rel<Length>`) além de
-  `Float`/`Int` (interface cristalina legada, via `extract_coordinate`,
-  helper partilhado com `curve`).
+- `vertices`: variádicos posicionais, cada um array `[x, y]` de `Length`
+  (paridade vanilla — **P734**: o vanilla exige `Rel<Length>` e **rejeita**
+  Int/Float com "expected relative length, found integer/float", medido;
+  P732 tinha alargado a aceitação a `Length` mantendo números, P734
+  restringe a `Length` via `extract_vertex`, helper próprio de `polygon`).
 - `fill`, `stroke`: opcionais. **Fallback determinístico** (paridade vanilla
   `Smart::Auto`, `lab/typst-original/crates/typst-layout/src/shapes.rs:336-339`,
   corrigido no Passo 732): se nem `fill` nem `stroke` forem fornecidos,
@@ -167,22 +168,30 @@ bbox via `geometry::path_bbox` para `width`/`height`. Cria
 **Paridade vanilla**: Equivalente a `#polygon((0pt, 0pt), (50pt, 0pt), (25pt, 40pt))`.
 
 **Limitações / scope-outs**:
-- Vértices com componente `em` ou `Ratio` (`50%`): scope-out — sem dimensão
-  de referência resolvível em tempo de eval (mesmo precedente de P513 em
-  `curve`); o vanilla aceita ratio (medido em P732).
-- O vanilla **rejeita** coordenadas Int/Float ("expected relative length,
-  found integer/float", medido em P732); o cristalino aceita-as (helper
-  partilhado com a interface documentada de `curve`) — divergência
-  registada em `00_nucleo/diagnosticos/achados-adiados-cetz.md`.
+- Vértices com componente `em` ou `Ratio` (`50%`): scope-out — o vanilla
+  aceita ratio (resolve no layout contra o contentor; medido em P734:
+  triângulo com `(50%, 0pt)` renderiza 2923 px), mas o constructor
+  cristalino corre em tempo de eval, sem dimensão de referência (mesmo
+  precedente de P513 em `curve`). Ratio produz erro explícito de
+  scope-out, não a mensagem vanilla.
+- A restrição a `Length` **não** se aplica a `curve`: a interface por
+  tuples do cristalino (`("move", (0, 0))`) é divergência intencional
+  documentada (o vanilla rejeita tuples — "expected content, found array",
+  medido em P734 — e usa `curve.move`/etc.); `extract_coordinate` mantém
+  a aceitação de números para esse caminho. O `cetz` usa o caminho de
+  conteúdo (`curve.move`/`curve.line`) com `Length` (`transform-point`
+  aplica `* length`, `canvas.typ:141-156`) — confirmado sem consumidor de
+  números nus no builtin `polygon`/`curve`.
 
 **Testes canónicos**:
 ```
 polygon((0pt, 0pt), (50pt, 0pt), (25pt, 40pt)) -> Shape Path fechado, stroke preto 1pt (fallback)
-polygon((0,0), (1,0), (0.5,1)) -> Shape Path fechado, stroke preto 1pt (fallback)
 polygon((0pt,0pt), (2pt,0pt), (1pt,1pt), fill: blue) -> Shape Path fill blue, sem stroke
 polygon((0pt,0pt), (1pt,0pt), stroke: blue) -> Shape Path stroke azul (sem regressão)
+polygon((0, 0), (50, 0), (25, 40)) -> Err "expected relative length, found integer" (P734)
+polygon((0.0, 0.0), (50.0, 0.0), (25.0, 40.0)) -> Err "expected relative length, found float" (P734)
 polygon() -> Err "pelo menos um ponto"
-polygon((0,0), "x") -> Err "coordenada inválida"
+polygon((0pt,0pt), "x") -> Err "coordenada inválida"
 ```
 
 ---
