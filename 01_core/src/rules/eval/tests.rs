@@ -9990,4 +9990,65 @@ mod tests {
         let m = p729_eval("#polygon((0pt, 0pt), (50pt, 0pt), (25pt, 40pt))");
         assert!(m.is_ok(), "polygon com Length deve compilar: {:?}", m.err());
     }
+
+    // ── Passo 735 — namespaces emoji e pdf ────────────────────────────────
+
+    #[test]
+    fn p735_type_emoji_e_pdf_sao_module() {
+        // Medido vanilla (P731/P735): type(emoji)/type(pdf) → module.
+        // Cristalino pré-P735: erro "unknown variable".
+        let m = p729_eval("#let a = type(emoji)\n#let b = type(pdf)").unwrap();
+        let module = Some(&Value::Type(crate::entities::value::Type::Module));
+        assert_eq!(m.scope().get("a"), module);
+        assert_eq!(m.scope().get("b"), module);
+    }
+
+    #[test]
+    fn p735_emoji_face_e_entradas_da_tabela() {
+        // Medido vanilla: #emoji.face → 😀. Amostras da tabela codex
+        // (ant → 🐜, banana → 🍌 — entradas de 1 codepoint).
+        let m = p729_eval(
+            "#let a = emoji.face\n#let b = emoji.ant\n#let c = emoji.banana",
+        )
+        .unwrap();
+        for (binding, ch) in [("a", '😀'), ("b", '🐜'), ("c", '🍌')] {
+            match m.scope().get(binding) {
+                Some(Value::Symbol(s)) => assert_eq!(s.ch, ch),
+                other => panic!("esperado Symbol em {binding}, encontrado {other:?}"),
+            }
+        }
+    }
+
+    #[test]
+    fn p735_pdf_fields_sao_funcoes() {
+        // Medido vanilla: type(pdf.attach)/type(pdf.artifact) → function.
+        let m = p729_eval("#let a = type(pdf.attach)\n#let b = type(pdf.artifact)").unwrap();
+        let func = Some(&Value::Type(crate::entities::value::Type::Function));
+        assert_eq!(m.scope().get("a"), func);
+        assert_eq!(m.scope().get("b"), func);
+    }
+
+    #[test]
+    fn p735_pdf_attach_e_scope_out_com_erro() {
+        // O exportador PDF cristalino não suporta embedding — erro
+        // explícito de scope-out (não "unknown variable").
+        let m = p729_eval("#pdf.attach(\"hi.txt\")");
+        let err = m.expect_err("pdf.attach deve ser scope-out com erro");
+        let msg = err.first().map(|d| d.message.to_string()).unwrap_or_default();
+        assert!(
+            msg.contains("scope-out") || msg.contains("não suporta"),
+            "msg: {msg}"
+        );
+    }
+
+    #[test]
+    fn p735_pdf_artifact_passthrough_do_body() {
+        // Render-parity: artifact só afecta tagging (scope-out global do
+        // exportador); o body passa inalterado.
+        let m = p729_eval("#let x = pdf.artifact[texto]").unwrap();
+        assert!(
+            matches!(m.scope().get("x"), Some(Value::Content(_))),
+            "pdf.artifact deve devolver o body como Content"
+        );
+    }
 }

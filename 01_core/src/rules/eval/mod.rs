@@ -1082,6 +1082,8 @@ fn make_stdlib(inputs: &SysInputs) -> Scope {
         native_list, native_enum,
         // P471 — módulo sym. **P731** — `build_sym_module` (era `build_sym_dict`).
         build_sym_module,
+        // P735 — módulos emoji e pdf.
+        build_emoji_module, make_pdf_module,
         // P472 — lof/lot.
         native_lof, native_lot,
         // P476 — módulo color.
@@ -1436,6 +1438,10 @@ fn make_stdlib(inputs: &SysInputs) -> Scope {
     // (era `Value::Dict`; paridade vanilla `type(sym)` → `module`).
     scope.define("sym", build_sym_module());
     scope.define("calc",    make_calc_module());
+    // P735 — módulos `emoji` (tabela codex, 1 codepoint + face) e `pdf`
+    // (attach = scope-out com erro; artifact = passthrough do body).
+    scope.define("emoji", build_emoji_module());
+    scope.define("pdf", make_pdf_module());
     // P476 — módulo `color` com operadores lighten/darken/mix/negate.
     scope.define("color", make_color_module());
     // P262 — `gradient.linear(...)` via module dict (ADR-0087).

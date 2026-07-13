@@ -51,6 +51,9 @@ mod primitives_constructors;
 mod collections;
 // P471 — módulo `sym` com tabela de símbolos Unicode.
 mod sym;
+// P735 — módulo `emoji` (tabela codex-0.2.0, 1 codepoint) e módulo `pdf`.
+mod emoji;
+mod pdf;
 // P476 — módulo `color` com operadores lighten/darken/mix/negate.
 mod color;
 // P694 — módulo `sys` (sys.version / sys.inputs).
@@ -132,6 +135,9 @@ pub use crate::rules::stdlib::primitives_constructors::{
 pub(crate) use crate::rules::stdlib::collections::try_dispatch_collection_method;
 // P471 — módulo sym.
 pub use crate::rules::stdlib::sym::build_sym_module;
+// P735 — módulos emoji e pdf.
+pub use crate::rules::stdlib::emoji::build_emoji_module;
+pub use crate::rules::stdlib::pdf::make_pdf_module;
 // P476 — módulo color.
 pub use crate::rules::stdlib::color::{make_color_module, predefined_color_bindings};
 // P694 — módulo sys.

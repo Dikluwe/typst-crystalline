@@ -1,4 +1,4 @@
-# Achados adiados na cadeia P700-734 — lista de controlo
+# Achados adiados na cadeia P700-735 — lista de controlo
 
 ## Por resolver
 
@@ -7,7 +7,6 @@
 | `polygon` com vértices `Ratio` (`50%`) scope-out — vanilla aceita e resolve no layout contra o contentor (medido P734: triângulo com `(50%, 0pt)` renderiza 2923 px); o constructor cristalino corre em tempo de eval, sem dimensão de referência. Erro explícito de scope-out desde P734 | P732 (sonda), confirmado P734 | Baixa — sem consumidor em cetz | Aberto |
 | Repr de `Value::Args` (sink) é lossy — `#let f(a, ..rest) = rest; f(1, z: 2, y: 3)` imprime `arguments(...)` no cristalino vs `arguments(z: 2, y: 3)` no vanilla (medido em P733; o conteúdo do sink está correcto — `rest.named()` devolve os pares) | P733 (sonda) | Baixa — cosmético | Aberto |
 | Ordem entre tipos no erro de argumento extra — `f(1, z: 2, 3)` (nomeado antes de posicional extra): vanilla reporta o primeiro na ordem original ("unexpected argument: z", `Args::finish` sobre lista única); o cristalino, com `items`/`named` separados, reporta o posicional primeiro ("unexpected argument") | P733 (sonda) | Baixa — caso de canto, ambos erram | Aberto |
-| Namespaces `emoji` e `pdf` ausentes no cristalino — `#type(emoji)` e `#type(pdf)` dão "unknown variable"; vanilla devolve `module` (medido, binário `lab/typst-original/target/release/typst`; `html` devolve unknown no vanilla compilado sem a feature — paridade acidental, não lacuna) | P731 (sonda) | Média — sem consumidor em cetz | Aberto |
 | `color` e `gradient` expostos como `dictionary` no cristalino; vanilla expõe como `type` (medido). Distinto de P731: vanilla não os trata como módulos mas como tipos com constructors | P731 (sonda) | Média — sem consumidor em cetz | Aberto |
 | `counter` e `state` expostos como `function` no cristalino; vanilla expõe como `type` (medido) | P731 (sonda) | Baixa — sem consumidor em cetz | Aberto |
 | `FlowEvent::Return` não marcado como condicional no fim de `while`/`for` — o vanilla marca (`typst-eval/src/flow.rs:105-108,183-185`; em `if`/`else` também, `flow.rs:54-57` — este o cristalino já faz, P635); o cristalino não marca em `eval_while`/`eval_for` (`control_flow.rs`). Sem caso medido com comportamento divergente (encontrado por inspecção durante a auditoria de join); mecanismo distinto de join, fora do scope de P729 | P729 (auditoria de join, fora da cadeia cetz) | Baixa — sem caso medido | Aberto |
@@ -33,6 +32,7 @@
 | `polygon` sem fallback de stroke default (mesmo defeito de `curve` pré-P727) **+ coordenadas `Length` rejeitadas** — a sonda mediu dois defeitos: (1) `extract_coordinate` só aceitava `cast_float()` (Int/Float), rejeitando `(0pt, 0pt)` com "argumento 0 não é uma coordenada válida" — o vanilla exige `Rel<Length>` e rejeita Int/Float ("expected relative length, found integer/float"); (2) sem fill nem stroke o polígono renderizava página em branco — medido via o caminho numérico: cristalino 0 px não-brancos vs vanilla 898 px. Após correcção: diff 0.0834% (sem cores), 0.1358% (fill red), 0.0797% (stroke blue) — anti-aliasing | P732 (`coord_component` aceita `Length` via `abs.to_pt()`; fallback `Smart::Auto` idêntico a `native_curve` P727: sem fill nem stroke → stroke preta 1pt; com fill sem stroke → sem stroke) |
 | Argumento nomeado extra sem parâmetro aceite silenciosamente (`f(1, z: 2)` → exit 0; scope-out explícito de P708) — medições vanilla: `f(1, z: 2)` → erro "unexpected argument: z"; múltiplos extras reporta o primeiro ("z"); posicional+nomeado → "unexpected argument" (posicional primeiro); sink absorve extra (`arguments(z: 2, y: 3)`) e **exclui** nomeados consumidos por parâmetros (`arguments(z: 3)`). Mecanismo vanilla: `args.named()` consome (`call.rs:679-683`), sink recebe `args.take()`, `args.finish()` valida (`foundations/args.rs:259-268`) | P733 (`apply_closure`: `args.named.get` → `shift_remove`; sem sink, após a verificação posicional P708, erro `unexpected argument: {k}` com o primeiro nomeado remanescente; sink recebe só não consumidos) |
 | `polygon` aceitava coordenadas Int/Float que o vanilla rejeita ("expected relative length, found integer/float", medido) — a restrição aplica-se só a `polygon`: `curve` mantém a aceitação de números na interface por tuples (divergência intencional documentada — o vanilla rejeita tuples: "expected content, found array", medido); o cetz usa o caminho de conteúdo (`curve.move`/`curve.line`) com `Length` (`transform-point` aplica `* length`, `canvas.typ:141-156`) — sem consumidor de números nus. cetz re-testado: diff 0.1419% (inalterado face a P731) | P734 (`extract_vertex`/`vertex_component` próprios de `polygon`, só `Length`, mensagem verbatim do vanilla; ratio mantém scope-out com erro explícito) |
+| Namespaces `emoji` e `pdf` ausentes no cristalino ("unknown variable" vs `module` no vanilla, medido na sonda de P731) — sonda P735: `emoji.face` → 😀 no vanilla; `pdf` no binário padrão contém só `attach` e `artifact` (`pdf.table.*` gated em `A11yExtras`, off — não é lacuna); fonte emoji = codex-0.2.0, 766 top-level, 529 de 1 codepoint (sem dupes) | P735 (`emoji.rs`: `EMOJI_TABLE` com 529 + `face`→😀, `build_emoji_module` mirror de `build_sym_module`; `pdf.rs`: `attach` = erro scope-out explícito, `artifact` = passthrough do body; E2E confirma `module module 😀🐜🍌 function function`) |
 
 ## Scope-outs conscientes
 
@@ -42,6 +42,10 @@
 - `stroke(paint: none)` — erro no vanilla também ("expected color, gradient, tiling, or auto, found none", medido P726); o cristalino mantém o seu erro — paridade, não lacuna.
 - Dupla avaliação de efeitos no fall-through de métodos mutantes — sem consumidor em `cetz` (P716/P717).
 - `Dict * Int` — confirmado inexistente no vanilla, não é lacuna (P722).
+- Emojis multi-codepoint (sequências ZWJ, modificadores de tom de pele, bandeiras regionais) — o tipo `Symbol` cristalino guarda um único `char`; o módulo `emoji` tem as 529 entradas de 1 codepoint do codex-0.2.0 + `face`→😀 (P735).
+- `pdf.attach` — o exportador PDF cristalino não suporta ficheiros embutidos; erro explícito de scope-out (P735).
+- Tagging de `pdf.artifact` no tag tree — scope-out global do exportador; a função é passthrough do body, paridade de render (P735).
+- `pdf.table.summary` / `pdf.table.header-cell` / `pdf.table.data-cell` — gated na feature `A11yExtras` do vanilla (off no binário de referência); não é lacuna (P735, mesmo raciocínio de `html` em P731).
 
 ## Regra
 
