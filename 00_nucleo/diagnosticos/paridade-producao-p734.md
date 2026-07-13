@@ -3,7 +3,7 @@
 **Data:** 2026-07-13
 **Passo:** `00_nucleo/materialization/typst-passo-734.md`
 **ADRs em vigor:** ADR-0107 (paridade é com a linguagem), ADR-0108 (medir antes de decidir).
-**Commit:** A PREENCHER
+**Commit:** `be74c5e2217b92fcd43ba7377a5992c459826d26`
 **Proveniência das medições (regra de proveniência):** commit base `b3421dc22e55206dc0fa941fc455a61b4374dd86` ("P733: preenche hash do commit no relatório"), branch `Tekt`, working tree com as alterações deste passo (`git diff HEAD --stat`: `00_nucleo/prompts/rules/stdlib/shapes.md`, `01_core/src/rules/stdlib/shapes.rs`, `01_core/src/rules/stdlib/mod.rs`, `01_core/src/rules/eval/tests.rs`). Medições vanilla: `lab/typst-original/target/release/typst`; medições cristalino: `./target/release/typst` (release build de 2026-07-13T23:14Z); compilação cetz medida 23:15:12–23:15:57Z.
 
 ---
