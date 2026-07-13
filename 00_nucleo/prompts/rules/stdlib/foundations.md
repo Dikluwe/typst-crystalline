@@ -7,6 +7,8 @@ Hash do Código: 012a275b
 reforços pontuais P13–P25, P99–P102, P171–P179, P208–P210, P236–P241,
 P421 (`repr`) e P465 (`repr()` completo). P685: `native_type` devolve
 `Value::Type`; `int`/`float`/`str`/`type` são valores-tipo chamáveis no scope.
+P721: `repr()` de Length/Ratio/Angle/Fraction/Color/Stroke/Align/Relative
+deixa o fallback `{:?}` do Rust e passa ao repr Typst (paridade vanilla).
 **ADRs**: ADR-0037 (coesão por domínio), ADR-0054 (perfil graded),
 ADR-0081 (state/counter display two-pass), ADR-0083 (color spaces),
 ADR-0107 (paridade linguagem).
@@ -129,12 +131,31 @@ inalterada — só muda o valor no scope (de função para tipo chamável).
 | `gradient` | `"gradient(...)"` (placeholder) |
 | `tiling` | `"tiling(...)"` (placeholder) |
 | `location` | `"location(...)"` (placeholder) |
+| `length` | `"6pt"`, `"2em"`, `"2pt + 1em"` (P721 — paridade vanilla `Length::repr`) |
+| `ratio` | `"50%"`, `"33.33%"` (P721 — arredondado a 2 decimais) |
+| `angle` | `"45deg"`, `"57.3deg"` (P721 — sempre em graus) |
+| `fraction` | `"1fr"`, `"2.5fr"` (P721) |
+| `color` | `"rgb(\"#ff0000\")"`, `"rgb(\"#ff000080\")"`, `"luma(50%)"`, `"cmyk(0%, 50%, 100%, 0%)"`, `"oklab(50%, 0.1, 0.1)"`, `"oklch(50%, 0.1, 30deg)"`, `"color.hsl(0deg, 100%, 50%)"`, `"color.hsv(120deg, 50%, 80%)"`, `"color.linear-rgb(50%, 50%, 50%)"` (P721 — paridade vanilla `ProcessColor::repr`) |
+| `stroke` | `"2pt + rgb(\"#ff4136\")"` (P721 — thickness sempre presente; cristalino não modela `Smart::Auto`, P227) |
+| `alignment` | `"left"`, `"center + horizon"`, `"right + top"` (P721 — horizontal primeiro, paridade vanilla `Alignment::repr`) |
+| `relative` | `"50%"`, `"50% + 56.69pt"` (P721 — offset absoluto em formato length) |
+
+**Formatação de floats com unidade (P721)**: paridade vanilla
+`repr::format_float_with_unit` — valor arredondado a 2 casas decimais
+(half away from zero, `round_with_precision`) antes de formatar; NaN/Inf
+seguem a forma `float.nan * 1{unit}` / `float.inf * 1{unit}`. Componentes
+de cor (a/b de Oklab, chroma de Oklch) usam 3 casas decimais
+(`format_float_component`). Hue de Oklch/Hsl/Hsv é normalizado com
+`rem_euclid(360)` e formatado como angle.
 
 **Scope-outs**:
 - Round-trip perfeito (`eval(repr(x)) == x`).
 - Representação completa de closures, módulos e valores dinâmicos opacos.
 - `Symbol` e `Type` como valores de primeira classe (ainda não existem em L1).
-- `Color` avançado (CMYK/Oklab) — usa `Debug` existente; refinamento é Trilha 4.
+- `Stroke` com `Smart::Auto` distinguível de thickness explícita — o
+  cristalino colapsa auto em `1.0pt` na construção (P227), logo o repr
+  mostra sempre `{thickness} + {paint}` (divergência medida: vanilla omite
+  thickness auto, ex. `stroke(red)` → `"rgb(\"#ff4136\")"`).
 
 **Testes canônicos**:
 ```
@@ -151,6 +172,21 @@ repr((1, "a", none)) -> "(1, \"a\", none)"
 repr(())            -> "()"          (P695 — array vazio)
 repr((:))           -> "(:)"         (P695 — dict vazio; distinto de array vazio)
 repr()              -> Err "repr() requer 1 argumento"
+repr(6pt)           -> "6pt"         (P721)
+repr(2pt + 1em)     -> "2pt + 1em"   (P721)
+repr(50%)           -> "50%"         (P721)
+repr(33.333%)       -> "33.33%"      (P721 — 2 decimais)
+repr(45deg)         -> "45deg"       (P721)
+repr(1rad)          -> "57.3deg"     (P721)
+repr(1fr)           -> "1fr"         (P721)
+repr(rgb("#ff0000"))          -> "rgb(\"#ff0000\")"           (P721)
+repr(rgb(255, 0, 0, 128))     -> "rgb(\"#ff000080\")"         (P721)
+repr(luma(50%))               -> "luma(50%)"                  (P721)
+repr(oklab(50%, 0.1, 0.1))    -> "oklab(50%, 0.1, 0.1)"       (P721)
+repr(stroke(paint: red, thickness: 2pt)) -> "2pt + rgb(\"#ff4136\")" (P721)
+repr(left)                  -> "left"             (P721)
+repr(center + horizon)      -> "center + horizon" (P721)
+repr(top + right)           -> "right + top"      (P721 — horizontal primeiro)
 ```
 
 ---

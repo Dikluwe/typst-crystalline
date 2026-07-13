@@ -10,8 +10,10 @@
 //! representação scope-out ("function", "module", nome do tipo).
 
 
-use crate::entities::layout_types::Length;
+use crate::entities::layout_types::{Align2D, Angle, Color, HAlign, Length, Ratio, VAlign};
 use crate::entities::content::Content;
+use crate::entities::geometry::Stroke;
+use crate::entities::paint::Paint;
 use crate::entities::rel::Rel;
 use crate::entities::selector::Selector;
 use crate::entities::value::Value;
@@ -56,14 +58,14 @@ pub fn repr_value(v: &Value) -> String {
             }
         }
         Value::Auto => "auto".to_string(),
-        Value::Length(l) => format!("{:?}", l),
+        Value::Length(l) => repr_length(l),
         Value::Relative(rel) => repr_relative(rel),
-        Value::Ratio(r) => format!("{:?}", r),
-        Value::Angle(a) => format!("{:?}", a),
-        Value::Color(c) => format!("{:?}", c),
-        Value::Stroke(s) => format!("{:?}", s),
-        Value::Fraction(f) => repr_float(*f),
-        Value::Align(a) => format!("{:?}", a),
+        Value::Ratio(r) => repr_ratio(*r),
+        Value::Angle(a) => repr_angle(*a),
+        Value::Color(c) => repr_color(c),
+        Value::Stroke(s) => repr_stroke(s),
+        Value::Fraction(f) => format_float_with_unit(*f, "fr"),
+        Value::Align(a) => repr_align(a),
         Value::Location(_) => "location(...)".to_string(),
         Value::Gradient(_) => "gradient(...)".to_string(),
         Value::Regex(r) => format!("regex(\"{}\")", r.pattern()),
@@ -96,13 +98,195 @@ pub fn repr_value(v: &Value) -> String {
 
 /// Representação de um comprimento relativo (`Rel<Length>`).
 ///
-/// Reconhecível, mas não round-trip: usa `{:?}` para a componente absoluta.
+/// Percentagem pura (abs zero) imprime só a percentagem — paridade
+/// observável com o vanilla, onde `50%` é `Ratio`, não `Rel`.
+/// Com offset absoluto: `"{pct} + {length}"` (paridade vanilla `Rel::repr`,
+/// layout/rel.rs:149 — incluindo `50% + -3pt` para offset negativo).
 fn repr_relative(rel: &Rel<Length>) -> String {
-    let pct = rel.rel * 100.0;
+    let pct = format_float_with_unit(rel.rel * 100.0, "%");
     if rel.abs.is_zero() {
-        format!("{}%", pct)
+        pct
     } else {
-        format!("{}% + {:?}", pct, rel.abs)
+        format!("{} + {}", pct, repr_length(&rel.abs))
+    }
+}
+
+// ── P721 — repr Typst (paridade vanilla), não Debug do Rust ────────────────
+
+/// Arredondamento "half away from zero" a `precision` casas decimais —
+/// paridade vanilla `round_with_precision` (typst-utils/src/round.rs:26).
+/// Valores não-finitos passam inalterados.
+fn round_with_precision(value: f64, precision: i32) -> f64 {
+    if !value.is_finite() {
+        return value;
+    }
+    let offset = 10f64.powi(precision);
+    (value * offset).round() / offset
+}
+
+/// Float formatado com unidade, arredondado a 2 casas decimais — paridade
+/// vanilla `repr::format_float_with_unit` (foundations/repr.rs:128).
+/// NaN/Inf seguem a forma `float.nan * 1{unit}` / `float.inf * 1{unit}`.
+fn format_float_with_unit(value: f64, unit: &str) -> String {
+    format_float_rounded(value, 2, unit)
+}
+
+/// Componente float de cor (a/b de Oklab, chroma de Oklch), arredondado a
+/// 3 casas decimais — paridade vanilla `repr::format_float_component`
+/// (foundations/repr.rs:122).
+fn format_float_component(value: f64) -> String {
+    format_float_rounded(value, 3, "")
+}
+
+fn format_float_rounded(value: f64, precision: i32, unit: &str) -> String {
+    let value = round_with_precision(value, precision);
+    let multiplication = if unit.is_empty() { "" } else { " * 1" };
+    if value.is_nan() {
+        format!("float.nan{multiplication}{unit}")
+    } else if value.is_infinite() {
+        let sign = if value < 0.0 { "-" } else { "" };
+        format!("{sign}float.inf{multiplication}{unit}")
+    } else {
+        format!("{value}{unit}")
+    }
+}
+
+/// Representação de um `Length` — paridade vanilla `Length::repr`
+/// (layout/length.rs:173): `"{abs} + {em}"` quando ambos não-zero;
+/// só `em` quando abs é zero; só `abs` nos restantes casos.
+fn repr_length(l: &Length) -> String {
+    let abs = format_float_with_unit(l.abs.to_pt(), "pt");
+    let em = format_float_with_unit(l.em, "em");
+    match (l.abs.is_zero(), l.em == 0.0) {
+        (false, false) => format!("{abs} + {em}"),
+        (true, false) => em,
+        (_, true) => abs,
+    }
+}
+
+/// Representação de um `Ratio` — paridade vanilla `Ratio::repr`
+/// (layout/ratio.rs:135).
+fn repr_ratio(r: Ratio) -> String {
+    format_float_with_unit(r.get() * 100.0, "%")
+}
+
+/// Representação de um `Angle` em graus — paridade vanilla `Angle::repr`
+/// (layout/angle.rs:171).
+fn repr_angle(a: Angle) -> String {
+    format_float_with_unit(a.to_deg(), "deg")
+}
+
+/// Representação de uma `Color` — paridade vanilla `ProcessColor::repr`
+/// (visualize/color.rs:1918). sRGB imprime-se em hex (`rgb("#rrggbb")`,
+/// com sufixo alpha quando != 255); os restantes espaços imprimem-se como
+/// chamada de construtor. Alpha diferente de 1.0 aparece como argumento
+/// extra (excepto CMYK, que não tem alpha).
+fn repr_color(c: &Color) -> String {
+    let pct = |v: f32| format_float_with_unit(v as f64 * 100.0, "%");
+    let comp = |v: f32| format_float_component(v as f64);
+    let hue = |h: f32| format_float_with_unit((h as f64).rem_euclid(360.0), "deg");
+    match *c {
+        Color::Srgb { r, g, b, a } => {
+            let to_u8 = |v: f32| (v.clamp(0.0, 1.0) * 255.0).round() as u8;
+            let (r, g, b, a) = (to_u8(r), to_u8(g), to_u8(b), to_u8(a));
+            if a == 255 {
+                format!("rgb(\"#{r:02x}{g:02x}{b:02x}\")")
+            } else {
+                format!("rgb(\"#{r:02x}{g:02x}{b:02x}{a:02x}\")")
+            }
+        }
+        Color::Luma { l, a } => {
+            if a == 1.0 {
+                format!("luma({})", pct(l))
+            } else {
+                format!("luma({}, {})", pct(l), pct(a))
+            }
+        }
+        Color::LinearRgb { r, g, b, a } => {
+            if a == 1.0 {
+                format!("color.linear-rgb({}, {}, {})", pct(r), pct(g), pct(b))
+            } else {
+                format!("color.linear-rgb({}, {}, {}, {})", pct(r), pct(g), pct(b), pct(a))
+            }
+        }
+        Color::Oklab { l, a, b, alpha } => {
+            if alpha == 1.0 {
+                format!("oklab({}, {}, {})", pct(l), comp(a), comp(b))
+            } else {
+                format!("oklab({}, {}, {}, {})", pct(l), comp(a), comp(b), pct(alpha))
+            }
+        }
+        Color::Oklch { l, c: chroma, h, alpha } => {
+            if alpha == 1.0 {
+                format!("oklch({}, {}, {})", pct(l), comp(chroma), hue(h))
+            } else {
+                format!("oklch({}, {}, {}, {})", pct(l), comp(chroma), hue(h), pct(alpha))
+            }
+        }
+        Color::Hsl { h, s, l, a } => {
+            if a == 1.0 {
+                format!("color.hsl({}, {}, {})", hue(h), pct(s), pct(l))
+            } else {
+                format!("color.hsl({}, {}, {}, {})", hue(h), pct(s), pct(l), pct(a))
+            }
+        }
+        Color::Hsv { h, s, v, a } => {
+            if a == 1.0 {
+                format!("color.hsv({}, {}, {})", hue(h), pct(s), pct(v))
+            } else {
+                format!("color.hsv({}, {}, {}, {})", hue(h), pct(s), pct(v), pct(a))
+            }
+        }
+        Color::Cmyk { c, m, y, k } => {
+            format!("cmyk({}, {}, {}, {})", pct(c), pct(m), pct(y), pct(k))
+        }
+    }
+}
+
+/// Representação de um `Stroke` — paridade vanilla `Stroke::repr`
+/// (visualize/stroke.rs:308) adaptada: o cristalino não modela
+/// `Smart::Auto` (thickness colapsa para 1.0pt na construção, P227), logo
+/// imprime sempre `"{thickness} + {paint}"`.
+fn repr_stroke(s: &Stroke) -> String {
+    format!(
+        "{} + {}",
+        format_float_with_unit(s.thickness, "pt"),
+        repr_paint(&s.paint)
+    )
+}
+
+/// Representação de um `Paint` — `Solid` delega em `repr_color`;
+/// Gradient/Tiling mantêm os placeholders existentes em `repr_value`.
+fn repr_paint(p: &Paint) -> String {
+    match p {
+        Paint::Solid(c) => repr_color(c),
+        Paint::Gradient(_) => "gradient(...)".to_string(),
+        Paint::Tiling(_) => "tiling(...)".to_string(),
+    }
+}
+
+/// Representação de um `Align2D` — paridade vanilla `Alignment::repr`
+/// (layout/align.rs:250): componente horizontal primeiro (`"{h} + {v}"`).
+fn repr_align(a: &Align2D) -> String {
+    let h = a.h.map(|h| match h {
+        HAlign::Start => "start",
+        HAlign::Left => "left",
+        HAlign::Center => "center",
+        HAlign::Right => "right",
+        HAlign::End => "end",
+    });
+    let v = a.v.map(|v| match v {
+        VAlign::Top => "top",
+        VAlign::Horizon => "horizon",
+        VAlign::Bottom => "bottom",
+    });
+    match (h, v) {
+        (Some(h), Some(v)) => format!("{h} + {v}"),
+        (Some(h), None) => h.to_string(),
+        (None, Some(v)) => v.to_string(),
+        // `Align2D { None, None }` comporta-se como `left + top`
+        // (entities/layout_types.rs:359-361).
+        (None, None) => "left + top".to_string(),
     }
 }
 
@@ -366,14 +550,14 @@ mod tests {
         };
 
         let r = repr_value(&Value::Length(Length::pt(12.0)));
-        assert!(r.contains("12") || r.contains("Length"), "Length repr: {r}");
+        assert_eq!(r, "12pt", "Length repr: {r}");
         let r = repr_value(&Value::Ratio(Ratio::from_percent(50.0)));
-        assert!(r.contains("0.5") || r.contains("Ratio"), "Ratio repr: {r}");
+        assert_eq!(r, "50%", "Ratio repr: {r}");
         let r = repr_value(&Value::Angle(Angle::deg(90.0)));
-        assert!(r.contains("90") || r.contains("Angle"), "Angle repr: {r}");
+        assert_eq!(r, "90deg", "Angle repr: {r}");
         let r = repr_value(&Value::Color(Color::rgb(255, 0, 0)));
-        assert!(r.contains("Srgb") || r.contains("rgb"), "Color repr: {r}");
-        assert_eq!(repr_value(&Value::Fraction(0.5)), "0.5");
+        assert_eq!(r, "rgb(\"#ff0000\")", "Color repr: {r}");
+        assert_eq!(repr_value(&Value::Fraction(0.5)), "0.5fr");
         assert_eq!(
             repr_value(&Value::Location(Location::from_raw(42))),
             "location(...)"
@@ -494,8 +678,134 @@ mod tests {
         use crate::entities::layout_types::Length;
         use crate::entities::rel::Rel;
         let r = Value::Relative(Rel::<Length>::from_percent(50.0) + Length::cm(2.0));
-        let s = repr_value(&r);
-        assert!(s.starts_with("50% + "), "repr relative with offset: {s}");
+        // 2cm = 56.692pt → arredondado a 2 decimais (paridade vanilla).
+        assert_eq!(repr_value(&r), "50% + 56.69pt");
+    }
+
+    // ── P721 — repr Typst (não Debug do Rust) ──────────────────────────────
+
+    #[test]
+    fn p721_repr_length_pt_em_e_combinado() {
+        use crate::entities::layout_types::Length;
+        assert_eq!(repr_value(&Value::Length(Length::pt(6.0))), "6pt");
+        assert_eq!(repr_value(&Value::Length(Length::pt(6.5))), "6.5pt");
+        assert_eq!(repr_value(&Value::Length(Length::pt(-3.0))), "-3pt");
+        assert_eq!(repr_value(&Value::Length(Length::pt(0.1))), "0.1pt");
+        assert_eq!(repr_value(&Value::Length(Length::em(2.0))), "2em");
+        assert_eq!(
+            repr_value(&Value::Length(Length::pt(2.0) + Length::em(1.0))),
+            "2pt + 1em"
+        );
+        assert_eq!(repr_value(&Value::Length(Length::ZERO)), "0pt");
+    }
+
+    #[test]
+    fn p721_repr_ratio_arredonda_2_decimais() {
+        use crate::entities::layout_types::Ratio;
+        assert_eq!(
+            repr_value(&Value::Ratio(Ratio::from_percent(33.333))),
+            "33.33%"
+        );
+        assert_eq!(repr_value(&Value::Ratio(Ratio::from_percent(0.5))), "0.5%");
+    }
+
+    #[test]
+    fn p721_repr_angle_sempre_graus() {
+        use crate::entities::layout_types::Angle;
+        assert_eq!(repr_value(&Value::Angle(Angle::deg(45.0))), "45deg");
+        assert_eq!(repr_value(&Value::Angle(Angle::deg(45.5))), "45.5deg");
+        assert_eq!(repr_value(&Value::Angle(Angle::rad(1.0))), "57.3deg");
+    }
+
+    #[test]
+    fn p721_repr_fraction_com_unidade_fr() {
+        assert_eq!(repr_value(&Value::Fraction(1.0)), "1fr");
+        assert_eq!(repr_value(&Value::Fraction(2.5)), "2.5fr");
+    }
+
+    #[test]
+    fn p721_repr_color_srgb_hex_com_e_sem_alpha() {
+        use crate::entities::layout_types::Color;
+        assert_eq!(
+            repr_value(&Value::Color(Color::rgb(255, 0, 0))),
+            "rgb(\"#ff0000\")"
+        );
+        assert_eq!(
+            repr_value(&Value::Color(Color::rgba(255, 0, 0, 128))),
+            "rgb(\"#ff000080\")"
+        );
+    }
+
+    #[test]
+    fn p721_repr_color_espacos_nao_srgb() {
+        use crate::entities::layout_types::Color;
+        assert_eq!(repr_value(&Value::Color(Color::luma(0.5))), "luma(50%)");
+        assert_eq!(
+            repr_value(&Value::Color(Color::linear_rgb(0.5, 0.5, 0.5, 1.0))),
+            "color.linear-rgb(50%, 50%, 50%)"
+        );
+        assert_eq!(
+            repr_value(&Value::Color(Color::cmyk(0.0, 0.5, 1.0, 0.0))),
+            "cmyk(0%, 50%, 100%, 0%)"
+        );
+        assert_eq!(
+            repr_value(&Value::Color(Color::oklab(0.5, 0.1, 0.1, 1.0))),
+            "oklab(50%, 0.1, 0.1)"
+        );
+        assert_eq!(
+            repr_value(&Value::Color(Color::oklch(0.5, 0.1, 30.0, 1.0))),
+            "oklch(50%, 0.1, 30deg)"
+        );
+        assert_eq!(
+            repr_value(&Value::Color(Color::hsl(0.0, 1.0, 0.5, 1.0))),
+            "color.hsl(0deg, 100%, 50%)"
+        );
+        assert_eq!(
+            repr_value(&Value::Color(Color::hsv(120.0, 0.5, 0.8, 1.0))),
+            "color.hsv(120deg, 50%, 80%)"
+        );
+    }
+
+    #[test]
+    fn p721_repr_color_alpha_omitido_quando_1() {
+        use crate::entities::layout_types::Color;
+        // Alpha != 1.0 aparece como argumento extra (paridade vanilla).
+        assert_eq!(
+            repr_value(&Value::Color(Color::Luma { l: 0.5, a: 0.5 })),
+            "luma(50%, 50%)"
+        );
+        assert_eq!(
+            repr_value(&Value::Color(Color::oklab(0.5, 0.1, 0.1, 0.5))),
+            "oklab(50%, 0.1, 0.1, 50%)"
+        );
+    }
+
+    #[test]
+    fn p721_repr_stroke_thickness_mais_paint() {
+        use crate::entities::geometry::Stroke;
+        use crate::entities::layout_types::Color;
+        use crate::entities::paint::Paint;
+        // `stroke(paint: red, thickness: 2pt)` — red Typst = #ff4136.
+        let s = Stroke {
+            paint: Paint::Solid(Color::rgb(255, 65, 54)),
+            thickness: 2.0,
+            overhang: true,
+        };
+        assert_eq!(repr_value(&Value::Stroke(s)), "2pt + rgb(\"#ff4136\")");
+    }
+
+    #[test]
+    fn p721_repr_align_horizontal_primeiro() {
+        use crate::entities::layout_types::{Align2D, HAlign, VAlign};
+        let left = Align2D { h: Some(HAlign::Left), v: None };
+        assert_eq!(repr_value(&Value::Align(left)), "left");
+        let ch = Align2D { h: Some(HAlign::Center), v: Some(VAlign::Horizon) };
+        assert_eq!(repr_value(&Value::Align(ch)), "center + horizon");
+        // `top + right` → "right + top" (horizontal primeiro, paridade vanilla).
+        let tr = Align2D { h: Some(HAlign::Right), v: Some(VAlign::Top) };
+        assert_eq!(repr_value(&Value::Align(tr)), "right + top");
+        let start = Align2D { h: Some(HAlign::Start), v: None };
+        assert_eq!(repr_value(&Value::Align(start)), "start");
     }
 
     #[test]
