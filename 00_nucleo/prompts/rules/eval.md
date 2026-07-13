@@ -1,5 +1,5 @@
 # Prompt L0 — rules/eval
-Hash do Código: d0458ac1
+Hash do Código: 07d8d228
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/rules/eval/mod.rs`
@@ -834,14 +834,11 @@ verbatim do vanilla) — em vez de descarte silencioso. Com sink, o
 comportamento é inalterado (P504): os itens remanescentes vão para o
 `Value::Args` do sink.
 
-**Scope-out explícito** (achado relacionado, não corrigido aqui): argumento
+**Fechado em P733** (era scope-out explícito de P708): argumento
 **nomeado** que não corresponde a nenhum parâmetro declarado e não há sink
-— medido, vanilla também erra (`"unexpected argument: z"`), cristalino
-continua a aceitar silenciosamente. É a mesma categoria de gap
-("validação de forma de `Args` ausente"), mas um código diferente
-(validação de `args.named`, não de `args.items`) — registado para passo
-futuro, não incluído em P708 para não alargar o âmbito já grande deste
-passo.
+— medido, vanilla erra (`"unexpected argument: z"`), cristalino aceitava
+silenciosamente. Corrigido em §P733 (validação de `args.named`, consumo
+por `shift_remove`).
 
 Critérios de verificação:
 
@@ -855,6 +852,62 @@ Critérios de verificação:
   alargada do corpus de testes existente** (ADR-0114: bug de mecanismo
   central, alcance potencialmente amplo, não só `cetz`).
 - `crystalline-lint .` limpo.
+
+## §P733 — Argumento nomeado extra sem parâmetro é erro (`unexpected argument: {name}`)
+
+Fecha o scope-out explícito de §P708. Mecanismo vanilla
+(`typst-eval/src/call.rs:650-694` + `foundations/args.rs:259-268`):
+`args.named(name)` **consome** o nomeado durante o binding; o sink recebe
+`args.take()` — só os não consumidos; `args.finish()` reporta o primeiro
+argumento não consumido na ordem original (`unexpected argument: {name}`
+se nomeado, `unexpected argument` se posicional).
+
+Medido contra o vanilla (binário `lab/typst-original/target/release/typst`):
+
+```
+let f(a) = a
+f(1, z: 2)             → Err "unexpected argument: z"
+f(1, 2, z: 3)          → Err "unexpected argument"        — posicional reportado primeiro
+f(1, z: 2, y: 3)       → Err "unexpected argument: z"     — primeiro na ordem de inserção
+f(1, z: 2, 3)          → Err "unexpected argument: z"     — ordem original entre tipos
+
+let f(a, ..rest) = rest
+f(1, z: 2, y: 3)       → arguments(z: 2, y: 3)            — sink absorve, sem erro
+
+let f(a, named: 10, ..rest) = rest
+f(1, named: 20, z: 3)  → arguments(z: 3)                  — sink exclui o nomeado consumido
+```
+
+Cristalino antes de P733: `f(1, z: 2)` aceite silenciosamente (exit 0);
+o sink recebia `args.named` **inteiro**, incluindo nomes consumidos por
+parâmetros.
+
+### Correcção
+
+`apply_closure` (`rules/eval/closures.rs`): o lookup de nomeados no loop
+de binding passa de `args.named.get(name)` a consumo por `shift_remove(name)`
+— o nomeado consumido sai do mapa. Após o loop: com sink, o `Value::Args`
+do sink recebe só os nomeados não consumidos; sem sink, verificação na
+ordem medida para estruturas separadas — posicional primeiro
+(`"unexpected argument"`, P708), depois o primeiro nomeado remanescente na
+ordem de inserção (`"unexpected argument: {k}"`).
+
+**Divergência de canto registada**: com `Args` separados em `items`/`named`
+(estrutura cristalina), a ordem entre tipos do vanilla (`f(1, z: 2, 3)` →
+"unexpected argument: z" — o primeiro na ordem original) não é reproduzível
+sem maquinaria extra; o cristalino reporta o posicional primeiro. Registado
+em `00_nucleo/diagnosticos/achados-adiados-cetz.md`.
+
+Critérios de verificação:
+
+- `f(1, z: 2)` sem sink → `Err "unexpected argument: z"`.
+- `f(1, named: 20)` com parâmetro `named:` → `(1, 20)` — sem regressão.
+- `f(1, z: 2, y: 3)` com sink → sink absorve ambos (`rest.named()` correcto).
+- Sink com parâmetro nomeado consumido (`f(1, named: 20, z: 3)`) → sink
+  contém só `z: 3`.
+- `f(1, 2, z: 3)` → `Err "unexpected argument"` (posicional primeiro).
+- Testes P504/P707/P708/P715/P724 intactos; `cargo test --workspace` verde;
+  `crystalline-lint .` limpo.
 
 ## §P709 — Módulo `std` (acesso à stdlib não-sombreada)
 

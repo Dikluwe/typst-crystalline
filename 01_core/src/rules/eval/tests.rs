@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/rules/eval.md
-//! @prompt-hash a3904d9a
+//! @prompt-hash 45bc9822
 //! @layer L1
 //! @updated 2026-06-17
 //!
@@ -9904,5 +9904,70 @@ mod tests {
             "polygon com coordenadas Length deve compilar: {:?}",
             m.err()
         );
+    }
+
+    // ── Passo 733 — argumento nomeado extra sem parâmetro é erro ────────
+
+    #[test]
+    fn p733_nomeado_extra_sem_parametro_e_erro() {
+        // Medido vanilla: `#let f(a) = a; f(1, z: 2)` →
+        // "unexpected argument: z". Cristalino pré-P733: aceite
+        // silenciosamente (exit 0).
+        let world = MockWorld::new("#let f(a) = a\n#let x = f(1, z: 2)");
+        let src = World::source(&world, World::main(&world)).unwrap();
+        let err = eval_for_test(&world, &src).unwrap_err();
+        let msg = err.first().map(|d| d.message.to_string()).unwrap_or_default();
+        assert_eq!(msg, "unexpected argument: z", "msg: {msg}");
+    }
+
+    #[test]
+    fn p733_nomeado_valido_sem_regressao() {
+        // Caso de não-regressão do passo: nomeados válidos continuam a
+        // funcionar. Medido vanilla: (1, 20).
+        let world = MockWorld::new(
+            "#let f(a, named: 10) = (a, named)\n#let x = f(1, named: 20)",
+        );
+        assert_eq!(
+            eval_let(&world, "x"),
+            Some(Value::Array(vec![Value::Int(1), Value::Int(20)]))
+        );
+    }
+
+    #[test]
+    fn p733_sink_absorve_nomeados_extra() {
+        // Medido vanilla: `#let f(a, ..rest) = rest; f(1, z: 2, y: 3)` →
+        // arguments(z: 2, y: 3) — sink absorve nomeados extra sem erro.
+        let world = MockWorld::new(
+            "#let f(a, ..rest) = rest.named()\n#let x = f(1, z: 2, y: 3)",
+        );
+        let mut expected: IndexMap<EcoString, Value, FxBuildHasher> = IndexMap::default();
+        expected.insert("z".into(), Value::Int(2));
+        expected.insert("y".into(), Value::Int(3));
+        assert_eq!(eval_let(&world, "x"), Some(Value::Dict(expected)));
+    }
+
+    #[test]
+    fn p733_sink_exclui_nomeado_consumido_por_parametro() {
+        // Medido vanilla: `#let f(a, named: 10, ..rest) = rest` com
+        // `f(1, named: 20, z: 3)` → arguments(z: 3) — o sink recebe só os
+        // nomeados NÃO consumidos por parâmetros. Cristalino pré-P733:
+        // o sink recebia args.named inteiro (incluía named: 20).
+        let world = MockWorld::new(
+            "#let f(a, named: 10, ..rest) = rest.named()\n#let x = f(1, named: 20, z: 3)",
+        );
+        let mut expected: IndexMap<EcoString, Value, FxBuildHasher> = IndexMap::default();
+        expected.insert("z".into(), Value::Int(3));
+        assert_eq!(eval_let(&world, "x"), Some(Value::Dict(expected)));
+    }
+
+    #[test]
+    fn p733_ordem_posicional_reportado_primeiro() {
+        // Medido vanilla: `f(1, 2, z: 3)` → "unexpected argument" (o
+        // posicional é reportado). Não-regressão do caminho P708.
+        let world = MockWorld::new("#let f(a) = a\n#let x = f(1, 2, z: 3)");
+        let src = World::source(&world, World::main(&world)).unwrap();
+        let err = eval_for_test(&world, &src).unwrap_err();
+        let msg = err.first().map(|d| d.message.to_string()).unwrap_or_default();
+        assert_eq!(msg, "unexpected argument", "msg: {msg}");
     }
 }

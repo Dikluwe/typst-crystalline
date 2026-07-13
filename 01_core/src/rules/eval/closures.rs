@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/rules/eval.md
-//! @prompt-hash a3904d9a
+//! @prompt-hash 45bc9822
 //! @layer L1
 //! @updated 2026-07-09
 //!
@@ -200,7 +200,7 @@ fn call_plugin(p: &PluginFunc, args: &Args) -> SourceResult<Value> {
 pub(super) fn apply_closure(
     closure: &ClosureRepr,
     func: &Func,
-    args: Args,
+    mut args: Args,
     ctx: &mut EvalContext,
     engine: &mut Engine<'_>,
 ) -> SourceResult<Value> {
@@ -228,8 +228,12 @@ pub(super) fn apply_closure(
     // Invariante documentada em `entities/func.md` §"Invariante P708".
     let mut pos_idx = 0;
     for param in closure.params.iter() {
-        let val = if let Some(v) = args.named.get(param.name.as_str()) {
-            v.clone()
+        // **P733** — o nomeado é consumido (`shift_remove`), não só lido:
+        // paridade vanilla `args.named()` em `typst-eval/src/call.rs:679-683`.
+        // O que sobrar no mapa após o loop é não consumido — vai para o
+        // sink (se houver) ou gera erro "unexpected argument: {name}".
+        let val = if let Some(v) = args.named.shift_remove(param.name.as_str()) {
+            v
         } else if param.default.is_none() {
             match args.items.get(pos_idx) {
                 Some(v) => { pos_idx += 1; v.clone() }
@@ -262,17 +266,35 @@ pub(super) fn apply_closure(
             sink_name.as_str(),
             Value::Args(crate::entities::args::Args {
                 items: remaining_items,
+                // **P733** — só os nomeados NÃO consumidos por parâmetros
+                // (paridade vanilla `args.take()`, medido: sink exclui o
+                // nomeado já ligado a um parâmetro).
                 named: args.named,
             }),
         );
-    } else if pos_idx < args.items.len() {
-        // **P708** — sem sink para absorver o excedente, um argumento
-        // posicional sem parâmetro correspondente é erro (paridade vanilla
-        // verbatim: `"unexpected argument"`), não descarte silencioso.
-        return Err(vec![SourceDiagnostic::error(
-            Span::detached(),
-            "unexpected argument".to_string(),
-        )]);
+    } else {
+        if pos_idx < args.items.len() {
+            // **P708** — sem sink para absorver o excedente, um argumento
+            // posicional sem parâmetro correspondente é erro (paridade
+            // vanilla verbatim: `"unexpected argument"`), não descarte
+            // silencioso. Verificado antes dos nomeados (ordem medida:
+            // `f(1, 2, z: 3)` → "unexpected argument").
+            return Err(vec![SourceDiagnostic::error(
+                Span::detached(),
+                "unexpected argument".to_string(),
+            )]);
+        }
+        if let Some(k) = args.named.keys().next() {
+            // **P733** — argumento nomeado sem parâmetro correspondente:
+            // erro com o nome (paridade vanilla `Args::finish`,
+            // `foundations/args.rs:259-268`). O primeiro na ordem de
+            // inserção (IndexMap), como o vanilla reporta o primeiro não
+            // consumido.
+            return Err(vec![SourceDiagnostic::error(
+                Span::detached(),
+                format!("unexpected argument: {k}"),
+            )]);
+        }
     }
 
     // Frame de chamada: novo segmento `Route::extend(route)` com `len: 1`.
