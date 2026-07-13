@@ -131,7 +131,7 @@ pub use crate::rules::stdlib::primitives_constructors::{
 // P466 — dispatcher de métodos de array/dict/str.
 pub(crate) use crate::rules::stdlib::collections::try_dispatch_collection_method;
 // P471 — módulo sym.
-pub use crate::rules::stdlib::sym::build_sym_dict;
+pub use crate::rules::stdlib::sym::build_sym_module;
 // P476 — módulo color.
 pub use crate::rules::stdlib::color::{make_color_module, predefined_color_bindings};
 // P694 — módulo sys.
@@ -3610,8 +3610,8 @@ mod tests {
         // Paridade `make_calc_module`: chave "erf" presente como Func.
         let module = p283_make_calc_module();
         let dict = match module {
-            Value::Dict(d) => d,
-            other => panic!("esperado Dict, obtido {other:?}"),
+            Value::Module(m) => m.scope().clone(),
+            other => panic!("esperado Module, obtido {other:?}"),
         };
         assert!(
             matches!(dict.get("erf"), Some(Value::Func(_))),
@@ -3630,8 +3630,8 @@ mod tests {
     fn calc_modulo_contem_funcoes_p306() {
         let module = p283_make_calc_module();
         let dict = match module {
-            Value::Dict(d) => d,
-            other => panic!("esperado Dict, obtido {other:?}"),
+            Value::Module(m) => m.scope().clone(),
+            other => panic!("esperado Module, obtido {other:?}"),
         };
         for key in [
             "trunc",
@@ -3663,8 +3663,8 @@ mod tests {
     fn calc_constantes_pi_tau_e_inf() {
         let module = p283_make_calc_module();
         let dict = match module {
-            Value::Dict(d) => d,
-            other => panic!("esperado Dict, obtido {other:?}"),
+            Value::Module(m) => m.scope().clone(),
+            other => panic!("esperado Module, obtido {other:?}"),
         };
         assert_eq!(dict.get("pi").cloned(), Some(Value::Float(std::f64::consts::PI)));
         assert_eq!(dict.get("tau").cloned(), Some(Value::Float(std::f64::consts::TAU)));
@@ -3676,8 +3676,8 @@ mod tests {
     fn calc_modulo_expoe_41_funcoes() {
         let module = p283_make_calc_module();
         let dict = match module {
-            Value::Dict(d) => d,
-            other => panic!("esperado Dict, obtido {other:?}"),
+            Value::Module(m) => m.scope().clone(),
+            other => panic!("esperado Module, obtido {other:?}"),
         };
         // 9 herdadas (abs/pow/sqrt/floor/ceil/round/min/max/clamp)
         // + 16 P283 (trig/hyperbolic/log/exp)
@@ -3685,10 +3685,10 @@ mod tests {
         //            gcd/lcm/fact/perm/binom/norm/root)
         // + 1  P308 (erf)
         // + 3  P501 (log10/deg/rad) = 44 funções.
-        let n_funcs = dict.values().filter(|v| matches!(v, Value::Func(_))).count();
+        let n_funcs = dict.iter().map(|(_, b)| b.value()).filter(|v| matches!(v, Value::Func(_))).count();
         assert_eq!(n_funcs, 44, "esperava 44 funções calc, encontrei {n_funcs}");
         // + 4 constantes (pi/tau/e/inf).
-        let n_floats = dict.values().filter(|v| matches!(v, Value::Float(_))).count();
+        let n_floats = dict.iter().map(|(_, b)| b.value()).filter(|v| matches!(v, Value::Float(_))).count();
         assert_eq!(n_floats, 4, "esperava 4 constantes Float, encontrei {n_floats}");
     }
 
@@ -11442,8 +11442,9 @@ mod tests {
 
     fn lookup_math(name: &str) -> Option<Value> {
         use super::make_math_module;
-        if let Value::Dict(d) = make_math_module() {
-            d.get(name).cloned()
+        // P731 — `math` passa a ser `Value::Module` (era `Value::Dict`).
+        if let Value::Module(m) = make_math_module() {
+            m.scope().get(name).cloned()
         } else {
             None
         }
@@ -11506,14 +11507,14 @@ mod tests {
     #[test]
     fn p299_math_module_total_42_operadores() {
         use super::make_math_module;
-        if let Value::Dict(d) = make_math_module() {
+        if let Value::Module(m) = make_math_module() {
             assert_eq!(
-                d.len(),
+                m.scope().len(),
                 43,
                 "P299+: 31 scripts + 11 limits = 42 vanilla + 1 adicionado pós-P299"
             );
         } else {
-            panic!("make_math_module deve retornar Value::Dict");
+            panic!("make_math_module deve retornar Value::Module");
         }
     }
 
@@ -11980,29 +11981,30 @@ mod tests {
 
     #[test]
     fn p471_sym_dict_contem_arrow() {
-        use super::sym::build_sym_dict;
-        let d = build_sym_dict();
-        if let Value::Dict(map) = d {
-            assert!(map.contains_key("arrow"));
-            assert!(map.contains_key("alpha"));
+        use super::sym::build_sym_module;
+        // P731 — `sym` passa a ser `Value::Module` (era `Value::Dict`).
+        let d = build_sym_module();
+        if let Value::Module(m) = d {
+            assert!(m.scope().get("arrow").is_some());
+            assert!(m.scope().get("alpha").is_some());
         } else {
-            panic!("esperado Value::Dict");
+            panic!("esperado Value::Module");
         }
     }
 
     #[test]
     fn p471_sym_dict_arrow_e_simbolo_correcto() {
-        use super::sym::build_sym_dict;
-        use crate::entities::symbol::Symbol;
-        let d = build_sym_dict();
-        if let Value::Dict(map) = d {
-            if let Some(Value::Symbol(s)) = map.get("arrow") {
+        use super::sym::build_sym_module;
+        // P731 — `sym` passa a ser `Value::Module` (era `Value::Dict`).
+        let d = build_sym_module();
+        if let Value::Module(m) = d {
+            if let Some(Value::Symbol(s)) = m.scope().get("arrow") {
                 assert_eq!(s.ch, '→');
             } else {
                 panic!("esperado Value::Symbol para arrow");
             }
         } else {
-            panic!("esperado Value::Dict");
+            panic!("esperado Value::Module");
         }
     }
 

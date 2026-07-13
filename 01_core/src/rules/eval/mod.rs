@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/rules/eval.md
-//! @prompt-hash 696f25e1
+//! @prompt-hash a3904d9a
 //! @layer L1
 //! @updated 2026-07-09
 //!
@@ -1080,8 +1080,8 @@ fn make_stdlib(inputs: &SysInputs) -> Scope {
         native_decimal, native_duration, native_version,
         // P470 — list/enum com marcadores configuráveis.
         native_list, native_enum,
-        // P471 — módulo sym.
-        build_sym_dict,
+        // P471 — módulo sym. **P731** — `build_sym_module` (era `build_sym_dict`).
+        build_sym_module,
         // P472 — lof/lot.
         native_lof, native_lot,
         // P476 — módulo color.
@@ -1432,8 +1432,9 @@ fn make_stdlib(inputs: &SysInputs) -> Scope {
     // P470 — list/enum com marcadores configuráveis.
     scope.define("list", Value::Func(Func::native("list", native_list)));
     scope.define("enum", Value::Func(Func::native("enum", native_enum)));
-    // P471 — módulo sym como Value::Dict de símbolos Unicode.
-    scope.define("sym", build_sym_dict());
+    // P471 — módulo sym de símbolos Unicode. **P731** — `Value::Module`
+    // (era `Value::Dict`; paridade vanilla `type(sym)` → `module`).
+    scope.define("sym", build_sym_module());
     scope.define("calc",    make_calc_module());
     // P476 — módulo `color` com operadores lighten/darken/mix/negate.
     scope.define("color", make_color_module());

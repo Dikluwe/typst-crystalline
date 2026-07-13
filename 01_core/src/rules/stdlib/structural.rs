@@ -2,7 +2,7 @@
 //! @prompt 00_nucleo/prompts/rules/model/document.md
 //! @prompt 00_nucleo/prompts/rules/model/asset.md
 //! @prompt 00_nucleo/prompts/rules/stdlib/structural.md
-//! @prompt-hash edbe2de6
+//! @prompt-hash 9517eae7
 //! @layer L1
 //! @updated 2026-06-29
 //!
@@ -2109,7 +2109,14 @@ pub fn make_math_module() -> Value {
     // resolvam. Value::None porque não existe função nativa `equation` em L1.
     dict.insert("equation".into(), Value::None);
 
-    Value::Dict(dict)
+    // **P731** — `Value::Module` (paridade vanilla — medido: `type(math)` →
+    // `module`), não `Value::Dict`. `eval/math.rs::lookup_math_op` lê o
+    // scope do módulo.
+    let mut scope = crate::entities::scope::Scope::new();
+    for (name, value) in dict {
+        scope.define(name.as_str(), value);
+    }
+    Value::Module(crate::entities::module::Module::new("math", scope))
 }
 
 // ── `figure()` — migrada de eval.rs (Passo 64, DEBT-16) ─────────────────────

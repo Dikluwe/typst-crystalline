@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/rules/stdlib/sym.md
-//! @prompt-hash 02ac0712
+//! @prompt-hash b90e8df3
 //! @layer L1
 //! @updated 2026-06-26
 //!
@@ -10,9 +10,9 @@
 //! (`sym.arrow.r.double`) via `Modifier` struct. O cristalino implementa
 //! apenas nomes compostos pré-definidos como chaves planas (`"arrow.r"`).
 //! O acesso `sym.arrow.r` em eval falha no segundo FieldAccess (scope-out).
-
-use indexmap::IndexMap;
-use rustc_hash::FxBuildHasher;
+//!
+//! **P731** — o módulo passou de `Value::Dict` a `Value::Module`
+//! (paridade vanilla — medido: `type(sym)` → `module`).
 
 use crate::entities::symbol::Symbol;
 use crate::entities::value::Value;
@@ -99,24 +99,23 @@ pub fn sym_lookup(name: &str) -> Option<Symbol> {
         .map(|(n, ch)| Symbol::new(*ch, *n))
 }
 
-/// Constrói o `Value::Dict` que representa o módulo `sym` no scope.
+/// Constrói o `Value::Module` que representa o módulo `sym` no scope.
 ///
 /// Apenas as entradas com nome simples (sem `.`) ficam acessíveis via
 /// eval FieldAccess (`sym.arrow`). Entradas compostas estão na tabela
-/// para `sym_lookup` mas não no Dict (evita conflito de tipo entre
-/// `sym.eq` = Symbol e `sym.eq.not` = Symbol no mesmo nível).
-pub fn build_sym_dict() -> Value {
-    let mut map: IndexMap<ecow::EcoString, Value, FxBuildHasher> =
-        IndexMap::with_hasher(FxBuildHasher::default());
+/// para `sym_lookup` mas não no scope do módulo (evita conflito de tipo
+/// entre `sym.eq` = Symbol e `sym.eq.not` = Symbol no mesmo nível).
+///
+/// **P731** — era `build_sym_dict` a devolver `Value::Dict`; passa a
+/// `Value::Module` (paridade vanilla — medido: `type(sym)` → `module`).
+pub fn build_sym_module() -> Value {
+    let mut scope = crate::entities::scope::Scope::new();
     for (name, ch) in SYM_TABLE {
         if !name.contains('.') {
-            map.insert(
-                ecow::EcoString::from(*name),
-                Value::Symbol(Symbol::new(*ch, *name)),
-            );
+            scope.define(*name, Value::Symbol(Symbol::new(*ch, *name)));
         }
     }
-    Value::Dict(map)
+    Value::Module(crate::entities::module::Module::new("sym", scope))
 }
 
 #[cfg(test)]
@@ -142,32 +141,33 @@ mod tests {
     }
 
     #[test]
-    fn build_sym_dict_contem_simples() {
-        let dict = build_sym_dict();
-        if let Value::Dict(d) = dict {
-            assert!(d.contains_key("arrow"));
-            assert!(d.contains_key("alpha"));
-            assert!(d.contains_key("eq"));
-            // compostos não entram no dict
-            assert!(!d.contains_key("eq.not"));
-            assert!(!d.contains_key("arrow.r"));
+    fn build_sym_module_contem_simples() {
+        let module = build_sym_module();
+        if let Value::Module(m) = module {
+            let s = m.scope();
+            assert!(s.get("arrow").is_some());
+            assert!(s.get("alpha").is_some());
+            assert!(s.get("eq").is_some());
+            // compostos não entram no scope
+            assert!(s.get("eq.not").is_none());
+            assert!(s.get("arrow.r").is_none());
         } else {
-            panic!("esperado Value::Dict");
+            panic!("esperado Value::Module");
         }
     }
 
     #[test]
-    fn build_sym_dict_arrow_e_symbol() {
-        let dict = build_sym_dict();
-        if let Value::Dict(d) = dict {
-            let v = d.get("arrow").unwrap();
+    fn build_sym_module_arrow_e_symbol() {
+        let module = build_sym_module();
+        if let Value::Module(m) = module {
+            let v = m.scope().get("arrow").unwrap();
             if let Value::Symbol(s) = v {
                 assert_eq!(s.ch, '→');
             } else {
                 panic!("esperado Value::Symbol");
             }
         } else {
-            panic!("esperado Value::Dict");
+            panic!("esperado Value::Module");
         }
     }
 }

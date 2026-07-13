@@ -832,7 +832,9 @@ make_math_module().get("equation") == Value::None  // alias; namespace vanilla
 
 ## P480 — `equation` alias em `make_math_module`
 
-`make_math_module()` insere `"equation": Value::None` no dict do módulo math.
+`make_math_module()` insere `"equation": Value::None` no scope do módulo math
+(**P731**: o módulo passou de `Value::Dict` a `Value::Module` — paridade
+vanilla `type(math)` → `module`).
 
 Razão: vanilla expõe `math.equation` como namespace de selector. Cristalino
 regista aqui para que `scope.get("math").equation` resolva (mesmo que o valor

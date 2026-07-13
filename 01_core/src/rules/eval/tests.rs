@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/rules/eval.md
-//! @prompt-hash 696f25e1
+//! @prompt-hash a3904d9a
 //! @layer L1
 //! @updated 2026-06-17
 //!
@@ -9830,5 +9830,64 @@ mod tests {
         // `Str.slice` (P690) partilha nome — sem regressão pelo novo braço.
         let m = p729_eval("#let s = \"hello\"\n#let x = s.slice(1, 3)").unwrap();
         assert_eq!(m.scope().get("x"), Some(&Value::Str("el".into())));
+    }
+
+    // ── Passo 731 — namespaces embutidos calc/sys/math/sym são Module ────
+    // Paridade vanilla (medido): `type(calc)` → `module`; o cristalino
+    // tinha `dictionary` (Value::Dict), o que bloqueava `#import calc:
+    // min, max` — cetz `aabb.typ:18`, caminho do bounds de `line`.
+
+    #[test]
+    fn p731_type_namespaces_sao_module() {
+        let m = p729_eval(
+            "#let a = type(calc)\n#let b = type(sys)\n#let c = type(math)\n#let d = type(sym)",
+        )
+        .unwrap();
+        let module = Some(&Value::Type(crate::entities::value::Type::Module));
+        assert_eq!(m.scope().get("a"), module);
+        assert_eq!(m.scope().get("b"), module);
+        assert_eq!(m.scope().get("c"), module);
+        assert_eq!(m.scope().get("d"), module);
+    }
+
+    #[test]
+    fn p731_import_calc_items() {
+        // O caso mínimo de P730 (`#import calc: min, max` + `#(min(1, 2))`).
+        let m = p729_eval("#import calc: min, max\n#let x = min(1, 2)\n#let y = max(1, 2)")
+            .unwrap();
+        assert_eq!(m.scope().get("x"), Some(&Value::Int(1)));
+        assert_eq!(m.scope().get("y"), Some(&Value::Int(2)));
+    }
+
+    #[test]
+    fn p731_import_calc_wildcard() {
+        let m = p729_eval("#import calc: *\n#let x = pi").unwrap();
+        assert_eq!(
+            m.scope().get("x"),
+            Some(&Value::Float(std::f64::consts::PI))
+        );
+    }
+
+    #[test]
+    fn p731_field_access_sem_regressao() {
+        // O caminho já funcional pré-P731 (sobre Dict) tem de continuar a
+        // funcionar sobre Module (P679 — field access em Value::Module).
+        let m = p729_eval(
+            "#let x = calc.min(3, 4)\n#let s = sym.arrow\n#let v = sys.version",
+        )
+        .unwrap();
+        assert_eq!(m.scope().get("x"), Some(&Value::Int(3)));
+        match m.scope().get("s") {
+            Some(Value::Symbol(sy)) => assert_eq!(sy.ch, '→'),
+            other => panic!("esperado Symbol, encontrado {other:?}"),
+        }
+        assert!(matches!(m.scope().get("v"), Some(Value::Version(_))));
+    }
+
+    #[test]
+    fn p731_math_module_sem_regressao() {
+        // `math.equation` (alias P480) continua a resolver via field access.
+        let m = p729_eval("#let e = math.equation").unwrap();
+        assert_eq!(m.scope().get("e"), Some(&Value::None));
     }
 }

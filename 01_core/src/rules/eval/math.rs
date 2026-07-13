@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/rules/eval.md
-//! @prompt-hash 696f25e1
+//! @prompt-hash a3904d9a
 //! @layer L1
 //! @updated 2026-04-22
 //!
@@ -39,12 +39,13 @@ use super::{apply_func, EvalContext};
 
 /// Lookup helper: consulta scope `math` (P299) e retorna `MathOp`
 /// clone se encontrado. None caso contrário (incluindo se valor
-/// não é `Content::MathOp`).
+/// não é `Content::MathOp`). **P731** — `math` passou a `Value::Module`
+/// (era `Value::Dict`); o lookup é no scope do módulo.
 fn lookup_math_op(scopes: &Scopes<'_>, name: &str) -> Option<Content> {
-    let Value::Dict(math_module) = scopes.get("math")? else {
+    let Value::Module(math_module) = scopes.get("math")? else {
         return None;
     };
-    let Value::Content(c) = math_module.get(name)? else {
+    let Value::Content(c) = math_module.scope().get(name)? else {
         return None;
     };
     if matches!(c, Content::MathOp { .. }) {

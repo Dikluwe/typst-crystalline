@@ -27,11 +27,12 @@ use crate::rules::eval::EvalContext;
 
 // ── Módulo calc (Passo 27) ───────────────────────────────────────────────────
 
-/// Constrói o módulo `calc` como `Value::Dict` com 41 funções + 4 constantes.
+/// Constrói o módulo `calc` como `Value::Module` com 41 funções + 4 constantes.
 ///
-/// Divergência: original usa `Value::Module`. Cristalino usa `Value::Dict`
-/// porque não temos stdlib Module sem world. Semântica de acesso (`calc.abs`)
-/// é idêntica via `eval_field_access` sobre Dict.
+/// **P731** — passou de `Value::Dict` a `Value::Module` (paridade vanilla —
+/// medido: `type(calc)` → `module`). A representação antiga bloqueava
+/// `#import calc: min, max` (cetz `aabb.typ:18`). Semântica de acesso
+/// (`calc.abs`) mantém-se via `eval_field_access` sobre Module (P679).
 ///
 /// P283 estendeu o módulo com trig/hiperbólicas/log/exp + constantes
 /// (`pi`, `tau`, `e`, `inf`); decisão libm vs f64 e tratamento de domínio
@@ -106,7 +107,12 @@ pub fn make_calc_module() -> Value {
     dict.insert("tau".into(),   Value::Float(std::f64::consts::TAU));
     dict.insert("e".into(),     Value::Float(std::f64::consts::E));
     dict.insert("inf".into(),   Value::Float(f64::INFINITY));
-    Value::Dict(dict)
+    // P731 — `Value::Module` (paridade vanilla), não `Value::Dict`.
+    let mut scope = crate::entities::scope::Scope::new();
+    for (name, value) in dict {
+        scope.define(name.as_str(), value);
+    }
+    Value::Module(crate::entities::module::Module::new("calc", scope))
 }
 
 pub(crate) fn calc_abs(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contracts::world::World, _current_file: FileId) -> SourceResult<Value> {

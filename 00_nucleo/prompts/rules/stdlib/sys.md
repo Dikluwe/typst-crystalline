@@ -35,11 +35,15 @@ cristalino (que não segue a numeração Typst) quebraria `oxifmt`/`cetz` sem
 ganho — a paridade é com a **linguagem**, não com a mecânica/identidade do
 nosso binário. `version(0, 15, 0)` é a constante de paridade vigente.
 
-`#sys` repr é um **dicionário** (`(version: version(0, 15, 0), inputs: (:))`),
-não `<module sys>` como no vanilla. Divergência de **repr/mecânica** aceita
-(ADR-0107): a semântica de acesso (`sys.version`, `sys.inputs`) é idêntica via
-`eval_field_access` sobre `Dict`; só a forma impressa difere, como já acontece
-com `calc`/`sym`/`color` (todos `Value::Dict` no cristalino).
+`#sys` repr era um **dicionário** (`(version: version(0, 15, 0), inputs: (:))`)
+até P730, não `<module sys>` como no vanilla — divergência de repr/mecânica
+aceita na altura (ADR-0107). **P731 fechou a divergência na origem**: `sys`
+passa a ser `Value::Module` (paridade vanilla — medido: `type(sys)` →
+`module`), com `version` e `inputs` no scope do módulo; a semântica de
+acesso (`sys.version`, `sys.inputs`) mantém-se via `eval_field_access`
+sobre `Value::Module` (P679), e o repr segue o de `Module`. A conversão
+foi feita em bloco com `calc`/`math`/`sym`; `color`/`gradient` permanecem
+`Value::Dict` (o vanilla expõe-os como **tipo** — achado registado).
 
 ## Decisão: fio de `inputs` via trait `World`, não via novos parâmetros
 
