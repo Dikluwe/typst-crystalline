@@ -1,5 +1,5 @@
 # Prompt L0 — `rules/eval/operators`
-Hash do Código: 9ce3fb99
+Hash do Código: b61a0d02
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/rules/eval/operators.rs`
@@ -444,6 +444,35 @@ Mensagem de erro: formato do vanilla (`cannot join {a} with {b}`) com os
 fronteira genérica de `eval_binary_op` (o observável "é erro de tipo"
 preservado; ADR-0107 — mecânica diverge de propósito).
 
+### P729 — `join` também entre iterações de `for`/`while`
+
+P728 corrigiu o join **intra-bloco** (`Expr::CodeBlock`). A auditoria P729
+(medição construto a construto, ADR-0114) confirmou que o mesmo `join`
+acumula **entre iterações** nos corpos de `for` e `while` (vanilla
+`typst-eval/src/flow.rs:86` e `:132` — `output = ops::join(output, value)`
+por iteração, antes do match de flow). O cristalino descartava o valor do
+corpo no `while` (`control_flow.rs:62`) e rejeitava não-`Content` no `for`
+(`control_flow.rs:143-154`, erro "corpo do for deve ser content").
+
+Medições vanilla (binário release): `#if true { (1,); (2,) }`,
+`#if false { (9,) } else { (1,); (2,) }`, `#let f() = { (1,); (2,) }` +
+`#f()`, `#for i in (1,) { (1,); (2,) }`, `#while i < 1 { i += 1; (1,); (2,) }`
+→ todos `(1, 2)`. Cristalino pré-P729: `if`/`else`/closure correctos
+(delegam em `Expr::CodeBlock`, já corrigido por P728); `for` → erro;
+`while` → output vazio.
+
+Reaproveitamento directo de `operators::join` (P728) — sem lógica própria:
+`let mut output = Value::None` antes do ciclo, `output = join(output, value)?`
+por iteração (span do corpo no erro), `Ok(output)` no fim. No `for`, o
+acumulador substitui `parts: Vec<Content>` + `Content::sequence`; os casos
+antigos (`Content`/`Str`/`None` no corpo) comportam-se igual pela tabela
+de join.
+
+Nota registada (**fora do scope P729** — mecanismo distinto de join): o
+vanilla marca `FlowEvent::Return` como condicional no fim de `while`/`for`
+(`typst-eval/src/flow.rs:105-108,183-185`); o cristalino só o faz em
+`eval_conditional` (P635). Registado em `achados-adiados-cetz.md`.
+
 ---
 
 ## Critérios de Verificação
@@ -526,6 +555,13 @@ join(Array[1], Array[2])                         == Array[1, 2]
 join(Dict{a:1}, Dict{b:2})                       == Dict{a:1, b:2}
 join(Int(1), Int(2))                             == Err (cannot join)
 join(Content([a]), Content([b]))                 == Content([a b])
+
+// P729 — join entre iterações de for/while (via eval de markup)
+eval("#let x = for i in (1,) { (1,); (2,) } #repr(x)")         == "(1, 2)"
+eval("#let i = 0 #let x = while i < 1 { i += 1; (1,); (2,) } #repr(x)") == "(1, 2)"
+eval("#let x = for i in (1, 2) { (i,) } #repr(x)")             == "(1, 2)"  // join entre iterações
+eval("#let x = for i in (1,) { 1; 2 }")                        == Err (cannot join)
+eval("#for i in (1, 2) [x]")                                   == Content("xx")  // sem regressão
 ```
 
 ---
@@ -550,3 +586,4 @@ join(Content([a]), Content([b]))                 == Content([a b])
 | 2026-07-13 | P722 — `Array * Int` e `Int * Array` (repetição, paridade `Array::repeat`); scope-out `Dict * Int` (inexistente no vanilla); isolado via `cetz` (`hobby.typ:77,78`) | `operators.rs`, `tests.rs` |
 | 2026-07-13 | P725 — `Length * Int\|Float` (quatro combinações, paridade `ops.rs:238-243`); NaN → 0 por componente (paridade `Scalar::new`), inf propaga-se; scope-out `Length * Ratio` (não produzível); isolado via `cetz` (`canvas.typ:146-147,182-186`) | `operators.rs`, `tests.rs` |
 | 2026-07-13 | P728 — short-circuit `and`/`or` (paridade `typst-eval/ops.rs:52-66`, braço dedicado em `eval_expr`); `join` em code block (paridade `typst-eval/code.rs:57` + `foundations/ops.rs:24-45`); a "anomalia de ordem" de P727 era o bug 2, não memoização; isolado via `cetz` (`canvas` body) | `operators.rs`, `eval/mod.rs`, `eval/tests.rs` |
+| 2026-07-13 | P729 — `join` entre iterações de `for`/`while` (paridade `typst-eval/flow.rs:86,132`); reaproveita `operators::join` de P728; `while` deixava de descartar o corpo, `for` deixava de exigir `Content`; nota: marcação `Return` condicional em loops fica registada como achado fora de scope | `control_flow.rs`, `eval/tests.rs` |

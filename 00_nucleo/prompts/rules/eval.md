@@ -1,5 +1,5 @@
 # Prompt L0 — rules/eval
-Hash do Código: ef7fdd6c
+Hash do Código: 40a463cb
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/rules/eval/mod.rs`
@@ -124,14 +124,23 @@ renderizado.
   lhs sem avaliar X)
 - `Expr::Unary(unary)` → eval_unary_op(unary.op(), operand)
 - `Expr::Conditional(cond)` → eval_conditional: condition(), if_body(), else_body()
-- `Expr::WhileLoop(loop)` → eval_while: MAX_ITER=10_000 limite de segurança
+- `Expr::WhileLoop(loop)` → eval_while: MAX_ITER=10_000 limite de segurança;
+  o valor do corpo de cada iteração é acumulado com `operators::join`
+  **entre iterações** (P729 — paridade vanilla `typst-eval/src/flow.rs:69,86`:
+  `let mut output = Value::None` + `output = join(output, value)` antes do
+  match de flow; o valor do corpo já vem com join intra-bloco via P728;
+  medido: `#while i < 1 { i += 1; (1,); (2,) }` → `(1, 2)` no vanilla,
+  descartado no cristalino pré-P729)
 - `Expr::ForLoop(loop)` → eval_for: iterable() (não iter()), pattern via
   destructuring genérico `destructure_let` por item (P723 — inclui spread
   `..sink`, mensagens de aridade do vanilla; substitui o bind manual de
-  P540), body(); cada iteração avalia o corpo e concatena os
-  valores `Content`/`Str` produzidos numa `Content::sequence`; `Value::None`
-  no corpo é ignorado; `Value::None` como iterable é iterável vazio (sem
-  parsing de array literal)
+  P540), body(); o valor do corpo de cada iteração é acumulado com
+  `operators::join` **entre iterações** (P729 — paridade vanilla
+  `typst-eval/src/flow.rs:120,132`: qualquer tipo junta-se pela tabela de
+  `join`, não só `Content`/`Str`; medido: `#for i in (1,) { (1,); (2,) }` →
+  `(1, 2)` no vanilla, erro "corpo do for deve ser content" no cristalino
+  pré-P729); `Value::None` como iterable é iterável vazio (sem parsing de
+  array literal)
 
 ## §P635 — Mecanismo `FlowEvent` para controlo de fluxo
 

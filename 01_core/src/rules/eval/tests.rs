@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/rules/eval.md
-//! @prompt-hash fd177a16
+//! @prompt-hash 696f25e1
 //! @layer L1
 //! @updated 2026-06-17
 //!
@@ -9653,5 +9653,135 @@ mod tests {
         )
         .unwrap();
         assert!(matches!(c, Value::Content(_)));
+    }
+
+    // ── Passo 729 — `join` entre iterações de `for`/`while` ──────────────
+    // Paridade vanilla `typst-eval/src/flow.rs:86` (while) e `:132` (for):
+    // `output = ops::join(output, value)` por iteração. Reaproveita
+    // `operators::join` de P728. Sonda: if/else/closure já correctos
+    // (delegam em `Expr::CodeBlock`); `while` descartava o corpo; `for`
+    // exigia `Content` ("corpo do for deve ser content, encontrado array").
+
+    fn p729_eval(markup: &str) -> SourceResult<Module> {
+        let world = MockWorld::new(markup);
+        let src = World::source(&world, World::main(&world)).unwrap();
+        eval_for_test(&world, &src)
+    }
+
+    #[test]
+    fn p729_for_join_arrays() {
+        // Medido vanilla: `#for i in (1,) { (1,); (2,) }` → `(1, 2)`;
+        // cristalino pré-P729: erro "corpo do for deve ser content".
+        let m = p729_eval("#let x = for i in (1,) { (1,); (2,) }").unwrap();
+        assert_eq!(
+            m.scope().get("x"),
+            Some(&Value::Array(vec![Value::Int(1), Value::Int(2)]))
+        );
+    }
+
+    #[test]
+    fn p729_for_join_acumula_entre_iteracoes() {
+        // O join é entre iterações, não só intra-bloco.
+        let m = p729_eval("#let x = for i in (1, 2) { (i,) }").unwrap();
+        assert_eq!(
+            m.scope().get("x"),
+            Some(&Value::Array(vec![Value::Int(1), Value::Int(2)]))
+        );
+    }
+
+    #[test]
+    fn p729_while_join_arrays() {
+        // Medido vanilla: `#while i < 1 { i += 1; (1,); (2,) }` → `(1, 2)`;
+        // cristalino pré-P729: output vazio (corpo descartado).
+        let m = p729_eval(
+            "#let i = 0\n#let x = while i < 1 { i += 1; (1,); (2,) }",
+        )
+        .unwrap();
+        assert_eq!(
+            m.scope().get("x"),
+            Some(&Value::Array(vec![Value::Int(1), Value::Int(2)]))
+        );
+    }
+
+    #[test]
+    fn p729_while_acumula_entre_iteracoes() {
+        let m = p729_eval("#let i = 0\n#let x = while i < 2 { i += 1; (i,) }").unwrap();
+        assert_eq!(
+            m.scope().get("x"),
+            Some(&Value::Array(vec![Value::Int(1), Value::Int(2)]))
+        );
+    }
+
+    #[test]
+    fn p729_for_join_invalido_entre_iteracoes_erra() {
+        // Iteração 1: join(None, 1) = 1; iteração 2: join(1, 1) → erro
+        // (paridade vanilla "cannot join integer with integer").
+        let err = p729_eval("#let x = for i in (1, 2) { 1 }").unwrap_err();
+        assert!(
+            err[0].message.contains("cannot join"),
+            "msg: {}",
+            err[0].message
+        );
+    }
+
+    #[test]
+    fn p729_while_join_invalido_entre_iteracoes_erra() {
+        let err =
+            p729_eval("#let i = 0\n#let x = while i < 2 { i += 1; 1 }").unwrap_err();
+        assert!(
+            err[0].message.contains("cannot join"),
+            "msg: {}",
+            err[0].message
+        );
+    }
+
+    #[test]
+    fn p729_for_content_sem_regressao() {
+        // O caso antigo (corpo Content) comporta-se igual via join.
+        let m = p729_eval("#let x = for i in (1, 2) [x]").unwrap();
+        match m.scope().get("x") {
+            Some(Value::Content(c)) => assert_eq!(c.plain_text(), "xx"),
+            other => panic!("esperado Content, encontrado {other:?}"),
+        }
+    }
+
+    #[test]
+    fn p729_for_corpo_none_sem_regressao() {
+        // Corpo que só produz None (assignment) → loop devolve None.
+        let m = p729_eval("#let i = 0\n#let x = for _ in (1, 2) { i += 1 }").unwrap();
+        assert_eq!(m.scope().get("x"), Some(&Value::None));
+        assert_eq!(m.scope().get("i"), Some(&Value::Int(2)));
+    }
+
+    #[test]
+    fn p729_while_corpo_none_sem_regressao() {
+        let m = p729_eval("#let i = 0\n#let x = while i < 2 { i += 1 }").unwrap();
+        assert_eq!(m.scope().get("x"), Some(&Value::None));
+        assert_eq!(m.scope().get("i"), Some(&Value::Int(2)));
+    }
+
+    #[test]
+    fn p729_if_else_sem_regressao() {
+        // Já correcto pré-P729 (delega em `Expr::CodeBlock`) — confirma.
+        let m = p729_eval("#let x = if true { (1,); (2,) }").unwrap();
+        assert_eq!(
+            m.scope().get("x"),
+            Some(&Value::Array(vec![Value::Int(1), Value::Int(2)]))
+        );
+        let m2 = p729_eval("#let y = if false { (9,) } else { (1,); (2,) }").unwrap();
+        assert_eq!(
+            m2.scope().get("y"),
+            Some(&Value::Array(vec![Value::Int(1), Value::Int(2)]))
+        );
+    }
+
+    #[test]
+    fn p729_closure_body_sem_regressao() {
+        // Já correcto pré-P729 (corpo avaliado como `Expr::CodeBlock`).
+        let m = p729_eval("#let f() = { (1,); (2,) }\n#let x = f()").unwrap();
+        assert_eq!(
+            m.scope().get("x"),
+            Some(&Value::Array(vec![Value::Int(1), Value::Int(2)]))
+        );
     }
 }

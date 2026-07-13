@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/rules/eval.md
-//! @prompt-hash fd177a16
+//! @prompt-hash 696f25e1
 //! @layer L1
 //! @updated 2026-07-09
 //!
@@ -10,13 +10,12 @@
 
 use crate::entities::ast::code::{Conditional, ForLoop, WhileLoop};
 use crate::entities::ast::AstNode;
-use crate::entities::content::Content;
 use crate::entities::engine::Engine;
 use crate::entities::source_result::{SourceDiagnostic, SourceResult};
 use crate::entities::value::Value;
 use crate::rules::scopes::Scopes;
 
-use super::{bindings::destructure_let, eval_expr, EvalContext, FlowEvent};
+use super::{bindings::destructure_let, eval_expr, operators, EvalContext, FlowEvent};
 
 pub(super) fn eval_conditional(
     cond: Conditional<'_>,
@@ -53,14 +52,23 @@ pub(super) fn eval_while(
     engine: &mut Engine<'_>,
 ) -> SourceResult<Value> {
     let flow = ctx.flow.take();
+    // **P729** — o valor do `while` é o `join` dos valores dos corpos de
+    // todas as iterações (paridade vanilla `typst-eval/src/flow.rs:69,86`),
+    // não `None`. Reaproveita `operators::join` de P728; o valor de cada
+    // corpo já traz o join intra-bloco (`Expr::CodeBlock`).
+    let mut output = Value::None;
     loop {
         let cond = eval_expr(loop_expr.condition(), scopes, ctx, engine)?;
         match cond {
             Value::Bool(true) => {
                 ctx.tick_loop(loop_expr.span())?;
                 scopes.enter();
-                eval_expr(loop_expr.body(), scopes, ctx, engine)?;
+                let value = eval_expr(loop_expr.body(), scopes, ctx, engine)?;
+                let joined = operators::join(output, value);
                 scopes.exit();
+                output = joined.map_err(|msg| {
+                    vec![SourceDiagnostic::error(loop_expr.body().span(), msg)]
+                })?;
 
                 match ctx.flow {
                     Some(FlowEvent::Break(_)) => {
@@ -82,7 +90,7 @@ pub(super) fn eval_while(
     if flow.is_some() {
         ctx.flow = flow;
     }
-    Ok(Value::None)
+    Ok(output)
 }
 
 pub(super) fn eval_for(
@@ -127,7 +135,14 @@ fn run_for_loop(
     engine: &mut Engine<'_>,
 ) -> SourceResult<Value> {
     let flow = ctx.flow.take();
-    let mut parts = Vec::new();
+    // **P729** — o valor do `for` é o `join` dos valores dos corpos de
+    // todas as iterações (paridade vanilla `typst-eval/src/flow.rs:120,
+    // 132`), não só `Content`/`Str` acumulados — qualquer tipo junta-se
+    // pela tabela de `operators::join` (P728), o resto é erro
+    // "cannot join X with Y". Medido: `#for i in (1,) { (1,); (2,) }` →
+    // `(1, 2)` no vanilla (cristalino pré-P729 errava "corpo do for deve
+    // ser content").
+    let mut output = Value::None;
     for item in items {
         ctx.tick_loop(loop_expr.span())?;
         scopes.enter();
@@ -140,19 +155,12 @@ fn run_for_loop(
         // P540 (sem spread, mensagem própria).
         destructure_let(loop_expr.pattern(), item, scopes, ctx, engine)?;
 
-        match eval_expr(loop_expr.body(), scopes, ctx, engine)? {
-            Value::Content(c) => parts.push(c),
-            Value::Str(s) => parts.push(Content::text(s.as_str())),
-            Value::None => {}
-            other => {
-                scopes.exit();
-                return Err(vec![SourceDiagnostic::error(
-                    loop_expr.body().span(),
-                    format!("corpo do for deve ser content, encontrado {}", other.type_name()),
-                )]);
-            }
-        }
+        let value = eval_expr(loop_expr.body(), scopes, ctx, engine)?;
+        let joined = operators::join(output, value);
         scopes.exit();
+        output = joined.map_err(|msg| {
+            vec![SourceDiagnostic::error(loop_expr.body().span(), msg)]
+        })?;
 
         match ctx.flow {
             Some(FlowEvent::Break(_)) => {
@@ -167,9 +175,5 @@ fn run_for_loop(
     if flow.is_some() {
         ctx.flow = flow;
     }
-    if parts.is_empty() {
-        Ok(Value::None)
-    } else {
-        Ok(Value::Content(Content::sequence(parts)))
-    }
+    Ok(output)
 }
