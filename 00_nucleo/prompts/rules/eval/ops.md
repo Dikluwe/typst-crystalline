@@ -1,5 +1,5 @@
 # Prompt L0 — `rules/eval/operators`
-Hash do Código: eb4e710c
+Hash do Código: c9c1968e
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/rules/eval/operators.rs`
@@ -229,6 +229,52 @@ para dict) — sem lógica adicional.
 
 ---
 
+## P722 — `Array * Int` / `Int * Array` (repetição)
+
+`(BinOp::Mul, Value::Array(_), Value::Int(_))` e o par inverso não
+tinham braço — caíam no fronteira genérico (`"cannot apply Mul to array
+and int"`). Encontrado por P720 durante a sonda de `+`, nas mesmas
+linhas de `hobby.typ` (77, 78) que motivaram P720
+(`(0,) * (n - 1)`); adiado conscientemente nesse passo por ser operador
+distinto.
+
+### Comportamento do vanilla (medido + fonte)
+
+`ops.rs:274-275`:
+
+```rust
+(Array(a), Int(b)) => Array(a.repeat(Value::Int(b).cast()?)?),
+(Int(a), Array(b)) => Array(b.repeat(Value::Int(a).cast()?)?),
+```
+
+- **Ambas as ordens** funcionam (`(0,) * 3` e `3 * (0,)` → `(0, 0, 0)`).
+- O `Int` é convertido a `usize` (`cast`): negativo → erro
+  `"number must be at least zero"` (`foundations/int.rs:507`).
+- `Array::repeat` (`array.rs:140-147`): `len.checked_mul(n)`; overflow
+  → `"cannot repeat this array {n} times"`; caso contrário
+  `iter().cloned().cycle().take(count)`.
+- `n = 0` → array vazio `()`. Array vazio repetido → `()`.
+- **`Dict * Int` não existe** no vanilla — medido: `(:) * 2` → erro
+  ("cannot multiply dictionary with integer", fronteira genérica do
+  vanilla). Scope-out: o cristalino mantém o seu erro genérico de
+  fronteira, coerente com os demais pares inválidos de `Mul`.
+
+### Semântica de implementação
+
+Um braço com guarda compartilhada para as duas ordens, espelhando
+`Array::repeat` do vanilla:
+
+```rust
+(BinOp::Mul, Value::Array(a), Value::Int(n)) | (BinOp::Mul, Value::Int(n), Value::Array(a)) => {
+    if n < 0 { return Err("number must be at least zero".into()); }
+    let count = a.len().checked_mul(n as usize)
+        .ok_or_else(|| format!("cannot repeat this array {n} times"))?;
+    Ok(Value::Array(a.iter().cloned().cycle().take(count).collect()))
+}
+```
+
+---
+
 ## Critérios de Verificação
 
 ```rust
@@ -265,6 +311,14 @@ eval_binary_op(Add, Array[], Array[1,2])        == Array[1,2]
 eval_binary_op(Add, Array[1,2], Array[])        == Array[1,2]
 eval_binary_op(Add, Dict{a:1}, Dict{b:2})       == Dict{a:1,b:2}
 eval_binary_op(Add, Dict{a:1,b:2}, Dict{b:99,c:3}) == Dict{a:1,b:99,c:3}  // ordem preservada
+
+// P722 — Array * Int / Int * Array (repetição)
+eval_binary_op(Mul, Array[0], Int(3))           == Array[0,0,0]
+eval_binary_op(Mul, Int(3), Array[0])           == Array[0,0,0]   // ordem inversa
+eval_binary_op(Mul, Array[1,2], Int(0))         == Array[]
+eval_binary_op(Mul, Array[], Int(5))            == Array[]
+eval_binary_op(Mul, Array[1,2], Int(-1))        == Err ("number must be at least zero")
+eval_binary_op(Mul, Dict{:}, Int(2))            == Err (fronteira genérica — Dict * Int não existe no vanilla)
 ```
 
 ---
@@ -286,3 +340,4 @@ eval_binary_op(Add, Dict{a:1,b:2}, Dict{b:99,c:3}) == Dict{a:1,b:99,c:3}  // ord
 | 2026-07-11 | P706 — `in`/`not in` para `Str`/`Dict`/`Array` (isolado via `cetz`) | `operators.rs`, `tests.rs` |
 | 2026-07-11 | P713 — `Length / Length` (paridade `try_div`), `Length / Int\|Float`; scope-out `Ratio`/`Relative` mistos (não produzíveis por sintaxe de utilizador) | `operators.rs`, `tests.rs` |
 | 2026-07-12 | P720 — `Array + Array` (concatenação) e `Dict + Dict` (merge, direita vence, posição preservada); isolado via `cetz` | `operators.rs`, `tests.rs` |
+| 2026-07-13 | P722 — `Array * Int` e `Int * Array` (repetição, paridade `Array::repeat`); scope-out `Dict * Int` (inexistente no vanilla); isolado via `cetz` (`hobby.typ:77,78`) | `operators.rs`, `tests.rs` |

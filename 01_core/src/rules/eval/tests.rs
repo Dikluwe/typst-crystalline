@@ -1418,6 +1418,95 @@ mod tests {
         );
     }
 
+    // ── P722 — Array * Int / Int * Array (repetição) ───────────────────────
+
+    #[test]
+    fn p722_array_vezes_int_repete() {
+        // Medido no vanilla: (0,) * 3 → (0, 0, 0).
+        assert_eq!(
+            eval_binary_op(
+                BinOp::Mul,
+                Value::Array(vec![Value::Int(0)]),
+                Value::Int(3),
+            ),
+            Ok(Value::Array(vec![Value::Int(0), Value::Int(0), Value::Int(0)]))
+        );
+    }
+
+    #[test]
+    fn p722_int_vezes_array_ordem_inversa() {
+        // Medido no vanilla: 3 * (0,) → (0, 0, 0) (ops.rs:275).
+        assert_eq!(
+            eval_binary_op(
+                BinOp::Mul,
+                Value::Int(3),
+                Value::Array(vec![Value::Int(0)]),
+            ),
+            Ok(Value::Array(vec![Value::Int(0), Value::Int(0), Value::Int(0)]))
+        );
+    }
+
+    #[test]
+    fn p722_array_vezes_zero_da_vazio() {
+        // Medido no vanilla: (1, 2) * 0 → ().
+        assert_eq!(
+            eval_binary_op(
+                BinOp::Mul,
+                Value::Array(vec![Value::Int(1), Value::Int(2)]),
+                Value::Int(0),
+            ),
+            Ok(Value::Array(vec![]))
+        );
+    }
+
+    #[test]
+    fn p722_array_vazio_vezes_int_da_vazio() {
+        assert_eq!(
+            eval_binary_op(BinOp::Mul, Value::Array(vec![]), Value::Int(5)),
+            Ok(Value::Array(vec![]))
+        );
+    }
+
+    #[test]
+    fn p722_array_vezes_negativo_erro() {
+        // Medido no vanilla: (1, 2) * -1 → "number must be at least zero"
+        // (cast Int → usize, foundations/int.rs:507).
+        assert_eq!(
+            eval_binary_op(
+                BinOp::Mul,
+                Value::Array(vec![Value::Int(1), Value::Int(2)]),
+                Value::Int(-1),
+            ),
+            Err("number must be at least zero".to_string())
+        );
+    }
+
+    #[test]
+    fn p722_dict_vezes_int_erro_fronteira() {
+        // Medido no vanilla: (:) * 2 → erro (Dict * Int não existe).
+        // O cristalino mantém a fronteira genérica de Mul.
+        let result = eval_binary_op(
+            BinOp::Mul,
+            Value::Dict(indexmap::IndexMap::default()),
+            Value::Int(2),
+        );
+        assert!(result.is_err(), "Dict * Int deve ser erro");
+        assert_eq!(
+            result.unwrap_err(),
+            "cannot apply Mul to dictionary and int"
+        );
+    }
+
+    #[test]
+    fn p722_cetz_repeat_end_to_end() {
+        // Reprodução do padrão real de cetz (hobby.typ:77): (0,) * (n - 1).
+        let world = MockWorld::new("#let x = (0,) * (3 - 1)");
+        assert_eq!(
+            eval_let(&world, "x"),
+            Some(Value::Array(vec![Value::Int(0), Value::Int(0)]))
+        );
+    }
+
     #[test]
     fn dualidade_eq_typst_coerce() {
         // ADR-0025 Opção B: no motor Typst, 1 == 1.0 → true (coerção Int→f64)

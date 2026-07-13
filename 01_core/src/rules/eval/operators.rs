@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/rules/eval/ops.md
-//! @prompt-hash dc990d82
+//! @prompt-hash 424a219c
 //! @layer L1
 //! @updated 2026-06-25
 //!
@@ -111,6 +111,21 @@ pub(crate) fn eval_binary_op(op: BinOp, lhs: Value, rhs: Value) -> Result<Value,
             }
             Ok(Value::Duration(Duration::from_nanos((d.nanos as f64 * f) as u64)))
         },
+        // P722 — Array * Int / Int * Array (paridade `ops.rs:274-275` +
+        // `Array::repeat`, vanilla `foundations/array.rs:140-147`):
+        // repetição por `cycle().take(len * n)`; n < 0 → erro do cast
+        // `Int → usize` ("number must be at least zero", int.rs:507);
+        // overflow de `len * n` → "cannot repeat this array {n} times".
+        (BinOp::Mul, Value::Array(a), Value::Int(n)) | (BinOp::Mul, Value::Int(n), Value::Array(a)) => {
+            if n < 0 {
+                return Err("number must be at least zero".into());
+            }
+            let count = a
+                .len()
+                .checked_mul(n as usize)
+                .ok_or_else(|| format!("cannot repeat this array {n} times"))?;
+            Ok(Value::Array(a.iter().cloned().cycle().take(count).collect()))
+        }
 
         // ── Divisão — Int/Int → Float (semântica Typst, não truncamento) ────
         (BinOp::Div, Value::Int(a),   Value::Int(b))   => Ok(Value::Float(a as f64 / b as f64)),

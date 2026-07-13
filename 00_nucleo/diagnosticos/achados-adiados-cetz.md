@@ -12,7 +12,7 @@ passo que o fechou, antes de ser removido.
 | Achado | Onde foi encontrado | Prioridade | Estado |
 |---|---|---|---|
 | `repr_value` usa `{:?}` (Debug do Rust) em vez do repr Typst para `Length`/`Ratio`/`Angle`/`Color`/`Stroke`/`Align` embutidos em markup | P710, reconfirmado P711 | Alta — afecta qualquer documento que embuta estes valores directamente | **Fechado em P721** (relatório: `paridade-producao-p721.md`; divergência residual documentada: componente auto de `stroke` indistinguível do default — limitação do modelo P227, scope-out no L0) |
-| `Array * Int` (repetição) ausente | P720 | Média-alta — mesmas linhas de `hobby.typ` que motivaram P720, vai bloquear `cetz` outra vez em breve | Aberto |
+| `Array * Int` (repetição) ausente | P720 | Média-alta — mesmas linhas de `hobby.typ` que motivaram P720, vai bloquear `cetz` outra vez em breve | **Fechado em P722** (relatório: `paridade-producao-p722.md`; ambas as ordens, paridade `Array::repeat`; `Dict * Int` scope-out — inexistente no vanilla) |
 | Mensagem de aridade do `for` diverge do vanilla (falta hint) | P540 (pré-existente), reconfirmado P719 | Baixa — comportamento correcto, só a mensagem difere | Aberto |
 | Formatação de `Float` diverge (`2.0` vs `2`) | P713 | Baixa — cosmética, não afecta valor | Aberto |
 | Argumento nomeado extra sem parâmetro (`f(1, z: 2)`) aceite silenciosamente | P708 | Média — categoria de "aceitação silenciosa incorrecta", mesma família do bug de binding que P708 corrigiu para posicionais | Aberto |
