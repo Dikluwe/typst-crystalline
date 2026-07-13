@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/entities/func.md
-//! @prompt-hash 1792b630
+//! @prompt-hash da2e4b21
 //! @layer L1
 //! @updated 2026-04-13
 
@@ -77,6 +77,15 @@ pub struct ClosureRepr {
 pub struct ClosureParam {
     pub name:    String,
     pub default: Option<Value>,
+    /// **P724** — pattern completo de `Param::Pos` não-`Ident`
+    /// (destructuring, parenthesized, placeholder): `SyntaxNode` owned
+    /// (clone O(1) via Arc interno), reparseado na chamada via
+    /// `Pattern::from_untyped` e ligado por `destructure_let` — o mesmo
+    /// mecanismo do `body` (`Expr::from_untyped`). `None` para `Ident`
+    /// posicional e para `Param::Named`. Quando `Some`, `name` é `""`
+    /// (nunca consultado: named lookup com chave vazia não casa) e
+    /// `default` é `None` (pattern posicional nunca tem default).
+    pub pattern: Option<SyntaxNode>,
 }
 
 /// Função nativa implementada em Rust (Passo 71 — DEBT-24).
@@ -329,7 +338,7 @@ mod tests {
         let body = source.root().clone();
         Func::closure(ClosureRepr {
             name: None,
-            params: vec![ClosureParam { name: "x".into(), default: None }],
+            params: vec![ClosureParam { name: "x".into(), default: None, pattern: None }],
             sink_name: None,
             body,
             captured: Arc::new(Scope::new()),

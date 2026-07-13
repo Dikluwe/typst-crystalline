@@ -34,7 +34,7 @@ use crate::rules::stdlib::{
     try_dispatch_collection_method,
 };
 
-use super::{eval_expr, EvalContext, FlowEvent};
+use super::{bindings::destructure_let, eval_expr, EvalContext, FlowEvent};
 
 /// Avalia a lista de argumentos de uma chamada de função.
 ///
@@ -238,7 +238,21 @@ pub(super) fn apply_closure(
         } else {
             param.default.clone().unwrap()
         };
-        call_scopes.define(param.name.as_str(), val);
+        // **P724** — pattern de desestruturação: bind via `destructure_let`
+        // (mesma entrada do `#let` e do `for`, mirror do vanilla
+        // `call.rs:659-665`); `Ident` liga directo como antes.
+        match &param.pattern {
+            Some(node) => {
+                let Some(pattern) = Pattern::from_untyped(node) else {
+                    return Err(vec![SourceDiagnostic::error(
+                        Span::detached(),
+                        "padrão de parâmetro inválido".to_string(),
+                    )]);
+                };
+                destructure_let(pattern, val, &mut call_scopes, ctx, engine)?;
+            }
+            None => call_scopes.define(param.name.as_str(), val),
+        }
     }
 
     // P504 — sink de argumentos: empacota os restantes num `Value::Args`.
@@ -314,7 +328,10 @@ pub(super) fn eval_closure_expr(
     // Para closures anónimas (n) => ..., name é None (preenchido por eval_let).
     let name = closure_expr.name().map(|n| n.as_str().to_string());
 
-    // Extrair parâmetros — Param::Pos(Pattern::Normal(Ident)), Param::Named,
+    // Extrair parâmetros — Param::Pos(Pattern::Normal(Ident)), Param::Pos
+    // com pattern de desestruturação/placeholder (**P724** — guarda o
+    // pattern completo como SyntaxNode owned; bind via `destructure_let`
+    // na chamada, mirror do vanilla `call.rs:655-665`), Param::Named,
     // e sink spread `..args` (P504).
     let mut sink_name: Option<String> = None;
     let params: SourceResult<Vec<ClosureParam>> = closure_expr
@@ -322,13 +339,20 @@ pub(super) fn eval_closure_expr(
         .children()
         .filter_map(|param| match param {
             Param::Pos(Pattern::Normal(Expr::Ident(ident))) => {
-                Some(Ok(ClosureParam { name: ident.as_str().to_string(), default: None }))
+                Some(Ok(ClosureParam { name: ident.as_str().to_string(), default: None, pattern: None }))
+            }
+            Param::Pos(pattern) => {
+                Some(Ok(ClosureParam {
+                    name: String::new(),
+                    default: None,
+                    pattern: Some(pattern.to_untyped().clone()),
+                }))
             }
             Param::Named(named) => {
                 let name = named.name().as_str().to_string();
                 Some(
                     eval_expr(named.expr(), scopes, ctx, engine)
-                        .map(|v| ClosureParam { name, default: Some(v) }),
+                        .map(|v| ClosureParam { name, default: Some(v), pattern: None }),
                 )
             }
             Param::Spread(spread) => {
@@ -337,7 +361,6 @@ pub(super) fn eval_closure_expr(
                 }
                 None
             }
-            _ => None, // Placeholder, Destructuring — adiado
         })
         .collect();
     let params = params?;

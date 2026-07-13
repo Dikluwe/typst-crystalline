@@ -1,5 +1,5 @@
 # Prompt L0 — entities/func e entities/args
-Hash do Código: b2fc8bcf
+Hash do Código: 4b80f984
 
 **Camada**: L1
 **Ficheiros alvo**: `01_core/src/entities/func.rs`, `01_core/src/entities/args.rs`
@@ -43,8 +43,45 @@ pub struct ClosureRepr {
 pub struct ClosureParam {
     pub name:    String,
     pub default: Option<Value>,
+    /// **P724** — pattern completo de `Param::Pos` não-`Ident`
+    /// (destructuring, parenthesized, placeholder): `SyntaxNode` owned
+    /// (clone O(1) via Arc interno), reparseado na chamada via
+    /// `Pattern::from_untyped` e ligado por `destructure_let` — o mesmo
+    /// mecanismo do `body` (`Expr::from_untyped`). `None` para `Ident`
+    /// posicional e para `Param::Named`. Quando `Some`, `name` é `""`
+    /// (nunca consultado: named lookup com chave vazia não casa) e
+    /// `default` é `None` (pattern posicional nunca tem default).
+    pub pattern: Option<SyntaxNode>,
 }
 ```
+
+**Extensão (P724 — parâmetros com padrão de desestruturação)**: isolada
+por P723 via `cetz` (`path-util.typ:453` —
+`segments.enumerate().filter(((i, segment)) => ...)`): `eval_closure_expr`
+descartava silenciosamente `Param::Pos` com pattern não-`Ident` (braço
+`_ => None`), criando closures com parâmetros a menos que depois
+rejeitavam o argumento (`unexpected argument`, P708). O vanilla
+(`typst-eval/src/call.rs:655-665`) liga `Param::Pos` não-`Ident` via
+`destructure` — a mesma entrada genérica de `let`/`for`. Medido no
+vanilla:
+
+```
+#let f = ((a, b)) => a + b;  f((1, 2))       → 3
+#let f = ((a, b), c) => a+b+c; f((1, 2), 3)  → 6   (mistura com posicional)
+#let g(x, (a, b)) = x+a+b;    g(10, (1, 2))  → 13  (definição nomeada)
+#let f = (_, y) => y;         f(1, 2)        → 2   (placeholder consome)
+#let f = ((a, ..rest)) => rest.len(); f((1,2,3)) → 2  (spread no pattern)
+```
+
+A invariante P708 mantém-se intacta: `pattern` só existe para
+`Param::Pos` (`default: None`); o discriminante posicional vs
+keyword-only continua a ser `default`. **Mudança de comportamento
+aceite**: `(_, y) => ...` (placeholder) passa a consumir o posicional
+(antes: `unexpected argument`) — paridade com o vanilla, medido acima.
+Divergência residual registada (pré-existente, fora do scope): posicional
+em falta liga `Value::None` em vez de `missing argument` do vanilla;
+sobre um pattern, `destructure_let(None)` erra `cannot destructure none`
+em vez de `missing argument: pattern parameter`.
 
 **Invariante (P708 — antes implícita, agora documentada)**: `default` não é
 só "valor por omissão" — é o **discriminante entre parâmetro posicional e
@@ -275,6 +312,12 @@ calc.round.with(digits: 2)(3.14159)                  → 3.14
 {let h(a,x:10,y:20)=a+x+y; h.with(x:100).with(y:200)(1)} → 301 (encadeamento nomeado)
 type(table.with(columns: 2))       → function   (namespace delega através de With)
 type(table.with(columns: 2).cell)  → function   (sub-função, não herda columns: 2)
+// P724 — patterns de desestruturação em parâmetros
+{let f = ((a, b)) => a + b; f((1, 2))}              → 3
+{let f = ((a, b), c) => a + b + c; f((1, 2), 3)}    → 6
+{let g(x, (a, b)) = x + a + b; g(10, (1, 2))}       → 13
+{let f = (_, y) => y; f(1, 2)}                      → 2
+{let f = ((a, ..rest)) => rest.len(); f((1, 2, 3))} → 2
 ```
 
 ## Scope-outs

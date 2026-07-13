@@ -7936,6 +7936,72 @@ mod tests {
         assert_eq!(eval_let(&world, "x"), Some(Value::Int(3)));
     }
 
+    // ── P724 — patterns de desestruturação em parâmetros de closure ──────────
+    // Bloqueio real do cetz isolado em P723 (path-util.typ:453). Vanilla:
+    // `typst-eval/src/call.rs:655-665` — Param::Pos não-Ident liga via
+    // destructure (mesma entrada de let/for).
+
+    #[test]
+    fn p724_closure_destructuring_anonima() {
+        let world = MockWorld::new("#let x = { let f = ((a, b)) => a + b; f((1, 2)) }");
+        assert_eq!(eval_let(&world, "x"), Some(Value::Int(3)));
+    }
+
+    #[test]
+    fn p724_closure_destructuring_misturada_posicional() {
+        let world = MockWorld::new(
+            "#let x = { let f = ((a, b), c) => a + b + c; f((1, 2), 3) }",
+        );
+        assert_eq!(eval_let(&world, "x"), Some(Value::Int(6)));
+    }
+
+    #[test]
+    fn p724_let_nomeada_destructuring() {
+        let world = MockWorld::new("#let g(x, (a, b)) = x + a + b\n#let x = g(10, (1, 2))");
+        assert_eq!(eval_let(&world, "x"), Some(Value::Int(13)));
+    }
+
+    #[test]
+    fn p724_closure_placeholder_consome_posicional() {
+        // Antes: placeholder descartado com o braço `_ => None` → closure
+        // com params a menos → unexpected argument. Vanilla: consome.
+        let world = MockWorld::new("#let x = { let f = (_, y) => y; f(1, 2) }");
+        assert_eq!(eval_let(&world, "x"), Some(Value::Int(2)));
+    }
+
+    #[test]
+    fn p724_closure_destructuring_spread_no_pattern() {
+        let world = MockWorld::new(
+            "#let x = { let f = ((a, ..rest)) => rest.len(); f((1, 2, 3)) }",
+        );
+        assert_eq!(eval_let(&world, "x"), Some(Value::Int(2)));
+    }
+
+    #[test]
+    fn p724_closure_destructuring_enumerate_map_padrao_cetz() {
+        // Padrão exato de cetz path-util.typ:453:
+        // segments.enumerate().filter(((i, segment)) => ...)
+        let world = MockWorld::new(
+            "#let x = ((5, 6), (7, 8)).enumerate().map(((i, seg)) => i + seg.at(1))",
+        );
+        assert_eq!(
+            eval_let(&world, "x"),
+            Some(Value::Array(vec![Value::Int(6), Value::Int(9)]))
+        );
+    }
+
+    #[test]
+    fn p724_closure_destructuring_tipo_errado() {
+        let world = MockWorld::new("#let x = { let f = ((a, b)) => a; f(1) }");
+        let err = eval_for_test(&world, &world.source)
+            .expect_err("destructuring sobre int deve errar");
+        assert!(
+            err[0].message.contains("cannot destructure"),
+            "mensagem esperada: {:?}",
+            err[0].message
+        );
+    }
+
     // ── P709 — módulo `std` (acesso à stdlib não-sombreada) ──────────────────
 
     #[test]
