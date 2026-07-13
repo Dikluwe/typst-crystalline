@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/rules/stdlib/_comum.md
-//! @prompt-hash 55d33081
+//! @prompt-hash 9653507a
 //! @prompt 00_nucleo/prompts/rules/stdlib/square.md
 //! @prompt 00_nucleo/prompts/rules/stdlib/shapes.md
 //! @layer L1
@@ -590,9 +590,20 @@ pub fn native_curve(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::con
     }
 
     let fill   = args.named.get("fill").and_then(parse_paint);
-    let stroke = args.named.get("stroke").and_then(|v| {
-        parse_color(v).map(|c| Stroke { paint: Paint::Solid(c), thickness: 1.0, overhang: false })
-    });
+    let parsed_stroke: Option<Stroke> = args.named.get("stroke")
+        .and_then(parse_color)
+        .map(|c| Stroke { paint: Paint::Solid(c), thickness: 1.0, overhang: false });
+
+    // P727 — fallback determinístico (paridade vanilla `Smart::Auto`,
+    // lab/typst-original/crates/typst-layout/src/shapes.rs:126-129):
+    // sem fill nem stroke → stroke preta de 1pt; com fill sem stroke →
+    // sem stroke. Idêntico ao fallback de `native_rect` — sem ele a
+    // curva renderiza página em branco (path no PDF sem pintura).
+    let stroke = if fill.is_none() && parsed_stroke.is_none() {
+        Some(Stroke { paint: Paint::Solid(Color::rgb(0, 0, 0)), thickness: 1.0, overhang: false })
+    } else {
+        parsed_stroke
+    };
 
     // P277 — `path_bbox` analítica reusada sem alteração.
     let (min_x, min_y, max_x, max_y) =

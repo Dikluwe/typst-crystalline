@@ -1,5 +1,5 @@
 # Prompt L0 — `stdlib/shapes` — módulo `shapes`
-Hash do Código: 149dbe59
+Hash do Código: 0bb635c9
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/rules/stdlib/shapes.rs`
@@ -182,24 +182,36 @@ polygon((0,0), "x") -> Err "coordenada inválida"
   - `("quadratic", [cx, cy], [ex, ey])` → convertido para `CubicTo` via
     fórmula q→c paridade vanilla (`C1 = (P0 + 2C)/3`, `C2 = (P2 + 2C)/3`).
   - `("close",)` → `ClosePath`.
-- `fill`, `stroke`: opcionais.
+  Desde o Passo 513, um segmento posicional pode também ser
+  `Value::Content(Content::Curve(e))` (produzido pelos constructores
+  `curve.move`/`curve.line`/`curve.cubic`/`curve.quad`/`curve.close` —
+  prompt dedicado `00_nucleo/prompts/rules/stdlib/curve.md`); os seus
+  segmentos são concatenados ao path final.
+- `fill`, `stroke`: opcionais. **Fallback determinístico** (paridade vanilla
+  `Smart::Auto`, `lab/typst-original/crates/typst-layout/src/shapes.rs:126-129`,
+  corrigido no Passo 727): se nem `fill` nem `stroke` forem fornecidos,
+  aplica stroke preta de 1pt; se `fill` for fornecido sem `stroke`, a curva
+  fica sem stroke — idêntico ao fallback de `native_rect`.
 
 **Semântica**: Constrói um path arbitrário, calcula bbox via `path_bbox`,
 cria `Content::Shape { kind: Path, ... }`.
 
 **Paridade vanilla**: Interface por tuples descritivos em vez dos métodos
 `curve.move`/`curve.cubic` do vanilla (proc-macros de scope ainda não
-materializados em L1).
+materializados em L1); desde o Passo 513 aceita também `Content::Curve`
+como segmento posicional.
 
 **Limitações / scope-outs**:
-- API de constructores por scope (`curve.move`, etc.) scope-out.
 - `stroke` sólido 1pt.
 
 **Testes canónicos**:
 ```
 curve(("move", (0,0)), ("line", (1,0)), ("line", (1,1)), ("close",)) -> Shape Path
 curve(("quadratic", (0.5, 0.5), (1,0))) -> CubicTo equivalente
- curve("x") -> Err "array de segmento válido"
+curve(("move", (0,0)), ("line", (1,0))) -> Shape Path com stroke preto 1pt (fallback)
+curve(("move", (0,0)), ("line", (1,0)), fill: red) -> Shape Path fill red, sem stroke
+curve(curve.move((0,0)), curve.line((100,0)), curve.close()) -> Shape Path fechado
+curve("x") -> Err "array de segmento válido"
 ```
 
 ---

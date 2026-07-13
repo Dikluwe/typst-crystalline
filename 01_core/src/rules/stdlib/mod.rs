@@ -4909,6 +4909,97 @@ mod tests {
         }
     }
 
+    // ── Passo 727 — fallback de stroke default em `curve` (paridade vanilla) ──
+
+    fn p727_curve_args_minimos() -> Args {
+        Args::positional(vec![
+            Value::Array(vec![
+                Value::Str("move".into()),
+                Value::Array(vec![Value::Float(0.0), Value::Float(0.0)]),
+            ]),
+            Value::Array(vec![
+                Value::Str("line".into()),
+                Value::Array(vec![Value::Float(50.0), Value::Float(50.0)]),
+            ]),
+        ])
+    }
+
+    #[test]
+    fn p727_curve_sem_cores_tem_stroke_preta_1pt() {
+        // P727 — paridade vanilla `Smart::Auto`
+        // (lab/typst-original/crates/typst-layout/src/shapes.rs:126-129):
+        // curve sem fill nem stroke → stroke preta de 1pt (fallback
+        // idêntico a `native_rect`). Sem este fallback a curva renderiza
+        // página em branco (path no PDF sem operador de pintura).
+        null_ctx!(ctx);
+        use crate::entities::layout_types::Color;
+        use crate::entities::paint::Paint;
+        let result = native_curve(
+            &mut ctx,
+            &p727_curve_args_minimos(),
+            &null_world(),
+            test_file_id(),
+        )
+        .unwrap();
+        if let Value::Content(Content::Shape(e)) = result {
+            assert!(e.fill.is_none(), "curve sem fill deve ter fill: None");
+            let s = e
+                .stroke
+                .clone()
+                .expect("P727: curve sem cores deve ter stroke de fallback");
+            assert_eq!(
+                s.paint,
+                Paint::Solid(Color::rgb(0, 0, 0)),
+                "stroke de fallback deve ser preta"
+            );
+            assert_eq!(s.thickness, 1.0, "espessura de fallback deve ser 1pt");
+        } else {
+            panic!("Esperado Content::Shape");
+        }
+    }
+
+    #[test]
+    fn p727_curve_com_fill_nao_tem_stroke_fallback() {
+        // P727 — paridade vanilla: "When setting a fill, the default stroke
+        // disappears" (curve.rs:46-47 vanilla).
+        null_ctx!(ctx);
+        let mut args = p727_curve_args_minimos();
+        args.named.insert("fill".into(), Value::Str("red".into()));
+        let result =
+            native_curve(&mut ctx, &args, &null_world(), test_file_id()).unwrap();
+        if let Value::Content(Content::Shape(e)) = result {
+            assert!(e.fill.is_some(), "fill red deve estar presente");
+            assert!(
+                e.stroke.is_none(),
+                "com fill e sem stroke explícito → stroke deve ser None"
+            );
+        } else {
+            panic!("Esperado Content::Shape");
+        }
+    }
+
+    #[test]
+    fn p727_curve_com_stroke_explicito_preserva() {
+        // P727 — stroke explícito não é substituído pelo fallback.
+        null_ctx!(ctx);
+        use crate::entities::layout_types::Color;
+        use crate::entities::paint::Paint;
+        let mut args = p727_curve_args_minimos();
+        args.named.insert("stroke".into(), Value::Str("blue".into()));
+        let result =
+            native_curve(&mut ctx, &args, &null_world(), test_file_id()).unwrap();
+        if let Value::Content(Content::Shape(e)) = result {
+            let s = e.stroke.clone().expect("stroke explícito deve estar presente");
+            assert_eq!(
+                s.paint,
+                Paint::Solid(Color::rgb(0, 0, 255)),
+                "stroke explícito blue deve ser preservado"
+            );
+        } else {
+            panic!("Esperado Content::Shape");
+        }
+    }
+
     #[test]
     fn parse_color_nomes_conhecidos() {
         assert_eq!(parse_color(&Value::Str("red".into())), Some(Color::rgb(255, 0, 0)));

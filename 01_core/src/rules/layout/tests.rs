@@ -375,6 +375,24 @@ fn layout_divider_emite_shape_line() {
 }
 
 #[test]
+fn p727_layout_curve_fallback_stroke_chega_a_pagina() {
+    // P727 — regressão do bug "curve renderiza página em branco": o
+    // fallback de stroke default (stdlib, paridade vanilla Smart::Auto)
+    // tem de chegar intacto à Page como `stroke: Some`.
+    let doc = layout_test("#curve(curve.move((0pt,0pt)), curve.line((50pt,50pt)))");
+    let has_stroked_path = doc.pages.iter().flat_map(|p| p.items.iter()).any(|i| {
+        matches!(
+            i,
+            FrameItem::Shape { kind: ShapeKind::Path(_), stroke: Some(_), .. }
+        )
+    });
+    assert!(
+        has_stroked_path,
+        "P727: curve sem fill/stroke deve chegar à Page com stroke de fallback"
+    );
+}
+
+#[test]
 fn layout_link_preserva_url_e_texto() {
     let doc = layout(&Content::link("https://example.com", Content::text("click")));
     use crate::entities::layout_types::LinkTarget;
@@ -15367,4 +15385,3 @@ fn p488_extracted_table_page_numbers_default_vazio() {
         "sem tabelas contadas: extracted_table_page_numbers deve estar vazio"
     );
 }
-

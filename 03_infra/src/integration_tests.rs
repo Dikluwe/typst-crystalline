@@ -614,6 +614,24 @@ mod integration {
     }
 
     #[test]
+    fn p727_pdf_curve_contem_operador_stroke() {
+        // P727 — regressão "curve renderiza página em branco": o PDF do
+        // caso mínimo `#curve(curve.move(...), curve.line(...))` tem de
+        // conter o operador de stroke `S` — sem ele o path existe no
+        // content stream mas nada é pintado (paridade vanilla: forma
+        // visível com stroke default 1pt preto).
+        let pdf =
+            compile_to_pdf("#curve(curve.move((0pt,0pt)), curve.line((50pt,50pt)))");
+        assert!(!pdf.is_empty());
+        assert_eq!(&pdf[..5], b"%PDF-");
+        let s = String::from_utf8_lossy(&pdf);
+        assert!(
+            s.contains("S\n"),
+            "P727: PDF de curve deve conter operador de stroke (S)"
+        );
+    }
+
+    #[test]
     #[ignore = "requer fonte com tabela MATH em tests/fixtures/stix-two-math.otf"]
     fn pdf_tounicode_contem_mapeamento_de_delimitador() {
         // Com fonte MATH real, ToUnicode deve mapear '(' e ')' incluindo variantes.
