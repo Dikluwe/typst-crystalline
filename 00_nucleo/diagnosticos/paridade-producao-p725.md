@@ -2,8 +2,7 @@
 
 **Data:** 2026-07-13
 **Passo:** `00_nucleo/materialization/typst-passo-725.md`
-**Hash do commit (implementação):** *(preenchido no commit seguinte — mesmo
-padrão de P723/P724).*
+**Hash do commit (implementação):** `e99344271`.
 **HEAD base:** `5fe90f9d3` (fim de P724, branch `Tekt`).
 **Estado:** FECHADO — as quatro combinações `Length*Int`, `Int*Length`,
 `Length*Float`, `Float*Length` implementadas em `eval_binary_op`, paridade
@@ -220,4 +219,4 @@ render tocada). Nada a atualizar nas ADRs.
   isolado para P726.
 - [x] Grep às ADRs em vigor pelos termos centrais (`Mul`, `Length`) (§5).
 - [x] Relatório em `00_nucleo/diagnosticos/paridade-producao-p725.md`
-  (hash do commit preenchido no commit seguinte).
+  (hash do commit `e99344271`).
