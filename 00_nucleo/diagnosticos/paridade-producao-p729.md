@@ -3,7 +3,7 @@
 **Data:** 2026-07-13
 **Passo:** `00_nucleo/materialization/typst-passo-729.md`
 **ADRs em vigor:** ADR-0107 (paridade é com a linguagem), ADR-0108 (medir antes de decidir), ADR-0114 (sonda antes da spec — mecanismo central de avaliação).
-**Commit:** A PREENCHER
+**Commit:** `9cf87bf044c6823e0cbcd1df1e35e6fe3a5cb50b`
 **Proveniência das medições (regra de proveniência):** commit base `809983e5c1a80f4929e96f5b594a50cb70f39784` ("P728: preenche hash do commit no relatório"), working tree com as alterações deste passo (`git diff HEAD --stat`: `00_nucleo/prompts/rules/eval.md`, `00_nucleo/prompts/rules/eval/ops.md`, `01_core/src/rules/eval/control_flow.rs`, `01_core/src/rules/eval/tests.rs` + headers `@prompt-hash` retocados pelo `--fix-hashes` em `bibliography.rs`, `closures.rs`, `flow.rs`, `markup.rs`, `math.rs`, `mod.rs`, `modules.rs`, `operators.rs`, `rules.rs`). Medições vanilla: `lab/typst-original/target/release/typst`; medições cristalino: `./target/release/typst` (release build de 2026-07-13T20:55Z).
 
 ---
