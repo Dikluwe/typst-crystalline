@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/rules/eval.md
-//! @prompt-hash 01633311
+//! @prompt-hash fd177a16
 //! @layer L1
 //! @updated 2026-07-09
 //!
@@ -654,7 +654,7 @@ pub(crate) fn eval_expr(
             let mut local_styles = engine.styles.clone();
             let mut local_show_rules = Arc::clone(engine.show_rules);
             let mut local_sink = TrackedMut::reborrow_mut(&mut *engine.sink);
-            let mut last = Value::None;
+            let mut output = Value::None;
             {
                 let mut local_engine = Engine {
                     world: engine.world,
@@ -666,13 +666,20 @@ pub(crate) fn eval_expr(
                     sink: &mut local_sink,
                 };
                 for expr in code_block.body().exprs() {
-                    last = eval_expr(expr, scopes, ctx, &mut local_engine)?;
+                    // **P728** — o valor do bloco é o `join` sequencial dos
+                    // valores das expressões (paridade vanilla
+                    // `typst-eval/src/code.rs:57` + `ops::join`), não só o
+                    // da última. Medido: `{ (1,); (2,) }` → `(1, 2)`.
+                    let span = expr.span();
+                    let value = eval_expr(expr, scopes, ctx, &mut local_engine)?;
+                    output = operators::join(output, value)
+                        .map_err(|msg| vec![SourceDiagnostic::error(span, msg)])?;
                     if ctx.flow.is_some() {
                         break;
                     }
                 }
             }
-            Ok(last)
+            Ok(output)
         }
 
         // **P715** — `Assign`/`AddAssign`/`SubAssign`/`MulAssign`/`DivAssign`
@@ -683,6 +690,25 @@ pub(crate) fn eval_expr(
             binary.op(),
             BinOp::Assign | BinOp::AddAssign | BinOp::SubAssign | BinOp::MulAssign | BinOp::DivAssign
         ) => bindings::eval_assign(binary, scopes, ctx, engine),
+
+        // **P728** — short-circuit de `and`/`or` (paridade vanilla
+        // `apply_binary` em `typst-eval/src/ops.rs:52-66`): o segundo
+        // operando só é avaliado se o primeiro não decidir o resultado.
+        // Medido: `false and (1/0 == 0)` → `false` (sem erro de divisão).
+        Expr::Binary(binary) if matches!(binary.op(), BinOp::And | BinOp::Or) => {
+            let lhs = eval_expr(binary.lhs(), scopes, ctx, engine)?;
+            let decided = matches!(
+                (binary.op(), &lhs),
+                (BinOp::And, Value::Bool(false)) | (BinOp::Or, Value::Bool(true))
+            );
+            if decided {
+                Ok(lhs)
+            } else {
+                let rhs = eval_expr(binary.rhs(), scopes, ctx, engine)?;
+                operators::eval_binary_op(binary.op(), lhs, rhs)
+                    .map_err(|msg| vec![SourceDiagnostic::error(binary.span(), msg)])
+            }
+        }
 
         Expr::Binary(binary) => {
             let lhs = eval_expr(binary.lhs(), scopes, ctx, engine)?;

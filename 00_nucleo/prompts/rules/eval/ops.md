@@ -347,6 +347,105 @@ como candidata a passo futuro.
 
 ---
 
+## P728 — Short-circuit de `and`/`or` + `join` em code block
+
+Dois bugs de mecanismo central encontrados na validação final do `cetz`
+em P727 (`line((0,0),(2,1))` ausente do PDF), isolados com casos mínimos
+independentes de `cetz`. ADR-0114 aplicado: sonda antes desta spec.
+
+### Bug 1 — `and`/`or` sem short-circuit (braço `Expr::Binary` de `eval/mod.rs`)
+
+O dispatch genérico avaliava **os dois operandos** antes de despachar
+(`eval/mod.rs:687-692`), violando a semântica da linguagem:
+`type(a) == str and a.contains(".")` com `a` array errava
+"campo desconhecido em array: 'contains'" em vez de dar `false`.
+
+Mecanismo do vanilla (`typst-eval/src/ops.rs:52-66`, medido):
+
+```rust
+let lhs = binary.lhs().eval(vm)?;
+// Short-circuit boolean operations.
+if (binary.op() == ast::BinOp::And && lhs == false.into_value())
+    || (binary.op() == ast::BinOp::Or && lhs == true.into_value())
+{
+    return Ok(lhs);
+}
+let rhs = binary.rhs().eval(vm)?;
+```
+
+Medições vanilla (binário release): `type(a) == str and a.contains(".")`
+(a array) → `false`; `type(a) == array or a.contains(".")` → `true`;
+`false and (1/0 == 0)` → `false`; `true or (1/0 == 0)` → `true`
+(nenhum erro — o segundo operando não é avaliado). Caso inverso:
+`1 and 2` → erro (ambos avaliados; `and` exige Bool — comportamento de
+`eval_binary_op` inalterado).
+
+### Implementação (bug 1)
+
+Braço dedicado em `eval_expr` **antes** do dispatch genérico de
+`Expr::Binary`:
+
+```rust
+Expr::Binary(b) if matches!(b.op(), BinOp::And | BinOp::Or) => {
+    let lhs = eval_expr(b.lhs(), ...)?;
+    let decided = matches!((b.op(), &lhs),
+        (BinOp::And, Value::Bool(false)) | (BinOp::Or, Value::Bool(true)));
+    if decided { Ok(lhs) }
+    else {
+        let rhs = eval_expr(b.rhs(), ...)?;
+        operators::eval_binary_op(b.op(), lhs, rhs)...
+    }
+}
+```
+
+### Bug 2 — code block sem `join` (a "anomalia de ordem" de P727)
+
+O braço `Expr::CodeBlock` devolvia só o valor da **última** expressão,
+descartando as anteriores. O vanilla acumula com `ops::join`
+(`typst-eval/src/code.rs:57`: `output = ops::join(output, value)`).
+
+É este o mecanismo da "anomalia de ordem" notada em P727 — **não
+memoização** (refutado: não há `#[comemo::memoize]` no eval de closures;
+casos puros de closure reproduzem o erro consistentemente): o body do
+canvas cetz `{ line(...); circle(...) }` vale `(closure_line,
+closure_circle)` no vanilla mas só `(closure_circle)` no cristalino — a
+primeira expressão perdia-se. Medido: `{ (1,); (2,) }` → vanilla `(1, 2)`,
+cristalino `(2)`.
+
+Mecanismo do vanilla (`foundations/ops.rs:24-45`):
+
+| Combinação | Resultado |
+|---|---|
+| `(a, None)` / `(None, b)` | `a` / `b` — None é identidade |
+| `Str+Str`, `Symbol±Str`, `Symbol+Symbol` | concatenação de texto |
+| `Bytes+Bytes` | concatenação |
+| `Content+Content`, `Content±Str/Symbol` | sequência de content |
+| `Array+Array` | concatenação (ordem preservada) |
+| `Dict+Dict` | merge (direita vence, posição preservada — como P720) |
+| `Args+Args` | merge |
+| resto | **erro** — medido: `{ 1; 2 }` → vanilla "cannot join integer with integer" |
+
+Medições vanilla adicionais: `{ "a"; "b" }` → `"ab"`;
+`{ none; (1,) }` → `(1,)`; `{ (1,); none }` → `(1,)`;
+`{ (:); (a: 1) }` → `(a: 1)`; `{ 1; none }` → `1`.
+
+### Implementação (bug 2)
+
+`pub(crate) fn join(lhs: Value, rhs: Value) -> Result<Value, String>` em
+`operators.rs` (mirror da tabela acima; `Content::sequence` e
+`Content::text` para content; `Symbol` vira texto via `ch`); o braço
+`Expr::CodeBlock` de `eval_expr` acumula
+`output = operators::join(output, value)?` por expressão (span da
+expressão no erro, paridade `.at(span)` do vanilla).
+
+Mensagem de erro: formato do vanilla (`cannot join {a} with {b}`) com os
+`type_name()` do cristalino (`int`, `str`, … em vez de `integer`,
+`string`) — divergência de texto aceite, mesmo padrão já aceite na
+fronteira genérica de `eval_binary_op` (o observável "é erro de tipo"
+preservado; ADR-0107 — mecânica diverge de propósito).
+
+---
+
 ## Critérios de Verificação
 
 ```rust
@@ -404,6 +503,29 @@ eval_binary_op(Mul, Float(0.5), Length(1pt+1em)) == Length(0.5pt+0.5em)
 eval_binary_op(Mul, Length(1pt), Float(NaN))     == Length(0pt)   // NaN → 0 (paridade Scalar::new)
 eval_binary_op(Mul, Length(1em), Float(NaN))     == Length(0pt)
 eval_binary_op(Mul, Length(1pt), Float(inf))     == Length(inf pt) // inf propaga-se
+
+// P728 — short-circuit and/or (via eval de markup)
+eval("#(false and (1/0 == 0))")                  == Content("false")
+eval("#(true or (1/0 == 0))")                    == Content("true")
+eval("#(type((1,2)) == str and (1,2).at(9))")    == Content("false") // rhs não avaliado
+eval("#(true and 2)")                            == Content("2")     // caso comum
+eval("#(false or 3)")                            == Content("3")
+
+// P728 — join em code block (via eval de markup)
+eval("#let x = { (1,); (2,) }; #repr(x)")        == "(1, 2)"
+eval("#let x = { \"a\"; \"b\" }; #repr(x)")      == "\"ab\""
+eval("#let x = { none; (1,) }; #repr(x)")        == "(1,)"
+eval("#let x = { (1,); none }; #repr(x)")        == "(1,)"
+eval("#let x = { (:); (a: 1) }; #repr(x)")       == "(a: 1)"
+eval("#let x = { 1; none }; #repr(x)")           == "1"
+eval("#let x = { 1; 2 }")                        == Err (cannot join)
+
+// P728 — join unitário (operators::join)
+join(Str("a"), Str("b"))                         == Str("ab")
+join(Array[1], Array[2])                         == Array[1, 2]
+join(Dict{a:1}, Dict{b:2})                       == Dict{a:1, b:2}
+join(Int(1), Int(2))                             == Err (cannot join)
+join(Content([a]), Content([b]))                 == Content([a b])
 ```
 
 ---
@@ -427,3 +549,4 @@ eval_binary_op(Mul, Length(1pt), Float(inf))     == Length(inf pt) // inf propag
 | 2026-07-12 | P720 — `Array + Array` (concatenação) e `Dict + Dict` (merge, direita vence, posição preservada); isolado via `cetz` | `operators.rs`, `tests.rs` |
 | 2026-07-13 | P722 — `Array * Int` e `Int * Array` (repetição, paridade `Array::repeat`); scope-out `Dict * Int` (inexistente no vanilla); isolado via `cetz` (`hobby.typ:77,78`) | `operators.rs`, `tests.rs` |
 | 2026-07-13 | P725 — `Length * Int\|Float` (quatro combinações, paridade `ops.rs:238-243`); NaN → 0 por componente (paridade `Scalar::new`), inf propaga-se; scope-out `Length * Ratio` (não produzível); isolado via `cetz` (`canvas.typ:146-147,182-186`) | `operators.rs`, `tests.rs` |
+| 2026-07-13 | P728 — short-circuit `and`/`or` (paridade `typst-eval/ops.rs:52-66`, braço dedicado em `eval_expr`); `join` em code block (paridade `typst-eval/code.rs:57` + `foundations/ops.rs:24-45`); a "anomalia de ordem" de P727 era o bug 2, não memoização; isolado via `cetz` (`canvas` body) | `operators.rs`, `eval/mod.rs`, `eval/tests.rs` |

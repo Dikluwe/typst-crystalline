@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/rules/eval.md
-//! @prompt-hash 01633311
+//! @prompt-hash fd177a16
 //! @layer L1
 //! @updated 2026-06-17
 //!
@@ -9499,5 +9499,159 @@ mod tests {
         let module = eval_for_test(&world, &src).unwrap();
         let text = module.content().expect("eval deve produzir Content").plain_text();
         assert!(text.contains("um") && text.contains("dois") && text.contains("três"));
+    }
+
+    // ── Passo 728 — short-circuit `and`/`or` + `join` em code block ──────
+
+    fn p728_eval(markup: &str) -> SourceResult<Module> {
+        let world = MockWorld::new(markup);
+        let src = World::source(&world, World::main(&world)).unwrap();
+        eval_for_test(&world, &src)
+    }
+
+    #[test]
+    fn p728_and_shortcircuit_nao_avalia_rhs() {
+        // Vanilla: `false and (1/0 == 0)` → false sem erro de divisão.
+        let m = p728_eval("#let r = false and (1/0 == 0)").unwrap();
+        assert_eq!(m.scope().get("r"), Some(&Value::Bool(false)));
+    }
+
+    #[test]
+    fn p728_or_shortcircuit_nao_avalia_rhs() {
+        // Vanilla: `true or (1/0 == 0)` → true sem erro de divisão.
+        let m = p728_eval("#let r = true or (1/0 == 0)").unwrap();
+        assert_eq!(m.scope().get("r"), Some(&Value::Bool(true)));
+    }
+
+    #[test]
+    fn p728_and_shortcircuit_idioma_verificar_antes_de_aceder() {
+        // O idioma do cetz (draw/shapes.typ:608): guarda de tipo antes de
+        // field access. Com a array, `.contains` nunca é avaliado.
+        let m = p728_eval(
+            "#let a = (1, 2)\n#let r = type(a) == str and a.contains(\".\")",
+        )
+        .unwrap();
+        assert_eq!(m.scope().get("r"), Some(&Value::Bool(false)));
+    }
+
+    #[test]
+    fn p728_or_shortcircuit_idioma() {
+        let m = p728_eval(
+            "#let a = (1, 2)\n#let r = type(a) == array or a.contains(\".\")",
+        )
+        .unwrap();
+        assert_eq!(m.scope().get("r"), Some(&Value::Bool(true)));
+    }
+
+    #[test]
+    fn p728_and_caso_comum_rhs_avaliado() {
+        // lhs não decide → rhs avaliado; resultado normal.
+        let m = p728_eval("#let r = true and false").unwrap();
+        assert_eq!(m.scope().get("r"), Some(&Value::Bool(false)));
+    }
+
+    #[test]
+    fn p728_or_caso_comum_rhs_avaliado() {
+        let m = p728_eval("#let r = false or true").unwrap();
+        assert_eq!(m.scope().get("r"), Some(&Value::Bool(true)));
+    }
+
+    #[test]
+    fn p728_and_tipos_invalidos_erra() {
+        // lhs não decide (`1` não é `false`) → rhs avaliado → `and` exige
+        // Bool (paridade vanilla `ops::and`, sem alteração).
+        let err = p728_eval("#let r = 1 and 2").unwrap_err();
+        assert!(!err.is_empty());
+    }
+
+    #[test]
+    fn p728_codeblock_join_arrays() {
+        // Caso mínimo da "anomalia de ordem" de P727: vanilla `(1, 2)`,
+        // cristalino pré-P728 `(2)` — só a última expressão.
+        let m = p728_eval("#let x = { (1,); (2,) }").unwrap();
+        assert_eq!(
+            m.scope().get("x"),
+            Some(&Value::Array(vec![Value::Int(1), Value::Int(2)]))
+        );
+    }
+
+    #[test]
+    fn p728_codeblock_join_strs() {
+        let m = p728_eval("#let x = { \"a\"; \"b\" }").unwrap();
+        assert_eq!(m.scope().get("x"), Some(&Value::Str("ab".into())));
+    }
+
+    #[test]
+    fn p728_codeblock_none_identidade_esquerda() {
+        let m = p728_eval("#let x = { none; (1,) }").unwrap();
+        assert_eq!(
+            m.scope().get("x"),
+            Some(&Value::Array(vec![Value::Int(1)]))
+        );
+    }
+
+    #[test]
+    fn p728_codeblock_none_identidade_direita() {
+        let m = p728_eval("#let x = { (1,); none }").unwrap();
+        assert_eq!(
+            m.scope().get("x"),
+            Some(&Value::Array(vec![Value::Int(1)]))
+        );
+    }
+
+    #[test]
+    fn p728_codeblock_join_dicts() {
+        let m = p728_eval("#let x = { (:); (a: 1) }").unwrap();
+        let mut d = IndexMap::with_hasher(FxBuildHasher);
+        d.insert(EcoString::from("a"), Value::Int(1));
+        assert_eq!(m.scope().get("x"), Some(&Value::Dict(d)));
+    }
+
+    #[test]
+    fn p728_codeblock_valor_antes_de_none() {
+        let m = p728_eval("#let x = { 1; none }").unwrap();
+        assert_eq!(m.scope().get("x"), Some(&Value::Int(1)));
+    }
+
+    #[test]
+    fn p728_codeblock_join_invalido_erra() {
+        // Vanilla: `{ 1; 2 }` → erro "cannot join integer with integer".
+        let err = p728_eval("#let x = { 1; 2 }").unwrap_err();
+        assert!(
+            err[0].message.contains("cannot join"),
+            "msg: {}",
+            err[0].message
+        );
+    }
+
+    #[test]
+    fn p728_codeblock_expressao_unica_sem_regressao() {
+        let m = p728_eval("#let x = { 40 + 2 }").unwrap();
+        assert_eq!(m.scope().get("x"), Some(&Value::Int(42)));
+    }
+
+    #[test]
+    fn p728_join_unitario() {
+        use crate::rules::eval::operators::join;
+        assert_eq!(
+            join(Value::Str("a".into()), Value::Str("b".into())),
+            Ok(Value::Str("ab".into()))
+        );
+        assert_eq!(
+            join(
+                Value::Array(vec![Value::Int(1)]),
+                Value::Array(vec![Value::Int(2)])
+            ),
+            Ok(Value::Array(vec![Value::Int(1), Value::Int(2)]))
+        );
+        assert_eq!(join(Value::None, Value::Int(5)), Ok(Value::Int(5)));
+        assert_eq!(join(Value::Int(5), Value::None), Ok(Value::Int(5)));
+        assert!(join(Value::Int(1), Value::Int(2)).is_err());
+        let c = join(
+            Value::Content(Content::text("a")),
+            Value::Content(Content::text("b")),
+        )
+        .unwrap();
+        assert!(matches!(c, Value::Content(_)));
     }
 }

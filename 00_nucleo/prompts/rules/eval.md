@@ -1,5 +1,5 @@
 # Prompt L0 — rules/eval
-Hash do Código: 8708a8a8
+Hash do Código: ef7fdd6c
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/rules/eval/mod.rs`
@@ -114,8 +114,14 @@ renderizado.
 - `Expr::None` → `Value::None`
 - `Expr::Ident` → lookup em Scopes, erro se não encontrado
 - `Expr::LetBinding` → eval_let: avalia init, define no scope activo
-- `Expr::CodeBlock` → evalua exprs sequencialmente via `body().exprs()`
-- `Expr::Binary(binary)` → eval_binary_op(binary.op(), lhs, rhs)
+- `Expr::CodeBlock` → evalua exprs sequencialmente via `body().exprs()`,
+  acumulando com `operators::join` por expressão (P728 — paridade vanilla
+  `typst-eval/src/code.rs:57`: `output = join(output, value)`; `None` é
+  identidade; combinações inválidas → erro; ver `rules/eval/ops.md` §P728)
+- `Expr::Binary(binary)` → eval_binary_op(binary.op(), lhs, rhs);
+  `And`/`Or` têm braço dedicado com short-circuit (P728 — paridade vanilla
+  `typst-eval/src/ops.rs:52-66`: `false and X` / `true or X` devolvem o
+  lhs sem avaliar X)
 - `Expr::Unary(unary)` → eval_unary_op(unary.op(), operand)
 - `Expr::Conditional(cond)` → eval_conditional: condition(), if_body(), else_body()
 - `Expr::WhileLoop(loop)` → eval_while: MAX_ITER=10_000 limite de segurança
