@@ -2,8 +2,7 @@
 
 **Data:** 2026-07-13
 **Passo:** `00_nucleo/diagnosticos/typst-passo-726.md`
-**Hash do commit (implementação):** *(preenchido no commit seguinte — mesmo
-padrão de P723/P724/P725).*
+**Hash do commit (implementação):** `f9ae244e7`.
 **HEAD base:** `e20cf50b7` (fim de P725, branch `Tekt`).
 **Estado:** FECHADO — `fill: none` e `stroke: none` aceites em 12 pontos
 (block/box/grid/table × fill/stroke + table.cell/grid.cell), paridade
@@ -208,4 +207,4 @@ Nada a atualizar nas ADRs.
 - [x] Bug de render de `curve` confirmado — ainda bloqueia; isolado como
   específico de paths, local registado para P727.
 - [x] Relatório em `00_nucleo/diagnosticos/paridade-producao-p726.md`
-  (hash do commit preenchido no commit seguinte).
+  (hash do commit `f9ae244e7`).
