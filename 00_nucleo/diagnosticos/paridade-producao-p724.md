@@ -2,7 +2,7 @@
 
 **Data:** 2026-07-13
 **Passo:** `00_nucleo/materialization/typst-passo-724.md`
-**Hash do commit (implementação):** a preencher após o commit.
+**Hash do commit (implementação):** `acb32408a`.
 **HEAD base:** `630a32f73` (fim de P723, branch `Tekt`).
 **Estado:** FECHADO — `ClosureParam` passa a guardar o pattern completo
 (`Option<SyntaxNode>`); `apply_closure` liga patterns não-`Ident` via
