@@ -135,9 +135,10 @@ impl FontMetrics for FontBookMetrics<'_> {
         (ascender_pt, line_height_pt)
     }
 
-    /// **P750** — cap-height em pontos, com fallback para ascender quando a
-    /// fonte não expõe a métrica (igual ao vanilla).
-    fn cap_height(&self, size: Pt) -> Pt {
+    /// **P750/P752** — cap-height em pontos, com fallback para ascender quando
+    /// a fonte não expõe a métrica (igual ao vanilla). O `style` é ignorado
+    /// porque `FontBookMetrics` já encapsula uma face específica.
+    fn cap_height(&self, size: Pt, _style: &TextStyle) -> Pt {
         let ascender = self.face.ascender() as f64;
         let cap = self
             .face
@@ -694,9 +695,32 @@ impl FontMetrics for FallbackFontMetrics<'_> {
         (size * 0.8, size * 1.2)
     }
 
-    /// **P750** — cap-height da primeira fonte disponível, com fallback para
-    /// ascender (ou proporção fixa se não houver fontes).
-    fn cap_height(&self, size: Pt) -> Pt {
+    /// **P750/P752** — cap-height da fonte resolvida para o estilo activo,
+    /// com fallback para ascender (ou proporção fixa se não houver fontes).
+    ///
+    /// Usa `resolve_primary(style)` para escolher a mesma face que o shaper
+    /// usará, em vez da primeira fonte arbitrária do FontBook.
+    fn cap_height(&self, size: Pt, style: &TextStyle) -> Pt {
+        let primary = self.resolve_primary(style);
+
+        // Se o estilo declarou uma fonte primária, usar a primeira que
+        // resolveu. Caso contrário, `resolve_primary` já aplicou a lista de
+        // fallback do shaper.
+        if let Some(cand) = primary.first() {
+            if let Some(cached) = self.cached_face(cand.slot_idx) {
+                let face = cached.face();
+                let upem = cand.units_per_em as f64;
+                let ascender = face.ascender() as f64;
+                let cap = face
+                    .capital_height()
+                    .filter(|&h| h > 0)
+                    .map(|h| h as f64)
+                    .unwrap_or(ascender);
+                return size * (cap / upem);
+            }
+        }
+
+        // Fallback final: primeira fonte do book (comportamento anterior).
         let book_len = self.world.book().len();
         for slot_idx in 0..book_len {
             let Some(cached) = self.cached_face(slot_idx) else { continue };
@@ -710,7 +734,7 @@ impl FontMetrics for FallbackFontMetrics<'_> {
                 .unwrap_or(ascender);
             return size * (cap / upem);
         }
-        // Fallback: mesma aproximação de FixedMetrics.
+        // Fallback último: mesma aproximação de FixedMetrics.
         size * 0.7
     }
 }

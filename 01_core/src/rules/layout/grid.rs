@@ -278,7 +278,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
         // bloco Grid deve alinhar-se com o topo da área disponível
         // (baseline − cap-height), não com a baseline. Isto coloca o grid
         // na margem no topo da página, alinhado com o vanilla.
-        let grid_cap_height = self.metrics.cap_height(self.style.size);
+        let grid_cap_height = self.metrics.cap_height(self.style.size, &self.style);
         self.regions.current.cursor_y = Pt(self.regions.current.cursor_y.0 - grid_cap_height.0);
 
         // Fase 1.5 — paginação ANTES da fase 2 de Fraction.

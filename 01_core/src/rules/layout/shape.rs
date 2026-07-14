@@ -49,7 +49,7 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
     let shape_top = if layouter.is_sub_frame {
         layouter.regions.current.cursor_y
     } else {
-        layouter.regions.current.cursor_y - layouter.metrics.cap_height(layouter.style.size)
+        layouter.regions.current.cursor_y - layouter.metrics.cap_height(layouter.style.size, &layouter.style)
     };
     let pos = Point { x: layouter.regions.current.cursor_x, y: shape_top };
     layouter.regions.current.current_items.push(FrameItem::Shape {

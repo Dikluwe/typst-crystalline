@@ -32,13 +32,15 @@ pub trait FontMetrics: Send + Sync {
     /// - `line_height`: distância total entre duas baselines consecutivas.
     fn vertical_metrics(&self, size: Pt) -> (Pt, Pt);
 
-    /// **P750** — distância da baseline ao topo das maiúsculas (cap-height).
+    /// **P750/P752** — distância da baseline ao topo das maiúsculas
+    /// (cap-height).
     ///
     /// Usado para posicionar a primeira baseline do texto a
     /// `margem + cap-height`, paridade com o vanilla (`text(top-edge:
     /// "cap-height")` por omissão). Implementações sem métrica real devem
-    /// aproximar proporcionalmente (ex: `size * 0.7`).
-    fn cap_height(&self, size: Pt) -> Pt;
+    /// aproximar proporcionalmente (ex: `size * 0.7`). O `style` é passado
+    /// para que implementações L3 possam resolver a fonte correcta (P752).
+    fn cap_height(&self, size: Pt, style: &TextStyle) -> Pt;
 
     /// Constantes da tabela OpenType MATH, se disponível.
     ///
@@ -190,8 +192,8 @@ impl FontMetrics for FixedMetrics {
         (size * 0.8, size * 1.2)
     }
 
-    fn cap_height(&self, size: Pt) -> Pt {
-        // **P750** — aproximação proporcional consistente com a razão
+    fn cap_height(&self, size: Pt, _style: &TextStyle) -> Pt {
+        // **P750/P752** — aproximação proporcional consistente com a razão
         // típica cap-height/em; usada apenas quando não há fonte real.
         size * 0.7
     }

@@ -73,7 +73,7 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
         layouter.regions.current.height = layouter.page_config.height;
         layouter.regions.current.cursor_x = Pt(layouter.page_config.margin);
         layouter.regions.current.cursor_y =
-            Pt(layouter.page_config.margin) + layouter.metrics.cap_height(layouter.style.size);
+            Pt(layouter.page_config.margin) + layouter.metrics.cap_height(layouter.style.size, &layouter.style);
         layouter.regions.current.line_start_x = Pt(layouter.page_config.margin);
         // DEBT-35b: se available_width() vier a ter cache, invalidar aqui.
     }
