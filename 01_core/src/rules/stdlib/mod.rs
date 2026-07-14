@@ -4533,6 +4533,31 @@ mod tests {
     // ── P734 — polygon rejeita Int/Float (paridade vanilla) ──────────────
 
     #[test]
+    fn p741_polygon_ratio_relativo_scope_out_mensagem() {
+        // **P741** — caminho real do utilizador: `50%` chega como
+        // `Value::Relative` (abs zero), não `Value::Ratio`. Antes de P741
+        // a mensagem era absurda ("expected relative length, found
+        // relative length"). O scope-out mantém-se (resolução exige
+        // altura de contentor inline, inexistente — custo medido no
+        // relatório do passo), agora com mensagem explícita.
+        null_ctx!(ctx);
+        let args = Args::positional(vec![Value::Array(vec![
+            Value::Relative(crate::entities::rel::Rel {
+                rel: 0.5,
+                abs: crate::entities::layout_types::Length::ZERO,
+            }),
+            Value::Length(crate::entities::layout_types::Length::pt(0.0)),
+        ])]);
+        let err = native_polygon(&mut ctx, &args, &null_world(), test_file_id())
+            .expect_err("polygon com coordenada relativa deve ser scope-out (P741)");
+        let msg = err.first().map(|d| d.message.to_string()).unwrap_or_default();
+        assert!(
+            msg.contains("scope-out") && msg.contains("contentor"),
+            "msg: {msg}"
+        );
+    }
+
+    #[test]
     fn p734_polygon_rejeita_int_com_mensagem_vanilla() {
         // Medido vanilla: "expected relative length, found integer".
         null_ctx!(ctx);

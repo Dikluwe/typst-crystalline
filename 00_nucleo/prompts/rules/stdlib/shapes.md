@@ -1,5 +1,5 @@
 # Prompt L0 — `stdlib/shapes` — módulo `shapes`
-Hash do Código: e0285ed8
+Hash do Código: 5cd2ab4f
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/rules/stdlib/shapes.rs`
@@ -187,6 +187,24 @@ bbox via `geometry::path_bbox` para `width`/`height`. Cria
   cristalino corre em tempo de eval, sem dimensão de referência (mesmo
   precedente de P513 em `curve`). Ratio produz erro explícito de
   scope-out, não a mensagem vanilla.
+- **P741 — scope-out reforçado, com custo medido.** A sonda confirmou a
+  dimensão de referência do vanilla: o ratio resolve contra o
+  **contentor** em tempo de layout — `box(width: 200pt, height: 100pt,
+  polygon((0pt, 50%), ...))` ≡ `(0pt, 50pt)` (diff 0.0000% medido); fora
+  do box, contra a região de texto. O caminho real do utilizador chega
+  como `Value::Relative` (abs zero), não `Value::Ratio` — pré-P741 a
+  mensagem era absurda ("expected relative length, found relative
+  length"); agora o braço `Value::Relative` produz a mensagem de
+  scope-out. Custo da paridade completa (medido, não estimado): (1)
+  `ShapeKind::Path` carrega `Point` absoluto — exigiria ponto relativo
+  novo em `geometry.rs` + resolução em `layout/shape.rs` + alteração
+  dos 3 braços de `03_infra/src/export/stream.rs` + construtores
+  (`polygon` e `curve`); (2) **a altura de contentor inline não existe**
+  — o `Boxed` faz layout do body com `unconstrained_height: true`
+  (`layout/boxed.rs`), pelo que `50%` em y não teria referência sem
+  estender o mecanismo de sub-frame inline (partilhado por todo o
+  conteúdo em box). Sem consumidor em `cetz` (usa `Length` absolutos
+  via `transform-point`, P734) — custo desproporcional.
 - A restrição a `Length` **não** se aplica a `curve`: a interface por
   tuples do cristalino (`("move", (0, 0))`) é divergência intencional
   documentada (o vanilla rejeita tuples — "expected content, found array",

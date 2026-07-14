@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/rules/stdlib/_comum.md
-//! @prompt-hash efc633a0
+//! @prompt-hash bf586291
 //! @prompt 00_nucleo/prompts/rules/stdlib/square.md
 //! @prompt 00_nucleo/prompts/rules/stdlib/shapes.md
 //! @layer L1
@@ -370,6 +370,21 @@ fn vertex_component(val: &Value) -> SourceResult<f64> {
         Value::Ratio(_) => Err(vec![SourceDiagnostic::error(
             Span::detached(),
             "polygon(): coordenada ratio (50%) não é resolvível em tempo de eval — scope-out (o vanilla aceita)".to_string(),
+        )]),
+        // **P741** — o caminho REAL do utilizador: `50%` chega como
+        // `Value::Relative` com abs zero (não `Value::Ratio`, inalcançável
+        // por sintaxe — scope-out P725). A sonda de P741 mediu o vanilla:
+        // o ratio resolve contra o contentor em tempo de layout (x contra a
+        // largura, y contra a altura — medido exacto: `50%` ≡ `50pt` num
+        // box de 100pt, diff 0.0000%). O cristalino não tem altura de
+        // contentor inline disponível no emit do shape (Boxed usa
+        // `unconstrained_height`) — scope-out reforçado, custo no
+        // relatório do passo. Antes deste braço, `Relative` caía no
+        // `other` e produzia a mensagem absurda "expected relative
+        // length, found relative length".
+        Value::Relative(_) => Err(vec![SourceDiagnostic::error(
+            Span::detached(),
+            "polygon(): coordenada relativa (50%) não é resolvível em tempo de eval — scope-out (o vanilla resolve contra o contentor no layout)".to_string(),
         )]),
         other => Err(vec![SourceDiagnostic::error(
             Span::detached(),

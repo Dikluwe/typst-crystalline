@@ -1,10 +1,10 @@
-# Achados adiados na cadeia P700-740 — lista de controlo
+# Achados adiados na cadeia P700-741 — lista de controlo
 
 ## Por resolver
 
 | Achado | Onde foi encontrado | Prioridade | Estado |
 |---|---|---|---|
-| `polygon` com vértices `Ratio` (`50%`) scope-out — vanilla aceita e resolve no layout contra o contentor (medido P734: triângulo com `(50%, 0pt)` renderiza 2923 px); o constructor cristalino corre em tempo de eval, sem dimensão de referência. Erro explícito de scope-out desde P734 | P732 (sonda), confirmado P734 | Baixa — sem consumidor em cetz | Aberto |
+| `polygon` com vértices `Ratio` (`50%`) scope-out — vanilla resolve contra o **contentor** no layout (medido P741: `50%` ≡ `50pt` num box de 100pt de altura, diff 0.0000%; x contra a largura, y contra a altura). **Scope-out reforçado em P741 com custo medido**: (1) `ShapeKind::Path` carrega `Point` absoluto — ponto relativo novo + resolução em `layout/shape.rs` + 3 braços do exporter + 2 construtores; (2) a altura de contentor inline **não existe** (`Boxed` usa `unconstrained_height` no sub-frame) — item estrutural. Correcção colateral P741: o caminho real chega como `Value::Relative` (não `Value::Ratio`) — a mensagem de scope-out agora dispara (antes: "expected relative length, found relative length") | P732 (sonda), confirmado P734; P741 (custo + mensagem) | Baixa — sem consumidor em cetz | Aberto |
 | Ordem entre tipos no erro de argumento extra — `f(1, z: 2, 3)` (nomeado antes de posicional extra): vanilla reporta o primeiro na ordem original ("unexpected argument: z", `Args::finish` sobre lista única); o cristalino, com `items`/`named` separados, reporta o posicional primeiro ("unexpected argument"). **Scope-out reforçado em P740C com custo medido**: paridade exacta exige `Args` em lista única — 335 usos de `args.items`, 676 de `.named` em 26 ficheiros da stdlib, 31 construções de `Args {}` | P733 (sonda); P740C (custo) | Baixa — caso de canto, ambos erram | Aberto |
 | Métodos de instância de cor ausentes (`red.lighten(20%)` → erro de campo) e fields `color.rotate`/`color.components`/`color.space` ausentes — existem no vanilla (medido P736: `type(color.rotate)` → `function`; `type(red.lighten(20%))` → `color`). Ausência pré-existente desde P476 (operadores só como funções estáticas), confirmada em P736 | P736 (inventário da sonda) | Baixa — sem consumidor em cetz | Aberto |
 
