@@ -2,7 +2,7 @@
 
 **Data:** 2026-07-14 (00:19 -03:00)
 **Commit base:** `bc87cceef` ("P741: preenche hash do commit no relatório")
-**Commit da implementação:** `A-PREENCHER`
+**Commit da implementação:** `6b321acc11ff25097432fe510c80ce45faba9a33` ("P742: metodos de instancia de cor + rotate/components/space + semantica vanilla dos operadores")
 **Estado no momento das medições E2E:** working tree não commitado;
 `git diff HEAD --stat`:
 
