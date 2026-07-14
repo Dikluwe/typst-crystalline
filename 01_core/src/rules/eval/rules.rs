@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/rules/eval.md
-//! @prompt-hash 1872d8ad
+//! @prompt-hash 9e869009
 //! @layer L1
 //! @updated 2026-07-09
 //!
@@ -776,9 +776,14 @@ pub(super) fn eval_set_rule(
         // #set page(width: .., height: .., margin: ..) — Passo 81.
         // Valores ausentes ficam None e preservam o valor actual em layout.
         // P636: rejeitar tipos inválidos em vez de ignorar silenciosamente.
-        fn extract_pt(val: &Value, span: Span) -> SourceResult<Option<f64>> {
+        // **P757** — `em` em dimensões de página deve resolver contra o
+        // tamanho de fonte activo na chain (default 11 pt), não contra zero.
+        // Anteriormente usava-se `l.abs.to_pt()`, que descartava a componente
+        // `em` e produzia `0pt` silenciosamente para valores como `7em`.
+        let size_pt = engine.styles.size();
+        fn extract_pt(val: &Value, span: Span, size_pt: f64) -> SourceResult<Option<f64>> {
             match val {
-                Value::Length(l) => Ok(Some(l.abs.to_pt())),
+                Value::Length(l) => Ok(Some(l.resolve_pt(size_pt))),
                 Value::Float(f) => Ok(Some(*f)),
                 Value::Int(i) => Ok(Some(*i as f64)),
                 Value::None => Ok(None),
@@ -796,9 +801,9 @@ pub(super) fn eval_set_rule(
                 let val = eval_expr(named.expr(), scopes, ctx, engine)?;
                 let span = named.expr().span();
                 match key {
-                    "width" => width = extract_pt(&val, span)?,
-                    "height" => height = extract_pt(&val, span)?,
-                    "margin" => margin = extract_pt(&val, span)?,
+                    "width" => width = extract_pt(&val, span, size_pt)?,
+                    "height" => height = extract_pt(&val, span, size_pt)?,
+                    "margin" => margin = extract_pt(&val, span, size_pt)?,
                     "numbering" => {
                         numbering = match val {
                             Value::Str(s) => Some(s),

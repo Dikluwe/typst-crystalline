@@ -469,6 +469,46 @@ fn layout_texto_longo_word_wrap() {
     assert!(y_values.len() > 1, "texto longo deve ter múltiplas linhas: {} items", items);
 }
 
+// ── P757 — dimensões de página em `em` ───────────────────────────────────
+
+#[test]
+fn p757_page_width_height_em_resolve_contra_font_size() {
+    // `7em` / `5em` com font-size default (11 pt) devem dar 77 x 55 pt,
+    // não 0 x 0 pt.
+    let doc = layout_test("#set page(width: 7em, height: 5em)\nX");
+    assert_eq!(doc.pages.len(), 1, "documento deve ter exactamente uma página");
+    let page = &doc.pages[0];
+    assert!(
+        (page.width - 77.0).abs() < 0.5,
+        "width: 7em com font-size 11pt deve ser ~77pt, foi {}",
+        page.width
+    );
+    assert!(
+        (page.height - 55.0).abs() < 0.5,
+        "height: 5em com font-size 11pt deve ser ~55pt, foi {}",
+        page.height
+    );
+}
+
+#[test]
+fn p757_page_width_em_respeita_text_size() {
+    // `#set text(size: 12pt)` antes de `#set page(width: 7em)` deve fazer
+    // com que 7em = 84 pt.
+    let doc = layout_test("#set text(size: 12pt)\n#set page(width: 7em, height: 5em)\nX");
+    assert_eq!(doc.pages.len(), 1);
+    let page = &doc.pages[0];
+    assert!(
+        (page.width - 84.0).abs() < 0.5,
+        "width: 7em com font-size 12pt deve ser ~84pt, foi {}",
+        page.width
+    );
+    assert!(
+        (page.height - 60.0).abs() < 0.5,
+        "height: 5em com font-size 12pt deve ser ~60pt, foi {}",
+        page.height
+    );
+}
+
 // ── Testes rich text (Passo 22) ────────────────────────────────────────
 
 #[test]

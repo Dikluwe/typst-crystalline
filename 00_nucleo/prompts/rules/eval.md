@@ -1,5 +1,5 @@
 # Prompt L0 — rules/eval
-Hash do Código: 05157be1
+Hash do Código: c22868dc
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/rules/eval/mod.rs`
@@ -408,6 +408,35 @@ usando os nomes de tipo de `Value::type_name()`.
 - `eval_for_test(Source("#set figure(numbering: 123)\n#let x = 1"))` → `Err`.
 - `eval_for_test(Source("#set table(numbering: 123)\n#let x = 1"))` → `Err`.
 - Uso correcto dos nove casos continua a funcionar.
+
+## §P757 — Resolução de `em` em dimensões de página
+
+A função auxiliar `extract_pt` usada pelo arm `#set page(width: ..., height: ...,
+margin: ...)` deve resolver `Value::Length` com `Length::resolve_pt(size_pt)`,
+onde `size_pt` é o tamanho de fonte activo na `StyleChain` (`engine.styles.size()`),
+não com `Length::abs.to_pt()`.
+
+### Racional
+
+`Length` é composto por uma parte absoluta (`Abs`) e uma parte relativa (`em`).
+Usar apenas `l.abs.to_pt()` descarta a componente `em`, fazendo com que valores
+como `width: 7em` sejam convertidos silenciosamente para `0 pt`. Isso quebra
+qualquer documento que use dimensões de página relativas ao tamanho de fonte.
+
+### Comportamento
+
+- `#set page(width: 7em, height: 5em)` com font-size default (11 pt) →
+  `77 pt × 55 pt`.
+- `#set text(size: 12pt)` seguido de `#set page(width: 7em)` → `84 pt`.
+- `float`/`int` continuam a ser aceites como valores absolutos em pt.
+- `Value::None` continua a significar "não alterar".
+
+### Critérios de verificação
+
+- `layout_test("#set page(width: 7em, height: 5em)\nX").pages[0]` tem
+  `width ≈ 77 pt` e `height ≈ 55 pt`.
+- `layout_test("#set text(size: 12pt)\n#set page(width: 7em, height: 5em)\nX").pages[0]`
+  tem `width ≈ 84 pt` e `height ≈ 60 pt`.
 
 ## Política IEEE 754 — propagação silenciosa (ADR-0101 EM VIGOR)
 
