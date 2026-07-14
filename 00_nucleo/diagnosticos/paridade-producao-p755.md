@@ -3,7 +3,7 @@
 **Passo:** 755  
 **Data:** 2026-07-14  
 **Foco:** Sonda da quebra de linha para scripts sem espaços (CJK, Thai) no vanilla 0.15.0 e no cristalino.  
-**Hash do commit:** *a preencher após commit*
+**Hash do commit:** baa7d47a1
 
 ---
 
