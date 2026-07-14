@@ -10289,14 +10289,65 @@ mod tests {
 
     #[test]
     fn p742_metodo_desconhecido_cai_no_caminho_generico() {
-        // Métodos fora dos 9 conhecidos mantêm o comportamento pré-P742
+        // Métodos fora dos 12 conhecidos mantêm o comportamento pré-P742
         // (erro de field access em color).
-        let err = p729_eval("#red.to-hex()").expect_err("red.to-hex() deve ser erro");
+        let err = p729_eval("#red.foo()").expect_err("red.foo() deve ser erro");
         let msg = err.first().map(|d| d.message.to_string()).unwrap_or_default();
         assert!(
             msg.contains("field access") || msg.contains("does not contain field"),
             "msg: {msg}"
         );
+    }
+
+    // ── P744 — `space:` em mix/negate/rotate, to-hex/transparentize/opacify,
+    // repr de closure ───────────────────────────────────────────────────────
+
+    #[test]
+    fn p744_space_nomeado_mix_negate_rotate() {
+        // Medições vanilla da sonda P744.
+        let m = p729_eval(
+            "#let a = red.mix(blue, space: rgb).to-hex()\n\
+             #let b = red.negate(space: oklab).to-hex()\n\
+             #let c = red.rotate(90deg, space: oklch).to-hex()",
+        )
+        .unwrap();
+        assert_eq!(m.scope().get("a"), Some(&Value::Str("#805b88".into())));
+        assert_eq!(m.scope().get("b"), Some(&Value::Str("#004b74".into())));
+        assert_eq!(m.scope().get("c"), Some(&Value::Str("#87a100".into())));
+    }
+
+    #[test]
+    fn p744_to_hex_transparentize_opacify() {
+        let m = p729_eval(
+            "#let a = red.to-hex()\n\
+             #let b = rgb(\"#ff413680\").transparentize(50%).to-hex()\n\
+             #let c = rgb(\"#ff413680\").opacify(50%).to-hex()",
+        )
+        .unwrap();
+        assert_eq!(m.scope().get("a"), Some(&Value::Str("#ff4136".into())));
+        assert_eq!(m.scope().get("b"), Some(&Value::Str("#ff413640".into())));
+        assert_eq!(m.scope().get("c"), Some(&Value::Str("#ff4136c0".into())));
+    }
+
+    #[test]
+    fn p744_instancia_mix_nao_aceita_weight() {
+        let err = p729_eval("#red.mix(blue, weight: 50%)").expect_err("weight deve ser erro");
+        let msg = err.first().map(|d| d.message.to_string()).unwrap_or_default();
+        assert!(msg.contains("unexpected argument: weight"), "msg: {msg}");
+    }
+
+    #[test]
+    fn p744_rotate_space_sem_hue_erro() {
+        let err = p729_eval("#red.rotate(90deg, space: rgb)").expect_err("rgb rotate deve erro");
+        let msg = err.first().map(|d| d.message.to_string()).unwrap_or_default();
+        assert!(msg.contains("does not support hue rotation"), "msg: {msg}");
+    }
+
+    #[test]
+    fn p744_repr_closure() {
+        let m = p729_eval("#let f = (x) => x + 1\n#let a = repr(f)\n#let b = repr((x) => x)").unwrap();
+        assert_eq!(m.scope().get("a"), Some(&Value::Str("(..) => ..".into())));
+        assert_eq!(m.scope().get("b"), Some(&Value::Str("(..) => ..".into())));
     }
 
     // ── Passo 737 — counter/state como valores-tipo ────────────────────────

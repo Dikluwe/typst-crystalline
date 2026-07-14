@@ -220,6 +220,10 @@ impl Args {
   `With` e `Plugin` mantêm identidade de ponteiro. Consistente com `Module`.
 - **Clone O(1)**: `Arc::clone` — não clona o conteúdo da closure.
 - **Debug**: `"<function>"` (string literal, nunca pânico).
+- **Repr de closure (P744)**: `repr((x) => x + 1)` → `"(..) => .."` — o
+  vanilla não mostra parâmetros nem corpo; closures nomeadas têm o mesmo
+  repr. Nativas usam o nome (`repr(rgb)` → `"rgb"`); função sem nome mantém
+  `"#function(...)"`.
 - **Eager capture**: `ClosureRepr.captured` é um snapshot imutável; redefinições posteriores no scope pai não afectam a closure.
 - **Namespace anexado**: clone O(1) via `Arc<Scope>`; field access em `Func` delega ao `Scope` se existir.
 

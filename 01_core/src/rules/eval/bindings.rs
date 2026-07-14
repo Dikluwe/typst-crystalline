@@ -907,13 +907,27 @@ pub(super) fn eval_color_method(
     match method {
         "lighten" => color_rules::native_color_lighten(ctx, &synth, world, current_file),
         "darken" => color_rules::native_color_darken(ctx, &synth, world, current_file),
-        "mix" => color_rules::native_color_mix(ctx, &synth, world, current_file),
+        "mix" => {
+            // **P744** — o método de instância `red.mix(blue)` não aceita
+            // `weight:` (só `space:`); o peso é sempre 0.5. A estática
+            // `color.mix(red, blue, weight: ...)` mantém o argumento.
+            if synth.named.contains_key("weight") {
+                return Err(vec![SourceDiagnostic::error(
+                    span,
+                    "unexpected argument: weight".to_string(),
+                )]);
+            }
+            color_rules::native_color_mix(ctx, &synth, world, current_file)
+        }
         "negate" => color_rules::native_color_negate(ctx, &synth, world, current_file),
         "saturate" => color_rules::native_color_saturate(ctx, &synth, world, current_file),
         "desaturate" => color_rules::native_color_desaturate(ctx, &synth, world, current_file),
         "rotate" => color_rules::native_color_rotate(ctx, &synth, world, current_file),
         "components" => color_rules::native_color_components(ctx, &synth, world, current_file),
         "space" => color_rules::native_color_space(ctx, &synth, world, current_file),
+        "to-hex" => color_rules::native_color_to_hex(ctx, &synth, world, current_file),
+        "transparentize" => color_rules::native_color_transparentize(ctx, &synth, world, current_file),
+        "opacify" => color_rules::native_color_opacify(ctx, &synth, world, current_file),
         _ => Err(vec![SourceDiagnostic::error(
             span,
             format!("color não tem método '{method}'"),

@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/entities/color.md
-//! @prompt-hash 5611f442
+//! @prompt-hash 3372ae9e
 //! @layer L1
 //! @updated 2026-05-15
 //!
@@ -577,44 +577,107 @@ impl Color {
         }
     }
 
-    /// Interpolação linear entre `self` e `other` em Oklab.
-    /// `weight` [0.0, 1.0]: 0.0 = self; 1.0 = other.
-    /// (P476 — paridade confirmada por medição P742.)
-    pub fn mix(self, other: Self, weight: f32) -> Self {
-        let (l0, a0, b0, alpha0) = to_oklab_p476(self);
-        let (l1, a1, b1, alpha1) = to_oklab_p476(other);
-        let t = weight.clamp(0.0, 1.0);
-        Color::oklab(
-            l0 + (l1 - l0) * t,
-            a0 + (a1 - a0) * t,
-            b0 + (b1 - b0) * t,
-            alpha0 + (alpha1 - alpha0) * t,
-        )
+    /// **P744** — converte a cor para um vec4 no espaço indicado. Usado por
+    /// `mix` (paridade vanilla `ProcessColor::to_vec4`).
+    fn to_vec4_in_space(self, space: ColorSpace) -> [f32; 4] {
+        let c = if self.space() == space { self } else { self.to_space(space) };
+        match c {
+            Color::Srgb { r, g, b, a } => [r, g, b, a],
+            Color::Luma { l, a } => [l, 0.0, 0.0, a],
+            Color::LinearRgb { r, g, b, a } => [r, g, b, a],
+            Color::Oklab { l, a, b, alpha } => [l, a, b, alpha],
+            Color::Oklch { l, c, h, alpha } => [l, c, h, alpha],
+            Color::Hsl { h, s, l, a } => [h, s, l, a],
+            Color::Hsv { h, s, v, a } => [h, s, v, a],
+            Color::Cmyk { c, m, y, k } => [c, m, y, k],
+        }
     }
 
-    /// **P742** — negação: espaço default **Oklab** (paridade vanilla
-    /// `Color::negate` com `space: auto` → Oklab): converte para Oklab,
-    /// aplica `(1-l, -a, -b)`, converte de volta ao espaço original. O named
-    /// `space:` do vanilla é scope-out (rules/stdlib/color.md).
-    pub fn negate(self) -> Self {
+    /// **P744** — constrói uma cor a partir de um vec4 no espaço indicado.
+    fn from_vec4_in_space(v: [f32; 4], space: ColorSpace) -> Self {
+        match space {
+            ColorSpace::Srgb => Color::srgb_f32(v[0], v[1], v[2], v[3]),
+            ColorSpace::Luma => Color::Luma { l: v[0], a: v[3] },
+            ColorSpace::LinearRgb => Color::linear_rgb(v[0], v[1], v[2], v[3]),
+            ColorSpace::Oklab => Color::oklab(v[0], v[1], v[2], v[3]),
+            ColorSpace::Oklch => Color::oklch(v[0], v[1], v[2].rem_euclid(360.0), v[3]),
+            ColorSpace::Hsl => Color::hsl(v[0].rem_euclid(360.0), v[1], v[2], v[3]),
+            ColorSpace::Hsv => Color::hsv(v[0].rem_euclid(360.0), v[1], v[2], v[3]),
+            ColorSpace::Cmyk => Color::cmyk(v[0], v[1], v[2], v[3]),
+        }
+    }
+
+    /// Interpolação linear entre `self` e `other` no espaço indicado.
+    /// `weight` [0.0, 1.0]: 0.0 = self; 1.0 = other.
+    /// Default `space: None` = Oklab (paridade P476/P742). O resultado fica
+    /// no espaço indicado (P744).
+    pub fn mix(self, other: Self, weight: f32, space: Option<ColorSpace>) -> Self {
+        let space = space.unwrap_or(ColorSpace::Oklab);
+        let mut c0 = self.to_vec4_in_space(space);
+        let mut c1 = other.to_vec4_in_space(space);
+        let t = weight.clamp(0.0, 1.0);
+
+        // Para espaços com hue, percorre o círculo cromático pelo caminho
+        // mais curto (paridade vanilla `mix_iter` hue_index).
+        let hue_idx = match space {
+            ColorSpace::Oklch => Some(2),
+            ColorSpace::Hsl | ColorSpace::Hsv => Some(0),
+            _ => None,
+        };
+        if let Some(idx) = hue_idx {
+            if (c0[idx] - c1[idx]).abs() > 180.0 {
+                if c0[idx] < c1[idx] {
+                    c0[idx] += 360.0;
+                } else {
+                    c1[idx] += 360.0;
+                }
+            }
+        }
+
+        let mixed = [
+            c0[0] + (c1[0] - c0[0]) * t,
+            c0[1] + (c1[1] - c0[1]) * t,
+            c0[2] + (c1[2] - c0[2]) * t,
+            c0[3] + (c1[3] - c0[3]) * t,
+        ];
+        Color::from_vec4_in_space(mixed, space)
+    }
+
+    /// **P744** — negação no espaço indicado (default Oklab). Converte para o
+    /// espaço, aplica a negação própria desse espaço, converte de volta ao
+    /// espaço original de `self`.
+    pub fn negate(self, space: Option<ColorSpace>) -> Self {
         let original = self.space();
-        let negated = match self.to_space(ColorSpace::Oklab) {
+        let space = space.unwrap_or(ColorSpace::Oklab);
+        let negated = match self.to_space(space) {
+            Color::Srgb { r, g, b, a } => Color::srgb_f32(1.0 - r, 1.0 - g, 1.0 - b, a),
+            Color::Luma { l, a } => Color::Luma { l: 1.0 - l, a },
+            Color::LinearRgb { r, g, b, a } => Color::linear_rgb(1.0 - r, 1.0 - g, 1.0 - b, a),
             Color::Oklab { l, a, b, alpha } => Color::oklab(1.0 - l, -a, -b, alpha),
-            _ => unreachable!("to_space(Oklab) devolve sempre Oklab"),
+            Color::Oklch { l, c, h, alpha } => Color::oklch(1.0 - l, c, h + 180.0, alpha),
+            Color::Hsl { h, s, l, a } => Color::hsl(h + 180.0, s, l, a),
+            Color::Hsv { h, s, v, a } => Color::hsv(h + 180.0, s, v, a),
+            Color::Cmyk { c, m, y, k } => Color::cmyk(1.0 - c, 1.0 - m, 1.0 - y, k),
         };
         negated.to_space(original)
     }
 
-    /// **P742** — rotação de hue: espaço default **Oklch** (paridade vanilla
-    /// `Color::rotate` com `space: oklch`): converte para Oklch, soma
-    /// `angle_deg` ao hue, converte de volta ao espaço original.
-    pub fn rotate(self, angle_deg: f32) -> Self {
+    /// **P744** — rotação de hue no espaço indicado (default Oklch). Só é
+    /// válida em espaços com hue (Oklch, Hsl, Hsv); os restantes devolvem
+    /// `None` para o chamador emitir o erro vanilla.
+    pub fn rotate(self, angle_deg: f32, space: Option<ColorSpace>) -> Option<Self> {
         let original = self.space();
-        let rotated = match self.to_space(ColorSpace::Oklch) {
+        let space = space.unwrap_or(ColorSpace::Oklch);
+        if !matches!(space, ColorSpace::Oklch | ColorSpace::Hsl | ColorSpace::Hsv) {
+            return None;
+        }
+        let rotated = match self.to_space(space) {
             Color::Oklch { l, c, h, alpha } => Color::oklch(l, c, h + angle_deg, alpha),
-            _ => unreachable!("to_space(Oklch) devolve sempre Oklch"),
+            Color::Hsl { h, s, l, a } => Color::hsl(h + angle_deg, s, l, a),
+            Color::Hsv { h, s, v, a } => Color::hsv(h + angle_deg, s, v, a),
+            _ => unreachable!("to_space(hue-space) devolve sempre o espaço hue"),
         };
-        rotated.to_space(original)
+        Some(rotated.to_space(original))
     }
 
     /// **P742** — aumenta saturação por `factor` (paridade palette medida):
@@ -645,6 +708,67 @@ impl Color {
     /// `saturate(-factor)`). Luma → `None`.
     pub fn desaturate(self, factor: f32) -> Option<Self> {
         self.saturate(-factor)
+    }
+
+    /// **P744** — hex string em sRGB (com alpha quando < 1.0). Paridade
+    /// vanilla `ProcessColor::to_hex` (`color.rs:1525-1531`).
+    pub fn to_hex(self) -> String {
+        let (r, g, b, a) = self.to_srgb();
+        if a == 255 {
+            format!("#{r:02x}{g:02x}{b:02x}")
+        } else {
+            format!("#{r:02x}{g:02x}{b:02x}{a:02x}")
+        }
+    }
+
+    /// **P744** — ajusta o alpha por `scale`. `scale > 0` → opacify;
+    /// `scale < 0` → transparentize. Fórmula vanilla (`scale_alpha`):
+    /// `alpha' = alpha + scale * (scale > 0 ? 1 - alpha : alpha)`.
+    fn scale_alpha(self, scale: f32) -> Option<Self> {
+        let factor = if scale > 0.0 {
+            1.0 - self.alpha()
+        } else {
+            self.alpha()
+        };
+        self.with_alpha((self.alpha() + scale * factor).clamp(0.0, 1.0))
+    }
+
+    /// Alpha da cor (Cmyk não tem → `None` no caller).
+    fn alpha(&self) -> f32 {
+        match *self {
+            Color::Srgb { a, .. } => a,
+            Color::Luma { a, .. } => a,
+            Color::LinearRgb { a, .. } => a,
+            Color::Oklab { alpha, .. } => alpha,
+            Color::Oklch { alpha, .. } => alpha,
+            Color::Hsl { a, .. } => a,
+            Color::Hsv { a, .. } => a,
+            Color::Cmyk { .. } => 1.0,
+        }
+    }
+
+    /// Cria cópia da cor com novo alpha (Cmyk não tem alpha → `None`).
+    fn with_alpha(self, alpha: f32) -> Option<Self> {
+        Some(match self {
+            Color::Srgb { r, g, b, .. } => Color::srgb_f32(r, g, b, alpha),
+            Color::Luma { l, .. } => Color::Luma { l, a: alpha },
+            Color::LinearRgb { r, g, b, .. } => Color::linear_rgb(r, g, b, alpha),
+            Color::Oklab { l, a, b, .. } => Color::oklab(l, a, b, alpha),
+            Color::Oklch { l, c, h, .. } => Color::oklch(l, c, h, alpha),
+            Color::Hsl { h, s, l, .. } => Color::hsl(h, s, l, alpha),
+            Color::Hsv { h, s, v, .. } => Color::hsv(h, s, v, alpha),
+            Color::Cmyk { .. } => return None,
+        })
+    }
+
+    /// **P744** — torna a cor mais transparente. `None` = Cmyk (sem alpha).
+    pub fn transparentize(self, factor: f32) -> Option<Self> {
+        self.scale_alpha(-factor)
+    }
+
+    /// **P744** — torna a cor mais opaca. `None` = Cmyk (sem alpha).
+    pub fn opacify(self, factor: f32) -> Option<Self> {
+        self.scale_alpha(factor)
     }
 
     /// **P742** — componentes da cor para `components()` (paridade vanilla
@@ -965,7 +1089,7 @@ mod tests {
     fn p742_negate_vermelho_puro_via_oklab() {
         // Medido scratch palette 0.7.6: negate(srgb(1,0,0)) → #005688.
         let red = Color::srgb_f32(1.0, 0.0, 0.0, 1.0);
-        assert_eq!(red.negate().to_srgb(), (0, 86, 136, 255));
+        assert_eq!(red.negate(None).to_srgb(), (0, 86, 136, 255));
     }
 
     #[test]
@@ -983,13 +1107,13 @@ mod tests {
     #[test]
     fn p742_negate_vanilla_red_medido() {
         // Medido vanilla: red.negate() → rgb("#004b74").
-        assert_eq!(VANILLA_RED.negate().to_srgb(), (0, 75, 116, 255));
+        assert_eq!(VANILLA_RED.negate(None).to_srgb(), (0, 75, 116, 255));
     }
 
     #[test]
     fn p742_rotate_90_vanilla_red_medido() {
         // Medido vanilla: red.rotate(90deg) → rgb("#87a100").
-        assert_eq!(VANILLA_RED.rotate(90.0).to_srgb(), (135, 161, 0, 255));
+        assert_eq!(VANILLA_RED.rotate(90.0, None).unwrap().to_srgb(), (135, 161, 0, 255));
     }
 
     #[test]
@@ -1097,7 +1221,7 @@ mod tests {
     #[test]
     fn p476_negate_preserva_alpha() {
         let c = Color::srgb_f32(0.5, 0.5, 0.5, 0.3);
-        let n = c.negate();
+        let n = c.negate(None);
         let (_, _, _, a) = n.to_rgba_f32();
         assert!((a - 0.3).abs() < 1e-5, "alpha deve ser preservado; obtido {}", a);
     }
@@ -1143,7 +1267,7 @@ mod tests {
         let red  = Color::srgb_f32(1.0, 0.0, 0.0, 1.0);
         let blue = Color::srgb_f32(0.0, 0.0, 1.0, 1.0);
         let (l0, a0, b0, _) = to_oklab_p476(red);
-        let mixed = red.mix(blue, 0.0);
+        let mixed = red.mix(blue, 0.0, None);
         let (l1, a1, b1, _) = to_oklab_p476(mixed);
         assert!((l1 - l0).abs() < 1e-4);
         assert!((a1 - a0).abs() < 1e-4);
@@ -1155,7 +1279,7 @@ mod tests {
         let red  = Color::srgb_f32(1.0, 0.0, 0.0, 1.0);
         let blue = Color::srgb_f32(0.0, 0.0, 1.0, 1.0);
         let (l0, a0, b0, _) = to_oklab_p476(blue);
-        let mixed = red.mix(blue, 1.0);
+        let mixed = red.mix(blue, 1.0, None);
         let (l1, a1, b1, _) = to_oklab_p476(mixed);
         assert!((l1 - l0).abs() < 1e-4);
         assert!((a1 - a0).abs() < 1e-4);
@@ -1168,7 +1292,7 @@ mod tests {
         let blue = Color::srgb_f32(0.0, 0.0, 1.0, 1.0);
         let (l0, _, _, _) = to_oklab_p476(red);
         let (l1, _, _, _) = to_oklab_p476(blue);
-        let mixed = red.mix(blue, 0.5);
+        let mixed = red.mix(blue, 0.5, None);
         let (lm, _, _, _) = to_oklab_p476(mixed);
         let expected_l = (l0 + l1) / 2.0;
         assert!((lm - expected_l).abs() < 1e-4, "l médio esperado {}; obtido {}", expected_l, lm);
@@ -1250,5 +1374,94 @@ mod tests {
         assert!((v1 - v0).abs() < 1e-5, "value preservado");
         let (_, _, _, a) = desat.to_rgba_f32();
         assert!((a - 1.0).abs() < 1e-5, "alpha preservado");
+    }
+
+    // ── P744 ──
+
+    #[test]
+    fn p744_negate_com_space_rgb() {
+        // Medido vanilla: red.negate(space: rgb) → rgb("#00bec9").
+        assert_eq!(VANILLA_RED.negate(Some(ColorSpace::Srgb)).to_hex(), "#00bec9");
+    }
+
+    #[test]
+    fn p744_negate_default_igual_oklab() {
+        assert_eq!(VANILLA_RED.negate(None).to_hex(), VANILLA_RED.negate(Some(ColorSpace::Oklab)).to_hex());
+    }
+
+    #[test]
+    fn p744_rotate_default_igual_oklch() {
+        assert_eq!(
+            VANILLA_RED.rotate(90.0, None).unwrap().to_hex(),
+            VANILLA_RED.rotate(90.0, Some(ColorSpace::Oklch)).unwrap().to_hex(),
+        );
+    }
+
+    #[test]
+    fn p744_rotate_rgb_devolve_none() {
+        assert!(VANILLA_RED.rotate(90.0, Some(ColorSpace::Srgb)).is_none());
+    }
+
+    #[test]
+    fn p744_rotate_hsl_e_hsv_suportados() {
+        // Vermelho puro em Hsl/Hsv com rotação 180° → cyan (#00ffff).
+        let red = Color::rgb(255, 0, 0);
+        assert_eq!(red.rotate(180.0, Some(ColorSpace::Hsl)).unwrap().to_hex(), "#00ffff");
+        assert_eq!(red.rotate(180.0, Some(ColorSpace::Hsv)).unwrap().to_hex(), "#00ffff");
+    }
+
+    #[test]
+    fn p744_mix_default_igual_oklab() {
+        let red = Color::rgb(255, 0, 0);
+        let blue = Color::rgb(0, 0, 255);
+        assert_eq!(
+            red.mix(blue, 0.5, None).to_hex(),
+            red.mix(blue, 0.5, Some(ColorSpace::Oklab)).to_hex(),
+        );
+    }
+
+    #[test]
+    fn p744_mix_no_espaco_indicado() {
+        // O resultado fica no espaço indicado: mix em Oklab → Oklab;
+        // mix em Srgb → Srgb (repr hex).
+        let red = Color::rgb(255, 0, 0);
+        let blue = Color::rgb(0, 0, 255);
+        let mixed_oklab = red.mix(blue, 0.5, Some(ColorSpace::Oklab));
+        assert!(matches!(mixed_oklab, Color::Oklab { .. }));
+        let mixed_srgb = red.mix(blue, 0.5, Some(ColorSpace::Srgb));
+        assert!(matches!(mixed_srgb, Color::Srgb { .. }));
+    }
+
+    #[test]
+    fn p744_mix_hue_short_path() {
+        // Duas cores com hue a 350° e 10° — interpolação deve ir pelo
+        // caminho curto (média = 0°, não 180°).
+        let c1 = Color::hsl(350.0, 1.0, 0.5, 1.0);
+        let c2 = Color::hsl(10.0, 1.0, 0.5, 1.0);
+        let mixed = c1.mix(c2, 0.5, Some(ColorSpace::Hsl));
+        let Color::Hsl { h, .. } = mixed else { panic!("esperado Hsl") };
+        // Média pelo caminho curto: (350 + 370) / 2 = 360 → 0°.
+        assert!((h.rem_euclid(360.0)).abs() < 1.0 || (h.rem_euclid(360.0) - 360.0).abs() < 1.0,
+            "hue médio pelo caminho curto; obtido {h}");
+    }
+
+    #[test]
+    fn p744_to_hex_opaque_e_transparente() {
+        assert_eq!(Color::rgb(255, 65, 54).to_hex(), "#ff4136");
+        assert_eq!(Color::rgba(255, 65, 54, 128).to_hex(), "#ff413680");
+    }
+
+    #[test]
+    fn p744_transparentize_opacify() {
+        let c = Color::rgba(255, 65, 54, 128);
+        assert_eq!(c.transparentize(0.5).unwrap().to_hex(), "#ff413640");
+        assert_eq!(c.opacify(0.5).unwrap().to_hex(), "#ff4136c0");
+    }
+
+    #[test]
+    fn p744_transparentize_opacify_cmyk_none() {
+        let c = Color::cmyk(0.1, 0.2, 0.3, 0.4);
+        assert!(c.transparentize(0.5).is_none());
+        assert!(c.opacify(0.5).is_none());
     }
 }

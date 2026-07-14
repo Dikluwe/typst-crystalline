@@ -1,5 +1,5 @@
 # Prompt L0 — stdlib tipo `color` (operadores de cor)
-Hash do Código: ecbbd752
+Hash do Código: 00a3ff98
 
 ## Módulo
 `01_core/src/rules/stdlib/color.rs`
@@ -19,10 +19,11 @@ access em `Value::Type` via `color_type_field(field) -> Option<Value>`
 Histórico: até P736, `color` era `Value::Dict` (P476, módulo de 4
 operadores; P477 aumentou para 6).
 
-Fields do tipo (14): constructors `rgb`, `linear-rgb`, `luma`, `cmyk`,
+Fields do tipo (20): constructors `rgb`, `linear-rgb`, `luma`, `cmyk`,
 `hsl`, `hsv`, `oklab`, `oklch` (as mesmas funções nativas registadas
 globalmente) + operadores `lighten`, `darken`, `mix`, `negate`,
-`saturate`, `desaturate`.
+`saturate`, `desaturate`, `rotate`, `components`, `space` (P742) +
+`to-hex`, `transparentize`, `opacify` (P744).
 
 Medições vanilla que fundamentam (P736):
 - `type(color)` → `type`; `type(red) == color` → `true`; `repr(color)` → `color`.
@@ -43,7 +44,7 @@ P476 — fecho parcial ADR-0083 §"Operadores cor" scope-out:
 /// Devolve o valor associado a `field` no tipo `color`, ou `None` se o
 /// campo não existir (o chamador emite o erro "does not contain field").
 pub fn color_type_field(field: &str) -> Option<Value> {
-    // 14 entradas: 8 constructors + 6 operadores.
+    // 20 entradas: 8 constructors + 12 operadores.
 }
 ```
 
@@ -72,11 +73,45 @@ em `color_type_field` e emite "type color does not contain field `<f>`"
 - Delega para `col1.mix(col2, weight)`.
 - Erro: named desconhecido (além de `weight:`).
 
-### `color.negate(col)` → Color
+### `color.negate(col, space: auto)` → Color
 
 - `col`: `Value::Color`.
-- Delega para `Color::negate()`.
-- Sem named args.
+- `space`: `Value::Func` cujo nome é um dos 8 constructors de cor
+  (`rgb`, `linear-rgb`, `luma`, `cmyk`, `hsl`, `hsv`, `oklab`, `oklch`);
+  default `auto` = Oklab. Qualquer outro valor produz erro de tipo.
+- Delega para `Color::negate(Some(space))` ou `Color::negate(None)`.
+
+### `color.rotate(col, angle, space: auto)` → Color
+
+- `col`: `Value::Color`.
+- `angle`: `Value::Angle`.
+- `space`: constructor de cor; default `auto` = Oklch. Só espaços com hue
+  (Oklch, Hsl, Hsv) são válidos — os restantes produzem "this color space
+  does not support hue rotation".
+- Delega para `Color::rotate(angle, Some(space))`.
+
+### `color.mix(col1, col2, weight: 0.5, space: auto)` → Color
+
+- `col1`, `col2`: `Value::Color` (posicionais).
+- `weight`: named opcional; default `0.5`; tipo igual a `amount`.
+- `space`: constructor de cor; default `auto` = Oklab. O resultado fica no
+  espaço indicado.
+- Delega para `col1.mix(col2, weight, Some(space))`.
+
+### `color.to-hex(col)` → Str
+
+- `col`: `Value::Color`.
+- Delega para `Color::to_hex()`.
+
+### `color.transparentize(col, factor)` → Color
+
+- `col`: `Value::Color`.
+- `factor`: percentagem [0.0, 1.0] (mesmo tipo que `amount`).
+- Delega para `Color::transparentize(factor)`.
+
+### `color.opacify(col, factor)` → Color
+
+- Análogo a `transparentize`; delega para `Color::opacify(factor)`.
 
 ## Extração de ratio
 
@@ -186,7 +221,7 @@ medidos (verificado em scratch dedicado).
 ### Despacho de métodos de instância (padrão P506)
 
 Braço `Value::Color` no bloco P506 de `eval_func_call` (`closures.rs`),
-interceptando **apenas** os 9 métodos conhecidos — método desconhecido cai
+interceptando **apenas** os 12 métodos conhecidos — método desconhecido cai
 no caminho genérico (erro de field, comportamento pré-P742 preservado):
 
 ```rust
@@ -201,10 +236,10 @@ Value::Color(ref color) => {
 
 `eval_color_method` (`eval/bindings.rs`) faz `eval_args` uma vez e despacha:
 
-- `lighten` / `darken` / `saturate` / `desaturate` / `negate` / `mix` —
-  sintetiza `Args` com a cor como primeiro posicional e **delega nas
-  nativas estáticas** (validação e mensagens idênticas aos dois caminhos).
-- `rotate` — `[angle: Angle]`; delega em `native_color_rotate`.
+- `lighten` / `darken` / `saturate` / `desaturate` / `negate` / `mix` /
+  `rotate` / `to-hex` / `transparentize` / `opacify` — sintetiza `Args` com
+  a cor como primeiro posicional e **delega nas nativas estáticas**
+  (validação e mensagens idênticas aos dois caminhos).
 - `components` — named `alpha: bool = true`; delega em
   `native_color_components`.
 - `space` — sem argumentos; devolve `Func::native(<nome do constructor>, <nativa>)`
@@ -213,14 +248,18 @@ Value::Color(ref color) => {
   igualdade por nome de nativas introduzida em `entities/func.md` (P742 —
   medido no vanilla; `Func::eq` era só identidade de Arc).
 
-### Três fields novos do tipo (17 total)
+### Seis fields novos do tipo (20 total)
 
-`color_type_field` passa a 17 entradas: as 14 anteriores + `rotate`,
-`components`, `space` (paridade do inventário medido em P736: 17 fields).
+`color_type_field` passa a 20 entradas: as 14 anteriores + `rotate`,
+`components`, `space` (P742) + `to-hex`, `transparentize`, `opacify`
+(P744).
 
-- `color.rotate(col, angle)` → `Color` — default espaço Oklch.
+- `color.rotate(col, angle, space: auto)` → `Color` — default espaço Oklch.
 - `color.components(col, alpha: true)` → `Array` de `Ratio`/`Float`/`Angle`.
 - `color.space(col)` → `Func` do constructor do espaço.
+- `color.to-hex(col)` → `Str` — hex sRGB com alpha quando aplicável.
+- `color.transparentize(col, factor)` → `Color` — reduz opacidade.
+- `color.opacify(col, factor)` → `Color` — aumenta opacidade.
 - **Nomes plain nas funcs do tipo** (medido P742): `repr(color.rgb)` →
   `rgb`, `repr(color.lighten)` → `lighten` no vanilla (não `color.rgb`) —
   as entradas de `color_type_field` passam a registar os constructors e
@@ -229,28 +268,21 @@ Value::Color(ref color) => {
   `#red.space()` em markup → `rgb`. `repr.rs` passa a formatar Func
   nomeada como `name` (era `#name`); o ramo sem nome mantém-se.
 
-### Scope-outs P742 (medidos, com erro explícito)
+### Scope-outs P742/P744 (medidos, com erro explícito)
 
-- Named `space:` em `negate` / `rotate` / `mix` — o vanilla aceita
-  (`negate(space: rgb)`, `rotate(space: hsl)`, `mix(space: rgb)`); o
-  cristalino rejeita com "argumento nomeado inesperado 'space'" (o caminho
-  das estáticas já o fazia para mix/negate; rotate/components/space seguem
-  o mesmo estilo de mensagem).
 - `mix` variádico com pesos `(cor, peso)` — mantido de P476.
-- `to-hex`, `transparentize`, `opacify` — existem no vanilla
-  (`color.rs:912-1131`); não medidos na sonda do passo, sem consumidor em
-  cetz → achados adiados.
-- Repr de closure anónima (`#function(...)`) — o vanilla imprime a lambda
-  (`(x) => x`); fora do caminho da sonda → achado adiado.
+- Repr de closure anónima (`#function(...)`) — o vanilla imprime `(..) => ..`
+  (P744); fora do caminho da sonda → achado adiado.
 
 ## Scope-out
 
 - `color.mix` com N > 2 cores — scope-out (cristalino aceita 2 + weight).
-- `color.mix` com `space:` arg — scope-out (erro explícito, P742).
-- `color.saturate/desaturate` com `space:` arg — scope-out.
+- `color.saturate/desaturate` com `space:` arg — scope-out (não suportado no vanilla).
 - ~~`color.rotate`, `color.components`, `color.space`~~ — **P742: implementados**
   (estáticas + instância).
-- ~~Métodos de instância de cor (`red.lighten(20%)`, …)~~ — **P742: implementados**
-  (9 métodos; despacho P506).
-- Named `space:` em `negate`/`rotate`/`mix`; `to-hex`/`transparentize`/`opacify`;
-  `mix` variádico com pesos — scope-out P742 (acima).
+- ~~Named `space:` em `negate`/`rotate`/`mix`~~ — **P744: implementados**.
+- ~~`to-hex`/`transparentize`/`opacify`~~ — **P744: implementados**
+  (estáticas + instância).
+- ~~Métodos de instância de cor (`red.lighten(20%)`, …)~~ — **P742/P744: implementados**
+  (12 métodos; despacho P506).
+- `mix` variádico com pesos — scope-out (acima).

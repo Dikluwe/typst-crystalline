@@ -1,5 +1,5 @@
 # Prompt L0 — Color (espaços de cor vanilla paridade)
-Hash do Código: 3e1ae90d
+Hash do Código: bd7d32b2
 
 ## Módulo
 `01_core/src/entities/color.rs`
@@ -178,13 +178,19 @@ increase(c, f) = clamp(c + (1 - c) * f, 0, 1)   se f >= 0
   sobre a saturação; **restantes** (Srgb, LinearRgb, Oklab, Oklch, Cmyk) →
   converte para Hsv, `increase` sobre `s`, converte **de volta ao espaço
   original**. `desaturate(f) = saturate(-f)`.
-- **`negate()`** — espaço default **Oklab**: converte para Oklab, aplica
-  `(1-l, -a, -b)`, converte de volta ao espaço original. (O named `space:`
-  do vanilla fica scope-out — ver `rules/stdlib/color.md`.)
-- **`rotate(deg)`** — espaço default **Oklch**: converte para Oklch, soma
-  `deg` ao hue, converte de volta ao espaço original.
-- **`mix(other, weight)`** — interpolação linear em Oklab (inalterado de
-  P476 — paridade confirmada por medição).
+- **`negate(space: Option<ColorSpace>)`** — espaço default **Oklab**: converte
+  para o espaço indicado, aplica `(1-l, -a, -b)` em Oklab, converte de volta
+  ao espaço original de `self`. `space` pode ser qualquer um dos 8 espaços
+  (medido: `negate(space: rgb)` → `#00bec9`).
+- **`rotate(deg, space: Option<ColorSpace>)`** — espaço default **Oklch**:
+  converte para o espaço indicado, soma `deg` ao hue, converte de volta ao
+  espaço original de `self`. Só espaços com hue são válidos: **Oklch, Hsl,
+  Hsv**; os restantes produzem erro "this color space does not support hue
+  rotation" (medido: `rotate(90deg, space: rgb)` → erro).
+- **`mix(other, weight, space: Option<ColorSpace>)`** — interpolação linear no
+  espaço indicado; default **Oklab**. O resultado fica no espaço indicado
+  (não no espaço original de `self`): `red.mix(blue, space: rgb)` → sRGB;
+  `red.mix(blue, space: oklab)` → Oklab (medido).
 
 ### Novos métodos de domínio (P742)
 
@@ -196,9 +202,9 @@ impl Color {
     pub fn darken(self, factor: f32) -> Self;
     pub fn saturate(self, factor: f32) -> Option<Self>;   // None = grayscale
     pub fn desaturate(self, factor: f32) -> Option<Self>; // None = grayscale
-    pub fn negate(self) -> Self;
-    pub fn rotate(self, angle_deg: f32) -> Self;
-    pub fn mix(self, other: Self, weight: f32) -> Self;   // inalterado
+    pub fn negate(self, space: Option<ColorSpace>) -> Self;
+    pub fn rotate(self, angle_deg: f32, space: Option<ColorSpace>) -> Self;
+    pub fn mix(self, other: Self, weight: f32, space: Option<ColorSpace>) -> Self;
 
     /// Espaço da cor (mapeamento 1:1 variante → ColorSpace).
     pub fn space(self) -> ColorSpace;
@@ -211,6 +217,19 @@ impl Color {
 
     /// Componentes da cor para `components()`.
     pub fn components(self, include_alpha: bool) -> Vec<ColorComponent>;
+
+    /// **P744** — hex string da cor em sRGB (com alpha quando < 1.0).
+    /// Paridade vanilla `to_hex`: `red.to_hex()` → `"#ff4136"`;
+    /// `rgb("#ff413680").to_hex()` → `"#ff413680"`.
+    pub fn to_hex(self) -> String;
+
+    /// **P744** — diminui opacidade por `factor` (Ratio): `alpha' = alpha * (1 - factor)`.
+    /// Paridade vanilla medido: `rgb("#ff413680").transparentize(50%)` → `#ff413640`.
+    pub fn transparentize(self, factor: f32) -> Self;
+
+    /// **P744** — aumenta opacidade por `factor` (Ratio): `alpha' = alpha + factor * (1 - alpha)`.
+    /// Paridade vanilla medido: `rgb("#ff413680").opacify(50%)` → `#ff4136c0`.
+    pub fn opacify(self, factor: f32) -> Self;
 }
 
 /// Componente heterogéneo de `Color::components` (Ratio/Float/Angle —
@@ -243,6 +262,14 @@ alpha; as restantes omitem o alpha quando `include_alpha == false`):
 - `lighten(0.0)` / `darken(0.0)` → cor idêntica (mesma variante).
 - `saturate(0.0)` / `desaturate(0.0)` → cor idêntica.
 - `mix` — critérios P476 mantidos (paridade confirmada).
+- **P744**:
+  - `Color::rgb(255, 65, 54).negate(Some(ColorSpace::Oklab)).to_hex()` → `"#004b74"`.
+  - `Color::rgb(255, 65, 54).rotate(90.0, Some(ColorSpace::Oklch)).to_hex()` → `"#87a100"`.
+  - `Color::rgb(255, 65, 54).mix(Color::rgb(0, 116, 217), 0.5, Some(ColorSpace::Oklab)).to_hex()` → `"#805b87"`.
+  - `Color::rgb(255, 65, 54).mix(Color::rgb(0, 116, 217), 0.5, Some(ColorSpace::Srgb)).to_hex()` → `"#805b87"` (mesmo sRGB, representado em sRGB).
+  - `Color::rgba(255, 65, 54, 128).transparentize(0.5).to_hex()` → `"#ff413640"`.
+  - `Color::rgba(255, 65, 54, 128).opacify(0.5).to_hex()` → `"#ff4136c0"`.
+  - `Color::rgb(255, 65, 54).to_hex()` → `"#ff4136"`.
 
 ## Constantes de cor nomeadas em `parse_color` (P477)
 

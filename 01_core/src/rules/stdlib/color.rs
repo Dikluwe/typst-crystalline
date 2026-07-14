@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/rules/stdlib/color.md
-//! @prompt-hash 83be6e71
+//! @prompt-hash 4fb82f93
 //! @layer L1
 //! @updated 2026-06-27
 //!
@@ -67,6 +67,9 @@ pub fn color_type_field(field: &str) -> Option<Value> {
         "rotate" => Value::Func(Func::native("rotate", native_color_rotate)),
         "components" => Value::Func(Func::native("components", native_color_components)),
         "space" => Value::Func(Func::native("space", native_color_space)),
+        "to-hex" => Value::Func(Func::native("to-hex", native_color_to_hex)),
+        "transparentize" => Value::Func(Func::native("transparentize", native_color_transparentize)),
+        "opacify" => Value::Func(Func::native("opacify", native_color_opacify)),
         _ => return None,
     })
 }
@@ -86,6 +89,9 @@ pub fn is_color_instance_method(method: &str) -> bool {
             | "rotate"
             | "components"
             | "space"
+            | "to-hex"
+            | "transparentize"
+            | "opacify"
     )
 }
 
@@ -145,6 +151,36 @@ fn extract_ratio_arg(val: &Value, fn_name: &str, arg_name: &str) -> SourceResult
     }
 }
 
+/// **P744** — extrai um `ColorSpace` de um `Value::Func` cujo nome é um dos
+/// constructors de cor. Erro verbatim-style do vanilla para valores inválidos.
+fn extract_color_space_arg(
+    val: &Value,
+    fn_name: &str,
+    arg_name: &str,
+) -> SourceResult<crate::entities::color::ColorSpace> {
+    use crate::entities::color::ColorSpace;
+    match val {
+        Value::Func(f) => match f.name() {
+            Some("rgb") => Ok(ColorSpace::Srgb),
+            Some("luma") => Ok(ColorSpace::Luma),
+            Some("cmyk") => Ok(ColorSpace::Cmyk),
+            Some("oklab") => Ok(ColorSpace::Oklab),
+            Some("oklch") => Ok(ColorSpace::Oklch),
+            Some("linear-rgb") => Ok(ColorSpace::LinearRgb),
+            Some("hsl") => Ok(ColorSpace::Hsl),
+            Some("hsv") => Ok(ColorSpace::Hsv),
+            _ => err_typed(format!(
+                "{}: argumento '{}' deve ser um espaço de cor, recebeu {}",
+                fn_name, arg_name, val.type_name()
+            )),
+        },
+        other => err_typed(format!(
+            "{}: argumento '{}' deve ser um espaço de cor, recebeu {}",
+            fn_name, arg_name, other.type_name()
+        )),
+    }
+}
+
 /// `color.lighten(col, amount)` — aumenta luminância por `amount` **no
 /// espaço da própria cor** (semântica vanilla corrigida em P742; era Oklch).
 pub(crate) fn native_color_lighten(
@@ -193,7 +229,8 @@ pub(crate) fn native_color_darken(
     }
 }
 
-/// `color.mix(col1, col2, weight: 0.5)` — interpolação linear em Oklab.
+/// `color.mix(col1, col2, weight: 0.5, space: auto)` — interpolação linear
+/// no espaço indicado (default Oklab; resultado no espaço indicado, P744).
 pub(crate) fn native_color_mix(
     _ctx: &mut EvalContext,
     args: &Args,
@@ -204,8 +241,12 @@ pub(crate) fn native_color_mix(
         Some(v) => extract_ratio_arg(v, "color.mix", "weight")?,
         None    => 0.5_f32,
     };
+    let space = match args.named.get("space") {
+        Some(v) => Some(extract_color_space_arg(v, "color.mix", "space")?),
+        None    => None,
+    };
     for key in args.named.keys() {
-        if key.as_str() != "weight" {
+        if !matches!(key.as_str(), "weight" | "space") {
             return err(format!("color.mix(): argumento nomeado inesperado '{}'", key));
         }
     }
@@ -213,7 +254,7 @@ pub(crate) fn native_color_mix(
         [col1, col2] => {
             let c1 = extract_color_arg(col1, "color.mix", "col1")?;
             let c2 = extract_color_arg(col2, "color.mix", "col2")?;
-            Ok(Value::Color(c1.mix(c2, weight)))
+            Ok(Value::Color(c1.mix(c2, weight, space)))
         }
         _ => err(format!(
             "color.mix() requer 2 argumentos posicionais (col1, col2), recebeu {}",
@@ -222,22 +263,27 @@ pub(crate) fn native_color_mix(
     }
 }
 
-/// `color.negate(col)` — negação no espaço default Oklab com conversão de
-/// volta ao espaço original (semântica vanilla corrigida em P742; era
-/// complemento sRGB).
+/// `color.negate(col, space: auto)` — negação no espaço indicado (default
+/// Oklab) com conversão de volta ao espaço original (P744).
 pub(crate) fn native_color_negate(
     _ctx: &mut EvalContext,
     args: &Args,
     _world: &dyn crate::contracts::world::World,
     _current_file: FileId,
 ) -> SourceResult<Value> {
-    if !args.named.is_empty() {
-        return err("color.negate() não aceita argumentos nomeados");
+    let space = match args.named.get("space") {
+        Some(v) => Some(extract_color_space_arg(v, "color.negate", "space")?),
+        None    => None,
+    };
+    for key in args.named.keys() {
+        if key.as_str() != "space" {
+            return err(format!("color.negate(): argumento nomeado inesperado '{}'", key));
+        }
     }
     match args.items.as_slice() {
         [col] => {
             let c = extract_color_arg(col, "color.negate", "col")?;
-            Ok(Value::Color(c.negate()))
+            Ok(Value::Color(c.negate(space)))
         }
         _ => err(format!(
             "color.negate() requer 1 argumento (col), recebeu {}",
@@ -310,18 +356,22 @@ pub(crate) fn native_color_desaturate(
     }
 }
 
-/// **P742** — `color.rotate(col, angle)` — rotação de hue (default espaço
-/// Oklch, paridade vanilla medida: `red.rotate(90deg)` → `rgb("#87a100")`).
-/// Named `space:` do vanilla é scope-out (erro "argumento nomeado
-/// inesperado", mesmo estilo das outras estáticas).
+/// **P744** — `color.rotate(col, angle, space: auto)` — rotação de hue no
+/// espaço indicado (default Oklch). Só espaços com hue são válidos.
 pub(crate) fn native_color_rotate(
     _ctx: &mut EvalContext,
     args: &Args,
     _world: &dyn crate::contracts::world::World,
     _current_file: FileId,
 ) -> SourceResult<Value> {
+    let space = match args.named.get("space") {
+        Some(v) => Some(extract_color_space_arg(v, "color.rotate", "space")?),
+        None    => None,
+    };
     for key in args.named.keys() {
-        return err(format!("color.rotate(): argumento nomeado inesperado '{}'", key));
+        if key.as_str() != "space" {
+            return err(format!("color.rotate(): argumento nomeado inesperado '{}'", key));
+        }
     }
     match args.items.as_slice() {
         [col, angle] => {
@@ -335,7 +385,13 @@ pub(crate) fn native_color_rotate(
                     ))
                 }
             };
-            Ok(Value::Color(c.rotate(deg)))
+            match c.rotate(deg, space) {
+                Some(rot) => Ok(Value::Color(rot)),
+                None => Err(vec![SourceDiagnostic::error(
+                    Span::detached(),
+                    "this color space does not support hue rotation",
+                )]),
+            }
         }
         _ => err(format!(
             "color.rotate() requer 2 argumentos (col, angle), recebeu {}",
@@ -429,6 +485,86 @@ pub(crate) fn native_color_space(
         }
         _ => err(format!(
             "color.space() requer 1 argumento (col), recebeu {}",
+            args.items.len()
+        )),
+    }
+}
+
+/// **P744** — `color.to-hex(col)` → `Str` com representação hex sRGB.
+pub(crate) fn native_color_to_hex(
+    _ctx: &mut EvalContext,
+    args: &Args,
+    _world: &dyn crate::contracts::world::World,
+    _current_file: FileId,
+) -> SourceResult<Value> {
+    if !args.named.is_empty() {
+        return err("color.to-hex() não aceita argumentos nomeados");
+    }
+    match args.items.as_slice() {
+        [col] => {
+            let c = extract_color_arg(col, "color.to-hex", "col")?;
+            Ok(Value::Str(c.to_hex().into()))
+        }
+        _ => err(format!(
+            "color.to-hex() requer 1 argumento (col), recebeu {}",
+            args.items.len()
+        )),
+    }
+}
+
+/// **P744** — `color.transparentize(col, factor)` → Color com alpha reduzido.
+pub(crate) fn native_color_transparentize(
+    _ctx: &mut EvalContext,
+    args: &Args,
+    _world: &dyn crate::contracts::world::World,
+    _current_file: FileId,
+) -> SourceResult<Value> {
+    if !args.named.is_empty() {
+        return err("color.transparentize() não aceita argumentos nomeados");
+    }
+    match args.items.as_slice() {
+        [col, factor] => {
+            let c = extract_color_arg(col, "color.transparentize", "col")?;
+            let f = extract_ratio_arg(factor, "color.transparentize", "factor")?;
+            match c.transparentize(f) {
+                Some(t) => Ok(Value::Color(t)),
+                None => Err(vec![SourceDiagnostic::error(
+                    Span::detached(),
+                    "CMYK does not have an alpha component",
+                )]),
+            }
+        }
+        _ => err(format!(
+            "color.transparentize() requer 2 argumentos (col, factor), recebeu {}",
+            args.items.len()
+        )),
+    }
+}
+
+/// **P744** — `color.opacify(col, factor)` → Color com alpha aumentado.
+pub(crate) fn native_color_opacify(
+    _ctx: &mut EvalContext,
+    args: &Args,
+    _world: &dyn crate::contracts::world::World,
+    _current_file: FileId,
+) -> SourceResult<Value> {
+    if !args.named.is_empty() {
+        return err("color.opacify() não aceita argumentos nomeados");
+    }
+    match args.items.as_slice() {
+        [col, factor] => {
+            let c = extract_color_arg(col, "color.opacify", "col")?;
+            let f = extract_ratio_arg(factor, "color.opacify", "factor")?;
+            match c.opacify(f) {
+                Some(o) => Ok(Value::Color(o)),
+                None => Err(vec![SourceDiagnostic::error(
+                    Span::detached(),
+                    "CMYK does not have an alpha component",
+                )]),
+            }
+        }
+        _ => err(format!(
+            "color.opacify() requer 2 argumentos (col, factor), recebeu {}",
             args.items.len()
         )),
     }

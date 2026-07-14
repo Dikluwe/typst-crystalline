@@ -10,6 +10,7 @@
 //! representação scope-out ("function", "module", nome do tipo).
 
 
+use crate::entities::func::{Func, FuncRepr};
 use crate::entities::layout_types::{Align2D, Angle, Color, HAlign, Length, Ratio, VAlign};
 use crate::entities::content::Content;
 use crate::entities::geometry::Stroke;
@@ -47,10 +48,13 @@ pub fn repr_value(v: &Value) -> String {
         Value::Module(m) => format!("module({})", m.name()),
         Value::Datetime(d) => repr_datetime(d),
         Value::Func(f) => {
-            // **P742** — paridade vanilla medida: `repr(rgb)` → `rgb` (sem
-            // `#`); o mesmo caminho serve a interpolação em markup
-            // (`#red.space()` renderiza "rgb").
-            if let Some(name) = f.name() {
+            // **P744** — paridade vanilla medida: closures (anónimas ou
+            // nomeadas) repr como `"(..) => .."`; nativas usam o nome
+            // (`repr(rgb)` → `"rgb"`, P742); função sem nome mantém
+            // `"#function(...)"`.
+            if is_closure(&f) {
+                "(..) => ..".to_string()
+            } else if let Some(name) = f.name() {
                 if name.is_empty() {
                     "#function(...)".to_string()
                 } else {
@@ -485,6 +489,16 @@ pub fn repr_selector(sel: &Selector) -> String {
     }
 }
 
+/// **P744** — verifica se uma `Func` é uma closure (incluindo aplicação
+/// parcial `With` cujo interior é closure). Usado pelo repr.
+fn is_closure(f: &Func) -> bool {
+    match f.repr() {
+        FuncRepr::Closure(_) => true,
+        FuncRepr::With(w) => is_closure(&w.0),
+        _ => false,
+    }
+}
+
 /// Float com decimal sempre visível (evita "1" para 1.0).
 ///
 /// **P740E** — valores não-finitos seguem a forma literal do vanilla:
@@ -648,6 +662,23 @@ mod tests {
             Ok(Value::None)
         });
         assert_eq!(repr_value(&Value::Func(f)), "#function(...)");
+    }
+
+    #[test]
+    fn p744_repr_closure() {
+        use crate::entities::func::{ClosureParam, ClosureRepr};
+        use crate::entities::scope::Scope;
+        use crate::entities::source::Source;
+        let source = Source::detached("x + 1");
+        let body = source.root().clone();
+        let f = crate::entities::func::Func::closure(ClosureRepr {
+            name: Some("f".into()),
+            params: vec![ClosureParam { name: "x".into(), default: None, pattern: None }],
+            sink_name: None,
+            body,
+            captured: std::sync::Arc::new(Scope::new()),
+        });
+        assert_eq!(repr_value(&Value::Func(f)), "(..) => ..");
     }
 
     #[test]
