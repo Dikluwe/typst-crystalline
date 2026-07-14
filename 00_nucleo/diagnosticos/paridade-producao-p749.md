@@ -2,6 +2,7 @@
 
 **Data:** 2026-07-14
 **Commit de base:** `5d7a9951f2c569b8ae29f0d84be919af0351439b`
+**Commit do registo:** `bc3585161`
 **Passo:** 749
 
 ## O que aconteceu
