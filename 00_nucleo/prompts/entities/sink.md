@@ -1,5 +1,5 @@
 # Prompt L0 — Sink
-Hash do Código: a31e1f86
+Hash do Código: ae6c4ac7
 
 ## Módulo
 `01_core/src/entities/sink.rs`
@@ -47,6 +47,19 @@ O bloco `#[comemo::track] impl Sink {}` é deixado vazio. A API real
 vive num `impl Sink` não-tracked. Integração comemo adiada até
 `SourceDiagnostic` ser `Hash`-able ou até um wrapper tracked ser
 decidido.
+
+### Métodos tracked (em `world_types.rs`, Passos 106/107/740A)
+
+O bloco tracked vive em `01_core/src/entities/world_types.rs`
+(mantém a assinatura `TrackedMut<Sink>` do `eval()`):
+
+- `warn_note(span, message, hint)` — Passo 106/107; `hint == ""` =
+  sem hint (`Option<&str>` não é aceite pela proc-macro do comemo).
+- `warn_note2(span, message, hint, hint2)` — **P740A**; variante para
+  warnings com dois hints (paridade vanilla
+  `warn_for_discarded_content`, que junta um hint extra condicional
+  sobre state/counter). Mesma convenção: string vazia = hint ausente.
+  Ambos delegam em `record` (dedup partilhado, ADR-0043).
 
 ## Invariantes
 

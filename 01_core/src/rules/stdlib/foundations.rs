@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/rules/stdlib/foundations.md
-//! @prompt-hash 549476f9
+//! @prompt-hash 70d224e9
 //! @layer L1
 //! @updated 2026-06-24
 //!
@@ -53,30 +53,43 @@ pub fn native_len(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contr
 
 /// `rgb(r, g, b)` ou `rgb(r, g, b, a)` → Color.
 ///
-/// Args em Int 0–255. Quatro args incluem canal alpha.
-/// Fora de 0–255 → Err.
+/// **P740D** — paridade vanilla `Component` (`visualize/color.rs:2678-2692`):
+/// cada componente aceita Int [0, 255] ou Ratio [0%, 100%] (mesmo padrão
+/// aplicado a `linear-rgb` em P736). Ratio → u8 via `(fracção × 255).round()`
+/// — medido: `rgb(50%, 0%, 0%)` → `rgb("#800000")` (127.5 → 128 = 0x80).
+/// Erros verbatim do cast `Component`: Int fora de gama → "number must be
+/// between 0 and 255"; Ratio fora de gama → "ratio must be between 0% and
+/// 100%"; Float (e outros tipos) → "expected integer or ratio, found {type}".
 pub fn native_rgb(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contracts::world::World, _current_file: FileId) -> SourceResult<Value> {
     use crate::entities::layout_types::Color;
     expect_no_named(&args.named)?;
-    fn check(v: i64, name: &str) -> SourceResult<u8> {
-        if (0..=255).contains(&v) {
-            Ok(v as u8)
-        } else {
-            Err(vec![SourceDiagnostic::error(
+    fn as_u8(v: &Value) -> SourceResult<u8> {
+        match v {
+            Value::Int(i) if (0..=255).contains(i) => Ok(*i as u8),
+            Value::Int(_) => Err(vec![SourceDiagnostic::error(
                 Span::detached(),
-                format!("rgb(): componente {} fora de 0–255: {}", name, v),
-            )])
+                "number must be between 0 and 255".to_string(),
+            )]),
+            Value::Relative(r) if r.abs.is_zero() && (0.0..=1.0).contains(&r.rel) => {
+                Ok((r.rel * 255.0).round() as u8)
+            }
+            Value::Relative(r) if r.abs.is_zero() => Err(vec![SourceDiagnostic::error(
+                Span::detached(),
+                "ratio must be between 0% and 100%".to_string(),
+            )]),
+            other => Err(vec![SourceDiagnostic::error(
+                Span::detached(),
+                format!("expected integer or ratio, found {}", other.type_name()),
+            )]),
         }
     }
     match args.items.as_slice() {
         [Value::Str(s)] => parse_hex_color(s.as_str()),
-        [Value::Int(r), Value::Int(g), Value::Int(b)] => {
-            Ok(Value::Color(Color::rgb(check(*r, "r")?, check(*g, "g")?, check(*b, "b")?)))
-        }
-        [Value::Int(r), Value::Int(g), Value::Int(b), Value::Int(a)] => {
-            Ok(Value::Color(Color::rgba(check(*r, "r")?, check(*g, "g")?, check(*b, "b")?, check(*a, "a")?)))
-        }
-        _ => err(format!("rgb() requer 3 ou 4 Int, recebeu {} args", args.items.len())),
+        [r, g, b] => Ok(Value::Color(Color::rgb(as_u8(r)?, as_u8(g)?, as_u8(b)?))),
+        [r, g, b, a] => Ok(Value::Color(Color::rgba(
+            as_u8(r)?, as_u8(g)?, as_u8(b)?, as_u8(a)?,
+        ))),
+        _ => err(format!("rgb() requer 3 ou 4 componentes (Int/Ratio), recebeu {} args", args.items.len())),
     }
 }
 

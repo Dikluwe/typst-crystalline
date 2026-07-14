@@ -86,7 +86,20 @@ pub fn repr_value(v: &Value) -> String {
         }
         Value::Selector(s) => repr_selector(s),
         Value::Symbol(s) => s.ch.to_string(),
-        Value::Args(_) => "arguments(...)".to_string(),
+        Value::Args(a) => {
+            // **P740B** — paridade vanilla `Args::repr`
+            // (foundations/args.rs:457-461): lista os NOMEADOS primeiro
+            // (ordem de inserção), depois os posicionais. Medido:
+            // `f(1, 2, z: 3)` no sink → "arguments(z: 3, 1, 2)";
+            // vazio → "arguments()". Antes: "arguments(...)" (lossy).
+            let mut pieces: Vec<String> = a
+                .named
+                .iter()
+                .map(|(k, v)| format!("{k}: {}", repr_value(v)))
+                .collect();
+            pieces.extend(a.items.iter().map(repr_value));
+            format!("arguments({})", pieces.join(", "))
+        }
         Value::State(_) => "state(...)".to_string(),
         Value::Counter(_) => "counter(...)".to_string(),
         Value::Label(l) => format!("<{}>", l.0),
@@ -470,7 +483,18 @@ pub fn repr_selector(sel: &Selector) -> String {
 }
 
 /// Float com decimal sempre visível (evita "1" para 1.0).
+///
+/// **P740E** — valores não-finitos seguem a forma literal do vanilla:
+/// `float.nan` / `float.inf` / `-float.inf` (medido: `repr(calc.inf -
+/// calc.inf)` → "float.nan", `repr(calc.inf)` → "float.inf"). Antes
+/// produzia "NaN.0" / "inf.0".
 fn repr_float(f: f64) -> String {
+    if f.is_nan() {
+        return "float.nan".to_string();
+    }
+    if f.is_infinite() {
+        return if f < 0.0 { "-float.inf" } else { "float.inf" }.to_string();
+    }
     let s = format!("{}", f);
     if s.contains('.') || s.contains('e') {
         s

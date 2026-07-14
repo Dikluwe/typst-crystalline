@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/rules/eval.md
-//! @prompt-hash f3e41cc6
+//! @prompt-hash 1872d8ad
 //! @layer L1
 //! @updated 2026-06-17
 //!
@@ -10378,5 +10378,149 @@ mod tests {
         // Não-regressão: divisão normal intacta.
         let m3 = p729_eval("#let r = repr(4pt / 2.0)").unwrap();
         assert_eq!(m3.scope().get("r"), Some(&Value::Str("2pt".into())));
+    }
+
+    // ── Passo 740A — warning "return descarta conteúdo" ────────────────────
+
+    /// Helper P740A: eval com o sink exposto (padrão do teste P126), para
+    /// verificar warnings acumulados mesmo quando o eval erra.
+    fn p740a_eval_com_sink(markup: &str) -> (SourceResult<Module>, Vec<SourceDiagnostic>) {
+        use comemo::Track;
+        let world = MockWorld::new(markup);
+        let src = World::source(&world, World::main(&world)).unwrap();
+        let routines = Routines::new();
+        let traced = Traced::default();
+        let mut sink = Sink::new();
+        let route = Route::root();
+        let result = eval(
+            &routines,
+            &world,
+            traced.track(),
+            sink.track_mut(),
+            route.track(),
+            &src,
+            &crate::entities::element_registry::ElementRegistry::new(),
+        );
+        (result, sink.into_diagnostics())
+    }
+
+    #[test]
+    fn p740a_warn_return_descarta_conteudo() {
+        // Medido vanilla: `#{ [conteúdo]; return "x" }` → warning "this
+        // return unconditionally discards the content before it" + hint
+        // "try omitting the `return` to automatically join all values"
+        // (coexiste com o erro "cannot return outside of function").
+        // Cristalino pré-P740: só o erro, sem warning.
+        let (_r, diags) = p740a_eval_com_sink("#{ [conteúdo]; return \"x\" }");
+        let w = diags.iter().find(|d| {
+            d.message == "this return unconditionally discards the content before it"
+        });
+        let w = w.expect("warning de return ausente; diagnostics: {diags:?}");
+        assert!(
+            w.hints.iter().any(|h| h == "try omitting the `return` to automatically join all values"),
+            "hint base ausente: {:?}", w.hints
+        );
+    }
+
+    #[test]
+    fn p740a_warn_return_com_state_dois_hints() {
+        // Medido vanilla: com state/counter update no conteúdo descartado,
+        // junta um segundo hint "state/counter updates are content that
+        // must end up in the document to have an effect".
+        let (_r, diags) = p740a_eval_com_sink(
+            "#{ let s = state(\"k\", 0); [txt]; s.update(1); return \"x\" }",
+        );
+        let w = diags.iter().find(|d| {
+            d.message == "this return unconditionally discards the content before it"
+        });
+        let w = w.expect("warning de return ausente; diagnostics: {diags:?}");
+        assert!(
+            w.hints.iter().any(|h| h.contains("state/counter updates are content")),
+            "hint state/counter ausente: {:?}", w.hints
+        );
+    }
+
+    #[test]
+    fn p740a_sem_warning_sem_conteudo() {
+        // Não-regressão: `{ 1; return "x" }` — o join acumulado é Int, não
+        // Content → o vanilla não emite o warning (condição
+        // `Value::Content(tree)` em `warn_for_discarded_content`).
+        let (_r, diags) = p740a_eval_com_sink("#{ 1; return \"x\" }");
+        assert!(
+            diags.iter().all(|d| !d.message.contains("discards the content")),
+            "warning indevido: {diags:?}"
+        );
+    }
+
+    // ── Passo 740B — repr de `Value::Args` completo ────────────────────────
+
+    #[test]
+    fn p740b_repr_args_nomeados_depois_posicionais() {
+        // Medido vanilla: `repr` de arguments lista os NOMEADOS primeiro
+        // (ordem de inserção), depois os posicionais:
+        // `f(1, z: 2, y: 3)` com sink → "arguments(z: 2, y: 3)";
+        // `f(1, 2, z: 3)` → "arguments(z: 3, 1, 2)"; `f()` → "arguments()".
+        // Cristalino pré-P740: "arguments(...)" (lossy).
+        let m = p729_eval(
+            "#let f(a, ..rest) = rest\n#let r = repr(f(1, z: 2, y: 3))",
+        ).unwrap();
+        assert_eq!(m.scope().get("r"), Some(&Value::Str("arguments(z: 2, y: 3)".into())));
+
+        let m2 = p729_eval(
+            "#let f(..rest) = rest\n#let r = repr(f(1, 2, z: 3))",
+        ).unwrap();
+        assert_eq!(m2.scope().get("r"), Some(&Value::Str("arguments(z: 3, 1, 2)".into())));
+
+        let m3 = p729_eval("#let f(..rest) = rest\n#let r = repr(f())").unwrap();
+        assert_eq!(m3.scope().get("r"), Some(&Value::Str("arguments()".into())));
+    }
+
+    // ── Passo 740D — `rgb(ratio, ...)` ─────────────────────────────────────
+
+    #[test]
+    fn p740d_rgb_ratio_por_componente() {
+        // Medido vanilla: `repr(rgb(50%, 0%, 0%))` → `rgb("#800000")`
+        // (ratio × 255, arredondado: 127.5 → 128 = 0x80); com alpha:
+        // `rgb(50%, 0%, 0%, 50%)` → `rgb("#80000080")`.
+        // Cristalino pré-P740D: erro "rgb() requer 3 ou 4 Int".
+        let m = p729_eval("#let c = repr(rgb(50%, 0%, 0%))").unwrap();
+        assert_eq!(m.scope().get("c"), Some(&Value::Str("rgb(\"#800000\")".into())));
+        let m2 = p729_eval("#let c = repr(rgb(50%, 0%, 0%, 50%))").unwrap();
+        assert_eq!(m2.scope().get("c"), Some(&Value::Str("rgb(\"#80000080\")".into())));
+        // Não-regressão: Int directo inalterado.
+        let m3 = p729_eval("#let c = repr(rgb(128, 0, 0))").unwrap();
+        assert_eq!(m3.scope().get("c"), Some(&Value::Str("rgb(\"#800000\")".into())));
+    }
+
+    #[test]
+    fn p740d_rgb_erros_verbatim() {
+        // Medido vanilla (Component cast, visualize/color.rs:2680-2692):
+        // - Int fora de [0,255] → "number must be between 0 and 255"
+        // - Float → "expected integer or ratio, found float"
+        // - Ratio fora de [0%,100%] → "ratio must be between 0% and 100%"
+        let e = p729_eval("#rgb(300, 0, 0)").unwrap_err();
+        assert_eq!(e[0].message, "number must be between 0 and 255");
+        let e2 = p729_eval("#rgb(0.5, 0, 0)").unwrap_err();
+        assert_eq!(e2[0].message, "expected integer or ratio, found float");
+        let e3 = p729_eval("#rgb(150%, 0%, 0%)").unwrap_err();
+        assert_eq!(e3[0].message, "ratio must be between 0% and 100%");
+    }
+
+    // ── Passo 740E — repr de NaN e ±inf ────────────────────────────────────
+
+    #[test]
+    fn p740e_repr_nan_e_inf() {
+        // Medido vanilla: `repr(calc.inf - calc.inf)` → "float.nan";
+        // `repr(calc.inf)` → "float.inf"; `repr(-calc.inf)` → "-float.inf".
+        // Cristalino pré-P740E: "NaN.0" / "inf.0" / "-inf.0".
+        let m = p729_eval("#let r = repr(calc.inf - calc.inf)").unwrap();
+        assert_eq!(m.scope().get("r"), Some(&Value::Str("float.nan".into())));
+        let m2 = p729_eval("#let r = repr(calc.inf)").unwrap();
+        assert_eq!(m2.scope().get("r"), Some(&Value::Str("float.inf".into())));
+        let m3 = p729_eval("#let r = repr(-calc.inf)").unwrap();
+        assert_eq!(m3.scope().get("r"), Some(&Value::Str("-float.inf".into())));
+        // Não-regressão: finitos mantêm ".0".
+        let m4 = p729_eval("#let r = repr(1.0)").unwrap();
+        assert_eq!(m4.scope().get("r"), Some(&Value::Str("1.0".into())));
     }
 }

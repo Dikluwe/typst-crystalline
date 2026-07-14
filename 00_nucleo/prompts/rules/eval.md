@@ -1,5 +1,5 @@
 # Prompt L0 — rules/eval
-Hash do Código: b848a0f2
+Hash do Código: 05157be1
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/rules/eval/mod.rs`
@@ -1729,3 +1729,54 @@ fechada neste passo.
   comparado com o vanilla).
 - `#repr(1.0)` → `1.0` (não-regressão).
 - `crystalline-lint .` limpo; `--fix-hashes` actualiza `eval/mod.rs`.
+
+## §P740A — Warning "this return unconditionally discards the content before it"
+
+Medição prévia (ADR-0108; sonda P740A): `#{ [conteúdo]; return "x" }`
+no vanilla emite **duas** mensagens — o erro "cannot return outside of
+function" **e** a warning "this return unconditionally discards the
+content before it" + hint "try omitting the `return` to automatically
+join all values"; com um update de state/counter no conteúdo descartado,
+junta um segundo hint "state/counter updates are content that must end
+up in the document to have an effect". O cristalino só emitia o erro —
+a warning era o único consumidor do flag `conditional` de P729
+(`code.rs:413-430` do vanilla, `warn_for_discarded_content`).
+
+### Regra (mirror de `warn_for_discarded_content`)
+
+No braço `Expr::CodeBlock`, após o loop de join (P728): se
+`ctx.flow == Some(FlowEvent::Return(span, Some(_), false))` (return
+incondicional com valor) **e** o output acumulado é `Value::Content`,
+emitir a warning via canal tracked do Sink (`warn_note2`, P740A —
+dois hints). O segundo hint dispara quando a travessia do conteúdo
+encontra `State`/`StateUpdate`/`CounterUpdate`/`CounterDisplay`/
+`CounterDisplayCallback` (paridade do seletor `State|Counter` do
+vanilla; desce em `Sequence` e `Styled`).
+
+A emissão acontece **antes** do chamador tratar o flow — a warning
+coexiste com o erro "cannot return outside of function" (medido no
+vanilla). `{ 1; return "x" }` (join não-Content) não emite.
+
+### Critérios de verificação
+
+- `#{ [conteúdo]; return "x" }` → warning + hint base (teste com sink
+  exposto; E2E confirma a impressão do warning pelo binário).
+- Com `state(...).update(...)` no conteúdo → os dois hints.
+- `{ 1; return "x" }` → sem warning (não-regressão).
+
+## §P740C — Ordem entre tipos no erro de argumento extra — scope-out reforçado (custo medido)
+
+Sonda P740C (confirma P733): `#let f(a) = a; f(1, z: 2, 3)` → vanilla
+reporta `"unexpected argument: z"` — o primeiro extra na **ordem
+original** da lista única `Args.items` (`Arg { name, value }`);
+o cristalino reporta o posicional primeiro (`"unexpected argument"`),
+porque guarda `items: Vec<Value>` e `named: IndexMap` separados, sem
+ordem intercalada.
+
+**Decisão: scope-out reforçado.** A paridade exacta exigiria migrar
+`Args` para lista única — custo medido (ADR-0108): 335 usos de
+`args.items`, 676 usos de `.named` em 26 ficheiros da stdlib, mais 31
+construções directas de `Args {}`. Desproporcional para um caso de
+canto cosmético (dois extras de tipos diferentes; ambos os compiladores
+erram, só difere qual é reportado). O item permanece em
+`achados-adiados-cetz.md` com este custo registado.

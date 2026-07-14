@@ -411,6 +411,30 @@ impl Sink {
         }
         self.record(diag);
     }
+
+    /// **P740A** — variante de `warn_note` para warnings com dois hints
+    /// (paridade vanilla `warn_for_discarded_content`, que junta um hint
+    /// extra sobre state/counter). Convenção idêntica: string vazia =
+    /// hint ausente.
+    pub fn warn_note2(
+        &mut self,
+        span: crate::entities::span::Span,
+        message: &str,
+        hint: &str,
+        hint2: &str,
+    ) {
+        let mut diag = crate::entities::source_result::SourceDiagnostic::warning(
+            span,
+            message.to_string(),
+        );
+        if !hint.is_empty() {
+            diag = diag.with_hint(hint.to_string());
+        }
+        if !hint2.is_empty() {
+            diag = diag.with_hint(hint2.to_string());
+        }
+        self.record(diag);
+    }
 }
 
 

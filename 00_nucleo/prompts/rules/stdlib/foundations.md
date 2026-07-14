@@ -1,5 +1,5 @@
 # Prompt L0 — `stdlib/foundations` — utilitários, cores, conversões e introspeção
-Hash do Código: d72cfe27
+Hash do Código: e0103260
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/rules/stdlib/foundations.rs`
@@ -116,7 +116,8 @@ inalterada — só muda o valor no scope (de função para tipo chamável).
 | `auto` | `"auto"` |
 | `bool` | `"true"` / `"false"` |
 | `int` | `"1"` |
-| `float` | `"1.0"`, `"1.5"` |
+| `float` | `"1.0"`, `"1.5"`; não-finitos → `"float.nan"`, `"float.inf"`, `"-float.inf"` (P740E — paridade vanilla medida) |
+| `arguments` | `"arguments(z: 2, y: 3)"` (P740B — nomeados primeiro, depois posicionais; vazio → `"arguments()"`) |
 | `str` | `"\"hello\""` |
 | `array` | `"(1, 2)"`; array vazio → `"()"` |
 | `dict` | `"(a: 1)"`; dict vazio → `"(:)"` (P695 — distinto de array vazio `"()"`) |
@@ -390,12 +391,21 @@ float()           -> Err "float() requer 1 argumento"
 
 ## 4. Construtores de cor
 
-### `native_rgb` — `rgb(r, g, b)` / `rgb(r, g, b, a)` / `rgb(hex: str)` (P703)
+### `native_rgb` — `rgb(r, g, b)` / `rgb(r, g, b, a)` / `rgb(hex: str)` (P703; P740D — componentes `Ratio`)
 
-**Assinatura**: `rgb(r: int, g: int, b: int, a: int?) -> color` /
+**Assinatura**: `rgb(r: int | ratio, g: int | ratio, b: int | ratio, a: int | ratio?) -> color` /
 `rgb(hex: str) -> color`
 
-**Argumentos (forma numérica)**: componentes inteiros 0–255. Alpha opcional.
+**Argumentos (forma numérica)**: cada componente aceita **Int [0, 255]**
+ou **Ratio [0%, 100%]** (P740D — paridade vanilla `Component`,
+`visualize/color.rs:2678-2692`, mesmo padrão aplicado a `linear-rgb` em
+P736). Ratio → u8 via `(fracção × 255).round()` — medido:
+`rgb(50%, 0%, 0%)` → `rgb("#800000")` (127.5 → 128 = 0x80); com alpha:
+`rgb(50%, 0%, 0%, 50%)` → `rgb("#80000080")`. Erros verbatim do cast
+`Component`, medidos no vanilla:
+- Int fora de [0, 255] → `"number must be between 0 and 255"`.
+- Ratio fora de [0%, 100%] → `"ratio must be between 0% and 100%"`.
+- Float (ou outro tipo) → `"expected integer or ratio, found {type}"`.
 
 **Argumentos (forma hex, P703)**: 1 `Str` — cor em notação hexadecimal.
 Aceita 3, 4, 6 ou 8 dígitos hexadecimais, com `#` opcional à frente,
@@ -416,11 +426,10 @@ maiúsculas ou minúsculas indiferentes (paridade vanilla verbatim,
 `Color::rgba(...)` — pela forma numérica ou pela forma hex, mesmo tipo de
 saída.
 
-**Scope-out (P703)**: formas do vanilla não implementadas, por não terem
-consumidor real medido (`cetz`, que só usa `.map(rgb)` sobre strings hex em
-`palette.typ`) — **decisão explícita, não omissão silenciosa**:
-- Componentes como `Ratio` (`rgb(25%, 13%, 65%)`) — só `Int` 0–255
-  continua suportado.
+**Scope-out (P703; P740D reduziu a lista)**: formas do vanilla não
+implementadas — **decisão explícita, não omissão silenciosa**:
+- ~~Componentes como `Ratio` (`rgb(25%, 13%, 65%)`)~~ — **implementado em
+  P740D** (medição da sonda de P736: `rgb(50%, 0%, 0%)` → `rgb("#800000")`).
 - `rgb(color)` — converter uma `Color` já existente para RGB — não
   implementado; `rgb(rgb(...))` ou `rgb(cmyk(...))` continuam a falhar
   como antes de P703.
@@ -432,8 +441,12 @@ consumidor real medido (`cetz`, que só usa `.map(rgb)` sobre strings hex em
 ```
 rgb(255, 0, 128)          -> Color::rgb(255,0,128)
 rgb(255, 0, 0, 200)       -> Color::rgba(255,0,0,200)
-rgb(300, 0, 0)            -> Err "componente fora de 0–255"
-rgb(0, 0)                 -> Err "rgb() requer 3 ou 4 Int"
+rgb(50%, 0%, 0%)          -> Color::rgb(128,0,0)  (P740D — repr "rgb(\"#800000\")")
+rgb(50%, 0%, 0%, 50%)     -> Color::rgba(128,0,0,128)  (P740D)
+rgb(300, 0, 0)            -> Err "number must be between 0 and 255"  (verbatim P740D)
+rgb(0.5, 0, 0)            -> Err "expected integer or ratio, found float"  (verbatim P740D)
+rgb(150%, 0%, 0%)         -> Err "ratio must be between 0% and 100%"  (verbatim P740D)
+rgb(0, 0)                 -> Err "rgb() requer 3 ou 4 componentes (Int/Ratio)"
 rgb("#FF0000")            -> Color::rgba(255,0,0,255)      (6 dígitos, com #)
 rgb("FF0000")             -> Color::rgba(255,0,0,255)      (6 dígitos, sem #)
 rgb("#FF0000FF")          -> Color::rgba(255,0,0,255)      (8 dígitos, alpha opaco)

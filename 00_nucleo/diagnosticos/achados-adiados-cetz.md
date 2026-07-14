@@ -1,17 +1,13 @@
-# Achados adiados na cadeia P700-739 — lista de controlo
+# Achados adiados na cadeia P700-740 — lista de controlo
 
 ## Por resolver
 
 | Achado | Onde foi encontrado | Prioridade | Estado |
 |---|---|---|---|
-| Warning "this return unconditionally discards the content before it" ausente — vanilla emite em return incondicional após conteúdo (`code.rs:413-430`); cristalino silencia (medido P738: `{ [conteúdo] return "x" }` vanilla warning, cristalino exit 0). Return dentro de for/while após conteúdo: ambos em silêncio (paridade acidental). O hint extra sobre state/counter exige query de seletores (provável scope-out parcial) | P738 (sonda — único consumidor do flag `conditional` de P729) | Baixa — warning, não erro; sem consumidor em cetz | Aberto |
 | `polygon` com vértices `Ratio` (`50%`) scope-out — vanilla aceita e resolve no layout contra o contentor (medido P734: triângulo com `(50%, 0pt)` renderiza 2923 px); o constructor cristalino corre em tempo de eval, sem dimensão de referência. Erro explícito de scope-out desde P734 | P732 (sonda), confirmado P734 | Baixa — sem consumidor em cetz | Aberto |
-| Repr de `Value::Args` (sink) é lossy — `#let f(a, ..rest) = rest; f(1, z: 2, y: 3)` imprime `arguments(...)` no cristalino vs `arguments(z: 2, y: 3)` no vanilla (medido em P733; o conteúdo do sink está correcto — `rest.named()` devolve os pares) | P733 (sonda) | Baixa — cosmético | Aberto |
-| Ordem entre tipos no erro de argumento extra — `f(1, z: 2, 3)` (nomeado antes de posicional extra): vanilla reporta o primeiro na ordem original ("unexpected argument: z", `Args::finish` sobre lista única); o cristalino, com `items`/`named` separados, reporta o posicional primeiro ("unexpected argument") | P733 (sonda) | Baixa — caso de canto, ambos erram | Aberto |
-| `rgb(50%, 0%, 0%)` rejeitado ("rgb() requer 3 ou 4 Int") — vanilla aceita percentagem por componente e Int (medido P736: `rgb(50%, 0%, 0%)` → `rgb("#800000")`, igual a `rgb(128, 0, 0)`). `linear-rgb` foi corrigido em P736 (estava no passo); `rgb` não estava — um-bug-por-passo | P736 (sonda colateral) | Baixa — sem consumidor em cetz | Aberto |
+| Ordem entre tipos no erro de argumento extra — `f(1, z: 2, 3)` (nomeado antes de posicional extra): vanilla reporta o primeiro na ordem original ("unexpected argument: z", `Args::finish` sobre lista única); o cristalino, com `items`/`named` separados, reporta o posicional primeiro ("unexpected argument"). **Scope-out reforçado em P740C com custo medido**: paridade exacta exige `Args` em lista única — 335 usos de `args.items`, 676 de `.named` em 26 ficheiros da stdlib, 31 construções de `Args {}` | P733 (sonda); P740C (custo) | Baixa — caso de canto, ambos erram | Aberto |
 | Métodos de instância de cor ausentes (`red.lighten(20%)` → erro de campo) e fields `color.rotate`/`color.components`/`color.space` ausentes — existem no vanilla (medido P736: `type(color.rotate)` → `function`; `type(red.lighten(20%))` → `color`). Ausência pré-existente desde P476 (operadores só como funções estáticas), confirmada em P736 | P736 (inventário da sonda) | Baixa — sem consumidor em cetz | Aberto |
 
-| Repr de NaN diverge — `repr(calc.inf - calc.inf)` → `NaN.0` no cristalino vs `float.nan` no vanilla (medido P739D, ao validar a via NaN via `calc.inf`); a forma literal do NaN no `repr` não foi coberta pela parte D (saneamento do `Length`, não do `repr`) | P739 (sonda D) | Baixa — cosmético | Aberto |
 
 ## Fechados
 
@@ -38,6 +34,11 @@
 | `line(end:)` rejeitado ("unexpected argument") — vanilla aceita | P739B (whitelist de `native_line` ganha `start`/`end`; `dx=ex−sx, dy=ey−sy`; `end`+`dx`/`dy` = erro; `start` sem `end` = erro; `start`≠(0,0) e `angle:`/`length:` scope-out; E2E: 523=523 px, diff 0.0481%) |
 | Formatação de `Float` em markup divergia (`2.0` vs `2`) | P739C (braço P545 de interpolação em `eval/mod.rs`: `Value::Float(f) => format!("{f}")` — Display de f64, paridade vanilla; `repr` inalterado; E2E `pdftotext` idêntico: `2 1 2.5 0.1 100 1500 1.0`) |
 | `Length / Float` com NaN propagava — vanilla saneia para `0pt` (`repr(1pt / (calc.inf - calc.inf))` → `0pt`, medido; NaN alcançável via `calc.inf - calc.inf`) | P739D (`sanitize_length_nan` estendida aos dois braços `Div` de `Length` em `operators.rs`; zero-divisor literal mantém "cannot divide by zero" — paridade exacta medida nos dois compiladores; E2E → `0pt`) |
+
+| Warning "this return unconditionally discards the content before it" ausente — único consumidor do flag `conditional` de P729 (`code.rs:413-430`); coexiste com o erro "cannot return outside of function" | P740A (braço CodeBlock emite via `Sink::warn_note2` quando `FlowEvent::Return(_, Some(_), false)` com output Content; `content_has_state_or_counter` para o 2º hint — descoberta: `state.update()` produz `Content::StateUpdate`; E2E idêntico ao vanilla: warning + hint(s) + erro) |
+| Repr de `Value::Args` (sink) lossy (`arguments(...)`) | P740B (braço em `repr.rs`: nomeados primeiro, depois posicionais — ordem medida `arguments(z: 3, 1, 2)`; casa com `named: IndexMap` + `items: Vec`; vazio → `arguments()`) |
+| `rgb(50%, 0%, 0%)` rejeitado — vanilla aceita percentagem por componente (→ `rgb("#800000")`) | P740D (`native_rgb` espelha P736: Int [0,255] ou Ratio [0%,100%] com `(rel×255).round()`; mensagens verbatim "number must be between 0 and 255" / "expected integer or ratio, found float" / "ratio must be between 0% and 100%") |
+| Repr de NaN diverge (`NaN.0` vs `float.nan`) — a sonda estendida mediu também ±inf (`inf.0` vs `float.inf`) | P740E (`repr_float`: guarda de não-finitos — NaN → `float.nan`, ±inf → `±float.inf`; finitos inalterados) |
 
 ## Scope-outs conscientes
 

@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/rules/eval.md
-//! @prompt-hash f3e41cc6
+//! @prompt-hash 1872d8ad
 //! @layer L1
 //! @updated 2026-07-09
 //!
@@ -685,6 +685,31 @@ pub(crate) fn eval_expr(
                         break;
                     }
                 }
+                // **P740A** — paridade vanilla `warn_for_discarded_content`
+                // (`typst-eval/src/code.rs:413-430`): `return` incondicional
+                // (flag `conditional == false`) com conteúdo acumulado antes
+                // dele emite warning + hint; um segundo hint é adicionado
+                // quando o conteúdo descartado contém updates de
+                // state/counter (seletor `State|Counter` no vanilla, aqui
+                // travessia directa das variants equivalentes). A emissão
+                // acontece aqui — antes do chamador tratar o flow —, pelo
+                // que o warning coexiste com o erro "cannot return outside
+                // of function" (medido no vanilla).
+                if let Some(FlowEvent::Return(span, Some(_), false)) = &ctx.flow {
+                    if let Value::Content(c) = &output {
+                        let hint2 = if content_has_state_or_counter(c) {
+                            "state/counter updates are content that must end up in the document to have an effect"
+                        } else {
+                            ""
+                        };
+                        local_engine.sink.warn_note2(
+                            *span,
+                            "this return unconditionally discards the content before it",
+                            "try omitting the `return` to automatically join all values",
+                            hint2,
+                        );
+                    }
+                }
             }
             Ok(output)
         }
@@ -1012,6 +1037,26 @@ pub(crate) fn eval_expr(
 
         // **P715** — `(a, b) = expr`. Ver `bindings::eval_destruct_assignment`.
         Expr::DestructAssignment(node) => bindings::eval_destruct_assignment(node, scopes, ctx, engine),
+    }
+}
+
+/// **P740A** — deteta updates de state/counter no conteúdo descartado
+/// por um `return` (paridade do seletor `State::select_any() |
+/// Counter::select_any()` do vanilla em `warn_for_discarded_content`).
+/// Travessia directa: as variants da família (state, state update,
+/// counter update e os dois displays de counter) disparam; desce em
+/// `Sequence` e `Styled` (as formas que o `join` produz em markup).
+fn content_has_state_or_counter(c: &crate::entities::content::Content) -> bool {
+    use crate::entities::content::Content;
+    match c {
+        Content::State(_)
+        | Content::StateUpdate(_)
+        | Content::CounterUpdate(_)
+        | Content::CounterDisplay(_)
+        | Content::CounterDisplayCallback(_) => true,
+        Content::Sequence(items) => items.iter().any(content_has_state_or_counter),
+        Content::Styled(body, _) => content_has_state_or_counter(body),
+        _ => false,
     }
 }
 
