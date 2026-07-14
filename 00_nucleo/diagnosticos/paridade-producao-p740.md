@@ -2,7 +2,7 @@
 
 **Data:** 2026-07-13 (22:41 -03:00)
 **Commit base:** `887f385a1` ("P739: preenche hash do commit no relatório")
-**Commit da implementação:** (preenchido no commit seguinte)
+**Commit da implementação:** `6951703ecbaf2af574cc9d60c99eebf22da9a897`
 **Estado no momento das medições E2E:** working tree não commitado; 17
 ficheiros alterados (`git diff HEAD --stat`: 370 inserções, 43 remoções —
 11 ficheiros de código, 3 L0, mais os headers actualizados por
