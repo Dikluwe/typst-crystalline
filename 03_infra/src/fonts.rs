@@ -14,25 +14,34 @@ use typst_core::entities::world_types::Font;
 
 /// Slot de fonte com carregamento lazy.
 ///
-/// A fonte só é lida do disco na primeira chamada a `get()`.
+/// A fonte pode vir do disco (`path`) ou de bytes embutidos (`embedded`).
 /// `ttf-parser` valida que os bytes são uma fonte OpenType/TrueType
 /// válida antes de retornar `Some(Font)` — bytes inválidos retornam `None`.
 /// `ttf-parser` não escapa a esta fronteira: L1 recebe apenas `Font(Vec<u8>)`.
 pub struct FontSlot {
-    pub path:  PathBuf,
+    pub path:     PathBuf,
     /// Índice da face num TrueType Collection (.ttc). Sempre 0 para fontes simples.
-    pub index: u32,
+    /// Ignorado quando `embedded` está presente.
+    pub index:    u32,
+    /// Bytes embutidos (ex: vinda de `typst-assets`). Quando presentes,
+    /// `get()` usa estes bytes em vez de ler do disco.
+    embedded: Option<Vec<u8>>,
     font:      OnceLock<Option<Font>>,
 }
 
 impl FontSlot {
     pub fn new(path: PathBuf, index: u32) -> Self {
-        Self { path, index, font: OnceLock::new() }
+        Self { path, index, embedded: None, font: OnceLock::new() }
     }
 
-    /// Carrega e valida a fonte do disco (apenas na primeira chamada).
-    /// Retorna `None` se o ficheiro não existir, não for legível, ou não
-    /// for uma fonte OpenType/TrueType válida com o índice especificado.
+    /// Cria um slot a partir de bytes embutidos (P753).
+    /// O path é mantido apenas para referência/depuração; não é lido.
+    pub fn new_embedded(path: PathBuf, data: Vec<u8>) -> Self {
+        Self { path, index: 0, embedded: Some(data), font: OnceLock::new() }
+    }
+
+    /// Carrega e valida a fonte (apenas na primeira chamada).
+    /// Retorna `None` se os bytes não forem uma fonte OpenType/TrueType válida.
     ///
     /// **P609** — se o ficheiro for uma TrueType/OpenType Collection (.ttc/.otc),
     /// extrai a face correspondente a `self.index` para bytes independentes antes
@@ -41,9 +50,17 @@ impl FontSlot {
     /// silenciosamente e embutir a coleção inteira.
     pub fn get(&self) -> Option<Font> {
         self.font.get_or_init(|| {
-            let data = std::fs::read(&self.path).ok()?;
-            // P609: extrair face de uma coleção, se aplicável.
-            let data = extract_collection_face(&data, self.index).unwrap_or(data);
+            let data = if let Some(bytes) = &self.embedded {
+                bytes.clone()
+            } else {
+                std::fs::read(&self.path).ok()?
+            };
+            // P609: extrair face de uma coleção, se aplicável (só aplica a fontes de ficheiro).
+            let data = if self.embedded.is_none() {
+                extract_collection_face(&data, self.index).unwrap_or(data)
+            } else {
+                data
+            };
             // Validar que é uma fonte válida — ttf_parser não escapa a fronteira
             ttf_parser::Face::parse(&data, 0).ok()?;
             Some(Font::from_data(data))
@@ -198,12 +215,14 @@ pub fn font_info_from_bytes(data: &[u8], index: u32) -> Option<FontInfo> {
 
 /// Popula um `FontBook` a partir de uma lista de `FontSlot`.
 ///
-/// Lê os bytes de cada slot e extrai `FontInfo`.
+/// Lê os bytes de cada slot e extrai `FontInfo`. Para slots embutidos,
+/// usa os bytes em memória em vez de reler do disco.
 /// A leitura duplica o I/O com `FontSlot::get()` — optimização futura (Passo 11).
 pub fn build_font_book(slots: &[FontSlot]) -> FontBook {
     let mut book = FontBook::new();
     for slot in slots {
-        if let Ok(data) = std::fs::read(&slot.path) {
+        let data = slot.embedded.clone().or_else(|| std::fs::read(&slot.path).ok());
+        if let Some(data) = data {
             if let Some(info) = font_info_from_bytes(&data, slot.index) {
                 book.push(info);
             }

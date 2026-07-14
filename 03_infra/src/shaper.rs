@@ -273,7 +273,7 @@ fn try_shape(
     let axis_vars = axis_variations_for_font_variant(&variant);
 
     // P515 — resolver todas as fontes candidatas da FontList.
-    // **P538e/P555** — se a fonte declarada (incluindo a default "FreeSerif")
+    // **P538e/P555** — se a fonte declarada (incluindo a default "Libertinus Serif")
     // não existe no FontBook, tentar fontes padrão de fallback da mesma
     // classe (serif/sans) antes de recair no fallback global carácter-a-carácter.
     let mut primary = resolve_candidates(world, font_list, &variant, face_cache).unwrap_or_default();

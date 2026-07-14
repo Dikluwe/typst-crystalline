@@ -124,7 +124,7 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
         leading:       layouter.style.leading.clone().or(ns_leading),
         lang:          layouter.style.lang.clone().or(ns_lang),
         // P660 fix: `#set text(font: ...)` deve substituir a fonte default da
-        // chain (Liberation Serif). A chain tipada (heading) ainda vence porque
+        // chain (Libertinus Serif). A chain tipada (heading) ainda vence porque
         // o eval show-rule já assa a fonte no `StyleDelta::font` da chain, e
         // `ns_font` (do canal custom `text.font`) é None nesse caminho.
         font:          ns_font.or(layouter.style.font.clone()),

@@ -1837,6 +1837,14 @@ dependencies = [
 ]
 
 [[package]]
+name = "typst-assets"
+version = "0.15.0"
+source = "git+https://github.com/typst/typst-assets?rev=c0ae970#c0ae970f64413cf8e39cecd56d15ee50de42eaf4"
+dependencies = [
+ "bitflags 2.9.1",
+]
+
+[[package]]
 name = "typst-benches"
 version = "0.1.0"
 dependencies = [
@@ -1890,6 +1898,7 @@ dependencies = [
  "time",
  "toml",
  "ttf-parser",
+ "typst-assets",
  "typst-core",
  "unicode-bidi",
  "unicode-script",

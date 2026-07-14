@@ -6,6 +6,7 @@
 
 // `diagnostic_format` migrado para L2 (`typst_shell::diagnostic`)
 // no Passo 119 (ADR-0050). L3 já não conhece formatação user-facing.
+pub mod embedded_fonts;
 pub mod export;
 pub mod fallback_fonts;
 pub mod font_metrics;

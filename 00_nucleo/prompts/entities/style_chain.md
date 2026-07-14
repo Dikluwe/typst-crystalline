@@ -1,5 +1,5 @@
 # Prompt L0 — StyleChain
-Hash do Código: 07af7ec5
+Hash do Código: 55289d65
 
 ## Módulo
 `01_core/src/entities/style_chain.rs`
@@ -42,7 +42,7 @@ pub struct StyleChain(Option<Arc<StyleNode>>);
 cadeia num único `StyleDelta` preservando a semântica `Option` (top-wins por campo;
 `custom` mantém a primeira ocorrência por chave). Read-only. Usado pela captura do
 show-set para extrair, de uma cadeia construída sobre `StyleChain::empty()`, o efeito
-exato do `#set` (sem os defaults de `default_chain`). Sobre `empty()` o resultado é
+exacto do `#set` (sem os defaults de `default_chain`). Sobre `empty()` o resultado é
 apenas o que o `set` definiu — não os defaults.
 
 ## Resolução de propriedades
@@ -55,28 +55,37 @@ Se nenhum nó define a propriedade, usa o valor por defeito do accessor.
 `impl From<&StyleChain> for TextStyle` — converte para `TextStyle` plano,
 compatível com o layout e export actuais durante a migração.
 
-### Fonte por defeito (P554/P558)
+### Fonte por defeito (P753)
 
 Quando nenhum nó da cadeia define `font`, o bridge `From<&StyleChain> for TextStyle`
 deve fornecer uma fonte por defeito para que o shaper tenha sempre uma família primária.
 
 - O vanilla 0.15.0 usa `Libertinus Serif` como fonte por defeito.
-- O cristalino não embute fontes e depende das fontes do sistema. `Libertinus Serif`
-  não está disponível no ambiente de testes.
-- **Decisão P554**: a fonte por defeito do cristalino é `FreeSerif`, uma serif
-  amplamente disponível em sistemas Linux (pacote `fonts-freefont-ttf`). Isto mantém
-  a mesma classe visual do vanilla (serif) e atinge paridade de paginação no caso
-  de teste de P553 (`#set page(columns: 2)\n#lorem(1200)` reduz de 3 para 2 páginas).
-- **Correcção P558**: `FreeSerif` descompõe caracteres acentuados em base + mark
-  durante o shaping, e o subsetter de fontes CFF do cristalino não consegue
-  reconstruir correctamente esses glifos (resultado: acentos trocados ou perdidos
-  no PDF, visíveis e na extracção de texto). A fonte por defeito passa a ser
-  `Liberation Serif`, uma serif igualmente disponível que mantém a paridade de
-  paginação de P553/P554 e não descompõe os acentos desta forma.
-- Se `Liberation Serif` não estiver disponível, o shaper faz fallback pelas
-  fontes serif definidas em `DEFAULT_FALLBACK_FONTS_SERIF`, ordenadas para
-  preferir fontes sem o bug de decomposição (Liberation Serif, DejaVu Serif,
-  Bitstream Vera Serif, FreeSerif como último recurso).
+- O cristalino, a partir de **P753**, carrega as mesmas fontes embutidas que o
+  vanilla CLI (`Libertinus Serif`, `New Computer Modern`, `New Computer Modern Math`,
+  `DejaVu Sans Mono`) através de `typst-assets` (ver Prompt L0
+  `00_nucleo/prompts/infra/embedded_fonts.md`). `Libertinus Serif` está portanto
+  sempre disponível.
+- **Decisão P753**: a fonte por defeito do cristalino passa a ser `Libertinus Serif`,
+  batendo exactamente com o vanilla. Isto elimina a diferença visual e o resíduo de
+  paginação causado pelo uso anterior de `Liberation Serif`.
+- Se, por qualquer razão, `Libertinus Serif` não resolver (ex: `FontBook` vazio por
+  configuração especial), o shaper faz fallback pelas fontes serif definidas em
+  `DEFAULT_FALLBACK_FONTS_SERIF`, ordenadas para preferir fontes sem o bug de
+  decomposição de acentos (Liberation Serif, DejaVu Serif, Bitstream Vera Serif,
+  FreeSerif como último recurso). Esta salvaguarda preserva o comportamento de P558.
+
+### Histórico de decisões anteriores (P554/P558)
+
+- **P554**: a fonte por defeito inicial do cristalino era `FreeSerif`, uma serif
+  amplamente disponível em sistemas Linux. Mantinha a mesma classe visual do vanilla
+  e atingia paridade de paginação no caso de teste de P553.
+- **P558**: `FreeSerif` descompõe caracteres acentuados em base + mark durante o
+  shaping, e o subsetter CFF do cristalino não reconstrói esses glifos correctamente.
+  A fonte por defeito passou para `Liberation Serif`, igualmente disponível e sem o
+  problema de acentos.
+- **P753**: com a adopção de fontes embutidas via `typst-assets`, o cristalino pode
+  finalmente usar `Libertinus Serif`, a fonte por defeito do vanilla.
 
 ## Camada
 L1 — pura. Sem I/O de sistema. Usa apenas `Arc` (RAM).
@@ -88,7 +97,7 @@ L1 — pura. Sem I/O de sistema. Usa apenas `Arc` (RAM).
 - Herança: filho com `bold: None` herda bold do pai
 - Clone de `StyleChain` é O(1) (só clona o Arc do topo)
 - `From<&StyleChain> for TextStyle` converte correctamente
-- P554/P558: `TextStyle.font` de uma chain sem `font` definido é `Some(Liberation Serif)`
+- P753: `TextStyle.font` de uma chain sem `font` definido é `Some(Libertinus Serif)`
 
 ---
 
@@ -142,3 +151,6 @@ têm consumers reais materializados em passos subsequentes:
   imutável (primeiro consumo directo P266).
 - `00_nucleo/diagnosticos/diagnostico-text-fase-a-passo-266.md`
   — diagnóstico imutável Fase A (cobertura agregada ~86%).
+- P753 — `00_nucleo/diagnosticos/paridade-producao-p753.md`:
+  mudança da fonte por defeito para `Libertinus Serif` e
+  adopção de fontes embutidas via `typst-assets`.

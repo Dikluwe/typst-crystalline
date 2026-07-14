@@ -1,5 +1,5 @@
 # Prompt L0 — infra/system-world
-Hash do Código: 267877c4
+Hash do Código: 74c112e1
 
 **Camada**: L3
 **Ficheiro alvo**: `03_infra/src/world.rs`
@@ -123,6 +123,31 @@ Então Ok(Source) com text() == "Hello *world*"
 ```
 
 ---
+
+## Fontes embutidas — P753
+
+A partir de P753, `SystemWorld` suporta fontes embutidas via `typst-assets`:
+
+```rust
+impl SystemWorld {
+    /// Carrega as fontes embutidas do vanilla (Libertinus Serif, New Computer
+    /// Modern, New Computer Modern Math, DejaVu Sans Mono).
+    pub fn with_embedded_fonts(mut self) -> Self;
+
+    /// Combina embutidas + sistema + fontes de projecto.
+    pub fn with_fonts_and_system(mut self, font_paths: &[PathBuf]) -> Self;
+}
+```
+
+- `with_embedded_fonts` usa `crate::embedded_fonts::load_embedded_fonts()`.
+- `with_fonts_and_system` carrega: (1) embutidas; (2) sistema via `fontdb`; (3)
+  projecto via `discover_fonts`. A ordem garante que o conjunto vanilla-like é
+  sempre disponível, e que `--font-path` pode adicionar/sobrepor fontes.
+- `with_fonts(paths)` mantém o comportamento pré-P753: apenas as fontes dos
+  paths fornecidos, sem embutidas nem sistema.
+
+Ver Prompt L0 `00_nucleo/prompts/infra/embedded_fonts.md` para a especificação
+completa do mecanismo de fontes embutidas.
 
 ## Resolução de caminhos absolutos (`/...`) — P686
 

@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/system-world.md
-//! @prompt-hash a97075a4
+//! @prompt-hash 74c112e1
 //! @layer L3
 //! @updated 2026-06-30
 //!
@@ -212,16 +212,32 @@ impl SystemWorld {
         self
     }
 
-    /// Builder: combina fontes do sistema com fontes de projecto.
+    /// Builder: carrega as fontes embutidas do vanilla (P753).
     ///
-    /// As fontes de projecto (`font_paths`) são adicionadas *depois* das
-    /// fontes do sistema. A ordem final é: sistema primeiro, projecto depois.
+    /// Usa `typst-assets` para obter os bytes em tempo de compilação.
+    /// Isto garante que `Libertinus Serif` e as fontes de math/code do
+    /// vanilla estejam sempre disponíveis.
+    pub fn with_embedded_fonts(mut self) -> Self {
+        let (slots, book) = crate::embedded_fonts::load_embedded_fonts();
+        self.font_slots = slots;
+        self.font_book  = book;
+        self
+    }
+
+    /// Builder: combina fontes embutidas, do sistema e de projecto.
+    ///
+    /// A ordem final é: embutidas primeiro, depois sistema, depois projecto.
     /// Não remove duplicados — o consumidor decide se quer deduplicar.
     pub fn with_fonts_and_system(mut self, font_paths: &[PathBuf]) -> Self {
-        let (mut slots, mut book) = crate::fontdb::load_system_fonts();
-        let project_slots = crate::fonts::discover_fonts(font_paths);
+        let (mut slots, mut book) = crate::embedded_fonts::load_embedded_fonts();
 
-        // Projecto é adicionado depois do sistema.
+        let (system_slots, system_book) = crate::fontdb::load_system_fonts();
+        slots.extend(system_slots);
+        for info in system_book.infos() {
+            book.push(info.clone());
+        }
+
+        let project_slots = crate::fonts::discover_fonts(font_paths);
         let project_book = crate::fonts::build_font_book(&project_slots);
         slots.extend(project_slots);
         for info in project_book.infos() {
