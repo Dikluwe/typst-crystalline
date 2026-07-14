@@ -3,7 +3,7 @@
 **Passo:** 753  
 **Data:** 2026-07-14  
 **Foco:** Fonte por defeito do cristalino deve bater com a do vanilla (`Libertinus Serif`).  
-**Hash do commit:** 25ffa4629
+**Hash do commit:** 387f3be17
 
 ---
 
