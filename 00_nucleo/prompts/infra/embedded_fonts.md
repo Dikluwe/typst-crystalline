@@ -1,5 +1,5 @@
 # Prompt L0 — `infra/embedded_fonts` — Fontes Embutidas via `typst-assets`
-Hash do Código: 78852948
+Hash do Código: abf8f7bc
 
 **Camada**: L3  
 **Criado em**: 2026-07-14 (Passo 753)  
@@ -24,7 +24,10 @@ e um resíduo de paginação em relação ao vanilla.
 ## Objetivo
 
 Tornar o conjunto de fontes embutidas do cristalino idêntico ao do vanilla CLI,
-garantindo que a fonte por defeito `Libertinus Serif` esteja sempre disponível.
+garantindo que a fonte por defeito `Libertinus Serif` esteja sempre disponível,
+sem que fontes especializadas de math/code (que podem conter glifos de cobertura
+parcial ou alternativos para scripts como devanágari) sejam escolhidas como
+fallback para texto normal.
 
 ## Restrições Estruturais
 
@@ -34,9 +37,15 @@ garantindo que a fonte por defeito `Libertinus Serif` esteja sempre disponível.
   `Font(Vec<u8>)` opaco.
 - O carregamento de fontes embutidas deve ser **aditivo**: fontes do sistema e
   fontes de projecto (`--font-path`) continuam a funcionar exactamente como hoje.
-- A ordem de prioridade no `FontBook` é: **embutidas primeiro**, depois sistema,
-  depois projecto. Isto assegura que o vanilla-like set é preferido por defeito,
-  mas projectos podem sobrepôr-se ao adicionar fontes com o mesmo nome depois.
+- As fontes embutidas são divididas em dois grupos:
+  - **Fontes de texto**: `Libertinus Serif*` e `NewCM10*`. Colocadas no início do
+    `FontBook`, antes das fontes do sistema, para servirem de fallback primário.
+  - **Fontes de math/code**: `NewCMMath*` e `DejaVu Sans Mono*`. Colocadas no
+    **fim** do `FontBook`, depois das fontes do sistema, para não competirem no
+    fallback carácter-a-carácter de texto normal. Continuam disponíveis para
+    uso explícito (ex.: `#set text(font: "DejaVu Sans Mono")`) e para math.
+- A ordem final no `FontBook` é: **texto embutido → sistema → math/code embutido
+  → projecto**. Projectos podem sobrepor-se adicionando fontes no fim.
 - Não alterar a trait `World` nem a assinatura dos métodos `book()`/`font()`.
 
 ## Instrução
@@ -47,18 +56,20 @@ garantindo que a fonte por defeito `Libertinus Serif` esteja sempre disponível.
 
 2. Criar `03_infra/src/embedded_fonts.rs` com função pública:
    ```rust
-   pub fn load_embedded_fonts() -> (Vec<FontSlot>, FontBook)
+   pub fn load_embedded_fonts() -> EmbeddedFontSets
    ```
+   onde `EmbeddedFontSets` contém quatro vectores separados:
+   - `text_slots` / `text_book`: fontes de texto (`Libertinus Serif*`, `NewCM10*`).
+   - `math_code_slots` / `math_code_book`: fontes de math/code (`NewCMMath*`,
+     `DejaVu Sans Mono*`).
    - Itera sobre `typst_assets::fonts()`.
    - Para cada blob de bytes:
+     - Extrai `FontInfo` via `font_info_from_bytes`.
+     - Classifica a fonte pelo nome da família:
+       - Se começar com `Libertinus Serif` ou `NewCM10` → grupo texto.
+       - Se começar com `NewCMMath` ou `DejaVu Sans Mono` → grupo math/code.
      - Cria um `FontSlot` cujo carregamento lazy devolve `Some(Font::from_data(bytes))`.
-       Como os bytes vêm de `typst_assets` (compilados no binário), não há path no
-       disco; o `FontSlot` pode armazenar os bytes directamente em `Arc<[u8]>` ou
-       usar um mecanismo equivalente que preserve a interface pública de
-       `FontSlot`.
-     - Extrai `FontInfo` via `font_info_from_bytes` (reutilizar
-       `crate::fonts::font_info_from_bytes`).
-   - Retorna os slots e o `FontBook` populado.
+   - Retorna os dois conjuntos separados.
 
 3. Expor em `03_infra/src/world.rs` um novo builder em `SystemWorld`:
    ```rust
@@ -70,14 +81,16 @@ garantindo que a fonte por defeito `Libertinus Serif` esteja sempre disponível.
    - Chama `crate::embedded_fonts::load_embedded_fonts()`.
    - Associa os slots resultantes ao mundo da mesma forma que `with_fonts`.
 
-4. Alterar `with_fonts_and_system` para combinar embutidas + sistema + projecto:
+4. Alterar `with_fonts_and_system` para combinar texto embutido + sistema +
+   math/code embutido + projecto:
    ```rust
    pub fn with_fonts_and_system(mut self, font_paths: &[PathBuf]) -> Self
    ```
-   - Carrega embutidas primeiro.
+   - Carrega o grupo texto das embutidas primeiro.
    - Depois carrega sistema via `fontdb::load_system_fonts`.
+   - Depois adiciona o grupo math/code das embutidas.
    - Finalmente adiciona fontes de projecto via `discover_fonts`.
-   - Preserva a ordem: embutidas, sistema, projecto.
+   - Preserva a ordem: texto embutido → sistema → math/code embutido → projecto.
 
 5. No CLI (`04_wiring/src/main.rs`), manter a chamada a
    `SystemWorld::new(...).with_fonts_and_system(&font_paths)`. A alteração é
@@ -101,6 +114,11 @@ Então comportamento é idêntico ao pré-P753 (apenas paths fornecidos, sem emb
 Dado um documento vazio de texto "X" compilado com o CLI cristalino
 Quando a fonte embutida no PDF é inspeccionada
 Então a família é "Libertinus Serif" (e não "Liberation Serif")
+
+Dado um documento devanagari "नमस्ते संसार" compilado com o CLI cristalino
+Quando a fonte embutida no PDF é inspeccionada
+Então a família NÃO é "NewCMMath-Regular" nem "NewCMMath-Book"
+E os glifos renderizados são reconhecíveis como devanagari
 ```
 
 ## Resultado Esperado
@@ -108,9 +126,12 @@ Então a família é "Libertinus Serif" (e não "Liberation Serif")
 - `03_infra/src/embedded_fonts.rs` criado.
 - `03_infra/Cargo.toml` com `typst-assets` (feature `fonts`).
 - `SystemWorld::with_embedded_fonts` disponível.
-- `SystemWorld::with_fonts_and_system` carrega embutidas + sistema + projecto.
+- `SystemWorld::with_fonts_and_system` carrega texto embutido + sistema +
+  math/code embutido + projecto.
 - Fonte por defeito do cristalino (`01_core/src/entities/style_chain.rs`) passa a
   ser `Libertinus Serif`.
+- Fallback para scripts não latinos (devanágari, árabe, CJK) continua a usar
+  fontes do sistema especializadas em vez de fontes math/code embutidas.
 - `crystalline-lint .` com zero violations.
 
 ## Histórico de Revisões
@@ -118,3 +139,4 @@ Então a família é "Libertinus Serif" (e não "Liberation Serif")
 | Data | Motivo | Arquivos afetados |
 |------|--------|-------------------|
 | 2026-07-14 | Criação — P753: fontes embutidas para paridade com vanilla | `embedded_fonts.md` |
+| 2026-07-14 | P754: separar texto e math/code no FontBook para não quebrar fallback de scripts não latinos | `embedded_fonts.md`, `embedded_fonts.rs`, `world.rs` |

@@ -212,13 +212,19 @@ impl SystemWorld {
         self
     }
 
-    /// Builder: carrega as fontes embutidas do vanilla (P753).
+    /// Builder: carrega as fontes embutidas do vanilla (P753/P754).
     ///
     /// Usa `typst-assets` para obter os bytes em tempo de compilação.
     /// Isto garante que `Libertinus Serif` e as fontes de math/code do
     /// vanilla estejam sempre disponíveis.
     pub fn with_embedded_fonts(mut self) -> Self {
-        let (slots, book) = crate::embedded_fonts::load_embedded_fonts();
+        let sets = crate::embedded_fonts::load_embedded_fonts();
+        let mut slots = sets.text_slots;
+        slots.extend(sets.math_code_slots);
+        let mut book = sets.text_book;
+        for info in sets.math_code_book.infos() {
+            book.push(info.clone());
+        }
         self.font_slots = slots;
         self.font_book  = book;
         self
@@ -226,14 +232,24 @@ impl SystemWorld {
 
     /// Builder: combina fontes embutidas, do sistema e de projecto.
     ///
-    /// A ordem final é: embutidas primeiro, depois sistema, depois projecto.
-    /// Não remove duplicados — o consumidor decide se quer deduplicar.
+    /// A ordem final é: texto embutido → sistema → math/code embutido →
+    /// projecto. Isto garante que fontes especializadas do sistema (ex.:
+    /// Noto Sans Devanagari) sejam preferidas no fallback de texto normal
+    /// sobre fontes math/code embutidas que podem ter cobertura parcial
+    /// ou glifos incorrectos para scripts não latinos (P754).
     pub fn with_fonts_and_system(mut self, font_paths: &[PathBuf]) -> Self {
-        let (mut slots, mut book) = crate::embedded_fonts::load_embedded_fonts();
+        let sets = crate::embedded_fonts::load_embedded_fonts();
+        let mut slots = sets.text_slots;
+        let mut book = sets.text_book;
 
         let (system_slots, system_book) = crate::fontdb::load_system_fonts();
         slots.extend(system_slots);
         for info in system_book.infos() {
+            book.push(info.clone());
+        }
+
+        slots.extend(sets.math_code_slots);
+        for info in sets.math_code_book.infos() {
             book.push(info.clone());
         }
 
