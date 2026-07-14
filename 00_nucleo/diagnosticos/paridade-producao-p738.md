@@ -3,6 +3,7 @@
 ## Proveniência da medição (regra 2026-07-05)
 
 - **Commit base:** `b686d7d74550d65c84c2f304cbff28786f9cf971` ("P737: preenche hash do commit no relatório")
+- **Commit do fecho:** `a056ec4e5e793f7743e89feab94a0bbfc112b68d` ("P738: sonda return condicional em loops — scope-out reforçado")
 - **Estado:** working tree sem alterações de código neste passo (sonda pura; só o relatório e o achados são novos).
 - **Hora das medições:** 2026-07-13 ~21:08 (-03)
 - **Binário vanilla:** `lab/typst-original/target/release/typst`; **cristalino:** `./target/release/typst` (build de P737).
