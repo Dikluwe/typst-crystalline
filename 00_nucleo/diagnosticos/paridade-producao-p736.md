@@ -3,6 +3,7 @@
 ## Proveniência da medição (regra 2026-07-05)
 
 - **Commit base:** `9291b43be8df7e537f6e6b0aa49d5cf6976ebf50` ("P735: preenche hash do commit no relatório")
+- **Commit da implementação:** `17f854beced01c3a6a2fecb91a1a791b04de2ee8` ("P736: color/gradient como valores-tipo (paridade vanilla)")
 - **Estado na medição final:** working tree não commitado; `git diff HEAD --stat`: 10 ficheiros — `00_nucleo/prompts/rules/stdlib/{color,foundations,gradients}.md`, `01_core/src/rules/eval/{bindings,mod,tests}.rs`, `01_core/src/rules/stdlib/{color,foundations,gradients,mod}.rs` (+320/−90).
 - **Hora da validação final:** 2026-07-13 ~20:58 (-03)
 - **Binário vanilla de referência:** `lab/typst-original/target/release/typst`
