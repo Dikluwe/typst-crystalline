@@ -3,7 +3,7 @@
 **Passo:** 754  
 **Data:** 2026-07-14  
 **Foco:** Confirmar que a mudança de fonte por defeito do P753 (`Liberation Serif` → `Libertinus Serif`) não quebrou a cobertura de glifos para scripts não latinos (árabe, devanágari, CJK).  
-**Hash do commit:** *a preencher após commit*
+**Hash do commit:** 0cc4d3852
 
 ---
 
