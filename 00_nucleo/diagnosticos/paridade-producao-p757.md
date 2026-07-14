@@ -4,7 +4,8 @@
 **Data:** 2026-07-14  
 **Foco:** (A) Corrigir `em` em dimensões de página; (B) revalidar P756 contra o binário vanilla de referência (0.15.0).  
 **Hash base:** `b7ce6230a9b473e3559847c3a80fdae26cdb75ed`  
-**Hash do commit com as alterações de código:** `PENDENTE` (actualizar após o commit; nota: o commit final que incluir este relatório terá hash diferente).
+**Hash do commit com as alterações de código:** `c83a177b94e95df1ffb94fe341f08ee7e1bf897d`.  
+(Nota: este é o hash do commit que introduziu as alterações de código; o commit que inclui a versão final deste relatório terá um hash ligeiramente diferente.)
 
 ---
 
