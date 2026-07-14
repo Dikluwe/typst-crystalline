@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/rules/layout.md
-//! @prompt-hash a3c1dfd7
+//! @prompt-hash 3b5bf67a
 //! @layer L1
 //! @updated 2026-07-14
 //!
@@ -76,7 +76,8 @@ fn fixed_metrics_monoespaco_iiii_eq_wwww() {
 
 #[test]
 fn fixed_metrics_vertical_ascender_menor_que_line_height() {
-    let (asc, lh) = FixedMetrics.vertical_metrics(Pt(12.0));
+    let style = TextStyle::default();
+    let (asc, lh) = FixedMetrics.vertical_metrics(Pt(12.0), &style);
     assert!(asc.val() > 0.0, "ascender deve ser positivo");
     assert!(lh.val() > asc.val(), "line_height > ascender");
 }
@@ -949,7 +950,8 @@ fn layout_list_tight_false_adiciona_espaco() {
         })
         .collect();
     assert_eq!(ys.len(), 2, "deve haver dois marcadores");
-    let (_, line_height) = FixedMetrics.vertical_metrics(Pt(11.0));
+    let style = TextStyle::default();
+    let (_, line_height) = FixedMetrics.vertical_metrics(Pt(11.0), &style);
     // P505 — `tight: false` adiciona um line_height de espaçamento de
     // parágrafo *além* do line_height natural do flush_line.
     let expected_gap = 2.0 * line_height.val();
@@ -977,7 +979,8 @@ fn layout_list_tight_default_preserva_gap_natural() {
         })
         .collect();
     assert_eq!(ys.len(), 2, "deve haver dois marcadores");
-    let (_, line_height) = FixedMetrics.vertical_metrics(Pt(11.0));
+    let style = TextStyle::default();
+    let (_, line_height) = FixedMetrics.vertical_metrics(Pt(11.0), &style);
     let actual_gap = ys[1] - ys[0];
     assert!(
         (actual_gap - line_height.val()).abs() < 0.01,
@@ -1066,7 +1069,8 @@ fn layout_enum_tight_false_adiciona_espaco() {
         })
         .collect();
     assert_eq!(ys.len(), 2, "deve haver dois rótulos");
-    let (_, line_height) = FixedMetrics.vertical_metrics(Pt(11.0));
+    let style = TextStyle::default();
+    let (_, line_height) = FixedMetrics.vertical_metrics(Pt(11.0), &style);
     // P505 — `tight: false` adiciona um line_height de espaçamento de
     // parágrafo *além* do line_height natural do flush_line.
     let expected_gap = 2.0 * line_height.val();
@@ -1098,7 +1102,8 @@ fn layout_enum_tight_default_preserva_gap_natural() {
         })
         .collect();
     assert_eq!(ys.len(), 2, "deve haver dois rótulos");
-    let (_, line_height) = FixedMetrics.vertical_metrics(Pt(11.0));
+    let style = TextStyle::default();
+    let (_, line_height) = FixedMetrics.vertical_metrics(Pt(11.0), &style);
     let actual_gap = ys[1] - ys[0];
     assert!(
         (actual_gap - line_height.val()).abs() < 0.01,

@@ -30,7 +30,7 @@ impl<'a, M: FontMetrics> super::MathLayouter<'a, M> {
             } else {
                 // Sem mapeamento — emitir como Glyph
                 let x_advance = style.size * (advance_du / self.constants.upem);
-                let (ascent, _) = self.metrics.vertical_metrics(style.size);
+                let (ascent, _) = self.metrics.vertical_metrics(style.size, style);
                 return MathBox {
                     width:   x_advance.val(),
                     ascent:  ascent.val(),

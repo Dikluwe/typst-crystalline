@@ -191,6 +191,59 @@ fn font_embedding_data(font_data: &[u8]) -> (&'static str, &'static str, &'stati
     ("/CIDFontType2", "/FontFile2", "CIDFontType2", font_data)
 }
 
+/// **P760** — métricas do /FontDescriptor a partir de uma face parseada.
+///
+/// Os valores são convertidos para o espaço de 1000 unidades usado pelo PDF
+/// para FontDescriptors de CIDFonts, alinhando-se com o que o Typst vanilla
+/// emite.
+struct FontDescriptorMetrics {
+    font_bbox: [f64; 4],
+    italic_angle: f64,
+    ascent: f64,
+    descent: f64,
+    cap_height: f64,
+}
+
+fn font_descriptor_metrics(face: &ttf_parser::Face<'_>) -> FontDescriptorMetrics {
+    let upem = face.units_per_em().max(1) as f64;
+    let scale = 1000.0 / upem;
+
+    let bbox = face.global_bounding_box();
+    let font_bbox = [
+        bbox.x_min as f64 * scale,
+        bbox.y_min as f64 * scale,
+        bbox.x_max as f64 * scale,
+        bbox.y_max as f64 * scale,
+    ];
+
+    let italic_angle = face.italic_angle() as f64;
+
+    // Preferir métricas tipográficas do OS/2 quando disponíveis; senão
+    // recair para as métricas do hhea, como faz o Typst vanilla.
+    let (ascent, descent) = if let Some(os2) = face.tables().os2 {
+        let typo_asc = os2.typographic_ascender();
+        let typo_desc = os2.typographic_descender();
+        if typo_asc != 0 || typo_desc != 0 {
+            (
+                typo_asc as f64 * scale,
+                typo_desc as f64 * scale,
+            )
+        } else {
+            (face.ascender() as f64 * scale, face.descender() as f64 * scale)
+        }
+    } else {
+        (face.ascender() as f64 * scale, face.descender() as f64 * scale)
+    };
+
+    let cap_height = face
+        .capital_height()
+        .filter(|&h| h > 0)
+        .map(|h| h as f64 * scale)
+        .unwrap_or(ascent);
+
+    FontDescriptorMetrics { font_bbox, italic_angle, ascent, descent, cap_height }
+}
+
 // ── Builder ────────────────────────────────────────────────────────────────
 
 pub(super) struct PdfBuilder {
@@ -511,14 +564,26 @@ impl PdfBuilder {
                /W [{widths}] >>"
         ));
 
-        // FontDescriptor
+        // FontDescriptor — P760: métricas reais da fonte embutida em vez de
+        // valores fixos genéricos.
+        let fd = subset_face.as_ref()
+            .map(font_descriptor_metrics)
+            .unwrap_or_else(|| FontDescriptorMetrics {
+                font_bbox: [-1000.0, -200.0, 2000.0, 900.0],
+                italic_angle: 0.0,
+                ascent: 800.0,
+                descent: -200.0,
+                cap_height: 700.0,
+            });
         self.add(font_descriptor_id, format!(
             "<< /Type /FontDescriptor /FontName /{base_font_name} \
                /Flags 32 \
-               /FontBBox [-1000 -200 2000 900] \
-               /ItalicAngle 0 /Ascent 800 /Descent -200 \
-               /CapHeight 700 /StemV 80 \
-               {font_file_key} {font_stream_id} 0 R >>"
+               /FontBBox [{:.5} {:.5} {:.5} {:.5}] \
+               /ItalicAngle {:.5} /Ascent {:.5} /Descent {:.5} \
+               /CapHeight {:.5} /StemV 80 \
+               {font_file_key} {font_stream_id} 0 R >>",
+            fd.font_bbox[0], fd.font_bbox[1], fd.font_bbox[2], fd.font_bbox[3],
+            fd.italic_angle, fd.ascent, fd.descent, fd.cap_height
         ));
 
         // Font data stream — P516: usa subset se possível, senão fonte completa.

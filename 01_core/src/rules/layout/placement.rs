@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/rules/layout.md
-//! @prompt-hash a3c1dfd7
+//! @prompt-hash 3b5bf67a
 //! @layer L1
 //! @updated 2026-04-23
 //!
@@ -41,7 +41,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
 
         // Origem vertical local do sub-frame (ascender). Necessária para
         // rebaser as coordenadas Y ao colocar no frame pai.
-        let (ascender_local, _) = self.metrics.vertical_metrics(self.style.size);
+        let (ascender_local, _) = self.metrics.vertical_metrics(self.style.size, &self.style);
         let sub_origin_y        = ascender_local.0;
 
         // Largura do conteúdo — medida independente para centrar/alinhar.
@@ -141,7 +141,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
             },
         );
 
-        let (ascender_local, _) = self.metrics.vertical_metrics(self.style.size);
+        let (ascender_local, _) = self.metrics.vertical_metrics(self.style.size, &self.style);
         let sub_origin_y        = ascender_local.0;
 
         let (content_w, _) = measure_content(body, avail_w_page);

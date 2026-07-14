@@ -71,7 +71,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
     /// `extent` (extensão horizontal). O shape cobre `ascender → line_height`.
     fn push_text(&mut self, text: ecow::EcoString, width: Pt) {
         if let Some(fill) = self.style.highlight {
-            let (ascender, line_height) = self.metrics.vertical_metrics(self.style.size);
+            let (ascender, line_height) = self.metrics.vertical_metrics(self.style.size, &self.style);
             let size_pt = self.style.size.val();
             let extent_pt = self.style.highlight_extent
                 .map(|e| e.resolve_pt(size_pt))
@@ -237,17 +237,21 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
             }
         }
 
-        // Determinar o tamanho máximo de fonte presente nos items da linha.
-        // Se a linha não tiver items de texto, usa self.style.size como fallback.
+        // Determinar o tamanho máximo de fonte presente nos items da linha e
+        // o estilo do item que o possui (clonado para não manter borrow da
+        // current_line durante o drain). Se a linha não tiver items de texto,
+        // usa self.style como fallback.
         #[allow(deprecated)]
-        let max_font_size = self.regions.current.current_line
+        let (max_font_size, max_style) = self.regions.current.current_line
             .iter()
-            .map(|item| match item {
-                crate::entities::layout_types::FrameItem::Text { style, .. } => style.size,
-                crate::entities::layout_types::FrameItem::TextShaped { style, .. } => style.size,
-                _ => Pt::ZERO,
+            .filter_map(|item| match item {
+                crate::entities::layout_types::FrameItem::Text { style, .. }
+                | crate::entities::layout_types::FrameItem::TextShaped { style, .. } => Some((style.size, style.clone())),
+                _ => None,
             })
-            .fold(self.style.size, |max, size| if size.0 > max.0 { size } else { max });
+            .fold((self.style.size, self.style.clone()), |max, (size, style)| {
+                if size.0 > max.0.0 { (size, style) } else { max }
+            });
 
         // Passo 138 (Fase B.2 DEBT-52): consumer leading.
         // `self.style` pode ter sido restaurado ao outer scope antes de
@@ -272,7 +276,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
             self.regions.current.current_items.push(item);
         }
         if had_items {
-            let (_, line_height) = self.metrics.vertical_metrics(max_font_size);
+            let (_, line_height) = self.metrics.vertical_metrics(max_font_size, &max_style);
             self.regions.current.cursor_y += line_height + Pt(line_leading_pt);
         }
         // Reiniciar ao início da linha actual — margem da página, ou cell_x
@@ -523,7 +527,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
         // target_y final exacto (não baseline), subtrair ascender do
         // offset de translação — paridade pattern `layout_place`
         // (placement.rs).
-        let (ascender, _) = self.metrics.vertical_metrics(self.style.size);
+        let (ascender, _) = self.metrics.vertical_metrics(self.style.size, &self.style);
         let target_y = target_y - ascender.0;
         // Calcular X conforme alignment.x.
         let x_offset = match f.alignment.h {
@@ -718,7 +722,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
         // target_y absoluto exacto (não baseline), subtrair ascender
         // do offset de translação — paridade pattern `emit_deferred_float`
         // (P245) + `layout_place` (placement.rs).
-        let (ascender, _) = self.metrics.vertical_metrics(self.style.size);
+        let (ascender, _) = self.metrics.vertical_metrics(self.style.size, &self.style);
         // P305 — clamp Y inicial ao top_safe para evitar overlap em
         // defensive emit (body > full_avail). Se acc_h ≤ available_h,
         // clamp é no-op (area_bot - acc_h ≥ top_safe por construção).

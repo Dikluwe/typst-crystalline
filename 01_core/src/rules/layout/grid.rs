@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/rules/layout.md
-//! @prompt-hash a3c1dfd7
+//! @prompt-hash 3b5bf67a
 //! @layer L1
 //! @updated 2026-07-14
 //!
@@ -371,7 +371,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
 
         // ── Emissão linha a linha (P234 — placed cells iteration) ──
         let local_start_y = {
-            let (ascender, _) = self.metrics.vertical_metrics(self.style.size);
+            let (ascender, _) = self.metrics.vertical_metrics(self.style.size, &self.style);
             ascender.0
         };
 

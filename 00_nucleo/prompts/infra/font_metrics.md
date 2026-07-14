@@ -1,5 +1,5 @@
 # Prompt L0 — `infra/font_metrics` — Parser de Métricas TrueType/OpenType
-Hash do Código: 55d1dcbc
+Hash do Código: 7e7f3690
 
 **Camada**: L3
 **Ficheiro alvo**: `03_infra/src/font_metrics.rs`
@@ -52,18 +52,21 @@ impl<'a> FontBookMetrics<'a> {
 impl FontMetrics for FontBookMetrics<'_> {
     /// Avanço horizontal em Pt: size * (Σ glyph_units / upem)
     /// Fallback para glifos ausentes: upem * 0.6 (largura monospace)
-    fn advance(&self, text: &str, size: Pt) -> Pt
+    fn advance(&self, text: &str, size: Pt, style: &TextStyle) -> Pt
 
     /// Retorna (ascender_pt, line_height_pt)
     /// line_height = size * ((ascender + |descender| + line_gap) / upem)
     /// |descender|: fontes "incorrectas" devolvem negativo → .abs()
-    fn vertical_metrics(&self, size: Pt) -> (Pt, Pt)
+    /// Recebe `style` para que implementações com resolução de fonte (ex:
+    /// `FallbackFontMetrics`) usem a face efectivamente renderizada.
+    fn vertical_metrics(&self, size: Pt, style: &TextStyle) -> (Pt, Pt)
 
     /// Distância da baseline ao topo das maiúsculas (cap-height) em Pt.
     /// Usado pelo layout para posicionar a primeira baseline a
     /// `margem + cap-height` (paridade com vanilla `top-edge: cap-height`).
     /// Fallback: se `face.capital_height()` for None ou ≤ 0, usa o ascender.
-    fn cap_height(&self, size: Pt) -> Pt
+    /// Recebe `style` para resolução da face correcta em implementações L3.
+    fn cap_height(&self, size: Pt, style: &TextStyle) -> Pt
 
     /// Variantes verticais extensíveis para um caractere (ex: '(', '[', '√')
     /// Retorna GlyphVariants::default() se a fonte não tem tabela MATH
@@ -155,12 +158,12 @@ FontBookMetrics::from_bytes(b"")           = None
 advance("iiii", 12pt) < advance("WWWW", 12pt)
 advance("A", 12pt) ∈ [3pt, 12pt]
 
-// vertical_metrics
+// vertical_metrics (style = TextStyle::default())
 ascender_pt > 0
 line_height > ascender_pt
 line_height em 12pt < 24pt
 // escala com font_size:
-|vertical_metrics(24pt).line_height - 2 × vertical_metrics(12pt).line_height| < 0.5pt
+|vertical_metrics(24pt, &style).line_height - 2 × vertical_metrics(12pt, &style).line_height| < 0.5pt
 
 // math_constants (tabela MATH real via fixture)
 upem > 0
@@ -217,6 +220,30 @@ para evitar re-medir o mesmo texto+estilo repetidamente no layout (palavras e
 espaços repetidos). A chave inclui texto, tamanho, fonte, variações de eixo e
 outros campos do `TextStyle` que afectam métricas; `tracking` é aplicado fora
 do cache em `text_width`, pelo que não entra na chave.
+
+### `typo_metrics(face)` — métricas verticais tipográficas
+
+Função auxiliar privada em `03_infra/src/font_metrics.rs` que devolve
+`(ascender, descender_abs, line_gap)` em unidades de design da face,
+preferindo os valores tipográficos do OS/2 (`sTypoAscender`,
+`sTypoDescender`, `sTypoLineGap`) quando pelo menos um de
+`sTypoAscender`/`sTypoDescender` é não-zero. Caso contrário, cai para as
+métricas do `hhea` (`ascender`, `descender`, `line_gap`). O descender é
+devolvido como valor absoluto.
+
+Usada tanto por `FontBookMetrics::vertical_metrics` como por
+`FallbackFontMetrics::vertical_metrics` para garantir consistência na
+forma como as métricas verticais são lidas das faces.
+
+### `FallbackFontMetrics::vertical_metrics` — resolução por estilo
+
+`vertical_metrics(size, style)` resolve a fonte primária declarada no
+`style` (ou a lista de fallback do shaper se não houver fonte
+explicitamente declarada) e lê as métricas da primeira face que resolve.
+Isto alinha o `line_height` usado pelo layout com a face que o shaper e
+o PDF efectivamente usarão para renderizar, evitando diferenças
+verticais quando a primeira fonte do `FontBook` não coincide com a fonte
+do estilo (P760).
 
 ### `CachedFace` — cache do `Face` parseado
 
@@ -315,3 +342,4 @@ vertical_metrics(12pt) retorna valores positivos e escaláveis
 | 2026-04-12 | Restauro — expandido: `math_constants`, `math_kern`, `vertical_glyph_variants`, `vertical_glyph_assembly`, `glyph_to_char`, `build_math_glyph_reverse_map` | `font_metrics.md` |
 | 2026-07-03 | P548 — documentação de `FallbackFontMetrics`, cache do `Face` parseado e kerning via tabelas `kern`/`kerx` | `font_metrics.md`, `font_metrics.rs` |
 | 2026-07-10 | P677 — adicionada `advance_width_cache` para reutilizar larguras `advance` entre chamadas do layout | `font_metrics.md`, `font_metrics.rs` |
+| 2026-07-14 | P760 — `FontMetrics::vertical_metrics` e `cap_height` recebem `style`; `FallbackFontMetrics` resolve a fonte do estilo; métricas tipográficas do OS/2 preferidas via `typo_metrics` | `font_metrics.md`, `font_metrics.rs`, `layout.md` |

@@ -1,5 +1,5 @@
 # Prompt L0 — layout
-Hash do Código: 849ec756
+Hash do Código: e277d0f7
 
 ## Módulo
 `01_core/src/rules/layout/mod.rs` e sub-módulos (`metrics.rs`, etc.)
@@ -643,13 +643,15 @@ interface `FontMetrics` e a implementação `FixedMetrics`, extraído de
 ```rust
 pub trait FontMetrics: Send + Sync {
     fn advance(&self, text: &str, size: Pt, style: &TextStyle) -> Pt;
-    fn vertical_metrics(&self, size: Pt) -> (Pt, Pt);
-    fn cap_height(&self, size: Pt) -> Pt;
+    fn vertical_metrics(&self, size: Pt, style: &TextStyle) -> (Pt, Pt);
+    fn cap_height(&self, size: Pt, style: &TextStyle) -> Pt;
 }
 ```
 
 - `advance`: largura horizontal de uma string em pontos tipográficos.
-- `vertical_metrics`: `(ascender, line_height)` em pontos tipográficos.
+- `vertical_metrics`: `(ascender, line_height)` em pontos tipográficos. Recebe
+  o `style` activo para que implementações com resolução de fonte possam usar
+  a mesma face que o shaper/PDF efectivamente renderizará (P760).
 - `cap_height`: distância da baseline ao topo das maiúsculas (`H`, `X`).
   Usado para posicionar a primeira baseline do texto a `margem + cap-height`,
   paridade com o vanilla (`text(top-edge: "cap-height")` por omissão).

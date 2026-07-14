@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/font_metrics.md
-//! @prompt-hash 6217932c
+//! @prompt-hash 3fdedaa0
 //! @layer L3
 //! @updated 2026-07-14
 
@@ -81,6 +81,30 @@ pub(crate) fn build_math_glyph_reverse_map(face: &Face<'_>) -> HashMap<u16, char
     map
 }
 
+/// Devolve as métricas verticais tipográficas de uma face, preferindo os
+/// valores do OS/2 (`sTypoAscender`, `sTypoDescender`, `sTypoLineGap`) quando
+/// disponíveis, e caindo para as métricas do `hhea` caso contrário.
+///
+/// Retorna `(ascender, descender_abs, line_gap)` em unidades de fonte.
+fn typo_metrics(face: &Face<'_>) -> (f64, f64, f64) {
+    if let Some(os2) = face.tables().os2 {
+        let typo_asc = os2.typographic_ascender();
+        let typo_desc = os2.typographic_descender();
+        if typo_asc != 0 || typo_desc != 0 {
+            return (
+                typo_asc as f64,
+                (typo_desc as f64).abs(),
+                os2.typographic_line_gap() as f64,
+            );
+        }
+    }
+    (
+        face.ascender() as f64,
+        (face.descender() as f64).abs(),
+        face.line_gap() as f64,
+    )
+}
+
 /// Métricas de fonte reais via `ttf-parser`.
 ///
 /// `font_size` não armazenado — passado em cada chamada (invariante do trait).
@@ -123,11 +147,8 @@ impl FontMetrics for FontBookMetrics<'_> {
         size * (units / self.upem)
     }
 
-    fn vertical_metrics(&self, size: Pt) -> (Pt, Pt) {
-        let ascender  = self.face.ascender()  as f64;
-        // descender: norma diz negativo; .abs() para fontes "incorrectas"
-        let descender = (self.face.descender() as f64).abs();
-        let line_gap  = self.face.line_gap()  as f64;
+    fn vertical_metrics(&self, size: Pt, _style: &TextStyle) -> (Pt, Pt) {
+        let (ascender, descender, line_gap) = typo_metrics(&self.face);
 
         let ascender_pt    = size * (ascender / self.upem);
         let line_height_pt = size * ((ascender + descender + line_gap) / self.upem);
@@ -676,22 +697,37 @@ impl FontMetrics for FallbackFontMetrics<'_> {
         })
     }
 
-    fn vertical_metrics(&self, size: Pt) -> (Pt, Pt) {
-        // Usa a primeira fonte disponível no FontBook para métricas verticais.
+    fn vertical_metrics(&self, size: Pt, style: &TextStyle) -> (Pt, Pt) {
+        // **P760** — usa a mesma face que o estilo resolve (primárias + fallback),
+        // em vez da primeira fonte arbitrária do FontBook. Isto alinha o
+        // line_height com a fonte efectivamente usada para renderizar.
+        // As métricas tipográficas do OS/2 são preferidas, como no Typst vanilla.
+        let primary = self.resolve_primary(style);
+        if let Some(cand) = primary.first() {
+            if let Some(cached) = self.cached_face(cand.slot_idx) {
+                let face = cached.face();
+                let upem = cand.units_per_em as f64;
+                let (ascender, descender, line_gap) = typo_metrics(face);
+                return (
+                    size * (ascender / upem),
+                    size * ((ascender + descender + line_gap) / upem),
+                );
+            }
+        }
+
+        // Fallback final: primeira fonte do book (comportamento anterior).
         let book_len = self.world.book().len();
         for slot_idx in 0..book_len {
             let Some(cached) = self.cached_face(slot_idx) else { continue };
             let face = cached.face();
             let upem = face.units_per_em().max(1) as f64;
-            let ascender = face.ascender() as f64;
-            let descender = (face.descender() as f64).abs();
-            let line_gap = face.line_gap() as f64;
+            let (ascender, descender, line_gap) = typo_metrics(face);
             return (
                 size * (ascender / upem),
                 size * ((ascender + descender + line_gap) / upem),
             );
         }
-        // Fallback: proporções fixas se não houver nenhuma fonte.
+        // Fallback último: proporções fixas se não houver nenhuma fonte.
         (size * 0.8, size * 1.2)
     }
 
@@ -901,12 +937,13 @@ mod tests {
             concat!(env!("CARGO_MANIFEST_DIR"), "/tests/fixtures/liberation-sans-regular.ttf")
         ).unwrap();
         let m = FontBookMetrics::from_bytes(&data).unwrap();
-        let (asc, lh) = m.vertical_metrics(Pt(12.0));
+        let style = TextStyle::default();
+        let (asc, lh) = m.vertical_metrics(Pt(12.0), &style);
         assert!(asc.val() > 0.0,       "ascender positivo");
         assert!(lh.val() > asc.val(),  "line_height > ascender");
         assert!(lh.val() < 24.0,       "line_height em 12pt < 24pt");
         // Verificar que métricas escalam com font_size
-        let (_, lh24) = m.vertical_metrics(Pt(24.0));
+        let (_, lh24) = m.vertical_metrics(Pt(24.0), &style);
         assert!(
             (lh24.val() - 2.0 * lh.val()).abs() < 0.5,
             "métricas devem escalar com font_size: 24pt ≈ 2× 12pt"

@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/rules/layout.md
-//! @prompt-hash a3c1dfd7
+//! @prompt-hash 3b5bf67a
 //! @layer L1
 //! @updated 2026-07-14
 //!
@@ -30,7 +30,11 @@ pub trait FontMetrics: Send + Sync {
     ///
     /// - `ascender`: distância da baseline ao topo das maiúsculas.
     /// - `line_height`: distância total entre duas baselines consecutivas.
-    fn vertical_metrics(&self, size: Pt) -> (Pt, Pt);
+    ///
+    /// **P760** — o `style` é passado para que implementações L3 possam
+    /// resolver a fonte correcta, alinhando `line_height` com a face que será
+    /// efectivamente usada para renderizar o texto.
+    fn vertical_metrics(&self, size: Pt, style: &TextStyle) -> (Pt, Pt);
 
     /// **P750/P752** — distância da baseline ao topo das maiúsculas
     /// (cap-height).
@@ -187,7 +191,7 @@ impl FontMetrics for FixedMetrics {
         size * (text.chars().count() as f64 * 0.6)
     }
 
-    fn vertical_metrics(&self, size: Pt) -> (Pt, Pt) {
+    fn vertical_metrics(&self, size: Pt, _style: &TextStyle) -> (Pt, Pt) {
         // ascender ≈ 0.8 * size; line_height = 1.2 * size
         (size * 0.8, size * 1.2)
     }

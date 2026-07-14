@@ -534,7 +534,7 @@ impl<'a, M: FontMetrics> MathLayouter<'a, M> {
             return MathBox { width: 0.0, ascent: 0.0, descent: 0.0, items: vec![] };
         }
         let width  = self.metrics.advance(text, style.size, style).val();
-        let vm     = self.metrics.vertical_metrics(style.size);
+        let vm     = self.metrics.vertical_metrics(style.size, style);
         let ascent  = vm.0.val();
         let descent = (vm.1 - vm.0).val();
         MathBox {

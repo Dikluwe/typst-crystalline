@@ -34,7 +34,7 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
     // P505 — espaçamento de parágrafo *entre* itens soltos.
     let is_loose = e.tight == Some(false);
     if is_loose && layouter.last_was_loose_item {
-        let (_, line_height) = layouter.metrics.vertical_metrics(font_size);
+        let (_, line_height) = layouter.metrics.vertical_metrics(font_size, &layouter.style);
         layouter.regions.current.cursor_y += line_height;
     }
     layouter.last_was_loose_item = is_loose;

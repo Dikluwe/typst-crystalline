@@ -201,7 +201,7 @@ fn layout_segmented<M: FontMetrics, S: ImageSizer>(
     margin: f64,
     page_columns: bool,
 ) {
-    let ascender = layouter.metrics.vertical_metrics(layouter.style.size).0;
+    let ascender = layouter.metrics.vertical_metrics(layouter.style.size, &layouter.style).0;
     let mut all_column_items: Vec<FrameItem> = Vec::new();
     let column_start_y = layouter.regions.current.cursor_y;
     let mut max_column_bottom_y = column_start_y;

@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/rules/layout.md
-//! @prompt-hash a3c1dfd7
+//! @prompt-hash 3b5bf67a
 //! @layer L1
 //! @updated 2026-07-09
 //!
@@ -74,7 +74,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
         // do sub-frame; a largura/altura são restauradas antes de regressar.
         self.regions.current.width = region.origin_x + region.width + self.page_config.margin;
         self.regions.current.height = region.height.unwrap_or(1_000_000_000.0);
-        let (ascender, _) = self.metrics.vertical_metrics(self.style.size);
+        let (ascender, _) = self.metrics.vertical_metrics(self.style.size, &self.style);
         self.regions.current.cursor_y = ascender;
         let start_y = self.regions.current.cursor_y.0;
 
@@ -93,17 +93,21 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
         // Flush de itens pendentes. Se a line tiver conteúdo, conta a
         // altura da linha no cell_height; caso contrário, conteúdo de uma
         // única linha não-flushed produziria altura 0 (P552).
-        // Determinar o tamanho máximo de fonte presente nos items da linha.
-        // Se a linha não tiver items de texto, usa self.style.size como fallback.
+        // Determinar o tamanho máximo de fonte presente nos items da linha e
+        // o estilo do item que o possui (clonado para não manter borrow da
+        // current_line durante o drain). Se a linha não tiver items de texto,
+        // usa self.style como fallback.
         #[allow(deprecated)]
-        let max_font_size = self.regions.current.current_line
+        let (max_font_size, max_style) = self.regions.current.current_line
             .iter()
-            .map(|item| match item {
-                crate::entities::layout_types::FrameItem::Text { style, .. } => style.size,
-                crate::entities::layout_types::FrameItem::TextShaped { style, .. } => style.size,
-                _ => Pt::ZERO,
+            .filter_map(|item| match item {
+                crate::entities::layout_types::FrameItem::Text { style, .. }
+                | crate::entities::layout_types::FrameItem::TextShaped { style, .. } => Some((style.size, style.clone())),
+                _ => None,
             })
-            .fold(self.style.size, |max, size| if size.0 > max.0 { size } else { max });
+            .fold((self.style.size, self.style.clone()), |max, (size, style)| {
+                if size.0 > max.0.0 { (size, style) } else { max }
+            });
 
         #[allow(deprecated)]
         let line_leading_pt = self.regions.current.current_line
@@ -123,7 +127,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
 
         let mut end_y = self.regions.current.cursor_y.0;
         if had_items {
-            let (_, line_height) = self.metrics.vertical_metrics(max_font_size);
+            let (_, line_height) = self.metrics.vertical_metrics(max_font_size, &max_style);
             end_y += line_height.0 + line_leading_pt;
         }
         let cell_height = (end_y - start_y).max(0.0);
@@ -194,7 +198,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
 
         // Altura: altura da linha dos itens de texto produzidos; fallback ao
         // line_height do estilo activo se o body não produziu texto.
-        let (_, line_h) = self.metrics.vertical_metrics(self.style.size);
+        let (_, line_h) = self.metrics.vertical_metrics(self.style.size, &self.style);
         let mut height = 0.0_f64;
         for item in &aligned_body_tail {
             match item {

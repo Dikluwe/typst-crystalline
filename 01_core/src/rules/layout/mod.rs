@@ -1372,7 +1372,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
                     }
                 }
                 max_line_w = max_line_w.max(current_w);
-                let (_, line_height) = self.metrics.vertical_metrics(self.style.size);
+                let (_, line_height) = self.metrics.vertical_metrics(self.style.size, &self.style);
                 (max_line_w.min(max_width), line_height.0 * line_count as f64)
             }
 
