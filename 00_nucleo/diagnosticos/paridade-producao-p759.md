@@ -5,7 +5,7 @@
 **Foco:** Avaliar se a diferença greedy vs Knuth-Plass justifica reescrever o motor de quebra de linha do cristalino.
 **Hash base:** `81a2cb1f32a5045bd2633f065853cb05e00d315c`
 **Hash do commit com as alterações de código:** *não aplicável — este passo não introduziu código.*
-(Nota: o commit final que incluir este relatório terá um hash diferente.)
+**Hash do commit final (inclui este relatório):** `e6c054113a50c79c232bffb97700c850d8eeba1b`
 
 ---
 
