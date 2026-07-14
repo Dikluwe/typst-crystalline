@@ -1,7 +1,8 @@
 # Registo — P748: correção da margem por defeito para formas
 
 **Data:** 2026-07-14
-**Commit de base:** `27bb2f3172b6deae711a702440113e2349add19e` (working tree não commitado; ficheiros alterados listados em `git diff HEAD --stat`)
+**Commit de base:** `27bb2f3172b6deae711a702440113e2349add19e`
+**Commit da correção:** `72ad29a0a`
 **Passo:** P748
 
 ## O que aconteceu
