@@ -2,7 +2,7 @@
 
 **Data:** 2026-07-13 (21:51 -03:00)
 **Commit base:** `5636bdf4d17540dd05325f7a3992153ff671d2b0` ("P738: preenche hash do commit no relatório")
-**Commit da implementação:** (preenchido no commit seguinte)
+**Commit da implementação:** `a6798f8fa7d2b09bf614513456eac6a478538255`
 **Estado no momento das medições E2E:** working tree não commitado; `git diff HEAD --stat`:
 
 ```
