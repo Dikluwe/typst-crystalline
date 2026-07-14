@@ -1,11 +1,14 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/rules/stdlib/color.md
-//! @prompt-hash e64cf59f
+//! @prompt-hash 83be6e71
 //! @layer L1
 //! @updated 2026-06-27
 //!
-//! Módulo `color` — operadores de cor: `lighten`, `darken`, `mix`, `negate`.
-//! P476 — fecho parcial ADR-0083 §"Operadores cor" scope-out (4/6 implementados).
+//! Módulo `color` — tipo `color` (P736) com 17 fields: 8 constructors +
+//! 9 operadores (P476/P477 + `rotate`/`components`/`space` de P742).
+//! **P742** — semântica dos operadores corrigida por medição vanilla
+//! (lighten/darken no espaço da cor, saturate/desaturate via HSV, negate em
+//! Oklab) + despacho de métodos de instância (`red.lighten(20%)`).
 
 use ecow::EcoString;
 
@@ -30,10 +33,14 @@ fn err_typed<T>(msg: impl Into<String>) -> SourceResult<T> {
 /// — medido: `type(color)` → `type`); os fields resolvem-se por field
 /// access em `Value::Type` (`eval/bindings.rs`), que delega aqui.
 ///
-/// 14 fields: 8 constructors (as mesmas nativas registadas globalmente:
-/// `rgb`, `linear-rgb`, `luma`, `cmyk`, `hsl`, `hsv`, `oklab`, `oklch`)
-/// + 6 operadores P476/P477. `None` para campo inexistente — o chamador
-/// emite "type color does not contain field `<f>`" (verbatim vanilla).
+/// **P742 — 17 fields** (paridade do inventário medido P736): 8 constructors
+/// (as mesmas nativas registadas globalmente: `rgb`, `linear-rgb`, `luma`,
+/// `cmyk`, `hsl`, `hsv`, `oklab`, `oklch`) + 9 operadores. Os nomes das
+/// funcs são os **nomes plain do vanilla** — medido: `repr(color.rgb)` →
+/// `rgb`, `repr(color.lighten)` → `lighten`; `color.rgb == rgb` → `true`
+/// (igualdade por nome, `entities/func.rs`). `None` para campo inexistente
+/// — o chamador emite "type color does not contain field `<f>`" (verbatim
+/// vanilla).
 ///
 /// Histórico: até P736 era `make_color_module() -> Value` (`Value::Dict`
 /// com os 6 operadores; os constructors não eram acessíveis via `color.*`).
@@ -43,22 +50,43 @@ pub fn color_type_field(field: &str) -> Option<Value> {
         native_oklab, native_oklch, native_rgb,
     };
     Some(match field {
-        "rgb" => Value::Func(Func::native("color.rgb", native_rgb)),
-        "linear-rgb" => Value::Func(Func::native("color.linear-rgb", native_linear_rgb)),
-        "luma" => Value::Func(Func::native("color.luma", native_luma)),
-        "cmyk" => Value::Func(Func::native("color.cmyk", native_cmyk)),
-        "hsl" => Value::Func(Func::native("color.hsl", native_hsl)),
-        "hsv" => Value::Func(Func::native("color.hsv", native_hsv)),
-        "oklab" => Value::Func(Func::native("color.oklab", native_oklab)),
-        "oklch" => Value::Func(Func::native("color.oklch", native_oklch)),
-        "lighten" => Value::Func(Func::native("color.lighten", native_color_lighten)),
-        "darken" => Value::Func(Func::native("color.darken", native_color_darken)),
-        "mix" => Value::Func(Func::native("color.mix", native_color_mix)),
-        "negate" => Value::Func(Func::native("color.negate", native_color_negate)),
-        "saturate" => Value::Func(Func::native("color.saturate", native_color_saturate)),
-        "desaturate" => Value::Func(Func::native("color.desaturate", native_color_desaturate)),
+        "rgb" => Value::Func(Func::native("rgb", native_rgb)),
+        "linear-rgb" => Value::Func(Func::native("linear-rgb", native_linear_rgb)),
+        "luma" => Value::Func(Func::native("luma", native_luma)),
+        "cmyk" => Value::Func(Func::native("cmyk", native_cmyk)),
+        "hsl" => Value::Func(Func::native("hsl", native_hsl)),
+        "hsv" => Value::Func(Func::native("hsv", native_hsv)),
+        "oklab" => Value::Func(Func::native("oklab", native_oklab)),
+        "oklch" => Value::Func(Func::native("oklch", native_oklch)),
+        "lighten" => Value::Func(Func::native("lighten", native_color_lighten)),
+        "darken" => Value::Func(Func::native("darken", native_color_darken)),
+        "mix" => Value::Func(Func::native("mix", native_color_mix)),
+        "negate" => Value::Func(Func::native("negate", native_color_negate)),
+        "saturate" => Value::Func(Func::native("saturate", native_color_saturate)),
+        "desaturate" => Value::Func(Func::native("desaturate", native_color_desaturate)),
+        "rotate" => Value::Func(Func::native("rotate", native_color_rotate)),
+        "components" => Value::Func(Func::native("components", native_color_components)),
+        "space" => Value::Func(Func::native("space", native_color_space)),
         _ => return None,
     })
+}
+
+/// **P742** — os 9 métodos de instância de `Value::Color` (despacho P506
+/// em `eval/closures.rs`). Método fora desta lista cai no caminho genérico
+/// de field access (comportamento pré-P742 preservado).
+pub fn is_color_instance_method(method: &str) -> bool {
+    matches!(
+        method,
+        "lighten"
+            | "darken"
+            | "mix"
+            | "negate"
+            | "saturate"
+            | "desaturate"
+            | "rotate"
+            | "components"
+            | "space"
+    )
 }
 
 /// Cores nomeadas globais para injeção no scope de eval.
@@ -117,7 +145,8 @@ fn extract_ratio_arg(val: &Value, fn_name: &str, arg_name: &str) -> SourceResult
     }
 }
 
-/// `color.lighten(col, amount)` — aumenta luminância por `amount` via Oklch.
+/// `color.lighten(col, amount)` — aumenta luminância por `amount` **no
+/// espaço da própria cor** (semântica vanilla corrigida em P742; era Oklch).
 pub(crate) fn native_color_lighten(
     _ctx: &mut EvalContext,
     args: &Args,
@@ -140,7 +169,8 @@ pub(crate) fn native_color_lighten(
     }
 }
 
-/// `color.darken(col, amount)` — diminui luminância por `amount` via Oklch.
+/// `color.darken(col, amount)` — diminui luminância por `amount` **no
+/// espaço da própria cor** (semântica vanilla corrigida em P742; era Oklch).
 pub(crate) fn native_color_darken(
     _ctx: &mut EvalContext,
     args: &Args,
@@ -192,7 +222,9 @@ pub(crate) fn native_color_mix(
     }
 }
 
-/// `color.negate(col)` — complementar em sRGB `(1-r, 1-g, 1-b)`.
+/// `color.negate(col)` — negação no espaço default Oklab com conversão de
+/// volta ao espaço original (semântica vanilla corrigida em P742; era
+/// complemento sRGB).
 pub(crate) fn native_color_negate(
     _ctx: &mut EvalContext,
     args: &Args,
@@ -214,7 +246,8 @@ pub(crate) fn native_color_negate(
     }
 }
 
-/// `color.saturate(col, amount)` — aumenta chroma Oklch por `amount`.
+/// `color.saturate(col, amount)` — aumenta a saturação por `amount`
+/// (**P742**: semântica vanilla via HSV; Luma → erro verbatim medido).
 pub(crate) fn native_color_saturate(
     _ctx: &mut EvalContext,
     args: &Args,
@@ -228,7 +261,15 @@ pub(crate) fn native_color_saturate(
         [col, amount] => {
             let c = extract_color_arg(col,    "color.saturate", "col")?;
             let a = extract_ratio_arg(amount, "color.saturate", "amount")?;
-            Ok(Value::Color(c.saturate(a)))
+            match c.saturate(a) {
+                Some(sat) => Ok(Value::Color(sat)),
+                // Verbatim vanilla (medido P742) + hint.
+                None => Err(vec![SourceDiagnostic::error(
+                    Span::detached(),
+                    "cannot saturate grayscale color",
+                )
+                .with_hint("try converting your color to RGB first")]),
+            }
         }
         _ => err(format!(
             "color.saturate() requer 2 argumentos (col, amount), recebeu {}",
@@ -237,7 +278,8 @@ pub(crate) fn native_color_saturate(
     }
 }
 
-/// `color.desaturate(col, amount)` — diminui chroma Oklch por `amount`.
+/// `color.desaturate(col, amount)` — diminui a saturação por `amount`
+/// (**P742**: semântica vanilla via HSV; Luma → erro verbatim medido).
 pub(crate) fn native_color_desaturate(
     _ctx: &mut EvalContext,
     args: &Args,
@@ -251,10 +293,142 @@ pub(crate) fn native_color_desaturate(
         [col, amount] => {
             let c = extract_color_arg(col,    "color.desaturate", "col")?;
             let a = extract_ratio_arg(amount, "color.desaturate", "amount")?;
-            Ok(Value::Color(c.desaturate(a)))
+            match c.desaturate(a) {
+                Some(desat) => Ok(Value::Color(desat)),
+                // Verbatim vanilla (medido P742) + hint.
+                None => Err(vec![SourceDiagnostic::error(
+                    Span::detached(),
+                    "cannot desaturate grayscale color",
+                )
+                .with_hint("try converting your color to RGB first")]),
+            }
         }
         _ => err(format!(
             "color.desaturate() requer 2 argumentos (col, amount), recebeu {}",
+            args.items.len()
+        )),
+    }
+}
+
+/// **P742** — `color.rotate(col, angle)` — rotação de hue (default espaço
+/// Oklch, paridade vanilla medida: `red.rotate(90deg)` → `rgb("#87a100")`).
+/// Named `space:` do vanilla é scope-out (erro "argumento nomeado
+/// inesperado", mesmo estilo das outras estáticas).
+pub(crate) fn native_color_rotate(
+    _ctx: &mut EvalContext,
+    args: &Args,
+    _world: &dyn crate::contracts::world::World,
+    _current_file: FileId,
+) -> SourceResult<Value> {
+    for key in args.named.keys() {
+        return err(format!("color.rotate(): argumento nomeado inesperado '{}'", key));
+    }
+    match args.items.as_slice() {
+        [col, angle] => {
+            let c = extract_color_arg(col, "color.rotate", "col")?;
+            let deg = match angle {
+                Value::Angle(a) => a.to_deg() as f32,
+                other => {
+                    return err_typed(format!(
+                        "color.rotate: argumento 'angle' deve ser Angle, recebeu {}",
+                        other.type_name()
+                    ))
+                }
+            };
+            Ok(Value::Color(c.rotate(deg)))
+        }
+        _ => err(format!(
+            "color.rotate() requer 2 argumentos (col, angle), recebeu {}",
+            args.items.len()
+        )),
+    }
+}
+
+/// **P742** — `color.components(col, alpha: true)` — componentes da cor
+/// como `Array` de `Ratio`/`Float`/`Angle` (paridade vanilla medida:
+/// `red.components()` → `(100%, 25.49%, 21.18%, 100%)`).
+pub(crate) fn native_color_components(
+    _ctx: &mut EvalContext,
+    args: &Args,
+    _world: &dyn crate::contracts::world::World,
+    _current_file: FileId,
+) -> SourceResult<Value> {
+    use crate::entities::color::ColorComponent;
+    use crate::entities::layout_types::{Angle, Ratio};
+
+    let alpha = match args.named.get("alpha") {
+        Some(Value::Bool(b)) => *b,
+        Some(other) => {
+            return err_typed(format!(
+                "color.components: argumento 'alpha' deve ser Bool, recebeu {}",
+                other.type_name()
+            ))
+        }
+        None => true,
+    };
+    for key in args.named.keys() {
+        if key.as_str() != "alpha" {
+            return err(format!("color.components(): argumento nomeado inesperado '{}'", key));
+        }
+    }
+    match args.items.as_slice() {
+        [col] => {
+            let c = extract_color_arg(col, "color.components", "col")?;
+            let items = c
+                .components(alpha)
+                .into_iter()
+                .map(|comp| match comp {
+                    ColorComponent::Ratio(v) => Value::Ratio(Ratio::from_percent(v as f64 * 100.0)),
+                    ColorComponent::Float(v) => Value::Float(v as f64),
+                    ColorComponent::Angle(v) => Value::Angle(Angle::deg(v as f64)),
+                })
+                .collect();
+            Ok(Value::Array(items))
+        }
+        _ => err(format!(
+            "color.components() requer 1 argumento (col), recebeu {}",
+            args.items.len()
+        )),
+    }
+}
+
+/// **P742** — `color.space(col)` — devolve a função construtora do espaço
+/// da cor (paridade vanilla medida: `red.space() == rgb` → `true`,
+/// `repr(red.space())` → `rgb`; a igualdade por nome de nativas, P742 em
+/// `entities/func.rs`, torna `Func::native("rgb", ..)` igual ao binding
+/// global `rgb`).
+pub(crate) fn native_color_space(
+    _ctx: &mut EvalContext,
+    args: &Args,
+    _world: &dyn crate::contracts::world::World,
+    _current_file: FileId,
+) -> SourceResult<Value> {
+    use crate::entities::color::ColorSpace;
+
+    if !args.named.is_empty() {
+        return err("color.space() não aceita argumentos nomeados");
+    }
+    match args.items.as_slice() {
+        [col] => {
+            let c = extract_color_arg(col, "color.space", "col")?;
+            use super::foundations::{
+                native_cmyk, native_hsl, native_hsv, native_linear_rgb, native_luma,
+                native_oklab, native_oklch, native_rgb,
+            };
+            let func = match c.space() {
+                ColorSpace::Srgb => Func::native("rgb", native_rgb),
+                ColorSpace::Luma => Func::native("luma", native_luma),
+                ColorSpace::LinearRgb => Func::native("linear-rgb", native_linear_rgb),
+                ColorSpace::Oklab => Func::native("oklab", native_oklab),
+                ColorSpace::Oklch => Func::native("oklch", native_oklch),
+                ColorSpace::Cmyk => Func::native("cmyk", native_cmyk),
+                ColorSpace::Hsl => Func::native("hsl", native_hsl),
+                ColorSpace::Hsv => Func::native("hsv", native_hsv),
+            };
+            Ok(Value::Func(func))
+        }
+        _ => err(format!(
+            "color.space() requer 1 argumento (col), recebeu {}",
             args.items.len()
         )),
     }

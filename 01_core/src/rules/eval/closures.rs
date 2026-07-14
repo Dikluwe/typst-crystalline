@@ -623,6 +623,21 @@ pub(super) fn eval_func_call(
                     engine,
                 )
             }
+            // **P742** — Métodos de instância de `Value::Color` (9, padrão
+            // P506). Só intercepta os métodos conhecidos; os restantes caem
+            // no caminho genérico (erro de field access pré-P742).
+            Value::Color(ref color) => {
+                if crate::rules::stdlib::color::is_color_instance_method(method) {
+                    return super::bindings::eval_color_method(
+                        color,
+                        method,
+                        call.args(),
+                        scopes,
+                        ctx,
+                        engine,
+                    );
+                }
+            }
             _ => {}
         }
     }

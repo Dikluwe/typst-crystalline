@@ -1,4 +1,4 @@
-# Achados adiados na cadeia P700-741 — lista de controlo
+# Achados adiados na cadeia P700-742 — lista de controlo
 
 ## Por resolver
 
@@ -6,7 +6,9 @@
 |---|---|---|---|
 | `polygon` com vértices `Ratio` (`50%`) scope-out — vanilla resolve contra o **contentor** no layout (medido P741: `50%` ≡ `50pt` num box de 100pt de altura, diff 0.0000%; x contra a largura, y contra a altura). **Scope-out reforçado em P741 com custo medido**: (1) `ShapeKind::Path` carrega `Point` absoluto — ponto relativo novo + resolução em `layout/shape.rs` + 3 braços do exporter + 2 construtores; (2) a altura de contentor inline **não existe** (`Boxed` usa `unconstrained_height` no sub-frame) — item estrutural. Correcção colateral P741: o caminho real chega como `Value::Relative` (não `Value::Ratio`) — a mensagem de scope-out agora dispara (antes: "expected relative length, found relative length") | P732 (sonda), confirmado P734; P741 (custo + mensagem) | Baixa — sem consumidor em cetz | Aberto |
 | Ordem entre tipos no erro de argumento extra — `f(1, z: 2, 3)` (nomeado antes de posicional extra): vanilla reporta o primeiro na ordem original ("unexpected argument: z", `Args::finish` sobre lista única); o cristalino, com `items`/`named` separados, reporta o posicional primeiro ("unexpected argument"). **Scope-out reforçado em P740C com custo medido**: paridade exacta exige `Args` em lista única — 335 usos de `args.items`, 676 de `.named` em 26 ficheiros da stdlib, 31 construções de `Args {}` | P733 (sonda); P740C (custo) | Baixa — caso de canto, ambos erram | Aberto |
-| Métodos de instância de cor ausentes (`red.lighten(20%)` → erro de campo) e fields `color.rotate`/`color.components`/`color.space` ausentes — existem no vanilla (medido P736: `type(color.rotate)` → `function`; `type(red.lighten(20%))` → `color`). Ausência pré-existente desde P476 (operadores só como funções estáticas), confirmada em P736 | P736 (inventário da sonda) | Baixa — sem consumidor em cetz | Aberto |
+| Named `space:` em `negate`/`rotate`/`mix` de cor — vanilla aceita (medido P742: `red.mix(blue, space: rgb)` → `rgb("#805b87")`; `negate(space: rgb)`; `rotate(space: hsl)`). O cristalino rejeita com erro explícito "argumento nomeado inesperado 'space'" (scope-out P742: exige mapear `Value::Func` → `ColorSpace` nos named args; o default medido — Oklab para negate, Oklch para rotate, Oklab para mix — está em paridade) | P742 (sonda estendida) | Baixa — sem consumidor em cetz | Aberto |
+| Métodos `to-hex`, `transparentize`, `opacify` de cor — existem no vanilla (`visualize/color.rs:912-1131`), fora da sonda do passo; o cristalino cai no caminho genérico ("field access não suportado em color"). `transparentize`/`opacify` têm semântica simples medida no source (`scale_alpha`: alpha ± scale×factor, clamp) | P742 (inventário do source vanilla) | Baixa — sem consumidor em cetz | Aberto |
+| Repr de closure anónima — o cristalino imprime `#function(...)`; o vanilla imprime a lambda (`(x) => x`). Notado ao corrigir o repr de Func nomeada em P742 (`#name` → `name`, medido `repr(rgb)` → `rgb`) | P742 (correcção de repr adjacente) | Baixa — cosmético | Aberto |
 
 
 ## Fechados
@@ -39,6 +41,7 @@
 | Repr de `Value::Args` (sink) lossy (`arguments(...)`) | P740B (braço em `repr.rs`: nomeados primeiro, depois posicionais — ordem medida `arguments(z: 3, 1, 2)`; casa com `named: IndexMap` + `items: Vec`; vazio → `arguments()`) |
 | `rgb(50%, 0%, 0%)` rejeitado — vanilla aceita percentagem por componente (→ `rgb("#800000")`) | P740D (`native_rgb` espelha P736: Int [0,255] ou Ratio [0%,100%] com `(rel×255).round()`; mensagens verbatim "number must be between 0 and 255" / "expected integer or ratio, found float" / "ratio must be between 0% and 100%") |
 | Repr de NaN diverge (`NaN.0` vs `float.nan`) — a sonda estendida mediu também ±inf (`inf.0` vs `float.inf`) | P740E (`repr_float`: guarda de não-finitos — NaN → `float.nan`, ±inf → `±float.inf`; finitos inalterados) |
+| Métodos de instância de cor ausentes (`red.lighten(20%)` → erro de campo) e fields `color.rotate`/`color.components`/`color.space` ausentes — **a sonda mediu também que a semântica dos operadores P476/P477 divergia** (lighten/darken/saturate via Oklch, negate em sRGB; fórmulas palette 0.7.6 confirmadas em scratch: `red.lighten(20%)` → `#ff675e`, `negate()` → `#004b74`, `rotate(90deg)` → `#87a100`, `saturate(20%)` → `#ff372b`) e que `repr(color.rgb)` → `rgb` com `color.rgb == rgb` → `true` | P742 (semântica de domínio reescrita em `entities/color.rs` — per-variante + volta ao espaço original; despacho P506 `eval_color_method` para 9 métodos; estáticas `color.rotate`/`color.components`/`color.space` (17 fields); `Func::eq` por nome para nativas; repr de Func sem `#`; E2E idêntico ao vanilla nos 11 casos da sonda; cetz inalterado: 1535/1478, diff 0.1477%) |
 
 ## Scope-outs conscientes
 

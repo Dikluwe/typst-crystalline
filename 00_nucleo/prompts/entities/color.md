@@ -1,5 +1,5 @@
 # Prompt L0 — Color (espaços de cor vanilla paridade)
-Hash do Código: 2701d418
+Hash do Código: 3e1ae90d
 
 ## Módulo
 `01_core/src/entities/color.rs`
@@ -136,58 +136,113 @@ Por cada espaço materializado, ≥2 tests:
 - Remoção: `01_core/src/entities/layout_types.rs:638-654` —
   `pub enum Color { Rgb, Rgba }` removido (migração).
 
-## Operadores de cor (P476 — ADR-0083 §"Operadores cor" parcialmente revogado)
+## Operadores de cor (P476/P477, **semântica corrigida em P742**)
 
-4 métodos adicionados em P476:
+**P742 — medição ADR-0108 (refuta a semântica P476/P477).** A sonda contra
+o vanilla 0.15.0 (969087ec) mediu, para `red` = `rgb(1.0, 0.254902, 0.211765)`
+(o `red` vanilla **não** é `#ff0000` — `visualize/color.rs:311`):
+
+| Expressão | Vanilla (medido) |
+|---|---|
+| `red.lighten(20%)` | `rgb("#ff675e")` |
+| `red.darken(20%)` | `rgb("#cc342b")` |
+| `red.negate()` | `rgb("#004b74")` |
+| `red.rotate(90deg)` | `rgb("#87a100")` |
+| `red.mix(blue)` | `oklab(61.08%, 0.075, -0.031)` |
+| `red.saturate(20%)` | `rgb("#ff372b")` |
+| `red.desaturate(20%)` | `rgb("#ff675e")` |
+
+Todas as fórmulas foram reproduzidas num scratch com `palette 0.7.6`
+(a crate que o vanilla usa — `Cargo.lock`) e bateram **exactamente** nos
+bytes medidos. A semântica P476/P477 (lighten/darken via Oklch, negate =
+complemento sRGB, saturate = chroma Oklch) estava **errada** e é substituída.
+
+### Semântica vanilla (fonte: `visualize/color.rs:1549-1653` + palette 0.7.6)
+
+Fórmula base do palette (`macros/lighten_saturate.rs`), por componente `c`
+com máximo 1.0 e factor `f`:
+
+```text
+increase(c, f) = clamp(c + (1 - c) * f, 0, 1)   se f >= 0
+                 clamp(c + c * f, 0, 1)          se f < 0
+```
+
+- **`lighten(f)`** — `increase` aplicado **no espaço da própria cor**:
+  Srgb/LinearRgb (r, g, b), Luma (l), Oklab (l), Oklch (l), Hsl (l), Hsv (v).
+  Cmyk (tipo próprio do vanilla, `color.rs:2235`): `clamp(u - u*f, 0, 1)`
+  por componente (c, m, y, k).
+- **`darken(f)`** — `lighten(-f)` para as variantes palette; Cmyk:
+  `clamp(u + (1-u)*f, 0, 1)` por componente.
+- **`saturate(f)` / `desaturate(f)`** — Luma → **erro**
+  ("cannot saturate/desaturate grayscale color"); Hsl/Hsv → `increase`
+  sobre a saturação; **restantes** (Srgb, LinearRgb, Oklab, Oklch, Cmyk) →
+  converte para Hsv, `increase` sobre `s`, converte **de volta ao espaço
+  original**. `desaturate(f) = saturate(-f)`.
+- **`negate()`** — espaço default **Oklab**: converte para Oklab, aplica
+  `(1-l, -a, -b)`, converte de volta ao espaço original. (O named `space:`
+  do vanilla fica scope-out — ver `rules/stdlib/color.md`.)
+- **`rotate(deg)`** — espaço default **Oklch**: converte para Oklch, soma
+  `deg` ao hue, converte de volta ao espaço original.
+- **`mix(other, weight)`** — interpolação linear em Oklab (inalterado de
+  P476 — paridade confirmada por medição).
+
+### Novos métodos de domínio (P742)
 
 ```rust
 impl Color {
-    /// Aumenta luminância por `amount` [0.0, 1.0] via Oklch.
-    pub fn lighten(self, amount: f32) -> Self;
-
-    /// Diminui luminância por `amount` [0.0, 1.0] via Oklch.
-    pub fn darken(self, amount: f32) -> Self;
-
-    /// Interpolação linear entre `self` e `other` em Oklab.
-    /// `weight` [0.0, 1.0]: 0.0 = self; 1.0 = other.
-    pub fn mix(self, other: Self, weight: f32) -> Self;
-
-    /// Negação: complementar em sRGB (1-r, 1-g, 1-b). Alpha preservado.
+    // Operadores reescritos (assinaturas P476/P477 mantidas, excepto
+    // saturate/desaturate que passam a Option — Luma é erro no vanilla):
+    pub fn lighten(self, factor: f32) -> Self;
+    pub fn darken(self, factor: f32) -> Self;
+    pub fn saturate(self, factor: f32) -> Option<Self>;   // None = grayscale
+    pub fn desaturate(self, factor: f32) -> Option<Self>; // None = grayscale
     pub fn negate(self) -> Self;
+    pub fn rotate(self, angle_deg: f32) -> Self;
+    pub fn mix(self, other: Self, weight: f32) -> Self;   // inalterado
+
+    /// Espaço da cor (mapeamento 1:1 variante → ColorSpace).
+    pub fn space(self) -> ColorSpace;
+
+    /// Conversão para outro espaço. Hub sRGB: `to_rgba_f32` + conversão
+    /// para o destino (Hsv/Hsl hexcone standard = palette; Luma = luminância
+    /// linear re-codificada sRGB, Rec.709; Cmyk = naive `k = 1-max`,
+    /// `c = (1-r-k)/(1-k)` — o ICC do vanilla é scope-out ADR-0083).
+    pub fn to_space(self, target: ColorSpace) -> Color;
+
+    /// Componentes da cor para `components()`.
+    pub fn components(self, include_alpha: bool) -> Vec<ColorComponent>;
+}
+
+/// Componente heterogéneo de `Color::components` (Ratio/Float/Angle —
+/// o domínio não conhece `Value`; a camada rules mapeia).
+pub enum ColorComponent {
+    Ratio(f32),  // componente [0,1] — imprime como percentagem
+    Float(f32),  // a/b de Oklab, chroma de Oklch
+    Angle(f32),  // hue em graus (rem_euclid 360 — paridade `hue_angle`)
 }
 ```
 
-**Helpers privados** (duplicados de `gradient.rs` — circular dep impede import):
-- `srgb_to_linear_p476`, `linear_rgb_to_oklab_p476`, `to_oklab_p476`, `to_oklch_p476`.
+`components` por variante (paridade `color.rs:1455-1522`; Cmyk ignora
+alpha; as restantes omitem o alpha quando `include_alpha == false`):
 
-**Critérios P476**:
-- `negate(red)` → `(0.0, 1.0, 1.0, 1.0)` (ciano).
-- `lighten(c, 0.0)` → Oklch idêntico ao original.
-- `lighten(c, 1.0)` → l clamped a 1.0.
-- `darken(c, 1.0)` → l clamped a 0.0.
-- `mix(red, blue, 0.0)` → oklab idêntico a red.
-- `mix(red, blue, 1.0)` → oklab idêntico a blue.
-- `mix(red, blue, 0.5)` → l médio entre red e blue.
+- Srgb/LinearRgb: `[Ratio r, g, b, (a)]`
+- Luma: `[Ratio l, (a)]`
+- Oklab: `[Ratio l, Float a, Float b, (alpha)]`
+- Oklch: `[Ratio l, Float c, Angle h, (alpha)]`
+- Hsl: `[Angle h, Ratio s, Ratio l, (a)]`
+- Hsv: `[Angle h, Ratio s, Ratio v, (a)]`
+- Cmyk: `[Ratio c, m, y, k]`
 
-**P477 — `saturate` e `desaturate`** — ADR-0083 §"Operadores cor" TOTALMENTE FECHADO (6/6):
-
-```rust
-impl Color {
-    /// Aumenta saturação por `amount` (chroma Oklch). Clamp mínimo 0.0.
-    pub fn saturate(self, amount: f32) -> Self;
-
-    /// Diminui saturação por `amount` (chroma Oklch). Clamp mínimo 0.0.
-    pub fn desaturate(self, amount: f32) -> Self;
-}
-```
-
-Critérios P477:
-- `saturate(0.0)` → chroma inalterada.
-- `saturate(0.1)` → chroma aumenta.
-- `desaturate(1.0)` → chroma clamped a 0.0 (cinzento).
-- l e h preservados em ambos.
-
-**ADR-0083 §"Operadores cor": TOTALMENTE FECHADO pós-P477** (6/6).
+**Critérios P742** (substituem os critérios P476/P477 errados):
+- `Color::rgb(0xFF, 0x41, 0x36).lighten(0.2).to_srgb()` → `(255, 103, 94, 255)`.
+- `…darken(0.2)` → `(204, 52, 43, 255)`.
+- `…negate()` → `(0, 75, 116, 255)`.
+- `…rotate(90.0)` → `(135, 161, 0, 255)`.
+- `…saturate(0.2)` → `(255, 55, 43, 255)`; `…desaturate(0.2)` → `(255, 103, 94, 255)`.
+- `Color::luma(0.5).saturate(0.2)` → `None` (erro grayscale no chamador).
+- `lighten(0.0)` / `darken(0.0)` → cor idêntica (mesma variante).
+- `saturate(0.0)` / `desaturate(0.0)` → cor idêntica.
+- `mix` — critérios P476 mantidos (paridade confirmada).
 
 ## Constantes de cor nomeadas em `parse_color` (P477)
 

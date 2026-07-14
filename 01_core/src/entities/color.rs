@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/entities/color.md
-//! @prompt-hash bf7c5345
+//! @prompt-hash 5611f442
 //! @layer L1
 //! @updated 2026-05-15
 //!
@@ -333,7 +333,15 @@ fn hsv_to_rgb(h: f32, s: f32, v: f32) -> (f32, f32, f32) {
     (r1 + m, g1 + m, b1 + m)
 }
 
-// ── P476 — Operadores de cor (lighten / darken / mix / negate) ──────────────
+// ── P742 — Operadores de cor com semântica vanilla medida ───────────────────
+//
+// A semântica P476/P477 (lighten/darken/saturate via Oklch, negate em sRGB)
+// foi **refutada por medição** (sonda P742 contra vanilla 0.15.0 969087ec +
+// scratch com palette 0.7.6 — a crate que o vanilla usa). O vanilla opera
+// **no espaço da própria cor** com a fórmula `increase` do palette e converte
+// de volta ao espaço original nos operadores perceptuais. Ver
+// `00_nucleo/prompts/entities/color.md` §"Operadores de cor (P476/P477,
+// semântica corrigida em P742)".
 //
 // Helpers privados: duplicados de gradient.rs (circular dep impede import).
 
@@ -373,7 +381,7 @@ fn to_oklab_p476(c: Color) -> (f32, f32, f32, f32) {
     }
 }
 
-/// Qualquer Color → Oklch (l, c, h, alpha). Base de `lighten`/`darken`.
+/// Qualquer Color → Oklch (l, c, h, alpha). Base de `rotate` e testes.
 fn to_oklch_p476(c: Color) -> (f32, f32, f32, f32) {
     match c {
         Color::Oklch { l, c, h, alpha } => (l, c, h, alpha),
@@ -386,21 +394,192 @@ fn to_oklch_p476(c: Color) -> (f32, f32, f32, f32) {
     }
 }
 
+/// **P742** — fórmula `increase` do palette 0.7.6
+/// (`macros/lighten_saturate.rs`): para `f >= 0`, `c + max(0, 1-c) * f`;
+/// para `f < 0`, `c + max(0, c) * f`. Clamp [0, 1].
+fn increase_p742(c: f32, f: f32) -> f32 {
+    let difference = if f >= 0.0 { (1.0 - c).max(0.0) } else { c.max(0.0) };
+    (c + difference * f).clamp(0.0, 1.0)
+}
+
+/// **P742** — sRGB → HSV (hexcone standard = palette
+/// `hsv.rs:274-310`, com guarda de negativos e hue `rem_euclid`).
+fn rgb_to_hsv_p742(r: f32, g: f32, b: f32) -> (f32, f32, f32) {
+    let r = r.max(0.0);
+    let g = g.max(0.0);
+    let b = b.max(0.0);
+    let max = r.max(g).max(b);
+    let min = r.min(g).min(b);
+    let d = max - min;
+    if d == 0.0 || max == 0.0 {
+        return (0.0, 0.0, max);
+    }
+    let s = d / max;
+    let h = hue_hexcone_p742(r, g, b, max, d);
+    (h, s, max)
+}
+
+/// **P742** — sRGB → HSL (hexcone standard; mesmo hue de HSV).
+fn rgb_to_hsl_p742(r: f32, g: f32, b: f32) -> (f32, f32, f32) {
+    let r = r.max(0.0);
+    let g = g.max(0.0);
+    let b = b.max(0.0);
+    let max = r.max(g).max(b);
+    let min = r.min(g).min(b);
+    let d = max - min;
+    let l = (max + min) / 2.0;
+    if d == 0.0 {
+        return (0.0, 0.0, l);
+    }
+    let s = d / (1.0 - (2.0 * l - 1.0).abs());
+    let h = hue_hexcone_p742(r, g, b, max, d);
+    (h, s, l)
+}
+
+/// Hue hexcone em graus (partilhado por HSV/HSL — paridade palette).
+fn hue_hexcone_p742(r: f32, g: f32, b: f32, max: f32, d: f32) -> f32 {
+    let h = if max == r {
+        ((g - b) / d).rem_euclid(6.0)
+    } else if max == g {
+        (b - r) / d + 2.0
+    } else {
+        (r - g) / d + 4.0
+    } * 60.0;
+    h.rem_euclid(360.0)
+}
+
+/// **P742** — sRGB → Luma (palette: luminância linear Rec.709 re-codificada
+/// com a curva sRGB).
+fn srgb_to_luma_p742(r: f32, g: f32, b: f32) -> f32 {
+    let y = 0.2126 * srgb_to_linear_p476(r)
+        + 0.7152 * srgb_to_linear_p476(g)
+        + 0.0722 * srgb_to_linear_p476(b);
+    linear_to_srgb(y)
+}
+
 impl Color {
-    /// Aumenta luminância por `amount` [0.0, 1.0] via Oklch.
-    pub fn lighten(self, amount: f32) -> Self {
-        let (l, c, h, alpha) = to_oklch_p476(self);
-        Color::oklch((l + amount).clamp(0.0, 1.0), c, h, alpha)
+    /// Espaço da cor (mapeamento 1:1 variante → `ColorSpace`; paridade
+    /// vanilla `ProcessColor::space`, `color.rs:1535`).
+    pub fn space(self) -> ColorSpace {
+        match self {
+            Color::Srgb { .. } => ColorSpace::Srgb,
+            Color::Luma { .. } => ColorSpace::Luma,
+            Color::LinearRgb { .. } => ColorSpace::LinearRgb,
+            Color::Oklab { .. } => ColorSpace::Oklab,
+            Color::Oklch { .. } => ColorSpace::Oklch,
+            Color::Hsl { .. } => ColorSpace::Hsl,
+            Color::Hsv { .. } => ColorSpace::Hsv,
+            Color::Cmyk { .. } => ColorSpace::Cmyk,
+        }
     }
 
-    /// Diminui luminância por `amount` [0.0, 1.0] via Oklch.
-    pub fn darken(self, amount: f32) -> Self {
-        let (l, c, h, alpha) = to_oklch_p476(self);
-        Color::oklch((l - amount).clamp(0.0, 1.0), c, h, alpha)
+    /// **P742** — conversão para outro espaço. Hub sRGB: `to_rgba_f32` +
+    /// conversão para o destino. Cmyk naive (o ICC do vanilla é scope-out
+    /// ADR-0083). Mesmo espaço → identidade (paridade vanilla `to_space`).
+    pub fn to_space(self, target: ColorSpace) -> Color {
+        if self.space() == target {
+            return self;
+        }
+        match target {
+            ColorSpace::Oklab => {
+                let (l, a, b, alpha) = to_oklab_p476(self);
+                Color::oklab(l, a, b, alpha)
+            }
+            ColorSpace::Oklch => {
+                let (l, c, h, alpha) = to_oklch_p476(self);
+                Color::oklch(l, c, h, alpha)
+            }
+            _ => {
+                let (r, g, b, a) = self.to_rgba_f32();
+                match target {
+                    ColorSpace::Srgb => Color::srgb_f32(r, g, b, a),
+                    ColorSpace::Luma => Color::Luma { l: srgb_to_luma_p742(r, g, b), a },
+                    ColorSpace::LinearRgb => Color::linear_rgb(
+                        srgb_to_linear_p476(r),
+                        srgb_to_linear_p476(g),
+                        srgb_to_linear_p476(b),
+                        a,
+                    ),
+                    ColorSpace::Hsv => {
+                        let (h, s, v) = rgb_to_hsv_p742(r, g, b);
+                        Color::hsv(h, s, v, a)
+                    }
+                    ColorSpace::Hsl => {
+                        let (h, s, l) = rgb_to_hsl_p742(r, g, b);
+                        Color::hsl(h, s, l, a)
+                    }
+                    ColorSpace::Cmyk => {
+                        let k = 1.0 - r.max(g).max(b);
+                        if k >= 1.0 {
+                            Color::cmyk(0.0, 0.0, 0.0, 1.0)
+                        } else {
+                            Color::cmyk(
+                                (1.0 - r - k) / (1.0 - k),
+                                (1.0 - g - k) / (1.0 - k),
+                                (1.0 - b - k) / (1.0 - k),
+                                k,
+                            )
+                        }
+                    }
+                    ColorSpace::Oklab | ColorSpace::Oklch => {
+                        unreachable!("Oklab/Oklch tratados acima")
+                    }
+                }
+            }
+        }
+    }
+
+    /// **P742** — aumenta luminância por `factor` **no espaço da própria
+    /// cor** (paridade palette `Lighten::lighten` medida): `increase` sobre
+    /// os canais de estímulo (Srgb/LinearRgb: r,g,b; Luma/Oklab/Oklch/Hsl:
+    /// l; Hsv: v). Cmyk (tipo próprio do vanilla, `color.rs:2235`):
+    /// `u - u*factor` por componente. Alpha preservado.
+    pub fn lighten(self, factor: f32) -> Self {
+        match self {
+            Color::Srgb { r, g, b, a } => Color::srgb_f32(
+                increase_p742(r, factor),
+                increase_p742(g, factor),
+                increase_p742(b, factor),
+                a,
+            ),
+            Color::Luma { l, a } => Color::Luma { l: increase_p742(l, factor), a },
+            Color::LinearRgb { r, g, b, a } => Color::linear_rgb(
+                increase_p742(r, factor),
+                increase_p742(g, factor),
+                increase_p742(b, factor),
+                a,
+            ),
+            Color::Oklab { l, a, b, alpha } => {
+                Color::oklab(increase_p742(l, factor), a, b, alpha)
+            }
+            Color::Oklch { l, c, h, alpha } => {
+                Color::oklch(increase_p742(l, factor), c, h, alpha)
+            }
+            Color::Hsl { h, s, l, a } => Color::hsl(h, s, increase_p742(l, factor), a),
+            Color::Hsv { h, s, v, a } => Color::hsv(h, s, increase_p742(v, factor), a),
+            Color::Cmyk { c, m, y, k } => {
+                let f = |u: f32| (u - u * factor).clamp(0.0, 1.0);
+                Color::cmyk(f(c), f(m), f(y), f(k))
+            }
+        }
+    }
+
+    /// **P742** — diminui luminância por `factor`: `lighten(-factor)` para
+    /// as variantes palette (paridade `Darken::darken`); Cmyk:
+    /// `u + (1-u)*factor` por componente (`color.rs:2240`).
+    pub fn darken(self, factor: f32) -> Self {
+        match self {
+            Color::Cmyk { c, m, y, k } => {
+                let f = |u: f32| (u + (1.0 - u) * factor).clamp(0.0, 1.0);
+                Color::cmyk(f(c), f(m), f(y), f(k))
+            }
+            _ => self.lighten(-factor),
+        }
     }
 
     /// Interpolação linear entre `self` e `other` em Oklab.
     /// `weight` [0.0, 1.0]: 0.0 = self; 1.0 = other.
+    /// (P476 — paridade confirmada por medição P742.)
     pub fn mix(self, other: Self, weight: f32) -> Self {
         let (l0, a0, b0, alpha0) = to_oklab_p476(self);
         let (l1, a1, b1, alpha1) = to_oklab_p476(other);
@@ -413,23 +592,104 @@ impl Color {
         )
     }
 
-    /// Negação: complementar em sRGB `(1-r, 1-g, 1-b)`. Alpha preservado.
+    /// **P742** — negação: espaço default **Oklab** (paridade vanilla
+    /// `Color::negate` com `space: auto` → Oklab): converte para Oklab,
+    /// aplica `(1-l, -a, -b)`, converte de volta ao espaço original. O named
+    /// `space:` do vanilla é scope-out (rules/stdlib/color.md).
     pub fn negate(self) -> Self {
-        let (r, g, b, a) = self.to_rgba_f32();
-        Color::srgb_f32(1.0 - r, 1.0 - g, 1.0 - b, a)
+        let original = self.space();
+        let negated = match self.to_space(ColorSpace::Oklab) {
+            Color::Oklab { l, a, b, alpha } => Color::oklab(1.0 - l, -a, -b, alpha),
+            _ => unreachable!("to_space(Oklab) devolve sempre Oklab"),
+        };
+        negated.to_space(original)
     }
 
-    /// Aumenta saturação por `amount` (chroma Oklch). Clamp mínimo 0.0; sem máximo.
-    pub fn saturate(self, amount: f32) -> Self {
-        let (l, c, h, alpha) = to_oklch_p476(self);
-        Color::oklch(l, (c + amount).max(0.0), h, alpha)
+    /// **P742** — rotação de hue: espaço default **Oklch** (paridade vanilla
+    /// `Color::rotate` com `space: oklch`): converte para Oklch, soma
+    /// `angle_deg` ao hue, converte de volta ao espaço original.
+    pub fn rotate(self, angle_deg: f32) -> Self {
+        let original = self.space();
+        let rotated = match self.to_space(ColorSpace::Oklch) {
+            Color::Oklch { l, c, h, alpha } => Color::oklch(l, c, h + angle_deg, alpha),
+            _ => unreachable!("to_space(Oklch) devolve sempre Oklch"),
+        };
+        rotated.to_space(original)
     }
 
-    /// Diminui saturação por `amount` (chroma Oklch). Equivale a `saturate(-amount)`.
-    pub fn desaturate(self, amount: f32) -> Self {
-        let (l, c, h, alpha) = to_oklch_p476(self);
-        Color::oklch(l, (c - amount).max(0.0), h, alpha)
+    /// **P742** — aumenta saturação por `factor` (paridade palette medida):
+    /// Hsl/Hsv → `increase` sobre a saturação; restantes → converte para
+    /// Hsv, `increase` sobre `s`, converte de volta ao espaço original.
+    /// Luma → `None` (o vanilla erra "cannot saturate grayscale color" —
+    /// o chamador em rules emite a mensagem verbatim com span).
+    pub fn saturate(self, factor: f32) -> Option<Self> {
+        match self {
+            Color::Luma { .. } => None,
+            Color::Hsl { h, s, l, a } => {
+                Some(Color::hsl(h, increase_p742(s, factor), l, a))
+            }
+            Color::Hsv { h, s, v, a } => {
+                Some(Color::hsv(h, increase_p742(s, factor), v, a))
+            }
+            _ => {
+                let original = self.space();
+                let Color::Hsv { h, s, v, a } = self.to_space(ColorSpace::Hsv) else {
+                    unreachable!("to_space(Hsv) devolve sempre Hsv")
+                };
+                Some(Color::hsv(h, increase_p742(s, factor), v, a).to_space(original))
+            }
+        }
     }
+
+    /// **P742** — diminui saturação por `factor` (paridade vanilla:
+    /// `saturate(-factor)`). Luma → `None`.
+    pub fn desaturate(self, factor: f32) -> Option<Self> {
+        self.saturate(-factor)
+    }
+
+    /// **P742** — componentes da cor para `components()` (paridade vanilla
+    /// `ProcessColor::components`, `color.rs:1455-1522`): Cmyk ignora o flag
+    /// alpha; as restantes omitem o alpha quando `include_alpha == false`.
+    pub fn components(self, include_alpha: bool) -> Vec<ColorComponent> {
+        use ColorComponent::*;
+        let mut v = match self {
+            Color::Srgb { r, g, b, a } => vec![Ratio(r), Ratio(g), Ratio(b), Ratio(a)],
+            Color::Luma { l, a } => vec![Ratio(l), Ratio(a)],
+            Color::LinearRgb { r, g, b, a } => {
+                vec![Ratio(r), Ratio(g), Ratio(b), Ratio(a)]
+            }
+            Color::Oklab { l, a, b, alpha } => {
+                vec![Ratio(l), Float(a), Float(b), Ratio(alpha)]
+            }
+            Color::Oklch { l, c, h, alpha } => {
+                vec![Ratio(l), Float(c), Angle(h.rem_euclid(360.0)), Ratio(alpha)]
+            }
+            Color::Hsl { h, s, l, a } => {
+                vec![Angle(h.rem_euclid(360.0)), Ratio(s), Ratio(l), Ratio(a)]
+            }
+            Color::Hsv { h, s, v, a } => {
+                vec![Angle(h.rem_euclid(360.0)), Ratio(s), Ratio(v), Ratio(a)]
+            }
+            Color::Cmyk { c, m, y, k } => return vec![Ratio(c), Ratio(m), Ratio(y), Ratio(k)],
+        };
+        if !include_alpha {
+            v.pop();
+        }
+        v
+    }
+}
+
+/// **P742** — componente heterogéneo de `Color::components` (o domínio não
+/// conhece `Value`; a camada rules mapeia para `Value::Ratio`/`Float`/`Angle`).
+#[derive(Debug, Copy, Clone, PartialEq)]
+pub enum ColorComponent {
+    /// Componente em [0, 1] — imprime como percentagem (`Ratio` do vanilla).
+    Ratio(f32),
+    /// `a`/`b` de Oklab, chroma de Oklch (float sem unidade).
+    Float(f32),
+    /// Hue em graus (`Angle` do vanilla; `rem_euclid 360` — paridade
+    /// `hue_angle`, `color.rs:2167`).
+    Angle(f32),
 }
 
 #[cfg(test)]
@@ -692,15 +952,146 @@ mod tests {
     }
 
     // ── P476 — lighten / darken / mix / negate ──
+    //
+    // **P742 — semântica corrigida por medição vanilla** (sonda: vanilla
+    // 0.15.0 969087ec + palette 0.7.6; o `red` vanilla é
+    // `rgb(1.0, 0.254902, 0.211765)` = `#ff4136`, não `#ff0000`):
+    // negate opera em Oklab por default e volta ao espaço original — o
+    // critério antigo "negate(vermelho) = ciano" estava errado.
+
+    const VANILLA_RED: Color = Color::Srgb { r: 1.0, g: 0.254902, b: 0.211765, a: 1.0 };
 
     #[test]
-    fn p476_negate_vermelho_da_ciano() {
+    fn p742_negate_vermelho_puro_via_oklab() {
+        // Medido scratch palette 0.7.6: negate(srgb(1,0,0)) → #005688.
         let red = Color::srgb_f32(1.0, 0.0, 0.0, 1.0);
-        let (r, g, b, a) = red.negate().to_rgba_f32();
-        assert!((r - 0.0).abs() < 1e-5, "r esperado 0; obtido {}", r);
-        assert!((g - 1.0).abs() < 1e-5, "g esperado 1; obtido {}", g);
-        assert!((b - 1.0).abs() < 1e-5, "b esperado 1; obtido {}", b);
-        assert!((a - 1.0).abs() < 1e-5);
+        assert_eq!(red.negate().to_srgb(), (0, 86, 136, 255));
+    }
+
+    #[test]
+    fn p742_lighten_vanilla_red_medido() {
+        // Medido vanilla: red.lighten(20%) → rgb("#ff675e").
+        assert_eq!(VANILLA_RED.lighten(0.2).to_srgb(), (255, 103, 94, 255));
+    }
+
+    #[test]
+    fn p742_darken_vanilla_red_medido() {
+        // Medido vanilla: red.darken(20%) → rgb("#cc342b").
+        assert_eq!(VANILLA_RED.darken(0.2).to_srgb(), (204, 52, 43, 255));
+    }
+
+    #[test]
+    fn p742_negate_vanilla_red_medido() {
+        // Medido vanilla: red.negate() → rgb("#004b74").
+        assert_eq!(VANILLA_RED.negate().to_srgb(), (0, 75, 116, 255));
+    }
+
+    #[test]
+    fn p742_rotate_90_vanilla_red_medido() {
+        // Medido vanilla: red.rotate(90deg) → rgb("#87a100").
+        assert_eq!(VANILLA_RED.rotate(90.0).to_srgb(), (135, 161, 0, 255));
+    }
+
+    #[test]
+    fn p742_saturate_vanilla_red_medido() {
+        // Medido vanilla: red.saturate(20%) → rgb("#ff372b").
+        assert_eq!(VANILLA_RED.saturate(0.2).unwrap().to_srgb(), (255, 55, 43, 255));
+    }
+
+    #[test]
+    fn p742_desaturate_vanilla_red_medido() {
+        // Medido vanilla: red.desaturate(20%) → rgb("#ff675e").
+        assert_eq!(VANILLA_RED.desaturate(0.2).unwrap().to_srgb(), (255, 103, 94, 255));
+    }
+
+    #[test]
+    fn p742_saturate_desaturate_luma_none() {
+        // Vanilla: "cannot saturate/desaturate grayscale color" — o domínio
+        // devolve None; o chamador em rules emite o erro verbatim.
+        let g = Color::luma(0.5);
+        assert!(g.saturate(0.2).is_none());
+        assert!(g.desaturate(0.2).is_none());
+    }
+
+    #[test]
+    fn p742_lighten_zero_identidade_mesma_variante() {
+        // A cor resultante mantém a variante original (vanilla devolve o
+        // espaço original — medido: repr é rgb(...) e não oklch(...)).
+        // lighten/darken são bitwise-exactos a factor 0; saturate/desaturate
+        // fazem roundtrip HSV → comparação por bytes sRGB.
+        assert_eq!(VANILLA_RED.lighten(0.0), VANILLA_RED);
+        assert_eq!(VANILLA_RED.darken(0.0), VANILLA_RED);
+        assert_eq!(VANILLA_RED.saturate(0.0).unwrap().to_srgb(), VANILLA_RED.to_srgb());
+        assert_eq!(VANILLA_RED.desaturate(0.0).unwrap().to_srgb(), VANILLA_RED.to_srgb());
+        assert!(matches!(VANILLA_RED.saturate(0.0), Some(Color::Srgb { .. })));
+    }
+
+    #[test]
+    fn p742_cmyk_lighten_darken_formulas_vanilla() {
+        // Cmyk é tipo próprio do vanilla (color.rs:2235-2243):
+        // lighten(u) = u - u*f; darken(u) = u + (1-u)*f.
+        let c = Color::cmyk(0.5, 0.5, 0.5, 0.5);
+        assert_eq!(c.lighten(0.2), Color::cmyk(0.4, 0.4, 0.4, 0.4));
+        assert_eq!(c.darken(0.2), Color::cmyk(0.6, 0.6, 0.6, 0.6));
+    }
+
+    #[test]
+    fn p742_luma_lighten_increase() {
+        // Luma usa a fórmula palette: l + (1-l)*f.
+        assert_eq!(Color::luma(0.5).lighten(0.2), Color::luma(0.6));
+    }
+
+    #[test]
+    fn p742_space_mapeamento_variantes() {
+        assert_eq!(VANILLA_RED.space(), ColorSpace::Srgb);
+        assert_eq!(Color::luma(0.5).space(), ColorSpace::Luma);
+        assert_eq!(Color::linear_rgb(0.1, 0.2, 0.3, 1.0).space(), ColorSpace::LinearRgb);
+        assert_eq!(Color::oklab(0.5, 0.1, 0.1, 1.0).space(), ColorSpace::Oklab);
+        assert_eq!(Color::oklch(0.5, 0.1, 30.0, 1.0).space(), ColorSpace::Oklch);
+        assert_eq!(Color::hsl(0.0, 1.0, 0.5, 1.0).space(), ColorSpace::Hsl);
+        assert_eq!(Color::hsv(0.0, 1.0, 1.0, 1.0).space(), ColorSpace::Hsv);
+        assert_eq!(Color::cmyk(0.0, 0.0, 0.0, 0.0).space(), ColorSpace::Cmyk);
+    }
+
+    #[test]
+    fn p742_to_space_roundtrip_srgb_hsv_bytes() {
+        let roundtrip = VANILLA_RED.to_space(ColorSpace::Hsv).to_space(ColorSpace::Srgb);
+        assert_eq!(roundtrip.to_srgb(), VANILLA_RED.to_srgb());
+    }
+
+    #[test]
+    fn p742_to_space_identidade_mesmo_espaco() {
+        assert_eq!(VANILLA_RED.to_space(ColorSpace::Srgb), VANILLA_RED);
+    }
+
+    #[test]
+    fn p742_components_srgb_com_e_sem_alpha() {
+        let com = VANILLA_RED.components(true);
+        assert_eq!(com.len(), 4);
+        assert!(matches!(com[0], ColorComponent::Ratio(v) if (v - 1.0).abs() < 1e-6));
+        assert!(matches!(com[1], ColorComponent::Ratio(v) if (v - 0.254902).abs() < 1e-5));
+        assert!(matches!(com[2], ColorComponent::Ratio(v) if (v - 0.211765).abs() < 1e-5));
+        assert!(matches!(com[3], ColorComponent::Ratio(v) if (v - 1.0).abs() < 1e-6));
+        let sem = VANILLA_RED.components(false);
+        assert_eq!(sem.len(), 3);
+    }
+
+    #[test]
+    fn p742_components_oklab_e_oklch_tipos() {
+        let o = Color::oklab(0.6, 0.1, -0.05, 1.0).components(true);
+        assert!(matches!(o[0], ColorComponent::Ratio(_)));
+        assert!(matches!(o[1], ColorComponent::Float(v) if (v - 0.1).abs() < 1e-6));
+        assert!(matches!(o[2], ColorComponent::Float(v) if (v + 0.05).abs() < 1e-6));
+        assert!(matches!(o[3], ColorComponent::Ratio(_)));
+        let c = Color::oklch(0.6, 0.2, 30.0, 1.0).components(true);
+        assert!(matches!(c[1], ColorComponent::Float(v) if (v - 0.2).abs() < 1e-6));
+        assert!(matches!(c[2], ColorComponent::Angle(v) if (v - 30.0).abs() < 1e-6));
+    }
+
+    #[test]
+    fn p742_components_cmyk_ignora_alpha() {
+        let c = Color::cmyk(0.1, 0.2, 0.3, 0.4).components(false);
+        assert_eq!(c.len(), 4, "Cmyk ignora o flag alpha (paridade vanilla)");
     }
 
     #[test]
@@ -785,54 +1176,79 @@ mod tests {
 
     // ── P477 — saturate / desaturate ──
 
+    // ── P477 — saturate / desaturate (semântica corrigida P742: via HSV) ──
+
+    fn hsv_of(c: Color) -> (f32, f32, f32) {
+        match c.to_space(ColorSpace::Hsv) {
+            Color::Hsv { h, s, v, .. } => (h, s, v),
+            _ => unreachable!("to_space(Hsv) devolve sempre Hsv"),
+        }
+    }
+
     #[test]
     fn p477_saturate_zero_nao_altera_chroma() {
         let red = Color::rgb(255, 0, 0);
         let (_, c0, _, _) = to_oklch_p476(red);
-        let (_, c1, _, _) = to_oklch_p476(red.saturate(0.0));
+        let (_, c1, _, _) = to_oklch_p476(red.saturate(0.0).unwrap());
         assert!((c1 - c0).abs() < 1e-5, "saturate(0) não deve alterar chroma; delta={}", (c1-c0).abs());
     }
 
     #[test]
-    fn p477_saturate_aumenta_chroma() {
-        let red = Color::rgb(255, 0, 0);
-        let (_, c0, _, _) = to_oklch_p476(red);
-        let (_, c1, _, _) = to_oklch_p476(red.saturate(0.1));
-        assert!(c1 > c0, "saturate(0.1) deve aumentar chroma: c0={}, c1={}", c0, c1);
+    fn p742_saturate_aumenta_saturacao_hsv() {
+        // Semântica vanilla (palette): increase sobre `s` em HSV. Vermelho
+        // puro (s=1) não muda; cor com s=0.5 passa a s=0.55 → g e b descem.
+        let c = Color::srgb_f32(1.0, 0.5, 0.5, 1.0);
+        let (h0, s0, v0) = hsv_of(c);
+        assert!((s0 - 0.5).abs() < 1e-5);
+        let sat = c.saturate(0.1).unwrap();
+        let (h1, s1, v1) = hsv_of(sat);
+        assert!((s1 - 0.55).abs() < 1e-4, "s esperado 0.55; obtido {s1}");
+        assert!((h1 - h0).abs() < 1e-3, "hue preservado");
+        assert!((v1 - v0).abs() < 1e-5, "value preservado");
+        assert_eq!(sat.to_srgb(), (255, 115, 115, 255));
     }
 
     #[test]
     fn p477_desaturate_zero_nao_altera_chroma() {
         let blue = Color::rgb(0, 0, 255);
         let (_, c0, _, _) = to_oklch_p476(blue);
-        let (_, c1, _, _) = to_oklch_p476(blue.desaturate(0.0));
+        let (_, c1, _, _) = to_oklch_p476(blue.desaturate(0.0).unwrap());
         assert!((c1 - c0).abs() < 1e-5);
     }
 
     #[test]
     fn p477_desaturate_grande_clampado_a_zero() {
+        // Vanilla: desaturate(100%) zera `s` em HSV preservando v → branco
+        // (não cinzento — corrigido P742). Chroma Oklch ≈ 0 mantém-se.
         let red = Color::rgb(255, 0, 0);
-        let (_, c, _, _) = to_oklch_p476(red.desaturate(1.0));
-        assert!((c - 0.0).abs() < 1e-5, "desaturate(1.0) → c=0 (cinzento); obtido {}", c);
+        let desat = red.desaturate(1.0).unwrap();
+        let (_, c, _, _) = to_oklch_p476(desat);
+        assert!((c - 0.0).abs() < 1e-5, "desaturate(1.0) → c=0; obtido {}", c);
+        assert_eq!(desat.to_srgb(), (255, 255, 255, 255), "v=1 preservado → branco");
     }
 
     #[test]
-    fn p477_saturate_preserva_l_e_h() {
-        let red = Color::rgb(255, 0, 0);
-        let (l0, _, h0, a0) = to_oklch_p476(red);
-        let (l1, _, h1, a1) = to_oklch_p476(red.saturate(0.2));
-        assert!((l1 - l0).abs() < 1e-4, "l deve ser preservado");
-        assert!((h1 - h0).abs() < 1e-3, "h deve ser preservado");
-        assert!((a1 - a0).abs() < 1e-5, "alpha deve ser preservado");
+    fn p742_saturate_preserva_hue_e_value() {
+        let (h0, s0, v0) = hsv_of(VANILLA_RED);
+        let sat = VANILLA_RED.saturate(0.2).unwrap();
+        let (h1, s1, v1) = hsv_of(sat);
+        assert!(s1 > s0, "s deve aumentar: s0={s0}, s1={s1}");
+        assert!((h1 - h0).abs() < 1e-3, "hue preservado");
+        assert!((v1 - v0).abs() < 1e-5, "value preservado");
+        // Valor medido no vanilla: red.saturate(20%) → rgb("#ff372b").
+        assert_eq!(sat.to_srgb(), (255, 55, 43, 255));
     }
 
     #[test]
-    fn p477_desaturate_preserva_l_e_h() {
+    fn p742_desaturate_preserva_hue_e_value() {
         let blue = Color::rgb(0, 0, 255);
-        let (l0, _, h0, a0) = to_oklch_p476(blue);
-        let (l1, _, h1, a1) = to_oklch_p476(blue.desaturate(0.05));
-        assert!((l1 - l0).abs() < 1e-4);
-        assert!((h1 - h0).abs() < 1e-3);
-        assert!((a1 - a0).abs() < 1e-5);
+        let (h0, s0, v0) = hsv_of(blue);
+        let desat = blue.desaturate(0.05).unwrap();
+        let (h1, s1, v1) = hsv_of(desat);
+        assert!(s1 < s0, "s deve diminuir: s0={s0}, s1={s1}");
+        assert!((h1 - h0).abs() < 1e-3, "hue preservado");
+        assert!((v1 - v0).abs() < 1e-5, "value preservado");
+        let (_, _, _, a) = desat.to_rgba_f32();
+        assert!((a - 1.0).abs() < 1e-5, "alpha preservado");
     }
 }

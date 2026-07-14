@@ -47,11 +47,14 @@ pub fn repr_value(v: &Value) -> String {
         Value::Module(m) => format!("module({})", m.name()),
         Value::Datetime(d) => repr_datetime(d),
         Value::Func(f) => {
+            // **P742** — paridade vanilla medida: `repr(rgb)` → `rgb` (sem
+            // `#`); o mesmo caminho serve a interpolação em markup
+            // (`#red.space()` renderiza "rgb").
             if let Some(name) = f.name() {
                 if name.is_empty() {
                     "#function(...)".to_string()
                 } else {
-                    format!("#{name}")
+                    name.to_string()
                 }
             } else {
                 "#function(...)".to_string()
@@ -632,10 +635,11 @@ mod tests {
 
     #[test]
     fn repr_value_func_named() {
+        // **P742** — paridade vanilla medida: `repr(rgb)` → `rgb` (sem `#`).
         let f = crate::entities::func::Func::native("repr", |_ctx, _args, _world, _cf| {
             Ok(Value::None)
         });
-        assert_eq!(repr_value(&Value::Func(f)), "#repr");
+        assert_eq!(repr_value(&Value::Func(f)), "repr");
     }
 
     #[test]

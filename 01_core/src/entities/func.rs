@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/entities/func.md
-//! @prompt-hash da2e4b21
+//! @prompt-hash 727ec810
 //! @layer L1
 //! @updated 2026-04-13
 
@@ -317,12 +317,27 @@ impl std::fmt::Debug for Func {
     }
 }
 
-/// Igualdade por identidade de ponteiro Arc — duas Func são iguais
-/// se e só se partilham o mesmo FuncRepr (mesmo objecto).
-/// Consistente com Module::PartialEq (Passo 15).
+/// Igualdade: identidade de ponteiro Arc **ou**, para nativas, igualdade
+/// de nome dentro do mesmo kind.
+///
+/// **P742** — medição vanilla 0.15.0: `color.rgb == rgb` → `true`,
+/// `red.space() == rgb` → `true`. O vanilla materializa nativas como
+/// singletons estáticos (identidade); o cristalino cria Arcs frescos por
+/// lookup, logo a identidade equivalente é o nome. Closures, `Element`,
+/// `With` e `Plugin` mantêm identidade de ponteiro. Consistente com
+/// `Module::PartialEq` (Passo 15) para os casos não-nativos.
 impl PartialEq for Func {
     fn eq(&self, other: &Self) -> bool {
-        Arc::ptr_eq(&self.0, &other.0)
+        if Arc::ptr_eq(&self.0, &other.0) {
+            return true;
+        }
+        match (self.0.as_ref(), other.0.as_ref()) {
+            (FuncRepr::Native(a), FuncRepr::Native(b)) => a.name == b.name,
+            (FuncRepr::NativeWithEngine(a), FuncRepr::NativeWithEngine(b)) => {
+                a.name == b.name
+            }
+            _ => false,
+        }
     }
 }
 

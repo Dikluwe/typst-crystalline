@@ -6334,7 +6334,10 @@ mod tests {
 
     #[test]
     fn p240_content_statedisplay_partial_eq_com_callback_ptr_eq() {
-        // Com callback → comparação Arc::ptr_eq via Func::PartialEq.
+        // Com callback → comparação via Func::PartialEq (identidade de Arc;
+        // **P742**: nativas com mesmo nome são a mesma função — medido no
+        // vanilla `color.rgb == rgb` → true — logo o caso "distinto" usa
+        // nome diferente).
         use crate::entities::func::Func;
         let f1 = Func::native("identity", |_, args, _, _| {
             Ok(args
@@ -6347,8 +6350,8 @@ mod tests {
         let b = Content::state_display("k".to_string(), Some(f1.clone()));
         // Mesmo Arc partilhado → equal.
         assert_eq!(a, b);
-        // Func distinta (Arc diferente) → not equal mesmo com mesmo behaviour.
-        let f2 = Func::native("identity", |_, args, _, _| {
+        // Func distinta (nome diferente → função diferente) → not equal.
+        let f2 = Func::native("identity2", |_, args, _, _| {
             Ok(args
                 .items
                 .first()
@@ -6381,7 +6384,10 @@ mod tests {
 
     #[test]
     fn p241_content_counter_display_callback_partial_eq_com_callback_ptr_eq() {
-        // Com callback → comparação Arc::ptr_eq via Func::PartialEq.
+        // Com callback → comparação via Func::PartialEq (identidade de Arc;
+        // **P742**: nativas com mesmo nome são a mesma função — medido no
+        // vanilla `color.rgb == rgb` → true — logo o caso "distinto" usa
+        // nome diferente).
         use crate::entities::func::Func;
         let f1 = Func::native("identity", |_, args, _, _| {
             Ok(args
@@ -6393,7 +6399,7 @@ mod tests {
         let a = Content::counter_display_callback("k".to_string(), Some(f1.clone()));
         let b = Content::counter_display_callback("k".to_string(), Some(f1.clone()));
         assert_eq!(a, b);
-        let f2 = Func::native("identity", |_, args, _, _| {
+        let f2 = Func::native("identity2", |_, args, _, _| {
             Ok(args
                 .items
                 .first()

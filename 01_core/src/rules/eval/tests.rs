@@ -10182,6 +10182,123 @@ mod tests {
         assert_eq!(m.scope().get("b"), Some(&Value::Str("gradient".into())));
     }
 
+    // ── Passo 742 — métodos de instância de cor + fields rotate/components/space ──
+    //
+    // Valores medidos no vanilla 0.15.0 (969087ec) — sonda P742:
+    // `red` vanilla = `rgb(1.0, 0.254902, 0.211765)` (#ff4136).
+
+    #[test]
+    fn p742_metodos_instancia_cor_paridade_vanilla() {
+        let m = p729_eval(
+            "#let l = repr(red.lighten(20%))\n\
+             #let d = repr(red.darken(20%))\n\
+             #let n = repr(red.negate())\n\
+             #let r = repr(red.rotate(90deg))\n\
+             #let mx = repr(red.mix(blue))\n\
+             #let s = repr(red.saturate(20%))\n\
+             #let ds = repr(red.desaturate(20%))",
+        )
+        .unwrap();
+        assert_eq!(m.scope().get("l"),  Some(&Value::Str("rgb(\"#ff675e\")".into())), "lighten");
+        assert_eq!(m.scope().get("d"),  Some(&Value::Str("rgb(\"#cc342b\")".into())), "darken");
+        assert_eq!(m.scope().get("n"),  Some(&Value::Str("rgb(\"#004b74\")".into())), "negate");
+        assert_eq!(m.scope().get("r"),  Some(&Value::Str("rgb(\"#87a100\")".into())), "rotate");
+        assert_eq!(
+            m.scope().get("mx"),
+            Some(&Value::Str("oklab(61.08%, 0.075, -0.031)".into())),
+            "mix"
+        );
+        assert_eq!(m.scope().get("s"),  Some(&Value::Str("rgb(\"#ff372b\")".into())), "saturate");
+        assert_eq!(m.scope().get("ds"), Some(&Value::Str("rgb(\"#ff675e\")".into())), "desaturate");
+    }
+
+    #[test]
+    fn p742_components_e_space_paridade_vanilla() {
+        let m = p729_eval(
+            "#let c = repr(red.components())\n\
+             #let ca = repr(red.components(alpha: false))\n\
+             #let sp = repr(red.space())\n\
+             #let eq1 = red.space() == rgb\n\
+             #let eq2 = red.space() == color.rgb\n\
+             #let eq3 = color.rgb == rgb",
+        )
+        .unwrap();
+        assert_eq!(
+            m.scope().get("c"),
+            Some(&Value::Str("(100%, 25.49%, 21.18%, 100%)".into())),
+            "components"
+        );
+        assert_eq!(
+            m.scope().get("ca"),
+            Some(&Value::Str("(100%, 25.49%, 21.18%)".into())),
+            "components(alpha: false)"
+        );
+        assert_eq!(m.scope().get("sp"), Some(&Value::Str("rgb".into())), "repr(space())");
+        assert_eq!(m.scope().get("eq1"), Some(&Value::Bool(true)), "space() == rgb");
+        assert_eq!(m.scope().get("eq2"), Some(&Value::Bool(true)), "space() == color.rgb");
+        assert_eq!(m.scope().get("eq3"), Some(&Value::Bool(true)), "color.rgb == rgb");
+    }
+
+    #[test]
+    fn p742_estaticas_semantica_corrigida_e_novos_fields() {
+        let m = p729_eval(
+            "#let a = repr(color.lighten(red, 20%))\n\
+             #let b = repr(color.rotate(red, 90deg))\n\
+             #let c = repr(color.components(red))\n\
+             #let d = repr(color.space(red))\n\
+             #let t1 = type(color.rotate)\n\
+             #let t2 = type(color.components)\n\
+             #let t3 = type(color.space)",
+        )
+        .unwrap();
+        assert_eq!(m.scope().get("a"), Some(&Value::Str("rgb(\"#ff675e\")".into())), "static lighten");
+        assert_eq!(m.scope().get("b"), Some(&Value::Str("rgb(\"#87a100\")".into())), "static rotate");
+        assert_eq!(
+            m.scope().get("c"),
+            Some(&Value::Str("(100%, 25.49%, 21.18%, 100%)".into())),
+            "static components"
+        );
+        assert_eq!(m.scope().get("d"), Some(&Value::Str("rgb".into())), "static space");
+        let func = Some(&Value::Type(crate::entities::value::Type::Function));
+        for b in ["t1", "t2", "t3"] {
+            assert_eq!(m.scope().get(b), func, "type(color.<{b}>) deve ser function");
+        }
+    }
+
+    #[test]
+    fn p742_saturate_luma_erro_verbatim_vanilla() {
+        // Medido vanilla: "cannot saturate grayscale color" + hint
+        // "try converting your color to RGB first".
+        let err = p729_eval("#luma(128).saturate(20%)")
+            .expect_err("luma.saturate deve ser erro");
+        let d = err.first().expect("diagnóstico");
+        assert_eq!(d.message, "cannot saturate grayscale color", "msg: {}", d.message);
+        assert!(
+            d.hints.iter().any(|h| h == "try converting your color to RGB first"),
+            "hints: {:?}", d.hints
+        );
+    }
+
+    #[test]
+    fn p742_space_em_markup_renderiza_nome() {
+        // Medido vanilla: `#red.space()` em markup renderiza "rgb".
+        let m = p729_eval("#red.space()").unwrap();
+        let text = m.content().expect("content").plain_text();
+        assert_eq!(text, "rgb", "texto: {text}");
+    }
+
+    #[test]
+    fn p742_metodo_desconhecido_cai_no_caminho_generico() {
+        // Métodos fora dos 9 conhecidos mantêm o comportamento pré-P742
+        // (erro de field access em color).
+        let err = p729_eval("#red.to-hex()").expect_err("red.to-hex() deve ser erro");
+        let msg = err.first().map(|d| d.message.to_string()).unwrap_or_default();
+        assert!(
+            msg.contains("field access") || msg.contains("does not contain field"),
+            "msg: {msg}"
+        );
+    }
+
     // ── Passo 737 — counter/state como valores-tipo ────────────────────────
 
     #[test]

@@ -1,5 +1,5 @@
 # Prompt L0 — entities/func e entities/args
-Hash do Código: 4b80f984
+Hash do Código: 7e630787
 
 **Camada**: L1
 **Ficheiros alvo**: `01_core/src/entities/func.rs`, `01_core/src/entities/args.rs`
@@ -210,7 +210,14 @@ impl Args {
 
 ## Semântica confirmada
 
-- **PartialEq por identidade**: duas `Func` são iguais se e só se partilham o mesmo `Arc<FuncRepr>` (mesmo ponteiro). Consistente com `Module`.
+- **PartialEq por identidade, com excepção P742 para nativas**: duas `Func`
+  são iguais se partilham o mesmo `Arc<FuncRepr>` (mesmo ponteiro) **ou** se
+  ambas são nativas do mesmo kind (`Native`/`NativeWithEngine`) com o mesmo
+  nome. Medição vanilla 0.15.0 (P742): `color.rgb == rgb` → `true`,
+  `red.space() == rgb` → `true` — o vanilla materializa nativas como
+  singletons estáticos (identidade); o cristalino cria Arcs frescos por
+  lookup, logo a identidade equivalente é o nome. Closures, `Element`,
+  `With` e `Plugin` mantêm identidade de ponteiro. Consistente com `Module`.
 - **Clone O(1)**: `Arc::clone` — não clona o conteúdo da closure.
 - **Debug**: `"<function>"` (string literal, nunca pânico).
 - **Eager capture**: `ClosureRepr.captured` é um snapshot imutável; redefinições posteriores no scope pai não afectam a closure.

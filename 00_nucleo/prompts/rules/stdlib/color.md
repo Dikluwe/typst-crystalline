@@ -1,5 +1,5 @@
 # Prompt L0 — stdlib tipo `color` (operadores de cor)
-Hash do Código: 777b7c39
+Hash do Código: ecbbd752
 
 ## Módulo
 `01_core/src/rules/stdlib/color.rs`
@@ -166,13 +166,91 @@ uma via **separada** (nomes CSS) e **não** é alterado por este passo.
 A função `text(...)` é registada separadamente no scope global (P492) para permitir
 `#show regex("\\d+"): it => text(red, it)`.
 
+## P742 — métodos de instância + fields `rotate`/`components`/`space`
+
+**Medição ADR-0108 (sonda contra vanilla 0.15.0 969087ec):** os métodos de
+instância `red.lighten(20%)`, `red.darken(20%)`, `red.negate()`,
+`red.rotate(90deg)`, `red.mix(blue)`, `red.components()`, `red.space()`,
+`red.saturate(20%)`, `red.desaturate(20%)` existem no vanilla e estavam
+**ausentes** no cristalino (pré-existente desde P476 — só havia estáticas).
+A sonda mediu também que a semântica dos operadores P476/P477 divergia do
+vanilla (lighten/darken/saturate via Oklch, negate em sRGB) — **corrigida no
+domínio** (`entities/color.md` §"Operadores de cor (P476/P477, semântica
+corrigida em P742)"); a correcção beneficia estáticas e instâncias.
+
+Descoberta-chave da sonda: o `red` vanilla é `rgb(1.0, 0.254902, 0.211765)`
+(`#ff4136`, `visualize/color.rs:311`), não `#ff0000`; as fórmulas do
+`palette 0.7.6` (crate usada pelo vanilla) reproduzem byte a byte os valores
+medidos (verificado em scratch dedicado).
+
+### Despacho de métodos de instância (padrão P506)
+
+Braço `Value::Color` no bloco P506 de `eval_func_call` (`closures.rs`),
+interceptando **apenas** os 9 métodos conhecidos — método desconhecido cai
+no caminho genérico (erro de field, comportamento pré-P742 preservado):
+
+```rust
+Value::Color(ref color) => {
+    if crate::rules::stdlib::color::is_color_instance_method(method) {
+        return super::bindings::eval_color_method(
+            color, method, call.args(), scopes, ctx, engine,
+        );
+    }
+}
+```
+
+`eval_color_method` (`eval/bindings.rs`) faz `eval_args` uma vez e despacha:
+
+- `lighten` / `darken` / `saturate` / `desaturate` / `negate` / `mix` —
+  sintetiza `Args` com a cor como primeiro posicional e **delega nas
+  nativas estáticas** (validação e mensagens idênticas aos dois caminhos).
+- `rotate` — `[angle: Angle]`; delega em `native_color_rotate`.
+- `components` — named `alpha: bool = true`; delega em
+  `native_color_components`.
+- `space` — sem argumentos; devolve `Func::native(<nome do constructor>, <nativa>)`
+  fresco (nomes vanilla medidos: `rgb`, `luma`, `linear-rgb`, `oklab`,
+  `oklch`, `cmyk`, `hsl`, `hsv`). `red.space() == rgb` é `true` via a
+  igualdade por nome de nativas introduzida em `entities/func.md` (P742 —
+  medido no vanilla; `Func::eq` era só identidade de Arc).
+
+### Três fields novos do tipo (17 total)
+
+`color_type_field` passa a 17 entradas: as 14 anteriores + `rotate`,
+`components`, `space` (paridade do inventário medido em P736: 17 fields).
+
+- `color.rotate(col, angle)` → `Color` — default espaço Oklch.
+- `color.components(col, alpha: true)` → `Array` de `Ratio`/`Float`/`Angle`.
+- `color.space(col)` → `Func` do constructor do espaço.
+- **Nomes plain nas funcs do tipo** (medido P742): `repr(color.rgb)` →
+  `rgb`, `repr(color.lighten)` → `lighten` no vanilla (não `color.rgb`) —
+  as entradas de `color_type_field` passam a registar os constructors e
+  operadores com o nome simples do vanilla.
+- **Repr de Func sem `#`** (medido P742): `repr(rgb)` → `rgb`,
+  `#red.space()` em markup → `rgb`. `repr.rs` passa a formatar Func
+  nomeada como `name` (era `#name`); o ramo sem nome mantém-se.
+
+### Scope-outs P742 (medidos, com erro explícito)
+
+- Named `space:` em `negate` / `rotate` / `mix` — o vanilla aceita
+  (`negate(space: rgb)`, `rotate(space: hsl)`, `mix(space: rgb)`); o
+  cristalino rejeita com "argumento nomeado inesperado 'space'" (o caminho
+  das estáticas já o fazia para mix/negate; rotate/components/space seguem
+  o mesmo estilo de mensagem).
+- `mix` variádico com pesos `(cor, peso)` — mantido de P476.
+- `to-hex`, `transparentize`, `opacify` — existem no vanilla
+  (`color.rs:912-1131`); não medidos na sonda do passo, sem consumidor em
+  cetz → achados adiados.
+- Repr de closure anónima (`#function(...)`) — o vanilla imprime a lambda
+  (`(x) => x`); fora do caminho da sonda → achado adiado.
+
 ## Scope-out
 
 - `color.mix` com N > 2 cores — scope-out (cristalino aceita 2 + weight).
-- `color.mix` com `space:` arg — scope-out.
+- `color.mix` com `space:` arg — scope-out (erro explícito, P742).
 - `color.saturate/desaturate` com `space:` arg — scope-out.
-- `color.rotate`, `color.components`, `color.space` — existem no vanilla como
-  funções do tipo (medido P736); ausentes no cristalino, também como métodos
-  de instância. Scope-out.
-- Métodos de instância de cor (`red.lighten(20%)`, …) — ausentes no
-  cristalino desde P476 (pré-existente, não regressão de P736).
+- ~~`color.rotate`, `color.components`, `color.space`~~ — **P742: implementados**
+  (estáticas + instância).
+- ~~Métodos de instância de cor (`red.lighten(20%)`, …)~~ — **P742: implementados**
+  (9 métodos; despacho P506).
+- Named `space:` em `negate`/`rotate`/`mix`; `to-hex`/`transparentize`/`opacify`;
+  `mix` variádico com pesos — scope-out P742 (acima).

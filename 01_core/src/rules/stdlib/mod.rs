@@ -55,7 +55,9 @@ mod sym;
 mod emoji;
 mod pdf;
 // P476 — módulo `color` com operadores lighten/darken/mix/negate.
-mod color;
+// P742 — pub(crate): o despacho de métodos de instância em `eval/` acede
+// a `is_color_instance_method` e às nativas.
+pub(crate) mod color;
 // P694 — módulo `sys` (sys.version / sys.inputs).
 mod sys;
 // P506 — runtime state/counter/context.
@@ -12482,15 +12484,15 @@ mod tests {
 
     #[test]
     fn p476_native_color_negate_vermelho_da_ciano() {
+        // **P742** — semântica corrigida por medição vanilla: negate opera em
+        // Oklab por default (não complemento sRGB). Vermelho puro (1,0,0) →
+        // `#005688` (medido no palette 0.7.6). Nome histórico mantido.
         null_ctx!(ctx);
         let red = Value::Color(Color::srgb_f32(1.0, 0.0, 0.0, 1.0));
         let args = p(vec![red]);
         let r = native_color_negate(&mut ctx, &args, &null_world(), test_file_id()).unwrap();
         if let Value::Color(c) = r {
-            let (r, g, b, _) = c.to_rgba_f32();
-            assert!((r - 0.0).abs() < 1e-5);
-            assert!((g - 1.0).abs() < 1e-5);
-            assert!((b - 1.0).abs() < 1e-5);
+            assert_eq!(c.to_srgb(), (0, 86, 136, 255), "negate(vermelho puro) → #005688");
         } else { panic!("esperado Color"); }
     }
 
