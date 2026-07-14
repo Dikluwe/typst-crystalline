@@ -21,6 +21,9 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
     layouter: &mut Layouter<M, S>,
     e:        &ShapeElem,
 ) {
+    // **P751** — fixar a baseline inicial com o estilo activo antes de
+    // posicionar a primeira forma real.
+    layouter.ensure_initial_baseline();
     let (kind, width, height, fill, stroke) = (&e.kind, &e.width, &e.height, &e.fill, &e.stroke);
     let available_w = layouter.available_width();
     let (resolved_w, resolved_h) = match kind {

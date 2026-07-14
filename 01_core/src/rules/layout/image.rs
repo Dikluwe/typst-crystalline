@@ -88,6 +88,9 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
     layouter: &mut Layouter<M, S>,
     e:        &ImageElem,
 ) {
+    // **P751** — fixar a baseline inicial com o estilo activo antes de
+    // posicionar a primeira imagem real.
+    layouter.ensure_initial_baseline();
     let dims = calculate_dimensions(
         &e.data.0,  // &[u8] via PtrEqArc → Arc → deref
         e.width.as_deref(),

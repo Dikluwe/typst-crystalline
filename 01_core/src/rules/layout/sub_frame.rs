@@ -52,6 +52,12 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
         let saved_height = self.regions.current.height;
         let saved_unconstrained = self.is_height_unconstrained;
         let saved_is_sub_frame = self.is_sub_frame;
+        let saved_initial_baseline_pending = self.initial_baseline_pending;
+        // P751 — durante um sub-layout isolado a baseline inicial é fixada
+        // imediatamente pelo próprio sub-frame (cursor_y = ascender); não
+        // queremos que `ensure_initial_baseline` dentro do sub-frame afecte
+        // o estado do layout pai.
+        self.initial_baseline_pending = false;
         self.is_sub_frame = true;
 
         // Inicializar cursor local — x = origin_x, y = ascender (como o layout principal).
@@ -133,6 +139,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
         self.regions.current.current_line = saved_line;
         self.is_height_unconstrained = saved_unconstrained;
         self.is_sub_frame = saved_is_sub_frame;
+        self.initial_baseline_pending = saved_initial_baseline_pending;
 
         (cell_height, cell_items)
     }

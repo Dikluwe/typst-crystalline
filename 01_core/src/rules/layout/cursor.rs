@@ -50,6 +50,19 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
         self.regions.current.cursor_y + Pt(offset_pt)
     }
 
+    /// **P751** — fixa a baseline inicial da página/coluna no momento em que o
+    /// primeiro conteúdo real é emitido. Enquanto `initial_baseline_pending` é
+    /// `true`, `cursor_y` representa o topo útil (margem). Esta função adiciona
+    /// o `cap_height` do estilo activo, convertendo `cursor_y` na baseline da
+    /// primeira linha. Depois de fixada, a flag é desactivada.
+    pub(super) fn ensure_initial_baseline(&mut self) {
+        if self.initial_baseline_pending {
+            self.regions.current.cursor_y +=
+                self.metrics.cap_height(self.style.size);
+            self.initial_baseline_pending = false;
+        }
+    }
+
     /// **P449/P471** — emite um `FrameItem::Text` precedido, se necessário, por
     /// um rectângulo de highlight. P471 adiciona `radius` (RoundedRect) e
     /// `extent` (extensão horizontal). O shape cobre `ascender → line_height`.
@@ -89,6 +102,9 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
     }
 
     pub(super) fn layout_word(&mut self, word: &str) {
+        // **P751** — fixar a baseline inicial com o estilo activo antes de
+        // posicionar o primeiro texto real.
+        self.ensure_initial_baseline();
         // **P593** — usar `FontMetrics::text_width` (shaping + tracking) como
         // única fonte de largura de palavra.
         let w = self.metrics.text_width(word, self.style.size, &self.style);
@@ -137,6 +153,9 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
     /// de palavras. Usado por smallcaps para compor uma palavra a partir de
     /// runs de tamanhos diferentes (minúsculas → maiúsculas a 0.8×).
     pub(super) fn layout_chunk(&mut self, chunk: &str) {
+        // **P751** — fixar a baseline inicial com o estilo activo antes de
+        // posicionar o primeiro texto real.
+        self.ensure_initial_baseline();
         let w = self.word_width(chunk);
         let right_margin = self.regions.current.width - self.page_config.margin;
         if self.regions.current.cursor_x.0 + w.0 > right_margin

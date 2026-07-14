@@ -29,6 +29,9 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
         block: bool,
         numbering_pattern: Option<&str>,
     ) {
+        // **P751** — fixar a baseline inicial com o estilo activo antes de
+        // posicionar texto/equação real.
+        self.ensure_initial_baseline();
         // Auto-numeração: equações de bloco numeradas avançam o contador antes de
         // desenhar (Passo 59). O número (N) é acrescentado depois da equação.
         // Lote F-2 S2 (P335): o "ativo" é **assado** no `EquationElem` (escopo

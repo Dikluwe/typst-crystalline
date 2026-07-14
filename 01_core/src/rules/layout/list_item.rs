@@ -21,6 +21,9 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
     layouter: &mut Layouter<M, S>,
     e:        &ListItemElem,
 ) {
+    // **P751** — fixar a baseline inicial com o estilo activo antes de
+    // posicionar o primeiro marcador/texto real.
+    layouter.ensure_initial_baseline();
     if layouter.regions.current.cursor_x.0 > layouter.regions.current.line_start_x.0 {
         layouter.flush_line();
     }

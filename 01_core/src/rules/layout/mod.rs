@@ -183,6 +183,14 @@ pub struct Layouter<'a, M: FontMetrics, S: ImageSizer = NullImageSizer> {
     /// arm preenche `current` + futuros `backlog`/`last` quando
     /// emergir per anti-inflação 11ª aplicação cumulativa pós-P205D).
     pub(super) regions: crate::entities::region::Regions,
+    /// **P751** — indica que a baseline inicial da página/coluna ainda
+    /// não foi fixada. Enquanto `true`, `cursor_y` representa o topo
+    /// útil (margem) e `ensure_initial_baseline()` adiciona o
+    /// `cap_height` do estilo realmente activo no momento do primeiro
+    /// conteúdo real. Isto evita fixar o offset de baseline com o
+    /// estilo por defeito em `Layouter::new` antes de processar
+    /// `#set text(size: ...)` no início do documento.
+    pub(super) initial_baseline_pending: bool,
     // P190I (M6 fechado): `counter: CounterStateLegacy` ELIMINADO —
     // struct eliminada. Layouter consumers usam Introspector path
     // puro via `self.introspector` (P184D / P190G/H/I migrations).
@@ -487,8 +495,6 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
         >,
     ) -> Self {
         let cfg = PageConfig::default();
-        let initial_style = TextStyle::from(&StyleChain::default_chain());
-        let initial_cap_height = metrics.cap_height(initial_style.size);
         Self {
             metrics,
             sizer,
@@ -500,26 +506,28 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
             // a 11 (default da chain) e qualquer descida de `Content::Styled`
             // recompõe `style` da chain (11). A inconsistência 12-vs-11 ficava só no
             // espaço-líder de docs non-embrulhados. Derivar da chain unifica em 11.
-            style: initial_style.clone(),
+            style: TextStyle::from(&StyleChain::default_chain()),
             chain: StyleChain::default_chain(),
             page_config: cfg.clone(),
             pages: Vec::new(),
             // P216A: 5 fields escalares + 2 dimensões agregados em
             // Region. Cursor + line_start_x inicializados a margin;
-            // cursor_y inicializado a margin + ascender (paridade
-            // pre-P216A).
-            // P750: primeira baseline usa cap-height (top-edge default do
-            // vanilla), não ascender.
+            // cursor_y inicializado a margin (sem cap-height — o offset
+            // da baseline é adiado por P751 até o primeiro conteúdo real,
+            // usando o estilo activo nesse momento).
             // P216B: agregação adicional em Regions wrapper (single-region
             // por anti-inflação 11ª; multi-region em P219).
             regions: {
                 let mut rs =
                     crate::entities::region::Regions::single(cfg.width, cfg.height);
                 rs.current.cursor_x = Pt(cfg.margin);
-                rs.current.cursor_y = Pt(cfg.margin) + initial_cap_height;
+                rs.current.cursor_y = Pt(cfg.margin);
                 rs.current.line_start_x = Pt(cfg.margin);
                 rs
             },
+            // P751 — baseline inicial ainda não fixada; será ajustada na
+            // primeira emissão de conteúdo real com o estilo activo.
+            initial_baseline_pending: true,
             // P190I: counter field eliminated.
             // P204C: field passa a ser Tracked, recebido por parameter.
             introspector,
