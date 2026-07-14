@@ -1,15 +1,15 @@
-# Achados adiados na cadeia P700-737 — lista de controlo
+# Achados adiados na cadeia P700-738 — lista de controlo
 
 ## Por resolver
 
 | Achado | Onde foi encontrado | Prioridade | Estado |
 |---|---|---|---|
+| Warning "this return unconditionally discards the content before it" ausente — vanilla emite em return incondicional após conteúdo (`code.rs:413-430`); cristalino silencia (medido P738: `{ [conteúdo] return "x" }` vanilla warning, cristalino exit 0). Return dentro de for/while após conteúdo: ambos em silêncio (paridade acidental). O hint extra sobre state/counter exige query de seletores (provável scope-out parcial) | P738 (sonda — único consumidor do flag `conditional` de P729) | Baixa — warning, não erro; sem consumidor em cetz | Aberto |
 | `polygon` com vértices `Ratio` (`50%`) scope-out — vanilla aceita e resolve no layout contra o contentor (medido P734: triângulo com `(50%, 0pt)` renderiza 2923 px); o constructor cristalino corre em tempo de eval, sem dimensão de referência. Erro explícito de scope-out desde P734 | P732 (sonda), confirmado P734 | Baixa — sem consumidor em cetz | Aberto |
 | Repr de `Value::Args` (sink) é lossy — `#let f(a, ..rest) = rest; f(1, z: 2, y: 3)` imprime `arguments(...)` no cristalino vs `arguments(z: 2, y: 3)` no vanilla (medido em P733; o conteúdo do sink está correcto — `rest.named()` devolve os pares) | P733 (sonda) | Baixa — cosmético | Aberto |
 | Ordem entre tipos no erro de argumento extra — `f(1, z: 2, 3)` (nomeado antes de posicional extra): vanilla reporta o primeiro na ordem original ("unexpected argument: z", `Args::finish` sobre lista única); o cristalino, com `items`/`named` separados, reporta o posicional primeiro ("unexpected argument") | P733 (sonda) | Baixa — caso de canto, ambos erram | Aberto |
 | `rgb(50%, 0%, 0%)` rejeitado ("rgb() requer 3 ou 4 Int") — vanilla aceita percentagem por componente e Int (medido P736: `rgb(50%, 0%, 0%)` → `rgb("#800000")`, igual a `rgb(128, 0, 0)`). `linear-rgb` foi corrigido em P736 (estava no passo); `rgb` não estava — um-bug-por-passo | P736 (sonda colateral) | Baixa — sem consumidor em cetz | Aberto |
 | Métodos de instância de cor ausentes (`red.lighten(20%)` → erro de campo) e fields `color.rotate`/`color.components`/`color.space` ausentes — existem no vanilla (medido P736: `type(color.rotate)` → `function`; `type(red.lighten(20%))` → `color`). Ausência pré-existente desde P476 (operadores só como funções estáticas), confirmada em P736 | P736 (inventário da sonda) | Baixa — sem consumidor em cetz | Aberto |
-| `FlowEvent::Return` não marcado como condicional no fim de `while`/`for` — o vanilla marca (`typst-eval/src/flow.rs:105-108,183-185`; em `if`/`else` também, `flow.rs:54-57` — este o cristalino já faz, P635); o cristalino não marca em `eval_while`/`eval_for` (`control_flow.rs`). Sem caso medido com comportamento divergente (encontrado por inspecção durante a auditoria de join); mecanismo distinto de join, fora do scope de P729 | P729 (auditoria de join, fora da cadeia cetz) | Baixa — sem caso medido | Aberto |
 | hline/vline `stroke: none` rejeitado — vanilla aceita (linha não desenhada, medido exit 0); cristalino guarda `Stroke` não-opcional em `GridHLineElem`/`TableHLineElem` (+vlines) e o render desenha sempre (`rules/layout/grid.rs:668-689`); correcção exige entidade `Option<Stroke>` + salto no render | P726 | Baixa — sem consumidor em cetz; não usar zero-thickness (width 0 em PDF é hairline) | Aberto |
 | `line(end:)` rejeitado ("argumento nomeado inesperado em line(): 'end'") — vanilla aceita | P726 | Baixa — sem consumidor em cetz | Aberto |
 | Formatação de `Float` diverge (`2.0` vs `2`) | P713 | Baixa | Aberto |
@@ -38,6 +38,7 @@
 
 ## Scope-outs conscientes
 
+- `FlowEvent::Return` condicional em `while`/`for` (achado de P729) — sonda P738 confirmou por tentativa real que não há caso divergente alcançável: o flag `conditional` tem um único consumidor no vanilla (a warning `warn_for_discarded_content`, `code.rs:413-430`), que o cristalino não implementa; marcar o flag sem a warning não mudaria comportamento observável. Return dentro de for/while após conteúdo: ambos os compiladores em silêncio (medido). A divergência real adjacente (warning ausente) está na lista de abertos.
 - `Ratio`/`Relative` mistos em divisão de `Length` — não-alcançável por sintaxe actual (P713).
 - `Length * Ratio` / `Ratio * Length` — `Value::Ratio` não produzível por sintaxe de utilizador (P725, mesmo raciocínio de P713).
 - NaN como valor de utilizador (`float.nan`/`calc.nan`) — inexistente no eval cristalino (`float` é só `Type::Float`, `eval/mod.rs:1086`; `calc` expõe `inf` mas não `nan`, `stdlib/calc.rs:108`); caminhos NaN testados só ao nível de `eval_binary_op` (P725).
