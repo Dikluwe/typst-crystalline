@@ -1248,9 +1248,13 @@ fn make_stdlib(inputs: &SysInputs) -> Scope {
     // P169 (M9 sub-passo 1): metadata(value) — feature Introspection vanilla.
     scope.define("metadata", Value::Func(Func::native("metadata", native_metadata)));
     // P506: state(key, init) como valor de primeira classe.
-    scope.define("state", Value::Func(Func::native("state", native_state)));
+    // **P737** — `state` é `Value::Type` (paridade vanilla — medido:
+    // `type(state)` → `type`); chamabilidade via despacho P685 em
+    // `eval/closures.rs` (`Type::State` → `native_state`).
+    scope.define("state", Value::Type(Type::State));
     // P506: counter(selector) como valor de primeira classe.
-    scope.define("counter", Value::Func(Func::native("counter", native_counter)));
+    // **P737** — idem `state`: `Value::Type(Type::Counter)`.
+    scope.define("counter", Value::Type(Type::Counter));
     // P506: context { expr } — delayed evaluation block.
     scope.define("context", Value::Func(Func::native("context", native_context)));
     // P171 (M9 sub-passo 3): state_update(key, value) — mantido como compatibilidade.

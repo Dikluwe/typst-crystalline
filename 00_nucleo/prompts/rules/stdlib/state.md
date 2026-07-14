@@ -1,5 +1,5 @@
 # Prompt L0 — `stdlib/state` — objeto `state` e métodos
-Hash do Código: 56d3b8d0
+Hash do Código: 896cbe4b
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/rules/stdlib/state.rs` (novo; funções exportadas para `rules/stdlib/mod.rs` e registadas em `rules/eval/mod.rs::make_stdlib`).
@@ -12,6 +12,12 @@ Hash do Código: 56d3b8d0
 ## 1. Visão geral
 
 Este módulo implementa o tipo/valor `state(key, init)` e os seus métodos `.update()`, `.get()` e `.display()`. A representação subjacente é `Value::State { key, init }` (ver `entities/value.md`).
+
+**P737 — o binding `state` no scope global passou de `Value::Func` a
+`Value::Type(Type::State)`** (paridade vanilla — medido: `type(state)` →
+`type`; `type(state("y", 0)) == state` → `true`; `repr(state)` →
+`"state"`). A chamabilidade mantém-se via o despacho de tipos chamáveis
+de P685 (`eval/closures.rs`: `Type::State` → `native_state`).
 
 A sintaxe vanilla suportada:
 

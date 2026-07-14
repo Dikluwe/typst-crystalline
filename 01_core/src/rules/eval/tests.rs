@@ -10181,4 +10181,71 @@ mod tests {
         assert_eq!(m.scope().get("a"), Some(&Value::Str("color".into())));
         assert_eq!(m.scope().get("b"), Some(&Value::Str("gradient".into())));
     }
+
+    // ── Passo 737 — counter/state como valores-tipo ────────────────────────
+
+    #[test]
+    fn p737_type_counter_e_state_sao_type() {
+        // Medido vanilla: type(counter)/type(state) → type.
+        // Cristalino pré-P737: function (Value::Func).
+        let m = p729_eval("#let a = type(counter)\n#let b = type(state)").unwrap();
+        let ty = Some(&Value::Type(crate::entities::value::Type::Type));
+        assert_eq!(m.scope().get("a"), ty);
+        assert_eq!(m.scope().get("b"), ty);
+    }
+
+    #[test]
+    fn p737_type_instancia_eq_tipo() {
+        // Medido vanilla: type(counter("x")) == counter → true;
+        // type(state("y", 0)) == state → true.
+        let m = p729_eval(
+            "#let c = counter(\"x\")\n\
+             #let s = state(\"y\", 0)\n\
+             #let a = type(c) == counter\n\
+             #let b = type(s) == state",
+        )
+        .unwrap();
+        assert_eq!(m.scope().get("a"), Some(&Value::Bool(true)));
+        assert_eq!(m.scope().get("b"), Some(&Value::Bool(true)));
+    }
+
+    #[test]
+    fn p737_counter_state_chamaveis_criam_instancias() {
+        // A chamabilidade mantém-se (despacho P685): counter("x") → Counter,
+        // state("y", 0) → State.
+        let m = p729_eval("#let c = counter(\"x\")\n#let s = state(\"y\", 0)").unwrap();
+        assert!(
+            matches!(m.scope().get("c"), Some(Value::Counter(_))),
+            "counter(\"x\") deve produzir Value::Counter"
+        );
+        assert!(
+            matches!(m.scope().get("s"), Some(Value::State(_))),
+            "state(\"y\", 0) deve produzir Value::State"
+        );
+    }
+
+    #[test]
+    fn p737_repr_counter_state() {
+        // Medido vanilla: repr(counter) → "counter"; repr(state) → "state".
+        // Cristalino pré-P737: "#counter"/"#state" (repr de Func).
+        let m = p729_eval("#let a = repr(counter)\n#let b = repr(state)").unwrap();
+        assert_eq!(m.scope().get("a"), Some(&Value::Str("counter".into())));
+        assert_eq!(m.scope().get("b"), Some(&Value::Str("state".into())));
+    }
+
+    #[test]
+    fn p737_metodos_de_instancia_sem_regressao() {
+        // Os métodos de instância P506 não mudam: operam sobre
+        // Value::Counter/Value::State, não sobre o binding.
+        let m = p729_eval("#let c = counter(\"x\")\n#let r = c.step()").unwrap();
+        assert!(
+            matches!(m.scope().get("r"), Some(Value::Content(_))),
+            "c.step() deve continuar a produzir Content"
+        );
+        let m2 = p729_eval("#let s = state(\"y\", 0)\n#let u = s.update(5)").unwrap();
+        assert!(
+            matches!(m2.scope().get("u"), Some(Value::Content(_))),
+            "s.update(5) deve continuar a produzir Content"
+        );
+    }
 }

@@ -1,5 +1,5 @@
 # Prompt L0 — `stdlib/counter` — objeto `counter` e métodos
-Hash do Código: f84c6811
+Hash do Código: dc2964c2
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/rules/stdlib/counter.rs` (novo; funções exportadas para `rules/stdlib/mod.rs` e registadas em `rules/eval/mod.rs::make_stdlib`).
@@ -12,6 +12,12 @@ Hash do Código: f84c6811
 ## 1. Visão geral
 
 Este módulo implementa o construtor `counter(selector)` e os seus métodos `.update()`, `.step()`, `.get()`, `.display()` e `.at()`. A representação subjacente é `Value::Counter { key }` (ver `entities/value.md`).
+
+**P737 — o binding `counter` no scope global passou de `Value::Func` a
+`Value::Type(Type::Counter)`** (paridade vanilla — medido: `type(counter)` →
+`type`; `type(counter("x")) == counter` → `true`; `repr(counter)` →
+`"counter"`). A chamabilidade mantém-se via o despacho de tipos chamáveis
+de P685 (`eval/closures.rs`: `Type::Counter` → `native_counter`).
 
 A sintaxe vanilla suportada:
 
