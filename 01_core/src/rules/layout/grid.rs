@@ -30,7 +30,9 @@ pub(super) trait LayoutHLine {
     fn start(&self) -> usize;
     fn end(&self) -> Option<usize>;
     fn row(&self) -> usize;
-    fn stroke(&self) -> &Stroke;
+    /// **P739A** — `None` = `stroke: none` (linha não desenhada; paridade
+    /// vanilla, medido).
+    fn stroke(&self) -> Option<&Stroke>;
     fn position(&self) -> &str;
 }
 
@@ -38,7 +40,7 @@ impl LayoutHLine for GridHLineElem {
     fn start(&self) -> usize { self.start }
     fn end(&self) -> Option<usize> { self.end }
     fn row(&self) -> usize { self.row }
-    fn stroke(&self) -> &Stroke { &self.stroke }
+    fn stroke(&self) -> Option<&Stroke> { self.stroke.as_ref() }
     fn position(&self) -> &str { self.position.as_str() }
 }
 
@@ -46,7 +48,7 @@ impl LayoutHLine for TableHLineElem {
     fn start(&self) -> usize { self.start }
     fn end(&self) -> Option<usize> { self.end }
     fn row(&self) -> usize { self.row }
-    fn stroke(&self) -> &Stroke { &self.stroke }
+    fn stroke(&self) -> Option<&Stroke> { self.stroke.as_ref() }
     fn position(&self) -> &str { self.position.as_str() }
 }
 
@@ -56,7 +58,7 @@ pub(super) trait LayoutVLine {
     fn start(&self) -> usize;
     fn end(&self) -> Option<usize>;
     fn col(&self) -> usize;
-    fn stroke(&self) -> &Stroke;
+    fn stroke(&self) -> Option<&Stroke>;
     fn position(&self) -> &str;
 }
 
@@ -64,7 +66,7 @@ impl LayoutVLine for GridVLineElem {
     fn start(&self) -> usize { self.start }
     fn end(&self) -> Option<usize> { self.end }
     fn col(&self) -> usize { self.col }
-    fn stroke(&self) -> &Stroke { &self.stroke }
+    fn stroke(&self) -> Option<&Stroke> { self.stroke.as_ref() }
     fn position(&self) -> &str { self.position.as_str() }
 }
 
@@ -72,7 +74,7 @@ impl LayoutVLine for TableVLineElem {
     fn start(&self) -> usize { self.start }
     fn end(&self) -> Option<usize> { self.end }
     fn col(&self) -> usize { self.col }
-    fn stroke(&self) -> &Stroke { &self.stroke }
+    fn stroke(&self) -> Option<&Stroke> { self.stroke.as_ref() }
     fn position(&self) -> &str { self.position.as_str() }
 }
 
@@ -666,6 +668,9 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
             };
 
             for h in hlines {
+                // **P739A** — `stroke: none` → linha não desenhada (paridade
+                /// vanilla, medido; zero-thickness seria hairline em PDF).
+                let Some(stroke) = h.stroke() else { continue };
                 let row = h.row().min(num_rows_produced_final.saturating_sub(1));
                 let y = match h.position() {
                     "bottom" => row_bottom(row),
@@ -684,12 +689,13 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
                     width:  0.0,
                     height: 0.0,
                     fill:   None,
-                    stroke: Some(h.stroke().clone()),
+                    stroke: Some(stroke.clone()),
                     parent_bbox_at_emit: None,
                 });
             }
 
             for v in vlines {
+                let Some(stroke) = v.stroke() else { continue };
                 let col = v.col().min(num_cols.saturating_sub(1));
                 let x = match v.position() {
                     "right" => col_right(col),
@@ -708,7 +714,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
                     width:  0.0,
                     height: 0.0,
                     fill:   None,
-                    stroke: Some(v.stroke().clone()),
+                    stroke: Some(stroke.clone()),
                     parent_bbox_at_emit: None,
                 });
             }

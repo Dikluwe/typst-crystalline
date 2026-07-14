@@ -1,4 +1,4 @@
-# Achados adiados na cadeia P700-738 — lista de controlo
+# Achados adiados na cadeia P700-739 — lista de controlo
 
 ## Por resolver
 
@@ -10,10 +10,8 @@
 | Ordem entre tipos no erro de argumento extra — `f(1, z: 2, 3)` (nomeado antes de posicional extra): vanilla reporta o primeiro na ordem original ("unexpected argument: z", `Args::finish` sobre lista única); o cristalino, com `items`/`named` separados, reporta o posicional primeiro ("unexpected argument") | P733 (sonda) | Baixa — caso de canto, ambos erram | Aberto |
 | `rgb(50%, 0%, 0%)` rejeitado ("rgb() requer 3 ou 4 Int") — vanilla aceita percentagem por componente e Int (medido P736: `rgb(50%, 0%, 0%)` → `rgb("#800000")`, igual a `rgb(128, 0, 0)`). `linear-rgb` foi corrigido em P736 (estava no passo); `rgb` não estava — um-bug-por-passo | P736 (sonda colateral) | Baixa — sem consumidor em cetz | Aberto |
 | Métodos de instância de cor ausentes (`red.lighten(20%)` → erro de campo) e fields `color.rotate`/`color.components`/`color.space` ausentes — existem no vanilla (medido P736: `type(color.rotate)` → `function`; `type(red.lighten(20%))` → `color`). Ausência pré-existente desde P476 (operadores só como funções estáticas), confirmada em P736 | P736 (inventário da sonda) | Baixa — sem consumidor em cetz | Aberto |
-| hline/vline `stroke: none` rejeitado — vanilla aceita (linha não desenhada, medido exit 0); cristalino guarda `Stroke` não-opcional em `GridHLineElem`/`TableHLineElem` (+vlines) e o render desenha sempre (`rules/layout/grid.rs:668-689`); correcção exige entidade `Option<Stroke>` + salto no render | P726 | Baixa — sem consumidor em cetz; não usar zero-thickness (width 0 em PDF é hairline) | Aberto |
-| `line(end:)` rejeitado ("argumento nomeado inesperado em line(): 'end'") — vanilla aceita | P726 | Baixa — sem consumidor em cetz | Aberto |
-| Formatação de `Float` diverge (`2.0` vs `2`) | P713 | Baixa | Aberto |
-| `Length / Float` com NaN (P713) propaga NaN — vanilla saneia para 0 via `Scalar::new` (medido em P725 no caminho `Mul`: `repr(1pt * float.nan)` → `0pt`; mesmo mecanismo aplica-se à divisão). P725 saneou só o caminho `Mul` (um-bug-por-passo) | P725 | Baixa — NaN é inalcançável por sintaxe de utilizador no cristalino (ver scope-outs) | Aberto |
+
+| Repr de NaN diverge — `repr(calc.inf - calc.inf)` → `NaN.0` no cristalino vs `float.nan` no vanilla (medido P739D, ao validar a via NaN via `calc.inf`); a forma literal do NaN no `repr` não foi coberta pela parte D (saneamento do `Length`, não do `repr`) | P739 (sonda D) | Baixa — cosmético | Aberto |
 
 ## Fechados
 
@@ -36,6 +34,11 @@
 | `color` e `gradient` expostos como `dictionary` (vanilla: `type`) — sonda P736 confirmou o inventário completo de fields do tipo (color: 17 no vanilla — 8 constructors + 9 operadores; gradient: 3) e descobriu dupla divergência em `linear-rgb` (falso-aceite de Float; rejeição de Ratio) — o caso estava no ficheiro do passo | P736 (`color`/`gradient` → `Value::Type` no scope global; fields via `color_type_field`/`gradient_type_field` no braço `Value::Type` de `eval_field_access`; mensagens verbatim "does not contain field"/"does not have a constructor"; `native_linear_rgb` corrigido: Int÷255, Ratio direto, Float rejeitado verbatim; cetz B−A = +57 px constante, sem regressão) |
 | `counter` e `state` expostos como `function` (vanilla: `type`) — as instâncias já mapeavam para os tipos certos em `type_of`; a divergência era o binding global e a chamabilidade do tipo | P737 (bindings → `Value::Type(Type::Counter/State)`; despacho P685 em `closures.rs` ganha braços para as nativas; E2E idêntico ao vanilla: `type type true true counter state`; cetz inalterado) |
 
+| hline/vline `stroke: none` rejeitado — vanilla aceita (linha não desenhada; zero-thickness seria hairline em PDF) | P739A (`stroke: Option<Stroke>` nas 4 entidades grid/table hline/vline + factories + constructors com `Some(Value::None) => None`; trait `LayoutHLine/LayoutVLine::stroke() -> Option<&Stroke>` e salto no render `grid.rs`; E2E: vanilla remove exactamente a linha do topo, cristalino não desenha linhas) |
+| `line(end:)` rejeitado ("unexpected argument") — vanilla aceita | P739B (whitelist de `native_line` ganha `start`/`end`; `dx=ex−sx, dy=ey−sy`; `end`+`dx`/`dy` = erro; `start` sem `end` = erro; `start`≠(0,0) e `angle:`/`length:` scope-out; E2E: 523=523 px, diff 0.0481%) |
+| Formatação de `Float` em markup divergia (`2.0` vs `2`) | P739C (braço P545 de interpolação em `eval/mod.rs`: `Value::Float(f) => format!("{f}")` — Display de f64, paridade vanilla; `repr` inalterado; E2E `pdftotext` idêntico: `2 1 2.5 0.1 100 1500 1.0`) |
+| `Length / Float` com NaN propagava — vanilla saneia para `0pt` (`repr(1pt / (calc.inf - calc.inf))` → `0pt`, medido; NaN alcançável via `calc.inf - calc.inf`) | P739D (`sanitize_length_nan` estendida aos dois braços `Div` de `Length` em `operators.rs`; zero-divisor literal mantém "cannot divide by zero" — paridade exacta medida nos dois compiladores; E2E → `0pt`) |
+
 ## Scope-outs conscientes
 
 - `FlowEvent::Return` condicional em `while`/`for` (achado de P729) — sonda P738 confirmou por tentativa real que não há caso divergente alcançável: o flag `conditional` tem um único consumidor no vanilla (a warning `warn_for_discarded_content`, `code.rs:413-430`), que o cristalino não implementa; marcar o flag sem a warning não mudaria comportamento observável. Return dentro de for/while após conteúdo: ambos os compiladores em silêncio (medido). A divergência real adjacente (warning ausente) está na lista de abertos.
@@ -49,6 +52,9 @@
 - `pdf.attach` — o exportador PDF cristalino não suporta ficheiros embutidos; erro explícito de scope-out (P735).
 - Tagging de `pdf.artifact` no tag tree — scope-out global do exportador; a função é passthrough do body, paridade de render (P735).
 - `pdf.table.summary` / `pdf.table.header-cell` / `pdf.table.data-cell` — gated na feature `A11yExtras` do vanilla (off no binário de referência); não é lacuna (P735, mesmo raciocínio de `html` em P731).
+
+- `line(start:)` com `start` ≠ `(0pt, 0pt)` — `ShapeKind::Line` não carrega posição absoluta (o offset de layout é outro mecanismo); rejeitado com erro explícito de scope-out (P739B).
+- `line(angle:, length:)` — interface alternativa do vanilla não materializada na interface legada do constructor; a whitelist de named args rejeita (P739B).
 
 ## Regra
 

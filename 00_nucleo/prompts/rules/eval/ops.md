@@ -1,5 +1,5 @@
 # Prompt L0 — `rules/eval/operators`
-Hash do Código: b61a0d02
+Hash do Código: 1a2ab64e
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/rules/eval/operators.rs`
@@ -343,7 +343,12 @@ O saneamento fica **no braço do eval** (não em `Length::mul` de
 `entities/layout_types.rs`) por disciplina um-bug-por-passo:
 `Length / Float` com NaN (P713) fica com o comportamento actual
 (NaN propaga-se) — divergência latente registada no relatório de P725
-como candidata a passo futuro.
+como candidata a passo futuro. **P739D — FECHADO**: o saneamento foi
+estendido a `Length / Int|Float` (`sanitize_length_nan` nos dois braços
+Div), após a sonda confirmar alcançabilidade via `calc.inf - calc.inf`
+→ NaN (medido: `repr(1pt / NaN)` → `0pt` no vanilla; o cristalino
+propagava `float.nan * 1pt + ...`). Zero-divisor mantém o erro
+"cannot divide by zero" (paridade exata, medida em ambos).
 
 ---
 

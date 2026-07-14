@@ -2544,9 +2544,12 @@ pub fn native_grid_hline(
     _current_file: FileId,
 ) -> SourceResult<Value> {
     let (start, end) = extract_line_range(args, "grid.hline")?;
+    // **P739A** — `stroke: none` aceite (paridade vanilla, medido): a linha
+    // não é desenhada. Zero-thickness proibido (hairline em PDF — P726).
     let stroke = match args.named.get("stroke") {
-        Some(v) => super::layout::extract_stroke(v, "grid.hline", "stroke")?,
-        None => default_hline_stroke(),
+        Some(Value::None) => None,
+        Some(v) => Some(super::layout::extract_stroke(v, "grid.hline", "stroke")?),
+        None => Some(default_hline_stroke()),
     };
     let position = match args.named.get("position") {
         Some(Value::Str(s)) => s.clone(),
@@ -2578,8 +2581,9 @@ pub fn native_grid_vline(
 ) -> SourceResult<Value> {
     let (start, end) = extract_line_range(args, "grid.vline")?;
     let stroke = match args.named.get("stroke") {
-        Some(v) => super::layout::extract_stroke(v, "grid.vline", "stroke")?,
-        None => default_hline_stroke(),
+        Some(Value::None) => None,
+        Some(v) => Some(super::layout::extract_stroke(v, "grid.vline", "stroke")?),
+        None => Some(default_hline_stroke()),
     };
     let position = match args.named.get("position") {
         Some(Value::Str(s)) => s.clone(),
@@ -2611,8 +2615,9 @@ pub fn native_table_hline(
 ) -> SourceResult<Value> {
     let (start, end) = extract_line_range(args, "table.hline")?;
     let stroke = match args.named.get("stroke") {
-        Some(v) => super::layout::extract_stroke(v, "table.hline", "stroke")?,
-        None => default_hline_stroke(),
+        Some(Value::None) => None,
+        Some(v) => Some(super::layout::extract_stroke(v, "table.hline", "stroke")?),
+        None => Some(default_hline_stroke()),
     };
     let position = match args.named.get("position") {
         Some(Value::Str(s)) => s.clone(),
@@ -2644,8 +2649,9 @@ pub fn native_table_vline(
 ) -> SourceResult<Value> {
     let (start, end) = extract_line_range(args, "table.vline")?;
     let stroke = match args.named.get("stroke") {
-        Some(v) => super::layout::extract_stroke(v, "table.vline", "stroke")?,
-        None => default_hline_stroke(),
+        Some(Value::None) => None,
+        Some(v) => Some(super::layout::extract_stroke(v, "table.vline", "stroke")?),
+        None => Some(default_hline_stroke()),
     };
     let position = match args.named.get("position") {
         Some(Value::Str(s)) => s.clone(),
@@ -3286,7 +3292,7 @@ mod tests {
             assert_eq!(e.end, None);
             assert_eq!(e.row, 0);
             assert_eq!(e.position.as_str(), "auto");
-            assert_eq!(e.stroke.thickness, 1.0);
+            assert_eq!(e.stroke.as_ref().expect("stroke default").thickness, 1.0);
         } else {
             panic!("esperado GridHLine");
         }

@@ -1,4 +1,5 @@
 # Prompt L0 — `entities/elements/grid_hline` — `GridHLineElem`
+**P739A** — `stroke` passou a `Option<Stroke>`: `stroke: none` compila e a linha não é desenhada (paridade vanilla, medido; zero-thickness seria hairline em PDF — achado P726). O render (`rules/layout/grid.rs`) salta linhas com `stroke: None`.
 
 **Camada**: L1 · **Alvo**: `01_core/src/entities/elements/grid_hline.rs`
 **Origem**: Passo 512 (linhas em grid/table). Trait: ver `entities/elements/_comum.md`. **Não-locatável**.
@@ -13,13 +14,13 @@ pub struct GridHLineElem {
     pub start:    usize,
     pub end:      Option<usize>, // None = até à última coluna
     pub row:      usize,          // linha do grid onde a hline se posiciona
-    pub stroke:   Stroke,
+    pub stroke:   Option<Stroke>, // **P739A** — None = `stroke: none` (linha não desenhada; paridade vanilla)
     pub position: EcoString,      // "top" | "bottom"
 }
 ```
 
 `Content::GridHLine(GridHLineElem)`.
-Construtor ergonómico: `Content::grid_hline(start: usize, end: Option<usize>, row: usize, stroke: Stroke, position: EcoString)`.
+Construtor ergonómico: `Content::grid_hline(start: usize, end: Option<usize>, row: usize, stroke: Option<Stroke>, position: EcoString)`.
 
 O campo `row` não é argumento público de `grid.hline()`: é calculado por `native_grid()` a partir da ordem dos children durante o parsing.
 

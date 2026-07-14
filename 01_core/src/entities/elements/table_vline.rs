@@ -15,12 +15,15 @@ use crate::entities::geometry::Stroke;
 use crate::entities::source_result::SourceResult;
 
 /// Linha vertical numa tabela.
+///
+/// **P739A** — `stroke` é `Option`: `table.vline(stroke: none)` compila e a
+/// linha não é desenhada (paridade vanilla, medido).
 #[derive(Debug, Clone, PartialEq)]
 pub struct TableVLineElem {
     pub start:    usize,
     pub end:      Option<usize>, // None = até à última linha
     pub col:      usize,          // coluna da tabela onde a vline se posiciona
-    pub stroke:   Stroke,
+    pub stroke:   Option<Stroke>,
     pub position: EcoString,      // "left" | "right"
 }
 
@@ -68,7 +71,7 @@ mod tests {
             start: 0,
             end: Some(2),
             col: 1,
-            stroke: Stroke { paint: Paint::Solid(Color::rgb(0, 0, 0)), thickness: 1.0, overhang: false },
+            stroke: Some(Stroke { paint: Paint::Solid(Color::rgb(0, 0, 0)), thickness: 1.0, overhang: false }),
             position: EcoString::from("left"),
         }
     }

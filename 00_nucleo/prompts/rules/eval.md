@@ -1,5 +1,5 @@
 # Prompt L0 — rules/eval
-Hash do Código: 07d8d228
+Hash do Código: b848a0f2
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/rules/eval/mod.rs`
@@ -1702,3 +1702,30 @@ marcado como fechado.
   `.enumerate()`, e `cargo test --workspace`.
 - `crystalline-lint .` limpo; `--fix-hashes` actualiza os dois headers
   (`control_flow.rs`, `bindings.rs`).
+
+## §P739C — display de Float em interpolação de markup
+
+Medição prévia (ADR-0108; vanilla em `f571a3644`, cristalino no commit
+base de P739): na conversão de valor embedded para texto em markup
+(braço P545 de `eval/mod.rs`), o cristalino usava `repr_value` para
+todos os tipos — `#(1.0)` renderizava `1.0`, `#(4/2)` renderizava
+`2.0`. O vanilla usa o **Display de f64** (inteiros exactos sem `.0`):
+`#(1.0)` → `1`, `#(4/2)` → `2`, `#(2.5)` → `2.5`, `#(1.5e3)` →
+`1500`. Divergência de **língua** (morfologia do texto produzido),
+fechada neste passo.
+
+### Regra
+
+- No braço `other` da interpolação de markup, `Value::Float(f)`
+  converte-se com `format!("{f}")` (Display de f64 do Rust — paridade
+  com o vanilla). Os restantes tipos mantêm `repr_value`.
+- **`repr` inalterado**: `repr(1.0)` continua `"1.0"` (o observável do
+  `repr` é outro — forma literal — e já está em paridade).
+
+### Critérios de verificação
+
+- `#(1.0)` → texto `1`; `#(4/2)` → `2`; `#(2.5)` → `2.5`;
+  `#(1.5e3)` → `1500`; `#(0.1)` → `0.1` (testes + E2E `pdftotext`
+  comparado com o vanilla).
+- `#repr(1.0)` → `1.0` (não-regressão).
+- `crystalline-lint .` limpo; `--fix-hashes` actualiza `eval/mod.rs`.

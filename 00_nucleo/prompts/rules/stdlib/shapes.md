@@ -1,5 +1,5 @@
 # Prompt L0 — `stdlib/shapes` — módulo `shapes`
-Hash do Código: 0e6dc4a5
+Hash do Código: e0285ed8
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/rules/stdlib/shapes.rs`
@@ -120,26 +120,39 @@ circle(fill: blue) -> Shape Ellipse fill blue
 
 ---
 
-### `native_line(dx?, dy?, stroke?)`
+### `native_line(dx?, dy?, stroke?, start?, end?)`
 
-**Assinatura**: `line(dx: Length?, dy: Length?, stroke: Color?) -> Content`
+**Assinatura**: `line(dx: Length?, dy: Length?, stroke: Color?, start: Array?, end: Array?) -> Content`
 
 **Argumentos**:
 - `dx`, `dy`: deslocamento em pt (`Length`, `Float`, `Int`). Default `0.0`.
 - `stroke`: cor da linha. Default preto.
+- **`end`** (P739B): ponto final como array de 2 coordenadas, ex. `(50pt, 50pt)`
+  (paridade vanilla — medido: `line(start: (0pt, 0pt), end: (50pt, 50pt))`
+  compila). Alternativa a `dx`/`dy` — combinar `end` com `dx`/`dy` é erro.
+- **`start`** (P739B): ponto inicial; default `(0pt, 0pt)`. Só admissível com
+  `end`. **Scope-out medido**: `start` ≠ `(0,0)` — `ShapeKind::Line` não
+  carrega posição absoluta (a linha é relativa à posição corrente); erro
+  explícito de scope-out em vez de desenhar deslocada para a origem.
 
 **Semântica**: Cria `Content::Shape { kind: Line { dx, dy }, stroke: preto default }`.
-Linhas não têm fill.
+Linhas não têm fill. Com `end`: `dx = end.x − start.x`, `dy = end.y − start.y`.
 
-**Paridade vanilla**: Equivalente a `#line(dx: 3cm, dy: 2cm)`.
+**Paridade vanilla**: Equivalente a `#line(dx: 3cm, dy: 2cm)` ou
+`#line(start: (0pt, 0pt), end: (50pt, 50pt))`.
 
 **Limitações / scope-outs**: Stroke sólido 1pt; espessura/overhang scope-out.
+`angle:`/`length:` do vanilla — scope-out (não existem na interface legada;
+rejeitados pela whitelist de named args). `start` ≠ `(0,0)` — scope-out (acima).
 
 **Testes canónicos**:
 ```
 line(dx: 3cm, dy: 2cm) -> Shape Line dx=3cm dy=2cm stroke preto
 line(stroke: red) -> Shape Line dx=0 dy=0 stroke vermelho
 line(dx: -1cm) -> Shape Line dx=-1cm
+line(end: (50pt, 50pt)) -> Shape Line dx=50 dy=50  (P739B)
+line(start: (0pt, 0pt), end: (50pt, 50pt)) -> Shape Line dx=50 dy=50  (P739B)
+line(start: (10pt, 0pt), end: (50pt, 50pt)) -> Err scope-out  (P739B)
 ```
 
 ---

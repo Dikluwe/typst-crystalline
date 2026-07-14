@@ -1,4 +1,5 @@
 # Prompt L0 — `entities/elements/table_vline` — `TableVLineElem`
+**P739A** — `stroke` passou a `Option<Stroke>`: `stroke: none` compila e a linha não é desenhada (paridade vanilla, medido; zero-thickness seria hairline em PDF — achado P726). O render (`rules/layout/grid.rs`) salta linhas com `stroke: None`.
 
 **Camada**: L1 · **Alvo**: `01_core/src/entities/elements/table_vline.rs`
 **Origem**: Passo 512 (linhas em grid/table). Trait: ver `entities/elements/_comum.md`. **Não-locatável**.
@@ -13,13 +14,13 @@ pub struct TableVLineElem {
     pub start:    usize,
     pub end:      Option<usize>, // None = até à última linha
     pub col:      usize,          // coluna da tabela onde a vline se posiciona
-    pub stroke:   Stroke,
+    pub stroke:   Option<Stroke>, // **P739A** — None = `stroke: none` (linha não desenhada; paridade vanilla)
     pub position: EcoString,      // "left" | "right"
 }
 ```
 
 `Content::TableVLine(TableVLineElem)`.
-Construtor ergonómico: `Content::table_vline(start: usize, end: Option<usize>, col: usize, stroke: Stroke, position: EcoString)`.
+Construtor ergonómico: `Content::table_vline(start: usize, end: Option<usize>, col: usize, stroke: Option<Stroke>, position: EcoString)`.
 
 O campo `col` não é argumento público de `table.vline()`: é calculado por `native_table()` a partir da ordem dos children durante o parsing.
 

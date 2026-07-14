@@ -15,12 +15,16 @@ use crate::entities::geometry::Stroke;
 use crate::entities::source_result::SourceResult;
 
 /// Linha horizontal num grid.
+///
+/// **P739A** — `stroke` é `Option`: `grid.hline(stroke: none)` compila e a
+/// linha não é desenhada (paridade vanilla, medido). Zero-thickness não é
+/// usado (width 0 em PDF é hairline — achado P726).
 #[derive(Debug, Clone, PartialEq)]
 pub struct GridHLineElem {
     pub start:    usize,
     pub end:      Option<usize>, // None = até à última coluna
     pub row:      usize,          // linha do grid onde a hline se posiciona
-    pub stroke:   Stroke,
+    pub stroke:   Option<Stroke>,
     pub position: EcoString,      // "top" | "bottom"
 }
 
@@ -68,7 +72,7 @@ mod tests {
             start: 0,
             end: Some(2),
             row: 1,
-            stroke: Stroke { paint: Paint::Solid(Color::rgb(0, 0, 0)), thickness: 1.0, overhang: false },
+            stroke: Some(Stroke { paint: Paint::Solid(Color::rgb(0, 0, 0)), thickness: 1.0, overhang: false }),
             position: EcoString::from("top"),
         }
     }

@@ -1688,7 +1688,7 @@ pub fn heading(level: u8, body: Content) -> Self {
         start: usize,
         end: Option<usize>,
         row: usize,
-        stroke: Stroke,
+        stroke: Option<Stroke>,
         position: EcoString,
     ) -> Self {
         Self::GridHLine(Arc::new(GridHLineElem { start, end, row, stroke, position }))
@@ -1698,7 +1698,7 @@ pub fn heading(level: u8, body: Content) -> Self {
         start: usize,
         end: Option<usize>,
         col: usize,
-        stroke: Stroke,
+        stroke: Option<Stroke>,
         position: EcoString,
     ) -> Self {
         Self::GridVLine(Arc::new(GridVLineElem { start, end, col, stroke, position }))
@@ -2061,7 +2061,7 @@ pub fn heading(level: u8, body: Content) -> Self {
         start: usize,
         end: Option<usize>,
         row: usize,
-        stroke: Stroke,
+        stroke: Option<Stroke>,
         position: EcoString,
     ) -> Self {
         Self::TableHLine(Arc::new(TableHLineElem { start, end, row, stroke, position }))
@@ -2071,7 +2071,7 @@ pub fn heading(level: u8, body: Content) -> Self {
         start: usize,
         end: Option<usize>,
         col: usize,
-        stroke: Stroke,
+        stroke: Option<Stroke>,
         position: EcoString,
     ) -> Self {
         Self::TableVLine(Arc::new(TableVLineElem { start, end, col, stroke, position }))

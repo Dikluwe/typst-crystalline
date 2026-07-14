@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/rules/eval.md
-//! @prompt-hash 45bc9822
+//! @prompt-hash f3e41cc6
 //! @layer L1
 //! @updated 2026-07-09
 //!
@@ -583,7 +583,14 @@ pub(crate) fn eval_markup(
                         // primitivos convertem-se para texto. Int, Float, Bool,
                         // Array, Dict, Length, Datetime, etc. usam repr_value.
                         other => {
-                            let text = crate::rules::eval::repr::repr_value(&other);
+                            // **P739C** — display de Float em markup: paridade
+                            // vanilla (Display de f64 — inteiros exactos sem
+                            // `.0`: `#(1.0)` → "1", `#(4/2)` → "2", medido).
+                            // `repr` mantém "1.0" (repr_value inalterado).
+                            let text = match &other {
+                                Value::Float(f) => format!("{f}"),
+                                _ => crate::rules::eval::repr::repr_value(&other),
+                            };
                             if !text.is_empty() {
                                 parts.push(Content::Text(text.into()));
                             }
@@ -1061,7 +1068,7 @@ fn make_stdlib(inputs: &SysInputs) -> Scope {
         make_calc_module, make_math_module, make_sys_module, native_accent, native_align, native_assert, native_assert_eq, native_assert_ne, native_bibliography, native_block, native_box, native_cancel, native_circle, native_cite, native_divider,
         native_ellipse, native_emph, native_figure, native_footnote, native_grid, native_grid_cell, native_grid_footer, native_grid_header, native_grid_hline, native_grid_vline, native_h, native_heading,
         native_hide, native_image, native_len, native_line, native_outline,
-        native_counter, native_counter_at, native_counter_display, native_counter_final, native_counter_step, native_context, native_curve, native_curve_close, native_curve_cubic, native_curve_line, native_curve_move, native_curve_quad, native_eval, native_here, native_locate, native_lower, native_lorem, native_luma, native_measure, native_metadata, native_move, native_pad, native_pagebreak, native_place, native_polygon, native_query, native_regex, native_selector, native_state, native_state_at, native_state_display, native_state_final, native_state_update, native_state_update_with,
+        native_counter_at, native_counter_display, native_counter_final, native_counter_step, native_context, native_curve, native_curve_close, native_curve_cubic, native_curve_line, native_curve_move, native_curve_quad, native_eval, native_here, native_locate, native_lower, native_lorem, native_luma, native_measure, native_metadata, native_move, native_pad, native_pagebreak, native_place, native_polygon, native_query, native_regex, native_selector, native_state_at, native_state_display, native_state_final, native_state_update, native_state_update_with,
         native_asset, native_cmyk, native_colbreak, native_columns, native_document, native_hsl, native_hsv, native_label, native_linear_rgb, native_link, native_oklab, native_oklch, native_op, native_panic, native_quote, native_range, native_rect, native_repeat, native_replace, native_raw, native_repr, native_rgb, native_rotate,
         native_square, native_tiling,
         native_highlight, native_scale, native_skew, native_smallcaps, native_smartquote, native_stack, native_strike, native_stroke, native_strong, native_subscript, native_superscript, native_table, native_table_cell, native_table_footer, native_table_header, native_table_hline, native_table_vline, native_terms, native_underline, native_underover, native_overline, native_upper, native_v,

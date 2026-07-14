@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/rules/eval/ops.md
-//! @prompt-hash e637277d
+//! @prompt-hash 072ccf30
 //! @layer L1
 //! @updated 2026-06-25
 //!
@@ -299,8 +299,11 @@ pub(crate) fn eval_binary_op(op: BinOp, lhs: Value, rhs: Value) -> Result<Value,
         // P713 — Length / Int, Length / Float: escala uniforme (já implementado
         // em `Length: Div<f64>`, `entities/layout_types.rs:808-813`), mesmo
         // agrupamento do vanilla (`foundations/ops.rs:312-314`).
-        (BinOp::Div, Value::Length(a), Value::Int(b)) => Ok(Value::Length(a / b as f64)),
-        (BinOp::Div, Value::Length(a), Value::Float(b)) => Ok(Value::Length(a / b)),
+        // **P739D** — NaN → 0 por componente (mesmo saneamento de P725 em Mul;
+        // medido: `repr(1pt / (calc.inf - calc.inf))` → `0pt` no vanilla, o
+        // cristalino propagava `float.nan * 1pt + ...`).
+        (BinOp::Div, Value::Length(a), Value::Int(b)) => Ok(Value::Length(sanitize_length_nan(a / b as f64))),
+        (BinOp::Div, Value::Length(a), Value::Float(b)) => Ok(Value::Length(sanitize_length_nan(a / b))),
         // P713 — Length / Length: paridade exacta com `Length::try_div` do
         // vanilla (`layout/length.rs:64-72`) — só divide se ambos os `abs`
         // forem zero (rácio de `em`) ou ambos os `em` forem zero (rácio de
@@ -439,8 +442,9 @@ fn value_eq(a: &Value, b: &Value) -> bool {
 /// e toda a aritmética converte NaN em 0.0 (medido: `repr(1pt * float.nan)`
 /// = `0pt`, `repr(1em * float.nan)` = `0pt`). Inf não é tocado
 /// (`repr(1em * float.inf)` = `float.inf * 1em`). Fica no braço do eval
-/// (não em `Length::mul`) por disciplina um-bug-por-passo — `Length / Float`
-/// (P713) mantém o comportamento actual.
+/// (não em `Length::mul`/`Length::div`) por disciplina um-bug-por-passo.
+/// **P739D** — estendido a `Length / Int|Float` (medido alcançável via
+/// `calc.inf - calc.inf` → NaN: `repr(1pt / NaN)` → `0pt` no vanilla).
 fn sanitize_length_nan(l: crate::entities::layout_types::Length) -> crate::entities::layout_types::Length {
     fn san(x: f64) -> f64 {
         if x.is_nan() { 0.0 } else { x }

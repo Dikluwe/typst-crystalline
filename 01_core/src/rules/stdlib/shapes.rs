@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/rules/stdlib/_comum.md
-//! @prompt-hash 4f6dc4ae
+//! @prompt-hash efc633a0
 //! @prompt 00_nucleo/prompts/rules/stdlib/square.md
 //! @prompt 00_nucleo/prompts/rules/stdlib/shapes.md
 //! @layer L1
@@ -234,7 +234,7 @@ pub fn native_circle(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::co
 /// Stroke preta por omissão — linhas não têm fill.
 pub fn native_line(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contracts::world::World, _current_file: FileId) -> SourceResult<Value> {
     for key in args.named.keys() {
-        if !["dx", "dy", "stroke"].contains(&key.as_str()) {
+        if !["dx", "dy", "stroke", "start", "end"].contains(&key.as_str()) {
             return Err(vec![SourceDiagnostic::error(
                 Span::detached(),
                 format!("argumento nomeado inesperado em line(): '{}'", key),
@@ -251,12 +251,61 @@ pub fn native_line(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::cont
         }
     }
 
-    let dx = args.named.get("dx").map(extract_pt).unwrap_or(0.0);
-    let dy = args.named.get("dy").map(extract_pt).unwrap_or(0.0);
-
     let stroke_color = args.named.get("stroke")
         .and_then(parse_color)
         .unwrap_or(Color::rgb(0, 0, 0)); // preto por omissão
+
+    // **P739B** — `start:`/`end:` (paridade vanilla — medido:
+    // `line(start: (0pt, 0pt), end: (50pt, 50pt))` → exit 0). Interface
+    // legada `dx`/`dy` mantida. `angle:`/`length:` — scope-out (rejeitados
+    // pela whitelist acima; não existem na interface legada).
+    let (dx, dy) = match args.named.get("end") {
+        Some(end_v) => {
+            if args.named.contains_key("dx") || args.named.contains_key("dy") {
+                return Err(vec![SourceDiagnostic::error(
+                    Span::detached(),
+                    "line(): 'end' não pode ser combinado com 'dx'/'dy'".to_string(),
+                )]);
+            }
+            let (ex, ey) = extract_coordinate(end_v).ok_or_else(|| {
+                vec![SourceDiagnostic::error(
+                    Span::detached(),
+                    "line(end): espera array de 2 coordenadas, ex. (50pt, 50pt)".to_string(),
+                )]
+            })?;
+            let (sx, sy) = match args.named.get("start") {
+                Some(start_v) => extract_coordinate(start_v).ok_or_else(|| {
+                    vec![SourceDiagnostic::error(
+                        Span::detached(),
+                        "line(start): espera array de 2 coordenadas, ex. (0pt, 0pt)".to_string(),
+                    )]
+                })?,
+                None => (0.0, 0.0),
+            };
+            // ShapeKind::Line não carrega posição absoluta — `start` ≠
+            // (0,0) desenharia a linha deslocada para a origem. Scope-out
+            // explícito (o vanilla desenha de start a end dentro da caixa).
+            if sx != 0.0 || sy != 0.0 {
+                return Err(vec![SourceDiagnostic::error(
+                    Span::detached(),
+                    "line(start): posição inicial não-zero não é suportada (scope-out) — a shape de linha cristalina é relativa à posição corrente".to_string(),
+                )]);
+            }
+            (ex - sx, ey - sy)
+        }
+        None => {
+            if args.named.contains_key("start") {
+                return Err(vec![SourceDiagnostic::error(
+                    Span::detached(),
+                    "line(start): requer também 'end'".to_string(),
+                )]);
+            }
+            (
+                args.named.get("dx").map(extract_pt).unwrap_or(0.0),
+                args.named.get("dy").map(extract_pt).unwrap_or(0.0),
+            )
+        }
+    };
 
     Ok(Value::Content(Content::shape(ShapeKind::Line { dx, dy }, None, None, None, Some(Stroke { paint: Paint::Solid(stroke_color), thickness: 1.0, overhang: false }))))
 }

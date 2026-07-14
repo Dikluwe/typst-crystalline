@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/rules/eval.md
-//! @prompt-hash 45bc9822
+//! @prompt-hash f3e41cc6
 //! @layer L1
 //! @updated 2026-06-17
 //!
@@ -10247,5 +10247,136 @@ mod tests {
             matches!(m2.scope().get("u"), Some(Value::Content(_))),
             "s.update(5) deve continuar a produzir Content"
         );
+    }
+
+    // ── Passo 739A — hline/vline com stroke: none ──────────────────────────
+
+    #[test]
+    fn p739a_hline_vline_stroke_none_compilam() {
+        // Medido vanilla: `table.hline(stroke: none)` compila (exit 0) e a
+        // linha não é desenhada. Cristalino pré-P739: erro
+        // "espera Length / Color / Stroke, recebeu none".
+        for src in [
+            "#table(columns: 2, table.hline(stroke: none), [a], [b])",
+            "#table(columns: 2, table.vline(stroke: none), [a], [b])",
+            "#grid(columns: 2, grid.hline(stroke: none), [a], [b])",
+            "#grid(columns: 2, grid.vline(stroke: none), [a], [b])",
+        ] {
+            let m = p729_eval(src);
+            assert!(m.is_ok(), "deve compilar: {src}; erro: {:?}", m.err());
+        }
+    }
+
+    #[test]
+    fn p739a_hline_stroke_none_gera_elemento_sem_stroke() {
+        let m = p729_eval("#let h = table.hline(stroke: none)").unwrap();
+        match m.scope().get("h") {
+            Some(Value::Content(Content::TableHLine(e))) => {
+                assert!(e.stroke.is_none(), "stroke: none deve gerar elem sem stroke")
+            }
+            other => panic!("esperado TableHLine, encontrado {other:?}"),
+        }
+        // Não-regressão: stroke omitido → default 1pt preto (P512).
+        let m2 = p729_eval("#let h = table.hline()").unwrap();
+        match m2.scope().get("h") {
+            Some(Value::Content(Content::TableHLine(e))) => {
+                assert!(e.stroke.is_some(), "stroke omitido deve gerar default")
+            }
+            other => panic!("esperado TableHLine, encontrado {other:?}"),
+        }
+    }
+
+    // ── Passo 739B — line(start:, end:) ────────────────────────────────────
+
+    fn p739b_line_dx_dy(m: &crate::entities::module::Module, binding: &str) -> (f64, f64) {
+        use crate::entities::geometry::ShapeKind;
+        match m.scope().get(binding) {
+            Some(Value::Content(Content::Shape(e))) => match &e.kind {
+                ShapeKind::Line { dx, dy } => (*dx, *dy),
+                other => panic!("esperado Line, encontrado {other:?}"),
+            },
+            other => panic!("esperado Shape em {binding}, encontrado {other:?}"),
+        }
+    }
+
+    #[test]
+    fn p739b_line_start_end_compila_e_produz_dx_dy() {
+        // Medido vanilla: line(start: (0pt, 0pt), end: (50pt, 50pt)) → exit 0.
+        // Cristalino pré-P739: erro "argumento nomeado inesperado em line(): 'start'".
+        let m = p729_eval("#let l = line(start: (0pt, 0pt), end: (50pt, 50pt))").unwrap();
+        assert_eq!(p739b_line_dx_dy(&m, "l"), (50.0, 50.0));
+    }
+
+    #[test]
+    fn p739b_line_end_sem_start_default_origem() {
+        // start omitido → (0pt, 0pt) (paridade vanilla).
+        let m = p729_eval("#let l = line(end: (30pt, 40pt))").unwrap();
+        assert_eq!(p739b_line_dx_dy(&m, "l"), (30.0, 40.0));
+    }
+
+    #[test]
+    fn p739b_line_start_nao_zero_e_scope_out() {
+        // ShapeKind::Line não carrega posição absoluta; start ≠ (0,0)
+        // desenharia a linha deslocada errada — scope-out explícito.
+        let m = p729_eval("#line(start: (10pt, 0pt), end: (50pt, 50pt))");
+        let err = m.expect_err("start não-zero deve ser scope-out");
+        let msg = err.first().map(|d| d.message.to_string()).unwrap_or_default();
+        assert!(msg.contains("scope-out") || msg.contains("não suport"), "msg: {msg}");
+    }
+
+    #[test]
+    fn p739b_line_dx_dy_sem_regressao() {
+        // Interface legada dx/dy mantém-se (não-regressão).
+        let m = p729_eval("#let l = line(dx: 1cm, dy: 2cm)").unwrap();
+        let (dx, dy) = p739b_line_dx_dy(&m, "l");
+        assert!((dx - 28.3465).abs() < 0.01, "dx: {dx}");
+        assert!((dy - 56.6929).abs() < 0.01, "dy: {dy}");
+    }
+
+    // ── Passo 739C — display de Float em markup ────────────────────────────
+
+    #[test]
+    fn p739c_display_float_inteiro_sem_ponto_zero() {
+        // Medido vanilla (markup): #(4/2) → "2"; #(1.0) → "1"; #(2.5) →
+        // "2.5"; #(0.1) → "0.1"; #(100.0) → "100"; #(1.5e3) → "1500"
+        // (Display de f64 — inteiros exactos sem `.0`).
+        // Cristalino pré-P739: "2.0"/"1.0"/"100.0"/"1500.0" (via repr_value).
+        for (src, esperado) in [
+            ("#(4/2)", "2"),
+            ("#(1.0)", "1"),
+            ("#(2.5)", "2.5"),
+            ("#(0.1)", "0.1"),
+            ("#(100.0)", "100"),
+            ("#(1.5e3)", "1500"),
+        ] {
+            let m = p729_eval(src).unwrap();
+            let text = m.content().expect("content").plain_text();
+            assert_eq!(text, esperado, "src: {src}");
+        }
+    }
+
+    #[test]
+    fn p739c_repr_float_mantem_ponto_zero() {
+        // Não-regressão: repr(1.0) → "1.0" (medido vanilla — só o display
+        // em markup muda; repr_value é inalterado).
+        let m = p729_eval("#let r = repr(1.0)").unwrap();
+        assert_eq!(m.scope().get("r"), Some(&Value::Str("1.0".into())));
+    }
+
+    // ── Passo 739D — Length / Float com NaN ────────────────────────────────
+
+    #[test]
+    fn p739d_length_div_nan_saneado() {
+        // NaN é alcançável via calc: `calc.inf - calc.inf` → NaN (ambos).
+        // Medido vanilla: `repr(1pt / NaN)` → `0pt` (saneamento Scalar::new).
+        // Cristalino pré-P739D: `float.nan * 1pt + float.nan * 1em`.
+        let m = p729_eval("#let r = repr(1pt / (calc.inf - calc.inf))").unwrap();
+        assert_eq!(m.scope().get("r"), Some(&Value::Str("0pt".into())));
+        // Não-regressão P725 (Mul já era saneado).
+        let m2 = p729_eval("#let r = repr(1pt * (calc.inf - calc.inf))").unwrap();
+        assert_eq!(m2.scope().get("r"), Some(&Value::Str("0pt".into())));
+        // Não-regressão: divisão normal intacta.
+        let m3 = p729_eval("#let r = repr(4pt / 2.0)").unwrap();
+        assert_eq!(m3.scope().get("r"), Some(&Value::Str("2pt".into())));
     }
 }
