@@ -2,7 +2,7 @@
 
 **Data:** 2026-07-14 (07:08 -03:00)
 **Commit base:** `beb228541` ("P742: preenche hash do commit no relatorio")
-**Commit da implementação:** `A-PREENCHER`
+**Commit da implementação:** `0c395521ee9e3926f042bd697cc9ec4bda691883` ("P743: verifica valor devolvido por return apos conteudo")
 **Estado no momento das medições:** working tree não commitado;
 `git diff HEAD --stat`:
 
