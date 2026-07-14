@@ -2,7 +2,7 @@
 
 **Data:** 2026-07-14 (09:05 -03:00)
 **Commit base:** `83ca2f4a4` ("P745: preenche hash do commit no relatorio")
-**Commit da sonda:** `PREENCHER_APOS_COMMIT`
+**Commit da sonda:** `0e125e2bc` ("P746: compara coordenadas PDF e confirma divergencia mecanica")
 **Estado no momento das medições:** working tree limpa; nenhum ficheiro de código alterado.
 
 Vanilla de referência: `lab/typst-original/target/release/typst`
