@@ -2,7 +2,7 @@
 
 **Data:** 2026-07-14 (07:51 -03:00)
 **Commit base:** `f72a2438f` ("P743: preenche hash do commit no relatorio")
-**Commit da implementação:** `PREENCHER_APOS_COMMIT`
+**Commit da implementação:** `5f8364167` ("P744: space nomeado em cor, to-hex/transparentize/opacify, repr de closure")
 **Estado no momento das medições E2E:** working tree não commitado;
 `git diff HEAD --stat`:
 
