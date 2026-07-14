@@ -2,7 +2,7 @@
 
 **Data:** 2026-07-14 (09:15 -03:00)
 **Commit base:** `19579db56` ("P746: preenche hash do commit no relatorio")
-**Commit da sonda:** `PREENCHER_APOS_COMMIT`
+**Commit da sonda:** `979100715` ("P747: investiga deslocamento vertical e confirma divergencia de layout")
 **Estado no momento das medições:** working tree limpa; nenhum ficheiro de código alterado.
 
 Vanilla de referência: `lab/typst-original/target/release/typst`
