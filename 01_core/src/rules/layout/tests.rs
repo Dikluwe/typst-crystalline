@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/rules/layout.md
-//! @prompt-hash b10c0535
+//! @prompt-hash a3c1dfd7
 //! @layer L1
 //! @updated 2026-07-14
 //!
@@ -15384,5 +15384,113 @@ fn p488_extracted_table_page_numbers_default_vazio() {
     assert!(
         doc.extracted_table_page_numbers.is_empty(),
         "sem tabelas contadas: extracted_table_page_numbers deve estar vazio"
+    );
+}
+
+// ── P756 — Segmentação de linha para scripts sem espaços ───────────────────
+
+#[test]
+fn p756_cjk_segmenta_sem_espacos() {
+    // Texto chinês sem espaços numa página estreita deve quebrar em várias
+    // linhas em vez de fugir para a margem direita.
+    let doc = layout_test("#set page(width: 80pt, margin: 5pt)\n#set text(size: 12pt)\n测试文本测试引号的位置这是一段很长的中文文字用来测试换行的效果如何");
+    let text = doc.plain_text().replace(' ', "");
+    assert!(
+        text.contains("测试文本") && text.contains("换行的效果"),
+        "texto CJK deve estar presente no documento: {}",
+        text
+    );
+
+    let y_values: std::collections::HashSet<u64> = doc
+        .pages
+        .iter()
+        .flat_map(|p| p.items.iter())
+        .filter_map(|i| match i {
+            FrameItem::Text { pos, .. } => Some(pos.y.val().to_bits()),
+            _ => None,
+        })
+        .collect();
+    assert!(
+        y_values.len() > 1,
+        "texto CJK longo numa página estreita deve ocupar várias linhas, y_values={:?}",
+        y_values
+    );
+
+    let right = 80.0;
+    for page in &doc.pages {
+        for item in &page.items {
+            if let FrameItem::Text { pos, text, .. } = item {
+                let w = FixedMetrics.advance(text.as_str(), Pt(12.0), &TextStyle::default()).0;
+                assert!(
+                    pos.x.val() + w <= right,
+                    "item CJK ({:?}) excede a margem direita: x={} w={}",
+                    text,
+                    pos.x.val(),
+                    w
+                );
+            }
+        }
+    }
+}
+
+#[test]
+fn p756_thai_segmenta_sem_espacos() {
+    // Texto tailandês sem espaços numa página estreita deve quebrar em várias
+    // linhas sem exceder a margem direita.
+    // Página mais larga que o maior fragmento Thai reportado pelo
+    // segmentador (≈101 pt em FixedMetrics), para que a verificação de
+    // margem seja significativa sem exigir subdivisão abaixo do fragmento.
+    let doc = layout_test("#set page(width: 120pt, margin: 5pt)\n#set text(size: 12pt)\nสวัสดีครับผมชื่อจอห์นยินดีที่ได้รู้จักคุณ");
+    let text = doc.plain_text().replace(' ', "");
+    assert!(
+        text.contains("สวัสดี") && text.contains("คุณ"),
+        "texto Thai deve estar presente no documento: {}",
+        text
+    );
+
+    let y_values: std::collections::HashSet<u64> = doc
+        .pages
+        .iter()
+        .flat_map(|p| p.items.iter())
+        .filter_map(|i| match i {
+            FrameItem::Text { pos, .. } => Some(pos.y.val().to_bits()),
+            _ => None,
+        })
+        .collect();
+    assert!(
+        y_values.len() > 1,
+        "texto Thai longo numa página estreita deve ocupar várias linhas, y_values={:?}",
+        y_values
+    );
+
+    let right = 120.0;
+    for page in &doc.pages {
+        for item in &page.items {
+            if let FrameItem::Text { pos, text, .. } = item {
+                let w = FixedMetrics.advance(text.as_str(), Pt(12.0), &TextStyle::default()).0;
+                assert!(
+                    pos.x.val() + w <= right,
+                    "item Thai ({:?}) excede a margem direita: x={} w={}",
+                    text,
+                    pos.x.val(),
+                    w
+                );
+            }
+        }
+    }
+}
+
+#[test]
+fn p756_cjk_aspas_renderiza_sem_panic() {
+    // Caso das aspas CJK: a segmentação deve ocorrer sem panic e o texto
+    // completo deve estar presente. A posição exacta das aspas depende do
+    // algoritmo greedy e do espaço disponível (limitação documentada em
+    // 00_nucleo/diagnosticos/paridade-producao-p756.md).
+    let doc = layout_test("#set page(width: 100pt, margin: 5pt)\n#set text(size: 12pt)\n测试文本，\"测试引号的位置\"。这是一段很长的中文文字用来测试换行的效果如何。");
+    let text = doc.plain_text().replace(' ', "");
+    assert!(
+        text.contains("测试文本") && text.contains("引号的位置") && text.contains("效果如何"),
+        "texto com aspas CJK deve estar completo: {}",
+        text
     );
 }

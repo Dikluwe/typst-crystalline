@@ -1,5 +1,5 @@
 # Prompt L0 — layout
-Hash do Código: 7643f608
+Hash do Código: 849ec756
 
 ## Módulo
 `01_core/src/rules/layout/mod.rs` e sub-módulos (`metrics.rs`, etc.)
@@ -119,6 +119,55 @@ a política de fallback de fonts (ADR-0055 decisão 5).
 (perfil observacional graded): hyphenation existe; shaping
 features (ligatures, kern, bidi via rustybuzz) permanecem
 ausentes. DEBT-53 candidato XL futuro endereça shaping.
+
+### Segmentação de linha para scripts sem espaços (P756)
+
+Texto em chinês, japonês, tailandês, laosiano, birmanês e khmer não
+usa espaços entre palavras. Tratá-lo como uma única palavra
+indivisível resulta em quebras incorrectas ou truncamento na margem.
+O Layouter deve segmentar esses runs antes de os passar a
+`layout_word`.
+
+#### Algoritmo
+
+1. **Detectar o script/idioma do run** a partir de
+   `self.style.lang` (código ISO) ou, em ausência de `lang`, pela
+   análise dos codepoints do run (scripts CJK, Thai, Lao, Myanmar,
+   Khmer).
+
+2. **Obter oportunidades de quebra** com `icu_segmenter`
+   (`LineSegmenter::new_lstm` ou `LineSegmenter::new_auto`), usando os
+   dados compilados em build-time (`compiled_data`). Esta crate é
+   I/O-livre em tempo de execução: os dados são constantes Rust
+   embutidas no binário. Por isso pode residir em L1, declarada em
+   `[l1_allowed_external]`.
+
+3. **Tailoring de aspas para chinês/japonês**: replicar o
+   `CJ_SEGMENTER` do vanilla, que sobrescreve as propriedades
+   `LineBreak` de `U+201C` (`“`) para `OP` e `U+201D` (`”`) para `CP`,
+   impedindo que aspas de abertura fiquem no início de linha e aspas
+   de fecho no fim de linha. Pode ser feito ou por um blob de dados
+   customizado estático, ou por pós-processamento dos breakpoints do
+   segmentador geral.
+
+4. **Fragmentar o run** nos breakpoints permitidos e chamar
+   `layout_word`/`layout_chunk` para cada fragmento, preservando o
+   tratamento existente de espaços, hyphenation e decorações.
+
+5. **Fallback**: se `icu_segmenter` não estiver disponível ou falhar
+   para um run específico, o comportamento pré-P756 é preservado
+   (palavra inteira), sem panic.
+
+#### Restrições
+
+- A segmentação é pura: nenhum I/O, nenhum estado global, nenhuma
+  chamada a `std::env` ou `SystemTime`.
+- A dependência `icu_segmenter` fica em L1 (computação pura sobre
+  Unicode). `icu_provider_blob` só é usada se o blob customizado for
+  carregado via L3; caso contrário, o tailoring pode ser feito em L1
+  por pós-processamento dos breakpoints.
+- O texto latino e outros scripts com espaços continuam a usar o
+  mecanismo `split(' ')` + `layout_word` sem regressão.
 
 ## Critérios de verificação
 - `layout(&Content::Empty).pages.is_empty()`

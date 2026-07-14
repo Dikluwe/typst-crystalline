@@ -105,6 +105,9 @@ types = ["EcoString", "EcoVec"]  # ADR-0024 / ADR-0035 — EcoMap/EcoArc NÃO au
 [l1_allowed_external.hypher]
 types = ["Lang", "hyphenate", "from_iso"]  # ADR-0057
 
+[l1_allowed_external.icu_segmenter]
+types = ["LineSegmenter", "LineSegmenterBorrowed", "options::LineBreakOptions"]  # P756 — segmentação de linha CJK/Thai (dados estáticos)
+
 [l1_allowed_external.regex]
 types = ["Regex", "new"]  # ADR-0077
 
