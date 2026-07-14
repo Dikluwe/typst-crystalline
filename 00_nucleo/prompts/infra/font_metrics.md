@@ -1,5 +1,5 @@
 # Prompt L0 — `infra/font_metrics` — Parser de Métricas TrueType/OpenType
-Hash do Código: d785cd7a
+Hash do Código: 55d1dcbc
 
 **Camada**: L3
 **Ficheiro alvo**: `03_infra/src/font_metrics.rs`
@@ -58,6 +58,12 @@ impl FontMetrics for FontBookMetrics<'_> {
     /// line_height = size * ((ascender + |descender| + line_gap) / upem)
     /// |descender|: fontes "incorrectas" devolvem negativo → .abs()
     fn vertical_metrics(&self, size: Pt) -> (Pt, Pt)
+
+    /// Distância da baseline ao topo das maiúsculas (cap-height) em Pt.
+    /// Usado pelo layout para posicionar a primeira baseline a
+    /// `margem + cap-height` (paridade com vanilla `top-edge: cap-height`).
+    /// Fallback: se `face.capital_height()` for None ou ≤ 0, usa o ascender.
+    fn cap_height(&self, size: Pt) -> Pt
 
     /// Variantes verticais extensíveis para um caractere (ex: '(', '[', '√')
     /// Retorna GlyphVariants::default() se a fonte não tem tabela MATH

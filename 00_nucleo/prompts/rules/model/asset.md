@@ -1,5 +1,5 @@
 # Prompt L0 — `model/asset` — resource placeholder `asset(...)`
-Hash do Código: e30445e4
+Hash do Código: 694a560e
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/rules/stdlib/structural.rs` + `01_core/src/entities/content.rs`

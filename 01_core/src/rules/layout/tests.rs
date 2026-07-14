@@ -1,8 +1,8 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/rules/layout.md
-//! @prompt-hash 6cbdb374
+//! @prompt-hash b10c0535
 //! @layer L1
-//! @updated 2026-04-23
+//! @updated 2026-07-14
 //!
 //! Testes de layout — extraídos de `layout/mod.rs` no Passo 96.7
 //! conforme ADR-0037.
@@ -1275,9 +1275,9 @@ mod tests_limits {
     #[test]
     fn sum_block_limites_empilhados_verticalmente() {
         // Passo 50: bloco "$ ... $" (espaços dentro) → block=true → empilhamento vertical.
-        // offset_y = cursor_y = 81.6 (bloco não ajusta baseline).
+        // P750: cursor_y inicial = margin + cap_height = 72 + 7.7 = 79.7.
         // y_sup = -(base_ascent + upper_gap + sup.descent) = -(9.6 + 1.2 + 3.36) = -14.16
-        // Final y ≈ 81.6 - 14.16 = 67.4 < 70.0 (vs inline right-scripts ≈ 71.3)
+        // Final y ≈ 79.7 - 14.16 = 65.5 < 70.0 (vs inline right-scripts ≈ 69.4)
         let doc = layout_test("$ sum_(i=0)^n $");
         let all_y: Vec<f64> = doc
             .pages
@@ -1308,8 +1308,9 @@ mod tests_limits_context {
     #[test]
     fn sum_inline_usa_right_scripts() {
         // Passo 50: inline "$...$" → block=false → right-scripts (sub/sup à direita).
-        // offset_y = cursor_y - axis_pt = 81.6 - 6.0 = 75.6 (inline ajusta baseline).
-        // Com right-scripts: sup_offset ≈ 4.34pt → item y ≈ 75.6 - 4.34 = 71.3 ≥ 70.0
+        // P750: cursor_y inicial = margin + cap_height = 72 + 7.7 = 79.7.
+        // offset_y = cursor_y - axis_pt = 79.7 - 6.0 = 73.7 (inline ajusta baseline).
+        // Com right-scripts: sup_offset ≈ 4.34pt → item y ≈ 73.7 - 4.34 = 69.4 ≥ 68.0
         // Com vertical stacking (antes): min_y ≈ 61.4 < 70.0 (falha antes da implementação)
         let doc = layout_test("$sum_(i=0)^n$");
         let all_y: Vec<f64> = doc
@@ -1325,8 +1326,8 @@ mod tests_limits_context {
         assert!(!all_y.is_empty(), "deve ter items");
         let min_y = all_y.iter().cloned().fold(f64::INFINITY, f64::min);
         assert!(
-            min_y >= 70.0,
-            "inline: ∑ deve usar right-scripts (min_y={:.1} >= 70.0)",
+            min_y >= 68.0,
+            "inline: ∑ deve usar right-scripts (min_y={:.1} >= 68.0)",
             min_y
         );
     }

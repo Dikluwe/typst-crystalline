@@ -1,10 +1,10 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/rules/layout.md
-//! @prompt-hash 5249700d
+//! @prompt-hash 8819f700
 //! @prompt 00_nucleo/prompts/rules/footnote_overflow_columns.md
 //! @prompt-hash 3a8202e4
 //! @layer L1
-//! @updated 2026-04-23
+//! @updated 2026-07-14
 //!
 //! Gestão do cursor do Layouter: largura de palavra, layout de palavra,
 //! `flush_line`, `new_page`, número de página actual.
@@ -324,8 +324,8 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
         self.pages.push(page);
         self.regions.current.cursor_x = Pt(self.page_config.margin);
         self.regions.current.line_start_x = Pt(self.page_config.margin);
-        let (ascender, _) = self.metrics.vertical_metrics(self.style.size);
-        self.regions.current.cursor_y = Pt(self.page_config.margin) + ascender;
+        self.regions.current.cursor_y =
+            Pt(self.page_config.margin) + self.metrics.cap_height(self.style.size);
         // P245 — reset reservas na nova página.
         self.cursor_y_top_reserve = 0.0;
         self.cursor_y_bottom_reserve = 0.0;
@@ -423,8 +423,8 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
         self.regions.current.width = self.column_width;
         self.regions.current.cursor_x = Pt(self.page_config.margin);
         self.regions.current.line_start_x = Pt(self.page_config.margin);
-        let (ascender, _) = self.metrics.vertical_metrics(self.style.size);
-        self.regions.current.cursor_y = Pt(self.page_config.margin) + ascender;
+        self.regions.current.cursor_y =
+            Pt(self.page_config.margin) + self.metrics.cap_height(self.style.size);
         self.regions.current.current_line.clear();
     }
 

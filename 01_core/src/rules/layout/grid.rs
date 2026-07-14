@@ -1,8 +1,8 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/rules/layout.md
-//! @prompt-hash 6cbdb374
+//! @prompt-hash b10c0535
 //! @layer L1
-//! @updated 2026-04-23
+//! @updated 2026-07-14
 //!
 //! Braço `Content::Grid` do `layout_content`. Extraído de `layout/mod.rs`
 //! no Passo 96.7 conforme ADR-0037.
@@ -273,6 +273,13 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
 
         // Garantir linha limpa antes do Grid.
         self.flush_line();
+
+        // P750 — o cursor_y representa a baseline do texto; o topo de um
+        // bloco Grid deve alinhar-se com o topo da área disponível
+        // (baseline − cap-height), não com a baseline. Isto coloca o grid
+        // na margem no topo da página, alinhado com o vanilla.
+        let grid_cap_height = self.metrics.cap_height(self.style.size);
+        self.regions.current.cursor_y = Pt(self.regions.current.cursor_y.0 - grid_cap_height.0);
 
         // Fase 1.5 — paginação ANTES da fase 2 de Fraction.
         // Se Fixed+Auto não cabe no resto da página actual mas cabe

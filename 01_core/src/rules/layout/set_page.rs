@@ -1,8 +1,8 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/passo-537b-set-page-columns.md
-//! @prompt-hash 23c9e98a
+//! @prompt-hash 4d42b503
 //! @layer L1
-//! @updated 2026-07-03
+//! @updated 2026-07-14
 //!
 //! Layout de `Content::SetPage` — aplica nova configuração de página.
 //! Extraído de `layout/mod.rs` no P425 (ADR-0109 forma B).
@@ -72,7 +72,8 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
         layouter.regions.current.width = layouter.page_config.width;
         layouter.regions.current.height = layouter.page_config.height;
         layouter.regions.current.cursor_x = Pt(layouter.page_config.margin);
-        layouter.regions.current.cursor_y = Pt(layouter.page_config.margin);
+        layouter.regions.current.cursor_y =
+            Pt(layouter.page_config.margin) + layouter.metrics.cap_height(layouter.style.size);
         layouter.regions.current.line_start_x = Pt(layouter.page_config.margin);
         // DEBT-35b: se available_width() vier a ter cache, invalidar aqui.
     }

@@ -1,8 +1,8 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/font_metrics.md
-//! @prompt-hash 06faf789
+//! @prompt-hash 6217932c
 //! @layer L3
-//! @updated 2026-07-03
+//! @updated 2026-07-14
 
 use std::collections::HashMap;
 use std::sync::{Arc, Mutex};
@@ -133,6 +133,19 @@ impl FontMetrics for FontBookMetrics<'_> {
         let line_height_pt = size * ((ascender + descender + line_gap) / self.upem);
 
         (ascender_pt, line_height_pt)
+    }
+
+    /// **P750** — cap-height em pontos, com fallback para ascender quando a
+    /// fonte não expõe a métrica (igual ao vanilla).
+    fn cap_height(&self, size: Pt) -> Pt {
+        let ascender = self.face.ascender() as f64;
+        let cap = self
+            .face
+            .capital_height()
+            .filter(|&h| h > 0)
+            .map(|h| h as f64)
+            .unwrap_or(ascender);
+        size * (cap / self.upem)
     }
 
     fn vertical_glyph_variants(&self, c: char) -> GlyphVariants {
@@ -679,6 +692,26 @@ impl FontMetrics for FallbackFontMetrics<'_> {
         }
         // Fallback: proporções fixas se não houver nenhuma fonte.
         (size * 0.8, size * 1.2)
+    }
+
+    /// **P750** — cap-height da primeira fonte disponível, com fallback para
+    /// ascender (ou proporção fixa se não houver fontes).
+    fn cap_height(&self, size: Pt) -> Pt {
+        let book_len = self.world.book().len();
+        for slot_idx in 0..book_len {
+            let Some(cached) = self.cached_face(slot_idx) else { continue };
+            let face = cached.face();
+            let upem = face.units_per_em().max(1) as f64;
+            let ascender = face.ascender() as f64;
+            let cap = face
+                .capital_height()
+                .filter(|&h| h > 0)
+                .map(|h| h as f64)
+                .unwrap_or(ascender);
+            return size * (cap / upem);
+        }
+        // Fallback: mesma aproximação de FixedMetrics.
+        size * 0.7
     }
 }
 

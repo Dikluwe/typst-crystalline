@@ -2,9 +2,9 @@
 //! @prompt 00_nucleo/prompts/infra/shaper.md
 //! @prompt-hash b832b2b5
 //! @prompt 00_nucleo/prompts/infra/font_metrics.md
-//! @prompt-hash 06faf789
+//! @prompt-hash 6217932c
 //! @layer L3
-//! @updated 2026-07-03
+//! @updated 2026-07-14
 //!
 //! **P555** — listas de fallback de fonte divididas por classe visual
 //! (serifa vs sem serifa). Quando a fonte primária declarada não resolve,

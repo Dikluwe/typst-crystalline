@@ -1,5 +1,5 @@
 # Prompt L0 — P537b — `#set page(columns:)` → mecanismo de colunas
-Hash do Código: fe242b7f
+Hash do Código: 6ada155e
 
 **Camada**: L1  
 **Ficheiros alvo**: `01_core/src/entities/content.rs`, `01_core/src/entities/layout_types.rs`, `01_core/src/rules/eval/rules.rs`, `01_core/src/rules/eval/mod.rs`, `01_core/src/rules/layout/set_page.rs`, `01_core/src/rules/layout/mod.rs`, `01_core/src/rules/layout/tests.rs`  
@@ -86,6 +86,11 @@ Em `01_core/src/rules/layout/set_page.rs`:
 - Adicionar parâmetro `columns: &Option<usize>`.
 - Se `columns != &new_config.columns`, actualizar `new_config.columns` e marcar `changed = true`.
 - **Não forçar nova página só por mudança de `columns`** nesta fase (scope-out: paginação real por set-page columns é diferida; o teste de P537b usa `#set page(columns: 2)` no topo do documento, onde a página já está vazia).
+- **P750** — quando `SetPage` muda a configuração de página e reinicia o cursor,
+  o `cursor_y` deve ser posicionado a `margem + cap_height(style.size)`, usando
+  `FontMetrics::cap_height`, não o ascender. Isto aplica a regra geral de
+  inicialização do cursor do L0 `rules/layout.md` também ao ponto onde SetPage
+  reconfigura a região.
 
 ### 3.5 Transformação AST pós-eval — envolver o body implícito
 

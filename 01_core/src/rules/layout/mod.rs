@@ -3,7 +3,7 @@
 //! @prompt-hash 9c9b7122
 //! @prompt 00_nucleo/prompts/rules/model/asset.md
 //! @layer L1
-//! @updated 2026-04-21
+//! @updated 2026-07-14
 
 pub mod counters;
 pub mod figure;
@@ -487,8 +487,8 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
         >,
     ) -> Self {
         let cfg = PageConfig::default();
-        let size = Pt(font_size);
-        let (ascender, _) = metrics.vertical_metrics(size);
+        let initial_style = TextStyle::from(&StyleChain::default_chain());
+        let initial_cap_height = metrics.cap_height(initial_style.size);
         Self {
             metrics,
             sizer,
@@ -499,8 +499,8 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
             // (usado por `space_width` quando não-embrulhado), mas o texto resolve
             // a 11 (default da chain) e qualquer descida de `Content::Styled`
             // recompõe `style` da chain (11). A inconsistência 12-vs-11 ficava só no
-            // espaço-líder de docs não-embrulhados. Derivar da chain unifica em 11.
-            style: TextStyle::from(&StyleChain::default_chain()),
+            // espaço-líder de docs non-embrulhados. Derivar da chain unifica em 11.
+            style: initial_style.clone(),
             chain: StyleChain::default_chain(),
             page_config: cfg.clone(),
             pages: Vec::new(),
@@ -508,13 +508,15 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
             // Region. Cursor + line_start_x inicializados a margin;
             // cursor_y inicializado a margin + ascender (paridade
             // pre-P216A).
+            // P750: primeira baseline usa cap-height (top-edge default do
+            // vanilla), não ascender.
             // P216B: agregação adicional em Regions wrapper (single-region
             // por anti-inflação 11ª; multi-region em P219).
             regions: {
                 let mut rs =
                     crate::entities::region::Regions::single(cfg.width, cfg.height);
                 rs.current.cursor_x = Pt(cfg.margin);
-                rs.current.cursor_y = Pt(cfg.margin) + ascender;
+                rs.current.cursor_y = Pt(cfg.margin) + initial_cap_height;
                 rs.current.line_start_x = Pt(cfg.margin);
                 rs
             },

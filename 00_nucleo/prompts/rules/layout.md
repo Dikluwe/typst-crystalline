@@ -1,5 +1,5 @@
 # Prompt L0 — layout
-Hash do Código: f125ccf2
+Hash do Código: 7643f608
 
 ## Módulo
 `01_core/src/rules/layout/mod.rs` e sub-módulos (`metrics.rs`, etc.)
@@ -52,7 +52,12 @@ Para suportar parágrafos com fontes de tamanhos mistos ou tamanhos diferentes d
    - O `line_leading_pt` de cada elemento de texto na linha deve ser resolvido usando o tamanho de fonte do próprio elemento (`style.size`) em vez da constante base do documento.
 
 2. **Inicialização do Cursor (Página e Coluna)**:
-   - Ao iniciar uma nova página ou coluna, o deslocamento inicial do cursor (`ascender`) deve ser calculado usando o tamanho de fonte ativo (`self.style.size`) do Layouter, garantindo que o início da primeira linha esteja alinhado de forma consistente com o estilo ativo.
+   - Ao iniciar uma nova página ou coluna, o deslocamento inicial do cursor
+     (`cap_height`) deve ser calculado usando o tamanho de fonte ativo
+     (`self.style.size`) do Layouter e `FontMetrics::cap_height`, garantindo
+     que a primeira baseline do texto fique a `margem + cap-height`. Isto
+     alinha-se com o vanilla, onde `top-edge: cap-height` é o default do
+     texto.
 
 
 ### Decoração textual wrap-aware (Passo 286 — fecha cluster P284-P285-P286)
@@ -590,11 +595,16 @@ interface `FontMetrics` e a implementação `FixedMetrics`, extraído de
 pub trait FontMetrics: Send + Sync {
     fn advance(&self, text: &str, size: Pt, style: &TextStyle) -> Pt;
     fn vertical_metrics(&self, size: Pt) -> (Pt, Pt);
+    fn cap_height(&self, size: Pt) -> Pt;
 }
 ```
 
 - `advance`: largura horizontal de uma string em pontos tipográficos.
 - `vertical_metrics`: `(ascender, line_height)` em pontos tipográficos.
+- `cap_height`: distância da baseline ao topo das maiúsculas (`H`, `X`).
+  Usado para posicionar a primeira baseline do texto a `margem + cap-height`,
+  paridade com o vanilla (`text(top-edge: "cap-height")` por omissão).
+  Quando a fonte não expõe `cap-height`, deve fazer fallback para o ascender.
 
 ### `FixedMetrics`
 
@@ -602,6 +612,8 @@ Implementação monoespaçada pura de L1:
 
 - `advance(text, size, _)` → `size * (chars.count() * 0.6)`.
 - `vertical_metrics(size)` → `(size * 0.8, size * 1.2)`.
+- `cap_height(size)` → `size * 0.7` (aproximação proporcional consistente
+  com a razão típica cap-height/em; usada apenas quando não há fonte real).
 
 ### `needs_shaped_width` — detecção de scripts contextuais
 

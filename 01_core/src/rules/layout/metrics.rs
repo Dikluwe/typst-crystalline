@@ -1,8 +1,8 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/rules/layout.md
-//! @prompt-hash 6cbdb374
+//! @prompt-hash b10c0535
 //! @layer L1
-//! @updated 2026-07-09
+//! @updated 2026-07-14
 //!
 //! Interface `FontMetrics` e implementação `FixedMetrics` para layout.
 //! Extraído de `layout/mod.rs` no Passo 96.7 conforme ADR-0037.
@@ -31,6 +31,14 @@ pub trait FontMetrics: Send + Sync {
     /// - `ascender`: distância da baseline ao topo das maiúsculas.
     /// - `line_height`: distância total entre duas baselines consecutivas.
     fn vertical_metrics(&self, size: Pt) -> (Pt, Pt);
+
+    /// **P750** — distância da baseline ao topo das maiúsculas (cap-height).
+    ///
+    /// Usado para posicionar a primeira baseline do texto a
+    /// `margem + cap-height`, paridade com o vanilla (`text(top-edge:
+    /// "cap-height")` por omissão). Implementações sem métrica real devem
+    /// aproximar proporcionalmente (ex: `size * 0.7`).
+    fn cap_height(&self, size: Pt) -> Pt;
 
     /// Constantes da tabela OpenType MATH, se disponível.
     ///
@@ -180,6 +188,12 @@ impl FontMetrics for FixedMetrics {
     fn vertical_metrics(&self, size: Pt) -> (Pt, Pt) {
         // ascender ≈ 0.8 * size; line_height = 1.2 * size
         (size * 0.8, size * 1.2)
+    }
+
+    fn cap_height(&self, size: Pt) -> Pt {
+        // **P750** — aproximação proporcional consistente com a razão
+        // típica cap-height/em; usada apenas quando não há fonte real.
+        size * 0.7
     }
 }
 
