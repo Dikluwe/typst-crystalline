@@ -38,7 +38,18 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
     }
     layouter.flush_line();
 
-    let pos = Point { x: layouter.regions.current.cursor_x, y: layouter.regions.current.cursor_y };
+    // P748 — no fluxo principal o cursor_y representa a baseline do texto;
+    // o topo de uma forma deve alinhar-se com o topo da linha
+    // (baseline − ascender), não com a baseline. Em sub-frames o cursor_y
+    // já é relativo ao topo local (inicializado a ascender e depois
+    // transladado por −ascender no grid), logo não subtraímos de novo.
+    let shape_top = if layouter.is_sub_frame {
+        layouter.regions.current.cursor_y
+    } else {
+        let (ascender, _) = layouter.metrics.vertical_metrics(layouter.style.size);
+        layouter.regions.current.cursor_y - ascender
+    };
+    let pos = Point { x: layouter.regions.current.cursor_x, y: shape_top };
     layouter.regions.current.current_items.push(FrameItem::Shape {
         pos,
         kind:   kind.clone(),

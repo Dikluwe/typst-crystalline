@@ -215,6 +215,11 @@ pub struct Layouter<'a, M: FontMetrics, S: ImageSizer = NullImageSizer> {
     /// Definido como true por `layout_sub_frame` e restaurado
     /// ao regressar ao contexto pai.
     pub(super) is_height_unconstrained: bool,
+    /// **P748** — true quando o Layouter está dentro de um sub-layout
+    /// isolado (`layout_sub_frame`). Usado por `shape.rs` para saber se
+    /// o cursor_y já foi compensado pelo ascender pelo sub-frame (caso
+    /// em que não deve voltar a subtrair ascender ao posicionar formas).
+    pub(super) is_sub_frame: bool,
     // **P246 (cell layout migration)** — fields `cell_available_h` +
     // `cell_origin_w` migrados para `self.regions.cell: Option<Region>`
     // (entity-side; `Region.height` + `Region.width`). Reader pattern:
@@ -519,6 +524,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
             figure_progress: std::collections::HashMap::new(),
             footnote_counter: 0,
             is_height_unconstrained: false,
+            is_sub_frame: false,
             // P246 — cell_available_h + cell_origin_w migrados a
             // regions.cell (entity-side). cell_origin_x/y preservados
             // como Layouter fields legacy.

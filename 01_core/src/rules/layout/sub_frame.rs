@@ -51,6 +51,8 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
         let saved_width = self.regions.current.width;
         let saved_height = self.regions.current.height;
         let saved_unconstrained = self.is_height_unconstrained;
+        let saved_is_sub_frame = self.is_sub_frame;
+        self.is_sub_frame = true;
 
         // Inicializar cursor local — x = origin_x, y = ascender (como o layout principal).
         // `line_start_x = origin_x` garante que `flush_line()` dentro do sub-frame
@@ -130,6 +132,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
         self.regions.current.height = saved_height;
         self.regions.current.current_line = saved_line;
         self.is_height_unconstrained = saved_unconstrained;
+        self.is_sub_frame = saved_is_sub_frame;
 
         (cell_height, cell_items)
     }
