@@ -10051,4 +10051,134 @@ mod tests {
             "pdf.artifact deve devolver o body como Content"
         );
     }
+
+    // ── Passo 736 — color/gradient como valores-tipo ───────────────────────
+
+    #[test]
+    fn p736_type_color_e_gradient_sao_type() {
+        // Medido vanilla: type(color)/type(gradient) → type.
+        // Cristalino pré-P736: dictionary (Value::Dict).
+        let m = p729_eval("#let a = type(color)\n#let b = type(gradient)").unwrap();
+        let ty = Some(&Value::Type(crate::entities::value::Type::Type));
+        assert_eq!(m.scope().get("a"), ty);
+        assert_eq!(m.scope().get("b"), ty);
+    }
+
+    #[test]
+    fn p736_type_instancia_eq_tipo() {
+        // Medido vanilla: type(red) == color → true;
+        // type(gradient.linear(red, blue)) == gradient → true.
+        let m = p729_eval(
+            "#let a = type(red) == color\n\
+             #let b = type(gradient.linear(red, blue)) == gradient",
+        )
+        .unwrap();
+        assert_eq!(m.scope().get("a"), Some(&Value::Bool(true)));
+        assert_eq!(m.scope().get("b"), Some(&Value::Bool(true)));
+    }
+
+    #[test]
+    fn p736_color_constructors_acessiveis_via_tipo() {
+        // Medido vanilla: type(color.rgb/linear-rgb/luma/cmyk/hsl/hsv/oklab/
+        // oklch) → function; color.rgb(255,0,0) → cor.
+        let m = p729_eval(
+            "#let a = type(color.rgb)\n\
+             #let b = type(color.linear-rgb)\n\
+             #let c = type(color.luma)\n\
+             #let d = type(color.cmyk)\n\
+             #let e = type(color.hsl)\n\
+             #let f = type(color.hsv)\n\
+             #let g = type(color.oklab)\n\
+             #let h = type(color.oklch)\n\
+             #let cor = color.rgb(255, 0, 0)\n\
+             #let cor2 = color.linear-rgb(50%, 50%, 50%)",
+        )
+        .unwrap();
+        let func = Some(&Value::Type(crate::entities::value::Type::Function));
+        for b in ["a", "b", "c", "d", "e", "f", "g", "h"] {
+            assert_eq!(m.scope().get(b), func, "type(color.<{b}>) deve ser function");
+        }
+        assert!(
+            matches!(m.scope().get("cor"), Some(Value::Color(_))),
+            "color.rgb(255,0,0) deve produzir Color"
+        );
+        assert!(
+            matches!(m.scope().get("cor2"), Some(Value::Color(_))),
+            "color.linear-rgb(50%,50%,50%) deve produzir Color"
+        );
+    }
+
+    #[test]
+    fn p736_gradient_constructors_acessiveis_via_tipo() {
+        // Medido vanilla: type(gradient.linear/radial/conic) → function.
+        let m = p729_eval(
+            "#let a = type(gradient.linear)\n\
+             #let b = type(gradient.radial)\n\
+             #let c = type(gradient.conic)\n\
+             #let g = gradient.linear(red, blue)",
+        )
+        .unwrap();
+        let func = Some(&Value::Type(crate::entities::value::Type::Function));
+        for b in ["a", "b", "c"] {
+            assert_eq!(m.scope().get(b), func, "type(gradient.<{b}>) deve ser function");
+        }
+        assert!(
+            matches!(m.scope().get("g"), Some(Value::Gradient(_))),
+            "gradient.linear(red, blue) deve produzir Gradient"
+        );
+    }
+
+    #[test]
+    fn p736_color_operadores_mantidos_sem_regressao() {
+        // Os 6 operadores P476/P477 continuam acessíveis (agora como fields
+        // do tipo): lighten/darken/mix/negate/saturate/desaturate.
+        let m = p729_eval(
+            "#let a = type(color.lighten)\n\
+             #let b = type(color.darken)\n\
+             #let c = type(color.mix)\n\
+             #let d = type(color.negate)\n\
+             #let e = type(color.saturate)\n\
+             #let f = type(color.desaturate)\n\
+             #let cl = color.lighten(red, 0.2)",
+        )
+        .unwrap();
+        let func = Some(&Value::Type(crate::entities::value::Type::Function));
+        for b in ["a", "b", "c", "d", "e", "f"] {
+            assert_eq!(m.scope().get(b), func, "type(color.<{b}>) deve ser function");
+        }
+        assert!(
+            matches!(m.scope().get("cl"), Some(Value::Color(_))),
+            "color.lighten(red, 0.2) deve produzir Color"
+        );
+    }
+
+    #[test]
+    fn p736_color_campo_inexistente_mensagem_vanilla() {
+        // Medido vanilla: `#color.foo` → "type color does not contain field `foo`".
+        let m = p729_eval("#color.foo");
+        let err = m.expect_err("color.foo deve ser erro");
+        let msg = err.first().map(|d| d.message.to_string()).unwrap_or_default();
+        assert_eq!(msg, "type color does not contain field `foo`", "msg: {msg}");
+    }
+
+    #[test]
+    fn p736_color_sem_constructor() {
+        // Medido vanilla: `#color("#ff0000")` → "type color does not have
+        // a constructor" (tipo não chamável, ao contrário de int/str).
+        let m = p729_eval("#color(\"#ff0000\")");
+        let err = m.expect_err("color(...) deve ser erro");
+        let msg = err.first().map(|d| d.message.to_string()).unwrap_or_default();
+        assert!(
+            msg.contains("does not have a constructor"),
+            "msg: {msg}"
+        );
+    }
+
+    #[test]
+    fn p736_repr_dos_tipos() {
+        // Medido vanilla: repr(color) → "color"; repr(gradient) → "gradient".
+        let m = p729_eval("#let a = repr(color)\n#let b = repr(gradient)").unwrap();
+        assert_eq!(m.scope().get("a"), Some(&Value::Str("color".into())));
+        assert_eq!(m.scope().get("b"), Some(&Value::Str("gradient".into())));
+    }
 }

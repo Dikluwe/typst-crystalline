@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/rules/stdlib/foundations.md
-//! @prompt-hash 80058390
+//! @prompt-hash 549476f9
 //! @layer L1
 //! @updated 2026-06-24
 //!
@@ -215,24 +215,28 @@ pub fn native_oklch(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::con
 pub fn native_linear_rgb(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contracts::world::World, _current_file: FileId) -> SourceResult<Value> {
     use crate::entities::layout_types::Color;
     expect_no_named(&args.named)?;
-    fn as_f32(v: &Value, name: &str) -> SourceResult<f32> {
+    // **P736** — paridade vanilla medida: `linear-rgb` aceita Int [0, 255]
+    // (÷255) ou Ratio (percentagem); **rejeita Float** com a mensagem
+    // verbatim "expected integer or ratio, found float". Pré-P736 havia
+    // dupla divergência (falso-aceite de Float, rejeição de Ratio).
+    fn as_f32(v: &Value) -> SourceResult<f32> {
         match v {
-            Value::Float(f) => Ok(*f as f32),
-            Value::Int(i)   => Ok(*i as f32),
+            Value::Int(i) => Ok(*i as f32 / 255.0),
+            Value::Relative(r) if r.abs.is_zero() => Ok(r.rel as f32),
             other => Err(vec![SourceDiagnostic::error(
                 Span::detached(),
-                format!("linear_rgb({}): espera Float/Int, recebeu {}", name, other.type_name()),
+                format!("expected integer or ratio, found {}", other.type_name()),
             )]),
         }
     }
     match args.items.as_slice() {
         [r, g, b] => Ok(Value::Color(Color::linear_rgb(
-            as_f32(r, "r")?, as_f32(g, "g")?, as_f32(b, "b")?, 1.0,
+            as_f32(r)?, as_f32(g)?, as_f32(b)?, 1.0,
         ))),
         [r, g, b, a] => Ok(Value::Color(Color::linear_rgb(
-            as_f32(r, "r")?, as_f32(g, "g")?, as_f32(b, "b")?, as_f32(a, "a")?,
+            as_f32(r)?, as_f32(g)?, as_f32(b)?, as_f32(a)?,
         ))),
-        _ => err(format!("linear_rgb() requer 3 ou 4 Float/Int, recebeu {} args", args.items.len())),
+        _ => err(format!("linear_rgb() requer 3 ou 4 argumentos (Int/Ratio), recebeu {} args", args.items.len())),
     }
 }
 

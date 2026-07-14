@@ -1409,6 +1409,25 @@ pub(super) fn eval_field_access(
                 "str.from-unicode",
                 native_str_from_unicode,
             ))),
+            // P736 — `color`/`gradient` são valores-tipo com scope de fields
+            // (paridade vanilla — medido: type(color) → type; color.rgb e
+            // gradient.linear funcionam via field access no tipo). Campo
+            // inexistente → mensagem verbatim do vanilla.
+            (Type::Color, _) => crate::rules::stdlib::color_type_field(field.as_str())
+                .ok_or_else(|| {
+                    vec![SourceDiagnostic::error(
+                        access.span(),
+                        format!("type color does not contain field `{field}`"),
+                    )]
+                }),
+            (Type::Gradient, _) => {
+                crate::rules::stdlib::gradient_type_field(field.as_str()).ok_or_else(|| {
+                    vec![SourceDiagnostic::error(
+                        access.span(),
+                        format!("type gradient does not contain field `{field}`"),
+                    )]
+                })
+            }
             (Type::Int | Type::Str, _) => Err(vec![SourceDiagnostic::error(
                 access.span(),
                 format!("type {} não tem campo '{}'", t.name(), field),

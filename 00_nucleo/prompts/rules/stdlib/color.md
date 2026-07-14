@@ -1,5 +1,5 @@
-# Prompt L0 — stdlib módulo `color` (operadores de cor)
-Hash do Código: c634083a
+# Prompt L0 — stdlib tipo `color` (operadores de cor)
+Hash do Código: 777b7c39
 
 ## Módulo
 `01_core/src/rules/stdlib/color.rs`
@@ -9,21 +9,48 @@ L1 (puro; sem I/O; sem estado global).
 
 ## Propósito
 
-Módulo `color` exposto no scope de eval como `Value::Dict` com 4
-operadores de cor: `lighten`, `darken`, `mix`, `negate`.
+**P736 — estado vigente:** `color` é exposto no scope de eval como
+`Value::Type(Type::Color)` (paridade vanilla — medido: `type(color)` →
+`type`; `color("#f00")` → erro "type color does not have a constructor").
+Os fields do tipo (`color.rgb`, `color.lighten`, …) resolvem-se por field
+access em `Value::Type` via `color_type_field(field) -> Option<Value>`
+(padrão P685, mesmo mecanismo de `int.min`/`str.from-unicode`).
+
+Histórico: até P736, `color` era `Value::Dict` (P476, módulo de 4
+operadores; P477 aumentou para 6).
+
+Fields do tipo (14): constructors `rgb`, `linear-rgb`, `luma`, `cmyk`,
+`hsl`, `hsv`, `oklab`, `oklch` (as mesmas funções nativas registadas
+globalmente) + operadores `lighten`, `darken`, `mix`, `negate`,
+`saturate`, `desaturate`.
+
+Medições vanilla que fundamentam (P736):
+- `type(color)` → `type`; `type(red) == color` → `true`; `repr(color)` → `color`.
+- `type(color.rgb)` … `type(color.oklch)` → `function` (8 constructors).
+- `type(color.lighten)` … `type(color.desaturate)` → `function`; o vanilla
+  tem ainda `rotate`, `components`, `space` — **ausentes no cristalino**
+  (scope-out; também ausentes como métodos de instância).
+- `color("#ff0000")` → erro "type color does not have a constructor"
+  (sem constructor — o despacho P685 já emite esta mensagem).
+- `color.foo` → erro "type color does not contain field `foo`".
 
 P476 — fecho parcial ADR-0083 §"Operadores cor" scope-out:
 4 dos 6 operadores implementados (`saturate`/`desaturate` scope-out futuro P477).
 
-## Função de construção
+## Função de despacho de fields (P736)
 
 ```rust
-pub fn make_color_module() -> Value {
-    // Retorna Value::Dict com 4 entradas.
+/// Devolve o valor associado a `field` no tipo `color`, ou `None` se o
+/// campo não existir (o chamador emite o erro "does not contain field").
+pub fn color_type_field(field: &str) -> Option<Value> {
+    // 14 entradas: 8 constructors + 6 operadores.
 }
 ```
 
-Registado em `eval/mod.rs` como `scope.define("color", make_color_module())`.
+Registado em `eval/mod.rs` como `scope.define("color", Value::Type(Type::Color))`.
+O braço `(Type::Color, _)` de `eval_field_access` (`eval/bindings.rs`) delega
+em `color_type_field` e emite "type color does not contain field `<f>`"
+(mensagem verbatim do vanilla) para campo inexistente.
 
 ## Funções nativas
 
@@ -69,11 +96,15 @@ fn extract_ratio_arg(val: &Value, fn_name: &str, arg_name: &str) -> SourceResult
 - `color.negate(Color::srgb_f32(1,0,0,1))` → ciano `(0.0, 1.0, 1.0, 1.0)`.
 - `color.mix(red, blue)` sem `weight:` → Ok (default 0.5).
 - `color.mix(red, blue, weight: 0.25)` → Ok.
-- `make_color_module()` retorna `Value::Dict` com 4 entradas.
+- ~~`make_color_module()` retorna `Value::Dict` com 4 entradas.~~
+  **P736** — substituído por: `color_type_field` devolve `Some(Value::Func(_))`
+  para cada um dos 14 fields e `None` para campo inexistente; o scope global
+  define `color` como `Value::Type(Type::Color)`.
 
 ## P477 — `saturate` e `desaturate`
 
-Adicionados ao módulo e a `make_color_module()` (6 entradas total):
+Adicionados ao módulo e a `make_color_module()` (6 entradas total) —
+**P736**: passaram a fields do tipo via `color_type_field`:
 
 ```rust
 dict.insert("saturate",   Value::Func(Func::native("color.saturate",   native_color_saturate)));
@@ -140,3 +171,8 @@ A função `text(...)` é registada separadamente no scope global (P492) para pe
 - `color.mix` com N > 2 cores — scope-out (cristalino aceita 2 + weight).
 - `color.mix` com `space:` arg — scope-out.
 - `color.saturate/desaturate` com `space:` arg — scope-out.
+- `color.rotate`, `color.components`, `color.space` — existem no vanilla como
+  funções do tipo (medido P736); ausentes no cristalino, também como métodos
+  de instância. Scope-out.
+- Métodos de instância de cor (`red.lighten(20%)`, …) — ausentes no
+  cristalino desde P476 (pré-existente, não regressão de P736).

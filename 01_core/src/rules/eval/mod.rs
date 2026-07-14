@@ -1058,7 +1058,7 @@ fn eval_markup_body(
 /// O avaliador deixa de conhecer o nome "figure" — desacoplamento total.
 fn make_stdlib(inputs: &SysInputs) -> Scope {
     use crate::rules::stdlib::{
-        make_calc_module, make_gradient_module, make_math_module, make_sys_module, native_accent, native_align, native_assert, native_assert_eq, native_assert_ne, native_bibliography, native_block, native_box, native_cancel, native_circle, native_cite, native_divider,
+        make_calc_module, make_math_module, make_sys_module, native_accent, native_align, native_assert, native_assert_eq, native_assert_ne, native_bibliography, native_block, native_box, native_cancel, native_circle, native_cite, native_divider,
         native_ellipse, native_emph, native_figure, native_footnote, native_grid, native_grid_cell, native_grid_footer, native_grid_header, native_grid_hline, native_grid_vline, native_h, native_heading,
         native_hide, native_image, native_len, native_line, native_outline,
         native_counter, native_counter_at, native_counter_display, native_counter_final, native_counter_step, native_context, native_curve, native_curve_close, native_curve_cubic, native_curve_line, native_curve_move, native_curve_quad, native_eval, native_here, native_locate, native_lower, native_lorem, native_luma, native_measure, native_metadata, native_move, native_pad, native_pagebreak, native_place, native_polygon, native_query, native_regex, native_selector, native_state, native_state_at, native_state_display, native_state_final, native_state_update, native_state_update_with,
@@ -1086,8 +1086,6 @@ fn make_stdlib(inputs: &SysInputs) -> Scope {
         build_emoji_module, make_pdf_module,
         // P472 — lof/lot.
         native_lof, native_lot,
-        // P476 — módulo color.
-        make_color_module,
     };
     let mut scope = Scope::new();
     // P685 — `type` é um valor-tipo chamável (invoca native_type via eval_func_call).
@@ -1442,10 +1440,13 @@ fn make_stdlib(inputs: &SysInputs) -> Scope {
     // (attach = scope-out com erro; artifact = passthrough do body).
     scope.define("emoji", build_emoji_module());
     scope.define("pdf", make_pdf_module());
-    // P476 — módulo `color` com operadores lighten/darken/mix/negate.
-    scope.define("color", make_color_module());
-    // P262 — `gradient.linear(...)` via module dict (ADR-0087).
-    scope.define("gradient", make_gradient_module());
+    // P476 — operadores de cor. **P736** — `color` é `Value::Type`
+    // (paridade vanilla — medido: `type(color)` → `type`); fields via
+    // `color_type_field` em field access.
+    scope.define("color", Value::Type(Type::Color));
+    // P262 — `gradient.linear(...)` via field access no tipo (P736; era
+    // module dict, ADR-0087). Paridade vanilla: `type(gradient)` → `type`.
+    scope.define("gradient", Value::Type(Type::Gradient));
     // P299 — `math.sin`/`math.lim`/etc. (P298.X; 42 operadores
     // pré-definidos paridade vanilla via SSoT MathOp).
     scope.define("math",     make_math_module());

@@ -1,5 +1,5 @@
 # Prompt L0 — `stdlib/foundations` — utilitários, cores, conversões e introspeção
-Hash do Código: 012a275b
+Hash do Código: d72cfe27
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/rules/stdlib/foundations.rs`
@@ -559,14 +559,19 @@ oklch(0.5, 0.2)                -> Err "oklch() requer 3 ou 4"
 
 ### `native_linear_rgb` — `linear_rgb(r, g, b)` / `linear_rgb(r, g, b, a)`
 
-**Assinatura**: `linear_rgb(r: float|int, g: float|int, b: float|int, a: float|int?) -> color`
+**Assinatura (P736 — paridade vanilla medida)**: `linear_rgb(r: int|ratio, g: int|ratio, b: int|ratio, a: int|ratio?) -> color`
 
-**Semântica**: Constrói `Color::LinearRgb`. Componentes em `[0.0, 1.0]`.
+**Semântica**: Constrói `Color::LinearRgb`. Int ∈ [0, 255] ÷ 255; Ratio
+(percentagem) → valor direto. **Float é rejeitado** com a mensagem verbatim
+do vanilla "expected integer or ratio, found float" (medido P736 — o
+falso-aceite pré-P736 de Float/Int-linear foi corrigido; a dupla divergência
+era: aceitava Float, rejeitava Ratio).
 
 **Testes canônicos**:
 ```
-linear_rgb(1.0, 0.0, 0.5)          -> Color::LinearRgb
-linear_rgb(1, 0, 0, 0.5)           -> Color::LinearRgb com alpha 0.5
+linear_rgb(255, 0, 0)              -> Color::LinearRgb (vermelho)
+linear_rgb(50%, 50%, 50%)          -> Color::LinearRgb (cinza 50%)
+linear_rgb(0.5, 0.5, 0.5)          -> Err "expected integer or ratio, found float"
 linear_rgb(1.0, 0.0)               -> Err "linear_rgb() requer 3 ou 4"
 ```
 

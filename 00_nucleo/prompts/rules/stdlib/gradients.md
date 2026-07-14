@@ -1,5 +1,5 @@
-# Prompt L0 — `stdlib/gradients` — módulo `gradient`
-Hash do Código: c03deb9d
+# Prompt L0 — `stdlib/gradients` — tipo `gradient`
+Hash do Código: 66647187
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/rules/stdlib/gradients.rs`
@@ -12,11 +12,19 @@ P262 (`gradient.linear`), P264 (`gradient.radial`) e P267 (`gradient.conic`).
 
 ---
 
-## Módulo `gradient` — funções nativas de gradiente
+## Tipo `gradient` — representação no scope (P736)
 
-O módulo regista três funções nativas sob a chave `"gradient"` no scope global,
-via `make_gradient_module()`. Cada função constrói um `Value::Gradient(...)`
-com o tipo de gradiente correspondente. O parsing de stops é partilhado.
+**P736 — estado vigente:** `gradient` é exposto no scope global como
+`Value::Type(Type::Gradient)` (paridade vanilla — medido: `type(gradient)`
+→ `type`; `type(gradient.linear(red, blue)) == gradient` → `true`;
+`repr(gradient)` → `gradient`; `gradient(...)` → erro "type gradient does
+not have a constructor"). Histórico: até P736 era `Value::Dict`
+(`make_gradient_module()`).
+
+Os fields `linear`/`radial`/`conic` resolvem-se por field access em
+`Value::Type` via `gradient_type_field(field) -> Option<Value>` (padrão
+P685); campo inexistente → erro "type gradient does not contain field
+`<f>`" (mensagem verbatim do vanilla, medida).
 
 ### Formato de stops
 

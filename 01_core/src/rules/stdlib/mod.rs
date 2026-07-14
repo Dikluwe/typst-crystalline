@@ -121,8 +121,9 @@ pub use crate::rules::stdlib::transforms::{
 // P262 — Gradient stdlib (Linear only per ADR-0087).
 // P264 — Gradient stdlib Radial added per ADR-0088.
 // P267 — Gradient stdlib Conic added per ADR-0089 (cluster 3/3).
+// P736 — `gradient_type_field` (era `make_gradient_module`; tipo, não dict).
 pub use crate::rules::stdlib::gradients::{
-    make_gradient_module, native_gradient_conic, native_gradient_linear,
+    gradient_type_field, native_gradient_conic, native_gradient_linear,
     native_gradient_radial,
 };
 // P396 — constructor `tiling(...)`.
@@ -138,8 +139,9 @@ pub use crate::rules::stdlib::sym::build_sym_module;
 // P735 — módulos emoji e pdf.
 pub use crate::rules::stdlib::emoji::build_emoji_module;
 pub use crate::rules::stdlib::pdf::make_pdf_module;
-// P476 — módulo color.
-pub use crate::rules::stdlib::color::{make_color_module, predefined_color_bindings};
+// P476 — operadores de cor. **P736** — `color_type_field` (era
+// `make_color_module`; `color` é `Value::Type`, não `Value::Dict`).
+pub use crate::rules::stdlib::color::{color_type_field, predefined_color_bindings};
 // P694 — módulo sys.
 pub use crate::rules::stdlib::sys::make_sys_module;
 // P311b.3 — 12 funções math style (paridade categoria 12/12 = 100%).
@@ -552,10 +554,12 @@ mod tests {
 
     #[test]
     fn p257_native_linear_rgb_3_args() {
+        // **P736** — paridade vanilla medida: `linear-rgb` rejeita Float
+        // ("expected integer or ratio, found float"); aceita Int [0, 255].
         null_ctx!(ctx);
         let r = native_linear_rgb(
             &mut ctx,
-            &p(vec![Value::Float(1.0), Value::Float(0.0), Value::Float(0.0)]),
+            &p(vec![Value::Int(255), Value::Int(0), Value::Int(0)]),
             &null_world(),
             test_file_id(),
         )
@@ -12489,15 +12493,14 @@ mod tests {
 
     #[test]
     fn p476_color_module_no_scope_tem_4_entradas() {
-        use crate::rules::stdlib::make_color_module;
-        let m = make_color_module();
-        if let Value::Dict(d) = m {
-            assert!(d.contains_key("lighten"), "falta lighten");
-            assert!(d.contains_key("darken"),  "falta darken");
-            assert!(d.contains_key("mix"),     "falta mix");
-            assert!(d.contains_key("negate"),  "falta negate");
-            // NOTE: P477 aumenta para 6; atualizado em p477_color_module_tem_6_entradas
-        } else { panic!("make_color_module deve retornar Dict"); }
+        // **P736** — era `make_color_module() -> Value::Dict`; passou a
+        // `color_type_field` (fields do valor-tipo `color`).
+        use crate::rules::stdlib::color_type_field;
+        assert!(color_type_field("lighten").is_some(), "falta lighten");
+        assert!(color_type_field("darken").is_some(),  "falta darken");
+        assert!(color_type_field("mix").is_some(),     "falta mix");
+        assert!(color_type_field("negate").is_some(),  "falta negate");
+        // NOTE: P477 aumenta para 6; atualizado em p477_color_module_tem_6_entradas
     }
 
     // ── P477 — saturate/desaturate + constantes nomeadas ─────────────────────
@@ -12526,13 +12529,16 @@ mod tests {
 
     #[test]
     fn p477_color_module_tem_6_entradas() {
-        use crate::rules::stdlib::make_color_module;
-        let m = make_color_module();
-        if let Value::Dict(d) = m {
-            assert!(d.contains_key("saturate"),   "falta saturate");
-            assert!(d.contains_key("desaturate"), "falta desaturate");
-            assert_eq!(d.len(), 6, "módulo color deve ter exactamente 6 entradas pós-P477");
-        } else { panic!("make_color_module deve retornar Dict"); }
+        // **P736** — era `make_color_module() -> Value::Dict`; passou a
+        // `color_type_field` (fields do valor-tipo `color`).
+        use crate::rules::stdlib::color_type_field;
+        assert!(color_type_field("saturate").is_some(),   "falta saturate");
+        assert!(color_type_field("desaturate").is_some(), "falta desaturate");
+        let ops = ["lighten", "darken", "mix", "negate", "saturate", "desaturate"];
+        assert!(
+            ops.iter().all(|f| color_type_field(f).is_some()),
+            "os 6 operadores P476/P477 devem ser fields do tipo color"
+        );
     }
 
     #[test]

@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/rules/stdlib/color.md
-//! @prompt-hash 87325eda
+//! @prompt-hash e64cf59f
 //! @layer L1
 //! @updated 2026-06-27
 //!
@@ -8,8 +8,6 @@
 //! P476 — fecho parcial ADR-0083 §"Operadores cor" scope-out (4/6 implementados).
 
 use ecow::EcoString;
-use indexmap::IndexMap;
-use rustc_hash::FxBuildHasher;
 
 use crate::entities::args::Args;
 use crate::entities::file_id::FileId;
@@ -26,19 +24,41 @@ fn err_typed<T>(msg: impl Into<String>) -> SourceResult<T> {
     Err(vec![SourceDiagnostic::error(Span::detached(), msg.into())])
 }
 
-/// Constrói o módulo `color` como `Value::Dict` com 6 operadores de cor.
+/// Devolve o valor associado a `field` no tipo `color` (P736).
 ///
-/// P476: lighten, darken, mix, negate.
-/// P477: saturate, desaturate — fecha ADR-0083 §"Operadores cor" totalmente.
-pub fn make_color_module() -> Value {
-    let mut dict: IndexMap<EcoString, Value, FxBuildHasher> = IndexMap::default();
-    dict.insert("lighten".into(),    Value::Func(Func::native("color.lighten",    native_color_lighten)));
-    dict.insert("darken".into(),     Value::Func(Func::native("color.darken",     native_color_darken)));
-    dict.insert("mix".into(),        Value::Func(Func::native("color.mix",        native_color_mix)));
-    dict.insert("negate".into(),     Value::Func(Func::native("color.negate",     native_color_negate)));
-    dict.insert("saturate".into(),   Value::Func(Func::native("color.saturate",   native_color_saturate)));
-    dict.insert("desaturate".into(), Value::Func(Func::native("color.desaturate", native_color_desaturate)));
-    Value::Dict(dict)
+/// `color` é `Value::Type(Type::Color)` no scope global (paridade vanilla
+/// — medido: `type(color)` → `type`); os fields resolvem-se por field
+/// access em `Value::Type` (`eval/bindings.rs`), que delega aqui.
+///
+/// 14 fields: 8 constructors (as mesmas nativas registadas globalmente:
+/// `rgb`, `linear-rgb`, `luma`, `cmyk`, `hsl`, `hsv`, `oklab`, `oklch`)
+/// + 6 operadores P476/P477. `None` para campo inexistente — o chamador
+/// emite "type color does not contain field `<f>`" (verbatim vanilla).
+///
+/// Histórico: até P736 era `make_color_module() -> Value` (`Value::Dict`
+/// com os 6 operadores; os constructors não eram acessíveis via `color.*`).
+pub fn color_type_field(field: &str) -> Option<Value> {
+    use super::foundations::{
+        native_cmyk, native_hsl, native_hsv, native_linear_rgb, native_luma,
+        native_oklab, native_oklch, native_rgb,
+    };
+    Some(match field {
+        "rgb" => Value::Func(Func::native("color.rgb", native_rgb)),
+        "linear-rgb" => Value::Func(Func::native("color.linear-rgb", native_linear_rgb)),
+        "luma" => Value::Func(Func::native("color.luma", native_luma)),
+        "cmyk" => Value::Func(Func::native("color.cmyk", native_cmyk)),
+        "hsl" => Value::Func(Func::native("color.hsl", native_hsl)),
+        "hsv" => Value::Func(Func::native("color.hsv", native_hsv)),
+        "oklab" => Value::Func(Func::native("color.oklab", native_oklab)),
+        "oklch" => Value::Func(Func::native("color.oklch", native_oklch)),
+        "lighten" => Value::Func(Func::native("color.lighten", native_color_lighten)),
+        "darken" => Value::Func(Func::native("color.darken", native_color_darken)),
+        "mix" => Value::Func(Func::native("color.mix", native_color_mix)),
+        "negate" => Value::Func(Func::native("color.negate", native_color_negate)),
+        "saturate" => Value::Func(Func::native("color.saturate", native_color_saturate)),
+        "desaturate" => Value::Func(Func::native("color.desaturate", native_color_desaturate)),
+        _ => return None,
+    })
 }
 
 /// Cores nomeadas globais para injeção no scope de eval.

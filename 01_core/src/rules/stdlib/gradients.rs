@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/rules/stdlib/_comum.md
-//! @prompt-hash ad56b563
+//! @prompt-hash f8985e77
 //! @prompt 00_nucleo/prompts/rules/stdlib/gradients.md
 //! @layer L1
 //! @updated 2026-06-24
@@ -17,10 +17,6 @@
 //! ColorSpace fixo Oklab (scope-out ADR-0087 — paridade vanilla
 //! default). Interpolação L1 via `Linear::sample(t)`.
 
-use ecow::EcoString;
-use indexmap::IndexMap;
-use rustc_hash::FxBuildHasher;
-
 use crate::entities::args::Args;
 use crate::entities::axes::Axes;
 use crate::entities::file_id::FileId;
@@ -33,20 +29,25 @@ use crate::entities::span::Span;
 use crate::entities::value::Value;
 use crate::rules::eval::EvalContext;
 
-/// Constrói o módulo `gradient` como `Value::Dict` (paridade
-/// `make_calc_module`). Acesso `gradient.linear(...)` /
-/// `gradient.radial(...)` via `eval_field_access` sobre Dict.
-pub fn make_gradient_module() -> Value {
-    let mut dict: IndexMap<EcoString, Value, FxBuildHasher> = IndexMap::default();
-    dict.insert("linear".into(),
-        Value::Func(Func::native("gradient.linear", native_gradient_linear)));
-    // P264 — Radial activa per ADR-0088.
-    dict.insert("radial".into(),
-        Value::Func(Func::native("gradient.radial", native_gradient_radial)));
-    // P267 — Conic activa per ADR-0089 (cluster Gradient 3/3 completo).
-    dict.insert("conic".into(),
-        Value::Func(Func::native("gradient.conic", native_gradient_conic)));
-    Value::Dict(dict)
+/// Devolve o valor associado a `field` no tipo `gradient` (P736).
+///
+/// `gradient` é `Value::Type(Type::Gradient)` no scope global (paridade
+/// vanilla — medido: `type(gradient)` → `type`); os fields resolvem-se
+/// por field access em `Value::Type` (`eval/bindings.rs`), que delega
+/// aqui. `None` para campo inexistente — o chamador emite
+/// "type gradient does not contain field `<f>`" (verbatim vanilla).
+///
+/// Histórico: até P736 era `make_gradient_module() -> Value`
+/// (`Value::Dict` com os 3 constructors; acesso via field access em Dict).
+pub fn gradient_type_field(field: &str) -> Option<Value> {
+    Some(match field {
+        "linear" => Value::Func(Func::native("gradient.linear", native_gradient_linear)),
+        // P264 — Radial activa per ADR-0088.
+        "radial" => Value::Func(Func::native("gradient.radial", native_gradient_radial)),
+        // P267 — Conic activa per ADR-0089 (cluster Gradient 3/3 completo).
+        "conic" => Value::Func(Func::native("gradient.conic", native_gradient_conic)),
+        _ => return None,
+    })
 }
 
 /// `gradient.linear(stops..., angle: ?)` → `Value::Gradient(Gradient::Linear)`.
