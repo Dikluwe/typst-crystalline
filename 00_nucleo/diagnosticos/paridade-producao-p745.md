@@ -2,7 +2,7 @@
 
 **Data:** 2026-07-14 (08:45 -03:00)
 **Commit base:** `9425cc4e6` ("P744: preenche hash do commit no relatorio")
-**Commit da sonda:** `PREENCHER_APOS_COMMIT`
+**Commit da sonda:** `8e80fb1e5` ("P745: confirma que diff residual de cetz e anti-aliasing")
 **Estado no momento das medições:** working tree limpa; nenhum ficheiro de código alterado.
 
 Vanilla de referência: `lab/typst-original/target/release/typst`
