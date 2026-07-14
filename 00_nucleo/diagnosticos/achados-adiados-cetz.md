@@ -1,4 +1,4 @@
-# Achados adiados na cadeia P700-742 — lista de controlo
+# Achados adiados na cadeia P700-743 — lista de controlo
 
 ## Por resolver
 
@@ -37,7 +37,7 @@
 | Formatação de `Float` em markup divergia (`2.0` vs `2`) | P739C (braço P545 de interpolação em `eval/mod.rs`: `Value::Float(f) => format!("{f}")` — Display de f64, paridade vanilla; `repr` inalterado; E2E `pdftotext` idêntico: `2 1 2.5 0.1 100 1500 1.0`) |
 | `Length / Float` com NaN propagava — vanilla saneia para `0pt` (`repr(1pt / (calc.inf - calc.inf))` → `0pt`, medido; NaN alcançável via `calc.inf - calc.inf`) | P739D (`sanitize_length_nan` estendida aos dois braços `Div` de `Length` em `operators.rs`; zero-divisor literal mantém "cannot divide by zero" — paridade exacta medida nos dois compiladores; E2E → `0pt`) |
 
-| Warning "this return unconditionally discards the content before it" ausente — único consumidor do flag `conditional` de P729 (`code.rs:413-430`); coexiste com o erro "cannot return outside of function" | P740A (braço CodeBlock emite via `Sink::warn_note2` quando `FlowEvent::Return(_, Some(_), false)` com output Content; `content_has_state_or_counter` para o 2º hint — descoberta: `state.update()` produz `Content::StateUpdate`; E2E idêntico ao vanilla: warning + hint(s) + erro) |
+| Warning "this return unconditionally discards the content before it" + valor devolvido — P738 confirmou o aviso ausente, mas não o valor; **P743 verificou que o valor devolvido também coincide** (`{ [conteudo] return "x" }` → `"x"` nos dois lados; `(1,2,3) return "x"` → `"x"`; `"texto" return 42` → `42`). O mecanismo de descarte está correcto: o braço CodeBlock junta expressões até encontrar `FlowEvent::Return`, depois `closures.rs` devolve o valor explícito e ignora o `output` acumulado. Coexiste com o erro "cannot return outside of function". | P740A (warning via `Sink::warn_note2` em `FlowEvent::Return(_, Some(_), false)` com output Content; `content_has_state_or_counter` para o 2º hint) + P743 (confirmação do valor devolvido) |
 | Repr de `Value::Args` (sink) lossy (`arguments(...)`) | P740B (braço em `repr.rs`: nomeados primeiro, depois posicionais — ordem medida `arguments(z: 3, 1, 2)`; casa com `named: IndexMap` + `items: Vec`; vazio → `arguments()`) |
 | `rgb(50%, 0%, 0%)` rejeitado — vanilla aceita percentagem por componente (→ `rgb("#800000")`) | P740D (`native_rgb` espelha P736: Int [0,255] ou Ratio [0%,100%] com `(rel×255).round()`; mensagens verbatim "number must be between 0 and 255" / "expected integer or ratio, found float" / "ratio must be between 0% and 100%") |
 | Repr de NaN diverge (`NaN.0` vs `float.nan`) — a sonda estendida mediu também ±inf (`inf.0` vs `float.inf`) | P740E (`repr_float`: guarda de não-finitos — NaN → `float.nan`, ±inf → `±float.inf`; finitos inalterados) |
