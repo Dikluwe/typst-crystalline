@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/rules/stdlib/math_style.md
-//! @prompt-hash d5b64c49
+//! @prompt-hash af446cb0
 //! @layer L1
 //! @updated 2026-05-20
 //!
@@ -20,21 +20,46 @@ use crate::entities::span::Span;
 use crate::entities::value::Value;
 use crate::rules::eval::EvalContext;
 
-use super::expect_no_named;
-
 /// Helper único — extrai o body do primeiro arg e wraps em
 /// `Content::MathStyled` com os fields fornecidos.
 ///
-/// Elimina ~10× duplicação nas 12 funções nativas math style.
+/// Elimina duplicação nas funções nativas math style.
+///
+/// `default_cramped`: valor usado quando o named arg `cramped` não é
+/// fornecido. `None` significa que `cramped` fica `None` e a função rejeita
+/// qualquer named arg.
 fn wrap_math_style(
-    args:    &Args,
-    name:    &str,
-    kind:    Option<MathStyleKind>,
-    bold:    Option<bool>,
-    italic:  Option<bool>,
-    cramped: Option<bool>,
+    args:           &Args,
+    name:           &str,
+    kind:           Option<MathStyleKind>,
+    bold:           Option<bool>,
+    italic:         Option<bool>,
+    default_cramped: Option<bool>,
 ) -> SourceResult<Value> {
-    expect_no_named(&args.named)?;
+    let cramped = if let Some(default) = default_cramped {
+        match args.named.get("cramped") {
+            Some(Value::Bool(b)) => Some(*b),
+            Some(other) => {
+                return Err(vec![SourceDiagnostic::error(
+                    Span::detached(),
+                    format!(
+                        "cramped deve ser bool, recebeu {}",
+                        other.type_name()
+                    ),
+                )]);
+            }
+            None => Some(default),
+        }
+    } else {
+        for key in args.named.keys() {
+            return Err(vec![SourceDiagnostic::error(
+                Span::detached(),
+                format!("{}() não aceita o argumento nomeado '{}'", name, key),
+            )]);
+        }
+        None
+    };
+
     if args.items.len() > 1 {
         return Err(vec![SourceDiagnostic::error(
             Span::detached(),
@@ -68,9 +93,19 @@ pub fn native_cal(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contr
     wrap_math_style(args, "cal", Some(MathStyleKind::Chancery), None, None, None)
 }
 
+/// `display(body, cramped: false)` — forced display style in math.
+pub fn native_display(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contracts::world::World, _current_file: FileId) -> SourceResult<Value> {
+    wrap_math_style(args, "display", Some(MathStyleKind::Display), None, None, Some(false))
+}
+
 /// `frak(body)` — wrap em variant Fraktur.
 pub fn native_frak(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contracts::world::World, _current_file: FileId) -> SourceResult<Value> {
     wrap_math_style(args, "frak", Some(MathStyleKind::Fraktur), None, None, None)
+}
+
+/// `inline(body, cramped: false)` — forced inline (text) style in math.
+pub fn native_inline(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contracts::world::World, _current_file: FileId) -> SourceResult<Value> {
+    wrap_math_style(args, "inline", Some(MathStyleKind::Inline), None, None, Some(false))
 }
 
 /// `italic(body)` — flag italic ortogonal.
@@ -93,7 +128,7 @@ pub fn native_scr(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contr
     wrap_math_style(args, "scr", Some(MathStyleKind::Roundhand), None, None, None)
 }
 
-/// `script(body)` — wrap em variant Script (size factor 0.7) + cramped.
+/// `script(body, cramped: true)` — wrap em variant Script (size factor 0.7) + cramped.
 pub fn native_script(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contracts::world::World, _current_file: FileId) -> SourceResult<Value> {
     wrap_math_style(args, "script", Some(MathStyleKind::Script), None, None, Some(true))
 }
@@ -103,7 +138,7 @@ pub fn native_serif(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::con
     wrap_math_style(args, "serif", Some(MathStyleKind::Plain), None, None, None)
 }
 
-/// `sscript(body)` — wrap em variant SScript (size factor 0.5) + cramped.
+/// `sscript(body, cramped: true)` — wrap em variant SScript (size factor 0.5) + cramped.
 pub fn native_sscript(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contracts::world::World, _current_file: FileId) -> SourceResult<Value> {
     wrap_math_style(args, "sscript", Some(MathStyleKind::SScript), None, None, Some(true))
 }
@@ -113,6 +148,6 @@ pub fn native_upright(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::c
     wrap_math_style(args, "upright", None, None, Some(false), None)
 }
 
-// Tests para 12 funções math style ficam em `stdlib::mod.rs` per
+// Tests para as funções math style ficam em `stdlib::mod.rs` per
 // pattern P308 — todos os tests de submódulos stdlib partilham
 // `NullWorld`/`null_ctx!`/`test_file_id` definidos no `mod` parent.

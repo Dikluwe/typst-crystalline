@@ -146,10 +146,11 @@ pub use crate::rules::stdlib::pdf::make_pdf_module;
 pub use crate::rules::stdlib::color::{color_type_field, predefined_color_bindings};
 // P694 — módulo sys.
 pub use crate::rules::stdlib::sys::make_sys_module;
-// P311b.3 — 12 funções math style (paridade categoria 12/12 = 100%).
+// P311b.3 + P765b — 14 funções math style.
 pub use crate::rules::stdlib::math_style::{
-    native_bb, native_bold, native_cal, native_frak, native_math_italic, native_mono,
-    native_sans, native_scr, native_script, native_serif, native_sscript, native_upright,
+    native_bb, native_bold, native_cal, native_display, native_frak, native_inline,
+    native_math_italic, native_mono, native_sans, native_scr, native_script, native_serif,
+    native_sscript, native_upright,
 };
 
 // ── Helpers partilhados ─────────────────────────────────────────────────────
@@ -11780,9 +11781,9 @@ mod tests {
     // resolvida em P311b.4.
 
     use super::math_style::{
-        native_bb, native_bold, native_cal, native_frak, native_math_italic, native_mono,
-        native_sans, native_scr, native_script, native_serif, native_sscript,
-        native_upright,
+        native_bb, native_bold, native_cal, native_display, native_frak, native_inline,
+        native_math_italic, native_mono, native_sans, native_scr, native_script, native_serif,
+        native_sscript, native_upright,
     };
     use crate::entities::math_style::MathStyleKind;
 
@@ -11959,6 +11960,84 @@ mod tests {
     fn p311b_int_arg_errors() {
         let r = call_math_style(native_bb, vec![Value::Int(1)]);
         assert!(r.is_err(), "esperava erro por tipo incoercível");
+    }
+
+    #[test]
+    fn p765b_display_wraps_display_size() {
+        let v = call_math_style(
+            native_display,
+            vec![Value::Content(Content::MathIdent("x".into()))],
+        );
+        assert_styled(v, Some(MathStyleKind::Display), None, None, Some(false));
+    }
+
+    #[test]
+    fn p765b_inline_wraps_inline_size() {
+        let v = call_math_style(
+            native_inline,
+            vec![Value::Content(Content::MathIdent("x".into()))],
+        );
+        assert_styled(v, Some(MathStyleKind::Inline), None, None, Some(false));
+    }
+
+    #[test]
+    fn p765b_script_named_cramped_false() {
+        null_ctx!(ctx);
+        let args = pn(
+            vec![Value::Content(Content::MathIdent("x".into()))],
+            "cramped",
+            Value::Bool(false),
+        );
+        let v = native_script(&mut ctx, &args, &null_world(), test_file_id());
+        assert_styled(v, Some(MathStyleKind::Script), None, None, Some(false));
+    }
+
+    #[test]
+    fn p765b_sscript_named_cramped_false() {
+        null_ctx!(ctx);
+        let args = pn(
+            vec![Value::Content(Content::MathIdent("x".into()))],
+            "cramped",
+            Value::Bool(false),
+        );
+        let v = native_sscript(&mut ctx, &args, &null_world(), test_file_id());
+        assert_styled(v, Some(MathStyleKind::SScript), None, None, Some(false));
+    }
+
+    #[test]
+    fn p765b_display_named_cramped_true() {
+        null_ctx!(ctx);
+        let args = pn(
+            vec![Value::Content(Content::MathIdent("x".into()))],
+            "cramped",
+            Value::Bool(true),
+        );
+        let v = native_display(&mut ctx, &args, &null_world(), test_file_id());
+        assert_styled(v, Some(MathStyleKind::Display), None, None, Some(true));
+    }
+
+    #[test]
+    fn p765b_inline_named_cramped_true() {
+        null_ctx!(ctx);
+        let args = pn(
+            vec![Value::Content(Content::MathIdent("x".into()))],
+            "cramped",
+            Value::Bool(true),
+        );
+        let v = native_inline(&mut ctx, &args, &null_world(), test_file_id());
+        assert_styled(v, Some(MathStyleKind::Inline), None, None, Some(true));
+    }
+
+    #[test]
+    fn p765b_bb_rejects_named_arg() {
+        null_ctx!(ctx);
+        let args = pn(
+            vec![Value::Content(Content::MathIdent("x".into()))],
+            "cramped",
+            Value::Bool(true),
+        );
+        let r = native_bb(&mut ctx, &args, &null_world(), test_file_id());
+        assert!(r.is_err(), "esperava erro por named arg inesperado");
     }
 
     // ── P394 — eval(source) runtime de re-avaliação ────────────────────────────

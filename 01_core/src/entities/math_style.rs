@@ -24,20 +24,29 @@ pub enum MathStyleKind {
     DoubleStruck,
     Script,
     SScript,
+    Display,
+    Inline,
 }
 
 impl MathStyleKind {
     /// `true` se este variant aplica factor de tamanho em vez de glyph.
     pub fn is_size_variant(self) -> bool {
-        matches!(self, MathStyleKind::Script | MathStyleKind::SScript)
+        matches!(
+            self,
+            MathStyleKind::Script
+                | MathStyleKind::SScript
+                | MathStyleKind::Display
+                | MathStyleKind::Inline
+        )
     }
 
     /// Factor multiplicativo aplicado a `style.size` para variants size.
-    /// Retorna `1.0` para variants glyph.
+    /// Retorna `1.0` para variants glyph e para Display/Inline.
     pub fn size_factor(self) -> f64 {
         match self {
             MathStyleKind::Script => 0.7,
             MathStyleKind::SScript => 0.5,
+            MathStyleKind::Display | MathStyleKind::Inline => 1.0,
             _ => 1.0,
         }
     }
@@ -97,6 +106,7 @@ fn letter_base(kind: MathStyleKind, bold: bool, italic: bool) -> Option<u32> {
         (MathStyleKind::SansSerif, true, true) => Some(0x1D63C),
         (MathStyleKind::Monospace, _, _) => Some(0x1D670),
         (MathStyleKind::Script | MathStyleKind::SScript, _, _) => None,
+        _ => None,
     }
 }
 
@@ -153,6 +163,8 @@ mod tests {
     fn kind_is_size_variant() {
         assert!(MathStyleKind::Script.is_size_variant());
         assert!(MathStyleKind::SScript.is_size_variant());
+        assert!(MathStyleKind::Display.is_size_variant());
+        assert!(MathStyleKind::Inline.is_size_variant());
         assert!(!MathStyleKind::Plain.is_size_variant());
         assert!(!MathStyleKind::DoubleStruck.is_size_variant());
     }
@@ -161,6 +173,8 @@ mod tests {
     fn kind_size_factor() {
         assert_eq!(MathStyleKind::Script.size_factor(), 0.7);
         assert_eq!(MathStyleKind::SScript.size_factor(), 0.5);
+        assert_eq!(MathStyleKind::Display.size_factor(), 1.0);
+        assert_eq!(MathStyleKind::Inline.size_factor(), 1.0);
         assert_eq!(MathStyleKind::Plain.size_factor(), 1.0);
         assert_eq!(MathStyleKind::Fraktur.size_factor(), 1.0);
     }
