@@ -1,6 +1,6 @@
 # Prompt L0 — `rules/layout/shape_block_behaviour` — `Content::Shape` como bloco que quebra parágrafo
 
-Hash do Código: `P767-PENDING` (a calcular no momento da implementação L1, conforme Protocolo de Nucleação)
+Hash do Código: bf8e1347
 
 **Camada**: L1 · **Alvo**: `01_core/src/rules/layout/shape.rs` (com impacto no dispatch de `Content::Shape` em `rules/layout/mod.rs`)
 **Origem**: P767 — arqueologia de P763h.

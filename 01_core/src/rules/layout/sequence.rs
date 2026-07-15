@@ -52,8 +52,10 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
             }
         }
         layouter.layout_content(part);
-        if !matches!(part, Content::Block { .. }) {
+        if !matches!(part, Content::Block { .. } | Content::Shape(_)) {
             // P250 — non-Block child quebra chain.
+            // **P767a** — `Content::Shape` também é block-level, logo
+            // mantém o estado de colapso de margem.
             layouter.block_chain_active = false;
             layouter.prev_block_below_pending = 0.0;
         }
