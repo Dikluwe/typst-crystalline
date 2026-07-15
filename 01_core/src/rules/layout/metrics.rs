@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/rules/layout.md
-//! @prompt-hash 3b5bf67a
+//! @prompt-hash 24db1e79
 //! @layer L1
 //! @updated 2026-07-14
 //!
@@ -45,6 +45,16 @@ pub trait FontMetrics: Send + Sync {
     /// aproximar proporcionalmente (ex: `size * 0.7`). O `style` é passado
     /// para que implementações L3 possam resolver a fonte correcta (P752).
     fn cap_height(&self, size: Pt, style: &TextStyle) -> Pt;
+
+    /// **P762** — offsets superior e inferior da linha em pontos
+    /// tipográficos, conforme `top-edge`/`bottom-edge` do estilo.
+    ///
+    /// Devolve `(top, bottom)` medidos a partir da baseline. Valores
+    /// positivos significam distância para cima (top) ou para baixo
+    /// (bottom). `top` é sempre >= 0; `bottom` <= 0 para edges abaixo da
+    /// baseline. Implementações devem suportar pelo menos `"baseline"`,
+    /// `"cap-height"`, `"ascender"` e `"descender"`.
+    fn text_edges(&self, size: Pt, style: &TextStyle) -> (Pt, Pt);
 
     /// Constantes da tabela OpenType MATH, se disponível.
     ///
@@ -200,6 +210,22 @@ impl FontMetrics for FixedMetrics {
         // **P750/P752** — aproximação proporcional consistente com a razão
         // típica cap-height/em; usada apenas quando não há fonte real.
         size * 0.7
+    }
+
+    fn text_edges(&self, size: Pt, style: &TextStyle) -> (Pt, Pt) {
+        // **P762** — aproximações proporcionais para métricas fixas.
+        let top = match style.top_edge.as_deref() {
+            Some("baseline") => Pt(0.0),
+            Some("x-height") => size * 0.5,
+            Some("cap-height") => size * 0.7,
+            Some("ascender") => size * 0.8,
+            _ => size * 0.7, // default vanilla = cap-height
+        };
+        let bottom = match style.bottom_edge.as_deref() {
+            Some("descender") => size * -0.2,
+            Some("baseline") | _ => Pt(0.0),
+        };
+        (top, bottom)
     }
 }
 

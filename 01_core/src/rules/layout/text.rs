@@ -52,6 +52,14 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
         Some(Value::Length(l)) => Some(l.clone()),
         _ => None,
     };
+    let ns_top_edge = match cs("text.top-edge") {
+        Some(Value::Str(s)) => Some(s.clone()),
+        _ => None,
+    };
+    let ns_bottom_edge = match cs("text.bottom-edge") {
+        Some(Value::Str(s)) => Some(s.clone()),
+        _ => None,
+    };
     let ns_lang = match cs("text.lang") {
         Some(Value::Str(s)) => {
             use std::str::FromStr;
@@ -122,6 +130,8 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
         weight:        layouter.style.weight.or(ns_weight),
         tracking:      layouter.style.tracking.clone().or(ns_tracking),
         leading:       layouter.style.leading.clone().or(ns_leading),
+        top_edge:      layouter.style.top_edge.clone().or(ns_top_edge),
+        bottom_edge:   layouter.style.bottom_edge.clone().or(ns_bottom_edge),
         lang:          layouter.style.lang.clone().or(ns_lang),
         // P660 fix: `#set text(font: ...)` deve substituir a fonte default da
         // chain (Libertinus Serif). A chain tipada (heading) ainda vence porque

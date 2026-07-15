@@ -31,11 +31,13 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
     let margin_pt = Pt(layouter.page_config.margin);
     let font_size = layouter.style.size;
 
-    // P505 — espaçamento de parágrafo *entre* itens soltos.
+    // **P762** — espaçamento de parágrafo *entre* itens soltos usa o mesmo
+    // modelo de avanço de linha: top-edge + |bottom-edge| + leading default.
     let is_loose = e.tight == Some(false);
     if is_loose && layouter.last_was_loose_item {
-        let (_, line_height) = layouter.metrics.vertical_metrics(font_size, &layouter.style);
-        layouter.regions.current.cursor_y += line_height;
+        let (top, bottom) = layouter.metrics.text_edges(font_size, &layouter.style);
+        let leading = layouter.style.leading.map(|l| l.resolve_pt(font_size.val())).unwrap_or_else(|| font_size.val() * 0.65);
+        layouter.regions.current.cursor_y += top + Pt(-bottom.0) + Pt(leading);
     }
     layouter.last_was_loose_item = is_loose;
 

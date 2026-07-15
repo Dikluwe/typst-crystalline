@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/rules/layout.md
-//! @prompt-hash 3b5bf67a
+//! @prompt-hash 24db1e79
 //! @layer L1
 //! @updated 2026-07-14
 //!
@@ -274,15 +274,15 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
         // Garantir linha limpa antes do Grid.
         self.flush_line();
 
-        // P750/P761 — quando a baseline inicial ainda está pendente,
+        // P750/P761/P762 — quando a baseline inicial ainda está pendente,
         // `cursor_y` representa o topo da área disponível (margem) e
-        // `ensure_initial_baseline()` ainda vai adicionar o cap-height.
+        // `ensure_initial_baseline()` ainda vai adicionar o offset do top-edge.
         // Nesse caso o Grid alinha-se directamente com esse topo. Quando
         // a baseline já foi fixada, `cursor_y` representa a baseline e o
-        // topo do Grid é baseline − cap-height.
+        // topo do Grid é baseline − top-edge.
         if !self.initial_baseline_pending {
-            let grid_cap_height = self.metrics.cap_height(self.style.size, &self.style);
-            self.regions.current.cursor_y = Pt(self.regions.current.cursor_y.0 - grid_cap_height.0);
+            let (top, _) = self.metrics.text_edges(self.style.size, &self.style);
+            self.regions.current.cursor_y = Pt(self.regions.current.cursor_y.0 - top.0);
         }
 
         // Fase 1.5 — paginação ANTES da fase 2 de Fraction.

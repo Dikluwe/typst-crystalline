@@ -17,7 +17,7 @@ use typst_core::entities::font_list::FontNamePattern;
 use typst_core::entities::layout_types::{Pt, TextStyle};
 use typst_core::entities::math_constants::MathConstants;
 use typst_core::entities::world_types::Font;
-use typst_core::rules::layout::FontMetrics;
+use typst_core::rules::layout::{FontMetrics, FixedMetrics};
 
 use crate::fallback_fonts::fallback_font_list_for;
 use crate::font_variant::{axis_variations_for_font_variant, text_style_to_font_variant};
@@ -105,6 +105,56 @@ fn typo_metrics(face: &Face<'_>) -> (f64, f64, f64) {
     )
 }
 
+/// **P762** — converte uma string `top-edge`/`bottom-edge` num offset em
+/// pontos tipográficos relativos à baseline. Valores positivos são para
+/// cima no caso do top; negativos para baixo no caso do bottom.
+fn edge_offset_pt(
+    face: &Face<'_>,
+    upem: f64,
+    size: Pt,
+    edge: Option<&str>,
+    is_top: bool,
+) -> Pt {
+    let default = if is_top { "cap-height" } else { "baseline" };
+    let edge = edge.unwrap_or(default);
+
+    let units = match edge {
+        "baseline" => 0.0,
+        "x-height" => face.x_height().map(|h| h as f64).unwrap_or_else(|| {
+            // fallback: 0.5 em aproximado
+            upem * 0.5
+        }),
+        "cap-height" => {
+            let ascender = face
+                .typographic_ascender()
+                .filter(|&h| h > 0)
+                .map(|h| h as f64)
+                .unwrap_or_else(|| face.ascender() as f64);
+            face.capital_height()
+                .filter(|&h| h > 0)
+                .map(|h| h as f64)
+                .unwrap_or(ascender)
+        }
+        "ascender" => face
+            .typographic_ascender()
+            .filter(|&h| h > 0)
+            .map(|h| h as f64)
+            .unwrap_or_else(|| face.ascender() as f64),
+        "descender" => face
+            .typographic_descender()
+            .filter(|&h| h < 0)
+            .map(|h| h as f64)
+            .unwrap_or_else(|| face.descender() as f64),
+        _ => {
+            // Edge desconhecido: comportamento defensivo igual ao default.
+            return edge_offset_pt(face, upem, size, None, is_top);
+        }
+    };
+
+    let pt = size * (units / upem);
+    if is_top { pt } else { Pt(-pt.0.abs()) }
+}
+
 /// Métricas de fonte reais via `ttf-parser`.
 ///
 /// `font_size` não armazenado — passado em cada chamada (invariante do trait).
@@ -175,6 +225,12 @@ impl FontMetrics for FontBookMetrics<'_> {
             .map(|h| h as f64)
             .unwrap_or(ascender);
         size * (cap / self.upem)
+    }
+
+    fn text_edges(&self, size: Pt, style: &TextStyle) -> (Pt, Pt) {
+        let top = edge_offset_pt(&self.face, self.upem, size, style.top_edge.as_deref(), true);
+        let bottom = edge_offset_pt(&self.face, self.upem, size, style.bottom_edge.as_deref(), false);
+        (top, bottom)
     }
 
     fn vertical_glyph_variants(&self, c: char) -> GlyphVariants {
@@ -790,6 +846,34 @@ impl FontMetrics for FallbackFontMetrics<'_> {
         }
         // Fallback último: mesma aproximação de FixedMetrics.
         size * 0.7
+    }
+
+    fn text_edges(&self, size: Pt, style: &TextStyle) -> (Pt, Pt) {
+        let primary = self.resolve_primary(style);
+
+        if let Some(cand) = primary.first() {
+            if let Some(cached) = self.cached_face(cand.slot_idx) {
+                let face = cached.face();
+                let upem = cand.units_per_em as f64;
+                let top = edge_offset_pt(face, upem, size, style.top_edge.as_deref(), true);
+                let bottom = edge_offset_pt(face, upem, size, style.bottom_edge.as_deref(), false);
+                return (top, bottom);
+            }
+        }
+
+        // Fallback final: primeira fonte do book.
+        let book_len = self.world.book().len();
+        for slot_idx in 0..book_len {
+            let Some(cached) = self.cached_face(slot_idx) else { continue };
+            let face = cached.face();
+            let upem = face.units_per_em().max(1) as f64;
+            let top = edge_offset_pt(face, upem, size, style.top_edge.as_deref(), true);
+            let bottom = edge_offset_pt(face, upem, size, style.bottom_edge.as_deref(), false);
+            return (top, bottom);
+        }
+
+        // Fallback último: métricas fixas.
+        FixedMetrics.text_edges(size, style)
     }
 }
 

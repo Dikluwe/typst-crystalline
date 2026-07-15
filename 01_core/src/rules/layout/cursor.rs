@@ -53,15 +53,15 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
         self.regions.current.cursor_y + Pt(offset_pt)
     }
 
-    /// **P751** — fixa a baseline inicial da página/coluna no momento em que o
+    /// **P751/P762** — fixa a baseline inicial da página/coluna no momento em que o
     /// primeiro conteúdo real é emitido. Enquanto `initial_baseline_pending` é
     /// `true`, `cursor_y` representa o topo útil (margem). Esta função adiciona
-    /// o `cap_height` do estilo activo, convertendo `cursor_y` na baseline da
-    /// primeira linha. Depois de fixada, a flag é desactivada.
+    /// o offset do `top-edge` do estilo activo (default `cap-height`), convertendo
+    /// `cursor_y` na baseline da primeira linha. Depois de fixada, a flag é desactivada.
     pub(super) fn ensure_initial_baseline(&mut self) {
         if self.initial_baseline_pending {
-            self.regions.current.cursor_y +=
-                self.metrics.cap_height(self.style.size, &self.style);
+            let (top, _) = self.metrics.text_edges(self.style.size, &self.style);
+            self.regions.current.cursor_y += top;
             self.initial_baseline_pending = false;
         }
     }
@@ -253,7 +253,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
                 if size.0 > max.0.0 { (size, style) } else { max }
             });
 
-        // Passo 138 (Fase B.2 DEBT-52): consumer leading.
+        // **P762** — consumer leading com default do vanilla (0,65 em).
         // `self.style` pode ter sido restaurado ao outer scope antes de
         // flush_line ser chamado. Em vez disso, peek no último item da
         // current_line — resolve o leading com base no seu próprio tamanho.
@@ -263,11 +263,14 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
             .rev()
             .find_map(|item| match item {
                 crate::entities::layout_types::FrameItem::Text { style, .. } | crate::entities::layout_types::FrameItem::TextShaped { style, .. } => {
-                    style.leading.map(|l| l.resolve_pt(style.size.val()))
+                    Some(style.leading.map(|l| l.resolve_pt(style.size.val())).unwrap_or_else(|| style.size.val() * 0.65))
                 }
                 _ => None,
             })
-            .unwrap_or(0.0);
+            .unwrap_or_else(|| {
+                // Sem texto na linha: usar o estilo activo do layouter.
+                self.style.leading.map(|l| l.resolve_pt(self.style.size.val())).unwrap_or_else(|| self.style.size.val() * 0.65)
+            });
 
         // P576 — alinhamento de parágrafo RTL.
         self.align_current_line_rtl();
@@ -276,8 +279,10 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
             self.regions.current.current_items.push(item);
         }
         if had_items {
-            let (_, line_height) = self.metrics.vertical_metrics(max_font_size, &max_style);
-            self.regions.current.cursor_y += line_height + Pt(line_leading_pt);
+            // **P762** — avanço entre linhas = top-edge + |bottom-edge| + leading,
+            // em vez de line_height (ascender + descender + lineGap).
+            let (top, bottom) = self.metrics.text_edges(max_font_size, &max_style);
+            self.regions.current.cursor_y += top + Pt(-bottom.0) + Pt(line_leading_pt);
         }
         // Reiniciar ao início da linha actual — margem da página, ou cell_x
         // se estivermos dentro de um sub-layout de Grid (Passo 81.5).
@@ -359,13 +364,14 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
         self.pages.push(page);
         self.regions.current.cursor_x = Pt(self.page_config.margin);
         self.regions.current.line_start_x = Pt(self.page_config.margin);
-        // **P761** — quando a baseline inicial ainda está pendente,
-        // `ensure_initial_baseline()` adicionará o `cap_height` correcto.
-        // Só pre-posicionamos a baseline quando o offset já foi fixado.
+        // **P761/P762** — quando a baseline inicial ainda está pendente,
+        // `ensure_initial_baseline()` adicionará o offset do `top-edge`. Só
+        // pre-posicionamos a baseline quando o offset já foi fixado.
         self.regions.current.cursor_y = if self.initial_baseline_pending {
             Pt(self.page_config.margin)
         } else {
-            Pt(self.page_config.margin) + self.metrics.cap_height(self.style.size, &self.style)
+            let (top, _) = self.metrics.text_edges(self.style.size, &self.style);
+            Pt(self.page_config.margin) + top
         };
         // P245 — reset reservas na nova página.
         self.cursor_y_top_reserve = 0.0;
@@ -464,12 +470,13 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
         self.regions.current.width = self.column_width;
         self.regions.current.cursor_x = Pt(self.page_config.margin);
         self.regions.current.line_start_x = Pt(self.page_config.margin);
-        // **P761** — quando a baseline inicial ainda está pendente,
-        // `ensure_initial_baseline()` adicionará o `cap_height` correcto.
+        // **P761/P762** — quando a baseline inicial ainda está pendente,
+        // `ensure_initial_baseline()` adicionará o offset do `top-edge`.
         self.regions.current.cursor_y = if self.initial_baseline_pending {
             Pt(self.page_config.margin)
         } else {
-            Pt(self.page_config.margin) + self.metrics.cap_height(self.style.size, &self.style)
+            let (top, _) = self.metrics.text_edges(self.style.size, &self.style);
+            Pt(self.page_config.margin) + top
         };
         self.regions.current.current_line.clear();
     }

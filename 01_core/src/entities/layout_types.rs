@@ -137,6 +137,13 @@ pub struct TextStyle {
     pub weight:        Option<u16>,
     pub tracking:      Option<crate::entities::layout_types::Length>,
     pub leading:       Option<crate::entities::layout_types::Length>,
+    /// **P762** — bordo superior da linha (`top-edge`): `"baseline"`,
+    /// `"cap-height"`, `"ascender"`, `"x-height"`, etc. `None` = default
+    /// do vanilla (`"cap-height"`).
+    pub top_edge:      Option<ecow::EcoString>,
+    /// **P762** — bordo inferior da linha (`bottom-edge`): `"baseline"`,
+    /// `"descender"`, etc. `None` = default do vanilla (`"baseline"`).
+    pub bottom_edge:   Option<ecow::EcoString>,
     pub lang:          Option<crate::entities::lang::Lang>,
     pub font:          Option<crate::entities::font_list::FontList>,
     /// **P576**: direcção de texto (`ltr`/`rtl`), transportada do `#set text(dir: ...)`.

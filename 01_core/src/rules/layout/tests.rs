@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/rules/layout.md
-//! @prompt-hash 3b5bf67a
+//! @prompt-hash 24db1e79
 //! @layer L1
 //! @updated 2026-07-14
 //!
@@ -951,10 +951,17 @@ fn layout_list_tight_false_adiciona_espaco() {
         .collect();
     assert_eq!(ys.len(), 2, "deve haver dois marcadores");
     let style = TextStyle::default();
-    let (_, line_height) = FixedMetrics.vertical_metrics(Pt(11.0), &style);
-    // P505 — `tight: false` adiciona um line_height de espaçamento de
-    // parágrafo *além* do line_height natural do flush_line.
-    let expected_gap = 2.0 * line_height.val();
+    // **P762** — avanço de linha = top-edge + |bottom-edge| + leading default
+    // (0,65 em), não o antigo line_height (ascender + descender + lineGap).
+    let (top, bottom) = FixedMetrics.text_edges(Pt(11.0), &style);
+    let leading = style
+        .leading
+        .map(|l| l.resolve_pt(11.0))
+        .unwrap_or(11.0 * 0.65);
+    let line_advance = top.val() + bottom.val().abs() + leading;
+    // P505 — `tight: false` adiciona um line_advance de espaçamento de
+    // parágrafo *além* do line_advance natural do flush_line.
+    let expected_gap = 2.0 * line_advance;
     let actual_gap = ys[1] - ys[0];
     assert!(
         (actual_gap - expected_gap).abs() < 0.01,
@@ -980,12 +987,16 @@ fn layout_list_tight_default_preserva_gap_natural() {
         .collect();
     assert_eq!(ys.len(), 2, "deve haver dois marcadores");
     let style = TextStyle::default();
-    let (_, line_height) = FixedMetrics.vertical_metrics(Pt(11.0), &style);
+    let (top, bottom) = FixedMetrics.text_edges(Pt(11.0), &style);
+    let leading = style
+        .leading
+        .map(|l| l.resolve_pt(11.0))
+        .unwrap_or(11.0 * 0.65);
+    let line_advance = top.val() + bottom.val().abs() + leading;
     let actual_gap = ys[1] - ys[0];
     assert!(
-        (actual_gap - line_height.val()).abs() < 0.01,
-        "gap={actual_gap}, esperado={}",
-        line_height.val()
+        (actual_gap - line_advance).abs() < 0.01,
+        "gap={actual_gap}, esperado={line_advance}"
     );
 }
 
@@ -1070,10 +1081,16 @@ fn layout_enum_tight_false_adiciona_espaco() {
         .collect();
     assert_eq!(ys.len(), 2, "deve haver dois rótulos");
     let style = TextStyle::default();
-    let (_, line_height) = FixedMetrics.vertical_metrics(Pt(11.0), &style);
-    // P505 — `tight: false` adiciona um line_height de espaçamento de
-    // parágrafo *além* do line_height natural do flush_line.
-    let expected_gap = 2.0 * line_height.val();
+    // **P762** — avanço de linha = top-edge + |bottom-edge| + leading default.
+    let (top, bottom) = FixedMetrics.text_edges(Pt(11.0), &style);
+    let leading = style
+        .leading
+        .map(|l| l.resolve_pt(11.0))
+        .unwrap_or(11.0 * 0.65);
+    let line_advance = top.val() + bottom.val().abs() + leading;
+    // P505 — `tight: false` adiciona um line_advance de espaçamento de
+    // parágrafo *além* do line_advance natural do flush_line.
+    let expected_gap = 2.0 * line_advance;
     let actual_gap = ys[1] - ys[0];
     assert!(
         (actual_gap - expected_gap).abs() < 0.01,
@@ -1103,12 +1120,16 @@ fn layout_enum_tight_default_preserva_gap_natural() {
         .collect();
     assert_eq!(ys.len(), 2, "deve haver dois rótulos");
     let style = TextStyle::default();
-    let (_, line_height) = FixedMetrics.vertical_metrics(Pt(11.0), &style);
+    let (top, bottom) = FixedMetrics.text_edges(Pt(11.0), &style);
+    let leading = style
+        .leading
+        .map(|l| l.resolve_pt(11.0))
+        .unwrap_or(11.0 * 0.65);
+    let line_advance = top.val() + bottom.val().abs() + leading;
     let actual_gap = ys[1] - ys[0];
     assert!(
-        (actual_gap - line_height.val()).abs() < 0.01,
-        "gap={actual_gap}, esperado={}",
-        line_height.val()
+        (actual_gap - line_advance).abs() < 0.01,
+        "gap={actual_gap}, esperado={line_advance}"
     );
 }
 
@@ -3331,33 +3352,53 @@ mod tests_set_rule_integration {
         );
     }
 
-    /// Regressão: leading = 0pt comporta-se igual a sem set.
-    /// Valida fórmula soma (default + leading; 0 leading = default).
+    /// **P762** — leading = 0pt reduz o avanço de linha ao mínimo
+    /// (top-edge + |bottom-edge|), enquanto sem set usa leading default
+    /// (0,65 em). Valida que a diferença entre os dois é exactamente o
+    /// leading default na fonte base (11pt).
     #[test]
-    fn layout_leading_zero_preserva_comportamento_base_passo_138() {
+    fn layout_leading_zero_reduz_avanco_ao_minimo_passo_138() {
+        // Usar um heading para forçar flush_line entre as duas linhas. O
+        // avanço após o heading usa o tamanho do heading, que inferimos do
+        // item de texto correspondente.
         let sem = layout_typst("= Título\nlinha2");
         let com = layout_typst("#set par(leading: 0pt)\n= Título\nlinha2");
 
         let sem_items = text_items_with_xy(&sem);
         let com_items = text_items_with_xy(&com);
 
-        assert_eq!(
-            sem_items.len(),
-            com_items.len(),
-            "mesmo número de items; sem: {}, com: {}",
-            sem_items.len(),
-            com_items.len()
+        // Encontrar a segunda linha ("linha2") em cada documento.
+        let y_sem = sem_items
+            .iter()
+            .find(|(t, _, _, _)| t == "linha2")
+            .map(|(_, _, _, y)| *y)
+            .expect("linha2 no doc sem leading set");
+        let y_com = com_items
+            .iter()
+            .find(|(t, _, _, _)| t == "linha2")
+            .map(|(_, _, _, y)| *y)
+            .expect("linha2 no doc com leading 0pt");
+
+        // Com leading 0pt, a linha2 está mais acima (menor y) porque o
+        // avanço entre linhas é menor.
+        assert!(
+            y_com < y_sem,
+            "leading 0pt deve colocar linha2 mais acima; sem={y_sem}, com={y_com}"
         );
 
-        for (s, c) in sem_items.iter().zip(com_items.iter()) {
-            assert!(
-                (s.3 - c.3).abs() < 0.01,
-                "leading 0pt deve ser igual a sem set; item '{}': sem.y={}, com.y={}",
-                s.0,
-                s.3,
-                c.3
-            );
-        }
+        // O avanço após o heading usa o tamanho do heading. Inferimos esse
+        // tamanho a partir do item "Título" para calcular o leading default.
+        let heading_size = sem_items
+            .iter()
+            .find(|(t, _, _, _)| t == "Título")
+            .map(|(_, style, _, _)| style.size.val())
+            .expect("heading 'Título' no doc sem leading set");
+        let expected_diff = heading_size * 0.65;
+        let actual_diff = y_sem - y_com;
+        assert!(
+            (actual_diff - expected_diff).abs() < 0.01,
+            "diferença={actual_diff}, esperado={expected_diff}"
+        );
     }
 
     /// **P537b** — `#set page(columns: 2)` produz duas colunas reais na mesma

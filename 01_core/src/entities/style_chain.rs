@@ -68,6 +68,10 @@ pub struct StyleDelta {
     /// por conveniência temporária — migra para `eval_set_par` quando
     /// este for activado. Inerte em layout.
     pub leading: Option<crate::entities::layout_types::Length>,
+    /// **P762** — bordo superior da linha (`top-edge`).
+    pub top_edge: Option<ecow::EcoString>,
+    /// **P762** — bordo inferior da linha (`bottom-edge`).
+    pub bottom_edge: Option<ecow::EcoString>,
     /// Identificador de língua (ISO 639-1/2/3). `None` = herdado.
     /// Capturado inicialmente como `EcoString` raw no Passo 130;
     /// materializado como tipo semântico `Lang` no Passo 131B
@@ -115,6 +119,7 @@ impl StyleDelta {
             size: None,
             fill: None, heading_level: None,
             weight: None, tracking: None, leading: None,
+            top_edge: None, bottom_edge: None,
             lang: None, font: None,
             subscript: None, superscript: None,
             highlight: None,
@@ -138,6 +143,8 @@ impl StyleDelta {
             && self.weight.is_none()
             && self.tracking.is_none()
             && self.leading.is_none()
+            && self.top_edge.is_none()
+            && self.bottom_edge.is_none()
             && self.lang.is_none()
             && self.font.is_none()
             && self.subscript.is_none()
@@ -483,6 +490,32 @@ impl StyleChain {
         None
     }
 
+    /// Resolve `top_edge` (string). Custom: `"text.top-edge"`.
+    pub fn top_edge(&self) -> Option<ecow::EcoString> {
+        let mut node = self.0.as_deref();
+        while let Some(n) = node {
+            if let Some(ref v) = n.delta.top_edge { return Some(v.clone()); }
+            if let Some(Value::Str(s)) = delta_custom(&n.delta, "text.top-edge") {
+                return Some(s.clone());
+            }
+            node = n.parent.as_deref();
+        }
+        None
+    }
+
+    /// Resolve `bottom_edge` (string). Custom: `"text.bottom-edge"`.
+    pub fn bottom_edge(&self) -> Option<ecow::EcoString> {
+        let mut node = self.0.as_deref();
+        while let Some(n) = node {
+            if let Some(ref v) = n.delta.bottom_edge { return Some(v.clone()); }
+            if let Some(Value::Str(s)) = delta_custom(&n.delta, "text.bottom-edge") {
+                return Some(s.clone());
+            }
+            node = n.parent.as_deref();
+        }
+        None
+    }
+
     /// Resolve `lang` (código BCP 47 validado).
     pub fn lang(&self) -> Option<crate::entities::lang::Lang> {
         use std::str::FromStr;
@@ -613,6 +646,8 @@ impl From<&StyleChain> for TextStyle {
             weight:        chain.weight(),
             tracking:      chain.tracking(),
             leading:       chain.leading(),
+            top_edge:      chain.top_edge(),
+            bottom_edge:   chain.bottom_edge(),
             lang:          chain.lang(),
             // P753 — fonte padrão Libertinus Serif bate com o vanilla 0.15.0.
             // O cristalino carrega as mesmas fontes embutidas via typst-assets,

@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/rules/layout.md
-//! @prompt-hash 3b5bf67a
+//! @prompt-hash 24db1e79
 //! @layer L1
 //! @updated 2026-07-09
 //!
@@ -109,17 +109,20 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
                 if size.0 > max.0.0 { (size, style) } else { max }
             });
 
+        // **P762** — leading com default 0,65 em do vanilla.
         #[allow(deprecated)]
         let line_leading_pt = self.regions.current.current_line
             .iter()
             .rev()
             .find_map(|item| match item {
                 crate::entities::layout_types::FrameItem::Text { style, .. } | crate::entities::layout_types::FrameItem::TextShaped { style, .. } => {
-                    style.leading.map(|l| l.resolve_pt(style.size.val()))
+                    Some(style.leading.map(|l| l.resolve_pt(style.size.val())).unwrap_or_else(|| style.size.val() * 0.65))
                 }
                 _ => None,
             })
-            .unwrap_or(0.0);
+            .unwrap_or_else(|| {
+                self.style.leading.map(|l| l.resolve_pt(self.style.size.val())).unwrap_or_else(|| self.style.size.val() * 0.65)
+            });
         let had_items = !self.regions.current.current_line.is_empty();
         for item in self.regions.current.current_line.drain(..) {
             self.regions.current.current_items.push(item);
@@ -127,8 +130,9 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
 
         let mut end_y = self.regions.current.cursor_y.0;
         if had_items {
-            let (_, line_height) = self.metrics.vertical_metrics(max_font_size, &max_style);
-            end_y += line_height.0 + line_leading_pt;
+            // **P762** — avanço entre linhas = top-edge + |bottom-edge| + leading.
+            let (top, bottom) = self.metrics.text_edges(max_font_size, &max_style);
+            end_y += top.0 + (-bottom.0) + line_leading_pt;
         }
         let cell_height = (end_y - start_y).max(0.0);
 

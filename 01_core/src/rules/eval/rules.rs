@@ -1155,6 +1155,19 @@ pub(super) fn eval_set_rule(
                     *engine.styles =
                         engine.styles.push_custom("text.font", Value::Array(arr));
                 }
+                "top-edge" => {
+                    if let Value::Str(s) = val {
+                        *engine.styles =
+                            engine.styles.push_custom("text.top-edge", Value::Str(s));
+                    }
+                }
+                "bottom-edge" => {
+                    if let Value::Str(s) = val {
+                        *engine.styles = engine
+                            .styles
+                            .push_custom("text.bottom-edge", Value::Str(s));
+                    }
+                }
                 "dir" => {
                     if let Value::Dir(dir) = val {
                         if dir.is_vertical() {

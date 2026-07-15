@@ -1,5 +1,5 @@
 # Prompt L0 — layout
-Hash do Código: e277d0f7
+Hash do Código: 295157bc
 
 ## Módulo
 `01_core/src/rules/layout/mod.rs` e sub-módulos (`metrics.rs`, etc.)
@@ -42,22 +42,45 @@ API pública — usa `FixedMetrics::new(12.0)`.
 - `flush_line()` move `current_line` para o frame actual
 - `finish()` faz flush final e descarta página vazia
 
-### Avanço vertical e cálculo de line_height dinâmico (Passo 579)
+### Avanço vertical e cálculo de line advance (Passo 579 / P762)
 
-Para suportar parágrafos com fontes de tamanhos mistos ou tamanhos diferentes do padrão do documento, o Layouter deve calcular o avanço do cursor vertical (`cursor_y`) e a altura de quebra de linha de forma dinâmica:
+Para suportar parágrafos com fontes de tamanhos mistos ou tamanhos diferentes do padrão do documento, o Layouter deve calcular o avanço do cursor vertical (`cursor_y`) de forma dinâmica. A partir de **P762**, o avanço de linha não usa o antigo `line_height = ascender + descender + lineGap`; em vez disso, usa o modelo do vanilla:
+
+```text
+line_advance = top_edge + |bottom_edge| + leading
+```
+
+onde `top_edge` e `bottom_edge` são offsets medidos a partir da baseline
+(defaults vanilla: `top-edge: "cap-height"`, `bottom-edge: "baseline"`), e
+`leading` default é `0.65em` quando não está explicitamente definido.
 
 1. **Cálculo em `flush_line()`**:
-   - O `line_height` deve ser calculado chamando `vertical_metrics` com o tamanho de fonte máximo (`style.size`) encontrado entre todos os elementos de texto (`FrameItem::Text` e `FrameItem::TextShaped`) contidos na `current_line` que será drenada.
-   - Se `current_line` estiver vazia, utiliza-se o tamanho de fonte ativo `self.style.size` como fallback.
-   - O `line_leading_pt` de cada elemento de texto na linha deve ser resolvido usando o tamanho de fonte do próprio elemento (`style.size`) em vez da constante base do documento.
+   - O estilo que governa o avanço (`max_style`) é o do item de texto com o
+     maior `style.size` na `current_line` a ser drenada.
+   - O avanço vertical é `FontMetrics::text_edges(max_font_size, &max_style)`,
+     que devolve `(top, bottom)`, somado a `leading` resolvido em pontos do
+     próprio `max_style.size`.
+   - Se `current_line` estiver vazia, `flush_line` é um no-op vertical.
+   - O `line_leading_pt` de cada elemento de texto na linha deve ser resolvido
+     usando o tamanho de fonte do próprio elemento (`style.size`) em vez da
+     constante base do documento.
 
 2. **Inicialização do Cursor (Página e Coluna)**:
    - Ao iniciar uma nova página ou coluna, o deslocamento inicial do cursor
-     (`cap_height`) deve ser calculado usando o tamanho de fonte ativo
-     (`self.style.size`) do Layouter e `FontMetrics::cap_height`, garantindo
-     que a primeira baseline do texto fique a `margem + cap-height`. Isto
-     alinha-se com o vanilla, onde `top-edge: cap-height` é o default do
+     (`top_edge`) deve ser calculado usando o tamanho de fonte activo
+     (`self.style.size`) do Layouter e `FontMetrics::text_edges`, garantindo
+     que a primeira baseline do texto fique a `margem + top_edge`. Isto
+     alinha-se com o vanilla, onde `top-edge: "cap-height"` é o default do
      texto.
+
+3. **`text(top-edge: ..., bottom-edge: ...)`**:
+   - Os campos `top_edge` e `bottom_edge` fazem parte de `TextStyle` e
+     propagam-se pelo `StyleChain`/`StyleDelta`.
+   - O eval de `#set text(top-edge: ...)` / `#set text(bottom-edge: ...)`
+     converte os valores `"baseline"`, `"x-height"`, `"cap-height"`,
+     `"ascender"`, `"descender"` em `Option<String>` no `TextStyle`.
+   - Implementações de `FontMetrics` devem mapear essas strings para offsets
+     `(top, bottom)` medidos a partir da baseline.
 
 
 ### Decoração textual wrap-aware (Passo 286 — fecha cluster P284-P285-P286)
@@ -645,17 +668,25 @@ pub trait FontMetrics: Send + Sync {
     fn advance(&self, text: &str, size: Pt, style: &TextStyle) -> Pt;
     fn vertical_metrics(&self, size: Pt, style: &TextStyle) -> (Pt, Pt);
     fn cap_height(&self, size: Pt, style: &TextStyle) -> Pt;
+    fn text_edges(&self, size: Pt, style: &TextStyle) -> (Pt, Pt);
 }
 ```
 
 - `advance`: largura horizontal de uma string em pontos tipográficos.
 - `vertical_metrics`: `(ascender, line_height)` em pontos tipográficos. Recebe
   o `style` activo para que implementações com resolução de fonte possam usar
-  a mesma face que o shaper/PDF efectivamente renderizará (P760).
+  a mesma face que o shaper/PDF efectivamente renderizará (P760). **Nota P762:**
+  o avanço de linha do Layouter já não usa `line_height` directamente; usa
+  `text_edges` + `leading`.
 - `cap_height`: distância da baseline ao topo das maiúsculas (`H`, `X`).
-  Usado para posicionar a primeira baseline do texto a `margem + cap-height`,
-  paridade com o vanilla (`text(top-edge: "cap-height")` por omissão).
-  Quando a fonte não expõe `cap-height`, deve fazer fallback para o ascender.
+  Mantido para compatibilidade; o posicionamento da primeira baseline passou
+  a usar `text_edges` (P762).
+- `text_edges`: devolve `(top, bottom)` offsets a partir da baseline conforme
+  `TextStyle::top_edge` / `TextStyle::bottom_edge`. Valores positivos indicam
+  distância para cima (`top`) ou para baixo (`bottom`). Deve suportar pelo
+  menos `"baseline"`, `"x-height"`, `"cap-height"`, `"ascender"` e
+  `"descender"`. Implementações sem métrica real devem fazer fallback
+  proporcional consistente com a face (ex: `cap-height ≈ size * 0.7`).
 
 ### `FixedMetrics`
 
@@ -663,8 +694,11 @@ Implementação monoespaçada pura de L1:
 
 - `advance(text, size, _)` → `size * (chars.count() * 0.6)`.
 - `vertical_metrics(size)` → `(size * 0.8, size * 1.2)`.
-- `cap_height(size)` → `size * 0.7` (aproximação proporcional consistente
-  com a razão típica cap-height/em; usada apenas quando não há fonte real).
+- `cap_height(size)` → `size * 0.7`.
+- `text_edges(size, style)` → mapeia `top_edge` para
+  `"baseline"=0`, `"x-height"≈size*0.5`, `"cap-height"/default≈size*0.7`,
+  `"ascender"≈size*0.8`; `bottom_edge` para `"descender"≈size*-0.2`,
+  `"baseline"/default=0`.
 
 ### `needs_shaped_width` — detecção de scripts contextuais
 
