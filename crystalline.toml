@@ -174,3 +174,5 @@ types = [
 "00_nucleo/prompts/infra.md" = "materializa em L3, passo futuro"
 "00_nucleo/prompts/infra/pipeline.md" = "prompt de infra implementado em 03_infra/src/pipeline.rs (L3)"
 "00_nucleo/prompts/wiring.md" = "materializa em L4, passo futuro"
+# P767 — L0 para correção do modelo de fluxo de Content::Shape; implementação em P767a
+"00_nucleo/prompts/rules/layout/shape_block_behaviour.md" = "P767 L0 — implementação em P767a"
