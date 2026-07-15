@@ -1,18 +1,23 @@
-# Prompt L0 — `Symbol` — símbolo Unicode nomeado
-Hash do Código: b21b38a5
+# Prompt L0 — `Symbol` — símbolo Unicode nomeado com modifiers e constructor
+Hash do Código: 930bf48d
 
 **Camada**: L1
-**Ficheiro alvo**: `01_core/src/entities/symbol.rs`, `01_core/src/entities/value.rs`
-**Origem**: Passo 471 — `Value::Symbol` subset minimal (S); terceiro tipo simples do portão ADR-0017 em Trilha 8.
-**ADRs**: ADR-0017 (portão aberto P395), ADR-0107 (paridade linguagem), ADR-0029 (pureza L1), ADR-0054 (modificadores scope-out).
+**Ficheiro alvo**: `01_core/src/entities/symbol.rs`, `01_core/src/entities/value.rs`, `01_core/src/rules/eval/bindings.rs`, `01_core/src/rules/eval/closures.rs`, `01_core/src/rules/eval/repr.rs`, `01_core/src/rules/stdlib/sym.rs`, `01_core/src/rules/stdlib/foundations.rs`
+**Origem**: Passo 471 — `Value::Symbol` subset minimal (S); Passo 765a — modifiers encadeados e constructor.
+**ADRs**: ADR-0017 (portão aberto P395), ADR-0107 (paridade linguagem), ADR-0108 (medir antes de decidir), ADR-0029 (pureza L1).
 
 ---
 
 ## 1. Contexto
 
-O Typst vanilla expõe `Symbol` como tipo de runtime para caracteres simbólicos acessíveis via notação de ponto (`sym.arrow.r`, `sym.eq.not`). O cristalino não tinha `Value::Symbol` nem módulo `sym`.
+O Typst vanilla expõe `Symbol` como tipo de runtime para caracteres simbólicos acessíveis via notação de ponto (`sym.arrow.r`, `sym.eq.not`) e via constructor `symbol(...)`.
 
-Divergência declarada: o vanilla suporta modificadores encadeados (`sym.arrow.r.double`) via `Modifier` struct. O cristalino implementa apenas nomes simples e compostos pré-definidos como chaves planas. Modificadores encadeados são scope-out deste passo.
+Passo 471 implementou o subset minimal: `Symbol` como `{ ch, name }`, módulo `sym` com nomes simples/compostos planos, e `Value::Symbol`.
+
+Passo 765a acrescenta:
+1. Modifiers encadeados via field access (`sym.arrow.r.filled`).
+2. Constructor `symbol(...)` para symbols runtime.
+3. `repr()` de symbols com variants.
 
 ## 2. Tipo L1
 
@@ -20,18 +25,17 @@ Divergência declarada: o vanilla suporta modificadores encadeados (`sym.arrow.r
 // 01_core/src/entities/symbol.rs
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub struct Symbol {
-    pub ch:   char,
+    pub ch: char,
     pub name: EcoString,
-}
-
-impl Symbol {
-    pub fn new(ch: char, name: impl Into<EcoString>) -> Self;
+    pub variants: Vec<(EcoString, char)>,
+    pub applied: Vec<EcoString>,
 }
 ```
 
-- `char` Unicode: o glyph concreto.
-- `EcoString` nome canónico: clone O(1).
-- Sem `Modifier` neste passo (scope-out).
+- `ch`: caractere efectivo após modifiers aplicados.
+- `name`: nome canónico base (vazio para symbols runtime).
+- `variants`: lista de variantes `(modifiers_dotted, char)`. A variante base usa modifiers vazios.
+- `applied`: modifiers já aplicados via field access.
 
 ## 3. Variant `Value::Symbol`
 
@@ -40,18 +44,60 @@ impl Symbol {
 Symbol(crate::entities::symbol::Symbol),
 ```
 
-Actualizações necessárias:
+Actualizações:
 - `type_name()` → `"symbol"`.
-- `repr()` (em `eval/repr.rs`) → o char como string (`"→"`).
 - `From<Symbol> for Value`.
-- `Hash` via `format!("{:?}", self)` (já implementado).
+- `Hash` via `format!("{:?}", self)`.
 
-## 4. Conversão em markup
+## 4. Construtores
 
-Quando `Value::Symbol(s)` aparece em contexto de markup, o eval converte em `Content::Text(EcoString::from(s.ch))`. Arm adicionado em `eval_markup` no match de `eval_expr`.
+- `Symbol::new(ch, name)` — symbol simples, uma só variante vazia.
+- `Symbol::with_variants(ch, name, variants)` — symbol nativo do módulo `sym`.
+- `Symbol::runtime(variants)` — symbol criado pelo utilizador via `symbol(...)`.
 
-## 5. Scope-out
+## 5. Modifiers encadeados
 
-- **Modificadores encadeados** (`sym.arrow.r.double`) — requer `Modifier` struct. Futuro. Divergência declarada.
-- **Acesso `sym.eq.not` via eval** — `sym.eq` retorna `Symbol`, `.not` falha (dois FieldAccess). O L1 `sym_lookup("eq.not")` funciona directamente.
-- **`Value::Symbol` em `match` de `StyleChain`** — sem impacto em set rules neste passo.
+`Symbol::modified(modifier: &str) -> Option<Symbol>`:
+
+1. Rejeita symbols simples.
+2. Adiciona o modifier a `applied`.
+3. Filtra variants que contenham todos os modifiers aplicados.
+4. Selecciona a variante com o menor número de modifiers extra.
+5. Devolve novo `Symbol` com `ch` actualizado.
+
+## 6. Field access em `Value::Symbol`
+
+Em `bindings.rs::eval_field_access`, o arm `Value::Symbol(s)` chama `s.modified(field)` e devolve `Value::Symbol`. Erro `unknown symbol modifier` quando `None`.
+
+## 7. Constructor `symbol(...)`
+
+- `eval/mod.rs`: `scope.define("symbol", Value::Type(Type::Symbol))`.
+- `closures.rs`: `Value::Type(Type::Symbol)` despacha para `native_symbol(...)`.
+- `foundations.rs::native_symbol`: aceita variantes posicionais (string base ou array `(modifiers, char)`), valida grapheme único, devolve `Symbol::runtime(variants)`.
+
+## 8. Conversão em markup
+
+`Value::Symbol(s)` em markup converte-se em `Content::Text(EcoString::from(s.ch))`.
+
+## 9. Representação `repr()`
+
+`eval/repr.rs` formata `Value::Symbol` como `symbol({inner})`, onde `inner` lista as variants compatíveis com os modifiers aplicados, removendo os modifiers já aplicados.
+
+## 10. Módulo `sym`
+
+`stdlib/sym.rs` mantém `SYM_SIMPLE` e adiciona `arrow` como symbol com variants. `sym_lookup("arrow.r.filled")` aplica modifiers sequencialmente.
+
+## 11. Scope-out
+
+- Tabela completa de variants do vanilla: apenas `arrow` materializado com subset medido.
+- Variantes com deprecation/warnings.
+- `Symbol::func()` para math accents callable.
+
+## 12. Critérios de verificação
+
+```
+sym.arrow.r → Value::Symbol com ch='→'
+sym.arrow.r.filled → Value::Symbol com ch='➡'
+symbol("🖂", ("stamped", "🖃")).stamped → "🖃"
+repr(symbol(("bold", "α"), ("italic", "α"))) == "symbol((\"bold\", \"α\"), (\"italic\", \"α\"))"
+```

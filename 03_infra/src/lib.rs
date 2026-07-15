@@ -17,6 +17,7 @@ pub mod image_sizer;
 pub mod layout;
 pub mod layout_bidi;
 pub mod measurements;
+pub mod package_downloader;
 pub mod pipeline;
 pub mod plugin_host;
 pub mod query_helpers;

@@ -201,6 +201,8 @@ pub fn is_locatable(content: &Content) -> bool {
         // P311b.2 — MathStyled não-locatable (math structural; wrap glyph).
         | Content::MathStyled(_)
         // P397 — Document/Asset são metadata/resources; não queryable.
+        // P765a — Title é markup estrutural, não queryable.
+        | Content::Title(_)
         | Content::Document { .. }
         | Content::Asset { .. } => false,
     }

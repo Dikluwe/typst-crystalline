@@ -1501,6 +1501,18 @@ pub(super) fn eval_field_access(
                 format!("módulo '{}' não tem campo '{}'", m.name(), field),
             )]
         }),
+        // **P765a** — Field access em Value::Symbol aplica um modifier.
+        // Ex.: `sym.arrow.r.filled` procura uma variante que contenha os
+        // modifiers `r` e `filled`.
+        Value::Symbol(s) => s
+            .modified(field.as_str())
+            .map(Value::Symbol)
+            .ok_or_else(|| {
+                vec![SourceDiagnostic::error(
+                    access.span(),
+                    format!("unknown symbol modifier '{}'", field),
+                )]
+            }),
         other => Err(vec![SourceDiagnostic::error(
             access.span(),
             format!("field access não suportado em {}", other.type_name()),

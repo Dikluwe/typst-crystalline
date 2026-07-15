@@ -1279,6 +1279,90 @@ pub fn native_locate(
     })
 }
 
+/// `symbol(...)` — constrói um símbolo Unicode nomeado com variantes.
+///
+/// **P765a**: paridade com vanilla CLI 0.15.0. Cada argumento posicional é
+/// uma variante:
+/// - string de um só grapheme → variante base;
+/// - array `(modifiers, char)` → variante nomeada.
+///
+/// Ex.: `symbol("🖂", ("stamped", "🖃"))`.
+pub fn native_symbol(
+    _ctx: &mut EvalContext,
+    args: &Args,
+    _world: &dyn crate::contracts::world::World,
+    _current_file: FileId,
+) -> SourceResult<Value> {
+    use crate::entities::symbol::{Symbol, SymbolVariant};
+    use ecow::EcoString;
+    use unicode_segmentation::UnicodeSegmentation;
+
+    expect_no_named(&args.named)?;
+    if args.items.is_empty() {
+        return err("expected at least one variant");
+    }
+
+    let mut variants: Vec<SymbolVariant> = Vec::with_capacity(args.items.len());
+    for v in args.items.iter() {
+        match v {
+            Value::Str(s) => {
+                let s = s.as_str();
+                if s.graphemes(true).count() != 1 {
+                    return Err(vec![SourceDiagnostic::error(
+                        Span::detached(),
+                        format!("invalid variant value: {}", s.escape_debug().collect::<String>()),
+                    )]);
+                }
+                variants.push((EcoString::default(), s.chars().next().unwrap()));
+            }
+            Value::Array(arr) if arr.len() == 2 => {
+                let mods = match &arr[0] {
+                    Value::Str(s) => s.clone(),
+                    other => {
+                        return Err(vec![SourceDiagnostic::error(
+                            Span::detached(),
+                            format!("symbol modifier must be string, found {}", other.type_name()),
+                        )]);
+                    }
+                };
+                let ch = match &arr[1] {
+                    Value::Str(s) => {
+                        let s = s.as_str();
+                        if s.graphemes(true).count() != 1 {
+                            return Err(vec![SourceDiagnostic::error(
+                                Span::detached(),
+                                format!("invalid variant value: {}", s.escape_debug().collect::<String>()),
+                            )]);
+                        }
+                        s.chars().next().unwrap()
+                    }
+                    other => {
+                        return Err(vec![SourceDiagnostic::error(
+                            Span::detached(),
+                            format!("symbol variant value must be string, found {}", other.type_name()),
+                        )]);
+                    }
+                };
+                variants.push((mods, ch));
+            }
+            Value::Array(arr) => {
+                return Err(vec![SourceDiagnostic::error(
+                    Span::detached(),
+                    format!("symbol variant array must have length 2, found {}", arr.len()),
+                )]);
+            }
+            other => {
+                return Err(vec![SourceDiagnostic::error(
+                    Span::detached(),
+                    format!("symbol variant must be string or array, found {}", other.type_name()),
+                )]);
+            }
+        }
+    }
+
+    Ok(Value::Symbol(Symbol::runtime(variants)))
+}
+
 #[cfg(test)]
 mod tests_p699b_str_bytes {
     use super::*;

@@ -92,7 +92,7 @@ pub fn repr_value(v: &Value) -> String {
             format!("version({})", comps)
         }
         Value::Selector(s) => repr_selector(s),
-        Value::Symbol(s) => s.ch.to_string(),
+        Value::Symbol(s) => format!("symbol({})", s.repr_variants()),
         Value::Args(a) => {
             // **P740B** — paridade vanilla `Args::repr`
             // (foundations/args.rs:457-461): lista os NOMEADOS primeiro
@@ -324,6 +324,7 @@ pub fn repr_content(c: &Content) -> String {
         Content::Heading(h) => {
             format!("heading(level: {})[{}]", h.level, repr_content(&h.body))
         }
+        Content::Title(t) => format!("title[{}]", repr_content(&t.body)),
         Content::Strong(s) => format!("*{}*", repr_content(&s.body)),
         Content::Emph(e) => format!("_{}_", repr_content(&e.body)),
         Content::Raw(r) => format!("`{}`", r.text),

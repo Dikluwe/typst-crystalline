@@ -113,6 +113,7 @@ fn collect_bib_keys(content: &Content) -> std::collections::HashSet<String> {
             Content::Strike(e) => walk(&e.body, keys),
             Content::Strong(e) => walk(&e.body, keys),
             Content::Emph(e) => walk(&e.body, keys),
+            Content::Title(e) => walk(&e.body, keys),
             Content::SmallCaps { body, .. } => walk(body, keys),
             Content::Link(e) => walk(&e.body, keys),
             // ContextBlock e Dynamic não contêm content estático navegável.
@@ -243,6 +244,11 @@ fn convert_refs(content: Content, keys: &std::collections::HashSet<String>) -> C
             let mut e = Arc::unwrap_or_clone(e);
             e.body = convert_refs(e.body, keys);
             Content::Emph(Arc::new(e))
+        }
+        Content::Title(e) => {
+            let mut e = Arc::unwrap_or_clone(e);
+            e.body = convert_refs(e.body, keys);
+            Content::Title(Arc::new(e))
         }
         Content::SmallCaps { body, .. } => Content::smallcaps(convert_refs(*body, keys)),
         Content::Link(e) => {
@@ -405,6 +411,9 @@ fn materialize_time(content: &Content, intr: &TagIntrospector, location: Locatio
             h.outlined,
             h.bookmarked,
         ),
+        Content::Title(e) => Content::Title(Arc::new(crate::entities::elements::title::TitleElem {
+            body: materialize_time(&e.body, intr, location),
+        })),
         // Modelo D (Lote 3 P318): destructure de Arc<Elem> + reconstrução via construtor.
         Content::ListItem(e) => {
             let body = materialize_time(&e.body, intr, location);
@@ -1230,6 +1239,10 @@ pub(crate) fn walk(
                     }
                 }
             }
+        }
+
+        Content::Title(e) => {
+            walk(&e.body, locator, tags, intr, auto_label_counter, lang, chain, None);
         }
 
         Content::Equation(e) => {

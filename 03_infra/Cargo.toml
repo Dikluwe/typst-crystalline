@@ -37,6 +37,12 @@ image       = { version = "0.24", default-features = false, features = ["png", "
 flate2      = "1.0"                 # compressão Zlib para PNG /FlateDecode
 getrandom   = "0.2"                 # P615 — bytes aleatórios para DocumentID/InstanceID do XMP
 wasmi       = { version = "=1.0.9", features = ["simd"] }  # P698 — runtime WASM de plugins (versão exacta do vanilla, Cargo.lock:3938-3943); `simd` expõe `wasm_relaxed_simd(false)`; L3 apenas
+# P763a — download automático de pacotes @preview
+ureq        = { workspace = true }  # cliente HTTP síncrono
+tar         = { workspace = true }  # extracção de pacotes .tar.gz
+fastrand    = { workspace = true }  # nomes de directórios temporários atómicos
+serde       = { workspace = true }  # deserialização do índice de pacotes
+serde_json  = { workspace = true }  # índice de pacotes remoto em JSON
 
 [dev-dependencies]
 # (P207D 2026-05-12: `ecow` promovido a `[dependencies]` porque

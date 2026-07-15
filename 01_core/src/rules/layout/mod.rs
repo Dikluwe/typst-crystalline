@@ -54,6 +54,7 @@ mod stack;
 mod columns;
 mod curve;
 mod heading;
+mod title;
 mod shape;
 mod transform;
 
@@ -789,6 +790,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
 
             // Atomizado (ADR-0109, P377) → layout/heading.rs.
             Content::Heading(h) => heading::layout(self, h),
+            Content::Title(t) => title::layout(self, t),
 
             // Lote F-2 S5 (P335): marcadores Set*Numbering removidos — numeração assada nos elementos.
             Content::CounterUpdate(_) => {
@@ -1965,6 +1967,7 @@ fn find_first_bibliography_style(
             Content::Link(e) => walk(&e.body, introspector),
             Content::SmallCaps { body } => walk(body, introspector),
             Content::Heading(e) => walk(&e.body, introspector),
+            Content::Title(e) => walk(&e.body, introspector),
             _ => None,
         }
     }

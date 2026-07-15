@@ -7201,6 +7201,30 @@ mod tests {
     }
 
     #[test]
+    fn p765a_sym_arrow_r_field_access() {
+        let world = MockWorld::new("#let x = sym.arrow.r");
+        let module = eval_for_test(&world, &world.source).unwrap();
+        let v = module.scope().get("x").cloned().unwrap();
+        if let Value::Symbol(s) = v {
+            assert_eq!(s.ch, '→');
+        } else {
+            panic!("esperado Value::Symbol, obtido {:?}", v);
+        }
+    }
+
+    #[test]
+    fn p765a_sym_arrow_r_filled_field_access() {
+        let world = MockWorld::new("#let x = sym.arrow.r.filled");
+        let v = eval_let(&world, "x");
+        assert!(v.is_some(), "sym.arrow.r.filled deve resolver");
+        if let Some(Value::Symbol(s)) = v {
+            assert_eq!(s.ch, '➡');
+        } else {
+            panic!("esperado Value::Symbol, obtido {:?}", v);
+        }
+    }
+
+    #[test]
     fn p466_array_first() {
         let world = MockWorld::new("#let x = (1, 2, 3).first()");
         assert_eq!(eval_let(&world, "x"), Some(Value::Int(1)));

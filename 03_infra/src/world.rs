@@ -13,6 +13,7 @@ use std::num::NonZeroU16;
 use std::path::{Path, PathBuf};
 use std::sync::{Arc, Mutex, OnceLock};
 
+use typst_core::contracts::package_downloader::PackageDownloader;
 use typst_core::contracts::plugin_host::PluginHost;
 use typst_core::contracts::world::{SysInputs, World};
 use typst_core::entities::bib_entry::BibEntry;
@@ -76,6 +77,15 @@ fn package_candidate_dirs() -> Vec<PathBuf> {
     dirs
 }
 
+/// Cache dir padrão para pacotes (última entrada de `package_candidate_dirs`).
+///
+/// Usada pelo downloader HTTP de P763a. Se não for possível determinar uma
+/// cache dir, o downloader não é instalado e `resolve_package` mantém o
+/// comportamento offline anterior.
+fn default_package_cache_dir() -> Option<PathBuf> {
+    package_candidate_dirs().into_iter().last()
+}
+
 /// Erro de criação do `SystemWorld`.
 #[derive(Debug)]
 pub enum SystemWorldError {
@@ -124,6 +134,10 @@ pub struct SystemWorld {
     /// **P699** — host de plugins WASM (L3). `None` por omissão; instalado via
     /// `with_plugin_host`. Lido por `World::plugin_host()` em `native_plugin`.
     plugin_host: Option<Arc<dyn PluginHost>>,
+    /// **P763a** — downloader de pacotes `@preview`. `None` se não houver
+    /// cache dir configurável; usado por `resolve_package` quando o pacote
+    /// não está presente localmente.
+    package_downloader: Option<Box<dyn PackageDownloader>>,
 }
 
 impl SystemWorld {
@@ -159,6 +173,10 @@ impl SystemWorld {
         let mut path_to_id = HashMap::new();
         path_to_id.insert(main_path_canon, main_id);
 
+        let package_downloader = default_package_cache_dir()
+            .map(|cache_dir| Box::new(crate::package_downloader::HttpPackageDownloader::new(cache_dir))
+                as Box<dyn PackageDownloader>);
+
         Ok(Self {
             root,
             main: main_id,
@@ -170,6 +188,7 @@ impl SystemWorld {
             library:    Library::new(),
             inputs:     SysInputs::default(),
             plugin_host: None,
+            package_downloader,
         })
     }
 
@@ -438,6 +457,17 @@ impl World for SystemWorld {
                 return self.load_package_entrypoint(&cand, spec);
             }
         }
+
+        // P763a — tenta descarregar pacotes `@preview` do registo oficial.
+        if spec.namespace == "preview" {
+            if let Some(downloader) = &self.package_downloader {
+                match downloader.download(spec) {
+                    Ok(dir) => return self.load_package_entrypoint(&dir, spec),
+                    Err(err) => return Err(err.to_string()),
+                }
+            }
+        }
+
         Err(format!(
             "pacote '{}' não encontrado na cache local; download ainda não implementado (ver P-γ de P678)",
             spec

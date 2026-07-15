@@ -54,3 +54,8 @@ typst-assets         = { git = "https://github.com/typst/typst-assets", rev = "c
 
 # benchmarking — ADR-0115 (P441)
 criterion            = "0.5"
+
+# download de pacotes @preview — P763a
+ureq                 = "2.12"   # cliente HTTP síncrono (mesmo padrão do vanilla)
+tar                  = "0.4"    # extracção de pacotes .tar.gz
+fastrand             = "2.2"    # nomes de directórios temporários atómicos

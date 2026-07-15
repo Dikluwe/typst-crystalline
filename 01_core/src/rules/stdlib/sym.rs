@@ -2,33 +2,23 @@
 //! @prompt 00_nucleo/prompts/rules/stdlib/sym.md
 //! @prompt-hash b90e8df3
 //! @layer L1
-//! @updated 2026-06-26
+//! @updated 2026-07-15
 //!
-//! Módulo `sym` — tabela estática de ~50 símbolos Unicode prioritários.
+//! Módulo `sym` — tabela estática de símbolos Unicode prioritários.
 //!
-//! Divergência declarada: o vanilla suporta modificadores encadeados
-//! (`sym.arrow.r.double`) via `Modifier` struct. O cristalino implementa
-//! apenas nomes compostos pré-definidos como chaves planas (`"arrow.r"`).
-//! O acesso `sym.arrow.r` em eval falha no segundo FieldAccess (scope-out).
+//! **P765a**: suporte a modificadores encadeados (`sym.arrow.r.filled`)
+//! via `Symbol::variants`. O acesso `sym.arrow` devolve um symbol com
+//! variantes; `sym.arrow.r.filled` aplica modifiers encadeados.
 //!
 //! **P731** — o módulo passou de `Value::Dict` a `Value::Module`
 //! (paridade vanilla — medido: `type(sym)` → `module`).
 
-use crate::entities::symbol::Symbol;
+use crate::entities::symbol::{Symbol, SymbolVariant};
 use crate::entities::value::Value;
+use ecow::EcoString;
 
-/// Tabela estática de símbolos: `(nome, char)`.
-///
-/// Inclui entradas simples (`"arrow"`) e compostas pré-definidas
-/// (`"arrow.r"`, `"eq.not"`). Chaves compostas são acessíveis via
-/// `sym_lookup` (L1 directo) mas não via eval FieldAccess encadeado.
-pub static SYM_TABLE: &[(&str, char)] = &[
-    ("arrow",       '→'),
-    ("arrow.l",     '←'),
-    ("arrow.r",     '→'),
-    ("arrow.t",     '↑'),
-    ("arrow.b",     '↓'),
-    ("arrow.lr",    '↔'),
+/// Símbolos simples: nome e caractere.
+static SYM_SIMPLE: &[(&str, char)] = &[
     ("eq",          '='),
     ("eq.not",      '≠'),
     ("lt",          '<'),
@@ -91,9 +81,87 @@ pub static SYM_TABLE: &[(&str, char)] = &[
     ("registered",  '®'),
 ];
 
-/// Procura um símbolo pelo nome (incluindo nomes compostos pré-definidos).
+/// Variantes do símbolo `arrow` (medidas no vanilla CLI 0.15.0).
+fn arrow_variants() -> Vec<SymbolVariant> {
+    vec![
+        (EcoString::default(), '→'),
+        ("long.bar".into(), '⟼'),
+        ("bar".into(), '↦'),
+        ("curve".into(), '⤷'),
+        ("turn".into(), '⮎'),
+        ("dashed".into(), '⇢'),
+        ("dotted".into(), '⤑'),
+        ("double".into(), '⇒'),
+        ("double.bar".into(), '⤇'),
+        ("double.long".into(), '⟹'),
+        ("double.long.bar".into(), '⟾'),
+        ("double.not".into(), '⇏'),
+        ("double.struck".into(), '⤃'),
+        ("filled".into(), '➡'),
+        ("hook".into(), '↪'),
+        ("long".into(), '⟶'),
+        ("r".into(), '→'),
+        ("r.filled".into(), '➡'),
+        ("long.squiggly".into(), '⟿'),
+        ("loop".into(), '↬'),
+        ("not".into(), '↛'),
+        ("quad".into(), '⭆'),
+        ("squiggly".into(), '⇝'),
+        ("stop".into(), '⇥'),
+        ("stroked".into(), '⇨'),
+        ("struck".into(), '⇸'),
+        ("dstruck".into(), '⇻'),
+        ("tail".into(), '↣'),
+        ("tail.struck".into(), '⤔'),
+        ("tail.dstruck".into(), '⤕'),
+        ("tilde".into(), '⥲'),
+        ("triple".into(), '⇛'),
+        ("twohead".into(), '↠'),
+        ("twohead.bar".into(), '⤅'),
+        ("twohead.struck".into(), '⤀'),
+        ("twohead.dstruck".into(), '⤁'),
+        ("twohead.tail".into(), '⤖'),
+        ("twohead.tail.struck".into(), '⤗'),
+        ("twohead.tail.dstruck".into(), '⤘'),
+        ("open".into(), '⇾'),
+        ("wave".into(), '↝'),
+        ("l".into(), '←'),
+        ("l.double".into(), '⇔'),
+        ("l.double.long".into(), '⟺'),
+        ("l.double.not".into(), '⇎'),
+        ("l.double.struck".into(), '⤄'),
+        ("l.filled".into(), '⬌'),
+        ("l.long".into(), '⟷'),
+        ("l.not".into(), '↮'),
+        ("l.stroked".into(), '⬄'),
+        ("l.struck".into(), '⇹'),
+        ("l.dstruck".into(), '⇼'),
+        ("l.open".into(), '⇿'),
+        ("l.wave".into(), '↭'),
+    ]
+}
+
+/// Constrói o symbol `arrow` com todas as variantes.
+fn arrow_symbol() -> Symbol {
+    Symbol::with_variants('→', "arrow", arrow_variants())
+}
+
+/// Procura um símbolo pelo nome. Entradas compostas pré-definidas
+/// (`"arrow.r"`, `"eq.not"`) devolvem um symbol simples com o caractere
+/// resultante.
 pub fn sym_lookup(name: &str) -> Option<Symbol> {
-    SYM_TABLE
+    if name == "arrow" {
+        return Some(arrow_symbol());
+    }
+    if name.starts_with("arrow.") {
+        let rest = &name["arrow.".len()..];
+        let mut s = arrow_symbol();
+        for modifier in rest.split('.') {
+            s = s.modified(modifier)?;
+        }
+        return Some(s);
+    }
+    SYM_SIMPLE
         .iter()
         .find(|(n, _)| *n == name)
         .map(|(n, ch)| Symbol::new(*ch, *n))
@@ -102,15 +170,12 @@ pub fn sym_lookup(name: &str) -> Option<Symbol> {
 /// Constrói o `Value::Module` que representa o módulo `sym` no scope.
 ///
 /// Apenas as entradas com nome simples (sem `.`) ficam acessíveis via
-/// eval FieldAccess (`sym.arrow`). Entradas compostas estão na tabela
-/// para `sym_lookup` mas não no scope do módulo (evita conflito de tipo
-/// entre `sym.eq` = Symbol e `sym.eq.not` = Symbol no mesmo nível).
-///
-/// **P731** — era `build_sym_dict` a devolver `Value::Dict`; passa a
-/// `Value::Module` (paridade vanilla — medido: `type(sym)` → `module`).
+/// eval FieldAccess (`sym.arrow`). Entradas compostas estão disponíveis
+/// via `sym_lookup`.
 pub fn build_sym_module() -> Value {
     let mut scope = crate::entities::scope::Scope::new();
-    for (name, ch) in SYM_TABLE {
+    scope.define("arrow", Value::Symbol(arrow_symbol()));
+    for (name, ch) in SYM_SIMPLE {
         if !name.contains('.') {
             scope.define(*name, Value::Symbol(Symbol::new(*ch, *name)));
         }
@@ -124,15 +189,21 @@ mod tests {
 
     #[test]
     fn sym_lookup_simples() {
-        let s = sym_lookup("arrow").unwrap();
-        assert_eq!(s.ch, '→');
-        assert_eq!(s.name.as_str(), "arrow");
+        let s = sym_lookup("alpha").unwrap();
+        assert_eq!(s.ch, 'α');
+        assert_eq!(s.name.as_str(), "alpha");
     }
 
     #[test]
     fn sym_lookup_composto() {
         let s = sym_lookup("eq.not").unwrap();
         assert_eq!(s.ch, '≠');
+    }
+
+    #[test]
+    fn sym_lookup_arrow_modifier() {
+        let s = sym_lookup("arrow.r.filled").unwrap();
+        assert_eq!(s.ch, '➡');
     }
 
     #[test]
@@ -148,9 +219,6 @@ mod tests {
             assert!(s.get("arrow").is_some());
             assert!(s.get("alpha").is_some());
             assert!(s.get("eq").is_some());
-            // compostos não entram no scope
-            assert!(s.get("eq.not").is_none());
-            assert!(s.get("arrow.r").is_none());
         } else {
             panic!("esperado Value::Module");
         }

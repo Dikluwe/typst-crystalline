@@ -35,6 +35,7 @@ use crate::entities::world_types::Datetime;
 use crate::entities::elements::divider::DividerElem;
 use crate::entities::elements::emph::EmphElem;
 use crate::entities::elements::heading::HeadingElem;
+use crate::entities::elements::title::TitleElem;
 use crate::entities::elements::label::LabelElem;
 use crate::entities::elements::math_styled::MathStyledElem;
 use crate::entities::elements::strong::StrongElem;
@@ -154,6 +155,11 @@ pub enum Content {
     /// **Modelo D (ADR-0105, P316)**: lógica delegada a
     /// `entities::elements::heading::HeadingElem` (locatável).
     Heading(Arc<HeadingElem>),
+    /// Título do documento (`#title()`).
+    ///
+    /// **P765a**: paridade com vanilla CLI 0.15.0; renderiza o corpo em
+    /// tamanho aumentado e negrito.
+    Title(Arc<TitleElem>),
     /// **`strong` (`*bold*`) — F-5b fatia 1 (P371, §3a.12)**: variante própria
     /// (modelo D), distinta de `Styled` (era `Styled([Bold])` antes do retorno ao
     /// modelo de variantes que a 0026 `:63` prescreve). Dá a fidelidade ADR-0107
@@ -1124,6 +1130,7 @@ fn fmt_content(c: &Content, f: &mut fmt::Formatter<'_>) -> fmt::Result {
             f.debug_tuple("sequence").field(&seq.as_ref()).finish()
         }
         Content::Heading(h) => write!(f, "heading({:?})", h),
+        Content::Title(t) => write!(f, "title({:?})", t),
         Content::Strong(s) => write!(f, "strong({:?})", s),
         Content::Emph(e) => write!(f, "emph({:?})", e),
         Content::Raw(r) => write!(f, "raw({:?})", r),
@@ -1252,6 +1259,11 @@ impl Content {
     }
 pub fn heading(level: u8, body: Content) -> Self {
         Self::Heading(Arc::new(HeadingElem::new(level, body)))
+    }
+
+    /// Cria um título de documento (`#title(...)`).
+    pub fn title(body: Content) -> Self {
+        Self::Title(Arc::new(TitleElem::new(body)))
     }
     /// **P605/P606** — heading com controlo explícito de `outlined` e `bookmarked`.
     pub fn heading_with_outlined(
@@ -2454,6 +2466,7 @@ pub fn heading(level: u8, body: Content) -> Self {
             Self::StateDisplay(e) => e.plain_text(),
             Self::CounterDisplayCallback(e) => e.plain_text(),
             Self::Heading(h) => h.plain_text(),
+            Self::Title(t) => t.plain_text(),
             // F-5b fatia 1 (P371): strong/emph transparentes ao plain_text (só body).
             Self::Strong(e) => e.plain_text(),
             Self::Emph(e) => e.plain_text(),
@@ -2764,6 +2777,8 @@ impl Content {
         match (self, field) {
             // Modelo D (P316): Heading delega ao elemento.
             (Content::Heading(h), f) => h.get_field(f),
+            // P765a: Title delega ao elemento.
+            (Content::Title(t), f) => t.get_field(f),
             // F-5b fatia 1 (P371): strong/emph delegam (ex.: `it.body`).
             (Content::Strong(e), f) => e.get_field(f),
             (Content::Emph(e), f) => e.get_field(f),
@@ -2808,6 +2823,7 @@ impl Content {
             // arm Content::Styled abaixo (que já propaga transform recursivamente).
             // Modelo D (P316): Heading delega ao elemento.
             Content::Heading(h) => h.map_content(transform)?,
+            Content::Title(t) => t.map_content(transform)?,
             Content::Strong(e) => e.map_content(transform)?,
             Content::Emph(e)   => e.map_content(transform)?,
             // Modelo D (Lote 3 P318): família lista/termos delega ao elemento.
@@ -3057,6 +3073,7 @@ impl Content {
             }
             // Modelo D (P316): Heading delega ao elemento.
             Content::Heading(h) => h.map_text(transform),
+            Content::Title(t) => t.map_text(transform),
             Content::Strong(e) => e.map_text(transform),
             Content::Emph(e)   => e.map_text(transform),
             // Passo 101: Content::Strong/Emph removidos — cobertos pelo

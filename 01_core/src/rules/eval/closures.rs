@@ -30,7 +30,8 @@ use comemo::TrackedMut;
 use crate::entities::world_types::{check_call_depth as route_check_call_depth, Route};
 use crate::rules::scopes::Scopes;
 use crate::rules::stdlib::{
-    extract_measure_body, native_float, native_int, native_measure, native_str, native_type,
+    extract_measure_body, native_float, native_int, native_measure, native_str, native_symbol,
+    native_type,
     // P737 — counter/state chamáveis via despacho de tipos.
     native_counter, native_state,
     try_dispatch_collection_method,
@@ -672,6 +673,8 @@ pub(super) fn eval_func_call(
                 // counter("x")/state("y", 0) criam instâncias).
                 Type::Counter => native_counter(ctx, &args, world, current_file),
                 Type::State   => native_state(ctx, &args, world, current_file),
+                // P765a — `symbol(...)` constructor.
+                Type::Symbol  => native_symbol(ctx, &args, world, current_file),
                 other => Err(vec![SourceDiagnostic::error(
                     call.callee().span(),
                     format!("type {} does not have a constructor", other.name()),
