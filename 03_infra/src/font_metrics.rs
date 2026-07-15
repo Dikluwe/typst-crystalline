@@ -156,11 +156,18 @@ impl FontMetrics for FontBookMetrics<'_> {
         (ascender_pt, line_height_pt)
     }
 
-    /// **P750/P752** — cap-height em pontos, com fallback para ascender quando
-    /// a fonte não expõe a métrica (igual ao vanilla). O `style` é ignorado
-    /// porque `FontBookMetrics` já encapsula uma face específica.
+    /// **P750/P752/P761** — cap-height em pontos, com fallback para o ascender
+    /// tipográfico (`sTypoAscender` do OS/2) e, em último caso, para o ascender
+    /// da tabela `hhea`. Isto alinha-se com o vanilla, que usa
+    /// `typographic_ascender().unwrap_or(ascender())` como fallback de
+    /// `capital_height()`.
     fn cap_height(&self, size: Pt, _style: &TextStyle) -> Pt {
-        let ascender = self.face.ascender() as f64;
+        let ascender = self
+            .face
+            .typographic_ascender()
+            .filter(|&h| h > 0)
+            .map(|h| h as f64)
+            .unwrap_or_else(|| self.face.ascender() as f64);
         let cap = self
             .face
             .capital_height()
@@ -731,8 +738,11 @@ impl FontMetrics for FallbackFontMetrics<'_> {
         (size * 0.8, size * 1.2)
     }
 
-    /// **P750/P752** — cap-height da fonte resolvida para o estilo activo,
-    /// com fallback para ascender (ou proporção fixa se não houver fontes).
+    /// **P750/P752/P761** — cap-height da fonte resolvida para o estilo activo,
+    /// com fallback para o ascender tipográfico (`sTypoAscender` do OS/2) e,
+    /// em último caso, para o ascender da tabela `hhea`. Isto alinha-se com o
+    /// vanilla, que usa `typographic_ascender().unwrap_or(ascender())` como
+    /// fallback de `capital_height()`.
     ///
     /// Usa `resolve_primary(style)` para escolher a mesma face que o shaper
     /// usará, em vez da primeira fonte arbitrária do FontBook.
@@ -746,7 +756,11 @@ impl FontMetrics for FallbackFontMetrics<'_> {
             if let Some(cached) = self.cached_face(cand.slot_idx) {
                 let face = cached.face();
                 let upem = cand.units_per_em as f64;
-                let ascender = face.ascender() as f64;
+                let ascender = face
+                    .typographic_ascender()
+                    .filter(|&h| h > 0)
+                    .map(|h| h as f64)
+                    .unwrap_or_else(|| face.ascender() as f64);
                 let cap = face
                     .capital_height()
                     .filter(|&h| h > 0)
@@ -762,7 +776,11 @@ impl FontMetrics for FallbackFontMetrics<'_> {
             let Some(cached) = self.cached_face(slot_idx) else { continue };
             let face = cached.face();
             let upem = face.units_per_em().max(1) as f64;
-            let ascender = face.ascender() as f64;
+            let ascender = face
+                .typographic_ascender()
+                .filter(|&h| h > 0)
+                .map(|h| h as f64)
+                .unwrap_or_else(|| face.ascender() as f64);
             let cap = face
                 .capital_height()
                 .filter(|&h| h > 0)

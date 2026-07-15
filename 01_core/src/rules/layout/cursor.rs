@@ -359,8 +359,14 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
         self.pages.push(page);
         self.regions.current.cursor_x = Pt(self.page_config.margin);
         self.regions.current.line_start_x = Pt(self.page_config.margin);
-        self.regions.current.cursor_y =
-            Pt(self.page_config.margin) + self.metrics.cap_height(self.style.size, &self.style);
+        // **P761** — quando a baseline inicial ainda está pendente,
+        // `ensure_initial_baseline()` adicionará o `cap_height` correcto.
+        // Só pre-posicionamos a baseline quando o offset já foi fixado.
+        self.regions.current.cursor_y = if self.initial_baseline_pending {
+            Pt(self.page_config.margin)
+        } else {
+            Pt(self.page_config.margin) + self.metrics.cap_height(self.style.size, &self.style)
+        };
         // P245 — reset reservas na nova página.
         self.cursor_y_top_reserve = 0.0;
         self.cursor_y_bottom_reserve = 0.0;
@@ -458,8 +464,13 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
         self.regions.current.width = self.column_width;
         self.regions.current.cursor_x = Pt(self.page_config.margin);
         self.regions.current.line_start_x = Pt(self.page_config.margin);
-        self.regions.current.cursor_y =
-            Pt(self.page_config.margin) + self.metrics.cap_height(self.style.size, &self.style);
+        // **P761** — quando a baseline inicial ainda está pendente,
+        // `ensure_initial_baseline()` adicionará o `cap_height` correcto.
+        self.regions.current.cursor_y = if self.initial_baseline_pending {
+            Pt(self.page_config.margin)
+        } else {
+            Pt(self.page_config.margin) + self.metrics.cap_height(self.style.size, &self.style)
+        };
         self.regions.current.current_line.clear();
     }
 

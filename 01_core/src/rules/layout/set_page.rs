@@ -72,9 +72,18 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
         layouter.regions.current.width = layouter.page_config.width;
         layouter.regions.current.height = layouter.page_config.height;
         layouter.regions.current.cursor_x = Pt(layouter.page_config.margin);
-        layouter.regions.current.cursor_y =
-            Pt(layouter.page_config.margin) + layouter.metrics.cap_height(layouter.style.size, &layouter.style);
         layouter.regions.current.line_start_x = Pt(layouter.page_config.margin);
+        // **P761** — quando a baseline inicial ainda está pendente,
+        // `ensure_initial_baseline()` adicionará o `cap_height` correcto
+        // (com a fonte activa nesse momento). Não adiantar esse offset aqui,
+        // porque `self.style` ainda pode ser a fonte default e `cap_height`
+        // seria somado duas vezes.
+        layouter.regions.current.cursor_y = if layouter.initial_baseline_pending {
+            Pt(layouter.page_config.margin)
+        } else {
+            Pt(layouter.page_config.margin)
+                + layouter.metrics.cap_height(layouter.style.size, &layouter.style)
+        };
         // DEBT-35b: se available_width() vier a ter cache, invalidar aqui.
     }
 }
