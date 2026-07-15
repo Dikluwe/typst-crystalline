@@ -1,5 +1,5 @@
 # Prompt L0 — infra/system-world
-Hash do Código: 74c112e1
+Hash do Código: b6a27321
 
 **Camada**: L3
 **Ficheiro alvo**: `03_infra/src/world.rs`
@@ -67,13 +67,18 @@ mantendo L2 livre de `ecow`/`indexmap`.
 - `font(_)` — `None` (stub — fontes reais no Passo 8)
 - `today(_)` — `None` (stub — Datetime real após ADR-0017)
 
-## Resolução de pacotes (P681, P-β de P678)
+## Resolução de pacotes (P681, P-β de P678, P763)
 
-`resolve_package(spec)` procura o pacote **offline**, sem rede, na cache local do
+`resolve_package(spec)` procura o pacote primeiro **offline**, sem rede, na cache local do
 utilizador, seguindo a ordem de prioridade confirmada em P678:
 
 1. **Data dir** — `$XDG_DATA_HOME/typst/packages` ou `~/.local/share/typst/packages`.
 2. **Cache dir** — `$XDG_CACHE_HOME/typst/packages` ou `~/.cache/typst/packages`.
+
+Quando o pacote não é encontrado em nenhuma das bases acima e `spec.namespace == "preview"`,
+o `SystemWorld` delega o download ao mecanismo definido em
+[`infra/package_downloader.md`](./package_downloader.md) (P763). Até à implementação desse
+download, o erro mantém a mensagem offline.
 
 Para cada base, o candidato é `{base}/{namespace}/{name}/{version}` (ex.:
 `~/.cache/typst/packages/preview/cetz/0.2.2`). O primeiro que existir como
