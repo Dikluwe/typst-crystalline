@@ -156,26 +156,47 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
         // P246 — `cell_origin_w` + `cell_available_h` migrados para
         // `regions.cell.width/height`; `cell_origin_x/y` preservados
         // como Layouter fields legacy.
-        let (origin_x, origin_y, avail_w, avail_h) = match scope {
+        // P763f — quando `place` é executado dentro de um sub-frame (ex:
+        // `align(top, place(...))` dentro de um `block`), as coordenadas de
+        // ancoragem devem ser relativas ao próprio sub-frame, não à página.
+        // Caso contrário o `origin_y = page_config.margin` desloca o conteúdo
+        // para baixo pelo valor da margem dentro do referencial local.
+        let in_sub_frame = self.is_sub_frame;
+
+        let (origin_x, origin_y, avail_w, avail_h, y_offset) = match scope {
             PlaceScope::Column => match (
                 self.cell_origin_x,
                 self.cell_origin_y,
                 self.regions.cell.as_ref(),
             ) {
-                (Some(cx), Some(cy), Some(cell)) => (cx, cy, cell.width, cell.height),
-                _ => (
-                    self.regions.current.line_start_x.0,
-                    self.page_config.margin,
-                    avail_w_page,
-                    avail_h_page,
-                ),
+                (Some(cx), Some(cy), Some(cell)) => (cx, cy, cell.width, cell.height, cy),
+                _ => {
+                    if in_sub_frame {
+                        (0.0, 0.0, avail_w_page, avail_h_page, 0.0)
+                    } else {
+                        (
+                            self.regions.current.line_start_x.0,
+                            self.page_config.margin,
+                            avail_w_page,
+                            avail_h_page,
+                            sub_origin_y,
+                        )
+                    }
+                }
             },
-            PlaceScope::Parent => (
-                self.page_config.margin,
-                self.page_config.margin,
-                avail_w_page,
-                avail_h_page,
-            ),
+            PlaceScope::Parent => {
+                if in_sub_frame {
+                    (0.0, 0.0, avail_w_page, avail_h_page, 0.0)
+                } else {
+                    (
+                        self.page_config.margin,
+                        self.page_config.margin,
+                        avail_w_page,
+                        avail_h_page,
+                        sub_origin_y,
+                    )
+                }
+            }
         };
 
         let (base_x, base_y) = self.resolve_alignment(
@@ -190,19 +211,6 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
 
         let target_x = base_x + dx;
         let target_y = base_y + dy;
-
-        // Compensação Y para o caso de estarmos dentro de um sub_frame
-        // de célula de Grid (Passo 84.6). O sub_frame da célula faz
-        // `abs_y = row_start_y + (item.y - ascender_local)` ao transferir
-        // items. Como `target_y` aqui já é coord absoluta-na-página
-        // (origin_y é cell_origin_y para Column-em-célula ou page_margin
-        // para Parent), subtrair `cell_origin_y` em vez de `sub_origin_y`
-        // anula a translação que o Grid vai aplicar:
-        //   final = row_start_y + (target_y + iy - cell_origin_y - ascender)
-        //         = target_y + iy - sub_origin_y  (porque row_start_y == cell_origin_y).
-        // Quando NÃO estamos em sub_frame de célula, Place push directo
-        // no frame da página: padrão Passo 82 (subtrair sub_origin_y).
-        let y_offset = self.cell_origin_y.unwrap_or(sub_origin_y);
 
         for item in sub_items {
             let (ix, iy) = item_pos(&item);
