@@ -1,17 +1,21 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/rules/layout-image.md
-//! @prompt-hash 9a038555
+//! @prompt-hash ab5f39c1
 //! @layer L1
-//! @updated 2026-04-19
+//! @updated 2026-07-15
 
 use std::sync::Arc;
 
 use crate::entities::elements::image::ImageElem;
 use crate::entities::image_sizer::ImageSizer;
-use crate::entities::layout_types::{FrameItem, Point, Pt};
+use crate::entities::layout_types::{FrameItem, Length, Point, Pt};
 use crate::entities::value::Value;
 
 use super::{FontMetrics, Layouter};
+
+/// **P769** — espaçamento por defeito de um bloco de imagem, equivalente ao
+/// `BlockElem::spacing` por defeito do vanilla (`Em::new(1.2)`).
+const IMAGE_BLOCK_SPACING_EM: f64 = 1.2;
 
 /// Densidade padrão para conversão px → pt.
 /// 96 DPI: 1 pt = 1/72 inch; 1 px = 1/96 inch → 1 px = 72/96 pt = 0.75 pt.
@@ -84,6 +88,11 @@ fn extract_pt(val: &Value) -> Option<f64> {
 /// Layout de `image(...)` (atomização ADR-0109 P378): resolve dimensões via
 /// `calculate_dimensions`, garante linha/página, emite o `FrameItem::Image` e
 /// avança o cursor vertical. Content-preserving — era inline no `layout_content`.
+///
+/// **P769** — `Content::Image` comporta-se como bloco no fluxo principal,
+/// replicando `BlockElem::single_layouter` do vanilla. Quando sucede texto
+/// não-bloco, ancora a base da imagem em `baseline + above` e estende-a para
+/// cima; caso contrário mantém o modelo de bloco (`base = cursor_y − cap_height`).
 pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
     layouter: &mut Layouter<M, S>,
     e:        &ImageElem,
@@ -98,17 +107,65 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
         &layouter.sizer,
     );
 
-    // Garantir linha limpa antes da imagem (bloco).
+    // **P769** — guardar a baseline da linha que vai ser descarregada.
+    // Após `flush_line`, o cursor aponta para a baseline da *próxima* linha;
+    // para ancorar a imagem na grelha de linhas do parágrafo actual, usamos
+    // a baseline *antes* do avanço.
+    let baseline_before_flush = layouter.regions.current.cursor_y;
     layouter.flush_line();
+    let cursor_after_flush = layouter.regions.current.cursor_y;
+    let had_text_line = cursor_after_flush.0 > baseline_before_flush.0 + 1e-6;
+
+    // **P769** — protocolo de bloco no fluxo principal.
+    let in_main_flow = !layouter.is_sub_frame;
+    let font = layouter.style.size.val();
+    let above_pt = Length::em(IMAGE_BLOCK_SPACING_EM).resolve_pt(font);
+    let below_pt = Length::em(IMAGE_BLOCK_SPACING_EM).resolve_pt(font);
+    let cap_height = layouter.metrics.cap_height(layouter.style.size, &layouter.style);
+
+    if in_main_flow {
+        // Colapso de margem com o bloco anterior (P250):
+        // `max(prev.below, curr.above)`; o primeiro bloco de uma Sequence
+        // não leva above (`block_chain_active == false`).
+        let gap = if layouter.block_chain_active {
+            layouter.prev_block_below_pending.max(above_pt)
+        } else {
+            0.0
+        };
+        let advance = (gap - layouter.prev_block_below_pending).max(0.0);
+        layouter.regions.current.cursor_y += Pt(advance);
+        layouter.prev_block_below_pending = 0.0;
+
+        // A imagem de bloco alinha-se à margem esquerda do contentor.
+        layouter.regions.current.cursor_x = layouter.regions.current.line_start_x;
+    }
 
     // Verificar se a imagem cabe na página actual.
     if layouter.regions.current.cursor_y.0 + dims.height_pt > layouter.regions.current.height - layouter.page_config.margin {
         layouter.new_page();
     }
 
-    // pos.y é o TOPO da bounding box — não o baseline de texto.
-    // O exportador calcula pdf_y = page_height - pos.y - height.
-    let pos = Point { x: Pt(layouter.page_config.margin), y: layouter.regions.current.cursor_y };
+    // P748/P750 — no fluxo principal o cursor_y representa a baseline do
+    // texto. O `pos.y` de `FrameItem::Image` é a base da imagem em
+    // coordenadas do Layouter (Y crescente para cima a partir da base da
+    // página); a imagem estende-se para cima pela sua altura.
+    //
+    // **P769** — quando a imagem é a primeira depois de texto não-bloco,
+    // o vanilla ancora a *base* da imagem em `baseline + above`; o topo da
+    // imagem fica em `baseline + above + height`. Quando a imagem sucede
+    // outro bloco, ou quando é a primeira de uma Sequence sem texto antes,
+    // mantém-se o modelo de bloco: base da imagem em `cursor_y − cap_height`
+    // (topo da linha anterior, estendendo-se para cima).
+    let image_base = if !in_main_flow {
+        layouter.regions.current.cursor_y
+    } else if layouter.block_chain_active {
+        layouter.regions.current.cursor_y - cap_height
+    } else if had_text_line {
+        baseline_before_flush + Pt(above_pt)
+    } else {
+        layouter.regions.current.cursor_y - cap_height
+    };
+    let pos = Point { x: layouter.regions.current.cursor_x, y: image_base };
 
     // DEBT-28 encerrado: intrinsic_width/height vêm de calculate_dimensions.
     let intrinsic_w = dims.intrinsic_width.unwrap_or(100);
@@ -123,7 +180,23 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
         intrinsic_height: intrinsic_h,
     });
 
-    layouter.regions.current.cursor_y += Pt(dims.height_pt);
+    // **P769** — avanço do cursor conforme o tipo de ancoragem. Após
+    // imagem-a-seguir-a-texto, a próxima baseline fica no topo da imagem +
+    // `below + cap_height`; após imagem-a-seguir-a-bloco, ou imagem isolada,
+    // mantém-se o comportamento de bloco (base da imagem + `below`).
+    if in_main_flow {
+        if layouter.block_chain_active {
+            layouter.regions.current.cursor_y = image_base + Pt(dims.height_pt + below_pt);
+        } else if had_text_line {
+            layouter.regions.current.cursor_y = image_base + Pt(dims.height_pt + below_pt + cap_height.0);
+        } else {
+            layouter.regions.current.cursor_y = image_base + Pt(dims.height_pt + below_pt);
+        }
+        layouter.prev_block_below_pending = below_pt;
+        layouter.block_chain_active = true;
+    } else {
+        layouter.regions.current.cursor_y += Pt(dims.height_pt);
+    }
 
     if layouter.regions.current.cursor_y.0 > layouter.regions.current.height - layouter.page_config.margin {
         layouter.new_page();
