@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/export/builder.md
-//! @prompt-hash e154f0a4
+//! @prompt-hash 66f1c615
 //! @layer L3
 //! @updated 2026-07-08
 //!
@@ -25,24 +25,50 @@ use crate::font_variant::{axis_variations_for_font_variant, instantiate_variable
 use ecow::EcoString;
 
 use super::{
-    adaptive_n_for_stops, apply_parent_transform, build_jpeg_xobject,
-    build_page_stream, build_png_rgb_xobject, build_png_smask_xobject,
-    collect_codepoints, collect_glyph_ids, collect_shaped_cluster_texts,
-    collect_shaped_glyph_mappings, collect_text_codepoints,
-    compute_axial_coords, compute_radial_coords,
-    emit_conic_coons_stream_cmyk, emit_conic_coons_stream_rgb,
-    emit_function_dict, emit_function_dict_cmyk, jpeg_color_space,
+    adaptive_n_for_stops, apply_parent_transform, build_icc_profile_stream,
+    build_jpeg_xobject, build_page_stream, build_png_rgb_xobject,
+    build_png_smask_xobject, collect_codepoints, collect_glyph_ids,
+    collect_shaped_cluster_texts, collect_shaped_glyph_mappings,
+    collect_text_codepoints, compute_axial_coords, compute_radial_coords,
+    detect_format, emit_conic_coons_stream_cmyk, emit_conic_coons_stream_rgb,
+    emit_function_dict, emit_function_dict_cmyk, jpeg_color_space, jpeg_is_rgb,
     map_chars_to_glyphs, multispace_sample_stops,
     multispace_sample_stops_linear_cmyk, multispace_sample_stops_radial,
     multispace_sample_stops_radial_cmyk, pattern_resources_for_page,
     resolve_relative, scan_all_gradients, scan_all_images,
+    srgb_icc_profile_bytes,
     subset::{remap_glyph_id, subset_font_with_mapping, FontSubset},
     char_to_utf16_hex, to_unicode_cmap, widths_array,
     xobject_resources_for_page, GradientObject,
-    GradientObjectKind, ImageXObject, PageContext,
+    GradientObjectKind, ImageFormat, ImageXObject, PageContext,
 };
 
 use crate::font_metrics::build_math_glyph_reverse_map;
+
+/// **P777** — verdadeiro se o documento contiver pelo menos um JPEG RGB.
+fn has_rgb_jpeg(doc: &PagedDocument) -> bool {
+    fn walk(items: &[FrameItem]) -> bool {
+        for item in items {
+            match item {
+                FrameItem::Image { data, .. } => {
+                    if detect_format(data) == ImageFormat::Jpeg && jpeg_is_rgb(data) {
+                        return true;
+                    }
+                }
+                FrameItem::Group { items: child_items, .. }
+                | FrameItem::Link { items: child_items, .. } => {
+                    if walk(child_items) {
+                        return true;
+                    }
+                }
+                _ => {}
+            }
+        }
+        false
+    }
+
+    doc.pages.iter().any(|p| walk(&p.items))
+}
 
 fn duration_ms(d: std::time::Duration) -> f64 {
     d.as_secs_f64() * 1000.0
@@ -316,9 +342,13 @@ impl PdfBuilder {
         let font_f1      = first_stream + n;
         let font_f2      = font_f1 + 1;
         let font_f3      = font_f2 + 1;
-        let first_img_id = font_f3 + 1;
 
-        let (img_refs, ptr_to_idx, img_xobjects) = scan_all_images(doc, first_img_id);
+        // **P777** — reservar ID do perfil ICC sRGB partilhado se houver JPEGs RGB.
+        let needs_icc = has_rgb_jpeg(doc);
+        let icc_profile_id = if needs_icc { Some(font_f3 + 1) } else { None };
+        let first_img_id = font_f3 + 1 + if needs_icc { 1 } else { 0 };
+
+        let (img_refs, ptr_to_idx, img_xobjects) = scan_all_images(doc, first_img_id, icc_profile_id);
 
         // P263 — Allocar IDs após imagens. Reserva n_gradients*3 + N
         // sub-functions (estimativa pessimista: N stops 16 → 15 subs por gradient).
@@ -370,6 +400,11 @@ impl PdfBuilder {
         self.add(font_f3, "<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica-Oblique \
                             /Encoding /WinAnsiEncoding >>".into());
 
+        // **P777** — emitir perfil ICC sRGB partilhado antes dos JPEGs RGB.
+        if let Some(id) = icc_profile_id {
+            self.add_bytes(id, build_icc_profile_stream(srgb_icc_profile_bytes()));
+        }
+
         self.emit_image_xobjects(img_xobjects);
 
         // P263 — Emit Function/Shading/Pattern objects para gradients.
@@ -397,7 +432,11 @@ impl PdfBuilder {
         let font_descriptor_id = font_id + 2;
         let font_stream_id     = font_id + 3;
         let to_unicode_id      = font_id + 4;
-        let first_img_id       = to_unicode_id + 1;
+
+        // **P777** — reservar ID do perfil ICC sRGB partilhado se houver JPEGs RGB.
+        let needs_icc = has_rgb_jpeg(doc);
+        let icc_profile_id = if needs_icc { Some(to_unicode_id + 1) } else { None };
+        let first_img_id = to_unicode_id + 1 + if needs_icc { 1 } else { 0 };
 
         let mut chars = collect_codepoints(doc);
         chars.extend(collect_text_codepoints(doc).iter().copied());
@@ -492,7 +531,7 @@ impl PdfBuilder {
         let char_to_gid: HashMap<char, u16> = mappings.iter().copied().collect();
         let widths = widths_array(face_for_widths, &to_unicode_mappings);
 
-        let (img_refs, ptr_to_idx, img_xobjects) = scan_all_images(doc, first_img_id);
+        let (img_refs, ptr_to_idx, img_xobjects) = scan_all_images(doc, first_img_id, icc_profile_id);
 
         // P263 — gradient pre-pass.
         let first_grad_id = first_img_id + img_xobjects.len() * 2 + 100;
@@ -604,6 +643,11 @@ impl PdfBuilder {
         cmap_obj.extend_from_slice(b"\nendstream");
         self.add_bytes(to_unicode_id, cmap_obj);
 
+        // **P777** — emitir perfil ICC sRGB partilhado antes dos JPEGs RGB.
+        if let Some(id) = icc_profile_id {
+            self.add_bytes(id, build_icc_profile_stream(srgb_icc_profile_bytes()));
+        }
+
         self.emit_image_xobjects(img_xobjects);
 
         // P263 — Emit gradient objects.
@@ -635,7 +679,11 @@ impl PdfBuilder {
         // Cada font ocupa 5 IDs consecutivos: type0, cidfont, descriptor,
         // font_stream, to_unicode. Type0 é o "/Fn" referenciado no resource.
         let fonts_start  = first_stream + n_pages;
-        let first_img_id = fonts_start + 5 * n_fonts;
+
+        // **P777** — reservar ID do perfil ICC sRGB partilhado se houver JPEGs RGB.
+        let needs_icc = has_rgb_jpeg(doc);
+        let icc_profile_id = if needs_icc { Some(fonts_start + 5 * n_fonts) } else { None };
+        let first_img_id = fonts_start + 5 * n_fonts + if needs_icc { 1 } else { 0 };
 
         // Codepoints + glyph mappings por font. Cada font tem o seu
         // mapping (chars partilhados; gids específicos da face).
@@ -771,7 +819,7 @@ impl PdfBuilder {
             per_font_glyph_to_nominal.push(glyph_to_nominal);
         }
 
-        let (img_refs, ptr_to_idx, img_xobjects) = scan_all_images(doc, first_img_id);
+        let (img_refs, ptr_to_idx, img_xobjects) = scan_all_images(doc, first_img_id, icc_profile_id);
 
         // P263 — gradient pre-pass.
         let first_grad_id = first_img_id + img_xobjects.len() * 2 + 100;
@@ -886,6 +934,11 @@ impl PdfBuilder {
             cmap_obj.extend_from_slice(&cmap);
             cmap_obj.extend_from_slice(b"\nendstream");
             self.add_bytes(to_unicode_id, cmap_obj);
+        }
+
+        // **P777** — emitir perfil ICC sRGB partilhado antes dos JPEGs RGB.
+        if let Some(id) = icc_profile_id {
+            self.add_bytes(id, build_icc_profile_stream(srgb_icc_profile_bytes()));
         }
 
         self.emit_image_xobjects(img_xobjects);
@@ -1103,9 +1156,9 @@ impl PdfBuilder {
     fn emit_image_xobjects(&mut self, xobjects: Vec<ImageXObject>) {
         for xobj in xobjects {
             match xobj {
-                ImageXObject::Jpeg { data, main_obj_id, iw, ih } => {
+                ImageXObject::Jpeg { data, main_obj_id, iw, ih, icc_profile_id } => {
                     let cs = jpeg_color_space(&data);
-                    self.add_bytes(main_obj_id, build_jpeg_xobject(&data, iw, ih, cs));
+                    self.add_bytes(main_obj_id, build_jpeg_xobject(&data, iw, ih, cs, icc_profile_id));
                 }
                 ImageXObject::Png { payload, main_obj_id, smask_obj_id } => {
                     // Emitir /SMask antes do XObject principal.

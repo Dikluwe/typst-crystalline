@@ -1,5 +1,5 @@
 # Prompt L0 — `infra/export/stream` — PageContext + emit unificado
-Hash do Código: 0de6bc1a
+Hash do Código: 5ce90ca5
 
 **Camada**: L3
 **Ficheiro alvo**: `03_infra/src/export/stream.rs`
@@ -29,7 +29,9 @@ top-level (`build_page_stream`) como pelo caminho local em Group
 - Helpers de emit são `pub(super)` — chamados por `super::builder` e self.
 - `FrameItem::Image` inclui `orientation` (P776); o emit compõe a matriz `cm`
   com a transformação EXIF correspondente, preservando os bytes originais do
-  JPEG/PNG (paridade `typst-pdf/src/image.rs::exif_transform`).
+  JPEG/PNG (paridade `typst-pdf/src/image.rs::exif_transform`). A matriz é emitida
+  com precisão de 5 casas decimais (P777), replicando o vanilla e evitando desvios
+  de sub-pixel nas bordas em orientações com flip/rotate.
 - Excede limite 800 LOC ADR-0037 Regra 2 (~685 LOC). Sub-divisão futura em `stream/{page,text,shape,draw}.rs` em P-stream-decomp dedicado se justificado.
 
 ## Interface

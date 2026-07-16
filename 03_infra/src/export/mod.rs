@@ -49,9 +49,10 @@ use self::gradients::{
     DedupKey, GradientObject, GradientObjectKind, PatternRef, RectKey,
 };
 use self::images::{
-    build_jpeg_xobject, build_png_rgb_xobject, build_png_smask_xobject,
-    compress_zlib, detect_format, jpeg_color_space, process_png_for_pdf,
-    scan_all_images, xobject_resources_for_page,
+    build_icc_profile_stream, build_jpeg_xobject, build_png_rgb_xobject,
+    build_png_smask_xobject, compress_zlib, detect_format, jpeg_color_space,
+    jpeg_is_rgb, process_png_for_pdf, scan_all_images, srgb_icc_profile_bytes,
+    xobject_resources_for_page,
     ImageFormat, ImageRef, ImageXObject, PdfImagePayload,
 };
 

@@ -720,7 +720,7 @@ use typst_core::rules::layout::layout;
         use std::sync::Arc;
         use typst_core::entities::layout_types::{FrameItem, Page, PagedDocument, Point, Pt};
 
-        // JPEG com SOF0 e 3 canais — deve ter /DeviceRGB no XObject.
+        // JPEG com SOF0 e 3 canais — deve usar /ICCBased sRGB no XObject (P777).
         let mut jpeg = vec![0xFF, 0xD8u8, 0xFF, 0xC0, 0x00, 0x0B, 0x08, 0x00, 0x01, 0x00, 0x01, 0x03];
         // Adicionar marcador EOI para que o JPEG seja "válido" o suficiente para o exporter.
         jpeg.extend_from_slice(&[0xFF, 0xD9]);
@@ -741,7 +741,7 @@ use typst_core::rules::layout::layout;
         let doc = PagedDocument::new(vec![page]);
         let pdf = export_pdf(&doc);
         let s = String::from_utf8_lossy(&pdf);
-        assert!(s.contains("/DeviceRGB"), "JPEG 3 canais deve usar /DeviceRGB");
+        assert!(s.contains("/ICCBased"), "JPEG 3 canais deve usar /ICCBased sRGB");
     }
 
     #[test]

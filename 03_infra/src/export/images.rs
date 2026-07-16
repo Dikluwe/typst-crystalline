@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/export/images.md
-//! @prompt-hash ba5bcbb7
+//! @prompt-hash 1bb40ed1
 //! @layer L3
 //! @updated 2026-05-19
 //!
@@ -24,6 +24,56 @@ use flate2::write::ZlibEncoder;
 
 use typst_core::entities::layout_types::{FrameItem, Page, PagedDocument};
 
+/// **P777** — perfil ICC sRGB compacto (480 bytes, compatível com lcms2).
+/// Replicado do vanilla/krilla para JPEGs RGB em PDF.
+const SRGB_ICC_PROFILE: &[u8] = &[
+    0, 0, 1, 224, 108, 99, 109, 115, 4, 32, 0, 0,
+    109, 110, 116, 114, 82, 71, 66, 32, 88, 89, 90, 32,
+    7, 226, 0, 3, 0, 20, 0, 9, 0, 14, 0, 29,
+    97, 99, 115, 112, 77, 83, 70, 84, 0, 0, 0, 0,
+    115, 97, 119, 115, 99, 116, 114, 108, 0, 0, 0, 0,
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 246, 214,
+    0, 1, 0, 0, 0, 0, 211, 45, 104, 97, 110, 100,
+    121, 233, 191, 86, 90, 62, 1, 182, 131, 35, 133, 85,
+    70, 247, 79, 170, 0, 0, 0, 0, 0, 0, 0, 0,
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 10,
+    100, 101, 115, 99, 0, 0, 0, 252, 0, 0, 0, 36,
+    99, 112, 114, 116, 0, 0, 1, 32, 0, 0, 0, 34,
+    119, 116, 112, 116, 0, 0, 1, 68, 0, 0, 0, 20,
+    99, 104, 97, 100, 0, 0, 1, 88, 0, 0, 0, 44,
+    114, 88, 89, 90, 0, 0, 1, 132, 0, 0, 0, 20,
+    103, 88, 89, 90, 0, 0, 1, 152, 0, 0, 0, 20,
+    98, 88, 89, 90, 0, 0, 1, 172, 0, 0, 0, 20,
+    114, 84, 82, 67, 0, 0, 1, 192, 0, 0, 0, 32,
+    103, 84, 82, 67, 0, 0, 1, 192, 0, 0, 0, 32,
+    98, 84, 82, 67, 0, 0, 1, 192, 0, 0, 0, 32,
+    109, 108, 117, 99, 0, 0, 0, 0, 0, 0, 0, 1,
+    0, 0, 0, 12, 101, 110, 85, 83, 0, 0, 0, 8,
+    0, 0, 0, 28, 0, 115, 0, 82, 0, 71, 0, 66,
+    109, 108, 117, 99, 0, 0, 0, 0, 0, 0, 0, 1,
+    0, 0, 0, 12, 101, 110, 85, 83, 0, 0, 0, 6,
+    0, 0, 0, 28, 0, 67, 0, 67, 0, 48, 0, 0,
+    88, 89, 90, 32, 0, 0, 0, 0, 0, 0, 246, 214,
+    0, 1, 0, 0, 0, 0, 211, 45, 115, 102, 51, 50,
+    0, 0, 0, 0, 0, 1, 12, 63, 0, 0, 5, 221,
+    255, 255, 243, 38, 0, 0, 7, 144, 0, 0, 253, 146,
+    255, 255, 251, 161, 255, 255, 253, 162, 0, 0, 3, 220,
+    0, 0, 192, 113, 88, 89, 90, 32, 0, 0, 0, 0,
+    0, 0, 111, 160, 0, 0, 56, 242, 0, 0, 3, 143,
+    88, 89, 90, 32, 0, 0, 0, 0, 0, 0, 98, 150,
+    0, 0, 183, 137, 0, 0, 24, 218, 88, 89, 90, 32,
+    0, 0, 0, 0, 0, 0, 36, 160, 0, 0, 15, 133, 0, 0, 182, 196,
+    112, 97, 114, 97, 0, 0, 0, 0, 0, 3, 0, 0,
+    0, 2, 102, 105, 0, 0, 242, 167, 0, 0, 13, 89,
+    0, 0, 19, 208, 0, 0, 10, 91,
+];
+
+/// **P777** — devolve os bytes do perfil ICC sRGB partilhado.
+pub(super) fn srgb_icc_profile_bytes() -> &'static [u8] {
+    SRGB_ICC_PROFILE
+}
+
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub(super) enum ImageFormat {
     Jpeg,
@@ -42,12 +92,10 @@ pub(super) fn detect_format(data: &[u8]) -> ImageFormat {
 }
 
 /// Lê o marcador SOF0 (0xC0) ou SOF2 (0xC2) do cabeçalho JPEG para determinar
-/// o ColorSpace correcto para o dicionário do XObject (DEBT-29).
+/// o número de componentes de cor (1, 3 ou 4).
 ///
-/// Um JPEG com ColorSpace errado produz lixo visual (Grayscale renderizado como
-/// RGB monocromático) ou é recusado por alguns leitores PDF (CMYK).
-/// O fallback "/DeviceRGB" cobre a maioria dos JPEGs de câmara.
-pub(super) fn jpeg_color_space(data: &[u8]) -> &'static str {
+/// Usado por `jpeg_color_space` e `jpeg_is_rgb`.
+fn jpeg_components(data: &[u8]) -> u8 {
     let mut i = 2usize; // saltar SOI (FF D8)
     while i + 3 < data.len() {
         if data[i] != 0xFF {
@@ -59,12 +107,7 @@ pub(super) fn jpeg_color_space(data: &[u8]) -> &'static str {
         if marker == 0xC0 || marker == 0xC2 {
             // SOF: offset i+9 é o número de componentes de cor
             if i + 9 < data.len() {
-                return match data[i + 9] {
-                    1 => "/DeviceGray",
-                    3 => "/DeviceRGB",
-                    4 => "/DeviceCMYK",
-                    _ => "/DeviceRGB",
-                };
+                return data[i + 9];
             }
             break;
         }
@@ -77,7 +120,26 @@ pub(super) fn jpeg_color_space(data: &[u8]) -> &'static str {
         if len < 2 { break; }
         i += 2 + len;
     }
-    "/DeviceRGB"
+    3 // fallback RGB
+}
+
+/// Lê o marcador SOF0 (0xC0) ou SOF2 (0xC2) do cabeçalho JPEG para determinar
+/// o ColorSpace correcto para o dicionário do XObject (DEBT-29).
+///
+/// Um JPEG com ColorSpace errado produz lixo visual (Grayscale renderizado como
+/// RGB monocromático) ou é recusado por alguns leitores PDF (CMYK).
+/// O fallback "/DeviceRGB" cobre a maioria dos JPEGs de câmara.
+pub(super) fn jpeg_color_space(data: &[u8]) -> &'static str {
+    match jpeg_components(data) {
+        1 => "/DeviceGray",
+        4 => "/DeviceCMYK",
+        _ => "/DeviceRGB",
+    }
+}
+
+/// **P777** — verdadeiro se o JPEG for RGB (3 componentes).
+pub(super) fn jpeg_is_rgb(data: &[u8]) -> bool {
+    jpeg_components(data) == 3
 }
 
 /// Dados de imagem PNG prontos para emissão como XObject(s) num PDF.
@@ -157,10 +219,12 @@ pub(crate) struct ImageRef {
 /// Dados para emissão de XObjects no PDF.
 pub(super) enum ImageXObject {
     Jpeg {
-        data:        Arc<Vec<u8>>,
-        main_obj_id: usize,
-        iw:          u32,
-        ih:          u32,
+        data:            Arc<Vec<u8>>,
+        main_obj_id:     usize,
+        iw:              u32,
+        ih:              u32,
+        /// **P777** — ID do perfil ICC sRGB partilhado (`None` para grayscale/CMYK).
+        icc_profile_id:  Option<usize>,
     },
     Png {
         payload:      PdfImagePayload,
@@ -180,8 +244,9 @@ pub(super) enum ImageXObject {
 /// - `ptr_to_idx`: `arc_ptr → índice em refs`
 /// - `xobjects`: dados para emissão de XObjects (na mesma ordem que refs)
 pub(super) fn scan_all_images(
-    doc:      &PagedDocument,
-    first_id: usize,
+    doc:            &PagedDocument,
+    first_id:       usize,
+    icc_profile_id: Option<usize>,
 ) -> (Vec<ImageRef>, HashMap<usize, usize>, Vec<ImageXObject>) {
     // P279 — helper recursivo (scope creep análogo P273.10 §A.7 para scan_all_gradients).
     // Bug latent pré-existente: scan_all_images iterava apenas page.items top-level;
@@ -194,15 +259,16 @@ pub(super) fn scan_all_images(
         xobjects:   &mut Vec<ImageXObject>,
         next_id:    &mut usize,
         counter:    &mut usize,
+        icc_profile_id: Option<usize>,
     ) {
         for item in items {
             match item {
                 FrameItem::Image { data: _, intrinsic_width: _, intrinsic_height: _, .. } => {
-                    process_image_item(item, ptr_to_idx, refs, xobjects, next_id, counter);
+                    process_image_item(item, ptr_to_idx, refs, xobjects, next_id, counter, icc_profile_id);
                 }
                 FrameItem::Group { items: child_items, .. }
                 | FrameItem::Link { items: child_items, .. } => {
-                    walk(child_items, ptr_to_idx, refs, xobjects, next_id, counter);
+                    walk(child_items, ptr_to_idx, refs, xobjects, next_id, counter, icc_profile_id);
                 }
                 _ => {}
             }
@@ -216,7 +282,7 @@ pub(super) fn scan_all_images(
     let mut counter  = 1usize;
 
     for page in &doc.pages {
-        walk(&page.items, &mut ptr_to_idx, &mut refs, &mut xobjects, &mut next_id, &mut counter);
+        walk(&page.items, &mut ptr_to_idx, &mut refs, &mut xobjects, &mut next_id, &mut counter, icc_profile_id);
     }
     (refs, ptr_to_idx, xobjects)
 }
@@ -232,6 +298,7 @@ fn process_image_item(
     xobjects:   &mut Vec<ImageXObject>,
     next_id:    &mut usize,
     counter:    &mut usize,
+    icc_profile_id: Option<usize>,
 ) {
     let FrameItem::Image { data, intrinsic_width, intrinsic_height, .. } = item else {
         return;
@@ -248,12 +315,14 @@ fn process_image_item(
         ImageFormat::Jpeg => {
             let main_id = *next_id;
             *next_id += 1;
+            let image_icc = if jpeg_is_rgb(data) { icc_profile_id } else { None };
             refs.push(ImageRef { main_obj_id: main_id, name });
             xobjects.push(ImageXObject::Jpeg {
-                data:        Arc::clone(data),
-                main_obj_id: main_id,
-                iw:          *intrinsic_width,
-                ih:          *intrinsic_height,
+                data:           Arc::clone(data),
+                main_obj_id:    main_id,
+                iw:             *intrinsic_width,
+                ih:             *intrinsic_height,
+                icc_profile_id: image_icc,
             });
             ptr_to_idx.insert(ptr, idx);
         }
@@ -336,12 +405,37 @@ pub(super) fn xobject_resources_for_page(
 
 // ── XObject builders por formato ────────────────────────────────────────────
 
-pub(super) fn build_jpeg_xobject(data: &[u8], iw: u32, ih: u32, color_space: &str) -> Vec<u8> {
+/// **P777** — constrói o stream `/ICCBased` para o perfil sRGB partilhado.
+/// Inclui `/Range [0 1 0 1 0 1]` para replicar o vanilla/krilla e garantir
+/// interpretação determinística dos componentes RGB.
+pub(super) fn build_icc_profile_stream(icc_data: &[u8]) -> Vec<u8> {
+    let compressed = compress_zlib(icc_data).unwrap_or_else(|_| icc_data.to_vec());
+    let len = compressed.len();
+    let header = format!(
+        "<< /Length {len} /N 3 /Range [0 1 0 1 0 1] /Filter /FlateDecode >>\nstream\n"
+    );
+    let mut obj = header.into_bytes();
+    obj.extend_from_slice(&compressed);
+    obj.extend_from_slice(b"\nendstream");
+    obj
+}
+
+pub(super) fn build_jpeg_xobject(
+    data: &[u8],
+    iw: u32,
+    ih: u32,
+    color_space: &str,
+    icc_profile_id: Option<usize>,
+) -> Vec<u8> {
     let len = data.len();
+    let cs_entry = match icc_profile_id {
+        Some(id) => format!("/ColorSpace [/ICCBased {id} 0 R]"),
+        None     => format!("/ColorSpace {color_space}"),
+    };
     let header = format!(
         "<< /Type /XObject /Subtype /Image \
            /Width {iw} /Height {ih} \
-           /ColorSpace {color_space} /BitsPerComponent 8 \
+           {cs_entry} /BitsPerComponent 8 \
            /Filter /DCTDecode /Length {len} >>\nstream\n"
     );
     let mut obj = header.into_bytes();

@@ -1,5 +1,5 @@
 # Prompt L0 — `infra/export/builder` — PdfBuilder
-Hash do Código: e154f0a4
+Hash do Código: 08ca0e8c
 
 **Camada**: L3
 **Ficheiro alvo**: `03_infra/src/export/builder.rs`
@@ -112,14 +112,36 @@ Ordem canónica para todos os caminhos:
 3. Per-page `/Page` = obj 3..3+N
 4. Per-page `/Contents` stream = obj 3+N..3+2N
 5. Font objects (3 para Helvetica, 5 para CIDFont, 5*N para multifont)
-6. Image XObjects (1 ou 2 cada — RGB + opcional SMask)
-7. Gradient objects (3 cada — Function + Shading + Pattern) + sub-Function IDs
-8. Link annotations (`/Type /Annot /Subtype /Link`) — alocados dinamicamente
+6. Opcional: objecto `/ICCBased` sRGB partilhado (apenas se houver JPEGs RGB no documento)
+7. Image XObjects (1 ou 2 cada — RGB + opcional SMask)
+8. Gradient objects (3 cada — Function + Shading + Pattern) + sub-Function IDs
+9. Link annotations (`/Type /Annot /Subtype /Link`) — alocados dinamicamente
    após todos os recursos, referenciados pelo `/Annots` de cada página.
 
 Alocação dependente: gradients vêm após imagens; sub-Functions vêm após gradients;
 annotations vêm após gradients; named destinations vêm após annotations;
 bookmarks (`/Outlines`) vêm após named destinations.
+
+## §P777 — Perfil ICC sRGB para JPEGs RGB
+
+**Data:** 2026-07-16
+
+Para replicar o vanilla (krilla), JPEGs RGB usam `/ColorSpace [/ICCBased <id> 0 R]`
+em vez de `/DeviceRGB` directo. O perfil ICC é um perfil sRGB compacto (480 bytes,
+compatível com lcms2) embutido como constante em L3.
+
+Regras:
+
+1. O builder detecta se o documento contém pelo menos um JPEG RGB antes de
+   alocar object IDs para imagens (`has_rgb_jpeg`).
+2. Se houver JPEGs RGB, reserva um object ID para o perfil ICC partilhado
+   imediatamente após os objectos de fonte e antes do primeiro XObject de imagem.
+3. O ID do perfil ICC é passado a `scan_all_images`, que o associa a cada
+   `ImageXObject::Jpeg` cujo SOF marker indique 3 componentes de cor.
+4. `emit_image_xobjects` emite o stream `/ICCBased` antes dos JPEGs que o
+   referenciam.
+5. JPEGs grayscale (`/DeviceGray`) e CMYK (`/DeviceCMYK`) não referenciam o
+   perfil ICC; continuam a usar ColorSpace directo.
 
 ## §P535 — Bookmarks PDF (`/Outlines`)
 

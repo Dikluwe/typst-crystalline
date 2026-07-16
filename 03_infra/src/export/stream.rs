@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/export/stream.md
-//! @prompt-hash b1d33dd4
+//! @prompt-hash 2d034273
 //! @layer L3
 //! @updated 2026-05-19
 //!
@@ -470,8 +470,11 @@ pub(super) fn build_page_stream(page: &Page, ctx: &PageContext) -> Vec<u8> {
                             clip.x.val(), clip_pdf_y, clip.w.val(), clip.h.val()
                         ));
                     }
+                    // **P777** — precisão aumentada para 5 casas decimais,
+                    // replicando o vanilla e evitando desvios de 1 px nas
+                    // bordas em orientações EXIF com flip/rotate.
                     ops.push_str(&format!(
-                        "{:.3} {:.3} {:.3} {:.3} {:.3} {:.3} cm\n/{} Do\nQ\n",
+                        "{:.5} {:.5} {:.5} {:.5} {:.5} {:.5} cm\n/{} Do\nQ\n",
                         matrix.a, matrix.b, matrix.c, matrix.d, matrix.tx, matrix.ty,
                         ctx.img_refs[idx].name
                     ));
