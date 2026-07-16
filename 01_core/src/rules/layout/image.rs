@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/rules/layout-image.md
-//! @prompt-hash ab5f39c1
+//! @prompt-hash d774dfa0
 //! @layer L1
 //! @updated 2026-07-15
 
@@ -17,9 +17,9 @@ use super::{FontMetrics, Layouter};
 /// `BlockElem::spacing` por defeito do vanilla (`Em::new(1.2)`).
 const IMAGE_BLOCK_SPACING_EM: f64 = 1.2;
 
-/// Densidade padrão para conversão px → pt.
-/// 96 DPI: 1 pt = 1/72 inch; 1 px = 1/96 inch → 1 px = 72/96 pt = 0.75 pt.
-const PX_TO_PT: f64 = 0.75;
+/// Densidade padrão para conversão px → pt (P770).
+/// Vanilla usa `Image::DEFAULT_DPI = 72.0`; sem metadados de DPI, 1 px = 1 pt.
+const PX_TO_PT: f64 = 1.0;
 
 /// Dimensões finais de uma imagem para o layouter, em pontos.
 pub struct ImageDimensions {
@@ -35,15 +35,16 @@ pub struct ImageDimensions {
 /// Calcula as dimensões finais de uma imagem.
 ///
 /// 1. Lê dimensões intrínsecas em píxeis via `sizer`.
-/// 2. Converte para pontos (96 DPI).
-/// 3. Aplica overrides do utilizador preservando o aspect ratio se apenas
-///    um dos valores for fornecido.
+/// 2. Converte para pontos usando `PX_TO_PT` (72 DPI padrão do vanilla).
+/// 3. Aplica overrides do utilizador e `fit` (cover/contain/stretch),
+///    preservando o aspect ratio quando apropriado.
 ///
 /// Se `sizer` não conseguir ler os bytes, usa fallback 100×100 pt.
 pub fn calculate_dimensions(
     data:        &[u8],
     user_width:  Option<&Value>,
     user_height: Option<&Value>,
+    fit:         &str,
     sizer:       &dyn ImageSizer,
 ) -> ImageDimensions {
     let intrinsic = sizer.size(data); // única leitura do cabeçalho (DEBT-28)
@@ -63,7 +64,7 @@ pub fn calculate_dimensions(
     let req_h = user_height.and_then(extract_pt);
 
     let (width_pt, height_pt) = match (req_w, req_h) {
-        (Some(w), Some(h)) => (w, h),
+        (Some(w), Some(h)) => apply_fit(w, h, aspect, fit),
         (Some(w), None)    => (w, w / aspect),
         (None, Some(h))    => (h * aspect, h),
         (None, None)       => (intrinsic_w_pt, intrinsic_h_pt),
@@ -74,6 +75,34 @@ pub fn calculate_dimensions(
         height_pt,
         intrinsic_width:  intrinsic.map(|(w, _)| w),
         intrinsic_height: intrinsic.map(|(_, h)| h),
+    }
+}
+
+/// Aplica `fit` a um rectângulo target de dimensões explicitamente fornecidas.
+///
+/// - `"stretch"` → usa `(target_w, target_h)` exactamente.
+/// - `"cover"` / `"contain"` → ajusta para preencher o target preservando
+///   o aspect ratio, replicando `typst-layout/src/image.rs`.
+fn apply_fit(target_w: f64, target_h: f64, aspect: f64, fit: &str) -> (f64, f64) {
+    if fit == "stretch" {
+        return (target_w, target_h);
+    }
+
+    let target_aspect = if target_h > 0.0 {
+        target_w / target_h
+    } else {
+        aspect
+    };
+    let wide = aspect > target_aspect;
+
+    // Para "cover", preenche o target: a dimensão dominante é a que evita
+    // bordas vazias. Para "contain", encaixa dentro: a dimensão dominante é
+    // a que evita cortar. A condição `wide == (fit == "contain")` cobre
+    // ambos os casos de forma simétrica.
+    if wide == (fit == "contain") {
+        (target_w, target_w / aspect)
+    } else {
+        (target_h * aspect, target_h)
     }
 }
 
@@ -104,6 +133,7 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
         &e.data.0,  // &[u8] via PtrEqArc → Arc → deref
         e.width.as_deref(),
         e.height.as_deref(),
+        &e.fit,
         &layouter.sizer,
     );
 
@@ -210,7 +240,7 @@ mod tests {
 
     #[test]
     fn dimensoes_fallback_quando_sizer_retorna_none() {
-        let dims = calculate_dimensions(&[], None, None, &NullImageSizer);
+        let dims = calculate_dimensions(&[], None, None, "cover", &NullImageSizer);
         assert_eq!(dims.width_pt,  100.0);
         assert_eq!(dims.height_pt, 100.0);
     }
@@ -221,10 +251,10 @@ mod tests {
         impl ImageSizer for MockSizer {
             fn size(&self, _: &[u8]) -> Option<(u32, u32)> { Some((400, 300)) }
         }
-        // 400 * 0.75 = 300pt; 300 * 0.75 = 225pt
-        let dims = calculate_dimensions(&[], None, None, &MockSizer);
-        assert_eq!(dims.width_pt,  300.0);
-        assert_eq!(dims.height_pt, 225.0);
+        // P770 — 72 DPI padrão: 400 px = 400 pt; 300 px = 300 pt.
+        let dims = calculate_dimensions(&[], None, None, "cover", &MockSizer);
+        assert_eq!(dims.width_pt,  400.0);
+        assert_eq!(dims.height_pt, 300.0);
     }
 
     #[test]
@@ -235,7 +265,7 @@ mod tests {
         }
         // Forçar width = 120pt → height = 120 / (4/3) = 90pt
         let w = Value::Float(120.0);
-        let dims = calculate_dimensions(&[], Some(&w), None, &MockSizer);
+        let dims = calculate_dimensions(&[], Some(&w), None, "cover", &MockSizer);
         assert_eq!(dims.width_pt,  120.0);
         assert_eq!(dims.height_pt,  90.0);
     }
@@ -248,22 +278,69 @@ mod tests {
         }
         // Forçar height = 90pt → width = 90 * (4/3) = 120pt
         let h = Value::Float(90.0);
-        let dims = calculate_dimensions(&[], None, Some(&h), &MockSizer);
+        let dims = calculate_dimensions(&[], None, Some(&h), "cover", &MockSizer);
         assert_eq!(dims.width_pt,  120.0);
         assert_eq!(dims.height_pt,  90.0);
     }
 
     #[test]
-    fn ambos_overrides_forcam_dimensoes() {
+    fn ambos_overrides_stretch_forca_dimensoes() {
         struct MockSizer;
         impl ImageSizer for MockSizer {
             fn size(&self, _: &[u8]) -> Option<(u32, u32)> { Some((400, 300)) }
         }
         let w = Value::Float(50.0);
         let h = Value::Float(50.0);
-        let dims = calculate_dimensions(&[], Some(&w), Some(&h), &MockSizer);
+        let dims = calculate_dimensions(&[], Some(&w), Some(&h), "stretch", &MockSizer);
         assert_eq!(dims.width_pt, 50.0);
         assert_eq!(dims.height_pt, 50.0);
+    }
+
+    #[test]
+    fn ambos_overrides_cover_preserva_aspect_ratio() {
+        struct MockSizer;
+        impl ImageSizer for MockSizer {
+            fn size(&self, _: &[u8]) -> Option<(u32, u32)> { Some((400, 300)) }
+        }
+        // Imagem 4:3, target 50×50 (aspecto 1). Cover → preenche o target:
+        // wide (4/3 > 1) → height = 50, width = 50 * (4/3) = 66.666...
+        let w = Value::Float(50.0);
+        let h = Value::Float(50.0);
+        let dims = calculate_dimensions(&[], Some(&w), Some(&h), "cover", &MockSizer);
+        assert!((dims.width_pt - 200.0 / 3.0).abs() < 1e-9);
+        assert_eq!(dims.height_pt, 50.0);
+    }
+
+    #[test]
+    fn ambos_overrides_contain_preserva_aspect_ratio() {
+        struct MockSizer;
+        impl ImageSizer for MockSizer {
+            fn size(&self, _: &[u8]) -> Option<(u32, u32)> { Some((400, 300)) }
+        }
+        // Imagem 4:3, target 50×50. Contain → encaixa dentro do target:
+        // wide (4/3 > 1) → width = 50, height = 50 / (4/3) = 37.5.
+        let w = Value::Float(50.0);
+        let h = Value::Float(50.0);
+        let dims = calculate_dimensions(&[], Some(&w), Some(&h), "contain", &MockSizer);
+        assert_eq!(dims.width_pt, 50.0);
+        assert_eq!(dims.height_pt, 37.5);
+    }
+
+    #[test]
+    fn fit_padrao_cover_quando_ambos_fornecidos() {
+        struct MockSizer;
+        impl ImageSizer for MockSizer {
+            fn size(&self, _: &[u8]) -> Option<(u32, u32)> { Some((100, 80)) }
+        }
+        // Replicação exacta do caso P770: tiny.png 100×80 (aspect 1.25),
+        // target 2cm × 1.5cm (≈ 56.693 × 42.520 pt, aspect 1.333).
+        // Cover → wide=false (1.25 < 1.333) → width = target_w,
+        // height = target_w / 1.25.
+        let w = Value::Length(crate::entities::layout_types::Length::cm(2.0));
+        let h = Value::Length(crate::entities::layout_types::Length::cm(1.5));
+        let dims = calculate_dimensions(&[], Some(&w), Some(&h), "cover", &MockSizer);
+        assert!((dims.width_pt - 56.6929).abs() < 0.001);
+        assert!((dims.height_pt - 45.3543).abs() < 0.001);
     }
 
     #[test]
@@ -273,6 +350,7 @@ mod tests {
             &[0xFF, 0xD8, 0xFF, 0x00],
             None,
             None,
+            "cover",
             &NullImageSizer,
         );
         assert_eq!(dims.intrinsic_width,  None);
@@ -283,7 +361,7 @@ mod tests {
         impl ImageSizer for FixedSizer {
             fn size(&self, _data: &[u8]) -> Option<(u32, u32)> { Some((800, 600)) }
         }
-        let dims2 = calculate_dimensions(&[], None, None, &FixedSizer);
+        let dims2 = calculate_dimensions(&[], None, None, "cover", &FixedSizer);
         assert_eq!(dims2.intrinsic_width,  Some(800));
         assert_eq!(dims2.intrinsic_height, Some(600));
     }
