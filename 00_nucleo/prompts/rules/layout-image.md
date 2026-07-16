@@ -1,6 +1,6 @@
 # Prompt L0 — rules/layout/image — `Content::Image` como bloco com ancoramento vertical
 
-Hash do Código: 1461abf0
+Hash do Código: 4af98256
 
 **Camada**: L1 · **Alvo**: `01_core/src/rules/layout/image.rs`  
 **ADRs**: ADR-0107 (paridade linguagem), ADR-0108 (anti-deriva), ADR-0109 (atomização forma B)  
@@ -30,14 +30,19 @@ Base de evidência (P768/P770):
    - Quando a imagem sucede texto não-bloco no mesmo parágrafo, a *base* da imagem ancora em `baseline_before_flush + above`; o topo fica em `base + height`; a próxima baseline do texto fica em `top + below + cap_height`.
    - Quando a imagem sucede outro bloco ou é a primeira de uma Sequence sem texto antes, mantém-se o modelo de bloco: base da imagem em `cursor_y − cap_height`, avanço `base + height + below`.
 5. **Sub-layouts isolados**: dentro de `place(...)`, células de grid, etc. (`is_sub_frame == true`), preserva-se o posicionamento directo sem protocolo de bloco nem ancoramento especial.
-6. **Resolução de dimensões (P770)**:
+6. **Resolução de dimensões e target (P770/P771)**:
    - DPI padrão para conversão px→pt: **72** (`Image::DEFAULT_DPI` do vanilla).
    - `fit` default `"cover"`; valores válidos `"contain"`, `"cover"`, `"stretch"`.
-   - Quando `width` e `height` são ambos fornecidos e `fit` é `"stretch"`, usar os valores exactos.
-   - Quando `width` e `height` são ambos fornecidos e `fit` é `"cover"` ou `"contain"`, ajustar as dimensões finais da *transformação* da imagem para preencher o rectângulo target preservando o aspect ratio original (paridade `typst-layout/src/image.rs`).
-   - Quando apenas um eixo é fornecido, calcular o outro pelo aspect ratio (independente de `fit`).
-   - Quando nenhum é fornecido, usar dimensões intrínsecas convertidas por `px * (72 / dpi)`; sem metadados de DPI, `dpi = 72`.
-   - **Scope-out P770.1**: o vanilla aplica, além do ajuste de dimensões, um `clip_path` com o rectângulo exacto do `target` (`width` × `height`) e centraliza a imagem dentro desse clip. O cristalino ainda **não** emite esse clip; o resultado visual e o avanço do cursor podem divergir quando `cover`/`contain` produzem dimensões diferentes do target. Fechar o clipping de imagem é scope-out para passo futuro.
+   - Quando `width` e `height` são ambos fornecidos:
+     - O rectângulo **target** é `(target_w, target_h) = (width, height)`.
+     - A transformação da imagem é ajustada conforme `fit`:
+       - `"stretch"` → `(target_w, target_h)`.
+       - `"cover"` / `"contain"` → preencher o target preservando aspect ratio (paridade `typst-layout/src/image.rs`).
+     - A imagem é **centralizada** dentro do target.
+     - O avanço do cursor usa a altura do **target**, não da transformação.
+     - O exportador PDF emite um `clip_path` com o rectângulo do target quando `fit == "cover"` (a transformação excede o target); `"contain"` e `"stretch"` não precisam de clip no vanilla.
+   - Quando apenas um eixo é fornecido, calcular o outro pelo aspect ratio (independente de `fit`); não há target, avanço usa a altura da transformação.
+   - Quando nenhum é fornecido, usar dimensões intrínsecas convertidas por `px * (72 / dpi)`; sem metadados de DPI, `dpi = 72`; avanço usa a altura da transformação.
 
 ---
 
@@ -47,8 +52,13 @@ Base de evidência (P768/P770):
 const PX_TO_PT: f64 = 1.0;  // 72 DPI padrão do vanilla: 1 px = 1 pt
 
 pub struct ImageDimensions {
+    /// Dimensões da transformação da imagem (podem exceder o target em cover).
     pub width_pt:         f64,
     pub height_pt:        f64,
+    /// Dimensões do rectângulo target pedido pelo utilizador.
+    /// `None` quando apenas um eixo ou nenhum é fornecido.
+    pub target_width:     Option<f64>,
+    pub target_height:    Option<f64>,
     pub intrinsic_width:  Option<u32>,
     pub intrinsic_height: Option<u32>,
 }
@@ -78,15 +88,15 @@ pub fn calculate_dimensions(
    - `Value::Length(l)` → `Some(l.abs.to_pt())`.
    - Outros → `None`.
 5. Resolve dimensões finais:
-   - `fit == "stretch"` e ambos fornecidos → `(req_w, req_h)`.
-   - `fit == "cover"` ou `"contain"` e ambos fornecidos → calcular `target = (req_w, req_h)`; ajustar para preencher o target preservando aspect ratio:
+   - `fit == "stretch"` e ambos fornecidos → `(image_w, image_h) = (req_w, req_h)`; `target = (req_w, req_h)`.
+   - `fit == "cover"` ou `"contain"` e ambos fornecidos → calcular `target = (req_w, req_h)`; ajustar a transformação para preencher o target preservando aspect ratio:
      - `wide = aspect > target_w / target_h`.
-     - Se `wide == (fit == "contain")` → `(target_w, target_w / aspect)`.
-     - Caso contrário → `(target_h * aspect, target_h)`.
-   - Só `req_w` → `(req_w, req_w / aspect)`.
-   - Só `req_h` → `(req_h * aspect, req_h)`.
-   - Nenhum → dimensões intrínsecas convertidas.
-6. Retorna dimensões finais e intrínsecas.
+     - Se `wide == (fit == "contain")` → `(image_w, image_h) = (target_w, target_w / aspect)`.
+     - Caso contrário → `(image_w, image_h) = (target_h * aspect, target_h)`.
+   - Só `req_w` → `(image_w, image_h) = (req_w, req_w / aspect)`; sem target.
+   - Só `req_h` → `(image_w, image_h) = (req_h * aspect, req_h)`; sem target.
+   - Nenhum → `(image_w, image_h)` = dimensões intrínsecas convertidas; sem target.
+6. Retorna `width_pt = image_w`, `height_pt = image_h`, `target_width`/`target_height` (quando ambos fornecidos), e dimensões intrínsecas.
 
 ---
 
@@ -109,16 +119,22 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
    - Calcula `above_pt` e `below_pt` a partir de `1.2em`.
    - Alinha `cursor_x` a `line_start_x`.
 7. Verifica overflow de página; se necessário `new_page()`.
-8. Calcula `image_base`:
+8. Calcula `image_base` (base do **target** quando existe target, ou base da imagem quando não existe):
    - `!in_main_flow` → `cursor_y`.
    - `block_chain_active` → `cursor_y - cap_height`.
    - `had_text_line` → `baseline_before_flush + above_pt`.
    - caso contrário → `cursor_y - cap_height`.
-9. Emite `FrameItem::Image` em `Point { x: cursor_x, y: image_base }` com `width`, `height` e dimensões intrínsecas.
-10. Avança o cursor:
-    - Em sub-frame: `cursor_y += height`.
-    - No fluxo principal após bloco: `cursor_y = image_base + height + below`.
-    - No fluxo principal após texto: `cursor_y = image_base + height + below + cap_height`.
+9. Se existe target, calcula o offset de centralização da imagem dentro do target:
+   - `offset_x = (target_width - image_width) / 2`.
+   - `offset_y = (target_height - image_height) / 2`.
+   - A posição de desenho da imagem é `Point { x: cursor_x + offset_x, y: image_base + offset_y }`.
+   - A altura usada no avanço do cursor é `target_height`.
+   - O `clip_rect` de `FrameItem::Image` é preenchido com o target (`x: cursor_x, y: image_base, w: target_width, h: target_height`) quando `fit == "cover"`; caso contrário `None`.
+10. Se não existe target, emite `FrameItem::Image` em `Point { x: cursor_x, y: image_base }` com `clip_rect: None`; avanço usa `image_height`.
+11. Avança o cursor:
+    - Em sub-frame: `cursor_y += height_usada`.
+    - No fluxo principal após bloco: `cursor_y = image_base + height_usada + below`.
+    - No fluxo principal após texto: `cursor_y = image_base + height_usada + below + cap_height`.
 11. Define `prev_block_below_pending = below_pt` e `block_chain_active = true` no fluxo principal.
 12. Verifica overflow de página novamente.
 
@@ -130,7 +146,8 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
 - Fallback `100×100` documentado.
 - Aspect ratio sempre preservado quando apenas um override é fornecido.
 - `fit` é aplicado mesmo quando ambos `width` e `height` são fornecidos.
-- O `FrameItem::Image.pos.y` é a base da imagem em coordenadas do Layouter (Y crescente para cima a partir da base da página); a imagem estende-se para cima pela sua altura.
+- O `FrameItem::Image.pos.y` é a base da *transformação* da imagem em coordenadas do Layouter (Y crescente para cima a partir da base da página); a imagem estende-se para cima pela sua altura.
+- Quando existe target, a imagem é centralizada no target; o avanço do cursor e o `clip_rect` usam o target.
 
 ---
 
@@ -148,7 +165,7 @@ Manter os testes unitários existentes de `calculate_dimensions`. Adicionar test
 ## Critério de aceitação
 
 - Imagens sem dimensões explícitas: dimensões da transformação igualam o vanilla (100×80pt no caso de teste P770); `A #image(...) B` alinha-se ao vanilla (ΔY ≈ 0 em A e B).
-- Imagens com dimensões explícitas: a transformação da imagem aplica `fit` igual ao vanilla (cover/contain/stretch); dimensões da transformação batem a ±0,001pt.
+- Imagens com dimensões explícitas: transformação, centralização no target, `clip_path` (quando cover) e avanço de cursor igualam o vanilla; `A #image(width:2cm,height:1.5cm) B` alinha-se ao vanilla (ΔY ≈ 0 em A e B).
 - Imagens isoladas e em sub-layouts não regressam.
 - `cargo test --workspace` verde.
 - `crystalline-lint .` zero violações (excepto V7 esperado).

@@ -100,10 +100,11 @@ pub(super) fn rebase_item_y(item: FrameItem, delta: f64) -> FrameItem {
                 pos: Point { x: pos.x, y: Pt(pos.y.0 + delta) },
                 glyph_id, x_advance, size,
             },
-        FrameItem::Image { pos, data, width, height, intrinsic_width, intrinsic_height } =>
+        FrameItem::Image { pos, data, width, height, intrinsic_width, intrinsic_height, .. } =>
             FrameItem::Image {
                 pos: Point { x: pos.x, y: Pt(pos.y.0 + delta) },
                 data, width, height, intrinsic_width, intrinsic_height,
+                clip_rect: None,
             },
         FrameItem::Shape { pos, kind, width, height, fill, stroke, parent_bbox_at_emit } =>
             FrameItem::Shape {

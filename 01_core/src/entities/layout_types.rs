@@ -264,10 +264,13 @@ pub enum FrameItem {
     ///        NOTA: para imagens, pos.y é o TOPO da bounding box — não o baseline de texto.
     ///        O exportador calcula pdf_y = page_height - pos.y - height (inversão de eixo Y).
     /// `data`: bytes raw da imagem (JPEG, PNG, etc.) — Arc para zero-copy.
-    /// `width`, `height`: dimensões físicas no documento (pt) — tamanho de layout.
+    /// `width`, `height`: dimensões físicas no documento (pt) — tamanho de layout
+    ///   da transformação da imagem (pode exceder o target quando fit=cover).
     /// `intrinsic_width`, `intrinsic_height`: dimensões reais em píxeis, lidas do
     ///   cabeçalho da imagem. Obrigatórias para o dicionário XObject no PDF —
     ///   /Width e /Height intrínsecos ≠ tamanho de layout na página.
+    /// `clip_rect`: rectângulo de clip no espaço do layout (Y crescente para cima),
+    ///   preenchido quando fit=cover e a imagem transformada excede o target (P771).
     Image {
         pos:              Point,
         data:             Arc<Vec<u8>>,
@@ -275,6 +278,7 @@ pub enum FrameItem {
         height:           Pt,
         intrinsic_width:  u32,
         intrinsic_height: u32,
+        clip_rect:        Option<Rect>,
     },
     /// Forma geométrica com dimensões resolvidas em pontos (Passo 76).
     ///

@@ -90,7 +90,7 @@ pub(super) fn translate_frame_item(item: FrameItem, new_x: Pt, new_y: Pt) -> Fra
         FrameItem::Glyph { glyph_id, x_advance, size, .. } =>
             FrameItem::Glyph { pos: Point { x: new_x, y: new_y }, glyph_id, x_advance, size },
         FrameItem::Image { data, width, height, intrinsic_width, intrinsic_height, .. } =>
-            FrameItem::Image { pos: Point { x: new_x, y: new_y }, data, width, height, intrinsic_width, intrinsic_height },
+            FrameItem::Image { pos: Point { x: new_x, y: new_y }, data, width, height, intrinsic_width, intrinsic_height, clip_rect: None },
         FrameItem::Shape { kind, width, height, fill, stroke, parent_bbox_at_emit, .. } =>
             FrameItem::Shape { pos: Point { x: new_x, y: new_y }, kind, width, height, fill, stroke, parent_bbox_at_emit },
         FrameItem::Group { matrix, clip_mask, inner_width, inner_height, items, .. } =>

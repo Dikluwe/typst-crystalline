@@ -115,7 +115,7 @@ pub(super) fn offset_item(item: FrameItem, dx: Pt, dy: Pt) -> FrameItem {
             x_advance,
             size,
         },
-        FrameItem::Image { pos, data, width, height, intrinsic_width, intrinsic_height } =>
+        FrameItem::Image { pos, data, width, height, intrinsic_width, intrinsic_height, .. } =>
             FrameItem::Image {
                 pos: Point { x: Pt(pos.x.val() + dx.val()), y: Pt(pos.y.val() + dy.val()) },
                 data,
@@ -123,6 +123,7 @@ pub(super) fn offset_item(item: FrameItem, dx: Pt, dy: Pt) -> FrameItem {
                 height,
                 intrinsic_width,
                 intrinsic_height,
+                clip_rect: None,
             },
         FrameItem::Shape { pos, kind, width, height, fill, stroke, parent_bbox_at_emit } =>
             FrameItem::Shape {

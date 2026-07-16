@@ -420,13 +420,22 @@ pub(super) fn build_page_stream(page: &Page, ctx: &PageContext) -> Vec<u8> {
                 emit_glyph_pdf(&mut ops, pos.x.val(), pdf_y, *glyph_id, *size,
                                &ctx.font_scenario);
             }
-            FrameItem::Image { pos, data, width, height, .. } => {
+            FrameItem::Image { pos, data, width, height, clip_rect, .. } => {
                 let ptr = Arc::as_ptr(data) as usize;
                 if let Some(&idx) = ctx.ptr_to_idx.get(&ptr) {
                     // pos.y é o TOPO da imagem → canto inferior esquerdo no espaço PDF.
                     let pdf_y = page_height - pos.y.val() - height.val();
+                    ops.push_str("q\n");
+                    if let Some(clip) = clip_rect {
+                        // P771 — clip_path ao rectângulo target, replicando o vanilla.
+                        let clip_pdf_y = page_height - clip.y.val() - clip.h.val();
+                        ops.push_str(&format!(
+                            "{:.3} {:.3} {:.3} {:.3} re W n\n",
+                            clip.x.val(), clip_pdf_y, clip.w.val(), clip.h.val()
+                        ));
+                    }
                     ops.push_str(&format!(
-                        "q\n{:.3} 0 0 {:.3} {:.3} {:.3} cm\n/{} Do\nQ\n",
+                        "{:.3} 0 0 {:.3} {:.3} {:.3} cm\n/{} Do\nQ\n",
                         width.val(), height.val(), pos.x.val(), pdf_y,
                         ctx.img_refs[idx].name
                     ));
