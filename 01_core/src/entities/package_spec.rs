@@ -235,12 +235,38 @@ mod tests {
 
     #[test]
     fn package_spec_from_str_err_sem_arroba() {
-        assert!("preview/cetz:0.2.2".parse::<PackageSpec>().is_err());
+        let err = "preview/cetz:0.2.2".parse::<PackageSpec>().unwrap_err();
+        assert_eq!(err.0, "package specification must start with '@'");
+    }
+
+    #[test]
+    fn package_spec_from_str_err_namespace_vazio() {
+        let err = "@/cetz:0.2.2".parse::<PackageSpec>().unwrap_err();
+        assert_eq!(err.0, "package specification is missing namespace");
+    }
+
+    #[test]
+    fn package_spec_from_str_err_nome_vazio() {
+        let err = "@preview/:0.2.2".parse::<PackageSpec>().unwrap_err();
+        assert_eq!(err.0, "package specification is missing name");
+    }
+
+    #[test]
+    fn package_spec_from_str_err_namespace_invalido() {
+        let err = "@pre view/cetz:0.2.2".parse::<PackageSpec>().unwrap_err();
+        assert_eq!(err.0, "`pre view` is not a valid package namespace");
+    }
+
+    #[test]
+    fn package_spec_from_str_err_nome_invalido() {
+        let err = "@preview/ce tz:0.2.2".parse::<PackageSpec>().unwrap_err();
+        assert_eq!(err.0, "`ce tz` is not a valid package name");
     }
 
     #[test]
     fn package_spec_from_str_err_sem_versao() {
-        assert!("@preview/cetz".parse::<PackageSpec>().is_err());
+        let err = "@preview/cetz".parse::<PackageSpec>().unwrap_err();
+        assert_eq!(err.0, "package specification is missing version");
     }
 
     #[test]
@@ -259,17 +285,20 @@ mod tests {
 
     #[test]
     fn package_version_from_str_err_non_numeric() {
-        assert!("1.x.3".parse::<PackageVersion>().is_err());
+        let err = "1.x.3".parse::<PackageVersion>().unwrap_err();
+        assert_eq!(err.0, "`x` is not a valid minor version");
     }
 
     #[test]
     fn package_version_from_str_err_too_few_parts() {
-        assert!("1.2".parse::<PackageVersion>().is_err());
+        let err = "1.2".parse::<PackageVersion>().unwrap_err();
+        assert_eq!(err.0, "version number is missing patch version");
     }
 
     #[test]
     fn package_version_from_str_err_too_many_parts() {
-        assert!("1.2.3.4".parse::<PackageVersion>().is_err());
+        let err = "1.2.3.4".parse::<PackageVersion>().unwrap_err();
+        assert_eq!(err.0, "version number has unexpected fourth component: `4`");
     }
 
     #[test]
