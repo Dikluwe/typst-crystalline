@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/wiring.md
-//! @prompt-hash 8912c851
+//! @prompt-hash 9faaacf1
 //! @layer L4
 //! @updated 2026-06-17
 //!
@@ -44,7 +44,6 @@ use std::path::PathBuf;
 use std::process::ExitCode;
 
 use typst_core::contracts::world::World;
-use typst_core::entities::source::Source;
 use typst_core::entities::source_result::SourceDiagnostic;
 use typst_infra::pipeline::{
     compile_to_pdf_bytes_full_error_and_document_id,
@@ -102,8 +101,6 @@ fn main() -> ExitCode {
         }
     };
 
-    let source_path = input.display().to_string();
-
     let (result, warnings, timings) = if timings_json.is_some() {
         let (r, w, t) = compile_to_pdf_bytes_with_timings_full_error_and_document_id(
             &world, &source, full_error, document_id,
@@ -115,7 +112,7 @@ fn main() -> ExitCode {
         );
         (r, w, typst_infra::pipeline::Timings::default())
     };
-    drain_to_stderr(&warnings, &source, &source_path, colored);
+    drain_to_stderr(&world, &warnings, &input, colored);
 
     let exit_code = match result {
         Ok(pdf_bytes) => {
@@ -132,7 +129,7 @@ fn main() -> ExitCode {
             ExitCode::SUCCESS
         }
         Err(errors) => {
-            drain_to_stderr(&errors, &source, &source_path, colored);
+            drain_to_stderr(&world, &errors, &input, colored);
             if let Some(path) = timings_json {
                 if let Err(e) = std::fs::write(&path, timings.to_json()) {
                     eprintln!("error: failed to write timings {}: {}", path.display(), e);
@@ -171,15 +168,25 @@ fn main() -> ExitCode {
 /// Helper local: drena diagnostics para stderr via formatter de L2.
 ///
 /// Substitui `typst_infra::diagnostic_format::drain_diagnostics_to_stderr`
-/// eliminado no Passo 119 (ADR-0050). L4 faz I/O trivial (`eprint!`)
-/// sem criar tipos (V12 OK) — composição pura.
+/// eliminado no Passo 119 (ADR-0050). L4 resolve o `Source` correcto
+/// para cada `diag.span` via `world.source(id)` — spans cross-file
+/// mostram o path/linha/coluna do ficheiro alvo, não do principal.
 fn drain_to_stderr(
+    world: &SystemWorld,
     diagnostics: &[SourceDiagnostic],
-    source: &Source,
-    source_path: &str,
+    input: &PathBuf,
     colored: bool,
 ) {
+    let main_id = world.main();
     for diag in diagnostics {
-        eprint!("{}", format_diagnostic(diag, source, source_path, colored));
+        let id = diag.span.id().unwrap_or(main_id);
+        let source = world.source(id).unwrap_or_else(|_| {
+            world.source(main_id).expect("main source must exist")
+        });
+        let path = world
+            .path_of(id)
+            .map(|p| p.display().to_string())
+            .unwrap_or_else(|| input.display().to_string());
+        eprint!("{}", format_diagnostic(diag, &source, &path, colored));
     }
 }

@@ -52,8 +52,11 @@ typst --version
    - `introspect` → `CounterState`.
    - `layout` → `PagedDocument`.
    - `export_pdf` → `Vec<u8>` (com `DocumentID` fixo quando fornecido).
-7. `drain_to_stderr(&warnings, &source, path, colored)` — propaga
-   `colored` do RunIntent.
+7. `drain_to_stderr(world, &warnings, &input, colored)` — propaga
+   `colored` do RunIntent. Resolve o `Source` correcto para cada
+   `diag.span` via `world.source(span.id())`; spans cross-file usam
+   o path do ficheiro alvo (`world.path_of(id)`), não do documento
+   principal.
 8. Em sucesso: `fs::write(output, pdf_bytes)`. Exit 0.
 9. Em erro de eval: drena errors com mesmo `colored`. Exit 1.
 
@@ -75,9 +78,10 @@ do `RunIntent`. Tudo em stderr; stdout nunca usado.
 - **L3** (`03_infra`): pipeline, `SystemWorld`, export. Sem formatação
   user-facing (removida no Passo 119).
 - **L4** (`04_wiring`): `main()` **thin**. Helper local
-  `drain_to_stderr` (5 linhas) que aplica `format_diagnostic` +
-  `eprint!`. Zero deps directas em `clap`; cria tipos? Não — só
-  `PathBuf` locais e a função helper.
+  `drain_to_stderr` que aplica `format_diagnostic` + `eprint!`,
+  resolvendo o `Source` correcto por `FileId` para spans cross-file.
+  Zero deps directas em `clap`; cria tipos? Não — só `PathBuf`
+  locais e a função helper.
 
 ### Guardas
 

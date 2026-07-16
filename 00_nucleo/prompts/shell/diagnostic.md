@@ -46,7 +46,10 @@ Termina com `\n` final. Hints indentados com 2 espaços.
 - `path:linha:coluna` — dim (`\x1b[2m`).
 - message — bold (`\x1b[1m`).
 
-Spans detached ou cross-file caem em `<path>:<detached>:`.
+Spans detached ou cujo `span.id()` não corresponde ao `source` passado
+caem em `<path>:<detached>:` (ponto final dentro dos backticks — formato
+exacto). A resolução do `Source` correcto para spans cross-file é
+responsabilidade do caller (L4).
 
 ### Constantes ANSI — privadas
 

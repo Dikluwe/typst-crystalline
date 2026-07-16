@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/wiring.md
-//! @prompt-hash 8912c851
+//! @prompt-hash 9faaacf1
 //! @layer L4
 //! @updated 2026-04-23
 //!
@@ -804,4 +804,59 @@ fn disciplina_warnings_antes_de_errors() {
     }
 
     cleanup(&[&input, &output]);
+}
+
+/// P772b: erro dentro de ficheiro importado mostra o path/linha/coluna
+/// do ficheiro alvo, não `<detached>` do documento principal.
+#[test]
+fn p772b_span_cross_file_aponta_para_ficheiro_importado() {
+    let root = env::temp_dir().join(format!("typst-p772b-{}", std::process::id()));
+    let _ = fs::remove_dir_all(&root);
+    fs::create_dir_all(&root).expect("criar root temp");
+
+    let subdir = root.join("subdir");
+    fs::create_dir(&subdir).expect("criar subdir");
+
+    let lib_path = subdir.join("lib.typ");
+    fs::write(&lib_path, "#let broken(x) = x + y\n").expect("escrever lib.typ");
+
+    let main_path = root.join("main.typ");
+    fs::write(&main_path, "#import \"subdir/lib.typ\": broken\n#broken(1)\n")
+        .expect("escrever main.typ");
+
+    let output = root.join("main.pdf");
+
+    let result = Command::new(BIN)
+        .arg(&main_path)
+        .arg("-o")
+        .arg(&output)
+        .output()
+        .expect("executar binário");
+
+    let stderr = String::from_utf8_lossy(&result.stderr);
+
+    assert_eq!(result.status.code(), Some(1),
+        "esperava exit 1 para erro em ficheiro importado; stderr:\n{}", stderr);
+    assert!(
+        stderr.contains("error:"),
+        "stderr deve conter 'error:'; got:\n{}", stderr
+    );
+    assert!(
+        stderr.contains("unknown variable: y"),
+        "stderr deve mencionar a variável desconhecida; got:\n{}", stderr
+    );
+    assert!(
+        stderr.contains("lib.typ"),
+        "stderr deve apontar para lib.typ, não para main.typ; got:\n{}", stderr
+    );
+    assert!(
+        !stderr.contains("<detached>"),
+        "stderr não deve conter '<detached>' para span resolvível; got:\n{}", stderr
+    );
+    assert!(
+        stderr.contains(":1:"),
+        "stderr deve conter linha:coluna (esperada linha 1); got:\n{}", stderr
+    );
+
+    let _ = fs::remove_dir_all(&root);
 }

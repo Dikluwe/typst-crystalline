@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/system-world.md
-//! @prompt-hash 8396b5e9
+//! @prompt-hash abf5d4a5
 //! @layer L3
 //! @updated 2026-06-30
 //!
@@ -319,8 +319,10 @@ impl SystemWorld {
             .unwrap_or_else(|| self.root.clone())
     }
 
-    /// **P686** — Path registado para `id`, se existir.
-    fn path_of(&self, id: FileId) -> Option<PathBuf> {
+    /// **P686/P772b** — Path registado para `id`, se existir.
+    /// Público para permitir ao formatter de diagnósticos (L4) mostrar o
+    /// path correcto em spans cross-file.
+    pub fn path_of(&self, id: FileId) -> Option<PathBuf> {
         self.slots.lock().unwrap().get(&id).map(|s| s.path.clone())
     }
 

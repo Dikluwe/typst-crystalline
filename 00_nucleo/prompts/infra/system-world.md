@@ -1,5 +1,5 @@
 # Prompt L0 — infra/system-world
-Hash do Código: b6a27321
+Hash do Código: b4b2725b
 
 **Camada**: L3
 **Ficheiro alvo**: `03_infra/src/world.rs`
@@ -32,6 +32,10 @@ impl SystemWorld {
     /// `Some(...)`). Encadeado em `04_wiring/src/main.rs` com
     /// `Arc::new(typst_infra::plugin_host::WasmiPluginHost::new())`.
     pub fn with_plugin_host(self, host: Arc<dyn PluginHost>) -> Self
+    /// **P772b** — devolve o path registado para `id`, se existir.
+    /// Usado pelo formatter de diagnósticos de L4 para mostrar o
+    /// ficheiro correcto em spans cross-file.
+    pub fn path_of(&self, id: FileId) -> Option<PathBuf>
 }
 
 impl World for SystemWorld {
