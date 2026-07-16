@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/entities/layout_types.md
-//! @prompt-hash 269ba6e5
+//! @prompt-hash baabb130
 //! @layer L1
 //! @updated 2026-04-23
 //!
@@ -271,6 +271,9 @@ pub enum FrameItem {
     ///   /Width e /Height intrínsecos ≠ tamanho de layout na página.
     /// `clip_rect`: rectângulo de clip no espaço do layout (Y crescente para cima),
     ///   preenchido quando fit=cover e a imagem transformada excede o target (P771).
+    /// `orientation`: valor EXIF Orientation (1-8). O exportador PDF aplica a
+    ///   transformação correspondente via matriz `cm`, preservando os bytes
+    ///   originais do JPEG/PNG (P776).
     Image {
         pos:              Point,
         data:             Arc<Vec<u8>>,
@@ -279,6 +282,7 @@ pub enum FrameItem {
         intrinsic_width:  u32,
         intrinsic_height: u32,
         clip_rect:        Option<Rect>,
+        orientation:      u32,
     },
     /// Forma geométrica com dimensões resolvidas em pontos (Passo 76).
     ///

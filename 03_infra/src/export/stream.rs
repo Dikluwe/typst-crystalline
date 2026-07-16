@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/export/stream.md
-//! @prompt-hash d44999d5
+//! @prompt-hash b1d33dd4
 //! @layer L3
 //! @updated 2026-05-19
 //!
@@ -21,7 +21,7 @@ use std::sync::Arc;
 
 use typst_core::entities::font_book::FontVariant;
 use typst_core::entities::font_list::FontList;
-use typst_core::entities::layout_types::{FrameItem, Page};
+use typst_core::entities::layout_types::{FrameItem, Page, TransformMatrix};
 
 use crate::font_variant::text_style_to_font_variant;
 
@@ -378,6 +378,35 @@ pub(super) fn emit_stroke_paint(
     }
 }
 
+/// **P776** — calcula a matriz `cm` para um `FrameItem::Image`, compondo a
+/// transformação EXIF (1-8) com a escala e posição de layout.
+///
+/// Replica as matrizes `cm` do vanilla `exif_transform` em
+/// `crates/typst-pdf/src/image.rs`: JPEGs não são recodificados; a orientação
+/// é aplicada directamente na matriz PDF. As dimensões `width`/`height` são as
+/// dimensões de layout finais (L1 já trocou `width`/`height` para orientações
+/// 5-8).
+fn image_exif_matrix(
+    orientation: u32,
+    width:       f64,
+    height:      f64,
+    pos_x:       f64,
+    pdf_y:       f64,
+) -> TransformMatrix {
+    let (a, b, c, d, tx, ty) = match orientation {
+        2 => (-width, 0.0, 0.0, height, width, 0.0),
+        3 => (-width, 0.0, 0.0, -height, width, height),
+        4 => (width, 0.0, 0.0, -height, 0.0, height),
+        5 => (0.0, -height, -width, 0.0, width, height),
+        6 => (0.0, -height, width, 0.0, 0.0, height),
+        7 => (0.0, height, width, 0.0, 0.0, 0.0),
+        8 => (0.0, height, -width, 0.0, width, 0.0),
+        _ => (width, 0.0, 0.0, height, 0.0, 0.0),
+    };
+
+    TransformMatrix { a, b, c, d, tx: tx + pos_x, ty: ty + pdf_y }
+}
+
 // **P281** — Stream builder unificado (substitui build_page_stream_type1/
 // cidfont/multifont). Despacha Text/Glyph por `ctx.font_scenario`;
 // Line/Image/Shape/Group são scenario-independent.
@@ -420,11 +449,18 @@ pub(super) fn build_page_stream(page: &Page, ctx: &PageContext) -> Vec<u8> {
                 emit_glyph_pdf(&mut ops, pos.x.val(), pdf_y, *glyph_id, *size,
                                &ctx.font_scenario);
             }
-            FrameItem::Image { pos, data, width, height, clip_rect, .. } => {
+            FrameItem::Image { pos, data, width, height, intrinsic_width, intrinsic_height, clip_rect, orientation } => {
                 let ptr = Arc::as_ptr(data) as usize;
                 if let Some(&idx) = ctx.ptr_to_idx.get(&ptr) {
                     // pos.y é o TOPO da imagem → canto inferior esquerdo no espaço PDF.
                     let pdf_y = page_height - pos.y.val() - height.val();
+                    let matrix = image_exif_matrix(
+                        *orientation,
+                        width.val(),
+                        height.val(),
+                        pos.x.val(),
+                        pdf_y,
+                    );
                     ops.push_str("q\n");
                     if let Some(clip) = clip_rect {
                         // P771 — clip_path ao rectângulo target, replicando o vanilla.
@@ -435,8 +471,8 @@ pub(super) fn build_page_stream(page: &Page, ctx: &PageContext) -> Vec<u8> {
                         ));
                     }
                     ops.push_str(&format!(
-                        "{:.3} 0 0 {:.3} {:.3} {:.3} cm\n/{} Do\nQ\n",
-                        width.val(), height.val(), pos.x.val(), pdf_y,
+                        "{:.3} {:.3} {:.3} {:.3} {:.3} {:.3} cm\n/{} Do\nQ\n",
+                        matrix.a, matrix.b, matrix.c, matrix.d, matrix.tx, matrix.ty,
                         ctx.img_refs[idx].name
                     ));
                 }
@@ -802,13 +838,20 @@ pub(super) fn draw_item_local(
             }
         }
         // P279 — Image em Group emit local.
-        FrameItem::Image { pos, data, width, height, .. } => {
+        FrameItem::Image { pos, data, width, height, intrinsic_width, intrinsic_height, orientation, .. } => {
             let ptr = std::sync::Arc::as_ptr(data) as usize;
             if let Some(&idx) = ctx.ptr_to_idx.get(&ptr) {
                 // Local emit: pos.x/pos.y são coords locais (após Group cm).
+                let matrix = image_exif_matrix(
+                    *orientation,
+                    width.val(),
+                    height.val(),
+                    pos.x.0,
+                    pos.y.0,
+                );
                 ops.push_str(&format!(
-                    "q\n{:.3} 0 0 {:.3} {:.3} {:.3} cm\n/{} Do\nQ\n",
-                    width.val(), height.val(), pos.x.0, pos.y.0,
+                    "q\n{:.3} {:.3} {:.3} {:.3} {:.3} {:.3} cm\n/{} Do\nQ\n",
+                    matrix.a, matrix.b, matrix.c, matrix.d, matrix.tx, matrix.ty,
                     ctx.img_refs[idx].name
                 ));
             }

@@ -21,6 +21,7 @@ lab     = "lab"     # quarentena — código original, não enforça regras cris
 benches = "benches" # infra de benchmark — fora da topologia de camadas (ADR-0115)
 tools = "tools" # scripts e resultados de benchmark/diagnóstico — fora da topologia de camadas
 temp_p664 = "temp_p664" # artefactos temporários da auditoria P664
+temp_p776 = "temp_p776" # artefactos temporários da validação P776
 
 [excluded_files]
 license  = "LICENSE"

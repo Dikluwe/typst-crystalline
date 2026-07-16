@@ -1,5 +1,5 @@
 # Prompt L0 — infra/image_sizer
-Hash do Código: 0c669da5
+Hash do Código: ecad9fbf
 
 **Camada**: L3
 **Ficheiro alvo**: `03_infra/src/image_sizer.rs`
@@ -49,29 +49,24 @@ suportando TIFF little-endian (`II`) e big-endian (`MM`).
 - **PNG `pHYs`**: chunk `pHYs` com `unit == 1` (metro) ou `unit == 2`
   (centímetro); converte pixels por unidade para DPI.
 
-### Rotação EXIF (P774)
+### Rotação EXIF (P776)
 
-Além do contrato `ImageSizer`, este módulo expõe uma função pública:
+A orientação EXIF **não** é aplicada aos pixels neste módulo. O contrato
+`ImageSizer::orientation` apenas lê o valor da tag `Orientation` (0x0112) e
+entrega-o a L1. A transformação visual é aplicada mais tarde, no exportador
+PDF, através da matriz `cm` do operador `Do` — replicando o mecanismo do
+vanilla (`typst-pdf/src/image.rs::exif_transform`), que preserva os bytes
+originais do JPEG em vez de os recodificar.
 
-```rust
-pub fn apply_exif_rotation(data: &[u8]) -> Option<Vec<u8>>
-```
-
-- Se os bytes contiverem uma tag EXIF `Orientation` com valor 2-8, descodifica
-  a imagem com a crate `image`, aplica a transformação correspondente
-  (espelhamento/rotação) e recodifica para o mesmo formato (JPEG ou PNG).
-- Se a orientação for 1 (normal) ou inexistente, retorna `None` — o chamador
-  usa os bytes originais.
-- O mapeamento dos valores 1-8 replica o do vanilla
-  (`typst_library::visualize::image::raster::apply_rotation`):
-  - 1: inalterado
-  - 2: flip horizontal
-  - 3: rotação 180°
-  - 4: flip vertical
-  - 5: flip horizontal + rotação 270° (ou flip horizontal + rotate270)
-  - 6: rotação 90°
-  - 7: flip horizontal + rotação 90°
-  - 8: rotação 270°
+O mapeamento dos valores 1-8 (semântica EXIF):
+- 1: inalterado
+- 2: flip horizontal
+- 3: rotação 180°
+- 4: flip vertical
+- 5: flip horizontal + rotação 270° (transpose)
+- 6: rotação 90°
+- 7: flip horizontal + rotação 90° (transverse)
+- 8: rotação 270°
 
 ## Invariantes
 
@@ -79,5 +74,5 @@ pub fn apply_exif_rotation(data: &[u8]) -> Option<Vec<u8>>
 - `ImageSizeImageSizer` implementa o trait L1 — não adiciona API própria.
 - Parsing de metadados não usa crates EXIF externas; depende apenas de
   `imagesize` e da stdlib.
-- A rotação de pixels é feita em L3, no momento da leitura do ficheiro, de
-  forma transparente para L1.
+- Este módulo **não** descodifica nem recodifica pixels para aplicar orientação
+  EXIF; os bytes originais do JPEG/PNG são preservados.

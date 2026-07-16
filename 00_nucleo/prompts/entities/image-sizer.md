@@ -8,7 +8,7 @@ Hash do Código: aaad8ac7
 ## Contexto
 
 `ImageSizer` é o contrato para leitura das dimensões intrínsecas de uma imagem
-em píxeis, do seu DPI (P773) e da sua orientação EXIF (P774). A implementação
+em píxeis, do seu DPI (P773) e da sua orientação EXIF (P774/P776). A implementação
 pertence a L3 (usa I/O de cabeçalho/ficheiro). L1 define apenas o trait e uma
 implementação nula para testes.
 
@@ -28,7 +28,8 @@ pub trait ImageSizer {
 
     /// Retorna o valor da tag EXIF Orientation (0x0112), se presente.
     /// Valores 1-8 conforme especificação EXIF; 1 significa "sem rotação".
-    /// A aplicação da transformação visual fica a cargo do consumidor (P774).
+    /// A transformação visual é aplicada no exportador PDF via matriz `cm`
+    /// (P776); o contrato em L1 apenas transporta o valor.
     fn orientation(&self, data: &[u8]) -> Option<u32>;
 }
 ```

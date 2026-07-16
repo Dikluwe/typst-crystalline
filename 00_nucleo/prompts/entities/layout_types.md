@@ -1,5 +1,5 @@
 # Prompt L0 — layout_types
-Hash do Código: a2a08b60
+Hash do Código: 69818768
 
 ## Módulo
 `01_core/src/entities/layout_types.rs`
@@ -49,6 +49,8 @@ explícito > herança do texto corrente > default preto).
 - `width`, `height`: dimensões físicas no documento (pt) — tamanho de layout.
 - `intrinsic_width`, `intrinsic_height`: dimensões reais em píxeis — obrigatórias
   para o dicionário XObject PDF (/Width, /Height intrínsecos ≠ tamanho de layout).
+- `orientation`: valor EXIF `Orientation` (1-8) lido do cabeçalho. O exportador
+  PDF usa este valor para compor a matriz `cm` de transformação (P776).
 
 `Link` (P422/P424/P463): hiperligação. O `body` é renderizado normalmente e os
 itens resultantes ficam em `items`. O destino é preservado como metadado

@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/rules/layout-image.md
-//! @prompt-hash 0a93b774
+//! @prompt-hash 6be55d1b
 //! @layer L1
 //! @updated 2026-07-15
 
@@ -35,6 +35,10 @@ pub struct ImageDimensions {
     /// Retornadas para evitar uma segunda chamada a `sizer.size()` no layouter (DEBT-28).
     pub intrinsic_width:  Option<u32>,
     pub intrinsic_height: Option<u32>,
+    /// Valor EXIF Orientation (1-8). O exportador PDF aplica a transformação
+    /// visual via matriz `cm` (P776); aqui usamos apenas para trocar as
+    /// dimensões de layout quando a orientação implica rotação 90°/270°.
+    pub orientation:      u32,
 }
 
 /// Calcula as dimensões finais de uma imagem.
@@ -53,12 +57,23 @@ pub fn calculate_dimensions(
     sizer:       &dyn ImageSizer,
 ) -> ImageDimensions {
     let intrinsic = sizer.size(data); // única leitura do cabeçalho (DEBT-28)
+    let orientation = sizer.orientation(data).unwrap_or(1).clamp(1, 8);
     let dpi = sizer.dpi(data).unwrap_or(DEFAULT_DPI);
     let px_to_pt = 72.0 / dpi;
 
-    let (intrinsic_w_pt, intrinsic_h_pt) = match intrinsic {
-        Some((pw, ph)) => (pw as f64 * px_to_pt, ph as f64 * px_to_pt),
-        None           => (100.0, 100.0),
+    // P776 — orientações 5-8 implicam rotação 90°/270°; o layout usa dimensões
+    // trocadas, como o `new_size` do vanilla em `exif_transform`. As dimensões
+    // originais são preservadas para o XObject PDF.
+    let (layout_w_px, layout_h_px) = match intrinsic {
+        Some((pw, ph)) if (5..=8).contains(&orientation) => (ph, pw),
+        Some((pw, ph))                                   => (pw, ph),
+        None                                             => (0, 0),
+    };
+
+    let (intrinsic_w_pt, intrinsic_h_pt) = if layout_w_px == 0 && layout_h_px == 0 {
+        (100.0, 100.0)
+    } else {
+        (layout_w_px as f64 * px_to_pt, layout_h_px as f64 * px_to_pt)
     };
 
     let aspect = if intrinsic_h_pt > 0.0 {
@@ -87,6 +102,7 @@ pub fn calculate_dimensions(
         target_height,
         intrinsic_width:  intrinsic.map(|(w, _)| w),
         intrinsic_height: intrinsic.map(|(_, h)| h),
+        orientation,
     }
 }
 
@@ -248,6 +264,7 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
         intrinsic_width:  intrinsic_w,
         intrinsic_height: intrinsic_h,
         clip_rect,
+        orientation:      dims.orientation,
     });
 
     // **P769/P771** — avanço do cursor conforme o tipo de ancoragem, usando

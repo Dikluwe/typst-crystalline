@@ -1,6 +1,6 @@
 # Prompt L0 — rules/layout/image — `Content::Image` como bloco com ancoramento vertical
 
-Hash do Código: 1667cce5
+Hash do Código: 003bafcd
 
 **Camada**: L1 · **Alvo**: `01_core/src/rules/layout/image.rs`  
 **ADRs**: ADR-0107 (paridade linguagem), ADR-0108 (anti-deriva), ADR-0109 (atomização forma B)  
@@ -63,6 +63,9 @@ pub struct ImageDimensions {
     pub target_height:    Option<f64>,
     pub intrinsic_width:  Option<u32>,
     pub intrinsic_height: Option<u32>,
+    /// Valor EXIF Orientation (1-8), se presente. O exportador PDF usa este
+    /// valor para aplicar a transformação via matriz `cm` (P776).
+    pub orientation:      u32,
 }
 ```
 
@@ -83,13 +86,19 @@ pub fn calculate_dimensions(
 ```
 
 1. Lê dimensões intrínsecas via `sizer.size(data)`; se `None`, fallback `100×100 pt`.
-2. Calcula aspect ratio (`w / h`; fallback `1.0` se `h == 0`).
-3. Converte dimensões intrínsecas para pt usando `PX_TO_PT` (72 DPI padrão).
-4. Extrai `req_w`/`req_h` via `extract_pt`:
+2. Lê `orientation` via `sizer.orientation(data)`; fallback `1`.
+3. Para orientações EXIF 5-8 (rotação 90°/270°), troca as dimensões intrínsecas
+   usadas no cálculo do layout, replicando o `new_size` do vanilla
+   (`exif_transform`). As dimensões originais são ainda guardadas em
+   `intrinsic_width`/`intrinsic_height` para o XObject PDF.
+4. Calcula aspect ratio (`w / h`; fallback `1.0` se `h == 0`).
+5. Converte dimensões intrínsecas (já trocadas quando aplicável) para pt usando
+   `PX_TO_PT` (72 DPI padrão).
+6. Extrai `req_w`/`req_h` via `extract_pt`:
    - `Value::Float(f)` → `Some(*f)`.
    - `Value::Length(l)` → `Some(l.abs.to_pt())`.
    - Outros → `None`.
-5. Resolve dimensões finais:
+7. Resolve dimensões finais:
    - `fit == "stretch"` e ambos fornecidos → `(image_w, image_h) = (req_w, req_h)`; `target = (req_w, req_h)`.
    - `fit == "cover"` ou `"contain"` e ambos fornecidos → calcular `target = (req_w, req_h)`; ajustar a transformação para preencher o target preservando aspect ratio:
      - `wide = aspect > target_w / target_h`.
@@ -97,8 +106,8 @@ pub fn calculate_dimensions(
      - Caso contrário → `(image_w, image_h) = (target_h * aspect, target_h)`.
    - Só `req_w` → `(image_w, image_h) = (req_w, req_w / aspect)`; sem target.
    - Só `req_h` → `(image_w, image_h) = (req_h * aspect, req_h)`; sem target.
-   - Nenhum → `(image_w, image_h)` = dimensões intrínsecas convertidas; sem target.
-6. Retorna `width_pt = image_w`, `height_pt = image_h`, `target_width`/`target_height` (quando ambos fornecidos), e dimensões intrínsecas.
+   - Nenhum → `(image_w, image_h)` = dimensões intrínsecas convertidas (trocadas se orientação 5-8); sem target.
+8. Retorna `width_pt = image_w`, `height_pt = image_h`, `target_width`/`target_height` (quando ambos fornecidos), dimensões intrínsecas originais e `orientation`.
 
 ---
 
@@ -132,7 +141,7 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
    - A posição de desenho da imagem é `Point { x: cursor_x + offset_x, y: image_base + offset_y }`.
    - A altura usada no avanço do cursor é `target_height`.
    - O `clip_rect` de `FrameItem::Image` é preenchido com o target (`x: cursor_x, y: image_base, w: target_width, h: target_height`) quando `fit == "cover"`; caso contrário `None`.
-10. Se não existe target, emite `FrameItem::Image` em `Point { x: cursor_x, y: image_base }` com `clip_rect: None`; avanço usa `image_height`.
+10. Emite `FrameItem::Image` com `orientation` vinda de `ImageDimensions`. Se não existe target, a posição é `Point { x: cursor_x, y: image_base }` com `clip_rect: None`; avanço usa `image_height`.
 11. Avança o cursor:
     - Em sub-frame: `cursor_y += height_usada`.
     - No fluxo principal após bloco: `cursor_y = image_base + height_usada + below`.

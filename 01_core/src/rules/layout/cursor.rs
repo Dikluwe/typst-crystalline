@@ -589,11 +589,12 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
                         pos: Point { x: pos.x + Pt(target_x), y: pos.y + Pt(target_y) },
                         glyph_id, x_advance, size,
                     },
-                FrameItem::Image { pos, data, width, height, intrinsic_width, intrinsic_height, .. } =>
+                FrameItem::Image { pos, data, width, height, intrinsic_width, intrinsic_height, orientation, .. } =>
                     FrameItem::Image {
                         pos: Point { x: pos.x + Pt(target_x), y: pos.y + Pt(target_y) },
                         data, width, height, intrinsic_width, intrinsic_height,
                         clip_rect: None,
+                        orientation,
                     },
                 FrameItem::Link { target, items, pos, size } => FrameItem::Link {
                     target,
@@ -779,11 +780,12 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
                             pos: Point { x: pos.x + Pt(target_x), y: pos.y + Pt(target_y) },
                             glyph_id, x_advance, size,
                         },
-                    FrameItem::Image { pos, data, width, height, intrinsic_width, intrinsic_height, .. } =>
+                    FrameItem::Image { pos, data, width, height, intrinsic_width, intrinsic_height, orientation, .. } =>
                         FrameItem::Image {
                             pos: Point { x: pos.x + Pt(target_x), y: pos.y + Pt(target_y) },
                             data, width, height, intrinsic_width, intrinsic_height,
                             clip_rect: None,
+                            orientation,
                         },
                     FrameItem::Link { target, items, pos, size } => FrameItem::Link {
                         target,

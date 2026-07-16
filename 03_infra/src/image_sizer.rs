@@ -1,10 +1,8 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/image-sizer.md
-//! @prompt-hash d6ffa02a
+//! @prompt-hash 239ad16f
 //! @layer L3
 //! @updated 2026-04-19
-
-use std::io::Cursor;
 
 use typst_core::entities::image_sizer::ImageSizer;
 
@@ -397,57 +395,6 @@ fn read_ifd_dpi(
     None
 }
 
-/// Aplica a rotação EXIF aos pixels da imagem e devolve os novos bytes.
-///
-/// Se a imagem não tiver tag `Orientation` não-padrão, ou se o formato não for
-/// JPEG/PNG, retorna `None` — o chamador deve usar os bytes originais.
-///
-/// O mapeamento 1-8 replica `apply_rotation` do vanilla
-/// (`typst_library::visualize::image::raster`).
-pub fn apply_exif_rotation(data: &[u8]) -> Option<Vec<u8>> {
-    let orientation = exif_orientation(data)?;
-    if orientation == 1 {
-        return None;
-    }
-
-    let format = if data.starts_with(b"\x89PNG\r\n\x1a\n") {
-        image::ImageFormat::Png
-    } else if data.starts_with(b"\xff\xd8") {
-        image::ImageFormat::Jpeg
-    } else {
-        return None;
-    };
-
-    let mut img = image::load_from_memory_with_format(data, format).ok()?;
-
-    use image::imageops as ops;
-    match orientation {
-        2 => ops::flip_horizontal_in_place(&mut img),
-        3 => ops::rotate180_in_place(&mut img),
-        4 => ops::flip_vertical_in_place(&mut img),
-        5 => {
-            ops::flip_horizontal_in_place(&mut img);
-            img = img.rotate270();
-        }
-        6 => img = img.rotate90(),
-        7 => {
-            ops::flip_horizontal_in_place(&mut img);
-            img = img.rotate90();
-        }
-        8 => img = img.rotate270(),
-        _ => return None,
-    }
-
-    let mut out = Vec::new();
-    let output_format = match format {
-        image::ImageFormat::Png => image::ImageOutputFormat::Png,
-        image::ImageFormat::Jpeg => image::ImageOutputFormat::Jpeg(95),
-        _ => return None,
-    };
-    img.write_to(&mut Cursor::new(&mut out), output_format).ok()?;
-    Some(out)
-}
-
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -618,28 +565,4 @@ mod tests {
         assert_eq!(parse_tiff_orientation(tiff_be), Some(8));
     }
 
-    #[test]
-    fn apply_exif_rotation_orient1_retorna_none() {
-        // Orientação 1 → sem transformação.
-        let data = std::fs::read("/tmp/p774-base.jpg").unwrap_or_default();
-        if data.is_empty() {
-            return;
-        }
-        assert_eq!(apply_exif_rotation(&data), None);
-    }
-
-    #[test]
-    fn apply_exif_rotation_real_se_existir() {
-        let path = "/tmp/p774-orient6.jpg";
-        if !std::path::Path::new(path).exists() {
-            return;
-        }
-        let data = std::fs::read(path).expect("ler imagem de teste");
-        assert_eq!(ImageSizeImageSizer.orientation(&data), Some(6));
-
-        let rotated = apply_exif_rotation(&data).expect("deve rodar orient6");
-        // Após rotação, as dimensões devem estar trocadas.
-        let (w, h) = ImageSizeImageSizer.size(&rotated).expect("tamanho após rotação");
-        assert_eq!((w, h), (100, 200), "orient6: 200×100 → 100×200");
-    }
 }

@@ -1,5 +1,5 @@
 # Prompt L0 — `infra/export/stream` — PageContext + emit unificado
-Hash do Código: 8fff2a2c
+Hash do Código: 0de6bc1a
 
 **Camada**: L3
 **Ficheiro alvo**: `03_infra/src/export/stream.rs`
@@ -27,6 +27,9 @@ top-level (`build_page_stream`) como pelo caminho local em Group
 - L3. Usa formatadores `format!`/`String` — não toca FS.
 - `FontScenario` e `PageContext` são `pub(crate)` — instanciados em `super::builder` mas atravessam tipo nas chamadas.
 - Helpers de emit são `pub(super)` — chamados por `super::builder` e self.
+- `FrameItem::Image` inclui `orientation` (P776); o emit compõe a matriz `cm`
+  com a transformação EXIF correspondente, preservando os bytes originais do
+  JPEG/PNG (paridade `typst-pdf/src/image.rs::exif_transform`).
 - Excede limite 800 LOC ADR-0037 Regra 2 (~685 LOC). Sub-divisão futura em `stream/{page,text,shape,draw}.rs` em P-stream-decomp dedicado se justificado.
 
 ## Interface

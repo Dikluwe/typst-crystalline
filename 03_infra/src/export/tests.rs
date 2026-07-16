@@ -591,6 +591,7 @@ use typst_core::rules::layout::layout;
                 intrinsic_width:  400,
                 intrinsic_height: 300,
                 clip_rect:        None,
+                orientation:      1,
             }],
         };
         let doc = PagedDocument::new(vec![page]);
@@ -625,6 +626,7 @@ use typst_core::rules::layout::layout;
                 intrinsic_width:  200,
                 intrinsic_height: 200,
                 clip_rect:        None,
+                orientation:      1,
             }],
         };
         let doc = PagedDocument::new(vec![page]);
@@ -733,6 +735,7 @@ use typst_core::rules::layout::layout;
                 width: Pt(100.0), height: Pt(75.0),
                 intrinsic_width: 1, intrinsic_height: 1,
                 clip_rect: None,
+                orientation: 1,
             }],
         };
         let doc = PagedDocument::new(vec![page]);
@@ -759,6 +762,7 @@ use typst_core::rules::layout::layout;
                     width: Pt(100.0), height: Pt(75.0),
                     intrinsic_width: 400, intrinsic_height: 300,
                     clip_rect: None,
+                    orientation: 1,
                 },
                 FrameItem::Image {
                     pos: Point { x: Pt(72.0), y: Pt(200.0) },
@@ -766,6 +770,7 @@ use typst_core::rules::layout::layout;
                     width: Pt(50.0), height: Pt(37.0),
                     intrinsic_width: 400, intrinsic_height: 300,
                     clip_rect: None,
+                    orientation: 1,
                 },
             ],
         };
@@ -6155,6 +6160,7 @@ use typst_core::rules::layout::layout;
             intrinsic_width:  400,
             intrinsic_height: 300,
             clip_rect:        None,
+            orientation:      1,
         };
         let group = FrameItem::Group {
             pos:          group_pos,
@@ -6217,6 +6223,7 @@ use typst_core::rules::layout::layout;
                 intrinsic_width:  200,
                 intrinsic_height: 200,
                 clip_rect:        None,
+                orientation:      1,
             };
             FrameItem::Group {
                 pos:          Point { x: Pt(gx), y: Pt(gy) },
@@ -6262,6 +6269,7 @@ use typst_core::rules::layout::layout;
             intrinsic_width:  200,
             intrinsic_height: 200,
             clip_rect:        None,
+            orientation:      1,
         };
         let inner_group = FrameItem::Group {
             pos:          Point { x: Pt(20.0), y: Pt(20.0) },
@@ -6313,6 +6321,7 @@ use typst_core::rules::layout::layout;
                 intrinsic_width:  400,
                 intrinsic_height: 300,
                 clip_rect:        None,
+                orientation:      1,
             }],
         }]);
         let pdf = export_pdf(&doc);

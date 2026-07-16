@@ -26,7 +26,6 @@ use typst_core::entities::world_types::{
 };
 
 use crate::fonts::FontSlot;
-use crate::image_sizer::apply_exif_rotation;
 
 /// Slot de source com carregamento lazy e thread-safe.
 ///
@@ -438,8 +437,8 @@ impl World for SystemWorld {
         let full_path = self.resolve_path(current_file, path);
         let data = std::fs::read(&full_path)
             .map_err(|e| format!("erro ao ler '{}': {}", path, e))?;
-        // P774 — aplica rotação EXIF aos pixels de forma transparente para L1.
-        let data = apply_exif_rotation(&data).unwrap_or(data);
+        // P776 — bytes originais preservados; a orientação EXIF é aplicada no
+        // exportador PDF via matriz `cm`, não por recodificação de pixels.
         Ok(std::sync::Arc::new(data))
     }
 
