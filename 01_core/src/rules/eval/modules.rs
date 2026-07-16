@@ -138,12 +138,12 @@ pub(super) fn eval_module_import(
                 engine
                     .world
                     .resolve_package(&spec)
-                    .map_err(|msg| vec![SourceDiagnostic::error(Span::detached(), msg)])?
+                    .map_err(|msg| vec![SourceDiagnostic::error(source_span, msg)])?
             } else {
                 engine
                     .world
                     .include_source(engine.current_file, &path)
-                    .map_err(|msg| vec![SourceDiagnostic::error(Span::detached(), msg)])?
+                    .map_err(|msg| vec![SourceDiagnostic::error(source_span, msg)])?
             };
             let src_id = source.id();
 
@@ -235,18 +235,20 @@ pub(super) fn eval_module_include(
     engine: &mut Engine<'_>,
 ) -> SourceResult<Value> {
     // Avaliar a expressão do caminho (normalmente uma string literal).
-    let path_val = eval_expr(include.source(), scopes, ctx, engine)?;
+    let path_source = include.source();
+    let path_span = path_source.span();
+    let path_val = eval_expr(path_source, scopes, ctx, engine)?;
     let path = match path_val {
         Value::Str(s) => s.to_string(),
         other => return Err(vec![SourceDiagnostic::error(
-            Span::detached(),
+            path_span,
             format!("include: caminho deve ser string, recebeu {}", other.type_name()),
         )]),
     };
 
     // Carregar o ficheiro incluído com resolução relativa ao ficheiro actual.
     let source = engine.world.include_source(engine.current_file, &path)
-        .map_err(|msg| vec![SourceDiagnostic::error(Span::detached(), msg)])?;
+        .map_err(|msg| vec![SourceDiagnostic::error(path_span, msg)])?;
 
     let src_id = source.id();
     // Detecção de ciclo via `Route::contains` real (ADR-0033, ADR-0036).

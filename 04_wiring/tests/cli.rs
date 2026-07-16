@@ -860,3 +860,41 @@ fn p772b_span_cross_file_aponta_para_ficheiro_importado() {
 
     let _ = fs::remove_dir_all(&root);
 }
+
+/// P772d: erro de I/O em `#import` de path relativo inexistente mostra
+/// o span do path no documento principal, não `<detached>`.
+#[test]
+fn p772d_io_import_path_inexistente_nao_detached() {
+    let input = temp_typ("p772d", "#import \"preview/nome:1.0.0\"\n");
+    let output = temp_pdf("p772d_out");
+
+    let result = Command::new(BIN)
+        .arg(&input)
+        .arg("-o")
+        .arg(&output)
+        .output()
+        .expect("executar binário");
+
+    let stderr = String::from_utf8_lossy(&result.stderr);
+
+    assert_eq!(result.status.code(), Some(1),
+        "esperava exit 1 para path inexistente; stderr:\n{}", stderr);
+    assert!(
+        stderr.contains("error:"),
+        "stderr deve conter 'error:'; got:\n{}", stderr
+    );
+    assert!(
+        stderr.contains("ficheiro não encontrado"),
+        "stderr deve mencionar ficheiro não encontrado; got:\n{}", stderr
+    );
+    assert!(
+        !stderr.contains("<detached>"),
+        "stderr não deve conter '<detached>'; got:\n{}", stderr
+    );
+    assert!(
+        stderr.contains(":1:"),
+        "stderr deve conter linha:coluna do path no doc principal; got:\n{}", stderr
+    );
+
+    cleanup(&[&input, &output]);
+}
