@@ -186,9 +186,14 @@ pub(super) fn extract_tracks(val: Option<&Value>) -> Vec<TrackSizing> {
 /// `grid(columns?, rows?, ...cells)` → `Content::Grid`.
 pub fn native_grid(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contracts::world::World, _current_file: FileId) -> SourceResult<Value> {
     for key in args.named.keys() {
-        // P224 + P227 + P228 — accept named args
-        // (gutter/align/inset/header/footer/stroke/fill).
-        if !["columns", "rows", "gutter", "align", "inset", "header", "footer", "stroke", "fill"]
+        // P224 + P227 + P228 — accept named args (gutter/align/inset/stroke/fill).
+        // P772i — `header`/`footer` removidos desta whitelist: não são
+        // argumentos nomeados no vanilla (`grid.header(...)`/`grid.footer(...)`
+        // são elementos-filho passados posicionalmente, extraídos abaixo do
+        // loop de children). `#grid(header: ..)` agora erra, paridade vanilla
+        // (que rejeitaria com "unexpected argument"). Ver
+        // 00_nucleo/diagnosticos/paridade-producao-p772i.md.
+        if !["columns", "rows", "gutter", "align", "inset", "stroke", "fill"]
             .contains(&key.as_str())
         {
             return Err(vec![SourceDiagnostic::error(
@@ -247,23 +252,16 @@ pub fn native_grid(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::cont
         None => crate::entities::sides::Sides::uniform(Length::pt(0.0)),
     };
 
-    // P224.B — extract header/footer (Content opcional).
-    let header = match args.named.get("header") {
-        Some(Value::Content(c)) => Some(c.clone()),
-        Some(other) => return Err(vec![SourceDiagnostic::error(
-            Span::detached(),
-            format!("grid(header): espera content, recebeu {}", other.type_name()),
-        )]),
-        None => None,
-    };
-    let footer = match args.named.get("footer") {
-        Some(Value::Content(c)) => Some(c.clone()),
-        Some(other) => return Err(vec![SourceDiagnostic::error(
-            Span::detached(),
-            format!("grid(footer): espera content, recebeu {}", other.type_name()),
-        )]),
-        None => None,
-    };
+    // P772i — `header`/`footer` deixam de ser argumentos nomeados; são
+    // extraídos do loop de children abaixo, como `Content::GridHeader`/
+    // `Content::GridFooter` (paridade vanilla — elementos-filho, não named
+    // args; ver typst-layout/src/rules.rs `GRID_CELL_RULE`/`grid/mod.rs`
+    // `#[elem(name = "header")]`). Só um header e um footer são suportados
+    // (repeat-across-páginas, múltiplos headers por `level`, e headers/
+    // footers no meio da lista de células são scope-out explícito — ver
+    // 00_nucleo/diagnosticos/paridade-producao-p772i.md).
+    let mut header: Option<Content> = None;
+    let mut footer: Option<Content> = None;
 
     let mut cells: Vec<Content> = Vec::new();
     let mut hlines: Vec<crate::entities::elements::grid_hline::GridHLineElem> = Vec::new();
@@ -295,6 +293,27 @@ pub fn native_grid(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::cont
                     }
                     vline.col = col;
                     vlines.push(vline);
+                }
+                // P772i — GridHeader/GridFooter não são células normais:
+                // não incrementam col/row (são extraídos e colados
+                // separadamente pelo layouter — ver grid.rs).
+                Content::GridHeader(_) => {
+                    if header.is_some() {
+                        return Err(vec![SourceDiagnostic::error(
+                            Span::detached(),
+                            "grid: não pode haver mais do que um header (scope-out — múltiplos headers por `level` não suportados)".to_string(),
+                        )]);
+                    }
+                    header = Some(c.clone());
+                }
+                Content::GridFooter(_) => {
+                    if footer.is_some() {
+                        return Err(vec![SourceDiagnostic::error(
+                            Span::detached(),
+                            "grid: não pode haver mais do que um footer".to_string(),
+                        )]);
+                    }
+                    footer = Some(c.clone());
                 }
                 other => {
                     cells.push(other.clone());

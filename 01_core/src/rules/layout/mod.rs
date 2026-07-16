@@ -1519,7 +1519,16 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
                     None => (max_width - inset_l - inset_r).max(0.0),
                 };
                 let (bw, bh) = self.measure_content_constrained(body, body_max);
-                let total_w = bw + inset_l + inset_r;
+                // P772f — largura explícita do bloco é a largura reportada
+                // (o corpo mede-se dentro dela, mas não a substitui). Antes
+                // usava sempre `bw`, colapsando a 0 quando o corpo era um
+                // `Content::Align`/`Content::Place` sem braço próprio (ex:
+                // `block(width: 3cm, align(top, place(..)))` numa coluna
+                // auto de grid) — a coluna auto-dimensionava para 0pt.
+                let total_w = match width {
+                    Some(w) => w.resolve_pt(font).min(max_width),
+                    None => bw + inset_l + inset_r,
+                };
                 let body_h_with_inset = bh + inset_t + inset_b;
                 let total_h = match height {
                     Some(h) => h.resolve_pt(font).max(body_h_with_inset),
@@ -1527,6 +1536,13 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
                 };
                 (total_w, total_h)
             }
+
+            // P772f — `align` não tem tamanho intrínseco próprio: reporta o
+            // tamanho do corpo (o wrapper só reposiciona dentro do espaço
+            // disponível, não o redimensiona). Braço em falta colapsava a
+            // 0 e fazia colunas auto de grid com células `align(...)`
+            // colidirem na mesma posição x (ambas medidas a largura 0).
+            Content::Align(e) => self.measure_content_constrained(&e.body, max_width),
 
             Content::Styled(body, styles) => {
                 let prev_chain = self.chain.clone();

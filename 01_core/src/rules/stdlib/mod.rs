@@ -7605,17 +7605,61 @@ mod tests {
     }
 
     #[test]
-    fn p224_native_grid_header_footer_content_aceita() {
+    fn p772i_native_grid_header_footer_nomeados_rejeitados() {
+        // P772i — substitui `p224_native_grid_header_footer_content_aceita`.
+        // `header:`/`footer:` deixaram de ser argumentos nomeados válidos
+        // (paridade vanilla — são elementos-filho `grid.header(...)`/
+        // `grid.footer(...)`, nunca named args da função `grid()`). Ver
+        // 00_nucleo/diagnosticos/paridade-producao-p772i.md.
         null_ctx!(ctx);
         let mut args = p(vec![Value::Content(Content::text("body"))]);
         args.named
             .insert("header".into(), Value::Content(Content::text("HDR")));
-        args.named
+        let r = native_grid(&mut ctx, &args, &null_world(), test_file_id());
+        assert!(r.is_err(), "header: nomeado deve ser rejeitado (paridade vanilla)");
+
+        let mut args2 = p(vec![Value::Content(Content::text("body"))]);
+        args2.named
             .insert("footer".into(), Value::Content(Content::text("FTR")));
+        let r2 = native_grid(&mut ctx, &args2, &null_world(), test_file_id());
+        assert!(r2.is_err(), "footer: nomeado deve ser rejeitado (paridade vanilla)");
+    }
+
+    #[test]
+    fn p772i_native_grid_header_footer_como_children_populam_grid_elem() {
+        // P772i — header/footer agora vêm de `Content::GridHeader`/
+        // `Content::GridFooter` como children posicionais (via
+        // `native_grid_header`/`native_grid_footer`), não named args.
+        null_ctx!(ctx);
+        let hdr = native_grid_header(
+            &mut ctx,
+            &p(vec![Value::Content(Content::text("HDR"))]),
+            &null_world(),
+            test_file_id(),
+        )
+        .unwrap();
+        let ftr = native_grid_footer(
+            &mut ctx,
+            &p(vec![Value::Content(Content::text("FTR"))]),
+            &null_world(),
+            test_file_id(),
+        )
+        .unwrap();
+        let args = p(vec![Value::Content(Content::text("body")), hdr, ftr]);
         let r = native_grid(&mut ctx, &args, &null_world(), test_file_id()).unwrap();
         if let Value::Content(Content::Grid(e)) = r {
-            assert!(e.header.is_some(), "header presente");
-            assert!(e.footer.is_some(), "footer presente");
+            assert!(e.header.is_some(), "header presente (via child)");
+            assert!(e.footer.is_some(), "footer presente (via child)");
+            assert!(
+                matches!(e.header.as_ref().unwrap(), Content::GridHeader(_)),
+                "header deve ser Content::GridHeader"
+            );
+            assert!(
+                matches!(e.footer.as_ref().unwrap(), Content::GridFooter(_)),
+                "footer deve ser Content::GridFooter"
+            );
+            // "body" (Content::text) continua como célula normal.
+            assert_eq!(e.cells.len(), 1, "header/footer não devem contar como células normais");
         } else {
             panic!("esperado Content::Grid");
         }

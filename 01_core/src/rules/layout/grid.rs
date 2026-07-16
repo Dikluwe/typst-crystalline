@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/rules/layout.md
-//! @prompt-hash 24db1e79
+//! @prompt-hash 9631382f
 //! @layer L1
 //! @updated 2026-07-14
 //!
@@ -111,8 +111,8 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
         _gutter: Option<Length>,
         align:   Option<Align2D>,  // P232 — Grid-level align disponível para Place herdar
         inset:   Sides<Length>,    // P235 — Grid-level inset (default per-cell)
-        _header: Option<&Content>,
-        _footer: Option<&Content>,
+        header:  Option<&Content>,
+        footer:  Option<&Content>,
         stroke:  Option<&Stroke>,  // P227 — borders cell render Opção β
         fill:    Option<&Color>,    // P228 — fill cell render Z-order correcto
     ) {
@@ -131,6 +131,52 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
             columns.to_vec()
         };
         let num_cols = cols.len();
+
+        // P772i — header/footer como row-group real: extrair as células do
+        // corpo de `Content::GridHeader`/`GridFooter` (um `Content::Sequence`
+        // se houver mais que uma célula, ou o `Content` da própria célula se
+        // só houver uma — `Content::sequence` colapsa Vec de 1 elemento) e
+        // colar antes/depois das células normais. Cada grupo é preenchido
+        // com `Content::Empty` até múltiplo de `num_cols` — headers/footers
+        // ocupam linhas inteiras (paridade vanilla, `resolve.rs` §"row
+        // group"). **Scope-out explícito** (não silencioso — ver
+        // 00_nucleo/diagnosticos/paridade-producao-p772i.md): renderiza uma
+        // única vez, não repete em quebras de página (equivalente vanilla de
+        // `Header`/`Footer`/`Repeatable<T>` com `range`/`level` não
+        // implementado).
+        fn row_group_cells(content: &Content, num_cols: usize) -> Vec<Content> {
+            let mut group_cells = match content {
+                Content::Sequence(items) => items.to_vec(),
+                other => vec![other.clone()],
+            };
+            let remainder = group_cells.len() % num_cols;
+            if remainder != 0 {
+                group_cells.resize(group_cells.len() + (num_cols - remainder), Content::Empty);
+            }
+            group_cells
+        }
+        let header_cells: Vec<Content> = header
+            .map(|h| match h {
+                Content::GridHeader(e) => row_group_cells(&e.body, num_cols),
+                other => row_group_cells(other, num_cols),
+            })
+            .unwrap_or_default();
+        let footer_cells: Vec<Content> = footer
+            .map(|f| match f {
+                Content::GridFooter(e) => row_group_cells(&e.body, num_cols),
+                other => row_group_cells(other, num_cols),
+            })
+            .unwrap_or_default();
+        let combined_cells: Vec<Content> = if header_cells.is_empty() && footer_cells.is_empty() {
+            cells.to_vec()
+        } else {
+            let mut combined = Vec::with_capacity(header_cells.len() + cells.len() + footer_cells.len());
+            combined.extend(header_cells);
+            combined.extend_from_slice(cells);
+            combined.extend(footer_cells);
+            combined
+        };
+        let cells: &[Content] = &combined_cells;
 
         // Guarda Passo 83 — rows vazias caem em [Auto] para evitar
         // panic por divisão por zero em N % rows.len() quando o AST
@@ -444,10 +490,22 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
                 // Precedência `.or()` uniforme P230 + P232 + P235.
                 let effective_stroke: Option<&Stroke> = cell_stroke.or(stroke);
                 let effective_fill:   Option<&Color>  = cell_fill.or(fill);
-                // P235 — align per-cell override Grid-level (self.cell_align
-                // ainda contém Grid.align porque save/restore Grid-level
-                // P232 cobre todo o emit loop).
-                let effective_align = cell_align.or(self.cell_align);
+                // P772j — fold por eixo (não `.or()` do Align2D inteiro):
+                // confirmado contra o vanilla (`show_cell`/`resolve_cell` em
+                // rules.rs/resolve.rs) e por medição directa
+                // (`grid(align: horizon, grid.cell(align: left)[..])` — o
+                // vanilla preserva o V herdado do grid quando a célula só
+                // especifica H). `.or()` do Align2D inteiro descartava o
+                // eixo do grid sempre que a célula especificava qualquer
+                // eixo — divergência real, não só mecânica. Ver
+                // 00_nucleo/prompts/rules/layout.md §"Alinhamento efectivo
+                // per-célula".
+                let effective_align = match (cell_align, self.cell_align) {
+                    (None, None) => None,
+                    (Some(c), None) => Some(c),
+                    (None, Some(g)) => Some(g),
+                    (Some(c), Some(g)) => Some(Align2D { h: c.h.or(g.h), v: c.v.or(g.v) }),
+                };
                 // P235 — inset per-cell override Grid-level; default Grid inset.
                 let effective_inset: Sides<Length> = cell_inset.cloned().unwrap_or(inset);
                 // P235 — breakable per-cell semantic adiada graded
@@ -497,12 +555,33 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
                     });
                 }
 
+                // P772j — alinhamento efectivo aplicado envolvendo o corpo
+                // em `Content::Align` (nunca `Content::Place` — mecanismo
+                // confirmado contra o vanilla, `show_cell` em
+                // typst-layout/src/rules.rs, que faz `body.aligned(align)`
+                // quando `align` é `Smart::Custom`, nunca `body.placed(..)`).
+                // Reutiliza a disciplina de "consumidor absoluto" de P772g:
+                // `layout_align`, invocado a partir daqui, lê
+                // `self.regions.current.line_start_x` (=body_x, já definido
+                // pela chamada de `layout_sub_frame` abaixo) e
+                // `self.regions.cell` (Some, já definido por `enter_cell`
+                // acima) — nenhuma alteração adicional a `placement.rs`.
+                let cell_to_layout: Content = match effective_align {
+                    Some(alignment) => Content::Align(std::sync::Arc::new(
+                        crate::entities::elements::align::AlignElem {
+                            alignment,
+                            body: cell.clone(),
+                        },
+                    )),
+                    None => cell.clone(),
+                };
+
                 // P234 — sem cache; re-medir cell (custo perf ~2× aceitável).
                 // P235 — layout em body_x/body_w reduzidos por inset.
                 let saved_cursor_x = self.regions.current.cursor_x;
                 let saved_cursor_y = self.regions.current.cursor_y;
                 let (cell_h_measured, cell_items) = self.layout_sub_frame(
-                    cell,
+                    &cell_to_layout,
                     super::sub_frame::SubLayoutRegion {
                         origin_x: body_x,
                         width: body_w,

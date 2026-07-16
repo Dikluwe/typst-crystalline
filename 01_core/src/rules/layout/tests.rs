@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/rules/layout.md
-//! @prompt-hash 24db1e79
+//! @prompt-hash 9631382f
 //! @layer L1
 //! @updated 2026-07-14
 //!
@@ -2726,6 +2726,427 @@ fn grid_fr_recebe_zero_quando_auto_e_guloso() {
 
     // Comportamento documentado: fr pode receber 0pt (DEBT-34d). Sem pânico.
     assert!(resolved[2] >= 0.0, "fr não deve ter largura negativa");
+}
+
+// ── P772f — `measure_content_constrained` colapsava a 0 para `Content::Align`
+// (braço em falta) e ignorava a largura explícita de `Content::Block` (usava
+// a do corpo). Isto fazia colunas Auto de grid/table com células `align(...)`
+// ou `block(width: _, ..)` medirem 0pt e colidirem na mesma posição x —
+// achado da investigação do P763g (que atribuíra a colisão a "grid não
+// renderiza a segunda célula"; por coordenadas, era esta medição a 0).
+// Ver 00_nucleo/diagnosticos/paridade-producao-p772f.md.
+
+#[test]
+fn p772f_measure_content_constrained_align_reporta_largura_do_corpo() {
+    use crate::entities::elements::align::AlignElem;
+    use crate::entities::introspector::{Introspector, TagIntrospector};
+    use crate::entities::layout_types::Align2D;
+    use comemo::Track;
+
+    let intr = TagIntrospector::empty();
+    let intr_dyn: &dyn Introspector = &intr;
+    let intr_tracked = intr_dyn.track();
+    let mut layouter =
+        Layouter::new(FixedMetrics, NullImageSizer, DEFAULT_FONT_SIZE, intr_tracked);
+
+    let body = Content::text("hi");
+    let aligned = Content::Align(std::sync::Arc::new(AlignElem {
+        alignment: Align2D::from_string("center"),
+        body: body.clone(),
+    }));
+
+    let (w_body, _) = layouter.measure_content_constrained(&body, 400.0);
+    let (w_aligned, _) = layouter.measure_content_constrained(&aligned, 400.0);
+
+    assert!(w_body > 0.0, "largura do texto directo deve ser positiva");
+    assert_eq!(
+        w_aligned, w_body,
+        "Content::Align deve reportar a largura do corpo (wrapper não tem \
+         tamanho intrínseco próprio) — antes colapsava a 0.0"
+    );
+}
+
+#[test]
+fn p772f_measure_content_constrained_block_largura_explicita_nao_colapsa() {
+    use crate::entities::elements::align::AlignElem;
+    use crate::entities::elements::block::BlockElem;
+    use crate::entities::introspector::{Introspector, TagIntrospector};
+    use crate::entities::layout_types::{Align2D, Length};
+    use crate::entities::sides::Sides;
+    use comemo::Track;
+
+    let intr = TagIntrospector::empty();
+    let intr_dyn: &dyn Introspector = &intr;
+    let intr_tracked = intr_dyn.track();
+    let mut layouter =
+        Layouter::new(FixedMetrics, NullImageSizer, DEFAULT_FONT_SIZE, intr_tracked);
+
+    // Corpo sem braço próprio em `measure_content_constrained` (Align
+    // envolvendo texto — já corrigido acima, mas o ponto aqui é isolar o
+    // bug do Block: mesmo que o corpo medisse 0, a largura explícita do
+    // bloco deve prevalecer).
+    let body = Content::Align(std::sync::Arc::new(AlignElem {
+        alignment: Align2D::from_string("top-left"),
+        body: Content::text("x"),
+    }));
+    let block = Content::Block(std::sync::Arc::new(BlockElem {
+        body,
+        width: Some(Length::pt(85.039)), // 3cm
+        height: None,
+        inset: Sides::uniform(Length::pt(0.0)),
+        breakable: true,
+        outset: Sides::uniform(Length::pt(0.0)),
+        radius: crate::entities::corners::Corners::uniform(Length::pt(0.0)),
+        clip: false,
+        fill: None,
+        stroke: None,
+        spacing: None,
+        above: None,
+        below: None,
+        sticky: false,
+    }));
+
+    let (w, _) = layouter.measure_content_constrained(&block, 400.0);
+    assert!(
+        (w - 85.039).abs() < 0.01,
+        "block(width: 3cm) deve reportar 85.039pt independentemente do corpo, obteve {}",
+        w
+    );
+}
+
+// ── P772g — `layout_align`/emissão de footnotes duplicavam a origem da
+// célula quando um `Content::Place` (scope: column) estava aninhado no seu
+// corpo. Corrigido tornando ambos "consumidores absolutos" de
+// `layout_sub_frame` (origin_x real + delta incremental de alinhamento, não
+// origin_x:0.0 + target_x inteiro). Ver
+// 00_nucleo/prompts/rules/layout.md §"Contrato de composição de coordenadas"
+// e 00_nucleo/diagnosticos/paridade-producao-p772g.md.
+
+#[test]
+fn p772g_place_dentro_de_align_dentro_de_grid_cell_bate_com_place_directo() {
+    // Regressão directa do achado B de P772f: `align(top, place(...))`
+    // numa célula de grid devia produzir a mesma posição x que
+    // `place(...)` directo (sem align) numa célula equivalente — antes do
+    // fix, a versão com `align` duplicava a origem da célula.
+    let src_direct = "#set page(width: 8cm, height: 6cm)\n\
+         #grid(columns: 1, \
+         block(width: 3cm, height: 2cm, place(top+left, dx: 5pt, dy: 5pt, circle(radius: 10pt))))";
+    let src_aligned = "#set page(width: 8cm, height: 6cm)\n\
+         #grid(columns: 1, \
+         block(width: 3cm, height: 2cm, align(top, place(top+left, dx: 5pt, dy: 5pt, circle(radius: 10pt)))))";
+
+    let shape_x = |doc: &PagedDocument| -> f64 {
+        doc.pages[0]
+            .items
+            .iter()
+            .find_map(|i| match i {
+                FrameItem::Shape { pos, kind: ShapeKind::Ellipse, .. } => Some(pos.x.val()),
+                _ => None,
+            })
+            .expect("esperado FrameItem::Shape (círculo)")
+    };
+
+    let x_direct = shape_x(&layout_test(src_direct));
+    let x_aligned = shape_x(&layout_test(src_aligned));
+
+    assert!(
+        (x_direct - x_aligned).abs() < 0.01,
+        "place() directo (x={}) e align(top, place()) (x={}) devem coincidir \
+         — divergência indica duplicação da origem da célula (achado B de P772f)",
+        x_direct,
+        x_aligned
+    );
+}
+
+#[test]
+fn p772g_place_dentro_de_align_dentro_de_grid_de_duas_colunas_nao_sai_da_pagina() {
+    // Reprodução completa de P772f §2.4: grid de 2 colunas, cada célula
+    // `block(align(top, place(...)))`. Antes do fix, a célula da coluna 2
+    // ficava com o círculo quase inteiramente fora da página (x≈225.57 numa
+    // página de 226.77pt de largura). Depois do fix, deve ficar dentro da
+    // página e a uma distância da coluna 1 compatível com a largura de uma
+    // coluna (não o dobro).
+    let doc = layout_test(
+        "#set page(width: 8cm, height: 6cm)\n\
+         #grid(columns: 2, gutter: 5pt, \
+         block(width: 3cm, height: 2cm, align(top, place(top+left, dx: 5pt, dy: 5pt, circle(radius: 10pt)))), \
+         block(width: 3cm, height: 2cm, align(top, place(top+left, dx: 5pt, dy: 5pt, circle(radius: 10pt)))))",
+    );
+    let xs: Vec<f64> = doc
+        .pages[0]
+        .items
+        .iter()
+        .filter_map(|i| match i {
+            FrameItem::Shape { pos, kind: ShapeKind::Ellipse, .. } => Some(pos.x.val()),
+            _ => None,
+        })
+        .collect();
+    assert_eq!(xs.len(), 2, "esperados 2 círculos, obteve {:?}", xs);
+    let page_w = 226.772;
+    for &x in &xs {
+        assert!(
+            x + 20.0 <= page_w,
+            "círculo em x={} sai da página (largura {}pt) — achado B de P772f não corrigido",
+            x,
+            page_w
+        );
+    }
+    let gap = (xs[1] - xs[0]).abs();
+    // Uma coluna (3cm ≈ 85.04pt) + gutter (5pt) ≈ 90pt — não o dobro (~180pt,
+    // sintoma da duplicação de origem medido em P772f).
+    assert!(
+        gap < 100.0,
+        "distância entre colunas ({}) sugere origem ainda a ser somada em dobro",
+        gap
+    );
+}
+
+#[test]
+fn p772g_footnote_com_place_dentro_de_align_bate_com_vanilla_estrutura() {
+    // Regressão da correcção em cursor.rs (emissão de footnotes): um
+    // `Content::Place` aninhado em `align` dentro do body de uma nota de
+    // rodapé não deve duplicar a origem. Verifica-se apenas que o círculo é
+    // emitido dentro dos limites da página (achado B também se manifestava
+    // aqui, via o mesmo padrão origin_x:0.0 + target_x inteiro).
+    let doc = layout_test(
+        "#set page(width: 10cm, height: 6cm)\n\
+         Texto principal.#footnote[\
+           #grid(columns: 1, \
+           block(width: 3cm, height: 2cm, align(top, place(top+left, dx: 5pt, dy: 5pt, circle(radius: 10pt)))))\
+         ]",
+    );
+    let x = doc
+        .pages
+        .iter()
+        .flat_map(|p| p.items.iter())
+        .find_map(|i| match i {
+            FrameItem::Shape { pos, kind: ShapeKind::Ellipse, .. } => Some(pos.x.val()),
+            _ => None,
+        })
+        .expect("esperado FrameItem::Shape (círculo) no body da footnote");
+    let page_w = 283.465; // 10cm
+    assert!(
+        x + 20.0 <= page_w && x >= 0.0,
+        "círculo da footnote em x={} sai da página (largura {}pt)",
+        x,
+        page_w
+    );
+}
+
+// ── P772j — código órfão de P772f (envolvia célula em `Content::Place`)
+// revertido; substituído por `Content::Align`, o mecanismo confirmado
+// contra o vanilla (`show_cell` em typst-layout/src/rules.rs). Precedência
+// de alinhamento grid vs per-célula corrigida para fold por eixo (era
+// `.or()` do `Align2D` inteiro, descartando o eixo do grid sempre que a
+// célula especificava qualquer eixo). Ver
+// 00_nucleo/prompts/rules/layout.md §"Alinhamento efectivo per-célula" e
+// 00_nucleo/diagnosticos/paridade-producao-p772j.md.
+
+#[test]
+fn p772j_grid_align_center_nao_diverge_uma_coluna_inteira_do_vanilla() {
+    // Regressão do achado original (P772f §3.3 / P772h): o código órfão
+    // (Content::Place) fazia "Hello" divergir do vanilla em ~13.5pt
+    // (x=33.772 vs vanilla x=20.247, numa coluna de ~27pt de largura — mais
+    // de metade da própria coluna). Não exigimos byte-exactidão (a
+    // discrepância residual pequena entre a medição aproximada de largura
+    // usada no dimensionamento automático de colunas e a largura real
+    // shaped é uma divergência mecânica já existente, não introduzida por
+    // este passo — ver relatório), só que a divergência deixe de ser da
+    // ordem de uma coluna inteira.
+    let doc = layout_test(&documento_algoritmo(
+        "#set page(width: 8cm, height: 6cm)\n\
+         #grid(columns: 2, gutter: 5pt, align: center, [Hello], [World])",
+    ));
+    let xs: Vec<f64> = doc
+        .pages[0]
+        .items
+        .iter()
+        .filter_map(|i| match i {
+            FrameItem::Text { pos, .. } => Some(pos.x.val()),
+            _ => None,
+        })
+        .collect();
+    assert!(xs.len() >= 2, "esperado texto das duas células, obteve {:?}", xs);
+    let vanilla_target_x = 20.247_f64;
+    assert!(
+        (xs[0] - vanilla_target_x).abs() < 5.0,
+        "'Hello' em x={} diverge do vanilla (x={}) por mais do que ruído de \
+         medição de largura — sugere que o mecanismo voltou a usar Place em \
+         vez de Align, ou que a origem está a ser mal composta",
+        xs[0],
+        vanilla_target_x
+    );
+}
+
+#[test]
+fn p772j_grid_align_fold_por_eixo_preserva_eixo_do_grid() {
+    // Regressão da precedência: `grid.cell(align: left)` (só H) dentro de
+    // `grid(align: horizon)` (só V) deve preservar o V do grid — não
+    // substituir o Align2D inteiro por "left" (que decairia para V=top).
+    // Confirmado contra o vanilla por medição directa em P772j (mutool
+    // trace: vanilla mantém V=horizon). Aqui comparamos o Y produzido por
+    // `align: horizon` vs `align: top` a nível de grid, ambos com o mesmo
+    // `grid.cell(align: left)` — devem diferir (H fixo, V muda com o grid).
+    let doc_horizon = layout_test(
+        "#set page(width: 10cm, height: 4cm)\n\
+         #grid(columns: 1, rows: 2cm, align: horizon, grid.cell(align: left)[Hello])",
+    );
+    let doc_top = layout_test(
+        "#set page(width: 10cm, height: 4cm)\n\
+         #grid(columns: 1, rows: 2cm, align: top, grid.cell(align: left)[Hello])",
+    );
+    let first_text_pos = |doc: &PagedDocument| -> (f64, f64) {
+        doc.pages[0]
+            .items
+            .iter()
+            .find_map(|i| match i {
+                FrameItem::Text { pos, .. } => Some((pos.x.val(), pos.y.val())),
+                _ => None,
+            })
+            .expect("esperado FrameItem::Text")
+    };
+    let (x_horizon, y_horizon) = first_text_pos(&doc_horizon);
+    let (x_top, y_top) = first_text_pos(&doc_top);
+
+    assert!(
+        (x_horizon - x_top).abs() < 0.01,
+        "H (herdado da célula, 'left') deve ser igual em ambos os casos: \
+         horizon x={}, top x={}",
+        x_horizon,
+        x_top
+    );
+    assert!(
+        (y_horizon - y_top).abs() > 1.0,
+        "V (herdado do grid) deve diferir entre 'horizon' e 'top' — se for \
+         igual, o fold por eixo não está a herdar o V do grid quando a \
+         célula só especifica H (regressão para o `.or()` do Align2D \
+         inteiro)"
+    );
+}
+
+// ── P772i — `grid.header(...)`/`grid.footer(...)` como row-groups reais.
+// Corrige dois bugs confirmados: (1) `native_grid_header`/`native_grid_footer`
+// só guardavam o primeiro argumento posicional (`grid.header[Nome][Idade]`
+// perdia "Idade" silenciosamente); (2) o loop de resolução de `grid()` tratava
+// `Content::GridHeader`/`GridFooter` como uma célula normal (scope-out #16 de
+// P772f), desalinhando as colunas seguintes. `header:`/`footer:` deixaram de
+// ser argumentos nomeados (paridade vanilla). Repeat-across-páginas
+// explicitamente **não implementado** (scope-out nomeado, não silencioso —
+// ver 00_nucleo/diagnosticos/paridade-producao-p772i.md).
+
+#[test]
+fn p772i_grid_header_multi_celula_preserva_todas_as_celulas() {
+    // Regressão do bug de `args.items.first()`: header com 2 células devia
+    // perder a segunda antes desta correcção.
+    let doc = layout_test(
+        "#grid(columns: 2, grid.header[Nome][Idade], [Ana], [30])",
+    );
+    let text = doc.plain_text();
+    assert!(text.contains("Nome"), "header deve conter 'Nome': {}", text);
+    assert!(
+        text.contains("Idade"),
+        "header deve conter 'Idade' (segunda célula, antes descartada \
+         silenciosamente): {}",
+        text
+    );
+}
+
+#[test]
+fn p772i_grid_header_nao_desalinha_colunas_seguintes() {
+    // Regressão do scope-out #16: header tratado como célula normal
+    // desalinhava as colunas das linhas de dados seguintes. "Ana" e "30"
+    // devem ficar em colunas distintas (x diferentes), tal como "Nome" e
+    // "Idade" no header.
+    let doc = layout_test(
+        "#grid(columns: 2, grid.header[Nome][Idade], [Ana], [30])",
+    );
+    let xs: Vec<f64> = doc
+        .pages[0]
+        .items
+        .iter()
+        .filter_map(|i| match i {
+            FrameItem::Text { pos, .. } => Some(pos.x.val()),
+            _ => None,
+        })
+        .collect();
+    assert!(xs.len() >= 4, "esperadas 4 posições de texto (2 header + 2 dados), obteve {:?}", xs);
+    // xs[0]="Nome", xs[1]="Idade", xs[2]="Ana", xs[3]="30" (ordem de emissão).
+    assert!(
+        (xs[0] - xs[2]).abs() < 0.01,
+        "'Nome' (col0) e 'Ana' (col0) devem estar na mesma coluna: {:?}",
+        xs
+    );
+    assert!(
+        (xs[1] - xs[3]).abs() < 0.01,
+        "'Idade' (col1) e '30' (col1) devem estar na mesma coluna: {:?}",
+        xs
+    );
+    assert!(
+        (xs[0] - xs[1]).abs() > 5.0,
+        "col0 e col1 devem estar em posições x distintas: {:?}",
+        xs
+    );
+}
+
+#[test]
+fn p772i_grid_footer_aparece_apos_dados() {
+    let doc = layout_test(
+        "#grid(columns: 2, [Ana], [30], grid.footer[Total][30])",
+    );
+    let text = doc.plain_text();
+    let ana_pos = text.find("Ana").expect("'Ana' presente");
+    let total_pos = text.find("Total").expect("'Total' presente (footer)");
+    assert!(
+        total_pos > ana_pos,
+        "footer ('Total') deve aparecer depois dos dados ('Ana'): {}",
+        text
+    );
+}
+
+#[test]
+fn p772i_grid_header_footer_nomeados_dao_erro() {
+    // `#grid(header: ..)` deve errar como o vanilla (argumento nomeado
+    // inesperado), não ser aceite silenciosamente com conteúdo descartado.
+    // `layout_test` entra em panic (via .expect()/.unwrap() interno) quando
+    // o eval falha — usar catch_unwind para confirmar que falha, sem deixar
+    // o panic propagar e falhar o test runner.
+    let prev_hook = std::panic::take_hook();
+    std::panic::set_hook(Box::new(|_| {})); // silenciar stderr do panic esperado
+    let result = std::panic::catch_unwind(|| layout_test("#grid(header: [Nome])"));
+    std::panic::set_hook(prev_hook);
+    assert!(
+        result.is_err(),
+        "#grid(header: ..) deveria falhar (paridade vanilla — argumento \
+         nomeado inesperado), não produzir um documento silenciosamente"
+    );
+}
+
+#[test]
+fn p772f_grid_auto_colunas_com_align_nao_colidem() {
+    // Regressão directa do achado P763g: grid de 2 colunas Auto, cada
+    // célula envolta em `align(center, ..)`. Antes do fix, ambas as
+    // colunas mediam 0pt e o conteúdo das duas células colidia na mesma
+    // posição x (confirmado por `mutool trace` — não "célula ausente").
+    let doc = layout_test(&documento_algoritmo(
+        "#set page(width: 8cm, height: 6cm)\n\
+         #grid(columns: 2, gutter: 5pt, align(center, [Hello]), align(center, [World]))",
+    ));
+    let xs: Vec<f64> = doc
+        .pages[0]
+        .items
+        .iter()
+        .filter_map(|i| match i {
+            FrameItem::Text { pos, .. } => Some(pos.x.val()),
+            _ => None,
+        })
+        .collect();
+    assert!(xs.len() >= 2, "esperado texto das duas células, obteve {:?}", xs);
+    let x0 = xs.first().copied().unwrap();
+    assert!(
+        xs.iter().any(|&x| (x - x0).abs() > 5.0),
+        "células nas duas colunas não devem colidir na mesma posição x: {:?}",
+        xs
+    );
 }
 
 #[test]

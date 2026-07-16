@@ -1052,18 +1052,26 @@ pub fn native_table_header(
     _world: &dyn crate::contracts::world::World,
     _current_file: FileId,
 ) -> SourceResult<Value> {
-    let body = match args.items.first() {
-        Some(Value::Content(c)) => c.clone(),
-        Some(Value::Str(s))     => Content::text(s.as_str()),
-        Some(other) => return Err(vec![SourceDiagnostic::error(
+    // P772i — colectar todos os argumentos posicionais, não só o primeiro
+    // (mesmo bug de `native_grid_header`, ver comentário lá).
+    let mut cell_values: Vec<Content> = Vec::with_capacity(args.items.len());
+    for v in args.items.iter() {
+        match v {
+            Value::Content(c) => cell_values.push(c.clone()),
+            Value::Str(s)     => cell_values.push(Content::text(s.as_str())),
+            other => return Err(vec![SourceDiagnostic::error(
+                Span::detached(),
+                format!("table_header() espera content ou string como argumento posicional, recebeu {}", other.type_name()),
+            )]),
+        }
+    }
+    if cell_values.is_empty() {
+        return Err(vec![SourceDiagnostic::error(
             Span::detached(),
-            format!("table_header() espera content ou string como primeiro argumento, recebeu {}", other.type_name()),
-        )]),
-        None => return Err(vec![SourceDiagnostic::error(
-            Span::detached(),
-            "table_header() exige body como argumento posicional".to_string(),
-        )]),
-    };
+            "table_header() exige pelo menos uma célula como argumento posicional".to_string(),
+        )]);
+    }
+    let body = Content::sequence(cell_values);
 
     for key in args.named.keys() {
         if !["repeat"].contains(&key.as_str()) {
@@ -1090,18 +1098,26 @@ pub fn native_table_footer(
     _world: &dyn crate::contracts::world::World,
     _current_file: FileId,
 ) -> SourceResult<Value> {
-    let body = match args.items.first() {
-        Some(Value::Content(c)) => c.clone(),
-        Some(Value::Str(s))     => Content::text(s.as_str()),
-        Some(other) => return Err(vec![SourceDiagnostic::error(
+    // P772i — colectar todos os argumentos posicionais, não só o primeiro
+    // (mesmo bug de `native_grid_header`, ver comentário lá).
+    let mut cell_values: Vec<Content> = Vec::with_capacity(args.items.len());
+    for v in args.items.iter() {
+        match v {
+            Value::Content(c) => cell_values.push(c.clone()),
+            Value::Str(s)     => cell_values.push(Content::text(s.as_str())),
+            other => return Err(vec![SourceDiagnostic::error(
+                Span::detached(),
+                format!("table_footer() espera content ou string como argumento posicional, recebeu {}", other.type_name()),
+            )]),
+        }
+    }
+    if cell_values.is_empty() {
+        return Err(vec![SourceDiagnostic::error(
             Span::detached(),
-            format!("table_footer() espera content ou string como primeiro argumento, recebeu {}", other.type_name()),
-        )]),
-        None => return Err(vec![SourceDiagnostic::error(
-            Span::detached(),
-            "table_footer() exige body como argumento posicional".to_string(),
-        )]),
-    };
+            "table_footer() exige pelo menos uma célula como argumento posicional".to_string(),
+        )]);
+    }
+    let body = Content::sequence(cell_values);
 
     for key in args.named.keys() {
         if !["repeat"].contains(&key.as_str()) {
@@ -1236,18 +1252,30 @@ pub fn native_grid_header(
     _world: &dyn crate::contracts::world::World,
     _current_file: FileId,
 ) -> SourceResult<Value> {
-    let body = match args.items.first() {
-        Some(Value::Content(c)) => c.clone(),
-        Some(Value::Str(s))     => Content::text(s.as_str()),
-        Some(other) => return Err(vec![SourceDiagnostic::error(
+    // P772i — colectar TODOS os argumentos posicionais (`grid.header[A][B]`
+    // = múltiplas células, sintaxe de vários blocos de conteúdo trailing),
+    // não só o primeiro. `args.items.first()` descartava silenciosamente
+    // todas as células a partir da segunda — confirmado por repro directo
+    // (`grid.header[Nome][Idade]` só renderizava "Nome"). Ver
+    // 00_nucleo/diagnosticos/paridade-producao-p772i.md.
+    let mut cell_values: Vec<Content> = Vec::with_capacity(args.items.len());
+    for v in args.items.iter() {
+        match v {
+            Value::Content(c) => cell_values.push(c.clone()),
+            Value::Str(s)     => cell_values.push(Content::text(s.as_str())),
+            other => return Err(vec![SourceDiagnostic::error(
+                Span::detached(),
+                format!("grid_header() espera content ou string como argumento posicional, recebeu {}", other.type_name()),
+            )]),
+        }
+    }
+    if cell_values.is_empty() {
+        return Err(vec![SourceDiagnostic::error(
             Span::detached(),
-            format!("grid_header() espera content ou string como primeiro argumento, recebeu {}", other.type_name()),
-        )]),
-        None => return Err(vec![SourceDiagnostic::error(
-            Span::detached(),
-            "grid_header() exige body como argumento posicional".to_string(),
-        )]),
-    };
+            "grid_header() exige pelo menos uma célula como argumento posicional".to_string(),
+        )]);
+    }
+    let body = Content::sequence(cell_values);
 
     for key in args.named.keys() {
         if !["repeat"].contains(&key.as_str()) {
@@ -1273,18 +1301,26 @@ pub fn native_grid_footer(
     _world: &dyn crate::contracts::world::World,
     _current_file: FileId,
 ) -> SourceResult<Value> {
-    let body = match args.items.first() {
-        Some(Value::Content(c)) => c.clone(),
-        Some(Value::Str(s))     => Content::text(s.as_str()),
-        Some(other) => return Err(vec![SourceDiagnostic::error(
+    // P772i — colectar todos os argumentos posicionais, não só o primeiro
+    // (mesmo bug de `native_grid_header`, ver comentário lá).
+    let mut cell_values: Vec<Content> = Vec::with_capacity(args.items.len());
+    for v in args.items.iter() {
+        match v {
+            Value::Content(c) => cell_values.push(c.clone()),
+            Value::Str(s)     => cell_values.push(Content::text(s.as_str())),
+            other => return Err(vec![SourceDiagnostic::error(
+                Span::detached(),
+                format!("grid_footer() espera content ou string como argumento posicional, recebeu {}", other.type_name()),
+            )]),
+        }
+    }
+    if cell_values.is_empty() {
+        return Err(vec![SourceDiagnostic::error(
             Span::detached(),
-            format!("grid_footer() espera content ou string como primeiro argumento, recebeu {}", other.type_name()),
-        )]),
-        None => return Err(vec![SourceDiagnostic::error(
-            Span::detached(),
-            "grid_footer() exige body como argumento posicional".to_string(),
-        )]),
-    };
+            "grid_footer() exige pelo menos uma célula como argumento posicional".to_string(),
+        )]);
+    }
+    let body = Content::sequence(cell_values);
 
     for key in args.named.keys() {
         if !["repeat"].contains(&key.as_str()) {

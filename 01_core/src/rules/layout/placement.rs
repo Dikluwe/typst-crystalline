@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/rules/layout.md
-//! @prompt-hash 24db1e79
+//! @prompt-hash 9631382f
 //! @layer L1
 //! @updated 2026-04-23
 //!
@@ -25,13 +25,22 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
 
         let avail_w = self.available_width();
 
-        // Layoutar o corpo num sub-frame — cell_x=0 para que items internos
-        // comecem em x=0. O sub_frame activa is_height_unconstrained=true
-        // e restaura ao terminar.
+        // P772g (encerra achado B de P772f) — origin_x real (não 0.0):
+        // `layout_align` é um "consumidor absoluto" de `layout_sub_frame`
+        // (ver 00_nucleo/prompts/rules/layout.md §"Contrato de composição
+        // de coordenadas"). Um `Content::Place` aninhado no corpo emite
+        // coordenadas absolutas usando `regions.cell`/`cell_origin_x`; se
+        // este sub-frame usasse origin_x=0.0 e depois somasse o `target_x`
+        // inteiro (como acontecia antes), a origem da célula seria somada
+        // duas vezes. Ao inicializar o sub-frame já na origem real, o
+        // conteúdo normal (texto/formas) fica com posições absolutas desde
+        // o início; só falta somar o deslocamento *incremental* do
+        // alinhamento (`delta_x` abaixo), não o `target_x` inteiro.
+        let origin_x_abs = self.regions.current.line_start_x.0;
         let (sub_h, sub_items) = self.layout_sub_frame(
             body,
             super::sub_frame::SubLayoutRegion {
-                origin_x: 0.0,
+                origin_x: origin_x_abs,
                 width: avail_w,
                 height: None,
                 align_rtl: false,
@@ -44,8 +53,26 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
         let (ascender_local, _) = self.metrics.vertical_metrics(self.style.size, &self.style);
         let sub_origin_y        = ascender_local.0;
 
-        // Largura do conteúdo — medida independente para centrar/alinhar.
-        let (content_w, _) = measure_content(body, avail_w);
+        // P772j — largura do conteúdo medida a partir dos `sub_items` já
+        // layoutados (via `FontMetrics::line_content_right`, o mesmo
+        // mecanismo usado por `measure_content_real`), não do helper
+        // `measure_content` sem acesso a métricas reais. `measure_content`
+        // (`helpers.rs`) só tem braços para `Content::Shape`/
+        // `Content::Sequence` — para `Content::Text` (o caso comum de
+        // `align(center, [texto])`) devolvia sempre `(0.0, 0.0)`, fazendo
+        // `resolve_alignment` centrar como se o conteúdo tivesse largura
+        // zero (deslocamento de `avail_w/2` em vez de
+        // `(avail_w - largura_real)/2`). Bug confirmado por instrumentação
+        // directa durante P772j — pré-existe a este passo (afecta qualquer
+        // `align()` com texto, não só alinhamento de célula de grid) mas
+        // bloqueia directamente a validação do achado deste passo;
+        // corrigido aqui por ser pequeno e usar um mecanismo já existente,
+        // não uma nova aproximação. `measure_content` fica inalterado —
+        // continua a servir `Content::Place`/`Content::Transform` (fora do
+        // âmbito de P772j; ver 00_nucleo/prompts/rules/layout.md).
+        let sub_item_refs: Vec<&crate::entities::layout_types::FrameItem> = sub_items.iter().collect();
+        let content_right_abs = self.metrics.line_content_right(&sub_item_refs);
+        let content_w = (content_right_abs - origin_x_abs).max(0.0);
 
         // Verificar quebra de página com a altura do sub-frame.
         if self.regions.current.cursor_y.0 + sub_h > self.page_bottom_limit() {
@@ -87,11 +114,17 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
             self.regions.current.cursor_y.0,
         );
 
-        // Transferir items: sub_origin_x = 0 (passámos cell_x=0);
-        // sub_origin_y = ascender_local (compensar a origem vertical).
+        // Transferir items: P772g — sub-frame já iniciado em origin_x_abs
+        // (não 0), logo os itens "normais" já vêm absolutos; soma-se só o
+        // deslocamento incremental do alinhamento (`delta_x`), nunca o
+        // `target_x` inteiro (evita duplicar a origem em itens de
+        // `Content::Place` aninhado, que já emitem coordenadas absolutas).
+        // sub_origin_y = ascender_local (compensar a origem vertical, Y
+        // inalterado por P772g — ver nota no L0).
+        let delta_x = target_x - origin_x_abs;
         for item in sub_items {
             let (ix, iy) = item_pos(&item);
-            let new_x = Pt(target_x + ix);
+            let new_x = Pt(ix + delta_x);
             let new_y = Pt(target_y + iy - sub_origin_y);
             self.regions.current.current_items.push(translate_frame_item(item, new_x, new_y));
         }

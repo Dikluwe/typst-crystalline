@@ -1,5 +1,5 @@
 # Prompt L0 — layout
-Hash do Código: 295157bc
+Hash do Código: dbeb90b9
 
 ## Módulo
 `01_core/src/rules/layout/mod.rs` e sub-módulos (`metrics.rs`, etc.)
@@ -893,3 +893,263 @@ pub fn measure_content_real(content: &Content, chain: &StyleChain) -> (f64, f64)
   testes de `grid`, `placement`, `p624`, `p625`, `p626` e `p627`.
 - `layout_sub_frame_inline` deve manter zero regressão nos testes de
   `boxed`, `p624` e `p625`.
+
+## Secção: Contrato de composição de coordenadas entre `layout_sub_frame` e
+`Content::Place` (P772g, encerra achado B de P772f)
+
+### O problema (medido em P772f, `00_nucleo/diagnosticos/paridade-producao-p772f.md` §2.4)
+
+`layout_place` (`placement.rs`), quando resolve `PlaceScope::Column` com
+`regions.cell`/`cell_origin_x` `Some` (dentro de uma célula de grid), calcula e
+**emite coordenadas finais absolutas** para os itens do seu corpo (`target_x = cx +
+alinhamento + dx`, onde `cx` já é a posição absoluta da célula). Isto está correcto
+quando quem consome esses itens **confia neles como já finais** — mas está errado
+quando o chamador imediato de `layout_place` (via `layout_content`) é, por sua vez,
+outro wrapper que **também** recompôe uma posição absoluta a partir do seu próprio
+estado e a soma a todos os itens que recebe de volta. Nesse caso a origem da célula
+é somada duas vezes.
+
+### As duas famílias de chamadores de `layout_sub_frame`
+
+Todo o código que chama `layout_sub_frame`/`layout_sub_frame_inline` (ou manipula
+`cursor_x`/`line_start_x` directamente para simular o mesmo efeito) pertence a uma de
+duas famílias, distinguidas por **como tratam os itens devolvidos**, não por nenhuma
+flag no `Layouter`:
+
+- **Consumidor absoluto** — passa a `origin_x` **real/absoluta** da região (a
+  posição onde o conteúdo vai mesmo ficar), e **não soma nenhum deslocamento extra**
+  aos itens devolvidos; trata-os como já finais. Exemplos actuais, confirmados por
+  leitura de código em P772g: `grid.rs` (chamada per-célula de `layout_sub_frame`
+  com `origin_x: body_x`, tradução final usa `x: Pt(lx)` sem re-somar `body_x`);
+  `box.rs`/`layout_sub_frame_inline` (não reinicia `line_start_x`, opera no cursor
+  real do pai); `pad.rs`/`stack.rs` (não usam `layout_sub_frame` — deslocam
+  `cursor_x`/`line_start_x` directamente no frame real, sem sub-frame local).
+- **Consumidor relativo (recompositor)** — passa `origin_x: 0.0` (uma origem local
+  fictícia), mede o conteúdo à parte, calcula depois um `target_x` absoluto a partir
+  do seu **próprio** estado (`line_start_x`/`cursor_y` reais), e **soma esse
+  `target_x` inteiro** a cada item devolvido do sub-frame. Exemplos actuais,
+  confirmados por leitura de código em P772g: `layout_align` (`placement.rs`,
+  `origin_x: 0.0` + `new_x = target_x + ix`); a emissão de footnotes em `cursor.rs`
+  (mesmo padrão, `target_x = left_x` somado a cada item); `columns.rs::layout_segmented`
+  (usa `margin` como origem local do buffer da coluna, depois traduz por
+  `dx = column_x_offsets[idx] - margin`).
+
+`Content::Place` (`layout_place`) **sempre** emite coordenadas absolutas quando tem
+`regions.cell`/`cell_origin_x` `Some` — isto é, o seu contrato é o de um
+**consumidor absoluto** a jusante. Por construção, isto só compõe correctamente
+quando o chamador imediato também é um consumidor absoluto. Um `place()` aninhado
+dentro de um wrapper "recompositor" (align, footnote, columns) soma a origem da
+célula duas vezes.
+
+### Correcção (Decisão do humano, P772g — Opção "corrigir os wrappers"): tornar os
+recompositores consistentes com os consumidores absolutos
+
+Em vez de ensinar `layout_place` a distinguir dinamicamente em que família está
+(exigiria novo estado no `Layouter`, propagado e restaurado correctamente em todos
+os pontos de aninhamento — mais estado partilhado, mais superfície de regressão),
+**os wrappers recompositores passam a comportar-se como consumidores absolutos**:
+
+1. Chamar `layout_sub_frame`/equivalente com a **origem real absoluta** (o
+   `line_start_x`/`cursor_x`/`margin+offset` já em vigor no momento da chamada), em
+   vez de `0.0` (ou, no caso de `columns.rs`, em vez de `margin`).
+2. Na recomposição, somar apenas o **deslocamento incremental** induzido pelo
+   alinhamento — `delta = target_x - origin_x_absoluta_usada_no_passo_1` — em vez do
+   `target_x` inteiro.
+
+Isto preserva bit-a-bit o resultado para conteúdo "normal" (texto, formas): como
+`layout_content` avança posições aditivamente a partir do `cursor_x`/`line_start_x`
+inicial, `item.x_absoluto = origin_x_absoluta + item.x_relativo_a_0` sempre que a
+região é inicializada com essa origem; logo
+`item.x_absoluto + delta = origin_x_absoluta + item.x_relativo_a_0 + (target_x -
+origin_x_absoluta) = target_x + item.x_relativo_a_0`, exactamente o valor já
+produzido hoje. Para `Content::Place` aninhado, o item já vem absoluto
+(`item.x_absoluto = target_x_place`, sem termo relativo-a-0 a somar); com o wrapper
+a somar só `delta` (não o `target_x` do wrapper inteiro), a origem da célula deixa
+de ser somada duas vezes.
+
+### Âmbito confirmado nesta correcção (P772g)
+
+- `layout_align` (`placement.rs::layout_align`) — corrigido.
+- Emissão de footnotes (`cursor.rs`, bloco de posicionamento pass 2) — corrigido,
+  mesmo padrão que `layout_align`.
+- `columns.rs::layout_segmented` — corrigido; a origem local passa de `margin` para
+  `column_x_offsets[idx]` (a posição real da coluna), e a tradução final usa o
+  incremento correspondente.
+- `layout_place` (`placement.rs::layout_place`) — **inalterado**; mantém-se como
+  consumidor absoluto. Não deve ganhar lógica condicional a distinguir famílias de
+  chamador — essa distinção vive nos wrappers, não em `Content::Place`.
+- `grid.rs`, `box.rs`, `pad.rs`, `stack.rs` — já consumidores absolutos por
+  construção; revistos e confirmados sem alteração necessária.
+
+### Invariante para wrappers futuros
+
+Qualquer novo wrapper que chame `layout_sub_frame` e depois reposicione os itens
+devolvidos deve ser um **consumidor absoluto**: passar a origem real da região a
+`layout_sub_frame`, e somar apenas o deslocamento incremental de alinhamento (nunca
+uma origem local fictícia recomposta à parte). Isto evita reintroduzir a classe de
+bug medida em P772f/corrigida em P772g sempre que `Content::Place` (ou qualquer
+conteúdo futuro que também emita coordenadas absolutas) for aninhado dentro desse
+wrapper. Validar com um `place(scope: column, ...)` aninhado dentro do novo wrapper,
+dentro de uma célula de grid, contra o vanilla via `mutool trace` (tolerância
+sub-pt), antes de considerar o wrapper completo.
+
+## Secção: Alinhamento efectivo per-célula em `grid()`/`table()` (P772j)
+
+### Contexto
+
+P772f encontrou, no working tree, um bloco de código não commitado (nunca finalizado,
+sem L0, sem testes — arqueologia completa em
+`00_nucleo/diagnosticos/paridade-producao-p772h.md`) que envolvia o corpo da célula
+num `Content::Place { scope: Column, .. }` quando havia alinhamento efectivo. Medido
+contra o vanilla: `#grid(align: center, [Hello], [World])` divergia em ~13.5pt. P772j
+reverte esse código (`grid.rs`, ver commit deste passo) e substitui por um mecanismo
+verificado directamente contra o código-fonte do vanilla — não uma tentativa nova
+adivinhada.
+
+### Mecanismo vanilla confirmado (leitura directa, não assumido do nome da propriedade)
+
+`lab/typst-original/crates/typst-layout/src/rules.rs`:
+
+```rust
+const GRID_CELL_RULE: ShowFn<GridCell> = |elem, _, styles| {
+    show_cell(elem.body.clone(), elem.inset.get(styles), elem.align.get(styles))
+};
+
+fn show_cell(mut body: Content, inset: .., align: Smart<Alignment>) -> SourceResult<Content> {
+    if inset != Sides::default() {
+        body = body.padded(inset);
+    }
+    if let Smart::Custom(alignment) = align {
+        body = body.aligned(alignment);
+    }
+    Ok(body)
+}
+```
+
+Isto é um **show-rule** — corre na realização da célula (eval-time, antes do
+layout), não durante o layout do grid. `typst-layout/src/grid/layouter.rs` (a camada
+de LAYOUT) **não referencia `.align` de todo** (confirmado por grep) — quando o
+layouter do grid recebe o corpo da célula, o alinhamento já foi aplicado por
+`show_cell`, envolvendo o corpo num `Align` (nunca num `Place`). A ordem importa:
+padding primeiro (mais interno), alinhamento depois (mais externo) —
+`align(alignment, pad(inset, body))`.
+
+### Precedência confirmada por medição (não assumida)
+
+Repro `#grid(rows: 2cm, align: horizon, grid.cell(align: left)[Hello])` no vanilla
+(`mutool trace`): a posição Y do texto corresponde a alinhamento vertical
+**Horizon** (herdado do grid), não Top (o default se a célula substituísse o
+`Align2D` inteiro por `left` sozinho). Confirma: a resolução é um **fold por eixo**
+— cada eixo (H/V) resolvido independentemente; o eixo que a célula especifica vence,
+o eixo que a célula não especifica herda do grid. Não é "célula vence inteiramente
+se especificar qualquer eixo".
+
+### Mecanismo cristalino (implementado neste passo)
+
+`effective_align` deixa de ser `cell_align.or(self.cell_align)` (que descartava
+inteiramente o align do grid se a célula especificasse qualquer eixo) e passa a
+fold por eixo:
+
+```rust
+let effective_align = match (cell_align, self.cell_align) {
+    (None, None) => None,
+    (Some(c), None) => Some(c),
+    (None, Some(g)) => Some(g),
+    (Some(c), Some(g)) => Some(Align2D { h: c.h.or(g.h), v: c.v.or(g.v) }),
+};
+```
+
+Quando `effective_align` é `Some`, o corpo da célula é envolvido em
+`Content::Align { alignment: effective_align, body: cell.clone() }` antes de
+`layout_sub_frame` — **nunca em `Content::Place`** (essa foi a causa arquitectural
+da divergência do código órfão: `Place` tem semântica de posicionamento absoluto
+fora do fluxo; `Align` tem semântica de reposicionamento dentro do espaço
+disponível — não são intercambiáveis, mesmo quando numericamente próximos nalguns
+casos). O inset continua aplicado por aritmética directa de bounds (`body_x`/`body_w`
+reduzidos antes de layoutar), não por um wrapper `Pad` explícito — divergência
+mecânica aceite (ADR-0107): o resultado observável é idêntico, só a mecânica interna
+difere.
+
+Este mecanismo **reutiliza directamente** a disciplina de "consumidor absoluto"
+estabelecida na secção anterior (P772g): quando `grid.rs` chama
+`layout_sub_frame(&Content::Align{..}, SubLayoutRegion{origin_x: body_x, width:
+body_w, ..})`, `layout_align` lê `self.regions.current.line_start_x` (=`body_x`,
+correctamente definido por essa chamada) e `self.regions.cell` (`Some`, com
+`width`/`height` do corpo já reduzido por inset) — **nenhuma alteração adicional a
+`placement.rs` é necessária**; a correcção de P772g já compõe correctamente quando
+`layout_align` é invocado nesta posição, porque não distingue "quem construiu o
+`Content::Align`" — só lê o estado do `Layouter` no momento da chamada.
+
+### Invariante
+
+Qualquer alinhamento efectivo de célula (grid ou table) usa `Content::Align`, nunca
+`Content::Place`. A precedência grid-level vs per-célula é sempre um fold por eixo
+(H e V resolvidos independentemente), nunca uma substituição total do `Align2D`.
+Validar qualquer alteração a este mecanismo com um repro que combine align
+per-célula num eixo com align a nível de grid no outro eixo, confirmando por
+coordenadas (`mutool trace`) que ambos os eixos compõem correctamente — não apenas
+o caso em que a célula especifica os dois eixos ou nenhum.
+
+## Secção: `grid.header(...)`/`grid.footer(...)` como row-groups (P772i)
+
+### Contexto
+
+P772f (achado incidental) e P772h (arqueologia) confirmaram que `header:`/`footer:`
+tinham sido implementados em P224 (maio 2026) como **argumentos nomeados** de
+`grid()`, sem equivalente no vanilla (que usa `grid.header(...)`/`grid.footer(...)`
+como **elementos-filho** posicionais — `#[elem(name = "header")]` em
+`lab/typst-original/crates/typst-library/src/layout/grid/mod.rs:580`), com o
+conteúdo passado por esse caminho nunca lido pelo motor de layout
+(`_header`/`_footer` ignorados, documentado como "graded" no relatório de fecho de
+P224). Em paralelo, `Content::GridHeader`/`GridFooter` passados como children de
+`grid()` caíam no braço genérico do loop de resolução, tratados como uma célula
+normal — perdendo a semântica de row-group.
+
+### Bug adicional confirmado durante a implementação (P772i)
+
+`native_grid_header`/`native_grid_footer` (e os pares `table_*`) só guardavam
+`args.items.first()` — `grid.header[Nome][Idade]` (sintaxe de vários blocos de
+conteúdo trailing, paridade vanilla) perdia silenciosamente todas as células a
+partir da segunda. Confirmado por repro directo antes da correcção. Corrigido para
+colectar **todos** os argumentos posicionais num `Content::sequence(..)`.
+
+### Mecanismo implementado
+
+1. `native_grid` já não aceita `header:`/`footer:` como argumentos nomeados —
+   `#grid(header: ..)` erra com "argumento nomeado inesperado", paridade vanilla
+   (que rejeitaria da mesma forma).
+2. O loop de resolução de `grid()` (`stdlib/layout.rs`) distingue
+   `Content::GridHeader`/`Content::GridFooter` de células normais — não
+   incrementam `col`/`row`; são guardados em `header`/`footer: Option<Content>` e
+   passados ao `GridElem` (campos já existentes, agora alimentados por children em
+   vez de named args). Só um header e um footer são aceites (erro explícito em
+   caso de duplicado — múltiplos headers por `level` são scope-out, ver abaixo).
+3. `layout_grid` (`grid.rs`) extrai as células do corpo do header/footer
+   (`Content::Sequence` se houver mais que uma célula; o próprio `Content` se só
+   houver uma — `Content::sequence` colapsa um Vec de 1 elemento) e cola-as antes/
+   depois das células normais, preenchendo com `Content::Empty` até múltiplo de
+   `num_cols` (headers/footers ocupam linhas inteiras, paridade vanilla). A partir
+   daí, o algoritmo de posicionamento/layout existente trata-as como quaisquer
+   outras células — sem mecanismo novo de renderização.
+
+### Scope-out explícito (não silencioso): repeat-across-páginas
+
+Header/footer renderizam **uma única vez**, na posição onde foram colados (header
+sempre no topo, footer sempre no fim das células). **Não repetem em quebras de
+página** — o equivalente vanilla de `Header`/`Footer`/`Repeatable<T>`
+(`range`/`level`/`short_lived`, resolve.rs) não está implementado. Isto é
+suficiente para o caso comum (tabela cabe numa página); para tabelas que quebram
+página, o header não reaparece na página seguinte, e o footer aparece logo a
+seguir aos dados (não necessariamente ancorado ao fundo da última página).
+Decisão registada, não descoberta por acidente — se uma futura necessidade exigir
+repeat-across-páginas, tratar como passo dedicado (implica estruturas novas de
+`range`/`level` e lógica de re-emissão consciente de paginação no motor de grid).
+
+### Âmbito não coberto (`table()`)
+
+`table()` não tem `header:`/`footer:` como argumentos nomeados (nunca teve — não é
+o mesmo bug), mas também não tem os campos `header`/`footer` em `TableElem`
+nem processa `Content::TableHeader`/`TableFooter` como row-group — cai no mesmo
+braço genérico. Corrigir requer adicionar campos a `TableElem` (mudança de
+estrutura, não só de fluxo) — fora do âmbito de P772i, registado para passo
+dedicado futuro.

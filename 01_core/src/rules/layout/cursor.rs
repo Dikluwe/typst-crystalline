@@ -702,10 +702,19 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
                 Content::text(format!("[{}] ", n)),
                 (*body).clone(),
             ]);
+            // P772g (encerra achado B de P772f) — origin_x real (`left_x`,
+            // não 0.0): esta emissão é um "consumidor absoluto" de
+            // `layout_sub_frame` (ver 00_nucleo/prompts/rules/layout.md
+            // §"Contrato de composição de coordenadas"). Um `Content::Place`
+            // aninhado no body da nota emite coordenadas absolutas via
+            // `regions.cell`/`cell_origin_x`; se este sub-frame usasse
+            // origin_x=0.0 e depois somasse `target_x=left_x` inteiro a
+            // todos os itens (como acontecia antes), a origem seria somada
+            // duas vezes para o `Place` aninhado.
             let (h, items) = self.layout_sub_frame(
                 &combined,
                 super::sub_frame::SubLayoutRegion {
-                    origin_x: 0.0,
+                    origin_x: left_x,
                     width: avail_w,
                     height: None,
                     align_rtl: true,
@@ -749,7 +758,13 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
         let mut y_cursor = (area_bot - acc_h).max(top_safe);
         for (h, items) in measured {
             let target_y = y_cursor - ascender.0;
-            let target_x = left_x;
+            // P772g — sub-frame já iniciado em `left_x` (não 0.0, ver acima),
+            // logo os itens "normais" já vêm absolutos em x; footnotes não
+            // têm alinhamento horizontal próprio (sempre ancoradas a
+            // `left_x`), logo o deslocamento incremental em x é 0 — mantém-se
+            // a variável (agora delta, não valor absoluto) para minimizar o
+            // diff no resto do bloco de tradução abaixo.
+            let target_x = 0.0;
             for item in items {
                 let translated = match item {
                     FrameItem::Text { pos, text, style } => FrameItem::Text {
