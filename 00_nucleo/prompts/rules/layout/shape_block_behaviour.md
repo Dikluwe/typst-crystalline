@@ -28,6 +28,7 @@ Qualquer `Content::Shape` (independentemente do `ShapeKind`) deve comportar-se c
 2. **Não participa em linhas de texto**: uma forma nunca pode aparecer na mesma linha horizontal que texto circundante. Texto antes da forma fica na(s) linha(s) anterior(es); texto depois da forma começa abaixo dela.
 3. **Empilhamento vertical**: duas ou mais formas consecutivas (ou intercaladas com outros blocos) são empilhadas verticalmente, com espaçamento de bloco entre elas.
 4. **Posicionamento interno inalterado**: o canto superior-esquerdo da forma mantém-se alinhado a `cursor_x` (margem esquerda do contentor) e à baseline/altura de linha corrente, conforme já estabelecido em `shape.rs` (P748/P750). A mudança é apenas o contexto de fluxo em torno da forma.
+5. **Ancoramento vertical correto (P767c)**: quando uma forma sucede texto não-bloco no mesmo parágrafo, o vanilla ancora a *base* da forma em `baseline + above` e estende-a para cima; a próxima baseline do texto fica em `shape_top + below + cap_height`. Quando a forma sucede outro bloco ou é a primeira de uma Sequence sem texto antes, mantém-se o modelo P767a (`shape_base = cursor_y − cap_height`, avanço `shape_base + height + below`).
 
 > **Decisão sobre aviso**: o vanilla emite aviso quando uma forma ocorre dentro de `#par[...]` explícito. O cristalino **não precisa de replicar essa mensagem** — basta que quebre o parágrafo silenciosamente, tal como já fazem outros elementos de bloco do cristalino quando encontrados no fluxo.
 

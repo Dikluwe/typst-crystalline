@@ -11,6 +11,7 @@
 //!
 //! P767a — `Content::Shape` comporta-se como bloco no fluxo principal,
 //! replicando `BlockElem::single_layouter` do vanilla.
+//! P767c — ancoramento vertical corrigido quando a forma sucede texto não-bloco.
 
 use crate::entities::elements::shape::ShapeElem;
 use crate::entities::geometry::ShapeKind;
@@ -50,14 +51,23 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
         ShapeKind::Line { dx, dy } => (dx.abs(), dy.abs()),
     };
 
+    // **P767c** — guardar a baseline da linha que vai ser descarregada.
+    // Após `flush_line`, o cursor aponta para a baseline da *próxima* linha;
+    // para ancorar a forma na grelha de linhas do parágrafo actual, usamos
+    // a baseline *antes* do avanço.
+    let baseline_before_flush = layouter.regions.current.cursor_y;
     layouter.flush_line();
+    let cursor_after_flush = layouter.regions.current.cursor_y;
+    let had_text_line = cursor_after_flush.0 > baseline_before_flush.0 + 1e-6;
 
     // **P767a** — protocolo de bloco no fluxo principal.
     let in_main_flow = !layouter.is_sub_frame;
-    if in_main_flow {
-        let font = layouter.style.size.val();
-        let above_pt = Length::em(SHAPE_BLOCK_SPACING_EM).resolve_pt(font);
+    let font = layouter.style.size.val();
+    let above_pt = Length::em(SHAPE_BLOCK_SPACING_EM).resolve_pt(font);
+    let below_pt = Length::em(SHAPE_BLOCK_SPACING_EM).resolve_pt(font);
+    let cap_height = layouter.metrics.cap_height(layouter.style.size, &layouter.style);
 
+    if in_main_flow {
         // Colapso de margem com o bloco anterior (P250):
         // `max(prev.below, curr.above)`; o primeiro bloco de uma Sequence
         // não leva above (`block_chain_active == false`).
@@ -79,16 +89,26 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
     }
 
     // P748/P750 — no fluxo principal o cursor_y representa a baseline do
-    // texto. O topo de uma forma deve alinhar-se com o topo da linha,
-    // que após P750 é medido a partir da cap-height da primeira baseline
-    // (baseline − cap_height), não do ascender. Em sub-frames o cursor_y
-    // já é relativo ao topo local, logo não subtraímos de novo.
-    let shape_top = if layouter.is_sub_frame {
+    // texto. O `pos.y` de `FrameItem::Shape` é a base da forma em
+    // coordenadas do Layouter (Y crescente para cima a partir da base da
+    // página); a forma estende-se para cima pela sua altura.
+    //
+    // **P767c** — quando a forma é a primeira depois de texto não-bloco,
+    // o vanilla ancora a *base* da forma em `baseline + above`; o topo da
+    // forma fica em `baseline + above + height`. Quando a forma sucede
+    // outro bloco, ou quando é a primeira de uma Sequence sem texto antes,
+    // mantém-se o modelo P767a: base da forma em `baseline − cap_height`
+    // (topo da linha anterior, estendendo-se para cima).
+    let shape_base = if !in_main_flow {
         layouter.regions.current.cursor_y
+    } else if layouter.block_chain_active {
+        layouter.regions.current.cursor_y - cap_height
+    } else if had_text_line {
+        baseline_before_flush + Pt(above_pt)
     } else {
-        layouter.regions.current.cursor_y - layouter.metrics.cap_height(layouter.style.size, &layouter.style)
+        layouter.regions.current.cursor_y - cap_height
     };
-    let pos = Point { x: layouter.regions.current.cursor_x, y: shape_top };
+    let pos = Point { x: layouter.regions.current.cursor_x, y: shape_base };
     layouter.regions.current.current_items.push(FrameItem::Shape {
         pos,
         kind:   kind.clone(),
@@ -100,15 +120,21 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
         parent_bbox_at_emit: layouter.parent_bbox,
     });
 
-    layouter.regions.current.cursor_y += Pt(resolved_h);
-
-    // **P767a** — below spacing + estado de bloco para colapso com o
-    // elemento seguinte. Em sub-frames mantém-se o comportamento inline.
+    // **P767c** — avanço do cursor conforme o tipo de ancoragem. Após
+    // forma-a-seguir-a-texto, a próxima baseline fica no topo da forma +
+    // `below + cap_height`; após forma-a-seguir-a-bloco, ou forma isolada,
+    // mantém-se o comportamento P767a (base da forma + `below`).
     if in_main_flow {
-        let font = layouter.style.size.val();
-        let below_pt = Length::em(SHAPE_BLOCK_SPACING_EM).resolve_pt(font);
-        layouter.regions.current.cursor_y += Pt(below_pt);
+        if layouter.block_chain_active {
+            layouter.regions.current.cursor_y = shape_base + Pt(resolved_h + below_pt);
+        } else if had_text_line {
+            layouter.regions.current.cursor_y = shape_base + Pt(resolved_h + below_pt + cap_height.0);
+        } else {
+            layouter.regions.current.cursor_y = shape_base + Pt(resolved_h + below_pt);
+        }
         layouter.prev_block_below_pending = below_pt;
         layouter.block_chain_active = true;
+    } else {
+        layouter.regions.current.cursor_y += Pt(resolved_h);
     }
 }
