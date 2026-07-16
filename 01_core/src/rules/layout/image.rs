@@ -292,6 +292,7 @@ mod tests {
         impl ImageSizer for MockSizer {
             fn size(&self, _: &[u8]) -> Option<(u32, u32)> { Some((400, 300)) }
             fn dpi(&self, _: &[u8]) -> Option<f64> { None }
+            fn orientation(&self, _: &[u8]) -> Option<u32> { None }
         }
         // P770 — 72 DPI padrão: 400 px = 400 pt; 300 px = 300 pt.
         let dims = calculate_dimensions(&[], None, None, "cover", &MockSizer);
@@ -305,6 +306,7 @@ mod tests {
         impl ImageSizer for MockSizer {
             fn size(&self, _: &[u8]) -> Option<(u32, u32)> { Some((400, 300)) }
             fn dpi(&self, _: &[u8]) -> Option<f64> { None }
+            fn orientation(&self, _: &[u8]) -> Option<u32> { None }
         }
         // Forçar width = 120pt → height = 120 / (4/3) = 90pt
         let w = Value::Float(120.0);
@@ -322,6 +324,7 @@ mod tests {
         impl ImageSizer for MockSizer {
             fn size(&self, _: &[u8]) -> Option<(u32, u32)> { Some((400, 300)) }
             fn dpi(&self, _: &[u8]) -> Option<f64> { None }
+            fn orientation(&self, _: &[u8]) -> Option<u32> { None }
         }
         // Forçar height = 90pt → width = 90 * (4/3) = 120pt
         let h = Value::Float(90.0);
@@ -336,6 +339,7 @@ mod tests {
         impl ImageSizer for MockSizer {
             fn size(&self, _: &[u8]) -> Option<(u32, u32)> { Some((400, 300)) }
             fn dpi(&self, _: &[u8]) -> Option<f64> { None }
+            fn orientation(&self, _: &[u8]) -> Option<u32> { None }
         }
         let w = Value::Float(50.0);
         let h = Value::Float(50.0);
@@ -353,6 +357,7 @@ mod tests {
         impl ImageSizer for MockSizer {
             fn size(&self, _: &[u8]) -> Option<(u32, u32)> { Some((400, 300)) }
             fn dpi(&self, _: &[u8]) -> Option<f64> { None }
+            fn orientation(&self, _: &[u8]) -> Option<u32> { None }
         }
         // Imagem 4:3, target 50×50 (aspecto 1). Cover → preenche o target:
         // wide (4/3 > 1) → height = 50, width = 50 * (4/3) = 66.666...
@@ -371,6 +376,7 @@ mod tests {
         impl ImageSizer for MockSizer {
             fn size(&self, _: &[u8]) -> Option<(u32, u32)> { Some((400, 300)) }
             fn dpi(&self, _: &[u8]) -> Option<f64> { None }
+            fn orientation(&self, _: &[u8]) -> Option<u32> { None }
         }
         // Imagem 4:3, target 50×50. Contain → encaixa dentro do target:
         // wide (4/3 > 1) → width = 50, height = 50 / (4/3) = 37.5.
@@ -389,6 +395,7 @@ mod tests {
         impl ImageSizer for MockSizer {
             fn size(&self, _: &[u8]) -> Option<(u32, u32)> { Some((100, 80)) }
             fn dpi(&self, _: &[u8]) -> Option<f64> { None }
+            fn orientation(&self, _: &[u8]) -> Option<u32> { None }
         }
         // Replicação exacta do caso P770: tiny.png 100×80 (aspect 1.25),
         // target 2cm × 1.5cm (≈ 56.693 × 42.520 pt, aspect 1.333).
@@ -421,6 +428,7 @@ mod tests {
         impl ImageSizer for FixedSizer {
             fn size(&self, _data: &[u8]) -> Option<(u32, u32)> { Some((800, 600)) }
             fn dpi(&self, _data: &[u8]) -> Option<f64> { None }
+            fn orientation(&self, _data: &[u8]) -> Option<u32> { None }
         }
         let dims2 = calculate_dimensions(&[], None, None, "cover", &FixedSizer);
         assert_eq!(dims2.intrinsic_width,  Some(800));

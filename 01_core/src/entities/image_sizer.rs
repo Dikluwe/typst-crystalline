@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/entities/image-sizer.md
-//! @prompt-hash 6072e4fa
+//! @prompt-hash 1cd66d65
 //! @layer L1
 //! @updated 2026-04-19
 
@@ -16,6 +16,10 @@ pub trait ImageSizer {
     /// Prioridade: EXIF > JFIF APP0 > PNG pHYs. Fallback 72 DPI é aplicado pelo
     /// consumidor quando este método retorna None (P773).
     fn dpi(&self, data: &[u8]) -> Option<f64>;
+
+    /// Retorna o valor da tag EXIF Orientation (0x0112), se presente (P774).
+    /// 1 = normal; 2-8 = transformações de espelhamento/rotação.
+    fn orientation(&self, data: &[u8]) -> Option<u32>;
 }
 
 /// Implementação nula — retorna sempre None.
@@ -29,6 +33,10 @@ impl ImageSizer for NullImageSizer {
     }
 
     fn dpi(&self, _data: &[u8]) -> Option<f64> {
+        None
+    }
+
+    fn orientation(&self, _data: &[u8]) -> Option<u32> {
         None
     }
 }

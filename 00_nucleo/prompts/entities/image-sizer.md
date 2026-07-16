@@ -1,5 +1,5 @@
 # Prompt L0 — entities/image_sizer
-Hash do Código: f2153a9f
+Hash do Código: aaad8ac7
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/entities/image_sizer.rs`
@@ -8,9 +8,9 @@ Hash do Código: f2153a9f
 ## Contexto
 
 `ImageSizer` é o contrato para leitura das dimensões intrínsecas de uma imagem
-em píxeis e do seu DPI (P773). A implementação pertence a L3 (usa I/O de
-cabeçalho de ficheiro). L1 define apenas o trait e uma implementação nula para
-testes.
+em píxeis, do seu DPI (P773) e da sua orientação EXIF (P774). A implementação
+pertence a L3 (usa I/O de cabeçalho/ficheiro). L1 define apenas o trait e uma
+implementação nula para testes.
 
 ## Tipos públicos
 
@@ -25,6 +25,11 @@ pub trait ImageSizer {
     /// Prioridade: EXIF > JFIF APP0 > PNG pHYs. Fallback 72 DPI é aplicado pelo
     /// consumidor quando este método retorna None (P773).
     fn dpi(&self, data: &[u8]) -> Option<f64>;
+
+    /// Retorna o valor da tag EXIF Orientation (0x0112), se presente.
+    /// Valores 1-8 conforme especificação EXIF; 1 significa "sem rotação".
+    /// A aplicação da transformação visual fica a cargo do consumidor (P774).
+    fn orientation(&self, data: &[u8]) -> Option<u32>;
 }
 ```
 
@@ -41,11 +46,15 @@ impl ImageSizer for NullImageSizer {
     fn dpi(&self, _data: &[u8]) -> Option<f64> {
         None
     }
+
+    fn orientation(&self, _data: &[u8]) -> Option<u32> {
+        None
+    }
 }
 ```
 
 Usada em testes L1 que não precisam de dimensões reais. Retorna sempre `None`,
-fazendo o motor de dimensões usar o fallback 100×100 pt e 72 DPI.
+ fazendo o motor de dimensões usar o fallback 100×100 pt, 72 DPI e sem rotação.
 
 ## Invariantes
 

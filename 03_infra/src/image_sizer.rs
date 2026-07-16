@@ -1,8 +1,10 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/image-sizer.md
-//! @prompt-hash 5837dccc
+//! @prompt-hash d6ffa02a
 //! @layer L3
 //! @updated 2026-04-19
+
+use std::io::Cursor;
 
 use typst_core::entities::image_sizer::ImageSizer;
 
@@ -20,6 +22,10 @@ impl ImageSizer for ImageSizeImageSizer {
 
     fn dpi(&self, data: &[u8]) -> Option<f64> {
         determine_dpi(data)
+    }
+
+    fn orientation(&self, data: &[u8]) -> Option<u32> {
+        exif_orientation(data)
     }
 }
 
@@ -191,6 +197,134 @@ fn exif_dpi(data: &[u8]) -> Option<f64> {
     None
 }
 
+/// Lê a orientação EXIF (tag 0x0112) dos metadados da imagem.
+///
+/// O EXIF pode estar em:
+/// - JPEG: segmento APP1 (marker 0xFFE1) com identificador "Exif\0\0".
+/// - PNG: chunk `eXIf`.
+fn exif_orientation(data: &[u8]) -> Option<u32> {
+    if data.starts_with(b"\x89PNG\r\n\x1a\n") {
+        let mut i = 8;
+        while i + 12 <= data.len() {
+            let len = u32::from_be_bytes([data[i], data[i + 1], data[i + 2], data[i + 3]]) as usize;
+            let chunk_type = &data[i + 4..i + 8];
+            let chunk_data_start = i + 8;
+            let chunk_data_end = chunk_data_start + len;
+            if chunk_data_end + 4 > data.len() {
+                break;
+            }
+            if chunk_type == b"eXIf" {
+                let tiff = &data[chunk_data_start..chunk_data_end];
+                if let Some(orientation) = parse_tiff_orientation(tiff) {
+                    return Some(orientation);
+                }
+            }
+            i = chunk_data_end + 4;
+        }
+    } else if data.starts_with(b"\xff\xd8") {
+        let mut i = 2;
+        while i + 4 <= data.len() {
+            if data[i] != 0xFF || data[i + 1] == 0x00 || data[i + 1] == 0xFF {
+                i += 1;
+                continue;
+            }
+
+            let marker = data[i + 1];
+            if marker == 0xD9 || marker == 0xD8 {
+                i += 2;
+                continue;
+            }
+
+            let seg_len = u16::from_be_bytes([data[i + 2], data[i + 3]]) as usize;
+            let seg_end = i + 2 + seg_len;
+            if seg_end > data.len() {
+                break;
+            }
+
+            if marker == 0xE1 {
+                let seg_data = &data[i + 4..seg_end];
+                if seg_data.starts_with(b"Exif\0\0") && seg_data.len() >= 8 {
+                    let tiff = &seg_data[6..];
+                    if let Some(orientation) = parse_tiff_orientation(tiff) {
+                        return Some(orientation);
+                    }
+                }
+            }
+
+            i = seg_end;
+        }
+    }
+    None
+}
+
+/// Faz parsing de um bloco TIFF (little ou big endian) e devolve a tag
+/// Orientation (0x0112), se existir.
+fn parse_tiff_orientation(tiff: &[u8]) -> Option<u32> {
+    if tiff.len() < 8 {
+        return None;
+    }
+
+    let (_le, u16_, u32_): (bool, fn(&[u8]) -> u16, fn(&[u8]) -> u32) =
+        match &tiff[0..2] {
+            b"II" => (true, |b| u16::from_le_bytes([b[0], b[1]]), |b| {
+                u32::from_le_bytes([b[0], b[1], b[2], b[3]])
+            }),
+            b"MM" => (false, |b| u16::from_be_bytes([b[0], b[1]]), |b| {
+                u32::from_be_bytes([b[0], b[1], b[2], b[3]])
+            }),
+            _ => return None,
+        };
+
+    let magic = u16_(&tiff[2..4]);
+    if magic != 42 {
+        return None;
+    }
+
+    let ifd_offset = u32_(&tiff[4..8]) as usize;
+    read_ifd_orientation(tiff, ifd_offset, u16_, u32_)
+}
+
+/// Lê a tag Orientation (0x0112) de um IFD TIFF.
+fn read_ifd_orientation(
+    tiff: &[u8],
+    offset: usize,
+    u16_: fn(&[u8]) -> u16,
+    u32_: fn(&[u8]) -> u32,
+) -> Option<u32> {
+    if offset + 2 > tiff.len() {
+        return None;
+    }
+
+    let num_entries = u16_(&tiff[offset..offset + 2]) as usize;
+    let mut entry_offset = offset + 2;
+    for _ in 0..num_entries {
+        if entry_offset + 12 > tiff.len() {
+            break;
+        }
+
+        let tag = u16_(&tiff[entry_offset..entry_offset + 2]);
+        let type_ = u16_(&tiff[entry_offset + 2..entry_offset + 4]);
+        let count = u32_(&tiff[entry_offset + 4..entry_offset + 8]);
+        let value_bytes = &tiff[entry_offset + 8..entry_offset + 12];
+
+        if tag == 0x0112 && count == 1 {
+            let orientation = match type_ {
+                1 => value_bytes[0] as u32, // BYTE
+                3 => u16_(value_bytes) as u32, // SHORT
+                4 => u32_(value_bytes), // LONG
+                _ => return None,
+            };
+            if (1..=8).contains(&orientation) {
+                return Some(orientation);
+            }
+        }
+
+        entry_offset += 12;
+    }
+
+    None
+}
+
 /// Faz parsing de um bloco TIFF (little ou big endian) e devolve o DPI de
 /// XResolution (tag 0x011A), se existir.
 fn parse_tiff_dpi(tiff: &[u8]) -> Option<f64> {
@@ -261,6 +395,57 @@ fn read_ifd_dpi(
     }
 
     None
+}
+
+/// Aplica a rotação EXIF aos pixels da imagem e devolve os novos bytes.
+///
+/// Se a imagem não tiver tag `Orientation` não-padrão, ou se o formato não for
+/// JPEG/PNG, retorna `None` — o chamador deve usar os bytes originais.
+///
+/// O mapeamento 1-8 replica `apply_rotation` do vanilla
+/// (`typst_library::visualize::image::raster`).
+pub fn apply_exif_rotation(data: &[u8]) -> Option<Vec<u8>> {
+    let orientation = exif_orientation(data)?;
+    if orientation == 1 {
+        return None;
+    }
+
+    let format = if data.starts_with(b"\x89PNG\r\n\x1a\n") {
+        image::ImageFormat::Png
+    } else if data.starts_with(b"\xff\xd8") {
+        image::ImageFormat::Jpeg
+    } else {
+        return None;
+    };
+
+    let mut img = image::load_from_memory_with_format(data, format).ok()?;
+
+    use image::imageops as ops;
+    match orientation {
+        2 => ops::flip_horizontal_in_place(&mut img),
+        3 => ops::rotate180_in_place(&mut img),
+        4 => ops::flip_vertical_in_place(&mut img),
+        5 => {
+            ops::flip_horizontal_in_place(&mut img);
+            img = img.rotate270();
+        }
+        6 => img = img.rotate90(),
+        7 => {
+            ops::flip_horizontal_in_place(&mut img);
+            img = img.rotate90();
+        }
+        8 => img = img.rotate270(),
+        _ => return None,
+    }
+
+    let mut out = Vec::new();
+    let output_format = match format {
+        image::ImageFormat::Png => image::ImageOutputFormat::Png,
+        image::ImageFormat::Jpeg => image::ImageOutputFormat::Jpeg(95),
+        _ => return None,
+    };
+    img.write_to(&mut Cursor::new(&mut out), output_format).ok()?;
+    Some(out)
 }
 
 #[cfg(test)]
@@ -404,5 +589,57 @@ mod tests {
             0x00, 0x00, 0x01, 0x2C, 0x00, 0x00, 0x00, 0x01,
         ];
         assert_eq!(parse_tiff_dpi(tiff), Some(300.0));
+    }
+
+    #[test]
+    fn exif_orientation_inline() {
+        // TIFF LE com Orientation = 6 (rotate 90 CW).
+        let tiff: &[u8] = &[
+            0x49, 0x49,
+            0x2A, 0x00,
+            0x08, 0x00, 0x00, 0x00,
+            0x01, 0x00,
+            // entry: tag 0x0112, type 3 (SHORT), count 1, value 6
+            0x12, 0x01, 0x03, 0x00, 0x01, 0x00, 0x00, 0x00, 0x06, 0x00, 0x00, 0x00,
+            0x00, 0x00, 0x00, 0x00,
+        ];
+        assert_eq!(parse_tiff_orientation(tiff), Some(6));
+
+        // TIFF BE com Orientation = 8.
+        let tiff_be: &[u8] = &[
+            0x4D, 0x4D,
+            0x00, 0x2A,
+            0x00, 0x00, 0x00, 0x08,
+            0x00, 0x01,
+            // entry: tag 0x0112, type 3, count 1, value 8
+            0x01, 0x12, 0x00, 0x03, 0x00, 0x00, 0x00, 0x01, 0x00, 0x08, 0x00, 0x00,
+            0x00, 0x00, 0x00, 0x00,
+        ];
+        assert_eq!(parse_tiff_orientation(tiff_be), Some(8));
+    }
+
+    #[test]
+    fn apply_exif_rotation_orient1_retorna_none() {
+        // Orientação 1 → sem transformação.
+        let data = std::fs::read("/tmp/p774-base.jpg").unwrap_or_default();
+        if data.is_empty() {
+            return;
+        }
+        assert_eq!(apply_exif_rotation(&data), None);
+    }
+
+    #[test]
+    fn apply_exif_rotation_real_se_existir() {
+        let path = "/tmp/p774-orient6.jpg";
+        if !std::path::Path::new(path).exists() {
+            return;
+        }
+        let data = std::fs::read(path).expect("ler imagem de teste");
+        assert_eq!(ImageSizeImageSizer.orientation(&data), Some(6));
+
+        let rotated = apply_exif_rotation(&data).expect("deve rodar orient6");
+        // Após rotação, as dimensões devem estar trocadas.
+        let (w, h) = ImageSizeImageSizer.size(&rotated).expect("tamanho após rotação");
+        assert_eq!((w, h), (100, 200), "orient6: 200×100 → 100×200");
     }
 }

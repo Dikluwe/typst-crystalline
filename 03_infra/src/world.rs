@@ -26,6 +26,7 @@ use typst_core::entities::world_types::{
 };
 
 use crate::fonts::FontSlot;
+use crate::image_sizer::apply_exif_rotation;
 
 /// Slot de source com carregamento lazy e thread-safe.
 ///
@@ -435,9 +436,11 @@ impl World for SystemWorld {
 
     fn read_bytes(&self, current_file: FileId, path: &str) -> Result<std::sync::Arc<Vec<u8>>, String> {
         let full_path = self.resolve_path(current_file, path);
-        std::fs::read(&full_path)
-            .map(std::sync::Arc::new)
-            .map_err(|e| format!("erro ao ler '{}': {}", path, e))
+        let data = std::fs::read(&full_path)
+            .map_err(|e| format!("erro ao ler '{}': {}", path, e))?;
+        // P774 — aplica rotação EXIF aos pixels de forma transparente para L1.
+        let data = apply_exif_rotation(&data).unwrap_or(data);
+        Ok(std::sync::Arc::new(data))
     }
 
     fn include_source(&self, current_file: FileId, path: &str) -> Result<typst_core::entities::source::Source, String> {
