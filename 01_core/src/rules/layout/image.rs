@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/rules/layout-image.md
-//! @prompt-hash de70a57e
+//! @prompt-hash 0a93b774
 //! @layer L1
 //! @updated 2026-07-15
 
@@ -17,9 +17,9 @@ use super::{FontMetrics, Layouter};
 /// `BlockElem::spacing` por defeito do vanilla (`Em::new(1.2)`).
 const IMAGE_BLOCK_SPACING_EM: f64 = 1.2;
 
-/// Densidade padrão para conversão px → pt (P770).
+/// DPI padrão para conversão px → pt (P770/P773).
 /// Vanilla usa `Image::DEFAULT_DPI = 72.0`; sem metadados de DPI, 1 px = 1 pt.
-const PX_TO_PT: f64 = 1.0;
+const DEFAULT_DPI: f64 = 72.0;
 
 /// Dimensões finais de uma imagem para o layouter, em pontos.
 pub struct ImageDimensions {
@@ -40,7 +40,7 @@ pub struct ImageDimensions {
 /// Calcula as dimensões finais de uma imagem.
 ///
 /// 1. Lê dimensões intrínsecas em píxeis via `sizer`.
-/// 2. Converte para pontos usando `PX_TO_PT` (72 DPI padrão do vanilla).
+/// 2. Converte para pontos usando DPI real (EXIF/JFIF/pHYs) ou fallback 72.0.
 /// 3. Aplica overrides do utilizador e `fit` (cover/contain/stretch),
 ///    preservando o aspect ratio quando apropriado.
 ///
@@ -53,9 +53,11 @@ pub fn calculate_dimensions(
     sizer:       &dyn ImageSizer,
 ) -> ImageDimensions {
     let intrinsic = sizer.size(data); // única leitura do cabeçalho (DEBT-28)
+    let dpi = sizer.dpi(data).unwrap_or(DEFAULT_DPI);
+    let px_to_pt = 72.0 / dpi;
 
     let (intrinsic_w_pt, intrinsic_h_pt) = match intrinsic {
-        Some((pw, ph)) => (pw as f64 * PX_TO_PT, ph as f64 * PX_TO_PT),
+        Some((pw, ph)) => (pw as f64 * px_to_pt, ph as f64 * px_to_pt),
         None           => (100.0, 100.0),
     };
 
@@ -289,6 +291,7 @@ mod tests {
         struct MockSizer;
         impl ImageSizer for MockSizer {
             fn size(&self, _: &[u8]) -> Option<(u32, u32)> { Some((400, 300)) }
+            fn dpi(&self, _: &[u8]) -> Option<f64> { None }
         }
         // P770 — 72 DPI padrão: 400 px = 400 pt; 300 px = 300 pt.
         let dims = calculate_dimensions(&[], None, None, "cover", &MockSizer);
@@ -301,6 +304,7 @@ mod tests {
         struct MockSizer;
         impl ImageSizer for MockSizer {
             fn size(&self, _: &[u8]) -> Option<(u32, u32)> { Some((400, 300)) }
+            fn dpi(&self, _: &[u8]) -> Option<f64> { None }
         }
         // Forçar width = 120pt → height = 120 / (4/3) = 90pt
         let w = Value::Float(120.0);
@@ -317,6 +321,7 @@ mod tests {
         struct MockSizer;
         impl ImageSizer for MockSizer {
             fn size(&self, _: &[u8]) -> Option<(u32, u32)> { Some((400, 300)) }
+            fn dpi(&self, _: &[u8]) -> Option<f64> { None }
         }
         // Forçar height = 90pt → width = 90 * (4/3) = 120pt
         let h = Value::Float(90.0);
@@ -330,6 +335,7 @@ mod tests {
         struct MockSizer;
         impl ImageSizer for MockSizer {
             fn size(&self, _: &[u8]) -> Option<(u32, u32)> { Some((400, 300)) }
+            fn dpi(&self, _: &[u8]) -> Option<f64> { None }
         }
         let w = Value::Float(50.0);
         let h = Value::Float(50.0);
@@ -346,6 +352,7 @@ mod tests {
         struct MockSizer;
         impl ImageSizer for MockSizer {
             fn size(&self, _: &[u8]) -> Option<(u32, u32)> { Some((400, 300)) }
+            fn dpi(&self, _: &[u8]) -> Option<f64> { None }
         }
         // Imagem 4:3, target 50×50 (aspecto 1). Cover → preenche o target:
         // wide (4/3 > 1) → height = 50, width = 50 * (4/3) = 66.666...
@@ -363,6 +370,7 @@ mod tests {
         struct MockSizer;
         impl ImageSizer for MockSizer {
             fn size(&self, _: &[u8]) -> Option<(u32, u32)> { Some((400, 300)) }
+            fn dpi(&self, _: &[u8]) -> Option<f64> { None }
         }
         // Imagem 4:3, target 50×50. Contain → encaixa dentro do target:
         // wide (4/3 > 1) → width = 50, height = 50 / (4/3) = 37.5.
@@ -380,6 +388,7 @@ mod tests {
         struct MockSizer;
         impl ImageSizer for MockSizer {
             fn size(&self, _: &[u8]) -> Option<(u32, u32)> { Some((100, 80)) }
+            fn dpi(&self, _: &[u8]) -> Option<f64> { None }
         }
         // Replicação exacta do caso P770: tiny.png 100×80 (aspect 1.25),
         // target 2cm × 1.5cm (≈ 56.693 × 42.520 pt, aspect 1.333).
@@ -411,6 +420,7 @@ mod tests {
         struct FixedSizer;
         impl ImageSizer for FixedSizer {
             fn size(&self, _data: &[u8]) -> Option<(u32, u32)> { Some((800, 600)) }
+            fn dpi(&self, _data: &[u8]) -> Option<f64> { None }
         }
         let dims2 = calculate_dimensions(&[], None, None, "cover", &FixedSizer);
         assert_eq!(dims2.intrinsic_width,  Some(800));

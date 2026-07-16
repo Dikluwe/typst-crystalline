@@ -1,5 +1,5 @@
 # Prompt L0 — entities/image_sizer
-Hash do Código: 96f228bc
+Hash do Código: f2153a9f
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/entities/image_sizer.rs`
@@ -8,8 +8,9 @@ Hash do Código: 96f228bc
 ## Contexto
 
 `ImageSizer` é o contrato para leitura das dimensões intrínsecas de uma imagem
-em píxeis. A implementação pertence a L3 (usa I/O de cabeçalho de ficheiro).
-L1 define apenas o trait e uma implementação nula para testes.
+em píxeis e do seu DPI (P773). A implementação pertence a L3 (usa I/O de
+cabeçalho de ficheiro). L1 define apenas o trait e uma implementação nula para
+testes.
 
 ## Tipos públicos
 
@@ -19,6 +20,11 @@ L1 define apenas o trait e uma implementação nula para testes.
 pub trait ImageSizer {
     /// Retorna (largura_px, altura_px) ou None se os bytes forem inválidos.
     fn size(&self, data: &[u8]) -> Option<(u32, u32)>;
+
+    /// Retorna o DPI (dots per inch) da imagem, se disponível nos metadados.
+    /// Prioridade: EXIF > JFIF APP0 > PNG pHYs. Fallback 72 DPI é aplicado pelo
+    /// consumidor quando este método retorna None (P773).
+    fn dpi(&self, data: &[u8]) -> Option<f64>;
 }
 ```
 
@@ -31,11 +37,15 @@ impl ImageSizer for NullImageSizer {
     fn size(&self, _data: &[u8]) -> Option<(u32, u32)> {
         None
     }
+
+    fn dpi(&self, _data: &[u8]) -> Option<f64> {
+        None
+    }
 }
 ```
 
 Usada em testes L1 que não precisam de dimensões reais. Retorna sempre `None`,
-fazendo o motor de dimensões usar o fallback 100×100 pt.
+fazendo o motor de dimensões usar o fallback 100×100 pt e 72 DPI.
 
 ## Invariantes
 

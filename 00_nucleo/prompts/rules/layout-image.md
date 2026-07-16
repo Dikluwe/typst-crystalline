@@ -1,6 +1,6 @@
 # Prompt L0 — rules/layout/image — `Content::Image` como bloco com ancoramento vertical
 
-Hash do Código: 4af98256
+Hash do Código: 1667cce5
 
 **Camada**: L1 · **Alvo**: `01_core/src/rules/layout/image.rs`  
 **ADRs**: ADR-0107 (paridade linguagem), ADR-0108 (anti-deriva), ADR-0109 (atomização forma B)  
@@ -30,8 +30,10 @@ Base de evidência (P768/P770):
    - Quando a imagem sucede texto não-bloco no mesmo parágrafo, a *base* da imagem ancora em `baseline_before_flush + above`; o topo fica em `base + height`; a próxima baseline do texto fica em `top + below + cap_height`.
    - Quando a imagem sucede outro bloco ou é a primeira de uma Sequence sem texto antes, mantém-se o modelo de bloco: base da imagem em `cursor_y − cap_height`, avanço `base + height + below`.
 5. **Sub-layouts isolados**: dentro de `place(...)`, células de grid, etc. (`is_sub_frame == true`), preserva-se o posicionamento directo sem protocolo de bloco nem ancoramento especial.
-6. **Resolução de dimensões e target (P770/P771)**:
-   - DPI padrão para conversão px→pt: **72** (`Image::DEFAULT_DPI` do vanilla).
+6. **Resolução de dimensões e target (P770/P771/P773)**:
+   - DPI padrão (fallback): **72** (`Image::DEFAULT_DPI` do vanilla).
+   - Se a imagem tiver metadados de DPI (EXIF, JFIF APP0, PNG `pHYs`), usar o valor real; prioridade EXIF > JFIF APP0 > PNG `pHYs` (paridade `typst_library::visualize::image::raster`).
+   - Conversão px→pt: `px * (72.0 / dpi)`; com fallback `dpi = 72` → `1 px = 1 pt`.
    - `fit` default `"cover"`; valores válidos `"contain"`, `"cover"`, `"stretch"`.
    - Quando `width` e `height` são ambos fornecidos:
      - O rectângulo **target** é `(target_w, target_h) = (width, height)`.
@@ -42,7 +44,7 @@ Base de evidência (P768/P770):
      - O avanço do cursor usa a altura do **target**, não da transformação.
      - O exportador PDF emite um `clip_path` com o rectângulo do target quando `fit == "cover"` (a transformação excede o target); `"contain"` e `"stretch"` não precisam de clip no vanilla.
    - Quando apenas um eixo é fornecido, calcular o outro pelo aspect ratio (independente de `fit`); não há target, avanço usa a altura da transformação.
-   - Quando nenhum é fornecido, usar dimensões intrínsecas convertidas por `px * (72 / dpi)`; sem metadados de DPI, `dpi = 72`; avanço usa a altura da transformação.
+   - Quando nenhum é fornecido, usar dimensões intrínsecas convertidas pelo DPI real ou fallback 72.
 
 ---
 
