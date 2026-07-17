@@ -1,8 +1,8 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/font_metrics.md
-//! @prompt-hash 3fdedaa0
+//! @prompt-hash 167c29d3
 //! @layer L3
-//! @updated 2026-07-14
+//! @updated 2026-07-16
 
 use std::collections::HashMap;
 use std::sync::{Arc, Mutex};
@@ -706,6 +706,22 @@ impl FontMetrics for FallbackFontMetrics<'_> {
         // palavras e espaços repetidos no layout de documentos extensos.
         self.cached_advance_width(text, style, || {
             let primary = self.resolve_primary(style);
+            // **P772o** — mesmas coordenadas de eixo que já diferenciam a
+            // chave de cache (P659, `advance_width_key`) e que o shaper usa
+            // para desenhar os glifos (`shaper.rs::shape`,
+            // `rb_face.set_variations`). Antes desta correcção, nunca eram
+            // aplicadas à face usada para *medir* — `glyph_hor_advance`
+            // lia sempre a instância por omissão da fonte variável (ex.:
+            // `wght=400`), independentemente do peso pedido. Causa
+            // confirmada (instrumentação + comparação com `fontTools`,
+            // P772o) do colapso de espaço entre palavras em fontes
+            // variáveis de peso alto: o layout posicionava cada palavra
+            // usando a largura da instância por omissão (mais estreita),
+            // mas o shaper desenhava os glifos já na instância pedida
+            // (mais larga) — o erro acumulado ao longo da palavra excedia
+            // a largura do espaço.
+            let variant = text_style_to_font_variant(style);
+            let axis_vars = axis_variations_for_font_variant(&variant);
             let mut total = 0.0;
             let mut prev: Option<(usize, u16)> = None;
 
@@ -717,7 +733,10 @@ impl FontMetrics for FallbackFontMetrics<'_> {
                 let char_pt = cand
                     .and_then(|cand| {
                         let cached = self.cached_face(cand.slot_idx)?;
-                        let face = cached.face();
+                        let mut face = cached.face().clone();
+                        for v in &axis_vars {
+                            face.set_variation(v.tag, v.value);
+                        }
                         let g = face.glyph_index(c)?;
                         let adv = face.glyph_hor_advance(g)?;
                         slot = Some(cand.slot_idx);
@@ -1004,6 +1023,60 @@ mod tests {
         assert!(
             digits_shaped.is_none() || (digits_shaped.unwrap().val() - digits_plain.val()).abs() < 0.1,
             "'42' nao deve sofrer shaping contextual"
+        );
+    }
+
+    // P772o — `advance()` deve aplicar as coordenadas de eixo (wght) à face
+    // antes de medir, não só à chave de cache (P659). Sem a correcção,
+    // `advance("W", ..., weight: 800)` devolvia sempre o valor da instância
+    // por omissão (wght=400) da fonte variável — causa confirmada do colapso
+    // de espaço entre palavras em peso alto (P772m/P772o).
+    #[test]
+    fn p772o_advance_aplica_variacao_wght_em_fonte_variavel() {
+        use crate::world::SystemWorld;
+
+        let dir = std::env::temp_dir().join(format!(
+            "typst-fontmetrics-test-p772o-{}",
+            std::time::SystemTime::now()
+                .duration_since(std::time::UNIX_EPOCH)
+                .map(|d| d.subsec_nanos())
+                .unwrap_or(0)
+        ));
+        std::fs::create_dir_all(&dir).unwrap();
+        std::fs::write(dir.join("main.typ"), "text").unwrap();
+        let font_dir = std::path::PathBuf::from(
+            concat!(env!("CARGO_MANIFEST_DIR"), "/fixtures/fonts")
+        );
+        let Ok(world) = SystemWorld::new(&dir, "main.typ")
+            .map(|w| w.with_fonts_and_system(&[font_dir]))
+        else {
+            return;
+        };
+
+        let metrics = FallbackFontMetrics::new(&world);
+        let mut style_400 = TextStyle::default();
+        style_400.font = Some(typst_core::entities::font_list::FontList::single(
+            ecow::EcoString::from("Ubuntu Sans")
+        ));
+        style_400.size = Pt(11.0);
+        style_400.weight = Some(400);
+
+        let mut style_800 = style_400.clone();
+        style_800.weight = Some(800);
+
+        let adv_400 = metrics.advance("Weight", Pt(11.0), &style_400);
+        let adv_800 = metrics.advance("Weight", Pt(11.0), &style_800);
+
+        // Medido (P772o, via fontTools.varLib.instancer): a soma dos avanços
+        // de "Weight" cresce de 3258 para 3448 unidades (upem 1000) entre
+        // wght=400 e wght=800 — ~2.09pt a mais em 11pt. Sem a correcção,
+        // os dois valores eram idênticos (sempre a instância por omissão).
+        assert!(
+            adv_800.val() > adv_400.val() + 1.5,
+            "advance('Weight', wght=800) deve ser visivelmente maior que \
+             wght=400 (fonte variável Ubuntu Sans alarga com o peso); \
+             400={:.3}pt 800={:.3}pt",
+            adv_400.val(), adv_800.val()
         );
     }
 

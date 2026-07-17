@@ -2,7 +2,7 @@
 //! @prompt 00_nucleo/prompts/infra/shaper.md
 //! @prompt-hash 3fdedaa0
 //! @prompt 00_nucleo/prompts/infra/font_metrics.md
-//! @prompt-hash 3fdedaa0
+//! @prompt-hash 167c29d3
 //! @layer L3
 //! @updated 2026-07-14
 //!

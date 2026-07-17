@@ -1,5 +1,5 @@
 # Prompt L0 — `infra/font_metrics` — Parser de Métricas TrueType/OpenType
-Hash do Código: 7e7f3690
+Hash do Código: 8c088364
 
 **Camada**: L3
 **Ficheiro alvo**: `03_infra/src/font_metrics.rs`
@@ -306,15 +306,56 @@ inclui também a tabela legacy `kern`; quando não incluir, a medição pode
 continuar ligeiramente acima do shaping. Esta limitação é aceite e
 registada para extensão futura.
 
+### Variação de eixo aplicada à medição (P772o)
+
+**Achado (P772m/P772o):** `advance()` lia sempre `glyph_hor_advance` da
+face **por omissão** (`CachedFace::face()`, nunca variada) —
+independentemente do `wght`/`ital` pedido no `TextStyle`. A chave de
+cache (P659, `advance_width_key`) já diferenciava por `axis_hash`, mas o
+próprio cálculo nunca aplicava essas coordenadas à face. Para fontes
+variáveis cujo desenho muda visivelmente o avanço dos glifos ao longo do
+eixo de peso, isto desalinhava a largura usada pelo *layout* (posição de
+cada palavra/espaço, sempre à instância por omissão) da largura realmente
+desenhada pelo *shaper* (`03_infra/src/shaper.rs`, que já aplica
+`rb_face.set_variations` correctamente). O erro acumulava carácter a
+carácter e podia exceder a largura do espaço entre palavras — medido e
+confirmado em `Ubuntu Sans` (eixo `wght` 100–800): a partir de peso ≈770
+o erro acumulado excedia o espaço, colando palavras (`P772m`, `P772o`).
+
+**Correcção:** dentro do loop carácter-a-carácter de `advance()`, clona-se
+a `Face` cacheada (`Face: Clone`, ~2KB, sem reler bytes — não é um
+re-parse) e aplica-se `face.set_variation(tag, value)` para cada entrada
+de `axis_variations_for_font_variant(&text_style_to_font_variant(style))`
+— as mesmas coordenadas já usadas por `shaper.rs` e já usadas para
+diferenciar a chave de cache (P659). `set_variation` devolve `None`
+silenciosamente para fontes não-variáveis ou eixos ausentes — sem efeito,
+comportamento preservado para o caso não-variável.
+
+**Verificado, não corrigido nesta ronda:** o mesmo padrão (`cached_face()`
+sem variação aplicada) está presente em `vertical_metrics`/`cap_height`/
+outras leituras de métricas verticais desta struct — não confirmado se
+têm o mesmo tipo de impacto observável (a lacuna original media-se em
+largura horizontal, não altura de linha); não alterado neste passo por
+falta de medição própria (ADR-0108).
+
+**Verificado e não resolvido:** o mesmo teste com `Cantarell-VF.otf`
+(fonte variável CFF2/HVAR, ao contrário do `glyf`/`gvar` de `Ubuntu
+Sans`) continua a colar palavras no peso 800 **mesmo com a correcção
+acima** — a medição de `advance()` para essa fonte já bate com o valor
+esperado (`fontTools.varLib.instancer`, confirmado por instrumentação),
+mas o resultado renderizado continua sobreposto. Causa não isolada nesta
+ronda — ver `paridade-producao-p772o.md` §5.
+
 ### Invariantes adicionais
 
 | Invariante | Detalhe |
 |-----------|---------|
-| Zero re-parses por carácter | Cada `slot_idx` é parseado no máximo uma vez por instância |
+| Zero re-parses por carácter | Cada `slot_idx` é parseado no máximo uma vez por instância (`face.clone()` em P772o clona a estrutura já parseada, não relê bytes) |
 | `CachedFace` estável | Alocado em `Arc`; bytes não são movidos após criação do `Face` |
 | Kerning intra-fonte | Só aplica entre glifos da mesma fonte candidata |
 | Fallback de largura | Glifo ausente: `size * 0.6` (mesmo valor de `FontBookMetrics` proporcional) |
 | `ttf-parser` não escapa | L1 continua a receber apenas `Pt` e tipos puros |
+| Variação aplicada por carácter | `advance()` aplica `set_variation` a uma cópia da face cacheada antes de medir (P772o) — a face partilhada em `Arc<CachedFace>` nunca é mutada |
 
 ### Critérios de Verificação adicionais
 
@@ -343,3 +384,4 @@ vertical_metrics(12pt) retorna valores positivos e escaláveis
 | 2026-07-03 | P548 — documentação de `FallbackFontMetrics`, cache do `Face` parseado e kerning via tabelas `kern`/`kerx` | `font_metrics.md`, `font_metrics.rs` |
 | 2026-07-10 | P677 — adicionada `advance_width_cache` para reutilizar larguras `advance` entre chamadas do layout | `font_metrics.md`, `font_metrics.rs` |
 | 2026-07-14 | P760 — `FontMetrics::vertical_metrics` e `cap_height` recebem `style`; `FallbackFontMetrics` resolve a fonte do estilo; métricas tipográficas do OS/2 preferidas via `typo_metrics` | `font_metrics.md`, `font_metrics.rs`, `layout.md` |
+| 2026-07-16 | P772o — `advance()` passa a aplicar `set_variation` (eixos `wght`/`ital`) a uma cópia da face antes de medir; corrige colapso de espaço entre palavras em fontes variáveis de peso alto (`Ubuntu Sans`, confirmado; `Cantarell-VF` continua afectado por causa não isolada — ver relatório) | `font_metrics.md`, `font_metrics.rs` |
