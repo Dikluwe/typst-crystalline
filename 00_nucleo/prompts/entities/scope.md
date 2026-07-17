@@ -1,5 +1,5 @@
 # Prompt L0 — entities/scope
-Hash do Código: 2edd57f7
+Hash do Código: c5362702
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/entities/scope.rs`
@@ -42,6 +42,22 @@ impl Scope {
     pub fn is_empty(&self) -> bool
 }
 impl Default for Scope
+
+/// **P772q** — por que motivo um scope foi capturado (closure vs bloco
+/// `context`). Paridade vanilla `foundations/scope.rs::Capturer` — usado
+/// para a mensagem de erro correcta ao tentar mutar uma variável
+/// capturada ("...outside the function..." vs "...outside the context
+/// expression..."). Diferente de `BindingKind` (ainda omitido, ADR-0017):
+/// não é uma flag por-binding — é um único valor por invocação de
+/// closure, guardado em `ClosureRepr.capturer` (`entities/func.md`) e
+/// propagado para `Scopes` (`rules/scopes.md`) no momento da chamada.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum Capturer {
+    /// Capturado por uma closure normal (`#let f() = { ... }`).
+    Function,
+    /// Capturado por um bloco `context { ... }`.
+    Context,
+}
 ```
 
 ## Campos omitidos de Binding
@@ -88,3 +104,9 @@ Então posição de "a" mantida: [a, b] (não [b, a])
 Dado Scope vazio
 Então is_empty() = true, len() = 0
 ```
+
+## Histórico de Revisões
+
+| Data | Motivo | Ficheiros afetados |
+|------|--------|-------------------|
+| 2026-07-17 | P772q — `Capturer` (enum `Function`/`Context`), paridade vanilla `foundations/scope.rs`. Fecha P772l §2.2 (mensagem de mutação de variável capturada) | `scope.md`, `scope.rs` |

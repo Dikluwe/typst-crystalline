@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/rules/eval.md
-//! @prompt-hash c8dd29eb
+//! @prompt-hash 3fca6d82
 //! @layer L1
 //! @updated 2026-07-16
 //!
@@ -649,12 +649,11 @@ pub(crate) fn eval_expr(
 
         Expr::Ident(ident) => {
             let name = ident.as_str();
+            // P772r — hint de subtracção quando o nome contém hífen,
+            // paridade vanilla `foundations/scope.rs::unknown_variable`.
             scopes.get(name)
                 .cloned()
-                .ok_or_else(|| vec![SourceDiagnostic::error(
-                    ident.span(),
-                    format!("unknown variable: {name}"),
-                )])
+                .ok_or_else(|| vec![bindings::unknown_variable(ident.span(), name)])
         }
 
         Expr::LetBinding(binding) => bindings::eval_let(binding, scopes, ctx, engine),
@@ -1004,6 +1003,9 @@ pub(crate) fn eval_expr(
                 sink_name: None,
                 body,
                 captured,
+                // P772q — bloco `context { }`, paridade vanilla
+                // `CapturesVisitor::new(scopes, Capturer::Context)`.
+                capturer: crate::entities::scope::Capturer::Context,
             });
             let id = ctx.next_context_id();
             Ok(Value::Content(Content::ContextBlock(Arc::new(

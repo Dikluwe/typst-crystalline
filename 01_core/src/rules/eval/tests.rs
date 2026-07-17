@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/rules/eval.md
-//! @prompt-hash c8dd29eb
+//! @prompt-hash 3fca6d82
 //! @layer L1
 //! @updated 2026-06-17
 //!
@@ -2543,7 +2543,7 @@ mod tests {
     #[test]
     fn func_type_name() {
         use crate::entities::func::{ClosureRepr, Func};
-        use crate::entities::scope::Scope;
+        use crate::entities::scope::{Capturer, Scope};
         use crate::entities::source::Source;
         use std::sync::Arc;
         let source = Source::detached("x");
@@ -2554,6 +2554,7 @@ mod tests {
             sink_name: None,
             body,
             captured: Arc::new(Scope::new()),
+            capturer: Capturer::Function,
         });
         assert_eq!(Value::Func(f).type_name(), "function");
     }
@@ -10746,5 +10747,50 @@ mod tests {
         ).unwrap();
         assert_eq!(m.scope().get("inside"), Some(&Value::Int(2)));
         assert_eq!(m.scope().get("after"), Some(&Value::Int(1)));
+    }
+
+    // ── P772r — hint de subtracção em unknown_variable ──────────────────────
+    // Medido vanilla (`foundations/scope.rs::unknown_variable`, linha
+    // 424-437): hint só quando `var.contains('-')`; singular "sign" para um
+    // hífen, plural "signs" para mais de um; sem verificação extra das
+    // partes ao redor do hífen.
+
+    #[test]
+    fn p772r_hint_subtracao_um_hifen() {
+        let err = p729_eval("#foo-bar").unwrap_err();
+        assert_eq!(err[0].message, "unknown variable: foo-bar");
+        assert_eq!(
+            err[0].hints,
+            vec!["if you meant to use subtraction, try adding spaces around the minus sign: `foo - bar`".to_string()]
+        );
+    }
+
+    #[test]
+    fn p772r_hint_subtracao_hifens_multiplos_plural() {
+        let err = p729_eval("#foo-bar-baz").unwrap_err();
+        assert_eq!(err[0].message, "unknown variable: foo-bar-baz");
+        assert_eq!(
+            err[0].hints,
+            vec!["if you meant to use subtraction, try adding spaces around the minus signs: `foo - bar - baz`".to_string()]
+        );
+    }
+
+    #[test]
+    fn p772r_sem_hifen_sem_hint() {
+        let err = p729_eval("#simplyunknown").unwrap_err();
+        assert_eq!(err[0].message, "unknown variable: simplyunknown");
+        assert!(err[0].hints.is_empty(), "sem hífen não deve ter hint");
+    }
+
+    #[test]
+    fn p772r_hint_tambem_no_caminho_de_mutacao() {
+        // access() (mutação) usa o mesmo helper que eval_expr (leitura) —
+        // paridade vanilla: as duas usam a mesma `unknown_variable()`.
+        let err = p729_eval("#{ foo-bar = 1 }").unwrap_err();
+        assert_eq!(err[0].message, "unknown variable: foo-bar");
+        assert_eq!(
+            err[0].hints,
+            vec!["if you meant to use subtraction, try adding spaces around the minus sign: `foo - bar`".to_string()]
+        );
     }
 }

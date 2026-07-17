@@ -1,12 +1,12 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/rules/scopes.md
-//! @prompt-hash d39db4ea
+//! @prompt-hash df001393
 //! @layer L1
 //! @updated 2026-07-16
 
 use std::sync::Arc;
 
-use crate::entities::scope::Scope;
+use crate::entities::scope::{Capturer, Scope};
 use crate::entities::value::Value;
 use crate::entities::world_types::Library;
 
@@ -25,6 +25,11 @@ pub struct Scopes<'a> {
     /// Consultado depois de `top`/`scopes` e antes de `base`.
     /// Permite lookup lazy das variáveis capturadas durante chamadas de closure.
     pub captured: Option<Arc<Scope>>,
+    /// **P772q** — por que motivo `captured` foi capturado (closure normal
+    /// vs bloco `context`). `None` sse `captured` também for `None`. Só
+    /// afecta a mensagem de erro ao mutar um nome de `captured`
+    /// (`captured_by`) — não afecta leitura nem a pesquisa normal.
+    pub captured_by: Option<Capturer>,
     /// Âmbito base — a biblioteca standard do Typst.
     pub base: Option<&'a Library>,
 }
@@ -36,6 +41,7 @@ impl<'a> Scopes<'a> {
             top: Scope::new(),
             scopes: Vec::new(),
             captured: None,
+            captured_by: None,
             base,
         }
     }
@@ -44,11 +50,15 @@ impl<'a> Scopes<'a> {
     ///
     /// O `parent` é partilhado via Arc — sem clone dos valores.
     /// Lookup order: top (params/auto-ref) → captured (scope da definição).
-    pub fn with_parent(parent: Arc<Scope>) -> Scopes<'static> {
+    /// **P772q** — `capturer` regista por que motivo o scope foi capturado
+    /// (`ClosureRepr.capturer`), usado só para a mensagem de erro de
+    /// mutação (`captured_by`).
+    pub fn with_parent(parent: Arc<Scope>, capturer: Capturer) -> Scopes<'static> {
         Scopes {
             top: Scope::new(),
             scopes: Vec::new(),
             captured: Some(parent),
+            captured_by: Some(capturer),
             base: None,
         }
     }
@@ -201,6 +211,27 @@ impl<'a> Scopes<'a> {
         }
         self.base.is_some_and(|base| base.global.get(name).is_some())
     }
+
+    /// **P772q** — `Some(capturer)` sse `name` está em `captured` (não em
+    /// `top`/`scopes`, que têm precedência — sombra local continua
+    /// mutável). Usado pelo caller de atribuição para escolher a mensagem
+    /// "variables from outside the {function|context expression}...".
+    /// Verificado **antes** de `is_constant` em `access()`
+    /// (`eval/bindings.rs`): paridade vanilla onde `get_mut` bem sucedido
+    /// sobre um binding `Captured` falha em `.write()`, sem nunca chegar a
+    /// considerar `base`.
+    pub fn captured_by(&self, name: &str) -> Option<Capturer> {
+        if self.top.get(name).is_some() {
+            return None;
+        }
+        if self.scopes.iter().any(|scope| scope.get(name).is_some()) {
+            return None;
+        }
+        if self.captured.as_ref().is_some_and(|cap| cap.get(name).is_some()) {
+            return self.captured_by;
+        }
+        None
+    }
 }
 
 #[cfg(test)]
@@ -290,12 +321,12 @@ mod tests {
 
     #[test]
     fn p715_get_mut_nao_pesquisa_captured() {
-        // Mutar uma variável capturada do scope de definição de uma closure
-        // não é um caso medido/alcançado — `get_mut` devolve `None`, tratado
-        // como "unknown variable" pelo caller.
+        // `get_mut` continua a nunca alcançar `captured` — devolve `None`.
+        // P772q: o caller (`access()`) distingue esse `None` de um nome
+        // realmente inexistente via `captured_by`, sem alterar `get_mut`.
         let mut base = Scope::new();
         base.define("x", Value::Int(1));
-        let mut scopes = Scopes::with_parent(std::sync::Arc::new(base));
+        let mut scopes = Scopes::with_parent(std::sync::Arc::new(base), Capturer::Function);
         assert!(scopes.get("x").is_some(), "get deve ver a variável capturada");
         assert!(scopes.get_mut("x").is_none(), "get_mut não deve alcançar captured");
     }
@@ -339,5 +370,57 @@ mod tests {
         scopes.define("calc", Value::Int(5));
         assert!(!scopes.is_constant("calc"));
         assert_eq!(scopes.get_mut("calc"), Some(&mut Value::Int(5)));
+    }
+
+    // ── P772q — captured_by distingue Function de Context ──────────────────
+
+    fn captured_com_x() -> Arc<Scope> {
+        let mut s = Scope::new();
+        s.define("x", Value::Int(1));
+        Arc::new(s)
+    }
+
+    #[test]
+    fn p772q_captured_by_function() {
+        let scopes = Scopes::with_parent(captured_com_x(), Capturer::Function);
+        assert_eq!(scopes.captured_by("x"), Some(Capturer::Function));
+    }
+
+    #[test]
+    fn p772q_captured_by_context() {
+        let scopes = Scopes::with_parent(captured_com_x(), Capturer::Context);
+        assert_eq!(scopes.captured_by("x"), Some(Capturer::Context));
+    }
+
+    #[test]
+    fn p772q_captured_by_none_para_nome_inexistente() {
+        let scopes = Scopes::with_parent(captured_com_x(), Capturer::Function);
+        assert_eq!(scopes.captured_by("nunca-existiu"), None);
+    }
+
+    #[test]
+    fn p772q_sombra_local_de_nome_capturado_continua_mutavel() {
+        // Paridade vanilla: um parâmetro ou `let` local com o mesmo nome
+        // de uma variável capturada sombreia-a — mutável normalmente,
+        // `captured_by` não dispara.
+        let mut scopes = Scopes::with_parent(captured_com_x(), Capturer::Function);
+        scopes.define("x", Value::Int(2));
+        assert_eq!(scopes.captured_by("x"), None);
+        assert_eq!(scopes.get_mut("x"), Some(&mut Value::Int(2)));
+    }
+
+    #[test]
+    fn p772q_captured_by_precede_is_constant() {
+        // Um nome de `base` capturado por uma closure (ex.: `calc` usado
+        // dentro do corpo) deve dar a mensagem de "captured", não a de
+        // "constant" — captured_by tem precedência (medido contra o
+        // vanilla: `#let f() = { calc = 5 }; f()` dá a mensagem de
+        // função, não "cannot mutate a constant").
+        let library = library_com_calc();
+        let base_scopes = Scopes::new(Some(&library));
+        let snapshot = Arc::new(base_scopes.snapshot());
+        let scopes = Scopes::with_parent(snapshot, Capturer::Function);
+        assert_eq!(scopes.captured_by("calc"), Some(Capturer::Function));
+        assert!(!scopes.is_constant("calc"));
     }
 }

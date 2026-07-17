@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/rules/eval.md
-//! @prompt-hash c8dd29eb
+//! @prompt-hash 3fca6d82
 //! @layer L1
 //! @updated 2026-07-09
 //!
@@ -213,7 +213,11 @@ pub(super) fn apply_closure(
     route_check_call_depth(engine.route)?;
 
     // Criar scope filho do captured — O(1), sem clone dos valores capturados.
-    let mut call_scopes = Scopes::with_parent(std::sync::Arc::clone(&closure.captured));
+    // P772q — propaga por que motivo o scope foi capturado (Function/Context).
+    let mut call_scopes = Scopes::with_parent(
+        std::sync::Arc::clone(&closure.captured),
+        closure.capturer,
+    );
 
     // Auto-injecção para recursão — definida antes dos params para que um
     // parâmetro com o mesmo nome sombre a função (comportamento do original).
@@ -399,6 +403,9 @@ pub(super) fn eval_closure_expr(
         sink_name,
         body,
         captured,
+        // P772q — closure normal (não `context { }`, que constrói o seu
+        // próprio ClosureRepr directamente em eval/mod.rs).
+        capturer: crate::entities::scope::Capturer::Function,
     })))
 }
 

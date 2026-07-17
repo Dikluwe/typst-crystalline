@@ -1,5 +1,5 @@
 # Prompt L0 — `rules/scopes`
-Hash do Código: 388da7f7
+Hash do Código: 4f83d122
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/rules/scopes.rs`
@@ -58,6 +58,11 @@ pub struct Scopes<'a> {
     /// Scope capturado pela closure — partilhado via Arc sem clone dos valores.
     /// Consultado após top/scopes e antes de base.
     pub captured: Option<Arc<Scope>>,
+    /// **P772q** — por que motivo `captured` foi capturado (closure normal
+    /// vs bloco `context`). `None` sse `captured` também for `None`. Usado
+    /// só para escolher a mensagem de erro ao mutar um nome de `captured`
+    /// — não afecta leitura (`get`) nem a pesquisa normal.
+    pub captured_by: Option<Capturer>,
     /// Âmbito base — a Library (stdlib) do Typst. Somente leitura.
     pub base: Option<&'a Library>,
 }
@@ -73,7 +78,9 @@ impl<'a> Scopes<'a> {
     /// Cria uma pilha para chamada de closure com o scope capturado como parent.
     /// Lookup order: top (params) → captured (scope da definição).
     /// O Arc é partilhado — sem clone dos valores da captura.
-    pub fn with_parent(parent: Arc<Scope>) -> Scopes<'static>
+    /// **P772q** — `capturer` regista por que motivo o scope foi capturado
+    /// (`ClosureRepr.capturer`, `entities/func.md`); fica em `captured_by`.
+    pub fn with_parent(parent: Arc<Scope>, capturer: Capturer) -> Scopes<'static>
 
     /// Captura todos os bindings visíveis num snapshot Scope (eager).
     /// Ordem de inserção: captured → scopes → top (mais recente sobrescreve).
@@ -113,6 +120,19 @@ impl<'a> Scopes<'a> {
     /// `"unknown variable: {name}"` quando `get_mut` falha — paridade
     /// vanilla `Scopes::get_mut` (`foundations/scope.rs:63-70`).
     pub fn is_constant(&self, name: &str) -> bool
+
+    /// **P772q** — `Some(capturer)` sse `name` está em `captured` (não em
+    /// `top`/`scopes`, que têm precedência). `capturer` vem de
+    /// `captured_by`, propagado desde `ClosureRepr.capturer` no momento em
+    /// que a closure/`context` foi definida. Usado pelo caller de
+    /// atribuição para escolher entre as duas mensagens
+    /// "variables from outside the {function|context expression}...".
+    /// Precedência com `is_constant`: `captured_by` é verificado primeiro
+    /// (paridade vanilla: `get_mut` bem sucedido sobre um binding
+    /// `Captured` falha só em `.write()`, antes de qualquer verificação
+    /// de `base` acontecer — `captured` "ganha" a `base` por estar mais
+    /// próximo na cadeia de pesquisa).
+    pub fn captured_by(&self, name: &str) -> Option<Capturer>
 }
 ```
 
@@ -146,6 +166,45 @@ criar um binding **normal** em `top` — mutável como qualquer outro,
 porque `get_mut` encontra-o aí **antes** de sequer considerar `base`
 (paridade vanilla, medido em P772n: `#let calc = 5; #{ calc = 10 }`
 compila sem erro no vanilla).
+
+---
+
+## Mensagem correcta para variável capturada (P772q)
+
+Vanilla protege variáveis capturadas por um mecanismo **diferente** do de
+`base`/`is_constant`: `Scopes::get_mut` (vanilla) encontra a variável
+capturada normalmente (foi inserida numa scope alcançável) — é
+`Binding::write()`, chamado **depois**, que falha ao ver
+`kind == BindingKind::Captured(capturer)` (`foundations/scope.rs:313-323`).
+O cristalino não replica essa estrutura (exigiria `kind` em `Binding`,
+schema ainda adiado por ADR-0017) — replica só o **observável**: a
+mensagem certa, por um caminho estruturalmente diferente.
+
+`captured_by(name)` cobre o buraco que a exclusão estrutural de `captured`
+(P715 — `get_mut` nunca o pesquisa) deixa na mensagem de erro, do mesmo
+jeito que `is_constant` cobre o buraco equivalente para `base`. Ordem de
+verificação em `access()` (`eval/bindings.rs`) quando `get_mut` falha:
+
+1. `captured_by(name)` — `Some(capturer)` → `"variables from outside the
+   {function|context expression} are read-only and cannot be modified"`.
+2. `is_constant(name)` — `true` → `"cannot mutate a constant: {name}"`.
+3. Senão → `"unknown variable: {name}"`.
+
+Esta ordem já é consistente com a implementação de `is_constant` (que já
+verifica `captured` antes de `base`, devolvendo `false` — "não constante"
+— para nomes só alcançáveis via `captured`) — `captured_by` só precisa de
+ser consultado **antes** para produzir a mensagem certa nesse caso, em vez
+de cair no `unknown_variable` genérico.
+
+### `capturer` — de onde vem
+
+`ClosureRepr.capturer` (`entities/func.md`) é decidido no momento da
+**definição** da closure/`context`, não da chamada — paridade
+`CapturesVisitor::new(scopes, capturer)` do vanilla
+(`typst-eval/src/call.rs:576` para `Closure`, `typst-eval/src/code.rs:394`
+para `Contextual`). `apply_closure` (`eval/closures.rs`) propaga
+`closure.capturer` para `Scopes::with_parent(closure.captured,
+closure.capturer)`.
 
 ---
 
@@ -183,6 +242,17 @@ Scopes::new(Some(&library)) → is_constant("nope") = false  // não existe em l
 Scopes::new(Some(&library)) + define("calc", Value::Int(5))
 → get_mut("calc") = Some(&mut Value::Int(5))  // encontrado em top, base nem chega a ser consultado
 → is_constant("calc") = false
+
+// P772q — captured_by distingue Function de Context
+captured = Arc::new({"x": Value::Int(1)})
+Scopes::with_parent(captured.clone(), Capturer::Function) → captured_by("x") = Some(Capturer::Function)
+Scopes::with_parent(captured.clone(), Capturer::Context)  → captured_by("x") = Some(Capturer::Context)
+Scopes::with_parent(captured, Capturer::Function)         → captured_by("nope") = None
+
+// Sombra de nome capturado por parâmetro/`let` local continua mutável
+Scopes::with_parent(captured, Capturer::Function) + define("x", Value::Int(2))
+→ get_mut("x") = Some(&mut Value::Int(2))  // encontrado em top, captured nem chega a ser consultado
+→ captured_by("x") = None
 ```
 
 ---

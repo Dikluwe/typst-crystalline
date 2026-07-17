@@ -1,5 +1,5 @@
 # Prompt L0 — rules/eval
-Hash do Código: d924c9e3
+Hash do Código: e3d9720c
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/rules/eval/mod.rs`
@@ -1192,9 +1192,10 @@ from dictionary"`, `"{quantifier} elements to destructure"` (com hint
   `rules/scopes.rs`) — novo: acesso mutável a um binding já existente
   (não cria, distinto de `define`). `Scopes::get_mut` pesquisa `top` →
   `scopes` (mesma ordem de `get`), **não** pesquisa `captured` nem
-  `base` — mutar uma variável capturada por uma closure do seu scope
-  de definição não é um caso medido/alcançado; devolve `None`, tratado
-  como "unknown variable" pelo caller.
+  `base` diretamente — devolve `None` nesses casos, e o caller
+  (`access()`, `eval/bindings.rs`) distingue-os via `captured_by`
+  (P772q, §P772q) e `is_constant` (P772n, §P772n) antes de cair no
+  "unknown variable" genérico (com hint condicional — P772r, §P772r).
 - **`destructure_pattern`/`destructure_array`/`destructure_dict`**
   (`bindings.rs`) — mirror exacto de `destructure_impl`/
   `destructure_array`/`destructure_dict` do vanilla, incluindo as
@@ -1338,9 +1339,9 @@ observável (ADR-0107) — usar o nome longo nestes erros.
 - **`access(expr, scopes, ctx, engine) -> SourceResult<&mut Value>`** —
   mirror do trait `Access` do vanilla, como free function (o cristalino
   não tem `Vm`; recebe as três partes). 4 braços + fallback avalia-e-erra.
-  `Ident` ausente → `scopes.is_constant(name)` decide entre
-  `"cannot mutate a constant: {name}"` e `"unknown variable: {name}"`
-  (P772n — antes desta correcção, sempre `unknown variable`; ver §P772n).
+  `Ident` ausente → `scopes.captured_by(name)` → `scopes.is_constant(name)`
+  → `unknown variable` (nesta ordem; P772q verificado primeiro). Ver §P772n
+  e §P772q.
 - **`access_dict(fa, scopes, ctx, engine) -> SourceResult<&mut IndexMap<…>>`**
   — mirror de `access_dict`, com os três níveis de erro medidos acima.
   Braço "not yet mutable": Version, Length, Relative, Stroke, Align (o
@@ -1932,3 +1933,141 @@ compilação, igual ao vanilla).
 - `#[ #let x = 2; #x ]` seguido de `#x` fora → mesmo padrão.
 - `#while`/`#for` — não regride (já isolavam correctamente).
 - `cargo test --workspace` verde; `crystalline-lint .` zero violações.
+
+## §P772q — mensagem correcta para mutação de variável capturada
+
+P772l §2.2 mediu `#let x = 1; #let f() = { x = 2 }; #f()` → cristalino dava
+`"unknown variable: x"`; vanilla dá `"variables from outside the function
+are read-only and cannot be modified"` (`foundations/scope.rs:316-323`).
+`#context { x = 2 }` dá a mensagem irmã, "...outside the context
+expression...". P772n **não** cobre este caso — protege `base` por
+exclusão estrutural de `Scopes.captured` do alcance de `get_mut`; a
+variável capturada por closure/`context` é um mecanismo diferente no
+vanilla.
+
+### Mecanismo vanilla — diferente do de `base` (medido, não suposto)
+
+`vm.scopes.get_mut(&self).and_then(|b| b.write().map_err(Into::into))`
+(`typst-eval/src/access.rs:38-39`): `get_mut` **encontra** a variável
+capturada normalmente (o vanilla insere o scope capturado numa camada
+alcançável, não numa separada e sempre ignorada como o `captured` do
+cristalino) — é `Binding::write()`, chamado **depois**, que falha ao ver
+`kind == BindingKind::Captured(capturer)`. O `capturer` (`Function` ou
+`Context`) é decidido no momento em que `CapturesVisitor` percorre o corpo
+da closure/`context` **na definição**
+(`typst-eval/src/call.rs:576` — `Capturer::Function`;
+`typst-eval/src/code.rs:394` — `Capturer::Context`), não na chamada.
+
+Replicar esta estrutura exigiria `kind: BindingKind` em `Binding`
+(`entities/scope.md`) — schema ainda adiado por ADR-0017, e que P772n já
+confirmou não ser necessário para `cannot_mutate_constant`. Para P772q,
+manter `Binding` como está e replicar só o **observável** (ADR-0107): a
+mensagem certa, por um mecanismo estruturalmente diferente do vanilla.
+
+### Correcção
+
+1. `Capturer` (novo enum, `entities/scope.md`): `Function` | `Context`.
+2. `ClosureRepr.capturer: Capturer` (novo campo, `entities/func.md`) —
+   `Capturer::Function` em `eval_closure_expr` (`Expr::Closure`,
+   `closures.rs`); `Capturer::Context` na construção do
+   `ContextBlockElem` (`Expr::Contextual`, `eval/mod.rs`).
+3. `Scopes.captured_by: Option<Capturer>` (novo campo, `rules/scopes.md`)
+   + `with_parent(parent, capturer)` (assinatura alterada — só um
+   call site em produção, `apply_closure`) + `captured_by(name) ->
+   Option<Capturer>` (novo método).
+4. `apply_closure` (`eval/closures.rs`) propaga `closure.capturer` para
+   `Scopes::with_parent`.
+5. `eval/bindings.rs::access`, braço `Expr::Ident` em mutação: ordem
+   `captured_by` → `is_constant` → `unknown_variable`.
+
+### Critérios de verificação
+
+```
+#let x = 1
+#let f() = { x = 2 }
+#f()
+  → error: variables from outside the function are read-only and cannot be modified
+
+#let x = 1
+#context { x = 2 }
+  → error: variables from outside the context expression are read-only and cannot be modified
+
+#let x = 1
+#{ x = 2 }
+#x
+  → sem erro, "2" (mutação normal fora de closure não regride)
+
+#{ calc = 5 }
+  → error: cannot mutate a constant: calc (P772n não regride)
+```
+
+## §P772r — hint de subtracção em `unknown_variable`
+
+P772l §2.4 mediu `#foo-bar` → `"unknown variable: foo-bar"` idêntico nos
+dois compiladores, mas o vanilla acrescenta um hint que o cristalino não
+tinha. Este L0 documentava essa ausência como o estado aceite (§P715,
+acima) — substituído aqui pela especificação do hint.
+
+### Heurística exacta (sonda, não suposição)
+
+`foundations/scope.rs::unknown_variable` (linha 424-437):
+
+```rust
+fn unknown_variable(var: &str) -> HintedString {
+    let mut res = HintedString::new(eco_format!("unknown variable: {var}"));
+    if var.contains('-') {
+        res.hint(eco_format!(
+            "if you meant to use subtraction, \
+             try adding spaces around the minus sign{}: `{}`",
+            if var.matches('-').count() > 1 { "s" } else { "" },
+            var.replace('-', " - ")
+        ));
+    }
+    res
+}
+```
+
+Condição: **qualquer** hífen no nome (`contains('-')`) — sem verificar se
+as partes à volta do hífen são identificadores válidos ou nomes
+conhecidos (medido: `#foo-bar-baz` com três partes nenhuma delas
+definida ainda ganha o hint). Plural "signs" quando há mais de um
+hífen; singular "sign" para um só. Sem hífen → sem hint, mensagem base
+inalterada.
+
+Esta é a **mesma função** usada pelo vanilla tanto para leitura
+(`Scopes::get`) como para mutação (`Scopes::get_mut`, braço de fallback)
+— por isso a correcção cobre os dois caminhos do cristalino
+(`eval_expr`, `Expr::Ident` em `eval/mod.rs`; `access()`, `Expr::Ident`
+em `eval/bindings.rs`) via um único helper partilhado.
+
+### Correcção
+
+`unknown_variable(span, name) -> SourceDiagnostic` (novo, `pub(super)`,
+`eval/bindings.rs`, ao lado de `missing_key` que já usava
+`SourceDiagnostic::with_hint` para outro caso) — mensagem base sempre;
+hint condicional pela heurística acima. Chamado por:
+
+- `eval_expr`, `Expr::Ident` (`eval/mod.rs`) — leitura.
+- `access()`, `Expr::Ident`, braço final (após `captured_by`/
+  `is_constant`, P772q/P772n) (`eval/bindings.rs`) — mutação.
+
+### Critérios de verificação
+
+```
+#foo-bar
+  → unknown variable: foo-bar
+  → hint: if you meant to use subtraction, try adding spaces around the minus sign: `foo - bar`
+
+#foo-bar-baz
+  → unknown variable: foo-bar-baz
+  → hint: ...around the minus signs: `foo - bar - baz`   (plural)
+
+#simplyunknown
+  → unknown variable: simplyunknown
+  → sem hint
+
+#{ foo-bar = 1 }
+  → unknown variable: foo-bar
+  → hint idêntico ao caso de leitura (mesmo helper, caminho de mutação)
+```
+

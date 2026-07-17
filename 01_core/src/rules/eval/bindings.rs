@@ -394,6 +394,28 @@ fn missing_key(span: Span, key: &str) -> Vec<SourceDiagnostic> {
     .with_hint("use `insert` to add or update values".to_string())]
 }
 
+/// **P772r** — erro de variável desconhecida, paridade vanilla
+/// `foundations/scope.rs::unknown_variable` (linha 424-437). Usado tanto
+/// para leitura (`eval_expr`, `Expr::Ident`, `eval/mod.rs`) como para
+/// mutação (`access`, abaixo) — mesma função no vanilla para os dois casos.
+///
+/// Heurística do hint (confirmada por sonda, não assumida): qualquer
+/// hífen no nome (`name.contains('-')`) — sem verificar se as partes ao
+/// redor são identificadores conhecidos. Plural ("signs") quando há mais
+/// de um hífen; singular ("sign") para um só. Sem hífen → sem hint.
+pub(super) fn unknown_variable(span: Span, name: &str) -> SourceDiagnostic {
+    let diag = SourceDiagnostic::error(span, format!("unknown variable: {name}"));
+    if name.contains('-') {
+        let plural = if name.matches('-').count() > 1 { "s" } else { "" };
+        diag.with_hint(format!(
+            "if you meant to use subtraction, try adding spaces around the minus sign{plural}: `{}`",
+            name.replace('-', " - ")
+        ))
+    } else {
+        diag
+    }
+}
+
 /// **P716** — mirror do trait `Access` do vanilla (`access.rs:14-27`), como
 /// free function (o cristalino não tem `Vm`; recebe as três partes). Quatro
 /// formas de alvo: `Ident`, `Parenthesized`, `FieldAccess`, `FuncCall` de
@@ -409,15 +431,33 @@ fn access<'s>(
         Expr::Ident(ident) => {
             let name = ident.as_str();
             if scopes.get_mut(name).is_none() {
-                // P772n — `name` só existe em `base` (stdlib) → mensagem
-                // distinta, paridade vanilla `cannot_mutate_constant`
-                // (`foundations/scope.rs:63-70`); ver `rules/eval.md` §P772n.
-                let message = if scopes.is_constant(name) {
-                    format!("cannot mutate a constant: {name}")
+                // P772q — `name` só existe em `captured` (closure/`context`)
+                // → mensagem específica por `Capturer`, paridade vanilla
+                // `Binding::write()` (`foundations/scope.rs:316-323`);
+                // verificado antes de `is_constant` (P772n): paridade
+                // vanilla onde `get_mut` bem sucedido sobre um binding
+                // `Captured` falha em `.write()`, sem chegar a `base`.
+                // Ver `rules/eval.md` §P772q, §P772n, §P772r.
+                let diag = if let Some(capturer) = scopes.captured_by(name) {
+                    let origin = match capturer {
+                        crate::entities::scope::Capturer::Function => "function",
+                        crate::entities::scope::Capturer::Context => "context expression",
+                    };
+                    SourceDiagnostic::error(
+                        ident.span(),
+                        format!(
+                            "variables from outside the {origin} are read-only and cannot be modified"
+                        ),
+                    )
+                } else if scopes.is_constant(name) {
+                    SourceDiagnostic::error(
+                        ident.span(),
+                        format!("cannot mutate a constant: {name}"),
+                    )
                 } else {
-                    format!("unknown variable: {name}")
+                    unknown_variable(ident.span(), name)
                 };
-                return Err(vec![SourceDiagnostic::error(ident.span(), message)]);
+                return Err(vec![diag]);
             }
             match scopes.get_mut(name) {
                 Some(slot) => Ok(slot),

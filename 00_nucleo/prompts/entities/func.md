@@ -1,5 +1,5 @@
 # Prompt L0 — entities/func e entities/args
-Hash do Código: 7e630787
+Hash do Código: eada1fbe
 
 **Camada**: L1
 **Ficheiros alvo**: `01_core/src/entities/func.rs`, `01_core/src/entities/args.rs`
@@ -38,6 +38,14 @@ pub struct ClosureRepr {
     pub params: Vec<ClosureParam>,
     pub body: SyntaxNode,           // clone O(1) via Arc interno
     pub captured: Arc<Scope>,       // eager snapshot do scope no momento da definição
+    /// **P772q** — por que motivo este scope foi capturado: closure normal
+    /// (`Expr::Closure`, `eval/closures.rs::eval_closure_expr`) ou bloco
+    /// `context { }` (`Expr::Contextual`, `eval/mod.rs`). Paridade vanilla
+    /// `CapturesVisitor::new(scopes, capturer)` — o capturer é decidido no
+    /// momento da captura (definição), não da chamada. Usado por
+    /// `apply_closure` para propagar a `Scopes` da chamada
+    /// (`entities/scope.md#Capturer`).
+    pub capturer: Capturer,
 }
 
 pub struct ClosureParam {

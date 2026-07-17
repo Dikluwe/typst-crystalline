@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/entities/func.md
-//! @prompt-hash 19f51330
+//! @prompt-hash 75fb9643
 //! @layer L1
 //! @updated 2026-04-13
 
@@ -8,7 +8,7 @@ use std::sync::Arc;
 
 use crate::entities::args::Args;
 use crate::entities::file_id::FileId;
-use crate::entities::scope::Scope;
+use crate::entities::scope::{Capturer, Scope};
 use crate::entities::source_result::SourceResult;
 use crate::entities::syntax_node::SyntaxNode;
 use crate::entities::value::Value;
@@ -71,6 +71,13 @@ pub struct ClosureRepr {
     /// Divergência do original (que usa comemo para lazy access):
     /// registada em DEBT-2. A integração com comemo é trabalho futuro.
     pub captured: Arc<Scope>,
+    /// **P772q** — por que motivo este scope foi capturado: closure normal
+    /// (`Expr::Closure`) ou bloco `context { }` (`Expr::Contextual`).
+    /// Decidido na definição, não na chamada — paridade vanilla
+    /// `CapturesVisitor::new(scopes, capturer)`. Propagado por
+    /// `apply_closure` para `Scopes::with_parent`, usado só para a
+    /// mensagem de erro ao mutar um nome capturado.
+    pub capturer: Capturer,
 }
 
 /// Um parâmetro de closure com nome e default opcional.
@@ -344,7 +351,7 @@ impl PartialEq for Func {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::entities::scope::Scope;
+    use crate::entities::scope::{Capturer, Scope};
     use crate::entities::source::Source;
     use crate::entities::value::Value;
 
@@ -357,6 +364,7 @@ mod tests {
             sink_name: None,
             body,
             captured: Arc::new(Scope::new()),
+            capturer: Capturer::Function,
         })
     }
 

@@ -668,7 +668,7 @@ mod tests {
     #[test]
     fn p744_repr_closure() {
         use crate::entities::func::{ClosureParam, ClosureRepr};
-        use crate::entities::scope::Scope;
+        use crate::entities::scope::{Capturer, Scope};
         use crate::entities::source::Source;
         let source = Source::detached("x + 1");
         let body = source.root().clone();
@@ -678,6 +678,7 @@ mod tests {
             sink_name: None,
             body,
             captured: std::sync::Arc::new(Scope::new()),
+            capturer: Capturer::Function,
         });
         assert_eq!(repr_value(&Value::Func(f)), "(..) => ..");
     }

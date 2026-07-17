@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/entities/scope.md
-//! @prompt-hash 336606db
+//! @prompt-hash 035aaea2
 //! @layer L1
 //! @updated 2026-04-02
 
@@ -8,6 +8,20 @@ use indexmap::IndexMap;
 use rustc_hash::FxBuildHasher;
 
 use crate::entities::value::Value;
+
+/// **P772q** — por que motivo um scope foi capturado (closure vs bloco
+/// `context`). Paridade vanilla `foundations/scope.rs::Capturer`. Um único
+/// valor por invocação (não uma flag por-binding como `BindingKind`, ainda
+/// omitido — ADR-0017): guardado em `ClosureRepr.capturer`
+/// (`entities/func.rs`) e propagado para `Scopes.captured_by`
+/// (`rules/scopes.rs`) no momento da chamada.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum Capturer {
+    /// Capturado por uma closure normal (`#let f() = { ... }`).
+    Function,
+    /// Capturado por um bloco `context { ... }`.
+    Context,
+}
 
 /// Valor ligado a um nome num Scope.
 ///
