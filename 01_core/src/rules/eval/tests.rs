@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/rules/eval.md
-//! @prompt-hash 9e869009
+//! @prompt-hash c8dd29eb
 //! @layer L1
 //! @updated 2026-06-17
 //!
@@ -10714,5 +10714,37 @@ mod tests {
         // Não-regressão: finitos mantêm ".0".
         let m4 = p729_eval("#let r = repr(1.0)").unwrap();
         assert_eq!(m4.scope().get("r"), Some(&Value::Str("1.0".into())));
+    }
+
+    // ── Passo 772l — `CodeBlock`/`ContentBlock` isolam bindings de `let` ──
+    // Medido vanilla (`typst-eval/src/code.rs:317-332`): `ast::CodeBlock::eval`
+    // e `ast::ContentBlock::eval` chamam `vm.scopes.enter()`/`exit()` em torno
+    // do corpo — um `let` interno não sobrevive à saída do bloco. Cristalino
+    // pré-P772l avaliava o corpo directamente no `scopes` do chamador (só
+    // `styles`/`show_rules` eram locais) — `x` fora do bloco ficava mutado
+    // permanentemente. E2E: `#let x = 1; #{ let x = 2; x }; #x` devolvia
+    // "2, 2" em vez de "2, 1".
+
+    #[test]
+    fn p772l_let_dentro_de_code_block_nao_vaza_para_fora() {
+        let m = p729_eval(
+            "#let x = 1\n#let inside = { let x = 2; x }\n#let after = x",
+        ).unwrap();
+        assert_eq!(m.scope().get("inside"), Some(&Value::Int(2)));
+        assert_eq!(
+            m.scope().get("after"),
+            Some(&Value::Int(1)),
+            "let dentro do bloco não deve mutar o x do âmbito envolvente"
+        );
+    }
+
+    #[test]
+    fn p772l_let_dentro_de_if_body_nao_vaza_para_fora() {
+        // O corpo de `if`/`else` é um `CodeBlock` — mesma via.
+        let m = p729_eval(
+            "#let x = 1\n#let inside = if true { let x = 2; x } else { 0 }\n#let after = x",
+        ).unwrap();
+        assert_eq!(m.scope().get("inside"), Some(&Value::Int(2)));
+        assert_eq!(m.scope().get("after"), Some(&Value::Int(1)));
     }
 }

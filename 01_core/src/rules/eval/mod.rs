@@ -1,8 +1,8 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/rules/eval.md
-//! @prompt-hash 9e869009
+//! @prompt-hash c8dd29eb
 //! @layer L1
-//! @updated 2026-07-09
+//! @updated 2026-07-16
 //!
 //! Dispatcher central do eval: `EvalContext` struct + impl, `pub fn eval`
 //! entry point, `eval_markup` iterator, `eval_expr` dispatcher delegando
@@ -45,7 +45,7 @@ use crate::entities::source_result::{SourceDiagnostic, SourceResult};
 use crate::entities::span::Span;
 use crate::entities::syntax_node::{SyntaxErrorKind, SyntaxNode};
 use crate::entities::value::{Type, Value};
-use crate::entities::world_types::{Route, Routines, Sink, Traced};
+use crate::entities::world_types::{Library, Route, Routines, Sink, Traced};
 use crate::rules::scopes::Scopes;
 
 // Submódulos por domínio (Passo 96.1, ADR-0037).
@@ -358,25 +358,30 @@ pub fn eval_with_full_error(
         let mut active_guards: Vec<RuleId> = Vec::new();
         let current_file = source.id();
 
-        let mut scopes = Scopes::new(None);
-        // Stdlib como scope base — type, len, range visíveis em todo o documento
+        // P772n — stdlib/cores/`std`/`text`/elementos de utilizador deixam de
+        // ser achatados em `scopes.top` (o que os tornava mutáveis sem erro,
+        // P772l §2.3). Constrói-se um `Scope` próprio, embrulhado em
+        // `Library::with_global`, e passado como `base` — só alcançável por
+        // leitura (`Scopes::get`), nunca por `Scopes::get_mut`. Ver
+        // `rules/eval.md` §P772n.
+        let mut global = Scope::new();
         let stdlib = make_stdlib(&inputs);
         // P709 — `std`: clone independente da stdlib, tirado ANTES de ser
-        // espalhada em `scopes`, dá acesso à versão não-sombreada mesmo que
+        // espalhada em `global`, dá acesso à versão não-sombreada mesmo que
         // o documento redefina `length`/`calc`/etc. (paridade vanilla,
         // `Library::std = Binding::detached(global.clone())`). Sombreável
         // como qualquer outro nome (medido: `#let std = "oops"` funciona
-        // no vanilla) — por isso `scopes.define`, sem mecanismo especial.
-        scopes.define("std", Value::Module(Module::new("std", stdlib.clone())));
+        // no vanilla) — por isso um binding normal, sem mecanismo especial.
+        global.define("std", Value::Module(Module::new("std", stdlib.clone())));
         for (name, binding) in stdlib.iter() {
-            scopes.define(name, binding.value().clone());
+            global.define(name, binding.value().clone());
         }
         // P492 — cores predefinidas (red, blue, green, ...) como atalhos globais.
         for (name, value) in crate::rules::stdlib::predefined_color_bindings() {
-            scopes.define(name.as_str(), value);
+            global.define(name.as_str(), value);
         }
         // P492 — constructor `text(...)` no scope global (usado em show-rules, etc.).
-        scopes.define(
+        global.define(
             "text",
             Value::Func(crate::entities::func::Func::native("text", crate::rules::stdlib::native_text)),
         );
@@ -386,13 +391,14 @@ pub fn eval_with_full_error(
         // por cima seguem o padrão `local_styles` (F-2).
         for name in registry.names() {
             if let Some(ctor) = registry.ctor(name) {
-                scopes.define(
+                global.define(
                     name.as_str(),
                     Value::Func(Func::element(name.as_str(), ctor)),
                 );
             }
         }
-        scopes.enter();  // âmbito do módulo
+        let library = Library::with_global(global);
+        let mut scopes = Scopes::new(Some(&library));
 
         // ADR-0044 (Passo 109): agregar os 8 campos num `Engine<'_>` e passar
         // `&mut engine` às funções internas em vez de 8 parâmetros individuais.
@@ -662,6 +668,13 @@ pub(crate) fn eval_expr(
             let mut local_show_rules = Arc::clone(engine.show_rules);
             let mut local_sink = TrackedMut::reborrow_mut(&mut *engine.sink);
             let mut output = Value::None;
+            // **P772l** — paridade vanilla `ast::CodeBlock::eval`
+            // (`typst-eval/src/code.rs:317-323`): o bloco introduz um
+            // âmbito léxico próprio via `scopes.enter()`/`exit()`. Sem isto,
+            // um `let` interno mutava o âmbito do chamador directamente —
+            // medido: `#let x = 1; #{ let x = 2; x }; #x` devolvia `2, 2`
+            // em vez de `2, 1` (shadowing vazava para fora do bloco).
+            scopes.enter();
             {
                 let mut local_engine = Engine {
                     world: engine.world,
@@ -711,6 +724,7 @@ pub(crate) fn eval_expr(
                     }
                 }
             }
+            scopes.exit();
             Ok(output)
         }
 
@@ -788,6 +802,11 @@ pub(crate) fn eval_expr(
             let mut local_styles = engine.styles.clone();
             let mut local_show_rules = Arc::clone(engine.show_rules);
             let mut local_sink = TrackedMut::reborrow_mut(&mut *engine.sink);
+            // **P772l** — paridade vanilla `ast::ContentBlock::eval`
+            // (`typst-eval/src/code.rs:326-332`): mesmo âmbito léxico
+            // próprio do `CodeBlock`. Sem isto, `#let` dentro de `[ ]`
+            // vazava para o âmbito do chamador (mesmo bug do CodeBlock).
+            scopes.enter();
             let mut local_engine = Engine {
                 world: engine.world,
                 route: engine.route,
@@ -797,7 +816,9 @@ pub(crate) fn eval_expr(
                 current_file: engine.current_file,
                 sink: &mut local_sink,
             };
-            eval_markup(content_block.body().to_untyped(), scopes, ctx, &mut local_engine)
+            let result = eval_markup(content_block.body().to_untyped(), scopes, ctx, &mut local_engine);
+            scopes.exit();
+            result
         }
 
         Expr::Equation(eq) => {

@@ -1,8 +1,8 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/world-types.md
-//! @prompt-hash d359b14c
+//! @prompt-hash a0733363
 //! @layer L1
-//! @updated 2026-03-27
+//! @updated 2026-07-16
 
 use std::sync::atomic::{AtomicUsize, Ordering};
 
@@ -34,19 +34,29 @@ impl Font {
     pub fn as_slice(&self) -> &[u8] { &self.0 }
 }
 
-/// Biblioteca de funções e valores do Typst.
-/// Opaca até Library ser migrada no Passo 4.
-#[derive(Debug, PartialEq, Eq, Hash)]
-pub struct Library(());
-
-impl Default for Library {
-    fn default() -> Self {
-        Self::new()
-    }
+/// Biblioteca de valores e funções do Typst — âmbito base do documento.
+/// **P772n**: `global` é um `Scope` real (stdlib, cores predefinidas,
+/// `std`, `text`, elementos de utilizador). Consultado só por leitura via
+/// `Scopes::get`/`base` (`rules/scopes.rs`) — nunca por `Scopes::get_mut`,
+/// o que torna estes bindings estruturalmente imutáveis sem precisar de
+/// nenhuma flag em `Binding` (fecha P772l §2.3, `cannot_mutate_constant`).
+#[derive(Debug, Default)]
+pub struct Library {
+    pub global: super::scope::Scope,
 }
 
 impl Library {
-    pub fn new() -> Self { Self(()) }
+    /// `global` vazio — usado pelos mocks de `World` em testes que não
+    /// exercitam eval/stdlib.
+    pub fn new() -> Self {
+        Self::default()
+    }
+
+    /// Construtor usado pelo bootstrap real do avaliador
+    /// (`eval/mod.rs`, `eval/modules.rs`).
+    pub fn with_global(global: super::scope::Scope) -> Self {
+        Self { global }
+    }
 }
 
 /// Data e hora para o método `today()` de `World`.

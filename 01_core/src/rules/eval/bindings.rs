@@ -408,12 +408,20 @@ fn access<'s>(
     match expr {
         Expr::Ident(ident) => {
             let name = ident.as_str();
+            if scopes.get_mut(name).is_none() {
+                // P772n — `name` só existe em `base` (stdlib) → mensagem
+                // distinta, paridade vanilla `cannot_mutate_constant`
+                // (`foundations/scope.rs:63-70`); ver `rules/eval.md` §P772n.
+                let message = if scopes.is_constant(name) {
+                    format!("cannot mutate a constant: {name}")
+                } else {
+                    format!("unknown variable: {name}")
+                };
+                return Err(vec![SourceDiagnostic::error(ident.span(), message)]);
+            }
             match scopes.get_mut(name) {
                 Some(slot) => Ok(slot),
-                None => Err(vec![SourceDiagnostic::error(
-                    ident.span(),
-                    format!("unknown variable: {name}"),
-                )]),
+                None => unreachable!("verificado acima"),
             }
         }
         Expr::Parenthesized(paren) => access(paren.expr(), scopes, ctx, engine),

@@ -1,8 +1,8 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/rules/scopes.md
-//! @prompt-hash 573e7f07
+//! @prompt-hash d39db4ea
 //! @layer L1
-//! @updated 2026-04-02
+//! @updated 2026-07-16
 
 use std::sync::Arc;
 
@@ -55,11 +55,28 @@ impl<'a> Scopes<'a> {
 
     /// Captura todos os bindings visíveis num novo Scope (snapshot eager).
     ///
-    /// Ordem de inserção: captured → scopes → top (mais recente sobrescreve).
+    /// Ordem de inserção: base → captured → scopes → top (mais recente
+    /// sobrescreve) — mesma ordem de precedência de `get`.
     /// Wrapping em `Arc::new(scopes.snapshot())` dá captura O(N) única,
     /// depois partilhada em O(1) por cada closure que usa o scope.
+    ///
+    /// **P772n** — inclui `base` (stdlib). `Scopes::with_parent` (usado em
+    /// cada chamada da closure) constrói um `Scopes<'static>` com
+    /// `base: None`, porque `Library` não é `'static` — sem isto, uma
+    /// closure perderia acesso à stdlib (`#let f() = upper("x")` falhava
+    /// com "unknown variable: upper"). Bake-in aqui evita ter de propagar
+    /// o lifetime de `Library` através de `apply_closure`. `get_mut` nunca
+    /// pesquisa `captured`, por isso isto não reabre P772l §2.3: mutar um
+    /// nome de stdlib capturado por uma closure continua a falhar (embora
+    /// com a mensagem do caso "captured", não "constant" — P772l §2.2,
+    /// deliberadamente fora do âmbito de P772n).
     pub fn snapshot(&self) -> Scope {
         let mut s = Scope::new();
+        if let Some(base) = self.base {
+            for (name, binding) in base.global.iter() {
+                s.define(name, binding.value().clone());
+            }
+        }
         if let Some(cap) = &self.captured {
             for (name, binding) in cap.iter() {
                 s.define(name, binding.value().clone());
@@ -138,18 +155,21 @@ impl<'a> Scopes<'a> {
                 return Some(v);
             }
         }
-        // base (Library) — stub neste passo; sem lookup real
-        let _ = self.base;
-        None
+        // P772n — base (Library) consultado a sério como último recurso.
+        self.base.and_then(|base| base.global.get(name))
     }
 
     /// P715 — acesso mutável a um binding existente, para atribuição (`x = v`,
     /// `x += v`, desestruturação em atribuição). Pesquisa `top` → `scopes`
     /// (mais recente primeiro) — mesma ordem de `get`. **Não** pesquisa
     /// `captured` nem `base`: mutar uma variável capturada por uma closure
-    /// (do seu scope de definição) ou da stdlib não é um caso medido/alcançado
-    /// (ver `rules/eval.md` §P715) — devolve `None`, tratado como "unknown
-    /// variable" pelo caller, tal como um nome inexistente.
+    /// (do seu scope de definição) não é um caso medido/alcançado (ver
+    /// `rules/eval.md` §P715) — devolve `None`, tratado como "unknown
+    /// variable" pelo caller. Mutar um nome de `base` (stdlib) também
+    /// devolve `None` aqui — mas **P772n** dá ao caller uma forma de
+    /// distinguir esse caso via `is_constant`, para reportar "cannot mutate
+    /// a constant" em vez de "unknown variable" (paridade vanilla,
+    /// `foundations/scope.rs:63-70`).
     pub fn get_mut(&mut self, name: &str) -> Option<&mut Value> {
         if let Some(v) = self.top.get_mut(name) {
             return Some(v);
@@ -160,6 +180,26 @@ impl<'a> Scopes<'a> {
             }
         }
         None
+    }
+
+    /// **P772n** — true sse `name` só é alcançável via `base` (stdlib e
+    /// outros bindings seedados no bootstrap do avaliador antes do âmbito
+    /// do documento começar), nunca via `top`/`scopes` (mutável) nem
+    /// `captured` (fecho de closure). Usado pelo caller de atribuição
+    /// para escolher a mensagem de erro correcta quando `get_mut` falha.
+    pub fn is_constant(&self, name: &str) -> bool {
+        if self.top.get(name).is_some() {
+            return false;
+        }
+        if self.scopes.iter().any(|scope| scope.get(name).is_some()) {
+            return false;
+        }
+        if let Some(cap) = &self.captured {
+            if cap.get(name).is_some() {
+                return false;
+            }
+        }
+        self.base.is_some_and(|base| base.global.get(name).is_some())
     }
 }
 
@@ -258,5 +298,46 @@ mod tests {
         let mut scopes = Scopes::with_parent(std::sync::Arc::new(base));
         assert!(scopes.get("x").is_some(), "get deve ver a variável capturada");
         assert!(scopes.get_mut("x").is_none(), "get_mut não deve alcançar captured");
+    }
+
+    // ── P772n — base real (Library) e is_constant ───────────────────────────
+
+    fn library_com_calc() -> Library {
+        let mut global = Scope::new();
+        global.define("calc", Value::Int(1));
+        Library::with_global(global)
+    }
+
+    #[test]
+    fn p772n_get_consulta_base_a_serio() {
+        let library = library_com_calc();
+        let scopes = Scopes::new(Some(&library));
+        assert_eq!(scopes.get("calc"), Some(&Value::Int(1)));
+    }
+
+    #[test]
+    fn p772n_get_mut_nunca_alcanca_base() {
+        let library = library_com_calc();
+        let mut scopes = Scopes::new(Some(&library));
+        assert!(scopes.get_mut("calc").is_none());
+    }
+
+    #[test]
+    fn p772n_is_constant_true_so_para_nome_de_base() {
+        let library = library_com_calc();
+        let scopes = Scopes::new(Some(&library));
+        assert!(scopes.is_constant("calc"));
+        assert!(!scopes.is_constant("nunca-existiu"));
+    }
+
+    #[test]
+    fn p772n_sombra_local_deixa_de_ser_constante() {
+        // Paridade vanilla: `#let calc = 5; #{ calc = 10 }` compila sem erro
+        // — a sombra em `top` é um binding normal, mutável.
+        let library = library_com_calc();
+        let mut scopes = Scopes::new(Some(&library));
+        scopes.define("calc", Value::Int(5));
+        assert!(!scopes.is_constant("calc"));
+        assert_eq!(scopes.get_mut("calc"), Some(&mut Value::Int(5)));
     }
 }

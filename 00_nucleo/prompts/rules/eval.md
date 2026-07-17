@@ -1,5 +1,5 @@
 # Prompt L0 — rules/eval
-Hash do Código: c22868dc
+Hash do Código: d924c9e3
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/rules/eval/mod.rs`
@@ -120,10 +120,16 @@ renderizado.
 - `Expr::None` → `Value::None`
 - `Expr::Ident` → lookup em Scopes, erro se não encontrado
 - `Expr::LetBinding` → eval_let: avalia init, define no scope activo
-- `Expr::CodeBlock` → evalua exprs sequencialmente via `body().exprs()`,
-  acumulando com `operators::join` por expressão (P728 — paridade vanilla
-  `typst-eval/src/code.rs:57`: `output = join(output, value)`; `None` é
-  identidade; combinações inválidas → erro; ver `rules/eval/ops.md` §P728)
+- `Expr::CodeBlock` → `scopes.enter()` antes do loop, evalua exprs
+  sequencialmente via `body().exprs()`, `scopes.exit()` depois (P772l —
+  paridade vanilla `typst-eval/src/code.rs:317-323`: o bloco introduz
+  âmbito léxico próprio; ver §P772l), acumulando com `operators::join`
+  por expressão (P728 — paridade vanilla `typst-eval/src/code.rs:57`:
+  `output = join(output, value)`; `None` é identidade; combinações
+  inválidas → erro; ver `rules/eval/ops.md` §P728)
+- `Expr::ContentBlock` → mesmo âmbito léxico próprio via
+  `scopes.enter()`/`scopes.exit()` em torno de `eval_markup` do corpo
+  (P772l — paridade vanilla `typst-eval/src/code.rs:326-332`)
 - `Expr::Binary(binary)` → eval_binary_op(binary.op(), lhs, rhs);
   `And`/`Or` têm braço dedicado com short-circuit (P728 — paridade vanilla
   `typst-eval/src/ops.rs:52-66`: `false and X` / `true or X` devolvem o
@@ -1332,7 +1338,9 @@ observável (ADR-0107) — usar o nome longo nestes erros.
 - **`access(expr, scopes, ctx, engine) -> SourceResult<&mut Value>`** —
   mirror do trait `Access` do vanilla, como free function (o cristalino
   não tem `Vm`; recebe as três partes). 4 braços + fallback avalia-e-erra.
-  `Ident` ausente → `"unknown variable: {name}"` (mesma convenção §P715).
+  `Ident` ausente → `scopes.is_constant(name)` decide entre
+  `"cannot mutate a constant: {name}"` e `"unknown variable: {name}"`
+  (P772n — antes desta correcção, sempre `unknown variable`; ver §P772n).
 - **`access_dict(fa, scopes, ctx, engine) -> SourceResult<&mut IndexMap<…>>`**
   — mirror de `access_dict`, com os três níveis de erro medidos acima.
   Braço "not yet mutable": Version, Length, Relative, Stroke, Align (o
@@ -1809,3 +1817,118 @@ construções directas de `Args {}`. Desproporcional para um caso de
 canto cosmético (dois extras de tipos diferentes; ambos os compiladores
 erram, só difere qual é reportado). O item permanece em
 `achados-adiados-cetz.md` com este custo registado.
+
+## §P772n — `cannot_mutate_constant`: bootstrap deixa de achatar a stdlib em `top`
+
+Sonda P772n mediu: vanilla (`foundations/scope.rs:63-70`,
+`Scopes::get_mut`) recusa mutar um nome que só existe em `base.global`
+(stdlib) — mensagem uniforme `"cannot mutate a constant: {name}"`,
+**sem variação por contexto** (confirmado com `calc`/`image`/`table`/
+`std`, todos idênticos). Um `#let calc = 5` local, que sombreia o nome no
+`top`/`scopes`, torna-o um binding **normal**, livremente mutável — sem
+erro (medido: `#let calc = 5; #{ calc = 10 }` compila no vanilla).
+
+Mecanismo vanilla: **estrutural**, não uma flag por-binding.
+`Scopes::get_mut` só pesquisa `top`/`scopes` — nunca `base`. A mensagem
+"cannot mutate a constant" vs "unknown variable" vem de uma verificação
+extra só no caminho de erro: se o nome existe em `base.global` (ou é
+literalmente `"std"`), é constante; senão é desconhecido.
+`BindingKind`/`Capturer` (P772l §2.2) é um mecanismo **diferente**, só
+para variável capturada por closure/`context` — **não** está envolvido
+aqui, e não foi implementado neste passo (decisão explícita, ver relatório
+`paridade-producao-p772n.md`).
+
+Causa raiz no cristalino (`61b7edee7`, antes desta correcção): o
+bootstrap do avaliador (`eval/mod.rs::eval_with_full_error::run_pass`,
+espelhado em `eval/modules.rs::eval_imported_file`) fazia
+`scopes.define(name, ...)` para *cada* item da stdlib, cores predefinidas,
+`std`, `text` e elementos de utilizador — todos a aterrar em `scopes.top`,
+seguido de `scopes.enter()` para abrir um novo `top` para o corpo do
+documento. Isto tornava a stdlib **indistinguível** de bindings normais:
+`get_mut("calc")` encontrava-a no frame de `scopes` (empurrado pelo
+`enter()`) e mutava-a sem erro. `Scopes.base: Option<&'a Library>` já
+existia (`rules/scopes.md`) mas era sempre `None` em todos os call sites
+— `Library` (`world-types.md`) era um stub opaco `()` desde a criação
+(Passo 4/5, nunca completado).
+
+### Correcção
+
+1. `Library` (`world-types.md`) ganha um campo `global: Scope`.
+   `Library::new()` mantém-se (produz `global` vazio) — preserva os ~30
+   mocks de `World` em testes não relacionados com eval/stdlib.
+   `Library::with_global(scope)` é o construtor novo, usado só no
+   bootstrap real.
+2. `eval/mod.rs`/`eval/modules.rs`: em vez de `scopes.define(...)` +
+   `scopes.enter()`, constrói um `Scope` local (`global`) com a mesma
+   sequência de definições de sempre, embrulha-o em
+   `Library::with_global(global)`, e chama
+   `Scopes::new(Some(&library))`. Sem `enter()` inicial — o `top` fica
+   directamente disponível para o corpo do documento/módulo importado
+   (o `scopes.exit()` final continua a funcionar sem alteração: sem
+   `scopes` empurrado, `pop().unwrap_or_default()` devolve `Scope`
+   vazio, e o `top` do documento é devolvido como sempre).
+3. `Scopes::get` (`rules/scopes.md`) deixa de ter `base` como stub —
+   consulta real `base.global.get(name)` como último recurso.
+4. `Scopes::is_constant(name) -> bool` (novo, `rules/scopes.md`) — true
+   sse `name` só é alcançável via `base`.
+5. `eval/bindings.rs::access`, braço `Expr::Ident` em mutação: quando
+   `get_mut` falha, `is_constant` decide entre as duas mensagens.
+
+### Critérios de verificação
+
+- `#{ calc = 5 }`, `#{ image = 5 }`, `#{ table = 5 }`, `#{ std = 5 }` →
+  `error: cannot mutate a constant: {name}`, span no identificador.
+- `#let calc = 5; #{ calc = 10 }; #calc` → sem erro, `calc` mostra `10`
+  (sombra local continua mutável).
+- `#{ zzz = 5 }` (nome nunca definido) → continua `unknown variable: zzz`
+  (não regride).
+- Ficheiro importado (`#import`) com `#{ calc = 5 }` no seu próprio
+  top-level → mesmo erro (mesma correcção em `eval_imported_file`).
+
+## §P772l — `CodeBlock`/`ContentBlock` não isolavam bindings de `let` (fuga de âmbito)
+
+Sonda P772l (varredura `foundations::scope`) mediu, com `mutool`/`pdftotext`
+em documento real:
+
+```
+#let x1 = 1
+Bloco: #{ let x1 = 2; x1 }
+Depois: #x1
+```
+
+Vanilla (`typst-eval/src/code.rs:317-332`, `ast::CodeBlock::eval` e
+`ast::ContentBlock::eval`): ambos chamam `vm.scopes.enter()` antes de avaliar
+o corpo e `vm.scopes.exit()` depois — o bloco introduz um âmbito léxico
+próprio. Saída: `Bloco: 2` / `Depois: 1`.
+
+Cristalino (commit `61b7edee7`, antes desta correcção): `Expr::CodeBlock` e
+`Expr::ContentBlock` em `01_core/src/rules/eval/mod.rs` construíam
+`styles`/`show_rules` locais (Passos 94/95, P340) mas avaliavam o corpo
+directamente no `scopes` do chamador — sem `scopes.enter()`/`exit()`. Um
+`let` dentro do bloco mutava a entrada existente no âmbito do chamador (ou
+criava uma nova lá) e **sobrevivia à saída do bloco**. Saída medida:
+`Bloco: 2` / `Depois: 2` — a fuga também reproduzida em `#if cond { let x =
+.. }` (o corpo do ramo é um `CodeBlock`) e em `#[ #let x = ..; .. ]`
+(`ContentBlock`). `#while`/`#for` não tinham o problema — os seus corpos
+(`control_flow::eval_while`/`eval_for`) já isolavam o âmbito por outro
+caminho, não partilhado com `CodeBlock`/`ContentBlock`.
+
+Este era **o mesmo mecanismo `Scopes::enter()`/`exit()`** já especificado e
+testado em `rules/scopes.md`/`scopes.rs` (shadowing, `enter`/`exit`
+simétrico) — o bug não estava na struct `Scopes`, estava na ausência da
+chamada nos dois pontos de consumo em `eval/mod.rs`. Não introduz tipo,
+dependência ou decisão arquitectural nova: usa a API já aprovada.
+
+**Correcção**: `scopes.enter()` imediatamente antes do corpo (loop de
+`CodeBlock` / `eval_markup` de `ContentBlock`) e `scopes.exit()`
+imediatamente depois, espelhando literalmente o vanilla — incluindo não
+limpar em caminho de erro (`?` salta o `exit()`, inofensivo porque aborta a
+compilação, igual ao vanilla).
+
+### Critérios de verificação
+
+- `#let x = 1; #{ let x = 2; x }; #x` → `2`, depois `1` (não `2`, `2`).
+- `#if true { let x = 2; x }` seguido de `#x` fora → mesmo padrão.
+- `#[ #let x = 2; #x ]` seguido de `#x` fora → mesmo padrão.
+- `#while`/`#for` — não regride (já isolavam correctamente).
+- `cargo test --workspace` verde; `crystalline-lint .` zero violações.

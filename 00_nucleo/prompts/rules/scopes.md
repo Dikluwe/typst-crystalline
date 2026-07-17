@@ -1,5 +1,5 @@
 # Prompt L0 — `rules/scopes`
-Hash do Código: 7820eb72
+Hash do Código: 388da7f7
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/rules/scopes.rs`
@@ -97,13 +97,55 @@ impl<'a> Scopes<'a> {
 
     /// Pesquisa um nome do âmbito mais local para o mais global.
     /// Ordem: top → scopes (reverso) → captured → base.
+    /// **P772n**: `base` deixou de ser stub — consulta real a
+    /// `base.global` como último recurso.
     pub fn get(&self, name: &str) -> Option<&Value>
 
     /// Itera sobre todos os bindings visíveis (para snapshot e diagnóstico).
     /// Ordem: captured → scopes[0] → ... → top (mais recente sobrescreve).
     pub fn iter_all(&self) -> impl Iterator<Item = (&str, &Value)> + '_
+
+    /// **P772n** — true se `name` só é alcançável via `base` (stdlib e
+    /// outros bindings seedados antes do âmbito do documento começar),
+    /// nunca via `top`/`scopes` (mutável) nem `captured` (fecho). Usado
+    /// pelo caller de atribuição (`eval/bindings.rs::access`) para
+    /// escolher entre `"cannot mutate a constant: {name}"` e
+    /// `"unknown variable: {name}"` quando `get_mut` falha — paridade
+    /// vanilla `Scopes::get_mut` (`foundations/scope.rs:63-70`).
+    pub fn is_constant(&self, name: &str) -> bool
 }
 ```
+
+---
+
+## Protecção de bindings constantes (P772n)
+
+`Scopes::get_mut` (já existente desde P715) **nunca** pesquisa `captured`
+nem `base` — só `top`/`scopes`. Isto por si só já torna qualquer binding
+de `base` estruturalmente imutável, **sem precisar de nenhum campo
+adicional em `Binding`** (ao contrário da hipótese inicial de P772n, que
+assumia um `BindingKind::Const`; a sonda desse passo confirmou que o
+vanilla protege a stdlib por **separação estrutural de âmbito**
+(`base` nunca alcançado por `get_mut`), não por uma flag por-binding —
+`BindingKind`/`Capturer` no vanilla existe só para o caso, distinto, de
+variável capturada por closure/`context`, fora do âmbito de P772n).
+
+`is_constant` fecha o único buraco que essa estrutura por si só não
+resolve: **a mensagem de erro**. Sem ela, `access()` (`eval/bindings.rs`)
+não tem como distinguir "não encontrado em lado nenhum" (`unknown
+variable`) de "encontrado em `base`, mas `base` não é mutável" (`cannot
+mutate a constant`) — ambos os casos fazem `get_mut` devolver `None`.
+
+Quem popula `base` (bootstrap do avaliador, `eval/mod.rs`/`eval/modules.rs`)
+deixa de fazer `scopes.define(name, ...)` directamente em `top` para a
+stdlib/cores/`std`/`text`/elementos de utilizador — em vez disso constrói
+um `Scope` próprio e embrulha-o em `Library::with_global(scope)`
+(`world-types.md`), passado a `Scopes::new(Some(&library))`. Um `#let`
+do documento que sombreia um nome da stdlib (`#let calc = 5`) continua a
+criar um binding **normal** em `top` — mutável como qualquer outro,
+porque `get_mut` encontra-o aí **antes** de sequer considerar `base`
+(paridade vanilla, medido em P772n: `#let calc = 5; #{ calc = 10 }`
+compila sem erro no vanilla).
 
 ---
 
@@ -129,6 +171,18 @@ define("global", ..) + enter() + define("local", ..) + exit()
 define("x", V1) + enter() + define("x", V2)
 → top.get("x") = Some(V2)
 → scopes.last().get("x") = Some(V1)
+
+// P772n — base é lido, nunca mutável, is_constant distingue os dois erros
+library = Library::with_global({"calc": Value::Module(..)})
+Scopes::new(Some(&library)) → get("calc") = Some(..)
+Scopes::new(Some(&library)) → get_mut("calc") = None
+Scopes::new(Some(&library)) → is_constant("calc") = true
+Scopes::new(Some(&library)) → is_constant("nope") = false  // não existe em lado nenhum
+
+// Sombra de nome de base continua mutável (paridade vanilla)
+Scopes::new(Some(&library)) + define("calc", Value::Int(5))
+→ get_mut("calc") = Some(&mut Value::Int(5))  // encontrado em top, base nem chega a ser consultado
+→ is_constant("calc") = false
 ```
 
 ---

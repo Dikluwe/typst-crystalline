@@ -1,5 +1,5 @@
 # world_types — stubs opacos para contratos de World
-Hash do Código: f6c26f3d
+Hash do Código: 0be34396
 
 **Camada**: L1 — entities
 **Criado em**: 2026-03-22
@@ -27,7 +27,7 @@ aplicado a tipos bloqueantes. O contrato público (o tipo em si)
 |------|------------|---------------|
 | `Bytes` | `Vec<u8>` | Passo 5 (infra) |
 | `Font` | `Vec<u8>` | Passo 5 (infra) |
-| `Library` | `()` opaco | Passo 4 (eval) |
+| `Library` | `Scope` real (`global`) | **P772n** (era `()` opaco desde a criação — substituído em P772n) |
 | `FontBook` | `()` opaco | Passo 5 (infra) |
 | `Datetime` | campos primitivos | Passo 4 ou permanente |
 | `FileResult<T>` | `Result<T, FileError>` | permanente |
@@ -62,8 +62,15 @@ impl Bytes {
 /// Fonte tipográfica carregada. Opaca até Passo 5.
 pub struct Font(Vec<u8>);
 
-/// Biblioteca de valores e funções do Typst. Opaca até Passo 4.
-pub struct Library(());
+/// Biblioteca de valores e funções do Typst — âmbito base do documento.
+/// **P772n**: materializada com um `Scope` real (`global`). `Library::new()`
+/// continua a existir (produz `global` vazio) — usado por dezenas de mocks
+/// de `World` em testes não relacionados com eval/stdlib, que não precisam
+/// de uma stdlib real. `Library::with_global(scope)` é o construtor usado
+/// pelo bootstrap real do avaliador (`eval/mod.rs`, `eval/modules.rs`).
+pub struct Library {
+    pub global: Scope,
+}
 
 /// Catálogo de fontes com metadados. Opaco até Passo 5.
 pub struct FontBook(());
@@ -121,22 +128,44 @@ Dado Source { id: FileId::from_raw(1), text: "hello".into() }
 Quando text for acedido
 Então "hello"
 
-Dado que Library e FontBook são opacos
-Quando instanciados
-Então compilam sem erros
-Quando inspeccionados por fora do módulo
+Dado que FontBook é opaco
+Quando instanciado
+Então compila sem erros
+Quando inspeccionado por fora do módulo
 Então o interior não é acessível
+
+Dado Library::new()
+Quando global for acedido
+Então Scope vazio (len() == 0)
+
+Dado Library::with_global(scope) com "calc" definido
+Quando global.get("calc") for chamado
+Então Some(&Value dessa binding)
 ```
 
 ---
 
 ## Nota sobre Library e FontBook
 
-`Library(())` e `FontBook(())` são intencionalmente opacos e
-não constroem instâncias úteis neste passo. O seu propósito
-é apenas satisfazer as assinaturas de `World`. Nos testes
-de `World`, usar mocks que retornam `&Library` via referência
-a um campo da struct de mock — não construir `Library` directamente.
+`FontBook(())` continua intencionalmente opaco — não constrói instâncias
+úteis neste passo.
+
+`Library` (**P772n**) deixou de ser opaca: tem um campo público `global:
+Scope`. `Library::new()` continua a existir e a produzir um `global` vazio
+— preserva compatibilidade com as dezenas de mocks de `World` em testes
+que não exercitam eval/stdlib e só precisam de satisfazer a assinatura de
+`fn library(&self) -> &Library`. O bootstrap real do avaliador usa
+`Library::with_global(scope)`, onde `scope` é a stdlib + cores predefinidas
++ `std` + `text` + elementos de utilizador — tudo o que antes era
+achatado directamente em `Scopes.top` (`eval/mod.rs`/`eval/modules.rs`),
+tornando-o indistinguível de bindings normais do documento e por isso
+mutável sem erro (causa raiz de P772l §2.3 / P772n).
+
+`Scopes<'a>.base: Option<&'a Library>` (`rules/scopes.md`) é o único
+consumidor: `Scopes::get` consulta `base.global` como último recurso
+(leitura); `Scopes::get_mut` **nunca** consulta `base` — é exactamente
+essa ausência estrutural que torna os bindings de `global` imutáveis,
+sem precisar de nenhum campo `kind`/`BindingKind` em `Binding`.
 
 ---
 
@@ -145,3 +174,4 @@ a um campo da struct de mock — não construir `Library` directamente.
 | Data | Motivo | Arquivos afetados |
 |------|--------|-------------------|
 | 2026-03-22 | Criação inicial — stubs para World trait (ADR-0005) | world_types.rs |
+| 2026-07-16 | P772n — `Library` materializada com `global: Scope` real (era `()` opaco desde a criação; "Passo 4" nunca completado, a stdlib era achatada em `Scopes.top` em vez de usar `Library`). Fecha a causa raiz de P772l §2.3 (`cannot_mutate_constant`). | world_types.rs |
