@@ -1,8 +1,7 @@
 # ⚖️ ADR-0002: Hierarquia de Contenção como Mecanismo de Layout
 
-**Status**: `IDEIA`
-**Nota**: direcção registada para consideração futura; não
-materializar em L1 sem reavaliação prévia.
+**Status**: `REVOGADO` (2026-07-17)
+**Nota**: revogada por não entrar em paridade com o comportamento de saída do vanilla. Poderá ser reavaliada no futuro para testes de desempenho quando a paridade for garantida.
 **Data**: 2026-03-22
 **Contexto**: migração Typst → Arquitetura Cristalina
 
@@ -175,3 +174,9 @@ o nível onde a diferença face ao Typst actual é mais mensurável.
 - Typst actual: `typst-layout` em `lab/typst-original/crates/`
 - ADR-0001 — estratégia de migração e pipeline cristalino
 - ADR-0003 — relação com comemo
+
+---
+
+## Anotação cumulativa (2026-07-17)
+
+Esta ADR é marcada como **REVOGADA** porque a hierarquia de contenção e o modelo proposto de escopos declarados de layout divergem do comportamento e da paridade de saída do compilador vanilla. No entanto, no futuro, quando o compilador cristalino atingir a paridade funcional completa com o vanilla, a ideia de controle de escopo e hierarquia de contenção poderá ser revisitada e testada experimentalmente para fins de medição e otimização de desempenho.

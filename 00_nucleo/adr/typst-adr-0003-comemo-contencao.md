@@ -1,8 +1,7 @@
 # ⚖️ ADR-0003: comemo e Hierarquia de Contenção — Coexistência
 
-**Status**: `IDEIA`
-**Nota**: direcção registada para consideração futura; não
-materializar em L1 sem reavaliação prévia.
+**Status**: `REVOGADO` (2026-07-17)
+**Nota**: revogada em decorrência da revogação da ADR-0002. Poderá ser reavaliada no futuro para testes de desempenho quando a paridade for garantida.
 **Data**: 2026-03-22
 **Contexto**: migração Typst → Arquitetura Cristalina
 
@@ -152,3 +151,9 @@ cristalino.
 - ADR-0002 — hierarquia de contenção e `InteractionScope`
 - comemo: https://github.com/typst/comemo
 - `lab/typst-original/crates/typst-eval/` — uso actual de `Tracked<dyn World>`
+
+---
+
+## Anotação cumulativa (2026-07-17)
+
+Esta ADR é marcada como **REVOGADA** em decorrência da revogação da [ADR-0002](file:///home/dikluwe/Documentos/Antigravity/typst-crystalline/00_nucleo/adr/typst-adr-0002-hierarquia-contencao.md). Como a proposta de hierarquia de contenção divergia do comportamento e da paridade de saída do compilador vanilla, o modelo de coexistência com o `comemo` torna-se obsoleto no presente. Contudo, quando a paridade funcional completa com o vanilla for consolidada, ambas as ADRs poderão ser reavaliadas e testadas experimentalmente para fins de benchmarking.

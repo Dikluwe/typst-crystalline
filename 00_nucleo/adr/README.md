@@ -134,8 +134,8 @@ que corresponde a mudança específica no código.
 | ADR | Título curto | Status |
 |-----|--------------|--------|
 | 0001 | Estratégia de migração (Opção C) | `IMPLEMENTADO` |
-| 0002 | Hierarquia de contenção | `IDEIA` |
-| 0003 | comemo + contenção | `IDEIA` |
+| 0002 | Hierarquia de contenção | `REVOGADO` |
+| 0003 | comemo + contenção | `REVOGADO` |
 | 0004 | Passo 1 descobertas | `IMPLEMENTADO` |
 | 0005 | PackageSpec World | `PROPOSTO` |
 | 0006 | typst_timing | `PROPOSTO` |
@@ -316,7 +316,7 @@ documentado no projecto cristalino).
   §"Simplificações aceites apenas com ADR explícita").
   **PROPOSTO 10 preservado** (ADR-0083 entra e sai no mesmo
   passo via promoção P257.D).
-- `IDEIA`: 2 ADRs (0002, 0003).
+- `IDEIA`: 0 ADRs.
 - `EM VIGOR`: **34** ADRs pós-P272 (regras/políticas activas;
   0018, 0029, 0030, 0032–0051, 0054, 0058, 0059, **0064, 0065**,
   **0080** P229, **0082** P254, **+0084 P260** auditoria
@@ -333,7 +333,7 @@ documentado no projecto cristalino).
   Conic-only, **0091 P270** Gradient ColorSpace runtime
   cross-variant + CMYK strategy, **+0092 P270.3** Conic Type 6
   Coons Patch Mesh).
-- `REVOGADO`: **3** ADRs pós-P272 (0007, 0028, **+0090 P272**
+- `REVOGADO`: **5** ADRs pós-P272 (0002, 0003, 0007, 0028, **+0090 P272**
   Type 4 Gouraud descontinuado — substituída por ADR-0092 expandida).
 - `ADIADO`: 1 ADR (0020).
 
@@ -346,6 +346,8 @@ com **número novo** substitui. Campos simétricos:
 `**Revoga**` (no ADR novo) e `**Revogado por**` (no ADR revogado).
 
 ```
+ADR-0002 (Hierarquia de contenção)   ◄─revogado por─  (sem substituta; divergência de paridade)
+ADR-0003 (comemo + contenção)        ◄─revogado por─  (sem substituta; dependente da ADR-0002)
 ADR-0007 (rustc_hash substituído)    ◄─revogado por─  ADR-0018 (rustc_hash reintroduzido)
 ADR-0028 (tipos tipográficos)        ◄─revogado por─  ADR-0029 (pureza física)
 ADR-0090 (Type 4 Gouraud strategy)   ◄─revogado por─  ADR-0092 expandida (Coons unified P272)
