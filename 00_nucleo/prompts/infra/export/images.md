@@ -1,5 +1,5 @@
 # Prompt L0 — `infra/export/images` — Imagens PDF
-Hash do Código: 85429e58
+Hash do Código: 1b152171
 
 **Camada**: L3
 **Ficheiro alvo**: `03_infra/src/export/images.rs`
@@ -26,7 +26,13 @@ Cluster completo para emit de imagens em PDF:
 
 - L3. Usa `image` crate (decoding), `flate2` (zlib). Não FS.
 - `PdfImagePayload` e `process_png_for_pdf` são `pub` — API exposta via re-export em `export/mod.rs`.
-- `ImageFormat`, `ImageRef`, `ImageXObject`, `scan_all_images`, etc. são `pub(super)` para uso interno (`super::builder`, `super::stream`).
+- **P772p** — `ImageFormat`/`detect_format` **movidos para L1**
+  (`entities/image-format.md`, `typst_core::entities::image_format::{ImageFormat, detect_image_format}`)
+  — reutilizados aqui via `use`, não redefinidos. Motivo: `native_image`
+  (L1, avaliação) precisa da mesma detecção para dar erro de compilação em
+  vez de omissão silenciosa (P650/P772k); é pura detecção de assinatura,
+  sem I/O, 100% legal em L1 — mover evita duplicar a lógica entre camadas.
+- `ImageRef`, `ImageXObject`, `scan_all_images`, etc. são `pub(super)` para uso interno (`super::builder`, `super::stream`).
 - Builders de XObject (`build_jpeg_xobject`, `build_png_smask_xobject`, `build_png_rgb_xobject`) são `pub(super)`.
 - `compress_zlib` é `pub(super)` — partilhável com `gradients/conic.rs` se Pattern shading streams forem comprimidos.
 
@@ -41,8 +47,7 @@ pub struct PdfImagePayload {
 }
 pub fn process_png_for_pdf(raw_data: &[u8]) -> Result<PdfImagePayload, String>;
 
-pub(super) enum ImageFormat { Jpeg, Png, Unknown }
-pub(super) fn detect_format(data: &[u8]) -> ImageFormat;
+// ImageFormat/detect_format: ver entities/image-format.md (L1, P772p) — importados, não redefinidos aqui.
 pub(super) fn jpeg_color_space(data: &[u8]) -> &'static str;
 pub(super) fn jpeg_is_rgb(data: &[u8]) -> bool;
 pub(super) fn compress_zlib(data: &[u8]) -> Result<Vec<u8>, String>;

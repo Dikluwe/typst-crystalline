@@ -30,7 +30,7 @@ use super::{
     build_png_smask_xobject, collect_codepoints, collect_glyph_ids,
     collect_shaped_cluster_texts, collect_shaped_glyph_mappings,
     collect_text_codepoints, compute_axial_coords, compute_radial_coords,
-    detect_format, emit_conic_coons_stream_cmyk, emit_conic_coons_stream_rgb,
+    detect_image_format, emit_conic_coons_stream_cmyk, emit_conic_coons_stream_rgb,
     emit_function_dict, emit_function_dict_cmyk, jpeg_color_space, jpeg_is_rgb,
     map_chars_to_glyphs, multispace_sample_stops,
     multispace_sample_stops_linear_cmyk, multispace_sample_stops_radial,
@@ -51,7 +51,7 @@ fn has_rgb_jpeg(doc: &PagedDocument) -> bool {
         for item in items {
             match item {
                 FrameItem::Image { data, .. } => {
-                    if detect_format(data) == ImageFormat::Jpeg && jpeg_is_rgb(data) {
+                    if detect_image_format(data) == ImageFormat::Jpeg && jpeg_is_rgb(data) {
                         return true;
                     }
                 }

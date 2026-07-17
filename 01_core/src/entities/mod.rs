@@ -82,6 +82,7 @@ pub mod sink;
 pub mod style;
 pub mod style_chain;
 pub mod image_sizer;
+pub mod image_format;
 pub mod geometry;
 // P261 — Paint wrapper enum (Solid only) per ADR-0086.
 pub mod paint;

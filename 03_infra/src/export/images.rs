@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/export/images.md
-//! @prompt-hash 1bb40ed1
+//! @prompt-hash 11940dcb
 //! @layer L3
 //! @updated 2026-05-19
 //!
@@ -22,6 +22,7 @@ use std::sync::Arc;
 use flate2::Compression;
 use flate2::write::ZlibEncoder;
 
+pub(super) use typst_core::entities::image_format::{ImageFormat, detect_image_format};
 use typst_core::entities::layout_types::{FrameItem, Page, PagedDocument};
 
 /// **P777** — perfil ICC sRGB compacto (480 bytes, compatível com lcms2).
@@ -72,23 +73,6 @@ const SRGB_ICC_PROFILE: &[u8] = &[
 /// **P777** — devolve os bytes do perfil ICC sRGB partilhado.
 pub(super) fn srgb_icc_profile_bytes() -> &'static [u8] {
     SRGB_ICC_PROFILE
-}
-
-#[derive(Debug, Clone, Copy, PartialEq)]
-pub(super) enum ImageFormat {
-    Jpeg,
-    Png,
-    Unknown,
-}
-
-pub(super) fn detect_format(data: &[u8]) -> ImageFormat {
-    if data.starts_with(&[0xFF, 0xD8, 0xFF]) {
-        ImageFormat::Jpeg
-    } else if data.starts_with(&[0x89, b'P', b'N', b'G', 0x0D, 0x0A, 0x1A, 0x0A]) {
-        ImageFormat::Png
-    } else {
-        ImageFormat::Unknown
-    }
 }
 
 /// Lê o marcador SOF0 (0xC0) ou SOF2 (0xC2) do cabeçalho JPEG para determinar
@@ -311,7 +295,7 @@ fn process_image_item(
     let name = format!("Im{}", *counter);
     *counter += 1;
 
-    match detect_format(data) {
+    match detect_image_format(data) {
         ImageFormat::Jpeg => {
             let main_id = *next_id;
             *next_id += 1;

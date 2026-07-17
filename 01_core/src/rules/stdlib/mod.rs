@@ -4174,9 +4174,12 @@ mod tests {
     #[test]
     fn native_image_retorna_content_image() {
         let mut world = NullWorld::default();
-        world
-            .files
-            .insert("foto.png".to_string(), std::sync::Arc::new(vec![1, 2, 3]));
+        // P772p — `native_image` valida a assinatura do formato; bytes
+        // arbitrários já não passam (antes eram aceites sem verificação).
+        world.files.insert(
+            "foto.png".to_string(),
+            std::sync::Arc::new(vec![0x89, b'P', b'N', b'G', 0x0D, 0x0A, 0x1A, 0x0A]),
+        );
         let _dummy_id = crate::entities::file_id::FileId::from_raw(
             std::num::NonZeroU16::new(1).unwrap(),
         );
@@ -4191,6 +4194,50 @@ mod tests {
         null_ctx!(ctx);
         let args = p(vec![Value::Str("naoexiste.png".into())]);
         assert!(native_image(&mut ctx, &args, &null_world(), test_file_id()).is_err());
+    }
+
+    // ── P772p — formato inválido/desconhecido/SVG dá erro, não omissão ────────
+    // Medido: antes, `#image("bogus.png")` com bytes corrompidos compilava com
+    // exit 0, PDF sem a imagem (P650/P772k). Vanilla erra com "unknown image
+    // format" para bytes sem assinatura reconhecível.
+
+    #[test]
+    fn native_image_formato_desconhecido_gera_erro() {
+        let mut world = NullWorld::default();
+        world.files.insert(
+            "bogus.png".to_string(),
+            std::sync::Arc::new(b"\x00\x01\x02\x03garbage-not-an-image".to_vec()),
+        );
+        let mut ctx = EvalContext::new();
+        let args = p(vec![Value::Str("bogus.png".into())]);
+        let err = native_image(&mut ctx, &args, &world, test_file_id()).unwrap_err();
+        assert_eq!(err[0].message, "unknown image format");
+    }
+
+    #[test]
+    fn native_image_svg_gera_erro_nao_suportado() {
+        let mut world = NullWorld::default();
+        world.files.insert(
+            "test.svg".to_string(),
+            std::sync::Arc::new(b"<svg xmlns=\"http://www.w3.org/2000/svg\"></svg>".to_vec()),
+        );
+        let mut ctx = EvalContext::new();
+        let args = p(vec![Value::Str("test.svg".into())]);
+        let err = native_image(&mut ctx, &args, &world, test_file_id()).unwrap_err();
+        assert_eq!(err[0].message, "SVG images are not supported yet");
+    }
+
+    #[test]
+    fn native_image_jpeg_valido_sem_regressao() {
+        let mut world = NullWorld::default();
+        world.files.insert(
+            "foto.jpg".to_string(),
+            std::sync::Arc::new(vec![0xFF, 0xD8, 0xFF, 0xE0]),
+        );
+        let mut ctx = EvalContext::new();
+        let args = p(vec![Value::Str("foto.jpg".into())]);
+        let result = native_image(&mut ctx, &args, &world, test_file_id()).unwrap();
+        assert!(matches!(result, Value::Content(Content::Image(_))));
     }
 
     #[test]

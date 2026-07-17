@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/rules/stdlib/figure_image.md
-//! @prompt-hash 85c42418
+//! @prompt-hash d0d66b5b
 //! @layer L1
 //! @updated 2026-04-23
 //!
@@ -11,6 +11,7 @@ use crate::entities::args::Args;
 use crate::entities::file_id::FileId;
 use crate::entities::content::Content;
 use ecow::EcoString;
+use crate::entities::image_format::{ImageFormat, detect_image_format};
 use crate::entities::ptr_eq_arc::PtrEqArc;
 use crate::entities::span::Span;
 use crate::entities::source_result::{SourceDiagnostic, SourceResult};
@@ -132,6 +133,28 @@ pub fn native_image(_ctx: &mut EvalContext, args: &Args, world: &dyn crate::cont
             format!("image(): não foi possível ler '{}': {}", path, msg),
         )]),
     };
+
+    // P772p — antes: formato não reconhecido/corrompido era omitido em
+    // silêncio na exportação PDF (L3, `eprintln!`), sem erro de compilação
+    // (P650 item 2, P772k). Validação de assinatura movida para aqui
+    // (avaliação, L1) — paridade textual com o vanilla para o caso
+    // "unknown image format" (`typst_library::visualize::image::mod.rs:344`).
+    // Não decodifica a imagem inteira (pureza de L1) — só a assinatura;
+    // corrupção mais funda que a assinatura ainda escapa para o exportador
+    // (limitação registada em `entities/image-format.md`).
+    let lower_path = path.to_lowercase();
+    if lower_path.ends_with(".svg") || lower_path.ends_with(".svgz") {
+        return Err(vec![SourceDiagnostic::error(
+            Span::detached(),
+            "SVG images are not supported yet".to_string(),
+        )]);
+    }
+    if detect_image_format(&data) == ImageFormat::Unknown {
+        return Err(vec![SourceDiagnostic::error(
+            Span::detached(),
+            "unknown image format".to_string(),
+        )]);
+    }
 
     let width  = args.named.get("width").cloned().map(Box::new);
     let height = args.named.get("height").cloned().map(Box::new);

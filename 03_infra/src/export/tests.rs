@@ -554,22 +554,22 @@ use typst_core::rules::layout::layout;
 
     #[test]
     fn detect_format_jpeg() {
-        assert_eq!(detect_format(&[0xFF, 0xD8, 0xFF, 0xE0]), ImageFormat::Jpeg);
-        assert_eq!(detect_format(&[0xFF, 0xD8, 0xFF, 0x00]), ImageFormat::Jpeg);
+        assert_eq!(detect_image_format(&[0xFF, 0xD8, 0xFF, 0xE0]), ImageFormat::Jpeg);
+        assert_eq!(detect_image_format(&[0xFF, 0xD8, 0xFF, 0x00]), ImageFormat::Jpeg);
     }
 
     #[test]
     fn detect_format_png() {
         assert_eq!(
-            detect_format(&[0x89, b'P', b'N', b'G', 0x0D, 0x0A, 0x1A, 0x0A, 0x00]),
+            detect_image_format(&[0x89, b'P', b'N', b'G', 0x0D, 0x0A, 0x1A, 0x0A, 0x00]),
             ImageFormat::Png,
         );
     }
 
     #[test]
     fn detect_format_unknown() {
-        assert_eq!(detect_format(&[0x00, 0x01, 0x02]), ImageFormat::Unknown);
-        assert_eq!(detect_format(&[]), ImageFormat::Unknown);
+        assert_eq!(detect_image_format(&[0x00, 0x01, 0x02]), ImageFormat::Unknown);
+        assert_eq!(detect_image_format(&[]), ImageFormat::Unknown);
     }
 
     #[test]
