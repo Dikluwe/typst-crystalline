@@ -7,7 +7,7 @@
 
 ## Resumo
 
-Implementado parser BibTeX minimal em `01_core/src/rules/eval/bibtex.rs` e
+Implementado parser BibTeX minimal em `01_core/src/engine/eval/bibtex.rs` e
 integrado no carregamento de `#bibliography("refs.bib")`. Ficheiros `.bib`
 usam agora o parser custom; `.yaml`/`.yml` continuam a usar `hayagriva::io`.
 Foi também adicionado `SystemWorld::load_bibliography` em `03_infra/src/world.rs`
@@ -19,7 +19,7 @@ como helper L3 para consumidores directos do filesystem.
 
 ### Modelo
 
-- **Parser custom (`01_core/src/rules/eval/bibtex.rs`)** — parser recursivo
+- **Parser custom (`01_core/src/engine/eval/bibtex.rs`)** — parser recursivo
   descendente que cobre o subset BibTeX usado pelo Typst:
   - Tipos: `article`, `book`, `inproceedings`, `misc`, `phdthesis`, `techreport`.
   - Campos obrigatórios: `title`, `author`, `year`.
@@ -35,14 +35,14 @@ como helper L3 para consumidores directos do filesystem.
 
 | Ficheiro | Alteração |
 |----------|-----------|
-| `01_core/src/rules/eval/bibtex.rs` | Parser BibTeX minimal + 8 testes L1 (novo ficheiro). |
-| `01_core/src/rules/eval/mod.rs` | Declaração `pub mod bibtex;`. |
-| `01_core/src/rules/eval/bibliography.rs` | `.bib` redireccionado para parser custom; YAML mantido. |
-| `01_core/src/rules/eval/tests.rs` | Teste L3 E2E `p450_bibliography_path_bib_popula_entries`. |
+| `01_core/src/engine/eval/bibtex.rs` | Parser BibTeX minimal + 8 testes L1 (novo ficheiro). |
+| `01_core/src/engine/eval/mod.rs` | Declaração `pub mod bibtex;`. |
+| `01_core/src/engine/eval/bibliography.rs` | `.bib` redireccionado para parser custom; YAML mantido. |
+| `01_core/src/engine/eval/tests.rs` | Teste L3 E2E `p450_bibliography_path_bib_popula_entries`. |
 | `03_infra/src/world.rs` | `SystemWorld::load_bibliography` + 2 testes L2 de file I/path relativo. |
 | `00_nucleo/prompts/infra/bibtex.md` | Spec L0 do parser (novo). |
 | `00_nucleo/prompts/infra/system-world.md` | Documentação de `load_bibliography`. |
-| `00_nucleo/prompts/rules/stdlib/structural.md` | Actualização da secção `native_bibliography` (parser custom, .yaml/.yml, .json scope-out). |
+| `00_nucleo/prompts/engine/stdlib/structural.md` | Actualização da secção `native_bibliography` (parser custom, .yaml/.yml, .json scope-out). |
 
 ### Notas
 

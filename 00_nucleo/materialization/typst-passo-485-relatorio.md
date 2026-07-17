@@ -153,10 +153,10 @@ FontScenario::Cidfont { .. } => {
 | Ficheiro | `@prompt-hash` pós-P485 | Alteração |
 |----------|------------------------|-----------|
 | `01_core/src/entities/layout_types.rs` | `4a80d5c8` | Campo `units_per_em: u16` + 2 testes P485 |
-| `01_core/src/rules/layout/cursor.rs` | inalterado | `units_per_em` em reconstrução TextShaped (×2) |
-| `01_core/src/rules/layout/helpers.rs` | inalterado | `units_per_em` em `translate_frame_item` |
-| `01_core/src/rules/layout/slicing.rs` | inalterado | `units_per_em` em `rebase_item_y` |
-| `01_core/src/rules/math/layout/mod.rs` | inalterado | `units_per_em` em `offset_item` |
+| `01_core/src/engine/layout/cursor.rs` | inalterado | `units_per_em` em reconstrução TextShaped (×2) |
+| `01_core/src/engine/layout/helpers.rs` | inalterado | `units_per_em` em `translate_frame_item` |
+| `01_core/src/engine/layout/slicing.rs` | inalterado | `units_per_em` em `rebase_item_y` |
+| `01_core/src/engine/math/layout/mod.rs` | inalterado | `units_per_em` em `offset_item` |
 
 ### Código L3 (3 ficheiros)
 

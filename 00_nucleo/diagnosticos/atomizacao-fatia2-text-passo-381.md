@@ -10,7 +10,7 @@ O **L0 foi commitado ANTES de mover código** (Estágio L0, `abcb07969`). A ADR-
 sumir/reaparecer da working tree (mecanismo externo) — confirmada presente a cada estágio.
 
 ## Fatia 2 — refs/citações + avulsos (commit `4625c7e6e`)
-9 arms inline → `rules/layout/<elem>.rs` (forma B, por-elemento):
+9 arms inline → `engine/layout/<elem>.rs` (forma B, por-elemento):
 
 | Arm | Arquivo | Estado que lê |
 |---|---|---|
@@ -28,7 +28,7 @@ sumir/reaparecer da working tree (mecanismo externo) — confirmada presente a c
 SmartQuote acedido por **descendência de módulo** (sem extracção, como previsto).
 
 ## Fatia Text — folha de render, isolada (commit próprio)
-`Text` (`@664`, ~82 linhas) → `rules/layout/text.rs`. Confirmado **folha** (`layout_word`, **não
+`Text` (`@664`, ~82 linhas) → `engine/layout/text.rs`. Confirmado **folha** (`layout_word`, **não
 re-entra `layout_content`**). Decodifica o `#set text`/`#set par` da chain (`custom`), merge top-wins
 com `layouter.style`, dispõe palavras. Caminho quente — a rede `f_caracterizacao_estilo::*` (11
 testes) passou sem asserção virada.

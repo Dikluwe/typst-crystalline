@@ -57,7 +57,7 @@ janela.
 ### .A Auditoria L0
 
 1. Confirmar `is_locatable` actual:
-   - `01_core/src/rules/introspect/locatable.rs:60` (per
+   - `01_core/src/engine/introspect/locatable.rs:60` (per
      P186A §2).
    - Localizar arm `Content::Equation { .. } => false`.
    - Confirmar invariante `is_locatable(c) ↔
@@ -69,7 +69,7 @@ janela.
    - Identificar onde actualizar.
 
 3. Confirmar fixture P185D actual:
-   - `01_core/src/rules/layout/tests.rs` submódulo
+   - `01_core/src/engine/layout/tests.rs` submódulo
      `p185d_locator_sync` test
      `gating_locator_apenas_em_locatables`.
    - Per P186C `.D`: Equation foi **removida** do fixture
@@ -78,7 +78,7 @@ janela.
    - Localizar comentário e linha de Equation removida.
 
 4. Confirmar `build_minimal_for_each_variant`:
-   - `01_core/src/rules/introspect/locatable.rs::tests`.
+   - `01_core/src/engine/introspect/locatable.rs::tests`.
    - Per P186C §"Próximo passo": helper que constrói
      instância mínima de cada variant de Content para
      teste de invariante. **Equation está em falta**.
@@ -143,7 +143,7 @@ edits.
 
 ### .D Restaurar fixture P185D
 
-1. Em `01_core/src/rules/layout/tests.rs` submódulo
+1. Em `01_core/src/engine/layout/tests.rs` submódulo
    `p185d_locator_sync`, test
    `gating_locator_apenas_em_locatables`:
    - Per P186C `.D`: Equation foi removida com

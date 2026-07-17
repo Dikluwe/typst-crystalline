@@ -3,7 +3,7 @@
 ## Estado actual antes de começar
 
 Ler antes de começar:
-- `01_core/src/rules/math/layout.rs` — método `layout_grid`, onde o Y das linhas é calculado
+- `01_core/src/engine/math/layout.rs` — método `layout_grid`, onde o Y das linhas é calculado
 - `01_core/src/entities/math_constants.rs` — struct `MathConstants`
 - `03_infra/src/font_metrics.rs` — leitura das métricas via `ttf-parser`
 
@@ -36,7 +36,7 @@ na versão instalada do `ttf-parser`.
 grep -rn "math_leading\|line_gap\|display_operator" 03_infra/src/font_metrics.rs
 
 # 2. Localizar onde o fallback de 20% foi implementado no layout_grid
-grep -rn "0.2" 01_core/src/rules/math/layout.rs
+grep -rn "0.2" 01_core/src/engine/math/layout.rs
 ```
 
 Reportar o output antes de continuar.
@@ -82,7 +82,7 @@ diagnóstico antes de codificar esta linha.
 
 ## Tarefa 2 — Substituição do fallback (L1)
 
-Em `01_core/src/rules/math/layout.rs`, localizar em `layout_grid` o cálculo
+Em `01_core/src/engine/math/layout.rs`, localizar em `layout_grid` o cálculo
 do offset Y entre linhas (actualmente: `self.size * Pt(0.2)`).
 
 Substituir por:

@@ -81,7 +81,7 @@ O cristalino implementou `ListElem` e `EnumElem` em P470, mas sem os campos de i
 ```bash
 rg -n "struct ListElem" src/entities/elements/ --type rs
 rg -n "struct EnumElem" src/entities/elements/ --type rs
-rg -n "indent\|body_indent\|tight" src/rules/layout/lists.rs --type rs
+rg -n "indent\|body_indent\|tight" src/engine/layout/lists.rs --type rs
 ```
 
 ---
@@ -115,7 +115,7 @@ pub struct EnumElem {
 
 ### 5.2 — Atualizar Construtores Nativos
 
-**Arquivo alvo:** `src/rules/stdlib/structural.rs`
+**Arquivo alvo:** `src/engine/stdlib/structural.rs`
 
 ```rust
 fn native_list(args: Args) -> SourceResult<Value> {
@@ -155,7 +155,7 @@ fn native_enum(args: Args) -> SourceResult<Value> {
 
 ### 5.3 — Atualizar Layout de Listas
 
-**Arquivo alvo:** `src/rules/layout/lists.rs` (ou onde o layout de listas é feito)
+**Arquivo alvo:** `src/engine/layout/lists.rs` (ou onde o layout de listas é feito)
 
 O layout de listas no cristalino precisa de:
 1. **Indentação do marker:** `indent` define o deslocamento horizontal do marker em relação à margem esquerda.
@@ -198,7 +198,7 @@ fn layout_list(list: &ListElem, ctx: &mut LayoutContext) -> Vec<Frame> {
 
 ### 5.4 — Atualizar Layout de Enums
 
-**Arquivo alvo:** `src/rules/layout/enums.rs` (ou onde o layout de enums é feito)
+**Arquivo alvo:** `src/engine/layout/enums.rs` (ou onde o layout de enums é feito)
 
 Analogo ao layout de listas, mas com numbering:
 
@@ -282,7 +282,7 @@ Após as 2 sub-tarefas, rodar a bateria completa P490 + P500 + P504 (33+ ficheir
 - [ ] Bateria P500: 2 AUSENTEs viraram MATCH.
 - [ ] AUSENTEs restantes: **0** (todos os AUSENTEs do P500 fechados).
 - [ ] PANICs: 0 (preservado).
-- [ ] Documentação atualizada (`rules/stdlib/structural.md` para list/enum; `rules/layout/lists.md` e `rules/layout/enums.md` se existirem).
+- [ ] Documentação atualizada (`rules/stdlib/structural.md` para list/enum; `engine/layout/lists.md` e `engine/layout/enums.md` se existirem).
 - [ ] ADR-0107 checklist atualizado (2 itens marcados implementado).
 - [ ] Sentinela `p505_indentacao_listas_enums` adicionada em `lab/parity/tests/structural_parity.rs`.
 - [ ] `00_nucleo/diagnosticos/paridade-funcional-p505.md` produzido com tabela de resultados.

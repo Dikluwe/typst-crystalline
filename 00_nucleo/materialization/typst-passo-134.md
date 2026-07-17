@@ -106,17 +106,17 @@ Este passo **não**:
 ## Escopo
 
 **Dentro**:
-- `01_core/src/rules/eval/rules.rs`:
+- `01_core/src/engine/eval/rules.rs`:
   - Arm `"leading"` removido do bloco `text`.
   - Arm `"leading"` adicionado ao bloco `par`.
   - Helper `unsupported_property_warn` — assinatura adaptada.
   - Call sites do helper — passar ADR referência.
-- `01_core/src/rules/eval/tests.rs`:
+- `01_core/src/engine/eval/tests.rs`:
   - `eval_set_text_leading_passo_128` invertido + renomeado.
   - Novo teste `eval_set_par_leading_captura_passo_134`.
 - `03_infra/src/integration_tests.rs` (se algum teste usa
   `#set text(leading: ...)` como válido).
-- `00_nucleo/prompts/rules/eval.md` (se referencia leading
+- `00_nucleo/prompts/engine/eval.md` (se referencia leading
   em text).
 
 **Fora**:
@@ -132,14 +132,14 @@ Este passo **não**:
 
 **A.1 — Localizar arm `"leading"` actual**:
 
-`grep -n "\"leading\"" 01_core/src/rules/eval/rules.rs`
+`grep -n "\"leading\"" 01_core/src/engine/eval/rules.rs`
 
 Esperado: arm dentro do bloco `if target == "text"` (ou
 equivalente). Registar linhas.
 
 **A.2 — Assinatura actual de `unsupported_property_warn`**:
 
-`grep -n "unsupported_property_warn\|fn unsupported" 01_core/src/rules/eval/rules.rs`
+`grep -n "unsupported_property_warn\|fn unsupported" 01_core/src/engine/eval/rules.rs`
 
 Ler corpo. Registar:
 - Parâmetros actuais.
@@ -150,7 +150,7 @@ Ler corpo. Registar:
 
 Listar testes que usam `#set text(leading: ...)`:
 
-`grep -n "leading:" 01_core/src/rules/eval/tests.rs`
+`grep -n "leading:" 01_core/src/engine/eval/tests.rs`
 
 Esperado: pelo menos `eval_set_text_leading_passo_128`.
 Registar outros se existem.
@@ -195,7 +195,7 @@ sem absurdo em par. Decisão final no relatório.
 
 ### 134.B — Fix do helper
 
-**Ficheiro**: `01_core/src/rules/eval/rules.rs`.
+**Ficheiro**: `01_core/src/engine/eval/rules.rs`.
 
 Adaptar assinatura conforme Opção d (recomendada):
 
@@ -237,7 +237,7 @@ outras responsabilidades (ex: span, formato diferente), adaptar.
 
 ### 134.C — Mover arm `"leading"`
 
-**Ficheiro**: `01_core/src/rules/eval/rules.rs`.
+**Ficheiro**: `01_core/src/engine/eval/rules.rs`.
 
 **C.1 — Remover do bloco `text`**:
 
@@ -304,7 +304,7 @@ confirmado em 134.A.
 
 ### 134.D — Inverter teste L1 do 128
 
-**Ficheiro**: `01_core/src/rules/eval/tests.rs`.
+**Ficheiro**: `01_core/src/engine/eval/tests.rs`.
 
 ```rust
 // antes (128):

@@ -248,7 +248,7 @@ que ainda dependem de legacy.
 - `grep -rn "compute_labelled\|compute_heading_auto_toc\|compute_figure\|compute_heading_for_toc"
   01_core/src/`.
 - `grep -rn "self.counter\." 01_core/src/`.
-- `grep -rn "state\." 01_core/src/rules/introspect.rs`.
+- `grep -rn "state\." 01_core/src/engine/introspect.rs`.
 
 ### O2 — Alternativas
 
@@ -377,7 +377,7 @@ Auditor confirma empiricamente:
 
 8. Identificar consumers Layouter directos:
    - `grep -rn "self.counter\."
-     01_core/src/rules/layout/`.
+     01_core/src/engine/layout/`.
 
 9. Identificar Layouter assignments
    (`mod.rs:1490, 1521` + possíveis outros).
@@ -444,7 +444,7 @@ Auditor confirma empiricamente:
     - `entities/counter_state_legacy.md`
       (eliminado ou actualizado).
     - `rules/introspect.md` (walk arms purificados).
-    - `rules/layout/*.md` (consumers migrados).
+    - `engine/layout/*.md` (consumers migrados).
     - Possivelmente outros.
 
 Output: tabela inventário com:

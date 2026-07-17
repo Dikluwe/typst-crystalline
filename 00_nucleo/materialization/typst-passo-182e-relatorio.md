@@ -9,7 +9,7 @@
 
 ## 1. Resumo
 
-Submódulo `p182e_e2e_heading_numbering` adicionado ao fim de `01_core/src/rules/layout/tests.rs`. Replica padrão P181I (`p181i_e2e_bib`): submódulo dedicado, Content construído manualmente (sem `eval` real — em linha com prática estabelecida P181/P182D), tests assertam invariantes observáveis (`plain_text` + `Introspector::is_numbering_active`).
+Submódulo `p182e_e2e_heading_numbering` adicionado ao fim de `01_core/src/engine/layout/tests.rs`. Replica padrão P181I (`p181i_e2e_bib`): submódulo dedicado, Content construído manualmente (sem `eval` real — em linha com prática estabelecida P181/P182D), tests assertam invariantes observáveis (`plain_text` + `Introspector::is_numbering_active`).
 
 5 tests cobrem 4 cenários de `.B`–`.E` do plano (1 cenário tem teste duplo: pipeline via `layout()` legacy E pipeline via `layout_with_introspector` directo).
 

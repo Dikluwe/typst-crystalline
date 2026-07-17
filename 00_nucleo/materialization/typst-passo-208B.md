@@ -24,7 +24,7 @@ Reuso de dados P208A:
 
 - Pattern stdlib uniforme `native_X(ctx, args, world,
   current_file, figure_numbering)` (A2).
-- `EvalContext` em `01_core/src/rules/eval/mod.rs:86`
+- `EvalContext` em `01_core/src/engine/eval/mod.rs:86`
   com `introspector: TagIntrospector` snapshot read-only
   (A3).
 - Sub-mecanismos avaliados em P208A A6 caveat:
@@ -87,7 +87,7 @@ C1 fixa **uma** opção.
 
 L0 primeiro:
 
-- Edição `00_nucleo/prompts/rules/eval/eval_context.md`
+- Edição `00_nucleo/prompts/engine/eval/eval_context.md`
   (ou nome correcto) — documentar `current_location`
   field + semântica per opção C1.
 - Novo L0 `00_nucleo/prompts/stdlib/here.md` —
@@ -96,7 +96,7 @@ L0 primeiro:
 
 L1 depois (conforme opção):
 
-- (Opção i) `01_core/src/rules/eval/mod.rs` — adicionar
+- (Opção i) `01_core/src/engine/eval/mod.rs` — adicionar
   `current_location: Option<Location>` em `EvalContext`;
   walk advance em locatable boundaries.
 - (Opção ii) Novo `Content::Context { body }` variant
@@ -107,7 +107,7 @@ L1 depois (conforme opção):
 
 Stdlib:
 
-- `01_core/src/rules/stdlib/foundations.rs` (ou
+- `01_core/src/engine/stdlib/foundations.rs` (ou
   caminho exacto identificado em P208A A2) — adicionar
   `pub fn native_here(...)` paralelo a `native_query`.
 - Registar no Scope global da stdlib.

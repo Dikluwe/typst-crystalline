@@ -104,7 +104,7 @@ Layouter heading-arm + equation-arm continuam a usar `self.counter.is_numbering_
 **P182C** — `extract_payload` arm `Content::SetHeadingNumbering` produz `ElementPayload::StateUpdate { key: "numbering_active:heading", update: StateUpdate::Set(Value::Bool(active)) }`.
 
 Escopo concreto:
-1. Em `01_core/src/rules/introspect/extract_payload.rs`, arm `Content::SetHeadingNumbering { active }` (junto a `Content::State` / `Content::StateUpdate`):
+1. Em `01_core/src/engine/introspect/extract_payload.rs`, arm `Content::SetHeadingNumbering { active }` (junto a `Content::State` / `Content::StateUpdate`):
    ```rust
    Content::SetHeadingNumbering { active } => Some(ElementPayload::StateUpdate {
        key:    "numbering_active:heading".to_string(),

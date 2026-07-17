@@ -214,7 +214,7 @@ Auditor confirma empiricamente:
      `formatted_counter`, `flat_counter` se existir).
 
 2. **Layouter** — uso actual de Location:
-   - `grep -rn "Location" 01_core/src/rules/layout/`.
+   - `grep -rn "Location" 01_core/src/engine/layout/`.
    - Layouter conhece `Location` em algum ponto? Ou
      trabalha apenas com índices/posições estruturais?
    - Se Layouter já usa `Location` parcialmente: onde

@@ -31,8 +31,8 @@ violations.
 | L0 | `00_nucleo/prompts/entities/selector.md` | +2 variants em Interface; +Semântica multi-variant; +Tests obrigatórios P209B; +Histórico 2026-05-12. Hash do Código: `3490d19c → 83989115`. |
 | L1 | `01_core/src/entities/selector.rs` | +`use Label, Location`; +`Label(Label)` + `Location(Location)` variants em enum; +3 tests P209B. `@prompt-hash 92ddd3cd → f4d0f17d`. |
 | L1 | `01_core/src/entities/introspector.rs` | Query match exhaustive: 1 → 3 arms. `Label(l)` delega a `query_by_label(l).map(\|loc\| vec![loc])`; `Location(loc)` retorna `vec![*loc]`. |
-| L1 | `01_core/src/rules/stdlib/foundations.rs` | Refactor: `native_query` e `native_locate` extraem dispatch para helper privado `parse_selector_arg(items, func_name)`. Helper aceita 3 casos: `Str("<name>")` → Label; `Str(kind)` → Kind via `ElementKind::from_name`; `Location(loc)` → Location. Erros contextual com hint sobre P209D (Regex) + And/Or Rust-only. |
-| L1 | `01_core/src/rules/stdlib/mod.rs` | +5 tests P209B (locate_label_syntax, locate_label_inexistente, query_location_arg, locate_location_arg, query_label_via_introspector_directo); test P208C `locate_arg_nao_string_retorna_err_com_hint_p209` actualizado com comentário sobre o que mudou (Value::Location agora dispatched). |
+| L1 | `01_core/src/engine/stdlib/foundations.rs` | Refactor: `native_query` e `native_locate` extraem dispatch para helper privado `parse_selector_arg(items, func_name)`. Helper aceita 3 casos: `Str("<name>")` → Label; `Str(kind)` → Kind via `ElementKind::from_name`; `Location(loc)` → Location. Erros contextual com hint sobre P209D (Regex) + And/Or Rust-only. |
+| L1 | `01_core/src/engine/stdlib/mod.rs` | +5 tests P209B (locate_label_syntax, locate_label_inexistente, query_location_arg, locate_location_arg, query_label_via_introspector_directo); test P208C `locate_arg_nao_string_retorna_err_com_hint_p209` actualizado com comentário sobre o que mudou (Value::Location agora dispatched). |
 
 Hashes L0+L1 propagados via `crystalline-lint --fix-hashes .`;
 0 drifts remanescentes.

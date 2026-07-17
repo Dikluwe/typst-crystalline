@@ -24,7 +24,7 @@ documentado como "divergência consciente":
 A inspecção do código revelou que **a divergência não é local a `erf`**:
 é política transversal cristalina expressa via helper central
 `guard_float` em `stdlib/calc.rs:803-806`. Simultaneamente, o L0
-`prompts/rules/eval.md` documenta política oposta:
+`prompts/engine/eval.md` documenta política oposta:
 
 > **Float → IEEE 754**: NaN e Inf propagados silenciosamente (sem
 > guarda)
@@ -47,7 +47,7 @@ subsequente.
 
 ### §2.1 — Em `eval` (propaga silenciosamente)
 
-`00_nucleo/prompts/rules/eval.md` — sem citação directa de IEEE 754,
+`00_nucleo/prompts/engine/eval.md` — sem citação directa de IEEE 754,
 mas o comportamento documentado por `eval/operators.rs:14-20`:
 
 ```rust
@@ -64,11 +64,11 @@ divisor que se torna zero por subnormal**.
 
 ### §2.2 — Em `stdlib` (rejeita via `guard_float`)
 
-`00_nucleo/prompts/rules/stdlib.md` §"Helpers Internos":
+`00_nucleo/prompts/engine/stdlib.md` §"Helpers Internos":
 
 > `guard_float(f)` — NaN → Err "não é um número", Inf → Err "infinito"
 
-Implementação em `01_core/src/rules/stdlib/calc.rs:803-806`:
+Implementação em `01_core/src/engine/stdlib/calc.rs:803-806`:
 
 ```rust
 fn guard_float(f: f64) -> SourceResult<Value> {
@@ -109,7 +109,7 @@ Todos os sítios L1 que rejeitam NaN e/ou Inf no resultado ou input.
 
 | # | Ficheiro:linha | Função | Mecanismo | Rejeita |
 |---:|---|---|---|---|
-| 1 | `01_core/src/rules/stdlib/calc.rs:132` | `calc_pow` (resultado Float) | `guard_float(b.powf(e))` | NaN+Inf |
+| 1 | `01_core/src/engine/stdlib/calc.rs:132` | `calc_pow` (resultado Float) | `guard_float(b.powf(e))` | NaN+Inf |
 | 2 | `calc.rs:146` | `calc_sqrt` | `guard_float(f.sqrt())` | NaN+Inf |
 | 3 | `calc.rs:252` (helper `trig_op`) | `calc_sin`/`cos`/`tan`/`asin`/`acos`/`atan`/`sinh`/`cosh`/`tanh`/`asinh`/`acosh`/`atanh`/`exp` (13 funções) | `guard_float(op(x))` | NaN+Inf |
 | 4 | `calc.rs:327` | `calc_atan2` | `guard_float(r)` | NaN+Inf |
@@ -130,7 +130,7 @@ Todos os sítios L1 que rejeitam NaN e/ou Inf no resultado ou input.
 
 Outras ocorrências de `is_nan`/`is_infinite`/`is_finite` em L1
 inspeccionadas:
-- `01_core/src/rules/layout/tests.rs:11125` — teste de layout
+- `01_core/src/engine/layout/tests.rs:11125` — teste de layout
   (`min_body_y.is_finite()`); **não é produção** — filtrado.
 
 **Conclusão Cat A**: o "guard NaN/Inf" cristalino está concentrado em
@@ -178,7 +178,7 @@ sítios estruturais (não cada chamada).
 podem ficar NaN/Inf silenciosamente e fluir para `FrameItem` →
 `export.rs` → PDF.
 
-#### B.3 — `rules/layout/**` (matemática de coordenadas)
+#### B.3 — `engine/layout/**` (matemática de coordenadas)
 
 Layout faz aritmética sobre `Pt`/`f64` extensiva em ~30 ficheiros
 (grid, columns, boxes, alignment, cursor, etc.). **Nenhum sítio L1

@@ -5,10 +5,10 @@ Executado em 2026-04-30. Passo único de M4 do refactor Introspection.
 ## Resumo
 
 - Decisão **M4b** (entry point novo) tomada com base em inventário factual em `.A`.
-- `pub fn introspect_with_introspector(content) -> (CounterStateLegacy, TagIntrospector)` adicionada em `01_core/src/rules/introspect.rs`.
+- `pub fn introspect_with_introspector(content) -> (CounterStateLegacy, TagIntrospector)` adicionada em `01_core/src/engine/introspect.rs`.
 - `pub fn introspect(content) -> CounterStateLegacy` passou a **wrapper** sobre `introspect_with_introspector` — descarta o `TagIntrospector`. Walk único subjacente (sem duplicação).
 - API pública preservada: os ~38 call-sites identificados em `.A` continuam a compilar e funcionar sem alteração.
-- L0 `00_nucleo/prompts/rules/introspect.md` actualizado — duas funções públicas documentadas.
+- L0 `00_nucleo/prompts/engine/introspect.md` actualizado — duas funções públicas documentadas.
 
 ## Inventário .A em formato literal
 
@@ -16,8 +16,8 @@ Executado em 2026-04-30. Passo único de M4 do refactor Introspection.
 
 | Localização | Quantidade |
 |-------------|-----------:|
-| `01_core/src/rules/introspect.rs` (tests) | 17 |
-| `01_core/src/rules/layout/tests.rs` | 11 |
+| `01_core/src/engine/introspect.rs` (tests) | 17 |
+| `01_core/src/engine/layout/tests.rs` | 11 |
 | `03_infra/src/integration_tests.rs` | 8 |
 | `03_infra/src/layout.rs` (production) | 1 |
 | `03_infra/src/pipeline.rs` (production) | 1 |
@@ -30,7 +30,7 @@ Externos a 01_core (em 03_infra): 10 call-sites — API pública atravessa a fro
 | Localização | Tipo | Quantidade |
 |-------------|------|-----------:|
 | `01_core/src/entities/counter_state_legacy.rs` (tests do tipo) | tests | 17 |
-| `01_core/src/rules/layout/mod.rs:144` (campo `Layouter.counter`) | production | 1 |
+| `01_core/src/engine/layout/mod.rs:144` (campo `Layouter.counter`) | production | 1 |
 | **Total** | | **18** |
 
 ### Uso de retorno
@@ -93,7 +93,7 @@ Nenhum L0 novo. Nenhum L1 novo (apenas modificação de `rules/introspect.rs`).
 ## Pendências para M5
 
 - **Migração de consumers**: 38 call-sites continuam a chamar `introspect()`. M5 escolhe primeiro consumer real e migra para `introspect_with_introspector`. Candidatos prováveis (ordem de impacto):
-  - `01_core/src/rules/layout/` — Layouter pode começar a consumir `Introspector::query_by_label` em vez de `state.resolved_labels` para refs.
+  - `01_core/src/engine/layout/` — Layouter pode começar a consumir `Introspector::query_by_label` em vez de `state.resolved_labels` para refs.
   - `03_infra/src/pipeline.rs` — pipeline central; migração aqui torna o introspector visível downstream.
 - **Scope decision**: M5 pode optar por migrar apenas 1 consumer (e validar que tudo funciona) ou múltiplos em paralelo. Decisão depende da complexidade da migração.
 

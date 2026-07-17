@@ -1,5 +1,5 @@
 # Prompt L0 — `entities/elements/bibliography` — `BibliographyElem`
-Hash do Código: 8449d35e
+Hash do Código: 44250c69
 
 **Camada**: L1 · **Alvo**: `01_core/src/entities/elements/bibliography.rs`
 **Origem**: modelo D (ADR-0105), **Lote 10 P325** (por largura). Trait: ver
@@ -58,7 +58,7 @@ tem `impl Hash` manual).
 **Decisão arquitetural (ADR-0107 / ADR-0108 / ADR-0109):**
 - Usar `hayagriva` crate (Opção α) para parsing de `.bib`/`.yaml`/`.json` e CSL engine.
 - Paridade é linguística (`.bib` + `@key` → citações/bibliografia renderizadas), não mecânica.
-- Lógica de render vive em `rules/layout/bibliography.rs` (forma B, free function).
+- Lógica de render vive em `engine/layout/bibliography.rs` (forma B, free function).
 
 **Scope-out P418:**
 - CSL style via URL; múltiplos arquivos de bibliografia no mesmo doc; `title` customizado; CSL locales.
@@ -106,4 +106,4 @@ tem `impl Hash` manual).
 |------|--------|----------|
 | 2026-06-23 | P418 (XL): adicionar seção de renderização CSL real e scope-out. | `bibliography.md`, `bibliography.rs`, `cite.md`, `cite.rs`, `loading.md`, `loading.rs` |
 | 2026-06-23 | P419 (M): adicionar `path`, loading de disco e scope-out. | `bibliography.md`, `bibliography.rs`, `content.rs`, `rules/eval/bibliography.rs`, `rules/stdlib/structural.rs` |
-| 2026-06-23 | P420 (M): CSL customizado via path; `BibliographyElem` inalterado; resolução em eval. | `bibliography.md`, `rules/eval/bibliography.rs`, `rules/layout/bib_csl.rs`, `rules/stdlib/structural.rs` |
+| 2026-06-23 | P420 (M): CSL customizado via path; `BibliographyElem` inalterado; resolução em eval. | `bibliography.md`, `rules/eval/bibliography.rs`, `engine/layout/bib_csl.rs`, `rules/stdlib/structural.rs` |

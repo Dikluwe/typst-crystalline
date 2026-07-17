@@ -153,7 +153,7 @@ Ficheiro único em
 Lista plana de todas as estruturas significativas
 inspeccionadas, agrupadas por módulo:
 - `01_core/src/entities/`
-- `01_core/src/rules/`
+- `01_core/src/engine/`
 - `02_shell/`
 - `03_infra/`
 - `04_wiring/`

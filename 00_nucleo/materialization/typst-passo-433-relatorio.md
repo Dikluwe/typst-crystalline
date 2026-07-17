@@ -11,16 +11,16 @@ o prompt L0 dedicado `calc.md` para o formato de secções individuais exigido
 pelo plano P433.
 
 - **L0 actualizado:**
-  - `00_nucleo/prompts/rules/stdlib/calc.md` — reescrito com 21 secções
+  - `00_nucleo/prompts/engine/stdlib/calc.md` — reescrito com 21 secções
     individuais (7 trig + 6 hiperbólicas + `exp` + `ln` + `log` + `log` com
     base explícita + 4 constantes). O conteúdo anterior das funções base
     (P27), aritmética inteira/combinatória/norma/raiz (P306) e `erf` (P308)
     foi preservado num apêndice de tabelas.
 - **Cabeçalho `@prompt`:**
-  - `01_core/src/rules/stdlib/calc.rs` já apontava para `calc.md`; o hash
+  - `01_core/src/engine/stdlib/calc.rs` já apontava para `calc.md`; o hash
     foi sincronizado pela ferramenta de lint.
 - **Prompt comum actualizado:**
-  - `00_nucleo/prompts/rules/stdlib/_comum.md` — adicionada nota sobre o
+  - `00_nucleo/prompts/engine/stdlib/_comum.md` — adicionada nota sobre o
     `calc.md` (P433).
 - **Débito actualizado:**
   - `00_nucleo/diagnosticos/debt/DEBT.md` — adicionada entrada para
@@ -66,7 +66,7 @@ a variante de interface do `log`.
 
 | Critério | Resultado |
 |----------|-----------|
-| `00_nucleo/prompts/rules/stdlib/calc.md` com 21 secções | ✓ |
+| `00_nucleo/prompts/engine/stdlib/calc.md` com 21 secções | ✓ |
 | Cada secção cobre assinatura, args, domínio, semântica, paridade vanilla, limitações e testes canónicos | ✓ |
 | `_comum.md` actualizado | ✓ |
 | `DEBT.md` actualizado com nota de fecho P433 | ✓ |
@@ -77,13 +77,13 @@ a variante de interface do `log`.
 ## Artefactos
 
 - L0:
-  - `00_nucleo/prompts/rules/stdlib/calc.md` (reescrito)
-  - `00_nucleo/prompts/rules/stdlib/_comum.md` (actualizado)
+  - `00_nucleo/prompts/engine/stdlib/calc.md` (reescrito)
+  - `00_nucleo/prompts/engine/stdlib/_comum.md` (actualizado)
 - Código (apenas cabeçalho de linhagem / hashes):
-  - `01_core/src/rules/stdlib/calc.rs`
-  - `01_core/src/rules/stdlib/assert.rs` (hash sincronizado)
-  - `01_core/src/rules/stdlib/gradients.rs` (hash sincronizado)
-  - `01_core/src/rules/stdlib/transforms.rs` (hash sincronizado)
+  - `01_core/src/engine/stdlib/calc.rs`
+  - `01_core/src/engine/stdlib/assert.rs` (hash sincronizado)
+  - `01_core/src/engine/stdlib/gradients.rs` (hash sincronizado)
+  - `01_core/src/engine/stdlib/transforms.rs` (hash sincronizado)
 - Débito:
   - `00_nucleo/diagnosticos/debt/DEBT.md`
 - Plano:

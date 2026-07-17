@@ -221,8 +221,8 @@ test result: ok. 21 passed            (L4 inalterado)
 
 | Ficheiro | Mudança |
 |----------|---------|
-| `01_core/src/rules/layout/cursor.rs` | `flush_line` peek current_line, soma leading ao line_height |
-| `01_core/src/rules/layout/tests.rs` | +3 tests integration + helper `text_items_with_xy` |
+| `01_core/src/engine/layout/cursor.rs` | `flush_line` peek current_line, soma leading ao line_height |
+| `01_core/src/engine/layout/tests.rs` | +3 tests integration + helper `text_items_with_xy` |
 | `00_nucleo/DEBT.md` | Gap 3 DEBT-52 marcado resolvido |
 
 **Exporter inalterado**. Frame carrega positions finais; PDF

@@ -78,7 +78,7 @@ render: [N] / Author (Year) / Author / Year
 - Modificados: `introspector.md` (P181B + P181F), `element_kind.md`
   (P181C), `element_payload.md` (P181C), `locatable.md` (P181D),
   `extract_payload.md` (P181D), `from_tags.md` (P181E),
-  `rules/layout.md` (P181G + P181H), `rules/introspect.md` (P181H).
+  `engine/layout.md` (P181G + P181H), `rules/introspect.md` (P181H).
 
 **Files L1 produzidos/modificados**: 9.
 - Novo: `bib_store.rs`.
@@ -133,7 +133,7 @@ internamente, descarta o state novo, e usa `initial_state` recebido.
 
 **Custo**: walk extra (caller já fez 1 walk via `introspect()`).
 Aceitável — bib feature é raramente usada; documentado em
-`rules/layout.md`.
+`engine/layout.md`.
 
 **Lição**: instrução pode ter desactualizações sobre signatures
 reais. Auditoria `.A` deve confirmar API actual antes de aplicar

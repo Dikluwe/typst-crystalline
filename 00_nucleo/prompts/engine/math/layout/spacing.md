@@ -1,0 +1,123 @@
+# Prompt L0 — `rules/math/layout/spacing` — espaçamento automático por `MathClass`
+Hash do Código: 82f1e829
+
+**Camada**: L1 · **Alvo**: `01_core/src/engine/math/layout/spacing.rs`
+**Origem**: **P772y**. Cita `rules/math/layout/_comum.md` (struct/despacho
+partilhados). Nono submódulo de `rules/math/layout/` (ver lista em
+`_comum.md`). Mecanismo vanilla: `math/ir/process.rs::spacing()` +
+`math/ir/item.rs::MathItem::lclass()/rclass()` + `math/mod.rs`
+(`THIN`/`MEDIUM`/`THICK`).
+
+---
+
+## Contexto
+
+Antes de P772y, `layout_sequence` concatenava os `MathBox` de uma
+`MathSequence` sem qualquer espaço extra entre eles (`hconcat` — soma pura
+de larguras). P772y confirmou por sonda (`mutool trace`, medição de deltas
+de posição x em `a = b` / `a + b` / `(a)`) que o cristalino não tinha
+nenhum mecanismo de espaçamento por classe — o vanilla usa uma tabela de
+espaçamento inter-símbolo estilo TeX baseada em `MathClass` (Relação,
+Binário, Abertura/Fecho, Pontuação, Operador grande), com três larguras
+fixas: `THIN = 1/6 em`, `MEDIUM = 2/9 em`, `THICK = 5/18 em`.
+
+## Interface pública (`pub(super)`)
+
+```rust
+/// `(lclass, rclass)` efectivos de um nó `Content` matemático.
+pub(super) fn node_math_class(content: &Content) -> (MathClass, MathClass);
+
+/// Promove Vary → Binary quando precedido por Normal|Alphabetic|Closing|Fence.
+pub(super) fn promote_vary(class: MathClass, prev_rclass: Option<MathClass>) -> MathClass;
+
+/// Espaço extra (pt) entre `l_rclass` (nó à esquerda) e `r_lclass` (nó à direita).
+pub(super) fn spacing_between(l_rclass: MathClass, r_lclass: MathClass, size_pt: f64) -> f64;
+
+/// Gaps (n-1) entre n nós adjacentes de uma sequência, com promoção Vary
+/// aplicada sequencialmente.
+pub(super) fn compute_gaps(nodes: &[Content], size_pt: f64) -> Vec<f64>;
+```
+
+## Classificação por nó (`node_math_class`/`base_math_class`)
+
+| `Content` | classe |
+|---|---|
+| `MathIdent(name)` | `default_math_class(primeiro char)`, fallback `Alphabetic` |
+| `MathText(text)` | `default_math_class(primeiro char)`, fallback `Normal` |
+| `MathStyled(m)` | recurse em `m.body` (estilo não muda classe) |
+| `MathClassOverride(e)` | `e.class` (override explícito, `math.class(...)`) |
+| `MathDelimited(_)` | `(Opening, Closing)` — sempre assimétrico (paralelo `MathItem::lclass/rclass`, vanilla, caso Fenced) |
+| outros (Frac/Attach/Root/Matrix/Cases/Accent/Cancel/Underover/Op) | `Normal` (paridade `unwrap_or(MathClass::Normal)`, vanilla — nenhum destes define `class` explícito) |
+
+Simplificação registada: um nó `MathIdent`/`MathText` multi-carácter usa
+**só o primeiro carácter** para classificar o nó inteiro (o layout do
+cristalino trata cada nó da sequência como uma unidade já layoutada, ao
+contrário do vanilla que resolve por-glifo). Correcto para o caso comum
+(operadores/relações são nós de 1 carácter); identificadores multi-letra
+(`sin`, `xyz`) classificam-se como `Alphabetic`/`Normal` de qualquer forma.
+
+## Tabela de espaçamento (`spacing_between`) — paridade `process.rs::spacing()`
+
+Ordem dos ramos do `match` é significativa (primeiro match ganha, tal como
+o vanilla):
+
+1. Antes de `Punctuation` → 0. Depois de `Punctuation` → `THIN`.
+2. Depois de `Opening` / antes de `Closing` → 0.
+3. `Relation`-`Relation` → 0. Ao redor de `Relation` (não ambos) → `THICK`.
+4. Ao redor de `Binary` → `MEDIUM`.
+5. Ao redor de `Large`, excepto antes de `Opening`/`Fence` → `THIN`.
+6. Default → 0.
+
+**Fora de escopo (registado, P772y)**:
+- A condição `unless in script size` de cada regra vanilla — cristalino não
+  tem um `MathSize` discreto (só `script_percent_scale_down` contínuo,
+  aplicado ad-hoc em `attach.rs`/`frac.rs`/`root.rs`), logo o espaçamento
+  aplica-se incondicionalmente independentemente da profundidade de script.
+- A regra "spaced frames" (`_ if l.is_spaced() || r.is_spaced() => return
+  space` no vanilla) — cobre `#h()` explícito dentro de math; sem
+  equivalente no cristalino hoje.
+
+## Promoção Vary → Binary (`promote_vary`)
+
+Paridade `process.rs` (vanilla): um item de classe `Vary` (ex.: `+`, `-`)
+promove para `Binary` quando o `rclass` do item anterior é `Normal |
+Alphabetic | Closing | Fence` — distingue uso como operador binário
+(`a+b`) de uso como prefixo unário (`+b` no início da sequência, ou depois
+de outra Relação/Abertura).
+
+## Integração em `mod.rs`
+
+- `layout_sequence`: computa `gaps = compute_gaps(&filtered_nodes,
+  style.size.val())` antes de layoutar os nós; chama
+  `hconcat_spaced(boxes, &gaps)` em vez de `hconcat`.
+- `hconcat` passa a ser um wrapper de `hconcat_spaced(boxes, &[])` (gaps
+  vazios — usado por `delimited.rs` para abertura+corpo+fecho, onde a
+  regra de classe já dá 0pt em ambos os lados, logo não há mudança de
+  comportamento nesse call site).
+- `hconcat_spaced(boxes, gaps)`: insere `x += gaps[i-1]` antes de posicionar
+  a box `i` (`i > 0`); `gaps` mais curto que `boxes.len() - 1` trata gaps em
+  falta como 0.
+- `layout_node`: novo arm `Content::MathClassOverride(e) =>
+  self.layout_node(&e.body, style)` — a classe só afecta espaçamento
+  (calculado em `layout_sequence` a partir do `Content` bruto, antes da
+  conversão para `MathBox`), o layout do body é normal.
+
+## Critérios de verificação
+
+Medido por sonda `mutool trace` (P772y), fonte de verdade `lab/typst-
+original`, comparação directa de deltas de posição x entre glifos
+adjacentes menos o `adv` do glifo:
+
+- `a = b` (11pt): THICK ≈ 3.056pt de cada lado do `=` — bate exactamente
+  com o vanilla (`5/18 × 11 = 3.0556`).
+- `a + b` (11pt): `+` promovido a Binary (precedido por `a`, Alphabetic) →
+  MEDIUM ≈ 2.444pt de cada lado — bate com vanilla (`2/9 × 11 = 2.4444`).
+- `(a)` (11pt): 0pt extra em ambos os lados (Opening/Closing) — bate com
+  vanilla.
+- `math.class("relation", "z")` produz exactamente o mesmo delta que `=`
+  no mesmo contexto (`x <relação> y`), e difere do delta de `z` sem
+  override (Alphabetic-Alphabetic, 0pt extra) — confirma que o override
+  força a classe e não o espaçamento por omissão do símbolo.
+- 26 unit tests em `spacing.rs` (`node_math_class`, `promote_vary`,
+  `spacing_between`, `compute_gaps`) + suite `rules::math::layout` (124
+  tests) sem regressão.

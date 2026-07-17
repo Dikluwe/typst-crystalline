@@ -249,7 +249,7 @@ em runtime real até equation set rule materializar.
 
 Honestidade sobre estado dormente exige documentação em:
 1. Comentário inline em `equation.rs:97` (P188B `.B`).
-2. Secção em L0 `rules/layout.md` (P188B `.C`).
+2. Secção em L0 `engine/layout.md` (P188B `.C`).
 3. Tests E2E `gate_dormente_caso_producao` que valida
    empiricamente fallback (P188B `.D`).
 4. Relatório consolidado P188 §"Estado dormente" (P188B
@@ -282,12 +282,12 @@ funcionalmente — apenas estruturalmente).
 **P188B** — migração C2 + tests E2E + nota DEBT
 M4-residual:
 
-- Editar `01_core/src/rules/layout/equation.rs:97`:
+- Editar `01_core/src/engine/layout/equation.rs:97`:
   - Substituir `self.counter.get_flat("equation")` pela
     expressão substitution-with-fallback location-aware.
   - Adicionar comentário inline cross-referenciando
     P186A §11.2 e P186E gate dormente.
-- Editar L0 `00_nucleo/prompts/rules/layout.md`:
+- Editar L0 `00_nucleo/prompts/engine/layout.md`:
   - Secção "C2 equation counter migrado (P188B)" com nota
     explícita sobre estado dormente.
 - Tests E2E em `mod p188b_c2_equation_counter`:

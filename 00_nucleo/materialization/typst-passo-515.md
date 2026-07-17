@@ -272,7 +272,7 @@ pub fn shape_with_fallback(
 
 ### 3.3 Fase 3: Layout com Glifos Posicionados (M-size, ~4 dias)
 
-**Arquivo alvo:** `src/rules/layout/text.rs` (modificar)
+**Arquivo alvo:** `src/engine/layout/text.rs` (modificar)
 
 ```rust
 // Antes (P514):

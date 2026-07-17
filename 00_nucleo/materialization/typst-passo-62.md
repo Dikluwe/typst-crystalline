@@ -4,8 +4,8 @@
 
 Ler antes de começar:
 - `01_core/src/entities/content.rs` — Onde a nova variante será injectada.
-- `01_core/src/rules/introspect.rs` — Onde o contador de figuras será gerido.
-- `01_core/src/rules/layout/` — A nova estrutura de submódulos do Passo 61.
+- `01_core/src/engine/introspect.rs` — Onde o contador de figuras será gerido.
+- `01_core/src/engine/layout/` — A nova estrutura de submódulos do Passo 61.
 
 Pré-condição: `cargo test` — 625 L1 + 119 L3 + 50 parity, zero violations.
 A decomposição de `layout.rs` e a TOC estão operacionais.
@@ -34,14 +34,14 @@ grep -rn "Figure" 01_core/src/entities/content.rs | head -10
 # 2. Verificar se o sistema de activação de numeração tem um nó
 #    equivalente ao SetHeadingNumbering para figuras, ou se usa outro mecanismo
 grep -n "SetHeadingNumbering\|numbering_active" \
-  01_core/src/rules/eval.rs | head -10
+  01_core/src/engine/eval.rs | head -10
 
 # 3. Ver o estado actual dos braços em layout/mod.rs para confirmar
 #    onde inserir o novo braço Figure
-grep -n "Content::" 01_core/src/rules/layout/mod.rs | tail -20
+grep -n "Content::" 01_core/src/engine/layout/mod.rs | tail -20
 
 # 4. Verificar se figure.rs já existe na pasta layout/
-ls -l 01_core/src/rules/layout/
+ls -l 01_core/src/engine/layout/
 ```
 
 Reportar o output completo antes de continuar. A resposta à questão 2 é
@@ -56,13 +56,13 @@ mecanismo — provavelmente via `SetRule` no `eval.rs`, ou definida como
 
 Criar o ficheiro de especificação antes de qualquer código:
 
-`00_nucleo/prompts/rules/layout_figure.md`:
+`00_nucleo/prompts/engine/layout_figure.md`:
 
 ```markdown
 # L0 — Layout: Figuras e Legendas
 
 ## Módulo
-`01_core/src/rules/layout/figure.rs`
+`01_core/src/engine/layout/figure.rs`
 
 ## Propósito
 Encapsula o braço `Content::Figure` do Layouter. Responsável por desenhar
@@ -84,7 +84,7 @@ o corpo da figura e, se existir, a legenda (caption) numerada.
 ```
 
 ```bash
-git add 00_nucleo/prompts/rules/layout_figure.md
+git add 00_nucleo/prompts/engine/layout_figure.md
 crystalline-lint --fix-hashes .
 ```
 
@@ -142,7 +142,7 @@ numeração cujas labels forem referenciadas mostrarão o fallback "@label"
 `figure` como função nativa, o pipeline L3 falhará com "unknown function" antes
 de chegar ao motor de layout.
 
-Em `01_core/src/rules/stdlib.rs` (ou onde as funções nativas estão mapeadas),
+Em `01_core/src/engine/stdlib.rs` (ou onde as funções nativas estão mapeadas),
 registar `figure` no mesmo padrão das outras funções nativas:
 
 ```rust
@@ -264,7 +264,7 @@ partilham o mesmo contador. Resolução: adicionar campo `kind: String` (default
 "figure") a Content::Figure e usar step_flat(&kind) em vez da string fixa.
 ```
 
-Em `01_core/src/rules/introspect.rs`, substituir o braço terminal por um
+Em `01_core/src/engine/introspect.rs`, substituir o braço terminal por um
 braço real para `Content::Figure`:
 
 ```rust
@@ -342,14 +342,14 @@ delegação:
 Content::Figure { body, caption } => figure::layout_figure(self, body, caption),
 ```
 
-Criar `01_core/src/rules/layout/figure.rs`:
+Criar `01_core/src/engine/layout/figure.rs`:
 
 **Verificação prévia obrigatória — confirmar `flat.clear()` no pipeline:**
 Antes de escrever `figure.rs`, confirmar que `layout/mod.rs` limpa os contadores
 planos antes de iniciar o layout físico:
 
 ```bash
-grep -n "flat.clear\|flat\.clear" 01_core/src/rules/layout/mod.rs | head -5
+grep -n "flat.clear\|flat\.clear" 01_core/src/engine/layout/mod.rs | head -5
 ```
 
 Se essa linha não existir ou tiver sido removida, a primeira figura na Passagem 2
@@ -365,7 +365,7 @@ l.counter.hierarchical.clear(); // ← idem para hierárquicos
 
 ```rust
 //! Crystalline Lineage
-//! @prompt 00_nucleo/prompts/rules/layout_figure.md
+//! @prompt 00_nucleo/prompts/engine/layout_figure.md
 //! @prompt-hash <hash>
 //! @layer L1
 //! @updated 2026-04-13
@@ -432,7 +432,7 @@ não-determinísticos enquanto DEBT-13 não estiver resolvido.
 #[test]
 fn introspect_resolve_label_de_figura() {
     use crate::entities::label::Label;
-    use crate::rules::introspect::introspect;
+    use crate::engine::introspect::introspect;
 
     // Nota: numeração de figuras é true por defeito (Opção A) ou activada
     // pelo mecanismo confirmado no diagnóstico. Ajustar se necessário.
@@ -457,7 +457,7 @@ fn introspect_resolve_label_de_figura() {
 #[test]
 fn introspect_duas_figuras_contadores_independentes() {
     use crate::entities::label::Label;
-    use crate::rules::introspect::introspect;
+    use crate::engine::introspect::introspect;
 
     let content = Content::Sequence(vec![
         Content::Labelled {
@@ -493,8 +493,8 @@ fn introspect_duas_figuras_contadores_independentes() {
 ```rust
 #[test]
 fn layout_figure_com_caption_tem_prefixo() {
-    use crate::rules::introspect::introspect;
-    use crate::rules::layout::layout;
+    use crate::engine::introspect::introspect;
+    use crate::engine::layout::layout;
 
     let content = Content::Figure {
         body:    Box::new(Content::text("Gráfico")),
@@ -512,8 +512,8 @@ fn layout_figure_com_caption_tem_prefixo() {
 
 #[test]
 fn layout_figure_sem_caption_sem_prefixo() {
-    use crate::rules::introspect::introspect;
-    use crate::rules::layout::layout;
+    use crate::engine::introspect::introspect;
+    use crate::engine::layout::layout;
 
     let content = Content::Figure {
         body:    Box::new(Content::text("Diagrama")),
@@ -531,8 +531,8 @@ fn layout_figure_sem_caption_sem_prefixo() {
 #[test]
 fn layout_ref_para_figura_resolve_corretamente() {
     use crate::entities::label::Label;
-    use crate::rules::introspect::introspect;
-    use crate::rules::layout::layout;
+    use crate::engine::introspect::introspect;
+    use crate::engine::layout::layout;
 
     let content = Content::Sequence(vec![
         Content::Labelled {

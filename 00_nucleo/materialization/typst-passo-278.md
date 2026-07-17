@@ -81,7 +81,7 @@ Só **factuais desactualizadas** são tocadas. Históricas preservadas per patte
 - `pattern_resources_for_page.walk` (`03_infra/src/export.rs`).
 - `draw_item_local` (`03_infra/src/export.rs`).
 
-**Estado pós-P277**: relatório P277 §3.3 reportou que `polygon()` em `01_core/src/rules/stdlib/shapes.rs` foi consolidado para usar `path_bbox()` — mas isso é **outro helper, em outra camada** (L1, não L3) e cobre **outro pattern** (Path bbox, não Group bbox). **Sub-op 2 fica intocada por P277**.
+**Estado pós-P277**: relatório P277 §3.3 reportou que `polygon()` em `01_core/src/engine/stdlib/shapes.rs` foi consolidado para usar `path_bbox()` — mas isso é **outro helper, em outra camada** (L1, não L3) e cobre **outro pattern** (Path bbox, não Group bbox). **Sub-op 2 fica intocada por P277**.
 
 Verificar empíricamente as 3 replicações em L3:
 

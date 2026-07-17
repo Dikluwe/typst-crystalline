@@ -11,13 +11,13 @@ prompt L0 dedicado e actualizando a linhagem `@prompt` para que o ficheiro
 desse de depender exclusivamente do prompt grosseiro `stdlib/_comum.md`.
 
 - **L0 novo:**
-  - `00_nucleo/prompts/rules/stdlib/assert.md` — spec dedicada à função
+  - `00_nucleo/prompts/engine/stdlib/assert.md` — spec dedicada à função
     `assert`.
 - **Cabeçalhos `@prompt` ajustados:**
-  - `01_core/src/rules/stdlib/assert.rs` — aponta agora para
-    `00_nucleo/prompts/rules/stdlib/assert.md`.
+  - `01_core/src/engine/stdlib/assert.rs` — aponta agora para
+    `00_nucleo/prompts/engine/stdlib/assert.md`.
 - **Prompt comum actualizado:**
-  - `00_nucleo/prompts/rules/stdlib/_comum.md` — removido `assert.rs` da
+  - `00_nucleo/prompts/engine/stdlib/_comum.md` — removido `assert.rs` da
     lista de ficheiros que apontam para o prompt comum; adicionada nota sobre
     o novo `assert.md`.
 - **Débito actualizado:**
@@ -43,7 +43,7 @@ e `show-regex.md`).
 
 | Critério | Resultado |
 |----------|-----------|
-| `00_nucleo/prompts/rules/stdlib/assert.md` criado com 1 secção | ✓ |
+| `00_nucleo/prompts/engine/stdlib/assert.md` criado com 1 secção | ✓ |
 | Secção cobre assinatura, args, semântica, paridade vanilla, limitações e testes canónicos | ✓ |
 | `_comum.md` actualizado | ✓ |
 | `assert.rs` cabeçalho `@prompt` aponta `assert.md` | ✓ |
@@ -55,12 +55,12 @@ e `show-regex.md`).
 ## Artefactos
 
 - L0:
-  - `00_nucleo/prompts/rules/stdlib/assert.md`
-  - `00_nucleo/prompts/rules/stdlib/_comum.md` (actualizado)
+  - `00_nucleo/prompts/engine/stdlib/assert.md`
+  - `00_nucleo/prompts/engine/stdlib/_comum.md` (actualizado)
 - Código (apenas cabeçalho de linhagem / hashes):
-  - `01_core/src/rules/stdlib/assert.rs`
-  - `01_core/src/rules/stdlib/gradients.rs` (hash sincronizado)
-  - `01_core/src/rules/stdlib/transforms.rs` (hash sincronizado)
+  - `01_core/src/engine/stdlib/assert.rs`
+  - `01_core/src/engine/stdlib/gradients.rs` (hash sincronizado)
+  - `01_core/src/engine/stdlib/transforms.rs` (hash sincronizado)
 - Débito:
   - `00_nucleo/diagnosticos/debt/DEBT.md`
 - Plano:

@@ -67,7 +67,7 @@ Cobertura exaustiva de **9 sítios pattern-match estruturais**
 
 ### 1.3 Stdlib `native_table_cell` (.3)
 
-Adicionado a `01_core/src/rules/stdlib/structural.rs`
+Adicionado a `01_core/src/engine/stdlib/structural.rs`
 (continuação P157A).
 
 ```rust
@@ -92,7 +92,7 @@ em `stdlib/mod.rs`.
 
 ### 1.4 Layout para `Content::TableCell` (.4)
 
-Pattern arm novo em `layout_content` (`01_core/src/rules/layout/mod.rs`):
+Pattern arm novo em `layout_content` (`01_core/src/engine/layout/mod.rs`):
 
 ```rust
 Content::TableCell { body, x: _, y: _, colspan: _, rowspan: _ } => {
@@ -172,7 +172,7 @@ antes de P157A.
 | 7 | DEBT-34e permanece aberto | **✓** explicitamente documentado em §1.4 + diagnóstico §6 + nota P157B em DEBT.md futura |
 | 8 | Naming convention final documentada | **✓** §1.1: `table_cell` flat per FieldAccess actual + diagnóstico §8 |
 | 9 | ADR-0064 Caso A primeira aplicação Model + Caso C terceira global | **✓** §5; auto-validação cumulativa documentada |
-| 10 | `layout_grid` original NÃO modificado | **✓** zero diff em `01_core/src/rules/layout/grid.rs`; cell arm em `layout/mod.rs` é trivial single-render |
+| 10 | `layout_grid` original NÃO modificado | **✓** zero diff em `01_core/src/engine/layout/grid.rs`; cell arm em `layout/mod.rs` é trivial single-render |
 
 **Build limpo**: `cargo build` 1.19s sem warnings novos.
 

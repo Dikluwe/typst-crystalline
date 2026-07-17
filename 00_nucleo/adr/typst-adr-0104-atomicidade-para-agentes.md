@@ -97,7 +97,7 @@ por elegância.
 |--------|---------------------|
 | `rules/stdlib.md` | fatiado em finos (P314, A.3); vira índice |
 | `rules/math/layout.md` | fatiado em finos (P314, A.3); vira índice |
-| (futuros) `rules/layout.md`, `rules/eval.md`, `rules/parse.md` | candidatos a fatiar (fan-in alto medido no P314; não fatiados aqui) |
+| (futuros) `engine/layout.md`, `rules/eval.md`, `rules/parse.md` | candidatos a fatiar (fan-in alto medido no P314; não fatiados aqui) |
 
 ---
 

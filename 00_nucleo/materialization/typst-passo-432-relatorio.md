@@ -11,14 +11,14 @@ prompt L0 dedicado e actualizando a linhagem `@prompt` para que o ficheiro
 desse de depender exclusivamente do prompt grosseiro `stdlib/_comum.md`.
 
 - **L0 novo:**
-  - `00_nucleo/prompts/rules/stdlib/layout.md` — spec dedicada ao módulo
+  - `00_nucleo/prompts/engine/stdlib/layout.md` — spec dedicada ao módulo
     `layout.rs`.
 - **Cabeçalhos `@prompt` ajustados:**
-  - `01_core/src/rules/stdlib/layout.rs` — `_comum.md`, `stdlib/layout.md`
+  - `01_core/src/engine/stdlib/layout.rs` — `_comum.md`, `stdlib/layout.md`
     (esta última em último lugar, conforme convenção do linter para prompt
     "dono" do ficheiro).
 - **Prompt comum actualizado:**
-  - `00_nucleo/prompts/rules/stdlib/_comum.md` — removido `layout.rs` da
+  - `00_nucleo/prompts/engine/stdlib/_comum.md` — removido `layout.rs` da
     lista de ficheiros que apontam para o prompt comum; adicionada nota sobre
     o novo `layout.md`.
 - **Débito actualizado:**
@@ -63,7 +63,7 @@ funções e inclui uma nota sobre a ausência de `native_page`.
 
 | Critério | Resultado |
 |----------|-----------|
-| `00_nucleo/prompts/rules/stdlib/layout.md` criado | ✓ 16 secções |
+| `00_nucleo/prompts/engine/stdlib/layout.md` criado | ✓ 16 secções |
 | Cada secção cobre assinatura, args, semântica, paridade vanilla, limitações e testes canónicos | ✓ |
 | `_comum.md` actualizado | ✓ |
 | `DEBT.md` actualizado com nota de fecho P432 | ✓ |
@@ -74,13 +74,13 @@ funções e inclui uma nota sobre a ausência de `native_page`.
 ## Artefactos
 
 - L0:
-  - `00_nucleo/prompts/rules/stdlib/layout.md`
-  - `00_nucleo/prompts/rules/stdlib/_comum.md` (actualizado)
+  - `00_nucleo/prompts/engine/stdlib/layout.md`
+  - `00_nucleo/prompts/engine/stdlib/_comum.md` (actualizado)
 - Código (apenas cabeçalho de linhagem):
-  - `01_core/src/rules/stdlib/layout.rs`
-  - `01_core/src/rules/stdlib/assert.rs` (hash sincronizado)
-  - `01_core/src/rules/stdlib/gradients.rs` (hash sincronizado)
-  - `01_core/src/rules/stdlib/transforms.rs` (hash sincronizado)
+  - `01_core/src/engine/stdlib/layout.rs`
+  - `01_core/src/engine/stdlib/assert.rs` (hash sincronizado)
+  - `01_core/src/engine/stdlib/gradients.rs` (hash sincronizado)
+  - `01_core/src/engine/stdlib/transforms.rs` (hash sincronizado)
 - Débito:
   - `00_nucleo/diagnosticos/debt/DEBT.md`
 - Plano:

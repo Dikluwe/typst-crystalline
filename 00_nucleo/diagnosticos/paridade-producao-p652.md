@@ -35,7 +35,7 @@ Exit code: 1.
 
 ### 1.2 Local no cristalino
 
-`01_core/src/rules/stdlib/collections.rs:184,187`:
+`01_core/src/engine/stdlib/collections.rs:184,187`:
 
 ```rust
 keyed.sort_by(|a, b| value_cmp(&a.0, &b.0).unwrap_or(Ordering::Equal));
@@ -48,7 +48,7 @@ sorted.sort_by(|a, b| value_cmp(a, b).unwrap_or(Ordering::Equal));
 
 ## 2. Implementação
 
-### 2.1 `01_core/src/rules/stdlib/collections.rs`
+### 2.1 `01_core/src/engine/stdlib/collections.rs`
 
 - `value_cmp` passou a devolver `Result<Ordering, EcoString>`:
   - Tipos incompatíveis → `Err("cannot compare {type_a} and {type_b}")`.
@@ -57,7 +57,7 @@ sorted.sort_by(|a, b| value_cmp(a, b).unwrap_or(Ordering::Equal));
 - `array_sorted` captura o primeiro erro de comparação durante o `sort_by` (via flag externa) e propaga-o como `SourceDiagnostic::error`.
 - A lógica aplica-se tanto ao caminho sem `key` como ao caminho com `key`.
 
-### 2.2 `01_core/src/rules/eval/tests.rs`
+### 2.2 `01_core/src/engine/eval/tests.rs`
 
 Adicionado `p652_array_sorted_tipo_incompativel_errors`, que confirma que `(1, "a", 2).sorted()` agora produz erro com a mensagem esperada.
 

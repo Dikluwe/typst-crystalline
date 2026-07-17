@@ -9,7 +9,7 @@
 
 ## 1. Sumário
 
-P183A executou auditoria empírica que ajustou a contagem original "4 consumers restantes" (P181J §5) para um inventário granular: **12 read-sites totais** em `01_core/src/rules/layout/`, dos quais **5 já migrados** (P168 figure-ref, P181G cite-arm × 2, P182D heading-arm + equation-arm) e **7 não migrados**, agrupáveis em **5 áreas funcionais**:
+P183A executou auditoria empírica que ajustou a contagem original "4 consumers restantes" (P181J §5) para um inventário granular: **12 read-sites totais** em `01_core/src/engine/layout/`, dos quais **5 já migrados** (P168 figure-ref, P181G cite-arm × 2, P182D heading-arm + equation-arm) e **7 não migrados**, agrupáveis em **5 áreas funcionais**:
 
 - **C1**: heading prefix (`mod.rs:310` `format_hierarchical`).
 - **C2**: equation counter value (`equation.rs:97` `get_flat`).
@@ -143,7 +143,7 @@ P183A não modifica `m1-lacunas-captura.md` directamente — as 7 lacunas docume
 **P183B** — C1 heading prefix.
 
 Escopo concreto:
-1. **`01_core/src/rules/layout/mod.rs:310`**: substituir `self.counter.format_hierarchical("heading")` por:
+1. **`01_core/src/engine/layout/mod.rs:310`**: substituir `self.counter.format_hierarchical("heading")` por:
    ```rust
    self.introspector
        .formatted_counter("heading")

@@ -300,7 +300,7 @@ relatório consolidado P194.
 
 **P194B** — migração consumer C4:
 
-1. Editar `01_core/src/rules/layout/references.rs:53-57`:
+1. Editar `01_core/src/engine/layout/references.rs:53-57`:
    - Substituir match legacy pela expressão Opção C.
    - Adicionar comentário inline (4-5 linhas).
 

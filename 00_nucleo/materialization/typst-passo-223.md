@@ -149,7 +149,7 @@ Auditoria empírica:
 ```
 grep -n "Place {" 01_core/src/entities/content.rs
 grep -c "Content::Place" 01_core/src/
-grep -n "scope:" 01_core/src/rules/stdlib/layout.rs | head -10
+grep -n "scope:" 01_core/src/engine/stdlib/layout.rs | head -10
 grep -rn "scope.*parent\|scope.*Parent" 01_core/src/ | head -5
 ```
 
@@ -158,7 +158,7 @@ Hipótese:
   fields.
 - Arms em `entities/content.rs` (5: `is_empty`, `plain_text`,
   `PartialEq`, `map_content`, `map_text`), `rules/introspect.rs`
-  (2: `materialize_time`, `walk`), `rules/layout/mod.rs`
+  (2: `materialize_time`, `walk`), `engine/layout/mod.rs`
   (1: `layout_content`), `rules/introspect/locatable.rs`
   (catch-all ou explicit). Total ~7-8 arms.
 - `native_place` validation atrás de `extract_alignment` +
@@ -225,7 +225,7 @@ Compiler-driven (paridade P217 estratégia):
   (incluindo 2 novos).
 - `walk` — recurse no body; preservado.
 
-**`rules/layout/mod.rs::layout_content`** (1 arm — refino
+**`engine/layout/mod.rs::layout_content`** (1 arm — refino
 mínimo):
 ```rust
 Content::Place { alignment, dx, dy, scope, float, clearance, body } => {
@@ -236,7 +236,7 @@ Content::Place { alignment, dx, dy, scope, float, clearance, body } => {
 }
 ```
 
-**`rules/layout/mod.rs::measure_content_constrained`** (se
+**`engine/layout/mod.rs::measure_content_constrained`** (se
 existir arm Place; auditar em C1):
 - Preservar; sem mudança.
 
@@ -248,7 +248,7 @@ total.
 
 ### C4 — Refino `native_place` stdlib
 
-Editar `01_core/src/rules/stdlib/layout.rs` função `native_place`:
+Editar `01_core/src/engine/stdlib/layout.rs` função `native_place`:
 
 ```rust
 pub fn native_place(_ctx, args, ...) -> SourceResult<Value> {
@@ -518,15 +518,15 @@ Estrutura (~6-8 KB) com 8 §s:
 Código alterado:
 - **Editado**: `01_core/src/entities/content.rs` (variant
   refino +2 fields + arms cascata em 5 sítios + 4 unit tests).
-- **Editado**: `01_core/src/rules/introspect.rs` (arms
+- **Editado**: `01_core/src/engine/introspect.rs` (arms
   preservados — possível ajuste mínimo).
-- **Editado**: `01_core/src/rules/layout/mod.rs` (arm
+- **Editado**: `01_core/src/engine/layout/mod.rs` (arm
   Place desestrutura 2 fields novos; possível arm em
   `measure_content_constrained` ajustado).
-- **Editado**: `01_core/src/rules/stdlib/layout.rs`
+- **Editado**: `01_core/src/engine/stdlib/layout.rs`
   (`native_place` refino: +2 named args + DEBT-37 validation;
   +8 unit tests).
-- **Editado**: `01_core/src/rules/layout/tests.rs` (+2 E2E
+- **Editado**: `01_core/src/engine/layout/tests.rs` (+2 E2E
   tests + adaptação N tests pre-existentes DEBT-37).
 - **Editado**: `00_nucleo/diagnosticos/typst-cobertura-vanilla-vs-cristalino.md`
   (Tabela A.5 + §A.5 reclassificação + Tabela B.2 actualização

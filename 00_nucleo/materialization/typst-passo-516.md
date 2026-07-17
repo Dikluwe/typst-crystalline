@@ -93,7 +93,7 @@ impl GlyphCollector {
 **Integração com o layout engine:**
 
 ```rust
-// src/rules/layout/mod.rs
+// src/engine/layout/mod.rs
 pub fn layout_document(content: &Content, ctx: &mut LayoutContext) -> Document {
     let mut glyph_collector = GlyphCollector::new();
 

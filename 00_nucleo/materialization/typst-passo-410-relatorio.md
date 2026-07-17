@@ -31,25 +31,25 @@ grep -n "pub major\|pub minor\|pub patch\|pub pre\|pub build" 01_core/src/entiti
 # 22:    pub pre: Vec<EcoString>,
 # 24:    pub build: Vec<EcoString>,
 
-grep -rn "Value::Version" 01_core/src/rules/eval/ | grep -i "field\|get_field\|dot\|access\|major\|minor\|patch"
-# 01_core/src/rules/eval/tests.rs:1309:  Value::Version(...)
-# 01_core/src/rules/eval/tests.rs:1315:  Value::Version(...)
-# 01_core/src/rules/eval/tests.rs:1321:  Value::Version(...)
+grep -rn "Value::Version" 01_core/src/engine/eval/ | grep -i "field\|get_field\|dot\|access\|major\|minor\|patch"
+# 01_core/src/engine/eval/tests.rs:1309:  Value::Version(...)
+# 01_core/src/engine/eval/tests.rs:1315:  Value::Version(...)
+# 01_core/src/engine/eval/tests.rs:1321:  Value::Version(...)
 # Apenas construção de valores em testes; nenhum field access.
 
-grep -rn "get_field\|field_access" 01_core/src/rules/eval/ | head -20
-# 01_core/src/rules/eval/bindings.rs:118: pub(super) fn eval_field_access(...)
-# 01_core/src/rules/eval/bindings.rs:138: Value::Content(c) => c.get_field(...)
-# 01_core/src/rules/eval/tests.rs:1835: fn pipeline_field_access_invalido_retorna_err()
-# 01_core/src/rules/eval/mod.rs:528: Expr::FieldAccess(a) => bindings::eval_field_access(...)
+grep -rn "get_field\|field_access" 01_core/src/engine/eval/ | head -20
+# 01_core/src/engine/eval/bindings.rs:118: pub(super) fn eval_field_access(...)
+# 01_core/src/engine/eval/bindings.rs:138: Value::Content(c) => c.get_field(...)
+# 01_core/src/engine/eval/tests.rs:1835: fn pipeline_field_access_invalido_retorna_err()
+# 01_core/src/engine/eval/mod.rs:528: Expr::FieldAccess(a) => bindings::eval_field_access(...)
 
-grep -rn "version.*major\|version.*minor\|version.*patch" 01_core/src/rules/eval/tests.rs 01_core/src/entities/tests/ 2>/dev/null
+grep -rn "version.*major\|version.*minor\|version.*patch" 01_core/src/engine/eval/tests.rs 01_core/src/entities/tests/ 2>/dev/null
 # Nenhum teste de field access Version encontrado.
 ```
 
 ### Verificação manual de `eval_field_access`
 
-Arquivo `01_core/src/rules/eval/bindings.rs`, linhas 118–147:
+Arquivo `01_core/src/engine/eval/bindings.rs`, linhas 118–147:
 
 ```rust
 pub(super) fn eval_field_access(...) -> SourceResult<Value> {
@@ -78,14 +78,14 @@ grep -n "Value::Duration" 01_core/src/entities/value.rs
 grep -n "pub fn as_secs\|pub fn as_millis\|pub fn as_nanos\|pub fn days\|pub fn hours\|pub fn minutes\|pub fn seconds" 01_core/src/entities/duration.rs
 # Nenhum método com esses nomes exactos.
 
-grep -rn "Value::Duration" 01_core/src/rules/eval/ | grep -i "field\|get_field\|dot\|access\|days\|hours\|minutes\|seconds"
-# 01_core/src/rules/eval/tests.rs:1217: Value::Duration(...)
+grep -rn "Value::Duration" 01_core/src/engine/eval/ | grep -i "field\|get_field\|dot\|access\|days\|hours\|minutes\|seconds"
+# 01_core/src/engine/eval/tests.rs:1217: Value::Duration(...)
 # Apenas construção de valores em testes; nenhum field access.
 
-grep -rn "get_field\|field_access" 01_core/src/rules/eval/ | head -20
+grep -rn "get_field\|field_access" 01_core/src/engine/eval/ | head -20
 # Idem Sonda A: apenas Dict e Content.
 
-grep -rn "duration.*days\|duration.*hours\|duration.*minutes\|duration.*seconds" 01_core/src/rules/eval/tests.rs 01_core/src/entities/tests/ 2>/dev/null
+grep -rn "duration.*days\|duration.*hours\|duration.*minutes\|duration.*seconds" 01_core/src/engine/eval/tests.rs 01_core/src/entities/tests/ 2>/dev/null
 # Nenhum teste de field access Duration encontrado.
 ```
 
@@ -115,24 +115,24 @@ grep -n "impl.*PartialOrd\|impl.*Ord\|impl.*Eq\|impl.*PartialEq" 01_core/src/ent
 # 109: impl PartialOrd for Version {
 # 115: impl Ord for Version {
 
-grep -rn "Value::Version" 01_core/src/rules/eval/ | grep -i "add\|sub\|mul\|div\|cmp\|eq\|lt\|gt\|BinaryOp"
-# 01_core/src/rules/eval/operators.rs:154: (BinOp::Eq,  Value::Version(a), Value::Version(b)) => ...
-# 01_core/src/rules/eval/operators.rs:157: (BinOp::Neq, Value::Version(a), Value::Version(b)) => ...
-# 01_core/src/rules/eval/operators.rs:172: (BinOp::Lt,  Value::Version(a), Value::Version(b)) => Ok(Value::Bool(a < b)),
-# 01_core/src/rules/eval/operators.rs:182: (BinOp::Leq, Value::Version(a), Value::Version(b)) => Ok(Value::Bool(a <= b)),
-# 01_core/src/rules/eval/operators.rs:192: (BinOp::Gt,  Value::Version(a), Value::Version(b)) => Ok(Value::Bool(a > b)),
-# 01_core/src/rules/eval/operators.rs:202: (BinOp::Geq, Value::Version(a), Value::Version(b)) => Ok(Value::Bool(a >= b)),
+grep -rn "Value::Version" 01_core/src/engine/eval/ | grep -i "add\|sub\|mul\|div\|cmp\|eq\|lt\|gt\|BinaryOp"
+# 01_core/src/engine/eval/operators.rs:154: (BinOp::Eq,  Value::Version(a), Value::Version(b)) => ...
+# 01_core/src/engine/eval/operators.rs:157: (BinOp::Neq, Value::Version(a), Value::Version(b)) => ...
+# 01_core/src/engine/eval/operators.rs:172: (BinOp::Lt,  Value::Version(a), Value::Version(b)) => Ok(Value::Bool(a < b)),
+# 01_core/src/engine/eval/operators.rs:182: (BinOp::Leq, Value::Version(a), Value::Version(b)) => Ok(Value::Bool(a <= b)),
+# 01_core/src/engine/eval/operators.rs:192: (BinOp::Gt,  Value::Version(a), Value::Version(b)) => Ok(Value::Bool(a > b)),
+# 01_core/src/engine/eval/operators.rs:202: (BinOp::Geq, Value::Version(a), Value::Version(b)) => Ok(Value::Bool(a >= b)),
 
-grep -rn "BinaryOp::Eq\|BinaryOp::Lt" 01_core/src/rules/eval/ | head -10
+grep -rn "BinaryOp::Eq\|BinaryOp::Lt" 01_core/src/engine/eval/ | head -10
 # Match arms presentes em rules/eval/operators.rs.
 
-grep -rn "version.*==\|version.*<\|version.*cmp" 01_core/src/rules/eval/tests.rs 01_core/src/entities/tests/ 2>/dev/null
+grep -rn "version.*==\|version.*<\|version.*cmp" 01_core/src/engine/eval/tests.rs 01_core/src/entities/tests/ 2>/dev/null
 # Testes encontrados em rules/eval/tests.rs: version_eq_neq, version_lt_gt_leq_geq, version_pre_release_ordering.
 ```
 
 ### Verificação dos testes existentes
 
-Em `01_core/src/rules/eval/tests.rs`, bloco `P406 — Comparações Version`:
+Em `01_core/src/engine/eval/tests.rs`, bloco `P406 — Comparações Version`:
 
 - `version_eq_neq`
 - `version_lt_gt_leq_geq`

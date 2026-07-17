@@ -79,7 +79,7 @@ Verificações literais obrigatórias:
 1. **`grep -rn "fn locate\|here\|Introspector::query"
    01_core/src/`** — confirmar que `locate`/`here`/`query` estão
    funcionais.
-2. **Inspeccionar `01_core/src/rules/stdlib/introspection.rs`** —
+2. **Inspeccionar `01_core/src/engine/stdlib/introspection.rs`** —
    API exposta; tipos `Selector`, `Location`.
 3. **Inspeccionar `01_core/src/walker/introspector.rs`** —
    `Introspector::query.first()` (referência P208C) — funcional?
@@ -421,11 +421,11 @@ copy-paste de P293/P294, registar honestamente.
 
 - Tipo a modificar: `01_core/src/entities/content.rs` (`Content`
   enum, N variants pós-P293+P294).
-- Função stdlib: `01_core/src/rules/stdlib/model.rs` (ou
+- Função stdlib: `01_core/src/engine/stdlib/model.rs` (ou
   caminho equivalente — paralelo `native_cite` P159A).
 - Counter machinery: `01_core/src/walker/counter.rs` (P60).
 - Introspector: `01_core/src/walker/introspector.rs` (P208C).
-- Layouter consumer: `01_core/src/rules/layout/mod.rs`.
+- Layouter consumer: `01_core/src/engine/layout/mod.rs`.
 - Vanilla: `lab/typst-original/crates/typst-library/src/model/footnote.rs`.
 - Precedente arquitectural mais próximo: `cite` (P159A-F).
 - Precedente "variant rico com cosméticos": P156G/H/I + P284 —

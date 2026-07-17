@@ -211,7 +211,7 @@ ElementKind::CounterDisplay   // + "counter_display" as_str/from_name
 
 ## §5 `apply_counter_displays` fixpoint function + Introspector storage + `counter_display_value` method (C4)
 
-`01_core/src/rules/introspect/from_tags.rs` — paridade absoluta
+`01_core/src/engine/introspect/from_tags.rs` — paridade absoluta
 `apply_state_displays` P240:
 
 ```rust
@@ -281,7 +281,7 @@ mesma sequência pós-walk pré-hash.
 
 ## §6 Stdlib `native_counter_display` + walk arm + layout arm (C5+C6+C7)
 
-`01_core/src/rules/stdlib/mod.rs`:
+`01_core/src/engine/stdlib/mod.rs`:
 
 ```rust
 fn native_counter_display(_ctx: &mut EvalContext<'_>, args: &Args) -> SourceResult<Value> {
@@ -306,7 +306,7 @@ Walk arm em `rules/introspect.rs` para `Content::CounterDisplayCallback`:
   `Some(ElementPayload::CounterDisplay { key, callback })`.
 - não recurse (terminal).
 
-Layout arm em `rules/layout/mod.rs` (paralelo `Content::StateDisplay`
+Layout arm em `engine/layout/mod.rs` (paralelo `Content::StateDisplay`
 P240):
 
 ```rust

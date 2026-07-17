@@ -13,10 +13,10 @@ privado do `Layouter` por ser módulo descendente; **sem** import reverso, **sem
 
 | Elemento | Arm antes (mod.rs) | Arquivo novo | Linhas |
 |---|---|---|---|
-| `Block` | `Content::Block(e) => block::layout(self, e)` | `rules/layout/block.rs` | 302 |
-| `Boxed` | `Content::Boxed(e) => boxed::layout(self, e)` | `rules/layout/boxed.rs` | 202 |
-| `Stack` | `Content::Stack(e) => stack::layout(self, e)` | `rules/layout/stack.rs` | 87 |
-| `Pad`   | `Content::Pad(e) => pad::layout(self, e)`     | `rules/layout/pad.rs`   | 75 |
+| `Block` | `Content::Block(e) => block::layout(self, e)` | `engine/layout/block.rs` | 302 |
+| `Boxed` | `Content::Boxed(e) => boxed::layout(self, e)` | `engine/layout/boxed.rs` | 202 |
+| `Stack` | `Content::Stack(e) => stack::layout(self, e)` | `engine/layout/stack.rs` | 87 |
+| `Pad`   | `Content::Pad(e) => pad::layout(self, e)`     | `engine/layout/pad.rs`   | 75 |
 
 **Métrica de leitura (ADR-0109):** `layout_content` encolheu **1857 → 1276 linhas** (−581);
 `layout/mod.rs` **2867 → 2293** (−574). Cada container é agora legível no seu arquivo.
@@ -39,7 +39,7 @@ Stack, não despacho); `entities/` **não tocado** → `content→elements` inal
 
 | Monólito | `file:line` | Tamanho | Exaustivo? |
 |---|---|---|---|
-| `layout_content` | `rules/layout/mod.rs:527-2383` | **1857 linhas, 59 arms bespoke** | sim, sem wildcard |
+| `layout_content` | `engine/layout/mod.rs:527-2383` | **1857 linhas, 59 arms bespoke** | sim, sem wildcard |
 | walk introspect | `rules/introspect.rs:156` (+`:176`,`:422`,`:828`) | **43 arms** | sim |
 | hub `content.rs` | `:1535-2317` | já delegação magra (P375) | n/a |
 
@@ -71,7 +71,7 @@ real a aceitar conscientemente.
 - **Opção A — elemento-dono** (forma canónica ADR-0109): `impl HeadingElem { fn layout }` em
   `heading.rs`. Leitura por-elemento-único literal; **paga** o custo §3 (ciclo + `pub(crate)` +
   genéricos).
-- **Opção B — layout por-elemento**: `rules/layout/elem/heading.rs`. Atomiza o monólito em ~59
+- **Opção B — layout por-elemento**: `engine/layout/elem/heading.rs`. Atomiza o monólito em ~59
   arquivos pequenos **sem** o custo §3 (segue a separação domínio/render do Typst vanilla); a
   lógica fica ao lado do layout, não do struct.
 
@@ -87,7 +87,7 @@ atinge a leitura sem o custo. [inferência marcada]
 F-5b INTACTOS.
 
 ## Decisão do dono (P376) — resolvida
-- **Forma: Opção B** — layout por-elemento em `rules/layout/<elem>.rs` (flat, seguindo os 6
+- **Forma: Opção B** — layout por-elemento em `engine/layout/<elem>.rs` (flat, seguindo os 6
   precedentes existentes: `figure.rs`/`image.rs`/`grid.rs`/…), sem ciclo, sem `pub(crate)`, sem o
   custo §3. (Opção A fica registada como alternativa.)
 - **Escopo: família containers** — `Block`+`Boxed`+`Stack`+`Pad`. Materializado no Estágio 1 (topo

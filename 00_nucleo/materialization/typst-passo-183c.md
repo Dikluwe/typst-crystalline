@@ -17,7 +17,7 @@ declara gate substancial igual ao P183B e escala para DEBT.
 
 Migra (se a auditoria semântica passar) consumer C2
 (`Layouter::layout_equation` em
-`01_core/src/rules/layout/equation.rs:97`) de
+`01_core/src/engine/layout/equation.rs:97`) de
 `self.counter.get_flat("equation")` legacy para
 `self.introspector.flat_counter("equation")` com fallback
 legacy. Adiciona método trait `flat_counter(&self, key: &str)
@@ -91,7 +91,7 @@ natureza (DEBT M4-residual cobre C1, C2, C3 todos).
 ### .A Auditoria L0
 
 1. Confirmar consumer C2 actual:
-   - `01_core/src/rules/layout/equation.rs:97` (per
+   - `01_core/src/engine/layout/equation.rs:97` (per
      P183A §2).
    - Localizar leitura: padrão esperado
      `self.counter.get_flat("equation")` ou similar.
@@ -208,7 +208,7 @@ decisão (`prosseguir` / `gate substancial`).
 
 ### .E Migrar consumer C2
 
-1. Em `01_core/src/rules/layout/equation.rs:97`:
+1. Em `01_core/src/engine/layout/equation.rs:97`:
    - Substitution-with-fallback.
 
 2. Confirmar trait import local.

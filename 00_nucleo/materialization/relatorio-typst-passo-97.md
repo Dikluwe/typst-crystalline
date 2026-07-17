@@ -10,7 +10,7 @@ violations.
 ## Sumário
 
 DEBT-47 auditou todos os `pub(super)` introduzidos na série 96.1–96.9
-em `01_core/src/rules/`. Redução líquida: **269 → 211** ocorrências
+em `01_core/src/engine/`. Redução líquida: **269 → 211** ocorrências
 (**–58 itens, –22%**). Aumento do rácio global métodos:campos de
 3.2 → 3.5 (média ponderada).
 
@@ -195,7 +195,7 @@ Regra 3 (expõe comportamento, não estado).
 
 **ENCERRADO (Passo 97).**
 
-Todas as ocorrências `pub(super)` em `01_core/src/rules/` estão
+Todas as ocorrências `pub(super)` em `01_core/src/engine/` estão
 num dos estados admitidos pela spec:
 
 - `fn` → Regra 3 satisfeita por ser método.

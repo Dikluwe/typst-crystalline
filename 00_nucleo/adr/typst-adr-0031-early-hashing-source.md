@@ -66,7 +66,7 @@ impl Source {
         text.hash(&mut hasher);
         let content_hash = hasher.finish();
 
-        let root = crate::rules::parse::parse(&text);
+        let root = crate::engine::parse::parse(&text);
 
         Self(Arc::new(SourceInner { id, text, root, content_hash }))
     }

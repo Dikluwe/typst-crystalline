@@ -376,7 +376,7 @@ Não é ficheiro discreto. Conjunto de alterações em:
 - `01_core/src/entities/position.rs` (novo).
 - `01_core/src/entities/mod.rs` ou `lib.rs` (export).
 - `LayouterRuntimeState` (campo).
-- `01_core/src/rules/layout/...` (chamadas a
+- `01_core/src/engine/layout/...` (chamadas a
   `runtime.positions.insert`).
 - Trait `Introspector::position_of` (assinatura, se C2 =
   migrar).

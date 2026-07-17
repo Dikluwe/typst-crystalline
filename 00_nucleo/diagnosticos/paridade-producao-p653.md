@@ -36,7 +36,7 @@ Resultado:
 
 ### 1.2 Alcance do problema no cristalino
 
-`01_core/src/rules/stdlib/collections.rs:147`: `array_sorted` lia `args.items`, tratando um eventual argumento como posicional. Como o vanilla exige `key:` como named arg, `args.items` estava sempre vazio e a função `key` nunca era aplicada.
+`01_core/src/engine/stdlib/collections.rs:147`: `array_sorted` lia `args.items`, tratando um eventual argumento como posicional. Como o vanilla exige `key:` como named arg, `args.items` estava sempre vazio e a função `key` nunca era aplicada.
 
 Exemplo que distingue os dois comportamentos sem ambiguidade:
 
@@ -60,7 +60,7 @@ A ordenação ignorava `key` e usava a ordem numérica em bruto.
 
 ## 2. Implementação
 
-### 2.1 `01_core/src/rules/stdlib/collections.rs`
+### 2.1 `01_core/src/engine/stdlib/collections.rs`
 
 - `array_sorted` passou a validar argumentos de acordo com o vanilla:
   - Rejeita argumentos posicionais.
@@ -70,7 +70,7 @@ A ordenação ignorava `key` e usava a ordem numérica em bruto.
 - Quando `key` está ausente, mantém o comportamento corrigido em P652.
 - Erros de comparação de tipos incompatíveis aplicam-se aos resultados de `key`, não aos elementos originais.
 
-### 2.2 `01_core/src/rules/eval/tests.rs`
+### 2.2 `01_core/src/engine/eval/tests.rs`
 
 Adicionados quatro testes:
 

@@ -175,7 +175,7 @@ Actualizar todos os `match` sobre `Content` — adicionar
 
 ### 2b — `FrameItem::Group`
 
-Em `01_core/src/rules/layout/frame.rs`:
+Em `01_core/src/engine/layout/frame.rs`:
 
 ```rust
 // Na enum FrameItem:
@@ -192,7 +192,7 @@ Group {
 
 ### 2c — Funções nativas na stdlib
 
-Em `01_core/src/rules/stdlib.rs`:
+Em `01_core/src/engine/stdlib.rs`:
 
 ```rust
 pub fn native_move(_ctx: &mut EvalContext, args: &Args) -> Result<Value, String> {
@@ -252,7 +252,7 @@ ctx.register("scale",  native_scale);
 
 ## Tarefa 3 — AABB dinâmica no layouter (L1)
 
-Em `01_core/src/rules/layout/mod.rs`, processar `Content::Transform`:
+Em `01_core/src/engine/layout/mod.rs`, processar `Content::Transform`:
 
 ```rust
 Content::Transform { matrix, body } => {

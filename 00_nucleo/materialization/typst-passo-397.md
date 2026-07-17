@@ -85,7 +85,7 @@ No vanilla, `title` é usado em múltiplos contextos:
 
 ### A.1 — Prompt L0 `document.md`
 
-Novo em `00_nucleo/prompts/rules/model/document.md`:
+Novo em `00_nucleo/prompts/engine/model/document.md`:
 
 - **Paridade**: `document(title: [...], author: "...", date: datetime(...), keywords: ("...",))` ≡ vanilla `DocumentElem` morfologicamente.
 - **Substrato**: Content variant `Document` + stdlib `native_document` + PDF metadata export stub.
@@ -102,7 +102,7 @@ Novo em `00_nucleo/prompts/rules/model/document.md`:
 
 ### A.2 — Prompt L0 `asset.md`
 
-Novo em `00_nucleo/prompts/rules/model/asset.md` (ou `visualize/` se apropriado):
+Novo em `00_nucleo/prompts/engine/model/asset.md` (ou `visualize/` se apropriado):
 
 - **Paridade**: `asset(path)` é extensão cristalina — não existe no vanilla como elemento. Documentar como divergência intencional (ADR-0033).
 - **Substrato**: Content variant `Asset` + stdlib `native_asset`.

@@ -3,10 +3,10 @@
 **Passo:** 767a  
 **Data:** 2026-07-15  
 **Foco:** Implementar `Content::Shape` como bloco que quebra parágrafo, replicando `BlockElem::single_layouter` do Typst vanilla.  
-**L0:** `00_nucleo/prompts/rules/layout/shape_block_behaviour.md`  
+**L0:** `00_nucleo/prompts/engine/layout/shape_block_behaviour.md`  
 **Código alterado:**
-- `01_core/src/rules/layout/shape.rs` — protocolo de bloco (flush, `above`/`below` de `1.2em`, colapso de margem) quando `!layouter.is_sub_frame`.
-- `01_core/src/rules/layout/sequence.rs` — `Content::Shape` mantém a chain de colapso de blocos (`block_chain_active`/`prev_block_below_pending`).
+- `01_core/src/engine/layout/shape.rs` — protocolo de bloco (flush, `above`/`below` de `1.2em`, colapso de margem) quando `!layouter.is_sub_frame`.
+- `01_core/src/engine/layout/sequence.rs` — `Content::Shape` mantém a chain de colapso de blocos (`block_chain_active`/`prev_block_below_pending`).
 - `03_infra/fixtures/p307b/reference/04-shapes.pdf` e `07-multi-feature.pdf` — snapshots actualizados (mudança de layout esperada).
 
 **Estado de validação:** `cargo test --workspace` verde; `crystalline-lint .` com zero violações excepto `V7` (prompt órfão já conhecido, `package_version_resolution.md`).
@@ -118,7 +118,7 @@ crystalline-lint --fix-hashes .
 crystalline-lint .
 ```
 
-- `shape.rs`: header `@prompt` actualizado para `00_nucleo/prompts/rules/layout/shape_block_behaviour.md`.
+- `shape.rs`: header `@prompt` actualizado para `00_nucleo/prompts/engine/layout/shape_block_behaviour.md`.
 - Resultado final: zero violações excepto `V7` (prompt órfão pré-existente).
 
 ---

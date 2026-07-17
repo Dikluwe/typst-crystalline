@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/entities/elements/_comum.md
-//! @prompt-hash 6d7ffd6d
+//! @prompt-hash 55c1fed5
 //! @layer L1
 //! @updated 2026-06-10
 //!
@@ -17,7 +17,7 @@
 //! `content_hash::hash_content` (Debug).
 //!
 //! Layout NÃO entra no trait (topologia: `entities` não depende de
-//! `rules`); fica em `rules/layout` / `rules/math/layout`.
+//! `rules`); fica em `engine/layout` / `rules/math/layout`.
 
 pub mod divider;
 pub mod heading;

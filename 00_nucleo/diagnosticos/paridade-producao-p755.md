@@ -173,7 +173,7 @@ Ou seja:
 
 ## Estado actual do cristalino
 
-### `layout_word` em `01_core/src/rules/layout/cursor.rs:104`
+### `layout_word` em `01_core/src/engine/layout/cursor.rs:104`
 
 O cristalino trata cada chamada a `layout_word(word)` como uma unidade indivisível:
 
@@ -192,7 +192,7 @@ pub(super) fn layout_word(&mut self, word: &str) {
 }
 ```
 
-### `layout_text` em `01_core/src/rules/layout/text.rs:166`
+### `layout_text` em `01_core/src/engine/layout/text.rs:166`
 
 O texto é dividido por espaços (`text.split(' ')`) e cada parte é passada a `layout_word`. CJK e Thai não usam espaços entre palavras, pelo que o texto inteiro vai como uma única parte.
 
@@ -266,7 +266,7 @@ Com base na sonda:
 - Documentos CJK e Thai compilados com vanilla 0.15.0 e cristalino.
 - PDFs inspeccionados visualmente e via `pdftotext`.
 - Código do vanilla inspeccionado em `lab/typst-original/crates/typst-layout/src/inline/linebreak.rs`.
-- Código do cristalino inspeccionado em `01_core/src/rules/layout/cursor.rs` e `01_core/src/rules/layout/text.rs`.
+- Código do cristalino inspeccionado em `01_core/src/engine/layout/cursor.rs` e `01_core/src/engine/layout/text.rs`.
 - `cargo search icu_segmenter` confirmou disponibilidade da versão 2.2.0.
 
 ### Nenhuma mudança de código

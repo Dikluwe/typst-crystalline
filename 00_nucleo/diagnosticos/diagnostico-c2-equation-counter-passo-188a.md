@@ -250,7 +250,7 @@ Sub-passo único agregado (similar a P187B).
 
 | Sub-passo | Escopo | Magnitude | Depende |
 |-----------|--------|-----------|---------|
-| **P188B** | Migrar `equation.rs:97` + L0 `rules/layout.md` + tests E2E paridade + comentário inline + actualização nota DEBT M4-residual + relatório consolidado P188 | S | — |
+| **P188B** | Migrar `equation.rs:97` + L0 `engine/layout.md` + tests E2E paridade + comentário inline + actualização nota DEBT M4-residual + relatório consolidado P188 | S | — |
 
 Total agregado P188B: ~5 LOC produção + ~80-120 LOC tests
 + documentação ≈ S puro.
@@ -317,7 +317,7 @@ mas não é caminho funcional em produção**. Comparação:
 
 Documentação obrigatória em 4 pontos:
 1. Comentário inline em `equation.rs:97`.
-2. Secção dedicada em L0 `rules/layout.md`.
+2. Secção dedicada em L0 `engine/layout.md`.
 3. Tests E2E `gate_dormente_caso_producao` que valida
    empiricamente caminho fallback.
 4. Relatório consolidado P188 §"Estado dormente".
@@ -328,7 +328,7 @@ Documentação obrigatória em 4 pontos:
 
 **P188B** — migração C2 + tests E2E + nota DEBT:
 
-- Editar `01_core/src/rules/layout/equation.rs:97`:
+- Editar `01_core/src/engine/layout/equation.rs:97`:
   ```rust
   let n = self.current_location
       .and_then(|loc| self.introspector.flat_counter_at("equation", loc))
@@ -336,7 +336,7 @@ Documentação obrigatória em 4 pontos:
   ```
   Adicionar comentário inline (cláusula 6).
 
-- Editar L0 `00_nucleo/prompts/rules/layout.md`:
+- Editar L0 `00_nucleo/prompts/engine/layout.md`:
   Secção "C2 equation counter migrado (P188B)" — paralela
   à secção P187B mas com nota explícita sobre estado
   dormente.

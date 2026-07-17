@@ -17,7 +17,7 @@ Inspecção empírica em 2026-05-03:
 | Item | Estado confirmado | Linha actual / observação |
 |------|-------------------|---------------------------|
 | 1 | Trait `Introspector` location-aware methods | `formatted_counter_at(key, location)` em `introspector.rs:91` (P177); `state_value(key, location)` em `:76` (P171). Outros métodos `*_at` ausentes — ver §2. |
-| 2 | Layouter uso de `Location` | `grep -rn "Location" 01_core/src/rules/layout/`: zero hits em ficheiros de produção (apenas em `tests.rs` para testes Introspector). Layouter actualmente **não conhece** Location no ponto da consulta. |
+| 2 | Layouter uso de `Location` | `grep -rn "Location" 01_core/src/engine/layout/`: zero hits em ficheiros de produção (apenas em `tests.rs` para testes Introspector). Layouter actualmente **não conhece** Location no ponto da consulta. |
 | 3 | `Locator` API | `entities/locator.rs`: struct simples com `counter: u64` interno; `Locator::new()`, `next() -> Location` (auto-incremento), `Default`. **Não-Clone** intencional (linha 22-23). **Determinismo provado** em test `duas_instancias_paralelas_produzem_sequencias_iguais` (linha 67-72): dois `Locator::new()` paralelos produzem sequências idênticas. |
 | 4 | Walk de introspect uso de Locator | `introspect.rs:329-330`: `if let Some(payload) = do_extract_payload(content) { let loc = locator.next(); ... }`. Locator avança **exactamente** quando `is_locatable(content) == true` (invariante explícito em `locatable.rs:11`). |
 | 5 | `is_locatable` predicate | Match exaustivo em `locatable.rs:20-50`. Locatable: Heading, Figure, Cite, Metadata, State, StateUpdate, Outline, Bibliography, SetHeadingNumbering. **`Equation` NÃO é locatable** — pré-requisito P186 para C2. |
@@ -268,7 +268,7 @@ consumirem.
 | Sub-passo | Escopo | Magnitude | Depende |
 |-----------|--------|-----------|---------|
 | `.B` | Adicionar `is_numbering_active_at` + `flat_counter_at` ao trait `Introspector` + impl em `TagIntrospector` (delegação a `StateRegistry::value_at` + `CounterRegistry::value_at`) + 8-10 tests unit (4-5 cada) + L0 `entities/introspector.md` | S | — |
-| `.C` | Layouter ganha fields `locator: Locator` + `current_location: Option<Location>`; `Layouter::new` inicializa `Locator::new()`; gating em `layout_content` com `is_locatable` (~15 LOC); `prev_loc` save/restore para scoping léxico; L0 `rules/layout.md` actualizado | M | `.B` |
+| `.C` | Layouter ganha fields `locator: Locator` + `current_location: Option<Location>`; `Layouter::new` inicializa `Locator::new()`; gating em `layout_content` com `is_locatable` (~15 LOC); `prev_loc` save/restore para scoping léxico; L0 `engine/layout.md` actualizado | M | `.B` |
 | `.D` | Tests E2E confirmam `current_location` reflecte correctamente Location esperada para nós locatable em pipeline real (sem migrar C1/C2). 3-5 tests: heading produz Location esperada; sequence isola; nested headings preservam scoping | S | `.C` |
 | `.E` | Relatório consolidado P185 (9 secções padrão P181J/P182F/P184consolidado); transição ADR-0068 PROPOSTO → ACEITE se validação passa | S | `.D` |
 

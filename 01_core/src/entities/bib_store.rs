@@ -163,7 +163,7 @@ impl BibStore {
 mod tests {
     use super::*;
     use crate::entities::bib_entry::BibEntry;
-    use crate::rules::layout::bib_csl::resolve_style_name;
+    use crate::engine::layout::bib_csl::resolve_style_name;
 
     fn make_entry(key: &str) -> BibEntry {
         BibEntry {

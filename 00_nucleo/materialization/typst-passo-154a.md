@@ -250,8 +250,8 @@ Este passo **não**:
   `lab/typst-original/crates/typst-library/src/model/` para
   inventário detalhado (sub-features, atributos, métodos).
 - Leitura de `01_core/src/entities/content.rs`,
-  `01_core/src/rules/eval.rs` (para `native_*`),
-  `01_core/src/rules/stdlib/mod.rs` para confirmar estado
+  `01_core/src/engine/eval.rs` (para `native_*`),
+  `01_core/src/engine/stdlib/mod.rs` para confirmar estado
   cristalino.
 - Cross-reference com `00_nucleo/adr/`,
   `00_nucleo/materialization/`, `00_nucleo/DEBT.md`.
@@ -310,7 +310,7 @@ Registar tabela:
 grep -nE "Heading|Figure|Footnote|Quote|Terms|Table|Cite|Bibliography" \
   01_core/src/entities/content.rs
 grep -nE "native_(heading|figure|footnote|quote|table|cite)" \
-  01_core/src/rules/eval/mod.rs
+  01_core/src/engine/eval/mod.rs
 ```
 
 Para cada elemento vanilla, registar correspondente

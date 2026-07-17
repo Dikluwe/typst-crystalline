@@ -16,7 +16,7 @@
 O cristalino inicia o `Layouter` com `self.font_size_pt` derivado do default da página (11.0). Quando o utilizador redefine o tamanho do texto (ex: `#set text(size: 40pt)`), a cadeia de estilos atualiza `self.style.size` para 40.0, mas o campo `self.font_size_pt` permanece inalterado.
 
 Ao quebrar a linha:
-1. `flush_line()` em `01_core/src/rules/layout/cursor.rs` calcula o avanço usando:
+1. `flush_line()` em `01_core/src/engine/layout/cursor.rs` calcula o avanço usando:
    `let (_, line_height) = self.metrics.vertical_metrics(self.font_size_pt);`
    Isto faz o cursor avançar ~16pt (altura correspondente a 11pt) em vez de ~56pt (altura correspondente a 40pt), resultando em sobreposição visual das linhas consecutivas do parágrafo.
 2. O `line_leading_pt` também é resolvido usando `self.font_size_pt.val()`.
@@ -34,16 +34,16 @@ Ao quebrar a linha:
 ## 2. Planeamento das Tarefas
 
 ### Tarefa 1: Atualização de L0
-Atualizar `00_nucleo/prompts/rules/layout.md` para especificar que o cálculo de métricas verticais (`line_height`, `line_leading_pt` e `ascender`) em `flush_line` e transições de página/coluna deve ser sensível ao tamanho real da fonte dos elementos contidos na linha (ou ao estilo ativo no layouter), em vez de usar a constante estática `self.font_size_pt`.
+Atualizar `00_nucleo/prompts/engine/layout.md` para especificar que o cálculo de métricas verticais (`line_height`, `line_leading_pt` e `ascender`) em `flush_line` e transições de página/coluna deve ser sensível ao tamanho real da fonte dos elementos contidos na linha (ou ao estilo ativo no layouter), em vez de usar a constante estática `self.font_size_pt`.
 
 ### Tarefa 2: Implementação da Correção
-1. **Em `01_core/src/rules/layout/cursor.rs::flush_line`:**
+1. **Em `01_core/src/engine/layout/cursor.rs::flush_line`:**
    - Obter o tamanho máximo de fonte (`style.size`) entre todos os elementos textuais (`FrameItem::Text` e `FrameItem::TextShaped`) presentes na `current_line` que está prestes a ser drenada.
    - Caso `current_line` esteja vazia (ex: flush preventivo), utilizar `self.style.size` (tamanho ativo).
    - Utilizar esta fonte dinâmica para chamar `vertical_metrics` e para resolver `line_leading_pt`.
-2. **Em `01_core/src/rules/layout/cursor.rs::new_page` e `start_column`:**
+2. **Em `01_core/src/engine/layout/cursor.rs::new_page` e `start_column`:**
    - Usar `self.style.size` no cálculo de `ascender` inicial no topo da página/coluna.
-3. **Em `01_core/src/rules/layout/mod.rs::layout_sub_frame_with_width`:**
+3. **Em `01_core/src/engine/layout/mod.rs::layout_sub_frame_with_width`:**
    - Usar `self.style.size` para o cálculo de métricas da célula e do `ascender` inicial do sub-frame.
 
 ### Tarefa 3: Testes de Regressão e Validação

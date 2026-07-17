@@ -12,7 +12,7 @@ Ler antes de começar:
   comportamento observável preservado.
 - `00_nucleo/DEBT.md` — entrada DEBT-46 com 8 checkboxes. Este
   passo marca o primeiro checkbox (`eval.rs` reestruturado).
-- `01_core/src/rules/eval.rs` — ficheiro actual, 3780 linhas,
+- `01_core/src/engine/eval.rs` — ficheiro actual, 3780 linhas,
   368 ocorrências de padrões `match`.
 
 Pré-condição: `cargo test` — 746 L1 + 174 L3 + 6 ignorados,
@@ -26,7 +26,7 @@ zero violations. Passo 96 concluído (DEBT-46 aberto, ADR-0037
 Passo único de reestruturação (pagamento parcial de DEBT-46).
 Movimenta código entre ficheiros. **Não altera semântica
 observável**. Cria estrutura de submódulos sob
-`01_core/src/rules/eval/`.
+`01_core/src/engine/eval/`.
 
 Foi a opção mais arriscada do plano: o `eval.rs` é o maior e o
 mais central do projecto. Por isso, a execução é incremental —
@@ -56,9 +56,9 @@ identificadas na recolha de dados do Passo 96), a decomposição
 proposta é:
 
 ```
-01_core/src/rules/eval.rs (antes: 3780 linhas)
+01_core/src/engine/eval.rs (antes: 3780 linhas)
     ↓ transforma-se em:
-01_core/src/rules/eval/
+01_core/src/engine/eval/
     mod.rs          — EvalContext, pub fn eval, dispatcher eval_expr
     markup.rs       — Expr::Text, Strong, Emph, Heading, Link, Raw,
                       list/enum items, Ref, Label
@@ -95,17 +95,17 @@ Reportar ajustes no reporte final.
 
 ```bash
 # Tamanho actual:
-wc -l 01_core/src/rules/eval.rs
+wc -l 01_core/src/engine/eval.rs
 
 # Contagem de armos:
-grep -c "Expr::\|SyntaxKind::\|Value::" 01_core/src/rules/eval.rs
+grep -c "Expr::\|SyntaxKind::\|Value::" 01_core/src/engine/eval.rs
 
 # Funções top-level:
-grep -n "^pub fn\|^fn\|^pub struct\|^struct\|^impl" 01_core/src/rules/eval.rs
+grep -n "^pub fn\|^fn\|^pub struct\|^struct\|^impl" 01_core/src/engine/eval.rs
 
 # Testes no ficheiro (importante para decidir onde ficam após divisão):
-grep -n "^\s*#\[test\]\|^\s*#\[cfg(test)\]" 01_core/src/rules/eval.rs | head -30
-grep -c "^\s*#\[test\]" 01_core/src/rules/eval.rs
+grep -n "^\s*#\[test\]\|^\s*#\[cfg(test)\]" 01_core/src/engine/eval.rs | head -30
+grep -c "^\s*#\[test\]" 01_core/src/engine/eval.rs
 ```
 
 Reportar:
@@ -118,10 +118,10 @@ Reportar:
 
 ```bash
 # Criar directório:
-mkdir -p 01_core/src/rules/eval
+mkdir -p 01_core/src/engine/eval
 
 # Mover o ficheiro actual temporariamente para dentro do directório:
-git mv 01_core/src/rules/eval.rs 01_core/src/rules/eval/mod.rs
+git mv 01_core/src/engine/eval.rs 01_core/src/engine/eval/mod.rs
 ```
 
 **Porquê `git mv`**: preserva história. O `eval.rs` original fica
@@ -139,7 +139,7 @@ Esperado: compila sem alteração (nenhum import muda porque o
 ficheiro mudou).
 
 Se não compilar, algo depende do caminho exacto
-`01_core/src/rules/eval.rs`. Investigar e reportar. Rollback:
+`01_core/src/engine/eval.rs`. Investigar e reportar. Rollback:
 `git mv` invertido.
 
 ---
@@ -181,12 +181,12 @@ Passos genéricos para cada cluster:
 ```bash
 # Funções a extrair, seus spans no ficheiro:
 grep -n "^fn eval_math\|^fn apply_math\|...resto do cluster..." \
-    01_core/src/rules/eval/mod.rs
+    01_core/src/engine/eval/mod.rs
 ```
 
 #### Sub-passo N.b — Criar o submódulo
 
-Criar `01_core/src/rules/eval/<cluster>.rs` com cabeçalho:
+Criar `01_core/src/engine/eval/<cluster>.rs` com cabeçalho:
 
 ```rust
 //! Avaliação de <cluster>. Extraído de `eval.rs` no Passo 96.1
@@ -210,7 +210,7 @@ Não usar `pub` directo (exposição global) sem razão concreta.
 
 #### Sub-passo N.d — Declarar submódulo em `mod.rs`
 
-No `01_core/src/rules/eval/mod.rs`:
+No `01_core/src/engine/eval/mod.rs`:
 
 ```rust
 mod <cluster>;
@@ -271,7 +271,7 @@ Reportar após cada cluster extraído:
 ### 2.1 — Tamanho dos novos ficheiros
 
 ```bash
-wc -l 01_core/src/rules/eval/*.rs | sort -rn
+wc -l 01_core/src/engine/eval/*.rs | sort -rn
 ```
 
 Esperado: nenhum ficheiro > 800 linhas (Regra 2 da ADR-0037),
@@ -283,7 +283,7 @@ a decomposição.
 ### 2.2 — Dispatcher compacto
 
 ```bash
-grep -c "Expr::\|SyntaxKind::\|Value::" 01_core/src/rules/eval/mod.rs
+grep -c "Expr::\|SyntaxKind::\|Value::" 01_core/src/engine/eval/mod.rs
 ```
 
 Esperado: muito menor que as 368 originais. A maioria dos
@@ -335,9 +335,9 @@ na Secção 1.
 
 ## Critérios de conclusão
 
-- [ ] Directório `01_core/src/rules/eval/` criado com
+- [ ] Directório `01_core/src/engine/eval/` criado com
       `mod.rs` e submódulos por cluster.
-- [ ] `01_core/src/rules/eval.rs` já não existe como ficheiro
+- [ ] `01_core/src/engine/eval.rs` já não existe como ficheiro
       (foi renomeado para `eval/mod.rs` e depois decomposto).
 - [ ] 7 submódulos criados (ou ajustes documentados no reporte).
 - [ ] Nenhum submódulo > 800 linhas, ou excepções com
@@ -369,7 +369,7 @@ Fase 1 (por cluster extraído):
 
 Fase 2:
 - Tamanhos finais de todos os ficheiros em
-  `01_core/src/rules/eval/`.
+  `01_core/src/engine/eval/`.
 - Contagem de armos `match` remanescente no `mod.rs`.
 - Testes: contagem final, zero regressão.
 

@@ -75,7 +75,7 @@ Traçando a sequência de `Content` que chega ao layout:
 [P592 DEBUG layout_space] current_line_len=3 sw=12.71484375 cursor_x_after=408.0184375
 ```
 
-A sequência de markup produzida por `eval_markup` (`01_core/src/rules/eval/mod.rs:494`) contém um `Content::Space` inicial e outro final. O inicial é correctamente ignorado por P588 (`current_line.is_empty()`). O **final** avança o cursor em `space_width()` sem emitir nenhum item visual.
+A sequência de markup produzida por `eval_markup` (`01_core/src/engine/eval/mod.rs:494`) contém um `Content::Space` inicial e outro final. O inicial é correctamente ignorado por P588 (`current_line.is_empty()`). O **final** avança o cursor em `space_width()` sem emitir nenhum item visual.
 
 Em parágrafos LTR esse avanço final é invisível (o conteúdo fica na mesma posição, com espaço em branco à direita). Em RTL, `align_current_line_rtl` usava `cursor_x` como limite direito da linha, pelo que o espaço final deslocava toda a linha 12,71 pt para a esquerda. `reorder_bidi_line` propagava o erro ao recalcular as posições com base no left edge do último item, não no seu right edge.
 
@@ -85,13 +85,13 @@ Em parágrafos LTR esse avanço final é invisível (o conteúdo fica na mesma p
 
 ### 3.1 `align_current_line_rtl` alinha pelo conteúdo real
 
-Ficheiro: `01_core/src/rules/layout/cursor.rs:158`
+Ficheiro: `01_core/src/engine/layout/cursor.rs:158`
 
 Em vez de `cursor_x` (que pode incluir `Content::Space` final), calcula `content_right` como o right edge máximo dos `FrameItem` na linha e alinha por esse valor.
 
 ### 3.2 `item_width` helper para right edge real
 
-Ficheiro: `01_core/src/rules/layout/helpers.rs:32`
+Ficheiro: `01_core/src/engine/layout/helpers.rs:32`
 
 Novo helper que devolve a largura horizontal de um `FrameItem`. Para texto usa `advance_shaped` quando disponível (paridade com `layout_word` e `text_width_for_bidi`), para não reintroduzir divergência em scripts contextuais.
 

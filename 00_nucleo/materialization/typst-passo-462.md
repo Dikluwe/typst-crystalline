@@ -65,7 +65,7 @@ fn native_ref(name: EcoString, supplement: Option<Content>) -> Content {
 - Registar no stdlib scope como `"ref"`.
 - Sintaxe sugar `@x` é lexer/parser — scope-out; usa-se `ref("x")` como função nativa.
 
-### 3. Resolução de número (`rules/eval/rules.rs` ou `rules/layout/ref.rs`)
+### 3. Resolução de número (`rules/eval/rules.rs` ou `engine/layout/ref.rs`)
 
 O `ref` precisa resolver o número do elemento associado ao `label`. O `label` tem um `body` que é o conteúdo ao qual está associado. Para obter o número, precisamos de:
 
@@ -94,7 +94,7 @@ O `ref` precisa resolver o número do elemento associado ao `label`. O `label` t
 
 **Recomendação:** Opção C — adicionar `label_to_kind` (ou `label_to_counter_key`) ao `Introspector`/`CounterRegistry` durante o walk de introspecção. Quando o walk encontra `Content::Label`, inspeciona o `body` e registra o tipo. Isto é mais robusto que inspecionar o `body` no momento da resolução.
 
-### 4. Layout de `ref` (`rules/layout/ref.rs` ou `rules/layout/mod.rs`)
+### 4. Layout de `ref` (`engine/layout/ref.rs` ou `engine/layout/mod.rs`)
 
 - Ao encontrar `Content::Ref`:
   1. Resolver número via `Introspector` (algoritmo acima).
@@ -129,8 +129,8 @@ O P460 introduziu `Content::Label` (user-created) e manteve `Content::Labelled` 
 ### 7. Spec L0
 
 - `00_nucleo/prompts/entities/elements/ref.md` — `RefElem { name, supplement }`.
-- `00_nucleo/prompts/rules/stdlib/interactive.md` — `native_ref(name, supplement?)`.
-- `00_nucleo/prompts/rules/layout/ref.md` — resolução de número e rendering de texto.
+- `00_nucleo/prompts/engine/stdlib/interactive.md` — `native_ref(name, supplement?)`.
+- `00_nucleo/prompts/engine/layout/ref.md` — resolução de número e rendering de texto.
 
 ---
 

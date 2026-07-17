@@ -39,7 +39,7 @@ A paridade (ADR-0107) é semântica: dada uma mensagem, aborta a avaliação e r
 
 ### A.1 — Prompt L0 `panic.md`
 
-Novo em `00_nucleo/prompts/rules/stdlib/panic.md` (ou integrado no prompt existente do domínio, seguindo o padrão do P391 — confirmar se `text.md` ou outro já cobre):
+Novo em `00_nucleo/prompts/engine/stdlib/panic.md` (ou integrado no prompt existente do domínio, seguindo o padrão do P391 — confirmar se `text.md` ou outro já cobre):
 
 - **Paridade**: `panic(msg)` aborta eval com mensagem `msg`.
 - **Substrato**: helper stdlib puro; recebe `Str`, constrói erro de eval.

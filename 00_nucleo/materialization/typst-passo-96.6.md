@@ -92,7 +92,7 @@ a preferência é a seguinte ordem:
    exacto é conhecido, declará-lo directamente:
 
    ```rust
-   pub(in crate::rules::parse) fn helper(...) { ... }
+   pub(in crate::engine::parse) fn helper(...) { ... }
    ```
 
    É equivalente a `pub(super)` em certos casos mas auto-documenta
@@ -165,14 +165,14 @@ restringir onde possível sem perder funcionalidade.
 
 Submódulos a auditar:
 
-- `01_core/src/rules/eval/` (Passos 96.1 e 96.2):
+- `01_core/src/engine/eval/` (Passos 96.1 e 96.2):
   - `mod.rs`, `markup.rs`, `math.rs`, `modules.rs`, `rules.rs`,
     `closures.rs`, `control_flow.rs`, `bindings.rs`,
     `operators.rs`, `tests.rs`.
-- `01_core/src/rules/parse/` (Passo 96.4):
+- `01_core/src/engine/parse/` (Passo 96.4):
   - `mod.rs`, `parser.rs`, `math.rs`, `markup.rs`, `code.rs`,
     `rules.rs`, `patterns.rs`.
-- `01_core/src/rules/stdlib/` (Passo 96.5):
+- `01_core/src/engine/stdlib/` (Passo 96.5):
   - `mod.rs` e 9 submódulos.
 
 ### Critério de conclusão

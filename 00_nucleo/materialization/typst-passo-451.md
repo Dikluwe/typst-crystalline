@@ -67,7 +67,7 @@ fn native_heading(
 - Se `numbering` é `Some`, emite `Content::Heading { level, body, numbering: Some(pattern) }`.
 - Se `None`, emite sem numeração (comportamento actual).
 
-### 4. Layout de heading com número (`rules/layout/heading.rs` ou `layout/mod.rs`)
+### 4. Layout de heading com número (`engine/layout/heading.rs` ou `layout/mod.rs`)
 
 - Ao encontrar `Content::Heading` com `numbering: Some(pattern)`:
   1. Invocar `counter.step(level)` via contexto de layout (ou receber o número pré-computado do eval).
@@ -93,8 +93,8 @@ fn native_heading(
 ### 6. Spec L0
 
 - `00_nucleo/prompts/entities/counter.md` — API do contador, padrões suportados.
-- `00_nucleo/prompts/rules/stdlib/structural.md` — `heading(level, body, numbering?)`.
-- `00_nucleo/prompts/rules/layout/heading.md` — numeração no layout.
+- `00_nucleo/prompts/engine/stdlib/structural.md` — `heading(level, body, numbering?)`.
+- `00_nucleo/prompts/engine/layout/heading.md` — numeração no layout.
 
 ---
 

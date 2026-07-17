@@ -50,7 +50,7 @@ O helper `documento_algoritmo` garante apenas a fonte; o teste deve adicionar as
 
 ## Helper de teste
 
-Em `01_core/src/rules/layout/tests.rs`:
+Em `01_core/src/engine/layout/tests.rs`:
 
 ```rust
 /// Fonte neutra para testes de algoritmo.

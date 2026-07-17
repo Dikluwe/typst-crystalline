@@ -277,7 +277,7 @@ Auditor confirma empiricamente:
 #### Para `Content::SetHeadingNumbering` (E5)
 
 1. Localizar walk arm:
-   - `01_core/src/rules/introspect.rs` — match arm
+   - `01_core/src/engine/introspect.rs` — match arm
      `Content::SetHeadingNumbering`.
    - Identificar mutações legacy.
 
@@ -327,7 +327,7 @@ Auditor confirma empiricamente:
 #### Para `Content::CounterUpdate` (E6)
 
 10. Localizar walk arm:
-    - `01_core/src/rules/introspect.rs` — match arm
+    - `01_core/src/engine/introspect.rs` — match arm
       `Content::CounterUpdate`.
     - Identificar mutações legacy (per P189B §5 E6: 3
       caminhos `step_hierarchical`, `step_flat`,

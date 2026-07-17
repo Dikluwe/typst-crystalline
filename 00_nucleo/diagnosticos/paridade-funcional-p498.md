@@ -55,13 +55,13 @@ A flag `EvalContext::apply_show_rules` controla `intercept_content`: quando `fal
 | Camada | Ficheiro | Alteração |
 |---|---|---|
 | L1 | `01_core/src/entities/engine.rs` | *sem alteração directa* — a flag foi colocada em `EvalContext` |
-| L1 | `01_core/src/rules/eval/mod.rs` | Adiciona `apply_show_rules` a `EvalContext`; refactor de `eval_with_full_error` para passagem dupla; usa sink dummy na primeira passagem |
-| L1 | `01_core/src/rules/eval/rules.rs` | `intercept_content` respeita `ctx.apply_show_rules` |
+| L1 | `01_core/src/engine/eval/mod.rs` | Adiciona `apply_show_rules` a `EvalContext`; refactor de `eval_with_full_error` para passagem dupla; usa sink dummy na primeira passagem |
+| L1 | `01_core/src/engine/eval/rules.rs` | `intercept_content` respeita `ctx.apply_show_rules` |
 | L1 | `01_core/src/entities/module.rs` | Novo campo `introspection_content` + getters/setters |
-| L1 | `01_core/src/rules/eval/tests.rs` | Teste `p498_d3c_residual_heading_query_pos_show_rule` |
+| L1 | `01_core/src/engine/eval/tests.rs` | Teste `p498_d3c_residual_heading_query_pos_show_rule` |
 | L3 | `03_infra/src/query_helpers.rs` | Usa `module.introspection_content()` para construir o introspector |
 | L3 | `03_infra/src/pipeline.rs` | Usa `module.introspection_content()` para construir o introspector |
-| L0 | `00_nucleo/prompts/rules/eval.md` | Documenta a passagem dupla e `apply_show_rules` |
+| L0 | `00_nucleo/prompts/engine/eval.md` | Documenta a passagem dupla e `apply_show_rules` |
 | L0 | `00_nucleo/prompts/entities/module.md` | Documenta `introspection_content` |
 | Lab | `lab/parity/tests/structural_parity.rs` | Sentinela `p498_d3c_residual` |
 | Diagnóstico | `00_nucleo/diagnosticos/paridade-funcional-p498.md` | Este relatório |
@@ -69,7 +69,7 @@ A flag `EvalContext::apply_show_rules` controla `intercept_content`: quando `fal
 ### Hashes L0 pós `--fix-hashes`
 
 - `01_core/src/entities/module.rs` → `e9055d10`
-- `01_core/src/rules/eval/*.rs` (incluindo `mod.rs`, `rules.rs`, `tests.rs`, etc.) → `7272c897`
+- `01_core/src/engine/eval/*.rs` (incluindo `mod.rs`, `rules.rs`, `tests.rs`, etc.) → `7272c897`
 
 ---
 

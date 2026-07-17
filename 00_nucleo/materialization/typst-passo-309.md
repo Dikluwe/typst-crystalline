@@ -127,14 +127,14 @@ Sítios conhecidos preliminares:
 
 ### 5.1 — Sob diagnóstico
 
-- `01_core/src/rules/stdlib/calc.rs` (P306+P308)
-- `01_core/src/rules/stdlib/mod.rs` (helpers `guard_float`,
+- `01_core/src/engine/stdlib/calc.rs` (P306+P308)
+- `01_core/src/engine/stdlib/mod.rs` (helpers `guard_float`,
   `coerce_to_f64`)
-- `01_core/src/rules/stdlib/*.rs` (outros submódulos pós-P96.5)
-- `01_core/src/rules/eval/binary.rs` (operações aritméticas)
-- `01_core/src/rules/eval/unary.rs`
-- `01_core/src/rules/layout/**` (matemática de coordenadas)
-- `01_core/src/rules/math/layout/**` (matemática de equações)
+- `01_core/src/engine/stdlib/*.rs` (outros submódulos pós-P96.5)
+- `01_core/src/engine/eval/binary.rs` (operações aritméticas)
+- `01_core/src/engine/eval/unary.rs`
+- `01_core/src/engine/layout/**` (matemática de coordenadas)
+- `01_core/src/engine/math/layout/**` (matemática de equações)
 - `01_core/src/entities/layout_types.rs` (`Length`, `Pt`, `Em`)
 - `01_core/src/entities/color.rs` (componentes f64)
 

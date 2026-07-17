@@ -117,7 +117,7 @@ ElementKind variants: +1 (StateDisplay).
 
 ## §4 apply_state_displays fixpoint function + Introspector storage + state_display_value method (C4)
 
-`01_core/src/rules/introspect/from_tags.rs`:
+`01_core/src/engine/introspect/from_tags.rs`:
 
 ```rust
 pub fn apply_state_displays(
@@ -186,7 +186,7 @@ fn state_display_value(
 `03_infra/src/measurements.rs::CountingIntrospector`: adapter
 delegação trivial paridade outros métodos state_*.
 
-`01_core/src/rules/introspect/fixpoint.rs::run_fixpoint`:
+`01_core/src/engine/introspect/fixpoint.rs::run_fixpoint`:
 
 ```rust
 let curr_hash = compute_tags_hash(&tags);
@@ -200,7 +200,7 @@ apply_state_displays(&tags, &mut introspector, engine, ctx);
 
 ## §5 native_state_display stdlib + walk integration layout-time (C5+C6)
 
-`01_core/src/rules/stdlib/foundations.rs`:
+`01_core/src/engine/stdlib/foundations.rs`:
 
 ```rust
 pub fn native_state_display(
@@ -226,17 +226,17 @@ pub fn native_state_display(
 }
 ```
 
-Registo scope `01_core/src/rules/eval/mod.rs:618`:
+Registo scope `01_core/src/engine/eval/mod.rs:618`:
 ```rust
 scope.define("state_display", Value::Func(Func::native("state_display", native_state_display)));
 ```
 
-Re-export `01_core/src/rules/stdlib/mod.rs:35-38`: `native_state_display`
+Re-export `01_core/src/engine/stdlib/mod.rs:35-38`: `native_state_display`
 adicionado a lista pub use.
 
 Stdlib funcs: **62 → 63** (+state_display).
 
-Walk integration `01_core/src/rules/layout/mod.rs:355+`:
+Walk integration `01_core/src/engine/layout/mod.rs:355+`:
 
 ```rust
 Content::StateDisplay { key, callback: _ } => {
@@ -289,9 +289,9 @@ ElementKind variant + fixpoint function + Introspector trait method
 L0 partial tocado (3 ficheiros):
 - `00_nucleo/prompts/entities/content.md` — bloco
   `Content::StateDisplay` documented.
-- `00_nucleo/prompts/rules/stdlib.md` — bloco
+- `00_nucleo/prompts/engine/stdlib.md` — bloco
   `state_display(key, [callback])` documented.
-- `00_nucleo/prompts/rules/introspect.md` — bloco
+- `00_nucleo/prompts/engine/introspect.md` — bloco
   `apply_state_displays` + `Introspector::state_display_value`
   documented.
 

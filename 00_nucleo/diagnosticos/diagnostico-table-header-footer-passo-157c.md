@@ -149,7 +149,7 @@ TableCell (variant rico).
 
 ### 5.1 Verificação de helpers existentes
 
-Inspecção de `01_core/src/rules/stdlib/`:
+Inspecção de `01_core/src/engine/stdlib/`:
 
 - **`extract_weak`** em `stdlib/layout.rs:342`: **NÃO reusável**
   — específico para key `"weak"` com default `false`. P157C

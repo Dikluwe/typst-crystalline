@@ -24,12 +24,12 @@ sobre o estado actual da `Tekt`.
 | `bib_entries: Vec<BibEntry>` em `CounterStateLegacy` | `01_core/src/entities/counter_state_legacy.rs:84` | Linha **84** | ✓ confirmado |
 | `bib_numbers: HashMap<String, u32>` em `CounterStateLegacy` | `01_core/src/entities/counter_state_legacy.rs:92` | Linha **92** | ✓ confirmado |
 | `BibEntry` com 16 fields | `01_core/src/entities/bib_entry.rs:82-100` | 16 `pub` fields (4 obrig. + 4 comuns + 2 ident. + 6 restantes) | ✓ confirmado |
-| Walk arm `Content::Bibliography` | `01_core/src/rules/introspect.rs:567` | Linha **567** | ✓ confirmado (sem shift) |
+| Walk arm `Content::Bibliography` | `01_core/src/engine/introspect.rs:567` | Linha **567** | ✓ confirmado (sem shift) |
 | Walk arm corpo (lookup `or_insert` + `extend`) | `introspect.rs:567-573` | Idêntico ao bloco citado em P180 §1.5 | ✓ confirmado |
-| Layouter cite-arm | `01_core/src/rules/layout/mod.rs:584-597` | Linhas **584-597** (lookup `bib_entries.iter().find` + match `(form, entry)`) | ✓ confirmado |
+| Layouter cite-arm | `01_core/src/engine/layout/mod.rs:584-597` | Linhas **584-597** (lookup `bib_entries.iter().find` + match `(form, entry)`) | ✓ confirmado |
 | Layouter copy-site #1 (`pub fn layout`) | `mod.rs:1386-1388` | Linhas **1385-1388** | ⚠ shift de **1 linha**; comportamento idêntico |
 | Layouter copy-site #2 (`pub fn layout_with_introspector`) | `mod.rs:1414-1416` | Linhas **1413-1416** | ⚠ shift de **1 linha**; comportamento idêntico |
-| `extract_bib_entries` em stdlib | `01_core/src/rules/stdlib/structural.rs:516` | Linha **516** | ✓ confirmado |
+| `extract_bib_entries` em stdlib | `01_core/src/engine/stdlib/structural.rs:516` | Linha **516** | ✓ confirmado |
 
 **Conclusão**: inventário P180 factualmente correcto. Único desvio
 são 2 deslocamentos de **1 linha** nos copy-sites do Layouter (efeito

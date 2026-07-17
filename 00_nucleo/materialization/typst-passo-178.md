@@ -49,13 +49,13 @@ decisão tomada para `Content::Outline`.
      também unit. Se tem campos: decidir quais capturar.
 
 2. **Confirmar `is_locatable` arm actual**:
-   - `01_core/src/rules/introspect/locatable.rs`.
+   - `01_core/src/engine/introspect/locatable.rs`.
    - `Content::Outline { .. } => false` ou agrupado em
      or-pattern com outros não-locatable.
    - Localizar onde mudar.
 
 3. **Confirmar `extract_payload` fall-through actual**:
-   - `01_core/src/rules/introspect/extract_payload.rs`.
+   - `01_core/src/engine/introspect/extract_payload.rs`.
    - `_ => None` (P164 confirmou).
    - Localizar onde inserir arm novo.
 
@@ -166,10 +166,10 @@ Output: notas internas + decisões registadas:
 
 ### .D Modificar `is_locatable`
 
-1. L0 `00_nucleo/prompts/rules/introspect/locatable.md`:
+1. L0 `00_nucleo/prompts/engine/introspect/locatable.md`:
    - Documentar que `Outline` agora é locatable.
 
-2. L1 `01_core/src/rules/introspect/locatable.rs`:
+2. L1 `01_core/src/engine/introspect/locatable.rs`:
    - Mudar arm `Outline => false` para `Outline => true`
      (ou retirar de or-pattern não-locatable e adicionar
      a arm `=> true`).
@@ -188,10 +188,10 @@ Output: notas internas + decisões registadas:
 
 ### .E Adicionar arm a `extract_payload`
 
-1. L0 `00_nucleo/prompts/rules/introspect/extract_payload.md`:
+1. L0 `00_nucleo/prompts/engine/introspect/extract_payload.md`:
    - Adicionar entrada para `Content::Outline`.
 
-2. L1 `01_core/src/rules/introspect/extract_payload.rs`:
+2. L1 `01_core/src/engine/introspect/extract_payload.rs`:
    - Adicionar arm antes do `_ => None`:
      ```rust
      Content::Outline { .. } => Some(ElementPayload::Outline),
@@ -209,10 +209,10 @@ Output: notas internas + decisões registadas:
 
 ### .F Adicionar arm a `from_tags`
 
-1. L0 `00_nucleo/prompts/rules/introspect/from_tags.md`:
+1. L0 `00_nucleo/prompts/engine/introspect/from_tags.md`:
    - Documentar arm Outline.
 
-2. L1 `01_core/src/rules/introspect/from_tags.rs`:
+2. L1 `01_core/src/engine/introspect/from_tags.rs`:
    - Adicionar arm:
      ```rust
      ElementPayload::Outline => {

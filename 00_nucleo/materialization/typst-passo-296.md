@@ -37,7 +37,7 @@ clarifica):
 | **HV** — Mix | Combinação parcial das anteriores |
 
 **A.0.0 inspecciona literalmente** `01_core/src/entities/content.rs`
-+ `01_core/src/rules/stdlib/math.rs` (ou caminho equivalente) +
++ `01_core/src/engine/stdlib/math.rs` (ou caminho equivalente) +
 vanilla `lab/typst-original/.../math/accent.rs` e
 `lab/typst-original/.../math/cancel.rs` para decidir hipótese.
 
@@ -84,13 +84,13 @@ indirecta. Inspecção literal obrigatória:
    verificar stdlib functions.
 3. **Inspeccionar `01_core/src/entities/content.rs`** — listar
    variants `Math*` actuais; comparar com Tabela B linhas 291-301.
-4. **Inspeccionar `01_core/src/rules/stdlib/math.rs`** (ou
+4. **Inspeccionar `01_core/src/engine/stdlib/math.rs`** (ou
    caminho equivalente) — APIs expostas para math.
 5. **Inspeccionar `lab/typst-original/crates/typst-library/src/math/accent.rs`** —
    estrutura `AccentElem` vanilla (atributos, layout).
 6. **Inspeccionar `lab/typst-original/crates/typst-library/src/math/cancel.rs`** —
    estrutura `CancelElem` vanilla.
-7. **Inspeccionar `01_core/src/rules/layout/math.rs`** (ou caminho
+7. **Inspeccionar `01_core/src/engine/layout/math.rs`** (ou caminho
    equivalente) — `layout_math_*` que tratam accent/cancel
    actualmente.
 8. **Comparar com `frac`/`attach`/`root`** (precedentes math
@@ -416,9 +416,9 @@ regression robusta.
 - Tipo a inspeccionar: `01_core/src/entities/content.rs`
   (`Content::Math*` variants; pós-P295: número exacto a confirmar
   em A.1.1).
-- Função stdlib: `01_core/src/rules/stdlib/math.rs` (ou caminho
+- Função stdlib: `01_core/src/engine/stdlib/math.rs` (ou caminho
   equivalente).
-- Layouter consumer: `01_core/src/rules/layout/math.rs` (ou
+- Layouter consumer: `01_core/src/engine/layout/math.rs` (ou
   similar).
 - Vanilla: `lab/typst-original/crates/typst-library/src/math/accent.rs`
   + `cancel.rs`.

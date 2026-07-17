@@ -4,7 +4,7 @@ Executado em 2026-04-29. Início de M7 (fixpoint loop e convergência). **Mecani
 
 ## Resumo
 
-- **`run_fixpoint(engine, ctx, eval_step) -> Result<(state, intr), FixpointError>`** materializado em `01_core/src/rules/introspect/fixpoint.rs`. Closure-based (LOOP_EXTERNAL).
+- **`run_fixpoint(engine, ctx, eval_step) -> Result<(state, intr), FixpointError>`** materializado em `01_core/src/engine/introspect/fixpoint.rs`. Closure-based (LOOP_EXTERNAL).
 - **`MAX_FIXPOINT_ITERATIONS = 5`** — paridade com vanilla.
 - **`FixpointError { NotConverged, Eval(Vec<SourceDiagnostic>) }`** — duas variants.
 - **`compute_tags_hash(&[Tag]) -> u64`** — helper HASH_TAGS em `convergence.rs`. Usa `DefaultHasher` (SipHash-1-3) sobre `&[Tag]` (Tag deriva Hash, P162).

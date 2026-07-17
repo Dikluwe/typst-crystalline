@@ -94,7 +94,7 @@ pendentes não inflacionou decisões.
 
 ## §3 — Materialização
 
-### §3.1 — `01_core/src/rules/layout/mod.rs` — campo + arm + finish
+### §3.1 — `01_core/src/engine/layout/mod.rs` — campo + arm + finish
 
 **Campo novo** (após `pending_cell_tails`):
 
@@ -137,7 +137,7 @@ Content::Footnote { body } => {
 adicionada após `self.flush_pending_floats()` e antes de comitar
 a Page final.
 
-### §3.2 — `01_core/src/rules/layout/cursor.rs` — flush method
+### §3.2 — `01_core/src/engine/layout/cursor.rs` — flush method
 
 **Método novo** `flush_pending_footnote_bodies` (após
 `emit_deferred_float`):
@@ -212,7 +212,7 @@ P245/P251.
 | `native_footnote` stdlib | **Inalterado** (P295) |
 | Marker `[N]` inline emit | **Inalterado bit-exact** (P295) |
 | Outras arms layout | **Inalterados** |
-| L0 `rules/layout.md` | **Inalterado** — precedente P245/P251 sem L0 update |
+| L0 `engine/layout.md` | **Inalterado** — precedente P245/P251 sem L0 update |
 | L0 `entities/content.md` | **Inalterado** |
 | `03_infra/src/export.rs` (emit code) | **Inalterado bit-exact** — hash `66cb8ac3` (**21º passo**) |
 
@@ -220,7 +220,7 @@ P245/P251.
 
 ## §4 — Testes
 
-### §4.1 — `01_core/src/rules/layout/tests.rs` (+6 L1)
+### §4.1 — `01_core/src/engine/layout/tests.rs` (+6 L1)
 
 | Teste | Verifica |
 |---|---|
@@ -287,9 +287,9 @@ cobertura.
 |---|---|
 | `infra/export.rs` (`@prompt-hash`) | **`66cb8ac3` preservado bit-exact** (**21º passo consecutivo**) |
 | `entities/content.rs` (`@prompt-hash`) | `82d3c47d` inalterado |
-| `rules/layout/mod.rs` (`@prompt-hash`) | `12536b5c` inalterado (precedente P245/P251) |
-| `rules/layout/cursor.rs` (`@prompt-hash`) | `12536b5c` inalterado |
-| L0 `rules/layout.md` | **`12536b5c` preservado** — pattern P245/P251 sem L0 update |
+| `engine/layout/mod.rs` (`@prompt-hash`) | `12536b5c` inalterado (precedente P245/P251) |
+| `engine/layout/cursor.rs` (`@prompt-hash`) | `12536b5c` inalterado |
+| L0 `engine/layout.md` | **`12536b5c` preservado** — pattern P245/P251 sem L0 update |
 | Outros L0 markdown | todos preservados |
 
 **Crítico**: L0 `layout.md` preservado seguindo precedente P245/P251.

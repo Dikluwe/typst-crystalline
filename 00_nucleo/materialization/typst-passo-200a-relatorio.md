@@ -233,7 +233,7 @@ Tag::End(loc, hash_content(heading))   // walk bottom
 4. `rules/introspect/from_tags.rs`:
    - Arm `HeadingForToc` push directo.
 
-5. `rules/layout/outline.rs:24`:
+5. `engine/layout/outline.rs:24`:
    - Substitution-with-fallback.
 
 6. L0 (3 ficheiros):

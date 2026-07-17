@@ -160,7 +160,7 @@ use pretty_assertions::assert_eq;
 
 fn assert_paridade(input: &str) {
     let orig  = typst_syntax::parse(input);
-    let crist = typst_core::rules::parse::parse(input);
+    let crist = typst_core::engine::parse::parse(input);
     assert_eq!(
         compact_original(&orig),
         compact_cristalino(&crist),
@@ -170,7 +170,7 @@ fn assert_paridade(input: &str) {
 
 fn assert_paridade_math(input: &str) {
     let orig  = typst_syntax::parse_math(input);
-    let crist = typst_core::rules::parse::parse_math(input);
+    let crist = typst_core::engine::parse::parse_math(input);
     assert_eq!(
         compact_original(&orig),
         compact_cristalino(&crist),
@@ -180,7 +180,7 @@ fn assert_paridade_math(input: &str) {
 
 fn assert_paridade_code(input: &str) {
     let orig  = typst_syntax::parse_code(input);
-    let crist = typst_core::rules::parse::parse_code(input);
+    let crist = typst_core::engine::parse::parse_code(input);
     assert_eq!(
         compact_original(&orig),
         compact_cristalino(&crist),
@@ -254,7 +254,7 @@ fn corpus_completo() {
         let input = std::fs::read_to_string(path).unwrap();
 
         let orig  = typst_syntax::parse(&input);
-        let crist = typst_core::rules::parse::parse(&input);
+        let crist = typst_core::engine::parse::parse(&input);
 
         let co = compact_original(&orig);
         let cc = compact_cristalino(&crist);
@@ -303,7 +303,7 @@ fn main() {
     };
 
     let orig  = typst_syntax::parse(&input);
-    let crist = typst_core::rules::parse::parse(&input);
+    let crist = typst_core::engine::parse::parse(&input);
 
     let co = compact::compact_original(&orig);
     let cc = compact::compact_cristalino(&crist);

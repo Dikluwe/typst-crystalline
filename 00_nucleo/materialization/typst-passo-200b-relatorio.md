@@ -39,8 +39,8 @@ Desbloqueia M6 (P190A reescrita do zero — eliminação `CounterStateLegacy`; m
 | 2 | `entities/element_payload.rs` | Variant nova `HeadingForToc { label, body, level }` (12→13). |
 | 3 | `rules/introspect.rs` | Helper privado `compute_heading_for_toc` (4º na família ADR-0069); walk arm Heading modificado para emitir 3ª Tag pós-recursão; comentário inline P200B substitui notas E2-residuo. |
 | 4 | `rules/introspect/from_tags.rs` | Arm `ElementPayload::HeadingForToc` push directo no sub-store. |
-| 5 | `rules/layout/outline.rs` | Consumer migrado para substitution-with-fallback. |
-| 6 | `prompts/rules/introspect.md` | Tabela Excepções E2-residuo fechada; ordem inversa passo 5 ✅; secção nova "Walk arm Heading mutação 4 fechada (P200B, trabalho híbrido)"; **marco "M5 universal completo"** documentado. |
+| 5 | `engine/layout/outline.rs` | Consumer migrado para substitution-with-fallback. |
+| 6 | `prompts/engine/introspect.md` | Tabela Excepções E2-residuo fechada; ordem inversa passo 5 ✅; secção nova "Walk arm Heading mutação 4 fechada (P200B, trabalho híbrido)"; **marco "M5 universal completo"** documentado. |
 
 **ElementKind::HeadingForToc NÃO adicionada** — HeadingForToc é Tag derivada de Heading (não Content standalone); justificação inline em L0.
 
@@ -245,13 +245,13 @@ Após P200C: **M5 universal fechado**. Desbloqueia **M6 (P190A reescrita do zero
 - **Sub-stores consumidos por sub-store novo**: nenhum (push directo em from_tags arm).
 - **Consumer migrado**: `outline.rs:24` (3ª migration substitution-with-fallback após C3 P184D + C4 P194B).
 - **Cadeia E2-residuo**: walk arm Heading mutação 4 → mut 4 preservada; Tag::HeadingForToc pós-recursão emite payload com body materializado para outline.
-- **L0 tocado**: `00_nucleo/prompts/rules/introspect.md` hash `7a3ba2b7`.
+- **L0 tocado**: `00_nucleo/prompts/engine/introspect.md` hash `7a3ba2b7`.
 - **Código tocado**: 5 ficheiros `01_core/src/`:
   - `entities/introspector.rs` (sub-store + trait method + impl).
   - `entities/element_payload.rs` (variant nova).
   - `rules/introspect.rs` (helper + walk arm; hash `8e0128e4`).
   - `rules/introspect/from_tags.rs` (arm novo).
-  - `rules/layout/outline.rs` (consumer migration).
+  - `engine/layout/outline.rs` (consumer migration).
 - **Padrão diagnóstico-primeiro**: 22ª aplicação consecutiva (P200A diagnóstico).
 - **Marco arquitectural**: M5 universal completo pela primeira vez desde declaração em P189B.
 

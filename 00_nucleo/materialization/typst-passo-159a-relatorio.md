@@ -99,7 +99,7 @@ Cobertura exaustiva de **9 sítios pattern-match estruturais**
 
 ### 1.4 Stdlib + helper `extract_bib_entries` (.4)
 
-Adicionados a `01_core/src/rules/stdlib/structural.rs`
+Adicionados a `01_core/src/engine/stdlib/structural.rs`
 (continuação Model).
 
 **Helper privado novo**:
@@ -130,7 +130,7 @@ Registadas em `eval/mod.rs::make_stdlib`. Re-exportadas em
 ### 1.5 Layout para Bibliography + Cite (.5)
 
 Pattern arms novos em `layout_content`
-(`01_core/src/rules/layout/mod.rs`):
+(`01_core/src/engine/layout/mod.rs`):
 
 - **Bibliography**: render title (se Some) + iterate entries
   como linhas formatadas `"[{key}] {author}. {title} ({year})."`.
@@ -221,7 +221,7 @@ antes de P159.
 | 11 | Sem novas reservas criadas | **✓** política P158 preservada — refinos pós-P159A NÃO reservados |
 | 12 | ADR-0017 não promovida | **✓** cross-reference validation diferida |
 | 13 | ADR-0062 não promovida | **✓** hayagriva contornada com input literal |
-| 14 | `layout_grid` original NÃO modificado | **✓** zero diff em `01_core/src/rules/layout/grid.rs` |
+| 14 | `layout_grid` original NÃO modificado | **✓** zero diff em `01_core/src/engine/layout/grid.rs` |
 
 **Build limpo**: `cargo build` 1.34s sem warnings novos.
 

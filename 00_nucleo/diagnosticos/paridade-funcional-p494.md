@@ -78,9 +78,9 @@ Adicionado em `lab/parity/tests/structural_parity.rs`:
 | L1 | `01_core/src/entities/element_kind.rs` | Variants + `from_name` + testes P494 |
 | L1 | `01_core/src/entities/list_marker.rs` | `ListMarker::Array` para `marker: ("a", "b")` |
 | L1 | `01_core/src/entities/show.rs` | Registo de `NodeKind::List`, `Enum`, `Link`, `Quote`, `Footnote`, `Raw` |
-| L1 | `01_core/src/rules/eval/rules.rs` | `#show link` mapeia para selector nativo; handlers de show-rule |
-| L1 | `01_core/src/rules/stdlib/foundations.rs` | `native_list` aceita `marker: Array` |
-| L1 | `01_core/src/rules/stdlib/structural.rs` | `native_enum` aceita `start:` |
+| L1 | `01_core/src/engine/eval/rules.rs` | `#show link` mapeia para selector nativo; handlers de show-rule |
+| L1 | `01_core/src/engine/stdlib/foundations.rs` | `native_list` aceita `marker: Array` |
+| L1 | `01_core/src/engine/stdlib/structural.rs` | `native_enum` aceita `start:` |
 | L3 | `03_infra/src/query_helpers.rs` | `count_element_in_content`, `is_document_element_kind`, testes P494 |
 | Lab | `lab/parity/tests/structural_parity.rs` | Sentinela P494 |
 

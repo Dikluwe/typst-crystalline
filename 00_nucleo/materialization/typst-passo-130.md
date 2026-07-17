@@ -78,9 +78,9 @@ Este passo **não**:
 **Dentro**:
 - `01_core/src/entities/style_chain.rs` (ou equivalente) — campo
   `lang: Option<EcoString>`.
-- `01_core/src/rules/eval/rules.rs` — arm `"lang"` em
+- `01_core/src/engine/eval/rules.rs` — arm `"lang"` em
   `eval_set_text`.
-- `01_core/src/rules/eval/tests.rs` — 2-3 testes.
+- `01_core/src/engine/eval/tests.rs` — 2-3 testes.
 - Prompt L0 correspondente se existe + hash.
 
 **Fora**:

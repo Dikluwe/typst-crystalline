@@ -12,7 +12,7 @@ decisões + alterações aplicadas).
 
 ### 1.1 Localização do `Layouter`
 
-- **Struct**: `01_core/src/rules/layout/mod.rs:69-154` (não
+- **Struct**: `01_core/src/engine/layout/mod.rs:69-154` (não
   em `layouter.rs`; está em `mod.rs` directamente).
 - **Pre-P204C**: `pub struct Layouter<M: FontMetrics, S:
   ImageSizer = NullImageSizer>` — sem lifetime.
@@ -29,11 +29,11 @@ P201 auditoria delta §1 #11).
 
 | # | Ficheiro | Linha |
 |---|----------|-------|
-| 1 | `01_core/src/rules/layout/mod.rs` | 156 (main impl) |
-| 2 | `01_core/src/rules/layout/cursor.rs` | 18 |
-| 3 | `01_core/src/rules/layout/equation.rs` | 19 |
-| 4 | `01_core/src/rules/layout/grid.rs` | 19 |
-| 5 | `01_core/src/rules/layout/placement.rs` | 19 |
+| 1 | `01_core/src/engine/layout/mod.rs` | 156 (main impl) |
+| 2 | `01_core/src/engine/layout/cursor.rs` | 18 |
+| 3 | `01_core/src/engine/layout/equation.rs` | 19 |
+| 4 | `01_core/src/engine/layout/grid.rs` | 19 |
+| 5 | `01_core/src/engine/layout/placement.rs` | 19 |
 
 Todos com pattern `impl<M: FontMetrics, S: ImageSizer> super::Layouter<M, S>`.
 
@@ -137,7 +137,7 @@ local de empty TagIntrospector + tracked.
 
 ## §3 C3-C7 — Alterações literais aplicadas
 
-### 3.1 `01_core/src/rules/layout/mod.rs`
+### 3.1 `01_core/src/engine/layout/mod.rs`
 
 #### Struct (linha 69)
 
@@ -221,7 +221,7 @@ no-outline path / fixpoint loop:
 + let mut l = Layouter::new(metrics, ImageSizeImageSizer, font_size, intr_tracked);
 ```
 
-### 3.4 Tests (7 sites em `01_core/src/rules/layout/tests.rs`)
+### 3.4 Tests (7 sites em `01_core/src/engine/layout/tests.rs`)
 
 Cada site adicionado boilerplate 5 linhas:
 
@@ -441,13 +441,13 @@ divergências.
 
 ### Modificados em P204C
 
-- `01_core/src/rules/layout/mod.rs` (struct, field,
+- `01_core/src/engine/layout/mod.rs` (struct, field,
   Layouter::new, layout_with_introspector).
-- `01_core/src/rules/layout/cursor.rs` (impl block).
-- `01_core/src/rules/layout/equation.rs` (impl block).
-- `01_core/src/rules/layout/grid.rs` (impl block).
-- `01_core/src/rules/layout/placement.rs` (impl block).
-- `01_core/src/rules/layout/tests.rs` (7 sites + 2
+- `01_core/src/engine/layout/cursor.rs` (impl block).
+- `01_core/src/engine/layout/equation.rs` (impl block).
+- `01_core/src/engine/layout/grid.rs` (impl block).
+- `01_core/src/engine/layout/placement.rs` (impl block).
+- `01_core/src/engine/layout/tests.rs` (7 sites + 2
   sentinelas).
 - `03_infra/src/layout.rs` (1 site externo).
 
@@ -455,8 +455,8 @@ divergências.
 
 - `01_core/src/entities/introspector.rs` (P204B
   trait + sentinels).
-- `01_core/src/rules/layout/references.rs` (deref).
-- `01_core/src/rules/layout/outline.rs` (deref).
+- `01_core/src/engine/layout/references.rs` (deref).
+- `01_core/src/engine/layout/outline.rs` (deref).
 - ADR-0073 (transita ACEITE em P204H).
 
 ### Auditoria fonte

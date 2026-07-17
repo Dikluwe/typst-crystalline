@@ -10,7 +10,7 @@ Modelou-se o tipo `Bytes` e activou-se o fallback binário em `read(...)`, fecha
 
 - L0:
   - `00_nucleo/prompts/entities/bytes.md` — tipo `Bytes` e variant `Value::Bytes`.
-  - Actualização de `00_nucleo/prompts/rules/stdlib/loading.md` — `read` binário e byte-strings CBOR.
+  - Actualização de `00_nucleo/prompts/engine/stdlib/loading.md` — `read` binário e byte-strings CBOR.
 - `01_core/src/entities/bytes.rs`:
   - Tipo L1 puro `Bytes(pub Vec<u8>)` com `Debug`, `Clone`, `PartialEq`, `Eq`, `Hash`, `Default`.
   - Helpers `new`, `len`, `is_empty`, `as_slice`; conversões `From<Vec<u8>>` e `From<Bytes>` para `Vec<u8>`.
@@ -22,7 +22,7 @@ Modelou-se o tipo `Bytes` e activou-se o fallback binário em `read(...)`, fecha
   - `PartialEq` e `Hash` reaproveitam os derives existentes (a struct `Bytes` já implementa as traits necessárias).
 - `01_core/src/entities/mod.rs`:
   - `pub mod bytes;` registado com nota P398.
-- `01_core/src/rules/stdlib/loading.rs`:
+- `01_core/src/engine/stdlib/loading.rs`:
   - `native_read`: heurística vanilla — `String::from_utf8` → `Value::Str`; falha → `Value::Bytes(Bytes::new(data.to_vec()))`.
   - `decode_cbor`: byte-strings `ciborium::value::Value::Bytes` mapeadas para `Value::Bytes(Bytes::new(b))`.
   - Testes unitários: `cbor_byte_string_returns_bytes`, `read_texto_utf8`, `read_binario_nao_utf8`, `read_vazio`.
@@ -84,11 +84,11 @@ A paridade com o vanilla em `read(path)` é ao nível da **linguagem** (heuríst
   - `01_core/src/entities/bytes.rs`
   - `01_core/src/entities/value.rs`
   - `01_core/src/entities/mod.rs`
-  - `01_core/src/rules/stdlib/loading.rs`
+  - `01_core/src/engine/stdlib/loading.rs`
   - `03_infra/src/integration_tests.rs`
 - L0:
   - `00_nucleo/prompts/entities/bytes.md`
-  - `00_nucleo/prompts/rules/stdlib/loading.md`
+  - `00_nucleo/prompts/engine/stdlib/loading.md`
 - Inventário 148: `00_nucleo/diagnosticos/typst-cobertura-vanilla-vs-cristalino.md`.
 - DEBT: `00_nucleo/DEBT.md`.
 - Plano: `00_nucleo/materialization/typst-passo-398.md`.

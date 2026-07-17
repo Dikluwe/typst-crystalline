@@ -25,7 +25,7 @@ overflow em árvores profundas.
 
 | Arquivo | Mudança |
 |---------|---------|
-| `01_core/src/rules/eval/repr.rs` | `repr_value` atualizado para `Func`, `Module`, `Version`, `Bytes`, `Datetime`, `Duration`, `Gradient`, `Tiling`, `Location`. Adicionados 15 testes novos. |
+| `01_core/src/engine/eval/repr.rs` | `repr_value` atualizado para `Func`, `Module`, `Version`, `Bytes`, `Datetime`, `Duration`, `Gradient`, `Tiling`, `Location`. Adicionados 15 testes novos. |
 | `01_core/src/entities/content.rs` | `#[derive(Debug)]` removido; `impl fmt::Debug for Content` manual adicionado com depth limiter (MAX_DEPTH = 8). |
 
 ### Documentação L0
@@ -33,7 +33,7 @@ overflow em árvores profundas.
 | Arquivo | Mudança |
 |---------|---------|
 | `00_nucleo/prompts/entities/value.md` | Nota sobre `repr()` para todos os variants; data e ADRs atualizados. |
-| `00_nucleo/prompts/rules/stdlib/foundations.md` | Tabela de tipos/formatos de saída de `repr()`; testes canônicos expandidos. |
+| `00_nucleo/prompts/engine/stdlib/foundations.md` | Tabela de tipos/formatos de saída de `repr()`; testes canônicos expandidos. |
 
 ### Correções de consistência (resquícios de P464)
 
@@ -47,14 +47,14 @@ por esse ajuste mecânico já faziam parte do trabalho em andamento:
 - `01_core/src/entities/elements/labelled.rs`
 - `01_core/src/entities/elements/mod.rs`
 - `01_core/src/entities/resolved_label_store.rs`
-- `01_core/src/rules/eval/mod.rs`
-- `01_core/src/rules/eval/tests.rs`
-- `01_core/src/rules/introspect.rs`
-- `01_core/src/rules/introspect/fixpoint.rs`
-- `01_core/src/rules/introspect/locatable.rs`
-- `01_core/src/rules/layout/mod.rs`
-- `01_core/src/rules/layout/references.rs`
-- `01_core/src/rules/layout/tests.rs`
+- `01_core/src/engine/eval/mod.rs`
+- `01_core/src/engine/eval/tests.rs`
+- `01_core/src/engine/introspect.rs`
+- `01_core/src/engine/introspect/fixpoint.rs`
+- `01_core/src/engine/introspect/locatable.rs`
+- `01_core/src/engine/layout/mod.rs`
+- `01_core/src/engine/layout/references.rs`
+- `01_core/src/engine/layout/tests.rs`
 - `03_infra/src/export/tests.rs`
 
 ---

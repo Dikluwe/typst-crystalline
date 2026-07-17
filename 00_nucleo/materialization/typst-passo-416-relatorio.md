@@ -11,9 +11,9 @@ body de `Content::Footnote` no rodapé da página — **já está implementada**
 cristalino sob os passos **P304** (footnote body renderizado no rodapé) e
 **P305** (overflow multi-página + bug fixes).
 
-O arquivo `01_core/src/rules/layout/footnote.rs` emite o marker `[N]` inline e
+O arquivo `01_core/src/engine/layout/footnote.rs` emite o marker `[N]` inline e
 difere o body para `pending_footnote_bodies`. O método
-`flush_pending_footnote_bodies` em `01_core/src/rules/layout/cursor.rs` faz o
+`flush_pending_footnote_bodies` em `01_core/src/engine/layout/cursor.rs` faz o
 layout bottom-up no rodapé, com greedy fit e defer para próxima página quando
 não cabe.
 

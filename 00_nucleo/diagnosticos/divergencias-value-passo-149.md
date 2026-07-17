@@ -26,7 +26,7 @@
 `v.type_name() -> &'static str`:
 
 ```rust
-// 01_core/src/rules/stdlib/foundations.rs:23
+// 01_core/src/engine/stdlib/foundations.rs:23
 pub fn native_type(...) -> SourceResult<Value> {
     match args.items.as_slice() {
         [v] => Ok(Value::Str(v.type_name().into())),

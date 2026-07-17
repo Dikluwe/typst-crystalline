@@ -59,7 +59,7 @@ Reverificar (não confiar em P161 — verificar agora):
    - Outras funções públicas em `introspect.rs` que chamam
      walk (precisam adaptar-se à nova assinatura).
 6. L0 de `introspect.rs`:
-   - Localizar `00_nucleo/prompts/rules/introspect.md` (ou
+   - Localizar `00_nucleo/prompts/engine/introspect.md` (ou
      equivalente). Confirmar formato L0 igual ao de
      `entities/`.
    - Ler para saber estrutura actual antes de modificar.
@@ -160,10 +160,10 @@ construção dos variants em L1 muda em .D ao chamar
 
 ### .D Criar L0+L1 de `extract_payload`
 
-1. L0 em `00_nucleo/prompts/rules/introspect/extract_payload.md`:
+1. L0 em `00_nucleo/prompts/engine/introspect/extract_payload.md`:
    - Cabeçalho com campo "Hash do Código" em branco.
    - Camada L1, ficheiro alvo
-     `01_core/src/rules/introspect/extract_payload.rs`.
+     `01_core/src/engine/introspect/extract_payload.rs`.
    - ADRs: ADR-0033, ADR-0066.
    - Origem vanilla: nenhuma directa. Vanilla resolve via
      vtable de `Locatable` trait. Cristalino prefere função
@@ -183,7 +183,7 @@ construção dos variants em L1 muda em .D ao chamar
        verificar `Some(payload)` com payload correcto.
      - Para Content não-locatable (ex. `Content::Text`,
        `Content::Math`): verificar `None`.
-2. L1 em `01_core/src/rules/introspect/extract_payload.rs`:
+2. L1 em `01_core/src/engine/introspect/extract_payload.rs`:
    - Cabeçalho `@prompt`.
    - Implementação:
 
@@ -227,7 +227,7 @@ construção dos variants em L1 muda em .D ao chamar
      - Citation básica → `Some(ElementPayload::Citation {...})`.
      - Text → `None`.
      - Math (ou outro variant não-locatable) → `None`.
-3. Update `01_core/src/rules/introspect/mod.rs` (criar se não
+3. Update `01_core/src/engine/introspect/mod.rs` (criar se não
    existir): re-export `extract_payload`.
 
 **Critério de saída**:
@@ -238,7 +238,7 @@ construção dos variants em L1 muda em .D ao chamar
 
 ### .E Modificar walk para emitir tags em paralelo
 
-1. Em `01_core/src/rules/introspect.rs`, alterar assinatura
+1. Em `01_core/src/engine/introspect.rs`, alterar assinatura
    de `walk`:
 
    Antes (assumindo forma típica):
@@ -274,7 +274,7 @@ construção dos variants em L1 muda em .D ao chamar
      - `let hash = hash_content(content);`
      - `tags.push(Tag::End(location, hash));`
 
-3. Update L0 `00_nucleo/prompts/rules/introspect.md`:
+3. Update L0 `00_nucleo/prompts/engine/introspect.md`:
    - Reflectir nova assinatura de `walk`.
    - Documentar emissão de tags em paralelo como
      comportamento adicional.
@@ -295,7 +295,7 @@ A função pública `introspect()` (e quaisquer outras que chamem
 `walk` directamente) precisa de criar `Locator` e `Vec<Tag>`,
 chamar walk, e descartar tags.
 
-1. Em `01_core/src/rules/introspect.rs`:
+1. Em `01_core/src/engine/introspect.rs`:
 
    ```rust
    pub fn introspect(content: &Content) -> CounterStateLegacy {
@@ -315,7 +315,7 @@ chamar walk, e descartar tags.
 2. Se `materialize_time` ou outras funções públicas chamam
    `walk` directamente, adaptar igual.
 
-3. Update L0 `00_nucleo/prompts/rules/introspect.md`:
+3. Update L0 `00_nucleo/prompts/engine/introspect.md`:
    - Documentar que pontos de entrada criam `Locator` +
      `Vec<Tag>` internamente; tags são descartadas até
      M2/M3.
@@ -376,10 +376,10 @@ são tests unitários mínimos.
 3. `crystalline-lint`: zero violations.
 4. Os 2 ficheiros L1 novos existem:
    - `01_core/src/entities/content_hash.rs`.
-   - `01_core/src/rules/introspect/extract_payload.rs`.
+   - `01_core/src/engine/introspect/extract_payload.rs`.
 5. Os 2 L0 novos existem:
    - `00_nucleo/prompts/entities/content_hash.md`.
-   - `00_nucleo/prompts/rules/introspect/extract_payload.md`.
+   - `00_nucleo/prompts/engine/introspect/extract_payload.md`.
 6. L0 de `introspect.rs` reflecte nova assinatura de walk.
 7. L0 de `element_payload.md` e `tag.md` actualizados (sem
    notas de placeholder).

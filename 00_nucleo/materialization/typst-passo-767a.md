@@ -3,7 +3,7 @@
 
 > **Passo:** 767a
 > **Data:** 2026-07-15
-> **Foco:** L0 fechado em P767 (`00_nucleo/prompts/rules/layout/shape_block_behaviour.md`, hash pendente conforme explicação registada em P767 — aceite). Decisões já tomadas no L0: reutilizar o mecanismo de bloco existente (`block::layout`, opção A preferida entre as três listadas), espaçamento `above`/`below` de `1.2em` por defeito (medido do vanilla), sem replicar o aviso `block may not occur inside of a paragraph`, `place()` não afectado (já corrigido em P763f), sem testes de regressão conhecidos que dependam do comportamento actual. Este passo implementa exactamente essas decisões, sem as reabrir.
+> **Foco:** L0 fechado em P767 (`00_nucleo/prompts/engine/layout/shape_block_behaviour.md`, hash pendente conforme explicação registada em P767 — aceite). Decisões já tomadas no L0: reutilizar o mecanismo de bloco existente (`block::layout`, opção A preferida entre as três listadas), espaçamento `above`/`below` de `1.2em` por defeito (medido do vanilla), sem replicar o aviso `block may not occur inside of a paragraph`, `place()` não afectado (já corrigido em P763f), sem testes de regressão conhecidos que dependam do comportamento actual. Este passo implementa exactamente essas decisões, sem as reabrir.
 > **Tipo:** Implementação directa.
 > **Tamanho:** L — mexe no realizador/fluxo de parágrafo, caminho partilhado por todo o documento.
 > **ADR-0108 EM VIGOR.** **Regra 5 do handoff** — checklist de sub-layouts obrigatório, dado que o mecanismo afecta o fluxo principal.
@@ -14,8 +14,8 @@
 ## Sonda — confirmar o mecanismo de bloco existente antes de tocar
 
 ```bash
-grep -n "fn layout\b" 01_core/src/rules/layout/block.rs
-grep -n "block_chain_active\|prev_block_below_pending\|above\|below" 01_core/src/rules/layout/block.rs 01_core/src/rules/layout/mod.rs 2>/dev/null | head -40
+grep -n "fn layout\b" 01_core/src/engine/layout/block.rs
+grep -n "block_chain_active\|prev_block_below_pending\|above\|below" 01_core/src/engine/layout/block.rs 01_core/src/engine/layout/mod.rs 2>/dev/null | head -40
 ```
 
 Confirmar a assinatura exacta e o ponto onde outros elementos de bloco (heading, list, etc.) já decidem "isto quebra o parágrafo corrente" — replicar esse padrão para `Content::Shape`, não inventar um novo caminho.
@@ -24,7 +24,7 @@ Confirmar a assinatura exacta e o ponto onde outros elementos de bloco (heading,
 
 ## Implementação
 
-1. Em `01_core/src/rules/layout/shape.rs` (ou onde `Content::Shape` é despachado), envolver o layout da forma no mesmo mecanismo de `block::layout` já usado por outros elementos — fechando qualquer parágrafo/linha corrente antes de posicionar a forma, e reiniciando o fluxo depois.
+1. Em `01_core/src/engine/layout/shape.rs` (ou onde `Content::Shape` é despachado), envolver o layout da forma no mesmo mecanismo de `block::layout` já usado por outros elementos — fechando qualquer parágrafo/linha corrente antes de posicionar a forma, e reiniciando o fluxo depois.
 2. Aplicar `above`/`below` de `1.2em` por defeito, usando o mecanismo de colapso de espaçamento já existente (P250, conforme o L0).
 3. Não emitir aviso equivalente a `block may not occur inside of a paragraph` — decisão já registada no L0.
 4. Confirmar que o caminho de `place()` não passa por esta alteração (deve continuar a usar posicionamento absoluto, inalterado desde P763f).

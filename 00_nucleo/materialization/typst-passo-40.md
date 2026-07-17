@@ -3,9 +3,9 @@
 ## Estado actual antes de começar
 
 Ler antes de começar:
-- `01_core/src/rules/eval.rs` — `eval_math_content`, arm de `FuncCall` com `frac`
-- `01_core/src/rules/math/layout.rs` — `MathLayouter`, `layout_frac`, `layout_attach`
-- `01_core/src/rules/math/symbols.rs` — `ident_to_unicode`, `is_math_function`
+- `01_core/src/engine/eval.rs` — `eval_math_content`, arm de `FuncCall` com `frac`
+- `01_core/src/engine/math/layout.rs` — `MathLayouter`, `layout_frac`, `layout_attach`
+- `01_core/src/engine/math/symbols.rs` — `ident_to_unicode`, `is_math_function`
 - `01_core/src/entities/content.rs` — variante `MathRoot { index, radicand }`
 - `03_infra/src/export.rs` — `FrameItem::Line` → operadores PDF `w m l S`
 - `lab/typst-original/crates/typst-syntax/src/ast.rs` — `MathRoot` API
@@ -33,10 +33,10 @@ grep -rn "MathRoot\|sqrt\|root" \
 grep -n "MathRoot" 01_core/src/entities/content.rs | head -10
 
 # 5. Como frac é tratado actualmente em eval_math_content (padrão a seguir)
-grep -n "frac\|FuncCall" 01_core/src/rules/eval.rs | head -20
+grep -n "frac\|FuncCall" 01_core/src/engine/eval.rs | head -20
 
 # 6. MathLayouter — métodos existentes
-grep -n "pub fn\|fn layout_" 01_core/src/rules/math/layout.rs | head -20
+grep -n "pub fn\|fn layout_" 01_core/src/engine/math/layout.rs | head -20
 
 # 7. FrameItem::Line — confirmar que já existe
 grep -n "Line" 01_core/src/entities/layout_types.rs | head -10
@@ -103,7 +103,7 @@ estado indica que já existe).
 
 ## Tarefa 2 — MathLayouter::layout_root
 
-Em `01_core/src/rules/math/layout.rs`, adicionar `layout_root`.
+Em `01_core/src/engine/math/layout.rs`, adicionar `layout_root`.
 
 Estrutura visual de `sqrt(x)`:
 
@@ -260,7 +260,7 @@ Content::MathRoot { ref index, ref radicand } => {
 }
 ```
 
-Verificar: o `layout_content` principal em `rules/layout.rs` delega
+Verificar: o `layout_content` principal em `engine/layout.rs` delega
 `Content::Equation` ao `MathLayouter`. `MathRoot` só aparece dentro de
 equações, portanto o dispatch existe dentro de `MathLayouter::layout_node`.
 
@@ -268,7 +268,7 @@ equações, portanto o dispatch existe dentro de `MathLayouter::layout_node`.
 
 ## Tarefa 4 — Adicionar sqrt/root a is_math_function
 
-Em `01_core/src/rules/math/symbols.rs`, adicionar `"sqrt"` e `"root"`
+Em `01_core/src/engine/math/symbols.rs`, adicionar `"sqrt"` e `"root"`
 à lista de `is_math_function` (se não estiverem já). Isto garante que
 estes identificadores recebem `italic: false` no layout.
 

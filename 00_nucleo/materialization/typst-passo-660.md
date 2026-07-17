@@ -33,7 +33,7 @@ grep -n "variant\|FontVariant\|font.*dict" lab/typst-original/crates/typst-libra
 ### Confirmar o estado actual do cristalino
 
 ```bash
-grep -n "FontVariant\|font.*name.*variant\|\"variant\"" 01_core/src/rules/eval/rules.rs 01_core/src/entities/font*.rs 2>/dev/null | head -20
+grep -n "FontVariant\|font.*name.*variant\|\"variant\"" 01_core/src/engine/eval/rules.rs 01_core/src/entities/font*.rs 2>/dev/null | head -20
 ```
 
 ### Critério de fecho da sonda

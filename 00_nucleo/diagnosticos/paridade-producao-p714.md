@@ -93,7 +93,7 @@ exactamente a lacuna fechada por este passo.
 
 ## 2. Implementação
 
-**`01_core/src/rules/stdlib/collections.rs`**:
+**`01_core/src/engine/stdlib/collections.rs`**:
 
 - Novo braço `(Value::Array(arr), "at") => Some(array_at(arr, args))`
   em `try_dispatch_collection_method` — nenhuma outra fiação

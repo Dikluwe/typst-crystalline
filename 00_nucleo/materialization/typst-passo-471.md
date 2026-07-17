@@ -229,7 +229,7 @@ native_highlight(body, fill:?, radius:?, extent:?)
 
 ### B.4 — Layout usa `radius` e `extent`
 
-**Ficheiro:** `rules/layout/highlight.rs` ou arm no `layout/mod.rs`
+**Ficheiro:** `engine/layout/highlight.rs` ou arm no `layout/mod.rs`
 
 O layout de highlight atualmente emite um `FrameItem::Shape` (retângulo preenchido) ou série de `FrameItem` equivalentes. Com `radius`:
 
@@ -347,7 +347,7 @@ let script_size = e.size
 - `entities/elements/sub.md` — campo `size`.
 - `entities/elements/super.md` (se ficheiro próprio existir) — campo `size`.
 - `rules/stdlib/text.md` — `native_highlight`, `native_sub`, `native_super` alargadas.
-- `rules/layout_figure.md` ou `layout/mod.md` — arm de highlight com radius/extent.
+- `engine/layout_figure.md` ou `layout/mod.md` — arm de highlight com radius/extent.
 
 ---
 

@@ -63,12 +63,12 @@ pragmática (`region.md` preservado em vez de mudado; ver §5.1).
 
 | Local | Tipo | Mudança |
 |---|---|---|
-| `01_core/src/rules/layout/mod.rs:243+` | extensão struct Layouter | +1 campo `decoration_lines_collector` |
-| `01_core/src/rules/layout/mod.rs:250+` | nova struct privada | `DecoSegment { start_x, end_x, baseline_y }` |
-| `01_core/src/rules/layout/mod.rs:391+` | constructor | +1 init line (None) |
-| `01_core/src/rules/layout/mod.rs:1987+` | **consumer P284 reescrito** | algoritmo wrap-aware + fallback single-line bit-exact |
-| `01_core/src/rules/layout/cursor.rs:89+` | hook em `flush_line` | +5 LOC condicional (collector → push segment) |
-| `00_nucleo/prompts/rules/layout.md` | L0 cluster | +33 LOC seção "Decoração textual wrap-aware (P286)" |
+| `01_core/src/engine/layout/mod.rs:243+` | extensão struct Layouter | +1 campo `decoration_lines_collector` |
+| `01_core/src/engine/layout/mod.rs:250+` | nova struct privada | `DecoSegment { start_x, end_x, baseline_y }` |
+| `01_core/src/engine/layout/mod.rs:391+` | constructor | +1 init line (None) |
+| `01_core/src/engine/layout/mod.rs:1987+` | **consumer P284 reescrito** | algoritmo wrap-aware + fallback single-line bit-exact |
+| `01_core/src/engine/layout/cursor.rs:89+` | hook em `flush_line` | +5 LOC condicional (collector → push segment) |
+| `00_nucleo/prompts/engine/layout.md` | L0 cluster | +33 LOC seção "Decoração textual wrap-aware (P286)" |
 
 Total: **5 sítios L1** tocados (3 produção + 1 cursor.rs + 1 L0).
 Zero ficheiros tocados em L3/L4. **Hash `export.rs` preservado**
@@ -149,7 +149,7 @@ predictor; apenas decorações P284 activam o hook localmente.
 
 ### §3.1 — A.1 inventário `flush_line` empírico
 
-`grep -rn "fn flush_line\|cursor_x\|current_line" 01_core/src/rules/layout/`
+`grep -rn "fn flush_line\|cursor_x\|current_line" 01_core/src/engine/layout/`
 mapeou 30+ hits. Achados decisivos:
 
 | Achado | Implicação |
@@ -214,7 +214,7 @@ rejeitadas como divergentes de vanilla sem benefício prático.
 
 | Local | Quantidade | Cobertura |
 |---|---:|---|
-| `01_core/src/rules/layout/tests.rs` (`p284_decoration_tests`) | 6 | Single-line regression (1 Line); body longo → N≥2 Lines; Y distintos por linha; cor uniforme per-decoração; strike+overline paridade simétrica; extent aplicado a TODAS as linhas (+8pt por linha em ambos os lados) |
+| `01_core/src/engine/layout/tests.rs` (`p284_decoration_tests`) | 6 | Single-line regression (1 Line); body longo → N≥2 Lines; Y distintos por linha; cor uniforme per-decoração; strike+overline paridade simétrica; extent aplicado a TODAS as linhas (+8pt por linha em ambos os lados) |
 | `03_infra/src/export.rs` (`tests`) | 1 | PDF integration — N operadores `l S Q` separados + N matches `0.000 0.000 1.000 RG` (cor uniforme em todas as linhas) |
 | **Total** | **7** | dentro do alvo spec (+6 a +12) |
 

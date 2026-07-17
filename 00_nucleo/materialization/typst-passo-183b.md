@@ -4,7 +4,7 @@ Primeiro passo de implementação P183 (após P183A diagnóstico).
 Magnitude **trivial (S)**.
 
 Migra consumer C1 (`Layouter::layout_content` arm
-`Content::Heading` em `01_core/src/rules/layout/mod.rs:310`)
+`Content::Heading` em `01_core/src/engine/layout/mod.rs:310`)
 de `self.counter.format_hierarchical("heading")` legacy para
 `self.introspector.formatted_counter("heading")` com fallback
 legacy. Padrão substitution-with-fallback P168/P181G/P182D
@@ -46,7 +46,7 @@ substitution-with-fallback; Opção 3 fecho M4; C1 reutiliza
 ### .A Auditoria L0
 
 1. Confirmar consumer C1 actual:
-   - `01_core/src/rules/layout/mod.rs:310` (per P183A §2).
+   - `01_core/src/engine/layout/mod.rs:310` (per P183A §2).
    - Localizar leitura: padrão esperado
      `self.counter.format_hierarchical("heading")` ou
      similar.
@@ -77,7 +77,7 @@ substitution-with-fallback; Opção 3 fecho M4; C1 reutiliza
      directo. Se `Option<String>`: fallback usa
      `or_else` ou `unwrap_or_else`.
 
-5. Confirmar L0 actual `rules/layout.md` (ou nome real):
+5. Confirmar L0 actual `engine/layout.md` (ou nome real):
    - Localizar entrada que documenta heading-arm.
    - Verificar se já cobre P182D (deveria).
    - Adicionar entrada para P183B (heading prefix path).
@@ -97,7 +97,7 @@ actual / observação.
   consolidados): trivial — não duplicar import.
 - Senão prosseguir.
 
-### .B Actualizar L0 `rules/layout.md`
+### .B Actualizar L0 `engine/layout.md`
 
 1. Adicionar entrada para C1 migration:
    - Heading prefix consultado via Introspector
@@ -117,7 +117,7 @@ actual / observação.
 
 ### .C Migrar consumer C1 heading prefix
 
-1. Em `01_core/src/rules/layout/mod.rs:310`:
+1. Em `01_core/src/engine/layout/mod.rs:310`:
    - Substituir leitura legacy por padrão
      substitution-with-fallback.
    - Forma exacta fica para Claude Code conforme
@@ -144,7 +144,7 @@ actual / observação.
 
 ### .D Tests unitários ou E2E
 
-1. Em `01_core/src/rules/layout/tests.rs`, submódulo
+1. Em `01_core/src/engine/layout/tests.rs`, submódulo
    `p183b_heading_prefix` (irmão de `p182d_heading_numbering`
    e `p182e_e2e_heading_numbering`):
 
@@ -202,7 +202,7 @@ com:
   padrão; sem método trait novo; sem L0 novo significativo.
 - Confirmação `.E` (10 verificações).
 - Δ tests vs baseline P183A (esperado +3).
-- Hashes finais de L0s modificados (`rules/layout.md`).
+- Hashes finais de L0s modificados (`engine/layout.md`).
 - Decisões de execução notáveis (se houver).
 - Estado actual:
   - P183 série: A ✅ B ✅ | C-F pendentes.
@@ -223,7 +223,7 @@ com:
 Todas em conjunto:
 
 1. `.A` produziu auditoria sem disparar gate substancial.
-2. L0 `rules/layout.md` actualizado.
+2. L0 `engine/layout.md` actualizado.
 3. Consumer C1 migrado.
 4. 3 tests novos passam.
 5. Tests existentes não regridem.

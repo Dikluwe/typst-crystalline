@@ -37,7 +37,7 @@ Semantic clara: spacing primitives são structurais.
 - **ADR-0033**: paridade funcional para h e v.
 - **ADR-0036**: atomização — cada feature consumer explícito.
 - **ADR-0037**: coesão por domínio — Layout permanece em
-  `rules/layout/` e `rules/stdlib/layout.rs`.
+  `engine/layout/` e `rules/stdlib/layout.rs`.
 - **ADR-0054**: perfil observacional graded — h e v
   cumpridos com aproximação (`weak` semantic simplificada).
 - **ADR-0061** (PROPOSTO): plano de Layout Fase X. Este
@@ -105,11 +105,11 @@ Ao fim do passo:
    - `entities/content.rs::map_text`.
    - `rules/introspect.rs::materialize_time`.
    - `rules/introspect.rs::walk`.
-   - `rules/layout/mod.rs::layout_content`.
-   - `rules/layout/mod.rs::measure_content_constrained`.
+   - `engine/layout/mod.rs::layout_content`.
+   - `engine/layout/mod.rs::measure_content_constrained`.
 
 4. **`native_h`** em
-   `01_core/src/rules/stdlib/layout.rs` expondo
+   `01_core/src/engine/stdlib/layout.rs` expondo
    `#h(amount, weak: ?)`.
 
 5. **`native_v`** em mesma localização expondo
@@ -190,7 +190,7 @@ Este passo **não**:
 3. **Granularidade**: 2 features num passo. Consistente
    com decisão humana 2026-04-25 (12 passos granulares).
 
-4. **Localização canónica**: `01_core/src/rules/stdlib/layout.rs`
+4. **Localização canónica**: `01_core/src/engine/stdlib/layout.rs`
    per descoberta P156C (coesão por domínio Layout).
 
 5. **Assinatura natives**: forma 5-param canónica
@@ -243,19 +243,19 @@ Este passo **não**:
 
 - Modificação de `01_core/src/entities/content.rs`
   (2 variants novos + arms cobertura).
-- Modificação de `01_core/src/rules/introspect.rs`
+- Modificação de `01_core/src/engine/introspect.rs`
   (`materialize_time` + `walk`).
-- Modificação de `01_core/src/rules/layout/mod.rs`
+- Modificação de `01_core/src/engine/layout/mod.rs`
   (`layout_content` + `measure_content_constrained`).
-- Modificação de `01_core/src/rules/stdlib/layout.rs`
+- Modificação de `01_core/src/engine/stdlib/layout.rs`
   (`native_h` + `native_v`).
-- Modificação de `01_core/src/rules/stdlib/mod.rs`
+- Modificação de `01_core/src/engine/stdlib/mod.rs`
   (re-export).
-- Modificação de `01_core/src/rules/eval/mod.rs`
+- Modificação de `01_core/src/engine/eval/mod.rs`
   (registo em `make_stdlib`).
 - Tests em `01_core/src/entities/content.rs::tests`,
-  `01_core/src/rules/stdlib/mod.rs::tests` (modelo P156C),
-  `01_core/src/rules/layout/tests.rs`.
+  `01_core/src/engine/stdlib/mod.rs::tests` (modelo P156C),
+  `01_core/src/engine/layout/tests.rs`.
 - L0 prompts + hashes.
 - Inventário 148 + README ADRs.
 - Relatório do passo.
@@ -285,9 +285,9 @@ Este passo **não**:
 ```bash
 view 01_core/src/entities/content.rs   # confirmar 45 variants pós-P156C
 grep -nE "^pub enum Content" 01_core/src/entities/content.rs
-view 01_core/src/rules/stdlib/layout.rs  # localização canónica
+view 01_core/src/engine/stdlib/layout.rs  # localização canónica
 grep -nE "fn native_pad|fn native_hide" \
-  01_core/src/rules/stdlib/layout.rs
+  01_core/src/engine/stdlib/layout.rs
 ```
 
 Confirmar:
@@ -336,7 +336,7 @@ Content, adicionar arms para `HSpace` e `VSpace`:
 
 ### 156D.4 — `native_h` e `native_v`
 
-Em `01_core/src/rules/stdlib/layout.rs` (ao lado de
+Em `01_core/src/engine/stdlib/layout.rs` (ao lado de
 `native_pad` + `native_hide`):
 
 ```rust
@@ -397,17 +397,17 @@ pub fn native_v(_ctx: &mut EvalContext, args: &Args,
 }
 ```
 
-Registo em `make_stdlib` (em `01_core/src/rules/eval/mod.rs`):
+Registo em `make_stdlib` (em `01_core/src/engine/eval/mod.rs`):
 
 ```rust
 scope.define("h", Value::Func(Func::native("h", native_h)));
 scope.define("v", Value::Func(Func::native("v", native_v)));
 ```
 
-Re-export em `01_core/src/rules/stdlib/mod.rs`:
+Re-export em `01_core/src/engine/stdlib/mod.rs`:
 
 ```rust
-pub use crate::rules::stdlib::layout::{
+pub use crate::engine::stdlib::layout::{
     native_align, native_grid, native_h, native_hide,
     native_pad, native_page, native_place, native_v,
 };
@@ -417,7 +417,7 @@ Stdlib funcs: 34 → **36** (+2).
 
 ### 156D.5 — Layouter h e v
 
-Em `01_core/src/rules/layout/mod.rs::layout_content`:
+Em `01_core/src/engine/layout/mod.rs::layout_content`:
 
 ```rust
 match content {
@@ -460,8 +460,8 @@ match content {
 | Ficheiro | Testes |
 |----------|--------|
 | `01_core/src/entities/content.rs::tests` | (1) hspace_constructor; (2) vspace_constructor; (3) hspace_is_empty_se_amount_zero; (4) vspace_is_empty_se_amount_zero; (5) hspace_partial_eq; (6) vspace_partial_eq; (7) hspace_e_vspace_plain_text_vazio |
-| `01_core/src/rules/stdlib/mod.rs::tests` | (8) `native_h` aceita Length; (9) `native_h` aceita weak; (10) `native_h` rejeita amount negativo; (11) `native_h` rejeita named arg desconhecido; (12) `native_h` sem amount → Err; (13) `native_v` análogo (1 test composto que cobre todas as variantes acima); (14) `native_h` aceita amount zero |
-| `01_core/src/rules/layout/tests.rs` | (15) layout h avança cursor.x; (16) layout v avança cursor.y após flush |
+| `01_core/src/engine/stdlib/mod.rs::tests` | (8) `native_h` aceita Length; (9) `native_h` aceita weak; (10) `native_h` rejeita amount negativo; (11) `native_h` rejeita named arg desconhecido; (12) `native_h` sem amount → Err; (13) `native_v` análogo (1 test composto que cobre todas as variantes acima); (14) `native_h` aceita amount zero |
+| `01_core/src/engine/layout/tests.rs` | (15) layout h avança cursor.x; (16) layout v avança cursor.y após flush |
 
 **Total**: ~15-16 tests. Tests cumulativos: **1172 → ~1187-
 1188**.
@@ -616,12 +616,12 @@ Secções (modelo P156C):
 ## O que pode sair errado
 
 - **`extract_length` helper já existe pós-P156C**: confirmar
-  em `01_core/src/rules/stdlib/layout.rs`. Se não existir
+  em `01_core/src/engine/stdlib/layout.rs`. Se não existir
   com nome esperado (e.g. `expect_length` em vez de
   `extract_length`), usar nome real.
 
 - **`expect_bool` helper não existe**: provável. Criar
-  em `01_core/src/rules/stdlib/layout.rs` ou usar
+  em `01_core/src/engine/stdlib/layout.rs` ou usar
   pattern match directo:
   ```rust
   let weak_value = match value {

@@ -10,8 +10,8 @@ Data: 2026-04-23.
 
 | Ficheiro:linha | Classificação | Constrói `Sink`? | Lê warnings? |
 |----------------|---------------|-----------------:|-------------:|
-| `01_core/src/rules/eval/tests.rs:31` (`eval_for_test`) | H (helper L1) | Sim (`Sink::new()`) | Não (descartado) |
-| `01_core/src/rules/eval/tests.rs:61` (`eval_for_test_with_limits`) | H (helper L1, test-only) | N/A (não chama eval) | N/A |
+| `01_core/src/engine/eval/tests.rs:31` (`eval_for_test`) | H (helper L1) | Sim (`Sink::new()`) | Não (descartado) |
+| `01_core/src/engine/eval/tests.rs:61` (`eval_for_test_with_limits`) | H (helper L1, test-only) | N/A (não chama eval) | N/A |
 | `03_infra/src/integration_tests.rs:67` (`do_eval`) | T (teste L3) | Sim (`Sink::new()`) | Não (descartado) |
 
 **Todos descartam o Sink**. Nenhum caller lê `into_diagnostics`

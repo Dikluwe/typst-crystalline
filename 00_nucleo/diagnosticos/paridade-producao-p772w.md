@@ -59,8 +59,8 @@ produz PDF via layout paginado).
 
 | Item | Tipo real | Classificação |
 |---|---|---|
-| `plugin#1` (fn `pub fn plugin(...)`) | Símbolo de língua real | **Já implementado** — `native_plugin`, `01_core/src/rules/stdlib/plugin.rs:44` |
-| `plugin#2` (provável `plugin.transition`, `#[scope] impl plugin`) | Símbolo de língua real (API de mutação/transition) | **Scope-out documentado e consciente** — P696 §5-6: "Transition API... **fora** do escopo... `cetz_core.wasm` (plugins puros)... transition não é necessário". Confirmado: não existe `transition` em `01_core/src/rules/stdlib/plugin.rs`, consistente com a decisão registada |
+| `plugin#1` (fn `pub fn plugin(...)`) | Símbolo de língua real | **Já implementado** — `native_plugin`, `01_core/src/engine/stdlib/plugin.rs:44` |
+| `plugin#2` (provável `plugin.transition`, `#[scope] impl plugin`) | Símbolo de língua real (API de mutação/transition) | **Scope-out documentado e consciente** — P696 §5-6: "Transition API... **fora** do escopo... `cetz_core.wasm` (plugins puros)... transition não é necessário". Confirmado: não existe `transition` em `01_core/src/engine/stdlib/plugin.rs`, consistente com a decisão registada |
 | `Plugin` (struct, privada no vanilla) | Mecanismo — pool de instâncias `wasmi` para execução multi-threaded | Mecanismo |
 | `PluginInstance` (struct, privada) | Mecanismo — uma instância `wasmi::Instance` + `wasmi::Store` | Mecanismo |
 | `Snapshot` (struct, privada) | Mecanismo — snapshot de memória WASM para restore (parte da transition API já scope-out) | Mecanismo |
@@ -120,9 +120,9 @@ explicitamente excluído pelo filtro `grep -v "::style::"`.
 ### 3.1 `target()` ausente do scope global (CORRIGIDO)
 
 Ver §2.1. `#target()`/`#context target()` erravam "unknown variable: target"; vanilla devolve `"paged"`.
-Corrigido: `native_target` (`01_core/src/rules/stdlib/foundations.rs`) devolve sempre `Value::Str("paged")`
+Corrigido: `native_target` (`01_core/src/engine/stdlib/foundations.rs`) devolve sempre `Value::Str("paged")`
 (cristalino só produz PDF via layout paginado — não há outro valor possível). Registado no scope global
-(`01_core/src/rules/eval/mod.rs`).
+(`01_core/src/engine/eval/mod.rs`).
 
 ### 3.2 `#image()` com fonte PDF — gap real, não implementado (DÉBITO)
 
@@ -145,7 +145,7 @@ Ver §2.3. Requer dependência de renderização de PDF (`hayro`-equivalente). F
   mesmo estando "explanation" dentro de um `#place()` aninhado).
 - Cristalino: 1 `stroke_path` — só "Some text"; "explanation" (dentro do `place()`) **não** é sublinhado.
 
-**Causa raiz** (`01_core/src/rules/layout/sub_frame.rs::layout_sub_frame`): o mecanismo de decoração
+**Causa raiz** (`01_core/src/engine/layout/sub_frame.rs::layout_sub_frame`): o mecanismo de decoração
 wrap-aware (P284/P286) regista segmentos de sublinhado em `self.decoration_lines_collector` **dentro de
 `flush_line()`** (`cursor.rs:231`). `layout_sub_frame` — usado por `place()`, células de grid, e outros
 6 call-sites — faz o seu próprio flush manual da `current_line` **sem chamar `flush_line()`** (confirmado:
@@ -169,7 +169,7 @@ cristalino:  error: módulo 'math' não tem campo 'class'
 ```
 
 Confirmado ausente. Implementar correctamente exigiria primeiro confirmar/adicionar suporte a espaçamento
-automático **baseado em `MathClass`** no motor de layout — `grep -rln MathClass 01_core/src/rules/layout`
+automático **baseado em `MathClass`** no motor de layout — `grep -rln MathClass 01_core/src/engine/layout`
 não encontra nenhuma ocorrência; `MathClass` só existe hoje em `entities/math_class.rs` e nos ficheiros de
 parsing/lexing (`rules/parse/math.rs`, `rules/lexer/math.rs`), nunca consumido pelo layout de equações. Isto
 sugere que o espaçamento automático por classe pode não existir ainda no cristalino (ou usa outro
@@ -195,7 +195,7 @@ passo):
 
 **Bug 1 — símbolo errado**: `ident_to_unicode("int")` devolvia `Some("∫")` — errado. No vanilla, `int` é o
 construtor do tipo inteiro (`scope.define("int", Value::Type(Type::Int))`,
-`01_core/src/rules/eval/mod.rs:1186`), não um símbolo — confirmado por compilação real do vanilla:
+`01_core/src/engine/eval/mod.rs:1186`), não um símbolo — confirmado por compilação real do vanilla:
 ```
 $ echo '$ int $' > /tmp/t.typ && vanilla compile
 error: unknown variable: int
@@ -241,19 +241,19 @@ regressão).
 
 ### L0s actualizados antes do código
 
-- `00_nucleo/prompts/rules/math/symbols.md` — `ident_to_unicode` (int→integral), nova função
+- `00_nucleo/prompts/engine/math/symbols.md` — `ident_to_unicode` (int→integral), nova função
   `is_integral_char`, Histórico de Revisões.
-- `00_nucleo/prompts/rules/math/layout/attach.md` — nova secção "Empilhamento de limites (`is_limits`) —
+- `00_nucleo/prompts/engine/math/layout/attach.md` — nova secção "Empilhamento de limites (`is_limits`) —
   P772w" (mecanismo antes não documentado nesta L0, agora completo).
-- `00_nucleo/prompts/rules/stdlib/foundations.md` — nova secção `native_target`.
+- `00_nucleo/prompts/engine/stdlib/foundations.md` — nova secção `native_target`.
 
 ### Testes automatizados novos
 
-- `01_core/src/rules/math/symbols.rs`: `integral_converte_para_unicode`, `int_nao_e_simbolo_matematico`,
+- `01_core/src/engine/math/symbols.rs`: `integral_converte_para_unicode`, `int_nao_e_simbolo_matematico`,
   `is_integral_char_cobre_a_familia_de_integrais`.
-- `01_core/src/rules/math/layout/tests.rs`: `math_attach_sum_empilha_limites_em_modo_bloco` (controlo),
+- `01_core/src/engine/math/layout/tests.rs`: `math_attach_sum_empilha_limites_em_modo_bloco` (controlo),
   `math_attach_integral_nao_empilha_limites_em_modo_bloco` (regressão).
-- `01_core/src/rules/stdlib/mod.rs`: `p772w_target_devolve_paged`, `p772w_target_com_args_retorna_err`.
+- `01_core/src/engine/stdlib/mod.rs`: `p772w_target_devolve_paged`, `p772w_target_com_args_retorna_err`.
 
 ---
 

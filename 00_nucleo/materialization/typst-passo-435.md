@@ -25,17 +25,17 @@
 
 ## ADR-0107 — Paridade linguagem
 
-Contrato documental: cada função nativa em `shapes.rs` deve ter seu contrato L0 (assinatura, argumentos posicionais/nomeados, semântica, paridade vanilla, limitações graded, testes canônicos) em `00_nucleo/prompts/rules/stdlib/shapes.md`.
+Contrato documental: cada função nativa em `shapes.rs` deve ter seu contrato L0 (assinatura, argumentos posicionais/nomeados, semântica, paridade vanilla, limitações graded, testes canônicos) em `00_nucleo/prompts/engine/stdlib/shapes.md`.
 
 ---
 
 ## ADR-0109 — Atomização forma B
 
 **Toques pontuais:**
-1. Criar `00_nucleo/prompts/rules/stdlib/shapes.md` com 6 secções (1 por função).
+1. Criar `00_nucleo/prompts/engine/stdlib/shapes.md` com 6 secções (1 por função).
 2. Cada secção: assinatura, args (`width`, `height`, `fill`, `stroke`, `radius`, etc.), semântica, paridade vanilla, limitações, testes canônicos.
 3. Atualizar `rules/stdlib/_comum.md` — remover `shapes.rs` da lista.
-4. Atualizar cabeçalho `@prompt` de `01_core/src/rules/stdlib/shapes.rs` para apontar `shapes.md`.
+4. Atualizar cabeçalho `@prompt` de `01_core/src/engine/stdlib/shapes.rs` para apontar `shapes.md`.
 5. `DEBT.md` atualizado com nota "subset shapes.rs fechado em P435".
 
 ---
@@ -50,7 +50,7 @@ Contrato documental: cada função nativa em `shapes.rs` deve ter seu contrato L
 
 ## Critério de fecho
 
-- [ ] `00_nucleo/prompts/rules/stdlib/shapes.md` criado com 6 secções.
+- [ ] `00_nucleo/prompts/engine/stdlib/shapes.md` criado com 6 secções.
 - [ ] Cada função documenta: assinatura, args, semântica, paridade vanilla, limitações, testes canônicos.
 - [ ] `_comum.md` atualizado (shapes.rs removido da lista).
 - [ ] `shapes.rs` cabeçalho `@prompt` aponta `shapes.md`.

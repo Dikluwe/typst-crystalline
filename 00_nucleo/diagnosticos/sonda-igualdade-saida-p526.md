@@ -46,7 +46,7 @@ grep -rn "svg\|SVG" 01_core/src/ 03_infra/src/ 04_wiring/src/ --include="*.rs" |
 Resultado relevante:
 
 ```text
-01_core/src/rules/stdlib/structural.rs:2184:        "png" | "jpg" | "jpeg" | "gif" | "svg" | "webp" => EcoString::from("image"),
+01_core/src/engine/stdlib/structural.rs:2184:        "png" | "jpg" | "jpeg" | "gif" | "svg" | "webp" => EcoString::from("image"),
 ```
 
 Classificação: **AUSENTE**. A única referência é a detecção de extensão `.svg` para ficheiros de imagem de entrada. Não existe export SVG.

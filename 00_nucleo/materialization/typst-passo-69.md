@@ -9,9 +9,9 @@ Ler antes de começar:
   Tarefa 1).
 - `01_core/src/entities/show.rs` — `NodeKind`, `Selector`, `ShowRule` criados
   no Passo 68.
-- `01_core/src/rules/eval.rs` — `apply_show_rules` e `intercept_content` do
+- `01_core/src/engine/eval.rs` — `apply_show_rules` e `intercept_content` do
   Passo 68, para entender o que o `map_content` vai substituir.
-- `01_core/src/rules/stdlib.rs` — Para registar as funções sentinela novas.
+- `01_core/src/engine/stdlib.rs` — Para registar as funções sentinela novas.
 
 Pré-condição: `cargo test` — 684 L1 + 125 L3, zero violations.
 DEBT-19 registado. `apply_show_rules` interceta apenas o nó raiz (superficial).
@@ -55,7 +55,7 @@ grep -n "Equation" 01_core/src/entities/content.rs -A 3 | head -15
 grep -n "MathAttach\|MathRoot\|MathDelimited" 01_core/src/entities/content.rs -A 5 | head -30
 
 # 4. Confirmar a assinatura actual de apply_show_rules no Passo 68
-grep -n "fn apply_show_rules\|fn intercept_content" 01_core/src/rules/eval.rs | head -5
+grep -n "fn apply_show_rules\|fn intercept_content" 01_core/src/engine/eval.rs | head -5
 
 # 5. Confirmar NodeKind actual (Passo 68 declarou Heading e Figure)
 grep -n "enum NodeKind" 01_core/src/entities/show.rs -A 10 | head -15

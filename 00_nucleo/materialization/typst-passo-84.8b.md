@@ -192,7 +192,7 @@ permanece como registo histórico da decisão revogada.
 **Evidência de desalinhamento**:
 - Campo chama-se `**Estado**` em vez de `**Status**`.
 - Valor sem backticks.
-- `pub fn eval(` confirmado em `01_core/src/rules/eval.rs:250` —
+- `pub fn eval(` confirmado em `01_core/src/engine/eval.rs:250` —
   o conteúdo `IMPLEMENTADO` está correcto, só o formato está
   errado.
 

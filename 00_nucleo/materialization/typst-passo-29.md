@@ -8,7 +8,7 @@
 
 **Verificação antes de começar**:
 ```bash
-grep "max_call_depth" 01_core/src/rules/eval_context.rs
+grep "max_call_depth" 01_core/src/engine/eval_context.rs
 # Deve mostrar: max_call_depth: 250
 # Se mostrar 200, corrigir antes de continuar.
 ```
@@ -44,11 +44,11 @@ continua a retornar `Err("import não implementado")` no fim deste passo.
 ```bash
 # Verificar se ModuleImport/ModuleInclude já têm tratamento em eval_expr
 grep -n "ModuleImport\|ModuleInclude\|Import\|import" \
-  01_core/src/rules/eval.rs | head -20
+  01_core/src/engine/eval.rs | head -20
 
 # Ver se há alguma estrutura de rastreamento de fontes em EvalContext
 grep -n "visited\|cycle\|import_stack\|source_stack" \
-  01_core/src/rules/eval_context.rs
+  01_core/src/engine/eval_context.rs
 
 # Ver o tipo de FileId — é Copy? Eq? Hash?
 grep -n "FileId\|NonZeroU16" \
@@ -56,7 +56,7 @@ grep -n "FileId\|NonZeroU16" \
 
 # Ver se World::source já é chamado algures em eval
 grep -n "world\.source\|ctx\.world\.source" \
-  01_core/src/rules/eval.rs
+  01_core/src/engine/eval.rs
 ```
 
 **Parar. Reportar antes de qualquer código.**
@@ -66,7 +66,7 @@ grep -n "world\.source\|ctx\.world\.source" \
 ## Tarefa 2 — Adicionar rastreamento de importações em `EvalContext`
 
 ```rust
-// Em 01_core/src/rules/eval_context.rs
+// Em 01_core/src/engine/eval_context.rs
 
 use crate::entities::file_id::FileId;
 
@@ -297,11 +297,11 @@ crystalline-lint .
 
 # Confirmar import_stack como Vec em EvalContext
 grep -n "import_stack\|enter_import\|ImportGuard" \
-  01_core/src/rules/eval_context.rs
+  01_core/src/engine/eval_context.rs
 
 # Confirmar que import/include não fazem panic
 grep -n "todo!\|unimplemented!\|panic!" \
-  01_core/src/rules/eval.rs
+  01_core/src/engine/eval.rs
 # Deve retornar vazio
 ```
 

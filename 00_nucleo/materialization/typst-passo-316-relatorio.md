@@ -27,7 +27,7 @@ descrevia a Tarefa **P316** (P315 foi absorvido pelo P314); renomeado para
    relação preserva-se. **Verificado em Fase B**: nenhum teste fixa hash
    absoluto; `payload_diferente_produz_hash_diferente` (relacional) passa.
 3. **Layout fica em `rules/`** (não no trait — topologia); só muda destructuring
-   de `Arc<Elem>`. ⇒ `rules/layout.md` **não foi fatiado** (o imposto não morde
+   de `Arc<Elem>`. ⇒ `engine/layout.md` **não foi fatiado** (o imposto não morde
    neste passo).
 4. **Absorção do locatável (Heading)**: `element_kind()` + `to_payload()` no
    trait; `extract_payload.rs` arm Heading → `h.to_payload()`. Enums
@@ -111,10 +111,10 @@ toca poucos). Isto é mensurável por `grep` **antes** de migrar cada variante.
 - Custo por **lote** de ~5–8 variantes ≈ **M** (fatiável, alinhado DEBT-57).
   74 variantes ≈ **10–12 lotes**.
 
-## 6. `rules/layout.md` — NÃO fatiado
+## 6. `engine/layout.md` — NÃO fatiado
 
 A decisão A.1.2 (layout fica em `rules/`, só destructuring) significou que
-nenhuma spec de layout mudou; `rules/layout.md` (11 `.rs`) **não foi editado**,
+nenhuma spec de layout mudou; `engine/layout.md` (11 `.rs`) **não foi editado**,
 logo o imposto não mordeu e não se fatiou (princípio ADR-0104: fatiar quando
 morde).
 

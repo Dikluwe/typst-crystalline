@@ -32,11 +32,11 @@ novas** via `or_insert`. P181E adiciona-o à API pública de
 
 **Outputs**:
 
-- `00_nucleo/prompts/rules/introspect/from_tags.md` (L0;
+- `00_nucleo/prompts/engine/introspect/from_tags.md` (L0;
   hash final `2f6b31cd`).
 - `00_nucleo/prompts/entities/bib_store.md` (L0 actualizado:
   `numbers_len()` documentado; hash final `3ea366ac`).
-- `01_core/src/rules/introspect/from_tags.rs` (arm Bibliography
+- `01_core/src/engine/introspect/from_tags.rs` (arm Bibliography
   substitui no-op + 4 tests; linhagem `75237ba7`).
 - `01_core/src/entities/bib_store.rs` (`numbers_len()` adicionado;
   linhagem `4051b23d`).

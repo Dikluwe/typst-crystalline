@@ -98,7 +98,7 @@ Resultado: zero violações. Apenas warnings preexistentes V7 (prompts órfãos 
 referenciados por código L1–L4):
 
 - `00_nucleo/prompts/adr/adr-stub-vs-fallback.md`
-- `00_nucleo/prompts/rules/show-regex.md`
+- `00_nucleo/prompts/engine/show-regex.md`
 
 ### 6.3 `cargo test --workspace`
 

@@ -151,7 +151,7 @@ A mesma mensagem aparece para `#import "ficheiro-local.typ": ...` — ou seja, *
 #include "p678-utils.typ"            # → exit 0
 ```
 
-`eval_module_include` (`01_core/src/rules/eval/modules.rs:33`) está implementado; `eval_module_import` (`modules.rs:25`) é um stub:
+`eval_module_include` (`01_core/src/engine/eval/modules.rs:33`) está implementado; `eval_module_import` (`modules.rs:25`) é um stub:
 
 ```rust
 pub(super) fn eval_module_import(import: ModuleImport<'_>) -> SourceResult<Value> {

@@ -146,7 +146,7 @@ O Typst permite definir `#set document(title: ..., author: ...)`. Confirmar se i
 Área nunca discutida neste projecto até agora.
 
 ```bash
-grep -rn "@preview\|package\|universe\|import.*@" 01_core/src/rules/eval/ --include="*.rs" | head -20
+grep -rn "@preview\|package\|universe\|import.*@" 01_core/src/engine/eval/ --include="*.rs" | head -20
 ```
 
 O Typst vanilla tem um sistema de pacotes (`#import "@preview/nome:versão"`) que descarrega pacotes de um repositório central. Confirmar se o cristalino reconhece esta sintaxe, mesmo que não tenha acesso de rede para descarregar de facto — a pergunta é se a linguagem reconhece a forma da importação.
@@ -186,7 +186,7 @@ grep -rn "vertical\|tategaki\|writing.mode\|TTB\|top.to.bottom" 01_core/src/ --i
 ### 7.2 — Quebra de linha para scripts sem espaços (CJK, Thai)
 
 ```bash
-grep -rn "line.break\|CJK.*break\|Thai\|ICU\|word.segment" 01_core/src/rules/layout/ --include="*.rs"
+grep -rn "line.break\|CJK.*break\|Thai\|ICU\|word.segment" 01_core/src/engine/layout/ --include="*.rs"
 ```
 
 O japonês, chinês, e tailandês não usam espaços entre palavras. A quebra de linha correcta nestes scripts exige regras específicas (ou um segmentador de palavras, no caso do tailandês). Confirmar se o cristalino trata isto correctamente ou quebra a meio de palavras/caracteres sem critério.
@@ -224,7 +224,7 @@ Confirmar visualmente onde a nota de rodapé aparece (fundo da coluna, fundo da 
 ### 8.2 — Numeração de página com padrões customizados
 
 ```bash
-grep -rn "numbering.*page\|page.*numbering\|roman\|\"i\"\|\"I\"" 01_core/src/rules/stdlib/ --include="*.rs" | head -10
+grep -rn "numbering.*page\|page.*numbering\|roman\|\"i\"\|\"I\"" 01_core/src/engine/stdlib/ --include="*.rs" | head -10
 ```
 
 O Typst permite `#set page(numbering: "i")` (numeração romana) ou padrões customizados. Confirmar cobertura.

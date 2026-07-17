@@ -48,7 +48,7 @@ git log --oneline dee903868c9c7d6b63e8fbc47257e5082f7638f0..547ad10a711bdebf49e1
 git diff --stat dee903868c9c7d6b63e8fbc47257e5082f7638f0..547ad10a711bdebf49e1355e7b4cebdd110cd891
 ```
 
-Confirmar exactamente o que mudou entre os dois commits — mesmo que P763d declare "nenhuma alteração de código", os commits intermédios (P765b, P766, e qualquer outro) podem ter tocado em código de layout/renderização sem que o relatório tenha percebido a relação. Se algum ficheiro em `01_core/src/rules/layout/` ou relacionado a `place`/transformações de grupo aparecer no diff, essa é a explicação candidata a confirmar — não "P762", que é anterior a P763c.
+Confirmar exactamente o que mudou entre os dois commits — mesmo que P763d declare "nenhuma alteração de código", os commits intermédios (P765b, P766, e qualquer outro) podem ter tocado em código de layout/renderização sem que o relatório tenha percebido a relação. Se algum ficheiro em `01_core/src/engine/layout/` ou relacionado a `place`/transformações de grupo aparecer no diff, essa é a explicação candidata a confirmar — não "P762", que é anterior a P763c.
 
 ---
 

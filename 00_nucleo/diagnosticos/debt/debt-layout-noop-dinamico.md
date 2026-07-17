@@ -20,7 +20,7 @@ por kind dinâmico) chega no incremento seguinte do F-3; a divergência S2–S6
 
 ## O buraco
 
-`rules/layout/mod.rs` arm `Content::Dynamic(_) => {}` (no-op). Um elemento de
+`engine/layout/mod.rs` arm `Content::Dynamic(_) => {}` (no-op). Um elemento de
 utilizador (`Content::Dynamic`) **não renderiza** — emite zero `FrameItem`.
 
 ## Por que é limitado (não é bug solto)
@@ -47,4 +47,4 @@ DEBT fecha quando, em F-3:
 - L0 `f_fronteira_e1.md` §3a.7 (realização + guards).
 - `f-plano-lotes-passo-333.md` (F-3 = realização/`#show`, sequência emendada na
   carona C3 do P335).
-- O arm: `01_core/src/rules/layout/mod.rs` (`Content::Dynamic(_) => {}`).
+- O arm: `01_core/src/engine/layout/mod.rs` (`Content::Dynamic(_) => {}`).

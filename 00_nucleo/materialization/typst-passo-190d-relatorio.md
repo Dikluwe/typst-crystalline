@@ -33,14 +33,14 @@ Então: 12 → **10 fields** (-2). Vou corrigir abaixo.
 |---|----------|---------|
 | 1 | `entities/layouter_runtime_state.rs` | Field `is_readonly: bool` adicionado (3 fields total). |
 | 2 | `prompts/entities/layouter_runtime_state.md` | L0 actualizada: 3 fields documentados; `lang` defer notado. |
-| 3 | `rules/layout/outline.rs:73-78` | `layouter.counter.is_readonly = true/false` → `layouter.runtime.is_readonly = true/false`. |
-| 4 | `rules/layout/counters.rs` | Função `layout_counter_update` recebe `runtime: &LayouterRuntimeState` parameter; guard `if runtime.is_readonly { return; }` movido para aqui. Import `LayouterRuntimeState`. |
-| 5 | `rules/layout/mod.rs:394` | Caller actualizado: `counters::layout_counter_update(&mut self.counter, &self.runtime, key, action)`. |
+| 3 | `engine/layout/outline.rs:73-78` | `layouter.counter.is_readonly = true/false` → `layouter.runtime.is_readonly = true/false`. |
+| 4 | `engine/layout/counters.rs` | Função `layout_counter_update` recebe `runtime: &LayouterRuntimeState` parameter; guard `if runtime.is_readonly { return; }` movido para aqui. Import `LayouterRuntimeState`. |
+| 5 | `engine/layout/mod.rs:394` | Caller actualizado: `counters::layout_counter_update(&mut self.counter, &self.runtime, key, action)`. |
 | 6 | `entities/counter_state_legacy.rs:107-138` | Guards `if self.is_readonly { return; }` removidos de `step_hierarchical`, `step_flat`, `update_flat`. Comentário P190D. |
 | 7 | `entities/counter_state_legacy.rs:60, 63` | Fields `has_outline: bool` + `is_readonly: bool` eliminados. Comentário P190D substitui. |
 | 8 | `entities/counter_state_legacy.rs:tests` | 5 tests sentinela `counter_state_readonly_*` removidos. Comentário P190D. |
-| 9 | `rules/layout/tests.rs:1220` | Assertion `!state.has_outline` removida (field eliminado). |
-| 10 | `rules/layout/tests.rs:4814+` | Test `outline_migrado_paridade_observable` adaptado (3 assertions sobre `state.has_outline` removidas; cobertura observable via Layouter integration preservada). |
+| 9 | `engine/layout/tests.rs:1220` | Assertion `!state.has_outline` removida (field eliminado). |
+| 10 | `engine/layout/tests.rs:4814+` | Test `outline_migrado_paridade_observable` adaptado (3 assertions sobre `state.has_outline` removidas; cobertura observable via Layouter integration preservada). |
 
 **`lang` NÃO eliminado** — deferido (per achado empírico §6).
 

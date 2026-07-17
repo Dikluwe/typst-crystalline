@@ -11,7 +11,7 @@ verdes; zero violations.
 ## Resumo
 
 Walk arm `Content::Labelled` em
-`01_core/src/rules/introspect.rs:Content::Labelled`
+`01_core/src/engine/introspect.rs:Content::Labelled`
 modificado para emitir Tag pós-recursão (pattern ADR-0069):
 
 1. **Helper privado `compute_labelled(target, state) ->

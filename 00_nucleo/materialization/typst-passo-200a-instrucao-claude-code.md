@@ -330,7 +330,7 @@ Auditor confirma empiricamente:
 #### Walk arm Heading
 
 3. Confirmar walk arm Heading em
-   `01_core/src/rules/introspect.rs`:
+   `01_core/src/engine/introspect.rs`:
    - Per P196B: 4 mutações; comentário inline P196B
      presente; mutação 4 (`state.headings_for_toc.push`)
      activa como E2-residuo.
@@ -367,7 +367,7 @@ Auditor confirma empiricamente:
    - Sem arm em `extract_payload` necessário.
 
 8. Confirmar `from_tags` em
-   `01_core/src/rules/introspect/from_tags.rs`:
+   `01_core/src/engine/introspect/from_tags.rs`:
    - Onde adicionar arm `HeadingForToc`.
    - Push directo: `intr.headings_for_toc.push((label,
      body, level))`.
@@ -375,7 +375,7 @@ Auditor confirma empiricamente:
 #### Consumer outline
 
 9. Confirmar consumer outline em
-   `01_core/src/rules/layout/outline.rs`:
+   `01_core/src/engine/layout/outline.rs`:
    - Linha 24 (per P196B referência).
    - Lê directamente `state.headings_for_toc` legacy.
    - Onde adicionar substitution-with-fallback.
@@ -401,7 +401,7 @@ Auditor confirma empiricamente:
       variant nova.
     - `rules/introspect.md` — walk arm Heading
       actualização (E2-residuo → fecha).
-    - `rules/layout/outline.md` (se existir) —
+    - `engine/layout/outline.md` (se existir) —
       consumer migration.
 
 12. Aplicar regra dos 2 eixos:

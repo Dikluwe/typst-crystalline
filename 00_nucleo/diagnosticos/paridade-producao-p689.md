@@ -20,9 +20,9 @@ não foram tocados).
 
 ```
  00_nucleo/prompts/entities/regex.md           |  16 ++-
- 00_nucleo/prompts/rules/stdlib/collections.md |  12 ++
+ 00_nucleo/prompts/engine/stdlib/collections.md |  12 ++
  01_core/src/entities/regex.rs                 |  29 ++++-
- 01_core/src/rules/stdlib/collections.rs       | 171 ++++++++++++++++++++++++++
+ 01_core/src/engine/stdlib/collections.rs       | 171 ++++++++++++++++++++++++++
  4 files changed, 226 insertions(+), 2 deletions(-)
 ```
 
@@ -70,7 +70,7 @@ Confirmado contra o vanilla (`#repr`):
 - `00_nucleo/prompts/entities/regex.md` — adicionados `RegexMatch` e
   `Regex::captures_first` (índices em bytes); ajustado o scope-out (P689 cobre
   `match`/`position`; `replace`/flags continuam fora).
-- `00_nucleo/prompts/rules/stdlib/collections.md` — 3 linhas na tabela de `str` +
+- `00_nucleo/prompts/engine/stdlib/collections.md` — 3 linhas na tabela de `str` +
   nota P689 (bytes vs chars).
 - `crystalline-lint --fix-hashes .` → `01_core/src/entities/regex.rs` `@prompt-hash`
   actualizado para `2d267947`. (`collections.rs` não tem linha `@prompt-hash` —
@@ -80,7 +80,7 @@ Confirmado contra o vanilla (`#repr`):
 - `01_core/src/entities/regex.rs` — `struct RegexMatch { start, end, text, captures }`
   e `Regex::captures_first(&self, text) -> Option<RegexMatch>` (delega a
   `regex::Regex::captures`; grupos não-participantes → `""`; nomeados em ordem).
-- `01_core/src/rules/stdlib/collections.rs` — 3 braços no dispatcher de `str` e os
+- `01_core/src/engine/stdlib/collections.rs` — 3 braços no dispatcher de `str` e os
   helpers `str_codepoints`, `str_position` (str **ou** regex), `str_match` (regex →
   `Value::Dict` com ordem de campos `start,end,text,captures`).
 

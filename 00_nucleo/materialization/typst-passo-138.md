@@ -112,9 +112,9 @@ Este passo **não**:
 ## Escopo
 
 **Dentro**:
-- `01_core/src/rules/layout/...` — onde line-break/positioning
+- `01_core/src/engine/layout/...` — onde line-break/positioning
   vertical vive (confirmar em 138.A).
-- `01_core/src/rules/layout/tests.rs` — 3 testes numéricos.
+- `01_core/src/engine/layout/tests.rs` — 3 testes numéricos.
 - `00_nucleo/DEBT.md` — marcar gap 3 resolvido.
 
 **Fora**:
@@ -147,7 +147,7 @@ Leitura de `lab/typst-original/crates/typst-library/src/model/par.rs`
 
 **A.2 — Estado actual do cálculo em L1**:
 
-`grep -rn "line_height\|line.*advance\|baseline\|flush_line\|line_break" 01_core/src/rules/layout/`.
+`grep -rn "line_height\|line.*advance\|baseline\|flush_line\|line_break" 01_core/src/engine/layout/`.
 
 Registar:
 - Função onde o incremento vertical é calculado.
@@ -259,7 +259,7 @@ Adaptar conforme código real. Se a lógica é mais intricada
 
 ### 138.D — Testes L1 novos (3)
 
-**Ficheiro**: `01_core/src/rules/layout/tests.rs`.
+**Ficheiro**: `01_core/src/engine/layout/tests.rs`.
 
 ```rust
 #[test]

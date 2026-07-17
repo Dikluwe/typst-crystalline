@@ -19,7 +19,7 @@ awk -F'\t' '$1=="lacuna-inventario" && $5 ~ /image::svg/' 00_nucleo/diagnosticos
 
 ```bash
 grep -n "<item>" lab/typst-original/crates/typst-library/src/visualize/image/svg.rs 2>/dev/null
-grep -rn "<item>\|svg\b" 01_core/src/rules/layout/image.rs 03_infra/src/export/images.rs 2>/dev/null
+grep -rn "<item>\|svg\b" 01_core/src/engine/layout/image.rs 03_infra/src/export/images.rs 2>/dev/null
 ```
 
 ### Casos de teste — paridade com o vanilla

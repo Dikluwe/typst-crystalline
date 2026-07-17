@@ -13,7 +13,7 @@ PROPOSTO em vigor; 1852 tests verdes; 0 violations.
 
 **Status**: ✅ **CONFIRMADO**.
 
-- **Caminho**: `01_core/src/rules/layout/mod.rs:1167`.
+- **Caminho**: `01_core/src/engine/layout/mod.rs:1167`.
 - **Assinatura actual**:
   `pub fn finish(mut self) -> PagedDocument`.
 - **Comportamento**:
@@ -24,9 +24,9 @@ PROPOSTO em vigor; 1852 tests verdes; 0 violations.
     self.runtime.label_pages`.
   - Retorna `doc`.
 - **Call sites**: 2 totais.
-  - `01_core/src/rules/layout/mod.rs:1532` (short-circuit
+  - `01_core/src/engine/layout/mod.rs:1532` (short-circuit
     sem TOC).
-  - `01_core/src/rules/layout/mod.rs:1566` (loop fixpoint
+  - `01_core/src/engine/layout/mod.rs:1566` (loop fixpoint
     iteração).
 
 Sem complicações. Sealing point natural existe — após
@@ -48,7 +48,7 @@ linha 1183 (atribuição `extracted_label_pages`).
 - **Construtor**: `pub fn new(pages: Vec<Page>) -> Self`
   inicializa `extracted_label_pages: HashMap::new()`.
 - **Consumers `pub` ou interno**:
-  - `01_core/src/rules/layout/mod.rs` (cria via finish).
+  - `01_core/src/engine/layout/mod.rs` (cria via finish).
   - `03_infra/src/pipeline.rs` (consome via PDF export).
   - `03_infra/src/layout.rs` (helper test).
   - `03_infra/src/export.rs` (consome para PDF).
@@ -66,7 +66,7 @@ linha 1183 (atribuição `extracted_label_pages`).
 
 - **Estado**: populated single-pass por
   `Layouter::advance_locator_if_locatable`
-  (`01_core/src/rules/layout/mod.rs:287`).
+  (`01_core/src/engine/layout/mod.rs:287`).
 - **Tipo**: `HashMap<Location, Position>`.
 - **Consumers actuais**: nenhum. P204D §C6a documenta
   que `TagIntrospector::position_of` retorna sempre
@@ -101,7 +101,7 @@ linha 1183 (atribuição `extracted_label_pages`).
 **Status**: ✅ **CONFIRMADO**.
 
 - **Caminho**: dentro de `Layouter::finish` em
-  `01_core/src/rules/layout/mod.rs:1167-1185`,
+  `01_core/src/engine/layout/mod.rs:1167-1185`,
   imediatamente após a linha 1183
   (`doc.extracted_label_pages = self.runtime.label_pages;`).
 - **Edição literal**:
@@ -259,7 +259,7 @@ impl` + `#[cfg(test)] mod tests` com 4 tests
   }
 ```
 
-### C5.4 — `01_core/src/rules/layout/mod.rs`
+### C5.4 — `01_core/src/engine/layout/mod.rs`
 
 ```text
   pub fn finish(mut self) -> PagedDocument {

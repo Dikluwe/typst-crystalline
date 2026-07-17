@@ -388,9 +388,9 @@ preventivas só.
 - **Consumer C4**: `references.rs:53-67` substitution-with-fallback
   (P194B). Recebe Some via Introspector path para
   auto-toc + explicit + figure-ref pós-P196B.
-- **L0 tocado**: `00_nucleo/prompts/rules/introspect.md`
+- **L0 tocado**: `00_nucleo/prompts/engine/introspect.md`
   hash `3bc33823`.
-- **Código tocado**: `01_core/src/rules/introspect.rs`
+- **Código tocado**: `01_core/src/engine/introspect.rs`
   hash `73489ae5`.
 - **Padrão diagnóstico-primeiro**: 18ª aplicação consecutiva
   (P196A diagnóstico antes de P196B materialização).

@@ -64,7 +64,7 @@ pub fn emph(body: Content) -> Self {
 
 ## 101.C — Match arms removidos
 
-### Layouter (`rules/layout/mod.rs`)
+### Layouter (`engine/layout/mod.rs`)
 
 Arms `Content::Strong(body)` e `Content::Emph(body)` removidos (12
 linhas no total). O arm `Content::Styled` (Passo 100) cobre ambos

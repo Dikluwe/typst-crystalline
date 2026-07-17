@@ -83,7 +83,7 @@ testes; **9º passo consecutivo** a preservar hash `export.rs`).
 | `00_nucleo/prompts/entities/style.md` | L0 | +10º variant em B.3 + nota marco arquitectural série fechada + derive change documentado |
 | `00_nucleo/diagnosticos/typst-cobertura-vanilla-vs-cristalino.md` | L0 cobertura | B.3 +1 linha; B.4 linha 354 nota P292; footnote ⁷⁸ ~120 LOC com marco arquitectural |
 | `00_nucleo/diagnosticos/diagnostico-style-font-passo-292.md` | Diagnóstico Fase A | ~360 LOC ficheiro novo (6 secções A.0-A.5+A.5' N=2) |
-| `01_core/src/rules/layout/tests.rs:10770+` | testes P292 | ~140 LOC (11 testes em `p292_style_font_tests` mod incluindo marco simbólico) |
+| `01_core/src/engine/layout/tests.rs:10770+` | testes P292 | ~140 LOC (11 testes em `p292_style_font_tests` mod incluindo marco simbólico) |
 
 Total: **2 sítios L1 produção + 2 ficheiros L0 documentação + 1
 diagnóstico + 1 ficheiro de testes**. **Zero ficheiros tocados em
@@ -261,7 +261,7 @@ campos para reaplicação cumulativa.
 | Local | Quantidade | Cobertura |
 |---|---:|---|
 | `entities/style.rs` (mod tests) | 1 | Catalog test 9 → 10 variants (`Style::Font(FontList::single("Inter"))` incluído) |
-| `rules/layout/tests.rs` (`p292_style_font_tests`) | 10 | Variant ctor + PartialEq; `push_styles` cascade com `.clone()`; `Styled` injection + TextStyle propagation; last-write wins; **5 cenários A.5** (single/multi/non-empty invariant/missing/textstyle capture); **1 marco simbólico "série P288-P292 fechada"** (constroi `Styles` com todos os 5 variants e verifica `chain.X().is_some()` para cada um) |
+| `engine/layout/tests.rs` (`p292_style_font_tests`) | 10 | Variant ctor + PartialEq; `push_styles` cascade com `.clone()`; `Styled` injection + TextStyle propagation; last-write wins; **5 cenários A.5** (single/multi/non-empty invariant/missing/textstyle capture); **1 marco simbólico "série P288-P292 fechada"** (constroi `Styles` com todos os 5 variants e verifica `chain.X().is_some()` para cada um) |
 | **Total** | **11** | (1 entity + 10 layout) |
 
 **Resultado**: 11/11 verdes (`cargo test --lib p292`). Delta

@@ -113,9 +113,9 @@ violations. `CounterStateLegacy` 10 fields. Tracker
      Heading.
 
 3. Confirmar empíricamente cada mutação:
-   - `grep -n "resolved_labels\." 01_core/src/rules/introspect.rs`.
-   - `grep -n "headings_for_toc\." 01_core/src/rules/introspect.rs`.
-   - `grep -n "auto_label_counter" 01_core/src/rules/introspect.rs`.
+   - `grep -n "resolved_labels\." 01_core/src/engine/introspect.rs`.
+   - `grep -n "headings_for_toc\." 01_core/src/engine/introspect.rs`.
+   - `grep -n "auto_label_counter" 01_core/src/engine/introspect.rs`.
 
 #### Inventário walk readers (DURANTE walk)
 
@@ -152,7 +152,7 @@ violations. `CounterStateLegacy` 10 fields. Tracker
 8. Identificar Layouter assignments duais (per
    padrão P190B-F):
    - `grep -rn "resolved_labels\s*=\|headings_for_toc\s*=\|auto_label_counter\s*="
-     01_core/src/rules/layout/mod.rs`.
+     01_core/src/engine/layout/mod.rs`.
 
 #### Inventário cleanup defers
 

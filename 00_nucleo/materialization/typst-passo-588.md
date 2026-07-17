@@ -13,7 +13,7 @@
 
 ## Contexto
 
-`01_core/src/rules/eval/mod.rs:494` converte qualquer `SyntaxKind::Space` (incluindo a quebra de linha depois de `#set text(...)`) em `Content::Space`. `01_core/src/rules/layout/mod.rs:729` avança o cursor por `space_width()` sempre que encontra esse `Content::Space`, mesmo quando é o primeiro item de uma linha ou parágrafo. O vanilla não faz este avanço quando o espaço fica no início.
+`01_core/src/engine/eval/mod.rs:494` converte qualquer `SyntaxKind::Space` (incluindo a quebra de linha depois de `#set text(...)`) em `Content::Space`. `01_core/src/engine/layout/mod.rs:729` avança o cursor por `space_width()` sempre que encontra esse `Content::Space`, mesmo quando é o primeiro item de uma linha ou parágrafo. O vanilla não faz este avanço quando o espaço fica no início.
 
 ---
 
@@ -52,7 +52,7 @@ Confirmar se o mesmo tipo de deslocamento aparece depois de outras construções
 
 ## Implementação
 
-Em `01_core/src/rules/layout/mod.rs:729` (ou onde `Content::Space` é processado no layout): não avançar o cursor quando o espaço é o primeiro item da linha corrente (ou seja, quando `cursor_x` ainda está na posição de margem/início, sem nenhum item de texto antes dele na mesma linha).
+Em `01_core/src/engine/layout/mod.rs:729` (ou onde `Content::Space` é processado no layout): não avançar o cursor quando o espaço é o primeiro item da linha corrente (ou seja, quando `cursor_x` ainda está na posição de margem/início, sem nenhum item de texto antes dele na mesma linha).
 
 ```rust
 // Esboço, a confirmar contra a estrutura real:

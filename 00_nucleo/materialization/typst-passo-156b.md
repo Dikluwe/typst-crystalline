@@ -69,7 +69,7 @@ consoante arqueologia. **Possível actualização ao inventário
 - **ADR-0036** — atomização progressiva (cada feature
   Layout terá consumer explícito).
 - **ADR-0037** — coesão por domínio (Layout permanece em
-  `rules/layout/` e `entities/layout_types.rs`).
+  `engine/layout/` e `entities/layout_types.rs`).
 - **ADR-0054** — perfil observacional graded (features
   Layout aceitas em forma aproximada se cobertura básica é
   cumprida).
@@ -328,7 +328,7 @@ Este passo **não**:
   `lab/typst-original/crates/typst-library/src/layout/`
   para inventário detalhado.
 - Leitura de `01_core/src/entities/layout_types.rs`,
-  `01_core/src/rules/layout/mod.rs` e ficheiros relacionados.
+  `01_core/src/engine/layout/mod.rs` e ficheiros relacionados.
 - Cross-reference com `00_nucleo/adr/`,
   `00_nucleo/materialization/`, `00_nucleo/DEBT.md`.
 - Escrita do diagnóstico (com 8 secções).
@@ -393,7 +393,7 @@ view 01_core/src/entities/content.rs   # já 43 variants pós-P155
 view 01_core/src/entities/layout_types.rs
 grep -nE "Frame|Page|PagedDocument" 01_core/src/entities/layout_types.rs
 grep -nE "fn layout_(block|columns|stack|hide|pad|repeat|box|footnote)" \
-  01_core/src/rules/layout/
+  01_core/src/engine/layout/
 ```
 
 Para cada elemento vanilla, registar correspondente
@@ -410,7 +410,7 @@ Confirmar:
 - Forma actual de `Page` (provavelmente single-content).
 - Forma actual de `PagedDocument`.
 - Como página é construída no layouter.
-- Onde page break acontece em `01_core/src/rules/layout/`.
+- Onde page break acontece em `01_core/src/engine/layout/`.
 
 ### 156B.2 — Estado actual cristalino
 
@@ -592,7 +592,7 @@ ADR-0061 fornece guia.
 - **ADR-0036**: atomização — cada feature consumer
   explícito.
 - **ADR-0037**: coesão por domínio — Layout permanece em
-  `rules/layout/`.
+  `engine/layout/`.
 - **ADR-0054**: perfil observacional graded — features
   Fase 1 cumprem com aproximações aceites (e.g. footnote
   area mínima sem column flow).

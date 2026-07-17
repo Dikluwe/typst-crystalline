@@ -99,12 +99,12 @@ Confirmar empiricamente quantos sítios serão afectados pelo
 refactor `self.region` → `self.regions.current`:
 
 ```
-grep -c "self\.region\." 01_core/src/rules/layout/mod.rs
-grep -c "self\.region\." 01_core/src/rules/layout/cursor.rs
-grep -c "self\.region\." 01_core/src/rules/layout/equation.rs
-grep -c "self\.region\." 01_core/src/rules/layout/grid.rs
-grep -c "self\.region\." 01_core/src/rules/layout/placement.rs
-grep -c "self\.region\." 01_core/src/rules/layout/tests.rs
+grep -c "self\.region\." 01_core/src/engine/layout/mod.rs
+grep -c "self\.region\." 01_core/src/engine/layout/cursor.rs
+grep -c "self\.region\." 01_core/src/engine/layout/equation.rs
+grep -c "self\.region\." 01_core/src/engine/layout/grid.rs
+grep -c "self\.region\." 01_core/src/engine/layout/placement.rs
+grep -c "self\.region\." 01_core/src/engine/layout/tests.rs
 ```
 
 Estimativa P215.div-1: ~30-40 call-sites adicionais. P216A
@@ -199,7 +199,7 @@ Hash propagado via `crystalline-lint --fix-hashes`.
 
 ### C4 — Refactor `Layouter` struct: `region` → `regions`
 
-Editar `01_core/src/rules/layout/mod.rs`:
+Editar `01_core/src/engine/layout/mod.rs`:
 
 **Antes (P216A field)**:
 ```rust
@@ -240,7 +240,7 @@ Refactor mecânico literal:
 | `self.region.has_pending()` | `self.regions.current.has_pending()` |
 | `self.region.reset()` | `self.regions.current.reset()` (ou helper `reset_current()`) |
 
-Substituição em todos os `01_core/src/rules/layout/*.rs`
+Substituição em todos os `01_core/src/engine/layout/*.rs`
 (mesmos 6 ficheiros de P216A; mesmos ~167 sítios).
 
 Ferramenta: `sed` com pattern
@@ -352,9 +352,9 @@ Código alterado:
 - **Editado**: `01_core/src/entities/region.rs` (+ ~30 LOC
   struct `Regions` + 2 métodos + 3 sentinelas).
 - **Editado**: `01_core/src/entities/mod.rs` (re-export ajuste).
-- **Editado**: `01_core/src/rules/layout/mod.rs` (~167
+- **Editado**: `01_core/src/engine/layout/mod.rs` (~167
   substituições `self.region.X` → `self.regions.current.X`).
-- **Editado**: `01_core/src/rules/layout/{cursor,equation,grid,
+- **Editado**: `01_core/src/engine/layout/{cursor,equation,grid,
   placement,tests}.rs` (substituições mecânicas).
 - **Editado**: `00_nucleo/prompts/entities/region.md` (+ secção
   `Regions`).
@@ -385,7 +385,7 @@ mesmo conceito; struct + wrapper).
 - Fechar DEBT-56 — só após P221 (sub-fase b consumer multi-column
   + Content::Columns/Colbreak).
 - Mudar comportamento observable.
-- Tocar em código fora de `01_core/src/rules/layout/*.rs` e
+- Tocar em código fora de `01_core/src/engine/layout/*.rs` e
   `01_core/src/entities/`.
 
 ---

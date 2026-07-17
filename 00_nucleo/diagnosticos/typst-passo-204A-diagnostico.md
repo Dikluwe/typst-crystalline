@@ -258,8 +258,8 @@ no CLI watch).
 Per A13: ortogonais a comemo. Cada loop tem MAX=5
 (paridade vanilla).
 
-M8 **não toca** em `01_core/src/rules/layout/mod.rs:1506`
-nem `01_core/src/rules/introspect/fixpoint.rs:33`. Loops
+M8 **não toca** em `01_core/src/engine/layout/mod.rs:1506`
+nem `01_core/src/engine/introspect/fixpoint.rs:33`. Loops
 permanecem como fonte da verdade de convergência;
 comemo adiciona granularidade dentro de cada iteração.
 

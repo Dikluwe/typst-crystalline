@@ -21,8 +21,8 @@ Retorna **apenas referências em comentários** (Reserva 1):
 - `rules/introspect.rs:2907` (test 6 P198C inline doc)
 - `rules/introspect/locatable.rs:55`
 - `rules/introspect/from_tags.rs:230,947`
-- `rules/layout/equation.rs:26,101`
-- `rules/layout/tests.rs:4465,4719`
+- `engine/layout/equation.rs:26,101`
+- `engine/layout/tests.rs:4465,4719`
 
 **Variant não existe em produção** — confirmado.
 
@@ -113,7 +113,7 @@ Retorna vazio. **Sem parser sintáctico** para `#set equation(numbering: ...)` e
 ### §1.6 L0 alvos
 
 - `00_nucleo/prompts/entities/content.md` — variant nova (se L0 existir; verificar).
-- `00_nucleo/prompts/rules/introspect.md` — arms novos + walk arm.
+- `00_nucleo/prompts/engine/introspect.md` — arms novos + walk arm.
 
 ### §1.7 Regra dos 2 eixos
 
@@ -367,9 +367,9 @@ Content::Sequence(vec![
 
 2. Cobrir match arms exhaustivos onde `Content` é matched (analogia P198C — novas variants em `to_string`, `eq`, `materialize_time` em introspect, etc.). Auditor descobre via `cargo check` quais arms exigem cobertura.
 
-3. Activar `is_locatable(Content::SetEquationNumbering) = true` em `01_core/src/rules/introspect/locatable.rs` (próximo a SetHeadingNumbering linha 49).
+3. Activar `is_locatable(Content::SetEquationNumbering) = true` em `01_core/src/engine/introspect/locatable.rs` (próximo a SetHeadingNumbering linha 49).
 
-4. Adicionar arm em `01_core/src/rules/introspect/extract_payload.rs` (próximo a SetHeadingNumbering linha 63):
+4. Adicionar arm em `01_core/src/engine/introspect/extract_payload.rs` (próximo a SetHeadingNumbering linha 63):
    ```rust
    Content::SetEquationNumbering { active } => Some(ElementPayload::StateUpdate {
        key:    "numbering_active:equation".to_string(),
@@ -377,7 +377,7 @@ Content::Sequence(vec![
    }),
    ```
 
-5. Adicionar walk arm em `01_core/src/rules/introspect.rs` (próximo a SetHeadingNumbering linha 611):
+5. Adicionar walk arm em `01_core/src/engine/introspect.rs` (próximo a SetHeadingNumbering linha 611):
    ```rust
    Content::SetEquationNumbering { active } => {
        // P199B — E1 fechada estruturalmente (cenário α por construção).
@@ -386,7 +386,7 @@ Content::Sequence(vec![
    }
    ```
 
-6. Actualizar L0 `00_nucleo/prompts/rules/introspect.md`:
+6. Actualizar L0 `00_nucleo/prompts/engine/introspect.md`:
    - Tabela "Excepções M5": E1 → "**Fechou estruturalmente em P199B (cenário α por construção — variant materializada)**".
    - Lista "Ordem inversa à mutação": passo 9 marcado ✅.
    - Secção nova ou actualização da secção P198B para mencionar paralelo Equation.

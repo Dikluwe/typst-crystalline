@@ -103,8 +103,8 @@ Verificar que os scope-outs declarados são de facto scope-outs (não estão par
 |-----------|-------------|---------|
 | `FrameItem::Text` remoção | `grep -rn "FrameItem::Text {" 01_core/src/ \| grep -v "deprecated\|allow"` | Deve existir (é tipo pré-shaping permanente) |
 | `y_offset` em emit | `grep -rn "y_offset" 03_infra/src/export/stream.rs` | Deve retornar 0 (não implementado) |
-| RTL stdlib `dir:` | `grep -rn "dir.*rtl\|rtl.*dir\|Direction::RTL" 01_core/src/rules/` | Deve retornar 0 (não implementado) |
-| ColorSpace runtime user-facing | `grep -rn "ColorSpace\|color_space" 01_core/src/rules/stdlib/` | Verificar que não há funcs user-facing |
+| RTL stdlib `dir:` | `grep -rn "dir.*rtl\|rtl.*dir\|Direction::RTL" 01_core/src/engine/` | Deve retornar 0 (não implementado) |
+| ColorSpace runtime user-facing | `grep -rn "ColorSpace\|color_space" 01_core/src/engine/stdlib/` | Verificar que não há funcs user-facing |
 | `saturate`/`desaturate` em color module | `grep -rn "native_color_saturate" 01_core/src/` | Deve existir (foi implementado em P477) |
 
 ---

@@ -11,16 +11,16 @@
 ```bash
 # Confirmar estrutura actual de MathLayouter
 grep -n "pub struct MathLayouter\|fn layout_equation\|fn layout_node\|fn emit_text" \
-  01_core/src/rules/math/layout.rs
+  01_core/src/engine/math/layout.rs
 
 # Confirmar assinatura exacta de vertical_metrics
 grep -n "fn vertical_metrics\|fn advance" \
-  01_core/src/rules/layout.rs \
+  01_core/src/engine/layout.rs \
   01_core/src/entities/layout_types.rs 2>/dev/null | head -10
 
 # Confirmar o que vertical_metrics retorna
 grep -n -A 5 "fn vertical_metrics" \
-  01_core/src/rules/layout.rs 2>/dev/null | head -15
+  01_core/src/engine/layout.rs 2>/dev/null | head -15
 
 # Confirmar FrameItem::Text com pos embutida
 grep -n "FrameItem\|pos.*Point\|text.*Eco\|style.*Text" \
@@ -28,7 +28,7 @@ grep -n "FrameItem\|pos.*Point\|text.*Eco\|style.*Text" \
 
 # Confirmar como MathLayouter calcula pos actualmente para MathIdent/MathText
 grep -n "pos\|Point\|cursor\|x_relativo\|advance" \
-  01_core/src/rules/math/layout.rs | head -20
+  01_core/src/engine/math/layout.rs | head -20
 ```
 
 **Parar. Reportar output completo antes de qualquer código.**
@@ -353,7 +353,7 @@ a chamada em `layout.rs` se a assinatura mudou.
 ```bash
 # Confirmar assinatura actual de layout_equation após Passo 36
 grep -n "pub fn layout_equation" \
-  01_core/src/rules/math/layout.rs
+  01_core/src/engine/math/layout.rs
 ```
 
 ---
@@ -517,11 +517,11 @@ crystalline-lint .
 
 # Confirmar MathBox em math/layout.rs
 grep -n "struct MathBox\|fn layout_frac\|fn layout_attach\|fn hconcat" \
-  01_core/src/rules/math/layout.rs
+  01_core/src/engine/math/layout.rs
 
 # Confirmar que layout.rs ainda delega a math::layout::MathLayouter
 grep -n "MathLayouter\|math::layout" \
-  01_core/src/rules/layout.rs
+  01_core/src/engine/layout.rs
 ```
 
 Critérios de conclusão:

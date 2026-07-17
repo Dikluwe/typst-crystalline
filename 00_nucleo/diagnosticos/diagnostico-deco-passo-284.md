@@ -4,7 +4,7 @@
 **Spec mãe**: `00_nucleo/materialization/typst-passo-284.md`
 **Inventário-fonte**: `lab/typst-original/crates/typst-library/src/text/deco.rs`
 **Inspeção L1/L3**: `01_core/src/entities/{content.rs,layout_types.rs}`,
-`01_core/src/rules/layout/mod.rs`, `03_infra/src/export.rs`.
+`01_core/src/engine/layout/mod.rs`, `03_infra/src/export.rs`.
 
 ---
 
@@ -123,7 +123,7 @@ não-totalmente-idênticos) e pelo precedente P156G/H/I.
 
 ## §Métricas Layouter disponíveis (mitigação risco §7)
 
-Inventário do estado actual de `Layouter` em `01_core/src/rules/layout/mod.rs`:
+Inventário do estado actual de `Layouter` em `01_core/src/engine/layout/mod.rs`:
 
 | Campo | Tipo | Disponível? | Notas |
 |---|---|:---:|---|

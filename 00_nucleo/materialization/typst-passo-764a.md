@@ -33,7 +33,7 @@ Prosseguir para a implementação abaixo.
 ### Função de enumeração e ordenação
 
 ```rust
-// 01_core/src/rules/... (caminho a confirmar contra a estrutura real de resolve_package)
+// 01_core/src/engine/... (caminho a confirmar contra a estrutura real de resolve_package)
 fn latest_version(cached: &[PackageVersion]) -> Option<PackageVersion> {
     cached.iter().max() // ordem lexical de (major, minor, patch), já é o Ord derivado
 }

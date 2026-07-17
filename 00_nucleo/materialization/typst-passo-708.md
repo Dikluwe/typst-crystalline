@@ -12,7 +12,7 @@
 
 ## Contexto
 
-Código actual (`01_core/src/rules/eval/closures.rs`, confirmado por P707):
+Código actual (`01_core/src/engine/eval/closures.rs`, confirmado por P707):
 
 ```rust
 let mut pos_idx = 0;

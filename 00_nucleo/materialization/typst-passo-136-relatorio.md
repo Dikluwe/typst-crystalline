@@ -112,7 +112,7 @@ resolvers.
 
 ## 136.D — Call sites adaptados (~15)
 
-### `01_core/src/rules/layout/mod.rs` (7 sites)
+### `01_core/src/engine/layout/mod.rs` (7 sites)
 
 - `let effective = TextStyle { ... }` (linha 225): adicionados
   5 campos novos com **top-wins** semântico
@@ -123,7 +123,7 @@ resolvers.
 - `style: self.style` inside FrameItem::Text literal (2 sítios):
   → `self.style.clone()`.
 
-### `01_core/src/rules/layout/cursor.rs` (1 site)
+### `01_core/src/engine/layout/cursor.rs` (1 site)
 
 - `style: self.style` inside FrameItem::Text literal →
   `self.style.clone()`.
@@ -132,7 +132,7 @@ resolvers.
 
 - `Content::Text(..., *style)` → `Content::Text(..., style.clone())`.
 
-### `01_core/src/rules/math/layout/*.rs` (5 sites)
+### `01_core/src/engine/math/layout/*.rs` (5 sites)
 
 - `..*style` (inside struct literal with partial fields):
   → `..style.clone()`. Em `attach.rs`, `root.rs`, `frac.rs`,
@@ -240,11 +240,11 @@ continuam inertes no PDF; infra agora propaga os valores até
 |----------|---------|-------:|
 | `01_core/src/entities/layout_types.rs` | +5 campos em TextStyle, -Copy derive, test fixes | +12 |
 | `01_core/src/entities/style_chain.rs` | +5 resolvers, +5 linhas em From, +5 tests | +85 |
-| `01_core/src/rules/layout/mod.rs` | 7 `.clone()` adicionados, effective com 5 campos novos | +10 |
-| `01_core/src/rules/layout/cursor.rs` | 1 `.clone()` | +0 |
-| `01_core/src/rules/layout/tests.rs` | 1 `.clone()` | +0 |
+| `01_core/src/engine/layout/mod.rs` | 7 `.clone()` adicionados, effective com 5 campos novos | +10 |
+| `01_core/src/engine/layout/cursor.rs` | 1 `.clone()` | +0 |
+| `01_core/src/engine/layout/tests.rs` | 1 `.clone()` | +0 |
 | `01_core/src/entities/content.rs` | 1 `.clone()` | +0 |
-| `01_core/src/rules/math/layout/*.rs` | 5 `..style.clone()` em 4 ficheiros | +0 |
+| `01_core/src/engine/math/layout/*.rs` | 5 `..style.clone()` em 4 ficheiros | +0 |
 | `00_nucleo/DEBT.md` | Gap 1 de DEBT-52 marcado resolvido | +3 |
 
 **Zero ADR nova**. **Zero prompt L0 tocado**.

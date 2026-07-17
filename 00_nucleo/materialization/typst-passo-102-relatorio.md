@@ -82,7 +82,7 @@ Conteúdo:
 
 ### Modificação única em `eval_set_rule`
 
-`01_core/src/rules/eval/rules.rs`:
+`01_core/src/engine/eval/rules.rs`:
 
 ```rust
 "fill" => {
@@ -107,7 +107,7 @@ neste passo).
 
 ## 102.D — Testes de integração
 
-### Novos em `rules/layout/tests.rs::tests_set_rule_integration` (6)
+### Novos em `engine/layout/tests.rs::tests_set_rule_integration` (6)
 
 1. `set_text_size_propaga_ao_frame` — `#set text(size: 18pt)\nHello` →
    `FrameItem::Text.style.size == Pt(18.0)`.

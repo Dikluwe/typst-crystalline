@@ -9,13 +9,13 @@
 Fechou-se o subset `rules/stdlib/structural.rs` do débito DEBT-57, criando um prompt L0 dedicado e actualizando a linhagem `@prompt` para que o ficheiro deixe de depender exclusivamente do prompt grosseiro `stdlib/_comum.md`.
 
 - **L0 novo:**
-  - `00_nucleo/prompts/rules/stdlib/structural.md` — spec dedicada ao módulo `structural.rs`.
+  - `00_nucleo/prompts/engine/stdlib/structural.md` — spec dedicada ao módulo `structural.rs`.
 - **Cabeçalhos `@prompt` ajustados:**
-  - `01_core/src/rules/stdlib/structural.rs` — `model/document.md`, `model/asset.md`, `stdlib/structural.md` (esta última em último lugar, conforme convenção do linter para prompt "dono" do ficheiro).
-  - `01_core/src/rules/stdlib/mod.rs` — mantém `_comum.md` e `model/document.md` (último).
-  - `01_core/src/rules/layout/mod.rs` — adicionada referência a `model/asset.md` (último), garantindo que o prompt `asset.md` continue referenciado por um ficheiro L1 depois de `structural.rs` passar a listar `structural.md` em último.
+  - `01_core/src/engine/stdlib/structural.rs` — `model/document.md`, `model/asset.md`, `stdlib/structural.md` (esta última em último lugar, conforme convenção do linter para prompt "dono" do ficheiro).
+  - `01_core/src/engine/stdlib/mod.rs` — mantém `_comum.md` e `model/document.md` (último).
+  - `01_core/src/engine/layout/mod.rs` — adicionada referência a `model/asset.md` (último), garantindo que o prompt `asset.md` continue referenciado por um ficheiro L1 depois de `structural.rs` passar a listar `structural.md` em último.
 - **Prompt comum actualizado:**
-  - `00_nucleo/prompts/rules/stdlib/_comum.md` — removido `structural.rs` da lista de ficheiros que apontam para o prompt comum; adicionada nota sobre o novo `structural.md`.
+  - `00_nucleo/prompts/engine/stdlib/_comum.md` — removido `structural.rs` da lista de ficheiros que apontam para o prompt comum; adicionada nota sobre o novo `structural.md`.
 - **Débito actualizado:**
   - `00_nucleo/diagnosticos/debt/DEBT.md` — anotado que o subset `structural.rs` foi fechado em P430.
 
@@ -39,7 +39,7 @@ O prompt `structural.md` cobre todas as 24 secções. As secções `document` e 
 
 | Critério | Resultado |
 |----------|-----------|
-| `00_nucleo/prompts/rules/stdlib/structural.md` criado | ✓ 24 secções |
+| `00_nucleo/prompts/engine/stdlib/structural.md` criado | ✓ 24 secções |
 | Cada secção cobre assinatura, args, semântica, paridade vanilla, limitações e testes canónicos | ✓ |
 | `_comum.md` actualizado | ✓ |
 | `DEBT.md` actualizado com nota de fecho P430 | ✓ |
@@ -50,14 +50,14 @@ O prompt `structural.md` cobre todas as 24 secções. As secções `document` e 
 ## Artefactos
 
 - L0:
-  - `00_nucleo/prompts/rules/stdlib/structural.md`
-  - `00_nucleo/prompts/rules/stdlib/_comum.md` (actualizado)
-  - `00_nucleo/prompts/rules/model/document.md` (referenciado)
-  - `00_nucleo/prompts/rules/model/asset.md` (referenciado)
+  - `00_nucleo/prompts/engine/stdlib/structural.md`
+  - `00_nucleo/prompts/engine/stdlib/_comum.md` (actualizado)
+  - `00_nucleo/prompts/engine/model/document.md` (referenciado)
+  - `00_nucleo/prompts/engine/model/asset.md` (referenciado)
 - Código (apenas cabeçalhos de linhagem):
-  - `01_core/src/rules/stdlib/structural.rs`
-  - `01_core/src/rules/stdlib/mod.rs`
-  - `01_core/src/rules/layout/mod.rs`
+  - `01_core/src/engine/stdlib/structural.rs`
+  - `01_core/src/engine/stdlib/mod.rs`
+  - `01_core/src/engine/layout/mod.rs`
 - Débito:
   - `00_nucleo/diagnosticos/debt/DEBT.md`
 - Plano:

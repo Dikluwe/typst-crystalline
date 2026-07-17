@@ -51,12 +51,12 @@ dois.
 ### Ponto em aberto — `style.font` do texto de numeração
 
 ```bash
-grep -n "style.font\|TextStyle::default" 01_core/src/rules/layout/cursor.rs 01_core/src/rules/layout/mod.rs | grep -i "numbering\|page_number"
+grep -n "style.font\|TextStyle::default" 01_core/src/engine/layout/cursor.rs 01_core/src/engine/layout/mod.rs | grep -i "numbering\|page_number"
 ```
 
 Resultado: sem matches.
 
-Inspecção directa de `01_core/src/rules/layout/mod.rs:1154-1158`:
+Inspecção directa de `01_core/src/engine/layout/mod.rs:1154-1158`:
 
 ```rust
 items.push(FrameItem::Text {

@@ -57,7 +57,7 @@ Duas opções foram avaliadas (`AskUserQuestion`, ver histórico da sessão):
   Mais fiel à formulação original do achado, mas adiciona estado partilhado e não
   resolve a inconsistência de convenção entre wrappers.
 
-O humano confirmou a Opção A. O L0 (`00_nucleo/prompts/rules/layout.md`, secção
+O humano confirmou a Opção A. O L0 (`00_nucleo/prompts/engine/layout.md`, secção
 "Contrato de composição de coordenadas entre `layout_sub_frame` e `Content::Place`")
 foi actualizado **antes** do código, conforme o Protocolo de Nucleação — hash fixado
 via `crystalline-lint --fix-hashes .` (`b1739fd9`, aplicado a todos os ficheiros do
@@ -140,7 +140,7 @@ sempre 0).
 | `measure_content_real` (`mod.rs:1751`) | `Layouter` isolado próprio, sem `regions.cell` | não aplicável — não é um wrapper de conteúdo em curso, é medição standalone | leitura de código |
 | `place.rs` (`float: true`) | mecanismo `floats_pending`/`DeferredFloat`, distinto do `float: false` corrigido aqui | fora do âmbito — dispatcher separado, não usa o padrão `layout_place` scope Column absoluto da mesma forma | leitura de código, não testado com repro dedicado (nenhum indício de duplicação: `float:true` exige `scope: Parent`, que já usa o mesmo `in_sub_frame` desde P763f) |
 
-### 3.3 Testes de regressão novos (`01_core/src/rules/layout/tests.rs`, prefixo `p772g_`)
+### 3.3 Testes de regressão novos (`01_core/src/engine/layout/tests.rs`, prefixo `p772g_`)
 
 - `p772g_place_dentro_de_align_dentro_de_grid_cell_bate_com_place_directo` — compara
   `place()` directo vs `align(top, place())` na mesma posição de célula; falha se
@@ -181,7 +181,7 @@ na emissão normal de footnotes (sem `Place` aninhado).
 - [x] `cargo test --workspace` verde — §3.4.
 - [x] `crystalline-lint .` zero violações — §3.4.
 - [x] L0 de `placement`/`layout` actualizado antes do código — §1.3,
-      `00_nucleo/prompts/rules/layout.md` secção "Contrato de composição de
+      `00_nucleo/prompts/engine/layout.md` secção "Contrato de composição de
       coordenadas entre `layout_sub_frame` e `Content::Place`", hash `b1739fd9`.
 - [x] Relatório em `00_nucleo/diagnosticos/paridade-producao-p772g.md` (este ficheiro).
 

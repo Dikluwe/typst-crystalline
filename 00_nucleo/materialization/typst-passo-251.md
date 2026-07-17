@@ -305,7 +305,7 @@ vs γ-Content para slicing".
 
 ```bash
 grep -B2 -A 20 "pub(super) fn layout_sub_frame_with_width" \
-  01_core/src/rules/layout/mod.rs
+  01_core/src/engine/layout/mod.rs
 ```
 
 **Resultado audit anterior**:
@@ -326,7 +326,7 @@ do Group (visualmente clipped).
 ### §2.3 Slicing patterns pré-existentes
 
 ```bash
-grep -rn "slice\|split\|fragment\|partial" 01_core/src/rules/layout/
+grep -rn "slice\|split\|fragment\|partial" 01_core/src/engine/layout/
 ```
 
 Resultado audit anterior: **zero slicing relevante para frame
@@ -364,7 +364,7 @@ cristalizar.
 
 ```bash
 grep -B2 -A 8 "pub(super) struct DeferredFloat\|floats_pending" \
-  01_core/src/rules/layout/mod.rs
+  01_core/src/engine/layout/mod.rs
 ```
 
 `DeferredFloat` struct + `floats_pending` field + `flush_pending_floats`
@@ -441,7 +441,7 @@ pub(super) fn slice_frame_items_at_height(
 ```
 
 Função pura (sem `&self`); módulo privado novo
-`01_core/src/rules/layout/slicing.rs` (paridade subpadrão
+`01_core/src/engine/layout/slicing.rs` (paridade subpadrão
 "tipo entity em ficheiro próprio" N=6 inverso — helper em
 ficheiro próprio).
 
@@ -566,13 +566,13 @@ column flow DEBT-56 multi-region; pagination overflow generic).
 
 | Categoria | Ficheiro | Trabalho |
 |-----------|----------|----------|
-| L1 helper novo | `01_core/src/rules/layout/slicing.rs` (criar; ~80-120 LoC) | `slice_frame_items_at_height` + `rebase_item_y` private + 4-variant match |
-| L1 module | `01_core/src/rules/layout/mod.rs` | Add `mod slicing;` declaration; `+1 field` (`pending_cell_tails`) + struct `DeferredCellTail`; `+1 método` (`flush_pending_cell_tails`) |
-| L1 Layouter | `01_core/src/rules/layout/cursor.rs` | `new_page()` chama `flush_pending_cell_tails()` (após `flush_pending_floats` P245) |
-| L1 Layouter | `01_core/src/rules/layout/grid.rs` | Arm cell overflow: substituir `FrameItem::Group { clip_mask: Some(Rect), .. }` (P248) por `slice_frame_items_at_height` + push to `pending_cell_tails` (preservar P248 para rows Fixed) |
+| L1 helper novo | `01_core/src/engine/layout/slicing.rs` (criar; ~80-120 LoC) | `slice_frame_items_at_height` + `rebase_item_y` private + 4-variant match |
+| L1 module | `01_core/src/engine/layout/mod.rs` | Add `mod slicing;` declaration; `+1 field` (`pending_cell_tails`) + struct `DeferredCellTail`; `+1 método` (`flush_pending_cell_tails`) |
+| L1 Layouter | `01_core/src/engine/layout/cursor.rs` | `new_page()` chama `flush_pending_cell_tails()` (após `flush_pending_floats` P245) |
+| L1 Layouter | `01_core/src/engine/layout/grid.rs` | Arm cell overflow: substituir `FrameItem::Group { clip_mask: Some(Rect), .. }` (P248) por `slice_frame_items_at_height` + push to `pending_cell_tails` (preservar P248 para rows Fixed) |
 | L0 prompt | `00_nucleo/prompts/entities/region.md` | Documentar `pending_cell_tails` field + flush em new_page; secção nova ou anotação cumulativa P251 |
-| Tests slicing | `01_core/src/rules/layout/slicing.rs` (test module) | 5-7 unit slice + 4-6 unit rebase + edge cases |
-| Tests Layouter | `01_core/src/rules/layout/tests.rs` | 4-6 unit flush + 3-5 E2E row break + 2-3 regression P248 preservado Fixed rows |
+| Tests slicing | `01_core/src/engine/layout/slicing.rs` (test module) | 5-7 unit slice + 4-6 unit rebase + edge cases |
+| Tests Layouter | `01_core/src/engine/layout/tests.rs` | 4-6 unit flush + 3-5 E2E row break + 2-3 regression P248 preservado Fixed rows |
 | Tests adaptações | conforme `P251.div-N` | 2-8 adaptações estimadas (tests P248 que verificam `FrameItem::Group { clip_mask, .. }` em cells overflow) |
 | Inventário 148 | `00_nucleo/diagnosticos/typst-cobertura-vanilla-vs-cristalino.md` | §A.5 `table(...)` / `table_cell(...)` reclassificadas (footnote ⁶⁸ P251 — row break real); cobertura Layout per metodologia recalculada |
 | ADR-0061 | `00_nucleo/adr/typst-adr-0061-layout-fase-x-roadmap.md` | §"Refino futuro" anotação P251 — row break TableCell |

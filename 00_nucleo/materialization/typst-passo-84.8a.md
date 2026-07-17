@@ -11,9 +11,9 @@ Ler antes de começar:
 - `00_nucleo/relatorios/relatorio-auditoria-adrs-passo-84.7.md` —
   Secção 6.1 contém a análise dos 15 `unsafe` em L1 que motiva este
   passo.
-- `01_core/src/rules/lexer/scanner.rs` — código com 13 ocorrências
+- `01_core/src/engine/lexer/scanner.rs` — código com 13 ocorrências
   de `unsafe` (6 `unsafe impl Sealed<T>` + 7 `get_unchecked`).
-- `01_core/src/rules/eval.rs:235` — `ImportGuard::drop` com 1
+- `01_core/src/engine/eval.rs:235` — `ImportGuard::drop` com 1
   ocorrência de `unsafe` (deref de raw pointer).
 
 Pré-condição: `cargo test` — 911 testes (737 L1 + 174 L3, 6 ignorados
@@ -36,8 +36,8 @@ Quatro produtos concretos:
 4. Abrir DEBT-42 (get_unchecked no scanner — bloqueado por benchmark)
    na Secção 1.
 
-**Regra absoluta**: Claude Code **não altera** `01_core/src/rules/lexer/scanner.rs`
-nem `01_core/src/rules/eval.rs` neste passo. Apenas escreve o ADR,
+**Regra absoluta**: Claude Code **não altera** `01_core/src/engine/lexer/scanner.rs`
+nem `01_core/src/engine/eval.rs` neste passo. Apenas escreve o ADR,
 abre os DEBTs, e verifica.
 
 ---
@@ -96,12 +96,12 @@ A auditoria do Passo 84.7 (Secção 6.1 do relatório) revelou que a
 regra **não é literalmente seguida** — o código tem 15 ocorrências
 reais de `unsafe` em L1:
 
-- `01_core/src/rules/lexer/scanner.rs` — **13 ocorrências**:
+- `01_core/src/engine/lexer/scanner.rs` — **13 ocorrências**:
   - 6 `unsafe impl Sealed<T>` (sealed-trait pattern — mecanismo
     de encapsulamento, não de memória).
   - 7 `unsafe { get_unchecked(...) }` (acessos sem verificação de
     bounds em código herdado de `unscanny`, ver ADR-0014).
-- `01_core/src/rules/eval.rs:235` — **1 ocorrência**: deref de raw
+- `01_core/src/engine/eval.rs:235` — **1 ocorrência**: deref de raw
   pointer em `Drop for ImportGuard` (invariante documentado em
   SAFETY comment).
 - `01_core/src/entities/content.rs:20` — 1 comentário documentando
@@ -209,7 +209,7 @@ Interpretação:
 
 ### Cláusula sobre código inlinado
 
-ADR-0014 autorizou o inlining de `unscanny` em `01_core/src/rules/lexer/scanner.rs`.
+ADR-0014 autorizou o inlining de `unscanny` em `01_core/src/engine/lexer/scanner.rs`.
 O `unsafe` nesse ficheiro é, no momento da inclusão original,
 **herdado** de código externo revisto pela comunidade Rust.
 
@@ -225,8 +225,8 @@ DEBT-42.
 
 | Prompt | Natureza da mudança |
 |--------|---------------------|
-| `00_nucleo/prompts/rules/scanner.md` | Nota sobre DEBT-41 e DEBT-42 — `unsafe` actual é temporário. |
-| `00_nucleo/prompts/rules/eval.md` (se existe) | Nota sobre DEBT-40 — `ImportGuard` será refactorado. |
+| `00_nucleo/prompts/engine/scanner.md` | Nota sobre DEBT-41 e DEBT-42 — `unsafe` actual é temporário. |
+| `00_nucleo/prompts/engine/eval.md` (se existe) | Nota sobre DEBT-40 — `ImportGuard` será refactorado. |
 
 ---
 
@@ -298,7 +298,7 @@ após DEBT-39:
 ```markdown
 ## DEBT-40 — `ImportGuard::drop` com raw pointer — EM ABERTO (Passo 84.8a)
 
-`01_core/src/rules/eval.rs:235` tem `unsafe { (*self.stack_ptr).retain(...) }`
+`01_core/src/engine/eval.rs:235` tem `unsafe { (*self.stack_ptr).retain(...) }`
 no `Drop for ImportGuard`. O raw pointer é usado porque a vida do
 `EvalContext` não é expressível como lifetime do guard (RAII com
 scope de função).
@@ -341,7 +341,7 @@ Nenhuma. Pode ser atacado quando o utilizador decidir.
 ```markdown
 ## DEBT-41 — Sealed traits no scanner usam `unsafe trait` — EM ABERTO (Passo 84.8a)
 
-`01_core/src/rules/lexer/scanner.rs` tem 6 `unsafe impl Sealed<T>`
+`01_core/src/engine/lexer/scanner.rs` tem 6 `unsafe impl Sealed<T>`
 usando o padrão sealed-trait clássico da stdlib Rust. A palavra
 `unsafe` aqui é mecanismo de encapsulamento (impedir
 implementações externas), não indicação de memória não-segura.
@@ -379,7 +379,7 @@ deveria continuar a funcionar).
 - Zero ocorrências de `unsafe` associadas ao padrão Sealed em
   scanner.rs.
 - Testes do scanner continuam a passar sem alteração.
-- Nenhum impacto visível na API pública de `01_core/src/rules/lexer/`.
+- Nenhum impacto visível na API pública de `01_core/src/engine/lexer/`.
 
 ### Dependências
 
@@ -393,7 +393,7 @@ Nenhuma. Refactor trivial, pronto para atacar.
 ```markdown
 ## DEBT-42 — `get_unchecked` no scanner — EM ABERTO (Passo 84.8a, bloqueado)
 
-`01_core/src/rules/lexer/scanner.rs` tem 7 ocorrências de
+`01_core/src/engine/lexer/scanner.rs` tem 7 ocorrências de
 `unsafe { self.string.get_unchecked(start..end) }`. Herdado de
 `unscanny` via ADR-0014.
 

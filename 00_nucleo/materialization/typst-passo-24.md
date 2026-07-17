@@ -397,7 +397,7 @@ fn bullet_e_unicode() {
 Com DEBT-5 pago, o Layouter usa `•` em vez de `-` nos bullets:
 
 ```rust
-// Em 01_core/src/rules/layout.rs
+// Em 01_core/src/engine/layout.rs
 // Substituir:
 text: "-".into(),  // ASCII fallback — DEBT-5: substituir por "•" com CIDFont
 // Por:

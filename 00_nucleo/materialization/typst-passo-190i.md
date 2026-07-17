@@ -118,7 +118,7 @@ Após P190I:
 #### Inventário walk fn `state` parameter
 
 2. Confirmar walk fn signature actual em
-   `01_core/src/rules/introspect.rs`:
+   `01_core/src/engine/introspect.rs`:
    - 9 parameters esperados (per histórico):
      - `content: &Content`.
      - `state: &mut CounterStateLegacy`.
@@ -130,7 +130,7 @@ Após P190I:
      - (eventualmente outros).
 
 3. Identificar todas as recursive walk call sites:
-   - `grep -n "walk(" 01_core/src/rules/introspect.rs`.
+   - `grep -n "walk(" 01_core/src/engine/introspect.rs`.
    - Esperado: ~25 chamadas.
 
 #### Inventário walk arm leitores `state`
@@ -154,11 +154,11 @@ Após P190I:
 
 7. Identificar **todos os usos** de
    `self.counter` em Layouter:
-   - `grep -rn "self.counter" 01_core/src/rules/layout/`.
+   - `grep -rn "self.counter" 01_core/src/engine/layout/`.
    - Esperado: zero ou apenas usos para `lang`.
 
 8. Identificar Layouter assignments para `counter`:
-   - `grep -rn "counter\s*=" 01_core/src/rules/layout/mod.rs`.
+   - `grep -rn "counter\s*=" 01_core/src/engine/layout/mod.rs`.
 
 #### Inventário API pública (cláusula gate substancial)
 
@@ -215,7 +215,7 @@ Após P190I:
     - `entities/mod.md` — actualizar.
     - `rules/introspect.md` — actualizar walk fn
       signature.
-    - `rules/layout/mod.md` — actualizar Layouter
+    - `engine/layout/mod.md` — actualizar Layouter
       struct.
     - **Histórico M6**: secção dedicada em L0
       master sobre eliminação completa.
@@ -397,7 +397,7 @@ Per `.A.6`-`.A.8`:
    - Remover entrada `counter_state_legacy`.
 
 3. Actualizar
-   `00_nucleo/prompts/rules/introspect.md`:
+   `00_nucleo/prompts/engine/introspect.md`:
    - Walk fn signature 8 parameters.
    - **Marco arquitectural** "M6 — CounterStateLegacy
      eliminada" registado formalmente.
@@ -405,7 +405,7 @@ Per `.A.6`-`.A.8`:
      ACEITE + ADR-0071 ACEITE.
 
 4. Actualizar
-   `00_nucleo/prompts/rules/layout/mod.md` (se
+   `00_nucleo/prompts/engine/layout/mod.md` (se
    existir):
    - Layouter 19 fields.
    - Field `counter` eliminado.

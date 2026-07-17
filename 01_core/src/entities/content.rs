@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/entities/content.md
-//! @prompt-hash eaca2719
+//! @prompt-hash 131c6233
 //! @layer L1
 //! @updated 2026-06-22
 //!
@@ -475,7 +475,7 @@ pub enum Content {
     // ── Passo 224.C (ADR-0061 Fase 4 candidata sub-3) — Grid cell + placement ──
     /// Grid cell estruturado — vanilla `GridCell` (paridade P157B
     /// TableCell literal; 5 fields). Placement algorítmico real
-    /// resolvido via `rules/layout/grid_placement.rs` (P224.C fecha
+    /// resolvido via `engine/layout/grid_placement.rs` (P224.C fecha
     /// DEBT-34e colspan/rowspan).
     ///
     /// `x`/`y`: posição explícita opcional (auto-placement se `None`).
@@ -571,7 +571,7 @@ pub enum Content {
     /// - `quotes`: `true` = aspas locale-apropriadas em torno do body.
     ///
     /// Smart-quotes resolvidas no layouter via
-    /// `crate::rules::lang::quotes::localize_quotes(lang)` consultando
+    /// `crate::engine::lang::quotes::localize_quotes(lang)` consultando
     /// `text.lang` activo (per ADR-0057).
     /// **Modelo D (Lote 8 P323)**: `entities::elements::quote::QuoteElem`
     /// (não-locatável, contentor — recurse body + attribution).

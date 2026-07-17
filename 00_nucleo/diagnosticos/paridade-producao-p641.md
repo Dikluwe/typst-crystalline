@@ -11,7 +11,7 @@
 
 ### 1.1 Eval
 
-`01_core/src/rules/stdlib/context.rs:23-48`:
+`01_core/src/engine/stdlib/context.rs:23-48`:
 
 ```rust
 pub fn native_context(...) -> SourceResult<Value> {
@@ -59,7 +59,7 @@ A expansão acontece **após a introspeção** (`pipeline.rs:345-350`). O corpo 
 
 ### 1.3 Layout
 
-`01_core/src/rules/layout/mod.rs:1163-1165`:
+`01_core/src/engine/layout/mod.rs:1163-1165`:
 
 ```rust
 // ── P506 — ContextBlock (delayed evaluation). Deve ter sido
@@ -102,7 +102,7 @@ Conclusão: o adiamento é **intencional e igual ao vanilla**, não uma diferen�
 
 ## 3. Onde `state.update` callback é aplicado
 
-O caso 4 de P633 referia-se a `from_tags.rs:64`. O ficheiro correcto é `01_core/src/rules/introspect/from_tags.rs:64` (não `eval/from_tags.rs`, que não existe):
+O caso 4 de P633 referia-se a `from_tags.rs:64`. O ficheiro correcto é `01_core/src/engine/introspect/from_tags.rs:64` (não `eval/from_tags.rs`, que não existe):
 
 ```rust
 if let StateUpdate::Func(func) = update {
@@ -149,7 +149,7 @@ Portanto, o teste do caso 4 deve usar `#state("x", 0).update(x => ...)` **fora d
 
 - [x] Comportamento de `#context` confirmado: cria `Content::ContextBlock` no eval; corpo avaliado em `expand_context_blocks` (`03_infra/src/pipeline.rs:105`), após introspecção.
 - [x] Vanilla confirmado com comportamento semelhante (`Contextual::eval` cria `ContextElem` com closure).
-- [x] `state.update` callback confirmado como processado durante introspecção (`01_core/src/rules/introspect/from_tags.rs:64`).
+- [x] `state.update` callback confirmado como processado durante introspecção (`01_core/src/engine/introspect/from_tags.rs:64`).
 - [x] Método de teste certo decidido: teste de pipeline/introspecção, com `state.update` fora de `#context`.
 - [x] Relatório em `00_nucleo/diagnosticos/paridade-producao-p641.md`.
 
@@ -157,4 +157,4 @@ Portanto, o teste do caso 4 deve usar `#state("x", 0).update(x => ...)` **fora d
 
 ## 7. Nota sobre o path em P633
 
-O relatório de P633 indicava `01_core/src/rules/eval/from_tags.rs:64`. O ficheiro correcto é `01_core/src/rules/introspect/from_tags.rs:64`. O path no relatório de P633 está desactualizado (provavelmente resultado de uma reorganização de módulos). P641 regista esta correção.
+O relatório de P633 indicava `01_core/src/engine/eval/from_tags.rs:64`. O ficheiro correcto é `01_core/src/engine/introspect/from_tags.rs:64`. O path no relatório de P633 está desactualizado (provavelmente resultado de uma reorganização de módulos). P641 regista esta correção.

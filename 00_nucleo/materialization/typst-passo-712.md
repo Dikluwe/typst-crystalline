@@ -39,7 +39,7 @@ Confirmar como `measure()` realmente calcula dimensões — provavelmente invoca
 ### Confirmar o estado actual do cristalino, `file:line`
 
 ```bash
-grep -rn "fn native_measure\|\"measure\"" 01_core/src/rules/stdlib/*.rs 01_core/src/rules/eval/*.rs | head -10
+grep -rn "fn native_measure\|\"measure\"" 01_core/src/engine/stdlib/*.rs 01_core/src/engine/eval/*.rs | head -10
 ```
 
 Localizar exactamente onde o `0pt` é produzido — se é um valor hard-coded/placeholder nunca substituído, ou se há uma tentativa de cálculo real que está a falhar silenciosamente e a cair num default.

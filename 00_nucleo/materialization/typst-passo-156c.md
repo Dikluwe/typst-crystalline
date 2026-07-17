@@ -43,7 +43,7 @@ visual (não rende mas afecta cascata Content).
 - **ADR-0036**: atomização — cada feature consumer
   explícito.
 - **ADR-0037**: coesão por domínio — Layout permanece
-  em `rules/layout/`.
+  em `engine/layout/`.
 - **ADR-0054**: perfil observacional graded — pad
   cumprido com aproximação aceite.
 - **ADR-0061** (PROPOSTO): plano de Layout Fase X. Este
@@ -110,8 +110,8 @@ Ao fim do passo:
    - `entities/content.rs::map_text`.
    - `rules/introspect.rs::materialize_time`.
    - `rules/introspect.rs::walk`.
-   - `rules/layout/mod.rs::layout_content`.
-   - `rules/layout/mod.rs::measure_content_constrained`.
+   - `engine/layout/mod.rs::layout_content`.
+   - `engine/layout/mod.rs::measure_content_constrained`.
 
 4. **`native_pad`** em stdlib expondo
    `#pad(body, left: ?, right: ?, top: ?, bottom: ?,
@@ -253,17 +253,17 @@ Este passo **não**:
   (2 variants novos + arms cobertura).
 - Modificação de `01_core/src/entities/sides.rs` ou criação
   se não existe.
-- Modificação de `01_core/src/rules/introspect.rs`
+- Modificação de `01_core/src/engine/introspect.rs`
   (`materialize_time` + `walk`).
-- Modificação de `01_core/src/rules/layout/mod.rs`
+- Modificação de `01_core/src/engine/layout/mod.rs`
   (`layout_content` + `measure_content_constrained`).
-- Modificação de `01_core/src/rules/eval/stdlib/structural.rs`
+- Modificação de `01_core/src/engine/eval/stdlib/structural.rs`
   (`native_pad` + `native_hide`).
-- Modificação de `01_core/src/rules/eval/mod.rs`
+- Modificação de `01_core/src/engine/eval/mod.rs`
   (registo em `make_stdlib`).
 - Tests em `01_core/src/entities/content.rs::tests`,
-  `01_core/src/rules/eval/tests.rs`,
-  `01_core/src/rules/layout/tests.rs` (se existe).
+  `01_core/src/engine/eval/tests.rs`,
+  `01_core/src/engine/layout/tests.rs` (se existe).
 - L0 prompts + hashes.
 - Inventário 148 + README ADRs.
 - Relatório do passo.
@@ -365,7 +365,7 @@ Usar `Sides<Length>` para padding em `Content::Pad`.
 
 ### 156C.5 — `native_pad` e `native_hide`
 
-Em `01_core/src/rules/eval/stdlib/structural.rs`:
+Em `01_core/src/engine/eval/stdlib/structural.rs`:
 
 ```rust
 pub fn native_pad(args: &Args, _: &Engine) -> SourceResult<Value> {
@@ -444,7 +444,7 @@ pub fn native_hide(args: &Args, _: &Engine) -> SourceResult<Value> {
 }
 ```
 
-Registo em `make_stdlib` (em `01_core/src/rules/eval/mod.rs`):
+Registo em `make_stdlib` (em `01_core/src/engine/eval/mod.rs`):
 
 ```rust
 scope.define("pad", Value::Func(Func::native("pad", native_pad)));
@@ -455,7 +455,7 @@ Stdlib funcs: 32 → **34**.
 
 ### 156C.6 — Layouter pad e hide
 
-Em `01_core/src/rules/layout/mod.rs::layout_content`:
+Em `01_core/src/engine/layout/mod.rs::layout_content`:
 
 ```rust
 match content {
@@ -508,8 +508,8 @@ match content {
 | Ficheiro | Testes |
 |----------|--------|
 | `01_core/src/entities/content.rs::tests` | (1) construtor Pad; (2) construtor Hide; (3) is_empty pad+hide; (4) plain_text pad (recurse); (5) plain_text hide (vazio); (6) PartialEq pad; (7) PartialEq hide; (8) map_content pad+hide |
-| `01_core/src/rules/eval/tests.rs` | (9) `eval_pad` defaults; (10) `eval_pad` com left+right+top+bottom; (11) `eval_pad` com x+y; (12) `eval_pad` com rest; (13) `eval_pad` precedência; (14) `eval_pad` rejeita negativo; (15) `eval_hide` body simples; (16) `eval_hide` rejeita named arg |
-| `01_core/src/rules/layout/tests.rs` | (17) layout pad reduz área; (18) layout hide zero items |
+| `01_core/src/engine/eval/tests.rs` | (9) `eval_pad` defaults; (10) `eval_pad` com left+right+top+bottom; (11) `eval_pad` com x+y; (12) `eval_pad` com rest; (13) `eval_pad` precedência; (14) `eval_pad` rejeita negativo; (15) `eval_hide` body simples; (16) `eval_hide` rejeita named arg |
+| `01_core/src/engine/layout/tests.rs` | (17) layout pad reduz área; (18) layout hide zero items |
 
 **Total**: ~14-18 tests adicionados. Estimativa final
 após execução. Tests count cumulativo: **1145 → ~1159-

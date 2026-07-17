@@ -119,13 +119,13 @@ Precedência completa: `específico > eixo (x/y) > rest`. Negativos rejeitados.
 
 ### Testes (adicionados)
 
-- `01_core/src/rules/eval/tests.rs` — 2 testes P474 confirmatórios:
+- `01_core/src/engine/eval/tests.rs` — 2 testes P474 confirmatórios:
   - `p474_show_where_wiring_completo_heading_level_2`
   - `p474_pad_rest_aplica_uniforme_via_extract_sides`
 
 ### Specs L0 (actualizadas)
 
-- `00_nucleo/prompts/rules/show-regex.md` — estatuto actualizado: Trilha 3: 3/3 completo (fechado); P474 referenciado.
+- `00_nucleo/prompts/engine/show-regex.md` — estatuto actualizado: Trilha 3: 3/3 completo (fechado); P474 referenciado.
 - `00_nucleo/prompts/entities/show.md` — entrada no histórico de revisões: P474 fecho Trilha 3 + hash corrigido (V5 pré-existente de P473: `entities/show.rs` → `40e2d8ab`).
 
 ---

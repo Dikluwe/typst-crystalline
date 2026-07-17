@@ -24,14 +24,14 @@ replicado fielmente.
    - Total 10 fields (4 obrigatórios + 6 opcionais).
 
 3. **Helper `extract_bib_entries` (P159A+P159D) extendido** em
-   `01_core/src/rules/stdlib/structural.rs`:
+   `01_core/src/engine/stdlib/structural.rs`:
    - Helper inline `optional_str(field)` reusado para `url` e
      `doi` — **cumulativo N=4** (P159D N=2 + P159E N=2).
    - Atinge limiar promoção a `pub(super)` ou helper público
      N=3-4 — promoção diferida per política consistente.
 
 4. **Layout `format_bib_entry` extendido** em
-   `01_core/src/rules/layout/mod.rs`:
+   `01_core/src/engine/layout/mod.rs`:
    - Concatenação condicional após `(year).` (Opção C
      diagnóstico §8.2).
    - URL plaintext literal: `format!(" {}.", u)`.

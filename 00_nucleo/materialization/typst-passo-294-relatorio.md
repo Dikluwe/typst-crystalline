@@ -66,7 +66,7 @@ Detalhe completo: `00_nucleo/diagnosticos/diagnostico-quadratic-curve-passo-294.
 
 ## §3 — Materialização
 
-### §3.1 — `01_core/src/rules/stdlib/shapes.rs` (única alteração)
+### §3.1 — `01_core/src/engine/stdlib/shapes.rs` (única alteração)
 
 Mudanças localizadas em `native_curve`:
 
@@ -134,7 +134,7 @@ pub fn native_curve(...) -> SourceResult<Value> {
 |---|---|
 | `01_core/src/entities/geometry.rs` (`PathItem` enum) | **Inalterado** — 4 variants |
 | `01_core/src/entities/geometry.rs` (`path_bbox`, `bezier_cubic_bbox`) | **Inalterado** (P277 robusto sem extensão) |
-| `01_core/src/rules/eval/mod.rs` (registo stdlib) | **Inalterado** — `native_curve` já registado P293 |
+| `01_core/src/engine/eval/mod.rs` (registo stdlib) | **Inalterado** — `native_curve` já registado P293 |
 | `03_infra/src/export.rs` (3 sítios emit cubic) | **Inalterado bit-exact** — hash `66cb8ac3` preservado |
 | `02_shell/`, `04_wiring/` | Intactos |
 
@@ -142,7 +142,7 @@ pub fn native_curve(...) -> SourceResult<Value> {
 
 ## §4 — Testes
 
-### §4.1 — `01_core/src/rules/stdlib/mod.rs`
+### §4.1 — `01_core/src/engine/stdlib/mod.rs`
 
 Removido: 1 teste P293 (`p293_curve_quadratic_scope_out_retorna_err`)
 — scope-out já não existe.
@@ -191,7 +191,7 @@ test result: ok.   21 passed; 0 failed; 0 ignored
 Baseline P293 = 2 802; delta = +6 net.
 
 Decomposição:
-- +6 testes L1 P294 (em `01_core/src/rules/stdlib/mod.rs`).
+- +6 testes L1 P294 (em `01_core/src/engine/stdlib/mod.rs`).
 - +1 teste L3 P294 (em `03_infra/src/export.rs`).
 - −1 teste P293 removido (scope-out já não aplica).
 - 2 802 + 6 + 1 − 1 = **2 808** ✓

@@ -7,7 +7,7 @@ Ler antes de começar:
   ou se é novo.
 - `01_core/src/entities/layout_types.rs` — Onde `TrackSizing` será adicionado.
 - `01_core/src/entities/content.rs` — Onde `Content::Grid` será adicionado.
-- `01_core/src/rules/layout/mod.rs` — Onde o algoritmo de resolução de
+- `01_core/src/engine/layout/mod.rs` — Onde o algoritmo de resolução de
   colunas vive. Confirmar se `measure_content` já existe e com que assinatura.
 - `00_nucleo/DEBT.md` — Confirmar que DEBT-30 está encerrado e DEBT-33 em aberto.
 
@@ -48,14 +48,14 @@ grep -n "Fraction\|fraction" 01_core/src/entities/value.rs | head -5
 
 # 2. Confirmar a assinatura de measure_content (se existir)
 grep -n "fn measure_content\|Metrics\|struct Metrics" \
-  01_core/src/rules/layout/mod.rs | head -10
+  01_core/src/engine/layout/mod.rs | head -10
 
 # 3. Confirmar se Value::Array existe e como é iterado
 grep -n "Array\|Vec<Value>" 01_core/src/entities/value.rs | head -5
 
 # 4. Confirmar como page_width e margin estão acessíveis no layouter
 grep -n "page_width\|available_width\|margin" \
-  01_core/src/rules/layout/mod.rs | head -10
+  01_core/src/engine/layout/mod.rs | head -10
 ```
 
 Reportar o output completo antes de continuar. O diagnóstico 2 é crítico:
@@ -151,7 +151,7 @@ show rules, map_content, etc.). O compilador lista os locais.
 
 ## Tarefa 3 — `native_grid` na stdlib (L1)
 
-Em `01_core/src/rules/stdlib.rs`:
+Em `01_core/src/engine/stdlib.rs`:
 
 ```rust
 /// Converte um Value em TrackSizing.
@@ -271,7 +271,7 @@ impl Layouter {
 
 ## Tarefa 5 — Algoritmo de resolução de grid no layouter (L1)
 
-Em `01_core/src/rules/layout/mod.rs`:
+Em `01_core/src/engine/layout/mod.rs`:
 
 ```rust
 Content::Grid { columns, rows: _, cells } => {

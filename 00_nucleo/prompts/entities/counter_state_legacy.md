@@ -1,5 +1,5 @@
 # Prompt L0 — `entities/counter_state_legacy`
-Hash do Código: 3d0ac75f
+Hash do Código: d5fbc8b4
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/entities/counter_state_legacy.rs`
@@ -91,9 +91,9 @@ Resumo:
 
 ## Consumers actuais
 
-- `01_core/src/rules/introspect.rs` (walk + materialize_time).
-- `01_core/src/rules/layout/mod.rs` (Layouter campo `counter`).
-- `01_core/src/rules/layout/counters.rs`, `references.rs`, `outline.rs`, `figure.rs` (leitura/escrita per feature).
+- `01_core/src/engine/introspect.rs` (walk + materialize_time).
+- `01_core/src/engine/layout/mod.rs` (Layouter campo `counter`).
+- `01_core/src/engine/layout/counters.rs`, `references.rs`, `outline.rs`, `figure.rs` (leitura/escrita per feature).
 
 ---
 

@@ -52,11 +52,11 @@ Nota: a classificação P490 usa `metadata`/`heading` como proxy; ficheiros que 
 
 ## Ficheiros alterados
 
-- `01_core/src/rules/stdlib/color.rs` — `predefined_color_bindings()` com as 9 variáveis de cor predefinidas.
-- `01_core/src/rules/stdlib/text.rs` — `native_text` com suporte a `fill` posicional e nomeado.
-- `01_core/src/rules/eval/mod.rs` — injeção das cores e da função `text` no scope global.
-- `01_core/src/rules/eval/operators.rs` — operadores `Length + Color` e `Color + Length` produzindo `Value::Stroke`.
-- `01_core/src/rules/eval/tests.rs` — testes unitários P492 para cores, stroke, `text(...)` e show regex.
+- `01_core/src/engine/stdlib/color.rs` — `predefined_color_bindings()` com as 9 variáveis de cor predefinidas.
+- `01_core/src/engine/stdlib/text.rs` — `native_text` com suporte a `fill` posicional e nomeado.
+- `01_core/src/engine/eval/mod.rs` — injeção das cores e da função `text` no scope global.
+- `01_core/src/engine/eval/operators.rs` — operadores `Length + Color` e `Color + Length` produzindo `Value::Stroke`.
+- `01_core/src/engine/eval/tests.rs` — testes unitários P492 para cores, stroke, `text(...)` e show regex.
 - `lab/parity/tests/structural_parity.rs` — sentinela `p492_cores_predefinidas_text_e_stroke`.
 - `lab/parity/src/value_dto.rs` — mapeamento de variants `Value` recentes (`Relative`, `Stroke`, `Gradient`, `Regex`, `Tiling`, `Bytes`, `Decimal`, `Duration`, `Version`, `Selector`, `Symbol`) para `Other`, necessário para compilação dos testes de paridade.
 

@@ -110,7 +110,7 @@ narrativa preservada. ADR meta novo formaliza decisão.
 
 **Achado factual material C2.1 — `apply_state_funcs` JÁ EXISTE**:
 
-Localização: `01_core/src/rules/introspect/from_tags.rs:48`.
+Localização: `01_core/src/engine/introspect/from_tags.rs:48`.
 Assinatura:
 
 ```rust
@@ -123,7 +123,7 @@ pub fn apply_state_funcs(
 ```
 
 Caller: `fixpoint::run_fixpoint` em
-`01_core/src/rules/introspect/fixpoint.rs:101`. Operação:
+`01_core/src/engine/introspect/fixpoint.rs:101`. Operação:
 
 1. Walk emite tags (incluindo `Tag::Start(loc, info)` com
    `ElementPayload::StateUpdate { update: StateUpdate::Func(_) }`).

@@ -21,7 +21,7 @@
 
 ### Reconhecer `plugin(...)` como builtin
 
-Adicionar `plugin` ao scope global (`01_core/src/rules/eval/mod.rs` ou `stdlib/`), aceitando `Value::Str` (caminho) ou `Value::Bytes` (conteúdo directo), seguindo a mesma resolução de `DataSource` já confirmada por P696 (`plugin.rs:148-156` do vanilla).
+Adicionar `plugin` ao scope global (`01_core/src/engine/eval/mod.rs` ou `stdlib/`), aceitando `Value::Str` (caminho) ou `Value::Bytes` (conteúdo directo), seguindo a mesma resolução de `DataSource` já confirmada por P696 (`plugin.rs:148-156` do vanilla).
 
 ### Ler os bytes
 

@@ -123,7 +123,7 @@ O número 42 e o número 100 aparecem a vermelho.
 
 **Se H2/H3 (D5 independente):** Verificar se `text` está no scope do show-rule. O show-rule cria um novo scope local; se `text` não é herdado do scope global, adicionar herança ou injetar `text` explicitamente.
 
-**Arquivo alvo:** `src/eval/show.rs` ou `src/rules/show.rs`
+**Arquivo alvo:** `src/eval/show.rs` ou `src/engine/show.rs`
 
 **Pseudo-código:**
 ```rust

@@ -87,7 +87,7 @@ strong, outline):
 grep -n "Content::Heading\b\|Content::Emph\b\|Content::Strong\b\|Content::Outline\b" \
   01_core/src/entities/content.rs
 grep -n "native_heading\|native_emph\|native_strong\|native_outline" \
-  01_core/src/rules/stdlib*
+  01_core/src/engine/stdlib*
 ```
 
 **Bloco 3 — Entradas `implementado⁺` P154A** (figure, ref,
@@ -123,7 +123,7 @@ grep -c "^\s*pub\s" 01_core/src/entities/bib_entry.rs
 ```bash
 grep -rn "Content::Footnote\b\|native_footnote" 01_core/src/
 grep -n "footnote_area" 01_core/src/entities/layout_types.rs
-grep -rn "footnote" 01_core/src/rules/layout/
+grep -rn "footnote" 01_core/src/engine/layout/
 ```
 
 **Bloco 5.3 — Fase 3 condicional** (document, title, asset):

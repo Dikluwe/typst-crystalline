@@ -94,8 +94,8 @@ Todas as contagens > 0. Funcionalidades presentes.
 |-----------|-------|---------|
 | `FrameItem::Text` preservado (fallback deprecated) | `grep "FrameItem::Text {" 01_core/src/` | ✅ Presente em `layout_types.rs` (deprecated, usado em testes de fallback) |
 | `y_offset` em `stream.rs` (scope-out emit) | `grep y_offset 03_infra/src/export/stream.rs` | ✅ Apenas em dados de teste (`y_offset: 0`); nenhuma lógica de produção |
-| `dir: rtl` em stdlib (scope-out) | `grep "dir.*rtl\|Direction::RTL" 01_core/src/rules/` | ✅ Apenas em mensagem de erro do `stack(dir:)`, não em `#set text(dir:)` |
-| `ColorSpace` user-facing | `grep ColorSpace 01_core/src/rules/stdlib/` | ✅ Apenas em `gradients.rs` (Oklab interno); sem funcs user-facing |
+| `dir: rtl` em stdlib (scope-out) | `grep "dir.*rtl\|Direction::RTL" 01_core/src/engine/` | ✅ Apenas em mensagem de erro do `stack(dir:)`, não em `#set text(dir:)` |
+| `ColorSpace` user-facing | `grep ColorSpace 01_core/src/engine/stdlib/` | ✅ Apenas em `gradients.rs` (Oklab interno); sem funcs user-facing |
 | `native_color_saturate` presente (P477) | `grep native_color_saturate 01_core/src/` | ✅ Definida em `color.rs:164`, registada na dict |
 
 Todos os scope-outs confirmados. Nenhuma implementação parcial inconsistente detectada.

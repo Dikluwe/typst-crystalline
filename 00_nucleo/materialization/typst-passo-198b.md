@@ -66,7 +66,7 @@ fechadas. Cenário α confirmado para E5.
 ### .A Auditoria L0
 
 1. Confirmar walk arm SetHeadingNumbering em
-   `01_core/src/rules/introspect.rs:611-623` (per
+   `01_core/src/engine/introspect.rs:611-623` (per
    P198A §3):
    - Re-verificar empiricamente.
    - Localizar mutação `state.numbering_active.insert("heading".to_string(), *active)`.
@@ -112,7 +112,7 @@ Output: tabela com item + estado + linhas exactas.
 
 ### .B Adicionar comentário inline P198B no walk arm
 
-1. Em `01_core/src/rules/introspect.rs:611-623` (per
+1. Em `01_core/src/engine/introspect.rs:611-623` (per
    `.A.1`):
    - **Não modificar** mutação legacy.
    - Adicionar comentário inline curto:

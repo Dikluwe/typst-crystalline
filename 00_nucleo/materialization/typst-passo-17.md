@@ -3,7 +3,7 @@
 ## Estado actual antes de começar
 
 Ler antes de começar:
-- `01_core/src/rules/eval.rs` — closures do Passo 16
+- `01_core/src/engine/eval.rs` — closures do Passo 16
 - `01_core/src/entities/func.rs` — `Func(Arc<FuncRepr>)`
 - `lab/typst-original/crates/typst-library/src/foundations/func.rs`
 
@@ -45,7 +45,7 @@ Isto limpa a assinatura de `eval_expr` e é o lugar natural para o
 contador de profundidade.
 
 ```rust
-// 01_core/src/rules/eval.rs (ou rules/eval_context.rs)
+// 01_core/src/engine/eval.rs (ou rules/eval_context.rs)
 
 /// Contexto de execução partilhado durante eval().
 ///
@@ -384,7 +384,7 @@ via `unicode_segmentation` — se necessário para paridade, usar
 ```rust
 // Em rules/eval.rs:
 fn make_stdlib() -> Scope {
-    use crate::rules::stdlib::*;
+    use crate::engine::stdlib::*;
     let mut scope = Scope::new();
     scope.define("type",  Value::Func(Func::native("type",  native_type)));
     scope.define("len",   Value::Func(Func::native("len",   native_len)));

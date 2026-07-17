@@ -68,7 +68,7 @@ Nenhum método requer `&mut self`. **Compatível com
 
 ### A3 — Consumers em produção — **CONFIRMADO**
 
-Análise por método (callers em `01_core/src/rules/layout/`
+Análise por método (callers em `01_core/src/engine/layout/`
 e similares):
 
 | Método | Consumers em produção | Notas |
@@ -142,9 +142,9 @@ Local: `grep -rn "comemo::\|#\[comemo::\|use comemo"`.
 
 - `01_core/src/entities/engine.rs:26`:
   `use comemo::{Tracked, TrackedMut}`.
-- `01_core/src/rules/eval/mod.rs:19`:
+- `01_core/src/engine/eval/mod.rs:19`:
   `use comemo::{Tracked, TrackedMut}`.
-- `01_core/src/rules/eval/markup.rs:12`,
+- `01_core/src/engine/eval/markup.rs:12`,
   `eval/modules.rs:12`, `eval/closures.rs:24`: usam
   `TrackedMut`.
 
@@ -152,9 +152,9 @@ Local: `grep -rn "comemo::\|#\[comemo::\|use comemo"`.
 
 - `01_core/src/entities/world_types.rs:9`:
   `use comemo::{Track, Tracked, Validate}`.
-- `01_core/src/rules/introspect.rs:2482, 2480`,
-  `01_core/src/rules/introspect/fixpoint.rs:181`,
-  `01_core/src/rules/eval/tests.rs:24, 52, 1236, 1261, 1288, 1316`:
+- `01_core/src/engine/introspect.rs:2482, 2480`,
+  `01_core/src/engine/introspect/fixpoint.rs:181`,
+  `01_core/src/engine/eval/tests.rs:24, 52, 1236, 1261, 1288, 1316`:
   `use comemo::Track` em testes.
 
 #### A5.4 `Introspector` ainda **NÃO** trackable:
@@ -543,8 +543,8 @@ watch.
 
 | Loop | Local | MAX | Convergência |
 |------|-------|-----|--------------|
-| TOC fixpoint | `01_core/src/rules/layout/mod.rs:1506` | 5 | hash sobre `extracted_label_pages` |
-| `run_fixpoint` | `01_core/src/rules/introspect/fixpoint.rs:33` | 5 | hash sobre tags via `compute_tags_hash` |
+| TOC fixpoint | `01_core/src/engine/layout/mod.rs:1506` | 5 | hash sobre `extracted_label_pages` |
+| `run_fixpoint` | `01_core/src/engine/introspect/fixpoint.rs:33` | 5 | hash sobre tags via `compute_tags_hash` |
 
 #### A13.2 Vanilla equivalente
 
@@ -711,11 +711,11 @@ Todos os 16 itens de auditoria CONFIRMADO. O snapshot
 - `01_core/src/entities/world_types.rs` (3 `#[comemo::track]`
   pré-existentes).
 - `01_core/src/entities/engine.rs` (Engine usa `Tracked`).
-- `01_core/src/rules/layout/mod.rs:69` (Layouter struct
+- `01_core/src/engine/layout/mod.rs:69` (Layouter struct
   22 fields).
-- `01_core/src/rules/introspect/fixpoint.rs:33`
+- `01_core/src/engine/introspect/fixpoint.rs:33`
   (`MAX_FIXPOINT_ITERATIONS = 5`).
-- `01_core/src/rules/layout/mod.rs:1506` (TOC
+- `01_core/src/engine/layout/mod.rs:1506` (TOC
   `MAX_ITERATIONS = 5`).
 
 ### Vanilla

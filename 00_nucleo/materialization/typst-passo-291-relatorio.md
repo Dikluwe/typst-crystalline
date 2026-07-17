@@ -82,7 +82,7 @@ critério novo** (A.5' anti-reflexão) ao padrão estabelecido em P289/P290.
 | `00_nucleo/prompts/entities/style.md` | L0 | +9º variant em B.3 + nota A.5' anti-reflexão |
 | `00_nucleo/diagnosticos/typst-cobertura-vanilla-vs-cristalino.md` | L0 cobertura | B.3 +1 linha; B.4 linha 352 nota P291; footnote ⁷⁷ ~95 LOC com secção A.5' |
 | `00_nucleo/diagnosticos/diagnostico-style-leading-passo-291.md` | Diagnóstico Fase A | ~330 LOC ficheiro novo (**6 secções** A.0-A.5 + A.5') |
-| `01_core/src/rules/layout/tests.rs:10640+` | testes P291 | ~140 LOC (11 testes em `p291_style_leading_tests` mod) |
+| `01_core/src/engine/layout/tests.rs:10640+` | testes P291 | ~140 LOC (11 testes em `p291_style_leading_tests` mod) |
 
 Total: **2 sítios L1 produção + 2 ficheiros L0 documentação + 1
 diagnóstico + 1 ficheiro de testes**. **Zero ficheiros tocados em
@@ -266,7 +266,7 @@ P292 (font) tem complicação extra: `font: Option<FontList>`, e
 | Local | Quantidade | Cobertura |
 |---|---:|---|
 | `entities/style.rs` (mod tests) | 1 | Catalog test 8 → 9 variants (`Style::Leading(Length::em(0.65))` incluído) |
-| `rules/layout/tests.rs` (`p291_style_leading_tests`) | 10 | Variant ctor + PartialEq; `push_styles` cascade; `Styled` injection + TextStyle propagation; last-write wins; **5 fronteiras** (0pt/11pt/0.65em/50pt/**-1pt**); consumer P138 flush_line peek |
+| `engine/layout/tests.rs` (`p291_style_leading_tests`) | 10 | Variant ctor + PartialEq; `push_styles` cascade; `Styled` injection + TextStyle propagation; last-write wins; **5 fronteiras** (0pt/11pt/0.65em/50pt/**-1pt**); consumer P138 flush_line peek |
 | **Total** | **11** | Paralelo a P290 +11 (mesma estrutura; novo: consumer P138 verification) |
 
 **Resultado**: 11/11 verdes (`cargo test --lib p291`). Delta workspace

@@ -2,7 +2,7 @@
 
 **Data:** 2026-07-03  
 **Passo:** P538c (continuação de P537)  
-**Prompt L0:** `00_nucleo/prompts/rules/columns.md`  
+**Prompt L0:** `00_nucleo/prompts/engine/columns.md`  
 **Hash do prompt L0:** `ccb812d3` (código: `f0f98713`)
 
 ## Objectivo
@@ -18,11 +18,11 @@ Corrigir o PDF malformado em documentos longos de duas colunas sem `colbreak()`,
 
 ## Ficheiros alterados
 
-- `01_core/src/rules/layout/mod.rs` — estado de colunas multi-página no `Layouter`.
-- `01_core/src/rules/layout/cursor.rs` — `new_page()`, `close_current_column()`, `merge_column_items()`, `finish_columns()`, `start_next_column()`, `start_column()`.
-- `01_core/src/rules/layout/columns.rs` — `split_by_colbreak()`, `layout()`, `layout_segmented()`, `layout_flow()`.
-- `01_core/src/rules/layout/tests.rs` — testes P538c.
-- `00_nucleo/prompts/rules/columns.md` — Prompt L0 da funcionalidade.
+- `01_core/src/engine/layout/mod.rs` — estado de colunas multi-página no `Layouter`.
+- `01_core/src/engine/layout/cursor.rs` — `new_page()`, `close_current_column()`, `merge_column_items()`, `finish_columns()`, `start_next_column()`, `start_column()`.
+- `01_core/src/engine/layout/columns.rs` — `split_by_colbreak()`, `layout()`, `layout_segmented()`, `layout_flow()`.
+- `01_core/src/engine/layout/tests.rs` — testes P538c.
+- `00_nucleo/prompts/engine/columns.md` — Prompt L0 da funcionalidade.
 
 ## Testes automáticos
 

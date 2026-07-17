@@ -62,7 +62,7 @@ parsing externo, e Cite.style override.
 1. `Cargo.toml` adiciona `hayagriva = "0.10"` ao workspace e a `01_core/Cargo.toml`.
 2. `crystalline.toml` adiciona `hayagriva` a `[l1_allowed_external]`.
 3. Uso real em código L1:
-   - `rules/layout/bib_csl.rs` — integração hayagriva/citationberg para render CSL.
+   - `engine/layout/bib_csl.rs` — integração hayagriva/citationberg para render CSL.
    - `rules/stdlib/structural.rs::native_bibliography` — expõe `style`/`locale`.
    - `entities/elements/bibliography.rs` — `BibliographyElem` com `style`/`locale`.
 

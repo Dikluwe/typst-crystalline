@@ -43,7 +43,7 @@ Sonda confirmou que **toda a infra já estava implementada desde P393**: `Value:
 ### Campo `previously_cited_keys` no Layouter
 
 ```rust
-// 01_core/src/rules/layout/mod.rs — struct Layouter (após last_cited_key)
+// 01_core/src/engine/layout/mod.rs — struct Layouter (após last_cited_key)
 /// **P473** — conjunto de todas as keys citadas antes da posição actual,
 /// excluindo a última (coberta por last_cited_key). Usada para op. cit.:
 /// key já citada mas não consecutivamente → "[N] Author, op. cit.".
@@ -131,17 +131,17 @@ Toda a infra estava implementada:
 
 ### Código de produção (modificados)
 
-- `01_core/src/rules/layout/mod.rs` — campo `previously_cited_keys: HashSet<String>` + inicialização
-- `01_core/src/rules/layout/cite.rs` — `is_op_cit` detection + render `[N] Author, op. cit.`
+- `01_core/src/engine/layout/mod.rs` — campo `previously_cited_keys: HashSet<String>` + inicialização
+- `01_core/src/engine/layout/cite.rs` — `is_op_cit` detection + render `[N] Author, op. cit.`
 
 ### Testes (adicionados)
 
-- `01_core/src/rules/eval/tests.rs` — 3 testes P473 em secção `// ── P473`
+- `01_core/src/engine/eval/tests.rs` — 3 testes P473 em secção `// ── P473`
 
 ### Specs L0 (actualizadas)
 
-- `00_nucleo/prompts/rules/atomizacao_elementos.md` — §14 `op. cit. + previously_cited_keys`; scope-out de P472 corrigido
-- `00_nucleo/prompts/rules/show-regex.md` — nota de materialização P393+P473
+- `00_nucleo/prompts/engine/atomizacao_elementos.md` — §14 `op. cit. + previously_cited_keys`; scope-out de P472 corrigido
+- `00_nucleo/prompts/engine/show-regex.md` — nota de materialização P393+P473
 
 ---
 
@@ -170,7 +170,7 @@ Finished `dev` profile — 0 errors
 ### `crystalline-lint --fix-hashes .`
 
 ```
-./01_core/src/rules/layout/cite.rs → e6442e3f
+./01_core/src/engine/layout/cite.rs → e6442e3f
 Re-running analysis... ✅ 0 drift warnings remaining
 ```
 

@@ -326,7 +326,7 @@ listar canónicas em L1.
 - `const fn empty()` — `FontList` é `Clone` não `Copy`;
   `Option::<FontList>::None` é const OK.
 
-#### `01_core/src/rules/eval/rules.rs`
+#### `01_core/src/engine/eval/rules.rs`
 
 - `use crate::entities::font_list::FontList;` — adicionar.
 - **Arm `"font"` novo** com validação:

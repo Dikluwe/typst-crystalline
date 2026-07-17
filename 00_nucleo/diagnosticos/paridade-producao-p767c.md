@@ -4,9 +4,9 @@
 **Data:** 2026-07-15  
 **Base:** P767a (commit `beb4d4e4f`)  
 **Foco:** Corrigir o ancoramento vertical de `Content::Shape` quando sucede texto não-bloco no fluxo de parágrafo, depois de P767b ter medido um desvio de ~6,05 pt.  
-**L0:** `00_nucleo/prompts/rules/layout/shape_block_behaviour.md` (actualizado com a regra de ancoramento P767c).  
+**L0:** `00_nucleo/prompts/engine/layout/shape_block_behaviour.md` (actualizado com a regra de ancoramento P767c).  
 **Código alterado:**
-- `01_core/src/rules/layout/shape.rs` — ancoramento vertical condicional:
+- `01_core/src/engine/layout/shape.rs` — ancoramento vertical condicional:
   - forma depois de texto: base em `baseline + above`, topo em `baseline + above + height`, próxima baseline em `shape_top + below + cap_height`;
   - forma depois de bloco ou isolada sem texto antes: mantém o modelo P767a (`shape_base = cursor_y − cap_height`, avanço `shape_base + height + below`).
 - `03_infra/fixtures/p307b/reference/04-shapes.pdf` e `07-multi-feature.pdf` — snapshots actualizados (mudança de layout esperada).
@@ -131,7 +131,7 @@ crystalline-lint --fix-hashes .
 crystalline-lint .
 ```
 
-- `shape.rs`: header `@prompt` mantém `00_nucleo/prompts/rules/layout/shape_block_behaviour.md`.
+- `shape.rs`: header `@prompt` mantém `00_nucleo/prompts/engine/layout/shape_block_behaviour.md`.
 - Resultado final: zero violações excepto `V7` (prompt órfão pré-existente `package_version_resolution.md`).
 
 ---

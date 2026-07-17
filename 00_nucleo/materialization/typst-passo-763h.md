@@ -41,7 +41,7 @@ Confirmar o mecanismo real que decide inline vs block no vanilla — provavelmen
 ## Parte B — Levantar o estado actual no cristalino
 
 ```bash
-grep -n "enum ShapeKind\|ShapeElem\|fn layout_shape" 01_core/src/entities/*.rs 01_core/src/rules/layout/*.rs
+grep -n "enum ShapeKind\|ShapeElem\|fn layout_shape" 01_core/src/entities/*.rs 01_core/src/engine/layout/*.rs
 ```
 
 Confirmar se todas as primitivas passam pelo mesmo `ShapeElem`/`ShapeKind` (como P763g indica para `Line`/`Ellipse`) ou se há tratamento diferenciado já existente para alguma. Preencher a mesma tabela da Parte A com a coluna "cristalino (actual)".

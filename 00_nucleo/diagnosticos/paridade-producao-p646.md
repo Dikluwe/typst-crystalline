@@ -11,9 +11,9 @@
 
 ### 1.1 Caminhos de código
 
-`.bib` e `.yaml`/`.yml` passam por caminhos separados em `parse_bibliography` (`01_core/src/rules/eval/bibliography.rs:55`):
+`.bib` e `.yaml`/`.yml` passam por caminhos separados em `parse_bibliography` (`01_core/src/engine/eval/bibliography.rs:55`):
 
-- `.bib` → `crate::rules::eval::bibtex::parse_bibtex(content)` (parser BibTeX custom).
+- `.bib` → `crate::engine::eval::bibtex::parse_bibtex(content)` (parser BibTeX custom).
 - `.yaml`/`.yml` → `hayagriva::io::from_yaml_str(content)` → iteração sobre `library` → `hay_entry_to_bib_entry`.
 
 Apesar de caminhos separados, **ambos** verificam chave vazia:
@@ -63,7 +63,7 @@ p646-chave-vazia.typ:<detached>: error: bibliography contains entry with empty k
 
 Não foi necessária alteração de código de produção: a verificação de chave vazia em `.yaml`/`.yml` já estava implementada por P644 em `hay_entry_to_bib_entry`.
 
-Para garantir cobertura do caminho completo (leitura do ficheiro + parse YAML + verificação de chave vazia), adicionou-se um teste unitário em `01_core/src/rules/eval/bibliography.rs`:
+Para garantir cobertura do caminho completo (leitura do ficheiro + parse YAML + verificação de chave vazia), adicionou-se um teste unitário em `01_core/src/engine/eval/bibliography.rs`:
 
 - `p646_yaml_chave_vazia_via_load_bib_entries_produz_erro`: usa `MockWorldFs` e `load_bib_entries_from_path` para testar o fluxo completo, não apenas `parse_bibliography` directamente.
 

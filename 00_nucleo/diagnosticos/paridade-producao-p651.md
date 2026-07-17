@@ -43,7 +43,7 @@ Padrão: `grep -iE "P[0-9]{2,3}"` sobre todos os `eprintln!`/`println!`.
 | Ficheiro | Linha | Tipo | Decisão |
 |---|---|---|---|
 | `01_core/src/entities/content.rs` | 2311 | `eprintln!("P627 segments count: ...")` | **Removido** |
-| `01_core/src/rules/eval/tests.rs` | várias | `eprintln!` em testes | Manter (test-only) |
+| `01_core/src/engine/eval/tests.rs` | várias | `eprintln!` em testes | Manter (test-only) |
 | `03_infra/src/shaper.rs` | várias | `eprintln!("SKIP: ...")` em testes | Manter (test-only) |
 | `03_infra/src/integration_tests.rs` | várias | `eprintln!("[skip] ...")` em testes | Manter (test-only) |
 | `03_infra/src/export/tests.rs` | várias | `eprintln!("SKIP ...")` em testes | Manter (test-only) |

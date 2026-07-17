@@ -16,7 +16,7 @@
 ### Ler o código directamente, não assumir a partir do nome das funções
 
 ```bash
-git diff HEAD -- 01_core/src/rules/layout/cursor.rs 01_core/src/rules/layout/mod.rs 01_core/src/rules/layout/text.rs
+git diff HEAD -- 01_core/src/engine/layout/cursor.rs 01_core/src/engine/layout/mod.rs 01_core/src/engine/layout/text.rs
 ```
 
 Ler o diff completo. Perguntas a responder:

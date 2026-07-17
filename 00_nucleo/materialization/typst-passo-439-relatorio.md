@@ -12,8 +12,8 @@ hayagriva já tinha sido materializada no Passo 418:
 
 - `Cargo.toml` workspace e `01_core/Cargo.toml` já incluem `hayagriva = "0.10"`.
 - `crystalline.toml` já lista `hayagriva` em `[l1_allowed_external]`.
-- `01_core/src/rules/layout/bib_csl.rs` (P418) e
-  `01_core/src/rules/eval/bibliography.rs` usam hayagriva/citationberg para
+- `01_core/src/engine/layout/bib_csl.rs` (P418) e
+  `01_core/src/engine/eval/bibliography.rs` usam hayagriva/citationberg para
   renderização CSL (built-ins e `.csl` customizados via P420).
 - `Content::Bibliography`, `Content::Cite`, `native_bibliography` e
   `native_cite` já existem.

@@ -75,7 +75,7 @@ graded.
 
 ### §2.1 — L1 arm `Content::Boxed` save/restore (~20 LOC)
 
-`01_core/src/rules/layout/mod.rs` — inserção antes/depois do callsite
+`01_core/src/engine/layout/mod.rs` — inserção antes/depois do callsite
 `self.layout_content(body)` (linha 1394 antes do patch):
 
 ```rust

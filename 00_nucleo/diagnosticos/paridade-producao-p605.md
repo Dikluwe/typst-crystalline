@@ -66,7 +66,7 @@ Ficheiros alterados:
   - Adicionado `Content::heading_with_outlined(level, body, outlined)`.
   - Adicionado `Content::heading_numbered_with_pattern_and_outlined(level, body, pattern, outlined)`.
 
-- `01_core/src/rules/stdlib/structural.rs`:
+- `01_core/src/engine/stdlib/structural.rs`:
   - `native_heading` passou a aceitar argumentos nomeados `outlined: bool` e `bookmarked: bool`.
   - Suporta as formas vanilla:
     - `heading(1, [Body])`
@@ -75,17 +75,17 @@ Ficheiros alterados:
     - `heading(bookmarked: false)[Body]`
   - `outlined` tem prioridade sobre `bookmarked` quando ambos são fornecidos.
 
-- `01_core/src/rules/introspect.rs`:
+- `01_core/src/engine/introspect.rs`:
   - Walk arm `Content::Heading` só emite `Tag::HeadingForToc` quando `h.outlined == true`.
   - `materialize_time` preserva o campo `outlined` ao reconstruir headings.
 
 - Prompts L0 actualizados:
-  - `00_nucleo/prompts/rules/stdlib/structural.md` — documenta `outlined` e `bookmarked`.
-  - `00_nucleo/prompts/rules/introspect.md` — documenta o gate `outlined` no walk.
+  - `00_nucleo/prompts/engine/stdlib/structural.md` — documenta `outlined` e `bookmarked`.
+  - `00_nucleo/prompts/engine/introspect.md` — documenta o gate `outlined` no walk.
 
 - `@prompt-hash` actualizados via `crystalline-lint --fix-hashes .`:
-  - `01_core/src/rules/stdlib/structural.rs` → `e6d3a5b5`
-  - `01_core/src/rules/introspect.rs` → `42b9ffbd`
+  - `01_core/src/engine/stdlib/structural.rs` → `e6d3a5b5`
+  - `01_core/src/engine/introspect.rs` → `42b9ffbd`
 
 ### Limitação conhecida
 
@@ -123,7 +123,7 @@ Ambos excluem o heading intermédio.
 
 ### Testes automatizados
 
-Novos testes unitários em `01_core/src/rules/stdlib/structural.rs`:
+Novos testes unitários em `01_core/src/engine/stdlib/structural.rs`:
 
 - `native_heading_outlined_false_marca_campo`
 - `native_heading_bookmarked_false_usa_outlined`
@@ -169,8 +169,8 @@ Novos testes de integração em `03_infra/src/integration_tests.rs`:
 ## Ligações
 
 - `00_nucleo/materialization/typst-passo-605.md` — passo que originou a implementação.
-- `00_nucleo/prompts/rules/stdlib/structural.md` — Prompt L0 actualizado.
-- `00_nucleo/prompts/rules/introspect.md` — Prompt L0 actualizado.
-- `01_core/src/rules/stdlib/structural.rs:152` — `native_heading` com `outlined`/`bookmarked`.
-- `01_core/src/rules/introspect.rs:1077` — walk arm `Content::Heading` com gate `outlined`.
+- `00_nucleo/prompts/engine/stdlib/structural.md` — Prompt L0 actualizado.
+- `00_nucleo/prompts/engine/introspect.md` — Prompt L0 actualizado.
+- `01_core/src/engine/stdlib/structural.rs:152` — `native_heading` com `outlined`/`bookmarked`.
+- `01_core/src/engine/introspect.rs:1077` — walk arm `Content::Heading` com gate `outlined`.
 - `01_core/src/entities/elements/heading.rs:23` — `HeadingElem::outlined`.

@@ -1,5 +1,5 @@
 # Prompt L0 — Content
-Hash do Código: ce62f432
+Hash do Código: f723ce7b
 
 > **P622**: adicionada variante `Parbreak` — ver secção `Parbreak`.
 
@@ -262,8 +262,8 @@ consequência (Achado 2, P342). Medido contra o vanilla (P345): `#set numbering`
 **não** entra na igualdade (N1=true); estilo anexado ao conteúdo entra.
 
 **Layout**: NÃO entra no trait (topologia — `entities` não depende de `rules`);
-fica em `rules/layout` / `rules/math/layout`, com o braço a destructurar
-`Arc<NomeElem>` (mesma lógica). `rules/layout.md` não é editado neste passo.
+fica em `engine/layout` / `rules/math/layout`, com o braço a destructurar
+`Arc<NomeElem>` (mesma lógica). `engine/layout.md` não é editado neste passo.
 
 **Destino F** (ADR-0105): os módulos de elemento do D são o continente do
 candidato F (PropMap); `NomeElem` agrupa campos+defaults para que `fn
@@ -477,7 +477,7 @@ Content::Quote {
 - `block: true` → parágrafo dedicado, indent + spacing; `block: false`
   → inline no parágrafo circundante.
 - `quotes: true` → aspas locale-apropriadas via
-  `crate::rules::lang::quotes::localize_quotes(lang)` em torno do body.
+  `crate::engine::lang::quotes::localize_quotes(lang)` em torno do body.
 
 **Comportamento `plain_text`**:
 - Sem smart-quotes: usa `"` ASCII fallback (texto plano não interage com lang).
@@ -984,7 +984,7 @@ Aplicada a `(x, y)`:
 
 ### Stdlib `#skew(body, ax: ?, ay: ?)`
 
-Implementado em `01_core/src/rules/stdlib/transforms.rs`
+Implementado em `01_core/src/engine/stdlib/transforms.rs`
 ao lado de `native_move`/`native_rotate`/`native_scale`
 (coesão por domínio per ADR-0037). Atributos:
 - `ax: Angle` — distorção horizontal (default 0).
@@ -2130,7 +2130,7 @@ fn layout_cancel(&self, body, style) -> MathBox {
 | `rules/introspect.rs:materialize_time` | terminal |
 | `rules/introspect.rs:walk` | terminal (math structural) |
 | `rules/introspect/locatable.rs` | `false` |
-| `rules/layout/mod.rs` | fallthrough math (paralelo MathFrac) |
+| `engine/layout/mod.rs` | fallthrough math (paralelo MathFrac) |
 | `rules/math/layout/mod.rs:layout_node` | handlers dedicados |
 
 `is_empty()` herdado via catch-all `_ => false` (math structural
@@ -2227,7 +2227,7 @@ fn layout_underover(&self, base, under, over, style) -> MathBox {
 | `rules/introspect.rs:materialize_time` | terminal |
 | `rules/introspect.rs:walk` | terminal |
 | `rules/introspect/locatable.rs` | `false` |
-| `rules/layout/mod.rs` | fallthrough math |
+| `engine/layout/mod.rs` | fallthrough math |
 | `rules/math/layout/mod.rs:layout_node` | handler dedicado |
 
 ### Hash `export.rs 66cb8ac3` preservado (14º passo consecutivo)
@@ -2351,7 +2351,7 @@ qualidade do 3.º caso é menor que os anteriores.
 | `rules/introspect.rs:materialize_time` | terminal |
 | `rules/introspect.rs:walk` | terminal |
 | `rules/introspect/locatable.rs` | `false` |
-| `rules/layout/mod.rs` | fallthrough math |
+| `engine/layout/mod.rs` | fallthrough math |
 | `rules/math/layout/mod.rs:layout_node` | `layout_op` trivial delegate |
 
 **+1 sítio crítico** (não match arm exhaustive, mas paradigma novo):
@@ -2455,7 +2455,7 @@ Regras (P311a §3.3):
 | `rules/introspect.rs:materialize_time` | terminal |
 | `rules/introspect.rs:walk` | terminal |
 | `rules/introspect/locatable.rs` | `false` |
-| `rules/layout/mod.rs` | fallthrough math |
+| `engine/layout/mod.rs` | fallthrough math |
 | `rules/math/layout/mod.rs:layout_node` | `layout_styled` (P311b.4 — context passing) |
 
 ### Família `script`/`sscript` — variant separado no mesmo enum

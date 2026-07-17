@@ -92,10 +92,10 @@ Confirmar empiricamente estado pós-P199B:
 
 9. Confirmar Layouter:
    - Helper `layout_set_equation_numbering` em
-     `rules/layout/counters.rs` (paralelo a
+     `engine/layout/counters.rs` (paralelo a
      `layout_set_heading_numbering`).
    - Consumer arm `Content::SetEquationNumbering` em
-     `rules/layout/mod.rs`.
+     `engine/layout/mod.rs`.
    - `equation.rs:32-33` first branch
      (substitution-with-fallback) **activa em produção
      real**.

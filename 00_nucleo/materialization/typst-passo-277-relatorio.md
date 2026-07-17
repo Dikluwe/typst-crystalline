@@ -120,7 +120,7 @@ pub fn path_bbox(items: &[PathItem]) -> (f64, f64, f64, f64)
 
 Comentário inline DEBT-33 actualizado em `ShapeKind::Path` doc.
 
-### §3.3 — L1 `01_core/src/rules/stdlib/shapes.rs`
+### §3.3 — L1 `01_core/src/engine/stdlib/shapes.rs`
 
 `polygon()` refactored para usar `path_bbox()` para consolidação:
 - Removido ~5 LOC de cálculo min/max local.

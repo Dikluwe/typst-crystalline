@@ -27,7 +27,7 @@ P159D replicado pela terceira vez — subpadrão #16 atinge N=3
      métodos paridade P159D/E).
 
 3. **Helper `extract_bib_entries` (P159A+P159D+P159E) extendido**
-   em `01_core/src/rules/stdlib/structural.rs`:
+   em `01_core/src/engine/stdlib/structural.rs`:
    - Helper inline `optional_str(field)` reusado para os 6
      fields — **cumulativo N=12** (4 P159D + 2 P159E + 6 P159G).
    - Largamente acima limiar promoção a `pub(super)` ou helper
@@ -35,7 +35,7 @@ P159D replicado pela terceira vez — subpadrão #16 atinge N=3
      XS futuro NÃO reservado.
 
 4. **Layout `format_bib_entry` extendido** em
-   `01_core/src/rules/layout/mod.rs`:
+   `01_core/src/engine/layout/mod.rs`:
    - Concatenação condicional APA-like extendida (decisões
      diagnóstico §8.2 ordem + §9 formatos individuais).
    - Editor `(Ed. {editor})` após title.

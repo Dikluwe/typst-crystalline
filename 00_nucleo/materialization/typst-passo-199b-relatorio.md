@@ -54,9 +54,9 @@ P199B é distinto de cenário α padrão (P198B):
 | 3 | `rules/introspect/locatable.rs` | Arm `Content::SetEquationNumbering { .. } => true`. |
 | 4 | `rules/introspect/extract_payload.rs` | Arm retorna `Some(StateUpdate { key: "numbering_active:equation", update: Set(Bool(*active)) })`. |
 | 5 | `rules/introspect.rs` | Walk arm muta `state.numbering_active.insert("equation", *active)` + comentário inline P199B; arm de "terminais" em `materialize_time` actualizado. |
-| 6 | `rules/layout/counters.rs` | Helper `layout_set_equation_numbering(counter, active)` paralelo a `layout_set_heading_numbering`. |
-| 7 | `rules/layout/mod.rs` | Layouter consumer arm `Content::SetEquationNumbering { active }` chama helper. |
-| 8 | `prompts/rules/introspect.md` | Tabela Excepções E1 fechada estruturalmente; secção nova "Variant SetEquationNumbering materializada (P199B, cenário α por construção)"; ordem inversa passo 9 ✅. |
+| 6 | `engine/layout/counters.rs` | Helper `layout_set_equation_numbering(counter, active)` paralelo a `layout_set_heading_numbering`. |
+| 7 | `engine/layout/mod.rs` | Layouter consumer arm `Content::SetEquationNumbering { active }` chama helper. |
+| 8 | `prompts/engine/introspect.md` | Tabela Excepções E1 fechada estruturalmente; secção nova "Variant SetEquationNumbering materializada (P199B, cenário α por construção)"; ordem inversa passo 9 ✅. |
 
 **`from_tags` arm StateUpdate (P171) NÃO modificado** — genérica, processa `numbering_active:equation` transparentemente.
 
@@ -228,14 +228,14 @@ Magnitude **S puro**.
 - **Sub-store consumido**: `intr.state` (StateRegistry P171/P182).
 - **Consumer Layouter activado**: `equation.rs:32-33` substitution-with-fallback antes adormecida — first branch retorna Some pós-P199B.
 - **Cadeia E1**: walk arm Equation (gate counter step) + `compute_labelled` Equation arm (P195D format) — ambos preservados; lêem state legacy.
-- **L0 tocado**: `00_nucleo/prompts/rules/introspect.md` hash `603170c8`.
+- **L0 tocado**: `00_nucleo/prompts/engine/introspect.md` hash `603170c8`.
 - **Código tocado**: 7 ficheiros `01_core/src/`:
   - `entities/content.rs` (variant + 4 match arms).
   - `rules/introspect/locatable.rs` (locatable arm).
   - `rules/introspect/extract_payload.rs` (extract arm).
   - `rules/introspect.rs` (walk arm + comentário inline + 1 lista terminais; hash `0092886d`).
-  - `rules/layout/counters.rs` (helper novo).
-  - `rules/layout/mod.rs` (consumer arm Layouter).
+  - `engine/layout/counters.rs` (helper novo).
+  - `engine/layout/mod.rs` (consumer arm Layouter).
 - **Padrão diagnóstico-primeiro**: 21ª aplicação consecutiva (P199A diagnóstico).
 - **Marco arquitectural**: M5 universal a 1 passo paralelo do fecho (E2-residuo) após P199 fechar.
 - **Métricas finais P199B**:

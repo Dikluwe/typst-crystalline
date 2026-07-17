@@ -9,17 +9,17 @@
 Activou-se `Value::Version` para uso user-facing: constructor stdlib alinhado com vanilla + comparações stdlib.
 
 - L0:
-  - `00_nucleo/prompts/rules/stdlib/primitives-constructors.md` — expandido para cobrir a forma vanilla de `version()` e as comparações eval (P406).
-- `01_core/src/rules/stdlib/primitives_constructors.rs`:
+  - `00_nucleo/prompts/engine/stdlib/primitives-constructors.md` — expandido para cobrir a forma vanilla de `version()` e as comparações eval (P406).
+- `01_core/src/engine/stdlib/primitives_constructors.rs`:
   - `native_version` estendido para aceitar:
     - Forma vanilla: `version(1, 2, 3)`, `version(1, 2, 3, "alpha.1")`, `version(1, 2, 3, pre: "alpha.1", build: "build.2")`.
     - Forma legada P403: string posicional `version("1.2.3-alpha")`.
   - Validação de negativos, tipos errados, aridade, e mistura de formas.
   - 12 novos testes unitários para o constructor vanilla.
-- `01_core/src/rules/eval/operators.rs`:
+- `01_core/src/engine/eval/operators.rs`:
   - Comparações `==`, `!=`, `<`, `>`, `<=`, `>=` homogéneas `Version`.
   - `==`/`!=` ignoram build metadata (paridade vanilla semver); ordenação usa `Ord` de `Version` (já ignora build).
-- `01_core/src/rules/eval/tests.rs`:
+- `01_core/src/engine/eval/tests.rs`:
   - 4 novos testes para comparações de Version (incluindo prerelease vs release e build ignorado).
 
 `cargo test --workspace -- --skip p350c_flag_on_nao_convergente_classifica` → 2980 passed; `crystalline-lint .` → `✓ No violations found`; hash propagado (`499f511d`).
@@ -70,11 +70,11 @@ Em comparações, `==`/`!=` ignoram build metadata para paridade vanilla; ordena
 ## Artefactos
 
 - Código:
-  - `01_core/src/rules/stdlib/primitives_constructors.rs`
-  - `01_core/src/rules/eval/operators.rs`
-  - `01_core/src/rules/eval/tests.rs`
+  - `01_core/src/engine/stdlib/primitives_constructors.rs`
+  - `01_core/src/engine/eval/operators.rs`
+  - `01_core/src/engine/eval/tests.rs`
 - L0:
-  - `00_nucleo/prompts/rules/stdlib/primitives-constructors.md`
+  - `00_nucleo/prompts/engine/stdlib/primitives-constructors.md`
 - Plano: `00_nucleo/materialization/typst-passo-406.md`.
 - Este relatório.
 

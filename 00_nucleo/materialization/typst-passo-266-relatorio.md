@@ -86,7 +86,7 @@ B1).
   line_height + hyphenation cursor todos confirmados consumers
   reais.
 - **Bloco 8 (L0 prompts)**: `style_chain.md` + `lang.md` +
-  `rules/layout.md` + `rules/lang.md` + `entities/lang.md`
+  `engine/layout.md` + `rules/lang.md` + `entities/lang.md`
   presentes; `font-book.md` + `font-list.md` (hyphen)
   presentes — naming convention diverge de underscore.
 - **Bloco 9 (Cross-features)**: `Content::Styled` (P101
@@ -169,7 +169,7 @@ reconciliação destructiva**.
 
 ### B.2 — Outros L0 não-tocados
 
-`lang.md`, `rules/layout.md`, `rules/lang.md`, `font-book.md`,
+`lang.md`, `engine/layout.md`, `rules/lang.md`, `font-book.md`,
 `font-list.md` verificados existentes; reconciliação não
 necessária (estado actual coerente com audit P266.A; promoções
 documentadas via anotação ADR-0054 cumulativa P266 cobertura

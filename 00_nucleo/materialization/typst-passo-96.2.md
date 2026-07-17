@@ -9,7 +9,7 @@ Ler antes de começar:
 - `00_nucleo/DEBT.md` — entrada DEBT-46. Este passo não marca
   novo checkbox — completa o trabalho do Passo 96.1 que
   deixou pendência.
-- `01_core/src/rules/eval/mod.rs` — dispatcher actual com ~40
+- `01_core/src/engine/eval/mod.rs` — dispatcher actual com ~40
   armos, ~500 linhas. Total do ficheiro: 879 linhas.
 - Submódulos existentes: `markup.rs`, `math.rs`, `operators.rs`,
   `control_flow.rs`, `closures.rs`, `bindings.rs`, `rules.rs`,
@@ -81,7 +81,7 @@ Expr::Strong(s) => markup::eval_strong(ctx, route, styles, /* ... */, s),
 ### 1.1 — Localizar `eval_expr`
 
 ```bash
-grep -n "fn eval_expr" 01_core/src/rules/eval/mod.rs
+grep -n "fn eval_expr" 01_core/src/engine/eval/mod.rs
 ```
 
 ### 1.2 — Listar armos por tamanho
@@ -193,7 +193,7 @@ criar submódulo.
 Se a Tarefa 1.3 identificou que `ModuleInclude` / `ModuleImport`
 estão inline em `mod.rs` ou mal colocados noutro submódulo:
 
-1. Criar `01_core/src/rules/eval/modules.rs` com cabeçalho
+1. Criar `01_core/src/engine/eval/modules.rs` com cabeçalho
    análogo aos outros submódulos.
 2. Mover lógica para `pub(super) fn eval_module_include` e
    `pub(super) fn eval_module_import`.
@@ -207,7 +207,7 @@ estão inline em `mod.rs` ou mal colocados noutro submódulo:
 ### 4.1 — Tamanho do `mod.rs`
 
 ```bash
-wc -l 01_core/src/rules/eval/mod.rs
+wc -l 01_core/src/engine/eval/mod.rs
 ```
 
 Alvo: 450–550 linhas. Se ficar acima de 600, reavaliar armos
@@ -216,7 +216,7 @@ médios que ficaram inline — talvez devessem ter extraído.
 ### 4.2 — Tamanho dos submódulos
 
 ```bash
-wc -l 01_core/src/rules/eval/*.rs | sort -rn
+wc -l 01_core/src/engine/eval/*.rs | sort -rn
 ```
 
 Esperado: crescimento moderado de cada submódulo (absorveu
@@ -228,7 +228,7 @@ considerar subdivisão (ex: `markup.rs` em `markup/mod.rs` +
 
 ```bash
 # Contar armos no eval_expr:
-grep -n "^\s*Expr::" 01_core/src/rules/eval/mod.rs | wc -l
+grep -n "^\s*Expr::" 01_core/src/engine/eval/mod.rs | wc -l
 ```
 
 O número continua ~40 armos (cada `Expr::*` tem de aparecer).

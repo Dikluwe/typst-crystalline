@@ -11,7 +11,7 @@ Ler antes de começar:
   estruturais face ao vanilla.
 - Reporte do Passo 90 (descrito abaixo) — contexto factual para
   o texto dos DEBTs.
-- `01_core/src/rules/eval.rs` — localização do `EvalContext`
+- `01_core/src/engine/eval.rs` — localização do `EvalContext`
   com campo `route: Vec<FileId>` (divergência que o DEBT-44
   regista).
 - `01_core/src/entities/world_types.rs` — localização de
@@ -74,7 +74,7 @@ O Passo 90 materializou `Route<'a>` em
 completa face ao vanilla (`outer: Option<Tracked<'a, Self>>`,
 linked list imutável, `#[comemo::track]` em `contains`/`within`).
 
-No entanto, `EvalContext` (em `01_core/src/rules/eval.rs`) não
+No entanto, `EvalContext` (em `01_core/src/engine/eval.rs`) não
 usa `Route<'a>` estruturalmente. Mantém campo
 `pub route: Vec<FileId>` como projecção plana — uma lista linear
 que imita a cadeia mas não é a estrutura vanilla. A API
@@ -191,7 +191,7 @@ Os 3 restantes são **código não executado**:
       `rules/eval.rs` ou `rules/show.rs`, consistente com o
       vanilla.
 - [ ] `check_layout_depth` chamado no ponto correspondente em
-      `rules/layout/`, consistente com o vanilla.
+      `engine/layout/`, consistente com o vanilla.
 - [ ] `check_html_depth` chamado quando o pipeline HTML existir
       (não antes — aguarda materialização do pipeline).
 - [ ] `EvalContext::check_call_depth` antigo pode ser removido

@@ -61,7 +61,7 @@ atributos (body, width, height, inset) replicam Block.
 - **ADR-0033**: paridade funcional para box.
 - **ADR-0036**: atomização — consumer explícito.
 - **ADR-0037**: coesão por domínio — Layout permanece em
-  `rules/layout/` e `rules/stdlib/layout.rs`.
+  `engine/layout/` e `rules/stdlib/layout.rs`.
 - **ADR-0054**: perfil observacional graded — box cumprido
   com aproximação aceite (atributos avançados scope-out;
   baseline semantic real pode adiar).
@@ -141,11 +141,11 @@ Ao fim do passo:
    - `entities/content.rs::map_text`.
    - `rules/introspect.rs::materialize_time`.
    - `rules/introspect.rs::walk`.
-   - `rules/layout/mod.rs::layout_content`.
-   - `rules/layout/mod.rs::measure_content_constrained`.
+   - `engine/layout/mod.rs::layout_content`.
+   - `engine/layout/mod.rs::measure_content_constrained`.
 
 3. **`native_box`** em
-   `01_core/src/rules/stdlib/layout.rs` expondo
+   `01_core/src/engine/stdlib/layout.rs` expondo
    `#box(body, width: ?, height: ?, inset: ?, baseline: ?)`.
 
 4. **Layouter box inline**: append à linha actual sem
@@ -230,7 +230,7 @@ Este passo **não**:
 3. **Granularidade**: 1 container num passo. Escopo M
    (entre P156C-E S/S+ e P156G M+).
 
-4. **Localização canónica**: `01_core/src/rules/stdlib/layout.rs`.
+4. **Localização canónica**: `01_core/src/engine/stdlib/layout.rs`.
 
 5. **Assinatura natives**: 5-param canónica.
 
@@ -292,13 +292,13 @@ Este passo **não**:
 
 - Modificação de `01_core/src/entities/content.rs`
   (variant novo + arms cobertura).
-- Modificação de `01_core/src/rules/introspect.rs`.
-- Modificação de `01_core/src/rules/layout/mod.rs`.
-- Modificação de `01_core/src/rules/stdlib/layout.rs`
+- Modificação de `01_core/src/engine/introspect.rs`.
+- Modificação de `01_core/src/engine/layout/mod.rs`.
+- Modificação de `01_core/src/engine/stdlib/layout.rs`
   (`native_box`).
-- Modificação de `01_core/src/rules/stdlib/mod.rs`
+- Modificação de `01_core/src/engine/stdlib/mod.rs`
   (re-export).
-- Modificação de `01_core/src/rules/eval/mod.rs`
+- Modificação de `01_core/src/engine/eval/mod.rs`
   (registo).
 - Tests novos.
 - L0 prompts + hashes.
@@ -334,7 +334,7 @@ estabelecida).
 view 01_core/src/entities/content.rs   # confirmar 49 variants pós-P156G
 grep -nE "^pub enum Content" 01_core/src/entities/content.rs
 grep -nE "Box|inline" 01_core/src/entities/content.rs
-grep -nE "fn native_box" 01_core/src/rules/stdlib/
+grep -nE "fn native_box" 01_core/src/engine/stdlib/
 ```
 
 Confirmar:
@@ -345,8 +345,8 @@ Confirmar:
 **A.1.2 — Mecânica inline no layouter actual**:
 
 ```bash
-grep -nE "Strong|Emph" 01_core/src/rules/layout/mod.rs
-view 01_core/src/rules/layout/mod.rs   # arms para Strong/Emph
+grep -nE "Strong|Emph" 01_core/src/engine/layout/mod.rs
+view 01_core/src/engine/layout/mod.rs   # arms para Strong/Emph
 ```
 
 Documentar:
@@ -359,7 +359,7 @@ Documentar:
 
 ```bash
 grep -nE "Content::Strong|Content::Emph" \
-  01_core/src/rules/layout/mod.rs   # arm measure
+  01_core/src/engine/layout/mod.rs   # arm measure
 ```
 
 Confirmar:
@@ -368,8 +368,8 @@ Confirmar:
 **A.1.4 — Baseline mecanismo**:
 
 ```bash
-grep -nE "baseline|cursor_y" 01_core/src/rules/layout/cursor.rs
-view 01_core/src/rules/layout/cursor.rs
+grep -nE "baseline|cursor_y" 01_core/src/engine/layout/cursor.rs
+view 01_core/src/engine/layout/cursor.rs
 ```
 
 Determinar:
@@ -414,7 +414,7 @@ Modelo P156G aplicado:
 
 ### 156H.4 — `native_box`
 
-Em `01_core/src/rules/stdlib/layout.rs`:
+Em `01_core/src/engine/stdlib/layout.rs`:
 
 ```rust
 pub fn native_box(_ctx, args, _world, _file, _fig)
@@ -472,7 +472,7 @@ scope.define("box", Value::Func(Func::native("box", native_box)));
 Re-export em `stdlib/mod.rs`:
 
 ```rust
-pub use crate::rules::stdlib::layout::{
+pub use crate::engine::stdlib::layout::{
     native_align, native_block, native_box, native_grid, ...
 };
 ```
@@ -481,7 +481,7 @@ Stdlib funcs: 39 → **40** (+1).
 
 ### 156H.5 — Layouter box
 
-Em `01_core/src/rules/layout/mod.rs::layout_content`:
+Em `01_core/src/engine/layout/mod.rs::layout_content`:
 
 ```rust
 match content {

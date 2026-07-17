@@ -29,7 +29,7 @@ recurso novo, não alteração de fluxo existente.
 Reverificar (não confiar em P163):
 
 1. `extract_payload` em
-   `01_core/src/rules/introspect/extract_payload.rs` existe e
+   `01_core/src/engine/introspect/extract_payload.rs` existe e
    tem 3 arms locatable (Heading, Figure, Cite). Registar arms
    exactos.
 2. `Content` enum tem N variants. Listar literalmente (grep
@@ -42,7 +42,7 @@ Reverificar (não confiar em P163):
 3. Confirmar que `rules/introspect/mod.rs` existe (criado em
    P162.D). Identificar exports actuais.
 4. Localizar L0 actual (se existir):
-   `00_nucleo/prompts/rules/introspect/extract_payload.md`.
+   `00_nucleo/prompts/engine/introspect/extract_payload.md`.
    Confirmar formato. **Não** existe ainda
    `locatable.md` — será criado em .B.
 
@@ -61,10 +61,10 @@ locatable e não-locatable, derivada de `Content` enum +
 
 ### .B Criar L0+L1 de `is_locatable`
 
-1. L0 em `00_nucleo/prompts/rules/introspect/locatable.md`:
+1. L0 em `00_nucleo/prompts/engine/introspect/locatable.md`:
    - Cabeçalho com campo "Hash do Código" em branco.
    - Camada L1, ficheiro alvo
-     `01_core/src/rules/introspect/locatable.rs`.
+     `01_core/src/engine/introspect/locatable.rs`.
    - ADRs: ADR-0033 (paridade), ADR-0066 (Introspection
      contexto).
    - Origem vanilla: nenhuma directa. Vanilla usa marker
@@ -90,8 +90,8 @@ locatable e não-locatable, derivada de `Content` enum +
      - Invariante de equivalência com `extract_payload`
        verificada por test exhaustivo.
 
-2. L1 em `01_core/src/rules/introspect/locatable.rs`:
-   - Cabeçalho `@prompt 00_nucleo/prompts/rules/introspect/locatable.md`.
+2. L1 em `01_core/src/engine/introspect/locatable.rs`:
+   - Cabeçalho `@prompt 00_nucleo/prompts/engine/introspect/locatable.md`.
    - Implementação:
 
    ```rust
@@ -125,7 +125,7 @@ locatable e não-locatable, derivada de `Content` enum +
        `Content`, construir instância mínima e verificar
        `is_locatable(&c) == extract_payload(&c).is_some()`.
 
-3. Update `01_core/src/rules/introspect/mod.rs`: re-export
+3. Update `01_core/src/engine/introspect/mod.rs`: re-export
    `is_locatable`.
 
 **Critério de saída**:
@@ -159,7 +159,7 @@ Escrever
   invariante com `extract_payload` verificado por test
   exaustivo; walk não tocado.
 - Confirmação de cada verificação .C.
-- Hash final de `00_nucleo/prompts/rules/introspect/locatable.md`
+- Hash final de `00_nucleo/prompts/engine/introspect/locatable.md`
   (preenchido pelo linter).
 - Decisões registadas em .A:
   - Lista de variants locatable + não-locatable (literal).

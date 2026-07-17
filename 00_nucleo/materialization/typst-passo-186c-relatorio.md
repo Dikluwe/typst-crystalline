@@ -18,7 +18,7 @@ Content::Equation { block, .. } => Some(ElementPayload::Equation {
 }),
 ```
 
-L0 `00_nucleo/prompts/rules/introspect/extract_payload.md`
+L0 `00_nucleo/prompts/engine/introspect/extract_payload.md`
 actualizado (linha em tabela de mapeamento + linha em
 Histórico de Revisões).
 
@@ -79,7 +79,7 @@ referencia P186D para restauro.
 
 ## Hashes finais
 
-L0 modificado: `00_nucleo/prompts/rules/introspect/extract_payload.md`
+L0 modificado: `00_nucleo/prompts/engine/introspect/extract_payload.md`
 
 - Hash do código (registado no L0): `a8fd2bc9`
 - Hash do prompt (`@prompt-hash` do `.rs`): `68404d88`
@@ -211,7 +211,7 @@ P186 ainda pendente:
 
 **P186D** — activar `is_locatable(Content::Equation) = true`:
 
-- Editar `01_core/src/rules/introspect/locatable.rs`:
+- Editar `01_core/src/engine/introspect/locatable.rs`:
   - Mover `Content::Equation { .. }` da lista de
     "Não-locatable" para a secção "Locatable".
   - Arm explícito retornando `true`.

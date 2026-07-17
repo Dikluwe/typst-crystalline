@@ -32,7 +32,7 @@ Confirmar a ordem esperada (Alice, Bob, Carol, pela chave `name`).
 ### Confirmar o alcance completo do problema no cristalino
 
 ```bash
-grep -n "\"key\"\|named.*key\|fn.*sorted" 01_core/src/rules/stdlib/collections.rs | head -20
+grep -n "\"key\"\|named.*key\|fn.*sorted" 01_core/src/engine/stdlib/collections.rs | head -20
 ```
 
 Confirmar se `key` é sequer lido dos argumentos nomeados, ou se nem chega a ser extraído — se a sintaxe aceita `key:` sem erro de "argumento desconhecido", o parsing dos argumentos já reconhece o nome, só a lógica de aplicação está em falta.

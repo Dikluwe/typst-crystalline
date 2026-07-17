@@ -27,7 +27,7 @@ Sub-item C é um audit de estado final para fechar formalmente o roteiro das tri
 
 | Pergunta | Verificar em | Status |
 |----------|-------------|--------|
-| `layout/outline.rs:57` emite `Content::Heading`? | `rules/layout/outline.rs` | ✅ (confirmado P479) |
+| `layout/outline.rs:57` emite `Content::Heading`? | `engine/layout/outline.rs` | ✅ (confirmado P479) |
 | `native_outline` produz apenas `Content::Outline`? | `rules/stdlib/structural.rs` | 🟡 sonda |
 | `OutlineElem` é struct unit? | `entities/elements/outline.rs` | ✅ (confirmado knowledge) |
 | Walk arm `Content::Outline` recursivo em children? | `rules/introspect.rs` | 🟡 sonda |
@@ -57,7 +57,7 @@ O heading de título passa a existir no `Content` antes do walk, tornando-se vis
 
 ### A.2 — Impacto no layout
 
-**Ficheiro:** `rules/layout/outline.rs:57`
+**Ficheiro:** `engine/layout/outline.rs:57`
 
 Remover a linha que actualmente emite o heading de título:
 
@@ -181,7 +181,7 @@ Após P480, o projecto entra em estado de **consolidação e manutenção**:
 ### Actualizados
 
 - `rules/stdlib/structural.md` — `native_outline` produz `Sequence([Heading, Outline])` (P480).
-- `rules/layout_outline.md` — remove emissão de heading de título (P480).
+- `engine/layout_outline.md` — remove emissão de heading de título (P480).
 - `rules/eval/mod.rs.md` (ou stdlib) — módulo `math` com `equation` alias.
 - `lab/parity/SKIPS.md` — estado final pós-P480.
 - ADR-0075 — anotação cumulativa P480 (paridade final, diffs residuais).

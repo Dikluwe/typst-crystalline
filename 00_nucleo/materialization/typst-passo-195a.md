@@ -270,7 +270,7 @@ escolhida — ordem importa per P186C/D.
 Auditor confirma empiricamente:
 
 1. Confirmar walk arm `Content::Labelled` actual:
-   - `01_core/src/rules/introspect.rs` — localizar arm.
+   - `01_core/src/engine/introspect.rs` — localizar arm.
    - Mutações empíricas (per P189B §5 E4):
      - `state.figure_label_numbers.insert(label, n)`.
      - `state.resolved_labels.insert(label, text)`.

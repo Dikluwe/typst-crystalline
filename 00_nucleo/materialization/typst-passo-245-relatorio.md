@@ -24,7 +24,7 @@ P245 promove a estrutura graded P223 a semantic real no Layouter
 consumer. Trabalho real reduzido vs magnitude L hipotetizada
 (spec inicial estimou ~5-8h):
 
-1. **Novo struct `DeferredFloat`** local em `01_core/src/rules/layout/mod.rs`
+1. **Novo struct `DeferredFloat`** local em `01_core/src/engine/layout/mod.rs`
    (`pub(super)`; não L1 entity — buffer entry específico).
 2. **3 fields novos no Layouter**: `floats_pending`,
    `cursor_y_top_reserve`, `cursor_y_bottom_reserve`.
@@ -132,7 +132,7 @@ Content::Place { alignment, dx, dy, scope, float, clearance, body } => {
 
 ## §4 flush_pending_floats + emit_deferred_float (C4)
 
-`01_core/src/rules/layout/cursor.rs`:
+`01_core/src/engine/layout/cursor.rs`:
 
 ```rust
 pub(super) fn flush_pending_floats(&mut self) {
@@ -243,7 +243,7 @@ P237 + P238 reescrito + P240 + P241 + P242 + P243 + P244 + P245):
 | L0 hashes propagados | 0 | ✓ |
 | Regressões reais | 0 | **0** |
 
-**Tests P245** (5 unit em `rules/layout/tests.rs`):
+**Tests P245** (5 unit em `engine/layout/tests.rs`):
 - `p245_place_float_true_bottom_renderiza_no_fundo_da_pagina`.
 - `p245_place_float_true_top_renderiza_no_topo_da_pagina`.
 - `p245_place_float_false_baseline_p84_preservado`.

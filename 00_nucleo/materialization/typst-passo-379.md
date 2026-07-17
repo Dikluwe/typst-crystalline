@@ -10,7 +10,7 @@
 >    state/counter) — cada um é **atomizável como elemento** (lógica de domínio separável, forma B),
 >    ou é **máquina do layouter** (controle de fluxo entrelaçado: o `Sequence` itera, o `Styled`
 >    empurra estilo na chain, o `Dynamic` despacha pelo trait) que **não deve** virar arquivo flat?
->    A ADR-0109 atomiza elementos; mover máquina do layouter para `rules/layout/<nome>.rs` pode ser
+>    A ADR-0109 atomiza elementos; mover máquina do layouter para `engine/layout/<nome>.rs` pode ser
 >    cortar no meio de algo que deveria ficar inteiro.
 >
 > **Não move código, não decide, não recomenda fatia** — dá os valores. **Zero código de produto,

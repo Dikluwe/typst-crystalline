@@ -64,7 +64,7 @@ Tamanho: ~9 KB.
 - **`01_core/src/entities/layout_types.rs`** — campo
   `pub extracted_positions: SealedPositions` em
   `PagedDocument`; construtor `new` actualizado.
-- **`01_core/src/rules/layout/mod.rs`** — `Layouter::finish`
+- **`01_core/src/engine/layout/mod.rs`** — `Layouter::finish`
   popula `doc.extracted_positions` via
   `SealedPositions::from_runtime(self.runtime.positions)`
   (~3 linhas).

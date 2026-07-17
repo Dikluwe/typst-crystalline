@@ -143,7 +143,7 @@ grep -rn "\.position_of(" 01_core/ 02_shell/ 03_infra/ 04_wiring/
   `TagIntrospector` (retorna `None`).
 
 **Consumers em produção**: **ZERO**. Não há call site em
-`01_core/src/rules/`, `02_shell/`, `03_infra/`, ou
+`01_core/src/engine/`, `02_shell/`, `03_infra/`, ou
 `04_wiring/`. Apenas tests do próprio módulo invocam o
 stub para confirmar que retorna `None`.
 
@@ -190,7 +190,7 @@ provavelmente após `kind_index` e antes de
 **Comando**:
 ```bash
 grep -B2 -A12 "^pub(crate) fn walk" \
-  01_core/src/rules/introspect.rs
+  01_core/src/engine/introspect.rs
 ```
 
 **Resultado** — assinatura actual (7 parâmetros):
@@ -229,7 +229,7 @@ impossibilitado**.
 **Comando**:
 ```bash
 grep -n "page\|current_page\|page_number\|pages\b" \
-  01_core/src/rules/layout/mod.rs | head -30
+  01_core/src/engine/layout/mod.rs | head -30
 ```
 
 **Achados relevantes**:
@@ -246,7 +246,7 @@ grep -n "page\|current_page\|page_number\|pages\b" \
 
 **Comando**:
 ```bash
-grep -n "Location" 01_core/src/rules/layout/mod.rs | head -15
+grep -n "Location" 01_core/src/engine/layout/mod.rs | head -15
 ```
 
 **Achados**:
@@ -574,9 +574,9 @@ naturalmente. P203 isolado é trabalho redundante.
 
 - `01_core/src/entities/introspector.rs` (trait + impl;
   linhas 53, 55, 248).
-- `01_core/src/rules/introspect.rs:714` (walk fn
+- `01_core/src/engine/introspect.rs:714` (walk fn
   signature).
-- `01_core/src/rules/layout/mod.rs:69, 84-85, 145`
+- `01_core/src/engine/layout/mod.rs:69, 84-85, 145`
   (Layouter struct).
 - `lab/typst-original/crates/typst-library/src/introspection/position.rs`
   (vanilla DocumentPosition / PagedPosition).

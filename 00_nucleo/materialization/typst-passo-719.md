@@ -30,7 +30,7 @@ Confirmar: qual é a ordem de iteração (inserção, como `IndexMap`, ou outra)
 ### Confirmar o mecanismo de iteração actual do cristalino
 
 ```bash
-grep -n "fn eval_for\|Content::Array\|Content::Dict\|iterate" 01_core/src/rules/eval/control_flow.rs | head -20
+grep -n "fn eval_for\|Content::Array\|Content::Dict\|iterate" 01_core/src/engine/eval/control_flow.rs | head -20
 ```
 
 Confirmar como o `for` já itera arrays, para reaproveitar a mesma estrutura para dict.

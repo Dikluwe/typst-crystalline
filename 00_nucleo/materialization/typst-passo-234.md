@@ -259,11 +259,11 @@ Reuso de dados (sem recolha nova):
 Audit empírico crítico:
 
 ```
-grep -A 20 "pub fn place_cells\|pub fn place_cells_with" 01_core/src/rules/layout/grid_placement.rs
-grep -B 2 -A 30 "PlacedCell" 01_core/src/rules/layout/grid_placement.rs
-grep -B 2 -A 60 "for.*cell.*in.*cells\|fn layout_grid" 01_core/src/rules/layout/grid.rs
-grep -n "col_sizes\|row_sizes" 01_core/src/rules/layout/grid.rs
-grep -n "colspan\|rowspan" 01_core/src/rules/layout/grid.rs
+grep -A 20 "pub fn place_cells\|pub fn place_cells_with" 01_core/src/engine/layout/grid_placement.rs
+grep -B 2 -A 30 "PlacedCell" 01_core/src/engine/layout/grid_placement.rs
+grep -B 2 -A 60 "for.*cell.*in.*cells\|fn layout_grid" 01_core/src/engine/layout/grid.rs
+grep -n "col_sizes\|row_sizes" 01_core/src/engine/layout/grid.rs
+grep -n "colspan\|rowspan" 01_core/src/engine/layout/grid.rs
 ```
 
 Hipótese:
@@ -294,7 +294,7 @@ Se signature ou estado divergir significativamente: registar
 
 ### C2 — Refactor `layout_grid` para chamar `place_cells`
 
-Editar `01_core/src/rules/layout/grid.rs::layout_grid`:
+Editar `01_core/src/engine/layout/grid.rs::layout_grid`:
 
 **Substituir iteração cells direct por place_cells call**:
 
@@ -539,14 +539,14 @@ Estrutura (~6-8 KB) com 8 §s:
   per-cell algorítmico; D.1 state; pivot).
 
 Código alterado:
-- **Editado**: `01_core/src/rules/layout/grid.rs`
+- **Editado**: `01_core/src/engine/layout/grid.rs`
   (`layout_grid` refactor chama `place_cells`; bounds
   calculation per-cell; possível helper `cell_bounds`
   privado).
-- **Possivelmente editado**: `01_core/src/rules/layout/grid_placement.rs`
+- **Possivelmente editado**: `01_core/src/engine/layout/grid_placement.rs`
   (signature `place_cells` ajuste se necessário; audit C1
   determina).
-- **Editado**: `01_core/src/rules/layout/tests.rs` (+~10-12
+- **Editado**: `01_core/src/engine/layout/tests.rs` (+~10-12
   tests novos colspan/rowspan + regressões).
 - **Editado**: `00_nucleo/diagnosticos/typst-cobertura-vanilla-vs-cristalino.md`
   (footnote ⁵³ P234).

@@ -64,9 +64,9 @@ via write paralelo legacy.
   (sem helper porque mutação trivial 1 linha — paralelo a
   P198B).
 - 1 helper Layouter novo (`layout_set_equation_numbering`
-  em `rules/layout/counters.rs`).
+  em `engine/layout/counters.rs`).
 - 1 consumer Layouter novo (arm `Content::SetEquationNumbering`
-  em `rules/layout/mod.rs`).
+  em `engine/layout/mod.rs`).
 
 ---
 
@@ -275,14 +275,14 @@ pré-requisito restante de M5 universal.
 - **Sub-store consumido**: `intr.state` (StateRegistry P171/P182).
 - **Consumer Layouter activado**: `equation.rs:32-33` substitution-with-fallback antes adormecida — first branch retorna Some pós-P199B.
 - **Cadeia E1**: walk arm Equation (gate counter step em `introspect.rs:517`) + `compute_labelled` Equation arm (P195D format em `introspect.rs:337`) — ambos preservados; lêem state legacy.
-- **L0 tocado**: `00_nucleo/prompts/rules/introspect.md` hash `603170c8`.
+- **L0 tocado**: `00_nucleo/prompts/engine/introspect.md` hash `603170c8`.
 - **Código tocado**: 7 ficheiros `01_core/src/`:
   - `entities/content.rs` (variant + 4 match arms).
   - `rules/introspect/locatable.rs` (locatable arm).
   - `rules/introspect/extract_payload.rs` (extract arm).
   - `rules/introspect.rs` (walk arm + comentário inline + 1 lista terminais; hash `0092886d`).
-  - `rules/layout/counters.rs` (helper novo).
-  - `rules/layout/mod.rs` (consumer arm Layouter).
+  - `engine/layout/counters.rs` (helper novo).
+  - `engine/layout/mod.rs` (consumer arm Layouter).
 
 ---
 

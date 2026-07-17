@@ -2,10 +2,10 @@
 
 > **O que faz.** Fatia **final** do `layout_content` (564 linhas, pós-P381): os arms **math** —
 > `Equation` + o arm agrupado de **16 variantes** — que, ao contrário de todos os anteriores,
-> **descem a `rules/math/layout/`** (path próprio do subsistema de math), **não** a `rules/layout/`
+> **descem a `rules/math/layout/`** (path próprio do subsistema de math), **não** a `engine/layout/`
 > flat. **Por isso a forma NÃO é assumida**: a Fase A **abre medindo a convenção interna do
 > subsistema `rules/math/layout/`** (como ele já se organiza) antes de decidir o formato — a forma B
-> das fatias anteriores (free function em `rules/layout/<elem>.rs`) pode **não** ser a convenção
+> das fatias anteriores (free function em `engine/layout/<elem>.rs`) pode **não** ser a convenção
 > certa lá dentro (Trava 1: terreno novo, medir antes de fixar). Move as variantes math na forma que
 > a medição apontar, mantendo as não-metas (ADR-0109): `match` exaustivo, despacho estático,
 > `entities/` intacto. **Após este passo, o `layout_content` fica só máquina** (Sequence/Styled/
@@ -27,7 +27,7 @@ math são o oráculo. A métrica é de **leitura**, não a lente.
 ## Fase A — medir a convenção do subsistema math PRIMEIRO (a fonte vence; `file:line`)
 
 A diferença desta fatia: o destino é `rules/math/layout/`, um subsistema com a **sua própria
-organização** — não o `rules/layout/` flat das fatias anteriores. **Não assumir a forma B.**
+organização** — não o `engine/layout/` flat das fatias anteriores. **Não assumir a forma B.**
 
 1. **Reler** a ADR-0109 (as **não-metas** valem aqui também — exaustivo, estático, `entities/`), as
    **Travas anti-deriva**, e o P381 (o arm math agrupado, `@858`/`@868`).

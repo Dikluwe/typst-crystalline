@@ -54,7 +54,7 @@ validado).
 em ~7-10 ficheiros L1 (`entities/content.rs`, `entities/tag.rs`
 ou similar, `rules/stdlib/foundations.rs`, `rules/eval/mod.rs`,
 `rules/introspect/from_tags.rs`, `rules/introspect/fixpoint.rs`,
-`entities/introspector.rs`, `rules/layout/mod.rs`,
+`entities/introspector.rs`, `engine/layout/mod.rs`,
 possíveis outros) + **L0 partial TOCADO** (3 ficheiros:
 `entities/content.md`, `rules/stdlib.md`, `rules/introspect.md`
 ou similar) + inventário 148 anotação cumulativa (footnote
@@ -401,15 +401,15 @@ C2+ depende output C1.
 Audit empírico imediato:
 
 ```
-grep -B 2 -A 30 "fn apply_state_funcs\|apply_state_funcs" 01_core/src/rules/introspect/from_tags.rs
-grep -B 2 -A 20 "fn run_fixpoint\|run_fixpoint" 01_core/src/rules/introspect/fixpoint.rs
-grep -B 2 -A 10 "fn apply_func\|apply_func" 01_core/src/rules/eval/closures.rs
+grep -B 2 -A 30 "fn apply_state_funcs\|apply_state_funcs" 01_core/src/engine/introspect/from_tags.rs
+grep -B 2 -A 20 "fn run_fixpoint\|run_fixpoint" 01_core/src/engine/introspect/fixpoint.rs
+grep -B 2 -A 10 "fn apply_func\|apply_func" 01_core/src/engine/eval/closures.rs
 grep -B 2 -A 5 "Content::State {" 01_core/src/entities/content.rs
 grep -B 2 -A 5 "pub enum Tag\|Tag::Start\|Tag::StateUpdate" 01_core/src/
 grep -B 2 -A 5 "ElementPayload::\|StateUpdate\|StateDisplay" 01_core/src/
 grep -B 2 -A 10 "fn state_value\|state_final_value" 01_core/src/entities/introspector.rs
-grep -B 2 -A 5 "fn state\b\|fn state_final\b\|fn state_at\b" 01_core/src/rules/stdlib/foundations.rs
-grep -n "Content::StateUpdate\|Content::State {" 01_core/src/rules/layout/mod.rs
+grep -B 2 -A 5 "fn state\b\|fn state_final\b\|fn state_at\b" 01_core/src/engine/stdlib/foundations.rs
+grep -n "Content::StateUpdate\|Content::State {" 01_core/src/engine/layout/mod.rs
 ```
 
 **Hipóteses sujeitas a confirmação empírica**:
@@ -478,7 +478,7 @@ Content variants: 60 → **61** (+StateDisplay).
 - `entities/content.rs::plain_text` arm (sem texto direct).
 - `rules/introspect.rs::materialize_time` arm StateDisplay
   (emit Tag::StateDisplay).
-- `rules/layout/mod.rs::layout_content` arm StateDisplay
+- `engine/layout/mod.rs::layout_content` arm StateDisplay
   (resolve state_display_value).
 - `rules/introspect/locatable.rs` catch-all preserva.
 - Outros arms compiler-driven identificados.
@@ -515,7 +515,7 @@ Arms cascata Tag handling (audit C1 identifica points).
 
 ### C4 — `apply_state_displays` fixpoint function nova + Introspector storage
 
-Editar `01_core/src/rules/introspect/from_tags.rs`:
+Editar `01_core/src/engine/introspect/from_tags.rs`:
 
 ```rust
 pub fn apply_state_displays(
@@ -559,7 +559,7 @@ impl Introspector {
 }
 ```
 
-Editar `01_core/src/rules/introspect/fixpoint.rs::run_fixpoint`:
+Editar `01_core/src/engine/introspect/fixpoint.rs::run_fixpoint`:
 
 ```rust
 // Após apply_state_funcs:
@@ -571,10 +571,10 @@ Magnitude C4: **M (~1-1.5h)**.
 
 ### C5 — Implementar `native_state_display` stdlib func
 
-Editar `01_core/src/rules/stdlib/foundations.rs`:
+Editar `01_core/src/engine/stdlib/foundations.rs`:
 (código completo Decisão 6 acima).
 
-Registo scope em `01_core/src/rules/eval/mod.rs`:
+Registo scope em `01_core/src/engine/eval/mod.rs`:
 
 ```rust
 scope.define("state_display", Value::Func(Func::native("state_display", native_state_display)));
@@ -586,7 +586,7 @@ Magnitude C5: **S (~30min)**.
 
 ### C6 — Walk integration layout-time arm Content::StateDisplay
 
-Editar `01_core/src/rules/layout/mod.rs::layout_content`:
+Editar `01_core/src/engine/layout/mod.rs::layout_content`:
 
 ```rust
 Content::StateDisplay { key, callback: _ } => {
@@ -659,9 +659,9 @@ pós-implementação).
 
 - `00_nucleo/prompts/entities/content.md` — adicionar
   `Content::StateDisplay` variant documented.
-- `00_nucleo/prompts/rules/stdlib.md` — adicionar
+- `00_nucleo/prompts/engine/stdlib.md` — adicionar
   `state_display` func documented.
-- `00_nucleo/prompts/rules/introspect.md` ou similar —
+- `00_nucleo/prompts/engine/introspect.md` ou similar —
   adicionar `apply_state_displays` + `state_display_value`
   documented.
 
@@ -834,23 +834,23 @@ Código alterado:
   (+ Tag::StateDisplay variant + arms cascata).
 - **Editado**: `01_core/src/entities/introspector.rs`
   (+ state_displays HashMap + state_display_value method).
-- **Editado**: `01_core/src/rules/stdlib/foundations.rs`
+- **Editado**: `01_core/src/engine/stdlib/foundations.rs`
   (+ native_state_display ~40 linhas + ~4 unit tests).
-- **Editado**: `01_core/src/rules/eval/mod.rs` (+ scope
+- **Editado**: `01_core/src/engine/eval/mod.rs` (+ scope
   define state_display).
-- **Editado**: `01_core/src/rules/introspect/from_tags.rs`
+- **Editado**: `01_core/src/engine/introspect/from_tags.rs`
   (+ apply_state_displays function ~30 linhas + ~4 unit
   tests).
-- **Editado**: `01_core/src/rules/introspect/fixpoint.rs`
+- **Editado**: `01_core/src/engine/introspect/fixpoint.rs`
   (+ apply_state_displays call em run_fixpoint).
-- **Editado**: `01_core/src/rules/layout/mod.rs` (arm
+- **Editado**: `01_core/src/engine/layout/mod.rs` (arm
   Content::StateDisplay walk integration).
-- **Editado**: `01_core/src/rules/introspect.rs` (refino
+- **Editado**: `01_core/src/engine/introspect.rs` (refino
   state.final two-pass real conforme cenário α/β/γ).
-- **Editado**: `01_core/src/rules/layout/tests.rs` (+~4-7
+- **Editado**: `01_core/src/engine/layout/tests.rs` (+~4-7
   E2E walk tests).
 - **L0 EDITADO partial**: `00_nucleo/prompts/entities/content.md`
-  + `00_nucleo/prompts/rules/stdlib.md` + `00_nucleo/prompts/rules/introspect.md`
+  + `00_nucleo/prompts/engine/stdlib.md` + `00_nucleo/prompts/engine/introspect.md`
   ou similar.
 - **Editado**: `00_nucleo/adr/typst-adr-0081-m7-plus-pipeline-restructuring-scope.md`
   (status PROPOSTO → IMPLEMENTADO parcial; bloco P240

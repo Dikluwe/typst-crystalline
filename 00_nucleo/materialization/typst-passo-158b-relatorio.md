@@ -16,7 +16,7 @@ qualitativo consecutivo de `figure`** (P158A→P158B).
    `state.lang`; tests planeados; subpadrão emergente "padrão P155
    i18n reusado cross-feature".
 
-2. **Helper novo** em `01_core/src/rules/lang/figure_supplement.rs`
+2. **Helper novo** em `01_core/src/engine/lang/figure_supplement.rs`
    (ficheiro novo paralelo a `quotes.rs`):
    - `pub fn figure_supplement_for_lang(kind: &str, lang: Option<&Lang>)
      -> String` — lookup linear por exact match em tabela estática
@@ -34,7 +34,7 @@ qualitativo consecutivo de `figure`** (P158A→P158B).
    - Caller pode setar `state.lang = Some(lang)` antes de passar
      a `layout()` para comportamento lang-aware.
 
-4. **Modificação trivial** em `01_core/src/rules/introspect.rs`
+4. **Modificação trivial** em `01_core/src/engine/introspect.rs`
    linha 334:
    - Antes: `Some(format!("Figura {}", n))` hardcoded PT.
    - Depois: `Some(format!("{} {}", figure_supplement_for_lang(

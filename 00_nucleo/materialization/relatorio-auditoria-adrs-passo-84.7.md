@@ -60,7 +60,7 @@ ADR-0026-divergencia ──[Revisto por]──→ ADR-0026-revisao  (mesmo núme
 ### ADR-0017 — Adiamento da migração de `eval` (typst-library)
 - **Anomalia mista:** usa `**Estado**:` em vez de `**Status**:`, e o valor `IMPLEMENTADO`
   está sem backticks (`IMPLEMENTADO` em vez de `` `IMPLEMENTADO` ``).
-- **Realidade:** `pub fn eval(` confirmado em `01_core/src/rules/eval.rs:250`.
+- **Realidade:** `pub fn eval(` confirmado em `01_core/src/engine/eval.rs:250`.
 - **Acção sugerida:** padronizar para `**Status**: ` `` `IMPLEMENTADO` ``. Conteúdo do ADR
   pode estar desactualizado (descrevia adiamento que já não se aplica) — auditar texto interno
   separadamente.
@@ -177,10 +177,10 @@ Já tratado em Secção 3 (ADR-0022); aplica-se também a ADR-0023 e ADR-0025.
   linter proibe `UnsafeCell` em statics de L1).
 - **Realidade no código:** `grep -rn "unsafe" 01_core/src/` retorna **15 ocorrências**, em
   3 ficheiros:
-  - `01_core/src/rules/lexer/scanner.rs` — **13 ocorrências**: `unsafe { get_unchecked(...) }`
+  - `01_core/src/engine/lexer/scanner.rs` — **13 ocorrências**: `unsafe { get_unchecked(...) }`
     em métodos do scanner (acesso a substrings cujo intervalo é demonstravelmente válido) e
     `unsafe trait Sealed<T>` com 6 `unsafe impl` (sealed-trait pattern para `Pattern`-like).
-  - `01_core/src/rules/eval.rs:235` — **1 ocorrência**: `unsafe { (*self.stack_ptr).retain(...) }`
+  - `01_core/src/engine/eval.rs:235` — **1 ocorrência**: `unsafe { (*self.stack_ptr).retain(...) }`
     em `Drop for ImportGuard` (deref de raw pointer; SAFETY comment justifica que o
     EvalContext sobrevive ao guard).
   - `01_core/src/entities/content.rs:20` — comentário documentando que vanilla usa
@@ -347,7 +347,7 @@ grep "comemo" crystalline.toml
 grep -rn "comemo" 01_core/src/
 
 # ADR-0017 (eval implementado)
-grep -n "pub fn eval\b" 01_core/src/rules/eval.rs
+grep -n "pub fn eval\b" 01_core/src/engine/eval.rs
 
 # ADR-0029 sem Alignment (Input 1)
 grep "Alignment" 00_nucleo/adr/typst-adr-0029-pureza-fisica-revoga-adr-0028.md

@@ -9,7 +9,7 @@ Data: 2026-04-23.
 ### Arquitectura
 
 `#set` **já está activo** no cristalino desde **Passo 30**. O
-`eval_set_rule` está em `01_core/src/rules/eval/rules.rs:179`; é
+`eval_set_rule` está em `01_core/src/engine/eval/rules.rs:179`; é
 invocado pelo dispatcher `eval_expr` no braço `Expr::SetRule(s)`
 (`eval/mod.rs:360`).
 

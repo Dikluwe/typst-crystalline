@@ -30,7 +30,7 @@ pdftotext /tmp/p595.pdf -
 Confirmar: o texto da nota aparece nalgum sítio do PDF (mesmo que cortado, ou empurrado para outra página), ou desaparece por completo?
 
 ```bash
-grep -n "footnote\|pending_footnote" 01_core/src/rules/layout/cursor.rs | head -20
+grep -n "footnote\|pending_footnote" 01_core/src/engine/layout/cursor.rs | head -20
 ```
 
 Localizar, com `file:line`, o ponto exacto onde a nota é descartada quando não cabe.

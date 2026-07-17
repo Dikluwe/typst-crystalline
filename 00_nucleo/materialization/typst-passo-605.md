@@ -51,7 +51,7 @@ Confirmar o erro exacto (provavelmente "unexpected argument" ou equivalente).
 
 ## Implementação
 
-Adicionar o(s) parâmetro(s) nomeados à função `heading()` no avaliador (`01_core/src/rules/eval/rules.rs` ou onde as funções nativas são definidas), ligando ao campo interno `HeadingElem::outlined` já existente. Se `bookmarked` e `outlined` forem parâmetros distintos no vanilla, com efeitos diferentes, implementar os dois separadamente, não assumir que são a mesma coisa.
+Adicionar o(s) parâmetro(s) nomeados à função `heading()` no avaliador (`01_core/src/engine/eval/rules.rs` ou onde as funções nativas são definidas), ligando ao campo interno `HeadingElem::outlined` já existente. Se `bookmarked` e `outlined` forem parâmetros distintos no vanilla, com efeitos diferentes, implementar os dois separadamente, não assumir que são a mesma coisa.
 
 ### Critério de fecho da implementação
 

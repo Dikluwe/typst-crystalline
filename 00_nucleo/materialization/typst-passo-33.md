@@ -12,15 +12,15 @@ grep -A 8 "DEBT-7" 00_nucleo/DEBT.md
 
 # Confirmar estado actual do merge em layout.rs
 grep -n "bold.*||\|||.*bold\|node_style\|merge" \
-  01_core/src/rules/layout.rs | head -10
+  01_core/src/engine/layout.rs | head -10
 
 # Confirmar que styles em EvalContext é StyleChain
 grep -n "styles.*StyleChain\|pub styles" \
-  01_core/src/rules/eval_context.rs
+  01_core/src/engine/eval_context.rs
 
 # Confirmar como blocos de código são avaliados actualmente
 grep -n "CodeBlock\|eval_code_block\|eval_block\|Expr::Code" \
-  01_core/src/rules/eval.rs | head -15
+  01_core/src/engine/eval.rs | head -15
 ```
 
 **Parar se qualquer pré-condição falhar.**
@@ -56,15 +56,15 @@ Este passo também corrige o merge `bold || node_style.bold` no layout
 ```bash
 # Ver como eval_code_block / eval_block está implementado
 grep -n -A 20 "fn eval_code_block\|fn eval_block\|CodeBlock" \
-  01_core/src/rules/eval.rs | head -40
+  01_core/src/engine/eval.rs | head -40
 
 # Ver onde Expr::Code / ContentBlock é avaliado
 grep -n "Expr::Code\|ContentBlock\|Expr::Content" \
-  01_core/src/rules/eval.rs | head -10
+  01_core/src/engine/eval.rs | head -10
 
 # Ver o merge actual em layout.rs
 grep -n -A 5 "fn.*layout\|Content::Text\|node_style\|bold" \
-  01_core/src/rules/layout.rs | head -30
+  01_core/src/engine/layout.rs | head -30
 
 # Confirmar que StyleChain::clone é O(1)
 grep -n "impl Clone for StyleChain\|derive.*Clone.*StyleChain" \
@@ -131,7 +131,7 @@ o 2a cobre automaticamente.
 ```bash
 # Verificar se eval_while e eval_for chamam eval_code_block
 grep -n "eval_while\|eval_for\|while.*body\|for.*body" \
-  01_core/src/rules/eval.rs | head -10
+  01_core/src/engine/eval.rs | head -10
 ```
 
 ---
@@ -180,7 +180,7 @@ antes de alterar.**
 - `#set text(bold: false)` dentro de um bloco agora reverte correctamente
   ao sair do bloco
 
-**Ficheiros alterados**: `rules/eval.rs`, `rules/layout.rs`
+**Ficheiros alterados**: `rules/eval.rs`, `engine/layout.rs`
 ```
 
 ---
@@ -285,12 +285,12 @@ crystalline-lint .
 # ✓ No violations found
 
 # Confirmar que o merge foi removido
-grep -n "||.*bold\|bold.*||" 01_core/src/rules/layout.rs
+grep -n "||.*bold\|bold.*||" 01_core/src/engine/layout.rs
 # Deve retornar vazio
 
 # Confirmar save/restore em eval
 grep -n "saved_styles\|restore.*styles\|styles.*saved" \
-  01_core/src/rules/eval.rs
+  01_core/src/engine/eval.rs
 # Deve aparecer em cada sítio de bloco
 ```
 

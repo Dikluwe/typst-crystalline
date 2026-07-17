@@ -23,20 +23,20 @@ Conclusão: o mapa de P628 mantém-se válido; pode prosseguir-se com a migraç�
 ### 1. `place.rs` vs `placement.rs`
 
 ```bash
-ls -la 01_core/src/rules/layout/place.rs 01_core/src/rules/layout/placement.rs
+ls -la 01_core/src/engine/layout/place.rs 01_core/src/engine/layout/placement.rs
 ```
 
 Resultado: são ficheiros diferentes.
 
-- **`01_core/src/rules/layout/place.rs`** (3.251 bytes): entrypoint do elemento `PlaceElem`, atomizado conforme ADR-0109. Contém a free function `layout()` que decide entre `float: true` (sub-frame + buffer de floats) e `float: false` (delega em `layout_place`).
-- **`01_core/src/rules/layout/placement.rs`** (8.958 bytes): contém os métodos `layout_align()` e `layout_place()` da impl `Layouter`. É um dos cinco caminhos mapeados por P628 e consome `layout_sub_frame` directamente.
+- **`01_core/src/engine/layout/place.rs`** (3.251 bytes): entrypoint do elemento `PlaceElem`, atomizado conforme ADR-0109. Contém a free function `layout()` que decide entre `float: true` (sub-frame + buffer de floats) e `float: false` (delega em `layout_place`).
+- **`01_core/src/engine/layout/placement.rs`** (8.958 bytes): contém os métodos `layout_align()` e `layout_place()` da impl `Layouter`. É um dos cinco caminhos mapeados por P628 e consome `layout_sub_frame` directamente.
 
 Relação: `place.rs` chama `layouter.layout_sub_frame(...)` no ramo `float: true` e `layouter.layout_place(...)` no ramo `float: false`; `layout_place` vive em `placement.rs` e também chama `layout_sub_frame`. São camadas diferentes da mesma feature (`#place`), não caminhos independentes.
 
 ### 2. `cursor.rs:650`
 
 ```bash
-sed -n '640,660p' 01_core/src/rules/layout/cursor.rs
+sed -n '640,660p' 01_core/src/engine/layout/cursor.rs
 ```
 
 Contexto (linhas 643–650):
@@ -70,11 +70,11 @@ git show 6c3813369 --stat
 
 O commit `6c3813369` (P629B — refactor `layout_sub_frame_with_width` para `SubLayoutRegion`) tocou em 15 ficheiros, incluindo:
 
-- `01_core/src/rules/layout/cursor.rs`
-- `01_core/src/rules/layout/place.rs`
-- `01_core/src/rules/layout/placement.rs`
-- `01_core/src/rules/layout/grid.rs`
-- `01_core/src/rules/layout/sub_frame.rs`
+- `01_core/src/engine/layout/cursor.rs`
+- `01_core/src/engine/layout/place.rs`
+- `01_core/src/engine/layout/placement.rs`
+- `01_core/src/engine/layout/grid.rs`
+- `01_core/src/engine/layout/sub_frame.rs`
 
 Ou seja, P629B migrou **todos** os call-sites existentes de `layout_sub_frame_with_width`, não apenas os dois que constavam no texto do passo (`grid.rs` e `placement.rs`). As alterações em `cursor.rs` e `place.rs` foram mecânicas: substituição da assinatura antiga pela struct `SubLayoutRegion`, sem mudança de semântica.
 

@@ -14,8 +14,8 @@
 ## Localização exacta do código
 
 ```bash
-grep -rn "1 0 0 -1\|flip.*y\|page_height\|Transform::" 01_core/src/rules/layout/*.rs 03_infra/src/*.rs 2>/dev/null | grep -iv test | head -40
-grep -rn "fn.*group\|fn.*place\|local_transform\|group_transform" 01_core/src/rules/layout/*.rs 2>/dev/null | head -40
+grep -rn "1 0 0 -1\|flip.*y\|page_height\|Transform::" 01_core/src/engine/layout/*.rs 03_infra/src/*.rs 2>/dev/null | grep -iv test | head -40
+grep -rn "fn.*group\|fn.*place\|local_transform\|group_transform" 01_core/src/engine/layout/*.rs 2>/dev/null | head -40
 ```
 
 Confirmar:

@@ -50,13 +50,13 @@ vai redigir na Fase 2 do Protocolo de Nucleação:
 
 ### 3.1 — L0 (Fase 2 do Protocolo)
 
-- `00_nucleo/prompts/rules/stdlib.md` — actualizar secção
+- `00_nucleo/prompts/engine/stdlib.md` — actualizar secção
   `calc` (9 → 24 funções), estender DEBT ADR-0018 (`f64::*`),
   reduzir lista de "Funções vanilla adiadas".
 
 ### 3.2 — L1 (Fase 4 do Protocolo)
 
-- `01_core/src/rules/stdlib/calc.rs` — adicionar 15 funções
+- `01_core/src/engine/stdlib/calc.rs` — adicionar 15 funções
   `calc_*` + 15 entradas em `make_calc_module`.
 
 Não tocados:
@@ -156,7 +156,7 @@ Invariantes a preservar:
 
 **Aguardar confirmação humana** para a IA prosseguir à Fase 2 do
 Protocolo de Nucleação (redacção do L0 actualizado em
-`00_nucleo/prompts/rules/stdlib.md`).
+`00_nucleo/prompts/engine/stdlib.md`).
 
 A IA não escreve código, testes, nem implementação até o L0
 estar gravado e o hash propagado.

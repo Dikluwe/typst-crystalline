@@ -80,8 +80,8 @@ P590 a P762, sem lacunas reconstruídas a partir de P716 em diante (ver regra 9 
 
 ## Ficheiros/mecanismos centrais mencionados com frequência
 
-- `01_core/src/rules/layout/cursor.rs` — `flush_line()`, `ensure_initial_baseline()`, layout de linha.
-- `01_core/src/rules/layout/metrics.rs`, `03_infra/src/font_metrics.rs` — `FontMetrics` trait, `FixedMetrics`/`FontBookMetrics`/`FallbackFontMetrics`.
-- `01_core/src/rules/eval/closures.rs` — `apply_closure`, binding de argumentos.
+- `01_core/src/engine/layout/cursor.rs` — `flush_line()`, `ensure_initial_baseline()`, layout de linha.
+- `01_core/src/engine/layout/metrics.rs`, `03_infra/src/font_metrics.rs` — `FontMetrics` trait, `FixedMetrics`/`FontBookMetrics`/`FallbackFontMetrics`.
+- `01_core/src/engine/eval/closures.rs` — `apply_closure`, binding de argumentos.
 - `03_infra/src/embedded_fonts.rs` — fontes embutidas via `typst-assets`, separadas em grupos texto/math-code.
 - `achados-adiados-cetz.md` — lista de controlo de achados menores (deve estar vazia ou só com scope-outs conscientes; verificar se ainda existe/está actualizada).

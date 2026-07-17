@@ -15,7 +15,7 @@ estrutural.
 estructuralmente; DEBT-56 ENCERRADO; ADR-0078+ADR-0061
 IMPLEMENTADO; 1987 tests verdes; 0 violations); humano
 fixou Opção α (4 sub-passos cumulativos); helper privado
-`measure_content` em `01_core/src/rules/layout/helpers.rs`
+`measure_content` em `01_core/src/engine/layout/helpers.rs`
 existe (per inventário 148 §A.5 linha 151); ADR-0066
 PROPOSTO existe (P160A criou; sem promoção a IMPLEMENTADO
 em P222 per decisão graded).
@@ -31,7 +31,7 @@ transição de status) + L0 stdlib.md decisão paridade P217-P220
 
 `measure(body)` foi declarado `parcial` em inventário 148
 §A.5 linha 151 desde origem — helper privado
-`measure_content` em `01_core/src/rules/layout/helpers.rs`
+`measure_content` em `01_core/src/engine/layout/helpers.rs`
 existe e é usado internamente pelo Layouter (em arms
 `measure_content_constrained` e similar). **Sem stdlib
 expose** — `measure` não é invocável de markup ou code.
@@ -130,7 +130,7 @@ measure(body, width: 5cm)  // width override
 Reuso de dados (sem recolha nova):
 
 - `measure_content` helper privado existente em
-  `01_core/src/rules/layout/helpers.rs` (audit em C1).
+  `01_core/src/engine/layout/helpers.rs` (audit em C1).
 - `Value::Dict` infraestrutura existente em `entities/value.rs`.
 - Pattern P218 `native_columns` + P220 `native_colbreak`
   para stdlib registo (re-export + scope define).
@@ -147,14 +147,14 @@ Reuso de dados (sem recolha nova):
 Auditoria empírica:
 
 ```
-grep -n "fn measure_content\|pub fn measure" 01_core/src/rules/layout/helpers.rs
-grep -n "measure_content_constrained" 01_core/src/rules/layout/mod.rs
+grep -n "fn measure_content\|pub fn measure" 01_core/src/engine/layout/helpers.rs
+grep -n "measure_content_constrained" 01_core/src/engine/layout/mod.rs
 ```
 
 Hipótese (per inventário 148 §A.5):
 - `measure_content` é função privada (provavelmente
   `pub(super)` ou `pub(crate)`) em
-  `01_core/src/rules/layout/helpers.rs`.
+  `01_core/src/engine/layout/helpers.rs`.
 - Provavelmente signature: `fn measure_content(content:
   &Content, ...) -> (f64, f64)` ou `Size` ou `(Pt, Pt)`.
 - Provavelmente assume width full-page.
@@ -191,7 +191,7 @@ acessível.
 
 ### C3 — `native_measure` function
 
-Adicionar em `01_core/src/rules/stdlib/layout.rs` após
+Adicionar em `01_core/src/engine/stdlib/layout.rs` após
 `native_colbreak` (paridade ordem ADR-0061 Fase 3 → Fase 4
 candidata):
 
@@ -272,14 +272,14 @@ pub fn native_measure(
 
 ### C4 — Registar `native_measure` em scope + re-export
 
-**Re-export** em `01_core/src/rules/stdlib/mod.rs`:
+**Re-export** em `01_core/src/engine/stdlib/mod.rs`:
 ```rust
-pub use crate::rules::stdlib::layout::{
+pub use crate::engine::stdlib::layout::{
     ..., native_measure, ...
 };
 ```
 
-**Scope register** em `01_core/src/rules/eval/mod.rs`
+**Scope register** em `01_core/src/engine/eval/mod.rs`
 (paridade P218 pattern):
 ```rust
 scope.define("measure", Value::Func(Func::native(
@@ -376,7 +376,7 @@ Critério: 0 violations. Hash propagado em
 (Opção γ) — "Nothing to fix" esperado.
 
 Se C2 promover visibility do helper: hash propagado em
-`rules/layout/helpers.rs` também.
+`engine/layout/helpers.rs` também.
 
 ### C9 — Inventário 148 reclassificação P222
 
@@ -495,15 +495,15 @@ Estrutura (~6-8 KB) com 8 §s:
   clearance; Caminho 1 Opção α continuação).
 
 Código alterado:
-- **Editado**: `01_core/src/rules/stdlib/layout.rs` (+
+- **Editado**: `01_core/src/engine/stdlib/layout.rs` (+
   `native_measure` ~30 LOC + 9 unit tests ~80 LOC).
-- **Editado**: `01_core/src/rules/stdlib/mod.rs` (re-export).
-- **Editado**: `01_core/src/rules/eval/mod.rs` (scope
+- **Editado**: `01_core/src/engine/stdlib/mod.rs` (re-export).
+- **Editado**: `01_core/src/engine/eval/mod.rs` (scope
   register).
-- **Possivelmente editado**: `01_core/src/rules/layout/helpers.rs`
+- **Possivelmente editado**: `01_core/src/engine/layout/helpers.rs`
   (visibility promotion `pub` → `pub(crate)` se necessário
   per C2).
-- **Editado**: `01_core/src/rules/layout/tests.rs` (+ 2 E2E
+- **Editado**: `01_core/src/engine/layout/tests.rs` (+ 2 E2E
   tests).
 - **Editado**: `00_nucleo/diagnosticos/typst-cobertura-vanilla-vs-cristalino.md`
   (Tabela A.5 + §A.5 reclassificação + footnote ⁴³ P222).
@@ -583,7 +583,7 @@ Código alterado:
 ## §6 Hipótese provável
 
 C1 confirmará `measure_content` em
-`01_core/src/rules/layout/helpers.rs` — provavelmente
+`01_core/src/engine/layout/helpers.rs` — provavelmente
 `pub(super)` ou `pub(crate)` (já acessível ao stdlib mesmo
 crate).
 

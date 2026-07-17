@@ -119,7 +119,7 @@ Catálogo único (~250 linhas) com 11 secções:
 | Componente | Pós-P300 |
 |---|---|
 | `01_core/src/entities/content.rs` | **Inalterado** — hash `82d3c47d` preservado |
-| `01_core/src/rules/*` | **Inalterado** |
+| `01_core/src/engine/*` | **Inalterado** |
 | `03_infra/src/export.rs` | **Inalterado bit-exact** — hash `66cb8ac3` (17º passo) |
 | `02_shell/`, `04_wiring/` | **Intactos** |
 | L0 markdown | **Inalterados** |

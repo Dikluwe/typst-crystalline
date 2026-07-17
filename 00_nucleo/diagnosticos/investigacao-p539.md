@@ -38,7 +38,7 @@ e `/usr/local/bin/typst` (vanilla).
 ### Decisão
 
 **Bug a corrigir**, mas fora do scope de P539. Recomenda-se criar passo
-próprio com sonda da biblioteca CSL usada (`01_core/src/rules/eval/bibliography.rs`,
+próprio com sonda da biblioteca CSL usada (`01_core/src/engine/eval/bibliography.rs`,
 `03_infra/src/bib/`).
 
 ---
@@ -102,7 +102,7 @@ ou relacionados com Parte 1.
 
 ### Definição do cristalino
 
-`01_core/src/rules/stdlib/text.rs:588`:
+`01_core/src/engine/stdlib/text.rs:588`:
 
 ```rust
 pub fn native_lorem(...) -> SourceResult<Value> {

@@ -71,9 +71,9 @@ cria reservas para passos pós-P159D.
   critério #2 (escolha de tipo) aplicável.
 - `01_core/src/entities/bib_entry.rs` — struct actual
   (P159A).
-- `01_core/src/rules/stdlib/structural.rs` —
+- `01_core/src/engine/stdlib/structural.rs` —
   `extract_bib_entries` helper actual (P159A).
-- `01_core/src/rules/layout/mod.rs` — render Bibliography
+- `01_core/src/engine/layout/mod.rs` — render Bibliography
   actual (formato `"[{key}] {author}. {title} ({year})."`).
 - `lab/typst-original/crates/typst-library/src/model/bibliography.rs`
   + `hayagriva::Entry` (vanilla, quarentena) — referência
@@ -248,7 +248,7 @@ expansão de struct + selecção de fields:
 
 ### .3 Extender `extract_bib_entries`
 
-`01_core/src/rules/stdlib/structural.rs`:
+`01_core/src/engine/stdlib/structural.rs`:
 - Modificar parsing helper para aceitar 4 fields opcionais.
 - Para cada field opcional:
   ```rust
@@ -263,7 +263,7 @@ expansão de struct + selecção de fields:
 
 ### .4 Refinar layout Bibliography
 
-`01_core/src/rules/layout/mod.rs`:
+`01_core/src/engine/layout/mod.rs`:
 - Pattern arm `Content::Bibliography` modificado:
   - Construir formatação extendida per §"Decisões já tomadas"
     + decisões finais de ordem em .1.

@@ -10,7 +10,7 @@ Este documento tem **duas colunas independentes** por módulo:
 
 A **discordância** entre as duas é o detector automático de deriva documental (falha F4 do `diagnostico-bloqueio-processo-2026-06-09.md`): a contradição aparece sozinha na regeneração; nenhuma sessão precisa de *lembrar* de propagar nada.
 
-> **Aviso de leitura da coluna mecânica.** A lente pareia por path normalizado na raiz do crate. O cristalino **reorganizou** o vanilla em `typst_core::entities::*` e `typst_core::rules::*` com nomes novos. Logo um item migrado-mas-renomeado aparece **sem-par dos dois lados** (não há detecção de movido por similaridade). Por isso a coluna **destino dominante** é o sinal real de para-onde-foi, e um módulo `não-iniciado`/`parcial` mecânico com destino claro e declarado `fechado-consolidado` é coerente, não contraditório.
+> **Aviso de leitura da coluna mecânica.** A lente pareia por path normalizado na raiz do crate. O cristalino **reorganizou** o vanilla em `typst_core::entities::*` e `typst_core::engine::*` com nomes novos. Logo um item migrado-mas-renomeado aparece **sem-par dos dois lados** (não há detecção de movido por similaridade). Por isso a coluna **destino dominante** é o sinal real de para-onde-foi, e um módulo `não-iniciado`/`parcial` mecânico com destino claro e declarado `fechado-consolidado` é coerente, não contraditório.
 
 ## Regras de derivação (mecânica)
 
@@ -102,7 +102,7 @@ Colunas mecânicas regeneram via `gerar.py`; as duas últimas (declarado, fonte)
 | `typst_eval::code` | 2+0 | 0 | 2 | 0% | — | não-iniciado | fechado-consolidado | ADR-0017/0067 (eval→rules; attribute grammar scoping) |
 | `typst_eval::flow` | 4+3 | 0 | 4 | 0% | — | não-iniciado | fechado-consolidado | ADR-0017/0067 (eval→rules; attribute grammar scoping) |
 | `typst_eval::import` | 4+0 | 0 | 4 | 0% | — | não-iniciado | fechado-consolidado | ADR-0017/0067 (eval→rules; attribute grammar scoping) |
-| `typst_eval::markup` | 1+0 | 1 | 0 | 100% | typst_core::rules::eval (100%) | migrado | fechado-consolidado | ADR-0017/0067 (eval→rules; attribute grammar scoping) |
+| `typst_eval::markup` | 1+0 | 1 | 0 | 100% | typst_core::engine::eval (100%) | migrado | fechado-consolidado | ADR-0017/0067 (eval→rules; attribute grammar scoping) |
 | `typst_eval::math` | 1+0 | 0 | 1 | 0% | — | não-iniciado | fechado-consolidado | ADR-0017/0067 (eval→rules; attribute grammar scoping) |
 | `typst_eval::methods` | 5+0 | 0 | 5 | 0% | — | não-iniciado | fechado-consolidado | ADR-0017/0067 (eval→rules; attribute grammar scoping) |
 | `typst_eval::ops` | 2+0 | 0 | 2 | 0% | — | não-iniciado | fechado-consolidado | ADR-0017/0067 (eval→rules; attribute grammar scoping) |
@@ -322,7 +322,7 @@ Colunas mecânicas regeneram via `gerar.py`; as duas últimas (declarado, fonte)
 | `typst_library::foundations::path` | 9+19 | 0 | 9 | 0% | — | não-iniciado | pendente-de-confirmação | — |
 | `typst_library::foundations::plugin_` | 25+13 | 0 | 25 | 0% | — | não-iniciado | pendente-de-confirmação | — |
 | `typst_library::foundations::plugin_::plugin` | 2+3 | 0 | 2 | 0% | — | não-iniciado | pendente-de-confirmação | — |
-| `typst_library::foundations::repr` | 11+0 | 1 | 10 | 9% | typst_core::rules::stdlib::foundations (100%) | parcial | parcial | cobertura A.8 (subset) |
+| `typst_library::foundations::repr` | 11+0 | 1 | 10 | 9% | typst_core::engine::stdlib::foundations (100%) | parcial | parcial | cobertura A.8 (subset) |
 | `typst_library::foundations::repr::repr` | 0+1 | 0 | 0 | 0% | — | só-boilerplate | parcial | cobertura A.8 (subset) |
 | `typst_library::foundations::scope` | 45+22 | 12 | 33 | 27% | typst_core::entities::scope (58%) | parcial | fechado | cobertura A.2 (#let scoping) |
 | `typst_library::foundations::selector` | 18+29 | 0 | 18 | 0% | — | não-iniciado | parcial | cobertura A.9 (And/Or/Regex parcial P209) |
@@ -372,7 +372,7 @@ Colunas mecânicas regeneram via `gerar.py`; as duas últimas (declarado, fonte)
 | `typst_library::layout::grid` | 51+121 | 0 | 51 | 0% | — | não-iniciado | fechado | cobertura A.5 (implementado⁺ P224-230) |
 | `typst_library::layout::grid::resolve` | 48+30 | 0 | 48 | 0% | — | não-iniciado | fechado | cobertura A.5 (implementado⁺ P224-230) |
 | `typst_library::layout::hide` | 2+7 | 0 | 2 | 0% | — | não-iniciado | fechado | cobertura A.5 (P156C) |
-| `typst_library::layout::layout_` | 4+6 | 1 | 3 | 25% | typst_core::rules::layout (100%) | parcial | pendente-de-confirmação | — |
+| `typst_library::layout::layout_` | 4+6 | 1 | 3 | 25% | typst_core::engine::layout (100%) | parcial | pendente-de-confirmação | — |
 | `typst_library::layout::layout_::layout` | 0+1 | 0 | 0 | 0% | — | só-boilerplate | pendente-de-confirmação | — |
 | `typst_library::layout::length` | 16+38 | 1 | 15 | 6% | typst_core::entities::layout_types (100%) | parcial | pendente-de-confirmação | — |
 | `typst_library::layout::measure_` | 2+0 | 0 | 2 | 0% | — | não-iniciado | pendente-de-confirmação | — |
@@ -613,11 +613,11 @@ Colunas mecânicas regeneram via `gerar.py`; as duas últimas (declarado, fonte)
 | `typst_syntax::ast` | 198+550 | 198 | 0 | 100% | typst_core::entities::ast::expr (34%) | migrado | fechado-consolidado | ADR-0016 (lazyhash; entities::ast) |
 | `typst_syntax::highlight` | 7+0 | 0 | 7 | 0% | — | não-iniciado | pendente-de-confirmação | — |
 | `typst_syntax::kind` | 9+4 | 9 | 0 | 100% | typst_core::entities::syntax_kind (100%) | migrado | fechado | ADR-0001 (entities::syntax_kind) |
-| `typst_syntax::lexer` | 50+1 | 50 | 0 | 100% | typst_core::rules::lexer (100%) | migrado | fechado-consolidado | ADR-0010/0012/0013/0014 (deps L1; rules::lexer) |
+| `typst_syntax::lexer` | 50+1 | 50 | 0 | 100% | typst_core::engine::lexer (100%) | migrado | fechado-consolidado | ADR-0010/0012/0013/0014 (deps L1; rules::lexer) |
 | `typst_syntax::lines` | 22+7 | 0 | 22 | 0% | — | não-iniciado | pendente-de-confirmação | — |
 | `typst_syntax::node` | 79+34 | 79 | 0 | 100% | typst_core::entities::syntax_node (100%) | migrado | fechado-consolidado | ADR-0016 (lazyhash; entities::syntax_node) |
 | `typst_syntax::package` | 24+57 | 6 | 18 | 25% | typst_core::entities::package_spec (100%) | parcial | parcial | ADR-0005 (PackageSpec/World subset) |
-| `typst_syntax::parser` | 112+15 | 112 | 0 | 100% | typst_core::rules::parse::parser (48%) | migrado | fechado-consolidado | ADR-0001 (estratégia; rules::parse) |
+| `typst_syntax::parser` | 112+15 | 112 | 0 | 100% | typst_core::engine::parse::parser (48%) | migrado | fechado-consolidado | ADR-0001 (estratégia; rules::parse) |
 | `typst_syntax::path` | 56+34 | 3 | 53 | 5% | typst_core::entities::file_id (100%) | parcial | pendente-de-confirmação | — |
 | `typst_syntax::reparser` | 7+0 | 0 | 7 | 0% | — | não-iniciado | pendente-de-confirmação | — |
 | `typst_syntax::set` | 8+2 | 8 | 0 | 100% | typst_core::entities::syntax_set (100%) | migrado | fechado | ADR-0001 (entities::syntax_set) |
@@ -715,52 +715,52 @@ Só censo (sem coluna declarada): itens do cristalino sem correspondente no vani
 | `typst_core::entities::value` | 9+18 |
 | `typst_core::entities::world_types` | 12+12 |
 | `typst_core::entities::world_types::__ComemoSurfaceMut` | 1+0 |
-| `typst_core::rules::eval` | 7+0 |
-| `typst_core::rules::eval::bindings` | 4+0 |
-| `typst_core::rules::eval::closures` | 5+0 |
-| `typst_core::rules::eval::control_flow` | 3+0 |
-| `typst_core::rules::eval::markup` | 8+0 |
-| `typst_core::rules::eval::math` | 3+0 |
-| `typst_core::rules::eval::modules` | 2+0 |
-| `typst_core::rules::eval::operators` | 2+0 |
-| `typst_core::rules::eval::rules` | 6+0 |
-| `typst_core::rules::introspect` | 8+0 |
-| `typst_core::rules::introspect::convergence` | 1+0 |
-| `typst_core::rules::introspect::extract_payload` | 1+0 |
-| `typst_core::rules::introspect::fixpoint` | 3+1 |
-| `typst_core::rules::introspect::from_tags` | 3+0 |
-| `typst_core::rules::introspect::locatable` | 1+0 |
-| `typst_core::rules::lang::figure_supplement` | 2+0 |
-| `typst_core::rules::lang::quotes` | 1+0 |
-| `typst_core::rules::layout` | 32+6 |
-| `typst_core::rules::layout::figure` | 1+0 |
-| `typst_core::rules::layout::grid` | 1+0 |
-| `typst_core::rules::layout::grid_placement` | 5+3 |
-| `typst_core::rules::layout::helpers` | 7+0 |
-| `typst_core::rules::layout::hyphenation` | 1+0 |
-| `typst_core::rules::layout::image` | 3+0 |
-| `typst_core::rules::layout::metrics` | 2+2 |
-| `typst_core::rules::layout::outline` | 1+0 |
-| `typst_core::rules::layout::references` | 2+0 |
-| `typst_core::rules::layout::slicing` | 3+0 |
-| `typst_core::rules::lexer::scanner` | 25+6 |
-| `typst_core::rules::lexer::scanner::sealed` | 1+0 |
-| `typst_core::rules::math::layout` | 30+2 |
-| `typst_core::rules::math::symbols` | 6+0 |
-| `typst_core::rules::parse::patterns` | 1+0 |
-| `typst_core::rules::scopes` | 5+0 |
-| `typst_core::rules::stdlib` | 2+0 |
-| `typst_core::rules::stdlib::assert` | 1+0 |
-| `typst_core::rules::stdlib::calc` | 48+0 |
-| `typst_core::rules::stdlib::figure_image` | 3+0 |
-| `typst_core::rules::stdlib::foundations` | 30+0 |
-| `typst_core::rules::stdlib::gradients` | 8+0 |
-| `typst_core::rules::stdlib::layout` | 29+0 |
-| `typst_core::rules::stdlib::math_style` | 13+0 |
-| `typst_core::rules::stdlib::shapes` | 8+0 |
-| `typst_core::rules::stdlib::structural` | 29+0 |
-| `typst_core::rules::stdlib::text` | 9+1 |
-| `typst_core::rules::stdlib::transforms` | 4+0 |
+| `typst_core::engine::eval` | 7+0 |
+| `typst_core::engine::eval::bindings` | 4+0 |
+| `typst_core::engine::eval::closures` | 5+0 |
+| `typst_core::engine::eval::control_flow` | 3+0 |
+| `typst_core::engine::eval::markup` | 8+0 |
+| `typst_core::engine::eval::math` | 3+0 |
+| `typst_core::engine::eval::modules` | 2+0 |
+| `typst_core::engine::eval::operators` | 2+0 |
+| `typst_core::engine::eval::rules` | 6+0 |
+| `typst_core::engine::introspect` | 8+0 |
+| `typst_core::engine::introspect::convergence` | 1+0 |
+| `typst_core::engine::introspect::extract_payload` | 1+0 |
+| `typst_core::engine::introspect::fixpoint` | 3+1 |
+| `typst_core::engine::introspect::from_tags` | 3+0 |
+| `typst_core::engine::introspect::locatable` | 1+0 |
+| `typst_core::engine::lang::figure_supplement` | 2+0 |
+| `typst_core::engine::lang::quotes` | 1+0 |
+| `typst_core::engine::layout` | 32+6 |
+| `typst_core::engine::layout::figure` | 1+0 |
+| `typst_core::engine::layout::grid` | 1+0 |
+| `typst_core::engine::layout::grid_placement` | 5+3 |
+| `typst_core::engine::layout::helpers` | 7+0 |
+| `typst_core::engine::layout::hyphenation` | 1+0 |
+| `typst_core::engine::layout::image` | 3+0 |
+| `typst_core::engine::layout::metrics` | 2+2 |
+| `typst_core::engine::layout::outline` | 1+0 |
+| `typst_core::engine::layout::references` | 2+0 |
+| `typst_core::engine::layout::slicing` | 3+0 |
+| `typst_core::engine::lexer::scanner` | 25+6 |
+| `typst_core::engine::lexer::scanner::sealed` | 1+0 |
+| `typst_core::engine::math::layout` | 30+2 |
+| `typst_core::engine::math::symbols` | 6+0 |
+| `typst_core::engine::parse::patterns` | 1+0 |
+| `typst_core::engine::scopes` | 5+0 |
+| `typst_core::engine::stdlib` | 2+0 |
+| `typst_core::engine::stdlib::assert` | 1+0 |
+| `typst_core::engine::stdlib::calc` | 48+0 |
+| `typst_core::engine::stdlib::figure_image` | 3+0 |
+| `typst_core::engine::stdlib::foundations` | 30+0 |
+| `typst_core::engine::stdlib::gradients` | 8+0 |
+| `typst_core::engine::stdlib::layout` | 29+0 |
+| `typst_core::engine::stdlib::math_style` | 13+0 |
+| `typst_core::engine::stdlib::shapes` | 8+0 |
+| `typst_core::engine::stdlib::structural` | 29+0 |
+| `typst_core::engine::stdlib::text` | 9+1 |
+| `typst_core::engine::stdlib::transforms` | 4+0 |
 | `typst_core::utils` | 1+4 |
 | `typst_infra::export` | 2+0 |
 | `typst_infra::export::builder` | 11+0 |

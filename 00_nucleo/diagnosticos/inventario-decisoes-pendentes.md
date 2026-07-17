@@ -46,11 +46,11 @@ Estes relatórios contêm evidência concreta noutras secções, mas a conclusã
 
 | Ficheiro | Passos próximos | Relatórios | Cruzaram referências? | Risco |
 |---|---|---|---|---|
-| `01_core/src/rules/layout/mod.rs` | P537, P537b, P538c, P538d, P541, P544, P547 (2026-07-02/03) | Todos lidos | Sim — cadeia coerente de colunas/numeração/CSL. | Baixo |
-| `01_core/src/rules/layout/cursor.rs` | P537, P538c, P541, P544, P545 (2026-07-02/03) | Todos lidos | **Parcial** — P545 altera `layout_word` e não referencia directamente P544, que também tinha mexido no mesmo ficheiro. | Médio |
-| `01_core/src/rules/layout/text.rs` | P544, P547 (2026-07-03) | P544, P547 | Sim — P547 descreve explicitamente a substituição de `split_whitespace()` de P544. | Baixo |
-| `01_core/src/rules/layout/bib_csl.rs` | P533, P547 (2026-07-02/03) | P533, P547 | Sim — focos distintos (citação inline vs formatação CSL). | Baixo |
-| `01_core/src/rules/eval/bibliography.rs` | P497, P498, P538f, P540 (2026-06-29 a 07-03) | P497, P498, P538f, P540 | Sim — P540 referencia P538f. | Baixo |
+| `01_core/src/engine/layout/mod.rs` | P537, P537b, P538c, P538d, P541, P544, P547 (2026-07-02/03) | Todos lidos | Sim — cadeia coerente de colunas/numeração/CSL. | Baixo |
+| `01_core/src/engine/layout/cursor.rs` | P537, P538c, P541, P544, P545 (2026-07-02/03) | Todos lidos | **Parcial** — P545 altera `layout_word` e não referencia directamente P544, que também tinha mexido no mesmo ficheiro. | Médio |
+| `01_core/src/engine/layout/text.rs` | P544, P547 (2026-07-03) | P544, P547 | Sim — P547 descreve explicitamente a substituição de `split_whitespace()` de P544. | Baixo |
+| `01_core/src/engine/layout/bib_csl.rs` | P533, P547 (2026-07-02/03) | P533, P547 | Sim — focos distintos (citação inline vs formatação CSL). | Baixo |
+| `01_core/src/engine/eval/bibliography.rs` | P497, P498, P538f, P540 (2026-06-29 a 07-03) | P497, P498, P538f, P540 | Sim — P540 referencia P538f. | Baixo |
 | `03_infra/src/shaper.rs` | P534, P538e, P543, P548 (2026-07-02/03) | P534, P538e, P543, P548 | Sim — cadeia coerente de fallback. | Baixo |
 | `03_infra/src/font_metrics.rs` | P544, P548 (2026-07-03) | P544, P546, P548 | Sim — P546 diagnosticou; P548 corrigiu. | Baixo |
 | `03_infra/src/export/stream.rs` | P520, P530, P548 (2026-07-01/03) | P520, P530, P548, P549 | Sim — P549 verifica P548 contra P520. | Baixo |

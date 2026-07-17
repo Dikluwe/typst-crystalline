@@ -7,9 +7,9 @@
 `git diff HEAD --stat`:
 
 ```
- 00_nucleo/prompts/rules/stdlib/shapes.md | 20 +++++++++++++++++++-
- 01_core/src/rules/stdlib/mod.rs          | 25 +++++++++++++++++++++++++
- 01_core/src/rules/stdlib/shapes.rs       | 17 ++++++++++++++++-
+ 00_nucleo/prompts/engine/stdlib/shapes.md | 20 +++++++++++++++++++-
+ 01_core/src/engine/stdlib/mod.rs          | 25 +++++++++++++++++++++++++
+ 01_core/src/engine/stdlib/shapes.rs       | 17 ++++++++++++++++-
  3 files changed, 60 insertions(+), 2 deletions(-)
 ```
 

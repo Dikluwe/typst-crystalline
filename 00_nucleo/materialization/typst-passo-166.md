@@ -116,7 +116,7 @@ opção tem sub-passos próprios.
 Apenas se `.A` escolheu M4a.
 
 1. Modificar `pub fn introspect()` em
-   `01_core/src/rules/introspect.rs`:
+   `01_core/src/engine/introspect.rs`:
 
    ```rust
    pub fn introspect(content: &Content) -> (CounterStateLegacy, TagIntrospector) {
@@ -137,7 +137,7 @@ Apenas se `.A` escolheu M4a.
    - Para call-sites que passem retorno a outras funções,
      desempacotar.
 
-3. Update L0 `00_nucleo/prompts/rules/introspect.md`:
+3. Update L0 `00_nucleo/prompts/engine/introspect.md`:
    - Reflectir nova assinatura `-> (CounterStateLegacy, TagIntrospector)`.
    - Documentar que `_introspector` em call-sites externos
      é deliberado em M4 (consumers migram em M5).
@@ -146,7 +146,7 @@ Apenas se `.A` escolheu M4a.
 
 Apenas se `.A` escolheu M4b.
 
-1. Adicionar função pública nova em `01_core/src/rules/introspect.rs`:
+1. Adicionar função pública nova em `01_core/src/engine/introspect.rs`:
 
    ```rust
    pub fn introspect_with_introspector(
@@ -164,7 +164,7 @@ Apenas se `.A` escolheu M4b.
 2. Manter `pub fn introspect()` actual exactamente como está
    (continua a descartar `_introspector`).
 
-3. Update L0 `00_nucleo/prompts/rules/introspect.md`:
+3. Update L0 `00_nucleo/prompts/engine/introspect.md`:
    - Documentar duas APIs: `introspect()` (legacy, retorna
      só `CounterStateLegacy`) e `introspect_with_introspector()`
      (nova, retorna ambos).
@@ -207,7 +207,7 @@ Apenas se `.A` escolheu M4c.
    - Documentar que field é populado em
      `rules/introspect::introspect()` desde M4.
 
-4. Update L0 `00_nucleo/prompts/rules/introspect.md`:
+4. Update L0 `00_nucleo/prompts/engine/introspect.md`:
    - Documentar que `introspect()` agora popula
      `state.introspector`.
 

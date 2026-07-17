@@ -55,7 +55,7 @@ quando `Context::location()` retorna diferente.
 
 ### A2 — Stdlib cristalino: assinatura `native_X` (CONFIRMADO)
 
-Pattern uniforme em `01_core/src/rules/stdlib/*.rs`:
+Pattern uniforme em `01_core/src/engine/stdlib/*.rs`:
 
 ```rust
 pub fn native_X(
@@ -75,7 +75,7 @@ estabelecido: stdlib lê `EvalContext` directamente.
 
 ### A3 — Cristalino `EvalContext` (CONFIRMADO)
 
-`01_core/src/rules/eval/mod.rs:86` define `EvalContext`:
+`01_core/src/engine/eval/mod.rs:86` define `EvalContext`:
 
 ```rust
 pub struct EvalContext {
@@ -96,7 +96,7 @@ introspector da iter N-1.
 
 ### A4 — Layouter `current_location` (DIVERGÊNCIA)
 
-`01_core/src/rules/layout/mod.rs:149`:
+`01_core/src/engine/layout/mod.rs:149`:
 
 ```rust
 pub(super) current_location: Option<Location>,  // P185C

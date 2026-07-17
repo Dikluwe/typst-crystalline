@@ -4,7 +4,7 @@
 > **Data:** 2026-07-16
 > **Commit-base:** `61b7edee78fdae9b020e458f5989f638cbf04096` (HEAD).
 > **Medido em:** 2026-07-16T22:09–22:23Z. Working tree modificado **por este
-> passo** em `00_nucleo/prompts/rules/eval.md` e `01_core/src/rules/eval/{mod,
+> passo** em `00_nucleo/prompts/engine/eval.md` e `01_core/src/engine/eval/{mod,
 > bibliography,closures,control_flow,flow,markup,math,modules,rules,tests}.rs`
 > (correcção descrita na secção 2). Sem outras alterações de código.
 
@@ -56,7 +56,7 @@ cond { let x = .. }` (corpo do ramo é um `CodeBlock`) e `#[ #let x = ..; ..
 via, `control_flow::eval_while`/`eval_for`).
 
 Causa: `Expr::CodeBlock`/`Expr::ContentBlock` em
-`01_core/src/rules/eval/mod.rs` isolavam `styles`/`show_rules` locais
+`01_core/src/engine/eval/mod.rs` isolavam `styles`/`show_rules` locais
 (Passos 94/95, P340) mas avaliavam o corpo directamente no `scopes` do
 chamador — sem `scopes.enter()`/`scopes.exit()`. Vanilla
 (`typst-eval/src/code.rs:317-332`) chama `vm.scopes.enter()`/`exit()` em
@@ -68,11 +68,11 @@ pontos de consumo, não na struct `Scopes`.
 **Correcção aplicada** (sem introduzir tipo, dependência ou decisão
 arquitectural nova — usa API já aprovada): `scopes.enter()` antes do corpo,
 `scopes.exit()` depois, em ambos os armos. L0 actualizado
-(`00_nucleo/prompts/rules/eval.md`, nova secção `§P772l` + bullets
+(`00_nucleo/prompts/engine/eval.md`, nova secção `§P772l` + bullets
 actualizados de `Expr::CodeBlock`/`Expr::ContentBlock`); hashes
 re-sincronizados via `crystalline-lint --fix-hashes .` (10 ficheiros em
-`01_core/src/rules/eval/` partilham este L0). Dois testes de regressão
-adicionados em `01_core/src/rules/eval/tests.rs`
+`01_core/src/engine/eval/` partilham este L0). Dois testes de regressão
+adicionados em `01_core/src/engine/eval/tests.rs`
 (`p772l_let_dentro_de_code_block_nao_vaza_para_fora`,
 `p772l_let_dentro_de_if_body_nao_vaza_para_fora`).
 
@@ -102,10 +102,10 @@ só-leitura, não que está ausente. ADR-0108: aceitação no nível da língua
 **inclui** mensagens de erro quando a mecânica é o observável — este é
 exactamente esse caso.
 
-Causa: `Scopes::get_mut` (`01_core/src/rules/scopes.rs`) não consulta
+Causa: `Scopes::get_mut` (`01_core/src/engine/scopes.rs`) não consulta
 `captured` (comentário do próprio código, P715: "não é um caso medido/
 alcançado — devolve `None`, tratado como unknown variable"). `access()`
-(`01_core/src/rules/eval/bindings.rs:409-417`) trata qualquer `get_mut ==
+(`01_core/src/engine/eval/bindings.rs:409-417`) trata qualquer `get_mut ==
 None` uniformemente como "unknown variable".
 
 **Por que não foi corrigido directamente**: replicar a mensagem exacta do
@@ -169,7 +169,7 @@ Cristalino: `unknown variable: foo-bar`, **sem hint**. Mensagem base
 idêntica; falta só o hint.
 
 Este item **é o comportamento actualmente especificado** em
-`00_nucleo/prompts/rules/eval.md` linha 1191 (referência a P715): "…como
+`00_nucleo/prompts/engine/eval.md` linha 1191 (referência a P715): "…como
 'unknown variable' pelo caller" — o L0 vigente já documenta a mensagem
 simples sem hint como o estado aceite. Adicionar o hint exige actualizar o
 L0 primeiro (mudança de contrato documentado, não bug vs L0 já aprovado —
@@ -191,7 +191,7 @@ Também: `$ foobarbaz $` (identificador nunca definido) — vanilla `error:
 unknown variable: foobarbaz` + 2 hints (letras separadas / aspas), exit 1;
 cristalino aceita silenciosamente, exit 0.
 
-Causa: `eval_math_expr` (`01_core/src/rules/eval/math.rs:90-103`) só resolve
+Causa: `eval_math_expr` (`01_core/src/engine/eval/math.rs:90-103`) só resolve
 `Expr::MathIdent` por (1) símbolo Unicode/grego, (2) operador matemático via
 `lookup_math_op` (scope `math`, 42 operadores P299/P301); qualquer outro
 identificador — variável de utilizador real ou erro de digitação — cai no

@@ -224,8 +224,8 @@ P268.1/.../P273 em ADR-0054, ADR-0083, ADR-0091 (Pattern 2 ADR-0093).
 
 | Prompt | Hash novo | Consumers |
 |---|---|---|
-| `eval.md` | `bf9002ad` | 10× `01_core/src/rules/eval/*.rs` (bindings, closures, control_flow, markup, math, mod, modules, operators, rules, tests) |
-| `stdlib.md` | `aa4ca50f` | 11× `01_core/src/rules/stdlib/*.rs` (assert, calc, figure_image, foundations, gradients, layout, mod, shapes, structural, text, transforms) |
+| `eval.md` | `bf9002ad` | 10× `01_core/src/engine/eval/*.rs` (bindings, closures, control_flow, markup, math, mod, modules, operators, rules, tests) |
+| `stdlib.md` | `aa4ca50f` | 11× `01_core/src/engine/stdlib/*.rs` (assert, calc, figure_image, foundations, gradients, layout, mod, shapes, structural, text, transforms) |
 
 Operação puramente mecânica — reescreveu apenas linha
 `@prompt-hash` no header, sem tocar em comportamento.
@@ -293,8 +293,8 @@ Executado **duas vezes** durante P310:
 | `infra/export/stream.rs` | `9acca994` preservado |
 | `infra/export/images.rs` | `ba5bcbb7` preservado |
 | `infra/export/fonts.rs` | `c7d24b28` preservado |
-| `rules/layout/mod.rs` | inalterado |
-| `rules/layout/cursor.rs` | inalterado |
+| `engine/layout/mod.rs` | inalterado |
+| `engine/layout/cursor.rs` | inalterado |
 | L0 `rules/stdlib.md` | **`d4c214e1` → `aa4ca50f`** (drift deliberado) |
 | L0 `rules/eval.md` | **anterior → `bf9002ad`** (drift deliberado) |
 | 11× `rules/stdlib/*.rs` (`@prompt-hash`) | **`d4c214e1` → `aa4ca50f`** via `--fix-hashes` |

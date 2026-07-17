@@ -363,9 +363,9 @@ preventivas só.
   (P184D substitution-with-fallback) — inalterado em P197.
 - **Consumer C4**: `references.rs::layout_ref` text ref-arm
   (P194B substitution-with-fallback) — inalterado em P197.
-- **L0 tocado**: `00_nucleo/prompts/rules/introspect.md`
+- **L0 tocado**: `00_nucleo/prompts/engine/introspect.md`
   hash `b9f78ff9`.
-- **Código tocado**: `01_core/src/rules/introspect.rs`
+- **Código tocado**: `01_core/src/engine/introspect.rs`
   hash `c938c001`.
 - **Padrão diagnóstico-primeiro**: 19ª aplicação consecutiva
   (P197A diagnóstico antes de P197B refactor).

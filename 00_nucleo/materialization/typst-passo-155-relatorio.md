@@ -14,7 +14,7 @@ ADR-0060:
   variant estrutural com 4 atributos do vanilla `QuoteElem`.
 - **`native_quote`** em stdlib, expondo `#quote(body,
   attribution: ?, block: ?, quotes: ?)` em Typst-lang.
-- **Módulo novo `01_core/src/rules/lang/quotes.rs`** com
+- **Módulo novo `01_core/src/engine/lang/quotes.rs`** com
   `localize_quotes(lang) → (open, close)` para 6 idiomas
   (`pt`/`en`/`de`/`fr`/`es`/`it`) + default ASCII.
 - **Smart-quotes em markup `"..."`** via alternância open/close por
@@ -33,11 +33,11 @@ fechada. Plano Fase 2 (P156–P158) inalterado.
   ADR-0052; `as_str()` devolve `&str` lowercase. Sem region/country
   → lookup BCP47 com prefix simplifica para exact match.
 - Parser em `Mode::Markup` vs `Mode::Code` confirmado
-  (`SyntaxMode::{Markup,Code}`); lexer em `01_core/src/rules/lexer/markup.rs`
+  (`SyntaxMode::{Markup,Code}`); lexer em `01_core/src/engine/lexer/markup.rs`
   já produz `SyntaxKind::SmartQuote` para `'` e `"` (per-character).
   `parse/markup.rs::markup_expr` consome SmartQuote como leaf
   (`p.eat()`); eval drop-down silencioso (caía em `_ => Value::None`).
-- Módulo `rules/lang/` **não existia**; `rules/layout/hyphenation.rs`
+- Módulo `rules/lang/` **não existia**; `engine/layout/hyphenation.rs`
   hospedava lang-aware hyphenation (ADR-0057).
 - `make_stdlib`: 31 funcs nativas + módulo `calc` antes de P155.
 
@@ -73,8 +73,8 @@ pub enum Content {
 | `entities/content.rs` | `map_text` | idem |
 | `rules/introspect.rs` | `materialize_time` | recurse em body + attribution |
 | `rules/introspect.rs` | `walk` | walk body; walk attribution se presente |
-| `rules/layout/mod.rs` | `layout_content` | smart-quote insertion via `localize_quotes`; block (indent + line-attribution) vs inline (parágrafo + " — attribution") |
-| `rules/layout/mod.rs` | `measure_content_constrained` | catch-all `_ => (0.0, 0.0)` cobre |
+| `engine/layout/mod.rs` | `layout_content` | smart-quote insertion via `localize_quotes`; block (indent + line-attribution) vs inline (parágrafo + " — attribution") |
+| `engine/layout/mod.rs` | `measure_content_constrained` | catch-all `_ => (0.0, 0.0)` cobre |
 
 ## 5. Módulo `rules/lang/quotes.rs` — assinatura + tabela
 
@@ -103,7 +103,7 @@ caem em default a menos que sejam adicionados explicitamente à tabela.
 ## 6. `native_quote` — assinatura + registo
 
 ```rust
-// 01_core/src/rules/stdlib/structural.rs
+// 01_core/src/engine/stdlib/structural.rs
 pub fn native_quote(...) -> SourceResult<Value> {
     let body = match args.items.first() { ... };
     let mut attribution = None;
@@ -125,7 +125,7 @@ pub fn native_quote(...) -> SourceResult<Value> {
 }
 ```
 
-Registado em `make_stdlib` (em `01_core/src/rules/eval/mod.rs`):
+Registado em `make_stdlib` (em `01_core/src/engine/eval/mod.rs`):
 
 ```rust
 scope.define("quote", Value::Func(Func::native("quote", native_quote)));
@@ -144,7 +144,7 @@ lexer para parear `"..."` excederia escopo P155. Em vez disso,
 markup e emite o glyph localizado como `Content::Text(glyph, style)`.
 
 ```rust
-// 01_core/src/rules/eval/mod.rs::eval_markup
+// 01_core/src/engine/eval/mod.rs::eval_markup
 let mut double_open = true;  // próximo `"` é open?
 let mut single_open = true;
 for child in node.children() {
@@ -195,9 +195,9 @@ Ok(Value::Str(EcoString::from(node.get())))` em `eval_expr` (intacto).
 
 | Ficheiro | Testes | Total |
 |----------|--------|-------|
-| `01_core/src/rules/lang/quotes.rs::tests` | localize pt/en/de/fr/es+it/jp/por (3-letter) | 7 |
+| `01_core/src/engine/lang/quotes.rs::tests` | localize pt/en/de/fr/es+it/jp/por (3-letter) | 7 |
 | `01_core/src/entities/content.rs::tests` | quote_constructor; plain_text com/sem attribution; quotes:false; is_empty; map_text recurse; partial_eq | 7 |
-| `01_core/src/rules/eval/tests.rs` | eval_quote {default, attribution, block, quotes:false}; arg_invalido; sem_body; markup default ASCII; **regression code-vs-markup** | 8 |
+| `01_core/src/engine/eval/tests.rs` | eval_quote {default, attribution, block, quotes:false}; arg_invalido; sem_body; markup default ASCII; **regression code-vs-markup** | 8 |
 
 **Total**: 1123 → **1145** (+22 = 7 + 7 + 8). Sem regressão.
 
@@ -208,12 +208,12 @@ cobre via path comum (pipeline já testado em P140B/P141).
 
 - `00_nucleo/prompts/entities/content.md` ganhou secção
   "Variant `Content::Quote` — Passo 155".
-- **Ficheiro novo** `00_nucleo/prompts/rules/lang.md` regista
+- **Ficheiro novo** `00_nucleo/prompts/engine/lang.md` regista
   módulo `rules/lang/` e mecanismo smart-quotes.
 - Hashes recomputados via `crystalline-lint --fix-hashes`:
   - `01_core/src/entities/content.rs`: `43745b5d → 8413bb8d`.
-  - `01_core/src/rules/lang/mod.rs`: novo, `4426dbc0`.
-  - `01_core/src/rules/lang/quotes.rs`: novo, `4426dbc0`.
+  - `01_core/src/engine/lang/mod.rs`: novo, `4426dbc0`.
+  - `01_core/src/engine/lang/quotes.rs`: novo, `4426dbc0`.
 - "Hash do Código" L0:
   - `entities/content.md`: `a4244268 → 0f5177f7`.
   - `rules/lang.md` (novo): `6664c5f2`.
@@ -288,7 +288,7 @@ DEBT-55 + ADR-0061 a criar.
   (decisão pragmática para evitar refactor do lexer per-character).
 - Render tests E2E PDF scope-out neste passo (cobertura via path
   comum).
-- Hyphenation continua em `rules/layout/`; refactor unificador para
+- Hyphenation continua em `engine/layout/`; refactor unificador para
   `rules/lang/` adiado a passo separado se priorizado.
 
 ## 15. Verificação final

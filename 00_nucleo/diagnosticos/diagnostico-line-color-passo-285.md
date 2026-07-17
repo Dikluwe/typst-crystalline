@@ -16,14 +16,14 @@ Separação em **3 buckets** (produtores / consumers de emit / match patterns):
 
 | Sítio | Origem | Cor actual | Comportamento pós-P285 |
 |---|---|---|---|
-| `01_core/src/rules/math/layout/frac.rs:65` | Linha de fracção (P38) | hardcoded preto (sem campo) | `color: None` → preserva preto bit-exact |
-| `01_core/src/rules/math/layout/root.rs:63` | Overline da raíz (sqrt) | idem | `color: None` |
-| `01_core/src/rules/layout/mod.rs:2008` | **Consumer P284 decorações** (Underline/Strike/Overline) | `stroke: Option<Color>` parseado mas IGNORADO | `color: stroke.or(self.style.fill)` (A.3 herança) |
-| `01_core/src/rules/math/layout/mod.rs:92` | Reflector de Line dentro de math layout (translação) | preserva | `color: *color` (pass-through) |
-| `01_core/src/rules/layout/equation.rs:79` | Reflector dentro de equação | preserva | `color: *color` |
-| `01_core/src/rules/layout/cursor.rs:251` | Reflector (cursor adjustment) | preserva | `color: *color` |
-| `01_core/src/rules/layout/helpers.rs:37` | Reflector (helpers genéricos) | preserva | `color: *color` |
-| `01_core/src/rules/layout/slicing.rs:83` | Reflector (page slicing) | preserva | `color: *color` |
+| `01_core/src/engine/math/layout/frac.rs:65` | Linha de fracção (P38) | hardcoded preto (sem campo) | `color: None` → preserva preto bit-exact |
+| `01_core/src/engine/math/layout/root.rs:63` | Overline da raíz (sqrt) | idem | `color: None` |
+| `01_core/src/engine/layout/mod.rs:2008` | **Consumer P284 decorações** (Underline/Strike/Overline) | `stroke: Option<Color>` parseado mas IGNORADO | `color: stroke.or(self.style.fill)` (A.3 herança) |
+| `01_core/src/engine/math/layout/mod.rs:92` | Reflector de Line dentro de math layout (translação) | preserva | `color: *color` (pass-through) |
+| `01_core/src/engine/layout/equation.rs:79` | Reflector dentro de equação | preserva | `color: *color` |
+| `01_core/src/engine/layout/cursor.rs:251` | Reflector (cursor adjustment) | preserva | `color: *color` |
+| `01_core/src/engine/layout/helpers.rs:37` | Reflector (helpers genéricos) | preserva | `color: *color` |
+| `01_core/src/engine/layout/slicing.rs:83` | Reflector (page slicing) | preserva | `color: *color` |
 
 ### A.1.2 — Consumers de emit (sítios que **lêem** `FrameItem::Line`)
 
@@ -36,13 +36,13 @@ Separação em **3 buckets** (produtores / consumers de emit / match patterns):
 | Sítio | Uso | Acção |
 |---|---|---|
 | `01_core/src/entities/layout_types.rs:427` | `Frame::plain_text` filter | adicionar `_` no pattern para evitar warning |
-| `01_core/src/rules/layout/cursor.rs:314` | extract `start.y.0` | `FrameItem::Line { start, .. }` continua válido (`..`) |
-| `01_core/src/rules/layout/helpers.rs:21` | extract `(start.x, start.y)` | `..` continua válido |
-| `01_core/src/rules/layout/slicing.rs:60` | extract `start.y.0` | idem |
+| `01_core/src/engine/layout/cursor.rs:314` | extract `start.y.0` | `FrameItem::Line { start, .. }` continua válido (`..`) |
+| `01_core/src/engine/layout/helpers.rs:21` | extract `(start.x, start.y)` | `..` continua válido |
+| `01_core/src/engine/layout/slicing.rs:60` | extract `start.y.0` | idem |
 | `03_infra/src/pipeline.rs:128, 183` | filtering com `matches!` `..` | idem |
-| `01_core/src/rules/math/layout/tests.rs` (várias) | test patterns | `..` continua válido |
-| `01_core/src/rules/layout/tests.rs:9818` | test helper destructuring `{ start, end, thickness }` | **ajustar** para `{ start, end, thickness, color: _ }` ou usar `..` |
-| `01_core/src/rules/math/layout/tests.rs:471` | constroi Line directo | adicionar `color: None` |
+| `01_core/src/engine/math/layout/tests.rs` (várias) | test patterns | `..` continua válido |
+| `01_core/src/engine/layout/tests.rs:9818` | test helper destructuring `{ start, end, thickness }` | **ajustar** para `{ start, end, thickness, color: _ }` ou usar `..` |
+| `01_core/src/engine/math/layout/tests.rs:471` | constroi Line directo | adicionar `color: None` |
 
 **Conclusão A.1**: 8 produtores + 1 consumer emit + ~8 match patterns. Nenhum
 gap empírico fora do esperado (limite 10 sítios per §7 risco secundário não

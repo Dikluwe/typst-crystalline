@@ -286,7 +286,7 @@ Conforme cláusula 1:
 Auditor confirma empiricamente:
 
 1. Confirmar walk arm `Content::Heading` actual:
-   - `01_core/src/rules/introspect.rs` — localizar arm.
+   - `01_core/src/engine/introspect.rs` — localizar arm.
    - Mutações empíricas (per P189B §5 E2):
      - `state.step_hierarchical("heading", *level)`.
      - `state.auto_label_counter += 1`.

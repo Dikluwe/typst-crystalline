@@ -63,25 +63,25 @@ foi necessário implementar o eval de dict literal `(a: 1, b: 2)` e o helper
 
 ### Código de produção
 
-- `01_core/src/rules/stdlib/collections.rs` — novo módulo com os 23 métodos e
+- `01_core/src/engine/stdlib/collections.rs` — novo módulo com os 23 métodos e
   o dispatcher `try_dispatch_collection_method`.
-- `01_core/src/rules/stdlib/mod.rs` — registo do módulo `collections` e
+- `01_core/src/engine/stdlib/mod.rs` — registo do módulo `collections` e
   re-exportação do dispatcher.
-- `01_core/src/rules/eval/closures.rs` — intercepção de method calls em
+- `01_core/src/engine/eval/closures.rs` — intercepção de method calls em
   `eval_func_call` antes do dispatch genérico de funções.
-- `01_core/src/rules/eval/mod.rs` — eval de dict literal `(a: 1, b: 2)`;
+- `01_core/src/engine/eval/mod.rs` — eval de dict literal `(a: 1, b: 2)`;
   chaves keyed não-string (ex.: regex) deixam o dict como `Value::None` para
   preservar o parsing especializado de `#set text(font:)`.
 - `01_core/src/entities/value.rs` — adição de `Value::truthy()`.
 
 ### Testes
 
-- `01_core/src/rules/eval/tests.rs` — 23 testes de integração E2E, um por
+- `01_core/src/engine/eval/tests.rs` — 23 testes de integração E2E, um por
   método.
 
 ### Specs L0
 
-- `00_nucleo/prompts/rules/stdlib/foundations.md` — secção 10 com a tabela de
+- `00_nucleo/prompts/engine/stdlib/foundations.md` — secção 10 com a tabela de
   métodos de `array`, `dict` e `str`.
 - `00_nucleo/prompts/entities/value.md` — nota sobre métodos de coleção,
   `truthy()` e eval de dict literal.

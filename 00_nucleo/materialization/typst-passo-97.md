@@ -52,7 +52,7 @@ rácio método/campo do relatório de continuidade):
 | 96.2  | `rules/eval/` (armos)| desconhecido | alta |
 | 96.4  | `rules/parse/`       | desconhecido | alta |
 | 96.5  | `rules/stdlib/`      | desconhecido | média |
-| 96.7  | `rules/layout/`      | 2.1:1        | média |
+| 96.7  | `engine/layout/`      | 2.1:1        | média |
 | 96.8  | `rules/math/layout/` | 2.6:1        | baixa |
 | 96.9  | `rules/lexer/`       | 4.0:1        | baixa |
 
@@ -69,7 +69,7 @@ introduziram visibilidades; estão fora do escopo.
 
 ### 97.A — Inventário empírico
 
-1. Enumerar todos os `pub(super)` em `01_core/src/rules/`.
+1. Enumerar todos os `pub(super)` em `01_core/src/engine/`.
    Formato por linha: `<ficheiro>:<linha>:<tipo>` onde `<tipo>`
    é `fn`, `struct_field`, `enum_variant`, `const`, `type`, ou
    `mod`.
@@ -121,7 +121,7 @@ marcas `R1–R4` aplicada.
 
 ### 97.D — Verificação final
 
-1. Grep final por `pub(super)` em `01_core/src/rules/`. Confirmar
+1. Grep final por `pub(super)` em `01_core/src/engine/`. Confirmar
    que cada ocorrência tem comentário `// Regra 3 (ADR-0037): ...`
    na linha imediatamente acima ou é `fn` (métodos não precisam
    de comentário; o próprio método **é** a aplicação da nota).

@@ -16,7 +16,7 @@ Etiquetas: `CONFIRMADO` / `AJUSTE NECESSÁRIO`.
 
 Estado pré-fix:
 
-- Linha 29 (import): `use typst_core::rules::introspect::introspect;`
+- Linha 29 (import): `use typst_core::engine::introspect::introspect;`
 - Linha 68: `let state = introspect(content);`
 - Linha 69: `let doc = layout(content, state);`
 
@@ -29,7 +29,7 @@ error[E0061]: this function takes 1 argument but 2 arguments were supplied
  69 |     let doc = layout(content, state);
     |               ^^^^^^          ----- unexpected argument #2 of type `TagIntrospector`
 note: function defined here
-   --> 01_core/src/rules/layout/mod.rs:1480:8
+   --> 01_core/src/engine/layout/mod.rs:1480:8
     |
 1480| pub fn layout(content: &Content) -> PagedDocument {
     |        ^^^^^^
@@ -185,8 +185,8 @@ Edições aplicadas (3 mudanças coordenadas):
 `tests/layout_parity.rs:29`:
 ```diff
  use typst_core::contracts::world::World;
--use typst_core::rules::introspect::introspect;
- use typst_core::rules::layout::layout;
+-use typst_core::engine::introspect::introspect;
+ use typst_core::engine::layout::layout;
 ```
 
 ### §2.2 Remover `let state = introspect(content);` + actualizar call

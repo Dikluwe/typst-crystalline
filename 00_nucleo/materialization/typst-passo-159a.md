@@ -66,9 +66,9 @@ candidatos NÃO-reservados.
   critério #2 (escolha de tipo) aplicável a `BibEntry`.
 - `01_core/src/entities/content.rs` — paridade estrutural com
   variants P157A/B/C.
-- `01_core/src/rules/stdlib/structural.rs` — paridade pattern
+- `01_core/src/engine/stdlib/structural.rs` — paridade pattern
   para stdlib funcs Model.
-- `01_core/src/rules/introspect.rs` — counters figure por
+- `01_core/src/engine/introspect.rs` — counters figure por
   kind (paridade para walk single-pass de Cite).
 - `lab/typst-original/crates/typst-library/src/model/bibliography.rs`
   (vanilla, quarentena) — referência para subset semântico
@@ -158,7 +158,7 @@ similar. Diagnóstico P159 §3.5 documenta justificação completa.
   - Naming flat per padrão P157B (`bibliography` e `cite`,
     sem namespacing). FieldAccess actual não suporta
     `Value::Func.subname`.
-  - Localização: `01_core/src/rules/stdlib/structural.rs`
+  - Localização: `01_core/src/engine/stdlib/structural.rs`
     (continuação Model per P157A).
 
 - **Helper privado novo `extract_bib_entries`**:
@@ -303,7 +303,7 @@ inventário .1):
 
 ### .4 Adicionar stdlib funcs `native_bibliography` e `native_cite`
 
-`01_core/src/rules/stdlib/structural.rs`:
+`01_core/src/engine/stdlib/structural.rs`:
 - Func `bibliography(entries, title: none) -> content`.
   - Helper `extract_bib_entries(Value::Array<Value::Dict>)`.
   - Cada Dict valida fields obrigatórios `key/author/title/year`.
@@ -320,7 +320,7 @@ Registadas em `eval/mod.rs::make_stdlib`. Re-exportadas em
 
 ### .5 Layout para Bibliography + Cite
 
-`01_core/src/rules/layout/mod.rs`:
+`01_core/src/engine/layout/mod.rs`:
 - Pattern arm `Content::Bibliography { entries, title }`:
   - Render title se Some (paridade Block).
   - Iterate entries; cada entry renderiza linha

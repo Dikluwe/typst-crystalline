@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/entities/func.md
-//! @prompt-hash 75fb9643
+//! @prompt-hash b6c3439a
 //! @layer L1
 //! @updated 2026-04-13
 
@@ -112,7 +112,7 @@ pub struct ClosureParam {
 pub struct NativeFunc {
     pub name: &'static str,
     pub call: fn(
-        &mut crate::rules::eval::EvalContext,
+        &mut crate::engine::eval::EvalContext,
         &Args,
         &dyn crate::contracts::world::World,
         FileId,
@@ -126,11 +126,11 @@ pub struct NativeFunc {
 pub struct NativeFuncWithEngine {
     pub name: &'static str,
     pub call: fn(
-        &mut crate::rules::eval::EvalContext,
+        &mut crate::engine::eval::EvalContext,
         &Args,
         &dyn crate::contracts::world::World,
         FileId,
-        &mut crate::rules::scopes::Scopes<'_>,
+        &mut crate::engine::scopes::Scopes<'_>,
         &mut crate::entities::engine::Engine<'_>,
     ) -> SourceResult<Value>,
     pub namespace: Option<Arc<Scope>>,
@@ -147,7 +147,7 @@ impl Func {
     pub fn native(
         name: &'static str,
         call: fn(
-            &mut crate::rules::eval::EvalContext,
+            &mut crate::engine::eval::EvalContext,
             &Args,
             &dyn crate::contracts::world::World,
             FileId,
@@ -160,7 +160,7 @@ impl Func {
     pub fn native_with_namespace(
         name: &'static str,
         call: fn(
-            &mut crate::rules::eval::EvalContext,
+            &mut crate::engine::eval::EvalContext,
             &Args,
             &dyn crate::contracts::world::World,
             FileId,
@@ -175,11 +175,11 @@ impl Func {
     pub fn native_with_engine(
         name: &'static str,
         call: fn(
-            &mut crate::rules::eval::EvalContext,
+            &mut crate::engine::eval::EvalContext,
             &Args,
             &dyn crate::contracts::world::World,
             FileId,
-            &mut crate::rules::scopes::Scopes<'_>,
+            &mut crate::engine::scopes::Scopes<'_>,
             &mut crate::entities::engine::Engine<'_>,
         ) -> SourceResult<Value>,
     ) -> Self {
@@ -191,11 +191,11 @@ impl Func {
     pub fn native_with_engine_and_namespace(
         name: &'static str,
         call: fn(
-            &mut crate::rules::eval::EvalContext,
+            &mut crate::engine::eval::EvalContext,
             &Args,
             &dyn crate::contracts::world::World,
             FileId,
-            &mut crate::rules::scopes::Scopes<'_>,
+            &mut crate::engine::scopes::Scopes<'_>,
             &mut crate::entities::engine::Engine<'_>,
         ) -> SourceResult<Value>,
         namespace: Arc<Scope>,
@@ -268,7 +268,7 @@ impl Func {
     /// Safe: `fn(...)` é function pointer, não `*const c_void`.
     pub fn native_fn_addr(&self)
         -> Option<fn(
-            &mut crate::rules::eval::EvalContext,
+            &mut crate::engine::eval::EvalContext,
             &Args,
             &dyn crate::contracts::world::World,
             FileId,

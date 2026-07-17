@@ -90,7 +90,7 @@ validado. ADR-0071 PROPOSTO ainda activa.
 #### Inventário `compute_labelled`
 
 4. Localizar `compute_labelled` em
-   `01_core/src/rules/introspect.rs`:
+   `01_core/src/engine/introspect.rs`:
    - Signature actual: `fn compute_labelled(state:
      &CounterStateLegacy, target: &Content, ...) ->
      (Option<String>, Option<usize>)` (forma

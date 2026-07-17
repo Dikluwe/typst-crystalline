@@ -127,14 +127,14 @@ Pendência adicional não esperada (decisão 5.1): `from_tags::StateUpdate` auto
 **P182D** — Layouter heading-arm + equation-arm via `Introspector` com substitution-with-fallback.
 
 Escopo concreto:
-1. **`01_core/src/rules/layout/mod.rs:301`** — heading prefix consumer:
+1. **`01_core/src/engine/layout/mod.rs:301`** — heading prefix consumer:
    ```rust
    if self.introspector.is_numbering_active("numbering_active:heading")
        || self.counter.is_numbering_active("heading") {
        // ... gerar prefixo numérico
    }
    ```
-2. **`01_core/src/rules/layout/equation.rs:24`** — equation auto-numeração:
+2. **`01_core/src/engine/layout/equation.rs:24`** — equation auto-numeração:
    ```rust
    let is_numbered = block && (
        self.introspector.is_numbering_active("numbering_active:equation")

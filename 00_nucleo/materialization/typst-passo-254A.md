@@ -50,10 +50,10 @@ substitui o número antigo por inventário factual de 2026-05-15.
 
 | Ficheiro | Linhas (aprox) | Função |
 |----------|----------------|--------|
-| `01_core/src/rules/introspect.rs` | 1108 (P160) → estendido | Walk DFS; populador de stores |
-| `01_core/src/rules/introspect/fixpoint.rs` | 626 | M7 fixpoint runtime (P192B) |
-| `01_core/src/rules/introspect/from_tags.rs` | — | M3+ construtor de TagIntrospector |
-| `01_core/src/rules/introspect/locatable.rs` | — | `is_locatable` pura (P164) |
+| `01_core/src/engine/introspect.rs` | 1108 (P160) → estendido | Walk DFS; populador de stores |
+| `01_core/src/engine/introspect/fixpoint.rs` | 626 | M7 fixpoint runtime (P192B) |
+| `01_core/src/engine/introspect/from_tags.rs` | — | M3+ construtor de TagIntrospector |
+| `01_core/src/engine/introspect/locatable.rs` | — | `is_locatable` pura (P164) |
 | `01_core/src/entities/introspector.rs` | — | TagIntrospector struct (P165) |
 | `01_core/src/entities/metadata_store.rs` | — | MetadataStore sub-store (P169) |
 | `01_core/src/entities/counter_state.rs` | 333 (P160) | Legacy single-pass; cleanup orgânico M6 |

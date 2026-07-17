@@ -64,7 +64,7 @@ O comando `typst fonts` do cristalino não lista fontes. Isto é esperado nesta 
 
 ### 3.1 Implementação
 
-Ficheiro: `01_core/src/rules/layout/tests.rs:27-37`
+Ficheiro: `01_core/src/engine/layout/tests.rs:27-37`
 
 ```rust
 /// **P589** — Fonte neutra para testes de algoritmo. Deve estar disponível
@@ -82,7 +82,7 @@ pub(crate) fn documento_algoritmo(conteudo: &str) -> String {
 
 ### 3.2 Teste de sentinel
 
-Ficheiro: `01_core/src/rules/layout/tests.rs:3540-3559`
+Ficheiro: `01_core/src/engine/layout/tests.rs:3540-3559`
 
 ```rust
 #[test]
@@ -230,7 +230,7 @@ Resultados:
 
 - [x] Fonte neutra escolhida: `DejaVu Sans`.
 - [x] Documentação criada em `00_nucleo/testing/fontes-padrao-teste.md`.
-- [x] Helper `documento_algoritmo` e constante `FONTE_NEUTRA_TESTE` criados em `01_core/src/rules/layout/tests.rs`.
+- [x] Helper `documento_algoritmo` e constante `FONTE_NEUTRA_TESTE` criados em `01_core/src/engine/layout/tests.rs`.
 - [x] Teste de regressão `p589_documento_algoritmo_aplica_fonte_neutra` passando.
 - [x] Documentos da sequência RTL revistos: a maioria não usava fonte explícita e deve usar `documento_algoritmo` em futuras medições.
 - [x] `cargo test --workspace` limpo.

@@ -52,7 +52,7 @@ error: unexpected argument: reverse
 
 ## 2. Ajuste
 
-### 2.1 `01_core/src/rules/stdlib/collections.rs`
+### 2.1 `01_core/src/engine/stdlib/collections.rs`
 
 As mensagens do cristalino para os dois casos divergiam:
 
@@ -64,7 +64,7 @@ Alteradas para bater com o vanilla:
 - Depois (positional): `unexpected argument`
 - Depois (unknown): `unexpected argument: reverse`
 
-### 2.2 `01_core/src/rules/eval/tests.rs`
+### 2.2 `01_core/src/engine/eval/tests.rs`
 
 Atualizado `p653_array_sorted_rejeita_positional` para verificar `unexpected argument` em vez da mensagem anterior.
 

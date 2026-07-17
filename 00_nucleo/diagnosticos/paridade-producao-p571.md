@@ -2,7 +2,7 @@
 
 **Status:** `CONCLUÍDO` (verificação directa; nenhum código de produção alterado)  
 **Data:** 2026-07-05  
-**Scope:** `03_infra/fixtures/p307b/reference/`, `03_infra/src/layout_bidi.rs`, `01_core/src/rules/layout/cursor.rs`, `01_core/src/rules/layout/mod.rs`, `01_core/src/rules/layout/text.rs`.
+**Scope:** `03_infra/fixtures/p307b/reference/`, `03_infra/src/layout_bidi.rs`, `01_core/src/engine/layout/cursor.rs`, `01_core/src/engine/layout/mod.rs`, `01_core/src/engine/layout/text.rs`.
 
 ---
 
@@ -13,7 +13,7 @@ A contradição a resolver era:
 - Relatório P568 afirmava que os 9 snapshots P307b (01–09) passavam depois da regeneração.
 - Relatório P569 afirmava que 5 desses 9 (01, 02, 03, 07, 09) falhavam e classificava-as como "pré-existentes, anterior a P569".
 
-**Conclusão:** a afirmação de P569 está **parcialmente incorrecta**. As 5 falhas observadas no working tree actual **não são causadas pelo commit P569** em `03_infra/src/layout_bidi.rs`. A causa são alterações pendentes no working tree em L1 (`01_core/src/rules/layout/cursor.rs`, `mod.rs`, `text.rs`) que introduzem `layout_space()` e anexam espaços a `FrameItem::Text`. O commit P569 isolado provoca apenas a falha preexistente em `07-multi-feature`; P570 corrige essa falha. Por conseguinte, o relatório P569 deve ser corrigido e os snapshots **não** devem ser regenerados neste passo.
+**Conclusão:** a afirmação de P569 está **parcialmente incorrecta**. As 5 falhas observadas no working tree actual **não são causadas pelo commit P569** em `03_infra/src/layout_bidi.rs`. A causa são alterações pendentes no working tree em L1 (`01_core/src/engine/layout/cursor.rs`, `mod.rs`, `text.rs`) que introduzem `layout_space()` e anexam espaços a `FrameItem::Text`. O commit P569 isolado provoca apenas a falha preexistente em `07-multi-feature`; P570 corrige essa falha. Por conseguinte, o relatório P569 deve ser corrigido e os snapshots **não** devem ser regenerados neste passo.
 
 | Estado testado | Snapshots a passar | Snapshots a falhar | Observação |
 |---|---|---|---|
@@ -65,9 +65,9 @@ git diff HEAD --stat
 
 O working tree contém, entre outras, alterações em L1:
 
-- `01_core/src/rules/layout/cursor.rs` — adiciona `layout_space()` que anexa o caractere de espaço ao último `FrameItem::Text`.
-- `01_core/src/rules/layout/mod.rs` — adiciona campo `pending_space_width: Pt` e altera o braço `Content::Space`.
-- `01_core/src/rules/layout/text.rs` — usa `layout_space()` em vez de avançar `cursor_x`.
+- `01_core/src/engine/layout/cursor.rs` — adiciona `layout_space()` que anexa o caractere de espaço ao último `FrameItem::Text`.
+- `01_core/src/engine/layout/mod.rs` — adiciona campo `pending_space_width: Pt` e altera o braço `Content::Space`.
+- `01_core/src/engine/layout/text.rs` — usa `layout_space()` em vez de avançar `cursor_x`.
 
 Estas alterações **não têm Prompt L0 correspondente** em `00_nucleo/prompts/infra/layout_bidi.md`; o L0 vigente (hash `603ffda0`, P569) rejeita explicitamente mudar o Layouter (L1).
 
@@ -259,9 +259,9 @@ cargo test -p typst-infra p307b_snapshot_tests
 |---|---|
 | `03_infra/fixtures/p307b/reference/*.pdf` | Snapshots P307b. |
 | `03_infra/src/layout_bidi.rs` | Alterado por P569 (L3). |
-| `01_core/src/rules/layout/cursor.rs` | Alterado no working tree por L1 (`layout_space`). |
-| `01_core/src/rules/layout/mod.rs` | Alterado no working tree por L1 (`pending_space_width`, braço `Content::Space`). |
-| `01_core/src/rules/layout/text.rs` | Alterado no working tree por L1 (usa `layout_space()`). |
+| `01_core/src/engine/layout/cursor.rs` | Alterado no working tree por L1 (`layout_space`). |
+| `01_core/src/engine/layout/mod.rs` | Alterado no working tree por L1 (`pending_space_width`, braço `Content::Space`). |
+| `01_core/src/engine/layout/text.rs` | Alterado no working tree por L1 (usa `layout_space()`). |
 | `00_nucleo/prompts/infra/layout_bidi.md` | L0 vigente rejeita alterar o Layouter (L1). |
 | `00_nucleo/diagnosticos/paridade-producao-p569.md` | Relatório a corrigir. |
 

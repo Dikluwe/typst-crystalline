@@ -4,7 +4,7 @@ Executado em 2026-04-30. Passo único de M2 do refactor Introspection.
 
 ## Resumo
 
-- `is_locatable(content: &Content) -> bool` extraído como função pura em `01_core/src/rules/introspect/locatable.rs`.
+- `is_locatable(content: &Content) -> bool` extraído como função pura em `01_core/src/engine/introspect/locatable.rs`.
 - Match **exaustivo** sobre os 56 variants de `Content` — sem `_ => false` fall-through. 3 variants em `true` (Heading, Figure, Cite); 53 variants em `false`.
 - Invariante `is_locatable(c) == extract_payload(c).is_some()` verificado por test exhaustivo sobre representantes de cada bucket.
 - Walk em `rules/introspect.rs` **não modificado** — apenas adicionada a declaração `pub mod locatable;` em paralelo a `pub mod extract_payload;`. Body da função walk inalterado.
@@ -32,7 +32,7 @@ L0 novo:
 
 | L0 | Hash do código L0 | @prompt-hash em L1 |
 |----|-------------------|--------------------|
-| `00_nucleo/prompts/rules/introspect/locatable.md` | `02397820` | `e512f448` |
+| `00_nucleo/prompts/engine/introspect/locatable.md` | `02397820` | `e512f448` |
 
 ## Decisões registadas em .A
 
@@ -54,7 +54,7 @@ Sem variants novos entre M1 e M2 — gate trivial não disparou.
 
 ### Mecanismo de re-export
 
-P164.B step 3 mencionou "update `01_core/src/rules/introspect/mod.rs`". Esse ficheiro **não existe** — a estrutura usada desde P162.D é `rules/introspect.rs` (módulo pai como ficheiro) + `rules/introspect/<sub>.rs` (submódulos como ficheiros irmãos). Adicionei `pub mod locatable;` a `rules/introspect.rs` em paralelo à declaração existente `pub mod extract_payload;`. Forma equivalente; sem necessidade de criar `mod.rs` redundante.
+P164.B step 3 mencionou "update `01_core/src/engine/introspect/mod.rs`". Esse ficheiro **não existe** — a estrutura usada desde P162.D é `rules/introspect.rs` (módulo pai como ficheiro) + `rules/introspect/<sub>.rs` (submódulos como ficheiros irmãos). Adicionei `pub mod locatable;` a `rules/introspect.rs` em paralelo à declaração existente `pub mod extract_payload;`. Forma equivalente; sem necessidade de criar `mod.rs` redundante.
 
 ## Estado pós-passo
 

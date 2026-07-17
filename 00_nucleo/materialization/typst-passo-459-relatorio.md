@@ -30,40 +30,40 @@ caption **acima** da table (vanilla default para tables).
 - Testes existentes que constroem `TableElem` manualmente foram actualizados
   com `caption: None`.
 
-### 3. `01_core/src/rules/stdlib/structural.rs`
+### 3. `01_core/src/engine/stdlib/structural.rs`
 
 - `native_table` passou a aceitar argumento nomeado `caption: content|string|none`.
 - Validação de argumentos nomeados actualizada para permitir `caption`.
 - `TableElem` construído com `caption` extraído.
 
-### 4. `01_core/src/rules/eval/rules.rs`
+### 4. `01_core/src/engine/eval/rules.rs`
 
 - Adicionado arm `target == "table"` em `eval_set_rule` para
   `#set table(numbering: ...)`.
 - Empurra `("table.numbering", Value::Str(pattern))` na `StyleChain`;
   `Value::None` limpa no escopo léxico.
-- Prompt L0 `00_nucleo/prompts/rules/eval/table.md` criado.
+- Prompt L0 `00_nucleo/prompts/engine/eval/table.md` criado.
 
-### 5. `01_core/src/rules/layout/mod.rs`
+### 5. `01_core/src/engine/layout/mod.rs`
 
 - Adicionado campo `table_counter: usize` ao `Layouter`.
 - Inicializado a `0` em `Layouter::new`.
 
-### 6. `01_core/src/rules/layout/table.rs`
+### 6. `01_core/src/engine/layout/table.rs`
 
 - Layout de `Content::Table` lê `table.numbering` da `StyleChain`.
 - Se houver caption e pattern, incrementa `table_counter`, formata com
   `format_counter` e prefixa o caption com `Table {formatted}: `.
 - Caption renderizado **acima** da table, seguido de `Content::linebreak()`.
 - Delegação ao motor `layout_grid` preservada.
-- Prompt L0 `00_nucleo/prompts/rules/layout/table.md` criado.
+- Prompt L0 `00_nucleo/prompts/engine/layout/table.md` criado.
 
 ### 7. Testes
 
 - **L1 (eval)** — `rules/eval/tests.rs`:
   - `p459_set_table_numbering_assa_via_chain`
   - `p459_set_table_escopo_lexical_nao_vaza`
-- **L2 (layout)** — `rules/layout/tests.rs`:
+- **L2 (layout)** — `engine/layout/tests.rs`:
   - `p459_table_caption_numbering_prefixo_acima`
   - `p459_table_sem_caption_sem_prefixo`
 - **L3 (E2E)** — `rules/eval/tests.rs`:

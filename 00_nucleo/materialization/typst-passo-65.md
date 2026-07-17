@@ -3,7 +3,7 @@
 ## Estado actual antes de começar
 
 Ler antes de começar:
-- `01_core/src/rules/layout/mod.rs` — Onde a função orquestradora `layout()` reside.
+- `01_core/src/engine/layout/mod.rs` — Onde a função orquestradora `layout()` reside.
 - `03_infra/src/integration_tests.rs` — Onde a lógica de 3 passagens foi colocada no Passo 63.
 - `01_core/src/entities/layout_types.rs` — Onde `PagedDocument` e `extracted_label_pages` estão definidos.
 
@@ -38,11 +38,11 @@ grep -n "layout(\|Passagem\|draft\|final_state" \
   03_infra/src/integration_tests.rs | head -20
 
 # 2. Confirmar assinatura actual de layout()
-grep -n "^pub fn layout" 01_core/src/rules/layout/mod.rs | head -5
+grep -n "^pub fn layout" 01_core/src/engine/layout/mod.rs | head -5
 
 # 3. Ver o que layout() faz actualmente com initial_state
 grep -n "initial_state\|resolved_labels\|headings_for_toc\|label_pages" \
-  01_core/src/rules/layout/mod.rs | head -20
+  01_core/src/engine/layout/mod.rs | head -20
 
 # 4. Confirmar que extracted_label_pages existe em PagedDocument
 grep -n "extracted_label_pages" \
@@ -58,7 +58,7 @@ para o Layouter actualmente — o fixpoint vai copiar os mesmos campos mais
 
 ## Tarefa 1 — Motor de Convergência em `layout()` (L1)
 
-Em `01_core/src/rules/layout/mod.rs`, substituir a função `layout()` actual
+Em `01_core/src/engine/layout/mod.rs`, substituir a função `layout()` actual
 pelo ciclo de fixpoint:
 
 ```rust
@@ -196,8 +196,8 @@ continuam a passar com o pipeline simplificado.
 ```rust
 #[test]
 fn layout_converge_sem_ciclo_infinito() {
-    use crate::rules::introspect::introspect;
-    use crate::rules::layout::layout;
+    use crate::engine::introspect::introspect;
+    use crate::engine::layout::layout;
 
     let content = Content::Sequence(vec![
         Content::SetHeadingNumbering { active: true },
@@ -219,8 +219,8 @@ fn layout_converge_sem_ciclo_infinito() {
 
 #[test]
 fn layout_documento_sem_toc_usa_curto_circuito() {
-    use crate::rules::introspect::introspect;
-    use crate::rules::layout::layout;
+    use crate::engine::introspect::introspect;
+    use crate::engine::layout::layout;
 
     // Documento COM títulos mas SEM #outline(). O vetor headings_for_toc
     // terá entradas, mas has_outline é false — o short-circuit evita o loop.
@@ -243,8 +243,8 @@ fn layout_documento_sem_toc_usa_curto_circuito() {
 #[test]
 fn layout_com_labels_produz_extracted_label_pages() {
     use crate::entities::label::Label;
-    use crate::rules::introspect::introspect;
-    use crate::rules::layout::layout;
+    use crate::engine::introspect::introspect;
+    use crate::engine::layout::layout;
 
     let content = Content::Sequence(vec![
         Content::Labelled {

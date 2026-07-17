@@ -3,9 +3,9 @@
 ## Estado actual antes de começar
 
 Ler antes de começar:
-- `01_core/src/rules/eval.rs` — arm `Expr::FuncCall` (onde `frac`, `sqrt`, etc., são interceptados)
+- `01_core/src/engine/eval.rs` — arm `Expr::FuncCall` (onde `frac`, `sqrt`, etc., são interceptados)
 - `01_core/src/entities/content.rs` — enum `Content`
-- `01_core/src/rules/math/layout.rs` — métodos `layout_grid` e `layout_stretchy_delimiter`
+- `01_core/src/engine/math/layout.rs` — métodos `layout_grid` e `layout_stretchy_delimiter`
 
 Pré-condição: `cargo test` — 575 L1 + 107 L3 + 50 parity, zero violations.
 
@@ -40,7 +40,7 @@ grep -n "Semicolon" lab/typst-original/crates/typst-syntax/src/ast.rs | head -5
 grep -A 5 "pub struct Args" lab/typst-original/crates/typst-syntax/src/ast.rs
 
 # 2. Confirmar a assinatura actual do layout_grid
-grep -A 2 "fn layout_grid" 01_core/src/rules/math/layout.rs
+grep -A 2 "fn layout_grid" 01_core/src/engine/math/layout.rs
 ```
 
 Reportar o output antes de continuar. Se não for óbvio como extrair as linhas
@@ -66,7 +66,7 @@ MathMatrix {
 
 ## Tarefa 2 — Intercepção no eval
 
-Em `01_core/src/rules/eval.rs`, no match para `Expr::FuncCall` (onde já trata
+Em `01_core/src/engine/eval.rs`, no match para `Expr::FuncCall` (onde já trata
 `frac` e `sqrt`), adicionar a função `"mat"`:
 
 Analisar os argumentos passados a `call.args()`. O Typst normalmente parseia os
@@ -85,7 +85,7 @@ Ok(Content::MathMatrix { rows, delim: ('(', ')') })
 
 ## Tarefa 3 — Layout da matriz (MathLayouter)
 
-Em `01_core/src/rules/math/layout.rs`, adicionar o match para
+Em `01_core/src/engine/math/layout.rs`, adicionar o match para
 `Content::MathMatrix`.
 
 ### Ajuste de assinatura do layout_grid

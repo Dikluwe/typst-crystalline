@@ -9,7 +9,7 @@ quick wins ROI alto.
 
 ## §1 — Objectivo
 
-Expandir `make_calc_module` em `01_core/src/rules/stdlib.rs` (ou
+Expandir `make_calc_module` em `01_core/src/engine/stdlib.rs` (ou
 submódulo equivalente pós-ADR-0037) com as funções matemáticas
 vanilla actualmente em falta — trigonométricas, hiperbólicas,
 logarítmicas e exponenciais.
@@ -103,7 +103,7 @@ de domínio:
      `acos(1) = 0`).
    - 1 caso de erro/domínio se aplicável (`ln(-1)` → Err ou NaN
      conforme A.3).
-5. Actualizar L0 `00_nucleo/prompts/rules/stdlib.md` com tabela
+5. Actualizar L0 `00_nucleo/prompts/engine/stdlib.md` com tabela
    das funções novas + propagar hash via `crystalline-lint
    --fix-hashes`.
 
@@ -179,8 +179,8 @@ Se A.2 → (a) ou (c), sem ADR nova; passo procede directo.
 
 ## §8 — Ponteiros
 
-- L0 actual: `00_nucleo/prompts/rules/stdlib.md` §"Módulo calc".
-- Código actual: `01_core/src/rules/stdlib.rs` (`make_calc_module`,
+- L0 actual: `00_nucleo/prompts/engine/stdlib.md` §"Módulo calc".
+- Código actual: `01_core/src/engine/stdlib.rs` (`make_calc_module`,
   `calc_abs`, ..., `calc_clamp`).
 - ADR relevante: ADR-0018 (`rustc_hash` reintroduzido — usar
   como precedente metodológico para A.2; **não** confundir com

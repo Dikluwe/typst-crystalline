@@ -79,8 +79,8 @@ Este passo **não**:
 - `01_core/src/entities/mod.rs` — expor `pub mod lang;`.
 - `01_core/src/entities/style_chain.rs` — campo migrado,
   imports ajustados.
-- `01_core/src/rules/eval/rules.rs` — arm `"lang"` validador.
-- `01_core/src/rules/eval/tests.rs` — 3 testes adaptados +
+- `01_core/src/engine/eval/rules.rs` — arm `"lang"` validador.
+- `01_core/src/engine/eval/tests.rs` — 3 testes adaptados +
   1 novo integration test.
 - `00_nucleo/adr/typst-adr-0052-lang-tipo-semantico.md` —
   status `PROPOSTO` → `IMPLEMENTADO`.
@@ -107,7 +107,7 @@ Leitura rápida. Sem edição.
 actual:
 - `grep -n "lang: Option<EcoString>" 01_core/src/entities/style_chain.rs`
   — confirmar campo existe com tipo actual.
-- `grep -n "\"lang\"" 01_core/src/rules/eval/rules.rs` —
+- `grep -n "\"lang\"" 01_core/src/engine/eval/rules.rs` —
   confirmar arm actual.
 - `ls 01_core/src/entities/` — confirmar que `lang.rs` não
   existe.
@@ -328,7 +328,7 @@ pub lang: Option<Lang>,
 
 ### 131B.E — Adaptar arm `"lang"` em `eval_set_text`
 
-**Ficheiro**: `01_core/src/rules/eval/rules.rs`.
+**Ficheiro**: `01_core/src/engine/eval/rules.rs`.
 
 Imports a adicionar:
 
@@ -376,7 +376,7 @@ Arm novo:
 
 ### 131B.F — Adaptar testes L1 existentes
 
-**Ficheiro**: `01_core/src/rules/eval/tests.rs`.
+**Ficheiro**: `01_core/src/engine/eval/tests.rs`.
 
 **F.1** — `eval_set_text_lang_passo_130` → **renomear e adaptar**:
 

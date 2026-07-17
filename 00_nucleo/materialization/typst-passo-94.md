@@ -13,7 +13,7 @@ Ler antes de começar:
   se `StyleChain` for `Tracked`.
 - `01_core/src/entities/style_chain.rs` — estrutura actual do
   `StyleChain`. Imutável, clone O(1) via `Arc`.
-- `01_core/src/rules/eval.rs` — `EvalContext` com campo
+- `01_core/src/engine/eval.rs` — `EvalContext` com campo
   `styles: StyleChain`. Save/restore por bloco implementado no
   Passo 33.
 - `lab/typst-original/` — como o vanilla propaga `StyleChain<'a>`.
@@ -69,14 +69,14 @@ Antes de iniciar, executar:
 ```bash
 # Ver o campo styles no EvalContext:
 grep -n "pub styles:\|styles: StyleChain\|self\.styles\b\|ctx\.styles\b" \
-    01_core/src/rules/eval.rs
+    01_core/src/engine/eval.rs
 
 # Padrões actuais de save/restore:
 grep -n "saved_styles\|styles = saved\|styles.clone()" \
-    01_core/src/rules/eval.rs
+    01_core/src/engine/eval.rs
 
 # Todas as funções que actualmente lêem ou mutam ctx.styles:
-grep -n "self\.styles\b\|ctx\.styles\b" 01_core/src/rules/ \
+grep -n "self\.styles\b\|ctx\.styles\b" 01_core/src/engine/ \
     --include="*.rs" -r | head -40
 ```
 
@@ -250,7 +250,7 @@ cargo test --package typst-core styles 2>&1 | tail -20
 cargo test --package typst-core set_ 2>&1 | tail -20
 
 # Teste de atomização: nenhum ctx.styles remanescente:
-grep -n "ctx\.styles\|self\.styles\b" 01_core/src/rules/eval.rs
+grep -n "ctx\.styles\|self\.styles\b" 01_core/src/engine/eval.rs
 
 # Verificação final:
 cargo test --workspace 2>&1 | tail -10
@@ -300,7 +300,7 @@ fica para sub-passo de governança separado se for necessário.
       `StyleChain::default_chain()` e propaga.
 - [ ] Testes `set_dentro_bloco_*` e `set_false_reverte_*` passam
       sem alteração.
-- [ ] `grep "ctx\.styles\|self\.styles"` em `01_core/src/rules/`
+- [ ] `grep "ctx\.styles\|self\.styles"` em `01_core/src/engine/`
       retorna zero resultados.
 - [ ] Contagem total: 746 L1 + 174 L3 + 6 ignorados (inalterada).
 - [ ] `crystalline-lint` → zero violations.

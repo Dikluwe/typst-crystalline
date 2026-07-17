@@ -105,23 +105,23 @@ fechadas. Cenário α por construção identificado.
      retorna zero (excepto comentários Reserva 1).
 
 3. Confirmar arm `is_locatable(SetHeadingNumbering)`:
-   - `01_core/src/rules/introspect/locatable.rs:49`
+   - `01_core/src/engine/introspect/locatable.rs:49`
      (per P199A §3).
    - Linha exacta para inserir arm análogo.
 
 4. Confirmar arm `extract_payload(SetHeadingNumbering)`:
-   - `01_core/src/rules/introspect/extract_payload.rs:63`
+   - `01_core/src/engine/introspect/extract_payload.rs:63`
      (per P199A §3).
    - Forma exacta com chave `numbering_active:heading`.
 
 5. Confirmar walk arm `SetHeadingNumbering`:
-   - `01_core/src/rules/introspect.rs:611` (per
+   - `01_core/src/engine/introspect.rs:611` (per
      P199A §3).
    - Comentário inline P198B presente — usar como
      template.
 
 6. Confirmar `from_tags` arm StateUpdate (P171):
-   - `01_core/src/rules/introspect/from_tags.rs` (ou
+   - `01_core/src/engine/introspect/from_tags.rs` (ou
      similar).
    - Genérica — não tem hardcoded keys.
 
@@ -219,7 +219,7 @@ Conforme `.A.7` + `cargo check` warnings:
 
 ### .D Adicionar arm `is_locatable`
 
-1. Em `01_core/src/rules/introspect/locatable.rs`:
+1. Em `01_core/src/engine/introspect/locatable.rs`:
    - Adicionar arm após `Content::SetHeadingNumbering
      { .. } => true`:
      ```
@@ -238,7 +238,7 @@ Conforme `.A.7` + `cargo check` warnings:
 
 ### .E Adicionar arm `extract_payload`
 
-1. Em `01_core/src/rules/introspect/extract_payload.rs`:
+1. Em `01_core/src/engine/introspect/extract_payload.rs`:
    - Adicionar arm após
      `Content::SetHeadingNumbering` arm:
      ```
@@ -259,7 +259,7 @@ Conforme `.A.7` + `cargo check` warnings:
 
 ### .F Adicionar walk arm `SetEquationNumbering`
 
-1. Em `01_core/src/rules/introspect.rs`:
+1. Em `01_core/src/engine/introspect.rs`:
    - Adicionar arm após walk arm `SetHeadingNumbering`
      (linha ~624 per P198B):
      ```

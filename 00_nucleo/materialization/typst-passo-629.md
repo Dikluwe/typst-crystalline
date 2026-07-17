@@ -15,7 +15,7 @@
 
 ### Módulo novo
 
-Criar `01_core/src/rules/layout/sub_frame.rs`, seguindo a convenção já estabelecida no projecto de um ficheiro por conceito de layout (`grid.rs`, `placement.rs`, `columns.rs`, `boxed.rs`). Deixar isto dentro de `mod.rs` iria contra essa convenção e tornaria o ficheiro, já grande, ainda maior.
+Criar `01_core/src/engine/layout/sub_frame.rs`, seguindo a convenção já estabelecida no projecto de um ficheiro por conceito de layout (`grid.rs`, `placement.rs`, `columns.rs`, `boxed.rs`). Deixar isto dentro de `mod.rs` iria contra essa convenção e tornaria o ficheiro, já grande, ainda maior.
 
 ### Duas mudanças separadas, não uma só, para manter a verificação clara
 

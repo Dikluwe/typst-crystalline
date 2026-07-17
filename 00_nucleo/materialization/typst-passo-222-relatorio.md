@@ -80,7 +80,7 @@ em ambos ficheiros L1.
 
 ## §4 `native_measure` + scope register (C3 + C4)
 
-**Stdlib** em `01_core/src/rules/stdlib/layout.rs` após
+**Stdlib** em `01_core/src/engine/stdlib/layout.rs` após
 `native_colbreak` (paridade ordem ADR-0061 Fase 3 → Fase 4
 candidata):
 
@@ -88,7 +88,7 @@ candidata):
 pub fn native_measure(_ctx: &mut EvalContext, args: &Args, ...)
     -> SourceResult<Value>
 {
-    use crate::rules::layout::helpers::measure_content;
+    use crate::engine::layout::helpers::measure_content;
     use ecow::EcoString;
     use indexmap::IndexMap;
     use rustc_hash::FxBuildHasher;
@@ -128,7 +128,7 @@ pub fn native_measure(_ctx: &mut EvalContext, args: &Args, ...)
 ```
 
 **Re-export** em `stdlib/mod.rs`: `native_measure` adicionado
-à lista alfabética em `pub use crate::rules::stdlib::layout::{...}`.
+à lista alfabética em `pub use crate::engine::stdlib::layout::{...}`.
 
 **Scope register** em `eval/mod.rs` (paridade P218 pattern):
 ```rust

@@ -73,7 +73,7 @@ rg -n "space.*named|named.*space" lab/typst-original/crates/typst-library/src/vi
 rg -n "fn sample|interpolate_oklab|color_to_oklab" 01_core/src/entities/gradient.rs
 
 # 6. Cristalino stdlib actual (verificar que `space:` ainda não existe)
-rg -n "native_gradient_linear|native_gradient_radial|native_gradient_conic|space" 01_core/src/rules/stdlib/gradients.rs | head -20
+rg -n "native_gradient_linear|native_gradient_radial|native_gradient_conic|space" 01_core/src/engine/stdlib/gradients.rs | head -20
 
 # 7. Cristalino Color enum (P257) — confirmar 8 spaces materializados + conversões
 rg -n "enum Color|impl Color|to_rgba|to_oklab|to_hsl|to_hsv|to_cmyk" 01_core/src/entities/color.rs
@@ -376,7 +376,7 @@ Ver ADR-0091 EM VIGOR.
 ### Cap LOC
 
 - L1: ≤ 350 LOC em `01_core/src/entities/gradient.rs` (3 variants struct field + sample multi-space + hue-wrap helpers + interpolate_in_space helper).
-- Stdlib: ≤ 50 LOC em `01_core/src/rules/stdlib/gradients.rs` (named arg parsing 3 variants).
+- Stdlib: ≤ 50 LOC em `01_core/src/engine/stdlib/gradients.rs` (named arg parsing 3 variants).
 - Testes: ≤ 50 novos.
 
 ### Estrutura L1 esperada
@@ -462,7 +462,7 @@ pub fn linear_with_space(stops, angle, space) -> Self {
 ### Estrutura stdlib esperada
 
 ```rust
-// 01_core/src/rules/stdlib/gradients.rs
+// 01_core/src/engine/stdlib/gradients.rs
 
 pub fn native_gradient_linear(args) -> SourceResult<Value> {
     // P262 parsing preservado +

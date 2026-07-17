@@ -51,7 +51,7 @@ Cobertura exaustiva de **9 sítios pattern-match estruturais**
 
 ### 1.3 Refactor stdlib `native_pad` (.3)
 
-`01_core/src/rules/stdlib/layout.rs`:
+`01_core/src/engine/stdlib/layout.rs`:
 
 - `native_pad` deixa de aplicar `unwrap_or(Length::ZERO)` e
   passa a construir `Sides<Option<Length>>` directamente.

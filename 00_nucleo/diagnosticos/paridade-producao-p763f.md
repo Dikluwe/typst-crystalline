@@ -2,7 +2,7 @@
 
 **Data da medição:** 2026-07-15T19:05:48-03:00  
 **Commit base:** `b33706d208f2518acd8bdf032430e50437bd0e07`  
-**Working tree:** alterado (`01_core/src/rules/layout/placement.rs`)  
+**Working tree:** alterado (`01_core/src/engine/layout/placement.rs`)  
 **Passo:** P763f  
 **Objectivo:** Corrigir a divergência de coordenadas que P763c e P763e confirmaram no documento `cetz` com `line` + `circle`.
 
@@ -12,7 +12,7 @@
 
 P763e demonstrou que o bug não estava no renderizador de paths em si, mas na forma como o `place` calculava a origem de ancoragem quando era executado **dentro de um sub-frame** (por exemplo, `align(top, place(...))` dentro de um `block`).
 
-Ficheiro alterado: `01_core/src/rules/layout/placement.rs`, função `layout_place`.
+Ficheiro alterado: `01_core/src/engine/layout/placement.rs`, função `layout_place`.
 
 O código original usava sempre `origin_y = page_config.margin` e `y_offset = sub_origin_y` (ascender local). Isto funciona quando `place` é chamado no fluxo principal da página, mas falha quando `place` corre dentro de um sub-frame criado por `align`:
 

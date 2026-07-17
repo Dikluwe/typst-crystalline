@@ -17,7 +17,7 @@ vanilla, incluindo o gate de divisão por zero.
 ### 1.1 Localização exacta do bug
 
 `(BinOp::Div, Value::Length(_), Value::Length(_))` **não tinha braço**
-em `eval_binary_op` (`01_core/src/rules/eval/operators.rs`) — caía no
+em `eval_binary_op` (`01_core/src/engine/eval/operators.rs`) — caía no
 fronteira genérico, produzindo `"cannot apply Div to length and
 length"`. Isolado por P710/P711/P712 via `cetz`: `canvas.typ:37-38`
 (`assert(length / 1cm != 0, ...)`, logo após `.to-absolute()`) e
@@ -78,7 +78,7 @@ produzível, estas combinações devem ser revisitadas.
 
 ## 2. Implementação
 
-**`01_core/src/rules/eval/operators.rs`**:
+**`01_core/src/engine/eval/operators.rs`**:
 
 - Gate de divisão por zero (linha ~27-37): novo braço `Value::Length(l)
   if l.is_zero() => Err("cannot divide by zero")` — paridade com o

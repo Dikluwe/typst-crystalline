@@ -45,13 +45,13 @@ cumpridos.
 | Passo | Magnitude planeada | Magnitude real | Δ tests | L0s tocados |
 |-------|---------------------|-----------------|---------|-------------|
 | **P194A** | S (diagnóstico) | S | 0 | nenhum |
-| **P194B** | S (agregado) | S | **+4** | `rules/layout.md` |
+| **P194B** | S (agregado) | S | **+4** | `engine/layout.md` |
 | **Total** | — | — | **+4** | 1 L0 |
 
 P194B agregou em sub-passo único:
 - `.A` auditoria (site C4 confirmado).
 - `.B` migração consumer C4 + comentário inline curto.
-- `.C` actualização L0 `rules/layout.md` (secção C4 +
+- `.C` actualização L0 `engine/layout.md` (secção C4 +
   estado temporário documentado).
 - `.D` 4 tests E2E em `mod p194b_c4_resolved_label`.
 - `.E` verificação estrutural (14/14).

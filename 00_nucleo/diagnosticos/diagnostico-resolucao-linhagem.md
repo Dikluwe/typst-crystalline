@@ -27,21 +27,21 @@ Para cumprir a regra de relacionamento 1:1 entre código Rust e especificações
   * Registrou o novo submódulo: `pub mod shaped_glyph;`.
 
 ### B. Correção do Prompt de Operações (`ops.md`)
-* **Modificado**: `01_core/src/rules/eval/operators.rs`
-  * Atualizou o cabeçalho de linhagem para apontar diretamente para `00_nucleo/prompts/rules/eval/ops.md`, eliminando a orfandade deste prompt.
+* **Modificado**: `01_core/src/engine/eval/operators.rs`
+  * Atualizou o cabeçalho de linhagem para apontar diretamente para `00_nucleo/prompts/engine/eval/ops.md`, eliminando a orfandade deste prompt.
 
 ### C. Declaração de Exceções de Sub-prompts
 Para os prompts de especificações específicas de comportamento que não possuem arquivos Rust exclusivos de mesma granularidade, a solução recomendada pelo design do projeto é adicioná-los à lista de exceções:
 * **Modificado**: `crystalline.toml`
   * Adicionados à tabela `[orphan_exceptions]`:
-    * `00_nucleo/prompts/rules/eval/decimal-arithmetic.md` (Aritmética decimal em `operators.rs`).
-    * `00_nucleo/prompts/rules/eval/table.md` (Numeração de tabelas em `rules.rs`).
-    * `00_nucleo/prompts/rules/show-regex.md` (Show rules com regex em `rules.rs`).
-    * `00_nucleo/prompts/rules/style/font-dict.md` (Dicionário de fontes em `rules.rs`).
+    * `00_nucleo/prompts/engine/eval/decimal-arithmetic.md` (Aritmética decimal em `operators.rs`).
+    * `00_nucleo/prompts/engine/eval/table.md` (Numeração de tabelas em `rules.rs`).
+    * `00_nucleo/prompts/engine/show-regex.md` (Show rules com regex em `rules.rs`).
+    * `00_nucleo/prompts/engine/style/font-dict.md` (Dicionário de fontes em `rules.rs`).
 
 ### D. Remoção de Prompt Redundante
-* **Deletado**: `00_nucleo/prompts/rules/layout/ref.md`
-  * Removido por ser uma cópia redundante e não referenciada de `00_nucleo/prompts/rules/layout_references.md`.
+* **Deletado**: `00_nucleo/prompts/engine/layout/ref.md`
+  * Removido por ser uma cópia redundante e não referenciada de `00_nucleo/prompts/engine/layout_references.md`.
 
 ---
 

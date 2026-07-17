@@ -19,10 +19,10 @@ Execute os 6 grep abaixo **antes de qualquer redação ou código**.
 grep -n "Footnote" 01_core/src/entities/content.rs
 
 # 2. Layouter tem footnote_counter (marker-only P295)?
-grep -n "footnote_counter" 01_core/src/rules/layout/mod.rs
+grep -n "footnote_counter" 01_core/src/engine/layout/mod.rs
 
 # 3. new_page e finish existem no Layouter?
-grep -n "fn new_page\|fn finish" 01_core/src/rules/layout/mod.rs
+grep -n "fn new_page\|fn finish" 01_core/src/engine/layout/mod.rs
 
 # 4. Body do footnote é armazenado (Box<Content>)?
 grep -n "body: Box<Content>" 01_core/src/entities/content.rs | grep -i footnote
@@ -128,7 +128,7 @@ struct DeferredFootnote {
 
 `Content::Footnote { body: Box<Content> }` já existe (P295). Nenhum variant novo. Nenhum tipo novo.
 
-### B.2 — Layouter (`rules/layout/mod.rs`)
+### B.2 — Layouter (`engine/layout/mod.rs`)
 
 1. **Adicionar `DeferredFootnote` struct local** (paridade P245 `DeferredFloat`)
 2. **Adicionar 2 fields ao Layouter**:

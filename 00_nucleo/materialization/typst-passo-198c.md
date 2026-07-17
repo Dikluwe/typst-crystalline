@@ -84,7 +84,7 @@ estruturalmente.
 ### .A Auditoria L0
 
 1. Confirmar walk arm `Content::CounterUpdate` em
-   `01_core/src/rules/introspect.rs:625-642` (per
+   `01_core/src/engine/introspect.rs:625-642` (per
    P198A §3):
    - Re-verificar empiricamente.
    - Localizar 3 caminhos:
@@ -104,7 +104,7 @@ estruturalmente.
 3. Confirmar `is_locatable(Content::CounterUpdate)`:
    - Estado actual: **false** (per P198A §5).
    - Após P198C: **true**.
-   - Localizar arm em `01_core/src/rules/locatable.rs`
+   - Localizar arm em `01_core/src/engine/locatable.rs`
      (ou similar).
 
 4. Confirmar `extract_payload(Content::CounterUpdate)`:
@@ -112,7 +112,7 @@ estruturalmente.
      P198A §5).
    - Após P198C: arm específico retorna
      `Some(ElementPayload::CounterUpdate { ... })`.
-   - Localizar match em `01_core/src/rules/extract_payload.rs`
+   - Localizar match em `01_core/src/engine/extract_payload.rs`
      (ou similar).
 
 5. Confirmar `ElementPayload` actual:
@@ -131,7 +131,7 @@ estruturalmente.
 7. Confirmar `from_tags` actual:
    - Match exhaustivo per P186B descoberta.
    - Adição de variant força arm explícito.
-   - Localizar `01_core/src/rules/introspect/from_tags.rs`
+   - Localizar `01_core/src/engine/introspect/from_tags.rs`
      (ou similar).
 
 8. Confirmar API CounterRegistry:
@@ -219,7 +219,7 @@ Output: variant adicionada ou justificação registada.
 
 ### .D Activar `is_locatable(Content::CounterUpdate) = true`
 
-1. Em `01_core/src/rules/locatable.rs` (ou similar):
+1. Em `01_core/src/engine/locatable.rs` (ou similar):
    - Localizar match arm `Content::CounterUpdate`
      actual (esperado: `_ => false` catch-all).
    - Adicionar arm específico:
@@ -240,7 +240,7 @@ Output: variant adicionada ou justificação registada.
 
 ### .E Adicionar arm em `extract_payload`
 
-1. Em `01_core/src/rules/extract_payload.rs` (ou
+1. Em `01_core/src/engine/extract_payload.rs` (ou
    similar):
    - Adicionar arm:
      ```
@@ -262,7 +262,7 @@ Output: variant adicionada ou justificação registada.
 
 ### .F Adicionar arm em `from_tags`
 
-1. Em `01_core/src/rules/introspect/from_tags.rs`:
+1. Em `01_core/src/engine/introspect/from_tags.rs`:
    - Adicionar arm:
      ```
      ElementPayload::CounterUpdate { key, action } => {
@@ -305,7 +305,7 @@ Output: variant adicionada ou justificação registada.
 
 ### .G Adicionar comentário inline P198C no walk arm
 
-1. Em `01_core/src/rules/introspect.rs:625-642` (per
+1. Em `01_core/src/engine/introspect.rs:625-642` (per
    `.A.1`):
    - **Não modificar** mutações legacy (3 caminhos
      preservados).

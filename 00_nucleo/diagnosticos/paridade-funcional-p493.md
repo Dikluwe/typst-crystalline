@@ -59,21 +59,21 @@ Nota: a classificação P490 usa `metadata`/`heading`/`table`/`math.equation` co
 
 ## Ficheiros alterados
 
-- `01_core/src/rules/stdlib/collections.rs` — `array.dedup()`, `array.chunks(n)`, `array.windows(n)`, `array.flatten()`, `array.fold(start, reducer)`.
-- `01_core/src/rules/eval/bindings.rs` — field access em `Value::Array` (`len`, `first`, `last`); field access em `Value::Func` com namespace; `eval_element_where` multi-field.
+- `01_core/src/engine/stdlib/collections.rs` — `array.dedup()`, `array.chunks(n)`, `array.windows(n)`, `array.flatten()`, `array.fold(start, reducer)`.
+- `01_core/src/engine/eval/bindings.rs` — field access em `Value::Array` (`len`, `first`, `last`); field access em `Value::Func` com namespace; `eval_element_where` multi-field.
 - `01_core/src/entities/func.rs` — namespace anexado em `NativeFunc`/`NativeFuncWithEngine`; construtores `native_with_namespace`/`native_with_engine_and_namespace`; método `Func::namespace()`.
-- `01_core/src/rules/eval/mod.rs` — registo de `table` com namespace (`table.header`, `table.footer`, `table.cell`).
-- `01_core/src/rules/eval/rules.rs` — `query_selector_to_show_selector` recursivo para `Where` encadeado.
+- `01_core/src/engine/eval/mod.rs` — registo de `table` com namespace (`table.header`, `table.footer`, `table.cell`).
+- `01_core/src/engine/eval/rules.rs` — `query_selector_to_show_selector` recursivo para `Where` encadeado.
 - `01_core/src/entities/elements/heading.rs` — campo `outlined: bool` em `HeadingElem`; `get_field` expõe `outlined`.
-- `01_core/src/rules/eval/repr.rs` — teste `repr_content_heading` atualizado para `outlined`.
-- `01_core/src/rules/eval/tests.rs` — testes unitários P493.
+- `01_core/src/engine/eval/repr.rs` — teste `repr_content_heading` atualizado para `outlined`.
+- `01_core/src/engine/eval/tests.rs` — testes unitários P493.
 - `lab/parity/tests/structural_parity.rs` — sentinela `p493_field_access_colecoes`.
 - `lab/parity/src/value_dto.rs` — mapeamento de variants `Value` adicionais (P492).
 - Prompts L0 atualizados:
   - `00_nucleo/prompts/entities/func.md`
-  - `00_nucleo/prompts/rules/eval/field-access.md`
-  - `00_nucleo/prompts/rules/stdlib/collections.md`
-  - `00_nucleo/prompts/rules/eval/table.md`
+  - `00_nucleo/prompts/engine/eval/field-access.md`
+  - `00_nucleo/prompts/engine/stdlib/collections.md`
+  - `00_nucleo/prompts/engine/eval/table.md`
   - `00_nucleo/prompts/entities/selector.md`
   - `00_nucleo/prompts/entities/elements/heading.md`
 

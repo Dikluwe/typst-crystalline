@@ -80,7 +80,7 @@ Medir os três (rasterizado) e comparar:
 Se `line` sozinho e `circle` sozinho baterem, mas a combinação não, a causa está na **interacção entre dois elementos consecutivos no fluxo do documento** — não numa forma isolada. Hipóteses a confirmar por leitura de código, não por suposição:
 
 ```bash
-grep -rn "fn.*flow\|fn.*stack\|cursor_y\|advance" 01_core/src/rules/layout/cursor.rs 2>/dev/null | head -30
+grep -rn "fn.*flow\|fn.*stack\|cursor_y\|advance" 01_core/src/engine/layout/cursor.rs 2>/dev/null | head -30
 ```
 
 1. O espaçamento entre blocos consecutivos de conteúdo de desenho (`line`, `circle`) pode estar a usar uma métrica de avanço diferente da do vanilla (a mesma família de bug de P745-762, mas para elementos de desenho, não texto).

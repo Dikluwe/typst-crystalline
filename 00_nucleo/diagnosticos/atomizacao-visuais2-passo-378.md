@@ -12,10 +12,10 @@ O **L0 foi commitado ANTES de mover código** (Estágio L0, commit `284cff19a`):
 
 | Elemento | Arm antes (`@linha`) | Destino | Tipo |
 |---|---|---|---|
-| `Place` | `:1166` (58) | `rules/layout/place.rs` | **novo** |
-| `Underline`/`Strike`/`Overline` | `:1502` (75, agrupado) | `rules/layout/decorations.rs` | **novo** (1.º arm agrupado) |
-| `Image` | `:1115` (~36) | `rules/layout/image.rs::layout` | **completa** (junto do helper `calculate_dimensions`) |
-| `Figure` | `:909` (~31) | `rules/layout/figure.rs::layout` | **completa** (dobra o prefixo + `layout_figure`) |
+| `Place` | `:1166` (58) | `engine/layout/place.rs` | **novo** |
+| `Underline`/`Strike`/`Overline` | `:1502` (75, agrupado) | `engine/layout/decorations.rs` | **novo** (1.º arm agrupado) |
+| `Image` | `:1115` (~36) | `engine/layout/image.rs::layout` | **completa** (junto do helper `calculate_dimensions`) |
+| `Figure` | `:909` (~31) | `engine/layout/figure.rs::layout` | **completa** (dobra o prefixo + `layout_figure`) |
 
 Arm magro: `Content::Place(e) => place::layout(self, e)`; decorações:
 `Content::Underline(_) | Content::Strike(_) | Content::Overline(_) => decorations::layout(self, content)`

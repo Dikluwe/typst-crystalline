@@ -7,9 +7,9 @@ Ler antes de começar:
   o campo `rows`.
 - `01_core/src/entities/layout_types.rs` — Onde `TrackSizing` já existe para
   o eixo X. Confirmar que pode ser reaproveitada no eixo Y sem alterações.
-- `01_core/src/rules/stdlib.rs` — Onde `native_grid` extrai `columns` e onde
+- `01_core/src/engine/stdlib.rs` — Onde `native_grid` extrai `columns` e onde
   será replicada a mesma lógica para `rows`.
-- `01_core/src/rules/layout/mod.rs` (ou ficheiro anexo do Grid) — Onde o
+- `01_core/src/engine/layout/mod.rs` (ou ficheiro anexo do Grid) — Onde o
   motor de layout itera sobre os items e calcula X/Y das células. Ponto de
   inserção das três passagens de altura (Fixed/Auto/Fraction).
 - `00_nucleo/DEBT.md` — DEBT-34b e DEBT-34c serão encerrados.
@@ -48,13 +48,13 @@ limite inferior da célula, `VAlign::Horizon` centra verticalmente.
 ```bash
 # 1. Localizar a extracção de columns em native_grid.
 # A lógica para rows será idêntica — replicar o padrão confirmado.
-grep -B 2 -A 20 "fn native_grid" 01_core/src/rules/stdlib.rs | head -40
+grep -B 2 -A 20 "fn native_grid" 01_core/src/engine/stdlib.rs | head -40
 
 # 2. Localizar o bloco de resolução do Grid no Layouter.
 # Identificar onde os items são iterados, onde cell_x é calculado,
 # e onde cursor_y avança entre linhas.
 grep -n "Content::Grid\|ShapeKind::Grid\|resolve_grid\|layout_grid" \
-  01_core/src/rules/layout/mod.rs 01_core/src/rules/layout/*.rs
+  01_core/src/engine/layout/mod.rs 01_core/src/engine/layout/*.rs
 
 # 3. Confirmar que TrackSizing é genérica o suficiente para o eixo Y.
 # As variantes Fixed(f64), Auto, Fraction(f64) não devem ter nomes
@@ -63,7 +63,7 @@ grep -B 1 -A 10 "enum TrackSizing" 01_core/src/entities/layout_types.rs
 
 # 4. Confirmar como layout_sub_frame_with_width mede altura intrínseca.
 # A passagem Auto precisa de medir cada item sem o comprometer ao frame final.
-grep -A 5 "fn layout_sub_frame_with_width" 01_core/src/rules/layout/mod.rs
+grep -A 5 "fn layout_sub_frame_with_width" 01_core/src/engine/layout/mod.rs
 ```
 
 Reportar o output completo antes de continuar. O diagnóstico 2 é um gate
@@ -144,7 +144,7 @@ Passo 80 quando o Grid tinha apenas `columns`.
 
 ## Tarefa 2 — Extracção de `rows` em `native_grid` (L1)
 
-Em `01_core/src/rules/stdlib.rs`, dentro de `native_grid`:
+Em `01_core/src/engine/stdlib.rs`, dentro de `native_grid`:
 
 ```rust
 // Após a extracção de columns (já existente — não alterar esse bloco).
@@ -174,7 +174,7 @@ facilita a leitura do código.
 
 ## Tarefa 3 — Motor de layout: cálculo de altura das linhas (L1)
 
-Em `01_core/src/rules/layout/mod.rs` (ou no ficheiro dedicado ao Grid,
+Em `01_core/src/engine/layout/mod.rs` (ou no ficheiro dedicado ao Grid,
 conforme diagnóstico 2):
 
 ### Guarda contra `rows` vazio

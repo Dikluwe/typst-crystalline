@@ -24,7 +24,7 @@ Já há um indício forte, encontrado em conversas anteriores desta linha de tra
 
 ```bash
 git log --all --oneline --grep="ShapeElem\|ShapeKind\|native_rect\|native_circle" | tail -30
-git log --all --follow --oneline -- "01_core/src/rules/layout/shape.rs" | tail -20
+git log --all --follow --oneline -- "01_core/src/engine/layout/shape.rs" | tail -20
 ```
 
 ```bash
@@ -53,7 +53,7 @@ Preencher, sem reescrever os passos antigos (regra 9):
 
 ## Parte B — L0: `Content::Shape` deve quebrar parágrafo
 
-Escrever `00_nucleo/prompts/rules/layout/shape_block_behaviour.md` (caminho a confirmar contra a convenção real de `00_nucleo/prompts/`), cobrindo:
+Escrever `00_nucleo/prompts/engine/layout/shape_block_behaviour.md` (caminho a confirmar contra a convenção real de `00_nucleo/prompts/`), cobrindo:
 
 1. **Contrato**: qualquer `Content::Shape` (todas as `ShapeKind`) força o fecho do parágrafo corrente antes e depois de si, replicando `BlockElem::single_layouter` do vanilla — mesmo comportamento que gerou o aviso `block may not occur inside of a paragraph and was ignored` observado por P763h quando testado dentro de `#par[...]` explícito (confirmar se esse aviso também deve ser replicado como mensagem observável, ou se o cristalino deve simplesmente quebrar sem avisar — decisão a registar, não assumir).
 2. **Ponto de intercepção**: onde no realizador/`Content::Sequence` a distinção bloco/inline é decidida hoje para outros elementos (heading, list, etc. — se já existir mecanismo de "isto quebra parágrafo" para esses, reutilizar o mesmo, não inventar um novo).
@@ -68,7 +68,7 @@ Escrever `00_nucleo/prompts/rules/layout/shape_block_behaviour.md` (caminho a co
 - [ ] Commit de introdução de `ShapeElem`/`ShapeKind` confirmado por `git log`, não por memória de conversa.
 - [ ] Confirmado se a decisão inline/block foi avaliada nesse passo original ou nunca avaliada (hipótese da Parte A).
 - [ ] Tabela de rastreabilidade preenchida, sem reescrever os passos antigos.
-- [ ] L0 escrito em `00_nucleo/prompts/rules/layout/shape_block_behaviour.md`, com hash calculado, cobrindo os 5 pontos da Parte B.
+- [ ] L0 escrito em `00_nucleo/prompts/engine/layout/shape_block_behaviour.md`, com hash calculado, cobrindo os 5 pontos da Parte B.
 - [ ] Nenhum código L1/L2/L3 escrito neste passo.
 - [ ] Relatório em `00_nucleo/diagnosticos/paridade-producao-p767.md`.
 

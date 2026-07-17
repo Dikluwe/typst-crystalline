@@ -84,7 +84,7 @@ O save/restore de `regions.current.width` e `parent_bbox` permanecem em `boxed.r
 
 ### Prompt L0 actualizado
 
-A secção "Sub-layout isolado" de `00_nucleo/prompts/rules/layout.md` foi actualizada com a subsecção `layout_sub_frame_inline` e o hash correspondente (`935704d4`).
+A secção "Sub-layout isolado" de `00_nucleo/prompts/engine/layout.md` foi actualizada com a subsecção `layout_sub_frame_inline` e o hash correspondente (`935704d4`).
 
 ---
 

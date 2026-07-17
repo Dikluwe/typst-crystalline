@@ -576,5 +576,5 @@ correr manualmente: idêntico ao pré-P156B.
 - Vanilla source consultado:
   `lab/typst-original/crates/typst-library/src/layout/`.
 - Cristalino source consultado: `01_core/src/entities/layout_types.rs`,
-  `01_core/src/entities/content.rs`, `01_core/src/rules/layout/`,
-  `01_core/src/rules/eval/mod.rs`.
+  `01_core/src/entities/content.rs`, `01_core/src/engine/layout/`,
+  `01_core/src/engine/eval/mod.rs`.

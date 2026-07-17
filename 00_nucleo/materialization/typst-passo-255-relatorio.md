@@ -27,7 +27,7 @@ necessária neste passo).
 - `00_nucleo/prompts/entities/math_constants.md`
   (hash `73380d77` → `bfe1f51a`-ish — 4 campos adicionados +
   secção "Consumers Layouter").
-- `00_nucleo/prompts/rules/math/layout.md`
+- `00_nucleo/prompts/engine/math/layout.md`
   (hash `d76fb51b` → `bfe1f51a` — secção "Estado actual"
   substitui "Âmbito por passo" obsoleto; mapping consumer ↔
   tipo + "Baseline x-height" + "MathPrimes divergência
@@ -44,7 +44,7 @@ zero violations final.
 
 **Ficheiros editados**:
 - `00_nucleo/prompts/entities/math_constants.md` (P255.B).
-- `00_nucleo/prompts/rules/math/layout.md` (P255.B).
+- `00_nucleo/prompts/engine/math/layout.md` (P255.B).
 - `00_nucleo/DEBT.md` (P255.D — DEBT-8 PARCIALMENTE RESOLVIDO
   → **ENCERRADO**).
 
@@ -106,7 +106,7 @@ P255.C saltado; P255.D actualiza DEBT-8 com evidência cumulativa.
 
 ## §3 Sub-passo P255.B — Reconciliação L0 prompts
 
-### B.1 `prompts/rules/math/layout.md`
+### B.1 `prompts/engine/math/layout.md`
 
 Substituições:
 
@@ -151,7 +151,7 @@ Substituições:
 **Depois** (pós `crystalline-lint --fix-hashes`):
 - `entities/math_constants.md`: novo hash propagado.
 - `rules/math/layout.md`: `bfe1f51a`.
-- Ficheiros código `01_core/src/rules/math/layout/*.rs`
+- Ficheiros código `01_core/src/engine/math/layout/*.rs`
   receberam o novo hash `c45536b1` na linha
   `@prompt-hash`.
 

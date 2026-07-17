@@ -74,7 +74,7 @@ Para isolar o factor fonte, repetiu-se o teste no vanilla 0.14.2/0.15.0 forçand
 
 ### 4.1 Onde está o erro geométrico
 
-`01_core/src/rules/layout/columns.rs:75` calcula a largura base das colunas a partir da largura **total** da página:
+`01_core/src/engine/layout/columns.rs:75` calcula a largura base das colunas a partir da largura **total** da página:
 
 ```rust
 let full_width = layouter.regions.current.width;   // 595.28 pt
@@ -173,7 +173,7 @@ crystalline-lint .           # 0 violations
 ## 7. Conclusão
 
 - A diferença de paginação foi **reduzida** de 5 vs 2 para **3 vs 2** páginas.
-- A causa geométrica identificada em P553 foi **corrigida** em `01_core/src/rules/layout/columns.rs`.
+- A causa geométrica identificada em P553 foi **corrigida** em `01_core/src/engine/layout/columns.rs`.
 - O item do inventário foi actualizado: a geometria de colunas está corrigida; a diferença restante para 2 páginas do vanilla é atribuída à fonte padrão do cristalino, que é um eixo de paridade separado.
 
 ---

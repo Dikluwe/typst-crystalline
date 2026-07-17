@@ -43,13 +43,13 @@ Implementada a forma dict de `#set text(font: (...))`, fechando o **gap 8** de D
 |----------|-----------|
 | `01_core/src/entities/font_list.rs` | `FontNamePattern`, refino `FontFamily`, testes unitários |
 | `01_core/src/entities/font_book.rs` | `select_pattern` para regex + literal |
-| `01_core/src/rules/eval/rules.rs` | parsing AST de `text.font` dict |
-| `01_core/src/rules/layout/text.rs` | decodificação da chain custom para `FontList` |
+| `01_core/src/engine/eval/rules.rs` | parsing AST de `text.font` dict |
+| `01_core/src/engine/layout/text.rs` | decodificação da chain custom para `FontList` |
 | `03_infra/src/pipeline.rs` | `resolve_font` usa `select_pattern`; testes regex |
-| `01_core/src/rules/eval/tests.rs` | testes de eval dict/regex |
-| `01_core/src/rules/layout/tests.rs` | ajuste `family.name.as_str()` |
+| `01_core/src/engine/eval/tests.rs` | testes de eval dict/regex |
+| `01_core/src/engine/layout/tests.rs` | ajuste `family.name.as_str()` |
 | `00_nucleo/prompts/entities/font-list.md` | prompt L0 actualizado |
-| `00_nucleo/prompts/rules/style/font-dict.md` | novo prompt L0 do parsing |
+| `00_nucleo/prompts/engine/style/font-dict.md` | novo prompt L0 do parsing |
 
 ## Scope-out mantido
 

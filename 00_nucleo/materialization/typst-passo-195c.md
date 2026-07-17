@@ -54,7 +54,7 @@ presente em `from_tags`.
 ### .A Auditoria L0
 
 1. Confirmar `from_tags` actual:
-   - `01_core/src/rules/introspect/from_tags.rs`.
+   - `01_core/src/engine/introspect/from_tags.rs`.
    - Localizar stub no-op
      `ElementPayload::Labelled { .. } => {}`
      introduzido em P195B.
@@ -96,7 +96,7 @@ Output: tabela com item + estado + linhas exactas.
 
 ### .B Substituir stub no-op por arm funcional
 
-1. Em `01_core/src/rules/introspect/from_tags.rs`:
+1. Em `01_core/src/engine/introspect/from_tags.rs`:
    - Localizar stub no-op P195B.
    - Substituir por:
      ```

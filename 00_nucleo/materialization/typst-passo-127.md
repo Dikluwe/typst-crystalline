@@ -60,8 +60,8 @@ Este passo **não**:
 
 **Dentro**:
 - `01_core/src/entities/style_chain.rs` — campo `tracking`.
-- `01_core/src/rules/eval/rules.rs` — arm `"tracking"`.
-- `01_core/src/rules/eval/tests.rs` — 2 testes (captura +
+- `01_core/src/engine/eval/rules.rs` — arm `"tracking"`.
+- `01_core/src/engine/eval/tests.rs` — 2 testes (captura +
   canary font preservado).
 - `03_infra/src/integration_tests.rs` — adapt test DEBT-49 se
   usava `tracking`.

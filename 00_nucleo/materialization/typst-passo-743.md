@@ -61,7 +61,7 @@ Confirmar se algum destes produz erro num dos lados (por exemplo, se o cristalin
 ### Localizar o mecanismo exacto no código
 
 ```bash
-grep -n "FlowEvent::Return\|fn eval_return" 01_core/src/rules/eval/*.rs
+grep -n "FlowEvent::Return\|fn eval_return" 01_core/src/engine/eval/*.rs
 ```
 
 Confirmar se o `return` dentro de um bloco descarta correctamente o valor acumulado até esse ponto, ou se tenta combiná-lo de alguma forma com o valor do `return`.

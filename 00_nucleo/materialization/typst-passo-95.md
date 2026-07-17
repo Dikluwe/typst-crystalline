@@ -9,7 +9,7 @@ Ler antes de começar:
   vanilla.
 - `00_nucleo/DEBT.md` — entrada DEBT-1 (pendências históricas
   do `StyleChain`) e DEBT-39 (`active_guards`).
-- `01_core/src/rules/eval.rs` — `EvalContext` com campos
+- `01_core/src/engine/eval.rs` — `EvalContext` com campos
   `show_rules: Arc<[ShowRule]>` e `active_guards: Vec<RuleId>`.
 - `lab/typst-original/` — como o vanilla propaga show rules e
   guards.
@@ -61,7 +61,7 @@ passo separado.
 ```bash
 # Procurar menções a ctx.styles/self.styles em comentários:
 grep -n "ctx\.styles\|self\.styles\|ctx\.styles" \
-    01_core/src/rules/eval.rs
+    01_core/src/engine/eval.rs
 ```
 
 Esperado: 2 ocorrências em comentários (conforme reporte do
@@ -110,7 +110,7 @@ Secção 2. Se restarem pendências legítimas, manter na Secção 1.
 
 ```bash
 # Zero menções residuais a ctx.styles / self.styles:
-grep -n "ctx\.styles\|self\.styles" 01_core/src/rules/ -r \
+grep -n "ctx\.styles\|self\.styles" 01_core/src/engine/ -r \
     --include="*.rs"
 
 # DEBT-1 observável:
@@ -129,15 +129,15 @@ existir (na Secção 1 ou 2 conforme decidido).
 ```bash
 # Estrutura actual do show_rules:
 grep -B 2 -A 3 "pub show_rules:\|show_rules: Arc" \
-    01_core/src/rules/eval.rs
+    01_core/src/engine/eval.rs
 
 # Usos de ctx.show_rules:
 grep -n "ctx\.show_rules\|self\.show_rules\|&self\.show_rules" \
-    01_core/src/rules/eval.rs
+    01_core/src/engine/eval.rs
 
 # Métodos helper existentes:
 grep -n "push_show_rule\|truncate_show_rules" \
-    01_core/src/rules/eval.rs
+    01_core/src/engine/eval.rs
 ```
 
 Reportar:
@@ -273,7 +273,7 @@ Verificar:
 cargo test --package typst-core show_ 2>&1 | tail -15
 
 # Zero ctx.show_rules remanescente:
-grep -n "ctx\.show_rules\|self\.show_rules" 01_core/src/rules/ \
+grep -n "ctx\.show_rules\|self\.show_rules" 01_core/src/engine/ \
     -r --include="*.rs"
 
 # Verificação final:

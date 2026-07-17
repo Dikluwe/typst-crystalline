@@ -49,7 +49,7 @@ Se o latim quebrar parágrafos correctamente e o árabe não, confirma que é es
 ### Localizar a causa no código
 
 ```bash
-grep -n "Parbreak\|SyntaxKind::Parbreak\|flush_line.*parbreak" 01_core/src/rules/eval/mod.rs 01_core/src/rules/layout/mod.rs 01_core/src/rules/layout/cursor.rs 03_infra/src/layout_bidi.rs | head -30
+grep -n "Parbreak\|SyntaxKind::Parbreak\|flush_line.*parbreak" 01_core/src/engine/eval/mod.rs 01_core/src/engine/layout/mod.rs 01_core/src/engine/layout/cursor.rs 03_infra/src/layout_bidi.rs | head -30
 ```
 
 Dado que P587 já encontrou que uma quebra de linha simples depois de `#set` era tratada como `Content::Space`, confirmar se `Parbreak` (linha em branco, diferente de uma quebra simples) está a ser tratado da mesma forma incorrecta, ou se é um caminho de código completamente diferente, talvez dentro de `layout_bidi.rs` (a passagem de reordenação RTL, que pode estar a juntar coisas que não devia).
@@ -67,7 +67,7 @@ Dado que P587 já encontrou que uma quebra de linha simples depois de `#set` era
 Pergunta deixada em aberto por P621, nunca respondida.
 
 ```bash
-grep -n "needs_shaped_width\|Script::Devanagari" 01_core/src/rules/layout/metrics.rs 03_infra/src/font_metrics.rs 03_infra/src/shaper.rs
+grep -n "needs_shaped_width\|Script::Devanagari" 01_core/src/engine/layout/metrics.rs 03_infra/src/font_metrics.rs 03_infra/src/shaper.rs
 ```
 
 Confirmar se `needs_shaped_width` (criada em P591 para árabe/siríaco/mongol/etc.) inclui devanágari na lista de scripts que activam a largura com forma de escrita aplicada, ou se devanágari usa sempre `advance` simples, sem a correcção de P591.

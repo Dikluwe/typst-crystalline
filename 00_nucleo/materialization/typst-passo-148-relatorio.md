@@ -92,7 +92,7 @@ Module, Dyn).
 
 ### 2.4 — Stdlib functions (cristalino)
 
-`make_stdlib()` em `01_core/src/rules/eval/mod.rs:480` define
+`make_stdlib()` em `01_core/src/engine/eval/mod.rs:480` define
 **29 funções nativas**: `type`, `len`, `range`, `rgb`, `luma`,
 `str`, `int`, `float`, `heading`, `strong`, `emph`, `raw`,
 `figure`, `image`, `rect`, `ellipse`, `circle`, `line`,

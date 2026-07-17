@@ -185,7 +185,7 @@ grep -n "^\s*[A-Z][a-zA-Z]*\s*{" 01_core/src/entities/color.rs
 
 # Stdlib funcs registadas
 grep -rn "native_rgb\|native_luma\|native_oklab\|native_oklch\|native_hsl\|native_hsv\|native_cmyk\|native_linear_rgb" \
-  01_core/src/rules/stdlib/
+  01_core/src/engine/stdlib/
 ```
 
 **Esperado**: 8 variants Color; 7+ stdlib funcs (confirmar
@@ -196,7 +196,7 @@ P257 relatório §4).
 ```bash
 # ShapeKind variants
 grep -n "^\s*[A-Z]" 01_core/src/entities/geometry.rs
-grep -n "ShapeKind::" 01_core/src/rules/stdlib/shapes.rs
+grep -n "ShapeKind::" 01_core/src/engine/stdlib/shapes.rs
 
 # Polygon / Curve ausentes?
 grep -rn "Polygon\|ShapeKind::Polygon" 01_core/src/
@@ -217,7 +217,7 @@ grep -n "ellipse\|Ellipse" 03_infra/src/export.rs
 grep -n "MoveTo\|LineTo\|CubicTo\|QuadTo\|Close" 01_core/src/entities/
 
 # Bounding box exacto vs aproximado
-grep -n "bounding_box\|bbox" 01_core/src/rules/layout/
+grep -n "bounding_box\|bbox" 01_core/src/engine/layout/
 grep -n "DEBT-33" 00_nucleo/DEBT.md
 ```
 
@@ -249,7 +249,7 @@ grep -rn "Dash\|LineCap\|LineJoin\|MiterLimit" 01_core/src/
 # Gradient ausente?
 grep -rn "Gradient\|LinearGradient\|RadialGradient\|ConicGradient" 01_core/src/
 grep -rn "GradientStop\|WeightedColor" 01_core/src/
-grep "native_gradient\|gradient" 01_core/src/rules/stdlib/
+grep "native_gradient\|gradient" 01_core/src/engine/stdlib/
 ```
 
 **Critério esperado**: zero hits → confirmar ausência.
@@ -258,7 +258,7 @@ grep "native_gradient\|gradient" 01_core/src/rules/stdlib/
 
 ```bash
 grep -rn "enum Paint\|Tiling\|TilingPattern" 01_core/src/
-grep "native_tiling\|tiling" 01_core/src/rules/stdlib/
+grep "native_tiling\|tiling" 01_core/src/engine/stdlib/
 ```
 
 **Critério esperado**: zero hits.
@@ -277,8 +277,8 @@ grep -A 10 "Content::Image\|FrameItem::Image" 01_core/src/entities/
 ### Bloco 8 — Transform `origin`
 
 ```bash
-grep -rn "origin\b.*Point\|pivot\|origin: " 01_core/src/rules/stdlib/transforms.rs
-grep -A 5 "native_rotate\|native_scale\|native_skew" 01_core/src/rules/stdlib/transforms.rs
+grep -rn "origin\b.*Point\|pivot\|origin: " 01_core/src/engine/stdlib/transforms.rs
+grep -A 5 "native_rotate\|native_scale\|native_skew" 01_core/src/engine/stdlib/transforms.rs
 ```
 
 **Critério**: zero hits `origin` → confirmar ausência.

@@ -4,7 +4,7 @@
 **Passo:** `00_nucleo/materialization/typst-passo-731.md`
 **ADRs em vigor:** ADR-0107 (paridade é com a linguagem), ADR-0108 (medir antes de decidir).
 **Commit:** `64ff1b49ff25ed57d249233a0f978326fef81b21`
-**Proveniência das medições (regra de proveniência):** commit base `61368ca3dc3dfc842e5a7249ee3bbb8bdcb3e8ef` ("P730: preenche hash do commit no relatório"), branch `Tekt`, working tree com as alterações deste passo (`git diff HEAD --stat`: 19 ficheiros — `00_nucleo/prompts/rules/eval.md`, `00_nucleo/prompts/rules/stdlib/{structural,sym,sys}.md`, `01_core/src/rules/eval/{bibliography,closures,control_flow,flow,markup,math,mod,modules,rules,tests}.rs`, `01_core/src/rules/stdlib/{calc,mod,structural,sym,sys}.rs`; os 7 ficheiros `eval/*.rs` não listados na implementação têm só o header `@prompt-hash` sincronizado `696f25e1` → `a3904d9a`). Medições vanilla: `lab/typst-original/target/release/typst`; medições cristalino: `./target/release/typst` (release build de 2026-07-13T22:20Z; compilação cetz medida 22:21:03–22:21:47Z).
+**Proveniência das medições (regra de proveniência):** commit base `61368ca3dc3dfc842e5a7249ee3bbb8bdcb3e8ef` ("P730: preenche hash do commit no relatório"), branch `Tekt`, working tree com as alterações deste passo (`git diff HEAD --stat`: 19 ficheiros — `00_nucleo/prompts/engine/eval.md`, `00_nucleo/prompts/engine/stdlib/{structural,sym,sys}.md`, `01_core/src/engine/eval/{bibliography,closures,control_flow,flow,markup,math,mod,modules,rules,tests}.rs`, `01_core/src/engine/stdlib/{calc,mod,structural,sym,sys}.rs`; os 7 ficheiros `eval/*.rs` não listados na implementação têm só o header `@prompt-hash` sincronizado `696f25e1` → `a3904d9a`). Medições vanilla: `lab/typst-original/target/release/typst`; medições cristalino: `./target/release/typst` (release build de 2026-07-13T22:20Z; compilação cetz medida 22:21:03–22:21:47Z).
 
 ---
 
@@ -35,7 +35,7 @@ Os quatro namespaces que o vanilla expõe como `module` e o cristalino expunha c
 
 ### Localização exacta da construção (cristalino)
 
-- Scope global em `01_core/src/rules/eval/mod.rs:1436-1447`: `sym` via `build_sym_dict()` (`stdlib/sym.rs:108`), `calc` via `make_calc_module()` (`stdlib/calc.rs:48`), `math` via `make_math_module()` (`stdlib/structural.rs:2073`), `sys` via `make_sys_module()` (`stdlib/sys.rs:32`) — todas devolviam `Value::Dict(IndexMap)`.
+- Scope global em `01_core/src/engine/eval/mod.rs:1436-1447`: `sym` via `build_sym_dict()` (`stdlib/sym.rs:108`), `calc` via `make_calc_module()` (`stdlib/calc.rs:48`), `math` via `make_math_module()` (`stdlib/structural.rs:2073`), `sys` via `make_sys_module()` (`stdlib/sys.rs:32`) — todas devolviam `Value::Dict(IndexMap)`.
 - Field access em `Value::Module` **já existia** (P679, `eval/bindings.rs:1425-1430`: `m.scope().get(field)`) — sem alteração necessária.
 - Consumidor runtime localizado: `lookup_math_op` em `eval/math.rs:44` (acesso por campo sobre o módulo `math`). `#set math.equation(numbering:)` é tratado sintacticamente (`rules.rs:678+`, `text_str` no AST) — não toca o valor runtime.
 
@@ -47,10 +47,10 @@ Os quatro namespaces que o vanilla expõe como `module` e o cristalino expunha c
 
 ## L0 (Prompts)
 
-- `00_nucleo/prompts/rules/eval.md` — §Scope global: `calc`/`math`/`sym`/`sys` são `Value::Module` (P731); `color`/`gradient` permanecem `Dict` com nota do achado (vanilla expõe como `type`); §P694: `sys` é `Module`.
-- `00_nucleo/prompts/rules/stdlib/sym.md` — representação `Module`; rename `build_sym_dict` → `build_sym_module`.
-- `00_nucleo/prompts/rules/stdlib/sys.md` — parágrafo da divergência de repr reescrito para `Module`.
-- `00_nucleo/prompts/rules/stdlib/structural.md` — `make_math_module` devolve `Value::Module`.
+- `00_nucleo/prompts/engine/eval.md` — §Scope global: `calc`/`math`/`sym`/`sys` são `Value::Module` (P731); `color`/`gradient` permanecem `Dict` com nota do achado (vanilla expõe como `type`); §P694: `sys` é `Module`.
+- `00_nucleo/prompts/engine/stdlib/sym.md` — representação `Module`; rename `build_sym_dict` → `build_sym_module`.
+- `00_nucleo/prompts/engine/stdlib/sys.md` — parágrafo da divergência de repr reescrito para `Module`.
+- `00_nucleo/prompts/engine/stdlib/structural.md` — `make_math_module` devolve `Value::Module`.
 
 `crystalline-lint --fix-hashes .` → headers sincronizados (`@prompt-hash` `696f25e1` → `a3904d9a` nos ficheiros vinculados a `eval.md`); `crystalline-lint .` → **0 violations**.
 

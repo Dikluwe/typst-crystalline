@@ -3,7 +3,7 @@
 ## Estado actual antes de começar
 
 Ler antes de começar:
-- `01_core/src/rules/layout/mod.rs` — braço `Content::Grid`, onde o
+- `01_core/src/engine/layout/mod.rs` — braço `Content::Grid`, onde o
   cache vai viver. Linha aproximada 684 (fase de medição Auto) e a
   fase de emissão de células.
 - `00_nucleo/DEBT.md` — entrada DEBT-38 criada no Passo 83.
@@ -271,12 +271,12 @@ não `static`.
 crystalline-lint .
 
 # Especificamente, o ficheiro alterado.
-crystalline-lint 01_core/src/rules/layout/mod.rs
+crystalline-lint 01_core/src/engine/layout/mod.rs
 
 # Confirmar que std::collections::HashMap não aparece em lugares
 # inadequados (deveria ser apenas dentro do braço Grid ou no topo
 # do ficheiro se já lá estava).
-grep -n "HashMap" 01_core/src/rules/layout/mod.rs
+grep -n "HashMap" 01_core/src/engine/layout/mod.rs
 ```
 
 Resultado esperado:

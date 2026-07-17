@@ -10,7 +10,7 @@ activo desde 106.
 ## Parte 1 — Sítios a migrar (âmbito estrito DEBT-49)
 
 Grep de `DEBT-49|silenciad|TODO.*warn|// warning` em
-`01_core/src/rules/eval/` e `01_core/src/rules/stdlib/`:
+`01_core/src/engine/eval/` e `01_core/src/engine/stdlib/`:
 
 | Ficheiro:linha | Contexto | Envolvente | Silêncio DEBT-49? |
 |----------------|----------|------------|------------------|

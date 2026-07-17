@@ -36,7 +36,7 @@ Todos partilham a mesma forma: a função auxiliar que converte o `Value` para o
 ### Confirmar se há um padrão comum extraível
 
 ```bash
-grep -n "fn value_to_eco_string\|fn extract_pt\|\.ok()\|unwrap_or" 01_core/src/rules/eval/rules.rs | head -30
+grep -n "fn value_to_eco_string\|fn extract_pt\|\.ok()\|unwrap_or" 01_core/src/engine/eval/rules.rs | head -30
 ```
 
 Confirmar se as nove correcções podem partilhar uma única forma de reportar o erro (uma função auxiliar tipo `require_type(value, expected_type_name, property_name) -> Result<T, SourceDiagnostic>`), em vez de nove correcções ad-hoc.

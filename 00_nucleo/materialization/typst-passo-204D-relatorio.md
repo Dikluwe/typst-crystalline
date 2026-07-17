@@ -51,14 +51,14 @@ Tamanho: ~13 KB.
    `position_of` migra signature de `Option<()>` para
    `Option<Position>`; TagIntrospector impl retorna
    `None`.
-5. **`rules/layout/mod.rs`** —
+5. **`engine/layout/mod.rs`** —
    `advance_locator_if_locatable` ganha emit Position
    single-pass (mesmo gating que set
    `current_location`).
 
 #### Tests (01_core)
 
-6. **`rules/layout/tests.rs`** — 2 sentinels P204D
+6. **`engine/layout/tests.rs`** — 2 sentinels P204D
    (`p204d_position_struct_existe`,
    `p204d_runtime_positions_field_existe`) + 2 E2E
    tests (locatable produces Position; non-locatable

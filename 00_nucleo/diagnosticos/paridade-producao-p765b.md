@@ -68,7 +68,7 @@ awk -F'\t' '$1=="lacuna-inventario"' 00_nucleo/diagnosticos/lente-lista-B-2026-0
 
 **Comportamento anterior cristalino:** rejeitava qualquer named arg com `argumento nomeado inesperado: 'cramped'`.
 
-**Correção:** `wrap_math_style` em `01_core/src/rules/stdlib/math_style.rs` passou a aceitar o named arg `cramped` para `script`/`sscript`/`display`/`inline`, com default values conforme o vanilla (`true` para `script`/`sscript`, `false` para `display`/`inline`).
+**Correção:** `wrap_math_style` em `01_core/src/engine/stdlib/math_style.rs` passou a aceitar o named arg `cramped` para `script`/`sscript`/`display`/`inline`, com default values conforme o vanilla (`true` para `script`/`sscript`, `false` para `display`/`inline`).
 
 ### 3.2 `display(...)` e `inline(...)`
 
@@ -78,9 +78,9 @@ awk -F'\t' '$1=="lacuna-inventario"' 00_nucleo/diagnosticos/lente-lista-B-2026-0
 
 **Correção:**
 - Adicionados `MathStyleKind::Display` e `MathStyleKind::Inline` em `01_core/src/entities/math_style.rs` (variants de tamanho com factor 1.0).
-- Adicionadas `native_display` e `native_inline` em `01_core/src/rules/stdlib/math_style.rs`.
-- Registadas no root scope em `01_core/src/rules/eval/mod.rs`.
-- Atualizado o L0 `00_nucleo/prompts/rules/stdlib/math_style.md`.
+- Adicionadas `native_display` e `native_inline` em `01_core/src/engine/stdlib/math_style.rs`.
+- Registadas no root scope em `01_core/src/engine/eval/mod.rs`.
+- Atualizado o L0 `00_nucleo/prompts/engine/stdlib/math_style.md`.
 
 ### 3.3 Limitação conhecida (não corrigida neste passo)
 
@@ -92,7 +92,7 @@ Named args em **math mode** (`$script("x", cramped: false)$`) ainda falham porqu
 
 - `cargo test --workspace` — verde.
 - `crystalline-lint .` — zero violações (exceto V7 esperado de `package_version_resolution.md`).
-- Testes unitários novos em `01_core/src/rules/stdlib/mod.rs`:
+- Testes unitários novos em `01_core/src/engine/stdlib/mod.rs`:
   - `p765b_display_wraps_display_size`
   - `p765b_inline_wraps_inline_size`
   - `p765b_script_named_cramped_false`

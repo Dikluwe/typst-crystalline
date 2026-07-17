@@ -199,7 +199,7 @@ Pode ser comprimido em menos se cada peça for trivial.
 Auditor confirma empiricamente:
 
 1. `from_tags` arm `Figure` em
-   `01_core/src/rules/introspect/from_tags.rs:71-95`
+   `01_core/src/engine/introspect/from_tags.rs:71-95`
    continua a usar chave `"figure"` global e a ignorar
    `kind` via `..` pattern (per P183D §1).
 

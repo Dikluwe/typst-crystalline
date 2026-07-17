@@ -45,7 +45,7 @@ Confirmar se a fórmula escala correctamente com o tamanho da fonte.
 ### Localizar o código exacto do cristalino a corrigir
 
 ```bash
-grep -n "ascender\|cap.height\|cursor_y = margin" 01_core/src/rules/layout/mod.rs 01_core/src/entities/layout_types.rs 2>/dev/null | head -20
+grep -n "ascender\|cap.height\|cursor_y = margin" 01_core/src/engine/layout/mod.rs 01_core/src/entities/layout_types.rs 2>/dev/null | head -20
 ```
 
 ### Caçar o resíduo de 1,23pt

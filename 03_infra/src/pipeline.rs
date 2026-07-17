@@ -1,8 +1,8 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/pipeline.md
-//! @prompt-hash 8695ff8d
-//! @prompt 00_nucleo/prompts/rules/footnote_overflow_columns.md
-//! @prompt-hash 3a8202e4
+//! @prompt-hash 59f2cf75
+//! @prompt 00_nucleo/prompts/engine/footnote_overflow_columns.md
+//! @prompt-hash 32167b4a
 //! @layer L3
 //! @updated 2026-04-24
 //!
@@ -44,11 +44,11 @@ use typst_core::entities::source_result::{SourceDiagnostic, SourceResult};
 use typst_core::entities::span::Span;
 use typst_core::entities::style_chain::StyleChain;
 use typst_core::entities::world_types::{Route, Routines, Sink, Traced};
-use typst_core::rules::eval::{apply_func, eval_with_full_error, EvalContext};
-use typst_core::rules::introspect::introspect_with_introspector;
-use typst_core::rules::layout::layout_with_introspector_and_metrics;
-use typst_core::rules::scopes::Scopes;
-use typst_core::rules::stdlib::value_to_content;
+use typst_core::engine::eval::{apply_func, eval_with_full_error, EvalContext};
+use typst_core::engine::introspect::introspect_with_introspector;
+use typst_core::engine::layout::layout_with_introspector_and_metrics;
+use typst_core::engine::scopes::Scopes;
+use typst_core::engine::stdlib::value_to_content;
 
 use crate::export::{
     export_pdf_with_document_id,
@@ -338,8 +338,8 @@ fn compile_to_pdf_bytes_impl(
     // **P533** — converter `@key` bibliográficos em `Content::Cite` antes
     // de introspecção e layout, garantindo contagem de citações e
     // ordenação da bibliografia por ordem de aparição.
-    let intr_content = typst_core::rules::introspect::convert_bib_refs_to_cites(intr_content);
-    let content = typst_core::rules::introspect::convert_bib_refs_to_cites(content.clone());
+    let intr_content = typst_core::engine::introspect::convert_bib_refs_to_cites(intr_content);
+    let content = typst_core::engine::introspect::convert_bib_refs_to_cites(content.clone());
     // P429 (DEBT-63): injecta no BibStore os styles CSL resolvidos em
     // eval time, indexados pela chave do BibliographyElem correspondente.
     let mut intr = introspect_with_introspector(&intr_content);

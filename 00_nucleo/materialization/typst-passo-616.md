@@ -19,7 +19,7 @@
 
 ## Implementação
 
-Em `01_core/src/rules/eval/rules.rs`, no arm `"dir"` de `#set text(...)` (introduzido em P576), adicionar validação: se o valor for `Dir::Ttb` ou `Dir::Btt`, devolver erro, com mensagem igual ou equivalente à do vanilla.
+Em `01_core/src/engine/eval/rules.rs`, no arm `"dir"` de `#set text(...)` (introduzido em P576), adicionar validação: se o valor for `Dir::Ttb` ou `Dir::Btt`, devolver erro, com mensagem igual ou equivalente à do vanilla.
 
 ```rust
 // Esboço, a confirmar contra a estrutura real:

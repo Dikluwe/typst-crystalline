@@ -6,9 +6,9 @@ Diagnóstico produzido em P167 (M5 sub-passo 1, 2026-04-30) — **sem código de
 
 ## Leitores por consumer
 
-Identificados por grep sobre `01_core/src/rules/` e `03_infra/src/`. Excluídos: tests internos do tipo (`01_core/src/entities/counter_state_legacy.rs`), tests do introspect (`01_core/src/rules/introspect.rs`).
+Identificados por grep sobre `01_core/src/engine/` e `03_infra/src/`. Excluídos: tests internos do tipo (`01_core/src/entities/counter_state_legacy.rs`), tests do introspect (`01_core/src/engine/introspect.rs`).
 
-### Consumer 1: `Layouter::layout` + métodos do Layouter — `01_core/src/rules/layout/mod.rs`
+### Consumer 1: `Layouter::layout` + métodos do Layouter — `01_core/src/engine/layout/mod.rs`
 
 Bloco central. Reads e writes extensivos. Inclui injecção de `initial_state` no início do método público `layout()`.
 
@@ -28,7 +28,7 @@ Bloco central. Reads e writes extensivos. Inclui injecção de `initial_state` n
 | `self.counter.step_hierarchical("heading", level)` | mod.rs:274 | production (mutator) |
 | `self.counter.label_pages` | mod.rs:1034 | production (write) |
 
-### Consumer 2: `layout_ref` + `layout_labelled` — `01_core/src/rules/layout/references.rs`
+### Consumer 2: `layout_ref` + `layout_labelled` — `01_core/src/engine/layout/references.rs`
 
 Resolve referências cruzadas (sintaxe `@label`).
 
@@ -38,7 +38,7 @@ Resolve referências cruzadas (sintaxe `@label`).
 | `layouter.counter.resolved_labels.get(target)` | references.rs:39 | production |
 | `layouter.counter.label_pages.insert(...)` | references.rs:28 | production (mutator/write) |
 
-### Consumer 3: `layout_outline` — `01_core/src/rules/layout/outline.rs`
+### Consumer 3: `layout_outline` — `01_core/src/engine/layout/outline.rs`
 
 Renderiza Tabela de Conteúdos.
 
@@ -48,7 +48,7 @@ Renderiza Tabela de Conteúdos.
 | `layouter.counter.known_page_numbers.get(&label)` | outline.rs:35 | production |
 | `layouter.counter.is_readonly = true/false` | outline.rs:55, 58 | production (write) |
 
-### Consumer 4: `counter_helpers` — `01_core/src/rules/layout/counters.rs`
+### Consumer 4: `counter_helpers` — `01_core/src/engine/layout/counters.rs`
 
 Walk arm `Content::CounterUpdate` e helper `display_value`.
 
@@ -60,7 +60,7 @@ Walk arm `Content::CounterUpdate` e helper `display_value`.
 | `counter.numbering_active.insert("heading", active)` | counters.rs:12 | production (write) |
 | `counter.display_value(kind)` | counters.rs:39 | production |
 
-### Consumer 5: `layout_equation` — `01_core/src/rules/layout/equation.rs`
+### Consumer 5: `layout_equation` — `01_core/src/engine/layout/equation.rs`
 
 Numeração de equações.
 
@@ -142,7 +142,7 @@ Aplicando regras `.C` per spec.
 
 ## Escolha para P168
 
-**Consumer escolhido**: `layout_ref` em `01_core/src/rules/layout/references.rs` — **subset apenas para o caso de figura-ref**.
+**Consumer escolhido**: `layout_ref` em `01_core/src/engine/layout/references.rs` — **subset apenas para o caso de figura-ref**.
 
 **Localização**: `references.rs:35` — `if let Some(&fig_num) = layouter.counter.figure_label_numbers.get(target) { ... }`.
 

@@ -41,7 +41,7 @@ para confirmar excepção justificada).
 **Output**: 1 ficheiro relatório curto + código alterado em
 ~6-8 ficheiros L1 (`entities/value.rs`, `entities/content.rs`,
 `entities/state.rs` novo, `rules/stdlib/state.rs` novo,
-`rules/layout/mod.rs`, `rules/introspect.rs`) + **L0
+`engine/layout/mod.rs`, `rules/introspect.rs`) + **L0
 TOCADO partial** (~2-3 ficheiros: `entities/value.md` +
 `rules/stdlib.md` + possível `entities/state.md` novo) +
 inventário 148 anotação cumulativa (footnote ⁵⁵) + ADR-0066
@@ -152,7 +152,7 @@ N=1 → 2 cumulativo** (P227 Stroke; **P236 State**).
 **Decisão fixada — Opção α**:
 
 ```rust
-// rules/layout/mod.rs:
+// engine/layout/mod.rs:
 pub struct Layouter<'a> {
     // ... existing ...
     pub cell_origin_x: Option<f64>,    // P84.6
@@ -354,11 +354,11 @@ Audit obrigatório:
 ```
 grep -A 50 "ADR-0066\|attribute-grammar\|state runtime" 00_nucleo/adr/typst-adr-0066-*.md
 grep -A 30 "§\"Escopo\"\|aditivos\|L0" 00_nucleo/adr/typst-adr-0080-*.md
-grep -B 2 -A 30 "pub struct Layouter" 01_core/src/rules/layout/mod.rs
+grep -B 2 -A 30 "pub struct Layouter" 01_core/src/engine/layout/mod.rs
 grep -n "pub enum Value" 01_core/src/entities/value.rs
 grep -n "pub enum Content" 01_core/src/entities/content.rs
-ls 01_core/src/entities/ 01_core/src/rules/stdlib/
-grep -n "Locator\|LocatorRegistry" 01_core/src/entities/ 01_core/src/rules/
+ls 01_core/src/entities/ 01_core/src/engine/stdlib/
+grep -n "Locator\|LocatorRegistry" 01_core/src/entities/ 01_core/src/engine/
 ```
 
 Hipótese:
@@ -471,7 +471,7 @@ Total arms refino P236:
   during walk).
 - `walk` arm StateUpdate.
 
-**`rules/layout/mod.rs`**:
+**`engine/layout/mod.rs`**:
 - `layout_content` arm StateUpdate (apply mutation no
   Layouter.state_table; sem render output).
 
@@ -481,7 +481,7 @@ Total: **~12-15 arms** cumulativos. Compiler-driven.
 
 ### C5 — Criar `rules/stdlib/state.rs` (módulo novo) + 4 funcs
 
-Criar `01_core/src/rules/stdlib/state.rs` (módulo novo):
+Criar `01_core/src/engine/stdlib/state.rs` (módulo novo):
 
 ```rust
 //! P236 — Stdlib funcs state(key, init) + state.get +
@@ -490,7 +490,7 @@ Criar `01_core/src/rules/stdlib/state.rs` (módulo novo):
 //! state.display refinos futuros candidatos D.2+.
 
 use crate::entities::{Value, State, Content};
-use crate::rules::layout::Layouter;
+use crate::engine::layout::Layouter;
 
 pub(super) fn native_state(args: Args) -> SourceResult<Value> { ... }
 pub(super) fn native_state_get(args: Args, layouter: &Layouter)
@@ -512,7 +512,7 @@ register.
 
 ### C6 — Layouter +1 field state_table
 
-Editar `01_core/src/rules/layout/mod.rs`:
+Editar `01_core/src/engine/layout/mod.rs`:
 
 ```rust
 use std::collections::HashMap;
@@ -536,7 +536,7 @@ Magnitude C6: **XS (~10min)**.
 
 ### C7 — Renderização state.get/update walk integration
 
-Editar `01_core/src/rules/layout/mod.rs::layout_content`:
+Editar `01_core/src/engine/layout/mod.rs::layout_content`:
 
 ```rust
 Content::StateUpdate { key, value } => {
@@ -590,7 +590,7 @@ pós-implementação).
 Editar L0 prompts:
 - `00_nucleo/prompts/entities/value.md` — adicionar
   `State` variant doc + struct nova.
-- `00_nucleo/prompts/rules/stdlib.md` — adicionar 4
+- `00_nucleo/prompts/engine/stdlib.md` — adicionar 4
   state funcs doc.
 - **Possivelmente novo**: `00_nucleo/prompts/entities/state.md`
   — entity State documentation (audit C1 confirma se
@@ -725,18 +725,18 @@ Código alterado:
 - **Editado**: `01_core/src/entities/content.rs` (+
   Content::StateUpdate variant + arms cascata + ~2 unit
   tests).
-- **Criado**: `01_core/src/rules/stdlib/state.rs` (módulo
+- **Criado**: `01_core/src/engine/stdlib/state.rs` (módulo
   novo; 4 funcs + ~6 unit tests).
-- **Editado**: `01_core/src/rules/stdlib/mod.rs` (+ `pub
+- **Editado**: `01_core/src/engine/stdlib/mod.rs` (+ `pub
   mod state;`).
-- **Editado**: `01_core/src/rules/layout/mod.rs` (+
+- **Editado**: `01_core/src/engine/layout/mod.rs` (+
   state_table HashMap + walk integration StateUpdate).
-- **Editado**: `01_core/src/rules/introspect.rs` (arms
+- **Editado**: `01_core/src/engine/introspect.rs` (arms
   StateUpdate).
-- **Editado**: `01_core/src/rules/layout/tests.rs` (+~6-8
+- **Editado**: `01_core/src/engine/layout/tests.rs` (+~6-8
   E2E tests).
 - **L0 EDITADO partial**: `00_nucleo/prompts/entities/value.md`
-  + `00_nucleo/prompts/rules/stdlib.md` + possível
+  + `00_nucleo/prompts/engine/stdlib.md` + possível
   `entities/state.md` novo.
 - **Editado**: `00_nucleo/adr/typst-adr-0066-*.md` (status
   PROPOSTO → IMPLEMENTADO; bloco P236 implementado).

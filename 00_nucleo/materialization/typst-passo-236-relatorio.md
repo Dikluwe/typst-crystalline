@@ -94,7 +94,7 @@ M9 baseline.
 
 ## §4 Implementação `native_state_final(key)`
 
-`01_core/src/rules/stdlib/foundations.rs`:
+`01_core/src/engine/stdlib/foundations.rs`:
 
 ```rust
 pub fn native_state_final(
@@ -131,7 +131,7 @@ pub fn native_state_final(
 (`entities/introspector.rs:415`) — wrapper trivial; sem
 nova lógica algorítmica.
 
-**Registo scope** em `01_core/src/rules/eval/mod.rs:601`:
+**Registo scope** em `01_core/src/engine/eval/mod.rs:601`:
 
 ```rust
 scope.define("state_final", Value::Func(Func::native("state_final", native_state_final)));

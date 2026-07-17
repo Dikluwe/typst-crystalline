@@ -3,9 +3,9 @@
 ## Estado actual antes de começar
 
 Ler antes de começar:
-- `01_core/src/rules/eval.rs` — `EvalContext` actual e braço `Expr::Show` (se existir).
+- `01_core/src/engine/eval.rs` — `EvalContext` actual e braço `Expr::Show` (se existir).
 - `01_core/src/entities/content.rs` — Confirmar variantes de container para `map_text`.
-- `01_core/src/rules/stdlib.rs` — Onde `upper`, `lower`, `map_text` foram implementados
+- `01_core/src/engine/stdlib.rs` — Onde `upper`, `lower`, `map_text` foram implementados
   no Passo 67.
 
 Pré-condição: `cargo test` — 678 L1 + 125 L3 + 50 parity, zero violations.
@@ -45,7 +45,7 @@ A arquitectura deste passo tem quatro invariantes:
 grep -n "Show\b" 01_core/src/entities/ast/expr.rs | head -10
 
 # 2. Verificar se EvalContext já tem show_rules ou campos relacionados
-grep -n "show_rules\|in_show\|ShowRule" 01_core/src/rules/eval.rs | head -10
+grep -n "show_rules\|in_show\|ShowRule" 01_core/src/engine/eval.rs | head -10
 
 # 3. Confirmar que Func tem método name() (necessário para resolver NodeKind)
 grep -n "pub fn name\|fn name" 01_core/src/entities/func.rs | head -5
@@ -56,7 +56,7 @@ grep -n "pub fn map_text\|fn map_text" 01_core/src/entities/content.rs | head -5
 # Se a assinatura for diferente (ex: consume self, retorna outro tipo), o código não compila.
 
 # 5. Verificar o braço actual de Expr::Show no eval (se existir)
-grep -n "Show\|show" 01_core/src/rules/eval.rs | head -10
+grep -n "Show\|show" 01_core/src/engine/eval.rs | head -10
 ```
 
 Reportar o output completo antes de continuar. A resposta à questão 3 é
@@ -151,7 +151,7 @@ pub mod show;
 
 ## Tarefa 2 — Estado no `EvalContext` (L1)
 
-Em `01_core/src/rules/eval_context.rs` (ou onde `EvalContext` está definido),
+Em `01_core/src/engine/eval_context.rs` (ou onde `EvalContext` está definido),
 adicionar dois campos:
 
 ```rust

@@ -385,7 +385,7 @@ o merge real em `layout/mod.rs:594-602` já propaga os 5 campos top-wins.
 
 ## Dúvidas (para o dossiê §perguntas)
 
-- **D1**: `SetEquationNumbering` **não tem produtor em eval** (`grep -rn SetEquationNumbering 01_core/src/rules/eval/` → 0 hits). Só é construído em testes. É intencional (numbering de equação ainda não exposto em `#set`) ou lacuna? O comentário `content.rs:337-342` diz "Materializada em P199B" mas o caminho eval parece ausente.
+- **D1**: `SetEquationNumbering` **não tem produtor em eval** (`grep -rn SetEquationNumbering 01_core/src/engine/eval/` → 0 hits). Só é construído em testes. É intencional (numbering de equação ainda não exposto em `#set`) ou lacuna? O comentário `content.rs:337-342` diz "Materializada em P199B" mas o caminho eval parece ausente.
 - **D2**: `Content::Styled` não aparece como arm explícito em `is_empty` (`content.rs:1480+`) — cai num fallback. Não consegui confirmar pela leitura parcial se o fallback é `false` por defeito ou se `Styled` deveria delegar ao body (como faz `plain_text`). Verificar o fim do match `is_empty` (linhas após 1509).
 - **D3**: Há **duas `StyleChain` distintas em runtime**: a de eval (`engine.styles`, que é assada e descartada) e a do Layouter (`self.chain`, reconstruída do zero a partir de `Content::Styled`). O `#set text` só afecta a primeira (bake-in em `Content::Text`); `*bold*` só afecta a segunda. Pergunta de design para o F: o achatamento eval-time de `#set text` é uma decisão a preservar ou a unificar com a chain de layout?
 - **D4**: `SetPage` tem **dois produtores** (`eval/rules.rs:256` e `stdlib/layout.rs:318`). Confirmar se são caminhos redundantes (markup `#set page` vs builtin `page()`) ou se um é legacy.

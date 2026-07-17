@@ -5,7 +5,7 @@
 > — **verificar no repo, não assumir**) e a **forma canónica** (foi gravada mostrando a **Opção A**
 > — a lógica no arquivo do struct — que a medição do P376 provou **errada**: cria o acoplamento
 > `entities → rules` (dado→render) e o custo §3; a forma que **funcionou** é a **Opção B**, free
-> function em `rules/layout/<elem>.rs`). **(1) roda a próxima fatia de atomização** — a família dos
+> function em `engine/layout/<elem>.rs`). **(1) roda a próxima fatia de atomização** — a família dos
 > arms gordos restantes (Figure/Image/Shape/Transform e os do grupo) — na forma B **já provada**
 > (P376: containers Block/Boxed/Stack/Pad, monólito −581 linhas, sem ciclo, content-preserving). A
 > correção da ADR é **Estágio 0** porque ela **governa o rollout** — não rodar mais arms apoiados
@@ -39,7 +39,7 @@ todas as referências (`claude.md`, o L0, os relatórios que a citam) e o nome d
 que a A **cria o acoplamento `entities → rules::layout`** (ciclo, `pub(crate)`, genéricos — o custo
 §3) e vai contra a separação dado/render (ADR-0107). Substituir a forma canónica da ADR pela **Opção
 B medida**:
-- a lógica de layout do elemento vai para **`rules/layout/<elem>.rs`** (ao lado do render, na camada
+- a lógica de layout do elemento vai para **`engine/layout/<elem>.rs`** (ao lado do render, na camada
   de render), como **free function** `pub(super) fn layout<M,S>(layouter, e)` — acessa o estado
   privado do `Layouter` por ser **módulo descendente** (sem import reverso, sem `pub(crate)`, sem
   custo §3);
@@ -77,7 +77,7 @@ ADR atomização: número <NNNN> + forma canónica Opção B (A rejeitada: acopl
 - **`match` exaustivo MANTIDO** (sem wildcard) — a garantia do compilador fica.
 - **Despacho ESTÁTICO** — sem `dyn`/vtable. Se um arm exigir, **parar e reportar**.
 - **`entities/` não tocado** — `content→elements` inalterado; não é gate, não tentar reduzi-lo.
-- **Forma B** — free function em `rules/layout/<elem>.rs`, módulo descendente (sem ciclo, sem
+- **Forma B** — free function em `engine/layout/<elem>.rs`, módulo descendente (sem ciclo, sem
   `pub(crate)`, sem custo §3). **Não usar a Opção A** (a forma rejeitada).
 - **Content-preserving** — a rede de caracterização passa **sem alteração**; se virar, a lógica
   mudou ao mover → **investigar, não mascarar**.
@@ -94,7 +94,7 @@ commitada no Estágio 0) + a medição da fatia + o escopo + os hashes para o do
 arm movido antes.
 
 ### Estágio 1 — mover a fatia (após aprovação)
-Por elemento da fatia: a lógica de layout **muda** do `match` para `rules/layout/<elem>.rs` (free
+Por elemento da fatia: a lógica de layout **muda** do `match` para `engine/layout/<elem>.rs` (free
 function, forma B); o arm do núcleo vira a delegação de uma linha. Content-preserving.
 
 ### Estágio Teste
@@ -108,7 +108,7 @@ function, forma B); o arm do núcleo vira a delegação de uma linha. Content-pr
 
 ### Estágio de fecho — COMMIT (padrão)
 Com os gates verdes, **commitar** a fatia: `git add -A && git commit -m "Passo 377 — atomização
-fatia <família>: layout para rules/layout/<elem>.rs (forma B)"`. Árvore limpa e commitada.
+fatia <família>: layout para engine/layout/<elem>.rs (forma B)"`. Árvore limpa e commitada.
 
 ---
 
@@ -169,7 +169,7 @@ Se a fatia escolhida não couber num lote, reduzir (menos elementos). Cada arm m
 sincronizadas) + a forma canónica trocada para a Opção B (a A registrada como rejeitada, com o
 porquê: acoplamento dado→render); o commit do Estágio 0 (hash). **A fatia**: a medição dos arms
 escolhidos (`file:line`, linhas por arm); o L0 com hash e a Trava aprovada; a lógica movida por
-elemento (`file:line` do `rules/layout/<elem>.rs` + o arm magro); a paridade (rede +11 sem
+elemento (`file:line` do `engine/layout/<elem>.rs` + o arm magro); a paridade (rede +11 sem
 alteração); a métrica de leitura (o monólito −X linhas); as não-metas confirmadas (exaustivo,
 estático, `entities/` intacto); a prova de que o α/caso 2/caso 4/flag/F-5b ficaram intactos; a
 lente (registrada, não gate); a perf; **o commit de fecho** (hash); `git status` limpo; lint 0/0; o

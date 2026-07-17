@@ -91,7 +91,7 @@ Verificação empírica antes de transições:
 cargo test --workspace 2>&1 | tail -3
 crystalline-lint .
 grep -c "^    [A-Z][A-Za-z]\+\(\s\|{\|(\)" 01_core/src/entities/content.rs
-grep -n "Content::Columns\|Content::Colbreak" 01_core/src/rules/layout/mod.rs
+grep -n "Content::Columns\|Content::Colbreak" 01_core/src/engine/layout/mod.rs
 ```
 
 Critério:

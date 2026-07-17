@@ -46,7 +46,7 @@ P230 materializa A.3 stroke/fill per-cell:
 - `Value::Color` baseline P25 ✓.
 - `extract_stroke` `pub(super)` em `stdlib/layout.rs` ✓ —
   **cross-módulo a `stdlib/structural.rs` funciona** (P227
-  `native_table` já importa via `crate::rules::stdlib::layout::extract_stroke`).
+  `native_table` já importa via `crate::engine::stdlib::layout::extract_stroke`).
 - GridCell 5 fields baseline P224.C; TableCell 5 fields
   baseline P157B ✓.
 - `layout_grid` Z-order baseline P227+P228 correcto
@@ -54,7 +54,7 @@ P230 materializa A.3 stroke/fill per-cell:
 
 **Decisão crítica C1**: cross-módulo OK sem promoção
 visibility (`pub(super)` em `stdlib::layout` é acessível a
-`stdlib::structural` via path completo `crate::rules::stdlib::layout::extract_stroke`).
+`stdlib::structural` via path completo `crate::engine::stdlib::layout::extract_stroke`).
 
 Sem `P230.div-N`.
 
@@ -83,12 +83,12 @@ Arms cascata (compiler-driven):
   map_content, map_text + constructor `Content::table_cell`
   fix).
 - `rules/introspect.rs` (2 arms: materialize_time + walk).
-- `rules/layout/mod.rs` (2 arms: GridCell/TableCell
+- `engine/layout/mod.rs` (2 arms: GridCell/TableCell
   layout_content isolados — ignoram stroke/fill fora de
   Grid context).
-- `rules/layout/grid.rs` (extract per-cell + effective_*
+- `engine/layout/grid.rs` (extract per-cell + effective_*
   resolution).
-- `rules/layout/grid_placement.rs` (destructure `..` para
+- `engine/layout/grid_placement.rs` (destructure `..` para
   ignorar fields novos no `extract_cell_fields`).
 
 ---
@@ -110,7 +110,7 @@ paridade P228 (rejeita Length explicitamente).
 
 `native_grid_cell` em `stdlib/structural.rs`; `native_table_cell`
 em `stdlib/structural.rs`. Cross-módulo import
-`crate::rules::stdlib::layout::extract_stroke` já
+`crate::engine::stdlib::layout::extract_stroke` já
 disponível (P227 baseline).
 
 ---

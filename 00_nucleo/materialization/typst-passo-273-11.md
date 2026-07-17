@@ -93,8 +93,8 @@ Decisão Fase A: função livre com `measure_fn` callback (1α — pura, testáv
 
 Listar literal:
 
-- **Sítio 1**: `01_core/src/rules/layout/mod.rs` — handler Stack arm em `measure_content_constrained`. Per P156I prompt confirmação: "sum heights + (n-1)*spacing para vertical; sum widths para horizontal". Confirmar linha exacta.
-- **Sítio 2**: `01_core/src/rules/layout/mod.rs` — replicação inline em P273.9 Stack arm save/restore `parent_bbox`. Per P273.9 §2.2 + §A.7 estimativa estimada ~30 LOC.
+- **Sítio 1**: `01_core/src/engine/layout/mod.rs` — handler Stack arm em `measure_content_constrained`. Per P156I prompt confirmação: "sum heights + (n-1)*spacing para vertical; sum widths para horizontal". Confirmar linha exacta.
+- **Sítio 2**: `01_core/src/engine/layout/mod.rs` — replicação inline em P273.9 Stack arm save/restore `parent_bbox`. Per P273.9 §2.2 + §A.7 estimativa estimada ~30 LOC.
 
 ### §A.2 — Verificação que a lógica é literal-equivalente
 
@@ -202,7 +202,7 @@ Excepção opcional (Decisão Fase A): se Fase A descobrir divergência empíric
 ### Alterações esperadas no código
 
 ```rust
-// L1 — 01_core/src/rules/layout/mod.rs
+// L1 — 01_core/src/engine/layout/mod.rs
 
 impl Layouter {
     // P273.11 — método novo (Decisão 1β)

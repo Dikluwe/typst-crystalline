@@ -4,7 +4,7 @@
 Magnitude **S** agregada — passo único combinando migração,
 tests E2E, edits L0, e actualização de nota DEBT.
 
-Migra consumer C1 em `01_core/src/rules/layout/mod.rs:345`
+Migra consumer C1 em `01_core/src/engine/layout/mod.rs:345`
 (per P187A §11.1 — site real é 345, não 310 como specs
 anteriores indicavam) de
 `self.counter.format_hierarchical("heading")` para a forma
@@ -67,7 +67,7 @@ verdes; zero violations. Forma da expressão fixada
    - Ambos confirmados em P187A §2.2 e §2.3. Re-verificar
      empiricamente.
 
-3. Confirmar L0 `rules/layout.md`:
+3. Confirmar L0 `engine/layout.md`:
    - Localizar entrada existente sobre heading-arm
      (P182D introduziu, P186 estendeu).
    - Identificar onde adicionar nota sobre migração C1.
@@ -104,7 +104,7 @@ edits.
 
 ### .B Migrar consumer C1
 
-1. Em `01_core/src/rules/layout/mod.rs:345` (ou linha
+1. Em `01_core/src/engine/layout/mod.rs:345` (ou linha
    real per `.A.1`):
    - Substituir leitura legacy por forma fixada P187A
      §3:
@@ -128,7 +128,7 @@ edits.
   valores correctos por Location).
 - Linter passa (após `--fix-hashes` em `.D`).
 
-### .C Actualizar L0 `rules/layout.md`
+### .C Actualizar L0 `engine/layout.md`
 
 1. Adicionar entrada para C1 migration:
    - Heading prefix consultado via Introspector
@@ -149,7 +149,7 @@ edits.
 
 ### .D Tests E2E em submódulo `p187b_c1_heading_prefix`
 
-Submódulo novo em `01_core/src/rules/layout/tests.rs`,
+Submódulo novo em `01_core/src/engine/layout/tests.rs`,
 irmão de `p184e_figure_per_kind`, `p185d_locator_sync`,
 `p186f_equation_locatable`. 4 tests obrigatórios.
 
@@ -342,7 +342,7 @@ Todas em conjunto:
 
 1. `.A` produziu auditoria sem disparar gate substancial.
 2. Consumer C1 migrado (`mod.rs:345`).
-3. L0 `rules/layout.md` actualizado.
+3. L0 `engine/layout.md` actualizado.
 4. 4 tests E2E novos passam.
 5. Tests existentes não regridem (paridade observable).
 6. Verificações `.E` passam (12/12).

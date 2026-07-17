@@ -34,7 +34,7 @@ P504, resolvia para o `Dict`, e a chamada `()` sobre esse `Dict` falhava
 
 ## 2. Implementação (âmbito de P707)
 
-Novo bloco em `eval_func_call` (`01_core/src/rules/eval/closures.rs`),
+Novo bloco em `eval_func_call` (`01_core/src/engine/eval/closures.rs`),
 mesmo padrão de P417/P423/P504/P466/P506/P702: se o callee é `FieldAccess`
 com campo `"pos"` ou `"named"` e o alvo avalia para `Value::Args`, devolve
 directamente `Value::Array(a.items)` / `Value::Dict(a.named)` — sem passar

@@ -53,7 +53,7 @@
 
 | Ficheiro | Descrição |
 |----------|-----------|
-| `01_core/src/rules/lexer/mod.rs` | `Lexer` passou de `pub(super)` para `pub`. Sem alteração funcional; apenas expõe a API ao harness de benchmark. |
+| `01_core/src/engine/lexer/mod.rs` | `Lexer` passou de `pub(super)` para `pub`. Sem alteração funcional; apenas expõe a API ao harness de benchmark. |
 
 ### 1.5 DEBT.md
 

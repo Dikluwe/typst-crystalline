@@ -51,14 +51,14 @@ regressões).
   import `use Paint`; testes adaptados).
 - `01_core/src/entities/content.rs` (~9 sítios construção
   Stroke + import Paint).
-- `01_core/src/rules/layout/mod.rs` (1 sítio Divider stroke +
+- `01_core/src/engine/layout/mod.rs` (1 sítio Divider stroke +
   import Paint).
-- `01_core/src/rules/layout/tests.rs` (~21 sítios tests +
+- `01_core/src/engine/layout/tests.rs` (~21 sítios tests +
   import Paint).
-- `01_core/src/rules/stdlib/layout.rs` (4 sítios — extract_stroke
+- `01_core/src/engine/stdlib/layout.rs` (4 sítios — extract_stroke
   + native_stroke + 2 imports Paint).
-- `01_core/src/rules/stdlib/shapes.rs` (~8 sítios + import Paint).
-- `01_core/src/rules/stdlib/mod.rs` (5 sítios tests + 3 imports
+- `01_core/src/engine/stdlib/shapes.rs` (~8 sítios + import Paint).
+- `01_core/src/engine/stdlib/mod.rs` (5 sítios tests + 3 imports
   Paint inline).
 - `03_infra/src/export.rs` (4 sítios `s.paint.to_rgba_f32()` →
   `s.paint.to_color().to_rgba_f32()`).

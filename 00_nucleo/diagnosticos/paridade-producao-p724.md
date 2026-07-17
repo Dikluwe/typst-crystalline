@@ -83,7 +83,7 @@ Consumidor real: `path-util.typ:453` de `cetz`
   `Some` só para `Param::Pos` não-`Ident`; nesse caso `name` é `""`
   (nunca consultado) e `default` é `None`. A invariante P708
   (`default` como discriminante posicional vs keyword-only) fica intacta.
-- **`01_core/src/rules/eval/closures.rs` `eval_closure_expr`** — o braço
+- **`01_core/src/engine/eval/closures.rs` `eval_closure_expr`** — o braço
   `_ => None` é substituído por `Param::Pos(pattern) =>` que guarda
   `pattern.to_untyped().clone()` — cobre destructuring, parenthesized e
   placeholder (este último passa a consumir o posicional, paridade com o

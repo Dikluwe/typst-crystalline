@@ -108,7 +108,7 @@ Isto é um custo de manutenção explícito e aceite — a alternativa
 | Prompt | Natureza da mudança |
 |--------|---------------------|
 | `00_nucleo/prompts/entities/math-class.md` | Criar — novo módulo de entidade |
-| `00_nucleo/prompts/rules/parse.md` | Actualizar import: `typst_utils::default_math_class` → `crate::entities::math_class::default_math_class` |
+| `00_nucleo/prompts/engine/parse.md` | Actualizar import: `typst_utils::default_math_class` → `crate::entities::math_class::default_math_class` |
 | `00_nucleo/prompts/entities/mod.md` | Adicionar `math_class` à lista de módulos |
 
 ---

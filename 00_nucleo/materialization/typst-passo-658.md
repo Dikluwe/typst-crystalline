@@ -32,7 +32,7 @@ Confirmar a fase que domina o tempo (provavelmente `layout_ms`, já que `shaped_
 ### Confirmar se a chave da cache de P657 pode ser reutilizada directamente
 
 ```bash
-grep -n "struct ShapeCache\|fn shaped_width" 03_infra/src/shaper.rs 01_core/src/rules/layout/metrics.rs
+grep -n "struct ShapeCache\|fn shaped_width" 03_infra/src/shaper.rs 01_core/src/engine/layout/metrics.rs
 ```
 
 Confirmar se `shaped_width` tem acesso à mesma `ShapeCache` criada por P657 (passada ao `Layouter` desde o início da compilação), ou se precisaria de outro mecanismo de partilha.

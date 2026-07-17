@@ -10,8 +10,8 @@
 
 ## 1. Metodologia
 
-1. Ler `lab/typst-original/crates/typst-layout/src/rules.rs` e classificar cada `_RULE` pelo tipo de `Content` que produz (`BlockElem`, `InlineElem`, `Sequence`/directo, condicional).
-2. Verificar, em `01_core/src/rules/layout/mod.rs` e nos arquivos de feature correspondentes, como o cristalino trata cada equivalente.
+1. Ler `lab/typst-original/crates/typst-layout/src/engine.rs` e classificar cada `_RULE` pelo tipo de `Content` que produz (`BlockElem`, `InlineElem`, `Sequence`/directo, condicional).
+2. Verificar, em `01_core/src/engine/layout/mod.rs` e nos arquivos de feature correspondentes, como o cristalino trata cada equivalente.
 3. Preencher a coluna "confirmado por sonda antes de implementar" com base nos prompts/relatórios dos passos originais (quando disponíveis).
 4. Priorizar por risco: elementos que combinam frequentemente com texto no mesmo fluxo e cujo posicionamento vertical depende da classificação.
 5. Medir uma amostra de 2–3 itens de maior risco com `mutool trace` (coordenadas, não só AE).
@@ -188,4 +188,4 @@ crystalline-lint .
 
 - Abrir passo dedicado para corrigir `Content::Image` (ancoramento vertical depois de texto, replicando P767c).
 - No mesmo passo, medir `Content::Curve` com texto; se divergir, corrigir conjuntamente.
-- Actualizar o L0 correspondente (`00_nucleo/prompts/rules/layout/image.md` ou criar novo) antes de escrever código, conforme Protocolo de Nucleação.
+- Actualizar o L0 correspondente (`00_nucleo/prompts/engine/layout/image.md` ou criar novo) antes de escrever código, conforme Protocolo de Nucleação.

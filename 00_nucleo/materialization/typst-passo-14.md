@@ -3,7 +3,7 @@
 ## Estado actual antes de começar
 
 Ler antes de começar:
-- `01_core/src/rules/eval.rs` — travessia parcial do Passo 13
+- `01_core/src/engine/eval.rs` — travessia parcial do Passo 13
 - `lab/typst-original/crates/typst-eval/src/` — semântica de referência
 - `lab/typst-original/crates/typst-library/src/foundations/ops.rs` (ou equivalente)
 
@@ -87,7 +87,7 @@ correcta — não um compromisso, mas a arquitectura certa:
   `#[cfg(test)]` garante que não contamina a build de produção
 
 ```rust
-// Em 01_core/src/rules/eval.rs — APENAS em bloco #[cfg(test)]
+// Em 01_core/src/engine/eval.rs — APENAS em bloco #[cfg(test)]
 #[cfg(test)]
 pub(crate) fn eval_for_test(
     world: &dyn crate::contracts::world::World,
@@ -407,7 +407,7 @@ fn paridade_tipo_invalido_retorna_err() {
 
 ### Prompt L0
 
-**Actualizar**: `00_nucleo/prompts/rules/eval.md`
+**Actualizar**: `00_nucleo/prompts/engine/eval.md`
 
 Documentar:
 - `eval_binary_op` e `eval_unary_op` como funções puras

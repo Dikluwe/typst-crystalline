@@ -11,12 +11,12 @@
 
 A **infraestrutura central** das decorações de texto já tinha sido implementada nos passos anteriores **P284–P286**:
 
-- `01_core/src/rules/stdlib/text.rs` — `native_underline`, `native_strike`, `native_overline`.
+- `01_core/src/engine/stdlib/text.rs` — `native_underline`, `native_strike`, `native_overline`.
 - `01_core/src/entities/content.rs` — variantes `Content::Underline`/`Strike`/`Overline` e construtores.
-- `01_core/src/rules/layout/decorations.rs` — layout wrap-aware que emite `FrameItem::Line` por segmento.
-- `01_core/src/rules/layout/mod.rs` — braço `Content::Underline/Strike/Overline` delega a `decorations::layout`.
-- `01_core/src/rules/eval/mod.rs` — registo das funções no scope stdlib.
-- `00_nucleo/prompts/rules/stdlib/text.md` — spec L0 das três funções.
+- `01_core/src/engine/layout/decorations.rs` — layout wrap-aware que emite `FrameItem::Line` por segmento.
+- `01_core/src/engine/layout/mod.rs` — braço `Content::Underline/Strike/Overline` delega a `decorations::layout`.
+- `01_core/src/engine/eval/mod.rs` — registo das funções no scope stdlib.
+- `00_nucleo/prompts/engine/stdlib/text.md` — spec L0 das três funções.
 - Testes de unidade (stdlib) e de integração (layout) já existiam.
 
 O **trabalho restante do P444** era habilitar os **selectors de show rule** para as três decorações (`#show underline: ...`, `#show strike: ...`, `#show overline: ...`). Isso foi feito adicionando `NodeKind::Underline/Strike/Overline` e respectivos matches no `selector_matches` e na resolução de funções nativas em `eval_show_rule`.
@@ -35,7 +35,7 @@ O **trabalho restante do P444** era habilitar os **selectors de show rule** para
   - `NodeKind::Overline`
 - Actualizado o comentário do enum para reflectir o conjunto completo.
 
-### 1.2 `01_core/src/rules/eval/rules.rs`
+### 1.2 `01_core/src/engine/eval/rules.rs`
 
 - `selector_matches`: o braço `Selector::NodeKind` agora casa `Content::Underline(_)` com `NodeKind::Underline`, `Content::Strike(_)` com `NodeKind::Strike` e `Content::Overline(_)` com `NodeKind::Overline`.
 - `eval_show_rule`: ao resolver um selector que é uma função nativa, adicionado mapeamento por function-pointer para `native_underline`, `native_strike` e `native_overline`, produzindo os respectivos `Selector::NodeKind(...)`.
@@ -52,14 +52,14 @@ O **trabalho restante do P444** era habilitar os **selectors de show rule** para
 
 | Componente | Ficheiro | Estado |
 |------------|----------|--------|
-| Funções nativas | `01_core/src/rules/stdlib/text.rs` | `native_underline`/`strike`/`overline` com `body`, `stroke`, `offset`, `extent` |
+| Funções nativas | `01_core/src/engine/stdlib/text.rs` | `native_underline`/`strike`/`overline` com `body`, `stroke`, `offset`, `extent` |
 | Variantes de `Content` | `01_core/src/entities/content.rs` | `Underline`/`Strike`/`Overline` com `UnderlineElem`/`StrikeElem`/`OverlineElem` |
-| Layout | `01_core/src/rules/layout/decorations.rs` | Emite `FrameItem::Line` por segmento, wrap-aware |
-| Dispatch layout | `01_core/src/rules/layout/mod.rs` | Braços delegam a `decorations::layout` |
-| Registo stdlib | `01_core/src/rules/eval/mod.rs` | `scope.define("underline", ...)` etc. |
-| Spec L0 | `00_nucleo/prompts/rules/stdlib/text.md` | Secção `underline / strike / overline` |
-| Tests L1 | `01_core/src/rules/stdlib/mod.rs` | P284 tests de unidade |
-| Tests L3 | `01_core/src/rules/layout/tests.rs` | P284–P286 tests de integração |
+| Layout | `01_core/src/engine/layout/decorations.rs` | Emite `FrameItem::Line` por segmento, wrap-aware |
+| Dispatch layout | `01_core/src/engine/layout/mod.rs` | Braços delegam a `decorations::layout` |
+| Registo stdlib | `01_core/src/engine/eval/mod.rs` | `scope.define("underline", ...)` etc. |
+| Spec L0 | `00_nucleo/prompts/engine/stdlib/text.md` | Secção `underline / strike / overline` |
+| Tests L1 | `01_core/src/engine/stdlib/mod.rs` | P284 tests de unidade |
+| Tests L3 | `01_core/src/engine/layout/tests.rs` | P284–P286 tests de integração |
 
 Não houve necessidade de duplicar esta infraestrutura nem de introduzir `Style::Underline/Overline/Strike` (o modelo adoptado pelo projecto usa variantes próprias de `Content`, analogamente a `strong`/`emph`).
 
@@ -98,6 +98,6 @@ Resultado: **zero novas violações**. Apenas os 2 warnings órfãos de prompts 
 
 Alterações incluídas no commit:
 - `01_core/src/entities/show.rs`
-- `01_core/src/rules/eval/rules.rs`
+- `01_core/src/engine/eval/rules.rs`
 - `00_nucleo/materialization/typst-passo-444-relatorio.md`
 - `00_nucleo/materialization/typst-passo-444.md`

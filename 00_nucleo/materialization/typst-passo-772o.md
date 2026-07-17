@@ -38,7 +38,7 @@ Confirmar reprodução (deve mostrar "Weighttest here" ou similar, palavras cola
 Adicionar instrumentação temporária (`eprintln!`/`dbg!`, não código permanente) em:
 
 ```bash
-grep -n "fn space_width\|fn advance\b" 01_core/src/rules/layout/cursor.rs 03_infra/src/font_metrics.rs
+grep -n "fn space_width\|fn advance\b" 01_core/src/engine/layout/cursor.rs 03_infra/src/font_metrics.rs
 ```
 
 Registar, para o mesmo documento de teste (peso 800):

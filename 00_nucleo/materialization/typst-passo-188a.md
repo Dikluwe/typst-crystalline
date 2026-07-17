@@ -57,7 +57,7 @@ Material de partida verificado:
 - `00_nucleo/materialization/typst-passo-187-relatorio-consolidado.md`
   §8 — P188 confirmado como independente; blueprint
   para C2.
-- `01_core/src/rules/layout/equation.rs:97` — site C2
+- `01_core/src/engine/layout/equation.rs:97` — site C2
   actual (ou similar; confirmar empiricamente em `.A`).
 
 P188A é o passo de diagnóstico que precede a
@@ -151,7 +151,7 @@ Para cada decisão das 7 cláusulas, registar:
 
 ### O1 — Inputs verificáveis
 
-`grep -rn "get_flat\|flat_counter_at\|equation" 01_core/src/rules/layout/`.
+`grep -rn "get_flat\|flat_counter_at\|equation" 01_core/src/engine/layout/`.
 Para cláusula 1, confirmar contexto exacto da leitura em
 `equation.rs:97`. Para cláusula 4, confirmar acesso a
 `self` (Layouter) ou outro receptor.
@@ -236,7 +236,7 @@ Provável passo único agregado P188B (similar a P187B):
 Auditor confirma empiricamente:
 
 1. Confirmar consumer C2 actual:
-   - `01_core/src/rules/layout/equation.rs:97` (per
+   - `01_core/src/engine/layout/equation.rs:97` (per
      P186A §2). Confirmar empiricamente.
    - Localizar leitura: padrão esperado
      `state.get_flat("equation")` ou
@@ -245,7 +245,7 @@ Auditor confirma empiricamente:
      escopo das variáveis locais).
 
 2. Confirmar receptor (`self` é Layouter ou outro):
-   - `equation.rs` é submódulo de `rules/layout/`?
+   - `equation.rs` é submódulo de `engine/layout/`?
      Imports? Tipo de `self`?
    - Se `self` é Layouter: acesso a `self.introspector`
      e `self.current_location` directo.
@@ -275,7 +275,7 @@ Auditor confirma empiricamente:
    - String final tem forma `"(1)"`, `"1"`, ou outra?
 
 7. Confirmar tests existentes que cobrem equation counter:
-   - `grep -rn "equation.*counter\|equation_number\|fn .*equation" 01_core/src/rules/layout/`.
+   - `grep -rn "equation.*counter\|equation_number\|fn .*equation" 01_core/src/engine/layout/`.
    - Identificar tests que devem manter-se inalterados
      após P188B.
 

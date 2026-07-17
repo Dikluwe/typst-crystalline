@@ -111,7 +111,7 @@ Inspecção literal:
    ```
 2. **Verificar vanilla**: `lab/typst-original/...` — como vanilla
    processa identifier desconhecido em math mode + parens.
-3. **Sítio bug exacto**: `01_core/src/rules/eval/math.rs` arm
+3. **Sítio bug exacto**: `01_core/src/engine/eval/math.rs` arm
    `Expr::FuncCall` ramo `else` (last branch pós-P302).
 4. **Cross-check com `MathIdent` arm pós-P301**:
    - `$undef$` (sem parens) → continua `MathIdent("undef")` ✓.
@@ -409,7 +409,7 @@ primeira-vez.
 
 ## §8 — Ponteiros
 
-- Sítio bug: `01_core/src/rules/eval/math.rs` arm `Expr::FuncCall`
+- Sítio bug: `01_core/src/engine/eval/math.rs` arm `Expr::FuncCall`
   ramo `else` (linha ~270 pós-P302).
 - Variants reusados: `MathSequence`, `MathDelimited`, `MathIdent`,
   `MathText`. Todos pré-existentes.

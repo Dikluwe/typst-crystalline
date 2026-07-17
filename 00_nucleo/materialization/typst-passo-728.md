@@ -38,7 +38,7 @@ grep -n "BinOp::And\|BinOp::Or\|short.circuit\|lazy" lab/typst-original/crates/t
 ### Confirmar o estado actual do cristalino, com `file:line`
 
 ```bash
-grep -n "BinOp::And\|BinOp::Or" 01_core/src/rules/eval/mod.rs
+grep -n "BinOp::And\|BinOp::Or" 01_core/src/engine/eval/mod.rs
 ```
 
 ### Investigar a anomalia de ordem/memoização notada por P727

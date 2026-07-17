@@ -8,8 +8,8 @@ Ler antes de começar:
 - `00_nucleo/adr/typst-adr-0033-*.md` — paridade funcional com vanilla.
 - `00_nucleo/adr/typst-adr-0034-*.md` — diagnóstico obrigatório antes
   de materializar tipo do vanilla.
-- `01_core/src/rules/lexer/scanner.rs` — alvo do DEBT-41.
-- `01_core/src/rules/eval.rs` (linhas 200–260 aproximadamente) —
+- `01_core/src/engine/lexer/scanner.rs` — alvo do DEBT-41.
+- `01_core/src/engine/eval.rs` (linhas 200–260 aproximadamente) —
   `EvalContext.import_stack`, `ImportGuard`, `enter_import`. Alvo do
   diagnóstico do DEBT-40.
 
@@ -53,7 +53,7 @@ posterior após leitura do diagnóstico.
 ### A.1 — Inventariar as ocorrências
 
 ```bash
-grep -n "unsafe" 01_core/src/rules/lexer/scanner.rs
+grep -n "unsafe" 01_core/src/engine/lexer/scanner.rs
 ```
 
 Esperado: 6 ocorrências de `unsafe impl Sealed<T>` + 1 ocorrência de
@@ -109,11 +109,11 @@ Detalhes:
 ```bash
 # Zero ocorrências de "unsafe" relacionadas com Sealed:
 grep -n "unsafe trait Sealed\|unsafe impl Sealed" \
-    01_core/src/rules/lexer/scanner.rs
+    01_core/src/engine/lexer/scanner.rs
 # Esperado: zero linhas.
 
 # As 7 ocorrências de get_unchecked permanecem (DEBT-42):
-grep -c "get_unchecked" 01_core/src/rules/lexer/scanner.rs
+grep -c "get_unchecked" 01_core/src/engine/lexer/scanner.rs
 # Esperado: 7.
 
 # Testes passam:
@@ -241,7 +241,7 @@ wc -l 00_nucleo/diagnosticos/diagnostico-route-vanilla-passo-85.md
 ## Critérios de conclusão
 
 - [ ] Zero ocorrências de `unsafe trait Sealed` ou `unsafe impl
-      Sealed` em `01_core/src/rules/lexer/scanner.rs`.
+      Sealed` em `01_core/src/engine/lexer/scanner.rs`.
 - [ ] As 7 ocorrências de `unsafe { get_unchecked(...) }` permanecem
       intactas em `scanner.rs` (DEBT-42 não é tocado).
 - [ ] `cargo test --package typst-core` passa com o mesmo número
@@ -255,7 +255,7 @@ wc -l 00_nucleo/diagnosticos/diagnostico-route-vanilla-passo-85.md
       `00_nucleo/diagnosticos/diagnostico-route-vanilla-passo-85.md`
       existe, tem >= 7 secções, entre 80 e 250 linhas.
 - [ ] Nenhum ficheiro em `00_nucleo/adr/` foi alterado.
-- [ ] Nenhum ficheiro em `01_core/src/rules/eval.rs` foi alterado
+- [ ] Nenhum ficheiro em `01_core/src/engine/eval.rs` foi alterado
       (o DEBT-40 é apenas diagnosticado, não executado).
 
 ---

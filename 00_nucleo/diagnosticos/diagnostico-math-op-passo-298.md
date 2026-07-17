@@ -24,7 +24,7 @@ grep -rin "MathOp\|OpElem\|native_op" 01_core/src/ → 0 hits funcionais
 
 ### A.0.0.2 — Inspecção crítica: heurística limits-style já existe
 
-**Descoberta significativa** em `01_core/src/rules/math/layout/attach.rs:55-61`:
+**Descoberta significativa** em `01_core/src/engine/math/layout/attach.rs:55-61`:
 
 ```rust
 let is_limits = self.block && match base {
@@ -153,7 +153,7 @@ estrutural.
 | `rules/introspect.rs:materialize_time` | terminal |
 | `rules/introspect.rs:walk` | terminal |
 | `rules/introspect/locatable.rs` | `false` |
-| `rules/layout/mod.rs` | fallthrough math |
+| `engine/layout/mod.rs` | fallthrough math |
 | `rules/math/layout/mod.rs:layout_node` | handler dedicado |
 
 ### A.1.4 — Vanilla `OpElem`

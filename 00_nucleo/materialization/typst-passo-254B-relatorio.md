@@ -49,7 +49,7 @@ reader L3 completo).
 
 5. **Não materializei Fase A**. P254B é diagnóstico
    meta-arquitectural; Fase A exige leitura directa do código
-   real do projecto (`grep`/`view` em `01_core/src/rules/math/`).
+   real do projecto (`grep`/`view` em `01_core/src/engine/math/`).
 
 ---
 
@@ -170,7 +170,7 @@ pré-P159B).
 1. **Classificações §2 são cautelosas, não definitivas** —
    baseadas em evidência indirecta (referências cruzadas em
    prompts L0, listagens de submódulos em DEBT.md P96.8). A
-   evidência directa (consumers reais em `01_core/src/rules/
+   evidência directa (consumers reais em `01_core/src/engine/
    math/layout/*.rs`) não está no contexto.
 
 2. **Magnitude estimada para Fase B2 é especulativa** —

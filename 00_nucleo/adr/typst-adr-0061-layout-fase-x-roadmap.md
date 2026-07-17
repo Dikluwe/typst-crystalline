@@ -279,7 +279,7 @@ da Fase 1 Model em P155).
 - **ADR-0036** — atomização progressiva — cada feature consumer
   explícito.
 - **ADR-0037** — coesão por domínio — Layout permanece em
-  `01_core/src/rules/layout/`; modulação se necessário.
+  `01_core/src/engine/layout/`; modulação se necessário.
 - **ADR-0038** — `Content::Styled` para styling estrutural
   (rejeitado para Layout features).
 - **ADR-0054** — perfil observacional graded — Fase 1 cumpre
@@ -1200,7 +1200,7 @@ em P223 (segundo sub-passo Fase 4 Layout candidata):
   real; paridade Smart→Option N=7 cumulativo).
 - Arms cascata em ~6 sítios L1 (5 em `entities/content.rs`
   PartialEq/map_content/map_text + 1 em `rules/introspect.rs`
-  materialize_time + 1 em `rules/layout/mod.rs`
+  materialize_time + 1 em `engine/layout/mod.rs`
   layout_content com `float: _, clearance: _` ignorados).
 - `native_place` stdlib refino: +2 named args extraction +
   validation; reuso `extract_length` helper N=8 → 9.
@@ -1273,7 +1273,7 @@ novos + módulo placement algorítmico real materializado em P224
   `Option<Box<Content>>`).
 - **P224.C** — 1 variant Content novo: `GridCell { body, x, y,
   colspan, rowspan }` (paridade P157B TableCell literal).
-  **Módulo L1 novo `01_core/src/rules/layout/grid_placement.rs`**
+  **Módulo L1 novo `01_core/src/engine/layout/grid_placement.rs`**
   (264 LOC) com `place_cells` que implementa algoritmo placement
   vanilla paridade (auto linear + explicit + colspan/rowspan +
   conflito detection). **Fecha DEBT-34e** estructuralmente.

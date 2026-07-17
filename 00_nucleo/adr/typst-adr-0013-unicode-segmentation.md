@@ -77,7 +77,7 @@ conveniência.
 
 | Prompt | Natureza da mudança |
 |--------|---------------------|
-| `00_nucleo/prompts/rules/parse.md` | Documentar `unicode_segmentation` como externo autorizado; referenciar ADR-0013 |
+| `00_nucleo/prompts/engine/parse.md` | Documentar `unicode_segmentation` como externo autorizado; referenciar ADR-0013 |
 
 ---
 

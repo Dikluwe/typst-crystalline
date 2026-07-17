@@ -31,7 +31,7 @@ Confirmar o comportamento do vanilla — `em` em `page(width:)` resolve contra o
 ### Localizar a causa no cristalino
 
 ```bash
-grep -n "fn.*page.*width\|resolve.*em\|Length::Em\|Em(" 01_core/src/rules/eval/rules.rs 01_core/src/rules/layout/set_page.rs 2>/dev/null | head -20
+grep -n "fn.*page.*width\|resolve.*em\|Length::Em\|Em(" 01_core/src/engine/eval/rules.rs 01_core/src/engine/layout/set_page.rs 2>/dev/null | head -20
 ```
 
 Confirmar onde a resolução de `em` para dimensões de página falha silenciosamente e produz zero, em vez de erro ou do valor correcto.

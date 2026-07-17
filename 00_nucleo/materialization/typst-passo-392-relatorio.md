@@ -10,11 +10,11 @@ em `p350c_flag_on_nao_convergente_classifica`, alheio a este passo).
 Materializou-se `panic(msg)` como helper de aborto de avaliação. Recebe `Str`, devolve
 `Err(vec![SourceDiagnostic::error(..., msg)])`, reutilizando o mecanismo de erro existente.
 
-- `01_core/src/rules/stdlib/panic.rs` — novo `native_panic(msg)`.
-- `01_core/src/rules/stdlib/mod.rs` — adiciona `mod panic`, re-exporta `native_panic`; adiciona
+- `01_core/src/engine/stdlib/panic.rs` — novo `native_panic(msg)`.
+- `01_core/src/engine/stdlib/mod.rs` — adiciona `mod panic`, re-exporta `native_panic`; adiciona
   4 testes unitários.
-- `01_core/src/rules/eval/mod.rs` — importa e regista `"panic"` em `make_stdlib`.
-- `00_nucleo/prompts/rules/stdlib/panic.md` — L0 novo.
+- `01_core/src/engine/eval/mod.rs` — importa e regista `"panic"` em `make_stdlib`.
+- `00_nucleo/prompts/engine/stdlib/panic.md` — L0 novo.
 - `00_nucleo/diagnosticos/typst-cobertura-vanilla-vs-cristalino.md` — `panic(msg)` reclassificado
   de `ausente` para `implementado` (A.3 e B.5).
 
@@ -54,8 +54,8 @@ e reporta a mensagem; não é necessário reproduzir o tipo Rust de erro do vani
 
 ## Artefactos
 
-- Código: `01_core/src/rules/stdlib/panic.rs` (novo), `stdlib/mod.rs`, `eval/mod.rs`.
-- L0: `00_nucleo/prompts/rules/stdlib/panic.md`.
+- Código: `01_core/src/engine/stdlib/panic.rs` (novo), `stdlib/mod.rs`, `eval/mod.rs`.
+- L0: `00_nucleo/prompts/engine/stdlib/panic.md`.
 - Inventário 148 — `panic(msg)` implementado.
 - este relatório.
 

@@ -74,24 +74,24 @@ coerção — a sonda refuta isso (`type(1) == int` é `true` por identidade, e
 
 ```
 00_nucleo/prompts/entities/value.md           | 130 ++++++++++++++--
-00_nucleo/prompts/rules/eval.md               |  30 +++-
-00_nucleo/prompts/rules/eval/field-access.md  |  40 ++++-
-00_nucleo/prompts/rules/stdlib/foundations.md |  46 ++++--
+00_nucleo/prompts/engine/eval.md               |  30 +++-
+00_nucleo/prompts/engine/eval/field-access.md  |  40 ++++-
+00_nucleo/prompts/engine/stdlib/foundations.md |  46 ++++--
 01_core/src/entities/value.rs                 | 211 +++++++++++++++++++++++++-
-01_core/src/rules/eval/bibliography.rs        |   2 +-    (só @prompt-hash)
-01_core/src/rules/eval/bindings.rs            |  27 +++-
-01_core/src/rules/eval/closures.rs            |  26 +++-
-01_core/src/rules/eval/control_flow.rs        |   2 +-    (só @prompt-hash)
-01_core/src/rules/eval/flow.rs                |   2 +-    (só @prompt-hash)
-01_core/src/rules/eval/markup.rs              |   2 +-    (só @prompt-hash)
-01_core/src/rules/eval/math.rs                |   2 +-    (só @prompt-hash)
-01_core/src/rules/eval/mod.rs                 |  57 ++++---
-01_core/src/rules/eval/modules.rs             |   2 +-    (só @prompt-hash)
-01_core/src/rules/eval/repr.rs                |   2 +
-01_core/src/rules/eval/rules.rs               |   2 +-    (só @prompt-hash)
-01_core/src/rules/eval/tests.rs               | 137 ++++++++++++++++-
-01_core/src/rules/stdlib/foundations.rs       |   7 +-
-01_core/src/rules/stdlib/mod.rs               |   7 +-
+01_core/src/engine/eval/bibliography.rs        |   2 +-    (só @prompt-hash)
+01_core/src/engine/eval/bindings.rs            |  27 +++-
+01_core/src/engine/eval/closures.rs            |  26 +++-
+01_core/src/engine/eval/control_flow.rs        |   2 +-    (só @prompt-hash)
+01_core/src/engine/eval/flow.rs                |   2 +-    (só @prompt-hash)
+01_core/src/engine/eval/markup.rs              |   2 +-    (só @prompt-hash)
+01_core/src/engine/eval/math.rs                |   2 +-    (só @prompt-hash)
+01_core/src/engine/eval/mod.rs                 |  57 ++++---
+01_core/src/engine/eval/modules.rs             |   2 +-    (só @prompt-hash)
+01_core/src/engine/eval/repr.rs                |   2 +
+01_core/src/engine/eval/rules.rs               |   2 +-    (só @prompt-hash)
+01_core/src/engine/eval/tests.rs               | 137 ++++++++++++++++-
+01_core/src/engine/stdlib/foundations.rs       |   7 +-
+01_core/src/engine/stdlib/mod.rs               |   7 +-
 ```
 
 > Os ficheiros marcados "(só @prompt-hash)" mudaram **apenas** o hash do L0
@@ -158,7 +158,7 @@ identidade; alguns singletons são chamáveis (construtores).
 
 ## 5. Estado anterior do cristalino (medido)
 
-- `native_type` (`01_core/src/rules/stdlib/foundations.rs:24`) devolvia
+- `native_type` (`01_core/src/engine/stdlib/foundations.rs:24`) devolvia
   `Value::Str(v.type_name().into())` — uma **string**. Logo `type(1) == int`
   era `Value::Str("int") == <int inexistente>` → erro "unknown variable: int".
 - `int`/`float`/`str` (`eval/mod.rs:971–986`) eram `Value::Func` construtores
@@ -185,17 +185,17 @@ identidade; alguns singletons são chamáveis (construtores).
 - Testes unitários: `type_name_coincide`, `type_of_mapeia_variantes`,
   `type_equality_por_identidade`, `type_is_callable`, `from_type_para_value`.
 
-**`01_core/src/rules/stdlib/foundations.rs`**
+**`01_core/src/engine/stdlib/foundations.rs`**
 
 - `native_type` (`:24`): `[v] => Ok(Value::Type(v.type_of()))` (era
   `Value::Str(v.type_name().into())`).
 
-**`01_core/src/rules/eval/repr.rs`**
+**`01_core/src/engine/eval/repr.rs`**
 
 - `repr_value`: braço `Value::Type(t) => t.name().to_string()`
   (`repr(int) == "int"`, `repr(type) == "type"`).
 
-**`01_core/src/rules/eval/mod.rs` (`make_stdlib`)**
+**`01_core/src/engine/eval/mod.rs` (`make_stdlib`)**
 
 - `type` → `Value::Type(Type::Type)`.
 - `int`/`float`/`str` → `Value::Type(Type::Int/Float/Str)` (removidos os
@@ -205,14 +205,14 @@ identidade; alguns singletons são chamáveis (construtores).
   `fraction`, `array`, `dictionary`, `function`, `content`, `arguments`,
   `module`, `datetime`, `bytes`, `symbol`, `alignment`, `direction`, `location`.
 
-**`01_core/src/rules/eval/closures.rs` (call-path)**
+**`01_core/src/engine/eval/closures.rs` (call-path)**
 
 - Braço `Value::Type(t)` em `eval_func_call`: `Int`→`native_int`,
   `Float`→`native_float`, `Str`→`native_str`, `Type`→`native_type`
   (com `engine.world`/`engine.current_file`, replicando `apply_func`); restantes
   → erro `type {name} does not have a constructor`.
 
-**`01_core/src/rules/eval/bindings.rs` (`eval_field_access`)**
+**`01_core/src/engine/eval/bindings.rs` (`eval_field_access`)**
 
 - Braço `Value::Type(t)`: `int.min`/`int.max` → `i64::MIN`/`MAX`;
   `str.from-unicode` → `Value::Func(native_str_from_unicode)`; restantes →

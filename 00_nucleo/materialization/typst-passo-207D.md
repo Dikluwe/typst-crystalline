@@ -33,7 +33,7 @@ Reuso de dados P207A + P207B + P207C:
   `89baeda9`) — `position_of(loc) -> Option<Position>`
   onde `Position { page: NonZeroUsize, point: Point }`.
 - `LayouterRuntimeState` em
-  `01_core/src/rules/layout/layouter_runtime_state.rs`
+  `01_core/src/engine/layout/layouter_runtime_state.rs`
   — populated single-pass; contém `positions`,
   `label_pages`, etc.
 - `CountingIntrospector` wrapper L3 — regra empírica
@@ -119,7 +119,7 @@ Edições conforme C2:
   `00_nucleo/prompts/entities/page_store.md` análogo
   a `sealed_positions.md`.
 - (Opção 1) Edição L0
-  `00_nucleo/prompts/rules/layout/layouter_runtime_state.md`.
+  `00_nucleo/prompts/engine/layout/layouter_runtime_state.md`.
 - (Opção 3) Edição L0
   `00_nucleo/prompts/entities/sealed_positions.md` +
   `position.md` para enriched fields.

@@ -1,14 +1,14 @@
 # ADR-0116 — Excepção permanente: `get_unchecked` no scanner
 
 **Estado:** `EM VIGOR` (Passo 443 — decisão final sobre DEBT-42).
-**Decisão do dono (registada):** manter as 5 ocorrências de `unsafe { self.string.get_unchecked(...) }` em `01_core/src/rules/lexer/scanner.rs` como excepção permanente à política de zero `unsafe` em L1, por regressão de performance medida entre 8% e 58% ao substituí-las por slicing seguro.
+**Decisão do dono (registada):** manter as 5 ocorrências de `unsafe { self.string.get_unchecked(...) }` em `01_core/src/engine/lexer/scanner.rs` como excepção permanente à política de zero `unsafe` em L1, por regressão de performance medida entre 8% e 58% ao substituí-las por slicing seguro.
 **ADRs relacionadas:** ADR-0032 (política de `unsafe` em L1), ADR-0014 (inlining de `unscanny`), ADR-0115 (infra de benchmark do scanner).
 
 ---
 
 ## Contexto
 
-O `Scanner` em `01_core/src/rules/lexer/scanner.rs` é código inlinado de `unscanny` (ADR-0014) e contém 5 chamadas directas a `unsafe { self.string.get_unchecked(start..end) }` nos métodos `before`, `after`, `from`, `to` e `get`. A ADR-0032 estabelece que `unsafe` em L1 é eliminado por defeito, mas permite excepções permanentes quando um benchmark reprodutível demonstra regressão inaceitável e um ADR específico regista o número concreto.
+O `Scanner` em `01_core/src/engine/lexer/scanner.rs` é código inlinado de `unscanny` (ADR-0014) e contém 5 chamadas directas a `unsafe { self.string.get_unchecked(start..end) }` nos métodos `before`, `after`, `from`, `to` e `get`. A ADR-0032 estabelece que `unsafe` em L1 é eliminado por defeito, mas permite excepções permanentes quando um benchmark reprodutível demonstra regressão inaceitável e um ADR específico regista o número concreto.
 
 O Passo 441 criou a infra de benchmark (ADR-0115) e o Passo 442 executou o refactor experimental numa branch isolada (`p442-get-unchecked-removal`), substituindo as chamadas por slicing seguro `&self.string[start..end]`. O Passo 443 correu o benchmark comparativo e aplicou o critério de decisão da ADR-0032.
 

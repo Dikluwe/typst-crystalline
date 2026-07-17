@@ -20,20 +20,20 @@ primeiro Caso A "estrito" em refactor (não em variant aditivo).
      Caso A estrito + default resolvido em uso.
 
 3. **Stdlib `native_figure` adaptado** em
-   `01_core/src/rules/stdlib/figure_image.rs`:
+   `01_core/src/engine/stdlib/figure_image.rs`:
    - Retorna `Option<String>` directamente.
    - Fallback chain: `kind:` explícito > `infer_kind_from_body`
      > **None** (sem `unwrap_or("image".to_string())` final).
    - Aceita `kind: auto`/`kind: none` explícito → produz `None`
      directamente.
 
-4. **Introspect adaptado** em `01_core/src/rules/introspect.rs`:
+4. **Introspect adaptado** em `01_core/src/engine/introspect.rs`:
    - Walk arm: `kind.as_deref().unwrap_or("image").to_string()`
      em `local_figure_counters` e `figure_numbers`.
    - Labelled Figure arm: `kind_key = kind.as_deref().unwrap_or("image")`
      antes de `figure_supplement_for_lang(kind_key, lang)`.
 
-5. **Layout adaptado** em `01_core/src/rules/layout/mod.rs`:
+5. **Layout adaptado** em `01_core/src/engine/layout/mod.rs`:
    - Figure arm: `kind_key = kind.as_deref().unwrap_or("image")`
      em `figure_progress` e `figure_numbers` lookup.
 

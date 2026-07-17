@@ -34,7 +34,7 @@ Confirmar: com `str`, `captures` fica vazio (como acontece em `matches()` com st
 
 ## Implementação
 
-Alargar `str_match` (`01_core/src/rules/stdlib/collections.rs`) para aceitar `Value::Str` além de `Value::Regex`, seguindo exactamente o mesmo padrão já usado em `str_matches` (P692) — provavelmente reaproveitando directamente a lógica de resolução de padrão já lá construída.
+Alargar `str_match` (`01_core/src/engine/stdlib/collections.rs`) para aceitar `Value::Str` além de `Value::Regex`, seguindo exactamente o mesmo padrão já usado em `str_matches` (P692) — provavelmente reaproveitando directamente a lógica de resolução de padrão já lá construída.
 
 ### Critério de fecho da implementação
 

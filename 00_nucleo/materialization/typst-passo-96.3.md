@@ -92,7 +92,7 @@ apenas:
 > **Paths entre submódulos**: submódulos acedem a funções de
 > outros submódulos via path relativo `super::X::func()`
 > (subindo ao `mod.rs` do módulo pai e descendo ao submódulo
-> destino). Paths absolutos (`crate::rules::eval::X::func`)
+> destino). Paths absolutos (`crate::engine::eval::X::func`)
 > reservam-se para casos onde o caminho relativo é confuso
 > (ex: ficheiro de testes que acede a funções de vários
 > módulos distintos).

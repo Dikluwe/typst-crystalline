@@ -22,7 +22,7 @@
 ### Trocar o tipo
 
 - `01_core/src/entities/layout_types.rs`: `PagedDocument.layout_errors` passa de `Vec<String>` para `Vec<SourceDiagnostic>`.
-- `01_core/src/rules/layout/mod.rs`: `Layouter.layout_errors` da mesma forma.
+- `01_core/src/engine/layout/mod.rs`: `Layouter.layout_errors` da mesma forma.
 - `build_cache`/`build_cache_with_style` já devolvem `SourceResult<...>` (confirmado por P644) — os erros já são `Vec<SourceDiagnostic>` nesse ponto; a mudança é não os converter para `String` antes de os guardar.
 - `03_infra/src/pipeline.rs`: ao encontrar `doc.layout_errors` não vazio, devolver `Err(doc.layout_errors)` directamente, sem reconstruir a partir de texto.
 

@@ -86,7 +86,7 @@ fn is_id_continue(c: char) -> bool {
 
 | Prompt | Natureza da mudança |
 |--------|---------------------|
-| `00_nucleo/prompts/rules/parse.md` | Documentar `unicode_ident` como externo autorizado; referenciar ADR-0010 |
+| `00_nucleo/prompts/engine/parse.md` | Documentar `unicode_ident` como externo autorizado; referenciar ADR-0010 |
 
 ---
 

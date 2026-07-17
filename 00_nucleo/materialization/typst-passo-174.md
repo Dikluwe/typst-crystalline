@@ -214,9 +214,9 @@ Output: notas internas + decisões registadas:
 Apenas se `.A` escolheu HASH_TAGS (sugestão).
 
 1. L0+L1 helper em
-   `01_core/src/rules/introspect/convergence.rs` (ou
+   `01_core/src/engine/introspect/convergence.rs` (ou
    módulo similar):
-   - L0: `00_nucleo/prompts/rules/introspect/convergence.md`.
+   - L0: `00_nucleo/prompts/engine/introspect/convergence.md`.
    - Função `pub fn tags_have_converged(prev: &[Tag], curr: &[Tag]) -> bool`
      ou método `Vec<Tag>::convergence_hash() -> u128`.
    - Implementação: hash via `format!("{:?}", tags)` +
@@ -227,7 +227,7 @@ Apenas se `.A` escolheu HASH_TAGS (sugestão).
    - Tags idênticas convergem.
    - Tags diferentes não convergem.
 
-3. Update L0 `00_nucleo/prompts/rules/introspect.md` para
+3. Update L0 `00_nucleo/prompts/engine/introspect.md` para
    documentar uso de convergence em loop futuro.
 
 Se PartialEq escolhido (alternativa), implementar em
@@ -243,8 +243,8 @@ documentar.
 
 Apenas se `.A` escolheu LOOP_EXTERNAL.
 
-1. L0 `00_nucleo/prompts/rules/introspect/fixpoint.md`.
-2. L1 `01_core/src/rules/introspect/fixpoint.rs`:
+1. L0 `00_nucleo/prompts/engine/introspect/fixpoint.md`.
+2. L1 `01_core/src/engine/introspect/fixpoint.rs`:
    ```rust
    pub const MAX_FIXPOINT_ITERATIONS: usize = 5;
 

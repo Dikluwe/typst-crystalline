@@ -20,7 +20,7 @@ Status permaneceu `PROPOSTO` aguardando Passo 155.
 **Anotação Passo 155 (2026-04-25)**: segundo sub-passo da Fase 1
 materializado — `Content::Quote { body, attribution, block, quotes }`
 adicionado ao enum; `native_quote` registada em `make_stdlib`;
-módulo novo `01_core/src/rules/lang/quotes.rs` com
+módulo novo `01_core/src/engine/lang/quotes.rs` com
 `localize_quotes(lang)` cobrindo 6 idiomas (`pt`/`en`/`de`/`fr`/`es`/`it`)
 + default ASCII; `eval_markup` actualizado para tratar
 `SyntaxKind::SmartQuote` (alternância open/close por sequência markup
@@ -52,7 +52,7 @@ extendido em `stdlib/structural.rs`: helper inline `optional_str`
 reusado para os 6 fields — **cumulativo N=4 P159D + N=2 P159E
 + N=6 P159G = N=12 usos** (largamente acima do limiar promoção
 N=3-4). Layout `format_bib_entry` extendido em
-`rules/layout/mod.rs` com concatenação condicional APA-like
+`engine/layout/mod.rs` com concatenação condicional APA-like
 extendida (decisões diagnóstico §8.2 ordem + §9 formatos
 individuais): editor `(Ed. {editor})` após title; series
 `({series})` após title; location: antes de publisher
@@ -104,7 +104,7 @@ fields novos default `None`). Helper `extract_bib_entries`
 N=2 P159E = N=4** (atinge limiar promoção a `pub(super)` ou
 helper público N=3-4; reavaliação em passo administrativo XS
 futuro NÃO reservado). Layout `format_bib_entry` extendido em
-`rules/layout/mod.rs` com concatenação condicional APA-like
+`engine/layout/mod.rs` com concatenação condicional APA-like
 (Opção C diagnóstico §8.2): url/doi após `(year).` per paridade
 APA + backwards compat — quando ambos `None`, output P159D
 preservado exactamente. Formato decidido em diagnóstico §9:
@@ -239,7 +239,7 @@ preservado). Helper `extract_bib_entries` (P159A) extendido
 em `stdlib/structural.rs` para parsing dos 4 fields opcionais
 com validação tipo `Value::Str` e mensagem de erro mencionando
 field específico. Helper privado novo `format_bib_entry` em
-`rules/layout/mod.rs` para concatenação condicional APA-like:
+`engine/layout/mod.rs` para concatenação condicional APA-like:
 `[key] author. title journal vol. volume, pp. pages. publisher
 (year).`. Backwards compat trivial — fields opcionais default
 `None` preservam exactamente output P159A original. **Sem

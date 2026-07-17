@@ -172,7 +172,7 @@ restantes 19 fields)".
 
 ### Estado real
 
-Inspecção de `01_core/src/rules/layout/mod.rs:69`:
+Inspecção de `01_core/src/engine/layout/mod.rs:69`:
 
 Struct `Layouter<M, S>` tem **22 fields** activos:
 

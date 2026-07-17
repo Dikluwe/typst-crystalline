@@ -12,7 +12,7 @@ estruturais.
   (2026-04-27) — ficheiro
   `typst-adr-0062-hayagriva-bibliography-parsing.md` criado com
   status `PROPOSTO`. Promovida a `IMPLEMENTADO` no Passo 418
-  (integração hayagriva/citationberg em `rules/layout/bib_csl.rs`)
+  (integração hayagriva/citationberg em `engine/layout/bib_csl.rs`)
   e reconciliada no Passo 439.
 - **ADR-0063** — reservada para outra crate específica se
   surgir (e.g. column flow algorithm pode usar este número se
@@ -194,7 +194,7 @@ que corresponde a mudança específica no código.
 | 0059 | `Args` como tipo separado, não-variant de `Value` | `EM VIGOR` |
 | 0060 | Model (structural) roadmap — Fase 1 + 2 + 3 | `IMPLEMENTADO` (Fase 1 fechada em P155; Fase 2/3 prosseguem em **P157+** após renumeração registada em P156B) |
 | 0061 | Layout Fase X — page model + multi-column + footnote area roadmap | `IMPLEMENTADO` (P156B PROPOSTO → P221 IMPLEMENTADO 2026-05-12; Fase 1+2+3 cumpridas; refinos `measure`/`place` Fase 4 candidata NÃO-reservada) |
-| 0062 | Autorização crate `hayagriva` para bibliography + cite (CSL parsing) | `IMPLEMENTADO` (Passo 418 — integração real em `rules/layout/bib_csl.rs`; reconciliado no Passo 439) |
+| 0062 | Autorização crate `hayagriva` para bibliography + cite (CSL parsing) | `IMPLEMENTADO` (Passo 418 — integração real em `engine/layout/bib_csl.rs`; reconciliado no Passo 439) |
 | 0064 | Tradução `Smart<T>` vanilla → `Option<T>`/default | `EM VIGOR` (P156K; formaliza padrão N=6 da série P156C-J) |
 | 0065 | Inventariar primeiro — sub-passo `.1` para decisão arquitectural não-trivial | `EM VIGOR` (P156K; estende ADR-0034; padrão N=5 da série P156C-J) |
 | 0066 | Introspection runtime — promoção da reserva conceptual (referida historicamente como "ADR-0017 Introspection runtime adiada") a ficheiro PROPOSTO | `SUPERSEDED-BY 0073` (P204H 2026-05-07) |
@@ -618,7 +618,7 @@ P84.8g.
   exaustiva de arms `match` em ~7 sítios L1 (`plain_text`,
   `is_empty`, `PartialEq::eq`, `map_content`, `map_text` em
   `entities/content.rs`; `materialize_time`, `walk` em
-  `rules/introspect.rs`; `layout_content` em `rules/layout/mod.rs`).
+  `rules/introspect.rs`; `layout_content` em `engine/layout/mod.rs`).
   L0 prompt `entities/content.md` ganhou secção dedicada;
   hash propagado via `--fix-hashes` (`85fae9b9` →
   `43745b5d`). ADR-0060 anotada com nota de progresso —
@@ -738,13 +738,13 @@ P84.8g.
   métodos paridade P159D/E). Constructor `new(4 args)` original
   preservado (backwards compat trivial via fields novos default
   `None`). Helper `extract_bib_entries` (P159A+P159D+P159E)
-  extendido em `01_core/src/rules/stdlib/structural.rs`: helper
+  extendido em `01_core/src/engine/stdlib/structural.rs`: helper
   inline `optional_str` reusado para os 6 fields — **cumulativo
   N=4 P159D + N=2 P159E + N=6 P159G = N=12 usos** (largamente
   acima do limiar promoção N=3-4; promoção a `pub(super)` ou
   helper público diferida em passo administrativo XS futuro NÃO
   reservado). Layout `format_bib_entry` extendido em
-  `01_core/src/rules/layout/mod.rs` com decisões diagnóstico
+  `01_core/src/engine/layout/mod.rs` com decisões diagnóstico
   §8.2 ordem + §9 formatos individuais: editor `(Ed. {editor})`
   após title; series `({series})` após title; location: antes
   de publisher; organization substitutivo a publisher quando
@@ -799,12 +799,12 @@ P84.8g.
   paridade P159D. Constructor `new(4 args)` original preservado
   (backwards compat trivial via fields novos default `None`).
   Helper `extract_bib_entries` (P159A+P159D) extendido em
-  `01_core/src/rules/stdlib/structural.rs`: helper inline
+  `01_core/src/engine/stdlib/structural.rs`: helper inline
   `optional_str` reusado para url/doi — **cumulativo N=2 P159D
   + N=2 P159E = N=4** (atinge limiar promoção a `pub(super)` ou
   helper público N=3-4; reavaliação em passo administrativo XS
   futuro NÃO reservado). Layout `format_bib_entry` extendido em
-  `01_core/src/rules/layout/mod.rs` com concatenação condicional
+  `01_core/src/engine/layout/mod.rs` com concatenação condicional
   APA-like (**Opção C diagnóstico §8.2**: url/doi após `(year).`
   per paridade APA + backwards compat — quando ambos `None`,
   output P159D preservado exactamente). **Formato decidido**
@@ -859,7 +859,7 @@ P84.8g.
   — multi-Bibliography preserva primeiro número (paridade
   HashMap; decisão diagnóstico §9 contínua vs independente).
   Layout arm `Content::Cite { form: Normal/None }` em
-  `rules/layout/mod.rs` faz lookup `state.bib_numbers.get(key)`
+  `engine/layout/mod.rs` faz lookup `state.bib_numbers.get(key)`
   → `[N]` ou fallback `[key]` (regression P159A). Forms
   diferenciadas (Prose/Author/Year) inalteradas — numeração só
   em Normal/None preserva semântica forms (decisão diagnóstico
@@ -980,7 +980,7 @@ P84.8g.
   `extract_bib_entries` (P159A) extendido para parsing dos 4
   fields opcionais com validação tipo `Value::Str` e mensagem
   mencionando field específico. Helper privado novo
-  `format_bib_entry` em `rules/layout/mod.rs` para concatenação
+  `format_bib_entry` em `engine/layout/mod.rs` para concatenação
   condicional APA-like (`[key] author. title journal vol. volume,
   pp. pages. publisher (year).`). Backwards compat trivial —
   fields opcionais default `None` preservam output P159A
@@ -1072,7 +1072,7 @@ P84.8g.
   consecutivo de mesma feature Model**; **primeiro reuso
   explícito cross-feature do padrão P155** `localize_quotes`).
   Helper novo `figure_supplement_for_lang(kind: &str, lang:
-  Option<&Lang>) -> String` em `01_core/src/rules/lang/
+  Option<&Lang>) -> String` em `01_core/src/engine/lang/
   figure_supplement.rs` (ficheiro novo paralelo a `quotes.rs`)
   cobrindo 6 langs (pt/en/de/fr/es/it) × 3 kinds (image/table/
   raw) = 18 entradas + fallback PT por kind + capitalização
@@ -2039,11 +2039,11 @@ P84.8g.
   block, quotes }` (4 atributos vanilla `QuoteElem`) adicionado
   ao enum (42 → 43 variants); `native_quote` registado em
   `make_stdlib` (`#quote(body, attribution: ?, block: ?,
-  quotes: ?)`). **Módulo novo `01_core/src/rules/lang/quotes.rs`**
+  quotes: ?)`). **Módulo novo `01_core/src/engine/lang/quotes.rs`**
   expondo `localize_quotes(lang) → (open, close)` para 6 idiomas
   (`pt`/`en`/`de`/`fr`/`es`/`it`) + default ASCII (precedente
   `localize_*(lang)` para futuras features lang-aware; ADR-0057
-  hyphenation continua em `rules/layout/`). `eval_markup`
+  hyphenation continua em `engine/layout/`). `eval_markup`
   actualizado para tratar `SyntaxKind::SmartQuote` via alternância
   open/close por sequência markup, emitindo glyph localizado
   como `Content::Text`. **Distinção contextual code vs markup
@@ -2054,14 +2054,14 @@ P84.8g.
   `PartialEq::eq`, `map_content`, `map_text` em
   `entities/content.rs`; `materialize_time`, `walk` em
   `rules/introspect.rs`; `layout_content` em
-  `rules/layout/mod.rs` — block + inline + smart-quote insertion).
+  `engine/layout/mod.rs` — block + inline + smart-quote insertion).
   **ADR-0060 transita `PROPOSTO → IMPLEMENTADO`** (Fase 1
   fechada). Distribuição ADRs: `PROPOSTO` 11→10, `IMPLEMENTADO`
   18→19. Inventário 148 actualizado: Tabela A Model 5/4/5/8/0
   → 6/4/5/7/0 (cobertura **41% → 45%**); Tabela B Content
   42 → 43 variants; vanilla extra ausentes ~12 → ~11.
   L0 prompts: `entities/content.md` ganhou secção Quote;
-  novo `prompts/rules/lang.md` regista smart-quotes mecanismo.
+  novo `prompts/engine/lang.md` regista smart-quotes mecanismo.
   Hashes propagados via `--fix-hashes`: `content.rs`
   `43745b5d → 8413bb8d`; novos `lang/mod.rs` e `lang/quotes.rs`
   partilham `4426dbc0`. Sem ADR nova; sem DEBT tocado.
@@ -3271,7 +3271,7 @@ P84.8g.
     `to_srgb_components`) + 7 funções `interpolate_<space>` per-arm
     + `interpolate_hue_shorter` (CSS standard; vanilla paridade
     literal portada de `mix_iter` linha 1126-1136).
-  - **Stdlib** (`01_core/src/rules/stdlib/gradients.rs`): cada
+  - **Stdlib** (`01_core/src/engine/stdlib/gradients.rs`): cada
     `native_gradient_linear/radial/conic` ganha named arg
     `space: Str` cross-variant. Helper `parse_space_named(args,
     fn_name)` aceita literal "oklab"/"oklch"/"srgb"/"luma"/
@@ -4055,7 +4055,7 @@ P84.8g.
   - **L1 novo `Rect { x: Pt, y: Pt, w: Pt, h: Pt }`** em
     `entities/layout_types.rs` (paridade `Point` + `Size`; 7 LOC).
   - **L1 novo campo `pub(super) parent_bbox: Option<Rect>`** no
-    Layouter (`rules/layout/mod.rs`; padrão DEBT-37 P84.6
+    Layouter (`engine/layout/mod.rs`; padrão DEBT-37 P84.6
     `cell_origin_*` reused estructuralmente). Constructor init
     `parent_bbox: None`; `#[allow(dead_code)]` na declaração field
     (consumer real chega com 3γ.2 refino futuro).

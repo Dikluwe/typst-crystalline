@@ -109,7 +109,7 @@ de helpers cross-passos" (inaugurado P265) cresce **N=1 → N=2**.
 ### Stdlib `native_gradient_conic`
 
 ```rust
-// 01_core/src/rules/stdlib/gradients.rs
+// 01_core/src/engine/stdlib/gradients.rs
 
 pub fn native_gradient_conic(args, ...) -> SourceResult<Value>;
 ```

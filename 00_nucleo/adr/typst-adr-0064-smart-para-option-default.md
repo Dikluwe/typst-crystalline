@@ -256,7 +256,7 @@ como N=6 e referencia este ADR para formalização.
   empírico documentado.
 - Relatórios P156D, P156E, P156G, P156H, P156I, P156J — evidência
   empírica em `00_nucleo/materialization/`.
-- `01_core/src/rules/stdlib/layout.rs` — helpers consolidados
+- `01_core/src/engine/stdlib/layout.rs` — helpers consolidados
   (`extract_length`, `extract_parity`, `extract_dir`,
   `extract_weak`, `build_spacing`).
 - `lab/typst-original/.../foundations/values.rs` — definição

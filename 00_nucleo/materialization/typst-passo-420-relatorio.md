@@ -13,7 +13,7 @@ Executados os 8 grep; 6/6 obrigatórios passaram (itens 7 e 8 nice-to-have).
 | # | Verificação | Resultado |
 |---|-------------|-----------|
 | 1 | `BibliographyElem` tem `style` | ✅ `01_core/src/entities/elements/bibliography.rs:30` |
-| 2 | P418 built-ins funcionam | ✅ `01_core/src/rules/layout/bib_csl.rs:343+` (`ieee`, `apa`, `chicago-author-date`) |
+| 2 | P418 built-ins funcionam | ✅ `01_core/src/engine/layout/bib_csl.rs:343+` (`ieee`, `apa`, `chicago-author-date`) |
 | 3 | hayagriva parseia CSL XML | ✅ `citationberg::IndependentStyle::from_xml` (via `hayagriva::citationberg`) |
 | 4 | P419 file loading funciona | ✅ `World::read_bytes` em `rules/eval/bibliography.rs:37` |
 | 5 | CSL custom já existe | ✅ 0 hits — este é o gap do P420 |
@@ -35,7 +35,7 @@ Nenhuma reclassificação necessária; a API `IndependentStyle::from_xml` confir
 ### L0 atualizado
 
 - `00_nucleo/prompts/entities/elements/bibliography.md` — seção P420, `resolved_style` como cache mecânico, scope-out.
-- `00_nucleo/prompts/rules/layout/bib_csl.md` — API pública com `parse_csl_style` e `build_cache_with_style`, seção P420.
+- `00_nucleo/prompts/engine/layout/bib_csl.md` — API pública com `parse_csl_style` e `build_cache_with_style`, seção P420.
 - Hashes `@prompt-hash` sincronizados via `crystalline-lint`.
 
 ---
@@ -47,28 +47,28 @@ Nenhuma reclassificação necessária; a API `IndependentStyle::from_xml` confir
 - `01_core/src/entities/content.rs`: construtores `bibliography`, `bibliography_with_style`, `bibliography_from_path` preenchem `resolved_style: None`.
 
 ### Eval
-- `01_core/src/rules/eval/bibliography.rs`:
+- `01_core/src/engine/eval/bibliography.rs`:
   - `resolve_style(world, current_file, style_str) -> SourceResult<IndependentStyle>` — built-in primeiro, path fallback.
   - `load_csl_style_from_path(world, current_file, path)` — I/O via `World::read_bytes`, UTF-8 decode, parse XML.
 
 ### Layout
-- `01_core/src/rules/layout/bib_csl.rs`:
+- `01_core/src/engine/layout/bib_csl.rs`:
   - `resolve_style_name(name)` — built-ins hayagriva.
   - `parse_csl_style(content)` — parsing XML sem I/O.
   - `build_cache_with_style(entries, independent, locale)` — renderização usando style já resolvido.
   - `build_cache` mantido para built-ins.
-- `01_core/src/rules/layout/mod.rs`:
+- `01_core/src/engine/layout/mod.rs`:
   - `find_first_bibliography_style` retorna `FirstBibliographyStyle` com `resolved_style`/`style`/`locale`.
   - Usa `build_cache_with_style` quando `resolved_style` está presente (P420); senão `build_cache` com nome built-in.
 
 ### Stdlib
-- `01_core/src/rules/stdlib/structural.rs`: `native_bibliography` resolve `style` em eval time e preenche `BibliographyElem.resolved_style`.
+- `01_core/src/engine/stdlib/structural.rs`: `native_bibliography` resolve `style` em eval time e preenche `BibliographyElem.resolved_style`.
 
 ### Tests novos (14)
 
 | Módulo | Quantidade | Cobertura |
 |--------|-----------|-----------|
-| `rules/layout/bib_csl.rs` | 5 unit | built-in `ieee`, built-in inexistente, parse CSL válido, parse XML malformado, `build_cache_with_style` custom |
+| `engine/layout/bib_csl.rs` | 5 unit | built-in `ieee`, built-in inexistente, parse CSL válido, parse XML malformado, `build_cache_with_style` custom |
 | `rules/eval/bibliography.rs` | 5 unit | built-in `ieee`, path custom, path não encontrado, XML malformado, encoding inválido |
 | `rules/eval/tests.rs` | 4 E2E | `#bibliography(..., style: "custom.csl")` renderiza, built-in continua funcional, style inválido → erro, XML malformado → erro |
 

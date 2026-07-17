@@ -44,13 +44,13 @@ Paridade `BibStore` ↔ `state.bib_*` confirmada por test
 
 **Outputs**:
 
-- `00_nucleo/prompts/rules/layout.md` (L0 actualizado: secção
+- `00_nucleo/prompts/engine/layout.md` (L0 actualizado: secção
   "Cite-arm consome Introspector (P181G)" adicionada; hash final
   `95e8429b`).
-- `01_core/src/rules/layout/mod.rs` (cite-arm reescrito + use
+- `01_core/src/engine/layout/mod.rs` (cite-arm reescrito + use
   `Introspector` trait + use `CitationForm` movido para o topo do
   scope; linhagem `ad89eb8e`).
-- `01_core/src/rules/layout/tests.rs` (módulo `p181g_cite_arm_migration`
+- `01_core/src/engine/layout/tests.rs` (módulo `p181g_cite_arm_migration`
   com 6 tests E2E).
 
 **Sem ADR nova**. **Sem DEBT novo**.
@@ -64,7 +64,7 @@ Paridade `BibStore` ↔ `state.bib_*` confirmada por test
 | 1. `cargo check --workspace` passa | ✅ |
 | 2. `cargo test --workspace --lib`: 1465 → **1471** (+6; estimativa era +5) | ✅ |
 | 3. `crystalline-lint .` zero violations | ✅ |
-| 4. L0 `rules/layout.md` actualizado com hash `95e8429b` | ✅ |
+| 4. L0 `engine/layout.md` actualizado com hash `95e8429b` | ✅ |
 | 5. L1 `mod.rs` linhagem `@prompt-hash ad89eb8e` | ✅ |
 | 6. Cite-arm consulta `Introspector` primeiro | ✅ (test `cite_consulta_introspector_quando_state_legacy_vazio`) |
 | 7. Fallback a state legacy preservado | ✅ (legacy `layout()` continua a funcionar) |
@@ -239,7 +239,7 @@ Eliminados gradualmente em **M6** quando F1 retomar — após lacuna
   a P181F.
 - **Linhagem**: hashes consistentes via `crystalline-lint
   --fix-hashes`:
-  - `rules/layout.md ↔ layout/mod.rs` = `95e8429b ↔ ad89eb8e`
+  - `engine/layout.md ↔ layout/mod.rs` = `95e8429b ↔ ad89eb8e`
 
 P181G migra primeiro consumer real bib. Próximo: **P181H** torna
 walk arm puro — restaura invariante walk puro P163 violada por

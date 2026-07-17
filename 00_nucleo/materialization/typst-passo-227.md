@@ -263,8 +263,8 @@ grep -n "pub struct Stroke" 01_core/src/entities/geometry.rs
 grep -n "Value::Stroke\|Value::Color" 01_core/src/entities/value.rs
 grep -n "pub const BLACK\|Color::BLACK" 01_core/src/entities/layout_types.rs
 grep -A 10 "pub enum Content" 01_core/src/entities/content.rs | head -15
-grep -n "Content::Grid\|Content::Table" 01_core/src/rules/layout/
-grep -n "fn native_grid\|fn native_table" 01_core/src/rules/stdlib/structural.rs
+grep -n "Content::Grid\|Content::Table" 01_core/src/engine/layout/
+grep -n "fn native_grid\|fn native_table" 01_core/src/engine/stdlib/structural.rs
 ```
 
 Hipótese (per project_knowledge_search):
@@ -373,13 +373,13 @@ Total arms refino Grid + Table P227:
 - `materialize_time` — preserva stroke.
 - `walk` — preserva.
 
-**`rules/layout/mod.rs::layout_content`** (1 arm Grid +
+**`engine/layout/mod.rs::layout_content`** (1 arm Grid +
 1 arm Table — refino layout consume stroke).
 
-**`rules/layout/grid.rs::layout_grid`** (signature ou
+**`engine/layout/grid.rs::layout_grid`** (signature ou
 arm consume stroke param; refino actual).
 
-**`rules/layout/mod.rs::measure_content_constrained`**
+**`engine/layout/mod.rs::measure_content_constrained`**
 (2 arms — preservam dimensions; stroke não afecta layout
 geometric pre-emit).
 
@@ -445,7 +445,7 @@ Editar `stdlib/structural.rs::native_table` paridade.
 
 ### C8 — Renderização Opção β em `layout_grid`
 
-Editar `01_core/src/rules/layout/grid.rs::layout_grid`
+Editar `01_core/src/engine/layout/grid.rs::layout_grid`
 adicionando stroke param:
 
 ```rust
@@ -670,21 +670,21 @@ Código alterado:
   Grid + Table refino + arms cascata + ~4 unit tests).
 - **Editado**: `01_core/src/entities/value.rs` (`Value::Stroke`
   variant novo + arms cascata + ~3 unit tests).
-- **Editado**: `01_core/src/rules/introspect.rs` (arms novos).
-- **Editado**: `01_core/src/rules/layout/grid.rs` (signature
+- **Editado**: `01_core/src/engine/introspect.rs` (arms novos).
+- **Editado**: `01_core/src/engine/layout/grid.rs` (signature
   layout_grid +stroke param + renderização Opção β).
-- **Editado**: `01_core/src/rules/layout/mod.rs` (arms
+- **Editado**: `01_core/src/engine/layout/mod.rs` (arms
   consume stroke).
-- **Editado**: `01_core/src/rules/stdlib/layout.rs`
+- **Editado**: `01_core/src/engine/stdlib/layout.rs`
   (helper `extract_stroke` + `native_stroke` constructor
   + ~13 unit tests).
-- **Editado**: `01_core/src/rules/stdlib/structural.rs`
+- **Editado**: `01_core/src/engine/stdlib/structural.rs`
   (`native_grid` + `native_table` accept stroke; +~4 unit
   tests).
-- **Editado**: `01_core/src/rules/stdlib/mod.rs` (re-export).
-- **Editado**: `01_core/src/rules/eval/mod.rs` (scope register
+- **Editado**: `01_core/src/engine/stdlib/mod.rs` (re-export).
+- **Editado**: `01_core/src/engine/eval/mod.rs` (scope register
   native_stroke).
-- **Editado**: `01_core/src/rules/layout/tests.rs` (+~3 E2E
+- **Editado**: `01_core/src/engine/layout/tests.rs` (+~3 E2E
   tests).
 - **Editado**: `00_nucleo/diagnosticos/typst-cobertura-vanilla-vs-cristalino.md`
   (footnote ⁴⁷ P227 + Tabela B.2 actualização cumulativa).

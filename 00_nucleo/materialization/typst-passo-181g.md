@@ -42,7 +42,7 @@ garantida por construção (P181E §6).
 ### .A Auditoria L0 + decisão fallback
 
 1. Confirmar cite-arm actual:
-   - `01_core/src/rules/layout/mod.rs:584-597`.
+   - `01_core/src/engine/layout/mod.rs:584-597`.
    - Identificar exactamente:
      - Variável local que recebe leitura de bib_entries.
      - Variável local que recebe leitura de bib_numbers.
@@ -102,7 +102,7 @@ Output: notas internas; sem ficheiro novo.
 
 ### .B Tests primeiro (devem falhar parcialmente)
 
-Em `01_core/src/rules/layout/tests/` ou módulo
+Em `01_core/src/engine/layout/tests/` ou módulo
 equivalente:
 
 ```rust
@@ -182,7 +182,7 @@ Marco humano. Após `.C`:
 
 ### .E Implementar migração cite-arm
 
-Em `01_core/src/rules/layout/mod.rs` linhas 584-597:
+Em `01_core/src/engine/layout/mod.rs` linhas 584-597:
 
 Substituir leitura de bib_entries:
 ```rust

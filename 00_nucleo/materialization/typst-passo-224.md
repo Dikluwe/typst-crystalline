@@ -133,7 +133,7 @@ real.
 **Decisão fixada — implementar placement real em L1 puro**:
 - Função `place_cells(cells: Vec<GridCell>, num_cols:
   usize) -> SourceResult<Vec<PlacedCell>>` em
-  `01_core/src/rules/layout/grid_placement.rs` (módulo
+  `01_core/src/engine/layout/grid_placement.rs` (módulo
   novo).
 - Trabalho L1 puro (algorítmico; não toca layout
   geometric).
@@ -192,7 +192,7 @@ Auditoria empírica:
 ```
 grep -n "Grid {" 01_core/src/entities/content.rs
 grep -n "Content::Grid\|Content::Table" 01_core/src/
-grep -n "fn layout_grid" 01_core/src/rules/layout/
+grep -n "fn layout_grid" 01_core/src/engine/layout/
 grep -rn "DEBT-34" 00_nucleo/DEBT.md
 ```
 
@@ -201,8 +201,8 @@ Hipótese:
   baseline (`columns: Vec<TrackSizing>`, `rows: Vec<TrackSizing>`,
   `cells: Vec<Content>`).
 - Arms cascata em ~7-8 sítios (paridade P217+P223).
-- `layout_grid` function em `rules/layout/grid.rs` ou
-  `rules/layout/mod.rs`.
+- `layout_grid` function em `engine/layout/grid.rs` ou
+  `engine/layout/mod.rs`.
 - `native_grid` em `stdlib/layout.rs` ou `stdlib/structural.rs`.
 - DEBT-34d aberto (Grid placement); DEBT-34e aberto
   (TableCell placement).
@@ -347,7 +347,7 @@ literal):
 - `walk` — walk body.
 - `layout_content` — consume placement results.
 
-**Módulo novo `01_core/src/rules/layout/grid_placement.rs`**
+**Módulo novo `01_core/src/engine/layout/grid_placement.rs`**
 (L1 puro; algorítmico):
 
 ```rust
@@ -390,7 +390,7 @@ pub fn place_cells(
 }
 ```
 
-**Layouter consumer** em `rules/layout/grid.rs`:
+**Layouter consumer** em `engine/layout/grid.rs`:
 - Antes de iterar cells, chamar `place_cells(cells, num_cols)`.
 - Iterar `Vec<PlacedCell>` em ordem; renderizar cada body
   na célula `(row, col)` ocupando `colspan × rowspan`.
@@ -421,12 +421,12 @@ GridHeader + 5 arms GridFooter + 5 arms GridCell = 20 arms):
 - `materialize_time` — Grid + 3 novas.
 - `walk` — Grid + 3 novas.
 
-**`rules/layout/grid.rs`** (1 arm refino Grid + 0 directo
+**`engine/layout/grid.rs`** (1 arm refino Grid + 0 directo
 para new variants — consumidos por placement):
 - `layout_grid` — refino accept gutter + align + inset +
   header/footer + placement results.
 
-**`rules/layout/mod.rs::layout_content`** (1 arm Grid
+**`engine/layout/mod.rs::layout_content`** (1 arm Grid
 preservado; +3 arms aditivos para GridHeader/GridFooter/
 GridCell):
 - `Content::Grid { ... }` — preservado; consume placement.
@@ -441,7 +441,7 @@ GridCell):
 **`rules/introspect/locatable.rs`** (catch-all ou explicit):
 - 3 novas variants não-locatable.
 
-**`rules/layout/mod.rs::measure_content_constrained`** (1
+**`engine/layout/mod.rs::measure_content_constrained`** (1
 arm Grid + 3 aditivos):
 - Grid refino measurement com gutter/inset.
 - 3 novas variants: recurse body/children sum.
@@ -603,7 +603,7 @@ Editar `00_nucleo/DEBT.md`:
   (Passo 224)** ✓".
 - Fechado em: 2026-05-13 (P224).
 - Resolvido por: módulo novo
-  `01_core/src/rules/layout/grid_placement.rs` com função
+  `01_core/src/engine/layout/grid_placement.rs` com função
   `place_cells(cells, num_cols)` que implementa algoritmo
   vanilla paridade (auto + explicit + colspan/rowspan +
   conflito detection). Layouter consome resultado.
@@ -663,9 +663,9 @@ Critério: 0 violations. Hashes propagados em:
   novos).
 - `entities/content.md` L0 (Opção α — secção dedicada +
   3 sub-secções).
-- `rules/layout/grid.rs` (refino layout_grid).
-- `rules/layout/grid_placement.rs` (módulo novo).
-- `rules/layout/mod.rs` (arms novos).
+- `engine/layout/grid.rs` (refino layout_grid).
+- `engine/layout/grid_placement.rs` (módulo novo).
+- `engine/layout/mod.rs` (arms novos).
 - `rules/introspect.rs` (arms novos).
 - `rules/stdlib/layout.rs` ou `stdlib/structural.rs`
   (refino native_grid + 3 stdlib novas).
@@ -848,21 +848,21 @@ Código alterado:
 - **Editado**: `01_core/src/entities/content.rs` (variant
   Grid refino + 3 variants novos + arms cascata + ~20
   unit tests).
-- **Editado**: `01_core/src/rules/introspect.rs` (arms
+- **Editado**: `01_core/src/engine/introspect.rs` (arms
   novos).
-- **Editado**: `01_core/src/rules/layout/grid.rs` (refino
+- **Editado**: `01_core/src/engine/layout/grid.rs` (refino
   layout_grid + consume placement).
-- **Editado**: `01_core/src/rules/layout/mod.rs` (arms
+- **Editado**: `01_core/src/engine/layout/mod.rs` (arms
   novos).
-- **Editado**: `01_core/src/rules/introspect/locatable.rs`
+- **Editado**: `01_core/src/engine/introspect/locatable.rs`
   (arms novos).
-- **Editado**: `01_core/src/rules/stdlib/layout.rs` ou
+- **Editado**: `01_core/src/engine/stdlib/layout.rs` ou
   `stdlib/structural.rs` (refino + 3 stdlib novas).
-- **Editado**: `01_core/src/rules/stdlib/mod.rs` (re-exports).
-- **Editado**: `01_core/src/rules/eval/mod.rs` (scope
+- **Editado**: `01_core/src/engine/stdlib/mod.rs` (re-exports).
+- **Editado**: `01_core/src/engine/eval/mod.rs` (scope
   registers).
-- **Editado**: `01_core/src/rules/layout/tests.rs` (+E2E).
-- **Novo**: `01_core/src/rules/layout/grid_placement.rs`
+- **Editado**: `01_core/src/engine/layout/tests.rs` (+E2E).
+- **Novo**: `01_core/src/engine/layout/grid_placement.rs`
   (módulo placement algorítmico).
 - **Editado**: `00_nucleo/prompts/entities/content.md`
   (secção dedicada P224 + 3 sub-secções).

@@ -3,9 +3,9 @@
 ## Estado actual antes de começar
 
 Ler antes de começar:
-- `01_core/src/rules/math/layout.rs` — `MathLayouter` (struct com estado), `layout_attach`
+- `01_core/src/engine/math/layout.rs` — `MathLayouter` (struct com estado), `layout_attach`
 - `01_core/src/entities/content.rs` — `Content::Equation { body, block }`
-- `01_core/src/rules/layout.rs` — sítio onde `MathLayouter` é instanciado a partir de `Content::Equation` (Passo 48)
+- `01_core/src/engine/layout.rs` — sítio onde `MathLayouter` é instanciado a partir de `Content::Equation` (Passo 48)
 
 Pré-condição: `cargo test` — 553 L1 + 96 L3 + 50 parity, zero violations.
 
@@ -29,24 +29,24 @@ Este passo propaga `block` até `layout_attach` e condiciona o empilhamento vert
 ```bash
 # 1. Campos actuais da struct MathLayouter
 grep -A 10 "pub struct MathLayouter\|struct MathLayouter" \
-  01_core/src/rules/math/layout.rs
+  01_core/src/engine/math/layout.rs
 
 # 2. Como MathLayouter é instanciado a partir de Content::Equation
 # (onde block está acessível — Passo 48)
 grep -n "MathLayouter::new\|MathLayouter {" \
-  01_core/src/rules/layout.rs \
-  01_core/src/rules/math/layout.rs | head -10
+  01_core/src/engine/layout.rs \
+  01_core/src/engine/math/layout.rs | head -10
 
 # 3. Assinatura actual de layout_attach (após Passo 46 adicionou tl/bl)
-grep -A 3 "fn layout_attach" 01_core/src/rules/math/layout.rs
+grep -A 3 "fn layout_attach" 01_core/src/engine/math/layout.rs
 
 # 4. Como layout_attach é chamado dentro de layout_math_content
 grep -n "layout_attach\|self\.layout_attach" \
-  01_core/src/rules/math/layout.rs | head -10
+  01_core/src/engine/math/layout.rs | head -10
 
 # 5. Confirmar que is_large_operator e is_limit_function estão acessíveis
 grep -n "is_large_operator\|is_limit_function" \
-  01_core/src/rules/math/layout.rs | head -5
+  01_core/src/engine/math/layout.rs | head -5
 ```
 
 **Reportar o output antes de continuar.**

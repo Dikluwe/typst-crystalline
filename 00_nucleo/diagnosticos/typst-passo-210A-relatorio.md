@@ -24,7 +24,7 @@ reais. Zero código tocado; 1 output (este).
 
 ### A1 — `Counter` cristalino actual (CONFIRMADO)
 
-Stdlib funcs counter em `01_core/src/rules/stdlib/foundations.rs`:
+Stdlib funcs counter em `01_core/src/engine/stdlib/foundations.rs`:
 
 - `native_counter_at(key, label)` (P177) em linha 335 — retorna
   string formatada na Location associada ao label.
@@ -233,7 +233,7 @@ fixados; Caminho 3 subset.
 
 Trabalho concreto P210B (preview):
 
-- L1 `01_core/src/rules/stdlib/foundations.rs` — adicionar
+- L1 `01_core/src/engine/stdlib/foundations.rs` — adicionar
   `pub fn native_counter_step(ctx, args, ...)` paralelo a
   `native_state_update`. Emite
   `Value::Content(Content::CounterUpdate { key, action:

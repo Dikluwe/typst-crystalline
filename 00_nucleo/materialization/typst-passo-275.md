@@ -51,7 +51,7 @@ Verificar empíricamente cada métrica declarada no documento de transição §1
 | ADRs total EM VIGOR | 84 (cresceu 81 → 84 em P273.17) | `ls 00_nucleo/adr/typst-adr-*.md \| wc -l` + grep status |
 | ADRs files | 96 | `ls 00_nucleo/adr/ \| wc -l` (inclui meta-files) |
 | Lint violations | 0 | `cargo run -p crystalline-lint --quiet 2>&1 \| grep -c "violation"` |
-| `#[allow(dead_code)]` gradient | 0 | `rg "allow\(dead_code\)" 01_core/src/rules/layout/gradient.rs` |
+| `#[allow(dead_code)]` gradient | 0 | `rg "allow\(dead_code\)" 01_core/src/engine/layout/gradient.rs` |
 | Hash drift gradient.rs | `8d9730a3` | `rg "gradient\.rs:[a-f0-9]+" 00_nucleo/` |
 
 **Output §A.1**: tabela acima preenchida com valores observados; coluna nova "discrepância" para divergências.
@@ -137,15 +137,15 @@ Documento transição §3 declara 3 candidatos XS/S sem reserva + 3 scope-outs r
 
 ```bash
 # helper-group-bbox: extrair helper compartilhado 3 sítios
-rg "scan_all_gradients" 01_core/src/rules/layout/gradient.rs
+rg "scan_all_gradients" 01_core/src/engine/layout/gradient.rs
 rg "pattern_resources_for_page" 03_infra/src/export.rs
-rg "draw_item_local" 01_core/src/rules/layout/
+rg "draw_item_local" 01_core/src/engine/layout/
 
 # content-md-debt56-update: linha L0 content.md
 sed -n '820,830p' 00_nucleo/prompts/entities/content.md
 
 # draw-item-local-text-image: catch-all `_ => {}` em draw_item_local
-rg "_ => \{\}" 01_core/src/rules/layout/ -A 2
+rg "_ => \{\}" 01_core/src/engine/layout/ -A 2
 ```
 
 **Output §A.5**: tabela pendência × {factualmente válido sim/não, evidência}.

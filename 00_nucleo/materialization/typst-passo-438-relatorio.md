@@ -11,7 +11,7 @@ um prompt L0 dedicado completo. Com este fecho, **DEBT-57 está encerrado** —
 todos os ficheiros stdlib de L1 possuem spec L0 dedicada.
 
 - **L0 novo/expandido:**
-  - `00_nucleo/prompts/rules/stdlib/foundations.md` — spec dedicada às
+  - `00_nucleo/prompts/engine/stdlib/foundations.md` — spec dedicada às
     ~30 funções de `foundations.rs`, organizada em 8 grupos lógicos:
     1. Utilitários gerais (`type`, `repr`, `len`).
     2. Conversões de tipo (`range`, `str`, `int`, `float`).
@@ -26,11 +26,11 @@ todos os ficheiros stdlib de L1 possuem spec L0 dedicada.
     8. Nota de fecho de DEBT-57.
 
 - **Cabeçalho `@prompt` ajustado:**
-  - `01_core/src/rules/stdlib/foundations.rs` — data de actualização e hash
+  - `01_core/src/engine/stdlib/foundations.rs` — data de actualização e hash
     sincronizados; continua a apontar para `foundations.md`.
 
 - **Prompt comum actualizado:**
-  - `00_nucleo/prompts/rules/stdlib/_comum.md` — adicionada nota sobre
+  - `00_nucleo/prompts/engine/stdlib/_comum.md` — adicionada nota sobre
     `foundations.md` e declaração de que DEBT-57 está encerrado.
 
 - **Débito actualizado:**
@@ -66,7 +66,7 @@ e `show-regex.md`).
 
 | Critério | Resultado |
 |----------|-----------|
-| `00_nucleo/prompts/rules/stdlib/foundations.md` criado/expandido com ~30 funções | ✓ |
+| `00_nucleo/prompts/engine/stdlib/foundations.md` criado/expandido com ~30 funções | ✓ |
 | Cada função/grupo cobre assinatura, args, semântica, paridade vanilla, limitações e testes canónicos | ✓ |
 | `_comum.md` actualizado com nota de fecho completo DEBT-57 | ✓ |
 | `foundations.rs` cabeçalho `@prompt` aponta `foundations.md` | ✓ |
@@ -78,10 +78,10 @@ e `show-regex.md`).
 ## Artefactos
 
 - L0:
-  - `00_nucleo/prompts/rules/stdlib/foundations.md`
-  - `00_nucleo/prompts/rules/stdlib/_comum.md` (actualizado)
+  - `00_nucleo/prompts/engine/stdlib/foundations.md`
+  - `00_nucleo/prompts/engine/stdlib/_comum.md` (actualizado)
 - Código (apenas cabeçalho de linhagem / hash):
-  - `01_core/src/rules/stdlib/foundations.rs`
+  - `01_core/src/engine/stdlib/foundations.rs`
 - Débito:
   - `00_nucleo/diagnosticos/debt/DEBT.md`
 - Plano:

@@ -3,7 +3,7 @@
 ## Estado actual antes de começar
 
 Ler antes de começar:
-- `01_core/src/rules/eval.rs` — Ciclo principal de avaliação de expressões e blocos.
+- `01_core/src/engine/eval.rs` — Ciclo principal de avaliação de expressões e blocos.
 - `01_core/src/entities/content.rs` — Enumeração `Content`.
 - `01_core/src/entities/ast/expr.rs` (ou equivalente) — Definição do parser para a sintaxe `<label>` e `@ref`.
 
@@ -42,7 +42,7 @@ grep -n "Ref"   lab/typst-original/crates/typst-syntax/src/ast.rs | head -10
 grep -n "Label\|Ref" 01_core/src/entities/ast/expr.rs | head -10
 
 # 3. Localizar o loop de avaliação de markup
-grep -n "fn eval_markup" 01_core/src/rules/eval.rs | head -5
+grep -n "fn eval_markup" 01_core/src/engine/eval.rs | head -5
 ```
 
 Reportar o output completo antes de continuar. O diagnóstico confirmará
@@ -98,7 +98,7 @@ O desafio de avaliar Labels em Typst é que operam de forma "retroactiva" a
 nível semântico mas são sequenciais no AST. O parser gera tipicamente um nó
 `Heading` seguido de um nó `Label` como irmãos — não como pai/filho.
 
-Em `01_core/src/rules/eval.rs`:
+Em `01_core/src/engine/eval.rs`:
 
 ### 2a — Mapeamento simples
 
@@ -128,7 +128,7 @@ adicionar a lógica de embrulho:
 
 ## Tarefa 3 — Layout de Pass-Through (L1)
 
-No motor de layout (`01_core/src/rules/layout.rs` ou equivalente):
+No motor de layout (`01_core/src/engine/layout.rs` ou equivalente):
 
 ### 3a — Transparência do `Labelled`
 

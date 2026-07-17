@@ -179,9 +179,9 @@ taffy, harfbuzz). Tudo in-tree.
 ## §2 — Estado actual em cristalino
 
 Fonte: `01_core/src/entities/{layout_types.rs,content.rs}` +
-`01_core/src/rules/layout/{mod.rs,cursor.rs,grid.rs,placement.rs,
+`01_core/src/engine/layout/{mod.rs,cursor.rs,grid.rs,placement.rs,
 figure.rs,helpers.rs,metrics.rs,hyphenation.rs}` +
-`01_core/src/rules/eval/mod.rs` (`make_stdlib`).
+`01_core/src/engine/eval/mod.rs` (`make_stdlib`).
 
 ### §2.1 Tabela: vanilla esperado vs cristalino actual
 
@@ -532,7 +532,7 @@ ADR-0061 fornece guia.
 - **ADR-0036**: atomização — cada feature tem consumer
   explícito.
 - **ADR-0037**: coesão por domínio — Layout permanece em
-  `01_core/src/rules/layout/` (módulo dedicado por
+  `01_core/src/engine/layout/` (módulo dedicado por
   sub-fase se >800 linhas).
 - **ADR-0054**: perfil observacional graded — features
   Fase 1 cumprem com aproximações aceites (footnote area
@@ -598,5 +598,5 @@ DEBT-55 actualizada.
   `lab/typst-original/crates/typst-library/src/layout/`.
 - Cristalino source: `01_core/src/entities/layout_types.rs`,
   `01_core/src/entities/content.rs`,
-  `01_core/src/rules/layout/`,
-  `01_core/src/rules/eval/mod.rs`.
+  `01_core/src/engine/layout/`,
+  `01_core/src/engine/eval/mod.rs`.

@@ -11,7 +11,7 @@
 
 ### 1.1 Code string (`"\u{FFFFFFFF}"`)
 
-O lexer de strings (`01_core/src/rules/lexer/code.rs:224-237`) captura o texto literal e devolve `SyntaxKind::Str` sem validar o conteúdo do escape. A validação acontece em `01_core/src/entities/ast/expr.rs:357-393`, no método `Str::get()`, que usava:
+O lexer de strings (`01_core/src/engine/lexer/code.rs:224-237`) captura o texto literal e devolve `SyntaxKind::Str` sem validar o conteúdo do escape. A validação acontece em `01_core/src/entities/ast/expr.rs:357-393`, no método `Str::get()`, que usava:
 
 ```rust
 u32::from_str_radix(sequence, 16)
@@ -23,7 +23,7 @@ Quando `from_u32` devolvia `None`, o escape era ignorado e o texto literal origi
 
 ### 1.2 Markup (`[\u{FFFFFFFF}]`)
 
-O lexer de markup (`01_core/src/rules/lexer/markup.rs:59-75`) **já detecta** o escape inválido:
+O lexer de markup (`01_core/src/engine/lexer/markup.rs:59-75`) **já detecta** o escape inválido:
 
 ```rust
 if u32::from_str_radix(hex, 16)
@@ -35,7 +35,7 @@ if u32::from_str_radix(hex, 16)
 }
 ```
 
-No entanto, o resultado é um **nó de erro** no AST, e o eval de markup (`01_core/src/rules/eval/mod.rs:419-588`) não propaga nós de erro do parser. O CLI do cristalino compila `[\u{FFFFFFFF}]` com exit code 0 — o erro do lexer é silenciado pelo eval.
+No entanto, o resultado é um **nó de erro** no AST, e o eval de markup (`01_core/src/engine/eval/mod.rs:419-588`) não propaga nós de erro do parser. O CLI do cristalino compila `[\u{FFFFFFFF}]` com exit code 0 — o erro do lexer é silenciado pelo eval.
 
 ### 1.3 Implicação da sonda
 
@@ -66,11 +66,11 @@ A mensagem replica a do vanilla, confirmada por P638.
 
 `Str::get()` é chamado em vários locais de eval; todos foram atualizados para propagar o erro:
 
-- `01_core/src/rules/eval/mod.rs:599` (`Expr::Str`)
-- `01_core/src/rules/eval/mod.rs:770` (dict key)
-- `01_core/src/rules/eval/rules.rs:1076` (set text font)
-- `01_core/src/rules/eval/rules.rs:1083` (font array)
-- `01_core/src/rules/eval/rules.rs:1500` (font dict legacy)
+- `01_core/src/engine/eval/mod.rs:599` (`Expr::Str`)
+- `01_core/src/engine/eval/mod.rs:770` (dict key)
+- `01_core/src/engine/eval/rules.rs:1076` (set text font)
+- `01_core/src/engine/eval/rules.rs:1083` (font array)
+- `01_core/src/engine/eval/rules.rs:1500` (font dict legacy)
 - `01_core/src/entities/ast/code.rs:162` (`ModuleImport::bare_name` — mapeado para `BareImportError::PathInvalid`)
 
 ### 2.3 Markup — não alterado

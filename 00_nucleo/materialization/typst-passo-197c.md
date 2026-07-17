@@ -108,7 +108,7 @@ Confirmar empiricamente estado pós-P197B:
 
 11. Confirmar mutação legacy preservada via grep:
     - `grep -n "figure_numbers\|local_figure_counters"
-      01_core/src/rules/introspect.rs` retorna
+      01_core/src/engine/introspect.rs` retorna
       ocorrências esperadas no walk arm Figure +
       qualquer leitura em `compute_labelled` P195D.
 

@@ -1,8 +1,8 @@
 # Prompt L0 — P537b — `#set page(columns:)` → mecanismo de colunas
-Hash do Código: 6ada155e
+Hash do Código: 1ccbc40e
 
 **Camada**: L1  
-**Ficheiros alvo**: `01_core/src/entities/content.rs`, `01_core/src/entities/layout_types.rs`, `01_core/src/rules/eval/rules.rs`, `01_core/src/rules/eval/mod.rs`, `01_core/src/rules/layout/set_page.rs`, `01_core/src/rules/layout/mod.rs`, `01_core/src/rules/layout/tests.rs`  
+**Ficheiros alvo**: `01_core/src/entities/content.rs`, `01_core/src/entities/layout_types.rs`, `01_core/src/engine/eval/rules.rs`, `01_core/src/engine/eval/mod.rs`, `01_core/src/engine/layout/set_page.rs`, `01_core/src/engine/layout/mod.rs`, `01_core/src/engine/layout/tests.rs`  
 **Origem**: Passo 537b — fecha a ligação entre `#set page(columns: N)` e o consumer `Content::Columns` já corrigido em P537.  
 **ADRs**: ADR-0107 (paridade linguagem vs mecânica), ADR-0108 (medir antes de decidir), ADR-0109 (atomização forma B), ADR-0054 (perfil graded / scope-outs).
 
@@ -18,11 +18,11 @@ Este L0 autoriza a ligação: `#set page(columns: N)` deve produzir o mesmo obse
 
 ## 2. Medições (file:line) que sustentam a decisão
 
-- `01_core/src/rules/eval/rules.rs:743-779` — `target == "page"` lê `width`/`height`/`margin`/`numbering`, mas **não lê `columns`**. O argumento é silenciosamente ignorado.
-- `01_core/src/rules/layout/mod.rs:858-860` — `Content::SetPage` delega a `set_page::layout`, que só altera `page_config.width/height/margin/numbering`.
+- `01_core/src/engine/eval/rules.rs:743-779` — `target == "page"` lê `width`/`height`/`margin`/`numbering`, mas **não lê `columns`**. O argumento é silenciosamente ignorado.
+- `01_core/src/engine/layout/mod.rs:858-860` — `Content::SetPage` delega a `set_page::layout`, que só altera `page_config.width/height/margin/numbering`.
 - `01_core/src/entities/layout_types.rs:433-449` — `PageConfig` não tem campo `columns`.
-- `01_core/src/rules/layout/columns.rs:59-161` — `columns::layout` já sabe renderizar N colunas reais lado a lado, dividindo o `body` pelos `Content::Colbreak`.
-- `01_core/src/rules/eval/mod.rs:407-566` — `eval_markup` constrói uma `Sequence` de `Content`; `#set page(...)` produz um `Content::SetPage` seguido do conteúdo subsequente como irmãos na `Sequence`.
+- `01_core/src/engine/layout/columns.rs:59-161` — `columns::layout` já sabe renderizar N colunas reais lado a lado, dividindo o `body` pelos `Content::Colbreak`.
+- `01_core/src/engine/eval/mod.rs:407-566` — `eval_markup` constrói uma `Sequence` de `Content`; `#set page(...)` produz um `Content::SetPage` seguido do conteúdo subsequente como irmãos na `Sequence`.
 
 **Decisão**: reaproveitar `Content::Columns` existente. Não recriar mecânica de colunas. A diferença entre `#columns(2)[body]` e `#set page(columns: 2)` é apenas **quem fornece o body**: na forma-função o body é explícito; na set-rule o body é o resto do documento (até próxima fronteira de página/colunas).
 
@@ -69,7 +69,7 @@ Default: `columns: None`.
 
 ### 3.3 Eval — reconhecer `columns`
 
-Em `01_core/src/rules/eval/rules.rs`, no arm `target == "page"`:
+Em `01_core/src/engine/eval/rules.rs`, no arm `target == "page"`:
 
 - Adicionar `let mut columns: Option<usize> = None;`.
 - No loop dos named args, tratar `"columns"`:
@@ -81,7 +81,7 @@ Em `01_core/src/rules/eval/rules.rs`, no arm `target == "page"`:
 
 ### 3.4 Layout de `SetPage` — propagar `columns` para `PageConfig`
 
-Em `01_core/src/rules/layout/set_page.rs`:
+Em `01_core/src/engine/layout/set_page.rs`:
 
 - Adicionar parâmetro `columns: &Option<usize>`.
 - Se `columns != &new_config.columns`, actualizar `new_config.columns` e marcar `changed = true`.
@@ -89,12 +89,12 @@ Em `01_core/src/rules/layout/set_page.rs`:
 - **P750** — quando `SetPage` muda a configuração de página e reinicia o cursor,
   o `cursor_y` deve ser posicionado a `margem + cap_height(style.size)`, usando
   `FontMetrics::cap_height`, não o ascender. Isto aplica a regra geral de
-  inicialização do cursor do L0 `rules/layout.md` também ao ponto onde SetPage
+  inicialização do cursor do L0 `engine/layout.md` também ao ponto onde SetPage
   reconfigura a região.
 
 ### 3.5 Transformação AST pós-eval — envolver o body implícito
 
-Adicionar helper puro `wrap_page_columns(content: Content) -> Content` (pode viver em `01_core/src/entities/content.rs` como método de `Content`, ou como função privada em `01_core/src/rules/eval/mod.rs`).
+Adicionar helper puro `wrap_page_columns(content: Content) -> Content` (pode viver em `01_core/src/entities/content.rs` como método de `Content`, ou como função privada em `01_core/src/engine/eval/mod.rs`).
 
 **Semântica**:
 
@@ -117,7 +117,7 @@ Adicionar helper puro `wrap_page_columns(content: Content) -> Content` (pode viv
 
 ### 3.6 Aplicar a transformação
 
-Em `01_core/src/rules/eval/mod.rs`, `eval_with_full_error`:
+Em `01_core/src/engine/eval/mod.rs`, `eval_with_full_error`:
 
 - Após `run_pass(true)` e antes de `module.set_content(rendered_content)`, aplicar `wrap_page_columns` ao `rendered_content`.
 - A transformação deve ser aplicada **também** ao `original_content` (introspection content) para manter alinhamento entre as duas passagens? Não — `original_content` é usado pelo `TagIntrospector` para elementos locatable; `SetPage` não é locatable, e `Columns` não altera a localização de headings/labels no observable. Aplicar apenas em `rendered_content` é suficiente. Se surgirem discrepâncias, igualar na revisão.
@@ -128,7 +128,7 @@ Em `01_core/src/rules/eval/mod.rs`, `eval_with_full_error`:
 
 ### 4.1 Teste E2E de eval + layout
 
-Adicionar em `01_core/src/rules/layout/tests.rs`:
+Adicionar em `01_core/src/engine/layout/tests.rs`:
 
 ```rust
 #[test]
@@ -140,7 +140,7 @@ A
 #colbreak()
 B"#.to_string(),
     );
-    let world = crate::rules::eval::tests::NullWorld;
+    let world = crate::engine::eval::tests::NullWorld;
     let module = eval_for_test(&world, &source).unwrap();
     let content = module.content().expect("módulo deve ter content");
     let doc = layout(content);

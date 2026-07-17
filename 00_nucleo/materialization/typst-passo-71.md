@@ -4,10 +4,10 @@
 
 Ler antes de começar:
 - `01_core/src/entities/func.rs` — Assinatura actual de `NativeFunc`.
-- `01_core/src/rules/eval.rs` — Onde `apply_func` chama `native.call` e onde
+- `01_core/src/engine/eval.rs` — Onde `apply_func` chama `native.call` e onde
   `EvalContext` está definido.
 - `01_core/src/entities/content.rs` — Onde `Content::Image` será adicionado.
-- `01_core/src/rules/stdlib.rs` — Todas as funções nativas actuais, para
+- `01_core/src/engine/stdlib.rs` — Todas as funções nativas actuais, para
   actualizar as assinaturas.
 
 Pré-condição: `cargo test` — 694 L1 + 125 L3, zero violations.
@@ -43,14 +43,14 @@ grep -n "^image\|^image " 01_core/Cargo.toml
 grep -n "pub struct NativeFunc\|pub call" 01_core/src/entities/func.rs -A 4 | head -15
 
 # 3. Confirmar a linha exacta onde native.call é invocada em eval.rs
-grep -n "native.call\|\.call)(" 01_core/src/rules/eval.rs | head -10
+grep -n "native.call\|\.call)(" 01_core/src/engine/eval.rs | head -10
 
 # 4. Confirmar se World tem um método de leitura de ficheiros
 grep -n "fn file\|fn read\|fn asset" 01_core/src/entities/world.rs 2>/dev/null \
   || grep -rn "fn file\|fn read\|fn asset" 01_core/src/ | head -10
 
 # 5. Listar todas as funções nativas actuais (para actualizar assinaturas)
-grep -n "^fn native_" 01_core/src/rules/stdlib.rs
+grep -n "^fn native_" 01_core/src/engine/stdlib.rs
 ```
 
 Reportar o output completo antes de continuar.
@@ -128,11 +128,11 @@ Em `01_core/src/entities/func.rs`, alterar o campo `call`:
 pub call: fn(&Args) -> SourceResult<Value>,
 
 // DEPOIS
-pub call: fn(&mut crate::rules::eval_context::EvalContext<'_>, &Args) -> SourceResult<Value>,
+pub call: fn(&mut crate::engine::eval_context::EvalContext<'_>, &Args) -> SourceResult<Value>,
 ```
 
 Ajustar o caminho de `EvalContext` conforme o diagnóstico 3 — pode ser
-`crate::rules::eval::EvalContext` se não existir um ficheiro separado.
+`crate::engine::eval::EvalContext` se não existir um ficheiro separado.
 
 Em `eval.rs`, na linha onde `native.call` é invocada (diagnóstico 3):
 
@@ -151,7 +151,7 @@ de `stdlib.rs`.** Isso é esperado — a Tarefa 2 corrige todas de uma vez.
 
 ## Tarefa 2 — Actualizar assinaturas das funções nativas (L1)
 
-Em `01_core/src/rules/stdlib.rs`, adicionar `_ctx: &mut EvalContext<'_>` como
+Em `01_core/src/engine/stdlib.rs`, adicionar `_ctx: &mut EvalContext<'_>` como
 primeiro parâmetro em **todas** as funções nativas existentes. A lista exacta
 vem do diagnóstico 5. Exemplo do padrão:
 
@@ -227,7 +227,7 @@ usar `_ =>`.
 
 **Layouter (DEBT-24b) — obrigatório neste passo:** ao adicionar `Content::Image`
 ao enum, o `match` principal do layouter (`layout_content` ou equivalente em
-`01_core/src/rules/layout/mod.rs`) também deixará de compilar. Adicionar o
+`01_core/src/engine/layout/mod.rs`) também deixará de compilar. Adicionar o
 braço com um placeholder de dimensões fixas:
 
 ```rust
@@ -279,7 +279,7 @@ em Content::Image em Passo 72 ou 73.
 
 ## Tarefa 4 — `native_image` na stdlib (L1)
 
-Em `01_core/src/rules/stdlib.rs`:
+Em `01_core/src/engine/stdlib.rs`:
 
 ```rust
 fn native_image(ctx: &mut EvalContext<'_>, args: &Args) -> SourceResult<Value> {

@@ -124,8 +124,8 @@ Este passo **não**:
 - `01_core/src/entities/font_list.rs` (**NOVO**).
 - `01_core/src/entities/mod.rs` — expor `pub mod font_list;`.
 - `01_core/src/entities/style_chain.rs` — campo novo + import.
-- `01_core/src/rules/eval/rules.rs` — arm `"font"` + imports.
-- `01_core/src/rules/eval/tests.rs` — 5 testes canary
+- `01_core/src/engine/eval/rules.rs` — arm `"font"` + imports.
+- `01_core/src/engine/eval/tests.rs` — 5 testes canary
   migrados + 4-5 integration tests novos.
 - `03_infra/src/integration_tests.rs` — 3 testes migrados +
   pool DEBT-49 actualizado.
@@ -156,7 +156,7 @@ Leitura rápida. Sem edição.
 **A.1 — Confirmar estado do diagnóstico vs realidade**:
 - `grep -n "pub font:" 01_core/src/entities/style_chain.rs` —
   confirmar que campo `font` **não existe** (será adicionado).
-- `grep -n "\"font\"" 01_core/src/rules/eval/rules.rs` —
+- `grep -n "\"font\"" 01_core/src/engine/eval/rules.rs` —
   confirmar que arm `"font"` **não existe** (será adicionado).
 - `ls 01_core/src/entities/font_list.rs` — confirmar que
   ficheiro não existe.
@@ -174,7 +174,7 @@ Leitura rápida. Sem edição.
 - Se não existe, rejeitar dict é trivial (não há match arm).
 
 **A.4 — Confirmar `hyphenate` não é propriedade capturada**:
-- `grep -n "\"hyphenate\"" 01_core/src/rules/eval/rules.rs` —
+- `grep -n "\"hyphenate\"" 01_core/src/engine/eval/rules.rs` —
   esperado: nenhum resultado.
 - Se existe arm, o canary novo já é propriedade conhecida e
   não emite warning. **Parar e reportar**.
@@ -433,7 +433,7 @@ pub struct StyleDelta {
 
 ### 132B.E — Adaptar arm `"font"` em `eval_set_text`
 
-**Ficheiro**: `01_core/src/rules/eval/rules.rs`.
+**Ficheiro**: `01_core/src/engine/eval/rules.rs`.
 
 Imports:
 
@@ -495,7 +495,7 @@ Arm novo (entre arms existentes):
 
 ### 132B.F — Migrar canary L1 (5 testes)
 
-**Ficheiro**: `01_core/src/rules/eval/tests.rs`.
+**Ficheiro**: `01_core/src/engine/eval/tests.rs`.
 
 Para cada um dos 5 testes listados no diagnóstico:
 
@@ -531,7 +531,7 @@ cada um.
 
 ### 132B.G — Novos integration tests em L1
 
-Adicionar em `01_core/src/rules/eval/tests.rs`:
+Adicionar em `01_core/src/engine/eval/tests.rs`:
 
 ```rust
 #[test]

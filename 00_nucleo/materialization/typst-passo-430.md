@@ -20,14 +20,14 @@ P430 — Fecho de débito: DEBT-57 subset (Spec L0 para `rules/stdlib/structural
 
 ### ADR-0107 — Paridade linguagem
 
-O contrato é **documental**, não funcional: cada função nativa em `structural.rs` deve ter seu contrato L0 (argumentos, semântica, erros, paridade vanilla) escrito em `00_nucleo/prompts/rules/stdlib/structural.md`, desvinculando a especificação do prompt grosso `stdlib/_comum.md`.
+O contrato é **documental**, não funcional: cada função nativa em `structural.rs` deve ter seu contrato L0 (argumentos, semântica, erros, paridade vanilla) escrito em `00_nucleo/prompts/engine/stdlib/structural.md`, desvinculando a especificação do prompt grosso `stdlib/_comum.md`.
 
 ---
 
 ### ADR-0109 — Atomização forma B
 
 **Toques pontuais:**
-1. Criar `00_nucleo/prompts/rules/stdlib/structural.md` com 21 secções (1 por função nativa).
+1. Criar `00_nucleo/prompts/engine/stdlib/structural.md` com 21 secções (1 por função nativa).
 2. Cada secção: assinatura, argumentos posicionais/nomeados, semântica, paridade vanilla, limitações conhecidas (graded), testes canônicos.
 3. Atualizar `rules/stdlib.md` (prompt grosso) para apontar `structural.rs → structural.md` em vez de `_comum.md`.
 4. `crystalline-lint` zero violations (prompts órfãos atualizados).
@@ -56,7 +56,7 @@ O contrato é **documental**, não funcional: cada função nativa em `structura
 
 ### Critério de fecho
 
-- [ ] `00_nucleo/prompts/rules/stdlib/structural.md` criado com 21 secções.
+- [ ] `00_nucleo/prompts/engine/stdlib/structural.md` criado com 21 secções.
 - [ ] Cada função documenta: assinatura, args, semântica, paridade vanilla, limitações.
 - [ ] `rules/stdlib.md` atualizado para apontar `structural.md` em vez de `_comum.md`.
 - [ ] DEBT-57 atualizado em `DEBT.md` com nota "subset structural.rs fechado em P430".

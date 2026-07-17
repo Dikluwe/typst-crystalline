@@ -3,7 +3,7 @@
 ## Estado actual antes de começar
 
 Ler antes de começar:
-- `01_core/src/rules/stdlib.rs` — Onde `native_rect` e `native_line` estão
+- `01_core/src/engine/stdlib.rs` — Onde `native_rect` e `native_line` estão
   definidas. `native_ellipse` e `native_circle` serão adicionadas aqui.
 - `03_infra/src/export.rs` — Onde o braço `ShapeKind::Line` será corrigido
   e o braço `ShapeKind::Ellipse` substituirá o placeholder com Bézier real.
@@ -43,8 +43,8 @@ exportação correcta.
 ```bash
 # 1. Confirmar as funções nativas de formas já registadas
 grep -n "register(\"rect\"\|register(\"line\"" \
-  01_core/src/rules/eval.rs \
-  01_core/src/rules/stdlib.rs 2>/dev/null
+  01_core/src/engine/eval.rs \
+  01_core/src/engine/stdlib.rs 2>/dev/null
 
 # 2. Confirmar a lógica actual do Line no exportador
 grep -A 8 "ShapeKind::Line" 03_infra/src/export.rs
@@ -76,7 +76,7 @@ Será marcado `ENCERRADO ✓` no final da Tarefa 3.
 
 ## Tarefa 1 — `native_ellipse` e `native_circle` na stdlib (L1)
 
-Em `01_core/src/rules/stdlib.rs`, adicionar as duas funções.
+Em `01_core/src/engine/stdlib.rs`, adicionar as duas funções.
 
 `native_ellipse` segue exactamente o padrão de `native_rect` — a diferença
 é apenas `ShapeKind::Ellipse` em vez de `ShapeKind::Rect`:

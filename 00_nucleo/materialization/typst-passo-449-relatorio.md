@@ -30,19 +30,19 @@ estilos (ADR-0038/0039). Isto simplifica herança, selectors e layout.
 | `01_core/src/entities/layout_types.rs` | `TextStyle` ganha `highlight: Option<Color>`. |
 | `01_core/src/entities/content.rs` | `Content::highlight(body, fill)`. |
 | `01_core/src/entities/show.rs` | `NodeKind::Highlight`. |
-| `01_core/src/rules/stdlib/text.rs` | `native_highlight` com `fill` default amarelo Typst (`rgba(255, 242, 54, 255)`), aceita `none`. |
-| `01_core/src/rules/stdlib/mod.rs` | Re-export de `native_highlight`. |
-| `01_core/src/rules/eval/mod.rs` | Registo `"highlight"` no stdlib scope. |
-| `01_core/src/rules/eval/rules.rs` | Matching de selector `NodeKind::Highlight` sobre `Content::Styled` com `Style::Highlight`. |
-| `01_core/src/rules/layout/text.rs` | Propaga `highlight` para `TextStyle` efectivo. |
-| `01_core/src/rules/layout/cursor.rs` | `push_text` emite `FrameItem::Shape` rectangular com `fill` antes de cada `FrameItem::Text` quando `TextStyle.highlight` é `Some(color)`. |
-| `01_core/src/rules/eval/tests.rs` | 3 testes L1: default amarelo, cor custom, `fill: none` desactiva. |
-| `01_core/src/rules/eval/rules.rs` | 3 testes L1: selector casa highlight, não casa texto plano, `fill: none` continua a casar. |
-| `01_core/src/rules/layout/tests.rs` | 4 testes L3: rect amarelo antes do texto, cor custom, `fill: none` sem shape, texto plano sem shape. |
+| `01_core/src/engine/stdlib/text.rs` | `native_highlight` com `fill` default amarelo Typst (`rgba(255, 242, 54, 255)`), aceita `none`. |
+| `01_core/src/engine/stdlib/mod.rs` | Re-export de `native_highlight`. |
+| `01_core/src/engine/eval/mod.rs` | Registo `"highlight"` no stdlib scope. |
+| `01_core/src/engine/eval/rules.rs` | Matching de selector `NodeKind::Highlight` sobre `Content::Styled` com `Style::Highlight`. |
+| `01_core/src/engine/layout/text.rs` | Propaga `highlight` para `TextStyle` efectivo. |
+| `01_core/src/engine/layout/cursor.rs` | `push_text` emite `FrameItem::Shape` rectangular com `fill` antes de cada `FrameItem::Text` quando `TextStyle.highlight` é `Some(color)`. |
+| `01_core/src/engine/eval/tests.rs` | 3 testes L1: default amarelo, cor custom, `fill: none` desactiva. |
+| `01_core/src/engine/eval/rules.rs` | 3 testes L1: selector casa highlight, não casa texto plano, `fill: none` continua a casar. |
+| `01_core/src/engine/layout/tests.rs` | 4 testes L3: rect amarelo antes do texto, cor custom, `fill: none` sem shape, texto plano sem shape. |
 | `00_nucleo/prompts/entities/show.md` | `NodeKind::Highlight` no conjunto completo. |
 | `00_nucleo/prompts/entities/style.md` | Documentação da variante `Style::Highlight`. |
 | `00_nucleo/prompts/entities/style_chain.md` | Documentação do campo `highlight`; contagens actualizadas para 13 campos. |
-| `00_nucleo/prompts/rules/stdlib/text.md` | Secção `highlight(body, fill?)`. |
+| `00_nucleo/prompts/engine/stdlib/text.md` | Secção `highlight(body, fill?)`. |
 
 ### Notas
 

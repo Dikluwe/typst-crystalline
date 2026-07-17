@@ -368,7 +368,7 @@ impl SystemWorld {
         let bytes = self.read_bytes(current_file, path)?;
         let text = std::str::from_utf8(&bytes)
             .map_err(|e| format!("bibliography file is not valid UTF-8 '{}': {}", path, e))?;
-        typst_core::rules::eval::bibtex::parse_bibtex(text)
+        typst_core::engine::eval::bibtex::parse_bibtex(text)
             .map_err(|e| format!("failed to parse BibTeX '{}': {}", path, e))
     }
 

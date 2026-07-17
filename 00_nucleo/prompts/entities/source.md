@@ -1,5 +1,5 @@
 # Prompt L0 — `entities/source.rs`
-Hash do Código: 56021ba0
+Hash do Código: ca0ec1dc
 
 **Camada**: L1 — domínio puro
 **Módulo**: `01_core/src/entities/source.rs`
@@ -107,4 +107,4 @@ struct SourceInner {
 ```
 
 `parse()` é chamado em `new()` e `detached()` para construir `root`.
-O módulo `parse` já existe em `01_core/src/rules/parse.rs`.
+O módulo `parse` já existe em `01_core/src/engine/parse.rs`.

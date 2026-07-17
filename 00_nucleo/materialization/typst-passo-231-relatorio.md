@@ -93,7 +93,7 @@ Arms cascata (compiler-driven; ~15 sítios):
 - `entities/content.rs` (PartialEq + map_content + map_text
   + 2 constructors `Content::block`/`Content::boxed`).
 - `rules/introspect.rs` (materialize_time Block + Boxed).
-- `rules/layout/mod.rs` (4 arms: layout_content Block +
+- `engine/layout/mod.rs` (4 arms: layout_content Block +
   Boxed; measure_content_constrained Block + Boxed; todos
   destructure com `outset: _, radius: _, clip: _`
   ignorados).

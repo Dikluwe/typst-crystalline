@@ -407,7 +407,7 @@ Para espaços materializados que não sejam sRGB nativo:
 
 ### C.6 — Stdlib funcs novas
 
-`01_core/src/rules/stdlib*.rs` (ficheiro a confirmar):
+`01_core/src/engine/stdlib*.rs` (ficheiro a confirmar):
 
 - `native_rgb` — preservar comportamento; agora retorna
   `Color::Srgb`.

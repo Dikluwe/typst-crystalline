@@ -9,19 +9,19 @@
 Activou-se `Value::Duration` para uso user-facing: constructor stdlib alinhado com vanilla + operações básicas eval.
 
 - L0:
-  - `00_nucleo/prompts/rules/stdlib/primitives-constructors.md` — expandido para cobrir a forma named args de `duration()` e as operações eval básicas (P405). O ficheiro `duration-stdlib.md` separado foi eliminado para evitar drift de hashes com múltiplos `@prompt` no mesmo ficheiro Rust.
-- `01_core/src/rules/stdlib/primitives_constructors.rs`:
+  - `00_nucleo/prompts/engine/stdlib/primitives-constructors.md` — expandido para cobrir a forma named args de `duration()` e as operações eval básicas (P405). O ficheiro `duration-stdlib.md` separado foi eliminado para evitar drift de hashes com múltiplos `@prompt` no mesmo ficheiro Rust.
+- `01_core/src/engine/stdlib/primitives_constructors.rs`:
   - `native_duration` estendido para aceitar:
     - Forma vanilla: named args `days`, `hours`, `minutes`, `seconds`, `milliseconds`, `microseconds`, `nanoseconds` (todos `Int` ≥ 0).
     - Forma legada P403: string posicional `duration("1h30m")`.
   - Validação de negativos, tipos errados, overflow `u64`, e mistura posicional+named.
   - 8 novos testes unitários para o constructor named args.
-- `01_core/src/rules/eval/operators.rs`:
+- `01_core/src/engine/eval/operators.rs`:
   - `+` e `-` homogéneos `Duration` (com overflow/underflow checks).
   - `*` `Duration × Int/Float` e simétricos (rejeita negativos; trunca sub-nano).
   - `/` `Duration ÷ Int/Float` e `Duration ÷ Duration → Float` (rejeita div/0 e negativos).
   - Comparações `==`, `!=`, `<`, `<=`, `>`, `>=` homogéneas `Duration`.
-- `01_core/src/rules/eval/tests.rs`:
+- `01_core/src/engine/eval/tests.rs`:
   - 14 novos testes para operações eval de `Duration`.
 
 `cargo test --workspace -- --skip p350c_flag_on_nao_convergente_classifica` → 2964 passed; `crystalline-lint .` → `✓ No violations found`; hash propagado (`d910ed09`).
@@ -71,11 +71,11 @@ As operações `Duration` usam `u128` para intermédios e rejeitam overflow/unde
 ## Artefactos
 
 - Código:
-  - `01_core/src/rules/stdlib/primitives_constructors.rs`
-  - `01_core/src/rules/eval/operators.rs`
-  - `01_core/src/rules/eval/tests.rs`
+  - `01_core/src/engine/stdlib/primitives_constructors.rs`
+  - `01_core/src/engine/eval/operators.rs`
+  - `01_core/src/engine/eval/tests.rs`
 - L0:
-  - `00_nucleo/prompts/rules/stdlib/primitives-constructors.md`
+  - `00_nucleo/prompts/engine/stdlib/primitives-constructors.md`
 - Plano: `00_nucleo/materialization/typst-passo-405.md`.
 - Este relatório.
 

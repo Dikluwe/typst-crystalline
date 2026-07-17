@@ -7,7 +7,7 @@ Ler antes de começar:
   `[l1_allowed_external]`. Qualquer crate nova em L1 que não esteja
   na whitelist dispara V14 e bloqueia `crystalline-lint`.
 - `01_core/Cargo.toml` — lista actual de dependências de L1.
-- `01_core/src/rules/layout/mod.rs` — braço `Content::Image` com
+- `01_core/src/engine/layout/mod.rs` — braço `Content::Image` com
   placeholder 100×100 do Passo 71.
 - `01_core/src/entities/value.rs` — para confirmar como `Value`
   representa medidas (`Length`, `Float`, ou outro).
@@ -48,7 +48,7 @@ Este padrão é o mesmo que já existe para `FontMetrics` (Passo 20).
 grep -A 20 "l1_allowed_external" crystalline.toml | head -25
 
 # 2. Confirmar o braço Content::Image no layouter do Passo 71
-grep -n "Content::Image" 01_core/src/rules/layout/mod.rs -A 8 | head -20
+grep -n "Content::Image" 01_core/src/engine/layout/mod.rs -A 8 | head -20
 
 # 3. Confirmar como Value representa medidas
 grep -n "Length\|Float\|Pt\b" 01_core/src/entities/value.rs | head -20
@@ -57,7 +57,7 @@ grep -n "Length\|Float\|Pt\b" 01_core/src/entities/value.rs | head -20
 grep -rn "ImageSizer\|image_size\|blob_size" 01_core/src/ 2>/dev/null | head -10
 
 # 5. Confirmar onde FontMetrics é injectado (para seguir o mesmo padrão)
-grep -n "FontMetrics\|fn layout" 01_core/src/rules/layout/mod.rs | head -10
+grep -n "FontMetrics\|fn layout" 01_core/src/engine/layout/mod.rs | head -10
 ```
 
 Reportar o output completo antes de continuar. O diagnóstico 3 é
@@ -129,11 +129,11 @@ pub mod image_sizer;
 
 ## Tarefa 2 — Motor de cálculo de dimensões em L1
 
-Criar `01_core/src/rules/layout/image.rs`:
+Criar `01_core/src/engine/layout/image.rs`:
 
 ```rust
 //! Crystalline Lineage
-//! @prompt 00_nucleo/prompts/rules/layout-image.md
+//! @prompt 00_nucleo/prompts/engine/layout-image.md
 //! @prompt-hash <hash>
 //! @layer L1
 //! @updated 2026-04-19
@@ -207,7 +207,7 @@ fn extract_pt(val: &Value) -> Option<f64> {
 }
 ```
 
-Criar o prompt L0 `00_nucleo/prompts/rules/layout-image.md` antes
+Criar o prompt L0 `00_nucleo/prompts/engine/layout-image.md` antes
 de continuar.
 
 Registar o módulo em `layout/mod.rs`:
@@ -468,7 +468,7 @@ Critérios de conclusão:
   `crystalline-lint` não dispara V14.
 - [ ] Prompt L0 `entities/image-sizer.md` criado e commitado antes
   de qualquer código.
-- [ ] Prompt L0 `rules/layout-image.md` criado e commitado.
+- [ ] Prompt L0 `engine/layout-image.md` criado e commitado.
 - [ ] `ImageSizer` trait e `NullImageSizer` em `entities/image_sizer.rs` (L1).
 - [ ] `calculate_dimensions` em `layout/image.rs` (L1) — sem imports externos.
 - [ ] `ImageSizeImageSizer` em L3 usando `imagesize`.

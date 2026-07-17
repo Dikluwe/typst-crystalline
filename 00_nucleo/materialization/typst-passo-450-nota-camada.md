@@ -23,7 +23,7 @@ L1 (01_core)
   eval de #bibliography("refs.bib") → chama world.load_bibliography
 ```
 
-Ou seja, **o parser puro vive em L1** (`01_core/src/rules/eval/bibliography.rs` e helpers de parsing BibTeX), enquanto **o I/O de ficheiro vive em L3** (`SystemWorld`).
+Ou seja, **o parser puro vive em L1** (`01_core/src/engine/eval/bibliography.rs` e helpers de parsing BibTeX), enquanto **o I/O de ficheiro vive em L3** (`SystemWorld`).
 
 ---
 

@@ -294,7 +294,7 @@ Conforme padrão P196:
 Auditor confirma empiricamente:
 
 1. Confirmar walk arm `Content::Figure` actual:
-   - `01_core/src/rules/introspect.rs` — localizar arm.
+   - `01_core/src/engine/introspect.rs` — localizar arm.
    - Mutações empíricas (per P189B §5 E3):
      - `state.local_figure_counters.entry(...).or_insert(0)`
        seguido de step.

@@ -84,7 +84,7 @@ Antes de qualquer alteração, verificar empíricamente:
 - `Content::Figure { kind, body, caption, ... }` existe
   em L1 com campo `kind: Option<EcoString>` (ou
   similar — confirmar tipo exacto).
-- Walk arm em `01_core/src/rules/introspect.rs` aplica
+- Walk arm em `01_core/src/engine/introspect.rs` aplica
   `kind.as_deref().unwrap_or("image")` para counter
   step.
 - `extract_payload` para `Content::Figure` produz
@@ -292,10 +292,10 @@ Conteúdo:
 
 Não é ficheiro discreto — é o conjunto de alterações em:
 
-- `01_core/src/rules/introspect.rs` (walk arm Figure).
-- `01_core/src/rules/introspect/extract_payload.rs`
+- `01_core/src/engine/introspect.rs` (walk arm Figure).
+- `01_core/src/engine/introspect/extract_payload.rs`
   (verificar se precisa alteração).
-- `01_core/src/rules/introspect/from_tags.rs` (from_tags
+- `01_core/src/engine/introspect/from_tags.rs` (from_tags
   arm Figure).
 - Tests E2E em ficheiro relevante.
 

@@ -222,7 +222,7 @@ queryar Introspector (ou equivalente).
 
 ### O1 — Inputs verificáveis
 
-- `grep -n "fn walk" 01_core/src/rules/introspect.rs`
+- `grep -n "fn walk" 01_core/src/engine/introspect.rs`
   para signature actual.
 - `grep -rn "compute_labelled\|compute_heading_auto_toc"
   01_core/src/`.
@@ -332,7 +332,7 @@ Auditor confirma empiricamente:
 #### Inventário walk pipeline actual
 
 4. Localizar `fn walk` em
-   `01_core/src/rules/introspect.rs`:
+   `01_core/src/engine/introspect.rs`:
    - Signature exacta.
    - Parameters: `state`, `locator`, `tags`,
      `label_from_parent`.

@@ -148,8 +148,8 @@ alinhado com preservação de `Length` inteiro.
 | Ficheiro | Mudança |
 |----------|---------|
 | `01_core/src/entities/style_chain.rs` | +campo `tracking: Option<Length>`; init |
-| `01_core/src/rules/eval/rules.rs` | +arm `"tracking"` em match |
-| `01_core/src/rules/eval/tests.rs` | +2 testes L1 |
+| `01_core/src/engine/eval/rules.rs` | +arm `"tracking"` em match |
+| `01_core/src/engine/eval/tests.rs` | +2 testes L1 |
 | `00_nucleo/adr/typst-adr-0038-...md` | segunda nota |
 | `00_nucleo/prompts/entities/style_chain.md` | actualiza StyleDelta no prompt |
 

@@ -3,7 +3,7 @@
 
 > **Passo:** 730
 > **Data:** 2026-07-10
-> **Foco:** P728/P729 confirmaram que `Array` não tem `.slice()` implementado (só `Str.slice`, `01_core/src/rules/stdlib/collections.rs:79`). Consumidor real, pesado: `cetz` usa `array.slice` em pelo menos dez sítios (`draw/shapes.typ`, `anchor.typ`, `coordinate.typ`, `drawable.typ`). É o bloqueio actual, único conhecido, da reprodução completa de `cetz`.
+> **Foco:** P728/P729 confirmaram que `Array` não tem `.slice()` implementado (só `Str.slice`, `01_core/src/engine/stdlib/collections.rs:79`). Consumidor real, pesado: `cetz` usa `array.slice` em pelo menos dez sítios (`draw/shapes.typ`, `anchor.typ`, `coordinate.typ`, `drawable.typ`). É o bloqueio actual, único conhecido, da reprodução completa de `cetz`.
 > **Tipo:** Sonda + Implementação.
 > **Tamanho:** S — mesmo padrão já usado para `Str.slice`, só a generalizar para `Array`.
 > **ADR-0108 EM VIGOR.**

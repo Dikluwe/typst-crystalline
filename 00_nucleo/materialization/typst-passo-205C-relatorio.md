@@ -88,7 +88,7 @@ Tamanho: ~9 KB.
     `p205c_position_of_pre_injecao_devolve_none`,
     `p205c_inject_positions_activa_lookup_real`,
     `p205c_inject_positions_e_idempotente_para_reinjecao`.
-- **`01_core/src/rules/layout/tests.rs`**:
+- **`01_core/src/engine/layout/tests.rs`**:
   - 1 test E2E novo:
     `p205c_pipeline_layout_seal_inject_query_devolve_some`
     (exercita pipeline completo).

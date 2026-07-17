@@ -52,7 +52,7 @@ núcleo L1. Exemplo de par: `typst_syntax::ast::Arg` → `typst_core::entities::
 |---|--:|--:|--:|--:|---|
 | `typst_syntax` | 1060 | 267 | 1327 | **80%** | parser/AST **genuinamente migrado** para `typst_core::entities` |
 | `typst_library` | 545 | 7876 | 8421 | **6%** | stdlib — subconjunto implementado; muitos `*Elem`→variant **escondem** migrados (ver limitação) |
-| `typst_layout` | 11 | 720 | 731 | 2% | reimplementado em `typst_core::rules::layout` com nomes diferentes |
+| `typst_layout` | 11 | 720 | 731 | 2% | reimplementado em `typst_core::engine::layout` com nomes diferentes |
 | `typst_pdf` | 3 | 500 | 503 | 1% | export reimplementado em `typst_infra::export` |
 | `typst_html` | 0 | 359 | 359 | 0% | **backend fora de escopo** (cristalino é PDF) |
 | `typst_utils` | 2 | 192 | 194 | 1% | utilidades reescritas/inlinadas |
@@ -61,7 +61,7 @@ núcleo L1. Exemplo de par: `typst_syntax::ast::Arg` → `typst_core::entities::
 | `typst_svg` | 0 | 131 | 131 | 0% | **backend fora de escopo** |
 | `typst_ide` | 0 | 122 | 122 | 0% | fora de escopo (IDE/LSP) |
 | `typst_bundle` | 1 | 66 | 67 | 1% | wiring vanilla ≠ wiring cristalino |
-| `typst_eval` | 1 | 65 | 66 | 2% | eval reimplementado em `typst_core::rules::eval` |
+| `typst_eval` | 1 | 65 | 66 | 2% | eval reimplementado em `typst_core::engine::eval` |
 | `typst_render` | 0 | 49 | 49 | 0% | **backend raster fora de escopo** |
 | `typst_realize` | 0 | 47 | 47 | 0% | realização reescrita (introspect/fixpoint) |
 | `typst_timing` | 0 | 22 | 22 | 0% | ADR-0006 (PROPOSTO; não materializado) |

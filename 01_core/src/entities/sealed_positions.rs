@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/entities/sealed-positions.md
-//! @prompt-hash 89baeda9
+//! @prompt-hash 872a648a
 //! @layer L1
 //! @updated 2026-05-07
 //!

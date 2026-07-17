@@ -4,7 +4,7 @@
 
 Ler antes de começar:
 - `00_nucleo/adr/typst-adr-0025-int-eq-float.md` — **resolver antes de qualquer código**
-- `01_core/src/rules/eval.rs` — estado actual com Binary/Unary
+- `01_core/src/engine/eval.rs` — estado actual com Binary/Unary
 - `01_core/src/entities/value.rs` — subset actual (5 variantes)
 
 Pré-condição: `cargo test` — todos os testes do Passo 14 passam, zero violations.

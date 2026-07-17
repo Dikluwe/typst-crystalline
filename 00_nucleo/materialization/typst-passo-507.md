@@ -117,7 +117,7 @@ done
 
 ### 4.2 Instrumentação Interna
 
-Adicionar em `01_core/src/rules/eval/mod.rs` e `03_infra/src/pipeline.rs`:
+Adicionar em `01_core/src/engine/eval/mod.rs` e `03_infra/src/pipeline.rs`:
 
 ```rust
 use std::time::Instant;

@@ -103,8 +103,8 @@ matrix):
 | `entities/content.rs::map_text` | 1031 | idem |
 | `rules/introspect.rs::materialize_time` | 136 | recurse body; preserva matrix |
 | `rules/introspect.rs::walk` | 346 | walk body |
-| `rules/layout/mod.rs::layout_content` | 451 | aplica matriz cm + AABB |
-| `rules/layout/helpers.rs` | 76, 105 | sub-frame composition |
+| `engine/layout/mod.rs::layout_content` | 451 | aplica matriz cm + AABB |
+| `engine/layout/helpers.rs` | 76, 105 | sub-frame composition |
 | (sem consumer especial em `measure_content_constrained`) | — | fallback `_` |
 
 **Conclusão**: todos tratam `matrix` opacamente. Adicionar
@@ -114,7 +114,7 @@ regressão por construção.
 
 ### §2.3 Forma actual dos natives
 
-`01_core/src/rules/stdlib/transforms.rs` contém
+`01_core/src/engine/stdlib/transforms.rs` contém
 `native_move`, `native_rotate`, `native_scale` — todos
 constroem `Content::Transform { matrix: ..., body }`.
 Padrão estabelecido: o native é responsável por traduzir
@@ -192,7 +192,7 @@ descoberta arquitectural de §2.
 
 ## §6 — `native_skew` — assinatura + registo
 
-### §6.1 `native_skew` em `01_core/src/rules/stdlib/transforms.rs`
+### §6.1 `native_skew` em `01_core/src/engine/stdlib/transforms.rs`
 
 ```rust
 pub fn native_skew(_ctx, args, _world, _file, _fig)
@@ -244,7 +244,7 @@ pub fn native_skew(_ctx, args, _world, _file, _fig)
 
 `stdlib/mod.rs`:
 ```rust
-pub use crate::rules::stdlib::transforms::{
+pub use crate::engine::stdlib::transforms::{
     native_move, native_rotate, native_scale, native_skew,
 };
 ```
@@ -671,18 +671,18 @@ Para passos futuros com refactor antecipado:
 - Cristalino código tocado:
   - `01_core/src/entities/layout_types.rs` (método
     `TransformMatrix::skew(ax, ay)` + 4 unit tests).
-  - `01_core/src/rules/stdlib/transforms.rs` (`native_skew`
+  - `01_core/src/engine/stdlib/transforms.rs` (`native_skew`
     + helper `extract_angle_rad` inline).
-  - `01_core/src/rules/stdlib/mod.rs` (re-export + 12 tests
+  - `01_core/src/engine/stdlib/mod.rs` (re-export + 12 tests
     incluindo 3 regression).
-  - `01_core/src/rules/eval/mod.rs` (registo em `make_stdlib`).
+  - `01_core/src/engine/eval/mod.rs` (registo em `make_stdlib`).
   - `00_nucleo/prompts/entities/content.md` (secção P156F
     documentando divergência da spec).
 - Cristalino código **NÃO** tocado (verificado por inspecção):
   - `01_core/src/entities/content.rs` (variant Transform
     inalterado).
-  - `01_core/src/rules/introspect.rs` (arms inalterados).
-  - `01_core/src/rules/layout/mod.rs` (arm Transform
+  - `01_core/src/engine/introspect.rs` (arms inalterados).
+  - `01_core/src/engine/layout/mod.rs` (arm Transform
     inalterado; reusa pipeline matriz cm de P78).
-  - `01_core/src/rules/layout/helpers.rs` (sub-frame
+  - `01_core/src/engine/layout/helpers.rs` (sub-frame
     composition inalterada).

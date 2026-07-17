@@ -3,7 +3,7 @@
 **Data:** 2026-07-09  
 **Foco:** Identificação de falhas silenciosas no compilador cristalino através de padrões de supressão de erro (`.ok()`, wildcard arms, `let _ =`, `unwrap_or_default/unwrap_or_else`, `if let Ok(...)`, `fn -> Option`).  
 **Commit de referência:** `de814973c`  
-**Evidência de teste:** `01_core/src/rules/eval/tests.rs`, secção `// ── P633 — sonda de falhas silenciosas`.
+**Evidência de teste:** `01_core/src/engine/eval/tests.rs`, secção `// ── P633 — sonda de falhas silenciosas`.
 
 ---
 
@@ -43,11 +43,11 @@ Estes casos fazem desaparecer informação do utilizador, alteram o significado 
 |---|---|---|---|
 | 1 | `01_core/src/entities/ast/expr.rs:382` | Escape unicode inválido em *code strings* (`"\u{FFFFFFFF}"`) é descartado e o literal original é preservado, em vez de produzir erro. | `p633_invalid_unicode_escape_preserved` |
 | 2 | `01_core/src/entities/ast/markup.rs:107` | Escape unicode inválido em *markup* (`[\u{FFFFFFFF}]`) é convertido em `\0` / texto literal, mascarando o erro de sintaxe. | `p633_invalid_unicode_escape_markup_preserved` |
-| 3 | `01_core/src/rules/eval/mod.rs:819` | O catch-all de `eval_expr` devolve `Ok(Value::None)` para variantes de `Expr` não migradas. Faz com que `#break`, `#continue` e `#return` no topo desapareçam sem erro. | `p633_break_top_level_silently_none`, `p633_continue_top_level_silently_none`, `p633_return_top_level_silently_none` |
-| 4 | `01_core/src/rules/eval/from_tags.rs:64` | Callback de `state.update(func)` cujo `apply_func` retorna `Err` é descartado com comentário "defensive ignore". A atualização de estado não ocorre e o utilizador não recebe diagnóstico. | Inspeção do código + testes de `state.update` |
-| 5 | `01_core/src/rules/eval/bibliography.rs:146` | `hay_entry_to_bib_entry` devolve `None` quando `key.is_empty() \|\| (author.is_empty() && title.is_empty())`, omitindo entradas bibliográficas sem aviso. | Inspeção do código |
-| 6 | `01_core/src/rules/layout/bib_csl.rs:214` | `bib_entry_to_hayagriva` devolve `None` por falha YAML ou chave ausente; o caller usa `filter_map`, omitindo a entrada da bibliografia renderizada. | Inspeção do código |
-| 7 | `01_core/src/rules/layout/grid.rs:322` | `place_cells(cells, num_cols).unwrap_or_default()` descarta o erro de grid inválida e renderiza vetor vazio, escondendo conflitos de `colspan` ou células inválidas. | Comentário explícito no código + `p633_grid_columns_string_silent_auto` |
+| 3 | `01_core/src/engine/eval/mod.rs:819` | O catch-all de `eval_expr` devolve `Ok(Value::None)` para variantes de `Expr` não migradas. Faz com que `#break`, `#continue` e `#return` no topo desapareçam sem erro. | `p633_break_top_level_silently_none`, `p633_continue_top_level_silently_none`, `p633_return_top_level_silently_none` |
+| 4 | `01_core/src/engine/eval/from_tags.rs:64` | Callback de `state.update(func)` cujo `apply_func` retorna `Err` é descartado com comentário "defensive ignore". A atualização de estado não ocorre e o utilizador não recebe diagnóstico. | Inspeção do código + testes de `state.update` |
+| 5 | `01_core/src/engine/eval/bibliography.rs:146` | `hay_entry_to_bib_entry` devolve `None` quando `key.is_empty() \|\| (author.is_empty() && title.is_empty())`, omitindo entradas bibliográficas sem aviso. | Inspeção do código |
+| 6 | `01_core/src/engine/layout/bib_csl.rs:214` | `bib_entry_to_hayagriva` devolve `None` por falha YAML ou chave ausente; o caller usa `filter_map`, omitindo a entrada da bibliografia renderizada. | Inspeção do código |
+| 7 | `01_core/src/engine/layout/grid.rs:322` | `place_cells(cells, num_cols).unwrap_or_default()` descarta o erro de grid inválida e renderiza vetor vazio, escondendo conflitos de `colspan` ou células inválidas. | Comentário explícito no código + `p633_grid_columns_string_silent_auto` |
 
 ### 2.2 Comportamento silenciosamente degradado
 
@@ -55,28 +55,28 @@ Nestes casos a avaliação continua, mas a intenção do utilizador é ignorada:
 
 | # | Local | Descrição | Prova |
 |---|---|---|---|
-| 8 | `01_core/src/rules/eval/rules.rs:678` | `eval_expr(named.expr(), scopes, ctx, engine).ok()` silencia erros no argumento `numbering` de `#set math.equation`; variável indefinida é ignorada. | `p633_set_equation_numbering_undefined_silent` |
-| 9 | `01_core/src/rules/eval/rules.rs:695` | `#set math.equation(numbering: <não-Str>)` ignora o tipo inválido sem diagnóstico. | `p633_set_equation_numbering_int_silent` |
-| 10 | `01_core/src/rules/eval/rules.rs:819` | `#set figure(numbering: <não-Str>)` ignora o tipo inválido sem diagnóstico. | `p633_set_figure_numbering_int_silent` |
-| 11 | `01_core/src/rules/eval/rules.rs:848` | `#set table(numbering: <não-Str>)` ignora o tipo inválido sem diagnóstico. *Ver P639: `table.numbering` é uma extensão do cristalino (P459); o vanilla não tem esta propriedade.* | `p633_set_table_numbering_int_silent` |
-| 12 | `01_core/src/rules/eval/rules.rs:772` | `#set page(numbering: <não-Str/None>)` converte silenciosamente para sem numeração. | `p633_set_page_numbering_int_silent` |
-| 13 | `01_core/src/rules/eval/rules.rs:785` | `#set page(columns: <não-Int>)` ignora o tipo inválido sem diagnóstico. | `p633_set_page_columns_string_silent` |
-| 14 | `01_core/src/rules/eval/rules.rs:967` | `#set text(weight: <não-Int>)` ignora o tipo inválido sem diagnóstico. | `p633_set_text_weight_string_silent` |
-| 15 | `01_core/src/rules/eval/rules.rs:706` | `value_to_eco_string` devolve `None` para tipos inválidos; `#set document(title: 123)` não define o título nem reporta erro. | `p633_set_document_title_int_silent` |
-| 16 | `01_core/src/rules/eval/rules.rs:746` | `extract_pt` devolve `None` para tipos inválidos; `#set page(width: "foo")` mantém a dimensão anterior sem erro. | `p633_set_page_width_string_silent` |
-| 17 | `01_core/src/rules/stdlib/layout.rs:161` | `parse_track_sizing` devolve `None` para tipos inválidos; `grid(columns: "foo")` silenciosamente vira `grid(columns: auto)`. | `p633_grid_columns_string_silent_auto` |
-| 18 | `01_core/src/rules/eval/bindings.rs:141` | Argumento posicional de `counter.display(pattern?)` que não avalia para `Str` é ignorado sem aviso. | `p633_counter_display_invalid_arg_silent` |
-| 19 | `01_core/src/rules/eval/bindings.rs:156` | Valor do argumento nomeado `at:` inválido em `counter.display` é ignorado silenciosamente. | `p633_counter_display_at_invalid_silent` |
-| 20 | `01_core/src/rules/eval/bindings.rs:164` | `counter.display(...)` ignora argumentos posicionais e nomeados não reconhecidos (ex.: typo em `at:`). | `p633_counter_display_at_invalid_silent` |
-| 21 | `01_core/src/rules/eval/bindings.rs:273` | Equivalente a `bindings.rs:156` no despacho de método sobre `Value::Counter`. | `p633_counter_display_at_invalid_silent` |
-| 22 | `01_core/src/rules/eval/bindings.rs:280` | Equivalente a `bindings.rs:141` no despacho de método sobre `Value::Counter`. | `p633_counter_display_invalid_arg_silent` |
-| 23 | `01_core/src/rules/eval/bindings.rs:284` | `counter.display(...)` ignora argumento posicional quando o pattern já está definido. | `p633_counter_display_invalid_arg_silent` |
+| 8 | `01_core/src/engine/eval/rules.rs:678` | `eval_expr(named.expr(), scopes, ctx, engine).ok()` silencia erros no argumento `numbering` de `#set math.equation`; variável indefinida é ignorada. | `p633_set_equation_numbering_undefined_silent` |
+| 9 | `01_core/src/engine/eval/rules.rs:695` | `#set math.equation(numbering: <não-Str>)` ignora o tipo inválido sem diagnóstico. | `p633_set_equation_numbering_int_silent` |
+| 10 | `01_core/src/engine/eval/rules.rs:819` | `#set figure(numbering: <não-Str>)` ignora o tipo inválido sem diagnóstico. | `p633_set_figure_numbering_int_silent` |
+| 11 | `01_core/src/engine/eval/rules.rs:848` | `#set table(numbering: <não-Str>)` ignora o tipo inválido sem diagnóstico. *Ver P639: `table.numbering` é uma extensão do cristalino (P459); o vanilla não tem esta propriedade.* | `p633_set_table_numbering_int_silent` |
+| 12 | `01_core/src/engine/eval/rules.rs:772` | `#set page(numbering: <não-Str/None>)` converte silenciosamente para sem numeração. | `p633_set_page_numbering_int_silent` |
+| 13 | `01_core/src/engine/eval/rules.rs:785` | `#set page(columns: <não-Int>)` ignora o tipo inválido sem diagnóstico. | `p633_set_page_columns_string_silent` |
+| 14 | `01_core/src/engine/eval/rules.rs:967` | `#set text(weight: <não-Int>)` ignora o tipo inválido sem diagnóstico. | `p633_set_text_weight_string_silent` |
+| 15 | `01_core/src/engine/eval/rules.rs:706` | `value_to_eco_string` devolve `None` para tipos inválidos; `#set document(title: 123)` não define o título nem reporta erro. | `p633_set_document_title_int_silent` |
+| 16 | `01_core/src/engine/eval/rules.rs:746` | `extract_pt` devolve `None` para tipos inválidos; `#set page(width: "foo")` mantém a dimensão anterior sem erro. | `p633_set_page_width_string_silent` |
+| 17 | `01_core/src/engine/stdlib/layout.rs:161` | `parse_track_sizing` devolve `None` para tipos inválidos; `grid(columns: "foo")` silenciosamente vira `grid(columns: auto)`. | `p633_grid_columns_string_silent_auto` |
+| 18 | `01_core/src/engine/eval/bindings.rs:141` | Argumento posicional de `counter.display(pattern?)` que não avalia para `Str` é ignorado sem aviso. | `p633_counter_display_invalid_arg_silent` |
+| 19 | `01_core/src/engine/eval/bindings.rs:156` | Valor do argumento nomeado `at:` inválido em `counter.display` é ignorado silenciosamente. | `p633_counter_display_at_invalid_silent` |
+| 20 | `01_core/src/engine/eval/bindings.rs:164` | `counter.display(...)` ignora argumentos posicionais e nomeados não reconhecidos (ex.: typo em `at:`). | `p633_counter_display_at_invalid_silent` |
+| 21 | `01_core/src/engine/eval/bindings.rs:273` | Equivalente a `bindings.rs:156` no despacho de método sobre `Value::Counter`. | `p633_counter_display_at_invalid_silent` |
+| 22 | `01_core/src/engine/eval/bindings.rs:280` | Equivalente a `bindings.rs:141` no despacho de método sobre `Value::Counter`. | `p633_counter_display_invalid_arg_silent` |
+| 23 | `01_core/src/engine/eval/bindings.rs:284` | `counter.display(...)` ignora argumento posicional quando o pattern já está definido. | `p633_counter_display_invalid_arg_silent` |
 
 ---
 
 ## 3. Testes diretos adicionados
 
-Os testes foram introduzidos em `01_core/src/rules/eval/tests.rs` sob a secção `// ── P633 — sonda de falhas silenciosas: testes de confirmação/refutação`. Dividem-se em confirmadores (esperam `Ok`) e refutadores (esperam `Err`).
+Os testes foram introduzidos em `01_core/src/engine/eval/tests.rs` sob a secção `// ── P633 — sonda de falhas silenciosas: testes de confirmação/refutação`. Dividem-se em confirmadores (esperam `Ok`) e refutadores (esperam `Err`).
 
 ### Confirmadores de falha silenciosa
 
@@ -142,12 +142,12 @@ Os testes foram introduzidos em `01_core/src/rules/eval/tests.rs` sob a secção
 - `01_core/src/entities/style_chain.rs:451` — `u16::try_from(*i).ok()`; peso fora de `u16` é ignorado por padrão histórico.
 - `01_core/src/entities/style_chain.rs:491` — `Lang::from_str(s).ok()`; código de língua inválido resulta em `None` com fallback.
 - `01_core/src/entities/value.rs:338` — `Regex::new(s).ok()`; `cast_regex` documentadamente devolve `None` para padrões inválidos.
-- `01_core/src/rules/eval/rules.rs:963` — `u16::try_from(*n).ok()`; comentário confirma "silent skip" histórico.
-- `01_core/src/rules/layout/text.rs:43` — `u16::try_from(*n).ok()`; idem.
-- `01_core/src/rules/layout/text.rs:57` — `Lang::from_str(s).ok()`; idem a `style_chain.rs:491`.
-- `01_core/src/rules/lexer/markup.rs:67` — `u32::from_str_radix(hex, 16).ok().and_then(std::char::from_u32).is_none()`; `.ok()` é usado como predicado e erro é emitido a seguir.
-- `01_core/src/rules/stdlib/primitives_constructors.rs:245` — `num_str.parse::<f64>().ok()?`; parser de duração devolve `Option`.
-- `01_core/src/rules/stdlib/primitives_constructors.rs:256` — `num_str.parse::<u64>().ok()?`; idem.
+- `01_core/src/engine/eval/rules.rs:963` — `u16::try_from(*n).ok()`; comentário confirma "silent skip" histórico.
+- `01_core/src/engine/layout/text.rs:43` — `u16::try_from(*n).ok()`; idem.
+- `01_core/src/engine/layout/text.rs:57` — `Lang::from_str(s).ok()`; idem a `style_chain.rs:491`.
+- `01_core/src/engine/lexer/markup.rs:67` — `u32::from_str_radix(hex, 16).ok().and_then(std::char::from_u32).is_none()`; `.ok()` é usado como predicado e erro é emitido a seguir.
+- `01_core/src/engine/stdlib/primitives_constructors.rs:245` — `num_str.parse::<f64>().ok()?`; parser de duração devolve `Option`.
+- `01_core/src/engine/stdlib/primitives_constructors.rs:256` — `num_str.parse::<u64>().ok()?`; idem.
 - `03_infra/src/export/builder.rs:56` — `std::env::var("CRYSTALLINE_PDF_FIXED_EPOCH").ok()`; variável de ambiente opcional para testes.
 - `03_infra/src/export/builder.rs:57` — `s.parse::<i64>().ok()`; idem.
 - `03_infra/src/export/builder.rs:58` — `time::OffsetDateTime::from_unix_timestamp(ts).ok()`; idem.
@@ -171,7 +171,7 @@ Os testes foram introduzidos em `01_core/src/rules/eval/tests.rs` sob a secção
 
 #### Suspeito (4)
 
-- `01_core/src/rules/layout/bib_csl.rs:286` — `hayagriva::io::from_yaml_str(&yaml).ok()?`; erro de parse YAML descarta entrada bibliográfica sem diagnóstico.
+- `01_core/src/engine/layout/bib_csl.rs:286` — `hayagriva::io::from_yaml_str(&yaml).ok()?`; erro de parse YAML descarta entrada bibliográfica sem diagnóstico.
 - `03_infra/src/export/builder.rs:694` — `Face::parse(&embed_data, 0).ok()`; dados de fonte variável instanciada podem não ter sido validados.
 - `03_infra/src/export/subset.rs:72` — `oxifont_subset::subset_with_gid_set(...).ok()?`; erro do subsetter descartado.
 - `03_infra/src/export/subset.rs:75` — `ttf_parser::Face::parse(&subset_data, 0).ok()?`; se o subsetter produzir bytes inválidos, o erro é descartado.
@@ -179,7 +179,7 @@ Os testes foram introduzidos em `01_core/src/rules/eval/tests.rs` sob a secção
 #### Confirmado (2)
 
 - `01_core/src/entities/ast/expr.rs:382` — `u32::from_str_radix(sequence, 16).ok().and_then(std::char::from_u32)`; escape `\u{...}` inválido é descartado e convertido de volta no texto literal. **Promovido a Confirmado** por `p633_invalid_unicode_escape_preserved`.
-- `01_core/src/rules/eval/rules.rs:678` — `eval_expr(named.expr(), scopes, ctx, engine).ok()`; erro de avaliação do argumento `numbering` de `#set math.equation` é silenciado. **Promovido a Confirmado** por `p633_set_equation_numbering_undefined_silent`.
+- `01_core/src/engine/eval/rules.rs:678` — `eval_expr(named.expr(), scopes, ctx, engine).ok()`; erro de avaliação do argumento `numbering` de `#set math.equation` é silenciado. **Promovido a Confirmado** por `p633_set_equation_numbering_undefined_silent`.
 
 ---
 
@@ -194,15 +194,15 @@ Os testes foram introduzidos em `01_core/src/rules/eval/tests.rs` sob a secção
 ##### Inofensivo (24)
 
 - `01_core/src/entities/layout_types.rs:500` — `plain_text_items` ignora itens de frame que não são texto.
-- `01_core/src/rules/eval/operators.rs:32` — verificação de divisão por zero; catch-all cobre tipos não numéricos.
-- `01_core/src/rules/eval/bindings.rs:348` — `counter.at()` valida argumentos posicionais; tipos inválidos ignorados, erro reportado depois.
-- `01_core/src/rules/eval/bindings.rs:351` — `counter.at()` espera argumento posicional; argumentos nomeados ignorados, erro reportado depois.
-- `01_core/src/rules/eval/closures.rs:336` — métodos especiais (`counter.*`) caem fora; fallback para chamada normal.
-- `01_core/src/rules/layout/helpers.rs:206` — `collect_items_at` ignora content que não produz itens de frame.
-- `01_core/src/rules/layout/sub_frame.rs:194` — cálculo de altura de linha ignora itens não-texto.
-- `01_core/src/rules/math/layout/frac.rs:64` — posicionamento de texto em fracção ignora itens não-texto.
-- `01_core/src/rules/math/layout/frac.rs:85` — idem.
-- `01_core/src/rules/introspect.rs:120` — coleta de chaves de referência ignora content não navegável.
+- `01_core/src/engine/eval/operators.rs:32` — verificação de divisão por zero; catch-all cobre tipos não numéricos.
+- `01_core/src/engine/eval/bindings.rs:348` — `counter.at()` valida argumentos posicionais; tipos inválidos ignorados, erro reportado depois.
+- `01_core/src/engine/eval/bindings.rs:351` — `counter.at()` espera argumento posicional; argumentos nomeados ignorados, erro reportado depois.
+- `01_core/src/engine/eval/closures.rs:336` — métodos especiais (`counter.*`) caem fora; fallback para chamada normal.
+- `01_core/src/engine/layout/helpers.rs:206` — `collect_items_at` ignora content que não produz itens de frame.
+- `01_core/src/engine/layout/sub_frame.rs:194` — cálculo de altura de linha ignora itens não-texto.
+- `01_core/src/engine/math/layout/frac.rs:64` — posicionamento de texto em fracção ignora itens não-texto.
+- `01_core/src/engine/math/layout/frac.rs:85` — idem.
+- `01_core/src/engine/introspect.rs:120` — coleta de chaves de referência ignora content não navegável.
 - `03_infra/src/export/gradients/mod.rs:222` — coleta de gradientes ignora itens sem gradiente.
 - `03_infra/src/export/gradients/mod.rs:286` — idem.
 - `03_infra/src/export/images.rs:207` — coleta de imagens ignora itens sem imagem.
@@ -220,18 +220,18 @@ Os testes foram introduzidos em `01_core/src/rules/eval/tests.rs` sob a secção
 
 ##### Suspeito (2)
 
-- `01_core/src/rules/eval/rules.rs:736` — `#set document(...)` ignora chaves nomeadas desconhecidas sem aviso (possível typo silencioso). **Mantém Suspeito** — não testado.
-- `01_core/src/rules/eval/rules.rs:788` — `#set page(...)` ignora chaves nomeadas desconhecidas sem aviso. **Mantém Suspeito** — não testado.
+- `01_core/src/engine/eval/rules.rs:736` — `#set document(...)` ignora chaves nomeadas desconhecidas sem aviso (possível typo silencioso). **Mantém Suspeito** — não testado.
+- `01_core/src/engine/eval/rules.rs:788` — `#set page(...)` ignora chaves nomeadas desconhecidas sem aviso. **Mantém Suspeito** — não testado.
 
 ##### Confirmado (7)
 
-- `01_core/src/rules/eval/bindings.rs:164` — `counter.display(...)` ignora argumentos posicionais e nomeados não reconhecidos. **Promovido a Confirmado** por `p633_counter_display_invalid_arg_silent` / `p633_counter_display_at_invalid_silent`.
-- `01_core/src/rules/eval/bindings.rs:284` — `counter.display(...)` ignora argumento posicional quando pattern já está definido. **Promovido a Confirmado** pelos mesmos testes.
-- `01_core/src/rules/eval/rules.rs:695` — `#set equation(numbering: <não-Str>)` ignora tipo inválido. **Promovido a Confirmado** por `p633_set_equation_numbering_int_silent`.
-- `01_core/src/rules/eval/rules.rs:819` — `#set figure(numbering: <não-Str>)` ignora tipo inválido. **Promovido a Confirmado** por `p633_set_figure_numbering_int_silent`.
-- `01_core/src/rules/eval/rules.rs:848` — `#set table(numbering: <não-Str>)` ignora tipo inválido. **Promovido a Confirmado** por `p633_set_table_numbering_int_silent`. *P639 confirmou que `table.numbering` é uma extensão cristalina (P459): no vanilla `table` não tem `numbering`; a numeração de tabelas faz-se via `#figure(table(...), caption: ...)`. A validação de tipo introduzida em P636 mantém-se correcta dentro do cristalino, mas não é paridade com o vanilla.*
-- `01_core/src/rules/eval/rules.rs:772` — `#set page(numbering: <não-Str/None>)` converte silenciosamente para sem numeração. **Promovido a Confirmado** por `p633_set_page_numbering_int_silent`.
-- `01_core/src/rules/eval/rules.rs:785` — `#set page(columns: <não-Int>)` ignora tipo inválido. **Promovido a Confirmado** por `p633_set_page_columns_string_silent`.
+- `01_core/src/engine/eval/bindings.rs:164` — `counter.display(...)` ignora argumentos posicionais e nomeados não reconhecidos. **Promovido a Confirmado** por `p633_counter_display_invalid_arg_silent` / `p633_counter_display_at_invalid_silent`.
+- `01_core/src/engine/eval/bindings.rs:284` — `counter.display(...)` ignora argumento posicional quando pattern já está definido. **Promovido a Confirmado** pelos mesmos testes.
+- `01_core/src/engine/eval/rules.rs:695` — `#set equation(numbering: <não-Str>)` ignora tipo inválido. **Promovido a Confirmado** por `p633_set_equation_numbering_int_silent`.
+- `01_core/src/engine/eval/rules.rs:819` — `#set figure(numbering: <não-Str>)` ignora tipo inválido. **Promovido a Confirmado** por `p633_set_figure_numbering_int_silent`.
+- `01_core/src/engine/eval/rules.rs:848` — `#set table(numbering: <não-Str>)` ignora tipo inválido. **Promovido a Confirmado** por `p633_set_table_numbering_int_silent`. *P639 confirmou que `table.numbering` é uma extensão cristalina (P459): no vanilla `table` não tem `numbering`; a numeração de tabelas faz-se via `#figure(table(...), caption: ...)`. A validação de tipo introduzida em P636 mantém-se correcta dentro do cristalino, mas não é paridade com o vanilla.*
+- `01_core/src/engine/eval/rules.rs:772` — `#set page(numbering: <não-Str/None>)` converte silenciosamente para sem numeração. **Promovido a Confirmado** por `p633_set_page_numbering_int_silent`.
+- `01_core/src/engine/eval/rules.rs:785` — `#set page(columns: <não-Int>)` ignora tipo inválido. **Promovido a Confirmado** por `p633_set_page_columns_string_silent`.
 
 #### 5.2.2 `_ => Ok(Value::None)`
 
@@ -239,7 +239,7 @@ Os testes foram introduzidos em `01_core/src/rules/eval/tests.rs` sob a secção
 
 ##### Confirmado (1)
 
-- `01_core/src/rules/eval/mod.rs:819` — `eval_expr` devolve `Ok(Value::None)` para variantes de `Expr` não migradas. Faz expressões não suportadas desaparecerem sem erro. **Confirmado** por `p633_break_top_level_silently_none`, `p633_continue_top_level_silently_none`, `p633_return_top_level_silently_none` e `p633_parse_error_expr_silent_none`.
+- `01_core/src/engine/eval/mod.rs:819` — `eval_expr` devolve `Ok(Value::None)` para variantes de `Expr` não migradas. Faz expressões não suportadas desaparecerem sem erro. **Confirmado** por `p633_break_top_level_silently_none`, `p633_continue_top_level_silently_none`, `p633_return_top_level_silently_none` e `p633_parse_error_expr_silent_none`.
 
 #### 5.2.3 `_ => None`
 
@@ -270,69 +270,69 @@ Os 76 casos originalmente inofensivos mantêm-se; acrescenta-se `bindings.rs:124
 - `01_core/src/entities/value.rs:339` — `cast_regex` para tipo não compatível.
 - `01_core/src/entities/content.rs:2779` — `get_field` para campo/conteúdo desconhecido.
 - `01_core/src/entities/content.rs:3030` — `morph_canon` retorna `None` para manter o nó inalterado.
-- `01_core/src/rules/eval/bindings.rs:91` — `extract_counter_key` para argumento inválido.
-- `01_core/src/rules/eval/bindings.rs:124` — `counter.update()` converte argumento inválido em `0`. **Reclassificado para Inofensivo**: teste `p633_counter_update_string_rejeitado` prova que o caminho `unwrap_or(0)` não é atingível por syntax pública; é dead code.
-- `01_core/src/rules/eval/bindings.rs:478` — `value_to_query_selector` para seletor não suportado.
-- `01_core/src/rules/eval/math.rs:184` — `filter_map` de argumentos posicionais em `frac`.
-- `01_core/src/rules/eval/math.rs:198` — `filter_map` de argumentos posicionais em `sqrt`.
-- `01_core/src/rules/eval/math.rs:213` — `filter_map` de argumentos posicionais em `root`.
-- `01_core/src/rules/eval/math.rs:229` — `filter_map` de argumentos posicionais em `vec`.
-- `01_core/src/rules/eval/math.rs:243` — `filter_map` de argumentos posicionais em `cases`.
-- `01_core/src/rules/eval/math.rs:274` — `filter_map` de argumentos posicionais em matrizes.
-- `01_core/src/rules/eval/math.rs:366` — `filter_map` de argumentos posicionais em função math genérica.
-- `01_core/src/rules/eval/mod.rs:382` — conversão de resultado de eval para `Option<Content>`.
-- `01_core/src/rules/eval/mod.rs:391` — idem.
-- `01_core/src/rules/eval/rules.rs:57` — `kind_to_node` para `ElementKind` não mapeado.
-- `01_core/src/rules/eval/rules.rs:714` — filtro de strings dentro de array para metadados do documento.
-- `01_core/src/rules/eval/rules.rs:723` — `value_to_eco_string` para tipo não suportado.
-- `01_core/src/rules/eval/rules.rs:751` — `extract_pt` para tipo não suportado.
-- `01_core/src/rules/introspect/extract_payload.rs:89` — content não locatable.
-- `01_core/src/rules/layout/figure.rs:33` — `figure.numbering` pattern apenas aceita `Value::Str`.
-- `01_core/src/rules/layout/image.rs:80` — `extract_pt` apenas aceita Float/Length.
-- `01_core/src/rules/layout/table.rs:33` — `table.numbering` pattern apenas aceita `Value::Str`.
-- `01_core/src/rules/layout/references.rs:153` — `default_supplement_for_key` para chave sem suplemento predefinido.
-- `01_core/src/rules/layout/bib_csl.rs:164` — `resolve_style_name` apenas aceita estilos Independent.
-- `01_core/src/rules/layout/cursor.rs:159` — procura de direção RTL apenas em itens de texto.
-- `01_core/src/rules/layout/cursor.rs:233` — procura de leading apenas em itens de texto.
-- `01_core/src/rules/layout/equation.rs:173` — `equation.numbering` pattern apenas aceita `Value::Str`.
-- `01_core/src/rules/layout/heading.rs:50` — `heading.numbering.pattern` apenas aceita `Value::Str`.
-- `01_core/src/rules/layout/mod.rs:1881` — walk de introspecção para content não suportado.
-- `01_core/src/rules/layout/text.rs:36` — cast de `text.size` apenas aceita `Value::Length`.
-- `01_core/src/rules/layout/text.rs:40` — cast de `text.fill` apenas aceita `Value::Color`.
-- `01_core/src/rules/layout/text.rs:44` — cast de `text.weight` apenas aceita `Value::Int`.
-- `01_core/src/rules/layout/text.rs:48` — cast de `text.tracking` apenas aceita `Value::Length`.
-- `01_core/src/rules/layout/text.rs:52` — cast de `par.leading` apenas aceita `Value::Length`.
-- `01_core/src/rules/layout/text.rs:59` — cast de `text.lang` apenas aceita `Value::Str`.
-- `01_core/src/rules/layout/text.rs:63` — cast de `text.dir` apenas aceita `Value::Dir`.
-- `01_core/src/rules/layout/text.rs:87` — cast de variantes de fonte dentro de `text.font`.
-- `01_core/src/rules/layout/text.rs:107` — cast de entrada de fonte inválida.
-- `01_core/src/rules/layout/text.rs:112` — cast de `text.font` inválido.
-- `01_core/src/rules/layout/columns.rs:95` — `body_dir` para content sem direção definida.
-- `01_core/src/rules/layout/columns.rs:108` — `styles_dir` apenas aceita `Value::Dir`.
-- `01_core/src/rules/layout/sub_frame.rs:108` — procura de leading apenas em itens de texto.
-- `01_core/src/rules/math/layout/attach.rs:47` — `base_char` apenas para `MathIdent`/`MathText`.
-- `01_core/src/rules/parse/patterns.rs:212` — `node_key` apenas aceita `Ident`/`Str`.
-- `01_core/src/rules/stdlib/collections.rs:91` — dispatch de métodos de string; método inexistente cai fora.
-- `01_core/src/rules/stdlib/collections.rs:777` — `value_cmp` para tipos não comparáveis.
-- `01_core/src/rules/stdlib/shapes.rs:56` — `parse_color` para cor/nome desconhecido.
-- `01_core/src/rules/stdlib/shapes.rs:69` — `parse_paint` para paint inválido.
-- `01_core/src/rules/stdlib/shapes.rs:272` — `extract_coordinate` para array inválido.
-- `01_core/src/rules/stdlib/transforms.rs:109` — `extract_angle_rad` para tipo inválido.
-- `01_core/src/rules/stdlib/figure_image.rs:39` — `infer_kind_from_body` para body não reconhecido.
-- `01_core/src/rules/stdlib/figure_image.rs:142` — `image(fit:)` apenas aceita `Value::Str`.
-- `01_core/src/rules/stdlib/layout.rs:154` — `extract_alignment` para argumento não alinhamento.
-- `01_core/src/rules/stdlib/structural.rs:1515` — `bibliography(style:)` apenas aceita Str/None.
-- `01_core/src/rules/stdlib/structural.rs:1521` — `bibliography(locale:)` apenas aceita Str/None.
-- `01_core/src/rules/stdlib/text.rs:155` — `replace(count:)` apenas aceita `Value::Int`.
+- `01_core/src/engine/eval/bindings.rs:91` — `extract_counter_key` para argumento inválido.
+- `01_core/src/engine/eval/bindings.rs:124` — `counter.update()` converte argumento inválido em `0`. **Reclassificado para Inofensivo**: teste `p633_counter_update_string_rejeitado` prova que o caminho `unwrap_or(0)` não é atingível por syntax pública; é dead code.
+- `01_core/src/engine/eval/bindings.rs:478` — `value_to_query_selector` para seletor não suportado.
+- `01_core/src/engine/eval/math.rs:184` — `filter_map` de argumentos posicionais em `frac`.
+- `01_core/src/engine/eval/math.rs:198` — `filter_map` de argumentos posicionais em `sqrt`.
+- `01_core/src/engine/eval/math.rs:213` — `filter_map` de argumentos posicionais em `root`.
+- `01_core/src/engine/eval/math.rs:229` — `filter_map` de argumentos posicionais em `vec`.
+- `01_core/src/engine/eval/math.rs:243` — `filter_map` de argumentos posicionais em `cases`.
+- `01_core/src/engine/eval/math.rs:274` — `filter_map` de argumentos posicionais em matrizes.
+- `01_core/src/engine/eval/math.rs:366` — `filter_map` de argumentos posicionais em função math genérica.
+- `01_core/src/engine/eval/mod.rs:382` — conversão de resultado de eval para `Option<Content>`.
+- `01_core/src/engine/eval/mod.rs:391` — idem.
+- `01_core/src/engine/eval/rules.rs:57` — `kind_to_node` para `ElementKind` não mapeado.
+- `01_core/src/engine/eval/rules.rs:714` — filtro de strings dentro de array para metadados do documento.
+- `01_core/src/engine/eval/rules.rs:723` — `value_to_eco_string` para tipo não suportado.
+- `01_core/src/engine/eval/rules.rs:751` — `extract_pt` para tipo não suportado.
+- `01_core/src/engine/introspect/extract_payload.rs:89` — content não locatable.
+- `01_core/src/engine/layout/figure.rs:33` — `figure.numbering` pattern apenas aceita `Value::Str`.
+- `01_core/src/engine/layout/image.rs:80` — `extract_pt` apenas aceita Float/Length.
+- `01_core/src/engine/layout/table.rs:33` — `table.numbering` pattern apenas aceita `Value::Str`.
+- `01_core/src/engine/layout/references.rs:153` — `default_supplement_for_key` para chave sem suplemento predefinido.
+- `01_core/src/engine/layout/bib_csl.rs:164` — `resolve_style_name` apenas aceita estilos Independent.
+- `01_core/src/engine/layout/cursor.rs:159` — procura de direção RTL apenas em itens de texto.
+- `01_core/src/engine/layout/cursor.rs:233` — procura de leading apenas em itens de texto.
+- `01_core/src/engine/layout/equation.rs:173` — `equation.numbering` pattern apenas aceita `Value::Str`.
+- `01_core/src/engine/layout/heading.rs:50` — `heading.numbering.pattern` apenas aceita `Value::Str`.
+- `01_core/src/engine/layout/mod.rs:1881` — walk de introspecção para content não suportado.
+- `01_core/src/engine/layout/text.rs:36` — cast de `text.size` apenas aceita `Value::Length`.
+- `01_core/src/engine/layout/text.rs:40` — cast de `text.fill` apenas aceita `Value::Color`.
+- `01_core/src/engine/layout/text.rs:44` — cast de `text.weight` apenas aceita `Value::Int`.
+- `01_core/src/engine/layout/text.rs:48` — cast de `text.tracking` apenas aceita `Value::Length`.
+- `01_core/src/engine/layout/text.rs:52` — cast de `par.leading` apenas aceita `Value::Length`.
+- `01_core/src/engine/layout/text.rs:59` — cast de `text.lang` apenas aceita `Value::Str`.
+- `01_core/src/engine/layout/text.rs:63` — cast de `text.dir` apenas aceita `Value::Dir`.
+- `01_core/src/engine/layout/text.rs:87` — cast de variantes de fonte dentro de `text.font`.
+- `01_core/src/engine/layout/text.rs:107` — cast de entrada de fonte inválida.
+- `01_core/src/engine/layout/text.rs:112` — cast de `text.font` inválido.
+- `01_core/src/engine/layout/columns.rs:95` — `body_dir` para content sem direção definida.
+- `01_core/src/engine/layout/columns.rs:108` — `styles_dir` apenas aceita `Value::Dir`.
+- `01_core/src/engine/layout/sub_frame.rs:108` — procura de leading apenas em itens de texto.
+- `01_core/src/engine/math/layout/attach.rs:47` — `base_char` apenas para `MathIdent`/`MathText`.
+- `01_core/src/engine/parse/patterns.rs:212` — `node_key` apenas aceita `Ident`/`Str`.
+- `01_core/src/engine/stdlib/collections.rs:91` — dispatch de métodos de string; método inexistente cai fora.
+- `01_core/src/engine/stdlib/collections.rs:777` — `value_cmp` para tipos não comparáveis.
+- `01_core/src/engine/stdlib/shapes.rs:56` — `parse_color` para cor/nome desconhecido.
+- `01_core/src/engine/stdlib/shapes.rs:69` — `parse_paint` para paint inválido.
+- `01_core/src/engine/stdlib/shapes.rs:272` — `extract_coordinate` para array inválido.
+- `01_core/src/engine/stdlib/transforms.rs:109` — `extract_angle_rad` para tipo inválido.
+- `01_core/src/engine/stdlib/figure_image.rs:39` — `infer_kind_from_body` para body não reconhecido.
+- `01_core/src/engine/stdlib/figure_image.rs:142` — `image(fit:)` apenas aceita `Value::Str`.
+- `01_core/src/engine/stdlib/layout.rs:154` — `extract_alignment` para argumento não alinhamento.
+- `01_core/src/engine/stdlib/structural.rs:1515` — `bibliography(style:)` apenas aceita Str/None.
+- `01_core/src/engine/stdlib/structural.rs:1521` — `bibliography(locale:)` apenas aceita Str/None.
+- `01_core/src/engine/stdlib/text.rs:155` — `replace(count:)` apenas aceita `Value::Int`.
 - `03_infra/src/layout_bidi.rs:672` — `item_height` apenas para itens de texto.
 
 ##### Suspeito (1)
 
-- `01_core/src/rules/eval/closures.rs:222` — parâmetros `Placeholder` e `Destructuring` são descartados sem aviso (comentário indica "adiado"). **Mantém Suspeito** — não testado.
+- `01_core/src/engine/eval/closures.rs:222` — parâmetros `Placeholder` e `Destructuring` são descartados sem aviso (comentário indica "adiado"). **Mantém Suspeito** — não testado.
 
 ##### Confirmado (1)
 
-- `01_core/src/rules/eval/rules.rs:967` — `#set text(weight: <não-Int>)` ignora tipos inválidos silenciosamente. **Promovido a Confirmado** por `p633_set_text_weight_string_silent`.
+- `01_core/src/engine/eval/rules.rs:967` — `#set text(weight: <não-Int>)` ignora tipos inválidos silenciosamente. **Promovido a Confirmado** por `p633_set_text_weight_string_silent`.
 
 ---
 
@@ -346,22 +346,22 @@ Os 15 casos originalmente inofensivos mantêm-se; acrescentam-se 3 casos de `bin
 
 - `01_core/src/contracts/world.rs:42` — parâmetro não usado no corpo padrão do trait.
 - `01_core/src/contracts/world.rs:50` — idem.
-- `01_core/src/rules/layout/boxed.rs:66` — `baseline` recebido mas ainda não aplicado.
-- `01_core/src/rules/layout/place.rs:78` — `dx` aplicado mais tarde em `flush`.
-- `01_core/src/rules/layout/place.rs:79` — `dy` idem.
-- `01_core/src/rules/layout/place.rs:80` — `scope` parâmetro sentinela (DEBT-37).
-- `01_core/src/rules/layout/metrics.rs:47` — corpo padrão de método de trait.
-- `01_core/src/rules/layout/metrics.rs:56` — idem.
-- `01_core/src/rules/layout/metrics.rs:65` — idem.
-- `01_core/src/rules/layout/metrics.rs:74` — idem.
-- `01_core/src/rules/layout/metrics.rs:83` — idem.
-- `01_core/src/rules/scopes.rs:142` — `base` (Library) ainda é stub.
-- `01_core/src/rules/stdlib/figure_image.rs:56` — parâmetro não usado nesta implementação nativa.
-- `01_core/src/rules/introspect.rs:1097` — `level` extraído mas não necessário nesta versão.
-- `01_core/src/rules/introspect.rs:1298` — `figure_number` usado na linha seguinte; no-op.
-- `01_core/src/rules/eval/bindings.rs:222` — `let _ = eval_args(args, ...)?` em `state.get()`. **Reclassificado para Inofensivo**: `state()` devolve `Content`, não `Value::State`; branch inacessível (teste `p633_state_method_dead_code_path`).
-- `01_core/src/rules/eval/bindings.rs:254` — `let _ = eval_args(args, ...)?` em `counter.step()`. **Reclassificado para Inofensivo**: sem teste directo, mas segue a mesma lógica de método inacessível via `state()`/`counter()` quando o valor já é `Content`.
-- `01_core/src/rules/eval/bindings.rs:258` — `let _ = eval_args(args, ...)?` em `counter.get()`. **Reclassificado para Inofensivo**: mesmo raciocínio.
+- `01_core/src/engine/layout/boxed.rs:66` — `baseline` recebido mas ainda não aplicado.
+- `01_core/src/engine/layout/place.rs:78` — `dx` aplicado mais tarde em `flush`.
+- `01_core/src/engine/layout/place.rs:79` — `dy` idem.
+- `01_core/src/engine/layout/place.rs:80` — `scope` parâmetro sentinela (DEBT-37).
+- `01_core/src/engine/layout/metrics.rs:47` — corpo padrão de método de trait.
+- `01_core/src/engine/layout/metrics.rs:56` — idem.
+- `01_core/src/engine/layout/metrics.rs:65` — idem.
+- `01_core/src/engine/layout/metrics.rs:74` — idem.
+- `01_core/src/engine/layout/metrics.rs:83` — idem.
+- `01_core/src/engine/scopes.rs:142` — `base` (Library) ainda é stub.
+- `01_core/src/engine/stdlib/figure_image.rs:56` — parâmetro não usado nesta implementação nativa.
+- `01_core/src/engine/introspect.rs:1097` — `level` extraído mas não necessário nesta versão.
+- `01_core/src/engine/introspect.rs:1298` — `figure_number` usado na linha seguinte; no-op.
+- `01_core/src/engine/eval/bindings.rs:222` — `let _ = eval_args(args, ...)?` em `state.get()`. **Reclassificado para Inofensivo**: `state()` devolve `Content`, não `Value::State`; branch inacessível (teste `p633_state_method_dead_code_path`).
+- `01_core/src/engine/eval/bindings.rs:254` — `let _ = eval_args(args, ...)?` em `counter.step()`. **Reclassificado para Inofensivo**: sem teste directo, mas segue a mesma lógica de método inacessível via `state()`/`counter()` quando o valor já é `Content`.
+- `01_core/src/engine/eval/bindings.rs:258` — `let _ = eval_args(args, ...)?` em `counter.get()`. **Reclassificado para Inofensivo**: mesmo raciocínio.
 
 #### Suspeito (4)
 
@@ -395,24 +395,24 @@ Os 46 casos originalmente inofensivos mantêm-se; acrescentam-se 3 casos de `exp
 - `entities/style_chain.rs:620` — fonte padrão documentada.
 - `rules/eval/bibliography.rs:161` — autor vazio tolerado.
 - `rules/eval/bibliography.rs:164` — título ausente combinado com autor.
-- `rules/layout/cite.rs:29` — forma de citação com default explícito.
-- `rules/layout/cite.rs:31` — estilo de citação com default explícito.
-- `rules/layout/cite.rs:88` — autor vazio cai na key.
-- `rules/layout/cite.rs:103` — número de citação não encontrado.
-- `rules/layout/figure.rs:54` — pattern falha → número cru.
-- `rules/layout/outline.rs:56` — título default do outline.
-- `rules/layout/outline.rs:81` — página ainda desconhecida.
-- `rules/layout/outline.rs:87` — heading sem numeração.
-- `rules/layout/outline.rs:130` — título default do LoF.
-- `rules/layout/outline.rs:157` — título default do LoT.
-- `rules/layout/table.rs:48` — pattern falha → número cru.
-- `rules/layout/references.rs:109` — pattern `(1)` falha → número cru.
-- `rules/layout/references.rs:135` — supplement default para figura.
-- `rules/layout/decorations.rs:51` — nenhum collector ativo.
-- `rules/layout/equation.rs:143` — pattern falha → número cru.
-- `rules/layout/text.rs:143` — tamanho de subscrito default.
-- `rules/layout/text.rs:148` — tamanho de sobrescrito default.
-- `rules/layout/metrics.rs:95` — `advance_shaped` indisponível.
+- `engine/layout/cite.rs:29` — forma de citação com default explícito.
+- `engine/layout/cite.rs:31` — estilo de citação com default explícito.
+- `engine/layout/cite.rs:88` — autor vazio cai na key.
+- `engine/layout/cite.rs:103` — número de citação não encontrado.
+- `engine/layout/figure.rs:54` — pattern falha → número cru.
+- `engine/layout/outline.rs:56` — título default do outline.
+- `engine/layout/outline.rs:81` — página ainda desconhecida.
+- `engine/layout/outline.rs:87` — heading sem numeração.
+- `engine/layout/outline.rs:130` — título default do LoF.
+- `engine/layout/outline.rs:157` — título default do LoT.
+- `engine/layout/table.rs:48` — pattern falha → número cru.
+- `engine/layout/references.rs:109` — pattern `(1)` falha → número cru.
+- `engine/layout/references.rs:135` — supplement default para figura.
+- `engine/layout/decorations.rs:51` — nenhum collector ativo.
+- `engine/layout/equation.rs:143` — pattern falha → número cru.
+- `engine/layout/text.rs:143` — tamanho de subscrito default.
+- `engine/layout/text.rs:148` — tamanho de sobrescrito default.
+- `engine/layout/metrics.rs:95` — `advance_shaped` indisponível.
 - `rules/lexer/markup.rs:357` — lookup em tabela estática.
 - `rules/math/layout/attach.rs:51` — sem `MathKernInfo`.
 - `rules/parse/parser.rs:263` — coluna do token calculada do lexer.
@@ -441,13 +441,13 @@ Os 46 casos originalmente inofensivos mantêm-se; acrescentam-se 3 casos de `exp
 - `rules/eval/bindings.rs:174` — label/counter ausente em `numbering` retorna string vazia.
 - `rules/eval/bindings.rs:293` — idem para `counter`.
 - `rules/introspect/heading.rs:53` — heading numerado fora de ciclo de contador.
-- `rules/layout/cite.rs:85` — citação numérica perde o número e mostra a key.
-- `rules/layout/cite.rs:117` — idem no ramo Prose.
-- `rules/layout/references.rs:104` — referência a label numerada com counter ausente.
-- `rules/layout/references.rs:110` — `flat_counter_at("equation", loc)` ausente.
-- `rules/layout/references.rs:117` — figure/table counter ausente.
-- `rules/layout/mod.rs:790` — `CounterDisplay` sem localização known.
-- `rules/layout/mod.rs:793` — counter global ausente → `"0"`.
+- `engine/layout/cite.rs:85` — citação numérica perde o número e mostra a key.
+- `engine/layout/cite.rs:117` — idem no ramo Prose.
+- `engine/layout/references.rs:104` — referência a label numerada com counter ausente.
+- `engine/layout/references.rs:110` — `flat_counter_at("equation", loc)` ausente.
+- `engine/layout/references.rs:117` — figure/table counter ausente.
+- `engine/layout/mod.rs:790` — `CounterDisplay` sem localização known.
+- `engine/layout/mod.rs:793` — counter global ausente → `"0"`.
 - `rules/scopes.rs:89` — `exit()` sem `enter()` correspondente.
 - `rules/stdlib/loading.rs:292` — linha CSV com mais colunas do que cabeçalho.
 - `rules/stdlib/foundations.rs:752` — `counter_at(key, label)` com label/counter ausente.
@@ -457,7 +457,7 @@ Os 46 casos originalmente inofensivos mantêm-se; acrescentam-se 3 casos de `exp
 
 #### Confirmado (2)
 
-- `01_core/src/rules/layout/grid.rs:322` — `place_cells(cells, num_cols).unwrap_or_default()` descarta erro de grid inválida. **Confirmado**.
+- `01_core/src/engine/layout/grid.rs:322` — `place_cells(cells, num_cols).unwrap_or_default()` descarta erro de grid inválida. **Confirmado**.
 - `01_core/src/entities/ast/markup.rs:107` — escape unicode inválido em markup vira `\0` / literal. **Promovido a Confirmado** por `p633_invalid_unicode_escape_markup_preserved`.
 
 ---
@@ -472,7 +472,7 @@ Os 2 casos originalmente inofensivos mantêm-se; acrescenta-se `bindings.rs:118`
 
 - `03_infra/src/fonts.rs:206` — ficheiros ilegíveis ou inválidos ignorados intencionalmente durante descoberta.
 - `03_infra/src/shaper.rs:324` — fonte não parseável omitida da lista de candidatas.
-- `01_core/src/rules/eval/bindings.rs:118` — `counter.update(...)` com tipo não-inteiro. **Reclassificado para Inofensivo**: teste `p633_counter_update_string_rejeitado` prova que o caminho é inacessível por syntax pública.
+- `01_core/src/engine/eval/bindings.rs:118` — `counter.update(...)` com tipo não-inteiro. **Reclassificado para Inofensivo**: teste `p633_counter_update_string_rejeitado` prova que o caminho é inacessível por syntax pública.
 
 #### Suspeito (1)
 
@@ -480,11 +480,11 @@ Os 2 casos originalmente inofensivos mantêm-se; acrescenta-se `bindings.rs:118`
 
 #### Confirmado (5)
 
-- `01_core/src/rules/eval/from_tags.rs:64` — callback de `state.update(func)` cujo `apply_func` retorna `Err` é descartado. **Confirmado**.
-- `01_core/src/rules/eval/bindings.rs:141` — argumento posicional de `counter.display(pattern?)` não-Str ignorado. **Promovido a Confirmado** por `p633_counter_display_invalid_arg_silent`.
-- `01_core/src/rules/eval/bindings.rs:156` — argumento nomeado `at:` inválido em `counter.display` ignorado. **Promovido a Confirmado** por `p633_counter_display_at_invalid_silent`.
-- `01_core/src/rules/eval/bindings.rs:273` — equivalente a `bindings.rs:156` no despacho sobre `Value::Counter`. **Promovido a Confirmado**.
-- `01_core/src/rules/eval/bindings.rs:280` — equivalente a `bindings.rs:141` no despacho sobre `Value::Counter`. **Promovido a Confirmado**.
+- `01_core/src/engine/eval/from_tags.rs:64` — callback de `state.update(func)` cujo `apply_func` retorna `Err` é descartado. **Confirmado**.
+- `01_core/src/engine/eval/bindings.rs:141` — argumento posicional de `counter.display(pattern?)` não-Str ignorado. **Promovido a Confirmado** por `p633_counter_display_invalid_arg_silent`.
+- `01_core/src/engine/eval/bindings.rs:156` — argumento nomeado `at:` inválido em `counter.display` ignorado. **Promovido a Confirmado** por `p633_counter_display_at_invalid_silent`.
+- `01_core/src/engine/eval/bindings.rs:273` — equivalente a `bindings.rs:156` no despacho sobre `Value::Counter`. **Promovido a Confirmado**.
+- `01_core/src/engine/eval/bindings.rs:280` — equivalente a `bindings.rs:141` no despacho sobre `Value::Counter`. **Promovido a Confirmado**.
 
 ---
 
@@ -527,11 +527,11 @@ Os 2 casos originalmente inofensivos mantêm-se; acrescenta-se `bindings.rs:118`
 
 #### Confirmado (5)
 
-- `01_core/src/rules/eval/bibliography.rs:146` — `hay_entry_to_bib_entry` ignora silenciosamente entradas sem key/título.
-- `01_core/src/rules/layout/bib_csl.rs:214` — `bib_entry_to_hayagriva` omite entradas por YAML/chave ausente.
-- `01_core/src/rules/eval/rules.rs:706` — `value_to_eco_string` devolve `None` para tipos inválidos; `#set document(title: 123)` silencioso.
-- `01_core/src/rules/eval/rules.rs:746` — `extract_pt` devolve `None` para tipos inválidos; `#set page(width: "foo")` silencioso.
-- `01_core/src/rules/stdlib/layout.rs:161` — `parse_track_sizing` devolve `None` para tipos inválidos; `grid(columns: "foo")` vira `auto`.
+- `01_core/src/engine/eval/bibliography.rs:146` — `hay_entry_to_bib_entry` ignora silenciosamente entradas sem key/título.
+- `01_core/src/engine/layout/bib_csl.rs:214` — `bib_entry_to_hayagriva` omite entradas por YAML/chave ausente.
+- `01_core/src/engine/eval/rules.rs:706` — `value_to_eco_string` devolve `None` para tipos inválidos; `#set document(title: 123)` silencioso.
+- `01_core/src/engine/eval/rules.rs:746` — `extract_pt` devolve `None` para tipos inválidos; `#set page(width: "foo")` silencioso.
+- `01_core/src/engine/stdlib/layout.rs:161` — `parse_track_sizing` devolve `None` para tipos inválidos; `grid(columns: "foo")` vira `auto`.
 
 ---
 

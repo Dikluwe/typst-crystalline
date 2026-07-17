@@ -8,7 +8,7 @@
 >   medidos no P379) **dentro da própria fatia**.
 > - **Fatia Text — isolada**: o `Text` (`@635`, ~82 linhas) sozinho, **por ser grande, chain-pesado
 >   e caminho quente** (P379) — merece verificação própria, com **commit próprio**.
-> Forma **B** provada 33× (free function em `rules/layout/<elem>.rs`, módulo descendente). **Deixa
+> Forma **B** provada 33× (free function em `engine/layout/<elem>.rs`, módulo descendente). **Deixa
 > FORA, por medição (P379):** a **máquina do layouter** (Sequence/Styled/Dynamic/SetPage — não é
 > elemento, orquestra/reconfigura) e a **math** (fatia final, path próprio). **Após este passo, o
 > `layout_content` fica só máquina + math** — o "monólito fechado" no sentido correto (não 0 arms).
@@ -38,7 +38,7 @@ estado de fluxo), então a free function lê-o igual — **sem** precisar extrai
 
 ## Fatia Text — escopo (isolada)
 
-`Text` `@635` (~82 linhas) → `rules/layout/text.rs::layout`. Renderizador folha (P379): decodifica o
+`Text` `@635` (~82 linhas) → `engine/layout/text.rs::layout`. Renderizador folha (P379): decodifica o
 render do `#set text` da chain (canais `custom`), merge top-wins com `self.style`, itera
 `split_whitespace` → `layout_word`. **Não re-entra `layout_content`** (não orquestra). Caminho
 quente — verificação e **commit próprios**.
@@ -80,13 +80,13 @@ não-metas, e o inventário do que resta após o passo (só máquina + math). Si
 hashes para o dono aprovar. Nenhum arm movido antes.
 
 ### Estágio 1 — Fatia 2 (após aprovação) → **commit próprio**
-Mover os ~10 arms de refs/avulsos para `rules/layout/<elem>.rs` (forma B); arms magros; imports
+Mover os ~10 arms de refs/avulsos para `engine/layout/<elem>.rs` (forma B); arms magros; imports
 mortos removidos. Footnote/SmartQuote com o estado dedicado por descendência. Rodar os gates
 (suíte/rede/lint). **Commit:** `git commit -m "Passo 381 — atomização Fatia 2: refs/citações +
 avulsos"`.
 
 ### Estágio 2 — Fatia Text (após a Fatia 2 verde) → **commit próprio**
-Mover o `Text` para `rules/layout/text.rs` (forma B, folha). Rodar os gates — **com atenção ao
+Mover o `Text` para `engine/layout/text.rs` (forma B, folha). Rodar os gates — **com atenção ao
 caminho quente** (a rede de caracterização de estilo `f_caracterizacao_estilo::*` é o oráculo
 crítico aqui, pois o Text decodifica o render da chain). **Commit:** `git commit -m "Passo 381 —
 atomização Text (folha de render, isolada)"`.

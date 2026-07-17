@@ -5,7 +5,7 @@
 **Foco:** Nota de rodapé maior do que o espaço restante numa coluna  
 **Hash do commit de base:** `9b65181bf561e55cb1e55b2937e2d29ece96517c`  
 **Hash do commit de fecho:** `5d20ca87b50a37a46f7f5d41860c4082e511c0fc`  
-**Prompt L0:** `00_nucleo/prompts/rules/footnote_overflow_columns.md` (`Hash do Código: 3a8202e4`)
+**Prompt L0:** `00_nucleo/prompts/engine/footnote_overflow_columns.md` (`Hash do Código: 3a8202e4`)
 
 ---
 
@@ -55,18 +55,18 @@ O binário vanilla usado foi `lab/typst-original/target/release/typst` — o mes
 
 | Ficheiro | Alteração |
 |----------|-----------|
-| `01_core/src/rules/layout/cursor.rs` | Corrigido `flush_pending_footnote_bodies`: `top_safe` agora inclui `cursor_y` e o conteúdo da `current_line`; adicionado aviso quando `force_emit` é acionado. |
-| `01_core/src/rules/layout/mod.rs` | Adicionado campo `layout_warnings` ao `Layouter`; exportado no `PagedDocument` em `finish()`. |
+| `01_core/src/engine/layout/cursor.rs` | Corrigido `flush_pending_footnote_bodies`: `top_safe` agora inclui `cursor_y` e o conteúdo da `current_line`; adicionado aviso quando `force_emit` é acionado. |
+| `01_core/src/engine/layout/mod.rs` | Adicionado campo `layout_warnings` ao `Layouter`; exportado no `PagedDocument` em `finish()`. |
 | `01_core/src/entities/layout_types.rs` | Adicionado campo `layout_warnings: Vec<String>` a `PagedDocument`. |
 | `03_infra/src/pipeline.rs` | Propaga `doc.layout_warnings` para o `Sink` como `SourceDiagnostic::warning(Span::detached(), msg)`. |
-| `01_core/src/rules/layout/tests.rs` | Adicionados 3 testes de regressão/overflow para P595. |
+| `01_core/src/engine/layout/tests.rs` | Adicionados 3 testes de regressão/overflow para P595. |
 | `crystalline.toml` | Adicionada excepção de órfão para `00_nucleo/prompts/infra/pipeline.md` (L3), evitando falso positivo V7 após adicionar segundo `@prompt` ao `pipeline.rs`. |
-| `00_nucleo/prompts/rules/footnote_overflow_columns.md` | Prompt L0 redigido com a especificação da correção. |
+| `00_nucleo/prompts/engine/footnote_overflow_columns.md` | Prompt L0 redigido com a especificação da correção. |
 | `00_nucleo/diagnosticos/estado-disparidades-vanilla-p593.md` | Item movido de "scope-out" para "corrigido". |
 
 ### Ponto exacto de detecção de overflow
 
-- `01_core/src/rules/layout/cursor.rs:flush_pending_footnote_bodies`, linhas que calculam `top_safe` e `force_emit`.
+- `01_core/src/engine/layout/cursor.rs:flush_pending_footnote_bodies`, linhas que calculam `top_safe` e `force_emit`.
 
 ---
 

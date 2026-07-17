@@ -240,7 +240,7 @@ Tests (~2):
 ### C6 — Stdlib func `native_regex(pattern)` constructor +
 verificação final
 
-`01_core/src/rules/stdlib/foundations.rs`:
+`01_core/src/engine/stdlib/foundations.rs`:
 
 ```text
 pub fn native_regex(

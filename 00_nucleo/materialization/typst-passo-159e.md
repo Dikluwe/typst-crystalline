@@ -64,9 +64,9 @@ permanecem candidatos NÃO-reservados.
   fundamento para plaintext em layout (sem hyperlinks).
 - `01_core/src/entities/bib_entry.rs` — struct actual P159A+P159D
   com 8 fields (4 obrigatórios + 4 opcionais).
-- `01_core/src/rules/stdlib/structural.rs` — `extract_bib_entries`
+- `01_core/src/engine/stdlib/structural.rs` — `extract_bib_entries`
   helper actual (P159A+P159D extendido).
-- `01_core/src/rules/layout/mod.rs` — `format_bib_entry` helper
+- `01_core/src/engine/layout/mod.rs` — `format_bib_entry` helper
   privado P159D.
 - `lab/typst-original/crates/typst-library/src/model/bibliography.rs`
   + `hayagriva::Entry` (vanilla, quarentena) — referência para
@@ -246,7 +246,7 @@ ordem layout + formato:
 
 ### .3 Extender `extract_bib_entries`
 
-`01_core/src/rules/stdlib/structural.rs`:
+`01_core/src/engine/stdlib/structural.rs`:
 - Helper `optional_str(field)` reusado para `url` e `doi`.
 - Validação tipo `Value::Str`; outros tipos rejeitados com
   diagnóstico claro mencionando field específico.
@@ -255,7 +255,7 @@ ordem layout + formato:
 
 ### .4 Refinar layout `format_bib_entry`
 
-`01_core/src/rules/layout/mod.rs`:
+`01_core/src/engine/layout/mod.rs`:
 - Concatenação condicional para url e doi:
   - Se `url` presente: append `" {url}"` (formato decidido em .1).
   - Se `doi` presente: append `", doi:{doi}"` (formato decidido

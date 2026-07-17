@@ -115,7 +115,7 @@ Este passo **não**:
   (confirmar em 136.A).
 - `01_core/src/entities/style_chain.rs` — `From<&StyleChain>`
   estendido.
-- `01_core/src/rules/eval/tests.rs` — 3-5 testes novos de
+- `01_core/src/engine/eval/tests.rs` — 3-5 testes novos de
   propagação.
 - `00_nucleo/prompts/entities/text-style.md` (ou equivalente)
   + hash.
@@ -327,7 +327,7 @@ nada a fazer.
 
 ### 136.E — Testes novos
 
-**Ficheiro**: `01_core/src/rules/eval/tests.rs` (ou onde os
+**Ficheiro**: `01_core/src/engine/eval/tests.rs` (ou onde os
 outros testes de `From<&StyleChain>` vivem — confirmar em
 136.A.2).
 

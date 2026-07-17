@@ -15,7 +15,7 @@ A medição visual confirma que o tracking é aplicado em árabe e devanágari, 
 
 ### Por que no shaper, não no export
 
-- O layout reserva largura via `FontMetrics::text_width`, que adiciona `tracking × (n_chars − 1)` à largura base (`01_core/src/rules/layout/metrics.rs:91-104`).
+- O layout reserva largura via `FontMetrics::text_width`, que adiciona `tracking × (n_chars − 1)` à largura base (`01_core/src/engine/layout/metrics.rs:91-104`).
 - `fix_line_positions_page` (`03_infra/src/shaper.rs`) redistribui posições x dentro de cada linha usando a largura real dos runs (`width_real − width_est`).
 - Se o tracking só estiver no PDF (`Tc`), `width_real` não o inclui, e o layout RTL/LTR fica desalinhado face à largura reservada.
 - Solução: aumentar `x_advance` de cada glifo no shaper, para que `width_real` já inclua tracking.

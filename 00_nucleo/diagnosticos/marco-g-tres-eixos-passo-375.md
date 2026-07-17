@@ -47,7 +47,7 @@ Arms por match: `is_empty` 34 · `plain_text` 68 · `eq` 65 · `get_field` 4 · 
 |---|---|---|---|
 | Trait `DynElement` + blanket | **0 a criar** (já existem) | `dynamic.rs:45-124` | medido |
 | Arms `Dynamic` nas 6 matches do hub | **0 a criar** (já existem) | `content.rs:1612…2309` | medido |
-| **Match de layout** `layout_content` | **59 arms bespoke, 1857 linhas, SEM wildcard (exaustiva)** → **relocam** para tabela kind→handler ou método `Element::layout` | `rules/layout/mod.rs:527-2383` | medido |
+| **Match de layout** `layout_content` | **59 arms bespoke, 1857 linhas, SEM wildcard (exaustiva)** → **relocam** para tabela kind→handler ou método `Element::layout` | `engine/layout/mod.rs:527-2383` | medido |
 | Walk do introspect | **43 arms nativos** → relocam | `rules/introspect.rs:156-460` | medido |
 | Acoplamento `content→elements` | **68** (P374) — **persiste, relocado** para a tabela/trait que re-importa os 67 elementos | P374; `content.rs` 69 imports | medido |
 

@@ -42,10 +42,10 @@ output `[]` (count=0), confirmando paridade estrutural.
 
 | Camada | Ficheiro | O que já estava implementado |
 |--------|----------|------------------------------|
-| L1 | `01_core/src/rules/stdlib/color.rs` | `predefined_color_bindings()` com 9 entradas (`red`, `blue`, `green`, `black`, `white`, `yellow`, `cyan`, `magenta`, `none`) |
-| L1 | `01_core/src/rules/eval/mod.rs` | Injeção das cores no scope global (linha 288) e definição global de `text` (linha 292) |
-| L1 | `01_core/src/rules/eval/operators.rs` | Operadores `Length + Color` / `Color + Length` → `Value::Stroke` |
-| L1 | `01_core/src/rules/stdlib/text.rs` | `native_text` aceita `fill` posicional e nomeado |
+| L1 | `01_core/src/engine/stdlib/color.rs` | `predefined_color_bindings()` com 9 entradas (`red`, `blue`, `green`, `black`, `white`, `yellow`, `cyan`, `magenta`, `none`) |
+| L1 | `01_core/src/engine/eval/mod.rs` | Injeção das cores no scope global (linha 288) e definição global de `text` (linha 292) |
+| L1 | `01_core/src/engine/eval/operators.rs` | Operadores `Length + Color` / `Color + Length` → `Value::Stroke` |
+| L1 | `01_core/src/engine/stdlib/text.rs` | `native_text` aceita `fill` posicional e nomeado |
 
 Nenhuma alteração funcional foi necessária em P497.
 
@@ -55,13 +55,13 @@ Nenhuma alteração funcional foi necessária em P497.
 
 | Ficheiro L0 | Alteração |
 |---|---|
-| `00_nucleo/prompts/rules/stdlib/color.md` | Nova secção "Cores predefinidas (P492/P497)" com a tabela de atalhos e nota sobre `text` global |
-| `00_nucleo/prompts/rules/eval.md` | Nova secção "Scope global" descrevendo a construção do scope base: stdlib + cores + `text` + elementos de utilizador |
+| `00_nucleo/prompts/engine/stdlib/color.md` | Nova secção "Cores predefinidas (P492/P497)" com a tabela de atalhos e nota sobre `text` global |
+| `00_nucleo/prompts/engine/eval.md` | Nova secção "Scope global" descrevendo a construção do scope base: stdlib + cores + `text` + elementos de utilizador |
 
 ### Hashes L0 pós `--fix-hashes`
 
-- `01_core/src/rules/eval/*.rs` (incluindo `mod.rs`, `tests.rs`, `rules.rs`, etc.) → `62c93675`
-- `01_core/src/rules/stdlib/color.rs` → `64415bc3`
+- `01_core/src/engine/eval/*.rs` (incluindo `mod.rs`, `tests.rs`, `rules.rs`, etc.) → `62c93675`
+- `01_core/src/engine/stdlib/color.rs` → `64415bc3`
 
 ---
 
@@ -171,11 +171,11 @@ cargo test --test structural_parity p490_bateria_paridade_funcional_20_ficheiros
 
 | Camada | Ficheiro | Alteração |
 |--------|----------|-----------|
-| L0 | `00_nucleo/prompts/rules/stdlib/color.md` | Secção de cores predefinidas |
-| L0 | `00_nucleo/prompts/rules/eval.md` | Secção de scope global |
-| L1 | `01_core/src/rules/eval/*.rs` | Hash atualizado para `62c93675` |
-| L1 | `01_core/src/rules/stdlib/color.rs` | Hash atualizado para `64415bc3` |
-| L1 | `01_core/src/rules/eval/tests.rs` | Testes `p497_stroke_cores_predefinidas` e `p497_show_regex_text_color` |
+| L0 | `00_nucleo/prompts/engine/stdlib/color.md` | Secção de cores predefinidas |
+| L0 | `00_nucleo/prompts/engine/eval.md` | Secção de scope global |
+| L1 | `01_core/src/engine/eval/*.rs` | Hash atualizado para `62c93675` |
+| L1 | `01_core/src/engine/stdlib/color.rs` | Hash atualizado para `64415bc3` |
+| L1 | `01_core/src/engine/eval/tests.rs` | Testes `p497_stroke_cores_predefinidas` e `p497_show_regex_text_color` |
 | Lab | `lab/parity/tests/structural_parity.rs` | Sentinela `p497_variaveis_cor_predefinidas` |
 | Diagnóstico | `00_nucleo/diagnosticos/paridade-funcional-p497.md` | Este relatório |
 

@@ -132,7 +132,7 @@ Checks existentes:
   check_html_depth — AUSENTE (pipeline não existe no cristalino)
 
 Sítios candidatos para integração:
-  check_layout_depth → rules/layout/mod.rs:<linha> em layout_grid/page/...
+  check_layout_depth → engine/layout/mod.rs:<linha> em layout_grid/page/...
 
 Estado de check_call_depth vs EvalContext.enter_call:
   [análise]
@@ -167,7 +167,7 @@ Se forma A, sem ADR. 110.B skipado.
 Adicionar chamadas nos sítios identificados em 110.A. Exemplo:
 
 ```rust
-// rules/layout/mod.rs — no início de layout_grid
+// engine/layout/mod.rs — no início de layout_grid
 check_layout_depth(layout_depth, grid.span())?;
 layout_depth += 1;
 // ... resto da função
@@ -234,7 +234,7 @@ Para checks que eram "não aplicáveis no cristalino", **sem
 testes**. O DEBT é fechado por documentação.
 
 Se forma A sem novos tipos/métodos, os testes podem viver em
-`rules/layout/tests.rs` ou equivalente — onde a function vive.
+`engine/layout/tests.rs` ou equivalente — onde a function vive.
 
 Se forma B ou C, testes em `entities/route.rs` ou
 `entities/engine.rs` `#[cfg(test)]`.

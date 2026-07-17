@@ -77,20 +77,20 @@ persistentes após P494:
 
 | Camada | Ficheiro | Alteração |
 |--------|----------|-----------|
-| L0 | `00_nucleo/prompts/rules/stdlib/calc.md` | Especifica `calc.log(base:)` e `calc.round(digits:)` |
-| L0 | `00_nucleo/prompts/rules/stdlib/foundations.md` | Especifica `str(value, base:)` |
-| L0 | `00_nucleo/prompts/rules/stdlib/collections.md` | Especifica `dict.at(key, default:)` |
-| L1 | `01_core/src/rules/stdlib/calc.rs` | Comentários/linhagem P495; hash atualizado |
-| L1 | `01_core/src/rules/stdlib/foundations.rs` | Comentários/linhagem P495; hash atualizado |
-| L1 | `01_core/src/rules/stdlib/collections.rs` | Testes unitários `p495_dict_at_*` |
-| L1 | `01_core/src/rules/stdlib/mod.rs` | Testes unitários renomeados de `p491_*` para `p495_*` |
+| L0 | `00_nucleo/prompts/engine/stdlib/calc.md` | Especifica `calc.log(base:)` e `calc.round(digits:)` |
+| L0 | `00_nucleo/prompts/engine/stdlib/foundations.md` | Especifica `str(value, base:)` |
+| L0 | `00_nucleo/prompts/engine/stdlib/collections.md` | Especifica `dict.at(key, default:)` |
+| L1 | `01_core/src/engine/stdlib/calc.rs` | Comentários/linhagem P495; hash atualizado |
+| L1 | `01_core/src/engine/stdlib/foundations.rs` | Comentários/linhagem P495; hash atualizado |
+| L1 | `01_core/src/engine/stdlib/collections.rs` | Testes unitários `p495_dict_at_*` |
+| L1 | `01_core/src/engine/stdlib/mod.rs` | Testes unitários renomeados de `p491_*` para `p495_*` |
 | Lab | `lab/parity/tests/structural_parity.rs` | Sentinela renomeada para `p495_args_nomeados_lote_d2` |
 | Diagnóstico | `00_nucleo/diagnosticos/paridade-funcional-p495.md` | Este relatório |
 
 ### Hashes L0 (pós `--fix-hashes`)
 
-- `01_core/src/rules/stdlib/calc.rs` → `2b51efc0`
-- `01_core/src/rules/stdlib/foundations.rs` → `0f8ce14b`
+- `01_core/src/engine/stdlib/calc.rs` → `2b51efc0`
+- `01_core/src/engine/stdlib/foundations.rs` → `0f8ce14b`
 
 ---
 

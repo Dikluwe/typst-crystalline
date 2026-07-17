@@ -4,7 +4,7 @@
 **Passo:** `00_nucleo/materialization/typst-passo-729.md`
 **ADRs em vigor:** ADR-0107 (paridade é com a linguagem), ADR-0108 (medir antes de decidir), ADR-0114 (sonda antes da spec — mecanismo central de avaliação).
 **Commit:** `9cf87bf044c6823e0cbcd1df1e35e6fe3a5cb50b`
-**Proveniência das medições (regra de proveniência):** commit base `809983e5c1a80f4929e96f5b594a50cb70f39784` ("P728: preenche hash do commit no relatório"), working tree com as alterações deste passo (`git diff HEAD --stat`: `00_nucleo/prompts/rules/eval.md`, `00_nucleo/prompts/rules/eval/ops.md`, `01_core/src/rules/eval/control_flow.rs`, `01_core/src/rules/eval/tests.rs` + headers `@prompt-hash` retocados pelo `--fix-hashes` em `bibliography.rs`, `closures.rs`, `flow.rs`, `markup.rs`, `math.rs`, `mod.rs`, `modules.rs`, `operators.rs`, `rules.rs`). Medições vanilla: `lab/typst-original/target/release/typst`; medições cristalino: `./target/release/typst` (release build de 2026-07-13T20:55Z).
+**Proveniência das medições (regra de proveniência):** commit base `809983e5c1a80f4929e96f5b594a50cb70f39784` ("P728: preenche hash do commit no relatório"), working tree com as alterações deste passo (`git diff HEAD --stat`: `00_nucleo/prompts/engine/eval.md`, `00_nucleo/prompts/engine/eval/ops.md`, `01_core/src/engine/eval/control_flow.rs`, `01_core/src/engine/eval/tests.rs` + headers `@prompt-hash` retocados pelo `--fix-hashes` em `bibliography.rs`, `closures.rs`, `flow.rs`, `markup.rs`, `math.rs`, `mod.rs`, `modules.rs`, `operators.rs`, `rules.rs`). Medições vanilla: `lab/typst-original/target/release/typst`; medições cristalino: `./target/release/typst` (release build de 2026-07-13T20:55Z).
 
 ---
 
@@ -37,7 +37,7 @@ Os cinco outputs são `(1, 2)` — o join aplica-se a **todos** os corpos.
 
 - `while`: vanilla `typst-eval/src/flow.rs:69,86` — `let mut output = Value::None;` + `output = ops::join(output, value).at(body.span())?` por iteração, **antes** do match de flow. Cristalino: `control_flow.rs:62` avaliava o corpo e descartava o valor (`eval_expr(...)?;`).
 - `for`: vanilla `typst-eval/src/flow.rs:120,132` — mesmo padrão. Cristalino: `run_for_loop` (`control_flow.rs:122-175`) aceitava só `Content`/`Str`/`None` no corpo (acumulava em `parts: Vec<Content>` + `Content::sequence`) e **errava** para qualquer outro tipo.
-- Auditoria por grep (`fn eval_if|eval_for|eval_while|eval_closure|last = |output = ` em `01_core/src/rules/eval/*.rs`): os restantes `output =` são destructuring em `bindings.rs` (mecanismo distinto) e o CodeBlock de P728. Não há mais implementações separadas do padrão.
+- Auditoria por grep (`fn eval_if|eval_for|eval_while|eval_closure|last = |output = ` em `01_core/src/engine/eval/*.rs`): os restantes `output =` são destructuring em `bindings.rs` (mecanismo distinto) e o CodeBlock de P728. Não há mais implementações separadas do padrão.
 
 ### Critério de fecho da sonda
 
@@ -47,13 +47,13 @@ Os cinco outputs são `(1, 2)` — o join aplica-se a **todos** os corpos.
 
 ## L0 (Prompt)
 
-- `00_nucleo/prompts/rules/eval.md` — entradas `Expr::WhileLoop`/`Expr::ForLoop` reescritas: o valor do corpo de cada iteração acumula com `operators::join` entre iterações (paridade `flow.rs:69,86` e `:120,132`), substituindo a spec antiga ("concatena Content/Str numa sequence").
-- `00_nucleo/prompts/rules/eval/ops.md` — nova sub-secção "P729 — `join` também entre iterações de `for`/`while`" na secção P728 (o mecanismo de join é o mesmo; só mudam os consumidores), critérios de verificação P729, linha de histórico.
+- `00_nucleo/prompts/engine/eval.md` — entradas `Expr::WhileLoop`/`Expr::ForLoop` reescritas: o valor do corpo de cada iteração acumula com `operators::join` entre iterações (paridade `flow.rs:69,86` e `:120,132`), substituindo a spec antiga ("concatena Content/Str numa sequence").
+- `00_nucleo/prompts/engine/eval/ops.md` — nova sub-secção "P729 — `join` também entre iterações de `for`/`while`" na secção P728 (o mecanismo de join é o mesmo; só mudam os consumidores), critérios de verificação P729, linha de histórico.
 - `crystalline-lint --fix-hashes .` → headers actualizados; `crystalline-lint .` → **0 violations**.
 
 ## Implementação
 
-`01_core/src/rules/eval/control_flow.rs`:
+`01_core/src/engine/eval/control_flow.rs`:
 
 1. `eval_while` — `let mut output = Value::None` antes do ciclo; por iteração `output = operators::join(output, value)?` (span do corpo no erro, paridade `.at(body.span())`); `Ok(output)` no fim (antes: `Ok(Value::None)`).
 2. `run_for_loop` — o acumulador `parts: Vec<Content>` + match restritivo (Content/Str/None, resto erro "corpo do for deve ser content") substituído pelo mesmo padrão de join. O erro antigo desaparece: qualquer tipo junta-se pela tabela de P728; combinações inválidas erram "cannot join X with Y" (paridade).

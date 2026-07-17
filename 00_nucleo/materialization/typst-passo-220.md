@@ -170,7 +170,7 @@ Cobertura paridade `Pagebreak` (P156E) literal:
 - `materialize_time` — no-op (sem children; preserva).
 - `walk` — no-op (sem children; sem tag).
 
-**`rules/layout/mod.rs::layout_content`** (1 arm — Opção
+**`engine/layout/mod.rs::layout_content`** (1 arm — Opção
 β downgrade):
 
 ```rust
@@ -185,7 +185,7 @@ Content::Colbreak { weak: _ } => {
 }
 ```
 
-**`rules/layout/mod.rs::measure_content_constrained`** (1
+**`engine/layout/mod.rs::measure_content_constrained`** (1
 arm — paridade Pagebreak measure):
 - Retorna `(0.0, 0.0)` ou paridade Pagebreak (no-op em
   measure context).
@@ -201,7 +201,7 @@ Helpers de construção:
 
 ### C4 — `native_colbreak` em stdlib
 
-Adicionar em `01_core/src/rules/stdlib/layout.rs` após
+Adicionar em `01_core/src/engine/stdlib/layout.rs` após
 `native_columns` (paridade ordem ADR-0061 Fase 3 sub-passos
 3→4):
 
@@ -254,7 +254,7 @@ pub fn native_colbreak(
 
 **Re-export** em `stdlib/mod.rs`:
 ```rust
-pub use crate::rules::stdlib::layout::{
+pub use crate::engine::stdlib::layout::{
     ..., native_colbreak, native_columns, ...
 };
 ```
@@ -458,16 +458,16 @@ Estrutura (~6-8 KB) com 8 §s:
 Código alterado:
 - **Editado**: `01_core/src/entities/content.rs` (+ variant
   `Colbreak` + 5 arms + 5 unit tests).
-- **Editado**: `01_core/src/rules/introspect.rs` (+ 2 arms).
-- **Editado**: `01_core/src/rules/introspect/locatable.rs`
+- **Editado**: `01_core/src/engine/introspect.rs` (+ 2 arms).
+- **Editado**: `01_core/src/engine/introspect/locatable.rs`
   (catch-all preserva; +1 arm explicit possível).
-- **Editado**: `01_core/src/rules/layout/mod.rs` (+ 1 arm
+- **Editado**: `01_core/src/engine/layout/mod.rs` (+ 1 arm
   layout_content downgrade + 1 arm measure_content_constrained).
-- **Editado**: `01_core/src/rules/stdlib/layout.rs`
+- **Editado**: `01_core/src/engine/stdlib/layout.rs`
   (`native_colbreak` + 6 unit tests).
-- **Editado**: `01_core/src/rules/stdlib/mod.rs` (re-export).
-- **Editado**: `01_core/src/rules/eval/mod.rs` (scope register).
-- **Editado**: `01_core/src/rules/layout/tests.rs` (+ 4 E2E
+- **Editado**: `01_core/src/engine/stdlib/mod.rs` (re-export).
+- **Editado**: `01_core/src/engine/eval/mod.rs` (scope register).
+- **Editado**: `01_core/src/engine/layout/tests.rs` (+ 4 E2E
   tests).
 - **Editado**: `00_nucleo/diagnosticos/typst-cobertura-vanilla-vs-cristalino.md`
   (§A.5 reclassificação + footnote 41).

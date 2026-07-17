@@ -52,7 +52,7 @@ Reuso de dados toda a trajectória M9c:
 Localizar literalmente:
 
 - Stdlib func `native_outline` em
-  `01_core/src/rules/stdlib/`. Esperado: pre-M5 ou P200
+  `01_core/src/engine/stdlib/`. Esperado: pre-M5 ou P200
   série.
 - Assinatura actual: args aceites; default behavior.
 - Show-rule ou eval-time? `outline()` em `.typ` source

@@ -27,17 +27,17 @@
 
 ## ADR-0107 — Paridade linguagem
 
-Contrato documental: cada função nativa em `foundations.rs` deve ter seu contrato L0 (assinatura, argumentos posicionais/nomeados, semântica, paridade vanilla, limitações graded, testes canônicos) em `00_nucleo/prompts/rules/stdlib/foundations.md`.
+Contrato documental: cada função nativa em `foundations.rs` deve ter seu contrato L0 (assinatura, argumentos posicionais/nomeados, semântica, paridade vanilla, limitações graded, testes canônicos) em `00_nucleo/prompts/engine/stdlib/foundations.md`.
 
 ---
 
 ## ADR-0109 — Atomização forma B
 
 **Toques pontuais:**
-1. Criar `00_nucleo/prompts/rules/stdlib/foundations.md` com ~30 secções (1 por função / grupo lógico).
+1. Criar `00_nucleo/prompts/engine/stdlib/foundations.md` com ~30 secções (1 por função / grupo lógico).
 2. Cada secção: assinatura, args, semântica, paridade vanilla, limitações, testes canônicos.
 3. Atualizar `rules/stdlib/_comum.md` — remover `foundations.rs` da lista; adicionar nota de fecho completo DEBT-57.
-4. Atualizar cabeçalho `@prompt` de `01_core/src/rules/stdlib/foundations.rs` para apontar `foundations.md`.
+4. Atualizar cabeçalho `@prompt` de `01_core/src/engine/stdlib/foundations.rs` para apontar `foundations.md`.
 5. `DEBT.md` atualizado: **DEBT-57 reclassificado como FECHADO (P438)**.
 
 ---
@@ -53,7 +53,7 @@ Contrato documental: cada função nativa em `foundations.rs` deve ter seu contr
 
 ## Critério de fecho
 
-- [ ] `00_nucleo/prompts/rules/stdlib/foundations.md` criado com ~30 secções.
+- [ ] `00_nucleo/prompts/engine/stdlib/foundations.md` criado com ~30 secções.
 - [ ] Cada função documenta: assinatura, args, semântica, paridade vanilla, limitações, testes canônicos.
 - [ ] `_comum.md` actualizado (foundations.rs removido; nota de fecho completo DEBT-57).
 - [ ] `foundations.rs` cabeçalho `@prompt` aponta `foundations.md`.

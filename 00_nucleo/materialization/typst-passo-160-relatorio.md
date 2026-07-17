@@ -27,7 +27,7 @@ com 6 secções:
   0054 (graded), 0065 critério #5.
 
 ### §2 Inventário código actual
-- `01_core/src/rules/introspect.rs`: **1108 linhas**.
+- `01_core/src/engine/introspect.rs`: **1108 linhas**.
 - `01_core/src/entities/counter_state.rs`: **333 linhas**.
 - 14 fields públicos em `CounterState` cumulativos (numbering_active,
   resolved_labels, headings_for_toc, label_pages, has_outline,

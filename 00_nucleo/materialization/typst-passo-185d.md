@@ -27,7 +27,7 @@ gating no topo de `layout_content` via helper
 
 **Restrições**:
 - **Não** modificar código de produção em
-  `01_core/src/rules/`, `01_core/src/entities/`,
+  `01_core/src/engine/`, `01_core/src/entities/`,
   `02_shell/`, `03_infra/`, `04_wiring/`.
 - **Não** modificar walk de introspect.
 - **Não** modificar Layouter, trait `Introspector`,
@@ -43,7 +43,7 @@ gating no topo de `layout_content` via helper
 ### .A Auditoria de tests existentes + plano de instrumentação
 
 1. Inventariar tests existentes que cobrem o caminho:
-   - `grep -rn "current_location\|Locator" 01_core/src/rules/layout/`.
+   - `grep -rn "current_location\|Locator" 01_core/src/engine/layout/`.
    - Tests de P185B em `mod tests` de `introspector.rs`
      cobrem `is_numbering_active_at` / `flat_counter_at`
      em isolation. P185D estende para pipeline.

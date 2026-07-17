@@ -54,7 +54,7 @@ Decisão de aceitar aproximação na Fase A (ou rejeitar e diferir P273.7 inteir
 
 ### §A.1 — Inventário do arm `Content::Boxed` no Layouter
 
-Listar literal em `01_core/src/rules/layout/mod.rs`:
+Listar literal em `01_core/src/engine/layout/mod.rs`:
 
 - Linha exacta do arm `Content::Boxed`.
 - Estrutura actual: inset.left avance cursor.x → layout_content body → inset.right avance cursor.x.
@@ -209,7 +209,7 @@ contexto inline; refino topo-exacto requer refactor line_height
 ### Alterações esperadas no código
 
 ```rust
-// L1 — rules/layout/mod.rs arm Content::Boxed
+// L1 — engine/layout/mod.rs arm Content::Boxed
 
 Content::Boxed { body, width, height, inset, baseline } => {
     // ... (inset.left existente) ...

@@ -326,7 +326,7 @@ demorou P185 inteiro (4 sub-passos).
 
 **P187B** — migração consumer C1:
 
-- Editar `01_core/src/rules/layout/mod.rs:345`:
+- Editar `01_core/src/engine/layout/mod.rs:345`:
   ```rust
   if let Some(num_str) = self.current_location
       .and_then(|loc| self.introspector.formatted_counter_at("heading", loc))
@@ -336,7 +336,7 @@ demorou P185 inteiro (4 sub-passos).
       self.layout_content(&prefix);
   }
   ```
-- Actualizar L0 `00_nucleo/prompts/rules/layout.md`:
+- Actualizar L0 `00_nucleo/prompts/engine/layout.md`:
   secção sobre heading prefix; padrão P184D substitution-with-fallback.
 - Tests E2E paridade:
   - `c1_heading_prefix_via_introspector_path` (state

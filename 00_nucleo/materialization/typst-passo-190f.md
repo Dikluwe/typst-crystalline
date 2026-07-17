@@ -96,7 +96,7 @@ documentados.
 #### Inventário helpers actuais
 
 1. Confirmar `compute_labelled` em
-   `01_core/src/rules/introspect.rs`:
+   `01_core/src/engine/introspect.rs`:
    - Localização: linha aproximada (per P195D).
    - Signature: `fn compute_labelled(state: &CounterStateLegacy, ...)`.
    - Reads de state legacy: identificar todos
@@ -167,7 +167,7 @@ documentados.
 #### Inventário Layouter assignments duais
 
 10. `grep -rn "numbering_active\s*=\|flat\s*=\|hierarchical\s*=\|lang\s*="
-    01_core/src/rules/layout/mod.rs`.
+    01_core/src/engine/layout/mod.rs`.
 
 #### Tests dependentes
 
@@ -197,7 +197,7 @@ documentados.
     - `rules/introspect.md` (helpers migrados +
       walk arm Equation purificado + walk arms
       SetHeading/SetEquation purificados).
-    - `rules/layout/*.md` se aplicável.
+    - `engine/layout/*.md` se aplicável.
 
 Output: tabela com item + estado verificado.
 

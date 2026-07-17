@@ -75,7 +75,7 @@ pub struct MathElem {
 
 **Decisão:** Não adicionar `native_equation` com parâmetro `numbering`. Em vez disso, o eval verifica a `StyleChain` por `math.equation.numbering` (chave custom) ao processar `Content::Math`. Isto é coerente com P365 (padrão na chain) e P454 (figure numbering na chain).
 
-### 4. Layout de equation com número lateral (`rules/layout/math.rs` ou `rules/layout/mod.rs`)
+### 4. Layout de equation com número lateral (`engine/layout/math.rs` ou `engine/layout/mod.rs`)
 
 - Ao encontrar `Content::Math` com `block: true` e `math.equation.numbering = Some(pattern)`:
   1. Eval (ou layout) computa número via `CounterRegistry` (chave `"equation"`).
@@ -111,8 +111,8 @@ Mesmo subset de P451/P454:
 ### 7. Spec L0
 
 - `00_nucleo/prompts/entities/math.md` — `MathElem` (sem campo `numbering`; padrão na chain).
-- `00_nucleo/prompts/rules/layout/math.md` — equation block com número lateral.
-- `00_nucleo/prompts/rules/eval/math.md` — leitura de `math.equation.numbering` da chain.
+- `00_nucleo/prompts/engine/layout/math.md` — equation block com número lateral.
+- `00_nucleo/prompts/engine/eval/math.md` — leitura de `math.equation.numbering` da chain.
 
 ---
 

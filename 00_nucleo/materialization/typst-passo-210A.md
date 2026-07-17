@@ -55,7 +55,7 @@ Reuso de dados toda a trajectória M9c:
 Localizar literalmente:
 
 - Stdlib funcs counter-relacionadas em
-  `01_core/src/rules/stdlib/`.
+  `01_core/src/engine/stdlib/`.
 - `CounterRegistry` sub-store (per P207A A4 lista de 9
   sub-stores).
 - Pattern actual de invocação de counter em `.typ`

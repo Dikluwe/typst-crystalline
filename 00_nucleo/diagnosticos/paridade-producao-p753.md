@@ -77,7 +77,7 @@ Confirmada no código vanilla (`lab/typst-original/crates/typst-library/src/text
 4. **Fonte por defeito `Libertinus Serif`**
    - `01_core/src/entities/style_chain.rs` — alterado o default de
      `Liberation Serif` para `Libertinus Serif`.
-   - Comentários actualizados em `01_core/src/rules/layout/text.rs` e
+   - Comentários actualizados em `01_core/src/engine/layout/text.rs` e
      `03_infra/src/shaper.rs`.
 
 5. **Dependências**
@@ -97,7 +97,7 @@ Confirmada no código vanilla (`lab/typst-original/crates/typst-library/src/text
 Cargo.toml
 03_infra/Cargo.toml
 01_core/src/entities/style_chain.rs
-01_core/src/rules/layout/text.rs
+01_core/src/engine/layout/text.rs
 03_infra/src/fonts.rs
 03_infra/src/lib.rs
 03_infra/src/shaper.rs

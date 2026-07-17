@@ -149,7 +149,7 @@ exterior não vê chain interior).
 ## §4 Refactor Sequence consumer cross-arm (C3)
 
 ```rust
-// 01_core/src/rules/layout/mod.rs (Sequence arm; ≈ linha 478)
+// 01_core/src/engine/layout/mod.rs (Sequence arm; ≈ linha 478)
 Content::Sequence(parts) => {
     let saved_below = self.prev_block_below_pending;
     let saved_chain = self.block_chain_active;

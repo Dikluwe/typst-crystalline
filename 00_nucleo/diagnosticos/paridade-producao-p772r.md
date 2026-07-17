@@ -66,7 +66,7 @@ equivalentes do cristalino.
 
 ### L0 actualizado antes do código
 
-`00_nucleo/prompts/rules/eval.md`: a nota que documentava a ausência de
+`00_nucleo/prompts/engine/eval.md`: a nota que documentava a ausência de
 hint como comportamento aceite (linha ~1191, ligada a P715) foi
 substituída por uma referência à nova disciplina (`captured_by` →
 `is_constant` → `unknown_variable` com hint, P772q/P772n/P772r). Nova
@@ -76,15 +76,15 @@ verificação.
 ### Código
 
 `unknown_variable(span, name) -> SourceDiagnostic` (novo, `pub(super)`,
-`01_core/src/rules/eval/bindings.rs`, ao lado de `missing_key` que já
+`01_core/src/engine/eval/bindings.rs`, ao lado de `missing_key` que já
 usava `SourceDiagnostic::with_hint` — mesmo padrão reaproveitado, sem
 infra-estrutura nova). Chamado nos dois pontos onde o cristalino já
 construía `"unknown variable: {name}"` directamente:
 
-- `eval_expr`, `Expr::Ident` (`01_core/src/rules/eval/mod.rs`) — leitura.
+- `eval_expr`, `Expr::Ident` (`01_core/src/engine/eval/mod.rs`) — leitura.
   Passou a chamar `bindings::unknown_variable(ident.span(), name)`.
 - `access()`, `Expr::Ident`, braço final (após `captured_by` de P772q e
-  `is_constant` de P772n) (`01_core/src/rules/eval/bindings.rs`) —
+  `is_constant` de P772n) (`01_core/src/engine/eval/bindings.rs`) —
   mutação. O braço, que antes construía uma `String` de mensagem para
   os três casos (`captured`/`constant`/`unknown`) e só depois envolvia
   num único `SourceDiagnostic::error(...)`, foi reestruturado para
@@ -95,7 +95,7 @@ construía `"unknown variable: {name}"` directamente:
 
 `p772r_hint_subtracao_um_hifen`, `p772r_hint_subtracao_hifens_multiplos_
 plural`, `p772r_sem_hifen_sem_hint`, `p772r_hint_tambem_no_caminho_de_
-mutacao` (`01_core/src/rules/eval/tests.rs`) — os quatro casos medidos
+mutacao` (`01_core/src/engine/eval/tests.rs`) — os quatro casos medidos
 contra o vanilla, incluindo a confirmação de que o caminho de mutação
 (`#{ foo-bar = 1 }`) usa o mesmo helper e produz o mesmo hint.
 

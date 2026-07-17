@@ -45,7 +45,7 @@ audit-only refinou a 5 bloqueadores empíricamente. Audit P239
 revelou **achado material**: hipótese P238 reescrito
 "`Func::call` não existe" precisa refino — `apply_state_funcs`
 JÁ avalia `StateUpdate::Func` em fixpoint loop pós-walk
-(`01_core/src/rules/introspect/from_tags.rs:48`). O blocker
+(`01_core/src/engine/introspect/from_tags.rs:48`). O blocker
 real é **layout-time Engine+ctx indisponíveis**, não
 walk-time Func dispatch.
 
@@ -340,7 +340,7 @@ inaugurado P238 reescrito (N=1 → 2 cumulativo).
   `rules/eval/mod.rs:618` + re-export em `rules/stdlib/mod.rs`.
   Stdlib funcs: 62 → **63** (+state_display).
 - **Walk integration layout-time arm `Content::StateDisplay`**
-  em `rules/layout/mod.rs:355+` — consome via
+  em `engine/layout/mod.rs:355+` — consome via
   `Introspector::state_display_value`; Layouter permanece puro
   (sem Engine+ctx em signature).
 - **`extract_payload` arm StateDisplay** em
@@ -732,7 +732,7 @@ parcial 3/5 + spec P243):
   - `pub last: Option<Region>` field novo (fase (b) populated).
   - `pub fn advance(&mut self) -> Option<Region>` method novo.
 - **Promoção real ≥3 scope-outs** via `regions.current.width`
-  save/restore em `01_core/src/rules/layout/mod.rs`:
+  save/restore em `01_core/src/engine/layout/mod.rs`:
   - `Pad.right` scope-out P156C → semantic real P243 (`regions.current.width -= right` durante body).
   - `Block.width` semantic adiada P156G → semantic real P243
     (`regions.current.width = (line_start + w_pt)` durante body).
@@ -960,7 +960,7 @@ estrutural.
 
 **P245 materializa M7+4 Place float real**:
 
-- **Novo struct `DeferredFloat`** em `01_core/src/rules/layout/mod.rs`
+- **Novo struct `DeferredFloat`** em `01_core/src/engine/layout/mod.rs`
   (`pub(super)`; não-L1 entity — local ao Layouter):
   - `alignment: Align2D`, `body_items: Vec<FrameItem>`,
     `body_height: f64`, `body_width: f64`, `clearance: f64`.

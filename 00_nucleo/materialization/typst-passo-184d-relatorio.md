@@ -17,7 +17,7 @@ primeiro, com fallback `or_else` ao legacy `state.figure_numbers` e
 (P168/P181G/P182D) replicado com camada heurística adicional preservada
 do código pré-existente.
 
-L0 `rules/layout.md` actualizado com nova secção "Figure-arm consome
+L0 `engine/layout.md` actualizado com nova secção "Figure-arm consome
 Introspector (P184D)" simétrica às secções P181G e P182D.
 
 **Achado P184A §3.6 ratificado**: o legacy `state.figure_numbers` é
@@ -39,7 +39,7 @@ bloqueio P183D.
 
 | Sub-passo | Estado | Notas |
 |-----------|--------|-------|
-| `.A` Auditoria L0 | ✅ | C3 confirmado em `mod.rs:435-439`; `kind_key = .unwrap_or("image")` (linha 431); `idx` 0-indexed em ambos paths (`Vec::get` e `value_at_index` via `history.get(key)?.get(idx)`); `self.introspector` acessível com trait import local (P181G/P182D); L0 `rules/layout.md` tem secções dedicadas por migração — adicionar nova. |
+| `.A` Auditoria L0 | ✅ | C3 confirmado em `mod.rs:435-439`; `kind_key = .unwrap_or("image")` (linha 431); `idx` 0-indexed em ambos paths (`Vec::get` e `value_at_index` via `history.get(key)?.get(idx)`); `self.introspector` acessível com trait import local (P181G/P182D); L0 `engine/layout.md` tem secções dedicadas por migração — adicionar nova. |
 | `.B` Actualizar L0 | ✅ | Nova secção "Figure-arm consome Introspector (P184D)" após P182D em `layout.md`. Documenta convenção, idx 0-indexed, comportamento por path, paridade output. |
 | `.C` Migrar consumer | ✅ | `mod.rs:435–439` substituído por `self.introspector.figure_number_at_index(kind_key, idx).or_else(|| ...legacy...).unwrap_or(idx + 1)`. Trait import local `use crate::entities::introspector::Introspector;` adicionado dentro do arm. |
 | `.D` Regressão | ✅ | `cargo test --workspace` 1.504 + 215 + 24 + 21 = **1.764 verdes** (Δ vs P184C baseline 1.764: **0**). Sem regressão. |
@@ -52,7 +52,7 @@ bloqueio P183D.
 
 1. ✅ `cargo check --workspace` passa (warnings pré-existentes não relacionados).
 2. ✅ `cargo test --workspace` passa: **1.764 verdes** (Δ vs P184C baseline 1.764: **0**).
-3. ✅ `crystalline-lint .` zero violations (após `--fix-hashes` para 9 ficheiros do módulo `rules/layout/`).
+3. ✅ `crystalline-lint .` zero violations (após `--fix-hashes` para 9 ficheiros do módulo `engine/layout/`).
 4. ✅ Consumer C3 (`mod.rs:435–439`) consulta `self.introspector.figure_number_at_index(kind_key, idx)` primeiro; fallback legacy `or_else` + `unwrap_or(idx + 1)`.
 5. ✅ Walk arm canonical legacy (`introspect.rs:391–399`) **NÃO modificado**.
 6. ✅ Write paralelo legacy (`from_tags.rs` global `"figure"`) **NÃO modificado** (P184B preservou).
@@ -66,8 +66,8 @@ bloqueio P183D.
 
 ## §4 Hashes finais L0 modificado
 
-- `00_nucleo/prompts/rules/layout.md`: Hash do Código `647047a9` (anterior `59811524`).
-- 9 ficheiros em `01_core/src/rules/layout/` actualizados via `--fix-hashes` para `@prompt-hash: 4c94a7c0`:
+- `00_nucleo/prompts/engine/layout.md`: Hash do Código `647047a9` (anterior `59811524`).
+- 9 ficheiros em `01_core/src/engine/layout/` actualizados via `--fix-hashes` para `@prompt-hash: 4c94a7c0`:
   - `mod.rs`, `cursor.rs`, `equation.rs`, `grid.rs`, `helpers.rs`, `hyphenation.rs`, `metrics.rs`, `placement.rs`, `tests.rs`.
 
 Sincronização automática via `crystalline-lint --fix-hashes .`.

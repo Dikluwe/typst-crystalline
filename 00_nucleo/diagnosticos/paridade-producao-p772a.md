@@ -48,7 +48,7 @@ awk -F'\t' '$1=="lacuna-inventario"' 00_nucleo/diagnosticos/lente-lista-B-2026-0
 
 | Item | Tipo | Classificação | Justificação |
 |------|------|---------------|--------------|
-| `ArtifactElem` | Elemento | Scope-out documentado | Implementado em `01_core/src/rules/stdlib/pdf.rs` como passthrough do `body`. A marcação de artefacto na tag tree PDF requer tagged PDF, que o exportador cristalino não suporta. L0 `stdlib/pdf.md` registou este scope-out em P735. |
+| `ArtifactElem` | Elemento | Scope-out documentado | Implementado em `01_core/src/engine/stdlib/pdf.rs` como passthrough do `body`. A marcação de artefacto na tag tree PDF requer tagged PDF, que o exportador cristalino não suporta. L0 `stdlib/pdf.md` registou este scope-out em P735. |
 | `ArtifactKind` | Enum | Scope-out documentado | Tipo auxiliar de `ArtifactElem`; sem tagged PDF, não tem efeito observável no cristalino. |
 | `table_summary#1` | Função | Infra-estrutura / feature flag | No vanilla está gated em `Feature::A11yExtras`, off por omissão. Não está presente no binário de referência medido. Confirmado com teste: `#pdf.table.summary(...)` dá erro `module pdf does not contain table` no vanilla 0.15.0 padrão. |
 | `table_summary#2` | Função | Infra-estrutura / feature flag | Mesmo que acima. |

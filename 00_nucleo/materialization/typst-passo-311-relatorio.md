@@ -96,7 +96,7 @@ de "outer força este variant" (Some; ex. `serif(bb(x))` força Plain).
 ### P311b.3 — 12 funções stdlib
 
 **Output**:
-- L1 novo `01_core/src/rules/stdlib/math_style.rs` (~120 linhas).
+- L1 novo `01_core/src/engine/stdlib/math_style.rs` (~120 linhas).
 - Helper único `wrap_math_style` elimina ~10× duplicação.
 - 12 funções: `native_bb/bold/cal/frak/math_italic/mono/sans/scr/
   script/serif/sscript/upright`.
@@ -139,7 +139,7 @@ como sugeria diagnóstico §3.5. Tests p311b4 + p311b5 confirmam.
   - `style_orthogonal_flags.typ` — `bold(italic(x))` + `bold(bb(x))`.
   - `style_size.typ` — `script(x)` + `sscript(x)` +
     `script(sscript(x))`.
-- 6 tests E2E em `01_core/src/rules/math/layout/tests.rs` que
+- 6 tests E2E em `01_core/src/engine/math/layout/tests.rs` que
   verificam codepoints Unicode variant emitidos no FrameItem::Text
   via `MathLayouter::layout_equation`.
 

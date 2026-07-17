@@ -75,13 +75,13 @@ qualifica para F (Fechar) ou A (Actualizar).
 #### DEBT-33 (M)
 
 - `ShapeKind::Path` ainda usa min/max dos pontos de controlo (grep em
-  `01_core/src/rules/layout/` confirma ausência de cálculo analítico
+  `01_core/src/engine/layout/` confirma ausência de cálculo analítico
   Bezier).
 - Texto correcto.
 
 #### DEBT-34d (M)
 
-- Auto greedy continua — grep em `rules/layout/grid.rs` mostra
+- Auto greedy continua — grep em `engine/layout/grid.rs` mostra
   `let safe = (available_width - total_fixed_w).max(0.0);` passado a
   Auto measure. Sem negociação min-content/max-content.
 - Texto correcto.
@@ -103,7 +103,7 @@ qualifica para F (Fechar) ou A (Actualizar).
 
 #### DEBT-42 (M)
 
-- `grep -c "get_unchecked" 01_core/src/rules/lexer/scanner.rs` = 7
+- `grep -c "get_unchecked" 01_core/src/engine/lexer/scanner.rs` = 7
   ocorrências (confirmado).
 - Bloqueio (infra benchmark) permanece.
 
@@ -162,8 +162,8 @@ entities/counter_state.rs:27  /// DEBT-10: Resolver contadores em duas passagens
 entities/content.rs:171       /// DEBT-10: substituir por StyleChain quando o motor de introspecção...
 entities/content.rs:178       /// DEBT-10: single-pass não suporta referências para a frente.
 entities/content.rs:255       rows: Vec<TrackSizing>, // DEBT-34b: ignorado — todas as linhas são Auto
-rules/layout/mod.rs:507       // DEBT-35b: se available_width() vier a ter cache, invalidar aqui.
-rules/layout/mod.rs:531       // DEBT-28 encerrado: intrinsic_width/height vêm de calculate_dimensions.
+engine/layout/mod.rs:507       // DEBT-35b: se available_width() vier a ter cache, invalidar aqui.
+engine/layout/mod.rs:531       // DEBT-28 encerrado: intrinsic_width/height vêm de calculate_dimensions.
 rules/eval/tests.rs:1964      // DEBT-19 encerrado: heading dentro de sequence deve ser intercetado.
 rules/eval/tests.rs:2007      // DEBT-20 encerrado: a regra transforma heading em heading.
 rules/eval/tests.rs:2051      // DEBT-23: com múltiplas regras NodeKind, map_content é chamado uma vez.

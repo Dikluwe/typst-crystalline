@@ -78,8 +78,8 @@ Número: o seguinte ao A.1. Conteúdo mínimo:
 
 ### A.3 — Os prompts L0 finos (a partição, sem spec nova)
 
-Alvos medidos (§2.1 do 313): `00_nucleo/prompts/rules/stdlib.md` (linhagem de
-~10 ficheiros `stdlib/*.rs`) e `00_nucleo/prompts/rules/math/layout.md`
+Alvos medidos (§2.1 do 313): `00_nucleo/prompts/engine/stdlib.md` (linhagem de
+~10 ficheiros `stdlib/*.rs`) e `00_nucleo/prompts/engine/math/layout.md`
 (~8 ficheiros `math/layout/*.rs`) — confirmar os paths reais no repositório.
 
 Regras da partição:

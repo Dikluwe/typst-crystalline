@@ -158,7 +158,7 @@ let figure_number = self.introspector
 ```
 
 Trait import local de `Introspector` se necessário. Cabeçalho
-`@prompt-hash` actualiza após edit do L0 `rules/layout.md` (se a
+`@prompt-hash` actualiza após edit do L0 `engine/layout.md` (se a
 alteração afectar a documentação L0).
 
 Pré-condição P184D: este passo concluído. C3 desbloqueio em curso —

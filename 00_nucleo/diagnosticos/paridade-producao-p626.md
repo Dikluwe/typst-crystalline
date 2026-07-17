@@ -41,16 +41,16 @@ mutool trace /tmp/p626-vanilla.pdf | grep -A2 -m1 'fill_text'
 
 ### Ficheiros alterados
 
-- `00_nucleo/prompts/rules/columns.md`:
+- `00_nucleo/prompts/engine/columns.md`:
   - Nova secção 5.1 (P626) com as medições da sonda, a decisão arquitetural e os critérios de verificação.
   - Hash actualizado para `05d7626d` via `crystalline-lint --fix-hashes`.
 
-- `01_core/src/rules/layout/columns.rs`:
+- `01_core/src/engine/layout/columns.rs`:
   - Adicionadas as funções auxiliares `body_dir` e `styles_dir` para extrair `"text.dir"` do `Content::Styled` do body (incluindo recursão por `Sequence`).
   - Em `columns::layout`, a direcção RTL é determinada por `body_dir(&e.body) == Some(Dir::RTL)` em vez de `layouter.chain.custom("text.dir")` (que estava `None` neste ponto).
   - Quando RTL, `column_x_offsets` é invertido com `.into_iter().rev().collect()`, fazendo com que o índice 0 seja a coluna mais à direita.
 
-- `01_core/src/rules/layout/tests.rs`:
+- `01_core/src/engine/layout/tests.rs`:
   - Adicionado `p626_set_page_columns_rtl_preenche_direita_primeiro`: verifica que o primeiro texto de um documento 2-colunas RTL aparece na coluna da direita (`x > centro da página`).
 
 ---

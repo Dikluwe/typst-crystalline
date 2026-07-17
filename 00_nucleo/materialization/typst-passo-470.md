@@ -109,7 +109,7 @@ Ao construir cada `ListItem`, propagar `marker` como `ListMarker::Custom(s)`.
 
 ### A.5 — Layout renderiza marcador
 
-**Ficheiro:** `rules/layout/mod.rs` (ou `rules/layout/list.rs`)
+**Ficheiro:** `engine/layout/mod.rs` (ou `engine/layout/list.rs`)
 
 ```rust
 // No arm Content::ListItem:
@@ -150,7 +150,7 @@ pub enum EnumNumbering {
 
 ### B.2 — Ligação ao layouter
 
-**Ficheiro:** `rules/layout/mod.rs` (ou `rules/layout/figure.rs`)
+**Ficheiro:** `engine/layout/mod.rs` (ou `engine/layout/figure.rs`)
 
 Localizar o sítio onde o prefixo `"Figura"` / `"Figure"` é construído. Substituir string fixa por:
 
@@ -206,7 +206,7 @@ Após P470, remover a anotação de divergência de paridade do inventário de c
 - `entities/elements/list_item.md` — M — campo `marker`.
 - `entities/elements/enum_item.md` — M — campo `numbering`.
 - `rules/stdlib/structural.md` ou `layout.md` — M — `marker:` e `numbering:` em `list`/`enum`.
-- `rules/layout/figure.md` ou `mod.md` — M — ligação `figure_supplement_for_lang`.
+- `engine/layout/figure.md` ou `mod.md` — M — ligação `figure_supplement_for_lang`.
 
 ---
 

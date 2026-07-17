@@ -174,15 +174,15 @@ Auditor confirma empiricamente:
   `HashMap<String, u32>`).
 - `01_core/src/entities/bib_entry.rs` continua com 16
   fields conforme P159A–G.
-- `01_core/src/rules/introspect.rs` walk arm
+- `01_core/src/engine/introspect.rs` walk arm
   `Content::Bibliography` continua na linha indicada
   (linha 567 em P180; pode ter shift por edits
   posteriores — registar linha actual).
-- `01_core/src/rules/layout/mod.rs` continua com
+- `01_core/src/engine/layout/mod.rs` continua com
   Layouter cite-arm como único consumer (linha 584-597
   + sites de cópia state→Layouter em 1386-1388 e
   1414-1416).
-- `01_core/src/rules/stdlib/structural.rs::extract_bib_entries`
+- `01_core/src/engine/stdlib/structural.rs::extract_bib_entries`
   continua na função.
 
 Output: tabela com linha por item, "confirmado" /

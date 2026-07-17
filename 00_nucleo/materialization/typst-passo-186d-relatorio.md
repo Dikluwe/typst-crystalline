@@ -78,7 +78,7 @@ Mudanças neutras em count:
 
 ## Hashes finais
 
-L0 modificado: `00_nucleo/prompts/rules/introspect/locatable.md`
+L0 modificado: `00_nucleo/prompts/engine/introspect/locatable.md`
 
 - Hash do código (registado no L0): `4b2a29e5`
 - Hash do prompt (`@prompt-hash` do `.rs`): `aaf16c83`
@@ -226,7 +226,7 @@ P186 ainda pendente:
 **P186E** — substituir stub `kind_index`-only em `from_tags`
 por arm funcional:
 
-- Editar `01_core/src/rules/introspect/from_tags.rs`:
+- Editar `01_core/src/engine/introspect/from_tags.rs`:
   - Stub actual popula apenas `kind_index`.
   - Estender com gate `block && state-active` chamando
     `counters.apply_at("equation", counter_update.clone(), *loc)`.

@@ -83,7 +83,7 @@ puramente validação + documentação.
 
 ## 103.D — Testes de integração
 
-5 testes novos em `rules/layout/tests.rs::tests_show_rule_integration`:
+5 testes novos em `engine/layout/tests.rs::tests_show_rule_integration`:
 
 ### 1. `show_heading_transforma_em_uppercase`
 

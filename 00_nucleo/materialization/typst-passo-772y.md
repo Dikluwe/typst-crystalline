@@ -3,7 +3,7 @@
 
 > **Passo:** 772y
 > **Data:** 2026-07-17
-> **Foco:** P772w confirmou `math.class(...)` ausente e, ao investigar, encontrou que `MathClass` não chega ao motor de layout do cristalino hoje (`grep -rln MathClass 01_core/src/rules/layout` sem resultados) — só existe em `entities/math_class.rs` e no parsing/lexing. Isso sugere que o espaçamento automático entre símbolos matemáticos por classe (relação, operador binário, abertura/fechamento, etc.) pode não existir, ou usa outro mecanismo ainda não identificado. Este passo primeiro confirma o estado real do espaçamento automático no cristalino, depois decide se implementar `math.class()` cabe num só passo ou precisa de fase própria.
+> **Foco:** P772w confirmou `math.class(...)` ausente e, ao investigar, encontrou que `MathClass` não chega ao motor de layout do cristalino hoje (`grep -rln MathClass 01_core/src/engine/layout` sem resultados) — só existe em `entities/math_class.rs` e no parsing/lexing. Isso sugere que o espaçamento automático entre símbolos matemáticos por classe (relação, operador binário, abertura/fechamento, etc.) pode não existir, ou usa outro mecanismo ainda não identificado. Este passo primeiro confirma o estado real do espaçamento automático no cristalino, depois decide se implementar `math.class()` cabe num só passo ou precisa de fase própria.
 > **Tipo:** Sonda de arquitetura + Decisão registada (regra 1) + Implementação condicional ao alcance.
 > **Tamanho:** L — pode ser XL se o espaçamento por classe não existir de todo.
 > **ADR-0108 EM VIGOR** — confirmar o mecanismo real antes de assumir que falta, dado P772w já ter registado incerteza ("ou usa outro mecanismo não descoberto nesta sonda").
@@ -14,7 +14,7 @@
 ## Sonda — o espaçamento automático por classe existe no cristalino?
 
 ```bash
-grep -rn "MathClass\|Class::Relation\|Class::Binary\|Class::Opening" 01_core/src/rules/layout/*.rs 01_core/src/rules/math/**/*.rs 2>/dev/null
+grep -rn "MathClass\|Class::Relation\|Class::Binary\|Class::Opening" 01_core/src/engine/layout/*.rs 01_core/src/engine/math/**/*.rs 2>/dev/null
 ```
 
 Se não houver nenhuma ocorrência (confirmando a suspeita de P772w): o espaçamento entre símbolos em modo matemático hoje é fixo/sem classe, ou usa alguma heurística diferente — confirmar qual, testando casos que deveriam ter espaçamento diferente por classe:

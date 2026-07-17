@@ -34,10 +34,10 @@ O mecanismo que resolve page numbers em TOC (`outline.rs` lê `runtime.known_pag
 | Pergunta | Verificar em | Status |
 |----------|-------------|--------|
 | `native_lof()` existe e gera `Content::Outline` com `target: Figures`? | `rules/stdlib/structural.rs` | 🟡 |
-| `layout/outline.rs` trata `OutlineTarget::Figures`? | `rules/layout/outline.rs` | 🟡 |
-| Figuras têm label registado em `extracted_label_pages`? | `rules/layout/references.rs` | 🟡 |
-| `known_page_numbers` populado para figuras? | `rules/layout/mod.rs:1515` — loop fixpoint | 🟡 |
-| `outline.rs` usa `runtime.known_page_numbers` para page numbers? | `rules/layout/outline.rs:51` | ✅ (ADR-0072) |
+| `layout/outline.rs` trata `OutlineTarget::Figures`? | `engine/layout/outline.rs` | 🟡 |
+| Figuras têm label registado em `extracted_label_pages`? | `engine/layout/references.rs` | 🟡 |
+| `known_page_numbers` populado para figuras? | `engine/layout/mod.rs:1515` — loop fixpoint | 🟡 |
+| `outline.rs` usa `runtime.known_page_numbers` para page numbers? | `engine/layout/outline.rs:51` | ✅ (ADR-0072) |
 | Fixpoint activo para `OutlineTarget::Figures`? | `layout/mod.rs:1515` — condição `contains_key(Outline)` | 🟡 — pode não incluir `lof`/`lot` |
 | `extracted_label_pages` inclui page numbers de figuras? | `layout/mod.rs:1139` | 🟡 |
 
@@ -74,7 +74,7 @@ if intr.kind_index.contains_key(&ElementKind::Outline)
 
 ### A.3 — Layout de LoF/LoT com page numbers
 
-**Ficheiro:** `rules/layout/outline.rs` — arm `OutlineTarget::Figures`
+**Ficheiro:** `engine/layout/outline.rs` — arm `OutlineTarget::Figures`
 
 Actualmente (P472):
 
@@ -181,9 +181,9 @@ Nenhum teste de código. Documentação.
 
 ### Sub-item A
 
-- `rules/layout/outline.md` — §P487: page numbers em LoF/LoT via `known_page_numbers`.
+- `engine/layout/outline.md` — §P487: page numbers em LoF/LoT via `known_page_numbers`.
 - `entities/introspector.md` — `figure_captions_with_label` método.
-- `rules/layout/mod.md` — condição fixpoint alargada para LoF/LoT.
+- `engine/layout/mod.md` — condição fixpoint alargada para LoF/LoT.
 
 ### Sub-item B
 

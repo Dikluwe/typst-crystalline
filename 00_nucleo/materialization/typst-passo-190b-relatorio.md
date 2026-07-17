@@ -27,13 +27,13 @@ estratégia β):
 
 | # | Ficheiro | Mudança |
 |---|----------|---------|
-| 1 | `rules/layout/mod.rs:660-680` | Consumer cite-arm migrado: `self.introspector.bib_entry_for_key(key)` (sem fallback); `self.introspector.bib_number_for_key(key)` (sem fallback). Comentário inline P190B. |
-| 2 | `rules/layout/mod.rs:1496-1498` | Layouter assignment 1: `l.counter.bib_entries`/`bib_numbers = initial_state.X` removido. Comentário P190B. |
-| 3 | `rules/layout/mod.rs:1524-1526` | Layouter assignment 2 (fixpoint loop): idem. Comentário P190B. |
+| 1 | `engine/layout/mod.rs:660-680` | Consumer cite-arm migrado: `self.introspector.bib_entry_for_key(key)` (sem fallback); `self.introspector.bib_number_for_key(key)` (sem fallback). Comentário inline P190B. |
+| 2 | `engine/layout/mod.rs:1496-1498` | Layouter assignment 1: `l.counter.bib_entries`/`bib_numbers = initial_state.X` removido. Comentário P190B. |
+| 3 | `engine/layout/mod.rs:1524-1526` | Layouter assignment 2 (fixpoint loop): idem. Comentário P190B. |
 | 4 | `entities/counter_state_legacy.rs:78-92` | Fields `bib_entries: Vec<BibEntry>` + `bib_numbers: HashMap<String, u32>` eliminados. Comentário P190B substitui. |
 | 5 | `entities/counter_state_legacy.rs:302-322` | 2 tests sentinela `counter_state_bib_numbers_*` removidos (cobertura via BibStore). |
 | 6 | `rules/introspect.rs:2350-2356` | Test `walk_arm_bibliography_nao_muta_state_bib_legacy` adaptado: assertions sobre `state.bib_*` removidas. |
-| 7 | `rules/layout/tests.rs:3448-3460` | Test análogo adaptado: assertions sobre `state.bib_*` removidas. |
+| 7 | `engine/layout/tests.rs:3448-3460` | Test análogo adaptado: assertions sobre `state.bib_*` removidas. |
 
 **Walk arm Bibliography NÃO tocado** — já era puro desde P181H.
 **`from_tags` arm Bibliography NÃO tocado** — já popula BibStore desde P181E.

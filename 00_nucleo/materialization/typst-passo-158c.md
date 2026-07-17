@@ -70,12 +70,12 @@ cria reservas para passos pós-P158C.
 - `01_core/src/entities/content.rs` — variant
   `Content::Figure { body, caption, kind: String, numbering }`
   actual.
-- `01_core/src/rules/stdlib/figure_image.rs` — `native_figure`
+- `01_core/src/engine/stdlib/figure_image.rs` — `native_figure`
   actual + `infer_kind_from_body` (P158A).
-- `01_core/src/rules/lang/figure_supplement.rs` —
+- `01_core/src/engine/lang/figure_supplement.rs` —
   `figure_supplement_for_lang(kind: &str, lang: ...)` actual
   (P158B).
-- `01_core/src/rules/introspect.rs` — uso de
+- `01_core/src/engine/introspect.rs` — uso de
   `Content::Figure.kind` em counters por kind.
 - `lab/typst-original/crates/typst-library/src/model/figure.rs`
   (vanilla, quarentena) — confirmar `Smart<Str>` semântica.
@@ -190,7 +190,7 @@ refactor cascading + sítios callers:
    - `rules/stdlib/figure_image.rs` (`native_figure` +
      `infer_kind_from_body`).
    - `rules/introspect.rs` (counters por kind).
-   - `rules/layout/mod.rs` (se aplicável).
+   - `engine/layout/mod.rs` (se aplicável).
    - Tests pré-existentes (P157A/P158A/B + tests específicos
      de Figure).
 9. **(Específico backwards compat)** Confirmar que tests
@@ -221,7 +221,7 @@ refactor cascading + sítios callers:
 
 ### .3 Adaptar `infer_kind_from_body`
 
-`01_core/src/rules/stdlib/figure_image.rs`:
+`01_core/src/engine/stdlib/figure_image.rs`:
 - Helper `infer_kind_from_body(body) -> Option<String>` já
   retorna `Option<String>` (P158A).
 - **Sem alteração à assinatura**.
@@ -230,7 +230,7 @@ refactor cascading + sítios callers:
 
 ### .4 Adaptar `native_figure` stdlib
 
-`01_core/src/rules/stdlib/figure_image.rs`:
+`01_core/src/engine/stdlib/figure_image.rs`:
 - Aceitação de `kind: auto/none/Str` — refactor para retornar
   `Option<String>` directamente:
   ```rust
@@ -250,14 +250,14 @@ refactor cascading + sítios callers:
 
 ### .5 Adaptar `figure_supplement_for_lang`
 
-`01_core/src/rules/lang/figure_supplement.rs`:
+`01_core/src/engine/lang/figure_supplement.rs`:
 - Helper continua a aceitar `kind: &str` (não muda assinatura).
 - Caller em `introspect.rs` ou layout passa
   `kind.as_deref().unwrap_or("image")` para garantir &str.
 
 ### .6 Adaptar `introspect.rs`
 
-`01_core/src/rules/introspect.rs`:
+`01_core/src/engine/introspect.rs`:
 - Counters por kind: indexação usa
   `kind.as_deref().unwrap_or("image")` para preservar
   comportamento P157A/P158A.

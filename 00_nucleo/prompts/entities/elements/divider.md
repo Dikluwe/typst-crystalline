@@ -30,7 +30,7 @@ O `Content` passa de `Divider` (unit variant) para `Divider(Arc<DividerElem>)`.
 
 ## Layout (inalterado, em `rules/`)
 
-`rules/layout/mod.rs` arm `Content::Divider(_)` emite
+`engine/layout/mod.rs` arm `Content::Divider(_)` emite
 `FrameItem::Shape::Line` 0.5pt (P154B) — **mesma lógica**, só muda o
 destructuring do braço.
 

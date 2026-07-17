@@ -44,12 +44,12 @@ Contrato comportamental: `#sub[text]` desloca o baseline para baixo (`-0.2 * siz
 3. **`entities/content.rs`** — Construtores `sub(body)` e `super(body)` emitem `Content::Styled(body, Styles::from_iter([Style::Subscript(true)]))`.
 4. **`rules/stdlib/structural.rs`** — `native_sub` e `native_super` (análogo a `native_strong`/`native_emph`/`native_smallcaps`).
 5. **`rules/eval/rules.rs`** — Selectors `NodeKind::Subscript` e `NodeKind::Superscript` casam `Style::Subscript`/`Superscript` no `Content::Styled`.
-6. **`rules/layout/mod.rs`** — Arms de `Content::Styled` com `Style::Subscript`/`Superscript`:
+6. **`engine/layout/mod.rs`** — Arms de `Content::Styled` com `Style::Subscript`/`Superscript`:
    - Ajusta `TextStyle.size *= 0.6` e `TextStyle.baseline_offset = -0.2 * size` (sub) ou `+0.3 * size` (super).
    - O layout de texto existente em `layout/text.rs` aplica o offset vertical ao posicionamento do glyph.
-7. **`rules/layout/tests.rs`** — 2 testes de integração: `subscript_desloca_baseline` e `superscript_desloca_baseline`.
+7. **`engine/layout/tests.rs`** — 2 testes de integração: `subscript_desloca_baseline` e `superscript_desloca_baseline`.
 8. **`rules/eval/tests.rs`** — 2 testes unitários: `eval_sub_emite_styled` e `eval_super_emite_styled`.
-9. **Spec L0** — Adicionar secções em `00_nucleo/prompts/rules/stdlib/structural.md`.
+9. **Spec L0** — Adicionar secções em `00_nucleo/prompts/engine/stdlib/structural.md`.
 
 ---
 

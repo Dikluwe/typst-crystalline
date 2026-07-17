@@ -48,7 +48,7 @@ verdes; zero violations. 6 cláusulas P184A fixadas.
 ### .A Auditoria L0
 
 1. Confirmar arm `Figure` actual:
-   - `01_core/src/rules/introspect/from_tags.rs:71-95` (per
+   - `01_core/src/engine/introspect/from_tags.rs:71-95` (per
      P184A §3.1).
    - Localizar `match payload { ... ElementPayload::Figure { .. } => ... }`.
    - Confirmar uso actual de `..` pattern que ignora `kind`

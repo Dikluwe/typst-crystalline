@@ -4,7 +4,7 @@
 
 - **Commit base:** `4c1812f2de6fd3244f86d3759144e1825deb49bb` ("P736: preenche hash do commit no relatório")
 - **Commit da implementação:** `07110541e638e85eb8a61f819b1d539987370a77` ("P737: counter/state como valores-tipo (paridade vanilla)")
-- **Estado na medição final:** working tree não commitado; `git diff HEAD --stat`: 9 ficheiros — `01_core/src/rules/eval/{closures,mod,tests}.rs`, `01_core/src/rules/stdlib/{counter,state}.rs` + `01_core/src/entities/{counter,state}.rs` (hash headers sincronizados) + L0 `counter.md`/`state.md` (+98/−8).
+- **Estado na medição final:** working tree não commitado; `git diff HEAD --stat`: 9 ficheiros — `01_core/src/engine/eval/{closures,mod,tests}.rs`, `01_core/src/engine/stdlib/{counter,state}.rs` + `01_core/src/entities/{counter,state}.rs` (hash headers sincronizados) + L0 `counter.md`/`state.md` (+98/−8).
 - **Hora da validação final:** 2026-07-13 ~21:06 (-03)
 - **Binário vanilla de referência:** `lab/typst-original/target/release/typst`
 - **Binário cristalino:** `./target/release/typst` (rebuild 16.8s após a implementação)

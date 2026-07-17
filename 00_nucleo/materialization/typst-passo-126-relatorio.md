@@ -48,7 +48,7 @@ Completo em
 
 **Passa**. 2 ficheiros tocados:
 - `01_core/src/entities/style_chain.rs` (+1 campo).
-- `01_core/src/rules/eval/rules.rs` (+1 match arm).
+- `01_core/src/engine/eval/rules.rs` (+1 match arm).
 
 XS confirmado. Zero ripple em `Style` enum, `push_styles`,
 resolvers, pipeline layout, export.
@@ -163,8 +163,8 @@ Comportamento alinhado com especificação.
 | Ficheiro | Mudança |
 |----------|---------|
 | `01_core/src/entities/style_chain.rs` | +campo `weight`; init |
-| `01_core/src/rules/eval/rules.rs` | +arm `"weight"` em match |
-| `01_core/src/rules/eval/tests.rs` | +2 testes L1 |
+| `01_core/src/engine/eval/rules.rs` | +arm `"weight"` em match |
+| `01_core/src/engine/eval/tests.rs` | +2 testes L1 |
 | `03_infra/src/integration_tests.rs` | adapt test DEBT-49 (stroke substitui weight) |
 | `00_nucleo/adr/typst-adr-0038-...md` | nota Passo 126 |
 | `00_nucleo/prompts/entities/style_chain.md` | actualiza StyleDelta no prompt |

@@ -34,10 +34,10 @@ P487-D fechou os bloqueadores operacionais (merge conflicts, stack overflow, sen
 | Pergunta | Verificar em | Status |
 |----------|-------------|--------|
 | `native_lof()` localização e assinatura actual | `rules/stdlib/structural.rs` | 🟡 |
-| `OutlineTarget::Figures` arm em `outline.rs` | `rules/layout/outline.rs` | 🟡 |
+| `OutlineTarget::Figures` arm em `outline.rs` | `engine/layout/outline.rs` | 🟡 |
 | `figure_captions_with_label()` existe no Introspector? | `entities/introspector.rs` | 🟡 |
-| Figuras têm label registado em `label_pages`? | `rules/layout/references.rs` | 🟡 |
-| Condição fixpoint inclui `ElementKind::OutlineFigures`? | `rules/layout/mod.rs:1515` | 🟡 |
+| Figuras têm label registado em `label_pages`? | `engine/layout/references.rs` | 🟡 |
+| Condição fixpoint inclui `ElementKind::OutlineFigures`? | `engine/layout/mod.rs:1515` | 🟡 |
 | `known_page_numbers` populado para figuras/tabelas? | idem | 🟡 |
 
 ### Sub-item B
@@ -102,7 +102,7 @@ pub trait Introspector {
 
 ### A.4 — Layout de LoF com page numbers
 
-**Ficheiro:** `rules/layout/outline.rs` — arm `OutlineTarget::Figures`
+**Ficheiro:** `engine/layout/outline.rs` — arm `OutlineTarget::Figures`
 
 ```rust
 OutlineTarget::Figures => {
@@ -217,8 +217,8 @@ Não é paridade completa com vanilla (RTL no cristalino é subset). O critério
 ### Sub-item A
 
 - `entities/introspector.md` — métodos `figure_page_numbers`, `table_page_numbers`, `record_figure_page`, `record_table_page`.
-- `rules/layout/outline.md` — §P488: page numbers em LoF/LoT.
-- `rules/layout/mod.md` — condição fixpoint alargada (se aplicável).
+- `engine/layout/outline.md` — §P488: page numbers em LoF/LoT.
+- `engine/layout/mod.md` — condição fixpoint alargada (se aplicável).
 
 ### Sub-item B
 

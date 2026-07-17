@@ -109,7 +109,7 @@ pub struct Conic {
 
 ## §A.5 — Cristalino stdlib named args pré-P273
 
-`01_core/src/rules/stdlib/gradients.rs`:
+`01_core/src/engine/stdlib/gradients.rs`:
 
 - `gradient.linear`: `angle`, `space` (+ stops posicionais).
 - `gradient.radial`: `center`, `radius`, `focal_center`, `focal_radius`,

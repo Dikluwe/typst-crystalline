@@ -59,7 +59,7 @@ a auditar antes de assumir):
 
 ## §3 Implementação `native_state_at` + registo scope (C2+C3)
 
-`01_core/src/rules/stdlib/foundations.rs`:
+`01_core/src/engine/stdlib/foundations.rs`:
 
 ```rust
 pub fn native_state_at(
@@ -98,7 +98,7 @@ pub fn native_state_at(
 }
 ```
 
-`01_core/src/rules/eval/mod.rs:606`:
+`01_core/src/engine/eval/mod.rs:606`:
 
 ```rust
 scope.define("state_at", Value::Func(Func::native("state_at", native_state_at)));

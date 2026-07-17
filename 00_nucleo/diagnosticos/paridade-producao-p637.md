@@ -33,17 +33,17 @@ A mensagem partilhada introduzida em P636 (`"expected string or array of strings
 
 ### Ficheiros alterados
 
-1. **`01_core/src/rules/eval/rules.rs`**:
+1. **`01_core/src/engine/eval/rules.rs`**:
    - `value_to_eco_string` ganha um parâmetro `allow_array: bool`.
    - `document.title` chama com `allow_array = false`.
    - `document.author`/`keywords` chamam com `allow_array = true`.
 
-2. **`01_core/src/rules/eval/tests.rs`**:
+2. **`01_core/src/engine/eval/tests.rs`**:
    - `p637_document_title_array_is_error`: confirma que array em `title` dá erro.
    - `p637_document_author_array_works`: confirma que array em `author` funciona.
    - `p637_document_keywords_array_works`: confirma que array em `keywords` funciona.
 
-3. **`00_nucleo/prompts/rules/eval.md`**: secção §P636 actualizada para separar `title` de `author`/`keywords`; hash actualizado para `a8523b4b`.
+3. **`00_nucleo/prompts/engine/eval.md`**: secção §P636 actualizada para separar `title` de `author`/`keywords`; hash actualizado para `a8523b4b`.
 
 ### Mensagens de erro resultantes
 

@@ -28,7 +28,7 @@ preservado. Output observable inalterado em produção.
 
 **Restrições**:
 - **Não** modificar código de produção em
-  `01_core/src/rules/`, `01_core/src/entities/`,
+  `01_core/src/engine/`, `01_core/src/entities/`,
   `02_shell/`, `03_infra/`, `04_wiring/`.
 - **Não** modificar walk arm, write-sites, copy-sites
   legacy.
@@ -50,7 +50,7 @@ preservado. Output observable inalterado em produção.
    - `grep -rn "layout_with_introspector\|walk.*from_tags"
      01_core/src/`.
    - Localizar tests P181 série que correm pipeline E2E
-     (`p181_*` em `01_core/src/rules/layout/tests.rs` ou
+     (`p181_*` em `01_core/src/engine/layout/tests.rs` ou
      similar). Padrão de helper de pipeline a replicar.
    - Localizar test P182D `p182d_heading_numbering_paridade_legacy_vs_migrated`
      (cobre paridade básica; P182E estende).
@@ -85,7 +85,7 @@ identificada que P182E preenche.
 
 ### .B Test E2E pipeline completo (caso típico)
 
-1. Adicionar test em `01_core/src/rules/layout/tests.rs`
+1. Adicionar test em `01_core/src/engine/layout/tests.rs`
    (ou ficheiro de tests E2E existente) que:
    - Constrói documento via `eval` ou markup string
      equivalente: `#set heading(numbering: "1.1")` seguido

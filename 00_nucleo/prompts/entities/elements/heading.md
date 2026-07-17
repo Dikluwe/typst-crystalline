@@ -1,5 +1,5 @@
 # Prompt L0 — `entities/elements/heading` — `HeadingElem`
-Hash do Código: 4cd1189d
+Hash do Código: 184b6999
 
 **Camada**: L1 · **Alvo**: `01_core/src/entities/elements/heading.rs`
 **Origem**: modelo D (ADR-0105), lote piloto P316. Trait e regras partilhadas:
@@ -42,7 +42,7 @@ Construtor preserva o clamp: `level.clamp(1, 6)` (`content.rs:1267`).
 
 ## Layout (inalterado, em `rules/`)
 
-`rules/layout/mod.rs:669` arm `Content::Heading(h) => …` usa `h.level`/`h.body`
+`engine/layout/mod.rs:669` arm `Content::Heading(h) => …` usa `h.level`/`h.body`
 — mesma lógica, só destructuring.
 
 ## Critério

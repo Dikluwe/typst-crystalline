@@ -55,9 +55,9 @@ mantida — P158A não cria reservas para passos pós-P158A.
   `Content::Figure` (P75).
 - `01_core/src/entities/content.rs` — variant `Content::Figure`
   para confirmação estrutural pré-execução.
-- `01_core/src/rules/stdlib/figure_image.rs` (módulo declarado
+- `01_core/src/engine/stdlib/figure_image.rs` (módulo declarado
   no diagnóstico §5) — `native_figure` actual.
-- `01_core/src/rules/introspect.rs` linhas 279-292 — counters
+- `01_core/src/engine/introspect.rs` linhas 279-292 — counters
   por kind para confirmação de não-impacto.
 - `lab/typst-original/crates/typst-library/src/model/figure.rs`
   (vanilla, quarentena) — código de referência para auto-detecção.
@@ -99,7 +99,7 @@ Granularidade preservada: 1 feature → mantém N=13 do padrão.
       }
   }
   ```
-  Localização: `01_core/src/rules/stdlib/figure_image.rs`
+  Localização: `01_core/src/engine/stdlib/figure_image.rs`
   (privado, mesmo módulo de `native_figure`).
 
 - **Fallback chain em `native_figure`**:
@@ -189,7 +189,7 @@ refino comportamental:
 
 ### .2 Adicionar helper privado `infer_kind_from_body`
 
-`01_core/src/rules/stdlib/figure_image.rs`:
+`01_core/src/engine/stdlib/figure_image.rs`:
 - Adicionar helper privado per assinatura em §"Decisões já
   tomadas".
 - Cobertura `match` em pelo menos 3 variants
@@ -199,7 +199,7 @@ refino comportamental:
 
 ### .3 Modificar `native_figure` para fallback chain
 
-`01_core/src/rules/stdlib/figure_image.rs`:
+`01_core/src/engine/stdlib/figure_image.rs`:
 - Substituir extracção actual de `kind` (provavelmente
   `unwrap_or_else(|| "image".to_string())` directo) pela
   fallback chain de 3 níveis.

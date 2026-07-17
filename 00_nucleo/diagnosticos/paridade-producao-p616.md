@@ -34,10 +34,10 @@ argumento.
 
 ### 4.1 Ficheiros alterados
 
-- `00_nucleo/prompts/rules/eval.md`:
+- `00_nucleo/prompts/engine/eval.md`:
   - Adicionada secção §P616 com medição na fonte vanilla
     (`text/mod.rs:1258-1259`, `bidi.typ:70`) e regra de validação.
-- `01_core/src/rules/eval/rules.rs`:
+- `01_core/src/engine/eval/rules.rs`:
   - No arm `"dir"` de `#set text(...)`, verifica `dir.is_vertical()` antes de
     propagar o valor para a chain.
   - Devolve `SourceDiagnostic::error` com a mensagem do vanilla quando
@@ -109,6 +109,6 @@ em ambos os projectos.
 ## 7. Ligações
 
 - Commit de fecho: `3f36393c2`
-- Prompt L0: `00_nucleo/prompts/rules/eval.md`
+- Prompt L0: `00_nucleo/prompts/engine/eval.md`
 - Materialization: `00_nucleo/materialization/typst-passo-616.md`
 - Relatório de fundo: `00_nucleo/diagnosticos/paridade-producao-p614.md`

@@ -8,10 +8,10 @@
 
 ```
  00_nucleo/diagnosticos/achados-adiados-cetz.md |  6 +-
- 00_nucleo/prompts/rules/stdlib/shapes.md       | 22 +++++--
- 01_core/src/rules/layout/tests.rs              | 19 +++++-
- 01_core/src/rules/stdlib/mod.rs                | 91 ++++++++++++++++++++++++++
- 01_core/src/rules/stdlib/shapes.rs             | 19 ++++--
+ 00_nucleo/prompts/engine/stdlib/shapes.md       | 22 +++++--
+ 01_core/src/engine/layout/tests.rs              | 19 +++++-
+ 01_core/src/engine/stdlib/mod.rs                | 91 ++++++++++++++++++++++++++
+ 01_core/src/engine/stdlib/shapes.rs             | 19 ++++--
  03_infra/src/integration_tests.rs              | 18 +++++
 ```
 
@@ -53,13 +53,13 @@ removido antes do commit):
 
 1. A Page resultante do layout já traz `stroke: None`
    (`Shape { kind: Path([MoveTo, LineTo]), fill: None, stroke: None, ... }`).
-2. O `eprintln!` em `curve::layout` (`01_core/src/rules/layout/curve.rs:118`) **não
+2. O `eprintln!` em `curve::layout` (`01_core/src/engine/layout/curve.rs:118`) **não
    dispara** — o Shape na Page não vem desse caminho.
-3. `native_curve` (`01_core/src/rules/stdlib/shapes.rs:452`) produz
+3. `native_curve` (`01_core/src/engine/stdlib/shapes.rs:452`) produz
    `Content::Shape { kind: Path }`, não `Content::Curve` — o dispatch
-   `Content::Curve => curve::layout` (`rules/layout/mod.rs:866`) é código morto para
+   `Content::Curve => curve::layout` (`engine/layout/mod.rs:866`) é código morto para
    este caso (fica para `#curve.move(...)` directo no markup).
-4. **Causa raiz — `01_core/src/rules/stdlib/shapes.rs:592-595`**: `fill` e `stroke`
+4. **Causa raiz — `01_core/src/engine/stdlib/shapes.rs:592-595`**: `fill` e `stroke`
    vêm só dos argumentos nomeados; quando o utilizador não passa `stroke`, o Shape
    fica com `stroke: None` e o export não tem nada para pintar.
 5. O vanilla aplica `Smart::Auto`: sem fill nem stroke → `FixedStroke::default()`
@@ -89,21 +89,21 @@ scope-out: `rect`/`circle` já o implementam no cristalino).
 
 Fluxo L0-first (Regra de Ouro):
 
-1. **L0 actualizado**: secção `native_curve` de `00_nucleo/prompts/rules/stdlib/shapes.md`
+1. **L0 actualizado**: secção `native_curve` de `00_nucleo/prompts/engine/stdlib/shapes.md`
    passa a especificar o fallback determinístico (paridade vanilla `Smart::Auto`) e os
    novos casos canónicos; corrigida ainda a nota desactualizada que marcava os
    constructores `curve.move`/… como scope-out (existem desde P513 — prompt dedicado
    `stdlib/curve.md`). Hash recalculado (`crystalline-lint --fix-hashes .` →
    `9653507a` no header de `shapes.rs`).
 2. **Testes primeiro** (fail-first confirmado antes da implementação):
-   - `01_core/src/rules/stdlib/mod.rs` — 3 testes: `curve` sem cores → stroke preta
+   - `01_core/src/engine/stdlib/mod.rs` — 3 testes: `curve` sem cores → stroke preta
      1pt; `curve` com fill → sem stroke; `curve` com stroke explícito → preservado.
      Os dois primeiros falhavam, o terceiro passava (comportamento já correcto).
-   - `01_core/src/rules/layout/tests.rs` — E2E markup → Page:
+   - `01_core/src/engine/layout/tests.rs` — E2E markup → Page:
      `p727_layout_curve_fallback_stroke_chega_a_pagina` (falhava).
    - `03_infra/src/integration_tests.rs` — E2E pipeline completo → PDF:
      `p727_pdf_curve_contem_operador_stroke` exige `S\n` no content stream (falhava).
-3. **Correcção** (`01_core/src/rules/stdlib/shapes.rs:592-607`): aplicação do padrão
+3. **Correcção** (`01_core/src/engine/stdlib/shapes.rs:592-607`): aplicação do padrão
    já existente em `native_rect` — `parsed_stroke` separado + fallback
    `if fill.is_none() && parsed_stroke.is_none()` → stroke preto 1pt. Sem tocar em
    `extract_stroke`, export ou dispatch.
@@ -146,7 +146,7 @@ O círculo do cetz agora renderiza (é um path de 4 cúbicas via `std.curve` →
 P727). **A linha continua ausente — por causa de um bug NOVO, descoberto e medido
 nesta validação, fora do escopo do passo:**
 
-`and`/`or` **sem short-circuit** em `01_core/src/rules/eval/mod.rs:687-692` — o
+`and`/`or` **sem short-circuit** em `01_core/src/engine/eval/mod.rs:687-692` — o
 dispatch genérico de `Expr::Binary` avalia ambos os operandos antes de despachar.
 Caso mínimo puro da linguagem (sem cetz): `#let a = (1, 2)` +
 `type(a) == str and a.contains(".")` → erro "campo desconhecido em array: 'contains'"

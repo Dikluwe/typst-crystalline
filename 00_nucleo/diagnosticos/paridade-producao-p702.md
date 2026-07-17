@@ -85,7 +85,7 @@ continua a funcionar por field access normal).
 - `01_core/src/entities/func.rs` (4): delegação de nome, `native_fn_addr`
   `None`, delegação de namespace (reproduz `table.with(...).cell` ao nível
   de `Func`), encadeamento preserva a função original.
-- `01_core/src/rules/eval/tests.rs` (7): os 5 casos da sonda (nativa+named,
+- `01_core/src/engine/eval/tests.rs` (7): os 5 casos da sonda (nativa+named,
   closure posicional, closure nomeado, 2 encadeamentos) + sub-função via
   namespace através de `with` + regressão dict-com-chave-"with".
 
@@ -95,9 +95,9 @@ continua a funcionar por field access normal).
 
 - **L0**: `00_nucleo/prompts/entities/func.md` (nova variante `With` +
   interface + testes canónicos + scope-out de colisão de nomeados),
-  `00_nucleo/prompts/rules/eval.md` (§P702, intercepção em `eval_func_call`).
+  `00_nucleo/prompts/engine/eval.md` (§P702, intercepção em `eval_func_call`).
 - **Código com lógica nova**: `01_core/src/entities/func.rs`,
-  `01_core/src/rules/eval/closures.rs`, `01_core/src/rules/eval/tests.rs`.
+  `01_core/src/engine/eval/closures.rs`, `01_core/src/engine/eval/tests.rs`.
 - **Só hash realinhado** (`crystalline-lint --fix-hashes`, mesma L0
   partilhada `rules/eval.md`): `bibliography.rs`, `control_flow.rs`,
   `flow.rs`, `markup.rs`, `math.rs`, `mod.rs`, `modules.rs`, `rules.rs` —
@@ -147,7 +147,7 @@ a `src/lib/palette.typ` (paletes de cor pré-definidas de `cetz`):
 range(90, 40, step: -12).map(v => luma(v * 1%))
 ```
 `.map(rgb)` chama `rgb("cc0000")`/`rgb("#FF0000")` — **forma de 1 argumento
-string/hex**, que `native_rgb` (`01_core/src/rules/stdlib/foundations.rs`)
+string/hex**, que `native_rgb` (`01_core/src/engine/stdlib/foundations.rs`)
 não suporta (só aceita 3 ou 4 `Int`). Confirmado standalone:
 ```
 #rgb("#FF0000")
@@ -165,7 +165,7 @@ do âmbito de P702.
 1. Confirmar no vanilla as formas de `rgb()` além de 3/4 Int — pelo menos
    hex string (`rgb("#RRGGBB")`, `rgb("RRGGBBAA")` sem `#`?) e possivelmente
    grayscale de 1 componente.
-2. L0 para `native_rgb` (`00_nucleo/prompts/rules/stdlib/foundations.md`,
+2. L0 para `native_rgb` (`00_nucleo/prompts/engine/stdlib/foundations.md`,
    já tem secção própria — precisa de extensão, não de ficheiro novo).
 3. Reexecutar a reprodução deste §6 como critério de fecho; se `cetz`
    avançar mais, repetir de novo (mesmo padrão desta cadeia).

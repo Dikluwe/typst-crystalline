@@ -19,16 +19,16 @@ As correcções de P544–P592 resolveram quatro problemas distintos da mesma ca
 
 | Ficheiro | Função | Nível | O que fazia |
 |---|---|---|---|
-| `01_core/src/rules/layout/metrics.rs` | `FontMetrics::advance` | Letra/glifo | Avanço horizontal de uma string (soma glifos + kerning). |
-| `01_core/src/rules/layout/metrics.rs` | `FontMetrics::advance_shaped` | Palavra | Avanço com forma de escrita aplicada (scripts contextuais). |
-| `01_core/src/rules/layout/cursor.rs` | `Layouter::word_width` | Palavra | `advance(word) + tracking`. |
-| `01_core/src/rules/layout/cursor.rs` | `Layouter::layout_word` | Palavra | `advance_shaped(word)` ou `word_width(word)`; sem tracking em shaped. |
+| `01_core/src/engine/layout/metrics.rs` | `FontMetrics::advance` | Letra/glifo | Avanço horizontal de uma string (soma glifos + kerning). |
+| `01_core/src/engine/layout/metrics.rs` | `FontMetrics::advance_shaped` | Palavra | Avanço com forma de escrita aplicada (scripts contextuais). |
+| `01_core/src/engine/layout/cursor.rs` | `Layouter::word_width` | Palavra | `advance(word) + tracking`. |
+| `01_core/src/engine/layout/cursor.rs` | `Layouter::layout_word` | Palavra | `advance_shaped(word)` ou `word_width(word)`; sem tracking em shaped. |
 | `03_infra/src/layout_bidi.rs` | `text_width_for_bidi` | Palavra | `advance_shaped(text)` ou `advance(text)`. |
-| `01_core/src/rules/layout/helpers.rs` | `item_width` (Text) | Palavra | `advance_shaped(text)` ou `advance(text)`. |
+| `01_core/src/engine/layout/helpers.rs` | `item_width` (Text) | Palavra | `advance_shaped(text)` ou `advance(text)`. |
 | `03_infra/src/shaper.rs` | `estimate_width` | Palavra | `advance_shaped(text)` ou `advance(text) + tracking`. |
-| `01_core/src/rules/layout/helpers.rs` | `measure_content` | Conteúdo | Estima dimensões de `Shape`/`Sequence` (não texto). |
-| `01_core/src/rules/layout/mod.rs` | `measure_content_constrained` | Conteúdo | Layout parcial para medir conteúdo. |
-| `01_core/src/rules/layout/cursor.rs` | `align_current_line_rtl` | Linha | Calculava `content_right` inline a partir dos items. |
+| `01_core/src/engine/layout/helpers.rs` | `measure_content` | Conteúdo | Estima dimensões de `Shape`/`Sequence` (não texto). |
+| `01_core/src/engine/layout/mod.rs` | `measure_content_constrained` | Conteúdo | Layout parcial para medir conteúdo. |
+| `01_core/src/engine/layout/cursor.rs` | `align_current_line_rtl` | Linha | Calculava `content_right` inline a partir dos items. |
 | `03_infra/src/layout_bidi.rs` | `reorder_bidi_line` | Linha | Calculava `content_right` inline (só items Text). |
 
 ### 2.2 Duplicações confirmadas
@@ -47,7 +47,7 @@ Isso significa que, se algum dia `tracking` for usado com texto árabe, `layout_
 
 ### 3.1 Fonte única do nível "palavra": `FontMetrics::text_width`
 
-Ficheiro: `01_core/src/rules/layout/metrics.rs`
+Ficheiro: `01_core/src/engine/layout/metrics.rs`
 
 ```rust
 fn text_width(&self, text: &str, size: Pt, style: &TextStyle) -> Pt
@@ -59,7 +59,7 @@ fn text_width(&self, text: &str, size: Pt, style: &TextStyle) -> Pt
 
 ### 3.2 Fonte única do nível "linha": `FontMetrics::line_content_right`
 
-Ficheiro: `01_core/src/rules/layout/metrics.rs`
+Ficheiro: `01_core/src/engine/layout/metrics.rs`
 
 ```rust
 fn line_content_right(&self, items: &[&FrameItem]) -> f64
@@ -74,8 +74,8 @@ fn line_content_right(&self, items: &[&FrameItem]) -> f64
 
 | Ficheiro | Alteração |
 |---|---|
-| `01_core/src/rules/layout/cursor.rs` | `word_width` → `text_width`; `layout_word` → `text_width`; `align_current_line_rtl` → `line_content_right`. |
-| `01_core/src/rules/layout/helpers.rs` | `item_width` (Text) → `text_width`; novo `line_content_right` helper local para uso interno de L1. |
+| `01_core/src/engine/layout/cursor.rs` | `word_width` → `text_width`; `layout_word` → `text_width`; `align_current_line_rtl` → `line_content_right`. |
+| `01_core/src/engine/layout/helpers.rs` | `item_width` (Text) → `text_width`; novo `line_content_right` helper local para uso interno de L1. |
 | `03_infra/src/layout_bidi.rs` | `text_width_for_bidi` → `text_width`; `reorder_bidi_line` → `line_content_right`. |
 | `03_infra/src/shaper.rs` | `estimate_width` → `text_width`. |
 
@@ -150,8 +150,8 @@ O benchmark `tools/perf/benchmark-p507.py` foi iniciado mas excedeu o timeout de
 
 ## 7. Ficheiros alterados
 
-- `01_core/src/rules/layout/metrics.rs`
-- `01_core/src/rules/layout/cursor.rs`
-- `01_core/src/rules/layout/helpers.rs`
+- `01_core/src/engine/layout/metrics.rs`
+- `01_core/src/engine/layout/cursor.rs`
+- `01_core/src/engine/layout/helpers.rs`
 - `03_infra/src/layout_bidi.rs`
 - `03_infra/src/shaper.rs`

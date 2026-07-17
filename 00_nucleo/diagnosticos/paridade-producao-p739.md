@@ -10,32 +10,32 @@
  00_nucleo/prompts/entities/elements/grid_vline.md  |   5 +-
  00_nucleo/prompts/entities/elements/table_hline.md |   5 +-
  00_nucleo/prompts/entities/elements/table_vline.md |   5 +-
- 00_nucleo/prompts/rules/eval.md                    |  29 ++++-
- 00_nucleo/prompts/rules/eval/ops.md                |   9 +-
- 00_nucleo/prompts/rules/stdlib/grid_hline.md       |   1 +
- 00_nucleo/prompts/rules/stdlib/grid_vline.md       |   1 +
- 00_nucleo/prompts/rules/stdlib/shapes.md           |  23 +++-
- 00_nucleo/prompts/rules/stdlib/table_hline.md      |   1 +
- 00_nucleo/prompts/rules/stdlib/table_vline.md      |   1 +
+ 00_nucleo/prompts/engine/eval.md                    |  29 ++++-
+ 00_nucleo/prompts/engine/eval/ops.md                |   9 +-
+ 00_nucleo/prompts/engine/stdlib/grid_hline.md       |   1 +
+ 00_nucleo/prompts/engine/stdlib/grid_vline.md       |   1 +
+ 00_nucleo/prompts/engine/stdlib/shapes.md           |  23 +++-
+ 00_nucleo/prompts/engine/stdlib/table_hline.md      |   1 +
+ 00_nucleo/prompts/engine/stdlib/table_vline.md      |   1 +
  01_core/src/entities/content.rs                    |   8 +-
  01_core/src/entities/elements/grid_hline.rs        |   8 +-
  01_core/src/entities/elements/grid_vline.rs        |   7 +-
  01_core/src/entities/elements/table_hline.rs       |   7 +-
  01_core/src/entities/elements/table_vline.rs       |   7 +-
- 01_core/src/rules/eval/bibliography.rs             |   2 +-
- 01_core/src/rules/eval/closures.rs                 |   2 +-
- 01_core/src/rules/eval/control_flow.rs             |   2 +-
- 01_core/src/rules/eval/flow.rs                     |   2 +-
- 01_core/src/rules/eval/markup.rs                   |   2 +-
- 01_core/src/rules/eval/math.rs                     |   2 +-
- 01_core/src/rules/eval/mod.rs                      |  13 +-
- 01_core/src/rules/eval/modules.rs                  |   2 +-
- 01_core/src/rules/eval/operators.rs                |  14 ++-
- 01_core/src/rules/eval/rules.rs                    |   2 +-
- 01_core/src/rules/eval/tests.rs                    | 133 ++++++++++++++++++++-
- 01_core/src/rules/layout/grid.rs                   |  22 ++--
- 01_core/src/rules/stdlib/shapes.rs                 |  59 ++++++++-
- 01_core/src/rules/stdlib/structural.rs             |  24 ++--
+ 01_core/src/engine/eval/bibliography.rs             |   2 +-
+ 01_core/src/engine/eval/closures.rs                 |   2 +-
+ 01_core/src/engine/eval/control_flow.rs             |   2 +-
+ 01_core/src/engine/eval/flow.rs                     |   2 +-
+ 01_core/src/engine/eval/markup.rs                   |   2 +-
+ 01_core/src/engine/eval/math.rs                     |   2 +-
+ 01_core/src/engine/eval/mod.rs                      |  13 +-
+ 01_core/src/engine/eval/modules.rs                  |   2 +-
+ 01_core/src/engine/eval/operators.rs                |  14 ++-
+ 01_core/src/engine/eval/rules.rs                    |   2 +-
+ 01_core/src/engine/eval/tests.rs                    | 133 ++++++++++++++++++++-
+ 01_core/src/engine/layout/grid.rs                   |  22 ++--
+ 01_core/src/engine/stdlib/shapes.rs                 |  59 ++++++++-
+ 01_core/src/engine/stdlib/structural.rs             |  24 ++--
  30 files changed, 336 insertions(+), 67 deletions(-)
 ```
 
@@ -80,7 +80,7 @@ Zero-thickness seria hairline em PDF (achado P726) — a representação
 correcta é `Option<Stroke>`, com `None` = linha não desenhada. Mudança de
 contrato interno (4 entidades + factories + constructors + trait
 `LayoutHLine/LayoutVLine`), mantendo o render existente: os dois loops de
-`rules/layout/grid.rs` saltam linhas com `stroke: None`
+`engine/layout/grid.rs` saltam linhas com `stroke: None`
 (`let Some(stroke) = h.stroke() else { continue };`).
 
 ### E2E (após)

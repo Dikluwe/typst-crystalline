@@ -27,7 +27,7 @@
 | `native_lof()` cria que Content? | `stdlib/structural.rs` | `Content::Outline { target: OutlineTarget::Figures }` |
 | Fixpoint activa apenas para `ElementKind::Outline`? | `layout/mod.rs` | Sim — e `lof()`→`Outline` já regista `ElementKind::Outline`; condição cobre LoF/LoT sem alteração |
 | `figures_for_lof()` existe em `TagIntrospector`? | `entities/introspector.rs` | Sim — `Vec<(usize, String)>` em ordem de documento |
-| Figuras têm `label_pages`? | `rules/layout/references.rs` | Não — figuras não têm label explícito; `known_page_numbers` inapplicável |
+| Figuras têm `label_pages`? | `engine/layout/references.rs` | Não — figuras não têm label explícito; `known_page_numbers` inapplicável |
 | Campo para páginas em `LayouterRuntimeState`? | `entities/layouter_runtime_state.rs` | Ausente — adicionado em P488 |
 
 **Decisão de arquitectura (ADR-0108 § classificação mecânica vs linguagem):** a spec propôs `Vec<(figure_n, page)>` no `Introspector`. Medição revelou potencial de mismatch de chave entre `"figure"` (key em `figures_for_lof`) e `"figure:image"` (key em `figure_number_at_index`). Adoptada alternativa mais segura: `Vec<usize>` em `LayouterRuntimeState` com matching posicional — ambas as fontes seguem ordem de documento.
@@ -42,9 +42,9 @@ A spec propôs adicionar `record_figure_page` / `figure_page_numbers` ao trait `
 |-----------|-----------|-----------|
 | `prompts/entities/layouter_runtime_state.md` | — | +4 campos: `figure_page_numbers`, `table_page_numbers`, `known_figure_page_numbers`, `known_table_page_numbers` |
 | `prompts/entities/layout_types.md` | — | +2 campos em `PagedDocument`: `extracted_figure_page_numbers`, `extracted_table_page_numbers` |
-| `prompts/rules/layout_figure.md` | — | §P488: registo de página após cálculo de `figure_number` |
-| `prompts/rules/layout/table.md` | — | §P488: registo de página quando `caption_prefix.is_some()` |
-| `prompts/rules/layout_outline.md` | — | §P488: `layout_lof`/`layout_lot` com `known_*_page_numbers`; convergência alargada |
+| `prompts/engine/layout_figure.md` | — | §P488: registo de página após cálculo de `figure_number` |
+| `prompts/engine/layout/table.md` | — | §P488: registo de página quando `caption_prefix.is_some()` |
+| `prompts/engine/layout_outline.md` | — | §P488: `layout_lof`/`layout_lot` com `known_*_page_numbers`; convergência alargada |
 
 ### Ficheiros L1 modificados
 
@@ -52,11 +52,11 @@ A spec propôs adicionar `record_figure_page` / `figure_page_numbers` ao trait `
 |----------|-----------|
 | `entities/layout_types.rs` | `extracted_figure_page_numbers: Vec<usize>`, `extracted_table_page_numbers: Vec<usize>` |
 | `entities/layouter_runtime_state.rs` | 4 novos campos Vec<usize> + módulo `p488_tests` (3 testes) |
-| `rules/layout/figure.rs` | `layouter.runtime.figure_page_numbers.push(layouter.current_page_number())` |
-| `rules/layout/table.rs` | `layouter.runtime.table_page_numbers.push(layouter.current_page_number())` |
-| `rules/layout/outline.rs` | `layout_lof` e `layout_lot` com matching posicional em `known_*_page_numbers` |
-| `rules/layout/mod.rs` | `finish()` extrai campos; fixpoint: injecta `known_*`, verifica convergência tripla |
-| `rules/layout/tests.rs` | 3 novos testes P488 |
+| `engine/layout/figure.rs` | `layouter.runtime.figure_page_numbers.push(layouter.current_page_number())` |
+| `engine/layout/table.rs` | `layouter.runtime.table_page_numbers.push(layouter.current_page_number())` |
+| `engine/layout/outline.rs` | `layout_lof` e `layout_lot` com matching posicional em `known_*_page_numbers` |
+| `engine/layout/mod.rs` | `finish()` extrai campos; fixpoint: injecta `known_*`, verifica convergência tripla |
+| `engine/layout/tests.rs` | 3 novos testes P488 |
 
 ### Mecanismo fixpoint (P488)
 

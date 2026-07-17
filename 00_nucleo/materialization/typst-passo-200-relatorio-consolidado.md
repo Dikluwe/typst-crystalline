@@ -335,13 +335,13 @@ P190A original (em `typst-passo-185a-relatorio.md`) declarado **obsoleto** — e
 - **Variant nova**: `ElementPayload::HeadingForToc` (13ª).
 - **Consumer migrado**: `outline.rs:24` (3ª migration substitution-with-fallback).
 - **Cadeia E2-residuo**: walk arm Heading mutação 4 → mut 4 preservada; Tag::HeadingForToc emite payload com body materializado.
-- **L0 tocado**: `00_nucleo/prompts/rules/introspect.md` hash `7a3ba2b7`.
+- **L0 tocado**: `00_nucleo/prompts/engine/introspect.md` hash `7a3ba2b7`.
 - **Código tocado**: 5 ficheiros `01_core/src/`:
   - `entities/introspector.rs` (sub-store + trait method + impl).
   - `entities/element_payload.rs` (variant nova).
   - `rules/introspect.rs` (helper + walk arm; hash `8e0128e4`).
   - `rules/introspect/from_tags.rs` (arm novo).
-  - `rules/layout/outline.rs` (consumer migration).
+  - `engine/layout/outline.rs` (consumer migration).
 
 ---
 

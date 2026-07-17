@@ -84,7 +84,7 @@ de P705 erguia erro, uma divergência pré-existente não documentada).
 
 ## 4. Implementação final
 
-### `native_luma` (`01_core/src/rules/stdlib/foundations.rs`)
+### `native_luma` (`01_core/src/engine/stdlib/foundations.rs`)
 
 - `[]` → branco.
 - `[v]` → `component_to_ratio(v).unwrap_or(1.0)`, onde
@@ -111,11 +111,11 @@ válido).
 
 ## 5. Ficheiros tocados
 
-- **L0**: `00_nucleo/prompts/rules/stdlib/foundations.md` — secção
+- **L0**: `00_nucleo/prompts/engine/stdlib/foundations.md` — secção
   `native_luma` reescrita: algoritmo, causa raiz (`Value::Relative`, não
   `Ratio`), fallback silencioso replicado (com a mudança de decisão
   registada), scope-out (`luma(color)`, `alpha`).
-- **Código**: `01_core/src/rules/stdlib/foundations.rs` (`native_luma` +
+- **Código**: `01_core/src/engine/stdlib/foundations.rs` (`native_luma` +
   9 testes).
 
 ---

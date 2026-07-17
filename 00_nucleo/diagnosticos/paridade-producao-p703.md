@@ -44,7 +44,7 @@
 
 ### 3.1 `native_rgb` — novo braço para `[Value::Str(s)]`
 
-`01_core/src/rules/stdlib/foundations.rs`: novo braço no `match
+`01_core/src/engine/stdlib/foundations.rs`: novo braço no `match
 args.items.as_slice()`, antes dos braços de 3/4 `Int`, delega a
 `parse_hex_color`.
 
@@ -73,10 +73,10 @@ numérica de 3 `Int` sem regressão.
 
 ## 4. Ficheiros tocados
 
-- **L0**: `00_nucleo/prompts/rules/stdlib/foundations.md` — secção
+- **L0**: `00_nucleo/prompts/engine/stdlib/foundations.md` — secção
   `native_rgb` estendida com a forma hex, algoritmo, scope-out, testes
   canónicos.
-- **Código**: `01_core/src/rules/stdlib/foundations.rs` (novo braço +
+- **Código**: `01_core/src/engine/stdlib/foundations.rs` (novo braço +
   `parse_hex_color` + 9 testes).
 
 ---
@@ -124,7 +124,7 @@ Isolado à mesma `palette.typ` que motivou P703:
 ```
 range(90, 40, step: -12).map(v => luma(v * 1%))
 ```
-`native_range` (`01_core/src/rules/stdlib/foundations.rs`) só aceita
+`native_range` (`01_core/src/engine/stdlib/foundations.rs`) só aceita
 `range(n)` / `range(start, end)`, sem `step:`. Confirmado standalone contra
 o vanilla:
 ```

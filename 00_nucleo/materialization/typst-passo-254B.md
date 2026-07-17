@@ -13,18 +13,18 @@ cada pendência DEBT-8.
 
 ```bash
 # Consumer de MathGlyphKern no Layouter
-grep -rn "MathGlyphKern" 01_core/src/rules/math/
+grep -rn "MathGlyphKern" 01_core/src/engine/math/
 
 # Uso de math_kern() (trait method) no Layouter
-grep -rn "math_kern\b" 01_core/src/rules/math/
+grep -rn "math_kern\b" 01_core/src/engine/math/
 
 # Procura em attach.rs e hconcat helper
-grep -n "kern\|MathKernRecord\|math_kern" 01_core/src/rules/math/layout/attach.rs
-grep -n "kern" 01_core/src/rules/math/layout/mod.rs
+grep -n "kern\|MathKernRecord\|math_kern" 01_core/src/engine/math/layout/attach.rs
+grep -n "kern" 01_core/src/engine/math/layout/mod.rs
 ```
 
 **Critério de classificação**:
-- Zero hits em `01_core/src/rules/math/` → **Item 1 ABERTO**
+- Zero hits em `01_core/src/engine/math/` → **Item 1 ABERTO**
   (infra L1+L3 pronta; ligação Layouter ausente).
 - ≥1 hit em consumer real (não em test/comment) → **Item 1
   FECHADO ESTRUTURALMENTE**.
@@ -34,14 +34,14 @@ grep -n "kern" 01_core/src/rules/math/layout/mod.rs
 ```bash
 # stretchy.rs deve consumir GlyphVariants
 grep -n "GlyphVariants\|vertical_glyph_variants\|\.select(" \
-    01_core/src/rules/math/layout/stretchy.rs
+    01_core/src/engine/math/layout/stretchy.rs
 
 # assembly.rs deve consumir GlyphAssembly
 grep -n "GlyphAssembly\|vertical_glyph_assembly\|GlyphPart" \
-    01_core/src/rules/math/layout/assembly.rs
+    01_core/src/engine/math/layout/assembly.rs
 
 # Procura uso de MathConstants em todo o motor
-grep -rn "MathConstants\|math_constants\b" 01_core/src/rules/math/
+grep -rn "MathConstants\|math_constants\b" 01_core/src/engine/math/
 ```
 
 **Critério de classificação**:
@@ -56,14 +56,14 @@ grep -rn "MathConstants\|math_constants\b" 01_core/src/rules/math/
 ```bash
 # Arm de layout para MathPrimes
 grep -rn "MathPrimes\|Content::MathPrimes\|primes\b" \
-    01_core/src/rules/math/
+    01_core/src/engine/math/
 
 # Tratamento em attach (primes vêm via MathAttach.primes)
-grep -n "primes\|Primes" 01_core/src/rules/math/layout/attach.rs
+grep -n "primes\|Primes" 01_core/src/engine/math/layout/attach.rs
 ```
 
 **Critério de classificação**:
-- Zero hits em `01_core/src/rules/math/` → **Item 3 ABERTO**.
+- Zero hits em `01_core/src/engine/math/` → **Item 3 ABERTO**.
 - Hits em `attach.rs` com arm dedicado → **Item 3 FECHADO**.
 - Hit apenas em comentário/`// TODO primes` → **Item 3 ABERTO
   com nota de scope-out**.
@@ -73,11 +73,11 @@ grep -n "primes\|Primes" 01_core/src/rules/math/layout/attach.rs
 ```bash
 # apply_axis_offset existe e usa axis_height
 grep -n "apply_axis_offset\|axis_height" \
-    01_core/src/rules/math/layout/mod.rs
+    01_core/src/engine/math/layout/mod.rs
 
 # Procurar referências a x-height ou baseline
 grep -rn "x_height\|x-height\|axis_height\|baseline" \
-    01_core/src/rules/math/
+    01_core/src/engine/math/
 ```
 
 **Critério de classificação**:

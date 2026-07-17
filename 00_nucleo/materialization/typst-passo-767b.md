@@ -73,7 +73,7 @@ Confirmar especificamente:
 Se o Passo 0 confirmar texto puro em AE=0 (sem regressão), e o Passo 1 mostrar que o problema não é mais "forma deslocada" mas sim "texto A ou texto B deslocado", a causa é diferente da que P767a corrigiu — pode ser, por exemplo, que o mecanismo de `block_chain_active`/colapso de margem não esteja a devolver correctamente o cursor de texto à posição esperada depois de uma forma, mesmo que a forma em si esteja bem posicionada.
 
 ```bash
-grep -n "block_chain_active\|prev_block_below_pending" 01_core/src/rules/layout/sequence.rs 01_core/src/rules/layout/block.rs 2>/dev/null
+grep -n "block_chain_active\|prev_block_below_pending" 01_core/src/engine/layout/sequence.rs 01_core/src/engine/layout/block.rs 2>/dev/null
 ```
 
 Confirmar por leitura de código o que esse mecanismo faz ao cursor de texto depois de processar um bloco, e comparar com o que as coordenadas do Passo 1 mostram estar a acontecer de facto.

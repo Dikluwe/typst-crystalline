@@ -25,17 +25,17 @@
 
 ## ADR-0107 — Paridade linguagem
 
-Contrato documental: `assert(cond, msg)` deve ter seu contrato L0 (assinatura, argumentos, semântica, paridade vanilla, testes canônicos) em `00_nucleo/prompts/rules/stdlib/assert.md`.
+Contrato documental: `assert(cond, msg)` deve ter seu contrato L0 (assinatura, argumentos, semântica, paridade vanilla, testes canônicos) em `00_nucleo/prompts/engine/stdlib/assert.md`.
 
 ---
 
 ## ADR-0109 — Atomização forma B
 
 **Toques pontuais:**
-1. Criar `00_nucleo/prompts/rules/stdlib/assert.md` com 1 secção.
+1. Criar `00_nucleo/prompts/engine/stdlib/assert.md` com 1 secção.
 2. Secção: assinatura, args (`cond: bool`, `msg: str`), semântica (panic se `cond == false`), paridade vanilla, testes canônicos.
 3. Atualizar `rules/stdlib/_comum.md` — remover `assert.rs` da lista.
-4. Atualizar cabeçalho `@prompt` de `01_core/src/rules/stdlib/assert.rs` para apontar `assert.md`.
+4. Atualizar cabeçalho `@prompt` de `01_core/src/engine/stdlib/assert.rs` para apontar `assert.md`.
 5. `DEBT.md` atualizado com nota "subset assert.rs fechado em P434".
 
 ---
@@ -48,7 +48,7 @@ Contrato documental: `assert(cond, msg)` deve ter seu contrato L0 (assinatura, a
 
 ## Critério de fecho
 
-- [ ] `00_nucleo/prompts/rules/stdlib/assert.md` criado com 1 secção.
+- [ ] `00_nucleo/prompts/engine/stdlib/assert.md` criado com 1 secção.
 - [ ] `assert.md` documenta: assinatura, args, semântica, paridade vanilla, testes canônicos.
 - [ ] `_comum.md` atualizado (assert.rs removido da lista).
 - [ ] `assert.rs` cabeçalho `@prompt` aponta `assert.md`.

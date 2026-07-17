@@ -2,7 +2,7 @@
 
 **Data:** 2026-07-09  
 **Commit de implementação:** `bec2a9ac8`  
-**Hash do L0 `rules/layout.md`:** `faf0ea7a` (ficheiros filhos); `layout/mod.rs` mantém `9c9b7122`  
+**Hash do L0 `engine/layout.md`:** `faf0ea7a` (ficheiros filhos); `layout/mod.rs` mantém `9c9b7122`  
 
 ---
 
@@ -32,7 +32,7 @@ por conta própria**. No entanto, `grid.rs` e `boxed.rs` chamam
 
 ## 3. A conta própria encontrada
 
-Local: `01_core/src/rules/layout/mod.rs:1323`
+Local: `01_core/src/engine/layout/mod.rs:1323`
 
 ```rust
 Content::Text(text) => {
@@ -125,7 +125,7 @@ quebráveis, etc.).
 
 ## 6. Implementação
 
-Ficheiro alterado: `01_core/src/rules/layout/mod.rs:1323`
+Ficheiro alterado: `01_core/src/engine/layout/mod.rs:1323`
 
 ```rust
 Content::Text(text) => {
@@ -145,7 +145,7 @@ Content::Text(text) => {
 }
 ```
 
-O Prompt L0 `00_nucleo/prompts/rules/layout.md` foi actualizado para
+O Prompt L0 `00_nucleo/prompts/engine/layout.md` foi actualizado para
 documentar que `measure_content_constrained` deve usar `text_width`.
 
 ---

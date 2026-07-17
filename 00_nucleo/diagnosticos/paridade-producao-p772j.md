@@ -27,7 +27,7 @@ nada por acidente).
 
 ### Mecanismo: `Content::Align`, nunca `Content::Place`
 
-`lab/typst-original/crates/typst-layout/src/rules.rs`:
+`lab/typst-original/crates/typst-layout/src/engine.rs`:
 
 ```rust
 const GRID_CELL_RULE: ShowFn<GridCell> = |elem, _, styles| {
@@ -179,7 +179,7 @@ alteração).
 - [x] Código órfão revertido, escopo confirmado, testes continuam verdes.
 - [x] Precedência de `align` em `grid()` confirmada contra o vanilla real (fold por
       eixo), não assumida.
-- [x] L0 escrito antes do código (`00_nucleo/prompts/rules/layout.md` §"Alinhamento
+- [x] L0 escrito antes do código (`00_nucleo/prompts/engine/layout.md` §"Alinhamento
       efectivo per-célula", hash `a214cd68`).
 - [x] Implementação nova, reutilizando a disciplina de coordenadas de P772g.
 - [x] `#grid(align: center, ...)` bate com o vanilla dentro de tolerância documentada

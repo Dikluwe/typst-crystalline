@@ -19,7 +19,7 @@ concreto; vanilla pattern confirmado por leitura literal.
 
 ### A.0.0.1 — Reprodução do bug em código P301
 
-Sítio exacto em `01_core/src/rules/eval/math.rs:305-311`:
+Sítio exacto em `01_core/src/engine/eval/math.rs:305-311`:
 
 ```rust
 // Outros nomes: P301 auto-lookup math (sin, cos, lim, …);

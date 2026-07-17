@@ -21,9 +21,9 @@ para `#set text(bold: true)` e `#set text(italic: true)`. O vanilla usa `#set te
 
 Mapeamento dos sítios internos:
 
-- `01_core/src/rules/eval/rules.rs`: arms `bold`/`italic` no match de `#set text(...)`.
-- `01_core/src/rules/eval/markup.rs`: `eval_strong`/`eval_emph` usam `StyleDelta { bold: Some(true) }` / `StyleDelta { italic: Some(true) }`.
-- `01_core/src/rules/layout/text.rs`: decodifica `"text.bold"` / `"text.italic"` da chain.
+- `01_core/src/engine/eval/rules.rs`: arms `bold`/`italic` no match de `#set text(...)`.
+- `01_core/src/engine/eval/markup.rs`: `eval_strong`/`eval_emph` usam `StyleDelta { bold: Some(true) }` / `StyleDelta { italic: Some(true) }`.
+- `01_core/src/engine/layout/text.rs`: decodifica `"text.bold"` / `"text.italic"` da chain.
 - `TextStyle`/`StyleChain` mantêm campos `bold`/`italic` internos, usados pelo shaper/export.
 
 Conclusão da sonda: é seguro remover `bold`/`italic` do parser de `#set text(...)` sem afectar `*...*` / `_..._`, desde que se mantenham os campos internos.
@@ -34,7 +34,7 @@ Conclusão da sonda: é seguro remover `bold`/`italic` do parser de `#set text(.
 
 ### 2.1 Parser de `#set text(...)`
 
-`01_core/src/rules/eval/rules.rs`:
+`01_core/src/engine/eval/rules.rs`:
 
 - Removidos os arms `bold` e `italic` que propagavam `Style::bold(b)` / `Style::italic(b)`.
 - Adicionado arm `"bold" | "italic"` que devolve erro hard: `unexpected argument: {key}`.
@@ -42,7 +42,7 @@ Conclusão da sonda: é seguro remover `bold`/`italic` do parser de `#set text(.
 
 ### 2.2 Layout de texto
 
-`01_core/src/rules/layout/text.rs`:
+`01_core/src/engine/layout/text.rs`:
 
 - Lê `"text.style"` da chain.
 - `"italic"` / `"oblique"` contribuem para `effective.italic = true`, coexistente com o campo tipado `italic` vindo de markup.
@@ -55,13 +55,13 @@ Manteve-se inalterado: continua a usar `StyleDelta { bold: Some(true) }` / `Styl
 
 Atualizados testes que usavam `#set text(bold: ...)` / `#set text(italic: ...)` para `weight` / `style`:
 
-- `01_core/src/rules/eval/tests.rs`: 12 testes ajustados; helpers `styles_has_text_bold` e `texto_bold_contendo` passaram a ler `"text.weight"` em vez do campo tipado `bold`.
-- `01_core/src/rules/layout/tests.rs`: 4 testes ajustados para verificar `weight`/`style`.
+- `01_core/src/engine/eval/tests.rs`: 12 testes ajustados; helpers `styles_has_text_bold` e `texto_bold_contendo` passaram a ler `"text.weight"` em vez do campo tipado `bold`.
+- `01_core/src/engine/layout/tests.rs`: 4 testes ajustados para verificar `weight`/`style`.
 - `03_infra/src/integration_tests.rs`: substituições de `bold: true` por `weight: 700`.
 
 ### 2.5 Documentação
 
-- `00_nucleo/prompts/rules/eval.md`: adicionada secção §P665.
+- `00_nucleo/prompts/engine/eval.md`: adicionada secção §P665.
 - `00_nucleo/diagnosticos/paridade-producao-p525.md`: nota póstuma explicando a reversão.
 
 ### 2.6 Infra do linter

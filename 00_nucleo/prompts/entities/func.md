@@ -1,5 +1,5 @@
 # Prompt L0 — entities/func e entities/args
-Hash do Código: eada1fbe
+Hash do Código: 43c19a6e
 
 **Camada**: L1
 **Ficheiros alvo**: `01_core/src/entities/func.rs`, `01_core/src/entities/args.rs`
@@ -116,13 +116,13 @@ parâmetros keyword-only consumirem posicionais quando não vinham por nome
 /// Função nativa implementada em Rust.
 pub struct NativeFunc {
     pub name: &'static str,
-    pub call: fn(&mut crate::rules::eval::EvalContext, &Args, &dyn crate::contracts::world::World, FileId) -> SourceResult<Value>,
+    pub call: fn(&mut crate::engine::eval::EvalContext, &Args, &dyn crate::contracts::world::World, FileId) -> SourceResult<Value>,
 }
 
 /// P394 — native function com acesso ao `Scopes` e `Engine` actuais.
 pub struct NativeFuncWithEngine {
     pub name: &'static str,
-    pub call: fn(&mut crate::rules::eval::EvalContext, &Args, &dyn crate::contracts::world::World, FileId, &mut crate::rules::scopes::Scopes<'_>, &mut crate::entities::engine::Engine<'_>) -> SourceResult<Value>,
+    pub call: fn(&mut crate::engine::eval::EvalContext, &Args, &dyn crate::contracts::world::World, FileId, &mut crate::engine::scopes::Scopes<'_>, &mut crate::entities::engine::Engine<'_>) -> SourceResult<Value>,
 }
 
 /// Lote F-3 inc-2 — construtor de elemento de utilizador.

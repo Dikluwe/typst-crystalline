@@ -41,7 +41,7 @@ Exit code: 1
 
 ## 2. Implementação
 
-### 2.1 `01_core/src/rules/introspect/from_tags.rs`
+### 2.1 `01_core/src/engine/introspect/from_tags.rs`
 
 - Adicionado `use crate::entities::source_result::SourceResult;`.
 - Alterada a assinatura de `apply_state_funcs` para devolver `SourceResult<()>`.
@@ -49,7 +49,7 @@ Exit code: 1
 - Atualizados os testes unitários existentes para lidar com o novo tipo de retorno (`.expect(...)`).
 - Adicionado teste unitário `func_eval_callback_erro_propaga_diagnostics` que confirma que o erro é propagado e que o estado não é actualizado.
 
-### 2.2 `01_core/src/rules/introspect/fixpoint.rs`
+### 2.2 `01_core/src/engine/introspect/fixpoint.rs`
 
 A chamada a `apply_state_funcs` em `run_fixpoint` agora trata o erro:
 
@@ -60,7 +60,7 @@ apply_state_funcs(&tags, &mut introspector, engine, ctx)
 
 - Adicionado teste de integração `fixpoint_propaga_erro_state_update_callback` que constrói um `Content` com `state` + `state_update(StateUpdate::Func(...))` onde a callback devolve `Err`, e verifica que `run_fixpoint` devolve `FixpointError::Eval`.
 
-### 2.3 `01_core/src/rules/introspect.rs`
+### 2.3 `01_core/src/engine/introspect.rs`
 
 Atualizados os três callers de `apply_state_funcs` nos testes `p173_cascade_engine_via_api_publica` e `p173_determinismo_func_eval` para propagar o resultado com `.expect("apply_state_funcs deve suceder")`.
 

@@ -6,7 +6,7 @@
 - `00_nucleo/prompts/entities/image-sizer.md`
 - `00_nucleo/prompts/infra/image-sizer.md`
 - `01_core/src/entities/image_sizer.rs`
-- `01_core/src/rules/layout/image.rs`
+- `01_core/src/engine/layout/image.rs`
 - `03_infra/src/image_sizer.rs`
 - `03_infra/src/world.rs`
 

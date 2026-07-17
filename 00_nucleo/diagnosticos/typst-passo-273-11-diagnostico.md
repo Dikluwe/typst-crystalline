@@ -12,7 +12,7 @@ intra-cluster).
 
 ## §A.1 — Localização literal dos dois sítios
 
-`01_core/src/rules/layout/mod.rs`:
+`01_core/src/engine/layout/mod.rs`:
 
 ### Sítio 1 — `measure_content_constrained` Stack arm (P156I)
 

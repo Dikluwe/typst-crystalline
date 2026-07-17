@@ -56,7 +56,7 @@ Confirmar como `deps` é definido — provavelmente um `#import` que agrupa vár
 
 ## Implementação
 
-Estender `eval_module_import` (`01_core/src/rules/eval/modules.rs`) para aceitar, além de `Expr::Str`, qualquer expressão que avalie para `Value::Module` — incluindo identificadores simples (referência a um módulo já importado) e field-access sobre um módulo (que pode devolver outro módulo, se o campo acedido for ele próprio um módulo).
+Estender `eval_module_import` (`01_core/src/engine/eval/modules.rs`) para aceitar, além de `Expr::Str`, qualquer expressão que avalie para `Value::Module` — incluindo identificadores simples (referência a um módulo já importado) e field-access sobre um módulo (que pode devolver outro módulo, se o campo acedido for ele próprio um módulo).
 
 ### Critério de fecho da implementação
 

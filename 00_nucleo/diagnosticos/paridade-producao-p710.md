@@ -67,7 +67,7 @@ registado para investigação futura caso um pacote real dependa de
 
 ## 2. Implementação
 
-### Mecanismo (`01_core/src/rules/eval/closures.rs`)
+### Mecanismo (`01_core/src/engine/eval/closures.rs`)
 
 Novo bloco em `eval_func_call`, mesmo padrão de
 P417/P423/P504/P466/P506/P702/P707: se o callee é `FieldAccess` com campo

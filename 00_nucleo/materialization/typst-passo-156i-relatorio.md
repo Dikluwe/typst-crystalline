@@ -201,8 +201,8 @@ Adaptados para Vec/Arc<[T]>:
 | `Content::map_text` | `entities/content.rs` | idem |
 | `materialize_time` | `rules/introspect.rs` | recurse em cada child |
 | `walk` | `rules/introspect.rs` | walk cada child em ordem |
-| `layout_content` | `rules/layout/mod.rs` | iterar children + spacing + dir (4 direcções) |
-| `measure_content_constrained` | `rules/layout/mod.rs` | TTB/BTT: max widths + sum heights + (n-1)*spacing; LTR/RTL: sum widths + max heights |
+| `layout_content` | `engine/layout/mod.rs` | iterar children + spacing + dir (4 direcções) |
+| `measure_content_constrained` | `engine/layout/mod.rs` | TTB/BTT: max widths + sum heights + (n-1)*spacing; LTR/RTL: sum widths + max heights |
 
 **Verificação**: `cargo build -p typst-core` clean (sem
 warnings).
@@ -269,7 +269,7 @@ pub fn native_stack(_ctx, args, _world, _file, _fig)
 
 `stdlib/mod.rs`:
 ```rust
-pub use crate::rules::stdlib::layout::{
+pub use crate::engine::stdlib::layout::{
     ..., native_stack, ...
 };
 ```
@@ -819,14 +819,14 @@ preserva o contexto histórico para retomada futura.
   - `01_core/src/entities/content.rs` (variant Stack +
     construtor + cobertura 5 arms + 6 tests).
   - `01_core/src/entities/mod.rs` (registo `pub mod dir;`).
-  - `01_core/src/rules/introspect.rs` (arms Stack em
+  - `01_core/src/engine/introspect.rs` (arms Stack em
     materialize_time + walk).
-  - `01_core/src/rules/layout/mod.rs` (arms Stack em
+  - `01_core/src/engine/layout/mod.rs` (arms Stack em
     layout_content + measure_content_constrained; 4
     direcções).
-  - `01_core/src/rules/layout/tests.rs` (3 tests E2E).
-  - `01_core/src/rules/stdlib/layout.rs` (`extract_dir`
+  - `01_core/src/engine/layout/tests.rs` (3 tests E2E).
+  - `01_core/src/engine/stdlib/layout.rs` (`extract_dir`
     helper + `native_stack`).
-  - `01_core/src/rules/stdlib/mod.rs` (re-export + 12 tests
+  - `01_core/src/engine/stdlib/mod.rs` (re-export + 12 tests
     incluindo regression).
-  - `01_core/src/rules/eval/mod.rs` (registo em `make_stdlib`).
+  - `01_core/src/engine/eval/mod.rs` (registo em `make_stdlib`).

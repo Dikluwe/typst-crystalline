@@ -21,7 +21,7 @@ Para cada item, ler o código-fonte do vanilla e o estado actual do cristalino:
 
 ```bash
 grep -n "<item>" lab/typst-original/crates/typst-layout/src/grid/resolve.rs 2>/dev/null
-grep -rn "<item>\|fn.*grid\|GridLayouter" 01_core/src/rules/layout/grid.rs 2>/dev/null
+grep -rn "<item>\|fn.*grid\|GridLayouter" 01_core/src/engine/layout/grid.rs 2>/dev/null
 ```
 
 ### Verificar a ligação com o achado não resolvido de P763g

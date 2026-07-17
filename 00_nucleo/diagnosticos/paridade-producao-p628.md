@@ -21,19 +21,19 @@ Conclusão: **há um núcleo comum real**, já parcialmente materializado em `la
 ```bash
 # 1. Localizar os pontos de entrada de cada caminho e os helpers já partilhados
 grep -n "fn layout\|fn measure\|text_width\|line_content_right\|align_current_line_rtl\|font_size_pt\|self.style.size" \
-  01_core/src/rules/layout/mod.rs \
-  01_core/src/rules/layout/cursor.rs \
-  01_core/src/rules/layout/grid.rs \
-  01_core/src/rules/layout/placement.rs \
-  01_core/src/rules/layout/columns.rs \
-  01_core/src/rules/layout/boxed.rs
+  01_core/src/engine/layout/mod.rs \
+  01_core/src/engine/layout/cursor.rs \
+  01_core/src/engine/layout/grid.rs \
+  01_core/src/engine/layout/placement.rs \
+  01_core/src/engine/layout/columns.rs \
+  01_core/src/engine/layout/boxed.rs
 
 # 2. Verificar quais helpers cada sub-layout consome directamente
 grep -n "layout_word\|layout_chunk\|flush_line\|new_page\|text_width\|line_content_right\|align_current_line_rtl\|layout_sub_frame_with_width\|measure_content_constrained" \
-  01_core/src/rules/layout/grid.rs \
-  01_core/src/rules/layout/placement.rs \
-  01_core/src/rules/layout/columns.rs \
-  01_core/src/rules/layout/boxed.rs
+  01_core/src/engine/layout/grid.rs \
+  01_core/src/engine/layout/placement.rs \
+  01_core/src/engine/layout/columns.rs \
+  01_core/src/engine/layout/boxed.rs
 ```
 
 ### Tabela: mecanismos × caminhos
@@ -54,7 +54,7 @@ Legenda:
 
 ### Núcleo já partilhado
 
-O helper `layout_sub_frame_with_width` (`01_core/src/rules/layout/mod.rs:1546`) já encapsula o núcleo comum para sub-layouts:
+O helper `layout_sub_frame_with_width` (`01_core/src/engine/layout/mod.rs:1546`) já encapsula o núcleo comum para sub-layouts:
 
 - salva/restaura o estado do `Layouter`;
 - inicializa um frame temporário com origem local;

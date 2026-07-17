@@ -185,8 +185,8 @@ exit=0
 | Ficheiro | Mudança |
 |----------|---------|
 | `01_core/src/entities/font_book.rs` | +`from_name` em `impl FontWeight`; +2 unit tests |
-| `01_core/src/rules/eval/rules.rs` | +import `FontWeight`; +`else if Value::Str` no arm weight |
-| `01_core/src/rules/eval/tests.rs` | +3 integration tests |
+| `01_core/src/engine/eval/rules.rs` | +import `FontWeight`; +`else if Value::Str` no arm weight |
+| `01_core/src/engine/eval/tests.rs` | +3 integration tests |
 | `00_nucleo/adr/typst-adr-0038-...md` | terceira nota (variante pattern) |
 | `00_nucleo/prompts/entities/font-book.md` | actualiza `impl FontWeight` na interface pública |
 

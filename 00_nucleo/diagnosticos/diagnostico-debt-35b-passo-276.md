@@ -15,7 +15,7 @@ P275 N=34; 29º consumo → P276 N=35; 30º consumo).
 
 ### §A.1.1 — Método `available_width` em Layouter
 
-`01_core/src/rules/layout/mod.rs:372`:
+`01_core/src/engine/layout/mod.rs:372`:
 
 ```rust
 /// Largura disponível para conteúdo (exclui margens dos dois lados).
@@ -30,7 +30,7 @@ short-circuit; sem memoização.
 
 ### §A.1.2 — Campos cache de width no struct Layouter
 
-`grep -n "cached_width|width_cache|cached_available" 01_core/src/rules/layout/`:
+`grep -n "cached_width|width_cache|cached_available" 01_core/src/engine/layout/`:
 
 **Resultado**: zero matches.
 
@@ -39,7 +39,7 @@ variante de naming) em `Layouter` ou módulos relacionados.
 
 ### §A.1.3 — Consumidores de `available_width`
 
-`grep -c "\.available_width\(\)" 01_core/src/rules/`:
+`grep -c "\.available_width\(\)" 01_core/src/engine/`:
 
 | Ficheiro | Callsites |
 |---|---|
@@ -53,7 +53,7 @@ campo. Confirmado: **cálculo em tempo real activo**.
 
 ### §A.1.4 — `Content::SetPage` arm
 
-`01_core/src/rules/layout/mod.rs:1009`:
+`01_core/src/engine/layout/mod.rs:1009`:
 
 ```rust
 Content::SetPage { width, height, margin } => {
@@ -157,7 +157,7 @@ passos futuros:
 
 > Se passo futuro adicionar cache de `available_width` como campo do
 > Layouter (motivado por perf benchmark concreto), o arm
-> `Content::SetPage` (`01_core/src/rules/layout/mod.rs:1009+`) deve
+> `Content::SetPage` (`01_core/src/engine/layout/mod.rs:1009+`) deve
 > invalidar o cache. Esta nota substitui DEBT-35b como artefacto
 > documental.
 
@@ -171,7 +171,7 @@ wishlist arquitectural" identificado implicitamente por pattern P206E
 A nota é incorporada em **§3 do relatório** + **DEBT.md secção 2
 histórico DEBT-35b** (junto à anotação OBSOLETED).
 
-L0 prompts: `prompts/rules/layout.md` não menciona DEBT-35b
+L0 prompts: `prompts/engine/layout.md` não menciona DEBT-35b
 directamente (verificado via grep). Não precisa de actualização.
 
 ---

@@ -3,7 +3,7 @@
 
 > **Passo:** 634
 > **Data:** 2026-07-09
-> **Foco:** P633 confirmou, com quatro testes directos, que `eval_expr` (`01_core/src/rules/eval/mod.rs:819`) devolve `Ok(Value::None)` para qualquer variante de `Expr` ainda não migrada — incluindo `#break`, `#continue`, e `#return` usados fora de um ciclo/função, e até erros de sintaxe (`#let x = 0xZZ` vira `x = none`). É o caso mais grave da lista, porque afecta construções fundamentais da linguagem, não uma propriedade opcional.
+> **Foco:** P633 confirmou, com quatro testes directos, que `eval_expr` (`01_core/src/engine/eval/mod.rs:819`) devolve `Ok(Value::None)` para qualquer variante de `Expr` ainda não migrada — incluindo `#break`, `#continue`, e `#return` usados fora de um ciclo/função, e até erros de sintaxe (`#let x = 0xZZ` vira `x = none`). É o caso mais grave da lista, porque afecta construções fundamentais da linguagem, não uma propriedade opcional.
 > **Tipo:** Sonda + Implementação.
 > **Tamanho:** M.
 > **ADR-0108 EM VIGOR.**
@@ -22,7 +22,7 @@ O braço catch-all de `eval_expr` foi criado como medida temporária, presumivel
 ### Confirmar exactamente que variantes caem no catch-all hoje
 
 ```bash
-grep -n "match.*self\|match expr\|_ =>" 01_core/src/rules/eval/mod.rs | grep -A2 -B20 "^819:"
+grep -n "match.*self\|match expr\|_ =>" 01_core/src/engine/eval/mod.rs | grep -A2 -B20 "^819:"
 ```
 
 Listar, com o `match` completo à volta da linha 819, todas as variantes de `Expr` já tratadas explicitamente, e confirmar por eliminação quais caem no catch-all.
@@ -30,7 +30,7 @@ Listar, com o `match` completo à volta da linha 819, todas as variantes de `Exp
 ### Confirmar se `#break`/`#continue`/`#return` têm braços próprios nalgum sítio (dentro de ciclos/funções) que simplesmente não cobrem o caso de uso no topo do documento
 
 ```bash
-grep -n "Expr::Break\|Expr::Continue\|Expr::Return" 01_core/src/rules/eval/mod.rs
+grep -n "Expr::Break\|Expr::Continue\|Expr::Return" 01_core/src/engine/eval/mod.rs
 ```
 
 ### Critério de fecho da sonda

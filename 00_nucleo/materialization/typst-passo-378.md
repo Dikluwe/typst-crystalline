@@ -3,7 +3,7 @@
 > **O que faz.** Continua a atomização do `layout_content` (ADR-0109) na forma **B** já provada em
 > três tipos de caso (containers P376; Heading que lê o Introspector + visuais P377). Move a próxima
 > fatia dos arms restantes — os **visuais/decorações que faltam** (Place, Image, Figure, Overline, e
-> o que a Fase A medir na família) — do `match` monolítico para `rules/layout/<elem>.rs` (free
+> o que a Fase A medir na família) — do `match` monolítico para `engine/layout/<elem>.rs` (free
 > function `pub(super) fn layout`, módulo descendente: sem import reverso, sem `pub(crate)`, sem
 > custo §3). **Objetivo declarado: seguir até o `layout_content` fechar** (todos os arms não-math
 > distribuídos); os arms **math** ficam para fatia própria (descem a `rules/math/layout/`).
@@ -38,7 +38,7 @@ ambiente do dono; o passo só se protege.)
 
 1. **Reler** a ADR-0109 (forma B, não-metas), as **Travas anti-deriva**, e os P376/P377 (a forma
    provada; os arms já movidos: Block/Boxed/Stack/Pad/Heading/Transform/Shape/Columns).
-2. **Inventariar os arms restantes** do `layout_content` (`rules/layout/mod.rs`), com `file:line` e
+2. **Inventariar os arms restantes** do `layout_content` (`engine/layout/mod.rs`), com `file:line` e
    linhas por arm: quais não-math ainda estão gordos no `match` (Place, Image, Figure, Overline, e
    os demais), e quais já têm arquivo flat (os 6 precedentes + os movidos). **Medir o que falta para
    fechar.**
@@ -58,7 +58,7 @@ ambiente do dono; o passo só se protege.)
 - **`match` exaustivo MANTIDO** (sem wildcard).
 - **Despacho ESTÁTICO** — sem `dyn`/vtable. Se um arm exigir, **parar e reportar**.
 - **`entities/` não tocado** — `content→elements` inalterado, não-gate.
-- **Forma B** — free function em `rules/layout/<elem>.rs`, módulo descendente (sem ciclo, sem
+- **Forma B** — free function em `engine/layout/<elem>.rs`, módulo descendente (sem ciclo, sem
   `pub(crate)`). **Não usar a Opção A** (rejeitada).
 - **Content-preserving** — a rede de caracterização passa **sem alteração**; se virar, a lógica
   mudou ao mover → **investigar, não mascarar**.
@@ -76,7 +76,7 @@ externo). **TRAVA**: para no chat — a medição + o desenho + o escopo + os ha
 aprovar. Nenhum arm movido antes.
 
 ### Estágio 1 — mover a fatia (após aprovação)
-Por elemento: a lógica de layout **muda** do `match` para `rules/layout/<elem>.rs` (free function,
+Por elemento: a lógica de layout **muda** do `match` para `engine/layout/<elem>.rs` (free function,
 forma B); o arm do núcleo vira a delegação de uma linha; imports mortos em `mod.rs` removidos.
 Content-preserving.
 
@@ -92,7 +92,7 @@ Content-preserving.
 
 ### Estágio de fecho — COMMIT (padrão)
 Com os gates verdes, **commitar** a fatia: `git add -A && git commit -m "Passo 378 — atomização
-fatia <família>: layout para rules/layout/<elem>.rs"`. Árvore limpa e commitada.
+fatia <família>: layout para engine/layout/<elem>.rs"`. Árvore limpa e commitada.
 
 ---
 
@@ -146,7 +146,7 @@ chegar a **0 arms gordos não-math**. Os math são a fatia final própria.
 ## Relatório (`typst-passo-378-relatorio.md` + resumo no chat)
 
 A **medição dos arms restantes** (`file:line`, linhas por arm; quantos não-math faltam); a **fatia
-movida** por elemento (`file:line` do `rules/layout/<elem>.rs` + o arm magro); a paridade (rede +11
+movida** por elemento (`file:line` do `engine/layout/<elem>.rs` + o arm magro); a paridade (rede +11
 sem alteração); a **métrica de leitura** (o `layout_content` −X; o acumulado desde 1857; **quantos
 arms gordos não-math restam** — o progresso); as não-metas confirmadas; a prova de que o α/caso 2/
 caso 4/flag/F-5b ficaram intactos; a lente (registrada = 68, não-gate); a perf; **os commits**

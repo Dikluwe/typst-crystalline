@@ -10,7 +10,7 @@
 
 ## 1. Contexto e Objetivos
 
-O Passo 581 corrigiu `Expr::Escape`, `Expr::Shorthand` e `Expr::Linebreak` no avaliador de markup (`01_core/src/rules/eval/mod.rs`) para que deixassem de cair no braço genérico `_ => Ok(Value::None)`. O relatório de P581 afirmou que a correção fora validada por um teste unitário chamado `p581_cobertura_de_escape_e_shorthand_em_layout`. O Passo 583 confirmou que esse teste não existia no código — a correção estava protegida apenas por extração de texto manual, sem regressão automática.
+O Passo 581 corrigiu `Expr::Escape`, `Expr::Shorthand` e `Expr::Linebreak` no avaliador de markup (`01_core/src/engine/eval/mod.rs`) para que deixassem de cair no braço genérico `_ => Ok(Value::None)`. O relatório de P581 afirmou que a correção fora validada por um teste unitário chamado `p581_cobertura_de_escape_e_shorthand_em_layout`. O Passo 583 confirmou que esse teste não existia no código — a correção estava protegida apenas por extração de texto manual, sem regressão automática.
 
 Este passo cria o teste que devia já existir e adiciona um documento ao corpus de paridade para cobrir esta lacuna.
 
@@ -20,7 +20,7 @@ Este passo cria o teste que devia já existir e adiciona um documento ao corpus 
 
 ### 2.1. Teste unitário
 
-Ficheiro: `01_core/src/rules/eval/tests.rs`  
+Ficheiro: `01_core/src/engine/eval/tests.rs`  
 Nome do teste: `p584_escape_shorthand_linebreak_em_markup_preservados`  
 Localização: secção de markup, após os testes de smart quotes (Passo 445).
 
@@ -30,7 +30,7 @@ O teste usa o helper existente `eval_plain_text` e verifica três construções:
 2. **Shorthand:** `--` produz en-dash (U+2013), `---` produz em-dash (U+2014), `...` produz ellipsis (U+2026).
 3. **Linebreak:** `\ ` (barra seguida de whitespace) introduz `Content::Linebreak`, que emite `\n` em `plain_text()`.
 
-Nota sobre a sintaxe de linebreak: o lexer de markup (`01_core/src/rules/lexer/markup.rs:77-78`) só emite `SyntaxKind::Linebreak` quando a barra invertida é seguida de whitespace ou fim de input. `\\` em markup é lexado como um `Escape` que representa um único `\`, pelo que o teste de linebreak usa `\ ` conforme a semântica real do compilador cristalino.
+Nota sobre a sintaxe de linebreak: o lexer de markup (`01_core/src/engine/lexer/markup.rs:77-78`) só emite `SyntaxKind::Linebreak` quando a barra invertida é seguida de whitespace ou fim de input. `\\` em markup é lexado como um `Escape` que representa um único `\`, pelo que o teste de linebreak usa `\ ` conforme a semântica real do compilador cristalino.
 
 ### 2.2. Documento de corpus
 
@@ -92,7 +92,7 @@ Resultado: `✓ No violations found`.
 
 ## 4. Conclusão de Fecho do Passo 584
 
-- [x] Teste unitário `p584_escape_shorthand_linebreak_em_markup_preservados` criado em `01_core/src/rules/eval/tests.rs`, confirmado por leitura directa do ficheiro e a passar.
+- [x] Teste unitário `p584_escape_shorthand_linebreak_em_markup_preservados` criado em `01_core/src/engine/eval/tests.rs`, confirmado por leitura directa do ficheiro e a passar.
 - [x] Documento `lab/parity/corpus/markup/escape-shorthand-linebreak.typ` adicionado ao corpus de paridade.
 - [x] Compilação do documento de corpus confirmada com `pdftotext`.
 - [x] Sem regressão em `cargo test --workspace`.

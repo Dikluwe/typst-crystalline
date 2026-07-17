@@ -85,8 +85,8 @@ Resultado: idêntico. A string acumulada é descartada; não há tentativa de `j
 
 Os pontos relevantes no código são:
 
-- `01_core/src/rules/eval/mod.rs:680-711` — o braço `Expr::CodeBlock` percorre as expressões do bloco, aplicando `operators::join(output, value)` até encontrar um `FlowEvent` (linha 684: `if ctx.flow.is_some() { break; }`). Quando o `return` é avaliado, `ctx.flow` passa a conter `FlowEvent::Return(node.span(), value, false)` (linha 1016). O `output` acumulado até esse ponto é simplesmente abandonado; o `closures.rs` devolve o valor explícito do `return`.
-- `01_core/src/rules/eval/closures.rs:328-334` — ao sair da closure, `FlowEvent::Return(_, Some(explicit), _)` devolve `Ok(explicit)`, ignorando completamente o `output` acumulado no bloco.
+- `01_core/src/engine/eval/mod.rs:680-711` — o braço `Expr::CodeBlock` percorre as expressões do bloco, aplicando `operators::join(output, value)` até encontrar um `FlowEvent` (linha 684: `if ctx.flow.is_some() { break; }`). Quando o `return` é avaliado, `ctx.flow` passa a conter `FlowEvent::Return(node.span(), value, false)` (linha 1016). O `output` acumulado até esse ponto é simplesmente abandonado; o `closures.rs` devolve o valor explícito do `return`.
+- `01_core/src/engine/eval/closures.rs:328-334` — ao sair da closure, `FlowEvent::Return(_, Some(explicit), _)` devolve `Ok(explicit)`, ignorando completamente o `output` acumulado no bloco.
 
 Este comportamento espelha o vanilla: o `return` curto-circuita o bloco e descarta o valor acumulado. Não há tentativa de `join` do valor acumulado com o valor de retorno, pelo que não há erro "cannot join X with Y".
 

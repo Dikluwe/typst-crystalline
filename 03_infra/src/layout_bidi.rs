@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/layout_bidi.md
-//! @prompt-hash 6cd87c48
+//! @prompt-hash 2608d663
 //! @layer L3
 //! @updated 2026-07-04
 //!
@@ -14,7 +14,7 @@
 #![allow(deprecated)] // FrameItem::Text é o input legítimo desta passagem
 
 use typst_core::entities::layout_types::{FrameItem, Page, PagedDocument, Point, Pt};
-use typst_core::rules::layout::FontMetrics;
+use typst_core::engine::layout::FontMetrics;
 use unicode_bidi::{bidi_class, BidiClass, BidiInfo};
 
 /// **P591/P593** — largura de um item de texto para reordenação bidi.
@@ -783,7 +783,7 @@ mod tests {
     use super::*;
     use typst_core::entities::geometry::ShapeKind;
     use typst_core::entities::layout_types::{Color, FrameItem, Page, PagedDocument, Point, Pt, TextStyle};
-    use typst_core::rules::layout::FixedMetrics;
+    use typst_core::engine::layout::FixedMetrics;
 
     fn text_item(x: f64, y: f64, text: &str) -> FrameItem {
         text_item_with_size(x, y, text, Pt(12.0))

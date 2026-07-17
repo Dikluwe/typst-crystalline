@@ -39,7 +39,7 @@ activado em paralelo ao legacy; ambos fornecem valores idênticos.
 | 4 | `rules/introspect/extract_payload.rs` | Arm novo retorna `Some(ElementPayload::CounterUpdate { key, action })`. |
 | 5 | `rules/introspect/from_tags.rs` | Arm novo: 3 caminhos (Step+heading → `apply_hierarchical_at`; Step+other → `apply_at(Step)`; Update → `apply_at(Update)`); indexa em `kind_index[CounterUpdate]`. |
 | 6 | `rules/introspect.rs` (walk arm) | Comentário inline P198C; 3 mutações legacy preservadas. |
-| 7 | `prompts/rules/introspect.md` | Tabela Excepções E6 fechada estruturalmente; secção nova "Walk arm CounterUpdate migrado (P198C, β-promote)"; ordem inversa passo 8 ✅. |
+| 7 | `prompts/engine/introspect.md` | Tabela Excepções E6 fechada estruturalmente; secção nova "Walk arm CounterUpdate migrado (P198C, β-promote)"; ordem inversa passo 8 ✅. |
 
 ---
 
@@ -211,7 +211,7 @@ Magnitude **S puro**.
 - **5ª aplicação ADR-0069 stylesheet**: P195D + P196B + P197B + P198B + **P198C**.
 - **Sub-store consumido**: `intr.counters` (CounterRegistry P184B).
 - **Cadeia E6 ↔ E4**: `compute_labelled` Equation arm (P195D) preservado — lê `state.get_flat("equation")` durante walk.
-- **L0 tocado**: `00_nucleo/prompts/rules/introspect.md` hash `d25dfc47`.
+- **L0 tocado**: `00_nucleo/prompts/engine/introspect.md` hash `d25dfc47`.
 - **Código tocado**: 5 ficheiros `01_core/src/`:
   - `entities/element_payload.rs` (variant nova).
   - `entities/element_kind.rs` (variant nova).

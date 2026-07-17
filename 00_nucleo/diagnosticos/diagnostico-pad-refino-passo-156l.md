@@ -241,9 +241,9 @@ Per grep `Content::Pad`:
 7. `entities/content.rs:1223` — `map_text` (acede `padding`).
 8. `rules/introspect.rs:129` — `materialize_time` (acede `padding`).
 9. `rules/introspect.rs:397` — `walk` (`Pad { body, .. }` → não muda).
-10. `rules/layout/mod.rs:631` — `layout_content` (acede `padding`,
+10. `engine/layout/mod.rs:631` — `layout_content` (acede `padding`,
     consome `top/left/bottom`).
-11. `rules/layout/mod.rs:1003` — `measure_content_constrained`
+11. `engine/layout/mod.rs:1003` — `measure_content_constrained`
     (acede `padding`).
 12. `rules/stdlib/layout.rs:288` — produção em `native_pad`.
 
@@ -260,7 +260,7 @@ real, apenas verificação).
 - `rules/stdlib/mod.rs` (linhas 1382, 1718, 1747, 1898) — 4
   tests com `Pad { .. }` (não acedem padding — não precisam
   mudança).
-- `rules/layout/tests.rs:2002+` — 2 tests E2E geométricos
+- `engine/layout/tests.rs:2002+` — 2 tests E2E geométricos
   (verificação por posições, não por field padding directamente).
 
 **Total: ~7 tests com acesso explícito a `padding`** que precisam

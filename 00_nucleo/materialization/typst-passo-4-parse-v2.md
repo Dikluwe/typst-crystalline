@@ -70,7 +70,7 @@ pelas ADRs 0006–0015 — parar e reportar antes de continuar.
 
 ## Tarefa 1 — Prompt L0 para parse.md
 
-**Criar ou actualizar**: `00_nucleo/prompts/rules/parse.md`
+**Criar ou actualizar**: `00_nucleo/prompts/engine/parse.md`
 
 O prompt deve documentar:
 
@@ -81,7 +81,7 @@ Interface pública:
   pub fn parse_math(text: &str) -> SyntaxNode
 
 Dependências internas autorizadas (não externas):
-  crate::rules::lexer::scanner::Scanner  (ADR-0014)
+  crate::engine::lexer::scanner::Scanner  (ADR-0014)
   crate::entities::math_class::*         (ADR-0009, 0011)
   crate::utils::{timing_scope!, defer!}  (ADR-0006, 0008)
   std::collections::HashMap/HashSet      (ADR-0007)
@@ -97,7 +97,7 @@ Proibido:
   rustc_hash (ADR-0007) — usar std::collections
   typst_timing (ADR-0006) — usar timing_scope!()
   typst_utils (ADR-0008, 0009) — inline ou em entities/
-  unscanny (ADR-0014) — usar crate::rules::lexer::scanner::Scanner
+  unscanny (ADR-0014) — usar crate::engine::lexer::scanner::Scanner
 ```
 
 Critérios de verificação (incluir no prompt):
@@ -130,8 +130,8 @@ Então SyntaxKind::Code, erroneous() == false
 ## Tarefa 2 — Migrar lexer.rs
 
 **Origem**: `lab/typst-original/crates/typst-syntax/src/lexer.rs`
-**Destino**: `01_core/src/rules/lexer/mod.rs`
-            (ou `01_core/src/rules/lexer/lexer.rs` re-exportado em mod.rs)
+**Destino**: `01_core/src/engine/lexer/mod.rs`
+            (ou `01_core/src/engine/lexer/lexer.rs` re-exportado em mod.rs)
 
 ### Substituições obrigatórias (ADRs 0006–0015)
 
@@ -167,7 +167,7 @@ outros contextos — `String`/`format!` é correcto.
 Header obrigatório em `mod.rs` do lexer:
 ```rust
 //! Crystalline Lineage
-//! @prompt 00_nucleo/prompts/rules/parse.md
+//! @prompt 00_nucleo/prompts/engine/parse.md
 //! @prompt-hash <hash>
 //! @layer L1
 //! @updated 2026-03-23
@@ -178,7 +178,7 @@ Header obrigatório em `mod.rs` do lexer:
 ## Tarefa 3 — Migrar parser.rs
 
 **Origem**: `lab/typst-original/crates/typst-syntax/src/parser.rs`
-**Destino**: `01_core/src/rules/parse.rs`
+**Destino**: `01_core/src/engine/parse.rs`
 
 ### Substituições obrigatórias
 
@@ -204,7 +204,7 @@ Não adicionar a `[l1_allowed_external]` sem ADR.
 // 01_core/src/lib.rs — adicionar
 pub mod rules;
 
-// 01_core/src/rules/mod.rs — já existe com pub mod lexer;
+// 01_core/src/engine/mod.rs — já existe com pub mod lexer;
 // adicionar:
 pub mod parse;
 ```

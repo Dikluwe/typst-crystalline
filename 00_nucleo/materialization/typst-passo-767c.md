@@ -15,7 +15,7 @@
 
 ### 1. Não suprimir `above` quando a forma é a primeira depois de texto
 
-Em `01_core/src/rules/layout/sequence.rs:55`, confirmar por que texto não-bloco reseta `block_chain_active`/`prev_block_below_pending` a zero, e se essa mesma regra deveria aplicar-se a `Content::Shape` da forma como está a aplicar-se hoje. A pergunta central: no vanilla, o `above` de um `BlockElem` aplica-se sempre que o bloco sucede conteúdo de parágrafo, ou só quando sucede outro bloco?
+Em `01_core/src/engine/layout/sequence.rs:55`, confirmar por que texto não-bloco reseta `block_chain_active`/`prev_block_below_pending` a zero, e se essa mesma regra deveria aplicar-se a `Content::Shape` da forma como está a aplicar-se hoje. A pergunta central: no vanilla, o `above` de um `BlockElem` aplica-se sempre que o bloco sucede conteúdo de parágrafo, ou só quando sucede outro bloco?
 
 ```bash
 grep -n "above\|below\|Behaviour::" lab/typst-original/crates/typst-layout/src/flow/*.rs 2>/dev/null | head -30
@@ -25,7 +25,7 @@ Confirmar contra o vanilla antes de decidir se a correcção é "nunca zerar par
 
 ### 2. Corrigir o ponto de ancoragem: base da forma, não topo
 
-Em `01_core/src/rules/layout/shape.rs:85` (ou onde a posição Y final é calculada), mudar de:
+Em `01_core/src/engine/layout/shape.rs:85` (ou onde a posição Y final é calculada), mudar de:
 
 ```rust
 // actual: topo da forma em baseline + cap_height

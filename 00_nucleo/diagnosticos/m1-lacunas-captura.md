@@ -70,13 +70,13 @@ Mecanismo:
 - **P182B**: `Introspector::is_numbering_active(&self, key: &str) -> bool` adicionado ao trait + impl `TagIntrospector` delega a `state.final_value(key)` + match `Value::Bool(true)` (default `false`).
 - **P182C**: `Content::SetHeadingNumbering` promovido a locatable; `extract_payload` arm produz `ElementPayload::StateUpdate { key: "numbering_active:heading", update: StateUpdate::Set(Box::new(Value::Bool(active))) }`. Cláusula gate trivial: `from_tags::StateUpdate Set` ganha auto-init na primeira ocorrência (P171 `update` defensivo bloqueava state interno sem `Content::State` antecedente).
 - **P182D**: 2 consumers Layouter migrados via substitution-with-fallback (padrão P168/P181G):
-  - `01_core/src/rules/layout/mod.rs:301` (heading prefix): `self.introspector.is_numbering_active("numbering_active:heading") || self.counter.is_numbering_active("heading")`.
-  - `01_core/src/rules/layout/equation.rs:24` (equation auto-numeração): simétrico para `"numbering_active:equation"`.
+  - `01_core/src/engine/layout/mod.rs:301` (heading prefix): `self.introspector.is_numbering_active("numbering_active:heading") || self.counter.is_numbering_active("heading")`.
+  - `01_core/src/engine/layout/equation.rs:24` (equation auto-numeração): simétrico para `"numbering_active:equation"`.
 - **P182E**: 5 tests E2E em `mod p182e_e2e_heading_numbering` (pipeline completo via `layout()` legacy + via `layout_with_introspector` directo + re-update + paridade documento complexo + sentinela legacy).
 
 Critérios P182A §3 cláusula 6 (Opção 3) verificados literalmente:
 1. ✅ `Introspector::is_numbering_active(key) -> bool` no trait + impl `TagIntrospector` delegante; `from_tags::StateUpdate` arm `Set` cobre auto-init.
-2. ✅ `extract_payload` arm `Content::SetHeadingNumbering` em `01_core/src/rules/introspect/extract_payload.rs:63` produz payload correcto; `is_locatable(SetHeadingNumbering) == true`.
+2. ✅ `extract_payload` arm `Content::SetHeadingNumbering` em `01_core/src/engine/introspect/extract_payload.rs:63` produz payload correcto; `is_locatable(SetHeadingNumbering) == true`.
 3. ✅ Layouter heading-arm em `mod.rs:301` e equation-arm em `equation.rs:24` consultam `self.introspector.is_numbering_active(...)` com fallback legacy preservado.
 
 **Pendências M6**: campo legacy `CounterStateLegacy.numbering_active` continua a existir; walk arm canonical em `introspect.rs:455–457` continua write paralelo; write paralelo em `layout/counters.rs:11–13` continua; copy-sites em `mod.rs:1414, 1442` continuam; leituras intra-walk em `introspect.rs:360, 378` continuam (consomem `state` local; não migráveis para Introspector); fallback `||` activo em ambos consumers Layouter. M6 elimina todos quando F1 retomar.
@@ -159,7 +159,7 @@ Sem alteração de código resultante deste documento. Sem ADR nova. Lista é in
 ## Anexo — DEBT M4-residual (consumers C1+C2 bloqueados, C3 fechado em P184)
 
 Conceito introduzido em P183A §3 (diagnóstico M4-residual): inventário de
-consumers de `CounterStateLegacy` em `01_core/src/rules/layout/` que
+consumers de `CounterStateLegacy` em `01_core/src/engine/layout/` que
 não migram trivialmente para Introspector via padrão P168/P181G/P182D.
 
 P183B/C/D auditaram cada um aplicando a regra dos 2 eixos (P183C §6):

@@ -24,7 +24,7 @@ A forma `version(major, minor, patch, pre: "...", build: "...")`, e a variante p
 
 ## Implementação
 
-Remover de `native_version` (`01_core/src/rules/stdlib/primitives_constructors.rs`):
+Remover de `native_version` (`01_core/src/engine/stdlib/primitives_constructors.rs`):
 
 - O quarto argumento posicional de texto (pré-lançamento).
 - Os argumentos nomeados `pre` e `build`.

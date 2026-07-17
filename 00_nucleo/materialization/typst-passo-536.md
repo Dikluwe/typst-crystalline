@@ -25,7 +25,7 @@ O vanilla escreve esta informação em dois sítios do PDF, que não são a mesm
 ## Sonda
 
 ```bash
-grep -rn "\"document\"\|set.*document\|SetDocument" 01_core/src/rules/eval/rules.rs 01_core/src/entities/content.rs --include="*.rs"
+grep -rn "\"document\"\|set.*document\|SetDocument" 01_core/src/engine/eval/rules.rs 01_core/src/entities/content.rs --include="*.rs"
 grep -rn "/Info\|DocumentInfo\|/Title\|/Author\|XMP" 03_infra/src/export/ --include="*.rs"
 ```
 

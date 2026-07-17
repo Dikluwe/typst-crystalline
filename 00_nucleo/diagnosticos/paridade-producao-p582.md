@@ -44,7 +44,7 @@ Utilizou-se o caso de teste `p581-estruturas.typ` para analisar o posicionamento
 
 ## 3. Implementação e Design no Motor de Layout
 
-Para atingir a paridade geométrica em medições complexas sem introduzir estado global ou violar as restrições da camada L1, realizamos as seguintes alterações em `01_core/src/rules/layout/mod.rs`:
+Para atingir a paridade geométrica em medições complexas sem introduzir estado global ou violar as restrições da camada L1, realizamos as seguintes alterações em `01_core/src/engine/layout/mod.rs`:
 
 1. **Alteração de Assinatura:**
    - Métodos `measure_content_constrained` e `measure_stack` foram alterados de `&self` para `&mut self`.

@@ -92,7 +92,7 @@ Este passo não adiciona novos casts — `Str → Version` já existe. `Version 
 
 ### A.1 — Prompt L0 `version-stdlib.md`
 
-Extensão de `00_nucleo/prompts/entities/version.md` (ou novo `00_nucleo/prompts/rules/stdlib/version-stdlib.md`):
+Extensão de `00_nucleo/prompts/entities/version.md` (ou novo `00_nucleo/prompts/engine/stdlib/version-stdlib.md`):
 
 - **Paridade**: `version(1, 2, 3)` ≡ vanilla constructor; `==`/`<`/`>` ≡ vanilla comparações semver.
 - **Substrato**: reusa `Version { major, minor, patch, pre, build }` P401; stdlib constructor + eval ops.

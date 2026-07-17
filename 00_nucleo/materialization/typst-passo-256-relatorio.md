@@ -77,7 +77,7 @@ Tipos compostos relacionados (`ColorSpace`, `Gradient`,
 ADR-0029 §enumeração. Pertencem a domínio **Visualize**, não
 Model. Não bloqueia Model.
 
-**Funções nativas** (em `01_core/src/rules/stdlib*`):
+**Funções nativas** (em `01_core/src/engine/stdlib*`):
 - `native_rgb(r, g, b)` ou `(r, g, b, a)` → `Value::Color`.
 - `native_luma(l)` → `Color::Rgb(l, l, l)` (escala cinza).
 

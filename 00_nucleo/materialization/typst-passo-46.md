@@ -4,9 +4,9 @@
 
 Ler antes de começar:
 - `01_core/src/entities/content.rs` — variante `Content::MathAttach`
-- `01_core/src/rules/eval.rs` — avaliação de `Expr::MathAttach`
-- `01_core/src/rules/math/layout.rs` — função `layout_attach`
-- `01_core/src/rules/layout.rs` — trait `FontMetrics`, método `math_kern()`
+- `01_core/src/engine/eval.rs` — avaliação de `Expr::MathAttach`
+- `01_core/src/engine/math/layout.rs` — função `layout_attach`
+- `01_core/src/engine/layout.rs` — trait `FontMetrics`, método `math_kern()`
 - `03_infra/src/font_metrics.rs` — leitura de `MathKernInfo` (implementada no Passo 44)
 
 Pré-condição: `cargo test` — 518 L1 + 80 L3 + 50 parity, zero violations.
@@ -42,18 +42,18 @@ grep -n "fn tl\|fn bl\|fn top\|fn bottom" \
 grep -A 8 "MathAttach {" 01_core/src/entities/content.rs
 
 # 3. Confirmar como o eval mapeia MathAttach actualmente
-grep -A 15 "Expr::MathAttach" 01_core/src/rules/eval.rs
+grep -A 15 "Expr::MathAttach" 01_core/src/engine/eval.rs
 
 # 4. Confirmar assinatura actual de layout_attach
-grep -n "fn layout_attach" 01_core/src/rules/math/layout.rs
+grep -n "fn layout_attach" 01_core/src/engine/math/layout.rs
 
 # 5. Confirmar que math_kern está implementado e como é chamado em layout_attach
 grep -n "math_kern\|top_left\|bottom_left\|top_right\|bottom_right" \
-  01_core/src/rules/math/layout.rs | head -20
+  01_core/src/engine/math/layout.rs | head -20
 
 # 6. Confirmar helpers de teste disponíveis em L1 e L3
 grep -n "fn layout_test\|fn compile_to_pdf\|fn compile_pdf_with_font" \
-  01_core/src/rules/math/layout.rs \
+  01_core/src/engine/math/layout.rs \
   03_infra/src/integration_tests.rs | head -10
 ```
 
@@ -89,7 +89,7 @@ adicionar `tl: None, bl: None` onde ainda não existem (eval, testes).
 
 ## Tarefa 2 — Mapeamento no eval
 
-Em `01_core/src/rules/eval.rs`, no arm `Expr::MathAttach`, extrair os
+Em `01_core/src/engine/eval.rs`, no arm `Expr::MathAttach`, extrair os
 campos `tl` e `bl` do AST original.
 
 ```rust
@@ -124,7 +124,7 @@ diagnóstico), adaptar antes de codificar.
 
 ## Tarefa 3 — Geometria do layout_attach
 
-Em `01_core/src/rules/math/layout.rs`, refactorizar `layout_attach` para
+Em `01_core/src/engine/math/layout.rs`, refactorizar `layout_attach` para
 suportar scripts à esquerda. A função recebe agora os quatro campos opcionais.
 
 ### Lógica geométrica

@@ -23,7 +23,7 @@ Excluir os módulos já tratados (`foundations::calc`, `foundations::ops`, `diag
 Para cada item do módulo escolhido, ler o código-fonte antes de classificar — **não assumir infra-estrutura pela categoria do módulo** (lição de P772/P773):
 
 ```bash
-grep -n "<item>" 01_core/src/rules/stdlib/*.rs 01_core/src/entities/*.rs 01_core/src/rules/eval/*.rs 2>/dev/null
+grep -n "<item>" 01_core/src/engine/stdlib/*.rs 01_core/src/entities/*.rs 01_core/src/engine/eval/*.rs 2>/dev/null
 ```
 
 Para `pdf::accessibility` especificamente, atenção a itens que possam ter efeito observável mesmo sendo "infra-estrutura de exportação": tags de estrutura PDF, texto alternativo de imagens, idioma do documento, ordem de leitura — todos esses podem afectar o PDF final de forma verificável (abrir o PDF num leitor de acessibilidade ou extrair a árvore de estrutura), mesmo não sendo símbolos de língua Typst directamente expostos ao utilizador.

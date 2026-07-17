@@ -92,18 +92,18 @@ Para DejaVu Sans 11 pt, isto dava um avanço de **13,203 pt**, enquanto o vanill
 |----------|-----------|
 | `01_core/src/entities/layout_types.rs` | Adicionados `top_edge` e `bottom_edge` a `TextStyle`. |
 | `01_core/src/entities/style_chain.rs` | Propagação de `top_edge` / `bottom_edge` via `StyleDelta` e `StyleChain`. |
-| `01_core/src/rules/eval/rules.rs` | Eval de `#set text(top-edge: ...)` / `#set text(bottom-edge: ...)`. |
-| `01_core/src/rules/layout/metrics.rs` | Novo método `FontMetrics::text_edges(size, style) -> (Pt, Pt)`; implementação em `FixedMetrics`. |
+| `01_core/src/engine/eval/rules.rs` | Eval de `#set text(top-edge: ...)` / `#set text(bottom-edge: ...)`. |
+| `01_core/src/engine/layout/metrics.rs` | Novo método `FontMetrics::text_edges(size, style) -> (Pt, Pt)`; implementação em `FixedMetrics`. |
 | `03_infra/src/font_metrics.rs` | Implementações de `text_edges` em `FontBookMetrics` e `FallbackFontMetrics` com base nas métricas reais da face. |
-| `01_core/src/rules/layout/text.rs` | Propagação dos campos `top_edge` / `bottom_edge` do estilo para o layout. |
-| `01_core/src/rules/layout/cursor.rs` | `flush_line()` avança `top + |bottom| + leading`; `ensure_initial_baseline()` e transições de página/coluna usam `text_edges` em vez de `cap_height`. |
-| `01_core/src/rules/layout/sub_frame.rs` | Avanço interno de sub-frame usa o mesmo modelo. |
-| `01_core/src/rules/layout/set_page.rs` | Inicialização de página/coluna usa `text_edges`. |
-| `01_core/src/rules/layout/grid.rs` | Compensação de baseline inicial usa `top-edge` em vez de `cap_height`. |
-| `01_core/src/rules/layout/list_item.rs` | Espaçamento entre itens soltos (`tight: false`) usa `text_edges + leading`. |
-| `01_core/src/rules/layout/enum_item.rs` | Idem para listas ordenadas. |
-| `01_core/src/rules/layout/tests.rs` | Actualizados testes de `tight` e de `leading = 0pt` para o novo modelo. |
-| `00_nucleo/prompts/rules/layout.md` | Secção de avanço vertical actualizada; `FontMetrics::text_edges` documentado. |
+| `01_core/src/engine/layout/text.rs` | Propagação dos campos `top_edge` / `bottom_edge` do estilo para o layout. |
+| `01_core/src/engine/layout/cursor.rs` | `flush_line()` avança `top + |bottom| + leading`; `ensure_initial_baseline()` e transições de página/coluna usam `text_edges` em vez de `cap_height`. |
+| `01_core/src/engine/layout/sub_frame.rs` | Avanço interno de sub-frame usa o mesmo modelo. |
+| `01_core/src/engine/layout/set_page.rs` | Inicialização de página/coluna usa `text_edges`. |
+| `01_core/src/engine/layout/grid.rs` | Compensação de baseline inicial usa `top-edge` em vez de `cap_height`. |
+| `01_core/src/engine/layout/list_item.rs` | Espaçamento entre itens soltos (`tight: false`) usa `text_edges + leading`. |
+| `01_core/src/engine/layout/enum_item.rs` | Idem para listas ordenadas. |
+| `01_core/src/engine/layout/tests.rs` | Actualizados testes de `tight` e de `leading = 0pt` para o novo modelo. |
+| `00_nucleo/prompts/engine/layout.md` | Secção de avanço vertical actualizada; `FontMetrics::text_edges` documentado. |
 | `03_infra/fixtures/p307b/reference/*.pdf` | Snapshots P307b regenerados (`02-markup-heading`, `03-text-styling`, `07-multi-feature`). |
 
 ---
@@ -123,30 +123,30 @@ Para DejaVu Sans 11 pt, isto dava um avanço de **13,203 pt**, enquanto o vanill
 - O modelo de avanço vertical do cristalino foi alterado de `line_height = ascender + descender + lineGap` para `top_edge + |bottom_edge| + leading`, alinhando-se com o Typst vanilla.
 - A diferença acumulada de ~2,304 pt por linha observada em P761 foi eliminada no caso de teste P762-fixo.
 - Foram introduzidos os campos `top-edge` / `bottom-edge` em `TextStyle`, com eval e suporte em `FontMetrics`.
-- O L0 `00_nucleo/prompts/rules/layout.md` foi actualizado e os hashes ajustados.
+- O L0 `00_nucleo/prompts/engine/layout.md` foi actualizado e os hashes ajustados.
 
 ---
 
 ## Alterações (ficheiros modificados no working tree)
 
 ```text
-00_nucleo/prompts/rules/layout.md
+00_nucleo/prompts/engine/layout.md
 01_core/src/entities/layout_types.rs
 01_core/src/entities/style_chain.rs
-01_core/src/rules/eval/rules.rs
-01_core/src/rules/layout/cursor.rs
-01_core/src/rules/layout/enum_item.rs
-01_core/src/rules/layout/grid.rs
-01_core/src/rules/layout/list_item.rs
-01_core/src/rules/layout/metrics.rs
-01_core/src/rules/layout/set_page.rs
-01_core/src/rules/layout/sub_frame.rs
-01_core/src/rules/layout/tests.rs
-01_core/src/rules/layout/text.rs
+01_core/src/engine/eval/rules.rs
+01_core/src/engine/layout/cursor.rs
+01_core/src/engine/layout/enum_item.rs
+01_core/src/engine/layout/grid.rs
+01_core/src/engine/layout/list_item.rs
+01_core/src/engine/layout/metrics.rs
+01_core/src/engine/layout/set_page.rs
+01_core/src/engine/layout/sub_frame.rs
+01_core/src/engine/layout/tests.rs
+01_core/src/engine/layout/text.rs
 03_infra/fixtures/p307b/reference/02-markup-heading.pdf
 03_infra/fixtures/p307b/reference/03-text-styling.pdf
 03_infra/fixtures/p307b/reference/07-multi-feature.pdf
 03_infra/src/font_metrics.rs
 ```
 
-(Os restantes ficheiros `01_core/src/rules/layout/*.rs` com mudança de hash apenas reflectem o `crystalline-lint --fix-hashes` e não alterações semânticas.)
+(Os restantes ficheiros `01_core/src/engine/layout/*.rs` com mudança de hash apenas reflectem o `crystalline-lint --fix-hashes` e não alterações semânticas.)

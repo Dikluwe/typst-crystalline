@@ -50,7 +50,7 @@ pub struct TagIntrospector {
 
 **Novo método `headings_for_toc` será 20º**.
 
-### §1.3 Walk arm Heading mutação 4 — `01_core/src/rules/introspect.rs:461-498`
+### §1.3 Walk arm Heading mutação 4 — `01_core/src/engine/introspect.rs:461-498`
 
 ```rust
 Content::Heading { level, body } => {
@@ -85,7 +85,7 @@ pub headings_for_toc: Vec<(Label, Content, usize)>,
 
 **`usize` (não `u8`)** — corrigir referência da instrução.
 
-### §1.5 Consumer outline.rs:24 — `01_core/src/rules/layout/outline.rs:24`
+### §1.5 Consumer outline.rs:24 — `01_core/src/engine/layout/outline.rs:24`
 
 ```rust
 pub(super) fn layout_outline<M: FontMetrics, S: ImageSizer>(layouter: &mut Layouter<M, S>) {
@@ -117,7 +117,7 @@ Layouter recebe state legacy via assignment direto. Funciona com write paralelo 
 
 ### §1.8 `from_tags` arm necessário
 
-`01_core/src/rules/introspect/from_tags.rs` — match exhaustivo sobre `ElementPayload`. Após adicionar variant `HeadingForToc`, arm novo necessário (sem default `_ =>` — exhaustivo per convenção).
+`01_core/src/engine/introspect/from_tags.rs` — match exhaustivo sobre `ElementPayload`. Após adicionar variant `HeadingForToc`, arm novo necessário (sem default `_ =>` — exhaustivo per convenção).
 
 Push directo: `intr.headings_for_toc.push((label.clone(), body.clone(), *level));`.
 
@@ -135,7 +135,7 @@ Push directo: `intr.headings_for_toc.push((label.clone(), body.clone(), *level))
 - `entities/introspector.md` — sub-store novo + método trait novo (19→20).
 - `entities/element_payload.md` — variant nova (12→13).
 - `rules/introspect.md` — walk arm Heading actualização + nova secção.
-- `rules/layout/outline.md` (se existir) — consumer migration.
+- `engine/layout/outline.md` (se existir) — consumer migration.
 - (não tocar) `entities/element_kind.md` — sem variant nova.
 
 ### §1.12 Workspace baseline
@@ -298,7 +298,7 @@ Magnitude **M genuíno** (3 categorias combinadas):
 5. Adicionar helper privado `compute_heading_for_toc(state, level, body)` em `rules/introspect.rs` antes do walk fn.
 6. Modificar walk arm Heading (`introspect.rs:461`) para emitir 3ª Tag pós-recursão após Tag Labelled auto-toc P196B; mutação 4 legacy preservada.
 7. Adicionar arm em `rules/introspect/from_tags.rs` para `ElementPayload::HeadingForToc`.
-8. Migrar consumer `rules/layout/outline.rs:24` para substitution-with-fallback.
+8. Migrar consumer `engine/layout/outline.rs:24` para substitution-with-fallback.
 9. Actualizar L0 (3 ficheiros): `entities/introspector.md`, `entities/element_payload.md`, `rules/introspect.md`.
 10. Adicionar 5-6 tests E2E:
     - `headings_for_toc_extract_payload_emite_payload`.
@@ -443,7 +443,7 @@ Tag::End(loc, hash_content(heading))   // walk bottom
 4. **`rules/introspect/from_tags.rs`**:
    - Adicionar arm `ElementPayload::HeadingForToc` push directo.
 
-5. **`rules/layout/outline.rs:24`**:
+5. **`engine/layout/outline.rs:24`**:
    - Migrar para substitution-with-fallback.
 
 6. **L0**:

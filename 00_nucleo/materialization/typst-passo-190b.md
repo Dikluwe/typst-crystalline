@@ -79,12 +79,12 @@ disponível.
 #### Estado walk arm Bibliography
 
 1. Confirmar walk arm Bibliography em
-   `01_core/src/rules/introspect.rs`:
+   `01_core/src/engine/introspect.rs`:
    - **Esperado**: walk puro desde P181H — sem
      mutações `state.bib_entries.push` ou
      `state.bib_numbers.insert`.
    - Empiricamente: `grep -n "bib_entries\|bib_numbers"
-     01_core/src/rules/introspect.rs` deve mostrar
+     01_core/src/engine/introspect.rs` deve mostrar
      **zero ocorrências** de mutação no walk arm.
 
 2. Confirmar `from_tags` arm Bibliography (P181H)
@@ -96,7 +96,7 @@ disponível.
 #### Inventário Layouter consumers
 
 3. Confirmar consumers Layouter em
-   `01_core/src/rules/layout/mod.rs:665, 673` (per
+   `01_core/src/engine/layout/mod.rs:665, 673` (per
    P190A §6):
    - Forma exacta: `self.counter.bib_entries.iter().find(...)`
      e `self.counter.bib_numbers.get(...)` ou
@@ -139,7 +139,7 @@ disponível.
 7. Identificar L0s a tocar:
    - `entities/counter_state_legacy.md` (fields
      eliminados).
-   - `rules/layout/mod.md` (consumers migrados).
+   - `engine/layout/mod.md` (consumers migrados).
    - Possivelmente outros.
 
 Output: tabela com item + estado verificado.
@@ -152,7 +152,7 @@ Output: tabela com item + estado verificado.
 
 ### .B Migrar Layouter consumer 1 (`mod.rs:665`)
 
-1. Em `01_core/src/rules/layout/mod.rs:665` (per
+1. Em `01_core/src/engine/layout/mod.rs:665` (per
    `.A.3`):
    - Substituir `self.counter.bib_entries.iter().find(...)`
      por `self.introspector.bib_store_lookup(...)`
@@ -170,7 +170,7 @@ Output: tabela com item + estado verificado.
 
 ### .C Migrar Layouter consumer 2 (`mod.rs:673`)
 
-1. Em `01_core/src/rules/layout/mod.rs:673`:
+1. Em `01_core/src/engine/layout/mod.rs:673`:
    - Substituir `self.counter.bib_numbers.get(...)`
      por `self.introspector.bib_store_assigned_number(...)`.
 
@@ -233,7 +233,7 @@ Output: tabela com item + estado verificado.
      Introspector).
    - Indicar progresso: 16 → 14 fields.
 
-2. `rules/layout/mod.md` (se existir):
+2. `engine/layout/mod.md` (se existir):
    - Actualizar consumers Bibliography.
    - Cross-reference P190B.
 
@@ -279,7 +279,7 @@ com:
 - Confirmação `.G` (14 verificações).
 - Δ tests vs baseline P190A.
 - Hashes finais L0 (`counter_state_legacy.md` +
-  `rules/layout/mod.md` se existir).
+  `engine/layout/mod.md` se existir).
 - Decisões de execução notáveis (se houver).
 - Estado actual:
   - P190 série: A ✅ B ✅ | C-I pendentes.

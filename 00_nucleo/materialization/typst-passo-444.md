@@ -46,15 +46,15 @@ Contrato comportamental: `#underline[text]` desenha uma linha horizontal abaixo 
 3. **`entities/content.rs`** — Construtores `underline(body)`, `overline(body)`, `strike(body)` emitem `Content::Styled(body, Styles::from_iter([Style::Underline(true)]))` (análogo a `strong`/`emph`).
 4. **`rules/stdlib/structural.rs`** — `native_underline`, `native_overline`, `native_strike` (3 funções nativas, análogo a `native_strong`/`native_emph`).
 5. **`rules/eval/rules.rs`** — Selector `NodeKind::Underline`/`Overline`/`Strike` casam `Style::Underline`/`Overline`/`Strike` no `Content::Styled` (análogo a DEBT-50/P431).
-6. **`rules/layout/mod.rs`** — Arms de `Content::Styled` com `Style::Underline`/`Overline`/`Strike` emitem `FrameItem::Line` posicionado:
+6. **`engine/layout/mod.rs`** — Arms de `Content::Styled` com `Style::Underline`/`Overline`/`Strike` emitem `FrameItem::Line` posicionado:
    - Underline: `y = baseline + 0.2 * size` (abaixo da baseline)
    - Overline: `y = ascent - 0.1 * size` (acima do texto)
    - Strike: `y = (ascent - descent) / 2` (meio da altura da linha)
    - Linha: `start = (x, y)`, `end = (x + width, y)`, `thickness = 0.5pt` (default) ou valor do `stroke` se especificado.
 7. **`03_infra/src/export.rs`** — `FrameItem::Line` já existe; nenhuma alteração necessária (reuso do operador PDF `q w m l S Q`).
-8. **`rules/layout/tests.rs`** — 3 testes de integração: `underline_aparece_em_pdf`, `overline_aparece_em_pdf`, `strike_aparece_em_pdf`.
+8. **`engine/layout/tests.rs`** — 3 testes de integração: `underline_aparece_em_pdf`, `overline_aparece_em_pdf`, `strike_aparece_em_pdf`.
 9. **`rules/eval/tests.rs`** — 3 testes unitários: `eval_underline_emite_styled`, `eval_overline_emite_styled`, `eval_strike_emite_styled`.
-10. **Spec L0** — Adicionar secções em `00_nucleo/prompts/rules/stdlib/structural.md` (ou ficheiro dedicado `text_decoration.md`) para as 3 funções.
+10. **Spec L0** — Adicionar secções em `00_nucleo/prompts/engine/stdlib/structural.md` (ou ficheiro dedicado `text_decoration.md`) para as 3 funções.
 
 ---
 
@@ -87,7 +87,7 @@ Contrato comportamental: `#underline[text]` desenha uma linha horizontal abaixo 
 - [ ] `Content::underline`/`overline`/`strike` construtores em `content.rs`.
 - [ ] `native_underline`/`overline`/`strike` em `rules/stdlib/structural.rs`.
 - [ ] Selectors `NodeKind::Underline`/`Overline`/`Strike` em `rules/eval/rules.rs`.
-- [ ] Arms de layout em `rules/layout/mod.rs` emitem `FrameItem::Line` posicionado.
+- [ ] Arms de layout em `engine/layout/mod.rs` emitem `FrameItem::Line` posicionado.
 - [ ] 3 testes L1 (eval unit) + 3 testes L3 (layout E2E) verdes.
 - [ ] Spec L0 atualizado (structural.md ou text_decoration.md).
 - [ ] `cargo test --workspace` verde; `crystalline-lint` zero novas violações.

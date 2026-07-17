@@ -16,7 +16,7 @@
 ### Procurar cálculo de largura próprio, fora das funções únicas
 
 ```bash
-grep -n "fn.*width\|advance(\|\.width()" 01_core/src/rules/layout/grid.rs 01_core/src/rules/layout/placement.rs 01_core/src/rules/layout/columns.rs 01_core/src/rules/layout/boxed.rs
+grep -n "fn.*width\|advance(\|\.width()" 01_core/src/engine/layout/grid.rs 01_core/src/engine/layout/placement.rs 01_core/src/engine/layout/columns.rs 01_core/src/engine/layout/boxed.rs
 ```
 
 Para cada ocorrência, confirmar:

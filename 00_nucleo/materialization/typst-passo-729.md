@@ -43,7 +43,7 @@ Comparar linha a linha com o vanilla — identificar exactamente quais construto
 ### Localizar cada implementação separada no código
 
 ```bash
-grep -n "fn eval_if\|fn eval_for\|fn eval_while\|fn eval_closure\|last = \|output = " 01_core/src/rules/eval/*.rs | grep -v test
+grep -n "fn eval_if\|fn eval_for\|fn eval_while\|fn eval_closure\|last = \|output = " 01_core/src/engine/eval/*.rs | grep -v test
 ```
 
 Para cada construto que a sonda anterior mostrar como ainda errado, localizar a implementação exacta e confirmar se seria corrigido reaproveitando `operators::join` (já criado por P728), ou se precisa de lógica própria.

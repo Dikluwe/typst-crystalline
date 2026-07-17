@@ -50,7 +50,7 @@ Detalhe completo: `00_nucleo/diagnosticos/diagnostico-curve-geometry-passo-293.m
 
 ## §3 — Materialização
 
-### §3.1 — `01_core/src/rules/stdlib/shapes.rs` (+~110 LOC)
+### §3.1 — `01_core/src/engine/stdlib/shapes.rs` (+~110 LOC)
 
 Função `native_curve` adicionada após `native_polygon`:
 
@@ -100,11 +100,11 @@ Pontos arquitecturais:
 - **`path_bbox` (P277)** reutilizado sem alteração para AABB
   analítica das cúbicas.
 
-### §3.2 — `01_core/src/rules/stdlib/mod.rs`
+### §3.2 — `01_core/src/engine/stdlib/mod.rs`
 
 Linha 49: `native_curve` adicionado ao re-export do módulo `shapes`.
 
-### §3.3 — `01_core/src/rules/eval/mod.rs`
+### §3.3 — `01_core/src/engine/eval/mod.rs`
 
 `make_stdlib` regista `curve` após `polygon`:
 
@@ -121,7 +121,7 @@ scope.define("curve",   Value::Func(Func::native("curve",   native_curve)));
 
 ## §4 — Testes
 
-### §4.1 — `01_core/src/rules/stdlib/mod.rs` (+8 testes L1)
+### §4.1 — `01_core/src/engine/stdlib/mod.rs` (+8 testes L1)
 
 | Teste | Verifica |
 |---|---|

@@ -116,7 +116,7 @@ Ao fim da entrada DEBT-46 (antes do separador `---`), adicionar:
 ### Resultados finais (após Passo 96.10)
 
 Trabalho completo da ADR-0037 Regra 2 aplicada a ficheiros
-grandes de `01_core/src/rules/`.
+grandes de `01_core/src/engine/`.
 
 **Antes** (inventário do Passo 96):
 

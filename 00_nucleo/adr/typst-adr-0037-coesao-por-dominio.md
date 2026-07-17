@@ -9,18 +9,18 @@
 
 A série de passos 92–95 removeu progressivamente estado partilhado
 do `EvalContext` (ADR-0036), mas o ficheiro que aloja a lógica
-(`01_core/src/rules/eval.rs`) continuou a crescer e tem hoje 3780
+(`01_core/src/engine/eval.rs`) continuou a crescer e tem hoje 3780
 linhas. Análise realizada antes do Passo 96 revelou seis ficheiros
 em `01_core/src/` acima de 1000 linhas:
 
 | Linhas | Ficheiro |
 |--------|----------|
-| 3780 | `01_core/src/rules/eval.rs` |
-| 2848 | `01_core/src/rules/layout/mod.rs` |
-| 2255 | `01_core/src/rules/parse.rs` |
-| 1806 | `01_core/src/rules/math/layout.rs` |
-| 1711 | `01_core/src/rules/stdlib.rs` |
-| 1250 | `01_core/src/rules/lexer/mod.rs` |
+| 3780 | `01_core/src/engine/eval.rs` |
+| 2848 | `01_core/src/engine/layout/mod.rs` |
+| 2255 | `01_core/src/engine/parse.rs` |
+| 1806 | `01_core/src/engine/math/layout.rs` |
+| 1711 | `01_core/src/engine/stdlib.rs` |
+| 1250 | `01_core/src/engine/lexer/mod.rs` |
 
 No conjunto, são 13.650 linhas em seis ficheiros. O `eval.rs`
 sozinho tem 368 ocorrências de padrões `match` sobre
@@ -127,7 +127,7 @@ necessária.
 Ajuste B). Submódulos acedem a funções de outros submódulos via
 path relativo `super::X::func()` (sobem ao `mod.rs` do módulo pai
 e descem ao submódulo destino). Paths absolutos
-(`crate::rules::eval::X::func`) reservam-se para casos onde o
+(`crate::engine::eval::X::func`) reservam-se para casos onde o
 caminho relativo é confuso — por exemplo, `tests.rs` que acede a
 funções de vários submódulos distintos.
 
@@ -154,7 +154,7 @@ Ao extrair código para submódulos, a preferência é a seguinte ordem:
    exacto é conhecido, declará-lo directamente:
 
    ```rust
-   pub(in crate::rules::parse) fn helper(...) { ... }
+   pub(in crate::engine::parse) fn helper(...) { ... }
    ```
 
    É equivalente a `pub(super)` em certos casos mas auto-documenta
@@ -313,7 +313,7 @@ detecção automática de renomeação.
 - Possível proliferação de ficheiros pequenos se a Regra 1 for
   aplicada excessivamente (mitigada pela Regra 2, que é limite
   orientativo, não mínimo).
-- Imports mais longos entre submódulos (`use crate::rules::eval::math::eval_math`
+- Imports mais longos entre submódulos (`use crate::engine::eval::math::eval_math`
   em vez de função local).
 
 ### Neutras

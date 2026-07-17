@@ -48,7 +48,7 @@ Material de partida verificado:
 - `00_nucleo/materialization/typst-passo-185-relatorio-consolidado.md`
   §8 — P186 listado como pré-requisito para C2 com
   magnitude S esperada.
-- `01_core/src/rules/introspect/locatable.rs:11` —
+- `01_core/src/engine/introspect/locatable.rs:11` —
   invariante explícito `is_locatable(c) ↔
   extract_payload(c).is_some()`. Promoção exige edits
   em ambos.
@@ -246,18 +246,18 @@ Auditor confirma empiricamente:
      is_counted, .. }`, etc.).
 
 3. `is_locatable` cobertura actual:
-   - `01_core/src/rules/introspect/locatable.rs`.
+   - `01_core/src/engine/introspect/locatable.rs`.
    - Confirmar arm `Content::Equation { .. } => false`
      (per P185A §3.5 e P185D `.C` validado
      empiricamente).
 
 4. `extract_payload` cobertura actual:
-   - `01_core/src/rules/introspect/extract_payload.rs`.
+   - `01_core/src/engine/introspect/extract_payload.rs`.
    - Confirmar **ausência** de arm para
      `Content::Equation`.
 
 5. `from_tags` cobertura actual:
-   - `01_core/src/rules/introspect/from_tags.rs`.
+   - `01_core/src/engine/introspect/from_tags.rs`.
    - Confirmar ausência de arm para `ElementPayload::Equation`
      (que ainda não existe).
 
@@ -270,7 +270,7 @@ Auditor confirma empiricamente:
      loc)` per P184B).
 
 7. Walk legacy actual para equations:
-   - `grep -rn "equation" 01_core/src/rules/introspect.rs`.
+   - `grep -rn "equation" 01_core/src/engine/introspect.rs`.
    - Walk legacy popula `state.numbering_active["equation"]`
      ou similar? Confirmar.
 

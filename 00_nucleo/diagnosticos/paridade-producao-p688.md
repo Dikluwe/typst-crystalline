@@ -69,7 +69,7 @@ executa **no import** a linha
 `~/.cache/typst/packages/preview/oxifmt/1.0.0/oxifmt.typ:12`:
 `#let using-090 = using-080 and str(-1).codepoints().first() == _minus-sign`.
 O cristalino não implementa `str.codepoints()` → o dispatcher de métodos de `str`
-(`01_core/src/rules/stdlib/collections.rs:72-89`) devolve `None` e `eval/closures.rs`
+(`01_core/src/engine/stdlib/collections.rs:72-89`) devolve `None` e `eval/closures.rs`
 reporta `field access não suportado em str`. `import "@preview/oxifmt:1.0.0"` **sozinho**
 já reproduz o mesmo erro — logo o bloqueio é na **dependência**, não no desenho.
 

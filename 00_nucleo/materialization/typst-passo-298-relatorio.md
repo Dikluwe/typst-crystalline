@@ -42,7 +42,7 @@ vertical em vez de lateral). Operadores cristalino pré-existentes
 
 **Resultado metodológico — descoberta significativa A.0.0 N=6**:
 A spec P298 antecipou cristalino **sem heurística limits-style**.
-Inspecção literal em `01_core/src/rules/math/layout/attach.rs:55-61`
+Inspecção literal em `01_core/src/engine/math/layout/attach.rs:55-61`
 revelou **heurística hardcoded já existente** via
 `symbols::is_limit_function` (`"lim"`/`"max"`/`"min"`/`"sup"`/`"inf"`/
 `"limsup"`/`"liminf"`) + `is_large_operator` (`∑`/`∫`/etc.).
@@ -96,7 +96,7 @@ Paridade vanilla `OpElem { text: Content, limits: bool }` —
 | `rules/introspect.rs:materialize_time` | terminal |
 | `rules/introspect.rs:walk` | terminal |
 | `rules/introspect/locatable.rs` | `false` |
-| `rules/layout/mod.rs` | fallthrough math |
+| `engine/layout/mod.rs` | fallthrough math |
 | `rules/math/layout/mod.rs:layout_node` | `layout_op` trivial delegate |
 
 ### §3.3 — Handler `layout_op` (trivial delegate)
@@ -162,7 +162,7 @@ preservado pelo **15º passo consecutivo**.
 
 ## §4 — Testes
 
-### §4.1 — `01_core/src/rules/stdlib/mod.rs` (+8 testes L1)
+### §4.1 — `01_core/src/engine/stdlib/mod.rs` (+8 testes L1)
 
 **native_op (6 testes):**
 

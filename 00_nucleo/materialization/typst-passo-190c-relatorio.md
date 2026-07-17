@@ -29,11 +29,11 @@ P190C fecha **Categoria 2 (Page tracking)** do plano M6:
 | 1 | `entities/layouter_runtime_state.rs` | **Novo ficheiro** — struct `LayouterRuntimeState` com 2 fields. |
 | 2 | `prompts/entities/layouter_runtime_state.md` | **Novo L0** — documentação do padrão. |
 | 3 | `entities/mod.rs` | Adicionar `pub mod layouter_runtime_state;`. |
-| 4 | `rules/layout/mod.rs` (Layouter struct) | Field novo `pub runtime: LayouterRuntimeState`; inicialização em `Layouter::new()`. |
-| 5 | `rules/layout/references.rs:30` | `self.counter.label_pages.insert(...)` → `self.runtime.label_pages.insert(...)`. |
-| 6 | `rules/layout/outline.rs:51` | `layouter.counter.known_page_numbers.get(...)` → `layouter.runtime.known_page_numbers.get(...)`. |
-| 7 | `rules/layout/mod.rs:1139` | `doc.extracted_label_pages = self.counter.label_pages` → `self.runtime.label_pages`. |
-| 8 | `rules/layout/mod.rs:1535` | `l.counter.known_page_numbers = ...` → `l.runtime.known_page_numbers = ...`. |
+| 4 | `engine/layout/mod.rs` (Layouter struct) | Field novo `pub runtime: LayouterRuntimeState`; inicialização em `Layouter::new()`. |
+| 5 | `engine/layout/references.rs:30` | `self.counter.label_pages.insert(...)` → `self.runtime.label_pages.insert(...)`. |
+| 6 | `engine/layout/outline.rs:51` | `layouter.counter.known_page_numbers.get(...)` → `layouter.runtime.known_page_numbers.get(...)`. |
+| 7 | `engine/layout/mod.rs:1139` | `doc.extracted_label_pages = self.counter.label_pages` → `self.runtime.label_pages`. |
+| 8 | `engine/layout/mod.rs:1535` | `l.counter.known_page_numbers = ...` → `l.runtime.known_page_numbers = ...`. |
 | 9 | `entities/counter_state_legacy.rs:46-53` | Fields `label_pages` + `known_page_numbers` eliminados. Comentário P190C documenta migração. |
 
 **Walk arms NÃO modificados** — estes campos não eram tocados por walk (Layouter-runtime apenas).

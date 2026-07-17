@@ -214,7 +214,7 @@ existentes antes de migrar a peekable".
 ### §2.2 Sequence consumer patterns (confirmado 2026-05-14)
 
 ```bash
-grep -rn "Content::Sequence" 01_core/src/rules/layout/
+grep -rn "Content::Sequence" 01_core/src/engine/layout/
 ```
 
 **2 sítios** identificados:
@@ -227,7 +227,7 @@ peekable. Audit empírico confirmar pré-P250.
 ### §2.3 Look-ahead pré-existente em Layouter
 
 ```bash
-grep -rn "peekable\|peek()" 01_core/src/rules/layout/
+grep -rn "peekable\|peek()" 01_core/src/engine/layout/
 ```
 
 Confirmado audit anterior: **zero peekable usage no Layouter
@@ -486,12 +486,12 @@ stroke-overhang). TableCell: overflow clip implícito P248
 |-----------|----------|----------|
 | L1 entity | `01_core/src/entities/content.rs` | Block: +4 fields (spacing, above, below, sticky); cascata 9 arms (declaração, construtor, is_empty `..`, plain_text `..`, PartialEq +4 fields, map_content +4 fields, map_text +4 fields, materialize_time, walk) |
 | L0 prompt | `00_nucleo/prompts/entities/content.md` | Secção Block: +4 fields documentados; §"Limitações conscientes P156G" actualizada a "10/10 scope-outs P156G fechados P250"; cita ADR-0082 PROPOSTO N=1 citante |
-| L1 stdlib | `01_core/src/rules/stdlib/layout.rs` | `native_block` aceita 4 named args novos; helpers `extract_length` reusado para spacing/above/below; `extract_bool` para sticky (reuso N+1) |
-| L1 Layouter | `01_core/src/rules/layout/mod.rs` | Arm Block: spacing/above/below cursor.y advance; sticky lookahead via `next`; refactor 2 arms `Content::Sequence` para peekable + neighbour context; novo método `layout_content_with_context(part, next, is_first)` (ou similar) |
-| L1 Layouter | `01_core/src/rules/layout/mod.rs` | Possivelmente +0-2 fields conforme Decisão 5 final §2.7 |
+| L1 stdlib | `01_core/src/engine/stdlib/layout.rs` | `native_block` aceita 4 named args novos; helpers `extract_length` reusado para spacing/above/below; `extract_bool` para sticky (reuso N+1) |
+| L1 Layouter | `01_core/src/engine/layout/mod.rs` | Arm Block: spacing/above/below cursor.y advance; sticky lookahead via `next`; refactor 2 arms `Content::Sequence` para peekable + neighbour context; novo método `layout_content_with_context(part, next, is_first)` (ou similar) |
+| L1 Layouter | `01_core/src/engine/layout/mod.rs` | Possivelmente +0-2 fields conforme Decisão 5 final §2.7 |
 | Tests content | `01_core/src/entities/content.rs` (test module) | 4-6 unit tests cascata + adaptações construtores existentes N=5-15 |
-| Tests stdlib | `01_core/src/rules/stdlib/mod.rs` (test module) | 4-6 unit tests native_block 4 args novos |
-| Tests Layouter | `01_core/src/rules/layout/tests.rs` (ou módulo) | 6-8 unit Block spacing + 4-6 unit sticky + 2-4 Sequence refactor + 1-2 sentinela A.4 completude |
+| Tests stdlib | `01_core/src/engine/stdlib/mod.rs` (test module) | 4-6 unit tests native_block 4 args novos |
+| Tests Layouter | `01_core/src/engine/layout/tests.rs` (ou módulo) | 6-8 unit Block spacing + 4-6 unit sticky + 2-4 Sequence refactor + 1-2 sentinela A.4 completude |
 | Tests E2E | local | 3-5 E2E cross-attribute (spacing+breakable; sticky+heading; multi-block cumulativo) |
 | Inventário 148 | `00_nucleo/diagnosticos/typst-cobertura-vanilla-vs-cristalino.md` | §A.5 `block(...)` reclassificada (footnote ⁶⁷ P250 — A.4 Block completo 10/10); cobertura Layout per metodologia recalculada |
 | ADR-0061 | `00_nucleo/adr/typst-adr-0061-layout-fase-x-roadmap.md` | §"Refino futuro" anotação P250: A.4 Block completo |

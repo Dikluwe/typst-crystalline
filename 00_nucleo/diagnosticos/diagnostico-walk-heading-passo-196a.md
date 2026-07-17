@@ -437,7 +437,7 @@ consolidado P196 com lista de pontos cumpridos.
 
 **P196B** — walk arm Heading auto-toc + helper + Tag emit:
 
-1. Editar `01_core/src/rules/introspect.rs`:
+1. Editar `01_core/src/engine/introspect.rs`:
    - Adicionar helper privado `compute_heading_auto_toc`.
    - Modificar walk arm Heading:
      - Manter 4 mutações legacy (paridade preservada).
@@ -446,7 +446,7 @@ consolidado P196 com lista de pontos cumpridos.
        `ElementPayload::Labelled` com `auto-toc-N` key.
    - Comentário inline E2-residuo per ponto 1.
 
-2. Editar L0 `00_nucleo/prompts/rules/introspect.md`:
+2. Editar L0 `00_nucleo/prompts/engine/introspect.md`:
    - Secção Excepções M5 actualizada (E2 → E2-residuo).
    - Histórico relevante.
 

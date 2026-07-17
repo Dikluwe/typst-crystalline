@@ -107,7 +107,7 @@ compatibilidade com APIs do ecossistema Typst durante a migração
 
 | Prompt | Natureza da mudança |
 |--------|---------------------|
-| `00_nucleo/prompts/rules/parse.md` | Documentar ausência de `ecow`; tabela de substituições; referenciar ADR-0015 |
+| `00_nucleo/prompts/engine/parse.md` | Documentar ausência de `ecow`; tabela de substituições; referenciar ADR-0015 |
 
 ---
 

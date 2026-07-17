@@ -6,8 +6,8 @@ Ler antes de começar:
 - `01_core/src/entities/layout_types.rs` — struct `Frame` e as suas métricas
 - `01_core/src/entities/content.rs` — variante `Content::Equation { body, block }`
 - `01_core/src/entities/math_constants.rs` — `MathConstants`, campo `axis_height`
-- `01_core/src/rules/layout.rs` — onde `Content::Equation` é processada
-- `01_core/src/rules/math/layout.rs` — `MathLayouter`, `apply_axis_offset`
+- `01_core/src/engine/layout.rs` — onde `Content::Equation` é processada
+- `01_core/src/engine/math/layout.rs` — `MathLayouter`, `apply_axis_offset`
 
 Pré-condição: `cargo test` — 530 L1 + 87 L3 + 50 parity, zero violations.
 
@@ -48,13 +48,13 @@ grep -n "baseline\|ascent\|descent" 01_core/src/entities/layout_types.rs | head 
 
 # 3. Confirmar onde Content::Equation é processada no layout
 grep -n "Content::Equation\|Equation {" \
-  01_core/src/rules/layout.rs \
-  01_core/src/rules/math/layout.rs | head -10
+  01_core/src/engine/layout.rs \
+  01_core/src/engine/math/layout.rs | head -10
 
 # 4. Confirmar como o MathBox resultante é convertido em Frame
 grep -n "fn.*to_frame\|Frame {.*items\|MathBox.*Frame\|into.*Frame" \
-  01_core/src/rules/math/layout.rs \
-  01_core/src/rules/layout.rs | head -15
+  01_core/src/engine/math/layout.rs \
+  01_core/src/engine/layout.rs | head -15
 
 # 5. Confirmar se PagedDocument / Frame expõe ascent/descent nos testes
 grep -n "fn plain_text\|fn ascent\|fn descent\|fn baseline" \
@@ -85,7 +85,7 @@ Ambos os casos produzem o mesmo efeito visual: a equação inline sobe
 ## Tarefa 1 — Ajuste da baseline da Frame para equações inline (L1)
 
 No sítio onde `Content::Equation` produz uma `Frame` (confirmar no
-diagnóstico — provavelmente em `layout_content` em `rules/layout.rs` ou
+diagnóstico — provavelmente em `layout_content` em `engine/layout.rs` ou
 no final do `MathLayouter`):
 
 ```rust

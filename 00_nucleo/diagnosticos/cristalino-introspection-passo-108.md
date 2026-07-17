@@ -125,11 +125,11 @@ ficheiros:
 
 - `entities/counter_state.rs` — já coberto.
 - `rules/introspect.rs` — já coberto.
-- `rules/layout/mod.rs` — consome `CounterState`; fixpoint.
-- `rules/layout/counters.rs` — arm `CounterUpdate`/`Display`.
-- `rules/layout/references.rs` — arm `Labelled`/`Ref`.
-- `rules/layout/outline.rs` — arm `Outline`.
-- `rules/layout/tests.rs` — testes (inclui variantes da máquina).
+- `engine/layout/mod.rs` — consome `CounterState`; fixpoint.
+- `engine/layout/counters.rs` — arm `CounterUpdate`/`Display`.
+- `engine/layout/references.rs` — arm `Labelled`/`Ref`.
+- `engine/layout/outline.rs` — arm `Outline`.
+- `engine/layout/tests.rs` — testes (inclui variantes da máquina).
 - `rules/eval/bindings.rs` — `extract_counter_key` / counter method.
 - `rules/eval/mod.rs` — dispatcher (`Expr::Ref`, `Expr::Label`).
 - `entities/world_types.rs` — **não** tem Introspector/Location.
@@ -202,7 +202,7 @@ Grep + leitura rápida do DEBT.md identifica:
 
 ## Parte 3 — Consumidores no cristalino
 
-`rules/layout/` consome `CounterState` nos seguintes pontos:
+`engine/layout/` consome `CounterState` nos seguintes pontos:
 
 - **`layout/mod.rs`** (orquestrador): 22 referências. Gere
   `Layouter` com `CounterState` injectado; roda fixpoint quando

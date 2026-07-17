@@ -52,7 +52,7 @@ Seguir o mesmo padrão já usado para WASM (P696-700) — trait em L1, implement
 
 Implementar o mesmo mecanismo do vanilla: segmentador geral para a maioria dos casos, segmentador com tailoring de aspas (`U+201C`→OP, `U+201D`→CL) quando `lang` for `zh`/`ja`, seguindo `linebreak.rs:703` do vanilla como referência exacta.
 
-Reaproveitar/estender `layout_word`/`layout_text` (`01_core/src/rules/layout/cursor.rs:104`, `text.rs:166`) para não tratar texto CJK como uma palavra indivisível.
+Reaproveitar/estender `layout_word`/`layout_text` (`01_core/src/engine/layout/cursor.rs:104`, `text.rs:166`) para não tratar texto CJK como uma palavra indivisível.
 
 ### Critério de fecho da implementação
 

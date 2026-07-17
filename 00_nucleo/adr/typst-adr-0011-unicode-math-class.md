@@ -76,7 +76,7 @@ pub fn default_math_class(c: char) -> Option<MathClass> {
 | Prompt | Natureza da mudança |
 |--------|---------------------|
 | `00_nucleo/prompts/entities/math-class.md` | Actualizar — completar `default_math_class` com fallback via `unicode_math_class`; referenciar ADR-0011 |
-| `00_nucleo/prompts/rules/parse.md` | Documentar `unicode_math_class` como externo autorizado |
+| `00_nucleo/prompts/engine/parse.md` | Documentar `unicode_math_class` como externo autorizado |
 
 ---
 

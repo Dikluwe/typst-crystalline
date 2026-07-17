@@ -7,7 +7,7 @@
 > **Foco:** (A) Sonda de estado geral — varrer DEBT.md e inventário de cobertura para identificar itens pendentes fora das trilhas numeradas; (B) Footnotes Fase 2 — renderizar `Content::Footnote.body` no rodapé da página (P295.1), por acumulação sem 2-pass completo.
 > **Tipo:** Sonda-first + Materialização condicional (M).
 > **Tamanho:** XS (sonda) + M (footnote rodapé, ~40 min, condicional à sonda).
-> **ADR-0117 Cláusula 4:** `Content::Footnote` em `entities/elements/footnote.rs` (P326); consumer Layouter Fase 1 em `rules/layout/mod.rs` — `footnote_counter: u32` + body descartado (P295). `Page` em `entities/layout_types.rs`. Verificar antes de propor estrutura nova.
+> **ADR-0117 Cláusula 4:** `Content::Footnote` em `entities/elements/footnote.rs` (P326); consumer Layouter Fase 1 em `engine/layout/mod.rs` — `footnote_counter: u32` + body descartado (P295). `Page` em `entities/layout_types.rs`. Verificar antes de propor estrutura nova.
 
 ---
 
@@ -52,9 +52,9 @@ Esta abordagem é magnitude S–M, não L.
 | `bytes` stdlib (len, at, slice) | `rules/stdlib/` | P398 modelou tipo; stdlib scope-out |
 | `version` stdlib | `rules/stdlib/` | P401 modelou tipo; stdlib scope-out |
 | `decimal`/`duration` stdlib | `rules/stdlib/` | Modelados mas sem funcs user-facing |
-| `terms`/`term_item` layout | `rules/layout/` | Listado em roteiro como pendente |
-| `raw`/`Raw` refinos (`lang`, `block`) | `rules/layout/` | Raw tem highlighting scope-out |
-| `Divider` layout | `rules/layout/` | Linha horizontal (simples) |
+| `terms`/`term_item` layout | `engine/layout/` | Listado em roteiro como pendente |
+| `raw`/`Raw` refinos (`lang`, `block`) | `engine/layout/` | Raw tem highlighting scope-out |
+| `Divider` layout | `engine/layout/` | Linha horizontal (simples) |
 | `TermItem` stdlib (`terms(...)`) | `rules/stdlib/` | Verificar estado |
 | DEBT.md itens abertos | `DEBT.md` | Verificar lista actual |
 | Inventário cobertura `ausente` restantes | cobertura vanilla | Verificar o que sobrou |
@@ -71,7 +71,7 @@ A sonda não produz código. Produz uma tabela actualizada de itens pendentes e 
 
 ### B.1 — Estratura de acumulação
 
-**Campo novo no Layouter** (`rules/layout/mod.rs`):
+**Campo novo no Layouter** (`engine/layout/mod.rs`):
 
 ```rust
 // P478 — buffer de footnotes pendentes para rodapé da página actual.
@@ -84,7 +84,7 @@ Inicializado como `Vec::new()` em `Layouter::new()`.
 
 ### B.2 — Arm `Content::Footnote` actualizado
 
-**Ficheiro:** `rules/layout/mod.rs` ou `rules/layout/footnote.rs`
+**Ficheiro:** `engine/layout/mod.rs` ou `engine/layout/footnote.rs`
 
 Antes (P295 Fase 1):
 ```rust
@@ -109,7 +109,7 @@ Content::Footnote(e) => {
 
 ### B.3 — Render do rodapé em `new_page()`
 
-**Ficheiro:** `rules/layout/mod.rs` — método `new_page()`
+**Ficheiro:** `engine/layout/mod.rs` — método `new_page()`
 
 Antes de avançar para a nova página, renderizar o rodapé:
 
@@ -199,7 +199,7 @@ Nenhum teste de código. Relatório de sonda com tabela de itens e estado.
 ### Sub-item B
 
 - `entities/elements/footnote.md` — §"Fase 2 P478" adicionada: `pending_footnotes` no Layouter; `render_footnote_area`; scope-outs declarados.
-- `rules/layout/mod.md` (ou equivalente) — `pending_footnotes: Vec<(usize, Content)>` documentado.
+- `engine/layout/mod.md` (ou equivalente) — `pending_footnotes: Vec<(usize, Content)>` documentado.
 
 ---
 

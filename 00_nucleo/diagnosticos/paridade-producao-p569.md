@@ -147,7 +147,7 @@ Nenhuma palavra está colada; os espaços entre palavras são preservados. Os po
    **Excepção**: texto que termine em pontuação árabe seguida de ponto ASCII pode ser separado de forma inesperada; não observado nos casos de teste.
 
 3. **Risco a monitorar**: `cargo test -p typst-infra` falha em 17 testes fora do scope de P569 (ver secção 5).  
-   **Actualização (P571):** a afirmação de que as 5 falhas em `p307b_snapshot_tests` eram "pré-existentes, anterior a P569" está incorrecta. P571 confirmou que o commit P569 isolado só apresenta a falha preexistente em `07-multi-feature`; as falhas `01`, `02`, `03` e `09` foram causadas por código órfão em L1 (`layout_space` em `01_core/src/rules/layout/cursor.rs`, `mod.rs`, `text.rs`) que existia no working tree quando P569 foi validado, mas que nunca foi commitado nem tem Prompt L0. Esse código L1 foi descartado em P572.
+   **Actualização (P571):** a afirmação de que as 5 falhas em `p307b_snapshot_tests` eram "pré-existentes, anterior a P569" está incorrecta. P571 confirmou que o commit P569 isolado só apresenta a falha preexistente em `07-multi-feature`; as falhas `01`, `02`, `03` e `09` foram causadas por código órfão em L1 (`layout_space` em `01_core/src/engine/layout/cursor.rs`, `mod.rs`, `text.rs`) que existia no working tree quando P569 foi validado, mas que nunca foi commitado nem tem Prompt L0. Esse código L1 foi descartado em P572.
 
 ---
 

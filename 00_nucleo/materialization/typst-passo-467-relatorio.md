@@ -57,7 +57,7 @@ código necessária.
 | `00_nucleo/diagnosticos/typst-cobertura-vanilla-vs-cristalino.md` | Linha 111: `#show <selector>.where(...): ...` de `ausente` → `implementado` (Passos 417, 467). |
 | `00_nucleo/prompts/entities/selector.md` | Entrada no histórico de revisões confirmando estado funcional em P467. |
 | `00_nucleo/prompts/entities/show.md` | Entrada no histórico de revisões confirmando estado funcional em P467. |
-| `00_nucleo/prompts/rules/show-regex.md` | Nota de scope-out atualizada: `.where(field:)` é materializado em P417/P467. |
+| `00_nucleo/prompts/engine/show-regex.md` | Nota de scope-out atualizada: `.where(field:)` é materializado em P417/P467. |
 
 ---
 

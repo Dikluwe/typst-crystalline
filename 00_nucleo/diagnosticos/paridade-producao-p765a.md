@@ -4,7 +4,7 @@
 > **Data:** 2026-07-15T15:36:14-03:00  
 > **Commit base:** `5469d8d1e12f0bb77732b22b6dd1844312b3f282`  
 > **L0s afetados:**
-> - `00_nucleo/prompts/rules/stdlib_audit_methodology.md` (hash `0683fad7`) — metodologia do lote.
+> - `00_nucleo/prompts/engine/stdlib_audit_methodology.md` (hash `0683fad7`) — metodologia do lote.
 > - `00_nucleo/prompts/entities/symbol.md` (hash `28807a83` após P765a) — `Symbol` com modifiers/constructor.
 
 ---
@@ -33,28 +33,28 @@ Lote 0 de P765: correção de três bugs reais de linguagem identificados pela l
 
 - `01_core/src/entities/elements/title.rs` — `TitleElem` (já existente, testes corrigidos).
 - `01_core/src/entities/content.rs` — variant `Content::Title` e métodos delegados.
-- `01_core/src/rules/layout/title.rs` — layout (negrito, 1.7em).
-- `01_core/src/rules/layout/mod.rs` — dispatch de `Content::Title`.
-- `01_core/src/rules/stdlib/structural.rs` — `native_title`.
-- `01_core/src/rules/stdlib/mod.rs` — export.
-- `01_core/src/rules/eval/mod.rs` — registo no scope global.
-- `01_core/src/rules/introspect.rs` — matches exaustivos para `Content::Title`.
-- `01_core/src/rules/introspect/locatable.rs` — `Title` como não-locatable.
-- `01_core/src/rules/eval/repr.rs` — `repr(Content::Title)`.
+- `01_core/src/engine/layout/title.rs` — layout (negrito, 1.7em).
+- `01_core/src/engine/layout/mod.rs` — dispatch de `Content::Title`.
+- `01_core/src/engine/stdlib/structural.rs` — `native_title`.
+- `01_core/src/engine/stdlib/mod.rs` — export.
+- `01_core/src/engine/eval/mod.rs` — registo no scope global.
+- `01_core/src/engine/introspect.rs` — matches exaustivos para `Content::Title`.
+- `01_core/src/engine/introspect/locatable.rs` — `Title` como não-locatable.
+- `01_core/src/engine/eval/repr.rs` — `repr(Content::Title)`.
 - `03_infra/src/query_helpers.rs` — `has_any_text`/`count_variant` recursam no body.
 
 ### `symbol()` + modifiers
 
 - `01_core/src/entities/symbol.rs` — reestruturação para variants/applied modifiers.
 - `00_nucleo/prompts/entities/symbol.md` — L0 actualizado.
-- `01_core/src/rules/stdlib/sym.rs` — `arrow` com variants; `sym_lookup` sequencial.
-- `01_core/src/rules/eval/bindings.rs` — field access em `Value::Symbol`.
-- `01_core/src/rules/eval/closures.rs` — `Type::Symbol` despacha para `native_symbol`.
-- `01_core/src/rules/eval/repr.rs` — `repr(Value::Symbol)`.
-- `01_core/src/rules/stdlib/foundations.rs` — `native_symbol`.
-- `01_core/src/rules/stdlib/mod.rs` — export.
-- `01_core/src/rules/eval/mod.rs` — import de `native_symbol`.
-- `01_core/src/rules/eval/tests.rs` — testes E2E para `sym.arrow.r` e `sym.arrow.r.filled`.
+- `01_core/src/engine/stdlib/sym.rs` — `arrow` com variants; `sym_lookup` sequencial.
+- `01_core/src/engine/eval/bindings.rs` — field access em `Value::Symbol`.
+- `01_core/src/engine/eval/closures.rs` — `Type::Symbol` despacha para `native_symbol`.
+- `01_core/src/engine/eval/repr.rs` — `repr(Value::Symbol)`.
+- `01_core/src/engine/stdlib/foundations.rs` — `native_symbol`.
+- `01_core/src/engine/stdlib/mod.rs` — export.
+- `01_core/src/engine/eval/mod.rs` — import de `native_symbol`.
+- `01_core/src/engine/eval/tests.rs` — testes E2E para `sym.arrow.r` e `sym.arrow.r.filled`.
 
 ## Validação real
 

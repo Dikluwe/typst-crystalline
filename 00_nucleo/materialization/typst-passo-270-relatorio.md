@@ -372,9 +372,9 @@ magnitude M global respeitado).
 - `01_core/src/entities/gradient.rs` (~370 LOC L1: 3 struct fields +
   dispatcher + 14 helpers + 3 `*_with_space` construtores + 32 tests
   P270; header hash propagado).
-- `01_core/src/rules/stdlib/gradients.rs` (~80 LOC stdlib: 3 named
+- `01_core/src/engine/stdlib/gradients.rs` (~80 LOC stdlib: 3 named
   args + parse_space_named + validações + whitelists).
-- `01_core/src/rules/stdlib/mod.rs` (12 tests stdlib P270 novos).
+- `01_core/src/engine/stdlib/mod.rs` (12 tests stdlib P270 novos).
 - `03_infra/src/export.rs` (~38 sites de struct literal actualizados
   com `space: ColorSpace::Oklab`).
 - `00_nucleo/adr/typst-adr-0083-color-paridade-vanilla-com-subset-materializado.md` (anotação P270).

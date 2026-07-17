@@ -133,7 +133,7 @@ TableHeader\|TableFooter" 01_core/src --include="*.rs"`:
 
 ### §2.2 Stdlib funcs Model
 
-Inspecção `01_core/src/rules/stdlib/mod.rs` re-exports:
+Inspecção `01_core/src/engine/stdlib/mod.rs` re-exports:
 - `native_heading`, `native_strong`, `native_emph`,
   `native_terms`, `native_divider`, `native_quote`, `native_raw`
   — Fase 1 cobertos.
@@ -152,7 +152,7 @@ Per tabela A.5 linha 141:
 > `fill`, `inset`, `header`, `footer`, `colspan`/`rowspan`.
 > DEBT-34d/e abertos.
 
-**Layout existente**: `01_core/src/rules/layout/grid.rs` (272
+**Layout existente**: `01_core/src/engine/layout/grid.rs` (272
 linhas) implementa algoritmo de tracks (TrackSizing::Auto/Fixed/
 Fraction) com cells lineares distribuídas por `idx % num_cols`.
 
@@ -206,8 +206,8 @@ Inspecção `lab/typst-original/.../model/table.rs` (807 linhas):
 
 - `01_core/src/entities/content.rs`: `ec58d849` (preservado
   em P156L).
-- `01_core/src/rules/layout/grid.rs`: `a78b0adc`.
-- `01_core/src/rules/stdlib/layout.rs`: `f6cc2443`.
+- `01_core/src/engine/layout/grid.rs`: `a78b0adc`.
+- `01_core/src/engine/stdlib/layout.rs`: `f6cc2443`.
 
 ---
 

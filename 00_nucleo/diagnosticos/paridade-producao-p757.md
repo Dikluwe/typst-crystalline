@@ -107,7 +107,7 @@ O vanilla resolve `7em` / `5em` contra o font-size default (11 pt), resultando e
 
 ### 2.2 Causa
 
-Em `01_core/src/rules/eval/rules.rs`, a função auxiliar `extract_pt` usada pelo arm `#set page(...)` fazia:
+Em `01_core/src/engine/eval/rules.rs`, a função auxiliar `extract_pt` usada pelo arm `#set page(...)` fazia:
 
 ```rust
 Value::Length(l) => Ok(Some(l.abs.to_pt())),
@@ -135,7 +135,7 @@ Cristalino:     MediaBox [ 0 0 77 55 ]
 
 ### 2.5 Testes adicionados
 
-Em `01_core/src/rules/layout/tests.rs`:
+Em `01_core/src/engine/layout/tests.rs`:
 
 - `p757_page_width_height_em_resolve_contra_font_size` — `7em × 5em` com font-size default → `77 pt × 55 pt`.
 - `p757_page_width_em_respeita_text_size` — `#set text(size: 12pt)` antes da página → `84 pt × 60 pt`.
@@ -144,8 +144,8 @@ Em `01_core/src/rules/layout/tests.rs`:
 
 ## 3. L0 actualizado
 
-- `00_nucleo/prompts/rules/eval.md`: adicionada secção §P757 documentando a resolução de `em` em dimensões de página. Hash do código no L0: `9e869009`.
-- Hashes de lineage actualizados nos ficheiros de `01_core/src/rules/eval/` via `crystalline-lint --fix-hashes`.
+- `00_nucleo/prompts/engine/eval.md`: adicionada secção §P757 documentando a resolução de `em` em dimensões de página. Hash do código no L0: `9e869009`.
+- Hashes de lineage actualizados nos ficheiros de `01_core/src/engine/eval/` via `crystalline-lint --fix-hashes`.
 
 ---
 

@@ -4,7 +4,7 @@
 **Passo:** `00_nucleo/materialization/typst-passo-733.md`
 **ADRs em vigor:** ADR-0107 (paridade é com a linguagem), ADR-0108 (medir antes de decidir).
 **Commit:** `0cfa0c8a15adf031c7f879a83f8a868aef97687c`
-**Proveniência das medições (regra de proveniência):** commit base `58158cdd0ea5235698057617579957bf87d93453` ("P732: preenche hash do commit no relatório"), branch `Tekt`, working tree com as alterações deste passo (`git diff HEAD --stat`: `00_nucleo/prompts/rules/eval.md`, `01_core/src/rules/eval/closures.rs`, `01_core/src/rules/eval/tests.rs` + 8 ficheiros `eval/*.rs` só com o header `@prompt-hash` sincronizado `a3904d9a` → `45bc9822`). Medições vanilla: `lab/typst-original/target/release/typst`; medições cristalino: `./target/release/typst` (release build de 2026-07-13T22:52Z).
+**Proveniência das medições (regra de proveniência):** commit base `58158cdd0ea5235698057617579957bf87d93453` ("P732: preenche hash do commit no relatório"), branch `Tekt`, working tree com as alterações deste passo (`git diff HEAD --stat`: `00_nucleo/prompts/engine/eval.md`, `01_core/src/engine/eval/closures.rs`, `01_core/src/engine/eval/tests.rs` + 8 ficheiros `eval/*.rs` só com o header `@prompt-hash` sincronizado `a3904d9a` → `45bc9822`). Medições vanilla: `lab/typst-original/target/release/typst`; medições cristalino: `./target/release/typst` (release build de 2026-07-13T22:52Z).
 
 ---
 
@@ -33,7 +33,7 @@ Caso irmão de P708 (posicional extra, já corrigido): um argumento **nomeado** 
 
 ### Localização exacta no cristalino
 
-`01_core/src/rules/eval/closures.rs` — `apply_closure`: linha 231 lia `args.named.get(param.name)` **sem consumir**; linha 265 passava `args.named` inteiro ao sink; não existia verificação de nomeados remanescentes no braço sem sink (só a posicional de P708, linhas 268-276).
+`01_core/src/engine/eval/closures.rs` — `apply_closure`: linha 231 lia `args.named.get(param.name)` **sem consumir**; linha 265 passava `args.named` inteiro ao sink; não existia verificação de nomeados remanescentes no braço sem sink (só a posicional de P708, linhas 268-276).
 
 ### Critério de fecho da sonda
 
@@ -43,11 +43,11 @@ Caso irmão de P708 (posicional extra, já corrigido): um argumento **nomeado** 
 
 ## L0 (Prompt)
 
-`00_nucleo/prompts/rules/eval.md` — nova secção **§P733** com o mecanismo vanilla (file:line), a tabela de medições completa, a correcção (consumo por `shift_remove`; verificação posicional-primeiro; sink só com não consumidos) e a divergência de canto registada (ordem entre tipos). O scope-out de §P708 foi marcado como **fechado em P733**. `crystalline-lint --fix-hashes .` → headers sincronizados (`@prompt-hash` `a3904d9a` → `45bc9822` nos ficheiros vinculados); `crystalline-lint .` → **0 violations**.
+`00_nucleo/prompts/engine/eval.md` — nova secção **§P733** com o mecanismo vanilla (file:line), a tabela de medições completa, a correcção (consumo por `shift_remove`; verificação posicional-primeiro; sink só com não consumidos) e a divergência de canto registada (ordem entre tipos). O scope-out de §P708 foi marcado como **fechado em P733**. `crystalline-lint --fix-hashes .` → headers sincronizados (`@prompt-hash` `a3904d9a` → `45bc9822` nos ficheiros vinculados); `crystalline-lint .` → **0 violations**.
 
 ## Implementação
 
-`01_core/src/rules/eval/closures.rs` (`apply_closure`):
+`01_core/src/engine/eval/closures.rs` (`apply_closure`):
 
 1. `args: Args` → `mut args: Args` (a assinatura já recebia por valor).
 2. Loop de binding: `args.named.get(param.name.as_str())` → `args.named.shift_remove(param.name.as_str())` — o nomeado consumido sai do mapa (paridade `args.named()` do vanilla). `shift_remove` preserva a ordem dos restantes (necessário para reportar o primeiro remanescente).

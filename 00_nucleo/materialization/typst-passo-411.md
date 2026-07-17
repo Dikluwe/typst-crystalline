@@ -92,7 +92,7 @@ Documentar resultado no commit: `Sonda P411: Version variant OK; 5 campos públi
 
 ### A.1 — Prompt L0 `version-field-access.md`
 
-Novo em `00_nucleo/prompts/rules/eval/version-field-access.md`:
+Novo em `00_nucleo/prompts/engine/eval/version-field-access.md`:
 
 - **Paridade**: `version("1.2.3-alpha").major` → `1` (Int); `.pre` → `("alpha",)` (Array de Str).
 - **Substrato**: ramo `Value::Version(v)` em `eval_field_access` (`rules/eval/bindings.rs`).

@@ -2,7 +2,7 @@
 
 **Data:** 2026-07-03  
 **Passo:** 541  
-**Prompt L0:** `00_nucleo/prompts/rules/layout.md` (hash `9c9b7122`)  
+**Prompt L0:** `00_nucleo/prompts/engine/layout.md` (hash `9c9b7122`)  
 **Dependências:** P532 (numeração simples de página), P538d (`style.font` no texto de numeração)
 
 ## Objectivo
@@ -32,14 +32,14 @@ para o final de `finish()`.
 - `is_numbering_token(ch: char) -> bool` — reconhece `'1' | 'I' | 'i' | 'a' | 'A'`.
 - `count_numbering_tokens(pattern: &str) -> usize` — conta tokens num pattern.
 
-`01_core/src/rules/layout/cursor.rs` (`new_page`):
+`01_core/src/engine/layout/cursor.rs` (`new_page`):
 
 - Padrões simples (1 token): comportamento anterior — desenhar imediatamente.
 - Padrões compostos (≥2 tokens): guardar entrada em
   `self.pending_page_numbering.push((page_index, page_number, pattern))`
   em vez de renderizar.
 
-`01_core/src/rules/layout/mod.rs` (`finish`):
+`01_core/src/engine/layout/mod.rs` (`finish`):
 
 - Aplica a mesma regra de adiamento na última página.
 - Após todas as páginas estarem no `Vec`, itera `pending_page_numbering` e
@@ -52,7 +52,7 @@ para o final de `finish()`.
 
 ### Teste unitário
 
-`01_core/src/rules/layout/tests.rs` —
+`01_core/src/engine/layout/tests.rs` —
 `p541_page_numbering_composto_usa_total_de_paginas`:
 
 ```typst
@@ -138,11 +138,11 @@ Resultado:
 
 - `01_core/src/entities/counter_format.rs` — `is_numbering_token` e
   `count_numbering_tokens`.
-- `01_core/src/rules/layout/cursor.rs` — adiamento de numeração composta em
+- `01_core/src/engine/layout/cursor.rs` — adiamento de numeração composta em
   `new_page`.
-- `01_core/src/rules/layout/mod.rs` — adiamento na última página e aplicação
+- `01_core/src/engine/layout/mod.rs` — adiamento na última página e aplicação
   final em `finish`.
-- `01_core/src/rules/layout/tests.rs` — teste
+- `01_core/src/engine/layout/tests.rs` — teste
   `p541_page_numbering_composto_usa_total_de_paginas`.
 - `00_nucleo/diagnosticos/paridade-producao-p541.md` — este relatório.
 

@@ -98,7 +98,7 @@ Footnote {
 Match exaustivo identificou todos os sítios via compiler errors —
 paradigma robusto de defesa cumulativa.
 
-### §3.3 — `01_core/src/rules/stdlib/structural.rs` (+`native_footnote`)
+### §3.3 — `01_core/src/engine/stdlib/structural.rs` (+`native_footnote`)
 
 ```rust
 /// `footnote(body)` — emite `Content::Footnote { body }`. Body
@@ -124,13 +124,13 @@ pub fn native_footnote(_ctx, args, _world, _current_file, _figure_numbering)
 }
 ```
 
-### §3.4 — `01_core/src/rules/stdlib/mod.rs` + `eval/mod.rs`
+### §3.4 — `01_core/src/engine/stdlib/mod.rs` + `eval/mod.rs`
 
 - `mod.rs:45`: `native_footnote` adicionado ao re-export.
 - `eval/mod.rs:556`: import adicionado.
 - `eval/mod.rs:683+1`: `scope.define("footnote", ...)` registado.
 
-### §3.5 — `01_core/src/rules/layout/mod.rs` (counter + arm)
+### §3.5 — `01_core/src/engine/layout/mod.rs` (counter + arm)
 
 **(a) Field no struct `Layouter`**:
 
@@ -169,7 +169,7 @@ preservado pelo 12º passo consecutivo. ADR-0098 honrada.
 
 ## §4 — Testes
 
-### §4.1 — `01_core/src/rules/stdlib/mod.rs` (+7 testes L1)
+### §4.1 — `01_core/src/engine/stdlib/mod.rs` (+7 testes L1)
 
 | Teste | Verifica |
 |---|---|

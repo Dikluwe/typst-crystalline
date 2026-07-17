@@ -132,7 +132,7 @@ Novo em `00_nucleo/prompts/entities/bytes.md`:
 
 ### A.2 — Prompt L0 `read-binario.md` (extensão)
 
-Extensão de `00_nucleo/prompts/rules/stdlib/loading.md` (ou `read.md` se existir):
+Extensão de `00_nucleo/prompts/engine/stdlib/loading.md` (ou `read.md` se existir):
 
 - **Paridade**: `read(path)` ≡ vanilla (heurística UTF-8 → Str, fallback → Bytes).
 - **Substrato**: reusa `read_bytes` L3 (P387); adiciona fallback binário.

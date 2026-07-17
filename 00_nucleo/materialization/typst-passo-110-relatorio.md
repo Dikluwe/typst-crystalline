@@ -43,7 +43,7 @@ Inventário em
 **`check_layout_depth`**: o Layouter cristalino opera sobre `Content`
 já avaliado (`pub fn layout(content: &Content, initial_state:
 CounterState) -> PagedDocument`). Grep `Route|Tracked|engine|Engine`
-em `01_core/src/rules/layout/`: **zero matches**. Integrar esta check
+em `01_core/src/engine/layout/`: **zero matches**. Integrar esta check
 exige propagar `Route` ou `Engine` por 10+ funções de layout —
 refactor de magnitude equivalente ao Passo 92 (eval) ou 109 (Engine),
 aplicado a um submódulo diferente. Fora do âmbito estrito do Passo

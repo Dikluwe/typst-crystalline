@@ -63,7 +63,7 @@ Reutilizar a lógica de `detect_format` já existente em `03_infra/src/export/im
 
 ### 4. Ligação em `native_image`
 
-`01_core/src/rules/stdlib/figure_image.rs`: depois de `world.read_bytes`, antes de devolver `Value::Content`, invocar o validador. Se inválido, devolver `SourceResult::Err` amarrado ao span do argumento do `#image()`.
+`01_core/src/engine/stdlib/figure_image.rs`: depois de `world.read_bytes`, antes de devolver `Value::Content`, invocar o validador. Se inválido, devolver `SourceResult::Err` amarrado ao span do argumento do `#image()`.
 
 ---
 

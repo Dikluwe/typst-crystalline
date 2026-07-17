@@ -5,9 +5,9 @@
 **Ficheiros alterados:**
 - `00_nucleo/prompts/entities/image-sizer.md`
 - `00_nucleo/prompts/infra/image-sizer.md`
-- `00_nucleo/prompts/rules/layout-image.md`
+- `00_nucleo/prompts/engine/layout-image.md`
 - `01_core/src/entities/image_sizer.rs`
-- `01_core/src/rules/layout/image.rs`
+- `01_core/src/engine/layout/image.rs`
 - `03_infra/src/image_sizer.rs`
 
 ---
@@ -77,7 +77,7 @@ fn dpi(&self, data: &[u8]) -> Option<f64>;
 Nenhuma crate EXIF externa foi adicionada; o parsing é manual sobre os bytes
 do cabeçalho.
 
-### L1 — layout (`01_core/src/rules/layout/image.rs`)
+### L1 — layout (`01_core/src/engine/layout/image.rs`)
 
 `calculate_dimensions` passou a usar:
 
@@ -105,7 +105,7 @@ Testes unitários novos em `03_infra/src/image_sizer.rs`:
 - `exif_dpi_inline_le` / `exif_dpi_inline_be` — TIFF LE/BE com
   `XResolution = 300/1`.
 
-Testes de regressão em `01_core/src/rules/layout/image.rs` mantiveram-se e
+Testes de regressão em `01_core/src/engine/layout/image.rs` mantiveram-se e
 continuam a usar fallback 72 DPI (os `MockSizer` retornam `None` em `dpi`).
 
 ---

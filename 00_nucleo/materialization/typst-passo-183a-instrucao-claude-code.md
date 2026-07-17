@@ -73,13 +73,13 @@ P183A fixa direcção; P183B+ não tem "FULL vs INVENTORY_ONLY".
 **Confirmação**: validar que os 4 consumers continuam a
 ser:
 - `layout_outline` (presumivelmente em
-  `01_core/src/rules/layout/outline.rs` ou similar).
+  `01_core/src/engine/layout/outline.rs` ou similar).
 - `counter_helpers` (presumivelmente em
-  `01_core/src/rules/layout/counters.rs`).
+  `01_core/src/engine/layout/counters.rs`).
 - `section-arm` (presumivelmente em
-  `01_core/src/rules/layout/references.rs` ou similar).
+  `01_core/src/engine/layout/references.rs` ou similar).
 - `layout_equation` (em
-  `01_core/src/rules/layout/equation.rs`).
+  `01_core/src/engine/layout/equation.rs`).
 
 **Decisões a tomar** — 6 cláusulas:
 
@@ -117,7 +117,7 @@ Para cada decisão das 6 cláusulas, registar:
 ### O1 — Inputs verificáveis
 
 `grep -rn "CounterStateLegacy\|counter_state_legacy"
-01_core/src/rules/layout/` para identificar todos os
+01_core/src/engine/layout/` para identificar todos os
 call-sites. Ficheiro:linha por consumer.
 
 ### O2 — Alternativas consideradas
@@ -176,7 +176,7 @@ num só? Decisão de granularidade.
 
 Auditor confirma empiricamente:
 
-- `grep -rn "CounterStateLegacy" 01_core/src/rules/layout/`
+- `grep -rn "CounterStateLegacy" 01_core/src/engine/layout/`
   e registar todos os call-sites.
 - Para cada call-site, identificar a função/arm e o que é
   lido (`state.bib_*`, `state.numbering_active`,

@@ -1,5 +1,5 @@
 # Prompt L0 — `entities/elements/cite` — `CiteElem`
-Hash do Código: c74c52e4
+Hash do Código: 7dda9bfa
 
 **Camada**: L1 · **Alvo**: `01_core/src/entities/elements/cite.rs`
 **Origem**: modelo D (ADR-0105), **Lote 9 P324** (por largura). Trait: ver
@@ -60,7 +60,7 @@ Construtor ergonómico: `Content::cite(key, supplement, form)`.
 ## P418 (XL) — Renderização CSL real
 
 **Decisão arquitetural (ADR-0107 / ADR-0108 / ADR-0109):**
-- `CiteElem` mantém `key`/`supplement`/`form`; a formatação real via hayagriva CSL vive em `rules/layout/cite.rs` (forma B).
+- `CiteElem` mantém `key`/`supplement`/`form`; a formatação real via hayagriva CSL vive em `engine/layout/cite.rs` (forma B).
 - `Introspector::bib_entry_for_key` / `bib_number_for_key` continuam como lookup; P418 pode enriquecer com dados hayagriva se necessário.
 - Forward references funcionam porque o `Introspector` é populado durante o walk (`from_tags`) antes do layout.
 

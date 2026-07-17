@@ -19,12 +19,12 @@ A auditoria do Passo 84.7 (Secção 6.1 do relatório
 revelou que a regra **não é literalmente seguida** — o código tem 14
 ocorrências reais de `unsafe` em L1 (mais 1 comentário sem efeito):
 
-- `01_core/src/rules/lexer/scanner.rs` — **13 ocorrências**:
+- `01_core/src/engine/lexer/scanner.rs` — **13 ocorrências**:
   - 6 `unsafe impl Sealed<T>` (sealed-trait pattern — mecanismo
     de encapsulamento, não de memória).
   - 7 `unsafe { get_unchecked(...) }` (acessos sem verificação de
     bounds em código herdado de `unscanny`, ver ADR-0014).
-- `01_core/src/rules/eval.rs:235` — **1 ocorrência**: deref de raw
+- `01_core/src/engine/eval.rs:235` — **1 ocorrência**: deref de raw
   pointer em `Drop for ImportGuard` (invariante documentado em
   SAFETY comment).
 - `01_core/src/entities/content.rs:20` — 1 comentário documentando
@@ -133,7 +133,7 @@ Interpretação:
 ### Cláusula sobre código inlinado
 
 ADR-0014 autorizou o inlining de `unscanny` em
-`01_core/src/rules/lexer/scanner.rs`. O `unsafe` nesse ficheiro é,
+`01_core/src/engine/lexer/scanner.rs`. O `unsafe` nesse ficheiro é,
 no momento da inclusão original, **herdado** de código externo
 revisto pela comunidade Rust.
 
@@ -149,8 +149,8 @@ DEBT-42.
 
 | Prompt | Natureza da mudança |
 |--------|---------------------|
-| `00_nucleo/prompts/rules/scanner.md` (se existe) | Nota sobre DEBT-41 e DEBT-42 — `unsafe` actual é temporário. |
-| `00_nucleo/prompts/rules/eval.md` (se existe) | Nota sobre DEBT-40 — `ImportGuard` será refactorado. |
+| `00_nucleo/prompts/engine/scanner.md` (se existe) | Nota sobre DEBT-41 e DEBT-42 — `unsafe` actual é temporário. |
+| `00_nucleo/prompts/engine/eval.md` (se existe) | Nota sobre DEBT-40 — `ImportGuard` será refactorado. |
 
 A actualização concreta destes prompts fica para os passos que
 materializarem os refactors (DEBT-40, 41, 42), não para este passo

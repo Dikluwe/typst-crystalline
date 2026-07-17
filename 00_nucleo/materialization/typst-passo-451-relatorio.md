@@ -27,11 +27,11 @@ O P451 materializou a camada final de formatação de números de cabeçalho. A 
 | `01_core/src/entities/mod.rs` | Re-exporta `counter_format`. |
 | `01_core/src/entities/content.rs` | `Content::heading_numbered_with_pattern(level, body, pattern)`; `heading_numbered` mantido como wrapper sem pattern. |
 | `01_core/src/entities/introspector.rs` | Novo método `counter_values_at(key, loc)` no trait `Introspector` e em `TagIntrospector`. |
-| `01_core/src/rules/eval/rules.rs` | `#set heading(numbering: "...")` agora empurra também `heading.numbering.pattern`. |
-| `01_core/src/rules/layout/heading.rs` | Lê pattern da chain; formata via `format_counter`; fallback para `formatted_counter_at`. |
-| `01_core/src/rules/stdlib/structural.rs` | `native_heading(level, body, numbering:?)` substitui o sentinel que retornava erro. |
-| `01_core/src/rules/layout/tests.rs` | 3 tests E2E P451. |
-| `01_core/src/rules/stdlib/structural.rs` | 4 tests L2 de `native_heading`. |
+| `01_core/src/engine/eval/rules.rs` | `#set heading(numbering: "...")` agora empurra também `heading.numbering.pattern`. |
+| `01_core/src/engine/layout/heading.rs` | Lê pattern da chain; formata via `format_counter`; fallback para `formatted_counter_at`. |
+| `01_core/src/engine/stdlib/structural.rs` | `native_heading(level, body, numbering:?)` substitui o sentinel que retornava erro. |
+| `01_core/src/engine/layout/tests.rs` | 3 tests E2E P451. |
+| `01_core/src/engine/stdlib/structural.rs` | 4 tests L2 de `native_heading`. |
 | `03_infra/src/measurements.rs` | Adiciona `counter_values_at` ao `CountingIntrospector` e actualiza contadores de métodos (24 → 25). |
 
 ### Specs L0
@@ -39,8 +39,8 @@ O P451 materializou a camada final de formatação de números de cabeçalho. A 
 | Ficheiro | Alteração |
 |----------|-----------|
 | `00_nucleo/prompts/entities/counter_format.md` | **Novo**. API e semântica de `format_counter`. |
-| `00_nucleo/prompts/rules/layout/heading.md` | **Novo**. Layout de heading com pattern. |
-| `00_nucleo/prompts/rules/stdlib/structural.md` | Actualizada: `native_heading(level, body, numbering:?)`. |
+| `00_nucleo/prompts/engine/layout/heading.md` | **Novo**. Layout de heading com pattern. |
+| `00_nucleo/prompts/engine/stdlib/structural.md` | Actualizada: `native_heading(level, body, numbering:?)`. |
 
 ---
 

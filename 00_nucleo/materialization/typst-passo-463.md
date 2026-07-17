@@ -78,7 +78,7 @@ pub struct LinkItem {
 
 ### 2. Layout de `Content::Ref` como link clicável
 
-**Ficheiro:** `rules/layout/ref.rs` (ou `rules/layout/references.rs`)
+**Ficheiro:** `engine/layout/ref.rs` (ou `engine/layout/references.rs`)
 
 O layout de `ref` (P462) renderiza o texto resolvido como `FrameItem::Text`. Para torná-lo clicável, envolver em `FrameItem::Link`:
 
@@ -156,7 +156,7 @@ O `/Rect` do annotation deve ser as coordenadas do `FrameItem::Link` no sistema 
 ### 6. Spec L0
 
 - `00_nucleo/prompts/entities/layout_types.md` — `LinkItem` com `LinkTarget` (atualizar).
-- `00_nucleo/prompts/rules/layout/ref.md` — `ref` como `FrameItem::Link` com `Destination`.
+- `00_nucleo/prompts/engine/layout/ref.md` — `ref` como `FrameItem::Link` com `Destination`.
 - `00_nucleo/prompts/infra/export/builder.md` — `/GoTo` annotations no PDF.
 
 ---

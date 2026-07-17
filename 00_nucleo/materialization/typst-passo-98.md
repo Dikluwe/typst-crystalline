@@ -36,7 +36,7 @@ passo.
 
 ## Escopo
 
-**Dentro**: `01_core/src/rules/eval/` e todos os call sites das
+**Dentro**: `01_core/src/engine/eval/` e todos os call sites das
 funções `eval_*` afectadas (tipicamente `rules/`, mas o grep do
 sub-passo 98.A confirma).
 
@@ -170,7 +170,7 @@ preferir a forma que preserva a distinção.
 2. `grep -rn 'self\.current_file\|self\.figure_numbering'
    01_core/` também retorna zero matches (apanha acessos de
    dentro de `impl EvalContext`).
-3. `grep -rn 'current_file\|figure_numbering' 01_core/src/rules/eval/mod.rs`
+3. `grep -rn 'current_file\|figure_numbering' 01_core/src/engine/eval/mod.rs`
    e inspecção manual para confirmar que as ocorrências
    restantes são **só** assinaturas de funções (parâmetros), não
    acessos a campos.

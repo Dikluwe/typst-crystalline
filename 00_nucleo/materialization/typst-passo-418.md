@@ -29,25 +29,25 @@ grep -rn "Content::Bibliography\|Bibliography" 01_core/src/entities/content.rs |
 grep -rn "hayagriva" Cargo.toml 01_core/Cargo.toml 2>/dev/null
 
 # 6. CSL style file loading existe (.csl, .xml)?
-grep -rn "\.csl\|csl\|style" 01_core/src/rules/loading/ 2>/dev/null | head -20
+grep -rn "\.csl\|csl\|style" 01_core/src/engine/loading/ 2>/dev/null | head -20
 
 # 7. Label/Ref infrastructure existe (para citações cruzadas)?
 grep -rn "Label\|Ref\|label\|reference" 01_core/src/entities/content.rs | head -20
 
 # 8. Counter infrastructure existe (para numeração de citações)?
-grep -rn "Counter\|counter" 01_core/src/rules/layout/mod.rs | head -10
+grep -rn "Counter\|counter" 01_core/src/engine/layout/mod.rs | head -10
 
 # 9. Show rule infrastructure aceita novos elementos (Bibliography, Cite)?
-grep -rn "ShowRule\|show_rules" 01_core/src/rules/eval/rules.rs | head -20
+grep -rn "ShowRule\|show_rules" 01_core/src/engine/eval/rules.rs | head -20
 
 # 10. File loading / path resolution existe (para .bib, .yaml, .json)?
-grep -rn "load\|resolve\|path" 01_core/src/rules/loading/ 2>/dev/null | head -20
+grep -rn "load\|resolve\|path" 01_core/src/engine/loading/ 2>/dev/null | head -20
 
 # 11. [NICE-TO-HAVE] Query infrastructure para citações (Introspector::query)?
 grep -rn "Introspector\|query" 01_core/src/entities/introspector.rs | head -10
 
 # 12. [NICE-TO-HAVE] State infrastructure para acumular citações (State::update)?
-grep -rn "State\|state" 01_core/src/rules/eval/state.rs 2>/dev/null | head -10
+grep -rn "State\|state" 01_core/src/engine/eval/state.rs 2>/dev/null | head -10
 ```
 
 **Output esperado**:
@@ -116,8 +116,8 @@ A lógica de render de `Bibliography` e `Cite` vive na **camada de render**, nã
 
 - `entities/bibliography.rs` — struct `BibliographyElem` (dados: path, style, title).
 - `entities/cite.rs` — struct `CiteElem` (dados: key, supplement, form).
-- `rules/layout/bibliography.rs` — free function `layout_bibliography(layouter, &BibliographyElem)` (forma B).
-- `rules/layout/cite.rs` — free function `layout_cite(layouter, &CiteElem)` (forma B).
+- `engine/layout/bibliography.rs` — free function `layout_bibliography(layouter, &BibliographyElem)` (forma B).
+- `engine/layout/cite.rs` — free function `layout_cite(layouter, &CiteElem)` (forma B).
 - `rules/eval/bibliography.rs` — free function `eval_bibliography(ctx, &BibliographyElem)` para loading e CSL processing.
 
 **Não usar Opção A** (método `impl BibliographyElem { fn layout(...) }` em `entities/`) — cria import reverso `entities → rules::layout::Layouter` (ADR-0109, rejeitado).
@@ -315,9 +315,9 @@ hayagriva = "0.8"  # ou versão compatível com o vanilla
    - Path: resolver `.csl` file via file loader → parse XML → hayagriva `Style`.
    - Default: "ieee" se nenhum especificado.
 
-### B.5 — Consumer: Layout (`rules/layout/` — forma B, ADR-0109)
+### B.5 — Consumer: Layout (`engine/layout/` — forma B, ADR-0109)
 
-1. **`rules/layout/cite.rs`** (novo arquivo):
+1. **`engine/layout/cite.rs`** (novo arquivo):
    ```rust
    pub(super) fn layout_cite<M: FontMetrics, S: ImageSizer>(
        layouter: &mut Layouter<M, S>,
@@ -350,7 +350,7 @@ hayagriva = "0.8"  # ou versão compatível com o vanilla
    }
    ```
 
-2. **`rules/layout/bibliography.rs`** (novo arquivo):
+2. **`engine/layout/bibliography.rs`** (novo arquivo):
    ```rust
    pub(super) fn layout_bibliography<M: FontMetrics, S: ImageSizer>(
        layouter: &mut Layouter<M, S>,
@@ -448,6 +448,6 @@ crystalline-lint .
 
 - **Medir antes de decidir (ADR-0108)**: A.0 verifica 12 pré-condições antes de qualquer decisão. Se hayagriva não compilar, o passo para antes de gastar LOC.
 - **Paridade linguagem (ADR-0107)**: O contrato é `.bib` + `@key` → citações renderizadas. A mecânica (hayagriva, ordem de passes, estrutura interna) é livre. O forward reference é comportamental (funciona), não mecânico (não precisa ser multi-passe).
-- **Atomização (ADR-0109)**: `Cite` e `Bibliography` são structs em `entities/`. A lógica de eval vive em `rules/eval/cite.rs` e `rules/eval/bibliography.rs`. A lógica de layout vive em `rules/layout/cite.rs` e `rules/layout/bibliography.rs`. Todos são free functions (forma B). O `match` no consumer fica magro (1 linha por variant).
+- **Atomização (ADR-0109)**: `Cite` e `Bibliography` são structs em `entities/`. A lógica de eval vive em `rules/eval/cite.rs` e `rules/eval/bibliography.rs`. A lógica de layout vive em `engine/layout/cite.rs` e `engine/layout/bibliography.rs`. Todos são free functions (forma B). O `match` no consumer fica magro (1 linha por variant).
 - **Honestidade epistêmica**: Este é o maior passo XL do projeto. Se hayagriva apresentar problemas de integração (API instável, features faltantes), documentar imediatamente e reclassificar. Não "forçar" a integração.
 - **Próximo passo P419**: `repr()` completo (S) ou `link` render visual (S) ou `text.lang` shaping rustybuzz (XL, scope-out antigo).

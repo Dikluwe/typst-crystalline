@@ -72,7 +72,7 @@ fn native_figure(
 - Registar no stdlib scope como `"figure"`.
 - Default `numbering: None` (comportamento actual: sem numeração).
 
-### 4. Layout de figure com caption numerada (`rules/layout/figure.rs`)
+### 4. Layout de figure com caption numerada (`engine/layout/figure.rs`)
 
 - Ao encontrar `Content::Figure` com `numbering: Some(pattern)`:
   1. Invocar `counter_registry.step("figure")` (ou receber do eval).
@@ -105,8 +105,8 @@ fn native_figure(
 ### 7. Spec L0
 
 - `00_nucleo/prompts/entities/figure.md` — `FigureElem` com `numbering`.
-- `00_nucleo/prompts/rules/stdlib/structural.md` — `native_figure(body, caption?, numbering?)`.
-- `00_nucleo/prompts/rules/layout/figure.md` — caption com prefixo numérico.
+- `00_nucleo/prompts/engine/stdlib/structural.md` — `native_figure(body, caption?, numbering?)`.
+- `00_nucleo/prompts/engine/layout/figure.md` — caption com prefixo numérico.
 
 ---
 

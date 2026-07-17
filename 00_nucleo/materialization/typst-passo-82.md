@@ -5,10 +5,10 @@
 Ler antes de começar:
 - `01_core/src/entities/layout_types.rs` — Onde as estruturas de alinhamento
   serão adicionadas.
-- `01_core/src/rules/layout/mod.rs` — Onde `resolve_alignment` será
+- `01_core/src/engine/layout/mod.rs` — Onde `resolve_alignment` será
   implementado e onde `flush_line` usa `line_start_x` (introduzido no Passo
   81.5). Confirmar que o campo existe.
-- `01_core/src/rules/stdlib.rs` — Onde `native_align` e `native_place` serão
+- `01_core/src/engine/stdlib.rs` — Onde `native_align` e `native_place` serão
   adicionadas.
 - `00_nucleo/DEBT.md` — Confirmar estado dos DEBTs activos.
 
@@ -38,20 +38,20 @@ marcas de água, e notas de margem.
 
 ```bash
 # 1. Confirmar que line_start_x existe no Layouter (introduzido no Passo 81.5)
-grep -n "line_start_x" 01_core/src/rules/layout/mod.rs | head -5
+grep -n "line_start_x" 01_core/src/engine/layout/mod.rs | head -5
 
 # 2. Confirmar como layout_sub_frame_with_width ancora os itens internos
 # CRÍTICO: se os itens são retornados com coordenadas relativas a (margin, margin)
 # em vez de (0, 0), target_x acumula a margem duas vezes.
 grep -A 15 "fn layout_sub_frame_with_width" \
-  01_core/src/rules/layout/mod.rs | head -20
+  01_core/src/engine/layout/mod.rs | head -20
 
 # 3. Confirmar como strings são extraídas de Value nos argumentos posicionais
 grep -n "cast_string\|as_str\|String" \
   01_core/src/entities/value.rs | head -8
 
 # 4. Confirmar a assinatura de flush_line após o Passo 81.5
-grep -A 5 "fn flush_line" 01_core/src/rules/layout/mod.rs | head -8
+grep -A 5 "fn flush_line" 01_core/src/engine/layout/mod.rs | head -8
 ```
 
 Reportar o output completo antes de continuar. O diagnóstico 2 é um gate
@@ -180,7 +180,7 @@ tratam alinhamento (introspecção, show rules, map_content).
 
 ## Tarefa 3 — `native_align` e `native_place` na stdlib (L1)
 
-Em `01_core/src/rules/stdlib.rs`:
+Em `01_core/src/engine/stdlib.rs`:
 
 ```rust
 pub fn native_align(_ctx: &mut EvalContext, args: &Args) -> Result<Value, String> {
@@ -236,7 +236,7 @@ ctx.register("place", native_place);
 
 ## Tarefa 4 — `resolve_alignment` e helpers no layouter (L1)
 
-Em `01_core/src/rules/layout/mod.rs`, adicionar os campos e métodos:
+Em `01_core/src/engine/layout/mod.rs`, adicionar os campos e métodos:
 
 ### Campo `is_height_unconstrained`
 

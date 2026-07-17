@@ -66,15 +66,15 @@ Resultado (commit `561b05f37` + instrumentação, uma execução):
 
 Leitura (file:line):
 
-- `layout_word` (`01_core/src/rules/layout/cursor.rs::layout_word`) = **519,90 ms** de `layout_content` = 1293,54 ms.
-- Do tempo de `layout_word`, **474,65 ms** são gastos dentro de `FontMetrics::text_width` (`01_core/src/rules/layout/metrics.rs::text_width` → `FallbackFontMetrics::advance` em L3). Ou seja, ~91 % do custo de `layout_word` é medição de largura.
-- `space_width` (`01_core/src/rules/layout/cursor.rs::space_width` → `advance(" ", …)`), medido nos call sites (`layout/text.rs` e `Content::Space`), custa **227,72 ms** — ~17 % de `layout_content`. Cada espaço re-medido do zero.
+- `layout_word` (`01_core/src/engine/layout/cursor.rs::layout_word`) = **519,90 ms** de `layout_content` = 1293,54 ms.
+- Do tempo de `layout_word`, **474,65 ms** são gastos dentro de `FontMetrics::text_width` (`01_core/src/engine/layout/metrics.rs::text_width` → `FallbackFontMetrics::advance` em L3). Ou seja, ~91 % do custo de `layout_word` é medição de largura.
+- `space_width` (`01_core/src/engine/layout/cursor.rs::space_width` → `advance(" ", …)`), medido nos call sites (`layout/text.rs` e `Content::Space`), custa **227,72 ms** — ~17 % de `layout_content`. Cada espaço re-medido do zero.
 - `flush_line` = 100,67 ms. `measure`/`subframe`/`vertical_metrics` ≈ 0 (o `macro-10x` não usa grids nem boxes com altura fixa).
 
 ### 1.3 Padrões já conhecidos
 
 ```bash
-grep -n "Face::parse\|Face::from_slice\|\.clone()\|collect::<Vec" 01_core/src/rules/layout/*.rs | grep -v test | wc -l
+grep -n "Face::parse\|Face::from_slice\|\.clone()\|collect::<Vec" 01_core/src/engine/layout/*.rs | grep -v test | wc -l
 # 102
 ```
 
@@ -187,8 +187,8 @@ Resultado: **0 linhas** de diferença — output idêntico. A cache não altera 
 
 Toda a instrumentação temporária foi removida do código L1 antes da validação final:
 
-- `01_core/src/rules/layout/mod.rs`: campos `t_*` do `Layouter`, timers em `measure_content_constrained`, timers em `layout_with_introspector_and_metrics`, helper `duration_ms` — `git diff` líquido = 0 linhas.
-- `01_core/src/rules/layout/cursor.rs`, `sub_frame.rs`, `text.rs`: timers e helpers removidos — `git diff` líquido = 0 linhas.
+- `01_core/src/engine/layout/mod.rs`: campos `t_*` do `Layouter`, timers em `measure_content_constrained`, timers em `layout_with_introspector_and_metrics`, helper `duration_ms` — `git diff` líquido = 0 linhas.
+- `01_core/src/engine/layout/cursor.rs`, `sub_frame.rs`, `text.rs`: timers e helpers removidos — `git diff` líquido = 0 linhas.
 
 A única alteração permanente é a cache em L3 (`font_metrics.rs`) e a actualização documental do L0 (`font_metrics.md`).
 

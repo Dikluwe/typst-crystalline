@@ -258,7 +258,7 @@ Status `EM VIGOR` ADR-0033 **preservado literal**. Esta anotação
 documenta **excepção categorial documentada** stdlib sem revogar a
 regra geral de paridade observable — `eval`/layout/operators/output
 PDF preservam paridade total. A excepção concentra-se em 11 sítios
-de `01_core/src/rules/stdlib/calc.rs` cobertos pelo helper
+de `01_core/src/engine/stdlib/calc.rs` cobertos pelo helper
 `guard_float`.
 
 **Decisão P310**: Opção A de P309 §7.1 — "Conformidade IEEE 754
@@ -285,9 +285,9 @@ Cross-references:
   comparação vanilla obrigatória todas categorias).
 - **P310** — formalização Opção A (esta anotação + ADR-0101 + drift
   L0 duplo).
-- `00_nucleo/prompts/rules/stdlib.md` §"Política IEEE 754" — secção
+- `00_nucleo/prompts/engine/stdlib.md` §"Política IEEE 754" — secção
   L0 sítio divergente.
-- `00_nucleo/prompts/rules/eval.md` §"Política IEEE 754 —
+- `00_nucleo/prompts/engine/eval.md` §"Política IEEE 754 —
   propagação silenciosa" — secção L0 sítio paridade total.
 
 ---
@@ -341,7 +341,7 @@ Cross-references P311b:
   `MathStyleKind` + `map_glyph`.
 - `00_nucleo/prompts/entities/content.md` §"Variant
   `Content::MathStyled`" — drift que documenta variant 25º.
-- `00_nucleo/prompts/rules/stdlib.md` §"12 funções math style" — drift
+- `00_nucleo/prompts/engine/stdlib.md` §"12 funções math style" — drift
   para registar funções nativas.
-- `00_nucleo/prompts/rules/math/layout.md` §"Variant
+- `00_nucleo/prompts/engine/math/layout.md` §"Variant
   `Content::MathStyled`" — drift para handler + apply_math_style.

@@ -1,7 +1,7 @@
 # Passo 109.A — Inventário Engine<'a>
 
 **Data**: 2026-04-23
-**Input**: assinaturas actuais de `eval_*` em `01_core/src/rules/eval/`
+**Input**: assinaturas actuais de `eval_*` em `01_core/src/engine/eval/`
 (estado pós-Passo 107).
 
 ---
@@ -125,7 +125,7 @@ site de reconstrução. Verificar na implementação.
 
 ## Parte 3 — Sítios de construção
 
-`eval()` público em `01_core/src/rules/eval/mod.rs:150`:
+`eval()` público em `01_core/src/engine/eval/mod.rs:150`:
 
 ```rust
 pub fn eval(

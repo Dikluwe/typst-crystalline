@@ -26,11 +26,11 @@ git status --short
 ## 2. Dimensão do ficheiro
 
 ```bash
-wc -l 01_core/src/rules/layout/tests.rs
+wc -l 01_core/src/engine/layout/tests.rs
 ```
 
 ```text
-14962 01_core/src/rules/layout/tests.rs
+14962 01_core/src/engine/layout/tests.rs
 ```
 
 ---
@@ -38,7 +38,7 @@ wc -l 01_core/src/rules/layout/tests.rs
 ## 3. Conteúdo directo do ficheiro (linhas 3480–3510)
 
 ```bash
-sed -n '3480,3510p' 01_core/src/rules/layout/tests.rs
+sed -n '3480,3510p' 01_core/src/engine/layout/tests.rs
 ```
 
 ```rust
@@ -80,7 +80,7 @@ mod tests_show_rule_integration {
 ## 4. Busca pelo nome do teste
 
 ```bash
-grep -n "p581_cobertura_de_escape_e_shorthand_em_layout\|fn.*escape.*shorthand\|fn.*shorthand.*escape" 01_core/src/rules/layout/tests.rs
+grep -n "p581_cobertura_de_escape_e_shorthand_em_layout\|fn.*escape.*shorthand\|fn.*shorthand.*escape" 01_core/src/engine/layout/tests.rs
 ```
 
 ```text
@@ -99,7 +99,7 @@ cargo test -p typst-core p581_cobertura_de_escape_e_shorthand_em_layout -- --exa
 
 ```text
 warning: variable `cal_L` should have a snake case name
-   --> 01_core/src/rules/math/layout/tests.rs:611:9
+   --> 01_core/src/engine/math/layout/tests.rs:611:9
     |
 611 |         let cal_L = Content::math_styled(Some(MathStyleKind::Chancery), None, None, Content::math_ident("L".into()), None);
     |         ^^^^^
@@ -121,7 +121,7 @@ cargo test -p typst-core rules::layout::tests::tests_set_rule_integration::p581_
 
 ```text
 warning: variable `cal_L` should have a snake case name
-   --> 01_core/src/rules/math/layout/tests.rs:611:9
+   --> 01_core/src/engine/math/layout/tests.rs:611:9
     |
 611 |         let cal_L = Content::math_styled(Some(MathStyleKind::Chancery), None, None, Content::math_ident("L".into()), None);
     |         ^^^^^
@@ -140,4 +140,4 @@ test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 3569 filtered out; f
 
 ## 6. Conclusão
 
-**O teste existe, no ficheiro `01_core/src/rules/layout/tests.rs`, linha 3488.** Corre e passa quando invocado pelo path completo do módulo (`rules::layout::tests::tests_set_rule_integration::p581_cobertura_de_escape_e_shorthand_em_layout`).
+**O teste existe, no ficheiro `01_core/src/engine/layout/tests.rs`, linha 3488.** Corre e passa quando invocado pelo path completo do módulo (`rules::layout::tests::tests_set_rule_integration::p581_cobertura_de_escape_e_shorthand_em_layout`).

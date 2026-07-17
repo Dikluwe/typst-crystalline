@@ -94,7 +94,7 @@ Resolve a fonte através de `resolve_primary(style)` e aplica `typo_metrics` à 
 
 ## Prompts L0 actualizados
 
-- `00_nucleo/prompts/rules/layout.md` — assinatura de `FontMetrics::vertical_metrics`/`cap_height` com `style`.
+- `00_nucleo/prompts/engine/layout.md` — assinatura de `FontMetrics::vertical_metrics`/`cap_height` com `style`.
 - `00_nucleo/prompts/infra/font_metrics.md` — mesma assinatura, secção `typo_metrics`, resolução por estilo em `FallbackFontMetrics::vertical_metrics`, histórico de revisões.
 - Hashes recalculados via `crystalline-lint --fix-hashes .`.
 
@@ -110,27 +110,27 @@ A diferença de pixels observada em P759 era parcialmente causada por bugs reais
 
 ```text
 00_nucleo/prompts/infra/font_metrics.md
-00_nucleo/prompts/rules/layout.md
-01_core/src/rules/layout/boxed.rs
-01_core/src/rules/layout/columns.rs
-01_core/src/rules/layout/cursor.rs
-01_core/src/rules/layout/dynamic.rs
-01_core/src/rules/layout/enum_item.rs
-01_core/src/rules/layout/grid.rs
-01_core/src/rules/layout/grid_placement.rs
-01_core/src/rules/layout/helpers.rs
-01_core/src/rules/layout/hyphenation.rs
-01_core/src/rules/layout/link.rs
-01_core/src/rules/layout/list_item.rs
-01_core/src/rules/layout/metrics.rs
-01_core/src/rules/layout/mod.rs
-01_core/src/rules/layout/placement.rs
-01_core/src/rules/layout/sequence.rs
-01_core/src/rules/layout/slicing.rs
-01_core/src/rules/layout/sub_frame.rs
-01_core/src/rules/layout/tests.rs
-01_core/src/rules/math/layout/mod.rs
-01_core/src/rules/math/layout/stretchy.rs
+00_nucleo/prompts/engine/layout.md
+01_core/src/engine/layout/boxed.rs
+01_core/src/engine/layout/columns.rs
+01_core/src/engine/layout/cursor.rs
+01_core/src/engine/layout/dynamic.rs
+01_core/src/engine/layout/enum_item.rs
+01_core/src/engine/layout/grid.rs
+01_core/src/engine/layout/grid_placement.rs
+01_core/src/engine/layout/helpers.rs
+01_core/src/engine/layout/hyphenation.rs
+01_core/src/engine/layout/link.rs
+01_core/src/engine/layout/list_item.rs
+01_core/src/engine/layout/metrics.rs
+01_core/src/engine/layout/mod.rs
+01_core/src/engine/layout/placement.rs
+01_core/src/engine/layout/sequence.rs
+01_core/src/engine/layout/slicing.rs
+01_core/src/engine/layout/sub_frame.rs
+01_core/src/engine/layout/tests.rs
+01_core/src/engine/math/layout/mod.rs
+01_core/src/engine/math/layout/stretchy.rs
 03_infra/fixtures/p307b/reference/09-cidfont.pdf
 03_infra/src/export/builder.rs
 03_infra/src/fallback_fonts.rs

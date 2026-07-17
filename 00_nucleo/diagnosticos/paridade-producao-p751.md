@@ -10,7 +10,7 @@ Corrigido o bug em que `Layouter::new` fixava a baseline inicial (`cursor_y`) us
 
 ## Causa exacta
 
-`01_core/src/rules/layout/mod.rs:519` (pré-P751):
+`01_core/src/engine/layout/mod.rs:519` (pré-P751):
 
 ```rust
 let initial_style = TextStyle::from(&StyleChain::default_chain());
@@ -28,14 +28,14 @@ O `cursor_y` era calculado uma única vez na construção do `Layouter`, com o t
 
 Ficheiros alterados:
 
-- `01_core/src/rules/layout/mod.rs`
-- `01_core/src/rules/layout/cursor.rs`
-- `01_core/src/rules/layout/list_item.rs`
-- `01_core/src/rules/layout/enum_item.rs`
-- `01_core/src/rules/layout/equation.rs`
-- `01_core/src/rules/layout/shape.rs`
-- `01_core/src/rules/layout/image.rs`
-- `01_core/src/rules/layout/sub_frame.rs`
+- `01_core/src/engine/layout/mod.rs`
+- `01_core/src/engine/layout/cursor.rs`
+- `01_core/src/engine/layout/list_item.rs`
+- `01_core/src/engine/layout/enum_item.rs`
+- `01_core/src/engine/layout/equation.rs`
+- `01_core/src/engine/layout/shape.rs`
+- `01_core/src/engine/layout/image.rs`
+- `01_core/src/engine/layout/sub_frame.rs`
 
 ## Medição — caso de reprodução
 

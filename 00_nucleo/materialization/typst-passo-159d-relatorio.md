@@ -25,7 +25,7 @@ Content (precedente novo).
      `with_publisher()` — consomem `self`, devolvem `Self`.
 
 3. **Helper `extract_bib_entries` (P159A) extendido** em
-   `01_core/src/rules/stdlib/structural.rs`:
+   `01_core/src/engine/stdlib/structural.rs`:
    - Helper inline `optional_str(field)` para parsing uniforme
      dos 4 fields opcionais.
    - Validação tipo `Value::Str`; outros tipos rejeitados com
@@ -34,7 +34,7 @@ Content (precedente novo).
      atribuídos directamente.
 
 4. **Helper privado novo `format_bib_entry`** em
-   `01_core/src/rules/layout/mod.rs`:
+   `01_core/src/engine/layout/mod.rs`:
    - Concatenação condicional APA-like.
    - Backwards compat: quando todos os 4 fields opcionais são
      `None`, output idêntico a P159A (`[key] author. title (year).`).

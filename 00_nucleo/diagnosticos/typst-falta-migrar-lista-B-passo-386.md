@@ -4,7 +4,7 @@
 **Data**: 2026-06-21.
 **✅ Achado resolvido (Passo 387)**: o cluster `loading` (data import) do §3 foi
 materializado no Passo 387 (ADR-0111): `read`+`csv`/`json`/`yaml`/`toml`/`cbor`/`xml` em
-`01_core/src/rules/stdlib/loading.rs`; entrada nova no Inventário 148 (A.8). Lacuna fechada.
+`01_core/src/engine/stdlib/loading.rs`; entrada nova no Inventário 148 (A.8). Lacuna fechada.
 **Fonte**: balde 3 (resíduo genuíno, 2339 itens) do Passo 385, filtrado a candidatos de
 língua e cruzado com o Inventário 148.
 **Método**: `lab/parity/tools/falta_migrar.py --lista-B` (determinístico; o cruzamento é

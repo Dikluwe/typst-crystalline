@@ -4,7 +4,7 @@ Terceiro passo de implementação P184 (após P184A diagnóstico,
 P184B refinamento arm, P184C trait method + helper).
 Magnitude **S**.
 
-Migra consumer C3 em `01_core/src/rules/layout/mod.rs:435–439`
+Migra consumer C3 em `01_core/src/engine/layout/mod.rs:435–439`
 de leitura legacy directa
 (`state.counter.figure_numbers.get(kind_key).and_then(|v|
 v.get(idx)).copied().unwrap_or(idx + 1)`) para
@@ -52,7 +52,7 @@ expõe `value_at_index`.
 ### .A Auditoria L0
 
 1. Confirmar consumer C3 actual:
-   - `01_core/src/rules/layout/mod.rs:435–439` (per
+   - `01_core/src/engine/layout/mod.rs:435–439` (per
      P183A §2 e P184A §3.5).
    - Localizar leitura: padrão exacto
      `state.counter.figure_numbers.get(kind_key).and_then(|v|
@@ -80,14 +80,14 @@ expõe `value_at_index`.
      top-level no file (consolidação anterior pode ter
      ocorrido).
 
-4. Confirmar L0 actual `rules/layout.md`:
+4. Confirmar L0 actual `engine/layout.md`:
    - Localizar entrada que documenta arm `Content::Figure`.
    - Identificar onde adicionar nota sobre Introspector
      path (se aplicável).
 
 5. Confirmar tests existentes que cobrem o consumer:
    - `grep -rn "figure_numbers\|figure_number_at_index"
-     01_core/src/rules/layout/`.
+     01_core/src/engine/layout/`.
    - Se tests existentes usam apenas state legacy:
      continuam a passar (fallback cobre ou Introspector
      path retorna mesmo valor).
@@ -106,7 +106,7 @@ actual / observação.
   recuar e investigar.
 - Senão prosseguir.
 
-### .B Actualizar L0 `rules/layout.md` (se necessário)
+### .B Actualizar L0 `engine/layout.md` (se necessário)
 
 1. Em L0 do Layouter (ou ficheiro equivalente):
    - Documentar que arm `Content::Figure` consulta
@@ -127,7 +127,7 @@ actual / observação.
 
 ### .C Migrar consumer C3
 
-1. Em `01_core/src/rules/layout/mod.rs:435–439`:
+1. Em `01_core/src/engine/layout/mod.rs:435–439`:
    - Substituir leitura legacy por padrão
      substitution-with-fallback:
      - Consultar Introspector primeiro:
@@ -205,7 +205,7 @@ com:
 - Confirmação `.E` (11 verificações).
 - Δ tests vs baseline P184C (esperado 0).
 - Hashes finais de L0s modificados (se aplicável —
-  `rules/layout.md`).
+  `engine/layout.md`).
 - Decisões de execução notáveis.
 - Estado actual:
   - P184 série: A ✅ B ✅ C ✅ D ✅ | E-F pendentes.
@@ -226,7 +226,7 @@ com:
 Todas em conjunto:
 
 1. `.A` produziu auditoria sem disparar gate substancial.
-2. L0 `rules/layout.md` actualizado (se aplicável).
+2. L0 `engine/layout.md` actualizado (se aplicável).
 3. Consumer C3 migrado em `mod.rs:435–439`.
 4. Tests existentes não regridem (Δ 0).
 5. Verificações `.E` passam (11/11).

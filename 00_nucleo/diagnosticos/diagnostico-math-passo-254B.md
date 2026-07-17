@@ -63,9 +63,9 @@ DEBT-8 lista factualmente desde 2026-03-26 quatro pendências:
 em Layouter por verificar**.
 
 **Acção empírica necessária para classificar definitivamente**:
-- `grep -rn "math_kern" 01_core/src/rules/math/` para confirmar
+- `grep -rn "math_kern" 01_core/src/engine/math/` para confirmar
   consumer real.
-- `grep -rn "MathGlyphKern" 01_core/src/rules/math/` idem.
+- `grep -rn "MathGlyphKern" 01_core/src/engine/math/` idem.
 - Se zero hits → **pendência real activa** (infra-estrutura
   pronta, ligação não feita).
 - Se ≥1 hit em `attach.rs` ou `hconcat` → **pendência fechada
@@ -98,11 +98,11 @@ consumer em Layouter estruturalmente provável; cobertura
 funcional por verificar**.
 
 **Acção empírica necessária**:
-- Ler `01_core/src/rules/math/layout/stretchy.rs` e confirmar
+- Ler `01_core/src/engine/math/layout/stretchy.rs` e confirmar
   uso de `GlyphVariants`.
-- Ler `01_core/src/rules/math/layout/assembly.rs` e confirmar
+- Ler `01_core/src/engine/math/layout/assembly.rs` e confirmar
   uso de `GlyphAssembly`.
-- Ler `01_core/src/rules/math/layout/mod.rs` `apply_axis_offset`
+- Ler `01_core/src/engine/math/layout/mod.rs` `apply_axis_offset`
   e confirmar consulta a `MathConstants.axis_height`.
 - Confirmar se `MathConstants::fallback()` é o caminho activo
   (sem fonte MATH real disponível) ou se há fixture de teste
@@ -129,7 +129,7 @@ Layouter**.
 real**, mas confirmação exige leitura de `attach.rs`.
 
 **Acção empírica necessária**:
-- `grep -n "MathPrimes\|primes" 01_core/src/rules/math/layout/attach.rs`.
+- `grep -n "MathPrimes\|primes" 01_core/src/engine/math/layout/attach.rs`.
 - Se zero hits → pendência confirmada.
 - Se ≥1 hit → ler arm e classificar como minimal/completo.
 
@@ -253,10 +253,10 @@ preenchidas; decisão B1/B2/B3 explícita.
 Passos:
 
 1. `view` ou `grep` os 4 ficheiros suspeitos:
-   - `01_core/src/rules/math/layout/mod.rs` (`apply_axis_offset`).
-   - `01_core/src/rules/math/layout/attach.rs` (primes; kern).
-   - `01_core/src/rules/math/layout/stretchy.rs` (variantes).
-   - `01_core/src/rules/math/layout/assembly.rs` (delimitadores
+   - `01_core/src/engine/math/layout/mod.rs` (`apply_axis_offset`).
+   - `01_core/src/engine/math/layout/attach.rs` (primes; kern).
+   - `01_core/src/engine/math/layout/stretchy.rs` (variantes).
+   - `01_core/src/engine/math/layout/assembly.rs` (delimitadores
      grandes).
 2. Confirmar consumers de `MathConstants`, `MathGlyphKern`,
    `GlyphVariants`, `GlyphAssembly`.

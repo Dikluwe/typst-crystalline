@@ -27,7 +27,7 @@ use typst_core::entities::introspector::{Introspector, TagIntrospector};
 use typst_core::entities::label::Label;
 use typst_core::entities::source::Source;
 use typst_core::entities::value::Value;
-use typst_core::rules::introspect::introspect;
+use typst_core::engine::introspect::introspect;
 
 use crate::pipeline::eval_to_module_with_sink;
 

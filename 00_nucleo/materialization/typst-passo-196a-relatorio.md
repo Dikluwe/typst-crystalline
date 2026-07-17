@@ -309,7 +309,7 @@ produção; continua funcional como backup.
 **P196B** — walk arm Heading auto-toc + helper +
 documentação E2-residuo:
 
-1. Editar `01_core/src/rules/introspect.rs`:
+1. Editar `01_core/src/engine/introspect.rs`:
    - Adicionar helper `compute_heading_auto_toc`.
    - Modificar walk arm Heading:
      - Manter 4 mutações legacy.

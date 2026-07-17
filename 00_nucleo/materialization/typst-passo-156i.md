@@ -46,7 +46,7 @@ antes de comprometer.
 - **ADR-0033**: paridade funcional para stack.
 - **ADR-0036**: atomização — consumer explícito.
 - **ADR-0037**: coesão por domínio — Layout permanece em
-  `rules/layout/` e `rules/stdlib/layout.rs`.
+  `engine/layout/` e `rules/stdlib/layout.rs`.
 - **ADR-0054**: perfil observacional graded — stack
   cumprido com aproximação aceite (spacing semantic real
   pode adiar consoante 156I.1).
@@ -141,13 +141,13 @@ Ao fim do passo:
      cada child.
    - `rules/introspect.rs::walk`: walk cada child em
      ordem.
-   - `rules/layout/mod.rs::layout_content`: iterar
+   - `engine/layout/mod.rs::layout_content`: iterar
      children + spacing entre + dir compliance.
-   - `rules/layout/mod.rs::measure_content_constrained`:
+   - `engine/layout/mod.rs::measure_content_constrained`:
      somar dimensões com spacing.
 
 6. **`native_stack`** em
-   `01_core/src/rules/stdlib/layout.rs` expondo
+   `01_core/src/engine/stdlib/layout.rs` expondo
    `#stack(dir: ?, spacing: ?, ..children)`.
 
 7. **Layouter stack**: aplica direcção (TTB default;
@@ -234,7 +234,7 @@ Este passo **não**:
 3. **Granularidade**: 1 container compositivo num passo.
    Escopo M.
 
-4. **Localização canónica**: `01_core/src/rules/stdlib/layout.rs`.
+4. **Localização canónica**: `01_core/src/engine/stdlib/layout.rs`.
 
 5. **Assinatura natives**: 5-param canónica.
 
@@ -299,13 +299,13 @@ Este passo **não**:
   (variant novo + arms cobertura).
 - Modificação de `01_core/src/entities/mod.rs` (registo
   `pub mod dir`).
-- Modificação de `01_core/src/rules/introspect.rs`.
-- Modificação de `01_core/src/rules/layout/mod.rs`.
-- Modificação de `01_core/src/rules/stdlib/layout.rs`
+- Modificação de `01_core/src/engine/introspect.rs`.
+- Modificação de `01_core/src/engine/layout/mod.rs`.
+- Modificação de `01_core/src/engine/stdlib/layout.rs`
   (`native_stack`).
-- Modificação de `01_core/src/rules/stdlib/mod.rs`
+- Modificação de `01_core/src/engine/stdlib/mod.rs`
   (re-export).
-- Modificação de `01_core/src/rules/eval/mod.rs`
+- Modificação de `01_core/src/engine/eval/mod.rs`
   (registo).
 - Tests novos.
 - L0 prompts + hashes.
@@ -364,8 +364,8 @@ Documentar:
 **A.1.3 — Verificar spacing layouter mecânica**:
 
 ```bash
-grep -nE "leading|line_height" 01_core/src/rules/layout/
-view 01_core/src/rules/layout/cursor.rs   # mecânica vertical
+grep -nE "leading|line_height" 01_core/src/engine/layout/
+view 01_core/src/engine/layout/cursor.rs   # mecânica vertical
 ```
 
 Determinar:
@@ -380,7 +380,7 @@ Determinar:
 **A.1.4 — Verificar children variádicos em natives**:
 
 ```bash
-grep -nE "args.items.iter\(\)|args.items\[" 01_core/src/rules/stdlib/
+grep -nE "args.items.iter\(\)|args.items\[" 01_core/src/engine/stdlib/
 ```
 
 Confirmar:
@@ -529,7 +529,7 @@ Stdlib funcs: 40 → **41** (+1).
 
 ### 156I.7 — Layouter stack
 
-Em `01_core/src/rules/layout/mod.rs::layout_content`:
+Em `01_core/src/engine/layout/mod.rs::layout_content`:
 
 ```rust
 match content {

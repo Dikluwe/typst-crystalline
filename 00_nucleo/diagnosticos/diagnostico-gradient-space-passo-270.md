@@ -114,7 +114,7 @@ bit-exact (dispatcher chama `interpolate_oklab` original para Oklab).
 
 ## §A.6 — Cristalino stdlib actual (sem named arg `space`)
 
-`01_core/src/rules/stdlib/gradients.rs`:
+`01_core/src/engine/stdlib/gradients.rs`:
 
 - `native_gradient_linear`: named args `{angle}` apenas.
 - `native_gradient_radial`: named args `{center, radius, focal_center,
@@ -435,7 +435,7 @@ anotações + L0).**
 - Vanilla ColorSpace: `lab/typst-original/.../visualize/color.rs:1798-1830`.
 - Cristalino L1: `01_core/src/entities/gradient.rs:116/268/347`.
 - Cristalino Color P257: `01_core/src/entities/color.rs:32-242`.
-- Cristalino stdlib: `01_core/src/rules/stdlib/gradients.rs`.
+- Cristalino stdlib: `01_core/src/engine/stdlib/gradients.rs`.
 - ADR-0083 — Color 8/8 spaces (§ColorSpace runtime scope-out revogado
   parcialmente P270).
 - ADR-0085 — Diagnóstico imutável (oitavo consumo).

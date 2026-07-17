@@ -10,8 +10,8 @@ use crate::node;
 use crate::entities::ast::expr::Expr;
 use crate::entities::syntax_kind::SyntaxKind;
 use crate::entities::syntax_node::SyntaxNode;
-use crate::rules::lexer::scanner::Scanner;
-use crate::rules::lexer::{is_newline};
+use crate::engine::lexer::scanner::Scanner;
+use crate::engine::lexer::{is_newline};
 
 node! {
     /// A line comment: `// ...`.

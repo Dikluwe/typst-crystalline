@@ -146,7 +146,7 @@ expansão de variant existente:
 
 ### .3 Refactor de stdlib `native_pad`
 
-`01_core/src/rules/stdlib/layout.rs`:
+`01_core/src/engine/stdlib/layout.rs`:
 - Aceitar named args: `top`, `right`, `bottom`, `left`, `x`,
   `y`, `rest`.
 - Implementar `extract_sides<T>` helper privado (parse com

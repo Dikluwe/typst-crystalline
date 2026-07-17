@@ -20,11 +20,11 @@ grep -n "^\s*[A-Z][a-zA-Z]*\s*{" 01_core/src/entities/color.rs
 
 # Stdlib funcs registadas
 grep -rn "native_rgb\|native_luma\|native_oklab\|native_oklch\|native_hsl\|native_hsv\|native_cmyk\|native_linear_rgb" \
-  01_core/src/rules/stdlib/
+  01_core/src/engine/stdlib/
 
 # Operadores cor (scope-out ADR-0083 #2)
 grep -rn "native_lighten\|native_darken\|native_mix\|native_saturate\|native_desaturate\|native_negate" \
-  01_core/src/rules/stdlib/
+  01_core/src/engine/stdlib/
 
 # Conversões implementadas
 grep -n "fn to_srgb\|fn to_rgba_f32" 01_core/src/entities/color.rs
@@ -67,7 +67,7 @@ grep -rn "Curve\|ShapeKind::Curve\|native_curve" 01_core/src/
 
 ```bash
 # Path bbox cálculo
-grep -rn "bounding_box\|bbox" 01_core/src/rules/layout/
+grep -rn "bounding_box\|bbox" 01_core/src/engine/layout/
 grep -rn "bounding_box" 01_core/src/entities/
 
 # DEBT-33 status
@@ -110,7 +110,7 @@ grep -rn "Stroke<" 01_core/src/
 grep -rn "Gradient\|LinearGradient\|RadialGradient\|ConicGradient" \
   01_core/src/
 grep -rn "GradientStop\|WeightedColor" 01_core/src/
-grep "native_gradient\|gradient" 01_core/src/rules/stdlib/
+grep "native_gradient\|gradient" 01_core/src/engine/stdlib/
 
 # Vanilla Gradient enum
 grep -n "Linear\|Radial\|Conic" lab/typst-original/crates/typst-library/src/visualize/gradient.rs 2>/dev/null | head -20
@@ -123,7 +123,7 @@ ausência total. Vanilla file existe e tem 3 variants.
 
 ```bash
 grep -rn "enum Paint\|Tiling\|TilingPattern" 01_core/src/
-grep "native_tiling\|tiling" 01_core/src/rules/stdlib/
+grep "native_tiling\|tiling" 01_core/src/engine/stdlib/
 ```
 
 **Critério esperado**: zero hits.
@@ -150,8 +150,8 @@ grep -n "alt\|fit\|alt_text" 01_core/src/entities/content.rs
 ### Bloco 8 — Transform `origin` pivot
 
 ```bash
-grep -rn "origin\b" 01_core/src/rules/stdlib/transforms.rs
-grep -A 8 "native_rotate\|native_scale\|native_skew" 01_core/src/rules/stdlib/transforms.rs
+grep -rn "origin\b" 01_core/src/engine/stdlib/transforms.rs
+grep -A 8 "native_rotate\|native_scale\|native_skew" 01_core/src/engine/stdlib/transforms.rs
 grep -n "pivot\|origin: " 01_core/src/entities/layout_types.rs
 ```
 

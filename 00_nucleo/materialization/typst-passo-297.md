@@ -86,12 +86,12 @@ Inspecção literal:
 
 1. **`grep -rn "MathUnderover\|UnderoverElem" 01_core/`** —
    confirmar ausência ou presença.
-2. **`grep -rn "native_underover\|under\|over" 01_core/src/rules/stdlib/`** —
+2. **`grep -rn "native_underover\|under\|over" 01_core/src/engine/stdlib/`** —
    verificar stdlib actual.
 3. **Inspeccionar `01_core/src/entities/content.rs`** — listar
    `Content::Math*` variants pós-P296 (esperado 12 incluindo
    `MathAccent`/`MathCancel` novos).
-4. **Inspeccionar `01_core/src/rules/math/layout/mod.rs`** — ver
+4. **Inspeccionar `01_core/src/engine/math/layout/mod.rs`** — ver
    se há tratamento heurístico actual de underover (linha 418
    sugere "layout aproximado").
 5. **Inspeccionar `lab/typst-original/.../math/underover.rs`** —
@@ -424,9 +424,9 @@ P296**. Mitigação: testes regression obrigatórios.
 
 - Tipo a modificar: `01_core/src/entities/content.rs`
   (`Content::Math*` variants; 12 pós-P296).
-- Função stdlib: `01_core/src/rules/stdlib/structural.rs`
+- Função stdlib: `01_core/src/engine/stdlib/structural.rs`
   (paralelo `native_accent`/`native_cancel` P296).
-- Layouter consumer: `01_core/src/rules/math/layout/mod.rs`
+- Layouter consumer: `01_core/src/engine/math/layout/mod.rs`
   (`layout_node` arm + `layout_underover` handler).
 - Vanilla: `lab/typst-original/crates/typst-library/src/math/underover.rs`.
 - Precedente arquitectural directo: **P296** (`MathAccent` +

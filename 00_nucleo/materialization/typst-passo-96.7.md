@@ -10,11 +10,11 @@ Ler antes de começar:
   `pub(super)` → `pub(crate)` → `pub`.
 - `00_nucleo/DEBT.md` — DEBT-46 com checkbox 96.7 pendente.
   DEBT-47 aberto (auditoria futura de visibilidade).
-- `01_core/src/rules/layout/mod.rs` — ficheiro actual, 2848
+- `01_core/src/engine/layout/mod.rs` — ficheiro actual, 2848
   linhas. Provavelmente contém `Layouter<M>` (struct central
   genérica sobre `FontMetrics`), `FixedMetrics`, e muitos
   métodos `impl`.
-- `01_core/src/rules/layout/` — directório já existe. Pode
+- `01_core/src/engine/layout/` — directório já existe. Pode
   conter outros ficheiros (ex: `text.rs`, `grid.rs`?). Verificar
   em Fase 0.
 
@@ -59,9 +59,9 @@ Diferenças face aos Passos 96.1, 96.4, 96.5:
 Com base em análise prévia (conhecimento do `Layouter`):
 
 ```
-01_core/src/rules/layout/mod.rs (antes: 2848 linhas)
+01_core/src/engine/layout/mod.rs (antes: 2848 linhas)
     ↓ transforma-se em:
-01_core/src/rules/layout/
+01_core/src/engine/layout/
     mod.rs         — Layouter struct + ::new + entry points
                      públicos (layout, etc.), declarações de
                      submódulos, re-exports.
@@ -96,25 +96,25 @@ clusters diferentes. Reportar a decisão em Fase 0.
 
 ```bash
 # Tamanho e armazenamento actual:
-wc -l 01_core/src/rules/layout/mod.rs
-ls -la 01_core/src/rules/layout/
+wc -l 01_core/src/engine/layout/mod.rs
+ls -la 01_core/src/engine/layout/
 
 # Se já há outros ficheiros no directório:
-find 01_core/src/rules/layout/ -name "*.rs"
+find 01_core/src/engine/layout/ -name "*.rs"
 
 # Estrutura top-level:
 grep -n "^pub fn\|^fn\|^pub struct\|^struct\|^impl\|^pub enum\|^enum\|^pub trait\|^trait" \
-    01_core/src/rules/layout/mod.rs | head -60
+    01_core/src/engine/layout/mod.rs | head -60
 
 # Impls do Layouter (normalmente vários blocos impl):
-grep -n "^impl" 01_core/src/rules/layout/mod.rs
+grep -n "^impl" 01_core/src/engine/layout/mod.rs
 
 # Métodos por impl block (tamanho):
 grep -cn "^\s*fn \|^\s*pub fn \|^\s*pub(super) fn \|^\s*pub(crate) fn " \
-    01_core/src/rules/layout/mod.rs
+    01_core/src/engine/layout/mod.rs
 
 # Testes:
-grep -c "^\s*#\[test\]" 01_core/src/rules/layout/mod.rs
+grep -c "^\s*#\[test\]" 01_core/src/engine/layout/mod.rs
 ```
 
 Reportar:
@@ -131,7 +131,7 @@ Reportar:
 
 ```bash
 # Definição da struct:
-grep -B 2 -A 30 "^pub struct Layouter" 01_core/src/rules/layout/mod.rs
+grep -B 2 -A 30 "^pub struct Layouter" 01_core/src/engine/layout/mod.rs
 ```
 
 Reportar:
@@ -194,7 +194,7 @@ Para cada cluster:
 
 ```bash
 # Lista métodos do cluster:
-grep -n "fn <nome_metodo>" 01_core/src/rules/layout/mod.rs
+grep -n "fn <nome_metodo>" 01_core/src/engine/layout/mod.rs
 ```
 
 #### Passo N.b — Criar ou reutilizar submódulo
@@ -315,7 +315,7 @@ os testes passam. Se qualquer cluster falhar:
 ### 2.1 — Tamanhos
 
 ```bash
-wc -l 01_core/src/rules/layout/*.rs | sort -rn
+wc -l 01_core/src/engine/layout/*.rs | sort -rn
 ```
 
 Alvo:
@@ -349,14 +349,14 @@ Todos devem passar sem alteração.
 
 ```bash
 # Quantos pub(super) foram introduzidos:
-grep -rn "pub(super)" 01_core/src/rules/layout/*.rs | wc -l
+grep -rn "pub(super)" 01_core/src/engine/layout/*.rs | wc -l
 
 # Quantos pub(in ...) foram usados:
-grep -rn "pub(in " 01_core/src/rules/layout/*.rs
+grep -rn "pub(in " 01_core/src/engine/layout/*.rs
 
 # Campos pub(super) vs métodos pub(super):
-grep -rn "pub(super)\s*\w*:\s" 01_core/src/rules/layout/*.rs | wc -l    # campos
-grep -rn "pub(super)\s*fn" 01_core/src/rules/layout/*.rs | wc -l        # métodos
+grep -rn "pub(super)\s*\w*:\s" 01_core/src/engine/layout/*.rs | wc -l    # campos
+grep -rn "pub(super)\s*fn" 01_core/src/engine/layout/*.rs | wc -l        # métodos
 ```
 
 Reportar as contagens. A expectativa (pela nota de visibilidade)

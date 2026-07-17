@@ -27,7 +27,7 @@ Produzir a tabela completa, com percentagem de cada fase do total, e comparar co
 Para a fase que agora dominar (provavelmente `render_ms` ou `layout_ms`, a confirmar com os números), aplicar o mesmo tipo de instrumentação já usado em P672 — dividir o tempo em sub-partes (preparação, trabalho repetido potencial, trabalho real) e procurar especificamente por:
 
 ```bash
-grep -n "Face::parse\|Face::from_slice\|std::fs::read\|\.clone()" 01_core/src/rules/layout/*.rs 03_infra/src/export/*.rs | grep -v test | wc -l
+grep -n "Face::parse\|Face::from_slice\|std::fs::read\|\.clone()" 01_core/src/engine/layout/*.rs 03_infra/src/export/*.rs | grep -v test | wc -l
 ```
 
 Confirmar se há padrões de re-parse, re-leitura, ou clonagem cara repetida nas fases de layout e render, do mesmo tipo já encontrado três vezes nesta linha (P546, P672, P674).

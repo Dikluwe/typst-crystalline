@@ -1206,7 +1206,7 @@ puro).
   **S7** `get_field` legível pelo closure de `#show`.
   **Trava-Q1** (sítio do guard) e **Trava-Q2** (id+`get_field` no contrato) são
   decisões do dono no checkpoint — resolução proposta em 3a.7/3a.4.
-- **Rede de caracterização existente** (+11, P331 Fase 2, `rules/layout/tests.rs`
+- **Rede de caracterização existente** (+11, P331 Fase 2, `engine/layout/tests.rs`
   `mod f_caracterizacao_estilo`): **spec de paridade** — nenhum lote do F a altera
   (alterar teste para passar = mudança de comportamento = bug).
 - **Trava da ADR-0105 cláusula 3** (verificação mecânica reposta): no caminho

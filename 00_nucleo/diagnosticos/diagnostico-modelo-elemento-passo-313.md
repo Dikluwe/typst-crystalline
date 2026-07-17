@@ -63,7 +63,7 @@ fontes autorizadas"* — não estima de memória.
 | Backends que tocam `Content` | **layout (L1+L3) + PDF export (L3)** | `grep -l 'Content::' 03_infra/src` → `layout.rs`, `export/images.rs`, `export/gradients/mod.rs` |
 
 **Constatação estrutural 1 — não há os 5 backends do vanilla.** O cristalino
-tem **dois** consumidores de `Content`: o Layouter (`rules/layout` em L1; wiring
+tem **dois** consumidores de `Content`: o Layouter (`engine/layout` em L1; wiring
 em `03_infra/src/layout.rs`) e o export PDF (L3). **Não existem backends
 html / svg / render** (a varredura confirma: nenhum ficheiro fora de
 layout/export referencia `Content::`). O custo "um match por backend" do
@@ -110,7 +110,7 @@ por elemento, **independente** da complexidade do elemento.
 | `rules/introspect/fixpoint.rs` | 8 | convergência da numeração |
 | `entities/style_chain.rs` | 5 | `HeadingLevel` como propriedade de estilo |
 | `ast/markup.rs` + `rules/parse/markup.rs` + `rules/lexer/markup.rs` | 5+4+1 | origem sintática `= ` |
-| `rules/layout/mod.rs` + `outline.rs` + `cursor.rs` | 4+3+1 | arm do Layouter |
+| `engine/layout/mod.rs` + `outline.rs` + `cursor.rs` | 4+3+1 | arm do Layouter |
 | `entities/{content_hash,syntax_kind,tag,source,show,resolved_label_store,counter_registry}.rs` | ~15 | hash, tags, índice, labels |
 
 **Constatação estrutural 2 — a multiplicação de enums.** Porque `Heading` é

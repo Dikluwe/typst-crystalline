@@ -32,8 +32,8 @@ A busca devolveu **17 ocorrências** no estado `f61461c03`:
 |---|---|---|---|
 | `01_core/src/entities/shaped_glyph.rs:9` | comentário | explica a fórmula de conversão para pt | identificador residual, não é campo estático |
 | `01_core/src/entities/layout_types.rs:741` | parâmetro de `resolve_pt` | recebe o tamanho em pt para resolver `Length` | identificador residual, não é campo estático |
-| `01_core/src/rules/layout/curve.rs:21` | parâmetro de `path_items_from_curve` | recebe o tamanho em pt para resolver segmentos | identificador residual, não é campo estático |
-| `01_core/src/rules/layout/cursor.rs:63` | variável local | `let font_size_pt = self.style.size.val();` | derivado dinamicamente de `style.size` |
+| `01_core/src/engine/layout/curve.rs:21` | parâmetro de `path_items_from_curve` | recebe o tamanho em pt para resolver segmentos | identificador residual, não é campo estático |
+| `01_core/src/engine/layout/cursor.rs:63` | variável local | `let font_size_pt = self.style.size.val();` | derivado dinamicamente de `style.size` |
 
 **Conclusão da avaliação:** o campo estático `self.font_size_pt` do `Layouter` foi de facto eliminado (nenhuma ocorrência de `self.font_size_pt` existe no código). No entanto, o identificador `font_size_pt` persistia como nome de parâmetro, variável local e comentário, o que torna a afirmação "completamente eliminado" literalmente falsa. Para fechar o passo de forma mensurável, renomeámos todas as ocorrências restantes para `size_pt`.
 
@@ -43,8 +43,8 @@ Foram editados 4 ficheiros:
 
 - `01_core/src/entities/layout_types.rs`: parâmetro `font_size_pt` → `size_pt` em `Length::resolve_pt`.
 - `01_core/src/entities/shaped_glyph.rs`: comentário `font_size_pt` → `size_pt`.
-- `01_core/src/rules/layout/curve.rs`: parâmetro e 13 usos locais de `font_size_pt` → `size_pt`.
-- `01_core/src/rules/layout/cursor.rs`: variável local `font_size_pt` → `size_pt`.
+- `01_core/src/engine/layout/curve.rs`: parâmetro e 13 usos locais de `font_size_pt` → `size_pt`.
+- `01_core/src/engine/layout/cursor.rs`: variável local `font_size_pt` → `size_pt`.
 
 ### 2.3. Busca de validação pós-renomeação
 
@@ -65,12 +65,12 @@ grep -rn "font_size_pt" 01_core/src/ 02_shell/src/ 03_infra/src/ 04_wiring/src/ 
 
 ### 3.1. Origem histórica no git
 
-Analisámos o histórico de `01_core/src/rules/eval/mod.rs` para determinar desde quando os três casos caíam no braço genérico `_ => Ok(Value::None)`.
+Analisámos o histórico de `01_core/src/engine/eval/mod.rs` para determinar desde quando os três casos caíam no braço genérico `_ => Ok(Value::None)`.
 
 ```bash
-git log --oneline -S "Expr::Escape" -- 01_core/src/rules/eval/mod.rs
-git log --oneline -S "Expr::Shorthand" -- 01_core/src/rules/eval/mod.rs
-git log --oneline -S "Expr::Linebreak(_)" -- 01_core/src/rules/eval/mod.rs
+git log --oneline -S "Expr::Escape" -- 01_core/src/engine/eval/mod.rs
+git log --oneline -S "Expr::Shorthand" -- 01_core/src/engine/eval/mod.rs
+git log --oneline -S "Expr::Linebreak(_)" -- 01_core/src/engine/eval/mod.rs
 ```
 
 Resultados:
@@ -101,7 +101,7 @@ find lab/parity/corpus/ -name '*.typ' -exec grep -lE '\\#|\\\$|\\&|\\\*|\.\.\.|-
 
 ### 3.3. Verificação nos testes automáticos
 
-O relatório do Passo 581 menciona o teste `p581_cobertura_de_escape_e_shorthand_em_layout`. Uma busca cuidadosa revela que este teste de fato existe no arquivo `01_core/src/rules/layout/tests.rs` (linhas 3488-3503) desde o commit `220f9d8f8`. Ele executa e valida com sucesso a presença e renderização dos escapes (`#`, `$`) e shorthands (`–`, `…`) no documento resultante do layout. Portanto, a suíte de testes de integração do layout de fato passou a cobrir essa funcionalidade.
+O relatório do Passo 581 menciona o teste `p581_cobertura_de_escape_e_shorthand_em_layout`. Uma busca cuidadosa revela que este teste de fato existe no arquivo `01_core/src/engine/layout/tests.rs` (linhas 3488-3503) desde o commit `220f9d8f8`. Ele executa e valida com sucesso a presença e renderização dos escapes (`#`, `$`) e shorthands (`–`, `…`) no documento resultante do layout. Portanto, a suíte de testes de integração do layout de fato passou a cobrir essa funcionalidade.
 
 ### 3.4. Ponto cego de cobertura e legado
 

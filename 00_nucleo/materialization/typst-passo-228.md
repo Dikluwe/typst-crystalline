@@ -202,11 +202,11 @@ Reuso de dados (sem recolha nova):
 Auditoria empírica crítica:
 
 ```
-grep -n "pub fn extract_color\|fn extract_color" 01_core/src/rules/stdlib/
+grep -n "pub fn extract_color\|fn extract_color" 01_core/src/engine/stdlib/
 grep -n "ShapeKind::Rect" 01_core/src/entities/geometry.rs
 grep -A 10 "Value::Color" 01_core/src/entities/value.rs | head -15
-grep -A 30 "if let Some(s) = stroke" 01_core/src/rules/layout/grid.rs
-grep -n "fn layout_grid" 01_core/src/rules/layout/grid.rs
+grep -A 30 "if let Some(s) = stroke" 01_core/src/engine/layout/grid.rs
+grep -n "fn layout_grid" 01_core/src/engine/layout/grid.rs
 ```
 
 Hipótese:
@@ -285,15 +285,15 @@ Total arms refino Grid + Table P228:
 - `materialize_time` — preserva fill.
 - `walk` — preserva.
 
-**`rules/layout/mod.rs::layout_content`** (1 arm Grid +
+**`engine/layout/mod.rs::layout_content`** (1 arm Grid +
 1 arm Table — refino consume fill).
 
-**`rules/layout/grid.rs::layout_grid`** (signature +1
+**`engine/layout/grid.rs::layout_grid`** (signature +1
 param `fill: Option<&Color>`).
 
 **`rules/introspect/locatable.rs`** (catch-all preserva).
 
-**`rules/layout/mod.rs::measure_content_constrained`** (2
+**`engine/layout/mod.rs::measure_content_constrained`** (2
 arms — preservam dimensions; fill não afecta layout
 geometric pre-emit).
 
@@ -327,7 +327,7 @@ mas com parsing trivial (apenas Color match).
 ### C6 — Renderização Opção β em `layout_grid` (Z-order
 correcto)
 
-Editar `01_core/src/rules/layout/grid.rs::layout_grid`
+Editar `01_core/src/engine/layout/grid.rs::layout_grid`
 adicionando fill param **+ refactor Z-order se C1 audit
 revelar incorrecto em P227**:
 
@@ -577,17 +577,17 @@ Código alterado:
 - **Editado**: `01_core/src/entities/content.rs` (variants
   Grid + Table refino +1 field + arms cascata + ~4 unit
   tests).
-- **Editado**: `01_core/src/rules/introspect.rs` (arms
+- **Editado**: `01_core/src/engine/introspect.rs` (arms
   preservados; possível ajuste trivial).
-- **Editado**: `01_core/src/rules/layout/grid.rs`
+- **Editado**: `01_core/src/engine/layout/grid.rs`
   (signature `layout_grid` +1 param + renderização Opção
   β Z-order + possível adaptação P227 stroke ordering).
-- **Editado**: `01_core/src/rules/layout/mod.rs` (arms
+- **Editado**: `01_core/src/engine/layout/mod.rs` (arms
   consume fill).
-- **Editado**: `01_core/src/rules/stdlib/structural.rs`
+- **Editado**: `01_core/src/engine/stdlib/structural.rs`
   (`native_grid` + `native_table` accept fill; +~5 unit
   tests).
-- **Editado**: `01_core/src/rules/layout/tests.rs` (+~5
+- **Editado**: `01_core/src/engine/layout/tests.rs` (+~5
   E2E tests Z-order).
 - **Editado**: `00_nucleo/diagnosticos/typst-cobertura-vanilla-vs-cristalino.md`
   (footnote ⁴⁸ P228 + Tabela B.2 actualização cumulativa).

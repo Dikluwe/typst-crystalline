@@ -12,13 +12,13 @@
 
 ```bash
 # Localizar referências a bidi/RTL no layout (L1)
-grep -n "layout_word\|cursor_x\|advance.*word" 01_core/src/rules/layout/cursor.rs | head -20
+grep -n "layout_word\|cursor_x\|advance.*word" 01_core/src/engine/layout/cursor.rs | head -20
 
 # Verificar onde bidi_runs é usado no projecto
 grep -R "bidi_runs\|unicode_bidi\|unicode-bidi" . --include="*.rs" | head -30
 
 # Localizar o arm Content::Text no layout monolito
-grep -n "Content::Text" 01_core/src/rules/layout/mod.rs
+grep -n "Content::Text" 01_core/src/engine/layout/mod.rs
 
 # Confirmar a pipeline: layout → shape → export
 grep -n "shape_document\|layout_with_introspector_and_metrics" 03_infra/src/pipeline.rs
@@ -27,7 +27,7 @@ grep -n "shape_document\|layout_with_introspector_and_metrics" 03_infra/src/pipe
 ### Resultados
 
 1. **O Layouter avança `cursor_x` sempre para a direita?** PASS  
-   `01_core/src/rules/layout/cursor.rs:134` e `:149` — `self.regions.current.cursor_x += w;` sem noção de direcção.
+   `01_core/src/engine/layout/cursor.rs:134` e `:149` — `self.regions.current.cursor_x += w;` sem noção de direcção.
 
 2. **`bidi_runs` está acessível no Layouter (L1)?** FAIL  
    `bidi_runs` só existe em L3 (`03_infra/src/shaper.rs:121,490`).

@@ -46,7 +46,7 @@ No cristalino:
 
 ### A.1 — Prompt L0 `lorem.md`
 
-Novo em `00_nucleo/prompts/rules/stdlib/lorem.md` (confirmar path; seguir padrão de `square.md`):
+Novo em `00_nucleo/prompts/engine/stdlib/lorem.md` (confirmar path; seguir padrão de `square.md`):
 
 - **Paridade**: `lorem(n)` devolve `Str` com `n` palavras de texto dummy.
 - **Substrato**: helper stdlib puro; recebe `Int`, devolve `Value::Str`.

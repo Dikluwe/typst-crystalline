@@ -12,7 +12,7 @@
 
 ## Contexto
 
-`01_core/src/rules/layout/grid.rs:322`:
+`01_core/src/engine/layout/grid.rs:322`:
 
 ```rust
 let cells = place_cells(cells, num_cols).unwrap_or_default();
@@ -27,7 +27,7 @@ Se `place_cells` encontrar um conflito (duas células a reclamar a mesma posiç�
 ### Confirmar os tipos de erro que `place_cells` pode devolver
 
 ```bash
-grep -n "fn place_cells\|Err(" 01_core/src/rules/layout/grid.rs | head -20
+grep -n "fn place_cells\|Err(" 01_core/src/engine/layout/grid.rs | head -20
 ```
 
 Listar os diferentes tipos de conflito que a função já detecta, para decidir a mensagem de erro certa para cada um.

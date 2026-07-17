@@ -3,7 +3,7 @@
 ## Estado actual antes de começar
 
 Ler antes de começar:
-- `01_core/src/rules/eval.rs` — arm `Expr::MathAttach` (alterado no Passo 46)
+- `01_core/src/engine/eval.rs` — arm `Expr::MathAttach` (alterado no Passo 46)
 - `01_core/src/entities/content.rs` — `Content::MathAttach` com `tl`, `bl`, `sub`, `sup`
 - `lab/typst-original/crates/typst-syntax/src/ast.rs` — `MathAttach::primes()`
 
@@ -42,19 +42,19 @@ grep -A 8 "fn primes" \
   lab/typst-original/crates/typst-syntax/src/ast.rs
 
 # 2. Confirmar estado actual do arm Expr::MathAttach após Passo 46
-grep -A 20 "Expr::MathAttach" 01_core/src/rules/eval.rs
+grep -A 20 "Expr::MathAttach" 01_core/src/engine/eval.rs
 
 # 3. Confirmar construtores de Content::MathText e Content::MathSequence
 grep -n "MathText\|MathSequence" 01_core/src/entities/content.rs | head -10
 
 # 4. Confirmar helpers de teste disponíveis em L1 e L3
 grep -n "fn layout_test\|fn compile_to_pdf" \
-  01_core/src/rules/math/layout.rs \
+  01_core/src/engine/math/layout.rs \
   03_infra/src/integration_tests.rs | head -10
 
 # 5. Confirmar como MathText é construído actualmente no eval
 # (para usar o mesmo padrão ao criar o nó de prime)
-grep -n "MathText\|MathIdent" 01_core/src/rules/eval.rs | head -10
+grep -n "MathText\|MathIdent" 01_core/src/engine/eval.rs | head -10
 ```
 
 **Reportar o output antes de continuar.**
@@ -67,7 +67,7 @@ antes de codificar.
 
 ## Tarefa 1 — Extrair e converter primes no eval
 
-Em `01_core/src/rules/eval.rs`, no arm `Expr::MathAttach`, após extrair
+Em `01_core/src/engine/eval.rs`, no arm `Expr::MathAttach`, após extrair
 `tl`, `bl`, `sub` e `sup` (Passo 46), adicionar:
 
 ```rust

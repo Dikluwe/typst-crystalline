@@ -33,7 +33,7 @@ Tabela §"Resumo" linha 112 também marcada ✅.
 
 **Outputs**:
 
-- `01_core/src/rules/layout/tests.rs` (módulo `p181i_e2e_bib` com
+- `01_core/src/engine/layout/tests.rs` (módulo `p181i_e2e_bib` com
   5 tests).
 - `00_nucleo/diagnosticos/m1-lacunas-captura.md` (lacuna #6
   marcada ✅; mecanismo + critérios documentados).
@@ -77,7 +77,7 @@ modificado** (P181B–H já materializaram tudo).
   `Content` directamente (sem parser/eval). Replica padrão
   estabelecido P162–P181G. Sem dependência em parser.
 
-- **Localização tests**: `01_core/src/rules/layout/tests.rs`
+- **Localização tests**: `01_core/src/engine/layout/tests.rs`
   módulo `p181i_e2e_bib` (paralelo a `p168_figure_ref_migration`,
   `p181g_cite_arm_migration`, `p169_metadata_feature`, etc.).
 

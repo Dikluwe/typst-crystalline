@@ -4,7 +4,7 @@
 
 Ler antes de começar:
 - `01_core/src/entities/layout_types.rs` — `FrameItem::Glyph` (não deve ser alterado)
-- `01_core/src/rules/layout.rs` — `trait FontMetrics` com o método `glyph_to_char(glyph_id: u16) -> Option<char>`
+- `01_core/src/engine/layout.rs` — `trait FontMetrics` com o método `glyph_to_char(glyph_id: u16) -> Option<char>`
 - `03_infra/src/font_metrics.rs` — `FontBookMetrics::from_bytes` e a implementação actual de `glyph_to_char` (que retorna `None`)
 - `03_infra/src/export.rs` — geração do PDF, especificamente a secção que constrói o stream `/ToUnicode` e o `cmap`
 
@@ -30,7 +30,7 @@ O L1 permanece intacto (pureza geométrica mantida). A resolução ocorre integr
 
 ```bash
 # 1. Confirmar assinatura de glyph_to_char no trait e na implementação L3
-grep -n "fn glyph_to_char" 01_core/src/rules/layout.rs 03_infra/src/font_metrics.rs
+grep -n "fn glyph_to_char" 01_core/src/engine/layout.rs 03_infra/src/font_metrics.rs
 
 # 2. Localizar onde FontBookMetrics armazena o seu estado interno
 grep -A 10 "pub struct FontBookMetrics" 03_infra/src/font_metrics.rs

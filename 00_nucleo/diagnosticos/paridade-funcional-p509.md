@@ -27,7 +27,7 @@ O diagnóstico P508 identificou 6 brechas reais. Este passo fecha 5 delas (parid
 ### 2.1 L0 / Documentação
 
 - `00_nucleo/prompts/entities/value.md` — adicionado `Value::Label` como variante de primeira classe.
-- `00_nucleo/prompts/rules/stdlib/collections.md` — adicionados métodos `str.len/first/last/at/slice/clusters` e `dict.len/insert/remove`.
+- `00_nucleo/prompts/engine/stdlib/collections.md` — adicionados métodos `str.len/first/last/at/slice/clusters` e `dict.len/insert/remove`.
 
 ### 2.2 L1 — `01_core/`
 
@@ -115,7 +115,7 @@ Todos passam.
 | Ficheiro L1 | Prompt L0 | Hash (após `--fix-hashes`) |
 |---|---|---|
 | `01_core/src/entities/value.rs` | `00_nucleo/prompts/entities/value.md` | `04e8ef46` |
-| `01_core/src/rules/stdlib/collections.rs` | `00_nucleo/prompts/rules/stdlib/collections.md` | (sem drift) |
+| `01_core/src/engine/stdlib/collections.rs` | `00_nucleo/prompts/engine/stdlib/collections.md` | (sem drift) |
 
 ---
 

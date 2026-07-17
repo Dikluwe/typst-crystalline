@@ -15,16 +15,16 @@ inventariar primeiro critério #5.
 ### Item 1 — Kern matemático
 
 ```bash
-$ grep -rn "MathGlyphKern" 01_core/src/rules/math/
-01_core/src/rules/math/layout/attach.rs:17:use crate::entities::glyph_variants::MathGlyphKern;
-01_core/src/rules/math/layout/attach.rs:49:        let base_kern: MathGlyphKern = base_char
+$ grep -rn "MathGlyphKern" 01_core/src/engine/math/
+01_core/src/engine/math/layout/attach.rs:17:use crate::entities::glyph_variants::MathGlyphKern;
+01_core/src/engine/math/layout/attach.rs:49:        let base_kern: MathGlyphKern = base_char
 
-$ grep -rn "math_kern\b" 01_core/src/rules/math/
-01_core/src/rules/math/layout/attach.rs:50:            .map(|c| self.metrics.math_kern(c))
-01_core/src/rules/math/layout/tests.rs:495:    let k = m.math_kern('f');
-01_core/src/rules/math/layout/tests.rs:502:    // math_kern com FixedMetrics retorna kern zero — layout não deve mudar
+$ grep -rn "math_kern\b" 01_core/src/engine/math/
+01_core/src/engine/math/layout/attach.rs:50:            .map(|c| self.metrics.math_kern(c))
+01_core/src/engine/math/layout/tests.rs:495:    let k = m.math_kern('f');
+01_core/src/engine/math/layout/tests.rs:502:    // math_kern com FixedMetrics retorna kern zero — layout não deve mudar
 
-$ grep -n "kern\|MathKernRecord\|math_kern" 01_core/src/rules/math/layout/attach.rs
+$ grep -n "kern\|MathKernRecord\|math_kern" 01_core/src/engine/math/layout/attach.rs
 44:        // Apenas MathIdent/MathText têm char único; outros ficam com kern zero.
 49:        let base_kern: MathGlyphKern = base_char
 50:            .map(|c| self.metrics.math_kern(c))
@@ -46,35 +46,35 @@ $ grep -n "kern\|MathKernRecord\|math_kern" 01_core/src/rules/math/layout/attach
 204:                    base_kern.bottom_right.kern_at(sub_h_du), style.size
 208:                    items.push(offset_item(item, Pt(x + kern_sub), Pt(sub_offset)));
 
-$ grep -n "kern" 01_core/src/rules/math/layout/mod.rs
+$ grep -n "kern" 01_core/src/engine/math/layout/mod.rs
 (zero hits)
 ```
 
 ### Item 2 — OpenType MATH tables + variantes
 
 ```bash
-$ grep -n "GlyphVariants\|vertical_glyph_variants\|\.select(" 01_core/src/rules/math/layout/stretchy.rs
+$ grep -n "GlyphVariants\|vertical_glyph_variants\|\.select(" 01_core/src/engine/math/layout/stretchy.rs
 22:        let variants = self.metrics.vertical_glyph_variants(c);
 
-$ grep -n "GlyphAssembly\|vertical_glyph_assembly\|GlyphPart" 01_core/src/rules/math/layout/assembly.rs
+$ grep -n "GlyphAssembly\|vertical_glyph_assembly\|GlyphPart" 01_core/src/engine/math/layout/assembly.rs
 14:use crate::entities::glyph_variants::GlyphAssembly;
 20:        assembly:       GlyphAssembly,
 
-$ grep -rn "MathConstants\|math_constants\b" 01_core/src/rules/math/
-01_core/src/rules/math/layout/mod.rs:12:    math_constants::MathConstants,
-01_core/src/rules/math/layout/mod.rs:191:/// **Passo 41**: constantes OpenType MATH via `FontMetrics::math_constants()`.
-01_core/src/rules/math/layout/mod.rs:210:    pub(super) constants: MathConstants,
-01_core/src/rules/math/layout/mod.rs:218:        let constants = metrics.math_constants();
-01_core/src/rules/math/layout/tests.rs:590:    let constants = crate::entities::math_constants::MathConstants::fallback();
+$ grep -rn "MathConstants\|math_constants\b" 01_core/src/engine/math/
+01_core/src/engine/math/layout/mod.rs:12:    math_constants::MathConstants,
+01_core/src/engine/math/layout/mod.rs:191:/// **Passo 41**: constantes OpenType MATH via `FontMetrics::math_constants()`.
+01_core/src/engine/math/layout/mod.rs:210:    pub(super) constants: MathConstants,
+01_core/src/engine/math/layout/mod.rs:218:        let constants = metrics.math_constants();
+01_core/src/engine/math/layout/tests.rs:590:    let constants = crate::entities::math_constants::MathConstants::fallback();
 ```
 
 ### Item 3 — MathPrimes layout
 
 ```bash
-$ grep -rn "MathPrimes\|Content::MathPrimes\|primes\b" 01_core/src/rules/math/
+$ grep -rn "MathPrimes\|Content::MathPrimes\|primes\b" 01_core/src/engine/math/
 (zero hits — não consumido em rules/math/layout)
 
-$ grep -n "primes\|Primes" 01_core/src/rules/math/layout/attach.rs
+$ grep -n "primes\|Primes" 01_core/src/engine/math/layout/attach.rs
 (zero hits)
 
 $ grep -rn "MathPrimes" 01_core/src/
@@ -83,7 +83,7 @@ $ grep -rn "MathPrimes" 01_core/src/
 01_core/src/entities/syntax_kind.rs:424:    Self::MathAttach => "math attachments",
 01_core/src/entities/syntax_kind.rs:427:    Self::MathPrimes => "math primes",
 01_core/src/entities/syntax_set.rs:89:    MathPrimes,
-01_core/src/rules/eval/math.rs:86:    // MathPrimes::count() retorna o número de apóstrofos usando o comprimento em bytes.
+01_core/src/engine/eval/math.rs:86:    // MathPrimes::count() retorna o número de apóstrofos usando o comprimento em bytes.
 01_core/src/entities/ast/math.rs:217:    pub fn primes(self) -> Option<MathPrimes<'a>> {
 01_core/src/entities/ast/math.rs:228:    struct MathPrimes
 01_core/src/entities/ast/math.rs:231:impl MathPrimes<'_> {
@@ -91,10 +91,10 @@ $ grep -rn "MathPrimes" 01_core/src/
 01_core/src/entities/ast/expr.rs:61:    MathPrimes(MathPrimes<'a>),
 01_core/src/entities/ast/expr.rs:134:    SyntaxKind::MathPrimes => Some(Self::MathPrimes(MathPrimes(node))),
 01_core/src/entities/ast/expr.rs:199:    Self::MathPrimes(v) => v.to_untyped(),
-01_core/src/rules/parse/math.rs:99:    SyntaxKind::MathPrimes | SyntaxKind::Escape | SyntaxKind::Str => {
-01_core/src/rules/parse/math.rs:170:    if !(op_kind == SyntaxKind::MathPrimes && p.at_set(stop_set)) {
-01_core/src/rules/parse/math.rs:199:    SyntaxKind::MathPrimes if !had_trivia => (SyntaxKind::MathAttach, None, 2),
-01_core/src/rules/lexer/math.rs:78:    SyntaxKind::MathPrimes
+01_core/src/engine/parse/math.rs:99:    SyntaxKind::MathPrimes | SyntaxKind::Escape | SyntaxKind::Str => {
+01_core/src/engine/parse/math.rs:170:    if !(op_kind == SyntaxKind::MathPrimes && p.at_set(stop_set)) {
+01_core/src/engine/parse/math.rs:199:    SyntaxKind::MathPrimes if !had_trivia => (SyntaxKind::MathAttach, None, 2),
+01_core/src/engine/lexer/math.rs:78:    SyntaxKind::MathPrimes
 ```
 
 **Inspecção `eval/math.rs:75-101`**:
@@ -121,19 +121,19 @@ let prime_char: Option<Content> = if prime_count == 0 {
 ### Item 4 — Baseline x-height
 
 ```bash
-$ grep -n "apply_axis_offset\|axis_height" 01_core/src/rules/math/layout/mod.rs
+$ grep -n "apply_axis_offset\|axis_height" 01_core/src/engine/math/layout/mod.rs
 224:    /// O eixo matemático é `axis_height` (design units) acima da baseline.
 228:    pub(super) fn apply_axis_offset(&self, mut b: MathBox, size: Pt) -> MathBox {
 229:    let axis_pt = self.constants.to_pt(self.constants.axis_height, size).val();
 
-$ grep -rn "x_height\|x-height\|axis_height\|baseline" 01_core/src/rules/math/ | head -15
-01_core/src/rules/math/layout/assembly.rs:34:        // No MathBox, y=0 é o topo e y=ascent é a baseline.
-01_core/src/rules/math/layout/tests.rs:520:fn frac_com_axis_height_nao_regride() {
-01_core/src/rules/math/layout/tests.rs:531:fn delimitado_com_axis_height_nao_regride() {
-01_core/src/rules/math/layout/tests.rs:546:fn sqrt_com_axis_height_nao_regride() {
-01_core/src/rules/math/layout/tests.rs:588:    // Com axis_height, a fracção sobe: o ascent do MathBox aumenta.
-01_core/src/rules/math/layout/tests.rs:589:    // Verificar que o axis_height é não-zero (fallback=500 > 0).
-01_core/src/rules/math/layout/tests.rs:591:    assert!(constants.axis_height > 0.0, "axis_height do fallback deve ser > 0");
+$ grep -rn "x_height\|x-height\|axis_height\|baseline" 01_core/src/engine/math/ | head -15
+01_core/src/engine/math/layout/assembly.rs:34:        // No MathBox, y=0 é o topo e y=ascent é a baseline.
+01_core/src/engine/math/layout/tests.rs:520:fn frac_com_axis_height_nao_regride() {
+01_core/src/engine/math/layout/tests.rs:531:fn delimitado_com_axis_height_nao_regride() {
+01_core/src/engine/math/layout/tests.rs:546:fn sqrt_com_axis_height_nao_regride() {
+01_core/src/engine/math/layout/tests.rs:588:    // Com axis_height, a fracção sobe: o ascent do MathBox aumenta.
+01_core/src/engine/math/layout/tests.rs:589:    // Verificar que o axis_height é não-zero (fallback=500 > 0).
+01_core/src/engine/math/layout/tests.rs:591:    assert!(constants.axis_height > 0.0, "axis_height do fallback deve ser > 0");
 ```
 
 ### Verificação dos campos reais de `MathConstants`

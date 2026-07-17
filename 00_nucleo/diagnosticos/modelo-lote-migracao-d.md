@@ -207,7 +207,7 @@ do relatório de **todo** lote — o roteiro mora no repo, não em conversa).
   DEBT que regista o deferimento, e volta a `prompts/` no passo que o
   materializar.
 - Se a Fase B precisar **editar** um prompt grosso (`rules/eval.md`,
-  `rules/parse.md`, `rules/layout.md` ou outro com linhagem larga), o imposto
+  `rules/parse.md`, `engine/layout.md` ou outro com linhagem larga), o imposto
   morde: **fatiar primeiro** pela receita do P314 (partição content-preserving,
   `_comum.md` por área, `git rm` do prompt velho — a trilha fica no git).
 - **Um commit isolável por lote** (pré-tarefas separadas do lote principal).

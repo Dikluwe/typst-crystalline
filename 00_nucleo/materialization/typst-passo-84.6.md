@@ -5,10 +5,10 @@
 Ler antes de começar:
 - `01_core/src/entities/content.rs` — `Content::Place` (campos
   `alignment`, `dx`, `dy`, `body`). Introduzido no Passo 82.
-- `01_core/src/rules/layout/mod.rs` — braço `Content::Place`
+- `01_core/src/engine/layout/mod.rs` — braço `Content::Place`
   (linha aproximada 946 segundo diagnóstico do Passo 83.5). Usa
   `line_start_x` para X e `page_config.margin` para Y.
-- `01_core/src/rules/stdlib.rs` — `native_place`. Recebe `alignment`,
+- `01_core/src/engine/stdlib.rs` — `native_place`. Recebe `alignment`,
   `dx`, `dy`, `body`.
 - `03_infra/src/integration_tests.rs` — teste `place_nao_altera_cursor_y`
   (Passo 82). Valida o comportamento actual; pode precisar de
@@ -149,7 +149,7 @@ vanilla? O `place` ancora à célula, ao grid inteiro, ou à página?
 grep -B 2 -A 10 "Place {" 01_core/src/entities/content.rs
 
 # Layout de Content::Place
-grep -B 3 -A 35 "Content::Place" 01_core/src/rules/layout/mod.rs
+grep -B 3 -A 35 "Content::Place" 01_core/src/engine/layout/mod.rs
 
 # Todas as referências em código de produção
 grep -rn "Content::Place\|native_place" 01_core/src/ 03_infra/src/ \
@@ -188,7 +188,7 @@ célula quando dentro de Grid) afecta o comportamento validado:
 ```bash
 # cell_available_h — campo do Layouter do Passo 83
 grep -n "cell_available_h\|cell_x\|row_start_y\|is_height_unconstrained" \
-  01_core/src/rules/layout/mod.rs
+  01_core/src/engine/layout/mod.rs
 ```
 
 Confirmar:

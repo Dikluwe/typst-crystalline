@@ -9,7 +9,7 @@ consolidado.
 **Passo 2 da sequência §9 P189 consolidado.**
 
 Migra consumer C4 em
-`01_core/src/rules/layout/references.rs:53-57` para forma
+`01_core/src/engine/layout/references.rs:53-57` para forma
 Opção C fixada em P194A §3:
 
 ```rust
@@ -75,7 +75,7 @@ verdes; zero violations. Forma da expressão fixada
    - Re-verificar: `layouter.introspector.figure_number_for_label(...)`
      usa pattern directo.
 
-3. Confirmar L0 `rules/layout.md`:
+3. Confirmar L0 `engine/layout.md`:
    - Localizar entradas existentes sobre layout_ref
      (P168 introduziu).
    - Identificar onde adicionar nota sobre migração C4
@@ -110,7 +110,7 @@ edits.
 
 ### .B Migrar consumer C4
 
-1. Em `01_core/src/rules/layout/references.rs:53-57`
+1. Em `01_core/src/engine/layout/references.rs:53-57`
    (ou linhas reais per `.A.1`):
    - Substituir match legacy pela forma Opção C fixada
      em P194A §3:
@@ -147,7 +147,7 @@ edits.
   legacy fornece valor idêntico).
 - Linter passa (após `--fix-hashes` em `.D`).
 
-### .C Actualizar L0 `rules/layout.md`
+### .C Actualizar L0 `engine/layout.md`
 
 1. Adicionar entrada para C4 migration:
    - Consumer C4 (resolved-label resolution) consulta
@@ -171,7 +171,7 @@ edits.
 
 ### .D Tests E2E em submódulo `p194b_c4_resolved_label`
 
-Submódulo novo em `01_core/src/rules/layout/tests.rs`
+Submódulo novo em `01_core/src/engine/layout/tests.rs`
 (ou ficheiro de tests do `references.rs` se separado).
 Irmão de `p184e_figure_per_kind`, `p185d_locator_sync`,
 `p186f_equation_locatable`, `p187b_c1_heading_prefix`,
@@ -370,7 +370,7 @@ ter avançado 1 dos 4).
        sobre payload).
      - Sequência continua até M5 universal fechar.
 
-2. Sem L0 novo (apenas edit a `rules/layout.md` em
+2. Sem L0 novo (apenas edit a `engine/layout.md` em
    P194B `.C`).
 
 **Critério de saída**:
@@ -422,7 +422,7 @@ Todas em conjunto:
 2. Consumer C4 migrado (`references.rs:53-57`).
 3. **Comentário inline curto presente** em
    `references.rs`.
-4. L0 `rules/layout.md` actualizado com **estado
+4. L0 `engine/layout.md` actualizado com **estado
    temporário** explicitamente documentado.
 5. 4 tests E2E novos passam.
 6. Tests existentes não regridem (paridade observable).

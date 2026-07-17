@@ -89,7 +89,7 @@ top já emite `Tag::Start(loc, ElementInfo { payload: Figure
 
 ## §6 L0 actualizado
 
-`00_nucleo/prompts/rules/introspect.md` (hash novo `b9f78ff9`):
+`00_nucleo/prompts/engine/introspect.md` (hash novo `b9f78ff9`):
 
 - Tabela "Excepções M5": linha **E3** → "**Fechou
   estruturalmente em P197B (cenário α — caminho Introspector
@@ -167,7 +167,7 @@ residuo). Magnitude S puro.
 - **Helper análogo**: `compute_labelled` (P195D) ↔ `compute_heading_auto_toc` (P196B) ↔ **`compute_figure` (P197B)** — 3º helper na família.
 - **Sub-store consumido**: `intr.counters` (CounterRegistry P184B) via `figure_number_at_index` (P184C); `intr.figure_label_numbers` (P168 + P195D combinados); `intr.kind_index[Figure]`.
 - **Consumer C3**: `references.rs::layout_ref` figure ref-arm (P184D substitution-with-fallback) — inalterado em P197B.
-- **L0 tocado**: `00_nucleo/prompts/rules/introspect.md` hash `b9f78ff9`.
-- **Código tocado**: `01_core/src/rules/introspect.rs` hash `c938c001`.
+- **L0 tocado**: `00_nucleo/prompts/engine/introspect.md` hash `b9f78ff9`.
+- **Código tocado**: `01_core/src/engine/introspect.rs` hash `c938c001`.
 - **Padrão diagnóstico-primeiro**: 19ª aplicação consecutiva (P197A diagnóstico).
 - **3ª aplicação família ADR-0069**: P195D (Labelled, snapshot+find_map) + P196B (Heading, emitted_loc directo) + **P197B (Figure, dispensa Tag)** — variantes operacionais consolidadas para P198 decidir empiricamente.

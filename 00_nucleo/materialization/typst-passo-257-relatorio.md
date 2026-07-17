@@ -50,12 +50,12 @@ propagado).
 - `01_core/src/entities/mod.rs` (+1 `pub mod color;`).
 - `01_core/src/entities/layout_types.rs` (Color removido +
   re-export `pub use crate::entities::color::Color;`).
-- `01_core/src/rules/stdlib/foundations.rs` (+6 funcs novas;
+- `01_core/src/engine/stdlib/foundations.rs` (+6 funcs novas;
   refactor `native_luma`).
-- `01_core/src/rules/stdlib/mod.rs` (+6 re-exports; 8 unit tests
+- `01_core/src/engine/stdlib/mod.rs` (+6 re-exports; 8 unit tests
   + refactor `stdlib_luma`).
-- `01_core/src/rules/eval/mod.rs` (+6 imports; +6 scope.define).
-- `01_core/src/rules/layout/tests.rs` (5 sítios pattern-match
+- `01_core/src/engine/eval/mod.rs` (+6 imports; +6 scope.define).
+- `01_core/src/engine/layout/tests.rs` (5 sítios pattern-match
   adaptados de `Color::Rgb { r, g, b }` para `*c == Color::rgb(r, g, b)`).
 - `00_nucleo/adr/README.md` (distribuição IMPLEMENTADO 24 → 25;
   entrada P257 nos passos-chave).

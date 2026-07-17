@@ -9,7 +9,7 @@
 
 ## 1. Reconfirmação do baseline de texto puro
 
-O documento exacto de P762 (`/tmp/p762-fixo.typ`) usa `#lorem(50)`. Não foi possível reproduzi-lo literalmente porque o cristalino usa um vocabulário `lorem` diferente do vanilla (sem pontuação) — uma divergência de **conteúdo** documentada em `01_core/src/rules/stdlib/text.rs:586`:
+O documento exacto de P762 (`/tmp/p762-fixo.typ`) usa `#lorem(50)`. Não foi possível reproduzi-lo literalmente porque o cristalino usa um vocabulário `lorem` diferente do vanilla (sem pontuação) — uma divergência de **conteúdo** documentada em `01_core/src/engine/stdlib/text.rs:586`:
 
 > "O texto exacto não precisa de coincidir com o vanilla; a paridade é semântica — exactamente `n` palavras de Lorem Ipsum."
 
@@ -65,7 +65,7 @@ O valor 6,05 pt corresponde a:
 1.2em − cap_height ≈ 13,2 pt − 7,145 pt = 6,055 pt
 ```
 
-onde `1.2em` é o `above`/`below` por defeito aplicado em P767a (`SHAPE_BLOCK_SPACING_EM`, `01_core/src/rules/layout/shape.rs:20`) e `cap_height` é a altura da maiúscula da fonte (medida a partir das coordenadas: 85,250 − 78,105 = 7,145 pt).
+onde `1.2em` é o `above`/`below` por defeito aplicado em P767a (`SHAPE_BLOCK_SPACING_EM`, `01_core/src/engine/layout/shape.rs:20`) e `cap_height` é a altura da maiúscula da fonte (medida a partir das coordenadas: 85,250 − 78,105 = 7,145 pt).
 
 ---
 
@@ -73,7 +73,7 @@ onde `1.2em` é o `above`/`below` por defeito aplicado em P767a (`SHAPE_BLOCK_SP
 
 A diferença não é "espaçamento de parágrafo de texto puro" — o texto puro não regrediu. A causa está no **ancoramento vertical do bloco de forma**.
 
-Em `01_core/src/rules/layout/shape.rs:60-66`, o `above` de `1.2em` só é aplicado se `layouter.block_chain_active` estiver verdadeiro:
+Em `01_core/src/engine/layout/shape.rs:60-66`, o `above` de `1.2em` só é aplicado se `layouter.block_chain_active` estiver verdadeiro:
 
 ```rust
 let gap = if layouter.block_chain_active {
@@ -83,7 +83,7 @@ let gap = if layouter.block_chain_active {
 };
 ```
 
-Em `01_core/src/rules/layout/sequence.rs:55`, o estado `block_chain_active` é posto a `false` depois de conteúdo que não é bloco (como o texto "A"):
+Em `01_core/src/engine/layout/sequence.rs:55`, o estado `block_chain_active` é posto a `false` depois de conteúdo que não é bloco (como o texto "A"):
 
 ```rust
 if !matches!(part, Content::Block { .. } | Content::Shape(_)) {

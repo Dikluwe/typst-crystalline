@@ -10,13 +10,13 @@
  00_nucleo/diagnosticos/achados-adiados-cetz.md |   7 +-
  00_nucleo/prompts/entities/color.md             |  49 ++++--
  00_nucleo/prompts/entities/func.md              |   4 +
- 00_nucleo/prompts/rules/stdlib/color.md        |  98 +++++++----
+ 00_nucleo/prompts/engine/stdlib/color.md        |  98 +++++++----
  01_core/src/entities/color.rs                   | 279 ++++++++++++++++++++++++++++----
  01_core/src/entities/func.rs                    |   2 +-
- 01_core/src/rules/eval/bindings.rs             |  16 +-
- 01_core/src/rules/eval/repr.rs                  |  39 ++++-
- 01_core/src/rules/eval/tests.rs                 |  55 ++++++-
- 01_core/src/rules/stdlib/color.rs               | 168 +++++++++++++++++--
+ 01_core/src/engine/eval/bindings.rs             |  16 +-
+ 01_core/src/engine/eval/repr.rs                  |  39 ++++-
+ 01_core/src/engine/eval/tests.rs                 |  55 ++++++-
+ 01_core/src/engine/stdlib/color.rs               | 168 +++++++++++++++++--
  10 files changed, 609 insertions(+), 101 deletions(-)
 ```
 
@@ -112,7 +112,7 @@ Resultado: **idêntico ao vanilla** — `(..) => ..` para todas as closures (nom
    - Nativas continuam a imprimir o nome plain (`rgb`, `lighten`, etc.).
 
 5. **Testes**:
-   - `01_core/src/rules/eval/tests.rs` — 5 testes P744 novos (`space:` em mix/negate/rotate, `to-hex`, repr de closure, método desconhecido renomeado para `foo()`).
+   - `01_core/src/engine/eval/tests.rs` — 5 testes P744 novos (`space:` em mix/negate/rotate, `to-hex`, repr de closure, método desconhecido renomeado para `foo()`).
    - `01_core/src/entities/color.rs` — 10 testes de domínio P744 novos.
 
 ## Scope-outs (medidos, com comportamento explícito)

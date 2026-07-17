@@ -127,7 +127,7 @@ existente — não criar novo ficheiro).
 
 ## §4 Migração Layouter fields (C3)
 
-`01_core/src/rules/layout/mod.rs`:
+`01_core/src/engine/layout/mod.rs`:
 
 ```diff
 - pub(super) cell_available_h: Option<f64>,  // P246 removido (→ regions.cell.height)

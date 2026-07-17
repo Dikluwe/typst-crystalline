@@ -282,7 +282,7 @@ candidata robusta** se subcat A confirmada N=3.
 **Cenário default (HA + P305.B + A.2 → (a) + A.3 → α)**:
 
 1. Modificar `flush_pending_footnote_bodies` em
-   `01_core/src/rules/layout/cursor.rs`:
+   `01_core/src/engine/layout/cursor.rs`:
    - Calcular **available space** rodapé (não apenas
      `area_bot`).
    - Pass 1 measure (existe).
@@ -312,7 +312,7 @@ candidata robusta** se subcat A confirmada N=3.
    - **DeferredX N=4** — adiar default (anti-padrão).
    - **Sem promoção** se ambíguo.
 8. Actualizar L0:
-   - `rules/layout.md` (se necessário; precedente P304:
+   - `engine/layout.md` (se necessário; precedente P304:
      inalterado).
    - Tabela A.6 linha 178 — `parcial → parcial⁺` ou
      `implementado` conforme cobertura overflow.
@@ -414,7 +414,7 @@ bit-exact obrigatória.
 
 ## §8 — Ponteiros
 
-- Sítio bug: `01_core/src/rules/layout/cursor.rs`
+- Sítio bug: `01_core/src/engine/layout/cursor.rs`
   `flush_pending_footnote_bodies` (P304 §3.2).
 - Buffer: `pending_footnote_bodies` campo Layouter (P304).
 - Page break: `new_page()` flow.

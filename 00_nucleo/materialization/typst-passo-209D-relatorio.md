@@ -48,7 +48,7 @@ baseline + 11 novos); `crystalline-lint`: 0 violations.
 | L1 | `01_core/src/entities/mod.rs` | +`pub mod regex;`. |
 | L1 | `01_core/src/entities/selector.rs` | +`use crate::entities::regex::Regex;` + variant `Regex(Regex)` + module doc actualizado + 2 tests P209D (estrutural + in_or_composicao). |
 | L1 | `01_core/src/entities/introspector.rs` | Query arm 5→6: `Selector::Regex(_re) => Vec::new()` com comentário stub documentado. |
-| L1 | `01_core/src/rules/stdlib/mod.rs` | +2 tests P209D (`query_regex_devolve_empty_stub`, `query_regex_in_or_compoe_com_kind`). |
+| L1 | `01_core/src/engine/stdlib/mod.rs` | +2 tests P209D (`query_regex_devolve_empty_stub`, `query_regex_in_or_compoe_com_kind`). |
 
 Hashes propagados via `crystalline-lint --fix-hashes .`
 (1 ficheiro `regex.rs`); 0 drifts remanescentes.

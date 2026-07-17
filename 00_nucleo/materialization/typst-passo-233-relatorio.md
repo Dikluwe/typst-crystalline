@@ -84,7 +84,7 @@ atomização imediata.
 
 ## §3 Implementação pre-pass fix subset minimal (C2)
 
-Edit `01_core/src/rules/layout/grid.rs::layout_grid` linha ~63:
+Edit `01_core/src/engine/layout/grid.rs::layout_grid` linha ~63:
 
 ```rust
 TrackSizing::Auto => {

@@ -51,7 +51,7 @@ Obter (ou construir, se necessário, com as ferramentas disponíveis) um `.wasm`
 ### Confirmar o estado exacto do cristalino hoje
 
 ```bash
-grep -rn "\"plugin\"\|fn.*plugin" 01_core/src/rules/eval/mod.rs 01_core/src/rules/stdlib/*.rs | head -10
+grep -rn "\"plugin\"\|fn.*plugin" 01_core/src/engine/eval/mod.rs 01_core/src/engine/stdlib/*.rs | head -10
 ./target/release/typst /tmp/p696-plugin.typ /tmp/p696-cristalino.pdf 2>&1
 ```
 

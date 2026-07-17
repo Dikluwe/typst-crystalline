@@ -73,9 +73,9 @@ cria reservas para passos pós-P159F.
 - `01_core/src/entities/counter_state.rs` — `state.bib_entries`
   populado por walk (P159C); pattern de counter por kind a
   replicar.
-- `01_core/src/rules/introspect.rs` — counters por kind +
+- `01_core/src/engine/introspect.rs` — counters por kind +
   walk Bibliography.
-- `01_core/src/rules/layout/mod.rs` — render Cite actual
+- `01_core/src/engine/layout/mod.rs` — render Cite actual
   (placeholder `[key]` ou variantes form per P159C).
 - `lab/typst-original/crates/typst-library/src/model/cite.rs`
   + bibliography numbering — referência paridade.
@@ -256,7 +256,7 @@ interação Cite.form:
 
 ### .3 Modificar walk em `introspect.rs`
 
-`01_core/src/rules/introspect.rs`:
+`01_core/src/engine/introspect.rs`:
 - Walk arm `Content::Bibliography { entries, ... }`:
   - Iterate entries em ordem.
   - Atribuir número 1-based: `state.bib_numbers.insert(entry.key,
@@ -268,7 +268,7 @@ interação Cite.form:
 
 ### .4 Modificar render Cite em `layout/mod.rs`
 
-`01_core/src/rules/layout/mod.rs`:
+`01_core/src/engine/layout/mod.rs`:
 - Pattern arm `Content::Cite { key, supplement, form }`:
   - Resolver form: `form.unwrap_or_default()` ou
     `form.unwrap_or(Normal)`.

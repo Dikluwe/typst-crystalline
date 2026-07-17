@@ -82,7 +82,7 @@ Com a finalidade de testar os limites do fallback de fontes do Cristalino, compi
 
 ## 3. Correção de Infraestrutura Identificada
 
-Durante os testes de cobertura de caracteres, descobrimos que os caracteres escapados (`\#`, `\$`, etc.) e shorthands (`...`, `--`, etc.) eram silenciosamente omitidos da renderização. A causa foi identificada no avaliador de markup (`01_core/src/rules/eval/mod.rs`), onde `Expr::Escape`, `Expr::Shorthand` e `Expr::Linebreak` caíam no braço genérico `_ => Ok(Value::None)`.
+Durante os testes de cobertura de caracteres, descobrimos que os caracteres escapados (`\#`, `\$`, etc.) e shorthands (`...`, `--`, etc.) eram silenciosamente omitidos da renderização. A causa foi identificada no avaliador de markup (`01_core/src/engine/eval/mod.rs`), onde `Expr::Escape`, `Expr::Shorthand` e `Expr::Linebreak` caíam no braço genérico `_ => Ok(Value::None)`.
 
 Fizemos a correção adicionando os braços correspondentes:
 ```rust

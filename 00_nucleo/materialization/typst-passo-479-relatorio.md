@@ -142,16 +142,16 @@ test result: ok. 24 passed (bibliography cluster); 11 passed (structural_parity)
 
 ### Spec L0 (actualizada)
 
-- `00_nucleo/prompts/rules/stdlib/structural.md`:
+- `00_nucleo/prompts/engine/stdlib/structural.md`:
   - §`native_bibliography` — argumento `title` documentado com comportamento P479.
   - Hash: `ff17070d` (via `crystalline-lint --fix-hashes`).
 
 ### Código L1
 
-- `01_core/src/rules/stdlib/structural.rs`:
+- `01_core/src/engine/stdlib/structural.rs`:
   - `native_bibliography` — default title P479.
   - `@prompt-hash` → `eb51f7a4`.
-- `01_core/src/rules/stdlib/mod.rs`:
+- `01_core/src/engine/stdlib/mod.rs`:
   - `native_bibliography_default_vazia` actualizado.
   - 3 testes P479 adicionados.
 
@@ -169,8 +169,8 @@ test result: ok. 24 passed (bibliography cluster); 11 passed (structural_parity)
 ### Não alterados
 
 - `introspect.rs` — walk arm Bibliography já recursivo.
-- `rules/layout/bibliography.rs` — já renderiza `e.title`.
-- `rules/layout/outline.rs` — outline-toc scope-out.
+- `engine/layout/bibliography.rs` — já renderiza `e.title`.
+- `engine/layout/outline.rs` — outline-toc scope-out.
 
 ---
 
@@ -179,7 +179,7 @@ test result: ok. 24 passed (bibliography cluster); 11 passed (structural_parity)
 ```
 crystalline-lint --fix-hashes .
   Fixed 1 file:
-    ./01_core/src/rules/stdlib/structural.rs  → eb51f7a4
+    ./01_core/src/engine/stdlib/structural.rs  → eb51f7a4
   Re-running analysis... ✅ 0 drift warnings remaining
 
 crystalline-lint .

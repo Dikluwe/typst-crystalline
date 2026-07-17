@@ -75,7 +75,7 @@ rg -n "BibliographyElem" 01_core/src/ -B2 -A6 | rg -n "derive|PartialEq|Hash|res
 rg -n "IndependentStyle" ~/.cargo/registry/src/*/hayagriva-*/src/ | rg -n "PartialEq|Hash|derive"
 
 # 3. O Introspector está disponível em layout_with_introspector?
-rg -n "fn layout_with_introspector" 01_core/src/rules/layout/mod.rs -A10
+rg -n "fn layout_with_introspector" 01_core/src/engine/layout/mod.rs -A10
 ```
 
 O resultado da verificação 1 diz qual dos dois cenários está em vigor:

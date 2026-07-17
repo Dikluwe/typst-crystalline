@@ -52,7 +52,7 @@ suposição):
    struct do payload + dispatch no `Content`; especificar, com a interação
    com `content_hash` registrada).
 2. **A morada do layout do elemento** — método do trait com dispatcher de 1
-   linha no Layouter, ou arquivo por elemento sob `rules/layout/` com
+   linha no Layouter, ou arquivo por elemento sob `engine/layout/` com
    dispatcher. Decidir pela topologia entities/rules existente (L1 puro dos
    dois lados; escolher o que minimiza o toque futuro por elemento) e
    registrar a razão no L0.
@@ -76,7 +76,7 @@ variantes mudam para `Nome(Arc<nome::Nome>)`; os braços delas nos 6 matches
 viram dispatch). Partição content-preserving onde houver spec velha; spec
 nova só para o que o desenho A.1 introduz.
 
-**Se a implementação precisar editar `rules/layout.md`** (linhagem de 11
+**Se a implementação precisar editar `engine/layout.md`** (linhagem de 11
 `.rs`, candidato medido no P314 §6): o imposto morde agora — **fatiá-lo
 neste passo**, mesma receita do P314 (content-preserving, `_comum.md`,
 `git rm` do velho — sem índice, conforme Pre-1). Se a opção 2 do A.1
@@ -134,7 +134,7 @@ Ordem do protocolo de nucleação:
   absorção; compatibilidade-F) em meia página.
 - As medições do passo 5 (hub antes/depois; custo-por-elemento dos 3;
   projeção dos lotes).
-- Se `rules/layout.md` foi fatiado: a tabela de mapeamento.
+- Se `engine/layout.md` foi fatiado: a tabela de mapeamento.
 - Proposta de composição do **lote 2** (a decisão é humana; a proposta vem
   com critério — ex.: a família math restante, ou os singletons).
 - `git log --oneline` dos commits do passo; `git status` limpo.

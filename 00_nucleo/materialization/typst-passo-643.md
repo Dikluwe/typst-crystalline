@@ -31,7 +31,7 @@ Mensagem do vanilla, já confirmada por P638: `invalid Unicode codepoint: FFFFFF
 ### Confirmar se a correcção pertence ao parser/lexer ou ao eval
 
 ```bash
-grep -n "fn.*escape\|SyntaxKind::Escape" 01_core/src/rules/lexer/*.rs 01_core/src/rules/parse/*.rs 2>/dev/null | head -10
+grep -n "fn.*escape\|SyntaxKind::Escape" 01_core/src/engine/lexer/*.rs 01_core/src/engine/parse/*.rs 2>/dev/null | head -10
 ```
 
 P634 já tinha notado, ao investigar `#let x = 0xZZ`, que "propagar todos os erros de parser no entrypoint expôs 10 regressões" e que correcções deste tipo pertencem a um passo dedicado ao parser/lexer. Confirmar se este caso (escape unicode inválido) é da mesma natureza, ou se pode ser corrigido de forma isolada, sem o mesmo risco.

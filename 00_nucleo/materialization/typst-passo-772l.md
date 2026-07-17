@@ -19,7 +19,7 @@ awk -F'\t' '$1=="lacuna-inventario" && $5 ~ /foundations::scope/' 00_nucleo/diag
 
 ```bash
 grep -n "<item>" lab/typst-original/crates/typst-library/src/foundations/scope.rs 2>/dev/null
-grep -rn "<item>\|struct Scope\|Scopes" 01_core/src/rules/eval/*.rs 2>/dev/null
+grep -rn "<item>\|struct Scope\|Scopes" 01_core/src/engine/eval/*.rs 2>/dev/null
 ```
 
 ### Casos de teste — comportamento observável de escopo

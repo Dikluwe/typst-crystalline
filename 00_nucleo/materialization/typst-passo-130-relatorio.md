@@ -161,8 +161,8 @@ exit=0
 | Ficheiro | Mudança |
 |----------|---------|
 | `01_core/src/entities/style_chain.rs` | +import EcoString; +campo `lang`; init |
-| `01_core/src/rules/eval/rules.rs` | +arm `"lang"` |
-| `01_core/src/rules/eval/tests.rs` | +3 integration tests |
+| `01_core/src/engine/eval/rules.rs` | +arm `"lang"` |
+| `01_core/src/engine/eval/tests.rs` | +3 integration tests |
 | `03_infra/src/integration_tests.rs` | rotação DEBT-49 (2 testes) |
 | `00_nucleo/prompts/entities/style_chain.md` | actualiza StyleDelta |
 

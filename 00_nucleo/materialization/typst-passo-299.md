@@ -99,7 +99,7 @@ Inspecção literal obrigatória:
 3. **`grep -rn "math::sin\|math\\.sin\|scope.*sin" 01_core/`** —
    verificar se cristalino tem scope `math` module com funcs
    pré-definidas.
-4. **`grep -rn "native_op\|MathOp" 01_core/src/rules/stdlib/`** —
+4. **`grep -rn "native_op\|MathOp" 01_core/src/engine/stdlib/`** —
    estado pós-P298 do `native_op`.
 5. **Inspeccionar `lab/typst-original/.../math/op.rs`** — macro
    `ops!` literal:
@@ -432,12 +432,12 @@ trivial; preocupação prematura.
 
 - Tipo a inspeccionar: `01_core/src/entities/content.rs`
   (`Content::MathOp` pós-P298).
-- Função stdlib actual: `01_core/src/rules/stdlib/structural.rs`
+- Função stdlib actual: `01_core/src/engine/stdlib/structural.rs`
   (`native_op` P298).
 - Heurística limits-style: `01_core/src/symbols/` (ou caminho
   equivalente — `is_limit_function`/`is_large_operator`).
-- Layouter math: `01_core/src/rules/math/layout/`.
-- Eval scope: `01_core/src/rules/eval/mod.rs` (registo funcs).
+- Layouter math: `01_core/src/engine/math/layout/`.
+- Eval scope: `01_core/src/engine/eval/mod.rs` (registo funcs).
 - Vanilla: `lab/typst-original/crates/typst-library/src/math/op.rs`.
 - Precedente arquitectural directo: **P298** (`Content::MathOp`).
 - Precedente "1º passo ortogonal pós-série cumulativa": **P293**

@@ -9,7 +9,7 @@
 
 ## 1. Resumo
 
-`Layouter::layout_content` arm `Content::Heading` em `01_core/src/rules/layout/mod.rs:301` e `Layouter::layout_equation` em `01_core/src/rules/layout/equation.rs:24` foram migrados para o padrão substitution-with-fallback P168/P181G:
+`Layouter::layout_content` arm `Content::Heading` em `01_core/src/engine/layout/mod.rs:301` e `Layouter::layout_equation` em `01_core/src/engine/layout/equation.rs:24` foram migrados para o padrão substitution-with-fallback P168/P181G:
 
 ```rust
 // heading prefix
@@ -58,7 +58,7 @@ Para equation: `numbering_active:equation` não tem emitter em P182 (cristalino 
 | `typst-wiring` integration | 21 | 21 | 0 |
 | **Total** | **1.748** | **1.751** | **+3** |
 
-Tests novos (em `01_core/src/rules/layout/tests.rs` após `layout_set_heading_numbering_activa_contador`):
+Tests novos (em `01_core/src/engine/layout/tests.rs` após `layout_set_heading_numbering_activa_contador`):
 
 1. `p182d_heading_numbering_via_introspector_path` — Introspector pré-populado com `Bool(true)` em `numbering_active:heading`; legacy state vazio (`CounterStateLegacy::default()`); documento sem `Content::SetHeadingNumbering` no AST. Path Introspector dispara prefixo `"1."`. Confirma que o Introspector é consultado primeiro.
 2. `p182d_heading_numbering_via_fallback_legacy` — Introspector vazio (`TagIntrospector::empty()`); legacy state pré-populado com `numbering_active["heading"]=true`; documento sem `Content::SetHeadingNumbering` no AST. Fallback `||` dispara prefixo `"1."`. Confirma janela compat M6 funcional.
@@ -72,9 +72,9 @@ Equation-arm não tem teste dedicado: cristalino não tem emitter para `numberin
 
 | Ficheiro | `@prompt-hash` (header `.rs`) | "Hash do Código" (linha 2 do L0) |
 |----------|-------------------------------|----------------------------------|
-| `rules/layout` | `81cfe96c` → **`59811524`** | (anterior) → **`10004310`** |
+| `engine/layout` | `81cfe96c` → **`59811524`** | (anterior) → **`10004310`** |
 
-Header `@prompt-hash` actualizado em **9 ficheiros** que partilham o L0 `rules/layout.md`:
+Header `@prompt-hash` actualizado em **9 ficheiros** que partilham o L0 `engine/layout.md`:
 - `mod.rs`
 - `equation.rs`
 - `cursor.rs`

@@ -26,7 +26,7 @@
 **Ficheiros alterados:**
 - `01_core/src/entities/elements/image.rs`
 - `01_core/src/entities/content.rs`
-- `01_core/src/rules/stdlib/figure_image.rs`
+- `01_core/src/engine/stdlib/figure_image.rs`
 
 **Mudanças:**
 - `ImageElem` ganha campo `fit: EcoString` (default `"cover"`).
@@ -34,7 +34,7 @@
 
 ### 2.2 — 502b: `#raw(lang:, block:)`
 
-**Ficheiro alterado:** `01_core/src/rules/stdlib/structural.rs`
+**Ficheiro alterado:** `01_core/src/engine/stdlib/structural.rs`
 
 **Mudanças:**
 - `native_raw` passa a aceitar `lang:` e `block:` named.
@@ -45,7 +45,7 @@
 **Ficheiros alterados:**
 - `01_core/src/entities/elements/footnote.rs`
 - `01_core/src/entities/content.rs`
-- `01_core/src/rules/stdlib/structural.rs`
+- `01_core/src/engine/stdlib/structural.rs`
 
 **Mudanças:**
 - `FootnoteElem` ganha campo `numbering: Option<EcoString>`.
@@ -56,8 +56,8 @@
 **Ficheiros alterados:**
 - `01_core/src/entities/elements/outline.rs`
 - `01_core/src/entities/content.rs`
-- `01_core/src/rules/stdlib/structural.rs`
-- `01_core/src/rules/layout/outline.rs`
+- `01_core/src/engine/stdlib/structural.rs`
+- `01_core/src/engine/layout/outline.rs`
 
 **Mudanças:**
 - Introduzido `OutlineIndent` enum (`Auto`, `Bool(bool)`, `Length(Length)`, `Function(Func)`).
@@ -110,9 +110,9 @@
 - `00_nucleo/prompts/entities/elements/raw.md`
 - `00_nucleo/prompts/entities/elements/footnote.md`
 - `00_nucleo/prompts/entities/elements/outline.md`
-- `00_nucleo/prompts/rules/stdlib/structural.md`
-- `00_nucleo/prompts/rules/stdlib/figure_image.md`
-- `00_nucleo/prompts/rules/layout_outline.md`
+- `00_nucleo/prompts/engine/stdlib/structural.md`
+- `00_nucleo/prompts/engine/stdlib/figure_image.md`
+- `00_nucleo/prompts/engine/layout_outline.md`
 
 Os hashes `@prompt-hash` nos ficheiros L1 foram recalculados com `crystalline-lint --fix-hashes .`.
 
@@ -126,7 +126,7 @@ Os hashes `@prompt-hash` nos ficheiros L1 foram recalculados com `crystalline-li
   - `p502_raw_lang_block`
   - `p502_footnote_numbering`
   - `p502_outline_indent_api`
-- `01_core/src/rules/stdlib/mod.rs`:
+- `01_core/src/engine/stdlib/mod.rs`:
   - `p295_native_footnote_numbering_aceite_p502`
   - `p295_native_footnote_named_arg_desconhecido_rejeitado`
 

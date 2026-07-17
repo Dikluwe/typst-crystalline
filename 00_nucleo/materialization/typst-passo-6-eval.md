@@ -111,7 +111,7 @@ pub fn eval(
 ```
 
 **Se eval() em L1:**
-**Criar**: `00_nucleo/prompts/rules/eval.md`
+**Criar**: `00_nucleo/prompts/engine/eval.md`
 
 Documentar cada externo autorizado com justificação.
 

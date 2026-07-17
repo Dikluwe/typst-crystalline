@@ -126,9 +126,9 @@ Foram transformados em grupos com `Symbol::with_variants`:
 
 ### Ficheiros alterados
 
-- `01_core/src/rules/stdlib/sym.rs` — reestruturado para `SYM_SIMPLE` + `SYM_GROUPS`; adicionadas 12 funções de variantes.
+- `01_core/src/engine/stdlib/sym.rs` — reestruturado para `SYM_SIMPLE` + `SYM_GROUPS`; adicionadas 12 funções de variantes.
 - `01_core/src/entities/math_style.rs` — não alterado por P766.
-- `00_nucleo/prompts/rules/stdlib/sym.md` — L0 actualizado.
+- `00_nucleo/prompts/engine/stdlib/sym.md` — L0 actualizado.
 
 ---
 
@@ -136,7 +136,7 @@ Foram transformados em grupos com `Symbol::with_variants`:
 
 ### Testes unitários novos
 
-Em `01_core/src/rules/stdlib/sym.rs`:
+Em `01_core/src/engine/stdlib/sym.rs`:
 
 - `sym_lookup_tilde_modifier`
 - `sym_lookup_integral_modifier`

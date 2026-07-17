@@ -24,7 +24,7 @@ adiciona complexidade XML sem ganho observable imediato.
 
 ### Sonda 1 — Onde `#set document(...)` era descartado
 
-Ficheiro: `01_core/src/rules/eval/rules.rs:858-862`.
+Ficheiro: `01_core/src/engine/eval/rules.rs:858-862`.
 
 ```rust
 if target != "text" {
@@ -83,15 +83,15 @@ O vanilla escreve `/Title`, `/Author`, `/Creator`, `/Producer` e
   `ModuleInner` e métodos getter/setter.
 - `00_nucleo/prompts/entities/layout_types.md` — campo `document_info` em
   `PagedDocument`.
-- `00_nucleo/prompts/rules/eval.md` — secção P536, interceptação de
+- `00_nucleo/prompts/engine/eval.md` — secção P536, interceptação de
   `#set document(...)` em `eval_set_rule`.
 - `00_nucleo/prompts/infra/export/builder.md` — secção P536, emissão de `/Info`.
 - `01_core/src/entities/document_info.rs` — novo tipo `DocumentInfo`.
 - `01_core/src/entities/mod.rs` — exporta `document_info`.
 - `01_core/src/entities/module.rs` — campo e métodos para `DocumentInfo`.
-- `01_core/src/rules/eval/mod.rs` — `EvalContext::document_info`, cópia para o
+- `01_core/src/engine/eval/mod.rs` — `EvalContext::document_info`, cópia para o
   `Module` no final do eval.
-- `01_core/src/rules/eval/rules.rs` — braço `target == "document"`.
+- `01_core/src/engine/eval/rules.rs` — braço `target == "document"`.
 - `01_core/src/entities/layout_types.rs` — `document_info` em `PagedDocument`.
 - `03_infra/src/pipeline.rs` — copia `module.document_info()` para
   `doc.document_info`.

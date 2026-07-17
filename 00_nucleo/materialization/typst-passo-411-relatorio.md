@@ -22,7 +22,7 @@ Executados os comandos de sonda definidos em `typst-passo-411.md`:
 
 ## 2. Prompt L0 (FASE A)
 
-- Prompt criado em `00_nucleo/prompts/rules/eval/version-field-access.md`.
+- Prompt criado em `00_nucleo/prompts/engine/eval/version-field-access.md`.
 - Descreve field access `.major`, `.minor`, `.patch`, `.pre`, `.build` para `Value::Version`.
 - Checkpoint considerado salvo (prompt versionado no repo).
 
@@ -30,7 +30,7 @@ Executados os comandos de sonda definidos em `typst-passo-411.md`:
 
 ## 3. Implementação (FASE B)
 
-Arquivo alterado: `01_core/src/rules/eval/bindings.rs`.
+Arquivo alterado: `01_core/src/engine/eval/bindings.rs`.
 
 Adicionado ramo `Value::Version(v)` em `eval_field_access`:
 
@@ -61,7 +61,7 @@ Também foi adicionado `@prompt` para `version-field-access.md` no header de `bi
 
 ## 4. Testes
 
-Adicionados 8 testes em `01_core/src/rules/eval/tests.rs` (bloco `P411 — Field Access Version`):
+Adicionados 8 testes em `01_core/src/engine/eval/tests.rs` (bloco `P411 — Field Access Version`):
 
 - `version_field_major` → `Value::Int(1)`
 - `version_field_minor` → `Value::Int(2)`

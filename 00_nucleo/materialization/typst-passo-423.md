@@ -20,16 +20,16 @@ grep -rn "And" 01_core/src/entities/selector.rs | head -10
 grep -rn "Or" 01_core/src/entities/selector.rs | head -10
 
 # 3. Show rule matcher consome And/Or?
-grep -rn "And\|Or" 01_core/src/rules/eval/rules.rs | head -20
+grep -rn "And\|Or" 01_core/src/engine/eval/rules.rs | head -20
 
 # 4. Query infrastructure consome And/Or?
 grep -rn "And\|Or" 01_core/src/entities/introspector.rs | head -20
 
 # 5. [NICE-TO-HAVE] Parser aceita sintaxe `heading | figure`?
-grep -rn "\|" 01_core/src/rules/parse/ | head -10
+grep -rn "\|" 01_core/src/engine/parse/ | head -10
 
 # 6. [NICE-TO-HAVE] Parser aceita sintaxe `heading & figure`?
-grep -rn "&" 01_core/src/rules/parse/ | head -10
+grep -rn "&" 01_core/src/engine/parse/ | head -10
 ```
 
 **Output esperado**:
@@ -84,7 +84,7 @@ A lógica de matching de `And`/`Or` vive na **camada de eval/show**, não no str
 **Decisão recomendada**: **Opção β** — methods `.or()`/`.and()` apenas.  
 **Razão ADR-0108**: medição do substrato confirma que o caminho infixo é M, não S:
 - `SyntaxKind` não tem tokens `|`/`&` (`rg 'Pipe|Ampersand' 01_core/src/entities/syntax_kind.rs` → 0 hits).
-- O lexer de code (`01_core/src/rules/lexer/code.rs:83-90`) trata `&` e `|` como caracteres inválidos, dando erro com hint para usar `and`/`or`.
+- O lexer de code (`01_core/src/engine/lexer/code.rs:83-90`) trata `&` e `|` como caracteres inválidos, dando erro com hint para usar `and`/`or`.
 - Adicionar `|`/`&` exigiria: (1) novos `SyntaxKind`; (2) braços no lexer; (3) inclusão no `BINARY_OP` set (`syntax_set.rs:139`); (4) novos variantes/ramos em `BinOp`/`from_kind` (`operators.rs:61`); (5) eval de `Binary` para construir `Selector::Or`/`And` quando operandos são `Value::Selector`. Potencial conflito com math mode (`|` e `&` já usados em math como `MathText`/`MathAlignPoint`), mas math usa lexer separado (`lexer/math.rs`).
 - Os methods `.or()`/`.and()` reutilizam a infraestrutura de method calls existente (P417 já fez `.where()`). É S. A paridade semântica é idêntica; apenas a sintaxe diverge levemente (mecânica livre per ADR-0107).
 
@@ -265,10 +265,10 @@ crystalline-lint .
 
 **Implementação**:
 - `01_core/src/entities/show.rs`: +variants `And(Vec<Selector>)` / `Or(Vec<Selector>)`.
-- `01_core/src/rules/eval/bindings.rs`: +`eval_selector_or_and()` com helper `value_to_query_selector()` que aceita `Value::Selector` ou funções nativas `heading`/`figure`.
-- `01_core/src/rules/eval/closures.rs`: interceptação de `selector.or(other)` / `selector.and(other)` antes do dispatch genérico.
-- `01_core/src/rules/eval/rules.rs`: conversão recursiva `And`/`Or` em `query_selector_to_show_selector`; matching recursivo com curto-circuito em `selector_matches`; `is_node_rule` extraído para função de módulo e estendido para `And`/`Or`.
-- `01_core/src/rules/eval/tests.rs`: 6 tests E2E + 8 tests unitários em `rules.rs` (total 16 tests P423).
+- `01_core/src/engine/eval/bindings.rs`: +`eval_selector_or_and()` com helper `value_to_query_selector()` que aceita `Value::Selector` ou funções nativas `heading`/`figure`.
+- `01_core/src/engine/eval/closures.rs`: interceptação de `selector.or(other)` / `selector.and(other)` antes do dispatch genérico.
+- `01_core/src/engine/eval/rules.rs`: conversão recursiva `And`/`Or` em `query_selector_to_show_selector`; matching recursivo com curto-circuito em `selector_matches`; `is_node_rule` extraído para função de módulo e estendido para `And`/`Or`.
+- `01_core/src/engine/eval/tests.rs`: 6 tests E2E + 8 tests unitários em `rules.rs` (total 16 tests P423).
 
 **Validação**:
 - `cargo test -p typst-core --lib -- p423` → 16 passed, 0 failed.

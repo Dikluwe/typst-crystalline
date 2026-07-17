@@ -19,12 +19,12 @@ prontas mas faltava o gancho.
 
 ### A.0.0.1 — Sítio crítico identificado
 
-`01_core/src/rules/eval/math.rs:51-59`:
+`01_core/src/engine/eval/math.rs:51-59`:
 
 ```rust
 Expr::MathIdent(ident) => {
     let name = ident.get();
-    if let Some(sym) = crate::rules::math::symbols::ident_to_unicode(name) {
+    if let Some(sym) = crate::engine::math::symbols::ident_to_unicode(name) {
         // Símbolo grego ou operador: converter para Unicode
         Ok(Content::MathText(sym.into()))
     } else {
@@ -44,7 +44,7 @@ operadores funcionais, não símbolos Unicode), caem em `MathIdent("sin")`.
 
 ### A.0.0.2 — Sítio FuncCall fallback
 
-`01_core/src/rules/eval/math.rs:266` (FuncCall fallback):
+`01_core/src/engine/eval/math.rs:266` (FuncCall fallback):
 
 ```rust
 // Outros nomes: tratar como MathIdent (sin, cos, lim, …)
@@ -135,7 +135,7 @@ existe (P299); gap é **conexão**. P301 materializa o gancho.
 Expr::MathIdent(ident) => {
     let name = ident.get();
     // 1. Check símbolos Unicode (alpha → α etc.)
-    if let Some(sym) = crate::rules::math::symbols::ident_to_unicode(name) {
+    if let Some(sym) = crate::engine::math::symbols::ident_to_unicode(name) {
         return Ok(Content::MathText(sym.into()));
     }
     // 2. P301 — auto-lookup scope `math` (42 operadores P299)

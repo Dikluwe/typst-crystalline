@@ -252,9 +252,9 @@ test result: ok. 21 passed            (L4 inalterado)
 
 | Ficheiro | Mudança |
 |----------|---------|
-| `01_core/src/rules/layout/cursor.rs` | `word_width` acrescenta `(n-1) × tracking_pt` |
+| `01_core/src/engine/layout/cursor.rs` | `word_width` acrescenta `(n-1) × tracking_pt` |
 | `03_infra/src/export.rs` | PDF `Tc` operator condicional em `BT/ET` |
-| `01_core/src/rules/layout/tests.rs` | +3 tests integration + helper `text_items_with_pos` |
+| `01_core/src/engine/layout/tests.rs` | +3 tests integration + helper `text_items_with_pos` |
 | `00_nucleo/DEBT.md` | Gap 2 DEBT-52 marcado resolvido |
 
 ### Números finais

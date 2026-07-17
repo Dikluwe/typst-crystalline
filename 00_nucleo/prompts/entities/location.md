@@ -81,7 +81,7 @@ P161 não tem consumers ainda — `Location` existe mas walk não emite. Fica co
 - `entities/tag.rs::Tag::Start(Location, ElementInfo)` (P161 sub-passo .9, ficheiro criado neste mesmo passo).
 - `entities/tag.rs::Tag::End(Location, u128)`.
 - `rules/introspect.rs` walk em P162 (emite tags com Location gerada por Locator).
-- `rules/layout/mod.rs` Layouter recebe stream de tags com Location em P162+.
+- `engine/layout/mod.rs` Layouter recebe stream de tags com Location em P162+.
 - `LocationRegistry`/`Introspector` em M3 do desenho (futuro).
 
 ---

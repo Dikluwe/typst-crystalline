@@ -65,17 +65,17 @@ implementação.
 
 ---
 
-## L1 — 01_core/src/rules/
+## L1 — 01_core/src/engine/
 
 | Ficheiro `.rs` | Prompt L0 | Situação |
 |----------------|-----------|----------|
-| `eval.rs` | `prompts/rules/eval.md` | A |
-| `layout.rs` | `prompts/rules/layout.md` | A |
-| `lexer/scanner.rs` | `prompts/rules/scanner.md` | A |
-| `math/layout.rs` | `prompts/rules/math.md` (parcial?) | verificar |
-| `math/symbols.rs` | `prompts/rules/math.md` (parcial?) | verificar |
-| `parse.rs` | `prompts/rules/parse.md` | A |
-| `scopes.rs` | `prompts/rules/scopes.md` | A |
+| `eval.rs` | `prompts/engine/eval.md` | A |
+| `layout.rs` | `prompts/engine/layout.md` | A |
+| `lexer/scanner.rs` | `prompts/engine/scanner.md` | A |
+| `math/layout.rs` | `prompts/engine/math.md` (parcial?) | verificar |
+| `math/symbols.rs` | `prompts/engine/math.md` (parcial?) | verificar |
+| `parse.rs` | `prompts/engine/parse.md` | A |
+| `scopes.rs` | `prompts/engine/scopes.md` | A |
 
 ---
 
@@ -83,7 +83,7 @@ implementação.
 
 | Ficheiro `.rs` | Prompt L0 | Situação |
 |----------------|-----------|----------|
-| `utils.rs` | `prompts/rules/utils.md` | A |
+| `utils.rs` | `prompts/engine/utils.md` | A |
 
 ---
 

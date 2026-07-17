@@ -42,7 +42,7 @@ field directamente — zero risco regression.
 
 ### 1.2 Helper `infer_kind_from_body` (.2)
 
-Adicionado a `01_core/src/rules/stdlib/figure_image.rs`
+Adicionado a `01_core/src/engine/stdlib/figure_image.rs`
 (privado, ~10 linhas):
 
 ```rust
@@ -81,7 +81,7 @@ comportamento existente.
 
 **+6 tests novos** (exactamente dentro do range esperado +6-8):
 
-Em `01_core/src/rules/stdlib/mod.rs`:
+Em `01_core/src/engine/stdlib/mod.rs`:
 1. `figure_auto_detect_image` — `figure(image(...))` → kind="image".
 2. `figure_auto_detect_table` — `figure(table(...))` → kind="table".
 3. `figure_auto_detect_raw` — `figure(raw(...))` → kind="raw".

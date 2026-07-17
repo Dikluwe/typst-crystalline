@@ -36,7 +36,7 @@ Confirmar: com três colunas, o vanilla enche da direita para a esquerda (tercei
 ### Localizar onde a ordem de preenchimento é decidida
 
 ```bash
-grep -n "column_index\|fill.*column\|next_column\|start_column" 01_core/src/rules/layout/columns.rs 01_core/src/rules/layout/cursor.rs
+grep -n "column_index\|fill.*column\|next_column\|start_column" 01_core/src/engine/layout/columns.rs 01_core/src/engine/layout/cursor.rs
 ```
 
 Confirmar se a lógica de "próxima coluna" é um incremento simples (esquerda para direita sempre), ou já tem alguma noção de direcção que pode ser invertida.

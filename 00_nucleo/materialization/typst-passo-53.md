@@ -3,7 +3,7 @@
 ## Estado actual antes de começar
 
 Ler antes de começar:
-- `01_core/src/rules/math/layout.rs` — Função `layout_attach` e o cálculo de `left_col_width`
+- `01_core/src/engine/math/layout.rs` — Função `layout_attach` e o cálculo de `left_col_width`
 - `03_infra/src/font_metrics.rs` — Método `math_kern` para extracção de `TopLeft` e `BottomLeft`
 
 Pré-condição: `cargo test` — 571 L1 + 107 L3 + 50 parity, zero violations.
@@ -40,7 +40,7 @@ alinharem entre si pela esquerda.
 
 ```bash
 # 1. Localizar o cálculo de left_col_width e a atribuição de X para tl/bl
-grep -A 15 "left_col_width" 01_core/src/rules/math/layout.rs
+grep -A 15 "left_col_width" 01_core/src/engine/math/layout.rs
 ```
 
 Reportar o output antes de continuar.
@@ -49,7 +49,7 @@ Reportar o output antes de continuar.
 
 ## Tarefa 1 — Refactoração geométrica (L1)
 
-Em `01_core/src/rules/math/layout.rs`, dentro da função `layout_attach`:
+Em `01_core/src/engine/math/layout.rs`, dentro da função `layout_attach`:
 
 Remover o conceito de `left_col_width` como largura única e opaca.
 

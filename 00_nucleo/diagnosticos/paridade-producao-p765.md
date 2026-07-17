@@ -130,7 +130,7 @@ Total por elemento isolado: **2–5 minutos**. A varredura completa de toda a st
 
 ## Decisões registadas no L0
 
-Todas as decisões foram registadas em `00_nucleo/prompts/rules/stdlib_audit_methodology.md` (hash `0683fad7`):
+Todas as decisões foram registadas em `00_nucleo/prompts/engine/stdlib_audit_methodology.md` (hash `0683fad7`):
 
 | Decisão | Resolução |
 |---|---|
@@ -144,7 +144,7 @@ Todas as decisões foram registadas em `00_nucleo/prompts/rules/stdlib_audit_met
 - [x] Metodologia de P663/P664 confirmada por leitura directa.
 - [x] Amostra varrida, com achados classificados.
 - [x] Cada decisão da tabela resolvida com base no custo medido na amostra.
-- [x] L0 escrito em `00_nucleo/prompts/rules/stdlib_audit_methodology.md`, com hash `0683fad7`.
+- [x] L0 escrito em `00_nucleo/prompts/engine/stdlib_audit_methodology.md`, com hash `0683fad7`.
 - [x] Nenhuma correcção de bug feita neste passo — só registo.
 - [x] Relatório em `00_nucleo/diagnosticos/paridade-producao-p765.md`.
 

@@ -14,8 +14,8 @@ regra P662-P664 (nome igual ao vanilla obriga a comportamento igual).
 - **Commit em que os testes/sonda foram corridos:** `7c782dc5ff3dfe2eeed9e75e9b50eb3cfac19bd0`
   (HEAD de P690; trabalho em detached HEAD sobre este commit).
 - **Working tree na medição:** alterações não commitadas em 3 ficheiros tracked:
-  `00_nucleo/prompts/rules/stdlib/collections.md`, `01_core/src/rules/stdlib/collections.rs`,
-  `01_core/src/rules/eval/tests.rs`. `git diff --stat` no momento da medição:
+  `00_nucleo/prompts/engine/stdlib/collections.md`, `01_core/src/engine/stdlib/collections.rs`,
+  `01_core/src/engine/eval/tests.rs`. `git diff --stat` no momento da medição:
   `3 files changed, 77 insertions(+), 9 deletions(-)`.
 - **Hora da validação final:** 2026-07-10T22:21:00Z (`date -u`).
 - **Binários:** vanilla 0.15.0 (`lab/typst-original/target/release/typst`, commit 969087ec);
@@ -57,7 +57,7 @@ sem questão de fronteira no valor).
 
 - O helper `str_find` é chamado **apenas** pelo dispatcher (`collections.rs:85`,
   `(Value::Str(s), "find")`). Nenhum outro código Rust o consome.
-- Os `.find(` em `01_core/src/rules/eval/tests.rs` (linhas 389/459/524/652/783/2829/4411/6757)
+- Os `.find(` em `01_core/src/engine/eval/tests.rs` (linhas 389/459/524/652/783/2829/4411/6757)
   são `Iterator::find` ou `array.find` (closures) — não afectados.
 - `04_wiring/tests/cli.rs` (linhas 662/663/791/792) usa `str::find` de **Rust** sobre
   `String`/`&str` — não afectado.
@@ -73,7 +73,7 @@ Risco interno: baixo (helper isolado; apenas testes que codificavam o valor erra
 
 ## 3. Implementação
 
-`01_core/src/rules/stdlib/collections.rs::str_find` (≈L768): reescrita de
+`01_core/src/engine/stdlib/collections.rs::str_find` (≈L768): reescrita de
 
 ```rust
 let substr = expect_one_str(args, "str.find()")?;
@@ -89,7 +89,7 @@ para um `match` por tipo (padrão de `str_position` de P689):
 `expect_one_str` deixa de ser usado por `str_find`, mas continua usado por
 `contains/starts-with/ends-with/split/repeat` — sem `dead_code`.
 
-`00_nucleo/prompts/rules/stdlib/collections.md`: linha de `find` actualizada
+`00_nucleo/prompts/engine/stdlib/collections.md`: linha de `find` actualizada
 (`str | regex → str | none`; nota P691; índice via `position`); scope-out do débito
 marcado como **resolvido em P691**; cabeçalho actualizado. `crystalline-lint --fix-hashes .`
 → "Nothing to fix" (`collections.rs` não tem `@prompt-hash`; `regex.rs`/`regex.md` não

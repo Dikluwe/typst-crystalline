@@ -24,7 +24,7 @@ O cristalino mediu ~81,9pt nesse mesmo ponto — a confirmar se é a margem em s
 ### Confirmar directamente a margem calculada pelo cristalino hoje
 
 ```bash
-grep -n "min(w,h)\|2.5.*21\|fn.*margin\|default_margin" 01_core/src/rules/layout/*.rs 01_core/src/entities/*.rs 2>/dev/null | head -20
+grep -n "min(w,h)\|2.5.*21\|fn.*margin\|default_margin" 01_core/src/engine/layout/*.rs 01_core/src/entities/*.rs 2>/dev/null | head -20
 ```
 
 Localizar exactamente onde a fórmula de P598/599 está implementada, e confirmar se ainda produz o valor certo isoladamente (é possível que a fórmula esteja certa, mas algo mais seja somado à margem no caminho até à posição final do conteúdo).
@@ -46,7 +46,7 @@ Confirmar a posição do texto "X" no topo da página, nos dois lados — isto i
 ### Confirmar se `line`/`circle` têm algum recuo/margem interna própria, além da margem de página
 
 ```bash
-grep -n "fn native_line\|fn native_circle\|inset\|padding" 01_core/src/rules/stdlib/shapes.rs | head -20
+grep -n "fn native_line\|fn native_circle\|inset\|padding" 01_core/src/engine/stdlib/shapes.rs | head -20
 ```
 
 Confirmar se os 11pt não vêm de uma margem interna às próprias formas de desenho, distinta da margem de página.

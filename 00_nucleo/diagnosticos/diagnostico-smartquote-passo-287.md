@@ -9,7 +9,7 @@ ausente; bloqueador único `Content::SmartQuote`.
 
 ## A.1 — Inventário da infraestrutura P155 existente
 
-### A.1.1 — `01_core/src/rules/lang/quotes.rs`
+### A.1.1 — `01_core/src/engine/lang/quotes.rs`
 
 | Símbolo | Localização | Notas |
 |---|---|---|
@@ -21,7 +21,7 @@ API é puramente lookup — **sem state**. Cada chamada é independente.
 
 ### A.1.2 — Alternância open/close em `eval_markup`
 
-`01_core/src/rules/eval/mod.rs:269-311`:
+`01_core/src/engine/eval/mod.rs:269-311`:
 
 ```rust
 let mut double_open = true; // true = próximo `"` é open

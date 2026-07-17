@@ -18,9 +18,9 @@ ficheiros alterados (`git diff HEAD --stat`):
 
 ```
  00_nucleo/diagnosticos/achados-adiados-cetz.md |   8 +-
- 00_nucleo/prompts/rules/eval/ops.md            |  88 ++++++++++++++-
- 01_core/src/rules/eval/operators.rs            |  31 +++++-
- 01_core/src/rules/eval/tests.rs                | 143 +++++++++++++++++++++++++
+ 00_nucleo/prompts/engine/eval/ops.md            |  88 ++++++++++++++-
+ 01_core/src/engine/eval/operators.rs            |  31 +++++-
+ 01_core/src/engine/eval/tests.rs                | 143 +++++++++++++++++++++++++
 ```
 
 ---
@@ -94,9 +94,9 @@ Confirmado o diagnóstico de P724: zero braços `Mul` com `Length` em
 `canvas.typ:146-147,182-186` de `cetz` (`(x - offset) * length`, escala
 de coordenadas; também `canvas.typ:124`: `length * (-y - offset-y)`).
 
-## 2. Implementação (L0: `prompts/rules/eval/ops.md`, secção P725)
+## 2. Implementação (L0: `prompts/engine/eval/ops.md`, secção P725)
 
-- **`01_core/src/rules/eval/operators.rs`** — dois braços com ordens em
+- **`01_core/src/engine/eval/operators.rs`** — dois braços com ordens em
   guarda partilhada, sobre `Length: Mul<f64>` já existente
   (`entities/layout_types.rs:801-806`), espelhando o agrupamento do
   vanilla (`ops.rs:238-243`):
@@ -117,7 +117,7 @@ de coordenadas; também `canvas.typ:124`: `length * (-y - offset-y)`).
   `achados-adiados-cetz.md`.
 
 - **L0 actualizado antes do código** (Regra de Ouro): secção P725 em
-  `00_nucleo/prompts/rules/eval/ops.md` com mecanismo vanilla, tabela de
+  `00_nucleo/prompts/engine/eval/ops.md` com mecanismo vanilla, tabela de
   medições, scope-outs, semântica e critérios de verificação; hash
   recalculado (`operators.rs` → `0c1a5927`).
 

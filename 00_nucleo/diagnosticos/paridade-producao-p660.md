@@ -47,7 +47,7 @@ Isto significa que o vanilla local **não suporta** `font: (name: "...", variant
 
 - Conversão `StyleChain → TextStyle` inicializa `font_axes: None`.
 
-`01_core/src/rules/eval/rules.rs`:
+`01_core/src/engine/eval/rules.rs`:
 
 - `parse_font_dict_named_fields` aceita o campo `variant`.
 - Se `variant` for um `Dict`, itera pelos pares `(tag, valor)`:
@@ -55,7 +55,7 @@ Isto significa que o vanilla local **não suporta** `font: (name: "...", variant
   - `valor` pode ser `int` ou `float`.
 - Se `variant` for uma string, comportamento anterior (nome de variante).
 
-`01_core/src/rules/layout/text.rs`:
+`01_core/src/engine/layout/text.rs`:
 
 - Decodifica `"axes"` do dict de fonte devolvido pelo parser.
 - Corrige o merge de `font`: `ns_font.or(layouter.style.font.clone())` passa a vencer o `font` da chain quando o utilizador especifica um dicionário de fonte. Antes, o default `Liberation Serif` da chain sobrepujava o `ns_font`, fazendo com que `variant` fosse ignorado em `#set text(font: (...))`.
@@ -83,7 +83,7 @@ Isto significa que o vanilla local **não suporta** `font: (name: "...", variant
 
 ### 2.3 Testes
 
-`01_core/src/rules/eval/tests.rs`:
+`01_core/src/engine/eval/tests.rs`:
 
 - 4 testes P660 cobrindo:
   - eixo float válido;
@@ -91,7 +91,7 @@ Isto significa que o vanilla local **não suporta** `font: (name: "...", variant
   - tag com menos de 4 caracteres → erro;
   - valor inválido (string) → erro.
 
-`01_core/src/rules/layout/tests.rs`:
+`01_core/src/engine/layout/tests.rs`:
 
 - `set_text_font_variant_axes_propaga_ao_frame`: verifica que o `TextStyle` resultante contém os eixos definidos.
 

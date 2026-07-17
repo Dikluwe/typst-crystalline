@@ -104,15 +104,15 @@ suprimidos por `#![allow(deprecated)]` nos ficheiros legítimos.
 
 | Ficheiro | Sites afectados |
 |----------|-----------------|
-| `01_core/src/rules/layout/cursor.rs` | Constrói e faz match `FrameItem::Text` |
-| `01_core/src/rules/layout/enum_item.rs` | Constrói |
-| `01_core/src/rules/layout/equation.rs` | Constrói e faz match |
-| `01_core/src/rules/layout/helpers.rs` | Faz match |
-| `01_core/src/rules/layout/link.rs` | Constrói e faz match |
-| `01_core/src/rules/layout/list_item.rs` | Constrói |
-| `01_core/src/rules/layout/slicing.rs` | Faz match |
-| `01_core/src/rules/math/layout/frac.rs` | Faz match |
-| `01_core/src/rules/math/layout/mod.rs` | Constrói e faz match |
+| `01_core/src/engine/layout/cursor.rs` | Constrói e faz match `FrameItem::Text` |
+| `01_core/src/engine/layout/enum_item.rs` | Constrói |
+| `01_core/src/engine/layout/equation.rs` | Constrói e faz match |
+| `01_core/src/engine/layout/helpers.rs` | Faz match |
+| `01_core/src/engine/layout/link.rs` | Constrói e faz match |
+| `01_core/src/engine/layout/list_item.rs` | Constrói |
+| `01_core/src/engine/layout/slicing.rs` | Faz match |
+| `01_core/src/engine/math/layout/frac.rs` | Faz match |
+| `01_core/src/engine/math/layout/mod.rs` | Constrói e faz match |
 | `03_infra/src/export/fonts.rs` | Faz match |
 | `03_infra/src/export/stream.rs` | Faz match (e reordenado) |
 | `03_infra/src/export/tests.rs` | Constrói em testes |
@@ -176,15 +176,15 @@ Em `build_page_stream` e `draw_item_local`: `FrameItem::TextShaped` agora
 |----------|------------------------|-----------|
 | `01_core/src/entities/layout_types.rs` | `867b46c8` | `#[deprecated]` em Text + allow em `plain_text_items` |
 | `01_core/src/entities/style_chain.rs` | `de464849` (inalterado) | Font fallback Helvetica em `From<&StyleChain>` + 2 testes |
-| `01_core/src/rules/layout/cursor.rs` | inalterado | `#![allow(deprecated)]` |
-| `01_core/src/rules/layout/enum_item.rs` | inalterado | `#![allow(deprecated)]` |
-| `01_core/src/rules/layout/equation.rs` | inalterado | `#![allow(deprecated)]` |
-| `01_core/src/rules/layout/helpers.rs` | inalterado | `#![allow(deprecated)]` |
-| `01_core/src/rules/layout/link.rs` | inalterado | `#![allow(deprecated)]` |
-| `01_core/src/rules/layout/list_item.rs` | inalterado | `#![allow(deprecated)]` |
-| `01_core/src/rules/layout/slicing.rs` | inalterado | `#![allow(deprecated)]` |
-| `01_core/src/rules/math/layout/frac.rs` | inalterado | `#![allow(deprecated)]` |
-| `01_core/src/rules/math/layout/mod.rs` | inalterado | `#![allow(deprecated)]` |
+| `01_core/src/engine/layout/cursor.rs` | inalterado | `#![allow(deprecated)]` |
+| `01_core/src/engine/layout/enum_item.rs` | inalterado | `#![allow(deprecated)]` |
+| `01_core/src/engine/layout/equation.rs` | inalterado | `#![allow(deprecated)]` |
+| `01_core/src/engine/layout/helpers.rs` | inalterado | `#![allow(deprecated)]` |
+| `01_core/src/engine/layout/link.rs` | inalterado | `#![allow(deprecated)]` |
+| `01_core/src/engine/layout/list_item.rs` | inalterado | `#![allow(deprecated)]` |
+| `01_core/src/engine/layout/slicing.rs` | inalterado | `#![allow(deprecated)]` |
+| `01_core/src/engine/math/layout/frac.rs` | inalterado | `#![allow(deprecated)]` |
+| `01_core/src/engine/math/layout/mod.rs` | inalterado | `#![allow(deprecated)]` |
 
 ### Código L3 (5 ficheiros)
 

@@ -51,7 +51,7 @@ A bateria P490 de **20 ficheiros `.typ`** foi executada contra vanilla 0.14.2 e 
 
 **Trade-off:** Custo de tempo (eval duplicado por ficheiro). Aceite para manter a estrutura de dados `Content` intacta e evitar refactor arquitetural profundo.
 
-**Ficheiros:** `01_core/src/rules/eval/mod.rs`, `01_core/src/entities/module.rs`.
+**Ficheiros:** `01_core/src/engine/eval/mod.rs`, `01_core/src/entities/module.rs`.
 
 ### 3.2 D1 — Contagem Aproximada de `par`
 

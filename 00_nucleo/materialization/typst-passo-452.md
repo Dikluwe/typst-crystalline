@@ -79,7 +79,7 @@ fn native_link(url: EcoString, body: Content) -> Content {
 - Registar no stdlib scope como `"link"`.
 - `url` é `EcoString` (não validado como URL — passado ao PDF tal qual).
 
-### 4. Layout de `Content::Link` (`rules/layout/mod.rs` ou `rules/layout/link.rs`)
+### 4. Layout de `Content::Link` (`engine/layout/mod.rs` ou `engine/layout/link.rs`)
 
 - Renderizar `body` normalmente → obtém `Frame`.
 - Envolver em `FrameItem::Link { url, pos: frame.pos, size: frame.size, body: frame }`.
@@ -118,7 +118,7 @@ FrameItem::Link(link) => {
 
 - `00_nucleo/prompts/entities/content.md` — `Content::Link`.
 - `00_nucleo/prompts/entities/layout_types.md` — `FrameItem::Link`, `LinkItem`.
-- `00_nucleo/prompts/rules/stdlib/interactive.md` — `link(url, body)`.
+- `00_nucleo/prompts/engine/stdlib/interactive.md` — `link(url, body)`.
 - `00_nucleo/prompts/03_infra/export.md` — Link Annotation no PDF.
 
 ---

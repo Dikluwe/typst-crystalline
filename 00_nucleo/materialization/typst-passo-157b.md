@@ -53,7 +53,7 @@ subsequente.
   risco).
 - `01_core/src/entities/content.rs` — variant `Content::Table`
   (P157A) para padrão estrutural.
-- `01_core/src/rules/stdlib/structural.rs` — `native_table`
+- `01_core/src/engine/stdlib/structural.rs` — `native_table`
   (P157A) para padrão de stdlib func.
 - `lab/typst-original/crates/typst-library/src/model/table.rs`
   — `TableCell` vanilla (referência).
@@ -202,7 +202,7 @@ field semântico não-trivial:
 
 ### .3 Adicionar stdlib func `native_table_cell`
 
-`01_core/src/rules/stdlib/structural.rs` (módulo Model
+`01_core/src/engine/stdlib/structural.rs` (módulo Model
 continuação per P157A):
 - Func `table_cell(body, x: none, y: none, colspan: none, rowspan: none) -> content`.
 - Helper privado `extract_usize_or_none` para `x`/`y`/`colspan`/
@@ -223,7 +223,7 @@ Re-exportado em `stdlib/mod.rs`.
 
 ### .4 Layout para `Content::TableCell`
 
-`01_core/src/rules/layout/mod.rs` ou `layout/grid.rs`:
+`01_core/src/engine/layout/mod.rs` ou `layout/grid.rs`:
 
 - Pattern arm novo em `layout_content` para `Content::TableCell { body, .. }`.
 - **Comportamento minimal**: render `body` no contexto actual

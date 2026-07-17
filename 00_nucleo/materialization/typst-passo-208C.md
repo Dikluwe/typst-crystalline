@@ -27,7 +27,7 @@ Reuso de dados P208A + P208B:
 - Pattern stdlib uniforme `native_X(ctx, args, world,
   current_file, figure_numbering)`.
 - `native_query` em
-  `01_core/src/rules/stdlib/foundations.rs` (per P208A
+  `01_core/src/engine/stdlib/foundations.rs` (per P208A
   A2 + P208B implementation pattern) — parsea
   `selector` arg + invoca `ctx.introspector.query(&selector)`.
 - `native_here` registado no scope global (P208B C3
@@ -43,7 +43,7 @@ Reuso de dados P208A + P208B:
 Antes de tocar código:
 
 1. **`native_query` empírico**: confirmar que existe em
-   `01_core/src/rules/stdlib/foundations.rs` (per P208A
+   `01_core/src/engine/stdlib/foundations.rs` (per P208A
    A2) e tem o pattern de parsing de selector arg
    que pode ser reusado.
 2. **Pattern de parsing selector arg em cristalino**:
@@ -63,7 +63,7 @@ significativamente diferente do esperado, registar
 
 Reusa pattern literal de `native_query`:
 
-L1 — `01_core/src/rules/stdlib/foundations.rs`:
+L1 — `01_core/src/engine/stdlib/foundations.rs`:
 
 ```text
 pub fn native_locate(
@@ -82,7 +82,7 @@ pub fn native_locate(
 }
 ```
 
-L1 — `01_core/src/rules/stdlib/mod.rs`:
+L1 — `01_core/src/engine/stdlib/mod.rs`:
 - `pub use native_locate` em block existente.
 
 L1 — scope global da stdlib (mesmo ponto que P208B

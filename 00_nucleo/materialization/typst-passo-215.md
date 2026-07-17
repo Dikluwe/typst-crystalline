@@ -76,7 +76,7 @@ Reuso de dados (sem recolha nova):
 ### C1 — Inventário código actual face a multi-region
 
 Auditoria empírica do Layouter actual em
-`01_core/src/rules/layout/`:
+`01_core/src/engine/layout/`:
 
 | Componente | Estado actual | Multi-region? |
 |------------|---------------|----------------|
@@ -89,7 +89,7 @@ Auditoria empírica do Layouter actual em
 
 Verificação:
 - `grep -n "current_items\|current_line\|cursor_x\|cursor_y"
-  01_core/src/rules/layout/mod.rs | wc -l` quantifica
+  01_core/src/engine/layout/mod.rs | wc -l` quantifica
   call-sites afectados pelo refactor.
 - Hipótese provável: 40-80 call-sites (escala média; trabalho
   L+ mas tractável em sub-fases).

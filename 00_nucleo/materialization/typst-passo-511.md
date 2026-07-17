@@ -80,7 +80,7 @@ rg -n "native_binom\|native_class\|native_limits\|native_mid\|native_primes\|nat
 
 ```bash
 # Verificar se o layout engine já tem handlers
-rg -n "MathBinom\|MathClass\|MathLimits\|MathMid\|MathPrimes\|MathScripts\|MathStretch" src/rules/layout/ --type rs
+rg -n "MathBinom\|MathClass\|MathLimits\|MathMid\|MathPrimes\|MathScripts\|MathStretch" src/engine/layout/ --type rs
 # Se encontrar → layout parcialmente implementado
 # Se não encontrar → layout ausente
 ```
@@ -183,5 +183,5 @@ rg -n "MathBinom\|MathClass\|MathLimits\|MathMid\|MathPrimes\|MathScripts\|MathS
 rg -n "native_binom\|native_class\|native_limits\|native_mid\|native_primes\|native_scripts\|native_stretch" src/stdlib/ --type rs
 
 # Sonda de layout
-rg -n "MathBinom\|MathClass\|MathLimits\|MathMid\|MathPrimes\|MathScripts\|MathStretch" src/rules/layout/ --type rs
+rg -n "MathBinom\|MathClass\|MathLimits\|MathMid\|MathPrimes\|MathScripts\|MathStretch" src/engine/layout/ --type rs
 ```

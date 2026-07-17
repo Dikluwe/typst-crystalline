@@ -16,13 +16,13 @@ Inspecção empírica em 2026-05-03. Comandos executados:
 
 - `grep -rn "figure_numbers\|figure_label_numbers\|figure:" 01_core/src/`
 - `grep -rn "kind_index\[ElementKind::Figure\]\|query_by_kind(ElementKind::Figure" 01_core/`
-- `grep -rn "figure_numbers" 01_core/src/rules/layout/`
+- `grep -rn "figure_numbers" 01_core/src/engine/layout/`
 
 | Item | Estado confirmado | Linha actual / observação |
 |------|-------------------|---------------------------|
-| 1 | Arm `Figure` em `from_tags` usa chave global `"figure"` | `01_core/src/rules/introspect/from_tags.rs:77`: `intr.counters.apply_at("figure".to_string(), counter_update.clone(), *loc)`. Campo `kind: Option<String>` ignorado via `..` pattern em linha 71. |
+| 1 | Arm `Figure` em `from_tags` usa chave global `"figure"` | `01_core/src/engine/introspect/from_tags.rs:77`: `intr.counters.apply_at("figure".to_string(), counter_update.clone(), *loc)`. Campo `kind: Option<String>` ignorado via `..` pattern em linha 71. |
 | 2 | `element_payload.rs:52` documenta convenção `figure:{kind}` | Doc comment `/// Update implícito do contador `figure:{kind}`.` em `01_core/src/entities/element_payload.rs:52`. **Não está implementada** em `from_tags`. |
-| 3 | `extract_payload` produz `ElementPayload::Figure { kind: kind.clone(), ... }` | `01_core/src/rules/introspect/extract_payload.rs:27–34`. `kind` data flui ao tag stream. |
+| 3 | `extract_payload` produz `ElementPayload::Figure { kind: kind.clone(), ... }` | `01_core/src/engine/introspect/extract_payload.rs:27–34`. `kind` data flui ao tag stream. |
 | 4 | `kind_index[ElementKind::Figure]` consumers | Apenas tests (`introspector.rs:277-290`, `from_tags.rs:311,365,395`, `introspect.rs:1654-1751`). **Zero consumers de produção** fora de tests. Refinar arm `Figure` para popular per-kind counter não regride. |
 | 5 | Consumer C3 em `mod.rs:435–439` | `kind_key = kind.as_deref().unwrap_or("image")` (linha 431); `idx = *figure_progress.entry(kind_key).or_insert(0)` (linha 432–433); `state.counter.figure_numbers.get(kind_key).and_then(\|v\| v.get(idx)).copied().unwrap_or(idx + 1)` (linha 435–439). |
 | 6 | `state.figure_numbers` legacy é copiado para Layouter? | **NÃO**. `mod.rs:1414–1430` (no-TOC) e `mod.rs:1444–1460` (TOC fixpoint) não copiam o campo. `figure_numbers` aparece **apenas uma vez** em `mod.rs` — o read em linha 435. `Layouter::new()` (`mod.rs:150`) inicializa `CounterStateLegacy::new()` (default vazio). Logo `unwrap_or(idx + 1)` é o caminho real em produção. **Dead code confirmado**. |
@@ -240,7 +240,7 @@ escopo (cláusula 5 Opção 2) — rejeitado em cláusula 5.
 |-----------|--------|-----------|---------|
 | `.B` | Refinar `from_tags.rs` arm `Figure`: `kind_key = kind.as_deref().unwrap_or("image")`; `apply_at(format!("figure:{}", kind_key), counter_update.clone(), *loc)`. Manter chamada existente `apply_at("figure", ...)` global em paralelo OU substituí-la — decidido em P184B per Q3. Hash L0 actualiza. | S | — |
 | `.C` | Adicionar `figure_number_at_index(&self, kind: &str, idx: usize) -> Option<usize>` ao trait `Introspector`. Impl em `TagIntrospector` delega a `CounterRegistry` (helper `value_at_index` se necessário). 5 tests unitários (vazio, populate, kinds isolados, idx fora de range, default kind). Hash L0 `entities/introspector.md` actualiza. | S | `.B` |
-| `.D` | Migrar consumer C3 em `mod.rs:435–439` com substitution-with-fallback. Trait import local. Hash L0 `rules/layout.md` actualiza. | S | `.B`, `.C` |
+| `.D` | Migrar consumer C3 em `mod.rs:435–439` com substitution-with-fallback. Trait import local. Hash L0 `engine/layout.md` actualiza. | S | `.B`, `.C` |
 | `.E` | Tests E2E em submódulo `p184e_figure_per_kind` em `tests.rs`. ~3 tests: pipeline via Introspector, pipeline via fallback, paridade legacy vs migrated. | S | `.D` |
 | `.F` | Relatório `00_nucleo/materialization/typst-passo-184f-relatorio.md`. Actualização preventiva DEBT M4-residual: se P183F já correu, P184F update remove C3; se P183F não correu, P184F precede e DEBT abre cobrindo apenas C1+C2. | S | `.E` |
 
@@ -321,7 +321,7 @@ P184 materializa esta observação.
 
 Escopo concreto:
 
-1. Em `01_core/src/rules/introspect/from_tags.rs:71–95`, alterar arm
+1. Em `01_core/src/engine/introspect/from_tags.rs:71–95`, alterar arm
    `ElementPayload::Figure { counter_update, is_counted, kind, .. }`
    (destructure `kind`):
    ```rust
@@ -336,7 +336,7 @@ Escopo concreto:
    é parte de P184B (provável: manter por simetria com walk legacy,
    mas pode ser eliminado se nenhum consumer existir).
 
-2. L0 `00_nucleo/prompts/rules/introspect/from_tags.md` actualizado
+2. L0 `00_nucleo/prompts/engine/introspect/from_tags.md` actualizado
    com a convenção `figure:{kind}` documentada (era doc comment em
    `element_payload.rs:52`; promover a L0).
 

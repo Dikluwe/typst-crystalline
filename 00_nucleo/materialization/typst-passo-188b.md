@@ -8,7 +8,7 @@ estado dormente, e actualização de nota DEBT M4-residual.
 **Último passo funcional de M4-residual.**
 
 Migra consumer C2 em
-`01_core/src/rules/layout/equation.rs:97` de
+`01_core/src/engine/layout/equation.rs:97` de
 `self.counter.get_flat("equation")` para a forma
 substitution-with-fallback location-aware fixada em P188A
 §3:
@@ -76,7 +76,7 @@ diferença de tipo legacy).
    - Cenário 1 confirmado em P188A §2.2. Re-verificar
      empiricamente.
 
-3. Confirmar L0 `rules/layout.md`:
+3. Confirmar L0 `engine/layout.md`:
    - Localizar entradas existentes sobre equation-arm
      (P186 estendeu).
    - Identificar onde adicionar nota sobre migração C2
@@ -99,7 +99,7 @@ diferença de tipo legacy).
 6. Confirmar 4 pontos de documentação obrigatória (per
    P188A §11.6):
    - `equation.rs:97` (comentário inline).
-   - L0 `rules/layout.md` (secção).
+   - L0 `engine/layout.md` (secção).
    - Test `gate_dormente_caso_producao` (P188B `.D`).
    - Relatório consolidado §"Estado dormente" (P188B
      `.G`).
@@ -114,7 +114,7 @@ edits.
 
 ### .B Migrar consumer C2
 
-1. Em `01_core/src/rules/layout/equation.rs:97` (ou
+1. Em `01_core/src/engine/layout/equation.rs:97` (ou
    linha real per `.A.1`):
    - Substituir leitura legacy pela expressão fixada
      P188A §3:
@@ -149,7 +149,7 @@ edits.
   idêntico).
 - Linter passa (após `--fix-hashes` em `.D`).
 
-### .C Actualizar L0 `rules/layout.md`
+### .C Actualizar L0 `engine/layout.md`
 
 1. Adicionar entrada para C2 migration (per P188A §11.6
    ponto 2):
@@ -179,7 +179,7 @@ edits.
 
 ### .D Tests E2E em submódulo `p188b_c2_equation_counter`
 
-Submódulo novo em `01_core/src/rules/layout/tests.rs`
+Submódulo novo em `01_core/src/engine/layout/tests.rs`
 (ou ficheiro de tests do `equation.rs` se separado).
 Irmão de `p184e_figure_per_kind`, `p185d_locator_sync`,
 `p186f_equation_locatable`, `p187b_c1_heading_prefix`.
@@ -393,7 +393,7 @@ Todas em conjunto:
 2. Consumer C2 migrado (`equation.rs:97`).
 3. **Comentário inline obrigatório presente** em
    `equation.rs:97`.
-4. L0 `rules/layout.md` actualizado com **estado
+4. L0 `engine/layout.md` actualizado com **estado
    dormente explicitamente documentado**.
 5. 3 tests E2E novos passam (incluindo
    `c2_equation_counter_via_fallback_legacy_caso_producao`

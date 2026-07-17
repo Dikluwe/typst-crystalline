@@ -2,7 +2,7 @@
 
 **Data:** 2026-07-09  
 **Commit de implementação:** `ece949251`  
-**Hash do L0 `rules/layout.md`:** `fbed936a`  
+**Hash do L0 `engine/layout.md`:** `fbed936a`  
 **Fonte:** Noto Sans Devanagari-Regular.ttf (`/usr/share/fonts/truetype/noto/NotoSansDevanagari-Regular.ttf`)  
 **Tamanho de teste:** 40 pt
 
@@ -117,7 +117,7 @@ documentos realistas.
 
 ## 5. Implementação
 
-Ficheiro alterado: `01_core/src/rules/layout/metrics.rs:150`
+Ficheiro alterado: `01_core/src/engine/layout/metrics.rs:150`
 
 ```rust
 pub fn needs_shaped_width(text: &str) -> bool {
@@ -141,7 +141,7 @@ Foram adicionados testes unitários no mesmo ficheiro:
 - `latim_nao_precisa_shaped_width`
 - `arabic_precisa_shaped_width`
 
-O Prompt L0 `00_nucleo/prompts/rules/layout.md` foi actualizado para documentar
+O Prompt L0 `00_nucleo/prompts/engine/layout.md` foi actualizado para documentar
 `metrics.rs` e a lista de scripts contextuais, com hash `fbed936a`.
 
 ---

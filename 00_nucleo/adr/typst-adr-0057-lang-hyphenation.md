@@ -86,7 +86,7 @@ Razões pela ordem dos critérios da spec 144.1.A.2:
      ↓ flush_line
    layout_word(&rest)  (recursão)
    ```
-   Wrap em `01_core/src/rules/layout/hyphenation.rs` mapeia
+   Wrap em `01_core/src/engine/layout/hyphenation.rs` mapeia
    `Lang::as_str().as_bytes()` → `[u8; 2]` →
    `hypher::Lang::from_iso(...)`.
 
@@ -110,7 +110,7 @@ Razões pela ordem dos critérios da spec 144.1.A.2:
    ADR-0055).
 
 6. **Algoritmo de inserção**: dentro do branch greedy
-   pré-existente (`layout_word` em `01_core/src/rules/layout/cursor.rs`),
+   pré-existente (`layout_word` em `01_core/src/engine/layout/cursor.rs`),
    quando word não cabe E cursor não está na margem:
    - Iterar break_points da maior para a menor (`iter().rev()`).
    - Primeiro prefixo (com hífen) cuja `word_width <= available`

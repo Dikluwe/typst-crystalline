@@ -44,13 +44,13 @@ Contrato comportamental: `#smallcaps[Hello World]` produz texto onde letras min�
 3. **`entities/content.rs`** — Construtor `smallcaps(body)` emite `Content::Styled(body, Styles::from_iter([Style::Smallcaps(true)]))`.
 4. **`rules/stdlib/structural.rs`** — `native_smallcaps` (análogo a `native_strong`/`native_emph`).
 5. **`rules/eval/rules.rs`** — Selector `NodeKind::Smallcaps` casa `Style::Smallcaps` no `Content::Styled`.
-6. **`rules/layout/mod.rs`** — Arm de `Content::Styled` com `Style::Smallcaps`:
+6. **`engine/layout/mod.rs`** — Arm de `Content::Styled` com `Style::Smallcaps`:
    - Se `smallcaps == true`, o layout usa `font.variant(SmallCaps)` para glyphs de letras minúsculas.
    - Ou, alternativa: converte texto minúsculo para maiúsculo e aplica factor de escala 0.8x (fallback se fonte não tiver smallcaps nativo).
    - Vanilla usa `font.smallcaps()` quando disponível; fallback para scaling.
-7. **`rules/layout/tests.rs`** — Teste de integração: `smallcaps_aparece_em_pdf`.
+7. **`engine/layout/tests.rs`** — Teste de integração: `smallcaps_aparece_em_pdf`.
 8. **`rules/eval/tests.rs`** — Teste unitário: `eval_smallcaps_emite_styled`.
-9. **Spec L0** — Adicionar secção em `00_nucleo/prompts/rules/stdlib/structural.md`.
+9. **Spec L0** — Adicionar secção em `00_nucleo/prompts/engine/stdlib/structural.md`.
 
 ---
 

@@ -34,16 +34,16 @@ $ grep -n "^\s*[A-Z][a-zA-Z]*\s*{" 01_core/src/entities/color.rs
 
 ```bash
 $ grep -rln "native_rgb\|native_luma\|native_oklab\|native_oklch\|native_hsl\|native_hsv\|native_cmyk\|native_linear_rgb" \
-  01_core/src/rules/stdlib/
-01_core/src/rules/stdlib/foundations.rs
-01_core/src/rules/stdlib/mod.rs
+  01_core/src/engine/stdlib/
+01_core/src/engine/stdlib/foundations.rs
+01_core/src/engine/stdlib/mod.rs
 ```
 
 → 7+ stdlib funcs cor presentes (P257 preservado).
 
 ```bash
 $ grep -rn "native_lighten\|native_darken\|native_mix\|native_saturate\|native_desaturate\|native_negate" \
-  01_core/src/rules/stdlib/
+  01_core/src/engine/stdlib/
 (zero hits)
 ```
 
@@ -90,11 +90,11 @@ ausente** (não materializado pós-P79).
 
 ```bash
 $ grep -rn "Polygon\|ShapeKind::Polygon\|native_polygon" 01_core/src/
-01_core/src/rules/stdlib/shapes.rs:223:pub fn native_polygon(...)
-01_core/src/rules/eval/mod.rs:559: native_polygon (registo)
-01_core/src/rules/eval/mod.rs:591: scope.define("polygon", native_polygon)
-01_core/src/rules/stdlib/mod.rs:47: native_polygon (re-export)
-01_core/src/rules/stdlib/mod.rs:1565,1580,1599: testes native_polygon
+01_core/src/engine/stdlib/shapes.rs:223:pub fn native_polygon(...)
+01_core/src/engine/eval/mod.rs:559: native_polygon (registo)
+01_core/src/engine/eval/mod.rs:591: scope.define("polygon", native_polygon)
+01_core/src/engine/stdlib/mod.rs:47: native_polygon (re-export)
+01_core/src/engine/stdlib/mod.rs:1565,1580,1599: testes native_polygon
 ```
 
 → **`native_polygon` MATERIALIZADO em stdlib** — promoção
@@ -128,7 +128,7 @@ $ grep -rn "Curve\|ShapeKind::Curve\|native_curve" 01_core/src/
 ### Bloco 3 — Path subsistema (DEBT-33)
 
 ```bash
-$ grep -rn "bounding_box\|bbox" 01_core/src/rules/layout/ 01_core/src/entities/
+$ grep -rn "bounding_box\|bbox" 01_core/src/engine/layout/ 01_core/src/entities/
 01_core/src/entities/layout_types.rs:921: fn transform_matrix_rotacao_45_graus_aumenta_bounding_box()
 01_core/src/entities/geometry.rs:91: fn shapekind_line_bounding_box_abs()
 ```
@@ -188,7 +188,7 @@ $ grep -rn "Gradient\|LinearGradient\|RadialGradient\|ConicGradient" 01_core/src
 01_core/src/entities/value.rs:83: // Gradient(Gradient), (comment placeholder)
 $ grep -rn "GradientStop\|WeightedColor" 01_core/src/
 (zero hits)
-$ grep "native_gradient\|gradient" 01_core/src/rules/stdlib/mod.rs
+$ grep "native_gradient\|gradient" 01_core/src/engine/stdlib/mod.rs
 (zero hits)
 ```
 
@@ -206,7 +206,7 @@ $ ls -la lab/typst-original/crates/typst-library/src/visualize/gradient.rs
 ```bash
 $ grep -rn "enum Paint\|Tiling\|TilingPattern" 01_core/src/
 01_core/src/entities/value.rs:84: // Tiling(Tiling), (comment placeholder)
-$ grep "native_tiling\|tiling" 01_core/src/rules/stdlib/mod.rs
+$ grep "native_tiling\|tiling" 01_core/src/engine/stdlib/mod.rs
 (zero hits)
 ```
 
@@ -249,7 +249,7 @@ $ grep -n "\"alt\"\|alt:\|\"fit\"\|fit:" 01_core/src/entities/content.rs
 ### Bloco 8 — Transform `origin` pivot
 
 ```bash
-$ grep -n "origin\b" 01_core/src/rules/stdlib/transforms.rs
+$ grep -n "origin\b" 01_core/src/engine/stdlib/transforms.rs
 104: /// - `origin` (ponto de pivot) scope-out; análogo aos move/rotate/scale
 105: ///   actuais que também não têm `origin` (refino futuro per ADR-0061).
 ```
@@ -260,7 +260,7 @@ $ grep -n "origin\b" 01_core/src/rules/stdlib/transforms.rs
 existente.
 
 ```bash
-$ grep -A 6 "pub fn native_rotate" 01_core/src/rules/stdlib/transforms.rs
+$ grep -A 6 "pub fn native_rotate" 01_core/src/engine/stdlib/transforms.rs
 (rotate aceita angle; sem param origin)
 ```
 
@@ -424,7 +424,7 @@ implementa Bézier 4 corners com kappa=0.552_284_749_831
 
 ### 4.3 — `Polygon` em stdlib **não documentado**
 
-`native_polygon` em `01_core/src/rules/stdlib/shapes.rs:223`
+`native_polygon` em `01_core/src/engine/stdlib/shapes.rs:223`
 materializado com testes (3 testes em stdlib/mod.rs:1565-1599).
 Implementação via conversão para `ShapeKind::Path` com
 `Vec<PathItem>` (MoveTo + N LineTo + ClosePath). Promoção

@@ -5,8 +5,8 @@
 Ler antes de começar:
 - `01_core/src/entities/layout_types.rs` — `FrameItem::Text`, `FrameItem::Line`
 - `01_core/src/entities/glyph_variants.rs` — `GlyphVariants`, `GlyphVariant`
-- `01_core/src/rules/layout.rs` — trait `FontMetrics`, `vertical_glyph_variants()`, `glyph_to_char()`
-- `01_core/src/rules/math/layout.rs` — `layout_stretchy_delimiter`, `layout_delimited`, `layout_root`
+- `01_core/src/engine/layout.rs` — trait `FontMetrics`, `vertical_glyph_variants()`, `glyph_to_char()`
+- `01_core/src/engine/math/layout.rs` — `layout_stretchy_delimiter`, `layout_delimited`, `layout_root`
 - `03_infra/src/font_metrics.rs` — `FontBookMetrics`, leitura de `math_table.variants`
 - `03_infra/src/export.rs` — tratamento actual de `FrameItem::Text` e `FrameItem::Line` no PDF
 
@@ -63,7 +63,7 @@ find ~/.cargo/registry/src -path "*/ttf-parser-*/src" -type d 2>/dev/null \
   | head -1 | xargs -I{} grep -rn "start_connector\|end_connector\|full_advance\|part_flags\|is_extender" {} | head -20
 
 # 6. Como layout_stretchy_delimiter usa glyph_to_char actualmente
-grep -n "glyph_to_char\|glyph_id\|select" 01_core/src/rules/math/layout.rs | head -20
+grep -n "glyph_to_char\|glyph_id\|select" 01_core/src/engine/math/layout.rs | head -20
 
 # 7. Confirmar que CIDFont em export.rs usa glyph IDs ou codepoints Unicode
 grep -n "CIDFont\|ToUnicode\|Tj\|show\|glyph" 03_infra/src/export.rs | head -30
@@ -162,7 +162,7 @@ impl GlyphAssembly {
 
 ## Tarefa 3 — FontMetrics::vertical_glyph_assembly() em L1
 
-Adicionar método ao trait `FontMetrics` em `01_core/src/rules/layout.rs`.
+Adicionar método ao trait `FontMetrics` em `01_core/src/engine/layout.rs`.
 Default retorna `GlyphAssembly` vazia.
 
 ```rust
@@ -240,7 +240,7 @@ diferirem, adaptar antes de codificar.
 
 ## Tarefa 5 — layout_stretchy_delimiter usa FrameItem::Glyph
 
-Em `01_core/src/rules/math/layout.rs`, modificar `layout_stretchy_delimiter`
+Em `01_core/src/engine/math/layout.rs`, modificar `layout_stretchy_delimiter`
 para emitir `FrameItem::Glyph` quando uma variante é seleccionada, em vez
 de `FrameItem::Text` com o char base.
 

@@ -23,7 +23,7 @@ Este passo corrige essa inconsistência: `layout_errors` passa a ser `Vec<Source
 - Alterado `PagedDocument.layout_errors` de `Vec<String>` para `Vec<SourceDiagnostic>`.
 - Actualizado o comentário para reflectir a preservação de `span`.
 
-### 2.2 `01_core/src/rules/layout/mod.rs`
+### 2.2 `01_core/src/engine/layout/mod.rs`
 
 - Importado `SourceDiagnostic`.
 - Alterado `Layouter.layout_errors` de `Vec<String>` para `Vec<SourceDiagnostic>`.
@@ -75,7 +75,7 @@ Saída:
 /tmp/p645-chave-vazia.typ:<detached>: error: failed to parse BibTeX '/tmp/p645-chave-vazia.bib': esperado key da entrada
 ```
 
-O erro continua a ser apresentado. A mensagem inclui o caminho do ficheiro `.typ` e o caminho do `.bib`, mas o `span` aparece como `<detached>` porque os pontos de criação do diagnóstico em `01_core/src/rules/eval/bibliography.rs` e no parser BibTeX ainda usam `Span::detached()`. A mudança estrutural deste passo garante que, quando esses pontos passarem a usar um `span` real, a posição será preservada até à saída final.
+O erro continua a ser apresentado. A mensagem inclui o caminho do ficheiro `.typ` e o caminho do `.bib`, mas o `span` aparece como `<detached>` porque os pontos de criação do diagnóstico em `01_core/src/engine/eval/bibliography.rs` e no parser BibTeX ainda usam `Span::detached()`. A mudança estrutural deste passo garante que, quando esses pontos passarem a usar um `span` real, a posição será preservada até à saída final.
 
 ### 3.3 Teste manual — chave vazia em `.yaml`
 

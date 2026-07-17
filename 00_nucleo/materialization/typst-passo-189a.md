@@ -150,7 +150,7 @@ ou se fica excepcionado (reservas 1 ou 2).
 **Decisões a tomar** — 7 cláusulas (era 6; +1 reserva):
 
 1. **Lista exacta de arms não-puros** (`grep` em
-   `01_core/src/rules/introspect.rs` por mutações de
+   `01_core/src/engine/introspect.rs` por mutações de
    `state.*`).
 2. **Estratégia por arm** — promoção a locatable (já
    feita para Bibliography/Outline/Equation), ou
@@ -190,7 +190,7 @@ ou se fica excepcionado (reservas 1 ou 2).
 
 ### O1 — Inputs verificáveis
 
-`grep -rn "state\." 01_core/src/rules/introspect.rs`
+`grep -rn "state\." 01_core/src/engine/introspect.rs`
 filtrado por mutações (`state.x = ...`,
 `state.x.push(...)`, `state.x.insert(...)`, etc.).
 
@@ -247,7 +247,7 @@ adiamento.
 Critério verificável sem julgamento subjectivo:
 
 ```
-grep -E "state\.\w+\s*[=.]" 01_core/src/rules/introspect.rs
+grep -E "state\.\w+\s*[=.]" 01_core/src/engine/introspect.rs
 ```
 
 Retorna zero matches em arms **excepto**:
@@ -283,7 +283,7 @@ Confirmar pré-condições:
 - Tests workspace 1.808.
 
 Inventariar mutações:
-- `grep -rn "state\." 01_core/src/rules/introspect.rs`.
+- `grep -rn "state\." 01_core/src/engine/introspect.rs`.
 - Filtrar mutações vs leituras.
 - Para cada mutação, identificar arm.
 
@@ -298,7 +298,7 @@ Confirmar Reservas 1 e 2:
   `grep -rn "SetEquationNumbering" 01_core/src/` →
   esperado zero hits em produção (per P188 §5).
 - Reserva 2 (C4 não migrado): localizar consumer C4
-  resolved label em `01_core/src/rules/layout/`. Confirmar
+  resolved label em `01_core/src/engine/layout/`. Confirmar
   que ainda lê legacy directamente.
 
 Confirmar estado real de Bibliography/Outline arms:
@@ -457,7 +457,7 @@ literal + plano de fechamento.
 
 ### Sub-passo 189A.H — Decisão cláusula 7 (critério de fecho M5)
 
-**Opção 1** — `grep "state\." 01_core/src/rules/introspect.rs`
+**Opção 1** — `grep "state\." 01_core/src/engine/introspect.rs`
 em arms retorna zero (apenas leituras em headers/imports
 e inicialização e excepções declaradas).
 

@@ -88,7 +88,7 @@ Documentar resultado no commit: `Sonda P412: Duration variant OK; nanos/convers�
 
 ### A.1 — Prompt L0 `duration-field-access.md`
 
-Novo em `00_nucleo/prompts/rules/eval/duration-field-access.md`:
+Novo em `00_nucleo/prompts/engine/eval/duration-field-access.md`:
 
 - **Paridade funcional**: `duration("1h30m").seconds` → `5400.0` (Float); `.minutes` → `90.0`; `.hours` → `1.5`; `.days` → `0.0625`.
 - **Nota de forma**: o vanilla usa métodos (`.seconds()`); o cristalino usa fields (`.seconds`) por simplicidade de infra. Semântica idêntica.

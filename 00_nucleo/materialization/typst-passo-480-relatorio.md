@@ -56,7 +56,7 @@ Estado confirmado: Trilhas 1–4, 7, 8 completas. Trilha 5 (shaping rustybuzz) e
 - `headings_for_toc` não inclui o título (sem TOC self-reference).
 - Nenhum counter é incrementado (título de outline não é secção numerada).
 
-**Ficheiro alterado** `01_core/src/rules/introspect.rs`:
+**Ficheiro alterado** `01_core/src/engine/introspect.rs`:
 
 ```rust
 Content::Outline(_) => {
@@ -111,7 +111,7 @@ if trimmed == "math.equation" {
 }
 ```
 
-**Ponto 2** — `01_core/src/rules/stdlib/structural.rs`: chave em `make_math_module`:
+**Ponto 2** — `01_core/src/engine/stdlib/structural.rs`: chave em `make_math_module`:
 
 ```rust
 // P480 — alias `equation` no módulo math para paridade de namespace vanilla.
@@ -168,16 +168,16 @@ dict.insert("equation".into(), Value::None);
 
 | Ficheiro | Alteração |
 |----------|-----------|
-| `00_nucleo/prompts/rules/introspect.md` | §P480 — registo sintético Heading em kind_index (walk arm Outline) |
+| `00_nucleo/prompts/engine/introspect.md` | §P480 — registo sintético Heading em kind_index (walk arm Outline) |
 | `00_nucleo/prompts/infra/query-helpers.md` | §P480 — `math.equation` alias em `parse_selector` |
-| `00_nucleo/prompts/rules/stdlib/structural.md` | §P480 — `equation` alias em `make_math_module` |
+| `00_nucleo/prompts/engine/stdlib/structural.md` | §P480 — `equation` alias em `make_math_module` |
 
 ### Código L1 (2 ficheiros)
 
 | Ficheiro | `@prompt-hash` pós-P480 | Alteração |
 |----------|------------------------|-----------|
-| `01_core/src/rules/introspect.rs` | `cf873757` | Walk arm `Content::Outline` + 2 testes P480 |
-| `01_core/src/rules/stdlib/structural.rs` | `5defd191` | `make_math_module` chave `equation` |
+| `01_core/src/engine/introspect.rs` | `cf873757` | Walk arm `Content::Outline` + 2 testes P480 |
+| `01_core/src/engine/stdlib/structural.rs` | `5defd191` | `make_math_module` chave `equation` |
 
 ### Código L3 (1 ficheiro)
 
@@ -207,8 +207,8 @@ dict.insert("equation".into(), Value::None);
 ```
 crystalline-lint --fix-hashes .
   Fixed 3 files:
-    ./01_core/src/rules/introspect.rs        → cf873757
-    ./01_core/src/rules/stdlib/structural.rs → 5defd191
+    ./01_core/src/engine/introspect.rs        → cf873757
+    ./01_core/src/engine/stdlib/structural.rs → 5defd191
     ./03_infra/src/query_helpers.rs          → 158c5d26
   Re-running analysis... ✅ 0 drift warnings remaining
 

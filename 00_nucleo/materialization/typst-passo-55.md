@@ -3,9 +3,9 @@
 ## Estado actual antes de começar
 
 Ler antes de começar:
-- `01_core/src/rules/eval.rs` — arm `Expr::FuncCall` em `eval_math_expr`
+- `01_core/src/engine/eval.rs` — arm `Expr::FuncCall` em `eval_math_expr`
 - `01_core/src/entities/content.rs` — enum `Content`, variante `MathMatrix`
-- `01_core/src/rules/math/layout.rs` — `GridAlign`, `layout_grid_rows`, `layout_stretchy_delimiter`
+- `01_core/src/engine/math/layout.rs` — `GridAlign`, `layout_grid_rows`, `layout_stretchy_delimiter`
 
 Pré-condição: `cargo test` — 579 L1 + 108 L3 + 50 parity, zero violations.
 
@@ -39,11 +39,11 @@ variante em `GridAlign`.
 grep -n "\"vec\"\|\"cases\"" lab/typst-original/crates/typst-library/src/math/ -r | head -10
 
 # 2. Ver as variantes de GridAlign criadas no Passo 54
-grep -A 4 "enum GridAlign" 01_core/src/rules/math/layout.rs
+grep -A 4 "enum GridAlign" 01_core/src/engine/math/layout.rs
 
 # 3. Confirmar como & dentro de um argumento chega ao eval
 #    (MathAlignPoint dentro de Expr::Array, ou outro nó)
-grep -n "MathAlignPoint\|AlignPoint" 01_core/src/rules/eval.rs | head -10
+grep -n "MathAlignPoint\|AlignPoint" 01_core/src/engine/eval.rs | head -10
 ```
 
 Reportar o output antes de continuar.
@@ -72,7 +72,7 @@ MathCases {
 Actualizar `plain_text()` e `PartialEq` para a nova variante, seguindo o
 padrão das variantes `MathMatrix` e `MathSequence` existentes.
 
-### Em `01_core/src/rules/math/layout.rs`
+### Em `01_core/src/engine/math/layout.rs`
 
 Adicionar a variante de alinhamento à esquerda:
 
@@ -96,7 +96,7 @@ GridAlign::Left => Pt(0.0), // encostar ao início da coluna
 
 ## Tarefa 2 — Intercepção no eval
 
-Em `01_core/src/rules/eval.rs`, no match para `Expr::FuncCall` em
+Em `01_core/src/engine/eval.rs`, no match para `Expr::FuncCall` em
 `eval_math_expr`, adicionar os dois arms:
 
 ### `"vec"`
@@ -178,7 +178,7 @@ codificar — não assumir.
 
 ## Tarefa 3 — Layout de `MathCases` (MathLayouter)
 
-Em `01_core/src/rules/math/layout.rs`, adicionar o arm para
+Em `01_core/src/engine/math/layout.rs`, adicionar o arm para
 `Content::MathCases` no match de `layout_node` ou `layout_content`:
 
 ```rust

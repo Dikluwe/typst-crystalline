@@ -78,7 +78,7 @@ pub fn desaturate(self, amount: f32) -> Self {
 
 ### 3.2 Funções nativas stdlib
 
-`01_core/src/rules/stdlib/color.rs` estendido com 2 funções (linhas 164–207):
+`01_core/src/engine/stdlib/color.rs` estendido com 2 funções (linhas 164–207):
 
 ```rust
 pub(crate) fn native_color_saturate(...)   -> SourceResult<Value>;
@@ -156,9 +156,9 @@ Helpers `extract_color_arg` e `extract_ratio_arg` reutilizados sem modificação
 - `00_nucleo/prompts/entities/color.md` — §"P477 — `saturate` e `desaturate`" adicionada;
   ADR-0083 §"Operadores cor" marcado TOTALMENTE FECHADO (6/6); §"Constantes nomeadas"
   actualizado (18 cores). Hash do código: `2701d418`.
-- `00_nucleo/prompts/rules/stdlib/color.md` — §"P477 — saturate e desaturate" adicionada;
+- `00_nucleo/prompts/engine/stdlib/color.md` — §"P477 — saturate e desaturate" adicionada;
   `make_color_module()` actualizado para 6 entradas. Hash do código: `bcea91be`.
-- `00_nucleo/prompts/rules/stdlib/shapes.md` — `parse_color` documentada com 18 cores
+- `00_nucleo/prompts/engine/stdlib/shapes.md` — `parse_color` documentada com 18 cores
   (5 originais + 13 novas + 2 aliases). Hash do código: `149dbe59`.
 
 ### Código L1 (implementado)
@@ -167,14 +167,14 @@ Helpers `extract_color_arg` e `extract_ratio_arg` reutilizados sem modificação
   - `impl Color { saturate, desaturate }` (linhas 423–435).
   - 6 testes P477 (linhas 789–840).
   - `@prompt-hash` → `bf7c5345`.
-- `01_core/src/rules/stdlib/color.rs`:
+- `01_core/src/engine/stdlib/color.rs`:
   - `native_color_saturate` e `native_color_desaturate` (linhas 164–207).
   - `make_color_module()` actualizado: 4 → 6 entradas.
   - `@prompt-hash` → `1c9dbcc1`.
-- `01_core/src/rules/stdlib/shapes.rs`:
+- `01_core/src/engine/stdlib/shapes.rs`:
   - `parse_color` alargada: 5 → 18 cores (linhas 39–52).
   - `@prompt-hash` → `55d33081`.
-- `01_core/src/rules/stdlib/mod.rs`:
+- `01_core/src/engine/stdlib/mod.rs`:
   - 9 testes P477 (linhas 11719–11796).
   - Nota: `parse_color` já importada em linha 200; sem import duplicado (erro E0252
     evitado).
@@ -217,8 +217,8 @@ Stack overflow em `recursao_infinita_retorna_err_sem_crash` e
 ```
 Fixed 3 files:
   ./01_core/src/entities/color.rs               → bf7c5345
-  ./01_core/src/rules/stdlib/color.rs           → 1c9dbcc1
-  ./01_core/src/rules/stdlib/shapes.rs          → 55d33081
+  ./01_core/src/engine/stdlib/color.rs           → 1c9dbcc1
+  ./01_core/src/engine/stdlib/shapes.rs          → 55d33081
 
 Re-running analysis... ✅ 0 drift warnings remaining
 ```

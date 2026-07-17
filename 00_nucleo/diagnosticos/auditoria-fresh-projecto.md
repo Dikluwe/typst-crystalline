@@ -33,7 +33,7 @@ Snapshot:
 
 **Pequenos / utilitários**: `args.rs`, `citation_form.rs`, `dir.rs`, `file_id.rs`, `func.rs`, `label.rs`, `lang.rs`, `module.rs`, `parity.rs`, `ptr_eq_arc.rs`, `scope.rs`, `show.rs`, `sides.rs`, `sink.rs`, `source_result.rs`, `span.rs`, `style.rs`, `syntax_*.rs` (5 files), `geometry.rs`, `glyph_variants.rs`, `image_sizer.rs`, `font_list.rs`, `math_class.rs`, `math_constants.rs`, `operators.rs`, `package_spec.rs`.
 
-### `01_core/src/rules/` (~28 622 linhas, incluindo tests)
+### `01_core/src/engine/` (~28 622 linhas, incluindo tests)
 
 - `layout/tests.rs` — 3 503 linhas.
 - `stdlib/mod.rs` — 3 220 linhas (parte tests).
@@ -77,7 +77,7 @@ Apenas estruturas significativas. Fan-in via `grep -lr` sobre `01_core/src/`.
 | 1 | `Content` enum | `entities/content.rs` | 3 560 / 59 variants / 165 métodos / 81 imports | 49 ficheiros | 7 | ~40 conceitos (markup, math, layout, transform, table, math composto, citation, bibliografia, outline, state, metadata, etc.) | match em layout/walk com 100+ arms; sem função >100 mas matches gigantes | sim, mas o tamanho arrasta |
 | 2 | `CounterStateLegacy` | `entities/counter_state_legacy.rs` | 330 / 18 fields públicos / 25 métodos | 12 | 4 | bib + figures + outline + lang + label_pages + auto_label + numbering_active + readonly + figure local + headings_for_toc + resolved_labels + known_page_numbers — **>=12 conceitos ortogonais** | n/a | sim |
 | 3 | `TagIntrospector` | `entities/introspector.rs` | 313 / 6 sub-stores / trait com 12 métodos | 7 | 9 | 6 sub-stores cobrem 6 domínios distintos (labels, counters, metadata, state, kind_index, figure_label_numbers) — coesão razoável | n/a | sim |
-| 4 | `Layouter<M, S>` | `rules/layout/mod.rs` | 1 445 / 19 fields / muitos métodos / 12 imports | grande (consumidor central) | 12 | layout per-Content + page state + chain + figure progress + grid cell state — múltiplos eixos | match `layout_content` com 101 arms, "fn layout_content" é volumoso | difícil — instanciar Layouter requer FontMetrics+ImageSizer; tests usam `FixedMetrics`/`NullImageSizer` |
+| 4 | `Layouter<M, S>` | `engine/layout/mod.rs` | 1 445 / 19 fields / muitos métodos / 12 imports | grande (consumidor central) | 12 | layout per-Content + page state + chain + figure progress + grid cell state — múltiplos eixos | match `layout_content` com 101 arms, "fn layout_content" é volumoso | difícil — instanciar Layouter requer FontMetrics+ImageSizer; tests usam `FixedMetrics`/`NullImageSizer` |
 | 5 | `Engine<'a>` | `entities/engine.rs` | 76 / 8 fields | 11 ficheiros | 6 | aglomera world+route+styles+show_rules+active_guards+current_file+figure_numbering+sink — agregador transparente | n/a | exige stub de cada field para test |
 | 6 | `EvalContext` | `rules/eval/mod.rs` (campo dentro) | 4 fields + introspector / `eval()` 100+ linhas | 25 | n/a | loop_iter + max + next_rule_id + introspector — coesão fraca (limite de loop é separável de introspector) | `eval()` ~80 linhas; `eval_markup` ~150+ | sim |
 | 7 | `Value` enum | `entities/value.rs` | 324 / 19 variants / 9 impls From | 38 | 0 imports especiais | tipos Typst (None/Bool/Int/Float/Str/Array/Dict/Module/Datetime/Func/Content/Auto/Length/Ratio/Angle/Color/Fraction/Align/Location) | `type_name` match exhaustivo | sim |
@@ -140,7 +140,7 @@ Cabeçalho do ficheiro (linha 7-13) reconhece: "Excepção Regra 6 da ADR-0037: 
 
 ### F3 — `Layouter` tem 19 fields e match `layout_content` com 101 arms (O3, O4, Q3)
 
-**Estrutura**: `rules/layout/mod.rs`.
+**Estrutura**: `engine/layout/mod.rs`.
 
 **Descrição**: `Layouter<M, S>` agrega: métricas, sizer, font_size, style, chain, page_config, pages, current_items, cursor_x/y, line_start_x, current_line, counter (CounterStateLegacy embedded), introspector, figure_progress, is_height_unconstrained, cell_available_h, cell_origin_x/y/w. Várias destas têm invariantes implícitos (cursor_x/cursor_y/line_start_x precisam alinhar; cell_origin_x/y/w + cell_available_h são "todos Some em conjunto"). Tests usam `FixedMetrics`+`NullImageSizer` para isolar — mas os 19 fields complicam construção mental do invariante de cada arm.
 
@@ -190,7 +190,7 @@ Decisão pragmática (preservar tests sem refactor) tem custo permanente.
 
 **Magnitude**: pequena (consequência de F1).
 
-### F9 — Tests gigantes em `rules/layout/tests.rs` (3 503), `rules/eval/tests.rs` (2 739), `rules/stdlib/mod.rs` (3 220) (O5)
+### F9 — Tests gigantes em `engine/layout/tests.rs` (3 503), `rules/eval/tests.rs` (2 739), `rules/stdlib/mod.rs` (3 220) (O5)
 
 **Estruturas**: tests E2E.
 

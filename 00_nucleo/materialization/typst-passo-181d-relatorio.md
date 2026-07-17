@@ -36,13 +36,13 @@ P181G migrar Layouter.
 
 **Outputs**:
 
-- `00_nucleo/prompts/rules/introspect/locatable.md` (L0;
+- `00_nucleo/prompts/engine/introspect/locatable.md` (L0;
   hash final `bdae0a1f`).
-- `00_nucleo/prompts/rules/introspect/extract_payload.md` (L0;
+- `00_nucleo/prompts/engine/introspect/extract_payload.md` (L0;
   hash final `1da1c130`).
-- `01_core/src/rules/introspect/locatable.rs` (arm Bibliography
+- `01_core/src/engine/introspect/locatable.rs` (arm Bibliography
   movido + 1 test; linhagem `d26cf6ff`).
-- `01_core/src/rules/introspect/extract_payload.rs` (arm novo +
+- `01_core/src/engine/introspect/extract_payload.rs` (arm novo +
   3 tests + helper `bib_entry`; linhagem `a30fd785`).
 
 **Sem ADR nova**. **Sem DEBT novo**.

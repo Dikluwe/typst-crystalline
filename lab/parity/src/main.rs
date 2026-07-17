@@ -14,7 +14,7 @@ fn main() {
     };
 
     let orig  = typst_syntax::parse(&input);
-    let crist = typst_core::rules::parse::parse(&input);
+    let crist = typst_core::engine::parse::parse(&input);
 
     let co = compact_original(&orig);
     let cc = compact_cristalino(&crist);

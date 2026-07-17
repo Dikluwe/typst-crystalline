@@ -12,7 +12,7 @@ O P452 foi originalmente classificado como materialização de hiperligações (
 
 - `Content::Link` e `LinkElem` — materializados em P422.
 - `FrameItem::Link { url, items, pos, size }` — materializado em P422/P424.
-- Layout de link (`rules/layout/link.rs`) — materializado em P422/P424.
+- Layout de link (`engine/layout/link.rs`) — materializado em P422/P424.
 - Export PDF de Link Annotation (`emit_link_annotations` em `export/builder.rs`) — materializado em P424.
 - `native_link` e spec L0 de layout — materializados em P422/P424.
 

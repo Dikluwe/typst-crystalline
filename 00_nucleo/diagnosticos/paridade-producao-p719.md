@@ -76,7 +76,7 @@ dictionary` na primeira linha, confirmando o bloqueio relatado por P718.
 
 ## 2. Implementação
 
-L0 actualizado primeiro: `00_nucleo/prompts/rules/eval.md` §P719 (hash
+L0 actualizado primeiro: `00_nucleo/prompts/engine/eval.md` §P719 (hash
 `605a11fb` via `crystalline-lint --fix-hashes`). Testes escritos antes
 do código; confirmados a falhar por reversão temporária de
 `control_flow.rs` para o estado pré-P719 (5 de 6 falhavam com "não é

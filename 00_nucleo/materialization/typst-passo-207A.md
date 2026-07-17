@@ -71,7 +71,7 @@ A tensão a registar:
   sub-stores conhecidos + consumers (stdlib, counter,
   state, outline, e potencialmente outros) implica
   varrer múltiplas árvores: `01_core/src/entities/`,
-  `01_core/src/rules/`, `02_shell/`, `03_infra/`,
+  `01_core/src/engine/`, `02_shell/`, `03_infra/`,
   `lab/typst-original/crates/typst-library/src/introspection/`.
 - **Referência vanilla literal exige inventário
   paralelo do código vanilla** — não apenas leitura do

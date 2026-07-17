@@ -74,7 +74,7 @@ Figure {
 `native_figure` (não no constructor — cristalino vs vanilla
 `Smart<FigureKind>`).
 
-**Counters por kind funcionais**: `01_core/src/rules/introspect.rs:279-292`:
+**Counters por kind funcionais**: `01_core/src/engine/introspect.rs:279-292`:
 
 ```rust
 Content::Figure { body, caption, kind, numbering } => {
@@ -109,7 +109,7 @@ Image {
 
 ### §2.3 `native_figure` factual
 
-`01_core/src/rules/stdlib/figure_image.rs:26-63`:
+`01_core/src/engine/stdlib/figure_image.rs:26-63`:
 
 ```rust
 let kind = args.named.get("kind")

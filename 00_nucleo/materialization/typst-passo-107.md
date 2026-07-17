@@ -71,10 +71,10 @@ empírica adicional para `Engine<'a>`.
 ## Escopo
 
 **Dentro**:
-- `01_core/src/rules/eval/` — todas as funções `eval_*` que
+- `01_core/src/engine/eval/` — todas as funções `eval_*` que
   recebem os 9 parâmetros actuais e que são transitivamente
   chamadas a partir de sítios onde `sink` precisa de chegar.
-- `01_core/src/rules/eval/rules.rs` — sítio DEBT-49 em
+- `01_core/src/engine/eval/rules.rs` — sítio DEBT-49 em
   `eval_set_rule` (e outros se o inventário encontrar).
 - Testes afectados.
 
@@ -95,7 +95,7 @@ empírica adicional para `Engine<'a>`.
 **Parte 1 — Sítios a migrar**:
 
 1. Grep por `DEBT-49`, `silenciad`, `// TODO.*warn`, `// warning`
-   em `01_core/src/rules/eval/` e `01_core/src/rules/stdlib/`.
+   em `01_core/src/engine/eval/` e `01_core/src/engine/stdlib/`.
 2. Para cada sítio, registar:
    - Ficheiro:linha.
    - Contexto: que caso silencia (ex: "propriedade font de
@@ -241,7 +241,7 @@ Depois de cada ficheiro tocado:
 ### 107.D — Encerramento
 
 1. Grep: `DEBT-49` e `silenciad` retornam zero matches em
-   `01_core/src/rules/eval/` (ou apenas comentários históricos
+   `01_core/src/engine/eval/` (ou apenas comentários históricos
    justificados).
 2. `cargo test --workspace`: ≥ linha de base + testes novos.
 3. `crystalline-lint` zero violations.

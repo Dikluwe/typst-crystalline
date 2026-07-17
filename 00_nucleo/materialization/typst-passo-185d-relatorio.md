@@ -10,7 +10,7 @@ toque em código de produção)
 
 ## Resumo
 
-4 tests E2E adicionados em `01_core/src/rules/layout/tests.rs`,
+4 tests E2E adicionados em `01_core/src/engine/layout/tests.rs`,
 agrupados em `mod p185d_locator_sync`. Validam empiricamente a
 sincronização-por-construção entre Locator do Layouter (P185C)
 e Locator do walk de introspect — invariante central da

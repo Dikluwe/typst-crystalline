@@ -3,7 +3,7 @@
 > **Passo:** 772v
 > **Data:** 2026-07-17
 > **Commit-base:** working tree após P772u (não commitado no início deste passo).
-> **Dependências:** P772i (mecanismo original, `row_group_cells`/`layout_grid` em `01_core/src/rules/layout/grid.rs`), P772f (achado original do scope-out #16, variante table).
+> **Dependências:** P772i (mecanismo original, `row_group_cells`/`layout_grid` em `01_core/src/engine/layout/grid.rs`), P772f (achado original do scope-out #16, variante table).
 
 ---
 
@@ -70,13 +70,13 @@ só o primeiro").
 - `00_nucleo/prompts/entities/elements/table.md` — struct `TableElem`
   actualizada com `hlines`/`vlines` (P512, já no código mas não documentados)
   e `header`/`footer` (P772v); `map_content`/`map_text`/`eq` actualizados.
-- `00_nucleo/prompts/rules/layout.md` — secção "`grid.header(...)`/
+- `00_nucleo/prompts/engine/layout.md` — secção "`grid.header(...)`/
   `grid.footer(...)` como row-groups (P772i)" ganhou subsecção "`table()` —
   extensão do mecanismo (P772v)", substituindo a antiga nota "Âmbito não
   coberto (`table()`)" que registava o scope-out.
-- `00_nucleo/prompts/rules/layout/table.md` — passo 4 do layout de
+- `00_nucleo/prompts/engine/layout/table.md` — passo 4 do layout de
   `Content::Table` actualizado para mencionar `header`/`footer`.
-- `00_nucleo/prompts/rules/stdlib/structural.md` — secção `native_table`
+- `00_nucleo/prompts/engine/stdlib/structural.md` — secção `native_table`
   actualizada com a extracção de `header`/`footer` do loop de resolução.
 
 ### 2.2 Código
@@ -84,14 +84,14 @@ só o primeiro").
 1. **`TableElem`** (`01_core/src/entities/elements/table.rs`): campos
    `header: Option<Content>`/`footer: Option<Content>` adicionados, espelhando
    `GridElem`. `map_content`/`map_text` recursam nos dois campos.
-2. **`native_table`** (`01_core/src/rules/stdlib/structural.rs`): loop de
+2. **`native_table`** (`01_core/src/engine/stdlib/structural.rs`): loop de
    resolução dos children posicionais ganhou dois braços novos —
    `Value::Content(c @ Content::TableHeader(_))` e
    `Content::TableFooter(_)` — que não incrementam col/row, guardam em
    `header`/`footer: Option<Content>` (erro explícito "não pode haver mais do
    que um header/footer" em duplicado), mesma lógica de `native_grid`
    (P772i). `header`/`footer` passados à construção final de `TableElem`.
-3. **`layout_grid`** (`01_core/src/rules/layout/grid.rs`, motor partilhado por
+3. **`layout_grid`** (`01_core/src/engine/layout/grid.rs`, motor partilhado por
    `Content::Grid` e `Content::Table` desde a atomização P379): os fechos de
    `header_cells`/`footer_cells` ganharam os braços
    `Content::TableHeader(e) => row_group_cells(&e.body, num_cols)` e
@@ -99,7 +99,7 @@ só o primeiro").
    genérico (preenche até múltiplo de `num_cols`, cola antes/depois das
    células normais); só faltava o braço de `match` para reconhecer os
    variantes `Table*`.
-4. **`table.rs`** (`01_core/src/rules/layout/table.rs`, layout de
+4. **`table.rs`** (`01_core/src/engine/layout/table.rs`, layout de
    `Content::Table`): a chamada a `layout_grid` passa
    `e.header.as_ref(), e.footer.as_ref()` em vez de `None, None`.
 
@@ -154,7 +154,7 @@ mede.
 
 ### 3.4 Testes automatizados novos
 
-`01_core/src/rules/layout/tests.rs`, secção "P772v — table.header(...)/
+`01_core/src/engine/layout/tests.rs`, secção "P772v — table.header(...)/
 table.footer(...) como row-groups" (mesmo padrão dos testes `p772i_grid_*`):
 
 - `p772v_table_header_multi_celula_preserva_todas_as_celulas`

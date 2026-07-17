@@ -89,10 +89,10 @@ conscientemente quebrada neste caso específico.
 ## Escopo
 
 **Dentro**:
-- `01_core/src/rules/eval/rules.rs` — `eval_show_rule`, registo
+- `01_core/src/engine/eval/rules.rs` — `eval_show_rule`, registo
   e aplicação de show rules.
-- `01_core/src/rules/eval/markup.rs` — processar `SyntaxKind::ShowRule`.
-- `01_core/src/rules/eval/*` — quando um elemento target é produzido,
+- `01_core/src/engine/eval/markup.rs` — processar `SyntaxKind::ShowRule`.
+- `01_core/src/engine/eval/*` — quando um elemento target é produzido,
   verificar se há show rule aplicável e executar.
 - Testes.
 

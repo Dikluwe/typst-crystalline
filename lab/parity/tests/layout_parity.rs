@@ -26,7 +26,7 @@ use frame_dto::FrameDTO;
 use report::{CategoryRow, ParityMatrix};
 
 use typst_core::contracts::world::World;
-use typst_core::rules::layout::layout;
+use typst_core::engine::layout::layout;
 use typst_infra::pipeline::eval_to_module_with_sink;
 use typst_infra::world::SystemWorld;
 

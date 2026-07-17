@@ -66,7 +66,7 @@ confirmam paridade empiricamente.
 | P184A | 0 | 0 | 0 | 0 | n/a |
 | P184B | ~10 (arm Figure) | 0 | 0 | `from_tags.md` | 1 file |
 | P184C | ~20 (helper + trait + impl) | ~80 (3+5 unit) | +8 | `introspector.md`, `counter_registry.md` | 2 files |
-| P184D | ~10 (consumer C3) | 0 | 0 | `layout.md` | 9 files (todos os módulos `rules/layout/`) |
+| P184D | ~10 (consumer C3) | 0 | 0 | `layout.md` | 9 files (todos os módulos `engine/layout/`) |
 | P184E | 0 | ~150 (5 E2E + helper) | +5 | 0 | 0 |
 | P184F | 0 | 0 | 0 | 0 | 0 |
 | **Σ** | ~40 | ~230 | **+13** | 4 L0s | 12 files |

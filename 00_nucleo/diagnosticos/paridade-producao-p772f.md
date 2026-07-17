@@ -13,7 +13,7 @@
 
 Varredura item-a-item contra
 `lab/typst-original/crates/typst-library/src/layout/grid/resolve.rs` (2421 linhas) e
-`01_core/src/rules/layout/grid.rs` + `01_core/src/rules/layout/grid_placement.rs` +
+`01_core/src/engine/layout/grid.rs` + `01_core/src/engine/layout/grid_placement.rs` +
 `01_core/src/entities/elements/{grid,table}_{header,footer,cell}.rs`.
 
 | # | Item | Vanilla (file:line) | Status | Justificação (crystalline) |
@@ -26,10 +26,10 @@ Varredura item-a-item contra
 | 6 | `expand_row_group` (fn) | resolve.rs:1998-2109 | scope-out | Sem equivalente — decorre da ausência de row-groups (#16 e correlatos). |
 | 7 | `find_next_available_position` (fn) | resolve.rs:2314-2373 | mecânica-diverge | Coberto pelo loop `cursor_col`/wrap em `grid_placement.rs:172-195` — mesmo comportamento observável sem header/footer. |
 | 8 | `find_next_empty_row` (fn) | resolve.rs:2378-2393 | scope-out | Só usado por headers/footers no vanilla; sem uso — decorre do #16. |
-| 9 | `Footer` (struct) | resolve.rs:444-463 | scope-out | `GridFooterElem` existe (`entities/elements/grid_footer.rs`) mas só renderiza 1 vez (`rules/layout/table_footer.rs:14`, DEBT-56) — sem `range`/`level`, sem repeat-across-páginas. |
+| 9 | `Footer` (struct) | resolve.rs:444-463 | scope-out | `GridFooterElem` existe (`entities/elements/grid_footer.rs`) mas só renderiza 1 vez (`engine/layout/table_footer.rs:14`, DEBT-56) — sem `range`/`level`, sem repeat-across-páginas. |
 | 10 | `grid_item_to_resolvable` (fn) | resolve.rs:129-164 | mecânica-diverge | Sem conversão intermédia — `Content::GridHLine/GridVLine/GridCell` casados directo no loop de `grid()` (`stdlib/layout.rs:270-307`). |
 | 11 | `grid_to_cellgrid` (fn) | resolve.rs:27-75 | mecânica-diverge | `grid.rs:84-93` (`layout()`→`layout_grid`) — mesmo papel (converter `GridElem` p/ layout), sem `CellGrid` intermédio. |
-| 12 | `Header` (struct) | resolve.rs:427-442 | scope-out | `GridHeaderElem{body,repeat}` existe mas só suporta 1 render único (`rules/layout/grid_header.rs:19`) — sem `range`/`level`/`short_lived`; DEBT-56 documenta repeat diferido. |
+| 12 | `Header` (struct) | resolve.rs:427-442 | scope-out | `GridHeaderElem{body,repeat}` existe mas só suporta 1 render único (`engine/layout/grid_header.rs:19`) — sem `range`/`level`/`short_lived`; DEBT-56 documenta repeat diferido. |
 | 13 | `LinePosition` (enum) | resolve.rs:619-625 | mecânica-diverge | `EcoString` `"top"/"bottom"`, `"left"/"right"` em `grid_hline.rs:28`/`grid_vline.rs:27` — mesma semântica, tipo diferente. |
 | 14 | `Repeatable<T>` (struct) | resolve.rs:465-498 | scope-out | Zero ocorrências no repo — repeat-across-páginas não implementado (consistente com #9/#12). |
 | 15 | `ResolvableCell` (trait) | resolve.rs:502-535 | mecânica-diverge | Sem trait — campos (`x`,`y`,`colspan`,`rowspan`,`align`,`inset`,`stroke`) lidos directo de `GridCellElem`/`TableCellElem` em `grid.rs:422-453`. |
@@ -47,12 +47,12 @@ Varredura item-a-item contra
 `layout_grid` (`grid.rs:104-118`) recebe `e.header.as_ref()`/`e.footer.as_ref()`
 (`grid.rs:91`) como `_header: Option<&Content>`/`_footer: Option<&Content>` —
 **nunca lidos no corpo da função** (confirmado: `grep -n "_header\|_footer"
-01_core/src/rules/layout/grid.rs` só encontra as duas linhas da assinatura). Verifiquei
+01_core/src/engine/layout/grid.rs` só encontra as duas linhas da assinatura). Verifiquei
 adicionalmente que **o vanilla real não tem** `header:`/`footer:` como argumentos
 nomeados de `grid()`/`table()` — no vanilla, cabeçalhos/rodapés são elementos-filho
 (`grid.header(...)`/`grid.footer(...)`, `lab/typst-original/.../grid/mod.rs:580,608`),
 nunca argumentos nomeados da função `grid()`. O stdlib cristalino
-(`01_core/src/rules/stdlib/layout.rs:191,251,259`) **inventou** um parâmetro nomeado
+(`01_core/src/engine/stdlib/layout.rs:191,251,259`) **inventou** um parâmetro nomeado
 `header:`/`footer:` sem equivalente vanilla, e o conteúdo passado por ele é
 **silenciosamente descartado** — nem erro (vanilla rejeitaria `#grid(header: ..)` com
 "unexpected argument"), nem render. Isto é distinto do scope-out #16 (que é sobre
@@ -109,7 +109,7 @@ identificada e são duas, distintas, medidas abaixo.**
 e ignorava a largura explícita de `Content::Block` (CONFIRMADO, CORRIGIDO)
 
 Instrumentação directa (`eprintln!` temporário, removido) em
-`01_core/src/rules/layout/grid.rs` mostrou, para as duas colunas Auto do repro:
+`01_core/src/engine/layout/grid.rs` mostrou, para as duas colunas Auto do repro:
 
 ```
 cell col=0 row=0 cell_x=20.247142857142858 cell_y=... cell_w=0 cell_h=56.69...
@@ -117,7 +117,7 @@ cell col=1 row=0 cell_x=20.247142857142858 cell_y=... cell_w=0 cell_h=56.69...
 ```
 
 **As duas colunas mediram largura 0 e ficaram na mesma posição x** — daí a sobreposição.
-Root cause em `01_core/src/rules/layout/mod.rs::measure_content_constrained`:
+Root cause em `01_core/src/engine/layout/mod.rs::measure_content_constrained`:
 
 1. `Content::Align` não tinha braço próprio → caía no catch-all `_ => (0.0, 0.0)`
    (linha 1566, numeração pré-fix). Confirmado isoladamente com um repro **sem**
@@ -128,7 +128,7 @@ Root cause em `01_core/src/rules/layout/mod.rs::measure_content_constrained`:
    da largura explícita do bloco. Como o corpo (`align(...)`) media 0 (bug #1), o bloco
    também reportava 0, mesmo tendo `width: 3cm` explícito.
 
-**Correcção aplicada** (`01_core/src/rules/layout/mod.rs`):
+**Correcção aplicada** (`01_core/src/engine/layout/mod.rs`):
 - Novo braço `Content::Align(e) => self.measure_content_constrained(&e.body, max_width)`
   — `align` não tem tamanho intrínseco próprio (o wrapper só reposiciona dentro do
   espaço disponível; a medição para efeitos de auto-sizing de coluna deve ser a do
@@ -148,7 +148,7 @@ Root cause em `01_core/src/rules/layout/mod.rs::measure_content_constrained`:
   de grid (para não exercitar o código descrito em §3.3, que é um mecanismo diferente):
   texto das duas colunas em `x` distintos (`20.247` vs `49.546`), já não colidem.
 
-**Testes de regressão** (`01_core/src/rules/layout/tests.rs`, prefixo `p772f_`):
+**Testes de regressão** (`01_core/src/engine/layout/tests.rs`, prefixo `p772f_`):
 - `p772f_measure_content_constrained_align_reporta_largura_do_corpo`
 - `p772f_measure_content_constrained_block_largura_explicita_nao_colapsa`
 - `p772f_grid_auto_colunas_com_align_nao_colidem` (E2E via `layout_test`)
@@ -212,7 +212,7 @@ Título sugerido: **P772g — `layout_place` duplica origem de célula quando an
 `Content::Align`/outros wrappers de sub-frame**.
 
 Escopo: generalizar a correcção já parcial (comentário "P763f" em
-`01_core/src/rules/layout/placement.rs`) para o ramo `(Some(cx), Some(cy), Some(cell))`
+`01_core/src/engine/layout/placement.rs`) para o ramo `(Some(cx), Some(cy), Some(cell))`
 do `match scope` em `layout_place`, cobrindo o caso em que `place()` está aninhado
 dentro de `align()` (confirmado) e auditando os outros wrappers que chamam
 `layout_sub_frame` com `origin_x: 0.0` (pad, boxed, stack, columns) para o mesmo
@@ -222,7 +222,7 @@ com `block`) devem bater com o vanilla dentro de tolerância sub-pt.
 
 ### 3.2 Gap já documentado, não nesta linha de investigação: gutter de colunas
 
-`layout_grid` (`01_core/src/rules/layout/grid.rs:111`) recebe `_gutter: Option<Length>`
+`layout_grid` (`01_core/src/engine/layout/grid.rs:111`) recebe `_gutter: Option<Length>`
 com underscore — não está a ser aplicado ao espaçamento horizontal entre colunas em
 `col_starts`. Isto já estava assim antes deste passo (comentário no código já assinala
 "graded"/incompleto) — não é um achado novo, só relevante para explicar o gap de
@@ -231,11 +231,11 @@ com underscore — não está a ser aplicado ao espaçamento horizontal entre co
 
 ### 3.3 Código não commitado, pré-existente, não coberto por L0 (achado incidental)
 
-`git status` no início deste passo já mostrava `01_core/src/rules/layout/grid.rs`
+`git status` no início deste passo já mostrava `01_core/src/engine/layout/grid.rs`
 modificado (não commitado) com um bloco `P772f — aplicar align efectivo da célula...`
 que envolve o corpo da célula num `Content::Place` (`scope: Column`) quando
 `effective_align` é `Some`. Este código **não foi escrito nesta sessão** e não
-corresponde ao que o L0 actual (`00_nucleo/prompts/rules/layout.md`) especifica para
+corresponde ao que o L0 actual (`00_nucleo/prompts/engine/layout.md`) especifica para
 grid+align (grep não encontrou nenhuma menção a este mecanismo no L0). Testado
 isoladamente (`#grid(columns:2, align: center, [Hello], [World])`):
 cristalino coloca "Hello" em `x=33.772`; vanilla em `x=20.247`

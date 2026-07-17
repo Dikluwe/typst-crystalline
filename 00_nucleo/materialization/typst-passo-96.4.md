@@ -8,7 +8,7 @@ Ler antes de começar:
   ADR pela segunda vez após promoção.
 - `00_nucleo/DEBT.md` — entrada DEBT-46, checkbox do 96.4
   pendente.
-- `01_core/src/rules/parse.rs` — ficheiro actual, 2255 linhas.
+- `01_core/src/engine/parse.rs` — ficheiro actual, 2255 linhas.
 - Passo 96.1 e 96.2 para referência do padrão aplicado a
   `eval.rs`.
 
@@ -43,9 +43,9 @@ Com base na análise prévia (Passo 96 recolha de dados), a
 decomposição proposta:
 
 ```
-01_core/src/rules/parse.rs (antes: 2255 linhas)
+01_core/src/engine/parse.rs (antes: 2255 linhas)
     ↓ transforma-se em:
-01_core/src/rules/parse/
+01_core/src/engine/parse/
     mod.rs          — pub fn parse, parse_code, parse_math, estado
                       do parser (Parser struct, lookahead)
     markup.rs       — markup, markup_expr, strong, emph, heading,
@@ -70,17 +70,17 @@ subdivide.
 
 ```bash
 # Tamanho actual:
-wc -l 01_core/src/rules/parse.rs
+wc -l 01_core/src/engine/parse.rs
 
 # Funções top-level:
 grep -n "^pub fn\|^fn\|^pub struct\|^struct\|^impl" \
-    01_core/src/rules/parse.rs
+    01_core/src/engine/parse.rs
 
 # Testes no ficheiro:
-grep -c "^\s*#\[test\]" 01_core/src/rules/parse.rs
+grep -c "^\s*#\[test\]" 01_core/src/engine/parse.rs
 
 # Dependências externas (crates e outros módulos do projecto):
-grep -n "^use " 01_core/src/rules/parse.rs | head -30
+grep -n "^use " 01_core/src/engine/parse.rs | head -30
 ```
 
 Reportar:
@@ -93,8 +93,8 @@ Reportar:
 ### 0.2 — Criar directório e `mod.rs`
 
 ```bash
-mkdir -p 01_core/src/rules/parse
-git mv 01_core/src/rules/parse.rs 01_core/src/rules/parse/mod.rs
+mkdir -p 01_core/src/engine/parse
+git mv 01_core/src/engine/parse.rs 01_core/src/engine/parse/mod.rs
 ```
 
 Preserva história. Compila sem alterações de código.
@@ -161,7 +161,7 @@ token types, aplicar Regra 4 revista:
 ### 2.1 — Tamanhos
 
 ```bash
-wc -l 01_core/src/rules/parse/*.rs | sort -rn
+wc -l 01_core/src/engine/parse/*.rs | sort -rn
 ```
 
 Alvo: nenhum ficheiro > 800 linhas. Se algum ficar perto (ex:
@@ -204,9 +204,9 @@ O DEBT-46 não fecha (5 checkboxes restantes).
 
 ## Critérios de conclusão
 
-- [ ] Directório `01_core/src/rules/parse/` criado com
+- [ ] Directório `01_core/src/engine/parse/` criado com
       `mod.rs` e submódulos.
-- [ ] `01_core/src/rules/parse.rs` já não existe como ficheiro
+- [ ] `01_core/src/engine/parse.rs` já não existe como ficheiro
       top-level.
 - [ ] 4–5 submódulos criados (ajustes documentados se
       diferiu do proposto).

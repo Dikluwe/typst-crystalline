@@ -5,7 +5,7 @@
 Ler antes de começar:
 - `01_core/src/entities/show.rs` — `ShowRule`, `Selector`, `NodeKind`, para
   adicionar `RuleId`.
-- `01_core/src/rules/eval.rs` — `EvalContext`, `apply_show_rules`,
+- `01_core/src/engine/eval.rs` — `EvalContext`, `apply_show_rules`,
   `intercept_content`, e o campo `in_show_transform: bool` a remover.
 - `01_core/src/entities/content.rs` — `map_content` do Passo 69, para confirmar
   que bottom-up está correcto antes de depender dele.
@@ -61,10 +61,10 @@ grep -n "pub struct ShowRule" 01_core/src/entities/show.rs -A 5
 grep -rn "next_rule_id\|active_guards\|RuleId" 01_core/src/
 
 # 4. Confirmar a assinatura de intercept_content e apply_show_rules
-grep -n "fn intercept_content\|fn apply_show_rules" 01_core/src/rules/eval.rs
+grep -n "fn intercept_content\|fn apply_show_rules" 01_core/src/engine/eval.rs
 
 # 5. Confirmar a assinatura de apply_func (ctx é passado por &mut)
-grep -n "fn apply_func" 01_core/src/rules/eval.rs | head -5
+grep -n "fn apply_func" 01_core/src/engine/eval.rs | head -5
 ```
 
 Reportar o output completo antes de continuar. O diagnóstico 1 é crítico:

@@ -406,7 +406,7 @@ break.
   (só cell que overflow continua; row-level imperfeito).
 
 **Sub-padrão "Slice frame items at height"** N=1 inaugurado P251
-— novo módulo `01_core/src/rules/layout/slicing.rs` com função
+— novo módulo `01_core/src/engine/layout/slicing.rs` com função
 pura `slice_frame_items_at_height(items, threshold) -> (head,
 tail)` + helper `rebase_item_y(item, delta)` exhaustive sobre
 6 variants `FrameItem` (Text/Line/Glyph/Image/Shape/Group).

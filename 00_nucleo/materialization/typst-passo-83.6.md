@@ -120,7 +120,7 @@ Copiar literalmente do enunciado original do Passo 83.5:
 
 ```bash
 # DEBT-1
-grep -n "styles" 01_core/src/rules/eval.rs | grep -iE "save|restore|push|pop"
+grep -n "styles" 01_core/src/engine/eval.rs | grep -iE "save|restore|push|pop"
 grep -rn "StyleChain" 01_core/src/
 
 # DEBT-2
@@ -139,28 +139,28 @@ rustc --version
 grep -rn "fn_addr_eq" 01_core/src/
 
 # DEBT-22
-grep -n "show_rules" 01_core/src/rules/eval.rs
+grep -n "show_rules" 01_core/src/engine/eval.rs
 
 # DEBT-33
-grep -rn "CubicTo\|bounding\|aabb" 01_core/src/rules/layout/
+grep -rn "CubicTo\|bounding\|aabb" 01_core/src/engine/layout/
 
 # DEBT-34d
-grep -A 25 "TrackSizing::Auto" 01_core/src/rules/layout/mod.rs
+grep -A 25 "TrackSizing::Auto" 01_core/src/engine/layout/mod.rs
 
 # DEBT-34e
 grep -A 7 "Grid {" 01_core/src/entities/content.rs
 
 # DEBT-35b
-grep -n "available_width" 01_core/src/rules/layout/mod.rs
+grep -n "available_width" 01_core/src/engine/layout/mod.rs
 
 # DEBT-36
 grep -rn "Value::Align\|Align2D::from_string" 01_core/src/
 
 # DEBT-37
-grep -A 10 "Content::Place" 01_core/src/rules/layout/mod.rs
+grep -A 10 "Content::Place" 01_core/src/engine/layout/mod.rs
 
 # DEBT-38
-grep -B 1 -A 10 "TrackSizing::Auto =>" 01_core/src/rules/layout/mod.rs \
+grep -B 1 -A 10 "TrackSizing::Auto =>" 01_core/src/engine/layout/mod.rs \
   | grep -A 10 "row_idx"
 ```
 
@@ -170,7 +170,7 @@ Onde o código actual diverge do código do 83.5 (ex: DEBT-21, 22, 36,
 
 ```bash
 # Exemplo — estado de eval.rs no commit do 83.5
-git show <commit>:01_core/src/rules/eval.rs | grep -n "show_rules"
+git show <commit>:01_core/src/engine/eval.rs | grep -n "show_rules"
 ```
 
 ---

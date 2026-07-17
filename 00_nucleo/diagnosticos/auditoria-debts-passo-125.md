@@ -101,7 +101,7 @@ Arc. Lazy exige `TrackedWorld` real integrado com comemo.
 **Grep empírico**:
 ```
 01_core/src/entities/ast/math.rs: MathPrimes só AST
-01_core/src/rules/math/layout/attach.rs: math_kern via FixedMetrics
+01_core/src/engine/math/layout/attach.rs: math_kern via FixedMetrics
 ```
 
 MathPrimes tem parsing + AST; sem lógica de layout dedicada.
@@ -166,9 +166,9 @@ algoritmo de placement inteiro.
 
 **Grep empírico**:
 ```
-01_core/src/rules/layout/mod.rs:152:
+01_core/src/engine/layout/mod.rs:152:
   pub(super) fn available_width(&self) -> f64 { /* calcula em tempo real */ }
-01_core/src/rules/layout/mod.rs:507:
+01_core/src/engine/layout/mod.rs:507:
   // DEBT-35b: se available_width() vier a ter cache, invalidar aqui.
 ```
 
@@ -186,7 +186,7 @@ esse guardião. Continuará M mesmo se nunca surgir cache.
 
 **Grep empírico**:
 ```
-01_core/src/rules/lexer/scanner.rs: 5+ `unsafe { get_unchecked(...) }`
+01_core/src/engine/lexer/scanner.rs: 5+ `unsafe { get_unchecked(...) }`
 ```
 
 Bloqueio original: "infra de benchmarking reprodutível não
@@ -218,7 +218,7 @@ do binário `crystalline-lint` (repositório externo).
 
 **Grep empírico**:
 ```
-01_core/src/rules/layout/tests.rs:1787:
+01_core/src/engine/layout/tests.rs:1787:
   fn debt_50_show_strong_nao_apanha_set_text_bold_porque_bake_in()
 ```
 

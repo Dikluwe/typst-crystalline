@@ -11,7 +11,7 @@
 
 ### §1.1 Walk arm `Content::SetHeadingNumbering` (E5)
 
-Localização: `01_core/src/rules/introspect.rs:611-623`.
+Localização: `01_core/src/engine/introspect.rs:611-623`.
 
 ```rust
 Content::SetHeadingNumbering { active } => {
@@ -259,15 +259,15 @@ Total agregado: **M-** (S + M + S).
 ### P198C — Promote CounterUpdate (cenário β-promote)
 
 1. Adicionar variant `ElementPayload::CounterUpdate { key: String, action: CounterUpdate }` em `01_core/src/entities/element_payload.rs`.
-2. Mover `Content::CounterUpdate` para lista locatable em `01_core/src/rules/introspect/locatable.rs`.
-3. Adicionar arm em `01_core/src/rules/introspect/extract_payload.rs`:
+2. Mover `Content::CounterUpdate` para lista locatable em `01_core/src/engine/introspect/locatable.rs`.
+3. Adicionar arm em `01_core/src/engine/introspect/extract_payload.rs`:
    ```rust
    Content::CounterUpdate { key, action } => Some(ElementPayload::CounterUpdate {
        key: key.clone(),
        action: action.clone(),
    }),
    ```
-4. Adicionar arm em `01_core/src/rules/introspect/from_tags.rs` para `ElementPayload::CounterUpdate` aplicando `counters.apply_at` (Update/Step flat) ou `counters.apply_hierarchical_at` (Step + key="heading"). Indexar em `kind_index[ElementKind::CounterUpdate]` (nova ElementKind variant — ou reuso de existente).
+4. Adicionar arm em `01_core/src/engine/introspect/from_tags.rs` para `ElementPayload::CounterUpdate` aplicando `counters.apply_at` (Update/Step flat) ou `counters.apply_hierarchical_at` (Step + key="heading"). Indexar em `kind_index[ElementKind::CounterUpdate]` (nova ElementKind variant — ou reuso de existente).
 5. Walk arm `Content::CounterUpdate` preservado (write paralelo M5) — mutações legacy continuam.
 6. Adicionar comentário inline P198C declarando E6 fechada estruturalmente.
 7. Actualizar L0 introspect.md:

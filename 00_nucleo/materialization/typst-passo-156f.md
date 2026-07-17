@@ -49,7 +49,7 @@ scale têm que continuar a passar.
 - **ADR-0033**: paridade funcional para skew.
 - **ADR-0036**: atomização — consumer explícito.
 - **ADR-0037**: coesão por domínio — Layout permanece em
-  `rules/layout/` e `rules/stdlib/layout.rs`.
+  `engine/layout/` e `rules/stdlib/layout.rs`.
 - **ADR-0054**: perfil observacional graded.
 - **ADR-0061** (PROPOSTO): plano de Layout. Este passo
   aplica-o pela quarta vez.
@@ -127,7 +127,7 @@ Ao fim do passo:
    ```
 
 3. **`native_skew`** em
-   `01_core/src/rules/stdlib/layout.rs` expondo
+   `01_core/src/engine/stdlib/layout.rs` expondo
    `#skew(body, ax: ?, ay: ?, origin: ?)`.
 
 4. **`native_move`, `native_rotate`, `native_scale`
@@ -144,8 +144,8 @@ Ao fim do passo:
    - `entities/content.rs::map_text`.
    - `rules/introspect.rs::materialize_time`.
    - `rules/introspect.rs::walk`.
-   - `rules/layout/mod.rs::layout_content`.
-   - `rules/layout/mod.rs::measure_content_constrained`.
+   - `engine/layout/mod.rs::layout_content`.
+   - `engine/layout/mod.rs::measure_content_constrained`.
 
 6. **Layouter skew**: aplica matriz cm composta com skew_x
    e skew_y per origin. Reusa lógica de matrix composition
@@ -221,7 +221,7 @@ Este passo **não**:
    Conservador no que toca a tests adicionados (~10-18)
    mas com risco de regressão > 0 pela primeira vez.
 
-3. **Localização canónica**: `01_core/src/rules/stdlib/layout.rs`
+3. **Localização canónica**: `01_core/src/engine/stdlib/layout.rs`
    per P156C/D/E.
 
 4. **Assinatura natives**: 5-param canónica.
@@ -291,18 +291,18 @@ Este passo **não**:
   ou modificação inline em `content.rs`.
 - Modificação de `01_core/src/entities/content.rs`
   (refactor variant Transform + arms cobertura).
-- Modificação de `01_core/src/rules/introspect.rs`.
-- Modificação de `01_core/src/rules/layout/mod.rs`.
-- Modificação de `01_core/src/rules/stdlib/layout.rs`
+- Modificação de `01_core/src/engine/introspect.rs`.
+- Modificação de `01_core/src/engine/layout/mod.rs`.
+- Modificação de `01_core/src/engine/stdlib/layout.rs`
   (`native_skew` novo + actualização de `native_move`,
   `native_rotate`, `native_scale`).
-- Modificação de `01_core/src/rules/stdlib/mod.rs`
+- Modificação de `01_core/src/engine/stdlib/mod.rs`
   (re-export).
-- Modificação de `01_core/src/rules/eval/mod.rs`
+- Modificação de `01_core/src/engine/eval/mod.rs`
   (registo `skew` em `make_stdlib`).
 - Tests novos em
-  `01_core/src/rules/stdlib/mod.rs::tests`,
-  `01_core/src/rules/layout/tests.rs`.
+  `01_core/src/engine/stdlib/mod.rs::tests`,
+  `01_core/src/engine/layout/tests.rs`.
 - **Possível ajuste** de tests existentes de move/rotate/
   scale (se constructor mudou; critério: semantic
   inalterada).
@@ -336,8 +336,8 @@ view 01_core/src/entities/content.rs   # confirmar 48 variants pós-P156E
 grep -nE "Content::Transform" 01_core/src/  # localizar todos os usages
 grep -nE "^pub enum Content" 01_core/src/entities/content.rs
 view 01_core/src/entities/transform.rs 2>/dev/null  # se existe
-view 01_core/src/rules/layout/mod.rs   # arm Transform em layout_content
-view 01_core/src/rules/stdlib/layout.rs  # native_move/rotate/scale
+view 01_core/src/engine/layout/mod.rs   # arm Transform em layout_content
+view 01_core/src/engine/stdlib/layout.rs  # native_move/rotate/scale
 ```
 
 Documentar em 156F.1 do diagnóstico:
@@ -489,7 +489,7 @@ Stdlib funcs: 37 → **38** (+1).
 
 ### 156F.6 — Layouter skew
 
-Em `01_core/src/rules/layout/mod.rs::layout_content`:
+Em `01_core/src/engine/layout/mod.rs::layout_content`:
 
 ```rust
 match content {
@@ -532,8 +532,8 @@ Aplicada ao body em torno do pivot definido por origin.
 | Ficheiro | Testes |
 |----------|--------|
 | `01_core/src/entities/content.rs::tests` | (1) transform_kind_partial_eq variants; (2) transform com skew kind |
-| `01_core/src/rules/stdlib/mod.rs::tests` | (3) `native_skew` defaults (ax=0, ay=0); (4) `native_skew` com ax; (5) `native_skew` com ay; (6) `native_skew` com ax+ay; (7) `native_skew` com origin; (8) `native_skew` rejeita named arg desconhecido; (9) `native_skew` sem body → Err; (10) **regression test**: native_move continua a produzir Transform com TransformKind::Move; (11) regression test rotate; (12) regression test scale |
-| `01_core/src/rules/layout/tests.rs` | (13) layout_skew_aplica_matriz_correcta; (14) layout_skew_origin_default_centro |
+| `01_core/src/engine/stdlib/mod.rs::tests` | (3) `native_skew` defaults (ax=0, ay=0); (4) `native_skew` com ax; (5) `native_skew` com ay; (6) `native_skew` com ax+ay; (7) `native_skew` com origin; (8) `native_skew` rejeita named arg desconhecido; (9) `native_skew` sem body → Err; (10) **regression test**: native_move continua a produzir Transform com TransformKind::Move; (11) regression test rotate; (12) regression test scale |
+| `01_core/src/engine/layout/tests.rs` | (13) layout_skew_aplica_matriz_correcta; (14) layout_skew_origin_default_centro |
 
 **Total**: ~14 tests novos. **Crítico**: tests 10-12 são
 **regression tests** que verificam que move/rotate/scale

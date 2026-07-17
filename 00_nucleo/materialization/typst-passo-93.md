@@ -12,7 +12,7 @@ Ler antes de começar:
 - `01_core/src/entities/world_types.rs` — `Route<'a>` com os 4
   métodos `check_*_depth`. Comentário actual sobre o override
   `<Route<'static> as Validate>::Constraint`.
-- `01_core/src/rules/eval.rs` — funções que recebem
+- `01_core/src/engine/eval.rs` — funções que recebem
   `route: Tracked<'r, Route<'r>>` (refactor do Passo 92).
 - Ficheiros de show rules e layout que podem precisar dos
   `check_*`.
@@ -192,7 +192,7 @@ Para cada um dos 3 `check_*_depth`:
 
 #### `check_show_depth`
 
-Localizar em `01_core/src/rules/eval.rs` (ou submódulo de show
+Localizar em `01_core/src/engine/eval.rs` (ou submódulo de show
 rules) a função `apply_show_rules` ou equivalente. Adicionar:
 
 ```rust
@@ -215,7 +215,7 @@ Reportar se a assinatura da função tem de ser alterada. Se sim,
 
 #### `check_layout_depth`
 
-Localizar em `01_core/src/rules/layout/` a função de layout
+Localizar em `01_core/src/engine/layout/` a função de layout
 recursivo (provavelmente `layout` em `layout/mod.rs` ou o braço
 que desce em sub-frames).
 
@@ -283,13 +283,13 @@ cargo run --package crystalline-lint 2>&1 | tail -5
 
 # Chamadas dos check_*_depth:
 grep -n "check_show_depth\|check_layout_depth\|check_call_depth" \
-    01_core/src/rules/eval.rs 01_core/src/rules/ \
+    01_core/src/engine/eval.rs 01_core/src/engine/ \
     --include="*.rs" -r
 
 # Se Opção 2 de B.2 foi aplicada: EvalContext::check_call_depth
 # antigo removido:
 grep -n "EvalContext::check_call_depth\|max_call_depth" \
-    01_core/src/rules/eval.rs
+    01_core/src/engine/eval.rs
 ```
 
 Esperado:

@@ -244,10 +244,10 @@ Actualizo: **55 passos executados**.
 **P187B** — migração C1 + tests E2E + actualização nota
 DEBT M4-residual:
 
-- Editar `01_core/src/rules/layout/mod.rs:345`:
+- Editar `01_core/src/engine/layout/mod.rs:345`:
   - Substituir `self.counter.format_hierarchical("heading")`
     pela expressão substitution-with-fallback location-aware.
-- Editar L0 `00_nucleo/prompts/rules/layout.md`:
+- Editar L0 `00_nucleo/prompts/engine/layout.md`:
   - Secção sobre heading-arm migração (P184D padrão).
 - Tests E2E:
   - `c1_heading_prefix_via_introspector_path`.

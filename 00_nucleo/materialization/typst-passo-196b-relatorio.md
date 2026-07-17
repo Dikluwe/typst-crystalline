@@ -108,7 +108,7 @@ actualizados para reflectir 4 tags pós-P196B:
 ## §7 Tests E2E novos (5)
 
 Adicionados ao final de `mod tests` em
-`01_core/src/rules/introspect.rs`:
+`01_core/src/engine/introspect.rs`:
 
 1. `heading_auto_toc_walk_emite_tag_e_popula_introspector` —
    valida que Introspector.resolved_label_for(`auto-toc-1`) retorna
@@ -128,7 +128,7 @@ Adicionados ao final de `mod tests` em
 
 ## §8 L0 actualizado
 
-`00_nucleo/prompts/rules/introspect.md` (hash novo `3bc33823`):
+`00_nucleo/prompts/engine/introspect.md` (hash novo `3bc33823`):
 
 - Tabela Excepções M5: linha E2 → **E2-residuo** com 1 mutação;
   linha E4 marcada como "Fechou estruturalmente em P195D".
@@ -189,5 +189,5 @@ Adicionados ao final de `mod tests` em
 - Helper `compute_heading_auto_toc` análogo a `compute_labelled` (P195D).
 - Sub-store `intr.resolved_labels` (P193B) consumido via Tag::Labelled.
 - Consumer C4 substitution-with-fallback (P194B) recebe Some pós-P196B.
-- L0 `00_nucleo/prompts/rules/introspect.md` hash `3bc33823`.
-- Código `01_core/src/rules/introspect.rs` hash `73489ae5`.
+- L0 `00_nucleo/prompts/engine/introspect.md` hash `3bc33823`.
+- Código `01_core/src/engine/introspect.rs` hash `73489ae5`.

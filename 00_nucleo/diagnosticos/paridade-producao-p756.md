@@ -24,7 +24,7 @@ Confirmado directamente que `icu_segmenter 2.2.0` com a feature `compiled_data` 
 
 ### 1.3 Código
 
-Ficheiro `01_core/src/rules/layout/cursor.rs`:
+Ficheiro `01_core/src/engine/layout/cursor.rs`:
 
 - `layout_word` detecta runs que contenham scripts sem espaços (`Han`, `Hiragana`, `Katakana`, `Thai`, `Lao`, `Myanmar`, `Khmer`) e delega a `layout_segmented_word`.
 - `layout_segmented_word` obtém breakpoints via `icu_segmenter::LineSegmenter::new_lstm` e emite cada fragmento via `layout_chunk`.
@@ -33,11 +33,11 @@ Ficheiro `01_core/src/rules/layout/cursor.rs`:
 
 ### 1.4 L0
 
-`00_nucleo/prompts/rules/layout.md` foi actualizado com a secção "Segmentação de linha para scripts sem espaços (P756)". Hash do código no L0: `849ec756`.
+`00_nucleo/prompts/engine/layout.md` foi actualizado com a secção "Segmentação de linha para scripts sem espaços (P756)". Hash do código no L0: `849ec756`.
 
 ### 1.5 Testes
 
-Adicionados em `01_core/src/rules/layout/tests.rs`:
+Adicionados em `01_core/src/engine/layout/tests.rs`:
 
 - `p756_cjk_segmenta_sem_espacos`
 - `p756_thai_segmenta_sem_espacos`

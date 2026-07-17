@@ -25,10 +25,10 @@ Output: ficheiro markdown único em
 
 **Cristalino**:
 - `01_core/src/entities/` — todas as structs e enums `pub`.
-- `01_core/src/rules/introspect/` — todas as funções/tipos
+- `01_core/src/engine/introspect/` — todas as funções/tipos
   `pub`.
-- `01_core/src/rules/layout/mod.rs` — Layouter actual.
-- `01_core/src/rules/layout/references.rs` — consumer migrado
+- `01_core/src/engine/layout/mod.rs` — Layouter actual.
+- `01_core/src/engine/layout/references.rs` — consumer migrado
   P168.
 - Tests em `01_core/tests/` — contagem total e snapshot
   tests.
@@ -56,7 +56,7 @@ Output: ficheiro markdown único em
 ### Secção 1 — Contagem de tipos cristalino
 
 Tabela com todos os tipos `pub` actuais em
-`01_core/src/entities/` e `01_core/src/rules/introspect/`,
+`01_core/src/entities/` e `01_core/src/engine/introspect/`,
 com:
 - Nome do tipo.
 - Ficheiro.

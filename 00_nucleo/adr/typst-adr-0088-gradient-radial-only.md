@@ -118,7 +118,7 @@ L0 prompt `entities/axes.md` novo. Re-export em `entities/mod.rs`.
 ### Stdlib `native_gradient_radial`
 
 ```rust
-// 01_core/src/rules/stdlib/gradients.rs
+// 01_core/src/engine/stdlib/gradients.rs
 
 pub fn native_gradient_radial(args, ...) -> SourceResult<Value>;
 ```
@@ -512,7 +512,7 @@ preservados literal.
 - `Radial::sample(t)` **NÃO muda** — sample 1D em cristalino (não
   usa coordenadas 2D nem focal). Focal só afecta PDF emit nativo.
 
-**Stdlib** (`01_core/src/rules/stdlib/gradients.rs`):
+**Stdlib** (`01_core/src/engine/stdlib/gradients.rs`):
 - `gradient.radial(...)` ganha 2 named args:
   - `focal_center: Array [Ratio, Ratio]` (default = center).
   - `focal_radius: Ratio` (default `0%`).

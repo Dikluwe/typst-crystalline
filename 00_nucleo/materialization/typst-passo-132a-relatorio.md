@@ -69,7 +69,7 @@ parseável, não colide com testes existentes.
 
 ## 132A.4 — Inventário L1 canary
 
-**5 tests** em `01_core/src/rules/eval/tests.rs`:
+**5 tests** em `01_core/src/engine/eval/tests.rs`:
 - `eval_set_text_font_canary_passo_126`
 - `eval_set_text_font_canary_passo_127`
 - `eval_set_text_font_canary_passo_128`

@@ -56,7 +56,7 @@ Antes de tocar código:
      adaptação.
 3. **`native_state_update` template**: confirmar
    localização + assinatura em
-   `01_core/src/rules/stdlib/foundations.rs`.
+   `01_core/src/engine/stdlib/foundations.rs`.
 4. **`Value::Content` variant**: confirmar que `Value`
    enum tem variant para Content (P179 pattern).
 
@@ -67,7 +67,7 @@ Se C1.2 falhar, registar `P210B.div-N` e fixar fallback.
 **L0**: não modificar (convenção emergente P208B §3 —
 stdlib funcs P169+ inline-documentadas).
 
-**L1** — `01_core/src/rules/stdlib/foundations.rs`:
+**L1** — `01_core/src/engine/stdlib/foundations.rs`:
 
 ```text
 pub fn native_counter_step(
@@ -89,11 +89,11 @@ pub fn native_counter_step(
 Detalhes (parsing args[0], error messages, key tipo
 exacto) decididos durante implementação.
 
-**L1** — `01_core/src/rules/stdlib/mod.rs`:
+**L1** — `01_core/src/engine/stdlib/mod.rs`:
 - `+native_counter_step` em re-exports.
 - +3-4 tests.
 
-**L1** — `01_core/src/rules/eval/mod.rs`:
+**L1** — `01_core/src/engine/eval/mod.rs`:
 - +`native_counter_step` em import block.
 - +`scope.define("counter_step", Value::Func(Func::native("counter_step", native_counter_step)))`.
 

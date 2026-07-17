@@ -17,7 +17,7 @@ tipos de domínio (`ListMarker`, `EnumNumbering`), campos opcionais em
 / `native_enum(numbering:?)` registadas nos scopes como `"list"` e `"enum"`.
 
 **Sub-item B** — Prefixo i18n de caption de figura: substituição do literal
-`"Figura"` fixo em `rules/layout/figure.rs` pela chamada
+`"Figura"` fixo em `engine/layout/figure.rs` pela chamada
 `figure_supplement_for_lang(kind_key, chain.lang().as_ref())`, ligando a
 infraestrutura existente (P158B) ao layouter.
 
@@ -92,8 +92,8 @@ Comportamento:
 
 ### Layout atualizado
 
-`rules/layout/list_item.rs` lê `e.marker.as_ref().map(|m| m.render()).unwrap_or("•")`.  
-`rules/layout/enum_item.rs` lê `e.numbering.as_ref().unwrap_or(&EnumNumbering::Decimal).format(n)`.
+`engine/layout/list_item.rs` lê `e.marker.as_ref().map(|m| m.render()).unwrap_or("•")`.  
+`engine/layout/enum_item.rs` lê `e.numbering.as_ref().unwrap_or(&EnumNumbering::Decimal).format(n)`.
 
 `introspect.rs::materialize_time` actualizado para preservar `marker` e
 `numbering` na reconstrução de `ListItem`/`EnumItem`.
@@ -102,7 +102,7 @@ Comportamento:
 
 ## 4. Sub-item B — Prefixo i18n de caption
 
-`rules/layout/figure.rs:51` — substituição de:
+`engine/layout/figure.rs:51` — substituição de:
 
 ```rust
 Some(format!("Figura {}: ", formatted))
@@ -148,14 +148,14 @@ não `"Figura"`.
 - `01_core/src/entities/elements/list_item.rs` — campo `marker`; `plain_text`/`map_*` actualizado
 - `01_core/src/entities/elements/enum_item.rs` — campo `numbering`; `plain_text`/`map_*` actualizado
 - `01_core/src/entities/content.rs` — 2 construtores novos; 2 existentes actualizado com `..None`
-- `01_core/src/rules/layout/list_item.rs` — lê `e.marker`
-- `01_core/src/rules/layout/enum_item.rs` — lê `e.numbering`
-- `01_core/src/rules/layout/figure.rs` — usa `figure_supplement_for_lang`
-- `01_core/src/rules/introspect.rs` — preserva `marker`/`numbering` em `materialize_time`
-- `01_core/src/rules/stdlib/structural.rs` — `native_list` e `native_enum`
-- `01_core/src/rules/stdlib/mod.rs` — re-exports
-- `01_core/src/rules/eval/mod.rs` — imports + `scope.define("list"/"enum")`
-- `01_core/src/rules/layout/tests.rs` — teste de regressão actualizado
+- `01_core/src/engine/layout/list_item.rs` — lê `e.marker`
+- `01_core/src/engine/layout/enum_item.rs` — lê `e.numbering`
+- `01_core/src/engine/layout/figure.rs` — usa `figure_supplement_for_lang`
+- `01_core/src/engine/introspect.rs` — preserva `marker`/`numbering` em `materialize_time`
+- `01_core/src/engine/stdlib/structural.rs` — `native_list` e `native_enum`
+- `01_core/src/engine/stdlib/mod.rs` — re-exports
+- `01_core/src/engine/eval/mod.rs` — imports + `scope.define("list"/"enum")`
+- `01_core/src/engine/layout/tests.rs` — teste de regressão actualizado
 
 ### Specs L0 (novos)
 
@@ -166,8 +166,8 @@ não `"Figura"`.
 
 - `00_nucleo/prompts/entities/elements/list_item.md`
 - `00_nucleo/prompts/entities/elements/enum_item.md`
-- `00_nucleo/prompts/rules/layout_figure.md`
-- `00_nucleo/prompts/rules/stdlib/structural.md`
+- `00_nucleo/prompts/engine/layout_figure.md`
+- `00_nucleo/prompts/engine/stdlib/structural.md`
 
 ---
 

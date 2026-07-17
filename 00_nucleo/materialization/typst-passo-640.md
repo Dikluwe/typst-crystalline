@@ -31,7 +31,7 @@ Os seis casos, com a mensagem de erro do vanilla já confirmada por P638:
 ### Confirmar a duplicação exacta
 
 ```bash
-sed -n '130,300p' 01_core/src/rules/eval/bindings.rs
+sed -n '130,300p' 01_core/src/engine/eval/bindings.rs
 ```
 
 Confirmar se as duas implementações (chamada directa vs. despacho de método) podem ser reduzidas a uma função só, chamada dos dois sítios, ou se há alguma diferença genuína entre os dois caminhos que impede a unificação total.

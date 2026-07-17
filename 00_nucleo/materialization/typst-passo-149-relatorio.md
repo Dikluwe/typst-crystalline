@@ -112,7 +112,7 @@ L1. `Type` exigiria materializar `typst-library::ty` (scope
 **Substituto funcional** (Passos 13–14): `v.type_name() ->
 &'static str` + `native_type` devolve `Value::Str(type_name)`.
 Permite `if type(x) == "int" { … }` idiomatic. Teste unitário
-directo em `01_core/src/rules/stdlib/mod.rs:149-152`.
+directo em `01_core/src/engine/stdlib/mod.rs:149-152`.
 
 ### 3.2 — `Value::Args`: Passo 16 + ADR-0036 (implícita)
 

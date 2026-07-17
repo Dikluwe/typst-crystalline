@@ -33,14 +33,14 @@ compatibilidade enquanto abre a Trilha 2 de referências cruzadas.
 - Call-sites antigos (`Content::reference(Label(...))`) actualizados para
   strings/`EcoString`.
 
-### 3. `01_core/src/rules/stdlib/ref.rs` (novo)
+### 3. `01_core/src/engine/stdlib/ref.rs` (novo)
 
 - `native_ref(ctx, args, ...)` valida nome (`Str` não vazio) e supplement
   opcional (`Content`).
 - Emite `Content::Ref(RefElem { name, supplement })`.
 - Testes L1: emissão, supplement, nome vazio, arg não-string.
 
-### 4. `01_core/src/rules/stdlib/mod.rs` e `01_core/src/rules/eval/mod.rs`
+### 4. `01_core/src/engine/stdlib/mod.rs` e `01_core/src/engine/eval/mod.rs`
 
 - Registo de `native_ref` no stdlib (`mod r#ref`, `pub use`).
 - `@x` no parser mapeia para `Content::reference(name)` (sem wrap `Label`).
@@ -51,7 +51,7 @@ compatibilidade enquanto abre a Trilha 2 de referências cruzadas.
 - `TagIntrospector` ganha `label_to_counter_key: HashMap<Label, EcoString>`.
 - Trait `Introspector` estendido com `counter_key_for_label(&Label) -> Option<&str>`.
 
-### 6. `01_core/src/rules/introspect.rs`
+### 6. `01_core/src/engine/introspect.rs`
 
 - `populate_intr_from_tag_start` popula `label_to_counter_key` para:
   - Heading → `"heading"`;
@@ -63,7 +63,7 @@ compatibilidade enquanto abre a Trilha 2 de referências cruzadas.
 - `Content::Labelled` remove a entrada de `label_to_counter_key`, forçando o
 caminho legacy e evitando ambiguidade.
 
-### 7. `01_core/src/rules/layout/references.rs`
+### 7. `01_core/src/engine/layout/references.rs`
 
 - `layout_ref` resolução em 4 passos:
   1. `counter_key_for_label` + `query_by_label` + formatação do counter;
@@ -73,7 +73,7 @@ caminho legacy e evitando ambiguidade.
 - `default_supplement_for_key` fornece `"Fig. "` / `"Table "` quando não há
   supplement explícito.
 
-### 8. `01_core/src/rules/layout/mod.rs`
+### 8. `01_core/src/engine/layout/mod.rs`
 
 - Caller de `layout_ref` actualizado para passar `&RefElem` em vez de
   `&Label`.
@@ -84,7 +84,7 @@ caminho legacy e evitando ambiguidade.
 - Arrays `INTROSPECTOR_METHODS`/`CALL_COUNTERS` aumentados para 26 entradas.
 - Teste P204G actualizado para `len() == 26`.
 
-### 10. `01_core/src/rules/layout/tests.rs`
+### 10. `01_core/src/engine/layout/tests.rs`
 
 - Módulo `p462_ref_numeric` com 7 testes L2/L3:
   - heading, figure, equation, table;
@@ -98,10 +98,10 @@ caminho legacy e evitando ambiguidade.
 
 - `00_nucleo/prompts/entities/elements/ref.md`
 - `00_nucleo/prompts/entities/introspector.md`
-- `00_nucleo/prompts/rules/introspect.md`
-- `00_nucleo/prompts/rules/layout_references.md`
-- `00_nucleo/prompts/rules/stdlib/ref.md` (novo)
-- `00_nucleo/prompts/rules/layout/ref.md` (já existente, alinhado)
+- `00_nucleo/prompts/engine/introspect.md`
+- `00_nucleo/prompts/engine/layout_references.md`
+- `00_nucleo/prompts/engine/stdlib/ref.md` (novo)
+- `00_nucleo/prompts/engine/layout/ref.md` (já existente, alinhado)
 
 ## Verificação
 

@@ -5,7 +5,7 @@
 Ler antes de começar:
 - `01_core/src/entities/geometry.rs` — Onde `ShapeKind` ganhará a variante
   `Path` e `PathItem` será definido.
-- `01_core/src/rules/layout/frame.rs` — Onde `FrameItem::Group` ganhará o
+- `01_core/src/engine/layout/frame.rs` — Onde `FrameItem::Group` ganhará o
   campo `clip_mask`.
 - `03_infra/src/export.rs` — Onde `emit_shape_path` será dividido em
   `_global` e `_local`, e o operador `W n` será introduzido.
@@ -121,7 +121,7 @@ compilador lista os locais. Nos braços que não tratam `Path`, adicionar
 
 ## Tarefa 2 — `native_polygon` na stdlib (L1)
 
-Em `01_core/src/rules/stdlib.rs`, implementar `native_polygon`.
+Em `01_core/src/engine/stdlib.rs`, implementar `native_polygon`.
 
 A função precisa de um helper `extract_coordinate` para converter um `Value`
 em `(f64, f64)`. A implementação concreta depende do diagnóstico 1 — adaptar
@@ -203,7 +203,7 @@ ctx.register("polygon", native_polygon);
 
 ## Tarefa 3 — `clip_mask` em `FrameItem::Group` (L1)
 
-Em `01_core/src/rules/layout/frame.rs`, adicionar o campo `clip_mask` à
+Em `01_core/src/engine/layout/frame.rs`, adicionar o campo `clip_mask` à
 variante existente:
 
 ```rust

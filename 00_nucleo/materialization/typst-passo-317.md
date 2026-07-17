@@ -136,7 +136,7 @@ do typst sem retrabalho. Conteúdo do modelo:
 - Lotes 3+ (instanciados pelo modelo, decisão por lote).
 - F / PropMap / StyleChain (DEBT 99.E).
 - DEBT-57 (specs ausentes — registrado, não escrito).
-- Fatiar `rules/eval.md` / `rules/parse.md` / `rules/layout.md` (só se
+- Fatiar `rules/eval.md` / `rules/parse.md` / `engine/layout.md` (só se
   morderem: se o lote editar um deles, fatiar primeiro pela receita do P314,
   com `git rm` do velho).
 - Mudanças no trait `Element` (passo próprio se precisar).

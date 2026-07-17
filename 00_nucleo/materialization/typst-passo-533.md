@@ -28,7 +28,7 @@ O padrão do problema B (um carácter em falta no fim de uma palavra, e um cará
 ### Sonda
 
 ```bash
-grep -rn "@\|CiteRef\|resolve_citation\|BibStore" 01_core/src/rules/eval/ 01_core/src/rules/layout/ --include="*.rs" | grep -i cit
+grep -rn "@\|CiteRef\|resolve_citation\|BibStore" 01_core/src/engine/eval/ 01_core/src/engine/layout/ --include="*.rs" | grep -i cit
 ```
 
 Perguntas, com `file:line`:
@@ -74,13 +74,13 @@ Depende da causa. Não escrever antes de confirmar.
 ### Sonda
 
 ```bash
-grep -rn "fn.*format.*csl\|fn.*ieee\|Bibliography\|smart.*quote\|curly.*quote" 01_core/src/rules/stdlib/ 01_core/src/entities/ --include="*.rs" | grep -i "csl\|bibliograph"
+grep -rn "fn.*format.*csl\|fn.*ieee\|Bibliography\|smart.*quote\|curly.*quote" 01_core/src/engine/stdlib/ 01_core/src/entities/ --include="*.rs" | grep -i "csl\|bibliograph"
 ```
 
 Hipótese a testar primeiro: corte de string sem respeitar fronteira de carácter UTF-8.
 
 ```bash
-grep -n "Bibliography\|\"Bibliograph\"" 01_core/src/rules/stdlib/*.rs 01_core/src/entities/*.rs
+grep -n "Bibliography\|\"Bibliograph\"" 01_core/src/engine/stdlib/*.rs 01_core/src/entities/*.rs
 ```
 
 Se a palavra "Bibliography" está escrita como constante fixa no código (não construída dinamicamente), a truncagem não pode ser um corte de string por byte — seria antes um erro de índice fixo (ex.: `&s[..12]` num texto com mais de 12 caracteres, ou um limite de buffer). Confirmar qual dos dois é o caso antes de assumir.

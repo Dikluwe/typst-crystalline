@@ -40,7 +40,7 @@ Materializaram-se dois sub-itens independentes:
 | `OutlineElem` tem campo `target`? | Não — só `{ title, depth, indent }` | `entities/elements/outline.rs:23` |
 | `Content::lof`/`Content::lot` existem? | Não | `entities/content.rs:1` |
 | `native_lof`/`native_lot` no scope? | Não | `rules/eval/mod.rs:1` |
-| `layout_lof`/`layout_lot` implementados? | Não — `layout_outline` não distingue targets | `rules/layout/outline.rs:30` |
+| `layout_lof`/`layout_lot` implementados? | Não — `layout_outline` não distingue targets | `engine/layout/outline.rs:30` |
 | `ElementPayload::Figure` tem `caption_text`? | Não | `entities/element_payload.rs:1` |
 | `TagIntrospector` tem `figures_for_lof`? | Não | `entities/introspector.rs:223` |
 | `CountingIntrospector` implementa Introspector completo? | Sim — mas precisa de forward para novos métodos | `03_infra/src/measurements.rs:1` |
@@ -245,16 +245,16 @@ fn layout_lof<M, S>(layouter, e) {
 - `01_core/src/entities/elements/table.rs` — `to_payload()` inclui `caption_text`
 - `01_core/src/entities/elements/outline.rs` — `OutlineTarget` enum + campo `target` + `with_target()`
 - `01_core/src/entities/content.rs` — `Content::lof`, `Content::lot`
-- `01_core/src/rules/introspect.rs` — arms `Figure`/`Table` populam `figures_for_lof`/`tables_for_lot`
-- `01_core/src/rules/introspect/extract_payload.rs` — padrão `Figure` com `..`
-- `01_core/src/rules/introspect/convergence.rs` — construção de teste com `caption_text: None`
-- `01_core/src/rules/layout/mod.rs` — `pub(super) last_cited_key: Option<String>` no `Layouter`
-- `01_core/src/rules/layout/cite.rs` — detecção ibid + actualização `last_cited_key`
-- `01_core/src/rules/layout/bibliography.rs` — back-refs ` ↑[N]` no fallback
-- `01_core/src/rules/layout/outline.rs` — despacho `OutlineTarget` + `layout_lof` + `layout_lot`
-- `01_core/src/rules/stdlib/structural.rs` — `native_lof`, `native_lot`, `native_outline` com `target:`
-- `01_core/src/rules/stdlib/mod.rs` — re-exports `native_lof`, `native_lot` + 8 testes P472
-- `01_core/src/rules/eval/mod.rs` — `scope.define("lof", ...)` + `scope.define("lot", ...)`
+- `01_core/src/engine/introspect.rs` — arms `Figure`/`Table` populam `figures_for_lof`/`tables_for_lot`
+- `01_core/src/engine/introspect/extract_payload.rs` — padrão `Figure` com `..`
+- `01_core/src/engine/introspect/convergence.rs` — construção de teste com `caption_text: None`
+- `01_core/src/engine/layout/mod.rs` — `pub(super) last_cited_key: Option<String>` no `Layouter`
+- `01_core/src/engine/layout/cite.rs` — detecção ibid + actualização `last_cited_key`
+- `01_core/src/engine/layout/bibliography.rs` — back-refs ` ↑[N]` no fallback
+- `01_core/src/engine/layout/outline.rs` — despacho `OutlineTarget` + `layout_lof` + `layout_lot`
+- `01_core/src/engine/stdlib/structural.rs` — `native_lof`, `native_lot`, `native_outline` com `target:`
+- `01_core/src/engine/stdlib/mod.rs` — re-exports `native_lof`, `native_lot` + 8 testes P472
+- `01_core/src/engine/eval/mod.rs` — `scope.define("lof", ...)` + `scope.define("lot", ...)`
 - `03_infra/src/measurements.rs` — `CountingIntrospector` forwarding dos 3 novos métodos
 
 ### Specs L0 (actualizadas)
@@ -262,10 +262,10 @@ fn layout_lof<M, S>(layouter, e) {
 - `00_nucleo/prompts/entities/bib_store.md` — `back_refs` campo + `back_refs_for_key` + histórico P472
 - `00_nucleo/prompts/entities/introspector.md` — 3 métodos no trait + 2 campos em `TagIntrospector` + histórico P472
 - `00_nucleo/prompts/entities/elements/outline.md` — `OutlineTarget` enum + campo `target` + construtores
-- `00_nucleo/prompts/rules/layout/bibliography.md` — back-refs + ibid sections + histórico P472
-- `00_nucleo/prompts/rules/layout_outline.md` — P472 LoF/LoT section
-- `00_nucleo/prompts/rules/stdlib/structural.md` — `native_lof`, `native_lot` + critérios P472
-- `00_nucleo/prompts/rules/atomizacao_elementos.md` — §13 ibid + `last_cited_key`
+- `00_nucleo/prompts/engine/layout/bibliography.md` — back-refs + ibid sections + histórico P472
+- `00_nucleo/prompts/engine/layout_outline.md` — P472 LoF/LoT section
+- `00_nucleo/prompts/engine/stdlib/structural.md` — `native_lof`, `native_lot` + critérios P472
+- `00_nucleo/prompts/engine/atomizacao_elementos.md` — §13 ibid + `last_cited_key`
 
 ---
 

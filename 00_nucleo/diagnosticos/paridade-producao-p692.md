@@ -15,8 +15,8 @@ regra P662-P664 (nome igual ao vanilla obriga a comportamento igual).
   (HEAD de P691; trabalho em detached HEAD sobre este commit).
 - **Working tree na medição:** alterações não commitadas em 7 ficheiros tracked:
   `Cargo.toml`, `Cargo.lock`, `crystalline.toml`, `01_core/Cargo.toml`,
-  `01_core/src/entities/regex.rs`, `01_core/src/rules/stdlib/collections.rs`,
-  `00_nucleo/prompts/rules/stdlib/collections.md`. `git diff --stat` no momento da medição:
+  `01_core/src/entities/regex.rs`, `01_core/src/engine/stdlib/collections.rs`,
+  `00_nucleo/prompts/engine/stdlib/collections.md`. `git diff --stat` no momento da medição:
   `7 files changed, 236 insertions(+), 22 deletions(-)`.
 - **Hora da validação final:** 2026-07-10T23:15:05Z (`date -u`).
 - **Binários:** vanilla 0.15.0 (`lab/typst-original/target/release/typst`, commit 969087ec);
@@ -126,7 +126,7 @@ implementar. Os símbolos do cristalino que não estão na lista oficial são **
 
 - `01_core/src/entities/regex.rs`: `Regex::captures_all(&self, text) -> Vec<RegexMatch>`
   (generalização de `captures_first` sobre `captures_iter`).
-- `01_core/src/rules/stdlib/collections.rs`:
+- `01_core/src/engine/stdlib/collections.rs`:
   - `use unicode_normalization::UnicodeNormalization;`
   - helper `match_dict(start, end, text, captures) -> Value` (constrói o dict), partilhado
     por `str_match` (refactorizado para o usar, comportamento inalterado) e `str_matches`.

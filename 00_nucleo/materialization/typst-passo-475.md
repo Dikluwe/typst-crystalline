@@ -158,7 +158,7 @@ Se a resolução de contexto for complexa, o subset mínimo útil é: `pad(all: 
 
 - `entities/elements/boxed.md` — campo `stroke_overhang` (se adicionado); marcar 6/6 scope-outs fechados.
 - `rules/stdlib/layout.md` — `extract_sides_lengths` alargada para `Rel<Length>`; `native_pad` aceita `%`.
-- `rules/layout/pad.md` (ou `mod.md`) — resolução de `Rel<Length>` no arm de `Content::Pad`.
+- `engine/layout/pad.md` (ou `mod.md`) — resolução de `Rel<Length>` no arm de `Content::Pad`.
 - Roteiro — **Trilha 8: COMPLETA** (8/8).
 
 ---

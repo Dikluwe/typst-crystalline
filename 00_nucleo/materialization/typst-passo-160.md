@@ -44,7 +44,7 @@ diferente**.
 **Estado factual Introspection antes de P160**:
 - ADR-0017 "Introspection runtime adiada" reserva sem ficheiro
   pré-existente — confirmada em P159B §3 categoria A.
-- `01_core/src/rules/introspect.rs` existe com walk single-pass
+- `01_core/src/engine/introspect.rs` existe com walk single-pass
   + counters por kind + materialize_time. **Trabalho até agora
   foi uso, não materialização nova**:
   - P75 figure counters por kind.
@@ -76,7 +76,7 @@ reservas para passos pós-P160.
   idem (par acoplado bibliography+cite).
 - ADR-0017 referência (sem ficheiro; mencionar em README).
 - ADR-0034 sobre estrutura de diagnóstico canónica.
-- `01_core/src/rules/introspect.rs` — código actual completo.
+- `01_core/src/engine/introspect.rs` — código actual completo.
 - `01_core/src/entities/counter_state.rs` — state actual.
 - `lab/typst-original/crates/typst-library/src/introspection/`
   (vanilla, quarentena) — referência paridade.
@@ -164,7 +164,7 @@ Output: secção §1 do diagnóstico — mapa ADR/DEBT Introspection.
 
 ### .2 Inventário código actual Introspection
 
-Inspecção de `01_core/src/rules/introspect.rs` +
+Inspecção de `01_core/src/engine/introspect.rs` +
 `01_core/src/entities/counter_state.rs`:
 
 Para cada estrutura, identificar:

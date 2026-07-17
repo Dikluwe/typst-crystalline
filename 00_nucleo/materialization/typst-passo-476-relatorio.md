@@ -139,7 +139,7 @@ Localização: `entities/color.rs:411–436`.
 
 ### 4.3 Módulo `color` stdlib (novo ficheiro)
 
-`01_core/src/rules/stdlib/color.rs` — criado em P476:
+`01_core/src/engine/stdlib/color.rs` — criado em P476:
 
 ```rust
 pub fn make_color_module() -> Value {
@@ -201,7 +201,7 @@ scope.define("color", make_color_module());
 - `00_nucleo/prompts/entities/color.md` — §"Operadores de cor P476" adicionada;
   ADR-0083 §"Operadores cor" actualizado (4/6 fechados; `saturate`/`desaturate` preservados).
   Hash do código: `246dc470`.
-- `00_nucleo/prompts/rules/stdlib/color.md` — **NOVO** — módulo `color` stdlib;
+- `00_nucleo/prompts/engine/stdlib/color.md` — **NOVO** — módulo `color` stdlib;
   4 funcs nativas; extracção de ratio; critérios de verificação. Hash: `7da27735`.
 
 ### Código L1 (implementado)
@@ -211,14 +211,14 @@ scope.define("color", make_color_module());
   - `impl Color { lighten, darken, mix, negate }` (linhas 385–436).
   - 9 testes P476 (linhas 641–726).
   - `@prompt-hash` → `123059bb`.
-- `01_core/src/rules/stdlib/color.rs` — **NOVO** (~160 LoC):
+- `01_core/src/engine/stdlib/color.rs` — **NOVO** (~160 LoC):
   - `make_color_module()`, 4 nativas, `extract_color_arg`, `extract_ratio_arg`.
   - `@prompt-hash` → `021bd30d`.
-- `01_core/src/rules/stdlib/mod.rs`:
+- `01_core/src/engine/stdlib/mod.rs`:
   - `mod color;` adicionado (linha 52).
   - `pub use ... make_color_module;` adicionado (linha 119).
   - 6 testes P476 (linhas 11638–11700).
-- `01_core/src/rules/eval/mod.rs`:
+- `01_core/src/engine/eval/mod.rs`:
   - import `make_color_module` adicionado.
   - `scope.define("color", make_color_module())` (linha 1019).
 
@@ -260,7 +260,7 @@ Stack overflow em `recursao_infinita_retorna_err_sem_crash` e `recursao_profunda
 ```
 Fixed 2 files:
   ./01_core/src/entities/color.rs               → 123059bb
-  ./01_core/src/rules/stdlib/color.rs           → 021bd30d
+  ./01_core/src/engine/stdlib/color.rs           → 021bd30d
 
 Re-running analysis... ✅ 0 drift warnings remaining
 ```

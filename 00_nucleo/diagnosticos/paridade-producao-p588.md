@@ -40,7 +40,7 @@ Antes da correcção, "Texto depois de heading." começava em `73.62 pt` em vez 
 
 ## 2. Implementação
 
-Ficheiro: `01_core/src/rules/layout/mod.rs:729`
+Ficheiro: `01_core/src/engine/layout/mod.rs:729`
 
 Alterámos o processamento de `Content::Space` para não avançar o cursor quando a linha corrente ainda está vazia:
 
@@ -60,7 +60,7 @@ Content::Space => {
 }
 ```
 
-Adicionámos também um teste de regressão em `01_core/src/rules/layout/tests.rs`:
+Adicionámos também um teste de regressão em `01_core/src/engine/layout/tests.rs`:
 
 ```rust
 fn p588_newline_apos_set_nao_desloca_texto_inicial() {
@@ -211,7 +211,7 @@ Resultado: todos os 36 ficheiros compilaram com sucesso.
 ## 6. Conclusão
 
 - [x] Alcance confirmado — geral, não só RTL.
-- [x] Correcção aplicada em `01_core/src/rules/layout/mod.rs:729`.
+- [x] Correcção aplicada em `01_core/src/engine/layout/mod.rs:729`.
 - [x] Documento latino sem deslocamento inicial.
 - [x] Documento árabe re-testado; a quebra prematura principal foi eliminada. A diferença residual de `0.46 pt` foi investigada e atribuída à fonte default diferente (Liberation Serif vs Libertinus Serif), com medição directa nos ficheiros de fonte.
 - [x] Snapshots regenerados sem regressão funcional.

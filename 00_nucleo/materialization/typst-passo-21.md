@@ -3,7 +3,7 @@
 ## Estado actual antes de começar
 
 Ler antes de começar:
-- `01_core/src/rules/layout.rs` — `FontMetrics` trait, `FixedMetrics`, `Layouter<M>`
+- `01_core/src/engine/layout.rs` — `FontMetrics` trait, `FixedMetrics`, `Layouter<M>`
 - `03_infra/src/fonts.rs` — `FontSlot` com dados de fonte
 
 Pré-condição: `cargo test` — 333 testes (303 L1 + 30 L3), zero violations.
@@ -24,7 +24,7 @@ Isto permite que o mesmo `Layouter` mude de tamanho a meio de um parágrafo
 (suporte a rich text futuro) sem criar nova struct de métricas.
 
 ```rust
-// Em 01_core/src/rules/layout.rs — substituir interface actual
+// Em 01_core/src/engine/layout.rs — substituir interface actual
 
 /// Interface de métricas de fonte para o Layouter.
 ///
@@ -244,7 +244,7 @@ pub fn layout_with_font(
         l.layout_content(content);
         l.finish()
     } else {
-        typst_core::rules::layout::layout(content)
+        typst_core::engine::layout::layout(content)
     }
 }
 ```
@@ -261,7 +261,7 @@ pub mod layout;
 ### Testes sem fixture (sempre correm)
 
 ```rust
-// Em 01_core/src/rules/layout.rs #[cfg(test)]
+// Em 01_core/src/engine/layout.rs #[cfg(test)]
 
 #[test]
 fn fixed_metrics_advance_proporcional_ao_tamanho() {

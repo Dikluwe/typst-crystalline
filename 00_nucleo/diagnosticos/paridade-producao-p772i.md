@@ -34,7 +34,7 @@ antes de decidir corrigir (ADR-0108), não assumido a partir do nome da função
 
 ### 1. `header:`/`footer:` removidos como argumentos nomeados
 
-`01_core/src/rules/stdlib/layout.rs::native_grid` — removidos da whitelist e da
+`01_core/src/engine/stdlib/layout.rs::native_grid` — removidos da whitelist e da
 extracção. `#grid(header: [Nome])` confirmado a dar erro ("argumento nomeado
 inesperado em grid(): 'header'"), paridade vanilla.
 
@@ -73,7 +73,7 @@ passo dedicado próprio (a própria `GridHeaderElem`/`GridFooterElem` actuais s�
 repetição). Header e footer renderizam **uma única vez**: header sempre no topo,
 footer sempre a seguir aos dados (não necessariamente ancorado ao fundo da última
 página se a tabela quebrar página). Documentado no L0
-(`00_nucleo/prompts/rules/layout.md` §"grid.header(...)/grid.footer(...) como
+(`00_nucleo/prompts/engine/layout.md` §"grid.header(...)/grid.footer(...) como
 row-groups") para não ser "descoberto por acidente" outra vez.
 
 ### 5. `table()` — fora do âmbito, registado explicitamente
@@ -164,7 +164,7 @@ Todos os 6 passam.
       especificamente de repeat-across-páginas.
 - [x] `cargo test --workspace` verde.
 - [x] `crystalline-lint .` zero violações.
-- [x] L0 de `grid`/`stdlib/layout` actualizado (`00_nucleo/prompts/rules/layout.md`
+- [x] L0 de `grid`/`stdlib/layout` actualizado (`00_nucleo/prompts/engine/layout.md`
       §"grid.header(...)/grid.footer(...) como row-groups", hash `9631382f`),
       removendo a menção implícita aos argumentos nomeados inventados (que nunca
       chegaram a estar documentados no L0 — confirma a arqueologia de P772h) e

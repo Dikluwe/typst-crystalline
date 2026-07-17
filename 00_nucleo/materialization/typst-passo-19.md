@@ -4,7 +4,7 @@
 
 Ler antes de começar:
 - `00_nucleo/adr/typst-adr-0026-content-divergencia.md`
-- `01_core/src/rules/layout.rs` — stub actual
+- `01_core/src/engine/layout.rs` — stub actual
 - `01_core/src/entities/content.rs` — enum Content
 - `lab/typst-original/crates/typst-layout/` — estrutura de referência
 
@@ -194,7 +194,7 @@ real migrar, substituir `FixedMetrics` por `FontBookMetrics` sem
 alterar o `Layouter`.
 
 ```rust
-// 01_core/src/rules/layout.rs
+// 01_core/src/engine/layout.rs
 
 use crate::entities::{
     content::Content,

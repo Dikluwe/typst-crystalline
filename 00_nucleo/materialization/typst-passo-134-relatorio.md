@@ -233,8 +233,8 @@ vs `text` visível.
 
 | Ficheiro | Mudança |
 |----------|---------|
-| `01_core/src/rules/eval/rules.rs` | helper parametrizado; arm leading de text → par; bloco par ganha match com captura |
-| `01_core/src/rules/eval/tests.rs` | test 128 renomeado+invertido; test 133 adaptado; +1 novo test |
+| `01_core/src/engine/eval/rules.rs` | helper parametrizado; arm leading de text → par; bloco par ganha match com captura |
+| `01_core/src/engine/eval/tests.rs` | test 128 renomeado+invertido; test 133 adaptado; +1 novo test |
 
 ### Números finais
 

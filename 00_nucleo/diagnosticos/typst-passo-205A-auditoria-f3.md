@@ -11,7 +11,7 @@ P204H; tests 1852 verdes; 0 violations; ADR-0073 ACEITE.
 
 ### A1 — Listagem completa
 
-**Fonte**: `01_core/src/rules/layout/mod.rs:69`.
+**Fonte**: `01_core/src/engine/layout/mod.rs:69`.
 
 ```text
 pub struct Layouter<'a, M: FontMetrics, S: ImageSizer = NullImageSizer>
@@ -357,8 +357,8 @@ Cristalino single-pass; vanilla post-layout sealing.
 
 ### A10 — Loops fixpoint cristalinos vs F3
 
-**Fonte**: `01_core/src/rules/layout/mod.rs:1535-1581` +
-`01_core/src/rules/introspect/fixpoint.rs`.
+**Fonte**: `01_core/src/engine/layout/mod.rs:1535-1581` +
+`01_core/src/engine/introspect/fixpoint.rs`.
 
 Loop TOC (per `mod.rs:1545`):
 
@@ -407,7 +407,7 @@ ortogonal.
 
 ### A11 — Position concrete (P204D) e F3
 
-**Fonte**: `01_core/src/rules/layout/mod.rs:272-287`.
+**Fonte**: `01_core/src/engine/layout/mod.rs:272-287`.
 
 ```text
 self.runtime.positions.insert(

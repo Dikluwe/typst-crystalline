@@ -914,7 +914,7 @@ quando `relative == Parent`.
 1. **L1 novo `Rect { x: Pt, y: Pt, w: Pt, h: Pt }`** em
    `entities/layout_types.rs` (paridade `Point` + `Size`).
 2. **L1 novo campo `parent_bbox: Option<Rect>`** no Layouter
-   (`rules/layout/mod.rs`; padrão DEBT-37 P84.6 `cell_origin_*` reused
+   (`engine/layout/mod.rs`; padrão DEBT-37 P84.6 `cell_origin_*` reused
    estructuralmente).
 3. **L1 Constructor init `parent_bbox: None`** (future Block
    save/restore populará).

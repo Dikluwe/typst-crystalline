@@ -253,5 +253,5 @@ código/tests cristalinos.
   - E5: `intr.state` (StateRegistry P171).
   - E6: `intr.counters` (CounterRegistry P184B).
 - Consumer downstream `compute_*` helpers (P195D Equation; P196B Heading; P197B Figure) — preservados; lêm legacy durante M5.
-- L0 alvo: `00_nucleo/prompts/rules/introspect.md` (a actualizar em P198B/C).
+- L0 alvo: `00_nucleo/prompts/engine/introspect.md` (a actualizar em P198B/C).
 - Padrão diagnóstico-primeiro: 20ª aplicação consecutiva.

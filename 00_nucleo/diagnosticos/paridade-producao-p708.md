@@ -61,7 +61,7 @@ passo futuro.
 
 ## 2. Implementação
 
-### `apply_closure` (`01_core/src/rules/eval/closures.rs`)
+### `apply_closure` (`01_core/src/engine/eval/closures.rs`)
 
 Loop de binding: só tenta `args.items.get(pos_idx)` quando
 `param.default.is_none()` (posicional). Para `param.default.is_some()`

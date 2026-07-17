@@ -81,7 +81,7 @@ divergências.**
 | `00_nucleo/prompts/entities/style.md` | L0 | +7º variant em B.3 + nota assimetria residual (3 fields) |
 | `00_nucleo/diagnosticos/typst-cobertura-vanilla-vs-cristalino.md` | L0 cobertura | B.3 +1 linha; B.4 linha 350 nota P289; footnote ⁷⁵ ~90 LOC |
 | `00_nucleo/diagnosticos/diagnostico-style-weight-passo-289.md` | Diagnóstico Fase A | ~250 LOC ficheiro novo (5 secções A.0-A.5) |
-| `01_core/src/rules/layout/tests.rs:10355+` | testes P289 | ~120 LOC (9 testes em `p289_style_weight_tests` mod) |
+| `01_core/src/engine/layout/tests.rs:10355+` | testes P289 | ~120 LOC (9 testes em `p289_style_weight_tests` mod) |
 
 Total: **3 sítios L1 produção + 1 ADR meta + 2 ficheiros L0 documentação + 2 diagnósticos**.
 
@@ -238,7 +238,7 @@ Formula linear `max(0)` cobre fronteiras gracefully.
 | Local | Quantidade | Cobertura |
 |---|---:|---|
 | `entities/style.rs` (mod tests) | 1 | Catalog test 6 → 7 variants (`Style::Weight(700)` incluído) |
-| `rules/layout/tests.rs` (`p289_style_weight_tests`) | 8 | Variant ctor + PartialEq; `push_styles` cascade; `Styled` injection + TextStyle propagation; last-write wins; 3 fronteiras (100/900/450); consumer P139 faux-bold stroke > 0 |
+| `engine/layout/tests.rs` (`p289_style_weight_tests`) | 8 | Variant ctor + PartialEq; `push_styles` cascade; `Styled` injection + TextStyle propagation; last-write wins; 3 fronteiras (100/900/450); consumer P139 faux-bold stroke > 0 |
 | **Total** | **9** (1 entity + 8 layout) | Paralelo absoluto a P288 mas com `+4 fronteiras` para detecção A.5 + `+1 verificação consumer P139` |
 
 **Resultado**: 9/9 verdes (`cargo test --lib p289`). Delta workspace

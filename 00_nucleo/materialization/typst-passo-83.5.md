@@ -155,7 +155,7 @@ Verificar:
   DEBT-1 já foi coberto pelo DEBT-7.
 
 ```bash
-grep -n "styles" 01_core/src/rules/eval.rs | grep -i "save\|restore\|push\|pop"
+grep -n "styles" 01_core/src/engine/eval.rs | grep -i "save\|restore\|push\|pop"
 grep -rn "StyleChain" 01_core/src/ | head -20
 ```
 
@@ -227,7 +227,7 @@ Verificar:
   `intercept_content` ou já foi substituído por `Rc<[ShowRule]>`?
 
 ```bash
-grep -n "show_rules" 01_core/src/rules/eval.rs 01_core/src/rules/show.rs 2>/dev/null
+grep -n "show_rules" 01_core/src/engine/eval.rs 01_core/src/engine/show.rs 2>/dev/null
 ```
 
 #### DEBT-33 — AABB de curvas Bézier
@@ -235,12 +235,12 @@ grep -n "show_rules" 01_core/src/rules/eval.rs 01_core/src/rules/show.rs 2>/dev/
 Estado: EM ABERTO (Passo 79).
 
 Verificar:
-- O código em `rules/layout/mod.rs` ou equivalente que calcula AABB de
+- O código em `engine/layout/mod.rs` ou equivalente que calcula AABB de
   `ShapeKind::Path` ainda usa min/max dos pontos de controlo, ou já faz
   cálculo analítico?
 
 ```bash
-grep -rn "CubicTo\|bounding\|aabb" 01_core/src/rules/layout/ | head -10
+grep -rn "CubicTo\|bounding\|aabb" 01_core/src/engine/layout/ | head -10
 ```
 
 #### DEBT-34d — Auto não encolhe antes de matar fr
@@ -252,7 +252,7 @@ Verificar:
   apenas medição por `layout_sub_frame_with_width`?
 
 ```bash
-grep -A 20 "TrackSizing::Auto" 01_core/src/rules/layout/mod.rs | head -30
+grep -A 20 "TrackSizing::Auto" 01_core/src/engine/layout/mod.rs | head -30
 ```
 
 #### DEBT-34e — colspan e rowspan
@@ -274,7 +274,7 @@ Verificar:
 - `available_width` é calculado em tempo real ou existe campo de cache?
 
 ```bash
-grep -n "available_width" 01_core/src/rules/layout/mod.rs | head -10
+grep -n "available_width" 01_core/src/engine/layout/mod.rs | head -10
 ```
 
 #### DEBT-36 — Operadores simbólicos de alinhamento
@@ -298,7 +298,7 @@ Verificar:
   página, ou recebe área de âncora por parâmetro?
 
 ```bash
-grep -A 10 "Content::Place" 01_core/src/rules/layout/mod.rs | head -20
+grep -A 10 "Content::Place" 01_core/src/engine/layout/mod.rs | head -20
 ```
 
 #### DEBT-38 — Cache de sub-frames no Grid Auto
@@ -310,7 +310,7 @@ Verificar:
   medição ainda descarta os `FrameItem` produzidos?
 
 ```bash
-grep -B 2 -A 15 "TrackSizing::Auto" 01_core/src/rules/layout/mod.rs | head -40
+grep -B 2 -A 15 "TrackSizing::Auto" 01_core/src/engine/layout/mod.rs | head -40
 ```
 
 ---

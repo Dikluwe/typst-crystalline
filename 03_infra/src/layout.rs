@@ -1,12 +1,12 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/layout.md
-//! @prompt-hash 4f7a4e44
+//! @prompt-hash 9e2f250f
 //! @layer L3
 //! @updated 2026-03-28
 
 use typst_core::entities::content::Content;
 use typst_core::entities::layout_types::PagedDocument;
-use typst_core::rules::layout::Layouter;
+use typst_core::engine::layout::Layouter;
 
 use crate::font_metrics::FontBookMetrics;
 use crate::image_sizer::ImageSizeImageSizer;
@@ -35,7 +35,7 @@ pub fn layout_with_font(
         l.finish()
     } else {
         // P190I (M6 fechado): layout() já não recebe state.
-        typst_core::rules::layout::layout(content)
+        typst_core::engine::layout::layout(content)
     }
 }
 

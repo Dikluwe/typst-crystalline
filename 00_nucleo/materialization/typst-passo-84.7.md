@@ -339,7 +339,7 @@ grep -n "impl.*Hash for Source\|impl.*PartialEq for Source" 01_core/src/entities
 head -10 00_nucleo/adr/typst-adr-0017-adiamento-eval-typst-library.md
 
 # eval() já foi implementado?
-grep -rn "pub fn eval\b" 01_core/src/rules/ | head -5
+grep -rn "pub fn eval\b" 01_core/src/engine/ | head -5
 ```
 
 Verificar se `eval()` já migrou em passos intermédios. Se sim, ADR-0017
@@ -413,7 +413,7 @@ Verificar:
 head -15 00_nucleo/adr/typst-adr-0025-int-eq-float.md
 
 # Comportamento actual em eval_binary_op
-grep -B 2 -A 10 "Value::Int.*Value::Float\|Value::Float.*Value::Int" 01_core/src/rules/eval.rs
+grep -B 2 -A 10 "Value::Int.*Value::Float\|Value::Float.*Value::Int" 01_core/src/engine/eval.rs
 ```
 
 Verificar se a Opção B foi aplicada conforme ADR.

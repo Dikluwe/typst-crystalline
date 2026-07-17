@@ -91,7 +91,7 @@ humano; documentar literalmente em §2 do relatório):
 |---------|---------------------|--------|
 | `Content::Columns` em `01_core/src/entities/content.rs` | `grep -n "Columns\|Colbreak"` | **CONFIRMADO** existe — variant em linha 901 com fields `count`/`gutter`/`body`; construtor `Content::columns` em linha 1134; arms cascata em is_empty/plain_text/PartialEq/map_content/map_text presentes |
 | `Content::Colbreak` em `content.rs` | mesmo `grep` | **CONFIRMADO** existe — variant em linha 555 com field `weak`; construtor em linha 1066; arms cascata presentes |
-| `native_columns` em `01_core/src/rules/stdlib/` | `grep -rn "native_columns"` | **CONFIRMADO** — function em `stdlib/layout.rs:1138`; registado em `stdlib/mod.rs:51`; ~13 unit tests `p218_native_columns_*` em `stdlib/mod.rs` linhas 2865-3000 |
+| `native_columns` em `01_core/src/engine/stdlib/` | `grep -rn "native_columns"` | **CONFIRMADO** — function em `stdlib/layout.rs:1138`; registado em `stdlib/mod.rs:51`; ~13 unit tests `p218_native_columns_*` em `stdlib/mod.rs` linhas 2865-3000 |
 | `native_colbreak` em stdlib | mesmo `grep` | **CONFIRMADO** — function em `stdlib/layout.rs:1209`; registado em `stdlib/mod.rs:51`; ~6 unit tests `p220_native_colbreak_*` |
 | Status DEBT-56 em `00_nucleo/DEBT.md` | `grep "DEBT-56"` | **ENCERRADO (Passo 221) ✓** confirmado |
 | Status ADR-0078 em `00_nucleo/adr/typst-adr-0078-column-flow-algorithm.md` | `head -10` | **IMPLEMENTADO** (P215 PROPOSTO 2026-05-12 → P221 IMPLEMENTADO 2026-05-12) confirmado |

@@ -32,9 +32,9 @@ pub struct TableElem {
 extraídos do loop de resolução de `native_table` (`stdlib/structural.rs`), não
 argumentos nomeados (paridade vanilla: `table.header(...)`/`table.footer(...)`
 são elementos-filho — ver `lab/typst-original/.../model/table.rs:495,525`).
-Consumidos por `layout_grid` (`rules/layout/grid.rs`) como row-group — mesmo
+Consumidos por `layout_grid` (`engine/layout/grid.rs`) como row-group — mesmo
 mecanismo de `GridElem.header`/`.footer`, ver
-`00_nucleo/prompts/rules/layout.md` secção `grid.header(...)`/`grid.footer(...)`.
+`00_nucleo/prompts/engine/layout.md` secção `grid.header(...)`/`grid.footer(...)`.
 
 `Content::Table { … }` → `Content::Table(Arc<TableElem>)`. Construtores
 ergonómicos: `Content::table(columns, rows, children)` (caption `None`) e

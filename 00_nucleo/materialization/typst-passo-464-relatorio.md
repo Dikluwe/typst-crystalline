@@ -34,15 +34,15 @@ A distinção é de origem, não de tipo, o que simplifica todos os consumers.
 | `01_core/src/entities/elements/labelled.rs` | **Removido** (ficheiro órfão). |
 | `01_core/src/entities/elements/mod.rs` | Removido `pub mod labelled;`. |
 | `01_core/src/entities/content.rs` | Removido `LabelledElem`/`Content::Labelled`; adicionado `Content::label_auto`; ajustados `is_empty`, `plain_text`, `PartialEq`, `map_content`, `map_text`. |
-| `01_core/src/rules/eval/mod.rs` | Emissão de `<label>` passa a usar `Content::label_auto`. |
-| `01_core/src/rules/eval/repr.rs` | Removido braço `Content::Labelled`; `Content::Label` com `auto: true` representa-se sem body. |
-| `01_core/src/rules/eval/tests.rs` | Ajustados matches e acesso a campos; teste `eval_label_anexa_ao_bloco_anterior` verifica `Content::Label { auto: true }`. |
-| `01_core/src/rules/introspect.rs` | Unificados braços `Content::Label` (user) e `Content::Labelled` (auto) num só braço `Content::Label` com lógica condicional a `auto`; ajustados helpers e todos os tests legados; adicionado teste L2. |
-| `01_core/src/rules/introspect/locatable.rs` | Ajustados tests para `Content::label_auto`. |
-| `01_core/src/rules/introspect/fixpoint.rs` | Ajustados tests para `Content::label_auto`. |
-| `01_core/src/rules/layout/mod.rs` | Removido braço `Content::Labelled`; layout de `Content::Label` único. |
-| `01_core/src/rules/layout/references.rs` | Simplificação: `layout_label` regista destino directamente; `layout_labelled` removido. |
-| `01_core/src/rules/layout/tests.rs` | Ajustados todos os `Content::labelled`/`labelled_prod` para `Content::label_auto`. |
+| `01_core/src/engine/eval/mod.rs` | Emissão de `<label>` passa a usar `Content::label_auto`. |
+| `01_core/src/engine/eval/repr.rs` | Removido braço `Content::Labelled`; `Content::Label` com `auto: true` representa-se sem body. |
+| `01_core/src/engine/eval/tests.rs` | Ajustados matches e acesso a campos; teste `eval_label_anexa_ao_bloco_anterior` verifica `Content::Label { auto: true }`. |
+| `01_core/src/engine/introspect.rs` | Unificados braços `Content::Label` (user) e `Content::Labelled` (auto) num só braço `Content::Label` com lógica condicional a `auto`; ajustados helpers e todos os tests legados; adicionado teste L2. |
+| `01_core/src/engine/introspect/locatable.rs` | Ajustados tests para `Content::label_auto`. |
+| `01_core/src/engine/introspect/fixpoint.rs` | Ajustados tests para `Content::label_auto`. |
+| `01_core/src/engine/layout/mod.rs` | Removido braço `Content::Labelled`; layout de `Content::Label` único. |
+| `01_core/src/engine/layout/references.rs` | Simplificação: `layout_label` regista destino directamente; `layout_labelled` removido. |
+| `01_core/src/engine/layout/tests.rs` | Ajustados todos os `Content::labelled`/`labelled_prod` para `Content::label_auto`. |
 | `01_core/src/entities/resolved_label_store.rs` | Comentário actualizado para referenciar `Content::Label` com `auto: true`. |
 | `03_infra/src/export/tests.rs` | Adicionado teste L3: figure auto-labelled + user label geram `/Dests` correctos. |
 | `00_nucleo/prompts/entities/elements/label.md` | Actualizado com campo `auto` e semântica de origem. |

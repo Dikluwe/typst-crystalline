@@ -62,15 +62,15 @@ Registar a saída exacta de `repr()` para cada caso — é o alvo da correcção
 ## Implementação — `#title()`
 
 1. Adicionar `Content::Title` (ou equivalente, conforme a sonda confirmar se é elemento próprio ou variante) em `01_core/src/entities/content.rs`.
-2. Registar `title` como função nativa de markup em `01_core/src/rules/stdlib/` (mesmo padrão de `heading`, confirmar por leitura directa do stdlib actual).
+2. Registar `title` como função nativa de markup em `01_core/src/engine/stdlib/` (mesmo padrão de `heading`, confirmar por leitura directa do stdlib actual).
 3. Regra de layout: renderizar o corpo (confirmar com a sonda se tem estilo próprio ou herda de `heading(level: 1)` ou similar).
 4. Confirmar que `document(title: ...)` continua a funcionar independentemente (não quebrar o que já está fechado).
 
 ## Implementação — `symbol()` e modificadores
 
-1. Construtor nativo `symbol(...)` em `01_core/src/rules/stdlib/foundations.rs` (ou caminho real), aceitando a assinatura confirmada pela sonda.
-2. Field access em valores `Symbol`: estender `01_core/src/rules/eval/` (ponto exacto de field access a confirmar) para reconhecer modificadores sobre `Value::Symbol`, devolvendo um novo `Symbol` com a variante seleccionada — não hardcoded por nome, replicando o mecanismo genérico do vanilla.
-3. `repr()` de `Symbol` com variantes: corrigir `01_core/src/rules/eval/repr.rs:95` para formatar `symbol("α")` / `symbol(("bold","α"),...)`, conforme a saída exacta registada na sonda.
+1. Construtor nativo `symbol(...)` em `01_core/src/engine/stdlib/foundations.rs` (ou caminho real), aceitando a assinatura confirmada pela sonda.
+2. Field access em valores `Symbol`: estender `01_core/src/engine/eval/` (ponto exacto de field access a confirmar) para reconhecer modificadores sobre `Value::Symbol`, devolvendo um novo `Symbol` com a variante seleccionada — não hardcoded por nome, replicando o mecanismo genérico do vanilla.
+3. `repr()` de `Symbol` com variantes: corrigir `01_core/src/engine/eval/repr.rs:95` para formatar `symbol("α")` / `symbol(("bold","α"),...)`, conforme a saída exacta registada na sonda.
 
 ---
 

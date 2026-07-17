@@ -8,7 +8,7 @@ materializado em walk** (pattern arquitectural ADR-0069
 aplicado pela primeira vez).
 
 Modifica walk arm `Content::Labelled` em
-`01_core/src/rules/introspect.rs:432-486` para:
+`01_core/src/engine/introspect.rs:432-486` para:
 
 1. **Manter mutação legacy paralela** (write paralelo
    durante janela compat M5 — preserva fallback C4 P194
@@ -73,7 +73,7 @@ PROPOSTO, `from_tags` arm funcional. Walk arm Labelled
 ### .A Auditoria L0
 
 1. Confirmar walk arm Labelled actual:
-   - `01_core/src/rules/introspect.rs:432-486` (per
+   - `01_core/src/engine/introspect.rs:432-486` (per
      P195A §2.1). Re-verificar empiricamente.
    - Localizar:
      - Recursão `walk(target, ..., Some(label))` —
@@ -160,7 +160,7 @@ Output: tabela com item + estado + decisão sobre Locator
 
 ### .B Criar helper privado `compute_labelled`
 
-1. Em `01_core/src/rules/introspect.rs` (ou módulo
+1. Em `01_core/src/engine/introspect.rs` (ou módulo
    similar):
    - Adicionar função privada:
      ```
@@ -204,7 +204,7 @@ Output: tabela com item + estado + decisão sobre Locator
 
 ### .C Modificar walk arm Labelled
 
-1. Em `01_core/src/rules/introspect.rs:432-486`:
+1. Em `01_core/src/engine/introspect.rs:432-486`:
    - Antes da recursão: nada muda.
    - Recursão: nada muda
      (`walk(target, ..., Some(label))`).

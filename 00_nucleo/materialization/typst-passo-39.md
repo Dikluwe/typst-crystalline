@@ -9,17 +9,17 @@
 ```bash
 # Confirmar que MathShorthand cai no _ em eval_math_content
 grep -n "MathShorthand\|Shorthand" \
-  01_core/src/rules/eval.rs | head -10
+  01_core/src/engine/eval.rs | head -10
 
 # Confirmar estrutura de rules/math/
-ls 01_core/src/rules/math/
+ls 01_core/src/engine/math/
 
 # Verificar se unicode_math_class está em Cargo.toml de 01_core
 grep "unicode_math_class" 01_core/Cargo.toml
 
 # Confirmar como MathIdent é tratado actualmente em eval_math_content
 grep -n "MathIdent\|SyntaxKind::Math" \
-  01_core/src/rules/eval.rs | head -15
+  01_core/src/engine/eval.rs | head -15
 ```
 
 **Parar se qualquer pré-condição falhar.**
@@ -44,11 +44,11 @@ renderiza o texto literal "alpha" no PDF. `=>` produz `Content::Empty`
 ```bash
 # Ver todos os SyntaxKind matemáticos tratados em eval_math_content
 grep -n "SyntaxKind::Math\|MathIdent\|MathText\|MathShorthand\|MathFrac\|MathAttach" \
-  01_core/src/rules/eval.rs | head -30
+  01_core/src/engine/eval.rs | head -30
 
 # Ver como MathIdent é construído actualmente
 grep -n -A 5 "MathIdent" \
-  01_core/src/rules/eval.rs | head -20
+  01_core/src/engine/eval.rs | head -20
 
 # Ver se TextStyle tem campo italic já funcional
 grep -n "italic" \
@@ -449,13 +449,13 @@ crystalline-lint .
 # ✓ No violations found
 
 # Confirmar symbols.rs em rules/math/
-ls 01_core/src/rules/math/
+ls 01_core/src/engine/math/
 
 # Confirmar que "alpha" não aparece literalmente em testes de equação
-grep -rn "\"alpha\"" 01_core/src/rules/math/symbols.rs | head -3
+grep -rn "\"alpha\"" 01_core/src/engine/math/symbols.rs | head -3
 
 # Confirmar MathShorthand tem arm próprio
-grep -n "MathShorthand\|Shorthand" 01_core/src/rules/eval.rs
+grep -n "MathShorthand\|Shorthand" 01_core/src/engine/eval.rs
 ```
 
 Critérios de conclusão:

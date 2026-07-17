@@ -24,7 +24,7 @@ O texto de cada palavra árabe já sai correcto — as letras ligam-se certas de
 ### Confirmar onde o Layouter posiciona palavras
 
 ```bash
-grep -n "layout_word\|cursor_x\|advance.*word" 01_core/src/rules/layout/cursor.rs | head -20
+grep -n "layout_word\|cursor_x\|advance.*word" 01_core/src/engine/layout/cursor.rs | head -20
 ```
 
 Perguntas, com `file:line`:

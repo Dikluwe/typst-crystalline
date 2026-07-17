@@ -24,7 +24,7 @@ Corrigir dois problemas reais de footnotes em colunas identificados em P551:
 
 ### 2.1 Causa da numeração duplicada
 
-`01_core/src/rules/layout/columns.rs:126` e `:161` salvavam e restauravam `footnote_counter` em cada segmento de coluna dentro de `layout_segmented`. Como o flush de footnotes acontecia ao fim de cada coluna, o contador era reiniciado antes de processar a coluna seguinte, fazendo com que todas as colunas reutilizassem o mesmo número.
+`01_core/src/engine/layout/columns.rs:126` e `:161` salvavam e restauravam `footnote_counter` em cada segmento de coluna dentro de `layout_segmented`. Como o flush de footnotes acontecia ao fim de cada coluna, o contador era reiniciado antes de processar a coluna seguinte, fazendo com que todas as colunas reutilizassem o mesmo número.
 
 ### 2.2 Causa do posicionamento de `#columns(2)`
 
@@ -41,7 +41,7 @@ O consumer `Content::Columns` não distinguia entre a forma-função `#columns(N
 
 ### 3.2 `columns::layout_segmented` — semântica correta
 
-- `01_core/src/rules/layout/columns.rs`:
+- `01_core/src/engine/layout/columns.rs`:
   - Removido save/restore de `footnote_counter`; o contador avança monotonicamente.
   - Com `page_columns == true`: flush de footnotes no fim de cada coluna (comportamento de página).
   - Com `page_columns == false`: acumula footnotes durante os segmentos e flush único no final, posicionado na primeira coluna (comportamento de contentor).
@@ -49,15 +49,15 @@ O consumer `Content::Columns` não distinguia entre a forma-função `#columns(N
 
 ### 3.3 `flush_pending_footnote_bodies` — bottom opcional
 
-- `01_core/src/rules/layout/cursor.rs` — a função passou a aceitar `bottom_y: Option<f64>`, permitindo ao `columns.rs` posicionar footnotes de contentor abaixo do conteúdo, em vez de no fundo da página.
+- `01_core/src/engine/layout/cursor.rs` — a função passou a aceitar `bottom_y: Option<f64>`, permitindo ao `columns.rs` posicionar footnotes de contentor abaixo do conteúdo, em vez de no fundo da página.
 
 ### 3.4 `layout_sub_frame_with_width` — altura de linha não-flushed
 
-- `01_core/src/rules/layout/mod.rs` — corrigido cálculo de `cell_height` para incluir a altura da linha quando há itens em `current_line` não flushed. Sem esta correção, footnotes de uma única linha eram medidas com altura 0 e empilhadas sobrepostas.
+- `01_core/src/engine/layout/mod.rs` — corrigido cálculo de `cell_height` para incluir a altura da linha quando há itens em `current_line` não flushed. Sem esta correção, footnotes de uma única linha eram medidas com altura 0 e empilhadas sobrepostas.
 
 ### 3.5 Testes
 
-- `01_core/src/rules/layout/tests.rs`:
+- `01_core/src/engine/layout/tests.rs`:
   - Renomeado/actualizado `p537_footnotes_columns_colbreak_posicionam_por_coluna` → `p537_footnotes_columns_colbreak_empilham_na_primeira_coluna`.
   - Adicionado `p552_footnotes_set_page_columns_colbreak_posicionam_por_coluna`.
   - Adicionado `p552_footnote_counter_avanca_em_set_page_columns`.

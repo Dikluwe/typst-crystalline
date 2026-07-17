@@ -23,15 +23,15 @@ Foram necessárias três alterações coordenadas:
 
 ## Ficheiros alterados
 
-- `01_core/src/rules/layout/metrics.rs` — trait `FontMetrics` recebe
+- `01_core/src/engine/layout/metrics.rs` — trait `FontMetrics` recebe
   `&TextStyle`; `FixedMetrics` é `Clone + Copy`.
-- `01_core/src/rules/layout/mod.rs` — novo entry point genérico; todos os
+- `01_core/src/engine/layout/mod.rs` — novo entry point genérico; todos os
   callers de `advance` actualizados; `layout_with_introspector` mantém
   `FixedMetrics` para compatibilidade de testes.
-- `01_core/src/rules/layout/text.rs` — preserva espaços entre palavras.
-- `01_core/src/rules/layout/cursor.rs`, `enum_item.rs`, `equation.rs`,
+- `01_core/src/engine/layout/text.rs` — preserva espaços entre palavras.
+- `01_core/src/engine/layout/cursor.rs`, `enum_item.rs`, `equation.rs`,
   `link.rs`, `list_item.rs` — callers de `advance` actualizados.
-- `01_core/src/rules/math/layout/mod.rs` — caller de `advance`
+- `01_core/src/engine/math/layout/mod.rs` — caller de `advance`
   actualizado.
 - `01_core/src/entities/image_sizer.rs` — `NullImageSizer` é `Copy`.
 - `03_infra/src/font_metrics.rs` — implementação de

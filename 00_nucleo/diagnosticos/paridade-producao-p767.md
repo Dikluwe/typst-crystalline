@@ -13,7 +13,7 @@
 ### Commits identificados
 
 ```bash
-git log --all --oneline -S "native_rect" -- "01_core/src/rules/stdlib.rs" "01_core/src/rules/stdlib/shapes.rs" | tail -10
+git log --all --oneline -S "native_rect" -- "01_core/src/engine/stdlib.rs" "01_core/src/engine/stdlib/shapes.rs" | tail -10
 git log --all --oneline -S "Content::Shape" -- "01_core/src/entities/content.rs" | tail -10
 ```
 
@@ -52,7 +52,7 @@ Não há menção a "block", "parágrafo", "inline" ou "quebra de parágrafo". A
 
 ## Parte B — L0 escrito
 
-**Ficheiro:** `00_nucleo/prompts/rules/layout/shape_block_behaviour.md`
+**Ficheiro:** `00_nucleo/prompts/engine/layout/shape_block_behaviour.md`
 
 Cobertura dos 5 pontos exigidos:
 
@@ -60,7 +60,7 @@ Cobertura dos 5 pontos exigidos:
 2. **Ponto de intercepção**: reutilizar o mecanismo de bloco existente (`block::layout`, `block_chain_active`, `prev_block_below_pending`, `above`/`below`). Três opções listadas (A/B/C), com A preferida.
 3. **Espaçamento above/below**: por defeito `1.2em`, medido do vanilla (`BlockElem` em `container.rs:342`). Deve usar o colapso existente (P250).
 4. **Impacto em `place()`**: formas dentro de `place()` não são afectadas (caminho absoluto, corrigido em P763f).
-5. **Impacto nos testes de regressão**: busca em `01_core/src/rules/layout/tests.rs` não encontrou testes que misturem texto literal com formas no mesmo fluxo; testes dependentes do comportamento actual devem ser actualizados conscientemente.
+5. **Impacto nos testes de regressão**: busca em `01_core/src/engine/layout/tests.rs` não encontrou testes que misturem texto literal com formas no mesmo fluxo; testes dependentes do comportamento actual devem ser actualizados conscientemente.
 
 **Hash do Código:** marcado como `P767-PENDING`, porque o Protocolo de Nucleação estabelece que o hash do código L1 é calculado pelo humano **antes** da implementação, e este passo é explicitamente "sem implementação".
 

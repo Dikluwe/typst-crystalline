@@ -29,12 +29,12 @@ P190E fecha **Categoria 4 (Numbering active)** parcialmente — **Caso 1 confirm
 
 | # | Ficheiro | Mudança |
 |---|----------|---------|
-| 1 | `rules/layout/equation.rs:33` | `is_numbering_active(key) || self.counter.is_numbering_active(key)` → `self.current_location.map(\|loc\| self.introspector.is_numbering_active_at("numbering_active:equation", loc)).unwrap_or(false)`. |
-| 2 | `rules/layout/mod.rs:355` | Análogo para `numbering_active:heading`. |
-| 3 | `rules/layout/mod.rs:1501` | Assignment `l.counter.numbering_active = initial_state.numbering_active` removido. |
-| 4 | `rules/layout/mod.rs:1536` | Assignment fixpoint loop removido. |
-| 5 | `rules/layout/tests.rs:966` | Test `layout_equation_bloco_numerada` adaptado para pipeline standard. |
-| 6-12 | `rules/layout/tests.rs` | 7 tests sentinela fallback legacy removidos. |
+| 1 | `engine/layout/equation.rs:33` | `is_numbering_active(key) || self.counter.is_numbering_active(key)` → `self.current_location.map(\|loc\| self.introspector.is_numbering_active_at("numbering_active:equation", loc)).unwrap_or(false)`. |
+| 2 | `engine/layout/mod.rs:355` | Análogo para `numbering_active:heading`. |
+| 3 | `engine/layout/mod.rs:1501` | Assignment `l.counter.numbering_active = initial_state.numbering_active` removido. |
+| 4 | `engine/layout/mod.rs:1536` | Assignment fixpoint loop removido. |
+| 5 | `engine/layout/tests.rs:966` | Test `layout_equation_bloco_numerada` adaptado para pipeline standard. |
+| 6-12 | `engine/layout/tests.rs` | 7 tests sentinela fallback legacy removidos. |
 
 **Field `numbering_active` PRESERVADO** em `CounterStateLegacy` (Caso 1).
 **Walk arm mutations PRESERVADAS** em SetHeadingNumbering + SetEquationNumbering.

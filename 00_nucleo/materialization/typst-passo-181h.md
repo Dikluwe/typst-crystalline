@@ -40,7 +40,7 @@ Introspector. Fallback defensivo a state legacy preservado.
 ### .A Auditoria L0 + decisão `layout()` legacy
 
 1. Confirmar walk arm actual:
-   - `01_core/src/rules/introspect.rs:567-573`.
+   - `01_core/src/engine/introspect.rs:567-573`.
    - Forma actual:
      ```rust
      Content::Bibliography { entries, title } => {
@@ -56,7 +56,7 @@ Introspector. Fallback defensivo a state legacy preservado.
      `tags`, etc.).
 
 2. Confirmar `layout()` legacy actual:
-   - `01_core/src/rules/layout/mod.rs:1380-1400` (forma
+   - `01_core/src/engine/layout/mod.rs:1380-1400` (forma
      aproximada — verificar).
    - Identificar como state é obtido:
      - Provavelmente: `let state = introspect(content);`
@@ -116,7 +116,7 @@ Output: notas internas; sem ficheiro novo.
 
 ### .B Tests primeiro (devem falhar parcialmente)
 
-Em `01_core/src/rules/introspect.rs::tests`:
+Em `01_core/src/engine/introspect.rs::tests`:
 
 ```rust
 #[test]
@@ -148,7 +148,7 @@ fn walk_arm_bibliography_puro_nao_muta_state_p181h() {
 }
 ```
 
-Em `01_core/src/rules/layout/tests.rs`:
+Em `01_core/src/engine/layout/tests.rs`:
 
 ```rust
 #[test]
@@ -230,7 +230,7 @@ Marco humano. Após `.C` e `.D`:
 
 ### .F Implementar walk arm puro
 
-Em `01_core/src/rules/introspect.rs:567-573`:
+Em `01_core/src/engine/introspect.rs:567-573`:
 
 ```rust
 // ANTES (P159C/F):
@@ -263,7 +263,7 @@ Content::Bibliography { title, .. } => {
 
 ### .G Implementar `layout()` migração
 
-Em `01_core/src/rules/layout/mod.rs::layout` (linha
+Em `01_core/src/engine/layout/mod.rs::layout` (linha
 ~1380):
 
 ```rust

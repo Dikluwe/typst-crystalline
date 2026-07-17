@@ -47,7 +47,7 @@ reutilizável.
 - **ADR-0033**: paridade funcional para pagebreak.
 - **ADR-0036**: atomização — consumer explícito.
 - **ADR-0037**: coesão por domínio — Layout permanece em
-  `rules/layout/` e `rules/stdlib/layout.rs`.
+  `engine/layout/` e `rules/stdlib/layout.rs`.
 - **ADR-0054**: perfil observacional graded — pagebreak
   cumprido com aproximação aceite (`weak` semantic
   simplificada per P156D).
@@ -118,11 +118,11 @@ Ao fim do passo:
    - `entities/content.rs::map_text`.
    - `rules/introspect.rs::materialize_time`.
    - `rules/introspect.rs::walk`.
-   - `rules/layout/mod.rs::layout_content`.
-   - `rules/layout/mod.rs::measure_content_constrained`.
+   - `engine/layout/mod.rs::layout_content`.
+   - `engine/layout/mod.rs::measure_content_constrained`.
 
 4. **`native_pagebreak`** em
-   `01_core/src/rules/stdlib/layout.rs` expondo
+   `01_core/src/engine/stdlib/layout.rs` expondo
    `#pagebreak(weak: ?, to: ?)`.
 
 5. **Layouter pagebreak**: força flush da página actual;
@@ -212,7 +212,7 @@ Este passo **não**:
    ligeiramente mais escopo que P156C/P156D (que tinham
    2 features triviais cada).
 
-5. **Localização canónica**: `01_core/src/rules/stdlib/layout.rs`
+5. **Localização canónica**: `01_core/src/engine/stdlib/layout.rs`
    per descobertas P156C/P156D.
 
 6. **Assinatura natives**: 5-param canónica.
@@ -238,7 +238,7 @@ Este passo **não**:
     explícito. `to: "anything"` → Err.
 
 13. **Layouter pagebreak: como forçar quebra de página?**
-    Verificar mecânica actual em `rules/layout/mod.rs`.
+    Verificar mecânica actual em `engine/layout/mod.rs`.
     Hipótese: existe método `force_pagebreak()` ou
     similar usado por overflow automático. Reusar.
     Se não existir, criar.
@@ -269,20 +269,20 @@ Este passo **não**:
   `pub mod parity;`).
 - Modificação de `01_core/src/entities/content.rs`
   (variant novo + arms cobertura).
-- Modificação de `01_core/src/rules/introspect.rs`
+- Modificação de `01_core/src/engine/introspect.rs`
   (`materialize_time` + `walk`).
-- Modificação de `01_core/src/rules/layout/mod.rs`
+- Modificação de `01_core/src/engine/layout/mod.rs`
   (`layout_content` + `measure_content_constrained`).
-- Modificação de `01_core/src/rules/stdlib/layout.rs`
+- Modificação de `01_core/src/engine/stdlib/layout.rs`
   (`native_pagebreak` + helper `extract_parity`).
-- Modificação de `01_core/src/rules/stdlib/mod.rs`
+- Modificação de `01_core/src/engine/stdlib/mod.rs`
   (re-export).
-- Modificação de `01_core/src/rules/eval/mod.rs`
+- Modificação de `01_core/src/engine/eval/mod.rs`
   (registo em `make_stdlib`).
 - Tests em `01_core/src/entities/parity.rs::tests`,
   `01_core/src/entities/content.rs::tests`,
-  `01_core/src/rules/stdlib/mod.rs::tests`,
-  `01_core/src/rules/layout/tests.rs`.
+  `01_core/src/engine/stdlib/mod.rs::tests`,
+  `01_core/src/engine/layout/tests.rs`.
 - L0 prompts + hashes.
 - Inventário 148 + README ADRs.
 - Relatório do passo.
@@ -312,9 +312,9 @@ Este passo **não**:
 view 01_core/src/entities/content.rs   # confirmar 47 variants pós-P156D
 grep -nE "^pub enum Content" 01_core/src/entities/content.rs
 ls 01_core/src/entities/parity.rs 2>/dev/null  # NÃO existe
-view 01_core/src/rules/layout/mod.rs   # mecânica de page break
+view 01_core/src/engine/layout/mod.rs   # mecânica de page break
 grep -nE "fn flush_page|force_pagebreak|new_page" \
-  01_core/src/rules/layout/mod.rs
+  01_core/src/engine/layout/mod.rs
 ```
 
 Confirmar:
@@ -411,7 +411,7 @@ Content, adicionar arm para `Pagebreak`:
 
 ### 156E.5 — `native_pagebreak` + `extract_parity`
 
-Em `01_core/src/rules/stdlib/layout.rs`:
+Em `01_core/src/engine/stdlib/layout.rs`:
 
 ```rust
 fn extract_parity(value: &Value) -> SourceResult<Parity> {
@@ -462,7 +462,7 @@ scope.define("pagebreak",
 Re-export em `stdlib/mod.rs`:
 
 ```rust
-pub use crate::rules::stdlib::layout::{
+pub use crate::engine::stdlib::layout::{
     native_align, native_grid, native_h, native_hide,
     native_pad, native_page, native_pagebreak, native_place,
     native_v,
@@ -473,7 +473,7 @@ Stdlib funcs: 36 → **37** (+1).
 
 ### 156E.6 — Layouter pagebreak
 
-Em `01_core/src/rules/layout/mod.rs::layout_content`:
+Em `01_core/src/engine/layout/mod.rs::layout_content`:
 
 ```rust
 match content {
@@ -519,8 +519,8 @@ match content {
 |----------|--------|
 | `01_core/src/entities/parity.rs::tests` | (1) parity_matches_even; (2) parity_matches_odd |
 | `01_core/src/entities/content.rs::tests` | (3) pagebreak_constructor; (4) pagebreak_is_empty_returns_false; (5) pagebreak_plain_text_vazio; (6) pagebreak_partial_eq; (7) pagebreak_map_text_preserva |
-| `01_core/src/rules/stdlib/mod.rs::tests` | (8) `native_pagebreak` defaults (sem args); (9) `native_pagebreak` com weak; (10) `native_pagebreak` com to:"even"; (11) `native_pagebreak` com to:"odd"; (12) `native_pagebreak` com weak+to combinado; (13) `native_pagebreak` rejeita to inválido; (14) `native_pagebreak` rejeita named arg desconhecido; (15) `native_pagebreak` rejeita argumento posicional; (16) `native_pagebreak` rejeita weak não-Bool; (17) `native_pagebreak` rejeita to não-Str |
-| `01_core/src/rules/layout/tests.rs` | (18) layout_pagebreak_forca_nova_pagina; (19) layout_pagebreak_to_even_insere_vazia_se_actual_impar; (20) layout_pagebreak_to_odd_insere_vazia_se_actual_par; (21) layout_pagebreak_to_match_nao_insere_extra |
+| `01_core/src/engine/stdlib/mod.rs::tests` | (8) `native_pagebreak` defaults (sem args); (9) `native_pagebreak` com weak; (10) `native_pagebreak` com to:"even"; (11) `native_pagebreak` com to:"odd"; (12) `native_pagebreak` com weak+to combinado; (13) `native_pagebreak` rejeita to inválido; (14) `native_pagebreak` rejeita named arg desconhecido; (15) `native_pagebreak` rejeita argumento posicional; (16) `native_pagebreak` rejeita weak não-Bool; (17) `native_pagebreak` rejeita to não-Str |
+| `01_core/src/engine/layout/tests.rs` | (18) layout_pagebreak_forca_nova_pagina; (19) layout_pagebreak_to_even_insere_vazia_se_actual_impar; (20) layout_pagebreak_to_odd_insere_vazia_se_actual_par; (21) layout_pagebreak_to_match_nao_insere_extra |
 
 **Total**: ~21 tests novos. Tests cumulativos: **1192 →
 ~1213**.

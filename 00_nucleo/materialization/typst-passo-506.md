@@ -230,7 +230,7 @@ impl RuntimeState {
 
 ### 3.5 Modificação do Layout Engine
 
-**Arquivo alvo:** `src/rules/layout/mod.rs` (ou equivalente)
+**Arquivo alvo:** `src/engine/layout/mod.rs` (ou equivalente)
 
 O layout engine precisa de:
 1. Um `RuntimeState` que persiste durante todo o layout.

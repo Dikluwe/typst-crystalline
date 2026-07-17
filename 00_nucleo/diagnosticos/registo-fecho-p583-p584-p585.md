@@ -6,11 +6,11 @@
 
 Houve duas versões do relatório de P583, com o mesmo commit citado, e conclusões opostas sobre a existência do teste `p581_cobertura_de_escape_e_shorthand_em_layout`.
 
-P585 resolveu isto com prova directa: o teste existe, em `01_core/src/rules/layout/tests.rs:3488`, corre e passa (confirmado com o caminho completo do módulo, `rules::layout::tests::tests_set_rule_integration::p581_cobertura_de_escape_e_shorthand_em_layout`).
+P585 resolveu isto com prova directa: o teste existe, em `01_core/src/engine/layout/tests.rs:3488`, corre e passa (confirmado com o caminho completo do módulo, `rules::layout::tests::tests_set_rule_integration::p581_cobertura_de_escape_e_shorthand_em_layout`).
 
 ## Consequência
 
-P584 foi executado com base na versão errada de P583 (a que dizia que o teste não existia). Como resultado, criou um segundo teste, `p584_escape_shorthand_linebreak_em_markup_preservados`, em `01_core/src/rules/eval/tests.rs`, cobrindo conteúdo parecido ao do teste original.
+P584 foi executado com base na versão errada de P583 (a que dizia que o teste não existia). Como resultado, criou um segundo teste, `p584_escape_shorthand_linebreak_em_markup_preservados`, em `01_core/src/engine/eval/tests.rs`, cobrindo conteúdo parecido ao do teste original.
 
 ## Decisão
 

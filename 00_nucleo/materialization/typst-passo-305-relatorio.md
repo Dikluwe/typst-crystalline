@@ -94,7 +94,7 @@ ainda não inflacionado a ADR formal.
 
 ## §3 — Materialização
 
-### §3.1 — `01_core/src/rules/layout/cursor.rs` — flush refinado
+### §3.1 — `01_core/src/engine/layout/cursor.rs` — flush refinado
 
 **Mudanças principais**:
 
@@ -141,7 +141,7 @@ for (n, body) in bodies.into_iter() {
 self.pending_footnote_bodies = remainder;
 ```
 
-### §3.2 — `01_core/src/rules/layout/mod.rs` — finish() loop
+### §3.2 — `01_core/src/engine/layout/mod.rs` — finish() loop
 
 ```rust
 pub fn finish(mut self) -> PagedDocument {
@@ -188,14 +188,14 @@ infraestrutura P304.
 | Marker `[N]` inline emit | **Inalterado bit-exact** (P295) |
 | `pending_footnote_bodies` campo | **Inalterado** (P304) — mesmo tipo, semântica estendida |
 | `new_page()` flow | **Inalterado** — flush method já chamado por P304 |
-| L0 `rules/layout.md` | **Inalterado** — precedente P245/P251/P304 |
+| L0 `engine/layout.md` | **Inalterado** — precedente P245/P251/P304 |
 | `03_infra/src/export.rs` (emit code) | **Inalterado bit-exact** — hash `66cb8ac3` (**22º passo**) |
 
 ---
 
 ## §4 — Testes
 
-### §4.1 — `01_core/src/rules/layout/tests.rs` (+6 L1)
+### §4.1 — `01_core/src/engine/layout/tests.rs` (+6 L1)
 
 | Teste | Verifica |
 |---|---|
@@ -247,9 +247,9 @@ Resultado **dentro da janela esperada** da spec (~2 898-2 905):
 |---|---|
 | `infra/export.rs` (`@prompt-hash`) | **`66cb8ac3` preservado bit-exact** (**22º passo consecutivo**) |
 | `entities/content.rs` (`@prompt-hash`) | `82d3c47d` inalterado |
-| `rules/layout/mod.rs` (`@prompt-hash`) | `12536b5c` inalterado |
-| `rules/layout/cursor.rs` (`@prompt-hash`) | `12536b5c` inalterado |
-| L0 `rules/layout.md` | **`12536b5c` preservado** — precedente P245/P251/P304 (campos buffer sem L0 update) |
+| `engine/layout/mod.rs` (`@prompt-hash`) | `12536b5c` inalterado |
+| `engine/layout/cursor.rs` (`@prompt-hash`) | `12536b5c` inalterado |
+| L0 `engine/layout.md` | **`12536b5c` preservado** — precedente P245/P251/P304 (campos buffer sem L0 update) |
 | Outros L0 markdown | todos preservados |
 
 ### §5.4 — Regressões verificadas

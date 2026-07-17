@@ -52,7 +52,7 @@ intencional). §A.5 `place(...)` reclassificada `parcial ⁵`
   - `rules/introspect.rs:340` (materialize_time); `:1139`
     walk (recurse via destructure `{ body, .. }` —
     insensível ao refino).
-  - `rules/layout/mod.rs:834` (layout_content arm).
+  - `engine/layout/mod.rs:834` (layout_content arm).
   - `rules/introspect/locatable.rs:112` (catch-all —
     insensível ao refino).
 - `native_place` em `stdlib/layout.rs:54-111` — validation

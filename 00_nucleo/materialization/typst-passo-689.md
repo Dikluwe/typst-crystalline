@@ -50,7 +50,7 @@ echo "Exit code: $?"
 
 ## Implementação
 
-Adicionar os três métodos ao dispatcher de métodos de `str` (`01_core/src/rules/stdlib/collections.rs`), seguindo o comportamento confirmado pela sonda.
+Adicionar os três métodos ao dispatcher de métodos de `str` (`01_core/src/engine/stdlib/collections.rs`), seguindo o comportamento confirmado pela sonda.
 
 ### Critério de fecho da implementação
 

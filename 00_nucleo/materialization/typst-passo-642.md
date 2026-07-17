@@ -3,7 +3,7 @@
 
 > **Passo:** 642
 > **Data:** 2026-07-09
-> **Foco:** P633 confirmou (caso 4) que o callback de `state.update(func)`, quando `apply_func` devolve `Err`, é descartado com um comentário "defensive ignore" — a actualização de estado não acontece e o utilizador não recebe diagnóstico. P641 confirmou a fase certa (introspecção, `01_core/src/rules/introspect/from_tags.rs:64`, não `eval/`) e o método de teste certo (integração/pipeline, não `eval/tests.rs` isolado). Este passo corrige.
+> **Foco:** P633 confirmou (caso 4) que o callback de `state.update(func)`, quando `apply_func` devolve `Err`, é descartado com um comentário "defensive ignore" — a actualização de estado não acontece e o utilizador não recebe diagnóstico. P641 confirmou a fase certa (introspecção, `01_core/src/engine/introspect/from_tags.rs:64`, não `eval/`) e o método de teste certo (integração/pipeline, não `eval/tests.rs` isolado). Este passo corrige.
 > **Tipo:** Implementação directa. Causa e localização já confirmadas por P633/P641.
 > **Tamanho:** S.
 > **ADR-0108 EM VIGOR.**
@@ -13,7 +13,7 @@
 
 ## Contexto
 
-`01_core/src/rules/introspect/from_tags.rs:64`:
+`01_core/src/engine/introspect/from_tags.rs:64`:
 
 ```rust
 if let StateUpdate::Func(func) = update {

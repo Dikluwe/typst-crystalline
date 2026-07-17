@@ -14,8 +14,8 @@
 ## Sonda — alcance real do problema
 
 ```bash
-grep -rn "Span::detached()" 01_core/src/rules/stdlib/*.rs | wc -l
-grep -rn "Span::detached()" 01_core/src/rules/stdlib/*.rs
+grep -rn "Span::detached()" 01_core/src/engine/stdlib/*.rs | wc -l
+grep -rn "Span::detached()" 01_core/src/engine/stdlib/*.rs
 ```
 
 Contar quantos pontos de erro em funções nativas usam `Span::detached()` hoje — isto é a medida directa do "alcance" antes de decidir se vale a mudança estrutural.

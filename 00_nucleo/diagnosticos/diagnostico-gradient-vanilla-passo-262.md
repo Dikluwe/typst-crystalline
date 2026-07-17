@@ -366,7 +366,7 @@ pub fn native_gradient_linear(args: &Args) -> SourceResult<Value> {
 5. **C.5** — `entities/value.rs` activar `Value::Gradient(Gradient)`
    variant + `type_name()` + `From<Gradient> for Value`.
 6. **C.6** — Stdlib `native_gradient_linear` em novo
-   `01_core/src/rules/stdlib/gradients.rs` + registo em
+   `01_core/src/engine/stdlib/gradients.rs` + registo em
    `rules/eval/mod.rs` (scope.define("gradient", ...)).
 7. **C.7** — PDF exporter:
    - Helper `compute_axial_coords(angle, bbox)`.

@@ -13,8 +13,8 @@ Foram executadas 4 sondas independentes:
 
 1. **Parser/sintaxe** — compilar snippets mínimos de cada elemento.
 2. **Variants em `Content`** — procurar `MathBinom`, `MathClass`, `MathLimits`, `MathMid`, `MathPrimes`, `MathScripts`, `MathStretch` em `01_core/src/entities/content.rs`.
-3. **Construtores nativos** — procurar `native_binom`, `native_class`, etc., em `01_core/src/rules/stdlib/`.
-4. **Layout handlers** — procurar os mesmos variants em `01_core/src/rules/math/layout/`.
+3. **Construtores nativos** — procurar `native_binom`, `native_class`, etc., em `01_core/src/engine/stdlib/`.
+4. **Layout handlers** — procurar os mesmos variants em `01_core/src/engine/math/layout/`.
 
 ---
 
@@ -48,7 +48,7 @@ rg -n "MathBinom\|MathClass\|MathLimits\|MathMid\|MathPrimes\|MathScripts\|MathS
 
 ```bash
 rg -n "native_binom\|native_class\|native_limits\|native_mid\|native_primes\|native_scripts\|native_stretch" \
-   01_core/src/rules/stdlib/ --type rs
+   01_core/src/engine/stdlib/ --type rs
 ```
 
 **Resultado:** nenhuma ocorrência.
@@ -57,7 +57,7 @@ rg -n "native_binom\|native_class\|native_limits\|native_mid\|native_primes\|nat
 
 ```bash
 rg -n "MathBinom\|MathClass\|MathLimits\|MathMid\|MathPrimes\|MathScripts\|MathStretch" \
-   01_core/src/rules/math/layout/ --type rs
+   01_core/src/engine/math/layout/ --type rs
 ```
 
 **Resultado:** nenhuma ocorrência.

@@ -25,7 +25,7 @@ A alteração exigiu uma pequena mudança no parser (`enter_modes`) para impedir
 
 ### 2.1 Reconstituição das regressões de P634
 
-Sonda temporária em `01_core/src/rules/eval/mod.rs`: propagação indiscriminada de todos os `root.errors()` como `SourceDiagnostic::error`.
+Sonda temporária em `01_core/src/engine/eval/mod.rs`: propagação indiscriminada de todos os `root.errors()` como `SourceDiagnostic::error`.
 
 Resultado:
 
@@ -49,7 +49,7 @@ Resultado:
 
 ## 3. Implementação
 
-### 3.1 `01_core/src/rules/eval/mod.rs`
+### 3.1 `01_core/src/engine/eval/mod.rs`
 
 Adicionada, no entrypoint `eval_with_full_error`, propagação selectiva de erros de parser:
 
@@ -71,13 +71,13 @@ if !syntax_errors.is_empty() {
 
 Só estas duas classes de mensagem são propagadas; todo o resto continua a ser ignorado pelo eval, evitando as regressões de P634.
 
-### 3.2 `01_core/src/rules/parse/parser.rs`
+### 3.2 `01_core/src/engine/parse/parser.rs`
 
 Alterada `enter_modes` para preservar selectivamente erros de lexer quando o token de lookahead é re-lexado ao mudar de modo (ex: Code → Markup no fim de `#let x = 0xZZ`). Sem isto, o erro `invalid hexadecimal number: 0xZZ` era descartado e substituído por um nó `Text` em markup.
 
 A preservação aplica-se apenas às mesmas duas classes de mensagem do ponto 3.1. Outras mensagens de lexer (como `"the character '#' is not valid in code"`) continuam a ser descartadas no re-lexing, mantendo as regressões de P634 afastadas.
 
-### 3.3 `01_core/src/rules/eval/tests.rs`
+### 3.3 `01_core/src/engine/eval/tests.rs`
 
 - `p633_parse_error_expr_silent_none` → renomeado para `p648_parse_error_hex_literal_errors` e invertido para confirmar erro.
 - `p643_invalid_unicode_escape_markup_still_silent` → renomeado para `p648_invalid_unicode_escape_markup_errors` e invertido para confirmar erro.

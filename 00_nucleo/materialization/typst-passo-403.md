@@ -64,7 +64,7 @@ Documentar o resultado da sonda no commit message: `Sonda P403: substrato verifi
 
 ### A.1 — Prompt L0 `primitives-constructors.md`
 
-Novo em `00_nucleo/prompts/rules/stdlib/primitives-constructors.md` (ou integrar em `stdlib.md` existente se o linter sinalizar órfão):
+Novo em `00_nucleo/prompts/engine/stdlib/primitives-constructors.md` (ou integrar em `stdlib.md` existente se o linter sinalizar órfão):
 
 - **Paridade**: `decimal("1.5")` ≡ `1.5` (decimal literal); `duration("1h30m")` ≡ `5400s`; `version("1.2.3")` compara via semver.
 - **Substrato**: 3 helpers stdlib puros que constroem `Value` existentes via `From`/`TryFrom`.

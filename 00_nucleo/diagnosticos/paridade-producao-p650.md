@@ -22,25 +22,25 @@
 01_core/src/entities/ast/markup.rs
 01_core/src/entities/layout_types.rs
 01_core/src/entities/syntax_node.rs
-01_core/src/rules/eval/bibliography.rs
-01_core/src/rules/eval/bindings.rs
-01_core/src/rules/eval/closures.rs
-01_core/src/rules/eval/mod.rs
-01_core/src/rules/eval/rules.rs
-01_core/src/rules/eval/tests.rs
-01_core/src/rules/introspect/fixpoint.rs
-01_core/src/rules/introspect/from_tags.rs
-01_core/src/rules/introspect.rs
-01_core/src/rules/layout/bib_csl.rs
-01_core/src/rules/layout/grid.rs
-01_core/src/rules/layout/mod.rs
-01_core/src/rules/layout/tests.rs
-01_core/src/rules/lexer/code.rs
-01_core/src/rules/lexer/markup.rs
-01_core/src/rules/lexer/mod.rs
-01_core/src/rules/parse/mod.rs
-01_core/src/rules/parse/parser.rs
-01_core/src/rules/stdlib/counter.rs
+01_core/src/engine/eval/bibliography.rs
+01_core/src/engine/eval/bindings.rs
+01_core/src/engine/eval/closures.rs
+01_core/src/engine/eval/mod.rs
+01_core/src/engine/eval/rules.rs
+01_core/src/engine/eval/tests.rs
+01_core/src/engine/introspect/fixpoint.rs
+01_core/src/engine/introspect/from_tags.rs
+01_core/src/engine/introspect.rs
+01_core/src/engine/layout/bib_csl.rs
+01_core/src/engine/layout/grid.rs
+01_core/src/engine/layout/mod.rs
+01_core/src/engine/layout/tests.rs
+01_core/src/engine/lexer/code.rs
+01_core/src/engine/lexer/markup.rs
+01_core/src/engine/lexer/mod.rs
+01_core/src/engine/parse/mod.rs
+01_core/src/engine/parse/parser.rs
+01_core/src/engine/stdlib/counter.rs
 03_infra/src/pipeline.rs
 ```
 
@@ -58,14 +58,14 @@
 
 | file:line | Código | Problema | Teste directo |
 |---|---|---|---|
-| `01_core/src/rules/eval/rules.rs:646` | `eval_expr(named.expr(), ...).unwrap_or(Value::None)` para `heading.numbering` | Erro na expressão `numbering` é descartado. | `#set heading(numbering: 1/0)` compila com sucesso (exit 0), sem erro nem aviso. |
-| `01_core/src/rules/eval/rules.rs:952` | `eval_expr(named.expr(), ...).unwrap_or(Value::None)` para args named de `#set` em elementos de utilizador | Erro na expressão do argumento é descartado. | `#let myelem(body) = body` + `#set myelem(foo: 1/0)` — o erro de `1/0` não é propagado (aparece apenas o warning de target não suportado). |
+| `01_core/src/engine/eval/rules.rs:646` | `eval_expr(named.expr(), ...).unwrap_or(Value::None)` para `heading.numbering` | Erro na expressão `numbering` é descartado. | `#set heading(numbering: 1/0)` compila com sucesso (exit 0), sem erro nem aviso. |
+| `01_core/src/engine/eval/rules.rs:952` | `eval_expr(named.expr(), ...).unwrap_or(Value::None)` para args named de `#set` em elementos de utilizador | Erro na expressão do argumento é descartado. | `#let myelem(body) = body` + `#set myelem(foo: 1/0)` — o erro de `1/0` não é propagado (aparece apenas o warning de target não suportado). |
 
 - **Caso suspeito (a investigar):**
 
 | file:line | Código | Risco |
 |---|---|---|
-| `01_core/src/rules/stdlib/collections.rs:184,187` | `value_cmp(...).unwrap_or(Ordering::Equal)` | Comparação entre tipos incompatíveis assume `Equal`, tornando `array.sorted()` silenciosamente instável. Teste: `(1, "a", 2).sorted()` compila sem erro. |
+| `01_core/src/engine/stdlib/collections.rs:184,187` | `value_cmp(...).unwrap_or(Ordering::Equal)` | Comparação entre tipos incompatíveis assume `Equal`, tornando `array.sorted()` silenciosamente instável. Teste: `(1, "a", 2).sorted()` compila sem erro. |
 
 ### 2.2 Padrão 8 — `saturating_*` e `clamp`
 
@@ -79,9 +79,9 @@
 
 ### 2.4 Padrão 10 — `Vec::retain` / `filter`
 
-- **Ocorrências em produção:** ~30 em `01_core/src/rules` (sem contar testes).
+- **Ocorrências em produção:** ~30 em `01_core/src/engine` (sem contar testes).
 - **Classificação geral:** **Inofensivo**. A maioria são filtros de tags/introspecção, contagem de tipos, ou funções de biblioteca pública (`array.filter`, `dict.filter`) onde o utilizador controla o predicado.
-- **Caso observado:** `01_core/src/rules/eval/math.rs:257` (`cols.retain(|c| !c.is_empty())` em `cases(...)`) remove colunas vazias de delimitadores de alinhamento — comportamento esperado em math cases.
+- **Caso observado:** `01_core/src/engine/eval/math.rs:257` (`cols.retain(|c| !c.is_empty())` em `cases(...)`) remove colunas vazias de delimitadores de alinhamento — comportamento esperado em math cases.
 
 ### 2.5 Padrão 11 — `eprintln!` / `log::warn!` / `log::error!`
 
@@ -111,9 +111,9 @@
 | 1 | `eprintln!` de debug deixado em `content.rs` | `01_core/src/entities/content.rs:2311` | Confirmação de debug esquecido |
 | 2 | Imagem inválida/desenhecida omitida com `eprintln!` | `03_infra/src/export/images.rs:279,285` | Falha silenciosa |
 | 3 | Falha de instanciação de fonte variável só em `eprintln!` | `03_infra/src/export/builder.rs:658` + `03_infra/src/font_variant.rs:193` | Diagnóstico não chega ao utilizador |
-| 4 | Erros em `#set heading(numbering: ...)` descartados | `01_core/src/rules/eval/rules.rs:646` | Falha silenciosa |
-| 5 | Erros em args named de `#set` para user elements descartados | `01_core/src/rules/eval/rules.rs:952` | Falha silenciosa |
-| 6 | `array.sorted()` com tipos incompatíveis assume `Equal` | `01_core/src/rules/stdlib/collections.rs:184,187` | Comportamento incorreto silencioso |
+| 4 | Erros em `#set heading(numbering: ...)` descartados | `01_core/src/engine/eval/rules.rs:646` | Falha silenciosa |
+| 5 | Erros em args named de `#set` para user elements descartados | `01_core/src/engine/eval/rules.rs:952` | Falha silenciosa |
+| 6 | `array.sorted()` com tipos incompatíveis assume `Equal` | `01_core/src/engine/stdlib/collections.rs:184,187` | Comportamento incorreto silencioso |
 
 ---
 

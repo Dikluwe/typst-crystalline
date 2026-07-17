@@ -9,7 +9,7 @@
 
 ## §1 Validação estado actual
 
-### §1.1 Walk arm Figure — `01_core/src/rules/introspect.rs:490-519`
+### §1.1 Walk arm Figure — `01_core/src/engine/introspect.rs:490-519`
 
 ```rust
 Content::Figure { body, caption, kind, numbering } => {
@@ -55,7 +55,7 @@ Figure {
 
 ### §1.3 `is_locatable(Content::Figure) = true`
 
-Confirmado em `01_core/src/rules/introspect/extract_payload.rs:27`:
+Confirmado em `01_core/src/engine/introspect/extract_payload.rs:27`:
 
 ```rust
 Content::Figure { kind, numbering, caption, .. } => Some(ElementPayload::Figure {
@@ -79,7 +79,7 @@ Figure {
 
 **Variant existe + cobre semântica de gate**. `is_counted` propaga predicado para from_tags. **Cenário α confirmado** (cláusula 1).
 
-### §1.5 `from_tags` arm Figure — `01_core/src/rules/introspect/from_tags.rs:72-113`
+### §1.5 `from_tags` arm Figure — `01_core/src/engine/introspect/from_tags.rs:72-113`
 
 ```rust
 ElementPayload::Figure { kind, counter_update, is_counted, .. } => {
@@ -279,11 +279,11 @@ Devem manter-se **inalterados** após P197B — cenário α não modifica payloa
 
 Magnitude **S/M** (sem novo Tag, sem nova variant, sem novo sub-store; apenas extração de helper + declarações):
 
-1. Adicionar helper `compute_figure(state, kind, is_counted) -> Option<usize>` em `01_core/src/rules/introspect.rs` antes da `walk` fn. Função pura sobre `(state, kind, is_counted)` retornando o número que vai ser inserido.
+1. Adicionar helper `compute_figure(state, kind, is_counted) -> Option<usize>` em `01_core/src/engine/introspect.rs` antes da `walk` fn. Função pura sobre `(state, kind, is_counted)` retornando o número que vai ser inserido.
 2. Refactor walk arm Figure (introspect.rs:490-519) para chamar helper:
    - Mutações legacy preservadas (chamam helper para obter `n`, mantêm `*counter += 1` + `figure_numbers.push(n)`).
    - Adicionar comentário declarando E3 fechada estruturalmente via existing extract_payload + from_tags.
-3. Actualizar L0 `00_nucleo/prompts/rules/introspect.md`:
+3. Actualizar L0 `00_nucleo/prompts/engine/introspect.md`:
    - Tabela "Excepções M5": E3 → "Fechou estruturalmente em P197B" (análogo a E4 P195D).
    - Lista "Ordem inversa à mutação": passo 6 marcado ✅.
    - Nova secção "Walk arm Figure migrado (P197B, ADR-0069 cenário α)".
@@ -382,7 +382,7 @@ Em M6, `compute_labelled` Figure arm migra para ler de CounterRegistry via uma A
 
 **P197B — Walk arm Figure refactor (cenário α)**:
 
-1. Adicionar helper `compute_figure(state, kind, is_counted) -> Option<usize>` antes da `walk` fn em `01_core/src/rules/introspect.rs`. Lógica: se `!is_counted`, retorna `None`. Caso contrário, projecta o próximo número que vai ser inserido em `state.figure_numbers[kind_key]` (1-based).
+1. Adicionar helper `compute_figure(state, kind, is_counted) -> Option<usize>` antes da `walk` fn em `01_core/src/engine/introspect.rs`. Lógica: se `!is_counted`, retorna `None`. Caso contrário, projecta o próximo número que vai ser inserido em `state.figure_numbers[kind_key]` (1-based).
 
 2. Refactor walk arm Figure (introspect.rs:490-519) para usar helper:
    ```rust
@@ -404,7 +404,7 @@ Em M6, `compute_labelled` Figure arm migra para ler de CounterRegistry via uma A
    }
    ```
 
-3. Actualizar L0 `00_nucleo/prompts/rules/introspect.md`:
+3. Actualizar L0 `00_nucleo/prompts/engine/introspect.md`:
    - Tabela "Excepções M5": linha E3 → "**Fechou estruturalmente em P197B**" (análogo a E4 P195D).
    - Lista "Ordem inversa à mutação": passo 6 marcado ✅.
    - Nova secção "Walk arm Figure migrado (P197B, ADR-0069 cenário α — sub-store via CounterRegistry)".

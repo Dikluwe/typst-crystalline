@@ -48,7 +48,7 @@ Não assumir que só `block` tem o problema — testar cada função individualm
 ### Localizar todos os pontos de validação no código
 
 ```bash
-grep -n "espera Color\|extract_stroke\|expect.*Color" 01_core/src/rules/stdlib/layout.rs 01_core/src/rules/eval/structural.rs
+grep -n "espera Color\|extract_stroke\|expect.*Color" 01_core/src/engine/stdlib/layout.rs 01_core/src/engine/eval/structural.rs
 ```
 
 ### Critério de fecho da sonda ampla

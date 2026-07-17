@@ -72,7 +72,7 @@ impl BibTeXParser {
 ### 6. Spec L0
 
 - `00_nucleo/prompts/03_infra/bibtex.md` — gramática suportada, limitações, escaping.
-- `00_nucleo/prompts/rules/stdlib/bibliography.md` — função `bibliography(path)`.
+- `00_nucleo/prompts/engine/stdlib/bibliography.md` — função `bibliography(path)`.
 
 ---
 

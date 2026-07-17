@@ -79,7 +79,7 @@ Religação prevista no Passo 10.
 
 | Prompt | Natureza da mudança |
 |--------|---------------------|
-| `00_nucleo/prompts/rules/parse.md` | Documentar ausência de timing; referenciar ADR-0006 e DEBT.md |
+| `00_nucleo/prompts/engine/parse.md` | Documentar ausência de timing; referenciar ADR-0006 e DEBT.md |
 
 ---
 

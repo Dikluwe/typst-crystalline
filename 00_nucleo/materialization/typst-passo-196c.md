@@ -119,7 +119,7 @@ Confirmar empiricamente estado pós-P196B:
       - Sub-store contém `auto-toc-N → ""`.
 
 11. Confirmar 4 mutações legacy preservadas via grep:
-    - `grep -n "step_hierarchical\|auto_label_counter\|resolved_labels.insert\|headings_for_toc.push" 01_core/src/rules/introspect.rs`
+    - `grep -n "step_hierarchical\|auto_label_counter\|resolved_labels.insert\|headings_for_toc.push" 01_core/src/engine/introspect.rs`
       retorna 4 ocorrências no walk arm Heading + 1
       ocorrência (`resolved_labels.insert`) no walk arm
       Labelled (P195D).

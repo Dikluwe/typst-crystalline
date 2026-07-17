@@ -76,9 +76,9 @@ imediato.
 
 | Camada | Ficheiro | Edição |
 |--------|----------|--------|
-| L1 | `01_core/src/rules/eval/mod.rs` | +field `pub current_location: Option<Location>` em `EvalContext`; default `None` em `new()`; +método `pub fn with_current_location(self, loc) -> Self` setter conveniente. +import implícito `Location` via path full-qualified (sem novo `use`). Scope register: `scope.define("here", Value::Func(Func::native("here", native_here)))`. |
-| L1 | `01_core/src/rules/stdlib/foundations.rs` | +`pub fn native_here(ctx, args, ...) -> SourceResult<Value>` (paralelo a `native_query` P175/P179). Sem args; lê `ctx.current_location`; devolve `Value::Location(loc)` ou erro contextual `"here() chamado fora de contexto locatable — current_location não populado"`. |
-| L1 | `01_core/src/rules/stdlib/mod.rs` | +`native_here` em `pub use` block. +4 tests `p208b_here_*` em tests module. |
+| L1 | `01_core/src/engine/eval/mod.rs` | +field `pub current_location: Option<Location>` em `EvalContext`; default `None` em `new()`; +método `pub fn with_current_location(self, loc) -> Self` setter conveniente. +import implícito `Location` via path full-qualified (sem novo `use`). Scope register: `scope.define("here", Value::Func(Func::native("here", native_here)))`. |
+| L1 | `01_core/src/engine/stdlib/foundations.rs` | +`pub fn native_here(ctx, args, ...) -> SourceResult<Value>` (paralelo a `native_query` P175/P179). Sem args; lê `ctx.current_location`; devolve `Value::Location(loc)` ou erro contextual `"here() chamado fora de contexto locatable — current_location não populado"`. |
+| L1 | `01_core/src/engine/stdlib/mod.rs` | +`native_here` em `pub use` block. +4 tests `p208b_here_*` em tests module. |
 
 L0 prompts `eval.md` (`Passo 15`) e `stdlib.md` (`Passo 17`)
 são **antigos** — convenção observável: stdlib funcs P169+

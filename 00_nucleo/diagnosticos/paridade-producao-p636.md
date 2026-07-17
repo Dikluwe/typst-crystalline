@@ -17,7 +17,7 @@ O Passo P633 confirmou nove casos em que uma regra `#set` recebia um valor do ti
 
 ### Padrão comum
 
-Em `01_core/src/rules/eval/rules.rs`:
+Em `01_core/src/engine/eval/rules.rs`:
 
 - `value_to_eco_string` (document title/author/keywords) devolvia `Option<EcoString>`, convertendo tipos inválidos em `None`.
 - `extract_pt` (page width/height/margin) devolvia `Option<f64>`, convertendo tipos inválidos em `None`.
@@ -42,7 +42,7 @@ O cristalino usa nomes de tipo em inglês (`int`, `str`, `array`, etc.) via `Val
 
 ### Ficheiros alterados
 
-1. **`01_core/src/rules/eval/rules.rs`**:
+1. **`01_core/src/engine/eval/rules.rs`**:
    - Adiciona helper `type_mismatch(expected, found, span)`.
    - `math.equation.numbering`: propaga erros de `eval_expr` e rejeita tipos inválidos.
    - `document.title`/`author`/`keywords`: `value_to_eco_string` passa a devolver `SourceResult<Option<EcoString>>`; rejeita tipos inválidos e arrays com elementos não-string.
@@ -51,11 +51,11 @@ O cristalino usa nomes de tipo em inglês (`int`, `str`, `array`, etc.) via `Val
    - `table.numbering`: rejeita tipos inválidos. *Nota P639: `table.numbering` só existe no cristalino (extensão P459); o vanilla não tem esta propriedade.*
    - `text.weight`: rejeita tipos inválidos e nomes simbólicos desconhecidos; `Value::Int` fora do range `u16` dá erro.
 
-2. **`01_core/src/rules/eval/tests.rs`**:
+2. **`01_core/src/engine/eval/tests.rs`**:
    - Nove testes P633 renomeados de `_silent` para `_error` e invertidos para `p633_eval_fails`.
    - Teste Passo 129 (`eval_set_text_weight_simbolico_desconhecido_silent_passo_129`) atualizado para esperar erro.
 
-3. **`00_nucleo/prompts/rules/eval.md`**: secção §P636 adicionada; hash atualizado para `aa004f05`.
+3. **`00_nucleo/prompts/engine/eval.md`**: secção §P636 adicionada; hash atualizado para `aa004f05`.
 
 ### Mensagens de erro introduzidas
 

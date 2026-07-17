@@ -50,7 +50,7 @@ ausência"):
 |---|---|---|
 | `Content::Columns` em content.rs | `grep -n "Content::Columns" 01_core/src/entities/content.rs` | **CONFIRMADO** existe — variant em linha 1126 (P217); construtor; arms cascata is_empty/plain_text/PartialEq/map_content/map_text presentes (linhas 1876/2165/3603/3635) |
 | `Content::Colbreak` em content.rs | mesmo grep | **CONFIRMADO** existe — variant em linha 1908 com field `weak` (P220); construtor; arms cascata presentes (linha 2205/3681) |
-| `native_columns` em stdlib | `grep -rn "native_columns" 01_core/src/rules/stdlib/` | **CONFIRMADO** — function em `stdlib/layout.rs:1138` (P218); registado em `stdlib/mod.rs:51`; ~13 unit tests `p218_native_columns_*` em `stdlib/mod.rs:2865+` |
+| `native_columns` em stdlib | `grep -rn "native_columns" 01_core/src/engine/stdlib/` | **CONFIRMADO** — function em `stdlib/layout.rs:1138` (P218); registado em `stdlib/mod.rs:51`; ~13 unit tests `p218_native_columns_*` em `stdlib/mod.rs:2865+` |
 | `native_colbreak` em stdlib | mesmo grep | **CONFIRMADO** — function em `stdlib/layout.rs:1209` (P220); registado; tests `p220_native_colbreak_*` |
 | DEBT-56 status em DEBT.md | `grep "DEBT-56" 00_nucleo/DEBT.md` | **ENCERRADO (Passo 221) ✓** confirmado |
 | ADR-0078 status | `head -8 typst-adr-0078-column-flow-algorithm.md` | **IMPLEMENTADO** (P215 PROPOSTO 2026-05-12 → P221 IMPLEMENTADO 2026-05-12; sub-fases (a)+(b) materializadas) confirmado |
@@ -136,7 +136,7 @@ pós-P244:
 
 1. Identificar variants candidatas mencionadas no spec.
 2. `grep -n "Content::FOO\|Content::BAR" 01_core/src/entities/content.rs`.
-3. `grep -rn "native_foo\|native_bar" 01_core/src/rules/stdlib/`.
+3. `grep -rn "native_foo\|native_bar" 01_core/src/engine/stdlib/`.
 4. `grep "DEBT-XX\|ADR-XXXX" 00_nucleo/DEBT.md 00_nucleo/adr/`.
 5. Se variant existe → ajustar spec ou criar `Pxxx.div-N`
    conforme magnitude.

@@ -56,11 +56,11 @@ pós-P158B permanecem candidatos NÃO-reservados.
   comportamental).
 - `00_nucleo/materialization/typst-passo-155-relatorio.md` —
   padrão `localize_quotes(lang)` reusável.
-- `01_core/src/rules/lang/quotes.rs` (P155) — padrão de
+- `01_core/src/engine/lang/quotes.rs` (P155) — padrão de
   helper de localização a replicar.
-- `01_core/src/rules/stdlib/figure_image.rs` — `native_figure`
+- `01_core/src/engine/stdlib/figure_image.rs` — `native_figure`
   + `infer_kind_from_body` actuais (P158A).
-- `01_core/src/rules/introspect.rs` — counters por kind +
+- `01_core/src/engine/introspect.rs` — counters por kind +
   formato de label.
 - `lab/typst-original/crates/typst-library/src/model/figure.rs`
   + supplement automático em vanilla — referência para
@@ -91,7 +91,7 @@ Granularidade preservada: 1 feature → mantém N=15 do padrão.
 
 - **Helper novo `figure_supplement_for_lang`**:
   ```rust
-  // 01_core/src/rules/lang/figure_supplement.rs (ficheiro novo)
+  // 01_core/src/engine/lang/figure_supplement.rs (ficheiro novo)
   pub fn figure_supplement_for_lang(kind: &str, lang: &str) -> String {
       match (kind, lang) {
           ("image", "pt") => "Figura".to_string(),
@@ -192,14 +192,14 @@ i18n e padrão de localização:
 
 ### .2 Adicionar helper `figure_supplement_for_lang`
 
-`01_core/src/rules/lang/figure_supplement.rs` (ficheiro novo):
+`01_core/src/engine/lang/figure_supplement.rs` (ficheiro novo):
 - Adicionar helper per assinatura em §"Decisões já tomadas".
 - 18 entradas hardcoded (3 kinds × 6 langs) + fallback EN.
 - `pub mod figure_supplement;` em `rules/lang/mod.rs`.
 
 ### .3 Modificar formato de label em `introspect.rs`
 
-`01_core/src/rules/introspect.rs`:
+`01_core/src/engine/introspect.rs`:
 - Localizar formato de label actual de figure (provavelmente
   hardcoded ou prefix-less).
 - Substituir por `figure_supplement_for_lang(kind, lang)`

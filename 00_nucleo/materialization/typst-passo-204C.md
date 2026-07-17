@@ -48,7 +48,7 @@ Antes de qualquer alteração, confirmar empíricamente:
 - `TagIntrospector` é `Send + Sync` automático (per
   P204B C3+C4).
 - `Layouter` struct em path a confirmar (provavelmente
-  `01_core/src/rules/layout/layouter.rs` ou
+  `01_core/src/engine/layout/layouter.rs` ou
   `mod.rs`); 22 fields (per snapshot 2026-05-05 §5);
   field actual `introspector: TagIntrospector` (a
   confirmar).
@@ -329,7 +329,7 @@ Conteúdo:
 Não é ficheiro discreto. Conjunto de alterações em:
 
 - `Layouter` struct (provavelmente
-  `01_core/src/rules/layout/layouter.rs`).
+  `01_core/src/engine/layout/layouter.rs`).
 - `impl Layouter` (mesmo ficheiro ou separado).
 - ~10 consumers em `mod.rs`, `equation.rs`,
   `references.rs`, `outline.rs` (caminhos a confirmar

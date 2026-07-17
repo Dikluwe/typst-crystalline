@@ -47,7 +47,7 @@ Para heading: ambos paths populados pelo mesmo `Content::SetHeadingNumbering` no
 | P182A | Diagnóstico-primeiro / 6 cláusulas fixadas / 8-section diagnóstico + 14-section relatório | S (documental) | 0 | 0 (apenas diagnóstico/relatório criados) |
 | P182B | Trait method `is_numbering_active(key)` + impl `TagIntrospector` + 5 tests unit | S | +5 | `entities/introspector.md` |
 | P182C | `extract_payload` arm `Content::SetHeadingNumbering` + locatable promovido + auto-init em `from_tags::StateUpdate Set` + 5 tests | S | +5 | `rules/introspect/extract_payload.md`, `rules/introspect/locatable.md`, `rules/introspect/from_tags.md` |
-| P182D | 2 consumers Layouter migrados (heading-arm `mod.rs:301` + equation-arm `equation.rs:24`) com substitution-with-fallback + 3 tests | S | +3 | `rules/layout.md` (efeito colateral em 9 ficheiros via `--fix-hashes`) |
+| P182D | 2 consumers Layouter migrados (heading-arm `mod.rs:301` + equation-arm `equation.rs:24`) com substitution-with-fallback + 3 tests | S | +3 | `engine/layout.md` (efeito colateral em 9 ficheiros via `--fix-hashes`) |
 | P182E | 5 tests E2E em submódulo `p182e_e2e_heading_numbering` | S | +5 | 0 |
 | P182F | Fecho documental: `m1-lacunas-captura.md` (4 sítios) + `auditoria-fresh-projecto.md` F1 + relatório consolidado | S (documental) | 0 | 0 |
 | **Total série** | **5 implementação + 2 documental** | **S-M cumulativo** | **+18** | **5 L0s** |

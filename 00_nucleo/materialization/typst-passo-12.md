@@ -15,7 +15,7 @@ Tarefa 3, e apenas depois do mapa de classificação da Tarefa 2 estar
 completo e registado. Não é um passo de "implementar tudo" — é um
 passo de "preparar a fundação correcta para eval()".
 
-**Invariante crítica**: `01_core/src/rules/eval.rs` não deve importar
+**Invariante crítica**: `01_core/src/engine/eval.rs` não deve importar
 nada de `03_infra`. O acesso ao world é sempre via `TrackedWorld` (L1).
 Se uma dependência de L3 for necessária para satisfazer eval(), é sinal
 de classificação errada — parar e reclassificar.
@@ -317,7 +317,7 @@ impl Default for Sink {
 
 Se `Scopes<'a>` for necessário para o esqueleto de eval():
 
-**Criar**: `01_core/src/rules/scopes.rs`
+**Criar**: `01_core/src/engine/scopes.rs`
 
 ```rust
 use crate::entities::{scope::Scope, value::Value};
@@ -385,11 +385,11 @@ implementação real de eval().
 
 ### Implementação
 
-**Criar**: `01_core/src/rules/eval.rs`
+**Criar**: `01_core/src/engine/eval.rs`
 
 ```rust
 //! Crystalline Lineage
-//! @prompt 00_nucleo/prompts/rules/eval.md
+//! @prompt 00_nucleo/prompts/engine/eval.md
 //! @prompt-hash <hash>
 //! @layer L1
 //! @updated 2026-03-27
@@ -442,7 +442,7 @@ Adicionar a `rules/mod.rs`:
 pub mod eval;
 ```
 
-**Criar**: `00_nucleo/prompts/rules/eval.md` com a interface acima,
+**Criar**: `00_nucleo/prompts/engine/eval.md` com a interface acima,
 o estado actual (esqueleto), e o plano de implementação incremental.
 
 ### Testes do esqueleto

@@ -33,10 +33,10 @@ onde foi referenciada.
 ### 2.1 Perguntas e medições
 
 1. **Buffer de notas pendentes** (`pending_footnote_bodies`) — medição em
-   `01_core/src/rules/layout/cursor.rs:412` confirma que é um único buffer por
+   `01_core/src/engine/layout/cursor.rs:412` confirma que é um único buffer por
    página, sem separação por coluna.
 2. **Evento de "fim de coluna"** — não existia. O `colbreak()` era downgrade
-   literal a `new_page()` (`01_core/src/rules/layout/colbreak.rs`).
+   literal a `new_page()` (`01_core/src/engine/layout/colbreak.rs`).
 3. **Cálculo da área disponível** — `flush_pending_footnote_bodies` usava
    `page_w` e `page_h` sem noção de coluna (`cursor.rs:415-422`).
 
@@ -63,10 +63,10 @@ página, confirmando o problema descrito em P531 Grupo 8.1.
 
 | Ficheiro | Alteração |
 |----------|-----------|
-| `01_core/src/rules/layout/columns.rs` | Reescrito para dividir `body` por `colbreak()`, renderizar cada segmento numa coluna, e posicionar footnotes localmente. |
-| `01_core/src/rules/layout/cursor.rs` | `flush_pending_footnote_bodies` ganhou modo coluna (`column_mode`/`column_origin_x`/`column_width`) para medir e posicionar notas no fundo da coluna actual. |
-| `01_core/src/rules/layout/mod.rs` | Campos `column_mode`, `column_origin_x`, `column_width` adicionados a `Layouter` (já existiam no estado resumido da sessão). |
-| `01_core/src/rules/layout/tests.rs` | Teste P220 actualizado (colbreak dentro de columns separa colunas reais); testes P537 adicionados. |
+| `01_core/src/engine/layout/columns.rs` | Reescrito para dividir `body` por `colbreak()`, renderizar cada segmento numa coluna, e posicionar footnotes localmente. |
+| `01_core/src/engine/layout/cursor.rs` | `flush_pending_footnote_bodies` ganhou modo coluna (`column_mode`/`column_origin_x`/`column_width`) para medir e posicionar notas no fundo da coluna actual. |
+| `01_core/src/engine/layout/mod.rs` | Campos `column_mode`, `column_origin_x`, `column_width` adicionados a `Layouter` (já existiam no estado resumido da sessão). |
+| `01_core/src/engine/layout/tests.rs` | Teste P220 actualizado (colbreak dentro de columns separa colunas reais); testes P537 adicionados. |
 
 ### 3.2 Algoritmo de `columns::layout`
 

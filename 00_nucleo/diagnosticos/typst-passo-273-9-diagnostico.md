@@ -14,7 +14,7 @@ emergente).
 
 ## §A.1 — Inventário arm `Content::Grid` (caso fácil)
 
-`01_core/src/rules/layout/grid.rs`:
+`01_core/src/engine/layout/grid.rs`:
 
 - **Linha 31** — `pub(super) fn layout_grid(...)` ponto de entrada.
 - **Linhas 318-385** — loop sobre cells; cada cell tem:
@@ -42,7 +42,7 @@ dimensões cell sempre literais pós-track resolution.
 
 ## §A.2 — Inventário arm `Content::Stack` (caso médio — layout duplo)
 
-`01_core/src/rules/layout/mod.rs:1280-1322`:
+`01_core/src/engine/layout/mod.rs:1280-1322`:
 
 - **Linha 1280** — `Content::Stack { children, dir, spacing }` arm.
 - **Linhas 1284-1287** — flush_line antes (Stack é structural).
@@ -72,7 +72,7 @@ Stack do `measure_content_constrained` (ou helper local) com
 
 ## §A.3 — Inventário arm `Content::Pad` (caso médio — layout duplo)
 
-`01_core/src/rules/layout/mod.rs:1205-1237`:
+`01_core/src/engine/layout/mod.rs:1205-1237`:
 
 - **Linha 1205** — `Content::Pad { body, sides }` arm.
 - **Linhas 1212-1215** — resolve insets (left/top/right/bottom).

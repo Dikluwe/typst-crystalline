@@ -103,7 +103,7 @@ impl FontVariant {
 **Sonda adicional para este passo:** confirmar se `text(style:)` no cristalino sequer aceita um ângulo numérico para Oblique, ou só `"normal"`/`"italic"`:
 
 ```bash
-grep -n "Oblique\|style.*angle\|FontStyle::" 01_core/src/entities/style.rs 01_core/src/rules/stdlib/text.rs
+grep -n "Oblique\|style.*angle\|FontStyle::" 01_core/src/entities/style.rs 01_core/src/engine/stdlib/text.rs
 ```
 
 Se `Oblique(angle)` não é alcançável a partir da linguagem Typst neste momento (só `Normal`/`Italic` expostos), o ramo `slnt` no `to_axis_variations` é código morto — manter por completude não é problema, mas **não pode ser apresentado como testado** se não houver forma de o exercitar via `#set text(style:)`. Registar esse facto explicitamente no critério de fecho, não deixar implícito.

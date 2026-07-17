@@ -26,7 +26,7 @@ Para cada item do módulo escolhido, aplicar a mesma disciplina de P765a: ler o 
 
 ```bash
 # Modelo — repetir por item do módulo escolhido
-grep -n "<símbolo>" 01_core/src/rules/stdlib/*.rs 01_core/src/entities/*.rs 2>/dev/null
+grep -n "<símbolo>" 01_core/src/engine/stdlib/*.rs 01_core/src/entities/*.rs 2>/dev/null
 ```
 
 ---

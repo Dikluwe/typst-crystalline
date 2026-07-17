@@ -97,11 +97,11 @@ Ficheiros alterados:
   - Nova sub-store `headings_for_bookmarks: Vec<...>`.
   - Novo método de trait `Introspector::headings_for_bookmarks()`.
 
-- `01_core/src/rules/introspect.rs`:
+- `01_core/src/engine/introspect.rs`:
   - `materialize_time` preserva `outlined` e `bookmarked`.
   - Walk arm `Content::Heading` emite `Tag::HeadingForToc` se `outlined`, e `Tag::HeadingForBookmarks` se `h.is_bookmarked()`.
 
-- `01_core/src/rules/stdlib/structural.rs`:
+- `01_core/src/engine/stdlib/structural.rs`:
   - `native_heading` parseia `outlined` e `bookmarked` separadamente.
   - Testes unitários P606 adicionados; testes P605 antigos removidos por serem sinónimo da nova semântica.
 
@@ -115,18 +115,18 @@ Ficheiros alterados:
 - `03_infra/src/measurements.rs`:
   - `CountingIntrospector` implementa `headings_for_bookmarks()`.
 
-- `01_core/src/rules/eval/repr.rs`:
+- `01_core/src/engine/eval/repr.rs`:
   - Teste `repr_content_heading` actualizado com `bookmarked: None`.
 
 Prompts L0 actualizados:
 
-- `00_nucleo/prompts/rules/stdlib/structural.md` — `outlined`/`bookmarked` como flags separadas.
-- `00_nucleo/prompts/rules/introspect.md` — separação `headings_for_toc` vs `headings_for_bookmarks`.
+- `00_nucleo/prompts/engine/stdlib/structural.md` — `outlined`/`bookmarked` como flags separadas.
+- `00_nucleo/prompts/engine/introspect.md` — separação `headings_for_toc` vs `headings_for_bookmarks`.
 
 `@prompt-hash` actualizados via `crystalline-lint --fix-hashes .`:
 
-- `01_core/src/rules/introspect.rs` → `4d0b61c1`
-- `01_core/src/rules/stdlib/structural.rs` → `e3351b12`
+- `01_core/src/engine/introspect.rs` → `4d0b61c1`
+- `01_core/src/engine/stdlib/structural.rs` → `e3351b12`
 
 ---
 
@@ -152,13 +152,13 @@ Caso C — só outlined
 
 ### Testes automatizados
 
-Novos testes unitários em `01_core/src/rules/stdlib/structural.rs`:
+Novos testes unitários em `01_core/src/engine/stdlib/structural.rs`:
 
 - `native_heading_outlined_false_mantem_bookmarked_auto`
 - `native_heading_bookmarked_false_mantem_outlined_true`
 - `native_heading_outlined_false_bookmarked_true_separados`
 
-Novos testes unitários em `01_core/src/rules/introspect.rs`:
+Novos testes unitários em `01_core/src/engine/introspect.rs`:
 
 - `p606_outlined_e_bookmarked_separados_nas_substores`
 - `bracketing_valido_8_tags_por_heading_p606` (anteriormente 6 tags)
@@ -209,11 +209,11 @@ Testes de contagem de tags actualizados para reflectir a tag extra `HeadingForBo
 ## Ligações
 
 - `00_nucleo/materialization/typst-passo-606.md` — passo que originou a implementação.
-- `00_nucleo/prompts/rules/stdlib/structural.md` — Prompt L0 actualizado.
-- `00_nucleo/prompts/rules/introspect.md` — Prompt L0 actualizado.
+- `00_nucleo/prompts/engine/stdlib/structural.md` — Prompt L0 actualizado.
+- `00_nucleo/prompts/engine/introspect.md` — Prompt L0 actualizado.
 - `01_core/src/entities/elements/heading.rs:23` — `HeadingElem` com `outlined` e `bookmarked`.
 - `01_core/src/entities/elements/heading.rs:64` — `HeadingElem::is_bookmarked()`.
-- `01_core/src/rules/stdlib/structural.rs:152` — `native_heading` com parse separado.
-- `01_core/src/rules/introspect.rs:1194` — walk arm `Content::Heading` emite `HeadingForToc` / `HeadingForBookmarks`.
+- `01_core/src/engine/stdlib/structural.rs:152` — `native_heading` com parse separado.
+- `01_core/src/engine/introspect.rs:1194` — walk arm `Content::Heading` emite `HeadingForToc` / `HeadingForBookmarks`.
 - `01_core/src/entities/introspector.rs:341` — sub-store `headings_for_bookmarks`.
 - `03_infra/src/pipeline.rs:103` — `doc.extracted_headings` a partir de `headings_for_bookmarks()`.

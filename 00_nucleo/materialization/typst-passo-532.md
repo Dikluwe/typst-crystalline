@@ -22,8 +22,8 @@ Isto é diferente de "funcionalidade ausente" — a propriedade é aceite, o que
 ## Sonda
 
 ```bash
-grep -rn "numbering.*page\|page.*numbering" 01_core/src/rules/stdlib/ --include="*.rs"
-grep -rn "PageNumbering\|page_numbering" 01_core/src/entities/ 01_core/src/rules/layout/ --include="*.rs"
+grep -rn "numbering.*page\|page.*numbering" 01_core/src/engine/stdlib/ --include="*.rs"
+grep -rn "PageNumbering\|page_numbering" 01_core/src/entities/ 01_core/src/engine/layout/ --include="*.rs"
 ```
 
 Perguntas a responder, com `file:line`:

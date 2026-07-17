@@ -1,7 +1,7 @@
 # Inventário `pub(super)` — Passo 97.A
 
 Data de captura: 2026-04-23.
-Total: **269** ocorrências em `01_core/src/rules/`.
+Total: **269** ocorrências em `01_core/src/engine/`.
 
 Ficheiros `tests.rs` (cfg(test) gated) fora do escopo.
 
@@ -18,7 +18,7 @@ Ficheiros `tests.rs` (cfg(test) gated) fora do escopo.
 
 ## Detalhe por ficheiro
 
-### `src/rules/parse/parser.rs` (77)
+### `src/engine/parse/parser.rs` (77)
 
 | Linha | Tipo | Nome |
 |------:|------|------|
@@ -100,7 +100,7 @@ Ficheiros `tests.rs` (cfg(test) gated) fora do escopo.
 | 641 | fn | `increase_depth` |
 | 652 | fn | `depth_check_error` |
 
-### `src/rules/layout/mod.rs` (22)
+### `src/engine/layout/mod.rs` (22)
 
 | Linha | Tipo | Nome |
 |------:|------|------|
@@ -127,7 +127,7 @@ Ficheiros `tests.rs` (cfg(test) gated) fora do escopo.
 | 575 | fn | `measure_content_constrained` |
 | 629 | fn | `layout_sub_frame_with_width` |
 
-### `src/rules/math/layout/mod.rs` (21)
+### `src/engine/math/layout/mod.rs` (21)
 
 | Linha | Tipo | Nome |
 |------:|------|------|
@@ -153,7 +153,7 @@ Ficheiros `tests.rs` (cfg(test) gated) fora do escopo.
 | 437 | fn | `layout_grid` |
 | 449 | fn | `hconcat` |
 
-### `src/rules/lexer/mod.rs` (16)
+### `src/engine/lexer/mod.rs` (16)
 
 | Linha | Tipo | Nome |
 |------:|------|------|
@@ -174,7 +174,7 @@ Ficheiros `tests.rs` (cfg(test) gated) fora do escopo.
 | 378 | fn | `is_math_id_continue` |
 | 384 | fn | `is_valid_in_label_literal` |
 
-### `src/rules/parse/patterns.rs` (13)
+### `src/engine/parse/patterns.rs` (13)
 
 | Linha | Tipo | Nome |
 |------:|------|------|
@@ -192,7 +192,7 @@ Ficheiros `tests.rs` (cfg(test) gated) fora do escopo.
 | 402 | fn | `destructuring_item` |
 | 449 | fn | `pattern_leaf` |
 
-### `src/rules/parse/rules.rs` (13)
+### `src/engine/parse/rules.rs` (13)
 
 | Linha | Tipo | Nome |
 |------:|------|------|
@@ -210,7 +210,7 @@ Ficheiros `tests.rs` (cfg(test) gated) fora do escopo.
 | 221 | fn | `continue_stmt` |
 | 228 | fn | `return_stmt` |
 
-### `src/rules/parse/markup.rs` (12)
+### `src/engine/parse/markup.rs` (12)
 
 | Linha | Tipo | Nome |
 |------:|------|------|
@@ -227,7 +227,7 @@ Ficheiros `tests.rs` (cfg(test) gated) fora do escopo.
 | 188 | fn | `reference` |
 | 198 | fn | `equation` |
 
-### `src/rules/parse/code.rs` (10)
+### `src/engine/parse/code.rs` (10)
 
 | Linha | Tipo | Nome |
 |------:|------|------|
@@ -242,7 +242,7 @@ Ficheiros `tests.rs` (cfg(test) gated) fora do escopo.
 | 244 | fn | `code_block` |
 | 255 | fn | `content_block` |
 
-### `src/rules/parse/math.rs` (10)
+### `src/engine/parse/math.rs` (10)
 
 | Linha | Tipo | Nome |
 |------:|------|------|
@@ -257,7 +257,7 @@ Ficheiros `tests.rs` (cfg(test) gated) fora do escopo.
 | 264 | fn | `math_args` |
 | 313 | fn | `math_arg` |
 
-### `src/rules/eval/markup.rs` (7)
+### `src/engine/eval/markup.rs` (7)
 
 | Linha | Tipo | Nome |
 |------:|------|------|
@@ -269,7 +269,7 @@ Ficheiros `tests.rs` (cfg(test) gated) fora do escopo.
 | 99 | fn | `eval_list_item` |
 | 112 | fn | `eval_enum_item` |
 
-### `src/rules/layout/helpers.rs` (7)
+### `src/engine/layout/helpers.rs` (7)
 
 | Linha | Tipo | Nome |
 |------:|------|------|
@@ -281,7 +281,7 @@ Ficheiros `tests.rs` (cfg(test) gated) fora do escopo.
 | 106 | fn | `collect_sub_items` |
 | 112 | fn | `collect_items_at` |
 
-### `src/rules/layout/cursor.rs` (6)
+### `src/engine/layout/cursor.rs` (6)
 
 | Linha | Tipo | Nome |
 |------:|------|------|
@@ -292,7 +292,7 @@ Ficheiros `tests.rs` (cfg(test) gated) fora do escopo.
 | 63 | fn | `new_page` |
 | 81 | fn | `current_page_number` |
 
-### `src/rules/lexer/markup.rs` (5)
+### `src/engine/lexer/markup.rs` (5)
 
 | Linha | Tipo | Nome |
 |------:|------|------|
@@ -302,7 +302,7 @@ Ficheiros `tests.rs` (cfg(test) gated) fora do escopo.
 | 325 | fn | `label` |
 | 397 | fn | `space_or_end` |
 
-### `src/rules/eval/bindings.rs` (4)
+### `src/engine/eval/bindings.rs` (4)
 
 | Linha | Tipo | Nome |
 |------:|------|------|
@@ -311,7 +311,7 @@ Ficheiros `tests.rs` (cfg(test) gated) fora do escopo.
 | 90 | fn | `eval_counter_method` |
 | 137 | fn | `eval_field_access` |
 
-### `src/rules/eval/closures.rs` (4)
+### `src/engine/eval/closures.rs` (4)
 
 | Linha | Tipo | Nome |
 |------:|------|------|
@@ -320,7 +320,7 @@ Ficheiros `tests.rs` (cfg(test) gated) fora do escopo.
 | 149 | fn | `eval_closure_expr` |
 | 191 | fn | `eval_func_call` |
 
-### `src/rules/eval/control_flow.rs` (3)
+### `src/engine/eval/control_flow.rs` (3)
 
 | Linha | Tipo | Nome |
 |------:|------|------|
@@ -328,7 +328,7 @@ Ficheiros `tests.rs` (cfg(test) gated) fora do escopo.
 | 48 | fn | `eval_while` |
 | 76 | fn | `eval_for` |
 
-### `src/rules/layout/counters.rs` (3)
+### `src/engine/layout/counters.rs` (3)
 
 | Linha | Tipo | Nome |
 |------:|------|------|
@@ -336,7 +336,7 @@ Ficheiros `tests.rs` (cfg(test) gated) fora do escopo.
 | 17 | fn | `layout_counter_update` |
 | 38 | fn | `format_counter_display` |
 
-### `src/rules/stdlib/layout.rs` (3)
+### `src/engine/stdlib/layout.rs` (3)
 
 | Linha | Tipo | Nome |
 |------:|------|------|
@@ -344,149 +344,149 @@ Ficheiros `tests.rs` (cfg(test) gated) fora do escopo.
 | 124 | fn | `parse_track_sizing` |
 | 135 | fn | `extract_tracks` |
 
-### `src/rules/eval/math.rs` (2)
+### `src/engine/eval/math.rs` (2)
 
 | Linha | Tipo | Nome |
 |------:|------|------|
 | 25 | fn | `eval_math_content` |
 | 45 | fn | `eval_math_expr` |
 
-### `src/rules/eval/modules.rs` (2)
+### `src/engine/eval/modules.rs` (2)
 
 | Linha | Tipo | Nome |
 |------:|------|------|
 | 27 | fn | `eval_module_import` |
 | 37 | fn | `eval_module_include` |
 
-### `src/rules/eval/rules.rs` (2)
+### `src/engine/eval/rules.rs` (2)
 
 | Linha | Tipo | Nome |
 |------:|------|------|
 | 165 | fn | `eval_set_rule` |
 | 278 | fn | `eval_show_rule` |
 
-### `src/rules/layout/placement.rs` (2)
+### `src/engine/layout/placement.rs` (2)
 
 | Linha | Tipo | Nome |
 |------:|------|------|
 | 21 | fn | `layout_align` |
 | 109 | fn | `layout_place` |
 
-### `src/rules/layout/references.rs` (2)
+### `src/engine/layout/references.rs` (2)
 
 | Linha | Tipo | Nome |
 |------:|------|------|
 | 16 | fn | `layout_labelled` |
 | 33 | fn | `layout_ref` |
 
-### `src/rules/lexer/code.rs` (2)
+### `src/engine/lexer/code.rs` (2)
 
 | Linha | Tipo | Nome |
 |------:|------|------|
 | 19 | fn | `code` |
 | 224 | fn | `string` |
 
-### `src/rules/stdlib/calc.rs` (2)
+### `src/engine/stdlib/calc.rs` (2)
 
 | Linha | Tipo | Nome |
 |------:|------|------|
 | 176 | fn | `coerce_to_f64` |
 | 187 | fn | `guard_float` |
 
-### `src/rules/stdlib/foundations.rs` (2)
+### `src/engine/stdlib/foundations.rs` (2)
 
 | Linha | Tipo | Nome |
 |------:|------|------|
 | 135 | fn | `format_float` |
 | 141 | fn | `format_length` |
 
-### `src/rules/stdlib/mod.rs` (2)
+### `src/engine/stdlib/mod.rs` (2)
 
 | Linha | Tipo | Nome |
 |------:|------|------|
 | 55 | fn | `err` |
 | 64 | fn | `expect_no_named` |
 
-### `src/rules/stdlib/shapes.rs` (2)
+### `src/engine/stdlib/shapes.rs` (2)
 
 | Linha | Tipo | Nome |
 |------:|------|------|
 | 26 | fn | `parse_color` |
 | 207 | fn | `extract_coordinate` |
 
-### `src/rules/layout/equation.rs` (1)
+### `src/engine/layout/equation.rs` (1)
 
 | Linha | Tipo | Nome |
 |------:|------|------|
 | 21 | fn | `layout_equation` |
 
-### `src/rules/layout/figure.rs` (1)
+### `src/engine/layout/figure.rs` (1)
 
 | Linha | Tipo | Nome |
 |------:|------|------|
 | 17 | fn | `layout_figure` |
 
-### `src/rules/layout/grid.rs` (1)
+### `src/engine/layout/grid.rs` (1)
 
 | Linha | Tipo | Nome |
 |------:|------|------|
 | 22 | fn | `layout_grid` |
 
-### `src/rules/layout/outline.rs` (1)
+### `src/engine/layout/outline.rs` (1)
 
 | Linha | Tipo | Nome |
 |------:|------|------|
 | 22 | fn | `layout_outline` |
 
-### `src/rules/lexer/math.rs` (1)
+### `src/engine/lexer/math.rs` (1)
 
 | Linha | Tipo | Nome |
 |------:|------|------|
 | 23 | fn | `math` |
 
-### `src/rules/math/layout/assembly.rs` (1)
+### `src/engine/math/layout/assembly.rs` (1)
 
 | Linha | Tipo | Nome |
 |------:|------|------|
 | 17 | fn | `layout_assembly` |
 
-### `src/rules/math/layout/attach.rs` (1)
+### `src/engine/math/layout/attach.rs` (1)
 
 | Linha | Tipo | Nome |
 |------:|------|------|
 | 21 | fn | `layout_attach` |
 
-### `src/rules/math/layout/cases.rs` (1)
+### `src/engine/math/layout/cases.rs` (1)
 
 | Linha | Tipo | Nome |
 |------:|------|------|
 | 20 | fn | `layout_cases` |
 
-### `src/rules/math/layout/delimited.rs` (1)
+### `src/engine/math/layout/delimited.rs` (1)
 
 | Linha | Tipo | Nome |
 |------:|------|------|
 | 19 | fn | `layout_delimited` |
 
-### `src/rules/math/layout/frac.rs` (1)
+### `src/engine/math/layout/frac.rs` (1)
 
 | Linha | Tipo | Nome |
 |------:|------|------|
 | 20 | fn | `layout_frac` |
 
-### `src/rules/math/layout/matrix.rs` (1)
+### `src/engine/math/layout/matrix.rs` (1)
 
 | Linha | Tipo | Nome |
 |------:|------|------|
 | 20 | fn | `layout_matrix` |
 
-### `src/rules/math/layout/root.rs` (1)
+### `src/engine/math/layout/root.rs` (1)
 
 | Linha | Tipo | Nome |
 |------:|------|------|
 | 19 | fn | `layout_root` |
 
-### `src/rules/math/layout/stretchy.rs` (1)
+### `src/engine/math/layout/stretchy.rs` (1)
 
 | Linha | Tipo | Nome |
 |------:|------|------|

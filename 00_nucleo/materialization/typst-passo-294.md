@@ -393,7 +393,7 @@ inspecção literal antes de materializar.
 
 - Tipo a modificar: `01_core/src/entities/geometry.rs`
   (`PathItem` enum, 4 variants pós-P293).
-- Constructor: `01_core/src/rules/stdlib/shapes.rs:native_curve`
+- Constructor: `01_core/src/engine/stdlib/shapes.rs:native_curve`
   (P293 §3.1).
 - Emit: `03_infra/src/export.rs:2375/2457/2629` (cubic emit P293
   identificado).

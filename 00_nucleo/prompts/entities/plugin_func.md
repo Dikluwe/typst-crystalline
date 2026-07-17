@@ -6,10 +6,10 @@ Hash do Código: 21230a71
 **Passo de origem**: P699 (terceiro passo da divisão proposta em P696)
 **Contratos**: `00_nucleo/prompts/contracts/plugin_host.md` (`PluginHost`),
 `00_nucleo/prompts/entities/func.md` (`FuncRepr::Plugin`),
-`00_nucleo/prompts/rules/stdlib/plugin.md` (constrói o `Module`).
+`00_nucleo/prompts/engine/stdlib/plugin.md` (constrói o `Module`).
 **ADRs relevantes**: ADR-0107 (paridade com a linguagem), ADR-0108 (medir antes de
 decidir), ADR-0109 (feature no seu ficheiro — `PluginFunc` vive em `entities`
-porque `func.rs` não pode importar `rules`, ADR-0109 proíbe `entities→rules`).
+porque `func.rs` não pode importar `rules`, ADR-0109 proíbe `entities→engine`).
 
 ---
 
@@ -20,7 +20,7 @@ porque `func.rs` não pode importar `rules`, ADR-0109 proíbe `entities→rules`
 valor chamável é `PluginFunc` — o equivalente ao `PluginFunc` do vanilla
 (`lab/typst-original/.../foundations/plugin.rs:205-231`). Vive em `entities`
 (não em `rules`) porque `FuncRepr` (`entities/func.rs`) precisa de o referenciar
-e a ADR-0109 proíbe import reverso `entities→rules`.
+e a ADR-0109 proíbe import reverso `entities→engine`.
 
 `PluginFunc` captura o host (`Arc<dyn PluginHost>`), o handle do módulo e o
 nome do export. A chamada valida os argumentos (todos `bytes`) e delega a

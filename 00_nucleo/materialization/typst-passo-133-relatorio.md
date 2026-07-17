@@ -203,8 +203,8 @@ exit=0
 
 | Ficheiro | Mudança |
 |----------|---------|
-| `01_core/src/rules/eval/rules.rs` | +arm `par` em dispatcher (13 linhas); +`par` no hint de unknown target |
-| `01_core/src/rules/eval/tests.rs` | 2 testes adaptados (1 migrado, 1 invertido) |
+| `01_core/src/engine/eval/rules.rs` | +arm `par` em dispatcher (13 linhas); +`par` no hint de unknown target |
+| `01_core/src/engine/eval/tests.rs` | 2 testes adaptados (1 migrado, 1 invertido) |
 | `03_infra/src/integration_tests.rs` | 1 teste migrado |
 
 **ADR-0038**: não tocada (infra, não decisão nova).

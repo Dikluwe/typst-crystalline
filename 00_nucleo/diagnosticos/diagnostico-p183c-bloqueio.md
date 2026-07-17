@@ -3,7 +3,7 @@
 **Data**: 2026-05-03
 **Passo**: P183C — auditoria semântica explícita antes de migrar
 **Escopo**: tentativa de migração do consumer C2 (`Layouter::layout_equation`
-em `01_core/src/rules/layout/equation.rs:97`) de
+em `01_core/src/engine/layout/equation.rs:97`) de
 `self.counter.get_flat("equation")` legacy para
 `self.introspector.flat_counter("equation")` com fallback.
 **Postura**: zero código tocado em L1–L4; zero testes modificados; zero L0
@@ -29,7 +29,7 @@ substancial.
 Mesma natureza descoberta em P183B para C1 (heading prefix). O Layouter
 constrói o `CounterStateLegacy.flat` **incrementalmente durante o walk de
 layout**: `Layouter::new` inicializa `flat` vazio
-(`01_core/src/rules/layout/mod.rs:150`) e o copy-site
+(`01_core/src/engine/layout/mod.rs:150`) e o copy-site
 `layout_with_introspector` em `mod.rs:1428` confirma explicitamente:
 
 ```rust
@@ -51,11 +51,11 @@ mas não conhece (causa raíz documentada em P183B).
 
 Segunda dimensão, descoberta agora em `.B` de P183C (não foi descoberta
 em P183B porque heading **tem** arm em `from_tags`, line 51–70 de
-`01_core/src/rules/introspect/from_tags.rs`).
+`01_core/src/engine/introspect/from_tags.rs`).
 
 Inspecção empírica em `01_core/src/entities/element_payload.rs`: o enum
 `ElementPayload` **não tem variant `Equation`**. Inspecção em
-`01_core/src/rules/introspect.rs:377–382`: o walk de introspect chama
+`01_core/src/engine/introspect.rs:377–382`: o walk de introspect chama
 `state.step_flat("equation")` no **state legacy**, mas **não emite Tag**
 para a equation. Resultado: `from_tags` nunca recebe um Tag de equation
 e portanto **nunca chama `apply` no `CounterRegistry` para a chave

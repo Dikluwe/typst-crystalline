@@ -74,13 +74,13 @@ usado (variant-aware ausente).
 ### Bloco 5 — Lang features
 
 ```bash
-ls 01_core/src/rules/layout/hyphenation.rs
-view 01_core/src/rules/layout/hyphenation.rs | head -30
-grep -n "hypher::" 01_core/src/rules/layout/hyphenation.rs
-ls 01_core/src/rules/lang/quotes.rs
-view 01_core/src/rules/lang/quotes.rs | head -30
+ls 01_core/src/engine/layout/hyphenation.rs
+view 01_core/src/engine/layout/hyphenation.rs | head -30
+grep -n "hypher::" 01_core/src/engine/layout/hyphenation.rs
+ls 01_core/src/engine/lang/quotes.rs
+view 01_core/src/engine/lang/quotes.rs | head -30
 grep -n "pub fn localize_quotes\|DEFAULT_QUOTES" \
-  01_core/src/rules/lang/quotes.rs
+  01_core/src/engine/lang/quotes.rs
 ls 01_core/src/entities/lang.rs
 grep -n "pub fn from_str\|pub fn as_str" \
   01_core/src/entities/lang.rs
@@ -112,8 +112,8 @@ ausente; Linebreak/Parbreak implementados.
 ```bash
 grep -n "faux_bold\|2 Tr\|stroke_pt" 01_core/src/entities/ 03_infra/src/
 grep -rn "tracking_pt\|\"Tc\"" 01_core/src/ 03_infra/src/
-grep -rn "leading_pt\|line_height" 01_core/src/rules/layout/
-grep -n "fn layout_word\|hyphenate" 01_core/src/rules/layout/cursor.rs
+grep -rn "leading_pt\|line_height" 01_core/src/engine/layout/
+grep -n "fn layout_word\|hyphenate" 01_core/src/engine/layout/cursor.rs
 ```
 
 ### Bloco 8 — Inconsistências documentais
@@ -121,12 +121,12 @@ grep -n "fn layout_word\|hyphenate" 01_core/src/rules/layout/cursor.rs
 ```bash
 ls 00_nucleo/prompts/entities/style_chain.md
 ls 00_nucleo/prompts/entities/font_book.md
-ls 00_nucleo/prompts/rules/layout.md
-ls 00_nucleo/prompts/rules/lang.md
+ls 00_nucleo/prompts/engine/layout.md
+ls 00_nucleo/prompts/engine/lang.md
 grep "@prompt-hash" 01_core/src/entities/style_chain.rs
 grep "@prompt-hash" 01_core/src/entities/font_book.rs
 view 00_nucleo/prompts/entities/style_chain.md | head -50
-view 00_nucleo/prompts/rules/lang.md | head -50
+view 00_nucleo/prompts/engine/lang.md | head -50
 ```
 
 **Esperado** (precedente P255/P257/P258/P259): inconsistências
@@ -136,10 +136,10 @@ documentais prováveis em prompts L0.
 
 ```bash
 grep -n "Content::Styled\|ADR-0038\|push_styles" \
-  01_core/src/rules/eval/ 01_core/src/rules/layout/
+  01_core/src/engine/eval/ 01_core/src/engine/layout/
 grep -n "eval_set_text\|SetText\|#set text" \
-  01_core/src/rules/eval/ 01_core/src/entities/content.rs
-grep -rn "ShowRule\|fn eval_show\b" 01_core/src/rules/eval/ | head -10
+  01_core/src/engine/eval/ 01_core/src/entities/content.rs
+grep -rn "ShowRule\|fn eval_show\b" 01_core/src/engine/eval/ | head -10
 ```
 
 ---

@@ -91,11 +91,11 @@ Actualizados antes de qualquer alteração em `01_core/`:
 - `00_nucleo/prompts/world-types.md` — `Library` deixa de ser stub opaco
   `()`; ganha `global: Scope`. Tabela "Destino de cada tipo" e "Nota sobre
   Library e FontBook" actualizadas; histórico de revisões.
-- `00_nucleo/prompts/rules/scopes.md` — `Scopes::get` deixa de ter `base`
+- `00_nucleo/prompts/engine/scopes.md` — `Scopes::get` deixa de ter `base`
   como stub (consulta real); nova secção "Protecção de bindings
   constantes (P772n)"; novo método `is_constant` na interface pública;
   critérios de verificação estendidos.
-- `00_nucleo/prompts/rules/eval.md` — braço `Ident` de `access()`
+- `00_nucleo/prompts/engine/eval.md` — braço `Ident` de `access()`
   actualizado; nova secção `§P772n` com o mecanismo, a correcção e os
   critérios de verificação.
 
@@ -116,7 +116,7 @@ Nota: `Library` perdeu `#[derive(PartialEq, Eq, Hash)]` (tinha quando era
 `Library(())`) — `Scope` não implementa esses traits e nada no workspace
 dependia deles (confirmado pelo build limpo).
 
-### 4.2 `Scopes` (`01_core/src/rules/scopes.rs`)
+### 4.2 `Scopes` (`01_core/src/engine/scopes.rs`)
 
 - `get()`: `base` deixa de ser stub (`let _ = self.base; None`) — consulta
   real `self.base.and_then(|base| base.global.get(name))`, como último
@@ -128,8 +128,8 @@ dependia deles (confirmado pelo build limpo).
 
 ### 4.3 Bootstrap do avaliador
 
-`01_core/src/rules/eval/mod.rs` (`run_pass`) e
-`01_core/src/rules/eval/modules.rs` (`eval_imported_file`): deixam de
+`01_core/src/engine/eval/mod.rs` (`run_pass`) e
+`01_core/src/engine/eval/modules.rs` (`eval_imported_file`): deixam de
 fazer `scopes.define(name, ...)` para cada item de stdlib/cores/`std`/
 `text`/elementos de utilizador (o que os achatava em `scopes.top`,
 indistinguíveis de bindings normais — causa raiz de P772l §2.3). Em vez
@@ -140,7 +140,7 @@ do documento deixou de ser necessário (o `top` já nasce vazio) — `exit()`
 no fim continua a funcionar sem alteração (`scopes.pop().unwrap_or_default()`
 quando não há frame empurrado).
 
-### 4.4 `access()` (`01_core/src/rules/eval/bindings.rs`)
+### 4.4 `access()` (`01_core/src/engine/eval/bindings.rs`)
 
 Braço `Expr::Ident` (mutação): quando `get_mut` falha,
 `scopes.is_constant(name)` decide entre `"cannot mutate a constant:

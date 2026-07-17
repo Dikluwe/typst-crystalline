@@ -54,8 +54,8 @@
 
 ### DEBT-60b — 2 toques pontuais
 
-1. `01_core/src/rules/introspect.rs` — `headings_for_toc` armazenar `HeadingForToc { location, number: Option<String>, body }` em vez de `body` clonado com texto materializado
-2. `01_core/src/rules/layout/outline.rs` — consumir `number` puro ao renderizar linha do TOC; supplement "Secção" removido do outline
+1. `01_core/src/engine/introspect.rs` — `headings_for_toc` armazenar `HeadingForToc { location, number: Option<String>, body }` em vez de `body` clonado com texto materializado
+2. `01_core/src/engine/layout/outline.rs` — consumir `number` puro ao renderizar linha do TOC; supplement "Secção" removido do outline
 
 ---
 

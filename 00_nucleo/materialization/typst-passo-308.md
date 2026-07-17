@@ -93,7 +93,7 @@ A decisão final é parte do diagnóstico P308a, não desta spec.
 
 ### 4.1 — L0 (Fase 2 do Protocolo de Nucleação)
 
-- `00_nucleo/prompts/rules/stdlib/calc.md` (ou equivalente
+- `00_nucleo/prompts/engine/stdlib/calc.md` (ou equivalente
   granular pós-P307c) — actualizar secção `calc`:
   - Cabeçalho: 40 → 41 funções.
   - Nova subsecção `erf(x)` com contrato observable.
@@ -102,7 +102,7 @@ A decisão final é parte do diagnóstico P308a, não desta spec.
 
 ### 4.2 — L1 (Fase 4-5 do Protocolo)
 
-- `01_core/src/rules/stdlib/calc.rs` — adicionar:
+- `01_core/src/engine/stdlib/calc.rs` — adicionar:
   - `calc_erf` (função native ~15 linhas).
   - Entrada em `make_calc_module`: `dict.insert("erf", ...)`.
 

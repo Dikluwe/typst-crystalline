@@ -51,7 +51,7 @@ A métrica da atomização é, portanto:
 
 Antes:
 ```rust
-// rules/layout/mod.rs (monolítico)
+// engine/layout/mod.rs (monolítico)
 match content {
     Content::Heading(h) => { /* 44 linhas de layout de heading */ }
     Content::Figure(f)  => { /* 34 linhas de layout de figura */ }
@@ -60,13 +60,13 @@ match content {
 ```
 Depois:
 ```rust
-// rules/layout/mod.rs (magro — match exaustivo preservado, corpos de 1 linha)
+// engine/layout/mod.rs (magro — match exaustivo preservado, corpos de 1 linha)
 match content {
     Content::Heading(h) => heading::layout(self, h),
     Content::Figure(f)  => figure::layout_figure(self, /* … */),
     // … 59 arms, 1 linha cada — exaustividade e jump table intactas …
 }
-// rules/layout/heading.rs (a lógica de render atomizada, legível sozinha)
+// engine/layout/heading.rs (a lógica de render atomizada, legível sozinha)
 pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
     layouter: &mut Layouter<M, S>,
     h:        &HeadingElem,
@@ -81,7 +81,7 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
 - O despacho **fica estático** (jump table) — sem ganho nem perda algorítmica; **sem vtable** (a
   ADR-0026 é satisfeita, não emendada).
 - A lógica de render de cada elemento **muda para o seu arquivo na camada de render**
-  (`rules/layout/<elem>.rs`), como **free function** que recebe `&mut Layouter`. Segue os 6
+  (`engine/layout/<elem>.rs`), como **free function** que recebe `&mut Layouter`. Segue os 6
   precedentes do repo (`figure.rs`, `image.rs`, `grid.rs`, `placement.rs`, `outline.rs`,
   `references.rs`).
 
@@ -137,9 +137,9 @@ exaustividade.
 > **na sua camada** (cada elemento/feature legível sozinho). **NÃO** é zerar `content→elements`,
 > **NÃO** é desacoplamento de imports, **NÃO** usa vtable/`dyn`/PropMap, **NÃO** remove o `match`
 > exaustivo. A **forma é a B**: o `match` no núcleo fica magro (corpos delegam a uma free function
-> `<elem>::layout(self, e)` em `rules/layout/<elem>.rs`); a lógica de render muda para o arquivo da
+> `<elem>::layout(self, e)` em `engine/layout/<elem>.rs`); a lógica de render muda para o arquivo da
 > feature na camada de render (acede ao `Layouter` por descendência de módulo, **sem** import
-> reverso `entities→rules`, **sem** `pub(crate)`). A **Opção A** (lógica no arquivo do struct) está
+> reverso `entities→engine`, **sem** `pub(crate)`). A **Opção A** (lógica no arquivo do struct) está
 > **rejeitada** — cria o acoplamento dado→render. O `match` exaustivo, a jump table e os imports
 > **ficam**. A métrica da lente (`content→elements`) é **irrelevante** — não a use como gate. Se um
 > plano propuser despacho dinâmico, "zerar `content→elements`", ou a Opção A em nome de atomização,

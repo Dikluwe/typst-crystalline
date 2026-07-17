@@ -15,7 +15,7 @@
 ### Confirmar se `place.rs` e `placement.rs` são o mesmo ficheiro ou dois diferentes
 
 ```bash
-ls -la 01_core/src/rules/layout/place.rs 01_core/src/rules/layout/placement.rs 2>&1
+ls -la 01_core/src/engine/layout/place.rs 01_core/src/engine/layout/placement.rs 2>&1
 ```
 
 Se os dois existirem: confirmar a diferença de propósito entre eles (por exemplo, um pode ser o elemento `#place()` em si, outro uma função auxiliar de posicionamento usada por vários sítios).
@@ -23,7 +23,7 @@ Se os dois existirem: confirmar a diferença de propósito entre eles (por exemp
 ### Confirmar o uso em `cursor.rs:650`
 
 ```bash
-sed -n '640,660p' 01_core/src/rules/layout/cursor.rs
+sed -n '640,660p' 01_core/src/engine/layout/cursor.rs
 ```
 
 Confirmar o que está a ser feito ali — é o layout do corpo de uma nota de rodapé (que já tinha sido identificado, noutro contexto, como um sub-layout legítimo, mesmo estando fisicamente dentro de `cursor.rs`), ou é outra coisa que P628 não tinha mapeado?

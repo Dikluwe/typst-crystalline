@@ -302,7 +302,7 @@ Decisões de design não-trivial-isomorphic:
 Empírico:
 ```
 $ grep -rn "fn here\|fn locate\|\"here\"\|\"locate\"" 01_core/src/ | grep -v scanner
-01_core/src/rules/eval/closures.rs:212:        if ident.as_str() == "outline" {
+01_core/src/engine/eval/closures.rs:212:        if ident.as_str() == "outline" {
 [ apenas false-positive `locate` em scanner.rs:147 (lexer offset) ]
 ```
 
@@ -311,7 +311,7 @@ funções stdlib registadas, nem como tipos de domínio, nem como
 métodos no trait `Introspector`.
 
 Localização esperada se materializadas:
-`01_core/src/rules/stdlib/foundations.rs` (ao lado de `native_query`,
+`01_core/src/engine/stdlib/foundations.rs` (ao lado de `native_query`,
 `native_state`, `native_counter_at`).
 
 Vanilla:
@@ -343,7 +343,7 @@ em `EvalContext` (single-threaded, pipeline directa).
 
 **CONFIRMADO + DIVERGÊNCIA ARQUITECTÓNICA**.
 
-**Cristalino — counter** (`01_core/src/rules/stdlib/foundations.rs`):
+**Cristalino — counter** (`01_core/src/engine/stdlib/foundations.rs`):
 - `native_counter_at(key, label_str)` linha 335-368 — **forma minimal
   P177**: retorna `Value::Str` formatado (`"1.2.3"`); reusa
   `Introspector::query_by_label` + `formatted_counter_at`.
@@ -395,7 +395,7 @@ em `EvalContext` (single-threaded, pipeline directa).
 
 **CONFIRMADO + DIVERGÊNCIA ARQUITECTÓNICA LEGÍTIMA documentada**.
 
-**Cristalino** (`01_core/src/rules/layout/outline.rs:23-78`):
+**Cristalino** (`01_core/src/engine/layout/outline.rs:23-78`):
 - `pub(super) fn layout_outline(layouter)` — lê
   `intr.headings_for_toc()` + `runtime.known_page_numbers`;
   produz Sequence de `Content::Ref { target } + body_content +
@@ -435,11 +435,11 @@ em `EvalContext` (single-threaded, pipeline directa).
 **CONFIRMADO + DIVERGÊNCIA ARQUITECTÓNICA + EXTENSÃO documentada**.
 
 **Cristalino**:
-- `native_bibliography(...)` `01_core/src/rules/stdlib/structural.rs:660`.
-- `native_cite(...)` `01_core/src/rules/stdlib/structural.rs:713`.
+- `native_bibliography(...)` `01_core/src/engine/stdlib/structural.rs:660`.
+- `native_cite(...)` `01_core/src/engine/stdlib/structural.rs:713`.
 - `BibStore` sub-store (P181B), `bib_entry_for_key` /
   `bib_number_for_key` trait methods (P181F).
-- Layout consumer: `01_core/src/rules/layout/mod.rs:713` —
+- Layout consumer: `01_core/src/engine/layout/mod.rs:713` —
   `let entry = self.introspector.bib_entry_for_key(key);`.
 
 **Vanilla**:

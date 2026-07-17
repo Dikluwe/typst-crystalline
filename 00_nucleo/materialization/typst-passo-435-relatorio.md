@@ -11,20 +11,20 @@ prompt L0 dedicado e actualizando a linhagem `@prompt` para que o ficheiro
 desse de depender exclusivamente do prompt grosseiro `stdlib/_comum.md`.
 
 - **L0 novo:**
-  - `00_nucleo/prompts/rules/stdlib/shapes.md` — spec dedicada às 6 funções
+  - `00_nucleo/prompts/engine/stdlib/shapes.md` — spec dedicada às 6 funções
     geométricas do subset (`rect`, `ellipse`, `circle`, `line`, `polygon`,
     `curve`).
 - **Cabeçalhos `@prompt` ajustados:**
-  - `01_core/src/rules/stdlib/shapes.rs` — `_comum.md`, `shapes.md`,
+  - `01_core/src/engine/stdlib/shapes.rs` — `_comum.md`, `shapes.md`,
     `square.md` (este último em último lugar, conforme convenção do linter
     para prompt "dono" do ficheiro). `square.md` continua a documentar o
     helper morfológico `square`.
-  - `01_core/src/rules/stdlib/gradients.rs` — adicionada referência a
+  - `01_core/src/engine/stdlib/gradients.rs` — adicionada referência a
     `shapes.md` em último lugar, garantindo que `shapes.md` não fique órfão
     (paridade P430: re-referenciar prompt dedicado noutro ficheiro L1 quando
     o ficheiro original já tem outro prompt como "dono").
 - **Prompt comum actualizado:**
-  - `00_nucleo/prompts/rules/stdlib/_comum.md` — removido `shapes.rs` da
+  - `00_nucleo/prompts/engine/stdlib/_comum.md` — removido `shapes.rs` da
     lista de ficheiros que apontam para o prompt comum; adicionada nota sobre
     o novo `shapes.md`.
 - **Débito actualizado:**
@@ -56,7 +56,7 @@ e `show-regex.md`).
 
 | Critério | Resultado |
 |----------|-----------|
-| `00_nucleo/prompts/rules/stdlib/shapes.md` criado com 6 secções | ✓ |
+| `00_nucleo/prompts/engine/stdlib/shapes.md` criado com 6 secções | ✓ |
 | Cada secção cobre assinatura, args, semântica, paridade vanilla, limitações e testes canónicos | ✓ |
 | `_comum.md` actualizado | ✓ |
 | `shapes.rs` cabeçalho `@prompt` aponta `shapes.md` | ✓ |
@@ -69,12 +69,12 @@ e `show-regex.md`).
 ## Artefactos
 
 - L0:
-  - `00_nucleo/prompts/rules/stdlib/shapes.md`
-  - `00_nucleo/prompts/rules/stdlib/_comum.md` (actualizado)
+  - `00_nucleo/prompts/engine/stdlib/shapes.md`
+  - `00_nucleo/prompts/engine/stdlib/_comum.md` (actualizado)
 - Código (apenas cabeçalhos de linhagem / hashes):
-  - `01_core/src/rules/stdlib/shapes.rs`
-  - `01_core/src/rules/stdlib/gradients.rs`
-  - `01_core/src/rules/stdlib/transforms.rs` (hash sincronizado)
+  - `01_core/src/engine/stdlib/shapes.rs`
+  - `01_core/src/engine/stdlib/gradients.rs`
+  - `01_core/src/engine/stdlib/transforms.rs` (hash sincronizado)
 - Débito:
   - `00_nucleo/diagnosticos/debt/DEBT.md`
 - Plano:

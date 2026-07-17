@@ -268,7 +268,7 @@ grep -n "Hash\|Eq\|PartialEq\|derive" \
   01_core/src/entities/source.rs | head -15
 
 # Como Source é usado em testes e em eval_for_test
-grep -rn "Source\b" 01_core/src/rules/eval.rs | head -10
+grep -rn "Source\b" 01_core/src/engine/eval.rs | head -10
 grep -rn "MockWorld\|source\b" 01_core/src/contracts/ | head -10
 ```
 
@@ -293,7 +293,7 @@ impl Source {
         text.hash(&mut hasher);
         let content_hash = hasher.finish();
 
-        let root = crate::rules::parse::parse(&text);
+        let root = crate::engine::parse::parse(&text);
 
         Self(Arc::new(SourceInner { id, text, root, content_hash }))
     }

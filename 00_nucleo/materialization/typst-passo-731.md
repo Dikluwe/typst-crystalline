@@ -45,7 +45,7 @@ Confirmar quais já são `Module` (por exemplo, `std`, implementado em P709 já 
 ### Localizar onde cada namespace é construído
 
 ```bash
-grep -n "scope.define(\"calc\"\|scope.define(\"sys\"\|Value::Dict.*calc\|Value::Module.*calc" 01_core/src/rules/eval/mod.rs 01_core/src/rules/stdlib/*.rs
+grep -n "scope.define(\"calc\"\|scope.define(\"sys\"\|Value::Dict.*calc\|Value::Module.*calc" 01_core/src/engine/eval/mod.rs 01_core/src/engine/stdlib/*.rs
 ```
 
 ### Critério de fecho da sonda ampla

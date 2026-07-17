@@ -16,21 +16,21 @@ ADR-0023/ADR-0024/ADR-0018 (IndexMap/EcoString/rustc_hash em L1).
 ```
  00_nucleo/prompts/contracts/world.md    | 28 +++++++++++-
  00_nucleo/prompts/infra/system-world.md | 12 ++++-
- 00_nucleo/prompts/rules/eval.md         | 17 +++++++-
+ 00_nucleo/prompts/engine/eval.md         | 17 +++++++-
  00_nucleo/prompts/shell/cli.md          | 16 +++++++-
  00_nucleo/prompts/wiring.md             |  9 ++--
  01_core/src/contracts/world.rs          | 24 +++++++++-
- 01_core/src/rules/eval/bibliography.rs  |  2 +-   (hash)
- 01_core/src/rules/eval/closures.rs      |  2 +-   (hash)
- 01_core/src/rules/eval/control_flow.rs  |  2 +-   (hash)
- 01_core/src/rules/eval/flow.rs          |  2 +-   (hash)
- 01_core/src/rules/eval/markup.rs        |  2 +-   (hash)
- 01_core/src/rules/eval/math.rs          |  2 +-   (hash)
- 01_core/src/rules/eval/mod.rs           | 17 +++++++--
- 01_core/src/rules/eval/modules.rs       |  6 ++-
- 01_core/src/rules/eval/rules.rs         |  2 +-   (hash)
- 01_core/src/rules/eval/tests.rs         |  4 +-
- 01_core/src/rules/stdlib/mod.rs         |  4 ++
+ 01_core/src/engine/eval/bibliography.rs  |  2 +-   (hash)
+ 01_core/src/engine/eval/closures.rs      |  2 +-   (hash)
+ 01_core/src/engine/eval/control_flow.rs  |  2 +-   (hash)
+ 01_core/src/engine/eval/flow.rs          |  2 +-   (hash)
+ 01_core/src/engine/eval/markup.rs        |  2 +-   (hash)
+ 01_core/src/engine/eval/math.rs          |  2 +-   (hash)
+ 01_core/src/engine/eval/mod.rs           | 17 +++++++--
+ 01_core/src/engine/eval/modules.rs       |  6 ++-
+ 01_core/src/engine/eval/rules.rs         |  2 +-   (hash)
+ 01_core/src/engine/eval/tests.rs         |  4 +-
+ 01_core/src/engine/stdlib/mod.rs         |  4 ++
  02_shell/src/cli.rs                     | 81 ++++++++++++++++++++++++++++++++-
  03_infra/src/world.rs                   | 25 +++++++++-
  04_wiring/src/main.rs                   |  5 +-
@@ -39,8 +39,8 @@ ADR-0023/ADR-0024/ADR-0018 (IndexMap/EcoString/rustc_hash em L1).
  22 files changed, 232 insertions(+), 34 deletions(-)
 ```
 
-Novos ficheiros (não no diff acima): `00_nucleo/prompts/rules/stdlib/sys.md`,
-`01_core/src/rules/stdlib/sys.rs`, este relatório. As entradas marcadas `(hash)`
+Novos ficheiros (não no diff acima): `00_nucleo/prompts/engine/stdlib/sys.md`,
+`01_core/src/engine/stdlib/sys.rs`, este relatório. As entradas marcadas `(hash)`
 são propagação de `@prompt-hash` pelo `crystalline-lint --fix-hashes` (edição de
 `eval.md`/`wiring.md`), sem mudança de lógica.
 

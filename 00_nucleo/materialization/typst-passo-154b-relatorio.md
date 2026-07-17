@@ -26,7 +26,7 @@ fechado; sem regressão.
 - Sítios `match` exaustivos no L1 que exigem novos arms:
   `plain_text`, `map_content`, `map_text` (em `entities/content.rs`);
   `materialize_time`, `walk` (em `rules/introspect.rs`); `layout_content`
-  (em `rules/layout/mod.rs`).
+  (em `engine/layout/mod.rs`).
 - Sítios `match` com `_ =>` catch-all (mas igualmente actualizados para
   arms explícitos): `is_empty`, `PartialEq::eq` em `entities/content.rs`.
 - `make_stdlib` em `rules/eval/mod.rs` registava 29 funções nativas +
@@ -65,13 +65,13 @@ pub enum Content {
 | `entities/content.rs` | `map_text` | idem |
 | `rules/introspect.rs` | `materialize_time` | Divider terminal; Terms+TermItem recurse |
 | `rules/introspect.rs` | `walk` | Divider/Terms/TermItem sem efeito em contadores; recurse em filhos |
-| `rules/layout/mod.rs` | `layout_content` | Divider→`FrameItem::Shape::Line` 0.5pt; Terms→loop layout items; TermItem→bold term + ": " + description com indent |
-| `rules/layout/mod.rs` | `measure_content_constrained` | catch-all `_ => (0.0, 0.0)` cobre |
+| `engine/layout/mod.rs` | `layout_content` | Divider→`FrameItem::Shape::Line` 0.5pt; Terms→loop layout items; TermItem→bold term + ": " + description com indent |
+| `engine/layout/mod.rs` | `measure_content_constrained` | catch-all `_ => (0.0, 0.0)` cobre |
 
 ## 5. Stdlib funcs
 
 ```rust
-// 01_core/src/rules/stdlib/structural.rs
+// 01_core/src/engine/stdlib/structural.rs
 
 pub fn native_divider(...) -> SourceResult<Value> {
     expect_no_named(&args.named)?;
@@ -98,7 +98,7 @@ pub fn native_terms(...) -> SourceResult<Value> {
 }
 ```
 
-Registadas em `make_stdlib` (em `01_core/src/rules/eval/mod.rs`):
+Registadas em `make_stdlib` (em `01_core/src/engine/eval/mod.rs`):
 
 ```rust
 scope.define("terms",   Value::Func(Func::native("terms",   native_terms)));
@@ -115,7 +115,7 @@ Forma final per Decisão 12/13 do spec (Opção K + Opção M):
 | Ficheiro | Testes | Total |
 |----------|--------|-------|
 | `01_core/src/entities/content.rs::tests` | divider_constructor, divider_plain_text, terms_constructor, terms_plain_text_concatena_pares, term_item_plain_text, terms_map_text_recurse, terms_partial_eq | 7 |
-| `01_core/src/rules/eval/tests.rs` | eval_divider_construtor_typst_lang, eval_terms_construtor_typst_lang, eval_divider_rejeita_args | 3 |
+| `01_core/src/engine/eval/tests.rs` | eval_divider_construtor_typst_lang, eval_terms_construtor_typst_lang, eval_divider_rejeita_args | 3 |
 
 **Render tests (03_infra)**: scope-out neste passo. Layouter cobre os
 3 variants com forma mínima viável (Divider→linha; Terms/TermItem→layout

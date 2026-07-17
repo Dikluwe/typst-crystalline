@@ -9,7 +9,7 @@
 ## §1 Resumo
 
 P183C tentou migrar o consumer C2
-(`01_core/src/rules/layout/equation.rs:97`,
+(`01_core/src/engine/layout/equation.rs:97`,
 `self.counter.get_flat("equation")`) de legacy para
 `Introspector::flat_counter("equation")` com fallback. A auditoria
 semântica `.B` (auditoria que faltou em P183B) detectou **gate

@@ -27,8 +27,8 @@ Confirmar o mecanismo real de definição de símbolos no vanilla (arquivo gerad
 ### 2. Levantar a cobertura actual no cristalino
 
 ```bash
-grep -n "\"arrow\"\|\"gt\"\|\"eq\"\|\"dot\"\|\"tilde\"" 01_core/src/rules/stdlib/sym.rs
-wc -l 01_core/src/rules/stdlib/sym.rs
+grep -n "\"arrow\"\|\"gt\"\|\"eq\"\|\"dot\"\|\"tilde\"" 01_core/src/engine/stdlib/sym.rs
+wc -l 01_core/src/engine/stdlib/sym.rs
 ```
 
 Construir uma tabela: grupo → nº de variantes no vanilla → nº de variantes no cristalino → % de cobertura.

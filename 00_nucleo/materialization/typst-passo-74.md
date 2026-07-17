@@ -6,7 +6,7 @@ Ler antes de começar:
 - `03_infra/src/export.rs` — Onde `export_pdf`, `detect_format`, e o mapa de
   deduplicação por `Arc::as_ptr` vivem (Passo 73).
 - `03_infra/Cargo.toml` — Onde `image` e `flate2` vão ser injectados.
-- `01_core/src/rules/layout/frame.rs` — Confirmar os cinco campos de
+- `01_core/src/engine/layout/frame.rs` — Confirmar os cinco campos de
   `FrameItem::Image` introduzidos no Passo 73.
 - `00_nucleo/DEBT.md` — Confirmar que DEBT-27, DEBT-28, DEBT-29 estão registados
   e DEBT-24c está encerrado.
@@ -58,11 +58,11 @@ grep -n "obj_counter\|xref_positions\|out\.extend\|endobj\|detect_format\|image_
   03_infra/src/export.rs | head -20
 
 # 3. Confirmar os campos actuais de FrameItem::Image
-grep -A 8 "Image {" 01_core/src/rules/layout/frame.rs | head -15
+grep -A 8 "Image {" 01_core/src/engine/layout/frame.rs | head -15
 
 # 4. Confirmar a assinatura actual de ImageDimensions (DEBT-28)
 grep -n "struct ImageDimensions\|width_pt\|height_pt\|intrinsic" \
-  01_core/src/rules/layout/image.rs | head -10
+  01_core/src/engine/layout/image.rs | head -10
 
 # 5. Confirmar onde Content::Image usa PartialEq (DEBT-26)
 grep -n "PartialEq\|Arc<Vec" 01_core/src/entities/content.rs | head -10
@@ -179,7 +179,7 @@ no exportador continua a funcionar sobre o `Arc` interno de `PtrEqArc` via
 
 ## Tarefa 3 — `ImageDimensions` com dimensões intrínsecas (DEBT-28)
 
-Em `01_core/src/rules/layout/image.rs`, estender `ImageDimensions`:
+Em `01_core/src/engine/layout/image.rs`, estender `ImageDimensions`:
 
 ```rust
 pub struct ImageDimensions {
@@ -221,7 +221,7 @@ pub fn calculate_dimensions(
 }
 ```
 
-No layouter (`01_core/src/rules/layout/mod.rs`), substituir a segunda chamada
+No layouter (`01_core/src/engine/layout/mod.rs`), substituir a segunda chamada
 a `sizer.size()`:
 
 ```rust

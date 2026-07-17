@@ -7,7 +7,7 @@ embutido) — exactamente o caso do documento de referência usado desde
 P563/P567/P569/P574. Ver `00_nucleo/diagnosticos/paridade-producao-p577.md`.
 Não fechar como concluído até um passo dedicado corrigir essa interacção.  
 **Data**: 2026-07-05  
-**Scope**: `01_core/src/entities/value.rs`, `01_core/src/entities/dir.rs`, `01_core/src/entities/layout_types.rs`, `01_core/src/entities/style_chain.rs`, `01_core/src/rules/eval/mod.rs`, `01_core/src/rules/eval/rules.rs`, `01_core/src/rules/eval/repr.rs`, `01_core/src/rules/layout/text.rs`, `01_core/src/rules/layout/cursor.rs`, `01_core/src/rules/layout/mod.rs`.  
+**Scope**: `01_core/src/entities/value.rs`, `01_core/src/entities/dir.rs`, `01_core/src/entities/layout_types.rs`, `01_core/src/entities/style_chain.rs`, `01_core/src/engine/eval/mod.rs`, `01_core/src/engine/eval/rules.rs`, `01_core/src/engine/eval/repr.rs`, `01_core/src/engine/layout/text.rs`, `01_core/src/engine/layout/cursor.rs`, `01_core/src/engine/layout/mod.rs`.  
 **Commit da implementação**: *(a registar após commit)* — L0 dos prompts já commitado em `76f73904c`; a implementação L1 continua por commitar.
 
 ---
@@ -22,9 +22,9 @@ A sequência RTL está quase completa: ordem das palavras dentro da linha (P562/
 
 ### 2.1 Estado antes da implementação
 
-- `01_core/src/rules/eval/rules.rs:931` — o arm `target == "text"` tratava `bold`, `italic`, `size`, `fill`, `weight`, `tracking`, `lang`, `font`; `dir` caía no warn de propriedade não suportada.
-- `01_core/src/rules/eval/mod.rs:1196-1203` — `left`/`center`/`right`/`start`/`end`/`top`/`horizon`/`bottom` já eram `Value::Align` no escopo global; `ltr`/`rtl`/`ttb`/`btt` ainda não existiam.
-- `01_core/src/rules/layout/mod.rs:499-501` — `cursor_x` e `line_start_x` inicializavam-se em `margin`, fixando a origem LTR.
+- `01_core/src/engine/eval/rules.rs:931` — o arm `target == "text"` tratava `bold`, `italic`, `size`, `fill`, `weight`, `tracking`, `lang`, `font`; `dir` caía no warn de propriedade não suportada.
+- `01_core/src/engine/eval/mod.rs:1196-1203` — `left`/`center`/`right`/`start`/`end`/`top`/`horizon`/`bottom` já eram `Value::Align` no escopo global; `ltr`/`rtl`/`ttb`/`btt` ainda não existiam.
+- `01_core/src/engine/layout/mod.rs:499-501` — `cursor_x` e `line_start_x` inicializavam-se em `margin`, fixando a origem LTR.
 - Sonda: texto árabe sem `dir:` começava à esquerda no vanilla e no cristalino; com `dir: rtl` o vanilla começava à direita, o cristalino emitia `unknown variable: rtl`.
 
 ### 2.2 Estado após a implementação
@@ -46,29 +46,29 @@ Nota: a separação de parágrafos por linha em branco não força `flush_line` 
 
 - `01_core/src/entities/value.rs:149` — nova variante `Value::Dir(Dir)`.
 - `01_core/src/entities/value.rs:219` — `type_name()` devolve `"direction"`.
-- `01_core/src/rules/eval/repr.rs:77` — `repr()` devolve `"ltr"`/`"rtl"`/`"ttb"`/`"btt"`.
+- `01_core/src/engine/eval/repr.rs:77` — `repr()` devolve `"ltr"`/`"rtl"`/`"ttb"`/`"btt"`.
 
 ### 3.2 Identificadores `ltr` / `rtl` / `ttb` / `btt` no escopo global
 
-`01_core/src/rules/eval/mod.rs:1205-1210` — define os quatro identificadores como `Value::Dir(Dir::*)`, seguindo o mesmo padrão dos identificadores de alinhamento.
+`01_core/src/engine/eval/mod.rs:1205-1210` — define os quatro identificadores como `Value::Dir(Dir::*)`, seguindo o mesmo padrão dos identificadores de alinhamento.
 
 ### 3.3 `#set text(dir: ...)` reconhecido
 
-`01_core/src/rules/eval/rules.rs:1073-1078` — o arm `"dir"` aceita `Value::Dir(Dir)` e empurra `text.dir` na `StyleChain`.
+`01_core/src/engine/eval/rules.rs:1073-1078` — o arm `"dir"` aceita `Value::Dir(Dir)` e empurra `text.dir` na `StyleChain`.
 
 ### 3.4 `TextStyle.dir` transportado até ao layout
 
 - `01_core/src/entities/layout_types.rs:141` — novo campo `pub dir: Option<Dir>`.
 - `01_core/src/entities/style_chain.rs:624` — `From<&StyleChain>` inicializa `dir: None`.
-- `01_core/src/rules/layout/text.rs:61-64` e `:133` — lê `text.dir` da chain e funde no `TextStyle` efectivo.
+- `01_core/src/engine/layout/text.rs:61-64` e `:133` — lê `text.dir` da chain e funde no `TextStyle` efectivo.
 
 ### 3.5 Alinhamento RTL no Layouter
 
-`01_core/src/rules/layout/cursor.rs:156-184` — novo método `align_current_line_rtl()`. Quando um item da linha corrente tem `style.dir == Some(Dir::RTL)`, calcula o offset até à margem direita e desloca todos os items da linha.
+`01_core/src/engine/layout/cursor.rs:156-184` — novo método `align_current_line_rtl()`. Quando um item da linha corrente tem `style.dir == Some(Dir::RTL)`, calcula o offset até à margem direita e desloca todos os items da linha.
 
 Pontos de chamada:
-- `01_core/src/rules/layout/cursor.rs:232` — `flush_line()` alinha antes de comitar a linha.
-- `01_core/src/rules/layout/mod.rs:1150` — `finish()` alinha a última linha do documento, que não passa por `flush_line`.
+- `01_core/src/engine/layout/cursor.rs:232` — `flush_line()` alinha antes de comitar a linha.
+- `01_core/src/engine/layout/mod.rs:1150` — `finish()` alinha a última linha do documento, que não passa por `flush_line`.
 
 ---
 

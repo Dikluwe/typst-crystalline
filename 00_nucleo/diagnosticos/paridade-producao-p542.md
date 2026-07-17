@@ -2,7 +2,7 @@
 
 **Data:** 2026-07-03  
 **Passo:** 542  
-**Prompt L0:** `00_nucleo/prompts/rules/layout.md` (hash `9c9b7122`)  
+**Prompt L0:** `00_nucleo/prompts/engine/layout.md` (hash `9c9b7122`)  
 **Dependências:** P534 (fallback multi-script), P538e (fallback quando a fonte default não existe), P484 (bidi runs)
 
 ## Objectivo
@@ -49,7 +49,7 @@ O vanilla mantém tudo numa única linha; o cristalino fragmenta em 11 linhas.
 ### Causa confirmada
 
 1. **Onde o Layouter decide a quebra de linha:**
-   `01_core/src/rules/layout/cursor.rs:95` — `layout_word()` chama
+   `01_core/src/engine/layout/cursor.rs:95` — `layout_word()` chama
    `self.word_width(word)`, que usa `self.metrics.advance(word, self.style.size)`.
    A métrica usada é a fonte declarada no `TextStyle` (ou `FixedMetrics`
    monoespaçado), não a fonte real que o shaper vai escolher para cada
@@ -63,9 +63,9 @@ O vanilla mantém tudo numa única linha; o cristalino fragmenta em 11 linhas.
 
 3. **A dimensão real do problema:**
    A pipeline de produção (`compile_to_pdf_bytes_impl`) chama
-   `layout_with_introspector()` (`01_core/src/rules/layout/mod.rs:1645`),
+   `layout_with_introspector()` (`01_core/src/engine/layout/mod.rs:1645`),
    que instancia o `Layouter` com `FixedMetrics`
-   (`01_core/src/rules/layout/mod.rs:1703`). Ou seja, o layout de produção
+   (`01_core/src/engine/layout/mod.rs:1703`). Ou seja, o layout de produção
    **não usa métricas reais de fonte** para medir texto — usa largura
    monoespaçada fixa. O shaper só ajusta o visual depois, sem alterar as
    quebras já decididas.
@@ -110,10 +110,10 @@ Criar um passo dedicado (ex.: P5xx ou P6xx) para:
 
 ## Ficheiros inspeccionados
 
-- `01_core/src/rules/layout/cursor.rs:94-129` — decisão de quebra de linha.
-- `01_core/src/rules/layout/mod.rs:1645-1776` — `layout_with_introspector`
+- `01_core/src/engine/layout/cursor.rs:94-129` — decisão de quebra de linha.
+- `01_core/src/engine/layout/mod.rs:1645-1776` — `layout_with_introspector`
   usa `FixedMetrics`.
-- `01_core/src/rules/layout/metrics.rs:21-73` — trait `FontMetrics`.
+- `01_core/src/engine/layout/metrics.rs:21-73` — trait `FontMetrics`.
 - `03_infra/src/shaper.rs:92-205` — `try_shape` resolve fallback depois do
   layout.
 - `03_infra/src/pipeline.rs:281-387` — ordem das fases: layout → shape.

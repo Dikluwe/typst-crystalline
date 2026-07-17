@@ -185,7 +185,7 @@ L1+stdlib; zero trabalho L3**.
 ### §2.4 Outset semantic actual — VERIFICAÇÃO BLOQUEANTE §2.5
 
 ```bash
-grep -rn "\.outset\b\|outset:" 01_core/src/rules/layout/ \
+grep -rn "\.outset\b\|outset:" 01_core/src/engine/layout/ \
   | grep -v "test\|/\\*\\*" \
   | head -40
 ```
@@ -207,8 +207,8 @@ trabalho já completo. Audit empírico decide.
 ### §2.5 Trabalho real outset diagnosticado
 
 ```bash
-grep -B2 -A10 "outset" 01_core/src/rules/layout/mod.rs \
-  01_core/src/rules/layout/grid.rs 2>/dev/null \
+grep -B2 -A10 "outset" 01_core/src/engine/layout/mod.rs \
+  01_core/src/engine/layout/grid.rs 2>/dev/null \
   | head -60
 ```
 
@@ -222,7 +222,7 @@ Identificar:
 
 ```bash
 grep -n "fn extract_color\|fn extract_stroke\|fn extract_paint" \
-  01_core/src/rules/stdlib/
+  01_core/src/engine/stdlib/
 ```
 
 Identificar se `extract_color` + `extract_stroke` já existem
@@ -237,7 +237,7 @@ P247 design — paridade ou divergência consciente.
 
 ```bash
 grep -B2 -A8 "fill.*Color\|stroke.*Stroke" \
-  01_core/src/rules/stdlib/structural.rs 2>/dev/null \
+  01_core/src/engine/stdlib/structural.rs 2>/dev/null \
   | head -40
 ```
 
@@ -412,11 +412,11 @@ P247).
 |-----------|----------|----------|
 | L1 entity | `01_core/src/entities/content.rs` | Block: +2 fields (fill, stroke); Boxed: +2 fields; cascata 9 arms cada (declaração, construtor, is_empty, plain_text, PartialEq, map_content, map_text, materialize_time, walk, layout arm) |
 | L0 prompt | `00_nucleo/prompts/entities/content.md` | Secção Block + secção Boxed: documentar fill + stroke (2 fields cada); §"Limitações conscientes P156G/H" anotar 3 scope-outs fechados em P247 |
-| L1 stdlib | `01_core/src/rules/stdlib/layout.rs` | `native_block` + `native_box` aceitam `fill` + `stroke` named args; helpers `extract_color` + `extract_stroke` (reuso ou novos per §2.6) |
-| L1 Layouter | `01_core/src/rules/layout/mod.rs` (ou arm dedicado) | Arm Block + Boxed activam Shape emission + outset semantic real (Decisão 4-5) |
+| L1 stdlib | `01_core/src/engine/stdlib/layout.rs` | `native_block` + `native_box` aceitam `fill` + `stroke` named args; helpers `extract_color` + `extract_stroke` (reuso ou novos per §2.6) |
+| L1 Layouter | `01_core/src/engine/layout/mod.rs` (ou arm dedicado) | Arm Block + Boxed activam Shape emission + outset semantic real (Decisão 4-5) |
 | Tests content | `01_core/src/entities/content.rs` (test module) | 4-6 unit tests + adaptações construtores existentes |
-| Tests stdlib | `01_core/src/rules/stdlib/mod.rs` (test module) | 6-10 unit tests native_block + native_box fill/stroke |
-| Tests Layouter | `01_core/src/rules/layout/tests.rs` (ou módulo) | 1-3 unit tests Shape emission |
+| Tests stdlib | `01_core/src/engine/stdlib/mod.rs` (test module) | 6-10 unit tests native_block + native_box fill/stroke |
+| Tests Layouter | `01_core/src/engine/layout/tests.rs` (ou módulo) | 1-3 unit tests Shape emission |
 | Tests E2E | `03_infra/tests/` (ou local) | 3-5 E2E layout cross-attribute |
 | Inventário 148 | `00_nucleo/diagnosticos/typst-cobertura-vanilla-vs-cristalino.md` | §A.5 `block(...)` + `box(...)` reclassificadas — footnotes existentes preservadas; nova footnote ⁶⁵ P247 documenta 3 scope-outs cosméticos fechados; cobertura Layout per metodologia recalculada |
 | ADR-0061 | `00_nucleo/adr/typst-adr-0061-layout-fase-x-roadmap.md` | §"Refino futuro" anotação P247: fill + stroke + outset semantic activados; padrão "agregar promoções" inaugurado |

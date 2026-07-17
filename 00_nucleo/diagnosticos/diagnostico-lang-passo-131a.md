@@ -270,7 +270,7 @@ for materializado pode alinhar.
    - `StyleDelta::empty()` — `lang: None` continua válido.
    - Comentário do campo actualizado.
 
-2. **`01_core/src/rules/eval/rules.rs`**:
+2. **`01_core/src/engine/eval/rules.rs`**:
    - `use crate::entities::lang::Lang;` — adicionar.
    - `use std::str::FromStr;` — adicionar se não existe.
    - Arm `"lang"` adaptado:
@@ -315,7 +315,7 @@ for materializado pode alinhar.
   `ENGLISH` (2-letter) — ambos sem espaço trailing.
 - `lang_english_constante`: `Lang::ENGLISH.as_str() == "en"`.
 
-#### Integration tests em `01_core/src/rules/eval/tests.rs`
+#### Integration tests em `01_core/src/engine/eval/tests.rs`
 
 Adaptar:
 - `eval_set_text_lang_passo_130` — input `"pt"` continua OK.

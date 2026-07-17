@@ -36,7 +36,7 @@ Confirma: (a) região efectivamente sem limites por defeito
 
 ### 1.2 Estado do cristalino, `file:line`
 
-`01_core/src/rules/stdlib/layout.rs:1346` (`native_measure`, antes da
+`01_core/src/engine/stdlib/layout.rs:1346` (`native_measure`, antes da
 correcção) delegava a `measure_content` (`layout/helpers.rs:141-167`):
 
 ```rust
@@ -91,7 +91,7 @@ assinatura genérica `(ctx, args, world, file)`, sem `engine.styles`
 nem gate de `context` útil. Mesmo problema já resolvido por P702/P707/
 P710 (intercepção antes do dispatch genérico em `eval_func_call`).
 
-**`01_core/src/rules/eval/closures.rs`** — novo bloco de intercepção,
+**`01_core/src/engine/eval/closures.rs`** — novo bloco de intercepção,
 reconhece `measure(...)` (`Expr::Ident`) **e** `std.measure(...)`/
 `x.measure(...)` (`Expr::FieldAccess` — forma qualificada, o caminho
 real do `cetz`, `util.typ:197`: `std.measure(cnt)`). Verifica primeiro
@@ -108,7 +108,7 @@ identidade bate:
    `measure_content_real` (`layout/mod.rs`) → `Value::Dict { width,
    height }`.
 
-**`01_core/src/rules/layout/mod.rs`** — nova `measure_content_real`:
+**`01_core/src/engine/layout/mod.rs`** — nova `measure_content_real`:
 constrói um `Layouter` isolado (`FixedMetrics` + `NullImageSizer` — L1
 não tem métricas de fonte reais, `FallbackFontMetrics` é L3), com
 `chain`/`style` = os do chamador (o tamanho medido depende do `#set
@@ -121,7 +121,7 @@ height: None` (paridade com `Region::new(.., Abs::inf())`). Largura:
 reinicia a 0 por linha). Altura: a devolvida por `layout_sub_frame`
 (cursor real avançado, não aproximação).
 
-**`01_core/src/rules/stdlib/layout.rs`** — `native_measure` (o
+**`01_core/src/engine/stdlib/layout.rs`** — `native_measure` (o
 `NativeFn`) passa a ser só o fallback de invocação indirecta (`measure`
 como valor de primeira classe, ex. `arr.map(measure)` — sem consumidor
 medido). Sem `engine.styles`, **falha sempre** em vez de devolver
@@ -195,7 +195,7 @@ confirmado ainda presente, inalterado por este passo (fora de escopo).
   real (`ctx.in_context = true`) dentro de `expand_context_blocks`
   (L3, `03_infra/pipeline.rs`) — fora do alcance do harness L1 de
   `eval/tests.rs` (`layout()` local não resolve `Content::ContextBlock`,
-  `rules/layout/mod.rs:1645`). A medição real "dentro de `context`" é
+  `engine/layout/mod.rs:1645`). A medição real "dentro de `context`" é
   validada por reprodução manual (acima), não por teste automatizado
   de topo — mesma limitação já documentada em P711 para o mesmo
   harness.
@@ -204,7 +204,7 @@ confirmado ainda presente, inalterado por este passo (fora de escopo).
   removidos + 15 novos) + **630** (typst-infra, inalterado) passed, 0
   failed.
 - `crystalline-lint .` → 0 violations; `--fix-hashes .` realinhou 22
-  ficheiros (headers só — `rules/eval.md`, `rules/layout.md`,
+  ficheiros (headers só — `rules/eval.md`, `engine/layout.md`,
   `rules/stdlib/layout.md` mudaram de conteúdo, os 22 ficheiros
   partilham essas L0s).
 

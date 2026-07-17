@@ -13,9 +13,9 @@
 - `git diff HEAD --stat` (estado exacto que gerou os números):
 
 ```
- 00_nucleo/prompts/rules/eval.md        |  47 +++++++++++-
- 01_core/src/rules/eval/modules.rs      | 127 ++++++++++++++++++++-------------
- 01_core/src/rules/eval/tests.rs        |  60 +++++++++++++++-
+ 00_nucleo/prompts/engine/eval.md        |  47 +++++++++++-
+ 01_core/src/engine/eval/modules.rs      | 127 ++++++++++++++++++++-------------
+ 01_core/src/engine/eval/tests.rs        |  60 +++++++++++++++-
  ... (8 ficheiros eval/* só com @prompt-hash, 2 linhas cada)
  11 files changed, 190 insertions(+), 60 deletions(-)
 ```
@@ -36,7 +36,7 @@ Conclusão (ADR-0108): o padrão real de `cetz` é **fonte que resolve para `Val
 
 ## Implementação
 
-`eval_module_import` (`01_core/src/rules/eval/modules.rs`) foi reestruturado para resolver a
+`eval_module_import` (`01_core/src/engine/eval/modules.rs`) foi reestruturado para resolver a
 fonte para `(Module, default_bind_name)` antes de aplicar os bindings:
 
 - `Expr::Str` → fluxo P679/P681 (ficheiro local / pacote `@preview`), inalterado; nome por
@@ -91,7 +91,7 @@ próximo débito de linguagem**, fora do scope de P683 (não se assume cetz reso
 
 ## Ficheiros tocados (commit)
 
-- `00_nucleo/prompts/rules/eval.md` (L0: §P683)
-- `01_core/src/rules/eval/modules.rs` (fonte-módulo em `eval_module_import`)
-- `01_core/src/rules/eval/tests.rs` (+4 testes)
-- 8 ficheiros `01_core/src/rules/eval/*.rs` — só `@prompt-hash` (fix-hashes)
+- `00_nucleo/prompts/engine/eval.md` (L0: §P683)
+- `01_core/src/engine/eval/modules.rs` (fonte-módulo em `eval_module_import`)
+- `01_core/src/engine/eval/tests.rs` (+4 testes)
+- 8 ficheiros `01_core/src/engine/eval/*.rs` — só `@prompt-hash` (fix-hashes)

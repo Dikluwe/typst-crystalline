@@ -33,7 +33,7 @@ Tamanho: ~10 KB.
 
 ### Output 2 — Test E2E (1 test consolidado)
 
-Localização: `01_core/src/rules/introspect.rs` módulo
+Localização: `01_core/src/engine/introspect.rs` módulo
 `tests`, função
 `p203b_lacuna_1_e_1b_fecho_formal_4_casos`.
 

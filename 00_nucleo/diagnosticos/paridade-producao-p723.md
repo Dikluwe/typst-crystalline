@@ -112,9 +112,9 @@ de progresso registados»).
 
 ## 2. Implementação
 
-### 2.1 `assert.eq` / `assert.ne` (L0: `prompts/rules/stdlib/assert.md`)
+### 2.1 `assert.eq` / `assert.ne` (L0: `prompts/engine/stdlib/assert.md`)
 
-- `01_core/src/rules/stdlib/assert.rs` — `native_assert_eq` e
+- `01_core/src/engine/stdlib/assert.rs` — `native_assert_eq` e
   `native_assert_ne` (mesma assinatura de `native_assert`): validação de
   named args (só `message`), 2 posicionais obrigatórios, igualdade da
   linguagem via helper local `values_equal` (4 linhas duplicadas de
@@ -122,19 +122,19 @@ de progresso registados»).
   mensagens default **exactas** do vanilla com `repr_value` (P721),
   `message:` customizada (Str/Content→plain_text/outro→type_name, como
   `native_assert`).
-- `01_core/src/rules/stdlib/mod.rs:65` — export das duas funções.
-- `01_core/src/rules/eval/mod.rs` — `assert` passa a
+- `01_core/src/engine/stdlib/mod.rs:65` — export das duas funções.
+- `01_core/src/engine/eval/mod.rs` — `assert` passa a
   `Func::native_with_namespace` com `eq`/`ne` (mesma forma do bloco de
   `curve` de P513).
 
-### 2.2 Spread em padrão de `for` (L0: `prompts/rules/eval.md` §P723)
+### 2.2 Spread em padrão de `for` (L0: `prompts/engine/eval.md` §P723)
 
-- `01_core/src/rules/eval/control_flow.rs` — o bind manual de P540
+- `01_core/src/engine/eval/control_flow.rs` — o bind manual de P540
   (`bindings.is_empty()` / `len()==1` define directo / resto destrói
   posicionalmente com mensagem própria) substituído por
   `destructure_let(loop_expr.pattern(), item, scopes, ctx, engine)?` —
   a mesma entrada do `#let`.
-- `01_core/src/rules/eval/bindings.rs` — `destructure_let` passa a
+- `01_core/src/engine/eval/bindings.rs` — `destructure_let` passa a
   `pub(super)` (única mudança de visibilidade).
 - Cobertura: `for x in arr`, `for _ in arr`, `for (k, v) in dict`
   (P719), `for (a, ..rest) in arr` (**novo**), `for (a,) in ((1,),)`

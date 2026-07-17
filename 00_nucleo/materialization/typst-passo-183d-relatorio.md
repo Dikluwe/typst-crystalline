@@ -9,7 +9,7 @@
 ## §1 Resumo
 
 P183D tentou migrar o consumer C3
-(`01_core/src/rules/layout/mod.rs:435–439`,
+(`01_core/src/engine/layout/mod.rs:435–439`,
 `self.counter.figure_numbers.get(kind_key).and_then(|v| v.get(idx))`)
 para `Introspector::figure_number_at_index(kind, idx)` com fallback.
 A auditoria semântica `.B` aplicou literalmente a regra operacional dos
@@ -29,7 +29,7 @@ problema temporal, mas P183D mostra que o problema dual — dados
 ausentes — pode bloquear independentemente.
 
 Causa raíz eixo 2: `from_tags` arm `Figure`
-(`01_core/src/rules/introspect/from_tags.rs:71–95`) usa chave
+(`01_core/src/engine/introspect/from_tags.rs:71–95`) usa chave
 **global** `"figure"` no `CounterRegistry` em vez da convenção
 `figure:{kind}` documentada em `element_payload.rs:52` mas nunca
 implementada. O campo `kind: Option<String>` do payload é

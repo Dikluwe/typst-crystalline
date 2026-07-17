@@ -124,12 +124,12 @@ Este passo **não**:
 ## Escopo
 
 **Dentro**:
-- `01_core/src/rules/eval/rules.rs` — `eval_set_par` nova,
+- `01_core/src/engine/eval/rules.rs` — `eval_set_par` nova,
   dispatcher adaptado.
-- `01_core/src/rules/eval/tests.rs` — 1 teste migrado +
+- `01_core/src/engine/eval/tests.rs` — 1 teste migrado +
   1 teste novo.
 - `03_infra/src/integration_tests.rs` — 1 teste migrado.
-- `00_nucleo/prompts/rules/eval.md` (ou equivalente) + hash.
+- `00_nucleo/prompts/engine/eval.md` (ou equivalente) + hash.
 
 **Fora**:
 - Captura de propriedades em `par`.
@@ -145,7 +145,7 @@ Este passo **não**:
 
 **A.1 — Estrutura actual de `eval_set_rule`**:
 
-`grep -n "eval_set\|set_rule\|match target\|\"text\"\|\"par\"" 01_core/src/rules/eval/rules.rs`
+`grep -n "eval_set\|set_rule\|match target\|\"text\"\|\"par\"" 01_core/src/engine/eval/rules.rs`
 
 Registar:
 - Onde vive o dispatcher (função, match, estrutura).
@@ -174,7 +174,7 @@ Confirmar pelo menos 1 candidato que continua unknown após 133
 
 **A.4 — Testes afectados**:
 
-Em `01_core/src/rules/eval/tests.rs`:
+Em `01_core/src/engine/eval/tests.rs`:
 - Procurar `#set par(` — listar todos.
 - Para cada, registar:
   - Assertion actual.
@@ -201,7 +201,7 @@ Em `03_infra/src/integration_tests.rs`:
 
 ### 133.B — Criar `eval_set_par`
 
-**Ficheiro**: `01_core/src/rules/eval/rules.rs`.
+**Ficheiro**: `01_core/src/engine/eval/rules.rs`.
 
 Modelo esperado (ajustar a assinatura real após 133.A.2):
 
@@ -250,7 +250,7 @@ fn eval_set_par(
 
 ### 133.C — Adaptar dispatcher
 
-**Ficheiro**: `01_core/src/rules/eval/rules.rs`.
+**Ficheiro**: `01_core/src/engine/eval/rules.rs`.
 
 No dispatcher (match sobre target em `eval_set_rule`), adicionar
 arm:
@@ -287,7 +287,7 @@ Adaptação exacta depende do estilo do dispatcher actual
 
 ### 133.D — Migrar teste L1
 
-**Ficheiro**: `01_core/src/rules/eval/tests.rs`.
+**Ficheiro**: `01_core/src/engine/eval/tests.rs`.
 
 **D.1 — `eval_set_target_desconhecido_ignora`**:
 
@@ -364,7 +364,7 @@ se o convention exige sufixo; ou manter nome e só alterar input
 
 ### 133.F — Prompt L0
 
-Se `00_nucleo/prompts/rules/eval.md` descreve o dispatcher
+Se `00_nucleo/prompts/engine/eval.md` descreve o dispatcher
 de `eval_set_rule`, actualizar para incluir `par` como known
 target. Correr `crystalline-lint --fix-hashes .`.
 

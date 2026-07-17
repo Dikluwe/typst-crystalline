@@ -65,10 +65,10 @@ Continua a ser `Value::Array` de items `Value::Dict`. O dict agora pode conter, 
 | Ficheiro | Alteração |
 |----------|-----------|
 | `01_core/src/entities/font_list.rs` | campos `variant`/`weight`/`style` em `FontFamily`; construtor `new_named` |
-| `01_core/src/rules/eval/rules.rs` | detecção named fields; parsers `parse_font_dict_named_fields`/`parse_font_dict_legacy`; header de prompt atualizado |
-| `01_core/src/rules/layout/text.rs` | decodificação dos novos campos do dict na chain custom |
-| `01_core/src/rules/eval/tests.rs` | 12 testes de named fields P414 |
-| `00_nucleo/prompts/rules/style/font-dict.md` | prompt L0 consolidado (P407 + P414) |
+| `01_core/src/engine/eval/rules.rs` | detecção named fields; parsers `parse_font_dict_named_fields`/`parse_font_dict_legacy`; header de prompt atualizado |
+| `01_core/src/engine/layout/text.rs` | decodificação dos novos campos do dict na chain custom |
+| `01_core/src/engine/eval/tests.rs` | 12 testes de named fields P414 |
+| `00_nucleo/prompts/engine/style/font-dict.md` | prompt L0 consolidado (P407 + P414) |
 
 ## Scope-out mantido
 

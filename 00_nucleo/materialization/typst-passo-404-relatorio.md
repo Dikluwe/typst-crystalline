@@ -9,14 +9,14 @@
 Ativaram-se os operadores aritméticos e comparativos para `Value::Decimal`, homogeneamente (`Decimal op Decimal`).
 
 - L0:
-  - `00_nucleo/prompts/rules/eval/decimal-arithmetic.md` — novo prompt dedicado.
-- `01_core/src/rules/eval/operators.rs`:
+  - `00_nucleo/prompts/engine/eval/decimal-arithmetic.md` — novo prompt dedicado.
+- `01_core/src/engine/eval/operators.rs`:
   - Verificação de divisão por zero estendida a `Value::Decimal`.
   - Braços `BinOp::Add/Sub/Mul/Div` para `Value::Decimal` → `Value::Decimal` via `rust_decimal::Decimal`.
   - Braços de ordenação `Lt/Leq/Gt/Geq` para `Value::Decimal` → `Value::Bool`.
   - `UnOp::Neg` para `Value::Decimal`.
   - `Eq`/`Neq` já funcionam via `derive(PartialEq)` de `Value::Decimal` (trailing zeros ignorados).
-- `01_core/src/rules/eval/tests.rs`:
+- `01_core/src/engine/eval/tests.rs`:
   - 8 novos testes cobrindo `+`, `-`, `*`, `/`, comparações, divisão por zero, ausência de coerção com Int/Float, e negação unária.
 
 `cargo test --workspace -- --skip p350c_flag_on_nao_convergente_classifica` → 2941 passed; `crystalline-lint .` → `✓ No violations found`; hashes propagados manualmente (o linter `--fix-hashes` atualizou o código; o prompt foi alinhado em seguida).
@@ -63,10 +63,10 @@ A comparação `==`/`!=` não precisou de braços novos porque o `derive(Partial
 ## Artefactos
 
 - Código:
-  - `01_core/src/rules/eval/operators.rs`
-  - `01_core/src/rules/eval/tests.rs`
+  - `01_core/src/engine/eval/operators.rs`
+  - `01_core/src/engine/eval/tests.rs`
 - L0:
-  - `00_nucleo/prompts/rules/eval/decimal-arithmetic.md`
+  - `00_nucleo/prompts/engine/eval/decimal-arithmetic.md`
 - Plano: `00_nucleo/materialization/typst-passo-404.md`.
 - Este relatório.
 

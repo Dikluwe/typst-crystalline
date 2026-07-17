@@ -33,7 +33,7 @@ Cinco categorias de problema, confirmadas em pelo menos um dos quatro estilos te
 ## Sonda
 
 ```bash
-grep -rn "fn.*format.*author\|fn.*csl\|Bibliography.*style" 01_core/src/rules/eval/bibliography.rs 03_infra/src/bib/ --include="*.rs" 2>/dev/null
+grep -rn "fn.*format.*author\|fn.*csl\|Bibliography.*style" 01_core/src/engine/eval/bibliography.rs 03_infra/src/bib/ --include="*.rs" 2>/dev/null
 ```
 
 Para cada categoria, uma pergunta separada:
@@ -49,7 +49,7 @@ Confirmar se a bibliografia usa a mesma função corrigida em P538b para `/Info`
 ### Categoria 1 — ordem dos nomes
 
 ```bash
-grep -n "fn.*parse.*author\|split.*author\|author.*split" 01_core/src/rules/eval/bibliography.rs 03_infra/src/bib/*.rs 2>/dev/null
+grep -n "fn.*parse.*author\|split.*author\|author.*split" 01_core/src/engine/eval/bibliography.rs 03_infra/src/bib/*.rs 2>/dev/null
 ```
 
 Confirmar como o campo `author` do `.bib` (formato `Sobrenome, Nome and Sobrenome, Nome`) é interpretado — se a lógica de separar "and" e trocar nome/sobrenome está correcta para o formato do BibTeX.
@@ -57,7 +57,7 @@ Confirmar como o campo `author` do `.bib` (formato `Sobrenome, Nome and Sobrenom
 ### Categoria 3 — hífens duplicados
 
 ```bash
-grep -n "en.dash\|–\|--" 01_core/src/rules/eval/bibliography.rs 2>/dev/null
+grep -n "en.dash\|–\|--" 01_core/src/engine/eval/bibliography.rs 2>/dev/null
 ```
 
 O padrão `45––67` sugere que um hífen simples do `.bib` (`45-67`) está a ser convertido para travessão duas vezes, nalgum ponto duplicado da cadeia.
@@ -69,7 +69,7 @@ Provavelmente o mesmo tipo de causa já visto noutros dois casos de P539 Parte 2
 ### Categoria 5 — dados em falta, sem ordenação
 
 ```bash
-grep -n "publisher\|sort.*bib\|alphabetical" 01_core/src/rules/eval/bibliography.rs 2>/dev/null
+grep -n "publisher\|sort.*bib\|alphabetical" 01_core/src/engine/eval/bibliography.rs 2>/dev/null
 ```
 
 ### Critério de fecho da sonda

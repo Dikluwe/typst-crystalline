@@ -99,7 +99,7 @@ O Typst vanilla usa `top_edge: cap-height` / `bottom_edge: baseline` por defeito
 
 Esta diferença arquitetural explica o deslocamento crescente de ~2,304 pt por linha. Corrigir isto implica:
 - Adoptar o conceito de `top_edge` / `bottom_edge` no cristalino, **ou**
-- Alterar o L0 de layout (`00_nucleo/prompts/rules/layout.md`) para que `flush_line()` avance `cap_height + leading` em vez de `line_height + leading`.
+- Alterar o L0 de layout (`00_nucleo/prompts/engine/layout.md`) para que `flush_line()` avance `cap_height + leading` em vez de `line_height + leading`.
 
 Ambas as opções estão fora do scope tático de P761. Ficam documentadas como causa confirmada e work futuro.
 
@@ -109,10 +109,10 @@ Ambas as opções estão fora do scope tático de P761. Ficam documentadas como 
 
 | Ficheiro | Alteração |
 |----------|-----------|
-| `01_core/src/rules/layout/set_page.rs` | `cursor_y` inicial só adianta `cap_height` quando a baseline já foi fixada. |
-| `01_core/src/rules/layout/cursor.rs` | Mesmo ajuste em `new_page()` e `start_column()`. |
+| `01_core/src/engine/layout/set_page.rs` | `cursor_y` inicial só adianta `cap_height` quando a baseline já foi fixada. |
+| `01_core/src/engine/layout/cursor.rs` | Mesmo ajuste em `new_page()` e `start_column()`. |
 | `03_infra/src/font_metrics.rs` | `FontBookMetrics::cap_height()` e `FallbackFontMetrics::cap_height()` usam `typographic_ascender()` como fallback. |
-| `01_core/src/rules/layout/grid.rs` | Só subtrai `cap_height` ao `cursor_y` quando `initial_baseline_pending` é `false`, corrigindo a regressão introduzida pela mudança anterior. |
+| `01_core/src/engine/layout/grid.rs` | Só subtrai `cap_height` ao `cursor_y` quando `initial_baseline_pending` é `false`, corrigindo a regressão introduzida pela mudança anterior. |
 
 ---
 
@@ -131,15 +131,15 @@ Ambas as opções estão fora do scope tático de P761. Ficam documentadas como 
 - Os bugs corrigíveis identificados por P761 (duplicação de baseline inicial e fallback errado de `cap_height`) foram corrigidos.
 - A primeira linha do documento P760 está agora alinhada com o vanilla.
 - O resíduo de ~97,8 % restante é explicado por uma diferença arquitetural no avanço entre linhas: o cristalino usa `line_height` (ascender + descender + lineGap) enquanto o vanilla usa `cap_height + par.leading` (default 0,65 em). Esta diferença acumula ~2,304 pt por linha.
-- A correção deste modelo de line_height requer alteração ao Prompt L0 `00_nucleo/prompts/rules/layout.md` e é scope-out de P761.
+- A correção deste modelo de line_height requer alteração ao Prompt L0 `00_nucleo/prompts/engine/layout.md` e é scope-out de P761.
 
 ---
 
 ## Alterações (ficheiros modificados no working tree)
 
 ```text
-01_core/src/rules/layout/cursor.rs
-01_core/src/rules/layout/grid.rs
-01_core/src/rules/layout/set_page.rs
+01_core/src/engine/layout/cursor.rs
+01_core/src/engine/layout/grid.rs
+01_core/src/engine/layout/set_page.rs
 03_infra/src/font_metrics.rs
 ```

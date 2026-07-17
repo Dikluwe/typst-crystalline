@@ -66,13 +66,13 @@ Truncagem é safe para fontes com ≤ 65535 glifos (todos os TrueType normais).
 | Ficheiro | `@prompt-hash` pós-P482 | Alteração |
 |----------|------------------------|-----------|
 | `01_core/src/entities/layout_types.rs` | `b13692d6` | `ShapedGlyph` struct + `FrameItem::TextShaped` variant + `plain_text_items` arm |
-| `01_core/src/rules/layout/helpers.rs` | (pré-existente) | `item_pos` + `translate_frame_item` — arm TextShaped |
-| `01_core/src/rules/layout/slicing.rs` | (pré-existente) | `item_y_start` + `rebase_item_y` — arm TextShaped |
-| `01_core/src/rules/layout/cursor.rs` | (pré-existente) | `flush_pending_floats`, `flush_pending_footnote_bodies`, `top_safe` calc, `tail_h` calc — arms TextShaped |
-| `01_core/src/rules/math/layout/mod.rs` | (pré-existente) | `place`, `offset_item`, `hconcat` — arms TextShaped |
-| `01_core/src/rules/layout/link.rs` | (pré-existente) | bbox calculation — arm TextShaped |
-| `01_core/src/rules/layout/equation.rs` | (pré-existente) | math inline loop — arm TextShaped |
-| `01_core/src/rules/math/layout/frac.rs` | (pré-existente) | num_box/den_box loops — match com TextShaped |
+| `01_core/src/engine/layout/helpers.rs` | (pré-existente) | `item_pos` + `translate_frame_item` — arm TextShaped |
+| `01_core/src/engine/layout/slicing.rs` | (pré-existente) | `item_y_start` + `rebase_item_y` — arm TextShaped |
+| `01_core/src/engine/layout/cursor.rs` | (pré-existente) | `flush_pending_floats`, `flush_pending_footnote_bodies`, `top_safe` calc, `tail_h` calc — arms TextShaped |
+| `01_core/src/engine/math/layout/mod.rs` | (pré-existente) | `place`, `offset_item`, `hconcat` — arms TextShaped |
+| `01_core/src/engine/layout/link.rs` | (pré-existente) | bbox calculation — arm TextShaped |
+| `01_core/src/engine/layout/equation.rs` | (pré-existente) | math inline loop — arm TextShaped |
+| `01_core/src/engine/math/layout/frac.rs` | (pré-existente) | num_box/den_box loops — match com TextShaped |
 
 ### L3 — `03_infra`
 

@@ -68,7 +68,7 @@ Trabalho material realizado:
 ```bash
 ls 01_core/src/entities/sides.rs 2>/dev/null     # NÃO existia
 grep -E "Pad|Hide|Sides" 01_core/src/entities/content.rs  # zero hits
-grep "native_pad\|native_hide" 01_core/src/rules/stdlib/  # zero hits
+grep "native_pad\|native_hide" 01_core/src/engine/stdlib/  # zero hits
 ```
 
 Confirmações:
@@ -80,10 +80,10 @@ Confirmações:
 
 ### §2.2 Localização real diferente da spec
 
-A spec do P156C indicava `01_core/src/rules/eval/stdlib/structural.rs`,
-mas a estrutura real é `01_core/src/rules/stdlib/` (sem `eval/`).
+A spec do P156C indicava `01_core/src/engine/eval/stdlib/structural.rs`,
+mas a estrutura real é `01_core/src/engine/stdlib/` (sem `eval/`).
 Ajuste: `native_pad`+`native_hide` colocados em
-`01_core/src/rules/stdlib/layout.rs` (consistente com `native_align`,
+`01_core/src/engine/stdlib/layout.rs` (consistente com `native_align`,
 `native_place`, `native_grid`, `native_page` já lá; coesão por
 domínio Layout per ADR-0037).
 
@@ -117,7 +117,7 @@ Pad {
 **Construtor Rust**: `Content::pad(body, padding)`.
 
 **Stdlib**: `#pad(body, left:?, right:?, top:?, bottom:?, x:?,
-y:?, rest:?)` em `01_core/src/rules/stdlib/layout.rs::native_pad`.
+y:?, rest:?)` em `01_core/src/engine/stdlib/layout.rs::native_pad`.
 
 **Cobertura arms adicionados**:
 - `is_empty`: proxy para `body.is_empty()`.
@@ -148,7 +148,7 @@ Hide {
 **Construtor Rust**: `Content::hide(body)`.
 
 **Stdlib**: `#hide(body)` em
-`01_core/src/rules/stdlib/layout.rs::native_hide`. Sem named args.
+`01_core/src/engine/stdlib/layout.rs::native_hide`. Sem named args.
 
 **Cobertura arms adicionados**:
 - `is_empty`: proxy para `body.is_empty()`.
@@ -184,8 +184,8 @@ explícito):
 | `Content::map_text` | `entities/content.rs` | Pad+Hide recurse body |
 | `materialize_time` | `rules/introspect.rs` | Pad+Hide recurse body |
 | `walk` | `rules/introspect.rs` | Pad+Hide walk body |
-| `layout_content` | `rules/layout/mod.rs` | Pad full impl / Hide drain |
-| `measure_content_constrained` | `rules/layout/mod.rs` | Pad add padding / Hide proxy |
+| `layout_content` | `engine/layout/mod.rs` | Pad full impl / Hide drain |
+| `measure_content_constrained` | `engine/layout/mod.rs` | Pad add padding / Hide proxy |
 
 **Verificação**: `cargo build -p typst-core` clean (sem
 warnings de variantes não cobertas).
@@ -267,15 +267,15 @@ Lógica:
 ### §7.3 Registo em `make_stdlib`
 
 ```rust
-// 01_core/src/rules/eval/mod.rs::make_stdlib
+// 01_core/src/engine/eval/mod.rs::make_stdlib
 scope.define("pad",  Value::Func(Func::native("pad",  native_pad)));
 scope.define("hide", Value::Func(Func::native("hide", native_hide)));
 ```
 
-Re-export em `01_core/src/rules/stdlib/mod.rs`:
+Re-export em `01_core/src/engine/stdlib/mod.rs`:
 
 ```rust
-pub use crate::rules::stdlib::layout::{
+pub use crate::engine::stdlib::layout::{
     native_align, native_grid, native_hide, native_pad, native_page, native_place,
 };
 ```
@@ -369,7 +369,7 @@ Content::Hide { body } => {
 12. `pad_e_hide_map_text_recurse_no_body` — propagação
     transformação textual.
 
-### §9.3 Em `01_core/src/rules/stdlib/mod.rs::tests` (13)
+### §9.3 Em `01_core/src/engine/stdlib/mod.rs::tests` (13)
 
 13. `native_pad_defaults_padding_zero` — sem args nomeados.
 14. `native_pad_lados_individuais` — left/right/top/bottom.
@@ -385,7 +385,7 @@ Content::Hide { body } => {
 24. `native_hide_rejeita_named_arg` — sem named args.
 25. `native_hide_sem_body_retorna_err` — body obrigatório.
 
-### §9.4 Em `01_core/src/rules/layout/tests.rs` (2)
+### §9.4 Em `01_core/src/engine/layout/tests.rs` (2)
 
 26. `layout_pad_avanca_cursor_bottom_e_top` — pad com top=20pt
     empurra texto para baixo (vs baseline sem pad).
@@ -681,14 +681,14 @@ Critérios da spec P156C (§Verificação):
   - `01_core/src/entities/content.rs` (variants Pad+Hide +
     construtores + cobertura arms + 8 tests).
   - `01_core/src/entities/mod.rs` (registo `pub mod sides;`).
-  - `01_core/src/rules/introspect.rs` (arms Pad+Hide em
+  - `01_core/src/engine/introspect.rs` (arms Pad+Hide em
     materialize_time + walk).
-  - `01_core/src/rules/layout/mod.rs` (arms Pad+Hide em
+  - `01_core/src/engine/layout/mod.rs` (arms Pad+Hide em
     layout_content + measure_content_constrained).
-  - `01_core/src/rules/layout/tests.rs` (2 tests E2E).
-  - `01_core/src/rules/stdlib/layout.rs` (native_pad +
+  - `01_core/src/engine/layout/tests.rs` (2 tests E2E).
+  - `01_core/src/engine/stdlib/layout.rs` (native_pad +
     native_hide + extract_length helper).
-  - `01_core/src/rules/stdlib/mod.rs` (re-export + 13
+  - `01_core/src/engine/stdlib/mod.rs` (re-export + 13
     tests).
-  - `01_core/src/rules/eval/mod.rs` (registo em
+  - `01_core/src/engine/eval/mod.rs` (registo em
     `make_stdlib`).

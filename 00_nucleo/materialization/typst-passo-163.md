@@ -2,7 +2,7 @@
 
 Terceiro e último passo de M1 do refactor Introspection
 (P161 + P162 + P163). Este passo:
-1. Refina L0 de `00_nucleo/prompts/rules/introspect.md` para
+1. Refina L0 de `00_nucleo/prompts/engine/introspect.md` para
    reflectir alterações de P162 (assinatura `walk` com 5
    parâmetros; emissão de tags em paralelo). Pendência
    herdada de P162 verificação .H.6.
@@ -34,7 +34,7 @@ pública.
 
 Reverificar (não confiar em P162):
 
-1. Walk em `01_core/src/rules/introspect.rs`:
+1. Walk em `01_core/src/engine/introspect.rs`:
    - Assinatura actual com 5 parâmetros (incluindo
      `label_from_parent: Option<&Label>`, decisão registada
      em P162.A).
@@ -42,7 +42,7 @@ Reverificar (não confiar em P162):
      mutação de `CounterStateLegacy`.
    - Helper `introspect_with_tags` em `#[cfg(test)]` para
      expor `Vec<Tag>` aos tests (criado em P162.G).
-2. L0 actual `00_nucleo/prompts/rules/introspect.md`:
+2. L0 actual `00_nucleo/prompts/engine/introspect.md`:
    - Ler conteúdo. Identificar secções existentes.
    - Confirmar que reflecte estado **pré-P162** (assinatura
      antiga de walk, sem menção a tags).
@@ -83,7 +83,7 @@ Pendência herdada de P162 verificação .H.6: L0 de
 tudo o que está no L1, incluindo internals (decisão pós-debate
 P162).
 
-1. Ler L0 actual `00_nucleo/prompts/rules/introspect.md`.
+1. Ler L0 actual `00_nucleo/prompts/engine/introspect.md`.
    Identificar:
    - Secção sobre `walk` (assinatura, papel).
    - Secção sobre `introspect()` pública.
@@ -285,7 +285,7 @@ isso no relatório de conclusão (.G).
    Contagem aumenta vs baseline P162 (smoke V2 dos tests
    E2E em .C e .D). Documentar Δ.
 3. `crystalline-lint`: zero violations.
-4. L0 `00_nucleo/prompts/rules/introspect.md` reflecte
+4. L0 `00_nucleo/prompts/engine/introspect.md` reflecte
    walk com 5 parâmetros + emissão de tags.
 5. Helper `introspect_with_tags` acessível aos tests
    (P162.G + reusado em P163).
@@ -305,7 +305,7 @@ Escrever
   adicionados; M1 inteiro concluído.
 - Confirmação de cada verificação .F.
 - Hash actualizado de
-  `00_nucleo/prompts/rules/introspect.md` (preenchido pelo
+  `00_nucleo/prompts/engine/introspect.md` (preenchido pelo
   linter).
 - Decisões registadas em .A:
   - API real de `CounterStateLegacy` para verificação

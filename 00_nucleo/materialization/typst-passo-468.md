@@ -101,7 +101,7 @@ fn native_cite(key: EcoString, style: Option<CitationStyle>) -> Content {
 
 ### 4. Layout de citação numérica
 
-**Ficheiro:** `rules/layout/ref.rs` (ou `rules/layout/bibliography.rs`)
+**Ficheiro:** `engine/layout/ref.rs` (ou `engine/layout/bibliography.rs`)
 
 ```rust
 // Ao resolver Content::Ref onde o target é uma entrada bibliográfica:
@@ -121,7 +121,7 @@ match ref_elem.style {
 
 ### 5. Bibliografia ordenada por ordem de aparição
 
-**Ficheiro:** `rules/layout/bibliography.rs` (ou `rules/eval/bibliography.rs`)
+**Ficheiro:** `engine/layout/bibliography.rs` (ou `rules/eval/bibliography.rs`)
 
 ```rust
 // Ao renderizar Content::Bibliography:
@@ -148,7 +148,7 @@ match ref_elem.style {
 ### 8. Spec L0
 
 - `rules/stdlib/bibliography.md` — `cite(key, style?)` com tabela de estilos.
-- `rules/layout/bibliography.md` — layout de citação numérica e bibliografia ordenada.
+- `engine/layout/bibliography.md` — layout de citação numérica e bibliografia ordenada.
 - `entities/bibliography.md` — `CitationStyle` enum.
 
 ---

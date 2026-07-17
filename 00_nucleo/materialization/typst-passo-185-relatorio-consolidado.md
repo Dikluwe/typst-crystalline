@@ -47,7 +47,7 @@ infraestrutural; consumers C1/C2 migram em P187/P188.
 |-------|---------------------|-----------------|---------|-------------|------|
 | **P185A** | M (diagnóstico) | M | 0 | nenhum (cria diagnóstico + ADR) | ADR-0068 PROPOSTO |
 | **P185B** | S | S | **+10** | `entities/introspector.md` | — |
-| **P185C** | M (genuíno) | M | 0 | `rules/layout.md` | — |
+| **P185C** | M (genuíno) | M | 0 | `engine/layout.md` | — |
 | **P185D** | S | S | **+4** | nenhum (só tests) | — |
 | **P185E** | S (documental) | S | 0 | nenhum (só ADR + relatório) | ADR-0068 ACEITE |
 | **Total** | — | — | **+14** | 2 L0 produção | 1 ADR transitada |

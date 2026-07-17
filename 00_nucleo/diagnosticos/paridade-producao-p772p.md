@@ -26,7 +26,7 @@ acontece mais tarde, quando o layout de facto precisa da imagem — mas ainda
 assim dentro do compilador (`SourceResult` fallível), nunca na exportação.
 
 **Por que a implementação segue mesmo assim o plano original (avaliação, não
-layout)**: `01_core/src/rules/layout/mod.rs::layout_content` do cristalino
+layout)**: `01_core/src/engine/layout/mod.rs::layout_content` do cristalino
 devolve `()`, não `SourceResult<()>` — o layout é **estruturalmente
 infalível** hoje; não há caminho nenhum para propagar um erro de compilação
 a partir daí. Tornar o layout falível seria uma mudança muito maior que este
@@ -86,7 +86,7 @@ de injecção de dependência nenhuma. Implementada como função livre em L1.
 
 - `00_nucleo/prompts/entities/image-format.md` (novo) — `ImageFormat`/
   `detect_image_format`, movidos de L3 para L1 (não duplicados).
-- `00_nucleo/prompts/rules/stdlib/figure_image.md` — nova secção
+- `00_nucleo/prompts/engine/stdlib/figure_image.md` — nova secção
   "Validação de formato em avaliação (P772p)": mecanismo, mensagens,
   divergência aceite, limitação de span.
 - `00_nucleo/prompts/infra/export/images.md` — `ImageFormat`/`detect_format`
@@ -107,7 +107,7 @@ de injecção de dependência nenhuma. Implementada como função livre em L1.
    no seu lugar. `mod.rs`, `builder.rs`, `tests.rs` actualizados para o
    nome novo (`detect_format` → `detect_image_format`) — mesmo
    comportamento, zero duplicação.
-3. **`01_core/src/rules/stdlib/figure_image.rs::native_image`**: depois de
+3. **`01_core/src/engine/stdlib/figure_image.rs::native_image`**: depois de
    `world.read_bytes`, antes de construir `Content::Image`:
    - `path` termina em `.svg`/`.svgz` (case-insensitive) → erro `"SVG
      images are not supported yet"`.
@@ -117,7 +117,7 @@ de injecção de dependência nenhuma. Implementada como função livre em L1.
 
 ### Teste pré-existente corrigido (não regressão, fixture desactualizada)
 
-`native_image_retorna_content_image` (`01_core/src/rules/stdlib/mod.rs`)
+`native_image_retorna_content_image` (`01_core/src/engine/stdlib/mod.rs`)
 usava bytes arbitrários (`vec![1, 2, 3]`) como conteúdo de "foto.png" — só
 passava porque não havia validação nenhuma. Corrigido para usar a
 assinatura PNG real; o teste continua a verificar o mesmo comportamento
@@ -127,7 +127,7 @@ assinatura PNG real; o teste continua a verificar o mesmo comportamento
 
 `native_image_formato_desconhecido_gera_erro`,
 `native_image_svg_gera_erro_nao_suportado`,
-`native_image_jpeg_valido_sem_regressao` (`01_core/src/rules/stdlib/mod.rs`).
+`native_image_jpeg_valido_sem_regressao` (`01_core/src/engine/stdlib/mod.rs`).
 
 ---
 

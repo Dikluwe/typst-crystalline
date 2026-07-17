@@ -73,7 +73,7 @@ Detalhe completo: `00_nucleo/diagnosticos/diagnostico-math-operadores-passo-299.
 
 ## §3 — Materialização
 
-### §3.1 — `01_core/src/rules/stdlib/structural.rs` (+`make_math_module()`)
+### §3.1 — `01_core/src/engine/stdlib/structural.rs` (+`make_math_module()`)
 
 ```rust
 fn op_value(text: &str, limits: bool) -> Value {
@@ -123,15 +123,15 @@ pub fn make_math_module() -> Value {
 
 ### §3.2 — Re-export + registo
 
-`01_core/src/rules/stdlib/mod.rs:45`:
+`01_core/src/engine/stdlib/mod.rs:45`:
 
 ```rust
-pub use crate::rules::stdlib::structural::{
+pub use crate::engine::stdlib::structural::{
     make_math_module, ...
 };
 ```
 
-`01_core/src/rules/eval/mod.rs:768`:
+`01_core/src/engine/eval/mod.rs:768`:
 
 ```rust
 // P299 — `math.sin`/`math.lim`/etc. (P298.X; 42 operadores
@@ -144,16 +144,16 @@ scope.define("math",     make_math_module());
 | Componente | Pós-P299 |
 |---|---|
 | `01_core/src/entities/content.rs` | **Inalterado** — P299 não cria variants; hash `82d3c47d` preservado |
-| `01_core/src/rules/layout/` | **Inalterado** — handlers P296-P298 consumem MathOp sem alteração |
-| `01_core/src/rules/math/layout/attach.rs` | **Inalterado** — heurística pré-P299 preservada |
-| `01_core/src/rules/math/symbols.rs` | **Inalterado** — `is_limit_function` hardcoded preservado (fallback) |
+| `01_core/src/engine/layout/` | **Inalterado** — handlers P296-P298 consumem MathOp sem alteração |
+| `01_core/src/engine/math/layout/attach.rs` | **Inalterado** — heurística pré-P299 preservada |
+| `01_core/src/engine/math/symbols.rs` | **Inalterado** — `is_limit_function` hardcoded preservado (fallback) |
 | `03_infra/src/export.rs` | **Inalterado bit-exact** — hash `66cb8ac3` (16º passo) |
 
 ---
 
 ## §4 — Testes
 
-### §4.1 — `01_core/src/rules/stdlib/mod.rs` (+10 testes L1)
+### §4.1 — `01_core/src/engine/stdlib/mod.rs` (+10 testes L1)
 
 | Teste | Verifica |
 |---|---|

@@ -30,8 +30,8 @@
   P83.5.
 - Substituição literal `01_core/DEBT.md → 00_nucleo/DEBT.md` propagada
   por **36 ficheiros** (1 ADR — `typst-adr-0006`; 2 prompts L0 —
-  `prompts/rules/utils.md`, `prompts/rules/parse.md`; 2 ficheiros de
-  código `.rs` — `01_core/src/utils.rs`, `01_core/src/rules/parse.rs`,
+  `prompts/engine/utils.md`, `prompts/engine/parse.md`; 2 ficheiros de
+  código `.rs` — `01_core/src/utils.rs`, `01_core/src/engine/parse.rs`,
   apenas comentários; 31 passos de materialização históricos).
 - `grep -rn "01_core/DEBT.md" .` após a substituição: 0 matches ✓.
 - `crystalline-lint --fix-hashes .` ajustou 2 hashes L0
@@ -77,7 +77,7 @@ visível no commit `b19682d63` segundo o seu status declarado) produz:
   weight numérico), `#show` rules, paridade total, remover wrappers
   Strong/Emph do layout.
 - **Verificação:**
-  - `git show b19682d63:01_core/src/rules/eval.rs | grep "styles" | grep -iE "save|restore|push|pop"` →
+  - `git show b19682d63:01_core/src/engine/eval.rs | grep "styles" | grep -iE "save|restore|push|pop"` →
     save/restore em `Expr::CodeBlock` (343-351), `Expr::ContentBlock`
     (635-638), `apply_closure` (1094-1101). Push em Strong/Emph/Heading.
   - Show rules: `Expr::ShowRule` em eval.rs (706), `apply_show_rules`
@@ -133,7 +133,7 @@ visível no commit `b19682d63` segundo o seu status declarado) produz:
 - **Verificação:**
   - `rustc --version` no momento da regeneração: **rustc 1.92.0**
     (registado também em P83.5 ≥ 1.85).
-  - `git show b19682d63:01_core/src/rules/eval.rs | grep "fn_addr_eq"` → 0
+  - `git show b19682d63:01_core/src/engine/eval.rs | grep "fn_addr_eq"` → 0
     matches.
 - **Confirmação:** ABERTO, mas com **bloqueio técnico já removido**.
   A mitigação pode ser substituída por resolução definitiva.
@@ -142,7 +142,7 @@ visível no commit `b19682d63` segundo o seu status declarado) produz:
 
 ### DEBT-22 — Clone de show_rules por nó
 - **Estado:** sem marca de encerramento.
-- **Verificação:** em `b19682d63:01_core/src/rules/eval.rs:1514` —
+- **Verificação:** em `b19682d63:01_core/src/engine/eval.rs:1514` —
   `let rules = ctx.show_rules.clone(); // snapshot explícito — DEBT-22`.
   Clone por invocação ainda presente. `pub show_rules: Vec<ShowRule>` na
   linha 68.
@@ -186,7 +186,7 @@ visível no commit `b19682d63` segundo o seu status declarado) produz:
 ### DEBT-35b — Invalidação de cache de available_width após SetPage
 - **Estado:** EM ABERTO, preventivo (P81).
 - **Verificação:** `available_width()` é método sem campo de cache em
-  `b19682d63:01_core/src/rules/layout/mod.rs:184`. Calculado em tempo
+  `b19682d63:01_core/src/engine/layout/mod.rs:184`. Calculado em tempo
   real. Comentário "DEBT-35b: se available_width() vier a ter cache,
   invalidar aqui" no braço SetPage.
 - **Confirmação:** ABERTO (preventivo) — sem cache, o risco documentado
@@ -221,7 +221,7 @@ visível no commit `b19682d63` segundo o seu status declarado) produz:
 
 ### DEBT-38 — Cache de sub-frames no Grid Auto
 - **Estado:** EM ABERTO (aberto no próprio P83).
-- **Verificação:** `git show b19682d63:01_core/src/rules/layout/mod.rs |
+- **Verificação:** `git show b19682d63:01_core/src/engine/layout/mod.rs |
   grep -A 8 "_sub_items"` → confirma `let (sub_h, _sub_items) =
   self.layout_sub_frame_with_width(item, cell_x, cell_w);` na fase Auto
   do braço Grid. Items descartados na medição e recalculados na emissão
@@ -321,9 +321,9 @@ grep -rn "01_core/DEBT.md" .          # → 0
 git show b19682d63:00_nucleo/DEBT.md | grep -E "^## Secção|^## DEBT-"
 
 # DEBT-1
-git show b19682d63:01_core/src/rules/eval.rs | grep "styles" \
+git show b19682d63:01_core/src/engine/eval.rs | grep "styles" \
   | grep -iE "save|restore|push|pop"
-git show b19682d63:01_core/src/rules/eval.rs \
+git show b19682d63:01_core/src/engine/eval.rs \
   | grep -E "Expr::ShowRule|apply_show_rules"
 
 # DEBT-2
@@ -332,8 +332,8 @@ git show b19682d63:01_core/src/entities/world_types.rs | grep "TrackedWorld"
 grep -rn "shadow\|capture" lab/parity/tests/
 
 # DEBT-8
-git show b19682d63:01_core/src/rules/math/layout.rs | grep -c "MathAlignPoint"
-git show b19682d63:01_core/src/rules/eval.rs | grep -c "MathAlignPoint"
+git show b19682d63:01_core/src/engine/math/layout.rs | grep -c "MathAlignPoint"
+git show b19682d63:01_core/src/engine/eval.rs | grep -c "MathAlignPoint"
 
 # DEBT-9
 find lab/parity/tests -name "*.rs" -exec wc -l {} \;
@@ -341,33 +341,33 @@ grep -c "#\[test\]" lab/parity/tests/parse_parity.rs
 
 # DEBT-21
 rustc --version
-git show b19682d63:01_core/src/rules/eval.rs | grep -c "fn_addr_eq"
+git show b19682d63:01_core/src/engine/eval.rs | grep -c "fn_addr_eq"
 
 # DEBT-22
-git show b19682d63:01_core/src/rules/eval.rs | grep -n "show_rules"
+git show b19682d63:01_core/src/engine/eval.rs | grep -n "show_rules"
 
 # DEBT-33
-git show b19682d63:01_core/src/rules/stdlib.rs | grep -n "min_x\|max_x\|CubicTo"
+git show b19682d63:01_core/src/engine/stdlib.rs | grep -n "min_x\|max_x\|CubicTo"
 git show b19682d63:01_core/src/entities/geometry.rs | grep -n "CubicTo\|enum PathItem"
 
 # DEBT-34d
-git show b19682d63:01_core/src/rules/layout/mod.rs | grep -A 12 "TrackSizing::Auto =>"
+git show b19682d63:01_core/src/engine/layout/mod.rs | grep -A 12 "TrackSizing::Auto =>"
 
 # DEBT-34e
 git show b19682d63:01_core/src/entities/content.rs | grep -A 5 "Grid {"
 
 # DEBT-35b
-git show b19682d63:01_core/src/rules/layout/mod.rs | grep -n "available_width"
+git show b19682d63:01_core/src/engine/layout/mod.rs | grep -n "available_width"
 
 # DEBT-36
 git show b19682d63:01_core/src/entities/value.rs | grep -c "Align"
-git show b19682d63:01_core/src/rules/stdlib.rs | grep -n "Align2D::from_string"
+git show b19682d63:01_core/src/engine/stdlib.rs | grep -n "Align2D::from_string"
 
 # DEBT-37
-git show b19682d63:01_core/src/rules/layout/mod.rs | grep -A 12 "Content::Place {"
+git show b19682d63:01_core/src/engine/layout/mod.rs | grep -A 12 "Content::Place {"
 
 # DEBT-38
-git show b19682d63:01_core/src/rules/layout/mod.rs | grep -B 1 -A 8 "_sub_items"
+git show b19682d63:01_core/src/engine/layout/mod.rs | grep -B 1 -A 8 "_sub_items"
 
 # Validação no momento do P83.5 (estado do código)
 cargo test                            # 732 L1 + 166 L3, 0 failures (registado)

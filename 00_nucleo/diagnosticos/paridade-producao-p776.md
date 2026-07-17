@@ -7,14 +7,14 @@
 - `00_nucleo/prompts/entities/layout_types.md`
 - `00_nucleo/prompts/infra/export/stream.md`
 - `00_nucleo/prompts/infra/image-sizer.md`
-- `00_nucleo/prompts/rules/layout-image.md`
+- `00_nucleo/prompts/engine/layout-image.md`
 - `01_core/src/entities/image_sizer.rs`
 - `01_core/src/entities/layout_types.rs`
-- `01_core/src/rules/layout/cursor.rs`
-- `01_core/src/rules/layout/helpers.rs`
-- `01_core/src/rules/layout/image.rs`
-- `01_core/src/rules/layout/slicing.rs`
-- `01_core/src/rules/math/layout/mod.rs`
+- `01_core/src/engine/layout/cursor.rs`
+- `01_core/src/engine/layout/helpers.rs`
+- `01_core/src/engine/layout/image.rs`
+- `01_core/src/engine/layout/slicing.rs`
+- `01_core/src/engine/math/layout/mod.rs`
 - `03_infra/fixtures/p307b/reference/08-image-jpeg.pdf`
 - `03_infra/src/export/stream.rs`
 - `03_infra/src/export/tests.rs`
@@ -46,7 +46,7 @@ orientações EXIF.
 
 ### L1 — layout calcula dimensões trocadas para orientações 5-8
 
-- `01_core/src/rules/layout/image.rs`: `ImageDimensions` inclui `orientation`;
+- `01_core/src/engine/layout/image.rs`: `ImageDimensions` inclui `orientation`;
   `calculate_dimensions` troca `intrinsic_width`/`intrinsic_height` para
   orientações 5-8, replicando a semântica do vanilla `exif_transform`.
 - `01_core/src/entities/image_sizer.rs`: `image_size` devolve a orientação EXIF

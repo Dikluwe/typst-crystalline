@@ -21,7 +21,7 @@ Tamanho: ~350–400 linhas de código efectivo (excluindo testes e docs).
 Duas opções foram avaliadas:
 
 **Opção A — Inline**: copiar `Scanner` para
-`01_core/src/rules/lexer/scanner.rs` como módulo interno de L1.
+`01_core/src/engine/lexer/scanner.rs` como módulo interno de L1.
 
 **Opção B — Autorizar**: adicionar `unscanny` a `[l1_allowed_external]`.
 
@@ -50,7 +50,7 @@ o risco de manutenção é diferente em natureza e escala.
 
 **Opção A — Inline.**
 
-`Scanner` é migrado para `01_core/src/rules/lexer/scanner.rs`.
+`Scanner` é migrado para `01_core/src/engine/lexer/scanner.rs`.
 `unscanny` não entra em `[l1_allowed_external]`.
 
 A interface pública de `Scanner` é mantida idêntica à do `unscanny`
@@ -62,7 +62,7 @@ search-replace de imports sem alteração de lógica:
 use unscanny::Scanner;
 
 // Depois (01_core):
-use crate::rules::lexer::scanner::Scanner;
+use crate::engine::lexer::scanner::Scanner;
 ```
 
 O módulo interno pode receber métodos específicos do léxico Typst
@@ -74,7 +74,7 @@ wrapper — vantagem que a Opção B não permite.
 ## Estrutura do módulo
 
 ```
-01_core/src/rules/
+01_core/src/engine/
   mod.rs
   lexer/
     mod.rs
@@ -86,7 +86,7 @@ Header de `scanner.rs`:
 
 ```rust
 //! Crystalline Lineage
-//! @prompt 00_nucleo/prompts/rules/scanner.md
+//! @prompt 00_nucleo/prompts/engine/scanner.md
 //! @prompt-hash <hash>
 //! @layer L1
 //! @updated 2026-03-23
@@ -97,7 +97,7 @@ Header de `scanner.rs`:
 ```
 
 Um prompt L0 é criado para este módulo:
-`00_nucleo/prompts/rules/scanner.md`
+`00_nucleo/prompts/engine/scanner.md`
 
 ---
 
@@ -115,8 +115,8 @@ leitores de `scanner.rs` que não conheçam a origem.
 
 | Prompt | Natureza da mudança |
 |--------|---------------------|
-| `00_nucleo/prompts/rules/scanner.md` | Criar — novo módulo |
-| `00_nucleo/prompts/rules/parse.md` | Actualizar import: `unscanny::Scanner` → `crate::rules::lexer::scanner::Scanner` |
+| `00_nucleo/prompts/engine/scanner.md` | Criar — novo módulo |
+| `00_nucleo/prompts/engine/parse.md` | Actualizar import: `unscanny::Scanner` → `crate::engine::lexer::scanner::Scanner` |
 
 ---
 

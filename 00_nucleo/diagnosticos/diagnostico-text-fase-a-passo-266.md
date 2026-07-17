@@ -85,8 +85,8 @@ FontVariant, mas chamadores passam default.
 ### Bloco 5 — Lang features
 
 ```bash
-$ ls 01_core/src/entities/lang.rs 01_core/src/rules/lang/quotes.rs \
-    01_core/src/rules/layout/hyphenation.rs
+$ ls 01_core/src/entities/lang.rs 01_core/src/engine/lang/quotes.rs \
+    01_core/src/engine/layout/hyphenation.rs
 all exist.
 
 $ grep "hypher::" hyphenation.rs
@@ -111,12 +111,12 @@ $ grep -rn "rustybuzz::\|hb_shape\|fn shape\b" 01_core/ 03_infra/
 
 ```bash
 $ grep -rn "SyntaxKind::Escape\|fn eval_escape\b" 01_core/src/
-01_core/src/rules/lexer/markup.rs:74: return SyntaxKind::Escape
-01_core/src/rules/parse/markup.rs:93: SyntaxKind::Escape
+01_core/src/engine/lexer/markup.rs:74: return SyntaxKind::Escape
+01_core/src/engine/parse/markup.rs:93: SyntaxKind::Escape
 01_core/src/entities/ast/expr.rs:113: Escape(node)
 
 $ grep -rn "SyntaxKind::Shorthand" 01_core/src/
-01_core/src/rules/lexer/markup.rs:30: SyntaxKind::Shorthand
+01_core/src/engine/lexer/markup.rs:30: SyntaxKind::Shorthand
 ```
 
 Escape + Shorthand existem em parser/lexer (Bloco 6.B11+B12
@@ -157,14 +157,14 @@ $ grep "faux_bold_stroke_pt" layout_types.rs
 
 ```bash
 $ grep 'tracking_pt\|" Tc"' 01_core/src/ 03_infra/src/
-01_core/src/rules/layout/cursor.rs:32: tracking_pt = t.resolve_pt
+01_core/src/engine/layout/cursor.rs:32: tracking_pt = t.resolve_pt
 03_infra/src/export.rs:1193,1196: tracking_pt + Tc emit
 ```
 
 **Tracking PDF `Tc`** confirmado (P137).
 
 ```bash
-$ grep "leading_pt\|line_height" 01_core/src/rules/layout/
+$ grep "leading_pt\|line_height" 01_core/src/engine/layout/
 metrics.rs:25,28,87: line_height ≈ 1.2 * size
 cursor.rs:103: line_height = default + user_leading
 ```
@@ -176,8 +176,8 @@ cursor.rs:103: line_height = default + user_leading
 ```bash
 $ ls 00_nucleo/prompts/entities/style_chain.md
 00_nucleo/prompts/entities/lang.md
-00_nucleo/prompts/rules/layout.md
-00_nucleo/prompts/rules/lang.md
+00_nucleo/prompts/engine/layout.md
+00_nucleo/prompts/engine/lang.md
 all exist.
 
 $ ls 00_nucleo/prompts/entities/font_book.md

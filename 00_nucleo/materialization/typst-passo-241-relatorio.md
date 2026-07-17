@@ -114,7 +114,7 @@ sem callback.
 
 ## §4 apply_counter_displays fixpoint function + Introspector storage + counter_display_value method (C4)
 
-`01_core/src/rules/introspect/from_tags.rs` — paralelo absoluto
+`01_core/src/engine/introspect/from_tags.rs` — paralelo absoluto
 `apply_state_displays` P240:
 
 ```rust
@@ -197,7 +197,7 @@ fn counter_display_value(
 `03_infra/src/measurements.rs::CountingIntrospector`: adapter
 delegação trivial paridade outros métodos.
 
-`01_core/src/rules/introspect/fixpoint.rs::run_fixpoint`:
+`01_core/src/engine/introspect/fixpoint.rs::run_fixpoint`:
 
 ```rust
 let curr_hash = compute_tags_hash(&tags);
@@ -212,7 +212,7 @@ apply_counter_displays(&tags, &mut introspector, engine, ctx);
 
 ## §5 native_counter_display stdlib + walk integration layout-time (C5+C6)
 
-`01_core/src/rules/stdlib/foundations.rs`:
+`01_core/src/engine/stdlib/foundations.rs`:
 
 ```rust
 pub fn native_counter_display(
@@ -238,17 +238,17 @@ pub fn native_counter_display(
 }
 ```
 
-Registo scope `01_core/src/rules/eval/mod.rs:624`:
+Registo scope `01_core/src/engine/eval/mod.rs:624`:
 ```rust
 scope.define("counter_display", Value::Func(Func::native("counter_display", native_counter_display)));
 ```
 
-Re-export `01_core/src/rules/stdlib/mod.rs:36`: `native_counter_display`
+Re-export `01_core/src/engine/stdlib/mod.rs:36`: `native_counter_display`
 adicionado.
 
 Stdlib funcs: **63 → 64** (+counter_display).
 
-Walk integration `01_core/src/rules/layout/mod.rs`:
+Walk integration `01_core/src/engine/layout/mod.rs`:
 
 ```rust
 Content::CounterDisplayCallback { key, callback: _ } => {
@@ -294,9 +294,9 @@ pipeline restructuring + feature M-fase nova" (~6 entidades novas).
 L0 partial tocado (3 ficheiros paralelos P240):
 - `00_nucleo/prompts/entities/content.md` — bloco
   `Content::CounterDisplayCallback` documentado.
-- `00_nucleo/prompts/rules/stdlib.md` — bloco
+- `00_nucleo/prompts/engine/stdlib.md` — bloco
   `counter_display(key, [callback])` documentado.
-- `00_nucleo/prompts/rules/introspect.md` — bloco
+- `00_nucleo/prompts/engine/introspect.md` — bloco
   `apply_counter_displays` + `Introspector::counter_display_value`
   documentado.
 

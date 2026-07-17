@@ -13,8 +13,8 @@ Foram executadas 4 sondas independentes:
 
 1. **Parser/sintaxe** — compilar snippets mínimos de cada elemento.
 2. **Variants em `Content`** — procurar `TableHLine`, `TableVLine`, `GridHLine`, `GridVLine`, `CurveMove`, `CurveLine`, `CurveCubic`, `CurveQuad`, `CurveClose` em `01_core/src/entities/content.rs`.
-3. **Construtores nativos** — procurar `native_table_hline`, `native_table_vline`, `native_grid_hline`, `native_grid_vline`, `native_curve_*` em `01_core/src/rules/stdlib/`.
-4. **Layout handlers** — procurar os mesmos variants em `01_core/src/rules/layout/`.
+3. **Construtores nativos** — procurar `native_table_hline`, `native_table_vline`, `native_grid_hline`, `native_grid_vline`, `native_curve_*` em `01_core/src/engine/stdlib/`.
+4. **Layout handlers** — procurar os mesmos variants em `01_core/src/engine/layout/`.
 
 ---
 
@@ -49,7 +49,7 @@ rg -n "TableHLine\|TableVLine\|GridHLine\|GridVLine\|CurveMove\|CurveLine\|Curve
 
 ```bash
 rg -n "native_table_hline\|native_table_vline\|native_grid_hline\|native_grid_vline\|native_curve" \
-   01_core/src/rules/stdlib/ --type rs
+   01_core/src/engine/stdlib/ --type rs
 ```
 
 **Resultado:** nenhuma ocorrência.
@@ -58,7 +58,7 @@ rg -n "native_table_hline\|native_table_vline\|native_grid_hline\|native_grid_vl
 
 ```bash
 rg -n "TableHLine\|TableVLine\|GridHLine\|GridVLine\|CurveMove\|CurveLine\|CurveCubic\|CurveQuad\|CurveClose" \
-   01_core/src/rules/layout/ --type rs
+   01_core/src/engine/layout/ --type rs
 ```
 
 **Resultado:** nenhuma ocorrência.

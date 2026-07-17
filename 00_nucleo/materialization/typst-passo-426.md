@@ -18,9 +18,9 @@ Métricas medidas em `2026-06-23` no commit `a2b3b3536` (branch `Tekt`).
 | 1 | LOC `typst-shell` | `find 02_shell/src -name "*.rs" \| xargs wc -l` | **541** |
 | 1 | LOC `typst-wiring` | `find 04_wiring/src -name "*.rs" \| xargs wc -l` | **214** |
 | 2 | Variants `Content` (total) | `awk` no `enum Content` | **76** |
-| 2 | Arms `Content::` em `layout_content` | `grep -rn 'Content::' 01_core/src/rules/layout/mod.rs \| grep -c '=>'` | **103** |
+| 2 | Arms `Content::` em `layout_content` | `grep -rn 'Content::' 01_core/src/engine/layout/mod.rs \| grep -c '=>'` | **103** |
 | 3 | Variants `Value` (total) | `awk` no `enum Value` | **28** |
-| 3 | Arms `Value::` em `repr.rs` | `grep -rn 'Value::' 01_core/src/rules/eval/repr.rs \| grep -c '=>'` | **28** |
+| 3 | Arms `Value::` em `repr.rs` | `grep -rn 'Value::' 01_core/src/engine/eval/repr.rs \| grep -c '=>'` | **28** |
 | 4 | Tests `typst-core` | `cargo test -p typst-core --lib -- --skip p350c_flag_on_nao_convergente_classifica` | **3.156 passed**; 1 skipped (stack overflow preexistente) |
 | 4 | Tests `typst-infra` | `cargo test -p typst-infra --lib` | **482 passed**; 6 ignored |
 | 5 | Lint errors/drift | `crystalline-lint . \| grep -E "error\|drift"` | **0** |
@@ -29,7 +29,7 @@ Métricas medidas em `2026-06-23` no commit `a2b3b3536` (branch `Tekt`).
 | 7 | ADRs IMPLEMENTADO | `grep -rl 'IMPLEMENTADO' 00_nucleo/adr/ \| wc -l` | **46** |
 | 7 | ADRs PROPOSTO | `grep -rl 'PROPOSTO' 00_nucleo/adr/ \| wc -l` | **45** |
 | 7 | ADRs EM VIGOR | `grep -rl 'EM VIGOR' 00_nucleo/adr/ \| wc -l` | **58** |
-| 8 | Arms do `match content` | `grep -rn 'match content' 01_core/src/rules/layout/mod.rs -A 50 \| grep -c '=>'` | **13** |
+| 8 | Arms do `match content` | `grep -rn 'match content' 01_core/src/engine/layout/mod.rs -A 50 \| grep -c '=>'` | **13** |
 | 9 | Deps workspace | `Cargo.toml [workspace.dependencies]` | 25+ entradas (ver `Cargo.toml`) |
 | 9 | Deps `typst-core` | `01_core/Cargo.toml [dependencies]` | 18 crates diretas |
 | 10 | Commits desde 2026-06-01 | `git log --oneline --since="2026-06-01" \| wc -l` | **188** |

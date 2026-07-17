@@ -65,7 +65,7 @@ Parsing → Evaluation → Layout → Export
 Na migração cristalina:
 - **Parsing** (L1): `parse()` em `01_core/rules/parse.rs` — transforma source text em AST
 - **Evaluation** (L1): `eval()` em `01_core/rules/eval.rs` — transforma AST em Content/Module
-- **Layout** (L1): `layout()` em `01_core/rules/layout.rs` — transforma Content em PagedDocument
+- **Layout** (L1): `layout()` em `01_core/engine/layout.rs` — transforma Content em PagedDocument
 - **Export** (L3): PDF, SVG em `03_infra/src/export.rs` — materializa PagedDocument em ficheiros
 
 ---

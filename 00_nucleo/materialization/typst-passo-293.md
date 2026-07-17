@@ -16,7 +16,7 @@ cumulativa P288-P292** (per §9.1 P292).
 
 ## §1 — Objectivo (provisório; depende de A.0.0)
 
-Refinar `path(...) / curve(...)` em `01_core/src/rules/stdlib/`
+Refinar `path(...) / curve(...)` em `01_core/src/engine/stdlib/`
 para alcançar paridade qualitativa adicional vs vanilla typst,
 elevando estado actual `implementado⁺` para `implementado` na
 Tabela A.7 linha 194.
@@ -70,7 +70,7 @@ efectivamente cobre (column flow, sub-fase b DEBT-56 FECHADA P220).
 
 #### A.0.0.1 — Verificação literal do estado actual
 
-1. **Inspeccionar literalmente** `01_core/src/rules/stdlib/curve.rs`
+1. **Inspeccionar literalmente** `01_core/src/engine/stdlib/curve.rs`
    (ou caminho equivalente): que operações estão materializadas?
    Que estão ausentes?
 2. **Inspeccionar literalmente** `01_core/src/entities/shape.rs`:
@@ -353,7 +353,7 @@ mesmo ortogonal degenera em automatização, abrir auditoria meta.
 
 - Tipo a inspeccionar: `01_core/src/entities/shape.rs`
   (`ShapeKind::Path` + segmentos).
-- Caminho stdlib: `01_core/src/rules/stdlib/` (curve/path funções).
+- Caminho stdlib: `01_core/src/engine/stdlib/` (curve/path funções).
 - Caminho emit: `03_infra/src/export.rs` (PDF operators para shape).
 - Vanilla: `lab/typst-original/crates/typst-library/src/visualize/curve.rs`.
 - Precedente fecho graded: P277 (DEBT-33 Bézier bbox analítica

@@ -5,7 +5,7 @@
 Ler antes de começar:
 - `01_core/src/entities/content.rs` — Para listar todas as variantes do enum
   `Content` e separar containers de terminais antes de escrever `map_text`.
-- `01_core/src/rules/stdlib.rs` — Para entender o padrão actual de funções
+- `01_core/src/engine/stdlib.rs` — Para entender o padrão actual de funções
   nativas e onde registar as novas.
 
 Pré-condição: `cargo test` — 665 L1 + 125 L3, zero violations.
@@ -32,7 +32,7 @@ grep -n "^\s*[A-Z][A-Za-z]*" 01_core/src/entities/content.rs | head -60
 grep -n "fn text\|Text(" 01_core/src/entities/content.rs | head -10
 
 # 3. Listar funções nativas actuais e o padrão de registo no scope
-grep -n "^fn native_\|scope.define" 01_core/src/rules/stdlib.rs | head -20
+grep -n "^fn native_\|scope.define" 01_core/src/engine/stdlib.rs | head -20
 
 # 4. Confirmar a assinatura de cast_str e type_name em Value
 grep -n "fn cast_str\|fn type_name" 01_core/src/entities/value.rs | head -10
@@ -144,7 +144,7 @@ adicioná-la ao grupo correcto. Nunca usar `_ =>` como saída.
 
 ## Tarefa 2 — Funções `upper` e `lower` (L1)
 
-Em `01_core/src/rules/stdlib.rs`, adicionar as duas funções:
+Em `01_core/src/engine/stdlib.rs`, adicionar as duas funções:
 
 ```rust
 fn native_upper(args: &Args) -> SourceResult<Value> {

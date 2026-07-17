@@ -9,16 +9,16 @@
 ```
  00_nucleo/prompts/entities/color.md     | 133 +++++---
  00_nucleo/prompts/entities/func.md      |  11 +-
- 00_nucleo/prompts/rules/stdlib/color.md |  92 +++++-
+ 00_nucleo/prompts/engine/stdlib/color.md |  92 +++++-
  01_core/src/entities/color.rs           | 516 ++++++++++++++++++++++++++++----
  01_core/src/entities/content.rs         |  16 +-
  01_core/src/entities/func.rs            |  25 +-
- 01_core/src/rules/eval/bindings.rs      |  40 +++
- 01_core/src/rules/eval/closures.rs      |  15 +
- 01_core/src/rules/eval/repr.rs          |   8 +-
- 01_core/src/rules/eval/tests.rs         | 117 ++++++++
- 01_core/src/rules/stdlib/color.rs       | 230 ++++++++++++--
- 01_core/src/rules/stdlib/mod.rs         |  12 +-
+ 01_core/src/engine/eval/bindings.rs      |  40 +++
+ 01_core/src/engine/eval/closures.rs      |  15 +
+ 01_core/src/engine/eval/repr.rs          |   8 +-
+ 01_core/src/engine/eval/tests.rs         | 117 ++++++++
+ 01_core/src/engine/stdlib/color.rs       | 230 ++++++++++++--
+ 01_core/src/engine/stdlib/mod.rs         |  12 +-
  12 files changed, 1072 insertions(+), 143 deletions(-)
 ```
 

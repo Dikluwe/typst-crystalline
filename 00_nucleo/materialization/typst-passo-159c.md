@@ -64,9 +64,9 @@ reservas para passos pós-P159C.
   para subset minimal.
 - `01_core/src/entities/content.rs` — variant `Content::Cite`
   actual (P159A).
-- `01_core/src/rules/stdlib/structural.rs` — `native_cite`
+- `01_core/src/engine/stdlib/structural.rs` — `native_cite`
   actual (P159A).
-- `01_core/src/rules/layout/mod.rs` — pattern arm Cite
+- `01_core/src/engine/layout/mod.rs` — pattern arm Cite
   actual (placeholder `[key]`).
 - `lab/typst-original/crates/typst-library/src/model/cite.rs`
   (vanilla, quarentena) — `CiteForm` enum referência.
@@ -255,7 +255,7 @@ hash:
 
 ### .4 Modificar `native_cite`
 
-`01_core/src/rules/stdlib/structural.rs`:
+`01_core/src/engine/stdlib/structural.rs`:
 - Adicionar parsing de `form: Str` named opcional.
 - Helper privado `extract_citation_form(val: Option<&Value>)
   -> SourceResult<Option<CitationForm>>`:
@@ -270,7 +270,7 @@ hash:
 
 ### .5 Layout placeholder por form
 
-`01_core/src/rules/layout/mod.rs`:
+`01_core/src/engine/layout/mod.rs`:
 - Pattern arm `Content::Cite { key, supplement, form }`
   expandido:
   - Resolver form: `form.unwrap_or_default()` ou `form.unwrap_or(Normal)`.

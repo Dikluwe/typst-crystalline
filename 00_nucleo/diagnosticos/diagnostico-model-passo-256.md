@@ -128,7 +128,7 @@ implementado.
 grep -n "Content::Figure\b\|Content::Ref\b" 01_core/src/entities/content.rs
 # numbering — não é variant Content, é mecanismo
 grep -rn "SetHeadingNumbering\|SetEquationNumbering\|format_hierarchical" \
-  01_core/src/rules/
+  01_core/src/engine/
 ```
 
 **Critério**: confirmar que SetHeadingNumbering (P182C) e

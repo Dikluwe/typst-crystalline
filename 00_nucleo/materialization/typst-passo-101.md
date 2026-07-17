@@ -57,9 +57,9 @@ O passo não introduz funcionalidade nova. É consolidação.
 **Dentro**:
 - `01_core/src/entities/content.rs` — remover variantes e
   métodos `Content::strong(...)` / `Content::emph(...)`.
-- `01_core/src/rules/eval/markup.rs` (ou onde `eval_markup` vive
+- `01_core/src/engine/eval/markup.rs` (ou onde `eval_markup` vive
   agora após a série 96.x) — substituir construção.
-- `01_core/src/rules/layout/mod.rs` — remover arms dedicados.
+- `01_core/src/engine/layout/mod.rs` — remover arms dedicados.
 - Qualquer outro ficheiro com `match Content { ... Strong ... Emph ... }`.
 - Testes afectados.
 

@@ -27,9 +27,9 @@ depende de `current_location`** — qualitativamente distinto de
 
 | Camada | Ficheiro | Edição |
 |--------|----------|--------|
-| L1 | `01_core/src/rules/stdlib/foundations.rs` | +`pub fn native_counter_step(ctx, args, ...)` (~40L) paralelo a `native_state_update`. Aceita 1 arg `Value::Str(key)`; constrói `Content::CounterUpdate { key: key.to_string(), action: CounterAction::Step }`; envelopa em `Value::Content`. |
-| L1 | `01_core/src/rules/stdlib/mod.rs` | +`native_counter_step` em `pub use` block. +4 tests `p210b_counter_step_*` em tests module. |
-| L1 | `01_core/src/rules/eval/mod.rs` | +`native_counter_step` em import block. +`scope.define("counter_step", Value::Func(Func::native("counter_step", native_counter_step)))` no scope global. |
+| L1 | `01_core/src/engine/stdlib/foundations.rs` | +`pub fn native_counter_step(ctx, args, ...)` (~40L) paralelo a `native_state_update`. Aceita 1 arg `Value::Str(key)`; constrói `Content::CounterUpdate { key: key.to_string(), action: CounterAction::Step }`; envelopa em `Value::Content`. |
+| L1 | `01_core/src/engine/stdlib/mod.rs` | +`native_counter_step` em `pub use` block. +4 tests `p210b_counter_step_*` em tests module. |
+| L1 | `01_core/src/engine/eval/mod.rs` | +`native_counter_step` em import block. +`scope.define("counter_step", Value::Func(Func::native("counter_step", native_counter_step)))` no scope global. |
 
 L0 prompts (eval.md/stdlib.md) **não modificados** —
 convenção emergente P208B §3 (stdlib funcs P169+

@@ -192,7 +192,7 @@ Documentar:
 - `comemo::Tracked` autorizado via ADR-0001
 
 **Se eval() em L1:**
-Criar `00_nucleo/prompts/rules/eval.md`
+Criar `00_nucleo/prompts/engine/eval.md`
 
 Documentar cada externo com ADR correspondente (começar em 0016).
 

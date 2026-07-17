@@ -45,7 +45,7 @@ cargo run --release -p typst-wiring -- compile /tmp/sonda_curve_close.typ /tmp/o
 # Sonda 6: Substrato (variants, construtores, layout)
 rg -n "CurveMove\|CurveLine\|CurveCubic\|CurveQuad\|CurveClose" src/entities/content.rs --type rs
 rg -n "native_curve" src/stdlib/ --type rs
-rg -n "CurveMove\|CurveLine\|CurveCubic\|CurveQuad\|CurveClose" src/rules/layout/ --type rs
+rg -n "CurveMove\|CurveLine\|CurveCubic\|CurveQuad\|CurveClose" src/engine/layout/ --type rs
 ```
 
 ### 1.2 Resultado Esperado da Sonda
@@ -165,7 +165,7 @@ fn native_curve_close(_args: Args) -> SourceResult<Value> {
 
 ### 3.3 — Layout de Curve
 
-**Arquivo alvo:** `src/rules/layout/curve.rs` (novo) ou `src/rules/layout/mod.rs`
+**Arquivo alvo:** `src/engine/layout/curve.rs` (novo) ou `src/engine/layout/mod.rs`
 
 ```rust
 fn layout_curve(elem: &CurveElem, ctx: &mut LayoutContext) -> Vec<Frame> {

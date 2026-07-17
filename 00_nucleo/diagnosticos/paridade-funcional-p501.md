@@ -30,10 +30,10 @@
 ### 2.1 — 501a: `str` field access + métodos
 
 **Ficheiros alterados:**
-- `01_core/src/rules/stdlib/collections.rs`
-- `01_core/src/rules/stdlib/foundations.rs`
-- `01_core/src/rules/stdlib/mod.rs`
-- `01_core/src/rules/eval/mod.rs`
+- `01_core/src/engine/stdlib/collections.rs`
+- `01_core/src/engine/stdlib/foundations.rs`
+- `01_core/src/engine/stdlib/mod.rs`
+- `01_core/src/engine/eval/mod.rs`
 
 **Métodos de instância adicionados:** `to-upper`, `to-lower`, `to-unicode`,
 `rev`.
@@ -46,14 +46,14 @@ função `str`, paridade com `table.header`, `grid.cell`, etc.).
 
 ### 2.2 — 501b: `dict.insert()` / `dict.len()`
 
-**Ficheiro alterado:** `01_core/src/rules/stdlib/collections.rs`
+**Ficheiro alterado:** `01_core/src/engine/stdlib/collections.rs`
 
 - `dict.insert(key, value)` — retorna novo dict com a chave inserida.
 - `dict.len()` — retorna número de entradas.
 
 ### 2.3 — 501c: `calc.log10` / `calc.deg` / `calc.rad`
 
-**Ficheiro alterado:** `01_core/src/rules/stdlib/calc.rs`
+**Ficheiro alterado:** `01_core/src/engine/stdlib/calc.rs`
 
 - `calc.log10(x)` — logaritmo base 10; domínio `x > 0`.
 - `calc.deg(rad)` — radianos → graus.
@@ -114,7 +114,7 @@ paridade estrutural reportam esses casos como erros do vanilla, mas o
 
 ## 6. Testes adicionados
 
-- `01_core/src/rules/eval/tests.rs`:
+- `01_core/src/engine/eval/tests.rs`:
   - `p501_str_methods`
   - `p501_dict_insert_len`
   - `p501_calc_log10_deg_rad`

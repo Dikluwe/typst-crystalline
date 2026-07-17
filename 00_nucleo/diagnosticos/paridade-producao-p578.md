@@ -15,12 +15,12 @@ Seguindo `00_nucleo/regra-proveniencia-medicao.md`:
   01_core/src/entities/layout_types.rs             |   3 +
   01_core/src/entities/style_chain.rs              |   1 +
   01_core/src/entities/value.rs                    |   5 +
-  01_core/src/rules/eval/mod.rs                    |   7 ++
-  01_core/src/rules/eval/repr.rs                   |   1 +
-  01_core/src/rules/eval/rules.rs                  |   7 ++
-  01_core/src/rules/layout/cursor.rs               |  33 +++++
-  01_core/src/rules/layout/mod.rs                  |   2 +
-  01_core/src/rules/layout/text.rs                 |   5 +
+  01_core/src/engine/eval/mod.rs                    |   7 ++
+  01_core/src/engine/eval/repr.rs                   |   1 +
+  01_core/src/engine/eval/rules.rs                  |   7 ++
+  01_core/src/engine/layout/cursor.rs               |  33 +++++
+  01_core/src/engine/layout/mod.rs                  |   2 +
+  01_core/src/engine/layout/text.rs                 |   5 +
   10 files changed, 148 insertions(+), 63 deletions(-)
   ```
   `cursor.rs` volta a ter exactamente as mesmas 33 inserções da
@@ -83,7 +83,7 @@ meio, disparando um `flush_line()` antes do previsto"*.
 
 - `flush_line()` é chamado **exactamente uma vez**, não duas.
 - É disparado por um **overflow de largura absolutamente comum**
-  (`01_core/src/rules/layout/cursor.rs:98`, dentro de `layout_word()`):
+  (`01_core/src/engine/layout/cursor.rs:98`, dentro de `layout_word()`):
   depois de `"على"`, `cursor_x = 366.87`; a palavra seguinte
   (`"الطاولة"`, 168pt de largura) levaria `cursor_x` a 534.87, acima do
   `right_margin` de 524.41. Isto aconteceria com **qualquer** sequência
@@ -105,7 +105,7 @@ a segunda "linha" (`"الطاولة"`, ou `"seven"` no teste abaixo) aparece
 sobreposta à primeira, em vez de simplesmente abaixo dela como uma quebra
 de linha normal?
 
-`01_core/src/rules/layout/mod.rs:1148-1153` (`finish()`):
+`01_core/src/engine/layout/mod.rs:1148-1153` (`finish()`):
 
 ```rust
 pub fn finish(mut self) -> PagedDocument {
@@ -189,10 +189,10 @@ só pode ser respondido depois de corrigir `finish()` e medir de novo.
 - [x] Conteúdo de `current_line` em cada chamada registado.
 - [x] Hipótese de P577 **refutada**, com o registo como prova.
 - [x] Localizado o ponto exacto onde a decisão de quebra de linha actua:
-      `01_core/src/rules/layout/cursor.rs:98` (`layout_word`) — decisão
+      `01_core/src/engine/layout/cursor.rs:98` (`layout_word`) — decisão
       correcta e comum a todo o texto, não um bug em si.
 - [x] Localizado o ponto exacto do bug real:
-      `01_core/src/rules/layout/mod.rs:1148-1153` (`finish()` não avança
+      `01_core/src/engine/layout/mod.rs:1148-1153` (`finish()` não avança
       `cursor_y` antes de drenar a última linha).
 - [x] Instrumentação removida — confirmado por `git diff HEAD --stat`
       (mesmas 33 inserções de P576 em `cursor.rs`, nada a mais).
@@ -211,7 +211,7 @@ suposição.
 **Recomendação — dois passos dedicados, nesta ordem:**
 
 1. **Prioridade alta, geral (não é sobre RTL):** corrigir `finish()`
-   (`01_core/src/rules/layout/mod.rs:1148-1153`) para avançar `cursor_y`
+   (`01_core/src/engine/layout/mod.rs:1148-1153`) para avançar `cursor_y`
    /`line_height` antes de drenar a última linha, ou para reconhecer que
    não precisa de o fazer quando não há `flush_line()` anterior na
    mesma página — decidir a forma certa exige olhar para todos os

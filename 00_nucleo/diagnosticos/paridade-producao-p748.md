@@ -11,15 +11,15 @@ O P748 reportou que a margem por defeito do cristalino parecia ser ~81,9 pt em v
 
 ## Causa
 
-No layout principal, `Layouter` inicializa `cursor_y = margin + ascender` (`01_core/src/rules/layout/mod.rs:512`). Esse cursor representa a **baseline** da linha de texto. Quando `shape.rs` emitia uma forma, colocava o topo da forma em `cursor_y`, o que deslocava as formas para baixo pelo valor do ascender (~8,8 pt). O resultado observável era uma margem "aparente" de ~81,9 pt para formas.
+No layout principal, `Layouter` inicializa `cursor_y = margin + ascender` (`01_core/src/engine/layout/mod.rs:512`). Esse cursor representa a **baseline** da linha de texto. Quando `shape.rs` emitia uma forma, colocava o topo da forma em `cursor_y`, o que deslocava as formas para baixo pelo valor do ascender (~8,8 pt). O resultado observável era uma margem "aparente" de ~81,9 pt para formas.
 
 ## Solução
 
-`01_core/src/rules/layout/shape.rs` passa a subtrair o ascender ao posicionar o topo da forma no fluxo principal. Para evitar duplicar esse ajuste em sub-layouts (células de grid, `place`, medições), onde `sub_frame.rs` já inicializa o cursor a `ascender` e o `grid.rs` depois translada os items por `-ascender`, foi introduzida uma flag `is_sub_frame` no `Layouter`:
+`01_core/src/engine/layout/shape.rs` passa a subtrair o ascender ao posicionar o topo da forma no fluxo principal. Para evitar duplicar esse ajuste em sub-layouts (células de grid, `place`, medições), onde `sub_frame.rs` já inicializa o cursor a `ascender` e o `grid.rs` depois translada os items por `-ascender`, foi introduzida uma flag `is_sub_frame` no `Layouter`:
 
-- `01_core/src/rules/layout/mod.rs` — novo campo `is_sub_frame: bool`.
-- `01_core/src/rules/layout/sub_frame.rs` — salva/restaura e activa a flag durante `layout_sub_frame`.
-- `01_core/src/rules/layout/shape.rs` — subtrai ascender só quando `!layouter.is_sub_frame`.
+- `01_core/src/engine/layout/mod.rs` — novo campo `is_sub_frame: bool`.
+- `01_core/src/engine/layout/sub_frame.rs` — salva/restaura e activa a flag durante `layout_sub_frame`.
+- `01_core/src/engine/layout/shape.rs` — subtrai ascender só quando `!layouter.is_sub_frame`.
 
 ## Medições
 

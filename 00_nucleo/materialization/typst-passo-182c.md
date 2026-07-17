@@ -46,7 +46,7 @@ zero violations. Trait method `is_numbering_active` em
 ### .A Auditoria L0
 
 1. Confirmar `extract_payload` actual:
-   - `01_core/src/rules/introspect/extract_payload.rs` (ou
+   - `01_core/src/engine/introspect/extract_payload.rs` (ou
      localização equivalente; verificar).
    - Localizar match sobre `&Content::*` ou `content`.
    - Identificar arms existentes (esperado: `Content::Heading`,
@@ -69,7 +69,7 @@ zero violations. Trait method `is_numbering_active` em
      `StateUpdateOp` (per P171/P173).
 
 4. Confirmar `is_locatable` actual para `Content::SetHeadingNumbering`:
-   - `01_core/src/rules/introspect/locatable.rs` (ou
+   - `01_core/src/engine/introspect/locatable.rs` (ou
      localização equivalente).
    - **Decisão crítica**: se `is_locatable` retorna `false`
      para este variant, walk não chama `extract_payload`
@@ -80,16 +80,16 @@ zero violations. Trait method `is_numbering_active` em
      arm para retornar `true`.
 
 5. Confirmar `from_tags` arm `StateUpdate`:
-   - `01_core/src/rules/introspect/from_tags.rs:154–166`
+   - `01_core/src/engine/introspect/from_tags.rs:154–166`
      (per P182B §5).
    - Comportamento: `init` na primeira ocorrência, `update`
      nas seguintes. Cobre o caminho deste passo sem
      modificação.
 
 6. Confirmar L0s relevantes:
-   - `00_nucleo/prompts/rules/introspect/extract_payload.md`
+   - `00_nucleo/prompts/engine/introspect/extract_payload.md`
      (se existir) — entrada para arm novo.
-   - `00_nucleo/prompts/rules/introspect/locatable.md` (se
+   - `00_nucleo/prompts/engine/introspect/locatable.md` (se
      existir e mudança em .A.4) — entrada para variant
      locatable.
 
@@ -115,7 +115,7 @@ Apenas se .A.4 confirmar que `is_locatable(Content::SetHeadingNumbering)`
 
 1. Adicionar `Content::SetHeadingNumbering` à lista de
    variants locatable em
-   `00_nucleo/prompts/rules/introspect/locatable.md`.
+   `00_nucleo/prompts/engine/introspect/locatable.md`.
 
 2. Justificação documentada: variant produz `StateUpdate`
    que tem efeito sobre `Introspector` — precisa de tag.
@@ -128,7 +128,7 @@ Apenas se .A.4 confirmar que `is_locatable(Content::SetHeadingNumbering)`
 
 Apenas se .A.4 confirmar mudança necessária.
 
-1. Em `01_core/src/rules/introspect/locatable.rs`:
+1. Em `01_core/src/engine/introspect/locatable.rs`:
    - Modificar arm `Content::SetHeadingNumbering` de `false`
      para `true`.
    - Ou adicionar arm explícito se actualmente está em
@@ -164,7 +164,7 @@ Apenas se .A.4 confirmar mudança necessária.
 
 ### .E Adicionar arm a `extract_payload`
 
-1. Em `01_core/src/rules/introspect/extract_payload.rs`:
+1. Em `01_core/src/engine/introspect/extract_payload.rs`:
    - Adicionar arm `Content::SetHeadingNumbering { active }`
      que retorna `Some(ElementPayload::StateUpdate { ... })`
      conforme L0 .D.

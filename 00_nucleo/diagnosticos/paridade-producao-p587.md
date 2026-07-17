@@ -8,7 +8,7 @@
 
 ## 1. Valores exactos da decisão de quebra
 
-Instrumentámos temporariamente `layout_word` em `01_core/src/rules/layout/cursor.rs:95` para imprimir os valores no momento da decisão:
+Instrumentámos temporariamente `layout_word` em `01_core/src/engine/layout/cursor.rs:95` para imprimir os valores no momento da decisão:
 
 ```text
 [P587] layout_word "الكتاب" w=Pt(144.0) cursor_x=Pt(80.87) right_margin=524.41 width=595.28 margin=70.87
@@ -17,7 +17,7 @@ Instrumentámos temporariamente `layout_word` em `01_core/src/rules/layout/curso
 [P587] layout_word "الطاولة" w=Pt(168.0) cursor_x=Pt(366.87) right_margin=524.41 width=595.28 margin=70.87
 ```
 
-A decisão de quebra está em `01_core/src/rules/layout/cursor.rs:98`:
+A decisão de quebra está em `01_core/src/engine/layout/cursor.rs:98`:
 
 ```rust
 if self.regions.current.cursor_x.0 + w.0 > right_margin && self.regions.current.cursor_x.0 > self.page_config.margin
@@ -40,7 +40,7 @@ A soma das palavras é `144 + 40 + 72 + 168 = 424 pt`. Entre quatro palavras há
 
 No entanto, o `cursor_x` inicial para "الكتاب" é `80.87 pt`, não `70.87 pt` (a margem). Faltam `10 pt`.
 
-Instrumentámos `Content::Space` em `01_core/src/rules/layout/mod.rs:729`:
+Instrumentámos `Content::Space` em `01_core/src/engine/layout/mod.rs:729`:
 
 ```text
 [P587] layout_space cursor_x=Pt(70.87) -> +Pt(10.0)
@@ -49,7 +49,7 @@ Instrumentámos `Content::Space` em `01_core/src/rules/layout/mod.rs:729`:
 
 Há um `Content::Space` renderizado **antes** do texto, movendo o cursor de `70.87 pt` para `80.87 pt`.
 
-Instrumentámos `eval_markup` em `01_core/src/rules/eval/mod.rs:447` para ver de onde vem esse espaço:
+Instrumentámos `eval_markup` em `01_core/src/engine/eval/mod.rs:447` para ver de onde vem esse espaço:
 
 ```text
 [P587] eval_markup child kind=Hash text="#"
@@ -58,7 +58,7 @@ Instrumentámos `eval_markup` em `01_core/src/rules/eval/mod.rs:447` para ver de
 [P587] eval_markup child kind=Text text="الكتاب 42 على الطاولة"
 ```
 
-A newline após `#set text(...)` é convertida em `Content::Space` por `01_core/src/rules/eval/mod.rs:494`:
+A newline após `#set text(...)` é convertida em `Content::Space` por `01_core/src/engine/eval/mod.rs:494`:
 
 ```rust
 SyntaxKind::Space | SyntaxKind::Parbreak => parts.push(Content::Space),
@@ -116,8 +116,8 @@ Isso mostra que há duas componentes:
 
 A causa exacta da quebra prematura observada em P586 é:
 
-- **`01_core/src/rules/eval/mod.rs:494`** converte qualquer `SyntaxKind::Space` (incluindo a newline após `#set text(...)`) em `Content::Space`.
-- **`01_core/src/rules/layout/mod.rs:729`** renderiza esse `Content::Space` no início do parágrafo, avançando `cursor_x` em `space_width()`.
+- **`01_core/src/engine/eval/mod.rs:494`** converte qualquer `SyntaxKind::Space` (incluindo a newline após `#set text(...)`) em `Content::Space`.
+- **`01_core/src/engine/layout/mod.rs:729`** renderiza esse `Content::Space` no início do parágrafo, avançando `cursor_x` em `space_width()`.
 - O espaço inicial de `10 pt` empurra o texto para a direita, fazendo com que o total ocupado (`454 pt + 10 pt = 464 pt`) exceda largamente a largura útil (`453.54 pt`), disparando a quebra antes de "الطاولة".
 
 O vanilla não renderiza essa newline inicial como espaço visual. A correção correcta é fazer com que `eval_markup` ignore leading spaces/parbreaks no início de um parágrafo (ou o layout de `Content::Space` não avançar quando é o primeiro item da linha).

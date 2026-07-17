@@ -83,7 +83,7 @@ A lente **não** deve ser usada como medida de "percentagem de migração". O si
 **Impacto:** Qualquer documento que use plugins WASM falha. É o bloqueio que impede validar `cetz` até ao fim.
 
 **Estado dos L0:**
-- `00_nucleo/prompts/rules/stdlib/plugin.md` — existe e está actualizado (hash `9b34a5db`).
+- `00_nucleo/prompts/engine/stdlib/plugin.md` — existe e está actualizado (hash `9b34a5db`).
 - `00_nucleo/prompts/infra/plugin_host.md` — existe e está actualizado (hash `386e15d7`).
 - `00_nucleo/prompts/entities/plugin_func.md` — existe e está actualizado (hash `21230a71`).
 - `00_nucleo/prompts/infra/system-world.md` — existe, prevê `with_plugin_host` (P699).
@@ -167,8 +167,8 @@ A lente **não** deve ser usada como medida de "percentagem de migração". O si
 **Tarefas:**
 1. Implementar `PluginFunc` em `01_core/src/entities/plugin_func.rs`.
 2. Adicionar `FuncRepr::Plugin` em `01_core/src/entities/func.rs`.
-3. Implementar despacho em `01_core/src/rules/eval/closures.rs`.
-4. Actualizar `native_plugin` em `01_core/src/rules/stdlib/plugin.rs` para devolver `Value::Module`.
+3. Implementar despacho em `01_core/src/engine/eval/closures.rs`.
+4. Actualizar `native_plugin` em `01_core/src/engine/stdlib/plugin.rs` para devolver `Value::Module`.
 5. Instalar host no `SystemWorld` via `with_plugin_host` em `03_infra/src/world.rs`.
 6. Encadear no CLI em `04_wiring/src/main.rs`.
 7. Escrever testes unitários e E2E.

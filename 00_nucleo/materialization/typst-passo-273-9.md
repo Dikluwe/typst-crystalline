@@ -48,7 +48,7 @@ P273.5 + P273.6 + P273.7 + P273.8 + P273.9 = 5 sub-passos consecutivos cluster G
 
 ### §A.1 — Inventário Grid cell (caso fácil)
 
-Listar literal em `01_core/src/rules/layout/`:
+Listar literal em `01_core/src/engine/layout/`:
 
 - Arm `Content::Grid` (provavelmente em `grid.rs` per relatório P246; confirmar empírico via `grep`).
 - Save/restore actual de `cell_origin_x/y/w` + `cell_available_h` no arm.
@@ -57,7 +57,7 @@ Listar literal em `01_core/src/rules/layout/`:
 
 ### §A.2 — Inventário Stack (caso médio)
 
-Listar literal em `01_core/src/rules/layout/mod.rs::layout_content`:
+Listar literal em `01_core/src/engine/layout/mod.rs::layout_content`:
 
 - Arm `Content::Stack { children, dir, spacing }`.
 - Estrutura actual: itera children; aplica spacing entre.
@@ -66,7 +66,7 @@ Listar literal em `01_core/src/rules/layout/mod.rs::layout_content`:
 
 ### §A.3 — Inventário Pad (caso médio)
 
-Listar literal em `01_core/src/rules/layout/mod.rs::layout_content`:
+Listar literal em `01_core/src/engine/layout/mod.rs::layout_content`:
 
 - Arm `Content::Pad { body, left, top, right, bottom }`.
 - Estrutura actual: avança cursor por inset.top/left; layout body; avança por inset.bottom; restaura cursor.
@@ -184,7 +184,7 @@ futuros contentores post-layout.
 3. `crystalline-lint --fix-hashes`.
 4. **Testes-primeiro**.
 5. Código:
-   - **Se 1α/1β/1γ inclui Grid**: L1 arm `Content::Grid` (provavelmente em `01_core/src/rules/layout/grid.rs`) ganha save/restore `parent_bbox` em paralelo a `cell_origin_*`.
+   - **Se 1α/1β/1γ inclui Grid**: L1 arm `Content::Grid` (provavelmente em `01_core/src/engine/layout/grid.rs`) ganha save/restore `parent_bbox` em paralelo a `cell_origin_*`.
    - **Se 1β/1ε inclui Group**: L3 dispatcher de `FrameItem::Group` em `03_infra/src/export.rs` consulta `group.frame.size` para construir bbox; passa a `apply_parent_transform` quando gradient interno tem `relative=parent`.
    - **Se 1γ inclui Stack/Pad**: L1 arms ganham `measure_content_constrained` pre-layout + `parent_bbox` populated. **Trabalho substancial — recomendado adiar.**
 6. Verificação final.
@@ -230,7 +230,7 @@ Regressão integrada: 2620 verdes preserved bit-exact.
 #### Escopo 1α (Grid cell)
 
 ```rust
-// L1 — 01_core/src/rules/layout/grid.rs (ou mod.rs onde arm Grid vive)
+// L1 — 01_core/src/engine/layout/grid.rs (ou mod.rs onde arm Grid vive)
 // dentro do loop sobre cells
 
 // P273.9 — save/restore parent_bbox paralelo a cell_origin_* (DEBT-37 reused).

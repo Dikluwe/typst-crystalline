@@ -148,7 +148,7 @@ pelos **leaders/dots e números de página** que o vanilla gera automaticamente 
 `#outline()`, enquanto o cristalino gera um índice minimal sem esses elementos.
 
 O cristalino implementa o layout de outline em
-`01_core/src/rules/layout/outline.rs` (P457) e emite uma linha por heading com:
+`01_core/src/engine/layout/outline.rs` (P457) e emite uma linha por heading com:
 
 - título default "Índice";
 - indentação por nível;
@@ -240,6 +240,6 @@ wc -w /tmp/p557-cristalino.txt /tmp/p557-vanilla.txt
 
 ### 7.2 Referências de código
 
-- Layout do outline: `01_core/src/rules/layout/outline.rs`
+- Layout do outline: `01_core/src/engine/layout/outline.rs`
 - Definição de `OutlineElem`: `01_core/src/entities/elements/outline.rs`
 - Inventário original: `00_nucleo/diagnosticos/investigacao-p539.md`

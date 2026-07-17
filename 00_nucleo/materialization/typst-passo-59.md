@@ -5,7 +5,7 @@
 Ler antes de começar:
 - `01_core/src/entities/counter_state.rs` — `CounterState` genérico com
   `hierarchical`, `flat`, `numbering_active` do Passo 58.
-- `01_core/src/rules/layout.rs` — Braços actuais para `Heading`, `Labelled`,
+- `01_core/src/engine/layout.rs` — Braços actuais para `Heading`, `Labelled`,
   `Ref`, `CounterUpdate`, `SetHeadingNumbering`.
 - `01_core/src/entities/label.rs` — A entidade `Label` usada como chave de
   resolução.
@@ -51,13 +51,13 @@ grep -n -A 5 "Figure {"   01_core/src/entities/content.rs
 grep -n "derive\|Hash\|Eq\|PartialEq" 01_core/src/entities/label.rs | head -10
 
 # 3. Ver o braço Labelled actual no Layouter
-grep -n -A 8 "Content::Labelled" 01_core/src/rules/layout.rs | head -15
+grep -n -A 8 "Content::Labelled" 01_core/src/engine/layout.rs | head -15
 
 # 4. Ver o braço Ref actual no Layouter
-grep -n -A 5 "Content::Ref" 01_core/src/rules/layout.rs | head -10
+grep -n -A 5 "Content::Ref" 01_core/src/engine/layout.rs | head -10
 
 # 5. Verificar se o prompt L0 de layout existe
-ls -l 00_nucleo/prompts/rules/layout*.md 2>/dev/null
+ls -l 00_nucleo/prompts/engine/layout*.md 2>/dev/null
 ```
 
 Reportar o output completo antes de continuar. As respostas às questões 1 e 2
@@ -73,13 +73,13 @@ Antes de qualquer código, criar o ficheiro de especificação para que o
 linter não dispare V7 (OrphanPrompt) quando o ficheiro do módulo for
 actualizado.
 
-Criar `00_nucleo/prompts/rules/layout_references.md`:
+Criar `00_nucleo/prompts/engine/layout_references.md`:
 
 ```markdown
 # L0 — Layout: Referências e Contadores Automáticos
 
 ## Módulo
-`01_core/src/rules/layout.rs` — secção de resolução de labels e auto-numeração.
+`01_core/src/engine/layout.rs` — secção de resolução de labels e auto-numeração.
 
 ## Regras de negócio
 
@@ -115,7 +115,7 @@ duas passagens (Passos 60+).
 Depois de criar o ficheiro:
 
 ```bash
-git add 00_nucleo/prompts/rules/layout_references.md
+git add 00_nucleo/prompts/engine/layout_references.md
 crystalline-lint --fix-hashes .
 ```
 
@@ -154,7 +154,7 @@ pub struct Label(pub String);
 
 ## Tarefa 3 — Registo de Labels no Layouter (L1)
 
-Em `01_core/src/rules/layout.rs`, substituir o braço `Content::Labelled`
+Em `01_core/src/engine/layout.rs`, substituir o braço `Content::Labelled`
 actual (que apenas fazia layout transparente) pela versão com registo:
 
 ```rust
@@ -313,7 +313,7 @@ Content::Figure { body, caption } => {
 fn layout_ref_para_tras_resolve_secao() {
     use crate::entities::counter_state::CounterState;
     use crate::entities::label::Label;
-    use crate::rules::layout::layout_with_state;
+    use crate::engine::layout::layout_with_state;
 
     let mut state = CounterState::new();
     state.numbering_active.insert("heading".to_string(), true);
@@ -339,7 +339,7 @@ fn layout_ref_para_tras_resolve_secao() {
 fn layout_ref_para_frente_usa_fallback() {
     use crate::entities::counter_state::CounterState;
     use crate::entities::label::Label;
-    use crate::rules::layout::layout_with_state;
+    use crate::engine::layout::layout_with_state;
 
     let content = Content::Sequence(vec![
         // Ref aparece antes da Label — referência para a frente
@@ -363,7 +363,7 @@ fn layout_resolved_labels_nao_interfere_entre_documentos() {
     // Dois layouts independentes não devem partilhar estado.
     use crate::entities::counter_state::CounterState;
     use crate::entities::label::Label;
-    use crate::rules::layout::{layout, layout_with_state};
+    use crate::engine::layout::{layout, layout_with_state};
 
     let mut state = CounterState::new();
     state.numbering_active.insert("heading".to_string(), true);

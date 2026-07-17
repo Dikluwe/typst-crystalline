@@ -79,14 +79,14 @@ Sem regressão. Tests existentes não mudam.
 
 ## Hashes finais
 
-L0 modificado: `00_nucleo/prompts/rules/layout.md`
+L0 modificado: `00_nucleo/prompts/engine/layout.md`
 
 - Hash do código (registado no L0): `2b8010ce`
 - Hash do prompt (registado em `@prompt-hash` dos `.rs`):
   `20d03fe5`
 
 `crystalline-lint --fix-hashes .` aplicado uma vez. 9 ficheiros
-de `01_core/src/rules/layout/` sincronizados (todos partilham o
+de `01_core/src/engine/layout/` sincronizados (todos partilham o
 mesmo prompt L0 — bump em cascata após edição da L0).
 
 ---

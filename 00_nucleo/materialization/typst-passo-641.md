@@ -15,7 +15,7 @@
 ### Confirmar o comportamento de `#context` directamente
 
 ```bash
-grep -n "fn eval_context\|Contextual" 01_core/src/rules/eval/mod.rs | head -10
+grep -n "fn eval_context\|Contextual" 01_core/src/engine/eval/mod.rs | head -10
 ```
 
 Confirmar onde `#context(...)` é avaliado — se cria uma closure/valor adiado, ou se avalia imediatamente, e em que ponto exacto do pipeline (eval vs. layout) essa avaliação de facto acontece.
@@ -31,7 +31,7 @@ Confirmar se este adiamento é intencional e igual ao vanilla, ou se é uma dife
 ### Testar directamente se `state.update` dentro de `#context` seria avaliado a tempo de um teste em `eval/tests.rs`
 
 ```bash
-grep -n "state.update\|fn.*state" 01_core/src/rules/eval/from_tags.rs | head -10
+grep -n "state.update\|fn.*state" 01_core/src/engine/eval/from_tags.rs | head -10
 ```
 
 Confirmar se o caso 4 de P633 (`from_tags.rs:64`, callback de `state.update` que descarta `Err`) é atingido durante o eval directo, ou só durante layout — o mesmo tipo de pergunta que P640 teve de responder para `counter.display`.

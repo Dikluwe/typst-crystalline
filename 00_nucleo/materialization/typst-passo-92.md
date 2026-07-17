@@ -14,7 +14,7 @@ Ler antes de começar:
   — forma do `Route<'a>` no vanilla e como é propagado.
 - `01_core/src/entities/world_types.rs` — `Route<'a>` já
   materializado (Passo 90).
-- `01_core/src/rules/eval.rs` — estado actual do `EvalContext<'w>`
+- `01_core/src/engine/eval.rs` — estado actual do `EvalContext<'w>`
   com campo `route: Vec<FileId>` e API `with_route_id`.
 - `lab/typst-original/crates/typst-library/src/engine.rs` —
   como o vanilla propaga `Route<'a>` via `Engine<'a>`.
@@ -105,14 +105,14 @@ antes de prosseguir — pode exigir ajustes ao enunciado.
 
 ```bash
 # Todas as funções eval_*:
-grep -n "fn eval_\|pub fn eval\b" 01_core/src/rules/eval.rs
+grep -n "fn eval_\|pub fn eval\b" 01_core/src/engine/eval.rs
 
 # Funções que actualmente usam route_contains ou with_route_id:
 grep -n "route_contains\|with_route_id\|\.route\b" \
-    01_core/src/rules/eval.rs
+    01_core/src/engine/eval.rs
 
 # Ponto de entrada (eval público):
-grep -B 2 -A 10 "pub fn eval\b" 01_core/src/rules/eval.rs | head -20
+grep -B 2 -A 10 "pub fn eval\b" 01_core/src/engine/eval.rs | head -20
 ```
 
 Esperado: entre 8 e 15 funções que directa ou indirectamente
@@ -138,7 +138,7 @@ onde isto acontece actualmente:
 
 ```bash
 grep -B 2 -A 15 "pub fn eval\b\|EvalContext::new" \
-    01_core/src/rules/eval.rs 01_core/src/rules/eval/*.rs \
+    01_core/src/engine/eval.rs 01_core/src/engine/eval/*.rs \
     2>/dev/null
 ```
 
@@ -230,7 +230,7 @@ Testes que usam `with_route_id` ou acedem `ctx.route` directamente:
 
 ```bash
 grep -n "with_route_id\|\.route\b\|route_contains" \
-    01_core/src/rules/eval.rs 01_core/src/rules/eval/*.rs \
+    01_core/src/engine/eval.rs 01_core/src/engine/eval/*.rs \
     2>/dev/null
 ```
 
@@ -266,11 +266,11 @@ cargo run --package crystalline-lint 2>&1 | tail -5
 
 # Campo route removido de EvalContext:
 grep -n "pub route:\|self\.route\b\|ctx\.route\b" \
-    01_core/src/rules/eval.rs 01_core/src/rules/eval/*.rs \
+    01_core/src/engine/eval.rs 01_core/src/engine/eval/*.rs \
     2>/dev/null
 
 # Zero unsafe em eval:
-grep -n "unsafe" 01_core/src/rules/eval.rs
+grep -n "unsafe" 01_core/src/engine/eval.rs
 ```
 
 Esperado:

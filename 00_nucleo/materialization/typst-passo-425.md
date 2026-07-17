@@ -79,11 +79,11 @@ Critério: `cargo check -p typst-infra` passa.
 
 Três arms monolíticos de `layout_content` foram extraídos para free functions (forma B, ADR-0109):
 
-- `Content::Dynamic` → `01_core/src/rules/layout/dynamic.rs`.
+- `Content::Dynamic` → `01_core/src/engine/layout/dynamic.rs`.
   - Free function `layout()` resolve propriedades dinâmicas via chain e delega ao body.
-- `Content::Sequence` → `01_core/src/rules/layout/sequence.rs`.
+- `Content::Sequence` → `01_core/src/engine/layout/sequence.rs`.
   - Free function `layout()` itera com `peekable()` e aplica sticky lookahead de `below` spacing.
-- `Content::SetPage` → `01_core/src/rules/layout/set_page.rs`.
+- `Content::SetPage` → `01_core/src/engine/layout/set_page.rs`.
   - Free function `layout()` atualiza `page_config` e sincroniza `regions.current`.
 
 O match principal em `layout_content` ficou magro, delegando às novas funções. Nenhuma semântica alterada.
@@ -96,8 +96,8 @@ Critério: `cargo check -p typst-core` passa; lint sem erros.
 
 Ações:
 
-- `01_core/src/rules/eval/repr.rs`: adicionado teste `repr_value_complex_types` cobrindo `Value::Length`, `Ratio`, `Angle`, `Color`, `Fraction`, `Location`, `Gradient`, `Regex`, `Tiling`, `Bytes`, `Decimal`, `Duration` e `Version`.
-- `01_core/src/rules/layout/tests.rs`:
+- `01_core/src/engine/eval/repr.rs`: adicionado teste `repr_value_complex_types` cobrindo `Value::Length`, `Ratio`, `Angle`, `Color`, `Fraction`, `Location`, `Gradient`, `Regex`, `Tiling`, `Bytes`, `Decimal`, `Duration` e `Version`.
+- `01_core/src/engine/layout/tests.rs`:
   - `layout_divider_emite_shape_line`: valida que `Content::divider()` emite `FrameItem::Shape` com `ShapeKind::Line`.
   - `layout_link_preserva_url_e_texto`: valida que `Content::link(url, body)` emite `FrameItem::Link` com a URL correta e preserva texto plano.
   - `layout_transform_preserva_shape`: valida que `Content::transform(identity, shape)` preserva o shape dentro do `FrameItem::Group` resultante.
@@ -160,7 +160,7 @@ cargo test -p typst-core --lib
 **Implementação**:
 - `a0b802d5c` — A6: ~23 warnings mecânicos corrigidos em `typst-core`.
 - `1c497bd49` — A7: braços `FrameItem::Link` recursados em stream, pipeline, image, font e gradient de `typst-infra`.
-- `1502ba90e` — A3: extração de `Dynamic`, `Sequence` e `SetPage` para free functions em `rules/layout/`.
+- `1502ba90e` — A3: extração de `Dynamic`, `Sequence` e `SetPage` para free functions em `engine/layout/`.
 - `4b6772bf6` — A4: testes `repr_value_complex_types`, `layout_divider_emite_shape_line`, `layout_link_preserva_url_e_texto`, `layout_transform_preserva_shape`.
 
 **Validação**:

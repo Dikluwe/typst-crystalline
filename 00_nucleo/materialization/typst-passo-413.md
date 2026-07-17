@@ -84,7 +84,7 @@ Documentar resultado no commit: `Sonda P413: Decimal variant OK; eval binário i
 
 ### A.1 — Prompt L0 `decimal-arithmetic.md`
 
-Novo em `00_nucleo/prompts/rules/eval/decimal-arithmetic.md`:
+Novo em `00_nucleo/prompts/engine/eval/decimal-arithmetic.md`:
 
 - **Paridade**: `decimal("1.5") + decimal("2.5")` → `4.0` (Decimal); comparações retornam `Bool`.
 - **Substrato**: ramos adicionais no dispatch binário de `BinaryExpr` eval (ou equivalente) para `Value::Decimal`.

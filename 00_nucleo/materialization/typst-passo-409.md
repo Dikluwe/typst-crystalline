@@ -86,7 +86,7 @@ Documentar resultado no commit: `Sonda P409: Duration variant OK; eval binário 
 
 ### A.1 — Prompt L0 `duration-arithmetic.md`
 
-Novo em `00_nucleo/prompts/rules/eval/duration-arithmetic.md`:
+Novo em `00_nucleo/prompts/engine/eval/duration-arithmetic.md`:
 
 - **Paridade**: `duration("1h") + duration("30m")` → `duration("1h30m")`; `duration("1h") * 2` → `duration("2h")`; `duration("1h") / duration("30m")` → `2.0` (Float).
 - **Substrato**: ramos adicionais no dispatch binário de `BinaryExpr` eval para `Value::Duration`.

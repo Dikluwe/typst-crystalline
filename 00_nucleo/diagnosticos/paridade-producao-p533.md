@@ -27,10 +27,10 @@ Este passo sondou as duas causas e implementou o fix da sub-tarefa A. A sub-tare
 **Perguntas e respostas:**
 
 1. **`@key1` é reconhecido como citação ou como referência cruzada?**
-   - O parser markup reconhece `@target` como `SyntaxKind::Ref` (`01_core/src/rules/parse/markup.rs:188`). O eval converte `Expr::Ref` em `Content::reference(name)` (`01_core/src/rules/eval/mod.rs:691-694`). Não há distinção sintáctica entre citação bibliográfica e referência cruzada.
+   - O parser markup reconhece `@target` como `SyntaxKind::Ref` (`01_core/src/engine/parse/markup.rs:188`). O eval converte `Expr::Ref` em `Content::reference(name)` (`01_core/src/engine/eval/mod.rs:691-694`). Não há distinção sintáctica entre citação bibliográfica e referência cruzada.
 
 2. **O layout faz lookup na `BibStore`?**
-   - Não. `references.rs::layout_ref` (`01_core/src/rules/layout/references.rs:39`) trata todo o `Content::Ref` como referência cruzada: procura label/counter e, se não encontrar, renderiza "?" (ou espaço vazio quando o layout de "?" produz um item invisível).
+   - Não. `references.rs::layout_ref` (`01_core/src/engine/layout/references.rs:39`) trata todo o `Content::Ref` como referência cruzada: procura label/counter e, se não encontrar, renderiza "?" (ou espaço vazio quando o layout de "?" produz um item invisível).
 
 3. **O resultado (`[1]`) é descartado nalgum sítio?**
    - Não chega a ser produzido. A cadeia eval → layout nunca identifica `@key1` como citação bibliográfica.
@@ -43,7 +43,7 @@ Este passo sondou as duas causas e implementou o fix da sub-tarefa A. A sub-tare
 **Hipóteses testadas:**
 
 1. **Truncagem de "Bibliography" para "Bibliograph"**
-   - O título "Bibliography" é gerado como `Content::heading(1, "Bibliography")` (`01_core/src/rules/stdlib/structural.rs:1467`) e renderizado pelo layout de heading. Em páginas de largura normal (A4), aparece completo.
+   - O título "Bibliography" é gerado como `Content::heading(1, "Bibliography")` (`01_core/src/engine/stdlib/structural.rs:1467`) e renderizado pelo layout de heading. Em páginas de largura normal (A4), aparece completo.
    - Reproduziu-se truncagem apenas forçando uma página artificialmente estreita (`#set page(width: 50pt)`), onde a palavra não cabe na linha. Este é um problema geral de *overflow* de palavras longas no `layout_word`, não um bug específico de bibliografia nem corte UTF-8.
 
 2. **Aspas tipográficas viram `?`**
@@ -51,7 +51,7 @@ Este passo sondou as duas causas e implementou o fix da sub-tarefa A. A sub-tare
    - Os `?` observados no corpus `cite-bibliography.typ` (acentos em "introdutório", "citação") são devido a **font fallback** — a fonte usada não possui glifos para caracteres acentuados. Este é o focus do Passo 534.
 
 3. **Corte a meio de carácter UTF-8**
-   - Não foi encontrado nenhum corte por índice de byte no caminho CSL (`01_core/src/rules/layout/bib_csl.rs`), no shaper (`03_infra/src/shaper.rs`) nem no export PDF (`03_infra/src/export/builder.rs`). Todos os pontos de divisão de strings usam fronteiras de carácter (`char_indices`, `chars().take()`, `get(byte_idx..)?.chars()`).
+   - Não foi encontrado nenhum corte por índice de byte no caminho CSL (`01_core/src/engine/layout/bib_csl.rs`), no shaper (`03_infra/src/shaper.rs`) nem no export PDF (`03_infra/src/export/builder.rs`). Todos os pontos de divisão de strings usam fronteiras de carácter (`char_indices`, `chars().take()`, `get(byte_idx..)?.chars()`).
 
 **Conclusão da sonda B:** os sintomas descritos em P531 não se reproduzem no estado actual do repositório para documentos de largura normal. A truncagem é um efeito colateral de overflow de linha; os `?` são falta de glifos na fonte (P534).
 
@@ -61,14 +61,14 @@ Este passo sondou as duas causas e implementou o fix da sub-tarefa A. A sub-tare
 
 ### Ficheiros alterados
 
-- `01_core/src/rules/introspect.rs` — adicionada função pública `convert_bib_refs_to_cites` que converte `Content::Ref` em `Content::Cite` quando o nome coincide com uma key do `Content::Bibliography`. Usada antes do walk de introspecção e no helper de teste local.
-- `01_core/src/rules/layout/references.rs` — `layout_ref` delega para `cite::layout` quando a key existe no `BibStore`, cobrindo o caminho do layout mesmo para content que não passou pela conversão prévia.
-- `01_core/src/rules/layout/bib_csl.rs` — `build_cache` / `build_cache_with_style` aceitam `citation_order` opcional e reordenam as entries antes de renderizar a bibliografia (necessário para estilos numéricos como `ieee`).
-- `01_core/src/rules/layout/mod.rs` — passa `introspector.citation_order()` para o cache CSL.
+- `01_core/src/engine/introspect.rs` — adicionada função pública `convert_bib_refs_to_cites` que converte `Content::Ref` em `Content::Cite` quando o nome coincide com uma key do `Content::Bibliography`. Usada antes do walk de introspecção e no helper de teste local.
+- `01_core/src/engine/layout/references.rs` — `layout_ref` delega para `cite::layout` quando a key existe no `BibStore`, cobrindo o caminho do layout mesmo para content que não passou pela conversão prévia.
+- `01_core/src/engine/layout/bib_csl.rs` — `build_cache` / `build_cache_with_style` aceitam `citation_order` opcional e reordenam as entries antes de renderizar a bibliografia (necessário para estilos numéricos como `ieee`).
+- `01_core/src/engine/layout/mod.rs` — passa `introspector.citation_order()` para o cache CSL.
 - `03_infra/src/pipeline.rs` — aplica `convert_bib_refs_to_cites` ao content de introspecção e ao content de layout antes das respectivas fases.
-- `01_core/src/rules/layout/tests.rs` — adicionado teste `layout_ref_bibliografico_renderiza_como_cite`.
-- `01_core/src/rules/layout/bib_csl.rs` — adicionado teste `build_cache_ieee_reordena_por_citation_order`; actualizados call sites de `build_cache` para o novo parâmetro.
-- `01_core/src/rules/introspect.rs` — adicionado teste `p533_bib_refs_convertidos_contam_citation_order`.
+- `01_core/src/engine/layout/tests.rs` — adicionado teste `layout_ref_bibliografico_renderiza_como_cite`.
+- `01_core/src/engine/layout/bib_csl.rs` — adicionado teste `build_cache_ieee_reordena_por_citation_order`; actualizados call sites de `build_cache` para o novo parâmetro.
+- `01_core/src/engine/introspect.rs` — adicionado teste `p533_bib_refs_convertidos_contam_citation_order`.
 
 ### Lógica do fix
 

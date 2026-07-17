@@ -15,13 +15,13 @@
 ## Passo 0 — Reverter o código órfão
 
 ```bash
-git diff 01_core/src/rules/layout/grid.rs | grep -B3 -A20 "P772f — aplicar align efectivo"
+git diff 01_core/src/engine/layout/grid.rs | grep -B3 -A20 "P772f — aplicar align efectivo"
 ```
 
 Confirmar o âmbito exacto do bloco antes de reverter (não remover mais nem menos do que o identificado por P772f/P772h).
 
 ```bash
-git checkout -- 01_core/src/rules/layout/grid.rs
+git checkout -- 01_core/src/engine/layout/grid.rs
 ```
 
 Ou, se houver outras alterações legítimas no mesmo ficheiro que não devem ser perdidas, reverter só o bloco específico manualmente.
@@ -54,7 +54,7 @@ Registar a posição X exacta de "Hello" no vanilla — este é o valor-alvo (P7
 
 ### L0
 
-Escrever/actualizar `00_nucleo/prompts/rules/layout.md` (secção de `grid`) com o mecanismo de alinhamento efectivo por célula: como o alinhamento é resolvido (precedência), e como é aplicado no layout (mecanismo escolhido — não necessariamente `Content::Place`, confirmar se é a abordagem certa ou se alinhamento dentro de célula deve ser tratado de outra forma, dado P772g ter acabado de mexer exactamente nesta área de composição de coordenadas).
+Escrever/actualizar `00_nucleo/prompts/engine/layout.md` (secção de `grid`) com o mecanismo de alinhamento efectivo por célula: como o alinhamento é resolvido (precedência), e como é aplicado no layout (mecanismo escolhido — não necessariamente `Content::Place`, confirmar se é a abordagem certa ou se alinhamento dentro de célula deve ser tratado de outra forma, dado P772g ter acabado de mexer exactamente nesta área de composição de coordenadas).
 
 ### Código
 
@@ -87,7 +87,7 @@ crystalline-lint .
 
 - [x] Código órfão revertido, escopo confirmado, testes continuam verdes.
 - [x] Precedência de `align` em `grid()` confirmada contra o vanilla real, não assumida — fold por eixo (era `.or()` do `Align2D` inteiro).
-- [x] L0 escrito antes do código (`00_nucleo/prompts/rules/layout.md`, hash `a214cd68`).
+- [x] L0 escrito antes do código (`00_nucleo/prompts/engine/layout.md`, hash `a214cd68`).
 - [x] Implementação nova, reutilizando a disciplina de coordenadas de P772g.
 - [x] `#grid(align: center, ...)` bate com o vanilla — divergência residual pequena (~1.7pt, era 13.5pt) atribuída e documentada a uma limitação mecânica já existente (medição aproximada vs real de largura), não a um bug de mecanismo ou precedência.
 - [x] Checklist de sub-layouts (`columns`, consistente com P772g).

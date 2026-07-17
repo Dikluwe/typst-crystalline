@@ -33,14 +33,14 @@ existem.
 ### .A Auditoria L0
 
 1. Confirmar estado actual de `is_locatable`:
-   - `01_core/src/rules/introspect/locatable.rs`.
+   - `01_core/src/engine/introspect/locatable.rs`.
    - `Content::Bibliography { .. }` está em bloco
      non-locatable (or-pattern com outros) ou arm
      dedicado `=> false`.
    - Localizar onde mover.
 
 2. Confirmar estado actual de `extract_payload`:
-   - `01_core/src/rules/introspect/extract_payload.rs`.
+   - `01_core/src/engine/introspect/extract_payload.rs`.
    - Match com `_ => None` fall-through (P164 confirmou).
    - Identificar onde inserir arm novo (antes do
      fall-through, agrupado com outros arms locatable).
@@ -54,8 +54,8 @@ existem.
      `title`, `full`. Usar `..` para ignorar.
 
 4. Confirmar L0s actuais:
-   - `00_nucleo/prompts/rules/introspect/locatable.md`.
-   - `00_nucleo/prompts/rules/introspect/extract_payload.md`.
+   - `00_nucleo/prompts/engine/introspect/locatable.md`.
+   - `00_nucleo/prompts/engine/introspect/extract_payload.md`.
    - Identificar entradas existentes para Outline (P178
      padrão) — Bibliography vai entrar paralelamente.
 
@@ -67,7 +67,7 @@ Output: notas internas; sem ficheiro novo.
 
 ### .B Tests primeiro (devem falhar)
 
-Em `01_core/src/rules/introspect/locatable.rs::tests`:
+Em `01_core/src/engine/introspect/locatable.rs::tests`:
 
 ```rust
 #[test]
@@ -82,7 +82,7 @@ fn bibliography_is_locatable_p181d() {
 }
 ```
 
-Em `01_core/src/rules/introspect/extract_payload.rs::tests`:
+Em `01_core/src/engine/introspect/extract_payload.rs::tests`:
 
 ```rust
 #[test]
@@ -171,7 +171,7 @@ Marco humano. Após `.C` e `.D`:
 
 ### .F Implementar `is_locatable` arm
 
-Em `01_core/src/rules/introspect/locatable.rs`:
+Em `01_core/src/engine/introspect/locatable.rs`:
 
 - Mover `Content::Bibliography { .. }` do bloco
   non-locatable para arm `=> true`.
@@ -189,7 +189,7 @@ Em `01_core/src/rules/introspect/locatable.rs`:
 
 ### .G Implementar `extract_payload` arm
 
-Em `01_core/src/rules/introspect/extract_payload.rs`:
+Em `01_core/src/engine/introspect/extract_payload.rs`:
 
 - Adicionar arm antes do `_ => None`:
   ```rust

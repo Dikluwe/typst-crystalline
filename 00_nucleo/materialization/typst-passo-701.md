@@ -45,7 +45,7 @@ echo "Exit code: $?"
 ### Decidir o âmbito: só `cbor`, ou generalizar já para `json`/`yaml`/`toml`/`xml`
 
 ```bash
-grep -n "native_loader!\|fn native_json\|fn native_yaml\|fn native_toml\|fn native_xml" 01_core/src/rules/stdlib/loading.rs
+grep -n "native_loader!\|fn native_json\|fn native_yaml\|fn native_toml\|fn native_xml" 01_core/src/engine/stdlib/loading.rs
 ```
 
 Confirmar quantos destes já partilham a mesma macro/estrutura (`native_loader!`) — se a mudança para aceitar `Bytes` for barata de generalizar a todos ao mesmo tempo (mesma macro, um só ponto de alteração), fazer isso agora evita repetir o mesmo trabalho depois para cada um. Se for mais complexo, registar scope-out explícito só para `cbor`.

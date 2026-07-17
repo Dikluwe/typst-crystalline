@@ -35,7 +35,7 @@ L0 novos (calculados pelo `crystalline-lint --fix-hashes`):
 | L0 | Hash do código L0 | Hash @prompt-hash em L1 |
 |----|-------------------|-------------------------|
 | `00_nucleo/prompts/entities/content_hash.md` | `e55b46d6` | `e1e9d070` |
-| `00_nucleo/prompts/rules/introspect/extract_payload.md` | `e61765d4` | `2cab773f` |
+| `00_nucleo/prompts/engine/introspect/extract_payload.md` | `e61765d4` | `2cab773f` |
 
 L0 modificados em P162 (hashes recalculados):
 
@@ -44,7 +44,7 @@ L0 modificados em P162 (hashes recalculados):
 | `00_nucleo/prompts/entities/element_payload.md` | `a67d96b1` |
 | `00_nucleo/prompts/entities/tag.md` | `399e1b67` |
 
-L0 `00_nucleo/prompts/rules/introspect.md` **não** foi modificado neste passo (decisão em ".H .6"); o seu hash permanece `264f58c8`. Refino para reflectir a assinatura de 5 parâmetros e a emissão de tags fica pendente — pode ser feito em P163 com o resto da consolidação documental.
+L0 `00_nucleo/prompts/engine/introspect.md` **não** foi modificado neste passo (decisão em ".H .6"); o seu hash permanece `264f58c8`. Refino para reflectir a assinatura de 5 parâmetros e a emissão de tags fica pendente — pode ser feito em P163 com o resto da consolidação documental.
 
 ## Decisões registadas em .A
 

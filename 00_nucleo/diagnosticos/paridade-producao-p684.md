@@ -14,14 +14,14 @@
 
 ```
  00_nucleo/prompts/entities/version.md              |  95 +++---
- 00_nucleo/prompts/rules/stdlib/primitives-constructors.md | 108 +++---
+ 00_nucleo/prompts/engine/stdlib/primitives-constructors.md | 108 +++---
  01_core/src/entities/value.rs                      |  39 +-
  01_core/src/entities/version.rs                    | 364 +++++++++------------
- 01_core/src/rules/eval/bindings.rs                 |  16 +-
- 01_core/src/rules/eval/operators.rs                |  14 +-
- 01_core/src/rules/eval/repr.rs                     |  10 +-
- 01_core/src/rules/eval/tests.rs                    |  99 +++---
- 01_core/src/rules/stdlib/primitives_constructors.rs    | 207 +++++-------
+ 01_core/src/engine/eval/bindings.rs                 |  16 +-
+ 01_core/src/engine/eval/operators.rs                |  14 +-
+ 01_core/src/engine/eval/repr.rs                     |  10 +-
+ 01_core/src/engine/eval/tests.rs                    |  99 +++---
+ 01_core/src/engine/stdlib/primitives_constructors.rs    | 207 +++++-------
  9 files changed, 413 insertions(+), 539 deletions(-)
 ```
 
@@ -107,8 +107,8 @@ explícita, e que seria reescrever o passado), regista-se aqui, na trilha de dia
 
 ## Ficheiros tocados (commit)
 
-- `00_nucleo/prompts/entities/version.md`, `00_nucleo/prompts/rules/stdlib/primitives-constructors.md` (L0)
+- `00_nucleo/prompts/entities/version.md`, `00_nucleo/prompts/engine/stdlib/primitives-constructors.md` (L0)
 - `01_core/src/entities/version.rs`, `01_core/src/entities/value.rs`
-- `01_core/src/rules/stdlib/primitives_constructors.rs`
-- `01_core/src/rules/eval/repr.rs`, `01_core/src/rules/eval/operators.rs`,
-  `01_core/src/rules/eval/bindings.rs`, `01_core/src/rules/eval/tests.rs`
+- `01_core/src/engine/stdlib/primitives_constructors.rs`
+- `01_core/src/engine/eval/repr.rs`, `01_core/src/engine/eval/operators.rs`,
+  `01_core/src/engine/eval/bindings.rs`, `01_core/src/engine/eval/tests.rs`

@@ -138,12 +138,12 @@ antes do Passo 96 revelou:
 
 | Linhas | Ficheiro |
 |--------|----------|
-| 3780 | `01_core/src/rules/eval.rs` |
-| 2848 | `01_core/src/rules/layout/mod.rs` |
-| 2255 | `01_core/src/rules/parse.rs` |
-| 1806 | `01_core/src/rules/math/layout.rs` |
-| 1711 | `01_core/src/rules/stdlib.rs` |
-| 1250 | `01_core/src/rules/lexer/mod.rs` |
+| 3780 | `01_core/src/engine/eval.rs` |
+| 2848 | `01_core/src/engine/layout/mod.rs` |
+| 2255 | `01_core/src/engine/parse.rs` |
+| 1806 | `01_core/src/engine/math/layout.rs` |
+| 1711 | `01_core/src/engine/stdlib.rs` |
+| 1250 | `01_core/src/engine/lexer/mod.rs` |
 
 Total: 13.650 linhas em seis ficheiros. O `eval.rs` sozinho tem
 368 ocorrências de padrões `match` sobre `Expr::`, `SyntaxKind::`

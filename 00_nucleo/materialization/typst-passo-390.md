@@ -39,7 +39,7 @@ A paridade (ADR-0107) é morfológica: a forma do conteúdo é a mesma. No crist
 
 ### A.1 — Prompt L0 `square.md`
 
-Novo em `00_nucleo/prompts/rules/stdlib/square.md` (ou área apropriada, confirmar path):
+Novo em `00_nucleo/prompts/engine/stdlib/square.md` (ou área apropriada, confirmar path):
 
 - **Paridade**: `square(w)` ≡ `rect(width: w, height: w)` morfologicamente.
 - **Substrato**: helper stdlib que constrói `Rect` via `native_rect` existente.

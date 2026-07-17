@@ -12,7 +12,7 @@ grep -A 8 "DEBT-6" 00_nucleo/DEBT.md
 
 # Confirmar estrutura actual de eval_for_test
 grep -n "eval_for_test\|fn eval_for_test\|MockWorld" \
-  01_core/src/rules/eval.rs | head -20
+  01_core/src/engine/eval.rs | head -20
 
 # Confirmar que o merge bold || node_style.bold está registado como DEBT
 grep -n "bold.*merge\|merge.*bold\|node_style.*bold\|DEBT.*bold\|scoping.*set" \
@@ -21,7 +21,7 @@ grep -n "bold.*merge\|merge.*bold\|node_style.*bold\|DEBT.*bold\|scoping.*set" \
 
 # Confirmar que #let f(n) = ... funciona (sintaxe do Passo 31)
 grep -n "LetBindingKind\|Closure.*param\|params.*closure" \
-  01_core/src/rules/eval.rs | head -10
+  01_core/src/engine/eval.rs | head -10
 ```
 
 **Parar se qualquer pré-condição falhar.**
@@ -45,7 +45,7 @@ bloco for implementado. Enquanto `#set` for global ao eval, não há
 divergência visível.
 
 **Quando resolver**: junto com o scoping de `#set` por bloco.
-**Ficheiros**: `01_core/src/rules/layout.rs`
+**Ficheiros**: `01_core/src/engine/layout.rs`
 ```
 
 ---
@@ -79,7 +79,7 @@ no parser.
 ```bash
 # Procurar testes de parser para LetBinding com parâmetros
 grep -rn "let_binding\|parse_let\|LetBinding\|#let.*(.*).*=" \
-  01_core/src/rules/parse.rs 2>/dev/null | grep -i "test\|#\[" | head -10
+  01_core/src/engine/parse.rs 2>/dev/null | grep -i "test\|#\[" | head -10
 
 # Ver a estrutura AST gerada para #let f(x) = x
 # (confirmar que gera LetBinding com Closure, não LetBinding com Init)
@@ -88,13 +88,13 @@ grep -n "LetBindingKind\|LetBinding\|Closure" \
 ```
 
 **Se não houver testes de parser para esta estrutura**, adicionar em
-`01_core/src/rules/parse.rs` dentro de `#[cfg(test)]`:
+`01_core/src/engine/parse.rs` dentro de `#[cfg(test)]`:
 
 ```rust
 #[test]
 fn parse_let_funcao_com_parametros() {
     // #let f(x, y) = x + y deve gerar LetBinding com Closure no body
-    use crate::rules::parse::parse;
+    use crate::engine::parse::parse;
     let node = parse("#let f(x, y) = x + y");
     // Verificar que não há erros de parse
     assert!(
@@ -107,14 +107,14 @@ fn parse_let_funcao_com_parametros() {
 
 #[test]
 fn parse_let_funcao_sem_parametros() {
-    use crate::rules::parse::parse;
+    use crate::engine::parse::parse;
     let node = parse("#let f() = 42");
     assert!(node.errors().is_empty());
 }
 
 #[test]
 fn parse_let_funcao_recursiva() {
-    use crate::rules::parse::parse;
+    use crate::engine::parse::parse;
     let node = parse("#let fib(n) = if n <= 1 { n } else { fib(n - 1) + fib(n - 2) }");
     assert!(node.errors().is_empty());
 }
@@ -129,7 +129,7 @@ fn parse_let_funcao_recursiva() {
 ```bash
 # Ver MockWorld em detalhe
 grep -n "struct MockWorld\|impl MockWorld\|impl World for MockWorld\|impl TrackedWorld" \
-  01_core/src/rules/eval.rs | head -20
+  01_core/src/engine/eval.rs | head -20
 
 # Ver SystemWorld — já implementa TrackedWorld?
 grep -n "impl TrackedWorld for SystemWorld\|impl World for SystemWorld" \
@@ -143,7 +143,7 @@ grep -rn "#\[test\]\|#\[cfg(test)\]" 03_infra/src/ | head -20
 grep -n "SystemWorld::new\|fn new" 03_infra/src/world.rs | head -10
 
 # Ver eval() pública — é chamável de L3?
-grep -n "pub fn eval\b" 01_core/src/rules/eval.rs
+grep -n "pub fn eval\b" 01_core/src/engine/eval.rs
 ```
 
 **Parar. Reportar output antes de qualquer código.**
@@ -161,7 +161,7 @@ Questões a responder:
 A assinatura pública de `eval` deve ser genérica sobre o world:
 
 ```rust
-// Em 01_core/src/rules/eval.rs
+// Em 01_core/src/engine/eval.rs
 
 pub fn eval<W: TrackedWorld>(
     world: &W,
@@ -191,8 +191,8 @@ de testes existente se já houver):
 #[cfg(test)]
 mod integration {
     use std::path::PathBuf;
-    use typst_core::rules::eval::eval;
-    use typst_core::rules::layout::layout;
+    use typst_core::engine::eval::eval;
+    use typst_core::engine::layout::layout;
     use crate::export::{export_pdf, export_pdf_with_font};
     use crate::world::SystemWorld;
 
@@ -214,7 +214,7 @@ mod integration {
         let (world, _dir) = world_from_str("Olá, mundo!");
         let source = world.source(world.main()).unwrap();
         let module = eval(&world, &source).unwrap();
-        let doc = layout(module.content(), &typst_core::rules::layout::FixedMetrics).unwrap();
+        let doc = layout(module.content(), &typst_core::engine::layout::FixedMetrics).unwrap();
         assert!(!doc.pages.is_empty());
     }
 
@@ -223,7 +223,7 @@ mod integration {
         let (world, _dir) = world_from_str("Texto simples.");
         let source = world.source(world.main()).unwrap();
         let module = eval(&world, &source).unwrap();
-        let doc = layout(module.content(), &typst_core::rules::layout::FixedMetrics).unwrap();
+        let doc = layout(module.content(), &typst_core::engine::layout::FixedMetrics).unwrap();
         let pdf = export_pdf(&doc);
         assert!(!pdf.is_empty());
         // PDF começa com %PDF-
@@ -237,7 +237,7 @@ mod integration {
         let (world, _dir) = world_from_str("Texto com fonte real.");
         let source = world.source(world.main()).unwrap();
         let module = eval(&world, &source).unwrap();
-        let doc = layout(module.content(), &typst_core::rules::layout::FixedMetrics).unwrap();
+        let doc = layout(module.content(), &typst_core::engine::layout::FixedMetrics).unwrap();
 
         // Tentar obter dados de fonte real
         if let Some(font_data) = world.book().families().next()
@@ -257,7 +257,7 @@ mod integration {
         let (world, _dir) = world_from_str("#set text(bold: true)\nTexto a negrito.");
         let source = world.source(world.main()).unwrap();
         let module = eval(&world, &source).unwrap();
-        let doc = layout(module.content(), &typst_core::rules::layout::FixedMetrics).unwrap();
+        let doc = layout(module.content(), &typst_core::engine::layout::FixedMetrics).unwrap();
         assert!(!doc.pages.is_empty());
     }
 
@@ -267,7 +267,7 @@ mod integration {
         let (world, _dir) = world_from_str(src);
         let source = world.source(world.main()).unwrap();
         let module = eval(&world, &source).unwrap();
-        let doc = layout(module.content(), &typst_core::rules::layout::FixedMetrics).unwrap();
+        let doc = layout(module.content(), &typst_core::engine::layout::FixedMetrics).unwrap();
         assert!(!doc.pages.is_empty());
     }
 
@@ -369,7 +369,7 @@ grep -rn "SystemWorld" 01_core/src/ 2>/dev/null
 # Deve retornar vazio — SystemWorld não deve aparecer em L1
 
 # Confirmar que eval() é genérica
-grep -n "pub fn eval" 01_core/src/rules/eval.rs
+grep -n "pub fn eval" 01_core/src/engine/eval.rs
 ```
 
 Critérios de conclusão:

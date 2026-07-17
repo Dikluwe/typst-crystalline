@@ -12,14 +12,14 @@
 ### 1.1 Onde `table.numbering` é definida e lida no cristalino
 
 ```bash
-grep -n "table.*numbering\|numbering.*table" 01_core/src/rules/eval/rules.rs 01_core/src/rules/layout/*.rs 01_core/src/entities/elements/table*.rs 2>/dev/null
+grep -n "table.*numbering\|numbering.*table" 01_core/src/engine/eval/rules.rs 01_core/src/engine/layout/*.rs 01_core/src/entities/elements/table*.rs 2>/dev/null
 ```
 
 Resultado:
 
-- `01_core/src/rules/eval/rules.rs:871-889` — processa `#set table(numbering: ...)` e guarda o valor na style chain como `custom("table.numbering")`.
-- `01_core/src/rules/layout/table.rs:27-30` — lê `table.numbering` da style chain e, em conjunto com `caption`, computa o prefixo numerado (`Table 1: ...`).
-- `01_core/src/rules/layout/tests.rs` — testes P459 confirmam o comportamento.
+- `01_core/src/engine/eval/rules.rs:871-889` — processa `#set table(numbering: ...)` e guarda o valor na style chain como `custom("table.numbering")`.
+- `01_core/src/engine/layout/table.rs:27-30` — lê `table.numbering` da style chain e, em conjunto com `caption`, computa o prefixo numerado (`Table 1: ...`).
+- `01_core/src/engine/layout/tests.rs` — testes P459 confirmam o comportamento.
 - `01_core/src/entities/elements/table.rs` — documentação da extensão P459 (`caption` opcional para numeração automática via `table.numbering`).
 
 ### 1.2 Teste directo no cristalino

@@ -20,7 +20,7 @@ maior que P154B M). Toca:
 - L0 (prompts): spec do variant + smart-quotes.
 - Parser cristalino: regra nova para `"..."` em contexto
   markup (distinto de string literal em código).
-- Testes em `01_core/src/rules/` cobrindo construção,
+- Testes em `01_core/src/engine/` cobrindo construção,
   comparação, `plain_text`, eval do construtor, parse
   markup, smart-quotes por lang.
 - ADR-0060: transição `PROPOSTO → IMPLEMENTADO` no fim.
@@ -118,7 +118,7 @@ Ao fim do passo:
    - `Content::map_text` — análogo.
    - `PartialEq` — derivado.
    - Layouter (`03_infra/src/...` ou
-     `01_core/src/rules/layout/mod.rs`) — Quote render:
+     `01_core/src/engine/layout/mod.rs`) — Quote render:
      - Se `block: true`: parágrafo dedicado, indent left
        margin, attribution em linha separada (alinhada à
        direita, prefixada por "—").
@@ -132,8 +132,8 @@ Ao fim do passo:
      para Quote neste passo (consistente com P154B).
 
 3. **Stdlib func** `native_quote` em
-   `01_core/src/rules/eval/mod.rs` ou
-   `01_core/src/rules/stdlib/structural.rs`:
+   `01_core/src/engine/eval/mod.rs` ou
+   `01_core/src/engine/stdlib/structural.rs`:
    ```rust
    #[allow(dead_code)]
    pub fn native_quote(args: &Args) -> SourceResult<Value> {
@@ -168,7 +168,7 @@ Ao fim do passo:
 5. **Smart-quotes mecanismo**:
    - Função `localize_quotes(body: &str, lang: &Lang) ->
      (open: &'static str, close: &'static str)` em
-     `01_core/src/rules/lang/quotes.rs` (módulo novo) ou
+     `01_core/src/engine/lang/quotes.rs` (módulo novo) ou
      `01_core/src/entities/lang.rs` (extensão).
    - Tabela de pares `open`/`close` por lang. Inicial: 7
      langs (`pt`/`en`/`de`/`fr`/`es`/`it`/default).
@@ -208,7 +208,7 @@ Ao fim do passo:
 7. **L0 prompts**:
    - `prompts/entities/content.md` ganha secção
      "Quote — Passo 155 (ADR-0060 Fase 1)".
-   - `prompts/rules/lang.md` (ou ficheiro equivalente que
+   - `prompts/engine/lang.md` (ou ficheiro equivalente que
      governa `Lang`) ganha secção "Smart-quotes — Passo
      155".
    - Hashes recalculados; propagados via
@@ -273,7 +273,7 @@ Este passo **não**:
 ## Decisões diferidas (resolvidas neste passo)
 
 9. **Localização do módulo smart-quotes**:
-   - Opção A: `01_core/src/rules/lang/quotes.rs` (módulo
+   - Opção A: `01_core/src/engine/lang/quotes.rs` (módulo
      novo dedicado, agrupado com hyphenation).
    - Opção B: `01_core/src/entities/lang.rs` (extensão de
      ficheiro existente).
@@ -349,19 +349,19 @@ Este passo **não**:
   novo + cobertura exaustiva de arms.
 - Edição de `01_core/src/entities/content.rs::tests`: 5
   testes unit Quote.
-- Criação de `01_core/src/rules/lang/quotes.rs` (módulo
+- Criação de `01_core/src/engine/lang/quotes.rs` (módulo
   novo) com:
   - `localize_quotes(body_lang) -> (open, close)`.
   - Tabela `LANG_QUOTES` (7 entries).
   - 5 testes unit.
-- Edição de `01_core/src/rules/lang/mod.rs` (ou ficheiro
+- Edição de `01_core/src/engine/lang/mod.rs` (ou ficheiro
   análogo) para expor o módulo.
-- Edição de `01_core/src/rules/eval/mod.rs` ou
+- Edição de `01_core/src/engine/eval/mod.rs` ou
   `stdlib/structural.rs`: `native_quote` + registo em
   `make_stdlib`.
-- Edição de `01_core/src/rules/parse/...` (parser markup):
+- Edição de `01_core/src/engine/parse/...` (parser markup):
   reconhecer `"..."` em `Mode::Markup` como token novo.
-- Edição de `01_core/src/rules/eval/...` (eval markup):
+- Edição de `01_core/src/engine/eval/...` (eval markup):
   resolve token markup-quote para `Content::Quote`.
 - Edição de Layouter para Quote rendering (block + inline
   + smart-quote insertion via `localize_quotes`).
@@ -369,7 +369,7 @@ Este passo **não**:
 - Até 4 testes integração render (opcional consoante
   layouter).
 - Edição de `prompts/entities/content.md` (Quote variant).
-- Edição de `prompts/rules/lang.md` (smart-quotes).
+- Edição de `prompts/engine/lang.md` (smart-quotes).
 - Hashes propagados via lint.
 - ADR-0060: anotação + transição `PROPOSTO → IMPLEMENTADO`.
 - Inventário 148: contagens recalculadas.
@@ -422,7 +422,7 @@ Confirmar:
 
 ```bash
 grep -rn "Mode::Markup\|Mode::Code\|markup_mode\|code_mode" \
-  01_core/src/rules/parse/
+  01_core/src/engine/parse/
 ```
 
 Confirmar:
@@ -435,7 +435,7 @@ Confirmar:
 **A.1.4 — Verificar layout actual de outros block elements**:
 
 ```bash
-grep -nE "fn layout_(heading|figure|paragraph)" 01_core/src/rules/layout/
+grep -nE "fn layout_(heading|figure|paragraph)" 01_core/src/engine/layout/
 ```
 
 Para Quote `block: true`, reusar padrões. Esperado:
@@ -448,7 +448,7 @@ em `StyleDelta` (per ADR-0057). Confirmar se `layout_quote`
 tem acesso a `StyleDelta` activo.
 
 ```bash
-grep -nE "StyleDelta\|style_delta" 01_core/src/rules/layout/
+grep -nE "StyleDelta\|style_delta" 01_core/src/engine/layout/
 ```
 
 ### 155.2 — Adicionar variant `Content::Quote`
@@ -506,7 +506,7 @@ Content::Quote { body, attribution, block, quotes } => {
 Content::Quote { body, attribution, block, quotes } => {
     let lang = current_style_delta.lang.unwrap_or_default();
     let (open, close) = if *quotes {
-        crate::rules::lang::quotes::localize_quotes(&lang)
+        crate::engine::lang::quotes::localize_quotes(&lang)
     } else {
         ("", "")
     };
@@ -577,7 +577,7 @@ mod tests {
 }
 ```
 
-Registar em `01_core/src/rules/lang/mod.rs`:
+Registar em `01_core/src/engine/lang/mod.rs`:
 
 ```diff
  pub mod hyphenation;
@@ -586,7 +586,7 @@ Registar em `01_core/src/rules/lang/mod.rs`:
 
 ### 155.5 — `native_quote` em stdlib
 
-Em `01_core/src/rules/stdlib/structural.rs`:
+Em `01_core/src/engine/stdlib/structural.rs`:
 
 ```rust
 pub fn native_quote(args: &Args) -> SourceResult<Value> {
@@ -635,7 +635,7 @@ scope.define("quote", Value::Func(Func::native("quote", native_quote)));
 
 ```bash
 grep -rn "fn parse_markup\|tokenize_markup\|markup_token" \
-  01_core/src/rules/parse/
+  01_core/src/engine/parse/
 ```
 
 **A.6.2 — Adicionar regra para `"..."`**:
@@ -709,12 +709,12 @@ representa citação estrutural.
 - Sem attribution: `"body"`.
 
 **Renderização (layouter)**:
-- Smart-quotes via `crate::rules::lang::quotes::localize_quotes`.
+- Smart-quotes via `crate::engine::lang::quotes::localize_quotes`.
 - `block: true`: indent + spacing dedicado.
 - `block: false`: inline no parágrafo circundante.
 ```
 
-**A.8.2 — `prompts/rules/lang.md`**:
+**A.8.2 — `prompts/engine/lang.md`**:
 
 Adicionar secção:
 
@@ -722,7 +722,7 @@ Adicionar secção:
 ### Smart-quotes — Passo 155
 
 Função `localize_quotes(lang) -> (open, close)` em
-`01_core/src/rules/lang/quotes.rs`.
+`01_core/src/engine/lang/quotes.rs`.
 
 **Tabela inicial** (7 entries):
 | Lang | Open | Close |
@@ -742,12 +742,12 @@ BCP47 (e.g. `pt-BR` → `pt`).
 
 ```bash
 sha256sum 00_nucleo/prompts/entities/content.md
-sha256sum 00_nucleo/prompts/rules/lang.md
+sha256sum 00_nucleo/prompts/engine/lang.md
 crystalline-lint --fix-hashes .
 ```
 
 Headers actualizados em `01_core/src/entities/content.rs`,
-`01_core/src/rules/lang/quotes.rs`, e qualquer ficheiro
+`01_core/src/engine/lang/quotes.rs`, e qualquer ficheiro
 com `@prompt-hash` afectado.
 
 ### 155.9 — ADR-0060 transição

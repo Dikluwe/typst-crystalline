@@ -66,7 +66,7 @@ descobertos via compiler errors):
 |----------|------|
 | `entities/content.rs` | `is_empty` + `plain_text` + `PartialEq::eq` + `map_content` + `map_text` = **5** |
 | `rules/introspect.rs` | `materialize_time` + `walk` = **2** |
-| `rules/layout/mod.rs` | `layout_content` (stub transparente) + `measure_content_constrained` (transparente) = **2** |
+| `engine/layout/mod.rs` | `layout_content` (stub transparente) + `measure_content_constrained` (transparente) = **2** |
 | `rules/introspect/locatable.rs` | `is_locatable` catch-all `_ => false` = **1** |
 | **Total** | **10** |
 

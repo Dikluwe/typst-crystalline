@@ -24,7 +24,7 @@ Total de ocorrências: **28** em 7 ficheiros.
 | `rules/stdlib/structural.rs` | 36 | `Content::Strong(Box::new(body))` |
 | `rules/stdlib/structural.rs` | 51 | `Content::Emph(Box::new(body))` |
 | `rules/introspect.rs` | 49-50 | `Content::Strong(..)` / `Content::Emph(..)` (em match arm — recria) |
-| `rules/layout/tests.rs` | 122, 135, 163 | `Content::strong(...)` / `Content::emph(...)` |
+| `engine/layout/tests.rs` | 122, 135, 163 | `Content::strong(...)` / `Content::emph(...)` |
 | `entities/content.rs` (tests) | 1014, 1031, 1065 | construção directa em tests |
 
 ### M — Match arms
@@ -35,7 +35,7 @@ Total de ocorrências: **28** em 7 ficheiros.
 | `entities/content.rs` | 552-553 | map_content |
 | `entities/content.rs` | 702-703 | map_text |
 | `entities/content.rs` | — | plain_text, is_empty (via fallback `_ => false`) |
-| `rules/layout/mod.rs` | 257-268 | arm `Content::Strong` + arm `Content::Emph` em layout_content |
+| `engine/layout/mod.rs` | 257-268 | arm `Content::Strong` + arm `Content::Emph` em layout_content |
 | `rules/eval/rules.rs` | 80-81 | selector show rule: `(Content::Strong(_), NodeKind::Strong)` |
 | `rules/introspect.rs` | 49-50 | materialize_time |
 | `rules/introspect.rs` | 255 | walk: `Content::Strong(body) \| Content::Emph(body) => walk(body, state)` |
@@ -46,7 +46,7 @@ Total de ocorrências: **28** em 7 ficheiros.
 | Ficheiro | Linha | Tipo de dependência |
 |----------|------:|---------------------|
 | `entities/content.rs` (tests) | 842, 847, 1014, 1031, 1065, 1070 | construção + inspecção |
-| `rules/layout/tests.rs` | 122, 135, 163 | construção |
+| `engine/layout/tests.rs` | 122, 135, 163 | construção |
 | `rules/introspect.rs` (tests) | 593 | construção |
 
 **Total M**: ~10 arm blocks.

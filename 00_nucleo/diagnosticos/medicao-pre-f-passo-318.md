@@ -65,7 +65,7 @@ PropMap genérica `(elemento+campo → valor resolvível)`, contra as 10 reifica
 ### Leitura de propriedade de estilo (produção, fora de `*tests.rs`)
 
 ```sh
-prod=$(find 01_core/src/rules -name '*.rs' ! -name 'tests.rs' ! -name '*_tests.rs')
+prod=$(find 01_core/src/engine -name '*.rs' ! -name 'tests.rs' ! -name '*_tests.rs')
 echo "$prod" | xargs grep -hoE "Style::[A-Z][A-Za-z]*" | wc -l   # 5
 echo "$prod" | xargs grep -hcE "StyleDelta" | awk '{s+=$1}END{print s}' # 10
 ```

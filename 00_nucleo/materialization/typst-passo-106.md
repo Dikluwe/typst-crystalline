@@ -48,7 +48,7 @@ canal ponta-a-ponta.
 - `03_infra/src/` — caller do `eval` passa a construir `Sink`,
   passar `TrackedMut`, e ler warnings depois. Aplicar `println!`
   ou equivalente no stderr para os warnings.
-- `01_core/src/rules/eval/` — micro-piloto: um sítio emite
+- `01_core/src/engine/eval/` — micro-piloto: um sítio emite
   `sink.warn(...)` real.
 - Testes de integração end-to-end.
 
@@ -82,7 +82,7 @@ canal ponta-a-ponta.
 
 **Parte 2 — Candidatos a micro-piloto**:
 
-1. Grep por comentários de silenciamento em `01_core/src/rules/eval/`:
+1. Grep por comentários de silenciamento em `01_core/src/engine/eval/`:
    `DEBT-49`, `silenciad`, `TODO.*warn`, `// warning`.
 2. Para cada candidato, confirmar:
    - O `sink` é acessível no frame actual? (directamente ou com

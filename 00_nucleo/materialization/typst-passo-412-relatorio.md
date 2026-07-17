@@ -22,15 +22,15 @@ Executados os comandos de sonda definidos em `typst-passo-412.md`:
 
 ## 2. Prompt L0 (FASE A)
 
-- Prompt inicial criado em `00_nucleo/prompts/rules/eval/duration-field-access.md`.
-- Durante a fase de lint, consolidou-se o prompt em `00_nucleo/prompts/rules/eval/field-access.md` (cobrindo Version P411 + Duration P412) para evitar warnings de prompt órfão no linter quando há múltiplos `@prompt` no mesmo arquivo.
+- Prompt inicial criado em `00_nucleo/prompts/engine/eval/duration-field-access.md`.
+- Durante a fase de lint, consolidou-se o prompt em `00_nucleo/prompts/engine/eval/field-access.md` (cobrindo Version P411 + Duration P412) para evitar warnings de prompt órfão no linter quando há múltiplos `@prompt` no mesmo arquivo.
 - O prompt consolidado descreve field access para `Value::Version` e `Value::Duration`.
 
 ---
 
 ## 3. Implementação (FASE B)
 
-Arquivo alterado: `01_core/src/rules/eval/bindings.rs`.
+Arquivo alterado: `01_core/src/engine/eval/bindings.rs`.
 
 Adicionado ramo `Value::Duration(d)` em `eval_field_access`:
 
@@ -64,7 +64,7 @@ Também foi adicionado `@prompt` para `field-access.md` no header de `bindings.r
 
 ## 4. Testes
 
-Adicionados 10 testes em `01_core/src/rules/eval/tests.rs` (bloco `P412 — Field Access Duration`):
+Adicionados 10 testes em `01_core/src/engine/eval/tests.rs` (bloco `P412 — Field Access Duration`):
 
 - `duration_field_seconds_zero` → `Value::Float(0.0)`
 - `duration_field_seconds_simple` → `Value::Float(5.0)`

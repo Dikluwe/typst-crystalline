@@ -14,7 +14,7 @@ fundamental na semântica de um tipo usado em todo o lado).
 - **Commit em que os testes/sondas foram corridos:** `a0a242ff8e075d4c8544918bd93ea7acbcbd057e`
   (HEAD de P689; trabalho feito em detached HEAD sobre este commit).
 - **Working tree na medição:** alterações não commitadas em apenas 2 ficheiros tracked:
-  `00_nucleo/prompts/rules/stdlib/collections.md` e `01_core/src/rules/stdlib/collections.rs`.
+  `00_nucleo/prompts/engine/stdlib/collections.md` e `01_core/src/engine/stdlib/collections.rs`.
   `git diff --stat` no momento da medição:
   `2 files changed, 271 insertions(+), 21 deletions(-)`.
 - **Hora da validação final:** 2026-07-10T21:51:50Z (`date -u`).
@@ -138,7 +138,7 @@ O alcance coube num único passo (3 helpers reescritos + 3 novos + 3 braços no 
 
 ## 4. Implementação
 
-`01_core/src/rules/stdlib/collections.rs`:
+`01_core/src/engine/stdlib/collections.rs`:
 
 - `str_len` (≈L484): `s.chars().count()` → `s.len()` (bytes).
 - `str_at` (≈L502): reescrito — índice em bytes, `is_char_boundary`, erro OOB/non-boundary;
@@ -148,7 +148,7 @@ O alcance coube num único passo (3 helpers reescritos + 3 novos + 3 braços no 
 - `char_len` / `char_at` / `char_slice` (novos): preservam a lógica pré-P690 por carácter.
 - Dispatcher (≈L73-95): 3 braços novos `("char-len"|"char-at"|"char-slice")`.
 
-`00_nucleo/prompts/rules/stdlib/collections.md`: tabela de `str` actualizada
+`00_nucleo/prompts/engine/stdlib/collections.md`: tabela de `str` actualizada
 (`len/at/slice` em bytes; `char-*` registados como extensão; `find` com débito;
 `repeat` marcado como extensão), nota P690 (ADR-0107), scope-outs revistos.
 `crystalline-lint --fix-hashes .` → "Nothing to fix" (`collections.rs` não tem linha

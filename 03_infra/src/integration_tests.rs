@@ -24,8 +24,8 @@ mod integration {
     use typst_core::entities::source_result::SourceResult;
     use typst_core::entities::value::Value;
     use typst_core::entities::introspector::Introspector;
-    use typst_core::rules::introspect::{introspect, introspect_with_introspector};
-    use typst_core::rules::layout::layout;
+    use typst_core::engine::introspect::{introspect, introspect_with_introspector};
+    use typst_core::engine::layout::layout;
 
     use crate::export::export_pdf;
     use crate::world::SystemWorld;

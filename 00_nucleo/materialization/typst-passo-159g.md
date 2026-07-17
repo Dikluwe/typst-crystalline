@@ -78,9 +78,9 @@ reservas para passos pós-P159G.
   fundamento para layout APA-like.
 - `01_core/src/entities/bib_entry.rs` — struct actual P159A+
   P159D+P159E com 10 fields.
-- `01_core/src/rules/stdlib/structural.rs` — `extract_bib_entries`
+- `01_core/src/engine/stdlib/structural.rs` — `extract_bib_entries`
   helper actual + `optional_str` inline.
-- `01_core/src/rules/layout/mod.rs` — `format_bib_entry`
+- `01_core/src/engine/layout/mod.rs` — `format_bib_entry`
   helper privado P159D+P159E.
 - `lab/typst-original/crates/typst-library/src/model/bibliography.rs`
   + `hayagriva::Entry` (vanilla, quarentena) — referência para
@@ -293,7 +293,7 @@ ordem layout + formato (paridade P159E):
 
 ### .3 Extender `extract_bib_entries`
 
-`01_core/src/rules/stdlib/structural.rs`:
+`01_core/src/engine/stdlib/structural.rs`:
 - Helper `optional_str(field)` reusado para os 6 fields.
 - Validação tipo `Value::Str`; outros tipos rejeitados com
   diagnóstico claro mencionando field específico.
@@ -302,7 +302,7 @@ ordem layout + formato (paridade P159E):
 
 ### .4 Refinar layout `format_bib_entry`
 
-`01_core/src/rules/layout/mod.rs`:
+`01_core/src/engine/layout/mod.rs`:
 - Concatenação condicional para os 6 fields per ordem decidida
   em .1.
 - Match nas combinações de presença Some/None para evitar

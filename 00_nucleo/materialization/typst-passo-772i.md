@@ -30,11 +30,11 @@ sed -n '427,700p' lab/typst-original/crates/typst-library/src/layout/grid/resolv
 
 ### 1. Remover `header:`/`footer:` como argumentos nomeados
 
-Em `01_core/src/rules/stdlib/layout.rs` (`native_grid`/`native_table`), remover a leitura de `args.named.get("header"/"footer")`. Confirmar que `#grid(header: ...)` passa a dar erro `unexpected argument`, replicando o vanilla.
+Em `01_core/src/engine/stdlib/layout.rs` (`native_grid`/`native_table`), remover a leitura de `args.named.get("header"/"footer")`. Confirmar que `#grid(header: ...)` passa a dar erro `unexpected argument`, replicando o vanilla.
 
 ### 2. `Content::GridHeader`/`GridFooter` como row-group distinto
 
-No loop de resolução de `grid()` (`01_core/src/rules/stdlib/layout.rs`, braço genérico `other => cells.push(...)` identificado por P772f #16), distinguir `Content::GridHeader`/`GridFooter` de células normais, agrupando-os como row-groups com `range`/`level`, conforme a estrutura do vanilla.
+No loop de resolução de `grid()` (`01_core/src/engine/stdlib/layout.rs`, braço genérico `other => cells.push(...)` identificado por P772f #16), distinguir `Content::GridHeader`/`GridFooter` de células normais, agrupando-os como row-groups com `range`/`level`, conforme a estrutura do vanilla.
 
 ### 3. `split_header_footer` real
 

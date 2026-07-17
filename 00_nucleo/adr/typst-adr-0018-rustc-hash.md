@@ -102,7 +102,7 @@ use rustc_hash::{FxHashMap, FxHashSet};
 
 | Prompt | Natureza da mudança |
 |--------|---------------------|
-| `00_nucleo/prompts/rules/parse.md` | Restaurar `rustc_hash`; referenciar ADR-0018 e revogação de ADR-0007 |
+| `00_nucleo/prompts/engine/parse.md` | Restaurar `rustc_hash`; referenciar ADR-0018 e revogação de ADR-0007 |
 
 ---
 

@@ -104,12 +104,12 @@ Binário `target/release/typst` construído em `c69f40187` (P715):
 
 ## 2. Implementação
 
-L0 actualizado primeiro: `00_nucleo/prompts/rules/eval.md` §P716 (hash de
+L0 actualizado primeiro: `00_nucleo/prompts/engine/eval.md` §P716 (hash de
 linhagem `824cf31b` via `crystalline-lint --fix-hashes`). Testes escritos
 antes do código: 25 testes `p716_*` em `eval/tests.rs`, 22 a falhar no
 estado P715 (os 3 restantes passavam por coincidência de mensagem).
 
-Tudo em `01_core/src/rules/eval/bindings.rs`, mirror de
+Tudo em `01_core/src/engine/eval/bindings.rs`, mirror de
 `typst-eval/access.rs` + `methods.rs` + `ops.rs`:
 
 - **`access(expr, scopes, ctx, engine) -> SourceResult<&mut Value>`** —

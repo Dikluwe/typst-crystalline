@@ -151,7 +151,7 @@ Apenas se `.A` escolheu `metadata`.
    - L1: adicionar variant.
 
 3. **Adicionar arm a `extract_payload`**:
-   - L0 `00_nucleo/prompts/rules/introspect/extract_payload.md`:
+   - L0 `00_nucleo/prompts/engine/introspect/extract_payload.md`:
      documentar arm novo.
    - L1: adicionar arm `Content::Metadata { value } => Some(ElementPayload::Metadata { value: value.clone() })`.
    - Tests: extract_payload de Content::Metadata retorna
@@ -163,7 +163,7 @@ Apenas se `.A` escolheu `metadata`.
    - L1: adicionar variant.
 
 5. **Adicionar arm a `is_locatable`**:
-   - L0 `00_nucleo/prompts/rules/introspect/locatable.md`:
+   - L0 `00_nucleo/prompts/engine/introspect/locatable.md`:
      documentar arm novo (`Metadata => true`).
    - L1: adicionar arm. Match continua exaustivo.
    - Tests: `is_locatable(&Content::Metadata {..})` retorna
@@ -190,7 +190,7 @@ Apenas se `.A` escolheu `metadata`.
 
 9. **Stdlib `metadata(value)`**:
    - Identificar onde stdlib functions são registadas
-     no cristalino (provavelmente `01_core/src/rules/stdlib/`).
+     no cristalino (provavelmente `01_core/src/engine/stdlib/`).
    - Adicionar função `metadata(value)` que retorna
      `Content::Metadata { value }`.
    - Tests: avaliar `metadata("hello")` produz Content

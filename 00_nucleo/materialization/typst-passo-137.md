@@ -118,8 +118,8 @@ Este passo **não**:
 ## Escopo
 
 **Dentro**:
-- `01_core/src/rules/layout/...` — onde advance é calculado.
-- `01_core/src/rules/layout/tests.rs` — 1 teste numérico.
+- `01_core/src/engine/layout/...` — onde advance é calculado.
+- `01_core/src/engine/layout/tests.rs` — 1 teste numérico.
 - `03_infra/src/export/...` — **possivelmente** se exporter
   precisa de alteração.
 - `00_nucleo/DEBT.md` — marcar gap 2 resolvido.
@@ -139,7 +139,7 @@ Este passo **não**:
 
 **A.1 — Localizar cálculo de advance**:
 
-`grep -rn "advance\|glyph.*position\|layout.*text" 01_core/src/rules/layout/`.
+`grep -rn "advance\|glyph.*position\|layout.*text" 01_core/src/engine/layout/`.
 
 Registar:
 - Função onde advance é calculado por glyph.
@@ -158,7 +158,7 @@ Se não existe, adicionar método a `Length` neste passo (trivial).
 
 **A.3 — Tests existentes de positioning**:
 
-`grep -rn "advance\|position.*assert\|frame.*text.*offset" 01_core/src/rules/layout/tests.rs`.
+`grep -rn "advance\|position.*assert\|frame.*text.*offset" 01_core/src/engine/layout/tests.rs`.
 
 Registar:
 - Existem testes que assertam offset numérico de glyphs?
@@ -286,7 +286,7 @@ re-enunciar este como 137B.
 
 ### 137.E — Teste L1 numérico
 
-**Ficheiro**: `01_core/src/rules/layout/tests.rs`.
+**Ficheiro**: `01_core/src/engine/layout/tests.rs`.
 
 ```rust
 #[test]

@@ -38,11 +38,11 @@ Call-sites actualizados em L1:
 
 Ficheiros alterados:
 
-- `01_core/src/rules/layout/metrics.rs`
-- `01_core/src/rules/layout/cursor.rs`
-- `01_core/src/rules/layout/shape.rs`
-- `01_core/src/rules/layout/set_page.rs`
-- `01_core/src/rules/layout/grid.rs`
+- `01_core/src/engine/layout/metrics.rs`
+- `01_core/src/engine/layout/cursor.rs`
+- `01_core/src/engine/layout/shape.rs`
+- `01_core/src/engine/layout/set_page.rs`
+- `01_core/src/engine/layout/grid.rs`
 - `03_infra/src/font_metrics.rs`
 
 ## Medição — caso de reprodução

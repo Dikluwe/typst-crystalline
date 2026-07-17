@@ -34,8 +34,8 @@ Esta spec define o trabalho de materialização necessário para fechar a brecha
 - **L0 necessário:**
   - `00_nucleo/prompts/entities/elements/table_hline.md`
   - `00_nucleo/prompts/entities/elements/table_vline.md`
-  - `00_nucleo/prompts/rules/stdlib/table_hline.md`
-  - `00_nucleo/prompts/rules/stdlib/table_vline.md`
+  - `00_nucleo/prompts/engine/stdlib/table_hline.md`
+  - `00_nucleo/prompts/engine/stdlib/table_vline.md`
 
 ### 2.2 `grid.hline` / `grid.vline`
 
@@ -50,8 +50,8 @@ Esta spec define o trabalho de materialização necessário para fechar a brecha
 - **L0 necessário:**
   - `00_nucleo/prompts/entities/elements/grid_hline.md`
   - `00_nucleo/prompts/entities/elements/grid_vline.md`
-  - `00_nucleo/prompts/rules/stdlib/grid_hline.md`
-  - `00_nucleo/prompts/rules/stdlib/grid_vline.md`
+  - `00_nucleo/prompts/engine/stdlib/grid_hline.md`
+  - `00_nucleo/prompts/engine/stdlib/grid_vline.md`
 
 ### 2.3 `curve.move`
 
@@ -115,11 +115,11 @@ Antes de qualquer código, redigir e guardar os Prompts L0:
 3. `00_nucleo/prompts/entities/elements/grid_hline.md`
 4. `00_nucleo/prompts/entities/elements/grid_vline.md`
 5. `00_nucleo/prompts/entities/elements/curve.md`
-6. `00_nucleo/prompts/rules/stdlib/table_hline.md`
-7. `00_nucleo/prompts/rules/stdlib/table_vline.md`
-8. `00_nucleo/prompts/rules/stdlib/grid_hline.md`
-9. `00_nucleo/prompts/rules/stdlib/grid_vline.md`
-10. `00_nucleo/prompts/rules/stdlib/curve.md`
+6. `00_nucleo/prompts/engine/stdlib/table_hline.md`
+7. `00_nucleo/prompts/engine/stdlib/table_vline.md`
+8. `00_nucleo/prompts/engine/stdlib/grid_hline.md`
+9. `00_nucleo/prompts/engine/stdlib/grid_vline.md`
+10. `00_nucleo/prompts/engine/stdlib/curve.md`
 
 ### Fase 2 — Table/Grid Lines (L1/L3/L4)
 

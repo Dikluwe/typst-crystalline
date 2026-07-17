@@ -33,7 +33,7 @@ Pesquisa exaustiva confirmou:
   `Figure.kind: "table"` para counters.
 - **`grid` parcial mas funcional**: `Content::Grid` com
   `columns/rows/cells: Vec<Content>` (sem TableCell estruturado);
-  layout em `01_core/src/rules/layout/grid.rs` (272 linhas) —
+  layout em `01_core/src/engine/layout/grid.rs` (272 linhas) —
   algoritmo TrackSizing completo; cells distribuídas via
   `idx % num_cols`; 9 atributos vanilla scope-out (DEBT-34d/e).
 - **`Figure.kind: "table"` slot** já existe — preparação directa

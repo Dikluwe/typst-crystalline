@@ -28,7 +28,7 @@ Confirmar a mensagem de erro exacta do vanilla, se houver.
 ### Confirmar o local exacto no cristalino
 
 ```bash
-sed -n '175,195p' 01_core/src/rules/stdlib/collections.rs
+sed -n '175,195p' 01_core/src/engine/stdlib/collections.rs
 ```
 
 ---

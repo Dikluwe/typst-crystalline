@@ -306,7 +306,7 @@ lacunas existentes.
   - E5: `intr.state` (StateRegistry P171/P182C).
   - E6: `intr.counters` (CounterRegistry P184B).
 - **Consumer downstream**: `compute_*` helpers (P195D Equation; P196B Heading; P197B Figure) — preservados; lêem legacy durante walk em todos os casos.
-- **L0 tocado**: `00_nucleo/prompts/rules/introspect.md` hash `d25dfc47`.
+- **L0 tocado**: `00_nucleo/prompts/engine/introspect.md` hash `d25dfc47`.
 - **Código tocado**: 6 ficheiros `01_core/src/`:
   - `entities/element_payload.rs` (variant nova).
   - `entities/element_kind.rs` (variant nova).

@@ -236,9 +236,9 @@ Auditoria empírica:
 grep -n "Place {" 01_core/src/entities/content.rs
 grep -n "Align2D" 01_core/src/entities/layout_types.rs
 grep -n "align:" 01_core/src/entities/content.rs | grep -i "Grid\|Table"
-grep -B 2 -A 30 "Content::Place" 01_core/src/rules/layout/mod.rs
-grep -n "cell_origin" 01_core/src/rules/layout/mod.rs
-grep -n "extract_alignment" 01_core/src/rules/stdlib/
+grep -B 2 -A 30 "Content::Place" 01_core/src/engine/layout/mod.rs
+grep -n "cell_origin" 01_core/src/engine/layout/mod.rs
+grep -n "extract_alignment" 01_core/src/engine/stdlib/
 ```
 
 Hipótese:
@@ -263,7 +263,7 @@ Sem `P232.div-N` formal se hipótese converge.
 
 ### C2 — Refactor arm `Content::Place` lógica precedence
 
-Editar `01_core/src/rules/layout/mod.rs` arm
+Editar `01_core/src/engine/layout/mod.rs` arm
 `Content::Place`:
 
 ```rust
@@ -304,7 +304,7 @@ P84.6 cell_origin_* pattern.
 
 Se audit C1 revelar `cell_align` não existe no Layouter:
 
-Editar `01_core/src/rules/layout/mod.rs` (Layouter struct):
+Editar `01_core/src/engine/layout/mod.rs` (Layouter struct):
 
 ```rust
 pub struct Layouter<'a> {
@@ -516,10 +516,10 @@ P231) com 8 §s:
   decisão**).
 
 Código alterado:
-- **Editado**: `01_core/src/rules/layout/mod.rs` (arm
+- **Editado**: `01_core/src/engine/layout/mod.rs` (arm
   Place refactor + possível Layouter +1 field cell_align
   + arm Grid save/restore paralelo cell_origin_*).
-- **Editado**: `01_core/src/rules/layout/tests.rs` (+~5
+- **Editado**: `01_core/src/engine/layout/tests.rs` (+~5
   E2E precedence + ~3 unit).
 - **Possivelmente editado**: `01_core/src/entities/content.rs`
   (+1 unit test se applicável).

@@ -286,7 +286,7 @@ produção real preserva). Apenas confirmar:
 **P194B** — migração C4 + tests E2E + nota DEBT
 M5-residual:
 
-- Editar `01_core/src/rules/layout/references.rs:53-57`:
+- Editar `01_core/src/engine/layout/references.rs:53-57`:
   - Substituir match legacy pela expressão Opção C.
   - Adicionar comentário inline curto referenciando
     sequência §9 P189.

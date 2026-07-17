@@ -30,7 +30,7 @@ utilitário interno de L1:
 ```rust
 // 01_core/src/utils.rs
 //! Crystalline Lineage
-//! @prompt 00_nucleo/prompts/rules/parse.md
+//! @prompt 00_nucleo/prompts/engine/parse.md
 //! @prompt-hash <hash>
 //! @layer L1
 //! @updated 2026-03-23
@@ -78,7 +78,7 @@ O comentário de origem é mantido no ficheiro para rastreabilidade.
 
 | Prompt | Natureza da mudança |
 |--------|---------------------|
-| `00_nucleo/prompts/rules/parse.md` | Documentar `defer!` como utilitário interno; referenciar ADR-0008 |
+| `00_nucleo/prompts/engine/parse.md` | Documentar `defer!` como utilitário interno; referenciar ADR-0008 |
 
 ---
 

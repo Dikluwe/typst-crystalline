@@ -89,7 +89,7 @@ Counter::of(EquationElem::ELEM)
 Chave única simples — sem sub-kind. Confirma que cláusula 3
 deve usar chave `"equation"` literal (sem sufixo).
 
-### §1.9 — C2 consumer (rules/layout/equation.rs:25-33, 96-100)
+### §1.9 — C2 consumer (engine/layout/equation.rs:25-33, 96-100)
 
 ```rust
 let is_numbered = block

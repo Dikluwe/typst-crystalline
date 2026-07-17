@@ -40,7 +40,7 @@ Registar quantas divergências a amostra revela, e quanto tempo/esforço custou 
 
 ---
 
-## Decisões a registar no L0 (`00_nucleo/prompts/rules/stdlib_audit_methodology.md` — a criar)
+## Decisões a registar no L0 (`00_nucleo/prompts/engine/stdlib_audit_methodology.md` — a criar)
 
 | Decisão | Resolver com base em |
 |---|---|
@@ -56,7 +56,7 @@ Registar quantas divergências a amostra revela, e quanto tempo/esforço custou 
 - [ ] Metodologia de P663/P664 confirmada por leitura directa, não por memória.
 - [ ] Amostra (`typst_library::diag` ou outra definida) varrida, com achados classificados: bug real / diferença aceitável (regra 7 do handoff) / scope-out conhecido.
 - [ ] Cada decisão da tabela resolvida com base no custo medido na amostra.
-- [ ] L0 escrito em `00_nucleo/prompts/rules/stdlib_audit_methodology.md`, com hash calculado.
+- [ ] L0 escrito em `00_nucleo/prompts/engine/stdlib_audit_methodology.md`, com hash calculado.
 - [ ] Nenhuma correcção de bug feita neste passo — só registo, salvo se a amostra revelar algo tão simples e isolado que valha registar a decisão explícita de corrigir de imediato.
 - [ ] Relatório em `00_nucleo/diagnosticos/paridade-producao-p765.md`.
 

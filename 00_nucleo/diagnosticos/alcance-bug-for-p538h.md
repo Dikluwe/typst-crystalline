@@ -41,7 +41,7 @@ porque a funcionalidade não era exercitada.
 Comando executado:
 
 ```bash
-git log --oneline -- 01_core/src/rules/eval/control_flow.rs | tail -40
+git log --oneline -- 01_core/src/engine/eval/control_flow.rs | tail -40
 ```
 
 Resultado relevante:
@@ -58,7 +58,7 @@ a63e739d2 P498: separacao conteudo original vs output show-rule
 Foi inspeccionado o estado do ficheiro no commit de P514:
 
 ```bash
-git show 94ed17dba:01_core/src/rules/eval/control_flow.rs | sed -n '50,90p'
+git show 94ed17dba:01_core/src/engine/eval/control_flow.rs | sed -n '50,90p'
 ```
 
 Nesse commit, `eval_for` já continha:
@@ -77,7 +77,7 @@ Ok(Value::None)
 Foi também inspeccionado o commit inicial do ficheiro (P96):
 
 ```bash
-git show 08de07dba:01_core/src/rules/eval/control_flow.rs
+git show 08de07dba:01_core/src/engine/eval/control_flow.rs
 ```
 
 A mesma estrutura de descarte já existia.

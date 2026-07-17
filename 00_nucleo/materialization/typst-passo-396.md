@@ -81,7 +81,7 @@ Helper privado `extract_size2d(value, fn_name, field_name)` — paralelo a `extr
 
 ### A.1 — Prompt L0 `tiling-stdlib.md`
 
-Novo em `00_nucleo/prompts/rules/stdlib/tiling-stdlib.md` (ou extensão de `visualize.md` se existir; confirmar path):
+Novo em `00_nucleo/prompts/engine/stdlib/tiling-stdlib.md` (ou extensão de `visualize.md` se existir; confirmar path):
 
 - **Paridade**: `tiling(body)` ≡ constructor de pattern fill vanilla; retorna `Value::Tiling`.
 - **Substrato**: stdlib helper que constrói `Tiling` via `Tiling::new` (P395).

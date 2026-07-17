@@ -16,7 +16,7 @@
 ### Sonda — localizar a origem do deslocamento
 
 ```bash
-grep -rn "fn.*circle\|Circle" 01_core/src/rules/layout/*.rs 01_core/src/entities/*.rs 2>/dev/null | grep -i circle
+grep -rn "fn.*circle\|Circle" 01_core/src/engine/layout/*.rs 01_core/src/entities/*.rs 2>/dev/null | grep -i circle
 ```
 
 Comparar com o cálculo do vanilla:
@@ -32,7 +32,7 @@ Hipóteses a confirmar directamente (não assumir):
 
 ### Implementação
 
-Corrigir o cálculo de origem/centro em `01_core/src/rules/layout/` (caminho exacto a confirmar pela sonda), replicando a convenção do vanilla.
+Corrigir o cálculo de origem/centro em `01_core/src/engine/layout/` (caminho exacto a confirmar pela sonda), replicando a convenção do vanilla.
 
 ### Validação isolada
 
@@ -66,7 +66,7 @@ done
 ### Sonda — localizar como o cristalino aplica transformações de grupo/canvas
 
 ```bash
-grep -rn "fn.*transform\|Transform\b" 01_core/src/rules/layout/*.rs 01_core/src/entities/*.rs 2>/dev/null | grep -iv "test" | head -40
+grep -rn "fn.*transform\|Transform\b" 01_core/src/engine/layout/*.rs 01_core/src/entities/*.rs 2>/dev/null | grep -iv "test" | head -40
 ```
 
 Confirmar:

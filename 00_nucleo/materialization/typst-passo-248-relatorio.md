@@ -114,7 +114,7 @@ puros; nenhuma divergência arquitectural identificada.
 ## §3 Activação A — Block.breakable (C2)
 
 ```rust
-// 01_core/src/rules/layout/mod.rs (Block arm; ≈ linha 1330)
+// 01_core/src/engine/layout/mod.rs (Block arm; ≈ linha 1330)
 Content::Block { body, width, height, inset, breakable,
                   outset, radius, clip, fill, stroke } => {
     // ... existing setup ...
@@ -157,7 +157,7 @@ Content::Block { body, width, height, inset, breakable,
 ## §4 Activação B — Boxed.height overflow (C3)
 
 ```rust
-// 01_core/src/rules/layout/mod.rs (Boxed arm; ≈ linha 1215)
+// 01_core/src/engine/layout/mod.rs (Boxed arm; ≈ linha 1215)
 Content::Boxed { body, width, height, inset, baseline, outset,
                   radius, clip, fill, stroke } => {
     // ... existing setup + outset_left advance ...
@@ -207,7 +207,7 @@ Content::Boxed { body, width, height, inset, baseline, outset,
 ## §5 Activação C — TableCell overflow (C4)
 
 ```rust
-// 01_core/src/rules/layout/grid.rs (cell arm; ≈ linha 376)
+// 01_core/src/engine/layout/grid.rs (cell arm; ≈ linha 376)
 let (cell_h_measured, cell_items) =
     self.layout_sub_frame_with_width(cell, body_x, body_w);
 // ...

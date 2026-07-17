@@ -73,11 +73,11 @@ Antes de tocar em código, confirmar empíricamente:
 
 ```
 grep -c "self\.\(cursor_x\|cursor_y\|current_items\|current_line\)" \
-  01_core/src/rules/layout/mod.rs
+  01_core/src/engine/layout/mod.rs
 grep -c "self\.page_config\.\(width\|height\)" \
-  01_core/src/rules/layout/mod.rs
+  01_core/src/engine/layout/mod.rs
 grep -c "self\.\(cursor_x\|cursor_y\|current_items\|current_line\|page_config\)" \
-  01_core/src/rules/layout/*.rs
+  01_core/src/engine/layout/*.rs
 ```
 
 Critério:
@@ -206,7 +206,7 @@ Hash propagado via `crystalline-lint --fix-hashes`.
 
 ### C4 — Refactor `Layouter` struct
 
-Editar `01_core/src/rules/layout/mod.rs`:
+Editar `01_core/src/engine/layout/mod.rs`:
 
 **Antes (fields dispersos)**:
 
@@ -268,7 +268,7 @@ Refactor mecânico literal:
 | `self.page_config.width` | `self.region.width` |
 | `self.page_config.height` | `self.region.height` |
 
-Substituição em todos os `01_core/src/rules/layout/*.rs`:
+Substituição em todos os `01_core/src/engine/layout/*.rs`:
 
 - `mod.rs` (~135 esperados per P215).
 - `counters.rs` (TBD em C1).
@@ -394,7 +394,7 @@ Critério:
 - Hashes propagados.
 - `region.rs` ~50-100 LOC (estimativa).
 - Diff stats mostram principal alteração em
-  `01_core/src/rules/layout/mod.rs`.
+  `01_core/src/engine/layout/mod.rs`.
 
 Relatório P216A documenta tudo em §1-§8.
 
@@ -425,9 +425,9 @@ Código alterado:
   linhas).
 - **Editado**: `01_core/src/entities/mod.rs` (+ 2 linhas
   re-export).
-- **Editado**: `01_core/src/rules/layout/mod.rs` (~135
+- **Editado**: `01_core/src/engine/layout/mod.rs` (~135
   substituições).
-- **Editado**: `01_core/src/rules/layout/*.rs` (substituições
+- **Editado**: `01_core/src/engine/layout/*.rs` (substituições
   per C5).
 - **Editado**: `00_nucleo/adr/typst-adr-0078-column-flow-algorithm.md`
   (+ anotação P216A em §"Plano de materialização").
@@ -447,7 +447,7 @@ Código alterado:
 - Adicionar helpers `cursor_x()/set_cursor_x()` etc. —
   Opção β/γ rejeitada; ficar com α (acesso directo via
   `self.region.X`).
-- Tocar em código fora de `01_core/src/rules/layout/*.rs`
+- Tocar em código fora de `01_core/src/engine/layout/*.rs`
   e `01_core/src/entities/`.
 - Promover ADR-0078 PROPOSTO → IMPLEMENTADO — só após
   P221.

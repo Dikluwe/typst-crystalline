@@ -16,7 +16,7 @@
 ### Confirmar o tipo de `args.named`
 
 ```bash
-grep -n "struct Args\|named:.*Map\|named:.*Vec" 01_core/src/entities/*.rs 01_core/src/rules/eval/*.rs 2>/dev/null | head -10
+grep -n "struct Args\|named:.*Map\|named:.*Vec" 01_core/src/entities/*.rs 01_core/src/engine/eval/*.rs 2>/dev/null | head -10
 ```
 
 Confirmar se `named` é `HashMap`, `IndexMap` (ordem de inserção preservada), `BTreeMap` (ordem alfabética, mas determinística), ou `Vec<(EcoString, Value)>` (ordem de inserção, sem custo de hash).

@@ -10,7 +10,7 @@
 ## A.1 — Inventário de `flush_line` actual
 
 `grep -rn "fn flush_line\|cursor_x\|current_line"
-01_core/src/rules/layout/` produz mapa empírico literal:
+01_core/src/engine/layout/` produz mapa empírico literal:
 
 ### A.1.1 — Definição: `cursor.rs:89-129`
 

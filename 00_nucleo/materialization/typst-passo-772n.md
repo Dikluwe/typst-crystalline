@@ -49,7 +49,7 @@ Registar a decisão explicitamente no relatório, não implementar por default a
 
 ### 1. L0
 
-Escrever/actualizar `00_nucleo/prompts/entities/scope.md` e `00_nucleo/prompts/rules/scopes.md` com o novo campo em `Binding` (nome e tipo a confirmar pela sonda — `kind: BindingKind` com pelo menos `Normal`/`Const`, expansível para `Capturer`/`Deprecation` se decidido incluir).
+Escrever/actualizar `00_nucleo/prompts/entities/scope.md` e `00_nucleo/prompts/engine/scopes.md` com o novo campo em `Binding` (nome e tipo a confirmar pela sonda — `kind: BindingKind` com pelo menos `Normal`/`Const`, expansível para `Capturer`/`Deprecation` se decidido incluir).
 
 ### 2. Schema
 
@@ -57,7 +57,7 @@ Em `01_core/src/entities/scope.rs`: adicionar o campo a `Binding`. Confirmar tod
 
 ### 3. Verificação na mutação
 
-Em `01_core/src/rules/eval/bindings.rs` (ponto de `access()`/atribuição já identificado por P772l): antes de mutar, verificar `BindingKind`; se `Const`, emitir o erro exacto confirmado pela sonda, com o span correcto.
+Em `01_core/src/engine/eval/bindings.rs` (ponto de `access()`/atribuição já identificado por P772l): antes de mutar, verificar `BindingKind`; se `Const`, emitir o erro exacto confirmado pela sonda, com o span correcto.
 
 ### 4. Se decidido incluir §2.2/§2.6
 

@@ -100,7 +100,7 @@ pub fn radial_with_focal(stops, center, radius, focal_center, focal_radius)
 (`sample_at(x, y)` em vanilla) NÃO implementado em cristalino —
 PDF reader computa 2-circle conversion natively via `/ShadingType 3`.
 
-### §2.2 — Stdlib `01_core/src/rules/stdlib/gradients.rs`
+### §2.2 — Stdlib `01_core/src/engine/stdlib/gradients.rs`
 
 **Antes P264**:
 ```rust
@@ -448,9 +448,9 @@ Decisão humana fica em aberto literal pós-P269.
 - `01_core/src/entities/gradient.rs` (~52 LOC L1: 2 campos + 2
   construtores + 4 sites P264 tests actualizados + 10 tests P269
   novos; header hash propagado).
-- `01_core/src/rules/stdlib/gradients.rs` (~50 LOC stdlib: 2 named
+- `01_core/src/engine/stdlib/gradients.rs` (~50 LOC stdlib: 2 named
   args + 2 validações + whitelist estendida).
-- `01_core/src/rules/stdlib/mod.rs` (5 tests stdlib P269 novos).
+- `01_core/src/engine/stdlib/mod.rs` (5 tests stdlib P269 novos).
 - `03_infra/src/export.rs` (~12 LOC L3: `compute_radial_coords`
   focal-aware + callsite ajustado + 5 sites P265 tests actualizados
   + 13 tests P269 novos).

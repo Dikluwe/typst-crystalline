@@ -52,23 +52,23 @@ Verificar:
 
 ```bash
 # 1. Existe método `available_width` em Layouter?
-rg "fn available_width" 01_core/src/rules/layout/ -n
+rg "fn available_width" 01_core/src/engine/layout/ -n
 
 # 2. Existe campo cache de width no struct Layouter?
-rg "available_width|cached_width|width_cache" 01_core/src/rules/layout/mod.rs -n
+rg "available_width|cached_width|width_cache" 01_core/src/engine/layout/mod.rs -n
 
 # 3. Listar TODOS os campos do struct Layouter
-rg "^pub struct Layouter|^struct Layouter" -A 40 01_core/src/rules/layout/mod.rs
+rg "^pub struct Layouter|^struct Layouter" -A 40 01_core/src/engine/layout/mod.rs
 
 # 4. Consumidores de available_width (call sites)
-rg "\.available_width\(\)" 01_core/src/rules/ -n
+rg "\.available_width\(\)" 01_core/src/engine/ -n
 
 # 5. Confirmar Content::SetPage existe e tem processamento
-rg "Content::SetPage" 01_core/src/rules/layout/ -n
+rg "Content::SetPage" 01_core/src/engine/layout/ -n
 
 # 6. Histórico git: alguma vez alguém adicionou cache width?
 git log --all --oneline --diff-filter=A -G "available_width.*cache|cached_width" \
-  -- 01_core/src/rules/layout/ 2>/dev/null | head -20
+  -- 01_core/src/engine/layout/ 2>/dev/null | head -20
 ```
 
 **Output §A.1 esperado**:
@@ -88,10 +88,10 @@ Auditoria de quando `available_width` foi adicionado e modificado:
 ```bash
 # Quando o método foi introduzido?
 git log --reverse --oneline --diff-filter=A -G "fn available_width" \
-  -- 01_core/src/rules/layout/ | head -5
+  -- 01_core/src/engine/layout/ | head -5
 
 # Modificações ao método ao longo da história
-git log --oneline -G "available_width" -- 01_core/src/rules/layout/ | head -20
+git log --oneline -G "available_width" -- 01_core/src/engine/layout/ | head -20
 ```
 
 **Output §A.2**: linha temporal do método. Confirmar que **sempre** foi computado em tempo real (zero refactorings que adicionaram cache).
@@ -197,7 +197,7 @@ necessidade futura revelou-se factualmente desnecessária.
 documental): se passo futuro adicionar cache de `available_width` como
 campo do Layouter (motivado por perf), o arm `Content::SetPage` deve
 invalidar o cache. Esta nota fica no DEBT.md (Secção 2) e em
-`prompts/rules/layout.md` se aplicável; não constitui DEBT aberto.
+`prompts/engine/layout.md` se aplicável; não constitui DEBT aberto.
 
 **Histórico preservado abaixo** per pattern P201/P202.
 
@@ -260,7 +260,7 @@ Estrutura (espelho P275 simplificado):
 
 - **LOC L1/stdlib/L3**: 0 obrigatório.
 - **Modificações `.md`**: DEBT.md (mover + cabeçalho) + 2 outputs novos.
-- **Modificações L0 prompts**: zero esperado. Se necessário (nota arquitectural em `prompts/rules/layout.md`), aplicar `--fix-hashes`.
+- **Modificações L0 prompts**: zero esperado. Se necessário (nota arquitectural em `prompts/engine/layout.md`), aplicar `--fix-hashes`.
 - **Tests workspace**: 2644 preserved obrigatório.
 - **Lint**: zero violations preserved.
 - **Cap documental Fase A**: hard 400, soft 250.
@@ -333,7 +333,7 @@ P276 NÃO fecha se:
 
 - **Não tocar código L1/stdlib/L3** — zero alterações `.rs`.
 - **Tocar `00_nucleo/DEBT.md`** — operações literais §C.1.1 + §C.1.2.
-- **L0 prompts** — verificar se `prompts/rules/layout.md` regista cache de `available_width`; se não, sem alteração necessária (nota arquitectural fica só no DEBT.md). Se `--fix-hashes` reportar drift, propagar.
+- **L0 prompts** — verificar se `prompts/engine/layout.md` regista cache de `available_width`; se não, sem alteração necessária (nota arquitectural fica só no DEBT.md). Se `--fix-hashes` reportar drift, propagar.
 - **Outputs**: 2 ficheiros em `/mnt/user-data/outputs/` (`typst-passo-276A-diagnostico.md` + `typst-passo-276-relatorio.md`).
 - **Tempo estimado**: 15-30 min (passo administrativo XS).
 - **Contagem testes esperada**: 2644 preserved exacto.

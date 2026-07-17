@@ -95,7 +95,7 @@ Cosméticos vanilla **scope-out** per ADR-0054 graded:
 | `rules/introspect.rs:materialize_time` | terminal |
 | `rules/introspect.rs:walk` | terminal (math structural) |
 | `rules/introspect/locatable.rs:is_locatable` | `false` |
-| `rules/layout/mod.rs` | fallthrough math (paralelo MathFrac) |
+| `engine/layout/mod.rs` | fallthrough math (paralelo MathFrac) |
 | `rules/math/layout/mod.rs:layout_node` | **handlers dedicados novos** |
 
 `is_empty()` herdado via catch-all `_ => false` (math structural
@@ -188,7 +188,7 @@ preservado pelo **13º passo consecutivo**. ADR-0098 honrada.
 
 ## §4 — Testes
 
-### §4.1 — `01_core/src/rules/stdlib/mod.rs` (+11 testes L1)
+### §4.1 — `01_core/src/engine/stdlib/mod.rs` (+11 testes L1)
 
 **Accent (5 testes):**
 

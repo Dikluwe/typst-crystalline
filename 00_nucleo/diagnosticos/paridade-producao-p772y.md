@@ -14,7 +14,7 @@
 
 ```bash
 grep -rn "MathClass\|Class::Relation\|Class::Binary\|Class::Opening" \
-  01_core/src/rules/layout/*.rs 01_core/src/rules/math/**/*.rs
+  01_core/src/engine/layout/*.rs 01_core/src/engine/math/**/*.rs
 ```
 
 Zero ocorrências antes deste passo — confirmado que `MathClass` só existia em
@@ -79,7 +79,7 @@ Novo variant `Content::MathClassOverride(Arc<MathClassOverrideElem>)`
 constructor `Content::math_class_override`, `plain_text`, `PartialEq`,
 `map_content` recursivo, `map_text` terminal), `rules/introspect.rs` (2×,
 não-locatável/terminal), `rules/introspect/locatable.rs` (não-locatável),
-`rules/layout/mod.rs` (fallback de math fora de contexto), `rules/eval/repr.rs`
+`engine/layout/mod.rs` (fallback de math fora de contexto), `rules/eval/repr.rs`
 (`class("<nome>", <repr(body)>)`), `03_infra/src/query_helpers.rs` (2×, terminal).
 
 `entities/math_class.rs`: `MathClass` ganhou `#[derive(Hash)]`; duas novas
@@ -142,7 +142,7 @@ y)` — para não arriscar regressão):
   `Value::Str` (não `Value::Content` via `eval_math_expr`, que não tem arm para
   `Expr::Str` e cairia em `Content::Empty`).
 
-Detalhe completo em `00_nucleo/prompts/rules/eval.md` §P772y.
+Detalhe completo em `00_nucleo/prompts/engine/eval.md` §P772y.
 
 ### 3.6 Dois gaps maiores descobertos, medidos e explicitamente **fora de escopo**
 

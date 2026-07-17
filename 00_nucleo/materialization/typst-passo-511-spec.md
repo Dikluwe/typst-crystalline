@@ -25,7 +25,7 @@ Esta spec define o trabalho de materialização necessário para fechar a brecha
 - **Construtor:** `native_binom(args)` — 2 args posicionais.
 - **Registo:** `scope.define("binom", Value::Func(Func::native("binom", native_binom)))`.
 - **Layout:** handler em `rules/math/layout/mod.rs` que posiciona `upper` sobre `lower` dentro de parênteses.
-- **L0 necessário:** `00_nucleo/prompts/entities/elements/math_binom.md`, `00_nucleo/prompts/rules/stdlib/math_binom.md`.
+- **L0 necessário:** `00_nucleo/prompts/entities/elements/math_binom.md`, `00_nucleo/prompts/engine/stdlib/math_binom.md`.
 
 ### 2.2 `class("unary", x)` — Classe de Operador
 
@@ -34,7 +34,7 @@ Esta spec define o trabalho de materialização necessário para fechar a brecha
 - **Construtor:** `native_class(args)` — 1 arg posicional string + 1 arg posicional content.
 - **Registo:** scope global.
 - **Layout:** handler que aplica espaçamento conforme `class` e delega layout do body.
-- **L0 necessário:** `00_nucleo/prompts/entities/elements/math_class.md`, `00_nucleo/prompts/rules/stdlib/math_class.md`.
+- **L0 necessário:** `00_nucleo/prompts/entities/elements/math_class.md`, `00_nucleo/prompts/engine/stdlib/math_class.md`.
 
 ### 2.3 `limits(sum, sub: i, sup: n)` — Limites em Operadores
 
@@ -43,7 +43,7 @@ Esta spec define o trabalho de materialização necessário para fechar a brecha
 - **Construtor:** `native_limits(args)` — body posicional, `sub`/`sup` named.
 - **Registo:** scope global.
 - **Layout:** handler que posiciona sub/sup diretamente abaixo/acima do body.
-- **L0 necessário:** `00_nucleo/prompts/entities/elements/math_limits.md`, `00_nucleo/prompts/rules/stdlib/math_limits.md`.
+- **L0 necessário:** `00_nucleo/prompts/entities/elements/math_limits.md`, `00_nucleo/prompts/engine/stdlib/math_limits.md`.
 
 ### 2.4 `mid(|)` — Delimitador de Meio
 
@@ -52,7 +52,7 @@ Esta spec define o trabalho de materialização necessário para fechar a brecha
 - **Construtor:** `native_mid(args)` — 1 arg posicional.
 - **Registo:** scope global.
 - **Layout:** handler que aplica espaçamento de relação ao delimitador.
-- **L0 necessário:** `00_nucleo/prompts/entities/elements/math_mid.md`, `00_nucleo/prompts/rules/stdlib/math_mid.md`.
+- **L0 necessário:** `00_nucleo/prompts/entities/elements/math_mid.md`, `00_nucleo/prompts/engine/stdlib/math_mid.md`.
 
 ### 2.5 `x'` — Primos
 
@@ -67,7 +67,7 @@ Esta spec define o trabalho de materialização necessário para fechar a brecha
 - **Construtor:** `native_scripts(args)` — base posicional, `sub`/`sup` named.
 - **Registo:** scope global.
 - **Layout:** handler existente `MathAttach`.
-- **L0 necessário:** `00_nucleo/prompts/rules/stdlib/math_scripts.md`.
+- **L0 necessário:** `00_nucleo/prompts/engine/stdlib/math_scripts.md`.
 
 ### 2.7 `stretch(left: "|", x, right: "|")` — Delimitadores Esticáveis
 
@@ -76,7 +76,7 @@ Esta spec define o trabalho de materialização necessário para fechar a brecha
 - **Construtor:** `native_stretch(args)` — body posicional, `left`/`right`/`size` named.
 - **Registo:** scope global.
 - **Layout:** handler que mede altura do body e estica delimitadores (pode delegar a `MathDelimited` existente com ajuste de escala).
-- **L0 necessário:** `00_nucleo/prompts/entities/elements/math_stretch.md`, `00_nucleo/prompts/rules/stdlib/math_stretch.md`.
+- **L0 necessário:** `00_nucleo/prompts/entities/elements/math_stretch.md`, `00_nucleo/prompts/engine/stdlib/math_stretch.md`.
 
 ---
 
@@ -91,12 +91,12 @@ Antes de qualquer código, redigir e guardar os Prompts L0:
 3. `00_nucleo/prompts/entities/elements/math_limits.md`
 4. `00_nucleo/prompts/entities/elements/math_mid.md`
 5. `00_nucleo/prompts/entities/elements/math_stretch.md`
-6. `00_nucleo/prompts/rules/stdlib/math_binom.md`
-7. `00_nucleo/prompts/rules/stdlib/math_class.md`
-8. `00_nucleo/prompts/rules/stdlib/math_limits.md`
-9. `00_nucleo/prompts/rules/stdlib/math_mid.md`
-10. `00_nucleo/prompts/rules/stdlib/math_scripts.md`
-11. `00_nucleo/prompts/rules/stdlib/math_stretch.md`
+6. `00_nucleo/prompts/engine/stdlib/math_binom.md`
+7. `00_nucleo/prompts/engine/stdlib/math_class.md`
+8. `00_nucleo/prompts/engine/stdlib/math_limits.md`
+9. `00_nucleo/prompts/engine/stdlib/math_mid.md`
+10. `00_nucleo/prompts/engine/stdlib/math_scripts.md`
+11. `00_nucleo/prompts/engine/stdlib/math_stretch.md`
 
 ### Fase 2 — Entities (L1)
 
@@ -104,20 +104,20 @@ Adicionar variants ao enum `Content` em `01_core/src/entities/content.rs` e resp
 
 ### Fase 3 — Stdlib (L1)
 
-Implementar construtores nativos em `01_core/src/rules/stdlib/math_elements.rs` (novo módulo) e exportá-los em `01_core/src/rules/stdlib/mod.rs`.
+Implementar construtores nativos em `01_core/src/engine/stdlib/math_elements.rs` (novo módulo) e exportá-los em `01_core/src/engine/stdlib/mod.rs`.
 
 ### Fase 4 — Registo Global
 
-Registar cada função em `make_root_scope` (`01_core/src/rules/eval/mod.rs`).
+Registar cada função em `make_root_scope` (`01_core/src/engine/eval/mod.rs`).
 
 ### Fase 5 — Layout (L3/L4)
 
-Adicionar handlers em `01_core/src/rules/math/layout/mod.rs` para cada variant.
+Adicionar handlers em `01_core/src/engine/math/layout/mod.rs` para cada variant.
 
 ### Fase 6 — Testes
 
-- Testes unitários em `01_core/src/rules/stdlib/mod.rs` (padrão P308).
-- Testes de layout em `01_core/src/rules/math/layout/tests.rs`.
+- Testes unitários em `01_core/src/engine/stdlib/mod.rs` (padrão P308).
+- Testes de layout em `01_core/src/engine/math/layout/tests.rs`.
 - Corpus P490+P500: 37/37 OK (não-regressão).
 - Snippets canônicos para cada elemento.
 

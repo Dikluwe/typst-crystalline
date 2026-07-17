@@ -3,7 +3,7 @@
 
 > **Passo:** 772r
 > **Data:** 2026-07-17
-> **Foco:** P772l (§2.4) confirmou que `#foo-bar` dá `"unknown variable: foo-bar"` no cristalino e vanilla — mensagem base idêntica —, mas o vanilla acrescenta `hint: if you meant to use subtraction, try adding spaces around the minus sign: foo - bar`. O L0 vigente (`00_nucleo/prompts/rules/eval.md`, linha ~1191) documenta hoje a ausência do hint como comportamento aceite — este passo atualiza esse L0 antes de implementar (mudança de contrato documentado, não bug contra L0 já aprovado). A infraestrutura para hints já existe (`SourceDiagnostic::with_hint`, usada em `missing_key` no mesmo ficheiro).
+> **Foco:** P772l (§2.4) confirmou que `#foo-bar` dá `"unknown variable: foo-bar"` no cristalino e vanilla — mensagem base idêntica —, mas o vanilla acrescenta `hint: if you meant to use subtraction, try adding spaces around the minus sign: foo - bar`. O L0 vigente (`00_nucleo/prompts/engine/eval.md`, linha ~1191) documenta hoje a ausência do hint como comportamento aceite — este passo atualiza esse L0 antes de implementar (mudança de contrato documentado, não bug contra L0 já aprovado). A infraestrutura para hints já existe (`SourceDiagnostic::with_hint`, usada em `missing_key` no mesmo ficheiro).
 > **Tipo:** Atualização de L0 + Implementação directa (infraestrutura já existe, custo baixo).
 > **Tamanho:** S.
 > **ADR-0108 EM VIGOR** — confirmar a heurística exata do vanilla para decidir quando o hint aparece, não assumir "sempre que há hífen".
@@ -47,11 +47,11 @@ Confirmar que o terceiro caso (sem hífen) não ganha hint nenhum — só a mens
 
 ### 1. Atualizar L0
 
-`00_nucleo/prompts/rules/eval.md`, linha ~1191: remover a nota que documenta ausência de hint como aceite; substituir pela especificação do hint (condição exata confirmada pela sonda, texto exato).
+`00_nucleo/prompts/engine/eval.md`, linha ~1191: remover a nota que documenta ausência de hint como aceite; substituir pela especificação do hint (condição exata confirmada pela sonda, texto exato).
 
 ### 2. Código
 
-`01_core/src/rules/eval/bindings.rs` (ou onde `unknown_variable` é construído): usar `SourceDiagnostic::with_hint`, replicando o padrão já usado em `missing_key` no mesmo ficheiro. Condição replicando exatamente a heurística confirmada.
+`01_core/src/engine/eval/bindings.rs` (ou onde `unknown_variable` é construído): usar `SourceDiagnostic::with_hint`, replicando o padrão já usado em `missing_key` no mesmo ficheiro. Condição replicando exatamente a heurística confirmada.
 
 ---
 

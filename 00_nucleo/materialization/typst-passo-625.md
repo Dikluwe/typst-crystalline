@@ -21,7 +21,7 @@
 ### Confirmar exactamente onde `align_current_line_rtl` é chamado
 
 ```bash
-grep -rn "align_current_line_rtl" 01_core/src/rules/layout/
+grep -rn "align_current_line_rtl" 01_core/src/engine/layout/
 ```
 
 Confirmar se `layout_sub_frame_with_width`, `columns.rs`, `grid.rs`, `placement.rs`, `boxed.rs` chamam esta função em algum ponto, ou se só o fluxo principal (`flush_line`, `finish`) a chama.

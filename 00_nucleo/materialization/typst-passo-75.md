@@ -3,14 +3,14 @@
 ## Estado actual antes de começar
 
 Ler antes de começar:
-- `01_core/src/rules/eval.rs` — Onde `EvalContext` está definido.
+- `01_core/src/engine/eval.rs` — Onde `EvalContext` está definido.
   Confirmar os campos actuais e como o avaliador recebe o `FileId` ou path
   do ficheiro principal.
-- `01_core/src/rules/stdlib.rs` — Onde `native_image` e `native_figure`
+- `01_core/src/engine/stdlib.rs` — Onde `native_image` e `native_figure`
   estão definidas. Confirmar a assinatura actual de `ctx.world.file()`.
 - `01_core/src/entities/content.rs` — Variante actual de `Content::Figure`.
   Confirmar se `kind` e `numbering` já existem.
-- `01_core/src/rules/layout/figure.rs` — Como o layouter processa figuras.
+- `01_core/src/engine/layout/figure.rs` — Como o layouter processa figuras.
 - `01_core/src/entities/counter_state.rs` — Como `CounterState` regista e
   lê contadores. Confirmar o padrão estabelecido nos Passos 57–60.
 - `00_nucleo/DEBT.md` — Confirmar que DEBT-25, DEBT-14, DEBT-15 estão
@@ -55,7 +55,7 @@ A ordem de implementação é DEBT-25 → DEBT-15 → DEBT-14.
 ```bash
 # 1. Confirmar a assinatura actual de World::file e EvalContext
 grep -n "fn file\|current_file\|FileId" \
-  01_core/src/rules/eval.rs \
+  01_core/src/engine/eval.rs \
   01_core/src/entities/func.rs \
   03_infra/src/world.rs 2>/dev/null | head -15
 
@@ -73,13 +73,13 @@ grep -n "heading\|counter\|increment\|step" \
 
 # 5. Confirmar como o layouter acede ao CounterState durante o layout
 grep -n "counter_state\|CounterState" \
-  01_core/src/rules/layout/mod.rs | head -10
+  01_core/src/engine/layout/mod.rs | head -10
 
 # 6. Confirmar como heading(numbering) é processado no avaliador
 # (padrão a replicar para figure(numbering))
 grep -n "numbering\|SetHeadingNumbering" \
-  01_core/src/rules/eval.rs \
-  01_core/src/rules/stdlib.rs 2>/dev/null | head -10
+  01_core/src/engine/eval.rs \
+  01_core/src/engine/stdlib.rs 2>/dev/null | head -10
 ```
 
 Reportar o output completo antes de continuar. Os diagnósticos 1 e 2 são
@@ -107,7 +107,7 @@ Os três serão marcados como `ENCERRADO ✓` no final da Tarefa 5.
 
 ### 1a — Adicionar `current_file` a `EvalContext` (L1)
 
-Em `01_core/src/rules/eval.rs`, adicionar o campo ao contexto de avaliação.
+Em `01_core/src/engine/eval.rs`, adicionar o campo ao contexto de avaliação.
 O tipo concreto depende do diagnóstico 1 — pode ser `FileId`, `String`, ou
 um índice numérico:
 
@@ -172,7 +172,7 @@ do ficheiro identificado por `FileId`. A implementação concreta depende de com
 
 ### 1c — Actualizar `native_image` em stdlib (L1)
 
-Em `01_core/src/rules/stdlib.rs`, na função `native_image`, passar
+Em `01_core/src/engine/stdlib.rs`, na função `native_image`, passar
 `ctx.current_file` para `world.file`:
 
 ```rust
@@ -290,7 +290,7 @@ pub struct CounterState {
 }
 ```
 
-Em `01_core/src/rules/introspect.rs`, na função `walk`, processar
+Em `01_core/src/engine/introspect.rs`, na função `walk`, processar
 `Content::Figure` incrementando o contador local e gravando o número:
 
 ```rust
@@ -328,7 +328,7 @@ pela introspecção analítica, não pelo layout.
 
 ## Tarefa 4 — Prefixo de numeração no layouter (DEBT-14, parte 2)
 
-Em `01_core/src/rules/layout/figure.rs`, o layouter precisa de manter um
+Em `01_core/src/engine/layout/figure.rs`, o layouter precisa de manter um
 contador local de progresso por kind — não para calcular o número, mas para
 saber qual a posição na lista `figure_numbers` que a introspecção pré-calculou.
 Ler `figure_numbers[kind][i]` para a i-ésima figura deste kind garante que
@@ -393,7 +393,7 @@ A divisão é: introspecção calcula e grava os números; layouter avança um
 
 ### 4b — Referências a figuras em `references.rs`
 
-Em `01_core/src/rules/layout/references.rs`, o braço que processa
+Em `01_core/src/engine/layout/references.rs`, o braço que processa
 `Content::Ref` precisa de ser actualizado para figuras numeradas.
 Actualmente, `Content::Ref` resolve o label e exibe o número de página
 ou o texto do nó referenciado. Se o label pertencer a uma figura numerada,

@@ -242,8 +242,8 @@ cross-modular; F3 escopo mínimo per ADR-0074).
 | `01_core/src/entities/mod.rs` | P205B | export `pub mod sealed_positions;` |
 | `01_core/src/entities/layout_types.rs` | P205B | campo `extracted_positions` em `PagedDocument` |
 | `01_core/src/entities/introspector.rs` | P205C | campo `positions` + método `inject_positions` + impl `position_of` |
-| `01_core/src/rules/layout/mod.rs` | P205B | `Layouter::finish` produz `extracted_positions` |
-| `01_core/src/rules/layout/tests.rs` | P205C | 1 test E2E novo |
+| `01_core/src/engine/layout/mod.rs` | P205B | `Layouter::finish` produz `extracted_positions` |
+| `01_core/src/engine/layout/tests.rs` | P205C | 1 test E2E novo |
 | `00_nucleo/adr/typst-adr-0074-...` | P205A, P205B, P205C, P205D, P205E | criação + 4 anotações sucessivas |
 | `00_nucleo/adr/typst-adr-0066-...` | P205E | anotação cirúrgica F3 fecho §C6a |
 | `00_nucleo/diagnosticos/blueprint-projecto.md` | P205E | marca §3.0bis [P205E] F3 fechado |

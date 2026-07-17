@@ -196,7 +196,7 @@ pequeno por reusar `layout_grid` directamente).
 
 ## 8. Decisão de módulo: `stdlib/structural.rs` continuação vs `stdlib/model.rs` novo
 
-Inspecção de `01_core/src/rules/stdlib/`:
+Inspecção de `01_core/src/engine/stdlib/`:
 
 | Módulo existente | Funcs | Domínio |
 |------------------|-------|---------|
@@ -237,7 +237,7 @@ abundante.
 
 `structural.rs` re-exports actuais (linha 42-44):
 ```rust
-pub use crate::rules::stdlib::structural::{
+pub use crate::engine::stdlib::structural::{
     native_divider, native_emph, native_heading, native_quote,
     native_raw, native_strong, native_terms,
 };
@@ -245,7 +245,7 @@ pub use crate::rules::stdlib::structural::{
 
 **Mudança P157A**: adicionar `native_table` à lista (alfabético):
 ```rust
-pub use crate::rules::stdlib::structural::{
+pub use crate::engine::stdlib::structural::{
     native_divider, native_emph, native_heading, native_quote,
     native_raw, native_strong, native_table, native_terms,
 };
@@ -253,7 +253,7 @@ pub use crate::rules::stdlib::structural::{
 
 **Registo em `eval/mod.rs::make_stdlib`**:
 ```rust
-use crate::rules::stdlib::{
+use crate::engine::stdlib::{
     ..., native_table, ...,
 };
 ...

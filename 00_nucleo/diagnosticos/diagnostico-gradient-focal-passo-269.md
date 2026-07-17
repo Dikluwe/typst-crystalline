@@ -125,7 +125,7 @@ P264.
 
 ## §A.6 — Cristalino stdlib `native_gradient_radial` actual
 
-`01_core/src/rules/stdlib/gradients.rs:146-203` — named args:
+`01_core/src/engine/stdlib/gradients.rs:146-203` — named args:
 - `center: Array [Ratio, Ratio]` (default `(50%, 50%)`).
 - `radius: Ratio` (default `50%`).
 
@@ -343,7 +343,7 @@ cumulativas + L0).**
 - Vanilla L1: `lab/typst-original/crates/typst-library/src/visualize/gradient.rs`.
 - Vanilla L3 PDF: `lab/typst-original/crates/typst-pdf/src/paint.rs:220-240`.
 - Cristalino L1: `01_core/src/entities/gradient.rs:210-216` (Radial actual).
-- Cristalino stdlib: `01_core/src/rules/stdlib/gradients.rs:146-203`.
+- Cristalino stdlib: `01_core/src/engine/stdlib/gradients.rs:146-203`.
 - Cristalino L3: `03_infra/src/export.rs:486-497` (`compute_radial_coords`)
   + `1216-1232` (callsite emit Radial).
 - ADR-0088 — Gradient Radial-only L1+stdlib (anotação cumulativa

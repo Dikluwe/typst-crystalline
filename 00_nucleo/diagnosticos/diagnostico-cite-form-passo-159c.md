@@ -124,7 +124,7 @@ grep `Content::Cite`):
 9. `rules/introspect.rs:216` — materialize_time (preserva form).
 10. `rules/introspect.rs:454` — walk (`{ supplement, .. }` —
     wildcard preserva).
-11. `rules/layout/mod.rs:557` — layout_content arm (expande por form).
+11. `engine/layout/mod.rs:557` — layout_content arm (expande por form).
 12. `rules/stdlib/structural.rs:694` — construtor `Content::Cite { ... }`.
 13. `rules/stdlib/mod.rs:2569,2583` — testes pattern-match (2
     sítios; destructuring update).

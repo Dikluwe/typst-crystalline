@@ -134,7 +134,7 @@ Após Fase A produzir buckets + decisão helper + naming:
      posição esperada (Y = baseline + offset_default).
    - Cross-check: `#strike[$\sum_{i=1}^n i$]` — math em decoração
      mantém layout interno.
-7. Actualizar L0 (`00_nucleo/prompts/rules/...` — caminho depende de
+7. Actualizar L0 (`00_nucleo/prompts/engine/...` — caminho depende de
    onde stdlib text vive pós-ADR-0037) com tabela dos três variants +
    propagar hash via `crystalline-lint --fix-hashes`.
 8. Actualizar Tabela A.3 linha 103: `ausente` → `implementado` com

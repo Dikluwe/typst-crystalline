@@ -72,7 +72,7 @@ pub enum Content {
 - `entities/elements/label.rs` — adicionar `auto: bool`.
 - `entities/elements/labelled.rs` — **remover** (ficheiro órfão).
 - `rules/eval/rules.rs` — onde `Labelled` é emitido (P329), mudar para `Label { auto: true }`.
-- `rules/layout/mod.rs` — walk de `Labelled` → `Label`.
+- `engine/layout/mod.rs` — walk de `Labelled` → `Label`.
 - `rules/introspect.rs` — `label_to_counter_key` tratava `Labelled` separadamente; unificar.
 - `03_infra/src/export.rs` — `/Dests` iterava `Labelled`; unificar.
 
@@ -87,7 +87,7 @@ pub enum Content {
 
 ### 4. Ajustar `Layouter` / `export`
 
-**Ficheiros:** `rules/layout/mod.rs`, `03_infra/src/export/builder.rs`
+**Ficheiros:** `engine/layout/mod.rs`, `03_infra/src/export/builder.rs`
 
 - `label_positions` / `extracted_label_positions`: iterar apenas `Content::Label`.
 - `/Dests`: iterar apenas `Content::Label`.

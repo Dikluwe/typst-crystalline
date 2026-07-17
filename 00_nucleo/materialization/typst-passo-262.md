@@ -54,7 +54,7 @@ para M+ se PDF shading exporter for mais complexo).
     código — NÃO implementar sem ADR" agora autorizada por
     ADR-0087).
 - Stdlib nova: `native_gradient_linear(stops, angle: ?, ...)`
-  em `01_core/src/rules/stdlib/shapes.rs` ou novo
+  em `01_core/src/engine/stdlib/shapes.rs` ou novo
   `stdlib/gradients.rs`.
 - Código L3 actualizado: `03_infra/src/export.rs` ganha
   emit de shading pattern (`/Pattern`, `/Shading`,
@@ -640,13 +640,13 @@ futuros sem conflito.
 #### C.3.2 — Materialização
 
 ```rust
-// 01_core/src/rules/stdlib/gradients.rs
+// 01_core/src/engine/stdlib/gradients.rs
 
 use crate::entities::color::Color;
 use crate::entities::gradient::{Gradient, GradientStop, Linear};
 use crate::entities::layout_types::{Angle, Ratio};
 use crate::entities::value::Value;
-use crate::rules::stdlib::err;
+use crate::engine::stdlib::err;
 
 pub fn native_gradient_linear(args: &[Value], named: &[(String, Value)]) -> Result<Value> {
     // stops: array positional obrigatório

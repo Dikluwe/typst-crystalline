@@ -34,7 +34,7 @@ grep -n "Content::Outline\b" 01_core/src/entities/content.rs
 
 # Confirmar que cada variant tem stdlib func registada
 grep -n "native_heading\|native_emph\|native_strong\|native_outline" \
-  01_core/src/rules/stdlib*
+  01_core/src/engine/stdlib*
 ```
 
 **Critério**: 4/4 confirmados implementado. Se algum falhar
@@ -104,7 +104,7 @@ bibliography, cite).
 ```bash
 grep -rn "Content::Footnote\b\|native_footnote" 01_core/src/
 grep -n "footnote_area" 01_core/src/entities/layout_types.rs
-grep -rn "footnote" 01_core/src/rules/layout/
+grep -rn "footnote" 01_core/src/engine/layout/
 ```
 
 **Critério**:

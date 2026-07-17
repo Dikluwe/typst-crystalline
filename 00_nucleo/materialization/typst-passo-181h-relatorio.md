@@ -38,13 +38,13 @@ Após P181H:
 
 **Outputs**:
 
-- `00_nucleo/prompts/rules/introspect.md` (L0; +entrada Histórico
+- `00_nucleo/prompts/engine/introspect.md` (L0; +entrada Histórico
   Revisões 2026-05-01; hash final `941ad50a`).
-- `00_nucleo/prompts/rules/layout.md` (L0; +secção "`layout()`
+- `00_nucleo/prompts/engine/layout.md` (L0; +secção "`layout()`
   legacy injecta Introspector populado (P181H)"; hash final `81cfe96c`).
-- `01_core/src/rules/introspect.rs` (walk arm reescrito + 2 tests;
+- `01_core/src/engine/introspect.rs` (walk arm reescrito + 2 tests;
   linhagem `941ad50a`).
-- `01_core/src/rules/layout/mod.rs` (`layout()` re-corre
+- `01_core/src/engine/layout/mod.rs` (`layout()` re-corre
   `introspect_with_introspector`; linhagem `81cfe96c`).
 
 **Sem ADR nova**. **Sem DEBT novo**.
@@ -204,7 +204,7 @@ Sem novas pendências; pré-existentes inalteradas:
   - `rules/introspect.md ↔ introspect.rs` = `941ad50a ↔ 941ad50a`
     (mesmo hash — não significa erro; ambos hashs são iguais por
     coincidência hexadecimal).
-  - `rules/layout.md ↔ layout/mod.rs` = `81cfe96c ↔ 81cfe96c`
+  - `engine/layout.md ↔ layout/mod.rs` = `81cfe96c ↔ 81cfe96c`
     (idem).
 
 P181H restaura invariante walk puro P163 e encerra janela compat

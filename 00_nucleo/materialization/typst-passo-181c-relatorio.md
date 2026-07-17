@@ -32,7 +32,7 @@ Hash via Debug existente cobre o variant novo (impl manual em
   3 tests; linhagem `00427273`).
 - `01_core/src/entities/element_payload.rs` (variant + 3 tests;
   linhagem `f7121de5`).
-- `01_core/src/rules/introspect/from_tags.rs` (arm defensivo
+- `01_core/src/engine/introspect/from_tags.rs` (arm defensivo
   no-op `ElementPayload::Bibliography { .. } => {}`).
 
 **Sem ADR nova**. **Sem DEBT novo**.

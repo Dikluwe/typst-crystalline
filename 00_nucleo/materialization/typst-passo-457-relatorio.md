@@ -25,34 +25,34 @@ em `eval/closures.rs` e passou a ser uma função nativa da stdlib
 - Atualizado o braço `PartialEq` de `Content::Outline` para delegar à comparação
   estrutural do `Arc<OutlineElem>`.
 
-### 3. `01_core/src/rules/stdlib/structural.rs`
+### 3. `01_core/src/engine/stdlib/structural.rs`
 - Implementado `native_outline(ctx, args, world, current_file)`.
 - Aceita título como primeiro argumento posicional **ou** named `title`.
 - Aceita `depth: int` (default `3`; erro se `< 1`) e `indent: bool` (default
   `true`).
 - Rejeita tipos inválidos e o uso simultâneo de título posicional e named.
 
-### 4. `01_core/src/rules/eval/mod.rs`
+### 4. `01_core/src/engine/eval/mod.rs`
 - Registada `native_outline` no `make_stdlib()` com o nome `"outline"`.
 
-### 5. `01_core/src/rules/eval/closures.rs`
+### 5. `01_core/src/engine/eval/closures.rs`
 - Removida a interceptação especial de `outline()` (Passo 61). Agora o call
   segue o caminho normal de função nativa da stdlib.
 
-### 6. `01_core/src/rules/layout/outline.rs`
+### 6. `01_core/src/engine/layout/outline.rs`
 - `layout_outline` recebe `&OutlineElem` e respeita:
   - `title` customizado (fallback para `"Índice"`);
   - `depth` (ignora entradas com `level > depth`);
   - `indent` (prefixa com `"  ".repeat(level - 1)` quando ativo).
 
-### 7. `01_core/src/rules/layout/tests.rs`
+### 7. `01_core/src/engine/layout/tests.rs`
 - Adicionados 5 novos testes de layout:
   - `layout_outline_title_custom`
   - `layout_outline_depth_limita_niveis`
   - `layout_outline_indent_false_nao_indenta`
   - `layout_outline_parametros_default_igual_a_vanilla`
 
-### 8. `01_core/src/rules/eval/tests.rs`
+### 8. `01_core/src/engine/eval/tests.rs`
 - Adicionados 2 testes end-to-end de source Typst:
   - `p457_outline_source_parametros_named`
   - `p457_outline_source_positional_title`
@@ -60,9 +60,9 @@ em `eval/closures.rs` e passou a ser uma função nativa da stdlib
 ### 9. Prompts L0
 - `00_nucleo/prompts/entities/elements/outline.md`: reflete a struct com
   campos e o fato de `map_content`/`map_text` serem recursivos sobre `title`.
-- `00_nucleo/prompts/rules/layout_outline.md`: documenta `title`, `depth` e
+- `00_nucleo/prompts/engine/layout_outline.md`: documenta `title`, `depth` e
   `indent` e os critérios de verificação correspondentes.
-- `00_nucleo/prompts/rules/stdlib/structural.md`: adicionada secção
+- `00_nucleo/prompts/engine/stdlib/structural.md`: adicionada secção
   `native_outline(title?, depth:?, indent:?)` e exemplos canónicos.
 - `00_nucleo/prompts/entities/content.md`: `Outline` passou da lista de
   terminais para a lista de containers (devido ao `title` recursivo).

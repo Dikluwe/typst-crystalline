@@ -14,11 +14,11 @@ grep -n "pub enum FrameItem\|Text\|Line\|Rect\|Shape" \
 
 # Confirmar como descender é calculado actualmente em layout_frac
 grep -n "descent\|descender\|\.1\|line_height" \
-  01_core/src/rules/math/layout.rs | head -15
+  01_core/src/engine/math/layout.rs | head -15
 
 # Confirmar como frac() é tratado em eval_math_expr
 grep -n "frac\|MathFrac\|Expr::FuncCall\|funcall" \
-  01_core/src/rules/eval.rs | head -15
+  01_core/src/engine/eval.rs | head -15
 
 # Ver MathDelimited no AST
 grep -n "MathDelimited\|delimited\|open\|close" \
@@ -165,11 +165,11 @@ função (`Expr::FuncCall` com alvo `frac`) dentro do corpo de
 ```bash
 # Ver como Expr::FuncCall é tratado em eval_math_expr
 grep -n "FuncCall\|func_call\|Expr::Call" \
-  01_core/src/rules/eval.rs | head -15
+  01_core/src/engine/eval.rs | head -15
 
 # Ver se eval_math_expr delega para eval_expr ou tem lógica separada
 grep -n "fn eval_math_expr\|eval_math_content" \
-  01_core/src/rules/eval.rs | head -5
+  01_core/src/engine/eval.rs | head -5
 ```
 
 ### 3b — Adicionar tratamento de `frac` em `eval_math_expr`
@@ -396,7 +396,7 @@ grep -n "FrameItem::Line\|stroke\|\" S \"" \
 
 # Confirmar frac() em eval_math_expr
 grep -n "\"frac\"\|frac.*FuncCall\|FuncCall.*frac" \
-  01_core/src/rules/eval.rs
+  01_core/src/engine/eval.rs
 ```
 
 Critérios de conclusão:

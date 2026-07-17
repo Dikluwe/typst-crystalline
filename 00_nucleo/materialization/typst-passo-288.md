@@ -168,7 +168,7 @@ emit:
    - Se A.4 → (ii)/(iii): **não promover**. Registar em §8 do
      relatório que o gatilho não disparou neste passo.
 8. Actualizar L0:
-   - `00_nucleo/prompts/rules/style.md` (ou caminho equivalente).
+   - `00_nucleo/prompts/engine/style.md` (ou caminho equivalente).
    - Se ADR meta promovida, `00_nucleo/adrs/index.md` + ADR nova.
    - Propagar hashes via `crystalline-lint --fix-hashes`.
 9. Actualizar Tabela B.3 — adicionar `Lang(Lang)` como 6º variant
@@ -299,7 +299,7 @@ regista N=4 sustained e adia formalização.
   `apply` ou método análogo em `StyleDelta`.
 - Caminho parse `#set text(...)`: P102 (ADR-0040) introduziu o
   mecanismo `#set text(lang: ...)` — ver
-  `01_core/src/rules/eval/set.rs` (ou caminho equivalente).
+  `01_core/src/engine/eval/set.rs` (ou caminho equivalente).
 - Precedente "activação posterior de feature parseada-mas-inerte":
   P285 (FrameItem::Line.color) + P286 (decorations wrap-aware) +
   P287 (smartquote markup-paralelo) — N=3 cumulativo do padrão.

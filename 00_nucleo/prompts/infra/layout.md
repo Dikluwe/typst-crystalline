@@ -1,5 +1,5 @@
 # Prompt L0 — layout (infra)
-Hash do Código: 4972feff
+Hash do Código: d7067fe4
 
 ## Módulo
 `03_infra/src/layout.rs`
@@ -19,7 +19,7 @@ pub fn layout_with_font(
 
 ## Comportamento
 - Se `font_data` é válido → usa `FontBookMetrics` (métricas reais)
-- Se inválido → fallback para `typst_core::rules::layout::layout()`
+- Se inválido → fallback para `typst_core::engine::layout::layout()`
 
 ## Critérios de verificação
 - Bytes inválidos → não panic, retorna documento via fallback

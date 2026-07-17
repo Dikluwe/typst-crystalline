@@ -22,7 +22,7 @@ Trilha 2.
 
 ### 1. Remoção de `table_counter` do `Layouter`
 
-- **Ficheiro:** `01_core/src/rules/layout/mod.rs`
+- **Ficheiro:** `01_core/src/engine/layout/mod.rs`
 - Removido campo `table_counter: usize` do struct `Layouter`.
 - Removida inicialização `table_counter: 0` em `Layouter::new`.
 
@@ -36,14 +36,14 @@ Trilha 2.
 - **Ficheiro:** `01_core/src/entities/elements/table.rs`
   - Implementados `element_kind()` → `Some(ElementKind::Table)` e
     `to_payload()` → `ElementPayload::Table`.
-- **Ficheiro:** `01_core/src/rules/introspect/extract_payload.rs`
+- **Ficheiro:** `01_core/src/engine/introspect/extract_payload.rs`
   - Adicionado arm `Content::Table(e) => e.to_payload()`.
-- **Ficheiro:** `01_core/src/rules/introspect/locatable.rs`
+- **Ficheiro:** `01_core/src/engine/introspect/locatable.rs`
   - Movido `Content::Table(_)` para secção locatable.
 
 ### 3. População do counter `"table"` no oráculo
 
-- **Ficheiro:** `01_core/src/rules/introspect.rs`
+- **Ficheiro:** `01_core/src/engine/introspect.rs`
   - Walk top: gate `is_counted` combinado com `table.numbering` da chain
     (paridade com figure P365).
   - Walk arm `Content::Table`: recursa em caption + children.
@@ -53,15 +53,15 @@ Trilha 2.
 
 ### 4. Layout de table consome do oráculo
 
-- **Ficheiro:** `01_core/src/rules/layout/table.rs`
+- **Ficheiro:** `01_core/src/engine/layout/table.rs`
   - Substituído `layouter.table_counter += 1` por
     `layouter.introspector.flat_counter_at("table", current_location)`.
   - Preservado o prefixo `"Table {formatted}: "`.
 
 ### 5. Resolução do prompt órfão `eval/table.md`
 
-- **Ficheiro:** `01_core/src/rules/eval/rules.rs`
-  - Adicionada referência `@prompt 00_nucleo/prompts/rules/eval/table.md` no
+- **Ficheiro:** `01_core/src/engine/eval/rules.rs`
+  - Adicionada referência `@prompt 00_nucleo/prompts/engine/eval/table.md` no
     cabeçalho do ficheiro dono do arm `target == "table"`.
 
 ### 6. Nota de divergência P459
@@ -72,7 +72,7 @@ Trilha 2.
 
 ### 7. Ajustes mecânicos de vizinhança
 
-- **Ficheiro:** `01_core/src/rules/layout/mod.rs`
+- **Ficheiro:** `01_core/src/engine/layout/mod.rs`
   - Recursão de `walk` interno de bibliography também percorre caption da
     table (paridade com figure).
 - **Ficheiro:** `03_infra/src/export/builder.rs`
@@ -85,14 +85,14 @@ Trilha 2.
 
 ### Novos
 
-- `01_core/src/rules/introspect.rs::p461_table_counter_popula_via_introspector`
+- `01_core/src/engine/introspect.rs::p461_table_counter_popula_via_introspector`
   - Verifica que duas tables numeradas produzem counter `"table"` = 1, 2.
-- `01_core/src/rules/layout/tests.rs::p461_table_counter_persiste_relayout`
+- `01_core/src/engine/layout/tests.rs::p461_table_counter_persiste_relayout`
   - Verifica que layouts repetidos da mesma sequência preservam 1, 2.
 
 ### Ajustados
 
-- `01_core/src/rules/introspect/locatable.rs`
+- `01_core/src/engine/introspect/locatable.rs`
   - Adicionado `Content::table(...)` ao helper de invariante
     `is_locatable ↔ extract_payload.is_some()`.
 

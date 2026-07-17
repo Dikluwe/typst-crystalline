@@ -50,7 +50,7 @@ com par simétrico em entradas adjacentes** (paridade visualmente
 
 ### 1.3 Stdlib funcs simétricas (.3)
 
-Adicionadas a `01_core/src/rules/stdlib/structural.rs`
+Adicionadas a `01_core/src/engine/stdlib/structural.rs`
 (continuação P157A/B).
 
 Helper privado novo:
@@ -74,7 +74,7 @@ Registadas em `eval/mod.rs::make_stdlib`. Re-exportadas em
 ### 1.4 Layout para Header+Footer (.4)
 
 2 pattern arms minimais em `layout_content`
-(`01_core/src/rules/layout/mod.rs`):
+(`01_core/src/engine/layout/mod.rs`):
 
 ```rust
 Content::TableHeader { body, repeat: _ } => self.layout_content(body),
@@ -153,7 +153,7 @@ antes de P157B.
 | 7 | DEBT-56 permanece aberto | **✓** documentado em §6 + diagnóstico §6 + nota P157C |
 | 8 | Paridade interna TableHeader↔TableFooter | **✓** tests adjacentes em pares; pattern-match com entradas simétricas em todos os 9 sítios |
 | 9 | ADR-0064 Caso D primeira aplicação Model; patamar Caso D N=4 | **✓** §3.1 do diagnóstico confirma; §5 deste relatório actualiza patamares |
-| 10 | `layout_grid` original NÃO modificado | **✓** zero diff em `01_core/src/rules/layout/grid.rs`; arms novos em `layout/mod.rs` são triviais single-render |
+| 10 | `layout_grid` original NÃO modificado | **✓** zero diff em `01_core/src/engine/layout/grid.rs`; arms novos em `layout/mod.rs` são triviais single-render |
 | 11 | "Table foundations" declarado em ADR-0060 fica fechado | **✓** P157A + P157B + P157C completam subset declarado (4 variants: Table, TableCell, TableHeader, TableFooter; mesa em §4) |
 
 **Build limpo**: `cargo build` 1.12s sem warnings novos.

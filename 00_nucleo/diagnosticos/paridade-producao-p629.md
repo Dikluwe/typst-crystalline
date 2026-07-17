@@ -3,7 +3,7 @@
 **Data:** 2026-07-09  
 **Commit sub-passo A:** `213e56e6c` — move `layout_sub_frame_with_width` para `sub_frame.rs`  
 **Commit sub-passo B:** `6c3813369` — refactor para `SubLayoutRegion`  
-**Hash L0 actualizado:** `2b3c0378` (`00_nucleo/prompts/rules/layout.md`)  
+**Hash L0 actualizado:** `2b3c0378` (`00_nucleo/prompts/engine/layout.md`)  
 **Foco:** Refactor do helper de sub-layout num módulo próprio e com assinatura explícita, sem mudança de comportamento.
 
 ---
@@ -20,7 +20,7 @@ Resultado: todos os testes passam, `crystalline-lint .` está limpo, e o L0 `lay
 
 ### Sub-passo A — mover o helper
 
-- Criado `01_core/src/rules/layout/sub_frame.rs` seguindo a convenção de um ficheiro por conceito de layout.
+- Criado `01_core/src/engine/layout/sub_frame.rs` seguindo a convenção de um ficheiro por conceito de layout.
 - `layout_sub_frame_with_width` foi movido byte-a-byte de `layout/mod.rs` para `sub_frame.rs`.
 - Adicionada declaração `mod sub_frame;` em `layout/mod.rs`.
 - Nenhuma alteração de assinatura ou lógica.
@@ -42,15 +42,15 @@ pub(super) struct SubLayoutRegion {
 - Renomeada a função para `layout_sub_frame(content: &Content, region: SubLayoutRegion) -> (f64, Vec<FrameItem>)`.
 - Mantida a mesma lógica interna; apenas a forma de receber parâmetros mudou.
 - Actualizados os call-sites:
-  - `01_core/src/rules/layout/grid.rs:250` e `:487`
-  - `01_core/src/rules/layout/placement.rs:31` e `:124`
-  - `01_core/src/rules/layout/place.rs:44`
-  - `01_core/src/rules/layout/cursor.rs:650`
+  - `01_core/src/engine/layout/grid.rs:250` e `:487`
+  - `01_core/src/engine/layout/placement.rs:31` e `:124`
+  - `01_core/src/engine/layout/place.rs:44`
+  - `01_core/src/engine/layout/cursor.rs:650`
 - Removidas todas as referências a `layout_sub_frame_with_width` (incluindo comentários).
 
 ### L0 actualizado
 
-- `00_nucleo/prompts/rules/layout.md` ganhou a secção "Sub-layout isolado (`layout_sub_frame`, Passo 629)" com a definição de `SubLayoutRegion`, a assinatura de `layout_sub_frame` e invariantes.
+- `00_nucleo/prompts/engine/layout.md` ganhou a secção "Sub-layout isolado (`layout_sub_frame`, Passo 629)" com a definição de `SubLayoutRegion`, a assinatura de `layout_sub_frame` e invariantes.
 - Hash actualizado para `2b3c0378` via `crystalline-lint --fix-hashes`.
 
 ---

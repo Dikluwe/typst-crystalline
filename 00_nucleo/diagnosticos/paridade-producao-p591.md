@@ -46,7 +46,7 @@ A primeira implementação chamava o shaper para cada palavra árabe do zero —
 
 ### 3.1 Interface `FontMetrics::advance_shaped`
 
-Ficheiro: `01_core/src/rules/layout/metrics.rs`
+Ficheiro: `01_core/src/engine/layout/metrics.rs`
 
 ```rust
 pub trait FontMetrics: Send + Sync {
@@ -69,7 +69,7 @@ pub fn needs_shaped_width(text: &str) -> bool {
 
 ### 3.2 `layout_word` usa `advance_shaped` quando disponível
 
-Ficheiro: `01_core/src/rules/layout/cursor.rs:96`
+Ficheiro: `01_core/src/engine/layout/cursor.rs:96`
 
 ```rust
 let w = self.metrics

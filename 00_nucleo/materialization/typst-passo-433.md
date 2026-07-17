@@ -25,17 +25,17 @@
 
 ## ADR-0107 — Paridade linguagem
 
-Contrato documental: cada função nativa em `calc.rs` deve ter seu contrato L0 (assinatura, argumentos, semântica, domínio, paridade vanilla, limitações graded, testes canônicos) em `00_nucleo/prompts/rules/stdlib/calc.md`.
+Contrato documental: cada função nativa em `calc.rs` deve ter seu contrato L0 (assinatura, argumentos, semântica, domínio, paridade vanilla, limitações graded, testes canônicos) em `00_nucleo/prompts/engine/stdlib/calc.md`.
 
 ---
 
 ## ADR-0109 — Atomização forma B
 
 **Toques pontuais:**
-1. Criar `00_nucleo/prompts/rules/stdlib/calc.md` com 21 secções (1 por função).
+1. Criar `00_nucleo/prompts/engine/stdlib/calc.md` com 21 secções (1 por função).
 2. Cada secção: assinatura, args, domínio (radianos/graus), semântica, paridade vanilla, limitações, testes canônicos.
 3. Atualizar `rules/stdlib/_comum.md` — remover `calc.rs` da lista de ficheiros que apontam para o prompt comum.
-4. Atualizar cabeçalho `@prompt` de `01_core/src/rules/stdlib/calc.rs` para apontar `calc.md` em último lugar.
+4. Atualizar cabeçalho `@prompt` de `01_core/src/engine/stdlib/calc.rs` para apontar `calc.md` em último lugar.
 5. `DEBT.md` atualizado com nota "subset calc.rs fechado em P433".
 
 ---
@@ -50,7 +50,7 @@ Contrato documental: cada função nativa em `calc.rs` deve ter seu contrato L0 
 
 ## Critério de fecho
 
-- [ ] `00_nucleo/prompts/rules/stdlib/calc.md` criado com 21 secções.
+- [ ] `00_nucleo/prompts/engine/stdlib/calc.md` criado com 21 secções.
 - [ ] Cada função documenta: assinatura, args, domínio, semântica, paridade vanilla, limitações, testes canônicos.
 - [ ] `_comum.md` atualizado (calc.rs removido da lista).
 - [ ] `calc.rs` cabeçalho `@prompt` aponta `calc.md`.

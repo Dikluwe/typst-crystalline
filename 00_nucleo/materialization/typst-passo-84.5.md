@@ -7,9 +7,9 @@ Ler antes de começar:
   `Align2D`, `Align2D::from_string`. Introduzidos no Passo 82.
 - `01_core/src/entities/value.rs` — enum `Value`. Variante
   `Value::Align` será adicionada.
-- `01_core/src/rules/stdlib.rs` — `native_align` e `native_place`.
+- `01_core/src/engine/stdlib.rs` — `native_align` e `native_place`.
   Consomem `Value::Str` via `Align2D::from_string`.
-- `01_core/src/rules/eval.rs` — `eval_binary_op`. Precisa de tratar
+- `01_core/src/engine/eval.rs` — `eval_binary_op`. Precisa de tratar
   `BinOp::Plus` entre dois `Value::Align`.
 - `00_nucleo/DEBT.md` — DEBT-36 em Secção 1.
 - `00_nucleo/adr/typst-adr-0029-pureza-fisica-revoga-adr-0028.md` —
@@ -128,7 +128,7 @@ Verificar padrão de nomenclatura das variantes actuais (`Value::Str`,
 grep -rn "Align2D::from_string\|from_string" 01_core/src/ 03_infra/src/
 
 # Call sites de native_align e native_place
-grep -B 3 -A 15 "fn native_align\|fn native_place" 01_core/src/rules/stdlib.rs
+grep -B 3 -A 15 "fn native_align\|fn native_place" 01_core/src/engine/stdlib.rs
 ```
 
 Inventariar:
@@ -161,11 +161,11 @@ isso é sinal de que a decisão de preservar está correcta.
 
 ```bash
 # Como Plus é tratado hoje entre Value's
-grep -B 2 -A 30 "BinOp::Plus\|eval_binary_op" 01_core/src/rules/eval.rs \
+grep -B 2 -A 30 "BinOp::Plus\|eval_binary_op" 01_core/src/engine/eval.rs \
   | head -80
 
 # Padrão de match existente (para acrescentar braço de Align)
-grep -B 1 -A 5 "Value::Int.*Value::Int\|Value::Str.*Value::Str" 01_core/src/rules/eval.rs \
+grep -B 1 -A 5 "Value::Int.*Value::Int\|Value::Str.*Value::Str" 01_core/src/engine/eval.rs \
   | head -30
 ```
 
@@ -178,11 +178,11 @@ Identificar o ponto exacto onde adicionar o braço:
 
 ```bash
 # Como constantes como `none`, `auto` são registadas no scope global
-grep -n "ctx.register\|scope.insert\|register_const\|stdlib" 01_core/src/rules/eval.rs \
+grep -n "ctx.register\|scope.insert\|register_const\|stdlib" 01_core/src/engine/eval.rs \
   | head -20
 
 # Se existe `none` como constante pré-registada
-grep -rn "Value::None\|register.*none\|\"none\"" 01_core/src/rules/
+grep -rn "Value::None\|register.*none\|\"none\"" 01_core/src/engine/
 ```
 
 Identificar o mecanismo pelo qual constantes são expostas ao utilizador
@@ -261,7 +261,7 @@ string é preservada.
 
 ### 2.2 — `native_align` e `native_place` aceitam ambos
 
-Em `01_core/src/rules/stdlib.rs`:
+Em `01_core/src/engine/stdlib.rs`:
 
 ```rust
 pub fn native_align(_ctx: &mut EvalContext, args: &Args)
@@ -311,7 +311,7 @@ pub fn from_string(s: &str) -> Self {
 
 ### 2.3 — `eval_binary_op` — `Plus` entre `Align`
 
-Em `01_core/src/rules/eval.rs`, braço `BinOp::Plus` de
+Em `01_core/src/engine/eval.rs`, braço `BinOp::Plus` de
 `eval_binary_op`:
 
 ```rust

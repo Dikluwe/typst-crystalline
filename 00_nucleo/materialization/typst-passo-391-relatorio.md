@@ -10,10 +10,10 @@ em `p350c_flag_on_nao_convergente_classifica`, alheio a este passo).
 Materializou-se `lorem(n)` como helper puro `Int → Str`, gerador de texto dummy (Lorem Ipsum).
 Zero tipo novo, zero I/O, zero layout.
 
-- `01_core/src/rules/stdlib/text.rs` — novo `native_lorem(n)`.
-- `01_core/src/rules/stdlib/mod.rs` — re-exporta `native_lorem`; adiciona 7 testes unitários.
-- `01_core/src/rules/eval/mod.rs` — regista `"lorem"` em `make_stdlib`.
-- `00_nucleo/prompts/rules/stdlib/text.md` — L0 actualizado com secção `lorem(n)`.
+- `01_core/src/engine/stdlib/text.rs` — novo `native_lorem(n)`.
+- `01_core/src/engine/stdlib/mod.rs` — re-exporta `native_lorem`; adiciona 7 testes unitários.
+- `01_core/src/engine/eval/mod.rs` — regista `"lorem"` em `make_stdlib`.
+- `00_nucleo/prompts/engine/stdlib/text.md` — L0 actualizado com secção `lorem(n)`.
 - `00_nucleo/diagnosticos/typst-cobertura-vanilla-vs-cristalino.md` — `lorem` reclassificado
 de `ausente` para `implementado` (A.2 e B.5).
 
@@ -58,7 +58,7 @@ zero violations.
 
 ## Artefactos
 
-- Código: `01_core/src/rules/stdlib/text.rs`, `stdlib/mod.rs`, `eval/mod.rs`.
-- L0: `00_nucleo/prompts/rules/stdlib/text.md` (actualizado).
+- Código: `01_core/src/engine/stdlib/text.rs`, `stdlib/mod.rs`, `eval/mod.rs`.
+- L0: `00_nucleo/prompts/engine/stdlib/text.md` (actualizado).
 - Inventário 148 — `lorem` implementado.
 - este relatório.

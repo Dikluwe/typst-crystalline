@@ -34,7 +34,7 @@ pub enum PathItem {
 `ShapeKind::Path(Vec<PathItem>)` (`geometry.rs:81`) — aceita lista
 livre de PathItem.
 
-#### Inspecção 2: `01_core/src/rules/stdlib/shapes.rs`
+#### Inspecção 2: `01_core/src/engine/stdlib/shapes.rs`
 
 `native_polygon` (linha 225-260) — única função stdlib que produz
 `PathItem`:

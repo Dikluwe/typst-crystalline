@@ -17,7 +17,7 @@ fixou Caminho 1 ("focar no Layout até onde der");
 `Region`/`Regions` abstraction (P216A+B) disponível;
 `width`/`height`/`line_start_x` em `region.current`.
 **Output**: 1 ficheiro relatório curto + código alterado em
-`rules/layout/mod.rs` + L0 `entities/content.md` extensão
+`engine/layout/mod.rs` + L0 `entities/content.md` extensão
 (secção Columns refinada) + ADR-0078 anotada (sem transição
 de status).
 
@@ -99,10 +99,10 @@ Reuso de dados (sem recolha nova):
 ### C1 — Inventário pré-P219: confirmar arm actual
 
 Auditoria empírica do arm `Content::Columns` actual em
-`01_core/src/rules/layout/mod.rs`:
+`01_core/src/engine/layout/mod.rs`:
 
 ```
-grep -n -A 5 "Content::Columns" 01_core/src/rules/layout/mod.rs
+grep -n -A 5 "Content::Columns" 01_core/src/engine/layout/mod.rs
 ```
 
 Hipótese pós-P217: stub transparente
@@ -355,7 +355,7 @@ crystalline-lint --fix-hashes .
 
 Critério: 0 violations. Hash propagado em
 `entities/content.md` (L0 — possível mudança em C7) +
-`rules/layout/mod.rs` (L1 — mudança substantiva).
+`engine/layout/mod.rs` (L1 — mudança substantiva).
 
 ### C10 — Inventário 148 + ADR-0078 anotação P219
 
@@ -435,11 +435,11 @@ Estrutura (~6-8 KB) com 8 §s:
   continuação).
 
 Código alterado:
-- **Editado**: `01_core/src/rules/layout/mod.rs` (arm
+- **Editado**: `01_core/src/engine/layout/mod.rs` (arm
   `Content::Columns` em `layout_content` + 
   `measure_content_constrained`; constante
   `COLUMNS_DEFAULT_GUTTER_RATIO`; ~30-50 LOC).
-- **Editado**: `01_core/src/rules/layout/tests.rs` (+ 8
+- **Editado**: `01_core/src/engine/layout/tests.rs` (+ 8
   E2E tests).
 - **Editado**: `00_nucleo/prompts/entities/content.md` (+
   secção refinada `Variant Content::Columns — Passo 217

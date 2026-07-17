@@ -3,8 +3,8 @@
 ## Estado actual antes de começar
 
 Ler antes de começar:
-- `01_core/src/rules/layout/frame.rs` — Onde `FrameItem` está definido.
-- `01_core/src/rules/layout/mod.rs` — Braço `Content::Image` do Passo 72.
+- `01_core/src/engine/layout/frame.rs` — Onde `FrameItem` está definido.
+- `01_core/src/engine/layout/mod.rs` — Braço `Content::Image` do Passo 72.
 - O ficheiro onde `export_pdf` vive — confirmar com o diagnóstico 2 se é
   L1 ou L3. Esta distinção determina onde a Tarefa 3 será implementada.
 - `Cargo.toml` do exportador — confirmar qual biblioteca PDF está a ser usada.
@@ -41,11 +41,11 @@ grep -n "pdf-writer\|lopdf\|printpdf" \
   01_core/Cargo.toml 03_infra/Cargo.toml 2>/dev/null | head -10
 
 # 4. Confirmar como o layouter armazena FrameItems no frame activo
-grep -n "push_frame_item\|push(\|frame\." 01_core/src/rules/layout/mod.rs | head -15
+grep -n "push_frame_item\|push(\|frame\." 01_core/src/engine/layout/mod.rs | head -15
 
 # 5. Confirmar como as coordenadas Y são tratadas no exportador actual
 # (PDF usa Y crescente de baixo para cima; layout usa Y crescente de cima para baixo)
-grep -n "cursor_y\|pdf_y\|page_height" 01_core/src/rules/layout/mod.rs | head -10
+grep -n "cursor_y\|pdf_y\|page_height" 01_core/src/engine/layout/mod.rs | head -10
 ```
 
 Reportar o output completo antes de continuar. O diagnóstico 2 é crítico:
@@ -85,7 +85,7 @@ em RGBA plano e passar ao gerador de PDF.
 
 ## Tarefa 1 — `FrameItem::Image` (L1)
 
-Em `01_core/src/rules/layout/frame.rs`, adicionar a variante ao enum:
+Em `01_core/src/engine/layout/frame.rs`, adicionar a variante ao enum:
 
 ```rust
 use std::sync::Arc;
@@ -118,7 +118,7 @@ debug print, etc.) — o compilador lista os locais em falta.
 
 ## Tarefa 2 — Emitir `FrameItem::Image` no layouter (L1)
 
-Em `01_core/src/rules/layout/mod.rs`, substituir o braço `Content::Image`
+Em `01_core/src/engine/layout/mod.rs`, substituir o braço `Content::Image`
 do Passo 72 (que só avançava o cursor):
 
 ```rust

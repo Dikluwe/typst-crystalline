@@ -51,9 +51,9 @@ L1+stdlib (fecha cluster Gradient 3/3 variants)":
   effective_offsets + sample Oklab + Gradient::Conic variant
   activada + conic() construtor + first_stop_color 3-arm match
   + 9 tests; hash `3354fb75`).
-- `01_core/src/rules/stdlib/gradients.rs` (native_gradient_conic
+- `01_core/src/engine/stdlib/gradients.rs` (native_gradient_conic
   + make_gradient_module entrada conic).
-- `01_core/src/rules/stdlib/mod.rs` (re-export
+- `01_core/src/engine/stdlib/mod.rs` (re-export
   native_gradient_conic + 5 stdlib tests P267).
 - `03_infra/src/export.rs` (3 sítios pattern-match adaptados
   Gradient::Conic → fallback Solid até P268).

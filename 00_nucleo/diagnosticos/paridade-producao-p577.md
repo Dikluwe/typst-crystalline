@@ -13,12 +13,12 @@ Seguindo a regra escrita depois de P575 (`00_nucleo/regra-proveniencia-medicao.m
   01_core/src/entities/layout_types.rs             |   3 +
   01_core/src/entities/style_chain.rs              |   1 +
   01_core/src/entities/value.rs                    |   5 +
-  01_core/src/rules/eval/mod.rs                    |   7 ++
-  01_core/src/rules/eval/repr.rs                   |   1 +
-  01_core/src/rules/eval/rules.rs                  |   7 ++
-  01_core/src/rules/layout/cursor.rs               |  33 +++++++
-  01_core/src/rules/layout/mod.rs                  |   2 +
-  01_core/src/rules/layout/text.rs                 |   5 +
+  01_core/src/engine/eval/mod.rs                    |   7 ++
+  01_core/src/engine/eval/repr.rs                   |   1 +
+  01_core/src/engine/eval/rules.rs                  |   7 ++
+  01_core/src/engine/layout/cursor.rs               |  33 +++++++
+  01_core/src/engine/layout/mod.rs                  |   2 +
+  01_core/src/engine/layout/text.rs                 |   5 +
   10 files changed, 122 insertions(+), 63 deletions(-)
   ```
   Isto é a implementação de P576 (a parte L0 + sync de hashes já está no
@@ -170,7 +170,7 @@ testado por P576 antes de declarar "CONCLUÍDO".
 
 ### Inferência sobre o mecanismo (marcada como inferência, não confirmada por instrumentação)
 
-`align_current_line_rtl()` (`01_core/src/rules/layout/cursor.rs:156-176`)
+`align_current_line_rtl()` (`01_core/src/engine/layout/cursor.rs:156-176`)
 aplica um deslocamento **uniforme** a todos os itens de `current_line` no
 momento em que é chamada — isso por si só preserva ordem relativa. A
 existência de **duas** marcações `###LINE###` no `pdftotext` para o que

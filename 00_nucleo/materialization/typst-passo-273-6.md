@@ -48,7 +48,7 @@ A spec P273.5 §A.7 deixou a lista de contentores para a Fase A; P273.5 não fix
 
 ### §A.1 — Inventário do arm `Content::Block` no Layouter
 
-Listar literal em `01_core/src/rules/layout/mod.rs`:
+Listar literal em `01_core/src/engine/layout/mod.rs`:
 
 - Linha exacta do arm `Content::Block`.
 - Estrutura actual: flush_line → inset.top → offset line_start_x/cursor.x → layout_content body → flush_line → inset.bottom → height min → restore line_start_x/cursor.x.
@@ -232,7 +232,7 @@ pub enum FrameItem {
     // ...
 }
 
-// L1 — rules/layout/mod.rs Layouter struct
+// L1 — engine/layout/mod.rs Layouter struct
 pub struct Layouter<'a, M: FontMetrics, S: ImageSizer = NullImageSizer> {
     // ...
 -   #[allow(dead_code)]

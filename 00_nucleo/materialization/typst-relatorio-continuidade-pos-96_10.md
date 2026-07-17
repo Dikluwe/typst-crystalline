@@ -65,7 +65,7 @@ planeamento e análise de reportes.
 
 ### Estrutura de ficheiros relevantes
 
-`01_core/src/rules/` tem agora a seguinte organização (após o
+`01_core/src/engine/` tem agora a seguinte organização (após o
 DEBT-46 encerrado):
 
 ```
@@ -133,7 +133,7 @@ rules/
 ### Ficheiros > 800 linhas com excepção Regra 6 documentada
 
 - `rules/eval/tests.rs` (2100) — testes E2E cross-cutting.
-- `rules/layout/tests.rs` (1399) — testes E2E cross-cutting.
+- `engine/layout/tests.rs` (1399) — testes E2E cross-cutting.
 - `entities/syntax_node.rs` (1095) — árvore sintáctica fundamental.
 - `entities/content.rs` (1072) — enum central visual.
 - `entities/layout_types.rs` (850) — vocabulário geométrico.

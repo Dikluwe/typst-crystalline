@@ -18,7 +18,7 @@ Em vez de procurar por auto-rotulagem, listar todos os argumentos nomeados que o
 ### Parte 1 — Listar todos os argumentos nomeados reconhecidos
 
 ```bash
-grep -n "\"[a-z_]*\" =>" 01_core/src/rules/eval/rules.rs | grep -oP '"\K[a-z_]+(?=")' | sort -u
+grep -n "\"[a-z_]*\" =>" 01_core/src/engine/eval/rules.rs | grep -oP '"\K[a-z_]+(?=")' | sort -u
 ```
 
 Complementar com uma leitura directa dos ficheiros de regras (`rules.rs`, `bindings.rs`, `structural.rs`, `collections.rs`) para não depender só do padrão de grep, que pode não apanhar tudo.

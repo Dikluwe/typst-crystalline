@@ -97,7 +97,7 @@ destructure+reconstruct).
 ### §2.2 — L1 arm `Content::Block` save/restore (~40 LOC)
 
 ```rust
-// 01_core/src/rules/layout/mod.rs P273.6 (Block arm; ambos clip paths)
+// 01_core/src/engine/layout/mod.rs P273.6 (Block arm; ambos clip paths)
 
 // P273.6 — save/restore parent_bbox (Decisão 3γ.2.γ).
 let saved_parent_bbox = self.parent_bbox;

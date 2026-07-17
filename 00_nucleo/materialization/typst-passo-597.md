@@ -50,7 +50,7 @@ Comparar as imagens: a partir de que tamanho de texto o vanilla começa a mostra
 ### Localizar a causa no código
 
 ```bash
-grep -n "fn layout\|two.column\|force.*column" 01_core/src/rules/layout/columns.rs | head -20
+grep -n "fn layout\|two.column\|force.*column" 01_core/src/engine/layout/columns.rs | head -20
 ```
 
 Confirmar se o layout de colunas, no cristalino, desenha sempre a segunda coluna (mesmo vazia) como parte da estrutura da página, em vez de só desenhar as colunas que o conteúdo de facto precisa.

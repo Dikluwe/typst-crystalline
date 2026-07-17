@@ -25,17 +25,17 @@
 
 ## ADR-0107 — Paridade linguagem
 
-Contrato documental: cada função nativa em `layout.rs` deve ter seu contrato L0 (assinatura, argumentos posicionais/nomeados, semântica, paridade vanilla, limitações graded, testes canônicos) em `00_nucleo/prompts/rules/stdlib/layout.md`.
+Contrato documental: cada função nativa em `layout.rs` deve ter seu contrato L0 (assinatura, argumentos posicionais/nomeados, semântica, paridade vanilla, limitações graded, testes canônicos) em `00_nucleo/prompts/engine/stdlib/layout.md`.
 
 ---
 
 ## ADR-0109 — Atomização forma B
 
 **Toques pontuais:**
-1. Criar `00_nucleo/prompts/rules/stdlib/layout.md` com 17 secções (1 por função).
+1. Criar `00_nucleo/prompts/engine/stdlib/layout.md` com 17 secções (1 por função).
 2. Cada secção: assinatura, args, semântica, paridade vanilla, limitações, testes canônicos.
 3. Atualizar `rules/stdlib/_comum.md` — remover `layout.rs` da lista de ficheiros que apontam para o prompt comum.
-4. Atualizar cabeçalho `@prompt` de `01_core/src/rules/stdlib/layout.rs` para apontar `layout.md` em último lugar.
+4. Atualizar cabeçalho `@prompt` de `01_core/src/engine/stdlib/layout.rs` para apontar `layout.md` em último lugar.
 5. Garantir que `layout.md` não fique órfão no `crystalline-lint` (re-referenciar em `layout/mod.rs` se necessário, paridade P430).
 6. `DEBT.md` atualizado com nota "subset layout.rs fechado em P432".
 
@@ -52,7 +52,7 @@ Contrato documental: cada função nativa em `layout.rs` deve ter seu contrato L
 
 ## Critério de fecho
 
-- [ ] `00_nucleo/prompts/rules/stdlib/layout.md` criado com 17 secções.
+- [ ] `00_nucleo/prompts/engine/stdlib/layout.md` criado com 17 secções.
 - [ ] Cada função documenta: assinatura, args, semântica, paridade vanilla, limitações, testes canônicos.
 - [ ] `_comum.md` atualizado (layout.rs removido da lista).
 - [ ] `layout.rs` cabeçalho `@prompt` aponta `layout.md`.

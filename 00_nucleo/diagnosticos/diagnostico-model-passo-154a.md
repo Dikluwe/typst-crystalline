@@ -47,7 +47,7 @@ table, list, enum, terms).
 ## 2. Estado actual em cristalino
 
 Probe empírico: `01_core/src/entities/content.rs` +
-`01_core/src/rules/eval/mod.rs::make_stdlib`.
+`01_core/src/engine/eval/mod.rs::make_stdlib`.
 
 | Vanilla element | Cristalino estado | Variant `Content::*` | Stdlib func | Referência canónica |
 |-----------------|-------------------|---------------------|-------------|---------------------|

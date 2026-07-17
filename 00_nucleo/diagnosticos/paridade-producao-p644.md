@@ -9,7 +9,7 @@
 
 ## 1. Sonda
 
-### 1.1 `hay_entry_to_bib_entry` (`01_core/src/rules/eval/bibliography.rs:146`)
+### 1.1 `hay_entry_to_bib_entry` (`01_core/src/engine/eval/bibliography.rs:146`)
 
 Função convertia `hayagriva::Entry` → `Option<BibEntry>`. A condição:
 
@@ -24,7 +24,7 @@ if key.is_empty() || (author.is_empty() && title.is_empty()) {
 
 Caller usava `filter_map`, descartando silenciosamente.
 
-### 1.2 `bib_entry_to_hayagriva` (`01_core/src/rules/layout/bib_csl.rs:214`)
+### 1.2 `bib_entry_to_hayagriva` (`01_core/src/engine/layout/bib_csl.rs:214`)
 
 Função convertia `BibEntry` → `Option<Entry>` gerando YAML intermédio:
 
@@ -99,7 +99,7 @@ let library = hayagriva::io::from_yaml_str(&yaml).map_err(|e| {
 `layout_with_introspector_and_metrics` retorna `PagedDocument`, não `SourceResult`. Para propagar erros de `bib_entry_to_hayagriva` (chamado durante o layout):
 
 - Adicionado campo `layout_errors: Vec<String>` a `PagedDocument` (`01_core/src/entities/layout_types.rs`).
-- Adicionado campo `layout_errors` ao `Layouter` (`01_core/src/rules/layout/mod.rs`).
+- Adicionado campo `layout_errors` ao `Layouter` (`01_core/src/engine/layout/mod.rs`).
 - `build_cache` e `build_cache_with_style` passaram a devolver `SourceResult<BibRenderCache>`.
 - Em `layout_with_introspector_and_metrics`, erros de `build_cache*` são colectados em `layout_errors` e passados ao `Layouter`.
 - Em `Layouter::finish()`, `layout_errors` são copiados para o `PagedDocument`.
@@ -114,12 +114,12 @@ let library = hayagriva::io::from_yaml_str(&yaml).map_err(|e| {
 
 ## 3. Testes
 
-### 3.1 `01_core/src/rules/eval/bibliography.rs`
+### 3.1 `01_core/src/engine/eval/bibliography.rs`
 
 - `p644_yaml_chave_vazia_quoted_produz_erro`: chave vazia em YAML quoted gera erro.
 - `p644_yaml_sem_titulo_aceite`: entrada YAML sem título é aceite e não omitida.
 
-### 3.2 `01_core/src/rules/layout/bib_csl.rs`
+### 3.2 `01_core/src/engine/layout/bib_csl.rs`
 
 - `p644_bib_entry_to_hayagriva_chave_vazia_produz_erro`: chave vazia gera erro.
 - `p644_bib_entry_to_hayagriva_yaml_invalido_produz_erro`: caractere de controlo no título faz `from_yaml_str` falhar e propaga erro.

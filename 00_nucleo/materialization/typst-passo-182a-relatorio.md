@@ -34,14 +34,14 @@ Surpresa adicional: variant é `Content::SetHeadingNumbering { active: bool }` (
 - Field legacy: `01_core/src/entities/counter_state_legacy.rs:34`.
 - Helper legacy: `01_core/src/entities/counter_state_legacy.rs:101–103` retorna `unwrap_or(false)`.
 - Variant: `01_core/src/entities/content.rs:176` — `SetHeadingNumbering { active: bool }`.
-- Eval producer: `01_core/src/rules/eval/rules.rs:227`.
-- Walk arm canonical write: `01_core/src/rules/introspect.rs:455–457`.
-- Layout walk write paralelo: `01_core/src/rules/layout/counters.rs:11–13` + `01_core/src/rules/layout/mod.rs:313–315`.
-- Consumer Layouter heading-arm: `01_core/src/rules/layout/mod.rs:301`.
-- Consumer Layouter equation-arm: `01_core/src/rules/layout/equation.rs:24`.
-- Leitura intra-walk resolved_text: `01_core/src/rules/introspect.rs:360`.
-- Leitura intra-walk equation step: `01_core/src/rules/introspect.rs:378`.
-- Copy-sites fixpoint: `01_core/src/rules/layout/mod.rs:1414, 1442`.
+- Eval producer: `01_core/src/engine/eval/rules.rs:227`.
+- Walk arm canonical write: `01_core/src/engine/introspect.rs:455–457`.
+- Layout walk write paralelo: `01_core/src/engine/layout/counters.rs:11–13` + `01_core/src/engine/layout/mod.rs:313–315`.
+- Consumer Layouter heading-arm: `01_core/src/engine/layout/mod.rs:301`.
+- Consumer Layouter equation-arm: `01_core/src/engine/layout/equation.rs:24`.
+- Leitura intra-walk resolved_text: `01_core/src/engine/introspect.rs:360`.
+- Leitura intra-walk equation step: `01_core/src/engine/introspect.rs:378`.
+- Copy-sites fixpoint: `01_core/src/engine/layout/mod.rs:1414, 1442`.
 
 Desvios face ao texto da lacuna em `m1-lacunas-captura.md` registados (variant é `{ active: bool }`, não `{ key, value }`; consumers são 2 Layouter + 2 intra-walk, não 1 só).
 

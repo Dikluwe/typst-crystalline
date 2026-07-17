@@ -32,8 +32,8 @@ O Typst vanilla tem `#highlight[text]` (fundo amarelo por defeito) e `#highlight
 3. **`entities/content.rs`** — `highlight(body, fill: Option<Color>)` emite `Content::Styled`.
 4. **`rules/stdlib/text.rs`** — `native_highlight` com parâmetro `fill: Option<Color>` (default `Some(Color::from_u8(0xFF, 0xF2, 0x36, 0xFF))` — amarelo Typst).
 5. **`rules/eval/rules.rs`** — Selector `NodeKind::Highlight`.
-6. **`rules/layout/text.rs`** — Ao renderizar `FrameItem::Text`, se `TextStyle.highlight` é `Some(color)`, emitir `FrameItem::Rect` (background) + `FrameItem::Text` (foreground) no mesmo posicionamento.
-7. **`rules/layout/cursor.rs`** — O rect de fundo usa `cursor.y - descent` a `cursor.y + ascent`, `width = text_width`.
+6. **`engine/layout/text.rs`** — Ao renderizar `FrameItem::Text`, se `TextStyle.highlight` é `Some(color)`, emitir `FrameItem::Rect` (background) + `FrameItem::Text` (foreground) no mesmo posicionamento.
+7. **`engine/layout/cursor.rs`** — O rect de fundo usa `cursor.y - descent` a `cursor.y + ascent`, `width = text_width`.
 8. **`03_infra/src/export.rs`** — Reuso de `FrameItem::Rect` (zero alteração no export).
 9. **Tests** — 2 L1 (eval: default amarelo, custom color) + 2 L3 (layout: rect emitido, cor correcta).
 10. **Spec L0** — `text.md` secção `highlight`.

@@ -16,7 +16,7 @@
 ### Confirmar o âmbito exacto da `FaceCache` em `shaped_width`
 
 ```bash
-grep -n "fn shaped_width\|FaceCache" 01_core/src/rules/layout/metrics.rs 03_infra/src/font_metrics.rs 03_infra/src/shaper.rs | head -20
+grep -n "fn shaped_width\|FaceCache" 01_core/src/engine/layout/metrics.rs 03_infra/src/font_metrics.rs 03_infra/src/shaper.rs | head -20
 ```
 
 Confirmar: a `FaceCache` é um parâmetro local dentro do corpo de `shaped_width` (recriada a cada chamada), ou é passada de fora, persistindo ao longo do documento (por exemplo, como campo do `Layouter`, semelhante a como P657/P659 já guardam outras caches)?

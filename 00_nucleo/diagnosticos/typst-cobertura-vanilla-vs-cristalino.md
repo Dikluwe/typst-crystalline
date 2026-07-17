@@ -184,7 +184,7 @@ primitives e `skew`). Detalhe em
 | `hide(body)` | layout/hide.rs | `implementado` ⁶ | Passo 156C (ADR-0061 Fase 1) | `Content::Hide { body }` + stdlib `#hide(body)`; calcula dimensões mas emite zero items (per ADR-0054 graded) |
 | `repeat(body)` | layout/repeat.rs | `implementado` ¹⁹ | Passo 156J (ADR-0061 Fase 3 sub-passo 1; **primeira Fase 3**) | `Content::Repeat { body, gap: Option<Length>, justify: bool }` + stdlib `#repeat(body, gap: ?, justify: true)`; default `justify == true` (paridade vanilla); algoritmo dinâmico de quantidade-para-encher diferido per ADR-0054 graded (Layouter executa single-render — paridade estrutural suficiente para counters/labels descenderem) |
 | `pad`, `corners`, `sides` (inset modeling) | layout/{pad,corners,sides}.rs | `ausente` | — | duplica `pad()` linha; refino PageConfig é Fase 3 ADR-0061 |
-| `measure(body)` | layout/measure.rs | `implementado⁺` ⁴³ ⁴⁶ | Passo 222 (encerrado série α P225) | stdlib `#measure(body) -> dict(width: length, height: length)` exposta — helper `measure_content` em `01_core/src/rules/layout/helpers.rs` promovido a `pub(crate)`; **Opção β graded** — width override scope-out (refino futuro candidato NÃO-reservado); runtime queries genuínas (counter values, labels) continuam diferidas per ADR-0066 PROPOSTO §"Plano promoção" Bloco C cross-módulo primeira materialização parcial |
+| `measure(body)` | layout/measure.rs | `implementado⁺` ⁴³ ⁴⁶ | Passo 222 (encerrado série α P225) | stdlib `#measure(body) -> dict(width: length, height: length)` exposta — helper `measure_content` em `01_core/src/engine/layout/helpers.rs` promovido a `pub(crate)`; **Opção β graded** — width override scope-out (refino futuro candidato NÃO-reservado); runtime queries genuínas (counter values, labels) continuam diferidas per ADR-0066 PROPOSTO §"Plano promoção" Bloco C cross-módulo primeira materialização parcial |
 | `h(amount)` / `v(amount)` ⁵ | layout/spacing.rs | `implementado` ⁸ | Passo 156D (ADR-0061 Fase 1 sub-passo 2) | `Content::HSpace` + `Content::VSpace` com `amount: Length, weak: bool`; stdlib `#h(amount, weak: false)` + `#v(...)`; `weak` armazenado mas collapse defere; amount `Fraction` scope-out (refino futuro per ADR-0061 §6.3) |
 | `skew(ax, ay, body)` ⁵ | layout/transform.rs | `implementado` ¹² | Passo 156F (ADR-0061 Fase 1 sub-passo 4) | `TransformMatrix::skew(ax_rad, ay_rad)` novo + `native_skew` reusa `Content::Transform { matrix }` existente desde P78; **sem refactor** (matriz cm já unificava); ângulos próximos de ±π/2 rejeitados; `origin` scope-out |
 
@@ -1148,7 +1148,7 @@ cross-módulo primeira materialização parcial):
   height: length)` exposta — `native_measure` em
   `rules/stdlib/layout.rs` (~70 LOC + 11 unit tests).
   Helper privado `measure_content` em
-  `rules/layout/helpers.rs` promovido `pub(super)` →
+  `engine/layout/helpers.rs` promovido `pub(super)` →
   `pub(crate)`; módulo `helpers` promovido a `pub(crate)`
   (visibility expansion mínima cross-module crate).
 - Stdlib funcs: 55 → **56** (+native_measure). Scope
@@ -1322,7 +1322,7 @@ estructuralmente**; refino substantivo composto Opção δ):
     cumulativo weak/breakable/float/repeat).
   - **P224.C** — 1 variant Content novo: `Content::GridCell
     { body, x, y, colspan, rowspan }` (paridade P157B
-    TableCell literal). **Módulo L1 novo `01_core/src/rules/
+    TableCell literal). **Módulo L1 novo `01_core/src/engine/
     layout/grid_placement.rs`** (264 LOC) com
     `place_cells(cells, num_cols)` que implementa algoritmo
     placement vanilla paridade (auto linear + explicit x/y +
@@ -1444,7 +1444,7 @@ Anotação cumulativa final série α "terminar Layout".
 - **P224** `Content::Grid` refino substantivo composto +5
   fields + 3 variants Content novos (GridHeader/GridFooter/
   GridCell paridade P157C/B literal) + módulo L1 novo
-  `01_core/src/rules/layout/grid_placement.rs` (264 LOC com
+  `01_core/src/engine/layout/grid_placement.rs` (264 LOC com
   `place_cells` algoritmo placement vanilla paridade).
   DEBT-34e ENCERRADO via P224.C placement algorítmico
   (critério 5/5 cumprido). **DEBT-34d preservado aberto
@@ -2841,10 +2841,10 @@ reescrito administrativo cumulativo N=3 → 4):
   - ✓ Realidade: `Func::call` método não existe **como
     método em Func**, mas mecanismo de chamada é
     `closures::apply_func(func, args, ctx, engine)` que
-    existe (`01_core/src/rules/eval/closures.rs:59`) e
+    existe (`01_core/src/engine/eval/closures.rs:59`) e
     funciona.
   - ✓ Realidade: `apply_state_funcs` JÁ EXISTE em
-    `01_core/src/rules/introspect/from_tags.rs:48` e avalia
+    `01_core/src/engine/introspect/from_tags.rs:48` e avalia
     `StateUpdate::Func` via fixpoint loop pós-walk com
     Engine+ctx disponíveis (caller único `run_fixpoint` em
     `fixpoint.rs:101`).
@@ -3052,7 +3052,7 @@ quebrar Layouter pureza arquitectural):
   `rules/eval/mod.rs:618` + re-export em `rules/stdlib/mod.rs`.
   **Stdlib funcs: 62 → 63** (+state_display).
 - **Walk integration layout-time arm `Content::StateDisplay`**
-  em `rules/layout/mod.rs:355+`:
+  em `engine/layout/mod.rs:355+`:
   ```rust
   Content::StateDisplay { key, callback: _ } => {
       use crate::entities::introspector::Introspector;
@@ -3118,9 +3118,9 @@ hipotetizou refactor maior.
   pós-P229**):
   - `00_nucleo/prompts/entities/content.md` — bloco
     `Content::StateDisplay` documentado.
-  - `00_nucleo/prompts/rules/stdlib.md` — bloco
+  - `00_nucleo/prompts/engine/stdlib.md` — bloco
     `state_display(key, [callback])` documentado.
-  - `00_nucleo/prompts/rules/introspect.md` — bloco
+  - `00_nucleo/prompts/engine/introspect.md` — bloco
     `apply_state_displays` + `Introspector::state_display_value`
     documentado.
 
@@ -3252,7 +3252,7 @@ substituindo `state_display` por `counter_display`):
   `rules/eval/mod.rs:624` + re-export em `rules/stdlib/mod.rs`.
   **Stdlib funcs: 63 → 64** (+counter_display).
 - **Walk integration layout-time arm
-  `Content::CounterDisplayCallback`** em `rules/layout/mod.rs`
+  `Content::CounterDisplayCallback`** em `engine/layout/mod.rs`
   consome via `Introspector::counter_display_value(key, loc)`.
   **Layouter permanece puro** — paridade arquitectural estrita
   P240 preservada (Opção γ vs α/β/δ P239 audit).
@@ -3298,9 +3298,9 @@ naming/signature pós-audit não merecem div-N formal).
   pós-P229**, N=1 → 2 cumulativo P240+P241):
   - `00_nucleo/prompts/entities/content.md` — bloco
     `Content::CounterDisplayCallback` documentado.
-  - `00_nucleo/prompts/rules/stdlib.md` — bloco
+  - `00_nucleo/prompts/engine/stdlib.md` — bloco
     `counter_display(key, [callback])` documentado.
-  - `00_nucleo/prompts/rules/introspect.md` — bloco
+  - `00_nucleo/prompts/engine/introspect.md` — bloco
     `apply_counter_displays` + `Introspector::counter_display_value`
     documentado.
 
@@ -3441,7 +3441,7 @@ materializado parcial P242):
     `extract_sides_lengths` per ADR-0064 Caso C).
   - Validação: negativos rejeitados; chaves canto inválidas
     rejeitadas.
-- **Layouter Block arm** (`rules/layout/mod.rs`):
+- **Layouter Block arm** (`engine/layout/mod.rs`):
   - `clip == true` + radius non-zero: emite `FrameItem::Group`
     com `clip_mask: Some(ShapeKind::RoundedRect { radii: radius })`.
   - `clip == true` + radius zero: `clip_mask: Some(ShapeKind::Rect)`
@@ -3644,7 +3644,7 @@ parcial 3/5 + spec P243):
   - Paridade vanilla simplificada per ADR-0078 PROPOSTO
     §"Decisão" — subset essencial (omite `expand`/`full`/`root`).
 - **Promoção real ≥3 scope-outs multi-region** via
-  `regions.current.width` save/restore em `01_core/src/rules/layout/mod.rs`:
+  `regions.current.width` save/restore em `01_core/src/engine/layout/mod.rs`:
   - **`Pad.right` scope-out P156C** → semantic real P243:
     `self.regions.current.width = (saved_width - right).max(0.0)`
     durante body layout; restaurado pós-body. Width-aware wrap
@@ -3806,7 +3806,7 @@ bloqueante pós-P236.div-1" N=7 → 8 cumulativo):
 **P245 materializa M7+4 Place float real**:
 
 - **Novo struct `DeferredFloat`** local em
-  `01_core/src/rules/layout/mod.rs` (`pub(super)`; **não L1
+  `01_core/src/engine/layout/mod.rs` (`pub(super)`; **não L1
   entity** — buffer entry específico ao módulo `layout/`):
   - `alignment: Align2D`, `body_items: Vec<FrameItem>`,
     `body_height: f64`, `body_width: f64`, `clearance: f64`.
@@ -4609,7 +4609,7 @@ antes de fixar abordagem γ-Items vs γ-Content para slicing").
 
 **P251 materializa Categoria C.2 parcial cell-level**:
 
-- **Novo módulo** `01_core/src/rules/layout/slicing.rs` (~270 LoC)
+- **Novo módulo** `01_core/src/engine/layout/slicing.rs` (~270 LoC)
   com função pura `slice_frame_items_at_height(items, threshold)
   -> (head, tail)` + helper `rebase_item_y(item, delta)`
   exhaustive sobre 6 variants `FrameItem`
@@ -4710,7 +4710,7 @@ todos os construtores literais antes de modificar struct").
 - **`Stroke` struct +1 field** `overhang: bool` (paridade vanilla
   literal).
 - **Cascade ~42 construtores literais** em entities/geometry +
-  entities/content + rules/layout + rules/stdlib via sed pattern
+  entities/content + engine/layout + rules/stdlib via sed pattern
   `Stroke { paint, thickness: <num> } → Stroke { paint,
   thickness: <num>, overhang: false }`.
 - **Helper `extract_stroke` expandido**: defaults vanilla
@@ -4809,10 +4809,10 @@ arquitectural; ADR-0054 graded):
     `body: Box<Content>` + `stroke: Option<Color>` + `offset:
     Option<Length>` + `extent: Option<Length>`.
   - **3 funções stdlib** `native_underline`/`native_strike`/
-    `native_overline` em `01_core/src/rules/stdlib/text.rs`;
+    `native_overline` em `01_core/src/engine/stdlib/text.rs`;
     helper privado `build_decoration(DecoKind, args, fn_name)`
     centraliza parsing dos cosméticos.
-  - **Consumer Layouter** em `rules/layout/mod.rs`: captura
+  - **Consumer Layouter** em `engine/layout/mod.rs`: captura
     `start_x` / `baseline_y`, recurse no body, captura `end_x`,
     empurra `FrameItem::Line` em `current_line` com
     `line_y = baseline_y + offset.resolve_pt() | kind_em ·
@@ -5461,7 +5461,7 @@ ortogonal pós-série cumulativa P288-P292**; **A.0.0 inaugural —
 clarificação de scope obrigatória**):
 
 - P293 adiciona `native_curve` stdlib em
-  `01_core/src/rules/stdlib/shapes.rs` — **activa `PathItem::CubicTo`
+  `01_core/src/engine/stdlib/shapes.rs` — **activa `PathItem::CubicTo`
   via caminho de entrada cascade** (variant existia desde P277
   mas nenhuma stdlib o construía; `path_bbox` consume + emit PDF
   `c` operator já existiam).
@@ -5754,7 +5754,7 @@ H6 não-listada na spec; refutação genuína documentada).
 
 - `document(...)` transita `ausente → implementado`:
   - Novo variant `Content::Document { title: Option<Box<Content>>, author: Vec<EcoString>, date: Option<Datetime>, keywords: Vec<EcoString> }` em `01_core/src/entities/content.rs`.
-  - Stdlib `native_document` em `01_core/src/rules/stdlib/structural.rs`; registada em `make_stdlib`.
+  - Stdlib `native_document` em `01_core/src/engine/stdlib/structural.rs`; registada em `make_stdlib`.
   - Named args `title`, `author`, `date`, `keywords` com coerção `Str | Array[Str]` para listas de strings.
   - Layout no-op (não emite frames); introspection não-locatable.
   - Export PDF Info dict real continua **scope-out** per ADR-0054 graded.
@@ -5777,7 +5777,7 @@ H6 não-listada na spec; refutação genuína documentada).
   - Novo tipo L1 `Bytes(pub Vec<u8>)` em `01_core/src/entities/bytes.rs`.
   - Novo variant `Value::Bytes(Bytes)` em `01_core/src/entities/value.rs` com `cast_bytes()`, `type_name == "bytes"` e `From<Bytes>`.
 - `read(...)` transita `implementado+ → implementado`:
-  - `native_read` em `01_core/src/rules/stdlib/loading.rs` detecta UTF-8 → `Value::Str`, fallback → `Value::Bytes(Bytes::new(...))`.
+  - `native_read` em `01_core/src/engine/stdlib/loading.rs` detecta UTF-8 → `Value::Str`, fallback → `Value::Bytes(Bytes::new(...))`.
 - `cbor(...)` (decode) transita `implementado+ → implementado`:
   - `cbor_to_value` mapeia byte-strings CBOR para `Value::Bytes`.
 - **DEBT-62 fechado**: `read("file")` binário / `Value::Bytes`.
@@ -5849,11 +5849,11 @@ inalterado; apenas a nota de qualidade muda de `implementado+` para `implementad
 - **Tabela A.3 Text features**:
   - `smallcaps` transita `ausente → implementado`:
     - Novo variant `Content::SmallCaps { body: Box<Content> }` em `01_core/src/entities/content.rs`.
-    - Stdlib `native_smallcaps` em `01_core/src/rules/stdlib/text.rs`; registada em `make_stdlib`.
+    - Stdlib `native_smallcaps` em `01_core/src/engine/stdlib/text.rs`; registada em `make_stdlib`.
     - Consumer em `layout/text.rs` emite `body` inalterado (stub transparente per ADR-0113).
   - `text.font` (dict) transita `scope-out → implementado`:
     - Forma legado P407 (dict com chaves=name/regex e values=variants) já implementada.
-    - Forma named fields P414 (`family`, `variant`, `weight`, `style`, `fallback`) adicionada em `01_core/src/rules/eval/rules.rs`.
+    - Forma named fields P414 (`family`, `variant`, `weight`, `style`, `fallback`) adicionada em `01_core/src/engine/eval/rules.rs`.
     - `FontFamily` estendido com campos opcionais `variant`/`weight`/`style` para transporte honesto (variant-aware selection continua scope-out).
     - gap 8 / DEBT-52 formalmente fechado.
 - **Tabela A.8 Foundations stdlib**: adicionadas linhas `bytes(...)` e `lorem(n)` (já implementadas em P398/P391; apenas documentação).

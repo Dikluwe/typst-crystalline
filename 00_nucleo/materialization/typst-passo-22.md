@@ -5,7 +5,7 @@
 Ler antes de começar:
 - `01_core/src/entities/content.rs` — enum Content actual
 - `01_core/src/entities/font_book.rs` — `FontBook::select(family, variant)`
-- `01_core/src/rules/layout.rs` — `Layouter<M>`, `FrameItem`
+- `01_core/src/engine/layout.rs` — `Layouter<M>`, `FrameItem`
 
 Pré-condição: `cargo test` — 340 testes (307 L1 + 33 L3), zero violations.
 
@@ -35,7 +35,7 @@ estável. Não tentar antes.
 
 Ficheiros a refactorizar quando chegar a hora:
 - 01_core/src/entities/layout_types.rs (TextStyle → StyleChain)
-- 01_core/src/rules/layout.rs (Layouter, contexto de estilo)
+- 01_core/src/engine/layout.rs (Layouter, contexto de estilo)
 - 01_core/src/entities/content.rs (Content::Styled com StyleChain)
 - 03_infra/src/export.rs (resolução de estilos para PDF)
 ```

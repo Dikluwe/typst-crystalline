@@ -10,8 +10,8 @@
 
 - Commit base: `85ffd776f` ("P769 — correcção do ancoramento vertical de Content::Image e auditoria de Curve").
 - Alterações não commitadas de P770:
-  - `00_nucleo/prompts/rules/layout-image.md` (L0 actualizado com escala 72 DPI, lógica `fit` e scope-out do clip).
-  - `01_core/src/rules/layout/image.rs` (`PX_TO_PT = 1.0`, `calculate_dimensions` com `fit`, `@prompt-hash` `d774dfa0`).
+  - `00_nucleo/prompts/engine/layout-image.md` (L0 actualizado com escala 72 DPI, lógica `fit` e scope-out do clip).
+  - `01_core/src/engine/layout/image.rs` (`PX_TO_PT = 1.0`, `calculate_dimensions` com `fit`, `@prompt-hash` `d774dfa0`).
 - Comando do linter: `crystalline-lint .` — 0 violações (excepto V7 esperado, prompt órfão `package_version_resolution.md`).
 - Comando de testes: `cargo test --workspace` — todos passaram.
 
@@ -76,7 +76,7 @@ pub const DEFAULT_DPI: f64 = 72.0;
 
 ### Alteração no cristalino
 
-Em `01_core/src/rules/layout/image.rs`:
+Em `01_core/src/engine/layout/image.rs`:
 
 ```rust
 const PX_TO_PT: f64 = 1.0;  // 72 DPI padrão do vanilla: 1 px = 1 pt
@@ -102,8 +102,8 @@ Anteriormente era `0.75` (assumindo 96 DPI).
 
 ## Ficheiros alterados
 
-- `00_nucleo/prompts/rules/layout-image.md` — L0 actualizado (escala 72 DPI, lógica `fit`, scope-out do clip).
-- `01_core/src/rules/layout/image.rs` — implementação de `fit` e `PX_TO_PT = 1.0`; `@prompt-hash` `d774dfa0`.
+- `00_nucleo/prompts/engine/layout-image.md` — L0 actualizado (escala 72 DPI, lógica `fit`, scope-out do clip).
+- `01_core/src/engine/layout/image.rs` — implementação de `fit` e `PX_TO_PT = 1.0`; `@prompt-hash` `d774dfa0`.
 - `00_nucleo/diagnosticos/paridade-producao-p770.md` — este relatório.
 
 ---

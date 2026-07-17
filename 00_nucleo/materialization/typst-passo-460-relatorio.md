@@ -43,32 +43,32 @@ braço de referências em layout, separando claramente:
 
 - Adicionado `label_positions: HashMap<Label, Point>` ao runtime do layouter.
 
-### 5. `01_core/src/rules/stdlib/label.rs` (novo)
+### 5. `01_core/src/engine/stdlib/label.rs` (novo)
 
 - Extraído `native_label` de `structural.rs` para módulo próprio, conforme
   ADR-0117 (um prompt por ficheiro dono).
 - Valida argumentos nomeados vazios e exige `name: string` + `body: content`.
-- Prompt L0 `00_nucleo/prompts/rules/stdlib/label.md` criado.
+- Prompt L0 `00_nucleo/prompts/engine/stdlib/label.md` criado.
 
-### 6. `01_core/src/rules/stdlib/mod.rs`
+### 6. `01_core/src/engine/stdlib/mod.rs`
 
 - Declara `mod label;` e re-exporta `native_label`.
 - Remove a implementação anteriormente inline em `structural.rs`.
 
-### 7. `01_core/src/rules/layout/mod.rs`
+### 7. `01_core/src/engine/layout/mod.rs`
 
 - Braço `Content::Label(e)` chama `references::layout_label(self, &e.body, Label(...))`.
 - Ao final do layout, copia `runtime.label_positions` para
   `doc.extracted_label_positions`.
 
-### 8. `01_core/src/rules/layout/references.rs`
+### 8. `01_core/src/engine/layout/references.rs`
 
 - `layout_labelled` passou a guardar também `label_positions` no runtime
   (já guardava `label_pages`).
 - `layout_label` é o novo braço P460, simplesmente delegando a
   `layout_labelled`.
 
-### 9. `01_core/src/rules/layout/tests.rs`
+### 9. `01_core/src/engine/layout/tests.rs`
 
 - `layout_label_renderiza_body_sem_alteracao_visual`
 - `layout_label_registra_pagina_e_posicao`

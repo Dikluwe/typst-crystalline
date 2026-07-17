@@ -80,9 +80,9 @@ Reuso de dados (sem recolha nova):
 Auditoria empírica:
 
 ```
-grep -c "native_" 01_core/src/rules/stdlib/mod.rs
-grep -c "native_" 01_core/src/rules/stdlib/layout.rs
-grep "register\|insert" 01_core/src/rules/stdlib/layout.rs | tail -20
+grep -c "native_" 01_core/src/engine/stdlib/mod.rs
+grep -c "native_" 01_core/src/engine/stdlib/layout.rs
+grep "register\|insert" 01_core/src/engine/stdlib/layout.rs | tail -20
 ```
 
 Hipótese: ~53 stdlib funcs registadas (Tabela B inventário
@@ -94,7 +94,7 @@ Se contagem divergir: registar `P218.div-1`.
 
 ### C2 — Helper `extract_count(args, fn_name)`
 
-Adicionar helper privado em `01_core/src/rules/stdlib/layout.rs`:
+Adicionar helper privado em `01_core/src/engine/stdlib/layout.rs`:
 
 ```rust
 /// Helper P218: extrai `count: usize` posicional obrigatório
@@ -140,7 +140,7 @@ diferido.
 
 ### C3 — `native_columns` function
 
-Adicionar em `01_core/src/rules/stdlib/layout.rs`:
+Adicionar em `01_core/src/engine/stdlib/layout.rs`:
 
 ```rust
 /// Stdlib `columns(count, body, gutter: ?)` — Layout Fase 3
@@ -215,7 +215,7 @@ Magnitude isolada: XS (~10min).
 
 ### C4 — Registar `native_columns` em `make_stdlib`
 
-Editar `01_core/src/rules/stdlib/layout.rs::register_layout_natives`
+Editar `01_core/src/engine/stdlib/layout.rs::register_layout_natives`
 (ou função análoga) adicionando linha:
 
 ```rust
@@ -271,7 +271,7 @@ Esperado pós-P218: **1952 + 11 = 1963 verdes**.
 
 ### C6 — L0 `stdlib.md` extensão minimal
 
-Editar `00_nucleo/prompts/rules/stdlib.md` adicionando linha
+Editar `00_nucleo/prompts/engine/stdlib.md` adicionando linha
 em tabela "Funções Nativas Registadas":
 
 ```markdown
@@ -389,12 +389,12 @@ Estrutura (~5-7 KB) com 8 §s:
   Caminho 1 continuação).
 
 Código alterado:
-- **Editado**: `01_core/src/rules/stdlib/layout.rs` (+
+- **Editado**: `01_core/src/engine/stdlib/layout.rs` (+
   helper `extract_count` ~25 LOC + `native_columns` ~50
   LOC + registo ~3 LOC + 10 unit tests ~80 LOC).
-- **Editado**: `01_core/src/rules/layout/tests.rs` (+ 1
+- **Editado**: `01_core/src/engine/layout/tests.rs` (+ 1
   E2E test ~10 LOC).
-- **Editado**: `00_nucleo/prompts/rules/stdlib.md` (+ 1
+- **Editado**: `00_nucleo/prompts/engine/stdlib.md` (+ 1
   linha tabela "Funções Nativas Registadas").
 - **Editado**: `00_nucleo/adr/typst-adr-0078-column-flow-algorithm.md`
   (+ anotação P218).

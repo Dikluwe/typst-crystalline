@@ -10,12 +10,12 @@
 
 - Commit base: `3aa25343c` (P770).
 - Alterações não commitadas de P771:
-  - `00_nucleo/prompts/rules/layout-image.md` — L0 actualizado com centralização no target, `clip_rect` e avanço de cursor a partir do target.
+  - `00_nucleo/prompts/engine/layout-image.md` — L0 actualizado com centralização no target, `clip_rect` e avanço de cursor a partir do target.
   - `01_core/src/entities/layout_types.rs` — campo `clip_rect: Option<Rect>` em `FrameItem::Image`.
-  - `01_core/src/rules/layout/image.rs` — `target_width`/`target_height` em `ImageDimensions`, centralização da imagem, avanço com altura do target, `clip_rect` preenchido para `fit == "cover"`.
+  - `01_core/src/engine/layout/image.rs` — `target_width`/`target_height` em `ImageDimensions`, centralização da imagem, avanço com altura do target, `clip_rect` preenchido para `fit == "cover"`.
   - `03_infra/src/export/stream.rs` — emissão de `re W n` antes do `Do` da imagem quando `clip_rect` está presente.
   - `03_infra/fixtures/p307b/reference/08-image-jpeg.pdf` — snapshot regenerado (conteúdo visual idêntico, content stream agora inclui o clip path).
-  - `03_infra/src/export/tests.rs`, `01_core/src/rules/layout/cursor.rs`, `helpers.rs`, `slicing.rs`, `01_core/src/rules/math/layout/mod.rs` — `clip_rect: None` adicionado às construções de `FrameItem::Image`.
+  - `03_infra/src/export/tests.rs`, `01_core/src/engine/layout/cursor.rs`, `helpers.rs`, `slicing.rs`, `01_core/src/engine/math/layout/mod.rs` — `clip_rect: None` adicionado às construções de `FrameItem::Image`.
 - Comando do linter: `crystalline-lint .` — 0 violações (apenas V7 esperado).
 - Comando de testes: `cargo test --workspace` — todos passaram.
 
@@ -50,7 +50,7 @@ Observações:
 
 Adicionado campo `clip_rect: Option<Rect>`, preenchido apenas para `fit == "cover"` com ambos `width` e `height` fornecidos.
 
-### `01_core/src/rules/layout/image.rs`
+### `01_core/src/engine/layout/image.rs`
 
 - `ImageDimensions` passou a incluir `target_width` e `target_height`.
 - Quando ambos os eixos são fornecidos:
@@ -120,13 +120,13 @@ O snapshot `08-image-jpeg` regenerado; o conteúdo visual não mudou, mas o cont
 
 ## Ficheiros alterados
 
-- `00_nucleo/prompts/rules/layout-image.md` — L0 actualizado.
+- `00_nucleo/prompts/engine/layout-image.md` — L0 actualizado.
 - `01_core/src/entities/layout_types.rs` — `clip_rect` em `FrameItem::Image`.
-- `01_core/src/rules/layout/image.rs` — lógica de target, centralização e clip.
+- `01_core/src/engine/layout/image.rs` — lógica de target, centralização e clip.
 - `03_infra/src/export/stream.rs` — emissão do clip no PDF.
 - `03_infra/src/export/tests.rs` — `clip_rect: None` nos testes.
-- `01_core/src/rules/layout/cursor.rs`, `helpers.rs`, `slicing.rs` — `clip_rect: None` ou `..` nos patterns.
-- `01_core/src/rules/math/layout/mod.rs` — `clip_rect: None` no constructor.
+- `01_core/src/engine/layout/cursor.rs`, `helpers.rs`, `slicing.rs` — `clip_rect: None` ou `..` nos patterns.
+- `01_core/src/engine/math/layout/mod.rs` — `clip_rect: None` no constructor.
 - `03_infra/fixtures/p307b/reference/08-image-jpeg.pdf` — snapshot regenerado.
 - `00_nucleo/diagnosticos/paridade-producao-p771.md` — este relatório.
 

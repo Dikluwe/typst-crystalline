@@ -4,7 +4,7 @@
 
 Ler antes de começar:
 - `01_core/src/entities/math_constants.rs` — `MathConstants` com `to_pt()`
-- `01_core/src/rules/math/layout.rs` — `MathLayouter`, `layout_root`, `layout_frac`, `offset_item`
+- `01_core/src/engine/math/layout.rs` — `MathLayouter`, `layout_root`, `layout_frac`, `offset_item`
 - `01_core/src/entities/content.rs` — `Content::MathDelimited`, `Content::MathRoot`
 - `01_core/src/entities/layout_types.rs` — `FrameItem::Text`, `FrameItem::Line`
 - `03_infra/src/font_metrics.rs` — `FontBookMetrics`, `face.tables().math`
@@ -75,17 +75,17 @@ find ~/.cargo/registry/src -path "*/ttf-parser-*/src" -type d 2>/dev/null \
 grep -n "glyph_index" 03_infra/src/font_metrics.rs | head -5
 
 # 5. Como MathDelimited é tratado actualmente no eval
-grep -n "MathDelimited\|Delimited" 01_core/src/rules/eval.rs | head -10
+grep -n "MathDelimited\|Delimited" 01_core/src/engine/eval.rs | head -10
 
 # 6. Como MathDelimited é tratado no layout
-grep -n "MathDelimited\|Delimited\|delimit" 01_core/src/rules/math/layout.rs | head -10
+grep -n "MathDelimited\|Delimited\|delimit" 01_core/src/engine/math/layout.rs | head -10
 
 # 7. Tamanho actual dos delimitadores no layout
 # (verificar se são simplesmente MathText com tamanho base)
-grep -n "open\|close\|delim" 01_core/src/rules/math/layout.rs | head -15
+grep -n "open\|close\|delim" 01_core/src/engine/math/layout.rs | head -15
 
 # 8. Content::MathRoot — como o símbolo √ é emitido actualmente
-grep -n "√\|radical" 01_core/src/rules/math/layout.rs | head -10
+grep -n "√\|radical" 01_core/src/engine/math/layout.rs | head -10
 ```
 
 **Reportar o output antes de continuar.**
@@ -162,7 +162,7 @@ Adicionar método ao trait `FontMetrics` em L1. Default retorna
 `GlyphVariants` vazio (sem variantes — fallback para glifo base).
 
 ```rust
-// Em 01_core/src/rules/layout.rs — adicionar ao trait FontMetrics:
+// Em 01_core/src/engine/layout.rs — adicionar ao trait FontMetrics:
 
 use crate::entities::glyph_variants::GlyphVariants;
 

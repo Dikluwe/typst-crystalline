@@ -252,6 +252,6 @@ Total agregado: ~730 LOC documentação/relatórios + ~170 LOC código/tests cri
 - **Sub-store consumido**: `intr.state` (StateRegistry P171/P182).
 - **Consumer Layouter**: `equation.rs:32-33` substitution-with-fallback já implementada (caminho dorme até P199B activar).
 - **Cadeia E1**: walk arm Equation (introspect.rs:517) + `compute_labelled` Equation arm (P195D introspect.rs:337) lêem state legacy — write paralelo preservado.
-- **L0 alvo**: `00_nucleo/prompts/rules/introspect.md` (a actualizar em P199B).
+- **L0 alvo**: `00_nucleo/prompts/engine/introspect.md` (a actualizar em P199B).
 - **Padrão diagnóstico-primeiro**: 21ª aplicação consecutiva.
 - **Marco arquitectural projectado pós-P199**: M5 universal a 1 pré-requisito paralelo do fecho.

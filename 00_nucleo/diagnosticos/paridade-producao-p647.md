@@ -17,7 +17,7 @@ Este passo é uma **melhoria além do vanilla**, não uma correcção de paridad
 
 ### 2.1 Tipos de conflito detectados por `place_cells`
 
-`place_cells` (`01_core/src/rules/layout/grid_placement.rs:64`) já detecta três situações de erro:
+`place_cells` (`01_core/src/engine/layout/grid_placement.rs:64`) já detecta três situações de erro:
 
 1. **`num_cols == 0`** (`grid_placement.rs:68`) — erro interno, improvável no uso normal.
 2. **Colspan excede `num_cols`** (`grid_placement.rs:99-108` para explicit; `grid_placement.rs:162-170` para auto) — mensagem indica `colspan` e `num_cols`.
@@ -38,7 +38,7 @@ Razão:
 
 ## 3. Implementação
 
-### 3.1 `01_core/src/rules/layout/grid.rs:322`
+### 3.1 `01_core/src/engine/layout/grid.rs:322`
 
 O código anterior usava `place_cells(cells, num_cols).unwrap_or_default()`, descartando qualquer erro e renderizando a grid vazia.
 
@@ -59,7 +59,7 @@ Os diagnósticos são adicionados a `Layouter.layout_errors` (já `Vec<SourceDia
 
 ### 3.2 Testes
 
-Adicionados em `01_core/src/rules/layout/tests.rs`:
+Adicionados em `01_core/src/engine/layout/tests.rs`:
 
 - `p647_grid_explicit_overlap_produz_layout_error`: duas células explicitas em `(0,0)` geram `layout_errors` com mensagem de conflito.
 - `p647_grid_colspan_maior_que_num_cols_produz_layout_error`: célula auto com `colspan=3` numa grid de 2 colunas gera `layout_errors` com mensagem de excesso.

@@ -17,7 +17,7 @@ use typst_core::entities::font_list::FontNamePattern;
 use typst_core::entities::layout_types::{Pt, TextStyle};
 use typst_core::entities::math_constants::MathConstants;
 use typst_core::entities::world_types::Font;
-use typst_core::rules::layout::{FontMetrics, FixedMetrics};
+use typst_core::engine::layout::{FontMetrics, FixedMetrics};
 
 use crate::fallback_fonts::fallback_font_list_for;
 use crate::font_variant::{axis_variations_for_font_variant, text_style_to_font_variant};
@@ -768,7 +768,7 @@ impl FontMetrics for FallbackFontMetrics<'_> {
     /// shaper para obter a largura real com formas ligadas. Para os restantes
     /// scripts, mantém o caminho rápido `advance`.
     fn advance_shaped(&self, text: &str, _size: Pt, style: &TextStyle) -> Option<Pt> {
-        use typst_core::rules::layout::needs_shaped_width;
+        use typst_core::engine::layout::needs_shaped_width;
         if !needs_shaped_width(text) {
             return None;
         }

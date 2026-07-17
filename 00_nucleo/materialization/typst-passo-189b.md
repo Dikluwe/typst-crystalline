@@ -52,7 +52,7 @@ dependências Heading→Labelled→resolved_labels documentada.
 ### .A Auditoria + decisão CounterUpdate
 
 1. Confirmar arm `Content::Outline` em
-   `01_core/src/rules/introspect.rs`:
+   `01_core/src/engine/introspect.rs`:
    - Per P189A §11.3: linha 611 (a confirmar
      empiricamente — auditor M4-residual descobriu várias
      vezes que linhas mudam entre passos).
@@ -68,7 +68,7 @@ dependências Heading→Labelled→resolved_labels documentada.
      site.
 
 3. Auditar `Content::CounterUpdate` arm:
-   - `grep -rn "CounterUpdate" 01_core/src/rules/introspect.rs`.
+   - `grep -rn "CounterUpdate" 01_core/src/engine/introspect.rs`.
    - Localizar arm + mutações.
    - Aplicar regra dos 2 eixos:
      - Eixo 1: consumer downstream precisa de valor
@@ -89,8 +89,8 @@ dependências Heading→Labelled→resolved_labels documentada.
      empiricamente).
 
 5. Confirmar L0s actuais:
-   - `00_nucleo/prompts/rules/introspect.md`.
-   - `00_nucleo/prompts/rules/layout.md` (consumer
+   - `00_nucleo/prompts/engine/introspect.md`.
+   - `00_nucleo/prompts/engine/layout.md` (consumer
      Outline).
    - Identificar onde adicionar:
      - Secção "Walk puro M5 incremental" + nota sobre
@@ -99,7 +99,7 @@ dependências Heading→Labelled→resolved_labels documentada.
 
 6. Confirmar tests existentes que cobrem caminhos
    afectados:
-   - `grep -rn "has_outline\|Outline" 01_core/src/rules/`.
+   - `grep -rn "has_outline\|Outline" 01_core/src/engine/`.
    - Identificar quais devem manter-se inalterados após
      P189B (paridade observable preservada).
 

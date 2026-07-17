@@ -86,7 +86,7 @@ DIVERGÊNCIA / NÃO APLICÁVEL com evidência.
 
 ```
 grep -B 1 -A 30 "^pub struct Layouter" \
-  01_core/src/rules/layout/mod.rs
+  01_core/src/engine/layout/mod.rs
 ```
 
 Para cada field: nome, tipo, visibilidade, comentário se

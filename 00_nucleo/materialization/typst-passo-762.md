@@ -38,7 +38,7 @@ Confirmar que `leading` explícito muda o avanço entre linhas de forma previsí
 ### Confirmar todos os call-sites do avanço de linha actual no cristalino
 
 ```bash
-grep -n "line_height\|fn flush_line" 01_core/src/rules/layout/cursor.rs 01_core/src/rules/layout/*.rs | head -20
+grep -n "line_height\|fn flush_line" 01_core/src/engine/layout/cursor.rs 01_core/src/engine/layout/*.rs | head -20
 ```
 
 ### Critério de fecho da sonda
@@ -53,7 +53,7 @@ grep -n "line_height\|fn flush_line" 01_core/src/rules/layout/cursor.rs 01_core/
 
 Mudar `flush_line()` (e qualquer outro ponto de avanço de linha) para usar `cap_height + leading`, seguindo a fórmula confirmada pela sonda, incluindo suporte para `top-edge`/`bottom-edge`/`leading` configuráveis pelo utilizador, se confirmado que existem.
 
-Actualizar o L0 correspondente (`00_nucleo/prompts/rules/layout.md`) para reflectir a nova fórmula.
+Actualizar o L0 correspondente (`00_nucleo/prompts/engine/layout.md`) para reflectir a nova fórmula.
 
 ### Critério de fecho da implementação
 

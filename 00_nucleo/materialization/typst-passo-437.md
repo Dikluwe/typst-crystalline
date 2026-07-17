@@ -35,10 +35,10 @@ Contrato documental: cada função nativa em `gradients.rs` deve ter seu contrat
 ## ADR-0109 — Atomização forma B
 
 **Toques pontuais:**
-1. Criar `00_nucleo/prompts/rules/stdlib/gradients.md` com 3 secções (1 por função).
+1. Criar `00_nucleo/prompts/engine/stdlib/gradients.md` com 3 secções (1 por função).
 2. Cada secção: assinatura vanilla, args, semântica esperada, **scope-out explícito** (`Value::Gradient` ausente; render PDF gradient ausente; ADR-0054 graded), testes canônicos (stub que retorna `Err` ou `Value::None`).
 3. Atualizar `rules/stdlib/_comum.md` — remover `gradients.rs` da lista.
-4. Atualizar cabeçalho `@prompt` de `01_core/src/rules/stdlib/gradients.rs` para apontar `gradients.md`.
+4. Atualizar cabeçalho `@prompt` de `01_core/src/engine/stdlib/gradients.rs` para apontar `gradients.md`.
 5. `DEBT.md` atualizado com nota "subset gradients.rs fechado em P437 (documental, scope-out)".
 
 ---
@@ -64,7 +64,7 @@ Contrato documental: cada função nativa em `gradients.rs` deve ter seu contrat
 
 ## Critério de fecho
 
-- [ ] `00_nucleo/prompts/rules/stdlib/gradients.md` criado com 3 secções.
+- [ ] `00_nucleo/prompts/engine/stdlib/gradients.md` criado com 3 secções.
 - [ ] Cada função documenta: assinatura vanilla, args, semântica esperada, scope-out explícito, testes canônicos (stub).
 - [ ] `_comum.md` atualizado (gradients.rs removido da lista).
 - [ ] `gradients.rs` cabeçalho `@prompt` aponta `gradients.md`.

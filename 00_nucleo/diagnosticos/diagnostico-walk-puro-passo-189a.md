@@ -12,7 +12,7 @@ tests workspace 1.808; zero violations.
 
 ### §1.1 — Inventário empírico de mutações em walk
 
-`grep` empírico em `01_core/src/rules/introspect.rs` (linhas
+`grep` empírico em `01_core/src/engine/introspect.rs` (linhas
 < 600, walk fn body):
 
 | Arm | Linha | Mutação | Field |
@@ -254,7 +254,7 @@ arms migráveis + tests E2E paridade.
 
 Critério literal:
 ```bash
-grep -E "state\.\w+\s*[=.]" 01_core/src/rules/introspect.rs |
+grep -E "state\.\w+\s*[=.]" 01_core/src/engine/introspect.rs |
   awk -F: '$2 < 600' |
   grep -v "^#" |
   grep -vE "(// .*excepção|state\.numbering_active.*equation|state\.numbering_active.*heading|state\.flat.*equation|state\.resolved_labels|state\.headings_for_toc|state\.figure_label_numbers|state\.figure_numbers|state\.local_figure_counters|state\.auto_label_counter|state\.is_numbering_active|state\.format_hierarchical|state\.get_flat)"
@@ -371,14 +371,14 @@ necessária.
 **P189B** — migrar Outline arm + documentar 5 excepções +
 tests sentinela:
 
-- Editar `01_core/src/rules/introspect.rs:611`:
+- Editar `01_core/src/engine/introspect.rs:611`:
   - Substituir `state.has_outline = true` por `// has_outline
     via query_by_kind(Outline) — walk puro M5`.
   - (Mutação removida; `from_tags` arm Outline P178 já
     popula `kind_index[Outline]`.)
 - Editar consumer:
   - Localizar quem lê `state.has_outline` em
-    `01_core/src/rules/layout/mod.rs` (per P181H linha
+    `01_core/src/engine/layout/mod.rs` (per P181H linha
     1423: `if !initial_state.has_outline { ... }`).
   - Substituir por consulta Introspector ou equivalente.
 - Adicionar 5 comentários de excepção inline + L0 +

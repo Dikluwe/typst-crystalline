@@ -22,7 +22,7 @@ O problema aparece quando os dois se combinam: o buffer de notas pendentes é pe
 ## Sonda
 
 ```bash
-grep -rn "pending_footnote\|flush_pending_footnote\|footnote.*column\|column.*footnote" 01_core/src/rules/layout/ --include="*.rs"
+grep -rn "pending_footnote\|flush_pending_footnote\|footnote.*column\|column.*footnote" 01_core/src/engine/layout/ --include="*.rs"
 ```
 
 Perguntas, com `file:line`:

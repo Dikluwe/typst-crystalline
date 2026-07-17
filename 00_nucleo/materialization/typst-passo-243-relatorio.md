@@ -35,7 +35,7 @@ P243 reduz para extensão incremental:
    - `pub last: Option<Region>` field novo.
    - `pub fn advance(&mut self) -> Option<Region>` method novo.
 2. **Promoção real ≥3 scope-outs multi-region** via
-   `regions.current.width` save/restore em `01_core/src/rules/layout/mod.rs`:
+   `regions.current.width` save/restore em `01_core/src/engine/layout/mod.rs`:
    - `Pad.right` scope-out P156C → semantic real P243.
    - `Block.width` semantic adiada P156G → semantic real P243.
    - `Boxed.width` semantic adiada P156H → semantic real P243.
@@ -128,7 +128,7 @@ N=6 (Regions já existe desde P216B; P243 estende existente).
 
 ### Pad.right (scope-out P156C → semantic real P243)
 
-`01_core/src/rules/layout/mod.rs` arm `Content::Pad`:
+`01_core/src/engine/layout/mod.rs` arm `Content::Pad`:
 
 ```rust
 let right = sides.right.map_or(0.0, |l| l.resolve_pt(font));
@@ -261,7 +261,7 @@ diferida (Decisão 7).
 - `p243_regions_advance_fase_b_consome_backlog`.
 - `p243_regions_clone_preserva_backlog_last`.
 
-**Unit/E2E layout scope-outs** (4 tests em `rules/layout/tests.rs`):
+**Unit/E2E layout scope-outs** (4 tests em `engine/layout/tests.rs`):
 - `p243_pad_right_efetivo_reduz_width_durante_body`.
 - `p243_block_width_efetivo_clampa_largura`.
 - `p243_boxed_width_efetivo_clampa_largura`.

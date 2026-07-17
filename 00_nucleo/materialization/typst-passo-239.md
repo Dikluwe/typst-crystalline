@@ -179,7 +179,7 @@ automática" N=8 preservado (não-incrementa P239 administrativo).
 
 Sub-passos materialização M7+ posteriores tocam L0
 conforme escopo cada (walk-time refactor provável toca
-`rules/layout.md` ou similar paridade hipótese P236).
+`engine/layout.md` ou similar paridade hipótese P236).
 
 #### Decisão 7 — Saldo DEBTs durante M7+ refactor
 
@@ -269,8 +269,8 @@ Audit empírico:
 
 ```
 grep -B 5 -A 30 "StateUpdate::Func\|Func::native\|Func::call" 01_core/src/
-grep -B 5 -A 20 "EvalContext\|Engine\|World" 01_core/src/contracts/ 01_core/src/rules/eval/
-grep -r "stub\|TODO.*walk\|TODO.*eval" 01_core/src/rules/layout/ 01_core/src/rules/introspect.rs
+grep -B 5 -A 20 "EvalContext\|Engine\|World" 01_core/src/contracts/ 01_core/src/engine/eval/
+grep -r "stub\|TODO.*walk\|TODO.*eval" 01_core/src/engine/layout/ 01_core/src/engine/introspect.rs
 ```
 
 **Identificar empíricamente**:

@@ -18,7 +18,7 @@ para migração de consumers de contador (per relatório P183C
 > para DEBT.
 
 P183D aplica a regra a C3 (figure auto-number per kind em
-`01_core/src/rules/layout/mod.rs:435–439`,
+`01_core/src/engine/layout/mod.rs:435–439`,
 `figure_numbers[kind][idx]` legacy).
 
 **Expectativa empírica** (per análise pós-P183C):
@@ -94,7 +94,7 @@ Identificação prévia da expectativa:
 ### .A Auditoria L0
 
 1. Confirmar consumer C3 actual:
-   - `01_core/src/rules/layout/mod.rs:435–439` (per P183A
+   - `01_core/src/engine/layout/mod.rs:435–439` (per P183A
      §2).
    - Localizar leitura: padrão esperado
      `state.figure_numbers.get(kind).and_then(|v|
@@ -117,20 +117,20 @@ Identificação prévia da expectativa:
      identificar.
 
 4. Confirmar walk arm `Content::Figure`:
-   - `01_core/src/rules/introspect.rs` arm `Content::Figure`.
+   - `01_core/src/engine/introspect.rs` arm `Content::Figure`.
    - Como é populado `state.figure_numbers[kind]`?
      Esperado: arm avança contador por kind (1, 2, 3...)
      conforme cada figure aparece.
 
 5. Confirmar se figures são locatable:
-   - `01_core/src/rules/introspect/locatable.rs` arm
+   - `01_core/src/engine/introspect/locatable.rs` arm
      `Content::Figure`.
    - Esperado: `true` (P168 estabeleceu).
    - Confirmar `extract_payload` arm produz
      `ElementPayload::Figure {...}` ou similar.
 
 6. Confirmar `from_tags` arm `Figure`:
-   - `01_core/src/rules/introspect/from_tags.rs` arm
+   - `01_core/src/engine/introspect/from_tags.rs` arm
      `ElementPayload::Figure`.
    - Como popula sub-store? Confirmar que entries para
      kind são registadas.
@@ -249,7 +249,7 @@ Output: tabela com observações + decisão.
 
 (Apenas se `.B` autorizou prosseguir.)
 
-1. Em `01_core/src/rules/layout/mod.rs:435–439`:
+1. Em `01_core/src/engine/layout/mod.rs:435–439`:
    - Substitution-with-fallback.
 
 2. Trait import local se necessário.

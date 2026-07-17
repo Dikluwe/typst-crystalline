@@ -30,7 +30,7 @@ A diferença entre os dois lados nas três palavras comuns é de 2,8 pontos (só
 ### Confirmar a largura disponível usada na decisão de quebra
 
 ```bash
-grep -n "right_margin\|width - self.page_config.margin\|available_width" 01_core/src/rules/layout/cursor.rs | head -20
+grep -n "right_margin\|width - self.page_config.margin\|available_width" 01_core/src/engine/layout/cursor.rs | head -20
 ```
 
 Perguntas, com `file:line`:

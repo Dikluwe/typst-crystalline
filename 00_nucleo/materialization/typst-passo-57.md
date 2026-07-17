@@ -5,9 +5,9 @@
 Ler antes de começar:
 - `01_core/src/entities/content.rs` — Variante `Heading` e as novas variantes
   `Labelled` / `Ref` do Passo 56.
-- `01_core/src/rules/layout.rs` — Estrutura actual do Layouter e o braço
+- `01_core/src/engine/layout.rs` — Estrutura actual do Layouter e o braço
   `Content::Heading`.
-- `01_core/src/rules/eval.rs` — Verificar se `SetRule` para `heading` já é
+- `01_core/src/engine/eval.rs` — Verificar se `SetRule` para `heading` já é
   interceptado ou cai no wildcard.
 
 Pré-condição: `cargo test` — 589 L1 + 111 L3 + 50 parity, zero violations.
@@ -54,16 +54,16 @@ nesses dois pontos.
 grep -A 5 "Heading" 01_core/src/entities/content.rs | head -15
 
 # 2. Como o braço Heading está implementado no layouter
-grep -n -A 15 "Content::Heading" 01_core/src/rules/layout.rs | head -25
+grep -n -A 15 "Content::Heading" 01_core/src/engine/layout.rs | head -25
 
 # 3. Verificar se SetRule para "heading" é interceptado no eval
-grep -n "SetRule\|set.*heading\|numbering" 01_core/src/rules/eval.rs | head -15
+grep -n "SetRule\|set.*heading\|numbering" 01_core/src/engine/eval.rs | head -15
 
 # 4. Verificar se counter() ou context() caem no wildcard ou geram erro
-grep -n "counter\|context\b" 01_core/src/rules/eval.rs | head -10
+grep -n "counter\|context\b" 01_core/src/engine/eval.rs | head -10
 
 # 5. Verificar a assinatura actual da função pública layout()
-grep -n "^pub fn layout" 01_core/src/rules/layout.rs | head -5
+grep -n "^pub fn layout" 01_core/src/engine/layout.rs | head -5
 ```
 
 Reportar o output completo antes de continuar. As respostas às questões
@@ -381,7 +381,7 @@ fn layout_heading_sem_numbering_nao_tem_prefixo() {
 #[test]
 fn layout_heading_com_numbering_tem_prefixo() {
     use crate::entities::counter_state::CounterState;
-    use crate::rules::layout::layout_with_state;
+    use crate::engine::layout::layout_with_state;
 
     let mut state = CounterState::new();
     state.heading_numbering = true;

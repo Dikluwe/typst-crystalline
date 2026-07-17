@@ -5,8 +5,8 @@
 Ler antes de começar:
 - `01_core/src/entities/math_constants.rs` — `MathConstants` com todos os campos actuais e `to_pt()`
 - `01_core/src/entities/glyph_variants.rs` — `GlyphVariants`, `GlyphAssembly`, `GlyphPart`
-- `01_core/src/rules/layout.rs` — trait `FontMetrics`, métodos actuais
-- `01_core/src/rules/math/layout.rs` — `MathLayouter`, `layout_frac`, `layout_delimited`, `layout_attach`, `layout_root`, `offset_item`
+- `01_core/src/engine/layout.rs` — trait `FontMetrics`, métodos actuais
+- `01_core/src/engine/math/layout.rs` — `MathLayouter`, `layout_frac`, `layout_delimited`, `layout_attach`, `layout_root`, `offset_item`
 - `03_infra/src/font_metrics.rs` — `FontBookMetrics`, o que já é lido de `math_table`
 
 Pré-condição: `cargo test` — 504 L1 + 71 L3 + 50 parity, zero violations.
@@ -49,11 +49,11 @@ cat 01_core/src/entities/math_constants.rs
 # 2. Confirmar como MathLayouter usa MathConstants actualmente
 # (especialmente layout_frac, layout_delimited, layout_root)
 grep -n "constants\.\|axis\|fraction_rule\|fraction_num\|fraction_den" \
-  01_core/src/rules/math/layout.rs | head -30
+  01_core/src/engine/math/layout.rs | head -30
 
 # 3. Como offset_item e place() posicionam items actualmente
 grep -n "fn offset_item\|fn place\|fn hconcat\|ascent\|descent" \
-  01_core/src/rules/math/layout.rs | head -30
+  01_core/src/engine/math/layout.rs | head -30
 
 # 4. API de MathKernInfo no ttf-parser 0.25.1
 find ~/.cargo/registry/src -path "*/ttf-parser-*/src" -type d 2>/dev/null \
@@ -65,7 +65,7 @@ find ~/.cargo/registry/src -path "*/ttf-parser-*/src" -type d 2>/dev/null \
 
 # 6. Como layout_attach calcula posições de sup/sub actualmente
 grep -n "fn layout_attach\|sup\|sub\|top\|bottom\|kern" \
-  01_core/src/rules/math/layout.rs | head -30
+  01_core/src/engine/math/layout.rs | head -30
 
 # 7. Como MathConstants.axis_height é usada actualmente (se é que é)
 grep -rn "axis_height\|axis" 01_core/src/ | head -10
@@ -210,7 +210,7 @@ pub struct MathGlyphKern {
 
 ### Tarefa 4 — FontMetrics::math_kern() em L1
 
-Adicionar método ao trait `FontMetrics` em `01_core/src/rules/layout.rs`.
+Adicionar método ao trait `FontMetrics` em `01_core/src/engine/layout.rs`.
 Default retorna `MathGlyphKern` vazio (sem kern — espaçamento rectilíneo).
 
 ```rust
@@ -306,7 +306,7 @@ diferirem, adaptar antes de codificar.
 
 ### Tarefa 6 — layout_attach usa MathKernInfo
 
-Em `01_core/src/rules/math/layout.rs`, modificar `layout_attach` para
+Em `01_core/src/engine/math/layout.rs`, modificar `layout_attach` para
 consultar `math_kern` da base e ajustar o deslocamento horizontal dos scripts.
 
 ```rust

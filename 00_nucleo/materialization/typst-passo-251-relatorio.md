@@ -37,7 +37,7 @@ per política P158.
 
 **Trabalho real**:
 
-1. **Novo módulo `01_core/src/rules/layout/slicing.rs`** (~270 LoC
+1. **Novo módulo `01_core/src/engine/layout/slicing.rs`** (~270 LoC
    incluindo 10 unit tests):
    - `pub(super) fn slice_frame_items_at_height(items, threshold)
      -> (head, tail)` — função pura.
@@ -124,7 +124,7 @@ nenhuma divergência arquitectural identificada.
 ## §3 Módulo `slicing.rs` + struct + field + método (C2+C3)
 
 ```rust
-// 01_core/src/rules/layout/slicing.rs (~270 LoC)
+// 01_core/src/engine/layout/slicing.rs (~270 LoC)
 pub(super) fn slice_frame_items_at_height(
     items: Vec<FrameItem>,
     threshold: f64,
@@ -157,7 +157,7 @@ pub(super) fn rebase_item_y(item: FrameItem, delta: f64) -> FrameItem {
 ```
 
 ```rust
-// 01_core/src/rules/layout/mod.rs
+// 01_core/src/engine/layout/mod.rs
 pub(super) struct DeferredCellTail {
     pub items:           Vec<FrameItem>,  // rebased pos.y
     pub origin_x:        f64,             // cell column-aligned
@@ -174,7 +174,7 @@ pub struct Layouter {
 ```
 
 ```rust
-// 01_core/src/rules/layout/cursor.rs
+// 01_core/src/engine/layout/cursor.rs
 pub(super) fn new_page(&mut self) {
     self.flush_pending_floats();      // P245 — old page
     // close + setup new page ...
@@ -188,7 +188,7 @@ pub(super) fn flush_pending_cell_tails(&mut self) {
 ```
 
 ```rust
-// 01_core/src/rules/layout/grid.rs (cell overflow arm)
+// 01_core/src/engine/layout/grid.rs (cell overflow arm)
 if cell_overflow {
     let row_track = &row_tracks[placed.row % row_tracks.len()];
     let is_fixed_row = matches!(row_track, TrackSizing::Fixed(_));

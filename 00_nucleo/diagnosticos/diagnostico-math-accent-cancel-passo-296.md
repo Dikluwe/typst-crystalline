@@ -139,7 +139,7 @@ Para `MathAccent`/`MathCancel` defesa compilador exige arms em:
 | `rules/introspect.rs:materialize_time` | terminal (paralelo MathFrac) |
 | `rules/introspect.rs:walk` | walk em children (paralelo MathFrac) |
 | `rules/introspect/locatable.rs` | `false` (paralelo MathFrac) |
-| `rules/layout/mod.rs` | fallthrough math (paralelo MathFrac) |
+| `engine/layout/mod.rs` | fallthrough math (paralelo MathFrac) |
 | `rules/math/layout/mod.rs:layout_node` | handler dedicado novo |
 
 Defesa cumulativa via compiler errors identifica todos.
@@ -147,7 +147,7 @@ Defesa cumulativa via compiler errors identifica todos.
 ### A.1.4 — Stdlib actual
 
 `native_accent` + `native_cancel` **ausentes**. Vou adicionar em
-`01_core/src/rules/stdlib/structural.rs` (paralelo
+`01_core/src/engine/stdlib/structural.rs` (paralelo
 `native_quote`/`native_cite`).
 
 ### A.1.5 — Layouter consumer

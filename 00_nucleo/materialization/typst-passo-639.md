@@ -16,7 +16,7 @@
 ### Confirmar o que `table.numbering` faz hoje no cristalino
 
 ```bash
-grep -n "table.*numbering\|numbering.*table" 01_core/src/rules/eval/rules.rs 01_core/src/rules/layout/*.rs 01_core/src/entities/elements/table*.rs 2>/dev/null
+grep -n "table.*numbering\|numbering.*table" 01_core/src/engine/eval/rules.rs 01_core/src/engine/layout/*.rs 01_core/src/entities/elements/table*.rs 2>/dev/null
 ```
 
 Confirmar se esta propriedade é lida nalgum sítio depois de ser definida, ou se fica guardada sem nunca ser usada — o que confirmaria código morto.

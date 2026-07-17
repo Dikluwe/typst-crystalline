@@ -96,7 +96,7 @@ Distribuição:
 
 ## Hashes finais
 
-L0 modificado: `00_nucleo/prompts/rules/introspect/from_tags.md`
+L0 modificado: `00_nucleo/prompts/engine/introspect/from_tags.md`
 
 - Hash do código (registado no L0): `3a8f291a`
 - Hash do prompt (`@prompt-hash` do `.rs`): `1164f135`

@@ -124,7 +124,7 @@ regular.
 Edição literal:
 
 ```text
-// 01_core/src/rules/layout/mod.rs
+// 01_core/src/engine/layout/mod.rs
 pub fn finish(mut self) -> PagedDocument {
     // ... existing ...
     let mut doc = PagedDocument::new(self.pages);

@@ -20,16 +20,16 @@ interna — fica **completa**.
 ### 2. Refactor mecânico P452
 
 Ficheiros actualizados para o novo campo `target`:
-- `01_core/src/rules/layout/link.rs` — cria `LinkTarget::Url`.
-- `01_core/src/rules/layout/cursor.rs` — propaga `target` nas duas funções de
+- `01_core/src/engine/layout/link.rs` — cria `LinkTarget::Url`.
+- `01_core/src/engine/layout/cursor.rs` — propaga `target` nas duas funções de
 translação.
-- `01_core/src/rules/layout/helpers.rs` — propaga `target` em `translate_frame_item`.
-- `01_core/src/rules/layout/slicing.rs` — propaga `target` em `rebase_item_y`.
-- `01_core/src/rules/math/layout/mod.rs` — propaga `target` em `shift_item`.
-- `01_core/src/rules/eval/tests.rs` — asserts actualizados para `LinkTarget::Url`.
+- `01_core/src/engine/layout/helpers.rs` — propaga `target` em `translate_frame_item`.
+- `01_core/src/engine/layout/slicing.rs` — propaga `target` em `rebase_item_y`.
+- `01_core/src/engine/math/layout/mod.rs` — propaga `target` em `shift_item`.
+- `01_core/src/engine/eval/tests.rs` — asserts actualizados para `LinkTarget::Url`.
 - `03_infra/src/export/tests.rs` — teste P424 actualizado para `LinkTarget::Url`.
 
-### 3. `01_core/src/rules/layout/references.rs`
+### 3. `01_core/src/engine/layout/references.rs`
 
 - `layout_ref` resolve o texto (P462) e envolve os `FrameItem`s resultantes num
   `FrameItem::Link { target: LinkTarget::Destination(label), .. }`.
@@ -48,7 +48,7 @@ translação.
 
 ### 5. Tests
 
-- `01_core/src/rules/layout/tests.rs::p462_ref_numeric`:
+- `01_core/src/engine/layout/tests.rs::p462_ref_numeric`:
   - `ref_renders_as_frame_item_link_with_destination`
   - `external_link_still_uses_url_target`
 - `03_infra/src/export/tests.rs`:
@@ -59,9 +59,9 @@ translação.
 ### 6. Specs L0
 
 - `00_nucleo/prompts/entities/layout_types.md`
-- `00_nucleo/prompts/rules/layout/link.md`
-- `00_nucleo/prompts/rules/layout/ref.md`
-- `00_nucleo/prompts/rules/layout_references.md`
+- `00_nucleo/prompts/engine/layout/link.md`
+- `00_nucleo/prompts/engine/layout/ref.md`
+- `00_nucleo/prompts/engine/layout_references.md`
 - `00_nucleo/prompts/infra/export/builder.md`
 
 ## Verificação

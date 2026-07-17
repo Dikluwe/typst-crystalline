@@ -17,7 +17,7 @@ Gap 7 do DEBT-52 (lang hyphenation) materializado pós-fecho de
 DEBT-1. **ADR-0057** autoriza `hypher = "0.1"` em L1 (pure-data,
 `no_std`, zero deps, padrões TeX embebidos em compile-time).
 Consumer integrado no algoritmo greedy de quebra de linha em
-`01_core/src/rules/layout/cursor.rs::layout_word`: quando uma
+`01_core/src/engine/layout/cursor.rs::layout_word`: quando uma
 palavra não cabe e `style.lang` é `Some(lang)`, tenta-se quebra
 com hífen literal antes do `flush_line`.
 
@@ -50,7 +50,7 @@ features (rustybuzz) continuam ausentes (DEBT-53 candidato XL).
 
 ## 3. Inventário do ponto de integração (sub-passo 144.2)
 
-**Quebra de linha**: `01_core/src/rules/layout/cursor.rs:41-53`,
+**Quebra de linha**: `01_core/src/engine/layout/cursor.rs:41-53`,
 função `layout_word`. Algoritmo **greedy** simples:
 
 ```rust
@@ -81,7 +81,7 @@ codepoint via Helvetica fallback ou CIDFont (ADR-0055).
 - **Localização**: **L1** (`[l1_allowed_external]` autorizado
   em `crystalline.toml`).
 - **Pipeline**: helper puro em
-  `01_core/src/rules/layout/hyphenation.rs` invocado pelo
+  `01_core/src/engine/layout/hyphenation.rs` invocado pelo
   `layout_word` quando word overflow + lang presente.
 - **Política de fallback**: silent skip (3 cenários: ISO 3-letras;
   idioma fora do hyph-utf8; palavra sem pontos de quebra; doc
@@ -146,7 +146,7 @@ sem `--locked`; `--frozen` testes futuros).
 pub fn hyphenate(word: &str, lang: &Lang) -> Vec<usize>
 ```
 
-**Localização**: `01_core/src/rules/layout/hyphenation.rs` —
+**Localização**: `01_core/src/engine/layout/hyphenation.rs` —
 módulo privado dentro de `layout` (visibilidade `super::`).
 
 **Implementação**: mapeia `lang.as_str().as_bytes()` para
@@ -168,7 +168,7 @@ sílabas em `Vec<usize>` de offsets em **chars**.
 
 ## 8. Modificação no algoritmo de quebra de linha
 
-Em `01_core/src/rules/layout/cursor.rs::layout_word`:
+Em `01_core/src/engine/layout/cursor.rs::layout_word`:
 
 ```diff
   pub(super) fn layout_word(&mut self, word: &str) {
@@ -214,7 +214,7 @@ Sem ciclo: cada nível processa um prefixo estritamente menor.
 
 ## 9. Tests adicionados
 
-### Unit (5 em `01_core/src/rules/layout/hyphenation.rs`)
+### Unit (5 em `01_core/src/engine/layout/hyphenation.rs`)
 
 `hyphenate_palavra_en_devolve_pontos_correctos`,
 `hyphenate_palavra_pt_devolve_pontos`,
@@ -243,12 +243,12 @@ overflow de palavras longas no FixedMetrics 0.6×size por char
 
 ## 10. Edições L0 + hash propagado
 
-**`00_nucleo/prompts/rules/layout.md`**: adicionada secção
+**`00_nucleo/prompts/engine/layout.md`**: adicionada secção
 "Hyphenation (Passo 144, ADR-0057)" descrevendo o helper, o
 fluxo de invocação, e a política de fallback.
 
 **Hash recalculado**: `518a9856 → a78b0adc`. Propagado a 9
-ficheiros de `01_core/src/rules/layout/`:
+ficheiros de `01_core/src/engine/layout/`:
 
 ```
 hyphenation.rs (novo, criado já com a78b0adc)
@@ -334,8 +334,8 @@ Contagem de DEBTs abertos **inalterada (10)**.
 | Tests pré-existentes inalterados (zero regressão) | ✅ |
 | `cargo test --workspace --lib` | 874 + 206 + 24 = **1104 passed** (+9 vs P145) |
 | `crystalline-lint .` | ✅ zero violations |
-| L0 `prompts/rules/layout.md` actualizado; hash `a78b0adc` | ✅ |
-| Hash propagado a 9 ficheiros de `01_core/src/rules/layout/` | ✅ |
+| L0 `prompts/engine/layout.md` actualizado; hash `a78b0adc` | ✅ |
+| Hash propagado a 9 ficheiros de `01_core/src/engine/layout/` | ✅ |
 | DEBT-52 com actualização Passo 144 (DEBT continua encerrado) | ✅ |
 | Contagem DEBTs abertos: **inalterada (10)** | ✅ |
 | README dos ADRs: ADR-0057 na tabela + entrada Passos-chave | ✅ |

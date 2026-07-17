@@ -206,14 +206,14 @@ Auditor confirma empiricamente:
   `numbering_active: HashMap<String, bool>` (linha a
   registar).
 - Walk arm `Content::SetHeadingNumbering` em
-  `01_core/src/rules/introspect.rs` continua a ser quem
+  `01_core/src/engine/introspect.rs` continua a ser quem
   popula `state.numbering_active` (linha actual).
 - `01_core/src/entities/content.rs` tem variant
   `Content::SetHeadingNumbering { key, value }` ou
   similar (forma exacta a registar).
 - Layouter consumer: localizar leitura de
   `is_numbering_active` ou `numbering_active` em
-  `01_core/src/rules/layout/mod.rs`. Registar
+  `01_core/src/engine/layout/mod.rs`. Registar
   ficheiro:linha. Se não existir leitura activa,
   registar — significa que a lacuna #4 nunca chegou a
   ter consumer real e P182 muda de natureza.
@@ -299,7 +299,7 @@ Inputs: .A.4 já localizou Layouter consumer. Auditor
 adicionalmente verifica:
 
 - `grep -rn "numbering_active\|is_numbering_active"
-  01_core/src/rules/`.
+  01_core/src/engine/`.
 - Cada match: é leitura activa, comentário,
   identificador parcial?
 

@@ -13,11 +13,11 @@ grep -n "pub struct ClosureRepr\|captured\|env\|params\|body" \
 
 # Confirmar como closures são avaliadas actualmente
 grep -n "ClosureRepr\|eval_closure\|call_closure\|FuncRepr" \
-  01_core/src/rules/eval.rs | head -30
+  01_core/src/engine/eval.rs | head -30
 
 # Verificar o merge de bold no layout — decisão do Passo 30
 grep -n "bold.*||\||| .*bold\|merge\|node_style" \
-  01_core/src/rules/layout.rs
+  01_core/src/engine/layout.rs
 
 # Confirmar DEBT-2 em DEBT.md
 grep -A 10 "DEBT-2" 00_nucleo/DEBT.md
@@ -64,11 +64,11 @@ cat 01_core/src/entities/func.rs | grep -A 30 "pub struct ClosureRepr"
 
 # Ver como o scope é capturado actualmente em eval_expr para Closure
 grep -n "Closure\|ClosureRepr\|captured\|scope\|Scope" \
-  01_core/src/rules/eval.rs | head -40
+  01_core/src/engine/eval.rs | head -40
 
 # Ver como a closure é chamada (apply/call)
 grep -n "apply\|call_closure\|ClosureRepr\|FuncRepr::Closure" \
-  01_core/src/rules/eval.rs | head -20
+  01_core/src/engine/eval.rs | head -20
 
 # Ver se Scope tem Clone ou Arc
 grep -n "pub struct Scope\|impl.*Scope\|Clone.*Scope\|Arc.*Scope" \
@@ -351,7 +351,7 @@ crystalline-lint .
 grep -n "captured.*Arc\|Arc.*Scope" 01_core/src/entities/func.rs
 
 # Confirmar que não há Scope::clone() na criação de closures
-grep -n "\.clone()" 01_core/src/rules/eval.rs | grep -i "scope\|captured"
+grep -n "\.clone()" 01_core/src/engine/eval.rs | grep -i "scope\|captured"
 # Deve retornar vazio ou apenas comentários
 ```
 

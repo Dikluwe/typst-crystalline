@@ -192,7 +192,7 @@ Adicionar à secção Radial:
 ### Cap LOC
 
 - L1: ≤ 150 LOC em `01_core/src/entities/gradient.rs` (struct field + sample matemática focal-aware + construtor + helpers internos se necessário).
-- Stdlib: ≤ 40 LOC em `01_core/src/rules/stdlib/gradients.rs` (named args parsing).
+- Stdlib: ≤ 40 LOC em `01_core/src/engine/stdlib/gradients.rs` (named args parsing).
 - L3: ≤ 60 LOC em `03_infra/src/export.rs` (/Coords alteração) — **condicional Fase A §A.7**.
 - Testes: ≤ 35 novos.
 

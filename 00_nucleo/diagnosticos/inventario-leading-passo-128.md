@@ -20,7 +20,7 @@ Sintaxe canónica vanilla: `#set par(leading: 0.65em)`.
 
 ## Parte 2 — `eval_set_par` em L1
 
-**Ficheiro**: `01_core/src/rules/eval/rules.rs:196-268`.
+**Ficheiro**: `01_core/src/engine/eval/rules.rs:196-268`.
 
 Dispatcher actual em `eval_set_rule`:
 

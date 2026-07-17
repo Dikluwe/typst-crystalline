@@ -55,7 +55,7 @@ A engine passada ao eval é **clonada localmente** (`styles`, `show_rules`, `sin
 
 ### A.1 — Prompt L0 `eval.md`
 
-Novo em `00_nucleo/prompts/rules/stdlib/eval.md`:
+Novo em `00_nucleo/prompts/engine/stdlib/eval.md`:
 
 - **Paridade**: `eval(string)` re-parseia e re-avalia `string` no contexto actual; devolve `Value`.
 - **Substrato**: variante `FuncRepr::NativeWithEngine` para dar acesso a `Scopes`/`Engine`.
@@ -97,7 +97,7 @@ Parar. Apresentar `eval.md` ao dono. **Só prosseguir para Fase B quando confirm
    - `apply_func` é chamada a partir de vários sítios; a assinatura tem de mudar para incluir `scopes`. Isso propaga para os callers.
    - **Alternativa**: em vez de alterar `apply_func`, criar um caminho especial apenas para `eval`. Mas `apply_func` é o despacho natural.
    - **Decisão**: alterar `apply_func` para receber `&mut Scopes<'_>` e propagar a mudança aos callers (`eval_show_rule`, `apply_regex_rules`, closure application, etc.).
-4. **Implementar `native_eval`** em novo ficheiro `01_core/src/rules/stdlib/eval.rs`:
+4. **Implementar `native_eval`** em novo ficheiro `01_core/src/engine/stdlib/eval.rs`:
    - Recebe `Scopes` e `Engine` via `NativeWithEngine`.
    - Parse do string com `Source::detached_with_parser(source, parse_code)`.
    - Erros de sintaxe propagam como erro semântico.

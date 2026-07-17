@@ -65,17 +65,17 @@ FrameItem::Line {
 | Local | Acção | Mudança |
 |---|---|---|
 | `01_core/src/entities/layout_types.rs:184-193` | extensão | +1 campo + doc-comment |
-| `01_core/src/rules/math/layout/frac.rs:69` | produtor (math frac) | +`color: None` (preserva preto bit-exact P38) |
-| `01_core/src/rules/math/layout/root.rs:67` | produtor (sqrt overline) | +`color: None` |
-| `01_core/src/rules/math/layout/mod.rs:92` | reflector (translation) | adiciona `color` ao pattern, pass-through |
-| `01_core/src/rules/layout/equation.rs:76-85` | reflector (equação) | adiciona `color` ao pattern, pass-through |
-| `01_core/src/rules/layout/cursor.rs:251-256` | reflector (cursor adjust) | idem |
-| `01_core/src/rules/layout/helpers.rs:34-43` | reflector (translate) | idem |
-| `01_core/src/rules/layout/slicing.rs:82-89` | reflector (Y-slice) | idem |
-| `01_core/src/rules/layout/mod.rs:1987-2014` | **consumer P284 decorações** | **`color = stroke.or(self.style.fill)`** (regra herança §A.3) |
-| `01_core/src/rules/math/layout/tests.rs:471-476` | test directo | +`color: None` |
-| `01_core/src/rules/layout/slicing.rs:208-215` | test directo | +`color: None` |
-| `01_core/src/rules/layout/tests.rs:9818` | test helper destruct | `..` em vez de listar campos |
+| `01_core/src/engine/math/layout/frac.rs:69` | produtor (math frac) | +`color: None` (preserva preto bit-exact P38) |
+| `01_core/src/engine/math/layout/root.rs:67` | produtor (sqrt overline) | +`color: None` |
+| `01_core/src/engine/math/layout/mod.rs:92` | reflector (translation) | adiciona `color` ao pattern, pass-through |
+| `01_core/src/engine/layout/equation.rs:76-85` | reflector (equação) | adiciona `color` ao pattern, pass-through |
+| `01_core/src/engine/layout/cursor.rs:251-256` | reflector (cursor adjust) | idem |
+| `01_core/src/engine/layout/helpers.rs:34-43` | reflector (translate) | idem |
+| `01_core/src/engine/layout/slicing.rs:82-89` | reflector (Y-slice) | idem |
+| `01_core/src/engine/layout/mod.rs:1987-2014` | **consumer P284 decorações** | **`color = stroke.or(self.style.fill)`** (regra herança §A.3) |
+| `01_core/src/engine/math/layout/tests.rs:471-476` | test directo | +`color: None` |
+| `01_core/src/engine/layout/slicing.rs:208-215` | test directo | +`color: None` |
+| `01_core/src/engine/layout/tests.rs:9818` | test helper destruct | `..` em vez de listar campos |
 | `03_infra/src/export.rs:2185-2199` | **helper L3 novo** | +`line_rg_prefix(color) -> String` (~12 LOC) |
 | `03_infra/src/export.rs:2270-2284` | emit top-level | inserção condicional `{rg}` antes de `{w}` |
 | `03_infra/src/export.rs:2671-2685` | emit local em Group | inserção simétrica ao top-level |
@@ -174,7 +174,7 @@ P284 (`layout/mod.rs:1987`). Implementação trivial.
 | Local | Quantidade | Cobertura |
 |---|---:|---|
 | `03_infra/src/export.rs` (`tests`) | 5 | Bit-exact regression (sem stroke nem fill herdado → sem `RG`); stroke explícito red → `1.000 0.000 0.000 RG`; strike+overline honram stroke (green/blue); herança Styled→Underline (red); math frac preserva ausência de `RG` (regressão pré-P285) |
-| `01_core/src/rules/layout/tests.rs` (`p284_decoration_tests`) | 4 | Stroke explícito propaga para `FrameItem::Line.color`; sem stroke nem fill → `color: None`; herança Styled→Underline (blue); stroke wins sobre fill herdado (green sobre red) |
+| `01_core/src/engine/layout/tests.rs` (`p284_decoration_tests`) | 4 | Stroke explícito propaga para `FrameItem::Line.color`; sem stroke nem fill → `color: None`; herança Styled→Underline (blue); stroke wins sobre fill herdado (green sobre red) |
 | **Total** | **9** | — |
 
 **Resultado**: 9/9 verdes (`cargo test --lib p285` em ambos `typst-core`

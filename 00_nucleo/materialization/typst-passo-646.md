@@ -16,7 +16,7 @@
 ### Confirmar o caminho de código para cada formato
 
 ```bash
-grep -n "\.bib\|\.yaml\|\.yml\|from_biblatex\|from_yaml" 01_core/src/rules/eval/bibliography.rs | head -30
+grep -n "\.bib\|\.yaml\|\.yml\|from_biblatex\|from_yaml" 01_core/src/engine/eval/bibliography.rs | head -30
 ```
 
 Confirmar se ficheiros `.bib` e `.yaml`/`.yml` passam pelo mesmo código de validação de chave vazia, ou por caminhos completamente separados — se forem separados, a correcção de P644 pode ter sido aplicada só a um dos dois sem se dar por isso.

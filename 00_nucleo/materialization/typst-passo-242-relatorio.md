@@ -173,7 +173,7 @@ preservado.
 
 ## §5 Stdlib radius `extract_corners_length_value` + walk integration (C5+C6)
 
-`01_core/src/rules/stdlib/layout.rs` ganha helper novo:
+`01_core/src/engine/stdlib/layout.rs` ganha helper novo:
 
 ```rust
 fn extract_corners_length_value(value: &Value, fn_name: &str)
@@ -205,7 +205,7 @@ let radius = match args.named.get("radius") {
 };
 ```
 
-Layouter Block arm (`01_core/src/rules/layout/mod.rs`):
+Layouter Block arm (`01_core/src/engine/layout/mod.rs`):
 ```rust
 if *clip {
     // Snapshot-and-extract: layout body normalmente; extrair items;
@@ -374,7 +374,7 @@ sub-categoria nova + Opção α sub-padrão promoção real scope-out
 - `p242_native_block_radius_chave_canto_invalida_rejeita`.
 - `p242_native_box_radius_paridade_block`.
 
-**Unit/E2E layout** (3 tests em `rules/layout/tests.rs`):
+**Unit/E2E layout** (3 tests em `engine/layout/tests.rs`):
 - `p242_block_clip_true_radius_non_zero_emit_group_rounded_rect_clip_mask`.
 - `p242_block_clip_true_radius_zero_emit_group_rect_clip_mask`.
 - `p242_block_clip_false_radius_non_zero_sem_clip_mask`

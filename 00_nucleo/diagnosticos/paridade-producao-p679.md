@@ -54,7 +54,7 @@ Comportamentos confirmados pelo vanilla e replicados:
 
 ## 3. Implementação
 
-### 3.1 `eval_module_import` (`01_core/src/rules/eval/modules.rs`)
+### 3.1 `eval_module_import` (`01_core/src/engine/eval/modules.rs`)
 
 Substitui o stub (`"import não implementado nesta versão do cristalino"`). Assinatura alinhada a `eval_module_include`: `(import, scopes, ctx, engine)`. O dispatcher em `mod.rs:744` passou a chamar `modules::eval_module_import(i, scopes, ctx, engine)`.
 
@@ -80,7 +80,7 @@ Avalia o ficheiro importado num módulo isolado, espelhando o `run_pass` do eval
 - `eval_markup(source.root(), ...)`; se `ctx.flow` (`#return`/`#break` solto) → `flow.forbidden()`.
 - `module_scopes.exit()` → `Module::new(name, scope)`.
 
-### 3.3 Field access em `Value::Module` (`01_core/src/rules/eval/bindings.rs`)
+### 3.3 Field access em `Value::Module` (`01_core/src/engine/eval/bindings.rs`)
 
 Novo armo em `eval_field_access` (pré-requisito das formas 4 e 5 — sem ele, `#u.campo` dava `field access não suportado em module`):
 
@@ -95,8 +95,8 @@ O valor obtido é tipicamente `Value::Func`, que o dispatcher de chamada (`apply
 
 ### 3.4 Prompts L0 actualizados
 
-- `00_nucleo/prompts/rules/eval.md` — nova secção **§P679** (medição file:line, classificação, semântica, critérios). Hash `cce90241` → `a660f985` (propagado por `crystalline-lint --fix-hashes` aos 10 ficheiros que referenciam `eval.md`).
-- `00_nucleo/prompts/rules/eval/field-access.md` — nova secção **§11 Field Access `Module` (P679)**. Hash `c822a5ed` → `d935c8b5` em `bindings.rs`.
+- `00_nucleo/prompts/engine/eval.md` — nova secção **§P679** (medição file:line, classificação, semântica, critérios). Hash `cce90241` → `a660f985` (propagado por `crystalline-lint --fix-hashes` aos 10 ficheiros que referenciam `eval.md`).
+- `00_nucleo/prompts/engine/eval/field-access.md` — nova secção **§11 Field Access `Module` (P679)**. Hash `c822a5ed` → `d935c8b5` em `bindings.rs`.
 
 ---
 
@@ -115,7 +115,7 @@ A detecção de ciclo reutiliza `Route::contains` (ADR-0033/0036), já usada por
 
 ## 5. Testes
 
-Em `01_core/src/rules/eval/tests.rs`:
+Em `01_core/src/engine/eval/tests.rs`:
 - Corrigido `eval_import_retorna_err_sem_panic` (verificava o stub) → substituído por `import_ficheiro_ausente_retorna_err_sem_panic` (ficheiro não registado → `include_source` falha → `Err` limpo, sem panic).
 - Adicionado `ImportMockWorld` (mapa path→`Source` com `FileId` estável; `include_source` por clone) e 8 testes novos: `import_item_unico`, `import_wildcard`, `import_rename_item`, `import_bare_modulo_field_access`, `import_as_modulo_field_access`, `import_stdlib_visivel_no_ficheiro_importado`, `import_item_inexistente_retorna_unresolved_import`, `import_ficheiro_ausente_retorna_err_sem_panic`. O teste pré-existente `import_cycle_detectado_retorna_err_sem_panic` continua a passar.
 
@@ -154,7 +154,7 @@ Validação:
 - **Hora da validação:** 2026-07-10T15:21:07Z (working tree = trabalho de P679; código cristalino = commit "Hash do commit" abaixo).
 - **Vanilla usado:** `lab/typst-original/target/release/typst` — `typst 0.15.0 (969087ec)`.
 - **Cristalino usado:** `target/debug/typst` (build do working tree de P679).
-- **Ficheiros alterados (`git diff HEAD --stat`):** ver commit abaixo — `00_nucleo/prompts/rules/eval.md`, `00_nucleo/prompts/rules/eval/field-access.md`, `01_core/src/rules/eval/{modules,mod,bindings,tests}.rs`, e actualização de `@prompt-hash` em `01_core/src/rules/eval/{bibliography,closures,control_flow,flow,markup,math,rules}.rs`.
+- **Ficheiros alterados (`git diff HEAD --stat`):** ver commit abaixo — `00_nucleo/prompts/engine/eval.md`, `00_nucleo/prompts/engine/eval/field-access.md`, `01_core/src/engine/eval/{modules,mod,bindings,tests}.rs`, e actualização de `@prompt-hash` em `01_core/src/engine/eval/{bibliography,closures,control_flow,flow,markup,math,rules}.rs`.
 
 ---
 

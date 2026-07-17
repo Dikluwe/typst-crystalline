@@ -32,7 +32,7 @@ ADR-0083 declara como scope-out formal: `lighten`/`darken`/`mix`/`saturate`/`des
 | `rustybuzz` usado activamente em código de produção? | `grep -r "rustybuzz" 03_infra/src/` | 🟡 |
 | `03_infra/src/fonts.rs` usa `rustybuzz::Face` para shaping? | `fonts.rs` ou `shaping.rs` | 🟡 |
 | Stub de shaping (sem glifos posicionados)? | arm de glif no exporter PDF | 🟡 |
-| `text.dir` / RTL parsing/layout activo? | `rules/eval/` ou `rules/layout/` | 🟡 |
+| `text.dir` / RTL parsing/layout activo? | `rules/eval/` ou `engine/layout/` | 🟡 |
 | `bidi` crate no `Cargo.toml`? | `03_infra/Cargo.toml` | 🟡 |
 | Testes de shaping reais existem? | `cargo test` filtro `shaping` | 🟡 |
 

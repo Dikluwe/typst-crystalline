@@ -293,7 +293,7 @@ mod tests {
 ```rust
 #[test]
 fn parse_via_world() {
-    use typst_core::rules::parse::parse;
+    use typst_core::engine::parse::parse;
     use typst_core::entities::syntax_kind::SyntaxKind;
 
     let world = MockWorld::new("= Heading\n\nParagraph.");

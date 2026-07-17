@@ -23,7 +23,7 @@ valid options.
 
 ## Parte 2 — Arm "weight" actual (pós-Passo 126)
 
-**Ficheiro**: `01_core/src/rules/eval/rules.rs:297-306`.
+**Ficheiro**: `01_core/src/engine/eval/rules.rs:297-306`.
 
 ```rust
 "weight" => {

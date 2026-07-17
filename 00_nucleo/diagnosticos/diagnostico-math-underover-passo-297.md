@@ -133,7 +133,7 @@ Vide A.0.0.2. Cristalino agrega em 1 variant per HV'.a.
 | `rules/introspect.rs:materialize_time` | terminal |
 | `rules/introspect.rs:walk` | terminal |
 | `rules/introspect/locatable.rs` | `false` |
-| `rules/layout/mod.rs` | fallthrough math |
+| `engine/layout/mod.rs` | fallthrough math |
 | `rules/math/layout/mod.rs:layout_node` | handler dedicado novo |
 
 ### A.1.4 — Vanilla wrapper unificado AUSENTE

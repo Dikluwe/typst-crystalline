@@ -206,7 +206,7 @@ test result: ok. 184 passed; 0 failed; 6 ignored ...  (L3 +6)
 $ crystalline-lint .
 ✓ No violations found
 
-$ grep -r "DEBT-49" 01_core/src/rules/eval/
+$ grep -r "DEBT-49" 01_core/src/engine/eval/
 rules.rs:31:  /// ... encerra DEBT-49 ...  (comentário histórico)
 rules.rs:213: // ... encerra DEBT-49 ...   (comentário histórico)
 rules.rs:319: // ... encerra DEBT-49 ...   (comentário histórico)

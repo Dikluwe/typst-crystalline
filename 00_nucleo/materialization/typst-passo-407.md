@@ -101,7 +101,7 @@ impl FontNamePattern {
 
 ### A.1 — Prompt L0 `font-dict.md`
 
-Extensão de `00_nucleo/prompts/entities/font.md` (ou novo `00_nucleo/prompts/rules/style/font-dict.md`):
+Extensão de `00_nucleo/prompts/entities/font.md` (ou novo `00_nucleo/prompts/engine/style/font-dict.md`):
 
 - **Paridade**: `text.font: ("Name": ("Regular", "Bold"))` ≡ vanilla dict font pattern-matching.
 - **Substrato**: reusa `FontList` (P140B/P141/P146) + `Value::Regex` (P402); refino de `FontFamily.name` para `FontNamePattern` enum.
@@ -230,7 +230,7 @@ Value::Dict(dict) => {
 
 ### B.4 — Ajuste `FontBook::select` (ou equivalente)
 
-Localizar onde a fonte é resolvida (provavelmente em `layout/text.rs` ou `rules/layout/text.rs`):
+Localizar onde a fonte é resolvida (provavelmente em `layout/text.rs` ou `engine/layout/text.rs`):
 
 ```rust
 // Antes (provavelmente lookup exato):

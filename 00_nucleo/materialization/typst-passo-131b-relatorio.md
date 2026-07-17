@@ -216,8 +216,8 @@ exit=0
 | `01_core/src/entities/lang.rs` | **novo** | tipo + `ENGLISH` + FromStr + 11 tests (~125 linhas) |
 | `01_core/src/entities/mod.rs` | modificado | `pub mod lang;` |
 | `01_core/src/entities/style_chain.rs` | modificado | `EcoString` → `Lang`; import; comentário |
-| `01_core/src/rules/eval/rules.rs` | modificado | imports + arm com `return Err` |
-| `01_core/src/rules/eval/tests.rs` | modificado | 3 tests adaptados + 1 novo |
+| `01_core/src/engine/eval/rules.rs` | modificado | imports + arm com `return Err` |
+| `01_core/src/engine/eval/tests.rs` | modificado | 3 tests adaptados + 1 novo |
 | `00_nucleo/adr/typst-adr-0052-*.md` | modificado | status `IMPLEMENTADO` + estado final |
 | `00_nucleo/adr/typst-adr-0038-*.md` | modificado | quarta nota |
 | `00_nucleo/prompts/entities/style_chain.md` | modificado | campo `lang: Option<Lang>` |

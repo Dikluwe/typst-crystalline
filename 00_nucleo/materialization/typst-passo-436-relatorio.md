@@ -11,19 +11,19 @@ prompt L0 dedicado e actualizando a linhagem `@prompt` para que o ficheiro
 desse de depender exclusivamente do prompt grosseiro `stdlib/_comum.md`.
 
 - **L0 novo:**
-  - `00_nucleo/prompts/rules/stdlib/transforms.md` — spec dedicada às 4 funções
+  - `00_nucleo/prompts/engine/stdlib/transforms.md` — spec dedicada às 4 funções
     de transformação do subset (`move`, `rotate`, `scale`, `skew`).
 - **Cabeçalhos `@prompt` ajustados:**
-  - `01_core/src/rules/stdlib/transforms.rs` — `_comum.md` e `transforms.md`
+  - `01_core/src/engine/stdlib/transforms.rs` — `_comum.md` e `transforms.md`
     (este último em último lugar, conforme convenção do linter para prompt
     "dono" do ficheiro).
 - **Prompt comum actualizado:**
-  - `00_nucleo/prompts/rules/stdlib/_comum.md` — removido `transforms.rs` da
+  - `00_nucleo/prompts/engine/stdlib/_comum.md` — removido `transforms.rs` da
     lista de ficheiros que apontam para o prompt comum; adicionada nota sobre
     o novo `transforms.md`.
 - **Configuração de linhagem:**
   - `crystalline.toml` — adicionada excepção de órfão para
-    `00_nucleo/prompts/rules/stdlib/_comum.md`, uma vez que, após P436, nenhum
+    `00_nucleo/prompts/engine/stdlib/_comum.md`, uma vez que, após P436, nenhum
     ficheiro L1 o tem como último `@prompt`. O prompt continua referenciado por
     múltiplos ficheiros stdlib e é, portanto, comum por definição.
 - **Débito actualizado:**
@@ -55,7 +55,7 @@ e `show-regex.md`).
 
 | Critério | Resultado |
 |----------|-----------|
-| `00_nucleo/prompts/rules/stdlib/transforms.md` criado com 4 secções | ✓ |
+| `00_nucleo/prompts/engine/stdlib/transforms.md` criado com 4 secções | ✓ |
 | Cada secção cobre assinatura, args, semântica, paridade vanilla, limitações e testes canónicos | ✓ |
 | `_comum.md` actualizado | ✓ |
 | `transforms.rs` cabeçalho `@prompt` aponta `transforms.md` | ✓ |
@@ -69,10 +69,10 @@ e `show-regex.md`).
 ## Artefactos
 
 - L0:
-  - `00_nucleo/prompts/rules/stdlib/transforms.md`
-  - `00_nucleo/prompts/rules/stdlib/_comum.md` (actualizado)
+  - `00_nucleo/prompts/engine/stdlib/transforms.md`
+  - `00_nucleo/prompts/engine/stdlib/_comum.md` (actualizado)
 - Código (apenas cabeçalhos de linhagem / hashes):
-  - `01_core/src/rules/stdlib/transforms.rs`
+  - `01_core/src/engine/stdlib/transforms.rs`
 - Configuração:
   - `crystalline.toml` (excepção de órfão para `_comum.md`)
 - Débito:

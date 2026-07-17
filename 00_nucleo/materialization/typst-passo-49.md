@@ -3,10 +3,10 @@
 ## Estado actual antes de começar
 
 Ler antes de começar:
-- `01_core/src/rules/math/layout.rs` — `layout_attach`, `apply_axis_offset`, `offset_item`
-- `01_core/src/rules/math/symbols.rs` — funções `is_*` existentes
+- `01_core/src/engine/math/layout.rs` — `layout_attach`, `apply_axis_offset`, `offset_item`
+- `01_core/src/engine/math/symbols.rs` — funções `is_*` existentes
 - `01_core/src/entities/math_constants.rs` — `MathConstants`, campos actuais
-- `01_core/src/rules/layout.rs` — `layout_content`, onde `block` está acessível (Passo 48)
+- `01_core/src/engine/layout.rs` — `layout_content`, onde `block` está acessível (Passo 48)
 - `03_infra/src/font_metrics.rs` — leitura de `math_table.constants`
 
 Pré-condição: `cargo test` — 536 L1 + 91 L3 + 50 parity, zero violations.
@@ -45,14 +45,14 @@ cat 01_core/src/entities/math_constants.rs
 grep -n "upper_limit\|lower_limit\|constants\." 03_infra/src/font_metrics.rs | head -20
 
 # 4. Funções is_* existentes em symbols.rs
-grep -n "pub fn is_" 01_core/src/rules/math/symbols.rs
+grep -n "pub fn is_" 01_core/src/engine/math/symbols.rs
 
 # 5. Como base_char é extraído actualmente em layout_attach (Passo 44)
 grep -n "base_char\|base_content\|MathIdent\|MathText" \
-  01_core/src/rules/math/layout.rs | head -15
+  01_core/src/engine/math/layout.rs | head -15
 
 # 6. Assinatura actual de layout_attach após Passo 46
-grep -n "fn layout_attach" 01_core/src/rules/math/layout.rs
+grep -n "fn layout_attach" 01_core/src/engine/math/layout.rs
 ```
 
 **Reportar o output antes de continuar.**
@@ -65,7 +65,7 @@ Tarefa 2 antes de codificar.
 
 ## Tarefa 1 — is_large_operator em L1
 
-Em `01_core/src/rules/math/symbols.rs`, adicionar função que identifica se
+Em `01_core/src/engine/math/symbols.rs`, adicionar função que identifica se
 um caractere é um operador grande que aceita limites verticais.
 
 ```rust
@@ -146,7 +146,7 @@ lower_limit_gap_min: constants.lower_limit_gap_min()
 
 ## Tarefa 3 — Empilhamento vertical em layout_attach (L1)
 
-Em `01_core/src/rules/math/layout.rs`, modificar `layout_attach` para
+Em `01_core/src/engine/math/layout.rs`, modificar `layout_attach` para
 detectar operadores grandes e ramificar para empilhamento vertical.
 
 ### Detecção da base

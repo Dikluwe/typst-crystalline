@@ -60,7 +60,7 @@ do valor mudou.
 
 ### 3.2 `resolve_data` — path OU bytes, um só ponto de mudança
 
-`01_core/src/rules/stdlib/loading.rs`: nova função `resolve_data` substitui
+`01_core/src/engine/stdlib/loading.rs`: nova função `resolve_data` substitui
 `arg_path` dentro da macro `native_loader!` — aceita `Value::Str` (lido via
 `World::read_bytes`, como antes) ou `Value::Bytes` (usado directamente, zero
 I/O). `arg_path` mantido intacto para `native_read` (não tocado).

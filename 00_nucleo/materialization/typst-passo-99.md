@@ -72,7 +72,7 @@ executante:
   `plain_text()`, `is_empty()`, etc.
 - `01_core/src/entities/layout_types.rs` — possivelmente
   `TextStyle` (ver 99.A).
-- `01_core/src/rules/layout.rs` — possivelmente ponte de
+- `01_core/src/engine/layout.rs` — possivelmente ponte de
   `StyleChain` → `TextStyle` para o Layouter actual (ver 99.A).
 - ADR nova formalizando o mapa de camadas.
 
@@ -258,7 +258,7 @@ com `Content::Styled` e verificar que o layout produz a saída
 correcta.
 
 1. Criar teste em `01_core/src/entities/style_chain.rs`
-   (secção `#[cfg(test)]`) ou em `01_core/src/rules/layout/tests.rs`,
+   (secção `#[cfg(test)]`) ou em `01_core/src/engine/layout/tests.rs`,
    conforme mais coerente com a ADR-0037.
 2. Teste mínimo:
    ```rust

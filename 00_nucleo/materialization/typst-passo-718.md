@@ -33,7 +33,7 @@ Confirmar spread no meio (não só no fim), spread de dict dentro de literal de 
 ### Confirmar se `eval_args` (spread em chamadas de função) é um problema separado ou relacionado
 
 ```bash
-grep -n "fn eval_args\|Arg::Spread" 01_core/src/rules/eval/closures.rs
+grep -n "fn eval_args\|Arg::Spread" 01_core/src/engine/eval/closures.rs
 ```
 
 ```bash

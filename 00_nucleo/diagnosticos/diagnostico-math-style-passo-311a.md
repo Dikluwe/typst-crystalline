@@ -400,7 +400,7 @@ ADR-Math-Style-Composition se humano aceitar Caminho I.
 
 ### §3.4 — Integração com `is_single_letter_var`
 
-**Sítio cristalino afectado**: `01_core/src/rules/math/layout/mod.rs:
+**Sítio cristalino afectado**: `01_core/src/engine/math/layout/mod.rs:
 257-268`:
 
 ```rust

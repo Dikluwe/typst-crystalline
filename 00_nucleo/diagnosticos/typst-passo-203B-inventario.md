@@ -14,9 +14,9 @@ decisão de caminho). C1 produz factos; C2 fixa caminho.
 
 | Arm | Ficheiro:linha | Condição/gate | Tratamento de `kind` |
 |-----|----------------|---------------|----------------------|
-| **walk** | `01_core/src/rules/introspect.rs:866` | (ausente) | (ausente — arm puro) |
-| **extract_payload** | `01_core/src/rules/introspect/extract_payload.rs:27` | `is_counted: numbering.is_some() && caption.is_some()` | `kind: kind.clone()` (preserva `Option<String>` literal) |
-| **populate_intr_from_tag_start** | `01_core/src/rules/introspect.rs:527-559` | `if *is_counted { ... }` | `let kind_key = kind.as_deref().unwrap_or("image");` |
+| **walk** | `01_core/src/engine/introspect.rs:866` | (ausente) | (ausente — arm puro) |
+| **extract_payload** | `01_core/src/engine/introspect/extract_payload.rs:27` | `is_counted: numbering.is_some() && caption.is_some()` | `kind: kind.clone()` (preserva `Option<String>` literal) |
+| **populate_intr_from_tag_start** | `01_core/src/engine/introspect.rs:527-559` | `if *is_counted { ... }` | `let kind_key = kind.as_deref().unwrap_or("image");` |
 
 ### Detalhe — walk arm Figure (introspect.rs:866-890)
 
@@ -83,7 +83,7 @@ ElementPayload::Figure { kind, counter_update, is_counted, .. } => {
 ### Detalhe — `from_tags` arm Figure: NÃO EXISTE
 
 Pesquisa `grep -n "Content::Figure\|ElementPayload::Figure"
-01_core/src/rules/introspect/from_tags.rs` retorna 0
+01_core/src/engine/introspect/from_tags.rs` retorna 0
 matches.
 
 **Não há arm `Figure` em `from_tags::from_tags`**.
@@ -191,7 +191,7 @@ empírico contradiga premissa do spec.
 
 ### Passo 1 — Test E2E consolidado
 
-Adicionar em `01_core/src/rules/introspect.rs` (módulo
+Adicionar em `01_core/src/engine/introspect.rs` (módulo
 `tests`) um único test:
 
 ```
@@ -317,12 +317,12 @@ ou "Counter at locations" como nomenclatura de lacuna.
 - `00_nucleo/materialization/typst-passo-203B.md` (spec).
 - `00_nucleo/diagnosticos/typst-passo-203A-auditoria-position.md`.
 - `00_nucleo/diagnosticos/typst-passo-203A-diagnostico.md`.
-- `01_core/src/rules/introspect.rs:714, 866-890, 527-559,
+- `01_core/src/engine/introspect.rs:714, 866-890, 527-559,
   377-422` (walk fn + Figure walk arm + populate_intr +
   compute_labelled).
-- `01_core/src/rules/introspect/extract_payload.rs:27-34`
+- `01_core/src/engine/introspect/extract_payload.rs:27-34`
   (extract_payload Figure arm).
-- `01_core/src/rules/introspect/from_tags.rs` (sem arm
+- `01_core/src/engine/introspect/from_tags.rs` (sem arm
   Figure — confirmado).
 - `00_nucleo/diagnosticos/m1-lacunas-captura.md` (lacunas
   canónicas).

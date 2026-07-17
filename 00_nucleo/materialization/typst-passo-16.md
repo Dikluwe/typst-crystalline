@@ -3,7 +3,7 @@
 ## Estado actual antes de começar
 
 Ler antes de começar:
-- `01_core/src/rules/eval.rs` — control flow funcional do Passo 15
+- `01_core/src/engine/eval.rs` — control flow funcional do Passo 15
 - `01_core/src/entities/value.rs` — 9 variantes actuais
 - `lab/typst-original/crates/typst-library/src/foundations/func.rs`
 - `lab/typst-original/crates/typst-library/src/foundations/args.rs`
@@ -311,7 +311,7 @@ fn apply_closure(
 ### Adicionar `Scopes::push_scope` se não existir
 
 ```rust
-// Em 01_core/src/rules/scopes.rs
+// Em 01_core/src/engine/scopes.rs
 impl<'a> Scopes<'a> {
     /// Empurra um scope pre-populado para a pilha.
     /// Usado por apply_closure para criar o ambiente de chamada.

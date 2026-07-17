@@ -75,7 +75,7 @@ Confirmar empiricamente estado pós-P195D:
    `references.rs:53-67`.
 
 7. Confirmar mutação legacy preservada via grep:
-   - `grep -n "resolved_labels.insert" 01_core/src/rules/introspect.rs`
+   - `grep -n "resolved_labels.insert" 01_core/src/engine/introspect.rs`
      retorna walk arm Labelled (E4) + walk arm Heading
      auto-toc (E2 ainda activa).
 

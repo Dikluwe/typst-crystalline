@@ -122,7 +122,7 @@ Em `advance_shaped`, a cache é obtida e passada a `shaped_width`:
 
 ```rust
 fn advance_shaped(&self, text: &str, _size: Pt, style: &TextStyle) -> Option<Pt> {
-    use typst_core::rules::layout::needs_shaped_width;
+    use typst_core::engine::layout::needs_shaped_width;
     if !needs_shaped_width(text) {
         return None;
     }

@@ -152,7 +152,7 @@ fica após 132B captura `font`.
 
 ### 132A.4 — Inventário testes L1 com canary actual
 
-1. `grep -n "font_canary\|#set text(font:" 01_core/src/rules/eval/tests.rs`
+1. `grep -n "font_canary\|#set text(font:" 01_core/src/engine/eval/tests.rs`
    — todos os testes que usam `font` como canary.
 2. Registar lista de testes afectados em 132B:
    - Testes que testam captura positiva de outras props e
@@ -257,7 +257,7 @@ precedente 131B.
   - `StyleDelta.font: Option<FontList>` — novo campo.
   - `StyleDelta::empty()` ganha `font: None`.
 
-- `01_core/src/rules/eval/rules.rs`:
+- `01_core/src/engine/eval/rules.rs`:
   - Adicionar arm `"font"` com validação via construtor de
     `FontList`.
   - Arm emite Err hard em inválido (precedente 131B).

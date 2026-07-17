@@ -93,7 +93,7 @@ Fonte: `cristalino-contexto-handoff.md` (actualizado em P530) e relatórios de p
 
 | Aspecto | Resultado |
 |---------|-----------|
-| Referências a `@preview`, `package`, `universe` | Nenhuma em `01_core/src/rules/eval/`. |
+| Referências a `@preview`, `package`, `universe` | Nenhuma em `01_core/src/engine/eval/`. |
 | Teste directo `#import "@preview/cetz:0.2.2"` | Erro: `import não implementado nesta versão do cristalino`. |
 | Estado | **AUSENTE** — não há sequer parsing/resolução de pacotes de repositório. |
 
@@ -124,7 +124,7 @@ Fonte: `cristalino-contexto-handoff.md` (actualizado em P530) e relatórios de p
 
 | Aspecto | Resultado |
 |---------|-----------|
-| Referências a CJK break / Thai / ICU / word segment | Nenhuma em `01_core/src/rules/layout/`. |
+| Referências a CJK break / Thai / ICU / word segment | Nenhuma em `01_core/src/engine/layout/`. |
 | Teste directo com japonês em coluna estreita | Cristalino não encontrou fonte CJK e usou Helvetica; não foi possível avaliar a quebra. Em termos de infraestrutura, não há segmentador de palavras CJK/Thai. |
 | Estado | **AUSENTE** — assume espaços como únicos pontos de quebra. |
 
@@ -132,7 +132,7 @@ Fonte: `cristalino-contexto-handoff.md` (actualizado em P530) e relatórios de p
 
 | Aspecto | Resultado |
 |---------|-----------|
-| Código | Existe `01_core/src/rules/layout/hyphenation.rs` com wrapper `hypher`. |
+| Código | Existe `01_core/src/engine/layout/hyphenation.rs` com wrapper `hypher`. |
 | Integração | `cursor.rs` chama `hyphenate(word, &lang)` quando `hyphenate: true`. |
 | Testes | `cargo test` inclui testes de hyphenation para EN e PT. |
 | Estado | **FECHADO** — implementado (Passo 144 / ADR-0057). |

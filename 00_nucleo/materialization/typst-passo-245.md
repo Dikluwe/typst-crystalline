@@ -43,7 +43,7 @@ Place {
 }
 ```
 
-Layouter consumer em `01_core/src/rules/layout/mod.rs:916`:
+Layouter consumer em `01_core/src/engine/layout/mod.rs:916`:
 
 ```rust
 Content::Place { alignment, dx, dy, scope,
@@ -145,7 +145,7 @@ incluem `float` + `clearance` desde P223.
 
 ### §2.2 Inventário Layouter consumer pré-P245 (factual)
 
-`grep -n "Content::Place" 01_core/src/rules/layout/mod.rs`:
+`grep -n "Content::Place" 01_core/src/engine/layout/mod.rs`:
 
 ```
 156:    /// `Content::Place { scope: Column, .. }` ancora à célula.
@@ -160,7 +160,7 @@ P243→P244 onde trabalho já está feito.
 
 ### §2.3 Layouter fields pré-P245
 
-`grep -n "cell_origin\|cell_available" 01_core/src/rules/layout/mod.rs | head -10`:
+`grep -n "cell_origin\|cell_available" 01_core/src/engine/layout/mod.rs | head -10`:
 
 Confirmar presença de `cell_origin_x`, `cell_origin_y`,
 `cell_origin_w`, `cell_available_h` (P83+P84.6). **Hipótese
@@ -200,7 +200,7 @@ Esperado: **2198 verdes** (estado pós-P244 administrativo).
 
 ### §2.6 Sub-tests P223 baseline
 
-`grep -n "fn .*place.*float\|fn .*place.*clearance" 01_core/src/entities/content.rs 01_core/src/rules/stdlib/*.rs 01_core/src/rules/layout/*.rs | head -20`:
+`grep -n "fn .*place.*float\|fn .*place.*clearance" 01_core/src/entities/content.rs 01_core/src/engine/stdlib/*.rs 01_core/src/engine/layout/*.rs | head -20`:
 
 Identificar tests P223 que validam storage de `float` +
 `clearance`. **Devem preservar** pós-P245 (storage continua
@@ -345,7 +345,7 @@ erro hard em `native_place`. **Esta sentinela já está activa P223**
 ### Decisão 7 — Sem tipo entity novo; sem ADR nova
 
 P245 é refino consumer. Buffer struct `DeferredFloat` é local ao
-Layouter (`01_core/src/rules/layout/`), não é `entities/` L1 type.
+Layouter (`01_core/src/engine/layout/`), não é `entities/` L1 type.
 Não há novo `Content::*` variant; não há nova trait. ADR-0081
 preserva-se literal — P245 materializa M7+4 que já está descrito
 literal na ADR.
@@ -384,11 +384,11 @@ Block.width graded P156G → real futuro).
 
 | Categoria | Ficheiro | Trabalho |
 |-----------|----------|----------|
-| L1 Layouter | `01_core/src/rules/layout/mod.rs` | Arm `Content::Place { float: true, .. }` activa; método `flush_pending_floats`; novos fields `floats_pending` + `cursor_y_top_reserve` + `cursor_y_bottom_reserve` |
-| L1 Layouter | `01_core/src/rules/layout/mod.rs` | `new_page()` + `finish()` chamam flush |
-| L1 helpers | `01_core/src/rules/layout/mod.rs` (ou módulo) | Helper `layout_sub_frame_capture` para layout body sem emitir (capture items + dimensões) |
-| L1 Layouter | `01_core/src/rules/layout/mod.rs` | Tracking de `is_inside_grid_cell` (ou reuso de `cell_origin_*`) |
-| Tests Layouter | `01_core/src/rules/layout/mod.rs` (test module) | 4-5 unit tests + 2-3 E2E |
+| L1 Layouter | `01_core/src/engine/layout/mod.rs` | Arm `Content::Place { float: true, .. }` activa; método `flush_pending_floats`; novos fields `floats_pending` + `cursor_y_top_reserve` + `cursor_y_bottom_reserve` |
+| L1 Layouter | `01_core/src/engine/layout/mod.rs` | `new_page()` + `finish()` chamam flush |
+| L1 helpers | `01_core/src/engine/layout/mod.rs` (ou módulo) | Helper `layout_sub_frame_capture` para layout body sem emitir (capture items + dimensões) |
+| L1 Layouter | `01_core/src/engine/layout/mod.rs` | Tracking de `is_inside_grid_cell` (ou reuso de `cell_origin_*`) |
+| Tests Layouter | `01_core/src/engine/layout/mod.rs` (test module) | 4-5 unit tests + 2-3 E2E |
 | Tests content | `01_core/src/entities/content.rs` (test module) | 3-4 unit tests reforço cascata fields (provavelmente preservados; reforço apenas) |
 | Inventário 148 | `00_nucleo/diagnosticos/typst-cobertura-vanilla-vs-cristalino.md` | §A.5 `place(...)` `implementado⁺ ⁵ ⁴⁴` → `implementado⁺` literal (remove footnotes 5 e 44 que apontavam "float armazenado mas ignorado") |
 | ADR-0081 | `00_nucleo/adr/typst-adr-0081-m7-plus-pipeline-restructuring-scope.md` | Status `IMPLEMENTADO parcial 4.5/5` → **`IMPLEMENTADO total 5/5`** + bloco P245 anotação |

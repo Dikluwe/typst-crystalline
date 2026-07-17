@@ -7,13 +7,13 @@
 
 ## Sumário
 
-O catch-all `_ => Ok(Value::None)` de `eval_expr` (`01_core/src/rules/eval/mod.rs:819`) foi removido. O `match` passou a ser exaustivo: `#break`, `#continue` e `#return` usados fora do contexto respectivo agora produzem erros claros, byte-idênticos ao vanilla. Testes de P633 que confirmavam a falha silenciosa foram invertidos para confirmar o erro. Não houve regressão na suite.
+O catch-all `_ => Ok(Value::None)` de `eval_expr` (`01_core/src/engine/eval/mod.rs:819`) foi removido. O `match` passou a ser exaustivo: `#break`, `#continue` e `#return` usados fora do contexto respectivo agora produzem erros claros, byte-idênticos ao vanilla. Testes de P633 que confirmavam a falha silenciosa foram invertidos para confirmar o erro. Não houve regressão na suite.
 
 ## Sonda
 
 ### Variantes que caíam no catch-all
 
-Medição em `01_core/src/rules/eval/mod.rs:585-820` (`eval_expr`) comparada com a definição de `Expr` em `01_core/src/entities/ast/expr.rs:35-95`:
+Medição em `01_core/src/engine/eval/mod.rs:585-820` (`eval_expr`) comparada com a definição de `Expr` em `01_core/src/entities/ast/expr.rs:35-95`:
 
 - Tratadas explicitamente antes da alteração: `Int`, `Float`, `Str`, `Bool`, `None`, `Auto`, `Ident`, `LetBinding`, `CodeBlock`, `Binary`, `Unary`, `Conditional`, `WhileLoop`, `ForLoop`, `Closure`, `FuncCall`, `Strong`, `Emph`, `Heading`, `Raw`, `Link`, `ListItem`, `EnumItem`, `FieldAccess`, `SetRule`, `ContentBlock`, `Equation`, `Math`, `ModuleImport`, `ModuleInclude`, `Ref`, `Label`, `ShowRule`, `Array`, `Dict`, `Parenthesized`, `Numeric`, `Contextual`, `Escape`, `Shorthand`, `Linebreak`.
 - No catch-all (não migradas ou estruturais): `Text`, `Space`, `Parbreak`, `SmartQuote`, `TermItem`, `MathText`, `MathIdent`, `MathShorthand`, `MathAlignPoint`, `MathDelimited`, `MathAttach`, `MathPrimes`, `MathFrac`, `MathRoot`, `DestructAssignment`, `LoopBreak`, `LoopContinue`, `FuncReturn`.
@@ -38,22 +38,22 @@ Investigação mostrou que `0xZZ` não chega ao catch-all de `eval_expr`. O lexe
 
 ### Prompt L0
 
-`00_nucleo/prompts/rules/eval.md` atualizado para refletir:
+`00_nucleo/prompts/engine/eval.md` atualizado para refletir:
 
-- Ficheiro alvo: `01_core/src/rules/eval/mod.rs`.
+- Ficheiro alvo: `01_core/src/engine/eval/mod.rs`.
 - Nova secção §P634 com as mensagens de erro e a justificação da ausência de `FlowEvent`.
 - Fronteira deliberada actualizada: `match` exaustivo, sem catch-all silencioso; variantes estritamente estruturais (`Text`, `Space`, `Math*`, etc.) continuam a devolver `Value::None`; `DestructAssignment` produz erro.
 
 ### Código
 
-`01_core/src/rules/eval/mod.rs`:
+`01_core/src/engine/eval/mod.rs`:
 
 - Adicionados braços para `Expr::LoopBreak`, `Expr::LoopContinue` e `Expr::FuncReturn` com as mensagens do vanilla.
 - Adicionado braço para `Expr::DestructAssignment` com erro de "não implementado".
 - Agrupadas variantes estruturais de markup/math num braço que devolve `Ok(Value::None)`.
 - Removido o catch-all `_ => Ok(Value::None)`.
 
-`01_core/src/rules/eval/tests.rs`:
+`01_core/src/engine/eval/tests.rs`:
 
 - `p633_break_top_level_silently_none` → `p634_break_top_level_errors`.
 - `p633_continue_top_level_silently_none` → `p634_continue_top_level_errors`.

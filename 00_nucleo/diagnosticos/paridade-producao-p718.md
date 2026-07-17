@@ -36,7 +36,7 @@ Casos adicionais (`ast::Array::eval`/`ast::Dict::eval`, `code.rs:224-306`):
 
 ### 1.2 `eval_args` — mesmo gap, com consumidor pesado em `cetz`
 
-`grep -n "fn eval_args\|Arg::Spread" 01_core/src/rules/eval/closures.rs` →
+`grep -n "fn eval_args\|Arg::Spread" 01_core/src/engine/eval/closures.rs` →
 `Arg::Spread(_) => {} // fronteira deliberada` (linha 60, antes deste
 passo). Medido:
 
@@ -92,7 +92,7 @@ valor); confirmado sem regressão após a implementação.
 
 ## 2. Implementação
 
-L0 actualizado primeiro: `00_nucleo/prompts/rules/eval.md` §P718 (hash
+L0 actualizado primeiro: `00_nucleo/prompts/engine/eval.md` §P718 (hash
 `dc496ef8` via `crystalline-lint --fix-hashes`). Testes escritos antes do
 código: 15 testes `p718_*`, 11 a falhar no estado P717 (4 passavam por
 coincidência — casos que não dependem de spread, ex. `none` em dict e o

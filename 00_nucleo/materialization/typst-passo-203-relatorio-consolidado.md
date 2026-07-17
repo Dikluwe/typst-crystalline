@@ -72,7 +72,7 @@ Resultado empírico:
 - `typst-passo-203B-relatorio.md` (~12 KB).
 
 **P203B** — código:
-- `01_core/src/rules/introspect.rs` — test
+- `01_core/src/engine/introspect.rs` — test
   `p203b_lacuna_1_e_1b_fecho_formal_4_casos` adicionado
   (~120 LOC tests).
 

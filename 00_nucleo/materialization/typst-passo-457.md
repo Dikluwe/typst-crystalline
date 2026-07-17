@@ -99,7 +99,7 @@ pub enum Content {
 
 **Simplificação para subset minimal:** 1-pass com colecção de headings durante eval. Page numbers são scope-out ou placeholder (`"?"`).
 
-### 5. Layout de outline (`rules/layout/outline.rs` ou `rules/layout/mod.rs`)
+### 5. Layout de outline (`engine/layout/outline.rs` ou `engine/layout/mod.rs`)
 
 - Ao encontrar `Content::Outline`:
   1. Colecionar headings do documento (via `Introspector` ou lista pré-computada no eval context).
@@ -134,8 +134,8 @@ pub enum Content {
 ### 8. Spec L0
 
 - `00_nucleo/prompts/entities/content.md` — `Content::Outline`.
-- `00_nucleo/prompts/rules/stdlib/structural.md` — `outline(title?, depth?, indent?)`.
-- `00_nucleo/prompts/rules/layout/outline.md` — layout de sumário.
+- `00_nucleo/prompts/engine/stdlib/structural.md` — `outline(title?, depth?, indent?)`.
+- `00_nucleo/prompts/engine/layout/outline.md` — layout de sumário.
 
 ---
 

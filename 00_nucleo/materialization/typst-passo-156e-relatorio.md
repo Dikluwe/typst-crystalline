@@ -73,8 +73,8 @@ reforçada com N=3 aplicações consecutivas.
 ```bash
 grep -E "Pagebreak|Parity" 01_core/src/entities/    # zero hits
 ls 01_core/src/entities/parity.rs 2>/dev/null       # NÃO existe
-grep "native_pagebreak" 01_core/src/rules/stdlib/   # zero hits
-grep "fn new_page" 01_core/src/rules/layout/cursor.rs   # existe (linha 128)
+grep "native_pagebreak" 01_core/src/engine/stdlib/   # zero hits
+grep "fn new_page" 01_core/src/engine/layout/cursor.rs   # existe (linha 128)
 ```
 
 Confirmações:
@@ -194,8 +194,8 @@ Pagebreak {
 | `Content::map_text` | `entities/content.rs` | terminal (clone) |
 | `materialize_time` | `rules/introspect.rs` | clone (leaf) |
 | `walk` | `rules/introspect.rs` | no-op (leaf) |
-| `layout_content` | `rules/layout/mod.rs` | flush_line + new_page + parity check |
-| `measure_content_constrained` | `rules/layout/mod.rs` | `(0.0, 0.0)` |
+| `layout_content` | `engine/layout/mod.rs` | flush_line + new_page + parity check |
+| `measure_content_constrained` | `engine/layout/mod.rs` | `(0.0, 0.0)` |
 
 **Verificação**: `cargo build -p typst-core` clean (sem
 warnings de variantes não cobertas).
@@ -255,7 +255,7 @@ scope.define("pagebreak",
 Re-export em `stdlib/mod.rs`:
 
 ```rust
-pub use crate::rules::stdlib::layout::{
+pub use crate::engine::stdlib::layout::{
     native_align, native_grid, native_h, native_hide, native_pad,
     native_page, native_pagebreak, native_place, native_v,
 };
@@ -641,13 +641,13 @@ Critérios da spec P156E (§Verificação):
   - `01_core/src/entities/content.rs` (variant Pagebreak +
     construtor + cobertura arms + 5 tests).
   - `01_core/src/entities/mod.rs` (registo `pub mod parity;`).
-  - `01_core/src/rules/introspect.rs` (arm Pagebreak em
+  - `01_core/src/engine/introspect.rs` (arm Pagebreak em
     materialize_time + walk).
-  - `01_core/src/rules/layout/mod.rs` (arm Pagebreak em
+  - `01_core/src/engine/layout/mod.rs` (arm Pagebreak em
     layout_content + measure_content_constrained).
-  - `01_core/src/rules/layout/tests.rs` (4 tests E2E).
-  - `01_core/src/rules/stdlib/layout.rs` (`extract_parity`
+  - `01_core/src/engine/layout/tests.rs` (4 tests E2E).
+  - `01_core/src/engine/stdlib/layout.rs` (`extract_parity`
     helper + `native_pagebreak`).
-  - `01_core/src/rules/stdlib/mod.rs` (re-export + 10 tests).
-  - `01_core/src/rules/eval/mod.rs` (registo em
+  - `01_core/src/engine/stdlib/mod.rs` (re-export + 10 tests).
+  - `01_core/src/engine/eval/mod.rs` (registo em
     `make_stdlib`).

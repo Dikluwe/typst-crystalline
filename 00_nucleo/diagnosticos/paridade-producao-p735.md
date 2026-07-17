@@ -5,8 +5,8 @@
 - **Commit base:** `a1111e8e4426fefd81486fb104f1d8e77034cac6` ("P734: preenche hash do commit no relatório")
 - **Commit da implementação:** `c323a029446bc7cdddffc3642d0200b4d909b28e` ("P735: namespaces emoji e pdf como modulos (paridade vanilla)")
 - **Estado na medição final:** working tree não commitado; `git diff HEAD --stat`:
-  - `01_core/src/rules/eval/mod.rs` (+6), `01_core/src/rules/eval/tests.rs` (+61), `01_core/src/rules/stdlib/mod.rs` (+6)
-  - ficheiros novos (untracked): `00_nucleo/prompts/rules/stdlib/emoji.md`, `00_nucleo/prompts/rules/stdlib/pdf.md`, `01_core/src/rules/stdlib/emoji.rs`, `01_core/src/rules/stdlib/pdf.rs`
+  - `01_core/src/engine/eval/mod.rs` (+6), `01_core/src/engine/eval/tests.rs` (+61), `01_core/src/engine/stdlib/mod.rs` (+6)
+  - ficheiros novos (untracked): `00_nucleo/prompts/engine/stdlib/emoji.md`, `00_nucleo/prompts/engine/stdlib/pdf.md`, `01_core/src/engine/stdlib/emoji.rs`, `01_core/src/engine/stdlib/pdf.rs`
 - **Hora da validação final:** 2026-07-13 ~20:35 (-03)
 - **Binário vanilla de referência:** `lab/typst-original/target/release/typst` (0.14, features padrão)
 - **Binário cristalino:** `./target/release/typst` (rebuild após a implementação)
@@ -35,11 +35,11 @@ Achados da sonda:
   - `pdf.attach(...)` → **scope-out com erro explícito** ("o exportador PDF cristalino não suporta ficheiros embutidos (scope-out)") — o observável é a mensagem de erro; silenciar seria pior (falso sucesso).
   - `pdf.artifact(body)` → **passthrough do body** (paridade de render: o vanilla renderiza o body; a marcação de artefacto no tag tree é scope-out global do exportador).
 
-L0: `00_nucleo/prompts/rules/stdlib/emoji.md` e `00_nucleo/prompts/rules/stdlib/pdf.md` (hashes fixados via `crystalline-lint --fix-hashes .`).
+L0: `00_nucleo/prompts/engine/stdlib/emoji.md` e `00_nucleo/prompts/engine/stdlib/pdf.md` (hashes fixados via `crystalline-lint --fix-hashes .`).
 
 ## Testes (fail-first confirmado: 5/5 falhavam antes da implementação)
 
-Em `01_core/src/rules/eval/tests.rs`:
+Em `01_core/src/engine/eval/tests.rs`:
 
 1. `p735_type_emoji_e_pdf_sao_module` — `type(emoji)` e `type(pdf)` → `Type::Module`
 2. `p735_emoji_face_e_entradas_da_tabela` — `emoji.face`/`emoji.ant`/`emoji.banana` → 😀/🐜/🍌
@@ -51,10 +51,10 @@ Nota de execução: o teste 4 usava inicialmente `bytes("hi")` como argumento; o
 
 ## Implementação
 
-- `01_core/src/rules/stdlib/emoji.rs` (novo): `EMOJI_TABLE: &[(&str, char)]` (530 entradas, tabela gerada do codex-0.2.0) + `build_emoji_module()` (mirror de `build_sym_module`, P731).
-- `01_core/src/rules/stdlib/pdf.rs` (novo): `make_pdf_module()` + `native_pdf_attach` (erro scope-out) + `native_pdf_artifact` (passthrough, named-args rejeitados, aridade 1).
-- `01_core/src/rules/stdlib/mod.rs`: `mod emoji; mod pdf;` + `pub use` dos builders.
-- `01_core/src/rules/eval/mod.rs`: `scope.define("emoji", ...)` e `scope.define("pdf", ...)` no scope global.
+- `01_core/src/engine/stdlib/emoji.rs` (novo): `EMOJI_TABLE: &[(&str, char)]` (530 entradas, tabela gerada do codex-0.2.0) + `build_emoji_module()` (mirror de `build_sym_module`, P731).
+- `01_core/src/engine/stdlib/pdf.rs` (novo): `make_pdf_module()` + `native_pdf_attach` (erro scope-out) + `native_pdf_artifact` (passthrough, named-args rejeitados, aridade 1).
+- `01_core/src/engine/stdlib/mod.rs`: `mod emoji; mod pdf;` + `pub use` dos builders.
+- `01_core/src/engine/eval/mod.rs`: `scope.define("emoji", ...)` e `scope.define("pdf", ...)` no scope global.
 
 ## Validação
 

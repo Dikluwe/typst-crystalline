@@ -70,7 +70,7 @@ cumulativas formalizadas; +7 testes).
 | `01_core/src/entities/style.rs:25-44` | extensão enum | +1 variant `Lang(Lang)`; doc-comment com justificação P288 |
 | `01_core/src/entities/style.rs:130-143` | test extensão | atualiza catalog test de 5 → 6 variants |
 | `01_core/src/entities/style_chain.rs:142-145` | cascade arm | +1 arm `Style::Lang(l) => delta.lang = Some(*l)` |
-| `01_core/src/rules/layout/mod.rs:1992-2009` | refino consumer P287 SmartQuote | `layout_content(Content::Text)` → `layout_word(glyph)` para preservar NBSP em FR |
+| `01_core/src/engine/layout/mod.rs:1992-2009` | refino consumer P287 SmartQuote | `layout_content(Content::Text)` → `layout_word(glyph)` para preservar NBSP em FR |
 | `00_nucleo/adr/typst-adr-0098-single-source-of-truth-invariante-anti-bug.md` | ADR meta nova | ~220 LOC formaliza padrão com 5 aplicações cumulativas |
 | `00_nucleo/prompts/entities/style.md` | L0 | +6º variant em B.3 + nota assimetria residual |
 | `00_nucleo/diagnosticos/typst-cobertura-vanilla-vs-cristalino.md` | L0 cobertura | B.3 +1 linha; B.4 nota P288; footnote ⁷⁴ ~75 LOC |
@@ -208,8 +208,8 @@ confirmado).
 | Local | Quantidade | Cobertura |
 |---|---:|---|
 | `entities/style.rs` (mod tests) | 1 | Catalog test atualizado 5 → 6 variants (`Style::Lang(Lang::ENGLISH)` incluído) |
-| `rules/layout/tests.rs` (`p287_smartquote_tests` reactivados) | 3 | **`p288_smartquote_double_lang_en_emite_curly_open_e_close`** (U+201C/U+201D); **`p288_smartquote_double_lang_pt_emite_chevrons`** («/»); **`p288_smartquote_double_lang_fr_inclui_nbsp`** (NBSP preservado) |
-| `rules/layout/tests.rs` (`p288_style_lang_tests`) | 4 | Variant ctor; `push_styles` projecta no delta; `Content::Styled` injetado lê `chain.lang()`; last-write-wins entre `Style::Lang` consecutivos |
+| `engine/layout/tests.rs` (`p287_smartquote_tests` reactivados) | 3 | **`p288_smartquote_double_lang_en_emite_curly_open_e_close`** (U+201C/U+201D); **`p288_smartquote_double_lang_pt_emite_chevrons`** («/»); **`p288_smartquote_double_lang_fr_inclui_nbsp`** (NBSP preservado) |
+| `engine/layout/tests.rs` (`p288_style_lang_tests`) | 4 | Variant ctor; `push_styles` projecta no delta; `Content::Styled` injetado lê `chain.lang()`; last-write-wins entre `Style::Lang` consecutivos |
 | **Total** | **7** | (3 reactivados de P287 § 4 adiados — contam para o delta P288) |
 
 **Resultado**: 7/7 verdes (`cargo test --lib p288`).

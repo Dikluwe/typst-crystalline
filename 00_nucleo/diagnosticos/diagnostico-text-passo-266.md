@@ -65,7 +65,7 @@ consumo directo ADR-0084 + ADR-0085** EM VIGOR pós-P260).
 
 | Passo | Feature | Tipo |
 |-------|---------|------|
-| P144 | Lang hyphenation (`hypher` crate) | ADR-0057 + módulo `rules/layout/hyphenation.rs` |
+| P144 | Lang hyphenation (`hypher` crate) | ADR-0057 + módulo `engine/layout/hyphenation.rs` |
 | P146 | Multi-font per document | Extensão ADR-0055 decisão 5 |
 | P155 | `Content::Quote` + smart-quotes lang-aware | ADR-0060 Fase 1 + módulo `rules/lang/quotes.rs` |
 | P155 | `Content::Divider` + `Content::Terms` | ADR-0060 Fase 1 |
@@ -246,12 +246,12 @@ grep -rn "FontVariant\|FontWeight::from_name\|variant_aware" \
 
 ```bash
 # Hyphenation
-ls 01_core/src/rules/layout/hyphenation.rs
-grep -n "pub fn hyphenate\|hypher::" 01_core/src/rules/layout/hyphenation.rs
+ls 01_core/src/engine/layout/hyphenation.rs
+grep -n "pub fn hyphenate\|hypher::" 01_core/src/engine/layout/hyphenation.rs
 
 # Smart-quotes
-ls 01_core/src/rules/lang/quotes.rs
-grep -n "pub fn localize_quotes\|DEFAULT_QUOTES" 01_core/src/rules/lang/quotes.rs
+ls 01_core/src/engine/lang/quotes.rs
+grep -n "pub fn localize_quotes\|DEFAULT_QUOTES" 01_core/src/engine/lang/quotes.rs
 
 # Shaping ausente?
 grep -rn "rustybuzz::\|shape(" 01_core/src/ 03_infra/src/
@@ -273,7 +273,7 @@ grep -rn "SyntaxKind::Shorthand\|Shorthand::LIST" 01_core/src/
 
 # Raw blocks (code highlighting?)
 grep -n "Content::Raw\|fn raw\|highlight" \
-  01_core/src/entities/content.rs 01_core/src/rules/
+  01_core/src/entities/content.rs 01_core/src/engine/
 
 # Linebreak / Parbreak
 grep -n "Content::Linebreak\|Content::Parbreak" \
@@ -288,12 +288,12 @@ materializados vs ausentes.
 ```bash
 # L0 prompts text-related
 ls 00_nucleo/prompts/entities/style_chain.md
-ls 00_nucleo/prompts/rules/layout.md
-ls 00_nucleo/prompts/rules/lang.md
+ls 00_nucleo/prompts/engine/layout.md
+ls 00_nucleo/prompts/engine/lang.md
 
 # Hash drift verificar
 grep "@prompt-hash" 01_core/src/entities/style_chain.rs
-grep "@prompt-hash" 01_core/src/rules/layout/hyphenation.rs
+grep "@prompt-hash" 01_core/src/engine/layout/hyphenation.rs
 ```
 
 **Esperado** (per precedente P255/P257/P258/P259):

@@ -46,12 +46,12 @@ Foram rejeitadas: `RuntimeState` no layout engine; fixpoint no pipeline principa
 ### L0 / Documentação
 
 - Criados:
-  - `00_nucleo/prompts/rules/stdlib/state.md`
-  - `00_nucleo/prompts/rules/stdlib/counter.md`
-  - `00_nucleo/prompts/rules/stdlib/context.md`
+  - `00_nucleo/prompts/engine/stdlib/state.md`
+  - `00_nucleo/prompts/engine/stdlib/counter.md`
+  - `00_nucleo/prompts/engine/stdlib/context.md`
   - `00_nucleo/adr/typst-adr-0118-runtime-state-context.md`
 - Atualizado:
-  - `00_nucleo/prompts/rules/stdlib/foundations.md` — `native_state` retorna `Value::State`; adicionado `native_counter`.
+  - `00_nucleo/prompts/engine/stdlib/foundations.md` — `native_state` retorna `Value::State`; adicionado `native_counter`.
 
 ### L1 — `01_core/`
 
@@ -73,7 +73,7 @@ Foram rejeitadas: `RuntimeState` no layout engine; fixpoint no pipeline principa
 - `rules/introspect.rs` — walk popula `context_block_locations`.
 - `rules/introspect/extract_payload.rs` — `Content::ContextBlock` extrai payload.
 - `rules/introspect/locatable.rs` — `Content::ContextBlock` é locatable.
-- `rules/layout/mod.rs` — `Content::ContextBlock` não produz items visuais.
+- `engine/layout/mod.rs` — `Content::ContextBlock` não produz items visuais.
 
 ### L3 — `03_infra/`
 
@@ -127,13 +127,13 @@ Todos passam.
 
 | Ficheiro L1/L3 | Prompt L0 | Hash |
 |---|---|---|
-| `01_core/src/rules/stdlib/state.rs` | `00_nucleo/prompts/rules/stdlib/state.md` | `c9f3117b` |
-| `01_core/src/rules/stdlib/counter.rs` | `00_nucleo/prompts/rules/stdlib/counter.md` | `9e40c59a` |
-| `01_core/src/rules/stdlib/context.rs` | `00_nucleo/prompts/rules/stdlib/context.md` | `5139c5a0` |
-| `01_core/src/rules/stdlib/foundations.rs` | `00_nucleo/prompts/rules/stdlib/foundations.md` | `f27d43e2` |
-| `01_core/src/entities/state.rs` | `00_nucleo/prompts/rules/stdlib/state.md` | `c9f3117b` |
-| `01_core/src/entities/counter.rs` | `00_nucleo/prompts/rules/stdlib/counter.md` | `9e40c59a` |
-| `01_core/src/entities/elements/context_block.rs` | `00_nucleo/prompts/rules/stdlib/context.md` | `5139c5a0` |
+| `01_core/src/engine/stdlib/state.rs` | `00_nucleo/prompts/engine/stdlib/state.md` | `c9f3117b` |
+| `01_core/src/engine/stdlib/counter.rs` | `00_nucleo/prompts/engine/stdlib/counter.md` | `9e40c59a` |
+| `01_core/src/engine/stdlib/context.rs` | `00_nucleo/prompts/engine/stdlib/context.md` | `5139c5a0` |
+| `01_core/src/engine/stdlib/foundations.rs` | `00_nucleo/prompts/engine/stdlib/foundations.md` | `f27d43e2` |
+| `01_core/src/entities/state.rs` | `00_nucleo/prompts/engine/stdlib/state.md` | `c9f3117b` |
+| `01_core/src/entities/counter.rs` | `00_nucleo/prompts/engine/stdlib/counter.md` | `9e40c59a` |
+| `01_core/src/entities/elements/context_block.rs` | `00_nucleo/prompts/engine/stdlib/context.md` | `5139c5a0` |
 
 ---
 

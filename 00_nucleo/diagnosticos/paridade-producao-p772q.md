@@ -57,7 +57,7 @@ por baixo.
 ### 1.4 Confirmação do estado actual do cristalino (revalidação pós-P772n)
 
 ```
-$ grep -n "fn get_mut\|captured" 01_core/src/rules/scopes.rs 01_core/src/rules/eval/bindings.rs
+$ grep -n "fn get_mut\|captured" 01_core/src/engine/scopes.rs 01_core/src/engine/eval/bindings.rs
 ```
 
 `Scopes::get_mut` continua a nunca pesquisar `captured` (comportamento de
@@ -108,7 +108,7 @@ já usado por P772n para `is_constant`:
 `p772q_captured_by_function`, `p772q_captured_by_context`,
 `p772q_captured_by_none_para_nome_inexistente`,
 `p772q_sombra_local_de_nome_capturado_continua_mutavel`,
-`p772q_captured_by_precede_is_constant` (`01_core/src/rules/scopes.rs`).
+`p772q_captured_by_precede_is_constant` (`01_core/src/engine/scopes.rs`).
 
 ---
 

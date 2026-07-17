@@ -41,7 +41,7 @@ pdftotext /tmp/p721-cristalino.pdf -
 ### Localizar o código exacto
 
 ```bash
-grep -n "fn repr_value" 01_core/src/rules/eval/repr.rs
+grep -n "fn repr_value" 01_core/src/engine/eval/repr.rs
 ```
 
 Confirmar quais tipos já têm braço próprio no `repr_value`, e quais caem no fallback `{:?}`.

@@ -69,7 +69,7 @@ fn native_label(name: EcoString, body: Content) -> Content {
 
 **Scope-out de sintaxe:** `#label<sec1>` como sugar não é suportado neste passo; usa-se `label("sec1", body)` como função nativa. A sintaxe sugar é lexer/parser — scope-out para passo futuro.
 
-### 3. Layout de `label` (`rules/layout/mod.rs` ou `rules/layout/label.rs`)
+### 3. Layout de `label` (`engine/layout/mod.rs` ou `engine/layout/label.rs`)
 
 - Ao encontrar `Content::Label`:
   1. Renderizar `body` normalmente → obtém `Frame`.
@@ -134,7 +134,7 @@ pub struct PagedDocument {
 
 - `00_nucleo/prompts/entities/elements/label.md` — `LabelElem { name, body }`.
 - `00_nucleo/prompts/entities/document.md` — `PagedDocument` com `labels`.
-- `00_nucleo/prompts/rules/stdlib/interactive.md` — `native_label(name, body)`.
+- `00_nucleo/prompts/engine/stdlib/interactive.md` — `native_label(name, body)`.
 - `00_nucleo/prompts/03_infra/export.md` — `/Dests` no PDF catalog.
 
 ---

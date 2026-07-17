@@ -23,10 +23,10 @@ grep -n "Elem" 01_core/src/entities/selector.rs 2>/dev/null || grep -n "Selector
 grep -rn "struct ShowRule" 01_core/src/
 
 # 4. Show rule matching já existe no pipeline (eval ou layout)?
-grep -rn "show_rule\|show_rules\|match_show" 01_core/src/rules/ | head -20
+grep -rn "show_rule\|show_rules\|match_show" 01_core/src/engine/ | head -20
 
 # 5. Field access (P412) existe — necessário para .where(level: 1)?
-grep -rn "FieldAccess\|field_access" 01_core/src/entities/ 01_core/src/rules/eval/ 2>/dev/null | head -10
+grep -rn "FieldAccess\|field_access" 01_core/src/entities/ 01_core/src/engine/eval/ 2>/dev/null | head -10
 
 # 6. Element fields são acessíveis por nome (para matching)?
 grep -rn "fields\|field_names\|get_field" 01_core/src/entities/elements/ | head -20
@@ -35,7 +35,7 @@ grep -rn "fields\|field_names\|get_field" 01_core/src/entities/elements/ | head 
 grep -rn "Set\|Show" 01_core/src/entities/ast.rs 2>/dev/null | head -20
 
 # 8. Query infrastructure existe (para Selector usado em #query)?
-grep -rn "query\|Query" 01_core/src/rules/ | head -20
+grep -rn "query\|Query" 01_core/src/engine/ | head -20
 ```
 
 **Output esperado**:

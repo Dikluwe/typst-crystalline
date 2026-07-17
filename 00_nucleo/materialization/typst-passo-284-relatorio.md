@@ -49,7 +49,7 @@ pragmática (delta de testes; ver §5.2).
   Option<Color>` + `offset: Option<Length>` + `extent: Option<Length>`
   (4 campos cada; total +12 campos novos).
 - 3 funções stdlib: `native_underline`, `native_strike`,
-  `native_overline` em `01_core/src/rules/stdlib/text.rs`.
+  `native_overline` em `01_core/src/engine/stdlib/text.rs`.
 - 1 helper privado `build_decoration(DecoKind, args, fn_name)` —
   centraliza parsing dos 4 atributos (≈85 LOC).
 - 3 registos em `make_stdlib()` (eval/mod.rs).
@@ -162,7 +162,7 @@ Materialização procedeu directa.
 |---|---:|---|
 | `entities/content.rs` (mod tests) | 5 | construtores básicos; `plain_text` delega; `is_empty` proxy; `PartialEq` distingue cosméticos; `map_text` preserva atributos |
 | `rules/stdlib/mod.rs` (mod tests) | 6 | `native_underline` sem named; `strike`+`overline` idem; aceita string como body; named `stroke`/`offset`/`extent`; sem body → Err; `evade`/`background` Err explícito mencionando ADR-0054 |
-| `rules/layout/tests.rs` (`p284_decoration_tests`) | 4 | `FrameItem::Line` emitida; Y distinto por kind (underline > strike > overline em Y-down); offset override muda Y; extent estende horizontalmente |
+| `engine/layout/tests.rs` (`p284_decoration_tests`) | 4 | `FrameItem::Line` emitida; Y distinto por kind (underline > strike > overline em Y-down); offset override muda Y; extent estende horizontalmente |
 | `03_infra/src/export.rs` (`tests`) | 1 | PDF integration — operadores `q w m l S Q` + texto `Tj` no output bytes |
 | **Total** | **16** | — |
 

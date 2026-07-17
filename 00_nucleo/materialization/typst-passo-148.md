@@ -309,11 +309,11 @@ Para cada enum, extrair variants. Cross-reference com vanilla.
 
 Critério: feature está implementada se um dos seguintes for
 verdade:
-- Construtor existe em `01_core/src/rules/eval.rs` ou
+- Construtor existe em `01_core/src/engine/eval.rs` ou
   `stdlib`.
 - Variant capturada em `Content`, `Style`/`StyleDelta`,
   `Value`.
-- Test em `01_core/src/rules/` ou `03_infra/src/integration_tests.rs`
+- Test em `01_core/src/engine/` ou `03_infra/src/integration_tests.rs`
   exercita.
 
 Implícito: 146 passos materializaram features

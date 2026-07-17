@@ -5,8 +5,8 @@
 Ler antes de começar:
 - `01_core/src/entities/func.rs` — Onde `NativeFunc` e `FuncRepr` estão definidos.
 - `01_core/src/entities/args.rs` — Onde `Args` com `items` e `named` está definido.
-- `01_core/src/rules/eval.rs` — Onde mora o interceptador de `figure` e onde os args são recolhidos.
-- `01_core/src/rules/stdlib.rs` — Todas as funções nativas que vão sofrer a cascata.
+- `01_core/src/engine/eval.rs` — Onde mora o interceptador de `figure` e onde os args são recolhidos.
+- `01_core/src/engine/stdlib.rs` — Todas as funções nativas que vão sofrer a cascata.
 
 Pré-condição: `cargo test` — 631 L1 + 121 L3 + 50 parity, zero violations.
 DEBT-12, DEBT-13 encerrados. DEBT-16 registado.
@@ -36,16 +36,16 @@ grep -n "NativeFunc\|type Native\|Native(" \
   01_core/src/entities/func.rs 01_core/src/entities/value.rs | head -10
 
 # 2. Localizar o interceptador de figure em eval.rs
-grep -n "figure" 01_core/src/rules/eval.rs -C 3 | head -20
+grep -n "figure" 01_core/src/engine/eval.rs -C 3 | head -20
 
 # 3. Confirmar se Args já tem campo named (do Passo 17)
 grep -n "pub named\|named:" 01_core/src/entities/args.rs | head -5
 
 # 4. Contar as funções nativas em stdlib.rs — dimensão da cascata
-grep -c "^fn native_\|^pub fn native_" 01_core/src/rules/stdlib.rs
+grep -c "^fn native_\|^pub fn native_" 01_core/src/engine/stdlib.rs
 
 # 5. Ver como apply_func despacha para NativeFunc actualmente
-grep -n "Native\|native\|apply" 01_core/src/rules/eval.rs | head -15
+grep -n "Native\|native\|apply" 01_core/src/engine/eval.rs | head -15
 ```
 
 Reportar o output completo antes de continuar. A resposta à questão 3 é
@@ -269,7 +269,7 @@ após esta tarefa.
 Após remover:
 
 ```bash
-grep -n "figure" 01_core/src/rules/eval.rs  # deve retornar zero linhas
+grep -n "figure" 01_core/src/engine/eval.rs  # deve retornar zero linhas
 ```
 
 ### 4c — Verificar que os testes L3 de figure continuam a passar
@@ -344,7 +344,7 @@ fn eval_figure_sem_interceptador_em_eval_rs() {
 
 ```bash
 # Verificar pureza arquitectural:
-grep -n "figure" 01_core/src/rules/eval.rs
+grep -n "figure" 01_core/src/engine/eval.rs
 # Deve retornar zero linhas (ou apenas comentários)
 
 cargo clippy --fix --allow-dirty --allow-no-vcs

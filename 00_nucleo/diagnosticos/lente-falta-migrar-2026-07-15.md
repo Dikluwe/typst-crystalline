@@ -113,8 +113,8 @@ dois lados (falsos-positivos de dívida E falsos-negativos de cobertura).
 
 | Item | Veredicto após leitura do código | Evidência |
 |---|---|---|
-| `typst_library::model::title::TitleElem` (`#title()`) | **✅ confirmado ausente** | Nenhuma função `title` registada no scope do stdlib (`01_core/src/rules/stdlib/`); `document(title:…)` só guarda metadado — não existe o elemento de markup `#title()` que o vanilla expõe para renderizar o título no corpo do documento |
-| `typst_library::foundations::symbol::repr_variants` | **✅ confirmado incompleto** | `01_core/src/rules/eval/repr.rs:95` — `Value::Symbol(s) => s.ch.to_string()` — imprime só o char; não reproduz `symbol("α")`/`symbol(("bold","α"),…)` para símbolos compostos/modificados |
+| `typst_library::model::title::TitleElem` (`#title()`) | **✅ confirmado ausente** | Nenhuma função `title` registada no scope do stdlib (`01_core/src/engine/stdlib/`); `document(title:…)` só guarda metadado — não existe o elemento de markup `#title()` que o vanilla expõe para renderizar o título no corpo do documento |
+| `typst_library::foundations::symbol::repr_variants` | **✅ confirmado incompleto** | `01_core/src/engine/eval/repr.rs:95` — `Value::Symbol(s) => s.ch.to_string()` — imprime só o char; não reproduz `symbol("α")`/`symbol(("bold","α"),…)` para símbolos compostos/modificados |
 | `typst_library::visualize::gradient::process_stops` | **❌ falso-positivo** | Lógica presente, reestruturada inline em `Gradient::sample()` (`01_core/src/entities/gradient.rs:147` e variantes radial/cónica) — exatamente o efeito de arquitetura nova (free-fn vanilla → método inline cristalino) |
 | `typst_library::visualize::gradient::sample_stops` | **❌ falso-positivo** | mesma causa que o item acima |
 
@@ -125,9 +125,9 @@ incompleto para variantes/modificadores**. Não sistémico.
 
 O maior grupo por módulo dentro de `lacuna-inventario` (400 itens) é
 `typst_library::foundations` (93), quase todo `calc.*` (`abs`, `sin`, `gcd`, `clamp`,
-`binom`, …). Verificado: **já implementados** em `01_core/src/rules/stdlib/calc.rs`
+`binom`, …). Verificado: **já implementados** em `01_core/src/engine/stdlib/calc.rs`
 (registo `dict.insert("abs".into(), Value::Func(Func::native("calc.abs", calc_abs)))`,
-etc., com testes em `01_core/src/rules/stdlib/mod.rs`). O Inventário 148 trata `calc`
+etc., com testes em `01_core/src/engine/stdlib/mod.rs`). O Inventário 148 trata `calc`
 como módulo único, não função-a-função — por isso o índice de features não tem entrada
 para `abs`/`sin`/etc. individualmente, e o cruzamento cai em "fora do índice" em vez de
 "implementado". **Não é dívida — é lacuna de granularidade do inventário**, não do

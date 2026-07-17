@@ -41,11 +41,11 @@ em P157B e P157C subsequentes.
   — Caso A aplicável (TrackSizing).
 - `00_nucleo/adr/typst-adr-0065-inventariar-primeiro.md` —
   critério #5 já validado em P157; aplicação geral em .1.
-- `01_core/src/rules/layout/grid.rs` (272 linhas) — algoritmo
+- `01_core/src/engine/layout/grid.rs` (272 linhas) — algoritmo
   a delegar.
 - `01_core/src/entities/content.rs` — variant `Content::Grid`
   para padrão estrutural.
-- `01_core/src/rules/stdlib/layout.rs` — `extract_tracks`
+- `01_core/src/engine/stdlib/layout.rs` — `extract_tracks`
   helper a reusar.
 - `lab/typst-original/crates/typst-library/src/model/table.rs`
   (vanilla, quarentena) — código de referência.
@@ -159,7 +159,7 @@ primeiro passo de novo módulo:
 
 ### .3 Adicionar stdlib func `native_table`
 
-Per decisão em .1, em `01_core/src/rules/stdlib/model.rs`
+Per decisão em .1, em `01_core/src/engine/stdlib/model.rs`
 (módulo novo) ou `stdlib/layout.rs`:
 - Func `table(columns: none, rows: none, ...children) -> content`.
 - Reusar `extract_tracks` para parse de `columns`/`rows`.
@@ -176,7 +176,7 @@ Se `stdlib/model.rs` for novo:
 
 ### .4 Adicionar layout para `Content::Table`
 
-`01_core/src/rules/layout/`:
+`01_core/src/engine/layout/`:
 - Pattern arm novo em `layout_content` (ou módulo equivalente)
   para `Content::Table { .. }`.
 - Delega a `layout_grid` (clone simples per ADR-0060 §Decisão 4):

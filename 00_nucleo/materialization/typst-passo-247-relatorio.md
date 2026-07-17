@@ -166,7 +166,7 @@ internamente.
 ## §4 Layouter activação Shape + outset semantic (C3)
 
 ```rust
-// 01_core/src/rules/layout/mod.rs (Block arm; ≈ linha 1261)
+// 01_core/src/engine/layout/mod.rs (Block arm; ≈ linha 1261)
 Content::Block { body, width, height, inset, breakable: _,
                   outset, radius, clip, fill, stroke } => {
     // ... cálculos inset/outset ...
@@ -218,7 +218,7 @@ output bit-equivalente a P246 (test
 ## §5 stdlib native_block + native_box (C4)
 
 ```rust
-// 01_core/src/rules/stdlib/layout.rs (native_block; ≈ linha 688)
+// 01_core/src/engine/stdlib/layout.rs (native_block; ≈ linha 688)
 // P247 — aceitar fill/stroke parsing pós-loop:
 "outset" | "radius" | "clip" | "fill" | "stroke" => {},
 

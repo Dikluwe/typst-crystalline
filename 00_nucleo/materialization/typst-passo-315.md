@@ -74,7 +74,7 @@ Conteúdo mínimo:
 Adicionar às regras permanentes:
 
 > - Se a Fase B do lote precisar **editar** um prompt grosso
->   (`rules/eval.md`, `rules/parse.md`, `rules/layout.md` ou outro com
+>   (`rules/eval.md`, `rules/parse.md`, `engine/layout.md` ou outro com
 >   linhagem larga), o imposto morde: **fatiar primeiro** pela receita do
 >   P314 (partição content-preserving, `_comum.md` por área, `git rm` do
 >   prompt velho — a trilha fica no git, decisão do dono no P316).

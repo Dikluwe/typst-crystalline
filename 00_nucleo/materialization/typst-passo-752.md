@@ -16,7 +16,7 @@
 ### Confirmar exactamente que implementação de `FontMetrics` é usada em `ensure_initial_baseline()`
 
 ```bash
-grep -n "fn ensure_initial_baseline\|FixedMetrics\|dyn FontMetrics\|impl FontMetrics" 01_core/src/rules/layout/mod.rs 01_core/src/rules/layout/cursor.rs
+grep -n "fn ensure_initial_baseline\|FixedMetrics\|dyn FontMetrics\|impl FontMetrics" 01_core/src/engine/layout/mod.rs 01_core/src/engine/layout/cursor.rs
 ```
 
 Confirmar se `ensure_initial_baseline()` recebe uma referência genérica a `dyn FontMetrics` (podendo então receber `FontBookMetrics` real), ou se está ligado directamente a `FixedMetrics` de forma rígida.
@@ -24,7 +24,7 @@ Confirmar se `ensure_initial_baseline()` recebe uma referência genérica a `dyn
 ### Confirmar se a fonte real (necessária para `FontBookMetrics`) já está resolvida no ponto onde `ensure_initial_baseline()` corre
 
 ```bash
-grep -n "fn ensure_initial_baseline" -A 30 01_core/src/rules/layout/mod.rs 01_core/src/rules/layout/cursor.rs
+grep -n "fn ensure_initial_baseline" -A 30 01_core/src/engine/layout/mod.rs 01_core/src/engine/layout/cursor.rs
 ```
 
 Confirmar se, no momento da primeira emissão de conteúdo real (texto, equação, etc.), a fonte já está resolvida (nome, ficheiro, `ttf_parser::Face` disponível) — se sim, `FontBookMetrics::cap_height` pode ser chamado directamente. Se a fonte ainda não estiver resolvida nesse ponto (por exemplo, a resolução de fonte acontece depois, durante o shaping), confirmar o que fazer.
@@ -32,7 +32,7 @@ Confirmar se, no momento da primeira emissão de conteúdo real (texto, equaçã
 ### Confirmar por que `FixedMetrics` existe e é usado aqui, historicamente
 
 ```bash
-grep -n "FixedMetrics" 01_core/src/rules/layout/*.rs 03_infra/src/*.rs | grep -v test
+grep -n "FixedMetrics" 01_core/src/engine/layout/*.rs 03_infra/src/*.rs | grep -v test
 ```
 
 Confirmar todos os sítios onde `FixedMetrics` ainda é usado — se for um caminho de fallback genuíno (por exemplo, para quando a resolução de fonte real falha), ou se é usado por conveniência em locais onde a métrica real já estaria disponível mas nunca foi ligada.

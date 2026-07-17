@@ -19,8 +19,8 @@ não foram tocados).
 - `git diff HEAD --stat` no momento da medição:
 
 ```
- 00_nucleo/prompts/rules/stdlib/color.md | 58 ++++++++++++++-----
- 01_core/src/rules/stdlib/color.rs       | 99 ++++++++++++++++++++++++++++++---
+ 00_nucleo/prompts/engine/stdlib/color.md | 58 ++++++++++++++-----
+ 01_core/src/engine/stdlib/color.rs       | 99 ++++++++++++++++++++++++++++++---
  2 files changed, 135 insertions(+), 22 deletions(-)
 ```
 
@@ -69,7 +69,7 @@ Confirmado por `#repr(<cor>)` no vanilla (sonda):
 existiam no cristalino pré-P687 e foram mantidos — ver Débitos.)
 
 **Estado anterior do cristalino** (`predefined_color_bindings` em
-`01_core/src/rules/stdlib/color.rs`): tinha 9 entradas com valores **aproximados** e
+`01_core/src/engine/stdlib/color.rs`): tinha 9 entradas com valores **aproximados** e
 nomes CSS (`red=rgb(0xEF,0x23,0x11)` ≠ vanilla `#FF4136`; `green=rgb(0,0xB3,0)` ≠
 vanilla `#2ECC40`; faltavam `gray/silver/navy/aqua/teal/eastern/purple/fuchsia/maroon/orange/olive/lime`).
 
@@ -84,12 +84,12 @@ espaço de cor interno (`Luma` vs `Srgb`) e a formatação de `repr` (`luma(66.6
 ## O que foi feito
 
 **L0 (Trava Arquitetural — antes de código):**
-`00_nucleo/prompts/rules/stdlib/color.md` — secção "Cores predefinidas" reescrita com
+`00_nucleo/prompts/engine/stdlib/color.md` — secção "Cores predefinidas" reescrita com
 a tabela das 18 cores + bytes sRGB, a nota língua/mecânica, e o registo dos extras.
-`crystalline-lint --fix-hashes .` → `01_core/src/rules/stdlib/color.rs` `@prompt-hash`
+`crystalline-lint --fix-hashes .` → `01_core/src/engine/stdlib/color.rs` `@prompt-hash`
 actualizado para `87325eda`.
 
-**Código (`01_core/src/rules/stdlib/color.rs`):** `predefined_color_bindings()`
+**Código (`01_core/src/engine/stdlib/color.rs`):** `predefined_color_bindings()`
 reescrito — as 18 cores oficiais com `Color::rgb(..)` exacto, seguidas dos extras
 `cyan`/`magenta`/`none` (mantidos sem regressão). Consumidores inalterados
 (`eval/modules.rs:58`, `eval/mod.rs:364`) injectam tudo no scope global.

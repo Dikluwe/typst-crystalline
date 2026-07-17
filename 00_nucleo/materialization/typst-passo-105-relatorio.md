@@ -97,9 +97,9 @@ contradiziam o código actual.
 - `content.rs` — outras referências a DEBT-10 em docstrings de
   variantes `SetHeadingNumbering`/`CounterDisplay` também mantidas
   como contexto histórico.
-- `rules/layout/mod.rs:507` (DEBT-35b): preventivo para DEBT aberto.
+- `engine/layout/mod.rs:507` (DEBT-35b): preventivo para DEBT aberto.
   Mantido.
-- `rules/layout/mod.rs:531` (DEBT-28): explicitamente diz
+- `engine/layout/mod.rs:531` (DEBT-28): explicitamente diz
   "encerrado". Nota histórica. Mantida.
 - `rules/eval/tests.rs:1964, 2007, 2051` (DEBT-19, 20, 23): todas
   dizem "encerrado". Notas históricas em tests que asseguram

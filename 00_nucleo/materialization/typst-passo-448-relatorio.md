@@ -32,17 +32,17 @@ trabalham internamente e simplifica o layout.
 | `01_core/src/entities/layout_types.rs` | `TextStyle` ganha `subscript`, `superscript`, `baseline_offset`; `Default for Length`. |
 | `01_core/src/entities/content.rs` | `Content::sub(body)`, `Content::superscript(body)`. |
 | `01_core/src/entities/show.rs` | `NodeKind::Subscript`, `NodeKind::Superscript`. |
-| `01_core/src/rules/stdlib/text.rs` | `native_subscript`, `native_superscript`. |
-| `01_core/src/rules/stdlib/mod.rs` | Re-export dos nativos. |
-| `01_core/src/rules/eval/mod.rs` | Registo "sub" / "super" no stdlib scope. |
-| `01_core/src/rules/eval/rules.rs` | Matching de selectors `NodeKind::Subscript`/`Superscript` sobre `Content::Styled`. |
-| `01_core/src/rules/layout/text.rs` | Aplicação de `size *= 0.6` e `baseline_offset` em função dos flags. |
-| `01_core/src/rules/layout/cursor.rs` | Aplicação do `baseline_offset` ao posicionamento Y de `FrameItem::Text`. |
-| `01_core/src/rules/eval/tests.rs` | 2 testes L1: `eval_sub_emite_styled`, `eval_super_emite_styled`. |
-| `01_core/src/rules/layout/tests.rs` | 2 testes L3: baseline desloca para baixo/cima e tamanho reduzido. |
+| `01_core/src/engine/stdlib/text.rs` | `native_subscript`, `native_superscript`. |
+| `01_core/src/engine/stdlib/mod.rs` | Re-export dos nativos. |
+| `01_core/src/engine/eval/mod.rs` | Registo "sub" / "super" no stdlib scope. |
+| `01_core/src/engine/eval/rules.rs` | Matching de selectors `NodeKind::Subscript`/`Superscript` sobre `Content::Styled`. |
+| `01_core/src/engine/layout/text.rs` | Aplicação de `size *= 0.6` e `baseline_offset` em função dos flags. |
+| `01_core/src/engine/layout/cursor.rs` | Aplicação do `baseline_offset` ao posicionamento Y de `FrameItem::Text`. |
+| `01_core/src/engine/eval/tests.rs` | 2 testes L1: `eval_sub_emite_styled`, `eval_super_emite_styled`. |
+| `01_core/src/engine/layout/tests.rs` | 2 testes L3: baseline desloca para baixo/cima e tamanho reduzido. |
 | `00_nucleo/prompts/entities/style.md` | Documentação das novas variantes. |
 | `00_nucleo/prompts/entities/style_chain.md` | Documentação dos novos campos. |
-| `00_nucleo/prompts/rules/stdlib/text.md` | Documentação de `sub` / `super`. |
+| `00_nucleo/prompts/engine/stdlib/text.md` | Documentação de `sub` / `super`. |
 
 ### Notas
 

@@ -78,7 +78,7 @@ Cada nível só pode ser medido depois do anterior estar verde para o mesmo inpu
   lab/parity/Cargo.toml -- <input>`.
 - **Pipeline end-to-end em L1 + L3** (Passos 19+): `parse →
   eval → layout` produz `PagedDocument` em L1
-  (`01_core/src/rules/`); `compile_to_pdf_bytes` em L3
+  (`01_core/src/engine/`); `compile_to_pdf_bytes` em L3
   (`03_infra/src/pipeline.rs`) acrescenta export PDF e devolve
   `Vec<u8>`.
 - **Export PDF estável** com Helvetica fallback + CIDFont

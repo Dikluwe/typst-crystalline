@@ -118,7 +118,7 @@ Identificar onde um sub-store `positions` se encaixaria
 
 ```
 grep -B 2 -A 20 "^pub(crate) fn walk" \
-  01_core/src/rules/introspect.rs
+  01_core/src/engine/introspect.rs
 ```
 
 Critério: identificar pontos do walk onde Position seria
@@ -136,8 +136,8 @@ Layouter, P203 cruza com M8 (comemo); se for pure walk-time,
 
 ```
 grep -n "page\|current_page\|page_number" \
-  01_core/src/rules/layout/mod.rs | head -30
-grep -n "Location" 01_core/src/rules/layout/mod.rs | head -20
+  01_core/src/engine/layout/mod.rs | head -30
+grep -n "Location" 01_core/src/engine/layout/mod.rs | head -20
 ```
 
 Critério: identificar onde o Layouter conhece página

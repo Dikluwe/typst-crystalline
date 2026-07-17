@@ -46,12 +46,12 @@ preventiva).
 | Passo | Magnitude planeada | Magnitude real | Δ tests | L0s tocados |
 |-------|---------------------|-----------------|---------|-------------|
 | **P187A** | S (diagnóstico) | S | 0 | nenhum (cria diagnóstico) |
-| **P187B** | S (agregado) | S | **+4** | `rules/layout.md` |
+| **P187B** | S (agregado) | S | **+4** | `engine/layout.md` |
 | **Total** | — | — | **+4** | 1 L0 produção |
 
 P187B agregou em sub-passo único:
 - `.B` migração consumer C1 em `mod.rs:Content::Heading`.
-- `.C` actualização L0 `rules/layout.md` (nova secção C1).
+- `.C` actualização L0 `engine/layout.md` (nova secção C1).
 - `.D` 4 tests E2E em submódulo `p187b_c1_heading_prefix`.
 - `.E` verificação estrutural (12/12).
 - `.F` actualização nota DEBT M4-residual (in-line neste

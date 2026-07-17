@@ -55,10 +55,10 @@ rg "CubicTo|MoveTo|LineTo|QuadTo" 01_core/src/ -n
 rg "pub enum.*Path|pub struct.*Path" 01_core/src/entities/ -n
 
 # 4. Stdlib native_path ou similar?
-rg "native_path|fn path\(|\"path\"" 01_core/src/rules/stdlib/ -n
+rg "native_path|fn path\(|\"path\"" 01_core/src/engine/stdlib/ -n
 
 # 5. Layouter consume Path?
-rg "ShapeKind::Path|Content::Path" 01_core/src/rules/layout/ -n
+rg "ShapeKind::Path|Content::Path" 01_core/src/engine/layout/ -n
 
 # 6. Exportador emite Path?
 rg "ShapeKind::Path|m l c.*PDF" 03_infra/src/export.rs -n
@@ -84,7 +84,7 @@ Confirmado C1, localizar função actual:
 ```bash
 # Função que calcula bbox de Path actualmente
 rg "fn.*bbox|fn.*bounding|fn.*aabb" 01_core/src/entities/geometry.rs -n
-rg "fn.*bbox|fn.*bounding" 01_core/src/rules/layout/ -n
+rg "fn.*bbox|fn.*bounding" 01_core/src/engine/layout/ -n
 
 # Texto literal DEBT.md menciona "min/max dos pontos de controlo" — onde?
 rg "min.*max|control point|pontos? de controlo" 01_core/src/entities/geometry.rs -n

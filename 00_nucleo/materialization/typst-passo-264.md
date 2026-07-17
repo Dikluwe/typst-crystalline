@@ -52,7 +52,7 @@ P262).
   - `01_core/src/entities/gradient.rs` ganha `Radial` struct +
     activa `Gradient::Radial(Arc<Radial>)` variant (era
     comentário reserva).
-- Stdlib actualizado: `01_core/src/rules/stdlib/gradients.rs`
+- Stdlib actualizado: `01_core/src/engine/stdlib/gradients.rs`
   ganha `native_gradient_radial` + registo namespace
   `gradient.radial`.
 - Relatório do passo em
@@ -695,7 +695,7 @@ reutiliza-os literal.
 ### C.4 — Stdlib `native_gradient_radial`
 
 ```rust
-// 01_core/src/rules/stdlib/gradients.rs
+// 01_core/src/engine/stdlib/gradients.rs
 
 pub fn native_gradient_radial(
     args: &[Value],

@@ -60,9 +60,9 @@ gradient.rs Radial + 5 stdlib radial; zero regressões).
   activada + radial() construtor + first_stop_color expand +
   9 tests; hash `911125dd`).
 - `01_core/src/entities/mod.rs` (re-export `pub mod axes`).
-- `01_core/src/rules/stdlib/gradients.rs` (native_gradient_radial
+- `01_core/src/engine/stdlib/gradients.rs` (native_gradient_radial
   + make_gradient_module entrada radial + parse_ratio helper).
-- `01_core/src/rules/stdlib/mod.rs` (re-export
+- `01_core/src/engine/stdlib/mod.rs` (re-export
   native_gradient_radial + 5 stdlib tests P264).
 - `03_infra/src/export.rs` (3 sítios pattern-match adaptados
   match Linear/Radial → fallback Solid Radial até P265).
@@ -248,7 +248,7 @@ pub fn native_gradient_radial(args, ...) -> SourceResult<Value>;
 Helper privado `parse_ratio` extraído (paridade pattern
 `parse_stops` privado).
 
-**5 stdlib tests P264** em `01_core/src/rules/stdlib/mod.rs`:
+**5 stdlib tests P264** em `01_core/src/engine/stdlib/mod.rs`:
 - `p264_gradient_radial_2_color_stops_defaults`.
 - `p264_gradient_radial_custom_center_radius`.
 - `p264_gradient_radial_zero_stops_erro`.

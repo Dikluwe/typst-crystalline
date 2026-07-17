@@ -109,7 +109,7 @@ auto_label_counter, numbering_active eliminados).
 
 2. Identificar mutações em walk arm Figure:
    - `grep -n "figure_numbers\|figure_label_numbers\|local_figure_counters"
-     01_core/src/rules/introspect.rs`.
+     01_core/src/engine/introspect.rs`.
 
 3. Confirmar walk arm Figure (per histórico M5):
    - Mutação 1: `state.figure_numbers.entry(...)`.
@@ -147,7 +147,7 @@ auto_label_counter, numbering_active eliminados).
 
 8. Identificar Layouter assignments duais:
    - `grep -rn "figure_numbers\s*=\|figure_label_numbers\s*=\|local_figure_counters\s*="
-     01_core/src/rules/layout/mod.rs`.
+     01_core/src/engine/layout/mod.rs`.
 
 #### Inventário cleanup defer `lang`
 
@@ -161,7 +161,7 @@ auto_label_counter, numbering_active eliminados).
        — eliminar mutação Labelled (passar `lang`
        de outra fonte) + eliminar field.
      - Se **não**: defer continua para P190I.
-   - `grep -n "state.lang\|state\.lang" 01_core/src/rules/introspect.rs`.
+   - `grep -n "state.lang\|state\.lang" 01_core/src/engine/introspect.rs`.
 
 10. **Decisão obrigatória empírica em `.H`** (mais
     abaixo): defer `lang` resolvível agora ou não.

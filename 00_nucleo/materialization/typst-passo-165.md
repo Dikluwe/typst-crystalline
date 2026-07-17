@@ -32,11 +32,11 @@ type-safe; tags emitidas em paralelo no walk.
 Reverificar (não confiar em P164):
 
 1. `extract_payload` em
-   `01_core/src/rules/introspect/extract_payload.rs` retorna
+   `01_core/src/engine/introspect/extract_payload.rs` retorna
    `Option<ElementPayload>` com 3 variants (Heading, Figure,
    Citation). Confirmar.
 2. `is_locatable` em
-   `01_core/src/rules/introspect/locatable.rs` cobre os 56
+   `01_core/src/engine/introspect/locatable.rs` cobre os 56
    variants de Content. Confirmar.
 3. `Tag` enum:
    - `Tag::Start(Location, ElementInfo)` — info contém
@@ -241,10 +241,10 @@ Sub-store de counters indexados por kind. Aplica
 Construtor da struct concreta a partir de `&[Tag]`. Match
 exaustivo sobre `ElementPayload`.
 
-1. L0 em `00_nucleo/prompts/rules/introspect/from_tags.md`:
+1. L0 em `00_nucleo/prompts/engine/introspect/from_tags.md`:
    - Cabeçalho com campo "Hash do Código" em branco.
    - Camada L1, ficheiro alvo
-     `01_core/src/rules/introspect/from_tags.rs`.
+     `01_core/src/engine/introspect/from_tags.rs`.
    - ADRs: ADR-0033, ADR-0066.
    - Origem vanilla: similar a `ElementIntrospectorBuilder`
      em `lab/typst-original/.../introspection/introspector.rs`.
@@ -266,7 +266,7 @@ exaustivo sobre `ElementPayload`.
      - Heading com counter_update produz CounterRegistry
        com entry correcto.
 
-2. L1 em `01_core/src/rules/introspect/from_tags.rs`:
+2. L1 em `01_core/src/engine/introspect/from_tags.rs`:
    - Cabeçalho `@prompt`.
    - Implementação:
 
@@ -324,7 +324,7 @@ exaustivo sobre `ElementPayload`.
 Walk continua a popular `CounterStateLegacy` exactamente como
 antes. Adicionalmente, popula `Introspector` via `from_tags`.
 
-1. Em `01_core/src/rules/introspect.rs`, modificar
+1. Em `01_core/src/engine/introspect.rs`, modificar
    `pub fn introspect()`:
 
    ```rust
@@ -349,7 +349,7 @@ antes. Adicionalmente, popula `Introspector` via `from_tags`.
    `_introspector` underscore-prefixed para indicar
    construído mas não usado (mata warnings).
 
-2. Update L0 `00_nucleo/prompts/rules/introspect.md`:
+2. Update L0 `00_nucleo/prompts/engine/introspect.md`:
    - Documentar que `introspect()` constrói `Introspector`
      em paralelo via `from_tags`. Resultado é descartado em
      M3 (M4-M5 começarão a expô-lo).

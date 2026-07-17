@@ -26,10 +26,10 @@ grep -rn "fn resolve\|fn load_file\|FileLoader\|read_file\|read_to_string" 01_co
 grep -rn "path\|Path\|PathBuf" 01_core/src/entities/world.rs 2>/dev/null | head -10
 
 # 5. O eval de #bibliography("refs.bib") já existe?
-grep -rn "native_bibliography\|bibliography" 01_core/src/rules/stdlib/ | head -20
+grep -rn "native_bibliography\|bibliography" 01_core/src/engine/stdlib/ | head -20
 
 # 6. O layout de Bibliography consome Vec<BibEntry> ou path?
-grep -rn "BibliographyElem\|bib_entries\|entries" 01_core/src/rules/layout/bibliography.rs | head -20
+grep -rn "BibliographyElem\|bib_entries\|entries" 01_core/src/engine/layout/bibliography.rs | head -20
 
 # 7. [NICE-TO-HAVE] Existe tratamento de erro para file-not-found?
 grep -rn "FileNotFound\|NotFound\|IOError\|io::" 01_core/src/ | head -10
@@ -94,7 +94,7 @@ A lógica de file loading vive na **camada de eval**, não no struct:
 - `entities/elements/bibliography.rs` — `BibliographyElem` ganha `path: EcoString` (se ainda não tiver); nenhuma lógica de I/O.
 - `rules/eval/bibliography.rs` — free function `load_bibliography_from_path(ctx, path) -> Result<Vec<BibEntry>, EvalError>` (forma B).
 - `rules/eval/bibliography.rs` — free function `eval_bibliography(ctx, &BibliographyElem) -> Value` chama o loader + hayagriva parse.
-- `rules/layout/bibliography.rs` — consumer inalterado (recebe `Vec<BibEntry>` do cache, como no P418).
+- `engine/layout/bibliography.rs` — consumer inalterado (recebe `Vec<BibEntry>` do cache, como no P418).
 
 **Não usar Opção A** (método `impl BibliographyElem { fn load_from_disk(...) }` em `entities/`) — cria import de I/O no arquivo de dados (ADR-0109, rejeitado).
 
@@ -292,7 +292,7 @@ fn native_bibliography(args: Args) -> Result<Value, EvalError> {
 }
 ```
 
-### B.5 — Layout (`rules/layout/bibliography.rs` — inalterado em relação a P418)
+### B.5 — Layout (`engine/layout/bibliography.rs` — inalterado em relação a P418)
 
 O layout continua consumindo `bib_render_cache` do `Layouter` (P418). Nenhuma alteração necessária — o loading aconteceu em eval time.
 

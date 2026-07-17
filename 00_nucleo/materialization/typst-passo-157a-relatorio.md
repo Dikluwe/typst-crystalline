@@ -62,7 +62,7 @@ Cobertura exaustiva de **9 sítios pattern-match estruturais**
 
 ### 1.3 Stdlib `native_table` (.3)
 
-Adicionado a `01_core/src/rules/stdlib/structural.rs` (módulo
+Adicionado a `01_core/src/engine/stdlib/structural.rs` (módulo
 Model existente; **sem novo módulo `stdlib/model.rs`** per
 decisão .1).
 
@@ -89,7 +89,7 @@ Registado em `eval/mod.rs::make_stdlib` como `table` →
 
 ### 1.4 Layout para `Content::Table` (.4)
 
-Pattern arm novo em `layout_content` (`01_core/src/rules/layout/mod.rs`)
+Pattern arm novo em `layout_content` (`01_core/src/engine/layout/mod.rs`)
 delega a `layout_grid` clone simples:
 
 ```rust
@@ -98,7 +98,7 @@ Content::Table { columns, rows, children } => {
 }
 ```
 
-**Sem modificação de `01_core/src/rules/layout/grid.rs`** —
+**Sem modificação de `01_core/src/engine/layout/grid.rs`** —
 algoritmo Grid existente (272 linhas) reutilizado integralmente.
 Confirmado por inspecção: zero diff em `grid.rs` durante P157A.
 
@@ -166,7 +166,7 @@ antes de P157.
 | 5 | Cobertura Model: ~50% (~45% → ~50%) | **✓** entrada `table` `ausente → implementado`; Model 7/4/5/6/0=22 = 50% (impl + impl⁺) |
 | 6 | Hash actualizado em prompts L0 (`crystalline-lint --check-hashes` passa) | **✓** `crystalline-lint --fix-hashes` reportou "Nothing to fix"; lint clean |
 | 7 | Decisão de módulo documentada no relatório | **✓** §1.1: `stdlib/structural.rs` continuação per critérios em diagnóstico .1 §8 |
-| 8 | `layout_grid` original NÃO modificado | **✓** zero diff em `01_core/src/rules/layout/grid.rs` durante P157A |
+| 8 | `layout_grid` original NÃO modificado | **✓** zero diff em `01_core/src/engine/layout/grid.rs` durante P157A |
 
 **Build limpo**: `cargo build` 1.17s sem warnings novos.
 

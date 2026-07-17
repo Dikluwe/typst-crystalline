@@ -15,7 +15,7 @@
 Ficou por resolver de P631: `SubLayoutRegion` tem campos (`origin_x`, `width`) ignorados pela variante inline, sem aviso. Corrigir isto primeiro, é pequeno e independente do resto deste passo:
 
 ```bash
-grep -n "struct SubLayoutRegion\|layout_sub_frame_inline" 01_core/src/rules/layout/sub_frame.rs
+grep -n "struct SubLayoutRegion\|layout_sub_frame_inline" 01_core/src/engine/layout/sub_frame.rs
 ```
 
 Decidir: separar uma struct mais pequena para a variante inline (sem `origin_x`/`width`), ou adicionar um `debug_assert!` que avisa se esses campos vierem diferentes do valor por defeito quando a variante inline é chamada.
@@ -27,7 +27,7 @@ Decidir: separar uma struct mais pequena para a variante inline (sem `origin_x`/
 ### Mapear o que `columns.rs` faz que os outros quatro não fazem
 
 ```bash
-grep -n "fn layout\|Segmented\|Flow\|footnote" 01_core/src/rules/layout/columns.rs | head -30
+grep -n "fn layout\|Segmented\|Flow\|footnote" 01_core/src/engine/layout/columns.rs | head -30
 ```
 
 Confirmar, com números de linha, cada uma das responsabilidades já listadas por P628:

@@ -244,8 +244,8 @@ exit=0
 | `01_core/src/entities/font_list.rs` | **novo** | 3 tipos + 12 unit tests (~200 linhas) |
 | `01_core/src/entities/mod.rs` | modificado | `pub mod font_list;` |
 | `01_core/src/entities/style_chain.rs` | modificado | +import FontList, +campo `font`, init |
-| `01_core/src/rules/eval/rules.rs` | modificado | +imports, +arm `"font"` com 4 branches |
-| `01_core/src/rules/eval/tests.rs` | modificado | -5 canaries, +6 integration tests (líquido +1) |
+| `01_core/src/engine/eval/rules.rs` | modificado | +imports, +arm `"font"` com 4 branches |
+| `01_core/src/engine/eval/tests.rs` | modificado | -5 canaries, +6 integration tests (líquido +1) |
 | `03_infra/src/integration_tests.rs` | modificado | 3 testes rotados |
 | `04_wiring/tests/cli.rs` | modificado | 2 testes rotados |
 | `00_nucleo/adr/typst-adr-0053-*.md` | modificado | status + estado final |

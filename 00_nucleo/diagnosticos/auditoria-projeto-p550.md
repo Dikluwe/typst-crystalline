@@ -65,11 +65,11 @@ Casos mais representativos:
 
 | Ficheiro | Passos próximos | Cruzaram referências? |
 |---|---|---|
-| `01_core/src/rules/layout/mod.rs` | P537–P547 | Sim |
-| `01_core/src/rules/layout/cursor.rs` | P537–P545 | **Parcial** — P545 não referencia P544 directamente |
-| `01_core/src/rules/layout/text.rs` | P544, P547 | Sim |
-| `01_core/src/rules/layout/bib_csl.rs` | P533, P547 | Sim |
-| `01_core/src/rules/eval/bibliography.rs` | P497–P540 | Sim |
+| `01_core/src/engine/layout/mod.rs` | P537–P547 | Sim |
+| `01_core/src/engine/layout/cursor.rs` | P537–P545 | **Parcial** — P545 não referencia P544 directamente |
+| `01_core/src/engine/layout/text.rs` | P544, P547 | Sim |
+| `01_core/src/engine/layout/bib_csl.rs` | P533, P547 | Sim |
+| `01_core/src/engine/eval/bibliography.rs` | P497–P540 | Sim |
 | `03_infra/src/shaper.rs` | P534–P548 | Sim |
 | `03_infra/src/font_metrics.rs` | P544, P546, P548 | Sim |
 | `03_infra/src/export/stream.rs` | P520, P530, P548, P549 | Sim |

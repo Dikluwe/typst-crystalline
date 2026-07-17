@@ -9,9 +9,9 @@
 
 ## §1 Validação do estado actual
 
-Inspecção empírica em 2026-05-02. Comando: `grep -rn "self\.counter\.\|layouter\.counter\." 01_core/src/rules/layout/ | grep -v tests.rs`.
+Inspecção empírica em 2026-05-02. Comando: `grep -rn "self\.counter\.\|layouter\.counter\." 01_core/src/engine/layout/ | grep -v tests.rs`.
 
-**12 read-sites totais em `01_core/src/rules/layout/`** (excluindo `tests.rs`, mutations, copy-sites em `mod.rs:1414–1458`, e helpers em `counters.rs` que recebem `counter` como parâmetro):
+**12 read-sites totais em `01_core/src/engine/layout/`** (excluindo `tests.rs`, mutations, copy-sites em `mod.rs:1414–1458`, e helpers em `counters.rs` que recebem `counter` como parâmetro):
 
 | # | Site | Read | Estado migração |
 |---|------|------|------------------|
@@ -269,7 +269,7 @@ Pendências cumulativas inalteradas face a P181J/P182 (legacy fields, walk arm c
 **P183B** — C1 heading prefix migração via `formatted_counter`.
 
 Escopo concreto:
-1. Em `01_core/src/rules/layout/mod.rs:310`:
+1. Em `01_core/src/engine/layout/mod.rs:310`:
    ```rust
    if let Some(num_str) = self.introspector
        .formatted_counter("heading")

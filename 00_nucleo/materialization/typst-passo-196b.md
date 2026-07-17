@@ -5,7 +5,7 @@ diagnóstico). Magnitude **M genuína** — segunda
 aplicação concreta do pattern ADR-0069 (após P195D).
 
 Modifica walk arm `Content::Heading` em
-`01_core/src/rules/introspect.rs:347-379` para:
+`01_core/src/engine/introspect.rs:347-379` para:
 
 1. **Manter 4 mutações legacy** (write paralelo durante
    janela compat M5):
@@ -84,7 +84,7 @@ fixada.
 ### .A Auditoria L0
 
 1. Confirmar walk arm Heading actual em
-   `01_core/src/rules/introspect.rs:347-379`:
+   `01_core/src/engine/introspect.rs:347-379`:
    - Per P196A §2.1, site real é 347-379. Re-verificar
      empiricamente.
    - Localizar 4 mutações.
@@ -140,7 +140,7 @@ edits.
 
 ### .B Criar helper privado `compute_heading_auto_toc`
 
-1. Em `01_core/src/rules/introspect.rs`:
+1. Em `01_core/src/engine/introspect.rs`:
    - Adicionar função privada (sem `pub`):
      ```
      fn compute_heading_auto_toc(
@@ -176,7 +176,7 @@ edits.
 
 ### .C Modificar walk arm Heading
 
-1. Em `01_core/src/rules/introspect.rs:347-379` (per
+1. Em `01_core/src/engine/introspect.rs:347-379` (per
    `.A.1`):
    - **Antes da recursão** do body: nada muda
      (mutações 1+2 podem permanecer onde estão; ou

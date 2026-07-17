@@ -64,7 +64,7 @@ Critério de escolha por crate, na ADR: pureza (no_std/sem I/O próprio se poss�
 
 ## 4. O que produzir
 
-1. **L1 decode puro** em `01_core/src/rules/stdlib/` (módulo `loading` novo): `decode_{csv,json,yaml,toml,cbor,xml}(bytes, opts) -> Result<Value, …>` + `Encoding`/`Readable` conforme necessário. Sem I/O.
+1. **L1 decode puro** em `01_core/src/engine/stdlib/` (módulo `loading` novo): `decode_{csv,json,yaml,toml,cbor,xml}(bytes, opts) -> Result<Value, …>` + `Encoding`/`Readable` conforme necessário. Sem I/O.
 2. **L3 leitura** em infra: `read_bytes(path) -> Result<Vec<u8>>` (adapter de disco; o único sítio I/O).
 3. **Stdlib funcs** registadas em `make_stdlib`: `read`, `csv`, `json`, `yaml`, `toml`, `cbor`, `xml` — cada uma compõe L3+L1.
 4. **Opções de `csv`**: `delimiter` (`Delimiter`) e `row-type` (`RowType`: array vs dict) per vanilla. Subset graded aceitável se documentado (ADR-0054).

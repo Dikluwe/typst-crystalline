@@ -23,7 +23,7 @@ Excluir os módulos já tratados (`foundations::calc`, `foundations::ops`, `diag
 Para cada item do módulo escolhido, aplicar a mesma disciplina de P765a/P765b: ler o código-fonte real antes de classificar.
 
 ```bash
-grep -n "<símbolo>" 01_core/src/rules/stdlib/*.rs 01_core/src/entities/*.rs 2>/dev/null
+grep -n "<símbolo>" 01_core/src/engine/stdlib/*.rs 01_core/src/entities/*.rs 2>/dev/null
 ```
 
 ---

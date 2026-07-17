@@ -24,7 +24,7 @@ e reporta.
 
 Inspeccionar todas as estruturas (structs e enums) em
 `01_core/src/entities/` e ficheiros principais em
-`01_core/src/rules/`. Para cada uma, comparar com equivalente
+`01_core/src/engine/`. Para cada uma, comparar com equivalente
 em `lab/typst-original/` segundo 4 critérios combinados.
 
 Output: ficheiro markdown único em
@@ -107,15 +107,15 @@ Inspeccionar pelo menos:
 - `01_core/src/entities/style.rs` ou similar (Styles, StyleChain).
 - `01_core/src/entities/bib_entry.rs`, `citation_form.rs`, e
   outros tipos entity adicionados ao longo do projecto.
-- `01_core/src/rules/introspect.rs` (pipeline de walk).
-- `01_core/src/rules/layout/` (estruturas de layout).
-- `01_core/src/rules/stdlib/` (funcs stdlib).
+- `01_core/src/engine/introspect.rs` (pipeline de walk).
+- `01_core/src/engine/layout/` (estruturas de layout).
+- `01_core/src/engine/stdlib/` (funcs stdlib).
 
 ### Lista alargada
 
 Se a inspecção mínima for rápida, alargar a:
 - Outros ficheiros em `01_core/src/entities/`.
-- Outros ficheiros principais em `01_core/src/rules/`.
+- Outros ficheiros principais em `01_core/src/engine/`.
 
 Equivalentes vanilla a procurar em `lab/typst-original/crates/`:
 - `typst-library/src/foundations/` (Value, Style).

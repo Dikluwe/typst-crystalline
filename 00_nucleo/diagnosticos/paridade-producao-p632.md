@@ -9,7 +9,7 @@
 
 ## 1. Nota rápida resolvida: `SubLayoutRegion` vs `layout_sub_frame_inline`
 
-`SubLayoutRegion` possui campos `origin_x` e `width` que a variante inline ignorava sem aviso. Foi adicionada uma `debug_assert!` em `01_core/src/rules/layout/sub_frame.rs:155-159` que falha em debug se `origin_x` ou `width` forem diferentes de `0.0` quando `layout_sub_frame_inline` é chamada.
+`SubLayoutRegion` possui campos `origin_x` e `width` que a variante inline ignorava sem aviso. Foi adicionada uma `debug_assert!` em `01_core/src/engine/layout/sub_frame.rs:155-159` que falha em debug se `origin_x` ou `width` forem diferentes de `0.0` quando `layout_sub_frame_inline` é chamada.
 
 A variante inline opera sobre a linha horizontal do pai; se o caller precisar de uma região geométrica própria, deve usar `layout_sub_frame`.
 
@@ -21,7 +21,7 @@ A variante inline opera sobre a linha horizontal do pai; se o caller precisar de
 
 | # | Responsabilidade | Local | Classificação |
 |---|---|---|---|
-| 1 | Divisão do body pelos `Content::Colbreak` | `01_core/src/rules/layout/columns.rs:31-64` (`split_by_colbreak`) | **Estrutura de colunas** |
+| 1 | Divisão do body pelos `Content::Colbreak` | `01_core/src/engine/layout/columns.rs:31-64` (`split_by_colbreak`) | **Estrutura de colunas** |
 | 2 | Escolha entre modo segmentado (`colbreak` presente) e modo fluxo contínuo | `columns.rs:182-186` (`layout`) | **Estrutura de colunas** |
 | 3 | Inversão da ordem de preenchimento em RTL | `columns.rs:66-97` (`body_dir`), `columns.rs:175-180` (inversão de `column_x_offsets`) | **Estrutura de colunas** |
 | 4 | Divisão por página em documentos LTR/RTL mistos | Partição em `01_core/src/entities/content.rs:2305-2321` (`wrap_page_columns` / `page_column_segments`); direcção consumida em `columns.rs:175` (`body_dir`) | **Estrutura de colunas** |
@@ -32,7 +32,7 @@ A variante inline opera sobre a linha horizontal do pai; se o caller precisar de
 
 Nenhuma das seis responsabilidades invoca `layout_sub_frame` ou `layout_sub_frame_inline`. O layout do conteúdo *dentro* de cada coluna é feito directamente por `layouter.layout_content(segment)` (`columns.rs:235` e `columns.rs:327`), depois de configurar a região da coluna.
 
-A única reutilização de helper genérico é `translate_item_x`, que já delega para funções partilhadas em `rules/layout/helpers`.
+A única reutilização de helper genérico é `translate_item_x`, que já delega para funções partilhadas em `engine/layout/helpers`.
 
 ### 2.3 Porque não unificar?
 

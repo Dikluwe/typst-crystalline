@@ -192,7 +192,7 @@ não é uma estrutura "neutra" depois decorada com tracking.
 
 ## 7. Divergências actuais do cristalino
 
-Comparação directa com `01_core/src/rules/eval.rs` (linhas 50–238):
+Comparação directa com `01_core/src/engine/eval.rs` (linhas 50–238):
 
 | Aspecto | Vanilla `Route` | Cristalino |
 |---------|----------------|-----------|
@@ -231,7 +231,7 @@ Observações factuais adicionais:
   — `eval` (entrada de módulo) com mesma verificação.
 - `lab/typst-original/crates/typst/src/lib.rs:128`
   — `Route::default().track()` na raiz da compilação.
-- `01_core/src/rules/eval.rs:62,169,215,228`
+- `01_core/src/engine/eval.rs:62,169,215,228`
   — `import_stack`, `enter_import`, `ImportGuard`, `Drop`.
 - `00_nucleo/DEBT.md` — DEBT-40 (resolução fica para passo dedicado).
 - `00_nucleo/adr/typst-adr-0032-*.md` — política de `unsafe` em L1.

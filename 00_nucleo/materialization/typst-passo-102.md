@@ -54,9 +54,9 @@ pelo inventário 102.A.
 ## Escopo
 
 **Dentro**:
-- `01_core/src/rules/eval/markup.rs` (ou onde `eval_markup`
+- `01_core/src/engine/eval/markup.rs` (ou onde `eval_markup`
   vive agora) — activar o processamento de `SyntaxKind::SetRule`.
-- `01_core/src/rules/eval/rules.rs` — `eval_set_rule` existe
+- `01_core/src/engine/eval/rules.rs` — `eval_set_rule` existe
   desde o Passo 98 (lá para escrever `figure_numbering`);
   estender para produzir `Styles` reais.
 - `01_core/src/entities/style.rs` — se o inventário mostrar
@@ -81,7 +81,7 @@ pelo inventário 102.A.
 
 **Parte 1 — Estado actual de `eval_set_rule`**:
 
-1. Ler `01_core/src/rules/eval/rules.rs` para perceber o que
+1. Ler `01_core/src/engine/eval/rules.rs` para perceber o que
    `eval_set_rule` faz hoje. O Passo 98 indica que escreve em
    `figure_numbering`; confirmar:
    - Para que `targets` (text, heading, figure, ...) tem
@@ -89,7 +89,7 @@ pelo inventário 102.A.
    - Para que propriedades?
    - O que produz (mutação directa de `figure_numbering`?
      `Styles`? `Value::None`?).
-2. Ler `01_core/src/rules/eval/markup.rs` para perceber se
+2. Ler `01_core/src/engine/eval/markup.rs` para perceber se
    o arm `SyntaxKind::SetRule` já está activo ou se está
    wildcarded em `_ => Ok(Value::None)`.
 

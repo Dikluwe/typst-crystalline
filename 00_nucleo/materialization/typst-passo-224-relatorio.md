@@ -50,7 +50,7 @@ preservado aberto per audit empírico (refino algorítmico distinto).
 
 - `entities/content.rs:271` — `Content::Grid { columns, rows, cells }`
   baseline P82+83+84.6 (3 fields).
-- `rules/layout/grid.rs:22` — `pub(super) fn layout_grid(...)` impl.
+- `engine/layout/grid.rs:22` — `pub(super) fn layout_grid(...)` impl.
 - `rules/stdlib/layout.rs:196` — `pub fn native_grid(...)` impl
   (não em structural.rs).
 - `entities/content.rs:556` — `TableCell { body, x, y, colspan,
@@ -153,7 +153,7 @@ GridCell {
 
 **Paridade P157B TableCell literal** (5 fields).
 
-**Módulo novo `01_core/src/rules/layout/grid_placement.rs`** (264 LOC):
+**Módulo novo `01_core/src/engine/layout/grid_placement.rs`** (264 LOC):
 
 ```rust
 pub struct PlacedCell {

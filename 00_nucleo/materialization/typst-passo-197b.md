@@ -79,7 +79,7 @@ fechadas. Cenário α confirmado.
 ### .A Auditoria L0
 
 1. Confirmar walk arm Figure actual em
-   `01_core/src/rules/introspect.rs:490-519` (per P197A
+   `01_core/src/engine/introspect.rs:490-519` (per P197A
    §3):
    - Re-verificar empiricamente.
    - Localizar gate `numbering.is_some() &&
@@ -139,7 +139,7 @@ Output: tabela com item + estado + linhas exactas.
 
 ### .B Criar helper privado `compute_figure`
 
-1. Em `01_core/src/rules/introspect.rs`:
+1. Em `01_core/src/engine/introspect.rs`:
    - Adicionar função privada (sem `pub`) análoga a
      `compute_labelled` e `compute_heading_auto_toc`:
      ```
@@ -176,7 +176,7 @@ Output: tabela com item + estado + linhas exactas.
 
 ### .C Refactor walk arm Figure para usar helper
 
-1. Em `01_core/src/rules/introspect.rs:490-519` (per
+1. Em `01_core/src/engine/introspect.rs:490-519` (per
    `.A.1`):
    - Antes do gate `numbering.is_some() &&
      caption.is_some()`: nada muda.

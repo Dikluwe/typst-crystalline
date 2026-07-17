@@ -32,8 +32,8 @@ O caso de P597 (`#set page(columns: 2, height: 200pt)` + `#lorem(n)`) passa a ba
 - **Hash após implementação (working tree):** alterações não commitadas nos ficheiros:
   - `00_nucleo/prompts/entities/layout_types.md`
   - `01_core/src/entities/layout_types.rs`
-  - `01_core/src/rules/layout/set_page.rs`
-  - `01_core/src/rules/layout/tests.rs`
+  - `01_core/src/engine/layout/set_page.rs`
+  - `01_core/src/engine/layout/tests.rs`
 - **Data/hora das medições:** 2026-07-07T20:24:15-03:00
 - **Binários usados:**
   - Cristalino: `./target/release/typst` (crate `typst-wiring`, release)
@@ -103,7 +103,7 @@ Conclusão: a fórmula usa sempre a **menor dimensão** da página, não a altur
 - Adicionado método auxiliar `PageConfig::auto_margin()`.
 - Header `@prompt-hash` actualizado pelo linter (`269ba6e5`).
 
-### `01_core/src/rules/layout/set_page.rs`
+### `01_core/src/engine/layout/set_page.rs`
 
 - Quando `SetPage` recebe `margin` explícito: `margin_is_auto = false`.
 - Quando `SetPage` altera `width`/`height` e `margin_is_auto == true`: recalcula a margem.
@@ -188,6 +188,6 @@ A fórmula é simples e consistente, mas a implementação completa exigiu uma p
 - `00_nucleo/materialization/typst-passo-598.md` — passo que originou esta sonda.
 - `00_nucleo/diagnosticos/paridade-producao-p597.md` — disparidade documentada em P597.
 - `01_core/src/entities/layout_types.rs` — implementação de `PageConfig`.
-- `01_core/src/rules/layout/set_page.rs` — recálculo de margem em `SetPage`.
+- `01_core/src/engine/layout/set_page.rs` — recálculo de margem em `SetPage`.
 - `lab/typst-original/crates/typst-library/src/layout/page.rs:127-131` — fórmula do vanilla.
 - ADR-0108 — *Disciplina anti-deriva: medir antes de decidir*.

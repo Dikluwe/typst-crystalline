@@ -5,7 +5,7 @@
 Ler antes de começar:
 - `01_core/src/entities/counter_state.rs` — `CounterState` com `heading`
   hierárquico e `heading_numbering: bool` do Passo 57.
-- `01_core/src/rules/eval.rs` — Braço `Expr::MethodCall` actual (se já
+- `01_core/src/engine/eval.rs` — Braço `Expr::MethodCall` actual (se já
   existe) ou o wildcard onde `counter(heading).step()` cai actualmente.
 - `01_core/src/entities/content.rs` — Variantes actuais incluindo
   `CounterDisplay` e `SetHeadingNumbering` do Passo 57.
@@ -54,7 +54,7 @@ grep -n "MethodCall\|fn receiver\|fn method\b" \
   01_core/src/entities/ast/expr.rs | head -15
 
 # 2. Verificar se Expr::MethodCall já tem braço no eval
-grep -n "MethodCall" 01_core/src/rules/eval.rs | head -10
+grep -n "MethodCall" 01_core/src/engine/eval.rs | head -10
 
 # 3. Confirmar que Equation existe no Content (para decidir se merece
 #    contador flat neste passo ou apenas no Passo 59)
@@ -402,7 +402,7 @@ fn eval_counter_update_gera_counter_update_com_valor() {
 #[test]
 fn counter_update_nao_produz_items_visuais() {
     use crate::entities::counter_state::{CounterAction, CounterState};
-    use crate::rules::layout::layout_with_state;
+    use crate::engine::layout::layout_with_state;
 
     let content = Content::CounterUpdate {
         key:    "equation".to_string(),
@@ -417,7 +417,7 @@ fn counter_update_nao_produz_items_visuais() {
 #[test]
 fn counter_update_seguido_de_display_mostra_valor_correcto() {
     use crate::entities::counter_state::{CounterAction, CounterState};
-    use crate::rules::layout::layout_with_state;
+    use crate::engine::layout::layout_with_state;
 
     let content = Content::Sequence(vec![
         Content::CounterUpdate {

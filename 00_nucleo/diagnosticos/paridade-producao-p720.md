@@ -90,7 +90,7 @@ na primeira linha, confirmando o bloqueio relatado por P719.
 
 ## 2. Implementação
 
-L0 actualizado primeiro: `00_nucleo/prompts/rules/eval/ops.md` §P720
+L0 actualizado primeiro: `00_nucleo/prompts/engine/eval/ops.md` §P720
 (hash `dc990d82` via `crystalline-lint --fix-hashes` — note-se que
 `operators.rs` tem o seu **próprio** L0, distinto de `eval.md`, seguido
 correctamente aqui). Testes escritos antes do código: 6 testes `p720_*`

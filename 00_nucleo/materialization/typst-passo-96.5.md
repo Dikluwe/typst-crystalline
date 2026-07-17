@@ -6,8 +6,8 @@ Ler antes de começar:
 - `00_nucleo/adr/typst-adr-0037-coesao-por-dominio.md` — ADR
   `EM VIGOR` com 7 regras + 4 ajustes.
 - `00_nucleo/DEBT.md` — DEBT-46 com checkbox 96.5 pendente.
-- `01_core/src/rules/stdlib.rs` — ficheiro actual, 1711 linhas.
-- `01_core/src/rules/eval/mod.rs` — função `make_stdlib` (vê
+- `01_core/src/engine/stdlib.rs` — ficheiro actual, 1711 linhas.
+- `01_core/src/engine/eval/mod.rs` — função `make_stdlib` (vê
   como é construído o scope global e o que consome de `stdlib.rs`).
 - Passos 96.1 e 96.4 para referência do padrão.
 
@@ -44,9 +44,9 @@ estado real em Fase 0** antes de aplicar — o cristalino pode
 ter subset específico das funções vanilla.
 
 ```
-01_core/src/rules/stdlib.rs (antes: 1711 linhas)
+01_core/src/engine/stdlib.rs (antes: 1711 linhas)
     ↓ transforma-se em:
-01_core/src/rules/stdlib/
+01_core/src/engine/stdlib/
     mod.rs          — pub fn make_stdlib (se mudar para cá vindo
                       do eval), ou apenas registos de submódulos
                       + re-exports públicos
@@ -86,16 +86,16 @@ ter subset específico das funções vanilla.
 
 ```bash
 # Tamanho:
-wc -l 01_core/src/rules/stdlib.rs
+wc -l 01_core/src/engine/stdlib.rs
 
 # Funções públicas:
-grep -n "^pub fn\|^fn " 01_core/src/rules/stdlib.rs
+grep -n "^pub fn\|^fn " 01_core/src/engine/stdlib.rs
 
 # Estrutura do ficheiro (seções por comentário, structs, etc.):
-grep -n "^///\|^//" 01_core/src/rules/stdlib.rs | head -40
+grep -n "^///\|^//" 01_core/src/engine/stdlib.rs | head -40
 
 # Testes:
-grep -c "^\s*#\[test\]" 01_core/src/rules/stdlib.rs
+grep -c "^\s*#\[test\]" 01_core/src/engine/stdlib.rs
 ```
 
 Reportar:
@@ -109,10 +109,10 @@ Reportar:
 
 ```bash
 # Como make_stdlib consome funções da stdlib:
-grep -B 2 -A 5 "make_stdlib" 01_core/src/rules/eval/mod.rs | head -30
+grep -B 2 -A 5 "make_stdlib" 01_core/src/engine/eval/mod.rs | head -30
 
 # Imports actuais em eval/mod.rs:
-grep -n "use.*stdlib" 01_core/src/rules/eval/mod.rs
+grep -n "use.*stdlib" 01_core/src/engine/eval/mod.rs
 ```
 
 Reportar:
@@ -123,8 +123,8 @@ Reportar:
 ### 0.3 — Criar directório
 
 ```bash
-mkdir -p 01_core/src/rules/stdlib
-git mv 01_core/src/rules/stdlib.rs 01_core/src/rules/stdlib/mod.rs
+mkdir -p 01_core/src/engine/stdlib
+git mv 01_core/src/engine/stdlib.rs 01_core/src/engine/stdlib/mod.rs
 ```
 
 Verificar compilação:
@@ -133,7 +133,7 @@ Verificar compilação:
 cargo check --package typst-core 2>&1 | tail -10
 ```
 
-Se `eval/mod.rs` importa `use crate::rules::stdlib;` continua
+Se `eval/mod.rs` importa `use crate::engine::stdlib;` continua
 a funcionar — o directório resolve via `mod.rs`.
 
 ---
@@ -174,7 +174,7 @@ Idêntico aos Passos 96.1 e 96.4:
    conforme consumo.
 4. Declarar `mod <cluster>;` em `stdlib/mod.rs`.
 5. Actualizar `make_stdlib` (em `eval/mod.rs`) para consumir
-   funções via `crate::rules::stdlib::<cluster>::func`.
+   funções via `crate::engine::stdlib::<cluster>::func`.
 6. Mover testes específicos do cluster.
 7. Verificar: `cargo check` + `cargo test`. Rollback do
    cluster se falhar.
@@ -237,7 +237,7 @@ funciona bem após a divisão e manter.
 ### 2.1 — Tamanhos
 
 ```bash
-wc -l 01_core/src/rules/stdlib/*.rs | sort -rn
+wc -l 01_core/src/engine/stdlib/*.rs | sort -rn
 ```
 
 Alvo: nenhum ficheiro > 800 linhas. `mod.rs` esperado < 200
@@ -284,7 +284,7 @@ DEBT-46 não fecha (4 checkboxes restantes).
 
 ## Critérios de conclusão
 
-- [ ] Directório `01_core/src/rules/stdlib/` criado com
+- [ ] Directório `01_core/src/engine/stdlib/` criado com
       `mod.rs` + submódulos.
 - [ ] `stdlib.rs` já não existe como ficheiro top-level.
 - [ ] 5–8 submódulos criados (ajuste registado se diferente

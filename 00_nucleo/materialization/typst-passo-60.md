@@ -3,11 +3,11 @@
 ## Estado actual antes de começar
 
 Ler antes de começar:
-- `01_core/src/rules/layout.rs` — Braços actuais para `Labelled`, `Ref`,
+- `01_core/src/engine/layout.rs` — Braços actuais para `Labelled`, `Ref`,
   `Heading`, `CounterUpdate`, `SetHeadingNumbering`.
 - `01_core/src/entities/counter_state.rs` — `CounterState` com
   `resolved_labels: HashMap<Label, String>`.
-- `01_core/src/rules/mod.rs` — Onde o pipeline é orquestrado (se existir
+- `01_core/src/engine/mod.rs` — Onde o pipeline é orquestrado (se existir
   uma função `compile` ou equivalente).
 
 Pré-condição: `cargo test` — 613 L1 + 116 L3 + 50 parity, zero violations.
@@ -45,14 +45,14 @@ submódulos com responsabilidades claras.
 
 ```bash
 # 1. Localizar onde layout() é chamada no pipeline
-grep -rn "pub fn layout\b" 01_core/src/rules/ | head -10
+grep -rn "pub fn layout\b" 01_core/src/engine/ | head -10
 grep -rn "layout(" 03_infra/src/integration_tests.rs | head -5
 
 # 2. Confirmar assinatura actual de layout()
-grep -n "^pub fn layout" 01_core/src/rules/layout.rs | head -5
+grep -n "^pub fn layout" 01_core/src/engine/layout.rs | head -5
 
 # 3. Verificar se existe módulo introspect
-ls -l 01_core/src/rules/introspect.rs 2>/dev/null || echo "não existe"
+ls -l 01_core/src/engine/introspect.rs 2>/dev/null || echo "não existe"
 
 # 4. Confirmar que Content::Styled existe e qual o nome do campo filho
 grep -n -A 3 "Styled" 01_core/src/entities/content.rs | head -15
@@ -73,13 +73,13 @@ compilador rejeita com erro de campo desconhecido.
 Antes de qualquer código, criar o documento de especificação para que o
 linter não dispare V7 quando o ficheiro `introspect.rs` for criado.
 
-Criar `00_nucleo/prompts/rules/introspect.md`:
+Criar `00_nucleo/prompts/engine/introspect.md`:
 
 ```markdown
 # L0 — Motor de Introspecção (`rules/introspect.rs`)
 
 ## Módulo
-`01_core/src/rules/introspect.rs`
+`01_core/src/engine/introspect.rs`
 
 ## Propósito
 Pré-passagem analítica sobre `Content`. Constrói o `CounterState`
@@ -121,18 +121,18 @@ pub fn introspect(content: &Content) -> CounterState;
 ```
 
 ```bash
-git add 00_nucleo/prompts/rules/introspect.md
+git add 00_nucleo/prompts/engine/introspect.md
 ```
 
 ---
 
 ## Tarefa 2 — Módulo `introspect.rs` (L1)
 
-Criar `01_core/src/rules/introspect.rs`:
+Criar `01_core/src/engine/introspect.rs`:
 
 ```rust
 //! Crystalline Lineage
-//! @prompt 00_nucleo/prompts/rules/introspect.md
+//! @prompt 00_nucleo/prompts/engine/introspect.md
 //! @prompt-hash <hash>
 //! @layer L1
 //! @updated 2026-04-12
@@ -275,7 +275,7 @@ compilar. Uma variante de container não coberta faz a introspecção
 ignorar silenciosamente todas as Labels dentro dela — bug difícil de
 detectar em runtime.
 
-Registar o módulo em `01_core/src/rules/mod.rs`:
+Registar o módulo em `01_core/src/engine/mod.rs`:
 
 ```rust
 pub mod introspect;
@@ -384,7 +384,7 @@ Se a orquestração acontece directamente nas integration tests, actualizar
 #[test]
 fn introspect_popula_label_forward() {
     use crate::entities::{counter_state::CounterState, label::Label};
-    use crate::rules::introspect::introspect;
+    use crate::engine::introspect::introspect;
 
     // Ref antes do Labelled — forward reference
     let content = Content::Sequence(vec![
@@ -410,7 +410,7 @@ fn introspect_popula_label_forward() {
 #[test]
 fn introspect_counter_update_e_aplicado() {
     use crate::entities::counter_state::{CounterAction, CounterState};
-    use crate::rules::introspect::introspect;
+    use crate::engine::introspect::introspect;
 
     let content = Content::Sequence(vec![
         Content::CounterUpdate {
@@ -426,7 +426,7 @@ fn introspect_counter_update_e_aplicado() {
 #[test]
 fn introspect_dois_conteudos_independentes() {
     use crate::entities::label::Label;
-    use crate::rules::introspect::introspect;
+    use crate::engine::introspect::introspect;
 
     let content_a = Content::Labelled {
         label:  Label("a".to_string()),
@@ -449,7 +449,7 @@ fn introspect_dois_conteudos_independentes() {
 #[test]
 fn pipeline_duas_passagens_resolve_forward_ref() {
     use crate::entities::{counter_state::CounterState, label::Label};
-    use crate::rules::{introspect::introspect, layout::layout};
+    use crate::engine::{introspect::introspect, layout::layout};
 
     let content = Content::Sequence(vec![
         Content::SetHeadingNumbering { active: true },

@@ -3,11 +3,11 @@
 ## Estado actual antes de começar
 
 Ler antes de começar:
-- `01_core/src/rules/introspect.rs` — Onde a TOC recolhe os títulos.
+- `01_core/src/engine/introspect.rs` — Onde a TOC recolhe os títulos.
 - `01_core/src/entities/content.rs` — Para confirmar a estrutura de `CounterDisplay` e listar todas as variantes do enum `Content`.
 - `01_core/src/entities/counter_state.rs` — Onde o método `display_value` será adicionado.
-- `01_core/src/rules/layout/counters.rs` — Para actualizar a chamada após mover a lógica para `CounterState`.
-- `01_core/src/rules/stdlib.rs` — Onde a nova função `assert` será adicionada.
+- `01_core/src/engine/layout/counters.rs` — Para actualizar a chamada após mover a lógica para `CounterState`.
+- `01_core/src/engine/stdlib.rs` — Onde a nova função `assert` será adicionada.
 
 Pré-condição: `cargo test` — 654 L1 + 125 L3 + 50 parity, zero violations.
 DEBT-16 e DEBT-17 encerrados.
@@ -46,7 +46,7 @@ de ponta a ponta.
 
 ```bash
 # 1. Localizar onde os títulos são empurrados para headings_for_toc
-grep -n "headings_for_toc.push" 01_core/src/rules/introspect.rs
+grep -n "headings_for_toc.push" 01_core/src/engine/introspect.rs
 
 # 2. Listar TODAS as variantes do enum Content com a sua estrutura
 grep -n "^\s*[A-Z][A-Za-z]*" 01_core/src/entities/content.rs | head -60
@@ -58,7 +58,7 @@ grep -n "fn format_hierarchical\|fn get_flat" 01_core/src/entities/counter_state
 grep -n "CounterDisplay" 01_core/src/entities/content.rs -A 3 | head -15
 
 # 5. Listar funções nativas actuais para entender o padrão
-grep -n "^fn native_" 01_core/src/rules/stdlib.rs
+grep -n "^fn native_" 01_core/src/engine/stdlib.rs
 ```
 
 Reportar o output completo antes de continuar.
@@ -103,7 +103,7 @@ Se a Tarefa 0 não estiver concluída, a Tarefa 1 não compila.
 
 ## Tarefa 1 — Motor de Materialização (L1)
 
-Em `01_core/src/rules/introspect.rs`, adicionar a função auxiliar:
+Em `01_core/src/engine/introspect.rs`, adicionar a função auxiliar:
 
 ```rust
 /// "Congela" o AST substituindo nós dependentes de contexto (como CounterDisplay)
@@ -202,16 +202,16 @@ de arquitectura de passagens que o DEBT-18 descreve.
 ## Tarefa 3 — `assert` na stdlib (L1)
 
 **Verificação de codificação antes de escrever:** confirmar que o ficheiro
-`01_core/src/rules/stdlib.rs` está em UTF-8 antes de adicionar qualquer
+`01_core/src/engine/stdlib.rs` está em UTF-8 antes de adicionar qualquer
 string com caracteres acentuados (`ç`, `ã`):
 
 ```bash
-file -i 01_core/src/rules/stdlib.rs
+file -i 01_core/src/engine/stdlib.rs
 # Output esperado: charset=utf-8
 # Se não for utf-8, converter com iconv antes de continuar.
 ```
 
-Em `01_core/src/rules/stdlib.rs`, adicionar:
+Em `01_core/src/engine/stdlib.rs`, adicionar:
 
 ```rust
 /// Função nativa `assert(condition, message: ...)`.
@@ -316,7 +316,7 @@ fn materialize_time_preserva_terminais() {
 
 #[test]
 fn introspect_headings_for_toc_congelados() {
-    use crate::rules::introspect::introspect;
+    use crate::engine::introspect::introspect;
 
     // Simular: = Figura #counter("fig").display()
     // O CounterDisplay no título deve ser substituído pelo valor no momento

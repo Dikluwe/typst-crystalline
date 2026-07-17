@@ -131,4 +131,4 @@ O bug imediato do cristalino (aceitar `dir: ttb` em texto sem rejeitar nem aplic
   - `lab/typst-original/crates/typst-library/src/layout/dir.rs`
   - `lab/typst-original/crates/typst-library/src/text/mod.rs`
   - `03_infra/src/font_metrics.rs`
-  - `01_core/src/rules/layout/text.rs` (referência indirecta)
+  - `01_core/src/engine/layout/text.rs` (referência indirecta)

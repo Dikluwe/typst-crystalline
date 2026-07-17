@@ -11,10 +11,10 @@ Materializou-se `square(...)` como helper sintático sobre `Rect` (`ShapeKind::R
 fechando a dívida genuína acidental XS identificada na sonda do Passo 389. Não se criou
 `ShapeKind::Square` nem novo variant `Value`/`Content`.
 
-- `01_core/src/rules/stdlib/shapes.rs` — novo `native_square(width, height: auto, fill?, stroke?)`.
-- `01_core/src/rules/stdlib/mod.rs` — re-exporta `native_square`; adiciona 5 testes unitários.
-- `01_core/src/rules/eval/mod.rs` — regista `"square"` em `make_stdlib`.
-- `00_nucleo/prompts/rules/stdlib/square.md` — L0 novo.
+- `01_core/src/engine/stdlib/shapes.rs` — novo `native_square(width, height: auto, fill?, stroke?)`.
+- `01_core/src/engine/stdlib/mod.rs` — re-exporta `native_square`; adiciona 5 testes unitários.
+- `01_core/src/engine/eval/mod.rs` — regista `"square"` em `make_stdlib`.
+- `00_nucleo/prompts/engine/stdlib/square.md` — L0 novo.
 - `00_nucleo/diagnosticos/typst-cobertura-vanilla-vs-cristalino.md` — `square(...)` reclassificado
 de `ausente` para `implementado` (A.7 e B.5).
 
@@ -54,7 +54,7 @@ A paridade é morfológica (mesma forma `Rect`), não byte-diff de saída render
 
 ## Artefactos
 
-- Código: `01_core/src/rules/stdlib/shapes.rs`, `stdlib/mod.rs`, `eval/mod.rs`.
-- L0: `00_nucleo/prompts/rules/stdlib/square.md`.
+- Código: `01_core/src/engine/stdlib/shapes.rs`, `stdlib/mod.rs`, `eval/mod.rs`.
+- L0: `00_nucleo/prompts/engine/stdlib/square.md`.
 - Inventário 148 — `square(...)` implementado.
 - este relatório.

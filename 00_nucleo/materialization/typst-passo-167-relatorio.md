@@ -4,7 +4,7 @@ Executado em 2026-04-30. Passo documental — sem código tocado.
 
 ## Resumo
 
-- Inventário completo dos consumers de `CounterStateLegacy` em `01_core/src/rules/` e `03_infra/src/`. Identificados **6 consumers de production** + 1 test.
+- Inventário completo dos consumers de `CounterStateLegacy` em `01_core/src/engine/` e `03_infra/src/`. Identificados **6 consumers de production** + 1 test.
 - Mapeamento campo-a-campo legacy → `TagIntrospector`. Resultado: **0 mapeamentos Total**, vários Parcial, vários Lacuna.
 - 4 lacunas novas detectadas e adicionadas a `m1-lacunas-captura.md` (numbering_active, format_hierarchical hierárquico, bib_entries/bib_numbers, has_outline).
 - Decisão para P168: migrar **subset apenas do figure-ref em `references.rs::layout_ref`** — único caso Parcial viável com caveats geríveis.
@@ -52,7 +52,7 @@ Executado em 2026-04-30. Passo documental — sem código tocado.
 
 ## Consumer escolhido para P168
 
-**`layout_ref` em `01_core/src/rules/layout/references.rs`, subset apenas para o caso de figure-ref** (`references.rs:35`).
+**`layout_ref` em `01_core/src/engine/layout/references.rs`, subset apenas para o caso de figure-ref** (`references.rs:35`).
 
 **Justificação** (per regras `.D`):
 1. Total não disponível → cláusula gate trivial; Parcial admitido.

@@ -236,9 +236,9 @@ Auditoria empírica:
 ```
 grep -n "GridCell {" 01_core/src/entities/content.rs
 grep -n "TableCell {" 01_core/src/entities/content.rs
-grep -n "pub(super) fn extract_stroke" 01_core/src/rules/stdlib/layout.rs
-grep -n "fn native_grid_cell\|fn native_table_cell" 01_core/src/rules/stdlib/structural.rs
-grep -B 2 -A 20 "if let Some(c) = fill" 01_core/src/rules/layout/grid.rs
+grep -n "pub(super) fn extract_stroke" 01_core/src/engine/stdlib/layout.rs
+grep -n "fn native_grid_cell\|fn native_table_cell" 01_core/src/engine/stdlib/structural.rs
+grep -B 2 -A 20 "if let Some(c) = fill" 01_core/src/engine/layout/grid.rs
 ```
 
 Hipótese:
@@ -323,7 +323,7 @@ total):
 - `materialize_time` — preserva stroke + fill.
 - `walk` — preserva.
 
-**`rules/layout/grid.rs::layout_grid`** (refino do loop
+**`engine/layout/grid.rs::layout_grid`** (refino do loop
 de cells com precedência effective_stroke + effective_fill).
 
 **`rules/introspect/locatable.rs`** (catch-all preserva).
@@ -367,7 +367,7 @@ Magnitude C5: **S (~30min)**.
 
 ### C6 — Renderização precedência em `layout_grid`
 
-Editar `01_core/src/rules/layout/grid.rs::layout_grid`
+Editar `01_core/src/engine/layout/grid.rs::layout_grid`
 dentro do loop de cells:
 
 ```rust
@@ -600,19 +600,19 @@ Código alterado:
 - **Editado**: `01_core/src/entities/content.rs` (GridCell
   + TableCell refino +2 fields cada + arms cascata +
   ~4 unit tests).
-- **Editado**: `01_core/src/rules/introspect.rs` (arms
+- **Editado**: `01_core/src/engine/introspect.rs` (arms
   preservados ou ajuste trivial).
-- **Editado**: `01_core/src/rules/layout/grid.rs`
+- **Editado**: `01_core/src/engine/layout/grid.rs`
   (renderização precedência effective_stroke + effective_fill).
-- **Editado**: `01_core/src/rules/layout/grid_placement.rs`
+- **Editado**: `01_core/src/engine/layout/grid_placement.rs`
   (PlacedCell expandido +2 fields preservados de GridCell;
   refactor `place_cells`).
-- **Editado**: `01_core/src/rules/stdlib/structural.rs`
+- **Editado**: `01_core/src/engine/stdlib/structural.rs`
   (`native_grid_cell` + `native_table_cell` accept
   stroke/fill; +~6 unit tests).
-- **Possivelmente editado**: `01_core/src/rules/stdlib/layout.rs`
+- **Possivelmente editado**: `01_core/src/engine/stdlib/layout.rs`
   (visibilidade `extract_stroke` ajuste se necessário).
-- **Editado**: `01_core/src/rules/layout/tests.rs` (+~5
+- **Editado**: `01_core/src/engine/layout/tests.rs` (+~5
   E2E precedence tests).
 - **Editado**: `00_nucleo/diagnosticos/typst-cobertura-vanilla-vs-cristalino.md`
   (footnote ⁴⁹ P230 + Tabela B.2 actualização cumulativa).

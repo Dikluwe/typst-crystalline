@@ -12,7 +12,7 @@
 O passo P454 materializa a numeração automática de figures (`#figure[...]`) com
 contador independente e caption prefixado. O repositório já possuía a base dessa
 funcionalidade (contador via `Introspector`, gate `figure.numbering` na chain e
-layout de caption em `01_core/src/rules/layout/figure.rs`), mas o **formato do
+layout de caption em `01_core/src/engine/layout/figure.rs`), mas o **formato do
 número estava hardcoded** como `"Figura N: "`, ignorando o pattern configurado
 por `#set figure(numbering: "...")`.
 
@@ -50,9 +50,9 @@ com pattern customizável) sem quebrar a arquitetura estabelecida.
 
 | Arquivo | Mudança |
 |---------|---------|
-| `01_core/src/rules/layout/figure.rs` | Lê o pattern da chain e formata o número via `format_counter`; atualiza `@prompt-hash` para `7fb90d66`. |
-| `01_core/src/rules/layout/tests.rs` | Adiciona 5 novos testes de layout para patterns romano, letras minúsculas, letras maiúsculas, fallback de pattern inválido e sequência romana. |
-| `00_nucleo/prompts/rules/layout_figure.md` | Atualiza L0 para documentar leitura do pattern da chain, uso de `format_counter` e critérios de verificação expandidos. |
+| `01_core/src/engine/layout/figure.rs` | Lê o pattern da chain e formata o número via `format_counter`; atualiza `@prompt-hash` para `7fb90d66`. |
+| `01_core/src/engine/layout/tests.rs` | Adiciona 5 novos testes de layout para patterns romano, letras minúsculas, letras maiúsculas, fallback de pattern inválido e sequência romana. |
+| `00_nucleo/prompts/engine/layout_figure.md` | Atualiza L0 para documentar leitura do pattern da chain, uso de `format_counter` e critérios de verificação expandidos. |
 | `00_nucleo/materialization/typst-passo-454-relatorio.md` | Este relatório. |
 
 ---
@@ -97,7 +97,7 @@ Resultado:
 
 ```text
 warning: Prompt órfão: '00_nucleo/prompts/adr/adr-stub-vs-fallback.md' ... [V7]
-warning: Prompt órfão: '00_nucleo/prompts/rules/show-regex.md' ... [V7]
+warning: Prompt órfão: '00_nucleo/prompts/engine/show-regex.md' ... [V7]
 ```
 
 As únicas advertências são **pré-existentes** e referem-se a prompts não
@@ -114,7 +114,7 @@ relacionadas às alterações deste passo.
 - [x] Caption numerada renderizada como `Content::Sequence` (body + linebreak +
       prefixo + caption) — equivalente ao requisito de `FrameItem::Group`.
 - [x] 5 novos tests verdes + todos os tests de figure pré-existentes verdes.
-- [x] Spec L0 atualizada (`00_nucleo/prompts/rules/layout_figure.md`).
+- [x] Spec L0 atualizada (`00_nucleo/prompts/engine/layout_figure.md`).
 - [x] `cargo test --workspace` verde (com workaround de stack pré-existente).
 - [x] `crystalline-lint` sem violações relacionadas ao P454.
 

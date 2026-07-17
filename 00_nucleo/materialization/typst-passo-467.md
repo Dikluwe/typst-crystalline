@@ -40,9 +40,9 @@ Este passo é **independente** de P466 (métodos de array/dict/str) — toca em 
 ```bash
 grep -n "Where" 01_core/src/entities/selector.rs
 grep -rn "Selector::Where" 01_core/src/
-grep -rn "\.where(" 01_core/src/rules/eval/show.rs
-grep -rn "where" 01_core/src/rules/stdlib/query.rs
-grep -rn "where" 01_core/src/rules/eval/tests.rs | grep -i selector
+grep -rn "\.where(" 01_core/src/engine/eval/show.rs
+grep -rn "where" 01_core/src/engine/stdlib/query.rs
+grep -rn "where" 01_core/src/engine/eval/tests.rs | grep -i selector
 ```
 
 **Reclassificação condicional:**

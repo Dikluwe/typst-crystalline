@@ -102,7 +102,7 @@ agregada (paralelo histórico P156C):
 
 ## §3 — Materialização
 
-### §3.1 — `01_core/src/rules/stdlib/calc.rs` — 15 funções + 15 registos
+### §3.1 — `01_core/src/engine/stdlib/calc.rs` — 15 funções + 15 registos
 
 **Mudanças principais**:
 
@@ -217,7 +217,7 @@ módulos**. Apenas 1 helper local privado (`gcd_impl`).
 | Eval pipeline | **Inalterado** — `eval_field_access` resolve `calc.X` via Dict (P96.2) |
 | Layouter / walks | **Inalterado** |
 | `export.rs` | **Inalterado bit-exact** — hash `66cb8ac3` (**23º passo**) |
-| L0 `rules/layout.md` | **Inalterado** |
+| L0 `engine/layout.md` | **Inalterado** |
 | L0 `entities/content.md` | **Inalterado** |
 | L0 `rules/stdlib.md` | **Actualizado** (drift L0 deliberado per protocolo) |
 
@@ -225,7 +225,7 @@ módulos**. Apenas 1 helper local privado (`gcd_impl`).
 
 ## §4 — Testes
 
-### §4.1 — `01_core/src/rules/stdlib/mod.rs` (+17 L1)
+### §4.1 — `01_core/src/engine/stdlib/mod.rs` (+17 L1)
 
 | Teste | Verifica | Casos |
 |---|---|---:|
@@ -306,8 +306,8 @@ não introduzida por P306.
 |---|---|
 | `infra/export.rs` (`@prompt-hash`) | **`66cb8ac3` preservado bit-exact** (**23º passo consecutivo**) |
 | `entities/content.rs` (`@prompt-hash`) | `82d3c47d` inalterado |
-| `rules/layout/mod.rs` | inalterado |
-| `rules/layout/cursor.rs` | inalterado |
+| `engine/layout/mod.rs` | inalterado |
+| `engine/layout/cursor.rs` | inalterado |
 | L0 `rules/stdlib.md` | **`21ade03a` → `dd3e2637`** (drift deliberado) |
 | 11× `rules/stdlib/*.rs` (`@prompt-hash`) | **`21ade03a` → `dd3e2637`** via `--fix-hashes` (operação mecânica) |
 | Outros L0 markdown | todos preservados |

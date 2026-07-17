@@ -22,7 +22,7 @@ Toda a sequência RTL construída até agora trata da ordem das palavras dentro 
 ### Confirmar onde o aviso é emitido
 
 ```bash
-grep -n "\"dir\"\|dir.*rtl\|text.*dir" 01_core/src/rules/eval/rules.rs 01_core/src/rules/stdlib/text.rs
+grep -n "\"dir\"\|dir.*rtl\|text.*dir" 01_core/src/engine/eval/rules.rs 01_core/src/engine/stdlib/text.rs
 ```
 
 Perguntas, com `file:line`:

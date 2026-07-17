@@ -59,7 +59,7 @@ Este passo **não**:
 **Dentro**:
 - `01_core/src/entities/style.rs` (ou equivalente) — campo
   `weight` em `StyleDelta`.
-- `01_core/src/rules/eval/` — `eval_set_text` captura `weight`
+- `01_core/src/engine/eval/` — `eval_set_text` captura `weight`
   do argumento.
 - Teste L1 novo para captura.
 - ADR-0038 anotada.
@@ -91,7 +91,7 @@ Este passo **não**:
 
 **Parte 2 — `eval_set_text` actual**:
 
-1. `view` em `01_core/src/rules/eval/` ou equivalente.
+1. `view` em `01_core/src/engine/eval/` ou equivalente.
    Localizar a função que processa `#set text(...)`.
 2. Registar:
    - Como propriedades activas são capturadas (ex: match sobre

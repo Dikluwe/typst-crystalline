@@ -54,11 +54,11 @@ Nota: a classificação P490 usa `metadata`/`heading` como proxy; ficheiros que 
 
 ## Ficheiros alterados
 
-- `01_core/src/rules/stdlib/calc.rs` — `calc_log(base:)` e `calc_round(digits:)`.
-- `01_core/src/rules/stdlib/foundations.rs` — `str(base:)`.
-- `01_core/src/rules/stdlib/collections.rs` — `dict.at(default:)`, `dict.keys()`, `dict.values()`.
-- `01_core/src/rules/stdlib/mod.rs` — testes unitários P491 para `calc.log`, `calc.round`, `str`.
-- `01_core/src/rules/eval/tests.rs` — testes unitários P491 para `dict.at`, `dict.keys`, `dict.values`.
+- `01_core/src/engine/stdlib/calc.rs` — `calc_log(base:)` e `calc_round(digits:)`.
+- `01_core/src/engine/stdlib/foundations.rs` — `str(base:)`.
+- `01_core/src/engine/stdlib/collections.rs` — `dict.at(default:)`, `dict.keys()`, `dict.values()`.
+- `01_core/src/engine/stdlib/mod.rs` — testes unitários P491 para `calc.log`, `calc.round`, `str`.
+- `01_core/src/engine/eval/tests.rs` — testes unitários P491 para `dict.at`, `dict.keys`, `dict.values`.
 - `lab/parity/tests/structural_parity.rs` — sentinela `p491_args_nomeados_lote_d2`.
 
 ---

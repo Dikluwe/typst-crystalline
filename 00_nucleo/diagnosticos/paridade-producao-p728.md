@@ -4,7 +4,7 @@
 **Passo:** `00_nucleo/diagnosticos/typst-passo-728.md`
 **ADRs em vigor:** ADR-0107 (paridade é com a linguagem), ADR-0108 (medir antes de decidir), ADR-0114 (sonda antes da spec — mudança em mecanismo central de avaliação).
 **Commit:** `4cfd371f045e6f40ffef6355c5c5862e4aa22825`
-**Proveniência das medições (regra de proveniência):** commit base `c07e22af83827974a628ab69f9fad8eececcef00` ("P727: preenche hash do commit no relatório"), working tree com as alterações deste passo (`git diff HEAD --stat`: `00_nucleo/prompts/rules/eval.md`, `00_nucleo/prompts/rules/eval/ops.md`, `01_core/src/rules/eval/mod.rs`, `01_core/src/rules/eval/operators.rs`, `01_core/src/rules/eval/tests.rs` + headers `@prompt-hash` retocados pelo `--fix-hashes` em `bibliography.rs`, `closures.rs`, `control_flow.rs`, `flow.rs`, `markup.rs`, `math.rs`, `modules.rs`, `rules.rs`). Medições vanilla: binário `lab/typst-original/target/release/typst`; medições cristalino: `./target/release/typst` (release build de 2026-07-13T20:39Z).
+**Proveniência das medições (regra de proveniência):** commit base `c07e22af83827974a628ab69f9fad8eececcef00` ("P727: preenche hash do commit no relatório"), working tree com as alterações deste passo (`git diff HEAD --stat`: `00_nucleo/prompts/engine/eval.md`, `00_nucleo/prompts/engine/eval/ops.md`, `01_core/src/engine/eval/mod.rs`, `01_core/src/engine/eval/operators.rs`, `01_core/src/engine/eval/tests.rs` + headers `@prompt-hash` retocados pelo `--fix-hashes` em `bibliography.rs`, `closures.rs`, `control_flow.rs`, `flow.rs`, `markup.rs`, `math.rs`, `modules.rs`, `rules.rs`). Medições vanilla: binário `lab/typst-original/target/release/typst`; medições cristalino: `./target/release/typst` (release build de 2026-07-13T20:39Z).
 
 ---
 
@@ -12,7 +12,7 @@
 
 ### Bug 1 — `and`/`or` sem short-circuit (confirmado)
 
-Vanilla `apply_binary` em `lab/typst-original/crates/typst-eval/src/ops.rs:52-66`: avalia `lhs`, e se `(And && lhs == false) || (Or && lhs == true)` retorna `lhs` **sem avaliar `rhs`**. O cristalino (`01_core/src/rules/eval/mod.rs`, braço genérico `Expr::Binary`) avaliava sempre os dois operandos.
+Vanilla `apply_binary` em `lab/typst-original/crates/typst-eval/src/ops.rs:52-66`: avalia `lhs`, e se `(And && lhs == false) || (Or && lhs == true)` retorna `lhs` **sem avaliar `rhs`**. O cristalino (`01_core/src/engine/eval/mod.rs`, braço genérico `Expr::Binary`) avaliava sempre os dois operandos.
 
 Medição vanilla (`/tmp/p728-shortcircuit.typ`, pdftotext) — os 4 casos:
 
@@ -31,7 +31,7 @@ O cristalino errava no 1º caso ("campo desconhecido em array: 'contains'") e no
 
 A anomalia notada em P727 ("`line` antes de `circle` compila mas a linha não aparece; suspeita de memoização") foi investigada primeiro pela hipótese de memoização e **refutada**: não há `#[comemo::memoize]` no eval de closures, e casos puros de closure erravam consistentemente (não dependiam de cache).
 
-A causa real: o braço `Expr::CodeBlock` (`01_core/src/rules/eval/mod.rs`) devolvia só o valor da **última** expressão. O vanilla (`lab/typst-original/crates/typst-eval/src/code.rs:57`) faz `output = ops::join(output, value)` **por expressão**. Medições vanilla vs cristalino (pré-correcção):
+A causa real: o braço `Expr::CodeBlock` (`01_core/src/engine/eval/mod.rs`) devolvia só o valor da **última** expressão. O vanilla (`lab/typst-original/crates/typst-eval/src/code.rs:57`) faz `output = ops::join(output, value)` **por expressão**. Medições vanilla vs cristalino (pré-correcção):
 
 | Caso | Vanilla | Cristalino (antes) |
 |---|---|---|
@@ -50,17 +50,17 @@ O passo mandava corrigir ambos ("se a anomalia for confirmada como bug real e re
 
 ## L0 (Prompt)
 
-- `00_nucleo/prompts/rules/eval.md` — secção de code block actualizada: o valor do bloco é o `join` sequencial, não a última expressão; `Binary` ganha braço dedicado para `And`/`Or`.
-- `00_nucleo/prompts/rules/eval/ops.md` — nova secção "P728 — Short-circuit de `and`/`or` + `join` em code block" com mecanismos vanilla file:line, tabela completa de `join` e decisão sobre a mensagem de erro: texto cristalino "cannot join {a} with {b}" com `type_name()` cristalino (divergência de texto face aos nomes vanilla aceite — mesmo padrão da fronteira genérica "cannot apply").
+- `00_nucleo/prompts/engine/eval.md` — secção de code block actualizada: o valor do bloco é o `join` sequencial, não a última expressão; `Binary` ganha braço dedicado para `And`/`Or`.
+- `00_nucleo/prompts/engine/eval/ops.md` — nova secção "P728 — Short-circuit de `and`/`or` + `join` em code block" com mecanismos vanilla file:line, tabela completa de `join` e decisão sobre a mensagem de erro: texto cristalino "cannot join {a} with {b}" com `type_name()` cristalino (divergência de texto face aos nomes vanilla aceite — mesmo padrão da fronteira genérica "cannot apply").
 - `crystalline-lint --fix-hashes .` actualizou os headers afectados; `crystalline-lint .` → **0 violations**.
 
 ## Implementação
 
-1. `01_core/src/rules/eval/operators.rs` — nova função `pub(crate) fn join(lhs: Value, rhs: Value) -> Result<Value, String>` com a tabela completa de paridade (None identidade; str/symbol/bytes/content concatenam; array concatena; dict/args fazem merge; resto erro "cannot join X with Y"). Import novo: `crate::entities::bytes::Bytes`.
-2. `01_core/src/rules/eval/mod.rs`:
+1. `01_core/src/engine/eval/operators.rs` — nova função `pub(crate) fn join(lhs: Value, rhs: Value) -> Result<Value, String>` com a tabela completa de paridade (None identidade; str/symbol/bytes/content concatenam; array concatena; dict/args fazem merge; resto erro "cannot join X with Y"). Import novo: `crate::entities::bytes::Bytes`.
+2. `01_core/src/engine/eval/mod.rs`:
    - Braço `Expr::CodeBlock`: `let mut output = Value::None` e `output = operators::join(output, value)?` por expressão (span capturado antes de consumir `expr`), em vez de `last = ...`.
    - Novo braço `Expr::Binary(binary) if matches!(binary.op(), BinOp::And | BinOp::Or)` antes do genérico: avalia `lhs`; se decidido (`And`+`false` ou `Or`+`true`) retorna `lhs` sem avaliar `rhs`; caso contrário avalia `rhs` e despacha para `eval_binary_op` (que mantém a exigência Bool/Bool).
-3. `01_core/src/rules/eval/tests.rs` — 16 testes P728: 8 de short-circuit (não-avaliação do rhs com `1/0`, idioma "verificar antes de aceder", caso comum com rhs avaliado, tipos inválidos erram) e 8 de join (arrays, strs, dicts, None identidade esquerda/direita, valor antes de None, join inválido erra, expressão única sem regressão, `join` unitário).
+3. `01_core/src/engine/eval/tests.rs` — 16 testes P728: 8 de short-circuit (não-avaliação do rhs com `1/0`, idioma "verificar antes de aceder", caso comum com rhs avaliado, tipos inválidos erram) e 8 de join (arrays, strs, dicts, None identidade esquerda/direita, valor antes de None, join inválido erra, expressão única sem regressão, `join` unitário).
 
 ## Validação
 
@@ -86,7 +86,7 @@ Medição do caso mínimo (`/tmp/p728-slice.typ`, commit base + alterações des
 | `(1,2,3,4).slice(1, 3)` | `(2, 3)` | erro "campo desconhecido em array: 'slice'" |
 | `(1,2,3,4).slice(-2)` | `(3, 4)` | erro idem |
 
-Causa: a stdlib cristalina só tem `slice` para `Str` (`01_core/src/rules/stdlib/collections.rs:79`); falta `Array.slice`. O cetz usa `array.slice` em ≥10 locais (`draw/shapes.typ:620,624,630,971,973,1949,2160`, `anchor.typ:218`, `coordinate.typ:203`, `drawable.typ:145`). Registado como aberto em `achados-adiados-cetz.md` — candidato natural a P729.
+Causa: a stdlib cristalina só tem `slice` para `Str` (`01_core/src/engine/stdlib/collections.rs:79`); falta `Array.slice`. O cetz usa `array.slice` em ≥10 locais (`draw/shapes.typ:620,624,630,971,973,1949,2160`, `anchor.typ:218`, `coordinate.typ:203`, `drawable.typ:145`). Registado como aberto em `achados-adiados-cetz.md` — candidato natural a P729.
 
 **O diff de pixels final não é medível neste passo** (a compilação pára no novo bloqueio), e a cadeia P678-728 **não fecha ainda**: P728 removeu os dois bloqueios que lhe eram atribuídos e expôs o seguinte. Número registado conforme o critério do passo: erro exacto + caso mínimo medido, em substituição do diff de pixels.
 

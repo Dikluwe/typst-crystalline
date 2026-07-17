@@ -27,7 +27,7 @@ Cristalino tem **intercepção directa em eval** (não stdlib
 func registada):
 
 ```rust
-// 01_core/src/rules/eval/closures.rs:210-215
+// 01_core/src/engine/eval/closures.rs:210-215
 // Intercepção de `outline()` — produz Content::Outline (Passo 61).
 if let Expr::Ident(ident) = call.callee() {
     if ident.as_str() == "outline" {

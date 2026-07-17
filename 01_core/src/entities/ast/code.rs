@@ -12,7 +12,7 @@ use crate::entities::ast::expr::{Expr, Ident, Pattern, Args};
 use crate::entities::package_spec::PackageSpec;
 use crate::entities::syntax_kind::SyntaxKind;
 use crate::entities::syntax_node::SyntaxNode;
-use crate::rules::lexer::is_ident;
+use crate::engine::lexer::is_ident;
 
 node! { struct LetBinding }
 

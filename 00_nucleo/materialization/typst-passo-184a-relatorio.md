@@ -279,7 +279,7 @@ ElementPayload::Figure { kind, counter_update, is_counted, .. } => {
 }
 ```
 
-L0 `00_nucleo/prompts/rules/introspect/from_tags.md` documenta a
+L0 `00_nucleo/prompts/engine/introspect/from_tags.md` documenta a
 convenção `figure:{kind}` (promovida do doc comment de
 `element_payload.rs:52`).
 

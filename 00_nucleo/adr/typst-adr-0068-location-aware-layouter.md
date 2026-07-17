@@ -297,7 +297,7 @@ ADR transita para `REJEITADA` se:
 | Data | Estado | Motivo |
 |------|--------|--------|
 | 2026-05-03 | `PROPOSTO` | P185A diagnóstico fixou mecanismo M3 com 6 cláusulas decididas. Validação pendente em P185C+. |
-| 2026-05-03 | `ACEITE` | P185D §"Resumo": 4 tests E2E (`mod p185d_locator_sync` em `01_core/src/rules/layout/tests.rs`) passam — sincronização-por-construção empiricamente confirmada. Sequências de `Location` produzidas pelo Layouter coincidem com walk de introspect em todos os cenários (3 locatables; mistura locatable+não-locatable; `current_location` `None` antes do primeiro locatable; pipeline end-to-end com `is_numbering_active_at` consultado via `current_location`). Custo real P185C ≈37 LOC em `mod.rs` vs estimativa ~30 LOC — multiplicador 1.23×, dentro ±50% per critério §3. P185E ratifica em relatório consolidado. |
+| 2026-05-03 | `ACEITE` | P185D §"Resumo": 4 tests E2E (`mod p185d_locator_sync` em `01_core/src/engine/layout/tests.rs`) passam — sincronização-por-construção empiricamente confirmada. Sequências de `Location` produzidas pelo Layouter coincidem com walk de introspect em todos os cenários (3 locatables; mistura locatable+não-locatable; `current_location` `None` antes do primeiro locatable; pipeline end-to-end com `is_numbering_active_at` consultado via `current_location`). Custo real P185C ≈37 LOC em `mod.rs` vs estimativa ~30 LOC — multiplicador 1.23×, dentro ±50% per critério §3. P185E ratifica em relatório consolidado. |
 
 ---
 

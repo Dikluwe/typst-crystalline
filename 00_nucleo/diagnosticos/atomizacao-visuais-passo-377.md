@@ -14,7 +14,7 @@ P376 e nos headers dos 5 `layout/*.rs`.
 **B — forma canónica (Opção A → B):** a ADR fora gravada com a **Opção A** (`impl XElem { fn layout }`
 no arquivo do struct). A medição do P376 provou que a A **cria o acoplamento `entities →
 rules::layout`** (dado→render: ciclo + `pub(crate)` + genéricos — custo §3). Substituída pela **Opção
-B** (free function `pub(super) fn layout<M,S>(layouter, e)` em `rules/layout/<elem>.rs`; acede ao
+B** (free function `pub(super) fn layout<M,S>(layouter, e)` em `engine/layout/<elem>.rs`; acede ao
 `Layouter` por descendência de módulo). A **Opção A fica registada como REJEITADA** (paralelo ao
 registro do erro do P346). Definição e não-metas inalteradas (estavam certas); só a forma muda.
 
@@ -22,10 +22,10 @@ registro do erro do P346). Definição e não-metas inalteradas (estavam certas)
 
 | Elemento | Arm antes (`@linha`) | Arquivo novo | Linhas |
 |---|---|---|---|
-| `Heading` | `:765` (44) | `rules/layout/heading.rs` | 62 |
-| `Transform` | `:1013` (49) | `rules/layout/transform.rs` | 68 |
-| `Shape` | `:980` (33) | `rules/layout/shape.rs` | 54 |
-| `Columns` | `:1544` (44) | `rules/layout/columns.rs` | 58 |
+| `Heading` | `:765` (44) | `engine/layout/heading.rs` | 62 |
+| `Transform` | `:1013` (49) | `engine/layout/transform.rs` | 68 |
+| `Shape` | `:980` (33) | `engine/layout/shape.rs` | 54 |
+| `Columns` | `:1544` (44) | `engine/layout/columns.rs` | 58 |
 
 Arm magro: `Content::Heading(h) => heading::layout(self, h)` (idem os 3). As free functions acedem ao
 estado privado do `Layouter` por **descendência de módulo**; helpers livres (`heading_scale`/

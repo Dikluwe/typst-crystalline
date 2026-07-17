@@ -50,7 +50,7 @@ disponíveis). ADR-0068 PROPOSTO documenta mecanismo M3.
 ### .A Auditoria L0
 
 1. Confirmar Layouter actual:
-   - `01_core/src/rules/layout/mod.rs` definição do struct.
+   - `01_core/src/engine/layout/mod.rs` definição do struct.
    - Inventariar fields existentes (`cursor_x`, `cursor_y`,
      `current_line`, `figure_progress`, `counter`,
      `introspector`, etc.).
@@ -68,7 +68,7 @@ disponíveis). ADR-0068 PROPOSTO documenta mecanismo M3.
      P185A §3.3 — provado por test).
 
 3. Confirmar `is_locatable`:
-   - `01_core/src/rules/introspect/locatable.rs`.
+   - `01_core/src/engine/introspect/locatable.rs`.
    - Função pública: `is_locatable(&Content) -> bool`.
    - Cobertura per P185A §3.5: Heading, Figure, Cite,
      Metadata, State, StateUpdate, Outline, Bibliography,
@@ -85,7 +85,7 @@ disponíveis). ADR-0068 PROPOSTO documenta mecanismo M3.
      Default novo? Recebido como argumento?
    - Decisão: cláusula 1 abaixo.
 
-6. Confirmar L0 actual `rules/layout.md`:
+6. Confirmar L0 actual `engine/layout.md`:
    - Localizar entradas existentes documentando Layouter
      fields e arms.
    - Identificar onde adicionar entrada para mecanismo
@@ -179,7 +179,7 @@ Output: decisão fixada.
 
 ### .E Adicionar fields ao struct Layouter
 
-1. Em `01_core/src/rules/layout/mod.rs`, struct Layouter:
+1. Em `01_core/src/engine/layout/mod.rs`, struct Layouter:
    - Adicionar `locator: Locator`.
    - Adicionar `current_location: Location`.
 
@@ -274,7 +274,7 @@ com:
   sincronização-por-construção via determinismo.
 - Confirmação `.H` (12 verificações).
 - Δ tests vs baseline P185B (esperado 0).
-- Hashes finais de L0 modificado (`rules/layout.md`).
+- Hashes finais de L0 modificado (`engine/layout.md`).
 - Decisões de execução notáveis.
 - Estado actual:
   - P185 série: A ✅ B ✅ C ✅ | D-E pendentes.
@@ -295,7 +295,7 @@ Todas em conjunto:
 1. `.A` produziu auditoria sem disparar gate substancial.
 2. Cláusulas 1-3 fixadas (inicialização, gating,
    save/restore).
-3. L0 `rules/layout.md` actualizado.
+3. L0 `engine/layout.md` actualizado.
 4. Layouter struct ganha 2 fields.
 5. `layout_content` faz gating.
 6. Tests existentes não regridem (Δ 0).

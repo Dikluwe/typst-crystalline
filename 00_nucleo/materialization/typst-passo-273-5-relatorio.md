@@ -81,7 +81,7 @@ pub struct Rect {
 ### §2.2 — L1 novo campo Layouter
 
 ```rust
-// 01_core/src/rules/layout/mod.rs P273.5
+// 01_core/src/engine/layout/mod.rs P273.5
 
 pub struct Layouter<'a, M: FontMetrics, S: ImageSizer = NullImageSizer> {
     // ... fields existentes ...

@@ -26,9 +26,9 @@ métodos (regra P207B §5 **não acionada**).
 
 | Camada | Ficheiro | Edição |
 |--------|----------|--------|
-| L1 | `01_core/src/rules/stdlib/foundations.rs` | +`pub fn native_locate(ctx, args, ...)` (~60L) paralelo a `native_query`. Aceita 1 arg `Value::Str(kind)`; valida via `ElementKind::from_name`; consulta `ctx.introspector.query(&Selector::Kind(kind))`. Retorno: `Value::Location(first)` / `Value::None` / `Err`. Erros mencionam pendência P209 para hint ao usuário. |
-| L1 | `01_core/src/rules/stdlib/mod.rs` | +`native_locate` em `pub use` block. +4 tests `p208c_locate_*` em tests module. |
-| L1 | `01_core/src/rules/eval/mod.rs` | +`native_locate` em import block. +`scope.define("locate", Value::Func(Func::native("locate", native_locate)))` no scope global. |
+| L1 | `01_core/src/engine/stdlib/foundations.rs` | +`pub fn native_locate(ctx, args, ...)` (~60L) paralelo a `native_query`. Aceita 1 arg `Value::Str(kind)`; valida via `ElementKind::from_name`; consulta `ctx.introspector.query(&Selector::Kind(kind))`. Retorno: `Value::Location(first)` / `Value::None` / `Err`. Erros mencionam pendência P209 para hint ao usuário. |
+| L1 | `01_core/src/engine/stdlib/mod.rs` | +`native_locate` em `pub use` block. +4 tests `p208c_locate_*` em tests module. |
+| L1 | `01_core/src/engine/eval/mod.rs` | +`native_locate` em import block. +`scope.define("locate", Value::Func(Func::native("locate", native_locate)))` no scope global. |
 
 L0 prompts (eval.md/stdlib.md) **não modificados** —
 convenção emergente per P208B §3: stdlib funcs P169+

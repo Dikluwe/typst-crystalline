@@ -17,7 +17,7 @@ Criou-se um script (`temp_p664/auditoria_p664.py`) que gera documentos mínimos 
 
 Foram testadas duas categorias:
 
-1. **Argumentos que o cristalino reconhece** (extraídos de `01_core/src/rules/eval/rules.rs`):
+1. **Argumentos que o cristalino reconhece** (extraídos de `01_core/src/engine/eval/rules.rs`):
    - `heading.numbering`
    - `math.equation.numbering`
    - `document.title`, `author`, `keywords`

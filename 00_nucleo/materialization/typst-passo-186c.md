@@ -60,7 +60,7 @@ e `ElementKind::Equation` declarados.
 ### .A Auditoria L0
 
 1. Confirmar `extract_payload` actual:
-   - `01_core/src/rules/introspect/extract_payload.rs:83`
+   - `01_core/src/engine/introspect/extract_payload.rs:83`
      (per P186A §2 — catch-all `_ => None`).
    - Localizar arms existentes (`Content::Heading`,
      `Content::Figure`, `Content::Bibliography`,
@@ -140,7 +140,7 @@ Output: tabela com item + estado + linha actual.
 
 ### .C Adicionar arm a `extract_payload`
 
-1. Em `01_core/src/rules/introspect/extract_payload.rs`:
+1. Em `01_core/src/engine/introspect/extract_payload.rs`:
    - Adicionar arm `Content::Equation { block, .. } =>
      Some(ElementPayload::Equation { block: *block,
      counter_update: CounterUpdate::Step })`.

@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/entities/source.md
-//! @prompt-hash 4fd9dae5
+//! @prompt-hash 8d3a1f17
 //! @layer L1
 //! @updated 2026-03-25
 
@@ -13,7 +13,7 @@ use rustc_hash::FxHasher;
 use crate::entities::file_id::FileId;
 use crate::entities::span::Span;
 use crate::entities::syntax_node::{LinkedNode, SyntaxNode};
-use crate::rules::parse::parse;
+use crate::engine::parse::parse;
 
 /// Ficheiro de texto carregado em memória com a sua CST associada.
 ///

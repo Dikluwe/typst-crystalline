@@ -104,7 +104,7 @@ Após P190C:
      populated durante layout.
    - Confirmar empiricamente via `grep -n
      "label_pages\|known_page_numbers"
-     01_core/src/rules/introspect/`.
+     01_core/src/engine/introspect/`.
 
 #### Inventário Layouter consumers
 
@@ -124,7 +124,7 @@ Após P190C:
 5. Identificar Layouter assignments duais (per P190B
    pattern):
    - `grep -rn "label_pages\s*=\|known_page_numbers\s*="
-     01_core/src/rules/layout/mod.rs`.
+     01_core/src/engine/layout/mod.rs`.
    - Esperado: 4 linhas (2 fields × 2 contextos).
 
 #### Tests dependentes
@@ -153,7 +153,7 @@ Após P190C:
    - `entities/counter_state_legacy.md` (fields
      eliminados — provavelmente diferido para P190I).
    - `entities/layouter_runtime_state.md` (novo).
-   - `rules/layout/mod.md` (consumers migrados).
+   - `engine/layout/mod.md` (consumers migrados).
 
 Output: tabela com item + estado verificado.
 
@@ -208,7 +208,7 @@ Output: tabela com item + estado verificado.
 ### .C Adicionar field `runtime` ao Layouter
 
 1. Em
-   `01_core/src/rules/layout/mod.rs` (ou onde
+   `01_core/src/engine/layout/mod.rs` (ou onde
    Layouter está definido):
    - Adicionar field:
      ```

@@ -3,7 +3,7 @@
 ## Estado actual antes de começar
 
 Ler antes de começar:
-- `01_core/src/rules/eval.rs` — `EvalContext`, `apply_show_rules`,
+- `01_core/src/engine/eval.rs` — `EvalContext`, `apply_show_rules`,
   `intercept_content`, processamento de `Expr::ShowRule`,
   entrada/saída de `Expr::CodeBlock` e `Expr::ContentBlock`.
 - `01_core/src/entities/show.rs` — `ShowRule`, `RuleId`.
@@ -67,7 +67,7 @@ problema:
 
 ```bash
 # Campos de EvalContext
-grep -B 2 -A 30 "pub struct EvalContext" 01_core/src/rules/eval.rs
+grep -B 2 -A 30 "pub struct EvalContext" 01_core/src/engine/eval.rs
 ```
 
 Reportar o output completo. Os campos relevantes são `show_rules` e
@@ -78,11 +78,11 @@ são candidatos.
 
 ```bash
 # Ocorrências de clone de show_rules
-grep -n "show_rules.clone\|show_rules =" 01_core/src/rules/eval.rs
+grep -n "show_rules.clone\|show_rules =" 01_core/src/engine/eval.rs
 
 # Padrão de save/restore — `let saved = ctx.show_rules.clone()` seguido
 # de `ctx.show_rules = saved` no final de um bloco?
-grep -B 3 -A 15 "show_rules.clone()" 01_core/src/rules/eval.rs
+grep -B 3 -A 15 "show_rules.clone()" 01_core/src/engine/eval.rs
 ```
 
 Interpretar:
@@ -98,11 +98,11 @@ Interpretar:
 
 ```bash
 # Onde show_rules é modificado
-grep -n "show_rules.push\|show_rules.extend" 01_core/src/rules/eval.rs
+grep -n "show_rules.push\|show_rules.extend" 01_core/src/engine/eval.rs
 
 # Contar call sites aproximados de push vs clone
-grep -c "show_rules.push" 01_core/src/rules/eval.rs
-grep -c "show_rules.clone" 01_core/src/rules/eval.rs
+grep -c "show_rules.push" 01_core/src/engine/eval.rs
+grep -c "show_rules.clone" 01_core/src/engine/eval.rs
 ```
 
 O ratio push/clone valida o pressuposto "push raro, clone frequente".
@@ -113,13 +113,13 @@ pressuposto está errado — reportar.
 
 ```bash
 # Estrutura actual
-grep -n "active_guards" 01_core/src/rules/eval.rs
+grep -n "active_guards" 01_core/src/engine/eval.rs
 
 # Padrão de push/pop — entrada/saída de show rules
-grep -B 3 -A 5 "active_guards.push\|active_guards.pop" 01_core/src/rules/eval.rs
+grep -B 3 -A 5 "active_guards.push\|active_guards.pop" 01_core/src/engine/eval.rs
 
 # Clone — existe ou não?
-grep -n "active_guards.clone" 01_core/src/rules/eval.rs
+grep -n "active_guards.clone" 01_core/src/engine/eval.rs
 ```
 
 Interpretar:
@@ -139,7 +139,7 @@ Interpretar:
 grep -rn "show_rules" 01_core/src/
 
 # API consumida: .iter(), .len(), .is_empty(), indexação?
-grep -n "show_rules\." 01_core/src/rules/eval.rs | sort -u
+grep -n "show_rules\." 01_core/src/engine/eval.rs | sort -u
 ```
 
 Objectivo: inventariar exactamente os métodos chamados. `Arc<[T]>`
@@ -192,7 +192,7 @@ Não alterar código.
 
 ### 2A.1 — Alterar o campo em `EvalContext`
 
-Em `01_core/src/rules/eval.rs`:
+Em `01_core/src/engine/eval.rs`:
 
 **Antes**:
 

@@ -328,7 +328,7 @@ ambíguo.
    - Tabela A.6 linha 178 — `ausente`/`parcial` → `parcial⁺`
      ou `implementado` conforme P304 + P295.2 pendente.
    - Hash `entities/content.md`: preservado (sem variants novos).
-   - Hash `rules/layout.md`: pode mudar conforme A.0.0.
+   - Hash `engine/layout.md`: pode mudar conforme A.0.0.
    - Propagar via `crystalline-lint --fix-hashes`.
 9. Diagnóstico produzido com 8 secções
    A.0.0+A.0.0'+A.0+A.1+A.2+A.3+A.4+A.5+A.5'.
@@ -345,7 +345,7 @@ primeira vez pós-cluster math).
 - `crystalline-lint` zero violations.
 - Hash L0 `content.md` **preserved** (sem variants novos).
 - Hash L0 `stdlib.md` **preserved**.
-- Hash L0 `rules/layout.md` **condicional** — muda se
+- Hash L0 `engine/layout.md` **condicional** — muda se
   Layouter struct ganha campo `pending_footnote_bodies` (esperado).
 - Hash L0 `export.rs` **preserved bit-exact** pelo **21º passo
   consecutivo** P282-P304 se A.4 → (i).
@@ -429,7 +429,7 @@ single page**. Mitigação: cenário A.5; documentar.
 
 ## §8 — Ponteiros
 
-- Tipo a modificar: `01_core/src/rules/layout/mod.rs`
+- Tipo a modificar: `01_core/src/engine/layout/mod.rs`
   (Layouter struct + page-close logic).
 - Variant pré-existente: `Content::Footnote` (P295).
 - Stdlib: `native_footnote` (P295) — preservado.

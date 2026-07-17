@@ -39,13 +39,13 @@ documentada em P308 §10.3 e expandida em pergunta humana subsequente
 
 **Achado crítico**: o cristalino **já tem duas políticas IEEE 754
 contraditórias** em sítios diferentes do código:
-- `00_nucleo/prompts/rules/eval.md` declara IEEE 754 puro (propaga
+- `00_nucleo/prompts/engine/eval.md` declara IEEE 754 puro (propaga
   NaN/Inf silenciosamente).
-- `00_nucleo/prompts/rules/stdlib.md` declara `guard_float` (rejeita
+- `00_nucleo/prompts/engine/stdlib.md` declara `guard_float` (rejeita
   NaN/Inf via Err).
 
 A divergência **não é local a `erf`**: é política transversal expressa
-via helper central `guard_float` em `01_core/src/rules/stdlib/calc.rs:
+via helper central `guard_float` em `01_core/src/engine/stdlib/calc.rs:
 803-806`. **Política depende do caminho sintáctico** (markup
 arithmetic vs `calc.*` function) — não da identidade do valor.
 
@@ -160,7 +160,7 @@ Eq/Neq Float↔Int + Neg/Pos Float.
 `entities/layout_types.rs`: 6 sítios estruturais — `Pt`/`Abs`/`Length`
 impls `std::ops::Add/Sub/Mul<f64>/AddAssign`.
 
-`rules/layout/**` e `rules/math/**`: distributivo (~30 ficheiros)
+`engine/layout/**` e `rules/math/**`: distributivo (~30 ficheiros)
 sem guarda IEEE 754 explícita.
 
 `entities/color.rs`: storage f32 sem guarda.
@@ -277,8 +277,8 @@ não introduziu drift (zero código tocado, zero L0 tocado).
 | `infra/export/stream.rs` | `9acca994` preservado |
 | `infra/export/images.rs` | `ba5bcbb7` preservado |
 | `infra/export/fonts.rs` | `c7d24b28` preservado |
-| `rules/layout/mod.rs` | inalterado |
-| `rules/layout/cursor.rs` | inalterado |
+| `engine/layout/mod.rs` | inalterado |
+| `engine/layout/cursor.rs` | inalterado |
 | L0 `rules/stdlib.md` | `d4c214e1` preservado (drift ficou para P310) |
 | L0 `rules/eval.md` | anterior preservado (drift ficou para P310) |
 | 11× `rules/stdlib/*.rs` | `d4c214e1` preservados |

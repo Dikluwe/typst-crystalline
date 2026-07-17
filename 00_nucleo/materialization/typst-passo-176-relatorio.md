@@ -4,7 +4,7 @@ Executado em 2026-04-29. Sexta feature M9. Capitaliza P170 (`CounterRegistry` hi
 
 ## Resumo
 
-- **Stdlib `counter_final(key_str) -> Value::Str`** materializada em `01_core/src/rules/stdlib/foundations.rs:323`. Reusa `Introspector::formatted_counter` (P170) — sem novo trait method.
+- **Stdlib `counter_final(key_str) -> Value::Str`** materializada em `01_core/src/engine/stdlib/foundations.rs:323`. Reusa `Introspector::formatted_counter` (P170) — sem novo trait method.
 - **Forma minimal**: retorna string formatada hierárquica (e.g. `"1.2.3"`). Iter 0 do fixpoint retorna `Value::Str("")` (vazio); iters seguintes retornam string formatada.
 - **Trait method NÃO adicionado** — `Introspector::formatted_counter` (P170) já cobre o caso. P176 = stdlib + tests.
 - **Walk inalterado**, API pública preservada.

@@ -280,10 +280,10 @@ Audit empírico:
 ```
 grep -A 10 "Content::GridCell {" 01_core/src/entities/content.rs
 grep -A 10 "Content::TableCell {" 01_core/src/entities/content.rs
-grep -n "extract_alignment\|extract_sides_lengths\|extract_sides" 01_core/src/rules/stdlib/
-grep -B 2 -A 30 "Content::Block.*breakable\|breakable" 01_core/src/rules/layout/mod.rs
-grep -n "cell_align" 01_core/src/rules/layout/mod.rs
-grep -n "cell_origin_" 01_core/src/rules/layout/mod.rs
+grep -n "extract_alignment\|extract_sides_lengths\|extract_sides" 01_core/src/engine/stdlib/
+grep -B 2 -A 30 "Content::Block.*breakable\|breakable" 01_core/src/engine/layout/mod.rs
+grep -n "cell_align" 01_core/src/engine/layout/mod.rs
+grep -n "cell_origin_" 01_core/src/engine/layout/mod.rs
 ```
 
 Hipótese:
@@ -368,11 +368,11 @@ Total arms refino GridCell + TableCell P235:
 
 **`rules/introspect.rs`** (2 arms × 2 = 4 arms).
 
-**`rules/layout/grid.rs::layout_grid`** (match `placed.body`
+**`engine/layout/grid.rs::layout_grid`** (match `placed.body`
 extrai per-cell 5 fields agora: stroke + fill + align +
 inset + breakable).
 
-**`rules/layout/grid.rs` arm consumer** (Layouter
+**`engine/layout/grid.rs` arm consumer** (Layouter
 cell_align save/restore per-cell; bounds reduction
 inset).
 
@@ -416,7 +416,7 @@ Magnitude C5: **S+ (~45min)** — 3 named args × 2 funcs.
 
 ### C6 — Renderização precedência effective_* via `.or()` (loop cells)
 
-Editar `01_core/src/rules/layout/grid.rs::layout_grid`
+Editar `01_core/src/engine/layout/grid.rs::layout_grid`
 loop de cells (pós-P234 baseline place_cells):
 
 ```rust
@@ -678,18 +678,18 @@ Código alterado:
 - **Editado**: `01_core/src/entities/content.rs` (GridCell
   + TableCell refino +3 fields cada + arms cascata + ~4
   unit tests).
-- **Editado**: `01_core/src/rules/introspect.rs` (arms
+- **Editado**: `01_core/src/engine/introspect.rs` (arms
   preservados).
-- **Editado**: `01_core/src/rules/layout/grid.rs`
+- **Editado**: `01_core/src/engine/layout/grid.rs`
   (renderização precedência effective_* + bounds reduction
   inset + cell_align save/restore per-cell).
-- **Editado**: `01_core/src/rules/stdlib/structural.rs`
+- **Editado**: `01_core/src/engine/stdlib/structural.rs`
   (`native_grid_cell` + `native_table_cell` accept 3 named
   args; +~6 unit tests).
-- **Possivelmente editado**: `01_core/src/rules/stdlib/layout.rs`
+- **Possivelmente editado**: `01_core/src/engine/stdlib/layout.rs`
   (helper `extract_sides_lengths_value` ou similar se
   necessário).
-- **Editado**: `01_core/src/rules/layout/tests.rs` (+~5
+- **Editado**: `01_core/src/engine/layout/tests.rs` (+~5
   E2E precedence tests).
 - **Editado**: `00_nucleo/diagnosticos/typst-cobertura-vanilla-vs-cristalino.md`
   (footnote ⁵⁴ P235).

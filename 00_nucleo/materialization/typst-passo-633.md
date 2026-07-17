@@ -64,7 +64,7 @@ grep -rn "if let Ok(" 01_core/src/ 03_infra/src/ --include="*.rs" -A3 | grep -B3
 ### 6. Funções que devolvem `Option<T>` em vez de `Result<T, E>` em pontos onde um erro seria informação útil
 
 ```bash
-grep -rn "fn.*-> Option<" 01_core/src/rules/ 03_infra/src/export/ --include="*.rs" | grep -v "test"
+grep -rn "fn.*-> Option<" 01_core/src/engine/ 03_infra/src/export/ --include="*.rs" | grep -v "test"
 ```
 
 Uma função que devolve `Option` esconde, por definição, a razão do `None` — confirmar se algum destes casos devia devolver `Result` com uma mensagem, em vez de silêncio.

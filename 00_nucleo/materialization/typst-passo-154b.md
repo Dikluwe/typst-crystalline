@@ -16,7 +16,7 @@ abertos; cobertura Model 32-36% (8/22).
   + `native_divider` em stdlib; possível regra `#show
   terms` mínima.
 - L0 (prompts): spec dos variants e construtores.
-- Testes em `01_core/src/rules/` cobrindo construção +
+- Testes em `01_core/src/engine/` cobrindo construção +
   comparação + `plain_text`.
 - ADR-0060: anotação pós-PROPOSTO se Fase 1 primeiro
   sub-passo for materializado conforme proposta. **Status
@@ -122,7 +122,7 @@ Ao fim do passo:
    - Show rules em `eval/rules.rs` — sem show específico
      para Terms/Divider neste passo.
 
-3. **Stdlib funcs** em `01_core/src/rules/eval/mod.rs`
+3. **Stdlib funcs** em `01_core/src/engine/eval/mod.rs`
    ou similar:
    - `native_terms(args) -> Value::Content` — recebe
      dict ou array de pares (term, description); produz
@@ -138,7 +138,7 @@ Ao fim do passo:
      - `terms_map_content_recurse`.
      - `divider_constructor_devolve_variant_correcto`.
      - `divider_plain_text_devolve_separador`.
-   - **Unit em `01_core/src/rules/eval/tests`** (ou
+   - **Unit em `01_core/src/engine/eval/tests`** (ou
      equivalente):
      - `eval_terms_construtor_typst_lang`.
      - `eval_divider_construtor_typst_lang`.
@@ -281,10 +281,10 @@ Este passo **não**:
   novos + cobertura exaustiva de arms.
 - Edição de `01_core/src/entities/content.rs::tests`: 5
   testes unit.
-- Edição de `01_core/src/rules/eval/mod.rs`:
+- Edição de `01_core/src/engine/eval/mod.rs`:
   `native_terms` + `native_divider` + registo em
   `make_stdlib`.
-- Edição de `01_core/src/rules/eval/tests` (se existir
+- Edição de `01_core/src/engine/eval/tests` (se existir
   módulo separado): 2 testes integração eval.
 - Edição de `03_infra/src/integration_tests.rs`:
   até 2 testes integração render (se layouter cobrir).
@@ -343,7 +343,7 @@ Esperado: ~10-15 match sites no L1; mais em L3.
 **A.1.3 — Verificar parser para `---`**:
 
 ```bash
-grep -rn "---\|\\bdash\\b\\|\\bhrule\\b" 01_core/src/rules/parse/
+grep -rn "---\|\\bdash\\b\\|\\bhrule\\b" 01_core/src/engine/parse/
 ```
 
 Confirmar se `---` já tem reconhecimento. Se sim, decisão
@@ -352,7 +352,7 @@ em 154B.5 se aproveitar; se não, scope-out parser.
 **A.1.4 — Verificar `make_stdlib`**:
 
 ```bash
-view 01_core/src/rules/eval/mod.rs   # localizar make_stdlib
+view 01_core/src/engine/eval/mod.rs   # localizar make_stdlib
 ```
 
 Listar funções já registadas. Confirmar 29 funções nativas
@@ -438,7 +438,7 @@ sub-itens.
 
 ### 154B.4 — Stdlib funcs
 
-Em `01_core/src/rules/eval/mod.rs::make_stdlib`:
+Em `01_core/src/engine/eval/mod.rs::make_stdlib`:
 
 ```diff
  fn make_stdlib() -> Scope {
@@ -540,7 +540,7 @@ fn terms_map_content_recurse() {
 
 ### 154B.6 — Tests integração eval
 
-Em `01_core/src/rules/eval/tests` (ou equivalente):
+Em `01_core/src/engine/eval/tests` (ou equivalente):
 
 ```rust
 #[test]

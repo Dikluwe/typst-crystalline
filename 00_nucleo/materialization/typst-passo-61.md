@@ -3,9 +3,9 @@
 ## Estado actual antes de começar
 
 Ler antes de começar:
-- `01_core/src/rules/introspect.rs` — Onde os títulos serão catalogados.
+- `01_core/src/engine/introspect.rs` — Onde os títulos serão catalogados.
 - `01_core/src/entities/counter_state.rs` — Receberá o vector de títulos.
-- `01_core/src/rules/layout.rs` — Ficheiro a decompor em submódulos.
+- `01_core/src/engine/layout.rs` — Ficheiro a decompor em submódulos.
 
 Pré-condição: `cargo test` — 619 L1 + 118 L3 + 50 parity, zero violations.
 O sistema resolve referências forward e backward em duas passagens.
@@ -39,16 +39,16 @@ layout para a introspecção — arquitetura para passos futuros.
 
 ```bash
 # 1. Tamanho actual de layout.rs — confirmar necessidade de divisão
-wc -l 01_core/src/rules/layout.rs
+wc -l 01_core/src/engine/layout.rs
 
 # 2. Verificar se Content::Outline já existe
 grep -n "Outline\|Toc\b" 01_core/src/entities/content.rs | head -5
 
 # 3. Listar prompts de layout existentes em L0
-ls -l 00_nucleo/prompts/rules/layout*.md
+ls -l 00_nucleo/prompts/engine/layout*.md
 
 # 4. Confirmar grupos de braços no layout_content para guiar a extracção
-grep -n "Content::" 01_core/src/rules/layout.rs | head -40
+grep -n "Content::" 01_core/src/engine/layout.rs | head -40
 ```
 
 Reportar o output antes de continuar. A resposta à questão 4 determina
@@ -62,13 +62,13 @@ real do código, não uma estrutura idealizada.
 Criar os prompts antes de tocar no código. O linter V7 dispara se o
 ficheiro de código existir sem prompt associado.
 
-### `00_nucleo/prompts/rules/layout_counters.md`
+### `00_nucleo/prompts/engine/layout_counters.md`
 
 ```markdown
 # L0 — Layout: Contadores e Numeração
 
 ## Módulo
-`01_core/src/rules/layout/counters.rs`
+`01_core/src/engine/layout/counters.rs`
 
 ## Propósito
 Encapsula os braços do Layouter que alteram ou exibem o estado de
@@ -87,7 +87,7 @@ Funções chamadas por `layout.rs` (orquestrador).
 - `CounterDisplay("heading")` → texto contém o número formatado.
 ```
 
-### `00_nucleo/prompts/rules/layout_references.md`
+### `00_nucleo/prompts/engine/layout_references.md`
 
 Se este ficheiro já existir do Passo 59 com conteúdo diferente, expandir
 a secção "Módulo" para reflectir a nova localização:
@@ -96,7 +96,7 @@ a secção "Módulo" para reflectir a nova localização:
 # L0 — Layout: Referências e Labels
 
 ## Módulo
-`01_core/src/rules/layout/references.rs`
+`01_core/src/engine/layout/references.rs`
 
 ## Propósito
 Encapsula os braços `Ref` e `Labelled`. Consulta `resolved_labels`
@@ -113,13 +113,13 @@ injectado pela introspecção (Passagem 1). Não escreve em `resolved_labels`
 - `Ref` com label inexistente → `@nome` no plain_text, sem panic.
 ```
 
-### `00_nucleo/prompts/rules/layout_outline.md`
+### `00_nucleo/prompts/engine/layout_outline.md`
 
 ```markdown
 # L0 — Layout: Tabela de Conteúdos
 
 ## Módulo
-`01_core/src/rules/layout/outline.rs`
+`01_core/src/engine/layout/outline.rs`
 
 ## Propósito
 Encapsula o braço `Content::Outline`. Lê `headings_for_toc` do
@@ -140,9 +140,9 @@ Encapsula o braço `Content::Outline`. Lê `headings_for_toc` do
 ```
 
 ```bash
-git add 00_nucleo/prompts/rules/layout_counters.md \
-        00_nucleo/prompts/rules/layout_references.md \
-        00_nucleo/prompts/rules/layout_outline.md
+git add 00_nucleo/prompts/engine/layout_counters.md \
+        00_nucleo/prompts/engine/layout_references.md \
+        00_nucleo/prompts/engine/layout_outline.md
 crystalline-lint --fix-hashes .
 ```
 
@@ -158,15 +158,15 @@ de passar à seguinte.
 ### Estrutura de destino
 
 ```
-01_core/src/rules/layout/
+01_core/src/engine/layout/
   mod.rs          ← antigo layout.rs (orquestrador + Layouter struct)
   counters.rs     ← SetHeadingNumbering, CounterUpdate, CounterDisplay
   references.rs   ← Labelled, Ref
   outline.rs      ← Outline (Tarefa 5)
 ```
 
-Se o linter não aceitar `rules/layout/mod.rs` como substituto de
-`rules/layout.rs` (o path de import muda), verificar com:
+Se o linter não aceitar `engine/layout/mod.rs` como substituto de
+`engine/layout.rs` (o path de import muda), verificar com:
 
 ```bash
 # Confirmar se o linter aceita o caminho com mod.rs
@@ -174,7 +174,7 @@ grep -rn "use.*rules::layout" 01_core/src/ 03_infra/src/ | head -10
 ```
 
 Se os imports usarem `rules::layout::layout` e o ficheiro passar a ser
-`rules/layout/mod.rs`, os imports continuam a funcionar em Rust sem
+`engine/layout/mod.rs`, os imports continuam a funcionar em Rust sem
 alteração — `mod.rs` é transparente para o sistema de módulos.
 
 ### 2a — Extrair `counters.rs`
@@ -195,16 +195,16 @@ vazios (com apenas o header de linhagem) para que o compilador compile
 antes de qualquer migração de código:
 
 ```bash
-touch 01_core/src/rules/layout/counters.rs
-touch 01_core/src/rules/layout/references.rs
-touch 01_core/src/rules/layout/outline.rs
+touch 01_core/src/engine/layout/counters.rs
+touch 01_core/src/engine/layout/references.rs
+touch 01_core/src/engine/layout/outline.rs
 # Adicionar headers de linhagem a cada ficheiro vazio
 cargo test  # deve compilar — ficheiros vazios não têm erros
 ```
 
 Só após este `cargo test` passar é que se move o código braço a braço.
 
-Criar `01_core/src/rules/layout/counters.rs` com header de linhagem
+Criar `01_core/src/engine/layout/counters.rs` com header de linhagem
 apontando para `layout_counters.md`. Mover os braços:
 - `Content::SetHeadingNumbering { active }` → função `pub fn layout_set_heading_numbering`
 - `Content::CounterUpdate { key, action }` → função `pub fn layout_counter_update`
@@ -232,7 +232,7 @@ cargo test  # ← verificar antes de continuar
 
 ### 2b — Extrair `references.rs`
 
-Criar `01_core/src/rules/layout/references.rs` com header de linhagem
+Criar `01_core/src/engine/layout/references.rs` com header de linhagem
 apontando para `layout_references.md`. Mover os braços:
 - `Content::Labelled { target, label: _ }` → função `pub fn layout_labelled`
 - `Content::Ref { target }` → função `pub fn layout_ref`
@@ -366,7 +366,7 @@ continuam cobertas no `walk` e no match do Layouter.
 
 ## Tarefa 5 — Implementação de `outline.rs` (L1)
 
-Criar `01_core/src/rules/layout/outline.rs` com header de linhagem
+Criar `01_core/src/engine/layout/outline.rs` com header de linhagem
 apontando para `layout_outline.md`.
 
 Substituir o placeholder do Layouter:
@@ -380,7 +380,7 @@ Em `outline.rs`:
 
 ```rust
 //! Crystalline Lineage
-//! @prompt 00_nucleo/prompts/rules/layout_outline.md
+//! @prompt 00_nucleo/prompts/engine/layout_outline.md
 //! @prompt-hash <hash>
 //! @layer L1
 //! @updated 2026-04-12
@@ -485,7 +485,7 @@ DEBT-13 não estiver resolvido.
 #[test]
 fn introspect_cataloga_headings_para_toc() {
     use crate::entities::label::Label;
-    use crate::rules::introspect::introspect;
+    use crate::engine::introspect::introspect;
 
     let content = Content::Sequence(vec![
         Content::SetHeadingNumbering { active: true },
@@ -507,7 +507,7 @@ fn introspect_cataloga_headings_para_toc() {
 
 #[test]
 fn introspect_gera_labels_automaticas_unicas() {
-    use crate::rules::introspect::introspect;
+    use crate::engine::introspect::introspect;
 
     let content = Content::Sequence(vec![
         Content::heading(1, Content::text("A")),
@@ -530,8 +530,8 @@ fn introspect_gera_labels_automaticas_unicas() {
 ```rust
 #[test]
 fn layout_outline_gera_indice_com_titulos() {
-    use crate::rules::introspect::introspect;
-    use crate::rules::layout::layout;
+    use crate::engine::introspect::introspect;
+    use crate::engine::layout::layout;
 
     let content = Content::Sequence(vec![
         Content::SetHeadingNumbering { active: true },
@@ -553,8 +553,8 @@ fn layout_outline_gera_indice_com_titulos() {
 
 #[test]
 fn layout_outline_sem_headings_gera_apenas_titulo() {
-    use crate::rules::introspect::introspect;
-    use crate::rules::layout::layout;
+    use crate::engine::introspect::introspect;
+    use crate::engine::layout::layout;
 
     let content = Content::Outline;
     let state = introspect(&content);
@@ -634,7 +634,7 @@ Critérios de conclusão:
   de módulo pai (`pub(super)`) foi suficiente para os submódulos.
 - Se o clone de `headings_for_toc` em `outline.rs` foi necessário (borrow
   duplo) ou se a estrutura do Layouter permitiu outra abordagem.
-- Se a migração de `rules/layout.rs` para `rules/layout/mod.rs` causou
+- Se a migração de `engine/layout.rs` para `engine/layout/mod.rs` causou
   alterações nos imports em L3.
 - Número total de testes e zero violations confirmados.
 

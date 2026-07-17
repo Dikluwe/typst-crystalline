@@ -125,7 +125,7 @@ use std::path::Path;
 use typst_syntax as original;
 
 // Parser cristalino
-use typst_core::rules::parse as cristalino;
+use typst_core::engine::parse as cristalino;
 use typst_core::entities::syntax_node::SyntaxNode as CristalSyntaxNode;
 
 /// Converte SyntaxNode do original para representação comparável.
@@ -309,7 +309,7 @@ fn main() {
         .unwrap_or_else(|| "Hello *world*".to_string());
 
     let orig  = typst_syntax::parse(&input);
-    let crist = typst_core::rules::parse::parse(&input);
+    let crist = typst_core::engine::parse::parse(&input);
 
     println!("=== Input ===\n{:?}\n", input);
     println!("=== Original ===\n{:#?}\n", orig);

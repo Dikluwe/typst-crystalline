@@ -86,14 +86,14 @@ por integração real é trabalho grande.
 
 ```
 texto Typst
-  → parse          (01_core/src/rules/parse/)
+  → parse          (01_core/src/engine/parse/)
   → AST            (entities/ast/)
-  → eval           (01_core/src/rules/eval/rules.rs)
+  → eval           (01_core/src/engine/eval/rules.rs)
      — captura #set text/#set par/#set heading/#set figure/#set page
      — produz Content + StyleDelta pushed on StyleChain
   → Content        (entities/content.rs)
   → introspect     (rules/introspect.rs) — counters, labels
-  → layout         (rules/layout/mod.rs)
+  → layout         (engine/layout/mod.rs)
      — resolve StyleChain → TextStyle (bold/italic/size/fill/heading_level)
      — text processing: metrics.advance() per word
      — produz Frame(FrameItem::Text { pos, text, style })

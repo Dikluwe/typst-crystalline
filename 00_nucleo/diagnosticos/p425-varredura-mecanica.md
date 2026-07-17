@@ -27,7 +27,7 @@ Se um gap revelar sub-gaps linguísticos, o agente para e documenta; não força
 | **A5** — Hash sync | Sincronizar `@prompt-hash` driftados | `crystalline-lint --fix-hashes` → 0 drift | Só hashes |
 | **A6** — Warning hunter | Corrigir warnings mecânicos de `cargo check -p typst-core` | `cargo check -p typst-core` → 0 warnings mecânicos | unused imports/variables/mut, unreachable patterns; dead_code só se claramente residual |
 | **A7** — PDF link consumer | Adicionar braços `FrameItem::Link` em `typst-infra` para compilar; emitir annotation URI se viável mecanicamente | `cargo check -p typst-infra` passa; `FrameItem::Link` transportado/recursado nos walkers | Não decidir se adiciona `pos/size` a `FrameItem::Link`; se precisar, documentar como bloqueador |
-| **A3** — Atomizador mecânico | Extrair arms monolíticos (>20 LOC) de `layout_content` para free functions em `rules/layout/<elem>.rs` (forma B) | Lint zero; `cargo test -p typst-core --lib` passa; match magro delega | Não alterar semântica; não introduzir vtable |
+| **A3** — Atomizador mecânico | Extrair arms monolíticos (>20 LOC) de `layout_content` para free functions em `engine/layout/<elem>.rs` (forma B) | Lint zero; `cargo test -p typst-core --lib` passa; match magro delega | Não alterar semântica; não introduzir vtable |
 | **A4** — Test gap filler | Adicionar tests unitários mínimos para variants sem cobertura direta | +N tests verdes; 0 regressões | Priorizar variants visuais/estruturais; metadata/state deixar como scope-out se baixo valor |
 
 **Ordem recomendada**: A5 → A6 → A7 → A3 → A4.

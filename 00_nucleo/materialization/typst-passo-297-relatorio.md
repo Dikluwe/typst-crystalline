@@ -105,7 +105,7 @@ Paralelo P296 estratégia:
 | `rules/introspect.rs:materialize_time` | terminal |
 | `rules/introspect.rs:walk` | terminal |
 | `rules/introspect/locatable.rs:is_locatable` | `false` |
-| `rules/layout/mod.rs` | fallthrough math (paralelo MathFrac) |
+| `engine/layout/mod.rs` | fallthrough math (paralelo MathFrac) |
 | `rules/math/layout/mod.rs:layout_node` | **handler dedicado novo** |
 
 ### §3.3 — Handler `layout_underover` (paralelo `layout_accent` P296)
@@ -188,7 +188,7 @@ preservado pelo **14º passo consecutivo**.
 
 ## §4 — Testes
 
-### §4.1 — `01_core/src/rules/stdlib/mod.rs` (+9 testes L1)
+### §4.1 — `01_core/src/engine/stdlib/mod.rs` (+9 testes L1)
 
 **native_underover (6 testes):**
 

@@ -10,18 +10,18 @@
 ```bash
 # Confirmar placeholder [equação] ainda activo
 grep -n "block.*\[.*\]\|equação.*placeholder\|\[.*plain_text" \
-  01_core/src/rules/layout.rs | head -5
+  01_core/src/engine/layout.rs | head -5
 
 # Confirmar estrutura actual de Content::Equation e MathIdent
 grep -n "Equation\|MathIdent\|MathText\|MathSequence" \
   01_core/src/entities/content.rs | head -15
 
 # Confirmar que não existe módulo math em rules/
-ls 01_core/src/rules/ 2>/dev/null
+ls 01_core/src/engine/ 2>/dev/null
 
 # Ver como layout.rs está estruturado actualmente
 grep -n "pub struct Layouter\|pub fn layout\|fn layout_text\|fn layout_content" \
-  01_core/src/rules/layout.rs | head -20
+  01_core/src/engine/layout.rs | head -20
 ```
 
 **Parar se qualquer pré-condição falhar.**
@@ -40,7 +40,7 @@ importa para os passos seguintes.
 O layouter principal delega — não implementa matemática directamente.
 
 **Âmbito deste passo**:
-- Criar `01_core/src/rules/math/mod.rs` e `math/layout.rs`
+- Criar `01_core/src/engine/math/mod.rs` e `math/layout.rs`
 - `MathLayouter` que processa `Content::Equation`
 - Implementar `MathIdent` e `MathText` → `FrameItem::Text`
 - Restantes variantes (`MathFrac`, `MathAttach`, `MathRoot`,
@@ -57,7 +57,7 @@ MATH, algoritmos de altura de linha para frações ou attachments.
 ```bash
 # Ver como Layouter usa FontMetrics actualmente
 grep -n "FontMetrics\|M: FontMetrics\|self\.metrics\|layout_text" \
-  01_core/src/rules/layout.rs | head -20
+  01_core/src/engine/layout.rs | head -20
 
 # Ver FrameItem — que variantes existem
 grep -n "pub enum FrameItem\|Text\|Image\|Shape" \
@@ -65,15 +65,15 @@ grep -n "pub enum FrameItem\|Text\|Image\|Shape" \
 
 # Ver como FrameItem::Text é construído
 grep -n "FrameItem::Text\|FrameItem::text" \
-  01_core/src/rules/layout.rs | head -10
+  01_core/src/engine/layout.rs | head -10
 
 # Ver se TextStyle é usado directamente ou via referência
 grep -n "TextStyle\|text_style\|\.style" \
-  01_core/src/rules/layout.rs | head -15
+  01_core/src/engine/layout.rs | head -15
 
 # Ver como o layouter principal retorna Frame/PagedDocument
 grep -n "pub fn layout\b\|PagedDocument\|Frame\|push.*frame" \
-  01_core/src/rules/layout.rs | head -15
+  01_core/src/engine/layout.rs | head -15
 ```
 
 **Parar. Reportar output antes de qualquer código.**
@@ -95,7 +95,7 @@ Questões a responder:
 Criar a estrutura de ficheiros:
 
 ```
-01_core/src/rules/math/
+01_core/src/engine/math/
 ├── mod.rs
 └── layout.rs
 ```
@@ -125,7 +125,7 @@ use crate::entities::{
     layout_types::{Frame, FrameItem, Point, TextStyle},
 };
 use crate::entities::source_result::{SourceDiagnostic, SourceResult};
-use crate::rules::layout::FontMetrics;
+use crate::engine::layout::FontMetrics;
 use ecow::EcoString;
 
 /// Motor de layout matemático.
@@ -342,7 +342,7 @@ antes de alterar.**
 ## Tarefa 4 — Expor módulo em `rules/mod.rs`
 
 ```rust
-// Em 01_core/src/rules/mod.rs
+// Em 01_core/src/engine/mod.rs
 pub mod math;
 ```
 
@@ -384,7 +384,7 @@ tipográfico básico (posicionamento vertical).
 #[cfg(test)]
 mod math_layout_tests {
     use super::*;
-    use crate::rules::layout::FixedMetrics;
+    use crate::engine::layout::FixedMetrics;
 
     #[test]
     fn math_layouter_math_ident_produz_frame_nao_vazio() {
@@ -497,11 +497,11 @@ crystalline-lint .
 # ✓ No violations found
 
 # Confirmar módulo math em L1
-ls 01_core/src/rules/math/
+ls 01_core/src/engine/math/
 
 # Confirmar que placeholder [  ] foi removido
 grep -n "\[.*plain_text\|\[.*equação\|format.*\[" \
-  01_core/src/rules/layout.rs
+  01_core/src/engine/layout.rs
 # Deve retornar vazio
 
 # Confirmar que SystemWorld não aparece em L1
@@ -510,12 +510,12 @@ grep -rn "SystemWorld" 01_core/src/ 2>/dev/null
 
 # Confirmar que MathLayouter está em L1
 grep -n "std::fs\|std::net\|std::env" \
-  01_core/src/rules/math/layout.rs
+  01_core/src/engine/math/layout.rs
 # Deve retornar vazio
 ```
 
 Critérios de conclusão:
-- `01_core/src/rules/math/mod.rs` e `math/layout.rs` criados, layer L1 ✓
+- `01_core/src/engine/math/mod.rs` e `math/layout.rs` criados, layer L1 ✓
 - `MathLayouter` com `layout_equation()` implementado ✓
 - `MathIdent` e `MathText` → `FrameItem::Text` (sem placeholder) ✓
 - `MathFrac`, `MathAttach`, `MathRoot` → texto plano sem `[...]` ✓

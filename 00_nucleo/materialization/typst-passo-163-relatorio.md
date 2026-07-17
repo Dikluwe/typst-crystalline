@@ -4,8 +4,8 @@ Executado em 2026-04-30. Terceiro e último passo da série M1 (P161 + P162 + P1
 
 ## Resumo
 
-- L0 `00_nucleo/prompts/rules/introspect.md` refinado para reflectir alterações de P162 (assinatura de walk com 5 parâmetros, emissão de tags em paralelo, helper de teste). Pendência herdada de P162 verificação .H.6 resolvida.
-- 7 tests E2E adicionados em `01_core/src/rules/introspect.rs`:
+- L0 `00_nucleo/prompts/engine/introspect.md` refinado para reflectir alterações de P162 (assinatura de walk com 5 parâmetros, emissão de tags em paralelo, helper de teste). Pendência herdada de P162 verificação .H.6 resolvida.
+- 7 tests E2E adicionados em `01_core/src/engine/introspect.rs`:
   - `.C.1` determinismo do walk;
   - `.C.2` bracketing válido em aninhamento complexo (heading ⊃ figure ⊃ heading);
   - `.C.2` (caso adicional) bracketing válido em sequência plana de 3 headings irmãos;
@@ -39,13 +39,13 @@ L0 actualizado em P163:
 
 | L0 | Hash anterior (P162) | Hash actual (P163) |
 |----|----------------------|--------------------|
-| `00_nucleo/prompts/rules/introspect.md` | `264f58c8` | `2e13b8b8` |
+| `00_nucleo/prompts/engine/introspect.md` | `264f58c8` | `2e13b8b8` |
 
 L1 correspondente actualizado pelo `crystalline-lint --fix-hashes`:
 
 | L1 | `@prompt-hash` actual |
 |----|----------------------|
-| `01_core/src/rules/introspect.rs` | `5fce62c7` |
+| `01_core/src/engine/introspect.rs` | `5fce62c7` |
 
 ## Decisões registadas em .A
 

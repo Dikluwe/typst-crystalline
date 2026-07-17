@@ -16,7 +16,7 @@
 ### Localizar o código
 
 ```bash
-grep -n "fn layout" 01_core/src/rules/layout/image.rs
+grep -n "fn layout" 01_core/src/engine/layout/image.rs
 ```
 
 Confirmar se `image.rs` usa o mesmo padrão de `shape.rs` antes de P767c (ancoragem no topo da linha em vez da base na próxima baseline, sem `above`/`below` quando sucede texto).

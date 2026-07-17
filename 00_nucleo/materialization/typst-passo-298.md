@@ -108,12 +108,12 @@ Inspecção literal:
 
 1. **`grep -rn "MathOp\|OpElem" 01_core/`** — confirmar ausência
    ou presença.
-2. **`grep -rn "native_op\|\"op\"\b" 01_core/src/rules/stdlib/`** —
+2. **`grep -rn "native_op\|\"op\"\b" 01_core/src/engine/stdlib/`** —
    verificar stdlib actual.
 3. **Inspeccionar `01_core/src/entities/content.rs`** — listar
    `Content::Math*` variants pós-P297 (esperado 13 incluindo
    `MathAccent`/`MathCancel`/`MathUnderover`).
-4. **Inspeccionar `01_core/src/rules/math/layout/mod.rs`** — ver
+4. **Inspeccionar `01_core/src/engine/math/layout/mod.rs`** — ver
    se há tratamento heurístico actual de operadores; em
    particular, como `MathAttach` decide entre limits-style vs
    scripts-style.
@@ -471,9 +471,9 @@ obrigatórios.
 
 - Tipo a modificar: `01_core/src/entities/content.rs`
   (`Content::Math*` variants; 13 pós-P297).
-- Função stdlib: `01_core/src/rules/stdlib/structural.rs`
+- Função stdlib: `01_core/src/engine/stdlib/structural.rs`
   (paralelo `native_accent`/`native_cancel`/`native_underover`).
-- Layouter consumer: `01_core/src/rules/math/layout/mod.rs`
+- Layouter consumer: `01_core/src/engine/math/layout/mod.rs`
   (`layout_node` arm + `layout_op` handler + modificação
   `layout_attach`).
 - Vanilla: `lab/typst-original/crates/typst-library/src/math/op.rs`.

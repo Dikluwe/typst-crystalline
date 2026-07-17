@@ -101,8 +101,8 @@ impl MathConstants {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::rules::layout::FixedMetrics;
-    use crate::rules::layout::FontMetrics;
+    use crate::engine::layout::FixedMetrics;
+    use crate::engine::layout::FontMetrics;
 
     #[test]
     fn fallback_valores_sanos() {

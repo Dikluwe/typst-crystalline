@@ -38,7 +38,7 @@ estrutural-comportamental** de variant existente `Content::Cite`.
      + 4 testes existentes adaptados.
    - `rules/introspect.rs`: materialize_time + walk
      (popula `state.bib_entries` em arm Bibliography).
-   - `rules/layout/mod.rs`: arm Cite expandido por form +
+   - `engine/layout/mod.rs`: arm Cite expandido por form +
      2 sítios `layout()` propagam `bib_entries` do
      `initial_state` para Layouter.
    - `rules/stdlib/structural.rs`: construtor + helper privado

@@ -142,7 +142,7 @@ impl From<Gradient> for Value {
 
 ### Stdlib `native_gradient_linear`
 
-Novo ficheiro `01_core/src/rules/stdlib/gradients.rs`
+Novo ficheiro `01_core/src/engine/stdlib/gradients.rs`
 (decisão Opção α — domínio próprio per precedente subpadrão
 "módulo stdlib por domínio").
 

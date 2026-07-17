@@ -10,7 +10,7 @@ Fechar os itens de alto impacto que **não** foram confirmados em P538:
 
 ### 1. P532 — `style.font` do texto de numeração de página
 
-**Medição (P538):** `01_core/src/rules/layout/mod.rs:1154-1158` insere `FrameItem::Text` com `style: TextStyle::regular(self.font_size_pt)`. `TextStyle::regular` usa `..Self::default()`, logo `style.font` é `None`.
+**Medição (P538):** `01_core/src/engine/layout/mod.rs:1154-1158` insere `FrameItem::Text` com `style: TextStyle::regular(self.font_size_pt)`. `TextStyle::regular` usa `..Self::default()`, logo `style.font` é `None`.
 
 **Comportamento esperado:** `style.font` deve conter a fonte activa da página, como qualquer outro texto renderizado.
 

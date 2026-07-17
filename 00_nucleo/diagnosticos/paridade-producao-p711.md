@@ -93,7 +93,7 @@ nenhum caminho de execução. Fora do escopo de P711; ver §5.
 
 ## 2. Achado adicional, não relacionado, encontrado durante a sonda
 
-`01_core/src/rules/eval/repr.rs:59-66` (`repr_value`) formata
+`01_core/src/engine/eval/repr.rs:59-66` (`repr_value`) formata
 `Value::Length`/`Ratio`/`Angle`/`Color`/`Stroke`/`Align` com `{:?}`
 do Rust (`format!("{:?}", l)`) em vez do repr Typst, quando estes
 valores são embutidos directamente em markup via `#expr`

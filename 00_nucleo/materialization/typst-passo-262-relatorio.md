@@ -49,7 +49,7 @@ gradients; zero regressões).
   hash `391208e2`).
 - `01_core/src/entities/gradient.rs` (Gradient enum + Linear
   struct + GradientStop sub-comp + sample(t) Oklab + 13 tests).
-- `01_core/src/rules/stdlib/gradients.rs` (novo módulo dedicado
+- `01_core/src/engine/stdlib/gradients.rs` (novo módulo dedicado
   per Opção α; native_gradient_linear + make_gradient_module).
 - `00_nucleo/materialization/typst-passo-262-relatorio.md`
   (este ficheiro).
@@ -62,9 +62,9 @@ gradients; zero regressões).
   para Gradient).
 - `01_core/src/entities/value.rs` (`Value::Gradient(Gradient)`
   variant activada; `type_name() => "gradient"`).
-- `01_core/src/rules/stdlib/mod.rs` (mod gradients + 7 tests
+- `01_core/src/engine/stdlib/mod.rs` (mod gradients + 7 tests
   P262 inline).
-- `01_core/src/rules/eval/mod.rs` (registo
+- `01_core/src/engine/eval/mod.rs` (registo
   `scope.define("gradient", make_gradient_module())` + use
   make_gradient_module).
 - `00_nucleo/adr/README.md` (tabela + distribuição + entrada
@@ -492,7 +492,7 @@ Saldo DEBTs preservado.
   activado; `type_name() => "gradient"`.
 - [x] `01_core/src/entities/mod.rs` re-export Gradient adicionado.
 - [x] Stdlib `native_gradient_linear` + `make_gradient_module`
-  registado em `01_core/src/rules/stdlib/gradients.rs` novo
+  registado em `01_core/src/engine/stdlib/gradients.rs` novo
   módulo; 7 tests stdlib em mod.rs.
 - [x] `scope.define("gradient", make_gradient_module())`
   registado em `eval/mod.rs`.

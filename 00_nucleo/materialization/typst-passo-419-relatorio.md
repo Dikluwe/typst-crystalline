@@ -16,8 +16,8 @@ Executados os 8 grep; 6/8 obrigatórios passaram (itens 7 e 8 nice-to-have).
 | 2 | hayagriva parse API | ✅ `hayagriva::io::from_yaml_str` já usado em P418 |
 | 3 | File loader genérico | ⚠️ Não existe genérico, mas `World::read_bytes` existe |
 | 4 | Path resolution | ⚠️ Básica via `World::read_bytes` |
-| 5 | `native_bibliography` existe | ✅ `01_core/src/rules/stdlib/structural.rs:1106` |
-| 6 | Layout consome `entries` | ✅ `01_core/src/rules/layout/bibliography.rs:41` |
+| 5 | `native_bibliography` existe | ✅ `01_core/src/engine/stdlib/structural.rs:1106` |
+| 6 | Layout consome `entries` | ✅ `01_core/src/engine/layout/bibliography.rs:41` |
 | 7 | File-not-found error | ✅ `FileError::NotFound` em `world_types.rs:99` |
 | 8 | `tempfile` crate | ⚠️ Não presente (nice-to-have) |
 
@@ -46,14 +46,14 @@ Nenhuma reclassificação necessária; `path` foi adicionado como campo opcional
 - `01_core/src/entities/content.rs`: novo construtor `Content::bibliography_from_path(path, title, style, locale)`; tests de paridade.
 
 ### Eval
-- `01_core/src/rules/eval/bibliography.rs` — **novo módulo**:
+- `01_core/src/engine/eval/bibliography.rs` — **novo módulo**:
   - `load_bib_entries_from_path(world, current_file, path) -> SourceResult<Vec<BibEntry>>`.
   - `parse_bibliography(content, path) -> SourceResult<Vec<BibEntry>>`.
   - Conversão `hayagriva::Entry -> BibEntry` (key, author, title, year + volume/pages/publisher quando acessíveis).
-- `01_core/src/rules/eval/mod.rs`: `pub(crate) mod bibliography;`.
+- `01_core/src/engine/eval/mod.rs`: `pub(crate) mod bibliography;`.
 
 ### Stdlib
-- `01_core/src/rules/stdlib/structural.rs`: `native_bibliography` detecta `Value::Str` posicional como path e carrega entries; input literal continua funcionando.
+- `01_core/src/engine/stdlib/structural.rs`: `native_bibliography` detecta `Value::Str` posicional como path e carrega entries; input literal continua funcionando.
 
 ### Tests novos (14)
 

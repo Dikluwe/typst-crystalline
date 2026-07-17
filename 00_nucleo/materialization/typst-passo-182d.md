@@ -54,7 +54,7 @@ heading variant) — fallback legacy compensa.
 ### .A Auditoria L0
 
 1. Confirmar Layouter heading-arm consumer:
-   - `01_core/src/rules/layout/mod.rs:301` (per P182A/C).
+   - `01_core/src/engine/layout/mod.rs:301` (per P182A/C).
    - Localizar a leitura actual: padrão esperado
      `self.counter.is_numbering_active("heading")`.
    - Identificar contexto exacto (arm `Content::Heading`,
@@ -64,15 +64,15 @@ heading variant) — fallback legacy compensa.
      (campo, ref local, Tracked).
 
 2. Confirmar Layouter equation-arm consumer:
-   - `01_core/src/rules/layout/equation.rs:24` (per P182A/C).
+   - `01_core/src/engine/layout/equation.rs:24` (per P182A/C).
    - Localizar leitura actual: padrão esperado
      `self.counter.is_numbering_active("equation")`.
    - Identificar contexto + acesso a `self.introspector`.
 
 3. Confirmar L0s relevantes:
-   - `00_nucleo/prompts/rules/layout/mod.md` ou
+   - `00_nucleo/prompts/engine/layout/mod.md` ou
      `layout.md` (verificar nome real).
-   - `00_nucleo/prompts/rules/layout/equation.md` (se
+   - `00_nucleo/prompts/engine/layout/equation.md` (se
      existir).
    - Identificar entradas que documentam comportamento
      destes arms.
@@ -131,7 +131,7 @@ actual / observação.
 
 ### .C Migrar Layouter heading-arm
 
-1. Em `01_core/src/rules/layout/mod.rs:301`:
+1. Em `01_core/src/engine/layout/mod.rs:301`:
    - Substituir leitura `self.counter.is_numbering_active("heading")`
      por:
      ```
@@ -155,7 +155,7 @@ actual / observação.
 
 ### .D Migrar Layouter equation-arm
 
-1. Em `01_core/src/rules/layout/equation.rs:24`:
+1. Em `01_core/src/engine/layout/equation.rs:24`:
    - Substituir leitura `self.counter.is_numbering_active("equation")`
      por padrão simétrico com chave
      `"numbering_active:equation"`.
@@ -170,7 +170,7 @@ actual / observação.
 ### .E Tests unitários ou ajustes
 
 1. Verificar tests existentes que cobrem heading numbering:
-   - `grep -rn "numbering_active\|is_numbering_active" 01_core/src/rules/layout/`.
+   - `grep -rn "numbering_active\|is_numbering_active" 01_core/src/engine/layout/`.
    - Se tests existentes usam apenas `state.numbering_active`
      directo: continuam a passar (fallback cobre).
    - Se tests usam pipeline completo (walk + Introspector +

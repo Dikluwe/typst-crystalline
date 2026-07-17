@@ -93,7 +93,7 @@ fn native_table(
 
 **Decisão:** Eval computa o número e passa para o layout (coerente com P454 figure numbering e P456 equation numbering). Layout renderiza caption prefixado.
 
-### 6. Layout de table com caption (`rules/layout/table.rs` ou `rules/layout/mod.rs`)
+### 6. Layout de table com caption (`engine/layout/table.rs` ou `engine/layout/mod.rs`)
 
 - Ao encontrar `Content::Table`:
   1. Renderizar células como `FrameItem::Group` (grid existente).
@@ -124,8 +124,8 @@ Mesmo subset de P451/P454/P456:
 ### 9. Spec L0
 
 - `00_nucleo/prompts/entities/table.md` — `TableElem` com `caption` (se não existir).
-- `00_nucleo/prompts/rules/layout/table.md` — table com caption numerada posicionada acima.
-- `00_nucleo/prompts/rules/eval/table.md` — leitura de `table.numbering` da chain.
+- `00_nucleo/prompts/engine/layout/table.md` — table com caption numerada posicionada acima.
+- `00_nucleo/prompts/engine/eval/table.md` — leitura de `table.numbering` da chain.
 
 ---
 

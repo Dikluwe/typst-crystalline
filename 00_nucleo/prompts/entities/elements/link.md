@@ -41,7 +41,7 @@ Construtor ergonómico: `Content::link(url: impl Into<EcoString>, body: Content)
 **Decisão arquitetural (ADR-0107 / ADR-0109):**
 - `LinkElem` permanece struct puro (`url`, `body`). Nenhuma lógica de layout é
   adicionada aqui.
-- O layout real vive em `rules/layout/link.rs` como free function `layout_link`
+- O layout real vive em `engine/layout/link.rs` como free function `layout_link`
   (forma B).
 - O output de layout usa um novo variant `FrameItem::Link { url, items }` em
   `entities/layout_types.rs`, preservando o URL como metadado.

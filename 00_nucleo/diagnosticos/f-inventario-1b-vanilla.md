@@ -22,7 +22,7 @@ Fonte primária: `lab/typst-original/crates/typst-library/src/foundations/styles
 | `StyledElem`, `Content::styled*`, `Content::set` | `lab/typst-original/crates/typst-library/src/foundations/content/mod.rs` |
 | `Field`, `Settable`, `SettableField`, `SettableProperty`, `RefableProperty`, vtables de campo | `lab/typst-original/crates/typst-library/src/foundations/content/field.rs` |
 | `Element::set`, traits `NativeElement`/`Construct`/`Set`/`Synthesize`/`ShowSet` | `lab/typst-original/crates/typst-library/src/foundations/content/element.rs` |
-| Avaliação AST de `set`/`show` | `lab/typst-original/crates/typst-eval/src/rules.rs` |
+| Avaliação AST de `set`/`show` | `lab/typst-original/crates/typst-eval/src/engine.rs` |
 | Realização (consome StyledElem + recipes + show rules) | `lab/typst-original/crates/typst-realize/src/lib.rs` |
 | Macro `#[elem]` (gera `set`, `construct`, impls de campo, `#[ghost]`) | `lab/typst-original/crates/typst-macros/src/elem.rs` |
 | `Selector::matches` | `lab/typst-original/crates/typst-library/src/foundations/selector.rs` |
@@ -167,7 +167,7 @@ e `id: u8` da `Property`.
 
 ### 2.2 Avaliação de um `#set` (AST -> Styles)
 
-`impl Eval for ast::SetRule` (`typst-eval/src/rules.rs:11-35`):
+`impl Eval for ast::SetRule` (`typst-eval/src/engine.rs:11-35`):
 1. Avalia condição opcional (`set ... if cond`); se falsa devolve `Styles::new()`
    vazio (`rules.rs:15-19`).
 2. Avalia o target, exige que seja uma `Func` que é um element function
@@ -266,7 +266,7 @@ estilos ao conteúdo). `Recipe::apply` (`styles.rs:488-510`) despacha:
 
 ### 4.2 Avaliação de um `#show`
 
-`impl Eval for ast::ShowRule` (`typst-eval/src/rules.rs:37-64`): avalia seletor
+`impl Eval for ast::ShowRule` (`typst-eval/src/engine.rs:37-64`): avalia seletor
 (`ShowableSelector`), avalia transform — caso especial: `show x: set y(..)` é
 detectado e vira `Transformation::Style` (`rules.rs:53-56`, **isto é o show-set**).
 Cria `Recipe::new(selector, transform, span)`. Há *guard rails* de migração:

@@ -61,7 +61,7 @@ Confirmações empíricas (detalhe em
    (P177) e `state_value(key, location)` (P171). Outros métodos
    `*_at` ausentes.
 2. Layouter actual **não conhece** Location no ponto da consulta
-   (zero hits de `Location` em ficheiros de produção `rules/layout/`).
+   (zero hits de `Location` em ficheiros de produção `engine/layout/`).
 3. **`Locator` é determinístico** — provado por test
    `duas_instancias_paralelas_produzem_sequencias_iguais`
    (`locator.rs:67-72`). Garantia documentada como design-intent.

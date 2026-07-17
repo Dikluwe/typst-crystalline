@@ -71,7 +71,7 @@ segunda vez consecutiva.
 
 ```bash
 grep -E "HSpace|VSpace" 01_core/src/entities/content.rs   # zero hits
-grep -E "native_h|native_v" 01_core/src/rules/stdlib/      # zero hits
+grep -E "native_h|native_v" 01_core/src/engine/stdlib/      # zero hits
 ```
 
 Confirmações:
@@ -83,7 +83,7 @@ Confirmações:
 
 ### §2.2 Localização confirmada
 
-`01_core/src/rules/stdlib/layout.rs` — coesão por domínio
+`01_core/src/engine/stdlib/layout.rs` — coesão por domínio
 Layout per ADR-0037; mesmo ficheiro que `native_align`,
 `native_place`, `native_grid`, `native_page`, `native_pad`,
 `native_hide`. Decisão de P156C aplicada directamente.
@@ -156,8 +156,8 @@ Arms adicionados em todos os pattern-match exaustivos sobre
 | `Content::map_text` | `entities/content.rs` | terminal (clone) |
 | `materialize_time` | `rules/introspect.rs` | clone (leaf) |
 | `walk` | `rules/introspect.rs` | no-op (leaf, sem effect counters) |
-| `layout_content` | `rules/layout/mod.rs` | HSpace cursor.x++; VSpace flush+cursor.y++ |
-| `measure_content_constrained` | `rules/layout/mod.rs` | HSpace `(amount,0)`; VSpace `(0,amount)` |
+| `layout_content` | `engine/layout/mod.rs` | HSpace cursor.x++; VSpace flush+cursor.y++ |
+| `measure_content_constrained` | `engine/layout/mod.rs` | HSpace `(amount,0)`; VSpace `(0,amount)` |
 
 **Verificação**: `cargo build -p typst-core` clean (sem
 warnings de variantes não cobertas).
@@ -207,7 +207,7 @@ scope.define("v", Value::Func(Func::native("v", native_v)));
 Re-export em `stdlib/mod.rs`:
 
 ```rust
-pub use crate::rules::stdlib::layout::{
+pub use crate::engine::stdlib::layout::{
     native_align, native_grid, native_h, native_hide, native_pad,
     native_page, native_place, native_v,
 };
@@ -560,13 +560,13 @@ Critérios da spec P156D (§Verificação):
 - Cristalino código tocado:
   - `01_core/src/entities/content.rs` (variants HSpace+VSpace
     + construtores + cobertura arms + 7 tests).
-  - `01_core/src/rules/introspect.rs` (arms HSpace+VSpace em
+  - `01_core/src/engine/introspect.rs` (arms HSpace+VSpace em
     materialize_time + walk).
-  - `01_core/src/rules/layout/mod.rs` (arms HSpace+VSpace em
+  - `01_core/src/engine/layout/mod.rs` (arms HSpace+VSpace em
     layout_content + measure_content_constrained).
-  - `01_core/src/rules/layout/tests.rs` (2 tests E2E).
-  - `01_core/src/rules/stdlib/layout.rs` (`extract_weak` +
+  - `01_core/src/engine/layout/tests.rs` (2 tests E2E).
+  - `01_core/src/engine/stdlib/layout.rs` (`extract_weak` +
     `build_spacing` helpers + `native_h` + `native_v`).
-  - `01_core/src/rules/stdlib/mod.rs` (re-export + 11 tests).
-  - `01_core/src/rules/eval/mod.rs` (registo em
+  - `01_core/src/engine/stdlib/mod.rs` (re-export + 11 tests).
+  - `01_core/src/engine/eval/mod.rs` (registo em
     `make_stdlib`).

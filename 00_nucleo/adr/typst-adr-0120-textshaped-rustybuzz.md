@@ -42,13 +42,13 @@ FrameItem::Text {
 
 | Site | `file:line` | Descrição |
 |------|-------------|-----------|
-| cursor.rs | `01_core/src/rules/layout/cursor.rs:86` | **Path principal** — `layout_word` emit |
-| equation.rs | `01_core/src/rules/layout/equation.rs:75` | Texto inline equação (wrap de math item) |
-| equation.rs | `01_core/src/rules/layout/equation.rs:149` | Texto standalone equação |
-| list_item.rs | `01_core/src/rules/layout/list_item.rs:25` | Bullet de lista |
-| enum_item.rs | `01_core/src/rules/layout/enum_item.rs:33` | Numeração de lista |
-| link.rs | `01_core/src/rules/layout/link.rs:123` | Texto de link |
-| math/layout/mod.rs | `01_core/src/rules/math/layout/mod.rs:535` | Shaping matemático |
+| cursor.rs | `01_core/src/engine/layout/cursor.rs:86` | **Path principal** — `layout_word` emit |
+| equation.rs | `01_core/src/engine/layout/equation.rs:75` | Texto inline equação (wrap de math item) |
+| equation.rs | `01_core/src/engine/layout/equation.rs:149` | Texto standalone equação |
+| list_item.rs | `01_core/src/engine/layout/list_item.rs:25` | Bullet de lista |
+| enum_item.rs | `01_core/src/engine/layout/enum_item.rs:33` | Numeração de lista |
+| link.rs | `01_core/src/engine/layout/link.rs:123` | Texto de link |
+| math/layout/mod.rs | `01_core/src/engine/math/layout/mod.rs:535` | Shaping matemático |
 | pipeline.rs | `03_infra/src/pipeline.rs:345` | Construção em integração tests |
 
 **Total: 7 write sites L1 (produção) + 1 L3.**
@@ -58,12 +58,12 @@ FrameItem::Text {
 | Ficheiro | Lines | Tipo |
 |----------|-------|------|
 | `entities/layout_types.rs` | 433 | `plain_text_items` |
-| `rules/layout/cursor.rs` | 179, 312, 459 | style extracção / rebase |
+| `engine/layout/cursor.rs` | 179, 312, 459 | style extracção / rebase |
 | `rules/math/layout/mod.rs` | 64, 91, 672 | pos mutation / transform |
-| `rules/layout/slicing.rs` | 78, 129, 168, 171, 210, 256 | fatiamento e rebase |
-| `rules/layout/link.rs` | 66 | inclusão em link |
-| `rules/layout/equation.rs` | 69 | iteração equação |
-| `rules/layout/helpers.rs` | 33 | update de posição |
+| `engine/layout/slicing.rs` | 78, 129, 168, 171, 210, 256 | fatiamento e rebase |
+| `engine/layout/link.rs` | 66 | inclusão em link |
+| `engine/layout/equation.rs` | 69 | iteração equação |
+| `engine/layout/helpers.rs` | 33 | update de posição |
 | `rules/math/layout/frac.rs` | 57, 74 | pos mutation |
 | `export/stream.rs` | 264, 675 | **Path principal PDF emit** |
 | `export/fonts.rs` | 49 | rastreamento uso de fonte |

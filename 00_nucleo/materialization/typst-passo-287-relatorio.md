@@ -54,9 +54,9 @@ pragmática (delta +16 vs +8-15; N=5 não atingido).
 - `Layouter` campos: **N+3** (+`smartquote_double_open: bool`
   +`smartquote_single_open: bool`).
 - Função stdlib **`native_smartquote(double, enabled)`** em
-  `01_core/src/rules/stdlib/text.rs` (~75 LOC).
+  `01_core/src/engine/stdlib/text.rs` (~75 LOC).
 - Consumer Layouter `Content::SmartQuote { double }` em
-  `01_core/src/rules/layout/mod.rs` (~20 LOC) — resolve glyph via
+  `01_core/src/engine/layout/mod.rs` (~20 LOC) — resolve glyph via
   `localize_quotes` (reuso P155) + alterna state + recurse
   `Content::Text`.
 
@@ -79,8 +79,8 @@ pragmática (delta +16 vs +8-15; N=5 não atingido).
 Content::SmartQuote { double } => {
     let glyph: &str = if *double {
         let (open, close) = match &self.style.lang {
-            Some(l) => crate::rules::lang::quotes::localize_quotes(l),
-            None    => crate::rules::lang::quotes::DEFAULT_QUOTES,
+            Some(l) => crate::engine::lang::quotes::localize_quotes(l),
+            None    => crate::engine::lang::quotes::DEFAULT_QUOTES,
         };
         let g = if self.smartquote_double_open { open } else { close };
         self.smartquote_double_open = !self.smartquote_double_open;
@@ -220,7 +220,7 @@ consecutivos" — registado §A.3.2 ADR-0054 graded.
 |---|---:|---|
 | `entities/content.rs` (mod tests) | 4 | Variant construtor; PartialEq distingue `double`; plain_text ASCII fallback; is_empty false |
 | `rules/stdlib/mod.rs` (mod tests) | 6 | `smartquote()` sem args → variant default; `double: false` → single; `enabled: false` → Text ASCII directo; `alternative: true` → Err ADR-0054; `quotes: "()"` → Err scope-out; arg posicional rejeitado |
-| `rules/layout/tests.rs` (`p287_smartquote_tests`) | 4 | Default ASCII (alternância indirecta — 2 quotes → ≥2 chars `"`); single ASCII (sem curly Unicode); estado independente do markup (caso edge §A.3.2); independência entre layouts sucessivos (state per-document) |
+| `engine/layout/tests.rs` (`p287_smartquote_tests`) | 4 | Default ASCII (alternância indirecta — 2 quotes → ≥2 chars `"`); single ASCII (sem curly Unicode); estado independente do markup (caso edge §A.3.2); independência entre layouts sucessivos (state per-document) |
 | `03_infra/src/export.rs` (`tests`) | 2 | Smoke L1→L3: 2 SmartQuote → ≥2 `(...) Tj` no PDF; single quote ASCII aparece no PDF |
 | **Total** | **16** | dentro do alvo spec ajustado (+8-15 → +16) |
 

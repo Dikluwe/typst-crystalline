@@ -19,12 +19,12 @@ deste relatório foram corridas em **working tree não commitado** sobre
 
 ```
  00_nucleo/diagnosticos/achados-adiados-cetz.md |   9 +-
- 00_nucleo/prompts/rules/stdlib/layout.md       |  59 +++++++++-
- 00_nucleo/prompts/rules/stdlib/structural.md   |  25 +++-
- 01_core/src/rules/eval/tests.rs                |  16 +++
- 01_core/src/rules/stdlib/layout.rs             |  20 ++--
- 01_core/src/rules/stdlib/mod.rs                | 157 +++++++++++++++++++++++++
- 01_core/src/rules/stdlib/structural.rs         |  24 +++-
+ 00_nucleo/prompts/engine/stdlib/layout.md       |  59 +++++++++-
+ 00_nucleo/prompts/engine/stdlib/structural.md   |  25 +++-
+ 01_core/src/engine/eval/tests.rs                |  16 +++
+ 01_core/src/engine/stdlib/layout.rs             |  20 ++--
+ 01_core/src/engine/stdlib/mod.rs                | 157 +++++++++++++++++++++++++
+ 01_core/src/engine/stdlib/structural.rs         |  24 +++-
 ```
 
 ---
@@ -80,7 +80,7 @@ Pontos localizados no código (grep `espera Color` / `extract_stroke`):
 - **hline/vline** (4): `structural.rs:2527,2560,2593,2626` — de outra
   espécie (entidade com `Stroke` não-opcional) → scope-out, ver §2.2.
 
-## 2. Implementação (L0: `prompts/rules/stdlib/layout.md` e `structural.md`, secções P726)
+## 2. Implementação (L0: `prompts/engine/stdlib/layout.md` e `structural.md`, secções P726)
 
 Braço `Some(Value::None)` junto a `None => None` em cada ponto (mesmo
 idiom já usado para `caption`, `structural.rs:694`):
@@ -120,7 +120,7 @@ mantêm o erro actual).
 
 Vanilla aceita (linha não desenhada). O cristalino guarda `Stroke`
 **não-opcional** em `GridHLineElem`/`TableHLineElem` (+vlines) e o render
-desenha sempre a linha (`rules/layout/grid.rs:668-689`). Aceitar `none`
+desenha sempre a linha (`engine/layout/grid.rs:668-689`). Aceitar `none`
 exige entidade `Option<Stroke>` + salto no render — mudança de outra
 espécie, sem consumidor em cetz. Atalho zero-thickness rejeitado por
 design (width 0 em PDF é hairline, não "invisível"). Registado em
@@ -175,7 +175,7 @@ Reproduzido com `#curve(curve.move, curve.line, curve.close)` directo
 (sem cetz): página em branco no cristalino, forma visível no vanilla.
 `rect`/`circle` renderizam correctamente (979 vs 972 px) — o bug é
 **específico de paths**, não de formas vectoriais em geral. Local do
-render: `01_core/src/rules/layout/curve.rs` (`CurveElem` →
+render: `01_core/src/engine/layout/curve.rs` (`CurveElem` →
 `FrameItem::Shape { kind: Path(...) }`, `content.rs:406-411`). É o
 **único bloqueio restante** para paridade de pixels no cetz — candidato
 natural a P727. Registado em `achados-adiados-cetz.md` com as medições.

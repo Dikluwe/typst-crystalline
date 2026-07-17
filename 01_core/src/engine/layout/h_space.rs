@@ -1,0 +1,22 @@
+//! Crystalline Lineage
+//! @prompt 00_nucleo/prompts/engine/atomizacao_elementos.md
+//! @prompt-hash 1452dbf6
+//! @layer L1
+//! @updated 2026-06-19
+//!
+//! Atomização (ADR-0109, P380): o layout de `HSpace` movido do monólito
+//! `layout_content` para o arquivo da feature (forma B). Content-preserving.
+
+use crate::entities::elements::h_space::HSpaceElem;
+use crate::entities::layout_types::Pt;
+
+use super::{FontMetrics, ImageSizer, Layouter};
+
+/// Layout de `h(...)` (espaço horizontal): avança o cursor_x. `weak` diferido.
+pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
+    layouter: &mut Layouter<M, S>,
+    e:        &HSpaceElem,
+) {
+    let pt = e.amount.resolve_pt(layouter.style.size.val());
+    layouter.regions.current.cursor_x += Pt(pt);
+}

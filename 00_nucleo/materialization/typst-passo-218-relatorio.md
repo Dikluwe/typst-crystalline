@@ -25,7 +25,7 @@ tests adicionados (11 unit + 1 E2E). Tests workspace: 1952
 
 ## §2 Inventário pré-P218
 
-`grep -c "scope.define" 01_core/src/rules/eval/mod.rs` ≈ 53
+`grep -c "scope.define" 01_core/src/engine/eval/mod.rs` ≈ 53
 funcs registadas pré-P218. Pós-P218: **54** (+columns).
 
 `native_repeat` (P156J Fase 3 sub-passo 1) localizado em
@@ -67,7 +67,7 @@ com `extract_tracks` P157A `pub(super)` mas não público;
 
 ## §4 `native_columns` function + registo
 
-**Função** em `01_core/src/rules/stdlib/layout.rs` após
+**Função** em `01_core/src/engine/stdlib/layout.rs` após
 `native_repeat`:
 
 ```rust
@@ -83,14 +83,14 @@ pub fn native_columns(_ctx, args, _world, _file, _figure_numbering)
 }
 ```
 
-**Re-export** em `01_core/src/rules/stdlib/mod.rs`:
+**Re-export** em `01_core/src/engine/stdlib/mod.rs`:
 ```rust
-pub use crate::rules::stdlib::layout::{
+pub use crate::engine::stdlib::layout::{
     native_align, native_block, native_box, native_columns, ...
 };
 ```
 
-**Scope register** em `01_core/src/rules/eval/mod.rs`:
+**Scope register** em `01_core/src/engine/eval/mod.rs`:
 ```rust
 scope.define("columns", Value::Func(Func::native("columns", native_columns)));
 ```

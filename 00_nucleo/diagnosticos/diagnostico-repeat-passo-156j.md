@@ -168,7 +168,7 @@ módulo `tests`):
 4. `PartialEq` cobre todos os fields.
 5. `map_text` recurse no body, preserva gap/justify.
 
-**Stdlib `native_repeat`** (em `01_core/src/rules/stdlib/mod.rs`,
+**Stdlib `native_repeat`** (em `01_core/src/engine/stdlib/mod.rs`,
 secção tests):
 6. Happy path: `#repeat[.]` → variant correcto, defaults
    (gap=None, justify=true).
@@ -179,7 +179,7 @@ secção tests):
 10. Body como string: `#repeat(".")` → `Content::text(".")` em body.
 11. Erro hard: `#repeat(gap: "x")[.]` → gap não é length.
 
-**E2E layout** (em `01_core/src/rules/layout/tests.rs`):
+**E2E layout** (em `01_core/src/engine/layout/tests.rs`):
 12. Repeat com body simples renderiza algo (não-empty page items).
 13. Repeat dentro de Pad/Block descende correctamente
     (counters/labels dentro do body de repeat resolvem via walk).

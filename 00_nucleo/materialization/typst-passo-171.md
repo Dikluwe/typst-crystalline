@@ -142,9 +142,9 @@ Match arms forçados pelo compilador. Lista (verificada em
    `self.clone()`.
 4. `01_core/src/entities/content_hash.rs` — incluir variants
    no `format!("{:?}", c)` (automático se Debug derive).
-5. `01_core/src/rules/introspect/locatable.rs::is_locatable`
+5. `01_core/src/engine/introspect/locatable.rs::is_locatable`
    — `State => true`, `StateUpdate => true`.
-6. `01_core/src/rules/introspect/extract_payload.rs` — arms
+6. `01_core/src/engine/introspect/extract_payload.rs` — arms
    novos:
    ```rust
    Content::State { key, init } => Some(
@@ -154,11 +154,11 @@ Match arms forçados pelo compilador. Lista (verificada em
        ElementPayload::StateUpdate { key: key.clone(), update: update.clone() }
    ),
    ```
-7. `01_core/src/rules/introspect.rs::materialize_time` —
+7. `01_core/src/engine/introspect.rs::materialize_time` —
    terminal, `content.clone()`.
-8. `01_core/src/rules/introspect.rs::walk` — terminal, no-op
+8. `01_core/src/engine/introspect.rs::walk` — terminal, no-op
    (Tag::Start/End emitido no topo via extract_payload).
-9. `01_core/src/rules/layout/mod.rs::layout_content` —
+9. `01_core/src/engine/layout/mod.rs::layout_content` —
    zero-size para ambos (sem rendering).
 
 L0s correspondentes actualizados:
@@ -221,7 +221,7 @@ L0s correspondentes actualizados:
 
 ### .F Estender `from_tags` + `Introspector` trait
 
-1. `01_core/src/rules/introspect/from_tags.rs`:
+1. `01_core/src/engine/introspect/from_tags.rs`:
    - Adicionar arms para `ElementPayload::State` e
      `ElementPayload::StateUpdate`.
    - State arm: `state_registry.init(key, init, location)`.

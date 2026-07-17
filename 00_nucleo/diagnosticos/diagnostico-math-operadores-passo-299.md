@@ -20,7 +20,7 @@ abordagem Rust-específica não replicável.
 
 ### A.0.0.1 — Heurística limits-style actual cristalino
 
-`01_core/src/rules/math/symbols.rs:170` (P50/P298 herdado):
+`01_core/src/engine/math/symbols.rs:170` (P50/P298 herdado):
 
 ```rust
 pub fn is_limit_function(s: &str) -> bool {
@@ -65,7 +65,7 @@ Cristalino **não tem** scope `math` module. Tem `calc` module
 
 ### A.0.0.4 — `calc` module pattern (precedente directo)
 
-`01_core/src/rules/stdlib/calc.rs:35`:
+`01_core/src/engine/stdlib/calc.rs:35`:
 
 ```rust
 pub fn make_calc_module() -> Value {

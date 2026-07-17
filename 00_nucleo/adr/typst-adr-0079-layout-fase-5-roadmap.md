@@ -2333,7 +2333,7 @@ NÃO-reservado per política P158.
 
 **Trabalho real**:
 
-- **Novo módulo** `01_core/src/rules/layout/slicing.rs` (~100 LoC)
+- **Novo módulo** `01_core/src/engine/layout/slicing.rs` (~100 LoC)
   com função pura `slice_frame_items_at_height(items, threshold)
   -> (head, tail)` + helper `rebase_item_y(item, delta)` exhaustive
   sobre 6 variants `FrameItem` (Text/Line/Glyph/Image/Shape/Group).

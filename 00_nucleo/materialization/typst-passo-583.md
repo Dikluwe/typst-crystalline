@@ -31,8 +31,8 @@ Se a busca devolver zero resultados, a afirmação de P582 fica confirmada com p
 ### Confirmar há quanto tempo o bug existia
 
 ```bash
-git log --oneline -- 01_core/src/rules/eval/mod.rs | tail -30
-git log -p --follow -- 01_core/src/rules/eval/mod.rs | grep -n "Expr::Escape\|Expr::Shorthand\|Expr::Linebreak" | head -20
+git log --oneline -- 01_core/src/engine/eval/mod.rs | tail -30
+git log -p --follow -- 01_core/src/engine/eval/mod.rs | grep -n "Expr::Escape\|Expr::Shorthand\|Expr::Linebreak" | head -20
 ```
 
 Confirmar desde quando o braço genérico (`_ => Ok(Value::None)`) capturava estes três casos, sem tratamento próprio.

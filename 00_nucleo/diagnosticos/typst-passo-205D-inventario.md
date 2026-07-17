@@ -23,7 +23,7 @@ Greps empíricos em `01_core/`, `02_shell/`, `03_infra/`,
 `04_wiring/`:
 
 - **Writes** (production): 1 call-site —
-  `01_core/src/rules/layout/references.rs:30`
+  `01_core/src/engine/layout/references.rs:30`
   (`layouter.runtime.label_pages.insert(label.clone(),
   page);`). Ocorre em arm `Labelled` após
   `layout_content(target)` para registar página final
@@ -34,11 +34,11 @@ Greps empíricos em `01_core/`, `02_shell/`, `03_infra/`,
   ver §1.6).
 - **Reads** sobre `doc.extracted_label_pages`
   (production):
-  - `01_core/src/rules/layout/mod.rs:1575` —
+  - `01_core/src/engine/layout/mod.rs:1575` —
     convergência fixpoint (`if doc.extracted_label_pages
     == known_page_numbers { return doc; }`). Operação
     HashMap equality, **não tracked**.
-  - `01_core/src/rules/layout/mod.rs:1580` —
+  - `01_core/src/engine/layout/mod.rs:1580` —
     `known_page_numbers = doc.extracted_label_pages.
     clone();` para próxima iteração.
 - **Reads** em tests: 4 sítios (`tests.rs:1287`,

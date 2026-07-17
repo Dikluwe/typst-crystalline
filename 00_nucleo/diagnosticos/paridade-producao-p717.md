@@ -101,7 +101,7 @@ Tamanho real do passo: **S**, como a hipótese do passo previa.
 
 ## 2. Implementação
 
-L0 actualizado primeiro: `00_nucleo/prompts/rules/eval.md` §P717 (hashes
+L0 actualizado primeiro: `00_nucleo/prompts/engine/eval.md` §P717 (hashes
 de linhagem via `crystalline-lint --fix-hashes`). Testes escritos antes do
 código: 25 testes `p717_*`, 23 a falhar no estado P716.
 

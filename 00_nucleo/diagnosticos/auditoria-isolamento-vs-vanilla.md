@@ -1,6 +1,6 @@
 # Auditoria — isolamento cristalino vs vanilla
 
-Trabalho retrospectivo solicitado em `auditoria-isolamento-instrucao-claude-code.md`. Comparação estrutura-a-estrutura entre `01_core/src/entities/` + `01_core/src/rules/` e `lab/typst-original/crates/typst-library/src/`. Cada item é avaliado em 4 critérios (A: fan-in/fan-out, B: single responsibility, C: testabilidade isolada, D: composição vs concentração). Classificação final = pior dos 4.
+Trabalho retrospectivo solicitado em `auditoria-isolamento-instrucao-claude-code.md`. Comparação estrutura-a-estrutura entre `01_core/src/entities/` + `01_core/src/engine/` e `lab/typst-original/crates/typst-library/src/`. Cada item é avaliado em 4 critérios (A: fan-in/fan-out, B: single responsibility, C: testabilidade isolada, D: composição vs concentração). Classificação final = pior dos 4.
 
 Sem código novo, sem ADR nova, sem reservas, sem propostas de refactor.
 
@@ -64,7 +64,7 @@ Distribuição por critério dominante de falha (apenas para os "pior"):
 - Critério D: vanilla isola; cristalino concentra. **Pior**.
 - Razão única: 20 tipos num só ficheiro onde vanilla tem 30 ficheiros isolados (cabeçalho assume "Excepção Regra 6 da ADR-0037").
 
-### `Layouter` — `01_core/src/rules/layout/mod.rs`
+### `Layouter` — `01_core/src/engine/layout/mod.rs`
 
 - Ficheiro: 1 399 linhas; struct `Layouter<M, S>` com **19 fields**.
 - Fields: `metrics`, `sizer`, `font_size_pt`, `style`, `chain`, `page_config`, `pages`, `current_items`, `cursor_x/y`, `line_start_x`, `current_line`, `counter`, `figure_progress`, `is_height_unconstrained`, `cell_available_h`, `cell_origin_x/y/w`.
@@ -75,7 +75,7 @@ Distribuição por critério dominante de falha (apenas para os "pior"):
 - Critério D: agregação extrema. Vanilla decompõe. **Pior**.
 - Razão única: 19 fields num struct onde vanilla tem 7+ tipos isolados.
 
-### `introspect` — `01_core/src/rules/introspect.rs`
+### `introspect` — `01_core/src/engine/introspect.rs`
 
 - Ficheiro: 1 108 linhas; 3 funções: `introspect()`, `materialize_time()`, `walk()`.
 - A função `walk()` percorre `Content` e em cada arm: avança contadores, popula labels, regista figures, colhe bib_entries, calcula numerações.
@@ -112,7 +112,7 @@ Distribuição por critério dominante de falha (apenas para os "pior"):
 - Fan-in: 6 cristalino vs 3 vanilla — diferença ~200 %, mas absoluto é pequeno (3-6); margem absoluta pequena.
 - Linha de equivalência: ambos enum simples; cristalino subset de variantes.
 
-### `stdlib/` cluster — `01_core/src/rules/stdlib/`
+### `stdlib/` cluster — `01_core/src/engine/stdlib/`
 
 - Cristalino: `mod.rs` 2 996 L (mas é maioritariamente re-exports + tests) + 9 submódulos clustering (`foundations`, `calc`, `text`, `assert`, `structural`, `figure_image`, `shapes`, `transforms`, `layout`).
 - Vanilla: stdlib ocupa todo o `typst-library/src/` — não é localizado num único cluster; cada elemento tem o seu próprio ficheiro disperso.
@@ -216,7 +216,7 @@ Distribuição por critério dominante de falha (apenas para os "pior"):
 
 ## Lacunas
 
-- Não foi inspeccionado todo o conteúdo de `01_core/src/rules/lang/`, `01_core/src/rules/math/`, `01_core/src/rules/eval/` — restringido à lista mínima obrigatória + extensão razoável.
+- Não foi inspeccionado todo o conteúdo de `01_core/src/engine/lang/`, `01_core/src/engine/math/`, `01_core/src/engine/eval/` — restringido à lista mínima obrigatória + extensão razoável.
 - Não foi quantificado fan-out exacto via análise estática — só estimativa por imports do ficheiro de definição.
 - Vanilla tem código-fonte fonte Typst real com 100 % das funcionalidades; cristalino é subset. Comparações directas linha-a-linha favorecem o subset; a auditoria assume isto explicitamente.
 - A classificação de `BibEntry` como "igual" em vez de "pior" é discutível — o critério A estritamente daria "pior" (fan-in 300 %). Coloquei "igual" porque o aumento de fan-in reflecte uso, não falha de isolamento; um leitor que aplique o critério literal reclassificará.

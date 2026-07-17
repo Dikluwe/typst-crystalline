@@ -91,7 +91,7 @@ Todas as 16 funcionalidades auditadas do Typst 0.15.0 passaram a **OK** no crist
 - `ListItemElem` ganha campo `marker_align: Option<Align2D>`.
 - Adicionados `HAlign::Start`/`End` para suportar os valores `start`/`end`.
 
-**Ficheiros alterados:** `entities/elements/list_item.rs`, `entities/layout_types.rs`, `rules/stdlib/structural.rs`, `rules/layout/cursor.rs`, `rules/layout/mod.rs`.
+**Ficheiros alterados:** `entities/elements/list_item.rs`, `entities/layout_types.rs`, `rules/stdlib/structural.rs`, `engine/layout/cursor.rs`, `engine/layout/mod.rs`.
 
 ### 2.11 — `divider` element (504k)
 
@@ -160,9 +160,9 @@ Resultado: **33/33 passaram**, incluindo:
 
 Adicionados testes `p504_*` em:
 
-- `01_core/src/rules/eval/tests.rs` — 13 testes (eval das funcionalidades via fonte Typst).
-- `01_core/src/rules/introspect.rs` — 2 testes (`p504_within_selector_query`, `p504_parent_locations_index`).
-- `01_core/src/rules/stdlib/collections.rs` — testes de dict methods (embutidos na suite existente).
+- `01_core/src/engine/eval/tests.rs` — 13 testes (eval das funcionalidades via fonte Typst).
+- `01_core/src/engine/introspect.rs` — 2 testes (`p504_within_selector_query`, `p504_parent_locations_index`).
+- `01_core/src/engine/stdlib/collections.rs` — testes de dict methods (embutidos na suite existente).
 - `01_core/src/entities/layout_types.rs` — `p504_align2d_start_end_parse`.
 - `01_core/src/entities/selector.rs` — `p504_selector_within_estrutural`.
 
@@ -197,18 +197,18 @@ Resultado: `✓ No violations found`.
 01_core/src/entities/layout_types.rs
 01_core/src/entities/selector.rs
 01_core/src/entities/value.rs
-01_core/src/rules/eval/bindings.rs
-01_core/src/rules/eval/closures.rs
-01_core/src/rules/eval/mod.rs
-01_core/src/rules/eval/repr.rs
-01_core/src/rules/eval/tests.rs
-01_core/src/rules/introspect.rs
-01_core/src/rules/layout/cursor.rs
-01_core/src/rules/layout/mod.rs
-01_core/src/rules/stdlib/collections.rs
-01_core/src/rules/stdlib/foundations.rs
-01_core/src/rules/stdlib/mod.rs
-01_core/src/rules/stdlib/structural.rs
+01_core/src/engine/eval/bindings.rs
+01_core/src/engine/eval/closures.rs
+01_core/src/engine/eval/mod.rs
+01_core/src/engine/eval/repr.rs
+01_core/src/engine/eval/tests.rs
+01_core/src/engine/introspect.rs
+01_core/src/engine/layout/cursor.rs
+01_core/src/engine/layout/mod.rs
+01_core/src/engine/stdlib/collections.rs
+01_core/src/engine/stdlib/foundations.rs
+01_core/src/engine/stdlib/mod.rs
+01_core/src/engine/stdlib/structural.rs
 lab/parity/tests/structural_parity.rs
 ```
 

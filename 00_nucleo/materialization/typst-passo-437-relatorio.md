@@ -11,26 +11,26 @@ prompt L0 dedicado e actualizando a linhagem `@prompt` para que o ficheiro
 desse de depender exclusivamente do prompt grosseiro `stdlib/_comum.md`.
 
 - **L0 novo:**
-  - `00_nucleo/prompts/rules/stdlib/gradients.md` — spec dedicada às 3 funções
+  - `00_nucleo/prompts/engine/stdlib/gradients.md` — spec dedicada às 3 funções
     de gradiente (`gradient.linear`, `gradient.radial`, `gradient.conic`).
     O prompt documenta o estado real: os construtores existem e produzem
     `Value::Gradient`, mas o render PDF real está em scope-out (fallback para a
     cor do primeiro stop).
 - **Cabeçalhos `@prompt` ajustados:**
-  - `01_core/src/rules/stdlib/gradients.rs` — `_comum.md` e `gradients.md`
+  - `01_core/src/engine/stdlib/gradients.rs` — `_comum.md` e `gradients.md`
     (este último em último lugar, conforme convenção do linter para prompt
     "dono" do ficheiro). A referência a `shapes.md` (adicionada no P435 para
     evitar órfão) foi removida.
-  - `01_core/src/rules/stdlib/shapes.rs` — reordenado para `_comum.md`,
+  - `01_core/src/engine/stdlib/shapes.rs` — reordenado para `_comum.md`,
     `square.md`, `shapes.md` (último), tornando `shapes.md` o prompt dono do
     ficheiro. `square.md` passou a ser uma excepção de órfão.
 - **Prompt comum actualizado:**
-  - `00_nucleo/prompts/rules/stdlib/_comum.md` — removido `gradients.rs` da
+  - `00_nucleo/prompts/engine/stdlib/_comum.md` — removido `gradients.rs` da
     lista de ficheiros que apontam para o prompt comum; adicionada nota sobre
     o novo `gradients.md`.
 - **Configuração de linhagem:**
   - `crystalline.toml` — adicionada excepção de órfão para
-    `00_nucleo/prompts/rules/stdlib/square.md`. O prompt continua referenciado
+    `00_nucleo/prompts/engine/stdlib/square.md`. O prompt continua referenciado
     por `shapes.rs`, mas `shapes.md` é o seu prompt "dono".
 - **Débito actualizado:**
   - `00_nucleo/diagnosticos/debt/DEBT.md` — adicionada entrada para
@@ -63,7 +63,7 @@ e `show-regex.md`).
 
 | Critério | Resultado |
 |----------|-----------|
-| `00_nucleo/prompts/rules/stdlib/gradients.md` criado com 3 secções | ✓ |
+| `00_nucleo/prompts/engine/stdlib/gradients.md` criado com 3 secções | ✓ |
 | Cada secção cobre assinatura, args, semântica, paridade vanilla, scope-out e testes canónicos | ✓ |
 | `_comum.md` actualizado | ✓ |
 | `gradients.rs` cabeçalho `@prompt` aponta `gradients.md` | ✓ |
@@ -78,11 +78,11 @@ e `show-regex.md`).
 ## Artefactos
 
 - L0:
-  - `00_nucleo/prompts/rules/stdlib/gradients.md`
-  - `00_nucleo/prompts/rules/stdlib/_comum.md` (actualizado)
+  - `00_nucleo/prompts/engine/stdlib/gradients.md`
+  - `00_nucleo/prompts/engine/stdlib/_comum.md` (actualizado)
 - Código (apenas cabeçalhos de linhagem / hashes):
-  - `01_core/src/rules/stdlib/gradients.rs`
-  - `01_core/src/rules/stdlib/shapes.rs`
+  - `01_core/src/engine/stdlib/gradients.rs`
+  - `01_core/src/engine/stdlib/shapes.rs`
 - Configuração:
   - `crystalline.toml` (excepção de órfão para `square.md`)
 - Débito:

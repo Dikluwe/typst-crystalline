@@ -38,31 +38,31 @@ Para que essa origem sobreviva ao folding de `Styles`/`StyleChain`, o backing
     apenas os campos que mudaram — usado no transporte de `#set` em
     `eval_markup`.
 
-- **`01_core/src/rules/eval/rules.rs`**:
+- **`01_core/src/engine/eval/rules.rs`**:
   - `#set text(bold: true)` emite `Style::bold(true)` (`from_strong: false`).
   - `#set text(italic: true)` emite `Style::italic(true)` (`from_emph: false`).
   - `selector_matches` para `NodeKind::Strong`/`Emph` verifica a origem no
     delta de um eventual `Content::Styled`, mantendo o match das variantes
     próprias `Content::Strong`/`Emph`.
 
-- **`01_core/src/rules/eval/mod.rs`**:
+- **`01_core/src/engine/eval/mod.rs`**:
   - A detecção de fronteiras de `#set` em `eval_markup` passou a observar o
     **delta completo** (não só o canal `custom`), de modo que alterações em
     `text.bold`/`text.italic` sejam transportadas num `Content::Styled`
     aninhado, preservando a origem.
 
-- **`01_core/src/rules/layout/mod.rs`**:
+- **`01_core/src/engine/layout/mod.rs`**:
   - Braços `Content::Strong`/`Emph` empurram `Style::strong()` /
     `Style::emph()` (`from_strong`/`from_emph: true`).
 
-- **`01_core/src/rules/layout/term_item.rs`**:
+- **`01_core/src/engine/layout/term_item.rs`**:
   - Negrito do termo usa `Style::bold(true)` (origem genérica).
 
-- **`01_core/src/rules/eval/tests.rs`**:
+- **`01_core/src/engine/eval/tests.rs`**:
   - Helpers de show-set ajustados para lerem o campo tipado `bold` em vez do
     canal `custom` `"text.bold"`.
 
-- **`01_core/src/rules/layout/tests.rs`**:
+- **`01_core/src/engine/layout/tests.rs`**:
   - Teste `debt_50_show_strong_nao_apanha_set_text_bold_porque_bake_in`
     renomeado para `debt_50_show_strong_nao_apanha_set_text_bold` e
     actualizado para o cenário pós-bake-in (wrapping).
@@ -97,12 +97,12 @@ Para que essa origem sobreviva ao folding de `Styles`/`StyleChain`, o backing
 - Código:
   - `01_core/src/entities/style.rs`
   - `01_core/src/entities/style_chain.rs`
-  - `01_core/src/rules/eval/rules.rs`
-  - `01_core/src/rules/eval/mod.rs`
-  - `01_core/src/rules/eval/tests.rs`
-  - `01_core/src/rules/layout/mod.rs`
-  - `01_core/src/rules/layout/term_item.rs`
-  - `01_core/src/rules/layout/tests.rs`
+  - `01_core/src/engine/eval/rules.rs`
+  - `01_core/src/engine/eval/mod.rs`
+  - `01_core/src/engine/eval/tests.rs`
+  - `01_core/src/engine/layout/mod.rs`
+  - `01_core/src/engine/layout/term_item.rs`
+  - `01_core/src/engine/layout/tests.rs`
 - Débito:
   - `00_nucleo/diagnosticos/debt/DEBT.md`
 - Plano:

@@ -176,7 +176,7 @@ Aceita agora `size: Length`. Usa `Content::sub_with_size(body, size)` e `Content
 ### Código de produção (novos)
 
 - `01_core/src/entities/symbol.rs` — `Symbol` struct
-- `01_core/src/rules/stdlib/sym.rs` — `SYM_TABLE` + `sym_lookup` + `build_sym_dict`
+- `01_core/src/engine/stdlib/sym.rs` — `SYM_TABLE` + `sym_lookup` + `build_sym_dict`
 
 ### Código de produção (modificados)
 
@@ -186,17 +186,17 @@ Aceita agora `size: Length`. Usa `Content::sub_with_size(body, size)` e `Content
 - `01_core/src/entities/style_chain.rs` — 4 campos em `StyleDelta` + `is_empty` + `diff_styles` + 4 resolvers em `StyleChain` + `From<&StyleChain> for TextStyle`
 - `01_core/src/entities/layout_types.rs` — 4 campos em `TextStyle`
 - `01_core/src/entities/content.rs` — `sub_with_size`, `superscript_with_size`, `highlight_full`
-- `01_core/src/rules/eval/mod.rs` — import `build_sym_dict`; `scope.define("sym", ...)`; arm `Value::Symbol` em `eval_markup`
-- `01_core/src/rules/eval/repr.rs` — arm `Value::Symbol(s) => s.ch.to_string()`
-- `01_core/src/rules/layout/text.rs` — propagação dos 4 campos; SCRIPT_SCALE 0.60→0.65
-- `01_core/src/rules/layout/cursor.rs` — imports `Corners`; `push_text` usa radius/extent
-- `01_core/src/rules/stdlib/mod.rs` — `mod sym;` + `pub use sym::build_sym_dict`
-- `01_core/src/rules/stdlib/text.rs` — `native_highlight`, `native_subscript`, `native_superscript` alargadas
+- `01_core/src/engine/eval/mod.rs` — import `build_sym_dict`; `scope.define("sym", ...)`; arm `Value::Symbol` em `eval_markup`
+- `01_core/src/engine/eval/repr.rs` — arm `Value::Symbol(s) => s.ch.to_string()`
+- `01_core/src/engine/layout/text.rs` — propagação dos 4 campos; SCRIPT_SCALE 0.60→0.65
+- `01_core/src/engine/layout/cursor.rs` — imports `Corners`; `push_text` usa radius/extent
+- `01_core/src/engine/stdlib/mod.rs` — `mod sym;` + `pub use sym::build_sym_dict`
+- `01_core/src/engine/stdlib/text.rs` — `native_highlight`, `native_subscript`, `native_superscript` alargadas
 
 ### Specs L0 (novos)
 
 - `00_nucleo/prompts/entities/symbol.md`
-- `00_nucleo/prompts/rules/stdlib/sym.md`
+- `00_nucleo/prompts/engine/stdlib/sym.md`
 
 ---
 

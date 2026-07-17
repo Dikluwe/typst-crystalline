@@ -269,7 +269,7 @@ Auditor confirma empiricamente:
 10. Layouter usa queries location-aware durante
     layout?
     - `grep -rn "is_numbering_active_at\|flat_counter_at\|formatted_counter_at\|figure_number_at_index"
-      01_core/src/rules/layout/`.
+      01_core/src/engine/layout/`.
     - Quais consumers Layouter chamam estas
       queries.
 
@@ -305,7 +305,7 @@ Auditor confirma empiricamente:
 #### L0 alvos
 
 19. Identificar L0s relevantes:
-    - `rules/layout/fixpoint.md` (se existir).
+    - `engine/layout/fixpoint.md` (se existir).
     - L0 master sobre M7.
     - Referências em outras L0s.
 

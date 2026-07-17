@@ -107,7 +107,7 @@ Após Fase A produzir inventário + estratégia captura + política
 extent:
 
 1. Modificar consumer Layouter
-   `01_core/src/rules/layout/mod.rs:1987-2014` (referência P285 §2.2)
+   `01_core/src/engine/layout/mod.rs:1987-2014` (referência P285 §2.2)
    conforme decisão A.2:
    - Se A.2 → (a): consultar `Region.history` (ou equivalente)
      antes e depois de `layout_content(body)`; iterar sobre
@@ -139,7 +139,7 @@ extent:
      largura 60mm]` produz 2 operadores `q ... S Q` separados no
      PDF; ambos com `RG` correcto.
 7. Actualizar L0
-   `00_nucleo/prompts/rules/layout.md` (ou caminho equivalente)
+   `00_nucleo/prompts/engine/layout.md` (ou caminho equivalente)
    com nota multi-line + propagar hash via
    `crystalline-lint --fix-hashes`.
 8. Actualizar Tabela A.3 linha 103 — nota:
@@ -242,7 +242,7 @@ original. Validado por teste regression dedicado.
 
 ## §8 — Ponteiros
 
-- Consumer actual: `01_core/src/rules/layout/mod.rs:1987-2014`
+- Consumer actual: `01_core/src/engine/layout/mod.rs:1987-2014`
   (referência P285 §2.2).
 - Algoritmo P284 a estender: P284 §2.3 do relatório.
 - Infraestrutura `flush_line` + `Regions`: `01_core/src/entities/region.rs`

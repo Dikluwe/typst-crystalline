@@ -26,7 +26,7 @@ Usar 30 execuções desde já, aplicando a lição de P676 — não tirar conclu
 ### Instrumentar `layout_ms` em sub-partes
 
 ```bash
-grep -n "fn layout_with_introspector\|fn layout_document\|fn layout_page" 01_core/src/rules/layout/mod.rs | head -10
+grep -n "fn layout_with_introspector\|fn layout_document\|fn layout_page" 01_core/src/engine/layout/mod.rs | head -10
 ```
 
 Dividir o tempo de layout em partes prováveis: medição de conteúdo (`measure_content_constrained`, já mencionada em P593), posicionamento, gestão de regiões/páginas, footnotes, e qualquer chamada a `text_width`/`shaped_width` que ainda não esteja completamente coberta pelas caches já criadas.
@@ -34,7 +34,7 @@ Dividir o tempo de layout em partes prováveis: medição de conteúdo (`measure
 ### Procurar especificamente por padrões já conhecidos
 
 ```bash
-grep -n "Face::parse\|Face::from_slice\|\.clone()\|collect::<Vec" 01_core/src/rules/layout/*.rs | grep -v test | wc -l
+grep -n "Face::parse\|Face::from_slice\|\.clone()\|collect::<Vec" 01_core/src/engine/layout/*.rs | grep -v test | wc -l
 ```
 
 Confirmar se algum destes padrões, já causadores de problemas reais três vezes nesta linha, aparece também aqui.

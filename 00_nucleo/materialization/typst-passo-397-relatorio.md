@@ -9,24 +9,24 @@
 Materializaram-se os elementos user-facing `document(...)` (metadata pura) e `asset(...)` (placeholder de resource, extensão cristalina), fechando a fila limpa do balde D da sonda 389.
 
 - L0:
-  - `00_nucleo/prompts/rules/model/document.md` — metadata wrapper `document(...)`.
-  - `00_nucleo/prompts/rules/model/asset.md` — resource placeholder `asset(...)`.
+  - `00_nucleo/prompts/engine/model/document.md` — metadata wrapper `document(...)`.
+  - `00_nucleo/prompts/engine/model/asset.md` — resource placeholder `asset(...)`.
 - `01_core/src/entities/content.rs`:
   - Novos variants `Content::Document { title, author, date, keywords }` e `Content::Asset { path, kind }`.
   - Construtores `Content::document(...)` e `Content::asset(...)`.
   - Arms de `is_empty`, `plain_text`, `PartialEq`, `map_content` e `map_text` actualizados.
-- `01_core/src/rules/stdlib/structural.rs`:
+- `01_core/src/engine/stdlib/structural.rs`:
   - `native_document(...)` — aceita `title` (content), `author`/`keywords` (`Str | Array[Str]`), `date` (`Datetime`); rejeita args desconhecidos.
   - `native_asset(...)` — aceita `path` posicional ou named; `kind` explícito ou inferido por extensão.
   - Helper `extract_string_list` e `infer_asset_kind`.
   - 16 testes unitários (document: 9; asset: 5; erros: 2).
-- `01_core/src/rules/eval/mod.rs`:
+- `01_core/src/engine/eval/mod.rs`:
   - Registo em `make_stdlib`: `document` e `asset` como `Func::native(...)`.
-- `01_core/src/rules/layout/mod.rs`:
+- `01_core/src/engine/layout/mod.rs`:
   - `Content::Document { .. }` e `Content::Asset { .. }` são no-op em `layout_content`; medem `(0,0)`.
-- `01_core/src/rules/introspect.rs` + `introspect/locatable.rs`:
+- `01_core/src/engine/introspect.rs` + `introspect/locatable.rs`:
   - Document/Asset marcados como não-locatables; walk trata-os como terminais.
-- `01_core/src/rules/stdlib/mod.rs`:
+- `01_core/src/engine/stdlib/mod.rs`:
   - Referências `@prompt` a `rules/model/document.md` para linhagem.
 - `03_infra/src/integration_tests.rs`:
   - E2E `document_metadata_nao_emite_frames_no_pdf`.
@@ -90,16 +90,16 @@ Ambos são **metadata/resources puras**: o Layouter trata-os como no-op, e o exp
 
 - Código:
   - `01_core/src/entities/content.rs`
-  - `01_core/src/rules/stdlib/structural.rs`
-  - `01_core/src/rules/stdlib/mod.rs`
-  - `01_core/src/rules/eval/mod.rs`
-  - `01_core/src/rules/layout/mod.rs`
-  - `01_core/src/rules/introspect.rs`
-  - `01_core/src/rules/introspect/locatable.rs`
+  - `01_core/src/engine/stdlib/structural.rs`
+  - `01_core/src/engine/stdlib/mod.rs`
+  - `01_core/src/engine/eval/mod.rs`
+  - `01_core/src/engine/layout/mod.rs`
+  - `01_core/src/engine/introspect.rs`
+  - `01_core/src/engine/introspect/locatable.rs`
   - `03_infra/src/integration_tests.rs`
 - L0:
-  - `00_nucleo/prompts/rules/model/document.md`
-  - `00_nucleo/prompts/rules/model/asset.md`
+  - `00_nucleo/prompts/engine/model/document.md`
+  - `00_nucleo/prompts/engine/model/asset.md`
 - Inventário 148: `00_nucleo/diagnosticos/typst-cobertura-vanilla-vs-cristalino.md`.
 - Planos: `00_nucleo/materialization/typst-passo-397.md`.
 - este relatório.

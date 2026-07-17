@@ -13,12 +13,12 @@
 ### Commit identificado
 
 ```
-git log --all --oneline -S '"header"' -- 01_core/src/rules/stdlib/layout.rs
-git log --all --oneline -S '"footer"' -- 01_core/src/rules/stdlib/layout.rs
+git log --all --oneline -S '"header"' -- 01_core/src/engine/stdlib/layout.rs
+git log --all --oneline -S '"footer"' -- 01_core/src/engine/stdlib/layout.rs
 ```
 
 Ambos apontam para um único commit: **`0af55e792` — "Passo 222 - 224"** (13 maio 2026).
-Não há nenhum outro commit que toque `_header`/`_footer` em `01_core/src/rules/layout/grid.rs`
+Não há nenhum outro commit que toque `_header`/`_footer` em `01_core/src/engine/layout/grid.rs`
 além deste e de `a5bdb96ae` (P380, atomização — apenas moveu o código de `mod.rs` para
 `grid.rs`, sem alterar a semântica; confirmado via `git show a5bdb96ae -- grid.rs` — só
 a linha `e.header.as_ref(), e.footer.as_ref()` foi deslocada).
@@ -56,7 +56,7 @@ if !["gutter", "align", "inset", "header", "footer"].contains(&key.as_str()) {
 `split_header_footer` **nunca existiu no código** (`git log --all -S
 "split_header_footer" -- .` só encontra o próprio texto do plano, nunca uma
 implementação). O que foi implementado — e é o código ainda em vigor hoje, verificado
-com `git show 0af55e792 -- 01_core/src/rules/stdlib/layout.rs` — foi o caminho mais
+com `git show 0af55e792 -- 01_core/src/engine/stdlib/layout.rs` — foi o caminho mais
 simples sugerido pela própria lista contraditória: tratar `header`/`footer` como mais
 dois argumentos nomeados de `Value::Content`, no mesmo padrão de `gutter`/`align`/`inset`:
 
@@ -94,7 +94,7 @@ nunca lido pelo motor de layout.
 
 ### Nenhum passo posterior retomou o gap
 
-`git log --all --oneline -S "header" -- 01_core/src/rules/layout/grid.rs` só devolve
+`git log --all --oneline -S "header" -- 01_core/src/engine/layout/grid.rs` só devolve
 os dois commits já citados (`0af55e792`, `a5bdb96ae`). Nenhum passo entre P224 (maio)
 e P772f (este mês) tentou ligar `_header`/`_footer` ao motor de layout, nem removeu o
 argumento nomeado inventado.
@@ -165,7 +165,7 @@ sessão que reescreveu `typst-passo-772f.md` e o executou como o P772f que gerou
 relatório `paridade-producao-p772f.md`. Essa sessão anterior parece ter começado a
 implementar per-cell alignment via `Content::Place`, mas **nunca chegou a: (a)
 completar/validar o mecanismo, (b) escrever ou actualizar um L0 correspondente em
-`00_nucleo/prompts/rules/layout.md`, nem (c) commitar o trabalho** — ficou como
+`00_nucleo/prompts/engine/layout.md`, nem (c) commitar o trabalho** — ficou como
 alteração pendente no working tree, e a sessão seguinte (que reescreveu o `.md` como
 "substitui a versão auto-gerada") tratou o **documento** de coordenação como
 substituído, mas não removeu nem revisitou o **código** já deixado no working tree.

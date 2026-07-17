@@ -24,7 +24,7 @@ O **trabalho do P445** foi:
 
 ## 1. Mudanças de código do P445
 
-### 1.1 `01_core/src/rules/eval/mod.rs`
+### 1.1 `01_core/src/engine/eval/mod.rs`
 
 - No braço `SyntaxKind::SmartQuote` de `eval_markup`:
   - Acumula `byte_offset` sobre `node.clone().into_text()` para saber a posição do quote no texto-fonte.
@@ -39,28 +39,28 @@ O **trabalho do P445** foi:
     - Senão → `U+2019`.
     - O par vem de `localize_single_quotes(lang)` com fallback `DEFAULT_SINGLE_QUOTES` (curly inglês).
 
-### 1.2 `01_core/src/rules/lang/quotes.rs`
+### 1.2 `01_core/src/engine/lang/quotes.rs`
 
 - Adicionado `DEFAULT_SINGLE_QUOTES` (`U+2018`/`U+2019`).
 - Adicionada tabela `LANG_SINGLE_QUOTES` (inglês → curly; outras línguas caem no default).
 - Adicionada função pública `localize_single_quotes(lang: &Lang)`.
 - Adicionados 2 tests unitários para aspas simples.
 
-### 1.3 `01_core/src/rules/lexer/mod.rs`
+### 1.3 `01_core/src/engine/lexer/mod.rs`
 
 - Adicionados 3 tests de lexer:
   - `lex_markup_smart_quote_double`: `"hello"` em Markup → SmartQuote, Text, SmartQuote.
   - `lex_markup_smart_quote_single`: `'hello'` em Markup → SmartQuote, Text, SmartQuote.
   - `lex_code_quote_continua_string_literal`: `"hello"` em Code → `Str`, sem `SmartQuote`.
 
-### 1.4 `01_core/src/rules/eval/tests.rs`
+### 1.4 `01_core/src/engine/eval/tests.rs`
 
 - Adicionados 3 tests de integração:
   - `eval_markup_smart_quotes_duplas_curly_com_lang_en` → verifica `U+201C`/`U+201D` e ausência de `"`.
   - `eval_markup_smart_quotes_simples_curly_com_lang_en` → verifica `U+2018`/`U+2019` e ausência de `'`.
   - `eval_markup_apostrophe_possessivo_emite_u2019` → verifica que `'Alice's` usa `U+2019` e não `U+2018`.
 
-### 1.5 `00_nucleo/prompts/rules/lexer/mod.md`
+### 1.5 `00_nucleo/prompts/engine/lexer/mod.md`
 
 - Actualizado `Hash do Código` para o hash actual do lexer.
 - Adicionada secção **Smart Quotes (Passo 445)** descrevendo:
@@ -71,10 +71,10 @@ O **trabalho do P445** foi:
 
 ### 1.6 Hashes `@prompt-hash` nos ficheiros do lexer
 
-- `01_core/src/rules/lexer/mod.rs`
-- `01_core/src/rules/lexer/markup.rs`
-- `01_core/src/rules/lexer/code.rs`
-- `01_core/src/rules/lexer/math.rs`
+- `01_core/src/engine/lexer/mod.rs`
+- `01_core/src/engine/lexer/markup.rs`
+- `01_core/src/engine/lexer/code.rs`
+- `01_core/src/engine/lexer/math.rs`
 
 Todos actualizados para o hash actual do prompt L0, eliminando 4 warnings de deriva (`drift`) do `crystalline-lint`.
 
@@ -84,9 +84,9 @@ Todos actualizados para o hash actual do prompt L0, eliminando 4 warnings de der
 
 | Componente | Ficheiro | Estado |
 |------------|----------|--------|
-| Token `SmartQuote` | `01_core/src/rules/lexer/markup.rs` | `"` e `'` já emitidos como `SmartQuote` em Markup |
-| Localização de aspas duplas | `01_core/src/rules/lang/quotes.rs` | Tabela `LANG_QUOTES` + `localize_quotes` |
-| Eval markup | `01_core/src/rules/eval/mod.rs` | Conversão ingénua `"` alternada e `'` → `U+2019` |
+| Token `SmartQuote` | `01_core/src/engine/lexer/markup.rs` | `"` e `'` já emitidos como `SmartQuote` em Markup |
+| Localização de aspas duplas | `01_core/src/engine/lang/quotes.rs` | Tabela `LANG_QUOTES` + `localize_quotes` |
+| Eval markup | `01_core/src/engine/eval/mod.rs` | Conversão ingénua `"` alternada e `'` → `U+2019` |
 
 Não houve necessidade de alterar o parser nem o layout; a mudança ficou no eval, aproveitando a infraestrutura já existente.
 
@@ -135,13 +135,13 @@ Resultado: **zero novas violações**. Apenas os 2 warnings órfãos de prompts 
 - Commit: `P445: smart quotes context-aware em markup`
 
 Alterações incluídas no commit:
-- `01_core/src/rules/eval/mod.rs`
-- `01_core/src/rules/lang/quotes.rs`
-- `01_core/src/rules/eval/tests.rs`
-- `01_core/src/rules/lexer/mod.rs`
-- `01_core/src/rules/lexer/markup.rs`
-- `01_core/src/rules/lexer/code.rs`
-- `01_core/src/rules/lexer/math.rs`
-- `00_nucleo/prompts/rules/lexer/mod.md`
+- `01_core/src/engine/eval/mod.rs`
+- `01_core/src/engine/lang/quotes.rs`
+- `01_core/src/engine/eval/tests.rs`
+- `01_core/src/engine/lexer/mod.rs`
+- `01_core/src/engine/lexer/markup.rs`
+- `01_core/src/engine/lexer/code.rs`
+- `01_core/src/engine/lexer/math.rs`
+- `00_nucleo/prompts/engine/lexer/mod.md`
 - `00_nucleo/materialization/typst-passo-445.md`
 - `00_nucleo/materialization/typst-passo-445-relatorio.md`

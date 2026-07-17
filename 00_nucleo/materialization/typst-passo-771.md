@@ -39,7 +39,7 @@ grep -n "enum FrameItem\|Image {" 01_core/src/entities/*.rs
 
 Adicionar ao variant `Image` (ou estrutura equivalente) um campo para o rectângulo de clip (`clip_rect: Option<Rect>` ou equivalente), preenchido só quando `fit` exigir recorte (conforme confirmado pela sonda).
 
-### 2. `01_core/src/rules/layout/image.rs` — avanço de cursor a partir do target, não da transformação
+### 2. `01_core/src/engine/layout/image.rs` — avanço de cursor a partir do target, não da transformação
 
 O avanço do cursor (e o cálculo de `image_base`/altura usado no ancoramento de P769) deve usar as dimensões do **rectângulo de clip/target** (`width`×`height` pedidos), não as dimensões da imagem pós-`fit` (que podem ser maiores). Confirmar que isto não desfaz a correcção de P769 — o ancoramento vertical continua igual, só a altura usada no cálculo muda de "altura da transformação" para "altura do target".
 

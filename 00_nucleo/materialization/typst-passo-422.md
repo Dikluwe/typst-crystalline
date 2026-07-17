@@ -23,10 +23,10 @@ grep -rn "url\|body" 01_core/src/entities/elements/link.rs 2>/dev/null | head -1
 grep -rn "enum FrameItem" 01_core/src/entities/layout_types.rs
 
 # 4. Layouter layouta Content::Link atualmente?
-grep -rn "Content::Link" 01_core/src/rules/layout/ | head -10
+grep -rn "Content::Link" 01_core/src/engine/layout/ | head -10
 
 # 5. Existe infraestrutura de cor/azul para links?
-grep -rn "rgb\|blue\|color\|fill" 01_core/src/rules/layout/ | grep -i link | head -10
+grep -rn "rgb\|blue\|color\|fill" 01_core/src/engine/layout/ | grep -i link | head -10
 ```
 
 **Output esperado**:
@@ -44,7 +44,7 @@ grep -rn "rgb\|blue\|color\|fill" 01_core/src/rules/layout/ | grep -i link | hea
 
 ## FASE A.1 — L0 (hash obrigatório)
 
-**Documentar no L0** (`00_nucleo/prompts/entities/elements/link.md` + `rules/layout/link.md`):
+**Documentar no L0** (`00_nucleo/prompts/entities/elements/link.md` + `engine/layout/link.md`):
 
 ### A.1.1 — Decisão arquitetural: paridade linguagem (ADR-0107)
 
@@ -62,7 +62,7 @@ No Typst vanilla, `#link("https://example.com")[Clique aqui]` é uma **construç
 ### A.1.2 — Decisão arquitetural: atomização forma B (ADR-0109)
 
 - `entities/elements/link.rs` — `LinkElem` struct puro (`url`, `body`).
-- `rules/layout/link.rs` — free function `layout_link(layouter, &LinkElem)` (forma B).
+- `engine/layout/link.rs` — free function `layout_link(layouter, &LinkElem)` (forma B).
 - `entities/layout_types.rs` — `FrameItem::Link { url, body_items }` ou reutilizar `FrameItem::Group` com metadado.
 
 **Não usar Opção A** (`impl LinkElem { fn layout(...) }` em `entities/`) — import reverso para `Layouter` (ADR-0109, rejeitado).
@@ -166,7 +166,7 @@ pub enum FrameItem {
    }
    ```
 
-### B.2 — Layout (`rules/layout/link.rs` — forma B, ADR-0109)
+### B.2 — Layout (`engine/layout/link.rs` — forma B, ADR-0109)
 
 ```rust
 pub(super) fn layout_link<M: FontMetrics, S: ImageSizer>(
@@ -186,7 +186,7 @@ pub(super) fn layout_link<M: FontMetrics, S: ImageSizer>(
 
 **Nota**: `layout_sub_frame` é uma operação hipotética que renderiza o body em um sub-frame e retorna items. Se não existir, usar o pattern do P418/P421: `layout_content` com acumulação temporária.
 
-### B.3 — Consumer update (`rules/layout/mod.rs`)
+### B.3 — Consumer update (`engine/layout/mod.rs`)
 
 Adicionar arm ao `match content` do `layout_content`:
 ```rust
@@ -248,10 +248,10 @@ crystalline-lint .
 
 1. **`FrameItem::Link { url, items }`** adicionado a `entities/layout_types.rs`.
 2. **Todos os `match` exaustivos** sobre `FrameItem` (13 locais) atualizados para o novo variant.
-3. **`rules/layout/link.rs`** agora layouta o body do link e envolve os `FrameItem`s resultantes num `FrameItem::Link`.
+3. **`engine/layout/link.rs`** agora layouta o body do link e envolve os `FrameItem`s resultantes num `FrameItem::Link`.
 4. **`native_link(url, body?)`** implementado em `rules/stdlib/structural.rs`, re-exportado e registado na stdlib em `rules/eval/mod.rs`. Body omitido usa o próprio URL como texto.
 5. **`Page::plain_text` / `Frame::plain_text`** tornados recursivos para atravessar `FrameItem::Link`.
-6. **L0 atualizado** em `00_nucleo/prompts/entities/elements/link.md` e novo `00_nucleo/prompts/rules/layout/link.md`; hashes sincronizados via `crystalline-lint --fix-hashes`.
+6. **L0 atualizado** em `00_nucleo/prompts/entities/elements/link.md` e novo `00_nucleo/prompts/engine/layout/link.md`; hashes sincronizados via `crystalline-lint --fix-hashes`.
 
 ### Testes
 
@@ -271,7 +271,7 @@ O único teste filtrado (`p350c_flag_on_nao_convergente_classifica`) tem stack o
 crystalline-lint --fix-hashes
 # Fixed 2 files:
 #   ./01_core/src/entities/elements/link.rs       → ed0422b4
-#   ./01_core/src/rules/layout/link.rs            → 6adfa0ae
+#   ./01_core/src/engine/layout/link.rs            → 6adfa0ae
 # Re-running analysis... ✅ 0 drift warnings remaining
 ```
 
@@ -287,7 +287,7 @@ crystalline-lint --fix-hashes
 - [x] URL preservado no metadado do `FrameItem::Link`
 - [x] Body renderizado corretamente dentro do `FrameItem::Link`
 - [x] Todos os `match` sobre `FrameItem` mantidos exaustivos
-- [x] Lógica atomizada em free function (`rules/layout/link.rs`)
+- [x] Lógica atomizada em free function (`engine/layout/link.rs`)
 - [x] Zero novos vtables/`dyn`
 - [x] L0 hashado e propagado
 - [x] Suite verde (exceto stack overflow conhecido pré-existente)

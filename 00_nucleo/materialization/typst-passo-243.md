@@ -92,7 +92,7 @@ críticos:
 | `Layouter::layout_word` em `cursor.rs` | Consulta `page_config.width` para width-aware wrap | **Hipótese-chave**: width pode passar a `regions.current.width` (que na fase (a) == `page_config.width`; na fase (b) reduce para columns) |
 | ADR-0074 `SealedPositions` + `LayouterRuntimeState` | P205B-E completos; pattern "Layouter-runtime → struct dedicada" estabelecido | P243 reusa pattern conceptualmente; `Regions` é nova struct dedicada análoga estruturalmente a `LayouterRuntimeState` |
 | ADR-0061 §"Aplicações cumulativas" | 10 entradas pós-P242; Fase 3 Layout "parcialmente activado P156J" (repeat ✓; columns/colbreak pendentes) | P243 anota 11ª entrada; Fase 3 transita "50% → fase (a) infrastructure ✓; fase (b) consumers pendentes" |
-| Scope-outs P156C-J `DEBT-56` / `multi-region` | grep empírico nos L0 prompts em `00_nucleo/prompts/entities/` + `00_nucleo/prompts/rules/layout.md` | Tabela de N scope-outs candidatos a promover real em P243 — audit confirma quais migram em P243 vs ficam diferidos |
+| Scope-outs P156C-J `DEBT-56` / `multi-region` | grep empírico nos L0 prompts em `00_nucleo/prompts/entities/` + `00_nucleo/prompts/engine/layout.md` | Tabela de N scope-outs candidatos a promover real em P243 — audit confirma quais migram em P243 vs ficam diferidos |
 | DEBT-56 status pós-P243 | Spec assume permanece aberto (fase (b) columns/colbreak pendente) | Confirmar; eventual nomenclatura `DEBT-56a` (fase a fechada P243) + `DEBT-56b` (fase b pendente) — alternativa: deixar DEBT-56 aberto inteiro até columns/colbreak materializem |
 | Comemo memoization invariants ADR-0073/0074 | Trait `Introspector` + `SealedPositions` não tocados | Refactor `Layouter` é cross-module L1 mas isolado de trait — invariants preservados |
 | `measure_content_constrained` | Função que retorna dimensões dado constraint width | Função a refactorar: `width` passa a vir de `regions.current.width` (paramétrico) |
@@ -294,7 +294,7 @@ L0 a tocar (estimado 5-7 ficheiros):
 - `entities/regions.md` (**ficheiro novo**).
 - `entities/layouter_runtime_state.md` (cross-reference para
   Regions; pattern paralelo).
-- `rules/layout.md` (§"Layouter struct" ou similar — referência
+- `engine/layout.md` (§"Layouter struct" ou similar — referência
   Regions).
 - `entities/content.md` (actualizar §"Limitações conscientes" P156C
   Pad.right + P156G Block.width + P156H Boxed.width — remover
@@ -362,7 +362,7 @@ Forma detalhada em §3 Decisão 1.
 **Sítios cross-module afectados** (estimado 30-50, audit C1
 inventaria exact list):
 
-Em `01_core/src/rules/layout/mod.rs`:
+Em `01_core/src/engine/layout/mod.rs`:
 - `Layouter` struct definição — substituir 5-7 fields directos
   por `pub(super) regions: Regions`.
 - `Layouter::new` — inicializar com `Regions::single(width, height)`.
@@ -370,17 +370,17 @@ Em `01_core/src/rules/layout/mod.rs`:
 - Layout arms que escrevem `self.current_items` ou
   `self.current_line` (estimado 10-15 sítios).
 
-Em `01_core/src/rules/layout/cursor.rs`:
+Em `01_core/src/engine/layout/cursor.rs`:
 - `flush_line`, `new_page`, `layout_word` — actualizar para
   via `self.regions.current.*`.
 - `new_page` torna-se wrapper: `self.regions.advance()` +
   `pages.push(Page::new(items_drained_from_advance))`.
 
-Em `01_core/src/rules/layout/helpers.rs`:
+Em `01_core/src/engine/layout/helpers.rs`:
 - `item_pos`, `translate_frame_item`, `measure_content`,
   `collect_sub_items` — actualizar consultas.
 
-Em `01_core/src/rules/layout/placement.rs`, `grid.rs`,
+Em `01_core/src/engine/layout/placement.rs`, `grid.rs`,
 `equation.rs`, `metrics.rs`:
 - Pattern-match cascata onde aplicável.
 
@@ -432,7 +432,7 @@ ou anotação cruzada.
 
 **Unit regions** (4 tests em `entities/regions.rs`) — ver §4.
 
-**Unit layouter regression** (4-5 tests em `rules/layout/tests.rs`):
+**Unit layouter regression** (4-5 tests em `engine/layout/tests.rs`):
 - `p243_layouter_new_inicializa_regions_single_dimensions_corretas`.
 - `p243_layouter_new_page_usa_regions_advance_preserva_observable`.
 - `p243_layouter_flush_line_via_regions_current_preserva_observable`.

@@ -8,9 +8,9 @@ Ler antes de começar:
   intrinsecamente densos (código gerado, tabelas de estados,
   enums com muitas variantes).
 - `00_nucleo/DEBT.md` — DEBT-46 checkbox 96.9 pendente.
-- `01_core/src/rules/lexer/mod.rs` — ficheiro actual, 1250
+- `01_core/src/engine/lexer/mod.rs` — ficheiro actual, 1250
   linhas.
-- `01_core/src/rules/lexer/scanner.rs` — ficheiro irmão (645
+- `01_core/src/engine/lexer/scanner.rs` — ficheiro irmão (645
   linhas), contém parte da lógica de scanning/DEBT-42 bloqueado.
 
 Pré-condição: `cargo test` — 761 L1 + 174 L3 + 6 ignorados,
@@ -49,23 +49,23 @@ tipo de token. O diagnóstico em Fase 0 decide.
 
 ```bash
 # Tamanho:
-wc -l 01_core/src/rules/lexer/mod.rs
+wc -l 01_core/src/engine/lexer/mod.rs
 
 # Ficheiros no directório:
-ls -la 01_core/src/rules/lexer/
+ls -la 01_core/src/engine/lexer/
 
 # Estrutura top-level:
 grep -n "^pub fn\|^fn\|^pub struct\|^struct\|^impl\|^pub enum\|^enum" \
-    01_core/src/rules/lexer/mod.rs | head -40
+    01_core/src/engine/lexer/mod.rs | head -40
 
 # Métodos privados/públicos:
-grep -c "^\s*fn \|^\s*pub fn " 01_core/src/rules/lexer/mod.rs
+grep -c "^\s*fn \|^\s*pub fn " 01_core/src/engine/lexer/mod.rs
 
 # Tamanho dos `match` (indicador de monolito):
-grep -c "=>\s*{" 01_core/src/rules/lexer/mod.rs
+grep -c "=>\s*{" 01_core/src/engine/lexer/mod.rs
 
 # Testes:
-grep -c "^\s*#\[test\]" 01_core/src/rules/lexer/mod.rs
+grep -c "^\s*#\[test\]" 01_core/src/engine/lexer/mod.rs
 ```
 
 Reportar:
@@ -82,7 +82,7 @@ Procurar nomes de funções que sugerem domínios:
 ```bash
 # Funções potencialmente agrupáveis:
 grep -n "fn lex_\|fn tokenize_\|fn scan_\|fn consume_" \
-    01_core/src/rules/lexer/mod.rs
+    01_core/src/engine/lexer/mod.rs
 ```
 
 Se houver 6+ funções com nomes `lex_string`, `lex_number`,
@@ -100,7 +100,7 @@ Então não há clusters → **Via B**.
 
 ```bash
 grep -B 2 -A 20 "^pub struct Lexer\|^pub struct Scanner" \
-    01_core/src/rules/lexer/mod.rs
+    01_core/src/engine/lexer/mod.rs
 ```
 
 Reportar: se há struct com muitos campos, se é genérica, e se
@@ -122,7 +122,7 @@ anteriores (96.1, 96.4, 96.5, 96.7, 96.8):
 ### A.1 — Criar estrutura de submódulos
 
 ```bash
-git mv 01_core/src/rules/lexer/mod.rs 01_core/src/rules/lexer/old_mod.rs
+git mv 01_core/src/engine/lexer/mod.rs 01_core/src/engine/lexer/old_mod.rs
 # (nome temporário; vai voltar a mod.rs depois)
 ```
 
@@ -133,7 +133,7 @@ entrada.
 ### A.2 — Clusters hipotéticos
 
 ```
-01_core/src/rules/lexer/
+01_core/src/engine/lexer/
     mod.rs           — Lexer struct + next_token dispatcher +
                        entry points
     string.rs        — lex_string, escape sequences

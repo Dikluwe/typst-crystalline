@@ -76,7 +76,7 @@ Align2D { h: Some(Left), v: None } 1.0
 
 ### 1.3 Código localizado
 
-`01_core/src/rules/eval/repr.rs` — fallback `{:?}` nos braços:
+`01_core/src/engine/eval/repr.rs` — fallback `{:?}` nos braços:
 `Length` (l.59), `Ratio` (l.61), `Angle` (l.62), `Color` (l.63),
 `Stroke` (l.64), `Fraction` (l.65, `repr_float` → `1.0` em vez de `1fr`),
 `Align` (l.66); e `repr_relative` (l.100-107) com `{:?}` na componente
@@ -91,7 +91,7 @@ fix cobre os dois.
 
 ## 2. Implementação
 
-L0 actualizado primeiro: `00_nucleo/prompts/rules/stdlib/foundations.md`
+L0 actualizado primeiro: `00_nucleo/prompts/engine/stdlib/foundations.md`
 — tabela de formatos alargada com os 8 tipos novos, regra de formatação
 de floats com unidade, scope-out de `Color` avançado removido (P721
 implementa-o), scope-out novo para `Stroke` com `Smart::Auto`; testes
@@ -100,7 +100,7 @@ canónicos alargados. Hash actualizado via `crystalline-lint --fix-hashes`
 testes `p721_*` novos + 2 endurecidos (`repr_value_complex_types`,
 `repr_value_relative_with_abs_offset`) — **11 a falhar** no estado base.
 
-Código (`01_core/src/rules/eval/repr.rs`):
+Código (`01_core/src/engine/eval/repr.rs`):
 
 - `round_with_precision` / `format_float_with_unit` /
   `format_float_component` — mirrors das primitivas vanilla
@@ -122,9 +122,9 @@ homólogos de `Value`.
 ## 3. Validação
 
 Estado da medição: working tree com exactamente as alterações deste
-passo (`00_nucleo/prompts/rules/stdlib/foundations.md`,
-`01_core/src/rules/eval/repr.rs`,
-`01_core/src/rules/stdlib/foundations.rs` — só a linha de hash),
+passo (`00_nucleo/prompts/engine/stdlib/foundations.md`,
+`01_core/src/engine/eval/repr.rs`,
+`01_core/src/engine/stdlib/foundations.rs` — só a linha de hash),
 commitado de seguida. Binário release reconstruído desse estado.
 
 ### 3.1 Documento do passo vs vanilla

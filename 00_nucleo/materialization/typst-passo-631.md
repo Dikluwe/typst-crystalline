@@ -22,7 +22,7 @@
 ### Confirmar o código actual de `boxed.rs`
 
 ```bash
-grep -n "align_current_line_rtl\|current_line\|layout_content" 01_core/src/rules/layout/boxed.rs
+grep -n "align_current_line_rtl\|current_line\|layout_content" 01_core/src/engine/layout/boxed.rs
 ```
 
 Confirmar exactamente que save/restore está a ser feito à mão, para desenhar a variante do helper que o substitua sem mudar o resultado.

@@ -12,7 +12,7 @@ grep -n "^pub enum Content" -A 30 \
 
 # Ver se Expr::Math / MathElem já tem arm em eval_expr
 grep -n "Math\|Equation\|math" \
-  01_core/src/rules/eval.rs | head -20
+  01_core/src/engine/eval.rs | head -20
 
 # Ver o que o parser já produz para $ x^2 $
 grep -n "Equation\|Math\b\|SyntaxKind::Math" \
@@ -322,7 +322,7 @@ no Passo 36 conforme ADR-0032. `eval_math_content` é um stub que descarta propr
 **Comportamento actual**: equações renderizam como texto plano entre
 `[ ]` (display) ou inline. Não é erro — é placeholder documentado.
 
-**Ficheiros a alterar no Passo 36+**: `rules/layout.rs`, `rules/eval.rs`,
+**Ficheiros a alterar no Passo 36+**: `engine/layout.rs`, `rules/eval.rs`,
 `entities/content.rs` (possível extensão de variantes matemáticas),
 `03_infra/src/export.rs`
 ```
@@ -452,11 +452,11 @@ grep -n "Equation\|MathIdent\|MathFrac\|MathAttach\|MathRoot\|MathSequence\|Math
 
 # Confirmar arm em eval_expr
 grep -n "Expr::Equation\|eval_math_content" \
-  01_core/src/rules/eval.rs
+  01_core/src/engine/eval.rs
 
 # Confirmar que não há panic! em caminhos matemáticos
 grep -n "panic!\|todo!\|unimplemented!" \
-  01_core/src/rules/eval.rs | grep -i "math\|equation"
+  01_core/src/engine/eval.rs | grep -i "math\|equation"
 # Deve retornar vazio
 ```
 

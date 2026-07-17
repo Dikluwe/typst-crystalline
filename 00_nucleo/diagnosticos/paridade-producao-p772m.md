@@ -4,7 +4,7 @@
 > **Data:** 2026-07-16
 > **Commit-base:** `61b7edee78fdae9b020e458f5989f638cbf04096` (HEAD). Working
 > tree neste momento tem as alterações de código de P772l (`eval.md` +
-> `01_core/src/rules/eval/*.rs`) já feitas; **nenhum código foi alterado por
+> `01_core/src/engine/eval/*.rs`) já feitas; **nenhum código foi alterado por
 > P772m** — só leitura, sondas e este relatório.
 > **Medido em:** 2026-07-16T22:09–22:38Z.
 
@@ -94,7 +94,7 @@ matemática por flag) e `VARIABLE` (moot: não há scoring que a use, §2.1).
 
 | Item | Classificação | Evidência |
 |---|---|---|
-| `FontMetrics` | **Implementado, forma diferente** | `01_core/src/rules/layout/metrics.rs:22` — **trait**, não struct de dados: `advance`, `vertical_metrics`, `cap_height`, `text_edges`, `math_constants()`. Valores reais lidos via `ttf_parser` em `03_infra/src/font_metrics.rs`. |
+| `FontMetrics` | **Implementado, forma diferente** | `01_core/src/engine/layout/metrics.rs:22` — **trait**, não struct de dados: `advance`, `vertical_metrics`, `cap_height`, `text_edges`, `math_constants()`. Valores reais lidos via `ttf_parser` em `03_infra/src/font_metrics.rs`. |
 | `LineMetrics` | **Parcial / não confirmado** | Sem tipo `LineMetrics` nomeado; emissão de strikethrough/underline existe no exportador PDF — não verificado neste passo se lê `strikeout_metrics()`/`underline_metrics()` reais por fonte ou usa constantes fixas (follow-up). |
 | `ScriptMetrics` | **Lacuna total como dado derivado da fonte** | Zero ocorrências de `subscript_metrics`/`superscript_metrics`/`ScriptMetrics`; posicionamento de sub/sobrescrito, se existir, não vem das tabelas OpenType `sub`/`sup` reais da fonte. |
 | `TextEdgeBounds` | **Implementado, forma diferente** | Coberto por `text_edges(size, style) -> (Pt, Pt)` — API de valor directo em vez de enum de 3 modos (Zero/Glyph/Frame); comportamento observável presente. |
@@ -180,7 +180,7 @@ carácter de espaço literal na stream do PDF (acessibilidade/copy-paste), em
 vez do glifo. Consequência: a largura do espaço não passa pelo caminho de
 shaping com variações aplicadas (`rb_face.set_variations(&axis_vars)` em
 `shaper.rs:196/332`); em vez disso, `space_width()`
-(`01_core/src/rules/layout/cursor.rs:44-46`) chama
+(`01_core/src/engine/layout/cursor.rs:44-46`) chama
 `FontMetrics::advance(" ", ...)`, cuja implementação para o caminho de
 fallback (`FallbackFontMetrics::advance`,
 `03_infra/src/font_metrics.rs:704-746`) lê `face.glyph_hor_advance(g)` de

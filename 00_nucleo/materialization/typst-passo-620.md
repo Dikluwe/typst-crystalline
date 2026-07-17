@@ -35,7 +35,7 @@ git log --oneline | grep -i "P518\|P543" | tail -10
 
 ```bash
 # Lista de commits entre P518 e P543, em ordem cronológica
-git log --oneline <hash-P518>..<hash-P543-ou-antes> -- 03_infra/src/shaper.rs 03_infra/src/font_metrics.rs 01_core/src/rules/layout/ | tac
+git log --oneline <hash-P518>..<hash-P543-ou-antes> -- 03_infra/src/shaper.rs 03_infra/src/font_metrics.rs 01_core/src/engine/layout/ | tac
 ```
 
 Para cada commit candidato (ou usando `git bisect` de forma mais sistemática, se houver um critério automatizável — por exemplo, um script que mede `shape_ms` para `macro-10x` e falha se exceder um limiar):

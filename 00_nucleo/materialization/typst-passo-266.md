@@ -195,7 +195,7 @@ P259):
   cumulativos; provavelmente desactualizado.
 - `entities/font_book.md` — multi-font P146 cumulativos;
   provavelmente desactualizado.
-- `rules/layout.md` — hyphenation P144 cumulativos;
+- `engine/layout.md` — hyphenation P144 cumulativos;
   provavelmente desactualizado.
 - `rules/lang.md` — smart-quotes P155 cumulativos.
 - Eventuais outros descobertos em audit.

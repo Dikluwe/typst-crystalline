@@ -56,10 +56,10 @@ receber.
 **Dentro**:
 - `01_core/src/entities/layout_types.rs` — `FrameItem::Text` e,
   possivelmente, remoção/redução de `TextStyle`.
-- `01_core/src/rules/layout/` — `Layouter`, métodos internos,
+- `01_core/src/engine/layout/` — `Layouter`, métodos internos,
   sub-módulos (metrics, cursor, placement, etc.) que hoje
   passam ou lêem `TextStyle`.
-- `01_core/src/rules/layout/tests.rs` — testes que constroem
+- `01_core/src/engine/layout/tests.rs` — testes que constroem
   `FrameItem::Text { ..., style: TextStyle { ... } }`.
 - `03_infra/src/export.rs` — consumo de estilo para selecção
   de fonte no PDF.
@@ -257,7 +257,7 @@ Objectivo: demonstrar que o pipeline completo
 (Content → Layouter → Frame → export) funciona com estilo
 encadeado, **sem** passar pelo eval.
 
-1. Teste principal (em `rules/layout/tests.rs`):
+1. Teste principal (em `engine/layout/tests.rs`):
    ```rust
    // Construir manualmente árvore com Styled aninhado
    let hello = Content::text("hello");

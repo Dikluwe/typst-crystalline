@@ -16,7 +16,7 @@
 ### Confirmar exactamente onde e quando `cursor_y` é fixado hoje
 
 ```bash
-grep -n "cursor_y = margin\|fn new" 01_core/src/rules/layout/mod.rs | head -10
+grep -n "cursor_y = margin\|fn new" 01_core/src/engine/layout/mod.rs | head -10
 ```
 
 Confirmar se `Layouter::new` recebe o `StyleChain` inicial como argumento fixo, ou se tem acesso ao conteúdo completo do documento (que lhe permitiria, em teoria, olhar à frente).

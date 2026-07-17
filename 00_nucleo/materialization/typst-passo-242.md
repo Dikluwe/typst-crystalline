@@ -437,7 +437,7 @@ clip path" referenciando DEBT-30 fechado P79 + P242 extensão.
 - `p242_native_block_clip_nao_bool_rejeita`.
 - `p242_native_box_paridade_block_radius_clip`.
 
-**Unit/E2E layout** (3-4 tests em `rules/layout/tests.rs`):
+**Unit/E2E layout** (3-4 tests em `engine/layout/tests.rs`):
 - `p242_block_clip_true_radius_zero_emit_group_rect_clip_mask`.
 - `p242_block_clip_true_radius_non_zero_emit_group_rounded_rect_clip_mask`.
 - `p242_boxed_clip_paridade_block`.

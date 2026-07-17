@@ -206,7 +206,7 @@ Gradient refino estrutural encerrado.
 ### Alterações esperadas no código
 
 ```rust
-// L1 — 01_core/src/rules/layout/mod.rs (Layouter struct)
+// L1 — 01_core/src/engine/layout/mod.rs (Layouter struct)
 pub struct Layouter<M: FontMetrics> {
     // ... fields existentes ...
     /// P273.5 — bbox do contentor imediato; populated em Block/Boxed/Group/etc.

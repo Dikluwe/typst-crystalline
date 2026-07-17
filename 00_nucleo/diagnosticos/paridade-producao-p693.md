@@ -14,7 +14,7 @@ regra P662-P664 (nome igual ao vanilla obriga a comportamento igual).
 - **Commit em que os testes/sonda foram corridos:** `cc0ef7edcf9e27816ff90f8012863116187d22f7`
   (HEAD de P692; trabalho em detached HEAD sobre este commit).
 - **Working tree na medição:** alterações não commitadas em 2 ficheiros tracked:
-  `00_nucleo/prompts/rules/stdlib/collections.md`, `01_core/src/rules/stdlib/collections.rs`.
+  `00_nucleo/prompts/engine/stdlib/collections.md`, `01_core/src/engine/stdlib/collections.rs`.
   `git diff --stat` no momento da medição: `2 files changed, 58 insertions(+), 8 deletions(-)`.
 - **Hora da validação final:** 2026-07-10T23:27:23Z (`date -u`).
 - **Binários:** vanilla 0.15.0 (`lab/typst-original/target/release/typst`, commit 969087ec);
@@ -54,7 +54,7 @@ Confirma: com `str`, `match` devolve o mesmo dict de `match(regex)` e `captures`
 
 ## 3. Implementação
 
-`01_core/src/rules/stdlib/collections.rs::str_match`: acrescentado o braço `Value::Str`
+`01_core/src/engine/stdlib/collections.rs::str_match`: acrescentado o braço `Value::Str`
 (espelho de `str_matches`), reaproveitando `match_dict` (P692):
 
 ```rust
@@ -71,7 +71,7 @@ Confirma: com `str`, `match` devolve o mesmo dict de `match(regex)` e `captures`
 _       => Err(... "str.match() requer 1 argumento posicional"),
 ```
 
-`00_nucleo/prompts/rules/stdlib/collections.md`: linha de `match` actualizada
+`00_nucleo/prompts/engine/stdlib/collections.md`: linha de `match` actualizada
 (`str | regex`; nota P693; débito P692 marcado como resolvido); cabeçalho actualizado
 (fecho da cadeia). `crystalline-lint --fix-hashes .` → "Nothing to fix".
 

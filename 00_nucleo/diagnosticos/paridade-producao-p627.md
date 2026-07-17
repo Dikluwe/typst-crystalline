@@ -13,7 +13,7 @@ P626 corrigiu a direcção de preenchimento de colunas para RTL, mas deixou uma 
 P627 resolve isto de duas formas coordenadas:
 
 1. **`wrap_page_columns` (`01_core/src/entities/content.rs`)** — parte o body de um `Content::Columns` sintético nos `Content::Pagebreak` aninhados dentro de `Styled`/`Sequence`, criando um `ColumnsElem` independente por secção de página. Os `Pagebreak` originais são preservados como separadores.
-2. **`body_dir` (`01_core/src/rules/layout/columns.rs`)** — passa a procurar a direcção mais interna (`text.dir`) sobre conteúdo visível, ignorando `Styled` vazios (`Space`, `Parbreak`, `Pagebreak`) e preferindo a direcção do conteúdo real. Sem esta mudança, os segmentos resultantes da divisão ainda herdam a direcção do `Styled` exterior.
+2. **`body_dir` (`01_core/src/engine/layout/columns.rs`)** — passa a procurar a direcção mais interna (`text.dir`) sobre conteúdo visível, ignorando `Styled` vazios (`Space`, `Parbreak`, `Pagebreak`) e preferindo a direcção do conteúdo real. Sem esta mudança, os segmentos resultantes da divisão ainda herdam a direcção do `Styled` exterior.
 
 ---
 
@@ -53,7 +53,7 @@ lab/typst-original/target/release/typst compile /tmp/p627-bilingue.typ /tmp/p627
 
 ### Ficheiros alterados
 
-- `00_nucleo/prompts/rules/columns.md`:
+- `00_nucleo/prompts/engine/columns.md`:
   - Actualizada secção 4.3 para referir `01_core/src/entities/content.rs`.
   - Adicionada secção 4.3.1 (P627) autorizando a divisão por `Pagebreak`.
   - Adicionada secção 5.2 com medições e decisão de P627.
@@ -64,11 +64,11 @@ lab/typst-original/target/release/typst compile /tmp/p627-bilingue.typ /tmp/p627
   - Adicionado `page_column_segments` — divide recursivamente `Sequence`/`Styled` nos `Pagebreak` de topo, preservando os `Pagebreak` e reenvolvendo segmentos com os estilos exteriores.
   - Alterado `wrap_page_columns` para emitir múltiplos `ColumnsElem` quando o body contém `Pagebreak` aninhados.
 
-- `01_core/src/rules/layout/columns.rs`:
+- `01_core/src/engine/layout/columns.rs`:
   - Alterado `body_dir` para procurar a direcção mais interna sobre conteúdo visível.
   - Adicionado `has_visible_content` para distinguir conteúdo real de separadores estruturais.
 
-- `01_core/src/rules/layout/tests.rs`:
+- `01_core/src/engine/layout/tests.rs`:
   - Adicionado `p627_bilingue_muda_direcao_com_pagebreak` — verifica que página 1 LTR começa à esquerda e página 2 RTL começa à direita.
 
 ---

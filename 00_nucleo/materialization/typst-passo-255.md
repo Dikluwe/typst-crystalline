@@ -59,29 +59,29 @@ secção "Comandos Fase A":
 
 **Item 1 — Kern matemático**:
 ```bash
-grep -rn "MathGlyphKern" 01_core/src/rules/math/
-grep -rn "math_kern\b" 01_core/src/rules/math/
-grep -n "kern\|MathKernRecord\|math_kern" 01_core/src/rules/math/layout/attach.rs
-grep -n "kern" 01_core/src/rules/math/layout/mod.rs
+grep -rn "MathGlyphKern" 01_core/src/engine/math/
+grep -rn "math_kern\b" 01_core/src/engine/math/
+grep -n "kern\|MathKernRecord\|math_kern" 01_core/src/engine/math/layout/attach.rs
+grep -n "kern" 01_core/src/engine/math/layout/mod.rs
 ```
 
 **Item 2 — OpenType MATH tables + variantes**:
 ```bash
-grep -n "GlyphVariants\|vertical_glyph_variants\|\.select(" 01_core/src/rules/math/layout/stretchy.rs
-grep -n "GlyphAssembly\|vertical_glyph_assembly\|GlyphPart" 01_core/src/rules/math/layout/assembly.rs
-grep -rn "MathConstants\|math_constants\b" 01_core/src/rules/math/
+grep -n "GlyphVariants\|vertical_glyph_variants\|\.select(" 01_core/src/engine/math/layout/stretchy.rs
+grep -n "GlyphAssembly\|vertical_glyph_assembly\|GlyphPart" 01_core/src/engine/math/layout/assembly.rs
+grep -rn "MathConstants\|math_constants\b" 01_core/src/engine/math/
 ```
 
 **Item 3 — MathPrimes layout**:
 ```bash
-grep -rn "MathPrimes\|Content::MathPrimes\|primes\b" 01_core/src/rules/math/
-grep -n "primes\|Primes" 01_core/src/rules/math/layout/attach.rs
+grep -rn "MathPrimes\|Content::MathPrimes\|primes\b" 01_core/src/engine/math/
+grep -n "primes\|Primes" 01_core/src/engine/math/layout/attach.rs
 ```
 
 **Item 4 — Baseline x-height**:
 ```bash
-grep -n "apply_axis_offset\|axis_height" 01_core/src/rules/math/layout/mod.rs
-grep -rn "x_height\|x-height\|axis_height\|baseline" 01_core/src/rules/math/
+grep -n "apply_axis_offset\|axis_height" 01_core/src/engine/math/layout/mod.rs
+grep -rn "x_height\|x-height\|axis_height\|baseline" 01_core/src/engine/math/
 ```
 
 **Verificação dos campos reais de MathConstants** (para
@@ -169,7 +169,7 @@ Sem código L1.
 
 ### Acções obrigatórias
 
-#### B.1 — Actualizar `00_nucleo/prompts/rules/math/layout.md`
+#### B.1 — Actualizar `00_nucleo/prompts/engine/math/layout.md`
 
 Conteúdo a corrigir:
 
@@ -257,7 +257,7 @@ antes de qualquer código** (Regra de Ouro).
 
 1. **Testes primeiro** (a partir dos critérios do L0):
    ```rust
-   // 01_core/src/rules/math/layout/tests.rs (ou attach.rs tests módulo)
+   // 01_core/src/engine/math/layout/tests.rs (ou attach.rs tests módulo)
    #[test]
    fn hconcat_aplica_kern_top_right() { ... }
    #[test]
@@ -355,7 +355,7 @@ final e produzir relatório do passo.
 - Kern matemático: integrado em [hconcat/attach] em [passo X]
   ou neste passo (P255.C).
 - OpenType MATH tables: consumidores em
-  `01_core/src/rules/math/layout/stretchy.rs` e
+  `01_core/src/engine/math/layout/stretchy.rs` e
   `assembly.rs` desde P96.8.
 - MathPrimes layout: arm em `attach.rs` em [passo X] ou
   P255.C.
@@ -412,7 +412,7 @@ Ao fim do passo, todos os seguintes têm de ser verdadeiros:
   regressão).
 - [ ] `00_nucleo/diagnosticos/diagnostico-math-fase-a-passo-255.md`
   existe com tabela §2 preenchida.
-- [ ] `00_nucleo/prompts/rules/math/layout.md` reflecte
+- [ ] `00_nucleo/prompts/engine/math/layout.md` reflecte
   estado pós-P96.8 + descobertas Fase A.
 - [ ] `00_nucleo/prompts/entities/math_constants.md` enumera
   todos os campos reais da struct.

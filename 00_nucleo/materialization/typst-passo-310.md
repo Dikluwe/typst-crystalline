@@ -42,8 +42,8 @@ Produzir três artefactos documentais:
 
 1. **ADR-0101** — `Excepção IEEE 754 em stdlib: rejeita NaN/Inf via
    guard_float` — formaliza Opção A. Status `EM VIGOR`.
-2. **Drift L0** em `00_nucleo/prompts/rules/stdlib.md` +
-   `00_nucleo/prompts/rules/eval.md` — anotar política e cross-ref a
+2. **Drift L0** em `00_nucleo/prompts/engine/stdlib.md` +
+   `00_nucleo/prompts/engine/eval.md` — anotar política e cross-ref a
    ADR-0101. Remove contradição declarativa entre os dois L0 por
    **clarificação** (não por mudança de código).
 3. **Anotação cumulativa P310 em ADR-0033** (paridade observable) —
@@ -83,10 +83,10 @@ P310 **não**:
 
 ### 4.2 — Modificados (drift L0 deliberado)
 
-- `00_nucleo/prompts/rules/stdlib.md` — secção nova `§"Política IEEE
+- `00_nucleo/prompts/engine/stdlib.md` — secção nova `§"Política IEEE
   754 — guard_float"` com cross-ref ADR-0101. Hash actual `d4c214e1`
   (pós-P308) → novo hash via `--fix-hashes`.
-- `00_nucleo/prompts/rules/eval.md` — secção nova `§"Política IEEE
+- `00_nucleo/prompts/engine/eval.md` — secção nova `§"Política IEEE
   754 — propagação silenciosa"` com cross-ref ADR-0101. Drift L0
   segundo prompt simultâneo (paralelo P306/P308 mas em prompt
   distinto).
@@ -97,10 +97,10 @@ P310 **não**:
 
 ### 4.3 — Propagados mecanicamente (linter `--fix-hashes`)
 
-- 11× `01_core/src/rules/stdlib/*.rs` — `@prompt-hash` actualizado de
+- 11× `01_core/src/engine/stdlib/*.rs` — `@prompt-hash` actualizado de
   `d4c214e1` para novo hash de `stdlib.md`.
 - N× ficheiros L1 que consomem `eval.md` (a determinar via grep
-  `@prompt 00_nucleo/prompts/rules/eval.md`).
+  `@prompt 00_nucleo/prompts/engine/eval.md`).
 
 ### 4.4 — Não tocados
 

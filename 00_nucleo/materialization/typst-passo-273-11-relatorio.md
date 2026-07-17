@@ -54,7 +54,7 @@ N=6 → N=7 cumulativo emergente** — P273.5/6/7/8/9/10/11.
 ### §2.1 — Helper novo: `Layouter::measure_stack` (~35 LOC)
 
 ```rust
-// 01_core/src/rules/layout/mod.rs — antes de measure_content_constrained
+// 01_core/src/engine/layout/mod.rs — antes de measure_content_constrained
 
 impl Layouter {
     /// P273.11 — Mede um Stack (children + dir + spacing) com `max_w`.

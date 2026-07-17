@@ -32,23 +32,23 @@ pub enum SyntaxErrorKind {
 
 `SyntaxError` passou a ter um campo `kind: SyntaxErrorKind`. `SyntaxError::new` preenche `Other` por omissão; `SyntaxError::with_kind` permite especificar a categoria.
 
-### 2.2 `01_core/src/rules/lexer/mod.rs`
+### 2.2 `01_core/src/engine/lexer/mod.rs`
 
 Adicionado `Lexer::error_with_kind`, que cria um token de erro com categoria explicita. `Lexer::error` mantém o comportamento anterior (`Other`).
 
-### 2.3 `01_core/src/rules/lexer/code.rs`
+### 2.3 `01_core/src/engine/lexer/code.rs`
 
 O ponto que gera `"invalid hexadecimal number: ..."` passou a usar `error_with_kind(..., SyntaxErrorKind::InvalidHexNumber)`.
 
-### 2.4 `01_core/src/rules/lexer/markup.rs`
+### 2.4 `01_core/src/engine/lexer/markup.rs`
 
 O ponto que gera `"invalid Unicode codepoint: ..."` passou a usar `error_with_kind(..., SyntaxErrorKind::InvalidUnicodeCodepoint)`.
 
-### 2.5 `01_core/src/rules/parse/parser.rs`
+### 2.5 `01_core/src/engine/parse/parser.rs`
 
 O filtro de preservação de erros de lexer em `enter_modes` passou a usar `e.kind` (matches em `InvalidHexNumber` / `InvalidUnicodeCodepoint`) em vez de comparar o texto.
 
-### 2.6 `01_core/src/rules/eval/mod.rs`
+### 2.6 `01_core/src/engine/eval/mod.rs`
 
 O filtro de propagação em `eval_with_full_error` passou a usar `e.kind` da mesma forma.
 

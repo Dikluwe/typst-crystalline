@@ -22,9 +22,9 @@ O audit P500 identificou que o cristalino não implementa o runtime state mutáv
 
 Medição do estado atual (2026-06-30):
 
-- `01_core/src/rules/eval/mod.rs:904` — `state(key, init)` existe mas retorna `Content::State`; não expõe métodos `.update`/`.get`.
-- `01_core/src/rules/eval/mod.rs:953-961` — existem apenas helpers funcionais `counter_step`, `counter_display`, etc.; `counter(...)` não é construtor no scope global.
-- `01_core/src/rules/eval/mod.rs:742-743` — `Expr::Contextual` cai em `_ => Ok(Value::None)`.
+- `01_core/src/engine/eval/mod.rs:904` — `state(key, init)` existe mas retorna `Content::State`; não expõe métodos `.update`/`.get`.
+- `01_core/src/engine/eval/mod.rs:953-961` — existem apenas helpers funcionais `counter_step`, `counter_display`, etc.; `counter(...)` não é construtor no scope global.
+- `01_core/src/engine/eval/mod.rs:742-743` — `Expr::Contextual` cai em `_ => Ok(Value::None)`.
 - O pipeline atual (`03_infra/src/pipeline.rs:124`) usa introspecção single-pass (`introspect_with_introspector`), sem fixpoint. Portanto, delayed evaluation durante o eval não teria acesso ao introspector populado.
 
 A arquitetura cristalina já possui sub-stores de runtime state (`StateRegistry`, `CounterRegistry` dentro de `TagIntrospector`, ADR-0066) e elementos locatáveis (`Content::State`, `Content::StateUpdate`, `Content::CounterUpdate`). A questão é como expor a sintaxe vanilla `state`/ `counter`/`context` sem destruir essa infraestrutura.
@@ -101,15 +101,15 @@ Adotar uma **arquitetura híbrida**: `state` e `counter` tornam-se valores de pr
 ## Roadmap de materialização
 
 1. Atualizar/criar Prompts L0:
-   - `00_nucleo/prompts/rules/stdlib/state.md`
-   - `00_nucleo/prompts/rules/stdlib/counter.md`
-   - `00_nucleo/prompts/rules/stdlib/context.md`
-   - `00_nucleo/prompts/rules/stdlib/foundations.md` (native_state, native_counter)
+   - `00_nucleo/prompts/engine/stdlib/state.md`
+   - `00_nucleo/prompts/engine/stdlib/counter.md`
+   - `00_nucleo/prompts/engine/stdlib/context.md`
+   - `00_nucleo/prompts/engine/stdlib/foundations.md` (native_state, native_counter)
    - `00_nucleo/prompts/entities/value.md` (Value::State, Value::Counter)
    - `00_nucleo/prompts/entities/content.md` (Content::ContextBlock)
    - `00_nucleo/prompts/entities/element_kind.md` (ContextBlock)
    - `00_nucleo/prompts/entities/element_payload.md` (ContextBlock)
-   - `00_nucleo/prompts/rules/introspect.md` (walk arm ContextBlock)
+   - `00_nucleo/prompts/engine/introspect.md` (walk arm ContextBlock)
    - `00_nucleo/prompts/infra/pipeline.md` (fase expand)
    - `00_nucleo/prompts/infra/query-helpers.md` (fase expand)
 2. Implementar L1 (entities, eval, stdlib).

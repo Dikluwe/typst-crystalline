@@ -232,11 +232,11 @@ C2+ depende output C1.
 Audit empírico imediato:
 
 ```
-grep -B 2 -A 20 "fn native_counter_at\|native_counter_at" 01_core/src/rules/stdlib/foundations.rs
+grep -B 2 -A 20 "fn native_counter_at\|native_counter_at" 01_core/src/engine/stdlib/foundations.rs
 grep -B 2 -A 20 "fn state_value\|state_value" 01_core/src/entities/introspector.rs
 grep -n "fn lookup_label\|lookup_label" 01_core/src/entities/introspector.rs
 grep -A 10 "Introspector::state_value\|introspector.state_value" 01_core/src/
-ls 01_core/src/rules/stdlib/  # confirmar foundations.rs paridade P236
+ls 01_core/src/engine/stdlib/  # confirmar foundations.rs paridade P236
 ```
 
 **Hipóteses sujeitas a confirmação empírica**:
@@ -265,7 +265,7 @@ C2+. Senão, **PAUSAR e registar `P237.div-N` formal**.
 
 ### C2 — Implementar `native_state_at(key, label)`
 
-Editar `01_core/src/rules/stdlib/foundations.rs`:
+Editar `01_core/src/engine/stdlib/foundations.rs`:
 
 ```rust
 pub fn native_state_at(
@@ -311,7 +311,7 @@ Magnitude C2: **XS (~15min)** — wrapper trivial.
 
 ### C3 — Registo scope `state_at`
 
-Editar `01_core/src/rules/eval/mod.rs`:
+Editar `01_core/src/engine/eval/mod.rs`:
 
 ```rust
 // Após state_final P236 (~linha 601):
@@ -324,7 +324,7 @@ Magnitude C3: **XS (~5min)**.
 
 ### C4 — Tests P237
 
-`01_core/src/rules/stdlib/foundations.rs` test module:
+`01_core/src/engine/stdlib/foundations.rs` test module:
 
 ```rust
 #[test] fn p237_state_at_resolve_label_retorna_valor() { ... }
@@ -433,9 +433,9 @@ com 6 §s:
 - §6 Próximo sub-passo (P238 candidatos).
 
 Código alterado:
-- **Editado**: `01_core/src/rules/stdlib/foundations.rs`
+- **Editado**: `01_core/src/engine/stdlib/foundations.rs`
   (+ `native_state_at` ~30 linhas + ~6-7 unit tests).
-- **Editado**: `01_core/src/rules/eval/mod.rs` (+ `scope.define`
+- **Editado**: `01_core/src/engine/eval/mod.rs` (+ `scope.define`
   state_at).
 - **Possivelmente editado**: imports adjacentes (paridade
   P236 estructural).

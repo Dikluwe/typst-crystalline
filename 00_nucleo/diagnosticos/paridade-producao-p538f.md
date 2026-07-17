@@ -2,7 +2,7 @@
 
 **Data:** 2026-07-03  
 **Passo:** 538f  
-**Prompt L0:** `00_nucleo/prompts/rules/eval.md` (hash `2ef05cee`)  
+**Prompt L0:** `00_nucleo/prompts/engine/eval.md` (hash `2ef05cee`)  
 **Dependências:** P538c (onde o bug foi encontrado), P538e (fallback de fonte)
 
 ## Objectivo
@@ -45,7 +45,7 @@ Conclusão: o bug **não é específico de colunas nem do tamanho do corpo** —
 
 ### Causa raiz
 
-Em `01_core/src/rules/eval/control_flow.rs:65`, `eval_for` avaliava o corpo de cada iteração mas **descartava o resultado**:
+Em `01_core/src/engine/eval/control_flow.rs:65`, `eval_for` avaliava o corpo de cada iteração mas **descartava o resultado**:
 
 ```rust
 eval_expr(loop_expr.body(), scopes, ctx, engine)?;
@@ -66,7 +66,7 @@ No final, se houver partes, retorna `Value::Content(Content::sequence(parts))`; 
 
 ### Prompt L0
 
-O L0 `00_nucleo/prompts/rules/eval.md` foi actualizado para refletir a semântica correcta de acumulação de conteúdo no `#for`:
+O L0 `00_nucleo/prompts/engine/eval.md` foi actualizado para refletir a semântica correcta de acumulação de conteúdo no `#for`:
 
 > `Expr::ForLoop(loop)` → eval_for: iterable() (não iter()), pattern().bindings(), body(); cada iteração avalia o corpo e concatena os valores `Content`/`Str` produzidos numa `Content::sequence`; `Value::None` no corpo é ignorado; `Value::None` como iterable é iterável vazio.
 
@@ -74,10 +74,10 @@ Os hashes dos ficheiros L1 ligados a este L0 foram actualizados com `crystalline
 
 ## Ficheiros alterados
 
-- `00_nucleo/prompts/rules/eval.md` — especificação do comportamento de `#for`.
-- `01_core/src/rules/eval/control_flow.rs` — `eval_for` acumula conteúdo.
-- `01_core/src/rules/eval/*.rs` — hashes do prompt actualizados pelo linter.
-- `01_core/src/rules/eval/tests.rs` — teste `p538f_for_acumula_conteudo_do_corpo`.
+- `00_nucleo/prompts/engine/eval.md` — especificação do comportamento de `#for`.
+- `01_core/src/engine/eval/control_flow.rs` — `eval_for` acumula conteúdo.
+- `01_core/src/engine/eval/*.rs` — hashes do prompt actualizados pelo linter.
+- `01_core/src/engine/eval/tests.rs` — teste `p538f_for_acumula_conteudo_do_corpo`.
 
 ## Testes automáticos
 

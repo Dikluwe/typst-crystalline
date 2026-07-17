@@ -19,13 +19,13 @@ Execute os 6 grep abaixo **antes de qualquer redação ou código**.
 
 ```bash
 # 1. native_repr existe no projeto?
-grep -rn "native_repr\|fn repr" 01_core/src/rules/stdlib/foundations.rs | head -10
+grep -rn "native_repr\|fn repr" 01_core/src/engine/stdlib/foundations.rs | head -10
 
 # 2. Value enum tem repr() ou é matchado em native_repr?
-grep -rn "Value::" 01_core/src/rules/stdlib/foundations.rs | grep -i "repr\|native" | head -20
+grep -rn "Value::" 01_core/src/engine/stdlib/foundations.rs | grep -i "repr\|native" | head -20
 
 # 3. Content enum tem repr() ou é matchado em native_repr?
-grep -rn "Content::" 01_core/src/rules/stdlib/foundations.rs | head -20
+grep -rn "Content::" 01_core/src/engine/stdlib/foundations.rs | head -20
 
 # 4. Quais variants de Value NÃO têm repr?
 grep -rn "enum Value" 01_core/src/entities/value.rs
@@ -34,7 +34,7 @@ grep -rn "enum Value" 01_core/src/entities/value.rs
 grep -rn "enum Content" 01_core/src/entities/content.rs
 
 # 6. Selector tem repr?
-grep -rn "Selector" 01_core/src/rules/stdlib/foundations.rs | head -10
+grep -rn "Selector" 01_core/src/engine/stdlib/foundations.rs | head -10
 ```
 
 **Output esperado**:
@@ -55,7 +55,7 @@ grep -rn "Selector" 01_core/src/rules/stdlib/foundations.rs | head -10
 
 ## FASE A.1 — L0 (hash obrigatório)
 
-**Documentar no L0** (`00_nucleo/prompts/rules/stdlib/foundations.md`):
+**Documentar no L0** (`00_nucleo/prompts/engine/stdlib/foundations.md`):
 
 ### A.1.1 — Decisão arquitetural: paridade linguagem (ADR-0107)
 

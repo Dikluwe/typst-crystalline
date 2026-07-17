@@ -337,7 +337,7 @@ O graded de `read` e `cbor` foi levantado.
 > `entities/elements/bibliography.rs`, `entities/module.rs`,
 > `rules/eval/mod.rs`, `rules/stdlib/structural.rs`,
 > `rules/introspect.rs` (preservação de campos em `materialize_time`),
-> `rules/layout/mod.rs`, `03_infra/src/pipeline.rs`. Testes e relatório em
+> `engine/layout/mod.rs`, `03_infra/src/pipeline.rs`. Testes e relatório em
 > `typst-passo-429-relatorio.md`.
 >
 > **Pipeline COMPLETO verde** (`cargo test --workspace`).
@@ -429,9 +429,9 @@ corpo (que inclui o supplement "Secção") e passou a ser guardado separadamente
 
 - `ElementPayload::HeadingForToc` ganhou campo `number: Option<String>`.
 - `TagIntrospector::headings_for_toc` passou a tuple `(Label, Option<String>, Content, usize)`.
-- `compute_heading_for_toc` (`01_core/src/rules/introspect/heading.rs`) computa o número puro a
+- `compute_heading_for_toc` (`01_core/src/engine/introspect/heading.rs`) computa o número puro a
   partir de `formatted_counter_at("heading", loc)` (ex. `"1."`, `"1.1."`), sem supplement.
-- `layout_outline` (`01_core/src/rules/layout/outline.rs`) renderiza o prefixo numérico a partir do
+- `layout_outline` (`01_core/src/engine/layout/outline.rs`) renderiza o prefixo numérico a partir do
   campo `number` e o corpo do título a partir do body congelado.
 
 **Critério satisfeito:** `#outline()` para heading numerado mostra o número puro (ex. "1.1")
@@ -484,40 +484,40 @@ preserving). Ficheiros sem prompt L0 dedicado:
   `hide`/`h`/`v`/`block`/`stack`/`box`/`repeat`/`columns`/`colbreak`/`measure`/
   `stroke`/`pagebreak`). `native_page` foi removido no P335 (caminho canónico
   `#set page(...)`); **✅ subset fechado em P432** — prompt L0 dedicado em
-  `00_nucleo/prompts/rules/stdlib/layout.md`; header de
-  `01_core/src/rules/stdlib/layout.rs` actualizado; hashes sincronizados.
+  `00_nucleo/prompts/engine/stdlib/layout.md`; header de
+  `01_core/src/engine/stdlib/layout.rs` actualizado; hashes sincronizados.
 - `rules/stdlib/calc.rs` — 21 entradas do subset trig/hiperbólicas/log/exp/
   constantes (`sin`/`cos`/`tan`/`asin`/`acos`/`atan`/`atan2`/`sinh`/`cosh`/
   `tanh`/`asinh`/`acosh`/`atanh`/`exp`/`ln`/`log`/`pi`/`tau`/`e`/`inf`, mais
   a variante com base explícita). **✅ Subset fechado em P433** — prompt L0
-  dedicado actualizado em `00_nucleo/prompts/rules/stdlib/calc.md`; header de
-  `01_core/src/rules/stdlib/calc.rs` já apontava para `calc.md`; hashes
+  dedicado actualizado em `00_nucleo/prompts/engine/stdlib/calc.md`; header de
+  `01_core/src/engine/stdlib/calc.rs` já apontava para `calc.md`; hashes
   sincronizados.
 - `rules/stdlib/assert.rs` — 1 função (`assert`). **✅ Subset fechado em
   P434** — prompt L0 dedicado criado em
-  `00_nucleo/prompts/rules/stdlib/assert.md`; header de
-  `01_core/src/rules/stdlib/assert.rs` actualizado; hashes sincronizados.
+  `00_nucleo/prompts/engine/stdlib/assert.md`; header de
+  `01_core/src/engine/stdlib/assert.rs` actualizado; hashes sincronizados.
 - `rules/stdlib/shapes.rs` — 6 funções (`rect`/`ellipse`/`circle`/`line`/
   `polygon`/`curve`). **✅ Subset fechado em P435** — prompt L0 dedicado
-  criado em `00_nucleo/prompts/rules/stdlib/shapes.md`; header de
-  `01_core/src/rules/stdlib/shapes.rs` actualizado; `square.md` continua
+  criado em `00_nucleo/prompts/engine/stdlib/shapes.md`; header de
+  `01_core/src/engine/stdlib/shapes.rs` actualizado; `square.md` continua
   referenciado como prompt auxiliar; hashes sincronizados.
 - `rules/stdlib/transforms.rs` — 4 funções (`move`/`rotate`/`scale`/`skew`).
   **✅ Subset fechado em P436** — prompt L0 dedicado criado em
-  `00_nucleo/prompts/rules/stdlib/transforms.md`; header de
-  `01_core/src/rules/stdlib/transforms.rs` actualizado; hashes sincronizados.
+  `00_nucleo/prompts/engine/stdlib/transforms.md`; header de
+  `01_core/src/engine/stdlib/transforms.rs` actualizado; hashes sincronizados.
 - `rules/stdlib/gradients.rs` — 3 funções (`gradient.linear`/`gradient.radial`/
   `gradient.conic`). **✅ Subset fechado em P437** — prompt L0 dedicado criado
-  em `00_nucleo/prompts/rules/stdlib/gradients.md`; header de
-  `01_core/src/rules/stdlib/gradients.rs` actualizado; `shapes.md` foi
+  em `00_nucleo/prompts/engine/stdlib/gradients.md`; header de
+  `01_core/src/engine/stdlib/gradients.rs` actualizado; `shapes.md` foi
   re-anexado a `shapes.rs` como prompt dono e `square.md` passou a constar das
   excepções de órfão; hashes sincronizados.
 - `rules/stdlib/structural.rs` — 21 funções (`strong`/`emph`/`raw`/`heading`/
   `divider`/`terms`/`quote`/`table`+cell/header/footer/`grid_cell`/header/footer/
   `bibliography`/`cite`/`footnote`/`accent`/`cancel`/`underover`/`op`).
   **✅ Subset fechado em P430** — prompt L0 dedicado criado em
-  `00_nucleo/prompts/rules/stdlib/structural.md`; header de
-  `01_core/src/rules/stdlib/structural.rs` actualizado; hashes sincronizados.
+  `00_nucleo/prompts/engine/stdlib/structural.md`; header de
+  `01_core/src/engine/stdlib/structural.rs` actualizado; hashes sincronizados.
 - `rules/stdlib/foundations.rs` — ~30 funções fundamentais (`type`/`repr`/
   `len`/`range`/`str`/`int`/`float`, construtores de cor `rgb`/`luma`/
   `oklab`/`oklch`/`linear_rgb`/`cmyk`/`hsl`/`hsv`, `metadata`, estado
@@ -525,8 +525,8 @@ preserving). Ficheiros sem prompt L0 dedicado:
   `state_at`, contadores `counter_display`/`counter_at`/`counter_final`/
   `counter_step`, query/localização `query`/`here`/`locate`).
   **✅ Subset fechado em P438** — prompt L0 dedicado expandido/reescrito em
-  `00_nucleo/prompts/rules/stdlib/foundations.md`; header de
-  `01_core/src/rules/stdlib/foundations.rs` actualizado; hashes sincronizados.
+  `00_nucleo/prompts/engine/stdlib/foundations.md`; header de
+  `01_core/src/engine/stdlib/foundations.rs` actualizado; hashes sincronizados.
 
 **Critério de fecho**: cada ficheiro da lista com um prompt L0 dedicado (mesma
 receita de fatiamento do P314). **P430 fechou o subset `structural.rs`**;
@@ -814,7 +814,7 @@ P224.C.
 **Aberto em**: Passo 80 (2026-04-26).
 **Fechado em**: Passo 224 (2026-05-13) — **CLOSED via materialização**
 (paridade pattern P206E DEBT-53 + P221 DEBT-56).
-**Resolvido por**: módulo novo `01_core/src/rules/layout/grid_placement.rs`
+**Resolvido por**: módulo novo `01_core/src/engine/layout/grid_placement.rs`
 com função `place_cells(cells, num_cols) -> SourceResult<Vec<PlacedCell>>`
 que implementa algoritmo placement vanilla paridade:
 - Pass 1 — placement explicit (`x`/`y` Some): posição literal +
@@ -862,7 +862,7 @@ um algoritmo de placement diferente. Resolução: passo futuro.
 > permanentemente as 5 ocorrências de `unsafe` em `scanner.rs` com o
 > número concreto de regressão. A branch experimental não foi mergeada.
 
-`01_core/src/rules/lexer/scanner.rs` tem 5 ocorrências de
+`01_core/src/engine/lexer/scanner.rs` tem 5 ocorrências de
 `unsafe { self.string.get_unchecked(start..end) }`. Herdado de
 `unscanny` via ADR-0014.
 
@@ -1155,7 +1155,7 @@ ADR-0061 por Layout roadmap em P156B.
 empírica Fase A revelou cumprimento **cumulativo via paridade
 manual P159A-G** (sem dependência crate `hayagriva` real).
 **Actualizado em**: **Passo 418** (2026-06-23) — integração real
-com `hayagriva 0.10` em `rules/layout/bib_csl.rs` (CSL built-ins
+com `hayagriva 0.10` em `engine/layout/bib_csl.rs` (CSL built-ins
 e `.csl` customizados) e actualização de `Cargo.toml` +
 `crystalline.toml`.
 **Actualizado em**: **Passo 439** (2026-06-23) — reconciliação
@@ -1183,7 +1183,7 @@ administrativa: ADR-0062 transita PROPOSTO → IMPLEMENTADO no
 
 - **CSL styling completo** (author-date, MLA, APA, etc.) —
   resolvido via `hayagriva::archive::ArchivedStyle` + `citationberg`
-  em `rules/layout/bib_csl.rs` (P418). Built-ins resolvidos por
+  em `engine/layout/bib_csl.rs` (P418). Built-ins resolvidos por
   nome; ficheiros `.csl` customizados via path (P420).
 - **Hayagriva crate authorization** (ADR-0062 PROPOSTO →
   IMPLEMENTADO) — concluído no Passo 418 e reconciliado no
@@ -1233,7 +1233,7 @@ Vanilla: `BibliographyElem` + `CiteElem` em
 
 Cristalino: `Content` enum com variants `Bibliography` e `Cite`;
 `native_bibliography` + `native_cite` em `rules/stdlib/structural.rs`;
-render CSL em `rules/layout/bib_csl.rs`.
+render CSL em `engine/layout/bib_csl.rs`.
 
 ### Pré-requisitos
 
@@ -1717,7 +1717,7 @@ selector `NodeKind::Strong`/`Emph` distinguir:
   `Style::italic`, `Style::strong`, `Style::emph`.
 - `01_core/src/entities/style_chain.rs`: `StyleDelta` ganha
   `bold_from_strong` e `italic_from_emph`; `fold_into` propaga as flags.
-- `01_core/src/rules/eval/rules.rs`:
+- `01_core/src/engine/eval/rules.rs`:
   - `#set text(bold: true)` emite `Style::bold(true)`
     (`from_strong: false`);
   - `#set text(italic: true)` emite `Style::italic(true)`
@@ -1725,12 +1725,12 @@ selector `NodeKind::Strong`/`Emph` distinguir:
   - `selector_matches` para `NodeKind::Strong`/`Emph` verifica a origem
     no delta do `Content::Styled` (mantém o match das variantes
     `Content::Strong`/`Emph` para compatibilidade).
-- `01_core/src/rules/layout/mod.rs`: braços `Content::Strong`/`Emph`
+- `01_core/src/engine/layout/mod.rs`: braços `Content::Strong`/`Emph`
   empurram `Style::strong()` / `Style::emph()`.
-- `01_core/src/rules/layout/tests.rs`: teste renomeado para
+- `01_core/src/engine/layout/tests.rs`: teste renomeado para
   `debt_50_show_strong_nao_apanha_set_text_bold` e actualizado para o
   cenário pós-bake-in (wrapping).
-- `01_core/src/rules/eval/tests.rs`: helpers de show-set ajustados para
+- `01_core/src/engine/eval/tests.rs`: helpers de show-set ajustados para
   lerem o campo tipado `bold` em vez do canal `custom` `"text.bold"`.
 
 ### Critério de conclusão
@@ -1784,7 +1784,7 @@ DISSOLVIDO em P453.
 **Justificação literal**: P276 auditoria empírica confirmou que após
 ~195 passos (P81 → P275), **nenhum cache de `available_width` foi
 materializado** no `Layouter` ou módulos relacionados. O método
-`available_width()` (em `01_core/src/rules/layout/mod.rs:372`)
+`available_width()` (em `01_core/src/engine/layout/mod.rs:372`)
 continua a ser calculado em tempo real (`self.regions.current.width
 - 2.0 * self.page_config.margin`) sem cache. A hipótese inicial
 ("cache poderia ser adicionado, exigindo invalidação após
@@ -1807,7 +1807,7 @@ especulativamente.
 **Evidência empírica P276 Fase A**:
 - Método `available_width` calcula em tempo real, sem campos cache
   (`cached_width`, `width_cache`, `cached_available` — todos zero
-  matches em `01_core/src/rules/layout/`).
+  matches em `01_core/src/engine/layout/`).
 - 13 callsites em `layout/mod.rs` + `layout/placement.rs` +
   `layout/grid.rs` — todos chamam método, não campo.
 - `Content::SetPage` arm existe (`mod.rs:1009`) mas configura apenas
@@ -1945,7 +1945,7 @@ fecho. Actualizações de Passos 30, 33, 83.5, 84.1, 94, 95, 99,
 - Remover os wrappers Content::Strong/Emph do layout quando eval os tiver totalmente substituído
 
 **Ficheiros alterados**: `entities/style_chain.rs` (novo), `entities/mod.rs`,
-`entities/content.rs`, `rules/eval.rs`, `rules/layout.rs`
+`entities/content.rs`, `rules/eval.rs`, `engine/layout.rs`
 
 #### Nota — actualização no Passo 84.1
 
@@ -2100,7 +2100,7 @@ strong, emph, raw, figure, equation, list). O Passo 101 actualizou
 o match de Strong/Emph para usar `Content::Styled` + `Style::Bold/Italic(true)`.
 
 - [x] Validação end-to-end com 5 testes de integração em
-      `rules/layout/tests.rs::tests_show_rule_integration`:
+      `engine/layout/tests.rs::tests_show_rule_integration`:
       `show_heading_transforma_em_uppercase`, `show_strong_transforma`,
       `show_emph_transforma`, `regressao_sem_show_mantem_comportamento`,
       `debt_50_show_strong_nao_apanha_set_text_bold_porque_bake_in`.
@@ -2208,7 +2208,7 @@ abaixo.
   DEBT-1. **ADR-0057** autoriza crate `hypher` em L1
   (`[l1_allowed_external]`) — pure-data, no_std, zero deps,
   padrões TeX embebidos em compile-time. Helper puro
-  `01_core/src/rules/layout/hyphenation.rs::hyphenate(word, &lang)`
+  `01_core/src/engine/layout/hyphenation.rs::hyphenate(word, &lang)`
   invocado pelo `layout_word` quando palavra não cabe e
   `style.lang` é `Some(lang)`. Algoritmo greedy: maior prefixo
   com hífen literal `-` que cabe no espaço disponível vence;
@@ -2395,7 +2395,7 @@ O Passo 110 fez inventário em
 que as 2 pendentes são **não aplicáveis** na arquitectura actual:
 
 - **Layouter sem Route**: grep `Route|Tracked|engine|Engine` em
-  `01_core/src/rules/layout/` dá zero matches. `pub fn layout(content:
+  `01_core/src/engine/layout/` dá zero matches. `pub fn layout(content:
   &Content, initial_state: CounterState) -> PagedDocument` —
   assinatura sem `Route`. Integrar `check_layout_depth` exigiria
   refactor equivalente aos Passos 92/109 no Layouter, o que excede
@@ -2459,7 +2459,7 @@ aplicação da ADR-0036; canal Sink consumido via `TrackedMut`).
 
 ### Contexto original
 
-`eval_set_rule` em `01_core/src/rules/eval/rules.rs` processava
+`eval_set_rule` em `01_core/src/engine/eval/rules.rs` processava
 `#set text(...)` com um catálogo fechado (`bold`, `italic`, `size`,
 `fill` desde 102). Qualquer outra propriedade caía num `_ => { }`
 silencioso. O target `par`, `align`, etc. também era ignorado.
@@ -2696,12 +2696,12 @@ do Passo 96 revelou:
 
 | Linhas | Ficheiro |
 |--------|----------|
-| 3780 | `01_core/src/rules/eval.rs` |
-| 2848 | `01_core/src/rules/layout/mod.rs` |
-| 2255 | `01_core/src/rules/parse.rs` |
-| 1806 | `01_core/src/rules/math/layout.rs` |
-| 1711 | `01_core/src/rules/stdlib.rs` |
-| 1250 | `01_core/src/rules/lexer/mod.rs` |
+| 3780 | `01_core/src/engine/eval.rs` |
+| 2848 | `01_core/src/engine/layout/mod.rs` |
+| 2255 | `01_core/src/engine/parse.rs` |
+| 1806 | `01_core/src/engine/math/layout.rs` |
+| 1711 | `01_core/src/engine/stdlib.rs` |
+| 1250 | `01_core/src/engine/lexer/mod.rs` |
 
 Total: 13.650 linhas em seis ficheiros. O `eval.rs` sozinho tem
 368 ocorrências de padrões `match` sobre `Expr::`, `SyntaxKind::`
@@ -2764,7 +2764,7 @@ uma posição:
       (~87: move/rotate/scale), `layout` (~197: align/place/grid/
       page). `mod.rs` ficou em ~617 linhas (helpers `err`/
       `expect_no_named` + `mod` + `pub use` re-exports + tests).
-      Re-exports de `pub use crate::rules::stdlib::<submod>::*`
+      Re-exports de `pub use crate::engine::stdlib::<submod>::*`
       preservam os paths consumidos por `make_stdlib` em
       `eval/mod.rs` — zero alterações em eval. L1 tests: 748 → 748
       (comportamento idêntico). Nenhum submódulo acima de 800
@@ -2861,14 +2861,14 @@ precisamente para estes casos.
 ### Resultados finais (após Passo 96.10)
 
 Trabalho completo da ADR-0037 Regra 2 aplicada a ficheiros
-grandes de `01_core/src/rules/`.
+grandes de `01_core/src/engine/`.
 
 **Antes** (inventário do Passo 96):
 
 | Ficheiro | Linhas |
 |----------|--------|
 | `rules/eval.rs` | 3780 |
-| `rules/layout/mod.rs` | 2848 |
+| `engine/layout/mod.rs` | 2848 |
 | `rules/parse.rs` | 2255 |
 | `rules/math/layout.rs` | 1806 |
 | `rules/stdlib.rs` | 1711 |
@@ -2892,7 +2892,7 @@ Total: 13 650 linhas em 6 ficheiros acima de 1000.
 | Ficheiro | Linhas | Tipo | Justificativa |
 |----------|-------:|------|---------------|
 | `rules/eval/tests.rs` | 2100 | Testes E2E | Regra 5 + Regra 6 (cfg(test) gated, cobertura cross-domain) |
-| `rules/layout/tests.rs` | 1399 | Testes E2E | Regra 5 + Regra 6 (idem, documentado no topo) |
+| `engine/layout/tests.rs` | 1399 | Testes E2E | Regra 5 + Regra 6 (idem, documentado no topo) |
 | `entities/syntax_node.rs` | 1095 | Entidade estrutural | Regra 6 — árvore sintáctica fundamental, impls coesos |
 | `entities/content.rs` | 1072 | Entidade fundamental | Regra 6 — enum central do domínio visual |
 | `entities/layout_types.rs` | 850 | Vocabulário geométrico | Regra 6 — tipos coesos com impls cruzados |
@@ -2943,7 +2943,7 @@ funcionaram como esperado em 7 aplicações consecutivas
   char literal `'{'` de delimitador de bloco (bug encontrado no
   Passo 96.8). Para futuros refactorings grandes, sanitizar
   char literals antes ou usar parser AST.
-- Padrão de re-export `pub use crate::rules::X::submod::Y` em
+- Padrão de re-export `pub use crate::engine::X::submod::Y` em
   `mod.rs` evita V14 (ADR-0037 Ajuste B) e é preferível a
   `pub use self::submod::Y`.
 - Nota Regra 3 do Passo 96.6 reduziu bulk replace de
@@ -2969,7 +2969,7 @@ preferência por:
 
 ### Escopo auditado
 
-Todos os submódulos de `01_core/src/rules/`:
+Todos os submódulos de `01_core/src/engine/`:
 
 - `eval/`, `parse/`, `stdlib/`, `layout/`, `math/layout/`, `lexer/`.
 
@@ -3048,8 +3048,8 @@ DEBT-46, Passo 96.10).
 
 ### Ficheiros alterados
 
-- `01_core/src/rules/eval.rs`: `EvalContext` (max_call_depth 250, import_stack), `ImportGuard`, `ModuleImport`/`ModuleInclude` handling
-- `01_core/src/rules/eval.rs`: testes novos de import_stack e ModuleImport/Include
+- `01_core/src/engine/eval.rs`: `EvalContext` (max_call_depth 250, import_stack), `ImportGuard`, `ModuleImport`/`ModuleInclude` handling
+- `01_core/src/engine/eval.rs`: testes novos de import_stack e ModuleImport/Include
 
 ---
 
@@ -3091,7 +3091,7 @@ de tracking real (`TrackedWorld`). Os testes de L1 nunca exercitavam o caminho d
 - `#set text(bold: false)` dentro de um bloco agora reverte correctamente ao sair do bloco
 - `node_style` capturado em eval já inclui o estilo correcto de Strong/Emph/Heading
 
-**Ficheiros alterados**: `rules/eval.rs`, `rules/layout.rs`
+**Ficheiros alterados**: `rules/eval.rs`, `engine/layout.rs`
 
 ---
 
@@ -3101,7 +3101,7 @@ de tracking real (`TrackedWorld`). Os testes de L1 nunca exercitavam o caminho d
 
 **Resolução (Passagens 1 e 2)**:
 
-- `01_core/src/rules/introspect.rs` criado: pré-passagem analítica que percorre
+- `01_core/src/engine/introspect.rs` criado: pré-passagem analítica que percorre
   `Content` sem alocações visuais, popula `resolved_labels: HashMap<Label, String>`.
 - `layout()` recebe `CounterState` externo — o orquestrador chama `introspect` primeiro.
 - Forward refs (`@conclusao` antes do heading `= Conclusão <conclusao>`) resolvem.
@@ -3111,10 +3111,10 @@ de tracking real (`TrackedWorld`). Os testes de L1 nunca exercitavam o caminho d
 
 **Ficheiros criados/alterados**:
 
-- `01_core/src/rules/introspect.rs` (novo)
+- `01_core/src/engine/introspect.rs` (novo)
 - `01_core/src/entities/counter_state.rs` — `resolved_labels`, `headings_for_toc`, `auto_label_counter`
-- `01_core/src/rules/layout/mod.rs` — `layout()` com estado externo
-- `01_core/src/rules/layout/figure.rs` — braço `Content::Figure` (Passo 62)
+- `01_core/src/engine/layout/mod.rs` — `layout()` com estado externo
+- `01_core/src/engine/layout/figure.rs` — braço `Content::Figure` (Passo 62)
 
 ---
 
@@ -3125,9 +3125,9 @@ de tracking real (`TrackedWorld`). Os testes de L1 nunca exercitavam o caminho d
 **Resolução**:
 
 - `layout.rs` (1408 linhas) convertido em `layout/mod.rs` (orquestrador).
-- `rules/layout/counters.rs`: braços `SetHeadingNumbering`, `CounterUpdate`, `CounterDisplay`.
-- `rules/layout/references.rs`: braços `Ref` e `Labelled`.
-- `rules/layout/outline.rs`: braço `Content::Outline` (TOC).
+- `engine/layout/counters.rs`: braços `SetHeadingNumbering`, `CounterUpdate`, `CounterDisplay`.
+- `engine/layout/references.rs`: braços `Ref` e `Labelled`.
+- `engine/layout/outline.rs`: braço `Content::Outline` (TOC).
 - L0 criados: `layout_counters.md`, `layout_references.md`, `layout_outline.md`.
 - `layout()` passa a receber `CounterState` externo — o orquestrador chama `introspect` primeiro.
 
@@ -3591,7 +3591,7 @@ convenção cristalina). Não usa `Arc<[FrameItem]>` no valor (transferência
 
 ## DEBT-41 — Sealed traits no scanner usam `unsafe trait` — **ENCERRADO (Passo 85)** ✓
 
-`01_core/src/rules/lexer/scanner.rs` tem 6 `unsafe impl Sealed<T>`
+`01_core/src/engine/lexer/scanner.rs` tem 6 `unsafe impl Sealed<T>`
 usando o padrão sealed-trait clássico da stdlib Rust. A palavra
 `unsafe` aqui é mecanismo de encapsulamento (impedir
 implementações externas), não indicação de memória não-segura.
@@ -3629,7 +3629,7 @@ deveria continuar a funcionar).
 - Zero ocorrências de `unsafe` associadas ao padrão Sealed em
   `scanner.rs`.
 - Testes do scanner continuam a passar sem alteração.
-- Nenhum impacto visível na API pública de `01_core/src/rules/lexer/`.
+- Nenhum impacto visível na API pública de `01_core/src/engine/lexer/`.
 
 ### Dependências
 
@@ -3643,7 +3643,7 @@ Get_unchecked permanece (DEBT-42, bloqueado por benchmark).
 
 ## DEBT-40 — `ImportGuard::drop` com raw pointer — **ENCERRADO (Passo 90)** ✓
 
-`01_core/src/rules/eval.rs:235` tem `unsafe { (*self.stack_ptr).retain(...) }`
+`01_core/src/engine/eval.rs:235` tem `unsafe { (*self.stack_ptr).retain(...) }`
 no `Drop for ImportGuard`. O raw pointer é usado porque a vida do
 `EvalContext` não é expressível como lifetime do guard (RAII com
 scope de função).
@@ -3706,7 +3706,7 @@ O Passo 90 materializou `Route<'a>` em
 completa face ao vanilla (`outer: Option<Tracked<'a, Self>>`,
 linked list imutável, `#[comemo::track]` em `contains`/`within`).
 
-No entanto, `EvalContext` (em `01_core/src/rules/eval.rs`) não usa
+No entanto, `EvalContext` (em `01_core/src/engine/eval.rs`) não usa
 `Route<'a>` estruturalmente. Mantém campo `pub route: Vec<FileId>`
 como projecção plana — uma lista linear que imita a cadeia mas não
 é a estrutura vanilla. A API `with_route_id(id, span, f)` substitui
@@ -3863,7 +3863,7 @@ Religação prevista no Passo 10 (isolamento de comemo/infra).
 ## Como religar no Passo 10
 
 Localizar todos os `// ADR-0006: timing removed — ver 00_nucleo/DEBT.md`
-em `01_core/src/rules/parse.rs` e substituir `timing_scope!("...")` por
+em `01_core/src/engine/parse.rs` e substituir `timing_scope!("...")` por
 o mecanismo de telemetria escolhido (trait injectável ou outro).
 
 Ver: `00_nucleo/adr/typst-adr-0006-typst-timing.md`

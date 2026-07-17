@@ -10,7 +10,7 @@
 ## 1. Sonda — confirmação dos 7 call-sites e do mecanismo exato
 
 ```bash
-grep -rn "\.layout_sub_frame(" 01_core/src/rules/layout/*.rs | grep -v tests.rs
+grep -rn "\.layout_sub_frame(" 01_core/src/engine/layout/*.rs | grep -v tests.rs
 ```
 
 Confirmados exatamente **7** call-sites (nenhum a mais, nenhum a menos — bate com a contagem de P772w):
@@ -28,7 +28,7 @@ Confirmados exatamente **7** call-sites (nenhum a mais, nenhum a menos — bate 
 ### Mecanismo de `flush_line`/`decoration_lines_collector`
 
 ```bash
-grep -n "decoration_lines_collector\|fn flush_line" 01_core/src/rules/layout/cursor.rs
+grep -n "decoration_lines_collector\|fn flush_line" 01_core/src/engine/layout/cursor.rs
 ```
 
 `flush_line()` (`cursor.rs:218`) regista um `DecoSegment { start_x: line_start_x, end_x: cursor_x,
@@ -38,7 +38,7 @@ confirmado exatamente onde (`cursor.rs:230-238`). `layout_sub_frame` (`sub_frame
 
 ### Tradução de coordenadas — confirmado por leitura de código, não assumido
 
-`00_nucleo/prompts/rules/layout.md` §"Contrato de composição de coordenadas" já documentava que cada
+`00_nucleo/prompts/engine/layout.md` §"Contrato de composição de coordenadas" já documentava que cada
 call-site de `layout_sub_frame` aplica a sua própria translação aos `FrameItem`s devolvidos. Lida
 directamente em cada um dos 4 call-sites de emissão imediata:
 
@@ -63,7 +63,7 @@ não existe um caminho novo necessário, só a disciplina de swap-in/out local (
 
 ### L0 atualizado antes do código
 
-`00_nucleo/prompts/rules/layout.md` §"Sub-layout isolado (`layout_sub_frame`, Passo 629)" — assinatura
+`00_nucleo/prompts/engine/layout.md` §"Sub-layout isolado (`layout_sub_frame`, Passo 629)" — assinatura
 actualizada para `(f64, Vec<FrameItem>, Vec<DecoSegment>)`, mecanismo de swap do collector documentado,
 nova secção "Decoração através de `layout_sub_frame` (P772x)" com a tabela de classificação dos 7
 call-sites e a nota de paridade ADR-0107 (ver §4).
@@ -131,7 +131,7 @@ crystalline-lint .
 
 ### Testes automatizados novos
 
-`01_core/src/rules/layout/tests.rs`, secção "P772x — decoração propaga através de `layout_sub_frame`":
+`01_core/src/engine/layout/tests.rs`, secção "P772x — decoração propaga através de `layout_sub_frame`":
 `p772x_underline_propaga_atraves_de_place`, `p772x_underline_propaga_atraves_de_grid`,
 `p772x_strike_propaga_atraves_de_place`, `p772x_overline_propaga_atraves_de_place`,
 `p772x_underline_sem_sub_frame_sem_regressao`.

@@ -85,7 +85,7 @@ Compiler-driven (paridade P217 estratégia):
 - `walk` — `Content::Colbreak { .. }` na chain terminal
   `=> {}` (sem children; sem tag).
 
-**`rules/layout/mod.rs::layout_content`** (1 arm — Opção β):
+**`engine/layout/mod.rs::layout_content`** (1 arm — Opção β):
 ```rust
 Content::Colbreak { weak: _ } => {
     if self.regions.current.cursor_x.0
@@ -96,7 +96,7 @@ Content::Colbreak { weak: _ } => {
 }
 ```
 
-**`rules/layout/mod.rs::measure_content_constrained`** (1 arm):
+**`engine/layout/mod.rs::measure_content_constrained`** (1 arm):
 ```rust
 Content::Colbreak { .. } => (0.0, 0.0),
 ```
@@ -113,7 +113,7 @@ estratégia compiler-driven literal P217 funcionou.
 
 ## §5 `native_colbreak` + arm downgrade graded (C4; Opção β fixada)
 
-**Stdlib** em `01_core/src/rules/stdlib/layout.rs` após
+**Stdlib** em `01_core/src/engine/stdlib/layout.rs` após
 `native_columns` (paridade ordem ADR-0061 Fase 3 sub-passos
 3→4):
 

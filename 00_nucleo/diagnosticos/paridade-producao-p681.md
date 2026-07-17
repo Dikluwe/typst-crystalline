@@ -14,10 +14,10 @@
 ```
  00_nucleo/prompts/contracts/world.md    | 15 +++++++-
  00_nucleo/prompts/infra/system-world.md | 34 ++++++++++++++++-
- 00_nucleo/prompts/rules/eval.md         | 14 +++++--
+ 00_nucleo/prompts/engine/eval.md         | 14 +++++--
  01_core/src/contracts/world.rs          | 16 +++++++-
  01_core/src/entities/package_spec.rs    | 24 ++++++++++++
- 01_core/src/rules/eval/modules.rs       | 35 ++++++++++-------
+ 01_core/src/engine/eval/modules.rs       | 35 ++++++++++-------
  03_infra/Cargo.toml                     |  1 +
  03_infra/src/world.rs                   | 66 ++++++++++++++++++++++++++++++++-
  Cargo.lock                              |  1 +
@@ -86,10 +86,10 @@ atravessa a fronteira por um método novo do trait `World` (L1):
 ## Ficheiros tocados (commit)
 
 - `00_nucleo/prompts/contracts/world.md`, `00_nucleo/prompts/infra/system-world.md`,
-  `00_nucleo/prompts/rules/eval.md` (L0 + hashes)
+  `00_nucleo/prompts/engine/eval.md` (L0 + hashes)
 - `01_core/src/contracts/world.rs` (`resolve_package` default), `01_core/src/entities/package_spec.rs`
-  (+3 testes), `01_core/src/rules/eval/modules.rs` (braço `@`)
+  (+3 testes), `01_core/src/engine/eval/modules.rs` (braço `@`)
 - `03_infra/Cargo.toml` (`toml`), `03_infra/src/world.rs` (`resolve_package` +
   `package_candidate_dirs` + `load_package_entrypoint`)
-- 8 ficheiros `01_core/src/rules/eval/*.rs` — só `@prompt-hash` (fix-hashes)
+- 8 ficheiros `01_core/src/engine/eval/*.rs` — só `@prompt-hash` (fix-hashes)
 - `Cargo.lock`

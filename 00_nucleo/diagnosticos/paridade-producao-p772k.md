@@ -23,7 +23,7 @@ typst_library::visualize::image::svg::SvgImageInner
 typst_library::visualize::image::svg::tree_size
 ```
 
-Grep cruzado (`grep -rn "SvgImage\|FontResolver\|tree_size\|base_options\|format_usvg_error\|ImageResolver" 01_core/src 03_infra/src`) — **zero ocorrências**. Confirmado também por busca ampla `grep -rlni svg 01_core/src 02_shell/src 03_infra/src 04_wiring/src`: o único hit em todo o cristalino é `01_core/src/rules/stdlib/structural.rs:2347`, uma entrada de tabela de extensão→kind (`"svg" => "image"`) usada para inferir o `kind` de `figure()`, sem qualquer relação com decodificação/renderização.
+Grep cruzado (`grep -rn "SvgImage\|FontResolver\|tree_size\|base_options\|format_usvg_error\|ImageResolver" 01_core/src 03_infra/src`) — **zero ocorrências**. Confirmado também por busca ampla `grep -rlni svg 01_core/src 02_shell/src 03_infra/src 04_wiring/src`: o único hit em todo o cristalino é `01_core/src/engine/stdlib/structural.rs:2347`, uma entrada de tabela de extensão→kind (`"svg" => "image"`) usada para inferir o `kind` de `figure()`, sem qualquer relação com decodificação/renderização.
 
 | Item | Classificação | Nota |
 |---|---|---|
@@ -100,7 +100,7 @@ comportamento ao descrito em P650.
 A varredura de P772k confirma que a causa raiz de "0/7 itens de `image::svg`"
 e o item 2 do debt de P650 são **a mesma coisa**: não existe validação de
 formato de imagem em tempo de avaliação (`native_image` em
-`01_core/src/rules/stdlib/figure_image.rs`, que só lê bytes crus via
+`01_core/src/engine/stdlib/figure_image.rs`, que só lê bytes crus via
 `world.read_bytes` sem inspeccionar o formato); a única detecção de formato
 (`detect_format` em `03_infra/src/export/images.rs`) acontece tarde demais,
 na exportação PDF em L3, momento em que já não há caminho arquitectural para

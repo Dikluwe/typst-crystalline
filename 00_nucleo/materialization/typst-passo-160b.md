@@ -90,7 +90,7 @@ reservas para passos pós-P160B.
   precedente subpadrão #15 N=2 (`state.bib_entries`).
 - `00_nucleo/materialization/typst-passo-159f-relatorio.md` —
   precedente subpadrão #15 N=3 (`state.bib_numbers`).
-- `01_core/src/rules/introspect.rs` — pipeline actual (1108
+- `01_core/src/engine/introspect.rs` — pipeline actual (1108
   linhas); walk single-pass.
 - `01_core/src/entities/counter_state.rs` — `CounterState`
   actual (333 linhas) com 14 fields públicos cumulativos.
@@ -301,7 +301,7 @@ sem alterar content.rs (preserva hash 19→20 consecutivos).
 
 ### .4 Walk arm em `introspect.rs`
 
-`01_core/src/rules/introspect.rs`:
+`01_core/src/engine/introspect.rs`:
 - Walk arm State (se variant marker) ou arm equivalente (se
   stdlib proxy):
   - Insert `state.runtime_states.insert(key, init)`.
@@ -309,8 +309,8 @@ sem alterar content.rs (preserva hash 19→20 consecutivos).
 
 ### .5 Stdlib `native_state`
 
-`01_core/src/rules/stdlib/state.rs` (ficheiro novo) ou
-`01_core/src/rules/stdlib/structural.rs` (extensão):
+`01_core/src/engine/stdlib/state.rs` (ficheiro novo) ou
+`01_core/src/engine/stdlib/structural.rs` (extensão):
 - `native_state(args)` aceita:
   - `key: Str` posicional obrigatório (vazio rejeitado).
   - `init: Value` posicional obrigatório (subset minimal types).
@@ -319,7 +319,7 @@ sem alterar content.rs (preserva hash 19→20 consecutivos).
 
 ### .6 Layout para state em uso
 
-`01_core/src/rules/layout/mod.rs`:
+`01_core/src/engine/layout/mod.rs`:
 - Pattern arm State (se variant marker) ou resolução em
   ContextualValue (se stdlib proxy):
   - Lookup `state.runtime_states.get(&key)`.

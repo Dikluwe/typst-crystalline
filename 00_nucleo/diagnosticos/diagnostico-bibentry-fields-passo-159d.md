@@ -111,7 +111,7 @@ Localização: `rules/stdlib/structural.rs:507`. Extensão directa:
 
 ### 5.2 Helper privado novo `format_bib_entry`
 
-`rules/layout/mod.rs` (privado em arm Bibliography) ou
+`engine/layout/mod.rs` (privado em arm Bibliography) ou
 `stdlib/structural.rs` (helper privado próximo a
 `extract_bib_entries`). Decisão: **layout/mod.rs** — formatação
 é responsabilidade do layouter; stdlib produz dados.

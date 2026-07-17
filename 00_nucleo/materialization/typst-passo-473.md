@@ -241,7 +241,7 @@ O L0 `show-regex.md` já existe com hash `a3f2c53b`. Após implementação, actu
 
 ### Sub-item A
 
-- `rules/layout/cite.md` — secção `op. cit.`, campo `previously_cited_keys`, interacção com `ibid.`.
+- `engine/layout/cite.md` — secção `op. cit.`, campo `previously_cited_keys`, interacção com `ibid.`.
 
 ### Sub-item B
 

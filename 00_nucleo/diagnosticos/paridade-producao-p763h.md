@@ -10,7 +10,7 @@
 
 ## Parte A — Classificação no vanilla (código-fonte)
 
-Leitura directa de `lab/typst-original/crates/typst-layout/src/rules.rs:765-803`:
+Leitura directa de `lab/typst-original/crates/typst-layout/src/engine.rs:765-803`:
 
 ```rust
 const LINE_RULE: ShowFn<LineElem> = |elem, _, _| {
@@ -45,10 +45,10 @@ Todas as primitivas de desenho são realizadas para `BlockElem::single_layouter`
 ## Parte B — Estado actual no cristalino
 
 ```bash
-grep -n "enum ShapeKind\|ShapeElem\|layout_shape" 01_core/src/entities/*.rs 01_core/src/rules/layout/*.rs
+grep -n "enum ShapeKind\|ShapeElem\|layout_shape" 01_core/src/entities/*.rs 01_core/src/engine/layout/*.rs
 ```
 
-Todas as primitivas mapeiam para `Content::Shape(Arc<ShapeElem>)` (`01_core/src/entities/content.rs:410`) e o layout está centralizado em `01_core/src/rules/layout/shape.rs`. A função `layout`:
+Todas as primitivas mapeiam para `Content::Shape(Arc<ShapeElem>)` (`01_core/src/entities/content.rs:410`) e o layout está centralizado em `01_core/src/engine/layout/shape.rs`. A função `layout`:
 
 1. Chama `layouter.ensure_initial_baseline()`;
 2. Resolve `width`/`height` (ou `dx`/`dy` para `Line`);
@@ -58,7 +58,7 @@ Todas as primitivas mapeiam para `Content::Shape(Arc<ShapeElem>)` (`01_core/src/
 | Primitiva | Mapeamento cristalino (actual) |
 |---|---|
 | `line` | `ShapeKind::Line { dx, dy }` |
-| `curve` | `ShapeKind::Path(...)` (via `01_core/src/rules/layout/curve.rs`) |
+| `curve` | `ShapeKind::Path(...)` (via `01_core/src/engine/layout/curve.rs`) |
 | `path` | `ShapeKind::Path(...)` (construído por `curve`/`polygon`) |
 | `polygon` | `ShapeKind::Path(...)` |
 | `rect` | `ShapeKind::Rect` |

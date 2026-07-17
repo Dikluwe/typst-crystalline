@@ -247,9 +247,9 @@ Reuso de dados (sem recolha nova):
 
 ```
 grep -A 30 "DEBT-34d" 00_nucleo/DEBT.md
-grep -B 2 -A 50 "TrackSizing::Auto\|TrackSizing::Fr" 01_core/src/rules/layout/grid.rs
-grep -B 2 -A 30 "fn place_cells\|fn layout_grid" 01_core/src/rules/layout/grid.rs
-grep -n "measure_content" 01_core/src/rules/layout/
+grep -B 2 -A 50 "TrackSizing::Auto\|TrackSizing::Fr" 01_core/src/engine/layout/grid.rs
+grep -B 2 -A 30 "fn place_cells\|fn layout_grid" 01_core/src/engine/layout/grid.rs
+grep -n "measure_content" 01_core/src/engine/layout/
 grep -B 2 -A 10 "P224.div-1" 00_nucleo/adr/typst-adr-0079-*.md 00_nucleo/diagnosticos/
 ```
 
@@ -284,7 +284,7 @@ DEBT-34d amplo.
 
 ### C2 — Implementar pre-pass measure em `layout_grid`
 
-Editar `01_core/src/rules/layout/grid.rs::layout_grid`:
+Editar `01_core/src/engine/layout/grid.rs::layout_grid`:
 
 ```rust
 pub(super) fn layout_grid(
@@ -510,13 +510,13 @@ Estrutura (~6-8 KB) com 8 §s:
   geometric; B.3 per-cell algorítmico; D.1 state; pivot).
 
 Código alterado:
-- **Editado**: `01_core/src/rules/layout/grid.rs`
+- **Editado**: `01_core/src/engine/layout/grid.rs`
   (`layout_grid` pre-pass measure + distribuição fr +
   adapt placement).
-- **Possivelmente editado**: `01_core/src/rules/layout/grid_placement.rs`
+- **Possivelmente editado**: `01_core/src/engine/layout/grid_placement.rs`
   (signature `place_cells` adapt para tamanhos
   pre-calculados se necessário).
-- **Editado**: `01_core/src/rules/layout/tests.rs` (+~10-12
+- **Editado**: `01_core/src/engine/layout/tests.rs` (+~10-12
   tests novos).
 - **Editado**: `00_nucleo/DEBT.md` (DEBT-34d FECHADO P233
   bloco + referência cruzada).

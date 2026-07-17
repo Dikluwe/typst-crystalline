@@ -60,7 +60,7 @@ Código morto marcado como tal pode ser inofensivo, ou pode ser um sinal de uma 
 ### 10. `Vec::retain`/`filter` que descartam elementos sem contagem nem aviso
 
 ```bash
-grep -rn "\.retain(\|\.filter(" 01_core/src/rules/ 03_infra/src/export/ --include="*.rs" | grep -v "test"
+grep -rn "\.retain(\|\.filter(" 01_core/src/engine/ 03_infra/src/export/ --include="*.rs" | grep -v "test"
 ```
 
 Cada uso confirma se os elementos descartados são genuinamente irrelevantes, ou se representam informação do utilizador a desaparecer (o mesmo padrão do caso de bibliografia, P644, mas potencialmente noutros sítios).
@@ -76,7 +76,7 @@ Um aviso que só aparece no terminal de quem desenvolve o compilador, não no di
 ### 12. `panic!`/`unreachable!()` em código alcançável
 
 ```bash
-grep -rn "unreachable!()\|panic!(" 01_core/src/rules/ 03_infra/src/ --include="*.rs" | grep -v "test"
+grep -rn "unreachable!()\|panic!(" 01_core/src/engine/ 03_infra/src/ --include="*.rs" | grep -v "test"
 ```
 
 Não é o mesmo tipo de falha silenciosa (um `panic!` não é silencioso, trava o programa) — mas um `unreachable!()` que na verdade é alcançável é uma suposição errada sobre o código, e vale a pena confirmar se cada um destes é mesmo inalcançável, ou se pode ser accionado por um documento do utilizador, produzindo um crash em vez de um erro tratado.

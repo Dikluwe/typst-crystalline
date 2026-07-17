@@ -4,9 +4,9 @@
 
 Ler antes de começar:
 - `01_core/src/entities/content.rs` — variantes `Content::MathAlignPoint`, `Content::Linebreak` (confirmar se existem)
-- `01_core/src/rules/eval.rs` — `eval_math_content`, arm `Expr::MathAlignPoint`
-- `01_core/src/rules/math/layout.rs` — `MathLayouter`, loop principal de sequências, `layout_node`
-- `01_core/src/rules/layout.rs` — onde `Content::Equation` é processada (Passo 48/50)
+- `01_core/src/engine/eval.rs` — `eval_math_content`, arm `Expr::MathAlignPoint`
+- `01_core/src/engine/math/layout.rs` — `MathLayouter`, loop principal de sequências, `layout_node`
+- `01_core/src/engine/layout.rs` — onde `Content::Equation` é processada (Passo 48/50)
 
 Pré-condição: `cargo test` — 560 L1 + 100 L3 + 50 parity, zero violations.
 
@@ -41,26 +41,26 @@ direita do seu espaço e `= b` fica alinhado à esquerda do seu.
 # 1. Confirmar se MathAlignPoint já existe no Content e no eval
 grep -n "MathAlignPoint\|AlignPoint" \
   01_core/src/entities/content.rs \
-  01_core/src/rules/eval.rs | head -15
+  01_core/src/engine/eval.rs | head -15
 
 # 2. Confirmar como Linebreak/quebra de linha chega ao eval_math_content
 grep -n "Linebreak\|MathNewline\|Linebreak\|Align" \
-  01_core/src/rules/eval.rs | head -15
+  01_core/src/engine/eval.rs | head -15
 
 # 3. Como MathSequence é construída e iterada no layout
 grep -n "MathSequence\|layout_sequence\|layout_node\|Content::Math" \
-  01_core/src/rules/math/layout.rs | head -20
+  01_core/src/engine/math/layout.rs | head -20
 
 # 4. Confirmar se existe um loop de sequência separado ou se layout_node
 # trata Content::MathSequence recursivamente
-grep -A 10 "MathSequence" 01_core/src/rules/math/layout.rs | head -30
+grep -A 10 "MathSequence" 01_core/src/engine/math/layout.rs | head -30
 
 # 5. Como hconcat é implementado — recebe Vec<MathBox> e retorna MathBox
-grep -A 8 "fn hconcat" 01_core/src/rules/math/layout.rs
+grep -A 8 "fn hconcat" 01_core/src/engine/math/layout.rs
 
 # 6. Confirmar helpers de teste disponíveis
 grep -n "fn layout_test\|fn compile_to_pdf" \
-  01_core/src/rules/math/layout.rs \
+  01_core/src/engine/math/layout.rs \
   03_infra/src/integration_tests.rs | head -10
 ```
 

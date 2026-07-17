@@ -525,7 +525,7 @@ mod tests {
         use typst_core::entities::bib_entry::BibEntry;
         use typst_core::entities::content::Content;
         use typst_core::entities::introspector::Introspector;
-        use typst_core::rules::introspect::introspect_with_introspector;
+        use typst_core::engine::introspect::introspect_with_introspector;
         use std::sync::Arc;
 
         // Documento: cite("second") antes de cite("first").
@@ -557,7 +557,7 @@ mod tests {
         use typst_core::entities::bib_entry::BibEntry;
         use typst_core::entities::content::Content;
         use typst_core::entities::introspector::Introspector;
-        use typst_core::rules::introspect::introspect_with_introspector;
+        use typst_core::engine::introspect::introspect_with_introspector;
         use std::sync::Arc;
 
         let doc = Content::Sequence(Arc::from(vec![

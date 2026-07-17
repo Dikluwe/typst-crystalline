@@ -86,7 +86,7 @@ documentado.
 #### Inventário walk fn signature actual
 
 1. Confirmar walk fn signature em
-   `01_core/src/rules/introspect.rs`:
+   `01_core/src/engine/introspect.rs`:
    ```
    fn walk(
        content:           &Content,
@@ -99,7 +99,7 @@ documentado.
 
 2. Identificar **todas as recursive walk call
    sites** dentro de walk arms:
-   - `grep -n "walk(" 01_core/src/rules/introspect.rs`.
+   - `grep -n "walk(" 01_core/src/engine/introspect.rs`.
    - Esperado: ~20 chamadas (per P191A §9).
    - Cada chamada precisará de novo parameter
      `intr`.
@@ -112,7 +112,7 @@ documentado.
 #### Inventário from_tags arms
 
 4. Confirmar `from_tags::from_tags` em
-   `01_core/src/rules/introspect/from_tags.rs`:
+   `01_core/src/engine/introspect/from_tags.rs`:
    - Match exhaustivo sobre 12 ElementPayload
      variants (per P190A §6).
    - Cada arm: que sub-store popula em
@@ -186,7 +186,7 @@ Output: tabela com item + estado verificado.
 
 ### .B Walk fn signature change
 
-1. Em `01_core/src/rules/introspect.rs`:
+1. Em `01_core/src/engine/introspect.rs`:
    - Adicionar parameter `intr: &mut TagIntrospector`
      ao walk fn:
      ```
@@ -314,7 +314,7 @@ dependências.
 
 Per `.D` Opção α:
 
-1. Em `01_core/src/rules/introspect/from_tags.rs`:
+1. Em `01_core/src/engine/introspect/from_tags.rs`:
    - **Opção α**: eliminar função
      `from_tags::from_tags` completamente.
    - **Opção β**: reduzir a no-op

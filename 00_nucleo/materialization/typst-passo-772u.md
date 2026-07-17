@@ -59,7 +59,7 @@ Se os avanços baterem: a hipótese cai, e a causa está em outro lugar — cons
 2. Alguma diferença entre a instância de fonte usada pelo shaper vs a usada para desenhar (ex: cache de instância variável desatualizado, mesma família de bug do `cached_face` já descartada para `advance()` em P772o, mas agora no caminho do shaper).
 
 ```bash
-grep -n "fn.*text_shaped\|FrameItem::TextShaped" 01_core/src/rules/layout/*.rs 03_infra/src/export/*.rs 2>/dev/null | head -20
+grep -n "fn.*text_shaped\|FrameItem::TextShaped" 01_core/src/engine/layout/*.rs 03_infra/src/export/*.rs 2>/dev/null | head -20
 ```
 
 ---

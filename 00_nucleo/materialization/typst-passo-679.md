@@ -7,7 +7,7 @@
 > **Tipo:** Sonda mínima + Implementação.
 > **Tamanho:** L.
 > **ADR-0108 EM VIGOR.**
-> **Dependências:** P678 (sonda e mapa), `eval_module_include` já implementado (`01_core/src/rules/eval/modules.rs:33`, reaproveitável como referência de estrutura).
+> **Dependências:** P678 (sonda e mapa), `eval_module_include` já implementado (`01_core/src/engine/eval/modules.rs:33`, reaproveitável como referência de estrutura).
 
 ---
 
@@ -72,7 +72,7 @@ Confirmar a mensagem de erro exacta para importação cíclica.
 ### Confirmar se `Route::contains` (já usado para ciclos de função) se aplica directamente a ciclos de ficheiro
 
 ```bash
-grep -n "struct Route\|fn contains" 01_core/src/rules/eval/*.rs 01_core/src/entities/*.rs | head -10
+grep -n "struct Route\|fn contains" 01_core/src/engine/eval/*.rs 01_core/src/entities/*.rs | head -10
 ```
 
 Confirmar se esta estrutura já rastreia ficheiros, ou só chamadas de função — se for só chamadas, pode precisar de uma extensão, não reaproveitamento directo.
@@ -87,7 +87,7 @@ Confirmar se esta estrutura já rastreia ficheiros, ou só chamadas de função 
 
 ## Implementação
 
-`eval_module_import` (`01_core/src/rules/eval/modules.rs:25`) precisa de:
+`eval_module_import` (`01_core/src/engine/eval/modules.rs:25`) precisa de:
 
 1. Resolver o caminho do ficheiro (relativo ao ficheiro actual), reutilizando o mecanismo já usado por `eval_module_include`.
 2. Avaliar o ficheiro importado num escopo de módulo próprio (não o escopo do ficheiro que importa).

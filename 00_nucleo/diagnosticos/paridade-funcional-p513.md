@@ -13,7 +13,7 @@ Materialização dos cinco elementos de segmento de curva do Typst no compilador
 - Funções nativas `native_curve_move/line/cubic/quad/close`.
 - Namespace `curve` anexado à função `curve` existente.
 - Consumo de `Content::Curve` como argumento posicional da função `curve(...)` (concatenação de segmentos).
-- Layout atomizado em `rules/layout/curve.rs`, que converte segmentos para `PathItem` absolutos e emite `FrameItem::Shape`.
+- Layout atomizado em `engine/layout/curve.rs`, que converte segmentos para `PathItem` absolutos e emite `FrameItem::Shape`.
 - Registo do variant em `repr.rs`, `introspect.rs`, `introspect/locatable.rs` e `query_helpers.rs`.
 
 ## Decisões tomadas
@@ -41,18 +41,18 @@ A sintaxe descritiva de tuplos `curve(("move", (0,0)))` continua a funcionar sem
 
 - L0:
   - `00_nucleo/prompts/entities/elements/curve.md` (novo)
-  - `00_nucleo/prompts/rules/stdlib/curve.md` (novo)
+  - `00_nucleo/prompts/engine/stdlib/curve.md` (novo)
 - L1:
   - `01_core/src/entities/content.rs` (variante + construtores)
   - `01_core/src/entities/elements/curve.rs` (novo)
-  - `01_core/src/rules/stdlib/shapes.rs` (`native_curve_*` + consumo de `Content::Curve`)
-  - `01_core/src/rules/stdlib/mod.rs` (re-exports + testes)
-  - `01_core/src/rules/eval/mod.rs` (namespace `curve`)
-  - `01_core/src/rules/eval/repr.rs` (representação)
-  - `01_core/src/rules/introspect.rs` (terminal em walk/materialize_time)
-  - `01_core/src/rules/introspect/locatable.rs` (não-locatable)
-  - `01_core/src/rules/layout/mod.rs` (braço de layout + medição)
-  - `01_core/src/rules/layout/curve.rs` (novo — layout atomizado)
+  - `01_core/src/engine/stdlib/shapes.rs` (`native_curve_*` + consumo de `Content::Curve`)
+  - `01_core/src/engine/stdlib/mod.rs` (re-exports + testes)
+  - `01_core/src/engine/eval/mod.rs` (namespace `curve`)
+  - `01_core/src/engine/eval/repr.rs` (representação)
+  - `01_core/src/engine/introspect.rs` (terminal em walk/materialize_time)
+  - `01_core/src/engine/introspect/locatable.rs` (não-locatable)
+  - `01_core/src/engine/layout/mod.rs` (braço de layout + medição)
+  - `01_core/src/engine/layout/curve.rs` (novo — layout atomizado)
 - L3:
   - `03_infra/src/query_helpers.rs` (não-texto / count terminal)
 

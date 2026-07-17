@@ -15,19 +15,19 @@
 ## Sonda — confirmar os 7 call-sites e o mecanismo exato
 
 ```bash
-grep -rn "layout_sub_frame" 01_core/src/rules/layout/*.rs
+grep -rn "layout_sub_frame" 01_core/src/engine/layout/*.rs
 ```
 
 Listar os 7 pontos exatos (P772w cita `placement.rs`, `place.rs`, `grid.rs`, `cursor.rs`, `mod.rs` — confirmar a lista completa e se há mais).
 
 ```bash
-grep -n "decoration_lines_collector\|fn flush_line" 01_core/src/rules/layout/cursor.rs
+grep -n "decoration_lines_collector\|fn flush_line" 01_core/src/engine/layout/cursor.rs
 ```
 
 Confirmar exatamente onde `flush_line()` registra os segmentos de decoração, e qual é a informação necessária para traduzir um `DecoSegment` gerado dentro de um sub-frame para o referencial do frame pai — P772w já apontou que é a mesma translação (`offset`/`origin_x/y`) já aplicada aos `FrameItem`s do sub-frame quando são colados de volta no pai. Confirmar isso por leitura de código, não assumir.
 
 ```bash
-grep -n "fn layout_sub_frame\b" 01_core/src/rules/layout/sub_frame.rs
+grep -n "fn layout_sub_frame\b" 01_core/src/engine/layout/sub_frame.rs
 ```
 
 Confirmar se `layout_sub_frame` tem acesso a `decoration_lines_collector` do `Layouter` pai (é método do `Layouter`?) ou se precisa de um caminho novo para propagar os segmentos para fora do sub-frame antes de serem descartados.

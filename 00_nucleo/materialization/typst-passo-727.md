@@ -33,7 +33,7 @@ Confirmar se mesmo o caso mínimo (só `move` + `line`, sem `cubic`/`close`) já
 ### Localizar exactamente onde a informação se perde
 
 ```bash
-grep -n "CurveElem\|FrameItem::Shape\|Path(" 01_core/src/rules/layout/curve.rs 01_core/src/entities/content.rs | head -30
+grep -n "CurveElem\|FrameItem::Shape\|Path(" 01_core/src/engine/layout/curve.rs 01_core/src/entities/content.rs | head -30
 ```
 
 Seguir o caminho completo: `curve.move/.line/.cubic/.close` → segmentos internos → `CurveElem` → `FrameItem::Shape { kind: Path(...) }` → export PDF. Confirmar em qual destes passos os pontos desaparecem (array vazio, coordenadas erradas, ou o `FrameItem` nunca chega ao export).

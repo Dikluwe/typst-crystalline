@@ -22,7 +22,7 @@ Executados os comandos de sonda definidos em `typst-passo-409.md`:
 
 ## 2. Decisão sobre L0 (FASE A)
 
-Não foi criado `00_nucleo/prompts/rules/eval/duration-arithmetic.md` separado porque:
+Não foi criado `00_nucleo/prompts/engine/eval/duration-arithmetic.md` separado porque:
 
 - A implementação já existe e está testada.
 - Criar um prompt L0 para código que já foi escrito violaria o protocolo de nucleação (L0 antes do código).
@@ -32,7 +32,7 @@ Não foi criado `00_nucleo/prompts/rules/eval/duration-arithmetic.md` separado p
 
 ## 3. Implementação existente (FASE B)
 
-Local: `01_core/src/rules/eval/operators.rs` — comentários `P405`.
+Local: `01_core/src/engine/eval/operators.rs` — comentários `P405`.
 
 Operadores suportados para `Value::Duration`:
 
@@ -54,7 +54,7 @@ Nota: o P409 scope-out `Duration * Float`, mas o P405 já o implementou. Isso n�
 
 ## 4. Testes existentes
 
-Local: `01_core/src/rules/eval/tests.rs` — bloco `P405 — Operações básicas Duration`.
+Local: `01_core/src/engine/eval/tests.rs` — bloco `P405 — Operações básicas Duration`.
 
 14 testes cobrem:
 

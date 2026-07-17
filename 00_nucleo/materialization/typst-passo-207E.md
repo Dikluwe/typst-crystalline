@@ -81,13 +81,13 @@ encerramento ADR.
 
 Se Caminho 2 (com captura): materializar:
 
-- L0 update `00_nucleo/prompts/rules/layout/layouter.md`
+- L0 update `00_nucleo/prompts/engine/layout/layouter.md`
   ou similar — documentar captura de page-meta no
   walk.
 - L0 update `00_nucleo/prompts/entities/page_store.md`
   — actualizar §"Integração" para reflectir captura
   activa.
-- L1 update `01_core/src/rules/layout/mod.rs` ou onde
+- L1 update `01_core/src/engine/layout/mod.rs` ou onde
   o walk acontecer — capturar `numbering` + `supplement`
   de set-rule context para `LayouterRuntimeState`.
 - L1 update `LayouterRuntimeState` — adicionar fields

@@ -45,16 +45,16 @@ Nenhuma reclassificação necessária.
 - `01_core/src/entities/value.rs`: +variant `Value::Selector(Selector)`; `type_name()` → `"selector"`; `From<Selector>`.
 
 ### Parser / Eval
-- `01_core/src/rules/eval/closures.rs`: intercepta `heading.where(level: 1)` antes do `FuncCall` genérico.
-- `01_core/src/rules/eval/bindings.rs`: `eval_element_where()` constrói `Selector::Where` a partir de função nativa de elemento + named arg.
-- `01_core/src/rules/eval/rules.rs`:
+- `01_core/src/engine/eval/closures.rs`: intercepta `heading.where(level: 1)` antes do `FuncCall` genérico.
+- `01_core/src/engine/eval/bindings.rs`: `eval_element_where()` constrói `Selector::Where` a partir de função nativa de elemento + named arg.
+- `01_core/src/engine/eval/rules.rs`:
   - `query_selector_to_show_selector()` converte `Value::Selector` para `show::Selector`.
   - `is_node_rule()` recursivo inclui `Where` com base node-like na travessia de show rules.
   - `selector_matches()` ganha arm `Where` usando `Content::get_field()` + `values_eq_semantic()`.
 
 ### Query
 - `01_core/src/entities/introspector.rs`: arm `Selector::Where` retorna `vec![]` (stub documentado; scope-out real para query neste passo).
-- `01_core/src/rules/stdlib/foundations.rs`: `parse_selector_arg()` aceita `Value::Selector`.
+- `01_core/src/engine/stdlib/foundations.rs`: `parse_selector_arg()` aceita `Value::Selector`.
 
 ### L0
 - `00_nucleo/prompts/entities/selector.md`: atualizado com P417; hash `ce7ef79d`.

@@ -31,7 +31,7 @@ state. Invariante `is_locatable ↔ extract_payload.is_some()`
 
 **Restrições**:
 - **Não** modificar código de produção em
-  `01_core/src/rules/`, `01_core/src/entities/`,
+  `01_core/src/engine/`, `01_core/src/entities/`,
   `02_shell/`, `03_infra/`, `04_wiring/`.
 - **Não** modificar walk arm legacy.
 - **Não** modificar variants, `is_locatable`,
@@ -78,7 +78,7 @@ identificada.
 ### .B Test E2E pipeline com state injectado
 
 1. Submódulo novo `p186f_equation_locatable` em
-   `01_core/src/rules/layout/tests.rs` (irmão de
+   `01_core/src/engine/layout/tests.rs` (irmão de
    `p184e_figure_per_kind` e `p185d_locator_sync`).
 
 2. Test `pipeline_e2e_equation_block_com_state_activo`:

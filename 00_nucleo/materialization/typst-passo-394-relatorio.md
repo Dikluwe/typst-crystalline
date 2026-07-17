@@ -13,22 +13,22 @@ código Typst no contexto actual.
 - `01_core/src/entities/func.rs` — adiciona `FuncRepr::NativeWithEngine(NativeFuncWithEngine)`
   e `Func::native_with_engine`, permitindo que uma nativa receba `&mut Scopes<'_>` e
   `&mut Engine<'_>` sem alterar o ABI das restantes nativas.
-- `01_core/src/rules/eval/closures.rs` — `apply_func` passa a receber `&mut Scopes` e
+- `01_core/src/engine/eval/closures.rs` — `apply_func` passa a receber `&mut Scopes` e
   despacha a variante `NativeWithEngine`, propagando scopes/engine para `native_eval`.
-- `01_core/src/rules/eval/rules.rs`, `rules/eval/closures.rs`, `rules/introspect/from_tags.rs` —
+- `01_core/src/engine/eval/rules.rs`, `rules/eval/closures.rs`, `rules/introspect/from_tags.rs` —
   callers de `apply_func` actualizados. Medição actual: 6 callers directos; 3 passam scope real do eval (`rules.rs` ×2, `closures.rs` ×1) e 3 passam scope vazio (`from_tags.rs` ×3 — callbacks de state/counter display).
 - `01_core/src/entities/source.rs` — `Source::detached_with_parser` para parse de blocos de
   código não-markup.
-- `01_core/src/rules/stdlib/eval.rs` — `native_eval`:
+- `01_core/src/engine/stdlib/eval.rs` — `native_eval`:
   - valida argumentos (string única, sem named args);
   - rejeita strings sintacticamente inválidas;
   - parseia com `parse_code`;
   - avalia as expressões numa engine local (clone de `styles`/`show_rules`/`sink`), confinando
     `#set`/`#show` internos;
   - devolve o `Value` da última expressão.
-- `01_core/src/rules/eval/mod.rs` — regista `eval` em `make_stdlib` via
+- `01_core/src/engine/eval/mod.rs` — regista `eval` em `make_stdlib` via
   `Func::native_with_engine`.
-- `00_nucleo/prompts/rules/stdlib/eval.md` — L0 novo/revisado.
+- `00_nucleo/prompts/engine/stdlib/eval.md` — L0 novo/revisado.
 - `00_nucleo/diagnosticos/typst-cobertura-vanilla-vs-cristalino.md` — `eval(string)`
   reclassificado de `ausente` para `implementado`; `mode: "markup"` documentado como scope-out.
 
@@ -50,7 +50,7 @@ porque é o substrato mínimo que satisfaz os casos de teste declarados (`1 + 2`
 explicitamente como **scope-out** e reflectida no inventário.
 
 A assinatura de `apply_func` passou a incluir `scopes: &mut Scopes<'_>`
-(`01_core/src/rules/eval/closures.rs:61`). A intrusão propagou-se a **6 callers directos**:
+(`01_core/src/engine/eval/closures.rs:61`). A intrusão propagou-se a **6 callers directos**:
 - 3 callers em `rules/introspect/from_tags.rs` (callbacks de state/counter display) passam um
   scope vazio (`Scopes::new(None)`), porque esses callbacks não têm acesso ao scope de eval.
 - 3 callers em `rules/eval/rules.rs` (show rules) e `rules/eval/closures.rs` (call expressions)
@@ -94,8 +94,8 @@ vazam para o chamador, espelhando o confinamento de content block (`[]`).
 - Código: `01_core/src/entities/func.rs`, `entities/source.rs`, `rules/eval/closures.rs`,
   `rules/eval/rules.rs`, `rules/eval/mod.rs`, `rules/introspect/from_tags.rs`,
   `rules/stdlib/eval.rs`.
-- L0: `00_nucleo/prompts/rules/stdlib/eval.md`.
-- Testes: `01_core/src/rules/eval/tests.rs` (7), `01_core/src/rules/stdlib/mod.rs` (8).
+- L0: `00_nucleo/prompts/engine/stdlib/eval.md`.
+- Testes: `01_core/src/engine/eval/tests.rs` (7), `01_core/src/engine/stdlib/mod.rs` (8).
 - Inventário 148 — `eval(string)` implementado; `mode: "markup"` scope-out.
 - este relatório.
 

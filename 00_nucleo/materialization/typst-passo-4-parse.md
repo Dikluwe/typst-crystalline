@@ -49,7 +49,7 @@ Não adicionar externos sem decisão explícita.
 
 ## Tarefa 1 — Prompt L0
 
-**Criar**: `00_nucleo/prompts/rules/parse.md`
+**Criar**: `00_nucleo/prompts/engine/parse.md`
 
 O prompt deve documentar:
 
@@ -62,13 +62,13 @@ O prompt deve documentar:
 
 ## Tarefa 2 — Migrar para 01_core/rules/
 
-**Destino**: `01_core/src/rules/parse.rs`
-             `01_core/src/rules/lexer.rs` (se o lexer for ficheiro separado)
+**Destino**: `01_core/src/engine/parse.rs`
+             `01_core/src/engine/lexer.rs` (se o lexer for ficheiro separado)
 
-Criar o directório `01_core/src/rules/` e `mod.rs`:
+Criar o directório `01_core/src/engine/` e `mod.rs`:
 ```rust
 //! Crystalline Lineage
-//! @prompt 00_nucleo/prompts/rules/mod.md
+//! @prompt 00_nucleo/prompts/engine/mod.md
 //! @prompt-hash <hash>
 //! @layer L1
 //! @updated 2026-03-22
@@ -79,7 +79,7 @@ pub mod parse;
 Header em cada ficheiro migrado:
 ```rust
 //! Crystalline Lineage
-//! @prompt 00_nucleo/prompts/rules/parse.md
+//! @prompt 00_nucleo/prompts/engine/parse.md
 //! @prompt-hash <hash>
 //! @layer L1
 //! @updated 2026-03-22

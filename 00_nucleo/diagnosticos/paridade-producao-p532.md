@@ -18,7 +18,7 @@ O Passo 531 (Grupo 8.2) confirmou que `#set page(numbering: "i")` compila sem er
 ### Perguntas e respostas
 
 1. **A propriedade `numbering:` fica guardada depois de `#set page(...)`?**
-   - Não. Em `01_core/src/rules/eval/rules.rs:701-729`, o target `"page"` só extrai `width`, `height` e `margin`. A propriedade `numbering` é lida mas descartada.
+   - Não. Em `01_core/src/engine/eval/rules.rs:701-729`, o target `"page"` só extrai `width`, `height` e `margin`. A propriedade `numbering` é lida mas descartada.
 
 2. **Existe código no Layouter que lê essa propriedade?**
    - Não. `Content::SetPage` só transporta `width`, `height`, `margin` (`01_core/src/entities/content.rs:486`). `PageConfig` (`01_core/src/entities/layout_types.rs:432`) e `Page` (`01_core/src/entities/layout_types.rs:456`) também não a guardavam.
@@ -39,15 +39,15 @@ O Passo 531 (Grupo 8.2) confirmou que `#set page(numbering: "i")` compila sem er
 - `01_core/src/entities/content.rs` — adicionado `numbering: Option<EcoString>` a `Content::SetPage`.
 - `01_core/src/entities/layout_types.rs` — adicionado `numbering` a `PageConfig` e `Page`; actualizados testes internos.
 - `01_core/src/entities/counter_format.rs` — adicionado token `'i'` para numerais romanos minúsculos.
-- `01_core/src/rules/eval/rules.rs` — extrai `numbering` de `#set page(...)`.
-- `01_core/src/rules/layout/set_page.rs` — propaga `numbering` para `layouter.page_config`.
-- `01_core/src/rules/layout/mod.rs` — desenha o número na última página no `finish()`.
-- `01_core/src/rules/layout/cursor.rs` — desenha o número em `new_page()` para páginas intermédias.
+- `01_core/src/engine/eval/rules.rs` — extrai `numbering` de `#set page(...)`.
+- `01_core/src/engine/layout/set_page.rs` — propaga `numbering` para `layouter.page_config`.
+- `01_core/src/engine/layout/mod.rs` — desenha o número na última página no `finish()`.
+- `01_core/src/engine/layout/cursor.rs` — desenha o número em `new_page()` para páginas intermédias.
 - `03_infra/src/export/mod.rs` — restaurados imports `cfg(test)` necessários a `export/tests.rs`.
 - `03_infra/src/export/tests.rs` — actualizados 81+ construtores de `Page` para incluir `numbering: None`.
 - `03_infra/src/pipeline.rs` — actualizado helper de teste `page_with`.
 - `03_infra/src/shaper.rs` — actualizado helper de teste `doc_with`.
-- `01_core/src/rules/layout/tests.rs` — actualizado construtor de `Content::SetPage`.
+- `01_core/src/engine/layout/tests.rs` — actualizado construtor de `Content::SetPage`.
 
 ### Lógica do fix
 

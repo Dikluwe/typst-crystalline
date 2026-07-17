@@ -6,5 +6,5 @@
 
 pub mod contracts;
 pub mod entities;
-pub mod rules;
+pub mod engine;
 pub(crate) mod utils;

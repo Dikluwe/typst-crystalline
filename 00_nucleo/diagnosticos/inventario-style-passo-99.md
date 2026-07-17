@@ -52,16 +52,16 @@ Distribuição (top files):
 
 | Ficheiro | Ocorrências |
 |----------|------------:|
-| `01_core/src/rules/math/layout/mod.rs` | 9 |
+| `01_core/src/engine/math/layout/mod.rs` | 9 |
 | `01_core/src/entities/layout_types.rs` | 9 |
-| `01_core/src/rules/layout/mod.rs` | 8 |
-| `01_core/src/rules/math/layout/tests.rs` | 5 |
+| `01_core/src/engine/layout/mod.rs` | 8 |
+| `01_core/src/engine/math/layout/tests.rs` | 5 |
 | `01_core/src/entities/style_chain.rs` | 5 |
-| `01_core/src/rules/layout/tests.rs` | 4 |
+| `01_core/src/engine/layout/tests.rs` | 4 |
 | `01_core/src/entities/content.rs` | 4 |
-| `01_core/src/rules/math/layout/root.rs` | 3 |
-| `01_core/src/rules/math/layout/frac.rs` | 3 |
-| `01_core/src/rules/math/layout/attach.rs` | 3 |
+| `01_core/src/engine/math/layout/root.rs` | 3 |
+| `01_core/src/engine/math/layout/frac.rs` | 3 |
+| `01_core/src/engine/math/layout/attach.rs` | 3 |
 
 Sítios de **construção** (`TextStyle { bold: ..., italic: ..., size: ... }`
 ou `TextStyle::regular/bold/italic`): ~15.

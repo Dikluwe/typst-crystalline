@@ -301,7 +301,7 @@ Auditor confirma empiricamente:
      identificar e decidir migração.
 
 3. Confirmar arm `is_locatable` template P182C:
-   - `01_core/src/rules/introspect/locatable.rs` — arm
+   - `01_core/src/engine/introspect/locatable.rs` — arm
      `Content::SetHeadingNumbering { .. } => true`.
    - Onde adicionar arm análogo.
 

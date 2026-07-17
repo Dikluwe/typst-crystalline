@@ -21,8 +21,8 @@ Nenhuma mudança de código foi necessária além da actualização do prompt L0
 | Entidade `Link` | ✅ | `01_core/src/entities/elements/link.rs` — `LinkElem { url, body }` + impl `Element`. |
 | `Content::Link` | ✅ | `01_core/src/entities/content.rs` — variante `Link(Arc<LinkElem>)` + construtor `Content::link`. |
 | `FrameItem::Link` | ✅ | `01_core/src/entities/layout_types.rs` — `Link { url, items, pos, size }`. |
-| Função nativa `link` | ✅ | `01_core/src/rules/stdlib/structural.rs` — `native_link(url, body?)`. |
-| Layout de link | ✅ | `01_core/src/rules/layout/link.rs` — renderiza body e envolve em `FrameItem::Link`. |
+| Função nativa `link` | ✅ | `01_core/src/engine/stdlib/structural.rs` — `native_link(url, body?)`. |
+| Layout de link | ✅ | `01_core/src/engine/layout/link.rs` — renderiza body e envolve em `FrameItem::Link`. |
 | Export PDF de links | ✅ | `03_infra/src/export/builder.rs` — `emit_link_annotations` gera `/Subtype /Link` + `/A /URI`. |
 | `label`/`ref` | ⛔ scope-out | P453. |
 

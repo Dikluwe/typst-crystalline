@@ -48,7 +48,7 @@
 
 ### 3.1 `native_rgb` — não tocado; `native_range` — generalizado
 
-`01_core/src/rules/stdlib/foundations.rs::native_range`: novo argumento
+`01_core/src/engine/stdlib/foundations.rs::native_range`: novo argumento
 nomeado `step` (`Int` não-zero, default `1`), validado antes do braço de
 argumentos posicionais. Nova função interna `stepped_range(start, end,
 step, inclusive)` — replica `step_dir`/`in_bounds` do vanilla verbatim.
@@ -62,7 +62,7 @@ O braço de 1 argumento deixou de rejeitar negativos explicitamente — o
 algoritmo `stepped_range(0, n, 1, false)` já produz `()` correctamente
 quando `n < 0` (a condição `in_bounds` falha na primeira iteração), tal
 como o vanilla. Um teste antigo (`native_range_directo`,
-`01_core/src/rules/stdlib/mod.rs`) esperava `Err` para `range(-1)` —
+`01_core/src/engine/stdlib/mod.rs`) esperava `Err` para `range(-1)` —
 **actualizado** para esperar `Value::Array(vec![])`, com comentário a
 registar que isto é a correcção de P704, não uma regressão silenciosa.
 
@@ -76,12 +76,12 @@ com `inclusive`, `step: 0` (mensagem verbatim).
 
 ## 4. Ficheiros tocados
 
-- **L0**: `00_nucleo/prompts/rules/stdlib/foundations.md` — secção
+- **L0**: `00_nucleo/prompts/engine/stdlib/foundations.md` — secção
   `native_range` reescrita: algoritmo completo, `inclusive:` (já existente,
   nunca documentado — aproveitado para o registar agora), `step:` novo,
   correcção do `n<0`, testes canónicos.
-- **Código**: `01_core/src/rules/stdlib/foundations.rs` (`native_range` +
-  `stepped_range` + 7 testes), `01_core/src/rules/stdlib/mod.rs` (1 teste
+- **Código**: `01_core/src/engine/stdlib/foundations.rs` (`native_range` +
+  `stepped_range` + 7 testes), `01_core/src/engine/stdlib/mod.rs` (1 teste
   antigo corrigido para a paridade certa).
 
 ---
@@ -122,7 +122,7 @@ mesma linha de `palette.typ` que motivou P704:
 range(90, 40, step: -12).map(v => luma(v * 1%))
 ```
 `v * 1%` produz um `Value::Ratio` (percentagem), não `Value::Int` —
-`native_luma` (`01_core/src/rules/stdlib/foundations.rs`) só aceita `Int`
+`native_luma` (`01_core/src/engine/stdlib/foundations.rs`) só aceita `Int`
 0–255. Confirmado standalone contra o vanilla:
 ```
 #luma(50%)

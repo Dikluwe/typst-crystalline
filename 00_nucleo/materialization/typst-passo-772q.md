@@ -40,7 +40,7 @@ lab/typst-original/target/release/typst compile /tmp/p772q-context.typ 2>&1
 ### Confirmar o estado actual do cristalino (P772l já mapeou, revalidar)
 
 ```bash
-grep -n "fn get_mut\|captured" 01_core/src/rules/scopes.rs 01_core/src/rules/eval/bindings.rs
+grep -n "fn get_mut\|captured" 01_core/src/engine/scopes.rs 01_core/src/engine/eval/bindings.rs
 ```
 
 `Scopes::get_mut` não consulta `captured` (comentário do próprio código, P715, referido por P772l). `access()` trata qualquer `get_mut == None` uniformemente como "unknown variable" — confirmar se isso ainda é verdade depois de P772n ter mexido em `access()`.

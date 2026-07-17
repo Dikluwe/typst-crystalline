@@ -51,7 +51,7 @@ Material de partida verificado:
   (`pipeline_e2e_is_numbering_active_at_via_current_location`).
 - ADR-0068 ACEITE — sincronização Locator
   empiricamente validada em P185D.
-- `01_core/src/rules/layout/mod.rs:310` — site C1 actual
+- `01_core/src/engine/layout/mod.rs:310` — site C1 actual
   com leitura legacy `self.counter.format_hierarchical(
   "heading")`.
 
@@ -233,7 +233,7 @@ for trivial e os tests directos.
 Auditor confirma empiricamente:
 
 1. Confirmar consumer C1 actual:
-   - `01_core/src/rules/layout/mod.rs:310` (per P183A
+   - `01_core/src/engine/layout/mod.rs:310` (per P183A
      §2 e P183B relatório).
    - Localizar leitura: padrão esperado
      `self.counter.format_hierarchical("heading")` ou

@@ -9,16 +9,16 @@
 Ativaram-se os três tipos L1 modelados em P399–P401 com constructors stdlib puros `Str → T fallible`, consumindo o portão ADR-0017.
 
 - L0:
-  - `00_nucleo/prompts/rules/stdlib/primitives-constructors.md` — novo prompt dedicado aos três constructors.
-- `01_core/src/rules/stdlib/primitives_constructors.rs`:
+  - `00_nucleo/prompts/engine/stdlib/primitives-constructors.md` — novo prompt dedicado aos três constructors.
+- `01_core/src/engine/stdlib/primitives_constructors.rs`:
   - `native_decimal(s)` → parse via `Decimal::from_str` → `Value::Decimal`.
   - `native_duration(s)` → parser canónico `NdNhNmNs` (ordem fixa, fração decimal apenas em segundos) → `Value::Duration`.
   - `native_version(s)` → parse semver 2.0.0 via `Version::from_str` → `Value::Version(Arc::new(...))`.
   - 20 testes unitários cobrindo: parse válido/inválido, tipo errado, aridade errada, argumentos nomeados rejeitados, ordem de sufixos inválida.
-- `01_core/src/rules/stdlib/mod.rs`:
+- `01_core/src/engine/stdlib/mod.rs`:
   - Declaração do submódulo `primitives_constructors`.
   - Re-exportação de `native_decimal`, `native_duration`, `native_version`.
-- `01_core/src/rules/eval/mod.rs`:
+- `01_core/src/engine/eval/mod.rs`:
   - Registo dos três constructors em `make_stdlib` (`scope.define("decimal", ...)`, etc.).
 
 `cargo test --workspace -- --skip p350c_flag_on_nao_convergente_classifica` → 2933 passed; `crystalline-lint .` → `✓ No violations found`; hashes propagados via `crystalline-lint --fix-hashes`.
@@ -67,11 +67,11 @@ Os três constructors são morfologicamente idênticos (`Str → T fallible`). R
 ## Artefactos
 
 - Código:
-  - `01_core/src/rules/stdlib/primitives_constructors.rs`
-  - `01_core/src/rules/stdlib/mod.rs`
-  - `01_core/src/rules/eval/mod.rs`
+  - `01_core/src/engine/stdlib/primitives_constructors.rs`
+  - `01_core/src/engine/stdlib/mod.rs`
+  - `01_core/src/engine/eval/mod.rs`
 - L0:
-  - `00_nucleo/prompts/rules/stdlib/primitives-constructors.md`
+  - `00_nucleo/prompts/engine/stdlib/primitives-constructors.md`
 - Plano: `00_nucleo/materialization/typst-passo-403.md`.
 - Este relatório.
 

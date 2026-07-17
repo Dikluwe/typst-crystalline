@@ -4,7 +4,7 @@
 **Commit base dos testes:** `b87201b9b39bc151315eec84cc40ba4fd428efee`
 **Hash do L0 `entities/content.md`:** `eaca2719`
 **Hash do L0 `rules/eval.md`:** `d1f52ef5`
-**Hash do L0 `rules/layout.md`:** `6c4613b5`
+**Hash do L0 `engine/layout.md`:** `6c4613b5`
 
 ## Parte 1 — Quebras de parágrafo RTL
 
@@ -14,7 +14,7 @@ numa única linha visual. O mesmo sintoma afectava texto latino, indicando
 que não era específico de RTL.
 
 ### Causa
-`01_core/src/rules/eval/mod.rs:494` mapeava tanto `SyntaxKind::Space` como
+`01_core/src/engine/eval/mod.rs:494` mapeava tanto `SyntaxKind::Space` como
 `SyntaxKind::Parbreak` para `Content::Space`, perdendo a semântica de quebra
 de parágrafo.
 
@@ -42,13 +42,13 @@ separando os parágrafos visualmente.
 | Ficheiro | Alteração |
 |---|---|
 | `01_core/src/entities/content.rs` | Nova variante `Parbreak`; métodos do hub; teste unitário. |
-| `01_core/src/rules/eval/mod.rs` | `SyntaxKind::Parbreak` → `Content::Parbreak`. |
-| `01_core/src/rules/layout/mod.rs` | Braço `Content::Parbreak` → `flush_line()`. |
-| `01_core/src/rules/eval/repr.rs` | `repr_content` → `"parbreak"`. |
-| `01_core/src/rules/introspect.rs` | Terminais em `materialize_time` e `walk`. |
-| `01_core/src/rules/introspect/locatable.rs` | Não-locatable. |
-| `01_core/src/rules/introspect/extract_payload.rs` | Teste: `extract_payload(&Parbreak) == None`. |
-| `01_core/src/rules/layout/tests.rs` | Teste `parbreak_separa_dois_paragrafos_em_linhas_distintas`. |
+| `01_core/src/engine/eval/mod.rs` | `SyntaxKind::Parbreak` → `Content::Parbreak`. |
+| `01_core/src/engine/layout/mod.rs` | Braço `Content::Parbreak` → `flush_line()`. |
+| `01_core/src/engine/eval/repr.rs` | `repr_content` → `"parbreak"`. |
+| `01_core/src/engine/introspect.rs` | Terminais em `materialize_time` e `walk`. |
+| `01_core/src/engine/introspect/locatable.rs` | Não-locatable. |
+| `01_core/src/engine/introspect/extract_payload.rs` | Teste: `extract_payload(&Parbreak) == None`. |
+| `01_core/src/engine/layout/tests.rs` | Teste `parbreak_separa_dois_paragrafos_em_linhas_distintas`. |
 | `03_infra/src/query_helpers.rs` | Matches `has_any_text` e `count_variant` tratam `Parbreak`. |
 | `03_infra/fixtures/p307b/reference/03-text-styling.pdf` | Snapshot actualizado (o fixture tem dois parágrafos). |
 
@@ -96,7 +96,7 @@ nesta versão — comportamento registado como limitação conhecida.
 ## Parte 2 — `advance_shaped` em devanágari
 
 ### Observação
-`needs_shaped_width` (`01_core/src/rules/layout/metrics.rs:150`) lista
+`needs_shaped_width` (`01_core/src/engine/layout/metrics.rs:150`) lista
 `Arabic`, `Syriac`, `Mongolian`, `Nko` e `Mandaic`. **Devanagari não está
 incluído.**
 

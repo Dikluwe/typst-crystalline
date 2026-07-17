@@ -2,7 +2,7 @@
 
 **Data:** 2026-07-03  
 **Passo:** 543  
-**Prompt L0:** `00_nucleo/prompts/infra/export-fixtures.md` (hash `9228792a`) para testes de shaper; `00_nucleo/prompts/rules/layout.md` (hash `9c9b7122`) para tipos de layout  
+**Prompt L0:** `00_nucleo/prompts/infra/export-fixtures.md` (hash `9228792a`) para testes de shaper; `00_nucleo/prompts/engine/layout.md` (hash `9c9b7122`) para tipos de layout  
 **Dependências:** P534 (fallback multi-script), P538e (fallback quando a fonte default não existe)
 
 ## Objectivo

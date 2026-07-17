@@ -18,7 +18,7 @@ Ler antes de começar:
 - `00_nucleo/DEBT.md` — entrada DEBT-40 (será movida para Secção
   2 no fim deste passo).
 - `01_core/src/entities/world_types.rs` — stub actual de `Route`.
-- `01_core/src/rules/eval.rs` — código actual com
+- `01_core/src/engine/eval.rs` — código actual com
   `EvalContext.import_stack`, `ImportGuard`, `enter_import`,
   detecção de ciclos.
 - `lab/typst-original/crates/typst-library/src/engine.rs:251` —
@@ -179,15 +179,15 @@ Antes de qualquer alteração ao eval, executar:
 ```bash
 # Forma actual do EvalContext (tem lifetime próprio?):
 grep -n "struct EvalContext\|impl.*EvalContext\|impl EvalContext" \
-    01_core/src/rules/eval.rs | head -5
+    01_core/src/engine/eval.rs | head -5
 
 # Quantas funções de eval existem (dimensiona refactor):
 grep -cn "^\s*fn eval_\|^\s*pub fn eval_\|^pub fn eval\b" \
-    01_core/src/rules/eval.rs
+    01_core/src/engine/eval.rs
 
 # Quais check_*_depth já existem no cristalino (funcionalidade actual):
 grep -n "check_.*_depth\|tick_loop\|exceeded\|too deep\|too much" \
-    01_core/src/rules/eval.rs | head -20
+    01_core/src/engine/eval.rs | head -20
 
 # comemo::track já é usado noutros tipos em L1?
 grep -rn "#\[comemo::track\]\|#\[track\]" 01_core/src/ --include="*.rs"
@@ -228,11 +228,11 @@ com premissas incorrectas.
 
 #### 3.1 — Mapear mecanismo actual
 
-Localizar em `01_core/src/rules/eval.rs`:
+Localizar em `01_core/src/engine/eval.rs`:
 
 ```bash
 grep -n "import_stack\|ImportGuard\|enter_import\|stack_ptr" \
-    01_core/src/rules/eval.rs
+    01_core/src/engine/eval.rs
 ```
 
 Identificar:
@@ -292,7 +292,7 @@ Localizar:
 
 ```bash
 grep -n "import.*cycle\|cyclic\|import_stack" \
-    01_core/src/rules/eval.rs 01_core/tests/ 2>/dev/null
+    01_core/src/engine/eval.rs 01_core/tests/ 2>/dev/null
 ```
 
 Os testes que exercitam detecção de ciclo devem continuar a
@@ -356,7 +356,7 @@ E2E) passam. Se falharem, depurar antes da Tarefa 4.
 ### Tarefa 4 — Verificar que `unsafe` foi eliminado de `eval.rs`
 
 ```bash
-grep -n "unsafe" 01_core/src/rules/eval.rs
+grep -n "unsafe" 01_core/src/engine/eval.rs
 ```
 
 Esperado: **zero ocorrências**. Se restar alguma, investigar —

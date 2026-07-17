@@ -49,10 +49,10 @@ $ grep -n "Content::Heading\b\|Content::Emph\b\|Content::Strong\b\|Content::Outl
 1758:            (Content::Heading { body, .. },  "body")  => Some(Value::Content(*body.clone())),
 1961:            | Content::Outline
 
-$ grep -n "native_heading\|native_emph\|native_strong" 01_core/src/rules/stdlib/*.rs
-01_core/src/rules/stdlib/structural.rs:26: native_strong
-01_core/src/rules/stdlib/structural.rs:42: native_emph
-01_core/src/rules/stdlib/structural.rs:78: native_heading
+$ grep -n "native_heading\|native_emph\|native_strong" 01_core/src/engine/stdlib/*.rs
+01_core/src/engine/stdlib/structural.rs:26: native_strong
+01_core/src/engine/stdlib/structural.rs:42: native_emph
+01_core/src/engine/stdlib/structural.rs:78: native_heading
 ```
 
 **heading**: variant existe; consumer eval/layout/stdlib ✓.
@@ -152,7 +152,7 @@ $ grep -rn "Content::Footnote\b\|native_footnote" 01_core/src/
 $ grep -n "footnote_area\|footnote" 01_core/src/entities/layout_types.rs
 (zero hits)
 
-$ grep -rn "footnote" 01_core/src/rules/layout/
+$ grep -rn "footnote" 01_core/src/engine/layout/
 (zero hits)
 ```
 

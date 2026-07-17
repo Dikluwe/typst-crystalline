@@ -16,7 +16,7 @@ P173 acrescenta apenas:
 
 **Pré-condição**: P172 concluído (stub). `StateUpdate::Func`
 variant existe; `state_update_with` registada; `apply_func`
-disponível em `01_core/src/rules/eval/closures.rs`.
+disponível em `01_core/src/engine/eval/closures.rs`.
 
 **Restrições**:
 - Walk em `rules/introspect.rs::walk` **NÃO modificado** —
@@ -43,9 +43,9 @@ Reverificar (não confiar em P172):
    - `StateUpdate::Func(Func)` variant existe em
      `01_core/src/entities/state_update.rs`.
    - Stdlib `state_update_with(key, fn)` em
-     `01_core/src/rules/stdlib*.rs`.
+     `01_core/src/engine/stdlib*.rs`.
    - `from_tags` em
-     `01_core/src/rules/introspect/from_tags.rs` tem arm
+     `01_core/src/engine/introspect/from_tags.rs` tem arm
      `StateUpdate::Func(_)` que é no-op (per P172
      relatório).
    - Tests stub identificados:
@@ -57,7 +57,7 @@ Reverificar (não confiar em P172):
        regressão Set. Manter.
 
 2. **Confirmar `apply_func` API real**:
-   - `01_core/src/rules/eval/closures.rs:59` (per gate
+   - `01_core/src/engine/eval/closures.rs:59` (per gate
      report P172.A).
    - Assinatura:
      ```rust
@@ -121,7 +121,7 @@ Reverificar (não confiar em P172):
    - Se há test helper existente: usar.
    - Se não: criar `make_test_engine() -> Engine` em
      local apropriado (tests de `from_tags` ou
-     `01_core/src/rules/introspect/test_helpers.rs`).
+     `01_core/src/engine/introspect/test_helpers.rs`).
 
 7. **Confirmar `Func` derives**:
    - `Clone` derivado (P172 confirmou).
@@ -147,7 +147,7 @@ Output: notas internas + decisões registadas:
 
 ### .B Modificar `from_tags` para aceitar Engine + EvalContext
 
-1. L0 `00_nucleo/prompts/rules/introspect/from_tags.md`:
+1. L0 `00_nucleo/prompts/engine/introspect/from_tags.md`:
    - Documentar nova assinatura:
      ```rust
      pub fn from_tags(
@@ -171,7 +171,7 @@ Output: notas internas + decisões registadas:
        `Err(_)` → defensive ignore (refino futuro:
        diagnostics).
 
-2. L1 `01_core/src/rules/introspect/from_tags.rs`:
+2. L1 `01_core/src/engine/introspect/from_tags.rs`:
    - Modificar signatura.
    - Match expandido sobre `update`:
      ```rust
@@ -230,7 +230,7 @@ Output: notas internas + decisões registadas:
 
 ### .C Modificar `introspect_with_introspector` para propagar
 
-1. L1 `01_core/src/rules/introspect.rs`:
+1. L1 `01_core/src/engine/introspect.rs`:
 
    Antes (estado pós-P172):
    ```rust
@@ -273,7 +273,7 @@ Output: notas internas + decisões registadas:
    Funcs em `state.update` aplicadas via API legacy ficam
    ignoradas defensively. Comportamento documentado.
 
-3. Update L0 `00_nucleo/prompts/rules/introspect.md`:
+3. Update L0 `00_nucleo/prompts/engine/introspect.md`:
    - Documentar nova assinatura.
    - Documentar comportamento defensivo de `introspect()`
      legacy.

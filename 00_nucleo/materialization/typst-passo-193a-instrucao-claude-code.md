@@ -267,7 +267,7 @@ Auditor confirma empiricamente:
 2. Confirmar arms que populam:
    - `Content::Labelled` walk (per P189A §11.2).
    - `Content::Heading` walk auto-toc (per P189A §11.2).
-   - Possivelmente outros — `grep -rn "resolved_labels" 01_core/src/rules/introspect.rs`.
+   - Possivelmente outros — `grep -rn "resolved_labels" 01_core/src/engine/introspect.rs`.
 
 3. Confirmar consumer C4:
    - Localização exacta (`mod.rs` Ref-arm).

@@ -93,7 +93,7 @@ match selector {
 Tests existentes que invocam `query` continuam verdes;
 + 2 tests para os arms novos.
 
-**`01_core/src/rules/stdlib/foundations.rs`**:
+**`01_core/src/engine/stdlib/foundations.rs`**:
 
 `native_query` + `native_locate` dispatch refactor:
 

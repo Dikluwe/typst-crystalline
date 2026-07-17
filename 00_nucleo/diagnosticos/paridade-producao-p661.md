@@ -115,8 +115,8 @@ Tipos suportados: heading, figure, strong, emph, raw, underline, strike, overlin
 
 ### 1.3 Código envolvido
 
-- `01_core/src/rules/eval/rules.rs:871-889` — processa `#set table(numbering: ...)`.
-- `01_core/src/rules/layout/table.rs` — lê `table.numbering` e renderiza a caption directamente no layout de `Content::Table`.
+- `01_core/src/engine/eval/rules.rs:871-889` — processa `#set table(numbering: ...)`.
+- `01_core/src/engine/layout/table.rs` — lê `table.numbering` e renderiza a caption directamente no layout de `Content::Table`.
 - `01_core/src/entities/elements/table.rs` — `TableElem` mantém `caption` como campo próprio; não há transformação para `figure`.
 
 ---
@@ -142,11 +142,11 @@ Não se propõe, neste passo, estender a extensão para disparar show rules de `
 
 Foram actualizados os Prompts L0 relacionados com P459:
 
-- `00_nucleo/prompts/rules/layout/table.md`:
+- `00_nucleo/prompts/engine/layout/table.md`:
   - Adicionada secção "§P661 — Limitação: fora do mecanismo `figure`".
   - Actualizado scope-out para mencionar a não integração no mecanismo `figure`.
 
-- `00_nucleo/prompts/rules/eval/table.md`:
+- `00_nucleo/prompts/engine/eval/table.md`:
   - Adicionada secção "4. Limitação conhecida (P661)".
   - Adicionado item de verificação sobre show rules de `figure.where(kind: table)` não afectarem tabelas P459.
 
@@ -156,7 +156,7 @@ Foram actualizados os Prompts L0 relacionados com P459:
 Os `@prompt-hash` nos ficheiros de código L1 correspondentes foram recalculados via `crystalline-lint --fix-hashes`:
 
 - `01_core/src/entities/elements/table.rs` → `fe36c643`
-- `01_core/src/rules/layout/table.rs` → `d0817664`
+- `01_core/src/engine/layout/table.rs` → `d0817664`
 
 ---
 

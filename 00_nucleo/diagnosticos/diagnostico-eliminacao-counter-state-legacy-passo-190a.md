@@ -119,7 +119,7 @@
 
 ## §6 Inventário Layouter consumers `self.counter.X`
 
-`grep -rnE "self\.counter\." 01_core/src/rules/layout/` retornou **10 ocorrências** em 2 ficheiros:
+`grep -rnE "self\.counter\." 01_core/src/engine/layout/` retornou **10 ocorrências** em 2 ficheiros:
 
 | Ficheiro:linha | Acesso | Substitutível por |
 |----------------|--------|-------------------|
@@ -311,7 +311,7 @@
 
 4. Adaptar tests Layouter dependentes.
 
-5. L0 actualizado (`entities/counter_state_legacy.md` se existir; `rules/layout/*.md`).
+5. L0 actualizado (`entities/counter_state_legacy.md` se existir; `engine/layout/*.md`).
 
 6. Tests workspace verdes.
 

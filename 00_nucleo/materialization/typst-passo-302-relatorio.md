@@ -22,7 +22,7 @@ P302 resolve o bug latente exposto em P301 §9: `$sin(x)$` em math
 mode descartava silenciosamente os args `(x)` quando
 `lookup_math_op` encontrava operador.
 
-**Modificação localizada** em `01_core/src/rules/eval/math.rs` arm
+**Modificação localizada** em `01_core/src/engine/eval/math.rs` arm
 `FuncCall` fallback: quando lookup encontra operador, preservar
 args via `MathSequence([MathOp, MathDelimited((x))])` —
 **emulação do comportamento vanilla** (parser vanilla distinguish
@@ -70,7 +70,7 @@ Detalhe completo: `00_nucleo/diagnosticos/diagnostico-sin-parens-passo-302.md`.
 
 ## §3 — Materialização
 
-### §3.1 — `01_core/src/rules/eval/math.rs` — FuncCall fallback estendido
+### §3.1 — `01_core/src/engine/eval/math.rs` — FuncCall fallback estendido
 
 ```rust
 // Outros nomes: P301 auto-lookup math (sin, cos, lim, …)
@@ -139,7 +139,7 @@ _ => {
 
 ## §4 — Testes
 
-### §4.1 — `01_core/src/rules/eval/tests.rs` (+6 testes L1)
+### §4.1 — `01_core/src/engine/eval/tests.rs` (+6 testes L1)
 
 | Teste | Verifica |
 |---|---|

@@ -11,16 +11,16 @@ P749 mediria que o vanilla posiciona a primeira baseline de texto a `margem + ca
 
 ## Causa
 
-O `Layouter` inicializava `cursor_y = margem + ascender` (`01_core/src/rules/layout/mod.rs:517` pré-P750). Como `cursor_y` representa a baseline da próxima linha de texto, a primeira baseline ficava abaixo do vanilla por `ascender − cap-height` (≈ 1,5 pt em `FixedMetrics` 11 pt) mais o resíduo não identificado.
+O `Layouter` inicializava `cursor_y = margem + ascender` (`01_core/src/engine/layout/mod.rs:517` pré-P750). Como `cursor_y` representa a baseline da próxima linha de texto, a primeira baseline ficava abaixo do vanilla por `ascender − cap-height` (≈ 1,5 pt em `FixedMetrics` 11 pt) mais o resíduo não identificado.
 
 ## Solução
 
-1. **Nova métrica `cap_height` no trait `FontMetrics`** (`01_core/src/rules/layout/metrics.rs`):
+1. **Nova métrica `cap_height` no trait `FontMetrics`** (`01_core/src/engine/layout/metrics.rs`):
    - `FontMetrics::cap_height(size: Pt) -> Pt`.
    - `FixedMetrics::cap_height` → `size * 0.7`.
    - `FontBookMetrics` / `FallbackFontMetrics` (`03_infra/src/font_metrics.rs`) usam `ttf.capital_height()` com fallback para ascender quando a fonte não expõe capital height, espelhando o vanilla.
 
-2. **Pontos de layout alterados para usar `cap_height` na primeira baseline** (`01_core/src/rules/layout/mod.rs:517`, `cursor.rs:328/427`, `set_page.rs:75`):
+2. **Pontos de layout alterados para usar `cap_height` na primeira baseline** (`01_core/src/engine/layout/mod.rs:517`, `cursor.rs:328/427`, `set_page.rs:75`):
    - `Layouter::new` inicializa `cursor_y = margem + cap_height(initial_style.size)`.
    - `new_page` e `start_column` reiniciam `cursor_y = margem + cap_height(style.size)`.
    - `set_page` reinicia `cursor_y = margem + cap_height(style.size)` quando a configuração de página muda (corrige o bug que colocava a baseline na margem após `#set page(...)`).
@@ -30,7 +30,7 @@ O `Layouter` inicializava `cursor_y = margem + ascender` (`01_core/src/rules/lay
    - `shape.rs` (P748): atualizado para subtrair `cap_height` em vez de `ascender`, mantendo o topo das formas alinhado com a margem após a mudança de baseline.
 
 4. **Testes e snapshots**:
-   - `01_core/src/rules/layout/tests.rs`: limiar do teste `sum_inline_usa_right_scripts` ajustado de `70.0` para `68.0` para refletir a nova baseline.
+   - `01_core/src/engine/layout/tests.rs`: limiar do teste `sum_inline_usa_right_scripts` ajustado de `70.0` para `68.0` para refletir a nova baseline.
    - Snapshots p307b regenerados com `UPDATE_P307B_SNAPSHOTS=1` (`03_infra/fixtures/p307b/reference/`).
 
 ## Medições

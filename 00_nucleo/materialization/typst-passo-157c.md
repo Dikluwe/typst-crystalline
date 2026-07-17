@@ -65,7 +65,7 @@ fechamento de "table foundations" como conjunto.
   permanece aberto após P157C; relevante a `repeat`).
 - `01_core/src/entities/content.rs` — variants `Content::Table`
   (P157A) e `Content::TableCell` (P157B) para padrão estrutural.
-- `01_core/src/rules/stdlib/structural.rs` — `native_table` e
+- `01_core/src/engine/stdlib/structural.rs` — `native_table` e
   `native_table_cell` (P157A/B) para padrão de stdlib func.
 - `lab/typst-original/crates/typst-library/src/model/table.rs`
   — `TableHeader`/`TableFooter` vanilla (referência).
@@ -219,7 +219,7 @@ par simétrico:
 
 ### .3 Adicionar stdlib funcs `native_table_header` e `native_table_footer`
 
-`01_core/src/rules/stdlib/structural.rs`:
+`01_core/src/engine/stdlib/structural.rs`:
 - Func `table_header(body, repeat: true) -> content`.
 - Func `table_footer(body, repeat: true) -> content`.
 - Reusar ou criar helper `extract_bool_with_default` per
@@ -234,7 +234,7 @@ Registadas em `eval/mod.rs::make_stdlib` como `table_header` e
 
 ### .4 Layout para `Content::TableHeader` e `Content::TableFooter`
 
-`01_core/src/rules/layout/mod.rs`:
+`01_core/src/engine/layout/mod.rs`:
 - 2 pattern arms novos:
   ```rust
   Content::TableHeader { body, repeat: _ } => {

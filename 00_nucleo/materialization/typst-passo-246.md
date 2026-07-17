@@ -11,7 +11,7 @@ referenciada como continuação natural pós-M9d. Audit C1 do P245
 deixou empíricamente confirmado que os 4 fields são declarados
 em `mod.rs:151-160` (e inicializados a `None` em `mod.rs:271-274`)
 sem usos em `mod.rs` próprio — usos estão noutros sub-módulos
-do `01_core/src/rules/layout/` (`grid.rs`, `placement.rs`,
+do `01_core/src/engine/layout/` (`grid.rs`, `placement.rs`,
 `cursor.rs`, ou similar — mapeamento empírico §2).
 **Marco**: **continuação materialização pós-M9d completo**;
 **primeira aplicação Layouter refactor sem migração funcional**
@@ -49,7 +49,7 @@ zero ADR nova**.
 
 - Fields declarados em `mod.rs:151-160` + inicializados a `None`
   em `mod.rs:271-274` (confirmado P245 audit).
-- Usos estão noutros sub-módulos do `01_core/src/rules/layout/`
+- Usos estão noutros sub-módulos do `01_core/src/engine/layout/`
   (`grid.rs`, `placement.rs`, `cursor.rs`, ou similar — naming
   exacto a determinar).
 - **Save/restore por célula** existe no arm Grid (`Content::Grid`)
@@ -165,7 +165,7 @@ fixar arquitectura de migração".
 
 ### §2.1 Inventário declarações pré-P246 (já confirmado P245)
 
-`grep -n "cell_available_h\|cell_origin_x\|cell_origin_y\|cell_origin_w" 01_core/src/rules/layout/mod.rs`:
+`grep -n "cell_available_h\|cell_origin_x\|cell_origin_y\|cell_origin_w" 01_core/src/engine/layout/mod.rs`:
 
 ```
 151:    pub(super) cell_available_h: Option<f64>,
@@ -188,7 +188,7 @@ Comando recomendado:
 
 ```bash
 grep -rn "cell_available_h\|cell_origin_x\|cell_origin_y\|cell_origin_w" \
-  01_core/src/rules/layout/
+  01_core/src/engine/layout/
 ```
 
 Resultado esperado: lista completa com ficheiro + linha + contexto.
@@ -209,7 +209,7 @@ Resultado esperado: lista completa com ficheiro + linha + contexto.
 
 ```bash
 grep -rn "regions\.current\|regions\.cell\|regions\.push\|regions\.pop" \
-  01_core/src/rules/layout/
+  01_core/src/engine/layout/
 ```
 
 Identifica:
@@ -233,7 +233,7 @@ mas pode não ter tocado `Region` interno.
 ### §2.5 Save/restore pattern em arm Grid
 
 ```bash
-grep -B2 -A5 "Content::Grid\|layout_grid" 01_core/src/rules/layout/*.rs | head -80
+grep -B2 -A5 "Content::Grid\|layout_grid" 01_core/src/engine/layout/*.rs | head -80
 ```
 
 Localiza onde o save/restore por linha+coluna acontece.
@@ -461,10 +461,10 @@ quando reserves forem extendidos).
 |-----------|----------|----------|
 | L1 entity | `01_core/src/entities/region.rs` | `Regions { cell: Option<Region> }` field adicionado; métodos `effective`, `enter_cell`, `exit_cell` |
 | L0 prompt | `00_nucleo/prompts/entities/region.md` | Documentar field novo + 3 métodos; hash propagado |
-| L1 Layouter | `01_core/src/rules/layout/mod.rs` | Remover declarações `cell_available_h` + `cell_origin_w` (fields 1+4 migrados); preservar `cell_origin_x` + `cell_origin_y` (Decisão 1) |
-| L1 Layouter | `01_core/src/rules/layout/grid.rs` (ou similar; confirmar §2) | Substituir save/restore patterns nos arms Grid + TableCell |
-| L1 Layouter | `01_core/src/rules/layout/placement.rs` (ou similar) | Substituir reads em `Content::Place` arm |
-| L1 Layouter | `01_core/src/rules/layout/cursor.rs` (ou similar) | Substituir reads em `resolve_alignment` |
+| L1 Layouter | `01_core/src/engine/layout/mod.rs` | Remover declarações `cell_available_h` + `cell_origin_w` (fields 1+4 migrados); preservar `cell_origin_x` + `cell_origin_y` (Decisão 1) |
+| L1 Layouter | `01_core/src/engine/layout/grid.rs` (ou similar; confirmar §2) | Substituir save/restore patterns nos arms Grid + TableCell |
+| L1 Layouter | `01_core/src/engine/layout/placement.rs` (ou similar) | Substituir reads em `Content::Place` arm |
+| L1 Layouter | `01_core/src/engine/layout/cursor.rs` (ou similar) | Substituir reads em `resolve_alignment` |
 | Tests Layouter | onde aplicável | 0-3 tests novos validando `regions.cell` populado/limpo |
 | Tests existentes | conforme `P246.div-N` | Adaptações se necessárias (esperado N=0-5) |
 | Inventário 148 | `00_nucleo/diagnosticos/typst-cobertura-vanilla-vs-cristalino.md` | Sem alteração quantitativa (refactor não-feature); footnote ⁶⁴ P246 documentando refactor cell-region migration |

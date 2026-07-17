@@ -30,7 +30,7 @@ diagnóstico-amplo sem marca cirúrgica).
 
 ## §2 Inventário Layouter face a multi-region (C1)
 
-Auditoria empírica `01_core/src/rules/layout/mod.rs`:
+Auditoria empírica `01_core/src/engine/layout/mod.rs`:
 
 | Componente | Estado actual | Multi-region? | Call-sites |
 |------------|---------------|----------------|------------|
@@ -43,9 +43,9 @@ Auditoria empírica `01_core/src/rules/layout/mod.rs`:
 
 **Empírico**:
 - `grep -c "current_items|current_line|cursor_x|cursor_y"
-  01_core/src/rules/layout/mod.rs` = **102 matches**.
+  01_core/src/engine/layout/mod.rs` = **102 matches**.
 - `grep -c "page_config\."
-  01_core/src/rules/layout/mod.rs` = **33 matches**.
+  01_core/src/engine/layout/mod.rs` = **33 matches**.
 - **Total: ~135 call-sites** afectados pelo refactor
   multi-region.
 

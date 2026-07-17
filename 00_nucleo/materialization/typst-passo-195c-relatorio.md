@@ -181,7 +181,7 @@ materializado em walk; pattern arquitectural ADR-0069
 aplicado pela primeira vez.
 
 Passos:
-1. Editar `01_core/src/rules/introspect.rs:432-486`:
+1. Editar `01_core/src/engine/introspect.rs:432-486`:
    - Após walk recursivo do target, computar
      `(resolved_text, figure_number)` (replica lógica
      actual).

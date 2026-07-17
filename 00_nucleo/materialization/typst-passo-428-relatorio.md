@@ -35,7 +35,7 @@ abertos diminui. A contagem histórica em P407 também foi corrigida de `10` par
 | `04_wiring/src/main.rs:50` | `use typst_infra::pipeline::compile_to_pdf_bytes_full_error;` | Importa o caminho interno de L3. |
 | `04_wiring/src/main.rs:56-58` | Destructuring inclui `full_error` | O campo deixa de ser ignorado pelo `..`. |
 | `04_wiring/src/main.rs:88` | `compile_to_pdf_bytes_full_error(&world, &source, full_error)` | Propagação até L3. |
-| `03_infra/src/pipeline.rs:25` | `use typst_core::rules::eval::eval_with_full_error;` | Importa o eval com flag. |
+| `03_infra/src/pipeline.rs:25` | `use typst_core::engine::eval::eval_with_full_error;` | Importa o eval com flag. |
 | `03_infra/src/pipeline.rs:38-42` | `eval_to_module_with_sink` chama `eval_to_module_with_sink_full_error(..., false)` | Preserva API pública. |
 | `03_infra/src/pipeline.rs:50-69` | `fn eval_to_module_with_sink_full_error(..., full_error)` | Helper interno que invoca `eval_with_full_error`. |
 | `03_infra/src/pipeline.rs:92` | `compile_to_pdf_bytes` chama `compile_to_pdf_bytes_full_error(..., false)` | Preserva API pública. |
@@ -90,12 +90,12 @@ Critério satisfeito: sem `--full-error` a mensagem é byte-idêntica à baselin
 | `01_core/src/entities/introspector.rs:190` | `fn headings_for_toc(&self) -> &[(Label, Option<String>, Content, usize)]` | Assinatura do trait actualizada. |
 | `01_core/src/entities/introspector.rs:298` | `pub headings_for_toc: Vec<(Label, Option<String>, Content, usize)>` | Sub-store actualizada. |
 | `01_core/src/entities/introspector.rs:555` | Implementação do trait retorna o novo tuple | — |
-| `01_core/src/rules/introspect/heading.rs:22-32` | `fn format_heading_number(...)` | Computa `"1."` / `"1.1."` a partir de `formatted_counter_at`, sem supplement. |
-| `01_core/src/rules/introspect/heading.rs:66-76` | `compute_heading_for_toc(...)` | Retorna `(Label, Option<String>, Content, usize)`. |
-| `01_core/src/rules/introspect.rs:608-614` | `populate_intr_from_tag_start` armazena `number` no sub-store | — |
-| `01_core/src/rules/introspect.rs:815-825` | Walk arm Heading invoca `compute_heading_for_toc` com `intr`, `loc` e `numbering_active` | — |
-| `01_core/src/rules/layout/outline.rs:35` | `Vec<(_, _, _, _)>` | Tuple com 4 elementos. |
-| `01_core/src/rules/layout/outline.rs:40-61` | Renderização usa `number` puro; label mantém-se só para lookup de página | — |
+| `01_core/src/engine/introspect/heading.rs:22-32` | `fn format_heading_number(...)` | Computa `"1."` / `"1.1."` a partir de `formatted_counter_at`, sem supplement. |
+| `01_core/src/engine/introspect/heading.rs:66-76` | `compute_heading_for_toc(...)` | Retorna `(Label, Option<String>, Content, usize)`. |
+| `01_core/src/engine/introspect.rs:608-614` | `populate_intr_from_tag_start` armazena `number` no sub-store | — |
+| `01_core/src/engine/introspect.rs:815-825` | Walk arm Heading invoca `compute_heading_for_toc` com `intr`, `loc` e `numbering_active` | — |
+| `01_core/src/engine/layout/outline.rs:35` | `Vec<(_, _, _, _)>` | Tuple com 4 elementos. |
+| `01_core/src/engine/layout/outline.rs:40-61` | Renderização usa `number` puro; label mantém-se só para lookup de página | — |
 
 ### 2.2 Decisão arquitetural
 

@@ -39,7 +39,7 @@ Trilha 6 está em 1/5 completo (P468 fechou estilos numéricos). Este passo fech
 | `citation_number_for_key` existe no `Introspector`? | Sim — P468 | ✅ |
 | `Introspector` tem campo de page/location por citação? | Verificar — P468 não materializou locations | 🟡 |
 | `Content::Outline` existe (P457)? | Sim | ✅ |
-| `outline()` usa `CounterRegistry`? | Verificar `rules/layout/outline.rs` ou `stdlib/structural.rs` | 🟡 |
+| `outline()` usa `CounterRegistry`? | Verificar `engine/layout/outline.rs` ou `stdlib/structural.rs` | 🟡 |
 | `Introspector` tem acesso a figuras/tabelas por posição? | Verificar — `figure_label_numbers`, `resolved_labels` | 🟡 |
 | `ibid` requer saber qual foi a última citação? | Sim — precisa de `last_cited_key: Option<String>` no Introspector ou no layout | 🟡 |
 | Bloqueadores técnicos? | Nenhum conhecido | ✅ |
@@ -109,7 +109,7 @@ pub trait Introspector {
 
 ### A.4 — Render de back-references na bibliografia
 
-**Ficheiro:** `rules/layout/bibliography.rs`
+**Ficheiro:** `engine/layout/bibliography.rs`
 
 Após o corpo de cada entrada bibliográfica, adicionar os números de citação:
 
@@ -130,7 +130,7 @@ if !refs.is_empty() {
 
 ### A.5 — `ibid`
 
-**Ficheiro:** `rules/layout/cite.rs` (ou onde `Content::Cite` é renderizado no layout)
+**Ficheiro:** `engine/layout/cite.rs` (ou onde `Content::Cite` é renderizado no layout)
 
 Adicionar campo `last_cited_key: Option<String>` ao `Layouter` (ou ao `Introspector` se multi-pass).
 
@@ -202,7 +202,7 @@ Alternativa: `native_lof()` e `native_lot()` como aliases.
 
 ### B.5 — Layout de LoF/LoT
 
-**Ficheiro:** `rules/layout/outline.rs` (ou arm no `layout/mod.rs`)
+**Ficheiro:** `engine/layout/outline.rs` (ou arm no `layout/mod.rs`)
 
 O layout de `OutlineTarget::Figures` itera as figuras registadas no `Introspector` (por `citation_order` de figuras, ou por `flat_counter_at("figure", ...)`) e para cada uma renderiza:
 
@@ -260,11 +260,11 @@ if let Some(caption) = figure.caption {
 
 - `entities/bib_store.md` — campo `back_refs`, `record_citation` actualizado, `back_refs_for_key`.
 - `entities/introspector.md` — método `back_refs_for_key`.
-- `rules/layout/bibliography.md` — render de back-refs na entrada bibliográfica.
-- `rules/layout/cite.md` — `ibid.` logic, `last_cited_key` no Layouter.
+- `engine/layout/bibliography.md` — render de back-refs na entrada bibliográfica.
+- `engine/layout/cite.md` — `ibid.` logic, `last_cited_key` no Layouter.
 - `entities/elements/outline.md` (ou `entities/content.md`) — `OutlineTarget` enum, campo `target`.
 - `rules/stdlib/structural.md` — `native_outline` alargada com `target:`, `native_lof`, `native_lot`.
-- `rules/layout/outline.md` (ou `layout/mod.md`) — arms `Figures`/`Tables`.
+- `engine/layout/outline.md` (ou `layout/mod.md`) — arms `Figures`/`Tables`.
 
 ---
 

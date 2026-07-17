@@ -25,13 +25,13 @@ Toda a contagem abaixo foi obtida a partir do estado exacto:
 00_nucleo/prompts/entities/func.md         |  26 ++-
 00_nucleo/prompts/infra/plugin_host.md     |  46 +++++
 00_nucleo/prompts/infra/system-world.md    |   7 +
-00_nucleo/prompts/rules/stdlib/plugin.md   | 320 +++++++++++++++++++++--------
+00_nucleo/prompts/engine/stdlib/plugin.md   | 320 +++++++++++++++++++++--------
 01_core/src/contracts/plugin_host.rs       |  19 +-
 01_core/src/contracts/world.rs             |  13 +-
 01_core/src/entities/func.rs               |  15 +-
 01_core/src/entities/mod.rs                |   1 +
-01_core/src/rules/eval/closures.rs         | 134 ++++++++++++
-01_core/src/rules/stdlib/plugin.rs         | 178 +++++++++++++---
+01_core/src/engine/eval/closures.rs         | 134 ++++++++++++
+01_core/src/engine/stdlib/plugin.rs         | 178 +++++++++++++---
 03_infra/src/plugin_host.rs                |  56 ++++-
 03_infra/src/world.rs                      |  22 +-
 04_wiring/src/main.rs                      |   9 +-
@@ -119,7 +119,7 @@ Confirmado em runtime: `call_cacheia_segunda_chamada_identica` — host chamado
 - `00_nucleo/prompts/contracts/world.md` — método defaulted `plugin_host()`.
 - `00_nucleo/prompts/entities/func.md` — variante `FuncRepr::Plugin` +
   `Func::plugin`.
-- `00_nucleo/prompts/rules/stdlib/plugin.md` — reescrita (sai erro provisório
+- `00_nucleo/prompts/engine/stdlib/plugin.md` — reescrita (sai erro provisório
   de P697; entra `Module` real + host via `World`).
 - `00_nucleo/prompts/infra/system-world.md` — `fn plugin_host` + builder
   `with_plugin_host`.
@@ -135,9 +135,9 @@ Confirmado em runtime: `call_cacheia_segunda_chamada_identica` — host chamado
 - `01_core/src/entities/mod.rs` — `pub mod plugin_func;`.
 - `01_core/src/entities/func.rs` — `FuncRepr::Plugin`, `Func::plugin`,
   `name()`/`native_fn_addr()` ajustados.
-- `01_core/src/rules/eval/closures.rs` — braço `FuncRepr::Plugin ⇒ call_plugin`
+- `01_core/src/engine/eval/closures.rs` — braço `FuncRepr::Plugin ⇒ call_plugin`
   + `call_plugin` + 3 testes do braço.
-- `01_core/src/rules/stdlib/plugin.rs` — `native_plugin` devolve `Module`;
+- `01_core/src/engine/stdlib/plugin.rs` — `native_plugin` devolve `Module`;
   testes reescritos.
 - `03_infra/src/plugin_host.rs` — `WasmiPluginHost::exports` + 3 testes
   (`exports`, `exports` inexistente, `Send+Sync`).

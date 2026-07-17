@@ -131,7 +131,7 @@ estado + política glyph:
 1. Adicionar `Content::SmartQuote { ... }` em
    `01_core/src/entities/content.rs` conforme decisão A.2.
 2. Adicionar `native_smartquote` em
-   `01_core/src/rules/stdlib/text.rs` (ou módulo equivalente,
+   `01_core/src/engine/stdlib/text.rs` (ou módulo equivalente,
    onde estão `native_underline` etc. pós-P284).
 3. Registar em `make_stdlib`.
 4. Implementar consumer Layouter:
@@ -166,9 +166,9 @@ estado + política glyph:
      idêntico pós-P287 (caminho P155 inalterado ou redirigido
      transparente).
 8. Actualizar L0:
-   - `00_nucleo/prompts/rules/stdlib.md` — tabela funções (+1).
-   - `00_nucleo/prompts/rules/content.md` — variant (+1).
-   - `00_nucleo/prompts/rules/lang.md` — se A.3 → (β) refactor
+   - `00_nucleo/prompts/engine/stdlib.md` — tabela funções (+1).
+   - `00_nucleo/prompts/engine/content.md` — variant (+1).
+   - `00_nucleo/prompts/engine/lang.md` — se A.3 → (β) refactor
      P155, propagar hash.
    - Propagar hashes via `crystalline-lint --fix-hashes`.
 9. Actualizar Tabela C linha 380 — marcar resolvida
@@ -285,7 +285,7 @@ de gatilhos.
   + `text/quotes.rs`.
 - Cobertura referência: Tabela A.1 linha 60 (markup já
   implementado P155); Tabela C linha 380 (função ausente).
-- Infraestrutura existente: `01_core/src/rules/lang/quotes.rs`
+- Infraestrutura existente: `01_core/src/engine/lang/quotes.rs`
   (resolução lang-aware P155); `01_core/src/eval/markup.rs` (ou
   caminho equivalente) — alternador open/close em `eval_markup`.
 - Precedente directo "variant rico com cosméticos opcionais":

@@ -74,7 +74,7 @@ rg -n "math_namespace" src/stdlib/mod.rs --type rs
 
 ### 4.1 — Adicionar Funções ao Módulo `math`
 
-**Arquivo alvo:** `src/stdlib/math.rs` (ou `src/rules/stdlib/math.rs`)
+**Arquivo alvo:** `src/stdlib/math.rs` (ou `src/engine/stdlib/math.rs`)
 
 ```rust
 // Registrar as 12 funções no namespace do módulo math
@@ -114,7 +114,7 @@ math_namespace.define("script", Value::Func(native_math_style("scr")));
 
 ### 4.3 — Mapeamento de Estilos para Unicode (Shaping Math)
 
-**Arquivo alvo:** `src/rules/layout/math.rs` (ou `src/shaping/math.rs`)
+**Arquivo alvo:** `src/engine/layout/math.rs` (ou `src/shaping/math.rs`)
 
 O layout de `MathStyleElem` deve transformar caracteres alfabéticos no corpo para os blocos Unicode correspondentes:
 

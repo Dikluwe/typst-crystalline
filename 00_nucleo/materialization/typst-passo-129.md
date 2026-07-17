@@ -87,12 +87,12 @@ Este passo **não**:
 ## Escopo
 
 **Dentro**:
-- `01_core/src/rules/eval/rules.rs` — extensão do arm `"weight"`.
+- `01_core/src/engine/eval/rules.rs` — extensão do arm `"weight"`.
 - `01_core/src/<módulo tipográfico>.rs` — helper
   `weight_from_name` (se decisão (b)).
 - `01_core/src/<novo>.rs` — helper em ficheiro novo (se decisão
   (c); evitar).
-- `01_core/src/rules/eval/tests.rs` — 2-3 testes.
+- `01_core/src/engine/eval/tests.rs` — 2-3 testes.
 - Prompt L0 relacionado se existe + hash.
 - ADR-0038 anotada se 129.A decidir.
 
@@ -127,7 +127,7 @@ Este passo **não**:
 
 **Parte 2 — Arm actual do `"weight"`**:
 
-1. `grep -n "\"weight\"" 01_core/src/rules/eval/rules.rs`.
+1. `grep -n "\"weight\"" 01_core/src/engine/eval/rules.rs`.
 2. Registar corpo exacto. Confirmar que hoje faz apenas:
 
    ```rust
@@ -183,7 +183,7 @@ Vanilla FontWeight FromValue:
   aliases: <lista ou "nenhum">
 
 Arm "weight" actual:
-  ficheiro: 01_core/src/rules/eval/rules.rs:XXX
+  ficheiro: 01_core/src/engine/eval/rules.rs:XXX
   corpo: <colar>
 
 Módulo tipográfico L1:

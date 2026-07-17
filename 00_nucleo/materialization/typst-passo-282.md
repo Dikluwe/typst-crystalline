@@ -106,7 +106,7 @@ Auditoria empírica por categoria. Para cada uma:
 ### §A2.1 — Categorias a auditar
 
 1. **Model** (`Content` enum + variants estruturais).
-2. **Layout** (rules/layout + page model).
+2. **Layout** (engine/layout + page model).
 3. **Visualize** (geometry + shapes + paint).
 4. **Math** (rules/math).
 5. **Text** (style + font + lang).

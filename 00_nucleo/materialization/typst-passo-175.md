@@ -260,7 +260,7 @@ Forma minimal sugerida em `.A.5`. Adaptar conforme decisão.
 ### .E Entry point `introspect_to_fixpoint`
 
 1. L0 (extensão de
-   `00_nucleo/prompts/rules/introspect/fixpoint.md`):
+   `00_nucleo/prompts/engine/introspect/fixpoint.md`):
    - Documentar `introspect_to_fixpoint`.
 
 2. L1 em `rules/introspect/fixpoint.rs`:

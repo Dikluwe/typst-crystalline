@@ -52,7 +52,7 @@ Contrato comportamental: `"Hello"` em markup produz `\u{201C}Hello\u{201D}` (cur
 
 3. **`rules/lexer/tests.rs`** — Teste unitário: `smart_quotes_duplas` e `smart_quotes_simples`.
 
-4. **Spec L0** — Adicionar nota em `00_nucleo/prompts/rules/lexer/markup.md` sobre smart quoting.
+4. **Spec L0** — Adicionar nota em `00_nucleo/prompts/engine/lexer/markup.md` sobre smart quoting.
 
 ---
 

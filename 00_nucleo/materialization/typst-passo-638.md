@@ -14,8 +14,8 @@
 
 Não auditar o vanilla inteiro — seria um projecto à parte, fora do que esta conversa se propôs a fazer. Limitar às áreas já activamente comparadas e corrigidas nesta sequência:
 
-- Avaliação de expressões e regras `#set` (equivalente a `01_core/src/rules/eval/`).
-- Layout de texto, RTL, colunas (equivalente a `01_core/src/rules/layout/`).
+- Avaliação de expressões e regras `#set` (equivalente a `01_core/src/engine/eval/`).
+- Layout de texto, RTL, colunas (equivalente a `01_core/src/engine/layout/`).
 - Exportação PDF, fontes, metadados (equivalente a `03_infra/src/export/`, `03_infra/src/font*`).
 
 ---

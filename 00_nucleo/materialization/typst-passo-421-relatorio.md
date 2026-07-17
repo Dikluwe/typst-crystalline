@@ -34,7 +34,7 @@ Executados os 6 grep. O resultado crítico:
 
 ### L0 atualizado
 
-- `00_nucleo/prompts/rules/stdlib/foundations.md` — seção P421 com classificação M, decisões arquiteturais e scope-out.
+- `00_nucleo/prompts/engine/stdlib/foundations.md` — seção P421 com classificação M, decisões arquiteturais e scope-out.
 - Hashes `@prompt-hash` sincronizados via `crystalline-lint`.
 
 ---
@@ -42,17 +42,17 @@ Executados os 6 grep. O resultado crítico:
 ## 3. Implementação (Fase B)
 
 ### Eval
-- `01_core/src/rules/eval/mod.rs`: `pub(crate) mod repr;`.
-- `01_core/src/rules/eval/repr.rs` — **novo módulo**:
+- `01_core/src/engine/eval/mod.rs`: `pub(crate) mod repr;`.
+- `01_core/src/engine/eval/repr.rs` — **novo módulo**:
   - `repr_value(v: &Value) -> String` — match exaustivo sobre 22 variants de `Value`.
   - `repr_content(c: &Content) -> String` — match exaustivo sobre todos os variants de `Content` (incluindo struct variants `SetPage`, `Document`, `Asset`, `SmallCaps`).
   - `repr_selector(sel: &Selector) -> String` — match sobre `Kind`, `Label`, `Location`, `And`, `Or`, `Regex`, `Where`.
   - Helpers: `repr_float`, `repr_styles`.
 
 ### Stdlib
-- `01_core/src/rules/stdlib/foundations.rs`: `native_repr` expõe `repr(v)`.
-- `01_core/src/rules/stdlib/mod.rs`: re-export de `native_repr`.
-- `01_core/src/rules/eval/mod.rs` (`make_stdlib`): registo `scope.define("repr", Value::Func(Func::native("repr", native_repr)))`.
+- `01_core/src/engine/stdlib/foundations.rs`: `native_repr` expõe `repr(v)`.
+- `01_core/src/engine/stdlib/mod.rs`: re-export de `native_repr`.
+- `01_core/src/engine/eval/mod.rs` (`make_stdlib`): registo `scope.define("repr", Value::Func(Func::native("repr", native_repr)))`.
 
 ### Tests (16)
 

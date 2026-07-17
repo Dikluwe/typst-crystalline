@@ -186,7 +186,7 @@ propriedade.
 Sítios de leitura não-teste. Comando-base por propriedade:
 
 ```bash
-grep -rnE "self\.style\.<P>\b" 01_core/src/rules/layout/   # + self.chain.<P>, local style.<P>
+grep -rnE "self\.style\.<P>\b" 01_core/src/engine/layout/   # + self.chain.<P>, local style.<P>
 ```
 
 Contagem de sítios de leitura não-teste por propriedade
@@ -195,7 +195,7 @@ Contagem de sítios de leitura não-teste por propriedade
 
 ```bash
 for P in size bold italic fill heading_level weight tracking leading lang font; do
-  C=$(grep -rnE "self\.style\.$P\b|self\.chain\.$P\b|\bstyle\.$P\b" 01_core/src/rules/layout/ \
+  C=$(grep -rnE "self\.style\.$P\b|self\.chain\.$P\b|\bstyle\.$P\b" 01_core/src/engine/layout/ \
       | grep -v 'tests.rs' | grep -v 'node_style' | grep -v '//' | wc -l)
   printf "%-14s %s\n" "$P" "$C"
 done
@@ -225,7 +225,7 @@ merge (algumas, como `weight`, são consumidas indiretamente via
 Sítio de merge canónico (constrói o `TextStyle` efetivo):
 
 ```bash
-grep -rnoE "node_style\.(size|bold|italic|fill|heading_level|weight|tracking|leading|lang|font)\b" 01_core/src/rules/layout/ | sort | uniq -c
+grep -rnoE "node_style\.(size|bold|italic|fill|heading_level|weight|tracking|leading|lang|font)\b" 01_core/src/engine/layout/ | sort | uniq -c
 ```
 → exatamente 1 ocorrência de cada uma das 10 props, todas em
 `mod.rs:587–602`. Confirma: **as 10 props são lidas/mescladas num único
@@ -234,7 +234,7 @@ cursor.rs / equation.rs / mod.rs:2124/2202/2227.
 
 Campo `chain: StyleChain` está no struct do layouter:
 ```bash
-grep -nE "chain:\s+StyleChain|font_size_pt:" 01_core/src/rules/layout/mod.rs
+grep -nE "chain:\s+StyleChain|font_size_pt:" 01_core/src/engine/layout/mod.rs
 # → mod.rs:87 (font_size_pt: Pt), mod.rs:97 (chain: StyleChain)
 ```
 

@@ -70,7 +70,7 @@ arquitectural totalmente estabelecida.
 
 ```bash
 grep -E "Content::Strong|Content::Emph|Self::Strong" \
-  01_core/src/rules/layout/mod.rs
+  01_core/src/engine/layout/mod.rs
 ```
 
 **Descoberta**: comentário em `mod.rs:267` confirma que
@@ -87,7 +87,7 @@ sem flush_line.
 ### §2.2 Mecanismo baseline em cursor.rs
 
 ```bash
-grep "baseline" 01_core/src/rules/layout/cursor.rs
+grep "baseline" 01_core/src/engine/layout/cursor.rs
 ```
 
 **Descoberta**: única ocorrência (`cursor.rs:98`) refere-se
@@ -140,8 +140,8 @@ ambiguidade com `std::boxed::Box`. Stdlib expõe `#box(...)`
 | `Content::map_text` | `entities/content.rs` | idem |
 | `materialize_time` | `rules/introspect.rs` | recurse body; preserva atributos |
 | `walk` | `rules/introspect.rs` | walk body |
-| `layout_content` | `rules/layout/mod.rs` | inline: inset.left + body + inset.right |
-| `measure_content_constrained` | `rules/layout/mod.rs` | dimensões análogas Block |
+| `layout_content` | `engine/layout/mod.rs` | inline: inset.left + body + inset.right |
+| `measure_content_constrained` | `engine/layout/mod.rs` | dimensões análogas Block |
 
 **Verificação**: `cargo build -p typst-core` clean.
 
@@ -161,7 +161,7 @@ Análogo a `native_block` (P156G); diferenças:
 
 `stdlib/mod.rs`:
 ```rust
-pub use crate::rules::stdlib::layout::{
+pub use crate::engine::stdlib::layout::{
     native_align, native_block, native_box, native_grid, ...
 };
 ```
@@ -556,12 +556,12 @@ qualitativamente similar a P156G (block — variant rico com
 - Cristalino código tocado:
   - `01_core/src/entities/content.rs` (variant Boxed +
     construtor + cobertura 5 arms + 6 tests).
-  - `01_core/src/rules/introspect.rs` (arms Boxed em
+  - `01_core/src/engine/introspect.rs` (arms Boxed em
     materialize_time + walk).
-  - `01_core/src/rules/layout/mod.rs` (arms Boxed em
+  - `01_core/src/engine/layout/mod.rs` (arms Boxed em
     layout_content + measure_content_constrained).
-  - `01_core/src/rules/layout/tests.rs` (2 tests E2E).
-  - `01_core/src/rules/stdlib/layout.rs` (`native_box`).
-  - `01_core/src/rules/stdlib/mod.rs` (re-export + 13 tests
+  - `01_core/src/engine/layout/tests.rs` (2 tests E2E).
+  - `01_core/src/engine/stdlib/layout.rs` (`native_box`).
+  - `01_core/src/engine/stdlib/mod.rs` (re-export + 13 tests
     incluindo regression).
-  - `01_core/src/rules/eval/mod.rs` (registo em `make_stdlib`).
+  - `01_core/src/engine/eval/mod.rs` (registo em `make_stdlib`).

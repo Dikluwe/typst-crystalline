@@ -40,7 +40,7 @@ outros tipos de valor no arm `_ => {}` de `eval_markup_body`.
 
 ### 1. Conversão de valores primitivos para texto
 
-Em `01_core/src/rules/eval/mod.rs`, o arm catch-all do eval de markup
+Em `01_core/src/engine/eval/mod.rs`, o arm catch-all do eval de markup
 passou a converter valores primitivos com `repr_value`:
 
 - `Value::Int`, `Value::Float`, `Value::Bool` → representação textual.
@@ -57,7 +57,7 @@ comportamento anterior.
 ### 2. Espaçamento entre fragmentos de texto
 
 Remover o avanço automático de `space_width()` de `layout_word`
-(`01_core/src/rules/layout/cursor.rs`). O espaço entre palavras passa a ser
+(`01_core/src/engine/layout/cursor.rs`). O espaço entre palavras passa a ser
 responsabilidade de:
 
 - `Content::Space` (tokens `Space` do markup);
@@ -69,10 +69,10 @@ por interpolações `#{expr}`, como em `#{1+1}.` → "2." em vez de "2 .".
 
 ## Ficheiros alterados
 
-- `01_core/src/rules/eval/mod.rs` — interpolação de valores primitivos.
-- `01_core/src/rules/layout/cursor.rs` — `layout_word` sem avanço de
+- `01_core/src/engine/eval/mod.rs` — interpolação de valores primitivos.
+- `01_core/src/engine/layout/cursor.rs` — `layout_word` sem avanço de
   espaço automático.
-- `01_core/src/rules/eval/tests.rs` — teste P540 actualizado para usar
+- `01_core/src/engine/eval/tests.rs` — teste P540 actualizado para usar
   `#{i+1}` em vez de `#str(i)`.
 - `03_infra/fixtures/p307b/reference/*.pdf` — snapshots binários
   actualizados (mudança de espaçamento entre palavras).

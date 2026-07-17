@@ -52,7 +52,7 @@ extract_payload.is_some()` intacta.
 ### .A Auditoria L0
 
 1. Confirmar `from_tags` actual:
-   - `01_core/src/rules/introspect/from_tags.rs`.
+   - `01_core/src/engine/introspect/from_tags.rs`.
    - Localizar match sobre `ElementPayload::*`.
    - Identificar arms existentes (Heading, Figure,
      Bibliography, Outline, etc.).
@@ -180,7 +180,7 @@ Output: decisão fixada.
 
 ### .D Estender arm `from_tags::Equation` com counter logic
 
-1. Em `01_core/src/rules/introspect/from_tags.rs:222-226`:
+1. Em `01_core/src/engine/introspect/from_tags.rs:222-226`:
    - Localizar arm actual (P186B introduziu stub no-op;
      P186D estendeu com populate de `kind_index`).
    - **Manter** populate de `kind_index` que P186D adicionou:

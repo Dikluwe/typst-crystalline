@@ -35,7 +35,7 @@ spread — adicionar campo novo não quebra chamadas.
 
 ## Parte 2 — `eval_set_text`
 
-**Ficheiro**: `01_core/src/rules/eval/rules.rs:265-312`.
+**Ficheiro**: `01_core/src/engine/eval/rules.rs:265-312`.
 
 Estrutura exacta (resumida):
 
@@ -76,9 +76,9 @@ separada.
 ## Parte 3 — Testes / canary DEBT-50
 
 **Grep por `DEBT-50`**:
-- `01_core/src/rules/layout/tests.rs:1780` — comentário do
+- `01_core/src/engine/layout/tests.rs:1780` — comentário do
   canary.
-- `01_core/src/rules/layout/tests.rs:1787` — `fn debt_50_show_strong_nao_apanha_set_text_bold_porque_bake_in()`.
+- `01_core/src/engine/layout/tests.rs:1787` — `fn debt_50_show_strong_nao_apanha_set_text_bold_porque_bake_in()`.
 
 **Grep por `weight` em testes L1**:
 - `font_book.rs`: `FontWeight(u16)` com `from_number`,
@@ -119,7 +119,7 @@ passo dedicado quando weight for consumido por layout.
 **Passa**. 2 ficheiros tocados:
 - `01_core/src/entities/style_chain.rs` (+1 campo + init em
   `empty()`).
-- `01_core/src/rules/eval/rules.rs` (+1 match arm).
+- `01_core/src/engine/eval/rules.rs` (+1 match arm).
 
 Não toca `StyleChain` resolvers, pipeline layout, export, ou
 consumers indirectos. XS confirmado.

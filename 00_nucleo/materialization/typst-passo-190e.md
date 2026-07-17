@@ -93,7 +93,7 @@ deferido (presente em CounterStateLegacy).
      algum consumer durante walk)?
 
 3. Identificar leitores DURANTE WALK:
-   - `grep -n "state.is_numbering_active\|state.numbering_active\." 01_core/src/rules/introspect.rs`.
+   - `grep -n "state.is_numbering_active\|state.numbering_active\." 01_core/src/engine/introspect.rs`.
    - Esperados (per achados anteriores):
      - Walk arm Equation gate em
        `state.is_numbering_active("equation")`
@@ -125,7 +125,7 @@ deferido (presente em CounterStateLegacy).
      complexa. Investigar empiricamente.
 
 7. Identificar Layouter assignments duais:
-   - `grep -rn "numbering_active\s*=" 01_core/src/rules/layout/mod.rs`.
+   - `grep -rn "numbering_active\s*=" 01_core/src/engine/layout/mod.rs`.
 
 #### Tests dependentes
 
@@ -139,7 +139,7 @@ deferido (presente em CounterStateLegacy).
 9. Identificar L0s:
    - `entities/counter_state_legacy.md` (field
      eliminado — diferido para P190I).
-   - Possivelmente `rules/layout/mod.md`.
+   - Possivelmente `engine/layout/mod.md`.
 
 Output: tabela com item + estado verificado.
 

@@ -314,9 +314,9 @@ grep -n "^pub fn layout_document" -A 8 \
 ```
 
 ```rust
-// 01_core/src/rules/layout.rs
+// 01_core/src/engine/layout.rs
 //! Crystalline Lineage
-//! @prompt 00_nucleo/prompts/rules/layout.md
+//! @prompt 00_nucleo/prompts/engine/layout.md
 //! @prompt-hash <hash>
 //! @layer L1
 //! @updated 2026-03-27

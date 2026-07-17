@@ -236,7 +236,7 @@ formal com:
   }
 ```
 
-### 5.5 `01_core/src/rules/layout/mod.rs` (advance_locator_if_locatable)
+### 5.5 `01_core/src/engine/layout/mod.rs` (advance_locator_if_locatable)
 
 ```text
   fn advance_locator_if_locatable(&mut self, content: &Content) {
@@ -281,7 +281,7 @@ infere tipo `Option<Position>` correctly.
 
 ### 5.9 Tests novos (4 P204D)
 
-Em `01_core/src/rules/layout/tests.rs`:
+Em `01_core/src/engine/layout/tests.rs`:
 - **`p204d_position_struct_existe`** — sentinel tipo.
 - **`p204d_runtime_positions_field_existe`** — sentinel
   field.
@@ -452,9 +452,9 @@ empíricas relevantes.
   (campo + imports).
 - `01_core/src/entities/introspector.rs` (trait
   signature + impl return).
-- `01_core/src/rules/layout/mod.rs` (advance_locator
+- `01_core/src/engine/layout/mod.rs` (advance_locator
   populate).
-- `01_core/src/rules/layout/tests.rs` (2 sentinels +
+- `01_core/src/engine/layout/tests.rs` (2 sentinels +
   2 E2E).
 - `00_nucleo/prompts/entities/position.md` (L0 prompt
   novo).

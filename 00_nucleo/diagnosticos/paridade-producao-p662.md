@@ -29,17 +29,17 @@ Reverteu-se o commit de implementação de P660 (`2187dabeb`) com `git revert --
 - O tipo `FontAxisValue` e o campo `axes` de `FontFamily` (`01_core/src/entities/font_list.rs`).
 - O campo `font_axes` de `TextStyle` (`01_core/src/entities/layout_types.rs`).
 - A inicialização de `font_axes: None` na conversão `StyleChain → TextStyle`.
-- O reconhecimento de `variant` como `Dict` no parser de dicionário de fonte (`01_core/src/rules/eval/rules.rs`).
+- O reconhecimento de `variant` como `Dict` no parser de dicionário de fonte (`01_core/src/engine/eval/rules.rs`).
 - A decodificação de `"axes"` e a propagação de `font_axes` no layout de texto.
 - A passagem de eixos explícitos em `axis_variations_for_font_variant` (`03_infra/src/font_variant.rs`, `03_infra/src/shaper.rs`).
 - A expansão da chave de coleta/embed de fontes de `(FontList, FontVariant)` para `(FontList, FontVariant, Vec<(EcoString, FontAxisValue)>)`.
-- Os testes específicos de P660 em `01_core/src/rules/eval/tests.rs`, `01_core/src/rules/layout/tests.rs` e `03_infra/src/shaper.rs`.
+- Os testes específicos de P660 em `01_core/src/engine/eval/tests.rs`, `01_core/src/engine/layout/tests.rs` e `03_infra/src/shaper.rs`.
 
 ### 2.2 Correcções mantidas
 
 Apesar da reversão, duas correcções independentes foram preservadas:
 
-1. **Merge de `font` em `layout/text.rs`**: a linha `font: ns_font.or(layouter.style.font.clone())` foi re-aplicada após o revert. Esta correcção faz com que `#set text(font: (...))` substitua a fonte default da chain (`Liberation Serif`). Não depende da sintaxe `variant: (...)`. Caminho: `01_core/src/rules/layout/text.rs`.
+1. **Merge de `font` em `layout/text.rs`**: a linha `font: ns_font.or(layouter.style.font.clone())` foi re-aplicada após o revert. Esta correcção faz com que `#set text(font: (...))` substitua a fonte default da chain (`Liberation Serif`). Não depende da sintaxe `variant: (...)`. Caminho: `01_core/src/engine/layout/text.rs`.
 
 2. **Correcção de P659 na cache de `shaped_width`**: a chave continua a incluir `axis_hash`, calculado a partir das variações de eixo derivadas de `weight`/`style`/`stretch`. Esta correcção continua necessária mesmo sem eixos explícitos, porque `weight`/`style`/`stretch` já produzem eixos internamente. Caminho: `03_infra/src/font_metrics.rs`.
 

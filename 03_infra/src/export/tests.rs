@@ -17,7 +17,7 @@ use super::*;
 use typst_core::entities::content::Content;
 use typst_core::entities::font_book::FontVariant;
 use typst_core::entities::layout_types::{Color, LinkTarget};
-use typst_core::rules::layout::layout;
+use typst_core::engine::layout::layout;
 
     #[test]
     fn pdf_header_correcto() {

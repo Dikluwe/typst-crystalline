@@ -36,7 +36,7 @@ A resposta classifica o que é single-pass vs 2-pass e **fixa o escopo da Fase 1
 > - `query_by_kind` (`01_core/src/entities/introspector.rs:46`) devolve `Vec<Location>` em ordem de aparição no walk.
 > - `query` (`01_core/src/entities/introspector.rs:132`) suporta `Selector::And`/`Or` (intersecção/ união preservando ordem).
 > - `position_of` (`01_core/src/entities/introspector.rs:72`) tem implementação real via `SealedPositions`.
-> - `layout_with_introspector` (`01_core/src/rules/layout/mod.rs:1484`) existe como entry point com introspeitor.
+> - `layout_with_introspector` (`01_core/src/engine/layout/mod.rs:1484`) existe como entry point com introspeitor.
 > Portanto a Fase 1 proposta (autor-data + bibliografia alfabética) é compatível com o substrato; o faseamento
 > não precisou de ajuste. A deriva foi processual (spec antes da sonda), não factual.
 
@@ -75,7 +75,7 @@ Estilos numéricos, numeração por ordem de aparição, back-references ("ver [
 
 ## 5. O que produzir
 
-1. **L1** novo `01_core/src/rules/stdlib/bibliography.rs` (ou módulo `model/bib`): `parse_bib`, `render_citation`, `render_bibliography`. Puro.
+1. **L1** novo `01_core/src/engine/stdlib/bibliography.rs` (ou módulo `model/bib`): `parse_bib`, `render_citation`, `render_bibliography`. Puro.
 2. **Variants** `Content::Bibliography`, `Content::Cite` + arms de `match` afetados.
 3. **Stdlib funcs** `bibliography`, `cite` registadas (ABI `native_*`, igual a loading), compondo L3 read + L1 parse/format + coleta (na medida da sonda).
 4. **Opções** mínimas vanilla: `bibliography(style:, title:)`, `cite(key, form:, style:)` — subset graded documentado.

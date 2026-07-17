@@ -9,8 +9,8 @@
 > `structural` / `geometric`, tolerâncias configuráveis,
 > convenções de DTOs/nomenclatura) **permanecem válidas** e
 > são input directo para o Passo 148 (materialização). As
-> assinaturas Rust descritas (ex: `typst_core::rules::parse::parse`,
-> `typst_core::rules::eval::eval`) reflectem APIs reais do
+> assinaturas Rust descritas (ex: `typst_core::engine::parse::parse`,
+> `typst_core::engine::eval::eval`) reflectem APIs reais do
 > projecto pós-146. Status canonizado para `**Status**:
 > \`PROPOSTO\`` (P84.8g + P145).
 
@@ -28,9 +28,9 @@ Qualquer string ou ficheiro `.typ` no corpus.
 ### Função sob teste
 
 ```rust
-typst_core::rules::parse::parse(input: &str) -> SyntaxNode
-typst_core::rules::parse::parse_math(input: &str) -> SyntaxNode
-typst_core::rules::parse::parse_code(input: &str) -> SyntaxNode
+typst_core::engine::parse::parse(input: &str) -> SyntaxNode
+typst_core::engine::parse::parse_math(input: &str) -> SyntaxNode
+typst_core::engine::parse::parse_code(input: &str) -> SyntaxNode
 ```
 
 ### Oráculo
@@ -64,7 +64,7 @@ Ficheiro `.typ` que termina com `#let __resultado__ = <expr>` ou similar. O nome
 ### Função sob teste
 
 ```rust
-typst_core::rules::eval::eval(world, source) -> SourceResult<Module>
+typst_core::engine::eval::eval(world, source) -> SourceResult<Module>
 // e depois:
 module.scope().get("__resultado__")
 ```
@@ -113,7 +113,7 @@ Ficheiro `.typ` qualquer.
 ### Função sob teste
 
 ```rust
-typst_core::rules::layout::layout(content) -> PagedDocument
+typst_core::engine::layout::layout(content) -> PagedDocument
 ```
 
 ### Oráculo

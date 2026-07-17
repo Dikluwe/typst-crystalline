@@ -19,8 +19,8 @@ Uma conversa de planeamento anterior deste projecto ("Passo 141-156i") listava o
 ### Confirmar contra o repositório
 
 ```bash
-git log --all --oneline -S "\"header\"" -- "01_core/src/rules/stdlib/layout.rs" | tail -20
-git log --all --oneline -S "\"footer\"" -- "01_core/src/rules/stdlib/layout.rs" | tail -20
+git log --all --oneline -S "\"header\"" -- "01_core/src/engine/stdlib/layout.rs" | tail -20
+git log --all --oneline -S "\"footer\"" -- "01_core/src/engine/stdlib/layout.rs" | tail -20
 ```
 
 Identificar o commit exacto que introduziu `header:`/`footer:` como argumentos nomeados de `native_grid`/`native_table`.
@@ -50,14 +50,14 @@ Este código não tem histórico de commit — `git log` não vai encontrar nada
 ```bash
 git stash list
 git reflog --all | head -50
-find / -newer 01_core/src/rules/layout/grid.rs -maxdepth 3 -iname "*.md" 2>/dev/null | grep -v /proc
-ls -la 01_core/src/rules/layout/grid.rs
+find / -newer 01_core/src/engine/layout/grid.rs -maxdepth 3 -iname "*.md" 2>/dev/null | grep -v /proc
+ls -la 01_core/src/engine/layout/grid.rs
 ```
 
 Confirmar a data de modificação do ficheiro e comparar com os timestamps dos passos mais recentes (P772-P772f) — o código pode ter sido escrito numa sessão anterior de Claude Code que não chegou a commitar nem a gerar relatório, ou pode ser resultado de uma tentativa manual do utilizador.
 
 ```bash
-grep -B5 -A5 "P772f — aplicar align efectivo" 01_core/src/rules/layout/grid.rs
+grep -B5 -A5 "P772f — aplicar align efectivo" 01_core/src/engine/layout/grid.rs
 ```
 
 Ler o comentário completo à volta do bloco — pode conter pistas (data, intenção, referência a algum passo) que não foram citadas no relatório de P772f.

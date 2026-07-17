@@ -162,7 +162,7 @@ Sem código tocado. Sem ADR criada. Sem L0 alterado.
 
 Depende das decisões fixadas em P311a. Estimativa preliminar:
 
-- **L0**: `00_nucleo/prompts/rules/stdlib.md` + possível L0 novo
+- **L0**: `00_nucleo/prompts/engine/stdlib.md` + possível L0 novo
   em `00_nucleo/prompts/entities/math_style.md` (se Caminho I).
 - **L1**:
   - Caminho I: `01_core/src/entities/math_style.rs` (novo,
@@ -187,9 +187,9 @@ Leitura:
 - `lab/typst-original/crates/typst-library/src/math/variant.rs`
 - `01_core/src/entities/content.rs`
 - `01_core/src/entities/style.rs`
-- `01_core/src/rules/math/symbols.rs`
-- `01_core/src/rules/math/layout/**`
-- `01_core/src/rules/stdlib/math.rs` (ou equivalente)
+- `01_core/src/engine/math/symbols.rs`
+- `01_core/src/engine/math/layout/**`
+- `01_core/src/engine/stdlib/math.rs` (ou equivalente)
 
 Output novo:
 - `00_nucleo/diagnosticos/diagnostico-math-style-passo-311a.md`
@@ -198,7 +198,7 @@ Output novo:
 
 Provável:
 - L0 novo (Caminho I): `00_nucleo/prompts/entities/math_style.md`
-- L0 actualizado: `00_nucleo/prompts/rules/stdlib.md` (12
+- L0 actualizado: `00_nucleo/prompts/engine/stdlib.md` (12
   funções novas) + possivelmente `entities/content.md` (variant
   novo se Caminho I).
 - L1: novos ficheiros e/ou extensões.

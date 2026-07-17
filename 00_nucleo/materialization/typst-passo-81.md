@@ -6,7 +6,7 @@ Ler antes de começar:
 - `01_core/src/entities/layout_types.rs` — Onde `PageConfig` e `Page` serão
   definidos/actualizados.
 - `01_core/src/entities/content.rs` — Onde `Content::SetPage` será adicionado.
-- `01_core/src/rules/layout/mod.rs` — Onde `Layouter` tem actualmente
+- `01_core/src/engine/layout/mod.rs` — Onde `Layouter` tem actualmente
   constantes hardcoded de dimensão de página (`MARGIN`, `SIZE_A4`, ou equivalente).
 - `03_infra/src/export.rs` — Onde o exportador usa uma `page_height` global
   que tem de passar a usar `page.height` por iteração.
@@ -53,11 +53,11 @@ grep -n "struct Page\|pub pages\|page\.height\|page\.width" \
   03_infra/src/export.rs 2>/dev/null | head -15
 
 # 3. Confirmar a assinatura de new_page() e como o cursor é resetado
-grep -A 8 "fn new_page" 01_core/src/rules/layout/mod.rs | head -15
+grep -A 8 "fn new_page" 01_core/src/engine/layout/mod.rs | head -15
 
 # 4. Confirmar onde measure_content_constrained usa largura disponível
 grep -n "measure_content_constrained\|safe_available\|available_width" \
-  01_core/src/rules/layout/mod.rs | head -10
+  01_core/src/engine/layout/mod.rs | head -10
 ```
 
 Reportar o output completo antes de continuar. O diagnóstico 1 identifica
@@ -152,7 +152,7 @@ Actualizar todos os `match` sobre `Content` — adicionar
 
 ## Tarefa 3 — `native_page` na stdlib (L1)
 
-Em `01_core/src/rules/stdlib.rs`:
+Em `01_core/src/engine/stdlib.rs`:
 
 ```rust
 pub fn native_page(_ctx: &mut EvalContext, args: &Args) -> Result<Value, String> {
@@ -180,7 +180,7 @@ ctx.register("page", native_page);
 
 ### 4a — Substituir constantes por `PageConfig`
 
-Em `01_core/src/rules/layout/mod.rs`, substituir os campos hardcoded pelo
+Em `01_core/src/engine/layout/mod.rs`, substituir os campos hardcoded pelo
 `page_config`:
 
 ```rust

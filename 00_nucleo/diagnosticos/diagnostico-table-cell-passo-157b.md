@@ -239,7 +239,7 @@ Em `layout/tests.rs`:
 
 ## 8. Decisão de naming: `table_cell` flat (não `table.cell`)
 
-Inspecção de `01_core/src/rules/eval/bindings.rs:124-156`
+Inspecção de `01_core/src/engine/eval/bindings.rs:124-156`
 (`eval_field_access`):
 
 ```rust

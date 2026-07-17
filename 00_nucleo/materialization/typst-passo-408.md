@@ -78,7 +78,7 @@ Nenhuma mudança — o consumer stub não adiciona novos `FrameItem`s. O export 
 
 ### A.1 — Prompt L0 `smallcaps.md`
 
-Novo em `00_nucleo/prompts/rules/stdlib/smallcaps.md` (ou `text.md` se existir e for apropriado; confirmar path):
+Novo em `00_nucleo/prompts/engine/stdlib/smallcaps.md` (ou `text.md` se existir e for apropriado; confirmar path):
 
 - **Paridade**: `smallcaps(body)` ≡ vanilla `SmallcapsElem` morfologicamente.
 - **Substrato**: Content variant `SmallCaps { body }` + stdlib `native_smallcaps` + consumer stub.
@@ -134,7 +134,7 @@ scope.define("smallcaps", Func::native(native_smallcaps));
 
 ### B.4 — Consumer layout (stub)
 
-Em `rules/layout/mod.rs` (ou onde `layout_content` match em `Content`):
+Em `engine/layout/mod.rs` (ou onde `layout_content` match em `Content`):
 
 ```rust
 Content::SmallCaps { body } => {

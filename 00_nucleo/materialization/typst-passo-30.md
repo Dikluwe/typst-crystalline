@@ -18,10 +18,10 @@ grep -n "pub struct TextStyle\|bold\|italic\|size" \
 
 # Confirmar raw pointer no ImportGuard está documentado
 grep -n "mut Vec\|raw\|invariant\|valid\|safety" \
-  01_core/src/rules/eval_context.rs | head -10
+  01_core/src/engine/eval_context.rs | head -10
 
 # Confirmar assinatura de eval_for_test_with_limits
-grep -n "eval_for_test_with_limits" 01_core/src/rules/eval.rs
+grep -n "eval_for_test_with_limits" 01_core/src/engine/eval.rs
 ```
 
 **Parar se qualquer pré-condição falhar.**
@@ -76,7 +76,7 @@ grep -rn "Content::Text(" \
 
 # Ver como TextStyle é usado no layout
 grep -n "TextStyle\|text_style\|\.bold\|\.italic\|\.size" \
-  01_core/src/rules/layout.rs | head -30
+  01_core/src/engine/layout.rs | head -30
 
 # Ver como TextStyle é usado no export
 grep -n "TextStyle\|text_style\|\.bold\|\.italic\|\.size\|Content::Text" \
@@ -84,11 +84,11 @@ grep -n "TextStyle\|text_style\|\.bold\|\.italic\|\.size\|Content::Text" \
 
 # Ver como eval produz/usa TextStyle actualmente
 grep -n "TextStyle\|text_style\|Content::Text" \
-  01_core/src/rules/eval.rs | head -20
+  01_core/src/engine/eval.rs | head -20
 
 # Ver se #set já tem algum tratamento em eval_expr
 grep -n "SetRule\|set_rule\|Expr::Set" \
-  01_core/src/rules/eval.rs | head -10
+  01_core/src/engine/eval.rs | head -10
 ```
 
 **Parar. Reportar output antes de qualquer código.**
@@ -560,10 +560,10 @@ grep -n "pub struct TextStyle" 01_core/src/entities/layout_types.rs
 
 # Confirmar styles em EvalContext
 grep -n "styles.*StyleChain\|StyleChain.*styles" \
-  01_core/src/rules/eval_context.rs
+  01_core/src/engine/eval_context.rs
 
 # Confirmar SetRule em eval_expr
-grep -n "SetRule\|set_rule" 01_core/src/rules/eval.rs
+grep -n "SetRule\|set_rule" 01_core/src/engine/eval.rs
 ```
 
 Critérios de conclusão:

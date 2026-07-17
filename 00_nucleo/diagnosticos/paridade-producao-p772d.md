@@ -54,7 +54,7 @@ error: file not found (searched at /tmp/preview/nome:1.0.0)
 O problema era **distinto** do de P772b:
 
 - P772b: span válido apontando para outro `FileId`, mas o formatter recebia a source principal.
-- P772d: o erro de I/O era criado em `01_core/src/rules/eval/modules.rs` com `Span::detached()` em vez de usar o span da string do caminho no documento principal.
+- P772d: o erro de I/O era criado em `01_core/src/engine/eval/modules.rs` com `Span::detached()` em vez de usar o span da string do caminho no documento principal.
 
 Locais afectados:
 
@@ -121,7 +121,7 @@ crystalline-lint .
 ```text
  00_nucleo/0.15.0.typ                     | 463 -------------------------------
  00_nucleo/testing/fontes-padrao-teste.md |  74 -----
- 01_core/src/rules/eval/modules.rs        |  12 +-
+ 01_core/src/engine/eval/modules.rs        |  12 +-
  04_wiring/tests/cli.rs                   |  38 +++
  4 files changed, 45 insertions(+), 542 deletions(-)
 ```

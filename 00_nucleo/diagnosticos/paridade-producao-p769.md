@@ -4,7 +4,7 @@
 **Data:** 2026-07-16  
 **Base:** P768 (auditoria de classificações comportamentais) + P767c (lógica de ancoramento de `Shape`)  
 **Foco:** Correcção do ancoramento vertical de `Content::Image` no fluxo principal; medição condicional de `Content::Curve`.  
-**L0:** `00_nucleo/prompts/rules/layout-image.md` (hash `ab5f39c1` confirmado pelo linter).
+**L0:** `00_nucleo/prompts/engine/layout-image.md` (hash `ab5f39c1` confirmado pelo linter).
 
 ---
 
@@ -12,14 +12,14 @@
 
 ### 1.1 L0 actualizado
 
-O L0 `00_nucleo/prompts/rules/layout-image.md` estava desatualizado (não cobria a função `layout` nem o ancoramento). Foi reescrito para especificar:
+O L0 `00_nucleo/prompts/engine/layout-image.md` estava desatualizado (não cobria a função `layout` nem o ancoramento). Foi reescrito para especificar:
 
 - `Content::Image` como bloco no fluxo principal (`BlockElem::single_layouter`).
 - Espaçamento `above`/`below` de `1.2em` com colapso de margem.
 - Ancoramento vertical quando sucede texto não-bloco (`image_base = baseline_before_flush + above`).
 - Comportamento em sub-layouts isolados (`is_sub_frame`).
 
-### 1.2 `01_core/src/rules/layout/image.rs`
+### 1.2 `01_core/src/engine/layout/image.rs`
 
 Replicou-se a lógica validada em `shape.rs` (P767c):
 

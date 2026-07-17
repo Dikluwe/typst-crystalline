@@ -42,7 +42,7 @@ O cristalino passa a ter `CitationStyle::Numeric` como default universal.
 - `citation_number_for_key_pela_primeira_aparicao` — posição 1-based via
   `citation_order`; keys ausentes → `None`.
 
-### L2 — `rules/layout/tests.rs`
+### L2 — `engine/layout/tests.rs`
 
 - `cite_numeric_ordem_primeira_aparicao` — documento com 2 cites; o segundo
   citado primeiro recebe `[1]`; o primeiro citado segundo recebe `[2]`.
@@ -73,10 +73,10 @@ O cristalino passa a ter `CitationStyle::Numeric` como default universal.
 | `entities/content.rs` | M | `cite_with_style` + `map_content`/`map_text` actualizado |
 | `entities/mod.rs` | M | `pub mod citation_style` |
 | `rules/introspect.rs` | M | `record_citation(key)` no arm `ElementPayload::Citation` |
-| `rules/layout/cite.rs` | M | Match `(CitationStyle, CitationForm, Option<&BibEntry>)` |
-| `rules/layout/bibliography.rs` | M | Fallback ordena por `citation_order` e prefixa `[N]` |
-| `rules/layout/mod.rs` | M | `format_bib_entry_body` (sem prefixo `[key]`) |
-| `rules/layout/tests.rs` | M | 3 testes L2 novos; 13 testes existentes actualizados (default Numeric) |
+| `engine/layout/cite.rs` | M | Match `(CitationStyle, CitationForm, Option<&BibEntry>)` |
+| `engine/layout/bibliography.rs` | M | Fallback ordena por `citation_order` e prefixa `[N]` |
+| `engine/layout/mod.rs` | M | `format_bib_entry_body` (sem prefixo `[key]`) |
+| `engine/layout/tests.rs` | M | 3 testes L2 novos; 13 testes existentes actualizados (default Numeric) |
 | `rules/stdlib/structural.rs` | M | `extract_citation_style`; `native_cite` aceita `style:` named |
 | `rules/eval/repr.rs` | M | `repr()` para `CitationStyle` |
 
@@ -91,7 +91,7 @@ O cristalino passa a ter `CitationStyle::Numeric` como default universal.
 | Ficheiro | Tipo | Mudança |
 |----------|------|---------|
 | `entities/citation_style.md` | **NOVO** | Spec `CitationStyle` enum |
-| `rules/layout/bibliography.md` | **NOVO** | Spec fallback numérico (cite.rs + bibliography.rs) |
+| `engine/layout/bibliography.md` | **NOVO** | Spec fallback numérico (cite.rs + bibliography.rs) |
 | `rules/eval/cast.md` | **NOVO** | Spec `cast_length` P469 (fix V1 pré-existente) |
 | `entities/bib_store.md` | M | Adicionado `citation_order` + P468 revision |
 | `entities/introspector.md` | M | P468 revision + 2 novos métodos |

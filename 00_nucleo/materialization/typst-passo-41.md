@@ -3,8 +3,8 @@
 ## Estado actual antes de começar
 
 Ler antes de começar:
-- `01_core/src/rules/math/layout.rs` — `MathLayouter`, `layout_frac`, `layout_attach`, `layout_root`
-- `01_core/src/rules/layout.rs` — `FontMetrics` trait
+- `01_core/src/engine/math/layout.rs` — `MathLayouter`, `layout_frac`, `layout_attach`, `layout_root`
+- `01_core/src/engine/layout.rs` — `FontMetrics` trait
 - `03_infra/src/font_metrics.rs` — `FontBookMetrics<'a>` via `ttf-parser`
 - `03_infra/src/export.rs` — PDF com Helvetica fallback e `FrameItem::Line`
 - ADR-0019 — `ttf-parser` e `rustybuzz` autorizados em L3
@@ -88,14 +88,14 @@ grep "ttf-parser" 03_infra/Cargo.toml Cargo.lock | head -5
 
 # 4. Valores hardcoded actuais no MathLayouter
 grep -n "0\.7\|0\.65\|0\.5\|0\.3\|0\.04\|0\.1" \
-  01_core/src/rules/math/layout.rs | head -20
+  01_core/src/engine/math/layout.rs | head -20
 
 # 5. Interface actual do MathLayouter — campos da struct
-grep -A 20 "pub struct MathLayouter" 01_core/src/rules/math/layout.rs
+grep -A 20 "pub struct MathLayouter" 01_core/src/engine/math/layout.rs
 
 # 6. Como o MathLayouter recebe métricas actualmente
 grep -n "metrics\|FontMetrics\|advance\|vertical" \
-  01_core/src/rules/math/layout.rs | head -20
+  01_core/src/engine/math/layout.rs | head -20
 
 # 7. Confirmar que FontBookMetrics tem acesso a Face
 grep -n "face\|Face" 03_infra/src/font_metrics.rs | head -10
@@ -216,7 +216,7 @@ Adicionar um método opcional ao trait `FontMetrics` em L1.
 Default retorna `MathConstants::fallback()`.
 
 ```rust
-// Em 01_core/src/rules/layout.rs — adicionar ao trait FontMetrics:
+// Em 01_core/src/engine/layout.rs — adicionar ao trait FontMetrics:
 
 /// Constantes da tabela OpenType MATH, se disponível.
 ///
@@ -298,7 +298,7 @@ Criar um parser mínimo em `03_infra/src/math_table.rs`.
 Modificar `MathLayouter` para receber e usar `MathConstants`.
 
 ```rust
-// Em 01_core/src/rules/math/layout.rs
+// Em 01_core/src/engine/math/layout.rs
 
 pub struct MathLayouter<'a, M: FontMetrics> {
     metrics: &'a M,

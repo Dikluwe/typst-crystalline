@@ -67,9 +67,9 @@ Sítios identificados (~22 construções `Stroke { paint: ... }`):
 |----------|----------------|
 | `01_core/src/entities/geometry.rs` | 86 (1 teste interno) |
 | `01_core/src/entities/content.rs` | 4047, 4068, 4097, 4195, 4228, 4280, 4518, 4548, 4591 (9 tests) |
-| `01_core/src/rules/layout/mod.rs` | 1142 (1 sítio real) |
-| `01_core/src/rules/stdlib/layout.rs` | 361, 363, 1460 (3 sítios; 2 builders + 1 destrutivo) |
-| `01_core/src/rules/stdlib/shapes.rs` | 63, 67, 100, 103, 151, 154, 203, 260 (8 sítios) |
+| `01_core/src/engine/layout/mod.rs` | 1142 (1 sítio real) |
+| `01_core/src/engine/stdlib/layout.rs` | 361, 363, 1460 (3 sítios; 2 builders + 1 destrutivo) |
+| `01_core/src/engine/stdlib/shapes.rs` | 63, 67, 100, 103, 151, 154, 203, 260 (8 sítios) |
 
 **Total estimativa primeira ordem**: **~22 construções
 literais**. Pode haver +5-10 em testes não detectados pelo grep
@@ -106,7 +106,7 @@ $ grep -rn "Style::Fill\|TextStyle.*fill" 01_core/src/ | head -10
 ### §2.4 — Stdlib native_rgb (NÃO TOCA P261)
 
 ```bash
-$ grep -n "Value::Color\|native_rgb\|native_luma" 01_core/src/rules/stdlib/foundations.rs | head
+$ grep -n "Value::Color\|native_rgb\|native_luma" 01_core/src/engine/stdlib/foundations.rs | head
 ```
 
 Stdlib funcs cor (`native_rgb`/`native_luma`/etc.) continuam

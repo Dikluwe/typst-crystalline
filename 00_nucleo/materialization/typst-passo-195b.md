@@ -157,7 +157,7 @@ Output: tabela com item + estado + linhas exactas.
 
 ### .D Adicionar stub no-op em `from_tags`
 
-1. Em `01_core/src/rules/introspect/from_tags.rs`:
+1. Em `01_core/src/engine/introspect/from_tags.rs`:
    - Localizar match sobre `ElementPayload`.
    - Adicionar arm:
      ```

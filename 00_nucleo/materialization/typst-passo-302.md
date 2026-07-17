@@ -379,7 +379,7 @@ necessário.
 
 ## §8 — Ponteiros
 
-- Sítio bug: `01_core/src/rules/eval/math.rs:266` (linha exacta
+- Sítio bug: `01_core/src/engine/eval/math.rs:266` (linha exacta
   per P301 §3.3 relatório — FuncCall arm).
 - Helper P301: `lookup_math_op` em mesmo ficheiro.
 - Variants relacionados: `MathSequence`, `MathDelimited`,

@@ -36,9 +36,9 @@ Path(Vec<PathItem>),                       // ✓ EXISTE em ShapeKind
 |---|---|---|
 | `01_core/src/entities/geometry.rs:12-21` | Definição enum `PathItem` (4 variantes incl. CubicTo) | Tipo |
 | `01_core/src/entities/geometry.rs:80` | Definição `ShapeKind::Path(Vec<PathItem>)` | Tipo |
-| `01_core/src/rules/stdlib/shapes.rs:268` | `polygon()` cria `ShapeKind::Path(items)` | **Único produtor stdlib** |
-| `01_core/src/rules/layout/helpers.rs:88,124` | `measure_content_constrained` arm Path | Bbox via user-provided width/height |
-| `01_core/src/rules/layout/mod.rs:814,2127` | Layout shape kind arms | Layout |
+| `01_core/src/engine/stdlib/shapes.rs:268` | `polygon()` cria `ShapeKind::Path(items)` | **Único produtor stdlib** |
+| `01_core/src/engine/layout/helpers.rs:88,124` | `measure_content_constrained` arm Path | Bbox via user-provided width/height |
+| `01_core/src/engine/layout/mod.rs:814,2127` | Layout shape kind arms | Layout |
 | `03_infra/src/export.rs:2173,2270,2441,2725,2921` | 5 sítios PDF emit arm Path | Render |
 | `03_infra/src/export.rs:2187,2279,2453,2725,2921` | 5 sítios PDF emit arm CubicTo | Render |
 | `03_infra/src/export.rs:3442` | **Único teste** que constrói Path com CubicTo | Test E2E |
@@ -48,7 +48,7 @@ Path(Vec<PathItem>),                       // ✓ EXISTE em ShapeKind
 **`polygon()` (único stdlib producer) usa apenas `MoveTo` + `LineTo`**:
 
 ```rust
-// 01_core/src/rules/stdlib/shapes.rs:239-247
+// 01_core/src/engine/stdlib/shapes.rs:239-247
 if i == 0 {
     path_items.push(PathItem::MoveTo(...));
 } else {
@@ -95,7 +95,7 @@ L0 `geometry.md` está **desactualizado** — lista apenas Rect/Ellipse/Line
 
 ### §A.2.1 — Cálculo de bbox em produção
 
-`01_core/src/rules/layout/helpers.rs:85-93` e `:120-128` (dois sítios
+`01_core/src/engine/layout/helpers.rs:85-93` e `:120-128` (dois sítios
 análogos `measure_content` + `collect_items_at`):
 
 ```rust
@@ -114,7 +114,7 @@ bbox. Usam apenas `width`/`height` user-provided ou fallback.
 
 ### §A.2.2 — Cálculo de bbox em stdlib `polygon()`
 
-`01_core/src/rules/stdlib/shapes.rs:244-265`:
+`01_core/src/engine/stdlib/shapes.rs:244-265`:
 
 ```rust
 min_x = min_x.min(x); max_x = max_x.max(x);

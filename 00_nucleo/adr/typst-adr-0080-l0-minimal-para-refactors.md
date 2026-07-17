@@ -304,9 +304,9 @@ novas merecem L0 tocado).
 **L0 tocado partial P240** (3 ficheiros):
 - `00_nucleo/prompts/entities/content.md` — bloco
   `Content::StateDisplay` documentado.
-- `00_nucleo/prompts/rules/stdlib.md` — bloco
+- `00_nucleo/prompts/engine/stdlib.md` — bloco
   `state_display(key, [callback])` documentado.
-- `00_nucleo/prompts/rules/introspect.md` — bloco
+- `00_nucleo/prompts/engine/introspect.md` — bloco
   `apply_state_displays` + `Introspector::state_display_value`
   documented.
 
@@ -371,9 +371,9 @@ paridade absoluta P240; pattern de excepção justificada
 cristalizado. **L0 partial tocado** (3 ficheiros paralelos P240):
 - `00_nucleo/prompts/entities/content.md` — bloco
   `Content::CounterDisplayCallback` documentado.
-- `00_nucleo/prompts/rules/stdlib.md` — bloco
+- `00_nucleo/prompts/engine/stdlib.md` — bloco
   `counter_display(key, [callback])` documentado.
-- `00_nucleo/prompts/rules/introspect.md` — bloco
+- `00_nucleo/prompts/engine/introspect.md` — bloco
   `apply_counter_displays` + `Introspector::counter_display_value`
   documentado.
 
@@ -544,7 +544,7 @@ N=7 cumulativo):
    antes de assumir ausência. Pattern recomendado:
    ```
    grep -n "Content::FOO\|Content::BAR" 01_core/src/entities/content.rs
-   grep -rn "native_foo\|native_bar" 01_core/src/rules/stdlib/
+   grep -rn "native_foo\|native_bar" 01_core/src/engine/stdlib/
    grep "DEBT-XX\|ADR-XXXX" 00_nucleo/DEBT.md 00_nucleo/adr/
    ```
 3. **Se variant existe** → ajustar spec ou criar `Pxxx.div-N`
@@ -608,7 +608,7 @@ activa**). Distinta de:
 lição N=8 cumulativo):
 
 1. Identificar fields/methods candidatos mencionados no spec.
-2. `grep -n "Content::FOO { ... field: _" 01_core/src/rules/layout/`
+2. `grep -n "Content::FOO { ... field: _" 01_core/src/engine/layout/`
    para detectar consumer graded (field ignorado).
 3. `grep -n "Field-name armazenado mas\|semantic adiada" 01_core/src/entities/`
    para detectar storage graded P223-style.
@@ -671,7 +671,7 @@ API wrapper"** N=1 inaugurada P246 — distinta de:
 lição N=9 cumulativo):
 
 1. Identificar fields/methods candidatos mencionados no spec.
-2. `grep -rn "field_name" 01_core/src/rules/module_dir/` para
+2. `grep -rn "field_name" 01_core/src/engine/module_dir/` para
    mapear distribuição cross-submodule.
 3. Classificar usos por categoria:
    - Save/restore (entrada/saída de contexto).
@@ -1038,7 +1038,7 @@ construtores literais antes de modificar struct".
 
 - Audit C1 §2.1 P252 mapeou empíricamente ~42 construtores
   literais `Stroke` cross-cutting (entities/geometry + entities/
-  content + rules/layout/mod + rules/layout/tests + rules/
+  content + engine/layout/mod + engine/layout/tests + rules/
   stdlib/shapes + rules/stdlib/mod + rules/stdlib/layout).
   Pre-spec audit como primeira aplicação cumulativa onde audit
   C1 antecede spec writing.

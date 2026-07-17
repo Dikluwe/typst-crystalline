@@ -5,7 +5,7 @@
 Ler antes de começar:
 - `01_core/src/entities/content.rs` — AST actual. Confirmar se `Content::Shape`
   já existe de alguma forma ou se é inteiramente novo.
-- `01_core/src/rules/layout/frame.rs` — Display list actual. Confirmar a
+- `01_core/src/engine/layout/frame.rs` — Display list actual. Confirmar a
   estrutura de `FrameItem` e como `pos` (posição) é armazenada.
 - `03_infra/src/export.rs` — Serializador manual de PDF. Confirmar os
   operadores actuais no `page_stream` (ex: `q`, `cm`, `Do`, `Q`).
@@ -48,7 +48,7 @@ escopo deste passo:
 
 ```bash
 # 1. Confirmar como pos (posição) é armazenada em FrameItem
-grep -A 5 "enum FrameItem" 01_core/src/rules/layout/frame.rs | head -15
+grep -A 5 "enum FrameItem" 01_core/src/engine/layout/frame.rs | head -15
 
 # 2. Confirmar os operadores de página actuais no exportador
 grep -n "page_stream.push_str" 03_infra/src/export.rs | head -10
@@ -66,7 +66,7 @@ grep -A 5 "Rgb\b" 01_core/src/entities/layout_types.rs | head -10
 # 4. Confirmar como width/height são resolvidos no layouter para Content::Image
 # (padrão a replicar para Content::Shape)
 grep -n "calculate_dimensions\|width_pt\|cursor_y" \
-  01_core/src/rules/layout/mod.rs | head -10
+  01_core/src/engine/layout/mod.rs | head -10
 
 # 5. Confirmar o tipo de page_height no exportador — f64, Pt, ou outro
 grep -n "page_height" 03_infra/src/export.rs | head -5
@@ -187,7 +187,7 @@ adicionar `Content::Shape { .. } => {}` ou equivalente.
 
 ## Tarefa 2 — Primitivas na stdlib (L1)
 
-Em `01_core/src/rules/stdlib.rs`, implementar `native_rect`, `native_line`,
+Em `01_core/src/engine/stdlib.rs`, implementar `native_rect`, `native_line`,
 e o helper `parse_color`.
 
 **Regra de ouro:** o `Content::Shape` emitido pela stdlib sai completamente
@@ -285,7 +285,7 @@ ctx.register("line", native_line);
 
 ### 3a — Variante `FrameItem::Shape`
 
-Em `01_core/src/rules/layout/frame.rs`:
+Em `01_core/src/engine/layout/frame.rs`:
 
 ```rust
 // Na enum FrameItem:
@@ -308,7 +308,7 @@ Actualizar todos os `match` sobre `FrameItem`.
 
 ### 3b — Processamento de `Content::Shape` no layouter
 
-Em `01_core/src/rules/layout/mod.rs`:
+Em `01_core/src/engine/layout/mod.rs`:
 
 ```rust
 Content::Shape { kind, width, height, fill, stroke } => {

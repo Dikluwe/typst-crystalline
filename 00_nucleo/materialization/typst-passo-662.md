@@ -35,7 +35,7 @@ Reverter (opção 1). A diferença entre isto e `table.numbering` é que `table.
 
 ## Implementação, se a decisão for reverter
 
-- Reverter as alterações de P660 em `01_core/src/entities/font_list.rs`, `01_core/src/entities/layout_types.rs`, `01_core/src/entities/style_chain.rs`, `01_core/src/rules/eval/rules.rs`, `01_core/src/rules/layout/text.rs`, `03_infra/src/font_variant.rs`, `03_infra/src/shaper.rs`, `03_infra/src/font_metrics.rs`, `03_infra/src/export/builder.rs`, `03_infra/src/pipeline.rs`, `03_infra/src/export/mod.rs`, `03_infra/src/export/stream.rs`.
+- Reverter as alterações de P660 em `01_core/src/entities/font_list.rs`, `01_core/src/entities/layout_types.rs`, `01_core/src/entities/style_chain.rs`, `01_core/src/engine/eval/rules.rs`, `01_core/src/engine/layout/text.rs`, `03_infra/src/font_variant.rs`, `03_infra/src/shaper.rs`, `03_infra/src/font_metrics.rs`, `03_infra/src/export/builder.rs`, `03_infra/src/pipeline.rs`, `03_infra/src/export/mod.rs`, `03_infra/src/export/stream.rs`.
 - **Manter** a correcção de merge de `font` em `layout/text.rs` (`ns_font.or(...)` a vencer o default da chain) — isso é uma correcção de bug independente da sintaxe de `variant`, não deve ser revertida junto.
 - **Manter** a correcção de P659 (chave da cache incluir eixos de variação) — continua correcta e necessária mesmo sem a sintaxe explícita, porque `weight`/`style`/`stretch` já produzem eixos internamente, e a colisão de cache era real para esses casos também, não só para `variant` explícito.
 - Reverter os quatro testes específicos de P660 relacionados com a sintaxe `variant: (eixo: valor)`, mantendo os testes de P659 (agora de volta a teste unitário, já que a sintaxe real deixa de existir).

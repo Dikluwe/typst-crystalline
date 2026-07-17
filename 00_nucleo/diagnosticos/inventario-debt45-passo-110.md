@@ -41,9 +41,9 @@ sites de produção.
 
 Candidato no vanilla: função recursiva do Layouter.
 
-**Análise do Layouter cristalino** (`01_core/src/rules/layout/`):
+**Análise do Layouter cristalino** (`01_core/src/engine/layout/`):
 
-- Grep por `Route|Tracked|engine|Engine` em `01_core/src/rules/layout/`:
+- Grep por `Route|Tracked|engine|Engine` em `01_core/src/engine/layout/`:
   **zero matches**.
 - Assinatura pública: `pub fn layout(content: &Content, initial_state: CounterState) -> PagedDocument`.
   Sem `Route`, sem `Engine`.

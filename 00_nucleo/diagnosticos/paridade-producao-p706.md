@@ -40,7 +40,7 @@ amplo do que P705 supunha ("talvez só falte `Str in Dict`").
 
 ## 2. Implementação
 
-### `eval_binary_op` (`01_core/src/rules/eval/operators.rs`)
+### `eval_binary_op` (`01_core/src/engine/eval/operators.rs`)
 
 Novos braços antes do fronteira genérico:
 - `(In, Str, Dict)` → `dict.contains_key(s.as_str())`.
@@ -67,11 +67,11 @@ array-de-arrays (reproduz `matrix.typ:252`), tipos mistos (reproduz
 
 ## 3. Ficheiros tocados
 
-- **L0**: `00_nucleo/prompts/rules/eval/ops.md` — nova secção "P706 —
+- **L0**: `00_nucleo/prompts/engine/eval/ops.md` — nova secção "P706 —
   Operador `in`/`not in`" com a tabela de combinações e a semântica de
   implementação.
-- **Código**: `01_core/src/rules/eval/operators.rs` (braços `In`/`NotIn` +
-  `value_eq`), `01_core/src/rules/eval/tests.rs` (9 testes).
+- **Código**: `01_core/src/engine/eval/operators.rs` (braços `In`/`NotIn` +
+  `value_eq`), `01_core/src/engine/eval/tests.rs` (9 testes).
 
 ---
 

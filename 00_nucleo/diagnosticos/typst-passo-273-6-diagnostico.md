@@ -12,7 +12,7 @@ DEBT-37 P84.6 padrão reused; P156C cascade pattern reused).
 
 ## §A.1 — Inventário do arm `Content::Block` no Layouter
 
-`01_core/src/rules/layout/mod.rs`:
+`01_core/src/engine/layout/mod.rs`:
 
 - **Linha 1484** — arm `Content::Block { body, width, height, inset,
   breakable, outset, radius, clip, fill, stroke, spacing, above, below,
@@ -35,7 +35,7 @@ sem refactor maior.
 
 ## §A.2 — Inventário do arm `Content::Boxed` no Layouter
 
-`01_core/src/rules/layout/mod.rs:1330`:
+`01_core/src/engine/layout/mod.rs:1330`:
 
 - `Content::Boxed { body, width, height, inset, baseline, outset,
   radius, clip, fill, stroke }` inicio.
@@ -146,7 +146,7 @@ quando:
 
 ## §A.8 — Critério aceitação Fase A
 
-- ✓ §A.1 cita arm Block literal (path `01_core/src/rules/layout/mod.rs:1484`).
+- ✓ §A.1 cita arm Block literal (path `01_core/src/engine/layout/mod.rs:1484`).
 - ✓ §A.2 cita arm Boxed literal — escopo difere P273.7.
 - ✓ §A.4 cita callsite L3 literal pós-P273.5 (`03_infra/src/export.rs:1644+`).
 - ✓ §A.5 risco "regressão P273.5" mitigado com fallback explícito

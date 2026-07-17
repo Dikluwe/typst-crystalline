@@ -30,8 +30,8 @@ O cristalino, hoje, omite a entrada em silêncio nos três casos, em vez de: err
 ### Confirmar exactamente os dois pontos no cristalino
 
 ```bash
-sed -n '135,160p' 01_core/src/rules/eval/bibliography.rs
-sed -n '205,225p' 01_core/src/rules/layout/bib_csl.rs
+sed -n '135,160p' 01_core/src/engine/eval/bibliography.rs
+sed -n '205,225p' 01_core/src/engine/layout/bib_csl.rs
 ```
 
 Confirmar a assinatura actual das duas funções (`hay_entry_to_bib_entry`, `bib_entry_to_hayagriva`) e como os callers tratam o `None` devolvido (provavelmente `filter_map`, que descarta silenciosamente).

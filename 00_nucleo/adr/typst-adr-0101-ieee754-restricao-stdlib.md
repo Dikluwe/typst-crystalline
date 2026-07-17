@@ -19,8 +19,8 @@ quais foi documentado como "divergência consciente":
 
 O Passo 309 produziu auditoria transversal que revelou que a
 divergência **não é local** a `erf`: é política transversal cristalina
-expressa via helper central `guard_float` em `01_core/src/rules/stdlib/
-calc.rs:803-806`. Simultaneamente, o L0 `00_nucleo/prompts/rules/
+expressa via helper central `guard_float` em `01_core/src/engine/stdlib/
+calc.rs:803-806`. Simultaneamente, o L0 `00_nucleo/prompts/engine/
 eval.md` documenta política oposta:
 
 > Float → IEEE 754: NaN e Inf propagados silenciosamente (sem guarda)
@@ -53,7 +53,7 @@ Esta ADR formaliza essa decisão.
 
 Política IEEE 754 cristalina é **categorial e consciente**:
 
-### 1. Em `01_core/src/rules/eval/operators.rs` (camada B)
+### 1. Em `01_core/src/engine/eval/operators.rs` (camada B)
 
 Operações binárias (`eval_binary_op`) e unárias (`eval_unary_op`)
 sobre `Value::Float` **propagam IEEE 754 silenciosamente**:
@@ -72,7 +72,7 @@ vanilla `foundations/ops.rs::div`.
 
 **Paridade vanilla total** neste sítio.
 
-### 2. Em `01_core/src/rules/stdlib/calc.rs` (camada A)
+### 2. Em `01_core/src/engine/stdlib/calc.rs` (camada A)
 
 Helper `guard_float` rejeita NaN e Inf no **resultado** de funções
 matemáticas escalares:
@@ -190,7 +190,7 @@ P309 §8 tabelou implicações por opção. Decisão humana pondera:
 1. **Custo zero implementação**: Opção A não toca código L1; outras
    opções exigem refactor M+ ou granular cirúrgico.
 2. **Testes pré-existentes verdes preservados**: 12+ testes em
-   `01_core/src/rules/stdlib/mod.rs` verificam `Err` para inputs
+   `01_core/src/engine/stdlib/mod.rs` verificam `Err` para inputs
    degenerados (overflow, NaN result em pow/exp, etc.). Opção B
    exigiria refactor de 5-8 destes.
 3. **Refino P308 mantém-se útil**: `erf` com short-circuit A&S +
@@ -296,8 +296,8 @@ Pattern ADR-0028 → ADR-0029 (pureza física) precedente.
 | Artefacto | Estado pós-P310 |
 |---|---|
 | ADR-0101 (este ficheiro) | **PUBLICADA** com status `EM VIGOR` |
-| `00_nucleo/prompts/rules/stdlib.md` §"Política IEEE 754" | **ADICIONADA** com cross-ref ADR-0101 |
-| `00_nucleo/prompts/rules/eval.md` §"Política IEEE 754" | **ADICIONADA** com cross-ref ADR-0101 |
+| `00_nucleo/prompts/engine/stdlib.md` §"Política IEEE 754" | **ADICIONADA** com cross-ref ADR-0101 |
+| `00_nucleo/prompts/engine/eval.md` §"Política IEEE 754" | **ADICIONADA** com cross-ref ADR-0101 |
 | ADR-0033 §"Anotação cumulativa P310" | **ADICIONADA** com cross-ref ADR-0101 |
 | Hashes propagados via `crystalline-lint --fix-hashes` | **EXECUTADO** |
 | Código L1 | **INALTERADO** |
@@ -347,11 +347,11 @@ sub-passos pontuais de reforço futuros se desejado.
   consciente" documentada via ADR dedicada.
 - **ADR-0093** — Meta-metodologia evolução ADRs (Pattern 2: anotação
   cumulativa em ADR pré-existente).
-- `00_nucleo/prompts/rules/stdlib.md` §"Política IEEE 754" — secção
+- `00_nucleo/prompts/engine/stdlib.md` §"Política IEEE 754" — secção
   L0 referenciando esta ADR.
-- `00_nucleo/prompts/rules/eval.md` §"Política IEEE 754 — propagação
+- `00_nucleo/prompts/engine/eval.md` §"Política IEEE 754 — propagação
   silenciosa" — secção L0 referenciando esta ADR.
-- `01_core/src/rules/stdlib/calc.rs:803-806` — implementação
+- `01_core/src/engine/stdlib/calc.rs:803-806` — implementação
   `guard_float`.
-- `01_core/src/rules/eval/operators.rs:14-20` — comentário declarando
+- `01_core/src/engine/eval/operators.rs:14-20` — comentário declarando
   propagação IEEE 754.

@@ -54,7 +54,7 @@ com P156I):
 
 ### 1.3 Stdlib `native_repeat` (sub-passo .3)
 
-Adicionado a `01_core/src/rules/stdlib/layout.rs` (41 → **42** funcs).
+Adicionado a `01_core/src/engine/stdlib/layout.rs` (41 → **42** funcs).
 
 ```rust
 pub fn native_repeat(_ctx, args, _world, _file, _fig) -> SourceResult<Value>

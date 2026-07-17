@@ -9,7 +9,7 @@ O destino é `rules/math/layout/`, um subsistema com **organização própria**:
 - `MathLayouter` (`math/layout/mod.rs:223`) + `layout_node` (`:258`, despacha as 16 variantes
   internamente) + `layout_equation` (`:246`) + arquivos por-feature (`frac`/`attach`/`matrix`/`cases`/
   `delimited`/`root`/`stretchy`/`assembly`.rs). **O layout dos nós math já está atomizado lá.**
-- A ponte do lado-layout é `rules/layout/equation.rs::Layouter::layout_equation` (`:21`) —
+- A ponte do lado-layout é `engine/layout/equation.rs::Layouter::layout_equation` (`:21`) —
   **convenção `impl Layouter` método** (ADR-0037/P96.7), **não** a forma B free-function.
 
 **Os 3 arms math no `layout_content` eram cola fina** (não lógica de math):
@@ -19,7 +19,7 @@ O destino é `rules/math/layout/`, um subsistema com **organização própria**:
 - `MathAlignPoint`/`Linebreak` (`@809`): **no-op**.
 
 ## Decisão do dono + movimento (forma medida, não forma B)
-**Consolidar a cola em `rules/layout/equation.rs`** (convenção `impl Layouter` do subsistema):
+**Consolidar a cola em `engine/layout/equation.rs`** (convenção `impl Layouter` do subsistema):
 - `Layouter::layout_equation_arm(&mut self, e: &EquationElem)` — decode + bridge.
 - `Layouter::layout_math_fallback(&mut self, content: &Content)` — o fallback defensivo.
 

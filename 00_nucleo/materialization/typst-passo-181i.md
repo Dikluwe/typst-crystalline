@@ -65,7 +65,7 @@ Após P181I:
    Sugestão: **B**. Consistência com passos anteriores.
 
 3. Identificar localização dos tests:
-   - `01_core/src/rules/layout/tests.rs::p181i_e2e_bib`
+   - `01_core/src/engine/layout/tests.rs::p181i_e2e_bib`
      ou módulo dedicado.
    - Ou `01_core/tests/` se preferir integration-style.
    - Decisão local em `.A` conforme convenção
@@ -87,7 +87,7 @@ Output: notas internas; sem ficheiro novo.
 
 ### .B Tests E2E (componente)
 
-Em `01_core/src/rules/layout/tests.rs::p181i_e2e_bib` ou
+Em `01_core/src/engine/layout/tests.rs::p181i_e2e_bib` ou
 módulo equivalente:
 
 ```rust

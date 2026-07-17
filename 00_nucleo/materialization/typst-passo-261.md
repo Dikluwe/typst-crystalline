@@ -132,7 +132,7 @@ grep -rn "Style::Fill\|TextStyle.*fill\|FrameItem::Text.*fill" \
 
 # Native funcs cor stdlib
 grep -n "Value::Color\|native_rgb\|native_luma\|native_oklab" \
-  01_core/src/rules/stdlib/
+  01_core/src/engine/stdlib/
 
 # PDF exporter cor emit
 grep -n "rg\b\|RG\b\|Color::" 03_infra/src/export.rs | head -20

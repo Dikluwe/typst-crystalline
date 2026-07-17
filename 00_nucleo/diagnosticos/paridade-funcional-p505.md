@@ -22,18 +22,18 @@ Foram adicionados os parâmetros de indentação às funções `list(...)` e `en
 |---|---|---|
 | L0 | `00_nucleo/prompts/entities/elements/list_item.md` | Campos `indent`/`body_indent`/`tight` |
 | L0 | `00_nucleo/prompts/entities/elements/enum_item.md` | Campos `indent`/`body_indent`/`tight` |
-| L0 | `00_nucleo/prompts/rules/stdlib/structural.md` | `native_list`/`native_enum` com indentação |
-| L0 | `00_nucleo/prompts/rules/layout/list_item.md` | Layout com indentação |
-| L0 | `00_nucleo/prompts/rules/layout/enum_item.md` | Layout com indentação |
+| L0 | `00_nucleo/prompts/engine/stdlib/structural.md` | `native_list`/`native_enum` com indentação |
+| L0 | `00_nucleo/prompts/engine/layout/list_item.md` | Layout com indentação |
+| L0 | `00_nucleo/prompts/engine/layout/enum_item.md` | Layout com indentação |
 | L1 | `01_core/src/entities/elements/list_item.rs` | Struct + Hash manual + testes |
 | L1 | `01_core/src/entities/elements/enum_item.rs` | Struct + Hash manual + testes |
 | L1 | `01_core/src/entities/content.rs` | Construtores `list_item_full`/`enum_item_full` |
-| L1 | `01_core/src/rules/stdlib/structural.rs` | Parsing dos named args + testes |
-| L1 | `01_core/src/rules/layout/list_item.rs` | Layout com indentação |
-| L1 | `01_core/src/rules/layout/enum_item.rs` | Layout com indentação |
-| L1 | `01_core/src/rules/layout/mod.rs` | Campo `last_was_loose_item` no Layouter |
-| L1 | `01_core/src/rules/layout/sequence.rs` | Reset do estado de item solto |
-| L1 | `01_core/src/rules/layout/tests.rs` | Testes de layout P505 |
+| L1 | `01_core/src/engine/stdlib/structural.rs` | Parsing dos named args + testes |
+| L1 | `01_core/src/engine/layout/list_item.rs` | Layout com indentação |
+| L1 | `01_core/src/engine/layout/enum_item.rs` | Layout com indentação |
+| L1 | `01_core/src/engine/layout/mod.rs` | Campo `last_was_loose_item` no Layouter |
+| L1 | `01_core/src/engine/layout/sequence.rs` | Reset do estado de item solto |
+| L1 | `01_core/src/engine/layout/tests.rs` | Testes de layout P505 |
 | Lab | `lab/parity/tests/structural_parity.rs` | Sentinela `p505_indentacao_listas_enums` + ajuste P501 |
 | Lab | `lab/parity/src/value_dto.rs` | Arm `Value::Args` (fix de compilação preexistente) |
 

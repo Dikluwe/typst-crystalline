@@ -65,7 +65,7 @@ matérialização runtime queries.
 
 ### 2.1 Ficheiros e dimensões
 
-- `01_core/src/rules/introspect.rs`: **1108 linhas**.
+- `01_core/src/engine/introspect.rs`: **1108 linhas**.
 - `01_core/src/entities/counter_state.rs`: **333 linhas**.
 - Ambos com hash @prompt-hash preservado L0-baseline (P156L →
   P159G N=17 consecutivos para content.rs; counter_state.rs

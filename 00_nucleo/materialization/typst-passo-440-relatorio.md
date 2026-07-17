@@ -94,7 +94,7 @@ crystalline-lint .
 Resultado: **zero erros**. Apenas 2 warnings órfãos de prompts pre-existentes:
 
 - `00_nucleo/prompts/adr/adr-stub-vs-fallback.md`
-- `00_nucleo/prompts/rules/show-regex.md`
+- `00_nucleo/prompts/engine/show-regex.md`
 
 ### 2.3 Teste de violação negativa
 

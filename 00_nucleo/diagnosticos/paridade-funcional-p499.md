@@ -51,7 +51,7 @@ A flag `EvalContext::apply_show_rules` controla `intercept_content`: quando `fal
 
 **Trade-off:** Custo de tempo (eval duplicado por ficheiro). Foi aceite para evitar um refactor profundo da estrutura `Content` e manter a semântica de introspecção alinhada com o vanilla.
 
-**Ficheiros-chave:** `01_core/src/rules/eval/mod.rs`, `01_core/src/rules/eval/rules.rs`, `01_core/src/entities/module.rs`, `03_infra/src/pipeline.rs`, `03_infra/src/query_helpers.rs`.
+**Ficheiros-chave:** `01_core/src/engine/eval/mod.rs`, `01_core/src/engine/eval/rules.rs`, `01_core/src/entities/module.rs`, `03_infra/src/pipeline.rs`, `03_infra/src/query_helpers.rs`.
 
 ### 3.2 D1 — Contagem Aproximada de `par`
 

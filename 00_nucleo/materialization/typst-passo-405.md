@@ -101,7 +101,7 @@ Este passo adiciona:
 
 ### A.1 — Prompt L0 `duration-stdlib.md`
 
-Extensão de `00_nucleo/prompts/entities/duration.md` (ou novo `00_nucleo/prompts/rules/stdlib/duration-stdlib.md`):
+Extensão de `00_nucleo/prompts/entities/duration.md` (ou novo `00_nucleo/prompts/engine/stdlib/duration-stdlib.md`):
 
 - **Paridade**: `duration(days: 3, hours: 2)` ≡ vanilla constructor; `+`/`-`/`*`/`/`/`==`/`<` ≡ vanilla ops.
 - **Substrato**: reusa `Duration { nanos: u64 }` P400; stdlib constructor + eval ops.

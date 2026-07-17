@@ -30,7 +30,7 @@ Este passo corrige a divergência movendo contador para o oráculo, coerente com
 
 | Pergunta | Resultado | Status |
 |----------|-----------|--------|
-| `table_counter: usize` existe no `Layouter`? | Sim — P459 (`rules/layout/mod.rs`) | ✅ |
+| `table_counter: usize` existe no `Layouter`? | Sim — P459 (`engine/layout/mod.rs`) | ✅ |
 | `CounterRegistry` com chave `"table"` existe? | Não — P459 usou campo local | ❌ |
 | `CounterRegistry` com `"heading"`, `"figure"`, `"equation"`? | Sim — P451/P454/P456 | ✅ |
 | `format_counter` existe? | Sim — P451 | ✅ |
@@ -45,7 +45,7 @@ Este passo corrige a divergência movendo contador para o oráculo, coerente com
 
 ### 1. Remover `table_counter` do `Layouter`
 
-**Ficheiro:** `01_core/src/rules/layout/mod.rs`
+**Ficheiro:** `01_core/src/engine/layout/mod.rs`
 
 - Remover campo `table_counter: usize` do struct `Layouter`.
 - Remover inicialização `table_counter: 0` em `Layouter::new`.
@@ -53,7 +53,7 @@ Este passo corrige a divergência movendo contador para o oráculo, coerente com
 
 ### 2. Adicionar chave `"table"` ao `CounterRegistry`/`Introspector`
 
-**Ficheiro:** `01_core/src/rules/introspect.rs` (ou onde `CounterRegistry` é populado)
+**Ficheiro:** `01_core/src/engine/introspect.rs` (ou onde `CounterRegistry` é populado)
 
 - No walk de introspecção (ou eval que popula `CounterRegistry`), adicionar contagem de `Content::Table` com `table.numbering` na chain.
 - Chave: `"table"`.
@@ -63,7 +63,7 @@ Este passo corrige a divergência movendo contador para o oráculo, coerente com
 
 ### 3. Layout de table lê do oráculo
 
-**Ficheiro:** `01_core/src/rules/layout/table.rs`
+**Ficheiro:** `01_core/src/engine/layout/table.rs`
 
 - Em vez de `self.table_counter += 1`, usar:
   ```rust
@@ -86,7 +86,7 @@ Este passo corrige a divergência movendo contador para o oráculo, coerente com
 **Problema:** Relatório P459 deixa warning: "prompt `eval/table.md` ainda não foi referenciado por arquivo dono único".
 
 **Correção:**
-- Opção A: Adicionar `@prompt-hash` em `01_core/src/rules/eval/rules.rs` (onde `table.numbering` é lido da chain) referenciando `eval/table.md`.
+- Opção A: Adicionar `@prompt-hash` em `01_core/src/engine/eval/rules.rs` (onde `table.numbering` é lido da chain) referenciando `eval/table.md`.
 - Opção B: Se `eval/table.md` é redundante com `rules/eval/table.md` (ou similar), fundir ou renomear.
 - Opção C: Registrar exceção no `crystalline-lint` (como feito em P437 para `square.md`).
 

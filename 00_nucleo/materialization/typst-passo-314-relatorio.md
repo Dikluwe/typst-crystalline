@@ -111,7 +111,7 @@ ADR-0104 §"Prompts Afetados" + este relatório + histórico git) para zerar V7.
 
 | prompt | `.rs` que o referenciam |
 |---|---:|
-| `rules/layout.md` | 11 |
+| `engine/layout.md` | 11 |
 | `rules/eval.md` | 10 |
 | `rules/parse.md` | 7 |
 

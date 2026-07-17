@@ -9,8 +9,8 @@
 Materializou-se o constructor user-facing `tiling(...)` e abriu-se o caminho do tipo
 `Tiling` pelo pipeline até ao layout/export, com fallback Color (scope-out ADR-0054).
 
-- `00_nucleo/prompts/rules/stdlib/tiling-stdlib.md` — L0 do constructor.
-- `01_core/src/rules/stdlib/visualize.rs`:
+- `00_nucleo/prompts/engine/stdlib/tiling-stdlib.md` — L0 do constructor.
+- `01_core/src/engine/stdlib/visualize.rs`:
   - `native_tiling(...)` constrói `Value::Tiling` a partir de `Color`, `Content::Image`,
     `Str` (I/O via `world.read_bytes`), `Tiling` (identidade); rejeita `Gradient` com erro
     ADR-0054.
@@ -19,13 +19,13 @@ Materializou-se o constructor user-facing `tiling(...)` e abriu-se o caminho do 
     `tiling_size_array`, `tiling_relative_parent`, `tiling_identity`,
     `tiling_invalid_body_errors`, `tiling_gradient_body_errors`).
   - Registo em `make_stdlib`: `scope.define("tiling", Value::Func(Func::native(...)))`.
-- `01_core/src/rules/stdlib/shapes.rs`:
+- `01_core/src/engine/stdlib/shapes.rs`:
   - Refactor do fill de `Option<Color>` para `Option<Paint>` (`parse_paint`).
   - `rect`, `square`, `ellipse`, `circle`, `polygon`, `curve` agora aceitam
     `Color`, `Gradient` e `Tiling` como fill.
 - `01_core/src/entities/elements/shape.rs` + `01_core/src/entities/content.rs`:
   - `ShapeElem.fill` e `Content::shape(...)` passam a `Option<Paint>`.
-- `01_core/src/rules/layout/shape.rs` + `01_core/src/rules/layout/helpers.rs`:
+- `01_core/src/engine/layout/shape.rs` + `01_core/src/engine/layout/helpers.rs`:
   - `FrameItem::Shape.fill` continua `Option<Color>`; conversão via `paint.to_color()`.
 - `03_infra/src/integration_tests.rs`:
   - Teste E2E `rect_fill_tiling_cai_no_fallback_color_no_pdf` — `#rect(fill: tiling(rgb(255,0,0)))`
@@ -89,14 +89,14 @@ que `TilingBody::Gradient` é placeholder (P262 ainda não materializado como bo
 ## Artefactos
 
 - Código:
-  - `01_core/src/rules/stdlib/visualize.rs`
-  - `01_core/src/rules/stdlib/shapes.rs`
+  - `01_core/src/engine/stdlib/visualize.rs`
+  - `01_core/src/engine/stdlib/shapes.rs`
   - `01_core/src/entities/elements/shape.rs`
   - `01_core/src/entities/content.rs`
-  - `01_core/src/rules/layout/shape.rs`
-  - `01_core/src/rules/layout/helpers.rs`
+  - `01_core/src/engine/layout/shape.rs`
+  - `01_core/src/engine/layout/helpers.rs`
   - `03_infra/src/integration_tests.rs`
-- L0: `00_nucleo/prompts/rules/stdlib/tiling-stdlib.md`.
+- L0: `00_nucleo/prompts/engine/stdlib/tiling-stdlib.md`.
 - Snapshots: `03_infra/fixtures/p307b/reference/{05-gradient-linear,06-gradient-conic,07-multi-feature}.pdf`.
 - Inventário 148: `00_nucleo/diagnosticos/typst-cobertura-vanilla-vs-cristalino.md`.
 - este relatório.

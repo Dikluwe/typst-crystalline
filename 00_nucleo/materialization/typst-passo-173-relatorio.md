@@ -76,7 +76,7 @@ Engine não é Send/static; usa lifetimes nested via referências. Construir em 
 
 ### Visibilidade `apply_func`: `pub(crate)` suficiente
 
-`from_tags` está em `01_core/src/rules/introspect/from_tags.rs` — mesmo crate que `01_core/src/rules/eval/closures.rs`. `pub(crate) fn apply_func` acessível via `crate::rules::eval::closures::apply_func`. Sem necessidade de wrapper público.
+`from_tags` está em `01_core/src/engine/introspect/from_tags.rs` — mesmo crate que `01_core/src/engine/eval/closures.rs`. `pub(crate) fn apply_func` acessível via `crate::engine::eval::closures::apply_func`. Sem necessidade de wrapper público.
 
 ### `Args::positional(Vec<Value>)` já existe
 

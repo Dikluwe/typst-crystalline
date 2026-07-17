@@ -39,8 +39,8 @@ modificar struct").
    ..., thickness: <num>, overhang: false }`:
    - entities/geometry.rs: 1 sítio.
    - entities/content.rs: 10 sítios.
-   - rules/layout/mod.rs: 1 sítio.
-   - rules/layout/tests.rs: 14 sítios.
+   - engine/layout/mod.rs: 1 sítio.
+   - engine/layout/tests.rs: 14 sítios.
    - rules/stdlib/shapes.rs: 8 sítios.
    - rules/stdlib/layout.rs: 3 sítios (incluindo extract_stroke
      interno).
@@ -130,11 +130,11 @@ pub struct Stroke {
 sed -i -E 's/(Stroke \{ paint: [^}]+, thickness: [0-9]+\.[0-9]+) \}/\1, overhang: false }/g' \
   01_core/src/entities/geometry.rs \
   01_core/src/entities/content.rs \
-  01_core/src/rules/stdlib/shapes.rs \
-  01_core/src/rules/stdlib/layout.rs \
-  01_core/src/rules/layout/mod.rs \
-  01_core/src/rules/layout/tests.rs \
-  01_core/src/rules/stdlib/mod.rs
+  01_core/src/engine/stdlib/shapes.rs \
+  01_core/src/engine/stdlib/layout.rs \
+  01_core/src/engine/layout/mod.rs \
+  01_core/src/engine/layout/tests.rs \
+  01_core/src/engine/stdlib/mod.rs
 ```
 
 **~4 sítios manuais** corrigidos (sed regex falhou em multilinha
@@ -149,7 +149,7 @@ thickness }` → `Stroke { paint, thickness, overhang }`).
 ## §4 extract_stroke helper expandido + native_stroke overhang named arg (C3)
 
 ```rust
-// 01_core/src/rules/stdlib/layout.rs (extract_stroke)
+// 01_core/src/engine/stdlib/layout.rs (extract_stroke)
 pub(super) fn extract_stroke(val: &Value, fn_name: &str, field: &str)
     -> SourceResult<Stroke>
 {
@@ -180,7 +180,7 @@ Ok(Value::Stroke(Stroke { paint, thickness, overhang }))
 ## §5 Activação Layouter Block + Boxed Shape emit (C4)
 
 ```rust
-// 01_core/src/rules/layout/mod.rs (Block + Boxed Shape emit)
+// 01_core/src/engine/layout/mod.rs (Block + Boxed Shape emit)
 let mut outer_w = ...;
 let mut outer_h = ...;
 let mut pos = Point { x: ..., y: ... };

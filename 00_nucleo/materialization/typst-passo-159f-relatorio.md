@@ -22,14 +22,14 @@ P156C; **refino comportamental** com subpadrão #15
    #15 cresce N=2 → 3** via `state.lang` P158B + `state.bib_entries`
    P159C + **`state.bib_numbers` P159F**).
 
-3. **Walk arm `Content::Bibliography`** em `01_core/src/rules/introspect.rs`:
+3. **Walk arm `Content::Bibliography`** em `01_core/src/engine/introspect.rs`:
    - Popula `state.bib_numbers` contínuamente:
      `state.bib_numbers.entry(key.clone()).or_insert(len + 1)`.
    - Multi-Bibliography preserva primeiro número (paridade
      HashMap; comportamento determinístico).
 
 4. **Layout arm `Content::Cite { form: Normal/None }`** em
-   `01_core/src/rules/layout/mod.rs`:
+   `01_core/src/engine/layout/mod.rs`:
    - Lookup `state.bib_numbers.get(key)` → `[N]` ou fallback
      `[key]` (regression P159A).
    - Forms diferenciadas (Prose/Author/Year) inalteradas — match

@@ -30,7 +30,7 @@ Mapear como o `FlowEvent` é propagado: através de quê (um campo no `Engine`? 
 ### Confirmar o estado exacto do cristalino hoje
 
 ```bash
-grep -n "fn eval_for\|fn eval_while\|fn eval_closure" 01_core/src/rules/eval/control_flow.rs 01_core/src/rules/eval/closures.rs
+grep -n "fn eval_for\|fn eval_while\|fn eval_closure" 01_core/src/engine/eval/control_flow.rs 01_core/src/engine/eval/closures.rs
 ```
 
 Confirmar como os ciclos (`eval_for`, `eval_while`) e as funções (`eval_closure` ou equivalente) processam o corpo hoje — presumivelmente chamam `eval_expr` para cada iteração/chamada e nunca verificam se o resultado sinaliza paragem.

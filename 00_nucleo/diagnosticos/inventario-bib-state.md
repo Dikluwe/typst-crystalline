@@ -15,7 +15,7 @@ Padrão estabelecido por P167 (`inventario-consumers-counter-state-legacy.md`).
 | `bib_entries` | `Vec<BibEntry>` | P159C (passo 159, sub-passo C) | "Entries bibliográficos coletadas durante introspect walk. Multi-Bibliography concatena na ordem de aparecimento." |
 | `bib_numbers` | `HashMap<String, u32>` | P159F (subpadrão #15 N=3) | "Numeração 1-based de bib entries para style numeric. Multi-Bibliography preserva primeiro número via `or_insert`." |
 
-Ambos populados durante `walk` em `01_core/src/rules/introspect.rs:567-573` (arm `Content::Bibliography`).
+Ambos populados durante `walk` em `01_core/src/engine/introspect.rs:567-573` (arm `Content::Bibliography`).
 
 ### 1.2 Tipo `BibEntry` (`01_core/src/entities/bib_entry.rs`)
 
@@ -70,7 +70,7 @@ Walk **muta state** directamente — sem emissão de Tag. Não respeita padrão 
 
 ### 1.6 Stdlib `bibliography(...)` (`structural.rs`)
 
-`extract_bib_entries` em `01_core/src/rules/stdlib/structural.rs:516` — parser de literal `Vec<BibEntry>` a partir de `Value::Array(Vec<Value::Dict>)`.
+`extract_bib_entries` em `01_core/src/engine/stdlib/structural.rs:516` — parser de literal `Vec<BibEntry>` a partir de `Value::Array(Vec<Value::Dict>)`.
 
 ---
 
@@ -78,9 +78,9 @@ Walk **muta state** directamente — sem emissão de Tag. Não respeita padrão 
 
 | Consumer | Field lido | Localização | Comportamento |
 |----------|------------|-------------|---------------|
-| `Layouter::layout_content` arm `Cite` | `bib_entries`, `bib_numbers` | `01_core/src/rules/layout/mod.rs:584-597` | Resolve form (Normal/Prose/Author/Year): lookup por key → format conforme |
-| `Layouter` (legacy entry) | `bib_entries`, `bib_numbers` | `01_core/src/rules/layout/mod.rs:1386-1388` | Copia state legacy para Layouter |
-| `Layouter::layout_with_introspector` | `bib_entries`, `bib_numbers` | `01_core/src/rules/layout/mod.rs:1414-1416` | Idem (clone) |
+| `Layouter::layout_content` arm `Cite` | `bib_entries`, `bib_numbers` | `01_core/src/engine/layout/mod.rs:584-597` | Resolve form (Normal/Prose/Author/Year): lookup por key → format conforme |
+| `Layouter` (legacy entry) | `bib_entries`, `bib_numbers` | `01_core/src/engine/layout/mod.rs:1386-1388` | Copia state legacy para Layouter |
+| `Layouter::layout_with_introspector` | `bib_entries`, `bib_numbers` | `01_core/src/engine/layout/mod.rs:1414-1416` | Idem (clone) |
 
 **Total**: 1 consumer real (Layouter cite-arm); 2 sites de cópia state→Layouter.
 

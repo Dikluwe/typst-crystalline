@@ -5,7 +5,7 @@
 > fatia move os **elementos de fluxo de bloco e estrutura**: Listas (EnumItem/ListItem/Terms/
 > TermItem), Tabelas/Grid (**juntos** — o P379 mediu que partilham `self.layout_grid`), Breaks
 > (Pagebreak/Colbreak), Spacing (VSpace/HSpace/Repeat) — do `match` monolítico para
-> `rules/layout/<elem>.rs` (free function `pub(super) fn layout`, módulo descendente: sem import
+> `engine/layout/<elem>.rs` (free function `pub(super) fn layout`, módulo descendente: sem import
 > reverso, sem `pub(crate)`). **Deixa FORA, por medição (P379):** o **Text** (fatia própria — grande,
 > chain-pesado, caminho quente); a **máquina do layouter** (Sequence/Styled/Dynamic/SetPage — **não
 > é elemento de domínio**, orquestra/reconfigura — fica onde está); a fatia **math** (final, path
@@ -35,7 +35,7 @@ verde, lint **0/0**, `content→elements` 68 (não-gate). HEAD pós-P379 (`26c82
 | **Spacing** | VSpace `@1218`, HSpace `@1214`, Repeat `@1291` | `regions`/`font_size_pt`; Repeat só recursa |
 
 ~13 arms. **Grid e Table na mesma fatia** (cluster). O destino de cada um:
-`rules/layout/<elem>.rs` (ou um arquivo por família coerente — ex.: `lists.rs` para os de lista, se
+`engine/layout/<elem>.rs` (ou um arquivo por família coerente — ex.: `lists.rs` para os de lista, se
 partilharem helper; a Fase A confirma a granularidade).
 
 ---
@@ -60,7 +60,7 @@ partilharem helper; a Fase A confirma a granularidade).
 - **`match` exaustivo MANTIDO** (sem wildcard).
 - **Despacho ESTÁTICO** — sem `dyn`/vtable. Se um arm exigir, **parar e reportar**.
 - **`entities/` não tocado** — `content→elements` inalterado, não-gate.
-- **Forma B** — free function em `rules/layout/<elem>.rs`, módulo descendente. **Não a Opção A.**
+- **Forma B** — free function em `engine/layout/<elem>.rs`, módulo descendente. **Não a Opção A.**
 - **Não tocar o Text, a máquina (Sequence/Styled/Dynamic/SetPage), nem a math** — fora desta fatia.
 - **Content-preserving** — a rede de caracterização passa **sem alteração**; se virar, a lógica
   mudou ao mover → **investigar, não mascarar**.
@@ -78,7 +78,7 @@ para no chat — a medição + o desenho + a granularidade + os hashes para o do
 movido antes.
 
 ### Estágio 1 — mover a Fatia 1 (após aprovação)
-Por elemento/família: a lógica de layout **muda** do `match` para `rules/layout/<elem>.rs` (free
+Por elemento/família: a lógica de layout **muda** do `match` para `engine/layout/<elem>.rs` (free
 function, forma B); o arm do núcleo vira a delegação de uma linha; imports mortos em `mod.rs`
 removidos. Grid+Table juntos. Content-preserving.
 
@@ -149,7 +149,7 @@ intacta. Grid+Table ficam **sempre** juntos (cluster).
 
 A **confirmação por arm** (`file:line`, o que lê do `Layouter`, o cluster Grid+Table); a
 **granularidade** escolhida; o L0 commitado (hash) e a Trava aprovada; a lógica movida por
-elemento/família (`file:line` do `rules/layout/<elem>.rs` + o arm magro); a paridade (rede +11 sem
+elemento/família (`file:line` do `engine/layout/<elem>.rs` + o arm magro); a paridade (rede +11 sem
 alteração); a **métrica de leitura** (o `layout_content` −X; o acumulado; quantos arms de domínio
 restam = Fatia 2 + Text); as não-metas confirmadas; a confirmação de que o Text/máquina/math
 ficaram fora e o α/caso 2/caso 4/flag/F-5b intactos; a lente (= 68, não-gate); a perf; **os commits**

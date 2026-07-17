@@ -2,7 +2,7 @@
 
 **Data:** 2026-07-03  
 **Passo:** 538d  
-**Prompt L0:** `00_nucleo/prompts/rules/layout.md` (hash `12536b5c`)  
+**Prompt L0:** `00_nucleo/prompts/engine/layout.md` (hash `12536b5c`)  
 **Dependências:** P483 (correcção equivalente para texto normal), P532 (introdução da numeração automática de página)
 
 ## Objectivo
@@ -11,7 +11,7 @@ Corrigir o `style.font` ausente no texto de numeração automática de página (
 
 ## Causa
 
-Em `01_core/src/rules/layout/mod.rs:1173`, o texto da numeração de página usava:
+Em `01_core/src/engine/layout/mod.rs:1173`, o texto da numeração de página usava:
 
 ```rust
 style: TextStyle::regular(self.font_size_pt),
@@ -37,8 +37,8 @@ A fonte e os restantes atributos de texto agora vêm da `StyleChain` activa (pon
 
 ## Ficheiros alterados
 
-- `01_core/src/rules/layout/mod.rs` — numeração automática de página usa `TextStyle::from(&self.chain)`.
-- `01_core/src/rules/layout/tests.rs` — teste `p538d_page_numbering_text_tem_font_definida`.
+- `01_core/src/engine/layout/mod.rs` — numeração automática de página usa `TextStyle::from(&self.chain)`.
+- `01_core/src/engine/layout/tests.rs` — teste `p538d_page_numbering_text_tem_font_definida`.
 
 ## Testes automáticos
 

@@ -72,9 +72,9 @@ Este passo **não**:
 
 **Dentro**:
 - `01_core/src/entities/style_chain.rs` — campo `leading`.
-- `01_core/src/rules/eval/rules.rs` — arm `"leading"` no
+- `01_core/src/engine/eval/rules.rs` — arm `"leading"` no
   `eval_set_text` e/ou `eval_set_par`.
-- `01_core/src/rules/eval/tests.rs` — 2 testes (captura +
+- `01_core/src/engine/eval/tests.rs` — 2 testes (captura +
   canary).
 - `03_infra/src/integration_tests.rs` — adaptar DEBT-49 se
   necessário.
@@ -104,7 +104,7 @@ Este passo **não**:
 
 **Parte 2 — `eval_set_par` em L1**:
 
-1. `grep -n "eval_set_par\|\"par\"" 01_core/src/rules/eval/`.
+1. `grep -n "eval_set_par\|\"par\"" 01_core/src/engine/eval/`.
 2. Registar:
    - Se existe função dedicada para `#set par`.
    - Se existe arm `"par"` num dispatcher (ex: match sobre

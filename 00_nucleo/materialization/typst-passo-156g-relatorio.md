@@ -77,7 +77,7 @@ mesmo modelo — decisão arquitectural reaplicável.
 
 ```bash
 grep -E "Block|block" 01_core/src/entities/content.rs   # nenhum Block existente
-grep "fn native_block" 01_core/src/rules/stdlib/         # zero hits
+grep "fn native_block" 01_core/src/engine/stdlib/         # zero hits
 grep "^pub enum Style\b" 01_core/src/entities/style.rs   # 5 variantes
 ```
 
@@ -164,8 +164,8 @@ breakable: true)` em `stdlib/layout.rs::native_block`.
 | `Content::map_text` | `entities/content.rs` | idem |
 | `materialize_time` | `rules/introspect.rs` | recurse body; preserva atributos |
 | `walk` | `rules/introspect.rs` | walk body (counters/labels resolvem) |
-| `layout_content` | `rules/layout/mod.rs` | full impl: flush+inset_top+offset_left+body+flush+inset_bottom+height_min |
-| `measure_content_constrained` | `rules/layout/mod.rs` | dimensões: width respeitado se Some, inset adiciona aos lados, height força mínimo se Some |
+| `layout_content` | `engine/layout/mod.rs` | full impl: flush+inset_top+offset_left+body+flush+inset_bottom+height_min |
+| `measure_content_constrained` | `engine/layout/mod.rs` | dimensões: width respeitado se Some, inset adiciona aos lados, height força mínimo se Some |
 
 **Verificação**: `cargo build -p typst-core` clean.
 
@@ -233,7 +233,7 @@ pub fn native_block(_ctx, args, _world, _file, _fig)
 
 `stdlib/mod.rs`:
 ```rust
-pub use crate::rules::stdlib::layout::{
+pub use crate::engine::stdlib::layout::{
     native_align, native_block, native_grid, native_h, ...
 };
 ```
@@ -669,12 +669,12 @@ S/S+). Risco de regressão derivado de:
 - Cristalino código tocado:
   - `01_core/src/entities/content.rs` (variant Block +
     construtor + cobertura 5 arms + 6 tests).
-  - `01_core/src/rules/introspect.rs` (arms Block em
+  - `01_core/src/engine/introspect.rs` (arms Block em
     materialize_time + walk).
-  - `01_core/src/rules/layout/mod.rs` (arms Block em
+  - `01_core/src/engine/layout/mod.rs` (arms Block em
     layout_content + measure_content_constrained).
-  - `01_core/src/rules/layout/tests.rs` (2 tests E2E).
-  - `01_core/src/rules/stdlib/layout.rs` (`native_block`).
-  - `01_core/src/rules/stdlib/mod.rs` (re-export + 12 tests
+  - `01_core/src/engine/layout/tests.rs` (2 tests E2E).
+  - `01_core/src/engine/stdlib/layout.rs` (`native_block`).
+  - `01_core/src/engine/stdlib/mod.rs` (re-export + 12 tests
     incluindo regression).
-  - `01_core/src/rules/eval/mod.rs` (registo em `make_stdlib`).
+  - `01_core/src/engine/eval/mod.rs` (registo em `make_stdlib`).

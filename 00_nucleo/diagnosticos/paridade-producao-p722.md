@@ -68,7 +68,7 @@ durante a sonda de `+` e adiado conscientemente para este passo
 
 ## 2. Implementação
 
-L0 actualizado primeiro: `00_nucleo/prompts/rules/eval/ops.md` — secção
+L0 actualizado primeiro: `00_nucleo/prompts/engine/eval/ops.md` — secção
 P722 (mecanismo vanilla com `file:line`, scope-out de `Dict * Int`),
 testes canónicos, histórico. Hash actualizado via
 `crystalline-lint --fix-hashes` (`operators.rs` → `424a219c`).
@@ -76,7 +76,7 @@ Testes escritos antes do código: 7 testes `p722_*` em `eval/tests.rs`
 — **6 a falhar** no estado base (o de `Dict * Int` já passava: fronteira
 genérica já era o comportamento correcto).
 
-Código (`01_core/src/rules/eval/operators.rs`, secção Multiplicação):
+Código (`01_core/src/engine/eval/operators.rs`, secção Multiplicação):
 
 ```rust
 (BinOp::Mul, Value::Array(a), Value::Int(n)) | (BinOp::Mul, Value::Int(n), Value::Array(a)) => {
@@ -99,9 +99,9 @@ de `Array::repeat` (`cycle().take(count)`, incluindo `() * n → ()`).
 ## 3. Validação
 
 Estado da medição: working tree com exactamente as alterações deste
-passo (`00_nucleo/prompts/rules/eval/ops.md`,
-`01_core/src/rules/eval/operators.rs`,
-`01_core/src/rules/eval/tests.rs`), commitado de seguida. Binário
+passo (`00_nucleo/prompts/engine/eval/ops.md`,
+`01_core/src/engine/eval/operators.rs`,
+`01_core/src/engine/eval/tests.rs`), commitado de seguida. Binário
 release reconstruído desse estado.
 
 ### 3.1 Casos do passo vs vanilla

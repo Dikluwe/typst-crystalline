@@ -104,7 +104,7 @@ pub struct Conic {
 ### §2.2 — Stdlib novo helper `parse_relative_named`
 
 ```rust
-// 01_core/src/rules/stdlib/gradients.rs P273
+// 01_core/src/engine/stdlib/gradients.rs P273
 
 fn parse_relative_named(args: &Args, fn_name: &str)
     -> SourceResult<Option<RelativeTo>>

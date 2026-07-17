@@ -57,7 +57,7 @@ e não aparece em assinaturas públicas de L1 — V14 não dispara.
 
 | Prompt | Natureza da mudança |
 |--------|---------------------|
-| `00_nucleo/prompts/rules/parse.md` | Documentar `unicode_script` como externo autorizado; referenciar ADR-0012 |
+| `00_nucleo/prompts/engine/parse.md` | Documentar `unicode_script` como externo autorizado; referenciar ADR-0012 |
 
 ---
 

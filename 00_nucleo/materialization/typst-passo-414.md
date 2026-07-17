@@ -95,7 +95,7 @@ Documentar resultado no commit: `Sonda P414: FontList OK; FontBook::select OK; R
 
 ### A.1 — Prompt L0 `text-font-dict.md`
 
-Novo em `00_nucleo/prompts/rules/stdlib/text-font-dict.md` (ou integrar em `text.md` existente):
+Novo em `00_nucleo/prompts/engine/stdlib/text-font-dict.md` (ou integrar em `text.md` existente):
 
 - **Paridade**: `text.font: (family: "Linux Libertine", weight: "bold")` ≡ `FontList` com `FontFamily { name: "Linux Libertine", variant: "bold" }`.
 - **Substrato**: extensão de `native_text_font` (ou set rule handler) para aceitar `Value::Dict`.

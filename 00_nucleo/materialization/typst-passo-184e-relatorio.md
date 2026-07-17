@@ -12,7 +12,7 @@ isolados validados em pipeline real; default kind validado;
 ## §1 Resumo
 
 Submódulo `p184e_figure_per_kind` em
-`01_core/src/rules/layout/tests.rs` adiciona 5 tests E2E:
+`01_core/src/engine/layout/tests.rs` adiciona 5 tests E2E:
 
 1. **`pipeline_completo_figure_kind_image_via_introspector`** (`.B`):
    pipeline `walk → from_tags → layout_with_introspector` para 3

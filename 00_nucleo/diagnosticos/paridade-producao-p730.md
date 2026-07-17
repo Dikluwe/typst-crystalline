@@ -4,7 +4,7 @@
 **Passo:** `00_nucleo/materialization/typst-passo-730.md`
 **ADRs em vigor:** ADR-0107 (paridade é com a linguagem), ADR-0108 (medir antes de decidir).
 **Commit:** `98134380b420f0d4a74d2bf49c87b7dcaa8229eb`
-**Proveniência das medições (regra de proveniência):** commit base `baf08758e22d55442313c5321755b4d23ce73d9f` ("P729: preenche hash do commit no relatório"), working tree com as alterações deste passo (`git diff HEAD --stat`: `00_nucleo/prompts/rules/stdlib/collections.md`, `01_core/src/rules/stdlib/collections.rs`, `01_core/src/rules/eval/tests.rs`). Medições vanilla: `lab/typst-original/target/release/typst`; medições cristalino: `./target/release/typst` (release build de 2026-07-13T21:54Z).
+**Proveniência das medições (regra de proveniência):** commit base `baf08758e22d55442313c5321755b4d23ce73d9f` ("P729: preenche hash do commit no relatório"), working tree com as alterações deste passo (`git diff HEAD --stat`: `00_nucleo/prompts/engine/stdlib/collections.md`, `01_core/src/engine/stdlib/collections.rs`, `01_core/src/engine/eval/tests.rs`). Medições vanilla: `lab/typst-original/target/release/typst`; medições cristalino: `./target/release/typst` (release build de 2026-07-13T21:54Z).
 
 ---
 
@@ -61,11 +61,11 @@ sobre `locate(index, end_ok: true)` (`array.rs:122-137`): negativo → `len + in
 
 ## L0 (Prompt)
 
-`00_nucleo/prompts/rules/stdlib/collections.md` — linha `slice` na tabela de métodos de array, nova secção "Semântica de `slice` (P730)" com o mecanismo vanilla file:line, tabela de medições (incluindo erros exactos) e o consumidor cetz; linha "Atualizado em" actualizada. `crystalline-lint .` → **0 violations** (o ficheiro não usa `@prompt-hash`; nada a sincronizar — "Nothing to fix").
+`00_nucleo/prompts/engine/stdlib/collections.md` — linha `slice` na tabela de métodos de array, nova secção "Semântica de `slice` (P730)" com o mecanismo vanilla file:line, tabela de medições (incluindo erros exactos) e o consumidor cetz; linha "Atualizado em" actualizada. `crystalline-lint .` → **0 violations** (o ficheiro não usa `@prompt-hash`; nada a sincronizar — "Nothing to fix").
 
 ## Implementação
 
-`01_core/src/rules/stdlib/collections.rs`:
+`01_core/src/engine/stdlib/collections.rs`:
 
 1. Braço `(Value::Array(arr), "slice") => Some(array_slice(arr, args))` no dispatcher `try_dispatch_collection_method` (mesmo mecanismo de `array.at`, P714).
 2. `fn array_slice(arr: Vec<Value>, args: Args) -> SourceResult<Value>` — mirror do vanilla: parsing de args no padrão de `str_slice` (start posicional; end posicional **ou** nomeado; count nomeado); exclusão mútua primeiro; closure `locate` local (negativo → `len + index` via `checked_add`, admite `== len`, erro com o índice original e a mensagem exacta do vanilla); `end` omitido → `len`; `count` → `start_resolvido + count`; clamp `max(start)`; fatia `arr[start..end]`.

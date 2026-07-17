@@ -48,9 +48,9 @@ pub struct Stroke {
 |-----------|----------|--------|
 | Struct declaration + test | `entities/geometry.rs` | 1 (linha 73) |
 | Tests em content.rs | `entities/content.rs` | 10 (linhas 4047-4591) |
-| Layouter literal | `rules/layout/mod.rs` | 1 (linha 1142) |
+| Layouter literal | `engine/layout/mod.rs` | 1 (linha 1142) |
 | Stdlib shapes | `rules/stdlib/shapes.rs` | 8 (linhas 63-260) |
-| Layouter tests | `rules/layout/tests.rs` | 14 (linhas 3154-6440) |
+| Layouter tests | `engine/layout/tests.rs` | 14 (linhas 3154-6440) |
 
 **Stroke em Content variants**: **8 declarações** `stroke:
 Option<Stroke>` (mais do que as 6 hipotetizadas; auditoria
@@ -285,7 +285,7 @@ exactamente quais (linha 893 incerta). Confirmar:
 ### §2.3 `extract_stroke` helper exhaustive
 
 ```bash
-grep -B2 -A 20 "pub(super) fn extract_stroke" 01_core/src/rules/stdlib/layout.rs
+grep -B2 -A 20 "pub(super) fn extract_stroke" 01_core/src/engine/stdlib/layout.rs
 ```
 
 Confirmar match arms (Length, Color, Dict, outros).
@@ -497,15 +497,15 @@ cumulativas" anotada P252.
 |-----------|----------|----------|
 | L1 entity | `01_core/src/entities/geometry.rs` | `Stroke` +1 field `overhang: bool`; PartialEq/Clone derivados estendidos automaticamente |
 | L0 prompt | `00_nucleo/prompts/entities/geometry.md` | Documentar field `overhang` + default cristalino `false` + paridade vanilla via stdlib; secção nova "§Default cristalino divergente P252" |
-| L1 stdlib | `01_core/src/rules/stdlib/layout.rs` | `extract_stroke` helper expandido com parse `overhang` (default vanilla `true` quando ausente do dict) |
-| L1 stdlib | `01_core/src/rules/stdlib/shapes.rs` | 8 construtores Stroke em shapes ganham `overhang: false` mecânicamente |
-| L1 Layouter | `01_core/src/rules/layout/mod.rs` | Arm Block + Boxed Shape emit: bounds expansão por `thickness/2.0` quando overhang=true; 1 construtor literal Stroke ganha `overhang: false` (linha 1142) |
-| L1 Layouter | `01_core/src/rules/layout/grid.rs` | Arms Grid + GridCell + Table + TableCell Shape emit: bounds expansão análoga |
+| L1 stdlib | `01_core/src/engine/stdlib/layout.rs` | `extract_stroke` helper expandido com parse `overhang` (default vanilla `true` quando ausente do dict) |
+| L1 stdlib | `01_core/src/engine/stdlib/shapes.rs` | 8 construtores Stroke em shapes ganham `overhang: false` mecânicamente |
+| L1 Layouter | `01_core/src/engine/layout/mod.rs` | Arm Block + Boxed Shape emit: bounds expansão por `thickness/2.0` quando overhang=true; 1 construtor literal Stroke ganha `overhang: false` (linha 1142) |
+| L1 Layouter | `01_core/src/engine/layout/grid.rs` | Arms Grid + GridCell + Table + TableCell Shape emit: bounds expansão análoga |
 | Tests adaptações content | `01_core/src/entities/content.rs` (test module) | ~10 construtores Stroke ganham `overhang: false` mecânicamente |
 | Tests adaptações geometry | `01_core/src/entities/geometry.rs` (test module) | 1 construtor + 2-3 unit tests novos para field overhang |
-| Tests adaptações layout | `01_core/src/rules/layout/tests.rs` | ~14 construtores Stroke ganham `overhang: false` mecânicamente; 1-3 tests novos Layouter bounds; 1-2 regression P247 stroke literal preservado |
-| Tests stdlib | `01_core/src/rules/stdlib/mod.rs` (test module) | 3-5 unit `extract_stroke` overhang parse |
-| Tests E2E | `01_core/src/rules/layout/tests.rs` ou local | 1-2 E2E Boxed stroke-overhang |
+| Tests adaptações layout | `01_core/src/engine/layout/tests.rs` | ~14 construtores Stroke ganham `overhang: false` mecânicamente; 1-3 tests novos Layouter bounds; 1-2 regression P247 stroke literal preservado |
+| Tests stdlib | `01_core/src/engine/stdlib/mod.rs` (test module) | 3-5 unit `extract_stroke` overhang parse |
+| Tests E2E | `01_core/src/engine/layout/tests.rs` ou local | 1-2 E2E Boxed stroke-overhang |
 | Inventário 148 | `00_nucleo/diagnosticos/typst-cobertura-vanilla-vs-cristalino.md` | §A.5 `box(...)` reclassificada (footnote ⁶⁹ P252 — Boxed A.4 COMPLETO); cobertura Layout per metodologia recalculada |
 | ADR-0061 | `00_nucleo/adr/typst-adr-0061-layout-fase-x-roadmap.md` | §"Refino futuro" anotação P252 — Boxed A.4 COMPLETO |
 | ADR-0079 | `00_nucleo/adr/typst-adr-0079-fase-5-layout-roadmap.md` | Categoria A.4 §"Sub-categorias materializadas": Boxed.stroke-overhang P252; **Boxed A.4 COMPLETO 6/6**; segundo variant Content com 100% scope-outs fechados |

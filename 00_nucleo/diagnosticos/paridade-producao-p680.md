@@ -63,7 +63,7 @@ Binários: vanilla `lab/typst-original/target/release/typst` (`typst 0.15.0 (969
 
 ## 3. Por que o diamante não é confundido com ciclo (mecânica confirmada)
 
-A detecção de ciclo em P679 usa `engine.route.contains(src_id)` antes de avaliar cada ficheiro importado (`01_core/src/rules/eval/modules.rs`, `eval_module_import`). O ponto decisivo é **como** o `Route` é estendido:
+A detecção de ciclo em P679 usa `engine.route.contains(src_id)` antes de avaliar cada ficheiro importado (`01_core/src/engine/eval/modules.rs`, `eval_module_import`). O ponto decisivo é **como** o `Route` é estendido:
 
 - Em `eval_imported_file`, o frame filho é construído como `Route::extend(engine.route).with_id(src_id)` e atribuído ao `Engine` **local**. O `Engine` do chamador mantém o seu `route` intacto — `Route::extend` produz um novo `Route`; não muta o do chamador (o campo é `Tracked<Route>`, tratado como valor imutável).
 - Quando `eval_imported_file` retorna (sucesso ou erro via `?`), o `Engine` local é descartado e o `route` do chamador continua exactamente como estava antes da importação.
@@ -80,7 +80,7 @@ Ou seja: o mecanismo distingue naturalmente "activo na cadeia actual" (está no 
 
 ## 4. Testes automatizados adicionados
 
-Em `01_core/src/rules/eval/tests.rs`, reutilizando o `ImportMockWorld` de P679 (mapa path→`Source` com `FileId` estável; `include_source` por clone):
+Em `01_core/src/engine/eval/tests.rs`, reutilizando o `ImportMockWorld` de P679 (mapa path→`Source` com `FileId` estável; `include_source` por clone):
 
 - `import_cadeia_tres_ficheiros_sem_ciclo` — `A→B→C`; verifica que o binding final é `Value::Str("de B, com de C")` e que o eval não falha.
 - `import_diamante_nao_e_ciclo` — `A→{B,C}→D`; verifica `rb = "B usa de D"` e `rc = "C usa de D"`, e que o eval não falha (não levanta `ciclo de importação detectado`).
@@ -119,7 +119,7 @@ O trabalho efectivo deste passo é a cobertura automatizada (§4) para que estes
 - **Hora da sonda/validação:** 2026-07-10T15:51:54Z (working tree = commit base + os 2 testes novos de P680; sem alteração de lógica de eval).
 - **Vanilla usado:** `lab/typst-original/target/release/typst` — `typst 0.15.0 (969087ec)`.
 - **Cristalino usado:** `target/debug/typst` (build do commit base; P679 incluído).
-- **Ficheiros alterados (`git diff HEAD --stat`):** `01_core/src/rules/eval/tests.rs` (+57 linhas; 2 testes). Nenhum outro ficheiro de código ou L0 foi tocado.
+- **Ficheiros alterados (`git diff HEAD --stat`):** `01_core/src/engine/eval/tests.rs` (+57 linhas; 2 testes). Nenhum outro ficheiro de código ou L0 foi tocado.
 
 ---
 

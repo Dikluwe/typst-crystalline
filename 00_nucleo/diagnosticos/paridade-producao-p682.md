@@ -13,8 +13,8 @@
 - `git diff HEAD --stat` (estado exacto que gerou os números):
 
 ```
- 00_nucleo/prompts/rules/stdlib/primitives-constructors.md | 29 ++++++++++-
- 01_core/src/rules/stdlib/primitives_constructors.rs        | 56 +++++++++++++++++++++-
+ 00_nucleo/prompts/engine/stdlib/primitives-constructors.md | 29 ++++++++++-
+ 01_core/src/engine/stdlib/primitives_constructors.rs        | 56 +++++++++++++++++++++-
  2 files changed, 83 insertions(+), 2 deletions(-)
 ```
 
@@ -44,7 +44,7 @@ registada como débito (fora do scope de P682).
 
 ## Implementação
 
-`01_core/src/rules/stdlib/primitives_constructors.rs::native_version` ganhou um braço de
+`01_core/src/engine/stdlib/primitives_constructors.rs::native_version` ganhou um braço de
 **forma de array fiel ao vanilla**, avaliado antes da forma posicional:
 
 - `args.items.len() == 1` e o único posicional é `Value::Array(_)` → forma de array.
@@ -108,5 +108,5 @@ cetz resolvido).
 
 ## Ficheiros tocados (commit)
 
-- `00_nucleo/prompts/rules/stdlib/primitives-constructors.md` (L0: forma array + testes)
-- `01_core/src/rules/stdlib/primitives_constructors.rs` (`native_version` + 6 testes)
+- `00_nucleo/prompts/engine/stdlib/primitives-constructors.md` (L0: forma array + testes)
+- `01_core/src/engine/stdlib/primitives_constructors.rs` (`native_version` + 6 testes)

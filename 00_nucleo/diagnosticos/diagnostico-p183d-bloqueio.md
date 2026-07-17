@@ -3,7 +3,7 @@
 **Data**: 2026-05-03
 **Passo**: P183D — auditoria semântica explícita (regra dos 2 eixos)
 **Escopo**: tentativa de migração do consumer C3
-(`01_core/src/rules/layout/mod.rs:435–439`,
+(`01_core/src/engine/layout/mod.rs:435–439`,
 `self.counter.figure_numbers.get(kind_key).and_then(|v| v.get(idx))`)
 para `Introspector::figure_number_at_index(kind, idx)` com fallback.
 **Postura**: zero código tocado em L1–L4; zero testes modificados; zero
@@ -31,7 +31,7 @@ O `TagIntrospector` **não tem qualquer sub-store que registe contadores
 de figure por kind**. Inspecção empírica:
 
 1. **`from_tags` arm `ElementPayload::Figure`**
-   (`01_core/src/rules/introspect/from_tags.rs:71–95`):
+   (`01_core/src/engine/introspect/from_tags.rs:71–95`):
    ```rust
    ElementPayload::Figure { counter_update, is_counted, .. } => {
        intr.kind_index
@@ -82,7 +82,7 @@ de figure por kind**. Inspecção empírica:
 
 (Análise teórica, dado que eixo 2 já bloqueia.)
 
-1. **Walk de introspect** (`01_core/src/rules/introspect.rs:391–399`)
+1. **Walk de introspect** (`01_core/src/engine/introspect.rs:391–399`)
    popula `state.figure_numbers["image"] = [1, 2, 3, ...]` em ordem
    de aparecimento. Após walk completo, `figure_numbers` está em
    snapshot final fixo.

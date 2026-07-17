@@ -32,7 +32,7 @@ Pontos de uso em L1 (apenas como tipos opacos, não construídos com
 estado real):
 
 ```rust
-// 01_core/src/rules/eval.rs:37, 251–255
+// 01_core/src/engine/eval.rs:37, 251–255
 use crate::entities::world_types::{Route, Routines, Sink, Traced};
 
 pub fn eval(
@@ -44,7 +44,7 @@ pub fn eval(
     source: &Source,
 ) -> SourceResult<Module> { ... }
 
-// 01_core/src/rules/eval.rs:1719–1722 (em testes)
+// 01_core/src/engine/eval.rs:1719–1722 (em testes)
 let routines = Routines::new();
 let traced   = Traced::new();
 let mut sink = Sink::new();
@@ -348,7 +348,7 @@ já tem. Nota: a materialização de `Route` torna o `EvalContext.import_stack`
 
 - `01_core/src/entities/world_types.rs:106,121,140,156,175,193`
   — declarações dos 6 stubs.
-- `01_core/src/rules/eval.rs:37,251–255,1719–1722` — pontos de uso.
+- `01_core/src/engine/eval.rs:37,251–255,1719–1722` — pontos de uso.
 - `lab/typst-original/crates/typst-library/src/engine.rs:19,120,150,251`
   — `Engine`, `Traced`, `Sink`, `Route`.
 - `lab/typst-original/crates/typst-library/src/routines.rs:31`

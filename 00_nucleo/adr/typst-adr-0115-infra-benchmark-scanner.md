@@ -8,7 +8,7 @@
 
 ## Contexto
 
-DEBT-42 (Passo 84.8a) regista 7 ocorrências de `unsafe { self.string.get_unchecked(start..end) }` em `01_core/src/rules/lexer/scanner.rs`. A ADR-0032 estabelece que `unsafe` em L1 só pode permanecer como excepção permanente se um benchmark reprodutível demonstrar regressão inaceitável ao eliminá-lo, registada em ADR específica com número concreto.
+DEBT-42 (Passo 84.8a) regista 7 ocorrências de `unsafe { self.string.get_unchecked(start..end) }` em `01_core/src/engine/lexer/scanner.rs`. A ADR-0032 estabelece que `unsafe` em L1 só pode permanecer como excepção permanente se um benchmark reprodutível demonstrar regressão inaceitável ao eliminá-lo, registada em ADR específica com número concreto.
 
 Antes de poder executar esse benchmark, o projecto precisava de infraestrutura: framework, localização, inputs de stress e critérios de reprodutibilidade.
 
@@ -16,7 +16,7 @@ Antes de poder executar esse benchmark, o projecto precisava de infraestrutura: 
 
 1. **Framework:** `criterion` 0.5 — padrão de facto em Rust, já disponível em cache local, fornece estatísticas robustas (outlier detection, confidence intervals) e relatórios HTML/CSV.
 2. **Localização:** crate `typst-benches` em `benches/` na raiz do workspace. Isto isola o código de benchmark de `01_core/src/`, mantendo L1 livre de dependências de benchmarking.
-3. **API medida:** `typst_core::rules::lexer::Lexer::new(src, SyntaxMode::Markup).next()` — a API pública mínima que consome tokens. O struct `Lexer` passou a ser `pub` (apenas visibilidade; sem alteração funcional).
+3. **API medida:** `typst_core::engine::lexer::Lexer::new(src, SyntaxMode::Markup).next()` — a API pública mínima que consome tokens. O struct `Lexer` passou a ser `pub` (apenas visibilidade; sem alteração funcional).
 4. **Inputs:** 5 ficheiros `.typ` em `benches/corpus/` cobrindo cenários distintos:
    - `b1_hello.typ` — micro input (~11 bytes).
    - `b2_text.typ` — texto corrido (~5 KB).

@@ -51,7 +51,7 @@ Confirmar se o problema é só com `text(size:)`, ou também com outras propried
 ### Localizar exactamente onde `ContextBlockElem` é resolvido
 
 ```bash
-grep -rn "ContextBlock\|fn resolve.*context\|Content::ContextBlock" 01_core/src/rules/ 01_core/src/entities/ | head -20
+grep -rn "ContextBlock\|fn resolve.*context\|Content::ContextBlock" 01_core/src/engine/ 01_core/src/entities/ | head -20
 ```
 
 Confirmar onde o `StyleChain` usado dentro do bloco `context` é obtido — se está a usar um `StyleChain::default()` ou equivalente, em vez do `StyleChain` realmente activo no ponto de avaliação (`engine.styles` no momento em que o `ContextBlockElem` é encontrado).

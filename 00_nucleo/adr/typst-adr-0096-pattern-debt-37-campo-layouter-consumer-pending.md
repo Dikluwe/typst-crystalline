@@ -19,7 +19,7 @@ adiado.
 
 ## Contexto
 
-Refino estrutural do `Layouter` (`01_core/src/rules/layout/`) por
+Refino estrutural do `Layouter` (`01_core/src/engine/layout/`) por
 vezes requer introduzir **campo novo na struct `Layouter`** para
 persistir estado entre arms de `Content::*` ou entre Layouter L1 e
 emit L3. Materializar **introdução + consumer real no mesmo passo**

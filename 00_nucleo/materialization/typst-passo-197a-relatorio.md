@@ -219,5 +219,5 @@ violations.
   `intr.figure_label_numbers` (P168); `intr.kind_index` (existente).
 - Consumer C3: `references.rs::layout_ref` figure ref-arm
   (P184D substitution-with-fallback).
-- L0 alvo: `00_nucleo/prompts/rules/introspect.md` (a actualizar em P197B).
+- L0 alvo: `00_nucleo/prompts/engine/introspect.md` (a actualizar em P197B).
 - Padrão diagnóstico-primeiro: 19ª aplicação consecutiva.

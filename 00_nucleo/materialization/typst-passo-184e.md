@@ -28,7 +28,7 @@ métodos; `CounterRegistry` 6 métodos públicos.
 
 **Restrições**:
 - **Não** modificar código de produção em
-  `01_core/src/rules/`, `01_core/src/entities/`,
+  `01_core/src/engine/`, `01_core/src/entities/`,
   `02_shell/`, `03_infra/`, `04_wiring/`.
 - **Não** modificar walk arm, write-sites, copy-sites
   legacy.
@@ -91,7 +91,7 @@ identificada.
 
 ### .B Test E2E — pipeline completo via Introspector
 
-1. Adicionar test em `01_core/src/rules/layout/tests.rs`
+1. Adicionar test em `01_core/src/engine/layout/tests.rs`
    submódulo novo `p184e_figure_per_kind` (irmão de
    `p182e_e2e_heading_numbering`):
 

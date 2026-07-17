@@ -15,13 +15,13 @@ ADR-0109 (feature no seu ficheiro), ADR-0111 (leitura reusa `World::read_bytes`)
 - **Ficheiros alterados no momento da medição** (`git diff HEAD --stat`):
 
 ```
- 01_core/src/rules/eval/mod.rs   | 4 ++++
- 01_core/src/rules/stdlib/mod.rs | 4 ++++
+ 01_core/src/engine/eval/mod.rs   | 4 ++++
+ 01_core/src/engine/stdlib/mod.rs | 4 ++++
  2 files changed, 8 insertions(+)
 ```
 
-Novos ficheiros (não no diff acima): `00_nucleo/prompts/rules/stdlib/plugin.md`,
-`01_core/src/rules/stdlib/plugin.rs`, este relatório. A fixture `hello.wasm`
+Novos ficheiros (não no diff acima): `00_nucleo/prompts/engine/stdlib/plugin.md`,
+`01_core/src/engine/stdlib/plugin.rs`, este relatório. A fixture `hello.wasm`
 (192 B) é a de P696, regenerada em scratch e apagada no fim.
 
 ## Objectivo
@@ -34,7 +34,7 @@ provando que a leitura funciona sem fingir o resto.
 
 ## Decisões (com medição — ADR-0108)
 
-1. **Feature no seu ficheiro** (ADR-0109): `01_core/src/rules/stdlib/plugin.rs`
+1. **Feature no seu ficheiro** (ADR-0109): `01_core/src/engine/stdlib/plugin.rs`
    com `native_plugin`, registado no scope global via `make_stdlib`
    (`scope.define("plugin", …)`), L0 próprio `rules/stdlib/plugin.md`.
 2. **Leitura reusa `World::read_bytes`** (sem I/O em L1, sem duplicar

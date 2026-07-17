@@ -22,7 +22,7 @@ Executados os comandos de sonda definidos em `typst-passo-413.md`:
 
 ## 2. Decisão sobre L0 (FASE A)
 
-Não foi criado `00_nucleo/prompts/rules/eval/decimal-arithmetic.md` separado porque:
+Não foi criado `00_nucleo/prompts/engine/eval/decimal-arithmetic.md` separado porque:
 
 - A implementação já existe e está testada.
 - Criar um prompt L0 para código que já foi escrito violaria o protocolo de nucleação.
@@ -32,7 +32,7 @@ Não foi criado `00_nucleo/prompts/rules/eval/decimal-arithmetic.md` separado po
 
 ## 3. Implementação existente (FASE B)
 
-Local: `01_core/src/rules/eval/operators.rs` — comentários `P404`.
+Local: `01_core/src/engine/eval/operators.rs` — comentários `P404`.
 
 Operadores suportados para `Value::Decimal`:
 
@@ -51,7 +51,7 @@ Divisão por zero é verificada no início de `eval_binary_op` para `Value::Deci
 
 ## 4. Testes existentes
 
-Local: `01_core/src/rules/eval/tests.rs` — bloco `P404 — Aritmética e comparações Decimal`.
+Local: `01_core/src/engine/eval/tests.rs` — bloco `P404 — Aritmética e comparações Decimal`.
 
 9 testes cobrem:
 

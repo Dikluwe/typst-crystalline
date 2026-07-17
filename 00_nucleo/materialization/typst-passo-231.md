@@ -238,7 +238,7 @@ Auditoria empírica crítica:
 ```
 grep -n "Block {" 01_core/src/entities/content.rs
 grep -n "Boxed {" 01_core/src/entities/content.rs
-grep -n "pub(super) fn extract_sides_lengths\|fn extract_sides" 01_core/src/rules/stdlib/
+grep -n "pub(super) fn extract_sides_lengths\|fn extract_sides" 01_core/src/engine/stdlib/
 grep -n "FrameItem::Group\|RoundedRect" 01_core/src/entities/layout_types.rs
 grep -n "clip_mask" 01_core/src/entities/layout_types.rs
 grep -A 10 "ShapeKind" 01_core/src/entities/geometry.rs
@@ -330,10 +330,10 @@ Total arms refino Block + Boxed P231:
 - `materialize_time` — preserva.
 - `walk` — preserva.
 
-**`rules/layout/mod.rs::layout_content`** (1 arm Block +
+**`engine/layout/mod.rs::layout_content`** (1 arm Block +
 1 arm Boxed; refino renderização parcial graded).
 
-**`rules/layout/mod.rs::measure_content_constrained`** (2
+**`engine/layout/mod.rs::measure_content_constrained`** (2
 arms — outset afecta dimensions; radius/clip não).
 
 **`rules/introspect/locatable.rs`** (catch-all preserva).
@@ -574,16 +574,16 @@ Código alterado:
 - **Editado**: `01_core/src/entities/content.rs` (Block
   + Boxed refino +3 fields cada + arms cascata + ~4 unit
   tests).
-- **Editado**: `01_core/src/rules/introspect.rs` (arms
+- **Editado**: `01_core/src/engine/introspect.rs` (arms
   preservados).
-- **Editado**: `01_core/src/rules/layout/mod.rs` (arms
+- **Editado**: `01_core/src/engine/layout/mod.rs` (arms
   Block + Boxed refino renderização + measure refino
   outset).
-- **Editado**: `01_core/src/rules/stdlib/layout.rs`
+- **Editado**: `01_core/src/engine/stdlib/layout.rs`
   (`native_block` + `native_box` accept 3 named args;
   +~9 unit tests; possível helper `extract_sides_lengths`
   reuso).
-- **Editado**: `01_core/src/rules/layout/tests.rs` (+~4
+- **Editado**: `01_core/src/engine/layout/tests.rs` (+~4
   E2E tests).
 - **Editado**: `00_nucleo/diagnosticos/typst-cobertura-vanilla-vs-cristalino.md`
   (footnote ⁵⁰ P231).

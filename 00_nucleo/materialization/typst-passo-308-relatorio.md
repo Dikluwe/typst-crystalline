@@ -115,7 +115,7 @@ absoluta.
 
 ## §3 — Materialização
 
-### §3.1 — `01_core/src/rules/stdlib/calc.rs` — 1 função + 1 helper + 1 registo
+### §3.1 — `01_core/src/engine/stdlib/calc.rs` — 1 função + 1 helper + 1 registo
 
 **Mudanças principais**:
 
@@ -195,7 +195,7 @@ absoluta.
 **Zero variants novos**, **zero traits novas**, **zero novos módulos**.
 Apenas 1 helper local privado (`erf_approx_as`, 16 linhas).
 
-### §3.4 — `00_nucleo/prompts/rules/stdlib.md` — drift L0 deliberado duplo
+### §3.4 — `00_nucleo/prompts/engine/stdlib.md` — drift L0 deliberado duplo
 
 **Primeira passagem** (`dd3e2637 → 5fae4b55`):
 - Cabeçalho actualizado: 40→41 funções, Passos de origem +`P308`, ADRs
@@ -231,7 +231,7 @@ Apenas 1 helper local privado (`erf_approx_as`, 16 linhas).
 | Eval pipeline | **Inalterado** — `eval_field_access` resolve `calc.erf` via Dict (P96.2) |
 | Layouter / walks | **Inalterado** |
 | `export/*` | **Inalterado bit-exact** — 5 ficheiros preservados (`mod.rs`, `builder.rs`, `stream.rs`, `images.rs`, `fonts.rs`); **1º passo consecutivo pós-P307** |
-| L0 `rules/layout.md` | **Inalterado** |
+| L0 `engine/layout.md` | **Inalterado** |
 | L0 `entities/content.md` | **Inalterado** |
 | L0 `rules/stdlib.md` | **Actualizado duplamente** (drift L0 deliberado per protocolo + refino `±0`) |
 
@@ -239,7 +239,7 @@ Apenas 1 helper local privado (`erf_approx_as`, 16 linhas).
 
 ## §4 — Testes
 
-### §4.1 — `01_core/src/rules/stdlib/mod.rs` (+9 L1, +1 helper local)
+### §4.1 — `01_core/src/engine/stdlib/mod.rs` (+9 L1, +1 helper local)
 
 **Helper de teste novo** (escopo limitado a P308 — não polui scaffolding
 global):
@@ -331,8 +331,8 @@ Executado **três vezes** durante P308:
 | `infra/export/stream.rs` | `9acca994` preservado |
 | `infra/export/images.rs` | `ba5bcbb7` preservado |
 | `infra/export/fonts.rs` | `c7d24b28` preservado |
-| `rules/layout/mod.rs` | inalterado |
-| `rules/layout/cursor.rs` | inalterado |
+| `engine/layout/mod.rs` | inalterado |
+| `engine/layout/cursor.rs` | inalterado |
 | L0 `rules/stdlib.md` | **`dd3e2637` → `5fae4b55` → `d4c214e1`** (duplo drift deliberado) |
 | 11× `rules/stdlib/*.rs` (`@prompt-hash`) | **`dd3e2637` → `5fae4b55` → `d4c214e1`** via `--fix-hashes` duplo (operação mecânica) |
 | Outros L0 markdown | todos preservados |

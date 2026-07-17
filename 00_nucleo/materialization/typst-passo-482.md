@@ -221,7 +221,7 @@ Entre a chamada de `layout(...)` e `export(...)`:
 
 ```rust
 // P482 — shaping pass entre layout e export
-let doc = typst_core::rules::layout::layout(content, world_adapter);
+let doc = typst_core::engine::layout::layout(content, world_adapter);
 let doc = crate::shaper::shape_document(world, doc);
 export::export_pdf(doc, world)?;
 ```

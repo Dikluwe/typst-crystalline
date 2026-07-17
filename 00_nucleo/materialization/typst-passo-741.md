@@ -29,7 +29,7 @@ Confirmar se a percentagem resolve contra o tamanho do polígono em si (bounding
 ### Confirmar como outras formas já resolvem `Ratio`/`Rel<Length>` em tempo de layout no cristalino
 
 ```bash
-grep -n "Rel<Length>\|resolve.*layout\|Content::Shape" 01_core/src/rules/layout/shapes.rs 01_core/src/rules/layout/mod.rs 2>/dev/null | head -30
+grep -n "Rel<Length>\|resolve.*layout\|Content::Shape" 01_core/src/engine/layout/shapes.rs 01_core/src/engine/layout/mod.rs 2>/dev/null | head -30
 ```
 
 Confirmar se já existe mecanismo de resolução de `Rel<Length>` em tempo de layout que `polygon` possa reaproveitar (por exemplo, o que `rect`/`box` já usam para `width: 50%`), ou se é preciso construir de raiz.

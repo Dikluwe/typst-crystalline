@@ -38,7 +38,7 @@ Bibliography é no-op; `BibStore` (P181B) acessível via
 ### .A Auditoria L0
 
 1. Confirmar arm no-op actual:
-   - `01_core/src/rules/introspect/from_tags.rs`.
+   - `01_core/src/engine/introspect/from_tags.rs`.
    - Localizar arm `ElementPayload::Bibliography { .. } => {}`
      (adicionado P181C).
    - Identificar contexto: dentro de match sobre
@@ -78,7 +78,7 @@ Output: notas internas; sem ficheiro novo.
 
 ### .B Tests primeiro (devem falhar)
 
-Em `01_core/src/rules/introspect/from_tags.rs::tests`:
+Em `01_core/src/engine/introspect/from_tags.rs::tests`:
 
 ```rust
 #[test]
@@ -220,7 +220,7 @@ Marco humano. Após `.C`:
 
 ### .E Implementar arm
 
-Em `01_core/src/rules/introspect/from_tags.rs`, substituir
+Em `01_core/src/engine/introspect/from_tags.rs`, substituir
 o arm no-op:
 
 ```rust

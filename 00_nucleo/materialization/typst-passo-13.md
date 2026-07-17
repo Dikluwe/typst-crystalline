@@ -7,7 +7,7 @@ Ler antes de começar:
 - `00_nucleo/adr/typst-adr-0015-ecow.md` — contexto da decisão original
 - `00_nucleo/adr/typst-adr-0016-adiamento-eval-typst-library.md`
 - `lab/typst-original/crates/typst-library/src/foundations/value.rs`
-- `01_core/src/rules/eval.rs` — esqueleto do Passo 12
+- `01_core/src/engine/eval.rs` — esqueleto do Passo 12
 
 Pré-condição: `cargo test` — 216 testes (194 L1 + 22 L3), zero violations.
 
@@ -342,7 +342,7 @@ integração mais próximos de documentos reais sem requerer `Content`.
 Se a API diferir do código abaixo, ajustar antes de compilar.
 
 ```rust
-// 01_core/src/rules/eval.rs — substituir o esqueleto
+// 01_core/src/engine/eval.rs — substituir o esqueleto
 
 use comemo::{Tracked, TrackedMut};
 use ecow::EcoString;
@@ -356,7 +356,7 @@ use crate::entities::{
     value::Value,
     world_types::{Engine, Route, Routines, Sink, Traced},
 };
-use crate::rules::scopes::Scopes;
+use crate::engine::scopes::Scopes;
 
 pub fn eval(
     _routines: &Routines,
@@ -493,7 +493,7 @@ Se a integração com comemo bloquear completamente os testes de eval():
 
 ### Prompt L0
 
-**Actualizar**: `00_nucleo/prompts/rules/eval.md`
+**Actualizar**: `00_nucleo/prompts/engine/eval.md`
 
 Documentar:
 - Variantes de Expr suportadas: Int, Float, Str, Bool, None, Ident, Let, Code

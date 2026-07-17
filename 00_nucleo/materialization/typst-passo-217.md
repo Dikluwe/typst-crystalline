@@ -155,7 +155,7 @@ exhaustivos (paridade P156G-J).
 - `walk` — recurse em body (sem `Tag::Start/End` próprio;
   columns não é locatable).
 
-**`rules/layout/mod.rs::layout_content`** (1 arm):
+**`engine/layout/mod.rs::layout_content`** (1 arm):
 - **Stub transparente P217**: `Content::Columns { body, .. } =>
   { self.layout_content(body); }`.
 - Count/gutter armazenados mas ignorados (consumer real
@@ -341,11 +341,11 @@ Código alterado:
 - **Editado**: `01_core/src/entities/content.rs` (+ ~5-10
   LOC variant `Columns` + ~30-50 LOC arms exhaustivos em
   5 sítios + 5 sentinelas).
-- **Editado**: `01_core/src/rules/introspect.rs` (+ 2 arms:
+- **Editado**: `01_core/src/engine/introspect.rs` (+ 2 arms:
   `materialize_time` + `walk`).
-- **Editado**: `01_core/src/rules/layout/mod.rs` (+ 1 arm
+- **Editado**: `01_core/src/engine/layout/mod.rs` (+ 1 arm
   stub transparente em `layout_content`).
-- **Editado**: `01_core/src/rules/layout/tests.rs` (+ 1
+- **Editado**: `01_core/src/engine/layout/tests.rs` (+ 1
   E2E test).
 - **Editado**: `00_nucleo/prompts/entities/content.md` (+
   secção `Variant Content::Columns`).

@@ -38,7 +38,7 @@ A decisão arquitectural maior já está tomada (Resolution +
 cascade). `.A` confirma detalhes locais.
 
 1. **Confirmar `apply_func` API real**:
-   - Localização: `01_core/src/rules/eval/closures.rs:59`
+   - Localização: `01_core/src/engine/eval/closures.rs:59`
      (per gate report). Confirmar.
    - Assinatura exacta:
      ```rust
@@ -275,7 +275,7 @@ Trabalho mecânico.
 
 ### .D Modificar `introspect_with_introspector` para propagar
 
-1. L1 `01_core/src/rules/introspect.rs`:
+1. L1 `01_core/src/engine/introspect.rs`:
 
    Antes:
    ```rust

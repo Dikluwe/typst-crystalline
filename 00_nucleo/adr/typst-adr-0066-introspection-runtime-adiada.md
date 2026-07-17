@@ -369,8 +369,8 @@ stdlib expose (depende Layout integration); cross-document refs
 
 - `measure(body) -> dict(width: length, height: length)` stdlib
   exposta — `native_measure` em
-  `01_core/src/rules/stdlib/layout.rs` (~70 LOC). Helper privado
-  `measure_content` em `01_core/src/rules/layout/helpers.rs`
+  `01_core/src/engine/stdlib/layout.rs` (~70 LOC). Helper privado
+  `measure_content` em `01_core/src/engine/layout/helpers.rs`
   promovido `pub(super)` → `pub(crate)`; módulo `helpers`
   promovido a `pub(crate)` (visibility expansion cross-module).
 - Retorna `Value::Dict { "width": Length, "height": Length }`

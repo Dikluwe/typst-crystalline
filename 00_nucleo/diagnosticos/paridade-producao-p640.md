@@ -11,7 +11,7 @@
 
 ### 1.1 Duplicação aparente
 
-A sonda indicada no passo (`sed -n '130,300p' 01_core/src/rules/eval/bindings.rs`) revelou duas implementações de `counter.display`:
+A sonda indicada no passo (`sed -n '130,300p' 01_core/src/engine/eval/bindings.rs`) revelou duas implementações de `counter.display`:
 
 - `eval_counter_method` (`bindings.rs:96-194`) — destinada a chamadas do tipo `counter("x").display(...)`.
 - `eval_counter_method_value` (`bindings.rs:238-323`) — destinada a despacho de método sobre `Value::Counter`.
@@ -35,7 +35,7 @@ Conclusão: **a "duplicação" era, na verdade, código morto + uma implementaç
 
 ### 2.1 Ficheiros alterados
 
-1. **`01_core/src/rules/eval/bindings.rs`**:
+1. **`01_core/src/engine/eval/bindings.rs`**:
    - Removido `extract_counter_key` (dead code).
    - Removido `eval_counter_method` (dead code).
    - Adicionadas três funções auxiliares:
@@ -44,7 +44,7 @@ Conclusão: **a "duplicação" era, na verdade, código morto + uma implementaç
      - `render_counter_at_label` — renderiza `counter.display(..., at: <label>)`.
    - Refactorizado o braço `"display"` de `eval_counter_method_value` para usar as funções acima.
 
-2. **`01_core/src/rules/eval/tests.rs`**:
+2. **`01_core/src/engine/eval/tests.rs`**:
    - `p633_counter_display_invalid_arg_silent` → `p633_counter_display_invalid_arg_error` (source ajustado para forçar avaliação imediata via `at:`).
    - `p633_counter_display_at_invalid_silent` → `p633_counter_display_at_invalid_error` (source ajustado para forçar avaliação imediata).
    - Adicionados 6 testes P640:

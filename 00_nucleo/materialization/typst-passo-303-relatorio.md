@@ -28,7 +28,7 @@ sem lookup-hit no scope `math`) descartava silenciosamente os args
 — sempre existiu, mas só ficou **visível como bug** após P302 ter
 fixado o caminho adjacente (lookup-hit), expondo a assimetria.
 
-**Modificação localizada** em `01_core/src/rules/eval/math.rs` arm
+**Modificação localizada** em `01_core/src/engine/eval/math.rs` arm
 `Expr::FuncCall` ramo `_`: consolidação do caminho lookup-hit (P302)
 e lookup-miss (P303) via variável local `base` — refactor minor que
 elimina duplicação de ~25 linhas do template sem introduzir helper
@@ -74,7 +74,7 @@ parens × args vazios/simples/complexos/múltiplos.
 
 ## §3 — Materialização
 
-### §3.1 — `01_core/src/rules/eval/math.rs` — FuncCall ramo `_` unificado
+### §3.1 — `01_core/src/engine/eval/math.rs` — FuncCall ramo `_` unificado
 
 ```rust
 // Outros nomes: P301 auto-lookup math (sin, cos, lim, …)
@@ -161,7 +161,7 @@ paralelo P302.
 
 ## §4 — Testes
 
-### §4.1 — `01_core/src/rules/eval/tests.rs` (+6 novos / −1 obsoleto = net +5)
+### §4.1 — `01_core/src/engine/eval/tests.rs` (+6 novos / −1 obsoleto = net +5)
 
 **Removido**:
 

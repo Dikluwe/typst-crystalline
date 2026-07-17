@@ -39,9 +39,9 @@ L0s actualizados (calculados pelo `crystalline-lint --fix-hashes`):
 | `rules/introspect/from_tags.md` | `ff2f0f2f` (P165) | `72a1ee00` | `48814d94` |
 
 Outros L1s modificados em P168 (sem L0 separado dedicado):
-- `01_core/src/rules/layout/mod.rs` — adiciona `Layouter.introspector` field + `layout_with_introspector` entry point.
-- `01_core/src/rules/layout/references.rs` — `layout_ref` consulta introspector primeiro.
-- `01_core/src/rules/layout/tests.rs` — 4 tests novos (`p168_figure_ref_migration`).
+- `01_core/src/engine/layout/mod.rs` — adiciona `Layouter.introspector` field + `layout_with_introspector` entry point.
+- `01_core/src/engine/layout/references.rs` — `layout_ref` consulta introspector primeiro.
+- `01_core/src/engine/layout/tests.rs` — 4 tests novos (`p168_figure_ref_migration`).
 
 ## Decisões registadas em .A
 

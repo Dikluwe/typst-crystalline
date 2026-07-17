@@ -25,7 +25,7 @@ O P509 fechou o corpus P490+P500 em **37/37 OK**. O diagnóstico P508 identifico
 
 ## 3. Implementação
 
-### 3.1 L1 — `01_core/src/rules/eval/math.rs`
+### 3.1 L1 — `01_core/src/engine/eval/math.rs`
 
 - Adicionado parâmetro `engine: &mut Engine<'_>` a `eval_math_content` e `eval_math_expr`.
 - No branch `Expr::FuncCall` (wildcard), antes do fallback P302/P303:
@@ -36,7 +36,7 @@ O P509 fechou o corpus P490+P500 em **37/37 OK**. O diagnóstico P508 identifico
 - Hardcoded `frac`/`sqrt`/`root`/`vec`/`cases`/`mat` mantidos (semântica especial de math).
 - Fallback P302/P303 preservado para `sin(x)`, operadores `MathOp`, e identificadores desconhecidos.
 
-### 3.2 L1 — `01_core/src/rules/eval/mod.rs`
+### 3.2 L1 — `01_core/src/engine/eval/mod.rs`
 
 - Atualizados os dois call sites de `math::eval_math_content` para passar `engine`.
 

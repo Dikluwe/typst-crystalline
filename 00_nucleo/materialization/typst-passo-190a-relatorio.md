@@ -121,7 +121,7 @@ Trabalho M6: cleanup do write paralelo M5 (mutações legacy preservadas em walk
 
 ## §6 Inventário Layouter consumers (10 ocorrências)
 
-`grep self.counter.X` em `01_core/src/rules/layout/`:
+`grep self.counter.X` em `01_core/src/engine/layout/`:
 - `equation.rs:33, 35, 109` (3).
 - `mod.rs:328, 343, 356, 499, 665, 673, 1136` (7).
 

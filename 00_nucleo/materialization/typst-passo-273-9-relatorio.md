@@ -84,7 +84,7 @@ translate). P273.9 expõe + corrige.
 ### §2.1 — L1 `grid.rs` arm Grid cell (~13 LOC)
 
 ```rust
-// 01_core/src/rules/layout/grid.rs — dentro do loop de cells
+// 01_core/src/engine/layout/grid.rs — dentro do loop de cells
 // pós-cell_origin_* save existente
 
 // P273.9 — save/restore parent_bbox paralelo a cell_origin_*
@@ -109,7 +109,7 @@ self.parent_bbox = saved_parent_bbox_p273_9;
 ### §2.2 — L1 `mod.rs` arm Stack (~30 LOC com replicação inline)
 
 ```rust
-// 01_core/src/rules/layout/mod.rs — Content::Stack arm
+// 01_core/src/engine/layout/mod.rs — Content::Stack arm
 // pós-flush_line + early return n==0
 
 // P273.9 — measure stack bbox inline (paridade handler
@@ -154,7 +154,7 @@ self.parent_bbox = saved_parent_bbox_p273_9;
 ### §2.3 — L1 `mod.rs` arm Pad (~13 LOC)
 
 ```rust
-// 01_core/src/rules/layout/mod.rs — Content::Pad arm
+// 01_core/src/engine/layout/mod.rs — Content::Pad arm
 // pós-cursor/width setup, antes layout_content(body)
 
 // P273.9 — save/restore parent_bbox INNER (body region;

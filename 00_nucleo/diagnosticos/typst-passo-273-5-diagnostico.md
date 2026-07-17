@@ -42,11 +42,11 @@ usa unit-space [0,1].
 
 ## §A.2 — Inventário propagação cristalino existente
 
-`01_core/src/rules/layout/mod.rs:84` define `Layouter<'a, M, S>`:
+`01_core/src/engine/layout/mod.rs:84` define `Layouter<'a, M, S>`:
 
 - `pub(super) cell_origin_x: Option<f64>` (linha 163) — DEBT-37 P84.6.
 - `pub(super) cell_origin_y: Option<f64>` (linha 164) — DEBT-37 P84.6.
-- Save/restore em `01_core/src/rules/layout/grid.rs:364-369` — padrão
+- Save/restore em `01_core/src/engine/layout/grid.rs:364-369` — padrão
   estabelecido.
 
 **Padrão DEBT-37 P84.6 directamente aplicável** — campo opcional no
@@ -106,7 +106,7 @@ contentor imediato com **fallback página**:
 1. **L1**: novo `Rect { x: Pt, y: Pt, w: Pt, h: Pt }` em
    `01_core/src/entities/layout_types.rs` (paridade `Point` + `Size`).
 2. **L1**: novo campo `parent_bbox: Option<Rect>` no Layouter
-   (`01_core/src/rules/layout/mod.rs` linha 165 — após `cell_origin_y`).
+   (`01_core/src/engine/layout/mod.rs` linha 165 — após `cell_origin_y`).
 3. **L1**: Constructor init `parent_bbox: None` (default; future Block
    save/restore populará).
 4. **L3**: `emit_gradient_objects` lê `page_dimensions[0]` para

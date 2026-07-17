@@ -42,15 +42,15 @@ o Passo 29 (ou mais tarde, quando `comemo` for integrado com
 ```bash
 # Encontrar os safety rails actuais
 grep -n "10_000\|10000\|MAX_CALL_DEPTH\|CALL_DEPTH\|max_depth\|iter_limit\|loop_limit" \
-  01_core/src/rules/eval.rs
+  01_core/src/engine/eval.rs
 
 # Ver a estrutura actual de EvalContext
 grep -n "EvalContext\|pub struct EvalContext\|depth" \
-  01_core/src/rules/eval_context.rs
+  01_core/src/engine/eval_context.rs
 
 # Ver como depth é usado em eval
 grep -n "ctx\.depth\|context\.depth\|\.depth\s*[+>]" \
-  01_core/src/rules/eval.rs | head -20
+  01_core/src/engine/eval.rs | head -20
 
 # Confirmar que não há outros limites hardcoded noutros ficheiros
 grep -rn "10_000\|MAX_ITER\|MAX_LOOP\|MAX_CALL" \
@@ -75,7 +75,7 @@ visíveis e documentados, sem serem configuráveis pelo utilizador final
 (não há API pública para isso — é apenas organização interna).
 
 ```rust
-// Em 01_core/src/rules/eval_context.rs
+// Em 01_core/src/engine/eval_context.rs
 
 /// Contexto de avaliação passado por toda a árvore de eval.
 ///
@@ -326,11 +326,11 @@ crystalline-lint .
 # ✓ No violations found
 
 # Confirmar que os números hardcoded sumiram
-grep -n "10_000\|10000\|200.*depth\|depth.*200" 01_core/src/rules/eval.rs
+grep -n "10_000\|10000\|200.*depth\|depth.*200" 01_core/src/engine/eval.rs
 # Deve retornar vazio ou apenas comentários históricos
 
 # Confirmar que os limites estão documentados no EvalContext
-grep -n "max_loop\|max_call\|1_000_000\|250" 01_core/src/rules/eval_context.rs
+grep -n "max_loop\|max_call\|1_000_000\|250" 01_core/src/engine/eval_context.rs
 ```
 
 Critérios de conclusão:

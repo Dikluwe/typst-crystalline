@@ -247,7 +247,7 @@ Sub-passo único P194B agregado:
 Auditor confirma empiricamente:
 
 1. Confirmar consumer C4 actual:
-   - `01_core/src/rules/layout/references.rs:53` (per
+   - `01_core/src/engine/layout/references.rs:53` (per
      P193A §2.4). Verificar empiricamente.
    - Localizar match completo (forma per P193A §11.3).
    - Identificar contexto exacto (função/método; tipo de

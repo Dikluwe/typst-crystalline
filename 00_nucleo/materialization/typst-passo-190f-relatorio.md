@@ -33,10 +33,10 @@ P190F descobriu **barreira arquitectural empírica** que reduz escopo achievable
 
 | # | Ficheiro | Mudança |
 |---|----------|---------|
-| 1 | `rules/layout/mod.rs:337` | Layouter mutação `self.counter.step_hierarchical("heading", level)` removida — counter populated via Introspector path (P185B). |
-| 2 | `rules/layout/mod.rs:373` | Fallback `.or_else(\|\| self.counter.format_hierarchical("heading"))` removido — Introspector path único. |
-| 3 | `rules/layout/equation.rs:39` | Layouter mutação `self.counter.step_flat("equation")` removida. |
-| 4 | `rules/layout/equation.rs:113` | Fallback `.unwrap_or_else(\|\| self.counter.get_flat("equation"))` substituído por `.unwrap_or(0)` — Introspector path único. |
+| 1 | `engine/layout/mod.rs:337` | Layouter mutação `self.counter.step_hierarchical("heading", level)` removida — counter populated via Introspector path (P185B). |
+| 2 | `engine/layout/mod.rs:373` | Fallback `.or_else(\|\| self.counter.format_hierarchical("heading"))` removido — Introspector path único. |
+| 3 | `engine/layout/equation.rs:39` | Layouter mutação `self.counter.step_flat("equation")` removida. |
+| 4 | `engine/layout/equation.rs:113` | Fallback `.unwrap_or_else(\|\| self.counter.get_flat("equation"))` substituído por `.unwrap_or(0)` — Introspector path único. |
 | 5 | Comentários inline P190F adicionados em todos os sítios. |
 
 **Walk pre-pass UNCHANGED** — helpers + walk arm mutações preservadas (barreira arquitectural).

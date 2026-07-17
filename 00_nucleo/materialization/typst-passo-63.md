@@ -3,10 +3,10 @@
 ## Estado actual antes de começar
 
 Ler antes de começar:
-- `01_core/src/rules/layout/outline.rs` — Geração da TOC actual (sem páginas).
-- `01_core/src/rules/layout/references.rs` — Braço `Labelled` actual.
+- `01_core/src/engine/layout/outline.rs` — Geração da TOC actual (sem páginas).
+- `01_core/src/engine/layout/references.rs` — Braço `Labelled` actual.
 - `01_core/src/entities/counter_state.rs` — Onde o mapa de páginas será adicionado.
-- `01_core/src/rules/layout/mod.rs` — Orquestrador do layout físico.
+- `01_core/src/engine/layout/mod.rs` — Orquestrador do layout físico.
 
 Pré-condição: `cargo test` — 631 L1 + 121 L3 + 50 parity, zero violations.
 DEBT-10 encerrado. DEBT-16 registado (acoplamento eval/stdlib).
@@ -46,7 +46,7 @@ DEBT-17 e endereçado em passos futuros.
 ```bash
 # 1. Confirmar se o Layouter tem acesso ao número da página actual
 grep -n "current_page\|page_number\|pages\.len" \
-  01_core/src/rules/layout/mod.rs | head -10
+  01_core/src/engine/layout/mod.rs | head -10
 
 # 2. Verificar estrutura de PagedDocument — tem acesso às páginas individuais?
 grep -n "struct PagedDocument\|pub pages" \
@@ -55,11 +55,11 @@ grep -n "struct PagedDocument\|pub pages" \
 # 3. Ver como layout() retorna o CounterState ao orquestrador
 #    (necessário para extrair label_pages após a Passagem 2)
 grep -n "^pub fn layout\|counter\|initial_state" \
-  01_core/src/rules/layout/mod.rs | head -15
+  01_core/src/engine/layout/mod.rs | head -15
 
 # 4. Confirmar como o Layouter sabe em que página está actualmente
 grep -n "self\.pages\|self\.current\|flush_line\|new_page" \
-  01_core/src/rules/layout/mod.rs | head -20
+  01_core/src/engine/layout/mod.rs | head -20
 ```
 
 Reportar o output completo antes de continuar. A resposta à questão 1 é
@@ -161,7 +161,7 @@ continuam acessíveis normalmente.
 
 ### 2b — Activar read-only em `outline.rs`
 
-Em `01_core/src/rules/layout/outline.rs`, envolver a renderização de cada
+Em `01_core/src/engine/layout/outline.rs`, envolver a renderização de cada
 linha da TOC com activação e restauração da flag:
 
 ```rust
@@ -223,7 +223,7 @@ Registar no relatório qual abordagem foi usada.
 
 ### 3c — Registo da página em `references.rs`
 
-Em `01_core/src/rules/layout/references.rs`, no braço `Content::Labelled`,
+Em `01_core/src/engine/layout/references.rs`, no braço `Content::Labelled`,
 registar a página depois de fazer o layout do target — o elemento só sabe em
 que página aterrou após ser processado pelo motor geométrico:
 
@@ -366,8 +366,8 @@ fn counter_state_readonly_bloqueia_step_hierarchical() {
 #[test]
 fn layout_regista_pagina_de_label() {
     use crate::entities::label::Label;
-    use crate::rules::introspect::introspect;
-    use crate::rules::layout::layout;
+    use crate::engine::introspect::introspect;
+    use crate::engine::layout::layout;
 
     let content = Content::Sequence(vec![
         Content::Labelled {

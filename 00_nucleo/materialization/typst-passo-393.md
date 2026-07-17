@@ -45,7 +45,7 @@ No cristalino:
 
 ### A.1 — Prompt L0 `#show-regex.md`
 
-Novo em `00_nucleo/prompts/rules/show-regex.md` (ou integrado no prompt de show-rules existente, seguindo padrão do P391):
+Novo em `00_nucleo/prompts/engine/show-regex.md` (ou integrado no prompt de show-rules existente, seguindo padrão do P391):
 
 - **Paridade**: `#show regex(pattern): it => body` aplica show-rule a elementos cujo conteúdo textual bate com `pattern`.
 - **Substrato**: wiring em `apply_show_rules` (ou equivalente); reusa `Selector::Regex` existente.

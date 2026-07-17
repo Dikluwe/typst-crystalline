@@ -48,7 +48,7 @@ Dividida em 1a (cristalino) ‖ 1b (vanilla, `lab/`) ‖ 1c (custo), executadas 
 
 ## Fase 2 — rede de caracterização (só testes)
 
-**+11 testes** em `mod f_caracterizacao_estilo` (`rules/layout/tests.rs`), todos
+**+11 testes** em `mod f_caracterizacao_estilo` (`engine/layout/tests.rs`), todos
 sobre **saída observável** (`layout().plain_text()`, `FrameItem::Text.style`) —
 não representação interna (o F muda a representação; a rede protege o
 comportamento). Suíte **2697 → 2708** (+11), 0 failed; lint 0; zero asserção

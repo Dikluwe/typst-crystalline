@@ -43,7 +43,7 @@ materialização × ficheiro.
 | 6 | `ResolvedLabelStore` sub-store | implementado | P193B | `entities/resolved_label_store.rs` |
 | 7 | `Location` type | implementado | série M5 | (location.rs) |
 | 8 | `is_locatable` pura | implementado | P164 | `rules/introspect/locatable.rs` |
-| 9 | TOC fixpoint loop | implementado | pré-P192B (estruturalmente) | `rules/layout/mod.rs:1515` |
+| 9 | TOC fixpoint loop | implementado | pré-P192B (estruturalmente) | `engine/layout/mod.rs:1515` |
 | 10 | `run_fixpoint` runtime | implementado | M7 (P175-P179) | `rules/introspect/fixpoint.rs` |
 | 11 | `compute_tags_hash` convergence | implementado | M7 | `rules/introspect/fixpoint.rs` |
 | 12 | `extract_payload` exaustivo | implementado | P162+ | `rules/introspect.rs` |

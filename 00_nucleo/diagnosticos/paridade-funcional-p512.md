@@ -42,10 +42,10 @@ As linhas são desenhadas **após** as células, usando os `row_start_y` reais (
   - `00_nucleo/prompts/entities/elements/grid_vline.md`
   - `00_nucleo/prompts/entities/elements/table_hline.md`
   - `00_nucleo/prompts/entities/elements/table_vline.md`
-  - `00_nucleo/prompts/rules/stdlib/grid_hline.md`
-  - `00_nucleo/prompts/rules/stdlib/grid_vline.md`
-  - `00_nucleo/prompts/rules/stdlib/table_hline.md`
-  - `00_nucleo/prompts/rules/stdlib/table_vline.md`
+  - `00_nucleo/prompts/engine/stdlib/grid_hline.md`
+  - `00_nucleo/prompts/engine/stdlib/grid_vline.md`
+  - `00_nucleo/prompts/engine/stdlib/table_hline.md`
+  - `00_nucleo/prompts/engine/stdlib/table_vline.md`
 - L1:
   - `01_core/src/entities/content.rs`
   - `01_core/src/entities/elements/grid.rs`
@@ -54,12 +54,12 @@ As linhas são desenhadas **após** as células, usando os `row_start_y` reais (
   - `01_core/src/entities/elements/grid_vline.rs` (novo)
   - `01_core/src/entities/elements/table_hline.rs` (novo)
   - `01_core/src/entities/elements/table_vline.rs` (novo)
-  - `01_core/src/rules/stdlib/layout.rs`
-  - `01_core/src/rules/stdlib/structural.rs`
-  - `01_core/src/rules/eval/mod.rs`
-  - `01_core/src/rules/layout/grid.rs`
-  - `01_core/src/rules/layout/table.rs`
-  - `01_core/src/rules/layout/tests.rs`
+  - `01_core/src/engine/stdlib/layout.rs`
+  - `01_core/src/engine/stdlib/structural.rs`
+  - `01_core/src/engine/eval/mod.rs`
+  - `01_core/src/engine/layout/grid.rs`
+  - `01_core/src/engine/layout/table.rs`
+  - `01_core/src/engine/layout/tests.rs`
 - L3:
   - `03_infra/src/query_helpers.rs`
 - Config:

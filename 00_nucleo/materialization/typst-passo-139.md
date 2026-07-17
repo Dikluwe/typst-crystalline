@@ -145,10 +145,10 @@ Este passo **não**:
 ## Escopo
 
 **Dentro**:
-- `01_core/src/rules/layout/...` — possível helper para resolver
+- `01_core/src/engine/layout/...` — possível helper para resolver
   stroke_pt a partir de weight + size.
 - `03_infra/src/export.rs` — emit `Tr` + `w` dentro de BT/ET.
-- `01_core/src/rules/layout/tests.rs` — 4 testes numéricos.
+- `01_core/src/engine/layout/tests.rs` — 4 testes numéricos.
 - `00_nucleo/DEBT.md` — marcar gap 4 resolvido.
 
 **Fora**:

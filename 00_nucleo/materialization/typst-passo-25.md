@@ -5,8 +5,8 @@
 Ler antes de começar:
 
 - `01_core/src/entities/value.rs` — enum com 11 variantes actuais e ~20 comentadas
-- `01_core/src/rules/stdlib.rs` — `native_type`, `native_len`, `native_range`
-- `01_core/src/rules/eval.rs` — `eval_expr`, `eval_binary_op`
+- `01_core/src/engine/stdlib.rs` — `native_type`, `native_len`, `native_range`
+- `01_core/src/engine/eval.rs` — `eval_expr`, `eval_binary_op`
 - `DEBT.md` — entrada DEBT-4
 
 Pré-condição: `cargo test` — 368 testes (326 L1 + 42 L3), 5 ignored, zero violations.

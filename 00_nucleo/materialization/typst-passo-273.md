@@ -83,7 +83,7 @@ rg -n "/Matrix|Matrix.*\[" lab/typst-original/crates/typst-pdf/src/ 2>/dev/null 
 rg -n "struct Linear|struct Radial|struct Conic|pub stops|pub angle|pub center|pub radius|pub space" 01_core/src/entities/gradient.rs | head -40
 
 # 5. Cristalino stdlib gradient.linear/radial/conic named args parsing (P270 templates)
-rg -n "native_gradient_linear|native_gradient_radial|native_gradient_conic|args.named" 01_core/src/rules/stdlib/gradients.rs | head -30
+rg -n "native_gradient_linear|native_gradient_radial|native_gradient_conic|args.named" 01_core/src/engine/stdlib/gradients.rs | head -30
 
 # 6. Cristalino L3 dispatcher Conic pós-P272 (template structural)
 rg -n "GradientObjectKind::Conic|emit_conic_coons_stream|conic.space" 03_infra/src/export.rs | head -20
@@ -422,7 +422,7 @@ pub fn linear(stops, angle) -> Self {
 ### Alteração stdlib esperada
 
 ```rust
-// 01_core/src/rules/stdlib/gradients.rs P273
+// 01_core/src/engine/stdlib/gradients.rs P273
 
 pub fn native_gradient_linear(args) -> SourceResult<Value> {
     // P262/P270 parsing preserved +

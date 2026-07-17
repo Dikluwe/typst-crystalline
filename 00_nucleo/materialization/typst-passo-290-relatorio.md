@@ -81,7 +81,7 @@ elevação de risco em A.0 mitigada com sucesso.
 | `00_nucleo/prompts/entities/style.md` | L0 | +8º variant em B.3 + nota distinção P290 vs P288/P289 |
 | `00_nucleo/diagnosticos/typst-cobertura-vanilla-vs-cristalino.md` | L0 cobertura | B.3 +1 linha; B.4 linha 351 nota P290; footnote ⁷⁶ ~85 LOC |
 | `00_nucleo/diagnosticos/diagnostico-style-tracking-passo-290.md` | Diagnóstico Fase A | ~280 LOC ficheiro novo (5 secções A.0-A.5 com A.0 não-trivial empírica) |
-| `01_core/src/rules/layout/tests.rs:10500+` | testes P290 | ~140 LOC (11 testes em `p290_style_tracking_tests` mod) |
+| `01_core/src/engine/layout/tests.rs:10500+` | testes P290 | ~140 LOC (11 testes em `p290_style_tracking_tests` mod) |
 
 Total: **2 sítios L1 produção + 2 ficheiros L0 documentação + 1
 diagnóstico + 1 ficheiro de testes**. **Zero ficheiros tocados em
@@ -249,7 +249,7 @@ detectado em P290).
 | Local | Quantidade | Cobertura |
 |---|---:|---|
 | `entities/style.rs` (mod tests) | 1 | Catalog test 7 → 8 variants (`Style::Tracking(Length::pt(0.5))` incluído) |
-| `rules/layout/tests.rs` (`p290_style_tracking_tests`) | 10 | Variant ctor + PartialEq; `push_styles` cascade; `Styled` injection + TextStyle propagation; last-write wins; 5 fronteiras (0pt/1pt/0.5em/**-0.5pt**/10pt); consumer P137 cursor_extra |
+| `engine/layout/tests.rs` (`p290_style_tracking_tests`) | 10 | Variant ctor + PartialEq; `push_styles` cascade; `Styled` injection + TextStyle propagation; last-write wins; 5 fronteiras (0pt/1pt/0.5em/**-0.5pt**/10pt); consumer P137 cursor_extra |
 | **Total** | **11** (1 entity + 10 layout) | Paralelo a P289 +9 com `+1 fronteira` (tracking negativo) + `+1 consumer P137 verification` |
 
 **Resultado**: 11/11 verdes (`cargo test --lib p290`). Delta workspace

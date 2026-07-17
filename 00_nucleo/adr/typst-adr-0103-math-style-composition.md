@@ -204,5 +204,5 @@ cross-variant" + ADR-0103.
   refinada por P311b.4 empírico).
 - **P311b.4** — implementação `apply_math_style` + handler.
 - **P311b.5** — tests E2E que confirmam regras (6 tests).
-- `01_core/src/rules/math/layout/mod.rs:apply_math_style` —
+- `01_core/src/engine/math/layout/mod.rs:apply_math_style` —
   implementação canónica.

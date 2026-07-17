@@ -13,7 +13,7 @@ template Block save/restore replicado literal — sub-padrão emergente
 
 ## §A.1 — Inventário do arm `Content::Boxed` no Layouter
 
-`01_core/src/rules/layout/mod.rs`:
+`01_core/src/engine/layout/mod.rs`:
 
 - **Linha 1340** — arm `Content::Boxed { body, width, height, inset,
   baseline, outset, radius, clip, fill, stroke }` inicio.
@@ -53,7 +53,7 @@ contexto inline não avança cursor.y. Topo do box ≈
 
 ## §A.2 — Inventário do arm `Content::Block` pós-P273.6 (referência template)
 
-`01_core/src/rules/layout/mod.rs`:
+`01_core/src/engine/layout/mod.rs`:
 
 - **Linha 1514** — arm `Content::Block { ... }` inicio.
 - **Linhas 1642-1661** — save/restore parent_bbox path `clip=true`:

@@ -98,10 +98,10 @@ pois alteraria a semântica de show rules de forma imprevisível.
 
 | Camada | Ficheiro | Alteração |
 |--------|----------|-----------|
-| L0 | `00_nucleo/prompts/rules/stdlib/structural.md` | Documenta namespace `table.header/footer/cell`; remove scope-out de TableHeader/Footer |
-| L1 | `01_core/src/rules/stdlib/collections.rs` | Testes unitários `p496_array_dedup/chunks/windows` |
-| L1 | `01_core/src/rules/eval/tests.rs` | Testes `p496_table_cell_field` e `p496_heading_where_multi` (renomeados de P493) |
-| L1 | `01_core/src/rules/stdlib/structural.rs` | Hash actualizado |
+| L0 | `00_nucleo/prompts/engine/stdlib/structural.md` | Documenta namespace `table.header/footer/cell`; remove scope-out de TableHeader/Footer |
+| L1 | `01_core/src/engine/stdlib/collections.rs` | Testes unitários `p496_array_dedup/chunks/windows` |
+| L1 | `01_core/src/engine/eval/tests.rs` | Testes `p496_table_cell_field` e `p496_heading_where_multi` (renomeados de P493) |
+| L1 | `01_core/src/engine/stdlib/structural.rs` | Hash actualizado |
 | Lab | `lab/parity/tests/structural_parity.rs` | Sentinela renomeada para `p496_field_access_colecoes` |
 | Diagnóstico | `00_nucleo/diagnosticos/paridade-funcional-p496.md` | Este relatório |
 
@@ -118,7 +118,7 @@ pois alteraria a semântica de show rules de forma imprevisível.
 
 ### Hashes L0 (pós `--fix-hashes`)
 
-- `01_core/src/rules/stdlib/structural.rs` → `678df661`
+- `01_core/src/engine/stdlib/structural.rs` → `678df661`
 
 ---
 

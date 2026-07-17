@@ -12,7 +12,7 @@
 ### 1.1 Pontos com `Span::detached()` em funções nativas (produção, exclui `#[cfg(test)]`)
 
 ```bash
-for f in 01_core/src/rules/stdlib/*.rs; do
+for f in 01_core/src/engine/stdlib/*.rs; do
   awk '/#\[cfg\(test\)\]/{intest=1} /Span::detached\(\)/{if(!intest) print FILENAME":"NR}' "$f"
 done | wc -l
 ```
@@ -33,7 +33,7 @@ grep -n "struct Args\|pub fn.*positional\|pub fn.*named" 01_core/src/entities/ar
 Antes deste passo, `Args` (`01_core/src/entities/args.rs`) tinha apenas
 `items: Vec<Value>` e `named: IndexMap<EcoString, Value, FxBuildHasher>` —
 **nenhum campo de span**. O ponto de "achatamento" é `eval_args()`
-(`01_core/src/rules/eval/closures.rs`): recebe `args_node: &ast::Args`
+(`01_core/src/engine/eval/closures.rs`): recebe `args_node: &ast::Args`
 (que tem `.span()`, o span de `(...)` completo da chamada) e produz
 `Args { items, named }`, descartando esse span. A partir daí, qualquer
 função nativa que precise de reportar erro de validação de argumento
@@ -84,7 +84,7 @@ mudanças estruturais que tocam todo ponto de construção e leitura de
 
 | Opção | Pontos afectados (medidos) |
 |---|---|
-| Span por-argumento (paridade completa com vanilla `Arg.span`) | ~1200 pontos de chamada (construção + leitura de cada argumento individualmente em toda a stdlib) — medição por amostragem de `args.items[N]`/`args.named.get` em `01_core/src/rules/stdlib/*.rs`, consistente com a estimativa já registada na era P740C e não revista desde então |
+| Span por-argumento (paridade completa com vanilla `Arg.span`) | ~1200 pontos de chamada (construção + leitura de cada argumento individualmente em toda a stdlib) — medição por amostragem de `args.items[N]`/`args.named.get` em `01_core/src/engine/stdlib/*.rs`, consistente com a estimativa já registada na era P740C e não revista desde então |
 | Span por-chamada (`Args.span`, réplica do campo `Args.span` do vanilla) | 4 pontos de construção real (`eval_args`, `merge_with_args`, sink `..rest`, `math.rs`) + 16 pontos de teste (`Args { .. }` directos em `#[cfg(test)]`) + 194 de 520 pontos de erro elegíveis para usar `args.span` em vez de `Span::detached()` sem mudança de assinatura |
 
 A opção "span por-chamada" é uma aproximação **parcial** ao vanilla — não
@@ -192,7 +192,7 @@ sintéticas/internas sem chamada real — spread, `.with()`, testes).
 
 ### 3.3 Pontos de construção real corrigidos (4)
 
-- `eval_args()` (`01_core/src/rules/eval/closures.rs`) — ponto principal:
+- `eval_args()` (`01_core/src/engine/eval/closures.rs`) — ponto principal:
   `args_node.span()` (span de `(...)` da chamada real no AST).
 - `merge_with_args()` (mesma ficheiro) — usa o span da chamada final
   (`new.span`, capturado antes de `new` ser consumida).
@@ -224,10 +224,10 @@ directas de `Args { items, named }` (sem usar `Args::positional()`) em
 `#[cfg(test)]`, previamente não contadas no grep de produção (§1.1
 exclui-as por desenho). Todas corrigidas com `span: Span::detached()`
 (construções sintéticas de teste, sem chamada real correspondente no
-documento) — `01_core/src/rules/eval/closures.rs` (1),
-`01_core/src/rules/stdlib/structural.rs` (13),
-`01_core/src/rules/stdlib/collections.rs` (1),
-`01_core/src/rules/stdlib/mod.rs` (1).
+documento) — `01_core/src/engine/eval/closures.rs` (1),
+`01_core/src/engine/stdlib/structural.rs` (13),
+`01_core/src/engine/stdlib/collections.rs` (1),
+`01_core/src/engine/stdlib/mod.rs` (1).
 
 ---
 
@@ -278,7 +278,7 @@ crystalline-lint .
 ## Critério de fecho do passo (`typst-passo-772s.md`)
 
 - [x] Alcance real medido (520 pontos de produção com `Span::detached()`
-      em `01_core/src/rules/stdlib/*.rs`; 194 elegíveis para correcção
+      em `01_core/src/engine/stdlib/*.rs`; 194 elegíveis para correcção
       mecânica sem mudança de assinatura, 326 exigindo threading em
       funções auxiliares).
 - [x] Mecanismo do vanilla confirmado (`Args.span` — span da chamada

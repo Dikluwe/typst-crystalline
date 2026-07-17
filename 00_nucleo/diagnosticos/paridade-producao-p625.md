@@ -21,7 +21,7 @@
 ## Sonda — onde `align_current_line_rtl` é chamado
 
 ```bash
-grep -n "align_current_line_rtl()" 01_core/src/rules/layout/
+grep -n "align_current_line_rtl()" 01_core/src/engine/layout/
 ```
 
 Resultado antes da correcção:
@@ -39,19 +39,19 @@ Resultado antes da correcção:
 
 ### Ficheiros alterados
 
-- `01_core/src/rules/layout/mod.rs` — `layout_sub_frame_with_width`:
+- `01_core/src/engine/layout/mod.rs` — `layout_sub_frame_with_width`:
   - guarda/restaura `width` e `height`;
   - configura `width = cell_x + cell_width + margin` durante o sub-layout para que `align_current_line_rtl` e `flush_line` usem o limite direito do sub-frame;
   - configura `height = 1_000_000_000.0` para evitar quebras de página dentro do sub-frame (regressão descoberta em `p595_nota_enorme_colunas_gera_warning`);
   - novo parâmetro `align_rtl: bool` controla se `align_current_line_rtl()` é chamado.
 
-- `01_core/src/rules/layout/boxed.rs` — após `layout_content(body)`, isola os itens do body na linha actual, alinha-os com `align_current_line_rtl()` e move-os para `current_items`.
+- `01_core/src/engine/layout/boxed.rs` — após `layout_content(body)`, isola os itens do body na linha actual, alinha-os com `align_current_line_rtl()` e move-os para `current_items`.
 
-- `01_core/src/rules/layout/grid.rs` — passa `align_rtl: true` nas duas chamadas a `layout_sub_frame_with_width`.
+- `01_core/src/engine/layout/grid.rs` — passa `align_rtl: true` nas duas chamadas a `layout_sub_frame_with_width`.
 
-- `01_core/src/rules/layout/cursor.rs` — passa `align_rtl: true` no layout do body de footnote.
+- `01_core/src/engine/layout/cursor.rs` — passa `align_rtl: true` no layout do body de footnote.
 
-- `01_core/src/rules/layout/place.rs` e `placement.rs` — passam `align_rtl: false`; o bloco posicionado pelo caller não deve ser puxado para a margem direita.
+- `01_core/src/engine/layout/place.rs` e `placement.rs` — passam `align_rtl: false`; o bloco posicionado pelo caller não deve ser puxado para a margem direita.
 
 - `03_infra/src/layout_bidi.rs` — `same_paragraph` e `try_fuse_paragraph` usam `metrics.line_content_right(...)` em vez de `page.width`, para que o reflow RTL respeite a largura real de sub-layouts. O teste `p565_reflow_merges_rtl_lines_when_fits` foi ajustado para posicionar o limite direito da linha no `content_right` real (anteriormente usava a largura da página como proxy).
 

@@ -167,7 +167,7 @@ existentes antes de adicionar novos checks duplicados".
 ### §2.1 Mecanismo page break existente (confirmado 2026-05-14)
 
 ```bash
-grep -rn "new_page\|cursor_y >" 01_core/src/rules/layout/ | head -20
+grep -rn "new_page\|cursor_y >" 01_core/src/engine/layout/ | head -20
 ```
 
 Resultado audit anterior: 9 sítios distintos disparando
@@ -178,7 +178,7 @@ não substitui mecanismo existente.
 ### §2.2 `breakable` lido em qualquer sítio (confirmado 2026-05-14)
 
 ```bash
-grep -rn "\.breakable\b\|breakable:" 01_core/src/rules/layout/ \
+grep -rn "\.breakable\b\|breakable:" 01_core/src/engine/layout/ \
   | grep -v "test\|/\*"
 ```
 
@@ -194,7 +194,7 @@ adicionar consumer.
 ### §2.4 Helper `measure_content_constrained` capacidades
 
 ```bash
-grep -B2 -A 8 "fn measure_content_constrained" 01_core/src/rules/layout/
+grep -B2 -A 8 "fn measure_content_constrained" 01_core/src/engine/layout/
 ```
 
 Identificar:
@@ -225,7 +225,7 @@ implementação Decisões 1-3.
 
 ```bash
 grep -B2 -A 12 "Content::TableCell\|Content::GridCell" \
-  01_core/src/rules/layout/grid.rs | head -50
+  01_core/src/engine/layout/grid.rs | head -50
 ```
 
 Como é actualmente layouted o body de uma cell? Reusa
@@ -412,13 +412,13 @@ sólido reforçado.
 
 | Categoria | Ficheiro | Trabalho |
 |-----------|----------|----------|
-| L1 Layouter | `01_core/src/rules/layout/mod.rs` | Arm Block: `breakable: _` → `breakable: *breakable` + medição antecipada + page break decision; Arm Boxed: height overflow handling |
-| L1 Layouter | `01_core/src/rules/layout/grid.rs` | Arm GridCell/TableCell: overflow detection + clip implícito via `regions.cell.height` |
-| L1 helpers | (eventual) `01_core/src/rules/layout/mod.rs` ou módulo | Verificar `measure_content_constrained` puridade; refactor se §2.4 revelar side-effects |
+| L1 Layouter | `01_core/src/engine/layout/mod.rs` | Arm Block: `breakable: _` → `breakable: *breakable` + medição antecipada + page break decision; Arm Boxed: height overflow handling |
+| L1 Layouter | `01_core/src/engine/layout/grid.rs` | Arm GridCell/TableCell: overflow detection + clip implícito via `regions.cell.height` |
+| L1 helpers | (eventual) `01_core/src/engine/layout/mod.rs` ou módulo | Verificar `measure_content_constrained` puridade; refactor se §2.4 revelar side-effects |
 | L0 prompt | `00_nucleo/prompts/entities/content.md` | Secção Block: "breakable real activado P248"; Secção Boxed: "height overflow + clip activado P248"; secção TableCell: "overflow clip implícito P248"; "Limitações conscientes" anotadas P156G/H/P157B fechadas |
-| Tests Layouter | `01_core/src/rules/layout/tests.rs` | 3-4 unit tests Layouter (mecanismo medição + page break trigger) |
+| Tests Layouter | `01_core/src/engine/layout/tests.rs` | 3-4 unit tests Layouter (mecanismo medição + page break trigger) |
 | Tests content | `01_core/src/entities/content.rs` (test module) | Tests breakable + height + cell overflow integração |
-| Tests stdlib | `01_core/src/rules/stdlib/mod.rs` (test module) | Tests cross-attribute combinatorial (breakable + height + fill/stroke P247 + radius/clip P242) |
+| Tests stdlib | `01_core/src/engine/stdlib/mod.rs` (test module) | Tests cross-attribute combinatorial (breakable + height + fill/stroke P247 + radius/clip P242) |
 | Tests E2E | `03_infra/tests/` ou local | 4-6 E2E layout cross-activação |
 | Inventário 148 | `00_nucleo/diagnosticos/typst-cobertura-vanilla-vs-cristalino.md` | §A.5 `block(...)` + `box(...)` reclassificadas (footnote ⁶⁶ P248); cobertura Layout per metodologia recalculada |
 | ADR-0061 | `00_nucleo/adr/typst-adr-0061-layout-fase-x-roadmap.md` | §"Refino futuro" anotação P248: 3 semanticas reais activadas |

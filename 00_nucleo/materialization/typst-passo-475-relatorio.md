@@ -111,11 +111,11 @@ Localização: `stdlib/mod.rs:11533–11629`.
 
 ### Spec L0 (atualizada)
 
-- `00_nucleo/prompts/rules/stdlib/layout.md` — inset/outset de `block` e `box`: `"Length uniforme"` → `"Length uniforme, Relative (parte abs), ou Dict {left?, right?, top?, bottom?, x?, y?, rest?} per-side (P475)"`. Testes canónicos adicionados.
+- `00_nucleo/prompts/engine/stdlib/layout.md` — inset/outset de `block` e `box`: `"Length uniforme"` → `"Length uniforme, Relative (parte abs), ou Dict {left?, right?, top?, bottom?, x?, y?, rest?} per-side (P475)"`. Testes canónicos adicionados.
 
 ### Código L1 (implementado)
 
-- `01_core/src/rules/stdlib/layout.rs`:
+- `01_core/src/engine/stdlib/layout.rs`:
   - `extract_length`: +braço `Value::Relative(r) => Some(r.abs)`.
   - `extract_sides_from_value`: novo helper (linhas 323–380) — uniforme + dict + rejeição de negativos.
   - `native_block`: `inset`/`outset` migrados para `extract_sides_from_value`.
@@ -123,7 +123,7 @@ Localização: `stdlib/mod.rs:11533–11629`.
 
 ### Testes (adicionados)
 
-- `01_core/src/rules/stdlib/mod.rs` — 6 testes P475 (linhas 11533–11629).
+- `01_core/src/engine/stdlib/mod.rs` — 6 testes P475 (linhas 11533–11629).
 
 ---
 
@@ -160,7 +160,7 @@ test result: ok. 3390 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out
 
 ```
 Fixed 1 file:
-  ./01_core/src/rules/stdlib/layout.rs → 284672b8
+  ./01_core/src/engine/stdlib/layout.rs → 284672b8
 Re-running analysis... ✅ 0 drift warnings remaining
 ```
 

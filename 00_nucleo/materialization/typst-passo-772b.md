@@ -26,7 +26,7 @@ grep -n "<item>" lab/typst-original/crates/typst-syntax/src/span.rs 2>/dev/null
 E o estado actual no cristalino:
 
 ```bash
-grep -rn "<item>\|struct Span\|SourceId" 01_core/src/entities/*.rs 01_core/src/rules/eval/*.rs 2>/dev/null
+grep -rn "<item>\|struct Span\|SourceId" 01_core/src/entities/*.rs 01_core/src/engine/eval/*.rs 2>/dev/null
 ```
 
 Atenção especial: `Span` normalmente inclui um identificador de ficheiro/pacote codificado nos bits altos (para diferenciar spans de `#import`s de pacotes diferentes) — confirmar se o cristalino replica esse mecanismo, e se a ausência dele teria efeito em mensagens de erro que apontam para código dentro de um pacote importado (ex: um erro dentro de `@preview/cetz` deveria apontar para o ficheiro certo do pacote, não para o documento principal).

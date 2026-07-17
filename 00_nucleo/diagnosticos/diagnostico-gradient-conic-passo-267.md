@@ -92,7 +92,7 @@ Paint/Value já preparados P262 absorvem Conic automaticamente.
 ## §A.4 — Cristalino stdlib actual
 
 ```bash
-$ grep "linear\|radial" 01_core/src/rules/stdlib/gradients.rs
+$ grep "linear\|radial" 01_core/src/engine/stdlib/gradients.rs
 make_gradient_module dict entries: "linear" + "radial"
 native_gradient_linear + native_gradient_radial functions
 ```

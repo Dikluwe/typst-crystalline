@@ -47,15 +47,15 @@ ADR-0117 (P455), optou-se por:
 
 | Arquivo | Mudança |
 |---------|---------|
-| `01_core/src/rules/eval/rules.rs` | `#set math.equation(numbering: ...)` guarda `Value::Str(pattern)` na chain; `Value::None` limpa. |
-| `01_core/src/rules/introspect.rs` | Gate `numbering_active` de `Equation` passa a verificar `Value::Str(_)`; fixture de teste actualizada. |
-| `01_core/src/rules/layout/equation.rs` | Lê pattern da chain; formata número via `format_counter`; posiciona `FrameItem::Text` à direita; `@prompt` actualizado. |
+| `01_core/src/engine/eval/rules.rs` | `#set math.equation(numbering: ...)` guarda `Value::Str(pattern)` na chain; `Value::None` limpa. |
+| `01_core/src/engine/introspect.rs` | Gate `numbering_active` de `Equation` passa a verificar `Value::Str(_)`; fixture de teste actualizada. |
+| `01_core/src/engine/layout/equation.rs` | Lê pattern da chain; formata número via `format_counter`; posiciona `FrameItem::Text` à direita; `@prompt` actualizado. |
 | `01_core/src/entities/content.rs` | `Content::equation_numbered` passa a usar `Value::Str("(1)")` em vez de `Value::Bool(true)`. |
 | `01_core/src/entities/elements/equation.rs` | `@prompt-hash` actualizado para reflexo do prompt L0. |
-| `01_core/src/rules/eval/tests.rs` | `find_equation_numbered` adaptada a `Option<String>`; 1 teste novo (pattern romano); fixture `f339t` ajustada a `("(1)")`. |
-| `01_core/src/rules/layout/tests.rs` | 3 testes novos (pattern romano, sequencial, inline não numerada). |
+| `01_core/src/engine/eval/tests.rs` | `find_equation_numbered` adaptada a `Option<String>`; 1 teste novo (pattern romano); fixture `f339t` ajustada a `("(1)")`. |
+| `01_core/src/engine/layout/tests.rs` | 3 testes novos (pattern romano, sequencial, inline não numerada). |
 | `00_nucleo/prompts/entities/elements/equation.md` | Actualizado para documentar gate `equation.numbering` como `Value::Str`. |
-| `00_nucleo/prompts/rules/layout/equation.md` | Criado — especifica layout de equation numbering. |
+| `00_nucleo/prompts/engine/layout/equation.md` | Criado — especifica layout de equation numbering. |
 | `00_nucleo/materialization/typst-passo-456-relatorio.md` | Este relatório. |
 
 ---
@@ -102,7 +102,7 @@ Resultado: apenas warnings pré-existentes de prompts órfãos
 - [x] Inline equation ignora numbering.
 - [x] 4 novos tests verdes + todos os tests de equation pré-existentes verdes.
 - [x] Spec L0 actualizada (`entities/elements/equation.md` + novo
-      `rules/layout/equation.md`).
+      `engine/layout/equation.md`).
 - [x] `cargo test --workspace` verde.
 - [x] `crystalline-lint` sem violações relacionadas ao P456.
 

@@ -53,7 +53,7 @@ Testar com proporções que forcem o `fit` (se existir) a divergir claramente do
 ### Sonda
 
 ```bash
-grep -n "PX_TO_PT\|0\.75\|DPI\|96\.0\|72\.0" 01_core/src/rules/layout/image.rs 03_infra/src/*.rs 2>/dev/null
+grep -n "PX_TO_PT\|0\.75\|DPI\|96\.0\|72\.0" 01_core/src/engine/layout/image.rs 03_infra/src/*.rs 2>/dev/null
 ```
 
 Confirmar a constante actual usada pelo cristalino (P769 registou `PX_TO_PT = 0.75`, correspondente a 96 DPI → 72pt/polegada). Confirmar o valor real usado pelo vanilla:
@@ -66,7 +66,7 @@ O vanilla renderizou 100×80pt para uma imagem sem dimensões explícitas; o cri
 
 ### Implementação
 
-Corrigir a constante/fórmula de conversão píxel→pt em `01_core/src/rules/layout/image.rs` (ou onde estiver centralizada), conforme o valor confirmado do vanilla.
+Corrigir a constante/fórmula de conversão píxel→pt em `01_core/src/engine/layout/image.rs` (ou onde estiver centralizada), conforme o valor confirmado do vanilla.
 
 ### Validação
 

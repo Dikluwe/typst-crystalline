@@ -120,7 +120,7 @@ fechadas. Trabalho híbrido identificado.
 #### Walk arm Heading
 
 3. Confirmar walk arm Heading em
-   `01_core/src/rules/introspect.rs:486` (per P200A
+   `01_core/src/engine/introspect.rs:486` (per P200A
    §3):
    - Mutação 4 legacy localizada.
    - Comentário inline P196B sobre E2-residuo
@@ -159,14 +159,14 @@ fechadas. Trabalho híbrido identificado.
        `entities/element_kind.md`.
 
 7. Confirmar `from_tags` em
-   `01_core/src/rules/introspect/from_tags.rs`:
+   `01_core/src/engine/introspect/from_tags.rs`:
    - Match exhaustivo per P186B descoberta.
    - Linha exacta para inserir arm `HeadingForToc`.
 
 #### Consumer outline
 
 8. Confirmar consumer outline em
-   `01_core/src/rules/layout/outline.rs:24`:
+   `01_core/src/engine/layout/outline.rs:24`:
    - Per P200A §3:
      `let entries: Vec<_> = layouter.counter.headings_for_toc.clone();`
    - Onde inserir substitution-with-fallback.
@@ -346,7 +346,7 @@ sítios via warnings non-exhaustive):
 
 ### .G Adicionar helper `compute_heading_for_toc`
 
-1. Em `01_core/src/rules/introspect.rs`:
+1. Em `01_core/src/engine/introspect.rs`:
    - Adicionar helper privado análogo a
      `compute_heading_auto_toc` P196B:
      ```
@@ -383,7 +383,7 @@ sítios via warnings non-exhaustive):
 
 ### .H Modificar walk arm Heading
 
-1. Em `01_core/src/rules/introspect.rs:486` (per
+1. Em `01_core/src/engine/introspect.rs:486` (per
    `.A.3`):
    - Mutação 4 legacy **continua preservada** (write
      paralelo M5):
@@ -455,7 +455,7 @@ sítios via warnings non-exhaustive):
 
 ### .I Adicionar `from_tags` arm
 
-1. Em `01_core/src/rules/introspect/from_tags.rs`:
+1. Em `01_core/src/engine/introspect/from_tags.rs`:
    - Adicionar arm:
      ```
      ElementPayload::HeadingForToc { label, body, level } => {
@@ -479,7 +479,7 @@ sítios via warnings non-exhaustive):
 
 ### .J Migrar consumer `outline.rs:24`
 
-1. Em `01_core/src/rules/layout/outline.rs:24`:
+1. Em `01_core/src/engine/layout/outline.rs:24`:
    - Substituir leitura directa do legacy por
      substitution-with-fallback (padrão P184D /
      P194B):

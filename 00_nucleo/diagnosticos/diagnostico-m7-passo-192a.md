@@ -31,11 +31,11 @@
 
 | Item | Valor |
 |------|-------|
-| Localização | `01_core/src/rules/introspect/fixpoint.rs` |
+| Localização | `01_core/src/engine/introspect/fixpoint.rs` |
 | Tamanho | 626 LOC |
 | Funções públicas | `run_fixpoint`, `introspect_to_fixpoint` |
 | Tipos públicos | `FixpointError` (enum), `MAX_FIXPOINT_ITERATIONS` (const = 5) |
-| @prompt | `00_nucleo/prompts/rules/introspect/fixpoint.md` |
+| @prompt | `00_nucleo/prompts/engine/introspect/fixpoint.md` |
 | Histórico | P174 — esqueleto opt-in; sem clientes em P174 |
 | Status doc inline | "Mecanismo sem clientes em P174. Adopção planeada para P175+" |
 
@@ -72,10 +72,10 @@ Loop linear até `MAX_FIXPOINT_ITERATIONS` (5):
 | Caller | Estado |
 |--------|--------|
 | `01_core/src/lib.rs` | nenhum (sem re-export) |
-| `01_core/src/rules/eval/` | nenhum (apenas comentários) |
-| `01_core/src/rules/layout/` | nenhum |
+| `01_core/src/engine/eval/` | nenhum (apenas comentários) |
+| `01_core/src/engine/layout/` | nenhum |
 | `02_shell/src/`, `03_infra/src/`, `04_wiring/src/` | nenhum |
-| `01_core/src/rules/introspect/fixpoint.rs` (tests) | 13+ tests |
+| `01_core/src/engine/introspect/fixpoint.rs` (tests) | 13+ tests |
 
 **Resultado**: `run_fixpoint` é **mecanismo opt-in sem clientes runtime em produção**. Tests exercitam mecanismo + features stdlib (P175-P179, M9).
 
@@ -99,7 +99,7 @@ Wrapper directo sobre `run_fixpoint` (P175). Mesmas características.
 ### Loop fixpoint TOC (Layouter)
 
 ✅ Implementado e **activo em produção**.
-- Localização: `01_core/src/rules/layout/mod.rs:1515`.
+- Localização: `01_core/src/engine/layout/mod.rs:1515`.
 - Iteração: `for _ in 0..MAX_ITERATIONS` (MAX_ITERATIONS = 5; paridade vanilla).
 - Critério convergência: `doc.extracted_label_pages == known_page_numbers`.
 - Activado via short-circuit: só corre se `intr.kind_index.contains_key(&ElementKind::Outline)` (documentos com TOC).
@@ -185,7 +185,7 @@ Vanilla:
 - `lab/typst-original/crates/typst-library/src/introspection/convergence.rs::analyze` — diagnostics emitter.
 
 Cristalino:
-- `01_core/src/rules/introspect/fixpoint.rs::run_fixpoint` — paralelo conceptual.
+- `01_core/src/engine/introspect/fixpoint.rs::run_fixpoint` — paralelo conceptual.
 - Convergência via `compute_tags_hash` (sem comemo).
 - `MAX_FIXPOINT_ITERATIONS = 5` (paridade nominal).
 - Layouter TOC fixpoint separado (`layout/mod.rs:1515`).

@@ -41,7 +41,7 @@ Confirmar directamente que `s.at(s.position("m"))` dá "m" no vanilla, mas dá u
 ### Listar todos os métodos de `str` e confirmar qual convenção cada um usa hoje
 
 ```bash
-grep -n "fn str_\|\"at\"\|\"slice\"\|\"len\"\|\"position\"\|\"match\"\|\"codepoints\"\|\"clusters\"" 01_core/src/rules/stdlib/collections.rs
+grep -n "fn str_\|\"at\"\|\"slice\"\|\"len\"\|\"position\"\|\"match\"\|\"codepoints\"\|\"clusters\"" 01_core/src/engine/stdlib/collections.rs
 ```
 
 Para cada método, confirmar contra o vanilla se indexa por byte ou por carácter — não assumir que só `at`/`slice`/`len` estão errados; `clusters()` e outros podem ter a mesma questão.

@@ -29,11 +29,11 @@ consumers da Trilha 7.
 | `01_core/src/entities/layout_types.rs` | `Sub`, `Mul<f64>`, `Div<f64>` para `Abs`; `Sub`, `Mul<f64>`, `Div<f64>` e construtores `cm`/`mm`/`inches` para `Length`. |
 | `01_core/src/entities/value.rs` | Novo variant `Value::Relative(Rel<Length>)`, `type_name()` = `"relative length"`, `From<Rel<Length>>`. |
 | `01_core/src/entities/mod.rs` | `pub mod rel;` adicionado. |
-| `01_core/src/rules/eval/mod.rs` | `Unit::Percent` agora produz `Value::Relative`; módulo `cast` reexportado. |
-| `01_core/src/rules/eval/operators.rs` | Braços aritméticos para `Value::Relative` (`+`, `-`, `*`, `/` com `Relative`/`Length`/`Int`/`Float`) e negação unária. |
-| `01_core/src/rules/eval/repr.rs` | Representação de `Value::Relative` (`50%`, `50% + ...`). |
-| `01_core/src/rules/eval/cast.rs` | Novo — `CastError` e `cast_length`, retornando `NeedsContext` para `Value::Relative`. |
-| `01_core/src/rules/eval/tests.rs` | 6 testes E2E/binários para `Relative`. |
+| `01_core/src/engine/eval/mod.rs` | `Unit::Percent` agora produz `Value::Relative`; módulo `cast` reexportado. |
+| `01_core/src/engine/eval/operators.rs` | Braços aritméticos para `Value::Relative` (`+`, `-`, `*`, `/` com `Relative`/`Length`/`Int`/`Float`) e negação unária. |
+| `01_core/src/engine/eval/repr.rs` | Representação de `Value::Relative` (`50%`, `50% + ...`). |
+| `01_core/src/engine/eval/cast.rs` | Novo — `CastError` e `cast_length`, retornando `NeedsContext` para `Value::Relative`. |
+| `01_core/src/engine/eval/tests.rs` | 6 testes E2E/binários para `Relative`. |
 
 ### Documentação L0
 
@@ -41,7 +41,7 @@ consumers da Trilha 7.
 |---------|---------|
 | `00_nucleo/prompts/entities/rel.md` | Novo — especificação de `Rel<T>` e `Rel<Length>`. |
 | `00_nucleo/prompts/entities/value.md` | Atualizado com `Value::Relative`, `type_name`, `From`, critérios e histórico. |
-| `00_nucleo/prompts/rules/eval/ops.md` | Novo — operadores e eval percentual para `Relative`. |
+| `00_nucleo/prompts/engine/eval/ops.md` | Novo — operadores e eval percentual para `Relative`. |
 
 ---
 

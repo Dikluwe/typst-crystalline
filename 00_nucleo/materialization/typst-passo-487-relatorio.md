@@ -31,9 +31,9 @@ do stash "temp P465":
 
 | Ficheiro | Linha | Conflito | Decisão | Razão |
 |---------|-------|---------|---------|-------|
-| `01_core/src/rules/eval/repr.rs` | 444 | 2 testes `Value::Relative` (upstream) vs 0 (stash) | UPSTREAM | Testes P469 pertencem ao upstream |
-| `01_core/src/rules/introspect.rs` | 3455 | `labelled_prod()` (upstream) vs `Content::label_auto()` (stash) | UPSTREAM | `labelled_prod` levanta Styled para `compute_labelled` |
-| `01_core/src/rules/introspect.rs` | 3491 | P480 tests (upstream) vs deletados (stash) | UPSTREAM | P480 testes validam `Outline` kind_index |
+| `01_core/src/engine/eval/repr.rs` | 444 | 2 testes `Value::Relative` (upstream) vs 0 (stash) | UPSTREAM | Testes P469 pertencem ao upstream |
+| `01_core/src/engine/introspect.rs` | 3455 | `labelled_prod()` (upstream) vs `Content::label_auto()` (stash) | UPSTREAM | `labelled_prod` levanta Styled para `compute_labelled` |
+| `01_core/src/engine/introspect.rs` | 3491 | P480 tests (upstream) vs deletados (stash) | UPSTREAM | P480 testes validam `Outline` kind_index |
 | `00_nucleo/prompts/entities/value.md` | 7 | Texto actualizado P466/P469 (upstream) vs só P465 (stash) | UPSTREAM | Upstream tem histórico completo |
 
 **Critério de decisão:** upstream = HEAD (commits P466–P486 já aplicados); stash = P465 incompleto.
@@ -144,9 +144,9 @@ O `@prompt-hash` em `value.rs` ficou desatualizado.
 | `00_nucleo/prompts/entities/value.md` | Conflito resolvido (upstream) + hash fix |
 | `01_core/src/entities/elements/labelled.rs` | DELETED (stash P464 consolidação) |
 | `01_core/src/entities/value.rs` | `@prompt-hash` actualizado (`0a2085a5`) |
-| `01_core/src/rules/eval/repr.rs` | Conflito resolvido (upstream — P469 Relative tests) |
-| `01_core/src/rules/introspect.rs` | Conflito resolvido (upstream — `labelled_prod` + P480 tests) |
-| `01_core/src/rules/stdlib/mod.rs` | Sentinela `parse_color` ("purple") + `p299` count 42→43 |
+| `01_core/src/engine/eval/repr.rs` | Conflito resolvido (upstream — P469 Relative tests) |
+| `01_core/src/engine/introspect.rs` | Conflito resolvido (upstream — `labelled_prod` + P480 tests) |
+| `01_core/src/engine/stdlib/mod.rs` | Sentinela `parse_color` ("purple") + `p299` count 42→43 |
 | `03_infra/fixtures/p307b/reference/09-cidfont.pdf` | Snapshot regenerado (P486 x_offset) |
 
 ---

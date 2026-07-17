@@ -53,7 +53,7 @@ sintaxe real" de "conversão str()":
 **Conclusão:** o despacho `plugin()` → `Module` → `PluginFunc` → chamada (P699,
 níveis 4–5 de P696) está **correto** via sintaxe real — parser, field access e
 `FuncRepr::Plugin` funcionam. O único bug é que `native_str`
-(`01_core/src/rules/stdlib/foundations.rs:319-356`) não tem braço para
+(`01_core/src/engine/stdlib/foundations.rs:319-356`) não tem braço para
 `Value::Bytes`, caindo no braço genérico `other => err("str() não suporta
 {type}")`.
 
@@ -84,12 +84,12 @@ documento real).
 
 ## 4. Ação tomada — L0 confirmado pelo humano, código corrigido
 
-- **L0 actualizado**: `00_nucleo/prompts/rules/stdlib/foundations.md`,
+- **L0 actualizado**: `00_nucleo/prompts/engine/stdlib/foundations.md`,
   secção `native_str` — adicionado braço `Bytes` (decodifica UTF-8, erro
   `"bytes are not valid UTF-8"` verbatim do vanilla) e dois testes canónicos.
   Scope-out clarificado: `Bytes` não é tipo complexo, é suportado. **Confirmado
   pelo humano** antes do passo seguinte (Protocolo de Nucleação, CLAUDE.md).
-- **Código**: `01_core/src/rules/stdlib/foundations.rs::native_str` — novo
+- **Código**: `01_core/src/engine/stdlib/foundations.rs::native_str` — novo
   braço `Value::Bytes(b) => match std::str::from_utf8(b.as_slice()) { Ok(s) =>
   s.to_string(), Err(_) => return err("bytes are not valid UTF-8") }`,
   inserido antes do braço `Color`/genérico.

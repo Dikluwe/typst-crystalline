@@ -25,7 +25,7 @@ scope `math` (materializado P299) e substitui por `Content::MathOp`
 automaticamente — paridade vanilla typst onde `$sin x$` é
 equivalente a `$math.sin x$`.
 
-**Modificação localizada** em `01_core/src/rules/eval/math.rs`:
+**Modificação localizada** em `01_core/src/engine/eval/math.rs`:
 - Helper `lookup_math_op()` novo.
 - 2 sítios estendidos: `Expr::MathIdent` arm + `FuncCall` fallback.
 - Heurística P298 preservada em `attach.rs` (fallback para
@@ -72,7 +72,7 @@ Detalhe completo: `00_nucleo/diagnosticos/diagnostico-auto-lookup-math-passo-301
 
 ## §3 — Materialização
 
-### §3.1 — `01_core/src/rules/eval/math.rs` — helper `lookup_math_op`
+### §3.1 — `01_core/src/engine/eval/math.rs` — helper `lookup_math_op`
 
 ```rust
 use crate::entities::value::Value;
@@ -100,7 +100,7 @@ fn lookup_math_op(scopes: &Scopes<'_>, name: &str) -> Option<Content> {
 Expr::MathIdent(ident) => {
     let name = ident.get();
     // 1. Símbolo grego ou operador Unicode (alpha → α etc.)
-    if let Some(sym) = crate::rules::math::symbols::ident_to_unicode(name) {
+    if let Some(sym) = crate::engine::math::symbols::ident_to_unicode(name) {
         return Ok(Content::MathText(sym.into()));
     }
     // 2. P301 — auto-lookup scope `math` (42 operadores P299 via SSoT MathOp).
@@ -132,9 +132,9 @@ _ => {
 | Componente | Pós-P301 |
 |---|---|
 | `01_core/src/entities/content.rs` | **Inalterado** — hash `82d3c47d` preservado |
-| `01_core/src/rules/math/symbols.rs` | **Inalterado** — `is_limit_function`/`is_large_operator` preservados |
-| `01_core/src/rules/math/layout/attach.rs` | **Inalterado** — P298 cross-variant arm continua |
-| `01_core/src/rules/stdlib/structural.rs` | **Inalterado** — `make_math_module` P299 preservado |
+| `01_core/src/engine/math/symbols.rs` | **Inalterado** — `is_limit_function`/`is_large_operator` preservados |
+| `01_core/src/engine/math/layout/attach.rs` | **Inalterado** — P298 cross-variant arm continua |
+| `01_core/src/engine/stdlib/structural.rs` | **Inalterado** — `make_math_module` P299 preservado |
 | `03_infra/src/export.rs` | **Inalterado bit-exact** — hash `66cb8ac3` (18º passo) |
 | L0 `rules/eval.md` | **Inalterado** — P301 é extensão dentro do contrato L0 |
 
@@ -142,7 +142,7 @@ _ => {
 
 ## §4 — Testes
 
-### §4.1 — `01_core/src/rules/eval/tests.rs` (+8 testes L1)
+### §4.1 — `01_core/src/engine/eval/tests.rs` (+8 testes L1)
 
 | Teste | Verifica |
 |---|---|

@@ -3,10 +3,10 @@
 ## Estado actual antes de começar
 
 Ler antes de começar:
-- `01_core/src/rules/stdlib.rs` — `native_type`, `native_len`, `native_range`,
+- `01_core/src/engine/stdlib.rs` — `native_type`, `native_len`, `native_range`,
   `native_rgb`, `native_luma`
 - `01_core/src/entities/value.rs` — variantes actuais incluindo `Length`, `Color`, etc.
-- `01_core/src/rules/eval.rs` — `make_stdlib()`, `eval_binary_op`
+- `01_core/src/engine/eval.rs` — `make_stdlib()`, `eval_binary_op`
 - `DEBT.md` — entrada DEBT-4
 
 Pré-condição: `cargo test` — 353 testes, zero violations.
@@ -405,7 +405,7 @@ sobre `Value::Dict`.
 ```bash
 # Ver se FieldAccess já está implementado em eval_expr
 grep -n "FieldAccess\|field_access\|Field\b" \
-  01_core/src/rules/eval.rs | head -20
+  01_core/src/engine/eval.rs | head -20
 
 # Ver a API de ast::FieldAccess
 grep -n "pub fn field\|FieldAccess\|fn target\|fn field" \

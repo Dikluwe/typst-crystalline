@@ -56,7 +56,7 @@ pdftotext /tmp/p717-vanilla.pdf -
 ### Confirmar se `access()` de P716 já resolve o alvo sem mudanças
 
 ```bash
-grep -n "fn access\b" 01_core/src/rules/eval/bindings.rs
+grep -n "fn access\b" 01_core/src/engine/eval/bindings.rs
 ```
 
 Confirmar se os métodos mutantes podem reaproveitar `access()` directamente (obtendo `&mut Value`, depois mutando in-place com `.push()`/etc. do Rust), ou se precisam de um caminho diferente.

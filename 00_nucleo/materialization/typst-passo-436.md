@@ -25,17 +25,17 @@
 
 ## ADR-0107 — Paridade linguagem
 
-Contrato documental: cada função nativa em `transforms.rs` deve ter seu contrato L0 (assinatura, argumentos posicionais/nomeados, semântica, paridade vanilla, limitações graded, testes canônicos) em `00_nucleo/prompts/rules/stdlib/transforms.md`.
+Contrato documental: cada função nativa em `transforms.rs` deve ter seu contrato L0 (assinatura, argumentos posicionais/nomeados, semântica, paridade vanilla, limitações graded, testes canônicos) em `00_nucleo/prompts/engine/stdlib/transforms.md`.
 
 ---
 
 ## ADR-0109 — Atomização forma B
 
 **Toques pontuais:**
-1. Criar `00_nucleo/prompts/rules/stdlib/transforms.md` com 4 secções (1 por função).
+1. Criar `00_nucleo/prompts/engine/stdlib/transforms.md` com 4 secções (1 por função).
 2. Cada secção: assinatura, args (`angle`, `dx`, `dy`, `amount`, `body`), semântica, paridade vanilla, limitações, testes canônicos.
 3. Atualizar `rules/stdlib/_comum.md` — remover `transforms.rs` da lista.
-4. Atualizar cabeçalho `@prompt` de `01_core/src/rules/stdlib/transforms.rs` para apontar `transforms.md`.
+4. Atualizar cabeçalho `@prompt` de `01_core/src/engine/stdlib/transforms.rs` para apontar `transforms.md`.
 5. `DEBT.md` atualizado com nota "subset transforms.rs fechado em P436".
 
 ---
@@ -49,7 +49,7 @@ Contrato documental: cada função nativa em `transforms.rs` deve ter seu contra
 
 ## Critério de fecho
 
-- [ ] `00_nucleo/prompts/rules/stdlib/transforms.md` criado com 4 secções.
+- [ ] `00_nucleo/prompts/engine/stdlib/transforms.md` criado com 4 secções.
 - [ ] Cada função documenta: assinatura, args, semântica, paridade vanilla, limitações, testes canônicos.
 - [ ] `_comum.md` atualizado (transforms.rs removido da lista).
 - [ ] `transforms.rs` cabeçalho `@prompt` aponta `transforms.md`.

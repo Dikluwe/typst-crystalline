@@ -15,13 +15,13 @@
 ## Sonda — confirmar o mecanismo exacto e levantar todos os wrappers afectados
 
 ```bash
-grep -n "layout_sub_frame\|origin_x: 0.0\|in_sub_frame" 01_core/src/rules/layout/*.rs
+grep -n "layout_sub_frame\|origin_x: 0.0\|in_sub_frame" 01_core/src/engine/layout/*.rs
 ```
 
 Para cada wrapper encontrado (`align`, `pad`, `box`, `stack`, `columns`, outros), confirmar se chama `layout_sub_frame` com `origin_x: 0.0` e depois recompõe `target_x` a partir de `line_start_x`/equivalente — o mesmo padrão que causa a duplicação em `align`. Não assumir que todos têm o mesmo bug; testar cada um.
 
 ```bash
-grep -n "match scope" 01_core/src/rules/layout/placement.rs
+grep -n "match scope" 01_core/src/engine/layout/placement.rs
 ```
 
 Confirmar a estrutura exacta do `match` em `layout_place` e onde o ramo `(Some(cx), Some(cy), Some(cell))` precisa da mesma verificação de `in_sub_frame` já usada no ramo de fallback.
@@ -63,7 +63,7 @@ Repetir para `place()` aninhado em `pad`, `box`, `stack`, `columns` — não só
 - [x] Cada wrapper adicional confirmado como afectado (`align`, footnotes) ou não (`columns`, `box`, `pad`, `stack`) e testado individualmente.
 - [x] `cargo test --workspace` verde.
 - [x] `crystalline-lint .` zero violações.
-- [x] L0 de `placement`/`layout` actualizado antes do código (`00_nucleo/prompts/rules/layout.md`, hash `b1739fd9`).
+- [x] L0 de `placement`/`layout` actualizado antes do código (`00_nucleo/prompts/engine/layout.md`, hash `b1739fd9`).
 - [x] Relatório em `00_nucleo/diagnosticos/paridade-producao-p772g.md`.
 
 ---

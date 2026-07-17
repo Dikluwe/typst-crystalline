@@ -37,7 +37,7 @@ impl Sink {}
 
 ### `TrackedMut<Sink>` no `eval`
 
-`01_core/src/rules/eval/mod.rs:150`:
+`01_core/src/engine/eval/mod.rs:150`:
 
 ```rust
 pub fn eval(

@@ -28,35 +28,35 @@ Corrigir cinco categorias de formatação CSL identificadas no Passo 547:
 
 | Categoria | Ficheiro:linha | Causa |
 |-----------|----------------|-------|
-| Acentos corrompidos | `01_core/src/rules/eval/bibtex.rs` (`parse_braced`, `parse_quoted`) | Iteração por `src.as_bytes()[pos] as char`, tratando cada byte UTF-8 como code point Latin-1. |
-| Autores mal formatados | `01_core/src/rules/layout/bib_csl.rs` (`bib_entry_to_hayagriva`) | Campo `author` emitido como string escalar `"Last, First and ..."`, que o hayagriva interpretava como uma única pessoa. |
-| `--` duplicado | `01_core/src/rules/layout/bib_csl.rs` (`bib_entry_to_hayagriva`) | O campo `pages` do BibTeX (`45--67`) era passado literalmente para YAML; o hayagriva não normalizava o duplo hífen. |
-| Ordem alfabética / numérica | `01_core/src/rules/layout/bib_csl.rs` (`build_cache_with_style`) | Reordenação pelo `citation_order` era aplicada a todos os estilos, quebrando a ordenação alfabética de APA/Chicago/MLA. |
-| Espaços perdidos | `01_core/src/rules/layout/text.rs` (`layout`) | Uso de `text.split_whitespace()`, que colapsava múltiplos espaços e perdia espaços iniciais/finais. |
-| Quebras de linha em branco | `01_core/src/rules/layout/mod.rs` (`layout_content`) | `Content::Linebreak(_)` não fazia `flush_line()`, pelo que entradas bibliográficas concatenavam na mesma linha. |
-| Editora omitida | `01_core/src/rules/eval/bibtex.rs` (`parse_field_value`) | O campo `publisher` não era lido do `.bib`. |
+| Acentos corrompidos | `01_core/src/engine/eval/bibtex.rs` (`parse_braced`, `parse_quoted`) | Iteração por `src.as_bytes()[pos] as char`, tratando cada byte UTF-8 como code point Latin-1. |
+| Autores mal formatados | `01_core/src/engine/layout/bib_csl.rs` (`bib_entry_to_hayagriva`) | Campo `author` emitido como string escalar `"Last, First and ..."`, que o hayagriva interpretava como uma única pessoa. |
+| `--` duplicado | `01_core/src/engine/layout/bib_csl.rs` (`bib_entry_to_hayagriva`) | O campo `pages` do BibTeX (`45--67`) era passado literalmente para YAML; o hayagriva não normalizava o duplo hífen. |
+| Ordem alfabética / numérica | `01_core/src/engine/layout/bib_csl.rs` (`build_cache_with_style`) | Reordenação pelo `citation_order` era aplicada a todos os estilos, quebrando a ordenação alfabética de APA/Chicago/MLA. |
+| Espaços perdidos | `01_core/src/engine/layout/text.rs` (`layout`) | Uso de `text.split_whitespace()`, que colapsava múltiplos espaços e perdia espaços iniciais/finais. |
+| Quebras de linha em branco | `01_core/src/engine/layout/mod.rs` (`layout_content`) | `Content::Linebreak(_)` não fazia `flush_line()`, pelo que entradas bibliográficas concatenavam na mesma linha. |
+| Editora omitida | `01_core/src/engine/eval/bibtex.rs` (`parse_field_value`) | O campo `publisher` não era lido do `.bib`. |
 
 ---
 
 ## 3. Alterações aplicadas
 
-### 3.1 `01_core/src/rules/eval/bibtex.rs`
+### 3.1 `01_core/src/engine/eval/bibtex.rs`
 
 - `parse_braced` e `parse_quoted` agora iteram por `char_indices()`/`chars()`, preservando UTF-8.
 - Adicionado `publisher` ao parsing de entradas.
 
-### 3.2 `01_core/src/rules/layout/bib_csl.rs`
+### 3.2 `01_core/src/engine/layout/bib_csl.rs`
 
 - Conversão de autores passou a emitir uma **lista YAML** de `Person`, permitindo que o hayagriva reconheça múltiplos autores.
 - Normalização `pages` com `replace("--", "-")` antes de serializar para YAML.
 - Adicionada função `is_numeric_style` que inspeciona `IndependentStyle::info.category`; a reordenação por `citation_order` só é aplicada a estilos numéricos.
 - Reescrito o import de `citationberg` para satisfazer `crystalline-lint` V14 (`use hayagriva::citationberg;` + uso qualificado).
 
-### 3.3 `01_core/src/rules/layout/text.rs`
+### 3.3 `01_core/src/engine/layout/text.rs`
 
 - Substituição de `split_whitespace()` por `split(' ')` para preservar espaços internos, iniciais e finais; avanço do cursor com `layouter.space_width()` entre tokens.
 
-### 3.4 `01_core/src/rules/layout/mod.rs`
+### 3.4 `01_core/src/engine/layout/mod.rs`
 
 - `Content::Linebreak(_)` agora invoca `self.flush_line()`.
 

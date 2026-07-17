@@ -16,15 +16,15 @@ Inspecção empírica em 2026-05-02. Linhas confirmadas:
 | 1 | `01_core/src/entities/counter_state_legacy.rs` | 34 | `pub numbering_active: HashMap<String, bool>` | confirmado |
 | 2 | `01_core/src/entities/counter_state_legacy.rs` | 101–103 | `pub fn is_numbering_active(&self, key: &str) -> bool { self.numbering_active.get(key).copied().unwrap_or(false) }` | confirmado |
 | 3 | `01_core/src/entities/content.rs` | 176 | `SetHeadingNumbering { active: bool }` (apenas booleano — *não* `{ key, value }`) | confirmado com desvio face ao texto da lacuna |
-| 4 | `01_core/src/rules/eval/rules.rs` | 227 | `Content::SetHeadingNumbering { active }` produzido por `#set heading(numbering: …)` em eval | confirmado |
-| 5 | `01_core/src/rules/introspect.rs` | 455–457 | walk arm: `state.numbering_active.insert("heading".to_string(), *active)` | confirmado (write canonical) |
-| 6 | `01_core/src/rules/layout/counters.rs` | 11–13 | `layout_set_heading_numbering` faz mesmo insert no Layouter local | confirmado (write paralelo no layout walk) |
-| 7 | `01_core/src/rules/layout/mod.rs` | 313–315 | arm `Content::SetHeadingNumbering` delega a `counters::layout_set_heading_numbering` | confirmado |
-| 8 | `01_core/src/rules/layout/mod.rs` | 301 | consumer Layouter heading-arm: `if self.counter.is_numbering_active("heading")` antes de gerar prefixo | confirmado |
-| 9 | `01_core/src/rules/layout/equation.rs` | 24 | consumer Layouter equation-arm: `block && self.counter.is_numbering_active("equation")` antes de `step_flat` | confirmado (consumer adicional não previsto no texto da lacuna) |
-| 10 | `01_core/src/rules/introspect.rs` | 360 | leitura intra-walk para `resolved_text` de heading auto-label: `if state.is_numbering_active("heading")` | confirmado (leitura interna ao próprio walk — não passa por Introspector) |
-| 11 | `01_core/src/rules/introspect.rs` | 378 | leitura intra-walk para decidir `step_flat("equation")`: `if *block && state.is_numbering_active("equation")` | confirmado (leitura interna ao próprio walk) |
-| 12 | `01_core/src/rules/layout/mod.rs` | 1414, 1442 | `l.counter.numbering_active = initial_state.numbering_active(.clone())` — copia de introspect-walk para layouter | confirmado |
+| 4 | `01_core/src/engine/eval/rules.rs` | 227 | `Content::SetHeadingNumbering { active }` produzido por `#set heading(numbering: …)` em eval | confirmado |
+| 5 | `01_core/src/engine/introspect.rs` | 455–457 | walk arm: `state.numbering_active.insert("heading".to_string(), *active)` | confirmado (write canonical) |
+| 6 | `01_core/src/engine/layout/counters.rs` | 11–13 | `layout_set_heading_numbering` faz mesmo insert no Layouter local | confirmado (write paralelo no layout walk) |
+| 7 | `01_core/src/engine/layout/mod.rs` | 313–315 | arm `Content::SetHeadingNumbering` delega a `counters::layout_set_heading_numbering` | confirmado |
+| 8 | `01_core/src/engine/layout/mod.rs` | 301 | consumer Layouter heading-arm: `if self.counter.is_numbering_active("heading")` antes de gerar prefixo | confirmado |
+| 9 | `01_core/src/engine/layout/equation.rs` | 24 | consumer Layouter equation-arm: `block && self.counter.is_numbering_active("equation")` antes de `step_flat` | confirmado (consumer adicional não previsto no texto da lacuna) |
+| 10 | `01_core/src/engine/introspect.rs` | 360 | leitura intra-walk para `resolved_text` de heading auto-label: `if state.is_numbering_active("heading")` | confirmado (leitura interna ao próprio walk — não passa por Introspector) |
+| 11 | `01_core/src/engine/introspect.rs` | 378 | leitura intra-walk para decidir `step_flat("equation")`: `if *block && state.is_numbering_active("equation")` | confirmado (leitura interna ao próprio walk) |
+| 12 | `01_core/src/engine/layout/mod.rs` | 1414, 1442 | `l.counter.numbering_active = initial_state.numbering_active(.clone())` — copia de introspect-walk para layouter | confirmado |
 
 **Desvios face ao texto da lacuna em `m1-lacunas-captura.md`**:
 
@@ -95,7 +95,7 @@ M1 reusa P171/P173 sem extensão de enum (sem novo `ElementPayload` variant), se
 
 ### Cláusula 3 — Lista de consumers
 
-**O1 — Inputs**: `grep -rn "numbering_active\|is_numbering_active" 01_core/src/rules/` (8 matches além de tests).
+**O1 — Inputs**: `grep -rn "numbering_active\|is_numbering_active" 01_core/src/engine/` (8 matches além de tests).
 
 **O2 — Alternativas**: 1 consumer (apenas heading-arm) vs N consumers reais.
 
@@ -105,13 +105,13 @@ M1 reusa P171/P173 sem extensão de enum (sem novo `ElementPayload` variant), se
 
 | # | Ficheiro | Linha | Função / arm | Forma actual |
 |---|----------|-------|--------------|--------------|
-| 1 | `01_core/src/rules/layout/mod.rs` | 301 | `layout_content` arm `Content::Heading` | `if self.counter.is_numbering_active("heading")` |
-| 2 | `01_core/src/rules/layout/equation.rs` | 24 | `Layouter::layout_equation` | `block && self.counter.is_numbering_active("equation")` |
+| 1 | `01_core/src/engine/layout/mod.rs` | 301 | `layout_content` arm `Content::Heading` | `if self.counter.is_numbering_active("heading")` |
+| 2 | `01_core/src/engine/layout/equation.rs` | 24 | `Layouter::layout_equation` | `block && self.counter.is_numbering_active("equation")` |
 
 **Não-consumers** (leituras intra-walk; `state` local do próprio walk; não migráveis para Introspector porque o Introspector ainda não existe quando estas linhas correm):
 
-- `01_core/src/rules/introspect.rs:360` — `resolved_text` para heading auto-label.
-- `01_core/src/rules/introspect.rs:378` — gating de `step_flat("equation")`.
+- `01_core/src/engine/introspect.rs:360` — `resolved_text` para heading auto-label.
+- `01_core/src/engine/introspect.rs:378` — gating de `step_flat("equation")`.
 
 Estas continuam a consultar `state.is_numbering_active(…)` directo.
 
@@ -127,8 +127,8 @@ Tabela cláusula 3 § é localização exacta. Resumo:
 
 | Consumer | Caminho | Linha actual | Forma migrada (proposta P182B+) |
 |----------|---------|--------------|---------------------------------|
-| Heading prefix | `01_core/src/rules/layout/mod.rs` | 301 | `if self.introspector.is_numbering_active("heading") || self.counter.is_numbering_active("heading")` (substitution-with-fallback) |
-| Equation auto-numeração | `01_core/src/rules/layout/equation.rs` | 24 | `let is_numbered = block && (self.introspector.is_numbering_active("equation") \|\| self.counter.is_numbering_active("equation"));` |
+| Heading prefix | `01_core/src/engine/layout/mod.rs` | 301 | `if self.introspector.is_numbering_active("heading") || self.counter.is_numbering_active("heading")` (substitution-with-fallback) |
+| Equation auto-numeração | `01_core/src/engine/layout/equation.rs` | 24 | `let is_numbered = block && (self.introspector.is_numbering_active("equation") \|\| self.counter.is_numbering_active("equation"));` |
 
 **O4 — Magnitude**: trivial.
 
@@ -186,8 +186,8 @@ Pendências M6: campo legacy `CounterStateLegacy.numbering_active` continua a ex
 | Sub-passo | Escopo | Magnitude | Depende |
 |-----------|--------|-----------|---------|
 | `P182B` | Trait method `is_numbering_active(&self, key: &str) -> bool` adicionado ao trait `Introspector` em `01_core/src/entities/introspector.rs`; impl em `TagIntrospector` delega a `self.state.final_value(key)` + match `Value::Bool(true)` (default `false`); tests unitários em `mod tests` (vazio devolve false; populado responde true após apply Set Bool(true); diferentes keys isoladas) | S | — |
-| `P182C` | `extract_payload` arm `Content::SetHeadingNumbering` em `01_core/src/rules/introspect/extract_payload.rs` produz `ElementPayload::StateUpdate { key: "numbering_active:heading", update: StateUpdate::Set(Value::Bool(active)) }`; walk arm em `introspect.rs:455–456` continua a popular `state.numbering_active` legacy (paralelo durante janela compat M6) | S | `P182B` |
-| `P182D` | Layouter consumer `01_core/src/rules/layout/mod.rs:301` migra para `self.introspector.is_numbering_active("heading") \|\| self.counter.is_numbering_active("heading")` (substitution-with-fallback P168); consumer `01_core/src/rules/layout/equation.rs:24` migra simetricamente para `"equation"` | S | `P182B`, `P182C` |
+| `P182C` | `extract_payload` arm `Content::SetHeadingNumbering` em `01_core/src/engine/introspect/extract_payload.rs` produz `ElementPayload::StateUpdate { key: "numbering_active:heading", update: StateUpdate::Set(Value::Bool(active)) }`; walk arm em `introspect.rs:455–456` continua a popular `state.numbering_active` legacy (paralelo durante janela compat M6) | S | `P182B` |
+| `P182D` | Layouter consumer `01_core/src/engine/layout/mod.rs:301` migra para `self.introspector.is_numbering_active("heading") \|\| self.counter.is_numbering_active("heading")` (substitution-with-fallback P168); consumer `01_core/src/engine/layout/equation.rs:24` migra simetricamente para `"equation"` | S | `P182B`, `P182C` |
 | `P182E` | Tests E2E confirmam paridade — pipeline completo (`#set heading(numbering: "1.1")` + `Heading` + Layouter) produz output equivalente via Introspector e via state legacy; teste paralelo para equation block | S | `P182D` |
 | `P182F` | Lacuna #4 marcada fechada em `m1-lacunas-captura.md`; tabela §Resumo actualizada de "Adiar" para "✅ **Resolvida em P182**"; relatório consolidado P182X | S | `P182E` |
 

@@ -12,15 +12,15 @@ Materializou-se `#show regex(pattern): it => body` como wiring de show-rule sobr
 - `01_core/src/entities/value.rs` — adiciona `Value::Regex(Regex)` (o tipo `Regex` já existia em L1;
   ADR-0017 satisfeito).
 - `01_core/src/entities/show.rs` — adiciona `Selector::Regex(Regex)` à enum de show-rules.
-- `01_core/src/rules/stdlib/text.rs` — novo `native_regex(pattern)`; devolve `Value::Regex` ou erro
+- `01_core/src/engine/stdlib/text.rs` — novo `native_regex(pattern)`; devolve `Value::Regex` ou erro
   contextual para pattern inválida.
-- `01_core/src/rules/eval/mod.rs` — regista `regex` em `make_stdlib`.
-- `01_core/src/rules/eval/rules.rs` — wiring central:
+- `01_core/src/engine/eval/mod.rs` — regista `regex` em `make_stdlib`.
+- `01_core/src/engine/eval/rules.rs` — wiring central:
   - `eval_show_rule` aceita `Value::Regex` como selector;
   - `apply_show_rules` aplica regras `Selector::Regex` a nós de texto que casam
     (`re.is_match(text)`), suportando transformações `Func`, `Content` e `Str`;
   - rejeita show-set sobre regex (paridade com `Selector::Text`).
-- `00_nucleo/prompts/rules/show-regex.md` — L0 novo.
+- `00_nucleo/prompts/engine/show-regex.md` — L0 novo.
 - `00_nucleo/diagnosticos/typst-cobertura-vanilla-vs-cristalino.md` — `#show regex(...)`
   reclassificado de `ausente` para `implementado`; `.where(field:)` permanece `ausente`.
 
@@ -71,8 +71,8 @@ expô-lo a eval e show-rules.
 
 - Código: `01_core/src/entities/value.rs`, `entities/show.rs`, `rules/stdlib/text.rs`,
   `rules/eval/mod.rs`, `rules/eval/rules.rs`.
-- L0: `00_nucleo/prompts/rules/show-regex.md`.
-- Testes: `01_core/src/rules/eval/tests.rs` (5), `01_core/src/rules/stdlib/mod.rs` (4).
+- L0: `00_nucleo/prompts/engine/show-regex.md`.
+- Testes: `01_core/src/engine/eval/tests.rs` (5), `01_core/src/engine/stdlib/mod.rs` (4).
 - Inventário 148 — `#show regex(...)` implementado; `.where()` ainda ausente.
 - este relatório.
 

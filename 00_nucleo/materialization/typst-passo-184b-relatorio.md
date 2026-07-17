@@ -16,7 +16,7 @@ linter.
 existente que mantém a chave global `"figure"` (preservada por
 simetria com walk legacy até M6 — P184A cláusula 5).
 
-L0 `00_nucleo/prompts/rules/introspect/from_tags.md` actualizado a
+L0 `00_nucleo/prompts/engine/introspect/from_tags.md` actualizado a
 descrever a convenção promovida do doc comment de
 `element_payload.rs:52` para implementação real.
 
@@ -56,9 +56,9 @@ Tests específicos `from_tags`: 20 passed (incluindo
 
 ## §4 Hashes finais L0 modificado
 
-- `00_nucleo/prompts/rules/introspect/from_tags.md` — Hash do
+- `00_nucleo/prompts/engine/introspect/from_tags.md` — Hash do
   Código: `7ab14b2f` (anterior `9acddbb4`).
-- `01_core/src/rules/introspect/from_tags.rs` — `@prompt-hash`:
+- `01_core/src/engine/introspect/from_tags.rs` — `@prompt-hash`:
   `d0113a49` (anterior `2010372a`).
 
 Sincronizados via `crystalline-lint --fix-hashes .`.

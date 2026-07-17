@@ -59,7 +59,7 @@ DEBT-56 é o maior refactor estrutural pendente. Layouter
 actual é **single-page write-target** com cursors escalares
 globais (`cursor_x`/`cursor_y`/`current_items`/`current_line`/
 `page_config`); 135 call-sites empíricos em
-`01_core/src/rules/layout/mod.rs` (P215 C1 inventário).
+`01_core/src/engine/layout/mod.rs` (P215 C1 inventário).
 
 ADR-0078 endereça especificamente a **abstracção arquitectural**
 necessária — `Region/Regions` — que desbloqueia 4 das 6
@@ -214,7 +214,7 @@ Sub-fase (a) parte 1 fechada:
 - L0 `00_nucleo/prompts/entities/region.md` criado;
   hash propagado via `crystalline-lint --fix-hashes`.
 - `Layouter` struct refactored em
-  `01_core/src/rules/layout/mod.rs`: 5 fields escalares
+  `01_core/src/engine/layout/mod.rs`: 5 fields escalares
   + 2 dimensões (via `page_config.width/height`)
   agregados em field único `region: Region`.
 - Inventário empírico real: ~167 call-sites refactored
@@ -302,7 +302,7 @@ exhaustivos; aditivo puro sem refactor estrutural).
   - `entities/content.rs`: `is_empty`, `plain_text`,
     `PartialEq::eq`, `map_content`, `map_text` = **5 arms**.
   - `rules/introspect.rs`: `materialize_time` + `walk` = **2 arms**.
-  - `rules/layout/mod.rs`: `layout_content` (stub
+  - `engine/layout/mod.rs`: `layout_content` (stub
     transparente) + `measure_content_constrained`
     (transparente) = **2 arms**.
   - `rules/introspect/locatable.rs`: `is_locatable`
@@ -340,15 +340,15 @@ gutter: ?)` + scope register; validação `count >= 1`).
 **Sub-fase (b) DEBT-56 — segundo sub-passo aditivo trivial (2/4)**:
 
 - `native_columns(count, body, gutter: ?)` registada em
-  `01_core/src/rules/stdlib/layout.rs` — pattern paridade
+  `01_core/src/engine/stdlib/layout.rs` — pattern paridade
   `native_repeat` (P156J). Stdlib funcs registadas: ~53 → 54.
 - Helper `extract_count(args, fn_name)` novo (privado em
   `stdlib/layout.rs`) para `count` posicional obrigatório
   (paridade `extract_usize_or_none_min` P157B mas para
   posicional). N=1 pós-P218; promoção a helper público
   diferida a N=2-3 reuso.
-- Re-export em `01_core/src/rules/stdlib/mod.rs` `pub use`
-  block + scope register em `01_core/src/rules/eval/mod.rs`
+- Re-export em `01_core/src/engine/stdlib/mod.rs` `pub use`
+  block + scope register em `01_core/src/engine/eval/mod.rs`
   (`scope.define("columns", ...)`) imediatamente após
   `native_repeat` (ordem ADR-0061 Fase 3 sub-passos).
 - Validações implementadas:
@@ -393,7 +393,7 @@ M+ (~3-4h).
 substantivo; 3/4)**:
 
 - Arm `Content::Columns` em `layout_content`
-  (`01_core/src/rules/layout/mod.rs`) substituído por
+  (`01_core/src/engine/layout/mod.rs`) substituído por
   **consumer real graded (Opção B paridade ADR-0054)**.
   Arm em `measure_content_constrained` paralelo (mesma
   semântica para grid measurement).
@@ -417,7 +417,7 @@ substantivo; 3/4)**:
   `Regions { current: Region }` minimal mantido; backlog/last
   continuam diferidos.
 - 8 layout E2E tests adicionados em
-  `01_core/src/rules/layout/tests.rs`:
+  `01_core/src/engine/layout/tests.rs`:
   `p219_columns_count_1_equivale_a_body_directo`,
   `_count_2_renderiza_body`, `_count_3_renderiza_body`,
   `_gutter_length_explicito_renderiza`,
@@ -478,9 +478,9 @@ pagebreak). Magnitude S+ (~1.5h).
     `map_content` + `map_text` (terminal clone).
   - `rules/introspect.rs`: `materialize_time` no-op
     (sem children), `walk` no-op (sem tag).
-  - `rules/layout/mod.rs::layout_content`: arm Opção β
+  - `engine/layout/mod.rs::layout_content`: arm Opção β
     graded — flush_line + `new_page` (downgrade literal).
-  - `rules/layout/mod.rs::measure_content_constrained`:
+  - `engine/layout/mod.rs::measure_content_constrained`:
     no-op `(0.0, 0.0)` (paridade Pagebreak measure).
   - `rules/introspect/locatable.rs`: catch-all `_ => false`
     + entrada explícita `Content::Colbreak { .. }`.

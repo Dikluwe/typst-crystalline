@@ -32,12 +32,12 @@ O que têm em comum, dentro de cada um: pegar num pedaço de conteúdo e decidir
 
 ```bash
 grep -n "fn layout\|fn measure\|text_width\|line_content_right\|align_current_line_rtl\|font_size_pt\|self.style.size" \
-  01_core/src/rules/layout/mod.rs \
-  01_core/src/rules/layout/cursor.rs \
-  01_core/src/rules/layout/grid.rs \
-  01_core/src/rules/layout/placement.rs \
-  01_core/src/rules/layout/columns.rs \
-  01_core/src/rules/layout/boxed.rs
+  01_core/src/engine/layout/mod.rs \
+  01_core/src/engine/layout/cursor.rs \
+  01_core/src/engine/layout/grid.rs \
+  01_core/src/engine/layout/placement.rs \
+  01_core/src/engine/layout/columns.rs \
+  01_core/src/engine/layout/boxed.rs
 ```
 
 Construir uma tabela: para cada mecanismo já conhecido (largura de palavra, altura de linha, alinhamento RTL, ordem de colunas), confirmar se cada um dos cinco caminhos já usa a versão partilhada, ou ainda tem código próprio.

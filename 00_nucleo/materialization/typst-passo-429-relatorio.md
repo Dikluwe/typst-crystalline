@@ -52,7 +52,7 @@
 | `76-81` | `set_bibliography_styles(...)` — usado por `eval_with_full_error`. |
 | `103-106` | Teste `bibliography_styles_default_vazio`. |
 
-### 1.4 `01_core/src/rules/eval/mod.rs`
+### 1.4 `01_core/src/engine/eval/mod.rs`
 
 | Linha(s) | Descrição |
 |----------|-----------|
@@ -61,21 +61,21 @@
 | `160-168` | `register_bibliography_style(elem, style)` — regista style pela chave do elemento. |
 | `313-316` | Transferência de `ctx.bibliography_styles` para o `Module` no fim do eval. |
 
-### 1.5 `01_core/src/rules/stdlib/structural.rs`
+### 1.5 `01_core/src/engine/stdlib/structural.rs`
 
 | Linha(s) | Descrição |
 |----------|-----------|
 | `1110-1115` | `native_bibliography` passa a receber `ctx` (em vez de `_ctx`). |
 | `1164-1182` | Constrói `BibliographyElem` sem `resolved_style`; resolve style e regista-o em `ctx` quando `style` é `Some`. |
 
-### 1.6 `01_core/src/rules/introspect.rs`
+### 1.6 `01_core/src/engine/introspect.rs`
 
 | Linha(s) | Descrição |
 |----------|-----------|
 | `35` | Importa `std::sync::Arc` no topo do módulo. |
 | `359-373` | `materialize_time` arm `Content::Bibliography` preserva `path`, `style` e `locale` (antes perdia tudo excepto entries/title). |
 
-### 1.7 `01_core/src/rules/layout/mod.rs`
+### 1.7 `01_core/src/engine/layout/mod.rs`
 
 | Linha(s) | Descrição |
 |----------|-----------|
@@ -99,10 +99,10 @@
 
 | Ficheiro | Teste | Descrição |
 |----------|-------|-----------|
-| `01_core/src/rules/stdlib/mod.rs` | `native_bibliography_style_ieee_aceite` | Verifica que o style IEEE fica em `ctx.bibliography_styles`. |
-| `01_core/src/rules/stdlib/mod.rs` | `native_bibliography_path_e_style_preservam` | Verifica que a chave do elemento indexa o style resolvido. |
-| `01_core/src/rules/eval/tests.rs` | `p420_bibliography_custom_csl_path_rende_titulo` | Usa helper `p420_layout_module` que replica o pipeline (introspect + inject styles + layout). |
-| `01_core/src/rules/eval/tests.rs` | `p420_bibliography_built_in_ieee_continua_funcional` | Idem. |
+| `01_core/src/engine/stdlib/mod.rs` | `native_bibliography_style_ieee_aceite` | Verifica que o style IEEE fica em `ctx.bibliography_styles`. |
+| `01_core/src/engine/stdlib/mod.rs` | `native_bibliography_path_e_style_preservam` | Verifica que a chave do elemento indexa o style resolvido. |
+| `01_core/src/engine/eval/tests.rs` | `p420_bibliography_custom_csl_path_rende_titulo` | Usa helper `p420_layout_module` que replica o pipeline (introspect + inject styles + layout). |
+| `01_core/src/engine/eval/tests.rs` | `p420_bibliography_built_in_ieee_continua_funcional` | Idem. |
 | `01_core/src/entities/elements/bibliography.rs` | `style_key_e_deterministica_e_igual_para_elementos_iguais` | Garante que elementos iguais partilham a mesma chave. |
 
 ---

@@ -17,13 +17,13 @@ a tornaria uma **ambiguidade real** (dois tipos, mesmo texto de depuração).
 - **Ficheiros alterados no momento da medição** (`git diff HEAD --stat`):
 
 ```
- 00_nucleo/prompts/rules/stdlib/foundations.md |  6 ++++--
- 01_core/src/rules/eval/repr.rs                | 16 ++++++++++++++++
- 01_core/src/rules/stdlib/foundations.rs       |  2 +-   (hash)
+ 00_nucleo/prompts/engine/stdlib/foundations.md |  6 ++++--
+ 01_core/src/engine/eval/repr.rs                | 16 ++++++++++++++++
+ 01_core/src/engine/stdlib/foundations.rs       |  2 +-   (hash)
  3 files changed, 21 insertions(+), 3 deletions(-)
 ```
 
-`01_core/src/rules/stdlib/foundations.rs` é propagação de `@prompt-hash` pelo
+`01_core/src/engine/stdlib/foundations.rs` é propagação de `@prompt-hash` pelo
 `crystalline-lint --fix-hashes` (edição de `foundations.md`), sem mudança de
 lógica. Novo ficheiro: este relatório.
 

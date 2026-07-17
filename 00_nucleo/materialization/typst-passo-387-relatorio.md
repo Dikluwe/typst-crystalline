@@ -9,7 +9,7 @@ em `p350c_flag_on_nao_convergente_classifica`, alheio a este passo).
 Materializou-se o cluster **`loading`** (data import) — `read` + 6 parsers
 (`csv`/`json`/`yaml`/`toml`/`cbor`/`xml`) — fechando o único achado líquido da Lista B do
 Passo 386 (módulo ausente em L1, não catalogado, bloqueante de `bibliography`). Novo ficheiro
-`01_core/src/rules/stdlib/loading.rs` (decode L1 puro + funções nativas), registado em
+`01_core/src/engine/stdlib/loading.rs` (decode L1 puro + funções nativas), registado em
 `make_stdlib`. `cargo build --workspace` + `crystalline-lint .` **verdes**; **2760** testes da
 suíte + **13** novos de decode passam.
 
@@ -18,7 +18,7 @@ suíte + **13** novos de decode passam.
 Por ser materialização, seguiu-se o fluxo obrigatório do CLAUDE.md, com **paragem real**:
 
 1. Auditoria L0 → **não existia** L0 para `loading` nem ADR de autorização de crates.
-2. Redigiu-se o **L0** (`prompts/rules/stdlib/loading.md`) + **ADR-0111** e **PAROU-SE**.
+2. Redigiu-se o **L0** (`prompts/engine/stdlib/loading.md`) + **ADR-0111** e **PAROU-SE**.
 3. Dono aprovou e ordenou save+hash; só então se escreveu código (TDD).
 4. Linhagem `@prompt`/`@prompt-hash` (`12e906aa`) propagada via `crystalline-lint --fix-hashes`.
 
@@ -85,10 +85,10 @@ materializam sem ele.
 
 ## Artefactos (commit `08fed76d3`)
 
-- **Código:** `01_core/src/rules/stdlib/loading.rs` (novo); `stdlib/mod.rs` + `eval/mod.rs`
+- **Código:** `01_core/src/engine/stdlib/loading.rs` (novo); `stdlib/mod.rs` + `eval/mod.rs`
   (registo); `01_core/Cargo.toml` + `Cargo.toml` + `Cargo.lock` + `crystalline.toml` (7 crates
   autorizadas em `[l1_allowed_external]`).
-- **L0:** `prompts/rules/stdlib/loading.md`.
+- **L0:** `prompts/engine/stdlib/loading.md`.
 - **ADR-0111** — `IMPLEMENTADO` no fecho (autorização de crates por formato).
 - **DEBT-62** — `Value::Bytes` (EM ABERTO).
 - **Inventário 148** — entrada Loading (A.8).

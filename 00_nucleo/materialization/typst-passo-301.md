@@ -86,17 +86,17 @@ Não-objectivos arquitecturais explícitos em §5.
 
 Inspecção literal:
 
-1. **`grep -rn "math\|eval_math\|MathContext" 01_core/src/rules/eval/`** —
+1. **`grep -rn "math\|eval_math\|MathContext" 01_core/src/engine/eval/`** —
    identificar pontos onde math mode é detectado/processado.
-2. **`grep -rn "MathIdent" 01_core/src/rules/eval/`** — onde
+2. **`grep -rn "MathIdent" 01_core/src/engine/eval/`** — onde
    `MathIdent` é construído (parser ou eval?).
-3. **`grep -rn "scope.*get\|scope.*lookup" 01_core/src/rules/eval/`** —
+3. **`grep -rn "scope.*get\|scope.*lookup" 01_core/src/engine/eval/`** —
    mecanismo lookup existente.
-4. **Inspeccionar `01_core/src/rules/eval/markup.rs`** (ou
+4. **Inspeccionar `01_core/src/engine/eval/markup.rs`** (ou
    caminho equivalente) — `eval_markup` vs `eval_math`.
 5. **Inspeccionar `lab/typst-original/.../math/mod.rs`** — como
    vanilla typst faz auto-lookup math mode.
-6. **Inspeccionar `01_core/src/rules/math/symbols.rs`** —
+6. **Inspeccionar `01_core/src/engine/math/symbols.rs`** —
    `is_limit_function`/`is_large_operator` (P298 §3.4).
 7. **Verificar `make_math_module` P299** — como é registado em
    `eval/mod.rs:768` (`scope.define("math", ...)`).
@@ -418,12 +418,12 @@ arquitecturalmente distinta legítima. Registar em A.5'.
 
 ## §8 — Ponteiros
 
-- Eval math: `01_core/src/rules/eval/markup.rs` ou
-  `01_core/src/rules/eval/math.rs` — verificar A.1.1.
-- Scope `math` P299: `01_core/src/rules/stdlib/structural.rs`
+- Eval math: `01_core/src/engine/eval/markup.rs` ou
+  `01_core/src/engine/eval/math.rs` — verificar A.1.1.
+- Scope `math` P299: `01_core/src/engine/stdlib/structural.rs`
   (`make_math_module`).
-- Registo P299: `01_core/src/rules/eval/mod.rs:768`.
-- Heurística P298: `01_core/src/rules/math/symbols.rs`
+- Registo P299: `01_core/src/engine/eval/mod.rs:768`.
+- Heurística P298: `01_core/src/engine/math/symbols.rs`
   (`is_limit_function`/`is_large_operator`).
 - Vanilla: `lab/typst-original/crates/typst-eval/.../math.rs`
   (math mode eval).

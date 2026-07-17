@@ -53,7 +53,7 @@ necessidade de `rustc_hash` em L1.
 
 | Prompt | Natureza da mudança |
 |--------|---------------------|
-| `00_nucleo/prompts/rules/parse.md` | Sem alteração — detalhe de implementação não visível na interface |
+| `00_nucleo/prompts/engine/parse.md` | Sem alteração — detalhe de implementação não visível na interface |
 
 ---
 

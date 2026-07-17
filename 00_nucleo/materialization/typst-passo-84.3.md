@@ -5,7 +5,7 @@
 Ler antes de começar:
 - `00_nucleo/DEBT.md` — entrada DEBT-21 actualizada no Passo 84.1
   (cabeçalho "MITIGADO (Passo 70), desbloqueado (Passo 84.1)").
-- `01_core/src/rules/eval.rs` — localização de `apply_show_rules`,
+- `01_core/src/engine/eval.rs` — localização de `apply_show_rules`,
   `active_guards`, e o uso de `Func::name()`.
 - `01_core/src/entities/show.rs` — definição de `ShowRule`, `Selector`,
   `NodeKind`, `RuleId`.
@@ -97,13 +97,13 @@ grep -B 2 -A 10 "pub struct RuleId\|pub type RuleId" 01_core/src/entities/show.r
 
 ```bash
 # Todos os call sites de Func::name()
-grep -rn "\.name()" 01_core/src/rules/ 01_core/src/entities/show.rs
+grep -rn "\.name()" 01_core/src/engine/ 01_core/src/entities/show.rs
 
 # Comparações de string em apply_show_rules — alvo directo do DEBT-21
-grep -B 2 -A 5 "name ==\|name() ==" 01_core/src/rules/eval.rs 01_core/src/entities/show.rs
+grep -B 2 -A 5 "name ==\|name() ==" 01_core/src/engine/eval.rs 01_core/src/entities/show.rs
 
 # Como as show rules são construídas e registadas
-grep -B 2 -A 15 "apply_show_rules\|show_rules.push\|ShowRule::new" 01_core/src/rules/eval.rs
+grep -B 2 -A 15 "apply_show_rules\|show_rules.push\|ShowRule::new" 01_core/src/engine/eval.rs
 ```
 
 ### 1.4 — Relação entre `Selector` e `Content`
@@ -197,7 +197,7 @@ representação interna mudar, call sites não precisam de actualização.
 
 ### 2A.2 — Substituir comparações por `fn_addr_eq`
 
-Em `01_core/src/rules/eval.rs`, no ponto onde `apply_show_rules`
+Em `01_core/src/engine/eval.rs`, no ponto onde `apply_show_rules`
 compara a identidade da função da rule com a função do conteúdo:
 
 **Antes** (exemplo — adaptar ao código real):
@@ -278,7 +278,7 @@ conforme o cenário B, portanto os derives são triviais.
 
 ### 2B.2 — Substituir comparações por string por igualdade de enum
 
-Em `01_core/src/rules/eval.rs`, no ponto onde `apply_show_rules`
+Em `01_core/src/engine/eval.rs`, no ponto onde `apply_show_rules`
 classifica o `Content`:
 
 **Antes** (exemplo):
@@ -391,7 +391,7 @@ cargo clippy --all-targets 2>&1 | grep -v "TransformMatrix\|integration test"
 
 # Grep de confirmação — Func::name() só aparece em contextos de
 # apresentação (erro, debug), nunca em apply_show_rules.
-grep -n "\.name()" 01_core/src/rules/eval.rs
+grep -n "\.name()" 01_core/src/engine/eval.rs
 ```
 
 Resultado esperado: o grep de `.name()` em `eval.rs` não deve

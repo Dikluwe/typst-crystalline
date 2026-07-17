@@ -70,7 +70,7 @@ Reproduzido isoladamente:
 ```
 → **mesmo erro**, `esta função não tem campos`, na linha de `cbor.encode`.
 
-**Causa raiz confirmada:** `01_core/src/rules/eval/mod.rs:1047` regista
+**Causa raiz confirmada:** `01_core/src/engine/eval/mod.rs:1047` regista
 `cbor` como `Value::Func(Func::native("cbor", native_cbor))` — um `Func`
 plano, sem campos. `native_cbor` (`loading.rs:372`, via macro
 `native_loader!`) só aceita **caminho** (`arg_path`), nunca bytes em memória.
@@ -143,7 +143,7 @@ regressiva.**
 
 ### Próximo passo sugerido (P701, não iniciado)
 
-1. L0 novo ou revisão de `00_nucleo/prompts/rules/stdlib/loading.md` (ou
+1. L0 novo ou revisão de `00_nucleo/prompts/engine/stdlib/loading.md` (ou
    ficheiro dedicado a `cbor`) especificando: `cbor` como scope-value com
    `.encode`; `native_cbor` aceitando `Bytes` além de caminho.
 2. Decidir explicitamente (medir antes de decidir, ADR-0108): generalizar a

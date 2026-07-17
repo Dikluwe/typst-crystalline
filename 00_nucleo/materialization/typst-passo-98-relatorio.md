@@ -161,7 +161,7 @@ vêem a mutação na sua própria variável local.
 $ grep -rn "ctx\.current_file\|ctx\.figure_numbering\|self\.current_file\|self\.figure_numbering" 01_core/src/
 (zero matches)
 
-$ grep -n "pub.*:" 01_core/src/rules/eval/mod.rs | head
+$ grep -n "pub.*:" 01_core/src/engine/eval/mod.rs | head
 pub struct EvalContext<'w> {
     pub world: &'w dyn World,
     pub loop_iterations: usize,

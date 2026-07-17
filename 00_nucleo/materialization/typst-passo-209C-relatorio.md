@@ -30,7 +30,7 @@ cumpridas; sem `P209C.div-N`. Tests: 1924 verdes (1915 baseline
 | L0 | `00_nucleo/prompts/entities/selector.md` | +2 variants em Interface; +`use ecow::EcoVec;`; +Semântica composição N-ária + Query semantics secção dedicada; +Tests obrigatórios P209C; +Histórico 2026-05-12. Hash: `83989115 → db886542`. |
 | L1 | `01_core/src/entities/selector.rs` | +`use ecow::EcoVec;`; +`And(EcoVec<Selector>)` + `Or(EcoVec<Selector>)` variants; +4 tests P209C (`and_estrutural`, `or_estrutural`, `and_or_vazio_estrutural`, `nested_recursivo`). `@prompt-hash f4d0f17d → 0cba412a`. |
 | L1 | `01_core/src/entities/introspector.rs` | Query match exhaustive: 3 → 5 arms. `And(sels)` intersecção via `fold + filter + contains`; `Or(sels)` união via `HashSet::insert` check preservando ordem. Vazios devolvem `vec![]` (Opção A). |
-| L1 | `01_core/src/rules/stdlib/mod.rs` | +5 tests P209C (and_vazio, or_vazio, and_interseccao, or_uniao_dedup, nested_or_dentro_de_and). |
+| L1 | `01_core/src/engine/stdlib/mod.rs` | +5 tests P209C (and_vazio, or_vazio, and_interseccao, or_uniao_dedup, nested_or_dentro_de_and). |
 
 Stdlib `foundations.rs` **não modificado** — Opção (c) Rust-only
 significa que `native_query`/`native_locate` não recebem

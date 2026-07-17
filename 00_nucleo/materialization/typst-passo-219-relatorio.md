@@ -28,7 +28,7 @@ Sem `P219.div-N`.
 
 ## §2 Inventário pré-P219 arm stub (C1)
 
-`grep -n "Content::Columns" 01_core/src/rules/layout/mod.rs`:
+`grep -n "Content::Columns" 01_core/src/engine/layout/mod.rs`:
 - `mod.rs:1129` — `layout_content` arm (stub transparente
   P217).
 - `mod.rs:1373` — `measure_content_constrained` arm (stub

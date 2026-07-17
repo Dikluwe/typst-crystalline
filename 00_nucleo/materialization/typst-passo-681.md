@@ -53,7 +53,7 @@ Ler o campo `entrypoint` do manifesto, para saber qual ficheiro dentro do direct
 
 ### 3. Ligação a `eval_module_import`
 
-Em `eval_module_import` (`01_core/src/rules/eval/modules.rs`), o braço que hoje devolve "import de pacotes ainda não é suportado" passa a:
+Em `eval_module_import` (`01_core/src/engine/eval/modules.rs`), o braço que hoje devolve "import de pacotes ainda não é suportado" passa a:
 1. Fazer parse do `PackageSpec`.
 2. Resolver para o caminho local (passo 1).
 3. Ler o manifesto e obter o `entrypoint` (passo 2).

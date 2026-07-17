@@ -2,7 +2,7 @@
 
 Primeira migração real de consumer para `Introspector`.
 Subset apenas: a arm de `Content::Ref` para figuras em
-`01_core/src/rules/layout/references.rs::layout_ref`. Único
+`01_core/src/engine/layout/references.rs::layout_ref`. Único
 caso Parcial viável identificado em P167 (relatório
 inventário-consumers-counter-state-legacy.md).
 
@@ -31,7 +31,7 @@ disponível; figure-ref escolhido como primeiro a migrar.
 Reverificar (não confiar em P167):
 
 1. **Localizar consumer**:
-   - `01_core/src/rules/layout/references.rs` — função
+   - `01_core/src/engine/layout/references.rs` — função
      `layout_ref`. Identificar:
      - Linhas que lêem `state.figure_label_numbers` ou
        campo equivalente em `CounterStateLegacy`.
@@ -98,7 +98,7 @@ Reverificar (não confiar em P167):
      única opção**.
 
 5. **Construção do `Layouter` com `introspector`**:
-   - `Layouter::new` em `01_core/src/rules/layout/mod.rs:144`
+   - `Layouter::new` em `01_core/src/engine/layout/mod.rs:144`
      (ou linha actual). Identificar assinatura.
    - `pub fn layout()` em `mod.rs:1325` (ou linha actual).
      Identificar onde `introspect()` ou
@@ -143,12 +143,12 @@ e ir para `.C`.
      `is_counted: true` e `is_counted: false`, verificar
      igualdade.
 
-3. Update L0 `00_nucleo/prompts/rules/introspect/extract_payload.md`:
+3. Update L0 `00_nucleo/prompts/engine/introspect/extract_payload.md`:
    - Documentar que arm `Content::Figure` agora calcula
      `is_counted = figure.numbering.is_some() && figure.caption.is_some()`
      (ou predicado real confirmado em `.A`).
 
-4. Update L1 `01_core/src/rules/introspect/extract_payload.rs`:
+4. Update L1 `01_core/src/engine/introspect/extract_payload.rs`:
    - Modificar arm `Content::Figure` para calcular e
      popular `is_counted`.
    - Tests co-localizados: figure com numbering+caption →
@@ -162,7 +162,7 @@ e ir para `.C`.
 
 ### .C Modificar `from_tags` para indexar figuras numeradas
 
-1. Em `01_core/src/rules/introspect/from_tags.rs`:
+1. Em `01_core/src/engine/introspect/from_tags.rs`:
    - Caminho A: adicionar lógica de filtro (predicado real
      decidido em `.A`).
    - Caminho C: consultar campo `is_counted` para decidir
@@ -171,7 +171,7 @@ e ir para `.C`.
      `figure_label_numbers: HashMap<Label, usize>` (ou
      método derivado dos sub-stores existentes).
 
-2. Update L0 `00_nucleo/prompts/rules/introspect/from_tags.md`:
+2. Update L0 `00_nucleo/prompts/engine/introspect/from_tags.md`:
    - Documentar lógica nova de indexação de figuras
      numeradas.
 
@@ -199,7 +199,7 @@ e ir para `.C`.
 1. Identificar mecanismo de passagem `introspector` ao
    `Layouter` decidido em `.A`. Implementar.
 
-2. Em `01_core/src/rules/layout/references.rs`:
+2. Em `01_core/src/engine/layout/references.rs`:
    - Substituir leitura de `state.figure_label_numbers.get(&label)`
      por `self.introspector.figure_number_for_label(&label)`.
    - Manter `CounterStateLegacy` como input (não remover

@@ -102,7 +102,7 @@ fields.
 5. Identificar Layouter assignments duais (per
    padrão P190B/P190C):
    - `grep -rn "is_readonly\s*=\|lang\s*="
-     01_core/src/rules/layout/mod.rs`.
+     01_core/src/engine/layout/mod.rs`.
 
 #### Inventário consumers `has_outline`
 

@@ -28,9 +28,9 @@ O cristalino tinha sintaxe para `#break`, `#continue` e `#return`, mas nunca imp
 
 ### Estado do cristalino antes da implementação
 
-- `01_core/src/rules/eval/control_flow.rs:41-142`: `eval_while` e `eval_for` avaliam o corpo sem verificar sinalização de paragem.
-- `01_core/src/rules/eval/closures.rs:106-179`: `apply_closure` avalia o corpo da closure sem verificar `Return`.
-- `01_core/src/rules/eval/mod.rs:826-841` (P634): `LoopBreak`/`LoopContinue`/`FuncReturn` produzem erros byte-idênticos, mas uso legítimo dentro de ciclos/funções também falha.
+- `01_core/src/engine/eval/control_flow.rs:41-142`: `eval_while` e `eval_for` avaliam o corpo sem verificar sinalização de paragem.
+- `01_core/src/engine/eval/closures.rs:106-179`: `apply_closure` avalia o corpo da closure sem verificar `Return`.
+- `01_core/src/engine/eval/mod.rs:826-841` (P634): `LoopBreak`/`LoopContinue`/`FuncReturn` produzem erros byte-idênticos, mas uso legítimo dentro de ciclos/funções também falha.
 
 ### Testes directos antes da implementação
 
@@ -54,20 +54,20 @@ Nenhum documento em `lab/parity/corpus/` usa as keywords `#break`/`#continue`/`#
 
 ### Ficheiros alterados
 
-1. **`01_core/src/rules/eval/flow.rs`** (novo): tipo `FlowEvent` + `forbidden()`.
-2. **`01_core/src/rules/eval/mod.rs`**:
+1. **`01_core/src/engine/eval/flow.rs`** (novo): tipo `FlowEvent` + `forbidden()`.
+2. **`01_core/src/engine/eval/mod.rs`**:
    - declara `mod flow; pub use flow::FlowEvent;`
    - adiciona `pub flow: Option<FlowEvent>` a `EvalContext`
    - `LoopBreak`/`LoopContinue`/`FuncReturn` definem `ctx.flow` em vez de erro
    - `CodeBlock` interrompe iteração se `ctx.flow` ficar `Some`
    - `eval_with_full_error` converte evento residual em erro
-3. **`01_core/src/rules/eval/control_flow.rs`**:
+3. **`01_core/src/engine/eval/control_flow.rs`**:
    - `eval_while` e `eval_for` consomem `Break`/`Continue`/`Return`
    - `eval_conditional` marca `Return` como `conditional`
-4. **`01_core/src/rules/eval/closures.rs`**:
+4. **`01_core/src/engine/eval/closures.rs`**:
    - `apply_closure` consome `Return` e devolve o valor; `Break`/`Continue` dentro de função produzem `forbidden()`
-5. **`01_core/src/rules/eval/tests.rs`**: 9 novos testes P635.
-6. **`00_nucleo/prompts/rules/eval.md`**: secção §P635 adicionada; hash atualizado para `ea93fd36`.
+5. **`01_core/src/engine/eval/tests.rs`**: 9 novos testes P635.
+6. **`00_nucleo/prompts/engine/eval.md`**: secção §P635 adicionada; hash atualizado para `ea93fd36`.
 
 ### Decisão técnica: limpeza de `Return` em `apply_closure`
 

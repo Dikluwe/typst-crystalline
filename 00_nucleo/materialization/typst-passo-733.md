@@ -46,7 +46,7 @@ echo "Exit code: $?"
 ### Localizar o código exacto
 
 ```bash
-grep -n "args.named\|fn apply_closure" 01_core/src/rules/eval/closures.rs
+grep -n "args.named\|fn apply_closure" 01_core/src/engine/eval/closures.rs
 ```
 
 Confirmar onde `args.named` é consultado durante o binding, e onde falta a verificação de "sobrou algum nome não consumido".

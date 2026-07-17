@@ -12,7 +12,7 @@
 
 **P443 (S → FECHADO):** o benchmark comparativo confirmou que a remoção de `get_unchecked` do `Scanner` introduz regressões de performance entre **+8% e +58%** consoante o input. Aplicando o critério da **ADR-0032**, a decisão é **manter o `unsafe` como excepção permanente**.
 
-- Foi escrita a **ADR-0116** (`EM VIGOR`) a autorizar as 5 ocorrências de `unsafe { self.string.get_unchecked(...) }` em `01_core/src/rules/lexer/scanner.rs`, com o número concreto de regressão.
+- Foi escrita a **ADR-0116** (`EM VIGOR`) a autorizar as 5 ocorrências de `unsafe { self.string.get_unchecked(...) }` em `01_core/src/engine/lexer/scanner.rs`, com o número concreto de regressão.
 - **DEBT-42 foi fechado** em `00_nucleo/diagnosticos/debt/DEBT.md` como excepção permanente.
 - A branch `p442-get-unchecked-removal` **não foi mergeada** para `Tekt`; permanece como candidate documentado.
 - `cargo test --workspace` verde em `Tekt`; `crystalline-lint .` sem novas violações.
@@ -92,7 +92,7 @@ Resultado: **zero novas violações**. Apenas os 2 warnings órfãos de prompts 
 ### 4.3 Estado do `unsafe` em `scanner.rs`
 
 ```bash
-grep -n "get_unchecked" 01_core/src/rules/lexer/scanner.rs
+grep -n "get_unchecked" 01_core/src/engine/lexer/scanner.rs
 ```
 
 Resultado: **5 ocorrências** mantidas, agora cobertas por ADR-0116.

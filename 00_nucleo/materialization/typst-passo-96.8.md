@@ -6,9 +6,9 @@ Ler antes de começar:
 - `00_nucleo/adr/typst-adr-0037-coesao-por-dominio.md` — ADR
   `EM VIGOR` com 7 regras + 4 ajustes + nota de visibilidade.
 - `00_nucleo/DEBT.md` — DEBT-46 checkbox 96.8 pendente.
-- `01_core/src/rules/math/layout.rs` — ficheiro actual, 1806
+- `01_core/src/engine/math/layout.rs` — ficheiro actual, 1806
   linhas.
-- `01_core/src/rules/math/` — directório com possíveis ficheiros
+- `01_core/src/engine/math/` — directório com possíveis ficheiros
   irmãos (verificar em Fase 0).
 - Reporte do Passo 96.7 — referência de padrão aplicado em
   `layout/mod.rs`, com a nota de visibilidade em vigor.
@@ -43,9 +43,9 @@ Diferenças potenciais:
 Hipóteses, a confirmar em Fase 0:
 
 ```
-01_core/src/rules/math/layout.rs (antes: 1806 linhas)
+01_core/src/engine/math/layout.rs (antes: 1806 linhas)
     ↓ transforma-se em:
-01_core/src/rules/math/layout/
+01_core/src/engine/math/layout/
     mod.rs          — struct central + entry point (layout_math)
     frac.rs         — fracções (numerador/denominador)
     attach.rs       — sub/super scripts, limits
@@ -70,21 +70,21 @@ estrutura real e ajustar o plano.
 
 ```bash
 # Tamanho:
-wc -l 01_core/src/rules/math/layout.rs
+wc -l 01_core/src/engine/math/layout.rs
 
 # Ficheiros irmãos:
-find 01_core/src/rules/math/ -name "*.rs"
-ls -la 01_core/src/rules/math/
+find 01_core/src/engine/math/ -name "*.rs"
+ls -la 01_core/src/engine/math/
 
 # Estrutura top-level:
 grep -n "^pub fn\|^fn\|^pub struct\|^struct\|^impl\|^pub enum\|^enum" \
-    01_core/src/rules/math/layout.rs | head -50
+    01_core/src/engine/math/layout.rs | head -50
 
 # Dependências de outros módulos:
-grep -n "^use " 01_core/src/rules/math/layout.rs | head -20
+grep -n "^use " 01_core/src/engine/math/layout.rs | head -20
 
 # Testes:
-grep -c "^\s*#\[test\]" 01_core/src/rules/math/layout.rs
+grep -c "^\s*#\[test\]" 01_core/src/engine/math/layout.rs
 ```
 
 Reportar:
@@ -94,7 +94,7 @@ Reportar:
   `Layouter<M>`?).
 - Número de métodos/funções top-level.
 - Número de testes e sua organização.
-- Se importa `super::layout::*` ou `crate::rules::layout::*`.
+- Se importa `super::layout::*` ou `crate::engine::layout::*`.
 
 ### 0.2 — Mapear funções por fase matemática
 
@@ -159,9 +159,9 @@ nível que os torna atómicos. Se não houver, documentar
 ### 2.1 — Tamanhos
 
 ```bash
-wc -l 01_core/src/rules/math/*.rs 2>/dev/null | sort -rn
+wc -l 01_core/src/engine/math/*.rs 2>/dev/null | sort -rn
 # Se math/layout/ for criado:
-wc -l 01_core/src/rules/math/layout/*.rs 2>/dev/null | sort -rn
+wc -l 01_core/src/engine/math/layout/*.rs 2>/dev/null | sort -rn
 ```
 
 Alvo: nenhum submódulo acima de 800 linhas sem excepção Regra 6.
@@ -189,9 +189,9 @@ Todos devem passar sem alteração.
 ### 2.4 — Visibilidade
 
 ```bash
-grep -rn "pub(super)" 01_core/src/rules/math/ | wc -l
-grep -rn "pub(super)\s*fn" 01_core/src/rules/math/ | wc -l    # métodos
-grep -rn "pub(super)\s*\w*:\s" 01_core/src/rules/math/ | wc -l # campos
+grep -rn "pub(super)" 01_core/src/engine/math/ | wc -l
+grep -rn "pub(super)\s*fn" 01_core/src/engine/math/ | wc -l    # métodos
+grep -rn "pub(super)\s*\w*:\s" 01_core/src/engine/math/ | wc -l # campos
 ```
 
 Reportar a proporção métodos/campos. Alvo: métodos > campos,

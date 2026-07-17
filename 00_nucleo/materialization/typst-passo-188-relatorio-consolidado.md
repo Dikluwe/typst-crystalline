@@ -54,13 +54,13 @@ DEBT M4-residual **vazio em prática**.
 | Passo | Magnitude planeada | Magnitude real | Δ tests | L0s tocados |
 |-------|---------------------|-----------------|---------|-------------|
 | **P188A** | S (diagnóstico) | S | 0 | nenhum |
-| **P188B** | S (agregado) | S | **+3** | `rules/layout.md` |
+| **P188B** | S (agregado) | S | **+3** | `engine/layout.md` |
 | **Total** | — | — | **+3** | 1 L0 produção |
 
 P188B agregou em sub-passo único:
 - `.B` migração consumer C2 em `equation.rs:97` + comentário
   inline obrigatório.
-- `.C` actualização L0 `rules/layout.md` (nova secção C2 +
+- `.C` actualização L0 `engine/layout.md` (nova secção C2 +
   estado dormente honestamente documentado).
 - `.D` 3 tests E2E em `mod p188b_c2_equation_counter`.
 - `.E` verificação estrutural (13/13).
@@ -124,7 +124,7 @@ produção. Comparação:
 
 Honestidade sobre estado dormente exigiu documentação em:
 1. ✅ Comentário inline em `equation.rs:97-104` (P188B `.B`).
-2. ✅ Secção em L0 `rules/layout.md` "C2 equation counter
+2. ✅ Secção em L0 `engine/layout.md` "C2 equation counter
    migrado (P188B)" com sub-secção "Estado dormente em
    produção" (P188B `.C`).
 3. ✅ Test `c2_equation_counter_via_fallback_legacy_caso_producao`

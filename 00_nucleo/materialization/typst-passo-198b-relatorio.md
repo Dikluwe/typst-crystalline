@@ -73,7 +73,7 @@ Mutação é 1 linha; extracção não acrescenta valor estilístico.
 
 ## §5 L0 actualizado
 
-`00_nucleo/prompts/rules/introspect.md` (hash novo `96597cb6`):
+`00_nucleo/prompts/engine/introspect.md` (hash novo `96597cb6`):
 
 - Tabela "Excepções M5": linha **E5** → "**Fechou
   estruturalmente em P198B (cenário α — caminho Introspector
@@ -182,8 +182,8 @@ Magnitude **M** (5 ficheiros tocados; nova ElementPayload variant).
 - **Sub-store consumido**: `intr.state` (StateRegistry P171/P182).
 - **Consumer C5**: `is_numbering_active` (trait P185B/P171) — caminho activo.
 - **Cadeia E5**: `compute_heading_auto_toc` (P196B) + walk arm Equation (linha 517) lêem `state.numbering_active` legacy — write paralelo preservado.
-- **L0 tocado**: `00_nucleo/prompts/rules/introspect.md` hash `96597cb6`.
-- **Código tocado**: `01_core/src/rules/introspect.rs` hash `ba7c22f6`.
+- **L0 tocado**: `00_nucleo/prompts/engine/introspect.md` hash `96597cb6`.
+- **Código tocado**: `01_core/src/engine/introspect.rs` hash `ba7c22f6`.
 - **Padrão diagnóstico-primeiro**: 20ª aplicação consecutiva (P198A diagnóstico).
 - **2 aplicações cenário α consolidadas**: P197B (Figure) + P198B (SetHeadingNumbering).
 - **4 aplicações ADR-0069 stylesheet**: P195D + P196B + P197B + P198B.

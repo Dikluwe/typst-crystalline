@@ -14,8 +14,8 @@
 ## Parte A — Levantar todas as classificações do vanilla
 
 ```bash
-grep -n "^const.*_RULE\|ShowFn<" lab/typst-original/crates/typst-layout/src/rules.rs
-wc -l lab/typst-original/crates/typst-layout/src/rules.rs
+grep -n "^const.*_RULE\|ShowFn<" lab/typst-original/crates/typst-layout/src/engine.rs
+wc -l lab/typst-original/crates/typst-layout/src/engine.rs
 ```
 
 Para cada `_RULE` encontrada, extrair:
@@ -38,7 +38,7 @@ Produzir uma tabela completa (todos os `_RULE` de `rules.rs`, não uma amostra):
 Para cada elemento da tabela da Parte A que já tenha equivalente implementado no cristalino:
 
 ```bash
-grep -rln "native_<elemento>\|<Elemento>Elem" 01_core/src/rules/stdlib/*.rs 01_core/src/entities/*.rs 2>/dev/null
+grep -rln "native_<elemento>\|<Elemento>Elem" 01_core/src/engine/stdlib/*.rs 01_core/src/entities/*.rs 2>/dev/null
 ```
 
 Confirmar, por leitura de código (não pela existência do nome), como esse elemento é tratado hoje: passa por `block::layout`? Fica no fluxo contínuo como `Content::Shape` estava antes de P767c? Tem alguma marcação de comportamento equivalente a `Behaviour`?

@@ -128,7 +128,7 @@ grep):
 - Tests existentes (~10+ sítios constructor `kind: "image"
   .to_string()`).
 
-### rules/layout/mod.rs (1 sítio)
+### engine/layout/mod.rs (1 sítio)
 - L399-414 — figure layout arm (`kind.clone()` para
   figure_progress + `kind.as_str()` para figure_numbers).
 
@@ -210,7 +210,7 @@ comportamento (label, counter) que continua a passar.
 | `rules/introspect.rs:69` | materialize_time | `kind.clone()` → idem |
 | `rules/introspect.rs:291` | walk counter | `kind.clone()` → `kind.as_deref().unwrap_or("image").to_string()` |
 | `rules/introspect.rs:323-339` | Labelled Figure arm | `kind.as_str()` → `kind.as_deref().unwrap_or("image")` |
-| `rules/layout/mod.rs:399-414` | figure progress | idem |
+| `engine/layout/mod.rs:399-414` | figure progress | idem |
 | `rules/stdlib/figure_image.rs:77-91` | constructor | retornar `Option<String>` directo |
 | Tests existentes Figure | asserts | `Some("image".to_string())` ou `as_deref()` |
 

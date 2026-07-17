@@ -46,7 +46,7 @@ O contrato é **comportamental**, não estrutural: o PDF gerado para `#bibliogra
 1. `entities/elements/bibliography.rs` — remover `resolved_style` de `BibliographyElem`; struct volta a ser puro
 2. `entities/counter_state.rs` — adicionar `bib_styles: HashMap<Label, Arc<IndependentStyle>>` em `BibStore` (ou `CounterState` se BibStore não for struct separado)
 3. `rules/introspect.rs` — preencher `bib_styles` no walk de `Bibliography` em vez de `resolved_style`
-4. `rules/layout/mod.rs` — consumir `bib_styles` via `state` (ou `intr`) no arm `Bibliography` em vez de ler do elemento
+4. `engine/layout/mod.rs` — consumir `bib_styles` via `state` (ou `intr`) no arm `Bibliography` em vez de ler do elemento
 
 ### Opção β — Fixar invariante em teste
 

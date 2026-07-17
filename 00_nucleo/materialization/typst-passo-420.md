@@ -17,25 +17,25 @@ Execute os 8 grep abaixo **antes de qualquer redação ou código**.
 grep -n "style" 01_core/src/entities/elements/bibliography.rs | head -10
 
 # 2. P418 já resolve style built-in ("ieee", "apa")?
-grep -rn "ieee\|apa\|chicago" 01_core/src/rules/layout/bib_csl.rs | head -10
+grep -rn "ieee\|apa\|chicago" 01_core/src/engine/layout/bib_csl.rs | head -10
 
 # 3. hayagriva aceita CSL XML de string/bytes?
 grep -rn "Style\|from_xml\|from_csl" ~/.cargo/registry/src/*/hayagriva-*/src/ 2>/dev/null | head -20
 
 # 4. P419 já carrega arquivo do disco (World::read_bytes)?
-grep -rn "read_bytes\|read_to_string" 01_core/src/entities/world.rs 01_core/src/rules/eval/bibliography.rs | head -10
+grep -rn "read_bytes\|read_to_string" 01_core/src/entities/world.rs 01_core/src/engine/eval/bibliography.rs | head -10
 
 # 5. CSL style file loading existe no código atual?
 grep -rn "\.csl\|csl_file\|style_path" 01_core/src/ | head -20
 
 # 6. O eval de style já distingue built-in vs custom?
-grep -rn "style" 01_core/src/rules/eval/bibliography.rs | head -20
+grep -rn "style" 01_core/src/engine/eval/bibliography.rs | head -20
 
 # 7. [NICE-TO-HAVE] Existe tratamento de erro para XML parse malformado?
 grep -rn "xml\|Xml\|malformed\|parse.*error" 01_core/src/ | head -10
 
 # 8. [NICE-TO-HAVE] Existe test com arquivo temporário .csl?
-grep -rn "\.csl" 01_core/src/rules/ 01_core/src/entities/ | head -10
+grep -rn "\.csl" 01_core/src/engine/ 01_core/src/entities/ | head -10
 ```
 
 **Output esperado**:
@@ -60,7 +60,7 @@ grep -rn "\.csl" 01_core/src/rules/ 01_core/src/entities/ | head -10
 
 ## FASE A.1 — L0 (hash obrigatório)
 
-**Documentar no L0** (`00_nucleo/prompts/entities/elements/bibliography.md` + `rules/layout/bib_csl.md`):
+**Documentar no L0** (`00_nucleo/prompts/entities/elements/bibliography.md` + `engine/layout/bib_csl.md`):
 
 ### A.1.1 — Decisão arquitetural: paridade linguagem (ADR-0107)
 
@@ -92,7 +92,7 @@ A lógica de resolução de style vive na **camada de eval**, não no struct:
 - `entities/elements/bibliography.rs` — `BibliographyElem` inalterado (já tem `style: Option<EcoString>`).
 - `rules/eval/bibliography.rs` — free function `resolve_style(ctx, style_str) -> Result<Style, EvalError>` (forma B).
 - `rules/eval/bibliography.rs` — free function `load_csl_from_path(ctx, path) -> Result<Style, EvalError>` (forma B).
-- `rules/layout/bib_csl.rs` — consumer inalterado (recebe `Style` já resolvido, como no P418).
+- `engine/layout/bib_csl.rs` — consumer inalterado (recebe `Style` já resolvido, como no P418).
 
 **Não usar Opção A** (método `impl BibliographyElem { fn resolve_style(...) }` em `entities/`) — cria import de I/O e hayagriva no arquivo de dados (ADR-0109, rejeitado).
 
@@ -318,7 +318,7 @@ fn native_bibliography(args: Args) -> Result<Value, EvalError> {
 }
 ```
 
-### B.4 — Layout (`rules/layout/bib_csl.rs` — inalterado em relação a P418)
+### B.4 — Layout (`engine/layout/bib_csl.rs` — inalterado em relação a P418)
 
 O layout continua consumindo `bib_render_cache` do `Layouter`, que já contém o `Style` (seja built-in ou custom). Nenhuma alteração necessária no consumer — o `Style` é opaco para o layout.
 

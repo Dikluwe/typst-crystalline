@@ -196,9 +196,9 @@ target/release/typst /tmp/p508-one.typ /tmp/p508-one.pdf
 - Export TextShaped: `03_infra/src/export/stream.rs:328`, `:746`
 - Fonte completa sem subsetting: `03_infra/src/export/builder.rs:243`
 - `SystemWorld` sem fontdb: `03_infra/src/world.rs:102-140`
-- `str.split` etc.: `01_core/src/rules/stdlib/structural.rs`
-- `loading.rs`: `01_core/src/rules/stdlib/loading.rs`
-- `panic.rs`: `01_core/src/rules/stdlib/panic.rs`
+- `str.split` etc.: `01_core/src/engine/stdlib/structural.rs`
+- `loading.rs`: `01_core/src/engine/stdlib/loading.rs`
+- `panic.rs`: `01_core/src/engine/stdlib/panic.rs`
 
 ### 7.3 Hash do Commit de Referência
 

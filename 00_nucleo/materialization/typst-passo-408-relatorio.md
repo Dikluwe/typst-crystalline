@@ -78,7 +78,7 @@ Nenhuma mudança — o consumer stub não adiciona novos `FrameItem`s. O export 
 
 ### A.1 — Prompt L0 `smallcaps`
 
-Prompt integrado em `00_nucleo/prompts/rules/stdlib/text.md` (o prompt `text.md` já
+Prompt integrado em `00_nucleo/prompts/engine/stdlib/text.md` (o prompt `text.md` já
 existia e era o natural para funções de texto; evita fragmentação e prompt
 órfão no linter). A secção `smallcaps(body)` — Passo 408 contém:
 
@@ -136,7 +136,7 @@ scope.define("smallcaps", Func::native(native_smallcaps));
 
 ### B.4 — Consumer layout (stub)
 
-Em `rules/layout/mod.rs` (ou onde `layout_content` match em `Content`):
+Em `engine/layout/mod.rs` (ou onde `layout_content` match em `Content`):
 
 ```rust
 Content::SmallCaps { body } => {
@@ -239,7 +239,7 @@ Registar o tempo de ciclo como **baseline de variant rico com consumer stub** �
   `PartialEq`, `get_field("body")`, `map_content` e `map_text`.
 - `native_smallcaps` adicionado em `rules/stdlib/text.rs`; registado em
   `rules/eval/mod.rs` e re-exportado em `rules/stdlib/mod.rs`.
-- Consumer stub transparente em `rules/layout/mod.rs` (`layout_content` e
+- Consumer stub transparente em `engine/layout/mod.rs` (`layout_content` e
   `measure_content_constrained`).
 - Walks de introspecção (`rules/introspect.rs` e
   `rules/introspect/locatable.rs`) atualizados para tratar `SmallCaps` como
@@ -248,14 +248,14 @@ Registar o tempo de ciclo como **baseline de variant rico com consumer stub** �
 ### 10.2 — Prompt / linhagem
 
 - Prompt L0 integrado na secção `smallcaps(body)` de
-  `00_nucleo/prompts/rules/stdlib/text.md`.
+  `00_nucleo/prompts/engine/stdlib/text.md`.
 - Hashes propagados via `crystalline-lint --fix-hashes`:
   `text.rs @prompt-hash e234b3fb`.
 
 ### 10.3 — Testes
 
 - 6 unit tests em `rules/stdlib/mod.rs` (`p408_native_smallcaps_*`).
-- 3 layout/integration tests em `rules/layout/tests.rs`
+- 3 layout/integration tests em `engine/layout/tests.rs`
   (`p408_smallcaps_stub_preserva_texto_do_body`,
   `p408_smallcaps_via_stdlib_preserva_texto`,
   `p408_smallcaps_nao_vaza_estilo`).

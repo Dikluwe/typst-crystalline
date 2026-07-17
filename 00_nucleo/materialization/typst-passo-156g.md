@@ -44,7 +44,7 @@ primeiro reduz risco de comprometer-se com forma errada.
 - **ADR-0033**: paridade funcional para block.
 - **ADR-0036**: atomização — consumer explícito.
 - **ADR-0037**: coesão por domínio — Layout permanece em
-  `rules/layout/` e `rules/stdlib/layout.rs`.
+  `engine/layout/` e `rules/stdlib/layout.rs`.
 - **ADR-0054**: perfil observacional graded — block cumprido
   com aproximação aceite (atributos avançados como
   `breakable`, `fill`, `stroke` podem ficar scope-out se
@@ -145,7 +145,7 @@ Ao fim do passo:
      técnica (renderer support).
 
 5. **`native_block`** em
-   `01_core/src/rules/stdlib/layout.rs` expondo
+   `01_core/src/engine/stdlib/layout.rs` expondo
    `#block(body, width: ?, height: ?, inset: ?, breakable: ?, ...)`.
 
 6. **Cobertura exaustiva de arms** consoante decisão
@@ -204,7 +204,7 @@ Este passo **não**:
 2. **Granularidade**: 1 container rico num passo. Escopo
    M+ vs S/S+ dos passos anteriores.
 
-3. **Localização canónica**: `01_core/src/rules/stdlib/layout.rs`.
+3. **Localização canónica**: `01_core/src/engine/stdlib/layout.rs`.
 
 4. **Assinatura natives**: 5-param canónica.
 
@@ -272,13 +272,13 @@ Este passo **não**:
   (se opção B/D — Style entries novas).
 - Possível criação de `01_core/src/entities/block_attrs.rs`
   (se opção C).
-- Modificação de `01_core/src/rules/introspect.rs`.
-- Modificação de `01_core/src/rules/layout/mod.rs`.
-- Modificação de `01_core/src/rules/stdlib/layout.rs`
+- Modificação de `01_core/src/engine/introspect.rs`.
+- Modificação de `01_core/src/engine/layout/mod.rs`.
+- Modificação de `01_core/src/engine/stdlib/layout.rs`
   (`native_block`).
-- Modificação de `01_core/src/rules/stdlib/mod.rs`
+- Modificação de `01_core/src/engine/stdlib/mod.rs`
   (re-export).
-- Modificação de `01_core/src/rules/eval/mod.rs`
+- Modificação de `01_core/src/engine/eval/mod.rs`
   (registo).
 - Tests novos.
 - L0 prompts + hashes.
@@ -311,7 +311,7 @@ Este passo **não**:
 ```bash
 view 01_core/src/entities/content.rs   # confirmar 48 variants pós-P156F
 grep -nE "Block|block" 01_core/src/entities/content.rs
-grep -nE "fn native_block" 01_core/src/rules/stdlib/
+grep -nE "fn native_block" 01_core/src/engine/stdlib/
 view 01_core/src/entities/style.rs   # listar Style variants
 grep -nE "^pub enum Style\b" 01_core/src/entities/style.rs
 ```
@@ -351,7 +351,7 @@ Confirmar:
 **A.1.4 — Renderer support para atributos avançados**:
 
 ```bash
-grep -nE "fill|stroke|radius" 01_core/src/rules/layout/
+grep -nE "fill|stroke|radius" 01_core/src/engine/layout/
 grep -nE "fn render|emit" 03_infra/src/export.rs 2>/dev/null
 ```
 
@@ -363,8 +363,8 @@ Confirmar:
 **A.1.5 — Layouter actual: como blocks-like se comportam**:
 
 ```bash
-view 01_core/src/rules/layout/mod.rs   # arms para Strong/Emph/Heading
-grep -nE "force_line_break|new_line|cursor_y" 01_core/src/rules/layout/
+view 01_core/src/engine/layout/mod.rs   # arms para Strong/Emph/Heading
+grep -nE "force_line_break|new_line|cursor_y" 01_core/src/engine/layout/
 ```
 
 Confirmar:
