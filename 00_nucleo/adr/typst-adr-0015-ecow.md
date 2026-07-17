@@ -1,6 +1,6 @@
 # ⚖️ ADR-0015: `ecow` removido do parser — `String`/`SyntaxText` interno
 
-**Status**: `PROPOSTO`
+**Status**: `IMPLEMENTADO`
 **Data**: 2026-03-23
 
 ---

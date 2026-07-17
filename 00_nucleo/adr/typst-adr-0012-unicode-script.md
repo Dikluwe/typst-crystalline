@@ -1,6 +1,6 @@
 # ⚖️ ADR-0012: `unicode_script` → `[l1_allowed_external]`
 
-**Status**: `PROPOSTO`
+**Status**: `IMPLEMENTADO`
 **Data**: 2026-03-23
 
 ---

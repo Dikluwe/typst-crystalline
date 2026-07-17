@@ -1,6 +1,6 @@
 # ⚖️ ADR-0014: `unscanny` → `01_core/rules/lexer/scanner.rs` (inline)
 
-**Status**: `PROPOSTO`
+**Status**: `IMPLEMENTADO`
 **Data**: 2026-03-23
 
 ---

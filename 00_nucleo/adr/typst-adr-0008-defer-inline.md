@@ -1,6 +1,6 @@
 # ⚖️ ADR-0008: Inlining de `typst_utils::defer!` em L1
 
-**Status**: `PROPOSTO`
+**Status**: `IMPLEMENTADO`
 **Data**: 2026-03-23
 
 ---

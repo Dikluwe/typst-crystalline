@@ -137,22 +137,22 @@ que corresponde a mudança específica no código.
 | 0002 | Hierarquia de contenção | `REVOGADO` |
 | 0003 | comemo + contenção | `REVOGADO` |
 | 0004 | Passo 1 descobertas | `IMPLEMENTADO` |
-| 0005 | PackageSpec World | `PROPOSTO` |
-| 0006 | typst_timing | `PROPOSTO` |
+| 0005 | PackageSpec World | `IMPLEMENTADO` |
+| 0006 | typst_timing | `IMPLEMENTADO` |
 | 0007 | rustc_hash substituído | `REVOGADO` (por ADR-0018) |
-| 0008 | (inlining) | `PROPOSTO` |
-| 0009 | (inlining) | `PROPOSTO` |
-| 0010 | (inlining) | `PROPOSTO` |
-| 0011 | (inlining) | `PROPOSTO` |
-| 0012 | (inlining) | `PROPOSTO` |
-| 0013 | (inlining) | `PROPOSTO` |
-| 0014 | unscanny inlinado | `PROPOSTO` |
-| 0015 | ecow removido do parser | `PROPOSTO` |
+| 0008 | (inlining) | `IMPLEMENTADO` |
+| 0009 | (inlining) | `IMPLEMENTADO` |
+| 0010 | (inlining) | `IMPLEMENTADO` |
+| 0011 | (inlining) | `IMPLEMENTADO` |
+| 0012 | (inlining) | `IMPLEMENTADO` |
+| 0013 | (inlining) | `IMPLEMENTADO` |
+| 0014 | unscanny inlinado | `IMPLEMENTADO` |
+| 0015 | ecow removido do parser | `IMPLEMENTADO` |
 | 0016 | LazyHash removido | `IMPLEMENTADO` |
 | 0017 | Adiamento de eval | `IMPLEMENTADO` |
 | 0018 | rustc_hash reintroduzido | `EM VIGOR` (revoga ADR-0007) |
 | 0019 | TTF + RustyBuzz | `IMPLEMENTADO` |
-| 0020 | FontDB | `ADIADO` |
+| 0020 | FontDB | `IMPLEMENTADO` |
 | 0021 | Datetime | `IMPLEMENTADO` |
 | 0022 | FontBook | `IMPLEMENTADO` |
 | 0023 | indexmap | `IMPLEMENTADO` |
@@ -197,8 +197,8 @@ que corresponde a mudança específica no código.
 | 0062 | Autorização crate `hayagriva` para bibliography + cite (CSL parsing) | `IMPLEMENTADO` (Passo 418 — integração real em `rules/layout/bib_csl.rs`; reconciliado no Passo 439) |
 | 0064 | Tradução `Smart<T>` vanilla → `Option<T>`/default | `EM VIGOR` (P156K; formaliza padrão N=6 da série P156C-J) |
 | 0065 | Inventariar primeiro — sub-passo `.1` para decisão arquitectural não-trivial | `EM VIGOR` (P156K; estende ADR-0034; padrão N=5 da série P156C-J) |
-| 0066 | Introspection runtime — promoção da reserva conceptual (referida historicamente como "ADR-0017 Introspection runtime adiada") a ficheiro PROPOSTO | `PROPOSTO` (passo `P160A`; resolve confusão de numeração — reserva conceptual usava 0017 mas slot 0017 já IMPLEMENTADO para outro tópico; promoção a IMPLEMENTADO em passo futuro materialização Introspection runtime real — P160B subset minimal) |
-| 0082 | Promoções reais de scope-outs ADR-0054 graded — 4 critérios operacionais | `PROPOSTO` (passo `P249` administrativo XS; formaliza pattern empírico N=8 cumulativo granular pós-P248 — P242 radius+clip + P247 outset+fill+stroke + P248 breakable+height+cell_overflow; promoção a EM VIGOR pendente N=3 aplicações consecutivas citantes; **nota numeração**: `P249.div-2` registado — ADR-0067 já ocupada por `attribute-grammar-scoping`; ADR-0082 escolhido como próximo slot disponível após ADR-0081) |
+| 0066 | Introspection runtime — promoção da reserva conceptual (referida historicamente como "ADR-0017 Introspection runtime adiada") a ficheiro PROPOSTO | `SUPERSEDED-BY 0073` (P204H 2026-05-07) |
+| 0082 | Promoções reais de scope-outs ADR-0054 graded — 4 critérios operacionais | `EM VIGOR` (passo `P249` administrativo XS; formaliza pattern empírico N=8 cumulativo granular pós-P248 — P242 radius+clip + P247 outset+fill+stroke + P248 breakable+height+cell_overflow; promovida a EM VIGOR no Passo P254; **nota numeração**: `P249.div-2` registado — ADR-0067 já ocupada por `attribute-grammar-scoping`; ADR-0082 escolhido como próximo slot disponível após ADR-0081) |
 | 0084 | Auditoria condicional — audit empírico antes de decisão B1/B2/B3 | `EM VIGOR` (P260; formaliza padrão N=5 dos audits P192A/P255/P257/P258/P259; documenta critério "cobertura ambígua" + fluxo B1/B2/B3) |
 | 0085 | Diagnóstico imutável — artefacto produzido por audit | `EM VIGOR` (P260; estende ADR-0034; formaliza padrão N=4 dos diagnósticos imutáveis P255/P257/P258/P259) |
 | 0086 | Paint wrapper enum com subset materializado (Solid only) | `IMPLEMENTADO` (passo `P261`; precedente ADR-0083 N=2 do mesmo pattern; Paint::Solid(Color) materializado + From<Color> + Stroke.paint Color→Paint cross-cutting ~30 sítios; Gradient/Tiling comentários reserva activáveis em P262+; ADR-0039 TextStyle.fill preservado literal) |
@@ -294,8 +294,7 @@ documentado no projecto cristalino).
 
 ### Distribuição de status
 
-- `PROPOSTO`: **10** ADRs (decisões em aberto: 0005, 0006,
-  0008–0015, **0066**, ~~0079 P253~~, ~~0082 P254~~)
+- `PROPOSTO`: **3** ADRs (decisões em aberto: 0067, 0110, 0118; propostas 0005, 0006, 0008–0015 materializadas)
   + **+1 ADR-0083 PROPOSTO P257.B → IMPLEMENTADO P257.D**
   (Color paridade vanilla com subset materializado;
   PROPOSTO+IMPLEMENTADO no mesmo passo via Cenário B1 pattern)
@@ -314,28 +313,26 @@ documentado no projecto cristalino).
   +1 ADR-0083 IMPLEMENTADO** (Color paridade vanilla 8 espaços
   materializados + 4 scope-outs documentados per ADR-0029
   §"Simplificações aceites apenas com ADR explícita").
-  **PROPOSTO 10 preservado** (ADR-0083 entra e sai no mesmo
-  passo via promoção P257.D).
 - `IDEIA`: 0 ADRs.
-- `EM VIGOR`: **34** ADRs pós-P272 (regras/políticas activas;
+- `EM VIGOR`: **35** ADRs pós-P272 (regras/políticas activas;
   0018, 0029, 0030, 0032–0051, 0054, 0058, 0059, **0064, 0065**,
   **0080** P229, **0082** P254, **+0084 P260** auditoria
   condicional, **+0085 P260** diagnóstico imutável,
   ~~**0090 P268.1**~~ **REVOGADO P272**,
   **+0093 P271** meta-metodologia evolução ADRs,
   **+0094 P271** meta-operacional specs).
-- `IMPLEMENTADO`: **32** ADRs pós-P270.3 (decisões materializadas;
-  0001, 0004, 0016, 0017, 0019, 0021–0027, 0026-R1, 0031,
-  0052, 0053, 0055, 0057, **0060**, **0061** P221, **0062** P418,
-  **0078** P221, **0079** P253, **0083** P257, **0086** P261 Paint
-  wrapper Solid only, **0087** P262 Gradient Linear-only,
-  **0088** P264 Gradient Radial-only, **0089** P267 Gradient
-  Conic-only, **0091 P270** Gradient ColorSpace runtime
-  cross-variant + CMYK strategy, **+0092 P270.3** Conic Type 6
-  Coons Patch Mesh).
+- `IMPLEMENTADO`: **43** ADRs pós-P270.3 (decisões materializadas;
+  0001, 0004, 0005, 0006, 0008–0015, 0016, 0017, 0019, 0020,
+  0021–0027, 0026-R1, 0031, 0052, 0053, 0055, 0057, **0060**,
+  **0061** P221, **0062** P418, **0078** P221, **0079** P253,
+  **0083** P257, **0086** P261 Paint wrapper Solid only,
+  **0087** P262 Gradient Linear-only, **0088** P264 Gradient
+  Radial-only, **0089** P267 Gradient Conic-only,
+  **0091 P270** Gradient ColorSpace runtime cross-variant + CMYK strategy,
+  **+0092 P270.3** Conic Type 6 Coons Patch Mesh).
 - `REVOGADO`: **5** ADRs pós-P272 (0002, 0003, 0007, 0028, **+0090 P272**
   Type 4 Gouraud descontinuado — substituída por ADR-0092 expandida).
-- `ADIADO`: 1 ADR (0020).
+- `ADIADO`: 0 ADRs.
 
 ---
 
