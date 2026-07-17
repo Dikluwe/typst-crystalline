@@ -34,11 +34,9 @@ package-lock.json
 lab/krilla-reference/
 
 # Temporary files and outputs
-/temp_p581/
-/temp_p638/
-/temp_p660/
-/temp_p664/
-/temp_p776/
+# Passos de sonda criam scratch dirs por número (temp_p581, temp_p763h, ...) —
+# um glob evita ter de adicionar uma linha nova a cada passo.
+/temp_p*/
 /test_output.txt
 /perf.data
 
