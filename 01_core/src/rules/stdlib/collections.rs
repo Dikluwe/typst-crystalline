@@ -1219,7 +1219,7 @@ mod tests {
     use super::*;
 
     fn make_args(items: Vec<Value>, named: Option<(&str, Value)>) -> Args {
-        let mut args = Args { items, named: IndexMap::default() };
+        let mut args = Args { items, named: IndexMap::default(), span: Span::detached() };
         if let Some((k, v)) = named {
             args.named.insert(k.into(), v);
         }

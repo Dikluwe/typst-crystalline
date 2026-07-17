@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/rules/layout.md
-//! @prompt-hash 9631382f
+//! @prompt-hash c2ac077c
 //! @layer L1
 //! @updated 2026-07-14
 //!
@@ -3121,6 +3121,199 @@ fn p772i_grid_header_footer_nomeados_dao_erro() {
     );
 }
 
+// ── P772v — table.header(...)/table.footer(...) como row-groups ────────────
+//
+// Extensão directa do mecanismo de P772i (acima) para `table()`. Antes desta
+// correcção: `TableElem` não tinha campos `header`/`footer`, e o loop de
+// resolução de `table()` tratava `Content::TableHeader`/`TableFooter` como
+// célula normal (mesmo scope-out #16 de P772f, variante table) — desalinhando
+// colunas seguintes. `native_table_header`/`native_table_footer` já
+// colectavam todas as células posicionais desde P772i (não repetiu o bug do
+// `.first()`); só faltava o wiring `TableElem` → `layout_grid`.
+
+#[test]
+fn p772v_table_header_multi_celula_preserva_todas_as_celulas() {
+    let doc = layout_test(
+        "#table(columns: 2, table.header[Nome][Idade], [Ana], [30])",
+    );
+    let text = doc.plain_text();
+    assert!(text.contains("Nome"), "header deve conter 'Nome': {}", text);
+    assert!(
+        text.contains("Idade"),
+        "header deve conter 'Idade' (segunda célula, mesmo bug do .first() \
+         verificado não repetir aqui): {}",
+        text
+    );
+}
+
+#[test]
+fn p772v_table_header_nao_desalinha_colunas_seguintes() {
+    // Regressão do scope-out #16 (variante table): header tratado como
+    // célula normal desalinhava as colunas das linhas de dados seguintes.
+    let doc = layout_test(
+        "#table(columns: 2, table.header[Nome][Idade], [Ana], [30])",
+    );
+    let xs: Vec<f64> = doc
+        .pages[0]
+        .items
+        .iter()
+        .filter_map(|i| match i {
+            FrameItem::Text { pos, .. } => Some(pos.x.val()),
+            _ => None,
+        })
+        .collect();
+    assert!(xs.len() >= 4, "esperadas 4 posições de texto (2 header + 2 dados), obteve {:?}", xs);
+    // xs[0]="Nome", xs[1]="Idade", xs[2]="Ana", xs[3]="30" (ordem de emissão).
+    assert!(
+        (xs[0] - xs[2]).abs() < 0.01,
+        "'Nome' (col0) e 'Ana' (col0) devem estar na mesma coluna: {:?}",
+        xs
+    );
+    assert!(
+        (xs[1] - xs[3]).abs() < 0.01,
+        "'Idade' (col1) e '30' (col1) devem estar na mesma coluna: {:?}",
+        xs
+    );
+    assert!(
+        (xs[0] - xs[1]).abs() > 5.0,
+        "col0 e col1 devem estar em posições x distintas: {:?}",
+        xs
+    );
+}
+
+#[test]
+fn p772v_table_footer_aparece_apos_dados() {
+    let doc = layout_test(
+        "#table(columns: 2, [Ana], [30], table.footer[Total][30])",
+    );
+    let text = doc.plain_text();
+    let ana_pos = text.find("Ana").expect("'Ana' presente");
+    let total_pos = text.find("Total").expect("'Total' presente (footer)");
+    assert!(
+        total_pos > ana_pos,
+        "footer ('Total') deve aparecer depois dos dados ('Ana'): {}",
+        text
+    );
+}
+
+#[test]
+fn p772v_table_header_footer_nomeados_dao_erro() {
+    // `#table(header: ..)` deve errar como o vanilla (argumento nomeado
+    // inesperado) — `table()` nunca aceitou header/footer como named args,
+    // mas confirmar que a extensão de P772v não introduziu esse caminho.
+    let prev_hook = std::panic::take_hook();
+    std::panic::set_hook(Box::new(|_| {}));
+    let result = std::panic::catch_unwind(|| layout_test("#table(header: [Nome])"));
+    std::panic::set_hook(prev_hook);
+    assert!(
+        result.is_err(),
+        "#table(header: ..) deveria falhar (paridade vanilla — argumento \
+         nomeado inesperado), não produzir um documento silenciosamente"
+    );
+}
+
+#[test]
+fn p772v_table_multiplos_headers_da_erro() {
+    let prev_hook = std::panic::take_hook();
+    std::panic::set_hook(Box::new(|_| {}));
+    let result = std::panic::catch_unwind(|| {
+        layout_test("#table(columns: 1, table.header[A], table.header[B])")
+    });
+    std::panic::set_hook(prev_hook);
+    assert!(
+        result.is_err(),
+        "múltiplos headers devem errar explicitamente (scope-out — não \
+         suportamos múltiplos headers por `level`)"
+    );
+}
+
+// ── P772x — decoração propaga através de `layout_sub_frame` ────────────────
+//
+// Regressão do achado de P772w: `layout_sub_frame` (usado por `place()`,
+// células de grid, footnotes, `align()`) fazia o seu próprio flush manual da
+// linha corrente sem passar por `flush_line()` — o único ponto onde o
+// mecanismo de decoração wrap-aware (P284/P286) regista segmentos em
+// `decoration_lines_collector`. Corrigido com um collector LOCAL por
+// sub-frame (swap-in/out, mesma disciplina LIFO de `decorations.rs`),
+// traduzido pelo caller com a MESMA translação já aplicada aos `FrameItem`s.
+
+fn count_lines(doc: &PagedDocument) -> usize {
+    doc.pages[0]
+        .items
+        .iter()
+        .filter(|i| matches!(i, FrameItem::Line { .. }))
+        .count()
+}
+
+#[test]
+fn p772x_underline_propaga_atraves_de_place() {
+    // Repro original de P772w: antes da correcção, só "Some text" (fora do
+    // sub-frame) ganhava uma FrameItem::Line — "explanation" (dentro do
+    // place()) não tinha nenhuma. Depois: pelo menos 2 Lines (uma por
+    // trecho decorado).
+    let doc = layout_test(
+        "#underline[Some text #place(top+left)[explanation].]",
+    );
+    let lines = count_lines(&doc);
+    assert!(
+        lines >= 2,
+        "underline deve cobrir tanto o texto normal como o texto dentro de \
+         place() — esperado >= 2 FrameItem::Line, obteve {lines}"
+    );
+}
+
+#[test]
+fn p772x_underline_propaga_atraves_de_grid() {
+    let doc = layout_test(
+        "#underline[#grid(columns: 1, [Cell text])]",
+    );
+    let lines = count_lines(&doc);
+    assert!(
+        lines >= 1,
+        "underline deve cobrir o texto dentro de uma célula de grid — \
+         esperado >= 1 FrameItem::Line, obteve {lines}"
+    );
+}
+
+#[test]
+fn p772x_strike_propaga_atraves_de_place() {
+    let doc = layout_test(
+        "#strike[Some text #place(top+left)[explanation].]",
+    );
+    let lines = count_lines(&doc);
+    assert!(
+        lines >= 2,
+        "strike deve generalizar a mesma correcção de underline — \
+         esperado >= 2 FrameItem::Line, obteve {lines}"
+    );
+}
+
+#[test]
+fn p772x_overline_propaga_atraves_de_place() {
+    let doc = layout_test(
+        "#overline[Some text #place(top+left)[explanation].]",
+    );
+    let lines = count_lines(&doc);
+    assert!(
+        lines >= 2,
+        "overline deve generalizar a mesma correcção de underline — \
+         esperado >= 2 FrameItem::Line, obteve {lines}"
+    );
+}
+
+#[test]
+fn p772x_underline_sem_sub_frame_sem_regressao() {
+    // Não-regressão: decoração de texto simples (sem place/grid/box) deve
+    // continuar a funcionar exactamente como antes.
+    let doc = layout_test("#underline[Normal text, no sub-frame.]");
+    let lines = count_lines(&doc);
+    assert!(
+        lines >= 1,
+        "underline de texto simples deve continuar a produzir >= 1 \
+         FrameItem::Line, obteve {lines}"
+    );
+}
+
 #[test]
 fn p772f_grid_auto_colunas_com_align_nao_colidem() {
     // Regressão directa do achado P763g: grid de 2 colunas Auto, cada
@@ -5680,6 +5873,8 @@ mod tests_show_rule_integration {
                 children: vec![Content::text("X"), Content::text("Y")],
                     hlines: vec![],
                     vlines: vec![],
+                    header: None,
+                    footer: None,
                 stroke: Some(Stroke {
                     paint: Paint::Solid(Color::rgb(0, 0, 255)),
                     thickness: 0.5,
@@ -5921,6 +6116,8 @@ mod tests_show_rule_integration {
                 children: vec![Content::text("X"), Content::text("Y")],
                     hlines: vec![],
                     vlines: vec![],
+                    header: None,
+                    footer: None,
                 stroke: None,
                 fill: Some(Color::rgb(200, 200, 200)),
                 caption: None,
@@ -7384,6 +7581,8 @@ mod tests_show_rule_integration {
                 children: vec![cell],
                     hlines: vec![],
                     vlines: vec![],
+                    header: None,
+                    footer: None,
                 stroke: None,
                 fill: None,
                 caption: None,
@@ -7452,6 +7651,8 @@ mod tests_show_rule_integration {
                 children: vec![cell],
                     hlines: vec![],
                     vlines: vec![],
+                    header: None,
+                    footer: None,
                 stroke: None,
                 fill: None,
                 caption: None,
@@ -7522,6 +7723,8 @@ mod tests_show_rule_integration {
                 children: vec![cell],
                     hlines: vec![],
                     vlines: vec![],
+                    header: None,
+                    footer: None,
                 stroke: None,
                 fill: None,
                 caption: None,
@@ -7596,6 +7799,8 @@ mod tests_show_rule_integration {
                 children: vec![cell],
                     hlines: vec![],
                     vlines: vec![],
+                    header: None,
+                    footer: None,
                 stroke: None,
                 fill: None,
                 caption: None,
@@ -7803,6 +8008,8 @@ mod tests_show_rule_integration {
                 children: vec![cell],
                     hlines: vec![],
                     vlines: vec![],
+                    header: None,
+                    footer: None,
                 stroke: None,
                 fill: None,
                 caption: None,
@@ -8620,6 +8827,8 @@ mod tests_show_rule_integration {
                 children: vec![cell],
                     hlines: vec![],
                     vlines: vec![],
+                    header: None,
+                    footer: None,
                 stroke: None,
                 fill: None,
                 caption: None,
@@ -8695,6 +8904,8 @@ mod tests_show_rule_integration {
                 children: vec![cell],
                     hlines: vec![],
                     vlines: vec![],
+                    header: None,
+                    footer: None,
                 stroke: None,
                 fill: None,
                 caption: None,
@@ -8743,6 +8954,8 @@ mod tests_show_rule_integration {
                 children: vec![cell],
                     hlines: vec![],
                     vlines: vec![],
+                    header: None,
+                    footer: None,
                 stroke: None,
                 fill: None,
                 caption: None,
@@ -8827,6 +9040,8 @@ mod tests_show_rule_integration {
                 children: vec![cell],
                     hlines: vec![],
                     vlines: vec![],
+                    header: None,
+                    footer: None,
                 stroke: None,
                 fill: None,
                 caption: None,
@@ -8893,6 +9108,8 @@ mod tests_show_rule_integration {
                 children: vec![cell],
                     hlines: vec![],
                     vlines: vec![],
+                    header: None,
+                    footer: None,
                 stroke: None,
                 fill: None,
                 caption: None,
@@ -8983,6 +9200,8 @@ mod tests_show_rule_integration {
                 children: vec![mk_cell("r1"), mk_cell("r2")],
                     hlines: vec![],
                     vlines: vec![],
+                    header: None,
+                    footer: None,
                 stroke: None,
                 fill: None,
                 caption: None,

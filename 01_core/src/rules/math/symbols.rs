@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/rules/math/symbols.md
-//! @prompt-hash 9d0c2cee
+//! @prompt-hash 0aa5256f
 //! @layer L1
 //! @updated 2026-04-03
 
@@ -50,7 +50,16 @@ pub fn ident_to_unicode(name: &str) -> Option<&'static str> {
         // Operadores e símbolos comuns
         "sum"      => Some("∑"),
         "prod"     => Some("∏"),
-        "int"      => Some("∫"),
+        // **P772w** — era `"int"` (errado: no vanilla, `int` é o construtor
+        // do tipo inteiro — `scope.define("int", Value::Type(Type::Int))` em
+        // `eval/mod.rs:1186` — e não está disponível directamente em modo
+        // matemático; confirmado por compilação real do vanilla, que erra
+        // "unknown variable: int" com hint "int is not available directly in
+        // math ... use std.int"). O nome correcto do símbolo é `integral`
+        // (paridade com `sym.rs::("integral", '∫', ...)`, a tabela completa
+        // usada por `#sym.integral`). Bare `$integral$` produzia texto
+        // literal "integral" em vez de ∫ antes desta correcção.
+        "integral" => Some("∫"),
         "infty"    => Some("∞"),
         "partial"  => Some("∂"),
         "nabla"    => Some("∇"),
@@ -153,6 +162,12 @@ pub fn is_single_letter_var(name: &str) -> bool {
 
 /// Retorna true se o caractere é um operador grande que deve receber
 /// limites (sup/sub) empilhados verticalmente em vez de à direita.
+///
+/// **P772w** — inclui os caracteres de integral no conjunto (para spacing/
+/// classe "Large"), mas quem decide limites empilhados (`attach.rs`) exclui
+/// integrais via `is_integral_char` antes de usar este resultado — paridade
+/// vanilla `Limits::for_char_with_class` (`MathClass::Large` só empilha se
+/// `!is_integral_char(c)`; ver `math/attach.rs:166-174` no vanilla).
 pub fn is_large_operator(c: char) -> bool {
     matches!(c,
         // Somatório, produto, coproduto
@@ -164,6 +179,16 @@ pub fn is_large_operator(c: char) -> bool {
         // Outros operadores grandes comuns
         '⨁' | '⨂' | '⨀' | '⋀' | '⋁'
     )
+}
+
+/// Retorna `true` se o caractere é um sinal de integral — vanilla nunca
+/// empilha limites (sup/sub) verticalmente para integrais, mesmo em modo
+/// bloco/display (`Limits::Never` incondicional, `math/attach.rs:199-201` no
+/// vanilla — `∫_0^1` mantém os scripts ao lado mesmo em display style,
+/// diferente de `∑`/`∏`, que empilham em bloco). Faixas idênticas ao
+/// vanilla: `'∫'..='∳'` (U+222B–U+2233) e `'⨋'..='⨜'` (U+2A0B–U+2A1C).
+pub fn is_integral_char(c: char) -> bool {
+    ('∫'..='∳').contains(&c) || ('⨋'..='⨜').contains(&c)
 }
 
 /// Retorna true se o texto base de um MathIdent aceita limites verticais.
@@ -193,6 +218,32 @@ mod tests {
     #[test]
     fn identificador_desconhecido_retorna_none() {
         assert_eq!(ident_to_unicode("foobar"), None);
+    }
+
+    // ── P772w — símbolo `integral` (era `int`, nome errado) ────────────────
+
+    #[test]
+    fn integral_converte_para_unicode() {
+        assert_eq!(ident_to_unicode("integral"), Some("∫"));
+    }
+
+    #[test]
+    fn int_nao_e_simbolo_matematico() {
+        // "int" é o construtor do tipo inteiro (`eval/mod.rs` scope global),
+        // não um símbolo — vanilla erra "unknown variable: int" em modo
+        // matemático (não está disponível directamente, só via `std.int`).
+        // Antes de P772w, `ident_to_unicode("int")` devolvia `Some("∫")`
+        // incorrectamente.
+        assert_eq!(ident_to_unicode("int"), None);
+    }
+
+    #[test]
+    fn is_integral_char_cobre_a_familia_de_integrais() {
+        for c in ['∫', '∬', '∭', '∮', '∯', '∰', '∱', '∲', '∳'] {
+            assert!(is_integral_char(c), "{c} deve ser reconhecido como integral");
+        }
+        assert!(!is_integral_char('∑'), "somatório não é integral");
+        assert!(!is_integral_char('∏'), "produtório não é integral");
     }
 
     #[test]

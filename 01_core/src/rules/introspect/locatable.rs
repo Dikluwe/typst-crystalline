@@ -194,6 +194,8 @@ pub fn is_locatable(content: &Content) -> bool {
         // MathFrac/MathRoot/MathDelimited; math structural inerte).
         | Content::MathAccent(_)
         | Content::MathCancel(_)
+        // P772y — Math class override não-locatable (paralelo P296/P298).
+        | Content::MathClassOverride(_)
         // P297 — Math underover não-locatable (paralelo P296).
         | Content::MathUnderover(_)
         // P298 — Math op não-locatable.

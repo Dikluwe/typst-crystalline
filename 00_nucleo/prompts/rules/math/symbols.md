@@ -1,5 +1,5 @@
 # Prompt L0 — `rules/math/symbols` — Resolução de Símbolos Matemáticos
-Hash do Código: 7f1f084a
+Hash do Código: 93c7b434
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/rules/math/symbols.rs`
@@ -32,7 +32,7 @@ correspondente. Retorna `None` se o identificador não é um símbolo reconhecid
 **Cobertura**:
 - 23 letras gregas minúsculas: `alpha`→`α`, `beta`→`β`, ..., `omega`→`ω`
 - 13 letras gregas maiúsculas: `Alpha`→`Α`, `Gamma`→`Γ`, ..., `Omega`→`Ω`
-- Operadores e símbolos: `sum`→`∑`, `prod`→`∏`, `int`→`∫`, `infty`→`∞`
+- Operadores e símbolos: `sum`→`∑`, `prod`→`∏`, `integral`→`∫`, `infty`→`∞`
 - Lógica: `forall`→`∀`, `exists`→`∃`, `in`→`∈`, `notin`→`∉`
 - Conjuntos: `subset`→`⊂`, `union`→`∪`, `inter`→`∩`, `emptyset`→`∅`
 - Aritmética: `times`→`×`, `div`→`÷`, `pm`→`±`, `cdot`→`·`
@@ -72,14 +72,30 @@ Regra: `name.len() == 1 && name.chars().next().map(|c| c.is_ascii_alphabetic())`
 
 ### `is_large_operator(c: char) -> bool`
 
-Retorna `true` se o caractere é um **operador grande** que, em display mode,
-deve receber limites (`sup`/`sub`) empilhados verticalmente (não à direita).
+Retorna `true` se o caractere é um **operador grande** (classe `Large`
+vanilla). Sozinho, **não decide** empilhamento — ver `is_integral_char`
+abaixo; quem decide empilhamento é o caller (`math/layout/attach.rs`),
+combinando os dois.
 
 Operadores reconhecidos:
 - Somatório/Produto: `∑` `∏` `∐`
 - União/Intersecção: `⋃` `⋂` `⨄` `⨅` `⨆`
 - Integrais: `∫` `∬` `∭` `∮` `∯` `∰`
 - Outros: `⨁` (oplus) `⨂` (otimes) `⨀` (odot) `⋀` `⋁`
+
+### `is_integral_char(c: char) -> bool` (P772w)
+
+Retorna `true` se o caractere é um sinal de integral — faixas `'∫'..='∳'`
+(U+222B–U+2233) e `'⨋'..='⨜'` (U+2A0B–U+2A1C), idênticas ao vanilla
+(`math/attach.rs::is_integral_char`, `typst-library`).
+
+**Uso**: em `math/layout/attach.rs`, `is_limits` só empilha limites
+verticalmente para operadores da classe `Large` que **não** sejam
+integrais — `is_large_operator(c) && !is_integral_char(c)`. Paridade
+vanilla `Limits::for_char_with_class`: `MathClass::Large` → `Limits::Never`
+se `is_integral_char`, senão `Limits::Display`. Integrais mantêm os
+scripts **sempre ao lado**, mesmo em modo bloco/display — `∫_0^1` nunca
+empilha `0`/`1` como `∑_0^1` empilha.
 
 ### `is_limit_function(s: &str) -> bool`
 
@@ -111,11 +127,13 @@ MathLayouter::layout_attach(base=Content::MathText("∑"), ..., block=true) →
 
 ```
 // ident_to_unicode
-ident_to_unicode("alpha")  = Some("α")
-ident_to_unicode("sum")    = Some("∑")
-ident_to_unicode("pi")     = Some("π")
-ident_to_unicode("foobar") = None
-ident_to_unicode("")        = None
+ident_to_unicode("alpha")    = Some("α")
+ident_to_unicode("sum")      = Some("∑")
+ident_to_unicode("integral") = Some("∫")  // P772w — era "int" (nome errado)
+ident_to_unicode("int")      = None       // P772w — "int" é o tipo inteiro, não um símbolo
+ident_to_unicode("pi")       = Some("π")
+ident_to_unicode("foobar")   = None
+ident_to_unicode("")         = None
 
 // shorthand_to_unicode
 shorthand_to_unicode("->")  = Some("→")
@@ -141,6 +159,14 @@ is_large_operator('∫') = true
 is_large_operator('x') = false
 is_large_operator('+') = false
 
+// is_integral_char (P772w)
+is_integral_char('∫') = true
+is_integral_char('∮') = true  // contour integral
+is_integral_char('∳') = true  // limite superior da faixa
+is_integral_char('⨌') = true  // quadruple integral (segunda faixa)
+is_integral_char('∑') = false
+is_integral_char('∏') = false
+
 // is_limit_function
 is_limit_function("lim")    = true
 is_limit_function("max")    = true
@@ -148,3 +174,11 @@ is_limit_function("limsup") = true
 is_limit_function("sin")    = false
 is_limit_function("x")      = false
 ```
+
+---
+
+## Histórico de Revisões
+
+| Data | Motivo | Ficheiros afetados |
+|------|--------|-------------------|
+| 2026-07-17 | P772w — `ident_to_unicode`: `"int"` (errado — colide com o tipo inteiro, não é um símbolo no vanilla) substituído por `"integral"` (correcto, paridade `sym.rs`). Nova função `is_integral_char` (paridade vanilla), consumida por `math/layout/attach.rs` para excluir integrais do empilhamento de limites em modo bloco (`is_large_operator(c) && !is_integral_char(c)`) — `∫_0^1` mantém os scripts ao lado, `∑_0^1` empilha | `symbols.md`, `symbols.rs`, `layout/attach.rs` |

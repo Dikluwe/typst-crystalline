@@ -41,7 +41,7 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
         // P245 — float real: layout body em sub-frame,
         // capturar items + dimensões, push ao buffer.
         let avail_w_page = layouter.available_width();
-        let (body_height, body_items) = layouter.layout_sub_frame(
+        let (body_height, body_items, deco_segments) = layouter.layout_sub_frame(
             body,
             super::sub_frame::SubLayoutRegion {
                 origin_x: 0.0,
@@ -72,6 +72,7 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
             body_height,
             body_width: content_w,
             clearance: resolved_clearance,
+            deco_segments,
         });
         // Cursor.y NÃO avança — float não consome flow space.
         // dx/dy aplicado durante flush (não in-place).

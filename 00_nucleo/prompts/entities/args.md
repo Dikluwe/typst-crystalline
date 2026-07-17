@@ -1,5 +1,5 @@
 # Prompt L0 — `entities/args` — Gestão de Argumentos de Função
-Hash do Código: 58f41a7a
+Hash do Código: 10fa03e2
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/entities/args.rs`
@@ -33,6 +33,20 @@ pub struct Args {
     /// Argumentos nomeados (named args), preservando ordem de inserção.
     /// Usa IndexMap com FxBuildHasher para performance.
     pub named: IndexMap<EcoString, Value, FxBuildHasher>,
+    /// **P772s** — span da lista de argumentos da chamada real (o `(...)`
+    /// depois do nome da função, incl. conteúdo). `Span::detached()` para
+    /// `Args` construídos internamente (spread, `.with()`, delegação
+    /// interna — não correspondem a uma chamada literal no documento).
+    /// Paridade **parcial** com vanilla `foundations/args.rs::Args.span`
+    /// (documentado lá como "o span de toda a chamada de função, não da
+    /// lista de argumentos" — o cristalino usa o span da lista, uma
+    /// aproximação mais próxima que `Span::detached()` mas não idêntica).
+    /// **Não** é span por-argumento (vanilla também tem `Arg.span`
+    /// individual, numa `Args.items: EcoVec<Arg>` unificada — decisão de
+    /// P772s: replicar isso exigiria ~1200 pontos de chamada em toda a
+    /// stdlib, custo medido e registado como débito técnico priorizado,
+    /// não implementado aqui). Ver `paridade-producao-p772s.md`.
+    pub span: Span,
 }
 ```
 
@@ -42,7 +56,9 @@ pub struct Args {
 
 ```rust
 impl Args {
-    /// Cria Args apenas com posicionais (named vazio).
+    /// Cria Args apenas com posicionais (named vazio), `span` detached.
+    /// Usado por construções internas/sintéticas sem chamada real no
+    /// documento (spread, `.with()`, testes).
     pub fn positional(items: Vec<Value>) -> Self
 
     /// Número de argumentos posicionais.
@@ -131,4 +147,16 @@ a1 == a2                 = true
 a.named.insert("b", Int(2))
 a.named.insert("a", Int(1))
 a.named.keys().collect::<Vec>() = ["b", "a"]  // ordem de inserção
+
+// P772s — span
+Args::positional([]).span             = Span::detached()
+eval_args(...) numa chamada real       → span = span da lista de argumentos
 ```
+
+---
+
+## Histórico de Revisões
+
+| Data | Motivo | Ficheiros afetados |
+|------|--------|-------------------|
+| 2026-07-17 | P772s — campo `span` (span da lista de argumentos da chamada real; `Span::detached()` para construções internas). Fecha parcialmente o achado de P772p (erros de `native_image` e de outras funções nativas deixam de usar sempre `Span::detached()`) — só ao nível da chamada, não por-argumento (custo medido, registado como débito) | `args.md`, `args.rs` |

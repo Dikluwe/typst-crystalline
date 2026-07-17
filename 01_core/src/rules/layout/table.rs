@@ -1,7 +1,7 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/rules/atomizacao_elementos.md
 //! @prompt 00_nucleo/prompts/rules/layout/table.md
-//! @prompt-hash d0817664
+//! @prompt-hash 69e4a551
 //! @layer L1
 //! @updated 2026-06-25
 //!
@@ -69,11 +69,12 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
 
     // P224+P227+P228 — Table delegate; herda stroke + fill.
     // P512 — passa hlines/vlines para o motor grid partilhado.
+    // P772v — header/footer como row-group real, mesmo mecanismo de P772i.
     layouter.layout_grid(&e.columns, &e.rows, &e.children,
                          &e.hlines, &e.vlines,
                          None, None,
                          crate::entities::sides::Sides::uniform(
                              crate::entities::layout_types::Length::pt(0.0)),
-                         None, None,
+                         e.header.as_ref(), e.footer.as_ref(),
                          e.stroke.as_ref(), e.fill.as_ref());
 }

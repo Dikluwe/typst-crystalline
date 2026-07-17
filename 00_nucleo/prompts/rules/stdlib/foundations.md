@@ -1,5 +1,5 @@
 # Prompt L0 — `stdlib/foundations` — utilitários, cores, conversões e introspeção
-Hash do Código: e0103260
+Hash do Código: 7c2d05c8
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/rules/stdlib/foundations.rs`
@@ -911,6 +911,35 @@ ainda é deferred; caller sintético deve preencher `ctx.current_location`.
 here() (com current_location populado) -> Value::Location
 here() (fora de contexto)              -> Err "here() chamado fora de contexto locatable"
 here(1)                                -> Err "here() não aceita argumentos"
+```
+
+---
+
+### `native_target` — `target()` (P772w)
+
+**Assinatura**: `target() -> str`
+
+**Paridade vanilla**: `target(context: Tracked<Context>) -> HintedStrResult<Target>`
+(`foundations/target_.rs`), `#[func(contextual)]`. Vanilla devolve `"paged"`,
+`"html"` ou `"bundle"` consoante o pipeline de exportação activo — usado em
+templates para adaptar conteúdo ao alvo (`if target() == "html" { .. }`).
+
+**Semântica cristalino**: devolve **sempre** `Value::Str("paged")`. O
+cristalino só produz PDF via layout paginado — não há pipeline HTML nem
+Bundle (fora de escopo) — por isso não há outro valor possível a determinar
+e não é necessário `Tracked<Context>`/`StyleChain` para decidir.
+
+**Achado (P772w)**: `target()` estava ausente do scope global —
+`#context target()` errava "unknown variable: target" em vez de devolver
+`"paged"`. Confirmado por compilação real: vanilla devolve `"paged"` para
+`#context target()`; cristalino, antes desta correcção, errava. Quebrava
+qualquer template usando o padrão documentado pelo vanilla para se adaptar
+ao alvo de exportação.
+
+**Testes canônicos**:
+```
+target()  -> Value::Str("paged")
+target(1) -> Err "target() não aceita argumentos"
 ```
 
 ---

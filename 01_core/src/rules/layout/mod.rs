@@ -444,6 +444,19 @@ pub(super) struct DeferredFloat {
     /// Clearance vertical entre flow regular e área float (resolvido
     /// a Pt; 0.0 se `clearance: None`).
     pub clearance: f64,
+    /// **P772x** — segmentos de decoração (Underline/Strike/Overline) do
+    /// body, em coordenadas locais (mesmo referencial de `body_items`).
+    /// Best-effort: só produzem `FrameItem::Line` em `emit_deferred_float`
+    /// se `decoration_lines_collector` ainda estiver activo nesse ponto —
+    /// verdade quando o flush ocorre antes do consumer `Underline`/`Strike`/
+    /// `Overline` (`decorations.rs`) restaurar o collector (ex.: quebra de
+    /// página a meio do body decorado); **não** garantido para floats que só
+    /// flusham num ponto muito posterior (ex.: `finish()` no fim do
+    /// documento, já fora do `layout_content(body)` do consumer) — nesse
+    /// caso o segmento é descartado silenciosamente, mesma disciplina de
+    /// fallback do resto do mecanismo P284/P286. Limitação registada, não
+    /// silenciosa — ver `00_nucleo/diagnosticos/paridade-producao-p772x.md`.
+    pub deco_segments: Vec<DecoSegment>,
 }
 
 /// **P251 (M9d / M7+5; ADR-0079 Categoria C.2 parcial; cita ADR-0082
@@ -848,6 +861,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
             | Content::MathCases(_)
             | Content::MathAccent(_)
             | Content::MathCancel(_)
+            | Content::MathClassOverride(_)
             | Content::MathUnderover(_)
             | Content::MathOp(_)
             | Content::MathStyled(_) => self.layout_math_fallback(content),
@@ -1748,7 +1762,9 @@ pub fn measure_content_real(content: &Content, chain: &StyleChain) -> (f64, f64)
     layouter.chain = chain.clone();
     layouter.style = TextStyle::from(chain);
 
-    let (height, items) = layouter.layout_sub_frame(
+    // P772x — `layouter` é uma instância isolada e efémera (só para medir);
+    // não há collector ambiente possível aqui, `_deco` é sempre vazio.
+    let (height, items, _deco) = layouter.layout_sub_frame(
         content,
         sub_frame::SubLayoutRegion {
             origin_x: 0.0,

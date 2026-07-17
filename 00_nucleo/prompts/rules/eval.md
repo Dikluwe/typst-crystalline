@@ -2071,3 +2071,124 @@ hint condicional pela heurística acima. Chamado por:
   → hint idêntico ao caso de leitura (mesmo helper, caminho de mutação)
 ```
 
+---
+
+## §P772y — `eval_math_expr` (`rules/eval/math.rs`): callees namespaced e args `Str` em `FuncCall` de modo math
+
+### Contexto
+
+P772y implementou `math.class(class, body)` (`rules/stdlib/structural.md`
+§P772y). Ao validar `math.class("relation", sym.suit.heart)` dentro de
+`$...$` (a sintaxe exacta que a feature precisa de suportar), a sonda
+revelou dois gaps pré-existentes, ambos em `eval_math_expr`
+(`Expr::FuncCall`, antes de P772y):
+
+1. **Callee não-bare**: `let name = match call.callee() { Expr::MathIdent(ident)
+   => ..., _ => return Ok(Content::Empty) };` — qualquer callee que não
+   fosse um `Expr::MathIdent` simples (ex.: `math.class`, um
+   `Expr::FieldAccess`) caía no `_` e desaparecia silenciosamente, sem
+   erro. Medido: `$x math.class("relation", sym.suit.heart) y$` produzia
+   página só com `x y` (sem erro de compilação).
+2. **Args sempre `Content`**: o mecanismo P510 (chamadas a `Value::Func`
+   do scope, usado por `bb(x)`/`bold(x + y)`) avalia **todo** argumento
+   posicional/nomeado via `eval_math_expr` e embrulha em
+   `Value::Content` — correcto para esses casos (todos os args são
+   sempre conteúdo math), mas errado para `math.class`, cujo 1º
+   argumento é uma `Str` (`"relation"`). Um literal string nesta posição
+   não tem arm dedicado em `eval_math_expr` — cai no `_ => Ok(Content::Empty)`
+   final, produzindo `Value::Content(Content::Empty)` em vez de
+   `Value::Str`.
+
+### Correcção
+
+**`eval_math_callee`** (novo, `fn`, privado ao módulo) — resolve o callee
+de uma `FuncCall` em modo math quando não é `MathIdent` bare:
+
+```rust
+fn eval_math_callee(
+    scopes: &mut Scopes<'_>, ctx: &mut EvalContext, engine: &mut Engine<'_>,
+    expr: Expr<'_>,
+) -> SourceResult<Value>
+```
+
+- `Expr::FieldAccess(access)`: resolve `access.target()` recursivamente
+  via `eval_math_callee`, depois faz field access no `Value` resultante —
+  só `Value::Module` (scope) e `Value::Dict` (chave) são suportados (os
+  casos relevantes para namespaces de função: `math.xxx`, `calc.xxx`);
+  outros tipos produzem erro claro.
+- `Expr::MathIdent(ident)`: resolve **directamente no scope**
+  (`scopes.get(ident.get())`) — **não** delega ao `eval_expr` genérico
+  (`rules/eval/mod.rs`), porque esse trata `Expr::MathIdent` como
+  "fronteira deliberada" e devolve sempre `Value::None` (ver `## Fronteira
+  deliberada`, acima) — delegar aqui reproduziria exactamente o bug
+  original (`campo 'class' não existe em none`).
+- outro `expr`: delega ao `eval_expr` genérico (cobertura futura,
+  ex. `Expr::Ident` se um dia aparecer como target em modo math).
+
+Em `Expr::FuncCall`, o braço `_` do match original (`call.callee()`)
+passa a chamar `eval_math_callee`; se o resultado for `Value::Func`,
+aplica-se o **mesmo mecanismo P510** (args avaliados, `apply_func`); caso
+contrário, erro `"chamada em modo math espera função, recebeu {tipo}"`
+em vez do antigo `Content::Empty` silencioso.
+
+**`eval_math_arg_value`** (novo, `fn`, privado ao módulo) — usado **só**
+no novo caminho de callee namespaced (não no P510 bare-ident original,
+para não arriscar regressão em `bb`/`bold`/etc.):
+
+```rust
+fn eval_math_arg_value(
+    scopes: &mut Scopes<'_>, ctx: &mut EvalContext, engine: &mut Engine<'_>,
+    expr: Expr<'_>,
+) -> SourceResult<Value>
+```
+
+`Expr::Str(s) => Value::Str(...)` directo; qualquer outro expr passa por
+`eval_math_expr` e embrulha em `Value::Content` (comportamento antigo,
+preservado).
+
+### Scope-out explícito (registado, não silencioso — ADR-0108)
+
+Esta correcção resolve **só** o caminho `math.class(...)` chamado como
+`FuncCall` bare dentro de `$...$`. **Não** resolve dois gaps maiores,
+mais gerais, descobertos na mesma sonda e deliberadamente deixados fora
+deste passo (P772y é sobre espaçamento por `MathClass`, não sobre
+resolução geral de identificadores/expressões em modo math):
+
+1. **Bare `MathIdent` não resolve variável do utilizador**: `#let loves =
+   math.class(...); $x loves y$` renderiza `loves` como texto literal
+   (5 glifos `l`,`o`,`v`,`e`,`s`), não como o `Content` vinculado —
+   `Expr::MathIdent` (arm principal de `eval_math_expr`, não o callee)
+   só resolve símbolos Unicode (`ident_to_unicode`) e operadores
+   `math` (`lookup_math_op`); qualquer outro nome vira sempre
+   `Content::MathIdent(name)` (texto), mesmo que esteja vinculado no
+   scope a um `Content`/`Value::Symbol`.
+2. **`#expr` em modo math não faz splice**: `$x #loves y$`, `$x
+   #sym.suit.heart y$`, `$x #heartcontent y$` — todos medidos a produzir
+   página **sem nenhum item** para o valor interpolado (nem erro, nem
+   conteúdo) — gap no caminho de interpolação `#` dentro de `$...$`,
+   distinto dos dois acima.
+
+Ambos medidos com `mutool trace` (P772y, mesma sonda) e confirmados
+**pré-existentes** (reproduzidos com `#sym.suit.heart`/`#heartcontent`,
+sem qualquer relação com `math.class`/`MathClassOverride`). Candidatos a
+passo dedicado próprio — âmbito maior (afecta toda a interpolação de
+variáveis em modo math, não só uma função), precisa de sonda e decisão
+registada próprias.
+
+### Critérios de verificação
+
+```
+$x math.class("relation", "z") y$
+  → mesmo delta de posição x que "$x = y$" no mesmo contexto (THICK ambos
+    os lados) — confirma callee resolvido, arg Str correcto, override
+    aplicado ao espaçamento.
+
+$x math.class("bad", "z") y$
+  → Err "class(): 'bad' não é uma MathClass reconhecida"
+
+$x sym.suit.heart y$   (sem #, bare field access, FORA do FuncCall)
+  → ainda produz página vazia para o símbolo — não é um FuncCall, não
+    passa por eval_math_callee; gap de bare-FieldAccess-fora-de-chamada
+    não coberto por esta correcção (não é o caso de uso de math.class).
+```
+

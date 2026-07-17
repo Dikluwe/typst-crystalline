@@ -377,6 +377,11 @@ pub fn repr_content(c: &Content) -> String {
             repr_content(&a.accent)
         ),
         Content::MathCancel(c) => format!("cancel({})", repr_content(&c.body)),
+        Content::MathClassOverride(c) => format!(
+            "class(\"{}\", {})",
+            crate::entities::math_class::math_class_name(c.class),
+            repr_content(&c.body)
+        ),
         Content::MathUnderover(u) => {
             let mut out = repr_content(&u.base);
             if let Some(under) = &u.under {

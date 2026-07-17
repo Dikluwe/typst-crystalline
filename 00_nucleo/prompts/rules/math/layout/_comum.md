@@ -1,5 +1,5 @@
 # Prompt L0 — `rules/math/layout` — comum (MathLayouter + despacho)
-Hash do Código: 282f1a50
+Hash do Código: 45c00e9e
 
 ## Módulo
 `01_core/src/rules/math/` — motor de layout matemático.
@@ -16,11 +16,12 @@ Recebe `Content::Equation` e produz `Frame`s com `FrameItem::Text` posicionados.
 ## Estado actual (pós-P96.8 + reconciliação P255)
 
 P96.8 reestruturou `rules/math/layout/` em **8 submódulos** (monólito →
-cluster). `mod.rs` é o núcleo: `MathLayouter` struct + `MathBox` + métodos coord
-(`new`, `apply_axis_offset`, `layout_equation`, `layout_node`,
-`layout_text_node`, `layout_sequence`, `layout_grid_rows`, `layout_grid`,
-`hconcat`). Os 8 submódulos de elemento têm prompt próprio (ver índice em
-`rules/math/layout.md`).
+cluster); **P772y** adicionou um nono (`spacing.rs`, prompt próprio
+`spacing.md`). `mod.rs` é o núcleo: `MathLayouter` struct + `MathBox` +
+métodos coord (`new`, `apply_axis_offset`, `layout_equation`,
+`layout_node`, `layout_text_node`, `layout_sequence`, `layout_grid_rows`,
+`layout_grid`, `hconcat`, `hconcat_spaced` [P772y]). Os submódulos de
+elemento têm prompt próprio (ver índice em `rules/math/layout.md`).
 
 ## Restrição arquitectural
 L1 puro. Não depende de L3. Usa `FontMetrics` trait injectável. Sem I/O.
@@ -104,6 +105,16 @@ multiplicativo (refuta diagnóstico P311a §3.5).
 itálico automático a variáveis de 1 letra; pós-P311b.4 wraps `MathStyled`
 suprimem auto-itálico via `math_style.italic = false`; itálico explícito honrado
 via codepoint já transformado. Sem regressão.
+
+## Espaçamento automático por `MathClass` (P772y — ver `spacing.md`)
+
+`layout_sequence` computa `spacing::compute_gaps` sobre os nós filtrados
+(antes do layout) e concatena via `hconcat_spaced` em vez de `hconcat`
+plano. Handler `Content::MathClassOverride(e) => self.layout_node(&e.body,
+style)` em `layout_node` — a classe forçada por `math.class(class, body)`
+só entra no cálculo de espaçamento (`spacing::node_math_class`), o layout
+do body é normal. Detalhe completo, tabela de espaçamento e critérios de
+verificação: `spacing.md`.
 
 ## Critérios de verificação (gerais)
 

@@ -316,7 +316,7 @@ fn has_any_text(content: &Content) -> bool {
         | Content::MathFrac(_) | Content::MathAttach(_) | Content::MathRoot(_)
         | Content::MathDelimited(_) | Content::MathAlignPoint(_)
         | Content::MathMatrix(_) | Content::MathCases(_)
-        | Content::MathAccent(_) | Content::MathCancel(_)
+        | Content::MathAccent(_) | Content::MathCancel(_) | Content::MathClassOverride(_)
         | Content::MathUnderover(_) | Content::MathOp(_) | Content::MathStyled(_)
         | Content::SmartQuote(_) | Content::Dynamic(_)
         | Content::GridHeader(_) | Content::GridFooter(_) | Content::SetPage { .. }
@@ -390,7 +390,7 @@ where
         | Content::MathFrac(_) | Content::MathAttach(_) | Content::MathRoot(_)
         | Content::MathDelimited(_) | Content::MathAlignPoint(_)
         | Content::MathMatrix(_) | Content::MathCases(_)
-        | Content::MathAccent(_) | Content::MathCancel(_)
+        | Content::MathAccent(_) | Content::MathCancel(_) | Content::MathClassOverride(_)
         | Content::MathUnderover(_) | Content::MathOp(_) | Content::MathStyled(_)
         | Content::SmartQuote(_) | Content::Dynamic(_)
         | Content::GridHeader(_) | Content::GridFooter(_) | Content::SetPage { .. }

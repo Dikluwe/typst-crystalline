@@ -2,7 +2,7 @@
 //! @prompt 00_nucleo/prompts/rules/model/document.md
 //! @prompt 00_nucleo/prompts/rules/model/asset.md
 //! @prompt 00_nucleo/prompts/rules/stdlib/structural.md
-//! @prompt-hash 9517eae7
+//! @prompt-hash 32920e6b
 //! @layer L1
 //! @updated 2026-06-29
 //!
@@ -680,6 +680,14 @@ pub fn native_table(
     // Children variádicos posicionais (Content ou Str).
     // P512 — separar linhas hline/vline dos children e calcular row/col
     // efectivos com base na ordem de aparecimento e no número de colunas.
+    // P772v — `header`/`footer` extraídos aqui, à parte, mesmo padrão de
+    // `native_grid` (P772i): não são argumentos nomeados no vanilla
+    // (`table.header(...)`/`table.footer(...)` são elementos-filho
+    // posicionais), não incrementam row/col, e só um de cada é suportado
+    // (mesmo scope-out de P772i — múltiplos headers por `level` e
+    // repeat-across-páginas não implementados).
+    let mut header: Option<Content> = None;
+    let mut footer: Option<Content> = None;
     let mut children: Vec<Content> = Vec::with_capacity(args.items.len());
     let mut hlines: Vec<crate::entities::elements::table_hline::TableHLineElem> = Vec::new();
     let mut vlines: Vec<crate::entities::elements::table_vline::TableVLineElem> = Vec::new();
@@ -707,6 +715,24 @@ pub fn native_table(
                 }
                 vline.col = col;
                 vlines.push(vline);
+            }
+            Value::Content(c @ Content::TableHeader(_)) => {
+                if header.is_some() {
+                    return Err(vec![SourceDiagnostic::error(
+                        Span::detached(),
+                        "table: não pode haver mais do que um header (scope-out — múltiplos headers por `level` não suportados)".to_string(),
+                    )]);
+                }
+                header = Some(c.clone());
+            }
+            Value::Content(c @ Content::TableFooter(_)) => {
+                if footer.is_some() {
+                    return Err(vec![SourceDiagnostic::error(
+                        Span::detached(),
+                        "table: não pode haver mais do que um footer".to_string(),
+                    )]);
+                }
+                footer = Some(c.clone());
             }
             Value::Content(c) => {
                 children.push(c.clone());
@@ -772,6 +798,8 @@ pub fn native_table(
             children,
             hlines,
             vlines,
+            header,
+            footer,
             stroke,
             fill,
             caption,
@@ -2016,6 +2044,82 @@ pub fn native_cancel(
     Ok(Value::Content(Content::math_cancel(body)))
 }
 
+// ── P772y — `math.class(class, body)` ────────────────────────────────────
+//
+// Força a `MathClass` de `body`, override do valor inferido automaticamente
+// por `default_math_class`/`spacing::node_math_class`. Afecta apenas o
+// espaçamento automático (`rules/math/layout/spacing.rs`); `body` é
+// layoutado normalmente (`MathLayouter::layout_node`). Vanilla `ClassElem`
+// (`math/mod.rs`).
+
+/// `class(class, body)` — emite `Content::MathClassOverride { class, body }`.
+/// `class` é obrigatório e uma das 15 strings vanilla
+/// (`math_class.rs::parse_math_class`); `body` é obrigatório (content ou
+/// string).
+pub fn native_math_class(
+    _ctx: &mut EvalContext,
+    args: &Args,
+    _world: &dyn crate::contracts::world::World,
+    _current_file: FileId,
+) -> SourceResult<Value> {
+    let class_name = match args.items.first() {
+        Some(Value::Str(s)) => s.clone(),
+        Some(other) => {
+            return Err(vec![SourceDiagnostic::error(
+                Span::detached(),
+                format!("class() espera string, recebeu {}", other.type_name()),
+            )])
+        }
+        None => {
+            return Err(vec![SourceDiagnostic::error(
+                Span::detached(),
+                "class() exige o nome da classe como 1.º argumento posicional".to_string(),
+            )])
+        }
+    };
+    let class = match crate::entities::math_class::parse_math_class(class_name.as_str()) {
+        Some(c) => c,
+        None => {
+            return Err(vec![SourceDiagnostic::error(
+                Span::detached(),
+                format!("class(): '{}' não é uma MathClass reconhecida", class_name),
+            )])
+        }
+    };
+
+    let body = match args.items.get(1) {
+        Some(Value::Content(c)) => c.clone(),
+        Some(Value::Str(s)) => Content::text(s.as_str()),
+        // P772y — `math.class("relation", sym.suit.heart)`: símbolo
+        // Unicode como body (paridade com a conversão de markup, P471).
+        Some(Value::Symbol(s)) => Content::Text(EcoString::from(s.ch)),
+        Some(other) => {
+            return Err(vec![SourceDiagnostic::error(
+                Span::detached(),
+                format!(
+                    "class() body espera content, string ou symbol, recebeu {}",
+                    other.type_name()
+                ),
+            )])
+        }
+        None => {
+            return Err(vec![SourceDiagnostic::error(
+                Span::detached(),
+                "class() exige body como 2.º argumento posicional".to_string(),
+            )])
+        }
+    };
+
+    for k in args.named.keys() {
+        return Err(vec![SourceDiagnostic::error(
+            Span::detached(),
+            format!("class(): argumento nomeado '{}' não suportado", k),
+        )]);
+    }
+
+    Ok(Value::Content(Content::math_class_override(class, body)))
+}
+
 // ── Passo 297 — `underover()` math (P296.1) ──────────────────────────────
 //
 // **HV'.a (A.0.0 N=5)**: vanilla typst NÃO tem `UnderoverElem`
@@ -2208,6 +2312,14 @@ pub fn make_math_module() -> Value {
     // que `parse_selector("math.equation")` e `scope.get("math").equation`
     // resolvam. Value::None porque não existe função nativa `equation` em L1.
     dict.insert("equation".into(), Value::None);
+
+    // **P772y** — `math.class(class, body)`: override manual de `MathClass`
+    // para efeitos de espaçamento automático. Vive no scope do módulo
+    // `math` (não no scope global, ao contrário de `cancel`/`accent`).
+    dict.insert(
+        "class".into(),
+        Value::Func(crate::entities::func::Func::native("class", native_math_class)),
+    );
 
     // **P731** — `Value::Module` (paridade vanilla — medido: `type(math)` →
     // `module`), não `Value::Dict`. `eval/math.rs::lookup_math_op` lê o
@@ -3159,7 +3271,7 @@ mod tests {
         use crate::entities::list_marker::ListMarker;
         let mut named = indexmap::IndexMap::default();
         named.insert("marker".into(), Value::Str("→".into()));
-        let args = Args { items: vec![Value::Content(Content::text("x"))], named };
+        let args = Args { items: vec![Value::Content(Content::text("x"))], named, span: Span::detached() };
         let result = call_list(args).unwrap();
         if let Value::Content(Content::ListItem(li)) = result {
             assert_eq!(li.marker, Some(ListMarker::Custom("→".into())));
@@ -3172,7 +3284,7 @@ mod tests {
     fn list_marker_invalido_retorna_erro() {
         let mut named = indexmap::IndexMap::default();
         named.insert("marker".into(), Value::Int(1));
-        let args = Args { items: vec![Value::Content(Content::text("x"))], named };
+        let args = Args { items: vec![Value::Content(Content::text("x"))], named, span: Span::detached() };
         assert!(call_list(args).is_err());
     }
 
@@ -3180,7 +3292,7 @@ mod tests {
     fn list_named_desconhecido_retorna_erro() {
         let mut named = indexmap::IndexMap::default();
         named.insert("foo".into(), Value::Int(1));
-        let args = Args { items: vec![], named };
+        let args = Args { items: vec![], named, span: Span::detached() };
         assert!(call_list(args).is_err());
     }
 
@@ -3225,6 +3337,7 @@ mod tests {
         let args = Args {
             items: vec![Value::Content(Content::text("x")), Value::Content(Content::text("y"))],
             named,
+            span: Span::detached(),
         };
         let result = call_enum(args).unwrap();
         if let Value::Content(Content::Sequence(seq)) = result {
@@ -3242,7 +3355,7 @@ mod tests {
     fn enum_numbering_invalido_retorna_erro() {
         let mut named = indexmap::IndexMap::default();
         named.insert("numbering".into(), Value::Int(1));
-        let args = Args { items: vec![Value::Content(Content::text("x"))], named };
+        let args = Args { items: vec![Value::Content(Content::text("x"))], named, span: Span::detached() };
         assert!(call_enum(args).is_err());
     }
 
@@ -3250,7 +3363,7 @@ mod tests {
     fn enum_named_desconhecido_retorna_erro() {
         let mut named = indexmap::IndexMap::default();
         named.insert("foo".into(), Value::Int(1));
-        let args = Args { items: vec![], named };
+        let args = Args { items: vec![], named, span: Span::detached() };
         assert!(call_enum(args).is_err());
     }
 
@@ -3266,6 +3379,7 @@ mod tests {
         let args = Args {
             items: vec![Value::Content(Content::text("a"))],
             named,
+            span: Span::detached(),
         };
         let result = call_list(args).unwrap();
         if let Value::Content(Content::ListItem(li)) = result {
@@ -3281,7 +3395,7 @@ mod tests {
     fn list_indent_invalido_retorna_erro() {
         let mut named = indexmap::IndexMap::default();
         named.insert("indent".into(), Value::Str("x".into()));
-        let args = Args { items: vec![Value::Content(Content::text("a"))], named };
+        let args = Args { items: vec![Value::Content(Content::text("a"))], named, span: Span::detached() };
         assert!(call_list(args).is_err());
     }
 
@@ -3289,7 +3403,7 @@ mod tests {
     fn list_body_indent_invalido_retorna_erro() {
         let mut named = indexmap::IndexMap::default();
         named.insert("body-indent".into(), Value::Int(1));
-        let args = Args { items: vec![Value::Content(Content::text("a"))], named };
+        let args = Args { items: vec![Value::Content(Content::text("a"))], named, span: Span::detached() };
         assert!(call_list(args).is_err());
     }
 
@@ -3297,7 +3411,7 @@ mod tests {
     fn list_tight_invalido_retorna_erro() {
         let mut named = indexmap::IndexMap::default();
         named.insert("tight".into(), Value::Int(1));
-        let args = Args { items: vec![Value::Content(Content::text("a"))], named };
+        let args = Args { items: vec![Value::Content(Content::text("a"))], named, span: Span::detached() };
         assert!(call_list(args).is_err());
     }
 
@@ -3311,6 +3425,7 @@ mod tests {
         let args = Args {
             items: vec![Value::Content(Content::text("a"))],
             named,
+            span: Span::detached(),
         };
         let result = call_enum(args).unwrap();
         if let Value::Content(Content::EnumItem(ei)) = result {
@@ -3326,7 +3441,7 @@ mod tests {
     fn enum_indent_invalido_retorna_erro() {
         let mut named = indexmap::IndexMap::default();
         named.insert("indent".into(), Value::Str("x".into()));
-        let args = Args { items: vec![Value::Content(Content::text("a"))], named };
+        let args = Args { items: vec![Value::Content(Content::text("a"))], named, span: Span::detached() };
         assert!(call_enum(args).is_err());
     }
 
@@ -3337,6 +3452,7 @@ mod tests {
         let args = Args {
             items: vec![Value::Content(Content::text("a"))],
             named,
+            span: Span::detached(),
         };
         let result = call_enum(args).unwrap();
         if let Value::Content(Content::EnumItem(ei)) = result {

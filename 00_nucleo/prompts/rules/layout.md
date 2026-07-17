@@ -1,5 +1,5 @@
 # Prompt L0 — layout
-Hash do Código: dbeb90b9
+Hash do Código: 3a7085e3
 
 ## Módulo
 `01_core/src/rules/layout/mod.rs` e sub-módulos (`metrics.rs`, etc.)
@@ -782,17 +782,70 @@ pub(super) fn layout_sub_frame(
     &mut self,
     content: &Content,
     region: SubLayoutRegion,
-) -> (f64, Vec<FrameItem>)
+) -> (f64, Vec<FrameItem>, Vec<DecoSegment>)
 ```
 
 - Salva o estado completo do `Layouter` (`current_items`, `current_line`,
   cursor, dimensões da região, `is_height_unconstrained`).
+- **P772x** — faz swap do `decoration_lines_collector` ambiente por um
+  collector LOCAL (`Some(Vec::new())` se havia um ambiente activo, `None`
+  caso contrário — sem overhead quando não há decoração em curso).
 - Inicializa um frame temporário com origem em (`origin_x`, ascender).
 - Executa `layout_content(content)`.
 - Alinha a última linha RTL se `align_rtl` for `true`.
-- Faz flush dos itens pendentes, calculando a altura real do sub-frame.
-- Restaura o estado e devolve `(height, items)` em coordenadas locais ao
-  frame temporário.
+- Faz flush dos itens pendentes, calculando a altura real do sub-frame —
+  **P772x**: este flush manual regista o segmento da última linha no
+  collector local (mesmo hook usado por `flush_line()`, `cursor.rs`), algo
+  que faltava antes desta correcção (ver secção "Decoração através de
+  `layout_sub_frame`" abaixo).
+- Restaura o collector ambiente (LIFO) e o resto do estado; devolve
+  `(height, items, deco_segments)` em coordenadas locais ao frame temporário
+  — `deco_segments` só é não-vazio se havia um collector ambiente activo.
+
+### Decoração através de `layout_sub_frame` (P772x)
+
+**Bug corrigido** (achado por P772w, corrigido por P772x): antes desta
+correcção, `layout_sub_frame` fazia o seu flush manual da última linha
+**sem** passar por `flush_line()` — o único ponto onde o mecanismo de
+decoração wrap-aware (P284/P286, `decorations.rs`) regista segmentos em
+`decoration_lines_collector`. Qualquer conteúdo decorado
+(`underline`/`strike`/`overline`) que passasse por um sub-frame (via
+`place()`, células de grid, `align()`, footnotes) perdia a decoração
+silenciosamente — repro: `#underline[Some text #place(top+left)
+[explanation].]` só sublinhava "Some text", nunca "explanation".
+
+**Mecanismo da correcção**: `layout_sub_frame` colecciona segmentos **em
+coordenadas locais ao sub-frame** (mesmo referencial de `items` devolvidos)
+num collector local (swap-in/out do collector ambiente, disciplina LIFO
+idêntica a `decorations.rs`). Cada um dos **7 call-sites** de
+`layout_sub_frame` (`grid.rs` ×2, `mod.rs`, `place.rs`, `placement.rs` ×2,
+`cursor.rs`) já aplica uma translação própria (`offset_x`/`offset_y`, por
+vezes com correcção de baseline) aos `FrameItem`s devolvidos — **a mesma
+translação, aplicada aos campos `start_x`/`end_x`/`baseline_y` de cada
+`DecoSegment`**, produz os segmentos no referencial do frame pai, prontos a
+reinserir em `self.decoration_lines_collector` (se `Some`).
+
+**Classificação dos 7 call-sites**:
+
+| Call-site | Papel | Tratamento |
+|---|---|---|
+| `placement.rs::layout_align` (`Content::Align`) | Emissão real | Traduz e reinsere (`delta_x`, `target_y - sub_origin_y`) |
+| `placement.rs::layout_place` (`Content::Place`, `float: false`) | Emissão real | Traduz e reinsere (`target_x + ix`, `target_y - y_offset`) — **caso motivador de P772w** |
+| `grid.rs` (Fase 2, emissão de célula) | Emissão real | Traduz e reinsere (x já absoluto; `body_y + (y - local_start_y)`) |
+| `cursor.rs` (footnote body, Pass 2) | Emissão real (2 passes) | `measured` carrega `(h, items, deco)` por footnote; Pass 2 traduz e reinsere por iteração |
+| `place.rs` (`Content::Place`, `float: true`) | Emissão **diferida** (`DeferredFloat`) | `deco_segments` capturado no `DeferredFloat`, traduzido em `emit_deferred_float` (flush da página) — **best-effort**: só produz `FrameItem::Line` se o collector ainda estiver `Some` nesse momento (não garantido para floats que só flusham muito depois do consumer decorador ter retornado — ver `DeferredFloat::deco_segments`, `mod.rs`) |
+| `grid.rs` (Fase 1, medição de altura de linha) | Medição pura | `_sub_items`/`_deco` descartados — emissão real acontece na Fase 2 |
+| `mod.rs::measure_content_real` (`measure()`) | Medição pura, `Layouter` isolado e efémero | Sem collector ambiente possível — `_deco` sempre vazio |
+
+**Paridade vanilla (ADR-0107)**: a contagem exacta de operadores `S` (stroke)
+que o vanilla emite para uma mesma decoração pode diferir da do cristalino
+(ex.: vanilla segmenta por `MCID`/span de texto, produzindo mais segmentos
+contíguos para a mesma linha visual) — isto é mecanismo de exportação PDF,
+não língua; confirmado que a contagem difere mesmo em texto simples sem
+nenhum sub-frame envolvido (`#underline[texto simples]`: vanilla 2 stroke,
+cristalino 1). O observável de língua é a decoração aparecer, visualmente
+contínua, sobre o texto correcto — confirmado por render (`mutool draw`),
+não por paridade byte-a-byte de operadores PDF.
 
 ### `layout_sub_frame_inline` (Passo 631)
 
@@ -1145,11 +1198,42 @@ Decisão registada, não descoberta por acidente — se uma futura necessidade e
 repeat-across-páginas, tratar como passo dedicado (implica estruturas novas de
 `range`/`level` e lógica de re-emissão consciente de paginação no motor de grid).
 
-### Âmbito não coberto (`table()`)
+### `table()` — extensão do mecanismo (P772v)
 
-`table()` não tem `header:`/`footer:` como argumentos nomeados (nunca teve — não é
-o mesmo bug), mas também não tem os campos `header`/`footer` em `TableElem`
-nem processa `Content::TableHeader`/`TableFooter` como row-group — cai no mesmo
-braço genérico. Corrigir requer adicionar campos a `TableElem` (mudança de
-estrutura, não só de fluxo) — fora do âmbito de P772i, registado para passo
-dedicado futuro.
+**Fechado em P772v.** `table()` nunca teve `header:`/`footer:` como argumentos
+nomeados (não é o mesmo bug de P224 acima), mas `TableElem` não tinha os campos
+`header`/`footer` e o loop de resolução de `table()` (`stdlib/structural.rs`)
+tratava `Content::TableHeader`/`TableFooter` como célula normal — mesmo braço
+genérico, mesmo sintoma. P772v confirmou por leitura directa do vanilla
+(`lab/typst-original/crates/typst-library/src/model/table.rs:495,525`) que
+`TableHeader`/`TableFooter` têm **exactamente** a mesma forma
+(`repeat: bool` default `true`, `level: NonZeroU32` default `1` no header,
+`children` variádico) que `GridHeader`/`GridFooter` — e que
+`typst-layout::layout_table`/`layout_grid` (vanilla) são wrappers idênticos
+sobre o mesmo `GridLayouter`, sem estilo visual por omissão específico de
+`table()` para header/footer (confirmado por leitura do código, não assumido).
+
+Extensão directa do mecanismo de P772i, sem redesenho:
+
+1. `TableElem` ganhou `header: Option<Content>`/`footer: Option<Content>`
+   (mesmos campos de `GridElem`).
+2. `native_table` (`stdlib/structural.rs`) distingue
+   `Content::TableHeader`/`Content::TableFooter` no loop de resolução — mesma
+   lógica de `native_grid` (não incrementam col/row; só um de cada; erro
+   explícito em caso de duplicado).
+3. `layout_grid` (`grid.rs`, motor partilhado por `Content::Grid` e
+   `Content::Table`) estende os braços de `row_group_cells` para também
+   reconhecer `Content::TableHeader`/`Content::TableFooter` (extrai `.body`,
+   mesmo tratamento que `GridHeader`/`GridFooter` — o motor já era genérico o
+   suficiente, só faltava o braço de match).
+4. `table.rs` (layout) passa `e.header.as_ref()`/`e.footer.as_ref()` a
+   `layout_grid` em vez de `None, None`.
+
+`native_table_header`/`native_table_footer` **já** colectavam todos os
+argumentos posicionais (não só `.first()`) desde P772i — o bug do `.first()`
+tinha sido corrigido em paralelo para os pares `table_*` na altura, mesmo sem
+o wiring do `TableElem` existir ainda. P772v não repetiu esse bug (nada a
+corrigir aí).
+
+Mesmo scope-out explícito de P772i aplica-se a `table()`: sem
+repeat-across-páginas (ver secção acima) — decisão herdada, não redecidida.

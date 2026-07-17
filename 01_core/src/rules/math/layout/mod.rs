@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/rules/math/layout/_comum.md
-//! @prompt-hash 11a0a504
+//! @prompt-hash 723f7696
 //! @layer L1
 //! @updated 2026-04-11
 
@@ -27,6 +27,7 @@ mod cases;
 mod delimited;
 mod stretchy;
 mod assembly;
+mod spacing;
 
 /// Caixa tipográfica de um nó matemático.
 /// Todas as medidas são em pontos, relativas à baseline da equação.
@@ -336,6 +337,12 @@ impl<'a, M: FontMetrics> MathLayouter<'a, M> {
                 self.layout_cancel(&e.body, style)
             }
 
+            // P772y — `math.class(class, body)`: override de classe afecta
+            // apenas espaçamento (spacing.rs); o layout do body é normal.
+            Content::MathClassOverride(e) => {
+                self.layout_node(&e.body, style)
+            }
+
             // P297 — Math underover (paralelo P296 layout_accent/cancel).
             Content::MathUnderover(e) => {
                 self.layout_underover(
@@ -555,11 +562,17 @@ impl<'a, M: FontMetrics> MathLayouter<'a, M> {
         if self.block && needs_grid_layout(nodes) {
             self.layout_grid(nodes, style)
         } else {
-            let boxes: Vec<MathBox> = nodes.iter()
+            let filtered: Vec<Content> = nodes.iter()
                 .filter(|n| !matches!(n, Content::MathAlignPoint(_) | Content::Linebreak(_)))
+                .cloned()
+                .collect();
+            // P772y — espaçamento automático por MathClass entre nós
+            // adjacentes (paridade `process.rs::spacing()`, vanilla).
+            let gaps = spacing::compute_gaps(&filtered, style.size.val());
+            let boxes: Vec<MathBox> = filtered.iter()
                 .map(|n| self.layout_node(n, style))
                 .collect();
-            self.hconcat(boxes)
+            self.hconcat_spaced(boxes, &gaps)
         }
     }
 
@@ -668,14 +681,27 @@ impl<'a, M: FontMetrics> MathLayouter<'a, M> {
         self.layout_grid_rows(&rows, GridAlign::Alternating, Pt(0.0), style)
     }
 
-    /// Concatenação horizontal: posiciona MathBoxes lado a lado.
+    /// Concatenação horizontal: posiciona MathBoxes lado a lado, sem
+    /// espaçamento extra entre eles (abertura+corpo+fecho de delimitadores
+    /// — a regra de classe já dá 0pt aí, ADR-0108 P772y).
     pub(super) fn hconcat(&self, boxes: Vec<MathBox>) -> MathBox {
+        self.hconcat_spaced(boxes, &[])
+    }
+
+    /// Concatenação horizontal com espaçamento extra entre boxes
+    /// consecutivas — `gaps[i]` é o espaço (pt) inserido entre a box `i` e
+    /// a box `i + 1`. `gaps` mais curto que `boxes.len() - 1` trata os
+    /// gaps em falta como 0 (P772y — tabela de espaçamento por MathClass).
+    pub(super) fn hconcat_spaced(&self, boxes: Vec<MathBox>, gaps: &[f64]) -> MathBox {
         let mut x       = 0.0_f64;
         let mut ascent  = 0.0_f64;
         let mut descent = 0.0_f64;
         let mut items   = Vec::new();
 
-        for b in boxes {
+        for (i, b) in boxes.into_iter().enumerate() {
+            if i > 0 {
+                x += gaps.get(i - 1).copied().unwrap_or(0.0);
+            }
             ascent  = ascent.max(b.ascent);
             descent = descent.max(b.descent);
             for mut item in b.items {

@@ -13,7 +13,6 @@ use crate::entities::content::Content;
 use ecow::EcoString;
 use crate::entities::image_format::{ImageFormat, detect_image_format};
 use crate::entities::ptr_eq_arc::PtrEqArc;
-use crate::entities::span::Span;
 use crate::entities::source_result::{SourceDiagnostic, SourceResult};
 use crate::entities::value::Value;
 use crate::rules::eval::EvalContext;
@@ -61,7 +60,7 @@ pub fn native_figure(ctx: &mut EvalContext, args: &Args, _world: &dyn crate::con
         Some(Value::Str(s))     => Content::text(s.as_str()),
         Some(_)                 => Content::Empty,
         None => return Err(vec![SourceDiagnostic::error(
-            Span::detached(),
+            args.span,
             "figure() requer um argumento posicional (body)".to_string(),
         )]),
     };
@@ -108,7 +107,7 @@ pub fn native_image(_ctx: &mut EvalContext, args: &Args, world: &dyn crate::cont
     for key in args.named.keys() {
         if !matches!(key.as_str(), "width" | "height" | "fit") {
             return Err(vec![SourceDiagnostic::error(
-                Span::detached(),
+                args.span,
                 format!("argumento nomeado inesperado em image(): '{}'", key),
             )]);
         }
@@ -117,11 +116,11 @@ pub fn native_image(_ctx: &mut EvalContext, args: &Args, world: &dyn crate::cont
     let path = match args.items.first() {
         Some(Value::Str(s)) => s.to_string(),
         Some(other) => return Err(vec![SourceDiagnostic::error(
-            Span::detached(),
+            args.span,
             format!("image() requer string com o caminho, recebeu {}", other.type_name()),
         )]),
         None => return Err(vec![SourceDiagnostic::error(
-            Span::detached(),
+            args.span,
             "image() requer 1 argumento posicional (caminho do ficheiro)".to_string(),
         )]),
     };
@@ -129,7 +128,7 @@ pub fn native_image(_ctx: &mut EvalContext, args: &Args, world: &dyn crate::cont
     let data = match world.read_bytes(current_file, &path) {
         Ok(arc) => arc,
         Err(msg) => return Err(vec![SourceDiagnostic::error(
-            Span::detached(),
+            args.span,
             format!("image(): não foi possível ler '{}': {}", path, msg),
         )]),
     };
@@ -145,13 +144,13 @@ pub fn native_image(_ctx: &mut EvalContext, args: &Args, world: &dyn crate::cont
     let lower_path = path.to_lowercase();
     if lower_path.ends_with(".svg") || lower_path.ends_with(".svgz") {
         return Err(vec![SourceDiagnostic::error(
-            Span::detached(),
+            args.span,
             "SVG images are not supported yet".to_string(),
         )]);
     }
     if detect_image_format(&data) == ImageFormat::Unknown {
         return Err(vec![SourceDiagnostic::error(
-            Span::detached(),
+            args.span,
             "unknown image format".to_string(),
         )]);
     }
@@ -168,7 +167,7 @@ pub fn native_image(_ctx: &mut EvalContext, args: &Args, world: &dyn crate::cont
 
     if !matches!(fit.as_str(), "contain" | "cover" | "stretch") {
         return Err(vec![SourceDiagnostic::error(
-            Span::detached(),
+            args.span,
             format!("image(fit:): valor '{}' inválido; esperado 'contain', 'cover' ou 'stretch'", fit),
         )]);
     }

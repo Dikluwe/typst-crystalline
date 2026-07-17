@@ -38,7 +38,7 @@ pub fn native_align(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::con
 
     let body = args.items.iter()
         .find_map(|v| if let Value::Content(c) = v { Some(c.clone()) } else { None })
-        .ok_or_else(|| vec![SourceDiagnostic::error(Span::detached(),
+        .ok_or_else(|| vec![SourceDiagnostic::error(args.span,
             "align() exige um bloco de conteúdo".to_string())])?;
 
     Ok(Value::Content(Content::align(alignment, body)))
@@ -55,7 +55,7 @@ pub fn native_place(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::con
         // P223 — accept "float" e "clearance" novos named args.
         if !["dx", "dy", "scope", "float", "clearance"].contains(&key.as_str()) {
             return Err(vec![SourceDiagnostic::error(
-                Span::detached(),
+                args.span,
                 format!("argumento nomeado inesperado em place(): '{}'", key),
             )]);
         }
@@ -85,12 +85,12 @@ pub fn native_place(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::con
             "column" => crate::entities::layout_types::PlaceScope::Column,
             "parent" => crate::entities::layout_types::PlaceScope::Parent,
             other => return Err(vec![SourceDiagnostic::error(
-                Span::detached(),
+                args.span,
                 format!("place(): scope deve ser \"column\" ou \"parent\", recebeu \"{}\"", other),
             )]),
         },
         Some(other) => return Err(vec![SourceDiagnostic::error(
-            Span::detached(),
+            args.span,
             format!("place(): scope deve ser string, recebeu {}", other.type_name()),
         )]),
         None => crate::entities::layout_types::PlaceScope::default(),
@@ -101,7 +101,7 @@ pub fn native_place(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::con
     let float = match args.named.get("float") {
         Some(Value::Bool(b)) => *b,
         Some(other) => return Err(vec![SourceDiagnostic::error(
-            Span::detached(),
+            args.span,
             format!("place(float): espera Bool, recebeu {}", other.type_name()),
         )]),
         None => false,
@@ -112,12 +112,12 @@ pub fn native_place(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::con
     let clearance = match args.named.get("clearance") {
         Some(val) => {
             let len = extract_length(val).ok_or_else(|| vec![SourceDiagnostic::error(
-                Span::detached(),
+                args.span,
                 format!("place(clearance): espera length, recebeu {}", val.type_name()),
             )])?;
             if len.abs.0 < 0.0 || len.em < 0.0 {
                 return Err(vec![SourceDiagnostic::error(
-                    Span::detached(),
+                    args.span,
                     "place(clearance): valor negativo não suportado".to_string(),
                 )]);
             }
@@ -130,14 +130,14 @@ pub fn native_place(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::con
     // vanilla `place` com `scope: "parent"` exige `float: true`.
     if matches!(scope, crate::entities::layout_types::PlaceScope::Parent) && !float {
         return Err(vec![SourceDiagnostic::error(
-            Span::detached(),
+            args.span,
             "place: scope \"parent\" requer float: true (paridade vanilla; sem float, scope \"parent\" não tem semantic flutuante; fecha divergência DEBT-37 documentada)".to_string(),
         )]);
     }
 
     let body = args.items.iter()
         .find_map(|v| if let Value::Content(c) = v { Some(c.clone()) } else { None })
-        .ok_or_else(|| vec![SourceDiagnostic::error(Span::detached(),
+        .ok_or_else(|| vec![SourceDiagnostic::error(args.span,
             "place() exige um bloco de conteúdo".to_string())])?;
 
     Ok(Value::Content(Content::place(alignment, dx, dy, scope, float, clearance, body)))
@@ -197,7 +197,7 @@ pub fn native_grid(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::cont
             .contains(&key.as_str())
         {
             return Err(vec![SourceDiagnostic::error(
-                Span::detached(),
+                args.span,
                 format!("argumento nomeado inesperado em grid(): '{}'", key),
             )]);
         }
@@ -217,12 +217,12 @@ pub fn native_grid(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::cont
     let gutter = match args.named.get("gutter") {
         Some(val) => {
             let len = extract_length(val).ok_or_else(|| vec![SourceDiagnostic::error(
-                Span::detached(),
+                args.span,
                 format!("grid(gutter): espera length, recebeu {}", val.type_name()),
             )])?;
             if len.abs.0 < 0.0 || len.em < 0.0 {
                 return Err(vec![SourceDiagnostic::error(
-                    Span::detached(),
+                    args.span,
                     "grid(gutter): valor negativo não suportado".to_string(),
                 )]);
             }
@@ -235,7 +235,7 @@ pub fn native_grid(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::cont
     let align = match args.named.get("align") {
         Some(Value::Align(a)) => Some(*a),
         Some(other) => return Err(vec![SourceDiagnostic::error(
-            Span::detached(),
+            args.span,
             format!("grid(align): espera alignment, recebeu {}", other.type_name()),
         )]),
         None => None,
@@ -246,7 +246,7 @@ pub fn native_grid(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::cont
     let inset: crate::entities::sides::Sides<Length> = match args.named.get("inset") {
         Some(Value::Length(l)) => crate::entities::sides::Sides::uniform(*l),
         Some(other) => return Err(vec![SourceDiagnostic::error(
-            Span::detached(),
+            args.span,
             format!("grid(inset): espera length, recebeu {}", other.type_name()),
         )]),
         None => crate::entities::sides::Sides::uniform(Length::pt(0.0)),
@@ -300,7 +300,7 @@ pub fn native_grid(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::cont
                 Content::GridHeader(_) => {
                     if header.is_some() {
                         return Err(vec![SourceDiagnostic::error(
-                            Span::detached(),
+                            args.span,
                             "grid: não pode haver mais do que um header (scope-out — múltiplos headers por `level` não suportados)".to_string(),
                         )]);
                     }
@@ -309,7 +309,7 @@ pub fn native_grid(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::cont
                 Content::GridFooter(_) => {
                     if footer.is_some() {
                         return Err(vec![SourceDiagnostic::error(
-                            Span::detached(),
+                            args.span,
                             "grid: não pode haver mais do que um footer".to_string(),
                         )]);
                     }
@@ -339,7 +339,7 @@ pub fn native_grid(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::cont
         Some(Value::Color(c)) => Some(*c),
         Some(Value::None) | None => None,
         Some(other) => return Err(vec![SourceDiagnostic::error(
-            Span::detached(),
+            args.span,
             format!("grid(fill): espera Color, recebeu {}", other.type_name()),
         )]),
     };
@@ -495,11 +495,11 @@ pub fn native_pad(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contr
         Some(Value::Content(c)) => c.clone(),
         Some(Value::Str(s))     => Content::text(s.as_str()),
         Some(other) => return Err(vec![SourceDiagnostic::error(
-            Span::detached(),
+            args.span,
             format!("pad() espera content ou string como primeiro argumento, recebeu {}", other.type_name()),
         )]),
         None => return Err(vec![SourceDiagnostic::error(
-            Span::detached(),
+            args.span,
             "pad() exige body como argumento posicional".to_string(),
         )]),
     };
@@ -531,7 +531,7 @@ fn extract_sides_lengths(args: &Args, fn_name: &str) -> SourceResult<Sides<Optio
 
     for (key, value) in args.named.iter() {
         let len = extract_length(value).ok_or_else(|| vec![SourceDiagnostic::error(
-            Span::detached(),
+            args.span,
             format!("{}({}:) espera length, recebeu {}", fn_name, key, value.type_name()),
         )])?;
         match key.as_str() {
@@ -543,7 +543,7 @@ fn extract_sides_lengths(args: &Args, fn_name: &str) -> SourceResult<Sides<Optio
             "y"      => y_axis = Some(len),
             "rest"   => rest   = Some(len),
             other => return Err(vec![SourceDiagnostic::error(
-                Span::detached(),
+                args.span,
                 format!("{}(): argumento nomeado inesperado '{}'", fn_name, other),
             )]),
         }
@@ -561,7 +561,7 @@ fn extract_sides_lengths(args: &Args, fn_name: &str) -> SourceResult<Sides<Optio
         if let Some(len) = opt {
             if len.abs.0 < 0.0 || len.em < 0.0 {
                 return Err(vec![SourceDiagnostic::error(
-                    Span::detached(),
+                    args.span,
                     format!("{}({}:): padding negativo não suportado neste passo (P156C/L)", fn_name, label),
                 )]);
             }
@@ -660,11 +660,11 @@ pub fn native_hide(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::cont
         Some(Value::Content(c)) => c.clone(),
         Some(Value::Str(s))     => Content::text(s.as_str()),
         Some(other) => return Err(vec![SourceDiagnostic::error(
-            Span::detached(),
+            args.span,
             format!("hide() espera content ou string, recebeu {}", other.type_name()),
         )]),
         None => return Err(vec![SourceDiagnostic::error(
-            Span::detached(),
+            args.span,
             "hide() exige body como argumento posicional".to_string(),
         )]),
     };
@@ -679,7 +679,7 @@ fn extract_weak(args: &Args, fn_name: &str) -> SourceResult<bool> {
     match args.named.get("weak") {
         Some(Value::Bool(b)) => Ok(*b),
         Some(other) => Err(vec![SourceDiagnostic::error(
-            Span::detached(),
+            args.span,
             format!("{}(weak:) espera bool, recebeu {}", fn_name, other.type_name()),
         )]),
         None => Ok(false),
@@ -791,7 +791,7 @@ pub fn native_block(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::con
         Some(Value::Content(c)) => c.clone(),
         Some(Value::Str(s))     => Content::text(s.as_str()),
         Some(other) => return Err(vec![SourceDiagnostic::error(
-            Span::detached(),
+            args.span,
             format!("block() espera content ou string como primeiro argumento, recebeu {}", other.type_name()),
         )]),
         // Body opcional em vanilla; aceitamos ausência como Empty.
@@ -807,13 +807,13 @@ pub fn native_block(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::con
         match key.as_str() {
             "width" => {
                 width = Some(extract_length(value).ok_or_else(|| vec![SourceDiagnostic::error(
-                    Span::detached(),
+                    args.span,
                     format!("block(width:) espera length, recebeu {}", value.type_name()),
                 )])?);
             }
             "height" => {
                 height = Some(extract_length(value).ok_or_else(|| vec![SourceDiagnostic::error(
-                    Span::detached(),
+                    args.span,
                     format!("block(height:) espera length, recebeu {}", value.type_name()),
                 )])?);
             }
@@ -822,7 +822,7 @@ pub fn native_block(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::con
             "breakable" => match value {
                 Value::Bool(b) => breakable = *b,
                 other => return Err(vec![SourceDiagnostic::error(
-                    Span::detached(),
+                    args.span,
                     format!("block(breakable:) espera bool, recebeu {}", other.type_name()),
                 )]),
             },
@@ -832,7 +832,7 @@ pub fn native_block(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::con
             "outset" | "radius" | "clip" | "fill" | "stroke"
                 | "spacing" | "above" | "below" | "sticky" => {},
             other => return Err(vec![SourceDiagnostic::error(
-                Span::detached(),
+                args.span,
                 format!("block(): argumento nomeado inesperado '{}' (atributos avançados scope-out per ADR-0054 graded — refino futuro)", other),
             )]),
         }
@@ -842,7 +842,7 @@ pub fn native_block(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::con
     for (label, len) in [("width", width), ("height", height)].iter().filter_map(|(l, opt)| opt.map(|len| (*l, len))).collect::<Vec<_>>() {
         if len.abs.0 < 0.0 || len.em < 0.0 {
             return Err(vec![SourceDiagnostic::error(
-                Span::detached(),
+                args.span,
                 format!("block({}:): valor negativo não suportado neste passo (P156G)", label),
             )]);
         }
@@ -868,7 +868,7 @@ pub fn native_block(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::con
     let clip = match args.named.get("clip") {
         Some(Value::Bool(b)) => *b,
         Some(other) => return Err(vec![SourceDiagnostic::error(
-            Span::detached(),
+            args.span,
             format!("block(clip): espera Bool, recebeu {}", other.type_name()),
         )]),
         None => false,
@@ -881,7 +881,7 @@ pub fn native_block(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::con
         Some(Value::Color(c)) => Some(*c),
         Some(Value::None) | None => None,
         Some(other) => return Err(vec![SourceDiagnostic::error(
-            Span::detached(),
+            args.span,
             format!("block(fill): espera Color, recebeu {}", other.type_name()),
         )]),
     };
@@ -902,12 +902,12 @@ pub fn native_block(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::con
             None      => Ok(None),
             Some(val) => {
                 let len = extract_length(val).ok_or_else(|| vec![SourceDiagnostic::error(
-                    Span::detached(),
+                    args.span,
                     format!("block({}:) espera length, recebeu {}", key, val.type_name()),
                 )])?;
                 if len.abs.0 < 0.0 || len.em < 0.0 {
                     return Err(vec![SourceDiagnostic::error(
-                        Span::detached(),
+                        args.span,
                         format!("block({}:): valor negativo não suportado (P250)", key),
                     )]);
                 }
@@ -921,7 +921,7 @@ pub fn native_block(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::con
     let sticky = match args.named.get("sticky") {
         Some(Value::Bool(b)) => *b,
         Some(other) => return Err(vec![SourceDiagnostic::error(
-            Span::detached(),
+            args.span,
             format!("block(sticky): espera Bool, recebeu {}", other.type_name()),
         )]),
         None => false,
@@ -977,19 +977,19 @@ pub fn native_stack(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::con
             "dir"     => dir = extract_dir(value)?,
             "spacing" => {
                 let len = extract_length(value).ok_or_else(|| vec![SourceDiagnostic::error(
-                    Span::detached(),
+                    args.span,
                     format!("stack(spacing:) espera length, recebeu {}", value.type_name()),
                 )])?;
                 if len.abs.0 < 0.0 || len.em < 0.0 {
                     return Err(vec![SourceDiagnostic::error(
-                        Span::detached(),
+                        args.span,
                         "stack(spacing:): valor negativo não suportado neste passo (P156I)".to_string(),
                     )]);
                 }
                 spacing = Some(len);
             }
             other => return Err(vec![SourceDiagnostic::error(
-                Span::detached(),
+                args.span,
                 format!("stack(): argumento nomeado inesperado '{}'", other),
             )]),
         }
@@ -1002,7 +1002,7 @@ pub fn native_stack(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::con
             Value::Content(c) => children.push(c.clone()),
             Value::Str(s)     => children.push(Content::text(s.as_str())),
             other => return Err(vec![SourceDiagnostic::error(
-                Span::detached(),
+                args.span,
                 format!("stack(): children devem ser content ou string, recebeu {}", other.type_name()),
             )]),
         }
@@ -1034,7 +1034,7 @@ pub fn native_box(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contr
         Some(Value::Content(c)) => c.clone(),
         Some(Value::Str(s))     => Content::text(s.as_str()),
         Some(other) => return Err(vec![SourceDiagnostic::error(
-            Span::detached(),
+            args.span,
             format!("box() espera content ou string como primeiro argumento, recebeu {}", other.type_name()),
         )]),
         None => Content::Empty,  // body opcional (vanilla aceita)
@@ -1049,13 +1049,13 @@ pub fn native_box(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contr
         match key.as_str() {
             "width" => {
                 width = Some(extract_length(value).ok_or_else(|| vec![SourceDiagnostic::error(
-                    Span::detached(),
+                    args.span,
                     format!("box(width:) espera length, recebeu {}", value.type_name()),
                 )])?);
             }
             "height" => {
                 height = Some(extract_length(value).ok_or_else(|| vec![SourceDiagnostic::error(
-                    Span::detached(),
+                    args.span,
                     format!("box(height:) espera length, recebeu {}", value.type_name()),
                 )])?);
             }
@@ -1063,7 +1063,7 @@ pub fn native_box(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contr
             "inset" => { inset_val = Some(value); }
             "baseline" => {
                 baseline = extract_length(value).ok_or_else(|| vec![SourceDiagnostic::error(
-                    Span::detached(),
+                    args.span,
                     format!("box(baseline:) espera length, recebeu {}", value.type_name()),
                 )])?;
             }
@@ -1071,7 +1071,7 @@ pub fn native_box(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contr
             // P247 — aceitar fill/stroke paralelo block.
             "outset" | "radius" | "clip" | "fill" | "stroke" => {},
             other => return Err(vec![SourceDiagnostic::error(
-                Span::detached(),
+                args.span,
                 format!("box(): argumento nomeado inesperado '{}' (atributos avançados scope-out per ADR-0054 graded — refino futuro)", other),
             )]),
         }
@@ -1081,7 +1081,7 @@ pub fn native_box(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contr
     for (label, len) in [("width", width), ("height", height)].iter().filter_map(|(l, opt)| opt.map(|len| (*l, len))).collect::<Vec<_>>() {
         if len.abs.0 < 0.0 || len.em < 0.0 {
             return Err(vec![SourceDiagnostic::error(
-                Span::detached(),
+                args.span,
                 format!("box({}:): valor negativo não suportado neste passo (P156H)", label),
             )]);
         }
@@ -1107,7 +1107,7 @@ pub fn native_box(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contr
     let clip = match args.named.get("clip") {
         Some(Value::Bool(b)) => *b,
         Some(other) => return Err(vec![SourceDiagnostic::error(
-            Span::detached(),
+            args.span,
             format!("box(clip): espera Bool, recebeu {}", other.type_name()),
         )]),
         None => false,
@@ -1119,7 +1119,7 @@ pub fn native_box(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contr
         Some(Value::Color(c)) => Some(*c),
         Some(Value::None) | None => None,
         Some(other) => return Err(vec![SourceDiagnostic::error(
-            Span::detached(),
+            args.span,
             format!("box(fill): espera Color, recebeu {}", other.type_name()),
         )]),
     };
@@ -1165,11 +1165,11 @@ pub fn native_repeat(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::co
         Some(Value::Content(c)) => c.clone(),
         Some(Value::Str(s))     => Content::text(s.as_str()),
         Some(other) => return Err(vec![SourceDiagnostic::error(
-            Span::detached(),
+            args.span,
             format!("repeat() espera content ou string como primeiro argumento, recebeu {}", other.type_name()),
         )]),
         None => return Err(vec![SourceDiagnostic::error(
-            Span::detached(),
+            args.span,
             "repeat() exige body como argumento posicional".to_string(),
         )]),
     };
@@ -1181,12 +1181,12 @@ pub fn native_repeat(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::co
         match key.as_str() {
             "gap" => {
                 let len = extract_length(value).ok_or_else(|| vec![SourceDiagnostic::error(
-                    Span::detached(),
+                    args.span,
                     format!("repeat(gap:) espera length, recebeu {}", value.type_name()),
                 )])?;
                 if len.abs.0 < 0.0 || len.em < 0.0 {
                     return Err(vec![SourceDiagnostic::error(
-                        Span::detached(),
+                        args.span,
                         "repeat(gap:): valor negativo não suportado neste passo (P156J)".to_string(),
                     )]);
                 }
@@ -1195,12 +1195,12 @@ pub fn native_repeat(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::co
             "justify" => match value {
                 Value::Bool(b) => justify = *b,
                 other => return Err(vec![SourceDiagnostic::error(
-                    Span::detached(),
+                    args.span,
                     format!("repeat(justify:) espera bool, recebeu {}", other.type_name()),
                 )]),
             },
             other => return Err(vec![SourceDiagnostic::error(
-                Span::detached(),
+                args.span,
                 format!("repeat(): argumento nomeado inesperado '{}'", other),
             )]),
         }
@@ -1221,18 +1221,18 @@ fn extract_count(args: &Args, fn_name: &str) -> SourceResult<usize> {
         Some(Value::Int(n)) => {
             if *n < 1 {
                 return Err(vec![SourceDiagnostic::error(
-                    Span::detached(),
+                    args.span,
                     format!("{}(count): count deve ser >= 1, recebeu {}", fn_name, n),
                 )]);
             }
             Ok(*n as usize)
         }
         Some(other) => Err(vec![SourceDiagnostic::error(
-            Span::detached(),
+            args.span,
             format!("{}(count): espera Int, recebeu {}", fn_name, other.type_name()),
         )]),
         None => Err(vec![SourceDiagnostic::error(
-            Span::detached(),
+            args.span,
             format!("{}: argumento posicional count obrigatório ausente", fn_name),
         )]),
     }
@@ -1262,11 +1262,11 @@ pub fn native_columns(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::c
         Some(Value::Content(c)) => c.clone(),
         Some(Value::Str(s))     => Content::text(s.as_str()),
         Some(other) => return Err(vec![SourceDiagnostic::error(
-            Span::detached(),
+            args.span,
             format!("columns(body): espera Content ou Str, recebeu {}", other.type_name()),
         )]),
         None => return Err(vec![SourceDiagnostic::error(
-            Span::detached(),
+            args.span,
             "columns: argumento posicional body obrigatório ausente".to_string(),
         )]),
     };
@@ -1274,7 +1274,7 @@ pub fn native_columns(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::c
     // 3. Validate no extra positionals.
     if args.items.len() > 2 {
         return Err(vec![SourceDiagnostic::error(
-            Span::detached(),
+            args.span,
             format!("columns: aceita 2 posicionais (count, body), recebeu {}", args.items.len()),
         )]);
     }
@@ -1285,19 +1285,19 @@ pub fn native_columns(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::c
         match key.as_str() {
             "gutter" => {
                 let len = extract_length(value).ok_or_else(|| vec![SourceDiagnostic::error(
-                    Span::detached(),
+                    args.span,
                     format!("columns(gutter:) espera length, recebeu {}", value.type_name()),
                 )])?;
                 if len.abs.0 < 0.0 || len.em < 0.0 {
                     return Err(vec![SourceDiagnostic::error(
-                        Span::detached(),
+                        args.span,
                         "columns(gutter:): valor negativo não suportado".to_string(),
                     )]);
                 }
                 gutter = Some(len);
             }
             other => return Err(vec![SourceDiagnostic::error(
-                Span::detached(),
+                args.span,
                 format!("columns(): argumento nomeado inesperado '{}'", other),
             )]),
         }
@@ -1323,7 +1323,7 @@ pub fn native_columns(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::c
 pub fn native_colbreak(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contracts::world::World, _current_file: FileId) -> SourceResult<Value> {
     if !args.items.is_empty() {
         return Err(vec![SourceDiagnostic::error(
-            Span::detached(),
+            args.span,
             "colbreak() não aceita argumentos posicionais".to_string(),
         )]);
     }
@@ -1335,12 +1335,12 @@ pub fn native_colbreak(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::
             "weak" => match value {
                 Value::Bool(b) => weak = *b,
                 other => return Err(vec![SourceDiagnostic::error(
-                    Span::detached(),
+                    args.span,
                     format!("colbreak(weak:) espera bool, recebeu {}", other.type_name()),
                 )]),
             },
             other => return Err(vec![SourceDiagnostic::error(
-                Span::detached(),
+                args.span,
                 format!("colbreak(): argumento nomeado inesperado '{}' (esperado: weak)", other),
             )]),
         }
@@ -1359,25 +1359,25 @@ pub fn extract_measure_body(args: &Args) -> SourceResult<Content> {
         Some(Value::Content(c)) => c.clone(),
         Some(Value::Str(s))     => Content::text(s.as_str()),
         Some(other) => return Err(vec![SourceDiagnostic::error(
-            Span::detached(),
+            args.span,
             format!("measure(body): espera Content ou Str, recebeu {}", other.type_name()),
         )]),
         None => return Err(vec![SourceDiagnostic::error(
-            Span::detached(),
+            args.span,
             "measure: argumento posicional body obrigatório ausente".to_string(),
         )]),
     };
 
     if args.items.len() > 1 {
         return Err(vec![SourceDiagnostic::error(
-            Span::detached(),
+            args.span,
             format!("measure: aceita 1 posicional (body), recebeu {}", args.items.len()),
         )]);
     }
 
     if let Some(key) = args.named.keys().next() {
         return Err(vec![SourceDiagnostic::error(
-            Span::detached(),
+            args.span,
             format!("measure: named arg `{}` não suportado (paridade graded; refino futuro candidato NÃO-reservado per ADR-0054)", key),
         )]);
     }
@@ -1429,7 +1429,7 @@ pub fn native_stroke(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::co
 
     if !args.items.is_empty() {
         return Err(vec![SourceDiagnostic::error(
-            Span::detached(),
+            args.span,
             "stroke() não aceita argumentos posicionais".to_string(),
         )]);
     }
@@ -1437,7 +1437,7 @@ pub fn native_stroke(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::co
     let paint = match args.named.get("paint") {
         Some(Value::Color(c)) => *c,
         Some(other) => return Err(vec![SourceDiagnostic::error(
-            Span::detached(),
+            args.span,
             format!("stroke(paint): espera Color, recebeu {}", other.type_name()),
         )]),
         None => Color::rgb(0, 0, 0),
@@ -1446,7 +1446,7 @@ pub fn native_stroke(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::co
     let thickness = match args.named.get("thickness") {
         Some(val) => {
             let len = extract_length(val).ok_or_else(|| vec![SourceDiagnostic::error(
-                Span::detached(),
+                args.span,
                 format!("stroke(thickness): espera length, recebeu {}", val.type_name()),
             )])?;
             len.abs.to_pt()
@@ -1456,7 +1456,7 @@ pub fn native_stroke(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::co
 
     if thickness <= 0.0 {
         return Err(vec![SourceDiagnostic::error(
-            Span::detached(),
+            args.span,
             format!("stroke(thickness): deve ser > 0 (recebeu {})", thickness),
         )]);
     }
@@ -1465,7 +1465,7 @@ pub fn native_stroke(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::co
     let overhang = match args.named.get("overhang") {
         Some(Value::Bool(b)) => *b,
         Some(other) => return Err(vec![SourceDiagnostic::error(
-            Span::detached(),
+            args.span,
             format!("stroke(overhang): espera Bool, recebeu {}", other.type_name()),
         )]),
         None => true,
@@ -1474,7 +1474,7 @@ pub fn native_stroke(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::co
     for key in args.named.keys() {
         if !["paint", "thickness", "overhang"].contains(&key.as_str()) {
             return Err(vec![SourceDiagnostic::error(
-                Span::detached(),
+                args.span,
                 format!("stroke(): argumento nomeado inesperado '{}' (esperado: paint, thickness, overhang)", key),
             )]);
         }
@@ -1492,7 +1492,7 @@ pub fn native_stroke(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::co
 pub fn native_pagebreak(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contracts::world::World, _current_file: FileId) -> SourceResult<Value> {
     if !args.items.is_empty() {
         return Err(vec![SourceDiagnostic::error(
-            Span::detached(),
+            args.span,
             "pagebreak() não aceita argumentos posicionais".to_string(),
         )]);
     }
@@ -1505,13 +1505,13 @@ pub fn native_pagebreak(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate:
             "weak" => match value {
                 Value::Bool(b) => weak = *b,
                 other => return Err(vec![SourceDiagnostic::error(
-                    Span::detached(),
+                    args.span,
                     format!("pagebreak(weak:) espera bool, recebeu {}", other.type_name()),
                 )]),
             },
             "to" => to = Some(extract_parity(value)?),
             other => return Err(vec![SourceDiagnostic::error(
-                Span::detached(),
+                args.span,
                 format!("pagebreak(): argumento nomeado inesperado '{}'", other),
             )]),
         }

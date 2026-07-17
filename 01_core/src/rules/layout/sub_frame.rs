@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/rules/layout.md
-//! @prompt-hash 9631382f
+//! @prompt-hash c2ac077c
 //! @layer L1
 //! @updated 2026-07-09
 //!
@@ -11,7 +11,7 @@
 use crate::entities::content::Content;
 use crate::entities::layout_types::{FrameItem, Pt};
 
-use super::{FontMetrics, ImageSizer, Layouter};
+use super::{DecoSegment, FontMetrics, ImageSizer, Layouter};
 
 /// Região onde um sub-layout é executado.
 ///
@@ -36,12 +36,20 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
     ///
     /// Salva o estado completo do layouter, cria um frame temporário com
     /// cursor em (`origin_x`, ascender), executa o layout e restaura o estado.
-    /// Retorna `(height, items)` com posições locais ao frame temporário.
+    /// Retorna `(height, items, deco_segments)` com posições locais ao frame
+    /// temporário — `deco_segments` (P772x) só é não-vazio quando havia um
+    /// `decoration_lines_collector` ambiente activo (chamada aninhada dentro
+    /// de `Underline`/`Strike`/`Overline`); o caller é responsável por
+    /// traduzir estes segmentos para o referencial do frame pai com a MESMA
+    /// translação já aplicada aos `FrameItem`s devolvidos, e por os
+    /// re-inserir em `self.decoration_lines_collector` (ver
+    /// `00_nucleo/prompts/rules/layout.md` §"Decoração através de
+    /// `layout_sub_frame`").
     pub(super) fn layout_sub_frame(
         &mut self,
         content: &Content,
         region: SubLayoutRegion,
-    ) -> (f64, Vec<FrameItem>) {
+    ) -> (f64, Vec<FrameItem>, Vec<DecoSegment>) {
         // Salvar estado.
         let saved_items = std::mem::take(&mut self.regions.current.current_items);
         let saved_line = std::mem::take(&mut self.regions.current.current_line);
@@ -53,6 +61,15 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
         let saved_unconstrained = self.is_height_unconstrained;
         let saved_is_sub_frame = self.is_sub_frame;
         let saved_initial_baseline_pending = self.initial_baseline_pending;
+        // **P772x** — swap do `decoration_lines_collector` ambiente por um
+        // collector LOCAL (coordenadas relativas ao sub-frame), para que os
+        // segmentos colectados durante `self.layout_content(content)` abaixo
+        // (incluindo pelo flush manual no fim desta função) não se
+        // misturem, sem tradução, com segmentos já em coordenadas absolutas
+        // do frame pai. `None` quando não há collector ambiente activo —
+        // sem overhead (mesma disciplina de `flush_line`/`decorations.rs`).
+        let saved_collector = self.decoration_lines_collector.take();
+        self.decoration_lines_collector = saved_collector.is_some().then(Vec::new);
         // P751 — durante um sub-layout isolado a baseline inicial é fixada
         // imediatamente pelo próprio sub-frame (cursor_y = ascender); não
         // queremos que `ensure_initial_baseline` dentro do sub-frame afecte
@@ -124,6 +141,19 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
                 self.style.leading.map(|l| l.resolve_pt(self.style.size.val())).unwrap_or_else(|| self.style.size.val() * 0.65)
             });
         let had_items = !self.regions.current.current_line.is_empty();
+        // **P772x** — mesmo hook de `flush_line` (`cursor.rs`): regista o
+        // segmento da última linha do sub-frame (que este flush manual
+        // drena sem passar por `flush_line`, daí a decoração nunca ter
+        // sido capturada aqui antes desta correcção).
+        if had_items {
+            if let Some(coll) = self.decoration_lines_collector.as_mut() {
+                coll.push(DecoSegment {
+                    start_x:    self.regions.current.line_start_x,
+                    end_x:      self.regions.current.cursor_x,
+                    baseline_y: self.regions.current.cursor_y,
+                });
+            }
+        }
         for item in self.regions.current.current_line.drain(..) {
             self.regions.current.current_items.push(item);
         }
@@ -148,8 +178,12 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
         self.is_height_unconstrained = saved_unconstrained;
         self.is_sub_frame = saved_is_sub_frame;
         self.initial_baseline_pending = saved_initial_baseline_pending;
+        // **P772x** — recuperar segmentos locais e restaurar o collector
+        // ambiente (LIFO — ver comentário no início da função).
+        let deco_segments = self.decoration_lines_collector.take().unwrap_or_default();
+        self.decoration_lines_collector = saved_collector;
 
-        (cell_height, cell_items)
+        (cell_height, cell_items, deco_segments)
     }
 
     /// Layout inline de conteúdo numa linha do pai.

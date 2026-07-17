@@ -1,5 +1,5 @@
 # Prompt L0 — `stdlib/structural` — módulo `structural`
-Hash do Código: f17bf426
+Hash do Código: 73d2a7f2
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/rules/stdlib/structural.rs`
@@ -248,7 +248,17 @@ quote([x], foo: 1) -> Err "argumento nomeado inesperado 'foo'"
 - `stroke`: `Stroke` (named; paridade P227).
 - `fill`: `Color` (named; paridade P228).
 
-**Semântica**: Cria `Content::Table(Arc<TableElem { columns, rows, children, stroke, fill }>)`. Children são distribuídos por colunas via `idx % num_cols` reutilizando o algoritmo de grid.
+**Semântica**: Cria `Content::Table(Arc<TableElem { columns, rows, children, header, footer, stroke, fill }>)`. Children são distribuídos por colunas via `idx % num_cols` reutilizando o algoritmo de grid.
+
+**P772v — `table.header(...)`/`table.footer(...)` como row-group real**: `header`/
+`footer` **não** são argumentos nomeados (paridade vanilla — `#table(header: ..)`
+erra com "argumento nomeado inesperado"). São extraídos do loop de resolução dos
+children posicionais: `Content::TableHeader`/`Content::TableFooter` não
+incrementam col/row; são guardados em `header`/`footer: Option<Content>` (só um
+de cada — erro explícito em duplicado) e passados ao `TableElem`. Extensão
+directa do mesmo mecanismo de `native_grid` (P772i) — ver
+`00_nucleo/prompts/rules/layout.md` secção `grid.header(...)`/`grid.footer(...)`
+para o mecanismo de row-group no layout.
 
 **Paridade vanilla**: Subset minimal per ADR-0054 graded (P157A).
 
@@ -826,6 +836,58 @@ lot(title: [Lista de Tabelas]) -> Outline { target: Tables, title: Some(...) }
 
 // make_math_module — P480 (equation alias)
 make_math_module().get("equation") == Value::None  // alias; namespace vanilla
+
+// native_math_class — P772y
+math.class("relation", "z") -> Content::MathClassOverride { class: Relation, body: "z" }
+math.class("bad", "z") -> Err "class(): 'bad' não é uma MathClass reconhecida"
+math.class("relation") -> Err "class() exige body como 2.º argumento posicional"
+```
+
+---
+
+## P772y — `native_math_class` / `math.class(class, body)`
+
+**Assinatura**: `class(class: Str, body: Content | Str | Symbol) -> Content`
+
+**Argumentos**:
+- 1º posicional `class`: `Str` — uma das 15 strings vanilla
+  (`entities/math_class.rs::parse_math_class`; kebab-case só para
+  `"glyph-part"`).
+- 2º posicional `body`: `Content`, `Str`, ou `Symbol` (P471 — símbolo
+  Unicode como body, paridade com a conversão de markup em `eval/mod.rs`).
+- Não aceita argumentos nomeados.
+
+**Semântica**: Emite `Content::MathClassOverride { class, body }` — força a
+`MathClass` de `body` para efeitos de espaçamento automático
+(`rules/math/layout/spacing.rs`), sem afectar o layout/renderização do
+`body` em si. Ver `entities/elements/math_class_override.md`.
+
+**Registo**: vive no **scope do módulo `math`** (`make_math_module()`), não
+no scope global — ao contrário de `cancel`/`accent`, que são globais
+(`rules/eval/mod.rs`).
+
+**Paridade vanilla**: `ClassElem` (`math/mod.rs`) — `#[elem(Mathy)] pub
+struct ClassElem { #[required] pub class: MathClass, #[required] pub body:
+Content }`.
+
+**Pré-requisito descoberto e resolvido no mesmo passo (P772y)**: o
+avaliador de modo math (`rules/eval/math.rs::eval_math_expr`, arm
+`Expr::FuncCall`) só despachava chamadas cujo callee fosse um
+`Expr::MathIdent` bare (`cancel(x)`, `bb(x)`, ...) — um callee namespaced
+como `math.class(...)` (`Expr::FieldAccess`) caía no `_ => return
+Ok(Content::Empty)` e desaparecia silenciosamente. Ver
+`rules/eval.md` §P772y para a extensão (`eval_math_callee`,
+`eval_math_arg_value`) que resolve callees `FieldAccess` e permite
+argumentos `Str` literais (não só `Content`) em chamadas math namespaced.
+
+**Testes canónicos**:
+```
+class("relation", "z") -> MathClassOverride { class: Relation, body: "z" }
+class("relation", sym.suit.heart) -> MathClassOverride { class: Relation, body: "♥" }
+class("bad-name", "z") -> Err "não é uma MathClass reconhecida"
+class("relation") -> Err "exige body como 2.º argumento posicional"
+class() -> Err "exige o nome da classe como 1.º argumento posicional"
+class("relation", "z", extra: 1) -> Err "argumento nomeado 'extra' não suportado"
 ```
 
 ---

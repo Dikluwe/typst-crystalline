@@ -149,14 +149,14 @@ fn parse_space_named(args: &Args, fn_name: &str) -> SourceResult<ColorSpace> {
             "hsv"        => Ok(ColorSpace::Hsv),
             "cmyk"       => Ok(ColorSpace::Cmyk),
             other => Err(vec![SourceDiagnostic::error(
-                Span::detached(),
+                args.span,
                 format!(
                     "{fn_name}(space): '{other}' inválido (esperado: oklab, oklch, srgb, luma, linear-rgb, hsl, hsv, cmyk)"
                 ),
             )]),
         },
         Some(other) => Err(vec![SourceDiagnostic::error(
-            Span::detached(),
+            args.span,
             format!("{fn_name}(space): espera Str, recebeu {}", other.type_name()),
         )]),
     }

@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/rules/layout.md
-//! @prompt-hash 9631382f
+//! @prompt-hash c2ac077c
 //! @layer L1
 //! @updated 2026-04-23
 //!
@@ -37,7 +37,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
         // o início; só falta somar o deslocamento *incremental* do
         // alinhamento (`delta_x` abaixo), não o `target_x` inteiro.
         let origin_x_abs = self.regions.current.line_start_x.0;
-        let (sub_h, sub_items) = self.layout_sub_frame(
+        let (sub_h, sub_items, sub_deco) = self.layout_sub_frame(
             body,
             super::sub_frame::SubLayoutRegion {
                 origin_x: origin_x_abs,
@@ -128,6 +128,16 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
             let new_y = Pt(target_y + iy - sub_origin_y);
             self.regions.current.current_items.push(translate_frame_item(item, new_x, new_y));
         }
+        // **P772x** — mesma translação para segmentos de decoração do body.
+        if let Some(coll) = self.decoration_lines_collector.as_mut() {
+            for seg in &sub_deco {
+                coll.push(super::DecoSegment {
+                    start_x:    Pt(seg.start_x.val() + delta_x),
+                    end_x:      Pt(seg.end_x.val() + delta_x),
+                    baseline_y: Pt(target_y + seg.baseline_y.val() - sub_origin_y),
+                });
+            }
+        }
 
         // Avançar cursor Y.
         //
@@ -163,7 +173,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
         let avail_w_page = self.available_width();
         let avail_h_page = self.available_height();
 
-        let (sub_h, sub_items) = self.layout_sub_frame(
+        let (sub_h, sub_items, sub_deco) = self.layout_sub_frame(
             body,
             super::sub_frame::SubLayoutRegion {
                 origin_x: 0.0,
@@ -250,6 +260,17 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
             let new_x = Pt(target_x + ix);
             let new_y = Pt(target_y + iy - y_offset);
             self.regions.current.current_items.push(translate_frame_item(item, new_x, new_y));
+        }
+        // **P772x** — mesma translação para segmentos de decoração do body
+        // (repro original de P772w: `#underline[.. #place(..)[explanation]]`).
+        if let Some(coll) = self.decoration_lines_collector.as_mut() {
+            for seg in &sub_deco {
+                coll.push(super::DecoSegment {
+                    start_x:    Pt(target_x + seg.start_x.val()),
+                    end_x:      Pt(target_x + seg.end_x.val()),
+                    baseline_y: Pt(target_y + seg.baseline_y.val() - y_offset),
+                });
+            }
         }
         // cursor_y e cursor_x ficam intocados — Place não consome espaço.
     }

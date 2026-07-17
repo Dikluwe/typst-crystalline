@@ -31,6 +31,7 @@ pub mod math_align_point;
 pub mod math_attach;
 pub mod math_cancel;
 pub mod math_cases;
+pub mod math_class_override; // P772y
 pub mod math_delimited;
 pub mod math_frac;
 pub mod math_matrix;

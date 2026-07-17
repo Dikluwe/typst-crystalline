@@ -1,5 +1,5 @@
 # Prompt L0 — `infra/export/builder` — PdfBuilder
-Hash do Código: 08ca0e8c
+Hash do Código: 14c1f902
 
 **Camada**: L3
 **Ficheiro alvo**: `03_infra/src/export/builder.rs`
@@ -37,6 +37,59 @@ O mapa é passado para `PageContext::cidfont` / `PageContext::multifont`
 através de `FontScenario` e consumido por `emit_shaped_pdf` para calcular
 o delta `nominal - x_advance` no operador PDF `TJ`.
 
+### §P772u — `glyph_to_nominal` tem de usar a MESMA instância que `/W`
+
+**Data:** 2026-07-17
+
+O modelo de delta do TJ (acima) só é correcto se `nominal` (usado para
+calcular o delta) e `w0` (a largura declarada no array `/W`, lida pelo
+leitor de PDF em tempo de render) vierem da **mesma** face/instância —
+a fórmula `deslocamento = w0 - delta = w0 - (nominal - x_advance)`
+só se reduz a `x_advance` quando `w0 == nominal`.
+
+Em `build_multifont`, `/W` é construído a partir de `face_for_widths`
+(`subset_face.as_ref().unwrap_or(face)`, onde `subset_face` vem de
+`embed_data` **pós-instanciação** — ver §P530/`instantiate_variable_font`).
+`glyph_to_nominal`, por ser calculado em espaço de GID **original**
+(pré-subset — o mesmo espaço que `ShapedGlyph::glyph_id`, produzido pelo
+shaper a partir da fonte variável crua), **não pode** usar `face_for_widths`
+directamente (GIDs pós-subset não correspondem). Em vez disso, aplicar a
+mesma variação de eixo (`axis_variations_for_font_variant`) a um **clone**
+de `face` (a face original, em espaço de GID pré-subset) antes de ler
+`glyph_hor_advance` — **só quando `instantiate_variable_font` teve
+sucesso** (`instancing_applied`). Se a instanciação falhar (ex.: Python/
+fontTools ausente — P667), `embed_data`/`/W` ficam na instância por
+omissão (fallback já existente, com aviso `eprintln!`); `glyph_to_nominal`
+tem de acompanhar esse fallback e **não** aplicar a variação nesse caso,
+para os dois lados do delta continuarem a vir da mesma instância (mesmo
+que "errada" visualmente — problema pré-existente e já avisado,
+independente desta correcção):
+
+```rust
+let mut nominal_face = face.clone();
+if instancing_applied {
+    for v in &axis_vars {
+        nominal_face.set_variation(v.tag, v.value);
+    }
+}
+// usar nominal_face.glyph_hor_advance(...) para construir glyph_to_nominal
+```
+
+**Sintoma da violação** (achado por instrumentação, P772u): quando
+`glyph_to_nominal` usa a face **sem** variação enquanto `/W` usa a face
+**com** variação, o delta do TJ mede a diferença de peso como se fosse
+kerning, e o deslocamento real no leitor de PDF passa a ser
+`2×x_advance_correcto − nominal_sem_variação` — um avanço adicional
+igual à própria variação de peso, por glifo. Em texto contínuo (várias
+letras seguidas), este excesso acumula-se e pode exceder a largura do
+espaço entre palavras seguintes, colapsando-as visualmente (confirmado
+com Cantarell-VF.otf, CFF2/HVAR, wght=800 — `#image`/`#text` não
+afectados, é específico do caminho de texto variável). `build_cidfont`
+(fonte única, sem instanciação nesse caminho) não sofre disto porque
+`glyph_to_nominal` e `/W` usam consistentemente a mesma face sem
+variação — mas por isso também não suporta peso variável real (fonte
+embutida fica sempre na instância por omissão).
+
 ## §P568 — Subsetar glyphs do caminho fallback (`FrameItem::Text`)
 
 **Data:** 2026-07-05
@@ -55,26 +108,34 @@ contém espaços), o `FrameItem::Text` resultante ainda precisa de ter o seu
 glyph presente no subset, caso contrário o leitor de PDF não consegue
 selecionar/copiar esse caractere.
 
-## §P560 — Descritor PDF conforme o tipo de fonte (TrueType vs CFF)
+## §P560/§P772u — Descritor PDF conforme o tipo de fonte (TrueType vs CFF vs CFF2)
 
 `build_cidfont` e `build_multifont` detectam se os bytes a embeber são uma
-fonte TrueType (`glyf`) ou uma fonte CFF/OpenType (`CFF`/`CFF2`). O
-descritor PDF emitido deve corresponder ao formato interno da fonte, porque
-leitores como poppler e mupdf rejeitam uma fonte CFF embutida como
-`/FontFile2` com `/Subtype /CIDFontType2`.
+fonte TrueType (`glyf`) ou uma fonte CFF/CFF2/OpenType. O descritor PDF
+emitido deve corresponder ao formato interno da fonte, porque leitores como
+poppler e mupdf rejeitam uma fonte CFF/CFF2 embutida como `/FontFile2` com
+`/Subtype /CIDFontType2`.
+
+**Correcção P772u:** a versão original desta regra (P560) só verificava
+`face.tables().cff` (CFF1) — `ttf_parser` expõe `cff` e `cff2` como campos
+**distintos** em `Face::tables()`; uma fonte CFF2 (ex.: fontes variáveis
+OpenType como Cantarell-VF.otf) sem tabela `CFF ` caía silenciosamente no
+ramo TrueType (`/CIDFontType2`/`/FontFile2`), mesmo não tendo `glyf`. A regra
+abaixo já inclui a detecção de CFF2.
 
 Regras:
 
 1. Detecção: após obter `embed_font_data`, fazer `ttf_parser::Face::parse` e
-   consultar `face.tables().cff`.
-   - Se `cff.is_some()` → fonte CFF/OpenType.
+   consultar, por ordem, `face.tables().cff` e depois `face.tables().cff2`.
+   - Se `cff.is_some()` → fonte CFF1/OpenType.
+   - Senão, se `cff2.is_some()` → fonte CFF2/OpenType (variável).
    - Senão → fonte TrueType (`glyf`).
 2. Para **TrueType** (comportamento existente):
    - `/Subtype /CIDFontType2` no dicionário `/Font` descendente.
    - `/FontFile2 {stream_id} 0 R` no `/FontDescriptor`.
    - Stream: `<< /Length {len} /Subtype /CIDFontType2 >>`.
    - Bytes do stream: a fonte TrueType completa (SFNT).
-3. Para **CFF/OpenType**:
+3. Para **CFF1/OpenType**:
    - `/Subtype /CIDFontType0` no dicionário `/Font` descendente.
    - `/FontFile3 {stream_id} 0 R` no `/FontDescriptor`.
    - Stream: `<< /Length {len} /Subtype /CIDFontType0C >>`.
@@ -82,8 +143,20 @@ Regras:
      OpenType/SFNT via `ttf_parser::Face::table_data(Tag::from_bytes(b"CFF "))`.
      Leitores de PDF esperam o programa CFF puro, não o contêiner SFNT
      completo, quando o descritor diz `/CIDFontType0C`.
-4. O ToUnicode CMap, o array `/W` e o operador `TJ` permanecem inalterados —
-   apenas a envolvência do descritor de fonte muda.
+4. Para **CFF2/OpenType** (P772u): **não existe** subtype PDF para "programa
+   CFF2 puro" (ISO 32000-2 §9.9.4 só define `Type1C`, `CIDFontType0C` — bare
+   CFF1 — e `OpenType` — contêiner completo). Por isso:
+   - `/Subtype /CIDFontType0` no dicionário `/Font` descendente (mesmo
+     subtype CID que CFF1 — a distinção fica só no `FontFile`/stream).
+   - `/FontFile3 {stream_id} 0 R` no `/FontDescriptor`.
+   - Stream: `<< /Length {len} /Subtype /OpenType >>`.
+   - Bytes do stream: `font_data` **completo** (contêiner SFNT/OpenType, não
+     uma tabela extraída — não há equivalente de "CFF2C").
+5. O ToUnicode CMap, o array `/W` e o operador `TJ` permanecem inalterados —
+   apenas a envolvência do descritor de fonte muda. **Excepção:**
+   `glyph_to_nominal` (usado para o delta do TJ, §P520) tem de continuar a
+   usar a MESMA variação de eixo que gerou o `/W` — ver §P772u em §P520
+   acima; esta é uma correcção independente da detecção de subtype.
 
 ## Restrições estruturais
 
@@ -274,6 +347,7 @@ Regra:
 | 2026-07-04 | P560 — descritor PDF distinto para fontes TrueType e CFF/OpenType | `builder.md`, `builder.rs` |
 | 2026-07-08 | P611 — stream de metadados XMP | `builder.md`, `builder.rs` |
 | 2026-07-10 | P675 — evitar walks duplicados do documento em `build_multifont` | `builder.md`, `builder.rs` |
+| 2026-07-17 | P772u — detecção de CFF2 em `font_embedding_data` (fontes CFF2 caíam no ramo TrueType); `glyph_to_nominal` em `build_multifont` passa a usar a mesma variação de eixo que `/W`, corrigindo colapso de espaço entre palavras em fontes variáveis a pesos altos (Cantarell-VF, CFF2/HVAR) | `builder.md`, `builder.rs` |
 
 ## Critérios de verificação
 

@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/export/builder.md
-//! @prompt-hash 66f1c615
+//! @prompt-hash c1908b09
 //! @layer L3
 //! @updated 2026-07-08
 //!
@@ -206,13 +206,36 @@ fn cff_table_data(font_data: &[u8]) -> Option<&[u8]> {
     }
 }
 
-/// P560 — devolve os componentes PDF correctos e os bytes a embeber.
+/// **P772u** — detecta fontes CFF2 (`CFF2`, não `CFF `) — usadas por fontes
+/// variáveis OpenType (ex.: Cantarell-VF.otf). `ttf_parser::Face::tables()`
+/// expõe `cff` (CFF1) e `cff2` como campos **distintos** — `cff_table_data`
+/// só verificava `cff`, pelo que uma fonte CFF2 sem tabela `CFF ` caía
+/// silenciosamente no ramo TrueType (`/CIDFontType2`/`/FontFile2`), mesmo
+/// não tendo tabela `glyf`. Achado por instrumentação (comparação
+/// `ttf_parser`/`rustybuzz`, ambos correctos e concordantes — o defeito não
+/// estava no shaping, mas no `/Subtype`/`FontFile` PDF declarado para o
+/// programa de fonte embutido). Ver `paridade-producao-p772u.md`.
+fn is_cff2_font(font_data: &[u8]) -> bool {
+    Face::parse(font_data, 0)
+        .map(|face| face.tables().cff2.is_some())
+        .unwrap_or(false)
+}
+
+/// P560/P772u — devolve os componentes PDF correctos e os bytes a embeber.
 ///
 /// TrueType (`glyf`) usa `/CIDFontType2` + `/FontFile2` + stream `/CIDFontType2`.
-/// CFF/OpenType usa `/CIDFontType0` + `/FontFile3` + stream `/CIDFontType0C`.
+/// CFF/OpenType (CFF1) usa `/CIDFontType0` + `/FontFile3` + stream `/CIDFontType0C`
+/// (programa CFF puro extraído). CFF2/OpenType variável usa `/CIDFontType0` +
+/// `/FontFile3` + stream `/OpenType` — não existe subtype PDF para "programa
+/// CFF2 puro"; o spec (ISO 32000-2 §9.9.4) exige o contêiner OpenType/SFNT
+/// completo para fontes CFF2, por isso `font_data` (não uma tabela extraída)
+/// é embutido tal qual.
 fn font_embedding_data(font_data: &[u8]) -> (&'static str, &'static str, &'static str, &[u8]) {
     if let Some(cff) = cff_table_data(font_data) {
         return ("/CIDFontType0", "/FontFile3", "CIDFontType0C", cff);
+    }
+    if is_cff2_font(font_data) {
+        return ("/CIDFontType0", "/FontFile3", "OpenType", font_data);
     }
     ("/CIDFontType2", "/FontFile2", "CIDFontType2", font_data)
 }
@@ -715,13 +738,11 @@ impl PdfBuilder {
                 }
             }
 
-            // P520 — larguras nominais (hmtx) desta face para todos os glyph IDs
-            // que podem aparecer no stream.
-            let mut glyph_to_nominal: HashMap<u16, i32> = HashMap::new();
-            for &gid in extended_glyph_ids.iter().chain(mappings.iter().map(|(_, gid)| gid)) {
-                let adv = face.glyph_hor_advance(ttf_parser::GlyphId(gid)).unwrap_or(0) as i32;
-                glyph_to_nominal.insert(gid, adv);
-            }
+            let font_index = per_font_mappings.len();
+            let (font_list, font_variant) = &fonts[font_index].0;
+            let font_bytes = &fonts[font_index].1;
+            let axis_vars = axis_variations_for_font_variant(font_variant);
+
             // Adicionar glifos variantes de tamanho matemático
             // (Passo 45, DEBT-9) — mesmo tratamento que `build_cidfont`.
             let glyph_reverse = build_math_glyph_reverse_map(face);
@@ -741,9 +762,6 @@ impl PdfBuilder {
             for (&old_gid, &ch) in &shaped_mappings {
                 char_to_old_gid.insert(ch, old_gid);
             }
-            let font_index = per_font_mappings.len();
-            let (font_list, font_variant) = &fonts[font_index].0;
-            let font_bytes = &fonts[font_index].1;
 
             let (embed_data, glyph_mapping) =
                 match self.measure_subset(font_bytes, &char_to_old_gid, &glyph_ids) {
@@ -760,14 +778,19 @@ impl PdfBuilder {
             // P530 — instanciar estaticamente a VF se a combinação usar um
             // peso/estilo diferente do default. A instanciação é feita depois
             // do subsetting para operar sobre uma fonte pequena (P529).
-            let axis_vars = axis_variations_for_font_variant(font_variant);
+            // `axis_vars` já calculado acima (P772u, usado também para
+            // `glyph_to_nominal`, abaixo).
+            let mut instancing_applied = false;
             let embed_data = if !axis_vars.is_empty() {
                 let axis_tuples: Vec<(ttf_parser::Tag, f32)> = axis_vars
                     .iter()
                     .map(|v| (v.tag, v.value))
                     .collect();
                 match instantiate_variable_font(&embed_data, &axis_tuples) {
-                    Some(instanced) => instanced,
+                    Some(instanced) => {
+                        instancing_applied = true;
+                        instanced
+                    }
                     None => {
                         // Se o instancer falhar (ex.: Python/fontTools ausente),
                         // mantém o subset default com aviso.
@@ -782,6 +805,36 @@ impl PdfBuilder {
             } else {
                 embed_data
             };
+
+            // **P772u** — `glyph_to_nominal` (baseline do delta TJ, P520) tem de
+            // usar a MESMA face/instância que `/W` (`widths_array`, abaixo, que lê
+            // de `embed_data` pós-instanciação). Antes desta correcção,
+            // `glyph_to_nominal` lia sempre `face` sem variação (peso por
+            // omissão), enquanto `/W` já usava a face instanciada (peso correcto)
+            // quando a instanciação tinha sucesso — o delta TJ media a variação
+            // de peso como se fosse kerning, e o avanço real do renderer somava
+            // a variação **duas vezes** (confirmado por instrumentação: delta TJ
+            // bate exactamente com `nominal_default - x_advance_variado` para
+            // todos os glifos de "Weight" a wght=800 — causa real do colapso de
+            // espaço entre palavras em Cantarell-VF/CFF2/HVAR a pesos altos, ver
+            // `paridade-producao-p772u.md`). Só aplicar a variação aqui quando
+            // `instancing_applied` — se a instanciação falhou (fallback Python/
+            // fontTools ausente), `/W` fica na instância por omissão e
+            // `glyph_to_nominal` tem de ficar consistente com ela (mesma
+            // instância dos dois lados, mesmo que "errada").
+            let mut glyph_to_nominal: HashMap<u16, i32> = HashMap::new();
+            {
+                let mut nominal_face = face.clone();
+                if instancing_applied {
+                    for v in &axis_vars {
+                        nominal_face.set_variation(v.tag, v.value);
+                    }
+                }
+                for &gid in extended_glyph_ids.iter().chain(mappings.iter().map(|(_, gid)| gid)) {
+                    let adv = nominal_face.glyph_hor_advance(ttf_parser::GlyphId(gid)).unwrap_or(0) as i32;
+                    glyph_to_nominal.insert(gid, adv);
+                }
+            }
 
             if !glyph_mapping.is_empty() {
                 for (_, old_gid) in mappings.iter_mut() {

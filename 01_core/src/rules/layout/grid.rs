@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/rules/layout.md
-//! @prompt-hash 9631382f
+//! @prompt-hash c2ac077c
 //! @layer L1
 //! @updated 2026-07-14
 //!
@@ -155,15 +155,21 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
             }
             group_cells
         }
+        // P772v — `layout_grid` é partilhado por `Content::Grid` e
+        // `Content::Table` (cluster P379); os braços `TableHeader`/
+        // `TableFooter` estendem o mesmo mecanismo de row-group de P772i
+        // para `table()`, extraindo `.body` da mesma forma.
         let header_cells: Vec<Content> = header
             .map(|h| match h {
                 Content::GridHeader(e) => row_group_cells(&e.body, num_cols),
+                Content::TableHeader(e) => row_group_cells(&e.body, num_cols),
                 other => row_group_cells(other, num_cols),
             })
             .unwrap_or_default();
         let footer_cells: Vec<Content> = footer
             .map(|f| match f {
                 Content::GridFooter(e) => row_group_cells(&e.body, num_cols),
+                Content::TableFooter(e) => row_group_cells(&e.body, num_cols),
                 other => row_group_cells(other, num_cols),
             })
             .unwrap_or_default();
@@ -294,7 +300,11 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
                         if col_idx >= num_cols { break; }
                         let cell_w = resolved_widths[col_idx];
                         let cell_x = col_starts[col_idx];
-                        let (sub_h, _sub_items) = self.layout_sub_frame(
+                        // P772x — Fase 1 é medição pura (altura de linha);
+                        // `_sub_items`/`_deco` descartados — a emissão real
+                        // (com decoração, se aplicável) acontece na Fase 2
+                        // (abaixo, `layout_sub_frame` em `cell_to_layout`).
+                        let (sub_h, _sub_items, _deco) = self.layout_sub_frame(
                             item,
                             super::sub_frame::SubLayoutRegion {
                                 origin_x: cell_x,
@@ -580,7 +590,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
                 // P235 — layout em body_x/body_w reduzidos por inset.
                 let saved_cursor_x = self.regions.current.cursor_x;
                 let saved_cursor_y = self.regions.current.cursor_y;
-                let (cell_h_measured, cell_items) = self.layout_sub_frame(
+                let (cell_h_measured, cell_items, cell_deco) = self.layout_sub_frame(
                     &cell_to_layout,
                     super::sub_frame::SubLayoutRegion {
                         origin_x: body_x,
@@ -592,6 +602,19 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
                 );
                 self.regions.current.cursor_x = saved_cursor_x;
                 self.regions.current.cursor_y = saved_cursor_y;
+                // **P772x** — traduzir segmentos de decoração da célula com a
+                // MESMA translação aplicada a `cell_items` abaixo (x já
+                // absoluto — `origin_x: body_x` — só y é rebaseado) e
+                // reinserir no collector ambiente, se activo.
+                if let Some(coll) = self.decoration_lines_collector.as_mut() {
+                    for seg in &cell_deco {
+                        coll.push(super::DecoSegment {
+                            start_x:    seg.start_x,
+                            end_x:      seg.end_x,
+                            baseline_y: Pt(body_y + (seg.baseline_y.val() - local_start_y)),
+                        });
+                    }
+                }
 
                 // P273.9 — restore parent_bbox (LIFO).
                 self.parent_bbox = saved_parent_bbox_p273_9;

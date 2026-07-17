@@ -25,7 +25,7 @@ pub fn native_assert(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::co
     for key in args.named.keys() {
         if key.as_str() != "message" {
             return Err(vec![SourceDiagnostic::error(
-                Span::detached(),
+                args.span,
                 format!("argumento nomeado inesperado: '{}'", key),
             )]);
         }
@@ -35,11 +35,11 @@ pub fn native_assert(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::co
     let condition = match args.items.first() {
         Some(Value::Bool(b)) => *b,
         Some(other) => return Err(vec![SourceDiagnostic::error(
-            Span::detached(),
+            args.span,
             format!("assert() requer condição booleana, recebeu {}", other.type_name()),
         )]),
         None => return Err(vec![SourceDiagnostic::error(
-            Span::detached(),
+            args.span,
             "assert() requer 1 argumento posicional (condição)".to_string(),
         )]),
     };
@@ -54,7 +54,7 @@ pub fn native_assert(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::co
         .unwrap_or_else(|| "Asserção falhou".to_string());
 
     if !condition {
-        return Err(vec![SourceDiagnostic::error(Span::detached(), message)]);
+        return Err(vec![SourceDiagnostic::error(args.span, message)]);
     }
 
     Ok(Value::None)
@@ -126,7 +126,7 @@ pub fn native_assert_eq(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate:
                 crate::rules::eval::repr::repr_value(right),
             ),
         };
-        return Err(vec![SourceDiagnostic::error(Span::detached(), msg)]);
+        return Err(vec![SourceDiagnostic::error(args.span, msg)]);
     }
 
     Ok(Value::None)
@@ -150,7 +150,7 @@ pub fn native_assert_ne(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate:
                 crate::rules::eval::repr::repr_value(right),
             ),
         };
-        return Err(vec![SourceDiagnostic::error(Span::detached(), msg)]);
+        return Err(vec![SourceDiagnostic::error(args.span, msg)]);
     }
 
     Ok(Value::None)

@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/entities/math-class.md
-//! @prompt-hash 6c7bac29
+//! @prompt-hash 988f5416
 //! @layer L1
 //! @updated 2026-03-23
 
@@ -15,7 +15,7 @@ use unicode_math_class;
 ///
 /// Movido de `typst_utils::MathClass` — ADR-0009.
 /// Completado com delegação a `unicode_math_class` — ADR-0011.
-#[derive(Debug, Copy, Clone, Eq, PartialEq)]
+#[derive(Debug, Copy, Clone, Eq, PartialEq, Hash)]
 pub enum MathClass {
     Normal,
     Alphabetic,
@@ -82,6 +82,55 @@ pub fn default_math_class(c: char) -> Option<MathClass> {
         // Delegação à tabela TR25 completa — ADR-0011.
         c => unicode_math_class::class(c).map(from_unicode_math_class),
     }
+}
+
+/// **P772y** — nome textual vanilla de uma `MathClass`, usado por
+/// `math.class(str, body)` e por `repr()`. Paridade
+/// `foundations/cast.rs` (vanilla) — kebab-case para `GlyphPart`
+/// ("glyph-part"), o resto lowercase directo.
+pub fn math_class_name(c: MathClass) -> &'static str {
+    match c {
+        MathClass::Normal      => "normal",
+        MathClass::Alphabetic  => "alphabetic",
+        MathClass::Binary      => "binary",
+        MathClass::Closing     => "closing",
+        MathClass::Diacritic   => "diacritic",
+        MathClass::Fence       => "fence",
+        MathClass::GlyphPart   => "glyph-part",
+        MathClass::Large       => "large",
+        MathClass::Opening     => "opening",
+        MathClass::Punctuation => "punctuation",
+        MathClass::Relation    => "relation",
+        MathClass::Space       => "space",
+        MathClass::Unary       => "unary",
+        MathClass::Vary        => "vary",
+        MathClass::Special     => "special",
+    }
+}
+
+/// **P772y** — inverso de [`math_class_name`]: converte o nome textual
+/// vanilla para `MathClass`. Usado por `math.class(str, body)` para
+/// validar/converter o argumento posicional. `None` se o nome não é
+/// reconhecido.
+pub fn parse_math_class(name: &str) -> Option<MathClass> {
+    Some(match name {
+        "normal"      => MathClass::Normal,
+        "alphabetic"  => MathClass::Alphabetic,
+        "binary"      => MathClass::Binary,
+        "closing"     => MathClass::Closing,
+        "diacritic"   => MathClass::Diacritic,
+        "fence"       => MathClass::Fence,
+        "glyph-part"  => MathClass::GlyphPart,
+        "large"       => MathClass::Large,
+        "opening"     => MathClass::Opening,
+        "punctuation" => MathClass::Punctuation,
+        "relation"    => MathClass::Relation,
+        "space"       => MathClass::Space,
+        "unary"       => MathClass::Unary,
+        "vary"        => MathClass::Vary,
+        "special"     => MathClass::Special,
+        _ => return None,
+    })
 }
 
 /// Converte `unicode_math_class::MathClass` para o tipo de domínio L1.
@@ -210,5 +259,47 @@ mod tests {
         // Variantes adicionadas em ADR-0011 para cobrir unicode_math_class
         assert_ne!(MathClass::Diacritic, MathClass::Normal);
         assert_ne!(MathClass::GlyphPart, MathClass::Normal);
+    }
+
+    // ── P772y — math_class_name / parse_math_class (math.class(...)) ───────
+
+    #[test]
+    fn math_class_name_relation() {
+        assert_eq!(math_class_name(MathClass::Relation), "relation");
+    }
+
+    #[test]
+    fn math_class_name_glyph_part_e_kebab_case() {
+        assert_eq!(math_class_name(MathClass::GlyphPart), "glyph-part");
+    }
+
+    #[test]
+    fn parse_math_class_relation() {
+        assert_eq!(parse_math_class("relation"), Some(MathClass::Relation));
+    }
+
+    #[test]
+    fn parse_math_class_glyph_part() {
+        assert_eq!(parse_math_class("glyph-part"), Some(MathClass::GlyphPart));
+    }
+
+    #[test]
+    fn parse_math_class_desconhecido_retorna_none() {
+        assert_eq!(parse_math_class("not-a-class"), None);
+    }
+
+    #[test]
+    fn parse_math_class_e_math_class_name_sao_inversos() {
+        // Round-trip para todas as 15 variantes.
+        let all = [
+            MathClass::Normal, MathClass::Alphabetic, MathClass::Binary,
+            MathClass::Closing, MathClass::Diacritic, MathClass::Fence,
+            MathClass::GlyphPart, MathClass::Large, MathClass::Opening,
+            MathClass::Punctuation, MathClass::Relation, MathClass::Space,
+            MathClass::Unary, MathClass::Vary, MathClass::Special,
+        ];
+        for c in all {
+            assert_eq!(parse_math_class(math_class_name(c)), Some(c), "round-trip falhou para {c:?}");
+        }
     }
 }

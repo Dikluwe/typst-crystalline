@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/rules/stdlib/foundations.md
-//! @prompt-hash 70d224e9
+//! @prompt-hash a6bf047d
 //! @layer L1
 //! @updated 2026-06-24
 //!
@@ -340,7 +340,7 @@ pub fn native_range(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::con
         Some(Value::Bool(b)) => *b,
         Some(other) => {
             return Err(vec![SourceDiagnostic::error(
-                Span::detached(),
+                args.span,
                 format!("range() argumento 'inclusive' requer bool, recebeu {}", other.type_name()),
             )]);
         }
@@ -351,7 +351,7 @@ pub fn native_range(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::con
         Some(Value::Int(s)) => *s,
         Some(other) => {
             return Err(vec![SourceDiagnostic::error(
-                Span::detached(),
+                args.span,
                 format!("range() argumento 'step' requer int, recebeu {}", other.type_name()),
             )]);
         }
@@ -359,7 +359,7 @@ pub fn native_range(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::con
     };
     if let Some(bad) = args.named.keys().find(|k| k.as_str() != "inclusive" && k.as_str() != "step") {
         return Err(vec![SourceDiagnostic::error(
-            Span::detached(),
+            args.span,
             format!("range() argumento nomeado desconhecido: '{bad}'"),
         )]);
     }
@@ -518,7 +518,7 @@ pub fn native_int(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contr
             let base = *b as u32;
             if !(2..=36).contains(&base) {
                 return Err(vec![SourceDiagnostic::error(
-                    Span::detached(),
+                    args.span,
                     format!("int() base deve estar entre 2 e 36, recebeu {}", b),
                 )]);
             }
@@ -526,7 +526,7 @@ pub fn native_int(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contr
         }
         Some(other) => {
             return Err(vec![SourceDiagnostic::error(
-                Span::detached(),
+                args.span,
                 format!("int() argumento 'base' requer Int, recebeu {}", other.type_name()),
             )]);
         }
@@ -536,7 +536,7 @@ pub fn native_int(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contr
         let bad = args.named.keys().find(|k| k.as_str() != "base")
             .map(|k| k.as_str()).unwrap_or("?");
         return Err(vec![SourceDiagnostic::error(
-            Span::detached(),
+            args.span,
             format!("int() argumento nomeado desconhecido: '{bad}'"),
         )]);
     }
@@ -549,14 +549,14 @@ pub fn native_int(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contr
                 i64::from_str_radix(s.as_str(), base)
                     .map(Value::Int)
                     .map_err(|_| vec![SourceDiagnostic::error(
-                        Span::detached(),
+                        args.span,
                         format!("int() não consegue parsear {:?} na base {}", s.as_str(), base),
                     )])
             } else {
                 s.parse::<i64>()
                     .map(Value::Int)
                     .map_err(|_| vec![SourceDiagnostic::error(
-                        Span::detached(),
+                        args.span,
                         format!("int() não consegue parsear {:?}", s.as_str()),
                     )])
             }
@@ -578,7 +578,7 @@ pub fn native_float(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::con
         [Value::Str(s)]   => s.parse::<f64>()
             .map(Value::Float)
             .map_err(|_| vec![SourceDiagnostic::error(
-                Span::detached(),
+                args.span,
                 format!("float() não consegue parsear {:?}", s.as_str()),
             )]),
         [other] => err(format!("float() não suporta {}", other.type_name())),
@@ -1200,6 +1200,36 @@ pub fn native_here(
              captura automática no walk é deferred)".to_string()
         ),
     }
+}
+
+/// **P772w** — `target()` — devolve o alvo de exportação actual.
+///
+/// Paridade vanilla: `target(context: Tracked<Context>) -> HintedStrResult<Target>`
+/// (`foundations/target_.rs`), `#[func(contextual)]`, devolve `"paged"`,
+/// `"html"` ou `"bundle"` consoante o pipeline de exportação activo.
+/// Cristalino só produz PDF via layout paginado — não há pipeline HTML nem
+/// Bundle (fora de escopo) — por isso devolve sempre `"paged"`, sem
+/// depender de `Tracked<Context>`/`StyleChain` (não há outro valor possível
+/// a determinar). Achado por P772w: antes desta correcção, `target()` não
+/// estava definido no scope global — `#context target()` errava "unknown
+/// variable: target" em vez de devolver `"paged"`, quebrando qualquer
+/// template que use o padrão documentado pelo vanilla
+/// (`if target() == "html" { .. } else { .. }`) para se adaptar ao alvo de
+/// exportação.
+pub fn native_target(
+    _ctx:          &mut EvalContext,
+    args:          &Args,
+    _world:        &dyn crate::contracts::world::World,
+    _current_file: FileId,
+) -> SourceResult<Value> {
+    expect_no_named(&args.named)?;
+    if !args.items.is_empty() {
+        return err(format!(
+            "target() não aceita argumentos, recebeu {}",
+            args.items.len()
+        ));
+    }
+    Ok(Value::Str("paged".into()))
 }
 
 /// **P210B (M9c)** — `counter_step(key)` — emite

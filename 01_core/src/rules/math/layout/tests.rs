@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/rules/math/layout/_comum.md
-//! @prompt-hash 11a0a504
+//! @prompt-hash 723f7696
 //! @layer L1
 //! @updated 2026-04-23
 //!
@@ -140,6 +140,69 @@ fn math_attach_sup_elevado() {
     // sup deve estar acima da base (y menor, pois y cresce para baixo)
     assert!(ys[1] < ys[0],
         "sup (y={}) deve estar acima da base (y={})", ys[1], ys[0]);
+}
+
+// ── P772w — integrais nunca empilham limites (mesmo em modo bloco) ─────────
+
+#[test]
+fn math_attach_sum_empilha_limites_em_modo_bloco() {
+    // Controlo: `sum` (∑) DEVE empilhar sup/sub verticalmente em modo bloco
+    // (paridade vanilla `MathClass::Large` → `Limits::Display`). O sup deve
+    // ficar centrado sobre a base — x próximo de x da base, não deslocado
+    // para a direita como um script lateral.
+    let ml = MathLayouter::new(&FixedMetrics, true);
+    let attach = Content::math_attach(
+        Content::MathText("∑".into()), None, None,
+        Some(Content::MathText("0".into())),
+        Some(Content::MathText("1".into())),
+    );
+    let items = ml.layout_equation(&attach, &default_style());
+    let base_x = items.iter().find_map(|i| match i {
+        FrameItem::Text { pos, text, .. } if text.as_str() == "∑" => Some(pos.x.val()),
+        _ => None,
+    }).expect("base ∑ deve estar presente");
+    let sup_x = items.iter().find_map(|i| match i {
+        FrameItem::Text { pos, text, .. } if text.as_str() == "1" => Some(pos.x.val()),
+        _ => None,
+    }).expect("sup '1' deve estar presente");
+    // Empilhado: sup fica centrado sobre a base — x muito próximo (não à
+    // direita, como aconteceria num script lateral).
+    assert!(
+        (sup_x - base_x).abs() < 6.0,
+        "sup de ∑ deve ficar centrado sobre a base (empilhado), \
+         base_x={base_x} sup_x={sup_x}"
+    );
+}
+
+#[test]
+fn math_attach_integral_nao_empilha_limites_em_modo_bloco() {
+    // Regressão P772w: antes desta correcção, `is_large_operator` incluía
+    // os caracteres de integral, fazendo `∫_0^1` empilhar os limites em modo
+    // bloco (errado — paridade vanilla `is_integral_char`/`Limits::Never`:
+    // integrais mantêm os scripts ao lado SEMPRE, mesmo em display style).
+    let ml = MathLayouter::new(&FixedMetrics, true);
+    let attach = Content::math_attach(
+        Content::MathText("∫".into()), None, None,
+        Some(Content::MathText("0".into())),
+        Some(Content::MathText("1".into())),
+    );
+    let items = ml.layout_equation(&attach, &default_style());
+    let base_x = items.iter().find_map(|i| match i {
+        FrameItem::Text { pos, text, .. } if text.as_str() == "∫" => Some(pos.x.val()),
+        _ => None,
+    }).expect("base ∫ deve estar presente");
+    let base_w = 12.0 * 0.6; // FixedMetrics: char_width = size * 0.6, style 12pt.
+    let sup_x = items.iter().find_map(|i| match i {
+        FrameItem::Text { pos, text, .. } if text.as_str() == "1" => Some(pos.x.val()),
+        _ => None,
+    }).expect("sup '1' deve estar presente");
+    // Script lateral: sup fica à direita da base (x >= base_x + largura da
+    // base), não centrado sobre ela.
+    assert!(
+        sup_x >= base_x + base_w - 1.0,
+        "sup de ∫ deve ficar à direita da base (script lateral, não \
+         empilhado), base_x={base_x} sup_x={sup_x}"
+    );
 }
 
 #[test]

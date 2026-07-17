@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/rules/eval.md
-//! @prompt-hash 3fca6d82
+//! @prompt-hash 39347eef
 //! @layer L1
 //! @updated 2026-04-22
 //!
@@ -21,7 +21,7 @@ use crate::entities::source_result::{SourceDiagnostic, SourceResult};
 use crate::entities::value::Value;
 use crate::rules::scopes::Scopes;
 
-use super::{apply_func, EvalContext};
+use super::{apply_func, eval_expr, EvalContext};
 
 // ── Passo 301 — Auto-lookup math mode ─────────────────────────────────────
 //
@@ -76,6 +76,74 @@ pub(super) fn eval_math_content(
         0 => Ok(Content::Empty),
         1 => Ok(nodes.remove(0)),
         _ => Ok(Content::MathSequence(nodes.into())),
+    }
+}
+
+/// **P772y** — resolve o callee de uma `FuncCall` em modo math quando não
+/// é um `MathIdent` bare (ex.: `math.class(...)`, `calc.foo(...)`). Não
+/// delega directamente ao `eval_expr` genérico porque este trata
+/// `Expr::MathIdent` como fronteira deliberada (devolve `Value::None` —
+/// `rules/eval/mod.rs`, comentário "Fronteira deliberada") — o alvo de um
+/// field access em modo math (ex. `math` em `math.class`) precisa de ser
+/// resolvido no scope directamente quando é um `MathIdent`. Cobre os
+/// casos relevantes para namespaces de função (`Value::Module`/`Dict`);
+/// outros tipos de target produzem erro claro em vez de silenciosamente
+/// devolver `Content::Empty`.
+fn eval_math_callee(
+    scopes: &mut Scopes<'_>,
+    ctx: &mut EvalContext,
+    engine: &mut Engine<'_>,
+    expr: Expr<'_>,
+) -> SourceResult<Value> {
+    match expr {
+        Expr::FieldAccess(access) => {
+            let target = eval_math_callee(scopes, ctx, engine, access.target())?;
+            let field = access.field().as_str();
+            match target {
+                Value::Module(m) => m.scope().get(field).cloned().ok_or_else(|| {
+                    vec![SourceDiagnostic::error(
+                        access.span(),
+                        format!("campo '{field}' não existe no módulo"),
+                    )]
+                }),
+                Value::Dict(d) => d.get(field).cloned().ok_or_else(|| {
+                    vec![SourceDiagnostic::error(
+                        access.span(),
+                        format!("campo '{field}' não existe"),
+                    )]
+                }),
+                other => Err(vec![SourceDiagnostic::error(
+                    access.span(),
+                    format!("field access não suportado em {}", other.type_name()),
+                )]),
+            }
+        }
+        Expr::MathIdent(ident) => scopes.get(ident.get()).cloned().ok_or_else(|| {
+            vec![SourceDiagnostic::error(
+                ident.span(),
+                format!("variável desconhecida: {}", ident.get()),
+            )]
+        }),
+        other => eval_expr(other, scopes, ctx, engine),
+    }
+}
+
+/// **P772y** — avalia um argumento posicional/nomeado de uma `FuncCall`
+/// namespaced em modo math (ex.: `math.class("relation", body)`). Um
+/// literal string avalia directamente para `Value::Str` (paridade com
+/// chamadas de código normal — `class` em `math.class` é uma string, não
+/// content); qualquer outro expr passa por `eval_math_expr` e embrulha-se
+/// em `Value::Content`, tal como o mecanismo P510 já fazia para
+/// `bb(x)`/`bold(x + y)`.
+fn eval_math_arg_value(
+    scopes: &mut Scopes<'_>,
+    ctx: &mut EvalContext,
+    engine: &mut Engine<'_>,
+    expr: Expr<'_>,
+) -> SourceResult<Value> {
+    match expr {
+        Expr::Str(s) => Ok(Value::Str(EcoString::from(s.get()?))),
+        other => Ok(Value::Content(eval_math_expr(scopes, ctx, engine, other)?)),
     }
 }
 
@@ -176,7 +244,55 @@ fn eval_math_expr(
         Expr::FuncCall(call) => {
             let name = match call.callee() {
                 Expr::MathIdent(ident) => ident.get().to_string(),
-                _ => return Ok(Content::Empty),
+                // P772y — callee namespaced (`math.class(...)`, `calc.foo(...)`):
+                // fora do despacho nativo bare-ident abaixo. Resolve via
+                // avaliador geral de expressões; se for `Value::Func`,
+                // aplica com args avaliados em modo math — mesmo mecanismo
+                // do fallback P510 (scope global) mais abaixo, generalizado
+                // para callees com field access.
+                other_callee => {
+                    let callee_value = eval_math_callee(scopes, ctx, engine, other_callee)?;
+                    let Value::Func(func) = callee_value else {
+                        return Err(vec![SourceDiagnostic::error(
+                            call.span(),
+                            format!(
+                                "chamada em modo math espera função, recebeu {}",
+                                callee_value.type_name()
+                            ),
+                        )]);
+                    };
+                    let mut items = Vec::new();
+                    let mut named: IndexMap<EcoString, Value, FxBuildHasher> =
+                        IndexMap::default();
+                    for arg in call.args().items() {
+                        match arg {
+                            Arg::Pos(expr) => {
+                                items.push(eval_math_arg_value(scopes, ctx, engine, expr)?);
+                            }
+                            Arg::Named(name_expr) => {
+                                let value = eval_math_arg_value(
+                                    scopes,
+                                    ctx,
+                                    engine,
+                                    name_expr.expr(),
+                                )?;
+                                named.insert(name_expr.name().as_str().into(), value);
+                            }
+                            Arg::Spread(_) => {}
+                        }
+                    }
+                    let args = Args { items, named, span: call.args().span() };
+                    return match apply_func(func, args, scopes, ctx, engine)? {
+                        Value::Content(c) => Ok(c),
+                        other => Err(vec![SourceDiagnostic::error(
+                            call.span(),
+                            format!(
+                                "chamada em modo math deve devolver content, recebeu {}",
+                                other.type_name()
+                            ),
+                        )]),
+                    };
+                }
             };
             match name.as_str() {
                 "frac" => {
@@ -349,7 +465,8 @@ fn eval_math_expr(
                                 Arg::Spread(_) => {}
                             }
                         }
-                        let args = Args { items, named };
+                        // P772s — span da lista de argumentos da chamada real.
+                        let args = Args { items, named, span: call.args().span() };
                         return match apply_func(func, args, scopes, ctx, engine)? {
                             Value::Content(c) => Ok(c),
                             other => Err(vec![SourceDiagnostic::error(

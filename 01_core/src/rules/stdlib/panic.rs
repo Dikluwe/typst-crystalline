@@ -9,7 +9,6 @@
 use crate::entities::args::Args;
 use crate::entities::file_id::FileId;
 use crate::entities::source_result::{SourceDiagnostic, SourceResult};
-use crate::entities::span::Span;
 use crate::entities::value::Value;
 use crate::rules::eval::EvalContext;
 
@@ -21,13 +20,13 @@ pub fn native_panic(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::con
     super::expect_no_named(&args.named)?;
 
     match args.items.as_slice() {
-        [Value::Str(msg)] => Err(vec![SourceDiagnostic::error(Span::detached(), msg.as_str())]),
+        [Value::Str(msg)] => Err(vec![SourceDiagnostic::error(args.span, msg.as_str())]),
         [other] => Err(vec![SourceDiagnostic::error(
-            Span::detached(),
+            args.span,
             format!("panic() espera string, recebeu {}", other.type_name()),
         )]),
         _ => Err(vec![SourceDiagnostic::error(
-            Span::detached(),
+            args.span,
             "panic() requer 1 argumento (mensagem)",
         )]),
     }

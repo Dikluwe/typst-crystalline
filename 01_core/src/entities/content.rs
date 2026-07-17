@@ -46,6 +46,7 @@ use crate::entities::elements::math_accent::MathAccentElem;
 use crate::entities::elements::math_align_point::MathAlignPointElem;
 use crate::entities::elements::math_attach::MathAttachElem;
 use crate::entities::elements::math_cancel::MathCancelElem;
+use crate::entities::elements::math_class_override::MathClassOverrideElem;
 use crate::entities::elements::math_cases::MathCasesElem;
 use crate::entities::elements::math_delimited::MathDelimitedElem;
 use crate::entities::elements::math_frac::MathFracElem;
@@ -274,6 +275,14 @@ pub enum Content {
     /// classificação corrigida `ausente` → `implementado`.
     /// **Modelo D (Lote 2 P317)**: `entities::elements::math_cancel::MathCancelElem`.
     MathCancel(Arc<MathCancelElem>),
+
+    // ── P772y — `MathClassOverride` (`math.class(class, body)`) ─────────
+    /// Força a `MathClass` de um símbolo/expressão — override do valor
+    /// inferido automaticamente por `default_math_class`/`node_math_class`.
+    /// Vanilla `ClassElem` (`math/mod.rs`). Afecta apenas espaçamento
+    /// automático (`rules/math/layout/spacing.rs`); `body` é layoutado
+    /// normalmente.
+    MathClassOverride(Arc<MathClassOverrideElem>),
 
     // ── Passo 297 — `MathUnderover` (P296.1) ─────────────────────────────
     /// Anotações verticais sobre/sob conteúdo matemático — agregação
@@ -1153,6 +1162,7 @@ fn fmt_content(c: &Content, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         Content::MathCases(_) => write!(f, "math.cases"),
         Content::MathAccent(a) => write!(f, "math.accent({:?})", a),
         Content::MathCancel(c) => write!(f, "math.cancel({:?})", c),
+        Content::MathClassOverride(c) => write!(f, "math.class({:?})", c),
         Content::MathUnderover(u) => write!(f, "math.underover({:?})", u),
         Content::MathOp(o) => write!(f, "math.op({:?})", o),
         Content::MathStyled(s) => write!(f, "math.styled({:?})", s),
@@ -1396,6 +1406,10 @@ pub fn heading(level: u8, body: Content) -> Self {
     /// Construtor de `MathCancel`.
     pub fn math_cancel(body: Content) -> Self {
         Self::MathCancel(Arc::new(MathCancelElem { body }))
+    }
+    /// Construtor de `MathClassOverride` — `math.class(class, body)`.
+    pub fn math_class_override(class: crate::entities::math_class::MathClass, body: Content) -> Self {
+        Self::MathClassOverride(Arc::new(MathClassOverrideElem { class, body }))
     }
     /// Construtor de `MathUnderover`.
     pub fn math_underover(
@@ -2003,6 +2017,8 @@ pub fn heading(level: u8, body: Content) -> Self {
             children,
             hlines: vec![],
             vlines: vec![],
+            header: None,
+            footer: None,
             stroke: None,
             fill: None,
             caption: None,
@@ -2023,6 +2039,8 @@ pub fn heading(level: u8, body: Content) -> Self {
             children,
             hlines: vec![],
             vlines: vec![],
+            header: None,
+            footer: None,
             stroke: None,
             fill: None,
             caption,
@@ -2502,6 +2520,7 @@ pub fn heading(level: u8, body: Content) -> Self {
             Self::MathCases(e) => e.plain_text(),
             Self::MathAccent(e) => e.plain_text(),
             Self::MathCancel(e) => e.plain_text(),
+            Self::MathClassOverride(e) => e.plain_text(),
             Self::MathUnderover(e) => e.plain_text(),
             Self::MathOp(e) => e.plain_text(),
             // P311b.2 — MathStyled é transparente para plain_text (wraps body).
@@ -2637,6 +2656,7 @@ impl PartialEq for Content {
             (Self::MathCases(a), Self::MathCases(b)) => a == b,
             (Self::MathAccent(a), Self::MathAccent(b)) => a == b,
             (Self::MathCancel(a), Self::MathCancel(b)) => a == b,
+            (Self::MathClassOverride(a), Self::MathClassOverride(b)) => a == b,
             (Self::MathUnderover(a), Self::MathUnderover(b)) => a == b,
             (Self::MathOp(a), Self::MathOp(b)) => a == b,
             // MathStyled PartialEq estrutural (Modelo D P316: delega ao Arc<Elem>).
@@ -2851,6 +2871,7 @@ impl Content {
             Content::MathCases(e)     => e.map_content(transform)?,
             Content::MathAccent(e)    => e.map_content(transform)?,
             Content::MathCancel(e)    => e.map_content(transform)?,
+            Content::MathClassOverride(e) => e.map_content(transform)?,
             Content::MathUnderover(e) => e.map_content(transform)?,
             Content::MathOp(e)        => e.map_content(transform)?,
             Content::MathAlignPoint(e) => e.map_content(transform)?,
@@ -3160,6 +3181,7 @@ impl Content {
             | Content::MathCases(_)
             | Content::MathAccent(_)
             | Content::MathCancel(_)
+            | Content::MathClassOverride(_)
             | Content::MathUnderover(_)
             | Content::MathOp(_)
             // P311b.2 — MathStyled terminal em map_text (math structural).
@@ -5054,6 +5076,8 @@ mod tests {
                 children: vec![Content::text("X")],
                     hlines: vec![],
                     vlines: vec![],
+                header: None,
+                footer: None,
                 stroke: Some(Stroke {
                     paint: Paint::Solid(Color::rgb(0, 0, 255)),
                     thickness: 1.5,
@@ -5143,6 +5167,8 @@ mod tests {
                 children: vec![Content::text("X")],
                     hlines: vec![],
                     vlines: vec![],
+                header: None,
+                footer: None,
                 stroke: None,
                 fill: Some(Color::rgb(0, 255, 0)),
                 caption: None,

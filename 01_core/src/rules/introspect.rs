@@ -510,6 +510,8 @@ fn materialize_time(content: &Content, intr: &TagIntrospector, location: Locatio
         // (paralelo MathFrac/MathRoot; sem CounterDisplay no body).
         | Content::MathAccent(_)
         | Content::MathCancel(_)
+        // P772y — Math class override terminal (paralelo P296/P298).
+        | Content::MathClassOverride(_)
         // P297 — Math underover terminal (paralelo P296).
         | Content::MathUnderover(_)
         // P298 — Math op terminal (paralelo cluster math).
@@ -1381,6 +1383,8 @@ pub(crate) fn walk(
         // tags introspecção).
         | Content::MathAccent(_)
         | Content::MathCancel(_)
+        // P772y — Math class override terminal em walk (paralelo P296/P298).
+        | Content::MathClassOverride(_)
         // P297 — Math underover terminal em walk (paralelo P296).
         | Content::MathUnderover(_)
         // P298 — Math op terminal em walk.

@@ -550,7 +550,7 @@ pub(crate) fn calc_rem(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::
             a.checked_rem(*b)
                 .map(Value::Int)
                 .ok_or_else(|| vec![SourceDiagnostic::error(
-                    Span::detached(), "calc.rem() resto fora do alcance i64".to_string(),
+                    args.span, "calc.rem() resto fora do alcance i64".to_string(),
                 )])
         }
         [a, b] => {
@@ -572,7 +572,7 @@ pub(crate) fn calc_rem_euclid(_ctx: &mut EvalContext, args: &Args, _world: &dyn 
             a.checked_rem_euclid(*b)
                 .map(Value::Int)
                 .ok_or_else(|| vec![SourceDiagnostic::error(
-                    Span::detached(), "calc.rem-euclid() resto fora do alcance i64".to_string(),
+                    args.span, "calc.rem-euclid() resto fora do alcance i64".to_string(),
                 )])
         }
         [a, b] => {
@@ -594,7 +594,7 @@ pub(crate) fn calc_div_euclid(_ctx: &mut EvalContext, args: &Args, _world: &dyn 
             a.checked_div_euclid(*b)
                 .map(Value::Int)
                 .ok_or_else(|| vec![SourceDiagnostic::error(
-                    Span::detached(), "calc.div-euclid() quociente fora do alcance i64".to_string(),
+                    args.span, "calc.div-euclid() quociente fora do alcance i64".to_string(),
                 )])
         }
         [a, b] => {
@@ -616,7 +616,7 @@ pub(crate) fn calc_quo(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::
             a.checked_div(*b)
                 .map(Value::Int)
                 .ok_or_else(|| vec![SourceDiagnostic::error(
-                    Span::detached(), "calc.quo() quociente fora do alcance i64".to_string(),
+                    args.span, "calc.quo() quociente fora do alcance i64".to_string(),
                 )])
         }
         [a, b] => {
@@ -658,15 +658,15 @@ pub(crate) fn calc_lcm(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::
             let g = gcd_impl(*a, *b);
             // Dividir antes de multiplicar evita overflow intermédio.
             let aa = a.checked_abs().ok_or_else(|| vec![SourceDiagnostic::error(
-                Span::detached(), "calc.lcm() valor fora do alcance i64".to_string(),
+                args.span, "calc.lcm() valor fora do alcance i64".to_string(),
             )])?;
             let bb = b.checked_abs().ok_or_else(|| vec![SourceDiagnostic::error(
-                Span::detached(), "calc.lcm() valor fora do alcance i64".to_string(),
+                args.span, "calc.lcm() valor fora do alcance i64".to_string(),
             )])?;
             (aa / g).checked_mul(bb)
                 .map(Value::Int)
                 .ok_or_else(|| vec![SourceDiagnostic::error(
-                    Span::detached(), "calc.lcm() resultado fora do alcance i64".to_string(),
+                    args.span, "calc.lcm() resultado fora do alcance i64".to_string(),
                 )])
         }
         [_, _] => err("calc.lcm() requer 2 inteiros"),
@@ -682,7 +682,7 @@ pub(crate) fn calc_fact(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate:
             let mut acc: i64 = 1;
             for i in 1..=*n {
                 acc = acc.checked_mul(i).ok_or_else(|| vec![SourceDiagnostic::error(
-                    Span::detached(), "calc.fact() resultado fora do alcance i64".to_string(),
+                    args.span, "calc.fact() resultado fora do alcance i64".to_string(),
                 )])?;
             }
             Ok(Value::Int(acc))
@@ -702,7 +702,7 @@ pub(crate) fn calc_perm(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate:
             let mut acc: i64 = 1;
             for i in 0..*k {
                 acc = acc.checked_mul(n - i).ok_or_else(|| vec![SourceDiagnostic::error(
-                    Span::detached(), "calc.perm() resultado fora do alcance i64".to_string(),
+                    args.span, "calc.perm() resultado fora do alcance i64".to_string(),
                 )])?;
             }
             Ok(Value::Int(acc))
@@ -728,7 +728,7 @@ pub(crate) fn calc_binom(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate
             let mut acc: i64 = 1;
             for i in 0..k_eff {
                 acc = acc.checked_mul(n - i).ok_or_else(|| vec![SourceDiagnostic::error(
-                    Span::detached(), "calc.binom() resultado fora do alcance i64".to_string(),
+                    args.span, "calc.binom() resultado fora do alcance i64".to_string(),
                 )])?;
                 acc /= i + 1; // divisão exacta garantida pela propriedade binomial.
             }

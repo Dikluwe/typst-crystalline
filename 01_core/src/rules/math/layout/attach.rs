@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/rules/math/layout/attach.md
-//! @prompt-hash 649fda7f
+//! @prompt-hash 3497e58b
 //! @layer L1
 //! @updated 2026-04-23
 //!
@@ -58,10 +58,16 @@ impl<'a, M: FontMetrics> super::MathLayouter<'a, M> {
         // Heurística pré-P298 para `MathIdent`/`MathText` preservada — fallback
         // hardcoded `is_limit_function`/`is_large_operator` continua a funcionar
         // sem necessidade de `op()`.
+        // **P772w** — integrais nunca empilham limites, mesmo em modo bloco
+        // (paridade vanilla `Limits::for_char_with_class`/`is_integral_char`
+        // — `∫_0^1` mantém os scripts ao lado mesmo em display style,
+        // diferente de `∑`/`∏`). `is_limit_function` (lim/max/min/...)
+        // não é afectado — não são caracteres de integral.
         let is_limits = self.block && match base {
             Content::MathIdent(s) | Content::MathText(s) => {
                 let ch = s.chars().next().unwrap_or('\0');
-                symbols::is_large_operator(ch) || symbols::is_limit_function(s.as_str())
+                (symbols::is_large_operator(ch) && !symbols::is_integral_char(ch))
+                    || symbols::is_limit_function(s.as_str())
             }
             Content::MathOp(e) => e.limits,
             _ => false,

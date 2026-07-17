@@ -1,5 +1,5 @@
 # Prompt L0 — `rules/layout/table` — Layout de `Table`
-Hash do Código: a87070d4
+Hash do Código: 3d830810
 
 **Camada**: L1 · **Alvo**: `01_core/src/rules/layout/table.rs`
 **Prompt pai**: `00_nucleo/prompts/rules/layout.md`
@@ -21,7 +21,15 @@ Hash do Código: a87070d4
    - Se não: caption como está.
    - Posicionar **acima** da table, seguido de `Content::linebreak()`.
 4. Delegar o corpo da table a `layout_grid` (P157A/P224), preservando
-   `columns`, `rows`, `children`, `stroke`, `fill`.
+   `columns`, `rows`, `children`, `stroke`, `fill`, e (**P772v**)
+   `header`/`footer` — `layout_grid` extrai as células do body de
+   `Content::TableHeader`/`Content::TableFooter` e cola-as antes/depois
+   das células normais como row-group real, mesmo mecanismo de
+   `grid.header`/`grid.footer` (P772i, ver `00_nucleo/prompts/rules/layout.md`
+   secção "`grid.header(...)`/`grid.footer(...)` como row-groups"). Antes de
+   P772v, `header`/`footer` eram sempre passados como `None, None` — o
+   `TableElem` não tinha esses campos e `table.header[...]`/`table.footer[...]`
+   caíam no braço genérico de célula normal em `native_table`.
 
 ## §P488 — Registo de página para LoT
 

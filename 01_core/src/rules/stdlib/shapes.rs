@@ -79,7 +79,7 @@ pub fn native_rect(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::cont
     for key in args.named.keys() {
         if !["width", "height", "fill", "stroke"].contains(&key.as_str()) {
             return Err(vec![SourceDiagnostic::error(
-                Span::detached(),
+                args.span,
                 format!("argumento nomeado inesperado em rect(): '{}'", key),
             )]);
         }
@@ -113,7 +113,7 @@ pub fn native_square(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::co
     for key in args.named.keys() {
         if !["width", "height", "fill", "stroke"].contains(&key.as_str()) {
             return Err(vec![SourceDiagnostic::error(
-                Span::detached(),
+                args.span,
                 format!("argumento nomeado inesperado em square(): '{}'", key),
             )]);
         }
@@ -127,7 +127,7 @@ pub fn native_square(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::co
 
     let Some(width) = width else {
         return Err(vec![SourceDiagnostic::error(
-            Span::detached(),
+            args.span,
             "square() requer um argumento de largura",
         )]);
     };
@@ -160,7 +160,7 @@ pub fn native_ellipse(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::c
     for key in args.named.keys() {
         if !["width", "height", "fill", "stroke"].contains(&key.as_str()) {
             return Err(vec![SourceDiagnostic::error(
-                Span::detached(),
+                args.span,
                 format!("argumento nomeado inesperado em ellipse(): '{}'", key),
             )]);
         }
@@ -190,7 +190,7 @@ pub fn native_circle(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::co
     for key in args.named.keys() {
         if !["radius", "fill", "stroke"].contains(&key.as_str()) {
             return Err(vec![SourceDiagnostic::error(
-                Span::detached(),
+                args.span,
                 format!("argumento nomeado inesperado em circle(): '{}'", key),
             )]);
         }
@@ -236,7 +236,7 @@ pub fn native_line(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::cont
     for key in args.named.keys() {
         if !["dx", "dy", "stroke", "start", "end"].contains(&key.as_str()) {
             return Err(vec![SourceDiagnostic::error(
-                Span::detached(),
+                args.span,
                 format!("argumento nomeado inesperado em line(): '{}'", key),
             )]);
         }
@@ -263,20 +263,20 @@ pub fn native_line(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::cont
         Some(end_v) => {
             if args.named.contains_key("dx") || args.named.contains_key("dy") {
                 return Err(vec![SourceDiagnostic::error(
-                    Span::detached(),
+                    args.span,
                     "line(): 'end' não pode ser combinado com 'dx'/'dy'".to_string(),
                 )]);
             }
             let (ex, ey) = extract_coordinate(end_v).ok_or_else(|| {
                 vec![SourceDiagnostic::error(
-                    Span::detached(),
+                    args.span,
                     "line(end): espera array de 2 coordenadas, ex. (50pt, 50pt)".to_string(),
                 )]
             })?;
             let (sx, sy) = match args.named.get("start") {
                 Some(start_v) => extract_coordinate(start_v).ok_or_else(|| {
                     vec![SourceDiagnostic::error(
-                        Span::detached(),
+                        args.span,
                         "line(start): espera array de 2 coordenadas, ex. (0pt, 0pt)".to_string(),
                     )]
                 })?,
@@ -287,7 +287,7 @@ pub fn native_line(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::cont
             // explícito (o vanilla desenha de start a end dentro da caixa).
             if sx != 0.0 || sy != 0.0 {
                 return Err(vec![SourceDiagnostic::error(
-                    Span::detached(),
+                    args.span,
                     "line(start): posição inicial não-zero não é suportada (scope-out) — a shape de linha cristalina é relativa à posição corrente".to_string(),
                 )]);
             }
@@ -296,7 +296,7 @@ pub fn native_line(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::cont
         None => {
             if args.named.contains_key("start") {
                 return Err(vec![SourceDiagnostic::error(
-                    Span::detached(),
+                    args.span,
                     "line(start): requer também 'end'".to_string(),
                 )]);
             }
@@ -458,7 +458,7 @@ pub fn native_polygon(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::c
 
     if path_items.is_empty() {
         return Err(vec![SourceDiagnostic::error(
-            Span::detached(),
+            args.span,
             "polygon() requer pelo menos um ponto".to_string(),
         )]);
     }
@@ -597,7 +597,7 @@ pub fn native_curve(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::con
         let arr = match val {
             Value::Array(a) if !a.is_empty() => a,
             _ => return Err(vec![SourceDiagnostic::error(
-                Span::detached(),
+                args.span,
                 format!("curve(): argumento {} não é um array de segmento válido", i),
             )]),
         };
@@ -605,7 +605,7 @@ pub fn native_curve(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::con
         let kind = match &arr[0] {
             Value::Str(s) => s.as_str(),
             _ => return Err(vec![SourceDiagnostic::error(
-                Span::detached(),
+                args.span,
                 format!("curve(): segmento {}: primeiro elemento deve ser string (kind)", i),
             )]),
         };
@@ -614,12 +614,12 @@ pub fn native_curve(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::con
             "move" => {
                 if arr.len() != 2 {
                     return Err(vec![SourceDiagnostic::error(
-                        Span::detached(),
+                        args.span,
                         format!("curve() 'move' requer 1 coordenada, segmento {}", i),
                     )]);
                 }
                 let (x, y) = extract_coordinate(&arr[1]).ok_or_else(|| vec![SourceDiagnostic::error(
-                    Span::detached(),
+                    args.span,
                     format!("curve() 'move' segmento {}: coordenada inválida", i),
                 )])?;
                 let target = Point { x: Pt(x), y: Pt(y) };
@@ -629,12 +629,12 @@ pub fn native_curve(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::con
             "line" => {
                 if arr.len() != 2 {
                     return Err(vec![SourceDiagnostic::error(
-                        Span::detached(),
+                        args.span,
                         format!("curve() 'line' requer 1 coordenada, segmento {}", i),
                     )]);
                 }
                 let (x, y) = extract_coordinate(&arr[1]).ok_or_else(|| vec![SourceDiagnostic::error(
-                    Span::detached(),
+                    args.span,
                     format!("curve() 'line' segmento {}: coordenada inválida", i),
                 )])?;
                 let target = Point { x: Pt(x), y: Pt(y) };
@@ -644,20 +644,20 @@ pub fn native_curve(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::con
             "cubic" => {
                 if arr.len() != 4 {
                     return Err(vec![SourceDiagnostic::error(
-                        Span::detached(),
+                        args.span,
                         format!("curve() 'cubic' requer 3 coordenadas (c1, c2, end), segmento {}", i),
                     )]);
                 }
                 let (c1x, c1y) = extract_coordinate(&arr[1]).ok_or_else(|| vec![SourceDiagnostic::error(
-                    Span::detached(),
+                    args.span,
                     format!("curve() 'cubic' segmento {}: c1 inválida", i),
                 )])?;
                 let (c2x, c2y) = extract_coordinate(&arr[2]).ok_or_else(|| vec![SourceDiagnostic::error(
-                    Span::detached(),
+                    args.span,
                     format!("curve() 'cubic' segmento {}: c2 inválida", i),
                 )])?;
                 let (ex, ey) = extract_coordinate(&arr[3]).ok_or_else(|| vec![SourceDiagnostic::error(
-                    Span::detached(),
+                    args.span,
                     format!("curve() 'cubic' segmento {}: end inválida", i),
                 )])?;
                 let end = Point { x: Pt(ex), y: Pt(ey) };
@@ -679,16 +679,16 @@ pub fn native_curve(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::con
             "quadratic" => {
                 if arr.len() != 3 {
                     return Err(vec![SourceDiagnostic::error(
-                        Span::detached(),
+                        args.span,
                         format!("curve() 'quadratic' requer 2 coordenadas (control, end), segmento {}", i),
                     )]);
                 }
                 let (qx, qy) = extract_coordinate(&arr[1]).ok_or_else(|| vec![SourceDiagnostic::error(
-                    Span::detached(),
+                    args.span,
                     format!("curve() 'quadratic' segmento {}: control inválido", i),
                 )])?;
                 let (ex, ey) = extract_coordinate(&arr[2]).ok_or_else(|| vec![SourceDiagnostic::error(
-                    Span::detached(),
+                    args.span,
                     format!("curve() 'quadratic' segmento {}: end inválido", i),
                 )])?;
                 let p0x = last_point.x.0;
@@ -707,7 +707,7 @@ pub fn native_curve(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::con
             }
             other => {
                 return Err(vec![SourceDiagnostic::error(
-                    Span::detached(),
+                    args.span,
                     format!("curve() kind '{}' desconhecido (esperado: move/line/cubic/close)", other),
                 )]);
             }
@@ -716,7 +716,7 @@ pub fn native_curve(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::con
 
     if path_items.is_empty() {
         return Err(vec![SourceDiagnostic::error(
-            Span::detached(),
+            args.span,
             "curve() requer pelo menos um segmento".to_string(),
         )]);
     }

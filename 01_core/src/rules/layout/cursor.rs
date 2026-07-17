@@ -608,6 +608,22 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
             };
             self.regions.current.current_items.push(translated);
         }
+
+        // **P772x** — mesma translação para segmentos de decoração do body,
+        // reinseridos no collector ambiente SE ainda estiver activo neste
+        // ponto (best-effort — ver comentário em `DeferredFloat::deco_segments`,
+        // `mod.rs`: floats que só flusham muito depois do consumer
+        // `Underline`/`Strike`/`Overline` ter retornado não têm collector
+        // para reinserir e o segmento é descartado, não é um crash).
+        if let Some(coll) = self.decoration_lines_collector.as_mut() {
+            for seg in &f.deco_segments {
+                coll.push(super::DecoSegment {
+                    start_x:    Pt(target_x + seg.start_x.val()),
+                    end_x:      Pt(target_x + seg.end_x.val()),
+                    baseline_y: Pt(target_y + seg.baseline_y.val()),
+                });
+            }
+        }
     }
 
     /// **P304 (P295.1)** — flush dos footnote bodies pendentes no
@@ -689,7 +705,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
         // partial-page overflow normal. Paralelo P251 `forwarded_count`
         // limit.
         let full_avail = (page_h - 2.0 * margin).max(0.0);
-        let mut measured: Vec<(f64, Vec<FrameItem>)> = Vec::new();
+        let mut measured: Vec<(f64, Vec<FrameItem>, Vec<super::DecoSegment>)> = Vec::new();
         let mut acc_h = 0.0_f64;
         let mut remainder: Vec<(u32, Box<Content>)> = Vec::new();
         let mut overflow = false;
@@ -711,7 +727,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
             // origin_x=0.0 e depois somasse `target_x=left_x` inteiro a
             // todos os itens (como acontecia antes), a origem seria somada
             // duas vezes para o `Place` aninhado.
-            let (h, items) = self.layout_sub_frame(
+            let (h, items, deco) = self.layout_sub_frame(
                 &combined,
                 super::sub_frame::SubLayoutRegion {
                     origin_x: left_x,
@@ -737,7 +753,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
             }
             if fits || force_emit {
                 acc_h += h;
-                measured.push((h, items));
+                measured.push((h, items, deco));
             } else {
                 overflow = true;
                 remainder.push((n, body));
@@ -756,7 +772,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
         // defensive emit (body > full_avail). Se acc_h ≤ available_h,
         // clamp é no-op (area_bot - acc_h ≥ top_safe por construção).
         let mut y_cursor = (area_bot - acc_h).max(top_safe);
-        for (h, items) in measured {
+        for (h, items, deco) in measured {
             let target_y = y_cursor - ascender.0;
             // P772g — sub-frame já iniciado em `left_x` (não 0.0, ver acima),
             // logo os itens "normais" já vêm absolutos em x; footnotes não
@@ -813,6 +829,17 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
                     },
                 };
                 self.regions.current.current_items.push(translated);
+            }
+            // **P772x** — mesma translação (target_x=0.0, target_y desta
+            // iteração) para segmentos de decoração do body da footnote.
+            if let Some(coll) = self.decoration_lines_collector.as_mut() {
+                for seg in &deco {
+                    coll.push(super::DecoSegment {
+                        start_x:    Pt(target_x + seg.start_x.val()),
+                        end_x:      Pt(target_x + seg.end_x.val()),
+                        baseline_y: Pt(target_y + seg.baseline_y.val()),
+                    });
+                }
             }
             y_cursor += h;
         }

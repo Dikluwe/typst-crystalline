@@ -78,7 +78,7 @@ pub use crate::rules::stdlib::foundations::{
     native_oklab, native_oklch, native_query, native_range, native_repr, native_rgb,
     native_selector, native_state_at, native_state_display, native_state_final,
     native_state_update, native_state_update_with, native_str, native_str_from_unicode,
-    native_symbol, native_type,
+    native_symbol, native_target, native_type,
 };
 // P506 — state/counter/context como valores de primeira classe.
 pub use crate::rules::stdlib::counter::{native_counter, counter_at, counter_display, counter_get, counter_step, counter_update};
@@ -812,6 +812,33 @@ mod tests {
         ctx.current_location = Some(Location::from_raw(7));
         let r = native_here(&mut ctx, &p(vec![]), &null_world(), test_file_id()).unwrap();
         assert_eq!(r, Value::Location(Location::from_raw(7)));
+    }
+
+    // ── P772w — target() ──────────────────────────────────────────────
+    //
+    // Achado: `target()` estava ausente do scope global — `#context target()`
+    // errava "unknown variable: target" em vez de devolver "paged" (vanilla:
+    // `target(context: Tracked<Context>) -> HintedStrResult<Target>`,
+    // `foundations/target_.rs`). Cristalino só produz PDF via layout
+    // paginado (sem pipeline HTML/Bundle) — devolve sempre "paged".
+
+    #[test]
+    fn p772w_target_devolve_paged() {
+        null_ctx!(ctx);
+        let r = native_target(&mut ctx, &p(vec![]), &null_world(), test_file_id()).unwrap();
+        assert_eq!(r, Value::Str("paged".into()));
+    }
+
+    #[test]
+    fn p772w_target_com_args_retorna_err() {
+        null_ctx!(ctx);
+        let r = native_target(
+            &mut ctx,
+            &p(vec![Value::Int(1)]),
+            &null_world(),
+            test_file_id(),
+        );
+        assert!(r.is_err(), "target(1) deve falhar — sem args, paridade vanilla");
     }
 
     // ── P208C (M9c Bloco IV) — locate(kind) ──────────────────────────
@@ -2679,7 +2706,11 @@ mod tests {
         null_ctx!(ctx);
         assert!(calc_log(
             &mut ctx,
-            &Args { items: vec![Value::Float(100.0), Value::Float(10.0)], named: [("base".into(), Value::Int(10))].into_iter().collect() },
+            &Args {
+                items: vec![Value::Float(100.0), Value::Float(10.0)],
+                named: [("base".into(), Value::Int(10))].into_iter().collect(),
+                span: Span::detached(),
+            },
             &null_world(),
             test_file_id()
         )
@@ -11817,8 +11848,8 @@ mod tests {
         if let Value::Module(m) = make_math_module() {
             assert_eq!(
                 m.scope().len(),
-                43,
-                "P299+: 31 scripts + 11 limits = 42 vanilla + 1 adicionado pós-P299"
+                44,
+                "P299+: 31 scripts + 11 limits = 42 vanilla + equation (pós-P299) + class (P772y)"
             );
         } else {
             panic!("make_math_module deve retornar Value::Module");

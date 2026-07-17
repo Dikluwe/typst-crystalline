@@ -15,7 +15,6 @@ use crate::entities::content::Content;
 use crate::entities::layout_types::{Color, Length};
 use crate::entities::regex::Regex;
 use crate::entities::source_result::{SourceDiagnostic, SourceResult};
-use crate::entities::span::Span;
 use crate::entities::style::{Style, Styles};
 use crate::entities::value::Value;
 use crate::rules::eval::EvalContext;
@@ -38,7 +37,7 @@ pub fn native_text(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::cont
             Value::None => None,
             Value::Color(c) => Some(*c),
             other => return Err(vec![SourceDiagnostic::error(
-                Span::detached(),
+                args.span,
                 format!("text(fill:) espera color, recebeu {}", other.type_name()),
             )]),
         };
@@ -56,11 +55,11 @@ pub fn native_text(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::cont
         Some(Value::Content(c)) => c.clone(),
         Some(Value::Str(s)) => Content::text(s.as_str()),
         Some(other) => return Err(vec![SourceDiagnostic::error(
-            Span::detached(),
+            args.span,
             format!("text() espera content ou string como body, recebeu {}", other.type_name()),
         )]),
         None => return Err(vec![SourceDiagnostic::error(
-            Span::detached(),
+            args.span,
             "text() requer body como argumento".to_string(),
         )]),
     };
@@ -68,7 +67,7 @@ pub fn native_text(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::cont
     // Validar que não há argumentos posicionais além do fill + body.
     if args.items.len() > body_idx + 1 {
         return Err(vec![SourceDiagnostic::error(
-            Span::detached(),
+            args.span,
             format!("text() recebeu {} argumentos posicionais (espera 1-2)", args.items.len()),
         )]);
     }
@@ -77,7 +76,7 @@ pub fn native_text(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::cont
     for key in args.named.keys() {
         if key.as_str() != "fill" {
             return Err(vec![SourceDiagnostic::error(
-                Span::detached(),
+                args.span,
                 format!("text() argumento nomeado desconhecido: '{}'", key),
             )]);
         }
@@ -197,15 +196,15 @@ fn build_decoration(kind: DecoKind, args: &Args, fn_name: &str) -> SourceResult<
         [Value::Content(c)] => c.clone(),
         [Value::Str(s)]     => Content::text(s.as_str()),
         [other] => return Err(vec![SourceDiagnostic::error(
-            Span::detached(),
+            args.span,
             format!("{fn_name}() espera content ou string, recebeu {}", other.type_name()),
         )]),
         [] => return Err(vec![SourceDiagnostic::error(
-            Span::detached(),
+            args.span,
             format!("{fn_name}() exige body como argumento posicional"),
         )]),
         _ => return Err(vec![SourceDiagnostic::error(
-            Span::detached(),
+            args.span,
             format!("{fn_name}() recebeu {} argumentos posicionais (espera 1)", args.items.len()),
         )]),
     };
@@ -224,7 +223,7 @@ fn build_decoration(kind: DecoKind, args: &Args, fn_name: &str) -> SourceResult<
                     v => match parse_color(v) {
                         Some(c) => Some(c),
                         None => return Err(vec![SourceDiagnostic::error(
-                            Span::detached(),
+                            args.span,
                             format!("{fn_name}(stroke:) espera color ou none, recebeu {}", v.type_name()),
                         )]),
                     },
@@ -237,7 +236,7 @@ fn build_decoration(kind: DecoKind, args: &Args, fn_name: &str) -> SourceResult<
                     Value::Int(i)    => Some(Length::pt(*i as f64)),
                     Value::Float(f)  => Some(Length::pt(*f)),
                     other => return Err(vec![SourceDiagnostic::error(
-                        Span::detached(),
+                        args.span,
                         format!("{fn_name}(offset:) espera length, recebeu {}", other.type_name()),
                     )]),
                 };
@@ -249,7 +248,7 @@ fn build_decoration(kind: DecoKind, args: &Args, fn_name: &str) -> SourceResult<
                     Value::Int(i)    => Some(Length::pt(*i as f64)),
                     Value::Float(f)  => Some(Length::pt(*f)),
                     other => return Err(vec![SourceDiagnostic::error(
-                        Span::detached(),
+                        args.span,
                         format!("{fn_name}(extent:) espera length, recebeu {}", other.type_name()),
                     )]),
                 };
@@ -258,7 +257,7 @@ fn build_decoration(kind: DecoKind, args: &Args, fn_name: &str) -> SourceResult<
             // adiados, em vez de "argumento inesperado" genérico.
             "evade" | "background" => {
                 return Err(vec![SourceDiagnostic::error(
-                    Span::detached(),
+                    args.span,
                     format!(
                         "{fn_name}({}:) não suportado neste passo \
                          (P284 §A.1 scope-out / ADR-0054 graded)",
@@ -267,7 +266,7 @@ fn build_decoration(kind: DecoKind, args: &Args, fn_name: &str) -> SourceResult<
                 )]);
             }
             other => return Err(vec![SourceDiagnostic::error(
-                Span::detached(),
+                args.span,
                 format!("{fn_name}(): argumento nomeado inesperado '{}'", other),
             )]),
         }
@@ -313,15 +312,15 @@ pub fn native_smallcaps(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate:
         [Value::Content(c)] => c.clone(),
         [Value::Str(s)]     => Content::text(s.as_str()),
         [other] => return Err(vec![SourceDiagnostic::error(
-            Span::detached(),
+            args.span,
             format!("smallcaps() espera content ou string, recebeu {}", other.type_name()),
         )]),
         [] => return Err(vec![SourceDiagnostic::error(
-            Span::detached(),
+            args.span,
             "smallcaps() exige body como argumento posicional".to_string(),
         )]),
         _ => return Err(vec![SourceDiagnostic::error(
-            Span::detached(),
+            args.span,
             format!("smallcaps() recebeu {} argumentos posicionais (espera 1)", args.items.len()),
         )]),
     };
@@ -342,15 +341,15 @@ pub fn native_subscript(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate:
         [Value::Content(c)] => c.clone(),
         [Value::Str(s)]     => Content::text(s.as_str()),
         [other] => return Err(vec![SourceDiagnostic::error(
-            Span::detached(),
+            args.span,
             format!("sub() espera content ou string, recebeu {}", other.type_name()),
         )]),
         [] => return Err(vec![SourceDiagnostic::error(
-            Span::detached(),
+            args.span,
             "sub() exige body como argumento posicional".to_string(),
         )]),
         _ => return Err(vec![SourceDiagnostic::error(
-            Span::detached(),
+            args.span,
             format!("sub() recebeu {} argumentos posicionais (espera 1)", args.items.len()),
         )]),
     };
@@ -361,13 +360,13 @@ pub fn native_subscript(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate:
                 size = match value {
                     Value::Length(l) => Some(*l),
                     other => return Err(vec![SourceDiagnostic::error(
-                        Span::detached(),
+                        args.span,
                         format!("sub(size:) espera length, recebeu {}", other.type_name()),
                     )]),
                 };
             }
             other => return Err(vec![SourceDiagnostic::error(
-                Span::detached(),
+                args.span,
                 format!("sub() argumento nomeado inesperado '{}'", other),
             )]),
         }
@@ -382,15 +381,15 @@ pub fn native_superscript(_ctx: &mut EvalContext, args: &Args, _world: &dyn crat
         [Value::Content(c)] => c.clone(),
         [Value::Str(s)]     => Content::text(s.as_str()),
         [other] => return Err(vec![SourceDiagnostic::error(
-            Span::detached(),
+            args.span,
             format!("super() espera content ou string, recebeu {}", other.type_name()),
         )]),
         [] => return Err(vec![SourceDiagnostic::error(
-            Span::detached(),
+            args.span,
             "super() exige body como argumento posicional".to_string(),
         )]),
         _ => return Err(vec![SourceDiagnostic::error(
-            Span::detached(),
+            args.span,
             format!("super() recebeu {} argumentos posicionais (espera 1)", args.items.len()),
         )]),
     };
@@ -401,13 +400,13 @@ pub fn native_superscript(_ctx: &mut EvalContext, args: &Args, _world: &dyn crat
                 size = match value {
                     Value::Length(l) => Some(*l),
                     other => return Err(vec![SourceDiagnostic::error(
-                        Span::detached(),
+                        args.span,
                         format!("super(size:) espera length, recebeu {}", other.type_name()),
                     )]),
                 };
             }
             other => return Err(vec![SourceDiagnostic::error(
-                Span::detached(),
+                args.span,
                 format!("super() argumento nomeado inesperado '{}'", other),
             )]),
         }
@@ -433,15 +432,15 @@ pub fn native_highlight(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate:
         [Value::Content(c)] => c.clone(),
         [Value::Str(s)]     => Content::text(s.as_str()),
         [other] => return Err(vec![SourceDiagnostic::error(
-            Span::detached(),
+            args.span,
             format!("highlight() espera content ou string, recebeu {}", other.type_name()),
         )]),
         [] => return Err(vec![SourceDiagnostic::error(
-            Span::detached(),
+            args.span,
             "highlight() exige body como argumento posicional".to_string(),
         )]),
         _ => return Err(vec![SourceDiagnostic::error(
-            Span::detached(),
+            args.span,
             format!("highlight() recebeu {} argumentos posicionais (espera 1)", args.items.len()),
         )]),
     };
@@ -457,7 +456,7 @@ pub fn native_highlight(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate:
                     v => match parse_color(v) {
                         Some(c) => Some(c),
                         None => return Err(vec![SourceDiagnostic::error(
-                            Span::detached(),
+                            args.span,
                             format!("highlight(fill:) espera color ou none, recebeu {}", v.type_name()),
                         )]),
                     },
@@ -468,7 +467,7 @@ pub fn native_highlight(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate:
                     Value::None => None,
                     Value::Length(l) => Some(*l),
                     other => return Err(vec![SourceDiagnostic::error(
-                        Span::detached(),
+                        args.span,
                         format!("highlight(radius:) espera length ou none, recebeu {}", other.type_name()),
                     )]),
                 };
@@ -478,13 +477,13 @@ pub fn native_highlight(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate:
                     Value::None => None,
                     Value::Length(l) => Some(*l),
                     other => return Err(vec![SourceDiagnostic::error(
-                        Span::detached(),
+                        args.span,
                         format!("highlight(extent:) espera length ou none, recebeu {}", other.type_name()),
                     )]),
                 };
             }
             other => return Err(vec![SourceDiagnostic::error(
-                Span::detached(),
+                args.span,
                 format!("highlight() argumento nomeado inesperado '{}'", other),
             )]),
         }
@@ -511,7 +510,7 @@ pub fn native_highlight(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate:
 pub fn native_smartquote(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contracts::world::World, _current_file: FileId) -> SourceResult<Value> {
     if !args.items.is_empty() {
         return Err(vec![SourceDiagnostic::error(
-            Span::detached(),
+            args.span,
             format!("smartquote() não aceita argumentos posicionais (recebeu {})", args.items.len()),
         )]);
     }
@@ -524,14 +523,14 @@ pub fn native_smartquote(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate
             "double" => match value {
                 Value::Bool(b) => double = *b,
                 other => return Err(vec![SourceDiagnostic::error(
-                    Span::detached(),
+                    args.span,
                     format!("smartquote(double:) espera bool, recebeu {}", other.type_name()),
                 )]),
             },
             "enabled" => match value {
                 Value::Bool(b) => enabled = *b,
                 other => return Err(vec![SourceDiagnostic::error(
-                    Span::detached(),
+                    args.span,
                     format!("smartquote(enabled:) espera bool, recebeu {}", other.type_name()),
                 )]),
             },
@@ -539,7 +538,7 @@ pub fn native_smartquote(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate
             // com erro educacional (ADR-0054 graded); passo dedicado futuro.
             "alternative" | "quotes" => {
                 return Err(vec![SourceDiagnostic::error(
-                    Span::detached(),
+                    args.span,
                     format!(
                         "smartquote({}:) não suportado neste passo \
                          (P287 §A.2 scope-out / ADR-0054 graded)",
@@ -548,7 +547,7 @@ pub fn native_smartquote(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate
                 )]);
             }
             other => return Err(vec![SourceDiagnostic::error(
-                Span::detached(),
+                args.span,
                 format!("smartquote(): argumento nomeado inesperado '{}'", other),
             )]),
         }
@@ -591,18 +590,18 @@ pub fn native_lorem(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::con
     let n = match args.items.as_slice() {
         [Value::Int(n)] => *n,
         [other] => return Err(vec![SourceDiagnostic::error(
-            Span::detached(),
+            args.span,
             format!("lorem() espera um inteiro, recebeu {}", other.type_name()),
         )]),
         _ => return Err(vec![SourceDiagnostic::error(
-            Span::detached(),
+            args.span,
             "lorem() requer 1 argumento inteiro",
         )]),
     };
 
     if n < 0 {
         return Err(vec![SourceDiagnostic::error(
-            Span::detached(),
+            args.span,
             "lorem() não aceita números negativos",
         )]);
     }
@@ -633,7 +632,7 @@ pub fn native_regex(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::con
             match Regex::new(pattern.as_str()) {
                 Ok(re) => Ok(Value::Regex(re)),
                 Err(e) => Err(vec![SourceDiagnostic::error(
-                    Span::detached(),
+                    args.span,
                     format!("regex inválida: {}", e),
                 )]),
             }

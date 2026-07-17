@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/entities/args.md
-//! @prompt-hash db47685b
+//! @prompt-hash 40280be3
 //! @layer L1
 //! @updated 2026-03-28
 
@@ -8,6 +8,7 @@ use ecow::EcoString;
 use indexmap::IndexMap;
 use rustc_hash::FxBuildHasher;
 
+use crate::entities::span::Span;
 use crate::entities::value::Value;
 
 /// Argumentos de chamada de função.
@@ -19,12 +20,21 @@ pub struct Args {
     pub items: Vec<Value>,
     /// Argumentos nomeados (named args), preservando ordem de inserção.
     pub named: IndexMap<EcoString, Value, FxBuildHasher>,
+    /// **P772s** — span da lista de argumentos da chamada real no
+    /// documento. `Span::detached()` para `Args` sintéticos (spread,
+    /// `.with()`, testes) — sem correspondência a uma chamada literal.
+    /// Ver `entities/args.md` para a decisão de âmbito (span por chamada,
+    /// não por-argumento — custo medido, registado como débito).
+    pub span: Span,
 }
 
 impl Args {
-    /// Cria Args apenas com posicionais (named vazio).
+    /// Cria Args apenas com posicionais (named vazio), `span` detached —
+    /// usado por construções internas/sintéticas sem chamada real no
+    /// documento. Para uma chamada real, construir `Args` directamente
+    /// com o `span` da lista de argumentos (ver `eval/closures.rs::eval_args`).
     pub fn positional(items: Vec<Value>) -> Self {
-        Self { items, named: IndexMap::default() }
+        Self { items, named: IndexMap::default(), span: Span::detached() }
     }
 
     pub fn len(&self) -> usize {

@@ -12,7 +12,6 @@ use crate::entities::args::Args;
 use crate::entities::file_id::FileId;
 use crate::entities::content::Content;
 use crate::entities::layout_types::TransformMatrix;
-use crate::entities::span::Span;
 use crate::entities::source_result::{SourceDiagnostic, SourceResult};
 use crate::entities::value::Value;
 use crate::rules::eval::EvalContext;
@@ -31,7 +30,7 @@ pub fn native_move(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::cont
     let dy = args.named.get("dy").map(extract_pt).unwrap_or(0.0);
     let body = args.items.iter()
         .find_map(|v| if let Value::Content(c) = v { Some(c.clone()) } else { None })
-        .ok_or_else(|| vec![SourceDiagnostic::error(Span::detached(),
+        .ok_or_else(|| vec![SourceDiagnostic::error(args.span,
             "move() exige um corpo de conteúdo".to_string())])?;
     Ok(Value::Content(Content::transform(TransformMatrix::translate(dx, dy), body)))
 }
@@ -54,7 +53,7 @@ pub fn native_rotate(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::co
     };
     let body = args.items.iter()
         .find_map(|v| if let Value::Content(c) = v { Some(c.clone()) } else { None })
-        .ok_or_else(|| vec![SourceDiagnostic::error(Span::detached(),
+        .ok_or_else(|| vec![SourceDiagnostic::error(args.span,
             "rotate() exige um corpo de conteúdo".to_string())])?;
     Ok(Value::Content(Content::transform(TransformMatrix::rotate(angle_rad), body)))
 }
@@ -74,7 +73,7 @@ pub fn native_scale(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::con
     let sy = args.named.get("y").map(extract_factor).unwrap_or(sx);
     let body = args.items.iter()
         .find_map(|v| if let Value::Content(c) = v { Some(c.clone()) } else { None })
-        .ok_or_else(|| vec![SourceDiagnostic::error(Span::detached(),
+        .ok_or_else(|| vec![SourceDiagnostic::error(args.span,
             "scale() exige um corpo de conteúdo".to_string())])?;
     Ok(Value::Content(Content::transform(TransformMatrix::scale(sx, sy), body)))
 }
@@ -112,14 +111,14 @@ pub fn native_skew(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::cont
 
     let ax_rad = match args.named.get("ax") {
         Some(v) => extract_angle_rad(v).ok_or_else(|| vec![SourceDiagnostic::error(
-            Span::detached(),
+            args.span,
             format!("skew(ax:) espera angle, recebeu {}", v.type_name()),
         )])?,
         None => 0.0,
     };
     let ay_rad = match args.named.get("ay") {
         Some(v) => extract_angle_rad(v).ok_or_else(|| vec![SourceDiagnostic::error(
-            Span::detached(),
+            args.span,
             format!("skew(ay:) espera angle, recebeu {}", v.type_name()),
         )])?,
         None => 0.0,
@@ -129,7 +128,7 @@ pub fn native_skew(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::cont
     for key in args.named.keys() {
         if !["ax", "ay"].contains(&key.as_str()) {
             return Err(vec![SourceDiagnostic::error(
-                Span::detached(),
+                args.span,
                 format!("skew(): argumento nomeado inesperado '{}'", key),
             )]);
         }
@@ -141,14 +140,14 @@ pub fn native_skew(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::cont
     const LIMIT: f64 = std::f64::consts::FRAC_PI_2 - 1e-3;
     if ax_rad.abs() >= LIMIT || ay_rad.abs() >= LIMIT {
         return Err(vec![SourceDiagnostic::error(
-            Span::detached(),
+            args.span,
             "skew(): ângulo demasiado próximo de ±π/2 (tan diverge)".to_string(),
         )]);
     }
 
     let body = args.items.iter()
         .find_map(|v| if let Value::Content(c) = v { Some(c.clone()) } else { None })
-        .ok_or_else(|| vec![SourceDiagnostic::error(Span::detached(),
+        .ok_or_else(|| vec![SourceDiagnostic::error(args.span,
             "skew() exige um corpo de conteúdo".to_string())])?;
 
     Ok(Value::Content(Content::transform(TransformMatrix::skew(ax_rad, ay_rad), body)))

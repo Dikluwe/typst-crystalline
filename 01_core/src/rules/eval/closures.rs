@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/rules/eval.md
-//! @prompt-hash 3fca6d82
+//! @prompt-hash 39347eef
 //! @layer L1
 //! @updated 2026-07-09
 //!
@@ -54,6 +54,10 @@ pub(super) fn eval_args(
     ctx: &mut EvalContext,
     engine: &mut Engine<'_>,
 ) -> SourceResult<Args> {
+    // P772s — span da lista de argumentos da chamada real no documento,
+    // propagado para todas as mensagens de erro de validação de argumento
+    // das funções nativas que usam `args.span` em vez de `Span::detached()`.
+    let call_span = args_node.span();
     let mut items = Vec::new();
     let mut named: IndexMap<EcoString, Value, FxBuildHasher> = IndexMap::default();
     for arg in args_node.items() {
@@ -88,7 +92,7 @@ pub(super) fn eval_args(
             }
         }
     }
-    Ok(Args { items, named })
+    Ok(Args { items, named, span: call_span })
 }
 
 /// Aplica uma função (closure, native ou native-with-engine) aos args dados.
@@ -142,10 +146,13 @@ pub fn apply_func(
 /// Nomeados: `new` sobrepõe `pre` em colisão de chave — decisão por defeito,
 /// não exercitada pelo vanilla (ver `entities/func.md` §"Variante `With`").
 fn merge_with_args(pre: &Args, new: Args) -> Args {
+    // P772s — span da chamada final (mais próxima do erro visto pelo
+    // utilizador do que o span da chamada de `.with(...)` original).
+    let span = new.span;
     let items = pre.items.iter().cloned().chain(new.items).collect();
     let mut named = pre.named.clone();
     named.extend(new.named);
-    Args { items, named }
+    Args { items, named, span }
 }
 
 /// **P699** — Aplica um export de plugin WASM (`FuncRepr::Plugin`).
@@ -277,6 +284,9 @@ pub(super) fn apply_closure(
                 // (paridade vanilla `args.take()`, medido: sink exclui o
                 // nomeado já ligado a um parâmetro).
                 named: args.named,
+                // P772s — span da chamada original (sink `..rest` reflecte
+                // os args não consumidos desta mesma chamada).
+                span: args.span,
             }),
         );
     } else {
@@ -773,7 +783,7 @@ mod tests {
         let pf = make_pf("cp_named");
         let mut named = IndexMap::with_hasher(FxBuildHasher);
         named.insert(EcoString::from("x"), Value::None);
-        let args = Args { items: vec![Value::Bytes(Bytes::default())], named };
+        let args = Args { items: vec![Value::Bytes(Bytes::default())], named, span: Span::detached() };
         let e = call_plugin(&pf, &args).unwrap_err();
         assert!(
             e[0].message.contains("argumento nomeado inesperado"),

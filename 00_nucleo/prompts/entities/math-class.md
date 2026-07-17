@@ -1,5 +1,5 @@
 # Prompt L0 — `math_class` entity
-Hash do Código: 971493de
+Hash do Código: 1f7b9b45
 
 **Camada**: L1
 **Ficheiro**: `01_core/src/entities/math_class.rs`
@@ -62,7 +62,22 @@ pub fn default_math_class(c: char) -> Option<MathClass>;
 
 /// Conversão interna — não é API pública.
 fn from_unicode_math_class(c: unicode_math_class::MathClass) -> MathClass;
+
+/// **P772y** — nome textual vanilla de uma `MathClass`, usado por
+/// `math.class(str, body)` e por `repr()`. Paridade `foundations/cast.rs`
+/// (vanilla) — kebab-case só para `GlyphPart` ("glyph-part"), resto
+/// lowercase directo.
+pub fn math_class_name(c: MathClass) -> &'static str;
+
+/// **P772y** — inverso de `math_class_name`: nome textual vanilla → `MathClass`.
+/// Usado por `math.class(str, body)` para validar/converter o argumento
+/// posicional. `None` se o nome não é reconhecido.
+pub fn parse_math_class(name: &str) -> Option<MathClass>;
 ```
+
+**P772y**: `MathClass` ganhou `#[derive(Hash)]` (além de `Debug, Copy,
+Clone, Eq, PartialEq`) — necessário para `MathClassOverrideElem` (que
+deriva `Hash`) ter um campo `class: MathClass`.
 
 ---
 
@@ -123,6 +138,14 @@ fn from_unicode_math_class(c: unicode_math_class::MathClass) -> MathClass;
 **MathClass é Copy e PartialEq**
 - `MathClass::Normal == MathClass::Normal`
 - Variantes diferentes são diferentes
+
+**P772y — `math_class_name`/`parse_math_class` são inversos**
+- Dado: as 15 variantes de `MathClass`
+- Quando: `parse_math_class(math_class_name(c))` para cada `c`
+- Então: `Some(c)` — round-trip completo
+- Caso kebab-case: `math_class_name(GlyphPart) == "glyph-part"`,
+  `parse_math_class("glyph-part") == Some(GlyphPart)`
+- Nome desconhecido: `parse_math_class("not-a-class") == None`
 
 ---
 

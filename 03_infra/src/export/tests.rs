@@ -7552,3 +7552,128 @@ use typst_core::rules::layout::layout;
             .collect();
         String::from_utf16(&units).expect("UTF-16BE válido")
     }
+
+    // ── P772u — CFF2 embutido correctamente + delta TJ consistente com /W ──
+
+    #[test]
+    fn p772u_fonte_cff2_usa_cidfont_type0_opentype() {
+        // Cantarell-VF.otf é CFF2 (fonte OpenType variável, sem tabela `CFF `
+        // legada). `font_embedding_data` detectava só `face.tables().cff`
+        // (CFF1) e caía por omissão no ramo TrueType — /CIDFontType2 +
+        // /FontFile2 para uma fonte sem tabela `glyf`. Regressão: CFF2 deve
+        // gerar /CIDFontType0 + /FontFile3 + stream /Subtype /OpenType
+        // (não há subtype PDF para "programa CFF2 puro").
+        let fixture_path = concat!(
+            env!("CARGO_MANIFEST_DIR"),
+            "/fixtures/fonts/Cantarell-VF.otf"
+        );
+        let font_data = match std::fs::read(fixture_path) {
+            Ok(d) => d,
+            Err(e) => {
+                eprintln!("SKIP p772u_fonte_cff2_usa_cidfont_type0_opentype: fixture não encontrada: {e}");
+                return;
+            }
+        };
+        let doc = layout(&Content::text("Hello"));
+        let pdf = export_pdf_with_font(&doc, &font_data);
+        let s = String::from_utf8_lossy(&pdf);
+        assert!(s.contains("/CIDFontType0"), "CFF2 deve gerar /CIDFontType0");
+        assert!(s.contains("/FontFile3"), "CFF2 deve usar /FontFile3");
+        assert!(s.contains("/Subtype /OpenType"), "CFF2 deve embutir como contêiner OpenType completo");
+        assert!(!s.contains("/CIDFontType2"), "CFF2 não deve usar /CIDFontType2 (TrueType)");
+        assert!(!s.contains("/CIDFontType0C"), "CFF2 não deve usar /CIDFontType0C (bare CFF1)");
+    }
+
+    #[test]
+    fn p772u_multifont_delta_tj_consistente_com_variacao_de_peso() {
+        // Regressão do colapso de espaço entre palavras em Cantarell-VF a
+        // pesos altos (wght=800): `glyph_to_nominal` (baseline do delta TJ,
+        // P520) lia a face SEM variação de eixo enquanto `/W` já usava a
+        // face instanciada (COM variação) — o delta TJ media a variação de
+        // peso como kerning, e o deslocamento real no leitor de PDF passava
+        // a ser `2×x_advance − nominal_sem_variação` em vez de `x_advance`.
+        //
+        // Invariante testado directamente: para o único glifo do único item
+        // do documento, `w0(/W) − delta(TJ) == x_advance` que fornecemos ao
+        // `ShapedGlyph` — isto só é verdade quando `/W` e `glyph_to_nominal`
+        // vêm consistentemente da mesma instância (variada ou não; o teste
+        // não depende de o instanciador Python/fontTools estar disponível,
+        // ver §P772u em `builder.md`).
+        let fixture_path = concat!(
+            env!("CARGO_MANIFEST_DIR"),
+            "/fixtures/fonts/Cantarell-VF.otf"
+        );
+        let font_data = match std::fs::read(fixture_path) {
+            Ok(d) => d,
+            Err(e) => {
+                eprintln!("SKIP p772u_multifont_delta_tj_consistente_com_variacao_de_peso: fixture não encontrada: {e}");
+                return;
+            }
+        };
+
+        // GID 223 = 'W' em Cantarell-VF.otf a wght=800 (medido por
+        // instrumentação directa ttf_parser/rustybuzz, P772u).
+        const GID_W: u16 = 223;
+        const X_ADVANCE_WGHT800: i32 = 1020;
+
+        let mut style = typst_core::entities::layout_types::TextStyle::regular(
+            typst_core::entities::layout_types::Pt(11.0)
+        );
+        style.weight = Some(800);
+        style.font = Some(FontList::single(ecow::EcoString::from("Cantarell")));
+
+        let glyph = typst_core::entities::shaped_glyph::ShapedGlyph {
+            glyph_id:  GID_W,
+            x_advance: X_ADVANCE_WGHT800,
+            x_offset:  0,
+            y_offset:  0,
+            cluster:   0,
+            char_code: 'W',
+        };
+        let item = typst_core::entities::layout_types::FrameItem::TextShaped {
+            pos: typst_core::entities::layout_types::Point {
+                x: typst_core::entities::layout_types::Pt(10.0),
+                y: typst_core::entities::layout_types::Pt(20.0),
+            },
+            glyphs: vec![glyph],
+            style: style.clone(),
+            text: ecow::EcoString::from("W"),
+            units_per_em: 1000,
+        };
+        let doc = typst_core::entities::layout_types::PagedDocument::new(vec![
+            typst_core::entities::layout_types::Page {
+                width: 200.0, height: 200.0, numbering: None, items: vec![item],
+            },
+        ]);
+
+        let variant = FontVariant {
+            weight: typst_core::entities::font_book::FontWeight(800),
+            ..Default::default()
+        };
+        let font_list = FontList::single(ecow::EcoString::from("Cantarell"));
+        let pdf = export_pdf_multifont(&doc, &[((font_list, variant), font_data)]);
+        let s = String::from_utf8_lossy(&pdf);
+
+        // Extrair a largura declarada em /W para o GID 223.
+        let w_marker = format!("{GID_W} [");
+        let w_pos = s.find(&w_marker).unwrap_or_else(|| panic!("GID {GID_W} deve aparecer em /W: {s}"));
+        let after_w = &s[w_pos + w_marker.len()..];
+        let w_end = after_w.find(']').expect("/W entry deve fechar com ]");
+        let nominal: i32 = after_w[..w_end].trim().parse().expect("largura nominal deve ser inteiro");
+
+        // Extrair o delta TJ do primeiro (único) glifo no content stream.
+        let tj_pos = s.find("] TJ").expect("stream deve ter operador TJ");
+        let tj_start = s[..tj_pos].rfind('[').expect("TJ array deve abrir com [");
+        let tj_array = s[tj_start + 1..tj_pos].trim();
+        // Formato: "<GID_HEX> DELTA " — extrair o número após o glyph hex.
+        let delta_start = tj_array.find('>').expect("glifo deve estar entre < >") + 1;
+        let delta: i32 = tj_array[delta_start..].trim().parse().expect("delta TJ deve ser inteiro");
+
+        let displacement = nominal - delta;
+        assert_eq!(
+            displacement, X_ADVANCE_WGHT800,
+            "deslocamento real (w0 /W menos delta TJ) deve bater com o x_advance \
+             fornecido — nominal={nominal} delta={delta}; se `glyph_to_nominal` \
+             e `/W` vierem de instâncias diferentes (bug P772u), este valor diverge"
+        );
+    }
