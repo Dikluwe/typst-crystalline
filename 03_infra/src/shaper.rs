@@ -32,7 +32,7 @@ use typst_core::entities::font_list::FontList;
 use typst_core::entities::layout_types::{FrameItem, Length, Page, PagedDocument, Point, Pt, ShapedGlyph, TextStyle};
 use typst_core::entities::world_types::Font;
 
-use crate::fallback_fonts::fallback_font_list_for;
+use crate::fallback_fonts::{fallback_font_list_for, math_fallback_font_list};
 use crate::font_metrics::FallbackFontMetrics;
 use crate::font_variant::{axis_variations_for_font_variant, text_style_to_font_variant};
 use typst_core::entities::dir::Dir;
@@ -175,6 +175,26 @@ pub(crate) fn shaped_width(world: &dyn World, text: &str, style: &TextStyle, fac
                 }
             }
         }
+    } else {
+        // **P783** — se a fonte primária tem tabela MATH OpenType, adicionar
+        // a cadeia de fallback matemático como primárias adicionais, para que
+        // glifos ausentes na primária sejam buscados em fontes math dedicadas
+        // antes do fallback global (todo o FontBook em ordem de índice).
+        let primary_has_math = primary.first().and_then(|cand| {
+            face_cache.get(world, cand.slot_idx)
+        }).map_or(false, |cached| cached.face().tables().math.is_some());
+        if primary_has_math {
+            for family in math_fallback_font_list() {
+                let math_font_list = FontList::single(ecow::EcoString::from(*family));
+                if let Some(cands) = resolve_candidates(world, &math_font_list, &variant, face_cache) {
+                    for cand in cands {
+                        if !primary.iter().any(|p| p.slot_idx == cand.slot_idx) {
+                            primary.push(cand);
+                        }
+                    }
+                }
+            }
+        }
     }
 
     let mut candidates = CandidateSet::new(world, primary, face_cache);
@@ -289,6 +309,26 @@ fn try_shape(
                 if !cands.is_empty() {
                     primary = cands;
                     break;
+                }
+            }
+        }
+    } else {
+        // **P783** — se a fonte primária tem tabela MATH OpenType, adicionar
+        // a cadeia de fallback matemático como primárias adicionais, para que
+        // glifos ausentes na primária sejam buscados em fontes math dedicadas
+        // antes do fallback global (todo o FontBook em ordem de índice).
+        let primary_has_math = primary.first().and_then(|cand| {
+            face_cache.get(world, cand.slot_idx)
+        }).map_or(false, |cached| cached.face().tables().math.is_some());
+        if primary_has_math {
+            for family in math_fallback_font_list() {
+                let math_font_list = FontList::single(ecow::EcoString::from(*family));
+                if let Some(cands) = resolve_candidates(world, &math_font_list, &variant, face_cache) {
+                    for cand in cands {
+                        if !primary.iter().any(|p| p.slot_idx == cand.slot_idx) {
+                            primary.push(cand);
+                        }
+                    }
                 }
             }
         }

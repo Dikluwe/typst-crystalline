@@ -36,11 +36,17 @@ pub struct EmbeddedFontSets {
 }
 
 /// Classifica uma família de fonte embutida no grupo texto ou math/code.
+///
+/// **P783** — correção: o nome de família OpenType de `NewCMMath-*.otf` é
+/// `"New Computer Modern Math"` (não `"NewCMMath"`). O ramo correcto é
+/// `contains("new computer modern math")`, não `starts_with("newcmmath")`.
 fn embedded_font_group(family: &str) -> &'static str {
     let lower = family.to_lowercase();
     if lower.starts_with("libertinus serif") || lower.starts_with("newcm10") {
         "text"
-    } else if lower.starts_with("newcmmath") || lower.starts_with("dejavu sans mono") {
+    } else if lower.contains("new computer modern math")
+           || lower.contains("new computer modern mono")
+           || lower.starts_with("dejavu sans mono") {
         "math_code"
     } else {
         // Desconhecido: tratar como math/code por segurança (não competir no
@@ -100,8 +106,10 @@ mod tests {
     #[test]
     fn p754_newcm_math_is_not_in_text_group() {
         let sets = load_embedded_fonts();
+        // O nome de família real é "New Computer Modern Math" (não "NewCMMath")
+        // -- P783 corrigiu a heurística. Verificar pelo nome correcto.
         let newcm_math_in_text = sets.text_book.infos().iter().any(|info| {
-            info.family.to_lowercase().starts_with("newcmmath")
+            info.family.to_lowercase().contains("new computer modern math")
         });
         assert!(
             !newcm_math_in_text,

@@ -4,12 +4,17 @@
 //! @prompt 00_nucleo/prompts/infra/font_metrics.md
 //! @prompt-hash 167c29d3
 //! @layer L3
-//! @updated 2026-07-14
+//! @updated 2026-07-18
 //!
 //! **P555** — listas de fallback de fonte divididas por classe visual
 //! (serifa vs sem serifa). Quando a fonte primária declarada não resolve,
 //! o shaper e as métricas de fallback usam a lista adequada para preservar
 //! a classe da fonte pedida.
+//!
+//! **P783** — lista de fallback específica de modo matemático, espelhando
+//! a cadeia do vanilla (`math::families()`): New Computer Modern Math →
+//! Libertinus Serif → fontes de emoji. Usada quando a fonte primária
+//! tem tabela MATH OpenType e não cobre um glifo.
 
 /// Fontes serif de fallback, preferidas quando a primária é uma serif.
 ///
@@ -34,6 +39,22 @@ pub(crate) const DEFAULT_FALLBACK_FONTS_SANS: &[&str] = &[
     "Arial",
 ];
 
+/// Fontes de fallback específicas de modo matemático.
+///
+/// **P783** — paridade com a cadeia do vanilla (`math::families()` em
+/// `typst-library/src/math/mod.rs`): quando a fonte matemática primária
+/// não cobre um glifo, tentam-se estas fontes antes das genéricas.
+/// A ordem é idêntica à do vanilla: New Computer Modern Math →
+/// Libertinus Serif → fontes de emoji de cobertura ampla.
+pub(crate) const DEFAULT_FALLBACK_FONTS_MATH: &[&str] = &[
+    "New Computer Modern Math",
+    "Libertinus Serif",
+    "Twitter Color Emoji",
+    "Noto Color Emoji",
+    "Apple Color Emoji",
+    "Segoe UI Emoji",
+];
+
 /// Heurística simples de classe a partir do nome da família.
 /// - Nome contendo "serif" (case-insensitive) → serif.
 /// - Nome contendo "sans" (case-insensitive) → sans.
@@ -45,6 +66,16 @@ pub(crate) fn fallback_font_list_for(name: &str) -> &'static [&'static str] {
     } else {
         DEFAULT_FALLBACK_FONTS_SANS
     }
+}
+
+/// Lista de fallback para modo matemático.
+///
+/// **P783** — usar quando se sabe que a fonte primária é uma fonte matemática
+/// (i.e., tem tabela MATH OpenType). Retorna `DEFAULT_FALLBACK_FONTS_MATH`
+/// em vez da lista genérica serif/sans, para que glifos matemáticos ausentes
+/// na primária sejam buscados em fontes com cobertura matemática adequada.
+pub(crate) fn math_fallback_font_list() -> &'static [&'static str] {
+    DEFAULT_FALLBACK_FONTS_MATH
 }
 
 #[cfg(test)]
@@ -69,5 +100,29 @@ mod tests {
     #[test]
     fn p555_fallback_font_list_default_for_unknown() {
         assert_eq!(fallback_font_list_for("SomeCustomFont"), DEFAULT_FALLBACK_FONTS_SANS);
+    }
+
+    // ── P783 — lista de fallback matemático ─────────────────────────────────
+
+    #[test]
+    fn p783_math_fallback_list_starts_with_new_computer_modern() {
+        let list = math_fallback_font_list();
+        assert!(
+            !list.is_empty(),
+            "lista de fallback math não pode ser vazia"
+        );
+        assert_eq!(
+            list[0], "New Computer Modern Math",
+            "primeiro fallback math deve ser New Computer Modern Math (paridade vanilla)"
+        );
+    }
+
+    #[test]
+    fn p783_math_fallback_list_contains_libertinus_serif() {
+        let list = math_fallback_font_list();
+        assert!(
+            list.contains(&"Libertinus Serif"),
+            "lista math deve conter Libertinus Serif como fallback de segunda ordem"
+        );
     }
 }
