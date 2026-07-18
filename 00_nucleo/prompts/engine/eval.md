@@ -1,5 +1,5 @@
 # Prompt L0 — rules/eval
-Hash do Código: 0429c34e
+Hash do Código: 810ba51d
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/engine/eval/mod.rs`
@@ -2190,5 +2190,220 @@ $x sym.suit.heart y$   (sem #, bare field access, FORA do FuncCall)
   → ainda produz página vazia para o símbolo — não é um FuncCall, não
     passa por eval_math_callee; gap de bare-FieldAccess-fora-de-chamada
     não coberto por esta correcção (não é o caso de uso de math.class).
+```
+
+---
+
+## §P780 — `Expr::MathIdent` bare resolve variável do utilizador em modo math
+
+### Contexto
+
+P772y §3.6 mediu, como efeito colateral da validação de `math.class()`,
+que `#let loves = ...; $x loves y$` renderiza `loves` como 5 glifos
+literais (`l`,`o`,`v`,`e`,`s`), não o `Content` vinculado. P772l §2.5 já
+tinha catalogado este debt, ligado a P301
+(`00_nucleo/diagnosticos/diagnostico-auto-lookup-math-passo-301.md` §A.5).
+**Confirmado neste passo: é o mesmo debt** — não um achado novo — fechado
+aqui.
+
+### Sonda — mecanismo exacto do vanilla (medido, não assumido)
+
+**Fronteira letra-única vs multi-carácter é decidida no LEXER, não no
+eval.** `typst-syntax/src/lexer.rs:742-753`: ao consumir um identificador
+em modo math, se o resultado for **um único grapheme**, o token emitido é
+`SyntaxKind::MathText` (nunca passa por resolução de scope); só sequências
+de **mais de um grapheme** tokenizam `SyntaxKind::MathIdent` (ou
+`MathFieldAccess`). `engine/lexer/math.rs` (cristalino) já replica isto
+**exactamente** (confirmado por leitura — `is_math_id_start`/
+`is_math_id_continue`, mesmo `if last_index == 0 { MathText } else { ... }`)
+— não há trabalho adicional a fazer aqui, a fronteira já vem resolvida
+pelo lexer antes de `eval_math_expr` sequer ver o token.
+
+`ast::MathIdent::eval` (vanilla, `typst-eval/src/math.rs:45-57`) chama
+`vm.scopes.get_in_math(&self)` **incondicionalmente** — sem heurística
+extra. `Scopes::get_in_math` (`foundations/scope.rs:75-92`): `top →
+scopes (reverso) → base.math.scope()`, erro `unknown_variable_math` se
+nada encontrado. **Local/utilizador tem prioridade absoluta sobre
+símbolos/operadores conhecidos** — confirmado por compilação real:
+
+```
+#let sin = 42;    $sin$    → mostra "42" (não o operador sin)
+#let alpha = [x]; $alpha$  → mostra "x" (não α)
+```
+
+### Correcção
+
+`eval_math_expr` (`Expr::MathIdent`, arm principal — **distinto** do
+caminho de callee que P772y já corrigiu em `eval_math_callee`) ganha um
+passo 0, antes de tudo o resto:
+
+```rust
+if let Some(value) = scopes.get_local(name) {
+    return Ok(value_to_display_content(value.clone()).unwrap_or(Content::Empty));
+}
+```
+
+`Scopes::get_local` (novo, `engine/scopes.rs`, ver `scopes.md` §P780) —
+top → scopes → captured, **sem** cair em `base` — paridade exacta do
+fallback restrito de `get_in_math` (que cai em `base.math`, não
+`base.global`). Não há fronteira letra-única/multi-letra a replicar
+aqui: o lexer já garante que `ident` é sempre multi-grapheme quando esta
+arm é alcançada.
+
+Se não encontrado localmente: os passos 1 (`ident_to_unicode`) e 2
+(`lookup_math_op`) mantêm-se inalterados, na mesma ordem. Se **nenhum**
+dos três resolver: `Err(unknown_variable_math(...))` — substitui o
+fallback pré-P780 ("manter como `MathIdent`", regressão pré-P301
+preservada desde P303).
+
+`value_to_display_content` (novo, `engine/eval/mod.rs`) — extraído do
+bloco P545 de interpolação `#{expr}` em markup (comportamento **byte-
+idêntico** preservado; markup passou a chamar a função em vez do match
+inline). Conversão genérica `Value → Option<Content>`: `Value::Content`
+passa directo, `Str`/`Symbol`/`State` convertem, `Counter`/`None`/texto
+vazio → `None` (nada a mostrar), outros valores (`Int`/`Float`/...) via
+`repr_value`. Paridade conceptual com `Value::display()` (vanilla,
+`ExprExt::eval_display`), que o cristalino não tem como método unificado.
+
+`unknown_variable_math(span, name, in_global)` (novo, `engine/eval/
+math.rs`) — **distinto** de `unknown_variable` (P772r): hints diferentes,
+medidos directamente contra o vanilla (`foundations/scope.rs:439-472`,
+NÃO assumidos de `unknown_variable`):
+
+| Caso | Hint(s) |
+|---|---|
+| `none`/`auto`/`false`/`true` | 1: "adicionar `#` antes: `#none`" |
+| conhecido em `base.global`, não em math (`has_global`) | 3: "não disponível directamente em math"; "`#nome` em código"; "`std.nome` em math" |
+| desconhecido de todo | 2: espaçar letras (`f o o`); citar como texto (`"foobarbaz"`) |
+
+### Débito descoberto e corrigido no mesmo passo — símbolo `product`
+
+A sonda expôs (via regressão de teste pré-existente,
+`layout_prod_com_limites_nao_panica`, que usava `$product_(k=1)^n$` como
+fixture) que `product` **não estava** em `ident_to_unicode`
+(`engine/math/symbols.rs`), só `prod` (nome **não-canónico** — `codex`
+`sym.txt:525` só define `product ∏`, não `prod`; confirmado: `$product$`
+resolve ∏ no vanilla real, `$prod$` **erra** "unknown variable: prod").
+Adicionado `"product" => Some("∏")` a par de `"prod"` (mantido por
+compatibilidade retroactiva, remoção não avaliada — fora de âmbito).
+
+Isto também **corrige o diagnóstico de P772y §3.6.3** — o glifo `♥`
+(U+2665) NÃO tem um gap de cobertura de fonte; a causa era exactamente
+este debt (`MathIdent` bare não resolvia `loves`, logo o body de
+`math.class(...)` nunca chegava ao layout). Medido pós-correcção:
+`#let loves = math.class("relation", sym.suit.heart); $x loves y$`
+renderiza `♥` correctamente (`unicode="♥" glyph="heart"`). O gap real que
+**persiste** é mais estreito: `$sym.suit.heart$` **bare** (field access
+directo numa sequência math, fora de qualquer `FuncCall`/`MathIdent`) —
+cai no `_ => Ok(Content::Empty)` genérico de `eval_math_expr`, caminho
+ainda não coberto (nem por P772y nem por P780).
+
+### Critérios de verificação
+
+```
+#let myvar123 = 5;    $myvar123$    → "5" (scope local resolve)
+$foobarbaz$                          → Err "unknown variable: foobarbaz" + 2 hints
+#let r = [nunca];     $r$            → símbolo itálico "𝑟" (letra única, lexer MathText, ignora binding)
+#let str = 5;         $str$          → "5" (sombra local vence stdlib)
+$str$ (sem binding local)            → Err "unknown variable: str" + 3 hints (in_global)
+#let loves = math.class("relation", "z");  $x loves y$
+  → mesmo delta de "x" que "$x = y$" (THICK, via math.class + resolução
+    de variável combinadas)
+```
+
+---
+
+## §P782 — splice de `#expr`/field-access bare em modo math
+
+### Contexto
+
+P772y §3.6.2 mediu, P780 reconfirmou como débito **distinto** do fechado em
+P780 (`MathIdent` bare por *nome*): `#expr` dentro de `$...$` e field access
+bare (`sym.suit.heart` sem `#`) caíam no catch-all final de
+`eval_math_expr` (`_ => Ok(Content::Empty)`), descartados em silêncio, sem
+erro. Casos confirmados: `$x #sym.suit.heart y$`, `$x #hc y$` (`hc`
+vinculado a `Content`/`Value::Symbol`), `$sym.suit.heart$` bare.
+
+### Sonda — mecanismo exacto do vanilla (medido, não assumido)
+
+Vanilla tem uma distinção arquitectural que o cristalino **não replica**:
+`Expr::MathFieldAccess` (`typst-syntax/src/ast.rs:296`) é um variant
+**dedicado** do `Expr` genérico, produzido pelo lexer math para field
+access bare (`MathAccess::MathIdent | MathAccess::MathFieldAccess`,
+recursivo) — distinto de `#expr` (que produz um `Expr::FieldAccess`
+genérico via `embedded_code_expr`, o mesmo caminho de código normal).
+`ast::Math::exprs()` devolve o `Expr` genérico (`typst-syntax/src/
+ast.rs:889-891`) — **qualquer** variant, específico de math ou não, passa
+por `expr.eval_display(vm)` = `self.eval(vm)?.display()`
+(`typst-eval/src/math.rs:176-184`) — conversão genérica `Value → Content`.
+
+**Confirmado por leitura de fonte, não suposição**: no **cristalino**,
+`engine/parse/math.rs:63-64` (`SyntaxKind::MathIdent | SyntaxKind::
+FieldAccess => { ... }`, comentário "The lexer manages creating full
+FieldAccess nodes if needed") — o lexer math monta directamente um nó
+`SyntaxKind::FieldAccess` **genérico** (não um `MathFieldAccess` dedicado)
+para `sym.suit.heart` bare. Isto significa que, nesta arquitectura
+específica, `#sym.suit.heart` (via Hash) e `sym.suit.heart` bare produzem
+**literalmente o mesmo** `Expr::FieldAccess` — ao contrário do vanilla,
+onde são dois `Expr` variants distintos. Consequência prática: um único
+braço de `eval_math_expr` cobre os dois casos nesta implementação (não é
+uma suposição de que "é o mesmo fix" — é uma consequência estrutural
+verificada da forma como o parser cristalino monta a árvore).
+
+### Correcção
+
+Catch-all final de `eval_math_expr` (antes `_ => Ok(Content::Empty)`)
+substituído por dois braços:
+
+```rust
+other @ Expr::FieldAccess(_) => {
+    let value = eval_math_callee(scopes, ctx, engine, other)?;
+    Ok(value_to_display_content(value).unwrap_or(Content::Empty))
+}
+other => {
+    let value = eval_expr(other, scopes, ctx, engine)?;
+    Ok(value_to_display_content(value).unwrap_or(Content::Empty))
+}
+```
+
+- `Expr::FieldAccess` passa por `eval_math_callee` (P772y, generalizado por
+  este passo — ver docstring actualizada da função), **não** por
+  `eval_expr` directo: o alvo do access (`sym` em `sym.suit.heart`) é
+  lexado como `Expr::MathIdent` mesmo dentro do nó `FieldAccess` — `eval_
+  expr` genérico trata `Expr::MathIdent` como fronteira deliberada
+  (`Value::None`), o que faria o field access falhar com "field access não
+  suportado em none" (medido — mesma causa-raiz que P772y já tinha
+  contornado para o caminho de callee, agora reaproveitada aqui).
+- Qualquer outro `Expr` (`Ident`, `LetBinding`, literais, ...) passa por
+  `eval_expr` genérico directo — paridade conceptual com `eval_display`
+  (vanilla). Seguro por construção: `Expr::MathIdent`/`MathText`/etc.
+  nunca chegam a este catch-all (apanhados pelos braços específicos
+  anteriores no match); os que chegam e não são reconhecidos por
+  `eval_expr` (variantes markup-only) já devolvem `Value::None` lá
+  ("Fronteira deliberada"), convertendo para `Content::Empty` aqui —
+  mesmo resultado do comportamento antigo, sem regressão.
+
+**`eval_math_callee`** (P772y) ganhou um braço `Value::Symbol` — `sym.
+suit.heart` resolve `sym` (módulo), depois `.suit` (`Value::Symbol`, grupo
+de variantes) e `.heart` (aplica modifier) — paridade `eval_field_access`
+(P765a, `s.modified(field)`), duplicada aqui porque `eval_field_access`
+recursa via `eval_expr(access.target())`, que falharia no mesmo alvo
+`MathIdent`.
+
+**Bónus não-planeado, descoberto pela mesma correcção**: `#let x = 5`
+dentro de `$...$` antes caía no mesmo catch-all e **nunca mutava o
+scope** (a atribuição nunca executava). Passa agora a executar de facto,
+via `eval_expr`'s braço `Expr::LetBinding`. Não é regressão — é o
+comportamento correcto que o catch-all antigo impedia.
+
+### Critérios de verificação
+
+```
+$sym.suit.heart$              → ♥ (field access bare)
+$x #sym.suit.heart y$         → x ♥ y (field access via #)
+#let hc = sym.suit.heart; $x #hc y$   → x ♥ y (Ident via #, vinculado a Symbol)
+$#let zval = 5; zval$         → 5 (LetBinding em math agora executa)
+#let myvar123 = 5; $myvar123$ → 5 (não-regressão P780, MathIdent bare)
+$undef$                        → Err "unknown variable: undef" (não-regressão P780)
 ```
 

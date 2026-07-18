@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/engine/math/symbols.md
-//! @prompt-hash 2176351d
+//! @prompt-hash 35faf3e9
 //! @layer L1
 //! @updated 2026-04-03
 
@@ -49,7 +49,15 @@ pub fn ident_to_unicode(name: &str) -> Option<&'static str> {
         "Omega"    => Some("Ω"),
         // Operadores e símbolos comuns
         "sum"      => Some("∑"),
+        // **P780** — `prod` não é nome de símbolo vanilla real (`codex`
+        // `sym.txt` só tem `product ∏`; confirmado por compilação real:
+        // `$product$` resolve a ∏ no vanilla, `$prod$` erra "unknown
+        // variable: prod"). Mantido por compatibilidade retroativa
+        // (nenhum teste depende dele activamente; risco de remoção não
+        // avaliado — fora de âmbito deste passo). Adicionado o nome
+        // correcto `product` a par, paridade `codex::sym.txt:525`.
         "prod"     => Some("∏"),
+        "product"  => Some("∏"),
         // **P772w** — era `"int"` (errado: no vanilla, `int` é o construtor
         // do tipo inteiro — `scope.define("int", Value::Type(Type::Int))` em
         // `eval/mod.rs:1186` — e não está disponível directamente em modo
@@ -225,6 +233,12 @@ mod tests {
     #[test]
     fn integral_converte_para_unicode() {
         assert_eq!(ident_to_unicode("integral"), Some("∫"));
+    }
+
+    #[test]
+    fn product_converte_para_unicode() {
+        // P780 — paridade codex::sym.txt:525 (`product ∏`).
+        assert_eq!(ident_to_unicode("product"), Some("∏"));
     }
 
     #[test]

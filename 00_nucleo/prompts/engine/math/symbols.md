@@ -1,5 +1,5 @@
 # Prompt L0 — `rules/math/symbols` — Resolução de Símbolos Matemáticos
-Hash do Código: cc870900
+Hash do Código: 907c83f9
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/engine/math/symbols.rs`
@@ -32,7 +32,9 @@ correspondente. Retorna `None` se o identificador não é um símbolo reconhecid
 **Cobertura**:
 - 23 letras gregas minúsculas: `alpha`→`α`, `beta`→`β`, ..., `omega`→`ω`
 - 13 letras gregas maiúsculas: `Alpha`→`Α`, `Gamma`→`Γ`, ..., `Omega`→`Ω`
-- Operadores e símbolos: `sum`→`∑`, `prod`→`∏`, `integral`→`∫`, `infty`→`∞`
+- Operadores e símbolos: `sum`→`∑`, `prod`→`∏` (não-canónico, mantido por
+  compatibilidade — ver nota P780), `product`→`∏` (nome canónico, `codex`
+  `sym.txt:525`), `integral`→`∫`, `infty`→`∞`
 - Lógica: `forall`→`∀`, `exists`→`∃`, `in`→`∈`, `notin`→`∉`
 - Conjuntos: `subset`→`⊂`, `union`→`∪`, `inter`→`∩`, `emptyset`→`∅`
 - Aritmética: `times`→`×`, `div`→`÷`, `pm`→`±`, `cdot`→`·`
@@ -131,6 +133,7 @@ ident_to_unicode("alpha")    = Some("α")
 ident_to_unicode("sum")      = Some("∑")
 ident_to_unicode("integral") = Some("∫")  // P772w — era "int" (nome errado)
 ident_to_unicode("int")      = None       // P772w — "int" é o tipo inteiro, não um símbolo
+ident_to_unicode("product")  = Some("∏")  // P780 — nome canónico vanilla (codex sym.txt:525)
 ident_to_unicode("pi")       = Some("π")
 ident_to_unicode("foobar")   = None
 ident_to_unicode("")         = None
@@ -182,3 +185,4 @@ is_limit_function("x")      = false
 | Data | Motivo | Ficheiros afetados |
 |------|--------|-------------------|
 | 2026-07-17 | P772w — `ident_to_unicode`: `"int"` (errado — colide com o tipo inteiro, não é um símbolo no vanilla) substituído por `"integral"` (correcto, paridade `sym.rs`). Nova função `is_integral_char` (paridade vanilla), consumida por `math/layout/attach.rs` para excluir integrais do empilhamento de limites em modo bloco (`is_large_operator(c) && !is_integral_char(c)`) — `∫_0^1` mantém os scripts ao lado, `∑_0^1` empilha | `symbols.md`, `symbols.rs`, `layout/attach.rs` |
+| 2026-07-17 | P780 — `ident_to_unicode`: adicionado `"product"` → `"∏"` (nome canónico, `codex` `sym.txt:525`; confirmado que `$product$` resolve no vanilla real, `$prod$` erra). `"prod"` (não-canónico, sem entrada em `codex`) mantido por compatibilidade retroactiva — remoção não avaliada, fora de âmbito. Exposto por regressão de `layout_prod_com_limites_nao_panica` após P780 fechar o fallback silencioso de `MathIdent` desconhecido (`eval.md` §P780) | `symbols.md`, `symbols.rs` |

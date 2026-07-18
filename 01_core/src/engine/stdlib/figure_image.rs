@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/engine/stdlib/figure_image.md
-//! @prompt-hash e5a04c04
+//! @prompt-hash 2da11c4f
 //! @layer L1
 //! @updated 2026-04-23
 //!
@@ -146,6 +146,21 @@ pub fn native_image(_ctx: &mut EvalContext, args: &Args, world: &dyn crate::cont
         return Err(vec![SourceDiagnostic::error(
             args.span,
             "SVG images are not supported yet".to_string(),
+        )]);
+    }
+    // P781 — vanilla SUPORTA `#image("ficheiro.pdf")` (embute uma página do
+    // PDF fonte via `hayro`/`hayro-syntax` + `krilla::draw_pdf_page` como
+    // Form XObject). Cristalino não tem motor de renderização/parsing PDF
+    // nem write vetorial de Form XObject no exportador (hand-rolled, sem
+    // krilla) — decisão registada (`paridade-producao-p781.md`): scope-out
+    // consciente, dependência pesada (`hayro` pull ~15 crates transitivas,
+    // incl. `vello_common`/`vello_cpu`), não implementado. Mensagem
+    // dedicada, mesmo padrão de SVG — antes seria "unknown image format"
+    // (menos específico, mas já era um erro claro, não omissão silenciosa).
+    if lower_path.ends_with(".pdf") {
+        return Err(vec![SourceDiagnostic::error(
+            args.span,
+            "PDF images are not supported yet".to_string(),
         )]);
     }
     if detect_image_format(&data) == ImageFormat::Unknown {

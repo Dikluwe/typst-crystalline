@@ -1,5 +1,5 @@
 # Prompt L0 — `rules/scopes`
-Hash do Código: 7b6bed2b
+Hash do Código: 3ff2358c
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/engine/scopes.rs`
@@ -108,6 +108,20 @@ impl<'a> Scopes<'a> {
     /// `base.global` como último recurso.
     pub fn get(&self, name: &str) -> Option<&Value>
 
+    /// **P780** — pesquisa local/utilizador, sem consultar `base` (stdlib
+    /// global). Ordem: top → scopes (reverso) → captured — igual a `get`
+    /// menos o último passo. Paridade `Scopes::get_in_math` (vanilla,
+    /// `foundations/scope.rs:75-92`), usado por `engine/eval/math.rs`
+    /// para resolver `MathIdent` sem deixar o scope global do stdlib
+    /// "vazar" para modo math (`$str$` sem binding local não deve
+    /// resolver directo à função `str` — só via `std.str`).
+    pub fn get_local(&self, name: &str) -> Option<&Value>
+
+    /// **P780** — `true` se `name` existe em `base.global` (stdlib). Só
+    /// para escolher o hint de `unknown_variable_math` — não é usado
+    /// para resolução (ver `get_local`).
+    pub fn has_global(&self, name: &str) -> bool
+
     /// Itera sobre todos os bindings visíveis (para snapshot e diagnóstico).
     /// Ordem: captured → scopes[0] → ... → top (mais recente sobrescreve).
     pub fn iter_all(&self) -> impl Iterator<Item = (&str, &Value)> + '_
@@ -208,6 +222,26 @@ closure.capturer)`.
 
 ---
 
+## Pesquisa restrita a scope local — `get_local`/`has_global` (P780)
+
+`get_local` existe porque `get_in_math` (vanilla) tem um fallback
+**diferente** de `get` normal: em vez de cair em `base.global` (stdlib
+completo) como último recurso, cai em `base.math.scope()` (só os
+operadores/símbolos matemáticos). Se `engine/eval/math.rs` usasse `get`
+directamente para resolver `MathIdent`, um nome de stdlib não-sombreado
+(`str`, `int`, `calc`, ...) resolveria **silenciosamente** em modo math
+(errado — medido: `$str$` no vanilla **erra** "unknown variable: str",
+não mostra a função `str`). `get_local` pára exactamente onde `get_in_math`
+pararia — antes de `base` — deixando o caller (`math.rs`) decidir o que
+fazer a seguir (símbolo Unicode, operador `math`, ou erro).
+
+`has_global` é **só** para a mensagem de erro: distingue "`str` existe na
+stdlib mas não está disponível em math" (3 hints) de "`foobarbaz` não
+existe em lado nenhum" (2 hints) — paridade `unknown_variable_math(var,
+in_global)` (vanilla). Nunca usado para resolução.
+
+---
+
 ## Critérios de Verificação
 
 ```
@@ -253,6 +287,15 @@ Scopes::with_parent(captured, Capturer::Function)         → captured_by("nope"
 Scopes::with_parent(captured, Capturer::Function) + define("x", Value::Int(2))
 → get_mut("x") = Some(&mut Value::Int(2))  // encontrado em top, captured nem chega a ser consultado
 → captured_by("x") = None
+
+// P780 — get_local pára antes de base; has_global só reporta base
+library = Library::with_global({"str": Value::Func(..)})
+Scopes::new(Some(&library)) → get_local("str") = None       // não em top/scopes/captured
+Scopes::new(Some(&library)) → get("str")       = Some(..)   // get normal cai em base
+Scopes::new(Some(&library)) → has_global("str") = true
+
+Scopes::new(Some(&library)) + define("str", Value::Int(5))
+→ get_local("str") = Some(&Value::Int(5))  // top tem prioridade sobre base
 ```
 
 ---

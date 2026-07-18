@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/engine/eval.md
-//! @prompt-hash 2538f99a
+//! @prompt-hash e7cc9316
 //! @layer L1
 //! @updated 2026-06-17
 //!
@@ -6827,15 +6827,85 @@ mod tests {
     }
 
     #[test]
-    fn p303_regressao_undef_sem_parens_preservado() {
-        // CRÍTICO: $undef$ (sem parens) continua a produzir MathIdent
-        // directo (regressão pré-P301 bit-exact preservada).
+    fn p780_undef_sem_parens_erra_unknown_variable() {
+        // P780 revoga o comportamento pré-P301 desta suite: `$undef$` (bare,
+        // sem parens) já não produz `MathIdent` silencioso — erra "unknown
+        // variable: undef" com hints, paridade byte-idêntica ao vanilla
+        // (confirmado por compilação real, `foundations/scope.rs::
+        // unknown_variable_math`). Substitui
+        // `p303_regressao_undef_sem_parens_preservado` (nome antigo referia
+        // um comportamento agora incorrecto face ao vanilla).
         let world = MockWorld::new("$undef$");
+        let src = world.source(world.main()).unwrap();
+        let err = eval_for_test(&world, &src).expect_err("undef deve errar em modo math");
+        assert_eq!(err[0].message, "unknown variable: undef");
+        assert_eq!(
+            err[0].hints,
+            vec![
+                "if you meant to display multiple letters as is, try adding spaces between each letter: `u n d e f`",
+                "or if you meant to display this as text, try placing it in quotes: `\"undef\"`",
+            ]
+        );
+    }
+
+    // ── P782 — splice de `#expr`/field-access bare em modo math ────────────
+    //
+    // P772y (§3.6.2) mediu, P780 reconfirmou como débito distinto de
+    // `MathIdent` bare por nome: `#expr` e field access bare (`sym.suit.
+    // heart` sem `#`) caíam no `_ => Ok(Content::Empty)` genérico de
+    // `eval_math_expr`, descartados em silêncio. Nesta arquitectura,
+    // `#sym.suit.heart` (via Hash → `embedded_code_expr`) e
+    // `sym.suit.heart` bare (montado pelo lexer math directamente como
+    // `SyntaxKind::FieldAccess`) produzem o **mesmo** `Expr::FieldAccess`
+    // — corrigidos pelo mesmo braço.
+
+    #[test]
+    fn p782_field_access_bare_resolve_simbolo() {
+        let world = MockWorld::new("$sym.suit.heart$");
         let content = extract_math_content(&world);
-        let ident = find_mathident_in(&content);
-        assert!(ident.is_some(), "$undef$ produz MathIdent directo");
-        let delim = find_mathdelimited_in(&content);
-        assert!(delim.is_none(), "$undef$ (sem parens) NÃO deve ter MathDelimited");
+        assert!(content.plain_text().contains('♥'), "esperava ♥ em: {:?}", content);
+    }
+
+    #[test]
+    fn p782_field_access_via_hash_resolve_simbolo() {
+        let world = MockWorld::new("$x #sym.suit.heart y$");
+        let content = extract_math_content(&world);
+        assert!(content.plain_text().contains('♥'), "esperava ♥ em: {:?}", content);
+    }
+
+    #[test]
+    fn p782_hash_ident_vinculado_a_symbol_resolve() {
+        let world = MockWorld::new("#let hc = sym.suit.heart\n$x #hc y$");
+        let content = extract_math_content(&world);
+        assert!(content.plain_text().contains('♥'), "esperava ♥ em: {:?}", content);
+    }
+
+    #[test]
+    fn p782_let_binding_em_math_executa_de_facto() {
+        // Bónus (não era o alvo original, mas cai do mesmo fix): antes de
+        // P782, `#let` dentro de `$...$` caía no mesmo catch-all e nunca
+        // mutava o scope — agora executa (variável multi-letra: letra
+        // única continua sempre simbólica, P780, indiferente ao binding).
+        let world = MockWorld::new("$#let zval = 5; zval$");
+        let content = extract_math_content(&world);
+        assert!(content.plain_text().contains('5'), "esperava '5' em: {:?}", content);
+    }
+
+    #[test]
+    fn p782_nao_regride_p780_bare_mathident_vinculado() {
+        // Não-regressão: o caminho de P780 (`MathIdent` bare por nome,
+        // `scopes.get_local` em `eval_math_expr`) continua a resolver —
+        // este passo só adiciona um caminho paralelo, não o substitui.
+        let world = MockWorld::new("#let myvar123 = 5\n$myvar123$");
+        let content = extract_math_content(&world);
+        assert!(content.plain_text().contains('5'), "esperava '5' em: {:?}", content);
+    }
+
+    #[test]
+    fn p782_nao_regride_p780_undef_continua_a_errar() {
+        let world = MockWorld::new("$undef$");
+        let src = world.source(world.main()).unwrap();
+        assert!(eval_for_test(&world, &src).is_err(), "undef sem binding deve continuar a errar");
     }
 
     #[test]

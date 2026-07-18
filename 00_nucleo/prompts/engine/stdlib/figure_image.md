@@ -1,5 +1,5 @@
 # Prompt L0 — `stdlib/figure_image` — imagens
-Hash do Código: 1c9f0d62
+Hash do Código: 3ff445e6
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/engine/stdlib/figure_image.rs`
@@ -30,12 +30,24 @@ Depois de `world.read_bytes`, antes de construir `Content::Image`:
    `"SVG images are not supported yet"`. Cristalino não decodifica SVG
    (P772k) — a extensão sozinha já garante isto, sem precisar de olhar o
    conteúdo.
-2. Senão, `detect_image_format(&data)` (`entities/image-format.md`,
+2. **P781** — se `path` termina em `.pdf` (case-insensitive) → erro `"PDF
+   images are not supported yet"`. Vanilla **suporta**
+   `#image("ficheiro.pdf")` (embute uma página do PDF fonte como imagem,
+   via `hayro`/`hayro-syntax` para parsing/interpretação + `krilla::
+   draw_pdf_page` para escrever a página como Form XObject no PDF
+   exportado). Decisão registada em `paridade-producao-p781.md`:
+   dependência pesada (`hayro` sozinho arrasta ~15 crates transitivas,
+   incluindo o motor de renderização vectorial `vello_common`/
+   `vello_cpu` e o parser de fontes `skrifa`/`read-fonts`) e sem
+   equivalente de "Form XObject" no exportador cristalino (hand-rolled,
+   não usa `krilla`) — scope-out consciente, não implementado. Mesmo
+   padrão do SVG: extensão sozinha basta, sem olhar o conteúdo.
+3. Senão, `detect_image_format(&data)` (`entities/image-format.md`,
    partilhado com o exportador PDF). Se `Unknown` → erro
    `"unknown image format"` (paridade textual com o vanilla,
    `typst_library::visualize::image::mod.rs:344`, para o caso de
    assinatura binária totalmente não reconhecida).
-3. `Png`/`Jpeg` → prossegue como antes (sem alteração). **Não** valida a
+4. `Png`/`Jpeg` → prossegue como antes (sem alteração). **Não** valida a
    integridade do payload (só a assinatura) — corrupção mais funda que
    a assinatura ainda pode escapar para o exportador PDF (P650 item 2,
    ainda aberto; ver `entities/image-format.md` §Decisão de âmbito).

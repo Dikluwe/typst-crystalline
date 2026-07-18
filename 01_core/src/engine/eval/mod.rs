@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/engine/eval.md
-//! @prompt-hash 2538f99a
+//! @prompt-hash e7cc9316
 //! @layer L1
 //! @updated 2026-07-16
 //!
@@ -567,40 +567,9 @@ pub(crate) fn eval_markup(
             }
             _ => {
                 if let Some(expr) = Expr::from_untyped(child) {
-                    match eval_expr(expr, scopes, ctx, engine)? {
-                        Value::Content(c) => parts.push(c),
-                        Value::Str(s)     => {
-                            parts.push(Content::Text(s));
-                        }
-                        // P471 — símbolo Unicode em markup → char como Content::Text.
-                        Value::Symbol(s)  => {
-                            parts.push(Content::Text(EcoString::from(s.ch)));
-                        }
-                        // P506 — state(key, init) em markup → Content::State locatável.
-                        Value::State(s) => parts.push(Content::state(
-                            s.key.to_string(),
-                            s.init.as_ref().clone(),
-                        )),
-                        // P506 — counter(selector) em markup → terminal Empty (só é
-                        // visível quando emitido via .update()/.step()/.display()).
-                        Value::Counter(_) => {}
-                        Value::None       => {}
-                        // **P545** — interpolação #{expr} em markup: valores
-                        // primitivos convertem-se para texto. Int, Float, Bool,
-                        // Array, Dict, Length, Datetime, etc. usam repr_value.
-                        other => {
-                            // **P739C** — display de Float em markup: paridade
-                            // vanilla (Display de f64 — inteiros exactos sem
-                            // `.0`: `#(1.0)` → "1", `#(4/2)` → "2", medido).
-                            // `repr` mantém "1.0" (repr_value inalterado).
-                            let text = match &other {
-                                Value::Float(f) => format!("{f}"),
-                                _ => crate::engine::eval::repr::repr_value(&other),
-                            };
-                            if !text.is_empty() {
-                                parts.push(Content::Text(text.into()));
-                            }
-                        }
+                    let value = eval_expr(expr, scopes, ctx, engine)?;
+                    if let Some(content) = value_to_display_content(value) {
+                        parts.push(content);
                     }
                 }
             }
@@ -631,6 +600,48 @@ pub(crate) fn eval_markup(
     }
 
     Ok(Value::Content(Content::sequence(parts)))
+}
+
+/// **P545** (extraído em **P780**) — conversão genérica `Value` → `Content`
+/// para exibição (interpolação `#{expr}` em markup, e resolução de
+/// identificador de variável em modo math — `engine/eval/math.rs`). `None`
+/// = nada a mostrar (`Value::None`, `Value::Counter`, texto vazio) —
+/// distinto de `Some(Content::Empty)`, que só ocorre se o próprio
+/// `Value::Content` embrulhado já for `Content::Empty` (preserva-se, não
+/// se filtra).
+///
+/// Paridade conceptual com `Value::display()` do vanilla
+/// (`typst-eval/src/math.rs::ExprExt::eval_display` chama `.display()`
+/// genericamente) — cristalino não tem esse método unificado; esta função
+/// é o equivalente inlined.
+pub(crate) fn value_to_display_content(value: Value) -> Option<Content> {
+    match value {
+        Value::Content(c) => Some(c),
+        Value::Str(s)     => Some(Content::Text(s)),
+        // P471 — símbolo Unicode → char como Content::Text.
+        Value::Symbol(s)  => Some(Content::Text(EcoString::from(s.ch))),
+        // P506 — state(key, init) → Content::State locatável.
+        Value::State(s) => Some(Content::state(
+            s.key.to_string(),
+            s.init.as_ref().clone(),
+        )),
+        // P506 — counter(selector) → nada visível directamente (só via
+        // .update()/.step()/.display()).
+        Value::Counter(_) => None,
+        Value::None       => None,
+        // Valores primitivos convertem-se para texto. Int, Float, Bool,
+        // Array, Dict, Length, Datetime, etc. usam repr_value.
+        other => {
+            // **P739C** — display de Float: paridade vanilla (Display de
+            // f64 — inteiros exactos sem `.0`: `#(1.0)` → "1", `#(4/2)` →
+            // "2", medido). `repr` mantém "1.0" (repr_value inalterado).
+            let text = match &other {
+                Value::Float(f) => format!("{f}"),
+                _ => crate::engine::eval::repr::repr_value(&other),
+            };
+            if text.is_empty() { None } else { Some(Content::Text(text.into())) }
+        }
+    }
 }
 
 pub(crate) fn eval_expr(

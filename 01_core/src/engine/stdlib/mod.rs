@@ -4258,6 +4258,23 @@ mod tests {
         assert_eq!(err[0].message, "SVG images are not supported yet");
     }
 
+    // P781 — vanilla suporta `#image("ficheiro.pdf")` (via `hayro` +
+    // `krilla::draw_pdf_page`, decisão registada: dependência pesada,
+    // scope-out consciente — `paridade-producao-p781.md`). Mesmo padrão de
+    // erro explícito do SVG (P772p), não "unknown image format" genérico.
+    #[test]
+    fn native_image_pdf_gera_erro_nao_suportado() {
+        let mut world = NullWorld::default();
+        world.files.insert(
+            "test.pdf".to_string(),
+            std::sync::Arc::new(b"%PDF-1.7\n%%EOF".to_vec()),
+        );
+        let mut ctx = EvalContext::new();
+        let args = p(vec![Value::Str("test.pdf".into())]);
+        let err = native_image(&mut ctx, &args, &world, test_file_id()).unwrap_err();
+        assert_eq!(err[0].message, "PDF images are not supported yet");
+    }
+
     #[test]
     fn native_image_jpeg_valido_sem_regressao() {
         let mut world = NullWorld::default();

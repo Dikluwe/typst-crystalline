@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/engine/scopes.md
-//! @prompt-hash 4647bab8
+//! @prompt-hash 7acaff4b
 //! @layer L1
 //! @updated 2026-07-16
 
@@ -167,6 +167,42 @@ impl<'a> Scopes<'a> {
         }
         // P772n — base (Library) consultado a sério como último recurso.
         self.base.and_then(|base| base.global.get(name))
+    }
+
+    /// **P780** — pesquisa local/utilizador, sem consultar `base` (stdlib
+    /// global). Ordem: top → scopes (reverso) → captured — igual a `get`
+    /// menos o último passo. Paridade `Scopes::get_in_math` (vanilla,
+    /// `foundations/scope.rs:75-92`): em modo math, o scope global do
+    /// stdlib não é consultado directamente para resolver um identificador
+    /// (só via `std.<nome>` explícito) — só o scope léxico local conta,
+    /// depois o caller consulta o scope `math`-específico (símbolos/
+    /// operadores) separadamente. Medido: `#let str = 5; $str$` mostra
+    /// `5` (scope local, P780); `$str$` sem binding local dá erro
+    /// (`str` só existe em `base.global`, não resolve em math) — ver
+    /// `has_global` para o hint dessa distinção.
+    pub fn get_local(&self, name: &str) -> Option<&Value> {
+        if let Some(v) = self.top.get(name) {
+            return Some(v);
+        }
+        for scope in self.scopes.iter().rev() {
+            if let Some(v) = scope.get(name) {
+                return Some(v);
+            }
+        }
+        if let Some(cap) = &self.captured {
+            if let Some(v) = cap.get(name) {
+                return Some(v);
+            }
+        }
+        None
+    }
+
+    /// **P780** — `true` se `name` existe em `base.global` (stdlib), usado
+    /// só para escolher o hint de `unknown_variable_math` (paridade
+    /// `unknown_variable_math(var, in_global)`, vanilla) — não é usado
+    /// para resolução (ver `get_local`).
+    pub fn has_global(&self, name: &str) -> bool {
+        self.base.is_some_and(|base| base.global.get(name).is_some())
     }
 
     /// P715 — acesso mutável a um binding existente, para atribuição (`x = v`,
@@ -422,5 +458,52 @@ mod tests {
         let scopes = Scopes::with_parent(snapshot, Capturer::Function);
         assert_eq!(scopes.captured_by("calc"), Some(Capturer::Function));
         assert!(!scopes.is_constant("calc"));
+    }
+
+    // ── P780 — get_local/has_global (paridade get_in_math) ─────────────────
+
+    #[test]
+    fn p780_get_local_nao_alcanca_base() {
+        let library = library_com_calc();
+        let scopes = Scopes::new(Some(&library));
+        assert!(scopes.get_local("calc").is_none(), "get_local não deve consultar base");
+        assert_eq!(scopes.get("calc"), Some(&Value::Int(1)), "get normal continua a alcançar base");
+    }
+
+    #[test]
+    fn p780_has_global_reporta_nome_de_base() {
+        let library = library_com_calc();
+        let scopes = Scopes::new(Some(&library));
+        assert!(scopes.has_global("calc"));
+        assert!(!scopes.has_global("nunca-existiu"));
+    }
+
+    #[test]
+    fn p780_get_local_encontra_binding_de_top() {
+        let mut scopes = Scopes::new(None);
+        scopes.define("x", Value::Int(5));
+        assert_eq!(scopes.get_local("x"), Some(&Value::Int(5)));
+    }
+
+    #[test]
+    fn p780_get_local_sombra_nome_de_base() {
+        // Paridade vanilla: `#let calc = 5; $calc$` deve resolver ao valor
+        // local (5), não ao módulo `calc` — get_local vê o top primeiro.
+        let library = library_com_calc();
+        let mut scopes = Scopes::new(Some(&library));
+        scopes.define("calc", Value::Int(5));
+        assert_eq!(scopes.get_local("calc"), Some(&Value::Int(5)));
+    }
+
+    #[test]
+    fn p780_get_local_atravessa_pilha_e_captured() {
+        let mut base = Scope::new();
+        base.define("y", Value::Int(7));
+        let mut scopes = Scopes::with_parent(Arc::new(base), Capturer::Function);
+        assert_eq!(scopes.get_local("y"), Some(&Value::Int(7)), "captured deve ser alcançado");
+        scopes.enter();
+        scopes.define("x", Value::Int(1));
+        scopes.enter();
+        assert_eq!(scopes.get_local("x"), Some(&Value::Int(1)), "deve atravessar a pilha de scopes");
     }
 }

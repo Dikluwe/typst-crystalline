@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/engine/eval.md
-//! @prompt-hash 2538f99a
+//! @prompt-hash e7cc9316
 //! @layer L1
 //! @updated 2026-04-22
 //!
@@ -18,6 +18,7 @@ use crate::entities::ast::AstNode;
 use crate::entities::content::Content;
 use crate::entities::engine::Engine;
 use crate::entities::source_result::{SourceDiagnostic, SourceResult};
+use crate::entities::span::Span;
 use crate::entities::value::Value;
 use crate::engine::scopes::Scopes;
 
@@ -55,6 +56,44 @@ fn lookup_math_op(scopes: &Scopes<'_>, name: &str) -> Option<Content> {
     }
 }
 
+/// **P780** — mensagem de erro para identificador não resolvido em modo
+/// math. Paridade `unknown_variable_math` (vanilla, `foundations/
+/// scope.rs:439-472`) — **distinta** de `unknown_variable` (P772r, usada
+/// em código normal): hints diferentes por caso, medidos directamente
+/// contra o vanilla, não assumidos:
+///
+/// - `none`/`auto`/`false`/`true`: hint "adicionar `#` antes" (`#none`).
+/// - conhecido em `base.global` mas não em math (`in_global`): 3 hints —
+///   "não disponível directamente em math", "`#nome` em código",
+///   "`std.nome` em math".
+/// - desconhecido de todo: 2 hints — espaçar as letras (`f o o`), ou
+///   citar como texto (`"foobarbaz"`).
+fn unknown_variable_math(span: Span, name: &str, in_global: bool) -> SourceDiagnostic {
+    let diag = SourceDiagnostic::error(span, format!("unknown variable: {name}"));
+    if matches!(name, "none" | "auto" | "false" | "true") {
+        diag.with_hint(format!(
+            "if you meant to use a literal, try adding a hash before it: `#{name}`"
+        ))
+    } else if in_global {
+        diag.with_hint(format!(
+            "`{name}` is not available directly in math, but is in the standard library"
+        ))
+        .with_hint(format!("to access `{name}` in code mode you can add a hash: `#{name}`"))
+        .with_hint(format!(
+            "or access `{name}` in math mode by using the `std` module: `std.{name}`"
+        ))
+    } else {
+        let spaced: String = name.chars().flat_map(|c| [' ', c]).skip(1).collect();
+        diag.with_hint(format!(
+            "if you meant to display multiple letters as is, \
+             try adding spaces between each letter: `{spaced}`"
+        ))
+        .with_hint(format!(
+            "or if you meant to display this as text, try placing it in quotes: `\"{name}\"`"
+        ))
+    }
+}
+
 /// Avalia o corpo de uma equação matemática — produz `Content` a partir de `Math<'_>`.
 ///
 /// Stub intencional (Passo 34): produz a estrutura de nós correcta sem motor de
@@ -79,16 +118,19 @@ pub(super) fn eval_math_content(
     }
 }
 
-/// **P772y** — resolve o callee de uma `FuncCall` em modo math quando não
-/// é um `MathIdent` bare (ex.: `math.class(...)`, `calc.foo(...)`). Não
-/// delega directamente ao `eval_expr` genérico porque este trata
-/// `Expr::MathIdent` como fronteira deliberada (devolve `Value::None` —
-/// `rules/eval/mod.rs`, comentário "Fronteira deliberada") — o alvo de um
-/// field access em modo math (ex. `math` em `math.class`) precisa de ser
-/// resolvido no scope directamente quando é um `MathIdent`. Cobre os
-/// casos relevantes para namespaces de função (`Value::Module`/`Dict`);
-/// outros tipos de target produzem erro claro em vez de silenciosamente
-/// devolver `Content::Empty`.
+/// **P772y** — resolve um `Expr::FieldAccess`/`Expr::MathIdent` em modo
+/// math a um `Value`, quando o alvo não pode passar pelo `eval_expr`
+/// genérico. Usado originalmente só para o callee de uma `FuncCall` (ex.:
+/// `math.class(...)`, `calc.foo(...)`); **P782** reutiliza-o também para
+/// `Expr::FieldAccess` standalone numa sequência math (`sym.suit.heart`,
+/// bare ou via `#`), não só como callee. Não delega directamente ao
+/// `eval_expr` genérico porque este trata `Expr::MathIdent` como fronteira
+/// deliberada (devolve `Value::None` — `eval/mod.rs`, comentário
+/// "Fronteira deliberada") — o alvo de um field access em modo math (ex.
+/// `math` em `math.class`, `sym` em `sym.suit`) precisa de ser resolvido
+/// no scope directamente quando é um `MathIdent`. Cobre os tipos de target
+/// relevantes (`Value::Module`/`Dict`/`Symbol`); outros tipos produzem
+/// erro claro em vez de silenciosamente devolver `Content::Empty`.
 fn eval_math_callee(
     scopes: &mut Scopes<'_>,
     ctx: &mut EvalContext,
@@ -110,6 +152,19 @@ fn eval_math_callee(
                     vec![SourceDiagnostic::error(
                         access.span(),
                         format!("campo '{field}' não existe"),
+                    )]
+                }),
+                // **P782** — `sym.suit.heart`: cada passo de field access em
+                // cima de um `Value::Symbol` aplica um modifier (paridade
+                // `eval_field_access`, P765a, `eval/bindings.rs:1552-1563`
+                // — mesma chamada `s.modified(field)`, duplicada aqui
+                // porque `eval_field_access` não pode ser reutilizada
+                // directamente: recursa via `eval_expr(access.target())`,
+                // que trata `Expr::MathIdent` como fronteira deliberada).
+                Value::Symbol(s) => s.modified(field).map(Value::Symbol).ok_or_else(|| {
+                    vec![SourceDiagnostic::error(
+                        access.span(),
+                        format!("unknown symbol modifier '{field}'"),
                     )]
                 }),
                 other => Err(vec![SourceDiagnostic::error(
@@ -157,6 +212,19 @@ fn eval_math_expr(
     match expr {
         Expr::MathIdent(ident) => {
             let name = ident.get();
+            // **P780** — 0. Scope local/utilizador tem prioridade absoluta
+            // (paridade `get_in_math`, vanilla — medido: `#let sin = 42;
+            // $sin$` mostra "42", não o operador; `#let alpha = [x];
+            // $alpha$` mostra "x", não α). Nota: o léxico já garante que
+            // `ident` aqui é sempre multi-grapheme — um único grapheme
+            // tokeniza como `MathText`, nunca `MathIdent`
+            // (`engine/lexer/math.rs`), logo não há fronteira
+            // letra-única/multi-letra a replicar aqui: já vem resolvida
+            // pelo lexer.
+            if let Some(value) = scopes.get_local(name) {
+                return Ok(super::value_to_display_content(value.clone())
+                    .unwrap_or(Content::Empty));
+            }
             // 1. Símbolo grego ou operador Unicode (alpha → α etc.)
             if let Some(sym) = crate::engine::math::symbols::ident_to_unicode(name) {
                 return Ok(Content::MathText(sym.into()));
@@ -165,9 +233,11 @@ fn eval_math_expr(
             if let Some(op) = lookup_math_op(scopes, name) {
                 return Ok(op);
             }
-            // 3. Fallback: variável, função, ou identificador desconhecido
-            //    — manter como MathIdent (regressão pré-P301 preservada).
-            Ok(Content::MathIdent(name.into()))
+            // 3. **P780** — identificador realmente desconhecido: erro com
+            // hints (paridade `unknown_variable_math`, vanilla). Substitui
+            // o fallback pré-P780 ("manter como MathIdent" — regressão
+            // pré-P301 preservada até aqui).
+            Err(vec![unknown_variable_math(ident.span(), name, scopes.has_global(name))])
         }
         Expr::MathText(text) => {
             let s = match text.get() {
@@ -515,7 +585,43 @@ fn eval_math_expr(
         Expr::MathAlignPoint(_) => Ok(Content::math_align_point()),
         Expr::Linebreak(_)      => Ok(Content::linebreak()),
 
-        // Primes e outros nós não implementados → placeholder vazio
-        _ => Ok(Content::Empty),
+        // **P782** — qualquer outro `Expr` (não especificamente math) chegado
+        // a uma sequência math: `#expr` (`SyntaxKind::Hash` →
+        // `embedded_code_expr`, `engine/parse/math.rs:62`) e field access
+        // bare (`sym.suit.heart` sem `#` — o lexer já monta um nó
+        // `SyntaxKind::FieldAccess` genérico, `engine/parse/math.rs:63-64`,
+        // "The lexer manages creating full FieldAccess nodes if needed")
+        // produzem literalmente o **mesmo** `Expr::FieldAccess`/`Expr::Ident`
+        // — sem distinção sintáctica entre os dois casos nesta arquitectura,
+        // ao contrário do vanilla (`Expr::MathFieldAccess` dedicado vs
+        // `Expr::FieldAccess` genérico via Hash). Paridade conceptual com
+        // `ExprExt::eval_display` (vanilla) = `self.eval(vm)?.display()`:
+        // delega ao avaliador genérico de código, depois converte para
+        // `Content` via `value_to_display_content` (P780). Cobre `#hc`
+        // (Ident), `#sym.suit.heart`/`sym.suit.heart` bare (FieldAccess),
+        // `#let x = 5` (agora executa de facto — antes descartado em
+        // silêncio, nunca mutava o scope) e qualquer outro literal
+        // (`#5`, `#"x"`, ...). Seguro por construção: `eval_expr` já trata
+        // `Expr::MathIdent`/`MathText`/etc. como "fronteira deliberada"
+        // (`Ok(Value::None)`, `eval/mod.rs`) — mas esses nunca chegam aqui,
+        // são apanhados pelos braços específicos acima. **Excepção**:
+        // `Expr::FieldAccess` (`sym.suit.heart`, bare ou `#`) tem de passar
+        // por `eval_math_callee`, não `eval_expr` directo — o alvo do
+        // access (`sym`) é lexado como `Expr::MathIdent` mesmo dentro de um
+        // nó `FieldAccess` (montado pelo lexer math, `engine/lexer/math.rs`
+        // — comentário "The lexer manages creating full FieldAccess nodes
+        // if needed"); `eval_expr` genérico trata `Expr::MathIdent` como
+        // fronteira deliberada (`Value::None`), o que faria o field access
+        // falhar com "field access não suportado em none" (medido, mesma
+        // causa que `eval_math_callee` já contorna para o caminho de
+        // callee — P772y).
+        other @ Expr::FieldAccess(_) => {
+            let value = eval_math_callee(scopes, ctx, engine, other)?;
+            Ok(super::value_to_display_content(value).unwrap_or(Content::Empty))
+        }
+        other => {
+            let value = eval_expr(other, scopes, ctx, engine)?;
+            Ok(super::value_to_display_content(value).unwrap_or(Content::Empty))
+        }
     }
 }
