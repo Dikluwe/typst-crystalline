@@ -183,6 +183,13 @@ pub(crate) fn eval_binary_op(op: BinOp, lhs: Value, rhs: Value) -> Result<Value,
         // sem qualquer tratamento especial de `pre`/`build` (não existem no Typst).
         (BinOp::Eq,  Value::Version(a), Value::Version(b)) => Ok(Value::Bool(a == b)),
         (BinOp::Neq, Value::Version(a), Value::Version(b)) => Ok(Value::Bool(a != b)),
+        // P785b — Comparação Ratio ↔ Relative (com abs zero, ex: 50% == (10pt + 50%).ratio)
+        (BinOp::Eq, Value::Ratio(r), Value::Relative(rel)) |
+        (BinOp::Eq, Value::Relative(rel), Value::Ratio(r)) =>
+            Ok(Value::Bool(rel.abs.is_zero() && (rel.rel - r.0).abs() < 1e-9)),
+        (BinOp::Neq, Value::Ratio(r), Value::Relative(rel)) |
+        (BinOp::Neq, Value::Relative(rel), Value::Ratio(r)) =>
+            Ok(Value::Bool(!rel.abs.is_zero() || (rel.rel - r.0).abs() >= 1e-9)),
         (BinOp::Eq,  a, b) => Ok(Value::Bool(a == b)),
         (BinOp::Neq, a, b) => Ok(Value::Bool(a != b)),
         // Ordenação: coerção Int↔Float confirmada no original (ops::compare)

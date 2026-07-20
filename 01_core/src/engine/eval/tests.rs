@@ -2218,8 +2218,8 @@ mod tests {
         let src = World::source(&world, World::main(&world)).unwrap();
         let err = eval_for_test(&world, &src).expect_err("`.pre` já não existe em version");
         assert!(
-            err.iter().any(|d| d.message.contains("campo desconhecido em version")),
-            "esperava 'campo desconhecido em version'; recebido: {:?}",
+            err.iter().any(|d| d.message.contains("does not contain field")),
+            "esperava 'version does not contain field'; recebido: {:?}",
             err.iter().map(|d| &d.message).collect::<Vec<_>>()
         );
     }
@@ -2230,8 +2230,8 @@ mod tests {
         let src = World::source(&world, World::main(&world)).unwrap();
         let err = eval_for_test(&world, &src).expect_err("`.build` já não existe em version");
         assert!(
-            err.iter().any(|d| d.message.contains("campo desconhecido em version")),
-            "esperava 'campo desconhecido em version'; recebido: {:?}",
+            err.iter().any(|d| d.message.contains("does not contain field")),
+            "esperava 'version does not contain field'; recebido: {:?}",
             err.iter().map(|d| &d.message).collect::<Vec<_>>()
         );
     }
@@ -10389,7 +10389,7 @@ mod tests {
         let err = p729_eval("#red.foo()").expect_err("red.foo() deve ser erro");
         let msg = err.first().map(|d| d.message.to_string()).unwrap_or_default();
         assert!(
-            msg.contains("field access") || msg.contains("does not contain field"),
+            msg.contains("field access") || msg.contains("does not contain field") || msg.contains("cannot access fields"),
             "msg: {msg}"
         );
     }

@@ -1,10 +1,12 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/engine/eval.md
-//! @prompt-hash 2bc1b300
+//! @prompt-hash 3624668a
 //! @prompt 00_nucleo/prompts/engine/eval/field-access.md
 //! @prompt-hash 257a225b
+//! @prompt 00_nucleo/prompts/engine/eval/fields.md
+//! @prompt-hash 3624668a
 //! @layer L1
-//! @updated 2026-06-22
+//! @updated 2026-07-20
 //!
 //! Bindings: `#let`, `#show` counter, e field access (P411 — Version; P412 — Duration). Extraído de `eval.rs` no Passo 96.1
 //! conforme ADR-0037 (coesão por domínio). Assinaturas simplificadas no
@@ -1406,15 +1408,14 @@ pub(super) fn eval_field_access(
     engine: &mut Engine<'_>,
 ) -> SourceResult<Value> {
     use crate::entities::ast::AstNode;
-    use crate::entities::source_result::SourceDiagnostic;
 
     let target = eval_expr(access.target(), scopes, ctx, engine)?;
-    let field = access.field().as_str().to_string();
+    let field = access.field().as_str();
 
     // P509 — field access em coleções despacha para métodos de instância.
     if let Some(result) = crate::engine::stdlib::try_dispatch_collection_method(
         target.clone(),
-        field.as_str(),
+        field,
         crate::entities::args::Args::positional(vec![]),
         scopes,
         ctx,
@@ -1423,147 +1424,172 @@ pub(super) fn eval_field_access(
         return result;
     }
 
+    eval_value_field_access(target, field, access.span())
+}
+
+pub(super) fn eval_value_field_access(
+    target: Value,
+    field: &str,
+    span: Span,
+) -> SourceResult<Value> {
+    use crate::entities::source_result::SourceDiagnostic;
     match target {
-        Value::Dict(d) => d.get(field.as_str()).cloned().ok_or_else(|| {
+        Value::Dict(d) => d.get(field).cloned().ok_or_else(|| {
             vec![SourceDiagnostic::error(
-                access.span(),
-                format!("campo '{field}' não existe"),
+                span,
+                format!("dictionary does not contain key \"{field}\""),
             )]
         }),
         // Field access em elementos estruturados — usado por show rules (Passo 68).
-        // Ex: `it.body` onde `it` é Content::Heading retorna Value::Content(body).
-        Value::Content(c) => c.get_field(field.as_str()).ok_or_else(|| {
+        Value::Content(c) => c.get_field(field).ok_or_else(|| {
             vec![SourceDiagnostic::error(
-                access.span(),
-                format!("campo '{field}' não existe neste elemento de conteúdo"),
+                span,
+                format!("{} does not have field \"{field}\"", c.elem_name()),
             )]
         }),
-        // P684 — Field access em Value::Version: só os três primeiros componentes
-        // têm nome (`major`/`minor`/`patch`); 0 se o componente estiver ausente.
-        // `pre`/`build` não existem no Typst → campo desconhecido.
-        Value::Version(v) => match field.as_str() {
+        // P785b — Field access em Value::Relative (RelativeLength / Rel)
+        Value::Relative(rel) => match field {
+            "ratio" => Ok(Value::Ratio(crate::entities::layout_types::Ratio(rel.rel))),
+            "length" => Ok(Value::Length(rel.abs)),
+            _ => Err(vec![SourceDiagnostic::error(
+                span,
+                format!("relative length does not contain field \"{field}\""),
+            )]),
+        },
+        // P785b — Field access em Value::Align (Alignment)
+        Value::Align(align) => match field {
+            "x" => Ok(align.h.map(|h| Value::Align(crate::entities::layout_types::Align2D { h: Some(h), v: None })).unwrap_or(Value::None)),
+            "y" => Ok(align.v.map(|v| Value::Align(crate::entities::layout_types::Align2D { h: None, v: Some(v) })).unwrap_or(Value::None)),
+            _ => Err(vec![SourceDiagnostic::error(
+                span,
+                format!("alignment does not contain field \"{field}\""),
+            )]),
+        },
+        // P785b — Field access em Value::Length
+        Value::Length(len) => match field {
+            "em" => Ok(Value::Float(len.em)),
+            "abs" => Ok(Value::Length(crate::entities::layout_types::Length::pt(len.abs.to_pt()))),
+            _ => Err(vec![SourceDiagnostic::error(
+                span,
+                format!("length does not contain field \"{field}\""),
+            )]),
+        },
+        // P785b — Field access em Value::Stroke
+        Value::Stroke(stroke) => match field {
+            "paint" => Ok(Value::Color(stroke.paint.to_color())),
+            "thickness" => Ok(Value::Length(crate::entities::layout_types::Length::pt(stroke.thickness))),
+            _ => Err(vec![SourceDiagnostic::error(
+                span,
+                format!("stroke does not contain field \"{field}\""),
+            )]),
+        },
+        // P684 — Field access em Value::Version
+        Value::Version(v) => match field {
             "major" => Ok(Value::Int(v.component(0) as i64)),
             "minor" => Ok(Value::Int(v.component(1) as i64)),
             "patch" => Ok(Value::Int(v.component(2) as i64)),
             _ => Err(vec![SourceDiagnostic::error(
-                access.span(),
-                format!("campo desconhecido em version: '{}'", field),
+                span,
+                format!("version does not contain field \"{field}\""),
             )]),
         },
-        // P412 — Field access em Value::Duration: seconds/minutes/hours/days (retorno Float).
+        // P412 — Field access em Value::Duration
         Value::Duration(d) => {
             const NANOS_PER_SECOND: f64 = 1_000_000_000.0;
             const NANOS_PER_MINUTE: f64 = 60_000_000_000.0;
             const NANOS_PER_HOUR: f64 = 3_600_000_000_000.0;
             const NANOS_PER_DAY: f64 = 86_400_000_000_000.0;
-            match field.as_str() {
+            match field {
                 "seconds" => Ok(Value::Float(d.nanos as f64 / NANOS_PER_SECOND)),
                 "minutes" => Ok(Value::Float(d.nanos as f64 / NANOS_PER_MINUTE)),
                 "hours" => Ok(Value::Float(d.nanos as f64 / NANOS_PER_HOUR)),
                 "days" => Ok(Value::Float(d.nanos as f64 / NANOS_PER_DAY)),
                 _ => Err(vec![SourceDiagnostic::error(
-                    access.span(),
-                    format!("campo desconhecido em duration: '{}'", field),
+                    span,
+                    format!("duration does not contain field \"{field}\""),
                 )]),
             }
         }
-        // P493a — Field access em Value::Array: len, first, last.
-        // dedup/chunks/windows são despachados via try_dispatch_collection_method
-        // em closures.rs (method call), não como field access.
-        Value::Array(arr) => match field.as_str() {
+        // P493a — Field access em Value::Array
+        Value::Array(arr) => match field {
             "len" => Ok(Value::Int(arr.len() as i64)),
             "first" => Ok(arr.first().cloned().unwrap_or(Value::None)),
             "last" => Ok(arr.last().cloned().unwrap_or(Value::None)),
             _ => Err(vec![SourceDiagnostic::error(
-                access.span(),
-                format!("campo desconhecido em array: '{}'", field),
+                span,
+                format!("array does not contain field \"{field}\""),
             )]),
         },
-        // P504 — Field access em Value::Args: `.named` e `.positional`.
-        Value::Args(a) => match field.as_str() {
+        // P504 — Field access em Value::Args
+        Value::Args(a) => match field {
             "named" => Ok(Value::Dict(a.named.clone())),
             "positional" => Ok(Value::Array(a.items.clone())),
             _ => Err(vec![SourceDiagnostic::error(
-                access.span(),
-                format!("campo desconhecido em arguments: '{}'", field),
+                span,
+                format!("arguments does not contain field \"{field}\""),
             )]),
         },
-        // P493b — Field access em Value::Func com namespace anexado (table.header, etc.).
+        // P493b — Field access em Value::Func com namespace
         Value::Func(f) => match f.namespace() {
-            Some(ns) => ns.get(field.as_str()).cloned().ok_or_else(|| {
+            Some(ns) => ns.get(field).cloned().ok_or_else(|| {
                 vec![SourceDiagnostic::error(
-                    access.span(),
-                    format!("função não tem campo '{}'", field),
+                    span,
+                    format!("function does not contain field \"{field}\""),
                 )]
             }),
             None => Err(vec![SourceDiagnostic::error(
-                access.span(),
-                "esta função não tem campos".to_string(),
+                span,
+                "cannot access fields on type function".to_string(),
             )]),
         },
-        // P685 — Field access em valor-tipo: `int.min`/`int.max` e
-        // `str.from-unicode`. Substitui o `Func::native_with_namespace` usado
-        // antes de `int`/`str` serem `Value::Type`. Tipos sem campos → erro.
-        Value::Type(t) => match (t, field.as_str()) {
+        // P685 — Field access em valor-tipo
+        Value::Type(t) => match (t, field) {
             (Type::Int, "min") => Ok(Value::Int(i64::MIN)),
             (Type::Int, "max") => Ok(Value::Int(i64::MAX)),
             (Type::Str, "from-unicode") => Ok(Value::Func(Func::native(
                 "str.from-unicode",
                 native_str_from_unicode,
             ))),
-            // P736 — `color`/`gradient` são valores-tipo com scope de fields
-            // (paridade vanilla — medido: type(color) → type; color.rgb e
-            // gradient.linear funcionam via field access no tipo). Campo
-            // inexistente → mensagem verbatim do vanilla.
-            (Type::Color, _) => crate::engine::stdlib::color_type_field(field.as_str())
+            (Type::Color, _) => crate::engine::stdlib::color_type_field(field)
                 .ok_or_else(|| {
                     vec![SourceDiagnostic::error(
-                        access.span(),
+                        span,
                         format!("type color does not contain field `{field}`"),
                     )]
                 }),
             (Type::Gradient, _) => {
-                crate::engine::stdlib::gradient_type_field(field.as_str()).ok_or_else(|| {
+                crate::engine::stdlib::gradient_type_field(field).ok_or_else(|| {
                     vec![SourceDiagnostic::error(
-                        access.span(),
+                        span,
                         format!("type gradient does not contain field `{field}`"),
                     )]
                 })
             }
-            (Type::Int | Type::Str, _) => Err(vec![SourceDiagnostic::error(
-                access.span(),
-                format!("type {} não tem campo '{}'", t.name(), field),
-            )]),
             _ => Err(vec![SourceDiagnostic::error(
-                access.span(),
-                format!("type {} não tem campos", t.name()),
+                span,
+                format!("type {} does not contain field \"{field}\"", t.name()),
             )]),
         },
-        // P679 — Field access em Value::Module: lookup no scope do módulo importado.
-        // Ex.: `#import "u.typ"` seguido de `#p679-utils.saudacao("Mundo")`, ou
-        // `#import "u.typ" as u` + `#u.saudacao("Mundo")`. O valor obtido é tipicamente
-        // `Value::Func`, que o dispatcher de chamada (`apply_func`) já trata.
-        Value::Module(m) => m.scope().get(field.as_str()).cloned().ok_or_else(|| {
+        // P679 — Field access em Value::Module
+        Value::Module(m) => m.scope().get(field).cloned().ok_or_else(|| {
             vec![SourceDiagnostic::error(
-                access.span(),
-                format!("módulo '{}' não tem campo '{}'", m.name(), field),
+                span,
+                format!("module '{}' does not contain field \"{field}\"", m.name()),
             )]
         }),
-        // **P765a** — Field access em Value::Symbol aplica um modifier.
-        // Ex.: `sym.arrow.r.filled` procura uma variante que contenha os
-        // modifiers `r` e `filled`.
+        // P765a — Field access em Value::Symbol
         Value::Symbol(s) => s
-            .modified(field.as_str())
+            .modified(field)
             .map(Value::Symbol)
             .ok_or_else(|| {
                 vec![SourceDiagnostic::error(
-                    access.span(),
-                    format!("unknown symbol modifier '{}'", field),
+                    span,
+                    format!("unknown symbol modifier '{field}'"),
                 )]
             }),
         other => Err(vec![SourceDiagnostic::error(
-            access.span(),
-            format!("field access não suportado em {}", other.type_name()),
+            span,
+            format!("cannot access fields on type {}", other.type_name()),
         )]),
     }
 }

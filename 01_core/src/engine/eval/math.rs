@@ -141,37 +141,7 @@ fn eval_math_callee(
         Expr::FieldAccess(access) => {
             let target = eval_math_callee(scopes, ctx, engine, access.target())?;
             let field = access.field().as_str();
-            match target {
-                Value::Module(m) => m.scope().get(field).cloned().ok_or_else(|| {
-                    vec![SourceDiagnostic::error(
-                        access.span(),
-                        format!("campo '{field}' não existe no módulo"),
-                    )]
-                }),
-                Value::Dict(d) => d.get(field).cloned().ok_or_else(|| {
-                    vec![SourceDiagnostic::error(
-                        access.span(),
-                        format!("campo '{field}' não existe"),
-                    )]
-                }),
-                // **P782** — `sym.suit.heart`: cada passo de field access em
-                // cima de um `Value::Symbol` aplica um modifier (paridade
-                // `eval_field_access`, P765a, `eval/bindings.rs:1552-1563`
-                // — mesma chamada `s.modified(field)`, duplicada aqui
-                // porque `eval_field_access` não pode ser reutilizada
-                // directamente: recursa via `eval_expr(access.target())`,
-                // que trata `Expr::MathIdent` como fronteira deliberada).
-                Value::Symbol(s) => s.modified(field).map(Value::Symbol).ok_or_else(|| {
-                    vec![SourceDiagnostic::error(
-                        access.span(),
-                        format!("unknown symbol modifier '{field}'"),
-                    )]
-                }),
-                other => Err(vec![SourceDiagnostic::error(
-                    access.span(),
-                    format!("field access não suportado em {}", other.type_name()),
-                )]),
-            }
+            super::bindings::eval_value_field_access(target, field, access.span())
         }
         Expr::MathIdent(ident) => scopes.get(ident.get()).cloned().ok_or_else(|| {
             vec![SourceDiagnostic::error(

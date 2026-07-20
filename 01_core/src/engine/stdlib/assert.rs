@@ -74,6 +74,9 @@ fn values_equal(a: &Value, b: &Value) -> bool {
     match (a, b) {
         (Value::Int(a), Value::Float(b)) => (*a as f64) == *b,
         (Value::Float(a), Value::Int(b)) => *a == (*b as f64),
+        (Value::Ratio(r), Value::Relative(rel)) |
+        (Value::Relative(rel), Value::Ratio(r)) =>
+            rel.abs.is_zero() && (rel.rel - r.0).abs() < 1e-9,
         (a, b) => a == b,
     }
 }
