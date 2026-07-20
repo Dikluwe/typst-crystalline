@@ -156,16 +156,16 @@ impl Source {
             return None;
         }
 
-        // Contar linhas/colunas em chars até offset.
+        // Contar linhas/colunas em chars até offset (col 0-indexed per Vanilla codespan).
         let mut line: u32 = 1;
-        let mut col: u32 = 1;
+        let mut col: u32 = 0;
         for (i, ch) in text.char_indices() {
             if i >= offset {
                 break;
             }
             if ch == '\n' {
                 line += 1;
-                col = 1;
+                col = 0;
             } else {
                 col += 1;
             }
@@ -272,24 +272,24 @@ mod tests {
     fn span_to_line_col_inicio_do_texto() {
         let src = Source::new(test_id(), "abc".into());
         let sp = raw_span(&src, 0..0);
-        assert_eq!(src.span_to_line_col(sp), Some((1, 1)));
+        assert_eq!(src.span_to_line_col(sp), Some((1, 0)));
     }
 
     #[test]
     fn span_to_line_col_depois_de_newline() {
-        // "abc\nde" — offset 4 é o 'd' (segunda linha, coluna 1).
+        // "abc\nde" — offset 4 é o 'd' (segunda linha, coluna 0).
         let src = Source::new(test_id(), "abc\nde".into());
         let sp = raw_span(&src, 4..4);
-        assert_eq!(src.span_to_line_col(sp), Some((2, 1)));
+        assert_eq!(src.span_to_line_col(sp), Some((2, 0)));
     }
 
     #[test]
     fn span_to_line_col_multibyte_unicode_coluna_em_chars() {
         // "áéí" — cada char tem 2 bytes em UTF-8.
-        // Offset 2 é início do 'é' (coluna 2 em chars).
+        // Offset 2 é início do 'é' (coluna 1 em chars).
         let src = Source::new(test_id(), "áéí".into());
         let sp = raw_span(&src, 2..2);
-        assert_eq!(src.span_to_line_col(sp), Some((1, 2)));
+        assert_eq!(src.span_to_line_col(sp), Some((1, 1)));
     }
 
     #[test]
@@ -309,10 +309,10 @@ mod tests {
 
     #[test]
     fn span_to_line_col_fim_do_texto() {
-        // "abc" — offset 3 == len → posição após o 'c' (coluna 4).
+        // "abc" — offset 3 == len → posição após o 'c' (coluna 3).
         let src = Source::new(test_id(), "abc".into());
         let sp = raw_span(&src, 3..3);
-        assert_eq!(src.span_to_line_col(sp), Some((1, 4)));
+        assert_eq!(src.span_to_line_col(sp), Some((1, 3)));
     }
 
     #[test]
