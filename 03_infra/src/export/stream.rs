@@ -160,6 +160,7 @@ pub(super) fn emit_text_pdf(
     style:    &typst_core::entities::layout_types::TextStyle,
     scenario: &FontScenario,
 ) {
+    let rg = fill_rg_prefix(&style.fill);
     match scenario {
         FontScenario::Type1 => {
             let safe = escape_pdf_string(text);
@@ -185,7 +186,7 @@ pub(super) fn emit_text_pdf(
                 ("", "", String::new())
             };
             ops.push_str(&format!(
-                "{q_open}BT\n/{font_ref} {:.1} Tf\n{tc_op}{bold_ops}{:.1} {:.1} Td\n({safe}) Tj\nET\n{q_close}",
+                "{rg}{q_open}BT\n/{font_ref} {:.1} Tf\n{tc_op}{bold_ops}{:.1} {:.1} Td\n({safe}) Tj\nET\n{q_close}",
                 style.size.val(), pos_x, base_y
             ));
         }
@@ -193,7 +194,7 @@ pub(super) fn emit_text_pdf(
             if text.is_empty() { return; }
             let hex_str = text_to_hex_string(text, char_to_gid);
             ops.push_str(&format!(
-                "BT\n/F1 {:.1} Tf\n{:.1} {:.1} Td\n{hex_str} Tj\nET\n",
+                "{rg}BT\n/F1 {:.1} Tf\n{:.1} {:.1} Td\n{hex_str} Tj\nET\n",
                 style.size.val(), pos_x, base_y
             ));
         }
@@ -202,7 +203,7 @@ pub(super) fn emit_text_pdf(
             let fi = font_index_for_style(fonts, style);
             let hex_str = text_to_hex_string(text, &per_font_char_to_gid[fi]);
             ops.push_str(&format!(
-                "BT\n/F{} {:.1} Tf\n{:.1} {:.1} Td\n{hex_str} Tj\nET\n",
+                "{rg}BT\n/F{} {:.1} Tf\n{:.1} {:.1} Td\n{hex_str} Tj\nET\n",
                 fi + 1, style.size.val(), pos_x, base_y
             ));
         }
@@ -232,8 +233,9 @@ pub(super) fn emit_shaped_pdf(
             emit_text_pdf(ops, pos_x, base_y, text, style, scenario);
         }
         FontScenario::Cidfont { glyph_mapping, glyph_to_nominal, .. } => {
+            let rg = fill_rg_prefix(&style.fill);
             ops.push_str(&format!(
-                "BT\n/F1 {:.1} Tf\n{:.3} {:.3} Td\n[ ",
+                "{rg}BT\n/F1 {:.1} Tf\n{:.3} {:.3} Td\n[ ",
                 style.size.val(), pos_x, base_y
             ));
             for g in glyphs {
@@ -268,8 +270,9 @@ pub(super) fn emit_shaped_pdf(
             let fi = font_index_for_style(fonts, style);
             let glyph_mapping = &per_font_glyph_mapping[fi];
             let glyph_to_nominal = &per_font_glyph_to_nominal[fi];
+            let rg = fill_rg_prefix(&style.fill);
             ops.push_str(&format!(
-                "BT\n/F{} {:.1} Tf\n{:.3} {:.3} Td\n[ ",
+                "{rg}BT\n/F{} {:.1} Tf\n{:.3} {:.3} Td\n[ ",
                 fi + 1, style.size.val(), pos_x, base_y
             ));
             for g in glyphs {
@@ -309,6 +312,16 @@ pub(super) fn line_rg_prefix(color: &Option<typst_core::entities::layout_types::
         Some(c) => {
             let (r, g, b, _) = c.to_rgba_f32();
             format!("{:.3} {:.3} {:.3} RG ", r, g, b)
+        }
+    }
+}
+
+pub(super) fn fill_rg_prefix(color: &Option<typst_core::entities::layout_types::Color>) -> String {
+    match color {
+        None    => String::new(),
+        Some(c) => {
+            let (r, g, b, _) = c.to_rgba_f32();
+            format!("{:.3} {:.3} {:.3} rg\n", r, g, b)
         }
     }
 }

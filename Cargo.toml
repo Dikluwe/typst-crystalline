@@ -59,3 +59,8 @@ criterion            = "0.5"
 ureq                 = "2.12"   # cliente HTTP síncrono (mesmo padrão do vanilla)
 tar                  = "0.4"    # extracção de pacotes .tar.gz
 fastrand             = "2.2"    # nomes de directórios temporários atómicos
+
+# syntax highlighting — P785a (paridade raw com vanilla CLI)
+syntect              = { version = "5.3", default-features = false, features = ["parsing", "regex-fancy", "plist-load", "yaml-load"] }
+two-face             = { version = "0.4.3", default-features = false, features = ["syntect-fancy"] }
+
