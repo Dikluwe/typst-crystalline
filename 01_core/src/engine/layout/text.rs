@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/engine/atomizacao_elementos.md
-//! @prompt-hash 1452dbf6
+//! @prompt-hash a54abe5a
 //! @layer L1
 //! @updated 2026-06-19
 //!
@@ -147,6 +147,9 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
         subscript_size:   layouter.style.subscript_size,
         superscript_size: layouter.style.superscript_size,
         baseline_offset:  layouter.style.baseline_offset,
+        // P784 — herda do style corrente (regular ou math); este merge não
+        // é math-específico, só reflecte o valor já activo no layouter.
+        math:             layouter.style.math,
     };
 
     // **P448/P471**: subscrito/sobrescrito reduzem o corpo e deslocam a baseline.

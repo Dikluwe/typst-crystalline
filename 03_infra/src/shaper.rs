@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/shaper.md
-//! @prompt-hash 17b09f30
+//! @prompt-hash fb06fc11
 
 //! @layer L3
 //! @updated 2026-07-06
@@ -176,14 +176,22 @@ pub(crate) fn shaped_width(world: &dyn World, text: &str, style: &TextStyle, fac
             }
         }
     } else {
-        // **P783** — se a fonte primária tem tabela MATH OpenType, adicionar
-        // a cadeia de fallback matemático como primárias adicionais, para que
-        // glifos ausentes na primária sejam buscados em fontes math dedicadas
-        // antes do fallback global (todo o FontBook em ordem de índice).
+        // **P783/P784** — adicionar a cadeia de fallback matemático como
+        // primárias adicionais, para que glifos ausentes na primária sejam
+        // buscados em fontes math dedicadas antes do fallback global (todo
+        // o FontBook em ordem de índice). Dois gatilhos independentes
+        // (OR): `style.math` (P784 — sempre que o texto vem do motor de
+        // layout matemático, `layout/equation.rs`, independentemente de a
+        // fonte de corpo por omissão ter ou não tabela MATH própria — ela
+        // não tem, `Libertinus Serif` não tem MATH, então este era o único
+        // caso que realmente falhava e motivou este passo) e
+        // `primary_has_math` (P783 original — a fonte já resolvida declara
+        // MATH própria, útil se o utilizador define `font:
+        // "New Computer Modern Math"` explicitamente fora de `$...$`).
         let primary_has_math = primary.first().and_then(|cand| {
             face_cache.get(world, cand.slot_idx)
         }).map_or(false, |cached| cached.face().tables().math.is_some());
-        if primary_has_math {
+        if style.math || primary_has_math {
             for family in math_fallback_font_list() {
                 let math_font_list = FontList::single(ecow::EcoString::from(*family));
                 if let Some(cands) = resolve_candidates(world, &math_font_list, &variant, face_cache) {
@@ -313,14 +321,22 @@ fn try_shape(
             }
         }
     } else {
-        // **P783** — se a fonte primária tem tabela MATH OpenType, adicionar
-        // a cadeia de fallback matemático como primárias adicionais, para que
-        // glifos ausentes na primária sejam buscados em fontes math dedicadas
-        // antes do fallback global (todo o FontBook em ordem de índice).
+        // **P783/P784** — adicionar a cadeia de fallback matemático como
+        // primárias adicionais, para que glifos ausentes na primária sejam
+        // buscados em fontes math dedicadas antes do fallback global (todo
+        // o FontBook em ordem de índice). Dois gatilhos independentes
+        // (OR): `style.math` (P784 — sempre que o texto vem do motor de
+        // layout matemático, `layout/equation.rs`, independentemente de a
+        // fonte de corpo por omissão ter ou não tabela MATH própria — ela
+        // não tem, `Libertinus Serif` não tem MATH, então este era o único
+        // caso que realmente falhava e motivou este passo) e
+        // `primary_has_math` (P783 original — a fonte já resolvida declara
+        // MATH própria, útil se o utilizador define `font:
+        // "New Computer Modern Math"` explicitamente fora de `$...$`).
         let primary_has_math = primary.first().and_then(|cand| {
             face_cache.get(world, cand.slot_idx)
         }).map_or(false, |cached| cached.face().tables().math.is_some());
-        if primary_has_math {
+        if style.math || primary_has_math {
             for family in math_fallback_font_list() {
                 let math_font_list = FontList::single(ecow::EcoString::from(*family));
                 if let Some(cands) = resolve_candidates(world, &math_font_list, &variant, face_cache) {

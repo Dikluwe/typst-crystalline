@@ -1,5 +1,5 @@
 # Prompt L0 — `infra/embedded_fonts` — Fontes Embutidas via `typst-assets`
-Hash do Código: abf8f7bc
+Hash do Código: 5af91e27
 
 **Camada**: L3  
 **Criado em**: 2026-07-14 (Passo 753)  
@@ -134,9 +134,54 @@ E os glifos renderizados são reconhecíveis como devanagari
   fontes do sistema especializadas em vez de fontes math/code embutidas.
 - `crystalline-lint .` com zero violations.
 
+## §P784 — nomes de família reais das fontes "New Computer Modern *"
+
+`embedded_font_group()` classifica cada fonte embutida em `"text"` ou
+`"math_code"` por substring do nome de família. **P783** assumiu (sem
+verificar por leitura directa da tabela `name`) que o nome de
+`NewCMMath-*.otf` era `"New Computer Modern Math"` (com espaços — a
+correcção anterior de P783, substituindo o `"newcmmath"` ainda mais
+errado). **Ambas estavam erradas.**
+
+Medido por `fontTools`/`ttf_parser` (nameID 1 `FAMILY`) directamente nos
+ficheiros embutidos via `typst-assets` (`c0ae970`, o mesmo pinned em
+`Cargo.lock`):
+
+| Ficheiro | Família real (nameID 1) |
+|---|---|
+| `LibertinusSerif-Regular.otf` | `"Libertinus Serif"` (com espaços) |
+| `NewCMMath-Regular.otf` | `"NewComputerModernMath"` (**sem** espaços) |
+| `NewCM10-Regular.otf` | `"NewComputerModern10"` (**sem** espaços) |
+
+A inconsistência é dos próprios ficheiros de fonte upstream, não de
+extracção do cristalino (`font_info_from_bytes`, `03_infra/src/fonts.rs`,
+lê o nameID correcto — só o *literal usado para comparar* em
+`embedded_font_group` estava errado).
+
+**Consequência prática de ambos os bugs**: (1) `NewCM10` (nome real
+`"NewComputerModern10"`) nunca correspondia a `starts_with("newcm10")`
+nem a `starts_with("newcomputermodern10")` até esta correcção — caía no
+`else` "math_code" por acidente, apesar de a docstring de
+`EmbeddedFontSets` dizer explicitamente que devia estar em `"text"`. (2)
+`NewCMMath` nunca correspondia a `contains("new computer modern math")`
+(com espaços) — o teste `p754_newcm_math_is_not_in_text_group` passava
+sempre, mas **vacuamente** (nunca encontrava a string em lado nenhum, nem
+sequer em `math_code`), não porque a classificação estivesse correcta.
+Reforçado com uma asserção positiva (confirma presença em `math_code`, não
+só ausência em `text`) — ver `embedded_fonts.rs`.
+
+Corrigido: `embedded_font_group` compara agora contra os nomes reais
+(`"newcomputermodernmath"`, `"newcomputermodern10"`, ambos sem espaços,
+comparação já `to_lowercase()`). Efeito colateral descoberto e corrigido
+na mesma investigação, não scope creep: `NewCM10` passa a ir para `"text"`
+correctamente. Ver `infra/shaper.md` §P783/P784 para o impacto a jusante
+(resolução de candidatos por nome em `shaper.rs`, o bug que motivou esta
+investigação — verificação visual real com glifo `⨿`/U+2A3F).
+
 ## Histórico de Revisões
 
 | Data | Motivo | Arquivos afetados |
 |------|--------|-------------------|
 | 2026-07-14 | Criação — P753: fontes embutidas para paridade com vanilla | `embedded_fonts.md` |
 | 2026-07-14 | P754: separar texto e math/code no FontBook para não quebrar fallback de scripts não latinos | `embedded_fonts.md`, `embedded_fonts.rs`, `world.rs` |
+| 2026-07-17 | P784: nomes de família reais das fontes "New Computer Modern *" são sem espaços (`NewComputerModernMath`/`NewComputerModern10`) — P783 tinha assumido "New Computer Modern Math" (com espaços), nunca verificado por leitura directa. `NewCM10` estava a ser classificado incorrectamente em math_code por este erro | `embedded_fonts.md`, `embedded_fonts.rs`, `fallback_fonts.rs` |

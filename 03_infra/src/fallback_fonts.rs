@@ -46,8 +46,20 @@ pub(crate) const DEFAULT_FALLBACK_FONTS_SANS: &[&str] = &[
 /// não cobre um glifo, tentam-se estas fontes antes das genéricas.
 /// A ordem é idêntica à do vanilla: New Computer Modern Math →
 /// Libertinus Serif → fontes de emoji de cobertura ampla.
+///
+/// **P784** — o primeiro nome estava errado: `"New Computer Modern Math"`
+/// (com espaços) nunca resolvia nenhum candidato — confirmado por
+/// verificação visual real (glifo `⨿`/U+2A3F rendia com o glifo errado,
+/// `uni27F8`, embutido de uma fonte de sistema aleatória, `MathJax_Main-
+/// Regular`, apanhada pelo fallback global em vez da cadeia math). Causa:
+/// o nome de família real do ficheiro embutido (`NewCMMath-*.otf`, tabela
+/// `name` nameID 1, confirmado por `fontTools`/`ttf_parser`) é
+/// `"NewComputerModernMath"`, **sem espaços** — inconsistência do próprio
+/// ficheiro de fonte upstream (`Libertinus Serif` tem espaços; `New
+/// Computer Modern *` não tem). Ver `embedded_fonts.rs::
+/// embedded_font_group` para a mesma correcção do lado da classificação.
 pub(crate) const DEFAULT_FALLBACK_FONTS_MATH: &[&str] = &[
-    "New Computer Modern Math",
+    "NewComputerModernMath",
     "Libertinus Serif",
     "Twitter Color Emoji",
     "Noto Color Emoji",
@@ -111,9 +123,13 @@ mod tests {
             !list.is_empty(),
             "lista de fallback math não pode ser vazia"
         );
+        // P784 — nome real da fonte embutida é sem espaços
+        // ("NewComputerModernMath", confirmado por leitura da tabela
+        // `name`, nameID 1) — "New Computer Modern Math" (com espaços)
+        // nunca resolvia nenhum candidato.
         assert_eq!(
-            list[0], "New Computer Modern Math",
-            "primeiro fallback math deve ser New Computer Modern Math (paridade vanilla)"
+            list[0], "NewComputerModernMath",
+            "primeiro fallback math deve ser NewComputerModernMath (nome real, paridade vanilla)"
         );
     }
 

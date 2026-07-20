@@ -7,7 +7,7 @@ adr: ADR-0120
 ---
 
 # Prompt L0 — `shaper.rs` (Trilha 5 Fase 1)
-Hash do Código: b832b2b5
+Hash do Código: 1fa8b958
 
 ## Propósito
 
@@ -541,5 +541,74 @@ run_width += pos_g.x_advance + extra;
 - `p621_tracking_aumenta_x_advance`: shape do mesmo texto com e sem tracking
   numa fonte real; verifica que a soma dos `x_advance` aumenta pelo valor
   esperado em unidades da fonte.
+
+## §P783/P784 — Cadeia de fallback específica de modo matemático
+
+**P783** implementou o mecanismo (nunca documentado aqui — débito próprio,
+fechado retroactivamente por este L0). **P784** fez a verificação visual
+real que P783 nunca fez, encontrou dois bugs, e corrigiu.
+
+### Mecanismo (`try_shape`/`shaped_width`, após resolver `primary`)
+
+Depois de resolver as primárias declaradas (`font_list`), decide-se se se
+adiciona `fallback_fonts.rs::math_fallback_font_list()`
+(`NewComputerModernMath → Libertinus Serif → fontes de emoji`, paridade
+`math::families()` vanilla) como **primárias adicionais** — com prioridade
+sobre o fallback global lazy (`CandidateSet::covering_all`, todo o
+`FontBook` em ordem de índice):
+
+```rust
+let primary_has_math = /* primária já resolvida tem tabela MATH própria */;
+if style.math || primary_has_math {
+    for family in math_fallback_font_list() { /* resolve e adiciona a `primary` */ }
+}
+```
+
+Dois gatilhos independentes (OR):
+- **`style.math`** (P784) — `true` sempre que o texto vem do motor de layout
+  matemático (`layout/equation.rs`, ver `entities/layout_types.md` §P784).
+  **Este é o gatilho que importa na prática** — a fonte de corpo por omissão
+  (`Libertinus Serif`) não tem tabela MATH, então `primary_has_math` sozinho
+  nunca disparava no caso comum.
+- **`primary_has_math`** (P783 original) — a fonte já resolvida declara MATH
+  própria (ex.: utilizador define `font: "NewComputerModernMath"`
+  explicitamente, mesmo fora de `$...$`). Mantido como gatilho adicional,
+  não removido.
+
+### Bug 1 (P783, corrigido por P784) — gate nunca disparava
+
+P783 só tinha `primary_has_math` — **nunca verificado com um glifo
+matemático real ausente em `Libertinus Serif`** (o caso de teste de P783,
+`frac(a,b)`/`x^2_1`, só usa ASCII já coberto pela primária, então o
+`mutool trace` nunca mudou — "correcto mecanicamente" não era evidência).
+P784 mediu com `⨿` (U+2A3F, ausente em `Libertinus Serif`, presente em
+`NewComputerModernMath`) e confirmou visualmente: o glifo embutido era
+**errado** (`uni27F8`, uma seta dupla, de uma fonte de sistema aleatória —
+`MathJax_Main-Regular` — apanhada pelo fallback global, porque a cadeia
+math nunca chegava a ser tentada). Corrigido com `style.math` (acima).
+
+### Bug 2 (independente, também descoberto por P784) — nome de família errado
+
+Mesmo com `style.math` a disparar o bloco, `resolve_candidates` continuava
+a devolver **zero candidatos** para `"New Computer Modern Math"` (o nome
+que P783 hardcoded, com espaços). Medido por leitura directa da tabela
+`name` do ficheiro embutido (`fontTools`/`ttf_parser`, nameID 1 `FAMILY`):
+o nome real é **`"NewComputerModernMath"`, sem espaços** — inconsistência
+do próprio ficheiro de fonte upstream (`Libertinus Serif` tem espaços;
+`New Computer Modern *` não tem — confirmado nos dois). Corrigido em
+`fallback_fonts.rs::DEFAULT_FALLBACK_FONTS_MATH` (`"NewComputerModernMath"`)
+e em `embedded_fonts.rs::embedded_font_group` (ver `embedded_fonts.md`
+§P784, mesma causa-raiz, mesma correcção).
+
+### Critério de verificação (P784, medido)
+
+```
+$⨿$ (U+2A3F)
+  → antes: glyph="uni27F8" (seta, errado), font embutido de MathJax_Main-Regular
+  → depois: glyph="uni2A3F" (correcto), adv=".75" — bate exactamente com o
+    adv=".75" do vanilla (mesma fonte, mesmo glifo)
+  → confirmado visualmente: mutool draw mostra o glifo "⨿" correcto (não tofu,
+    não glifo errado), mesma forma que o render vanilla
+```
 
 

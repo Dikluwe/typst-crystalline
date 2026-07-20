@@ -424,3 +424,12 @@ normal   = NOT ibid. AND NOT op. cit.
 - `ibid., p. N` / `op. cit., p. N` com page override — scope-out.
 - `loc. cit.` — scope-out.
 - Reset de `previously_cited_keys` em nova secção — não implementado.
+
+## §15 — P784: `engine/layout/text.rs` propaga `TextStyle.math`
+
+`resolve_effective_style` (a fatia Text isolada, §10) constrói `effective:
+TextStyle` campo-a-campo a partir de `layouter.style` + overrides de `#set
+text(...)`. Novo campo `math: bool` (P784, ver `entities/layout_types.md`
+§P784) adicionado: `math: layouter.style.math` — herda directo do style
+corrente, sem lógica de override (este merge não é math-específico, só
+reflecte o valor já activo no layouter).

@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/entities/style_chain.md
-//! @prompt-hash 55289d65
+//! @prompt-hash 3a12a977
 //! @layer L1
 //! @updated 2026-07-03
 //!
@@ -666,6 +666,11 @@ impl From<&StyleChain> for TextStyle {
             subscript_size:   chain.subscript_size(),
             superscript_size: chain.superscript_size(),
             baseline_offset: crate::entities::layout_types::Length::ZERO,
+            // P784 — `StyleChain` não carrega contexto math; `false` aqui é
+            // sempre correcto (`layout_equation` põe `true` explicitamente
+            // no `TextStyle` que passa para o motor de layout matemático,
+            // por cima deste valor base).
+            math: false,
         }
     }
 }

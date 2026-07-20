@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/entities/layout_types.md
-//! @prompt-hash baabb130
+//! @prompt-hash 63880706
 //! @layer L1
 //! @updated 2026-04-23
 //!
@@ -165,6 +165,16 @@ pub struct TextStyle {
     /// **Passo 448 (P448)**: deslocamento vertical da baseline (resolvido em
     /// `layout/text.rs` e aplicado em `cursor.rs`).
     pub baseline_offset: Length,
+    /// **P784** — `true` quando este texto é conteúdo matemático (definido
+    /// uma vez em `layout/equation.rs::layout_equation`, herdado por
+    /// `..style.clone()` em toda a árvore de layout math). Consumido em
+    /// L3 (`shaper.rs`) para decidir se a cadeia de fallback específica de
+    /// matemática (`New Computer Modern Math` → `Libertinus Serif` →
+    /// emojis, paridade `math::families()` vanilla) entra sempre como
+    /// primárias adicionais — não só quando a fonte já resolvida
+    /// coincidentemente tem tabela MATH (que a fonte de corpo por omissão,
+    /// `Libertinus Serif`, não tem).
+    pub math: bool,
 }
 
 impl TextStyle {

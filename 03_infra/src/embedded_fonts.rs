@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/embedded_fonts.md
-//! @prompt-hash 8c8c9639
+//! @prompt-hash bd5db9e3
 //! @layer L3
 //! @updated 2026-07-14
 //!
@@ -16,7 +16,7 @@
 
 use std::path::PathBuf;
 
-use typst_core::entities::font_book::{FontBook, FontInfo};
+use typst_core::entities::font_book::FontBook;
 
 use crate::fonts::{font_info_from_bytes, FontSlot};
 
@@ -37,15 +37,29 @@ pub struct EmbeddedFontSets {
 
 /// Classifica uma família de fonte embutida no grupo texto ou math/code.
 ///
-/// **P783** — correção: o nome de família OpenType de `NewCMMath-*.otf` é
-/// `"New Computer Modern Math"` (não `"NewCMMath"`). O ramo correcto é
-/// `contains("new computer modern math")`, não `starts_with("newcmmath")`.
+/// **P783** — tentativa de correcção: assumiu o nome de família OpenType de
+/// `NewCMMath-*.otf` como `"New Computer Modern Math"` (com espaços) — **essa
+/// medição estava errada**, nunca verificada por leitura directa da tabela
+/// `name` do ficheiro (só inferida do nome "bonito" habitual da fonte).
+///
+/// **P784** — remedição por leitura directa (`fontTools`/`ttf_parser`,
+/// nameID 1 `FAMILY`): o valor real, para **todas** as fontes "New Computer
+/// Modern *" embutidas via `typst-assets` (`NewCMMath-*.otf`,
+/// `NewCM10-*.otf`), é **sem espaços** — `"NewComputerModernMath"` e
+/// `"NewComputerModern10"`. `"Libertinus Serif"` (e `"Libertinus Serif
+/// Regular"`) mantém espaços — a inconsistência é dos próprios ficheiros de
+/// fonte upstream, não de extracção do cristalino. Consequência prática do
+/// erro de P783: `resolve_candidates` nunca encontrava nenhuma família "New
+/// Computer Modern *" pelo nome (0 candidatos sempre) — tanto aqui como em
+/// `fallback_fonts.rs::DEFAULT_FALLBACK_FONTS_MATH` (mesma correcção lá).
+/// `NewCM10` ficava classificado (por acidente, via o `else` "math_code")
+/// como math/code em vez de texto — bug lateral do mesmo erro de nome,
+/// corrigido aqui também (mesma causa-raiz, mesmo ficheiro).
 fn embedded_font_group(family: &str) -> &'static str {
     let lower = family.to_lowercase();
-    if lower.starts_with("libertinus serif") || lower.starts_with("newcm10") {
+    if lower.starts_with("libertinus serif") || lower.starts_with("newcomputermodern10") {
         "text"
-    } else if lower.contains("new computer modern math")
-           || lower.contains("new computer modern mono")
+    } else if lower.contains("newcomputermodernmath")
            || lower.starts_with("dejavu sans mono") {
         "math_code"
     } else {
@@ -106,14 +120,44 @@ mod tests {
     #[test]
     fn p754_newcm_math_is_not_in_text_group() {
         let sets = load_embedded_fonts();
-        // O nome de família real é "New Computer Modern Math" (não "NewCMMath")
-        // -- P783 corrigiu a heurística. Verificar pelo nome correcto.
+        // P784 — nome real (sem espaços, confirmado por leitura da tabela
+        // `name`) é "NewComputerModernMath"; "New Computer Modern Math"
+        // (com espaços, texto de P783) nunca correspondia a nada — este
+        // teste passava antes por vacuidade (nunca encontrava a string em
+        // lado nenhum, nem sequer em math_code), não porque a classificação
+        // estivesse correcta. Reforçado: confirma a **presença** positiva
+        // em math_code, não só a ausência em texto.
         let newcm_math_in_text = sets.text_book.infos().iter().any(|info| {
-            info.family.to_lowercase().contains("new computer modern math")
+            info.family.to_lowercase().contains("newcomputermodernmath")
         });
         assert!(
             !newcm_math_in_text,
-            "NewCMMath não deve estar no grupo texto (P754)"
+            "NewComputerModernMath não deve estar no grupo texto (P754)"
+        );
+        let newcm_math_in_math_code = sets.math_code_book.infos().iter().any(|info| {
+            info.family.to_lowercase().contains("newcomputermodernmath")
+        });
+        assert!(
+            newcm_math_in_math_code,
+            "NewComputerModernMath deve estar de facto no grupo math_code (P784 — \
+             confirma que a classificação não é vacuamente verdadeira)"
+        );
+    }
+
+    #[test]
+    fn p784_newcm10_is_in_text_group() {
+        // Débito lateral descoberto pela mesma investigação: `NewCM10`
+        // (nome real "NewComputerModern10", sem espaços) estava a cair no
+        // `else` "math_code" por acidente — devia estar em "text"
+        // (docstring de `EmbeddedFontSets`: "texto (Libertinus Serif*,
+        // NewCM10*)").
+        let sets = load_embedded_fonts();
+        let newcm10_in_text = sets.text_book.infos().iter().any(|info| {
+            info.family.to_lowercase().contains("newcomputermodern10")
+        });
+        assert!(
+            newcm10_in_text,
+            "NewComputerModern10 deve estar no grupo texto (P784)"
         );
     }
 

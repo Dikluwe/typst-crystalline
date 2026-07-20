@@ -1,5 +1,5 @@
 # Prompt L0 — layout_types
-Hash do Código: 69818768
+Hash do Código: d8c50ed1
 
 ## Módulo
 `01_core/src/entities/layout_types.rs`
@@ -216,3 +216,28 @@ TextShaped {
 Populado por `shaper.rs::try_shape` via `rb_face.units_per_em().max(1) as u16`.
 Usado em `emit_shaped_pdf` para calcular números TJ: `-(x_advance / upm * 1000)`.
 Sites de match que não precisam de `units_per_em` usam `..` (wildcard).
+
+## P784 — `TextStyle.math: bool`
+
+**Data:** 2026-07-17
+
+Novo campo `pub math: bool` em `TextStyle` (default `false`, via `#[derive(Default)]`).
+`true` sse este texto é conteúdo matemático. Definido **uma única vez**, em
+`layout/equation.rs::layout_equation` (`TextStyle { math: true, ..self.style.clone() }`,
+por cima do estilo herdado antes de chamar `MathLayouter::layout_equation`) — herdado
+daí em diante por toda a árvore de layout math via `..style.clone()` (os sub-layouts
+de math, `layout_text_node`/`attach.rs`/`frac.rs`/`root.rs`, nunca tocam `.font`
+nem `.math`, só `.italic`/`.size`).
+
+**Motivo**: `03_infra/src/shaper.rs` decide se engata a cadeia de fallback específica
+de matemática (`fallback_fonts.rs::DEFAULT_FALLBACK_FONTS_MATH`) como primárias
+adicionais. A condição original (P783, só `primary_has_math` — a fonte já resolvida
+tem tabela MATH OpenType própria) nunca disparava no caso comum: a fonte de corpo
+por omissão (`Libertinus Serif`) não tem tabela MATH. `style.math` dá ao shaper um
+sinal directo e correcto de "isto é matemática", independente de qualquer propriedade
+da fonte primária resolvida. Ver `infra/shaper.md` §P784 para a lógica de consumo.
+
+Dois sites de construção não-spread de `TextStyle` (fora do `..style.clone()` normal)
+precisaram de valor explícito: `entities/style_chain.rs::From<&StyleChain>` (`false`
+— `StyleChain` não carrega contexto math) e `engine/layout/text.rs` (herda de
+`layouter.style.math`, merge de `#set text(...)` não é math-específico).

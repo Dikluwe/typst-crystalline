@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/engine/layout/equation.md
-//! @prompt-hash 56e65861
+//! @prompt-hash 6fea7989
 //! @layer L1
 //! @updated 2026-04-23
 //!
@@ -46,8 +46,19 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
         // gate em `from_tags` arm Equation P186E activado por
         // SetEquationNumbering P199B). Layouter só lê.
 
+        // **P784** — marca `math: true` uma única vez, no ponto de entrada do
+        // motor de layout matemático; herdado por `..style.clone()` em toda a
+        // árvore de layout math (`layout_text_node` e os restantes sub-layouts
+        // nunca tocam `.font`, só `.italic`/`.size`). Consumido em L3
+        // (`shaper.rs`) para engatar sempre a cadeia de fallback matemática —
+        // não só quando a fonte já resolvida coincidentemente tem tabela MATH
+        // (a fonte de corpo por omissão, `Libertinus Serif`, não tem).
+        let math_style = crate::entities::layout_types::TextStyle {
+            math: true,
+            ..self.style.clone()
+        };
         let math_layouter = math::layout::MathLayouter::new(&self.metrics, block);
-        let math_items = math_layouter.layout_equation(body, &self.style);
+        let math_items = math_layouter.layout_equation(body, &math_style);
 
         if block && self.regions.current.cursor_x.0 > self.page_config.margin {
             self.flush_line();

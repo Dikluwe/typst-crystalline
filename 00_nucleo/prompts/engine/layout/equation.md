@@ -1,5 +1,5 @@
 :warning: **Prompt L0 — `engine/layout/equation` — Layout de Equações**
-Hash do Código: e78ab8b9
+Hash do Código: 6ed5b341
 
 **Camada**: L1 · **Alvo**: `01_core/src/engine/layout/equation.rs`
 **ADRs relevantes**: ADR-0037 (atomização), ADR-0068 (locatable), ADR-0114/0117 (sonda A.0)
@@ -41,3 +41,17 @@ Mesmo subset de `format_counter` (P451): `"1"`, `"1."`, `"I."`, `"(a)"`,
 - Duas equações de bloco numeradas sequenciais → `(1)` e `(2)`.
 - Equação inline com gate activo → sem número.
 - `plain_text` continua a incluir o número formatado.
+
+## P784 — `TextStyle.math` marcado no ponto de entrada
+
+Antes de chamar `MathLayouter::layout_equation`, constrói-se
+`math_style = TextStyle { math: true, ..self.style.clone() }` e passa-se
+`&math_style` (não `&self.style`). Ponto **único** onde `math: true` é
+definido — herdado por toda a árvore de layout math via `..style.clone()`.
+Consumido em L3 (`shaper.rs`, ver `infra/shaper.md` §P784) para engatar
+sempre a cadeia de fallback de fontes matemáticas, independentemente de a
+fonte de corpo por omissão ter ou não tabela MATH OpenType própria (não
+tem — verificação visual real com glifo `⨿`/U+2A3F confirmou que a
+condição anterior, só `primary_has_math`, nunca disparava no caso comum e
+o cristalino embutia glifo errado de fonte de sistema aleatória). Ver
+`entities/layout_types.md` §P784 para o campo em si.

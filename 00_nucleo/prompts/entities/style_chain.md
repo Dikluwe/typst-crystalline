@@ -1,5 +1,5 @@
 # Prompt L0 — StyleChain
-Hash do Código: 55289d65
+Hash do Código: 918e16ad
 
 ## Módulo
 `01_core/src/entities/style_chain.rs`
@@ -86,6 +86,15 @@ deve fornecer uma fonte por defeito para que o shaper tenha sempre uma família 
   problema de acentos.
 - **P753**: com a adopção de fontes embutidas via `typst-assets`, o cristalino pode
   finalmente usar `Libertinus Serif`, a fonte por defeito do vanilla.
+
+### `math: false` sempre (P784)
+
+`From<&StyleChain> for TextStyle` sempre define `math: false` — `StyleChain`
+não carrega contexto matemático (é uma propriedade do *ponto de entrada* do
+layout math, não da chain de estilos). `layout/equation.rs::layout_equation`
+sobrepõe `math: true` explicitamente no `TextStyle` que passa ao motor de
+layout matemático, **depois** desta conversão. Ver `entities/layout_types.md`
+§P784 e `engine/layout/equation.md` §P784.
 
 ## Camada
 L1 — pura. Sem I/O de sistema. Usa apenas `Arc` (RAM).
