@@ -3,6 +3,8 @@
 //! @prompt-hash 3624668a
 //! @prompt 00_nucleo/prompts/engine/eval/field-access.md
 //! @prompt-hash 257a225b
+//! @prompt 00_nucleo/prompts/p792-context-layout-textlang-position.md
+//! @prompt-hash a2844d48
 //! @prompt 00_nucleo/prompts/engine/eval/fields.md
 //! @prompt-hash 3624668a
 //! @layer L1
@@ -1422,6 +1424,23 @@ pub(super) fn eval_field_access(
         engine,
     ) {
         return result;
+    }
+
+    // P792 — `text.<campo>`: quando o target é Value::Func("text") e o field é
+    // um parâmetro de estilo, ler da StyleChain activa.
+    if let Value::Func(ref f) = target {
+        if f.name() == Some("text") {
+            match field {
+                "lang" => {
+                    let lang = match engine.styles.custom("text.lang") {
+                        Some(Value::Str(s)) => s.clone(),
+                        _ => "en".into(),
+                    };
+                    return Ok(Value::Str(lang));
+                }
+                _ => {} // cai no eval_value_field_access normal
+            }
+        }
     }
 
     eval_value_field_access(target, field, access.span())

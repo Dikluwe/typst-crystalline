@@ -1,5 +1,5 @@
 # Prompt L0 — `entities/introspector`
-Hash do Código: cb67cfb3
+Hash do Código: fe917449
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/entities/introspector.rs`
@@ -390,3 +390,15 @@ Fan-in baixo: M3 não tem consumers externos ainda.
 | 2026-05-12 | P207D (M9c — Bloco II page-aware + Bloco VIII infraestrutura parcial per ADR-0076): trait estendido com 4 métodos page-aware: `pages` (total via `PageStore::total_pages`), `page` (via `SealedPositions`), `page_numbering` (via `PageStore::numbering_for_page` — `Option<&EcoString>` per ADR-0024), `page_supplement` (via `PageStore::supplement_for_page`). Novo field `pub page_store: PageStore` em `TagIntrospector` + novo método `inject_pages` paralelo a `inject_positions` (P205C). Opção 2 fixada em C2 (sub-store dedicado paralelo a `SealedPositions`). Pre-injecção: todos retornam `None`. Trait passa de 22 para 26 métodos. | `introspector.rs`, `introspector.md`, `page_store.rs`, `page_store.md` |
 | 2026-06-25 | P462: `TagIntrospector` ganha `label_to_counter_key: HashMap<Label, EcoString>`; trait estende `counter_key_for_label(&Label) -> Option<&str>`. População no walk de `introspect.rs` para elementos numerados etiquetados via `Content::Label`. Suporte ao layout de `ref` com resolução numérica. | `introspector.rs`, `introspector.md`, `introspect.rs`, `references.rs`, `ref.rs`, `content.rs` |
 | 2026-06-26 | P472: `TagIntrospector` ganha `figures_for_lof: Vec<(usize, String)>` e `tables_for_lot: Vec<(usize, String)>`; trait estendido com `back_refs_for_key`, `figures_for_lof`, `tables_for_lot`; `ElementPayload::Figure/Table` ganham `caption_text: Option<String>`; `introspect.rs` popula os 2 novos campos. Suporte a LoF/LoT em `outline.rs`. | `introspector.rs`, `introspector.md`, `element_payload.rs`, `introspect.rs`, `outline.rs`, `measurements.rs` |
+
+---
+
+## §P788 — `heading_numbering`: flag de numbering por `Location`
+
+**Decisão:** `TagIntrospector` ganha store `heading_numbering:
+HashMap<Location, bool>` populada no arm `Heading` de
+`populate_intr_from_tag_start` a partir de `ElementPayload::Heading {
+numbering_active, .. }` (element_payload.md §P788). Consumer:
+`engine/layout/references.rs` — distingue "heading com counter mas sem
+numbering" (erro vanilla `cannot reference heading without numbering`) do
+caso feliz (suplemento + counter formatado).

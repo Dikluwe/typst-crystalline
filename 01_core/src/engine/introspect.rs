@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/engine/introspect.md
-//! @prompt-hash 87012f63
+//! @prompt-hash 24fbbe78
 //! @layer L1
 //! @updated 2026-06-27
 //!
@@ -707,7 +707,7 @@ fn populate_intr_from_tag_start(
         intr.labels.add(label.clone(), loc);
     }
     match &info.payload {
-        ElementPayload::Heading { depth, .. } => {
+        ElementPayload::Heading { depth, numbering_active, .. } => {
             intr.kind_index
                 .entry(ElementKind::Heading)
                 .or_default()
@@ -717,6 +717,9 @@ fn populate_intr_from_tag_start(
                 *depth as usize,
                 loc,
             );
+            // P788 — flag de numbering por Location (alimenta o erro
+            // vanilla `cannot reference heading without numbering`).
+            intr.heading_numbering.insert(loc, *numbering_active);
             if let Some(label) = &info.label {
                 intr.label_to_counter_key.insert(label.clone(), "heading".into());
             }
@@ -874,9 +877,10 @@ fn populate_intr_from_tag_start(
                 intr.figure_label_numbers
                     .insert(label.clone(), *n);
             }
-            // P462: Labelled usa caminho legacy; evita conflito com
-            // Content::Label numérico.
-            intr.label_to_counter_key.remove(label);
+            // P788: o `label_to_counter_key.remove(label)` que aqui existia
+            // forçava o caminho legacy mesmo para elementos numerados —
+            // removido; o caminho numérico tem precedência (o legacy fica
+            // como fallback em `resolve_ref_text`).
         }
         ElementPayload::Table { counter_update, is_counted, caption_text } => {
             intr.kind_index
@@ -1060,6 +1064,13 @@ pub(crate) fn walk(
         if let ElementPayload::Equation { numbering_active, .. } = &mut payload {
             *numbering_active =
                 matches!(chain.custom("equation.numbering"), Some(Value::Str(_)));
+        }
+        // P788: bake da flag de numbering do Heading a partir da chain
+        // (mesmo padrão dos bakes de Equation/Figure/Table abaixo). A fonte
+        // é `custom("heading.numbering") == Bool(true)` (canal `rules.rs`).
+        if let ElementPayload::Heading { numbering_active, .. } = &mut payload {
+            *numbering_active =
+                matches!(chain.custom("heading.numbering"), Some(Value::Bool(true)));
         }
         // F-5a de-bake (P365): a figura não baka mais o padrão. `is_counted` é o
         // placeholder (`caption.is_some()`, de `to_payload`) **ANDado** com o gate
@@ -1297,9 +1308,9 @@ pub(crate) fn walk(
                 let target = &e.body;
                 let tags_len_before = tags.len();
                 walk(target, locator, tags, intr, auto_label_counter, lang, chain, Some(&label));
-                // Label auto-gerado usa caminho legacy; elimina qualquer
-                // mapeamento numérico eventualmente criado pelo walk recursivo.
-                intr.label_to_counter_key.remove(&label);
+                // P788: o `label_to_counter_key.remove(&label)` que aqui
+                // existia forçava o caminho legacy — removido (precedência
+                // numérica; legacy fica como fallback).
 
                 let target_loc = tags[tags_len_before..]
                     .iter()

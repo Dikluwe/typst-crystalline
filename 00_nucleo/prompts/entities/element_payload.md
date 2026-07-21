@@ -1,5 +1,5 @@
 # Prompt L0 — `entities/element_payload`
-Hash do Código: 2b440e36
+Hash do Código: 8f6c67c9
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/entities/element_payload.rs`
@@ -238,3 +238,16 @@ Ver `desenho-introspection-fixpoint.md` §2.1 (referenciado em P161; documento a
 | 2026-05-03 | P186B: variant `Equation { block, counter_update }` adicionada (forma paralela a `Figure` P184B); suporta P186 plano (eixo 2 P183C); P186D adiciona arm em `extract_payload`, P186E adiciona arm em `from_tags` com gate `block && state numbering_active:equation`. | `element_payload.rs`, `element_payload.md` |
 | 2026-05-01 | P181C: variant `Bibliography { entries: Vec<BibEntry> }` adicionada; suporta P181D (`extract_payload` arm Bibliography) e P181E (`from_tags` popula `BibStore`) | `element_payload.rs`, `element_payload.md` |
 | 2026-05-04 | P195B: variant `Labelled { label, resolved_text, figure_number }` adicionada com pattern arquitectural novo "post-recursion tag emission for state-dependent payload" (ADR-0069 PROPOSTO). **Sem** `extract_payload` arm — payload depende de state mutado durante walk recursivo, impossível em função pura. Walk arm Labelled (P195D) emite Tag manualmente após recursão. `from_tags` arm popula `intr.resolved_labels` + `intr.figure_label_numbers`. P195B = stub no-op em from_tags; P195C estende. | `element_payload.rs`, `element_payload.md`, `from_tags.rs`, `from_tags.md`, `typst-adr-0069-post-recursion-tag-emission.md` |
+
+---
+
+## §P788 — `ElementPayload::Heading` ganha `numbering_active: bool`
+
+**Decisão:** o payload de Heading passa a carregar `numbering_active`,
+**baked da chain no momento da emissão** (`walk`, mesmo padrão já usado por
+Equation/Figure/Table — `chain.custom("heading.numbering") ==
+Some(Value::Bool(true))`, canal de `rules.rs`). Necessário para o erro
+vanilla `cannot reference heading without numbering` (layout_references.md
+§P788): o counter de heading aplica-se incondicionalmente (P335), logo
+"tem counter" ≠ "tem numbering" — a flag explícita é a única fonte fiel.
+O construtor (`HeadingElem::to_payload`) inicia a `false`; o walk sobrepõe.

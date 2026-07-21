@@ -1,5 +1,5 @@
 # Prompt L0 — Entidade `ShowRule` (Passo 68-70; atualizado P352)
-Hash do Código: 5ebf67e1
+Hash do Código: 59ae1915
 
 ## Propósito
 
@@ -20,7 +20,9 @@ Outros tipos (`EnumItem`, `Link`, etc.) adicionados em passos futuros.
 ### `Selector`
 
 Selector de uma show rule. Variantes:
-- `Text(String)` — substitui ocorrências literais de um texto (via `map_text`).
+- `Text(String)` — substitui ocorrências literais de um texto. Aplicação
+  depende da `Transformation` (P790): `Str` via `map_text`; `Content`/`Func`
+  via splice em `map_content` (o texto à volta do match é preservado).
 - `NodeKind(NodeKind)` — interceta nós nativos de um tipo específico.
 - `DynKind(String)` — interceta um elemento **dinâmico** de utilizador
   (fronteira E1) pelo **nome de kind** (`dyn_kind()`). Lote F-3 inc-2: o
@@ -32,6 +34,16 @@ Selector de uma show rule. Variantes:
   nó casa `base` **e** o campo `field` existe **e** o seu valor é semanticamente
   igual a `value` (via igualdade de `Value`, ADR-0107). Sem vtable — lógica em
   free function na camada de render (`rules/show/where_match.rs`).
+- **P791** `Label(Label)` — casa um nó `Content::Label` pelo **nome** do label
+  (`#show <sp>: …`). Não viaja pela travessia principal de `apply_show_rules`:
+  o wrapper `Content::Label` é criado na associação retroactiva de `<label>`
+  (Passo 56) **depois** do corpo já ter sido interceptado, logo a aplicação é
+  dedicada (`intercept_labelled` em `rules/eval/rules.rs`) — só regras de label
+  casam nesse ponto, evitando dupla aplicação das outras regras. `it` = o
+  **corpo** (o elemento rotulado; o label é metadado, não nó — paridade
+  vanilla `target.label()`); a saída substitui o wrapper inteiro (label
+  consumido). Aplicação única, última-declarada primeiro (innermost-first,
+  P358) — sem loop de revisitação (equivalente à `Revocation` do vanilla).
 - **P423** `And(Vec<Selector>)` / `Or(Vec<Selector>)` — combinadores de
   selectors em show rules. Ex.: `heading.or(figure)`, `heading.and(figure)`.
   Semântica: `And` casa se **todos** os sub-selectors casarem; `Or` casa se
@@ -58,8 +70,9 @@ o antigo `transform: Value` solto por um vocabulário fechado:
   promovido a `Content::text`). Consome o passe de show.
 - `Content(Content)` — substituição estática direta. Consome o passe.
 - `Str(EcoString)` — substituição literal, **apenas** para `Selector::Text`
-  (aplicada por `map_text`). As outras formas falham explicitamente sobre `Text`
-  (DEBT-19 ENCERRADO).
+  (aplicada por `map_text`). `Content`/`Func` sobre `Text` são suportados por
+  splice (P790 — ver invariantes); `Style` sobre `Text` falha explicitamente
+  no eval (DEBT-19 ENCERRADO).
 - `Style(Styles)` — **show-set** (`#show k: set …`, P352). Os styles do `set` são
   **capturados** na declaração (sem mutar `engine.styles` globalmente) e
   **transportados** embrulhando o conteúdo num `Content::Styled(…, styles)` — o
@@ -92,8 +105,18 @@ Triplo `(id, selector, transform)` armazenado no `EvalContext` durante a avalia�
   aplicar (snapshot explícito para evitar borrow conflict durante `apply_show_rules`).
 - `Selector::NodeKind` identifica o tipo pelo enum, não por string (DEBT-21 MITIGADO);
   `Selector::DynKind` identifica o elemento dinâmico pelo nome de kind interned.
-- `Selector::Text` suporta apenas `Transformation::Str`; `Func`/`Content`/`Style`
-  sobre `Text` falham explicitamente (DEBT-19 ENCERRADO).
+- `Selector::Text` suporta `Transformation::Str` (via `map_text`) e, desde
+  **P790**, `Content`/`Func` por **splice**: o nó `Content::Text` é fatiado nas
+  ocorrências do padrão e o replacement é emendado entre as fatias, preservando
+  o texto envolvente (paridade vanilla `visit_regex_match`,
+  `typst-realize/src/lib.rs:1391`). A travessia é `map_content`, que **não
+  reentra** no nó substituído — equivalente à `Style::Revocation` do vanilla
+  (o output não é re-varrido pela mesma regra). `Func` recebe o texto do match
+  como `Content::Text` e o seu output (Content ou Str) é emendado por
+  ocorrência. O match é **por nó de texto individual** — o vanilla agrupa
+  elementos textuais adjacentes na mesma style chain antes de casar; match
+  cross-node é divergência registada (scope-out). `Style` sobre `Text` falha
+  explicitamente no eval (DEBT-19 ENCERRADO).
 - **P417** `Selector::Where` baseia-se em `NodeKind` (nativo) em P417; elementos
   dinâmicos (`DynKind`) são scope-out. O matching delega a free function que
   consulta `Content::get_field(field)` e compara com `value` via igualdade

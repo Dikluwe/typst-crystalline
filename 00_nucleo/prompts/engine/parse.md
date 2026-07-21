@@ -120,3 +120,35 @@ pub fn parse_math(text: &str) -> SyntaxNode;
 - Reparsing incremental (`reparse_*`) não é exposto na interface pública de L1
 - `ast::Expr::Ident`/`ast::Expr::Str` substituídos por `node.kind()` directo
   nos contextos de duplicate-detection (ADR-0015 aplica-se apenas ao texto)
+
+---
+
+## §P786a — Warning "no text within stars/underscores" em `strong`/`emph`
+
+**Decisão:** `strong()` e `emph()` em `engine/parse/markup.rs` passam a emitir
+um error node de severidade warning quando o par de delimitadores fecha sem
+conteúdo — port directo da regra do vanilla
+(`lab/typst-original/crates/typst-syntax/src/parser.rs:137-168`).
+
+**Regra (idêntica ao vanilla, medida no código-fonte e por execução):**
+
+- Condição: o delimitador de fecho **existe** (`had_closing`) **e** o
+  comprimento textual total do nó `Strong`/`Emph` é exactamente 2
+  (`p[m].len() == 2` — os dois marcadores, sem conteúdo nem trivia).
+- `*` ou `_` sem fecho → `unclosed delimiter` (erro genuíno, fatal desde
+  P786a no eval — vanilla idêntico, medido: exit 1).
+- `**` → warning `no text within stars` + hint `using multiple consecutive
+  stars (e.g. **) has no additional effect` (vanilla: warning, exit 0).
+- `__` → warning `no text within underscores` + hint `using multiple
+  consecutive underscores (e.g. __) has no additional effect`.
+- `***txt***` → warning também (o primeiro `**` é strong vazio — vanilla
+  avisa em 1:0, medido por execução); **não** é falso positivo.
+- `* *` (com espaço) → sem warning (comprimento 3 ≠ 2), paridade exacta
+  com a regra `len() == 2`.
+
+**Mecânica:** o warning é um error node de comprimento zero inserido na
+posição do marcador inicial (antes do wrap), com
+`SyntaxErrorKind::NoTextWithinStars | NoTextWithinUnderscores` e o hint em
+`SyntaxError.hints`. O span real é atribuído pela numeração pós-parse
+(`syntax_node.rs`, `Span::from_number`). O roteamento warning-vs-fatal
+acontece no eval (ver `prompts/engine/eval.md` §P786a).

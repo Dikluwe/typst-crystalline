@@ -1,5 +1,5 @@
 # Prompt L0 — `infra/export/stream` — PageContext + emit unificado
-Hash do Código: 5ce90ca5
+Hash do Código: a92e59cf
 
 **Camada**: L3
 **Ficheiro alvo**: `03_infra/src/export/stream.rs`
@@ -138,3 +138,24 @@ antes de desenhar o próximo glifo. Portanto:
 |------|--------|--------------------|
 | 2026-05-19 | Criação — P307c: PageContext + emit unificado | `stream.rs` |
 | 2026-07-03 | P548 — correção do sinal do delta TJ: `advance_tu = (nominal - x_advance)` em vez de `(x_advance - nominal)` | `stream.rs`, `stream.md`, `builder.md`, `tests.rs` |
+
+---
+
+## §P788 — `draw_item_top`: flip Y para filhos de `FrameItem::Link` ao nível da página
+
+**Decisão:** a emissão top-level por item foi extraída de `build_page_stream`
+para `draw_item_top(ops, item, page_height, ctx) -> ops` (recebe/devolve
+`ops` por valor — braço `Link` chama recursivamente sem conflito de borrow).
+O braço `FrameItem::Link` passa a desenhar os filhos **pelo caminho
+top-level com flip Y** (`pdf_y = page_height - pos.y`).
+
+**Causa raiz (medida, P786 A9 + `#link` genérico):** os filhos de Link ao
+nível da página eram desenhados por `draw_item_local` — que NÃO aplica flip
+(assume a matriz `cm` invertida de um `Group` envolvente). Sem Group, os
+filhos apareciam com `pos.y` crua → fundo da página (medido: y≈754 em vez
+de y≈68; vanilla: coordenadas idênticas após a correção). `draw_item_local`
+mantém o seu papel dentro de `Group` (matriz já invertida) — inalterado.
+
+**Critério de aceitação:** teste `p788_link_top_level_filho_tem_flip_y` —
+filho `Text` a (70,100) em página 800 → stream contém `70.0 700.0 Td`
+(nunca `70.0 100.0 Td`).

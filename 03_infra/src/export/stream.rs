@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/export/stream.md
-//! @prompt-hash 2d034273
+//! @prompt-hash 5b08cea5
 //! @layer L3
 //! @updated 2026-05-19
 //!
@@ -424,12 +424,27 @@ fn image_exif_matrix(
 // cidfont/multifont). Despacha Text/Glyph por `ctx.font_scenario`;
 // Line/Image/Shape/Group são scenario-independent.
 pub(super) fn build_page_stream(page: &Page, ctx: &PageContext) -> Vec<u8> {
-    use typst_core::entities::geometry::ShapeKind;
     let mut ops = String::new();
     let page_height = page.height;
 
     for item in &page.items {
-        match item {
+        ops = draw_item_top(ops, item, page_height, ctx);
+    }
+    ops.into_bytes()
+}
+
+/// **P788** — emissão top-level (com flip Y-down→PDF: `page_height - pos.y`)
+/// de UM `FrameItem`, extraída de `build_page_stream` para que filhos de
+/// `FrameItem::Link` ao nível da página sigam o mesmo caminho. Antes eram
+/// desenhados por `draw_item_local` (sem flip — assume matriz de Group) e
+/// apareciam no fundo da página (bug medido em P786 A9 e reproduzido com
+/// `#link` genérico: filho a y≈754 em vez de y≈68).
+///
+/// Recebe e devolve `ops` por valor para que o braço `Link` possa chamar
+/// recursivamente sem conflitos de borrow.
+fn draw_item_top(mut ops: String, item: &FrameItem, page_height: f64, ctx: &PageContext) -> String {
+    use typst_core::entities::geometry::ShapeKind;
+    match item {
             // P483 — path primário: glifos com shaping real.
             FrameItem::TextShaped { pos, glyphs, style, text, units_per_em } => {
                 let pdf_y = page_height - pos.y.val();
@@ -618,15 +633,15 @@ pub(super) fn build_page_stream(page: &Page, ctx: &PageContext) -> Vec<u8> {
             // **P425-A7**: FrameItem::Link transportado como Group sem annotation
             // URI por enquanto. Emissão de /Annot requer decisão arquitetural sobre
             // bbox/posição do Link.
+            // **P788** — filhos seguem o caminho top-level COM flip Y (eram
+            // `draw_item_local`, sem flip — apareciam no fundo da página).
             FrameItem::Link { items, .. } => {
                 for child in items {
-                    draw_item_local(&mut ops, child, None, ctx);
+                    ops = draw_item_top(ops, child, page_height, ctx);
                 }
             }
-        }
     }
-
-    ops.into_bytes()
+    ops
 }
 
 /// Emite os operadores de path de uma forma no espaço LOCAL de um Group.
@@ -1045,6 +1060,48 @@ mod stream_tests {
         };
         emit_shaped_pdf(&mut ops, 0.0, 0.0, &glyphs, "A", &style, &scenario, 1000);
         assert!(ops.contains("<0041> 40"), "P548: kerning negativo → delta positivo (aproxima)");
+    }
+
+    // ── P788 — filhos de FrameItem::Link ao nível da página têm flip Y ─────
+    // Bug (medido via CLI, P786 A9 + `#link` genérico): os filhos eram
+    // desenhados por `draw_item_local` (sem flip — assume matriz de Group)
+    // e apareciam no fundo da página (y≈754 em vez de y≈68).
+    #[test]
+    fn p788_link_top_level_filho_tem_flip_y() {
+        use typst_core::entities::layout_types::{
+            LinkTarget, Point, Pt, Size, TextStyle,
+        };
+        let ptr: HashMap<usize, usize> = HashMap::new();
+        let imgs: Vec<ImageRef> = vec![];
+        let pats: HashMap<DedupKey, usize> = HashMap::new();
+        let pat_refs: Vec<PatternRef> = vec![];
+        let ctx = PageContext::type1(&ptr, &imgs, &pats, &pat_refs);
+        let child = FrameItem::Text {
+            pos: Point { x: Pt(70.0), y: Pt(100.0) },
+            text: "Clique".into(),
+            style: TextStyle::default(),
+        };
+        let page = Page {
+            width: 595.0,
+            height: 800.0,
+            numbering: None,
+            items: vec![FrameItem::Link {
+                target: LinkTarget::Url("https://example.com".into()),
+                items: vec![child],
+                pos: Point { x: Pt(70.0), y: Pt(100.0) },
+                size: Size { width: Pt(40.0), height: Pt(12.0) },
+            }],
+        };
+        let stream = String::from_utf8(build_page_stream(&page, &ctx)).unwrap();
+        // Flip correcto: pdf_y = 800 - 100 = 700. O bug emitia 100 (sem flip).
+        assert!(
+            stream.contains("70.0 700.0 Td"),
+            "filho de Link sem flip Y: {stream}"
+        );
+        assert!(
+            !stream.contains("70.0 100.0 Td"),
+            "coordenada crua (bug) presente: {stream}"
+        );
     }
 }
 

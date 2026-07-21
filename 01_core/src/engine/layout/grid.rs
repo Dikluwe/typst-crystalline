@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/engine/layout.md
-//! @prompt-hash 4835cd63
+//! @prompt-hash 951cd878
 //! @layer L1
 //! @updated 2026-07-14
 //!
@@ -173,6 +173,44 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
                 other => row_group_cells(other, num_cols),
             })
             .unwrap_or_default();
+        // P789 — detecção de conflito célula↔header (paridade vanilla
+        // `check_for_conflicting_cell_row`, resolve.rs:2112): célula do
+        // corpo com `y` explícito cujo range `y..y+rowspan` intersecta as
+        // linhas do header (0..header_rows) é erro, não sobreposição
+        // silenciosa. Mensagem e hint idênticos ao vanilla (observável ao
+        // nível da língua — ADR-0107). Só células do corpo são verificadas
+        // (equivalente ao `!in_row_group` do vanilla); células com
+        // `y: None` são auto-posicionadas e contornam o header. Conflito
+        // célula↔footer é scope-out documentado no L0 (layout.md §P789):
+        // o range absoluto do footer só existe pós-placement no modelo
+        // splice. `Span::detached()` — mesmo trade-off de P647 (elementos
+        // não carregam span).
+        let header_rows = header_cells.len() / num_cols;
+        if header_rows > 0 {
+            let conflict = cells.iter().find_map(|cell| {
+                let (y, rowspan) = match cell {
+                    Content::GridCell(e) => (e.y, e.rowspan),
+                    Content::TableCell(e) => (e.y, e.rowspan),
+                    _ => (None, None),
+                };
+                let y = y?;
+                let rowspan = rowspan.unwrap_or(1).max(1);
+                // Linhas do header são contíguas a partir de 0 no modelo
+                // splice — a primeira linha do range dentro do header é `y`.
+                (y < header_rows).then_some(y)
+            });
+            if let Some(row) = conflict {
+                self.layout_errors.push(
+                    crate::entities::source_result::SourceDiagnostic::error(
+                        crate::entities::span::Span::detached(),
+                        format!("cell would conflict with header also spanning row {row}"),
+                    )
+                    .with_hint("try moving the cell or the header"),
+                );
+                self.cell_align = saved_cell_align;
+                return;
+            }
+        }
         let combined_cells: Vec<Content> = if header_cells.is_empty() && footer_cells.is_empty() {
             cells.to_vec()
         } else {

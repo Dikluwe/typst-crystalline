@@ -1,5 +1,5 @@
 # Prompt L0 — `entities/syntax-node`
-Hash do Código: 5ebed19c
+Hash do Código: d98932f1
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/entities/syntax_node.rs`
@@ -197,3 +197,31 @@ LinkedNode::new(&root).children().count() = root.children().count()
 |------|--------|-------------------|
 | 2026-03-22 | Criação — Passo 2: migração de SyntaxNode, SyntaxError, LinkedNode | `syntax_node.rs` |
 | 2026-04-12 | Restauro — expansão do prompt para documentar interface completa, `pub(crate)`, `LinkedNode`, `Side`, `NumberingResult` | `syntax-node.md` |
+
+---
+
+## §P786a — `SyntaxErrorKind`: warnings de markup (`NoTextWithinStars`, `NoTextWithinUnderscores`)
+
+**Decisão:** `SyntaxErrorKind` ganha duas variantes de severidade **warning**:
+
+- `NoTextWithinStars` — par `**` sem conteúdo (emitido em
+  `engine/parse/markup.rs::strong`, regra vanilla `parser.rs:144-149`).
+- `NoTextWithinUnderscores` — par `__` sem conteúdo (idem, `emph`).
+
+Estas variantes são o sinal que o eval usa para rotear o diagnóstico para o
+`sink` como `SourceDiagnostic::warning` (não fatal) — ver
+`prompts/engine/eval.md` §P786a. As variantes pré-existentes
+(`InvalidHexNumber`, `InvalidUnicodeCodepoint`, `Other`) permanecem fatais, e
+a filtragem selectiva de P648/P649 é substituída por propagação integral.
+
+**Critério de aceitação:** `SyntaxError::with_kind(msg, NoTextWithinStars)`
+preserva kind + hints; `errors()` devolve o erro com o kind correcto para o
+roteamento do eval.
+
+---
+
+## Histórico de Revisões (continuação)
+
+| Data | Motivo | Arquivos afetados |
+|------|--------|-------------------|
+| 2026-07-20 | P786a — variantes `NoTextWithinStars`/`NoTextWithinUnderscores` (warnings de markup roteados ao sink) | `syntax_node.rs`, `syntax-node.md` |

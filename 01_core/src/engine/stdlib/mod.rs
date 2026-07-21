@@ -1,7 +1,9 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/engine/stdlib/_comum.md
-//! @prompt-hash 43e1d8e2
+//! @prompt-hash a2844d48
 //! @prompt 00_nucleo/prompts/engine/model/document.md
+//! @prompt 00_nucleo/prompts/p792-context-layout-textlang-position.md
+//! @prompt-hash a2844d48
 //! @layer L1
 //! @updated 2026-06-22
 
@@ -103,8 +105,9 @@ pub use crate::engine::stdlib::text::{
 // P387 (ADR-0111) — data import.
 pub use crate::engine::stdlib::layout::{
     extract_measure_body, native_align, native_block, native_box, native_colbreak,
-    native_columns, native_grid, native_h, native_hide, native_measure, native_pad,
-    native_pagebreak, native_place, native_repeat, native_stack, native_stroke, native_v,
+    native_columns, native_grid, native_h, native_hide, native_layout, native_measure,
+    native_pad, native_pagebreak, native_place, native_repeat, native_stack, native_stroke,
+    native_v,
 };
 pub use crate::engine::stdlib::loading::{
     native_cbor, native_cbor_encode, native_csv, native_json, native_read, native_toml,

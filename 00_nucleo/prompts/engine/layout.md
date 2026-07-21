@@ -1,5 +1,5 @@
 # Prompt L0 — layout
-Hash do Código: cdeab303
+Hash do Código: 155e1c56
 
 ## Módulo
 `01_core/src/engine/layout/mod.rs` e sub-módulos (`metrics.rs`, etc.)
@@ -1237,3 +1237,64 @@ corrigir aí).
 
 Mesmo scope-out explícito de P772i aplica-se a `table()`: sem
 repeat-across-páginas (ver secção acima) — decisão herdada, não redecidida.
+
+### Detecção de conflito célula↔header (P789)
+
+Paridade vanilla `check_for_conflicting_cell_row`
+(`lab/typst-original/crates/typst-library/src/layout/grid/resolve.rs:2112`):
+uma célula do **corpo** com `y` explícito cujo range `y..y+rowspan` intersecta
+as linhas do header (`0..header_rows`, onde `header_rows =
+header_cells.len() / num_cols` após o preenchimento a múltiplo de `num_cols`)
+é **erro**, não sobreposição silenciosa. Mensagem e hint idênticos ao vanilla
+(observável ao nível da língua — ADR-0107):
+
+```text
+error: cell would conflict with header also spanning row {row}
+hint: try moving the cell or the header
+```
+
+`{row}` é a primeira linha do range da célula que cai dentro do header
+(vanilla: primeiro `row` de `cell_y..cell_y+rowspan` contido em
+`header_rows`). No modelo splice as linhas do header são contíguas a partir
+de 0, logo `{row} == y` quando `y < header_rows`.
+
+Mecanismo: verificação em `layout_grid` (`grid.rs`) **antes** do splice,
+iterando só as células do corpo (células dentro do corpo do header/footer não
+são verificadas — equivalente ao `!in_row_group` do vanilla). Cobre
+`Content::GridCell` e `Content::TableCell` com `y: Some(_)` (células com
+`y: None` são auto-posicionadas e contornam o header — paridade vanilla, que
+só verifica os braços `(Custom, Custom)` e `(Auto, Custom)` de
+`resolve_cell_position`). Emissão via `layout_errors` (mesmo caminho do erro
+de conflito explicit/explicit de P647), com `Span::detached()` (elementos não
+carregam span — mesmo trade-off de P647).
+
+**Scope-out explícito (não silencioso): conflito célula↔footer.** O vanilla
+verifica também overlap com o range absoluto do footer
+(`footer.start..footer.end`). No modelo splice o footer é colado **depois**
+das células do corpo, logo o seu range absoluto só existe pós-placement — e
+`PlacedCell` não carrega identidade da célula de origem para distinguir corpo
+de footer nessa altura. Um port fiel exige estrutura nova (rasto de
+identidade no placement ou verificação pós-placement com ranges derivados);
+registado como débito, candidato a passo futuro. O achado de P786 é só
+header; o caso footer não foi observado em divergência real.
+
+**Divergência registada em P789 (não corrigida neste passo):**
+`table.cell(x:, y:, colspan:, rowspan:)` explícitos são **ignorados** pelo
+placement — `extract_cell_fields` (`grid_placement.rs`) só faz match de
+`Content::GridCell`; `Content::TableCell` cai no braço `other` e é tratada
+como célula auto `1×1`. Medido em P789 por bbox (`table.cell(x: 0, y: 0,
+rowspan: 2)` cai na primeira linha livre em vez de (0,0)). A verificação de
+conflito acima cobre `TableCell` com `y` explícito (paridade do **erro**);
+honrar as posições explícitas de `TableCell` no placement é item separado,
+candidato a passo futuro.
+
+---
+
+## §P788 — Refs: expectativas actualizadas para paridade vanilla
+
+Os testes legacy de refs (`Ref para trás/frente ... 'Secção 1'`) usavam
+headings **sem** `numbering` — o vanilla 0.15.0 **erra** nesse caso
+(`cannot reference heading without numbering`, medido por execução). As
+expectativas foram actualizadas: sem numbering → erro de layout; com
+numbering (doc `en`) → `Section 1` (não `Secção 1`, que era hardcoded
+legacy; em docs `pt` → `Secção 1`). Ver layout_references.md §P788.

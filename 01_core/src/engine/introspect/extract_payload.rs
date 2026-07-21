@@ -99,7 +99,7 @@ mod tests {
     fn heading_produz_some_payload() {
         let c = Content::heading(2, Content::Text(EcoString::from("Section")));
         match extract_payload(&c) {
-            Some(ElementPayload::Heading { depth, body_hash, counter_update }) => {
+            Some(ElementPayload::Heading { depth, body_hash, counter_update, .. }) => {
                 assert_eq!(depth, 2);
                 assert_ne!(body_hash, 0); // hash de "Section" é não-zero
                 assert_eq!(counter_update, CounterUpdate::Step);

@@ -1,5 +1,5 @@
 # Prompt L0 — rules/eval
-Hash do Código: 810ba51d
+Hash do Código: 6189e0df
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/engine/eval/mod.rs`
@@ -330,6 +330,53 @@ e deve produzir erro.
   `styles.rs:504`). O elemento renderiza sob a chain aumentada; não é substituído. **Não** é
   válida sobre `Selector::Text`. **Fora de escopo**: caso 1 (composição multi-regra) — colide com
   o modelo α (relatório P352 §4); não materializado aqui. Detalhe em `entities/show.md`.
+- **`#show "texto": …` com transformação Content/Func (P790)**: antes de P790, só
+  `Transformation::Str` era aplicada sobre `Selector::Text` (`map_text`); `Content`/`Func`
+  eram **descartados em silêncio** (achado P786, módulo `eval::rules`). P790 liga o splice:
+  cada nó `Content::Text` é fatiado nas ocorrências do padrão e o replacement é emendado
+  entre as fatias (`map_content`, sem reentrada no nó substituído — equivalente à
+  `Revocation` do vanilla, `typst-realize/src/lib.rs:1391`). `Func` é chamada por ocorrência
+  com o texto do match como `Content::Text`; output Content/Str é emendado, outro tipo é erro.
+  O match é por nó de texto individual (cross-node: scope-out, ver `entities/show.md`).
+  Selector de texto **vazio** (`#show "": …`) → erro `"text selector is empty"` (paridade
+  vanilla `selector.rs:110`, medido por execução em P790).
+- **`#show page: …` e `#show par: set block(spacing: ..)` (P790)**: `page`/`par` não existem
+  como variáveis na stdlib cristalina — eram `unknown variable` fatal (achado P786). O vanilla
+  tem element functions em scope e emite warnings específicos (`typst-eval/src/rules.rs:67-95`,
+  medido palavra por palavra em P790). O cristalino intercepta os identificadores em
+  `eval_show_rule` **antes** de avaliar o selector: `#show page: <qualquer transformação>` →
+  warning `` `show page` is not supported and has no effect `` + hint
+  `customize pages with \`set page(..)\` instead`, nenhuma regra registada;
+  `#show par: set block(...)` com named `spacing`/`above`/`below` → warning
+  `` `show par: set block(spacing: ..)` has no effect anymore `` + 2 hints
+  (`write \`set par(spacing: ..)\` instead` / `this is specific to paragraphs as they are
+  not considered blocks anymore`), nenhuma regra registada. Ambos exit 0, compilação prossegue.
+  `#show par: <outra transformação>` → **erro explícito** (scope-out registado): no vanilla,
+  `show par` é regra viva sobre `ParElem`; implementar show-par como element rule é candidato
+  a passo futuro.
+- **`#show <lbl>: …` — selector por label (P791)**: antes de P791, `Value::Label` no selector
+  caía no braço `other` de `eval_show_rule` (`selector inválido para show rule: label`,
+  achado P786, módulo `foundations::selector`). O vanilla aceita (`Selector::Label`, match
+  por `target.label()`, `foundations/selector.rs:140`). P791 adiciona a variante
+  `Selector::Label(Label)` e a aplicação dedicada `intercept_labelled` (`rules/eval/rules.rs`),
+  chamada no ponto de associação retroactiva de `<label>` em markup (Passo 56,
+  `eval/mod.rs`) — o wrapper `Content::Label` é criado depois do corpo já interceptado, logo
+  só regras de label casam aí (sem dupla aplicação). `it` = o **corpo** rotulado; a saída
+  substitui o wrapper (label consumido); aplicação única, última-declarada primeiro.
+  `Content` substitui; `Str` é erro (consistente com `NodeKind`); show-set (`Style`)
+  embrulha o wrapper em `Content::Styled` (fold das show-set de label que casam).
+  **Medições P790/P791 que enquadram o âmbito** (ADR-0108): em markup, `[`/`]` são
+  **texto literal** no vanilla 0.15 (`typst-syntax/src/parser.rs:91-98` — cada bracket é
+  um `Text` próprio; o cristalino já tinha paridade aqui). Medido em P791: `[orig] <sp>`
+  + `#show <sp>: it => [LBL=#it]` produz `[origLBL=]` **byte-idêntico ao vanilla**, e
+  `ABC <sp>` → `LBL=ABC` par (observável medido; a segmentação interna de nós de texto
+  que o explica é inferência marcada — o vanilla casa o label no `Text("]")` final por
+  separar cada bracket, e o cristalino reproduz o mesmo observável). Divergências
+  registadas que ficam **fora do âmbito**: `query(<sp>)` sobre texto rotulado → vanilla
+  `found=1`, cristalino `found=0` (**label em nó de texto não é indexado** pelo
+  introspector — divergência separada pré-existente, fora do âmbito show, candidata a
+  passo); `#label("nome")` (função, `stdlib/label.rs`) não passa por `intercept_labelled`
+  (scope-out — o caminho de show-by-label cobre a sintaxe `<lbl>`).
 - **Flag de erro completo (P350c)**: `EvalContext.full_error` (default `false`, recebida via
   `eval_with_full_error` — `eval()` é o delegado com `false`; L1 não lê env). Quando ligada,
   o erro do teto ganha um **3º hint** classificando **cíclico** (morfologia do caminho repetiu)
@@ -2407,3 +2454,37 @@ $#let zval = 5; zval$         → 5 (LetBinding em math agora executa)
 $undef$                        → Err "unknown variable: undef" (não-regressão P780)
 ```
 
+
+## §P786a — Propagação integral de erros sintáticos (substitui a filtragem selectiva de P648/P649)
+
+**Decisão:** `eval_with_full_error` propaga **todo** erro sintático do parser
+(`root.errors()`) como `SourceDiagnostic::error` fatal — não mais apenas
+`InvalidHexNumber`/`InvalidUnicodeCodepoint`. A filtragem selectiva de P648/P649
+fica **revogada** (era mitigação contra falsos positivos do parser de P634).
+
+**Evidência que legitima a mudança (ADR-0108, medida em 2026-07-20, commit
+`0774275f`):** survey empírico de 20 construções válidas (probe
+`p786a_probe_valid_constructs_error_nodes`) produziu **zero** falsos positivos.
+O único caso suspeito — `#` dentro de bloco de código — é erro **genuíno**:
+o vanilla 0.15.0 também o rejeita (`error: the character '#' is not valid in
+code` + 2 hints, exit 1), enquanto o cristalino compilava com exit 0.
+Os falsos positivos da era P634 (smart quotes, `#set` em blocos) já não
+existem no parser actual.
+
+**Roteamento por severidade (T1 do mesmo passo):** erros com
+`SyntaxErrorKind::NoTextWithinStars | NoTextWithinUnderscores` (produzidos em
+`engine/parse/markup.rs`, ver parse.md §P786a) **não abortam** — seguem para o
+`sink` como `SourceDiagnostic::warning` com hint (paridade vanilla:
+`warning: no text within stars` + hint, exit 0). Todos os demais kinds são
+fatais. Hints dos `SyntaxError` são propagados via `SourceDiagnostic::with_hint`.
+
+**Critérios de aceitação:**
+
+- `#let x = (` → `Err` contendo `unclosed delimiter`; nenhum PDF gerado (exit 1 na CLI).
+- `#let x = { #set text(fill: red) [body] }` → `Err` contendo `not valid in code`.
+- `**` → eval `Ok` + warning `no text within stars` com o hint vanilla
+  (`using multiple consecutive stars (e.g. **) has no additional effect`).
+- `__` → eval `Ok` + warning `no text within underscores` análogo.
+- A bateria de construções válidas do survey (smart quotes, `#set` top-level,
+  math, destructuring, tabelas, referências, emoji, etc.) continua sem
+  error nodes — guarda de não-regressão em `tests.rs`.

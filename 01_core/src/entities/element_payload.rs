@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/entities/element_payload.md
-//! @prompt-hash 86032faf
+//! @prompt-hash 1ffc011a
 //! @layer L1
 //! @updated 2026-04-30
 //!
@@ -43,6 +43,15 @@ pub enum ElementPayload {
 
         /// Update implícito do contador "heading" associado.
         counter_update: CounterUpdate,
+
+        /// **P788** — `true` se o heading tem `numbering` activo
+        /// (`#set heading(numbering: ..)` na chain no momento da emissão).
+        /// Baked no walk (mesmo padrão de Equation/Figure/Table): o
+        /// construtor (`to_payload`) inicia a `false`. O counter de
+        /// heading aplica-se incondicionalmente (P335), logo "tem counter"
+        /// ≠ "tem numbering" — esta flag alimenta o erro vanilla
+        /// `cannot reference heading without numbering`.
+        numbering_active: bool,
     },
 
     Figure {
@@ -301,6 +310,7 @@ mod tests {
             depth: 2,
             body_hash: 0,
             counter_update: CounterUpdate::Step,
+            numbering_active: false,
         };
         let h2 = h.clone();
         assert_eq!(h, h2);
@@ -366,6 +376,7 @@ mod tests {
             depth: 1,
             body_hash: 0,
             counter_update: CounterUpdate::Step,
+            numbering_active: false,
         };
         let f = ElementPayload::Figure {
             kind: None,

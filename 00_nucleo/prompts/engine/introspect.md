@@ -1200,3 +1200,20 @@ produzir `Content::Sequence([Heading, Outline])` (alternativa da
 spec P480 §A.1) porque a Sequence faria o walk normal do Heading →
 `headings_for_toc` receberia o título → auto-referência. ADR-0108:
 intenção = count parity; comportamento = registo sintético.
+
+---
+
+## §P788 — Bake de `numbering_active` em Heading + fim dos `remove()` de counter key
+
+**Decisão:**
+
+1. No walk (emissão), `ElementPayload::Heading.numbering_active` é baked da
+   chain (`custom("heading.numbering") == Some(Value::Bool(true))`) — mesmo
+   ponto e padrão dos bakes de Equation/Figure/Table.
+2. Os dois `intr.label_to_counter_key.remove(label)` — no walk arm
+   `Content::Label` (auto) e no populate arm `Labelled` — são **removidos**.
+   A remoção (P464) forçava o caminho legacy `resolved_labels` ("Secção …"
+   hardcoded) mesmo para headings numerados, bloqueando o caminho numérico
+   e impedindo a validação vanilla de refs (layout_references.md §P788).
+   `resolved_labels` continua populado e serve de fallback de última linha
+   (a precedência em `resolve_ref_text` já é numérica-primeiro).

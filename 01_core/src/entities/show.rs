@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/entities/show.md
-//! @prompt-hash 40e2d8ab
+//! @prompt-hash 1add4e61
 //! @layer L1
 //! @updated 2026-04-19
 
@@ -86,6 +86,10 @@ pub enum Selector {
     /// **P423 (S-M)** — Composição N-ária: pelo menos um sub-selector deve
     /// casar (disjunção). Vazio retorna `false`.
     Or(Vec<Selector>),
+    /// **P791** — casa um nó `Content::Label` pelo nome do label
+    /// (`#show <sp>: …`). Não viaja pela travessia principal: aplicação
+    /// dedicada em `intercept_labelled` (ver L0 `entities/show.md`).
+    Label(crate::entities::label::Label),
 }
 
 /// A transformação que uma show rule aplica. Materializa o **S5** do spike-2

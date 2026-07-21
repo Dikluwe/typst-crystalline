@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/entities/syntax-node.md
-//! @prompt-hash 90523fde
+//! @prompt-hash 765f5a8f
 //! @layer L1
 //! @updated 2026-04-23
 //!
@@ -621,6 +621,11 @@ pub enum SyntaxErrorKind {
     InvalidHexNumber,
     /// Escape Unicode inválido (ex: `\u{FFFFFFFF}`).
     InvalidUnicodeCodepoint,
+    /// **P786a** — par `**` sem conteúdo (warning; roteado ao sink no eval,
+    /// ver `prompts/engine/eval.md` §P786a e `prompts/engine/parse.md` §P786a).
+    NoTextWithinStars,
+    /// **P786a** — par `__` sem conteúdo (warning; idem).
+    NoTextWithinUnderscores,
 }
 
 /// A syntactical error.

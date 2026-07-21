@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/engine/parse.md
-//! @prompt-hash 756b1c00
+//! @prompt-hash ba4a7ce8
 //! @layer L1
 //! @updated 2026-04-23
 //!
@@ -626,6 +626,21 @@ impl Parser<'_> {
         let error =
             SyntaxNode::error(SyntaxError::new(format!("expected {thing}")), "");
         self.nodes.insert(m.0, error);
+    }
+
+    /// **P786a** — comprimento textual total dos nós desde o marcador `m`
+    /// (usado pela regra vanilla `len() == 2` dos warnings de `**`/`__`).
+    pub(super) fn text_len_since(&self, m: Marker) -> usize {
+        self.nodes[m.0..].iter().map(SyntaxNode::len).sum()
+    }
+
+    /// **P786a** — insere um error node de severidade warning (comprimento
+    /// zero, span atribuído pela numeração pós-parse) na posição do
+    /// marcador `m`, com um hint. Usado por `strong`/`emph` em markup.rs.
+    pub(super) fn warn_at(&mut self, m: Marker, error: SyntaxError, hint: &str) {
+        let mut node = SyntaxNode::error(error, "");
+        node.hint(hint);
+        self.nodes.insert(m.0, node);
     }
 
     /// Add a hint to a trailing error.

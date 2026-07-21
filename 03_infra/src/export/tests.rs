@@ -7445,11 +7445,21 @@ use typst_core::engine::layout::layout;
 
     #[test]
     fn pdf_ref_unknown_label_emite_goto_without_valid_dest() {
+        // P788: label desconhecido deixou de ser "clicável sem destino" —
+        // agora é erro de layout (vanilla: `does not exist in the
+        // document`), logo nenhum Link/GoTo é emitido.
         let content = Content::reference("missing");
-        let pdf = export_pdf(&layout(&content));
+        let doc = layout(&content);
+        assert!(
+            doc.layout_errors.iter().any(|d| d
+                .message
+                .contains("label `<missing>` does not exist in the document")),
+            "erro de label inexistente esperado: {:?}",
+            doc.layout_errors
+        );
+        let pdf = export_pdf(&doc);
         let s = String::from_utf8_lossy(&pdf);
-        assert!(s.contains("/S /GoTo"), "ref desconhecido ainda emite /GoTo");
-        assert!(s.contains("/D /missing"), "destino deve ser /missing");
+        assert!(!s.contains("/S /GoTo"), "ref desconhecido não deve emitir /GoTo");
     }
 
     #[test]

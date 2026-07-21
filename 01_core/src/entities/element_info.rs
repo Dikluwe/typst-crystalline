@@ -42,6 +42,7 @@ mod tests {
             depth: 1,
             body_hash: 0,
             counter_update: CounterUpdate::Step,
+            numbering_active: false,
         }
     }
 

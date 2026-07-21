@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/engine/eval.md
-//! @prompt-hash e7cc9316
+//! @prompt-hash 2f2e3e80
 //! @layer L1
 //! @updated 2026-06-17
 //!
@@ -4825,10 +4825,13 @@ mod tests {
     fn set_dentro_bloco_nao_vaza_para_fora() {
         // #set dentro de { } não deve afectar o estilo após o bloco.
         // Usar content blocks [ ] para texto dentro de code blocks.
+        // P786a: fonte corrigida para sintaxe válida — a forma anterior
+        // (`#set` dentro de `{ }`) é rejeitada pelo vanilla (`#` inválido
+        // em código) e só passava porque o eval descartava erros de parser.
         let world = MockWorld::new(
             "#set text(weight: 700)\n\
              antes\n\
-             #{ #set text(weight: 400); [normal] }\n\
+             #{ set text(weight: 400); [normal] }\n\
              depois",
         );
         let src = World::source(&world, World::main(&world)).unwrap();
@@ -4838,8 +4841,9 @@ mod tests {
 
     #[test]
     fn set_dentro_closure_nao_afecta_caller() {
+        // P786a: fonte corrigida (ver nota em set_dentro_bloco_nao_vaza_para_fora).
         let world = MockWorld::new(
-            "#let f() = { #set text(weight: 700); [negrito] }\n\
+            "#let f() = { set text(weight: 700); [negrito] }\n\
              #f()\n\
              texto normal",
         );
@@ -4852,10 +4856,11 @@ mod tests {
     fn set_false_reverte_set_true_em_bloco() {
         // #set text(weight: 400) dentro de bloco reverte #set text(weight: 700) global.
         // Após o bloco, bold volta a true (estado salvo antes do bloco).
+        // P786a: fonte corrigida (ver nota em set_dentro_bloco_nao_vaza_para_fora).
         let world = MockWorld::new(
             "#set text(weight: 700)\n\
              negrito\n\
-             #{ #set text(weight: 400); [normal] }\n\
+             #{ set text(weight: 400); [normal] }\n\
              negrito novamente",
         );
         let src = World::source(&world, World::main(&world)).unwrap();
@@ -4865,12 +4870,14 @@ mod tests {
 
     #[test]
     fn set_aninhado_multiple_niveis() {
+        // P786a: fonte corrigida — `set` sem `#` dentro de código e bloco
+        // interior `{ }` (não `#{ }`), validada contra o vanilla 0.15.0.
         let world = MockWorld::new(
             "#{\n\
-               #set text(size: 14pt)\n\
+               set text(size: 14pt)\n\
                [texto14]\n\
-               #{\n\
-                 #set text(size: 18pt)\n\
+               {\n\
+                 set text(size: 18pt)\n\
                  [texto18]\n\
                }\n\
                [texto14novamente]\n\
@@ -4884,10 +4891,13 @@ mod tests {
     #[test]
     fn set_em_content_block_nao_vaza() {
         // Content block [ ] também deve ter scoping de styles
+        // P786a: fonte corrigida — `[#set text(..) normal]` na mesma linha é
+        // rejeitada pelo vanilla ("expected semicolon or line break"); a
+        // quebra de linha separa a regra set do conteúdo, validado.
         let world = MockWorld::new(
             "#set text(weight: 700)\n\
              antes\n\
-             [#set text(weight: 400) normal]\n\
+             [#set text(weight: 400)\nnormal]\n\
              depois",
         );
         let src = World::source(&world, World::main(&world)).unwrap();
@@ -5322,7 +5332,7 @@ mod tests {
     fn show_rule_respeita_escopo_lexico() {
         // A regra dentro do code block não deve afectar o texto fora.
         // Em markup Typst, `{ }` são texto literal; `#{ }` cria um code block real.
-        let world = MockWorld::new("#{ #show \"A\": \"B\" }\nA");
+        let world = MockWorld::new("#{ show \"A\": \"B\" }\nA"); // P786a: fonte corrigida (`#` inválido em código, vanilla rejeita)
         let src = world.source(world.main()).unwrap();
         let module = eval_for_test(&world, &src).unwrap();
         let text = module.content().unwrap().plain_text();
@@ -5386,6 +5396,256 @@ mod tests {
             "xxx",
             "Selector::Text deve substituir todas as ocorrências: {:?}",
             text
+        );
+    }
+
+    // ── P790 — show-by-string com Content/Func + `page`/`par` como alvo ────
+    //
+    // Achados de P786 (módulo `eval::rules`): (1) `#show "world": [W]` aceite
+    // e descartado em silêncio (só `Transformation::Str` era aplicada);
+    // (2) `#show page:`/`#show par:` caíam em `unknown variable` fatal, quando
+    // o vanilla emite warnings específicos e compila (medido palavra por
+    // palavra em P790 — `typst-eval/src/rules.rs:67-95`).
+
+    #[test]
+    fn p790_show_string_com_content_substituí_no_eval() {
+        // Repro de P786 (`temp/temp_p786/c_rules_probe_show.typ`): antes de
+        // P790 o texto saía intacto ("Hello world."); o vanilla renderiza
+        // "Hello W." (medido por execução).
+        let world = MockWorld::new("#show \"world\": [W]\n\nHello world.");
+        let src = world.source(world.main()).unwrap();
+        let module = eval_for_test(&world, &src).unwrap();
+        let text: String = module
+            .content()
+            .unwrap()
+            .plain_text()
+            .chars()
+            .filter(|c| !c.is_whitespace())
+            .collect();
+        assert!(
+            text.contains("HelloW."),
+            "show-by-string com Content deve substituir o match: {:?}",
+            text
+        );
+        assert!(
+            !text.contains("Helloworld"),
+            "o match original não deve sobreviver: {:?}",
+            text
+        );
+    }
+
+    #[test]
+    fn p790_show_page_emite_warning_vanilla_e_compila() {
+        use comemo::Track;
+        let world = MockWorld::new("#show page: it => [WRAPPED: #it]\nHello.");
+        let src = World::source(&world, World::main(&world)).unwrap();
+
+        let routines = Routines::new();
+        let traced = Traced::default();
+        let mut sink = Sink::new();
+        let route = Route::root();
+        let result = eval(
+            &routines,
+            &world,
+            traced.track(),
+            sink.track_mut(),
+            route.track(),
+            &src,
+            &crate::entities::element_registry::ElementRegistry::new(),
+        );
+
+        assert!(result.is_ok(), "show page não deve abortar a compilação: {:?}", result.err());
+        let diags = sink.into_diagnostics();
+        let diag = diags
+            .iter()
+            .find(|d| d.message == "`show page` is not supported and has no effect")
+            .unwrap_or_else(|| {
+                panic!("warning do vanilla (texto exacto) esperado: {:?}", diags)
+            });
+        assert!(
+            diag.hints.iter().any(|h| h == "customize pages with `set page(..)` instead"),
+            "hint deve ser idêntico ao vanilla: {:?}",
+            diag.hints
+        );
+    }
+
+    #[test]
+    fn p790_show_par_set_block_spacing_emite_warning_vanilla_e_compila() {
+        use comemo::Track;
+        // Evidência de P786 (`temp/temp_p786/c_rules_showpar.typ`).
+        let world = MockWorld::new("#show par: set block(spacing: 4em)\n\nFirst.\n\nSecond.");
+        let src = World::source(&world, World::main(&world)).unwrap();
+
+        let routines = Routines::new();
+        let traced = Traced::default();
+        let mut sink = Sink::new();
+        let route = Route::root();
+        let result = eval(
+            &routines,
+            &world,
+            traced.track(),
+            sink.track_mut(),
+            route.track(),
+            &src,
+            &crate::entities::element_registry::ElementRegistry::new(),
+        );
+
+        assert!(result.is_ok(), "show par set block não deve abortar: {:?}", result.err());
+        let diags = sink.into_diagnostics();
+        let diag = diags
+            .iter()
+            .find(|d| d.message == "`show par: set block(spacing: ..)` has no effect anymore")
+            .unwrap_or_else(|| {
+                panic!("warning do vanilla (texto exacto) esperado: {:?}", diags)
+            });
+        assert!(
+            diag.hints.iter().any(|h| h == "write `set par(spacing: ..)` instead"),
+            "1º hint idêntico ao vanilla: {:?}",
+            diag.hints
+        );
+        assert!(
+            diag.hints.iter().any(|h| h
+                == "this is specific to paragraphs as they are not considered blocks anymore"),
+            "2º hint idêntico ao vanilla: {:?}",
+            diag.hints
+        );
+    }
+
+    #[test]
+    fn p790_show_selector_texto_vazio_da_erro_vanilla() {
+        // Vanilla (`selector.rs:110`, medido por execução): `text selector is empty`.
+        let world = MockWorld::new("#show \"\": [X]\nHello.");
+        let src = world.source(world.main()).unwrap();
+        let result = eval_for_test(&world, &src);
+        let err = result.expect_err("selector de texto vazio deve gerar Err");
+        assert!(
+            err.iter().any(|d| d.message == "text selector is empty"),
+            "mensagem idêntica ao vanilla: {:?}",
+            err
+        );
+    }
+
+    #[test]
+    fn p790_show_par_outra_transformacao_erro_explicito() {
+        // Scope-out documentado no L0 (eval.md §P790): no vanilla `show par`
+        // é regra viva sobre ParElem; o cristalino rejeita explicitamente
+        // em vez de `unknown variable` ou silêncio.
+        let world = MockWorld::new("#show par: it => it\nHello.");
+        let src = world.source(world.main()).unwrap();
+        let result = eval_for_test(&world, &src);
+        let err = result.expect_err("show par com func deve gerar Err explícito");
+        assert!(
+            err.iter().any(|d| d.message.contains("show par")),
+            "erro deve nomear show par e a limitação: {:?}",
+            err
+        );
+    }
+
+    // ── P791 — `#show <lbl>: …` (selector por label) ───────────────────────
+    //
+    // Achado de P786 (módulo `foundations::selector`, evidência
+    // `temp/temp_p786/b_selector.typ`): `Value::Label` no selector caía no
+    // braço `other` de `eval_show_rule` ("selector inválido para show rule:
+    // label"). O vanilla aceita e aplica ao elemento rotulado (medido:
+    // `= Alpha <sp>` → "LBL= Alpha"; `ABC <sp>` → "LBL=ABC").
+
+    #[test]
+    fn p791_show_label_em_heading_dispara() {
+        // Probe do passo (ordem corrigida — regra antes do conteúdo; a ordem
+        // inversa não dispara nem no vanilla, medido em P790/P791).
+        let world = MockWorld::new("#show <sp>: it => [LBL=#it]\n\n= Alpha <sp>");
+        let src = world.source(world.main()).unwrap();
+        let module = eval_for_test(&world, &src).unwrap();
+        let text: String = module
+            .content()
+            .unwrap()
+            .plain_text()
+            .chars()
+            .filter(|c| !c.is_whitespace())
+            .collect();
+        assert!(
+            text.contains("LBL=Alpha"),
+            "show-by-label deve disparar sobre o heading rotulado: {:?}",
+            text
+        );
+    }
+
+    #[test]
+    fn p791_show_label_em_texto_simples_dispara() {
+        // Paridade medida no vanilla: `ABC <sp>` → "LBL=ABC" (o label casa o
+        // elemento de texto inteiro).
+        let world = MockWorld::new("#show <sp>: it => [LBL=#it]\n\nABC <sp>");
+        let src = world.source(world.main()).unwrap();
+        let module = eval_for_test(&world, &src).unwrap();
+        let text: String = module
+            .content()
+            .unwrap()
+            .plain_text()
+            .chars()
+            .filter(|c| !c.is_whitespace())
+            .collect();
+        assert!(
+            text.contains("LBL=ABC"),
+            "show-by-label deve disparar sobre texto rotulado: {:?}",
+            text
+        );
+    }
+
+    #[test]
+    fn p791_show_label_com_content_substituí() {
+        let world = MockWorld::new("#show <sp>: [SUB]\n\n= Alpha <sp>");
+        let src = world.source(world.main()).unwrap();
+        let module = eval_for_test(&world, &src).unwrap();
+        let text = module.content().unwrap().plain_text();
+        assert!(
+            text.contains("SUB"),
+            "transformação Content deve substituir o rotulado: {:?}",
+            text
+        );
+        assert!(
+            !text.contains("Alpha"),
+            "o elemento rotulado não deve sobreviver: {:?}",
+            text
+        );
+    }
+
+    #[test]
+    fn p791_show_label_nao_dispara_em_label_diferente() {
+        // Controlo: label diferente não casa (e o conteúdo fica intacto).
+        let world = MockWorld::new("#show <sp>: [SUB]\n\n= Alpha <a1>");
+        let src = world.source(world.main()).unwrap();
+        let module = eval_for_test(&world, &src).unwrap();
+        let text = module.content().unwrap().plain_text();
+        assert!(
+            text.contains("Alpha"),
+            "label diferente não deve disparar a regra: {:?}",
+            text
+        );
+        assert!(!text.contains("SUB"), "SUB não deve aparecer: {:?}", text);
+    }
+
+    #[test]
+    fn p791_show_label_show_set_embrulha_styled() {
+        // `#show <sp>: set text(fill: red)` — show-set sobre label embrulha o
+        // wrapper em Content::Styled (não consome o passe, paridade P352).
+        let world = MockWorld::new("#show <sp>: set text(fill: red)\n\n= Alpha <sp>");
+        let src = world.source(world.main()).unwrap();
+        let module = eval_for_test(&world, &src).unwrap();
+        let content = module.content().unwrap();
+        fn tem_styled_sobre_label(c: &Content) -> bool {
+            match c {
+                Content::Styled(inner, _) => {
+                    matches!(inner.as_ref(), Content::Label(_))
+                        || tem_styled_sobre_label(inner)
+                }
+                Content::Sequence(seq) => seq.iter().any(tem_styled_sobre_label),
+                _ => false,
+            }
+        }
+        assert!(
+            tem_styled_sobre_label(&content),
+            "show-set sobre label deve embrulhar o Label em Styled: {:?}",
+            content
         );
     }
 
@@ -6304,10 +6564,11 @@ mod tests {
 
     #[test]
     fn eval_markup_smart_quotes_duplas_curly_com_lang_en() {
-        // Espaço após o #set para que o `"` inicial de `"Hello,"` veja
-        // whitespace como contexto de abertura (o `"en"` dentro do #set é
-        // string literal em code mode, não SmartQuote).
-        let text = eval_plain_text(r#"#set text(lang: "en") "Hello,""#);
+        // P786a: fonte corrigida — `#set text(lang: "en") "Hello,"` na mesma
+        // linha é rejeitada pelo vanilla ("expected semicolon or line break")
+        // e só passava porque o eval descartava erros de parser. A quebra de
+        // linha mantém whitespace como contexto de abertura da aspa.
+        let text = eval_plain_text("#set text(lang: \"en\")\n\"Hello,\"");
         assert!(
             text.contains('\u{201C}'),
             "aspa dupla de abertura (U+201C) deve estar presente: {:?}",
@@ -6327,7 +6588,8 @@ mod tests {
 
     #[test]
     fn eval_markup_smart_quotes_simples_curly_com_lang_en() {
-        let text = eval_plain_text(r#"#set text(lang: "en") 'Hello'"#);
+        // P786a: fonte corrigida (ver nota no teste de aspas duplas acima).
+        let text = eval_plain_text("#set text(lang: \"en\")\n'Hello'");
         assert!(
             text.contains('\u{2018}'),
             "aspa simples de abertura (U+2018) deve estar presente: {:?}",
@@ -6347,7 +6609,8 @@ mod tests {
 
     #[test]
     fn eval_markup_apostrophe_possessivo_emite_u2019() {
-        let text = eval_plain_text(r#"#set text(lang: "en")Alice's cat"#);
+        // P786a: fonte corrigida (ver nota no teste de aspas duplas acima).
+        let text = eval_plain_text("#set text(lang: \"en\")\nAlice's cat");
         assert!(
             text.contains('\u{2019}'),
             "apóstrofo possessivo deve ser U+2019: {:?}",
@@ -8457,7 +8720,11 @@ mod tests {
 
     #[test]
     fn p635_break_in_for_stops_loop() {
-        let text = p635_plain_text("#for i in range(10) { if i == 3 { break } str(i) }");
+        // P786a: fontes deste bloco P635 corrigidas para sintaxe válida —
+        // expressões consecutivas em código sem `;`/newline são rejeitadas
+        // pelo vanilla ("expected semicolon or line break") e só passavam
+        // porque o eval descartava erros de parser. Asserções inalteradas.
+        let text = p635_plain_text("#for i in range(10) { if i == 3 { break }; str(i) }");
         assert_eq!(text, "012", "break deve parar o ciclo for em i=3; obtido: {text:?}");
     }
 
@@ -8465,13 +8732,13 @@ mod tests {
     fn p635_break_in_while_stops_loop() {
         // Não usa assignment mutável (fronteira separada): testa apenas que
         // break pára um while infinito.
-        let text = p635_plain_text("#while true { break str(1) }");
+        let text = p635_plain_text("#while true { break; str(1) }");
         assert_eq!(text, "", "break deve parar o ciclo while antes de produzir output; obtido: {text:?}");
     }
 
     #[test]
     fn p635_continue_in_for_skips_iteration() {
-        let text = p635_plain_text("#for i in range(5) { if i == 2 { continue } str(i) }");
+        let text = p635_plain_text("#for i in range(5) { if i == 2 { continue }; str(i) }");
         assert_eq!(
             text, "0134",
             "continue deve saltar a iteração i=2; obtido: {text:?}"
@@ -8481,7 +8748,7 @@ mod tests {
 
     #[test]
     fn p635_return_from_function_with_value() {
-        let src = "#let f(x) = { if x < 0 { return \"neg\" } \"pos\" } #f(-5) #f(5)";
+        let src = "#let f(x) = { if x < 0 { return \"neg\" }; \"pos\" }\n#f(-5) #f(5)";
         let text = p635_plain_text(src);
         assert!(
             text.contains("neg") && text.contains("pos"),
@@ -8491,7 +8758,7 @@ mod tests {
 
     #[test]
     fn p635_return_without_value() {
-        let src = "#let f(x) = { if x < 0 { return } \"pos\" } #f(-5) #f(5)";
+        let src = "#let f(x) = { if x < 0 { return }; \"pos\" }\n#f(-5) #f(5)";
         let text = p635_plain_text(src);
         assert!(
             text.contains("pos"),
@@ -8501,7 +8768,7 @@ mod tests {
 
     #[test]
     fn p635_return_stops_function_body() {
-        let src = "#let f() = { return \"a\" \"b\" } #f()";
+        let src = "#let f() = { return \"a\"; \"b\" }\n#f()";
         let text = p635_plain_text(src);
         assert!(
             text.contains("a") && !text.contains("b"),
@@ -8511,7 +8778,7 @@ mod tests {
 
     #[test]
     fn p635_nested_loops_break_only_inner() {
-        let src = "#for i in range(3) { for j in range(3) { if j == 1 { break } str(i) + str(j) } }";
+        let src = "#for i in range(3) { for j in range(3) { if j == 1 { break }; str(i) + str(j) } }";
         let text = p635_plain_text(src);
         assert_eq!(
             text, "001020",
@@ -8704,15 +8971,19 @@ mod tests {
 
     // P648 — literais numéricos malformados (aqui `0xZZ`) são erros de
     // parser que o eval passou a propagar selectivamente.
+    // P786a: asserção alargada de `first()` para `any()` — a propagação
+    // integral devolve TODOS os erros em ordem de árvore; o parser emite
+    // "expected expression" antes do erro de hex (cascata após o token
+    // inválido — divergência menor de contagem vs vanilla, que suprime a
+    // cascata e reporta 1 erro; registado no relatório P786a).
     #[test]
     fn p648_parse_error_hex_literal_errors() {
         let world = MockWorld::new("#let x = 0xZZ");
         let err = eval_for_test(&world, &world.source).unwrap_err();
-        let msg = err.first().map(|d| d.message.to_string()).unwrap_or_default();
-        assert!(
-            msg.contains("invalid hexadecimal number: 0xZZ"),
-            "mensagem inesperada: {msg}"
-        );
+        let found = err
+            .iter()
+            .any(|d| d.message.contains("invalid hexadecimal number: 0xZZ"));
+        assert!(found, "erro de hex ausente: {err:?}");
     }
 
     // P648 — escape Unicode inválido em markup é detectado pelo lexer
@@ -8727,6 +8998,207 @@ mod tests {
             msg.contains("invalid Unicode codepoint: FFFFFFFF"),
             "mensagem inesperada: {msg}"
         );
+    }
+
+    // ── P786a — propagação integral de erros sintáticos + warnings de markup ──
+    // T2 (reconfirmado no passo): delimitador não fechado é erro fatal.
+    #[test]
+    fn p786a_unclosed_delimiter_errors() {
+        let world = MockWorld::new("#let x = (");
+        let err = eval_for_test(&world, &world.source).unwrap_err();
+        let msg = err.first().map(|d| d.message.to_string()).unwrap_or_default();
+        assert!(msg.contains("unclosed delimiter"), "mensagem inesperada: {msg}");
+    }
+
+    // `*` sozinho (sem fecho) — vanilla: error unclosed delimiter, exit 1.
+    #[test]
+    fn p786a_lone_star_errors() {
+        let world = MockWorld::new("*");
+        let err = eval_for_test(&world, &world.source).unwrap_err();
+        let msg = err.first().map(|d| d.message.to_string()).unwrap_or_default();
+        assert!(msg.contains("unclosed delimiter"), "mensagem inesperada: {msg}");
+    }
+
+    // `#` dentro de código é erro genuíno (vanilla 0.15.0: exit 1 + 2 hints;
+    // cristalino compilava com exit 0 — achado T2-estendido do passo).
+    #[test]
+    fn p786a_hash_in_code_errors() {
+        let world = MockWorld::new("#let x = {\n  #set text(fill: red)\n  [body]\n}");
+        let err = eval_for_test(&world, &world.source).unwrap_err();
+        let msg = err.first().map(|d| d.message.to_string()).unwrap_or_default();
+        assert!(msg.contains("not valid in code"), "mensagem inesperada: {msg}");
+    }
+
+    // `)` inesperado — erros "expected ..." também propagam.
+    #[test]
+    fn p786a_unexpected_closing_paren_errors() {
+        let world = MockWorld::new("#let y = )");
+        let err = eval_for_test(&world, &world.source).unwrap_err();
+        let msg = err.first().map(|d| d.message.to_string()).unwrap_or_default();
+        assert!(msg.contains("expected expression"), "mensagem inesperada: {msg}");
+    }
+
+    // Guarda de não-regressão (survey do passo): construções VÁLIDAS não
+    // produzem error nodes — sem falsos positivos na propagação integral.
+    #[test]
+    fn p786a_valid_constructs_without_error_nodes() {
+        let cases: &[&str] = &[
+            "'simples' e \"duplas\"",
+            "#show heading: it => it\n= Title",
+            "#set text(size: 12pt)\nHello",
+            "$ x + y $",
+            "#let f(a, b) = a + b\n#f(1, 2)",
+            "- a\n- b\n+ c\n+ d\n/ term: def",
+            "#rect(width: 5pt, height: 5pt)",
+            "```rust fn main() {}```",
+            "See @x\n= H <x>",
+            "#context here()",
+            "emoji 🚀 🇧🇷 texto",
+            "#let (a, b) = (1, 2)\n#a#b",
+            "#table(columns: 2, [a], [b])",
+            "#lorem(5)",
+            "#figure(rect(), caption: [c])",
+            "#link(\"https://x.com\")[l]",
+            "#set heading(numbering: \"1.\")\n= A\n== B",
+            "#let x = calc.pow(2, 3)",
+            "#grid(columns: (1fr, 1fr), [a], [b])",
+        ];
+        for src in cases {
+            let world = MockWorld::new(src);
+            let errs = world.source.root().errors();
+            assert!(errs.is_empty(), "falso positivo em {src:?}: {errs:?}");
+        }
+    }
+
+    // T1: `**` → warning ao sink (não fatal), texto e hint do vanilla
+    // (medido: `warning: no text within stars` + hint, exit 0). A newline
+    // final é o caso real de ficheiros — e o caso do bug de trivia
+    // arrastada pelo `eat` do fecho (medida antes do fecho, ver markup.rs).
+    #[test]
+    fn p786a_stars_warning_goes_to_sink() {
+        use comemo::Track;
+        let world = MockWorld::new("**\n");
+        let routines = Routines::new();
+        let traced = Traced::default();
+        let mut sink = Sink::new();
+        let route = Route::root();
+        let result = eval(
+            &routines,
+            &world,
+            traced.track(),
+            sink.track_mut(),
+            route.track(),
+            &world.source,
+            &crate::entities::element_registry::ElementRegistry::new(),
+        );
+        assert!(result.is_ok(), "warning não pode abortar: {result:?}");
+        let diags = sink.into_diagnostics();
+        assert!(
+            diags.iter().any(|d| d.message.contains("no text within stars")
+                && d.hints.iter().any(|h| h.contains("has no additional effect"))),
+            "warning ausente ou sem hint: {diags:?}"
+        );
+    }
+
+    // T1 análogo: `__` → warning "no text within underscores".
+    #[test]
+    fn p786a_underscores_warning_goes_to_sink() {
+        use comemo::Track;
+        let world = MockWorld::new("__\n");
+        let routines = Routines::new();
+        let traced = Traced::default();
+        let mut sink = Sink::new();
+        let route = Route::root();
+        let result = eval(
+            &routines,
+            &world,
+            traced.track(),
+            sink.track_mut(),
+            route.track(),
+            &world.source,
+            &crate::entities::element_registry::ElementRegistry::new(),
+        );
+        assert!(result.is_ok(), "warning não pode abortar: {result:?}");
+        let diags = sink.into_diagnostics();
+        assert!(
+            diags.iter().any(|d| d.message.contains("no text within underscores")
+                && d.hints.iter().any(|h| h.contains("has no additional effect"))),
+            "warning ausente ou sem hint: {diags:?}"
+        );
+    }
+
+    // ── P787 — CSV: rigor de parsing e API de `row-type` ───────────────────
+    // Mensagens medidas no vanilla 0.15.0 por execução (2026-07-20).
+    #[test]
+    fn p787_csv_linha_malformada_erro() {
+        let mut world = MockWorld::new("#csv(\"d.csv\")");
+        world.add_file("d.csv", b"a,b\n1,2,3\n".to_vec());
+        let err = eval_for_test(&world, &world.source).unwrap_err();
+        let found = err.iter().any(|d| {
+            d.message
+                .contains("failed to parse CSV (found 3 instead of 2 fields in line 2)")
+        });
+        assert!(found, "erro de linha malformada ausente: {err:?}");
+    }
+
+    #[test]
+    fn p787_csv_delimiter_nao_ascii() {
+        let mut world = MockWorld::new("#csv(\"d.csv\", delimiter: \"é\")");
+        world.add_file("d.csv", b"a,b\n1,2\n".to_vec());
+        let err = eval_for_test(&world, &world.source).unwrap_err();
+        let found = err
+            .iter()
+            .any(|d| d.message.contains("delimiter must be an ASCII character"));
+        assert!(found, "mensagem inesperada: {err:?}");
+    }
+
+    #[test]
+    fn p787_csv_delimiter_multi_char() {
+        let mut world = MockWorld::new("#csv(\"d.csv\", delimiter: \"ab\")");
+        world.add_file("d.csv", b"a,b\n1,2\n".to_vec());
+        let err = eval_for_test(&world, &world.source).unwrap_err();
+        let found = err
+            .iter()
+            .any(|d| d.message.contains("expected exactly one character"));
+        assert!(found, "mensagem inesperada: {err:?}");
+    }
+
+    #[test]
+    fn p787_csv_row_type_aceita_tipo() {
+        // API vanilla: `row-type` recebe o TIPO `dictionary`, não a string.
+        let mut world = MockWorld::new("#csv(\"d.csv\", row-type: dictionary)");
+        world.add_file("d.csv", b"a,b\n1,2\n".to_vec());
+        let result = eval_for_test(&world, &world.source);
+        assert!(result.is_ok(), "row-type: dictionary (tipo) falhou: {result:?}");
+    }
+
+    #[test]
+    fn p787_csv_row_type_rejeita_string() {
+        let mut world = MockWorld::new("#csv(\"d.csv\", row-type: \"dictionary\")");
+        world.add_file("d.csv", b"a,b\n1,2\n".to_vec());
+        let err = eval_for_test(&world, &world.source).unwrap_err();
+        let found = err
+            .iter()
+            .any(|d| d.message.contains("expected type, found string"));
+        assert!(found, "mensagem inesperada: {err:?}");
+    }
+
+    #[test]
+    fn p787_csv_row_type_tipo_errado() {
+        let mut world = MockWorld::new("#csv(\"d.csv\", row-type: str)");
+        world.add_file("d.csv", b"a,b\n1,2\n".to_vec());
+        let err = eval_for_test(&world, &world.source).unwrap_err();
+        let found = err
+            .iter()
+            .any(|d| d.message.contains("expected `array` or `dictionary`"));
+        assert!(found, "mensagem inesperada: {err:?}");
+    }
+
+    #[test]
+    fn p787_csv_valido_nao_regressao() {
+        let mut world = MockWorld::new("#csv(\"d.csv\")");
+        world.add_file("d.csv", b"a,b\n1,2\n".to_vec());
+        assert!(eval_for_test(&world, &world.source).is_ok());
     }
 
     // ── P702 — `.with(...)` (aplicação parcial de argumentos) ────────────────
@@ -10862,5 +11334,93 @@ mod tests {
             err[0].hints,
             vec!["if you meant to use subtraction, try adding spaces around the minus sign: `foo - bar`".to_string()]
         );
+    }
+
+    // ── P792 / P792a — Testes de Context / Layout e Idioma Dinâmicos ──────────
+
+    #[test]
+    fn p792_layout_default_dimensions() {
+        let world = MockWorld::new("#let x = layout(size => (size.width, size.height))");
+        let src = World::source(&world, World::main(&world)).unwrap();
+        let m = eval_for_test(&world, &src).unwrap();
+        // A4 padrão: width=595.28, height=841.89, margin=56.69.
+        // avail_w = 595.28 - 2*56.69 = 481.9
+        // avail_h = 841.89 - 2*56.69 = 728.51
+        let val = m.scope().get("x").unwrap();
+        if let Value::Array(arr) = val {
+            assert_eq!(arr.len(), 2);
+            if let (Value::Length(w), Value::Length(h)) = (&arr[0], &arr[1]) {
+                assert!((w.abs.to_pt() - 481.9).abs() < 0.1);
+                assert!((h.abs.to_pt() - 728.51).abs() < 0.1);
+            } else {
+                panic!("esperado comprimentos");
+            }
+        } else {
+            panic!("esperado array");
+        }
+    }
+
+    #[test]
+    fn p792_layout_custom_symmetric_margin() {
+        let world = MockWorld::new(
+            "#set page(width: 20cm, height: 10cm, margin: 3cm)\n\
+             #let x = layout(size => (size.width, size.height))"
+        );
+        let src = World::source(&world, World::main(&world)).unwrap();
+        let m = eval_for_test(&world, &src).unwrap();
+        // 20cm = 566.92pt, 10cm = 283.46pt, margin = 3cm = 85.04pt
+        // avail_w = 566.92 - 2*85.04 = 396.84pt = 14cm
+        // avail_h = 283.46 - 2*85.04 = 113.38pt = 4cm
+        let val = m.scope().get("x").unwrap();
+        if let Value::Array(arr) = val {
+            if let (Value::Length(w), Value::Length(h)) = (&arr[0], &arr[1]) {
+                assert!((w.abs.to_pt() - 396.84).abs() < 0.1);
+                assert!((h.abs.to_pt() - 113.38).abs() < 0.1);
+            } else {
+                panic!("esperado comprimentos");
+            }
+        } else {
+            panic!("esperado array");
+        }
+    }
+
+    #[test]
+    fn p792_layout_custom_asymmetric_margin() {
+        let world = MockWorld::new(
+            "#set page(width: 20cm, height: 10cm, margin: (left: 1cm, right: 5cm, top: 2cm, bottom: 0.5cm))\n\
+             #let x = layout(size => (size.width, size.height))"
+        );
+        let src = World::source(&world, World::main(&world)).unwrap();
+        let m = eval_for_test(&world, &src).unwrap();
+        // width = 20cm (566.92pt), height = 10cm (283.46pt)
+        // left = 1cm (28.34pt), right = 5cm (141.73pt)
+        // top = 2cm (56.69pt), bottom = 0.5cm (14.17pt)
+        // avail_w = 566.92 - 28.34 - 141.73 = 396.84pt = 14cm
+        // avail_h = 283.46 - 56.69 - 14.17 = 212.59pt = 7.5cm
+        let val = m.scope().get("x").unwrap();
+        if let Value::Array(arr) = val {
+            if let (Value::Length(w), Value::Length(h)) = (&arr[0], &arr[1]) {
+                assert!((w.abs.to_pt() - 396.84).abs() < 0.1);
+                assert!((h.abs.to_pt() - 212.59).abs() < 0.1);
+            } else {
+                panic!("esperado comprimentos");
+            }
+        } else {
+            panic!("esperado array");
+        }
+    }
+
+    #[test]
+    fn p792_text_lang_dynamic() {
+        let world = MockWorld::new(
+            "#set text(lang: \"pt\")\n\
+             #let lang1 = text.lang\n\
+             #set text(lang: \"fr\")\n\
+             #let lang2 = text.lang"
+        );
+        let src = World::source(&world, World::main(&world)).unwrap();
+        let m = eval_for_test(&world, &src).unwrap();
+        assert_eq!(m.scope().get("lang1"), Some(&Value::Str("pt".into())));
+        assert_eq!(m.scope().get("lang2"), Some(&Value::Str("fr".into())));
     }
 }

@@ -246,8 +246,10 @@ mod integration {
     fn pipeline_set_scoped_nao_vaza() {
         // Verifica que #set text() dentro de { } não afecta o texto após o bloco.
         // Com Passo 33: ctx.styles é restaurado ao sair do bloco.
+        // P786a: fonte corrigida — `set` sem `#` dentro de código (a forma
+        // anterior é rejeitada pelo vanilla: `#` inválido em código).
         let (world, _dir) = world_from_str(
-            "normal\n#{ #set text(weight: 700); [negrito] }\nnormal novamente"
+            "normal\n#{ set text(weight: 700); [negrito] }\nnormal novamente"
         );
         let source = world.source(world.main()).unwrap();
         let module = do_eval(&world, &source).unwrap();
@@ -3173,5 +3175,68 @@ mod integration {
         let src = "#let s = state(\"x\", 0)\n#s.update(7)\n#context s.display()";
         let pdf = compile_to_pdf(src);
         assert!(!pdf.is_empty());
+    }
+
+    // ── P788 — refs: validações do vanilla + happy path "Section 1" ──────
+    #[test]
+    fn p788_ref_heading_sem_numbering_erro() {
+        // Vanilla 0.15.0 (medido): `error: cannot reference heading without
+        // numbering` + hint `#set heading(numbering: "1.")`, exit 1.
+        let (world, _dir) = world_from_str("= Sem numeração <sem-num>\n@sem-num\n");
+        let source = world.source(world.main()).unwrap();
+        let (result, _warnings) = crate::pipeline::compile_to_pdf_bytes(&world, &source);
+        let errs = result.expect_err("ref a heading sem numbering deve errar");
+        let found = errs.iter().any(|d| {
+            d.message.contains("cannot reference heading without numbering")
+                && d.hints.iter().any(|h| h.contains("#set heading(numbering: \"1.\")"))
+        });
+        assert!(found, "erro/hint ausentes: {errs:?}");
+    }
+
+    #[test]
+    fn p788_ref_label_inexistente_erro() {
+        // Vanilla 0.15.0 (medido): `error: label `<naoexiste1984>` does not
+        // exist in the document`, exit 1 (cristalino renderizava "?" em silêncio).
+        let (world, _dir) = world_from_str("Isto cita @naoexiste1984.\n");
+        let source = world.source(world.main()).unwrap();
+        let (result, _warnings) = crate::pipeline::compile_to_pdf_bytes(&world, &source);
+        let errs = result.expect_err("ref a label inexistente deve errar");
+        let found = errs.iter().any(|d| {
+            d.message
+                .contains("label `<naoexiste1984>` does not exist in the document")
+        });
+        assert!(found, "erro ausente: {errs:?}");
+    }
+
+    #[test]
+    fn p788_ref_happy_path_section_en() {
+        // Vanilla 0.15.0 (medido): "Ver Section 1 no texto." — suplemento
+        // default por língua (en → "Section "), número do counter formatado.
+        let (world, _dir) = world_from_str(
+            "#set heading(numbering: \"1.\")\n= Título <sec1>\nVer @sec1 no texto."
+        );
+        let source = world.source(world.main()).unwrap();
+        let module = do_eval(&world, &source).unwrap();
+        let content = module.content().expect("content");
+        let doc = layout(content);
+        let text = doc.plain_text().replace('\u{a0}', " ");
+        assert!(
+            text.contains("Section 1") && !text.contains("Secção"),
+            "suplemento en esperado: {text:?}"
+        );
+    }
+
+    #[test]
+    fn p788_ref_suplemento_explicito() {
+        // `@sec1[Cap]` → suplemento explícito substitui o default.
+        let (world, _dir) = world_from_str(
+            "#set heading(numbering: \"1.\")\n= Título <sec1>\nVer @sec1[Cap] no texto."
+        );
+        let source = world.source(world.main()).unwrap();
+        let module = do_eval(&world, &source).unwrap();
+        let content = module.content().expect("content");
+        let doc = layout(content);
+        let text = doc.plain_text().replace('\u{a0}', " ");
+        assert!(text.contains("Cap 1"), "suplemento explícito esperado: {text:?}");
     }
 }

@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/engine/stdlib/loading.md
-//! @prompt-hash 3aeb8882
+//! @prompt-hash 3d610a74
 //! @layer L1
 //! @updated 2026-06-21
 //!
@@ -305,8 +305,25 @@ pub fn decode_csv(bytes: &[u8], delimiter: u8, row_type: RowType) -> SourceResul
     let mut reader = csv::ReaderBuilder::new()
         .delimiter(delimiter)
         .has_headers(false)
-        .flexible(true)
+        // P787 — sem `.flexible(true)`: linhas com nº de campos divergente
+        // são rejeitadas (paridade vanilla; antes aceites em silêncio, P786 B1).
         .from_reader(bytes);
+
+    // P787 — mapeamento para o formato exacto do vanilla
+    // (`loading/csv.rs:138-156`, `format_csv_error`): UnequalLengths →
+    // "found {len} instead of {expected_len} fields in line {line}" com a
+    // linha do `Position` do próprio erro (não inventada).
+    fn map_csv_err(e: csv::Error) -> Vec<SourceDiagnostic> {
+        match e.kind() {
+            csv::ErrorKind::UnequalLengths { expected_len, len, .. } => {
+                let line = e.position().map(|p| p.line()).unwrap_or(0);
+                err(format!(
+                    "failed to parse CSV (found {len} instead of {expected_len} fields in line {line})"
+                ))
+            }
+            _ => err(format!("failed to parse CSV ({e})")),
+        }
+    }
 
     let mut records = reader.records();
 
@@ -314,7 +331,7 @@ pub fn decode_csv(bytes: &[u8], delimiter: u8, row_type: RowType) -> SourceResul
     let header: Option<Vec<EcoString>> = if row_type == RowType::Dictionary {
         match records.next() {
             Some(r) => {
-                let r = r.map_err(|e| err(format!("csv inválido: {e}")))?;
+                let r = r.map_err(map_csv_err)?;
                 Some(r.iter().map(EcoString::from).collect())
             }
             None => None,
@@ -325,7 +342,7 @@ pub fn decode_csv(bytes: &[u8], delimiter: u8, row_type: RowType) -> SourceResul
 
     let mut rows = Vec::new();
     for rec in records {
-        let rec = rec.map_err(|e| err(format!("csv inválido: {e}")))?;
+        let rec = rec.map_err(map_csv_err)?;
         match &header {
             None => {
                 rows.push(Value::Array(rec.iter().map(|c| Value::Str(c.into())).collect()));
@@ -436,8 +453,21 @@ native_loader!(native_toml, "toml", decode_toml);
 native_loader!(native_cbor, "cbor", decode_cbor);
 native_loader!(native_xml, "xml", decode_xml);
 
-/// `csv(path, delimiter: ",", row-type: "array")`. Aceita named `delimiter` e
-/// `row-type` (paridade vanilla: subset graded — sem `escape`/`encoding` cosméticos).
+/// P787 — nome do tipo no formato longo do vanilla para mensagens de cast
+/// (`expected type, found string` etc.): `str`→`string`, `int`→`integer`;
+/// os restantes coincidem com `type_name()`.
+fn vanilla_type_name(v: &Value) -> &'static str {
+    match v {
+        Value::Str(_) => "string",
+        Value::Int(_) => "integer",
+        other => other.type_name(),
+    }
+}
+
+/// `csv(path, delimiter: ",", row-type: array)`. Aceita named `delimiter`
+/// (Str de 1 char ASCII) e `row-type` (**tipo** `array`/`dictionary` —
+/// API vanilla medida em P787; a forma string é rejeitada).
+/// Subset graded: sem `escape`/`encoding` cosméticos.
 pub fn native_csv(
     _ctx: &mut EvalContext,
     args: &Args,
@@ -454,26 +484,43 @@ pub fn native_csv(
     let delimiter = match args.named.get("delimiter") {
         None => b',',
         Some(Value::Str(s)) => {
-            let bytes = s.as_bytes();
-            if bytes.len() != 1 {
-                return Err(err("csv(): delimiter deve ser um único carácter"));
+            // P787 — casts do vanilla (`loading/csv.rs:103-111`): 1 char ≠ →
+            // "expected exactly one character"; não-ASCII → "delimiter must
+            // be an ASCII character" (a mensagem anterior culpava o
+            // comprimento, que estava certo — P786 D2).
+            let mut chars = s.chars();
+            match (chars.next(), chars.next()) {
+                (Some(c), None) if c.is_ascii() => c as u8,
+                (Some(_), None) => {
+                    return Err(err("delimiter must be an ASCII character"))
+                }
+                _ => return Err(err("expected exactly one character")),
             }
-            bytes[0]
         }
         Some(other) => {
-            return Err(err(format!("csv(): delimiter deve ser string, recebeu {}", other.type_name())))
+            return Err(err(format!(
+                "expected string, found {}",
+                vanilla_type_name(other)
+            )))
         }
     };
 
     let row_type = match args.named.get("row-type") {
         None => RowType::Array,
-        Some(Value::Str(s)) => match s.as_str() {
-            "array" => RowType::Array,
-            "dictionary" => RowType::Dictionary,
-            other => return Err(err(format!("csv(): row-type inválido '{other}' (array|dictionary)"))),
+        // P787 — API vanilla: `row-type` recebe o TIPO (`dictionary`/`array`
+        // como `Value::Type`), não a string (P786 D4 — divergência nos dois
+        // sentidos). Tipo errado → "expected `array` or `dictionary`";
+        // valor que não é tipo → "expected type, found ...".
+        Some(Value::Type(t)) => match t {
+            crate::entities::value::Type::Array => RowType::Array,
+            crate::entities::value::Type::Dictionary => RowType::Dictionary,
+            _ => return Err(err("expected `array` or `dictionary`")),
         },
         Some(other) => {
-            return Err(err(format!("csv(): row-type deve ser string, recebeu {}", other.type_name())))
+            return Err(err(format!(
+                "expected type, found {}",
+                vanilla_type_name(other)
+            )))
         }
     };
 
@@ -617,6 +664,44 @@ mod tests {
                 ("a", Value::Str("1".into())),
                 ("b", Value::Str("2".into())),
             ])])
+        );
+    }
+
+    // ── P787 — rigor de parsing (mensagens medidas no vanilla 0.15.0) ──────
+    #[test]
+    fn p787_csv_linha_malformada_rejeitada() {
+        // Antes: `flexible(true)` aceitava em silêncio (P786 B1). Vanilla:
+        // `failed to parse CSV (found 3 instead of 2 fields in line 2)`.
+        let e = decode_csv(b"a,b\n1,2,3\n", b',', RowType::Array).unwrap_err();
+        let msg = e.first().map(|d| d.message.to_string()).unwrap_or_default();
+        assert!(
+            msg.contains("failed to parse CSV (found 3 instead of 2 fields in line 2)"),
+            "mensagem inesperada: {msg}"
+        );
+    }
+
+    #[test]
+    fn p787_csv_linha_malformada_dictionary_rejeitada() {
+        // Modo dictionary: a validação é contra o nº de chaves do cabeçalho.
+        let e = decode_csv(b"a;b\n1;2;3\n", b';', RowType::Dictionary).unwrap_err();
+        let msg = e.first().map(|d| d.message.to_string()).unwrap_or_default();
+        assert!(
+            msg.contains("failed to parse CSV (found 3 instead of 2 fields in line 2)"),
+            "mensagem inesperada: {msg}"
+        );
+    }
+
+    #[test]
+    fn p787_csv_valido_nao_regressao() {
+        // CSV bem-formado continua a parsear (flexible desligado não quebra o válido).
+        let v = decode_csv(b"a,b\n1,2\n3,4\n", b',', RowType::Array).unwrap();
+        assert_eq!(
+            v,
+            Value::Array(vec![
+                Value::Array(vec![Value::Str("a".into()), Value::Str("b".into())]),
+                Value::Array(vec![Value::Str("1".into()), Value::Str("2".into())]),
+                Value::Array(vec![Value::Str("3".into()), Value::Str("4".into())]),
+            ])
         );
     }
 

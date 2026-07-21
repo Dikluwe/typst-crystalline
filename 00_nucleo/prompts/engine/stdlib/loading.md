@@ -77,6 +77,24 @@ Mapa canónico documento→`Value`:
 - `delimiter:` → `Str` de 1 char (default `","`); inválido (multi-char) → `Err`.
 - Todas as células são `Str` (CSV não tipa).
 
+**§P787 — rigor de parsing e API de `row-type` (mensagens medidas no vanilla
+0.15.0 por execução, 2026-07-20):**
+
+- **Linhas com nº de campos divergente são rejeitadas** (o modo `flexible`
+  fica desligado — antes aceitava em silêncio, bug P786 B1). Mensagem exacta:
+  `failed to parse CSV (found {len} instead of {expected_len} fields in line
+  {line})` — `len`/`expected_len` do `csv::ErrorKind::UnequalLengths`, `line`
+  do `Position` do erro (não inventada).
+- **`delimiter:`** — 1 char ≠ → `expected exactly one character`; char
+  não-ASCII → `delimiter must be an ASCII character` (a mensagem anterior
+  "deve ser um único carácter" era enganadora — P786 D2).
+- **`row-type:`** aceita o **tipo** (`dictionary`/`array` como `Value::Type`),
+  não a string — API anterior divergente nos dois sentidos (P786 D4).
+  Tipo errado (ex.: `str`) → `` expected `array` or `dictionary` ``; valor
+  que não é tipo → `expected type, found {string|integer|...}` (nomes longos
+  do vanilla: `str`→`string`, `int`→`integer`; fallback `type_name()`).
+
+
 ### 3.3. `decode_xml` — Array de nós
 
 - Cada elemento → `Dict { tag: Str, attrs: Dict, children: Array }` (forma vanilla `convert_xml`).

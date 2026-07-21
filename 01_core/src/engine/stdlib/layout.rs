@@ -1,7 +1,9 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/engine/stdlib/_comum.md
-//! @prompt-hash 501db04c
+//! @prompt-hash a2844d48
 //! @prompt 00_nucleo/prompts/engine/stdlib/layout.md
+//! @prompt 00_nucleo/prompts/p792-context-layout-textlang-position.md
+//! @prompt-hash a2844d48
 //! @layer L1
 //! @updated 2026-04-23
 //!
@@ -1401,6 +1403,22 @@ pub fn extract_measure_body(args: &Args) -> SourceResult<Content> {
 /// Sem consumidor medido para o caminho indirecto (nenhum documento de
 /// teste ou `cetz` passa `measure` como valor); falha alto em vez de
 /// devolver `(0, 0)` silenciosamente (ADR-0108).
+/// **P792** — `layout(func)` — stub de despacho.
+///
+/// A lógica real vive em `eval/closures.rs::eval_func_call` (intercepção
+/// pelo `native_fn_addr`, mesmo padrão de `native_measure`/P712).
+/// Este stub nunca é invocado directamente — serve apenas para:
+/// 1. Existir no scope global como `Value::Func("layout")`.
+/// 2. Expor um endereço de função identificável para a intercepção.
+///
+/// Paridade vanilla: `layout/layout.rs:66` `#[func]` nativo global.
+pub fn native_layout(_ctx: &mut EvalContext, _args: &Args, _world: &dyn crate::contracts::world::World, _current_file: FileId) -> SourceResult<Value> {
+    Err(vec![SourceDiagnostic::error(
+        Span::detached(),
+        "layout(): invocação indirecta não suportada — usar layout(size => ...) — P792".to_string(),
+    )])
+}
+
 pub fn native_measure(_ctx: &mut EvalContext, _args: &Args, _world: &dyn crate::contracts::world::World, _current_file: FileId) -> SourceResult<Value> {
     Err(vec![SourceDiagnostic::error(
         Span::detached(),

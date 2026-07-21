@@ -7,6 +7,7 @@ use crate::entities::{
     content::Content, counter_format::format_counter, elements::cite::CiteElem,
     elements::r#ref::RefElem, introspector::Introspector, label::Label,
     layout_types::{FrameItem, LinkTarget, Point},
+    source_result::SourceDiagnostic, span::Span,
 };
 
 use super::{link::link_bbox, FontMetrics, ImageSizer, Layouter};
@@ -55,6 +56,38 @@ pub(super) fn layout_ref<M: FontMetrics, S: ImageSizer>(
     }
 
     let target_label = Label(elem.name.to_string());
+
+    // **P788** — validações do vanilla (antes: "?" / vazio em silêncio,
+    // achados A8/A10 de P786). Mensagens medidas no vanilla 0.15.0.
+    // `RefElem` não carrega span → `Span::detached()` (limitação registada).
+    let known = layouter.introspector.counter_key_for_label(&target_label).is_some()
+        || layouter.introspector.figure_number_for_label(&target_label).is_some()
+        || layouter.introspector.resolved_label_for(&target_label).is_some()
+        || layouter.introspector.query_by_label(&target_label).is_some();
+    if !known {
+        layouter.layout_errors.push(SourceDiagnostic::error(
+            Span::detached(),
+            format!("label `<{}>` does not exist in the document", elem.name),
+        ));
+        return;
+    }
+    if layouter.introspector.counter_key_for_label(&target_label) == Some("heading") {
+        if let Some(loc) = layouter.introspector.query_by_label(&target_label) {
+            if layouter.introspector.heading_has_numbering(loc) == Some(false) {
+                layouter.layout_errors.push(
+                    SourceDiagnostic::error(
+                        Span::detached(),
+                        "cannot reference heading without numbering",
+                    )
+                    .with_hint(
+                        "you can enable heading numbering with `#set heading(numbering: \"1.\")`",
+                    ),
+                );
+                return;
+            }
+        }
+    }
+
     let text = resolve_ref_text(layouter, elem, &target_label);
 
     // P463: todo ref é clicável, mesmo que o destino não exista (PDF reader
@@ -117,10 +150,17 @@ fn resolve_ref_text<M: FontMetrics, S: ImageSizer>(
                     .unwrap_or_default()
             };
 
-            let supplement =
-                elem.supplement.clone().or_else(|| default_supplement_for_key(key));
+            let supplement = elem
+                .supplement
+                .clone()
+                .or_else(|| default_supplement_for_key(key, layouter.style.lang.as_ref()));
             return match supplement {
-                Some(sup) => format!("{}{}", sup.plain_text(), formatted),
+                // P788 — join do vanilla (`realize_reference`): NBSP (U+A0)
+                // entre suplemento não-vazio e número.
+                Some(sup) => {
+                    let sup = sup.plain_text();
+                    if sup.is_empty() { formatted } else { format!("{sup}\u{a0}{formatted}") }
+                }
                 None => formatted,
             };
         }
@@ -141,15 +181,26 @@ fn resolve_ref_text<M: FontMetrics, S: ImageSizer>(
         return text.to_string();
     }
 
-    // 4. Label não encontrada.
+    // 4. Label não encontrada (inalcançável desde P788 — a validação em
+    // `layout_ref` erra antes; mantido por segurança).
     "?".to_string()
 }
 
 /// Supplement default por chave de counter (P462).
-fn default_supplement_for_key(key: &str) -> Option<Content> {
+/// **P788** — heading ganha suplemento por língua (vanilla, medido: doc
+/// `en` → "Section 1"; `pt` → "Secção "). Outras línguas → fallback `en`
+/// (limitação registada no L0).
+fn default_supplement_for_key(
+    key: &str,
+    lang: Option<&crate::entities::lang::Lang>,
+) -> Option<Content> {
     match key {
-        k if k.starts_with("figure:") => Some(Content::text("Fig. ")),
-        "table" => Some(Content::text("Table ")),
+        "heading" => {
+            let pt = lang.map(|l| l.as_str() == "pt").unwrap_or(false);
+            Some(Content::text(if pt { "Secção" } else { "Section" }))
+        }
+        k if k.starts_with("figure:") => Some(Content::text("Fig.")),
+        "table" => Some(Content::text("Table")),
         _ => None,
     }
 }

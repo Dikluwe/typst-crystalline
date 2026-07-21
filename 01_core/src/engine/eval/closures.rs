@@ -1,6 +1,8 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/engine/eval.md
-//! @prompt-hash e7cc9316
+//! @prompt-hash a2844d48
+//! @prompt 00_nucleo/prompts/p792-context-layout-textlang-position.md
+//! @prompt-hash a2844d48
 //! @layer L1
 //! @updated 2026-07-09
 //!
@@ -30,7 +32,8 @@ use comemo::TrackedMut;
 use crate::entities::world_types::{check_call_depth as route_check_call_depth, Route};
 use crate::engine::scopes::Scopes;
 use crate::engine::stdlib::{
-    extract_measure_body, native_float, native_int, native_measure, native_str, native_symbol,
+    extract_measure_body, native_float, native_int, native_layout, native_measure, native_str,
+    native_symbol,
     native_type,
     // P737 — counter/state chamáveis via despacho de tipos.
     native_counter, native_state,
@@ -660,6 +663,109 @@ pub(super) fn eval_func_call(
         }
     }
 
+    // **P792** — `layout(func)`: paridade vanilla `layout/layout.rs:66`.
+    // Chama a callback com as dimensões disponíveis (single-pass graded:
+    // `available_width`/`available_height` calculadas a partir de
+    // `engine.styles`). Mesmo padrão de intercepção que `measure`/P712:
+    // verifica nome sintáctico → avalia o callee → compara fn-ptr
+    // `native_layout` para não capturar um `layout` sombreado.
+    let layout_name_matches = match call.callee() {
+        Expr::Ident(ident) => ident.as_str() == "layout",
+        Expr::FieldAccess(access) => access.field().as_str() == "layout",
+        _ => false,
+    };
+    if layout_name_matches {
+        let target = eval_expr(call.callee(), scopes, ctx, engine)?;
+        if let Value::Func(ref f) = target {
+            if f.native_fn_addr().is_some_and(|addr| {
+                std::ptr::fn_addr_eq(addr, native_layout as fn(_, _, _, _) -> _)
+            }) {
+                let args = eval_args(call.args(), scopes, ctx, engine)?;
+                // Extrair a callback — único argumento posicional obrigatório.
+                let func = match args.items.as_slice() {
+                    [Value::Func(f)] => f.clone(),
+                    [other] => return Err(vec![SourceDiagnostic::error(
+                        call.callee().span(),
+                        format!("layout() requer uma função, recebeu {}", other.type_name()),
+                    )]),
+                    _ => return Err(vec![SourceDiagnostic::error(
+                        call.callee().span(),
+                        "layout() requer exatamente 1 argumento".to_string(),
+                    )]),
+                };
+                // Dimensões do container (single-pass graded — P792 scope-out two-pass).
+                // Lidas dinamicamente da StyleChain caso configuradas por um `#set page`
+                // anterior no escopo; caso contrário usa defaults da página A4.
+                let page_width_pt = match engine.styles.custom("page.width") {
+                    Some(Value::Float(f)) => *f,
+                    Some(Value::Int(i)) => *i as f64,
+                    _ => 595.28f64,
+                };
+                let page_height_pt = match engine.styles.custom("page.height") {
+                    Some(Value::Float(f)) => *f,
+                    Some(Value::Int(i)) => *i as f64,
+                    _ => 841.89f64,
+                };
+                let margin_left = match engine.styles.custom("page.margin-left") {
+                    Some(Value::Float(f)) => *f,
+                    Some(Value::Int(i)) => *i as f64,
+                    _ => 56.69f64,
+                };
+                let margin_right = match engine.styles.custom("page.margin-right") {
+                    Some(Value::Float(f)) => *f,
+                    Some(Value::Int(i)) => *i as f64,
+                    _ => 56.69f64,
+                };
+                let margin_top = match engine.styles.custom("page.margin-top") {
+                    Some(Value::Float(f)) => *f,
+                    Some(Value::Int(i)) => *i as f64,
+                    _ => 56.69f64,
+                };
+                let margin_bottom = match engine.styles.custom("page.margin-bottom") {
+                    Some(Value::Float(f)) => *f,
+                    Some(Value::Int(i)) => *i as f64,
+                    _ => 56.69f64,
+                };
+                let avail_w = f64::max(0.0, page_width_pt - margin_left - margin_right);
+                let avail_h = f64::max(0.0, page_height_pt - margin_top - margin_bottom);
+                let mut size_dict: IndexMap<EcoString, Value, FxBuildHasher> =
+                    IndexMap::default();
+                size_dict.insert(
+                    "width".into(),
+                    Value::Length(crate::entities::layout_types::Length::pt(avail_w)),
+                );
+                size_dict.insert(
+                    "height".into(),
+                    Value::Length(crate::entities::layout_types::Length::pt(avail_h)),
+                );
+                let size_arg = crate::entities::args::Args {
+                    items: vec![Value::Dict(size_dict)],
+                    named: indexmap::IndexMap::default(),
+                    span: call.span(),
+                };
+                let result = apply_func(func, size_arg, scopes, ctx, engine)?;
+                return if let Value::Content(c) = result {
+                    Ok(Value::Content(rules::intercept_content(c, ctx, engine)?))
+                } else {
+                    Ok(result)
+                };
+            }
+        }
+    }
+
+    // **P792** — Métodos de `Location`: `loc.page()`, `loc.position()`,
+    // `loc.page-numbering()` — paridade vanilla `location.rs #[scope]`.
+    if let Expr::FieldAccess(access) = call.callee() {
+        let method = access.field().as_str();
+        if matches!(method, "page" | "position" | "page-numbering") {
+            let target = eval_expr(access.target(), scopes, ctx, engine)?;
+            if let Value::Location(loc) = target {
+                let _args = eval_args(call.args(), scopes, ctx, engine)?;
+                return eval_location_method(loc, method, ctx);
+            }
+        }
+    }
+
     let callee = eval_expr(call.callee(), scopes, ctx, engine)?;
     let args = eval_args(call.args(), scopes, ctx, engine)?;
 
@@ -705,6 +811,52 @@ pub(super) fn eval_func_call(
     }
 }
 
+
+/// **P792** — Despacho de métodos de instância de `Value::Location`.
+///
+/// Intercepção em `eval_func_call` para `loc.page()`, `loc.position()`,
+/// `loc.page-numbering()`. Paridade vanilla `location.rs #[scope]`.
+///
+/// Acede ao `ctx.introspector` (TagIntrospector implementa `Introspector::position_of`).
+/// Se o introspector não tiver a posição da localização (pre-layout ou localização
+/// inexistente), usa defaults seguros (page=1, x=0pt, y=0pt).
+fn eval_location_method(
+    loc: crate::entities::location::Location,
+    method: &str,
+    ctx: &mut EvalContext,
+) -> SourceResult<Value> {
+    use crate::entities::introspector::Introspector;
+    use crate::entities::layout_types::{Length, Pt};
+
+    match method {
+        "page" => {
+            // Número da página (1-based) via introspector; default 1 se não disponível.
+            let page_num = ctx.introspector.position_of(loc)
+                .map(|p| p.page.get() as i64)
+                .unwrap_or(1);
+            Ok(Value::Int(page_num))
+        }
+        "position" => {
+            // Dict {page: int, x: length, y: length} em pontos.
+            let pos = ctx.introspector.position_of(loc);
+            let page_num = pos.as_ref().map(|p| p.page.get() as i64).unwrap_or(1);
+            let x_pt = pos.as_ref().map(|p| p.point.x.0).unwrap_or(0.0);
+            let y_pt = pos.as_ref().map(|p| p.point.y.0).unwrap_or(0.0);
+
+            let mut dict: IndexMap<EcoString, Value, FxBuildHasher> = IndexMap::default();
+            dict.insert("page".into(), Value::Int(page_num));
+            dict.insert("x".into(), Value::Length(Length::pt(x_pt)));
+            dict.insert("y".into(), Value::Length(Length::pt(y_pt)));
+            Ok(Value::Dict(dict))
+        }
+        "page-numbering" => {
+            // Scope-out: infra de numeração por página não implementada.
+            // Retorna none por paridade graded (ADR-0054).
+            Ok(Value::None)
+        }
+        _ => unreachable!("eval_location_method chamado com método inesperado: {method}"),
+    }
+}
 
 #[cfg(test)]
 mod tests {

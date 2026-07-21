@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/engine/parse.md
-//! @prompt-hash 756b1c00
+//! @prompt-hash ba4a7ce8
 //! @layer L1
 //! @updated 2026-04-23
 //!
@@ -12,7 +12,7 @@ use std::ops::Range;
 
 use crate::entities::syntax_kind::SyntaxKind;
 use crate::entities::syntax_mode::SyntaxMode;
-use crate::entities::syntax_node::SyntaxNode;
+use crate::entities::syntax_node::{SyntaxError, SyntaxErrorKind, SyntaxNode};
 use crate::entities::syntax_set::SyntaxSet;
 use crate::syntax_set;
 
@@ -124,7 +124,26 @@ fn strong(p: &mut Parser) {
         let m = p.marker();
         p.assert(SyntaxKind::Star);
         markup(p, false, true, syntax_set!(Star, RightBracket, End));
+        // P786a — regra vanilla (typst-syntax/parser.rs:142-149): warning só
+        // quando o delimitador de fecho existe e o nó Strong fica com
+        // comprimento textual 2 (`**` — os dois marcadores, sem conteúdo).
+        // Medição ANTES de comer o fecho: o `eat` do fecho arrasta a trivia
+        // seguinte para a lista de nós (medido: `**\n` ficaria com len 3);
+        // o vanilla mede o Strong já embrulhado, que exclui essa trivia.
+        // `before_close == 1` ⟺ abertura sem conteúdo ⟺ total com fecho == 2.
+        let had_closing = p.at(SyntaxKind::Star);
+        let before_close = p.text_len_since(m);
         p.expect_closing_delimiter(m, SyntaxKind::Star);
+        if had_closing && before_close == 1 {
+            p.warn_at(
+                m,
+                SyntaxError::with_kind(
+                    "no text within stars",
+                    SyntaxErrorKind::NoTextWithinStars,
+                ),
+                "using multiple consecutive stars (e.g. **) has no additional effect",
+            );
+        }
         p.wrap(m, SyntaxKind::Strong);
     });
 }
@@ -135,7 +154,21 @@ pub(super) fn emph(p: &mut Parser) {
         let m = p.marker();
         p.assert(SyntaxKind::Underscore);
         markup(p, false, true, syntax_set!(Underscore, RightBracket, End));
+        // P786a — idem `strong` (vanilla parser.rs:159-166); medição antes
+        // do fecho pelo mesmo motivo de trivia arrastada.
+        let had_closing = p.at(SyntaxKind::Underscore);
+        let before_close = p.text_len_since(m);
         p.expect_closing_delimiter(m, SyntaxKind::Underscore);
+        if had_closing && before_close == 1 {
+            p.warn_at(
+                m,
+                SyntaxError::with_kind(
+                    "no text within underscores",
+                    SyntaxErrorKind::NoTextWithinUnderscores,
+                ),
+                "using multiple consecutive underscores (e.g. __) has no additional effect",
+            );
+        }
         p.wrap(m, SyntaxKind::Emph);
     });
 }

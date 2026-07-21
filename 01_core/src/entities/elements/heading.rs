@@ -114,6 +114,9 @@ impl Element for HeadingElem {
             depth: self.level,
             body_hash: hash_content(&self.body),
             counter_update: CounterUpdate::Step,
+            // P788: placeholder — o valor real é baked no walk a partir da
+            // chain (`heading.numbering`), ver `introspect.rs`.
+            numbering_active: false,
         })
     }
 }

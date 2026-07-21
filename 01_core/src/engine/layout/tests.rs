@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/engine/layout.md
-//! @prompt-hash 4835cd63
+//! @prompt-hash 951cd878
 //! @layer L1
 //! @updated 2026-07-14
 //!
@@ -21,6 +21,8 @@ use crate::entities::{
     elements::outline::OutlineIndent,
     geometry::ShapeKind,
     layout_types::{FrameItem, Point},
+    style::Styles,
+    value::Value,
 };
 use crate::engine::introspect::introspect;
 
@@ -1830,13 +1832,20 @@ fn counter_update_seguido_de_display_mostra_valor_correcto() {
 #[test]
 fn layout_ref_para_tras_resolve_secao() {
     // Passo 60: layout() usa duas passagens — backward ref resolve via introspect.
+    // P788: heading passa a ter numbering (sem numbering o vanilla erra —
+    // testado em p788_ref_heading_sem_numbering_erro). Doc en → "Section 1".
     use crate::entities::label::Label;
 
     let content = Content::Sequence(
         vec![
             Content::label_auto(
                 "intro".to_string(),
-                Content::heading(1, Content::text("Introdução")),
+                Content::Styled(
+                    Box::new(Content::heading(1, Content::text("Introdução"))),
+                    Styles::new()
+                        .push_custom("heading.numbering", Value::Bool(true))
+                        .push_custom("heading.numbering.pattern", Value::Str("1.".into())),
+                ),
             ),
             Content::text("Como vimos em"),
             Content::reference("intro".to_string()),
@@ -1845,10 +1854,10 @@ fn layout_ref_para_tras_resolve_secao() {
     );
 
     let doc = layout(&content);
-    let text = doc.plain_text();
+    let text = doc.plain_text().replace('\u{a0}', " ");
     assert!(
-        text.contains("Secção 1"),
-        "Ref para trás deve resolver para 'Secção 1' via duas passagens, obtido: {:?}",
+        text.contains("Section 1"),
+        "Ref para trás deve resolver para 'Section 1' via duas passagens, obtido: {:?}",
         text
     );
 }
@@ -1856,6 +1865,7 @@ fn layout_ref_para_tras_resolve_secao() {
 #[test]
 fn layout_ref_para_frente_resolve_com_duas_passagens() {
     // Passo 60: forward ref resolve via introspect — sem fallback.
+    // P788: heading com numbering (ver nota no teste para_trás).
     use crate::entities::label::Label;
 
     let content = Content::Sequence(
@@ -1864,17 +1874,22 @@ fn layout_ref_para_frente_resolve_com_duas_passagens() {
             Content::reference("conclusao".to_string()),
             Content::label_auto(
                 "conclusao".to_string(),
-                Content::heading(1, Content::text("Conclusão")),
+                Content::Styled(
+                    Box::new(Content::heading(1, Content::text("Conclusão"))),
+                    Styles::new()
+                        .push_custom("heading.numbering", Value::Bool(true))
+                        .push_custom("heading.numbering.pattern", Value::Str("1.".into())),
+                ),
             ),
         ]
         .into(),
     );
 
     let doc = layout(&content);
-    let text = doc.plain_text();
+    let text = doc.plain_text().replace('\u{a0}', " ");
     assert!(
-        text.contains("Secção 1"),
-        "Forward ref deve resolver para 'Secção 1' com duas passagens, obtido: {:?}",
+        text.contains("Section 1"),
+        "Forward ref deve resolver para 'Section 1' com duas passagens, obtido: {:?}",
         text
     );
     assert!(
@@ -1896,12 +1911,19 @@ fn layout_resolved_labels_nao_interfere_entre_documentos() {
     );
     let _ = layout(&content_a);
 
-    // Segundo layout independente — não deve ter "sec" resolvida
+    // Segundo layout independente — não deve ter "sec" resolvida.
+    // P788: label inexistente agora é ERRO de layout (vanilla:
+    // `does not exist in the document`) em vez de "?" — o isolamento
+    // continua validado pelo erro disparar no segundo documento.
     let content_b = Content::reference("sec".to_string());
     let doc_b = layout(&content_b);
     assert!(
-        doc_b.plain_text().contains("?"),
-        "Estado do layout anterior não deve vazar para o seguinte"
+        doc_b
+            .layout_errors
+            .iter()
+            .any(|d| d.message.contains("does not exist in the document")),
+        "Estado do layout anterior não deve vazar para o seguinte: {:?}",
+        doc_b.layout_errors
     );
 }
 
@@ -1922,26 +1944,36 @@ fn pipeline_duas_passagens_resolve_forward_ref() {
             Content::text("."),
             Content::label_auto(
                 "conclusao".to_string(),
-                Content::heading(1, Content::text("Conclusão")),
+                // P788: heading com numbering (sem numbering o vanilla erra).
+                Content::Styled(
+                    Box::new(Content::heading(1, Content::text("Conclusão"))),
+                    Styles::new()
+                        .push_custom("heading.numbering", Value::Bool(true))
+                        .push_custom("heading.numbering.pattern", Value::Str("1.".into())),
+                ),
             ),
         ]
         .into(),
     );
 
-    // Passagem 1 — verificar que introspect resolve forward ref via
-    // intr (P190G: state.resolved_labels eliminado).
+    // Passagem 1 — P788: com o wrapper Styled, `resolved_labels` não é
+    // populado (target não é `Heading` directo) — a resolução do forward
+    // ref segue pelo caminho numérico (label_to_counter_key), verificada
+    // directamente.
     let intr = introspect_with_introspector(&content);
     assert!(
-        intr.resolved_labels.get(&Label("conclusao".to_string())).is_some(),
-        "introspect deve popular intr.resolved_labels para forward refs"
+        intr
+            .label_to_counter_key
+            .contains_key(&Label("conclusao".to_string())),
+        "introspect deve mapear a label ao counter 'heading' para forward refs"
     );
 
     // Passagem 2 — layout usa o estado da pré-passagem.
     let doc = layout(&content);
-    let text = doc.plain_text();
+    let text = doc.plain_text().replace('\u{a0}', " ");
     assert!(
-        text.contains("Secção 1"),
-        "forward ref deve resolver para 'Secção 1': {:?}",
+        text.contains("Section 1"),
+        "forward ref deve resolver para 'Section 1': {:?}",
         text
     );
     assert!(
@@ -3225,6 +3257,87 @@ fn p772v_table_multiplos_headers_da_erro() {
         "múltiplos headers devem errar explicitamente (scope-out — não \
          suportamos múltiplos headers por `level`)"
     );
+}
+
+// ── P789 — conflito de célula do corpo com header deve errar ──────────────
+//
+// Achado de P786 (evidência `temp/temp_p786/c_bitset_conflict.typ`): célula
+// do corpo com `y` explícito sobre as linhas do header era aceite em
+// silêncio; o vanilla erra (`check_for_conflicting_cell_row`,
+// `lab/typst-original/crates/typst-library/src/layout/grid/resolve.rs:2112`).
+// Paridade do observável (ADR-0107): mensagem e hint idênticos ao vanilla.
+// Scope-out documentado no L0 (layout.md §P789): conflito célula↔footer
+// (range absoluto do footer só existe pós-placement no modelo splice).
+
+#[test]
+fn p789_table_cell_explicit_sobre_header_da_erro() {
+    // Repro exacto de P786: header de 2 linhas (4 células / 2 colunas);
+    // célula com y=0 rowspan=2 colide com a linha 0 do header.
+    let doc = layout_test(
+        "#table(columns: 2, table.header[H1][H2][H3][H4], table.cell(x: 0, y: 0, rowspan: 2)[X], [a], [b])",
+    );
+    let diag = doc
+        .layout_errors
+        .iter()
+        .find(|d| d.message == "cell would conflict with header also spanning row 0")
+        .unwrap_or_else(|| {
+            panic!(
+                "esperado erro de conflito com header (paridade vanilla): {:?}",
+                doc.layout_errors
+            )
+        });
+    assert!(
+        diag.hints.iter().any(|h| h == "try moving the cell or the header"),
+        "hint deve ser idêntico ao vanilla: {:?}",
+        diag.hints
+    );
+}
+
+#[test]
+fn p789_grid_cell_explicit_sobre_header_da_erro() {
+    // Variante grid: header de 1 linha; célula explicit em y=0 colide.
+    let doc = layout_test(
+        "#grid(columns: 2, grid.header[H1][H2], grid.cell(x: 1, y: 0)[X], [a], [b])",
+    );
+    assert!(
+        doc.layout_errors
+            .iter()
+            .any(|d| d.message == "cell would conflict with header also spanning row 0"),
+        "esperado erro de conflito com header (paridade vanilla): {:?}",
+        doc.layout_errors
+    );
+}
+
+#[test]
+fn p789_cell_so_com_y_explicit_sobre_header_da_erro() {
+    // Braço `(Auto, Custom)` do vanilla: célula só com `y` explícito
+    // (sem `x`) sobre o header também erra.
+    let doc = layout_test(
+        "#grid(columns: 2, grid.header[H1][H2], grid.cell(y: 0)[X], [a], [b])",
+    );
+    assert!(
+        doc.layout_errors
+            .iter()
+            .any(|d| d.message == "cell would conflict with header also spanning row 0"),
+        "esperado erro de conflito com header mesmo sem x explícito: {:?}",
+        doc.layout_errors
+    );
+}
+
+#[test]
+fn p789_cell_explicit_fora_do_header_nao_erra() {
+    // Controlo positivo: célula explicit fora das linhas do header
+    // (header = linha 0; célula em y=2) não pode errar.
+    let doc = layout_test(
+        "#grid(columns: 2, grid.header[H1][H2], grid.cell(x: 0, y: 2)[X], [a], [b])",
+    );
+    assert!(
+        doc.layout_errors.is_empty(),
+        "célula fora do header não deve produzir layout_errors: {:?}",
+        doc.layout_errors
+    );
+    let text = doc.plain_text();
+    assert!(text.contains('X'), "célula X deve renderizar: {}", text);
 }
 
 // ── P772x — decoração propaga através de `layout_sub_frame` ────────────────
@@ -4512,6 +4625,91 @@ mod tests_show_rule_integration {
             text
         );
         assert!(text.contains("texto"), "'texto' deve aparecer no output: {:?}", text);
+    }
+
+    // ── P790 — `#show "texto": …` com transformação Content/Func ───────────
+    //
+    // Achado de P786 (módulo `eval::rules`): regras show-by-string com
+    // transformação Content ou Func eram aceites e descartadas em silêncio
+    // (só `Transformation::Str` era aplicada, via `map_text`). P790 liga o
+    // splice: o `Content::Text` é fatiado nas ocorrências do padrão e o
+    // replacement é emendado entre as fatias (paridade vanilla
+    // `visit_regex_match`). Espaços entre itens são normalizados nas
+    // asserções (`plain_text` junta FrameItems com " ").
+
+    fn sem_espacos(s: &str) -> String {
+        s.chars().filter(|c| !c.is_whitespace()).collect()
+    }
+
+    /// Repro de P786 (`temp/temp_p786/c_rules_probe_show.typ`):
+    /// `#show "world": [W]` — vanilla renderiza "Hello W." (medido).
+    #[test]
+    fn p790_show_string_com_content_substituí_ocorrencia() {
+        let doc = layout_typst("#show \"world\": [W]\n\nHello world.");
+        let text = sem_espacos(&plain_text(&doc));
+        assert!(
+            text.contains("HelloW."),
+            "esperado 'Hello W.' após show-by-string com Content: {:?}",
+            text
+        );
+        assert!(
+            !text.contains("Helloworld"),
+            "o texto original não deve sobreviver à substituição: {:?}",
+            text
+        );
+    }
+
+    /// Múltiplas ocorrências no mesmo nó de texto são todas substituídas.
+    #[test]
+    fn p790_show_string_com_content_multiplas_ocorrencias() {
+        let doc = layout_typst("#show \"a\": [X]\n\nbanana");
+        let text = sem_espacos(&plain_text(&doc));
+        assert!(
+            text.contains("bXnXnX"),
+            "esperado 'bXnXnX' (3 ocorrências substituídas): {:?}",
+            text
+        );
+    }
+
+    /// Transformação Func: chamada por ocorrência com o texto do match;
+    /// o output é emendado. `it => [#it#it]` duplica o match.
+    #[test]
+    fn p790_show_string_com_func_recebe_match_e_emenda() {
+        let doc = layout_typst("#show \"world\": it => [#it#it]\n\nHello world.");
+        let text = sem_espacos(&plain_text(&doc));
+        assert!(
+            text.contains("Helloworldworld."),
+            "esperado match duplicado pela func ('Hello worldworld.'): {:?}",
+            text
+        );
+    }
+
+    /// Controlo: sem regra, o texto fica intacto (a travessia nova não
+    /// toca em nós sem match).
+    #[test]
+    fn p790_show_string_sem_match_preserva_texto() {
+        let doc = layout_typst("#show \"zzz\": [X]\n\nHello world.");
+        let text = sem_espacos(&plain_text(&doc));
+        assert!(
+            text.contains("Helloworld."),
+            "sem match o texto deve ficar intacto: {:?}",
+            text
+        );
+    }
+
+    // ── P791 — `#show <lbl>: …` (selector por label) ───────────────────────
+
+    /// End-to-end: `#show <sp>: it => [LBL=#it]` sobre `= Alpha <sp>`
+    /// (vanilla medido: "LBL=" seguido do heading).
+    #[test]
+    fn p791_show_label_em_heading_end_to_end() {
+        let doc = layout_typst("#show <sp>: it => [LBL=#it]\n\n= Alpha <sp>");
+        let text = sem_espacos(&plain_text(&doc));
+        assert!(
+            text.contains("LBL=Alpha"),
+            "show-by-label deve disparar sobre o heading rotulado: {:?}",
+            text
+        );
     }
 
     // ── Passo 156C (ADR-0061 Fase 1, sub-passo 1) — pad + hide ─────────────
@@ -13290,10 +13488,17 @@ mod p194b_c4_resolved_label {
         // Heading (level 1) wrapped in Labelled + Ref para o mesmo
         // label. Walk legacy popula state.resolved_labels via arm
         // Labelled (E4 P189B excepção).
+        // P788: heading com numbering (sem numbering o vanilla erra —
+        // `cannot reference heading without numbering`).
         Content::Sequence(Arc::from(vec![
             Content::label_auto(
                 label_name.to_string(),
-                Content::heading(1, Content::text("Intro")),
+                Content::Styled(
+                    Box::new(Content::heading(1, Content::text("Intro"))),
+                    Styles::new()
+                        .push_custom("heading.numbering", Value::Bool(true))
+                        .push_custom("heading.numbering.pattern", Value::Str("1.".into())),
+                ),
             ),
             Content::reference(label_name),
         ]))
@@ -13329,11 +13534,13 @@ mod p194b_c4_resolved_label {
         // Pipeline completo via layout(); Introspector populated via
         // re-walk em layout(); Layouter consume via Introspector path
         // puro (sem fallback legacy).
-        let txt = layout(&content).plain_text();
+        // P788: com numbering, o caminho numérico renderiza "Section 1"
+        // (doc en) — o legacy "Secção 1" fica como fallback apenas.
+        let txt = layout(&content).plain_text().replace('\u{a0}', " ");
 
         assert!(
-            txt.contains("Secção 1"),
-            "Introspector path: 'Secção 1' renderizada: {:?}",
+            txt.contains("Section 1"),
+            "Introspector path: 'Section 1' renderizada: {:?}",
             txt
         );
         assert!(
@@ -13345,16 +13552,16 @@ mod p194b_c4_resolved_label {
 
     #[test]
     fn c4_resolved_label_paridade_pipelines() {
-        // P190G: dois pipelines (introspect normal + manual intr)
-        // produzem mesmo output observable.
+        // P788: reescrito como teste de PRECEDÊNCIA — o caminho numérico
+        // (counter) ganha quando existe; o legacy `resolved_labels` serve
+        // de fallback quando o mapa numérico está ausente.
         let content = doc_heading_labelled_e_ref("intro");
 
-        // Path A: pipeline normal.
-        let state_a = introspect(&content);
-        let txt_a = layout(&content).plain_text();
+        // Path A: pipeline normal (heading numerado) → "Section 1".
+        let txt_a = layout(&content).plain_text().replace('\u{a0}', " ");
 
-        // Path B: manual intr.
-        // P190I: state_b eliminado
+        // Path B: intr manual SÓ com o legacy (sem counter key) →
+        // fallback "Secção 1".
         let mut intr_b = TagIntrospector::empty();
         intr_b.resolved_labels.insert(lbl("intro"), "Secção 1".to_string());
         let txt_b = layout_with_introspector(
@@ -13363,27 +13570,27 @@ mod p194b_c4_resolved_label {
         )
         .plain_text();
 
-        // Paridade.
-        assert!(txt_a.contains("Secção 1"), "Path A: {:?}", txt_a);
-        assert!(txt_b.contains("Secção 1"), "Path B: {:?}", txt_b);
+        assert!(txt_a.contains("Section 1"), "Path A (numérico): {:?}", txt_a);
+        assert!(txt_b.contains("Secção 1"), "Path B (fallback legacy): {:?}", txt_b);
     }
 
     #[test]
     fn c4_resolved_label_fallback_at_arrobado_quando_ausente() {
-        // Label não existe em nenhum dos paths; fallback final do
-        // match retorna `@nome` literal.
+        // P788: label inexistente deixou de renderizar "?" — agora é erro
+        // de layout (vanilla: `does not exist in the document`).
         let content =
             Content::Sequence(Arc::from(vec![Content::reference("missing")]));
 
-        // P190I: state eliminado
         let intr = TagIntrospector::empty();
 
-        let txt = layout_with_introspector(&content, intr).plain_text();
+        let doc = layout_with_introspector(&content, intr);
 
         assert!(
-            txt.contains("?"),
-            "fallback final '?' esperado: {:?}",
-            txt
+            doc.layout_errors.iter().any(|d| d
+                .message
+                .contains("label `<missing>` does not exist in the document")),
+            "erro de label inexistente esperado: {:?}",
+            doc.layout_errors
         );
     }
 }
@@ -13427,21 +13634,34 @@ mod p195d_walk_labelled {
     #[test]
     fn labelled_paridade_observable_legacy_vs_introspector() {
         let content = Content::Sequence(Arc::from(vec![
-            Content::label_auto("intro".to_string(), Content::heading(1, Content::text("Intro"))),
+            Content::label_auto(
+                "intro".to_string(),
+                // P788: heading com numbering (sem numbering o vanilla erra).
+                Content::Styled(
+                    Box::new(Content::heading(1, Content::text("Intro"))),
+                    Styles::new()
+                        .push_custom("heading.numbering", Value::Bool(true))
+                        .push_custom("heading.numbering.pattern", Value::Str("1.".into())),
+                ),
+            ),
             Content::reference("intro"),
         ]));
 
         let intr = introspect_with_introspector(&content);
 
-        // P190G: paridade observable preservada via Introspector
-        // path. Field legacy `state.resolved_labels` eliminado.
-        assert_eq!(intr.resolved_labels.get(&lbl("intro")), Some("Secção 1"),);
+        // P788: com o wrapper Styled (necessário para o numbering), o
+        // `compute_labelled` não dispara — o target é `Styled`, não
+        // `Heading` — logo o sub-store legacy fica vazio nesta forma. A
+        // população do store (heading directo) está coberta por
+        // `labelled_walk_emite_tag_e_popula_introspector`. O que interessa
+        // aqui é o RENDER pelo caminho numérico.
+        assert_eq!(intr.resolved_labels.get(&lbl("intro")), None);
 
-        // Pipeline completo: Ref renderiza via Introspector path.
-        let txt = layout(&content).plain_text();
+        // Pipeline completo: Ref renderiza via caminho numérico (doc en).
+        let txt = layout(&content).plain_text().replace('\u{a0}', " ");
         assert!(
-            txt.contains("Secção 1"),
-            "Ref intro → 'Secção 1' via Introspector: {:?}",
+            txt.contains("Section 1"),
+            "Ref intro → 'Section 1' via caminho numérico: {:?}",
             txt
         );
         assert!(!txt.contains("@intro"), "fallback @intro NÃO esperado: {:?}", txt);
@@ -15895,7 +16115,8 @@ mod p462_ref_numeric {
             .into(),
         );
         let intr = introspect_with_introspector(&content);
-        let text = doc_text_with_intr(&content, intr);
+        // P788: o join suplemento↔número usa NBSP (paridade vanilla).
+        let text = doc_text_with_intr(&content, intr).replace('\u{a0}', " ");
         assert!(text.contains("Fig. 1"), "figure ref deve renderizar 'Fig. 1': {text}");
     }
 
@@ -15963,10 +16184,18 @@ mod p462_ref_numeric {
 
     #[test]
     fn ref_unknown_label_renders_question_mark() {
+        // P788: label inexistente deixou de renderizar "?" — vanilla erra
+        // (`does not exist in the document`); teste actualizado para o erro.
         let content = Content::reference("nao_existe");
         let intr = TagIntrospector::empty();
-        let text = doc_text_with_intr(&content, intr);
-        assert!(text.contains("?"), "label inexistente deve renderizar '?': {text}");
+        let doc = layout_with_introspector(&content, intr);
+        assert!(
+            doc.layout_errors.iter().any(|d| d
+                .message
+                .contains("label `<nao_existe>` does not exist in the document")),
+            "erro de label inexistente esperado: {:?}",
+            doc.layout_errors
+        );
     }
 
     #[test]
@@ -16220,3 +16449,4 @@ fn p756_cjk_aspas_renderiza_sem_panic() {
         text
     );
 }
+

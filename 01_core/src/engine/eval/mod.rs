@@ -1,6 +1,8 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/engine/eval.md
-//! @prompt-hash e7cc9316
+//! @prompt-hash a2844d48
+//! @prompt 00_nucleo/prompts/p792-context-layout-textlang-position.md
+//! @prompt-hash a2844d48
 //! @layer L1
 //! @updated 2026-07-16
 //!
@@ -298,24 +300,37 @@ pub fn eval_with_full_error(
 ) -> SourceResult<Module> {
     let root = source.root();
 
-    // **P648/P649** — propagação selectiva de erros de sintaxe que o eval
-    // actualmente descarta. A tentativa de propagar *todos* os erros de
-    // parser (P634) quebrou dezassete testes porque o parser assinala
-    // construções válidas como erro (smart quotes, `#set` dentro de blocos,
-    // etc.). Só propagamos classes de erro confirmadas como genuínas,
-    // identificadas agora por `SyntaxErrorKind` em vez de comparação de
-    // texto (P649).
-    let syntax_errors: Vec<SourceDiagnostic> = root
-        .errors()
-        .into_iter()
-        .filter(|e| {
-            matches!(
-                e.kind,
-                SyntaxErrorKind::InvalidHexNumber | SyntaxErrorKind::InvalidUnicodeCodepoint
-            )
-        })
-        .map(|e| SourceDiagnostic::error(e.span, e.message.to_string()))
-        .collect();
+    // **P786a** — propagação integral de erros de sintaxe (revoga a
+    // filtragem selectiva de P648/P649, que só propagava
+    // `InvalidHexNumber`/`InvalidUnicodeCodepoint`). O survey empírico
+    // deste passo (20 construções válidas, teste
+    // `p786a_valid_constructs_without_error_nodes`) mostrou zero falsos
+    // positivos no parser actual — `#` em código é erro genuíno (o
+    // vanilla 0.15.0 também o rejeita, exit 1 + 2 hints). Warnings de
+    // markup (`NoTextWithin*`, produzidos em `parse/markup.rs`) seguem
+    // para o sink como warning e **não abortam** (T1 — paridade vanilla:
+    // `warning: no text within stars` + hint, exit 0). Hints dos
+    // `SyntaxError` são propagados em ambos os caminhos.
+    let mut syntax_errors: Vec<SourceDiagnostic> = Vec::new();
+    for e in root.errors() {
+        let is_warning = matches!(
+            e.kind,
+            SyntaxErrorKind::NoTextWithinStars | SyntaxErrorKind::NoTextWithinUnderscores
+        );
+        if is_warning {
+            sink.warn_note(
+                e.span,
+                e.message.as_str(),
+                e.hints.first().map_or("", |h| h.as_str()),
+            );
+        } else {
+            let mut diag = SourceDiagnostic::error(e.span, e.message.to_string());
+            for h in &e.hints {
+                diag = diag.with_hint(h.as_str());
+            }
+            syntax_errors.push(diag);
+        }
+    }
     if !syntax_errors.is_empty() {
         return Err(syntax_errors);
     }
@@ -558,7 +573,11 @@ pub(crate) fn eval_markup(
                         trailing.push(parts.pop().unwrap());
                     }
                     if let Some(last) = parts.pop() {
-                        parts.push(Content::label_auto(name, last));
+                        // P791 — o wrapper Label também viaja pela maquinaria
+                        // de show rules (apenas regras `Selector::Label` —
+                        // o corpo já foi interceptado no seu próprio ponto).
+                        let labelled = Content::label_auto(name, last);
+                        parts.push(rules::intercept_labelled(labelled, ctx, engine)?);
                         trailing.reverse();
                         parts.extend(trailing);
                     }
@@ -854,9 +873,19 @@ pub(crate) fn eval_expr(
         Expr::ModuleInclude(i) => modules::eval_module_include(i, scopes, ctx, engine),
 
         // Passo 56 — referência cruzada: @nome → Content::Ref placeholder.
+        // **P788** — suplemento explícito `@nome[sup]` avaliado como
+        // `ContentBlock` normal (antes: descartado — `@sec1[Cap]`
+        // renderizava o suplemento default; vanilla: "Cap 1").
         Expr::Ref(ref_node) => {
             let name = ref_node.target().to_string();
-            Ok(Value::Content(Content::reference(name)))
+            let supplement = match ref_node.supplement() {
+                Some(block) => match eval_expr(Expr::ContentBlock(block), scopes, ctx, engine)? {
+                    Value::Content(c) => Some(c),
+                    _ => None,
+                },
+                None => None,
+            };
+            Ok(Value::Content(Content::reference_with_supplement(name, supplement)))
         }
 
         // Passo 56 — label em contexto de código; associação retroactiva em markup
@@ -1147,7 +1176,7 @@ fn make_stdlib(inputs: &SysInputs) -> Scope {
         make_calc_module, make_math_module, make_sys_module, native_accent, native_align, native_assert, native_assert_eq, native_assert_ne, native_bibliography, native_block, native_box, native_cancel, native_circle, native_cite, native_divider,
         native_ellipse, native_emph, native_figure, native_footnote, native_grid, native_grid_cell, native_grid_footer, native_grid_header, native_grid_hline, native_grid_vline, native_h, native_heading,
         native_hide, native_image, native_len, native_line, native_outline, native_title,
-        native_counter_at, native_counter_display, native_counter_final, native_counter_step, native_context, native_curve, native_curve_close, native_curve_cubic, native_curve_line, native_curve_move, native_curve_quad, native_eval, native_here, native_locate, native_lower, native_lorem, native_luma, native_measure, native_metadata, native_move, native_pad, native_pagebreak, native_place, native_polygon, native_query, native_regex, native_selector, native_state_at, native_state_display, native_state_final, native_state_update, native_state_update_with, native_target,
+        native_counter_at, native_counter_display, native_counter_final, native_counter_step, native_context, native_curve, native_curve_close, native_curve_cubic, native_curve_line, native_curve_move, native_curve_quad, native_eval, native_here, native_layout, native_locate, native_lower, native_lorem, native_luma, native_measure, native_metadata, native_move, native_pad, native_pagebreak, native_place, native_polygon, native_query, native_regex, native_selector, native_state_at, native_state_display, native_state_final, native_state_update, native_state_update_with, native_target,
         native_asset, native_cmyk, native_colbreak, native_columns, native_document, native_hsl, native_hsv, native_label, native_linear_rgb, native_link, native_oklab, native_oklch, native_op, native_panic, native_quote, native_range, native_rect, native_repeat, native_replace, native_raw, native_repr, native_rgb, native_rotate, native_symbol,
         native_square, native_tiling,
         native_highlight, native_scale, native_skew, native_smallcaps, native_smartquote, native_stack, native_strike, native_stroke, native_strong, native_subscript, native_superscript, native_table, native_table_cell, native_table_footer, native_table_header, native_table_hline, native_table_vline, native_terms, native_underline, native_underover, native_overline, native_upper, native_v,
@@ -1476,6 +1505,10 @@ fn make_stdlib(inputs: &SysInputs) -> Scope {
     // (single-pass; runtime queries genuínas diferidas; width override
     // scope-out Opção β).
     scope.define("measure", Value::Func(Func::native("measure", native_measure)));
+    // P792 — layout(func): fornece as dimensões do container via callback.
+    // A lógica real vive na intercepção em eval/closures.rs (mesmo padrão
+    // de measure/P712). Paridade vanilla: `layout/layout.rs:66` #[func].
+    scope.define("layout", Value::Func(Func::native("layout", native_layout)));
     // P227 (ADR-0079 PROPOSTO Fase 5 Categoria A.1 sub-passo 1):
     // stroke(paint: ?, thickness: ?) constructor para Value::Stroke;
     // parametriza borders Grid/Table via Stroke shorthand parsing.

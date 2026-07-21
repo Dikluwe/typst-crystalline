@@ -39,3 +39,30 @@ interno (`LinkTarget::Destination`), tornando a referência clicável no PDF.
 - Label registada → `counter.label_pages` contém a chave após layout.
 - Layout de label num elemento que força quebra de página → página registada
   é a do elemento, não a anterior.
+
+---
+
+## §P788 — Validação de refs (erros do vanilla) + precedência numérica + suplemento por língua
+
+**Decisão (mensagens medidas no vanilla 0.15.0 por execução, 2026-07-20):**
+
+1. **Label inexistente** → erro fatal de layout (via `layout_errors`):
+   `` label `<{name}>` does not exist in the document `` — antes renderizava
+   "?" em silêncio (P786 A10). Existência = qualquer caminho conhece o label
+   (counter key / figure number / resolved legacy / query_by_label).
+2. **Ref a heading sem `numbering`** → erro:
+   `cannot reference heading without numbering` + hint
+   `` you can enable heading numbering with `#set heading(numbering: "1.")` ``
+   — antes renderizava vazio em silêncio (P786 A8). A flag por Location vem
+   do introspector (`heading_numbering`, ver introspector.md/introspect.md §P788).
+3. **Precedência numérica sobre o legacy `Labelled`:** os dois
+   `label_to_counter_key.remove()` (walk `Content::Label` + populate arm
+   `Labelled`) são **removidos** — refs a heading/equation/table/figure
+   numerados usam o caminho do counter (formatado), ficando o
+   `resolved_labels` legacy como fallback de última linha.
+4. **Suplemento default de heading por língua** (vanilla: "Section 1" em
+   docs `en` — medido; "Secção" hardcoded antes divergia): `en` →
+   `Section `, `pt` → `Secção `, outras línguas → fallback `en`
+   (limitação registada). Língua lida de `layouter.style.lang`.
+5. **Spans:** `RefElem` não carrega span — os erros seguem com
+   `Span::detached()` (limitação registada; vanilla aponta o `@ref`).

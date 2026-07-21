@@ -1,6 +1,8 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/engine/eval.md
-//! @prompt-hash e7cc9316
+//! @prompt-hash 2f2e3e80
+//! @prompt 00_nucleo/prompts/p792-context-layout-textlang-position.md
+//! @prompt-hash a2844d48
 //! @layer L1
 //! @updated 2026-07-09
 //!
@@ -234,6 +236,11 @@ fn selector_matches(work: &Content, selector: &Selector) -> bool {
         }
         Selector::Text(_) => false,
         Selector::Regex(_) => false,
+        // P791 — regras de label NÃO casam na travessia principal: são
+        // aplicadas por `intercept_labelled` no ponto de associação
+        // retroactiva (evita dupla aplicação das outras regras e garante
+        // `it` = corpo, não o wrapper).
+        Selector::Label(_) => false,
         Selector::Where { base, field, value } => {
             selector_matches(work, base)
                 && work
@@ -271,7 +278,43 @@ fn is_node_rule(selector: &Selector) -> bool {
         // todos os sub-selectors forem node-like.
         Selector::And(sels) | Selector::Or(sels) => sels.iter().all(|s| is_node_rule(s)),
         Selector::Text(_) | Selector::Regex(_) => false,
+        // P791 — regras de label não viajam pela travessia de nós
+        // (aplicação dedicada em `intercept_labelled`).
+        Selector::Label(_) => false,
     }
+}
+
+/// **P790** — Fatia `text` nas ocorrências de `pattern` e emenda o
+/// replacement produzido para cada match (paridade vanilla
+/// `visit_regex_match`, `typst-realize/src/lib.rs:1391`): o texto antes e
+/// depois do match é preservado como `Content::Text` e o output da regra
+/// entra no lugar do match. `Ok(None)` quando não há match (nó inalterado).
+/// Fatias vazias são omitidas; `Content::sequence` colapsa o Vec se só
+/// restar um nó (match de texto integral). Guarda defensiva: padrão vazio
+/// nunca casa (o eval já rejeita com "text selector is empty").
+fn splice_text_rule_matches(
+    text: &str,
+    pattern: &str,
+    mut replacement: impl FnMut(&str) -> SourceResult<Content>,
+) -> SourceResult<Option<Content>> {
+    if pattern.is_empty() || !text.contains(pattern) {
+        return Ok(None);
+    }
+    let mut parts: Vec<Content> = Vec::new();
+    let mut rest = text;
+    while let Some(idx) = rest.find(pattern) {
+        let (before, with_match) = rest.split_at(idx);
+        if !before.is_empty() {
+            parts.push(Content::text(before));
+        }
+        let (matched, after) = with_match.split_at(pattern.len());
+        parts.push(replacement(matched)?);
+        rest = after;
+    }
+    if !rest.is_empty() {
+        parts.push(Content::text(rest));
+    }
+    Ok(Some(Content::sequence(parts)))
 }
 
 /// Aplica as show rules activas ao Content (Passo 70 — DEBT-23 encerrado).
@@ -574,14 +617,65 @@ pub(crate) fn apply_show_rules(
         content = content.map_content(&mut apply_regex)?;
     }
 
-    // Text rules — map_text por padrão, na ordem de declaração.
+    // Text rules — P790: `Str` via `map_text` (comportamento pré-existente);
+    // `Content`/`Func` por splice em `map_content` — o `Content::Text` é
+    // fatiado nas ocorrências do padrão e o replacement é emendado entre as
+    // fatias (paridade vanilla `visit_regex_match`; `map_content` não
+    // reentra no nó substituído, logo o output não é re-varrido pela mesma
+    // regra — equivalente à `Revocation` do vanilla). Match por nó de texto
+    // individual (cross-node: scope-out registado no L0, eval.md §P790).
     for rule in rules {
-        if let Selector::Text(pattern) = &rule.selector {
-            if let Transformation::Str(s) = &rule.transform {
+        let Selector::Text(pattern) = &rule.selector else { continue };
+        match &rule.transform {
+            Transformation::Str(s) => {
                 let replacement = s.to_string();
                 let mut do_replace =
                     |text: &str| text.replace(pattern.as_str(), &replacement);
                 content = content.map_text(&mut do_replace);
+            }
+            Transformation::Content(replacement) => {
+                let mut apply_text = |node: &Content| -> SourceResult<Option<Content>> {
+                    let Content::Text(text) = node else { return Ok(None) };
+                    splice_text_rule_matches(text.as_str(), pattern, |_| {
+                        Ok(replacement.clone())
+                    })
+                };
+                content = content.map_content(&mut apply_text)?;
+            }
+            Transformation::Func(func) => {
+                let mut apply_text = |node: &Content| -> SourceResult<Option<Content>> {
+                    let Content::Text(text) = node else { return Ok(None) };
+                    splice_text_rule_matches(text.as_str(), pattern, |matched| {
+                        let args =
+                            Args::positional(vec![Value::Content(Content::text(matched))]);
+                        engine.active_guards.push(rule.id);
+                        let call_result = closures::apply_func(
+                            func.clone(),
+                            args,
+                            &mut scopes,
+                            ctx,
+                            engine,
+                        );
+                        engine.active_guards.pop();
+                        match call_result? {
+                            Value::Content(c) => Ok(c),
+                            Value::Str(s) => Ok(Content::text(s.as_str())),
+                            other => Err(vec![SourceDiagnostic::error(
+                                Span::detached(),
+                                format!(
+                                    "show rule deve retornar Content ou String, \
+                                     recebeu {}",
+                                    other.type_name()
+                                ),
+                            )]),
+                        }
+                    })
+                };
+                content = content.map_content(&mut apply_text)?;
+            }
+            Transformation::Style(_) => {
+                // Rejeitado em `eval_show_rule` para `Selector::Text` —
+                // inalcançável (show-set é sobre elementos).
             }
         }
     }
@@ -616,6 +710,123 @@ pub(crate) fn intercept_content(
     // sem interferência durante a travessia.
     let rules = Arc::clone(&*engine.show_rules);
     apply_show_rules(content, &rules, ctx, engine)
+}
+
+/// **P791** — Intercepção de wrappers `Content::Label` para regras
+/// `Selector::Label` (`#show <sp>: …`). Chamada no ponto de associação
+/// retroactiva de `<label>` em markup (Passo 56, `eval/mod.rs`): o wrapper é
+/// criado **depois** do corpo já ter viajado pela maquinaria geral de show
+/// rules, logo aqui só regras de label casam — as outras já aplicaram nos
+/// seus pontos próprios (sem dupla aplicação).
+///
+/// Semântica (paridade vanilla, `target.label()` — o label é metadado do
+/// elemento, não um nó): `it` = o **corpo** rotulado; a saída substitui o
+/// wrapper inteiro (label consumido). Aplicação **única**,
+/// última-declarada primeiro (innermost-first, P358) — sem revisitação
+/// (equivalente à `Revocation` do vanilla). `Content` substitui; `Str` é
+/// erro (consistente com `NodeKind`); show-set (`Style`) **não consome o
+/// passe** — as que casam são dobradas e embrulham o wrapper em
+/// `Content::Styled` (paridade P352).
+pub(crate) fn intercept_labelled(
+    labelled: Content,
+    ctx: &mut EvalContext,
+    engine: &mut Engine<'_>,
+) -> SourceResult<Content> {
+    if !ctx.apply_show_rules || engine.show_rules.is_empty() {
+        return Ok(labelled);
+    }
+    let Content::Label(e) = &labelled else {
+        return Ok(labelled);
+    };
+    // Snapshot (Passo 84.4): slice estável enquanto closures podem mutar
+    // `engine.show_rules`.
+    let rules = Arc::clone(&*engine.show_rules);
+    let mut scopes = Scopes::new(None);
+
+    // Show-set: dobrar todas as regras de label que casam (ordem de
+    // declaração, como no loop α) e embrulhar uma vez (collapse = top-wins).
+    let mut set_chain = StyleChain::empty();
+    let mut any_set = false;
+    for rule in rules.iter() {
+        if engine.active_guards.contains(&rule.id) {
+            continue;
+        }
+        if let (Selector::Label(l), Transformation::Style(styles)) =
+            (&rule.selector, &rule.transform)
+        {
+            if e.name.as_str() == l.0.as_str() {
+                set_chain = set_chain.push(styles.delta().clone());
+                any_set = true;
+            }
+        }
+    }
+
+    // Func/Content: primeira regra que casa (última-declarada primeiro),
+    // uma única aplicação.
+    for rule in rules.iter().rev() {
+        if engine.active_guards.contains(&rule.id) {
+            continue;
+        }
+        let Selector::Label(l) = &rule.selector else { continue };
+        if e.name.as_str() != l.0.as_str() {
+            continue;
+        }
+        let produced: Option<Content> = match &rule.transform {
+            Transformation::Func(func) => {
+                let args = Args::positional(vec![Value::Content(e.body.clone())]);
+                engine.active_guards.push(rule.id);
+                let call_result = closures::apply_func(
+                    func.clone(),
+                    args,
+                    &mut scopes,
+                    ctx,
+                    engine,
+                );
+                engine.active_guards.pop();
+                Some(match call_result? {
+                    Value::Content(c) => c,
+                    Value::Str(s) => Content::text(s.as_str()),
+                    other => {
+                        return Err(vec![SourceDiagnostic::error(
+                            Span::detached(),
+                            format!(
+                                "show rule deve retornar Content ou String, \
+                                 recebeu {}",
+                                other.type_name()
+                            ),
+                        )])
+                    }
+                })
+            }
+            Transformation::Content(c) => Some(c.clone()),
+            // `Str` sobre label é erro — paridade com o comportamento sobre
+            // `NodeKind` ("requer função ou Content, recebeu str").
+            Transformation::Str(_) => {
+                return Err(vec![SourceDiagnostic::error(
+                    Span::detached(),
+                    "show rule com selector de label requer função ou Content, \
+                     recebeu str"
+                        .to_string(),
+                )])
+            }
+            // Show-set: tratada acima (não consome o passe).
+            Transformation::Style(_) => None,
+        };
+        if let Some(out) = produced {
+            return Ok(out);
+        }
+    }
+
+    if any_set {
+        let delta = set_chain.collapse();
+        if !delta.is_empty() {
+            return Ok(Content::Styled(
+                Box::new(labelled),
+                Styles::from_delta(delta),
+            ));
+        }
+    }
+    Ok(labelled)
 }
 
 // ── Dispatcher arms: SetRule / ShowRule (Passo 96.2, ADR-0037 Regra 4) ────
@@ -793,6 +1004,10 @@ pub(super) fn eval_set_rule(
         let mut width = None;
         let mut height = None;
         let mut margin = None;
+        let mut margin_left = None;
+        let mut margin_right = None;
+        let mut margin_top = None;
+        let mut margin_bottom = None;
         let mut numbering = None;
         let mut columns: Option<usize> = None;
         for arg in set.args().items() {
@@ -803,7 +1018,35 @@ pub(super) fn eval_set_rule(
                 match key {
                     "width" => width = extract_pt(&val, span, size_pt)?,
                     "height" => height = extract_pt(&val, span, size_pt)?,
-                    "margin" => margin = extract_pt(&val, span, size_pt)?,
+                    "margin" => {
+                        match &val {
+                            Value::Dict(d) => {
+                                let extract_field = |k: &str| -> SourceResult<Option<f64>> {
+                                    if let Some(v) = d.get(k) {
+                                        extract_pt(v, span, size_pt)
+                                    } else {
+                                        Ok(None)
+                                    }
+                                };
+                                let mx = extract_field("x")?;
+                                let my = extract_field("y")?;
+                                margin_left = extract_field("left")?.or(mx);
+                                margin_right = extract_field("right")?.or(mx);
+                                margin_top = extract_field("top")?.or(my);
+                                margin_bottom = extract_field("bottom")?.or(my);
+                                margin = margin_left.or(margin_top);
+                            }
+                            other => {
+                                if let Some(m) = extract_pt(other, span, size_pt)? {
+                                    margin_left = Some(m);
+                                    margin_right = Some(m);
+                                    margin_top = Some(m);
+                                    margin_bottom = Some(m);
+                                    margin = Some(m);
+                                }
+                            }
+                        }
+                    }
                     "numbering" => {
                         numbering = match val {
                             Value::Str(s) => Some(s),
@@ -836,6 +1079,27 @@ pub(super) fn eval_set_rule(
                 }
             }
         }
+
+        // Empurrar as dimensões da página para a StyleChain para que o layout() possa ler
+        if let Some(w) = width {
+            *engine.styles = engine.styles.push_custom("page.width", Value::Float(w));
+        }
+        if let Some(h) = height {
+            *engine.styles = engine.styles.push_custom("page.height", Value::Float(h));
+        }
+        if let Some(ml) = margin_left {
+            *engine.styles = engine.styles.push_custom("page.margin-left", Value::Float(ml));
+        }
+        if let Some(mr) = margin_right {
+            *engine.styles = engine.styles.push_custom("page.margin-right", Value::Float(mr));
+        }
+        if let Some(mt) = margin_top {
+            *engine.styles = engine.styles.push_custom("page.margin-top", Value::Float(mt));
+        }
+        if let Some(mb) = margin_bottom {
+            *engine.styles = engine.styles.push_custom("page.margin-bottom", Value::Float(mb));
+        }
+
         return Ok(Value::Content(Content::SetPage { width, height, margin, numbering, columns }));
     }
 
@@ -1220,6 +1484,66 @@ pub(super) fn eval_show_rule(
     ctx: &mut EvalContext,
     engine: &mut Engine<'_>,
 ) -> SourceResult<Value> {
+    // P790 — `page`/`par` como alvo de show: identificadores especiais
+    // reconhecidos ANTES de avaliar o selector (no vanilla são element
+    // functions em scope; na stdlib cristalina não existem como variáveis —
+    // caíam em `unknown variable` fatal, achado P786). Paridade medida por
+    // execução (`typst-eval/src/rules.rs:67-95`):
+    // - `#show page: <qualquer transformação>` → warning específico, nenhuma
+    //   regra registada, compilação prossegue (a regra não tem efeito no
+    //   vanilla).
+    // - `#show par: set block(...)` com `spacing`/`above`/`below` → warning
+    //   específico, nenhuma regra registada (vanilla condiciona a
+    //   `BlockElem::above`/`below` na chain).
+    // - `#show par: <outra transformação>` → erro explícito (scope-out
+    //   documentado no L0, eval.md §P790: no vanilla `show par` é regra viva
+    //   sobre `ParElem`; element rule de par é candidata a passo futuro).
+    if let Some(Expr::Ident(ident)) = show_rule.selector() {
+        let rule_span = show_rule.to_untyped().span();
+        match ident.as_str() {
+            "page" => {
+                engine.sink.warn_note(
+                    rule_span,
+                    "`show page` is not supported and has no effect",
+                    "customize pages with `set page(..)` instead",
+                );
+                return Ok(Value::None);
+            }
+            "par" => {
+                let is_set_block_spacing = matches!(
+                    show_rule.transform(),
+                    Expr::SetRule(set)
+                        if set.target().to_untyped().text_str() == "block"
+                            && set.args().items().any(|arg| matches!(
+                                arg,
+                                Arg::Named(named)
+                                    if matches!(
+                                        named.name().as_str(),
+                                        "spacing" | "above" | "below"
+                                    )
+                            ))
+                );
+                if is_set_block_spacing {
+                    engine.sink.warn_note2(
+                        rule_span,
+                        "`show par: set block(spacing: ..)` has no effect anymore",
+                        "write `set par(spacing: ..)` instead",
+                        "this is specific to paragraphs as they are not considered \
+                         blocks anymore",
+                    );
+                    return Ok(Value::None);
+                }
+                return Err(vec![SourceDiagnostic::error(
+                    rule_span,
+                    "show par: apenas `set block(spacing: ..)` é reconhecido (sem efeito, \
+                     paridade vanilla); show par como regra de elemento ainda não é suportado"
+                        .to_string(),
+                )]);
+            }
+            _ => {}
+        }
+    }
+
     // Avaliar o selector — pode ser uma string ou uma função da stdlib.
     // `selector()` retorna `Option<Expr>` — None significa selector omitido (não suportado).
     let selector = match show_rule.selector() {
@@ -1232,9 +1556,23 @@ pub(super) fn eval_show_rule(
         Some(sel_expr) => {
             let selector_val = eval_expr(sel_expr, scopes, ctx, engine)?;
             match selector_val {
-                Value::Str(s) => Selector::Text(s.to_string()),
+                Value::Str(s) => {
+                    // P790 — paridade vanilla `selector.rs:110` (medido por
+                    // execução): selector de texto vazio é erro, não no-op.
+                    if s.is_empty() {
+                        return Err(vec![SourceDiagnostic::error(
+                            sel_expr.span(),
+                            "text selector is empty".to_string(),
+                        )]);
+                    }
+                    Selector::Text(s.to_string())
+                }
                 // P393: regex(pattern) → selector regex sobre texto.
                 Value::Regex(re) => Selector::Regex(re),
+                // P791 — `<lbl>` → selector por label (paridade vanilla
+                // `Selector::Label`). Aplicação dedicada em
+                // `intercept_labelled` (não viaja pela travessia principal).
+                Value::Label(l) => Selector::Label(l),
                 // **P417 (M)** — Selector como valor de primeira classe
                 // (`heading.where(level: 1)`). Converte do selector de query
                 // para o selector de show rule.

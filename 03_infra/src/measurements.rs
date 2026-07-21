@@ -236,6 +236,10 @@ impl<I: Introspector + Send + Sync> Introspector for CountingIntrospector<I> {
         self.inner.counter_key_for_label(label)
     }
 
+    fn heading_has_numbering(&self, location: Location) -> Option<bool> {
+        self.inner.heading_has_numbering(location)
+    }
+
     fn state_value(&self, key: &str, location: Location) -> Option<&Value> {
         record_call(8);
         self.inner.state_value(key, location)

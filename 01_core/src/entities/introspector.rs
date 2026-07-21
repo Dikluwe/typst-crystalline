@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/entities/introspector.md
-//! @prompt-hash 241031ce
+//! @prompt-hash d67e7342
 //! @layer L1
 //! @updated 2026-05-12
 //!
@@ -146,6 +146,11 @@ pub trait Introspector: Send + Sync {
     /// "figure:image", "equation", "table"). `None` se a label não existe
     /// ou não está associada a um elemento numerado.
     fn counter_key_for_label(&self, label: &Label) -> Option<&str>;
+
+    /// **P788** — `Some(flag)` se a `Location` pertence a um heading com
+    /// flag de `numbering` registada; `None` se não é heading registado.
+    /// Alimenta o erro vanilla `cannot reference heading without numbering`.
+    fn heading_has_numbering(&self, location: Location) -> Option<bool>;
 
     /// **P181F** — entry bibliográfica por chave. Replica
     /// `state.bib_entries.iter().find(|e| e.key == *key)` actual em
@@ -302,6 +307,12 @@ pub struct TagIntrospector {
     /// "figure:image", "equation", "table"). Populado durante o walk
     /// quando um elemento numerado é etiquetado via `Content::Label`.
     pub label_to_counter_key: HashMap<Label, EcoString>,
+    /// **P788** — mapa `Location → numbering_active` para headings
+    /// (flag baked da chain na emissão; `element_payload.md` §P788).
+    /// O counter de heading aplica-se incondicionalmente (P335), logo
+    /// "tem counter" ≠ "tem numbering" — este mapa alimenta o erro
+    /// vanilla `cannot reference heading without numbering`.
+    pub heading_numbering: HashMap<Location, bool>,
     /// **P169 (M9 sub-passo 1)** — values embebidos via `metadata(value)`
     /// vanilla. Acumulado por `from_tags` em ordem de aparecimento.
     pub metadata: MetadataStore,
@@ -625,6 +636,10 @@ impl Introspector for TagIntrospector {
 
     fn counter_key_for_label(&self, label: &Label) -> Option<&str> {
         self.label_to_counter_key.get(label).map(|s| s.as_str())
+    }
+
+    fn heading_has_numbering(&self, location: Location) -> Option<bool> {
+        self.heading_numbering.get(&location).copied()
     }
 
     fn bib_entry_for_key(&self, key: &str) -> Option<&BibEntry> {
