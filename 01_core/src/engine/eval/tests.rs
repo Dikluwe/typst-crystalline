@@ -6527,17 +6527,16 @@ mod tests {
     // ── Smart-quotes via markup `"..."` (Passo 155) ──────────────────────
 
     #[test]
-    fn eval_markup_smart_quotes_default_ascii() {
-        // Sem text.lang activo: aspas ASCII (`"`).
+    fn eval_markup_smart_quotes_default_curved() {
+        // Sem text.lang activo: aspas curvas por padrão.
         let world = MockWorld::new(r#""hello""#);
         let src = world.source(world.main()).unwrap();
         let module = eval_for_test(&world, &src).unwrap();
         let plain = module.content().unwrap().plain_text();
         assert!(plain.contains("hello"), "texto preservado: {:?}", plain);
-        // Default DEFAULT_QUOTES = ("\"", "\"") — caracter ASCII.
         assert!(
-            plain.starts_with('"') || plain.contains('"'),
-            "deve conter aspa ASCII: {:?}",
+            plain.starts_with('“') && plain.ends_with('”'),
+            "deve conter aspas curvas por padrão: {:?}",
             plain
         );
     }
@@ -11422,5 +11421,132 @@ mod tests {
         let m = eval_for_test(&world, &src).unwrap();
         assert_eq!(m.scope().get("lang1"), Some(&Value::Str("pt".into())));
         assert_eq!(m.scope().get("lang2"), Some(&Value::Str("fr".into())));
+    }
+
+    #[test]
+    fn p793_numbering_standalone_patterns() {
+        let world = MockWorld::new(
+            "#let x1 = numbering(\"1.a\", 3, 1)\n\
+             #let x2 = numbering(\"(I)\", 5)\n\
+             #let x3 = numbering(\"1.a.I\", 1, 2, 3, 4)\n\
+             #let x4 = numbering(\"א\", 15)"
+        );
+        let src = World::source(&world, World::main(&world)).unwrap();
+        let m = eval_for_test(&world, &src).unwrap();
+        assert_eq!(m.scope().get("x1"), Some(&Value::Str("3.a".into())));
+        assert_eq!(m.scope().get("x2"), Some(&Value::Str("(V)".into())));
+        assert_eq!(m.scope().get("x3"), Some(&Value::Str("1.b.III.IV".into())));
+        assert_eq!(m.scope().get("x4"), Some(&Value::Str("טו".into())));
+    }
+
+    #[test]
+    fn p793_numbering_standalone_closure() {
+        let world = MockWorld::new(
+            "#let x = numbering(n => str(n) + \"!\", 5)"
+        );
+        let src = World::source(&world, World::main(&world)).unwrap();
+        let m = eval_for_test(&world, &src).unwrap();
+        assert_eq!(m.scope().get("x"), Some(&Value::Str("5!".into())));
+    }
+
+    #[test]
+    fn p793_enum_auto_increment_sequence() {
+        let world = MockWorld::new(
+            "+ primeiro\n\
+             + segundo\n\n\
+             Um paragrafo no meio.\n\n\
+             + terceiro"
+        );
+        let src = World::source(&world, World::main(&world)).unwrap();
+        let m = eval_for_test(&world, &src).unwrap();
+        let doc = crate::engine::layout::layout(m.content().unwrap());
+        let text = doc.pages[0].plain_text();
+        assert!(text.contains("1. primeiro"), "esperado '1. primeiro', obtido: '{}'", text);
+        assert!(text.contains("2. segundo"), "esperado '2. segundo', obtido: '{}'", text);
+        assert!(text.contains("1. terceiro"), "esperado '1. terceiro', obtido: '{}'", text);
+    }
+
+    #[test]
+    fn p793_hebrew_zero_warning() {
+        use comemo::Track;
+        let world = MockWorld::new("#let x = numbering(\"א\", 0)");
+        let src = World::source(&world, World::main(&world)).unwrap();
+        
+        let routines = Routines::new();
+        let traced = Traced::default();
+        let mut sink = Sink::new();
+        let route = Route::root();
+        let registry = crate::entities::element_registry::ElementRegistry::new();
+        let _ = eval(
+            &routines,
+            &world,
+            traced.track(),
+            sink.track_mut(),
+            route.track(),
+            &src,
+            &registry,
+        );
+        
+        let diagnostics = sink.into_diagnostics();
+        assert!(!diagnostics.is_empty());
+        let warning_message = &diagnostics[0].message;
+        assert!(warning_message.contains("the numeral system `hebrew` cannot represent zero"));
+    }
+
+    #[test]
+    fn p794_smartquote_double_curved_default() {
+        let world = MockWorld::new(r#""test""#);
+        let src = world.source(world.main()).unwrap();
+        let module = eval_for_test(&world, &src).unwrap();
+        let plain = module.content().unwrap().plain_text();
+        assert_eq!(plain.trim(), "“test”");
+    }
+
+    #[test]
+    fn p794_smartquote_enabled_false() {
+        let world = MockWorld::new(r#"#set smartquote(enabled: false)
+"test" e 'single'"#);
+        let src = world.source(world.main()).unwrap();
+        let module = eval_for_test(&world, &src).unwrap();
+        let plain = module.content().unwrap().plain_text();
+        assert_eq!(plain.trim(), "\"test\" e 'single'");
+    }
+
+    #[test]
+    fn p794_smartquote_quotes_custom() {
+        let world = MockWorld::new(r#"#set smartquote(quotes: "«»")
+"test" e 'single'"#);
+        let src = world.source(world.main()).unwrap();
+        let module = eval_for_test(&world, &src).unwrap();
+        let plain = module.content().unwrap().plain_text();
+        assert_eq!(plain.trim(), "«test» e ‘single’");
+    }
+
+    #[test]
+    fn p794_smartquote_quotes_validation() {
+        use comemo::Track;
+        let world = MockWorld::new(r#"#set smartquote(quotes: "abc")"#);
+        let src = world.source(world.main()).unwrap();
+        
+        let registry = crate::entities::element_registry::ElementRegistry::new();
+        let routines = Routines::new();
+        let traced = Traced::default();
+        let mut sink = Sink::new();
+        let route = Route::root();
+        
+        let res = eval(
+            &routines,
+            &world,
+            traced.track(),
+            sink.track_mut(),
+            route.track(),
+            &src,
+            &registry,
+        );
+        assert!(res.is_err());
+        let errors = res.unwrap_err();
+        assert!(!errors.is_empty());
+        let error_msg = &errors[0].message;
+        assert!(error_msg.contains("expected 2 characters, found 3 characters"));
     }
 }

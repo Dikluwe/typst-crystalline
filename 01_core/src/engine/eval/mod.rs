@@ -519,41 +519,62 @@ pub(crate) fn eval_markup(
                 parts.push(rules::intercept_content(text_node, ctx, engine)?);
             }
             // Passo 445 — SmartQuote: emite glyph localizado consoante
-            // open/close (contexto adjacente) e `text.lang` activo.
+            // open/close (contexto adjacente) e `text.lang`/`smartquote` activo.
             SyntaxKind::SmartQuote => {
                 let raw = child.text();
                 let is_double = raw.as_str() == "\"";
                 let lang = engine.styles.lang();
 
-                let off = byte_offset;
-                let prev = src_str[..off].chars().last();
-                let next = src_str[off + child.len()..].chars().next();
-
-                let glyph: &str = if is_double {
-                    let (open, close) = match &lang {
-                        Some(l) => crate::engine::lang::quotes::localize_quotes(l),
-                        None    => crate::engine::lang::quotes::DEFAULT_QUOTES,
-                    };
-                    if is_opening_context(prev) {
-                        open
-                    } else {
-                        close
-                    }
-                } else {
-                    let (open, close) = match &lang {
-                        Some(l) => crate::engine::lang::quotes::localize_single_quotes(l),
-                        None    => crate::engine::lang::quotes::DEFAULT_SINGLE_QUOTES,
-                    };
-                    // Contracções / possessivos: `don't`, `Alice's` → apostrophe (U+2019).
-                    if is_word_char(prev) && is_word_char(next) {
-                        close
-                    } else if is_opening_context(prev) {
-                        open
-                    } else {
-                        close
-                    }
+                let enabled = match engine.styles.custom("smartquote.enabled") {
+                    Some(Value::Bool(b)) => *b,
+                    _ => true,
                 };
-                let quote_node = Content::Text(glyph.into());
+
+                let quote_node = if !enabled {
+                    Content::Text(raw.as_str().into())
+                } else {
+                    let off = byte_offset;
+                    let prev = src_str[..off].chars().last();
+                    let next = src_str[off + child.len()..].chars().next();
+
+                    let glyph: ecow::EcoString = if is_double {
+                        let (open, close) = match engine.styles.custom("smartquote.quotes") {
+                            Some(Value::Str(q)) => {
+                                let mut chars = q.chars();
+                                let open_c = chars.next().unwrap_or('“');
+                                let close_c = chars.next().unwrap_or('”');
+                                (ecow::EcoString::from(open_c), ecow::EcoString::from(close_c))
+                            }
+                            _ => {
+                                let (open_s, close_s) = match &lang {
+                                    Some(l) => crate::engine::lang::quotes::localize_quotes(l),
+                                    None    => crate::engine::lang::quotes::DEFAULT_QUOTES,
+                                };
+                                (ecow::EcoString::from(open_s), ecow::EcoString::from(close_s))
+                            }
+                        };
+                        if is_opening_context(prev) {
+                            open
+                        } else {
+                            close
+                        }
+                    } else {
+                        let (open, close) = match &lang {
+                            Some(l) => crate::engine::lang::quotes::localize_single_quotes(l),
+                            None    => crate::engine::lang::quotes::DEFAULT_SINGLE_QUOTES,
+                        };
+                        let (open_str, close_str) = (ecow::EcoString::from(open), ecow::EcoString::from(close));
+                        // Contracções / possessivos: `don't`, `Alice's` → apostrophe (U+2019).
+                        if is_word_char(prev) && is_word_char(next) {
+                            close_str
+                        } else if is_opening_context(prev) {
+                            open_str
+                        } else {
+                            close_str
+                        }
+                    };
+                    Content::Text(glyph)
+                };
                 parts.push(rules::intercept_content(quote_node, ctx, engine)?);
             }
             SyntaxKind::Space => parts.push(Content::Space),
@@ -1201,6 +1222,8 @@ fn make_stdlib(inputs: &SysInputs) -> Scope {
         build_emoji_module, make_pdf_module,
         // P472 — lof/lot.
         native_lof, native_lot,
+        // P793 — numbering.
+        native_numbering,
     };
     let mut scope = Scope::new();
     // P685 — `type` é um valor-tipo chamável (invoca native_type via eval_func_call).
@@ -1359,6 +1382,7 @@ fn make_stdlib(inputs: &SysInputs) -> Scope {
         );
     }
     scope.define("panic",   Value::Func(Func::native("panic",   native_panic)));
+    scope.define("numbering", Value::Func(Func::native_with_engine("numbering", native_numbering)));
     // P394: eval(source) — re-avalia string como markup Typst no contexto actual.
     scope.define("eval",    Value::Func(Func::native_with_engine("eval", native_eval)));
     // P169 (M9 sub-passo 1): metadata(value) — feature Introspection vanilla.

@@ -1,6 +1,7 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/engine/layout/enum_item.md
-//! @prompt-hash d0a25600
+//! @prompt 00_nucleo/prompts/p793-numbering-enum-hebrew.md
+//! @prompt-hash 150e26c3
 //! @layer L1
 //! @updated 2026-06-29
 //!
@@ -47,12 +48,21 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
     let body_indent_pt =
         Pt(e.body_indent.unwrap_or(Length::pt(0.0)).resolve_pt(font_size.val()));
 
-    let label: ecow::EcoString = match e.number {
+    let number = match e.number {
         Some(n) => {
-            let scheme = e.numbering.as_ref().unwrap_or(&EnumNumbering::Decimal);
-            scheme.format(n).into()
+            layouter.enum_counter = Some(n);
+            n
         }
-        None => "-".into(),
+        None => {
+            let next_num = layouter.enum_counter.unwrap_or(0) + 1;
+            layouter.enum_counter = Some(next_num);
+            next_num
+        }
+    };
+
+    let label: ecow::EcoString = {
+        let scheme = e.numbering.as_ref().unwrap_or(&EnumNumbering::Decimal);
+        scheme.format(number).into()
     };
     let label_width = layouter.metrics.advance(&label, font_size, &layouter.style);
 

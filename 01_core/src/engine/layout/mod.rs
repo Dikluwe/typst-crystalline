@@ -308,6 +308,8 @@ pub struct Layouter<'a, M: FontMetrics, S: ImageSizer = NullImageSizer> {
     /// no overflow check (`cursor_y > height - margin -
     /// cursor_y_bottom_reserve`). Reset em `new_page`.
     pub(super) cursor_y_bottom_reserve: f64,
+    /// **P793** — Contador de itens de enum sequenciais.
+    pub(super) enum_counter: Option<u32>,
     /// **P250 (M9d / M7+5; ADR-0079 Categoria A.4 cumulativa; cita
     /// ADR-0082 PROPOSTO N=1)** — below pendente do bloco anterior
     /// para CSS-style margin collapse `max(prev.below, curr.above)`
@@ -565,6 +567,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
             floats_pending: Vec::new(),
             cursor_y_top_reserve: 0.0,
             cursor_y_bottom_reserve: 0.0,
+            enum_counter: None,
             // P250 — spacing collapse state inicializado limpo.
             prev_block_below_pending: 0.0,
             block_chain_active: false,

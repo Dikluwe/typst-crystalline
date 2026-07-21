@@ -14529,15 +14529,14 @@ mod p287_smartquote_tests {
     }
 
     #[test]
-    fn p287_smartquote_double_lang_default_ascii() {
-        // Lang None → DEFAULT_QUOTES = ("\"", "\"") — alternância state
-        // interno verificável indirectamente (2 quotes → ≥2 chars `"`).
+    fn p287_smartquote_double_lang_default_curved() {
+        // Lang None → DEFAULT_QUOTES = ("“", "”")
         let doc = layout(&Content::sequence(vec![
             Content::smartquote(true),
             Content::smartquote(true),
         ]));
-        let n = collect_text(&doc).matches('"').count();
-        assert!(n >= 2, "2 SmartQuote → ≥2 `\"`; got {n}");
+        let txt = collect_text(&doc);
+        assert!(txt.contains('“') && txt.contains('”'), "2 SmartQuote → aspas curvas; got {txt:?}");
     }
 
     #[test]
@@ -14572,10 +14571,9 @@ mod p287_smartquote_tests {
             Content::smartquote(true), // função: state Layouter
         ]));
         let txt = collect_text(&doc);
-        // 2 chars `"` no total (1 do markup literal, 1 do SmartQuote ASCII).
         assert!(
-            txt.matches('"').count() >= 2,
-            "estados independentes → ≥2 chars `\"`; got {txt:?}"
+            txt.contains('"') && txt.contains('“'),
+            "estados independentes → got {txt:?}"
         );
     }
 
@@ -14586,10 +14584,10 @@ mod p287_smartquote_tests {
         // arrancam em open.
         let doc1 = layout(&Content::smartquote(true));
         let doc2 = layout(&Content::smartquote(true));
-        let n1 = collect_text(&doc1).matches('"').count();
-        let n2 = collect_text(&doc2).matches('"').count();
-        assert_eq!(n1, 1, "doc1 SmartQuote default → 1 char `\"`");
-        assert_eq!(n2, 1, "doc2 idem (state per-document)");
+        let txt1 = collect_text(&doc1);
+        let txt2 = collect_text(&doc2);
+        assert_eq!(txt1, "“");
+        assert_eq!(txt2, "“");
     }
 
     // ── Passo 288 — testes lang-aware reactivados (adiados de P287 §4) ─

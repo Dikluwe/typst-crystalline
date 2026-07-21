@@ -140,7 +140,7 @@ fn unsupported_property_warn(
 fn unsupported_target_warn(target: &str) -> (String, String) {
     (
         format!("set: target '{target}' ainda não suportado"),
-        "targets suportados: heading, page, figure, text, par".to_string(),
+        "targets suportados: heading, page, figure, text, par, table, smartquote".to_string(),
     )
 }
 
@@ -1195,6 +1195,59 @@ pub(super) fn eval_set_rule(
                             &msg,
                             &hint,
                         );
+                    }
+                }
+            }
+        }
+        return Ok(Value::None);
+    }
+
+    if target == "smartquote" {
+        for arg in set.args().items() {
+            if let Arg::Named(named) = arg {
+                let key = named.name().as_str();
+                let val = eval_expr(named.expr(), scopes, ctx, engine)?;
+                let span = named.expr().span();
+                match key {
+                    "enabled" => {
+                        match val {
+                            Value::Bool(b) => {
+                                *engine.styles = engine
+                                    .styles
+                                    .push_custom("smartquote.enabled", Value::Bool(b));
+                            }
+                            other => {
+                                return Err(vec![type_mismatch("bool", &other, span)]);
+                            }
+                        }
+                    }
+                    "quotes" => {
+                        match val {
+                            Value::Str(s) => {
+                                let char_count = s.chars().count();
+                                if char_count != 2 {
+                                    return Err(vec![SourceDiagnostic::error(
+                                        span,
+                                        format!("expected 2 characters, found {} characters", char_count),
+                                    )]);
+                                }
+                                *engine.styles = engine
+                                    .styles
+                                    .push_custom("smartquote.quotes", Value::Str(s));
+                            }
+                            Value::None | Value::Auto => {
+                                *engine.styles = engine
+                                    .styles
+                                    .push_custom("smartquote.quotes", Value::None);
+                            }
+                            other => {
+                                return Err(vec![type_mismatch("string, auto or none", &other, span)]);
+                            }
+                        }
+                    }
+                    _ => {
+                        let (msg, hint) = unsupported_property_warn("smartquote", key, None);
+                        engine.sink.warn_note(named.name().to_untyped().span(), &msg, &hint);
                     }
                 }
             }

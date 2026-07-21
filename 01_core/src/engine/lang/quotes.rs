@@ -32,7 +32,7 @@ const LANG_QUOTES: &[(&str, (&str, &str))] = &[
 ];
 
 /// Aspas default (ASCII) para línguas não cobertas pela tabela.
-pub const DEFAULT_QUOTES: (&str, &str) = ("\"", "\"");
+pub const DEFAULT_QUOTES: (&str, &str) = ("\u{201C}", "\u{201D}");
 
 /// Aspas simples default (curly inglesas) para línguas não cobertas.
 pub const DEFAULT_SINGLE_QUOTES: (&str, &str) = ("\u{2018}", "\u{2019}");
@@ -107,11 +107,11 @@ mod tests {
     }
 
     #[test]
-    fn localize_quotes_lang_desconhecido_devolve_default_ascii() {
+    fn localize_quotes_lang_desconhecido_devolve_default_curved() {
         // 'jp' (3-letter for Japanese) ou outro lang fora da tabela.
         let lang = Lang::from_str("jp").unwrap();
         assert_eq!(localize_quotes(&lang), DEFAULT_QUOTES);
-        assert_eq!(localize_quotes(&lang), ("\"", "\""));
+        assert_eq!(localize_quotes(&lang), ("“", "”"));
     }
 
     #[test]

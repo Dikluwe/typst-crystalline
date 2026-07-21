@@ -4,6 +4,8 @@
 //! @prompt 00_nucleo/prompts/engine/model/document.md
 //! @prompt 00_nucleo/prompts/p792-context-layout-textlang-position.md
 //! @prompt-hash a2844d48
+//! @prompt 00_nucleo/prompts/p793-numbering-enum-hebrew.md
+//! @prompt-hash 150e26c3
 //! @layer L1
 //! @updated 2026-06-22
 
@@ -93,7 +95,7 @@ pub use crate::engine::stdlib::structural::{
     make_math_module, native_accent, native_asset, native_bibliography, native_cancel,
     native_cite, native_divider, native_document, native_emph, native_enum, native_footnote,
     native_grid_cell, native_grid_footer, native_grid_header, native_grid_hline, native_grid_vline, native_heading,
-    native_link, native_list, native_lof, native_lot, native_op, native_outline, native_quote, native_raw, native_strong,
+    native_link, native_list, native_lof, native_lot, native_numbering, native_op, native_outline, native_quote, native_raw, native_strong,
     native_table, native_table_cell, native_table_footer, native_table_header, native_table_hline, native_table_vline, native_terms,
     native_title, native_underover,
 };

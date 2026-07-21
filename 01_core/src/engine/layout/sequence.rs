@@ -1,6 +1,7 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/engine/layout.md
-//! @prompt-hash 951cd878
+//! @prompt 00_nucleo/prompts/p793-numbering-enum-hebrew.md
+//! @prompt-hash 150e26c3
 //! @layer L1
 //! @updated 2026-06-23
 //!
@@ -64,6 +65,16 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
         // reseta o estado.
         if !matches!(part, Content::ListItem(_) | Content::EnumItem(_)) {
             layouter.last_was_loose_item = false;
+        }
+        if !matches!(
+            part,
+            Content::EnumItem(_)
+                | Content::Space
+                | Content::Parbreak
+                | Content::Empty
+                | Content::Styled(..)
+        ) {
+            layouter.enum_counter = None;
         }
     }
 
