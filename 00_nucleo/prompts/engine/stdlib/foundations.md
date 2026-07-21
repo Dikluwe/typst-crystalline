@@ -1,5 +1,5 @@
 # Prompt L0 — `stdlib/foundations` — utilitários, cores, conversões e introspeção
-Hash do Código: cb6abc75
+Hash do Código: 7a25450a
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/engine/stdlib/foundations.rs`
@@ -119,7 +119,7 @@ inalterada — só muda o valor no scope (de função para tipo chamável).
 | `float` | `"1.0"`, `"1.5"`; não-finitos → `"float.nan"`, `"float.inf"`, `"-float.inf"` (P740E — paridade vanilla medida) |
 | `arguments` | `"arguments(z: 2, y: 3)"` (P740B — nomeados primeiro, depois posicionais; vazio → `"arguments()"`) |
 | `str` | `"\"hello\""` |
-| `array` | `"(1, 2)"`; array vazio → `"()"` |
+| `array` | `"(1, 2)"`; array vazio → `"()"`; **array de 1 elemento → `"(5,)"`** (P801 — vírgula final, paridade vanilla `pretty_array_like(_, len == 1)`, distingue de parênteses de agrupamento; aplica-se também ao display embutido em markup via `value_to_display_content`) |
 | `dict` | `"(a: 1)"`; dict vazio → `"(:)"` (P695 — distinto de array vazio `"()"`) |
 | `content` | `"heading(level: 1)[\"Title\"]"` |
 | `function` | `"#repr"` ou `"#function(...)"` |

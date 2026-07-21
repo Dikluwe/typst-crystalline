@@ -237,6 +237,50 @@ quote([x], foo: 1) -> Err "argumento nomeado inesperado 'foo'"
 
 ---
 
+### `native_par(body, leading:?)` — P806
+
+**Assinatura**: `par(body: Content | Str, leading: Length?) -> Content`
+
+**Origem**: P806 (achado #12 de P798) — `#par[...]` dava `unknown variable: par`;
+o vanilla aceita (`ParElem`, `typst-library/src/model/par.rs`).
+
+**Argumentos**:
+- 1º posicional `body`: `Content` ou `Str` (obrigatório). Em falta →
+  `missing argument: body` (literal vanilla). Tipo errado →
+  `expected content, found {type_name()}` (convenção do projecto; o vanilla
+  diz "integer" onde o `type_name()` do projecto diz "int" — divergência
+  pré-existente de nomes de tipo, registada, fora de âmbito).
+- `leading`: `Length` (named). Aplicado envolvendo o body em
+  `Content::Styled` com o custom `"par.leading"` — o mesmo canal do
+  `#set par(leading:)` (F-5b/P373).
+- Propriedades vanilla conhecidas mas **não honradas** (`justify`,
+  `spacing`, `linebreaks`, `first-line-indent`, `hanging-indent`,
+  `justification-limits`): aceites e **ignoradas em silêncio** (funções
+  nativas não têm acesso ao `Sink` para avisar; `#set par` avisa porque
+  corre no eval com engine). Registado como limitação.
+- Named desconhecido → erro `argumento nomeado inesperado em par(): '{key}'`.
+
+**Semântica**: Devolve o body **directamente** (sem wrapper) — no cristalino
+os parágrafos são implícitos (texto plano em `Sequence`; não existe
+`Content::Par` — `element_kind.rs`), logo o caso standalone
+(`#par[conteúdo]` como documento) é idêntico ao vanilla. **Limitação
+registada**: o vanilla `ParElem` é block-level (`Texto #par[x] fim` quebra
+em 3 parágrafos); o cristalino emenda o body no fluxo corrente. Criar
+`Content::Par` ou quebrar o fluxo é candidato a passo futuro se o caso
+mid-paragraph aparecer em corpus real.
+
+**Testes canónicos**:
+```
+par([abc]) -> Content "abc" (devolvido directamente)
+par(leading: 20pt)[abc] -> Content::Styled(_, custom "par.leading"=20pt)
+par(justify: true)[abc] -> Content "abc" (justify aceite e ignorado)
+par() -> Err "missing argument: body"
+par(5) -> Err "expected content, found int"
+par([x], foo: 1) -> Err "argumento nomeado inesperado em par(): 'foo'"
+```
+
+---
+
 ### `native_table(...)`
 
 **Assinatura**: `table(..children: Content | Str, columns:?, rows:?, stroke:?, fill:?) -> Content`

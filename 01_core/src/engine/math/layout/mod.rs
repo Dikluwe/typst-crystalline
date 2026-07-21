@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/engine/math/layout/_comum.md
-//! @prompt-hash 2d7029e2
+//! @prompt-hash 6b9d0a53
 //! @layer L1
 //! @updated 2026-04-11
 
@@ -316,11 +316,15 @@ impl<'a, M: FontMetrics> MathLayouter<'a, M> {
 
     /// Ponto de entrada: recebe o body de uma equação e produz `Vec<FrameItem>`.
     ///
-    /// Os items retornados têm posições relativas à origem — o layouter principal
-    /// é responsável por ajustar para posição absoluta na página.
+    /// Os items retornados têm posições **relativas à baseline da fórmula**
+    /// (baseline em `y = 0`; scripts acima têm `y` negativo) — o layouter
+    /// principal ajusta para posição absoluta na página somando a baseline
+    /// pretendida (P800: para inline, a baseline do texto circundante).
     pub fn layout_equation(&self, body: &Content, style: &TextStyle) -> Vec<FrameItem> {
         let math_box = self.layout_node(body, style);
-        // Baseline no topo do box (simplificado: Passo 38+ alinhará com x-height)
+        // `place` com baseline_y = ascent ⇒ parent_y = local_y: os items
+        // internos já são compostos com y=0 na baseline (ex.: attach põe sup
+        // em -sup_offset), logo o resultado fica baseline-relativo.
         let baseline_y = math_box.ascent;
         math_box.place(0.0, baseline_y)
     }

@@ -1259,6 +1259,9 @@ mod tests_inline_baseline {
     }
 
     #[test]
+    #[ignore = "P800: consagrava a regra Passo 48 (offset_y = cursor_y - axis_pt), \
+                refutada por medição vanilla — a baseline do math inline coincide \
+                com a do texto. Substituído por equacao_inline_baseline_coincide_com_texto."]
     fn equacao_inline_sobe_em_relacao_ao_baseline() {
         // Com o ajuste de baseline, os items da equação inline estão acima
         // do cursor_y (offset_y < cursor_y). Com FixedMetrics, axis_height=500
@@ -1284,6 +1287,57 @@ mod tests_inline_baseline {
             "equacao inline deve estar acima do baseline ({:.1} < 81.6)",
             min_y
         );
+    }
+
+    #[test]
+    fn equacao_inline_baseline_coincide_com_texto() {
+        // P800 — paridade vanilla medida por `mutool trace` em
+        // `Hello $x^2$`: texto e math partilham a MESMA baseline (o eixo
+        // matemático fica axis_height acima e só governa o centrado interno
+        // de frac/delims). A regra Passo 48 (`offset_y = cursor_y - axis_pt`)
+        // deslocava a fórmula ~0.5em para cima do texto — refutada por
+        // medição. Este teste substitui a asserção dessa regra
+        // (`equacao_inline_sobe_em_relacao_ao_baseline`, acima, marcada
+        // #[ignore] neste passo).
+        let doc = layout_test("Hello $x$");
+        let y_of = |needle: &str| {
+            doc.pages.iter().flat_map(|p| p.items.iter()).find_map(|i| match i {
+                FrameItem::Text { pos, text, .. } if text.contains(needle) => {
+                    Some(pos.y.val())
+                }
+                _ => None,
+            })
+        };
+        let y_text = y_of("Hello").expect("texto 'Hello' presente");
+        let y_math = y_of("x").expect("math 'x' presente");
+        assert!(
+            (y_text - y_math).abs() < 0.01,
+            "baseline do math inline deve coincidir com a do texto: texto_y={y_text} math_y={y_math}"
+        );
+    }
+
+    #[test]
+    fn if_com_math_inline_attach_baseline_coincide() {
+        // P800 — caso original do achado #7 de P798: `#if` com corpo contendo
+        // math inline com superscript. O conteúdo avalia e o math fica na
+        // baseline do texto; o sup fica acima (y menor).
+        let doc = layout_test("#if true [Hello $x^2$]");
+        let y_of = |needle: &str| {
+            doc.pages.iter().flat_map(|p| p.items.iter()).find_map(|i| match i {
+                FrameItem::Text { pos, text, .. } if text.contains(needle) => {
+                    Some(pos.y.val())
+                }
+                _ => None,
+            })
+        };
+        let y_text = y_of("Hello").expect("texto 'Hello' presente");
+        let y_math = y_of("x").expect("math 'x' presente");
+        let y_sup = y_of("2").expect("sup '2' presente");
+        assert!(
+            (y_text - y_math).abs() < 0.01,
+            "baseline do math em #if deve coincidir com a do texto: texto_y={y_text} math_y={y_math}"
+        );
+        assert!(y_sup < y_math, "sup deve ficar acima da baseline: sup_y={y_sup} math_y={y_math}");
     }
 }
 

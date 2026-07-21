@@ -24,7 +24,7 @@ use crate::entities::elements::outline::OutlineElem;
 use crate::entities::elements::outline::OutlineTarget;
 use crate::entities::engine::Engine;
 use crate::entities::geometry::Stroke;
-use crate::entities::layout_types::{Align2D, Color, HAlign, VAlign};
+use crate::entities::layout_types::{Align2D, Color, HAlign, Length, VAlign};
 use crate::entities::paint::Paint;
 use crate::entities::source_result::{SourceDiagnostic, SourceResult};
 use crate::entities::span::Span;
@@ -651,6 +651,85 @@ pub fn native_quote(
     }
 
     Ok(Value::Content(Content::quote(body, attribution, block, quotes)))
+}
+
+// ── P806 — `par(body, leading:?)` ────────────────────────────────────────
+
+/// `par(body, leading:?)` → body como `Content` (parágrafo implícito).
+///
+/// **P806** (achado #12 de P798) — o vanilla tem `ParElem` invocável
+/// (`#par[...]`); o cristalino não tem `Content::Par` (parágrafos são texto
+/// plano em `Sequence` — `element_kind.rs`), logo o body é devolvido
+/// **directamente**: o caso standalone é idêntico ao vanilla. A quebra de
+/// fluxo block-level do vanilla (mid-paragraph) é limitação registada no L0
+/// (`stdlib/structural.md` §`native_par`).
+///
+/// `leading:` (Length) é aplicado via `Content::Styled` com o custom
+/// `"par.leading"` (mesmo canal do `#set par(leading:)`, F-5b/P373).
+/// Propriedades vanilla conhecidas mas não honradas (`justify`, `spacing`,
+/// `linebreaks`, `first-line-indent`, `hanging-indent`,
+/// `justification-limits`) são aceites e ignoradas em silêncio (funções
+/// nativas não têm acesso ao `Sink` — limitação registada).
+pub fn native_par(
+    _ctx: &mut EvalContext,
+    args: &Args,
+    _world: &dyn crate::contracts::world::World,
+    _current_file: FileId,
+) -> SourceResult<Value> {
+    let body = match args.items.first() {
+        Some(Value::Content(c)) => c.clone(),
+        Some(Value::Str(s)) => Content::text(s.as_str()),
+        Some(other) => {
+            return Err(vec![SourceDiagnostic::error(
+                Span::detached(),
+                format!("expected content, found {}", other.type_name()),
+            )])
+        }
+        None => {
+            // Literal vanilla (`typst-library/src/model/par.rs` — medido:
+            // `#par()` → "missing argument: body").
+            return Err(vec![SourceDiagnostic::error(
+                Span::detached(),
+                "missing argument: body".to_string(),
+            )])
+        }
+    };
+
+    let mut leading: Option<Length> = None;
+    for (key, value) in args.named.iter() {
+        match key.as_str() {
+            "leading" => match value {
+                Value::Length(l) => leading = Some(*l),
+                other => {
+                    return Err(vec![SourceDiagnostic::error(
+                        Span::detached(),
+                        format!(
+                            "par(leading:) espera length, recebeu {}",
+                            other.type_name()
+                        ),
+                    )])
+                }
+            },
+            // Aceites e ignoradas (ver docstring — limitação registada).
+            "justify" | "spacing" | "linebreaks" | "first-line-indent"
+            | "hanging-indent" | "justification-limits" => {}
+            other => {
+                return Err(vec![SourceDiagnostic::error(
+                    Span::detached(),
+                    format!("argumento nomeado inesperado em par(): '{}'", other),
+                )])
+            }
+        }
+    }
+
+    match leading {
+        Some(l) => Ok(Value::Content(Content::Styled(
+            Box::new(body),
+            crate::entities::style::Styles::new()
+                .push_custom("par.leading", Value::Length(l)),
+        ))),
+        None => Ok(Value::Content(body)),
+    }
 }
 
 // ── Passo 157A (ADR-0060 Fase 2 sub-passo 1) — table minimal ────────────────
@@ -3505,6 +3584,99 @@ mod tests {
             &NullWorld::default(),
             test_file_id(),
         )
+    }
+
+    // ── P806 — `native_par` ───────────────────────────────────────────────
+
+    fn call_par(args: Args) -> SourceResult<Value> {
+        native_par(
+            &mut EvalContext::new(),
+            &args,
+            &NullWorld::default(),
+            test_file_id(),
+        )
+    }
+
+    #[test]
+    fn p806_par_body_content_devolvido_directamente() {
+        // P806 — `#par[...]` como função (achado #12 de P798): o body é
+        // devolvido directamente (parágrafos implícitos; standalone idêntico
+        // ao vanilla).
+        let args = Args::positional(vec![Value::Content(Content::text("abc"))]);
+        let v = call_par(args).unwrap();
+        let Value::Content(c) = v else {
+            panic!("esperado Content, recebeu {:?}", v);
+        };
+        assert_eq!(c.plain_text(), "abc");
+    }
+
+    #[test]
+    fn p806_par_body_str_convertida() {
+        let args = Args::positional(vec![Value::Str("abc".into())]);
+        let v = call_par(args).unwrap();
+        let Value::Content(c) = v else {
+            panic!("esperado Content, recebeu {:?}", v);
+        };
+        assert_eq!(c.plain_text(), "abc");
+    }
+
+    #[test]
+    fn p806_par_leading_embrulha_styled_custom() {
+        // `leading:` viaja pelo mesmo canal custom do `#set par(leading:)`.
+        use crate::entities::layout_types::Length;
+        let mut args = Args::positional(vec![Value::Content(Content::text("abc"))]);
+        args.named.insert("leading".into(), Value::Length(Length::pt(20.0)));
+        let v = call_par(args).unwrap();
+        let Value::Content(Content::Styled(inner, _styles)) = v else {
+            panic!("esperado Content::Styled, recebeu {:?}", v);
+        };
+        assert_eq!(inner.plain_text(), "abc");
+    }
+
+    #[test]
+    fn p806_par_justify_aceite_e_ignorado() {
+        // Propriedade vanilla conhecida mas não honrada: aceite sem erro.
+        let mut args = Args::positional(vec![Value::Content(Content::text("abc"))]);
+        args.named.insert("justify".into(), Value::Bool(true));
+        let v = call_par(args).unwrap();
+        let Value::Content(c) = v else {
+            panic!("esperado Content, recebeu {:?}", v);
+        };
+        assert_eq!(c.plain_text(), "abc");
+    }
+
+    #[test]
+    fn p806_par_sem_body_erro_literal_vanilla() {
+        let args = Args::positional(vec![]);
+        let err = call_par(args).unwrap_err();
+        assert!(
+            format!("{:?}", err).contains("missing argument: body"),
+            "mensagem literal do vanilla, obtido: {:?}",
+            err
+        );
+    }
+
+    #[test]
+    fn p806_par_tipo_errado_erro_expected_content() {
+        let args = Args::positional(vec![Value::Int(5)]);
+        let err = call_par(args).unwrap_err();
+        assert!(
+            format!("{:?}", err).contains("expected content, found int"),
+            "padrão expected/found, obtido: {:?}",
+            err
+        );
+    }
+
+    #[test]
+    fn p806_par_named_desconhecido_erro() {
+        let mut args = Args::positional(vec![Value::Content(Content::text("abc"))]);
+        args.named.insert("foo".into(), Value::Int(1));
+        let err = call_par(args).unwrap_err();
+        assert!(
+            format!("{:?}", err).contains("argumento nomeado inesperado em par(): 'foo'"),
+            "obtido: {:?}",
+            err
+        );
     }
 
     #[test]

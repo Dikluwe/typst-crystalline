@@ -1,5 +1,5 @@
 # Prompt L0 — rules/eval
-Hash do Código: 6189e0df
+Hash do Código: 041d6534
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/engine/eval/mod.rs`
@@ -377,6 +377,14 @@ e deve produzir erro.
   introspector — divergência separada pré-existente, fora do âmbito show, candidata a
   passo); `#label("nome")` (função, `stdlib/label.rs`) não passa por `intercept_labelled`
   (scope-out — o caminho de show-by-label cobre a sintaxe `<lbl>`).
+- **Warning de label órfã (P802)**: quando `<lbl>` não tem elemento anterior anexável
+  na sequência de markup (ex.: `<abc> Hello` — label em primeiro lugar), o cristalino
+  emite `label `<abc>` is not attached to anything` via `Sink::warn_note` (span do nó
+  label), paridade vanilla `typst-eval/src/markup.rs:66-70`. A label é descartada (como
+  no vanilla) e os espaços recolhidos na procura do alvo são re-inseridos. Label
+  anexada (incluindo a nó de texto, ex.: `Hello <abc>`) não avisa — medido no vanilla
+  0.15.0. O warning vanilla "content labelled multiple times" (2ª label no mesmo
+  elemento) continua **fora do âmbito** — registado, não implementado.
 - **Flag de erro completo (P350c)**: `EvalContext.full_error` (default `false`, recebida via
   `eval_with_full_error` — `eval()` é o delegado com `false`; L1 não lê env). Quando ligada,
   o erro do teto ganha um **3º hint** classificando **cíclico** (morfologia do caminho repetiu)

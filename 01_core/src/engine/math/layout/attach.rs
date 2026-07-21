@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/engine/math/layout/attach.md
-//! @prompt-hash b3b29f07
+//! @prompt-hash 572a89a1
 //! @layer L1
 //! @updated 2026-04-23
 //!
@@ -195,14 +195,19 @@ impl<'a, M: FontMetrics> super::MathLayouter<'a, M> {
 
             MathBox { width: total_w, ascent, descent, items }
         } else {
-            // ── Right-scripts (sub/sup à direita — layout horizontal) ────────
+            // ── Right-scripts (sub/sup à direita — empilhados na mesma origem x) ──
             // Base: posicionada em x = base_offset_x.
             for item in base_box.items {
                 items.push(offset_item(item, Pt(base_offset_x), Pt(0.0)));
             }
 
-            // Right-scripts partem de base_offset_x + base_width.
-            let mut x = base_offset_x + base_width;
+            // P799 — sub e sup partem AMBOS de base_offset_x + base_width
+            // (cada um com o kern do seu quadrante), empilhados verticalmente,
+            // não compostos em sequência horizontal. Paridade vanilla
+            // `scripts.rs`: `tr_x = br_x = pre_width + base_width + kern`.
+            // A largura total é base + max(sup + kern_sup, sub + kern_sub).
+            let scripts_x = base_offset_x + base_width;
+            let mut post_width: f64 = 0.0;
 
             if let Some(sup_content) = sup {
                 let sup_box = self.layout_node(sup_content, &script_style);
@@ -217,9 +222,9 @@ impl<'a, M: FontMetrics> super::MathLayouter<'a, M> {
                     .val();
 
                 for item in sup_box.items {
-                    items.push(offset_item(item, Pt(x + kern_sup), Pt(-sup_offset)));
+                    items.push(offset_item(item, Pt(scripts_x + kern_sup), Pt(-sup_offset)));
                 }
-                x += sup_box.width + kern_sup;
+                post_width = post_width.max(sup_box.width + kern_sup);
             }
 
             if let Some(sub_content) = sub {
@@ -235,11 +240,12 @@ impl<'a, M: FontMetrics> super::MathLayouter<'a, M> {
                     .val();
 
                 for item in sub_box.items {
-                    items.push(offset_item(item, Pt(x + kern_sub), Pt(sub_offset)));
+                    items.push(offset_item(item, Pt(scripts_x + kern_sub), Pt(sub_offset)));
                 }
+                post_width = post_width.max(sub_box.width + kern_sub);
             }
 
-            MathBox { width: x, ascent, descent, items }
+            MathBox { width: scripts_x + post_width, ascent, descent, items }
         }
     }
 }

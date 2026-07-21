@@ -103,8 +103,9 @@ pub use crate::engine::stdlib::structural::{
     native_cite, native_divider, native_document, native_emph, native_enum,
     native_footnote, native_grid_cell, native_grid_footer, native_grid_header,
     native_grid_hline, native_grid_vline, native_heading, native_link, native_list,
-    native_lof, native_lot, native_numbering, native_op, native_outline, native_quote,
-    native_raw, native_strong, native_table, native_table_cell, native_table_footer,
+    native_lof, native_lot, native_numbering, native_op, native_outline, native_par,
+    native_quote, native_raw, native_strong, native_table, native_table_cell,
+    native_table_footer,
     native_table_header, native_table_hline, native_table_vline, native_terms,
     native_title, native_underover,
 };
@@ -4526,6 +4527,92 @@ mod tests {
         }
     }
 
+    // ── P804 — `line(length:)`, `line(angle:)` (paridade vanilla) ─────────
+
+    #[test]
+    fn p804_line_length_sozinho() {
+        // P804 — `#line(length: 3cm)` era rejeitado ("argumento nomeado
+        // inesperado"); vanilla aceita: dx = cos(0)·length, dy = sin(0)·length.
+        use crate::entities::geometry::ShapeKind;
+        use crate::entities::layout_types::Length;
+        null_ctx!(ctx);
+        let mut args = Args::positional(vec![]);
+        args.named.insert("length".into(), Value::Length(Length::pt(85.04))); // 3cm
+        let result = native_line(&mut ctx, &args, &null_world(), test_file_id()).unwrap();
+        if let Value::Content(Content::Shape(e)) = result {
+            assert!(
+                matches!(e.kind, ShapeKind::Line { dx, dy } if (dx - 85.04).abs() < 0.01 && dy.abs() < 0.01),
+                "esperado Line dx=85.04 dy=0, obtido: {:?}", e.kind
+            );
+        } else {
+            panic!("Esperado Content::Shape");
+        }
+    }
+
+    #[test]
+    fn p804_line_length_com_angle() {
+        // P804 — `#line(length: 4cm, angle: 90deg)` → dx≈0, dy=4cm
+        // (paridade vanilla layout_line: delta = (cos·len, sin·len)).
+        use crate::entities::geometry::ShapeKind;
+        use crate::entities::layout_types::{Angle, Length};
+        null_ctx!(ctx);
+        let mut args = Args::positional(vec![]);
+        args.named.insert("length".into(), Value::Length(Length::pt(113.39))); // 4cm
+        args.named.insert("angle".into(), Value::Angle(Angle::deg(90.0)));
+        let result = native_line(&mut ctx, &args, &null_world(), test_file_id()).unwrap();
+        if let Value::Content(Content::Shape(e)) = result {
+            assert!(
+                matches!(e.kind, ShapeKind::Line { dx, dy } if dx.abs() < 0.01 && (dy - 113.39).abs() < 0.01),
+                "esperado Line dx≈0 dy=113.39, obtido: {:?}", e.kind
+            );
+        } else {
+            panic!("Esperado Content::Shape");
+        }
+    }
+
+    #[test]
+    fn p804_line_length_ignorado_com_end() {
+        // P804 — medido no vanilla 0.15.0: `#line(length: 3cm, end: (1cm, 1cm))`
+        // compila e `length` é IGNORADO ("only respected if end is none").
+        use crate::entities::geometry::ShapeKind;
+        use crate::entities::layout_types::Length;
+        null_ctx!(ctx);
+        let mut args = Args::positional(vec![]);
+        args.named.insert("length".into(), Value::Length(Length::pt(85.04)));
+        args.named.insert(
+            "end".into(),
+            Value::Array(vec![
+                Value::Length(Length::pt(28.346)),
+                Value::Length(Length::pt(28.346)),
+            ]),
+        );
+        let result = native_line(&mut ctx, &args, &null_world(), test_file_id()).unwrap();
+        if let Value::Content(Content::Shape(e)) = result {
+            assert!(
+                matches!(e.kind, ShapeKind::Line { dx, dy } if (dx - 28.346).abs() < 0.01 && (dy - 28.346).abs() < 0.01),
+                "esperado Line do end (length ignorado), obtido: {:?}", e.kind
+            );
+        } else {
+            panic!("Esperado Content::Shape");
+        }
+    }
+
+    #[test]
+    fn p804_line_length_nao_combinavel_com_dx() {
+        // P804 — `length`/`angle` não combinam com o legado `dx`/`dy`.
+        use crate::entities::layout_types::Length;
+        null_ctx!(ctx);
+        let mut args = Args::positional(vec![]);
+        args.named.insert("length".into(), Value::Length(Length::pt(85.04)));
+        args.named.insert("dx".into(), Value::Float(10.0));
+        let err = native_line(&mut ctx, &args, &null_world(), test_file_id()).unwrap_err();
+        assert!(
+            format!("{:?}", err).contains("não pode ser combinado"),
+            "erro de combinação inválida, obtido: {:?}",
+            err
+        );
+    }
+
     #[test]
     fn polygon_sem_pontos_gera_erro() {
         null_ctx!(ctx);
@@ -5118,6 +5205,38 @@ mod tests {
         let err =
             native_curve(&mut ctx, &args, &null_world(), test_file_id()).unwrap_err();
         assert!(format!("{:?}", err).contains("pelo menos um segmento"));
+    }
+
+    #[test]
+    fn p803_curve_arg_nao_content_erro_paridade_vanilla() {
+        // P803 — argumento posicional que não é `Content::Curve` nem tuplo
+        // legado (array com 1º elemento string) → `expected content, found
+        // {type}` (paridade vanilla 0.15.0 medida: `#curve((0pt, 0pt))` →
+        // "expected content, found array"). Antes: mensagens próprias
+        // ("argumento N não é um array de segmento válido" / "primeiro
+        // elemento deve ser string (kind)").
+        null_ctx!(ctx);
+        // Caso do achado: array de lengths (ponto bare).
+        let args = Args::positional(vec![Value::Array(vec![
+            Value::Length(Length::pt(0.0)),
+            Value::Length(Length::pt(0.0)),
+        ])]);
+        let err =
+            native_curve(&mut ctx, &args, &null_world(), test_file_id()).unwrap_err();
+        let msg = format!("{:?}", err);
+        assert!(
+            msg.contains("expected content, found array"),
+            "mensagem deve ser a do vanilla, obtido: {msg}"
+        );
+        // Controlo genérico: não-array, não-content → mesmo padrão.
+        let args2 = Args::positional(vec![Value::Int(42)]);
+        let err2 =
+            native_curve(&mut ctx, &args2, &null_world(), test_file_id()).unwrap_err();
+        let msg2 = format!("{:?}", err2);
+        assert!(
+            msg2.contains("expected content, found int"),
+            "mensagem deve ser a do vanilla, obtido: {msg2}"
+        );
     }
 
     #[test]
@@ -11346,6 +11465,43 @@ mod tests {
         )
         .unwrap();
         assert_eq!(r, Value::Str("".into()));
+    }
+
+    #[test]
+    fn lorem_p805_byte_parity_vanilla() {
+        // P805 — byte-parity com o vanilla 0.15.0 (strings extraídas do PDF
+        // vanilla por pdftotext na sonda de P805, normalizadas). Antes:
+        // vocabulário cíclico próprio sem pontuação (scope-out de Passo 391,
+        // revogado por este passo).
+        let casos: [(i64, &str); 3] = [
+            (1, "Lorem."),
+            (
+                10,
+                "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do.",
+            ),
+            (
+                30,
+                "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do \
+                 eiusmod tempor incididunt ut labore et dolore magnam aliquam \
+                 quaerat voluptatem. Ut enim aeque doleamus animo, cum corpore \
+                 dolemus, fieri.",
+            ),
+        ];
+        for (n, esperado) in casos {
+            // `esperado` tem continuações de linha do Rust — normalizar.
+            let esperado_norm: String = esperado.split_whitespace().collect::<Vec<_>>().join(" ");
+            null_ctx!(ctx);
+            let r = native_lorem(
+                &mut ctx,
+                &p(vec![Value::Int(n)]),
+                &null_world(),
+                test_file_id(),
+            )
+            .unwrap();
+            let Value::Str(s) = r else { panic!("esperava Value::Str") };
+            let obtido_norm: String = s.split_whitespace().collect::<Vec<_>>().join(" ");
+            assert_eq!(obtido_norm, esperado_norm, "lorem({n}) byte-parity");
+        }
     }
 
     #[test]

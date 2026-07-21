@@ -1,5 +1,5 @@
 # Prompt L0 — `stdlib/shapes` — módulo `shapes`
-Hash do Código: ca8c3ea0
+Hash do Código: ae2511b3
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/engine/stdlib/shapes.rs`
@@ -120,9 +120,9 @@ circle(fill: blue) -> Shape Ellipse fill blue
 
 ---
 
-### `native_line(dx?, dy?, stroke?, start?, end?)`
+### `native_line(dx?, dy?, stroke?, start?, end?, length?, angle?)`
 
-**Assinatura**: `line(dx: Length?, dy: Length?, stroke: Color?, start: Array?, end: Array?) -> Content`
+**Assinatura**: `line(dx: Length?, dy: Length?, stroke: Color?, start: Array?, end: Array?, length: Length?, angle: Angle?) -> Content`
 
 **Argumentos**:
 - `dx`, `dy`: deslocamento em pt (`Length`, `Float`, `Int`). Default `0.0`.
@@ -131,19 +131,35 @@ circle(fill: blue) -> Shape Ellipse fill blue
   (paridade vanilla — medido: `line(start: (0pt, 0pt), end: (50pt, 50pt))`
   compila). Alternativa a `dx`/`dy` — combinar `end` com `dx`/`dy` é erro.
 - **`start`** (P739B): ponto inicial; default `(0pt, 0pt)`. Só admissível com
-  `end`. **Scope-out medido**: `start` ≠ `(0,0)` — `ShapeKind::Line` não
-  carrega posição absoluta (a linha é relativa à posição corrente); erro
-  explícito de scope-out em vez de desenhar deslocada para a origem.
+  `end` ou com `length`/`angle`. **Scope-out medido**: `start` ≠ `(0,0)` —
+  `ShapeKind::Line` não carrega posição absoluta (a linha é relativa à posição
+  corrente); erro explícito de scope-out em vez de desenhar deslocada para a origem.
+- **`length`** (P804): comprimento da linha (`Length`, `Float`, `Int` em pt).
+  Default `30pt` (paridade vanilla `#[default(Abs::pt(30.0))]`). **Só é
+  respeitado se `end` for `none`** — medido no vanilla 0.15.0:
+  `#line(length: 3cm, end: (1cm, 1cm))` compila e `length` é ignorado.
+  `Ratio` (`length: 100%`) — **scope-out**: o native não tem a região para
+  resolver percentagens; erro explícito.
+- **`angle`** (P804): direcção da linha (`Value::Angle`). Default `0deg`.
+  Só respeitado se `end` for `none` (como `length`). Tipo errado →
+  `expected angle, found {type}` (padrão do projecto).
 
 **Semântica**: Cria `Content::Shape { kind: Line { dx, dy }, stroke: preto default }`.
 Linhas não têm fill. Com `end`: `dx = end.x − start.x`, `dy = end.y − start.y`.
+Sem `end`, com `length`/`angle` (P804, paridade vanilla
+`typst-layout/src/shapes.rs::layout_line`): `dx = cos(angle) · length`,
+`dy = sin(angle) · length`. Combinar `length`/`angle` com o legado `dx`/`dy`
+é erro. Sem `end` e sem `length`/`angle`: legado `dx`/`dy` (default 0,0 —
+linha degenerada; NOTA: o vanilla desenharia 30pt a 0deg — divergência
+registada da interface legada, mantida).
 
-**Paridade vanilla**: Equivalente a `#line(dx: 3cm, dy: 2cm)` ou
-`#line(start: (0pt, 0pt), end: (50pt, 50pt))`.
+**Paridade vanilla**: Equivalente a `#line(dx: 3cm, dy: 2cm)`,
+`#line(start: (0pt, 0pt), end: (50pt, 50pt))`, `#line(length: 3cm)` ou
+`#line(length: 3cm, angle: 30deg)` (P804).
 
 **Limitações / scope-outs**: Stroke sólido 1pt; espessura/overhang scope-out.
-`angle:`/`length:` do vanilla — scope-out (não existem na interface legada;
-rejeitados pela whitelist de named args). `start` ≠ `(0,0)` — scope-out (acima).
+`length:` como `Ratio` (percentagem) — scope-out (P804, sem região no native).
+`start` ≠ `(0,0)` — scope-out (acima).
 
 **Testes canónicos**:
 ```
@@ -153,6 +169,10 @@ line(dx: -1cm) -> Shape Line dx=-1cm
 line(end: (50pt, 50pt)) -> Shape Line dx=50 dy=50  (P739B)
 line(start: (0pt, 0pt), end: (50pt, 50pt)) -> Shape Line dx=50 dy=50  (P739B)
 line(start: (10pt, 0pt), end: (50pt, 50pt)) -> Err scope-out  (P739B)
+line(length: 3cm) -> Shape Line dx=3cm dy=0  (P804)
+line(length: 4cm, angle: 90deg) -> Shape Line dx≈0 dy=4cm  (P804)
+line(length: 3cm, end: (1cm, 1cm)) -> Shape Line dx=1cm dy=1cm (length ignorado)  (P804)
+line(length: 3cm, dx: 1cm) -> Err (não combinável)  (P804)
 ```
 
 ---

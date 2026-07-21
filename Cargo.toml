@@ -64,3 +64,6 @@ fastrand             = "2.2"    # nomes de directórios temporários atómicos
 syntect              = { version = "5.3", default-features = false, features = ["parsing", "regex-fancy", "plist-load", "yaml-load"] }
 two-face             = { version = "0.4.3", default-features = false, features = ["syntect-fancy"] }
 
+# lorem byte-parity — P805 (mesma crate do vanilla: Markov chain determinística)
+lipsum               = "0.9.1"
+

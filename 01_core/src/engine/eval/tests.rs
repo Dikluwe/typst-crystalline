@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/engine/eval.md
-//! @prompt-hash 2f2e3e80
+//! @prompt-hash 3f09960d
 //! @layer L1
 //! @updated 2026-06-17
 //!
@@ -27,6 +27,30 @@ pub(crate) fn eval_for_test<W: World>(
 ) -> SourceResult<Module> {
     let registry = crate::entities::element_registry::ElementRegistry::new();
     eval_for_test_with_registry(world, source, &registry)
+}
+
+/// P802 — variante de `eval_for_test` que devolve também o `Sink`,
+/// para asserções sobre warnings emitidos durante o eval.
+pub(crate) fn eval_for_test_keep_sink<W: World>(
+    world: &W,
+    source: &Source,
+) -> (SourceResult<Module>, Sink) {
+    use comemo::Track;
+    let routines = Routines::new();
+    let traced = Traced::default();
+    let mut sink = Sink::new();
+    let route = Route::root();
+    let registry = crate::entities::element_registry::ElementRegistry::new();
+    let result = eval(
+        &routines,
+        world,
+        traced.track(),
+        sink.track_mut(),
+        route.track(),
+        source,
+        &registry,
+    );
+    (result, sink)
 }
 
 /// Lote F-3 inc-2 — eval de teste com um `ElementRegistry` injetado, para
@@ -5154,6 +5178,46 @@ mod tests {
             "esperado Ref(meu_label), obtido: {:?}",
             content
         );
+    }
+
+    // ── P802 — warning de label órfã (paridade vanilla markup.rs) ─────────
+
+    #[test]
+    fn label_orfa_emite_warning() {
+        // P802 — label sem elemento anterior anexável: o vanilla emite
+        // `label `<abc>` is not attached to anything` (typst-eval/markup.rs);
+        // o cristalino ignorava em silêncio (achado #5 de P798).
+        let world = MockWorld::new("<abc> Hello #context query(<abc>)");
+        let src = World::source(&world, World::main(&world)).unwrap();
+        let (result, sink) = eval_for_test_keep_sink(&world, &src);
+        result.expect("label órfã não é erro fatal");
+        let diags = sink.into_diagnostics();
+        assert!(
+            diags
+                .iter()
+                .any(|d| d.message == "label `<abc>` is not attached to anything"),
+            "warning de label órfã ausente; diagnósticos: {:?}",
+            diags.iter().map(|d| &d.message).collect::<Vec<_>>()
+        );
+    }
+
+    #[test]
+    fn label_anexada_nao_emite_warning_orfa() {
+        // Controlo P802 — label anexada a elemento anterior (texto/heading)
+        // não dispara o warning de órfã (paridade vanilla: `Hello <abc>`
+        // não avisa — medido no vanilla 0.15.0).
+        for src_text in ["Hello <abc>", "= Título <abc>"] {
+            let world = MockWorld::new(src_text);
+            let src = World::source(&world, World::main(&world)).unwrap();
+            let (result, sink) = eval_for_test_keep_sink(&world, &src);
+            result.expect("eval sem erro fatal");
+            let diags = sink.into_diagnostics();
+            assert!(
+                !diags.iter().any(|d| d.message.contains("is not attached")),
+                "warning de órfã indevida para `{src_text}`: {:?}",
+                diags.iter().map(|d| &d.message).collect::<Vec<_>>()
+            );
+        }
     }
 
     // ── Testes de Passo 58 — counter(...).method() ────────────────────────

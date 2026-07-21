@@ -1,5 +1,5 @@
 # Prompt L0 — `math/layout/attach` — `MathAttach`
-Hash do Código: 12c21e97
+Hash do Código: 6c3b16e1
 
 **Camada**: L1 · **Alvo**: `01_core/src/engine/math/layout/attach.rs`
 **Origem**: fatiado de `rules/math/layout.md` em **P314** (ADR-0104). Núcleo
@@ -49,3 +49,20 @@ afectada).
 `Content::MathOp { limits: true, .. }` (P298, override explícito via
 `op("...", limits: true)`) não é afectado — continua a empilhar
 incondicionalmente quando `self.block`, independentemente do caractere.
+
+---
+
+## Scripts laterais sub+sup partilham a origem x — P799
+
+No braço não-`is_limits` (scripts laterais à direita), quando existem **sub e
+sup em simultâneo**, ambos partem da **mesma origem x** — imediatamente à
+direita da base, cada um com o seu kern de quadrante — em vez de serem
+compostos em sequência horizontal. Paridade vanilla (`scripts.rs`:
+`tr_x = br_x = pre_width + base_width + kern`). A largura total do attach é
+`base + max(sup + kern_sup, sub + kern_sub)`, não a soma das larguras dos
+dois scripts. A geometria vertical existente (offsets fixos
+`superscript_shift_up`/`subscript_shift_down`) mantém-se.
+
+Antes de P799, o cursor avançava depois do sup e o sub era colocado a seguir
+a ele (scripts lado a lado, e o elemento seguinte da sequência podia
+sobrepor-se ao sub) — `x_1^2` extraía como `x21` com posições erradas.

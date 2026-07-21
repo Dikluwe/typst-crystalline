@@ -2897,6 +2897,41 @@ mod integration {
     }
 
     #[test]
+    fn p805a_ligatura_fi_tem_entrada_to_unicode_no_embed_integral() {
+        // P805a — no caminho de embutimento integral (fallback de P797 para
+        // CFF, `glyph_mapping` vazio), os glifos de ligadura produzidos pelo
+        // shaper ("fi" → gid f_i) ficavam SEM entrada no ToUnicode CMap —
+        // renderizavam correctamente, mas extracção (`pdftotext`) perdia os
+        // caracteres ("fieri" → "eri"). A causa era o gate
+        // `if !glyph_mapping.is_empty()` em builder.rs que saltava
+        // `collect_shaped_cluster_texts` no fallback. Este teste verifica que
+        // o PDF final tem uma entrada ToUnicode para o texto "fi"
+        // (`<00660069>` em UTF-16BE). Usa as fontes embutidas (Libertinus
+        // Serif é CFF — o caminho do fallback integral de P797).
+        let dir = tempdir();
+        std::fs::write(
+            dir.path().join("main.typ"),
+            "#set text(font: \"Libertinus Serif\")\nfi fierce",
+        )
+        .unwrap();
+        let world = SystemWorld::new(dir.path(), "main.typ")
+            .unwrap()
+            .with_embedded_fonts();
+        let source = world.source(world.main()).unwrap();
+        let (result, _warnings) = compile_to_pdf_bytes(&world, &source);
+        let pdf = result.expect("compilação deve ter sucesso");
+        let blob = String::from_utf8_lossy(&pdf);
+        assert!(
+            blob.contains("CrystallineFont"),
+            "sanity: Libertinus Serif embutido como CIDFont"
+        );
+        assert!(
+            blob.contains("<00660069>"),
+            "ToUnicode deve mapear o glifo da ligadura para \"fi\" (U+0066 U+0069)"
+        );
+    }
+
+    #[test]
     fn font_wiring_segunda_font_diferente_ambas_embebidas() {
         // Renomeado e ajustado no Passo 146 (multi-font per document
         // — ADR-0055 decisão 5 materializada). Pré-146 este teste

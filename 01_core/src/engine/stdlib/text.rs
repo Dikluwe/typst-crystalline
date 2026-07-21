@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/engine/stdlib/text.md
-//! @prompt-hash fde4d5d8
+//! @prompt-hash aef1212c
 //! @layer L1
 //! @updated 2026-06-22
 //!
@@ -777,86 +777,20 @@ pub fn native_smartquote(
     Ok(Value::Content(Content::smartquote(double)))
 }
 
-// ── Passo 391 — `lorem(n)` ───────────────────────────────────────────────────
+// ── Passo 391 + P805 — `lorem(n)` ───────────────────────────────────────
 
-/// Vocabulário dummy Lorem Ipsum usado por `native_lorem`.
-const LOREM_WORDS: &[&str] = &[
-    "Lorem",
-    "ipsum",
-    "dolor",
-    "sit",
-    "amet",
-    "consectetur",
-    "adipiscing",
-    "elit",
-    "sed",
-    "do",
-    "eiusmod",
-    "tempor",
-    "incididunt",
-    "ut",
-    "labore",
-    "et",
-    "dolore",
-    "magna",
-    "aliqua",
-    "Ut",
-    "enim",
-    "ad",
-    "minim",
-    "veniam",
-    "quis",
-    "nostrud",
-    "exercitation",
-    "ullamco",
-    "laboris",
-    "nisi",
-    "ut",
-    "aliquip",
-    "ex",
-    "ea",
-    "commodo",
-    "consequat",
-    "Duis",
-    "aute",
-    "irure",
-    "dolor",
-    "in",
-    "reprehenderit",
-    "in",
-    "voluptate",
-    "velit",
-    "esse",
-    "cillum",
-    "dolore",
-    "eu",
-    "fugiat",
-    "nulla",
-    "pariatur",
-    "Excepteur",
-    "sint",
-    "occaecat",
-    "cupidatat",
-    "non",
-    "proident",
-    "sunt",
-    "in",
-    "culpa",
-    "qui",
-    "officia",
-    "deserunt",
-    "mollit",
-    "anim",
-    "id",
-    "est",
-    "laborum",
-];
-
-/// `lorem(n)` → `Value::Str` com `n` palavras de texto dummy.
+/// `lorem(n)` → `Value::Str` com `n` palavras de Lorem Ipsum.
 ///
 /// `n` deve ser um `Int` ≥ 0. Argumentos nomeados são rejeitados.
-/// O texto exacto não precisa de coincidir com o vanilla; a paridade é
-/// semântica — exactamente `n` palavras de Lorem Ipsum.
+///
+/// **P805 — byte-parity com o vanilla** (substitui o vocabulário cíclico de
+/// Passo 391, cujo scope-out "texto exacto não precisa de coincidir" foi
+/// revogado por este passo): usa a mesma crate do vanilla — `lipsum`
+/// (whitelist `[l1_allowed_external.lipsum]`) — com a lógica de junção
+/// portada do `lorem_impl` do vanilla
+/// (`lab/typst-original/crates/typst-library/src/text/lorem.rs`, MIT —
+/// baseado na crate lipsum, © 2017 Martin Geisler). A cadeia é construída
+/// por chamada (L1 proíbe estado global; o vanilla usa `LazyLock`).
 pub fn native_lorem(
     _ctx: &mut EvalContext,
     args: &Args,
@@ -888,18 +822,69 @@ pub fn native_lorem(
         )]);
     }
 
+    Ok(Value::Str(lorem_impl(n as usize).into()))
+}
+
+/// Port do `lorem_impl` do vanilla (`typst-library/src/text/lorem.rs`):
+/// gera `n` palavras com a Markov chain da crate `lipsum` (ordem 2,
+/// `LOREM_IPSUM` + `LIBER_PRIMUS`, iterada de `("Lorem", "ipsum")` com o RNG
+/// determinístico interno da crate — ChaCha20Rng seed 97). `--` vira en-dash
+/// (U+2013) sem contar como palavra; capitaliza após `.`/`!`/`?`; garante
+/// ponto final.
+fn lorem_impl(n: usize) -> String {
+    use lipsum::{LIBER_PRIMUS, LOREM_IPSUM, MarkovChain};
+
     if n == 0 {
-        return Ok(Value::Str("".into()));
+        return String::new();
     }
 
-    let n = n as usize;
-    let len = LOREM_WORDS.len();
-    let mut words: Vec<&str> = Vec::with_capacity(n);
-    for i in 0..n {
-        words.push(LOREM_WORDS[i % len]);
+    let mut chain = MarkovChain::new();
+    chain.learn(LOREM_IPSUM);
+    chain.learn(LIBER_PRIMUS);
+    let mut iter = chain.iter_from(("Lorem", "ipsum"));
+
+    // Pontuação que termina uma frase.
+    const PUNCTUATION: [char; 3] = ['.', '!', '?'];
+
+    let mut sentence = String::new();
+    let mut word_count = 0;
+    let mut needs_cap = false;
+
+    while word_count < n {
+        let Some(word) = iter.next() else { break };
+
+        if word_count > 0 {
+            sentence.push(' ');
+        }
+
+        // Saltar `--` sem contar como palavra; anexar en-dash ao output.
+        if word == "--" {
+            sentence.push('\u{2013}');
+            continue;
+        }
+
+        if needs_cap {
+            if let Some(c) = word.chars().next() {
+                sentence.extend(c.to_uppercase());
+                sentence.push_str(&word[c.len_utf8()..]);
+            }
+        } else {
+            sentence.push_str(word);
+        }
+
+        needs_cap = sentence.ends_with(PUNCTUATION);
+        word_count += 1;
     }
 
-    Ok(Value::Str(words.join(" ").into()))
+    // Garantir que a frase termina com um de ".!?".
+    if !sentence.ends_with(PUNCTUATION) {
+        // Truncar pontuação final pendente para não adicionar '.' após ','.
+        let idx = sentence.trim_end_matches(|c: char| c.is_ascii_punctuation()).len();
+        sentence.truncate(idx);
+        sentence.push('.');
+    }
+
+    sentence
 }
 
 /// `regex(pattern)` → `Value::Regex` (P393).

@@ -1,5 +1,5 @@
 # Prompt L0 — `rules/math/layout` — comum (MathLayouter + despacho)
-Hash do Código: 6cf77887
+Hash do Código: 78d62fd4
 
 ## Módulo
 `01_core/src/engine/math/` — motor de layout matemático.
@@ -22,6 +22,10 @@ métodos coord (`new`, `apply_axis_offset`, `layout_equation`,
 `layout_node`, `layout_text_node`, `layout_sequence`, `layout_grid_rows`,
 `layout_grid`, `hconcat`, `hconcat_spaced` [P772y]). Os submódulos de
 elemento têm prompt próprio (ver índice em `rules/math/layout.md`).
+
+**P800** — `layout_equation` devolve items com posições relativas à
+**baseline** da fórmula (y = 0 na baseline); a integração em
+`engine/layout/equation.rs` soma `cursor_y` (ver `engine/layout/equation.md`).
 
 ## Restrição arquitectural
 L1 puro. Não depende de L3. Usa `FontMetrics` trait injectável. Sem I/O.

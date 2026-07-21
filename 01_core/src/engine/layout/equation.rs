@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/engine/layout/equation.md
-//! @prompt-hash 6fea7989
+//! @prompt-hash d63d4e36
 //! @layer L1
 //! @updated 2026-04-23
 //!
@@ -63,19 +63,18 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
         }
 
         // Integrar items matemáticos no frame actual.
-        // pos.x e pos.y são relativos à origem da equação —
-        // pos.y inclui deslocamento vertical (sup/sub, frac).
+        // Os items vêm com posições relativas à **baseline** da fórmula
+        // (y = 0 na baseline; sup/sub deslocados a partir dela).
         let offset_x = self.regions.current.cursor_x;
-        // Equações inline: deslocar para cima por axis_pt de modo a que o
-        // eixo matemático (axis_height acima da baseline) coincida com o
-        // baseline do texto circundante (Passo 48).
-        let axis_pt = if block {
-            Pt(0.0)
-        } else {
-            let c = self.metrics.math_constants();
-            c.to_pt(c.axis_height, self.style.size)
-        };
-        let offset_y = self.regions.current.cursor_y - axis_pt;
+        // **P800** — Equações inline: a baseline da fórmula coincide com a
+        // baseline do texto circundante (paridade vanilla medida por
+        // `mutool trace` — texto e math partilham o mesmo y). Basta somar
+        // `cursor_y`. A regra anterior (Passo 48: deslocar por `axis_pt`
+        // para "alinhar o eixo matemático à baseline") deslocava a fórmula
+        // ~0.5em para cima do texto — refutada por medição. O eixo só
+        // governa o centrado interno (frac/delims/root, `apply_axis_offset`).
+        // Bloco: já era `cursor_y` (axis_pt = 0) — comportamento inalterado.
+        let offset_y = self.regions.current.cursor_y;
         for item in math_items {
             match item {
                 FrameItem::Text { pos, text, style } => {

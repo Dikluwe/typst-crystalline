@@ -1,5 +1,5 @@
 # Prompt L0 — `infra/export/builder` — PdfBuilder
-Hash do Código: 14c1f902
+Hash do Código: e71554dc
 
 **Camada**: L3
 **Ficheiro alvo**: `03_infra/src/export/builder.rs`
@@ -338,6 +338,22 @@ Regra:
 1. `collect_shaped_cluster_texts(doc)` deve ser chamada **uma única vez** antes do loop por fonte.
 2. O `Vec<(u16, String)>` resultante é partilhado entre todas as fontes.
 3. Cada fonte continua a fazer o seu próprio `remap_glyph_id` e a manter o seu `seen_to_unicode_gids`, preservando a semântica e os mapeamentos ToUnicode por fonte.
+
+## §P805a — ToUnicode de ligaduras também no embed integral (fallback P797)
+
+**Data:** 2026-07-21
+
+Em `build_cidfont`, os cluster texts shaped (`collect_shaped_cluster_texts`)
+só eram adicionados ao ToUnicode quando `glyph_mapping` não era vazio (subset
+TrueType). No fallback de embed integral de P797 (CFF, mapping vazio), as
+ligaduras ("fi" → gid `f_i`) ficavam sem entrada ToUnicode — **renderizavam
+correctamente** (a fonte integral contém o glifo), mas a extracção
+(`pdftotext`, poppler) perdia os caracteres ("fieri" → "eri").
+
+Regra: os cluster texts shaped são **sempre** incluídos no ToUnicode; o
+`remap_glyph_id` só se aplica quando há subset (mapping não vazio) — no embed
+integral o gid final é o próprio `old_gid`. Descoberto em P805 (a validação
+de `#lorem(30)` divergia só em palavras com "fi").
 
 ## Histórico de Revisões
 

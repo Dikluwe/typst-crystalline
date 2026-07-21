@@ -624,8 +624,20 @@ pub(crate) fn eval_markup(
                         parts.push(rules::intercept_labelled(labelled, ctx, engine)?);
                         trailing.reverse();
                         parts.extend(trailing);
+                    } else {
+                        // P802 — label órfã (sem elemento anterior anexável):
+                        // warning, paridade vanilla `typst-eval/markup.rs`
+                        // ("label `<x>` is not attached to anything"). A label
+                        // é descartada (como no vanilla); os espaços recolhidos
+                        // são re-inseridos para não se perderem.
+                        engine.sink.warn_note(
+                            child.span(),
+                            &format!("label `<{name}>` is not attached to anything"),
+                            "",
+                        );
+                        trailing.reverse();
+                        parts.extend(trailing);
                     }
-                    // Se parts estiver vazio após remover espaços, ignorar.
                 }
             }
             _ => {
@@ -1361,6 +1373,7 @@ fn make_stdlib(inputs: &SysInputs) -> Scope {
         native_oklch,
         native_op,
         native_outline,
+        native_par,
         native_overline,
         native_pad,
         native_pagebreak,
@@ -1477,6 +1490,9 @@ fn make_stdlib(inputs: &SysInputs) -> Scope {
     scope.define("heading", Value::Func(Func::native("heading", native_heading)));
     scope.define("title", Value::Func(Func::native("title", native_title)));
     scope.define("outline", Value::Func(Func::native("outline", native_outline)));
+    // P806 — `par` invocável (achado #12 de P798; ver `stdlib/structural.md`
+    // §`native_par` para o scope do body-devolvido-directamente).
+    scope.define("par", Value::Func(Func::native("par", native_par)));
     // **P472** — lof() e lot() como aliases de outline(target: "figures"/"tables").
     scope.define("lof", Value::Func(Func::native("lof", native_lof)));
     scope.define("lot", Value::Func(Func::native("lot", native_lot)));

@@ -1,5 +1,5 @@
 :warning: **Prompt L0 — `engine/layout/equation` — Layout de Equações**
-Hash do Código: 6ed5b341
+Hash do Código: 323d4880
 
 **Camada**: L1 · **Alvo**: `01_core/src/engine/layout/equation.rs`
 **ADRs relevantes**: ADR-0037 (atomização), ADR-0068 (locatable), ADR-0114/0117 (sonda A.0)
@@ -14,8 +14,17 @@ equações de bloco quando activa.
 
 ## Regras de negócio
 
-- Equações inline (`block: false`) renderizam no fluxo de texto, com eixo
-  matemático alinhado à baseline do texto circundante.
+- Equações inline (`block: false`) renderizam no fluxo de texto, com a
+  **baseline da equação alinhada à baseline do texto circundante** (P800 —
+  paridade vanilla medida por `mutool trace`: texto e math partilham a mesma
+  baseline; o eixo matemático fica `axis_height` ACIMA da baseline e só
+  governa o centrado interno de fracções/delimitadores via
+  `apply_axis_offset`). Os items do `MathLayouter::layout_equation` vêm com
+  posições relativas à baseline da fórmula (y = 0), pelo que a integração
+  soma simplesmente `cursor_y` (`offset_y = cursor_y`). A regra anterior
+  (Passo 48: "eixo matemático alinhado à baseline do texto", implementada
+  como `offset_y = cursor_y - axis_pt`) foi **refutada por medição** —
+  deslocava toda a fórmula inline `axis_pt` (~0.5em) para cima do texto.
 - Equações de bloco (`block: true`) dão `flush_line()` antes e depois,
   ocupando a sua própria linha.
 - Numeração automática:

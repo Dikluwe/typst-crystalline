@@ -35,4 +35,5 @@ rust_decimal         = { workspace = true }  # ADR-0112 (P399) — Decimal preci
 hayagriva            = { workspace = true }  # P418 — parsing bibliográfico + CSL engine
 syntect              = { workspace = true }  # P785a — syntax highlighting em blocos raw
 two-face             = { workspace = true }  # P785a — conjunto de sintaxes e temas para syntect
+lipsum               = { workspace = true }  # P805 — lorem byte-parity (Markov chain do vanilla, MIT)
 

@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/engine/math/layout/_comum.md
-//! @prompt-hash 2d7029e2
+//! @prompt-hash 6b9d0a53
 //! @layer L1
 //! @updated 2026-04-23
 //!
@@ -319,6 +319,95 @@ fn math_attach_sub_baixado() {
 
     // sub deve estar abaixo da base (y maior)
     assert!(ys[1] > ys[0], "sub (y={}) deve estar abaixo da base (y={})", ys[1], ys[0]);
+}
+
+// ── P799 — sub+sup empilham na mesma origem x (paridade vanilla scripts.rs) ──
+
+#[test]
+fn math_attach_sub_sup_partilham_origem_x() {
+    // Regressão P799: antes desta correcção, sub e sup eram compostos em
+    // sequência horizontal (o cursor avançava depois do sup e o sub era
+    // colocado a seguir a ele), em vez de partilharem a mesma origem x
+    // imediatamente à direita da base (vanilla `scripts.rs`: `tr_x` e `br_x`
+    // são ambos `pre_width + base_width + kern`).
+    let ml = MathLayouter::new(&FixedMetrics, true);
+    let attach = Content::math_attach(
+        Content::MathIdent("x".into()),
+        None,
+        None,
+        Some(Content::MathIdent("3".into())),
+        Some(Content::MathIdent("2".into())),
+    );
+    let items = ml.layout_equation(&attach, &default_style());
+
+    let x_of = |needle: &str| {
+        items.iter().find_map(|i| match i {
+            FrameItem::Text { pos, text, .. } if text.as_str() == needle => {
+                Some(pos.x.val())
+            }
+            _ => None,
+        })
+    };
+    let base_x = x_of("x").expect("base x presente");
+    let sup_x = x_of("2").expect("sup '2' presente");
+    let sub_x = x_of("3").expect("sub '3' presente");
+
+    // FixedMetrics: kern zero nos 4 quadrantes — sup e sub devem partir
+    // exactamente da mesma origem x (à direita da base).
+    let base_w = 12.0 * 0.6;
+    assert!(
+        (sup_x - (base_x + base_w)).abs() < 0.01,
+        "sup deve partir imediatamente à direita da base: base_x={base_x} sup_x={sup_x}"
+    );
+    assert!(
+        (sub_x - sup_x).abs() < 0.01,
+        "sub e sup devem partilhar a mesma origem x (empilhados): sup_x={sup_x} sub_x={sub_x}"
+    );
+}
+
+#[test]
+fn math_attach_sub_sup_largura_max_nao_soma_nucleo_multi_char() {
+    // Regressão P799 com núcleo multi-caractere: a largura total do attach é
+    // base + max(sup, sub), não base + sup + sub. O elemento seguinte na
+    // sequência deve começar logo após o script mais largo.
+    let ml = MathLayouter::new(&FixedMetrics, true);
+    let attach = Content::math_attach(
+        Content::MathIdent("ab".into()),
+        None,
+        None,
+        Some(Content::MathIdent("333".into())),
+        Some(Content::MathIdent("22".into())),
+    );
+    let seq = Content::MathSequence(Arc::from(
+        vec![attach, Content::MathIdent("z".into())].into_boxed_slice(),
+    ));
+    let items = ml.layout_equation(&seq, &default_style());
+
+    let x_of = |needle: &str| {
+        items.iter().find_map(|i| match i {
+            FrameItem::Text { pos, text, .. } if text.as_str() == needle => {
+                Some(pos.x.val())
+            }
+            _ => None,
+        })
+    };
+    let sup_x = x_of("22").expect("sup presente");
+    let sub_x = x_of("333").expect("sub presente");
+    let z_x = x_of("z").expect("elemento seguinte presente");
+
+    let base_w = 2.0 * 12.0 * 0.6; // "ab", 2 chars
+    let script_char_w = 12.0 * 0.7 * 0.6; // script_percent_scale_down = 0.7
+    let sub_w = 3.0 * script_char_w; // "333" é o script mais largo
+
+    assert!(
+        (sub_x - sup_x).abs() < 0.01,
+        "sub e sup empilhados na mesma origem x: sup_x={sup_x} sub_x={sub_x}"
+    );
+    assert!(
+        (z_x - (base_w + sub_w)).abs() < 0.01,
+        "elemento seguinte deve começar em base + max(sup,sub): z_x={z_x} esperado={}",
+        base_w + sub_w
+    );
 }
 
 // ── Testes do Passo 40 — layout_root ─────────────────────────────────

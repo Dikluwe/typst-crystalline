@@ -31,7 +31,14 @@ pub fn repr_value(v: &Value) -> String {
         Value::Content(c) => repr_content(c),
         Value::Array(arr) => {
             let items: Vec<String> = arr.iter().map(repr_value).collect();
-            format!("({})", items.join(", "))
+            // P801 — array de exactamente 1 elemento leva vírgula final
+            // (paridade vanilla `pretty_array_like(_, len == 1)`),
+            // distinguindo-o de parênteses de agrupamento: `(5,)` ≠ `(5)`.
+            if items.len() == 1 {
+                format!("({},)", items[0])
+            } else {
+                format!("({})", items.join(", "))
+            }
         }
         Value::Dict(dict) => {
             // P695 — dict vazio é `(:)`, distinto de array vazio `()` (paridade
@@ -577,6 +584,22 @@ mod tests {
         assert_eq!(repr_value(&empty_arr), "()");
         assert_eq!(repr_value(&empty_dict), "(:)");
         assert_ne!(repr_value(&empty_arr), repr_value(&empty_dict));
+    }
+
+    #[test]
+    fn repr_value_array_um_elemento_virgula_final() {
+        // P801 — array de exactamente 1 elemento leva vírgula final
+        // (paridade vanilla `pretty_array_like(_, len == 1)`), distinguindo-o
+        // de parênteses de agrupamento. Controlos: 0 e 2+ elementos sem
+        // vírgula final.
+        let single = Value::Array(vec![Value::Int(5)]);
+        assert_eq!(repr_value(&single), "(5,)");
+        let nested = Value::Array(vec![Value::Array(vec![Value::Int(5)])]);
+        assert_eq!(repr_value(&nested), "((5,),)");
+        let empty = Value::Array(vec![]);
+        assert_eq!(repr_value(&empty), "()");
+        let two = Value::Array(vec![Value::Int(1), Value::Int(2)]);
+        assert_eq!(repr_value(&two), "(1, 2)");
     }
 
     #[test]

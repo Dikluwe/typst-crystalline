@@ -235,10 +235,47 @@
 >
 > **Passo 521 (2026-07-01)**: fechado **DEBT-64** — ToUnicode completo para
 > ligatures via `cluster_text` (LTR/RTL). Total abertos: **7 → 6**.
+>
+> **Passo 807 (2026-07-21)**: aberto **DEBT-66** — `#pdf.attach()` rejeitado
+> (scope-out nunca formalizado). Decisão do dono (Opção B): manter o
+> scope-out e formalizá-lo aqui. Total abertos: **6 → 7**.
 
 ---
 
 ## Secção 1 — DEBTs em aberto ou parcialmente resolvidos
+
+## DEBT-66 — `#pdf.attach()` rejeitado (ficheiros embutidos no PDF) — ABERTO (scope-out formalizado em P807)
+
+**Origem**: achado #11 de P798 (lote 3 de triagem em lote). O vanilla
+(0.15.0) embute ficheiros no PDF (`AttachElem` → embedded file stream +
+`/Filespec` + name tree `/EmbeddedFiles` no catálogo — medido com
+`mutool show` sobre o PDF vanilla de `temp/p798/11_pdf_attach.typ`). O
+cristalino rejeita deliberadamente
+(`01_core/src/engine/stdlib/pdf.rs::native_pdf_attach` — erro explícito
+"scope-out").
+
+**Achado processual (P807 Passo 1.4)**: o scope-out existia **só no código e
+no L0** (`00_nucleo/prompts/engine/stdlib/pdf.md`) — nunca foi formalizado
+em ADR nem neste inventário. Esta entrada corrige isso.
+
+**Decisão (P807, 2026-07-21, dono do projecto)**: **manter o scope-out**
+(Opção B), alinhado com os precedentes `image::svg` (P772k) e PDF-como-imagem
+(P781, peso de dependência). Levantamento de peso que enquadrou a decisão:
+não requer dependência externa nova (o vanilla escreve estrutura PDF simples
+com os bytes crus), mas exige novo canal L1→L3 (variant `Content` ou
+side-channel até ao exportador) + secção de export (embedded file stream,
+`/Filespec`, `/Names /EmbeddedFiles` no catálogo) + testes — esforço estimado
+1–2 passos se um dia for priorizado.
+
+**Critério de reabertura**: pedido explícito do dono ou caso de uso real em
+corpus (ex.: ZUGFeRD/Factur-X, o exemplo da documentação do vanilla).
+
+**Referência**: levantamento completo no Passo 1 de
+`00_nucleo/materialization/typst-passo-807.md`;
+`lab/typst-original/crates/typst-library/src/pdf/attach.rs` (assinatura
+vanilla: `path`, `data`, `relationship:`, `mime-type:`, `description:`).
+
+---
 
 ## DEBT-65 — Fallback de fonte por carácter depende de lista fixa de nomes — FECHADO (P543) ✓
 

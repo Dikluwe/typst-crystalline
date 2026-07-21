@@ -35,6 +35,15 @@ curve.close() -> content
 
 A função `curve(...)` existente (P293/P294) deve aceitar `Value::Content(Content::Curve(e))` como argumentos posicionais, concatenando `e.segments` ao path final. Preserva-se a sintaxe legada de tuplos (`curve(("move", (0,0)))`).
 
+**P803 — erro de tipo paridade vanilla**: argumento posicional que não é
+`Content::Curve` nem tuplo legado (array com primeiro elemento string)
+produz `expected content, found {type}` (padrão `type_name()`, paridade
+vanilla — ex.: `#curve((0pt, 0pt))` → `expected content, found array`,
+medido no vanilla 0.15.0). Substitui as mensagens próprias anteriores
+("argumento N não é um array de segmento válido" / "primeiro elemento deve
+ser string (kind)") para esse caso; os erros internos do tuplo legado
+(coordenada inválida, aridade, kind desconhecido) mantêm-se.
+
 ## Registo
 
 O namespace `curve` é anexado à função `curve` existente em `eval/mod.rs`:

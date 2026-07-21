@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/export/builder.md
-//! @prompt-hash c1908b09
+//! @prompt-hash 5b1854d7
 //! @layer L3
 //! @updated 2026-07-08
 //!
@@ -625,14 +625,22 @@ impl PdfBuilder {
         // reconstruindo o texto completo de cada cluster (ligatures, RTL).
         // Caracteres normais (não shaped) são adicionados como fallback
         // single-codepoint.
+        // **P805a** — incluir os cluster texts TAMBÉM no embed integral
+        // (fallback P797, `glyph_mapping` vazio): antes, o gate
+        // `!glyph_mapping.is_empty()` saltava este bloco e as ligaduras
+        // ("fi" → gid f_i) ficavam sem entrada ToUnicode — renderizavam, mas
+        // a extracção (`pdftotext`) perdia os caracteres. Sem subset, o gid
+        // final é o próprio old_gid.
         let mut to_unicode_mappings: Vec<(u16, String)> = Vec::new();
         let mut seen_to_unicode_gids: HashSet<u16> = HashSet::new();
-        if !glyph_mapping.is_empty() {
-            for (old_gid, hex) in collect_shaped_cluster_texts(doc) {
-                let new_gid = remap_glyph_id(old_gid, &glyph_mapping);
-                if new_gid != 0 && seen_to_unicode_gids.insert(new_gid) {
-                    to_unicode_mappings.push((new_gid, hex));
-                }
+        for (old_gid, hex) in collect_shaped_cluster_texts(doc) {
+            let new_gid = if glyph_mapping.is_empty() {
+                old_gid
+            } else {
+                remap_glyph_id(old_gid, &glyph_mapping)
+            };
+            if new_gid != 0 && seen_to_unicode_gids.insert(new_gid) {
+                to_unicode_mappings.push((new_gid, hex));
             }
         }
         for &(ch, new_gid) in &mappings {

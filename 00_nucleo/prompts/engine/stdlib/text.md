@@ -1,5 +1,5 @@
 # Prompt L0 — `stdlib/text` — smartquote, decoração textual, lorem e smallcaps
-Hash do Código: 60ab779c
+Hash do Código: 52f04279
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/engine/stdlib/text.rs`
@@ -89,7 +89,7 @@ native_underline([],stroke:Color) → Err;  native_underline([Content(c)],evade:
 ```
 Idem `native_strike` (sem `evade` em vanilla) e `native_overline`.
 
-## `lorem(n)` — Passo 391
+## `lorem(n)` — Passo 391 + P805
 
 Helper puro de texto dummy. Entrada `Int` ≥ 0, saída `Value::Str` com `n`
 palavras de Lorem Ipsum. Zero tipo novo; zero I/O; zero layout.
@@ -97,13 +97,25 @@ palavras de Lorem Ipsum. Zero tipo novo; zero I/O; zero layout.
 **Argumentos**: `n: Int` (posicional obrigatório). `n < 0` → erro. Não aceita
 argumentos nomeados.
 
-**Implementação**: vocabulário Lorem Ipsum fixo embeddado; cicla/repete até
-atingir `n` palavras. O texto exacto não precisa de ser byte-identical ao
-vanilla (paridade semântica ADR-0107).
+**Implementação (P805 — substitui a de Passo 391)**: **byte-parity com o
+vanilla**, medida em P805 (achado #10 de P798: faltava ponto final; a sonda
+mostrou divergência total — vírgulas, corpus a partir da palavra ~19). A
+decisão de Passo 391 ("texto exacto não precisa de ser byte-identical") fica
+**revogada**. O cristalino usa a mesma crate do vanilla — `lipsum` 0.9.1
+(whitelist `[l1_allowed_external.lipsum]`): Markov chain de ordem 2 treinada
+com `LOREM_IPSUM` + `LIBER_PRIMUS`, iterada de `("Lorem", "ipsum")` com o RNG
+determinístico interno da crate (ChaCha20Rng seed 97). A lógica de junção é o
+port do `lorem_impl` do vanilla (`typst-library/src/text/lorem.rs`): salta
+`--` (em-dash U+2013, não conta como palavra), capitaliza após `.`/`!`/`?`,
+e garante ponto final (trunca pontuação final pendente e adiciona `.`).
+**Nota de performance**: a cadeia é construída por chamada (L1 proíbe estado
+global — o vanilla usa `LazyLock`); custo aceite para uma função de texto
+dummy, registado como candidato a optimização futura se aparecer em perfil.
 
 ```
 native_lorem(Int(0))  → Ok(Str(""))
-native_lorem(Int(5))  → Ok(Str("Lorem ipsum dolor sit amet"))
+native_lorem(Int(1))  → Ok(Str("Lorem."))
+native_lorem(Int(10)) → Ok(Str("Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do."))
 native_lorem(Int(-1)) → Err
 native_lorem(Str("x")) → Err
 native_lorem(Int(5), foo:Int(1)) → Err

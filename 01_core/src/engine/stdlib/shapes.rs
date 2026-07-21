@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/engine/stdlib/_comum.md
-//! @prompt-hash 173bc06c
+//! @prompt-hash 252a9a79
 //! @prompt 00_nucleo/prompts/engine/stdlib/square.md
 //! @prompt 00_nucleo/prompts/engine/stdlib/shapes.md
 //! @layer L1
@@ -307,7 +307,7 @@ pub fn native_line(
     _current_file: FileId,
 ) -> SourceResult<Value> {
     for key in args.named.keys() {
-        if !["dx", "dy", "stroke", "start", "end"].contains(&key.as_str()) {
+        if !["dx", "dy", "stroke", "start", "end", "length", "angle"].contains(&key.as_str()) {
             return Err(vec![SourceDiagnostic::error(
                 args.span,
                 format!("argumento nomeado inesperado em line(): '{}'", key),
@@ -332,8 +332,12 @@ pub fn native_line(
 
     // **P739B** — `start:`/`end:` (paridade vanilla — medido:
     // `line(start: (0pt, 0pt), end: (50pt, 50pt))` → exit 0). Interface
-    // legada `dx`/`dy` mantida. `angle:`/`length:` — scope-out (rejeitados
-    // pela whitelist acima; não existem na interface legada).
+    // legada `dx`/`dy` mantida.
+    // **P804** — `length:`/`angle:` (paridade vanilla `LineElem`): só
+    // respeitados se `end` for `none` (medido: `line(length: 3cm,
+    // end: (1cm, 1cm))` compila no vanilla com `length` ignorado). Sem
+    // `end`: `dx = cos(angle)·length`, `dy = sin(angle)·length`
+    // (vanilla `layout_line`); default `length: 30pt`, `angle: 0deg`.
     let (dx, dy) = match args.named.get("end") {
         Some(end_v) => {
             if args.named.contains_key("dx") || args.named.contains_key("dy") {
@@ -368,7 +372,63 @@ pub fn native_line(
                     "line(start): posição inicial não-zero não é suportada (scope-out) — a shape de linha cristalina é relativa à posição corrente".to_string(),
                 )]);
             }
+            // `length`/`angle` presentes com `end` são ignorados (paridade
+            // vanilla: "only respected if end is none", medido em P804).
             (ex - sx, ey - sy)
+        }
+        None if args.named.contains_key("length") || args.named.contains_key("angle") => {
+            // ── P804 — caminho `length`/`angle` (sem `end`) ──────────────
+            if args.named.contains_key("dx") || args.named.contains_key("dy") {
+                return Err(vec![SourceDiagnostic::error(
+                    args.span,
+                    "line(): 'length'/'angle' não pode ser combinado com 'dx'/'dy'"
+                        .to_string(),
+                )]);
+            }
+            if let Some(start_v) = args.named.get("start") {
+                let (sx, sy) = extract_coordinate(start_v).ok_or_else(|| {
+                    vec![SourceDiagnostic::error(
+                        args.span,
+                        "line(start): espera array de 2 coordenadas, ex. (0pt, 0pt)"
+                            .to_string(),
+                    )]
+                })?;
+                if sx != 0.0 || sy != 0.0 {
+                    return Err(vec![SourceDiagnostic::error(
+                        args.span,
+                        "line(start): posição inicial não-zero não é suportada (scope-out) — a shape de linha cristalina é relativa à posição corrente".to_string(),
+                    )]);
+                }
+            }
+            let length = match args.named.get("length") {
+                Some(v @ (Value::Float(_) | Value::Int(_) | Value::Length(_))) => {
+                    extract_pt(v)
+                }
+                Some(Value::Ratio(_)) => {
+                    return Err(vec![SourceDiagnostic::error(
+                        args.span,
+                        "line(length): percentagem não é suportada (scope-out) — o native não tem a região para resolver ratio".to_string(),
+                    )])
+                }
+                Some(other) => {
+                    return Err(vec![SourceDiagnostic::error(
+                        args.span,
+                        format!("expected length, found {}", other.type_name()),
+                    )])
+                }
+                None => 30.0, // default vanilla `Abs::pt(30.0)`
+            };
+            let angle_rad = match args.named.get("angle") {
+                Some(Value::Angle(a)) => a.to_rad(),
+                Some(other) => {
+                    return Err(vec![SourceDiagnostic::error(
+                        args.span,
+                        format!("expected angle, found {}", other.type_name()),
+                    )])
+                }
+                None => 0.0,
+            };
+            (angle_rad.cos() * length, angle_rad.sin() * length)
         }
         None => {
             if args.named.contains_key("start") {
@@ -706,27 +766,24 @@ pub fn native_curve(
             continue;
         }
 
+        // P803 — erro de tipo paridade vanilla: argumento que não é
+        // `Content::Curve` nem tuplo legado (array com 1º elemento string)
+        // → `expected content, found {type}` (vanilla medido:
+        // `#curve((0pt, 0pt))` → "expected content, found array").
         let arr = match val {
-            Value::Array(a) if !a.is_empty() => a,
+            Value::Array(a) if !a.is_empty() && matches!(a[0], Value::Str(_)) => a,
             _ => {
                 return Err(vec![SourceDiagnostic::error(
                     args.span,
-                    format!("curve(): argumento {} não é um array de segmento válido", i),
+                    format!("expected content, found {}", val.type_name()),
                 )])
             }
         };
 
-        let kind =
-            match &arr[0] {
-                Value::Str(s) => s.as_str(),
-                _ => return Err(vec![SourceDiagnostic::error(
-                    args.span,
-                    format!(
-                        "curve(): segmento {}: primeiro elemento deve ser string (kind)",
-                        i
-                    ),
-                )]),
-            };
+        let kind = match &arr[0] {
+            Value::Str(s) => s.as_str(),
+            _ => unreachable!("guard acima garante arr[0] string"),
+        };
 
         match kind {
             "move" => {

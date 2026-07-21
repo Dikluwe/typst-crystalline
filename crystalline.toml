@@ -153,6 +153,12 @@ types = ["highlighting", "parsing", "easy", "Color", "FontStyle", "Style", "Styl
 [l1_allowed_external.two_face]
 types = ["syntax", "extra_no_newlines"]  # P785a
 
+# lorem byte-parity — P805: mesma crate do vanilla (0.9.1); Markov chain
+# determinística (ChaCha20Rng seed 97 interno da crate); computação pura sobre
+# strings, sem I/O. Cadeia construída por chamada (L1 proíbe estado global).
+[l1_allowed_external.lipsum]
+types = ["MarkovChain", "LOREM_IPSUM", "LIBER_PRIMUS", "new", "learn", "iter_from"]
+
 
 [orphan_exceptions]
 # Prompt comum partilhado por vários ficheiros stdlib; não tem um "dono" único
