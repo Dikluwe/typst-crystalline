@@ -1,5 +1,5 @@
 # Prompt L0 — `Version` — sequência de componentes inteiros
-Hash do Código: 970fa7c3
+Hash do Código: 2bb18cd1
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/entities/version.rs`, `01_core/src/entities/value.rs`
@@ -97,7 +97,84 @@ Version(Arc<crate::entities::version::Version>),
 Só os três primeiros componentes têm nome: `.major`, `.minor`, `.patch` →
 `component(0|1|2)` (0 se ausente). `.pre`/`.build` → `campo desconhecido em version`.
 
-## 9. Scope-out
+## 8a. Método `.at(index)` — P796
 
-- `.at(i)` / métodos de array sobre `version` — não implementado (o vanilla expõe
-  componentes via `.at`; fora do scope de P684).
+Medido no vanilla (`lab/typst-original/crates/typst-library/src/foundations/version.rs:109-134`,
+sonda directa em 0.15.0: `#sys.version.at(0)` com `sys.version == version(0, 15, 0)` → `0`,
+paridade com `major`).
+
+```rust
+impl Version {
+    /// Índice negativo conta a partir do fim da lista de componentes
+    /// **explícita** (`self.components.len()`, não a sequência infinita
+    /// zero-pad usada por `component`/`Ord`/`Eq`). Índice positivo além do
+    /// comprimento explícito devolve `0` (zero-pad, igual a `component`).
+    /// Índice negativo fora de limites é erro.
+    pub fn at(&self, index: i64) -> Result<i64, String>;
+}
+```
+
+- Resolução: `index < 0` → `len_explícito.checked_add(index)`; se `< 0` ou overflow,
+  erro. `index >= 0` (já resolvido ou originalmente não-negativo) → `component(i)`
+  (0 se além do comprimento — reaproveita a semântica já existente).
+- **Mensagem de erro replica o vanilla ao carácter** (ADR-0108, excepção —
+  mecânica é o observável em mensagens de erro):
+  `"component index out of bounds (index: {index}, len: {len})"`, onde `len` é
+  `self.components.len()` (comprimento explícito, não zero-pad).
+- Exposto como método de instância (`sys.version.at(0)`), não como field access —
+  dispatch dedicado em `01_core/src/engine/eval/bindings.rs`
+  (`eval_version_method_value`, mesmo padrão de `eval_counter_method_value`/
+  `eval_color_method`), interceptado em `closures.rs` antes do fallback
+  genérico de field access. `has_readonly_method` já antecipava isto
+  (`Value::Version(_), "at" => true`, P716).
+- Sem argumentos nomeados (vanilla não tem `default:` em `version.at`, ao
+  contrário de `array.at`/`dict.at`). Argumento posicional não-inteiro ou
+  aridade errada → erro genérico existente (`expected integer, found …` /
+  `version.at() requires exactly one positional argument`), sem paridade
+  literal exigida (mecânica de argparsing, não observável de linguagem).
+
+## 8b. Exibição em markup (`#sys.version`) — P796
+
+**Achado (P786)**: `#sys.version` interpolado em markup mostrava
+`version(0, 15, 0)` (o `repr()`) em vez de `0.15.0` (o `Display`/`to_string()`).
+Causa: `value_to_display_content` (`01_core/src/engine/eval/mod.rs`) não tinha
+armo dedicado para `Value::Version` e caía no catch-all `other` que usa
+`repr_value`.
+
+Medido no vanilla (`foundations/value.rs::Value::display`, linha ~200):
+`Self::Version(v) => TextElem::packed(eco_format!("{v}"))` — usa o `Display`
+do tipo (equivalente a `Version::to_string()` no cristalino), **não** o repr.
+`repr(sys.version)` continua a mostrar `version(0, 15, 0)` (repr não muda).
+
+Correção: `value_to_display_content` ganha um armo dedicado, **antes** do
+catch-all:
+
+```rust
+Value::Version(v) => {
+    let text = v.to_string();
+    if text.is_empty() { None } else { Some(Content::Text(text.into())) }
+}
+```
+
+(`version()` vazia → `to_string()` = `""` → `None`, mesmo tratamento que os
+outros armos de texto vazio nesta função.)
+
+## 9. Constante de paridade partilhada — P796
+
+`PARITY_VERSION: (u64, u64, u64) = (0, 15, 0)` — a versão **de paridade** com
+a linguagem Typst (não a versão do crate/binário cristalino, ver decisão em
+`engine/stdlib/sys.md` §"Decisão: versão de paridade"). Definida **aqui**
+(`01_core/src/entities/version.rs`, `pub const PARITY_VERSION`) como fonte
+única, consumida por:
+
+- `01_core/src/engine/stdlib/sys.rs` (`sys.version`) — já usava este valor
+  localmente antes de P796; passa a importar a constante em vez de duplicá-la.
+- `02_shell/src/cli.rs` (`--version` do CLI) — P796 fecha a divergência
+  registada no achado de P786 (`--version` mostrava `0.1.0`, a versão do
+  crate Cargo, inconsistente com `sys.version` == `0.15.0`). Ver decisão e
+  mecanismo completo em `shell/cli.md` §"Decisão — número de versão do CLI".
+
+## 10. Scope-out
+
+- Nenhum item pendente conhecido após P796 (`.at()` e exibição em markup
+  fechados; ver §8a/§8b).

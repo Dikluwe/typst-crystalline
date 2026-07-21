@@ -1,5 +1,5 @@
 # Shell CLI — typst-shell::cli
-Hash do Código: 7bc3166e
+Hash do Código: 8c39bfeb
 
 ## Módulo
 `02_shell/src/cli.rs`
@@ -30,6 +30,110 @@ estável entre compilações. `InstanceID` continua aleatório. A flag é
 validada em L2; se o valor não for um UUID bem formado, o processo
 termina com erro claro (exit 2). O campo `RunIntent.document_id`
 transporta os 16 bytes para L4/L3.
+
+**P796** — corrige `--version`: ver secção dedicada "Decisão — número de
+versão do CLI" abaixo. Formato passa de `typst 0.1.0` (versão do crate
+Cargo, sem hash) para `typst 0.15.0 (⟨commit curto⟩)`, consistente com
+`sys.version` (`entities/version.md` §9) e com o mecanismo do vanilla
+(mesmo formato, `typst 0.15.0 (969087ec)`).
+
+## Decisão — número de versão do CLI (P796)
+
+**Achado (P786/P796)**: `typst --version` mostrava `typst 0.1.0` — a versão
+do crate Cargo (`[workspace.package] version = "0.1.0"`, identidade própria
+do projecto cristalino), sem hash de commit, e inconsistente com
+`sys.version` (que reporta `0.15.0`, a versão de paridade com a linguagem
+Typst — ver `engine/stdlib/sys.md`).
+
+**Decisão explícita** (instrução directa do dono do projecto em P796,
+2026-07-21): copiar o **mecanismo** do vanilla directamente por agora —
+`typst_utils::version()` + `build.rs` que captura `git rev-parse HEAD` em
+tempo de build (`lab/typst-original/crates/typst-utils/{src/version.rs,
+build.rs}`). A identidade de versão própria do cristalino (divergindo do
+vanilla por design) fica para decisão futura — **não** decidida agora, e
+**não** deve ser assumida como "copiar o vanilla é definitivo".
+
+Isto **não** significa adoptar `0.15.0` como versão do *crate* Cargo — as
+duas coisas são conceptualmente distintas e já divergiam antes de P796:
+
+- Versão do **crate** (`Cargo.toml`, `[workspace.package] version`): `0.1.0`,
+  identidade própria do projecto. **Inalterada por P796.**
+- Versão de **paridade** (`PARITY_VERSION`, `entities/version.md` §9):
+  `0.15.0`, "que versão da linguagem Typst este compilador implementa".
+  É esta que `--version` passa a mostrar, pela mesma razão que
+  `sys.version` já a mostra (ADR-0107 — paridade é com a linguagem).
+
+`--version` mostra a versão de **paridade** (não a do crate) porque é o
+número que responde à pergunta que um utilizador faz ao correr
+`typst --version`: "que Typst é este". O hash de commit é o do **próprio
+repositório cristalino** (não o do vanilla — `969087ec` é do vanilla e nunca
+aparecerá no nosso binário), capturado da mesma forma que o vanilla captura
+o seu.
+
+### Mecanismo (mirror directo do vanilla)
+
+`02_shell/build.rs` (novo, mesma lógica de
+`typst-utils/build.rs`, sem a parte de `TYPST_VERSION` — a versão vem da
+constante Rust `PARITY_VERSION`, não precisa de env var):
+
+```rust
+fn main() {
+    println!("cargo:rerun-if-env-changed=TYPST_COMMIT_SHA");
+    if option_env!("TYPST_COMMIT_SHA").is_none() {
+        if let Some(sha) = std::process::Command::new("git")
+            .args(["rev-parse", "HEAD"])
+            .output().ok()
+            .filter(|o| o.status.success())
+            .and_then(|o| String::from_utf8(o.stdout).ok())
+        {
+            println!("cargo:rustc-env=TYPST_COMMIT_SHA={}", sha.trim());
+        }
+    }
+}
+```
+
+`cli.rs` — `Args` troca o atributo `version` implícito do clap (que lia
+`CARGO_PKG_VERSION` do crate `typst-shell`) por um valor explícito:
+
+```rust
+#[command(
+    name = "typst",
+    version = format!(
+        "{}.{}.{} ({})",
+        typst_core::entities::version::PARITY_VERSION.0,
+        typst_core::entities::version::PARITY_VERSION.1,
+        typst_core::entities::version::PARITY_VERSION.2,
+        display_commit(option_env!("TYPST_COMMIT_SHA")),
+    ),
+    about = "Typst compiler (crystalline)"
+)]
+struct Args { /* ... */ }
+
+/// Trunca o hash a 8 chars — mirror de `typst_utils::display_commit`.
+fn display_commit(commit: Option<&'static str>) -> &'static str {
+    const LENGTH: usize = 8;
+    match commit {
+        Some(s) => &s[..s.len().min(LENGTH)],
+        None => "unknown commit",
+    }
+}
+```
+
+- `option_env!("TYPST_COMMIT_SHA")` só resolve o valor que o **build.rs deste
+  crate** (`02_shell`) definiu via `cargo:rustc-env` — mecanismo compile-time,
+  zero I/O em runtime; não viola nenhuma restrição de camada (build scripts
+  não são código L1/L2 em execução, são tooling de compilação, mesmo
+  tratamento que o vanilla dá ao seu).
+- Sem repositório git (ex.: tarball sem `.git`), `git rev-parse HEAD` falha
+  silenciosamente (`.ok()`), `TYPST_COMMIT_SHA` fica por definir,
+  `display_commit` devolve `"unknown commit"` — mesmo fallback do vanilla.
+- `02_shell/Cargo.toml` activa `clap = { workspace = true, features =
+  ["string"] }`: `version = format!(...)` produz `String`, não `&'static
+  str`, e `clap::builder::Str: From<String>` só existe com a feature
+  `"string"` do clap (`clap_builder-*/src/builder/str.rs`, `#[cfg(feature =
+  "string")]`). Mesma feature que o vanilla activa em
+  `typst-cli/Cargo.toml:33` para o mesmo padrão — achado durante a
+  implementação de P796 (erro de compilação `E0277` sem a feature).
 
 ## Contrato
 
@@ -115,7 +219,9 @@ typst-cli):
 
 ```rust
 #[derive(Parser, Debug)]
-#[command(name = "typst", version, about = "...")]
+#[command(name = "typst", version = format!("{}.{}.{} ({})", ...), about = "...")]
+// P796 — version deixa de ser o atributo implícito (CARGO_PKG_VERSION de
+// typst-shell, "0.1.0"); ver secção "Decisão — número de versão do CLI".
 struct Args {
     input: PathBuf,
     output: Option<PathBuf>,           // positional opcional

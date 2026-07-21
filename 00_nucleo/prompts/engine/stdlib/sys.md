@@ -1,5 +1,5 @@
 # Prompt L0 — `rules/stdlib/sys` — módulo builtin `sys`
-Hash do Código: 343ba5b1
+Hash do Código: 12734658
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/engine/stdlib/sys.rs`
@@ -34,6 +34,12 @@ pacotes comparam-na com `version(…)` literais. Devolver a versão real do
 cristalino (que não segue a numeração Typst) quebraria `oxifmt`/`cetz` sem
 ganho — a paridade é com a **linguagem**, não com a mecânica/identidade do
 nosso binário. `version(0, 15, 0)` é a constante de paridade vigente.
+
+**P796** — a constante `(0, 15, 0)` passa a viver em
+`01_core/src/entities/version.rs` como `pub const PARITY_VERSION`
+(`entities/version.md` §9), fonte única também consumida por `--version` do
+CLI (`shell/cli.md`), fechando a inconsistência registada em P786/P796 entre
+`sys.version` e `--version`. `sys.rs` importa em vez de duplicar o literal.
 
 `#sys` repr era um **dicionário** (`(version: version(0, 15, 0), inputs: (:))`)
 até P730, não `<module sys>` como no vanilla — divergência de repr/mecânica

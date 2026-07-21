@@ -669,6 +669,13 @@ pub(crate) fn value_to_display_content(value: Value) -> Option<Content> {
         // .update()/.step()/.display()).
         Value::Counter(_) => None,
         Value::None       => None,
+        // P796 — Version usa o `Display` (`to_string()`), não o `repr()`:
+        // `#sys.version` → "0.15.0", não "version(0, 15, 0)" (paridade
+        // vanilla `Value::display`, `entities/version.md` §8b).
+        Value::Version(v) => {
+            let text = v.to_string();
+            if text.is_empty() { None } else { Some(Content::Text(text.into())) }
+        }
         // Valores primitivos convertem-se para texto. Int, Float, Bool,
         // Array, Dict, Length, Datetime, etc. usam repr_value.
         other => {

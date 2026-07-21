@@ -1,8 +1,8 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/shell/cli.md
-//! @prompt-hash c91dfbf8
+//! @prompt-hash 51623e6f
 //! @layer L2
-//! @updated 2026-06-17
+//! @updated 2026-07-21
 //!
 //! CLI do compilador cristalino (Passo 117, ADR-0049).
 //!
@@ -29,6 +29,18 @@ use clap::Parser;
 /// Usado por `--font-path` para suportar `TYPST_FONT_PATHS=/a:/b`.
 const ENV_PATH_SEP: char = if cfg!(windows) { ';' } else { ':' };
 
+/// Trunca o hash do commit a 8 chars — mirror de `typst_utils::display_commit`
+/// do vanilla (P796, `shell/cli.md` §"Decisão — número de versão do CLI").
+/// `None` (sem `.git`, ex. build a partir de tarball) → `"unknown commit"`,
+/// mesmo fallback do vanilla.
+fn display_commit(commit: Option<&'static str>) -> &'static str {
+    const LENGTH: usize = 8;
+    match commit {
+        Some(s) => &s[..s.len().min(LENGTH)],
+        None => "unknown commit",
+    }
+}
+
 /// Modo de coloração para diagnostics (ADR-0048).
 ///
 /// Enum dedicada a *diagnóstico do compilador*; não confundir com
@@ -52,10 +64,24 @@ pub enum ColorWhen {
 // Passo 122 (ADR-0051): + `--font-path DIR` (repetível; raw para L3).
 // Passo 123 (ADR-0051): env vars TYPST_ROOT + TYPST_FONT_PATHS;
 // `--font-path` ganha `value_delimiter = ENV_PATH_SEP`.
+// P796 — `version` deixa de ser o atributo implícito do clap (que lia
+// `CARGO_PKG_VERSION` do crate `typst-shell`, "0.1.0", inconsistente com
+// `sys.version`). Mostra a versão de **paridade** com a linguagem Typst
+// (mesma constante que `sys.version`, `entities/version.md` §9) + hash do
+// commit HEAD do próprio repositório cristalino (capturado em build.rs,
+// mecânica copiada directamente do vanilla — decisão em `shell/cli.md`
+// §"Decisão — número de versão do CLI"). Formato final: `typst 0.15.0
+// (⟨commit curto⟩)`, mesmo formato do vanilla (`typst 0.15.0 (969087ec)`).
 #[derive(Parser, Debug)]
 #[command(
     name = "typst",
-    version,
+    version = format!(
+        "{}.{}.{} ({})",
+        typst_core::entities::version::PARITY_VERSION.0,
+        typst_core::entities::version::PARITY_VERSION.1,
+        typst_core::entities::version::PARITY_VERSION.2,
+        display_commit(option_env!("TYPST_COMMIT_SHA")),
+    ),
     about = "Typst compiler (crystalline)"
 )]
 struct Args {

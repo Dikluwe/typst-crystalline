@@ -2261,6 +2261,72 @@ mod tests {
         assert!(eval_for_test(&world, &src).is_err());
     }
 
+    // ── P796 — `.at(index)` em version ───────────────────────────────────────
+
+    #[test]
+    fn version_at_positivo_dentro_do_alcance() {
+        let world = MockWorld::new("#let x = version(1, 2, 3).at(1)");
+        let src = World::source(&world, World::main(&world)).unwrap();
+        let m = eval_for_test(&world, &src).unwrap();
+        assert_eq!(m.scope().get("x"), Some(&Value::Int(2)));
+    }
+
+    #[test]
+    fn version_at_positivo_alem_do_alcance_zero_pad() {
+        let world = MockWorld::new("#let x = version(1, 2, 3).at(10)");
+        let src = World::source(&world, World::main(&world)).unwrap();
+        let m = eval_for_test(&world, &src).unwrap();
+        assert_eq!(m.scope().get("x"), Some(&Value::Int(0)));
+    }
+
+    #[test]
+    fn version_at_negativo_conta_do_fim() {
+        let world = MockWorld::new("#let x = version(1, 2, 3).at(-1)");
+        let src = World::source(&world, World::main(&world)).unwrap();
+        let m = eval_for_test(&world, &src).unwrap();
+        assert_eq!(m.scope().get("x"), Some(&Value::Int(3)));
+    }
+
+    #[test]
+    fn version_at_negativo_fora_de_limites_erro() {
+        let world = MockWorld::new("#let x = version(1, 2, 3).at(-10)");
+        let src = World::source(&world, World::main(&world)).unwrap();
+        let err = eval_for_test(&world, &src).expect_err("índice negativo fora de limites deve errar");
+        // paridade vanilla ao carácter (ADR-0108, excepção — mecânica é o
+        // observável em mensagens de erro; vanilla `version.rs:124-127`).
+        assert!(
+            err.iter().any(|d| d.message == "component index out of bounds (index: -10, len: 3)"),
+            "recebido: {:?}",
+            err.iter().map(|d| &d.message).collect::<Vec<_>>()
+        );
+    }
+
+    // ── P796 — exibição de `version` em markup (`Display`, não `repr`) ───────
+
+    #[test]
+    fn version_markup_display_nao_e_repr() {
+        // Achado P786/P796: #sys.version mostrava "version(0, 15, 0)" (repr)
+        // em vez de "0.15.0" (Display). Paridade vanilla:
+        // `Value::display` usa o Display do tipo, não o repr.
+        let m = p729_eval("#version(0, 15, 0)").unwrap();
+        let text = m.content().expect("content").plain_text();
+        assert_eq!(text, "0.15.0");
+    }
+
+    #[test]
+    fn version_markup_display_vazia_produz_nada() {
+        let m = p729_eval("#version()").unwrap();
+        let text = m.content().expect("content").plain_text();
+        assert_eq!(text, "");
+    }
+
+    #[test]
+    fn version_markup_display_sys_version() {
+        let m = p729_eval("#sys.version").unwrap();
+        let text = m.content().expect("content").plain_text();
+        assert_eq!(text, "0.15.0");
+    }
+
     // ── P412 — Field Access Duration ─────────────────────────────────────────
 
     #[test]

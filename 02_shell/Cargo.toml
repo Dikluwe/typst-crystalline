@@ -13,4 +13,7 @@ anyhow     = { workspace = true }
 # clap: argparsing da CLI. L2 é a camada "shell" (interface com
 # utilizador) conforme definição fundacional; clap vive aqui,
 # não em L3 (I/O) nem L4 (composição). ADR-0049, Passo 117.
-clap       = { workspace = true }
+# feature "string": necessária para `version = format!(...)` (String, não
+# &'static str) no atributo `#[command(...)]` — mesma feature que o vanilla
+# activa em `typst-cli/Cargo.toml` para o mesmo padrão. P796.
+clap       = { workspace = true, features = ["string"] }

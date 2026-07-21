@@ -659,6 +659,21 @@ pub(super) fn eval_func_call(
                     );
                 }
             }
+            // **P796** — `.at(index)` em `Value::Version` (único método de
+            // instância; ver `entities/version.md` §8a). Só intercepta
+            // "at"; outros métodos caem no caminho genérico existente.
+            Value::Version(ref v) => {
+                if method == "at" {
+                    return super::bindings::eval_version_method_value(
+                        v,
+                        method,
+                        call.args(),
+                        scopes,
+                        ctx,
+                        engine,
+                    );
+                }
+            }
             _ => {}
         }
     }

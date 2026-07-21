@@ -1,8 +1,8 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/engine/stdlib/sys.md
-//! @prompt-hash a8a96166
+//! @prompt-hash 788ec8f6
 //! @layer L1
-//! @updated 2026-07-10
+//! @updated 2026-07-21
 //!
 //! Módulo builtin `sys` (P694) — `sys.version` e `sys.inputs`.
 //!
@@ -11,6 +11,9 @@
 //! `dict` str→str populado via `--input chave=valor` (vazio por omissão). A
 //! forma impressa de `#sys` é um dicionário (como `calc`/`sym`), não
 //! `<module sys>` — divergência de repr/mecânica aceite.
+//!
+//! Passo 796: `PARITY_VERSION` passa a viver em `entities::version` (fonte
+//! única, também consumida por `--version` do CLI); aqui só se importa.
 
 use ecow::EcoString;
 use indexmap::IndexMap;
@@ -18,11 +21,7 @@ use rustc_hash::FxBuildHasher;
 
 use crate::contracts::world::SysInputs;
 use crate::entities::value::Value;
-use crate::entities::version::Version;
-
-/// Versão de **paridade** reportada por `sys.version` (ADR-0107): a versão da
-/// linguagem Typst com que somos paridade, não a versão do binário cristalino.
-const PARITY_VERSION: (u64, u64, u64) = (0, 15, 0);
+use crate::entities::version::{Version, PARITY_VERSION};
 
 /// Constrói o módulo `sys` como `Value::Module` com `version` e `inputs`.
 ///

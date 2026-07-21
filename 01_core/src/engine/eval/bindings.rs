@@ -1205,6 +1205,50 @@ fn extract_label_from_args(
     )])
 }
 
+/// **P796** — Despacha `.at(index)`, o único método de instância de
+/// `Value::Version` (`entities/version.md` §8a). Mesmo padrão de
+/// `eval_counter_method_value`/`eval_color_method`: recebe os argumentos AST
+/// não avaliados, avalia-os aqui.
+pub(super) fn eval_version_method_value(
+    version: &crate::entities::version::Version,
+    method: &str,
+    args: crate::entities::ast::expr::Args<'_>,
+    scopes: &mut Scopes<'_>,
+    ctx: &mut EvalContext,
+    engine: &mut Engine<'_>,
+) -> SourceResult<Value> {
+    use crate::engine::eval::closures::eval_args;
+    let span = args.span();
+    match method {
+        "at" => {
+            let args = eval_args(args, scopes, ctx, engine)?;
+            let index = match args.items.as_slice() {
+                [Value::Int(i)] => *i,
+                [other] => {
+                    return Err(vec![SourceDiagnostic::error(
+                        span,
+                        format!("expected integer, found {}", long_type_name(other)),
+                    )])
+                }
+                _ => {
+                    return Err(vec![SourceDiagnostic::error(
+                        span,
+                        "version.at() requires exactly one positional argument".to_string(),
+                    )])
+                }
+            };
+            version
+                .at(index)
+                .map(Value::Int)
+                .map_err(|msg| vec![SourceDiagnostic::error(span, msg)])
+        }
+        _ => Err(vec![SourceDiagnostic::error(
+            span,
+            format!("version não tem método '{}'", method),
+        )]),
+    }
+}
+
 /// **P417 (M)** — Tenta avaliar `<elemento>.where(field: value)`.
 ///
 /// Retorna `Ok(Some(Selector::Where { ... }))` se o target for uma função

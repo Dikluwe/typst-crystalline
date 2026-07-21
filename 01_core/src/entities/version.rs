@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/entities/version.md
-//! @prompt-hash b85c305b
+//! @prompt-hash 57fc0c72
 //! @layer L1
 //! @updated 2026-07-10
 //!
@@ -9,9 +9,17 @@
 //! Passo 684: corrigido — Typst `version` é uma sequência arbitrária de
 //! componentes **inteiros** (os três primeiros têm nome), sem `pre`/`build`
 //! (essa leitura vinha de uma confusão com SemVer 2.0.0, não do Typst).
+//! Passo 796: `.at(index)` (método de instância) e `PARITY_VERSION`
+//! (constante partilhada com `sys.rs` e `typst-shell::cli`).
 
 use std::cmp::Ordering;
 use std::hash::{Hash, Hasher};
+
+/// Versão de paridade com a linguagem Typst (não a versão do crate/binário
+/// cristalino, que fica em `Cargo.toml`). Fonte única consumida por
+/// `sys.version` (`engine/stdlib/sys.rs`) e por `--version` do CLI
+/// (`02_shell/src/cli.rs`) — P796 fecha a inconsistência entre os dois.
+pub const PARITY_VERSION: (u64, u64, u64) = (0, 15, 0);
 
 /// Versão do Typst: sequência arbitrária de componentes inteiros.
 ///
@@ -83,6 +91,33 @@ impl Version {
             components.push(n);
         }
         Some(Self::from_components(components))
+    }
+
+    /// Componente na posição `index` (P796). Índice negativo conta a partir
+    /// do fim da lista de componentes **explícita** (`self.components.len()`,
+    /// não a sequência infinita zero-pad usada por `component`/`Ord`/`Eq`).
+    /// Índice positivo além do comprimento explícito devolve `0` (zero-pad,
+    /// igual a `component`). Índice negativo fora de limites é erro — a
+    /// mensagem replica o vanilla ao carácter (ADR-0108, excepção: mecânica
+    /// é o observável em mensagens de erro).
+    pub fn at(&self, index: i64) -> Result<i64, String> {
+        let len = self.components.len() as i64;
+        let resolved = if index < 0 {
+            match len.checked_add(index) {
+                Some(pos) if pos >= 0 => pos,
+                _ => {
+                    return Err(format!(
+                        "component index out of bounds (index: {index}, len: {len})"
+                    ))
+                }
+            }
+        } else {
+            index
+        };
+        Ok(usize::try_from(resolved)
+            .ok()
+            .and_then(|i| self.components.get(i).copied())
+            .unwrap_or(0) as i64)
     }
 
     /// Número de componentes sem zeros à direita (representante canónico da
