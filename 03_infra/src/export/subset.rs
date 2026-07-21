@@ -67,9 +67,58 @@ pub fn subset_font_with_mapping(
         .retain_names(true)
         .retain_layout_tables(true);
 
-    let (subset_data, _stats) =
-        oxifont_subset::subset_with_gid_set(font_data, &old_gid_set, &cp_to_old_gid, &opts)
-            .ok()?;
+    // P797 — O `oxifont_subset` consegue subsetar CFF, mas gera um programa
+    // CFF Name-keyed (sem ROS e sem FDArray), o que é inválido quando
+    // embutido num PDF sob o tipo `/CIDFontType0` com `Identity-H`.
+    // Leitores como Poppler e Ghostscript recusam-se a criar a fonte,
+    // resultando num PDF onde o texto existe (pdftotext funciona) mas
+    // não tem representação visual.
+    // Solução: desactivar o subsetting para fontes CFF1 e usar a fonte
+    // integral. O fallback no exportador (`measure_subset` → `None`)
+    // embutirá a fonte completa com o mapeamento 1:1, resolvendo o erro.
+    if font_data.len() >= 12 {
+        let n_tables = u16::from_be_bytes([font_data[4], font_data[5]]) as usize;
+        for i in 0..n_tables {
+            let off = 12 + i * 16;
+            if off + 4 > font_data.len() {
+                break;
+            }
+            if &font_data[off..off + 4] == b"CFF " {
+                return None;
+            }
+        }
+    }
+
+    let (mut subset_data, _stats) = oxifont_subset::subset_with_gid_set(
+        font_data,
+        &old_gid_set,
+        &cp_to_old_gid,
+        &opts,
+    )
+    .ok()?;
+
+    // P797 — corrigir scalerType incorreto em subsets CFF:
+    // `oxifont_subset` preserva o scalerType original da fonte (`00010000`,
+    // TrueType) mesmo quando a fonte é OpenType/CFF (deveria ser `OTTO`).
+    // Consequência: viewers PDF (poppler, Ghostscript) recusam-se a carregar
+    // o stream como CFF porque o cabeçalho SFNT declara TrueType.
+    // Solução: se o subset contém tabela `CFF ` mas scalerType ≠ `OTTO`,
+    // substituir os primeiros 4 bytes por `OTTO`.
+    if subset_data.len() >= 4 && subset_data[..4] != *b"OTTO" {
+        // Verificar se contém tabela CFF no directório SFNT
+        let has_cff = if subset_data.len() >= 6 {
+            let n = u16::from_be_bytes([subset_data[4], subset_data[5]]) as usize;
+            (0..n).any(|i| {
+                let off = 12 + i * 16;
+                off + 4 <= subset_data.len() && &subset_data[off..off + 4] == b"CFF "
+            })
+        } else {
+            false
+        };
+        if has_cff {
+            subset_data[..4].copy_from_slice(b"OTTO");
+        }
+    }
 
     // Reconstruir o mapeamento old → new parseando a cmap do subset.
     let face = ttf_parser::Face::parse(&subset_data, 0).ok()?;
@@ -81,7 +130,10 @@ pub fn subset_font_with_mapping(
         }
     }
     for (&old_gid, &pcp) in &gid_to_private_cp {
-        if let Some(new_gid) = face.glyph_index(char::from_u32(pcp).unwrap_or('\u{FFFD}')).map(|g| g.0) {
+        if let Some(new_gid) = face
+            .glyph_index(char::from_u32(pcp).unwrap_or('\u{FFFD}'))
+            .map(|g| g.0)
+        {
             mapping.insert(old_gid, new_gid);
         }
     }
@@ -99,7 +151,8 @@ pub fn subset_font(font_data: &[u8], used_glyphs: &BTreeSet<u16>) -> Option<Vec<
         .filter(|&&gid| gid != 0)
         .map(|&gid| (char::from_u32(gid as u32).unwrap_or('\u{FFFD}'), gid))
         .collect();
-    subset_font_with_mapping(font_data, &char_to_old_gid, &BTreeSet::new()).map(|s| s.data)
+    subset_font_with_mapping(font_data, &char_to_old_gid, &BTreeSet::new())
+        .map(|s| s.data)
 }
 
 /// Aplica o mapa de remapeamento a um glyph ID original.
@@ -133,7 +186,8 @@ mod tests {
         used.insert(65);
         used.insert(66);
         let subset = subset_font(&data, &used).expect("subset deve funcionar");
-        let face = ttf_parser::Face::parse(&subset, 0).expect("subset deve ser parseável");
+        let face =
+            ttf_parser::Face::parse(&subset, 0).expect("subset deve ser parseável");
         assert!(face.number_of_glyphs() >= 3); // notdef + A + B
     }
 
@@ -142,7 +196,8 @@ mod tests {
         let Some(data) = load_test_font() else { return };
         let used = BTreeSet::new();
         let subset = subset_font(&data, &used).expect("subset vazio deve funcionar");
-        let face = ttf_parser::Face::parse(&subset, 0).expect("subset deve ser parseável");
+        let face =
+            ttf_parser::Face::parse(&subset, 0).expect("subset deve ser parseável");
         assert_eq!(face.number_of_glyphs(), 1);
     }
 
@@ -151,7 +206,8 @@ mod tests {
         let Some(data) = load_test_font() else { return };
         let mut map = BTreeMap::new();
         map.insert('A', 65u16);
-        let subset = subset_font_with_mapping(&data, &map, &BTreeSet::new()).expect("subset deve funcionar");
+        let subset = subset_font_with_mapping(&data, &map, &BTreeSet::new())
+            .expect("subset deve funcionar");
         assert_eq!(subset.mapping.get(&0), Some(&0));
         assert!(subset.mapping.contains_key(&65));
     }
@@ -163,7 +219,8 @@ mod tests {
         map.insert('A', 65u16);
         let mut additional = BTreeSet::new();
         additional.insert(66);
-        let subset = subset_font_with_mapping(&data, &map, &additional).expect("subset deve funcionar");
+        let subset = subset_font_with_mapping(&data, &map, &additional)
+            .expect("subset deve funcionar");
         let face = ttf_parser::Face::parse(&subset.data, 0).expect("subset parseável");
         assert!(face.number_of_glyphs() >= 3, "deve incluir notdef + A + B adicional");
     }
@@ -175,9 +232,14 @@ mod tests {
         map.insert('A', 65u16);
         let mut additional = BTreeSet::new();
         additional.insert(66);
-        let subset = subset_font_with_mapping(&data, &map, &additional).expect("subset deve funcionar");
+        let subset = subset_font_with_mapping(&data, &map, &additional)
+            .expect("subset deve funcionar");
         // O glifo adicional deve ter uma entrada old → new no mapping.
-        let new_gid = subset.mapping.get(&66).copied().expect("B adicional deve ter new_gid");
+        let new_gid = subset
+            .mapping
+            .get(&66)
+            .copied()
+            .expect("B adicional deve ter new_gid");
         assert_ne!(new_gid, 0, "new_gid de B não deve ser .notdef");
     }
 
@@ -196,10 +258,8 @@ mod tests {
 
     #[test]
     fn p523_subset_cff_nimbus_sans_preserves_cff_table() {
-        let fixture_path = concat!(
-            env!("CARGO_MANIFEST_DIR"),
-            "/fixtures/fonts/NimbusSans-Regular.otf"
-        );
+        let fixture_path =
+            concat!(env!("CARGO_MANIFEST_DIR"), "/fixtures/fonts/NimbusSans-Regular.otf");
         let font_data = match std::fs::read(fixture_path) {
             Ok(d) => d,
             Err(e) => {
@@ -223,17 +283,10 @@ mod tests {
             }
         }
 
-        let subset = subset_font_with_mapping(&font_data, &map, &BTreeSet::new())
-            .expect("subsetting CFF deve funcionar");
-        let subset_face = ttf_parser::Face::parse(&subset.data, 0)
-            .expect("fonte subsetada CFF deve ser parseável");
+        let subset = subset_font_with_mapping(&font_data, &map, &BTreeSet::new());
         assert!(
-            subset_face.tables().cff.is_some(),
-            "fonte subsetada deve preservar a tabela CFF"
-        );
-        assert!(
-            subset_face.number_of_glyphs() >= 2,
-            "subset deve conter pelo menos notdef e um glifo útil"
+            subset.is_none(),
+            "P797: subsetting de CFF1 foi desativado (deve retornar None para usar fonte integral)"
         );
     }
 }

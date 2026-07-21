@@ -29,10 +29,10 @@ use crate::fonts::{font_info_from_bytes, FontSlot};
 /// parciais para devanágari) seja escolhida como fallback para texto
 /// devanágari.
 pub struct EmbeddedFontSets {
-    pub text_slots:      Vec<FontSlot>,
-    pub text_book:       FontBook,
+    pub text_slots: Vec<FontSlot>,
+    pub text_book: FontBook,
     pub math_code_slots: Vec<FontSlot>,
-    pub math_code_book:  FontBook,
+    pub math_code_book: FontBook,
 }
 
 /// Classifica uma família de fonte embutida no grupo texto ou math/code.
@@ -60,7 +60,8 @@ fn embedded_font_group(family: &str) -> &'static str {
     if lower.starts_with("libertinus serif") || lower.starts_with("newcomputermodern10") {
         "text"
     } else if lower.contains("newcomputermodernmath")
-           || lower.starts_with("dejavu sans mono") {
+        || lower.starts_with("dejavu sans mono")
+    {
         "math_code"
     } else {
         // Desconhecido: tratar como math/code por segurança (não competir no
@@ -99,7 +100,12 @@ pub fn load_embedded_fonts() -> EmbeddedFontSets {
         }
     }
 
-    EmbeddedFontSets { text_slots, text_book, math_code_slots, math_code_book }
+    EmbeddedFontSets {
+        text_slots,
+        text_book,
+        math_code_slots,
+        math_code_book,
+    }
 }
 
 #[cfg(test)]
@@ -110,14 +116,74 @@ mod tests {
     fn p753_embedded_fonts_contain_libertinus_serif() {
         let sets = load_embedded_fonts();
         assert!(
-            sets.text_book.infos().iter().any(|info| {
-                info.family.eq_ignore_ascii_case("Libertinus Serif")
-            }),
+            sets.text_book
+                .infos()
+                .iter()
+                .any(|info| { info.family.eq_ignore_ascii_case("Libertinus Serif") }),
             "fontes de texto embutidas devem incluir Libertinus Serif"
         );
     }
 
     #[test]
+    fn p797_probe_list_all_embedded_families() {
+        // Sonda P797: lista todas as famílias embutidas com peso e estilo para
+        // confirmar se Bold/Italic do Libertinus Serif estão disponíveis.
+        let sets = load_embedded_fonts();
+        for info in sets
+            .text_book
+            .infos()
+            .iter()
+            .chain(sets.math_code_book.infos().iter())
+        {
+            eprintln!("FONT: family={:?} variant={:?}", info.family, info.variant);
+        }
+    }
+
+    #[test]
+    fn p797_probe_select_pattern_by_variant() {
+        // Sonda P797: verifica que select_pattern retorna índices DISTINTOS
+        // para Regular, Bold e Italic do "Libertinus Serif".
+        use typst_core::entities::font_book::{
+            FontStretch, FontStyle, FontVariant, FontWeight,
+        };
+        use typst_core::entities::font_list::FontNamePattern;
+        let sets = load_embedded_fonts();
+        // Usa apenas o text_book (contém Regular, Bold, Italic, BoldItalic de Libertinus)
+        let book = &sets.text_book;
+        let pattern = FontNamePattern::Literal("Libertinus Serif".into());
+        let regular = FontVariant {
+            style: FontStyle::Normal,
+            weight: FontWeight::REGULAR,
+            stretch: FontStretch::NORMAL,
+        };
+        let bold = FontVariant {
+            style: FontStyle::Normal,
+            weight: FontWeight::BOLD,
+            stretch: FontStretch::NORMAL,
+        };
+        let italic = FontVariant {
+            style: FontStyle::Italic,
+            weight: FontWeight::REGULAR,
+            stretch: FontStretch::NORMAL,
+        };
+        let idx_reg = book.select_pattern(&pattern, &regular);
+        let idx_bold = book.select_pattern(&pattern, &bold);
+        let idx_ital = book.select_pattern(&pattern, &italic);
+        eprintln!(
+            "P797 select_pattern: regular={:?} bold={:?} italic={:?}",
+            idx_reg, idx_bold, idx_ital
+        );
+        assert!(idx_reg.is_some(), "Regular deve resolver");
+        assert!(idx_bold.is_some(), "Bold deve resolver");
+        assert!(idx_ital.is_some(), "Italic deve resolver");
+        assert_ne!(idx_reg, idx_bold, "Regular e Bold devem ser faces diferentes (P797)");
+        assert_ne!(
+            idx_reg, idx_ital,
+            "Regular e Italic devem ser faces diferentes (P797)"
+        );
+        assert_ne!(idx_bold, idx_ital, "Bold e Italic devem ser faces diferentes (P797)");
+    }
+
     fn p754_newcm_math_is_not_in_text_group() {
         let sets = load_embedded_fonts();
         // P784 — nome real (sem espaços, confirmado por leitura da tabela
@@ -127,16 +193,20 @@ mod tests {
         // lado nenhum, nem sequer em math_code), não porque a classificação
         // estivesse correcta. Reforçado: confirma a **presença** positiva
         // em math_code, não só a ausência em texto.
-        let newcm_math_in_text = sets.text_book.infos().iter().any(|info| {
-            info.family.to_lowercase().contains("newcomputermodernmath")
-        });
+        let newcm_math_in_text = sets
+            .text_book
+            .infos()
+            .iter()
+            .any(|info| info.family.to_lowercase().contains("newcomputermodernmath"));
         assert!(
             !newcm_math_in_text,
             "NewComputerModernMath não deve estar no grupo texto (P754)"
         );
-        let newcm_math_in_math_code = sets.math_code_book.infos().iter().any(|info| {
-            info.family.to_lowercase().contains("newcomputermodernmath")
-        });
+        let newcm_math_in_math_code = sets
+            .math_code_book
+            .infos()
+            .iter()
+            .any(|info| info.family.to_lowercase().contains("newcomputermodernmath"));
         assert!(
             newcm_math_in_math_code,
             "NewComputerModernMath deve estar de facto no grupo math_code (P784 — \
@@ -152,21 +222,22 @@ mod tests {
         // (docstring de `EmbeddedFontSets`: "texto (Libertinus Serif*,
         // NewCM10*)").
         let sets = load_embedded_fonts();
-        let newcm10_in_text = sets.text_book.infos().iter().any(|info| {
-            info.family.to_lowercase().contains("newcomputermodern10")
-        });
-        assert!(
-            newcm10_in_text,
-            "NewComputerModern10 deve estar no grupo texto (P784)"
-        );
+        let newcm10_in_text = sets
+            .text_book
+            .infos()
+            .iter()
+            .any(|info| info.family.to_lowercase().contains("newcomputermodern10"));
+        assert!(newcm10_in_text, "NewComputerModern10 deve estar no grupo texto (P784)");
     }
 
     #[test]
     fn p754_dejavu_sans_mono_is_not_in_text_group() {
         let sets = load_embedded_fonts();
-        let dejavu_mono_in_text = sets.text_book.infos().iter().any(|info| {
-            info.family.to_lowercase().starts_with("dejavu sans mono")
-        });
+        let dejavu_mono_in_text = sets
+            .text_book
+            .infos()
+            .iter()
+            .any(|info| info.family.to_lowercase().starts_with("dejavu sans mono"));
         assert!(
             !dejavu_mono_in_text,
             "DejaVu Sans Mono não deve estar no grupo texto (P754)"

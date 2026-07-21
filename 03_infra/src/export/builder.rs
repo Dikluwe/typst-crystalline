@@ -19,7 +19,9 @@ use std::collections::{BTreeSet, HashMap, HashSet};
 use ttf_parser::Face;
 use typst_core::entities::font_book::FontVariant;
 use typst_core::entities::font_list::FontList;
-use typst_core::entities::layout_types::{FrameItem, LinkTarget, PagedDocument, Point, Size};
+use typst_core::entities::layout_types::{
+    FrameItem, LinkTarget, PagedDocument, Point, Size,
+};
 
 use crate::font_variant::{axis_variations_for_font_variant, instantiate_variable_font};
 use ecow::EcoString;
@@ -27,19 +29,17 @@ use ecow::EcoString;
 use super::{
     adaptive_n_for_stops, apply_parent_transform, build_icc_profile_stream,
     build_jpeg_xobject, build_page_stream, build_png_rgb_xobject,
-    build_png_smask_xobject, collect_codepoints, collect_glyph_ids,
-    collect_shaped_cluster_texts, collect_shaped_glyph_mappings,
-    collect_text_codepoints, compute_axial_coords, compute_radial_coords,
-    detect_image_format, emit_conic_coons_stream_cmyk, emit_conic_coons_stream_rgb,
-    emit_function_dict, emit_function_dict_cmyk, jpeg_color_space, jpeg_is_rgb,
-    map_chars_to_glyphs, multispace_sample_stops,
-    multispace_sample_stops_linear_cmyk, multispace_sample_stops_radial,
-    multispace_sample_stops_radial_cmyk, pattern_resources_for_page,
-    resolve_relative, scan_all_gradients, scan_all_images,
+    build_png_smask_xobject, char_to_utf16_hex, collect_codepoints, collect_glyph_ids,
+    collect_shaped_cluster_texts, collect_shaped_glyph_mappings, collect_text_codepoints,
+    compute_axial_coords, compute_radial_coords, detect_image_format,
+    emit_conic_coons_stream_cmyk, emit_conic_coons_stream_rgb, emit_function_dict,
+    emit_function_dict_cmyk, jpeg_color_space, jpeg_is_rgb, map_chars_to_glyphs,
+    multispace_sample_stops, multispace_sample_stops_linear_cmyk,
+    multispace_sample_stops_radial, multispace_sample_stops_radial_cmyk,
+    pattern_resources_for_page, resolve_relative, scan_all_gradients, scan_all_images,
     srgb_icc_profile_bytes,
     subset::{remap_glyph_id, subset_font_with_mapping, FontSubset},
-    char_to_utf16_hex, to_unicode_cmap, widths_array,
-    xobject_resources_for_page, GradientObject,
+    to_unicode_cmap, widths_array, xobject_resources_for_page, GradientObject,
     GradientObjectKind, ImageFormat, ImageXObject, PageContext,
 };
 
@@ -51,7 +51,8 @@ fn has_rgb_jpeg(doc: &PagedDocument) -> bool {
         for item in items {
             match item {
                 FrameItem::Image { data, .. } => {
-                    if detect_image_format(data) == ImageFormat::Jpeg && jpeg_is_rgb(data) {
+                    if detect_image_format(data) == ImageFormat::Jpeg && jpeg_is_rgb(data)
+                    {
                         return true;
                     }
                 }
@@ -193,17 +194,52 @@ fn subset_font_name(base_name: &str, _subset_data: &[u8]) -> String {
     format!("AAAAAA+{}", base_name)
 }
 
-/// P560 — extrai a tabela `CFF` de uma fonte OpenType/SFNT.
+/// P560 — extrai a tabela `CFF ` de uma fonte OpenType/SFNT.
 ///
 /// Leitores de PDF esperam o programa CFF puro quando o descritor indica
 /// `/Subtype /CIDFontType0C`; o contêiner SFNT completo causa mismatch.
+///
+/// **P797** — `ttf_parser::Face::parse` falha quando o scalerType do cabeçalho
+/// SFNT é `00010000` (TrueType) mas o conteúdo tem tabela `CFF ` (comportamento
+/// observado em subsets gerados pelo `oxifont_subset` para Libertinus Serif e
+/// outras fontes CFF: o subsetter preserva as tabelas mas mantém o scalerType
+/// original da fonte original como `00010000`). Correcção: leitura directa das
+/// table tags do cabeçalho SFNT sem passar por `Face::parse`, garantindo que a
+/// detecção funciona independentemente do valor do scalerType.
 fn cff_table_data(font_data: &[u8]) -> Option<&[u8]> {
-    let face = Face::parse(font_data, 0).ok()?;
-    if face.tables().cff.is_some() {
-        face.table_data(ttf_parser::Tag::from_bytes(b"CFF "))
-    } else {
-        None
+    // Leitura directa do cabeçalho SFNT:
+    // Offset 4–5: numTables (u16 big-endian)
+    // Tabelas: a partir do offset 12, cada entrada é 16 bytes:
+    //   [0–3] tag (4 bytes), [4–7] checksum, [8–11] offset, [12–15] length
+    if font_data.len() < 12 {
+        return None;
     }
+    let n_tables = u16::from_be_bytes([font_data[4], font_data[5]]) as usize;
+    for i in 0..n_tables {
+        let entry_off = 12 + i * 16;
+        if entry_off + 16 > font_data.len() {
+            break;
+        }
+        let tag = &font_data[entry_off..entry_off + 4];
+        if tag == b"CFF " {
+            let offset = u32::from_be_bytes([
+                font_data[entry_off + 8],
+                font_data[entry_off + 9],
+                font_data[entry_off + 10],
+                font_data[entry_off + 11],
+            ]) as usize;
+            let length = u32::from_be_bytes([
+                font_data[entry_off + 12],
+                font_data[entry_off + 13],
+                font_data[entry_off + 14],
+                font_data[entry_off + 15],
+            ]) as usize;
+            if offset + length <= font_data.len() {
+                return Some(&font_data[offset..offset + length]);
+            }
+        }
+    }
+    None
 }
 
 /// **P772u** — detecta fontes CFF2 (`CFF2`, não `CFF `) — usadas por fontes
@@ -215,26 +251,46 @@ fn cff_table_data(font_data: &[u8]) -> Option<&[u8]> {
 /// `ttf_parser`/`rustybuzz`, ambos correctos e concordantes — o defeito não
 /// estava no shaping, mas no `/Subtype`/`FontFile` PDF declarado para o
 /// programa de fonte embutido). Ver `paridade-producao-p772u.md`.
-fn is_cff2_font(font_data: &[u8]) -> bool {
-    Face::parse(font_data, 0)
-        .map(|face| face.tables().cff2.is_some())
-        .unwrap_or(false)
+///
+/// **P797** — devolve `true` se os bytes da fonte SFNT contiverem tabela
+/// `CFF ` (CFF1) ou `CFF2` (CFF2/variável OpenType). Combina a detecção de
+/// ambos os formatos CFF numa única passagem sobre o directório de tabelas SFNT.
+/// Usada por `font_embedding_data` para seleccionar o modo de embutimento correcto.
+fn has_cff_or_cff2_table(font_data: &[u8]) -> bool {
+    if font_data.len() < 12 {
+        return false;
+    }
+    let n_tables = u16::from_be_bytes([font_data[4], font_data[5]]) as usize;
+    for i in 0..n_tables {
+        let entry_off = 12 + i * 16;
+        if entry_off + 4 > font_data.len() {
+            break;
+        }
+        let tag = &font_data[entry_off..entry_off + 4];
+        if tag == b"CFF " || tag == b"CFF2" {
+            return true;
+        }
+    }
+    false
 }
 
 /// P560/P772u — devolve os componentes PDF correctos e os bytes a embeber.
 ///
 /// TrueType (`glyf`) usa `/CIDFontType2` + `/FontFile2` + stream `/CIDFontType2`.
-/// CFF/OpenType (CFF1) usa `/CIDFontType0` + `/FontFile3` + stream `/CIDFontType0C`
-/// (programa CFF puro extraído). CFF2/OpenType variável usa `/CIDFontType0` +
-/// `/FontFile3` + stream `/OpenType` — não existe subtype PDF para "programa
-/// CFF2 puro"; o spec (ISO 32000-2 §9.9.4) exige o contêiner OpenType/SFNT
-/// completo para fontes CFF2, por isso `font_data` (não uma tabela extraída)
-/// é embutido tal qual.
-fn font_embedding_data(font_data: &[u8]) -> (&'static str, &'static str, &'static str, &[u8]) {
-    if let Some(cff) = cff_table_data(font_data) {
-        return ("/CIDFontType0", "/FontFile3", "CIDFontType0C", cff);
-    }
-    if is_cff2_font(font_data) {
+/// CFF/OpenType (CFF1) usa `/CIDFontType0` + `/FontFile3` + stream `/OpenType`
+/// (contêiner SFNT completo). Nota P797: embora o spec PDF §9.9.3 mencione
+/// `/CIDFontType0C` (programa CFF puro), o contêiner SFNT completo (`/OpenType`)
+/// é igualmente válido (§9.9.4) e resolve o problema de incompatibilidade entre
+/// o charset SID gerado pelo `oxifont_subset` e o modo CIDFont Identity-H — com
+/// o programa CFF puro, o viewer interpreta o CID como SID directamente, mas o
+/// subsetter usa SIDs arbitrários; com `/OpenType`, o viewer usa a cmap do SFNT
+/// para resolver CID → GID correctamente. CFF2/OpenType variável usa
+/// `/FontFile3 /OpenType` pelo mesmo motivo (sem subtipo separado no spec).
+fn font_embedding_data(
+    font_data: &[u8],
+) -> (&'static str, &'static str, &'static str, &[u8]) {
+    // CFF1 ou CFF2: ambos usam /FontFile3 /OpenType com o contêiner SFNT completo.
+    if has_cff_or_cff2_table(font_data) {
         return ("/CIDFontType0", "/FontFile3", "OpenType", font_data);
     }
     ("/CIDFontType2", "/FontFile2", "CIDFontType2", font_data)
@@ -273,10 +329,7 @@ fn font_descriptor_metrics(face: &ttf_parser::Face<'_>) -> FontDescriptorMetrics
         let typo_asc = os2.typographic_ascender();
         let typo_desc = os2.typographic_descender();
         if typo_asc != 0 || typo_desc != 0 {
-            (
-                typo_asc as f64 * scale,
-                typo_desc as f64 * scale,
-            )
+            (typo_asc as f64 * scale, typo_desc as f64 * scale)
         } else {
             (face.ascender() as f64 * scale, face.descender() as f64 * scale)
         }
@@ -290,7 +343,13 @@ fn font_descriptor_metrics(face: &ttf_parser::Face<'_>) -> FontDescriptorMetrics
         .map(|h| h as f64 * scale)
         .unwrap_or(ascent);
 
-    FontDescriptorMetrics { font_bbox, italic_angle, ascent, descent, cap_height }
+    FontDescriptorMetrics {
+        font_bbox,
+        italic_angle,
+        ascent,
+        descent,
+        cap_height,
+    }
 }
 
 // ── Builder ────────────────────────────────────────────────────────────────
@@ -334,7 +393,8 @@ impl PdfBuilder {
         additional_gids: &std::collections::BTreeSet<u16>,
     ) -> Option<FontSubset> {
         let t0 = std::time::Instant::now();
-        let result = subset_font_with_mapping(font_data, char_to_old_gid, additional_gids);
+        let result =
+            subset_font_with_mapping(font_data, char_to_old_gid, additional_gids);
         self.subset_ms += duration_ms(t0.elapsed());
         result
     }
@@ -347,7 +407,11 @@ impl PdfBuilder {
         self.objects.push((id, content));
     }
 
-    pub(super) fn build(self, doc: &PagedDocument, font_data: Option<&[u8]>) -> (Vec<u8>, f64) {
+    pub(super) fn build(
+        self,
+        doc: &PagedDocument,
+        font_data: Option<&[u8]>,
+    ) -> (Vec<u8>, f64) {
         if let Some(data) = font_data {
             if let Ok(face) = Face::parse(data, 0) {
                 return self.build_cidfont(doc, &face, data);
@@ -360,23 +424,25 @@ impl PdfBuilder {
 
     fn build_helvetica(mut self, doc: &PagedDocument) -> (Vec<u8>, f64) {
         let n = doc.pages.len().max(1);
-        let first_page   = 3usize;
+        let first_page = 3usize;
         let first_stream = first_page + n;
-        let font_f1      = first_stream + n;
-        let font_f2      = font_f1 + 1;
-        let font_f3      = font_f2 + 1;
+        let font_f1 = first_stream + n;
+        let font_f2 = font_f1 + 1;
+        let font_f3 = font_f2 + 1;
 
         // **P777** — reservar ID do perfil ICC sRGB partilhado se houver JPEGs RGB.
         let needs_icc = has_rgb_jpeg(doc);
         let icc_profile_id = if needs_icc { Some(font_f3 + 1) } else { None };
         let first_img_id = font_f3 + 1 + if needs_icc { 1 } else { 0 };
 
-        let (img_refs, ptr_to_idx, img_xobjects) = scan_all_images(doc, first_img_id, icc_profile_id);
+        let (img_refs, ptr_to_idx, img_xobjects) =
+            scan_all_images(doc, first_img_id, icc_profile_id);
 
         // P263 — Allocar IDs após imagens. Reserva n_gradients*3 + N
         // sub-functions (estimativa pessimista: N stops 16 → 15 subs por gradient).
         let first_grad_id = first_img_id + img_xobjects.len() * 2 + 100;
-        let (pat_refs, pat_ptr_to_idx, grad_objs) = scan_all_gradients(doc, first_grad_id);
+        let (pat_refs, pat_ptr_to_idx, grad_objs) =
+            scan_all_gradients(doc, first_grad_id);
         let n_grads = grad_objs.len();
         // Sub-function IDs após os 3*N gradient object IDs.
         let mut next_sub_id = first_grad_id + n_grads * 3;
@@ -385,29 +451,34 @@ impl PdfBuilder {
 
         let kids = (first_page..first_page + n)
             .map(|i| format!("{i} 0 R"))
-            .collect::<Vec<_>>().join(" ");
+            .collect::<Vec<_>>()
+            .join(" ");
         self.add(2, format!("<< /Type /Pages /Kids [{kids}] /Count {n} >>"));
 
         for (i, page) in doc.pages.iter().enumerate() {
-            let page_id   = first_page + i;
+            let page_id = first_page + i;
             let stream_id = first_stream + i;
             let w = page.width;
             let h = page.height;
 
             let xobj_res = xobject_resources_for_page(page, &ptr_to_idx, &img_refs);
-            let pat_res  = pattern_resources_for_page(page, &pat_ptr_to_idx, &pat_refs);
+            let pat_res = pattern_resources_for_page(page, &pat_ptr_to_idx, &pat_refs);
             let resources_str = format!(
                 "/Font << /F1 {font_f1} 0 R /F2 {font_f2} 0 R /F3 {font_f3} 0 R >> {xobj_res} {pat_res}"
             );
 
-            self.add(page_id, format!(
-                "<< /Type /Page /Parent 2 0 R \
+            self.add(
+                page_id,
+                format!(
+                    "<< /Type /Page /Parent 2 0 R \
                    /MediaBox [0 0 {w:.2} {h:.2}] \
                    /Contents {stream_id} 0 R \
                    /Resources << {resources_str} >> >>"
-            ));
+                ),
+            );
 
-            let ctx = PageContext::type1(&ptr_to_idx, &img_refs, &pat_ptr_to_idx, &pat_refs);
+            let ctx =
+                PageContext::type1(&ptr_to_idx, &img_refs, &pat_ptr_to_idx, &pat_refs);
             let stream_bytes = build_page_stream(page, &ctx);
             let len = stream_bytes.len();
             let mut obj = format!("<< /Length {len} >>\nstream\n").into_bytes();
@@ -416,12 +487,24 @@ impl PdfBuilder {
             self.add_bytes(stream_id, obj);
         }
 
-        self.add(font_f1, "<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica \
-                            /Encoding /WinAnsiEncoding >>".into());
-        self.add(font_f2, "<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica-Bold \
-                            /Encoding /WinAnsiEncoding >>".into());
-        self.add(font_f3, "<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica-Oblique \
-                            /Encoding /WinAnsiEncoding >>".into());
+        self.add(
+            font_f1,
+            "<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica \
+                            /Encoding /WinAnsiEncoding >>"
+                .into(),
+        );
+        self.add(
+            font_f2,
+            "<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica-Bold \
+                            /Encoding /WinAnsiEncoding >>"
+                .into(),
+        );
+        self.add(
+            font_f3,
+            "<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica-Oblique \
+                            /Encoding /WinAnsiEncoding >>"
+                .into(),
+        );
 
         // **P777** — emitir perfil ICC sRGB partilhado antes dos JPEGs RGB.
         if let Some(id) = icc_profile_id {
@@ -431,8 +514,8 @@ impl PdfBuilder {
         self.emit_image_xobjects(img_xobjects);
 
         // P263 — Emit Function/Shading/Pattern objects para gradients.
-        let page_dimensions: Vec<(f64, f64)> = doc.pages.iter()
-            .map(|p| (p.width, p.height)).collect();
+        let page_dimensions: Vec<(f64, f64)> =
+            doc.pages.iter().map(|p| (p.width, p.height)).collect();
         self.emit_gradient_objects(grad_objs, &page_dimensions, &mut next_sub_id);
 
         self.emit_link_annotations(doc);
@@ -446,15 +529,20 @@ impl PdfBuilder {
 
     // ── Caminho CIDFont (Unicode completo, Identity-H) ─────────────────────
 
-    fn build_cidfont(mut self, doc: &PagedDocument, face: &Face<'_>, font_data: &[u8]) -> (Vec<u8>, f64) {
+    fn build_cidfont(
+        mut self,
+        doc: &PagedDocument,
+        face: &Face<'_>,
+        font_data: &[u8],
+    ) -> (Vec<u8>, f64) {
         let n = doc.pages.len().max(1);
-        let first_page         = 3usize;
-        let first_stream       = first_page + n;
-        let font_id            = first_stream + n;      // Type0 — /F1
-        let cidfont_id         = font_id + 1;
+        let first_page = 3usize;
+        let first_stream = first_page + n;
+        let font_id = first_stream + n; // Type0 — /F1
+        let cidfont_id = font_id + 1;
         let font_descriptor_id = font_id + 2;
-        let font_stream_id     = font_id + 3;
-        let to_unicode_id      = font_id + 4;
+        let font_stream_id = font_id + 3;
+        let to_unicode_id = font_id + 4;
 
         // **P777** — reservar ID do perfil ICC sRGB partilhado se houver JPEGs RGB.
         let needs_icc = has_rgb_jpeg(doc);
@@ -486,8 +574,12 @@ impl PdfBuilder {
         // P520 — recolher larguras nominais (hmtx) dos glyph IDs que o shaper
         // pode usar, para calcular corretamente os deltas do operador TJ.
         let mut glyph_to_nominal: HashMap<u16, i32> = HashMap::new();
-        for &gid in collect_glyph_ids(doc).iter().chain(mappings.iter().map(|(_, gid)| gid)) {
-            let adv = face.glyph_hor_advance(ttf_parser::GlyphId(gid)).unwrap_or(0) as i32;
+        for &gid in collect_glyph_ids(doc)
+            .iter()
+            .chain(mappings.iter().map(|(_, gid)| gid))
+        {
+            let adv =
+                face.glyph_hor_advance(ttf_parser::GlyphId(gid)).unwrap_or(0) as i32;
             glyph_to_nominal.insert(gid, adv);
         }
 
@@ -554,11 +646,13 @@ impl PdfBuilder {
         let char_to_gid: HashMap<char, u16> = mappings.iter().copied().collect();
         let widths = widths_array(face_for_widths, &to_unicode_mappings);
 
-        let (img_refs, ptr_to_idx, img_xobjects) = scan_all_images(doc, first_img_id, icc_profile_id);
+        let (img_refs, ptr_to_idx, img_xobjects) =
+            scan_all_images(doc, first_img_id, icc_profile_id);
 
         // P263 — gradient pre-pass.
         let first_grad_id = first_img_id + img_xobjects.len() * 2 + 100;
-        let (pat_refs, pat_ptr_to_idx, grad_objs) = scan_all_gradients(doc, first_grad_id);
+        let (pat_refs, pat_ptr_to_idx, grad_objs) =
+            scan_all_gradients(doc, first_grad_id);
         let n_grads = grad_objs.len();
         let mut next_sub_id = first_grad_id + n_grads * 3;
 
@@ -566,29 +660,39 @@ impl PdfBuilder {
 
         let kids = (first_page..first_page + n)
             .map(|i| format!("{i} 0 R"))
-            .collect::<Vec<_>>().join(" ");
+            .collect::<Vec<_>>()
+            .join(" ");
         self.add(2, format!("<< /Type /Pages /Kids [{kids}] /Count {n} >>"));
 
         for (i, page) in doc.pages.iter().enumerate() {
-            let page_id   = first_page + i;
+            let page_id = first_page + i;
             let stream_id = first_stream + i;
             let w = page.width;
             let h = page.height;
 
             let xobj_res = xobject_resources_for_page(page, &ptr_to_idx, &img_refs);
-            let pat_res  = pattern_resources_for_page(page, &pat_ptr_to_idx, &pat_refs);
-            let resources_str = format!("/Font << /F1 {font_id} 0 R >> {xobj_res} {pat_res}");
+            let pat_res = pattern_resources_for_page(page, &pat_ptr_to_idx, &pat_refs);
+            let resources_str =
+                format!("/Font << /F1 {font_id} 0 R >> {xobj_res} {pat_res}");
 
-            self.add(page_id, format!(
-                "<< /Type /Page /Parent 2 0 R \
+            self.add(
+                page_id,
+                format!(
+                    "<< /Type /Page /Parent 2 0 R \
                    /MediaBox [0 0 {w:.2} {h:.2}] \
                    /Contents {stream_id} 0 R \
                    /Resources << {resources_str} >> >>"
-            ));
+                ),
+            );
 
             let ctx = PageContext::cidfont(
-                &ptr_to_idx, &img_refs, &pat_ptr_to_idx, &pat_refs,
-                &char_to_gid, &glyph_mapping, &glyph_to_nominal,
+                &ptr_to_idx,
+                &img_refs,
+                &pat_ptr_to_idx,
+                &pat_refs,
+                &char_to_gid,
+                &glyph_mapping,
+                &glyph_to_nominal,
             );
             let stream_bytes = build_page_stream(page, &ctx);
             let len = stream_bytes.len();
@@ -610,50 +714,65 @@ impl PdfBuilder {
             font_embedding_data(&embed_font_data);
 
         // Type0 font (F1)
-        self.add(font_id, format!(
-            "<< /Type /Font /Subtype /Type0 /BaseFont /{base_font_name} \
+        self.add(
+            font_id,
+            format!(
+                "<< /Type /Font /Subtype /Type0 /BaseFont /{base_font_name} \
                /Encoding /Identity-H \
                /DescendantFonts [{cidfont_id} 0 R] \
                /ToUnicode {to_unicode_id} 0 R >>"
-        ));
+            ),
+        );
 
         // CIDFont
-        self.add(cidfont_id, format!(
-            "<< /Type /Font /Subtype {cid_subtype} /BaseFont /{base_font_name} \
+        self.add(
+            cidfont_id,
+            format!(
+                "<< /Type /Font /Subtype {cid_subtype} /BaseFont /{base_font_name} \
                /CIDSystemInfo << /Registry (Adobe) /Ordering (Identity) /Supplement 0 >> \
                /FontDescriptor {font_descriptor_id} 0 R \
                /DW 500 \
                /W [{widths}] >>"
-        ));
+            ),
+        );
 
         // FontDescriptor — P760: métricas reais da fonte embutida em vez de
         // valores fixos genéricos.
-        let fd = subset_face.as_ref()
-            .map(font_descriptor_metrics)
-            .unwrap_or_else(|| FontDescriptorMetrics {
+        let fd = subset_face.as_ref().map(font_descriptor_metrics).unwrap_or_else(|| {
+            FontDescriptorMetrics {
                 font_bbox: [-1000.0, -200.0, 2000.0, 900.0],
                 italic_angle: 0.0,
                 ascent: 800.0,
                 descent: -200.0,
                 cap_height: 700.0,
-            });
-        self.add(font_descriptor_id, format!(
-            "<< /Type /FontDescriptor /FontName /{base_font_name} \
+            }
+        });
+        self.add(
+            font_descriptor_id,
+            format!(
+                "<< /Type /FontDescriptor /FontName /{base_font_name} \
                /Flags 32 \
                /FontBBox [{:.5} {:.5} {:.5} {:.5}] \
                /ItalicAngle {:.5} /Ascent {:.5} /Descent {:.5} \
                /CapHeight {:.5} /StemV 80 \
                {font_file_key} {font_stream_id} 0 R >>",
-            fd.font_bbox[0], fd.font_bbox[1], fd.font_bbox[2], fd.font_bbox[3],
-            fd.italic_angle, fd.ascent, fd.descent, fd.cap_height
-        ));
+                fd.font_bbox[0],
+                fd.font_bbox[1],
+                fd.font_bbox[2],
+                fd.font_bbox[3],
+                fd.italic_angle,
+                fd.ascent,
+                fd.descent,
+                fd.cap_height
+            ),
+        );
 
         // Font data stream — P516: usa subset se possível, senão fonte completa.
         // P560: stream subtype TrueType (CIDFontType2) ou CFF (CIDFontType0C).
         let font_len = font_stream_data.len();
-        let mut font_stream = format!(
-            "<< /Length {font_len} /Subtype /{stream_subtype} >>\nstream\n"
-        ).into_bytes();
+        let mut font_stream =
+            format!("<< /Length {font_len} /Subtype /{stream_subtype} >>\nstream\n")
+                .into_bytes();
         font_stream.extend_from_slice(font_stream_data);
         font_stream.extend_from_slice(b"\nendstream");
         self.add_bytes(font_stream_id, font_stream);
@@ -674,8 +793,8 @@ impl PdfBuilder {
         self.emit_image_xobjects(img_xobjects);
 
         // P263 — Emit gradient objects.
-        let page_dimensions: Vec<(f64, f64)> = doc.pages.iter()
-            .map(|p| (p.width, p.height)).collect();
+        let page_dimensions: Vec<(f64, f64)> =
+            doc.pages.iter().map(|p| (p.width, p.height)).collect();
         self.emit_gradient_objects(grad_objs, &page_dimensions, &mut next_sub_id);
 
         self.emit_link_annotations(doc);
@@ -691,21 +810,22 @@ impl PdfBuilder {
 
     pub(super) fn build_multifont(
         mut self,
-        doc:   &PagedDocument,
+        doc: &PagedDocument,
         fonts: &[((FontList, FontVariant), Vec<u8>)],
         faces: &[Face<'_>],
     ) -> (Vec<u8>, f64) {
         let n_pages = doc.pages.len().max(1);
         let n_fonts = fonts.len();
-        let first_page   = 3usize;
+        let first_page = 3usize;
         let first_stream = first_page + n_pages;
         // Cada font ocupa 5 IDs consecutivos: type0, cidfont, descriptor,
         // font_stream, to_unicode. Type0 é o "/Fn" referenciado no resource.
-        let fonts_start  = first_stream + n_pages;
+        let fonts_start = first_stream + n_pages;
 
         // **P777** — reservar ID do perfil ICC sRGB partilhado se houver JPEGs RGB.
         let needs_icc = has_rgb_jpeg(doc);
-        let icc_profile_id = if needs_icc { Some(fonts_start + 5 * n_fonts) } else { None };
+        let icc_profile_id =
+            if needs_icc { Some(fonts_start + 5 * n_fonts) } else { None };
         let first_img_id = fonts_start + 5 * n_fonts + if needs_icc { 1 } else { 0 };
 
         // Codepoints + glyph mappings por font. Cada font tem o seu
@@ -721,11 +841,14 @@ impl PdfBuilder {
         // em vez de percorrer o documento N vezes (uma por fonte).
         let shaped_cluster_texts = collect_shaped_cluster_texts(doc);
         let mut per_font_mappings: Vec<Vec<(u16, String)>> = Vec::with_capacity(n_fonts);
-        let mut per_font_char_to_gid: Vec<HashMap<char, u16>> = Vec::with_capacity(n_fonts);
+        let mut per_font_char_to_gid: Vec<HashMap<char, u16>> =
+            Vec::with_capacity(n_fonts);
         let mut per_font_widths: Vec<String> = Vec::with_capacity(n_fonts);
         let mut per_font_embed_data: Vec<Vec<u8>> = Vec::with_capacity(n_fonts);
-        let mut per_font_glyph_mapping: Vec<HashMap<u16, u16>> = Vec::with_capacity(n_fonts);
-        let mut per_font_glyph_to_nominal: Vec<HashMap<u16, i32>> = Vec::with_capacity(n_fonts);
+        let mut per_font_glyph_mapping: Vec<HashMap<u16, u16>> =
+            Vec::with_capacity(n_fonts);
+        let mut per_font_glyph_to_nominal: Vec<HashMap<u16, i32>> =
+            Vec::with_capacity(n_fonts);
         for face in faces {
             let mut mappings = map_chars_to_glyphs(face, &chars);
 
@@ -746,7 +869,8 @@ impl PdfBuilder {
             // Adicionar glifos variantes de tamanho matemático
             // (Passo 45, DEBT-9) — mesmo tratamento que `build_cidfont`.
             let glyph_reverse = build_math_glyph_reverse_map(face);
-            let existing_gids: BTreeSet<u16> = mappings.iter().map(|(_, gid)| *gid).collect();
+            let existing_gids: BTreeSet<u16> =
+                mappings.iter().map(|(_, gid)| *gid).collect();
             for &gid in &glyph_ids {
                 if !existing_gids.contains(&gid) {
                     if let Some(&c) = glyph_reverse.get(&gid) {
@@ -782,10 +906,8 @@ impl PdfBuilder {
             // `glyph_to_nominal`, abaixo).
             let mut instancing_applied = false;
             let embed_data = if !axis_vars.is_empty() {
-                let axis_tuples: Vec<(ttf_parser::Tag, f32)> = axis_vars
-                    .iter()
-                    .map(|v| (v.tag, v.value))
-                    .collect();
+                let axis_tuples: Vec<(ttf_parser::Tag, f32)> =
+                    axis_vars.iter().map(|v| (v.tag, v.value)).collect();
                 match instantiate_variable_font(&embed_data, &axis_tuples) {
                     Some(instanced) => {
                         instancing_applied = true;
@@ -830,8 +952,12 @@ impl PdfBuilder {
                         nominal_face.set_variation(v.tag, v.value);
                     }
                 }
-                for &gid in extended_glyph_ids.iter().chain(mappings.iter().map(|(_, gid)| gid)) {
-                    let adv = nominal_face.glyph_hor_advance(ttf_parser::GlyphId(gid)).unwrap_or(0) as i32;
+                for &gid in
+                    extended_glyph_ids.iter().chain(mappings.iter().map(|(_, gid)| gid))
+                {
+                    let adv = nominal_face
+                        .glyph_hor_advance(ttf_parser::GlyphId(gid))
+                        .unwrap_or(0) as i32;
                     glyph_to_nominal.insert(gid, adv);
                 }
             }
@@ -872,11 +998,13 @@ impl PdfBuilder {
             per_font_glyph_to_nominal.push(glyph_to_nominal);
         }
 
-        let (img_refs, ptr_to_idx, img_xobjects) = scan_all_images(doc, first_img_id, icc_profile_id);
+        let (img_refs, ptr_to_idx, img_xobjects) =
+            scan_all_images(doc, first_img_id, icc_profile_id);
 
         // P263 — gradient pre-pass.
         let first_grad_id = first_img_id + img_xobjects.len() * 2 + 100;
-        let (pat_refs, pat_ptr_to_idx, grad_objs) = scan_all_gradients(doc, first_grad_id);
+        let (pat_refs, pat_ptr_to_idx, grad_objs) =
+            scan_all_gradients(doc, first_grad_id);
         let n_grads = grad_objs.len();
         let mut next_sub_id = first_grad_id + n_grads * 3;
 
@@ -884,33 +1012,46 @@ impl PdfBuilder {
 
         let kids = (first_page..first_page + n_pages)
             .map(|i| format!("{i} 0 R"))
-            .collect::<Vec<_>>().join(" ");
+            .collect::<Vec<_>>()
+            .join(" ");
         self.add(2, format!("<< /Type /Pages /Kids [{kids}] /Count {n_pages} >>"));
 
         for (i, page) in doc.pages.iter().enumerate() {
-            let page_id   = first_page + i;
+            let page_id = first_page + i;
             let stream_id = first_stream + i;
             let w = page.width;
             let h = page.height;
 
             let xobj_res = xobject_resources_for_page(page, &ptr_to_idx, &img_refs);
-            let pat_res  = pattern_resources_for_page(page, &pat_ptr_to_idx, &pat_refs);
-            let font_entries = (0..n_fonts).map(|fi| {
-                let type0_id = fonts_start + 5 * fi;
-                format!("/F{} {} 0 R", fi + 1, type0_id)
-            }).collect::<Vec<_>>().join(" ");
-            let resources_str = format!("/Font << {font_entries} >> {xobj_res} {pat_res}");
+            let pat_res = pattern_resources_for_page(page, &pat_ptr_to_idx, &pat_refs);
+            let font_entries = (0..n_fonts)
+                .map(|fi| {
+                    let type0_id = fonts_start + 5 * fi;
+                    format!("/F{} {} 0 R", fi + 1, type0_id)
+                })
+                .collect::<Vec<_>>()
+                .join(" ");
+            let resources_str =
+                format!("/Font << {font_entries} >> {xobj_res} {pat_res}");
 
-            self.add(page_id, format!(
-                "<< /Type /Page /Parent 2 0 R \
+            self.add(
+                page_id,
+                format!(
+                    "<< /Type /Page /Parent 2 0 R \
                    /MediaBox [0 0 {w:.2} {h:.2}] \
                    /Contents {stream_id} 0 R \
                    /Resources << {resources_str} >> >>"
-            ));
+                ),
+            );
 
             let ctx = PageContext::multifont(
-                &ptr_to_idx, &img_refs, &pat_ptr_to_idx, &pat_refs,
-                fonts, &per_font_char_to_gid, &per_font_glyph_mapping,
+                &ptr_to_idx,
+                &img_refs,
+                &pat_ptr_to_idx,
+                &pat_refs,
+                fonts,
+                &per_font_char_to_gid,
+                &per_font_glyph_mapping,
                 &per_font_glyph_to_nominal,
             );
             let stream_bytes = build_page_stream(page, &ctx);
@@ -924,10 +1065,10 @@ impl PdfBuilder {
         // Emit objectos por font (5 cada).
         for (fi, _) in fonts.iter().enumerate() {
             let font_data = &per_font_embed_data[fi];
-            let type0_id      = fonts_start + 5 * fi;
-            let cidfont_id    = type0_id + 1;
+            let type0_id = fonts_start + 5 * fi;
+            let cidfont_id = type0_id + 1;
             let descriptor_id = type0_id + 2;
-            let stream_id     = type0_id + 3;
+            let stream_id = type0_id + 3;
             let to_unicode_id = type0_id + 4;
             let widths = &per_font_widths[fi];
             let mappings = &per_font_mappings[fi];
@@ -944,12 +1085,15 @@ impl PdfBuilder {
                 font_embedding_data(font_data);
 
             // Type0
-            self.add(type0_id, format!(
-                "<< /Type /Font /Subtype /Type0 /BaseFont /{name} \
+            self.add(
+                type0_id,
+                format!(
+                    "<< /Type /Font /Subtype /Type0 /BaseFont /{name} \
                    /Encoding /Identity-H \
                    /DescendantFonts [{cidfont_id} 0 R] \
                    /ToUnicode {to_unicode_id} 0 R >>"
-            ));
+                ),
+            );
 
             // CIDFont
             self.add(cidfont_id, format!(
@@ -961,21 +1105,24 @@ impl PdfBuilder {
             ));
 
             // FontDescriptor
-            self.add(descriptor_id, format!(
-                "<< /Type /FontDescriptor /FontName /{name} \
+            self.add(
+                descriptor_id,
+                format!(
+                    "<< /Type /FontDescriptor /FontName /{name} \
                    /Flags 32 \
                    /FontBBox [-1000 -200 2000 900] \
                    /ItalicAngle 0 /Ascent 800 /Descent -200 \
                    /CapHeight 700 /StemV 80 \
                    {font_file_key} {stream_id} 0 R >>"
-            ));
+                ),
+            );
 
             // Font data stream — P516: usa subset se possível, senão fonte completa.
             // P560: stream subtype TrueType (CIDFontType2) ou CFF (CIDFontType0C).
             let font_len = font_stream_data.len();
-            let mut font_stream = format!(
-                "<< /Length {font_len} /Subtype /{stream_subtype} >>\nstream\n"
-            ).into_bytes();
+            let mut font_stream =
+                format!("<< /Length {font_len} /Subtype /{stream_subtype} >>\nstream\n")
+                    .into_bytes();
             font_stream.extend_from_slice(font_stream_data);
             font_stream.extend_from_slice(b"\nendstream");
             self.add_bytes(stream_id, font_stream);
@@ -997,8 +1144,8 @@ impl PdfBuilder {
         self.emit_image_xobjects(img_xobjects);
 
         // P263 — Emit gradient objects.
-        let page_dimensions: Vec<(f64, f64)> = doc.pages.iter()
-            .map(|p| (p.width, p.height)).collect();
+        let page_dimensions: Vec<(f64, f64)> =
+            doc.pages.iter().map(|p| (p.width, p.height)).collect();
         self.emit_gradient_objects(grad_objs, &page_dimensions, &mut next_sub_id);
 
         self.emit_link_annotations(doc);
@@ -1029,14 +1176,25 @@ impl PdfBuilder {
         next_sub_id: &mut usize,
     ) {
         for go in grad_objs {
-            let GradientObject { kind, function_id, shading_id, pattern_id, parent_bbox_at_emit } = go;
-            let (page_w, page_h) = page_dimensions.first().copied().unwrap_or((595.0, 842.0));
+            let GradientObject {
+                kind,
+                function_id,
+                shading_id,
+                pattern_id,
+                parent_bbox_at_emit,
+            } = go;
+            let (page_w, page_h) =
+                page_dimensions.first().copied().unwrap_or((595.0, 842.0));
             // P273.6 — bbox real do Layouter substitui page_bbox 3γ.1 quando
             // disponível; fallback page_bbox preserved P273.5.
             let effective_parent_bbox: (f32, f32, f32, f32) =
                 if let Some(rect) = parent_bbox_at_emit {
-                    (rect.x.0 as f32, rect.y.0 as f32,
-                     (rect.x.0 + rect.w.0) as f32, (rect.y.0 + rect.h.0) as f32)
+                    (
+                        rect.x.0 as f32,
+                        rect.y.0 as f32,
+                        (rect.x.0 + rect.w.0) as f32,
+                        (rect.y.0 + rect.h.0) as f32,
+                    )
                 } else {
                     (0.0, 0.0, page_w as f32, page_h as f32)
                 };
@@ -1045,26 +1203,32 @@ impl PdfBuilder {
                 GradientObjectKind::Linear(linear) => {
                     use typst_core::entities::layout_types::ColorSpace;
                     let (x0, y0, x1, y1) = compute_axial_coords(
-                        linear.angle.to_rad(), 0.0, 0.0, page_w, page_h);
+                        linear.angle.to_rad(),
+                        0.0,
+                        0.0,
+                        page_w,
+                        page_h,
+                    );
                     // P273.5 + P273.6 — quando relative=Parent, exercita
                     // apply_parent_transform com effective_parent_bbox:
                     // - P273.6: bbox real do Layouter (Block save/restore) quando disponível.
                     // - P273.5 fallback: page_bbox identity (gradient top-level).
                     let relative = resolve_relative(linear.relative);
-                    let (x0, y0, x1, y1) =
-                        if relative == typst_core::entities::gradient::RelativeTo::Parent {
-                            let local = (
-                                (x0 / page_w) as f32,
-                                (y0 / page_h) as f32,
-                                (x1 / page_w) as f32,
-                                (y1 / page_h) as f32,
-                            );
-                            let (tx0, ty0, tx1, ty1) =
-                                apply_parent_transform(local, Some(effective_parent_bbox));
-                            (tx0 as f64, ty0 as f64, tx1 as f64, ty1 as f64)
-                        } else {
-                            (x0, y0, x1, y1)
-                        };
+                    let (x0, y0, x1, y1) = if relative
+                        == typst_core::entities::gradient::RelativeTo::Parent
+                    {
+                        let local = (
+                            (x0 / page_w) as f32,
+                            (y0 / page_h) as f32,
+                            (x1 / page_w) as f32,
+                            (y1 / page_h) as f32,
+                        );
+                        let (tx0, ty0, tx1, ty1) =
+                            apply_parent_transform(local, Some(effective_parent_bbox));
+                        (tx0 as f64, ty0 as f64, tx1 as f64, ty1 as f64)
+                    } else {
+                        (x0, y0, x1, y1)
+                    };
                     // P270.2 — dispatcher dual CMYK vs RGB-family.
                     if linear.space == ColorSpace::Cmyk {
                         let stops_cmyk = multispace_sample_stops_linear_cmyk(linear, 16);
@@ -1074,7 +1238,11 @@ impl PdfBuilder {
                                /Function {} 0 R /Extend [false false] >>",
                             x0, y0, x1, y1, function_id,
                         );
-                        let (func_dict, sub_objs) = emit_function_dict_cmyk(&stops_cmyk, function_id, next_sub_id);
+                        let (func_dict, sub_objs) = emit_function_dict_cmyk(
+                            &stops_cmyk,
+                            function_id,
+                            next_sub_id,
+                        );
                         for (sub_id, sub_dict) in sub_objs {
                             self.add(sub_id, sub_dict);
                         }
@@ -1092,7 +1260,8 @@ impl PdfBuilder {
                                /Function {} 0 R /Extend [false false] >>",
                             x0, y0, x1, y1, function_id,
                         );
-                        let (func_dict, sub_objs) = emit_function_dict(&stops, function_id, next_sub_id);
+                        let (func_dict, sub_objs) =
+                            emit_function_dict(&stops, function_id, next_sub_id);
                         for (sub_id, sub_dict) in sub_objs {
                             self.add(sub_id, sub_dict);
                         }
@@ -1105,25 +1274,30 @@ impl PdfBuilder {
                     // P269 — passa focal_center/focal_radius reais.
                     // Defaults (focal=center, fr=0) preservam comportamento P265.
                     let (x0, y0, r0, x1, y1, r1) = compute_radial_coords(
-                        radial.center, radial.radius,
-                        radial.focal_center, radial.focal_radius,
-                        page_w, page_h);
+                        radial.center,
+                        radial.radius,
+                        radial.focal_center,
+                        radial.focal_radius,
+                        page_w,
+                        page_h,
+                    );
                     // P273.5 + P273.6 — paridade Linear; usa effective_parent_bbox.
                     let relative = resolve_relative(radial.relative);
-                    let (x0, y0, x1, y1) =
-                        if relative == typst_core::entities::gradient::RelativeTo::Parent {
-                            let local = (
-                                (x0 / page_w) as f32,
-                                (y0 / page_h) as f32,
-                                (x1 / page_w) as f32,
-                                (y1 / page_h) as f32,
-                            );
-                            let (tx0, ty0, tx1, ty1) =
-                                apply_parent_transform(local, Some(effective_parent_bbox));
-                            (tx0 as f64, ty0 as f64, tx1 as f64, ty1 as f64)
-                        } else {
-                            (x0, y0, x1, y1)
-                        };
+                    let (x0, y0, x1, y1) = if relative
+                        == typst_core::entities::gradient::RelativeTo::Parent
+                    {
+                        let local = (
+                            (x0 / page_w) as f32,
+                            (y0 / page_h) as f32,
+                            (x1 / page_w) as f32,
+                            (y1 / page_h) as f32,
+                        );
+                        let (tx0, ty0, tx1, ty1) =
+                            apply_parent_transform(local, Some(effective_parent_bbox));
+                        (tx0 as f64, ty0 as f64, tx1 as f64, ty1 as f64)
+                    } else {
+                        (x0, y0, x1, y1)
+                    };
                     // P270.2 — dispatcher dual CMYK vs RGB-family.
                     if radial.space == ColorSpace::Cmyk {
                         let stops_cmyk = multispace_sample_stops_radial_cmyk(radial, 16);
@@ -1133,7 +1307,11 @@ impl PdfBuilder {
                                /Function {} 0 R /Extend [true true] >>",
                             x0, y0, r0, x1, y1, r1, function_id,
                         );
-                        let (func_dict, sub_objs) = emit_function_dict_cmyk(&stops_cmyk, function_id, next_sub_id);
+                        let (func_dict, sub_objs) = emit_function_dict_cmyk(
+                            &stops_cmyk,
+                            function_id,
+                            next_sub_id,
+                        );
                         for (sub_id, sub_dict) in sub_objs {
                             self.add(sub_id, sub_dict);
                         }
@@ -1149,7 +1327,8 @@ impl PdfBuilder {
                                /Function {} 0 R /Extend [true true] >>",
                             x0, y0, r0, x1, y1, r1, function_id,
                         );
-                        let (func_dict, sub_objs) = emit_function_dict(&stops, function_id, next_sub_id);
+                        let (func_dict, sub_objs) =
+                            emit_function_dict(&stops, function_id, next_sub_id);
                         for (sub_id, sub_dict) in sub_objs {
                             self.add(sub_id, sub_dict);
                         }
@@ -1165,16 +1344,22 @@ impl PdfBuilder {
                     let (stream, colorspace, decode_array, c0, c1) =
                         if conic.space == ColorSpace::Cmyk {
                             // P270.4 — Type 6 Coons CMYK (preserved literal).
-                            (emit_conic_coons_stream_cmyk(conic),
-                             "/DeviceCMYK",
-                             "[0 1 0 1 0 1 0 1 0 1 0 1]",
-                             "[0 0 0 0]", "[1 1 1 1]")
+                            (
+                                emit_conic_coons_stream_cmyk(conic),
+                                "/DeviceCMYK",
+                                "[0 1 0 1 0 1 0 1 0 1 0 1]",
+                                "[0 0 0 0]",
+                                "[1 1 1 1]",
+                            )
                         } else {
                             // P272 — Type 6 Coons RGB (N=stops*4 patches).
-                            (emit_conic_coons_stream_rgb(conic),
-                             "/DeviceRGB",
-                             "[0 1 0 1 0 1 0 1 0 1]",
-                             "[0 0 0]", "[1 1 1]")
+                            (
+                                emit_conic_coons_stream_rgb(conic),
+                                "/DeviceRGB",
+                                "[0 1 0 1 0 1 0 1 0 1]",
+                                "[0 0 0]",
+                                "[1 1 1]",
+                            )
                         };
                     let len = stream.len();
                     let header = format!(
@@ -1190,10 +1375,13 @@ impl PdfBuilder {
                     shading_bytes.extend_from_slice(b"\nendstream");
                     // Type 6 Coons não usa Function dict (cores nos corner colors
                     // do stream). Function vazio preserva numbering.
-                    self.add(function_id, format!(
-                        "<< /FunctionType 2 /Domain [0 1] /C0 {} /C1 {} /N 1 >>",
-                        c0, c1,
-                    ));
+                    self.add(
+                        function_id,
+                        format!(
+                            "<< /FunctionType 2 /Domain [0 1] /C0 {} /C1 {} /N 1 >>",
+                            c0, c1,
+                        ),
+                    );
                     self.add_bytes(shading_id, shading_bytes);
                 }
             };
@@ -1211,14 +1399,25 @@ impl PdfBuilder {
             match xobj {
                 ImageXObject::Jpeg { data, main_obj_id, iw, ih, icc_profile_id } => {
                     let cs = jpeg_color_space(&data);
-                    self.add_bytes(main_obj_id, build_jpeg_xobject(&data, iw, ih, cs, icc_profile_id));
+                    self.add_bytes(
+                        main_obj_id,
+                        build_jpeg_xobject(&data, iw, ih, cs, icc_profile_id),
+                    );
                 }
                 ImageXObject::Png { payload, main_obj_id, smask_obj_id } => {
                     // Emitir /SMask antes do XObject principal.
-                    if let (Some(smask_id), Some(alpha)) = (smask_obj_id, &payload.alpha_data_compressed) {
-                        self.add_bytes(smask_id, build_png_smask_xobject(payload.width, payload.height, alpha));
+                    if let (Some(smask_id), Some(alpha)) =
+                        (smask_obj_id, &payload.alpha_data_compressed)
+                    {
+                        self.add_bytes(
+                            smask_id,
+                            build_png_smask_xobject(payload.width, payload.height, alpha),
+                        );
                     }
-                    self.add_bytes(main_obj_id, build_png_rgb_xobject(&payload, smask_obj_id));
+                    self.add_bytes(
+                        main_obj_id,
+                        build_png_rgb_xobject(&payload, smask_obj_id),
+                    );
                 }
             }
         }
@@ -1235,7 +1434,8 @@ impl PdfBuilder {
         let mut next_id = self.objects.iter().map(|(id, _)| *id).max().unwrap_or(0) + 1;
 
         // Coletar links por página (coordenadas globais de página).
-        let mut per_page: Vec<Vec<(LinkTarget, Point, Size)>> = Vec::with_capacity(doc.pages.len());
+        let mut per_page: Vec<Vec<(LinkTarget, Point, Size)>> =
+            Vec::with_capacity(doc.pages.len());
         for page in &doc.pages {
             let mut links = Vec::new();
             collect_links(&page.items, &mut links);
@@ -1265,12 +1465,15 @@ impl PdfBuilder {
                     }
                 };
 
-                self.add(annot_id, format!(
-                    "<< /Type /Annot /Subtype /Link \
+                self.add(
+                    annot_id,
+                    format!(
+                        "<< /Type /Annot /Subtype /Link \
                        /Rect [{x0:.2} {y0:.2} {x1:.2} {y1:.2}] \
                        /Border [0 0 0] \
                        /A {action} >>"
-                ));
+                    ),
+                );
                 page_annotation_ids[page_idx].push(annot_id);
             }
         }
@@ -1281,11 +1484,11 @@ impl PdfBuilder {
                 continue;
             }
             let page_id = FIRST_PAGE_ID + page_idx;
-            let refs = ids.iter()
-                .map(|id| format!("{id} 0 R"))
-                .collect::<Vec<_>>()
-                .join(" ");
-            if let Some((_, content)) = self.objects.iter_mut().find(|(id, _)| *id == page_id) {
+            let refs =
+                ids.iter().map(|id| format!("{id} 0 R")).collect::<Vec<_>>().join(" ");
+            if let Some((_, content)) =
+                self.objects.iter_mut().find(|(id, _)| *id == page_id)
+            {
                 let s = String::from_utf8_lossy(content);
                 if let Some(idx) = s.rfind(">>") {
                     let mut new = s[..idx].to_string();
@@ -1312,7 +1515,11 @@ impl PdfBuilder {
         // Juntar labels comuns a label_pages e label_positions.
         let mut entries: Vec<(EcoString, usize, Point)> = Vec::new();
         for (label, &page) in &doc.extracted_label_pages {
-            let pos = doc.extracted_label_positions.get(label).copied().unwrap_or(Point::ZERO);
+            let pos = doc
+                .extracted_label_positions
+                .get(label)
+                .copied()
+                .unwrap_or(Point::ZERO);
             entries.push((label.0.clone().into(), page, pos));
         }
         // Ordenar por nome de label para garantir output PDF determinístico
@@ -1342,7 +1549,10 @@ impl PdfBuilder {
             let escaped_name = escape_pdf_dest_name(&name);
             dests_dict.push_str(&format!(
                 "{} [{} /XYZ {:.2} {:.2} null] ",
-                escaped_name, page_ref, pos.x.val(), pdf_y
+                escaped_name,
+                page_ref,
+                pos.x.val(),
+                pdf_y
             ));
         }
         dests_dict.push_str(">>");
@@ -1376,16 +1586,16 @@ impl PdfBuilder {
         }
 
         struct Node {
-            id:          usize,
-            title:       String,
-            page_ref:    String,
-            x:           f64,
-            y:           f64,
-            parent:      Option<usize>,
-            prev:        Option<usize>,
-            next:        Option<usize>,
+            id: usize,
+            title: String,
+            page_ref: String,
+            x: f64,
+            y: f64,
+            parent: Option<usize>,
+            prev: Option<usize>,
+            next: Option<usize>,
             first_child: Option<usize>,
-            last_child:  Option<usize>,
+            last_child: Option<usize>,
             child_count: usize,
         }
 
@@ -1394,7 +1604,11 @@ impl PdfBuilder {
 
         for (label, _number, body, level) in &doc.extracted_headings {
             let page = doc.extracted_label_pages.get(label).copied().unwrap_or(1);
-            let pos = doc.extracted_label_positions.get(label).copied().unwrap_or(Point::ZERO);
+            let pos = doc
+                .extracted_label_positions
+                .get(label)
+                .copied()
+                .unwrap_or(Point::ZERO);
             let page_idx = page.saturating_sub(1);
             let page_ref = if page_idx < doc.pages.len() {
                 format!("{} 0 R", FIRST_PAGE_ID + page_idx)
@@ -1420,16 +1634,16 @@ impl PdfBuilder {
             };
 
             nodes.push(Node {
-                id:          0, // preenchido depois
+                id: 0, // preenchido depois
                 title,
                 page_ref,
-                x:           pos.x.val(),
-                y:           pdf_y,
+                x: pos.x.val(),
+                y: pdf_y,
                 parent,
                 prev,
-                next:        None,
+                next: None,
                 first_child: None,
-                last_child:  None,
+                last_child: None,
                 child_count: 0,
             });
 
@@ -1459,7 +1673,8 @@ impl PdfBuilder {
         // Emitir cada item de outline.
         for node in &nodes {
             let title_hex = utf16be_hex_string(&node.title);
-            let parent_ref = node.parent
+            let parent_ref = node
+                .parent
                 .map(|p| format!("{} 0 R", nodes[p].id))
                 .unwrap_or_else(|| format!("{root_id} 0 R"));
             let mut dict = format!(
@@ -1487,8 +1702,10 @@ impl PdfBuilder {
             self.add(node.id, dict);
         }
 
-        let first_top = nodes.iter().find(|n| n.parent.is_none()).map(|n| n.id).unwrap_or(0);
-        let last_top = nodes.iter().rfind(|n| n.parent.is_none()).map(|n| n.id).unwrap_or(0);
+        let first_top =
+            nodes.iter().find(|n| n.parent.is_none()).map(|n| n.id).unwrap_or(0);
+        let last_top =
+            nodes.iter().rfind(|n| n.parent.is_none()).map(|n| n.id).unwrap_or(0);
         // P602 — /Count na raiz é o número de bookmarks de topo (sem pai),
         // positivo (abertos por defeito).
         let top_count = nodes.iter().filter(|n| n.parent.is_none()).count();
@@ -1535,8 +1752,8 @@ impl PdfBuilder {
             now.minute(),
             now.second()
         );
-        parts.push(format!("/CreationDate ({})" , date));
-        parts.push(format!("/ModDate ({})" , date));
+        parts.push(format!("/CreationDate ({})", date));
+        parts.push(format!("/ModDate ({})", date));
         parts.push("/Creator (typst-crystalline)".to_string());
 
         let next_id = self.objects.iter().map(|(id, _)| *id).max().unwrap_or(0) + 1;
@@ -1575,19 +1792,20 @@ impl PdfBuilder {
             .document_info
             .keywords
             .as_ref()
-            .map(|k| format!(
-                "<pdf:Keywords>{}</pdf:Keywords>",
-                escape_xml_text(k.as_str())
-            ))
+            .map(|k| {
+                format!("<pdf:Keywords>{}</pdf:Keywords>", escape_xml_text(k.as_str()))
+            })
             .unwrap_or_default();
         let creator_elem = doc
             .document_info
             .author
             .as_ref()
-            .map(|a| format!(
-                "<dc:creator><rdf:Seq><rdf:li>{}</rdf:li></rdf:Seq></dc:creator>",
-                escape_xml_text(a.as_str())
-            ))
+            .map(|a| {
+                format!(
+                    "<dc:creator><rdf:Seq><rdf:li>{}</rdf:li></rdf:Seq></dc:creator>",
+                    escape_xml_text(a.as_str())
+                )
+            })
             .unwrap_or_default();
 
         // Identificadores (16 bytes em base64).
@@ -1631,10 +1849,9 @@ impl PdfBuilder {
 
         let next_id = self.objects.iter().map(|(id, _)| *id).max().unwrap_or(0) + 1;
         let len = xml.len();
-        let mut obj = format!(
-            "<< /Length {len} /Type /Metadata /Subtype /XML >>\nstream\n"
-        )
-        .into_bytes();
+        let mut obj =
+            format!("<< /Length {len} /Type /Metadata /Subtype /XML >>\nstream\n")
+                .into_bytes();
         obj.extend_from_slice(xml.as_bytes());
         obj.extend_from_slice(b"\nendstream");
         self.add_bytes(next_id, obj);
@@ -1676,14 +1893,17 @@ impl PdfBuilder {
         }
 
         // Trailer
-        let info_ref = self
-            .info_id
-            .map(|id| format!(" /Info {id} 0 R"))
-            .unwrap_or_default();
-        out.extend_from_slice(format!(
-            "trailer\n<< /Size {} /Root 1 0 R{} >>\nstartxref\n{}\n%%EOF\n",
-            max_id + 1, info_ref, xref_start
-        ).as_bytes());
+        let info_ref =
+            self.info_id.map(|id| format!(" /Info {id} 0 R")).unwrap_or_default();
+        out.extend_from_slice(
+            format!(
+                "trailer\n<< /Size {} /Root 1 0 R{} >>\nstartxref\n{}\n%%EOF\n",
+                max_id + 1,
+                info_ref,
+                xref_start
+            )
+            .as_bytes(),
+        );
 
         out
     }
@@ -1773,4 +1993,3 @@ fn collect_links(items: &[FrameItem], out: &mut Vec<(LinkTarget, Point, Size)>) 
         }
     }
 }
-
